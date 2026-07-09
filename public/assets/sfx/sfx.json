@@ -1,0 +1,19 @@
+{
+  "resources": [
+    "sfx.ogg?v=1744365363176",
+    "sfx.mp3?v=1744365363176"
+  ],
+  "spritemap": {
+    "silence": {
+      "start": 0,
+      "end": 0.2,
+      "loop": true
+    },
+    "click": {
+      "start": 1.2,
+      "end": 2.08,
+      "loop": false
+    }
+  },
+  "autoplay": "silence"
+}

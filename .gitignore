@@ -1,0 +1,25 @@
+# Node stuff
+node_modules/
+
+# Build output
+dist/
+
+# Local dev config
+.env
+.env.*
+
+# OS-specific
+.DS_Store
+Thumbs.db
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Editor folders
+.vscode/
+.idea/
+
+# Optional: TexturePacker cache
+*.tpscache
