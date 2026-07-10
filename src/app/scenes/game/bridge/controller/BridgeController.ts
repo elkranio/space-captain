@@ -1,28 +1,38 @@
 // src\app\scenes\game\bridge\controller\BridgeController.ts
-
+import { GAME_RUNTIME } from '../../../../runtime/GameRuntime';
 import type BridgeScene from '../BridgeScene';
+import { BRIDGE_EVENT } from '../events/bridge_event';
+import BridgeEventBus from '../events/BridgeEventBus';
 import BridgeView from '../view/BridgeView';
 
 export default class BridgeController {
+    private readonly eventBus = new BridgeEventBus();
+
     private view?: BridgeView;
 
     constructor(private readonly scene: BridgeScene) {}
 
     public prepare(): void {
-        this.view = new BridgeView(this.scene);
+        this.view = new BridgeView(this.scene, this.eventBus);
         this.view.prepare();
+
+        this.loadState();
     }
 
     public step(deltaMs: number): void {
-        // Later:
-        // const events = this.engine.tick(deltaMs);
-        // this.handleDomainEvents(events);
-
         void deltaMs;
     }
 
     public destroy(): void {
         this.view?.destroy();
         this.view = undefined;
+
+        this.eventBus.destroy();
+    }
+
+    private loadState(): void {
+        const game = GAME_RUNTIME.getCurrentGame();
+
+        this.eventBus.emit(BRIDGE_EVENT.CREW_LOADED, game.officers);
     }
 }

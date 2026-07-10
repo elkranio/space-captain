@@ -1,18 +1,22 @@
 // src\app\scenes\game\bridge\view\BridgeView.ts
 
 import type BridgeScene from '../BridgeScene';
-import BridgeInteriorView from './interior/BridgeInteriorView';
+import type BridgeEventBus from '../events/BridgeEventBus';
 import BridgeCrewView from './crew/BridgeCrewView';
+import BridgeInteriorView from './interior/BridgeInteriorView';
 
 export default class BridgeView {
     private interiorView?: BridgeInteriorView;
     private crewView?: BridgeCrewView;
 
-    constructor(private readonly scene: BridgeScene) {}
+    constructor(
+        private readonly scene: BridgeScene,
+        private readonly eventBus: BridgeEventBus,
+    ) {}
 
     public prepare(): void {
         this.interiorView = new BridgeInteriorView(this.scene);
-        this.crewView = new BridgeCrewView(this.scene);
+        this.crewView = new BridgeCrewView(this.scene, this.eventBus);
     }
 
     public destroy(): void {

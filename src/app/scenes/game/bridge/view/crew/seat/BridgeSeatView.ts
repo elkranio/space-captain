@@ -1,5 +1,6 @@
 // src\app\scenes\game\bridge\view\crew\seat\BridgeSeatView.ts
 
+import type { OfficerDefinition, OfficerRole } from '../../../../../../../engine/defs/officer';
 import {
     OFFICER_STATION_FRAME,
     OFFICER_STATION_FRAME_MANIFEST,
@@ -8,11 +9,15 @@ import type BridgeScene from '../../../BridgeScene';
 import BridgeSeatLabelView from './label/BridgeSeatLabelView';
 import BridgeSeatPortraitView from './portrait/BridgeSeatPortraitView';
 
+const EMPTY_ROLE = 'EMPTY';
+
 export default class BridgeSeatView {
     private readonly root: Phaser.GameObjects.Container;
     private readonly frame: Phaser.GameObjects.Image;
     private readonly portrait: BridgeSeatPortraitView;
     private readonly label: BridgeSeatLabelView;
+
+    private role: OfficerRole | null = null;
 
     constructor(
         private readonly scene: BridgeScene,
@@ -35,7 +40,21 @@ export default class BridgeSeatView {
             this.shouldFlipPortrait(position),
         );
 
-        this.label = new BridgeSeatLabelView(this.scene, this.root, this.getLabelY(), 'EMPTY');
+        this.label = new BridgeSeatLabelView(this.scene, this.root, this.getLabelY(), EMPTY_ROLE);
+    }
+
+    public setRole(role: OfficerRole): void {
+        this.role = role;
+    }
+
+    public clearRole(): void {
+        this.role = null;
+    }
+
+    public setOfficer(officer: OfficerDefinition): void {
+        this.role = officer.role;
+        this.label.setText(officer.role.toUpperCase());
+        this.portrait.setPortrait(officer.portrait);
     }
 
     public destroy(): void {
@@ -46,6 +65,7 @@ export default class BridgeSeatView {
 
     private shouldFlipPortrait(position: Phaser.Math.Vector2): boolean {
         const screenCenterX = this.scene.cameras.main.centerX;
+
         return position.x > screenCenterX;
     }
 
