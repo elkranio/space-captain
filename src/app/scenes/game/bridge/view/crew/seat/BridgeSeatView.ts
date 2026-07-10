@@ -8,8 +8,6 @@ import type BridgeScene from '../../../BridgeScene';
 import BridgeSeatLabelView from './label/BridgeSeatLabelView';
 import BridgeSeatPortraitView from './portrait/BridgeSeatPortraitView';
 
-const SCREEN_CENTER_X = 640;
-
 export default class BridgeSeatView {
     private readonly root: Phaser.GameObjects.Container;
     private readonly frame: Phaser.GameObjects.Image;
@@ -47,7 +45,8 @@ export default class BridgeSeatView {
     }
 
     private shouldFlipPortrait(position: Phaser.Math.Vector2): boolean {
-        return position.x > SCREEN_CENTER_X;
+        const screenCenterX = this.scene.cameras.main.centerX;
+        return position.x > screenCenterX;
     }
 
     private getPortraitBottomY(): number {

@@ -1,9 +1,7 @@
 // src\app\scenes\game\bridge\view\crew\seat\label\BridgeSeatLabelView.ts
-import type BridgeScene from '../../../../BridgeScene';
 
-const FONT_KEY = 'pixel_operator' as const;
-const FONT_SIZE = 18;
-const TEXT_TINT = 0xd7e6ff;
+import { FONT_COLOR, FONT_FAMILY, FONT_SIZE } from '../../../../../../../theme/font';
+import type BridgeScene from '../../../../BridgeScene';
 
 export default class BridgeSeatLabelView {
     private readonly text: Phaser.GameObjects.BitmapText;
@@ -14,7 +12,10 @@ export default class BridgeSeatLabelView {
         y: number,
         text: string,
     ) {
-        this.text = this.scene.add.bitmapText(0, y, FONT_KEY, text, FONT_SIZE).setOrigin(0.5, 0.5).setTint(TEXT_TINT);
+        this.text = this.scene.add
+            .bitmapText(0, y, FONT_FAMILY.PIXEL_OPERATOR, text, FONT_SIZE.PX_18)
+            .setOrigin(0.5, 0.5)
+            .setTint(FONT_COLOR.PRIMARY);
 
         parent.add(this.text);
     }
