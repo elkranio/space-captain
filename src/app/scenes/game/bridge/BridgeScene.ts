@@ -3,13 +3,20 @@
 import BaseScene from '../../BaseScene';
 import LayerManager from '../../../../system/LayerManager';
 import { SCENE_KEY } from '../../scene_key';
+import BridgeController from './controller/BridgeController';
 
-const layers = ['bg', 'ui'] as const;
+const layers = ['bg', 'bridge', 'ui'] as const;
 type LayerKeys = (typeof layers)[number];
 
 export default class BridgeScene extends BaseScene<LayerKeys> {
+    private controller?: BridgeController;
+
     constructor() {
         super(SCENE_KEY.BRIDGE);
+    }
+
+    public update(_time: number, delta: number): void {
+        this.controller?.step(delta);
     }
 
     protected createLayerManager(): LayerManager<LayerKeys> {
@@ -17,6 +24,12 @@ export default class BridgeScene extends BaseScene<LayerKeys> {
     }
 
     protected start(): void {
-        console.log('Bridge scene started');
+        this.controller = new BridgeController(this);
+        this.controller.prepare();
+
+        this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+            this.controller?.destroy();
+            this.controller = undefined;
+        });
     }
 }
