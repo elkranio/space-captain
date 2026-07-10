@@ -1,9 +1,13 @@
 // src\app\manifests\officers\officer_portrait.ts
-
 import { OFFICER_PORTRAIT, type OfficerPortrait } from '../../../engine/defs/officer';
 import { DEFAULT_ATLAS_KEY, type SpriteEntry } from '../types';
 
 export const OFFICER_PORTRAIT_MANIFEST = {
+    [OFFICER_PORTRAIT.SILHOUETTE_00]: {
+        atlasKey: DEFAULT_ATLAS_KEY,
+        frameKey: 'officers/silhouette_00',
+    },
+
     [OFFICER_PORTRAIT.COMMS_HUMAN_00]: {
         atlasKey: DEFAULT_ATLAS_KEY,
         frameKey: 'officers/comms/human_00_calm',

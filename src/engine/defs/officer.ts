@@ -10,6 +10,8 @@ export const OFFICER_ROLE = {
 export type OfficerRole = (typeof OFFICER_ROLE)[keyof typeof OFFICER_ROLE];
 
 export const OFFICER_PORTRAIT = {
+    SILHOUETTE_00: 'silhouette_00',
+
     COMMS_HUMAN_00: 'comms_human_00',
     COMMS_ALIEN_00: 'comms_alien_00',
 
