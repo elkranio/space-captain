@@ -5,13 +5,16 @@ import {
     OFFICER_STATION_FRAME_MANIFEST,
 } from '../../../../../../manifests/bridge/officer_station';
 import type BridgeScene from '../../../BridgeScene';
+import BridgeSeatLabelView from './label/BridgeSeatLabelView';
+import BridgeSeatPortraitView from './portrait/BridgeSeatPortraitView';
 
-const FONT_KEY = 'pixel_operator' as const;
+const SCREEN_CENTER_X = 640;
 
 export default class BridgeSeatView {
     private readonly root: Phaser.GameObjects.Container;
     private readonly frame: Phaser.GameObjects.Image;
-    private readonly label: Phaser.GameObjects.BitmapText;
+    private readonly portrait: BridgeSeatPortraitView;
+    private readonly label: BridgeSeatLabelView;
 
     constructor(
         private readonly scene: BridgeScene,
@@ -27,16 +30,28 @@ export default class BridgeSeatView {
 
         this.root.add(this.frame);
 
-        this.label = this.scene.add
-            .bitmapText(0, this.getLabelY(), FONT_KEY, 'EMPTY', 18)
-            .setOrigin(0.5, 0.5)
-            .setTint(0xd7e6ff);
+        this.portrait = new BridgeSeatPortraitView(
+            this.scene,
+            this.root,
+            this.getPortraitBottomY(),
+            this.shouldFlipPortrait(position),
+        );
 
-        this.root.add(this.label);
+        this.label = new BridgeSeatLabelView(this.scene, this.root, this.getLabelY(), 'EMPTY');
     }
 
     public destroy(): void {
+        this.label.destroy();
+        this.portrait.destroy();
         this.root.destroy(true);
+    }
+
+    private shouldFlipPortrait(position: Phaser.Math.Vector2): boolean {
+        return position.x > SCREEN_CENTER_X;
+    }
+
+    private getPortraitBottomY(): number {
+        return this.frame.height * 0.5 - 48;
     }
 
     private getLabelY(): number {
