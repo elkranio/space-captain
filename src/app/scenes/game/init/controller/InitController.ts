@@ -1,6 +1,6 @@
 // src\app\scenes\game\init\controller\InitController.ts
 
-import { NEW_GAME } from '../../../../../engine/content/new_game';
+import { GAME_RUNTIME } from '../../../../runtime/GameRuntime';
 import { GAME_LOCATION, type GameLocation } from '../../../../../engine/defs/game_location';
 import { SCENE_KEY, type SceneKey } from '../../../scene_key';
 import type InitScene from '../InitScene';
@@ -8,8 +8,10 @@ import type InitScene from '../InitScene';
 export default class InitController {
     constructor(private readonly scene: InitScene) {}
 
-    start(): void {
-        const nextSceneKey = this.getSceneKeyByGameLocation(NEW_GAME.game_location);
+    public start(): void {
+        const game = GAME_RUNTIME.getCurrentGame();
+        const nextSceneKey = this.getSceneKeyByGameLocation(game.game_location);
+
         this.scene.scene.start(nextSceneKey);
     }
 
@@ -17,7 +19,6 @@ export default class InitController {
         switch (gameLocation) {
             case GAME_LOCATION.BRIDGE:
                 return SCENE_KEY.BRIDGE;
-
             default:
                 return this.assertNever(gameLocation);
         }
