@@ -10,10 +10,7 @@ export default class InitController {
 
     start(): void {
         const nextSceneKey = this.getSceneKeyByGameLocation(NEW_GAME.game_location);
-
-        this.scene.scene.start(nextSceneKey, {
-            game: NEW_GAME,
-        });
+        this.scene.scene.start(nextSceneKey);
     }
 
     private getSceneKeyByGameLocation(gameLocation: GameLocation): SceneKey {
