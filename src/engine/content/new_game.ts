@@ -14,31 +14,31 @@ export const NEW_GAME = {
         [OFFICER_ROLE.COMMS]: {
             role: OFFICER_ROLE.COMMS,
             name: 'Pip Voxley',
-            portrait: OFFICER_PORTRAIT_ID.COMMS_HUMAN_00,
+            portraitId: OFFICER_PORTRAIT_ID.COMMS_HUMAN_00,
         },
 
         [OFFICER_ROLE.SCIENCE]: {
             role: OFFICER_ROLE.SCIENCE,
             name: 'Dr. Zella Quark',
-            portrait: OFFICER_PORTRAIT_ID.SCIENCE_ALIEN_00,
+            portraitId: OFFICER_PORTRAIT_ID.SCIENCE_ALIEN_00,
         },
 
         [OFFICER_ROLE.HELM]: {
             role: OFFICER_ROLE.HELM,
             name: 'Dash Nulligan',
-            portrait: OFFICER_PORTRAIT_ID.HELM_HUMAN_00,
+            portraitId: OFFICER_PORTRAIT_ID.HELM_HUMAN_00,
         },
 
         [OFFICER_ROLE.WEAPONS]: {
             role: OFFICER_ROLE.WEAPONS,
             name: 'Buck Varnish',
-            portrait: OFFICER_PORTRAIT_ID.WEAPONS_ALIEN_00,
+            portraitId: OFFICER_PORTRAIT_ID.WEAPONS_ALIEN_00,
         },
 
         [OFFICER_ROLE.ENGINEER]: {
             role: OFFICER_ROLE.ENGINEER,
             name: 'Mira Wrenchly',
-            portrait: OFFICER_PORTRAIT_ID.ENGINEER_HUMAN_00,
+            portraitId: OFFICER_PORTRAIT_ID.ENGINEER_HUMAN_00,
         },
     },
 } satisfies NewGameDefinition;

@@ -16,5 +16,5 @@ export type ShipSpriteId = (typeof SHIP_SPRITE_ID)[keyof typeof SHIP_SPRITE_ID];
 export type ShipDefinition = {
     id: ShipId;
     name: string;
-    sprite: ShipSpriteId;
+    spriteId: ShipSpriteId;
 };

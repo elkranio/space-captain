@@ -54,7 +54,7 @@ export default class BridgeSeatView {
     public setOfficer(officer: OfficerDefinition): void {
         this.role = officer.role;
         this.label.setText(officer.role.toUpperCase());
-        this.portrait.setPortrait(officer.portrait);
+        this.portrait.setPortrait(officer.portraitId);
     }
 
     public destroy(): void {

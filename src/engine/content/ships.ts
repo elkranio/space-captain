@@ -5,6 +5,6 @@ export const SHIPS = {
     [SHIP_ID.KRELBOID_PIRATE_00]: {
         id: SHIP_ID.KRELBOID_PIRATE_00,
         name: 'Krelboid Toll Pirate',
-        sprite: SHIP_SPRITE_ID.KRELBOID_PIRATE_00,
+        spriteId: SHIP_SPRITE_ID.KRELBOID_PIRATE_00,
     },
 } satisfies Record<ShipId, ShipDefinition>;

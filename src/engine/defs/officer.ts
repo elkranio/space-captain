@@ -34,5 +34,5 @@ export type OfficerPortraitId = (typeof OFFICER_PORTRAIT_ID)[keyof typeof OFFICE
 export type OfficerDefinition = {
     role: OfficerRole;
     name: string;
-    portrait: OfficerPortraitId;
+    portraitId: OfficerPortraitId;
 };
