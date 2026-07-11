@@ -10,7 +10,8 @@
         "dev": "npm run copy:live && vite",
         "build": "npm run copy:live && vite build",
         "preview": "vite preview",
-        "deploy": "npm run build && node -r dotenv/config deploy/deploy.js"
+        "deploy": "npm run build && node -r dotenv/config deploy/deploy.js",
+        "typecheck": "tsc --noEmit"
     },
     "keywords": [],
     "author": "",

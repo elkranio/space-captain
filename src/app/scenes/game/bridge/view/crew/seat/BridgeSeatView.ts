@@ -2,8 +2,8 @@
 
 import type { OfficerDefinition, OfficerRole } from '../../../../../../../engine/defs/officer';
 import {
-    OFFICER_STATION_FRAME,
-    OFFICER_STATION_FRAME_MANIFEST,
+    OFFICER_STATION_FRAME_ID,
+    OFFICER_STATION_FRAME_SPRITES,
 } from '../../../../../../manifests/bridge/officer_station';
 import type BridgeScene from '../../../BridgeScene';
 import BridgeSeatLabelView from './label/BridgeSeatLabelView';
@@ -27,7 +27,7 @@ export default class BridgeSeatView {
         this.root = this.scene.add.container(position.x, position.y);
         parent.add(this.root);
 
-        const frameAsset = OFFICER_STATION_FRAME_MANIFEST[OFFICER_STATION_FRAME.EMPTY];
+        const frameAsset = OFFICER_STATION_FRAME_SPRITES[OFFICER_STATION_FRAME_ID.EMPTY];
 
         this.frame = this.scene.add.image(0, 0, frameAsset.atlasKey, frameAsset.frameKey).setOrigin(0.5, 0.5);
 

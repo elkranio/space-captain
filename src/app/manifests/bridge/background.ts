@@ -2,15 +2,15 @@
 
 import { DEFAULT_ATLAS_KEY, type SpriteEntry } from '../types';
 
-export const BRIDGE_BACKGROUND = {
+export const BRIDGE_BACKGROUND_ID = {
     SPACE_GENERIC: 'space_generic',
 } as const;
 
-export type BridgeBackground = (typeof BRIDGE_BACKGROUND)[keyof typeof BRIDGE_BACKGROUND];
+export type BridgeBackgroundId = (typeof BRIDGE_BACKGROUND_ID)[keyof typeof BRIDGE_BACKGROUND_ID];
 
-export const BRIDGE_BACKGROUND_MANIFEST = {
-    [BRIDGE_BACKGROUND.SPACE_GENERIC]: {
+export const BRIDGE_BACKGROUND_SPRITES = {
+    [BRIDGE_BACKGROUND_ID.SPACE_GENERIC]: {
         atlasKey: DEFAULT_ATLAS_KEY,
         frameKey: 'bridge/backgrounds/space_generic',
     },
-} satisfies Record<BridgeBackground, SpriteEntry>;
+} satisfies Record<BridgeBackgroundId, SpriteEntry>;

@@ -1,4 +1,5 @@
 // src\engine\defs\officer.ts
+
 export const OFFICER_ROLE = {
     COMMS: 'comms',
     SCIENCE: 'science',
@@ -9,7 +10,7 @@ export const OFFICER_ROLE = {
 
 export type OfficerRole = (typeof OFFICER_ROLE)[keyof typeof OFFICER_ROLE];
 
-export const OFFICER_PORTRAIT = {
+export const OFFICER_PORTRAIT_ID = {
     SILHOUETTE_00: 'silhouette_00',
 
     COMMS_HUMAN_00: 'comms_human_00',
@@ -28,10 +29,10 @@ export const OFFICER_PORTRAIT = {
     ENGINEER_ALIEN_00: 'engineer_alien_00',
 } as const;
 
-export type OfficerPortrait = (typeof OFFICER_PORTRAIT)[keyof typeof OFFICER_PORTRAIT];
+export type OfficerPortraitId = (typeof OFFICER_PORTRAIT_ID)[keyof typeof OFFICER_PORTRAIT_ID];
 
 export type OfficerDefinition = {
     role: OfficerRole;
     name: string;
-    portrait: OfficerPortrait;
+    portrait: OfficerPortraitId;
 };
