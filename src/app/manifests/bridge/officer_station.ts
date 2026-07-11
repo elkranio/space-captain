@@ -1,4 +1,4 @@
-// src\app\manifests\bridge\officer_station.ts
+// src/app/manifests/bridge/officer_station.ts
 
 import { DEFAULT_ATLAS_KEY, type SpriteEntry } from '../types';
 

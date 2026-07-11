@@ -1,4 +1,4 @@
-// src\engine\content\ships.ts
+// src/engine/content/ships.ts
 import { SHIP_ID, SHIP_SPRITE_ID, type ShipDefinition, type ShipId } from '../defs/ship';
 
 export const SHIPS = {

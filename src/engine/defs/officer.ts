@@ -1,4 +1,4 @@
-// src\engine\defs\officer.ts
+// src/engine/defs/officer.ts
 
 export const OFFICER_ROLE = {
     COMMS: 'comms',

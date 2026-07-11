@@ -1,4 +1,4 @@
-// src\app\scenes\game\bridge\view\crew\seat\BridgeSeatView.ts
+// src/app/scenes/game/bridge/view/crew/seat/BridgeSeatView.ts
 
 import type { OfficerDefinition, OfficerRole } from '../../../../../../../engine/defs/officer';
 import {

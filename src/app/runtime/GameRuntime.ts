@@ -1,4 +1,4 @@
-// src\app\runtime\GameRuntime.ts
+// src/app/runtime/GameRuntime.ts
 
 import { NEW_GAME, type NewGameDefinition } from '../../engine/content/new_game';
 

@@ -1,4 +1,4 @@
-// src\engine\defs\game_location.ts
+// src/engine/defs/game_location.ts
 
 export const GAME_LOCATION = {
     BRIDGE: 'bridge',

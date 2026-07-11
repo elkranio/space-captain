@@ -1,4 +1,4 @@
-// src\engine\defs\ship.ts
+// src/engine/defs/ship.ts
 
 export const SHIP_ID = {
     KRELBOID_PIRATE_00: 'krelboid_pirate_00',
