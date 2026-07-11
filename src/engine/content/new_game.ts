@@ -20,7 +20,7 @@ export const NEW_GAME = {
         [OFFICER_ROLE.SCIENCE]: {
             role: OFFICER_ROLE.SCIENCE,
             name: 'Dr. Zella Quark',
-            portrait: OFFICER_PORTRAIT.SCIENCE_HUMAN_00,
+            portrait: OFFICER_PORTRAIT.SCIENCE_ALIEN_00,
         },
 
         [OFFICER_ROLE.HELM]: {
@@ -32,7 +32,7 @@ export const NEW_GAME = {
         [OFFICER_ROLE.WEAPONS]: {
             role: OFFICER_ROLE.WEAPONS,
             name: 'Buck Varnish',
-            portrait: OFFICER_PORTRAIT.WEAPONS_HUMAN_00,
+            portrait: OFFICER_PORTRAIT.WEAPONS_ALIEN_00,
         },
 
         [OFFICER_ROLE.ENGINEER]: {
