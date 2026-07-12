@@ -1,4 +1,4 @@
-// src/engine/content/new_game.ts
+// src\engine\content\new_game.ts
 
 import { GAME_LOCATION, type GameLocation } from '../defs/game_location';
 import { OFFICER_PORTRAIT_ID, OFFICER_ROLE, type OfficerDefinition, type OfficerRole } from '../defs/officer';
