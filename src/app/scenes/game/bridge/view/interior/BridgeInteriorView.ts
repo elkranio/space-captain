@@ -1,6 +1,6 @@
 // src\app\scenes\game\bridge\view\interior\BridgeInteriorView.ts
 
-import { BRIDGE_BACKGROUND_ID, BRIDGE_BACKGROUND_SPRITES } from '../../../../../manifests/bridge/background';
+import { BRIDGE_INTERIOR_ID, BRIDGE_INTERIOR_SPRITES } from '../../../../../manifests/bridge/interior';
 import type BridgeScene from '../../BridgeScene';
 
 export default class BridgeInteriorView {
@@ -9,9 +9,9 @@ export default class BridgeInteriorView {
 
     constructor(private readonly scene: BridgeScene) {
         this.root = this.scene.add.container(0, 0);
-        this.scene.layers.get('bg').add(this.root);
+        this.scene.layers.get('bridge').add(this.root);
 
-        const background = BRIDGE_BACKGROUND_SPRITES[BRIDGE_BACKGROUND_ID.SPACE_GENERIC];
+        const background = BRIDGE_INTERIOR_SPRITES[BRIDGE_INTERIOR_ID.GENERIC];
 
         this.backgroundImage = this.scene.add.image(0, 0, background.atlasKey, background.frameKey).setOrigin(0, 0);
 
