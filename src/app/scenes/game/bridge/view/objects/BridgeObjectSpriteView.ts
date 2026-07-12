@@ -27,7 +27,6 @@ export default class BridgeObjectSpriteView {
         const point = getBridgeViewscreenPoint(state.position);
 
         this.root.setPosition(point.x, point.y);
-        this.root.setScale(state.scale);
 
         this.sprite.setTexture(state.sprite.atlasKey, state.sprite.frameKey);
     }

@@ -41,14 +41,13 @@ export default class BridgeController {
     }
 
     private loadEncounter(): void {
-        const station = StationGenerator.generateStation(SPECIES_ID.HUMAN);
+        const station = StationGenerator.generateStation(SPECIES_ID.ALIEN);
 
         this.eventBus.emit(BRIDGE_EVENT.ENCOUNTER_OBJECTS_SYNCED, [
             {
                 id: station.id,
                 sprite: STATION_SPRITES[station.spriteId],
                 position: new Phaser.Math.Vector2(0.1, -0.05),
-                scale: 1,
             },
         ]);
     }

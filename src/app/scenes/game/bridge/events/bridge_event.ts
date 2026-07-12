@@ -13,7 +13,6 @@ export type BridgeEncounterObjectViewState = {
     id: string;
     sprite: SpriteEntry;
     position: Phaser.Math.Vector2;
-    scale: number;
 };
 
 export type BridgeEventPayloadMap = {
