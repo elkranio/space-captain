@@ -25,13 +25,30 @@ export default class BridgeObjectSpriteView {
 
     public update(state: BridgeEncounterObjectViewState): void {
         const point = getBridgeViewscreenPoint(state.position);
-
         this.root.setPosition(point.x, point.y);
-
         this.sprite.setTexture(state.sprite.atlasKey, state.sprite.frameKey);
     }
 
     public destroy(): void {
         this.root.destroy(true);
+    }
+
+    public prepareForArrival(): void {
+        this.root.setVisible(false);
+        this.root.setScale(0);
+    }
+
+    public showForArrival(): void {
+        this.root.setVisible(true);
+        this.root.setScale(0);
+    }
+
+    public setArrivalScale(scale: number): void {
+        this.root.setScale(scale);
+    }
+
+    public showNormal(): void {
+        this.root.setVisible(true);
+        this.root.setScale(1);
     }
 }

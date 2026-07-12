@@ -16,17 +16,25 @@ export default class BridgeController {
     private view?: BridgeView;
     private encounterEngine?: EncounterEngine;
 
+    private isEncounterActive = false;
+
     constructor(private readonly scene: BridgeScene) {}
 
     public prepare(): void {
         this.view = new BridgeView(this.scene, this.eventBus);
         this.view.prepare();
 
+        this.eventBus.on(BRIDGE_EVENT.ENCOUNTER_ARRIVAL_COMPLETED, this.handleEncounterArrivalCompleted, this);
+
         this.loadState();
         this.loadEncounter();
     }
 
     public step(deltaMs: number): void {
+        if (!this.isEncounterActive) {
+            return;
+        }
+
         void deltaMs;
 
         // Later:
@@ -40,6 +48,7 @@ export default class BridgeController {
 
         this.encounterEngine = undefined;
 
+        this.eventBus.off(BRIDGE_EVENT.ENCOUNTER_ARRIVAL_COMPLETED, this.handleEncounterArrivalCompleted, this);
         this.eventBus.destroy();
     }
 
@@ -76,13 +85,19 @@ export default class BridgeController {
     }
 
     private handleEncounterLoaded(state: EncounterState): void {
-        this.eventBus.emit(
-            BRIDGE_EVENT.ENCOUNTER_OBJECTS_SYNCED,
-            state.objects.map((object) => ({
-                id: object.id,
-                sprite: STATION_SPRITES[object.station.spriteId],
-                position: new Phaser.Math.Vector2(object.position.x, object.position.y),
-            })),
-        );
+        const objects = state.objects.map((object) => ({
+            id: object.id,
+            sprite: STATION_SPRITES[object.station.spriteId],
+            position: new Phaser.Math.Vector2(object.position.x, object.position.y),
+        }));
+
+        this.isEncounterActive = false;
+
+        this.eventBus.emit(BRIDGE_EVENT.ENCOUNTER_OBJECTS_PREPARED, objects);
+        this.eventBus.emit(BRIDGE_EVENT.ENCOUNTER_ARRIVAL_STARTED, undefined);
+    }
+
+    private handleEncounterArrivalCompleted(): void {
+        this.isEncounterActive = true;
     }
 }
