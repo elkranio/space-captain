@@ -1,4 +1,4 @@
-// src\app\scenes\game\bridge\view\crew\seat\label\BridgeSeatLabelView.ts
+// src/app/scenes/game/bridge/view/crew/seat/label/BridgeSeatLabelView.ts
 
 import { FONT_COLOR, FONT_FAMILY, FONT_SIZE } from '../../../../../../../theme/font';
 import type BridgeScene from '../../../../BridgeScene';
@@ -13,7 +13,7 @@ export default class BridgeSeatLabelView {
         text: string,
     ) {
         this.text = this.scene.add
-            .bitmapText(0, y, FONT_FAMILY.PIXEL_OPERATOR, text, FONT_SIZE.PX_18)
+            .bitmapText(0, y, FONT_FAMILY.VGA_8X14, text, FONT_SIZE.PX_16)
             .setOrigin(0.5, 0.5)
             .setTint(FONT_COLOR.PRIMARY);
 

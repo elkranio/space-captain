@@ -35,9 +35,9 @@ export default class BridgeOfficerContextMenuItemView {
             .bitmapText(
                 OFFICER_CONTEXT_MENU_LAYOUT.item.labelX,
                 OFFICER_CONTEXT_MENU_LAYOUT.item.labelY,
-                FONT_FAMILY.PIXEL_OPERATOR,
-                `> ${label}`,
-                FONT_SIZE.PX_18,
+                FONT_FAMILY.VGA_8X14,
+                `> ${label.toUpperCase()}`,
+                FONT_SIZE.PX_16,
             )
             .setTint(FONT_COLOR.WHITE);
 

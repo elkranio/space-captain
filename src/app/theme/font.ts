@@ -1,11 +1,11 @@
-// src\app\theme\font.ts
+// src/app/theme/font.ts
 
 export const FONT_FAMILY = {
-    PIXEL_OPERATOR: 'pixel_operator',
+    VGA_8X14: 'vga_8x14',
 } as const;
 
 export const FONT_SIZE = {
-    PX_18: 18,
+    PX_16: 16,
 } as const;
 
 export const FONT_COLOR = {

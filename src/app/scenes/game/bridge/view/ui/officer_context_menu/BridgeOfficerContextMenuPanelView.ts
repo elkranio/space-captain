@@ -62,9 +62,9 @@ export default class BridgeOfficerContextMenuPanelView {
             .bitmapText(
                 OFFICER_CONTEXT_MENU_LAYOUT.header.labelCenterX,
                 OFFICER_CONTEXT_MENU_LAYOUT.header.labelCenterY,
-                FONT_FAMILY.PIXEL_OPERATOR,
+                FONT_FAMILY.VGA_8X14,
                 title,
-                FONT_SIZE.PX_18,
+                FONT_SIZE.PX_16,
             )
             .setOrigin(0.5, 0.5)
             .setTint(FONT_COLOR.PRIMARY);

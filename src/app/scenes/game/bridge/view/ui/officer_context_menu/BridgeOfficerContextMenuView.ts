@@ -102,9 +102,9 @@ export default class BridgeOfficerContextMenuView {
             .bitmapText(
                 OFFICER_CONTEXT_MENU_LAYOUT.groupLabel.x,
                 y,
-                FONT_FAMILY.PIXEL_OPERATOR,
+                FONT_FAMILY.VGA_8X14,
                 label.toUpperCase(),
-                FONT_SIZE.PX_18,
+                FONT_SIZE.PX_16,
             )
             .setTint(FONT_COLOR.PRIMARY);
     }
