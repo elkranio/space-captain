@@ -5,8 +5,9 @@ import { SPECIES_ID } from '../defs/species';
 import StationGenerator from '../generation/station/StationGenerator';
 import { ENCOUNTER_EVENT, type EncounterEvent } from './encounter_event';
 import type { EncounterState } from './encounter_state';
-import { ENCOUNTER_OFFICER_COMMAND_ID } from './encounter_command';
-import { ENCOUNTER_OBJECT_KIND } from './objects/encounter_object';
+import { OFFICER_ROLE, type OfficerRole } from '../defs/officer';
+import { ENCOUNTER_OFFICER_COMMAND_ID, type EncounterOfficerCommand } from './encounter_command';
+import { ENCOUNTER_OBJECT_KIND, type EncounterObjectState } from './objects/encounter_object';
 
 export default class EncounterEngine {
     private readonly state: EncounterState;
@@ -47,5 +48,47 @@ export default class EncounterEngine {
                 },
             ],
         };
+    }
+
+    public requestOfficerCommands(role: OfficerRole): void {
+        this.outbox.push({
+            type: ENCOUNTER_EVENT.OFFICER_COMMANDS_READY,
+            role,
+            commands: this.getOfficerCommands(role),
+        });
+    }
+
+    private getOfficerCommands(role: OfficerRole): EncounterOfficerCommand[] {
+        const commands: EncounterOfficerCommand[] = [];
+
+        for (const object of this.state.objects) {
+            commands.push(...this.getOfficerCommandsForObject(role, object));
+        }
+
+        return commands;
+    }
+
+    private getOfficerCommandsForObject(role: OfficerRole, object: EncounterObjectState): EncounterOfficerCommand[] {
+        if (role !== OFFICER_ROLE.COMMS) {
+            return [];
+        }
+
+        if (!object.supportedCommandIds.includes(ENCOUNTER_OFFICER_COMMAND_ID.HAIL)) {
+            return [];
+        }
+
+        switch (object.kind) {
+            case ENCOUNTER_OBJECT_KIND.STATION:
+                return [
+                    {
+                        commandId: ENCOUNTER_OFFICER_COMMAND_ID.HAIL,
+                        label: `Hail ${object.station.name}`,
+                        targetId: object.id,
+                    },
+                ];
+
+            default:
+                throw new Error(`Unhandled encounter object kind: ${String(object.kind)}`);
+        }
     }
 }
