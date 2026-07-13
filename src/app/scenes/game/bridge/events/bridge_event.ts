@@ -1,4 +1,4 @@
-// src\app\scenes\game\bridge\events\bridge_event.ts
+// src/app/scenes/game/bridge/events/bridge_event.ts
 
 import type { OfficerDefinition, OfficerRole } from '../../../../../engine/defs/officer';
 import type { SpriteEntry } from '../../../../manifests/types';
@@ -29,9 +29,14 @@ export type BridgeOfficerCommandMenuItemViewState = {
     targetId?: string;
 };
 
+export type BridgeOfficerCommandMenuGroupViewState = {
+    label: string;
+    items: BridgeOfficerCommandMenuItemViewState[];
+};
+
 export type BridgeOfficerCommandMenuViewState = {
     role: OfficerRole;
-    items: BridgeOfficerCommandMenuItemViewState[];
+    groups: BridgeOfficerCommandMenuGroupViewState[];
 };
 
 export type BridgeEventPayloadMap = {

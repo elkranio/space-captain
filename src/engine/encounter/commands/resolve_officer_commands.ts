@@ -1,4 +1,4 @@
-// src\engine\encounter\commands\resolve_officer_commands.ts
+// src/engine/encounter/commands/resolve_officer_commands.ts
 
 import type { OfficerRole } from '../../defs/officer';
 import {
@@ -22,6 +22,7 @@ export function resolveOfficerCommands(state: EncounterState, role: OfficerRole)
                 commandId: objectCommand.commandId,
                 label: getCommandLabel(objectCommand.commandId, object),
                 targetId: object.id,
+                targetLabel: object.displayName,
             });
         }
     }

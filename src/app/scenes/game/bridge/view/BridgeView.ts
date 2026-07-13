@@ -1,4 +1,4 @@
-// src\app\scenes\game\bridge\view\BridgeView.ts
+// src/app/scenes/game/bridge/view/BridgeView.ts
 
 import type BridgeScene from '../BridgeScene';
 import type BridgeEventBus from '../events/BridgeEventBus';
@@ -7,6 +7,7 @@ import BridgeInteriorView from './interior/BridgeInteriorView';
 import BridgeSpaceBackgroundView from './space/BridgeSpaceBackgroundView';
 import BridgeObjectsView from './objects/BridgeObjectsView';
 import BridgeVfxView from './vfx/BridgeVfxView';
+import BridgeUiView from './ui/BridgeUiView';
 
 export default class BridgeView {
     private interiorView?: BridgeInteriorView;
@@ -14,6 +15,7 @@ export default class BridgeView {
     private spaceBackgroundView?: BridgeSpaceBackgroundView;
     private objectsView?: BridgeObjectsView;
     private vfxView?: BridgeVfxView;
+    private uiView?: BridgeUiView;
 
     constructor(
         private readonly scene: BridgeScene,
@@ -26,15 +28,18 @@ export default class BridgeView {
         this.vfxView = new BridgeVfxView(this.scene, this.eventBus);
         this.interiorView = new BridgeInteriorView(this.scene);
         this.crewView = new BridgeCrewView(this.scene, this.eventBus);
+        this.uiView = new BridgeUiView(this.scene, this.eventBus);
     }
 
     public destroy(): void {
+        this.uiView?.destroy();
         this.crewView?.destroy();
         this.interiorView?.destroy();
         this.vfxView?.destroy();
         this.objectsView?.destroy();
         this.spaceBackgroundView?.destroy();
 
+        this.uiView = undefined;
         this.crewView = undefined;
         this.interiorView = undefined;
         this.vfxView = undefined;

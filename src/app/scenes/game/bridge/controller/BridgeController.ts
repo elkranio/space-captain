@@ -1,4 +1,4 @@
-// src\app\scenes\game\bridge\controller\BridgeController.ts
+// src/app/scenes/game/bridge/controller/BridgeController.ts
 
 import type { OfficerRole } from '../../../../../engine/defs/officer';
 import EncounterEngine from '../../../../../engine/encounter/EncounterEngine';
@@ -9,7 +9,7 @@ import { ENCOUNTER_OBJECT_KIND } from '../../../../../engine/encounter/objects/e
 import { GAME_RUNTIME } from '../../../../runtime/GameRuntime';
 import { STATION_SPRITES } from '../../../../manifests/stations/station_sprite';
 import type BridgeScene from '../BridgeScene';
-import { BRIDGE_EVENT } from '../events/bridge_event';
+import { BRIDGE_EVENT, type BridgeOfficerCommandMenuGroupViewState } from '../events/bridge_event';
 import BridgeEventBus from '../events/BridgeEventBus';
 import BridgeView from '../view/BridgeView';
 
@@ -105,10 +105,13 @@ export default class BridgeController {
             }
         });
 
-        this.isEncounterActive = false;
+        // this.isEncounterActive = false;
 
-        this.eventBus.emit(BRIDGE_EVENT.ENCOUNTER_OBJECTS_PREPARED, objects);
-        this.eventBus.emit(BRIDGE_EVENT.ENCOUNTER_ARRIVAL_STARTED, undefined);
+        // this.eventBus.emit(BRIDGE_EVENT.ENCOUNTER_OBJECTS_PREPARED, objects);
+        // this.eventBus.emit(BRIDGE_EVENT.ENCOUNTER_ARRIVAL_STARTED, undefined);
+
+        this.eventBus.emit(BRIDGE_EVENT.ENCOUNTER_OBJECTS_SYNCED, objects);
+        this.isEncounterActive = true;
     }
 
     private handleOfficerSeatClicked(payload: { role: OfficerRole }): void {
@@ -125,15 +128,37 @@ export default class BridgeController {
     }
 
     private handleOfficerCommandsReady(role: OfficerRole, commands: EncounterOfficerCommand[]): void {
-        console.log(role, commands);
         this.eventBus.emit(BRIDGE_EVENT.OFFICER_COMMAND_MENU_SYNCED, {
             role,
-            items: commands.map((command) => ({
+            groups: this.getOfficerCommandMenuGroups(commands),
+        });
+    }
+
+    private getOfficerCommandMenuGroups(commands: EncounterOfficerCommand[]): BridgeOfficerCommandMenuGroupViewState[] {
+        const groups: BridgeOfficerCommandMenuGroupViewState[] = [];
+
+        for (const command of commands) {
+            const groupLabel = command.targetLabel ?? 'GENERAL';
+
+            let group = groups.find((item) => item.label === groupLabel);
+
+            if (!group) {
+                group = {
+                    label: groupLabel,
+                    items: [],
+                };
+
+                groups.push(group);
+            }
+
+            group.items.push({
                 commandId: command.commandId,
                 label: command.label,
                 targetId: command.targetId,
-            })),
-        });
+            });
+        }
+
+        return groups;
     }
 
     private handleEncounterArrivalCompleted(): void {

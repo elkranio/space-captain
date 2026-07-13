@@ -1,11 +1,11 @@
-// src\app\scenes\game\bridge\BridgeScene.ts
+// src/app/scenes/game/bridge/BridgeScene.ts
 
 import BaseScene from '../../BaseScene';
 import LayerManager from '../../../../system/LayerManager';
 import { SCENE_KEY } from '../../scene_key';
 import BridgeController from './controller/BridgeController';
 
-const layers = ['space', 'objects', 'vfx', 'bridge'] as const;
+const layers = ['space', 'objects', 'vfx', 'bridge', 'ui'] as const;
 type LayerKeys = (typeof layers)[number];
 
 export default class BridgeScene extends BaseScene<LayerKeys> {

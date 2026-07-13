@@ -1,7 +1,7 @@
 {
   "textures": [
     {
-      "image": "atlas-0.png?v=1783959410916",
+      "image": "atlas-0.png?v=1783960650480",
       "format": "RGBA8888",
       "size": {
         "w": 2035,
@@ -136,7 +136,7 @@
           }
         },
         {
-          "filename": "bridge/ui/officer_context_menu/command_hower",
+          "filename": "bridge/ui/officer_context_menu/command_row",
           "rotated": false,
           "trimmed": false,
           "sourceSize": {
@@ -157,7 +157,7 @@
           }
         },
         {
-          "filename": "bridge/ui/officer_context_menu/command_row",
+          "filename": "bridge/ui/officer_context_menu/command_row_hover",
           "rotated": false,
           "trimmed": false,
           "sourceSize": {
@@ -666,6 +666,6 @@
   "meta": {
     "app": "https://www.codeandweb.com/texturepacker",
     "version": "3.0",
-    "smartupdate": "$TexturePacker:SmartUpdate:afb2d0874a014a926ea743d0da6c6156:5324764ac6cb5cbcc56cf8d76a8e50d5:cf935fe037ea9b5d3744d532996e235e$"
+    "smartupdate": "$TexturePacker:SmartUpdate:e542bce5ac9e6862daebbac23f6c481f:5324764ac6cb5cbcc56cf8d76a8e50d5:cf935fe037ea9b5d3744d532996e235e$"
   }
 }

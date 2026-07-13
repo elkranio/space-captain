@@ -1,3 +1,4 @@
+// src/config/gameConfig.ts
 // import 'phaser/plugins/spine/dist/SpinePlugin'; // old version
 import 'phaser/plugins/spine4.1/dist/SpinePlugin';
 
@@ -14,7 +15,7 @@ const gameConfig: Phaser.Types.Core.GameConfig = {
     parent: 'game-container',
 
     // Canvas rendering details
-    pixelArt: false,
+    pixelArt: true,
     transparent: false,
 
     // Scale mode

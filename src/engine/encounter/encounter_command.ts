@@ -1,4 +1,4 @@
-// src\engine\encounter\encounter_command.ts
+// src/engine/encounter/encounter_command.ts
 
 export const ENCOUNTER_OFFICER_COMMAND_ID = {
     HAIL: 'hail',
@@ -11,4 +11,5 @@ export type EncounterOfficerCommand = {
     commandId: EncounterOfficerCommandId;
     label: string;
     targetId?: string;
+    targetLabel?: string;
 };
