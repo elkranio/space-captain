@@ -11,4 +11,5 @@ export const FONT_SIZE = {
 export const FONT_COLOR = {
     WHITE: 0xffffff,
     PRIMARY: 0xd7e6ff,
+    SECONDARY: 0x8fb5d6,
 } as const;

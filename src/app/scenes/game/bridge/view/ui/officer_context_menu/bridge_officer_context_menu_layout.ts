@@ -25,7 +25,7 @@ export const OFFICER_CONTEXT_MENU_LAYOUT = {
         x: 32,
         height: 20,
         marginTop: 10,
-        marginBottom: 6,
+        marginBottom: 2,
     },
 
     item: {
@@ -35,7 +35,7 @@ export const OFFICER_CONTEXT_MENU_LAYOUT = {
         gap: 5,
 
         labelX: 12,
-        labelY: 4,
+        labelY: 8,
     },
 } as const;
 

@@ -106,7 +106,7 @@ export default class BridgeOfficerContextMenuView {
                 label.toUpperCase(),
                 FONT_SIZE.PX_16,
             )
-            .setTint(FONT_COLOR.PRIMARY);
+            .setTint(FONT_COLOR.SECONDARY);
     }
 
     private getItemCount(menu: BridgeOfficerCommandMenuViewState): number {
