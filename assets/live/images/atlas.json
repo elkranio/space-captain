@@ -1,11 +1,11 @@
 {
   "textures": [
     {
-      "image": "atlas-0.png?v=1783863845858",
+      "image": "atlas-0.png?v=1783959410916",
       "format": "RGBA8888",
       "size": {
         "w": 2035,
-        "h": 1035
+        "h": 1053
       },
       "scale": 1,
       "frames": [
@@ -73,27 +73,6 @@
           }
         },
         {
-          "filename": "stations/human_small_01",
-          "rotated": false,
-          "trimmed": true,
-          "sourceSize": {
-            "w": 454,
-            "h": 319
-          },
-          "spriteSourceSize": {
-            "x": 0,
-            "y": 0,
-            "w": 453,
-            "h": 319
-          },
-          "frame": {
-            "x": 1283,
-            "y": 322,
-            "w": 453,
-            "h": 319
-          }
-        },
-        {
           "filename": "stations/alien_small_01",
           "rotated": false,
           "trimmed": false,
@@ -115,24 +94,24 @@
           }
         },
         {
-          "filename": "ships/unknown_00",
+          "filename": "stations/human_small_01",
           "rotated": false,
-          "trimmed": false,
+          "trimmed": true,
           "sourceSize": {
-            "w": 400,
-            "h": 175
+            "w": 454,
+            "h": 319
           },
           "spriteSourceSize": {
             "x": 0,
             "y": 0,
-            "w": 400,
-            "h": 175
+            "w": 453,
+            "h": 319
           },
           "frame": {
-            "x": 843,
-            "y": 723,
-            "w": 400,
-            "h": 175
+            "x": 1283,
+            "y": 322,
+            "w": 453,
+            "h": 319
           }
         },
         {
@@ -150,10 +129,73 @@
             "h": 318
           },
           "frame": {
-            "x": 1283,
-            "y": 643,
+            "x": 843,
+            "y": 723,
             "w": 408,
             "h": 318
+          }
+        },
+        {
+          "filename": "bridge/ui/officer_context_menu/command_hower",
+          "rotated": false,
+          "trimmed": false,
+          "sourceSize": {
+            "w": 323,
+            "h": 27
+          },
+          "spriteSourceSize": {
+            "x": 0,
+            "y": 0,
+            "w": 323,
+            "h": 27
+          },
+          "frame": {
+            "x": 1,
+            "y": 1025,
+            "w": 323,
+            "h": 27
+          }
+        },
+        {
+          "filename": "bridge/ui/officer_context_menu/command_row",
+          "rotated": false,
+          "trimmed": false,
+          "sourceSize": {
+            "w": 323,
+            "h": 27
+          },
+          "spriteSourceSize": {
+            "x": 0,
+            "y": 0,
+            "w": 323,
+            "h": 27
+          },
+          "frame": {
+            "x": 326,
+            "y": 1025,
+            "w": 323,
+            "h": 27
+          }
+        },
+        {
+          "filename": "ships/unknown_00",
+          "rotated": false,
+          "trimmed": false,
+          "sourceSize": {
+            "w": 400,
+            "h": 175
+          },
+          "spriteSourceSize": {
+            "x": 0,
+            "y": 0,
+            "w": 400,
+            "h": 175
+          },
+          "frame": {
+            "x": 1283,
+            "y": 643,
+            "w": 400,
+            "h": 175
           }
         },
         {
@@ -175,6 +217,69 @@
             "y": 322,
             "w": 266,
             "h": 175
+          }
+        },
+        {
+          "filename": "bridge/ui/officer_context_menu/panel_top",
+          "rotated": false,
+          "trimmed": false,
+          "sourceSize": {
+            "w": 376,
+            "h": 50
+          },
+          "spriteSourceSize": {
+            "x": 0,
+            "y": 0,
+            "w": 376,
+            "h": 50
+          },
+          "frame": {
+            "x": 1253,
+            "y": 820,
+            "w": 376,
+            "h": 50
+          }
+        },
+        {
+          "filename": "bridge/ui/officer_context_menu/panel_middle",
+          "rotated": false,
+          "trimmed": false,
+          "sourceSize": {
+            "w": 376,
+            "h": 32
+          },
+          "spriteSourceSize": {
+            "x": 0,
+            "y": 0,
+            "w": 376,
+            "h": 32
+          },
+          "frame": {
+            "x": 1253,
+            "y": 872,
+            "w": 376,
+            "h": 32
+          }
+        },
+        {
+          "filename": "bridge/ui/officer_context_menu/panel_bottom",
+          "rotated": false,
+          "trimmed": false,
+          "sourceSize": {
+            "w": 376,
+            "h": 28
+          },
+          "spriteSourceSize": {
+            "x": 0,
+            "y": 0,
+            "w": 376,
+            "h": 28
+          },
+          "frame": {
+            "x": 1253,
+            "y": 906,
+            "w": 376,
+            "h": 28
           }
         },
         {
@@ -213,8 +318,8 @@
             "h": 105
           },
           "frame": {
-            "x": 843,
-            "y": 900,
+            "x": 1253,
+            "y": 936,
             "w": 109,
             "h": 105
           }
@@ -234,8 +339,8 @@
             "h": 105
           },
           "frame": {
-            "x": 954,
-            "y": 900,
+            "x": 1364,
+            "y": 936,
             "w": 109,
             "h": 105
           }
@@ -255,8 +360,8 @@
             "h": 105
           },
           "frame": {
-            "x": 1065,
-            "y": 900,
+            "x": 1475,
+            "y": 936,
             "w": 106,
             "h": 105
           }
@@ -318,8 +423,8 @@
             "h": 105
           },
           "frame": {
-            "x": 1173,
-            "y": 900,
+            "x": 1685,
+            "y": 710,
             "w": 106,
             "h": 105
           }
@@ -339,7 +444,7 @@
             "h": 105
           },
           "frame": {
-            "x": 1693,
+            "x": 1793,
             "y": 710,
             "w": 105,
             "h": 105
@@ -360,8 +465,8 @@
             "h": 105
           },
           "frame": {
-            "x": 1693,
-            "y": 817,
+            "x": 1900,
+            "y": 715,
             "w": 101,
             "h": 105
           }
@@ -381,8 +486,8 @@
             "h": 105
           },
           "frame": {
-            "x": 1800,
-            "y": 710,
+            "x": 1631,
+            "y": 820,
             "w": 100,
             "h": 105
           }
@@ -402,7 +507,7 @@
             "h": 105
           },
           "frame": {
-            "x": 1796,
+            "x": 1733,
             "y": 817,
             "w": 97,
             "h": 105
@@ -423,8 +528,8 @@
             "h": 105
           },
           "frame": {
-            "x": 1902,
-            "y": 715,
+            "x": 1583,
+            "y": 936,
             "w": 96,
             "h": 105
           }
@@ -444,8 +549,8 @@
             "h": 105
           },
           "frame": {
-            "x": 1895,
-            "y": 822,
+            "x": 1681,
+            "y": 927,
             "w": 90,
             "h": 105
           }
@@ -465,10 +570,31 @@
             "h": 105
           },
           "frame": {
-            "x": 1693,
+            "x": 1773,
             "y": 924,
             "w": 86,
             "h": 105
+          }
+        },
+        {
+          "filename": "circle",
+          "rotated": false,
+          "trimmed": false,
+          "sourceSize": {
+            "w": 64,
+            "h": 64
+          },
+          "spriteSourceSize": {
+            "x": 0,
+            "y": 0,
+            "w": 64,
+            "h": 64
+          },
+          "frame": {
+            "x": 1832,
+            "y": 817,
+            "w": 64,
+            "h": 64
           }
         },
         {
@@ -486,8 +612,8 @@
             "h": 105
           },
           "frame": {
-            "x": 1781,
-            "y": 924,
+            "x": 1898,
+            "y": 822,
             "w": 84,
             "h": 105
           }
@@ -507,31 +633,10 @@
             "h": 105
           },
           "frame": {
-            "x": 1867,
+            "x": 1861,
             "y": 929,
             "w": 77,
             "h": 105
-          }
-        },
-        {
-          "filename": "circle",
-          "rotated": false,
-          "trimmed": false,
-          "sourceSize": {
-            "w": 64,
-            "h": 64
-          },
-          "spriteSourceSize": {
-            "x": 0,
-            "y": 0,
-            "w": 64,
-            "h": 64
-          },
-          "frame": {
-            "x": 1281,
-            "y": 963,
-            "w": 64,
-            "h": 64
           }
         },
         {
@@ -549,8 +654,8 @@
             "h": 32
           },
           "frame": {
-            "x": 1245,
-            "y": 723,
+            "x": 1685,
+            "y": 643,
             "w": 32,
             "h": 32
           }
@@ -561,6 +666,6 @@
   "meta": {
     "app": "https://www.codeandweb.com/texturepacker",
     "version": "3.0",
-    "smartupdate": "$TexturePacker:SmartUpdate:6ee71918987685edc4f8dcce6e377f4b:31f264654d36a34614b702500f0e2ef5:cf935fe037ea9b5d3744d532996e235e$"
+    "smartupdate": "$TexturePacker:SmartUpdate:afb2d0874a014a926ea743d0da6c6156:5324764ac6cb5cbcc56cf8d76a8e50d5:cf935fe037ea9b5d3744d532996e235e$"
   }
 }
