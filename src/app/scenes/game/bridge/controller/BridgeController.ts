@@ -3,6 +3,7 @@
 import EncounterEngine from '../../../../../engine/encounter/EncounterEngine';
 import { ENCOUNTER_EVENT, type EncounterEvent } from '../../../../../engine/encounter/encounter_event';
 import type { EncounterState } from '../../../../../engine/encounter/encounter_state';
+import { ENCOUNTER_OBJECT_KIND } from '../../../../../engine/encounter/objects/encounter_object';
 import { GAME_RUNTIME } from '../../../../runtime/GameRuntime';
 import { STATION_SPRITES } from '../../../../manifests/stations/station_sprite';
 import type BridgeScene from '../BridgeScene';
@@ -85,11 +86,19 @@ export default class BridgeController {
     }
 
     private handleEncounterLoaded(state: EncounterState): void {
-        const objects = state.objects.map((object) => ({
-            id: object.id,
-            sprite: STATION_SPRITES[object.station.spriteId],
-            position: new Phaser.Math.Vector2(object.position.x, object.position.y),
-        }));
+        const objects = state.objects.map((object) => {
+            switch (object.kind) {
+                case ENCOUNTER_OBJECT_KIND.STATION:
+                    return {
+                        id: object.id,
+                        sprite: STATION_SPRITES[object.station.spriteId],
+                        position: new Phaser.Math.Vector2(object.position.x, object.position.y),
+                    };
+
+                default:
+                    throw new Error(`Unhandled encounter object kind: ${String(object.kind)}`);
+            }
+        });
 
         this.isEncounterActive = false;
 
