@@ -2,10 +2,13 @@
 
 import type { OfficerDefinition, OfficerRole } from '../../../../../engine/defs/officer';
 import type { SpriteEntry } from '../../../../manifests/types';
+import type { EncounterOfficerCommandId } from '../../../../../engine/encounter/encounter_command';
 
 export const BRIDGE_EVENT = {
     CREW_LOADED: 'crew_loaded',
     OFFICER_SEAT_CLICKED: 'officer_seat_clicked',
+
+    OFFICER_COMMAND_MENU_SYNCED: 'officer_command_menu_synced',
 
     ENCOUNTER_OBJECTS_PREPARED: 'encounter_objects_prepared',
     ENCOUNTER_OBJECTS_SYNCED: 'encounter_objects_synced',
@@ -20,6 +23,17 @@ export type BridgeEncounterObjectViewState = {
     position: Phaser.Math.Vector2;
 };
 
+export type BridgeOfficerCommandMenuItemViewState = {
+    commandId: EncounterOfficerCommandId;
+    label: string;
+    targetId?: string;
+};
+
+export type BridgeOfficerCommandMenuViewState = {
+    role: OfficerRole;
+    items: BridgeOfficerCommandMenuItemViewState[];
+};
+
 export type BridgeEventPayloadMap = {
     [BRIDGE_EVENT.CREW_LOADED]: Record<OfficerRole, OfficerDefinition>;
     [BRIDGE_EVENT.OFFICER_SEAT_CLICKED]: {
@@ -29,4 +43,5 @@ export type BridgeEventPayloadMap = {
     [BRIDGE_EVENT.ENCOUNTER_OBJECTS_SYNCED]: BridgeEncounterObjectViewState[];
     [BRIDGE_EVENT.ENCOUNTER_ARRIVAL_STARTED]: undefined;
     [BRIDGE_EVENT.ENCOUNTER_ARRIVAL_COMPLETED]: undefined;
+    [BRIDGE_EVENT.OFFICER_COMMAND_MENU_SYNCED]: BridgeOfficerCommandMenuViewState;
 };

@@ -44,7 +44,7 @@ export default class BridgeCrewView {
 
     private createSeats(): void {
         for (const position of BRIDGE_CREW_POSITIONS) {
-            this.seats.push(new BridgeSeatView(this.scene, this.root, position));
+            this.seats.push(new BridgeSeatView(this.scene, this.root, position, this.eventBus));
         }
     }
 

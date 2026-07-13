@@ -1,6 +1,8 @@
 // src\app\scenes\game\bridge\controller\BridgeController.ts
 
+import type { OfficerRole } from '../../../../../engine/defs/officer';
 import EncounterEngine from '../../../../../engine/encounter/EncounterEngine';
+import type { EncounterOfficerCommand } from '../../../../../engine/encounter/encounter_command';
 import { ENCOUNTER_EVENT, type EncounterEvent } from '../../../../../engine/encounter/encounter_event';
 import type { EncounterState } from '../../../../../engine/encounter/encounter_state';
 import { ENCOUNTER_OBJECT_KIND } from '../../../../../engine/encounter/objects/encounter_object';
@@ -16,7 +18,6 @@ export default class BridgeController {
 
     private view?: BridgeView;
     private encounterEngine?: EncounterEngine;
-
     private isEncounterActive = false;
 
     constructor(private readonly scene: BridgeScene) {}
@@ -24,6 +25,8 @@ export default class BridgeController {
     public prepare(): void {
         this.view = new BridgeView(this.scene, this.eventBus);
         this.view.prepare();
+
+        this.eventBus.on(BRIDGE_EVENT.OFFICER_SEAT_CLICKED, this.handleOfficerSeatClicked, this);
 
         this.eventBus.on(BRIDGE_EVENT.ENCOUNTER_ARRIVAL_COMPLETED, this.handleEncounterArrivalCompleted, this);
 
@@ -44,12 +47,16 @@ export default class BridgeController {
     }
 
     public destroy(): void {
+        this.eventBus.off(BRIDGE_EVENT.OFFICER_SEAT_CLICKED, this.handleOfficerSeatClicked, this);
+
+        this.eventBus.off(BRIDGE_EVENT.ENCOUNTER_ARRIVAL_COMPLETED, this.handleEncounterArrivalCompleted, this);
+
         this.view?.destroy();
         this.view = undefined;
 
         this.encounterEngine = undefined;
+        this.isEncounterActive = false;
 
-        this.eventBus.off(BRIDGE_EVENT.ENCOUNTER_ARRIVAL_COMPLETED, this.handleEncounterArrivalCompleted, this);
         this.eventBus.destroy();
     }
 
@@ -80,8 +87,9 @@ export default class BridgeController {
                 this.handleEncounterLoaded(event.state);
                 return;
 
-            default:
-                throw new Error(`Unhandled encounter event: ${String(event.type)}`);
+            case ENCOUNTER_EVENT.OFFICER_COMMANDS_READY:
+                this.handleOfficerCommandsReady(event.role, event.commands);
+                return;
         }
     }
 
@@ -94,9 +102,6 @@ export default class BridgeController {
                         sprite: STATION_SPRITES[object.station.spriteId],
                         position: new Phaser.Math.Vector2(object.position.x, object.position.y),
                     };
-
-                default:
-                    throw new Error(`Unhandled encounter object kind: ${String(object.kind)}`);
             }
         });
 
@@ -104,6 +109,31 @@ export default class BridgeController {
 
         this.eventBus.emit(BRIDGE_EVENT.ENCOUNTER_OBJECTS_PREPARED, objects);
         this.eventBus.emit(BRIDGE_EVENT.ENCOUNTER_ARRIVAL_STARTED, undefined);
+    }
+
+    private handleOfficerSeatClicked(payload: { role: OfficerRole }): void {
+        if (!this.isEncounterActive) {
+            return;
+        }
+
+        if (!this.encounterEngine) {
+            return;
+        }
+
+        this.encounterEngine.requestOfficerCommands(payload.role);
+        this.processEncounterEvents();
+    }
+
+    private handleOfficerCommandsReady(role: OfficerRole, commands: EncounterOfficerCommand[]): void {
+        console.log(role, commands);
+        this.eventBus.emit(BRIDGE_EVENT.OFFICER_COMMAND_MENU_SYNCED, {
+            role,
+            items: commands.map((command) => ({
+                commandId: command.commandId,
+                label: command.label,
+                targetId: command.targetId,
+            })),
+        });
     }
 
     private handleEncounterArrivalCompleted(): void {
