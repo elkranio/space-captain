@@ -31,9 +31,14 @@ export function resolveOfficerCommands(state: EncounterState, role: OfficerRole)
 }
 
 function getCommandLabel(commandId: EncounterOfficerCommandId, object: EncounterObjectState): string {
+    void object;
+
     switch (commandId) {
         case ENCOUNTER_OFFICER_COMMAND_ID.HAIL:
-            return `Hail ${object.displayName}`;
+            return 'HAIL';
+
+        case ENCOUNTER_OFFICER_COMMAND_ID.REQUEST_DOCKING:
+            return 'REQUEST DOCKING';
     }
 
     throw new Error(`Unhandled encounter officer command: ${String(commandId)}`);

@@ -1,4 +1,4 @@
-// src\engine\encounter\state\create_initial_encounter_state.ts
+// src/engine/encounter/state/create_initial_encounter_state.ts
 
 import { OFFICER_ROLE } from '../../defs/officer';
 import { SPACE_BACKGROUND_ID } from '../../defs/space_background';
@@ -27,6 +27,10 @@ export function createInitialEncounterState(): EncounterState {
                     {
                         role: OFFICER_ROLE.COMMS,
                         commandId: ENCOUNTER_OFFICER_COMMAND_ID.HAIL,
+                    },
+                    {
+                        role: OFFICER_ROLE.COMMS,
+                        commandId: ENCOUNTER_OFFICER_COMMAND_ID.REQUEST_DOCKING,
                     },
                 ],
             },

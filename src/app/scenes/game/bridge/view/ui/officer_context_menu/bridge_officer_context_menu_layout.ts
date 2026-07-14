@@ -31,8 +31,8 @@ export const OFFICER_CONTEXT_MENU_LAYOUT = {
     item: {
         x: 24,
         width: 328,
-        height: 32,
-        gap: 5,
+        height: 27,
+        gap: -2,
 
         labelX: 12,
         labelY: 8,
