@@ -1,7 +1,11 @@
 // src/app/scenes/game/bridge/view/ui/officer_context_menu/BridgeOfficerContextMenuView.ts
 
 import type BridgeScene from '../../../BridgeScene';
-import { BRIDGE_EVENT, type BridgeOfficerCommandMenuViewState } from '../../../events/bridge_event';
+import {
+    BRIDGE_EVENT,
+    type BridgeOfficerCommandMenuViewState,
+    BridgeOfficerCommandMenuItemViewState,
+} from '../../../events/bridge_event';
 import type BridgeEventBus from '../../../events/BridgeEventBus';
 import { FONT_COLOR, FONT_FAMILY, FONT_SIZE } from '../../../../../../theme/font';
 import BridgeOfficerContextMenuItemView from './BridgeOfficerContextMenuItemView';
@@ -10,6 +14,8 @@ import {
     OFFICER_CONTEXT_MENU_LAYOUT,
     OFFICER_CONTEXT_MENU_POSITION_BY_ROLE,
 } from './bridge_officer_context_menu_layout';
+import { BRIDGE_OFFICER_CONTEXT_MENU_ITEM_EVENT } from './BridgeOfficerContextMenuItemView';
+import { OfficerRole } from '../../../../../../../engine/defs/officer';
 
 export default class BridgeOfficerContextMenuView {
     private readonly root: Phaser.GameObjects.Container;
@@ -18,6 +24,8 @@ export default class BridgeOfficerContextMenuView {
     private readonly panelView: BridgeOfficerContextMenuPanelView;
     private readonly itemViews: BridgeOfficerContextMenuItemView[] = [];
     private readonly groupLabels: Phaser.GameObjects.BitmapText[] = [];
+
+    private currentRole?: OfficerRole;
 
     constructor(
         private readonly scene: BridgeScene,
@@ -69,6 +77,8 @@ export default class BridgeOfficerContextMenuView {
         const title = menu.role.toUpperCase();
         const minHeight = this.getMinHeight(menu);
 
+        this.currentRole = menu.role;
+
         this.root.setPosition(position.x, position.y);
         this.panelView.render(title, minHeight);
         this.openMenu();
@@ -89,7 +99,9 @@ export default class BridgeOfficerContextMenuView {
                 OFFICER_CONTEXT_MENU_LAYOUT.groupLabel.height + OFFICER_CONTEXT_MENU_LAYOUT.groupLabel.marginBottom;
 
             for (const item of group.items) {
-                const itemView = new BridgeOfficerContextMenuItemView(this.scene, item.label);
+                const itemView = new BridgeOfficerContextMenuItemView(this.scene, item);
+
+                itemView.getRoot().on(BRIDGE_OFFICER_CONTEXT_MENU_ITEM_EVENT.SELECTED, this.handleItemSelected, this);
 
                 itemView.setPosition(OFFICER_CONTEXT_MENU_LAYOUT.item.x, cursorY);
 
@@ -123,6 +135,7 @@ export default class BridgeOfficerContextMenuView {
     private closeMenu(): void {
         this.root.setVisible(false);
         this.blocker.disableInteractive().setVisible(false);
+        this.currentRole = undefined;
     }
 
     private handleBlockerPointerDown(): void {
@@ -164,5 +177,21 @@ export default class BridgeOfficerContextMenuView {
         return (
             OFFICER_CONTEXT_MENU_LAYOUT.content.y + contentHeight + OFFICER_CONTEXT_MENU_LAYOUT.content.bottomPadding
         );
+    }
+
+    private handleItemSelected(item: BridgeOfficerCommandMenuItemViewState): void {
+        if (!this.currentRole) {
+            return;
+        }
+
+        const role = this.currentRole;
+
+        this.closeMenu();
+
+        this.eventBus.emit(BRIDGE_EVENT.OFFICER_COMMAND_SELECTED, {
+            role,
+            commandId: item.commandId,
+            targetId: item.targetId,
+        });
     }
 }

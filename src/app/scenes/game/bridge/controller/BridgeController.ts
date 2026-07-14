@@ -2,7 +2,10 @@
 
 import type { OfficerRole } from '../../../../../engine/defs/officer';
 import EncounterEngine from '../../../../../engine/encounter/EncounterEngine';
-import type { EncounterOfficerCommand } from '../../../../../engine/encounter/encounter_command';
+import type {
+    EncounterOfficerCommand,
+    EncounterOfficerCommandId,
+} from '../../../../../engine/encounter/encounter_command';
 import { ENCOUNTER_EVENT, type EncounterEvent } from '../../../../../engine/encounter/encounter_event';
 import type { EncounterState } from '../../../../../engine/encounter/encounter_state';
 import { ENCOUNTER_OBJECT_KIND } from '../../../../../engine/encounter/objects/encounter_object';
@@ -27,8 +30,8 @@ export default class BridgeController {
         this.view.prepare();
 
         this.eventBus.on(BRIDGE_EVENT.OFFICER_SEAT_CLICKED, this.handleOfficerSeatClicked, this);
-
         this.eventBus.on(BRIDGE_EVENT.ENCOUNTER_ARRIVAL_COMPLETED, this.handleEncounterArrivalCompleted, this);
+        this.eventBus.on(BRIDGE_EVENT.OFFICER_COMMAND_SELECTED, this.handleOfficerCommandSelected, this);
 
         this.loadState();
         this.loadEncounter();
@@ -48,8 +51,8 @@ export default class BridgeController {
 
     public destroy(): void {
         this.eventBus.off(BRIDGE_EVENT.OFFICER_SEAT_CLICKED, this.handleOfficerSeatClicked, this);
-
         this.eventBus.off(BRIDGE_EVENT.ENCOUNTER_ARRIVAL_COMPLETED, this.handleEncounterArrivalCompleted, this);
+        this.eventBus.off(BRIDGE_EVENT.OFFICER_COMMAND_SELECTED, this.handleOfficerCommandSelected, this);
 
         this.view?.destroy();
         this.view = undefined;
@@ -163,5 +166,17 @@ export default class BridgeController {
 
     private handleEncounterArrivalCompleted(): void {
         this.isEncounterActive = true;
+    }
+
+    private handleOfficerCommandSelected(payload: {
+        role: OfficerRole;
+        commandId: EncounterOfficerCommandId;
+        targetId?: string;
+    }): void {
+        console.log('Officer command selected:', {
+            role: payload.role,
+            commandId: payload.commandId,
+            targetId: payload.targetId,
+        });
     }
 }

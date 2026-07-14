@@ -7,6 +7,11 @@ import {
 import { FONT_COLOR, FONT_FAMILY, FONT_SIZE } from '../../../../../../theme/font';
 import type BridgeScene from '../../../BridgeScene';
 import { OFFICER_CONTEXT_MENU_LAYOUT } from './bridge_officer_context_menu_layout';
+import type { BridgeOfficerCommandMenuItemViewState } from '../../../events/bridge_event';
+
+export const BRIDGE_OFFICER_CONTEXT_MENU_ITEM_EVENT = {
+    SELECTED: 'selected',
+} as const;
 
 export default class BridgeOfficerContextMenuItemView {
     private readonly root: Phaser.GameObjects.Container;
@@ -14,7 +19,7 @@ export default class BridgeOfficerContextMenuItemView {
 
     constructor(
         private readonly scene: BridgeScene,
-        label: string,
+        private readonly item: BridgeOfficerCommandMenuItemViewState,
     ) {
         this.root = this.scene.add.container(0, 0);
 
@@ -36,7 +41,7 @@ export default class BridgeOfficerContextMenuItemView {
                 OFFICER_CONTEXT_MENU_LAYOUT.item.labelX,
                 OFFICER_CONTEXT_MENU_LAYOUT.item.labelY,
                 FONT_FAMILY.VGA_8X14,
-                `> ${label.toUpperCase()}`,
+                `> ${this.item.label}`,
                 FONT_SIZE.PX_16,
             )
             .setTint(FONT_COLOR.WHITE);
@@ -48,6 +53,7 @@ export default class BridgeOfficerContextMenuItemView {
 
         hitZone.on(Phaser.Input.Events.POINTER_OVER, this.handlePointerOver, this);
         hitZone.on(Phaser.Input.Events.POINTER_OUT, this.handlePointerOut, this);
+        hitZone.on(Phaser.Input.Events.POINTER_DOWN, this.handlePointerDown, this);
 
         this.root.add([normalBackground, this.hoverBackground, text, hitZone]);
     }
@@ -70,5 +76,9 @@ export default class BridgeOfficerContextMenuItemView {
 
     private handlePointerOut(): void {
         this.hoverBackground.setVisible(false);
+    }
+
+    private handlePointerDown(): void {
+        this.root.emit(BRIDGE_OFFICER_CONTEXT_MENU_ITEM_EVENT.SELECTED, this.item);
     }
 }

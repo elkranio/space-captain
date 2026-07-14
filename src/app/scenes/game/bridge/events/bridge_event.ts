@@ -8,13 +8,14 @@ export const BRIDGE_EVENT = {
     CREW_LOADED: 'crew_loaded',
     OFFICER_SEAT_CLICKED: 'officer_seat_clicked',
 
-    OFFICER_COMMAND_MENU_SYNCED: 'officer_command_menu_synced',
-
     ENCOUNTER_OBJECTS_PREPARED: 'encounter_objects_prepared',
     ENCOUNTER_OBJECTS_SYNCED: 'encounter_objects_synced',
 
     ENCOUNTER_ARRIVAL_STARTED: 'encounter_arrival_started',
     ENCOUNTER_ARRIVAL_COMPLETED: 'encounter_arrival_completed',
+
+    OFFICER_COMMAND_MENU_SYNCED: 'officer_command_menu_synced',
+    OFFICER_COMMAND_SELECTED: 'officer_command_selected',
 } as const;
 
 export type BridgeEncounterObjectViewState = {
@@ -49,4 +50,9 @@ export type BridgeEventPayloadMap = {
     [BRIDGE_EVENT.ENCOUNTER_ARRIVAL_STARTED]: undefined;
     [BRIDGE_EVENT.ENCOUNTER_ARRIVAL_COMPLETED]: undefined;
     [BRIDGE_EVENT.OFFICER_COMMAND_MENU_SYNCED]: BridgeOfficerCommandMenuViewState;
+    [BRIDGE_EVENT.OFFICER_COMMAND_SELECTED]: {
+        role: OfficerRole;
+        commandId: EncounterOfficerCommandId;
+        targetId?: string;
+    };
 };
