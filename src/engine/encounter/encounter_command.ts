@@ -4,6 +4,7 @@ import type { OfficerRole } from '../defs/officer';
 export const ENCOUNTER_OFFICER_COMMAND_ID = {
     HAIL: 'hail',
     REQUEST_DOCKING: 'request_docking',
+    DOCK: 'dock',
 } as const;
 
 export type EncounterOfficerCommandId =

@@ -6,6 +6,8 @@ import { ENCOUNTER_EVENT, type EncounterEvent } from './encounter_event';
 import type { EncounterState } from './encounter_state';
 import { createInitialEncounterState } from './state/create_initial_encounter_state';
 import { ENCOUNTER_OFFICER_COMMAND_ID, type ExecuteOfficerCommandInput } from './encounter_command';
+import { ENCOUNTER_OBJECT_KIND, type EncounterObjectState } from './objects/encounter_object';
+import { DOCKING_CLEARANCE_STATE } from './objects/station/station_encounter_object';
 
 export default class EncounterEngine {
     private readonly state: EncounterState;
@@ -48,7 +50,11 @@ export default class EncounterEngine {
                 return;
 
             case ENCOUNTER_OFFICER_COMMAND_ID.REQUEST_DOCKING:
-                console.log('Execute REQUEST_DOCKING command:', input);
+                this.executeRequestDockingCommand(input);
+                return;
+
+            case ENCOUNTER_OFFICER_COMMAND_ID.DOCK:
+                console.log('Execute DOCK command:', input);
                 return;
         }
 
@@ -65,5 +71,39 @@ export default class EncounterEngine {
 
             return command.targetId === input.targetId;
         });
+    }
+
+    private executeRequestDockingCommand(input: ExecuteOfficerCommandInput): void {
+        const target = this.getTargetObject(input.targetId);
+
+        if (!target) {
+            console.warn('Cannot request docking. Target not found:', input);
+            return;
+        }
+
+        switch (target.kind) {
+            case ENCOUNTER_OBJECT_KIND.STATION:
+                target.docking.clearance = DOCKING_CLEARANCE_STATE.GRANTED;
+
+                console.log('Docking clearance granted:', {
+                    targetId: target.id,
+                    targetName: target.displayName,
+                });
+
+                return;
+        }
+
+        console.warn('Cannot request docking. Invalid target:', {
+            command: input,
+            target,
+        });
+    }
+
+    private getTargetObject(targetId?: string): EncounterObjectState | undefined {
+        if (!targetId) {
+            return undefined;
+        }
+
+        return this.state.objects.find((object) => object.id === targetId);
     }
 }

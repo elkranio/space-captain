@@ -7,6 +7,7 @@ import StationGenerator from '../../generation/station/StationGenerator';
 import { ENCOUNTER_OFFICER_COMMAND_ID } from '../encounter_command';
 import type { EncounterState } from '../encounter_state';
 import { ENCOUNTER_OBJECT_KIND } from '../objects/encounter_object';
+import { DOCKING_CLEARANCE_STATE } from '../objects/station/station_encounter_object';
 
 export function createInitialEncounterState(): EncounterState {
     const station = StationGenerator.generateStation(SPECIES_ID.HUMAN);
@@ -23,6 +24,9 @@ export function createInitialEncounterState(): EncounterState {
                     x: 0.1,
                     y: -0.05,
                 },
+                docking: {
+                    clearance: DOCKING_CLEARANCE_STATE.NONE,
+                },
                 officerCommands: [
                     {
                         role: OFFICER_ROLE.COMMS,
@@ -31,6 +35,10 @@ export function createInitialEncounterState(): EncounterState {
                     {
                         role: OFFICER_ROLE.COMMS,
                         commandId: ENCOUNTER_OFFICER_COMMAND_ID.REQUEST_DOCKING,
+                    },
+                    {
+                        role: OFFICER_ROLE.HELM,
+                        commandId: ENCOUNTER_OFFICER_COMMAND_ID.DOCK,
                     },
                 ],
             },
