@@ -1,23 +1,26 @@
 // src/app/scenes/game/bridge/view/ui/officer_context_menu/BridgeOfficerContextMenuView.ts
 
+import type { OfficerRole } from '../../../../../../../engine/defs/officer';
+import { FONT_COLOR, FONT_FAMILY, FONT_SIZE } from '../../../../../../theme/font';
 import type BridgeScene from '../../../BridgeScene';
 import {
     BRIDGE_EVENT,
+    type BridgeOfficerCommandMenuGroupViewState,
+    type BridgeOfficerCommandMenuItemViewState,
     type BridgeOfficerCommandMenuViewState,
-    BridgeOfficerCommandMenuItemViewState,
 } from '../../../events/bridge_event';
 import type BridgeEventBus from '../../../events/BridgeEventBus';
-import { FONT_COLOR, FONT_FAMILY, FONT_SIZE } from '../../../../../../theme/font';
 import BridgeOfficerContextMenuItemView from './BridgeOfficerContextMenuItemView';
 import BridgeOfficerContextMenuPanelView from './BridgeOfficerContextMenuPanelView';
 import {
     OFFICER_CONTEXT_MENU_LAYOUT,
     OFFICER_CONTEXT_MENU_POSITION_BY_ROLE,
 } from './bridge_officer_context_menu_layout';
-import { BRIDGE_OFFICER_CONTEXT_MENU_ITEM_EVENT } from './BridgeOfficerContextMenuItemView';
-import { OfficerRole } from '../../../../../../../engine/defs/officer';
+import { UI_EVENT } from '../ui_event';
 
 export default class BridgeOfficerContextMenuView {
+    // #region Fields
+
     private readonly root: Phaser.GameObjects.Container;
     private readonly blocker: Phaser.GameObjects.Rectangle;
 
@@ -27,18 +30,15 @@ export default class BridgeOfficerContextMenuView {
 
     private currentRole?: OfficerRole;
 
+    // #endregion
+
+    // #region Lifecycle
+
     constructor(
         private readonly scene: BridgeScene,
         private readonly eventBus: BridgeEventBus,
     ) {
-        this.blocker = this.scene.add
-            .rectangle(0, 0, this.scene.scale.width, this.scene.scale.height, 0x000000, 0)
-            .setOrigin(0, 0)
-            .setVisible(false)
-            .setInteractive();
-
-        this.blocker.disableInteractive();
-
+        this.blocker = this.createBlocker();
         this.root = this.scene.add.container(0, 0).setVisible(false);
 
         this.scene.layers.get('ui_blocker').add(this.blocker);
@@ -63,120 +63,28 @@ export default class BridgeOfficerContextMenuView {
         this.root.destroy(true);
     }
 
+    // #endregion
+
+    // #region External events
+
     private handleOfficerCommandMenuSynced(menu: BridgeOfficerCommandMenuViewState): void {
         this.clearContent();
 
-        const itemCount = this.getItemCount(menu);
-
-        if (itemCount === 0) {
+        if (this.isEmpty(menu)) {
             this.closeMenu();
             return;
         }
 
-        const position = OFFICER_CONTEXT_MENU_POSITION_BY_ROLE[menu.role];
-        const title = menu.role.toUpperCase();
-        const minHeight = this.getMinHeight(menu);
-
         this.currentRole = menu.role;
 
-        this.root.setPosition(position.x, position.y);
-        this.panelView.render(title, minHeight);
+        this.positionMenu(menu.role);
+        this.renderPanel(menu);
+        this.renderGroups(menu.groups);
         this.openMenu();
-
-        let cursorY = OFFICER_CONTEXT_MENU_LAYOUT.content.y;
-
-        menu.groups.forEach((group, groupIndex) => {
-            if (groupIndex > 0) {
-                cursorY += OFFICER_CONTEXT_MENU_LAYOUT.groupLabel.marginTop;
-            }
-
-            const groupLabel = this.createGroupLabel(group.label, cursorY);
-
-            this.root.add(groupLabel);
-            this.groupLabels.push(groupLabel);
-
-            cursorY +=
-                OFFICER_CONTEXT_MENU_LAYOUT.groupLabel.height + OFFICER_CONTEXT_MENU_LAYOUT.groupLabel.marginBottom;
-
-            for (const item of group.items) {
-                const itemView = new BridgeOfficerContextMenuItemView(this.scene, item);
-
-                itemView.getRoot().on(BRIDGE_OFFICER_CONTEXT_MENU_ITEM_EVENT.SELECTED, this.handleItemSelected, this);
-
-                itemView.setPosition(OFFICER_CONTEXT_MENU_LAYOUT.item.x, cursorY);
-
-                this.root.add(itemView.getRoot());
-                this.itemViews.push(itemView);
-
-                cursorY += OFFICER_CONTEXT_MENU_LAYOUT.item.height + OFFICER_CONTEXT_MENU_LAYOUT.item.gap;
-            }
-        });
-    }
-
-    private clearContent(): void {
-        for (const itemView of this.itemViews) {
-            itemView.destroy();
-        }
-
-        this.itemViews.length = 0;
-
-        for (const groupLabel of this.groupLabels) {
-            groupLabel.destroy();
-        }
-
-        this.groupLabels.length = 0;
-    }
-
-    private openMenu(): void {
-        this.root.setVisible(true);
-        this.blocker.setVisible(true).setInteractive();
-    }
-
-    private closeMenu(): void {
-        this.root.setVisible(false);
-        this.blocker.disableInteractive().setVisible(false);
-        this.currentRole = undefined;
     }
 
     private handleBlockerPointerDown(): void {
         this.closeMenu();
-    }
-
-    private createGroupLabel(label: string, y: number): Phaser.GameObjects.BitmapText {
-        return this.scene.add
-            .bitmapText(
-                OFFICER_CONTEXT_MENU_LAYOUT.groupLabel.x,
-                y,
-                FONT_FAMILY.VGA_8X14,
-                label.toUpperCase(),
-                FONT_SIZE.PX_16,
-            )
-            .setTint(FONT_COLOR.SECONDARY);
-    }
-
-    private getItemCount(menu: BridgeOfficerCommandMenuViewState): number {
-        return menu.groups.reduce((total, group) => total + group.items.length, 0);
-    }
-
-    private getMinHeight(menu: BridgeOfficerCommandMenuViewState): number {
-        let contentHeight = 0;
-
-        menu.groups.forEach((group, groupIndex) => {
-            if (groupIndex > 0) {
-                contentHeight += OFFICER_CONTEXT_MENU_LAYOUT.groupLabel.marginTop;
-            }
-
-            contentHeight +=
-                OFFICER_CONTEXT_MENU_LAYOUT.groupLabel.height + OFFICER_CONTEXT_MENU_LAYOUT.groupLabel.marginBottom;
-
-            contentHeight += group.items.length * OFFICER_CONTEXT_MENU_LAYOUT.item.height;
-
-            contentHeight += Math.max(0, group.items.length - 1) * OFFICER_CONTEXT_MENU_LAYOUT.item.gap;
-        });
-
-        return (
-            OFFICER_CONTEXT_MENU_LAYOUT.content.y + contentHeight + OFFICER_CONTEXT_MENU_LAYOUT.content.bottomPadding
-        );
     }
 
     private handleItemSelected(item: BridgeOfficerCommandMenuItemViewState): void {
@@ -194,4 +102,169 @@ export default class BridgeOfficerContextMenuView {
             targetId: item.targetId,
         });
     }
+
+    // #endregion
+
+    // #region Rendering
+
+    private positionMenu(role: OfficerRole): void {
+        const position = OFFICER_CONTEXT_MENU_POSITION_BY_ROLE[role];
+
+        this.root.setPosition(position.x, position.y);
+    }
+
+    private renderPanel(menu: BridgeOfficerCommandMenuViewState): void {
+        this.panelView.render(menu.role.toUpperCase(), this.getMinHeight(menu));
+    }
+
+    private renderGroups(groups: BridgeOfficerCommandMenuGroupViewState[]): void {
+        let cursorY: number = OFFICER_CONTEXT_MENU_LAYOUT.content.y;
+
+        groups.forEach((group, groupIndex) => {
+            cursorY = this.renderGroup(group, groupIndex, cursorY);
+        });
+    }
+
+    private renderGroup(group: BridgeOfficerCommandMenuGroupViewState, groupIndex: number, cursorY: number): number {
+        let nextY = cursorY;
+
+        if (groupIndex > 0) {
+            nextY += OFFICER_CONTEXT_MENU_LAYOUT.groupLabel.marginTop;
+        }
+
+        this.renderGroupLabel(group.label, nextY);
+
+        nextY += OFFICER_CONTEXT_MENU_LAYOUT.groupLabel.height + OFFICER_CONTEXT_MENU_LAYOUT.groupLabel.marginBottom;
+
+        for (const item of group.items) {
+            nextY = this.renderItem(item, nextY);
+        }
+
+        return nextY;
+    }
+
+    private renderGroupLabel(label: string, y: number): void {
+        const groupLabel = this.createGroupLabel(label, y);
+
+        this.root.add(groupLabel);
+        this.groupLabels.push(groupLabel);
+    }
+
+    private renderItem(item: BridgeOfficerCommandMenuItemViewState, y: number): number {
+        const itemView = new BridgeOfficerContextMenuItemView(this.scene, item);
+
+        itemView.getRoot().on(UI_EVENT.CLICK, this.handleItemSelected, this);
+
+        itemView.setPosition(OFFICER_CONTEXT_MENU_LAYOUT.item.x, y);
+
+        this.root.add(itemView.getRoot());
+        this.itemViews.push(itemView);
+
+        return y + this.getItemStepY();
+    }
+
+    private createGroupLabel(label: string, y: number): Phaser.GameObjects.BitmapText {
+        return this.scene.add
+            .bitmapText(
+                OFFICER_CONTEXT_MENU_LAYOUT.groupLabel.x,
+                y,
+                FONT_FAMILY.VGA_8X14,
+                label.toUpperCase(),
+                FONT_SIZE.PX_16,
+            )
+            .setTint(FONT_COLOR.SECONDARY);
+    }
+
+    // #endregion
+
+    // #region Menu state
+
+    private openMenu(): void {
+        this.root.setVisible(true);
+        this.blocker.setVisible(true).setInteractive();
+    }
+
+    private closeMenu(): void {
+        this.root.setVisible(false);
+        this.blocker.disableInteractive().setVisible(false);
+        this.currentRole = undefined;
+    }
+
+    private clearContent(): void {
+        for (const itemView of this.itemViews) {
+            itemView.destroy();
+        }
+
+        this.itemViews.length = 0;
+
+        for (const groupLabel of this.groupLabels) {
+            groupLabel.destroy();
+        }
+
+        this.groupLabels.length = 0;
+    }
+
+    // #endregion
+
+    // #region Layout calculations
+
+    private isEmpty(menu: BridgeOfficerCommandMenuViewState): boolean {
+        return this.getItemCount(menu) === 0;
+    }
+
+    private getItemCount(menu: BridgeOfficerCommandMenuViewState): number {
+        return menu.groups.reduce((total, group) => total + group.items.length, 0);
+    }
+
+    private getMinHeight(menu: BridgeOfficerCommandMenuViewState): number {
+        let contentHeight = 0;
+
+        menu.groups.forEach((group, groupIndex) => {
+            if (groupIndex > 0) {
+                contentHeight += OFFICER_CONTEXT_MENU_LAYOUT.groupLabel.marginTop;
+            }
+
+            contentHeight +=
+                OFFICER_CONTEXT_MENU_LAYOUT.groupLabel.height + OFFICER_CONTEXT_MENU_LAYOUT.groupLabel.marginBottom;
+
+            contentHeight += this.getItemsHeight(group.items.length);
+        });
+
+        return (
+            OFFICER_CONTEXT_MENU_LAYOUT.content.y + contentHeight + OFFICER_CONTEXT_MENU_LAYOUT.content.bottomPadding
+        );
+    }
+
+    private getItemsHeight(itemCount: number): number {
+        if (itemCount === 0) {
+            return 0;
+        }
+
+        return (
+            itemCount * OFFICER_CONTEXT_MENU_LAYOUT.item.height +
+            Math.max(0, itemCount - 1) * OFFICER_CONTEXT_MENU_LAYOUT.item.gap
+        );
+    }
+
+    private getItemStepY(): number {
+        return OFFICER_CONTEXT_MENU_LAYOUT.item.height + OFFICER_CONTEXT_MENU_LAYOUT.item.gap;
+    }
+
+    // #endregion
+
+    // #region Creation
+
+    private createBlocker(): Phaser.GameObjects.Rectangle {
+        const blocker = this.scene.add
+            .rectangle(0, 0, this.scene.scale.width, this.scene.scale.height, 0x000000, 0)
+            .setOrigin(0, 0)
+            .setVisible(false)
+            .setInteractive();
+
+        blocker.disableInteractive();
+
+        return blocker;
+    }
+
+    // #endregion
 }

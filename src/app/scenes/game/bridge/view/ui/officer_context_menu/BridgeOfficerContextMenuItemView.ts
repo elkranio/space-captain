@@ -6,16 +6,19 @@ import {
 } from '../../../../../../manifests/bridge/officer_context_menu';
 import { FONT_COLOR, FONT_FAMILY, FONT_SIZE } from '../../../../../../theme/font';
 import type BridgeScene from '../../../BridgeScene';
-import { OFFICER_CONTEXT_MENU_LAYOUT } from './bridge_officer_context_menu_layout';
 import type { BridgeOfficerCommandMenuItemViewState } from '../../../events/bridge_event';
-
-export const BRIDGE_OFFICER_CONTEXT_MENU_ITEM_EVENT = {
-    SELECTED: 'selected',
-} as const;
+import { UI_EVENT } from '../ui_event';
+import { OFFICER_CONTEXT_MENU_LAYOUT } from './bridge_officer_context_menu_layout';
 
 export default class BridgeOfficerContextMenuItemView {
+    // #region Fields
+
     private readonly root: Phaser.GameObjects.Container;
     private readonly hoverBackground: Phaser.GameObjects.Image;
+
+    // #endregion
+
+    // #region Lifecycle
 
     constructor(
         private readonly scene: BridgeScene,
@@ -23,40 +26,21 @@ export default class BridgeOfficerContextMenuItemView {
     ) {
         this.root = this.scene.add.container(0, 0);
 
-        const normalSprite = OFFICER_CONTEXT_MENU_SPRITES[OFFICER_CONTEXT_MENU_SPRITE_ID.COMMAND_ROW];
+        const normalBackground = this.createNormalBackground();
+        this.hoverBackground = this.createHoverBackground();
 
-        const hoverSprite = OFFICER_CONTEXT_MENU_SPRITES[OFFICER_CONTEXT_MENU_SPRITE_ID.COMMAND_ROW_HOVER];
+        const text = this.createText();
 
-        const normalBackground = this.scene.add
-            .image(0, 0, normalSprite.atlasKey, normalSprite.frameKey)
-            .setOrigin(0, 0);
-
-        this.hoverBackground = this.scene.add
-            .image(0, 0, hoverSprite.atlasKey, hoverSprite.frameKey)
-            .setOrigin(0, 0)
-            .setVisible(false);
-
-        const text = this.scene.add
-            .bitmapText(
-                OFFICER_CONTEXT_MENU_LAYOUT.item.labelX,
-                OFFICER_CONTEXT_MENU_LAYOUT.item.labelY,
-                FONT_FAMILY.VGA_8X14,
-                `> ${this.item.label}`,
-                FONT_SIZE.PX_16,
-            )
-            .setTint(FONT_COLOR.WHITE);
-
-        const hitZone = this.scene.add
-            .zone(0, 0, OFFICER_CONTEXT_MENU_LAYOUT.item.width, OFFICER_CONTEXT_MENU_LAYOUT.item.height)
-            .setOrigin(0, 0)
-            .setInteractive({ useHandCursor: true });
-
-        hitZone.on(Phaser.Input.Events.POINTER_OVER, this.handlePointerOver, this);
-        hitZone.on(Phaser.Input.Events.POINTER_OUT, this.handlePointerOut, this);
-        hitZone.on(Phaser.Input.Events.POINTER_DOWN, this.handlePointerDown, this);
-
-        this.root.add([normalBackground, this.hoverBackground, text, hitZone]);
+        this.root.add([normalBackground, this.hoverBackground, text]);
     }
+
+    public destroy(): void {
+        this.root.destroy(true);
+    }
+
+    // #endregion
+
+    // #region Public API
 
     public getRoot(): Phaser.GameObjects.Container {
         return this.root;
@@ -66,8 +50,58 @@ export default class BridgeOfficerContextMenuItemView {
         this.root.setPosition(x, y);
     }
 
-    public destroy(): void {
-        this.root.destroy(true);
+    // #endregion
+
+    // #region Rendering
+
+    private createNormalBackground(): Phaser.GameObjects.Image {
+        const sprite = OFFICER_CONTEXT_MENU_SPRITES[OFFICER_CONTEXT_MENU_SPRITE_ID.COMMAND_ROW];
+
+        const background = this.scene.add.image(0, 0, sprite.atlasKey, sprite.frameKey).setOrigin(0, 0);
+
+        this.makeInteractive(background);
+
+        return background;
+    }
+
+    private createHoverBackground(): Phaser.GameObjects.Image {
+        const sprite = OFFICER_CONTEXT_MENU_SPRITES[OFFICER_CONTEXT_MENU_SPRITE_ID.COMMAND_ROW_HOVER];
+
+        return this.scene.add.image(0, 0, sprite.atlasKey, sprite.frameKey).setOrigin(0, 0).setVisible(false);
+    }
+
+    private createText(): Phaser.GameObjects.BitmapText {
+        return this.scene.add
+            .bitmapText(
+                OFFICER_CONTEXT_MENU_LAYOUT.item.labelX,
+                OFFICER_CONTEXT_MENU_LAYOUT.item.labelY,
+                FONT_FAMILY.VGA_8X14,
+                `> ${this.item.label}`,
+                FONT_SIZE.PX_16,
+            )
+            .setTint(FONT_COLOR.WHITE);
+    }
+
+    // #endregion
+
+    // #region Input
+
+    private makeInteractive(background: Phaser.GameObjects.Image): void {
+        background.setInteractive(
+            new Phaser.Geom.Rectangle(
+                0,
+                0,
+                OFFICER_CONTEXT_MENU_LAYOUT.item.width,
+                OFFICER_CONTEXT_MENU_LAYOUT.item.height,
+            ),
+            Phaser.Geom.Rectangle.Contains,
+        );
+
+        background.on(Phaser.Input.Events.POINTER_OVER, this.handlePointerOver, this);
+
+        background.on(Phaser.Input.Events.POINTER_OUT, this.handlePointerOut, this);
+
+        background.on(Phaser.Input.Events.POINTER_DOWN, this.handlePointerDown, this);
     }
 
     private handlePointerOver(): void {
@@ -79,6 +113,8 @@ export default class BridgeOfficerContextMenuItemView {
     }
 
     private handlePointerDown(): void {
-        this.root.emit(BRIDGE_OFFICER_CONTEXT_MENU_ITEM_EVENT.SELECTED, this.item);
+        this.root.emit(UI_EVENT.CLICK, this.item);
     }
+
+    // #endregion
 }
