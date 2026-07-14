@@ -81,6 +81,6 @@ export default class BridgeOfficerContextMenuPanelView {
     private createImage(spriteId: OfficerContextMenuSpriteId, x: number, y: number): Phaser.GameObjects.Image {
         const sprite = OFFICER_CONTEXT_MENU_SPRITES[spriteId];
 
-        return this.scene.add.image(x, y, sprite.atlasKey, sprite.frameKey).setOrigin(0, 0);
+        return this.scene.add.image(x, y, sprite.atlasKey, sprite.frameKey).setOrigin(0, 0).setInteractive();
     }
 }

@@ -3,16 +3,18 @@
 import type BridgeScene from '../../../BridgeScene';
 import { BRIDGE_EVENT, type BridgeOfficerCommandMenuViewState } from '../../../events/bridge_event';
 import type BridgeEventBus from '../../../events/BridgeEventBus';
+import { FONT_COLOR, FONT_FAMILY, FONT_SIZE } from '../../../../../../theme/font';
 import BridgeOfficerContextMenuItemView from './BridgeOfficerContextMenuItemView';
 import BridgeOfficerContextMenuPanelView from './BridgeOfficerContextMenuPanelView';
 import {
     OFFICER_CONTEXT_MENU_LAYOUT,
     OFFICER_CONTEXT_MENU_POSITION_BY_ROLE,
 } from './bridge_officer_context_menu_layout';
-import { FONT_COLOR, FONT_FAMILY, FONT_SIZE } from '../../../../../../theme/font';
 
 export default class BridgeOfficerContextMenuView {
     private readonly root: Phaser.GameObjects.Container;
+    private readonly blocker: Phaser.GameObjects.Rectangle;
+
     private readonly panelView: BridgeOfficerContextMenuPanelView;
     private readonly itemViews: BridgeOfficerContextMenuItemView[] = [];
     private readonly groupLabels: Phaser.GameObjects.BitmapText[] = [];
@@ -21,9 +23,20 @@ export default class BridgeOfficerContextMenuView {
         private readonly scene: BridgeScene,
         private readonly eventBus: BridgeEventBus,
     ) {
+        this.blocker = this.scene.add
+            .rectangle(0, 0, this.scene.scale.width, this.scene.scale.height, 0x000000, 0)
+            .setOrigin(0, 0)
+            .setVisible(false)
+            .setInteractive();
+
+        this.blocker.disableInteractive();
+
         this.root = this.scene.add.container(0, 0).setVisible(false);
 
+        this.scene.layers.get('ui_blocker').add(this.blocker);
         this.scene.layers.get('ui').add(this.root);
+
+        this.blocker.on(Phaser.Input.Events.POINTER_DOWN, this.handleBlockerPointerDown, this);
 
         this.panelView = new BridgeOfficerContextMenuPanelView(this.scene);
         this.root.add(this.panelView.getRoot());
@@ -34,7 +47,11 @@ export default class BridgeOfficerContextMenuView {
     public destroy(): void {
         this.eventBus.off(BRIDGE_EVENT.OFFICER_COMMAND_MENU_SYNCED, this.handleOfficerCommandMenuSynced, this);
 
+        this.blocker.off(Phaser.Input.Events.POINTER_DOWN, this.handleBlockerPointerDown, this);
+
         this.clearContent();
+
+        this.blocker.destroy();
         this.root.destroy(true);
     }
 
@@ -44,7 +61,7 @@ export default class BridgeOfficerContextMenuView {
         const itemCount = this.getItemCount(menu);
 
         if (itemCount === 0) {
-            this.root.setVisible(false);
+            this.closeMenu();
             return;
         }
 
@@ -52,8 +69,9 @@ export default class BridgeOfficerContextMenuView {
         const title = menu.role.toUpperCase();
         const minHeight = this.getMinHeight(menu);
 
-        this.root.setPosition(position.x, position.y).setVisible(true);
+        this.root.setPosition(position.x, position.y);
         this.panelView.render(title, minHeight);
+        this.openMenu();
 
         let cursorY = OFFICER_CONTEXT_MENU_LAYOUT.content.y;
 
@@ -95,6 +113,20 @@ export default class BridgeOfficerContextMenuView {
         }
 
         this.groupLabels.length = 0;
+    }
+
+    private openMenu(): void {
+        this.root.setVisible(true);
+        this.blocker.setVisible(true).setInteractive();
+    }
+
+    private closeMenu(): void {
+        this.root.setVisible(false);
+        this.blocker.disableInteractive().setVisible(false);
+    }
+
+    private handleBlockerPointerDown(): void {
+        this.closeMenu();
     }
 
     private createGroupLabel(label: string, y: number): Phaser.GameObjects.BitmapText {
