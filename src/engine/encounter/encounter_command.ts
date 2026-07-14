@@ -1,4 +1,5 @@
 // src/engine/encounter/encounter_command.ts
+import type { OfficerRole } from '../defs/officer';
 
 export const ENCOUNTER_OFFICER_COMMAND_ID = {
     HAIL: 'hail',
@@ -13,4 +14,10 @@ export type EncounterOfficerCommand = {
     label: string;
     targetId?: string;
     targetLabel?: string;
+};
+
+export type ExecuteOfficerCommandInput = {
+    role: OfficerRole;
+    commandId: EncounterOfficerCommandId;
+    targetId?: string;
 };

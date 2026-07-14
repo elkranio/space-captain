@@ -99,11 +99,16 @@ export default class BridgeEncounterController {
         commandId: EncounterOfficerCommandId;
         targetId?: string;
     }): void {
-        console.log('Officer command selected:', {
-            role: payload.role,
-            commandId: payload.commandId,
-            targetId: payload.targetId,
-        });
+        if (!this.isEncounterActive) {
+            return;
+        }
+
+        if (!this.encounterEngine) {
+            return;
+        }
+
+        this.encounterEngine.executeOfficerCommand(payload);
+        this.processEncounterEvents();
     }
 
     // #endregion
