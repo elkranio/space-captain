@@ -1,13 +1,16 @@
-// src\app\scenes\game\bridge\view\objects\BridgeObjectSpriteView.ts
+// src/app/scenes/game/bridge/view/objects/BridgeObjectSpriteView.ts
 
-import type { BridgeEncounterObjectViewState } from '../../events/bridge_event';
 import type BridgeScene from '../../BridgeScene';
+import type { BridgeEncounterObjectViewState } from '../../events/bridge_event';
 import { getBridgeViewscreenPoint } from '../bridge_viewscreen_layout';
 
 export default class BridgeObjectSpriteView {
+    // #region Fields
     private readonly root: Phaser.GameObjects.Container;
     private readonly sprite: Phaser.GameObjects.Image;
+    // #endregion
 
+    // #region Lifecycle
     constructor(
         private readonly scene: BridgeScene,
         parent: Phaser.GameObjects.Container,
@@ -23,14 +26,21 @@ export default class BridgeObjectSpriteView {
         this.update(state);
     }
 
-    public update(state: BridgeEncounterObjectViewState): void {
-        const point = getBridgeViewscreenPoint(state.position);
-        this.root.setPosition(point.x, point.y);
-        this.sprite.setTexture(state.sprite.atlasKey, state.sprite.frameKey);
-    }
-
     public destroy(): void {
         this.root.destroy(true);
+    }
+    // #endregion
+
+    // #region Public API
+    public getRoot(): Phaser.GameObjects.Container {
+        return this.root;
+    }
+
+    public update(state: BridgeEncounterObjectViewState): void {
+        const point = getBridgeViewscreenPoint(state.position);
+
+        this.root.setPosition(point.x, point.y);
+        this.sprite.setTexture(state.sprite.atlasKey, state.sprite.frameKey);
     }
 
     public prepareForArrival(): void {
@@ -51,4 +61,5 @@ export default class BridgeObjectSpriteView {
         this.root.setVisible(true);
         this.root.setScale(1);
     }
+    // #endregion
 }

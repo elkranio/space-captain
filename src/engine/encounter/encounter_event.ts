@@ -12,6 +12,8 @@ export const ENCOUNTER_EVENT = {
     CONTACT_STARTED: 'contact_started',
     CONTACT_MESSAGE_ADDED: 'contact_message_added',
     CONTACT_ENDED: 'contact_ended',
+
+    DOCKING_STARTED: 'docking_started',
 } as const;
 
 export type EncounterLoadedEvent = {
@@ -41,9 +43,15 @@ export type ContactEndedEvent = {
     type: typeof ENCOUNTER_EVENT.CONTACT_ENDED;
 };
 
+export type DockingStartedEvent = {
+    type: typeof ENCOUNTER_EVENT.DOCKING_STARTED;
+    targetId: string;
+};
+
 export type EncounterEvent =
     | EncounterLoadedEvent
     | OfficerCommandsReadyEvent
     | ContactStartedEvent
     | ContactMessageAddedEvent
-    | ContactEndedEvent;
+    | ContactEndedEvent
+    | DockingStartedEvent;

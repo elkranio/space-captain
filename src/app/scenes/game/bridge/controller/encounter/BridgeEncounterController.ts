@@ -13,8 +13,10 @@ import type BridgeEventBus from '../../events/BridgeEventBus';
 import { createOfficerCommandMenuGroups } from './create_officer_command_menu_groups';
 import { mapEncounterObjectsToViewState } from './map_encounter_objects_to_view_state';
 import type { CharacterPortraitId } from '../../../../../../engine/defs/character';
+import BridgeScene from '../../BridgeScene';
+import { SCENE_KEY } from '../../../../scene_key';
 
-const SKIP_ARRIVAL = true;
+const SKIP_ARRIVAL = false;
 
 export default class BridgeEncounterController {
     // #region Fields
@@ -26,24 +28,25 @@ export default class BridgeEncounterController {
 
     // #region Lifecycle
 
-    constructor(private readonly eventBus: BridgeEventBus) {}
+    constructor(
+        private readonly scene: BridgeScene,
+        private readonly eventBus: BridgeEventBus,
+    ) {}
 
     public prepare(): void {
         this.eventBus.on(BRIDGE_EVENT.OFFICER_SEAT_CLICKED, this.handleOfficerSeatClicked, this);
-
         this.eventBus.on(BRIDGE_EVENT.ENCOUNTER_ARRIVAL_COMPLETED, this.handleEncounterArrivalCompleted, this);
-
         this.eventBus.on(BRIDGE_EVENT.OFFICER_COMMAND_SELECTED, this.handleOfficerCommandSelected, this);
+        this.eventBus.on(BRIDGE_EVENT.DOCKING_ANIMATION_COMPLETED, this.handleDockingAnimationCompleted, this);
 
         this.loadEncounter();
     }
 
     public destroy(): void {
         this.eventBus.off(BRIDGE_EVENT.OFFICER_SEAT_CLICKED, this.handleOfficerSeatClicked, this);
-
         this.eventBus.off(BRIDGE_EVENT.ENCOUNTER_ARRIVAL_COMPLETED, this.handleEncounterArrivalCompleted, this);
-
         this.eventBus.off(BRIDGE_EVENT.OFFICER_COMMAND_SELECTED, this.handleOfficerCommandSelected, this);
+        this.eventBus.off(BRIDGE_EVENT.DOCKING_ANIMATION_COMPLETED, this.handleDockingAnimationCompleted, this);
 
         this.encounterEngine = undefined;
         this.isEncounterActive = false;
@@ -148,7 +151,23 @@ export default class BridgeEncounterController {
             case ENCOUNTER_EVENT.CONTACT_ENDED:
                 this.handleContactEnded();
                 return;
+
+            case ENCOUNTER_EVENT.DOCKING_STARTED:
+                this.handleDockingStarted(event.targetId);
+                return;
         }
+    }
+
+    private handleDockingStarted(targetId: string): void {
+        this.isEncounterActive = false;
+
+        this.eventBus.emit(BRIDGE_EVENT.DOCKING_STARTED, {
+            targetId,
+        });
+    }
+
+    private handleDockingAnimationCompleted(): void {
+        this.scene.scene.start(SCENE_KEY.END);
     }
 
     private handleEncounterLoaded(state: EncounterState): void {

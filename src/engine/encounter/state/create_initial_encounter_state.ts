@@ -21,7 +21,7 @@ export function createInitialEncounterState(): EncounterState {
                 displayName: station.name,
                 station,
                 position: {
-                    x: 0.1,
+                    x: -0.52,
                     y: -0.05,
                 },
                 docking: {

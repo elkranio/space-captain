@@ -116,7 +116,26 @@ export default class EncounterEngine {
     }
 
     private executeDockCommand(input: ExecuteOfficerCommandInput): void {
-        console.log('Execute DOCK command:', input);
+        const target = this.getTargetObject(input.targetId);
+
+        if (!target) {
+            console.warn('Cannot dock. Target not found:', input);
+            return;
+        }
+
+        switch (target.kind) {
+            case ENCOUNTER_OBJECT_KIND.STATION:
+                this.outbox.push({
+                    type: ENCOUNTER_EVENT.DOCKING_STARTED,
+                    targetId: target.id,
+                });
+                return;
+        }
+
+        console.warn('Cannot dock. Invalid target:', {
+            command: input,
+            target,
+        });
     }
     // #endregion
 

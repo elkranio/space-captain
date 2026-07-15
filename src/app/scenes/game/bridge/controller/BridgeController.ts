@@ -27,7 +27,7 @@ export default class BridgeController {
 
         this.loadState();
 
-        this.encounterController = new BridgeEncounterController(this.eventBus);
+        this.encounterController = new BridgeEncounterController(this.scene, this.eventBus);
         this.encounterController.prepare();
     }
 

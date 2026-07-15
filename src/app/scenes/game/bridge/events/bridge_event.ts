@@ -21,6 +21,9 @@ export const BRIDGE_EVENT = {
     CONTACT_STARTED: 'contact_started',
     CONTACT_MESSAGE_ADDED: 'contact_message_added',
     CONTACT_ENDED: 'contact_ended',
+
+    DOCKING_STARTED: 'docking_started',
+    DOCKING_ANIMATION_COMPLETED: 'docking_animation_completed',
 } as const;
 
 export type BridgeEncounterObjectViewState = {
@@ -55,6 +58,10 @@ export type BridgeContactMessageViewState = {
     text: string;
 };
 
+export type BridgeDockingStartedViewState = {
+    targetId: string;
+};
+
 export type BridgeEventPayloadMap = {
     [BRIDGE_EVENT.CREW_LOADED]: Record<OfficerRole, OfficerDefinition>;
     [BRIDGE_EVENT.OFFICER_SEAT_CLICKED]: {
@@ -73,4 +80,6 @@ export type BridgeEventPayloadMap = {
     [BRIDGE_EVENT.CONTACT_STARTED]: BridgeContactStartedViewState;
     [BRIDGE_EVENT.CONTACT_MESSAGE_ADDED]: BridgeContactMessageViewState;
     [BRIDGE_EVENT.CONTACT_ENDED]: undefined;
+    [BRIDGE_EVENT.DOCKING_STARTED]: BridgeDockingStartedViewState;
+    [BRIDGE_EVENT.DOCKING_ANIMATION_COMPLETED]: undefined;
 };
