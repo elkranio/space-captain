@@ -58,11 +58,12 @@ export default class BridgeEncounterController {
             return;
         }
 
-        void deltaMs;
+        if (!this.encounterEngine) {
+            return;
+        }
 
-        // Later:
-        // this.encounterEngine?.step(deltaMs);
-        // this.processEncounterEvents();
+        this.encounterEngine.step(deltaMs);
+        this.processEncounterEvents();
     }
 
     // #endregion

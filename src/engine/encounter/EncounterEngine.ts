@@ -1,18 +1,29 @@
 // src/engine/encounter/EncounterEngine.ts
 
+import type { CharacterPortraitId } from '../defs/character';
 import type { OfficerRole } from '../defs/officer';
 import { resolveOfficerCommands } from './commands/resolve_officer_commands';
+import {
+    CONTACT_SEQUENCE_STEP_KIND,
+    type ActiveContactSequence,
+    type ContactSequenceStep,
+} from './contact/contact_sequence';
+import { ENCOUNTER_OFFICER_COMMAND_ID, type ExecuteOfficerCommandInput } from './encounter_command';
 import { ENCOUNTER_EVENT, type EncounterEvent } from './encounter_event';
 import type { EncounterState } from './encounter_state';
-import { createInitialEncounterState } from './state/create_initial_encounter_state';
-import { ENCOUNTER_OFFICER_COMMAND_ID, type ExecuteOfficerCommandInput } from './encounter_command';
 import { ENCOUNTER_OBJECT_KIND, type EncounterObjectState } from './objects/encounter_object';
 import { DOCKING_CLEARANCE_STATE } from './objects/station/station_encounter_object';
+import { createInitialEncounterState } from './state/create_initial_encounter_state';
 
 export default class EncounterEngine {
+    // #region Fields
     private readonly state: EncounterState;
     private readonly outbox: EncounterEvent[] = [];
 
+    private activeContactSequence?: ActiveContactSequence;
+    // #endregion
+
+    // #region Lifecycle
     constructor() {
         this.state = createInitialEncounterState();
 
@@ -20,6 +31,12 @@ export default class EncounterEngine {
             type: ENCOUNTER_EVENT.ENCOUNTER_LOADED,
             state: this.state,
         });
+    }
+    // #endregion
+
+    // #region Public API
+    public step(deltaMs: number): void {
+        this.stepContactSequence(deltaMs);
     }
 
     public drainEvents(): EncounterEvent[] {
@@ -46,7 +63,7 @@ export default class EncounterEngine {
 
         switch (input.commandId) {
             case ENCOUNTER_OFFICER_COMMAND_ID.HAIL:
-                console.log('Execute HAIL command:', input);
+                this.executeHailCommand(input);
                 return;
 
             case ENCOUNTER_OFFICER_COMMAND_ID.REQUEST_DOCKING:
@@ -54,13 +71,15 @@ export default class EncounterEngine {
                 return;
 
             case ENCOUNTER_OFFICER_COMMAND_ID.DOCK:
-                console.log('Execute DOCK command:', input);
+                this.executeDockCommand(input);
                 return;
         }
 
         console.warn('Unhandled officer command:', input);
     }
+    // #endregion
 
+    // #region Officer command execution
     private canExecuteOfficerCommand(input: ExecuteOfficerCommandInput): boolean {
         const commands = resolveOfficerCommands(this.state, input.role);
 
@@ -73,6 +92,10 @@ export default class EncounterEngine {
         });
     }
 
+    private executeHailCommand(input: ExecuteOfficerCommandInput): void {
+        console.log('Execute HAIL command:', input);
+    }
+
     private executeRequestDockingCommand(input: ExecuteOfficerCommandInput): void {
         const target = this.getTargetObject(input.targetId);
 
@@ -83,43 +106,7 @@ export default class EncounterEngine {
 
         switch (target.kind) {
             case ENCOUNTER_OBJECT_KIND.STATION:
-                this.outbox.push({
-                    type: ENCOUNTER_EVENT.CONTACT_STARTED,
-                    contactName: target.station.contactName,
-                    contactPortraitId: target.station.contactPortraitId,
-                });
-
-                this.outbox.push({
-                    type: ENCOUNTER_EVENT.CONTACT_MESSAGE_ADDED,
-                    speakerName: 'COMMS',
-                    text: `This is our ship. Requesting docking clearance.`,
-                });
-
-                this.outbox.push({
-                    type: ENCOUNTER_EVENT.CONTACT_MESSAGE_ADDED,
-                    speakerName: target.station.contactName,
-                    text: `Hold on.`,
-                });
-
-                target.docking.clearance = DOCKING_CLEARANCE_STATE.GRANTED;
-
-                this.outbox.push({
-                    type: ENCOUNTER_EVENT.CONTACT_MESSAGE_ADDED,
-                    speakerName: target.station.contactName,
-                    text: `You are cleared to dock.`,
-                });
-
-                this.outbox.push({
-                    type: ENCOUNTER_EVENT.CONTACT_ENDED,
-                });
-
-                // target.docking.clearance = DOCKING_CLEARANCE_STATE.GRANTED;
-
-                // console.log('Docking clearance granted:', {
-                //     targetId: target.id,
-                //     targetName: target.displayName,
-                // });
-
+                this.startDockingRequestContactSequence(target);
                 return;
         }
 
@@ -129,6 +116,154 @@ export default class EncounterEngine {
         });
     }
 
+    private executeDockCommand(input: ExecuteOfficerCommandInput): void {
+        console.log('Execute DOCK command:', input);
+    }
+    // #endregion
+
+    // #region Contact sequence
+    private stepContactSequence(deltaMs: number): void {
+        if (!this.activeContactSequence) {
+            return;
+        }
+
+        this.activeContactSequence.waitRemainingMs -= deltaMs;
+
+        while (this.activeContactSequence && this.activeContactSequence.waitRemainingMs <= 0) {
+            this.processCurrentContactStep();
+        }
+    }
+
+    private processCurrentContactStep(): void {
+        if (!this.activeContactSequence) {
+            return;
+        }
+
+        const step = this.activeContactSequence.steps[this.activeContactSequence.currentStepIndex];
+
+        if (!step) {
+            this.activeContactSequence = undefined;
+            return;
+        }
+
+        this.executeContactStep(step);
+
+        this.activeContactSequence.currentStepIndex += 1;
+
+        const nextStep = this.activeContactSequence.steps[this.activeContactSequence.currentStepIndex];
+
+        if (!nextStep) {
+            this.activeContactSequence = undefined;
+            return;
+        }
+
+        this.activeContactSequence.waitRemainingMs += nextStep.delayMs;
+    }
+
+    private executeContactStep(step: ContactSequenceStep): void {
+        switch (step.kind) {
+            case CONTACT_SEQUENCE_STEP_KIND.START_CONTACT:
+                this.outbox.push({
+                    type: ENCOUNTER_EVENT.CONTACT_STARTED,
+                    contactName: step.contactName,
+                    contactPortraitId: step.contactPortraitId,
+                });
+                return;
+
+            case CONTACT_SEQUENCE_STEP_KIND.MESSAGE:
+                this.outbox.push({
+                    type: ENCOUNTER_EVENT.CONTACT_MESSAGE_ADDED,
+                    speakerName: step.speakerName,
+                    text: step.text,
+                });
+                return;
+
+            case CONTACT_SEQUENCE_STEP_KIND.GRANT_DOCKING_CLEARANCE:
+                this.grantDockingClearance(step.targetId);
+                return;
+
+            case CONTACT_SEQUENCE_STEP_KIND.END_CONTACT:
+                this.outbox.push({
+                    type: ENCOUNTER_EVENT.CONTACT_ENDED,
+                });
+                return;
+        }
+
+        throw new Error(`Unhandled contact sequence step: ${String(step)}`);
+    }
+
+    private startDockingRequestContactSequence(target: EncounterObjectState): void {
+        switch (target.kind) {
+            case ENCOUNTER_OBJECT_KIND.STATION:
+                target.docking.clearance = DOCKING_CLEARANCE_STATE.REQUESTED;
+
+                this.activeContactSequence = {
+                    currentStepIndex: 0,
+                    waitRemainingMs: 0,
+                    steps: [
+                        {
+                            kind: CONTACT_SEQUENCE_STEP_KIND.START_CONTACT,
+                            delayMs: 0,
+                            contactName: target.station.contactName,
+                            contactPortraitId: target.station.contactPortraitId,
+                        },
+                        {
+                            kind: CONTACT_SEQUENCE_STEP_KIND.MESSAGE,
+                            delayMs: 1000,
+                            speakerName: 'COMMS',
+                            text: 'This is our ship. Requesting docking clearance.',
+                        },
+                        {
+                            kind: CONTACT_SEQUENCE_STEP_KIND.MESSAGE,
+                            delayMs: 1000,
+                            speakerName: target.station.contactName,
+                            text: 'Hold on.',
+                        },
+                        {
+                            kind: CONTACT_SEQUENCE_STEP_KIND.GRANT_DOCKING_CLEARANCE,
+                            delayMs: 2000,
+                            targetId: target.id,
+                        },
+                        {
+                            kind: CONTACT_SEQUENCE_STEP_KIND.MESSAGE,
+                            delayMs: 0,
+                            speakerName: target.station.contactName,
+                            text: 'You are cleared to dock.',
+                        },
+                        {
+                            kind: CONTACT_SEQUENCE_STEP_KIND.END_CONTACT,
+                            delayMs: 1200,
+                        },
+                    ],
+                };
+
+                return;
+        }
+    }
+    // #endregion
+
+    // #region Docking
+    private grantDockingClearance(targetId: string): void {
+        const target = this.getTargetObject(targetId);
+
+        if (!target) {
+            console.warn('Cannot grant docking clearance. Target not found:', {
+                targetId,
+            });
+            return;
+        }
+
+        switch (target.kind) {
+            case ENCOUNTER_OBJECT_KIND.STATION:
+                target.docking.clearance = DOCKING_CLEARANCE_STATE.GRANTED;
+                return;
+        }
+
+        console.warn('Cannot grant docking clearance. Invalid target:', target);
+    }
+    // #endregion
+
+    // #region Queries
     private getTargetObject(targetId?: string): EncounterObjectState | undefined {
         if (!targetId) {
             return undefined;
@@ -136,4 +271,5 @@ export default class EncounterEngine {
 
         return this.state.objects.find((object) => object.id === targetId);
     }
+    // #endregion
 }

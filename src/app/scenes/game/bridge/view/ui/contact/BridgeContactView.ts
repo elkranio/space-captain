@@ -48,7 +48,7 @@ export default class BridgeContactView {
 
         this.eventBus.on(BRIDGE_EVENT.CONTACT_MESSAGE_ADDED, this.handleContactMessageAdded, this);
 
-        // this.eventBus.on(BRIDGE_EVENT.CONTACT_ENDED, this.handleContactEnded, this);
+        this.eventBus.on(BRIDGE_EVENT.CONTACT_ENDED, this.handleContactEnded, this);
     }
 
     public destroy(): void {
