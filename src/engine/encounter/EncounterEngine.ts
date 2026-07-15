@@ -1,6 +1,5 @@
 // src/engine/encounter/EncounterEngine.ts
 
-import type { CharacterPortraitId } from '../defs/character';
 import type { OfficerRole } from '../defs/officer';
 import { resolveOfficerCommands } from './commands/resolve_officer_commands';
 import {
@@ -147,17 +146,14 @@ export default class EncounterEngine {
         }
 
         this.executeContactStep(step);
-
         this.activeContactSequence.currentStepIndex += 1;
 
-        const nextStep = this.activeContactSequence.steps[this.activeContactSequence.currentStepIndex];
-
-        if (!nextStep) {
+        if (this.isContactSequenceFinished()) {
             this.activeContactSequence = undefined;
             return;
         }
 
-        this.activeContactSequence.waitRemainingMs += nextStep.delayMs;
+        this.activeContactSequence.waitRemainingMs += step.waitAfterMs;
     }
 
     private executeContactStep(step: ContactSequenceStep): void {
@@ -203,36 +199,42 @@ export default class EncounterEngine {
                     steps: [
                         {
                             kind: CONTACT_SEQUENCE_STEP_KIND.START_CONTACT,
-                            delayMs: 0,
+                            waitAfterMs: 1000,
                             contactName: target.station.contactName,
                             contactPortraitId: target.station.contactPortraitId,
                         },
                         {
                             kind: CONTACT_SEQUENCE_STEP_KIND.MESSAGE,
-                            delayMs: 1000,
+                            waitAfterMs: 2000,
                             speakerName: 'COMMS',
-                            text: 'This is our ship. Requesting docking clearance.',
+                            text: 'This is SS Anonymous. Requesting docking clearance.',
                         },
                         {
                             kind: CONTACT_SEQUENCE_STEP_KIND.MESSAGE,
-                            delayMs: 1000,
+                            waitAfterMs: 2000,
                             speakerName: target.station.contactName,
                             text: 'Hold on.',
                         },
                         {
                             kind: CONTACT_SEQUENCE_STEP_KIND.GRANT_DOCKING_CLEARANCE,
-                            delayMs: 2000,
+                            waitAfterMs: 2000,
                             targetId: target.id,
                         },
                         {
                             kind: CONTACT_SEQUENCE_STEP_KIND.MESSAGE,
-                            delayMs: 0,
+                            waitAfterMs: 2000,
                             speakerName: target.station.contactName,
                             text: 'You are cleared to dock.',
                         },
                         {
+                            kind: CONTACT_SEQUENCE_STEP_KIND.MESSAGE,
+                            waitAfterMs: 2000,
+                            speakerName: 'COMMS',
+                            text: 'Thank you. Over and out.',
+                        },
+                        {
                             kind: CONTACT_SEQUENCE_STEP_KIND.END_CONTACT,
-                            delayMs: 1200,
+                            waitAfterMs: 100,
                         },
                     ],
                 };
@@ -272,4 +274,12 @@ export default class EncounterEngine {
         return this.state.objects.find((object) => object.id === targetId);
     }
     // #endregion
+
+    private isContactSequenceFinished(): boolean {
+        if (!this.activeContactSequence) {
+            return true;
+        }
+
+        return this.activeContactSequence.currentStepIndex >= this.activeContactSequence.steps.length;
+    }
 }

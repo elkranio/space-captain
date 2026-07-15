@@ -13,26 +13,26 @@ export type ContactSequenceStepKind = (typeof CONTACT_SEQUENCE_STEP_KIND)[keyof 
 
 export type StartContactSequenceStep = {
     kind: typeof CONTACT_SEQUENCE_STEP_KIND.START_CONTACT;
-    delayMs: number;
+    waitAfterMs: number;
     contactName: string;
     contactPortraitId: CharacterPortraitId;
 };
 
 export type MessageContactSequenceStep = {
     kind: typeof CONTACT_SEQUENCE_STEP_KIND.MESSAGE;
-    delayMs: number;
+    waitAfterMs: number;
     speakerName: string;
     text: string;
 };
 
 export type EndContactSequenceStep = {
     kind: typeof CONTACT_SEQUENCE_STEP_KIND.END_CONTACT;
-    delayMs: number;
+    waitAfterMs: number;
 };
 
 export type GrantDockingClearanceContactSequenceStep = {
     kind: typeof CONTACT_SEQUENCE_STEP_KIND.GRANT_DOCKING_CLEARANCE;
-    delayMs: number;
+    waitAfterMs: number;
     targetId: string;
 };
 
