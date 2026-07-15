@@ -12,4 +12,5 @@ export const FONT_COLOR = {
     WHITE: 0xffffff,
     PRIMARY: 0xd7e6ff,
     SECONDARY: 0x8fb5d6,
+    SPEAKER: 0xf2b36d,
 } as const;
