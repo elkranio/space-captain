@@ -12,6 +12,7 @@ import { BRIDGE_EVENT } from '../../events/bridge_event';
 import type BridgeEventBus from '../../events/BridgeEventBus';
 import { createOfficerCommandMenuGroups } from './create_officer_command_menu_groups';
 import { mapEncounterObjectsToViewState } from './map_encounter_objects_to_view_state';
+import type { CharacterPortraitId } from '../../../../../../engine/defs/character';
 
 const SKIP_ARRIVAL = true;
 
@@ -134,6 +135,18 @@ export default class BridgeEncounterController {
             case ENCOUNTER_EVENT.OFFICER_COMMANDS_READY:
                 this.handleOfficerCommandsReady(event.role, event.commands);
                 return;
+
+            case ENCOUNTER_EVENT.CONTACT_STARTED:
+                this.handleContactStarted(event.contactName, event.contactPortraitId);
+                return;
+
+            case ENCOUNTER_EVENT.CONTACT_MESSAGE_ADDED:
+                this.handleContactMessageAdded(event.speakerName, event.text);
+                return;
+
+            case ENCOUNTER_EVENT.CONTACT_ENDED:
+                this.handleContactEnded();
+                return;
         }
     }
 
@@ -157,6 +170,24 @@ export default class BridgeEncounterController {
             role,
             groups: createOfficerCommandMenuGroups(commands),
         });
+    }
+
+    private handleContactStarted(contactName: string, contactPortraitId: CharacterPortraitId): void {
+        this.eventBus.emit(BRIDGE_EVENT.CONTACT_STARTED, {
+            contactName,
+            contactPortraitId,
+        });
+    }
+
+    private handleContactMessageAdded(speakerName: string, text: string): void {
+        this.eventBus.emit(BRIDGE_EVENT.CONTACT_MESSAGE_ADDED, {
+            speakerName,
+            text,
+        });
+    }
+
+    private handleContactEnded(): void {
+        this.eventBus.emit(BRIDGE_EVENT.CONTACT_ENDED, undefined);
     }
 
     // #endregion

@@ -1,7 +1,8 @@
-// src\engine\generation\station\StationGenerator.ts
+// src/engine/generation/station/StationGenerator.ts
 
 import { STATION_NAME_POOLS_BY_SPECIES } from '../../content/generation-pools/station/names';
 import { STATION_SPRITE_POOLS_BY_SPECIES } from '../../content/generation-pools/station/sprites';
+import { CHARACTER_PORTRAIT_ID } from '../../defs/character';
 import type { SpeciesId } from '../../defs/species';
 import type { StationSpriteId, StationState } from '../../defs/station';
 import { randomFrom } from '../utils/random_from';
@@ -13,6 +14,8 @@ export default class StationGenerator {
             name: this.generateName(originSpecies),
             originSpecies,
             spriteId: this.generateSpriteId(originSpecies),
+            contactName: 'PORT CONTROL',
+            contactPortraitId: CHARACTER_PORTRAIT_ID.COMMS_HUMAN_00_CALM,
         };
     }
 

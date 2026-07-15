@@ -83,12 +83,42 @@ export default class EncounterEngine {
 
         switch (target.kind) {
             case ENCOUNTER_OBJECT_KIND.STATION:
+                this.outbox.push({
+                    type: ENCOUNTER_EVENT.CONTACT_STARTED,
+                    contactName: target.station.contactName,
+                    contactPortraitId: target.station.contactPortraitId,
+                });
+
+                this.outbox.push({
+                    type: ENCOUNTER_EVENT.CONTACT_MESSAGE_ADDED,
+                    speakerName: 'COMMS',
+                    text: `This is our ship. Requesting docking clearance.`,
+                });
+
+                this.outbox.push({
+                    type: ENCOUNTER_EVENT.CONTACT_MESSAGE_ADDED,
+                    speakerName: target.station.contactName,
+                    text: `Hold on.`,
+                });
+
                 target.docking.clearance = DOCKING_CLEARANCE_STATE.GRANTED;
 
-                console.log('Docking clearance granted:', {
-                    targetId: target.id,
-                    targetName: target.displayName,
+                this.outbox.push({
+                    type: ENCOUNTER_EVENT.CONTACT_MESSAGE_ADDED,
+                    speakerName: target.station.contactName,
+                    text: `You are cleared to dock.`,
                 });
+
+                this.outbox.push({
+                    type: ENCOUNTER_EVENT.CONTACT_ENDED,
+                });
+
+                // target.docking.clearance = DOCKING_CLEARANCE_STATE.GRANTED;
+
+                // console.log('Docking clearance granted:', {
+                //     targetId: target.id,
+                //     targetName: target.displayName,
+                // });
 
                 return;
         }

@@ -3,6 +3,7 @@
 import type { OfficerDefinition, OfficerRole } from '../../../../../engine/defs/officer';
 import type { SpriteEntry } from '../../../../manifests/types';
 import type { EncounterOfficerCommandId } from '../../../../../engine/encounter/encounter_command';
+import type { CharacterPortraitId } from '../../../../../engine/defs/character';
 
 export const BRIDGE_EVENT = {
     CREW_LOADED: 'crew_loaded',
@@ -16,6 +17,10 @@ export const BRIDGE_EVENT = {
 
     OFFICER_COMMAND_MENU_SYNCED: 'officer_command_menu_synced',
     OFFICER_COMMAND_SELECTED: 'officer_command_selected',
+
+    CONTACT_STARTED: 'contact_started',
+    CONTACT_MESSAGE_ADDED: 'contact_message_added',
+    CONTACT_ENDED: 'contact_ended',
 } as const;
 
 export type BridgeEncounterObjectViewState = {
@@ -40,6 +45,16 @@ export type BridgeOfficerCommandMenuViewState = {
     groups: BridgeOfficerCommandMenuGroupViewState[];
 };
 
+export type BridgeContactStartedViewState = {
+    contactName: string;
+    contactPortraitId: CharacterPortraitId;
+};
+
+export type BridgeContactMessageViewState = {
+    speakerName: string;
+    text: string;
+};
+
 export type BridgeEventPayloadMap = {
     [BRIDGE_EVENT.CREW_LOADED]: Record<OfficerRole, OfficerDefinition>;
     [BRIDGE_EVENT.OFFICER_SEAT_CLICKED]: {
@@ -55,4 +70,7 @@ export type BridgeEventPayloadMap = {
         commandId: EncounterOfficerCommandId;
         targetId?: string;
     };
+    [BRIDGE_EVENT.CONTACT_STARTED]: BridgeContactStartedViewState;
+    [BRIDGE_EVENT.CONTACT_MESSAGE_ADDED]: BridgeContactMessageViewState;
+    [BRIDGE_EVENT.CONTACT_ENDED]: undefined;
 };

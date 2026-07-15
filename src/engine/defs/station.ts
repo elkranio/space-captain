@@ -1,6 +1,7 @@
-// src\engine\defs\station.ts
+// src/engine/defs/station.ts
 
 import type { SpeciesId } from './species';
+import type { CharacterPortraitId } from './character';
 
 export const STATION_SPRITE_ID = {
     HUMAN_SMALL_00: 'human_small_00',
@@ -17,4 +18,6 @@ export type StationState = {
     name: string;
     originSpecies: SpeciesId;
     spriteId: StationSpriteId;
+    contactName: string;
+    contactPortraitId: CharacterPortraitId;
 };
