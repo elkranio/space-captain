@@ -1,0 +1,185 @@
+// src/app/scenes/game/bridge/view/barks/BridgeOfficerBarkBubbleView.ts
+
+import {
+    SPEECH_BUBBLE_SPRITE_ID,
+    SPEECH_BUBBLE_SPRITES,
+    type SpeechBubbleSpriteId,
+} from '../../../../../manifests/ui/speech_bubble';
+import { FONT_COLOR, FONT_FAMILY, FONT_SIZE } from '../../../../../theme/font';
+import type BridgeScene from '../../BridgeScene';
+import { BRIDGE_OFFICER_BARK_LAYOUT, OFFICER_BARK_SIDE, type OfficerBarkSide } from './bridge_officer_bark_layout';
+
+const TILE_SIZE = 8;
+const CORNER_SIZE = 16;
+
+export default class BridgeOfficerBarkBubbleView {
+    // #region Fields
+    private readonly root: Phaser.GameObjects.Container;
+    private readonly bodyRoot: Phaser.GameObjects.Container;
+    private readonly text: Phaser.GameObjects.BitmapText;
+    private readonly tail: Phaser.GameObjects.Image;
+
+    private bodyPieces: Phaser.GameObjects.Image[] = [];
+    // #endregion
+
+    // #region Lifecycle
+    constructor(private readonly scene: BridgeScene) {
+        this.root = this.scene.add.container(0, 0).setVisible(false);
+        this.bodyRoot = this.scene.add.container(0, 0);
+
+        this.tail = this.createTail();
+
+        this.text = this.scene.add
+            .bitmapText(
+                BRIDGE_OFFICER_BARK_LAYOUT.text.x,
+                BRIDGE_OFFICER_BARK_LAYOUT.text.y,
+                FONT_FAMILY.VGA_8X14,
+                '',
+                FONT_SIZE.PX_16,
+            )
+            .setOrigin(0, 0)
+            .setTint(FONT_COLOR.WHITE);
+
+        this.root.add([this.bodyRoot, this.tail, this.text]);
+    }
+
+    public destroy(): void {
+        this.root.destroy(true);
+    }
+    // #endregion
+
+    // #region Public API
+    public getRoot(): Phaser.GameObjects.Container {
+        return this.root;
+    }
+
+    public setPosition(x: number, y: number): void {
+        this.root.setPosition(x, y);
+    }
+
+    public show(text: string, side: OfficerBarkSide): void {
+        const normalizedText = text.toUpperCase();
+
+        this.text.setText(normalizedText).setMaxWidth(BRIDGE_OFFICER_BARK_LAYOUT.bubble.maxTextWidth);
+
+        const bounds = this.text.getTextBounds(false).local;
+
+        const width = this.getBubbleWidth(bounds.width);
+        const height = this.getBubbleHeight(bounds.height);
+
+        this.renderBody(width, height);
+        this.positionTail(width, height, side);
+
+        this.root.setVisible(true);
+    }
+
+    public hide(): void {
+        this.root.setVisible(false);
+    }
+    // #endregion
+
+    // #region Body rendering
+    private renderBody(width: number, height: number): void {
+        this.clearBody();
+
+        this.renderCorners(width, height);
+        this.renderHorizontalEdges(width, height);
+        this.renderVerticalEdges(width, height);
+        this.renderCenter(width, height);
+    }
+
+    private renderCorners(width: number, height: number): void {
+        this.addBodyPiece(SPEECH_BUBBLE_SPRITE_ID.OFFICER_BARK_00_TOP_LEFT, 0, 0);
+
+        this.addBodyPiece(SPEECH_BUBBLE_SPRITE_ID.OFFICER_BARK_00_TOP_RIGHT, width - CORNER_SIZE, 0);
+
+        this.addBodyPiece(SPEECH_BUBBLE_SPRITE_ID.OFFICER_BARK_00_BOTTOM_LEFT, 0, height - CORNER_SIZE);
+
+        this.addBodyPiece(
+            SPEECH_BUBBLE_SPRITE_ID.OFFICER_BARK_00_BOTTOM_RIGHT,
+            width - CORNER_SIZE,
+            height - CORNER_SIZE,
+        );
+    }
+
+    private renderHorizontalEdges(width: number, height: number): void {
+        for (let x = CORNER_SIZE; x < width - CORNER_SIZE; x += TILE_SIZE) {
+            this.addBodyPiece(SPEECH_BUBBLE_SPRITE_ID.OFFICER_BARK_00_TOP, x, 0);
+
+            this.addBodyPiece(SPEECH_BUBBLE_SPRITE_ID.OFFICER_BARK_00_BOTTOM, x, height - CORNER_SIZE);
+        }
+    }
+
+    private renderVerticalEdges(width: number, height: number): void {
+        for (let y = CORNER_SIZE; y < height - CORNER_SIZE; y += TILE_SIZE) {
+            this.addBodyPiece(SPEECH_BUBBLE_SPRITE_ID.OFFICER_BARK_00_LEFT, 0, y);
+
+            this.addBodyPiece(SPEECH_BUBBLE_SPRITE_ID.OFFICER_BARK_00_RIGHT, width - CORNER_SIZE, y);
+        }
+    }
+
+    private renderCenter(width: number, height: number): void {
+        for (let y = CORNER_SIZE; y < height - CORNER_SIZE; y += TILE_SIZE) {
+            for (let x = CORNER_SIZE; x < width - CORNER_SIZE; x += TILE_SIZE) {
+                this.addBodyPiece(SPEECH_BUBBLE_SPRITE_ID.OFFICER_BARK_00_CENTER, x, y);
+            }
+        }
+    }
+
+    private addBodyPiece(spriteId: SpeechBubbleSpriteId, x: number, y: number): void {
+        const sprite = SPEECH_BUBBLE_SPRITES[spriteId];
+
+        const piece = this.scene.add.image(x, y, sprite.atlasKey, sprite.frameKey).setOrigin(0, 0);
+
+        this.bodyRoot.add(piece);
+        this.bodyPieces.push(piece);
+    }
+
+    private clearBody(): void {
+        for (const piece of this.bodyPieces) {
+            piece.destroy();
+        }
+
+        this.bodyPieces = [];
+    }
+    // #endregion
+
+    // #region Tail
+    private createTail(): Phaser.GameObjects.Image {
+        const sprite = SPEECH_BUBBLE_SPRITES[SPEECH_BUBBLE_SPRITE_ID.OFFICER_BARK_00_TAIL_BOTTOM];
+
+        return this.scene.add.image(0, 0, sprite.atlasKey, sprite.frameKey).setOrigin(0.5, 0);
+    }
+
+    private positionTail(width: number, height: number, side: OfficerBarkSide): void {
+        const tailX =
+            side === OFFICER_BARK_SIDE.LEFT
+                ? BRIDGE_OFFICER_BARK_LAYOUT.tail.x
+                : width - BRIDGE_OFFICER_BARK_LAYOUT.tail.x;
+
+        this.tail
+            .setPosition(tailX, height - BRIDGE_OFFICER_BARK_LAYOUT.tail.yFromBottom)
+            .setFlipX(side === OFFICER_BARK_SIDE.RIGHT);
+    }
+    // #endregion
+
+    // #region Size calculations
+    private getBubbleWidth(textWidth: number): number {
+        const rawWidth = textWidth + BRIDGE_OFFICER_BARK_LAYOUT.bubble.paddingX * 2;
+
+        return this.roundUpToTile(Math.max(BRIDGE_OFFICER_BARK_LAYOUT.bubble.minWidth, rawWidth));
+    }
+
+    private getBubbleHeight(textHeight: number): number {
+        const rawHeight = textHeight + BRIDGE_OFFICER_BARK_LAYOUT.bubble.paddingY * 2;
+
+        return this.roundUpToTile(Math.max(BRIDGE_OFFICER_BARK_LAYOUT.bubble.minHeight, rawHeight));
+    }
+
+    private roundUpToTile(value: number): number {
+        return (
+            Math.ceil(value / BRIDGE_OFFICER_BARK_LAYOUT.bubble.tileStep) * BRIDGE_OFFICER_BARK_LAYOUT.bubble.tileStep
+        );
+    }
+    // #endregion
+}

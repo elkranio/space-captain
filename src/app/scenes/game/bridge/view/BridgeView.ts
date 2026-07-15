@@ -8,6 +8,7 @@ import BridgeSpaceBackgroundView from './space/BridgeSpaceBackgroundView';
 import BridgeObjectsView from './objects/BridgeObjectsView';
 import BridgeVfxView from './vfx/BridgeVfxView';
 import BridgeUiView from './ui/BridgeUiView';
+import BridgeOfficerBarksView from './barks/BridgeOfficerBarksView';
 
 export default class BridgeView {
     private interiorView?: BridgeInteriorView;
@@ -16,6 +17,7 @@ export default class BridgeView {
     private objectsView?: BridgeObjectsView;
     private vfxView?: BridgeVfxView;
     private uiView?: BridgeUiView;
+    private officerBarksView?: BridgeOfficerBarksView;
 
     constructor(
         private readonly scene: BridgeScene,
@@ -29,6 +31,7 @@ export default class BridgeView {
         this.interiorView = new BridgeInteriorView(this.scene);
         this.crewView = new BridgeCrewView(this.scene, this.eventBus);
         this.uiView = new BridgeUiView(this.scene, this.eventBus);
+        this.officerBarksView = new BridgeOfficerBarksView(this.scene, this.eventBus);
     }
 
     public destroy(): void {
@@ -38,6 +41,7 @@ export default class BridgeView {
         this.vfxView?.destroy();
         this.objectsView?.destroy();
         this.spaceBackgroundView?.destroy();
+        this.officerBarksView?.destroy();
 
         this.uiView = undefined;
         this.crewView = undefined;
@@ -45,5 +49,6 @@ export default class BridgeView {
         this.vfxView = undefined;
         this.objectsView = undefined;
         this.spaceBackgroundView = undefined;
+        this.officerBarksView = undefined;
     }
 }

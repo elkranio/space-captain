@@ -8,6 +8,7 @@ import type { CharacterPortraitId } from '../../../../../engine/defs/character';
 export const BRIDGE_EVENT = {
     CREW_LOADED: 'crew_loaded',
     OFFICER_SEAT_CLICKED: 'officer_seat_clicked',
+    OFFICER_BARK_REQUESTED: 'officer_bark_requested',
 
     ENCOUNTER_OBJECTS_PREPARED: 'encounter_objects_prepared',
     ENCOUNTER_OBJECTS_SYNCED: 'encounter_objects_synced',
@@ -62,6 +63,11 @@ export type BridgeDockingStartedViewState = {
     targetId: string;
 };
 
+export type BridgeOfficerBarkViewState = {
+    role: OfficerRole;
+    text: string;
+};
+
 export type BridgeEventPayloadMap = {
     [BRIDGE_EVENT.CREW_LOADED]: Record<OfficerRole, OfficerDefinition>;
     [BRIDGE_EVENT.OFFICER_SEAT_CLICKED]: {
@@ -82,4 +88,5 @@ export type BridgeEventPayloadMap = {
     [BRIDGE_EVENT.CONTACT_ENDED]: undefined;
     [BRIDGE_EVENT.DOCKING_STARTED]: BridgeDockingStartedViewState;
     [BRIDGE_EVENT.DOCKING_ANIMATION_COMPLETED]: undefined;
+    [BRIDGE_EVENT.OFFICER_BARK_REQUESTED]: BridgeOfficerBarkViewState;
 };

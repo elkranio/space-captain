@@ -114,6 +114,11 @@ export default class BridgeEncounterController {
 
         this.encounterEngine.executeOfficerCommand(payload);
         this.processEncounterEvents();
+
+        this.eventBus.emit(BRIDGE_EVENT.OFFICER_BARK_REQUESTED, {
+            role: payload.role,
+            text: 'AYE, CAPTAIN.',
+        });
     }
 
     // #endregion
