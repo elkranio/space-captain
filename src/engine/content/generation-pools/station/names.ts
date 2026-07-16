@@ -1,7 +1,9 @@
-// src\engine\content\generation-pools\station\names.ts
+// src/engine/content/generation-pools/station/names.ts
 
 import { SPECIES_ID, type SpeciesId } from '../../../defs/species';
 
+// Пулы названий для сгенерированных станций.
+// Вид станции выбирает набор имён, конкретное имя выбирается генератором.
 export const STATION_NAME_POOLS_BY_SPECIES = {
     [SPECIES_ID.HUMAN]: [
         'Station Morrow',

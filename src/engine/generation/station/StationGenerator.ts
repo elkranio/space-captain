@@ -2,10 +2,10 @@
 
 import { STATION_CONTACT_PORTRAIT_POOLS_BY_SPECIES } from '../../content/generation-pools/station/contact_portraits';
 import { STATION_NAME_POOLS_BY_SPECIES } from '../../content/generation-pools/station/names';
-import { STATION_SPRITE_POOLS_BY_SPECIES } from '../../content/generation-pools/station/sprites';
+import { STATION_OBJECT_SPRITE_POOLS_BY_SPECIES } from '../../content/generation-pools/station/sprites';
 import { CharacterPortraitId } from '../../defs/character';
 import type { SpeciesId } from '../../defs/species';
-import type { StationSpriteId, StationState } from '../../defs/station';
+import type { StationObjectSpriteId, StationState } from '../../defs/station';
 import { randomFrom } from '../utils/random_from';
 
 export default class StationGenerator {
@@ -14,7 +14,7 @@ export default class StationGenerator {
             id: this.generateStationId(),
             name: this.generateName(originSpecies),
             originSpecies,
-            spriteId: this.generateSpriteId(originSpecies),
+            objectSpriteId: this.generateSpriteId(originSpecies),
             contact: {
                 name: 'PORT CONTROL',
                 portraitId: this.generateContactPortraitId(originSpecies),
@@ -30,8 +30,8 @@ export default class StationGenerator {
         return randomFrom(STATION_NAME_POOLS_BY_SPECIES[originSpecies]);
     }
 
-    private static generateSpriteId(originSpecies: SpeciesId): StationSpriteId {
-        return randomFrom(STATION_SPRITE_POOLS_BY_SPECIES[originSpecies]);
+    private static generateSpriteId(originSpecies: SpeciesId): StationObjectSpriteId {
+        return randomFrom(STATION_OBJECT_SPRITE_POOLS_BY_SPECIES[originSpecies]);
     }
 
     private static generateContactPortraitId(originSpecies: SpeciesId): CharacterPortraitId {

@@ -2,7 +2,7 @@
 
 import type { EncounterState } from '../../../../../../engine/encounter/encounter_state';
 import { ENCOUNTER_OBJECT_KIND } from '../../../../../../engine/encounter/objects/encounter_object';
-import { STATION_SPRITES } from '../../../../../manifests/stations/station_sprite';
+import { STATION_OBJECT_SPRITES } from '../../../../../manifests/stations/station_sprite';
 import type { BridgeEncounterObjectViewState } from '../../events/bridge_event';
 
 export function mapEncounterObjectsToViewState(state: EncounterState): BridgeEncounterObjectViewState[] {
@@ -11,7 +11,7 @@ export function mapEncounterObjectsToViewState(state: EncounterState): BridgeEnc
             case ENCOUNTER_OBJECT_KIND.STATION:
                 return {
                     id: object.id,
-                    sprite: STATION_SPRITES[object.station.spriteId],
+                    sprite: STATION_OBJECT_SPRITES[object.station.objectSpriteId],
                     position: new Phaser.Math.Vector2(object.position.x, object.position.y),
                 };
         }

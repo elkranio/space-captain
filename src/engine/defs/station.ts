@@ -5,7 +5,7 @@ import type { SpeciesId } from './species';
 
 // Стабильные id визуальных вариантов станций.
 // App-слой мапит эти id на конкретные atlas/frame.
-export const STATION_SPRITE_ID = {
+export const STATION_OBJECT_SPRITE_ID = {
     HUMAN_SMALL_00: 'human_small_00',
     HUMAN_SMALL_01: 'human_small_01',
 
@@ -13,7 +13,7 @@ export const STATION_SPRITE_ID = {
     ALIEN_SMALL_01: 'alien_small_01',
 } as const;
 
-export type StationSpriteId = (typeof STATION_SPRITE_ID)[keyof typeof STATION_SPRITE_ID];
+export type StationObjectSpriteId = (typeof STATION_OBJECT_SPRITE_ID)[keyof typeof STATION_OBJECT_SPRITE_ID];
 
 // Контактное лицо станции для comms/contact UI.
 // Это не вся станция, а тот, кто отвечает игроку в текущем сценарии.
@@ -28,6 +28,6 @@ export type StationState = {
     id: string;
     name: string;
     originSpecies: SpeciesId;
-    spriteId: StationSpriteId;
+    objectSpriteId: StationObjectSpriteId;
     contact: StationContactState;
 };
