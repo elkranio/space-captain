@@ -26,7 +26,7 @@ export type EncounterLoadedEvent = {
 
 // Список команд, которые сейчас доступны выбранному офицеру.
 // Это результат resolve-логики, а не выполнение команды.
-export type AvailableOfficerCommandsResolvedEvent = {
+export type AvailableOfficerCommandsUpdatedEvent = {
     type: typeof ENCOUNTER_EVENT.AVAILABLE_OFFICER_COMMANDS_UPDATED;
     role: OfficerRole;
     commands: AvailableOfficerCommand[];
@@ -60,7 +60,7 @@ export type DockingStartedEvent = {
 
 export type EncounterEvent =
     | EncounterLoadedEvent
-    | AvailableOfficerCommandsResolvedEvent
+    | AvailableOfficerCommandsUpdatedEvent
     | ContactStartedEvent
     | ContactMessageAddedEvent
     | ContactEndedEvent

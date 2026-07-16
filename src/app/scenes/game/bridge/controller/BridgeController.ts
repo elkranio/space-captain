@@ -2,10 +2,10 @@
 
 import { GAME_RUNTIME } from '../../../../runtime/GameRuntime';
 import type BridgeScene from '../BridgeScene';
-import { BRIDGE_EVENT } from '../events/bridge_event';
 import BridgeEventBus from '../events/BridgeEventBus';
 import BridgeView from '../view/BridgeView';
 import BridgeEncounterController from './encounter/BridgeEncounterController';
+import { BRIDGE_EVENT, type BridgeSceneTransitionRequestedPayload } from '../events/bridge_event';
 
 // Root-controller bridge scene.
 // Собирает view/controller-модули сцены и держит scene-local event bus.
@@ -25,16 +25,20 @@ export default class BridgeController {
     constructor(private readonly scene: BridgeScene) {}
 
     public prepare(): void {
+        this.registerBridgeEventHandlers();
+
         this.view = new BridgeView(this.scene, this.eventBus);
         this.view.prepare();
 
         this.loadState();
 
-        this.encounterController = new BridgeEncounterController(this.scene, this.eventBus);
+        this.encounterController = new BridgeEncounterController(this.eventBus);
         this.encounterController.prepare();
     }
 
     public destroy(): void {
+        this.unregisterBridgeEventHandlers();
+
         this.encounterController?.destroy();
         this.encounterController = undefined;
 
@@ -65,4 +69,18 @@ export default class BridgeController {
     }
 
     // #endregion
+
+    private registerBridgeEventHandlers(): void {
+        this.eventBus.on(BRIDGE_EVENT.SCENE_TRANSITION_REQUESTED, this.handleSceneTransitionRequested, this);
+    }
+
+    private unregisterBridgeEventHandlers(): void {
+        this.eventBus.off(BRIDGE_EVENT.SCENE_TRANSITION_REQUESTED, this.handleSceneTransitionRequested, this);
+    }
+
+    // Выполняет scene transition, запрошенный bridge-level flow.
+    // Конкретный controller/request handler выбирает sceneKey, root controller делает Phaser transition.
+    private handleSceneTransitionRequested(payload: BridgeSceneTransitionRequestedPayload): void {
+        this.scene.scene.start(payload.sceneKey);
+    }
 }

@@ -4,6 +4,7 @@ import type { CharacterPortraitId } from '../../../../../engine/defs/character';
 import type { OfficerDefinition, OfficerRole } from '../../../../../engine/defs/officer';
 import type { EncounterOfficerCommandId } from '../../../../../engine/encounter/model/command';
 import type { SpriteEntry } from '../../../../manifests/types';
+import { SCENE_KEY, SceneKey } from '../../../scene_key';
 
 // Scene-local события bridge scene.
 //
@@ -74,6 +75,10 @@ export const BRIDGE_EVENT = {
     // Визуальная docking animation завершилась.
     // Это app-level событие от view/vfx обратно controller-у.
     DOCKING_ANIMATION_COMPLETED: 'docking_animation_completed',
+
+    // Controller/request handler просит root bridge controller перейти в другую Phaser scene.
+    // Это bridge-level navigation intent, а не domain event encounter engine.
+    SCENE_TRANSITION_REQUESTED: 'scene_transition_requested',
 } as const;
 
 // Payload события CREW_LOADED.
@@ -152,6 +157,12 @@ export type BridgeDockingStartedPayload = {
     targetId: string;
 };
 
+// Payload события SCENE_TRANSITION_REQUESTED.
+// sceneKey — целевая Phaser scene, например station/shop/brothel/end flow.
+export type BridgeSceneTransitionRequestedPayload = {
+    sceneKey: SceneKey;
+};
+
 // Typed mapping: каждое bridge event name связано со своим payload.
 // undefined означает, что событие несёт только сам факт и не требует данных.
 export type BridgeEventPayloadMap = {
@@ -175,4 +186,6 @@ export type BridgeEventPayloadMap = {
 
     [BRIDGE_EVENT.DOCKING_STARTED]: BridgeDockingStartedPayload;
     [BRIDGE_EVENT.DOCKING_ANIMATION_COMPLETED]: undefined;
+
+    [BRIDGE_EVENT.SCENE_TRANSITION_REQUESTED]: BridgeSceneTransitionRequestedPayload;
 };
