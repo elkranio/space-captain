@@ -10,8 +10,8 @@ import { ENCOUNTER_EVENT, type EncounterEvent } from '../../../../../../engine/e
 import type { EncounterState } from '../../../../../../engine/encounter/model/state';
 import { BRIDGE_EVENT } from '../../events/bridge_event';
 import type BridgeEventBus from '../../events/BridgeEventBus';
-import { createOfficerCommandMenuGroups } from './create_officer_command_menu_groups';
-import { mapEncounterObjectsToViewState } from './map_encounter_objects_to_view_state';
+import { createOfficerCommandMenuGroups } from './officer_commands/create_officer_command_menu_groups';
+import { mapEncounterObjectsToBridgeObjectPayloads } from './objects/map_encounter_objects_to_bridge_object_payloads';
 import type { CharacterPortraitId } from '../../../../../../engine/defs/character';
 import BridgeScene from '../../BridgeScene';
 import { SCENE_KEY } from '../../../../scene_key';
@@ -176,7 +176,7 @@ export default class BridgeEncounterController {
     }
 
     private handleEncounterLoaded(state: EncounterState): void {
-        const objects = mapEncounterObjectsToViewState(state);
+        const objects = mapEncounterObjectsToBridgeObjectPayloads(state);
 
         if (SKIP_ARRIVAL) {
             this.eventBus.emit(BRIDGE_EVENT.ENCOUNTER_OBJECTS_UPDATED, objects);

@@ -1,7 +1,7 @@
-// src/app/scenes/game/bridge/controller/encounter/create_officer_command_menu_groups.ts
+// src/app/scenes/game/bridge/controller/encounter/officer_commands/create_officer_command_menu_groups.ts
 
-import type { AvailableOfficerCommand } from '../../../../../../engine/encounter/model/command';
-import { BridgeOfficerCommandMenuGroupPayload } from '../../events/bridge_event';
+import type { AvailableOfficerCommand } from '../../../../../../../engine/encounter/model/command';
+import { BridgeOfficerCommandMenuGroupPayload } from '../../../events/bridge_event';
 
 export function createOfficerCommandMenuGroups(
     commands: AvailableOfficerCommand[],
