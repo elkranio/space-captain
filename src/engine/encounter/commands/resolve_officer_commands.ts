@@ -2,9 +2,9 @@
 import type { OfficerRole } from '../../defs/officer';
 import {
     ENCOUNTER_OFFICER_COMMAND_ID,
-    type EncounterOfficerCommand,
+    type AvailableOfficerCommand,
     type EncounterOfficerCommandId,
-} from '../encounter_command';
+} from '../model/command';
 import type { EncounterState } from '../encounter_state';
 import {
     ENCOUNTER_OBJECT_KIND,
@@ -13,8 +13,8 @@ import {
 } from '../objects/encounter_object';
 import { DOCKING_CLEARANCE_STATE } from '../objects/station/station_encounter_object';
 
-export function resolveOfficerCommands(state: EncounterState, role: OfficerRole): EncounterOfficerCommand[] {
-    const commands: EncounterOfficerCommand[] = [];
+export function resolveOfficerCommands(state: EncounterState, role: OfficerRole): AvailableOfficerCommand[] {
+    const commands: AvailableOfficerCommand[] = [];
 
     for (const object of state.objects) {
         for (const objectCommand of object.officerCommands) {

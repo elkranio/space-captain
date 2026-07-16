@@ -1,10 +1,10 @@
 // src/app/scenes/game/bridge/controller/encounter/create_officer_command_menu_groups.ts
 
-import type { EncounterOfficerCommand } from '../../../../../../engine/encounter/encounter_command';
+import type { AvailableOfficerCommand } from '../../../../../../engine/encounter/model/command';
 import type { BridgeOfficerCommandMenuGroupViewState } from '../../events/bridge_event';
 
 export function createOfficerCommandMenuGroups(
-    commands: EncounterOfficerCommand[],
+    commands: AvailableOfficerCommand[],
 ): BridgeOfficerCommandMenuGroupViewState[] {
     const groups: BridgeOfficerCommandMenuGroupViewState[] = [];
 

@@ -7,7 +7,7 @@ import {
     type ActiveContactSequence,
     type ContactSequenceStep,
 } from './contact/contact_sequence';
-import { ENCOUNTER_OFFICER_COMMAND_ID, type ExecuteOfficerCommandInput } from './encounter_command';
+import { ENCOUNTER_OFFICER_COMMAND_ID, type ExecuteOfficerCommandInput } from './model/command';
 import { ENCOUNTER_EVENT, type EncounterEvent } from './encounter_event';
 import type { EncounterState } from './encounter_state';
 import { ENCOUNTER_OBJECT_KIND, type EncounterObjectState } from './objects/encounter_object';

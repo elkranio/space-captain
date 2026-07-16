@@ -1,7 +1,7 @@
-// src\engine\encounter\objects\encounter_object.ts
+// src/engine/encounter/objects/encounter_object.ts
 
 import type { OfficerRole } from '../../defs/officer';
-import type { EncounterOfficerCommandId } from '../encounter_command';
+import type { EncounterOfficerCommandId } from '../model/command';
 import type { StationEncounterObjectState } from './station/station_encounter_object';
 
 export const ENCOUNTER_OBJECT_KIND = {

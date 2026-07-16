@@ -1,9 +1,9 @@
-// src/engine/encounter/encounter_event.ts
+// src/engine/encounter/model/event.ts
 
-import type { OfficerRole } from '../defs/officer';
-import type { AvailableOfficerCommand } from './model/command';
-import type { EncounterState } from './encounter_state';
-import type { CharacterPortraitId } from '../defs/character';
+import type { OfficerRole } from '../../defs/officer';
+import type { AvailableOfficerCommand } from './command';
+import type { EncounterState } from './state';
+import type { CharacterPortraitId } from '../../defs/character';
 
 export const ENCOUNTER_EVENT = {
     ENCOUNTER_LOADED: 'encounter_loaded',

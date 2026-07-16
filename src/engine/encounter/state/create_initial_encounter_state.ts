@@ -4,7 +4,7 @@ import { OFFICER_ROLE } from '../../defs/officer';
 import { SPACE_BACKGROUND_ID } from '../../defs/space_background';
 import { SPECIES_ID } from '../../defs/species';
 import StationGenerator from '../../generation/station/StationGenerator';
-import { ENCOUNTER_OFFICER_COMMAND_ID } from '../encounter_command';
+import { ENCOUNTER_OFFICER_COMMAND_ID } from '../model/command';
 import type { EncounterState } from '../encounter_state';
 import { ENCOUNTER_OBJECT_KIND } from '../objects/encounter_object';
 import { DOCKING_CLEARANCE_STATE } from '../objects/station/station_encounter_object';

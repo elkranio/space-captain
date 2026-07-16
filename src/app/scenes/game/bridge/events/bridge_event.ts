@@ -2,7 +2,7 @@
 
 import type { OfficerDefinition, OfficerRole } from '../../../../../engine/defs/officer';
 import type { SpriteEntry } from '../../../../manifests/types';
-import type { EncounterOfficerCommandId } from '../../../../../engine/encounter/encounter_command';
+import type { EncounterOfficerCommandId } from '../../../../../engine/encounter/model/command';
 import type { CharacterPortraitId } from '../../../../../engine/defs/character';
 
 export const BRIDGE_EVENT = {

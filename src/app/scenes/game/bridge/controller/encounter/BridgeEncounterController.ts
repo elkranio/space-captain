@@ -3,9 +3,9 @@
 import type { OfficerRole } from '../../../../../../engine/defs/officer';
 import EncounterEngine from '../../../../../../engine/encounter/EncounterEngine';
 import type {
-    EncounterOfficerCommand,
+    AvailableOfficerCommand,
     EncounterOfficerCommandId,
-} from '../../../../../../engine/encounter/encounter_command';
+} from '../../../../../../engine/encounter/model/command';
 import { ENCOUNTER_EVENT, type EncounterEvent } from '../../../../../../engine/encounter/encounter_event';
 import type { EncounterState } from '../../../../../../engine/encounter/encounter_state';
 import { BRIDGE_EVENT } from '../../events/bridge_event';
@@ -190,7 +190,7 @@ export default class BridgeEncounterController {
         this.eventBus.emit(BRIDGE_EVENT.ENCOUNTER_ARRIVAL_STARTED, undefined);
     }
 
-    private handleOfficerCommandsReady(role: OfficerRole, commands: EncounterOfficerCommand[]): void {
+    private handleOfficerCommandsReady(role: OfficerRole, commands: AvailableOfficerCommand[]): void {
         this.eventBus.emit(BRIDGE_EVENT.OFFICER_COMMAND_MENU_SYNCED, {
             role,
             groups: createOfficerCommandMenuGroups(commands),
