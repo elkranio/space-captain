@@ -3,13 +3,15 @@
 import { GAME_LOCATION_ID, type GameLocationId } from '../defs/game_location';
 import { OFFICER_PORTRAIT_ID, OFFICER_ROLE, type OfficerDefinition, type OfficerRole } from '../defs/officer';
 
+// Стартовый контент новой игры.
+// Runtime создаёт начальное состояние игрока из этого seed.
 export type NewGameDefinition = {
-    game_location: GameLocationId;
+    gameLocationId: GameLocationId;
     officers: Record<OfficerRole, OfficerDefinition>;
 };
 
 export const NEW_GAME = {
-    game_location: GAME_LOCATION_ID.BRIDGE,
+    gameLocationId: GAME_LOCATION_ID.BRIDGE,
 
     officers: {
         [OFFICER_ROLE.COMMS]: {

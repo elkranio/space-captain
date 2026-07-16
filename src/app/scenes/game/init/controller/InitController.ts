@@ -10,7 +10,7 @@ export default class InitController {
 
     public start(): void {
         const game = GAME_RUNTIME.getCurrentGame();
-        const nextSceneKey = this.getSceneKeyByGameLocation(game.game_location);
+        const nextSceneKey = this.getSceneKeyByGameLocation(game.gameLocationId);
 
         this.scene.scene.start(nextSceneKey);
     }
