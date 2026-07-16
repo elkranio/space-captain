@@ -1,4 +1,4 @@
-// src/engine/content/generation-pools/station/sprites.ts
+// src/engine/content/generation-pools/station/object_sprites.ts
 
 import { SPECIES_ID, type SpeciesId } from '../../../defs/species';
 import { STATION_OBJECT_SPRITE_ID, type StationObjectSpriteId } from '../../../defs/station';
