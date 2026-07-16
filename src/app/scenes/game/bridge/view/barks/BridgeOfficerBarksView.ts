@@ -1,7 +1,7 @@
 // src/app/scenes/game/bridge/view/barks/BridgeOfficerBarksView.ts
 
 import type BridgeScene from '../../BridgeScene';
-import { BRIDGE_EVENT, type BridgeOfficerBarkViewState } from '../../events/bridge_event';
+import { BRIDGE_EVENT, type BridgeOfficerBarkRequestedPayload } from '../../events/bridge_event';
 import type BridgeEventBus from '../../events/BridgeEventBus';
 import BridgeOfficerBarkBubbleView from './BridgeOfficerBarkBubbleView';
 import { OFFICER_BARK_POSITION_BY_ROLE } from './bridge_officer_bark_layout';
@@ -41,7 +41,7 @@ export default class BridgeOfficerBarksView {
     // #endregion
 
     // #region Event handlers
-    private handleOfficerBarkRequested(payload: BridgeOfficerBarkViewState): void {
+    private handleOfficerBarkRequested(payload: BridgeOfficerBarkRequestedPayload): void {
         const position = OFFICER_BARK_POSITION_BY_ROLE[payload.role];
 
         this.stopHideTimer();

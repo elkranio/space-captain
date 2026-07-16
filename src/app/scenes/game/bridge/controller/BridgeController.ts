@@ -7,6 +7,9 @@ import BridgeEventBus from '../events/BridgeEventBus';
 import BridgeView from '../view/BridgeView';
 import BridgeEncounterController from './encounter/BridgeEncounterController';
 
+// Root-controller bridge scene.
+// Собирает view/controller-модули сцены и держит scene-local event bus.
+// Не содержит domain rules: gameplay-логику выполняют engine/controller-модули ниже.
 export default class BridgeController {
     // #region Fields
 
@@ -53,6 +56,8 @@ export default class BridgeController {
 
     // #region Loading
 
+    // Загружает bridge-level snapshot из runtime и отдаёт его во view через scene-local event bus.
+    // Controller не хранит crew state у себя, чтобы root оставался только точкой сборки сцены.
     private loadState(): void {
         const game = GAME_RUNTIME.getCurrentGame();
 

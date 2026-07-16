@@ -1,12 +1,12 @@
 // src/app/scenes/game/bridge/controller/encounter/create_officer_command_menu_groups.ts
 
 import type { AvailableOfficerCommand } from '../../../../../../engine/encounter/model/command';
-import type { BridgeOfficerCommandMenuGroupViewState } from '../../events/bridge_event';
+import { BridgeOfficerCommandMenuGroupPayload } from '../../events/bridge_event';
 
 export function createOfficerCommandMenuGroups(
     commands: AvailableOfficerCommand[],
-): BridgeOfficerCommandMenuGroupViewState[] {
-    const groups: BridgeOfficerCommandMenuGroupViewState[] = [];
+): BridgeOfficerCommandMenuGroupPayload[] {
+    const groups: BridgeOfficerCommandMenuGroupPayload[] = [];
 
     for (const command of commands) {
         const group = getOrCreateGroup(groups, command.targetLabel ?? 'GENERAL');
@@ -22,9 +22,9 @@ export function createOfficerCommandMenuGroups(
 }
 
 function getOrCreateGroup(
-    groups: BridgeOfficerCommandMenuGroupViewState[],
+    groups: BridgeOfficerCommandMenuGroupPayload[],
     label: string,
-): BridgeOfficerCommandMenuGroupViewState {
+): BridgeOfficerCommandMenuGroupPayload {
     const existingGroup = groups.find((group) => group.label === label);
 
     if (existingGroup) {

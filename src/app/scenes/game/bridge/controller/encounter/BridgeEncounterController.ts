@@ -179,19 +179,19 @@ export default class BridgeEncounterController {
         const objects = mapEncounterObjectsToViewState(state);
 
         if (SKIP_ARRIVAL) {
-            this.eventBus.emit(BRIDGE_EVENT.ENCOUNTER_OBJECTS_SYNCED, objects);
+            this.eventBus.emit(BRIDGE_EVENT.ENCOUNTER_OBJECTS_UPDATED, objects);
             this.isEncounterActive = true;
             return;
         }
 
         this.isEncounterActive = false;
 
-        this.eventBus.emit(BRIDGE_EVENT.ENCOUNTER_OBJECTS_PREPARED, objects);
+        this.eventBus.emit(BRIDGE_EVENT.ENCOUNTER_OBJECTS_LOADED, objects);
         this.eventBus.emit(BRIDGE_EVENT.ENCOUNTER_ARRIVAL_STARTED, undefined);
     }
 
     private handleOfficerCommandsReady(role: OfficerRole, commands: AvailableOfficerCommand[]): void {
-        this.eventBus.emit(BRIDGE_EVENT.OFFICER_COMMAND_MENU_SYNCED, {
+        this.eventBus.emit(BRIDGE_EVENT.OFFICER_COMMAND_MENU_UPDATED, {
             role,
             groups: createOfficerCommandMenuGroups(commands),
         });

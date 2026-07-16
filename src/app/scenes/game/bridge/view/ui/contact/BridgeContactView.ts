@@ -4,8 +4,8 @@ import { CONTACT_PANEL_SPRITE_ID, CONTACT_PANEL_SPRITES } from '../../../../../.
 import type BridgeScene from '../../../BridgeScene';
 import {
     BRIDGE_EVENT,
-    type BridgeContactMessageViewState,
-    type BridgeContactStartedViewState,
+    type BridgeContactMessageAddedPayload,
+    type BridgeContactStartedPayload,
 } from '../../../events/bridge_event';
 import type BridgeEventBus from '../../../events/BridgeEventBus';
 import BridgeContactMessagesView from './BridgeContactMessagesView';
@@ -66,13 +66,13 @@ export default class BridgeContactView {
     // #endregion
 
     // #region Event handlers
-    private handleContactStarted(payload: BridgeContactStartedViewState): void {
+    private handleContactStarted(payload: BridgeContactStartedPayload): void {
         this.messagesView.clear();
         this.portraitView.render(payload.contactName, payload.contactPortraitId);
         this.open();
     }
 
-    private handleContactMessageAdded(payload: BridgeContactMessageViewState): void {
+    private handleContactMessageAdded(payload: BridgeContactMessageAddedPayload): void {
         this.messagesView.addMessage(payload.speakerName, payload.text);
     }
 

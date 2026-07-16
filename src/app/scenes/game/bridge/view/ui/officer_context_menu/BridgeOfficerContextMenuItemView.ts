@@ -6,7 +6,7 @@ import {
 } from '../../../../../../manifests/bridge/officer_context_menu';
 import { FONT_COLOR, FONT_FAMILY, FONT_SIZE } from '../../../../../../theme/font';
 import type BridgeScene from '../../../BridgeScene';
-import type { BridgeOfficerCommandMenuItemViewState } from '../../../events/bridge_event';
+import type { BridgeOfficerCommandMenuItemPayload } from '../../../events/bridge_event';
 import { UI_EVENT } from '../ui_event';
 import { OFFICER_CONTEXT_MENU_LAYOUT } from './bridge_officer_context_menu_layout';
 
@@ -22,7 +22,7 @@ export default class BridgeOfficerContextMenuItemView {
 
     constructor(
         private readonly scene: BridgeScene,
-        private readonly item: BridgeOfficerCommandMenuItemViewState,
+        private readonly item: BridgeOfficerCommandMenuItemPayload,
     ) {
         this.root = this.scene.add.container(0, 0);
 

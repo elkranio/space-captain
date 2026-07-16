@@ -3,9 +3,9 @@
 import type { EncounterState } from '../../../../../../engine/encounter/model/state';
 import { ENCOUNTER_OBJECT_KIND } from '../../../../../../engine/encounter/objects/encounter_object';
 import { STATION_OBJECT_SPRITES } from '../../../../../manifests/stations/station_sprite';
-import type { BridgeEncounterObjectViewState } from '../../events/bridge_event';
+import type { BridgeEncounterObjectPayload } from '../../events/bridge_event';
 
-export function mapEncounterObjectsToViewState(state: EncounterState): BridgeEncounterObjectViewState[] {
+export function mapEncounterObjectsToViewState(state: EncounterState): BridgeEncounterObjectPayload[] {
     return state.objects.map((object) => {
         switch (object.kind) {
             case ENCOUNTER_OBJECT_KIND.STATION:

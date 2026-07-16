@@ -3,8 +3,8 @@
 import type BridgeScene from '../../BridgeScene';
 import {
     BRIDGE_EVENT,
-    type BridgeDockingStartedViewState,
-    type BridgeEncounterObjectViewState,
+    type BridgeDockingStartedPayload,
+    type BridgeEncounterObjectPayload,
 } from '../../events/bridge_event';
 import type BridgeEventBus from '../../events/BridgeEventBus';
 import { BRIDGE_VIEWSCREEN_RECT } from '../bridge_viewscreen_layout';
@@ -44,9 +44,9 @@ export default class BridgeObjectsView {
         this.root = this.scene.add.container(0, 0);
         this.scene.layers.get('objects').add(this.root);
 
-        this.eventBus.on(BRIDGE_EVENT.ENCOUNTER_OBJECTS_PREPARED, this.prepareObjects, this);
+        this.eventBus.on(BRIDGE_EVENT.ENCOUNTER_OBJECTS_LOADED, this.prepareObjects, this);
 
-        this.eventBus.on(BRIDGE_EVENT.ENCOUNTER_OBJECTS_SYNCED, this.syncObjects, this);
+        this.eventBus.on(BRIDGE_EVENT.ENCOUNTER_OBJECTS_UPDATED, this.syncObjects, this);
 
         this.eventBus.on(BRIDGE_EVENT.ENCOUNTER_ARRIVAL_STARTED, this.playArrival, this);
 
@@ -57,9 +57,9 @@ export default class BridgeObjectsView {
         this.stopArrivalTimer();
         this.stopDockingTimer();
 
-        this.eventBus.off(BRIDGE_EVENT.ENCOUNTER_OBJECTS_PREPARED, this.prepareObjects, this);
+        this.eventBus.off(BRIDGE_EVENT.ENCOUNTER_OBJECTS_LOADED, this.prepareObjects, this);
 
-        this.eventBus.off(BRIDGE_EVENT.ENCOUNTER_OBJECTS_SYNCED, this.syncObjects, this);
+        this.eventBus.off(BRIDGE_EVENT.ENCOUNTER_OBJECTS_UPDATED, this.syncObjects, this);
 
         this.eventBus.off(BRIDGE_EVENT.ENCOUNTER_ARRIVAL_STARTED, this.playArrival, this);
 
@@ -75,7 +75,7 @@ export default class BridgeObjectsView {
     // #endregion
 
     // #region Object sync
-    private prepareObjects(objects: BridgeEncounterObjectViewState[]): void {
+    private prepareObjects(objects: BridgeEncounterObjectPayload[]): void {
         this.stopArrivalTimer();
         this.stopDockingTimer();
         this.syncObjectViews(objects);
@@ -85,7 +85,7 @@ export default class BridgeObjectsView {
         }
     }
 
-    private syncObjects(objects: BridgeEncounterObjectViewState[]): void {
+    private syncObjects(objects: BridgeEncounterObjectPayload[]): void {
         this.stopArrivalTimer();
         this.stopDockingTimer();
         this.syncObjectViews(objects);
@@ -95,7 +95,7 @@ export default class BridgeObjectsView {
         }
     }
 
-    private syncObjectViews(objects: BridgeEncounterObjectViewState[]): void {
+    private syncObjectViews(objects: BridgeEncounterObjectPayload[]): void {
         const activeObjectIds = new Set<string>();
 
         for (const object of objects) {
@@ -170,7 +170,7 @@ export default class BridgeObjectsView {
     // #endregion
 
     // #region Docking animation
-    private handleDockingStarted(payload: BridgeDockingStartedViewState): void {
+    private handleDockingStarted(payload: BridgeDockingStartedPayload): void {
         this.stopArrivalTimer();
         this.stopDockingTimer();
 

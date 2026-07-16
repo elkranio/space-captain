@@ -5,9 +5,9 @@ import { FONT_COLOR, FONT_FAMILY, FONT_SIZE } from '../../../../../../theme/font
 import type BridgeScene from '../../../BridgeScene';
 import {
     BRIDGE_EVENT,
-    type BridgeOfficerCommandMenuGroupViewState,
-    type BridgeOfficerCommandMenuItemViewState,
-    type BridgeOfficerCommandMenuViewState,
+    type BridgeOfficerCommandMenuGroupPayload,
+    type BridgeOfficerCommandMenuItemPayload,
+    type BridgeOfficerCommandMenuUpdatedPayload,
 } from '../../../events/bridge_event';
 import type BridgeEventBus from '../../../events/BridgeEventBus';
 import BridgeOfficerContextMenuItemView from './BridgeOfficerContextMenuItemView';
@@ -49,11 +49,11 @@ export default class BridgeOfficerContextMenuView {
         this.panelView = new BridgeOfficerContextMenuPanelView(this.scene);
         this.root.add(this.panelView.getRoot());
 
-        this.eventBus.on(BRIDGE_EVENT.OFFICER_COMMAND_MENU_SYNCED, this.handleOfficerCommandMenuSynced, this);
+        this.eventBus.on(BRIDGE_EVENT.OFFICER_COMMAND_MENU_UPDATED, this.handleOfficerCommandMenuSynced, this);
     }
 
     public destroy(): void {
-        this.eventBus.off(BRIDGE_EVENT.OFFICER_COMMAND_MENU_SYNCED, this.handleOfficerCommandMenuSynced, this);
+        this.eventBus.off(BRIDGE_EVENT.OFFICER_COMMAND_MENU_UPDATED, this.handleOfficerCommandMenuSynced, this);
 
         this.blocker.off(Phaser.Input.Events.POINTER_DOWN, this.handleBlockerPointerDown, this);
 
@@ -67,7 +67,7 @@ export default class BridgeOfficerContextMenuView {
 
     // #region External events
 
-    private handleOfficerCommandMenuSynced(menu: BridgeOfficerCommandMenuViewState): void {
+    private handleOfficerCommandMenuSynced(menu: BridgeOfficerCommandMenuUpdatedPayload): void {
         this.clearContent();
 
         if (this.isEmpty(menu)) {
@@ -87,7 +87,7 @@ export default class BridgeOfficerContextMenuView {
         this.closeMenu();
     }
 
-    private handleItemSelected(item: BridgeOfficerCommandMenuItemViewState): void {
+    private handleItemSelected(item: BridgeOfficerCommandMenuItemPayload): void {
         if (!this.currentRole) {
             return;
         }
@@ -113,11 +113,11 @@ export default class BridgeOfficerContextMenuView {
         this.root.setPosition(position.x, position.y);
     }
 
-    private renderPanel(menu: BridgeOfficerCommandMenuViewState): void {
+    private renderPanel(menu: BridgeOfficerCommandMenuUpdatedPayload): void {
         this.panelView.render(menu.role.toUpperCase(), this.getMinHeight(menu));
     }
 
-    private renderGroups(groups: BridgeOfficerCommandMenuGroupViewState[]): void {
+    private renderGroups(groups: BridgeOfficerCommandMenuGroupPayload[]): void {
         let cursorY: number = OFFICER_CONTEXT_MENU_LAYOUT.content.y;
 
         groups.forEach((group, groupIndex) => {
@@ -125,7 +125,7 @@ export default class BridgeOfficerContextMenuView {
         });
     }
 
-    private renderGroup(group: BridgeOfficerCommandMenuGroupViewState, groupIndex: number, cursorY: number): number {
+    private renderGroup(group: BridgeOfficerCommandMenuGroupPayload, groupIndex: number, cursorY: number): number {
         let nextY = cursorY;
 
         if (groupIndex > 0) {
@@ -150,7 +150,7 @@ export default class BridgeOfficerContextMenuView {
         this.groupLabels.push(groupLabel);
     }
 
-    private renderItem(item: BridgeOfficerCommandMenuItemViewState, y: number): number {
+    private renderItem(item: BridgeOfficerCommandMenuItemPayload, y: number): number {
         const itemView = new BridgeOfficerContextMenuItemView(this.scene, item);
 
         itemView.getRoot().on(UI_EVENT.CLICK, this.handleItemSelected, this);
@@ -208,15 +208,15 @@ export default class BridgeOfficerContextMenuView {
 
     // #region Layout calculations
 
-    private isEmpty(menu: BridgeOfficerCommandMenuViewState): boolean {
+    private isEmpty(menu: BridgeOfficerCommandMenuUpdatedPayload): boolean {
         return this.getItemCount(menu) === 0;
     }
 
-    private getItemCount(menu: BridgeOfficerCommandMenuViewState): number {
+    private getItemCount(menu: BridgeOfficerCommandMenuUpdatedPayload): number {
         return menu.groups.reduce((total, group) => total + group.items.length, 0);
     }
 
-    private getMinHeight(menu: BridgeOfficerCommandMenuViewState): number {
+    private getMinHeight(menu: BridgeOfficerCommandMenuUpdatedPayload): number {
         let contentHeight = 0;
 
         menu.groups.forEach((group, groupIndex) => {
