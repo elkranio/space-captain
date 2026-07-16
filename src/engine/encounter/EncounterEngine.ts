@@ -8,7 +8,7 @@ import {
     type ContactSequenceStep,
 } from './contact/contact_sequence';
 import { ENCOUNTER_OFFICER_COMMAND_ID, type ExecuteOfficerCommandInput } from './model/command';
-import { ENCOUNTER_EVENT, type EncounterEvent } from './encounter_event';
+import { ENCOUNTER_EVENT, type EncounterEvent } from './model/event';
 import type { EncounterState } from './encounter_state';
 import { ENCOUNTER_OBJECT_KIND, type EncounterObjectState } from './objects/encounter_object';
 import { DOCKING_CLEARANCE_STATE } from './objects/station/station_encounter_object';
@@ -48,7 +48,7 @@ export default class EncounterEngine {
 
     public requestOfficerCommands(role: OfficerRole): void {
         this.outbox.push({
-            type: ENCOUNTER_EVENT.OFFICER_COMMANDS_READY,
+            type: ENCOUNTER_EVENT.AVAILABLE_OFFICER_COMMANDS_RESOLVED,
             role,
             commands: resolveOfficerCommands(this.state, role),
         });

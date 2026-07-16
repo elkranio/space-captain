@@ -6,7 +6,7 @@ import type {
     AvailableOfficerCommand,
     EncounterOfficerCommandId,
 } from '../../../../../../engine/encounter/model/command';
-import { ENCOUNTER_EVENT, type EncounterEvent } from '../../../../../../engine/encounter/encounter_event';
+import { ENCOUNTER_EVENT, type EncounterEvent } from '../../../../../../engine/encounter/model/event';
 import type { EncounterState } from '../../../../../../engine/encounter/encounter_state';
 import { BRIDGE_EVENT } from '../../events/bridge_event';
 import type BridgeEventBus from '../../events/BridgeEventBus';
@@ -141,7 +141,7 @@ export default class BridgeEncounterController {
                 this.handleEncounterLoaded(event.state);
                 return;
 
-            case ENCOUNTER_EVENT.OFFICER_COMMANDS_READY:
+            case ENCOUNTER_EVENT.AVAILABLE_OFFICER_COMMANDS_RESOLVED:
                 this.handleOfficerCommandsReady(event.role, event.commands);
                 return;
 
