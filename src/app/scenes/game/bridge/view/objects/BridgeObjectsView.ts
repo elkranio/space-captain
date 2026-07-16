@@ -132,7 +132,7 @@ export default class BridgeObjectsView {
         const views = [...this.objectViews.values()];
 
         if (views.length === 0) {
-            this.eventBus.emit(BRIDGE_EVENT.ENCOUNTER_ARRIVAL_COMPLETED, undefined);
+            this.eventBus.emit(BRIDGE_EVENT.ENCOUNTER_ARRIVAL_COMPLETED);
             return;
         }
 
@@ -157,7 +157,7 @@ export default class BridgeObjectsView {
                 if (stepIndex >= ARRIVAL_SCALE_STEPS.length) {
                     this.arrivalTimer = undefined;
 
-                    this.eventBus.emit(BRIDGE_EVENT.ENCOUNTER_ARRIVAL_COMPLETED, undefined);
+                    this.eventBus.emit(BRIDGE_EVENT.ENCOUNTER_ARRIVAL_COMPLETED);
                 }
             },
         });
@@ -264,7 +264,7 @@ export default class BridgeObjectsView {
     }
 
     private completeDockingAnimation(): void {
-        this.eventBus.emit(BRIDGE_EVENT.DOCKING_ANIMATION_COMPLETED, undefined);
+        this.eventBus.emit(BRIDGE_EVENT.DOCKING_ANIMATION_COMPLETED);
     }
 
     private stopDockingTimer(): void {

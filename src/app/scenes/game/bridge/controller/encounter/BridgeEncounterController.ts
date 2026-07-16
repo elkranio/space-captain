@@ -187,7 +187,7 @@ export default class BridgeEncounterController {
         this.isEncounterActive = false;
 
         this.eventBus.emit(BRIDGE_EVENT.ENCOUNTER_OBJECTS_LOADED, objects);
-        this.eventBus.emit(BRIDGE_EVENT.ENCOUNTER_ARRIVAL_STARTED, undefined);
+        this.eventBus.emit(BRIDGE_EVENT.ENCOUNTER_ARRIVAL_STARTED);
     }
 
     private handleOfficerCommandsReady(role: OfficerRole, commands: AvailableOfficerCommand[]): void {
@@ -212,7 +212,7 @@ export default class BridgeEncounterController {
     }
 
     private handleContactEnded(): void {
-        this.eventBus.emit(BRIDGE_EVENT.CONTACT_ENDED, undefined);
+        this.eventBus.emit(BRIDGE_EVENT.CONTACT_ENDED);
     }
 
     // #endregion
