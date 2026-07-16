@@ -9,7 +9,7 @@ import type { EncounterState } from './state';
 // Engine сообщает только о доменных изменениях, app-слой сам решает, как это показать.
 export const ENCOUNTER_EVENT = {
     ENCOUNTER_LOADED: 'encounter_loaded',
-    AVAILABLE_OFFICER_COMMANDS_RESOLVED: 'available_officer_commands_resolved',
+    AVAILABLE_OFFICER_COMMANDS_UPDATED: 'available_officer_commands_updated',
 
     CONTACT_STARTED: 'contact_started',
     CONTACT_MESSAGE_ADDED: 'contact_message_added',
@@ -27,7 +27,7 @@ export type EncounterLoadedEvent = {
 // Список команд, которые сейчас доступны выбранному офицеру.
 // Это результат resolve-логики, а не выполнение команды.
 export type AvailableOfficerCommandsResolvedEvent = {
-    type: typeof ENCOUNTER_EVENT.AVAILABLE_OFFICER_COMMANDS_RESOLVED;
+    type: typeof ENCOUNTER_EVENT.AVAILABLE_OFFICER_COMMANDS_UPDATED;
     role: OfficerRole;
     commands: AvailableOfficerCommand[];
 };

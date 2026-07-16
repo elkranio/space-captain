@@ -141,7 +141,7 @@ export default class BridgeEncounterController {
                 this.handleEncounterLoaded(event.state);
                 return;
 
-            case ENCOUNTER_EVENT.AVAILABLE_OFFICER_COMMANDS_RESOLVED:
+            case ENCOUNTER_EVENT.AVAILABLE_OFFICER_COMMANDS_UPDATED:
                 this.handleOfficerCommandsReady(event.role, event.commands);
                 return;
 
