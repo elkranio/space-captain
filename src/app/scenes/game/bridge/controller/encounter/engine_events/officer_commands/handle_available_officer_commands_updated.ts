@@ -2,7 +2,7 @@
 
 import type { AvailableOfficerCommandsUpdatedEvent } from '../../../../../../../../engine/encounter/model/event';
 import { BRIDGE_EVENT } from '../../../../events/bridge_event';
-import { createOfficerCommandMenuGroups } from '../../officer_commands/create_officer_command_menu_groups';
+import { createOfficerCommandMenuGroups } from '../../command_menu/create_officer_command_menu_groups';
 import type { BridgeEncounterEventHandlerContext } from '../bridge_encounter_event_handler_context';
 
 // Переводит engine AVAILABLE_OFFICER_COMMANDS_UPDATED в bridge OFFICER_COMMAND_MENU_UPDATED.
