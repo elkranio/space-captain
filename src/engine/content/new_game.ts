@@ -1,15 +1,15 @@
-// src\engine\content\new_game.ts
+// src/engine/content/new_game.ts
 
-import { GAME_LOCATION, type GameLocation } from '../defs/game_location';
+import { GAME_LOCATION_ID, type GameLocationId } from '../defs/game_location';
 import { OFFICER_PORTRAIT_ID, OFFICER_ROLE, type OfficerDefinition, type OfficerRole } from '../defs/officer';
 
 export type NewGameDefinition = {
-    game_location: GameLocation;
+    game_location: GameLocationId;
     officers: Record<OfficerRole, OfficerDefinition>;
 };
 
 export const NEW_GAME = {
-    game_location: GAME_LOCATION.BRIDGE,
+    game_location: GAME_LOCATION_ID.BRIDGE,
 
     officers: {
         [OFFICER_ROLE.COMMS]: {

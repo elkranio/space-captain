@@ -219,8 +219,8 @@ export default class EncounterEngine {
                         {
                             kind: CONTACT_SEQUENCE_STEP_KIND.START_CONTACT,
                             waitAfterMs: 1000,
-                            contactName: target.station.contactName,
-                            contactPortraitId: target.station.contactPortraitId,
+                            contactName: target.station.contact.name,
+                            contactPortraitId: target.station.contact.portraitId,
                         },
                         {
                             kind: CONTACT_SEQUENCE_STEP_KIND.MESSAGE,
@@ -231,7 +231,7 @@ export default class EncounterEngine {
                         {
                             kind: CONTACT_SEQUENCE_STEP_KIND.MESSAGE,
                             waitAfterMs: 2000,
-                            speakerName: target.station.contactName,
+                            speakerName: target.station.contact.name,
                             text: 'Hold on.',
                         },
                         {
@@ -242,7 +242,7 @@ export default class EncounterEngine {
                         {
                             kind: CONTACT_SEQUENCE_STEP_KIND.MESSAGE,
                             waitAfterMs: 2000,
-                            speakerName: target.station.contactName,
+                            speakerName: target.station.contact.name,
                             text: 'You are cleared to dock.',
                         },
                         {

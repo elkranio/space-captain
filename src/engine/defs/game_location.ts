@@ -1,7 +1,9 @@
 // src/engine/defs/game_location.ts
 
-export const GAME_LOCATION = {
+// Стабильные id крупных игровых локаций, которые можно хранить в сейве.
+// App-слой мапит эти id на конкретные Phaser scenes.
+export const GAME_LOCATION_ID = {
     BRIDGE: 'bridge',
 } as const;
 
-export type GameLocation = (typeof GAME_LOCATION)[keyof typeof GAME_LOCATION];
+export type GameLocationId = (typeof GAME_LOCATION_ID)[keyof typeof GAME_LOCATION_ID];

@@ -1,8 +1,9 @@
 // src/engine/generation/station/StationGenerator.ts
 
+import { STATION_CONTACT_PORTRAIT_POOLS_BY_SPECIES } from '../../content/generation-pools/station/contact_portraits';
 import { STATION_NAME_POOLS_BY_SPECIES } from '../../content/generation-pools/station/names';
 import { STATION_SPRITE_POOLS_BY_SPECIES } from '../../content/generation-pools/station/sprites';
-import { CHARACTER_PORTRAIT_ID } from '../../defs/character';
+import { CharacterPortraitId } from '../../defs/character';
 import type { SpeciesId } from '../../defs/species';
 import type { StationSpriteId, StationState } from '../../defs/station';
 import { randomFrom } from '../utils/random_from';
@@ -14,8 +15,10 @@ export default class StationGenerator {
             name: this.generateName(originSpecies),
             originSpecies,
             spriteId: this.generateSpriteId(originSpecies),
-            contactName: 'PORT CONTROL',
-            contactPortraitId: CHARACTER_PORTRAIT_ID.COMMS_HUMAN_00_CALM,
+            contact: {
+                name: 'PORT CONTROL',
+                portraitId: this.generateContactPortraitId(originSpecies),
+            },
         };
     }
 
@@ -29,5 +32,9 @@ export default class StationGenerator {
 
     private static generateSpriteId(originSpecies: SpeciesId): StationSpriteId {
         return randomFrom(STATION_SPRITE_POOLS_BY_SPECIES[originSpecies]);
+    }
+
+    private static generateContactPortraitId(originSpecies: SpeciesId): CharacterPortraitId {
+        return randomFrom(STATION_CONTACT_PORTRAIT_POOLS_BY_SPECIES[originSpecies]);
     }
 }

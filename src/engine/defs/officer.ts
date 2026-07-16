@@ -1,5 +1,7 @@
-// src\engine\defs\officer.ts
+// src/engine/defs/officer.ts
 
+// Стабильные роли мостика.
+// Роль определяет seat, доступные команды и место офицера в captain flow.
 export const OFFICER_ROLE = {
     COMMS: 'comms',
     SCIENCE: 'science',
@@ -10,6 +12,8 @@ export const OFFICER_ROLE = {
 
 export type OfficerRole = (typeof OFFICER_ROLE)[keyof typeof OFFICER_ROLE];
 
+// Стабильные id портретов офицеров для bridge UI.
+// Это отдельный набор от generic character portraits, потому что офицерские портреты живут в crew panels.
 export const OFFICER_PORTRAIT_ID = {
     SILHOUETTE_00: 'silhouette_00',
 
@@ -31,6 +35,8 @@ export const OFFICER_PORTRAIT_ID = {
 
 export type OfficerPortraitId = (typeof OFFICER_PORTRAIT_ID)[keyof typeof OFFICER_PORTRAIT_ID];
 
+// Базовое описание назначенного офицера.
+// Runtime-состояние вроде текущей задачи, усталости и настроения должно жить отдельно.
 export type OfficerDefinition = {
     role: OfficerRole;
     name: string;
