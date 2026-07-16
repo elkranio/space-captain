@@ -148,6 +148,19 @@ export default class EncounterEngine {
                     text: 'Station traffic control. State your business.',
                 },
                 {
+                    kind: CONTACT_SEQUENCE_STEP_KIND.MESSAGE,
+                    waitAfterMs: 2500,
+                    speakerName: 'COMMS',
+                    text: "Hey beautiful. How's it going?",
+                },
+                {
+                    kind: CONTACT_SEQUENCE_STEP_KIND.MESSAGE,
+                    waitAfterMs: 2000,
+                    speakerName: target.station.contact.name,
+                    text: 'Ugh...',
+                },
+
+                {
                     kind: CONTACT_SEQUENCE_STEP_KIND.END_CONTACT,
                     waitAfterMs: 1000,
                 },
