@@ -7,7 +7,7 @@ import type {
     EncounterOfficerCommandId,
 } from '../../../../../../engine/encounter/model/command';
 import { ENCOUNTER_EVENT, type EncounterEvent } from '../../../../../../engine/encounter/model/event';
-import type { EncounterState } from '../../../../../../engine/encounter/encounter_state';
+import type { EncounterState } from '../../../../../../engine/encounter/model/state';
 import { BRIDGE_EVENT } from '../../events/bridge_event';
 import type BridgeEventBus from '../../events/BridgeEventBus';
 import { createOfficerCommandMenuGroups } from './create_officer_command_menu_groups';

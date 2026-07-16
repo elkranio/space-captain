@@ -1,6 +1,6 @@
 // src/app/scenes/game/bridge/controller/encounter/map_encounter_objects_to_view_state.ts
 
-import type { EncounterState } from '../../../../../../engine/encounter/encounter_state';
+import type { EncounterState } from '../../../../../../engine/encounter/model/state';
 import { ENCOUNTER_OBJECT_KIND } from '../../../../../../engine/encounter/objects/encounter_object';
 import { STATION_OBJECT_SPRITES } from '../../../../../manifests/stations/station_sprite';
 import type { BridgeEncounterObjectViewState } from '../../events/bridge_event';

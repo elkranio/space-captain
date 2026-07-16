@@ -9,7 +9,7 @@ import {
 } from './contact/contact_sequence';
 import { ENCOUNTER_OFFICER_COMMAND_ID, type ExecuteOfficerCommandInput } from './model/command';
 import { ENCOUNTER_EVENT, type EncounterEvent } from './model/event';
-import type { EncounterState } from './encounter_state';
+import type { EncounterState } from './model/state';
 import { ENCOUNTER_OBJECT_KIND, type EncounterObjectState } from './objects/encounter_object';
 import { DOCKING_CLEARANCE_STATE } from './objects/station/station_encounter_object';
 import { createInitialEncounterState } from './state/create_initial_encounter_state';

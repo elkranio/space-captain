@@ -5,7 +5,7 @@ import {
     type AvailableOfficerCommand,
     type EncounterOfficerCommandId,
 } from '../model/command';
-import type { EncounterState } from '../encounter_state';
+import type { EncounterState } from '../model/state';
 import {
     ENCOUNTER_OBJECT_KIND,
     type EncounterObjectOfficerCommand,
