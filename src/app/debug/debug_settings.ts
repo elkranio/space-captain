@@ -18,7 +18,7 @@ export type DebugSettings = {
 export const DEBUG_SETTINGS: DebugSettings = {
     bridge: {
         encounter: {
-            skipArrival: true,
+            skipArrival: false,
             skipDockingAnimation: false,
         },
         officerCommands: {
