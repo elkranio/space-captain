@@ -5,7 +5,7 @@ import type { BridgeEncounterObjectPayload } from '../../../events/bridge_event'
 import { getBridgeViewscreenPoint } from '../../bridge_viewscreen_layout';
 
 // Leaf-view одного encounter object на bridge viewscreen.
-// Хранит Phaser image и visual state, который нужен для arrival animation.
+// Хранит Phaser image и отдаёт наружу только безопасный API для object-level animation sequences.
 export default class BridgeObjectSpriteView {
     private readonly root: Phaser.GameObjects.Container;
     private readonly objectImage: Phaser.GameObjects.Image;
@@ -27,37 +27,53 @@ export default class BridgeObjectSpriteView {
         this.update(payload);
     }
 
-    public destroy(): void {
-        this.root.destroy(true);
-    }
-
-    public getRoot(): Phaser.GameObjects.Container {
-        return this.root;
-    }
-
     public update(payload: BridgeEncounterObjectPayload): void {
         const point = getBridgeViewscreenPoint(payload.position);
 
-        this.root.setPosition(point.x, point.y);
+        this.setPosition(point.x, point.y);
         this.objectImage.setTexture(payload.sprite.atlasKey, payload.sprite.frameKey);
     }
 
     public prepareForArrival(): void {
         this.root.setVisible(false);
-        this.root.setScale(0);
+        this.setScale(0);
     }
 
     public showForArrival(): void {
         this.root.setVisible(true);
-        this.root.setScale(0);
+        this.setScale(0);
     }
 
     public setArrivalScale(scale: number): void {
-        this.root.setScale(scale);
+        this.setScale(scale);
     }
 
     public showNormal(): void {
         this.root.setVisible(true);
-        this.root.setScale(1);
+        this.setScale(1);
+    }
+
+    public getX(): number {
+        return this.root.x;
+    }
+
+    public getY(): number {
+        return this.root.y;
+    }
+
+    public getScale(): number {
+        return this.root.scaleX;
+    }
+
+    public setPosition(x: number, y: number): void {
+        this.root.setPosition(x, y);
+    }
+
+    public setScale(scale: number): void {
+        this.root.setScale(scale);
+    }
+
+    public destroy(): void {
+        this.root.destroy(true);
     }
 }
