@@ -1,10 +1,10 @@
-// src\app\scenes\game\bridge\view\crew\BridgeCrewView.ts
+// src/app/scenes/game/bridge/view/crew/BridgeCrewView.ts
 
 import { OFFICER_ROLE, OfficerDefinition, type OfficerRole } from '../../../../../../engine/defs/officer';
 import type BridgeScene from '../../BridgeScene';
 import { BRIDGE_EVENT } from '../../events/bridge_event';
 import type BridgeEventBus from '../../events/BridgeEventBus';
-import { BRIDGE_CREW_POSITIONS } from './bridge_crew_layout';
+import { BRIDGE_CREW_SEAT_POSITIONS } from './bridge_crew_layout';
 import BridgeSeatView from './seat/BridgeSeatView';
 
 const BRIDGE_CREW_ROLE_ORDER = [
@@ -43,7 +43,7 @@ export default class BridgeCrewView {
     }
 
     private createSeats(): void {
-        for (const position of BRIDGE_CREW_POSITIONS) {
+        for (const position of BRIDGE_CREW_SEAT_POSITIONS) {
             this.seats.push(new BridgeSeatView(this.scene, this.root, position, this.eventBus));
         }
     }
@@ -53,7 +53,7 @@ export default class BridgeCrewView {
             const role = BRIDGE_CREW_ROLE_ORDER[index];
 
             if (!role) {
-                this.seats[index].clearRole();
+                this.seats[index].clearOfficer();
                 continue;
             }
 

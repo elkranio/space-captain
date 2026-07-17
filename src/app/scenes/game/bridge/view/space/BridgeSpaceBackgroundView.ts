@@ -1,12 +1,12 @@
-// src\app\scenes\game\bridge\view\space\BridgeSpaceBackgroundView.ts
+// src/app/scenes/game/bridge/view/space/BridgeSpaceBackgroundView.ts
 
 import { SPACE_BACKGROUND_ID, type SpaceBackgroundId } from '../../../../../../engine/defs/space_background';
 import { SPACE_BACKGROUND_SPRITES } from '../../../../../manifests/bridge/space_background';
 import type BridgeScene from '../../BridgeScene';
+import { BRIDGE_VIEWSCREEN_RECT } from '../bridge_viewscreen_layout';
 
-const SPACE_BACKGROUND_X = 220;
-const SPACE_BACKGROUND_Y = 115;
-
+// View фонового изображения за bridge viewscreen.
+// Отвечает только за Phaser image в space layer и смену background texture.
 export default class BridgeSpaceBackgroundView {
     private readonly root: Phaser.GameObjects.Container;
     private readonly background: Phaser.GameObjects.Image;
@@ -18,7 +18,7 @@ export default class BridgeSpaceBackgroundView {
         const asset = SPACE_BACKGROUND_SPRITES[SPACE_BACKGROUND_ID.NEBULA_00];
 
         this.background = this.scene.add
-            .image(SPACE_BACKGROUND_X, SPACE_BACKGROUND_Y, asset.atlasKey, asset.frameKey)
+            .image(BRIDGE_VIEWSCREEN_RECT.x, BRIDGE_VIEWSCREEN_RECT.y, asset.atlasKey, asset.frameKey)
             .setOrigin(0, 0);
 
         this.root.add(this.background);

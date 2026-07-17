@@ -5,17 +5,19 @@ import {
     OFFICER_STATION_FRAME_ID,
     OFFICER_STATION_FRAME_SPRITES,
 } from '../../../../../../manifests/bridge/officer_station';
+import { BRIDGE_EVENT } from '../../../events/bridge_event';
+import type BridgeEventBus from '../../../events/BridgeEventBus';
 import type BridgeScene from '../../../BridgeScene';
 import BridgeSeatLabelView from './label/BridgeSeatLabelView';
 import BridgeSeatPortraitView from './portrait/BridgeSeatPortraitView';
-import { BRIDGE_EVENT } from '../../../events/bridge_event';
-import type BridgeEventBus from '../../../events/BridgeEventBus';
 
-const EMPTY_ROLE = 'EMPTY';
+const EMPTY_LABEL = 'EMPTY';
 
+// Composite-view одной officer seat panel.
+// Собирает frame, portrait, label и эмитит input event при клике по занятому seat.
 export default class BridgeSeatView {
     private readonly root: Phaser.GameObjects.Container;
-    private readonly frame: Phaser.GameObjects.Image;
+    private readonly frameImage: Phaser.GameObjects.Image;
     private readonly portrait: BridgeSeatPortraitView;
     private readonly label: BridgeSeatLabelView;
 
@@ -32,11 +34,13 @@ export default class BridgeSeatView {
 
         const frameAsset = OFFICER_STATION_FRAME_SPRITES[OFFICER_STATION_FRAME_ID.EMPTY];
 
-        this.frame = this.scene.add.image(0, 0, frameAsset.atlasKey, frameAsset.frameKey).setOrigin(0.5, 0.5);
-        this.frame
+        this.frameImage = this.scene.add.image(0, 0, frameAsset.atlasKey, frameAsset.frameKey).setOrigin(0.5, 0.5);
+
+        this.frameImage
             .setInteractive({ useHandCursor: true })
             .on(Phaser.Input.Events.POINTER_DOWN, this.handlePointerDown, this);
-        this.root.add(this.frame);
+
+        this.root.add(this.frameImage);
 
         this.portrait = new BridgeSeatPortraitView(
             this.scene,
@@ -45,15 +49,7 @@ export default class BridgeSeatView {
             this.shouldFlipPortrait(position),
         );
 
-        this.label = new BridgeSeatLabelView(this.scene, this.root, this.getLabelY(), EMPTY_ROLE);
-    }
-
-    public setRole(role: OfficerRole): void {
-        this.role = role;
-    }
-
-    public clearRole(): void {
-        this.role = null;
+        this.label = new BridgeSeatLabelView(this.scene, this.root, this.getLabelY(), EMPTY_LABEL);
     }
 
     public setOfficer(officer: OfficerDefinition): void {
@@ -62,11 +58,20 @@ export default class BridgeSeatView {
         this.portrait.setPortrait(officer.portraitId);
     }
 
+    public clearOfficer(): void {
+        this.role = null;
+        this.label.setText(EMPTY_LABEL);
+        this.portrait.clearPortrait();
+    }
+
     public destroy(): void {
+        this.frameImage.off(Phaser.Input.Events.POINTER_DOWN, this.handlePointerDown, this);
+
         this.label.destroy();
         this.portrait.destroy();
-        this.frame.off(Phaser.Input.Events.POINTER_DOWN, this.handlePointerDown, this);
-        this.root.destroy(true);
+        this.frameImage.destroy();
+
+        this.root.destroy(false);
     }
 
     private shouldFlipPortrait(position: Phaser.Math.Vector2): boolean {
@@ -76,11 +81,11 @@ export default class BridgeSeatView {
     }
 
     private getPortraitBottomY(): number {
-        return this.frame.height * 0.5 - 48;
+        return this.frameImage.height * 0.5 - 48;
     }
 
     private getLabelY(): number {
-        return -this.frame.height * 0.5 + 27;
+        return -this.frameImage.height * 0.5 + 27;
     }
 
     private handlePointerDown(): void {

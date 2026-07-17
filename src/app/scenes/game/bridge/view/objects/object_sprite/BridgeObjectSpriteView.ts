@@ -1,16 +1,15 @@
-// src/app/scenes/game/bridge/view/objects/BridgeObjectSpriteView.ts
+// src/app/scenes/game/bridge/view/objects/object_sprite/BridgeObjectSpriteView.ts
 
-import type BridgeScene from '../../BridgeScene';
-import type { BridgeEncounterObjectPayload } from '../../events/bridge_event';
-import { getBridgeViewscreenPoint } from '../bridge_viewscreen_layout';
+import type BridgeScene from '../../../BridgeScene';
+import type { BridgeEncounterObjectPayload } from '../../../events/bridge_event';
+import { getBridgeViewscreenPoint } from '../../bridge_viewscreen_layout';
 
+// Leaf-view одного encounter object на bridge viewscreen.
+// Хранит Phaser image и visual state, который нужен для arrival animation.
 export default class BridgeObjectSpriteView {
-    // #region Fields
     private readonly root: Phaser.GameObjects.Container;
-    private readonly sprite: Phaser.GameObjects.Image;
-    // #endregion
+    private readonly objectImage: Phaser.GameObjects.Image;
 
-    // #region Lifecycle
     constructor(
         private readonly scene: BridgeScene,
         parent: Phaser.GameObjects.Container,
@@ -19,9 +18,11 @@ export default class BridgeObjectSpriteView {
         this.root = this.scene.add.container(0, 0);
         parent.add(this.root);
 
-        this.sprite = this.scene.add.image(0, 0, payload.sprite.atlasKey, payload.sprite.frameKey).setOrigin(0.5, 0.5);
+        this.objectImage = this.scene.add
+            .image(0, 0, payload.sprite.atlasKey, payload.sprite.frameKey)
+            .setOrigin(0.5, 0.5);
 
-        this.root.add(this.sprite);
+        this.root.add(this.objectImage);
 
         this.update(payload);
     }
@@ -29,9 +30,7 @@ export default class BridgeObjectSpriteView {
     public destroy(): void {
         this.root.destroy(true);
     }
-    // #endregion
 
-    // #region Public API
     public getRoot(): Phaser.GameObjects.Container {
         return this.root;
     }
@@ -40,7 +39,7 @@ export default class BridgeObjectSpriteView {
         const point = getBridgeViewscreenPoint(payload.position);
 
         this.root.setPosition(point.x, point.y);
-        this.sprite.setTexture(payload.sprite.atlasKey, payload.sprite.frameKey);
+        this.objectImage.setTexture(payload.sprite.atlasKey, payload.sprite.frameKey);
     }
 
     public prepareForArrival(): void {
@@ -61,5 +60,4 @@ export default class BridgeObjectSpriteView {
         this.root.setVisible(true);
         this.root.setScale(1);
     }
-    // #endregion
 }

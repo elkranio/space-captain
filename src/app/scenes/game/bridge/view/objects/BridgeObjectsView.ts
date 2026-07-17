@@ -8,7 +8,7 @@ import {
 } from '../../events/bridge_event';
 import type BridgeEventBus from '../../events/BridgeEventBus';
 import { BRIDGE_VIEWSCREEN_RECT } from '../bridge_viewscreen_layout';
-import BridgeObjectSpriteView from './BridgeObjectSpriteView';
+import BridgeObjectSpriteView from './object_sprite/BridgeObjectSpriteView';
 
 const ARRIVAL_SCALE_STEPS = [0, 0.06, 0.12, 0.2, 0.32, 0.46, 0.62, 0.78, 0.9, 1] as const;
 

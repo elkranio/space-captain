@@ -10,6 +10,8 @@ import BridgeVfxView from './vfx/BridgeVfxView';
 import BridgeUiView from './ui/BridgeUiView';
 import BridgeOfficerBarksView from './barks/BridgeOfficerBarksView';
 
+// Root view bridge scene.
+// Собирает визуальные модули bridge и отвечает только за их lifecycle.
 export default class BridgeView {
     private interiorView?: BridgeInteriorView;
     private crewView?: BridgeCrewView;
@@ -35,20 +37,20 @@ export default class BridgeView {
     }
 
     public destroy(): void {
+        this.officerBarksView?.destroy();
         this.uiView?.destroy();
         this.crewView?.destroy();
         this.interiorView?.destroy();
         this.vfxView?.destroy();
         this.objectsView?.destroy();
         this.spaceBackgroundView?.destroy();
-        this.officerBarksView?.destroy();
 
+        this.officerBarksView = undefined;
         this.uiView = undefined;
         this.crewView = undefined;
         this.interiorView = undefined;
         this.vfxView = undefined;
         this.objectsView = undefined;
         this.spaceBackgroundView = undefined;
-        this.officerBarksView = undefined;
     }
 }
