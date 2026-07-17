@@ -1,20 +1,33 @@
 // src/app/scenes/game/bridge/controller/encounter/officer_station_indicators/BridgeOfficerStationIndicatorsPoller.ts
 
+import { OFFICER_ROLE } from '../../../../../../../engine/defs/officer';
 import type EncounterEngine from '../../../../../../../engine/encounter/EncounterEngine';
-import type { OfficerAvailabilityStates } from '../../../../../../../engine/encounter/model/officer_availability';
-import { BRIDGE_EVENT, type BridgeOfficerStationIndicatorsUpdatedPayload } from '../../../events/bridge_event';
+import {
+    OFFICER_AVAILABILITY_STATE,
+    type OfficerAvailabilityState,
+    type OfficerAvailabilityStates,
+} from '../../../../../../../engine/encounter/model/officer_availability';
+import {
+    BRIDGE_EVENT,
+    type BridgeOfficerStationIndicatorState,
+    type BridgeOfficerStationIndicatorsUpdatedPayload,
+} from '../../../events/bridge_event';
 import type BridgeEventBus from '../../../events/BridgeEventBus';
-import { areOfficerStationIndicatorStatesEqual } from './are_officer_station_indicator_states_equal';
-import { mapOfficerAvailabilityToStationIndicatorState } from './map_officer_availability_to_station_indicator_state';
-import { OFFICER_STATION_INDICATOR_ROLES } from './officer_station_indicator_roles';
 
 const OFFICER_STATION_INDICATOR_POLL_INTERVAL_MS = 200;
 
+const OFFICER_STATION_INDICATOR_ROLES = [
+    OFFICER_ROLE.COMMS,
+    OFFICER_ROLE.SCIENCE,
+    OFFICER_ROLE.HELM,
+    OFFICER_ROLE.WEAPONS,
+    OFFICER_ROLE.ENGINEER,
+] as const;
+
 // Poller bridge-level состояний officer station indicators.
-// Периодически читает engine availability, мапит её в lamp states и эмитит update только при изменении.
+// Периодически читает engine availability, мапит её в lamp states и эмитит полный snapshot.
 export default class BridgeOfficerStationIndicatorsPoller {
     private elapsedMs = 0;
-    private previousStates?: BridgeOfficerStationIndicatorsUpdatedPayload;
 
     constructor(
         private readonly engine: EncounterEngine,
@@ -24,30 +37,23 @@ export default class BridgeOfficerStationIndicatorsPoller {
     public step(deltaMs: number): void {
         this.elapsedMs += deltaMs;
 
-        if (this.previousStates && this.elapsedMs < OFFICER_STATION_INDICATOR_POLL_INTERVAL_MS) {
+        if (this.elapsedMs < OFFICER_STATION_INDICATOR_POLL_INTERVAL_MS) {
             return;
         }
 
         this.elapsedMs = 0;
+        this.sync();
+    }
 
-        this.syncStates();
+    public sync(): void {
+        this.eventBus.emit(
+            BRIDGE_EVENT.OFFICER_STATION_INDICATORS_UPDATED,
+            this.createStationIndicatorStates(this.engine.getOfficerAvailabilityStates()),
+        );
     }
 
     public destroy(): void {
-        this.previousStates = undefined;
         this.elapsedMs = 0;
-    }
-
-    private syncStates(): void {
-        const states = this.createStationIndicatorStates(this.engine.getOfficerAvailabilityStates());
-
-        if (areOfficerStationIndicatorStatesEqual(this.previousStates, states)) {
-            return;
-        }
-
-        this.previousStates = states;
-
-        this.eventBus.emit(BRIDGE_EVENT.OFFICER_STATION_INDICATORS_UPDATED, states);
     }
 
     private createStationIndicatorStates(
@@ -56,9 +62,24 @@ export default class BridgeOfficerStationIndicatorsPoller {
         const states = {} as BridgeOfficerStationIndicatorsUpdatedPayload;
 
         for (const role of OFFICER_STATION_INDICATOR_ROLES) {
-            states[role] = mapOfficerAvailabilityToStationIndicatorState(availabilityStates[role]);
+            states[role] = this.mapAvailabilityToStationIndicatorState(availabilityStates[role]);
         }
 
         return states;
+    }
+
+    private mapAvailabilityToStationIndicatorState(
+        availabilityState: OfficerAvailabilityState,
+    ): BridgeOfficerStationIndicatorState {
+        switch (availabilityState) {
+            case OFFICER_AVAILABILITY_STATE.UNAVAILABLE:
+                return 'off';
+
+            case OFFICER_AVAILABILITY_STATE.AVAILABLE:
+                return 'ready';
+
+            case OFFICER_AVAILABILITY_STATE.BUSY:
+                return 'busy';
+        }
     }
 }

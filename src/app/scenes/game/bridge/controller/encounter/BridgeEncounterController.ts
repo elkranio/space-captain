@@ -85,7 +85,7 @@ export default class BridgeEncounterController {
 
     private handleEncounterArrivalCompleted(): void {
         handleEncounterArrivalCompletedInput(this.createEncounterInputHandlerContext());
-        this.updateOfficerStationIndicators(0);
+        this.syncOfficerStationIndicators();
     }
 
     private handleOfficerCommandSelected(payload: BridgeOfficerCommandSelectedPayload): void {
@@ -114,6 +114,14 @@ export default class BridgeEncounterController {
         }
 
         this.officerStationIndicatorsPoller?.step(deltaMs);
+    }
+
+    private syncOfficerStationIndicators(): void {
+        if (!this.isEncounterInteractive) {
+            return;
+        }
+
+        this.officerStationIndicatorsPoller?.sync();
     }
 
     private createEncounterEventHandlerContext(): BridgeEncounterEventHandlerContext {
@@ -151,7 +159,7 @@ export default class BridgeEncounterController {
 
                 this.encounterEngine.executeOfficerCommand(payload);
                 this.drainEncounterEvents();
-                this.updateOfficerStationIndicators(0);
+                this.syncOfficerStationIndicators();
             },
         };
     }
