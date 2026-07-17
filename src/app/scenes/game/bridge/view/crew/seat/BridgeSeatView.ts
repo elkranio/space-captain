@@ -2,21 +2,24 @@
 
 import type { OfficerDefinition, OfficerRole } from '../../../../../../../engine/defs/officer';
 import { OFFICER_STATION_SPRITE_ID, OFFICER_STATION_SPRITES } from '../../../../../../manifests/bridge/officer_station';
-import { BRIDGE_EVENT } from '../../../events/bridge_event';
-import type BridgeEventBus from '../../../events/BridgeEventBus';
 import type BridgeScene from '../../../BridgeScene';
+import { BRIDGE_EVENT, type BridgeOfficerStationIndicatorState } from '../../../events/bridge_event';
+import type BridgeEventBus from '../../../events/BridgeEventBus';
 import BridgeSeatLabelView from './label/BridgeSeatLabelView';
 import BridgeSeatPortraitView from './portrait/BridgeSeatPortraitView';
+import BridgeSeatStatusLightView from './status_light/BridgeSeatStatusLightView';
 
 const EMPTY_LABEL = 'EMPTY';
+const STATUS_LIGHT_POSITION = new Phaser.Math.Vector2(0, -97);
 
 // Composite-view одной officer seat panel.
-// Собирает frame, portrait, label и эмитит input event при клике по занятому seat.
+// Собирает frame, portrait, label, status light и эмитит input event при клике по занятому seat.
 export default class BridgeSeatView {
     private readonly root: Phaser.GameObjects.Container;
     private readonly frameImage: Phaser.GameObjects.Image;
     private readonly portrait: BridgeSeatPortraitView;
     private readonly label: BridgeSeatLabelView;
+    private readonly statusLightView: BridgeSeatStatusLightView;
 
     private role: OfficerRole | null = null;
 
@@ -39,6 +42,10 @@ export default class BridgeSeatView {
 
         this.root.add(this.frameImage);
 
+        this.statusLightView = new BridgeSeatStatusLightView(this.scene);
+        this.statusLightView.setPosition(STATUS_LIGHT_POSITION.x, STATUS_LIGHT_POSITION.y);
+        this.root.add(this.statusLightView.getRoot());
+
         this.portrait = new BridgeSeatPortraitView(
             this.scene,
             this.root,
@@ -59,11 +66,17 @@ export default class BridgeSeatView {
         this.role = null;
         this.label.setText(EMPTY_LABEL);
         this.portrait.clearPortrait();
+        this.statusLightView.setState('off');
+    }
+
+    public setStatusLightState(state: BridgeOfficerStationIndicatorState): void {
+        this.statusLightView.setState(state);
     }
 
     public destroy(): void {
         this.frameImage.off(Phaser.Input.Events.POINTER_DOWN, this.handlePointerDown, this);
 
+        this.statusLightView.destroy();
         this.label.destroy();
         this.portrait.destroy();
         this.frameImage.destroy();

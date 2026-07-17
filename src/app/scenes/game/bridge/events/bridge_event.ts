@@ -36,6 +36,10 @@ export const BRIDGE_EVENT = {
     // Это не contact dialogue, а маленькая реплика офицера поверх bridge UI.
     OFFICER_BARK_REQUESTED: 'officer_bark_requested',
 
+    // Controller отдаёт view актуальные состояния ламп officer stations.
+    // Это bridge-level view state, уже после маппинга из engine officer availability.
+    OFFICER_STATION_INDICATORS_UPDATED: 'officer_station_indicators_updated',
+
     // Первый snapshot encounter objects после загрузки encounter.
     // View может создать/пересоздать Phaser sprites для объектов на viewscreen.
     ENCOUNTER_OBJECTS_LOADED: 'encounter_objects_loaded',
@@ -163,6 +167,14 @@ export type BridgeSceneTransitionRequestedPayload = {
     sceneKey: SceneKey;
 };
 
+// View-state лампы officer station.
+// off = потухшая лампа в базовом frame; ready/busy = overlay sprite поверх панели.
+export type BridgeOfficerStationIndicatorState = 'off' | 'ready' | 'busy';
+
+// Payload события OFFICER_STATION_INDICATORS_UPDATED.
+// Controller отдаёт полный snapshot role -> lamp state.
+export type BridgeOfficerStationIndicatorsUpdatedPayload = Record<OfficerRole, BridgeOfficerStationIndicatorState>;
+
 // Typed mapping: каждое bridge event name связано со своим payload.
 // undefined означает, что событие несёт только сам факт и не требует данных.
 export type BridgeEventPayloadMap = {
@@ -171,6 +183,8 @@ export type BridgeEventPayloadMap = {
     [BRIDGE_EVENT.OFFICER_SEAT_CLICKED]: BridgeOfficerSeatClickedPayload;
     [BRIDGE_EVENT.OFFICER_COMMAND_SELECTED]: BridgeOfficerCommandSelectedPayload;
     [BRIDGE_EVENT.OFFICER_BARK_REQUESTED]: BridgeOfficerBarkRequestedPayload;
+
+    [BRIDGE_EVENT.OFFICER_STATION_INDICATORS_UPDATED]: BridgeOfficerStationIndicatorsUpdatedPayload;
 
     [BRIDGE_EVENT.ENCOUNTER_OBJECTS_LOADED]: BridgeEncounterObjectPayload[];
     [BRIDGE_EVENT.ENCOUNTER_OBJECTS_UPDATED]: BridgeEncounterObjectPayload[];

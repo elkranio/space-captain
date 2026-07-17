@@ -7,6 +7,8 @@ import type { ExecuteOfficerCommandInput } from './model/command';
 import { ENCOUNTER_EVENT, type EncounterEvent } from './model/event';
 import type { EncounterState } from './model/state';
 import { createInitialEncounterState } from './state/create_initial_encounter_state';
+import type { OfficerAvailabilityStates } from './model/officer_availability';
+import { getOfficerAvailabilityStates } from './officer_availability/queries/get_officer_availability_states';
 
 export default class EncounterEngine {
     private readonly state: EncounterState;
@@ -45,6 +47,10 @@ export default class EncounterEngine {
             role,
             commands: getAvailableOfficerCommands(this.state, role),
         });
+    }
+
+    public getOfficerAvailabilityStates(): OfficerAvailabilityStates {
+        return getOfficerAvailabilityStates(this.state);
     }
 
     public drainEvents(): EncounterEvent[] {

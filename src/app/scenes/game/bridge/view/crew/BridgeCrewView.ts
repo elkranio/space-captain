@@ -1,23 +1,24 @@
 // src/app/scenes/game/bridge/view/crew/BridgeCrewView.ts
 
-import { OFFICER_ROLE, OfficerDefinition, type OfficerRole } from '../../../../../../engine/defs/officer';
+import type { OfficerDefinition, OfficerRole } from '../../../../../../engine/defs/officer';
 import type BridgeScene from '../../BridgeScene';
-import { BRIDGE_EVENT } from '../../events/bridge_event';
+import {
+    BRIDGE_EVENT,
+    type BridgeCrewLoadedPayload,
+    type BridgeOfficerStationIndicatorsUpdatedPayload,
+} from '../../events/bridge_event';
 import type BridgeEventBus from '../../events/BridgeEventBus';
 import { BRIDGE_CREW_SEAT_POSITIONS } from './bridge_crew_layout';
 import BridgeSeatView from './seat/BridgeSeatView';
 
-const BRIDGE_CREW_ROLE_ORDER = [
-    OFFICER_ROLE.COMMS,
-    OFFICER_ROLE.SCIENCE,
-    OFFICER_ROLE.HELM,
-    OFFICER_ROLE.WEAPONS,
-    OFFICER_ROLE.ENGINEER,
-] as const;
-
+// Root view bridge crew layer.
+// Создаёт officer seat panels, заполняет их crew snapshot-ом и раздаёт seat-ам статусы ламп.
 export default class BridgeCrewView {
     private readonly root: Phaser.GameObjects.Container;
-    private readonly seats: BridgeSeatView[] = [];
+    private readonly seatViews: BridgeSeatView[] = [];
+    private readonly seatViewByRole = new Map<OfficerRole, BridgeSeatView>();
+
+    private latestIndicatorStates?: BridgeOfficerStationIndicatorsUpdatedPayload;
 
     constructor(
         private readonly scene: BridgeScene,
@@ -26,38 +27,86 @@ export default class BridgeCrewView {
         this.root = this.scene.add.container(0, 0);
         this.scene.layers.get('bridge').add(this.root);
 
-        this.createSeats();
+        this.createSeatViews();
 
-        this.eventBus.on(BRIDGE_EVENT.CREW_LOADED, this.setCrew, this);
+        this.eventBus.on(BRIDGE_EVENT.CREW_LOADED, this.handleCrewLoaded, this);
+        this.eventBus.on(
+            BRIDGE_EVENT.OFFICER_STATION_INDICATORS_UPDATED,
+            this.handleOfficerStationIndicatorsUpdated,
+            this,
+        );
     }
 
     public destroy(): void {
-        this.eventBus.off(BRIDGE_EVENT.CREW_LOADED, this.setCrew, this);
+        this.eventBus.off(BRIDGE_EVENT.CREW_LOADED, this.handleCrewLoaded, this);
+        this.eventBus.off(
+            BRIDGE_EVENT.OFFICER_STATION_INDICATORS_UPDATED,
+            this.handleOfficerStationIndicatorsUpdated,
+            this,
+        );
 
-        for (const seat of this.seats) {
-            seat.destroy();
+        for (const seatView of this.seatViews) {
+            seatView.destroy();
         }
 
-        this.seats.length = 0;
-        this.root.destroy(true);
+        this.seatViews.length = 0;
+        this.seatViewByRole.clear();
+        this.latestIndicatorStates = undefined;
+
+        this.root.destroy(false);
     }
 
-    private createSeats(): void {
+    private createSeatViews(): void {
         for (const position of BRIDGE_CREW_SEAT_POSITIONS) {
-            this.seats.push(new BridgeSeatView(this.scene, this.root, position, this.eventBus));
+            const seatView = new BridgeSeatView(this.scene, this.root, position, this.eventBus);
+
+            this.seatViews.push(seatView);
         }
     }
 
-    private setCrew(officers: Record<OfficerRole, OfficerDefinition>): void {
-        for (let index = 0; index < this.seats.length; index += 1) {
-            const role = BRIDGE_CREW_ROLE_ORDER[index];
+    private handleCrewLoaded(payload: BridgeCrewLoadedPayload): void {
+        this.clearSeats();
 
-            if (!role) {
-                this.seats[index].clearOfficer();
-                continue;
+        const officers = Object.values(payload);
+
+        officers.forEach((officer, index) => {
+            const seatView = this.seatViews[index];
+
+            if (!seatView) {
+                return;
             }
 
-            this.seats[index].setOfficer(officers[role]);
+            this.setSeatOfficer(seatView, officer);
+        });
+
+        this.applyLatestIndicatorStates();
+    }
+
+    private handleOfficerStationIndicatorsUpdated(payload: BridgeOfficerStationIndicatorsUpdatedPayload): void {
+        this.latestIndicatorStates = payload;
+        this.applyLatestIndicatorStates();
+    }
+
+    private setSeatOfficer(seatView: BridgeSeatView, officer: OfficerDefinition): void {
+        seatView.setOfficer(officer);
+        this.seatViewByRole.set(officer.role, seatView);
+    }
+
+    private clearSeats(): void {
+        this.seatViewByRole.clear();
+
+        for (const seatView of this.seatViews) {
+            seatView.clearOfficer();
+        }
+    }
+
+    private applyLatestIndicatorStates(): void {
+        if (!this.latestIndicatorStates) {
+            return;
+        }
+
+        for (const [role, seatView] of this.seatViewByRole) {
+            seatView.setStatusLightState(this.latestIndicatorStates[role]);
         }
     }
 }
