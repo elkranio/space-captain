@@ -1,13 +1,15 @@
-// src\app\scenes\game\bridge\view\vfx\BridgeVfxView.ts
+// src/app/scenes/game/bridge/view/vfx/BridgeVfxView.ts
 
 import type BridgeScene from '../../BridgeScene';
 import { BRIDGE_EVENT } from '../../events/bridge_event';
 import type BridgeEventBus from '../../events/BridgeEventBus';
-import BridgeArrivalDustView from './arrival/BridgeArrivalDustView';
+import BridgeViewscreenDustView from './viewscreen_dust/BridgeViewscreenDustView';
 
+// Root view для bridge VFX layer.
+// Собирает vfx child views и переводит bridge events в локальные visual effects.
 export default class BridgeVfxView {
     private readonly root: Phaser.GameObjects.Container;
-    private readonly arrivalDustView: BridgeArrivalDustView;
+    private readonly viewscreenDustView: BridgeViewscreenDustView;
 
     constructor(
         private readonly scene: BridgeScene,
@@ -16,25 +18,25 @@ export default class BridgeVfxView {
         this.root = this.scene.add.container(0, 0);
         this.scene.layers.get('vfx').add(this.root);
 
-        this.arrivalDustView = new BridgeArrivalDustView(this.scene, this.root);
+        this.viewscreenDustView = new BridgeViewscreenDustView(this.scene, this.root);
 
-        this.eventBus.on(BRIDGE_EVENT.ENCOUNTER_ARRIVAL_STARTED, this.handleEncounterArrivalStarted, this);
-        this.eventBus.on(BRIDGE_EVENT.ENCOUNTER_ARRIVAL_COMPLETED, this.handleEncounterArrivalCompleted, this);
+        this.eventBus.on(BRIDGE_EVENT.ENCOUNTER_ARRIVAL_STARTED, this.startViewscreenDust, this);
+        this.eventBus.on(BRIDGE_EVENT.ENCOUNTER_ARRIVAL_COMPLETED, this.stopViewscreenDust, this);
     }
 
     public destroy(): void {
-        this.eventBus.off(BRIDGE_EVENT.ENCOUNTER_ARRIVAL_STARTED, this.handleEncounterArrivalStarted, this);
-        this.eventBus.off(BRIDGE_EVENT.ENCOUNTER_ARRIVAL_COMPLETED, this.handleEncounterArrivalCompleted, this);
+        this.eventBus.off(BRIDGE_EVENT.ENCOUNTER_ARRIVAL_STARTED, this.startViewscreenDust, this);
+        this.eventBus.off(BRIDGE_EVENT.ENCOUNTER_ARRIVAL_COMPLETED, this.stopViewscreenDust, this);
 
-        this.arrivalDustView.destroy();
-        this.root.destroy(true);
+        this.viewscreenDustView.destroy();
+        this.root.destroy(false);
     }
 
-    private handleEncounterArrivalStarted(): void {
-        this.arrivalDustView.start();
+    private startViewscreenDust(): void {
+        this.viewscreenDustView.start();
     }
 
-    private handleEncounterArrivalCompleted(): void {
-        this.arrivalDustView.stop();
+    private stopViewscreenDust(): void {
+        this.viewscreenDustView.stop();
     }
 }

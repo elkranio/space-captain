@@ -1,4 +1,4 @@
-// src\app\scenes\game\bridge\view\vfx\arrival\BridgeArrivalDustView.ts
+// src/app/scenes/game/bridge/view/vfx/viewscreen_dust/BridgeViewscreenDustView.ts
 
 import type BridgeScene from '../../../BridgeScene';
 import { BRIDGE_VIEWSCREEN_RECT } from '../../bridge_viewscreen_layout';
@@ -7,16 +7,18 @@ const DUST_PARTICLE_COUNT = 42;
 const DUST_TICK_MS = 45;
 const DUST_COLOR = 0xc8d8ff;
 
-type ArrivalDustParticle = {
+type ViewscreenDustParticle = {
     view: Phaser.GameObjects.Rectangle;
     angle: number;
     distance: number;
     speed: number;
 };
 
-export default class BridgeArrivalDustView {
+// View эффекта dust/speed particles поверх bridge viewscreen.
+// Эффект не привязан к конкретному flow: его можно запускать для arrival, approach или jump visuals.
+export default class BridgeViewscreenDustView {
     private readonly root: Phaser.GameObjects.Container;
-    private readonly particles: ArrivalDustParticle[] = [];
+    private readonly particles: ViewscreenDustParticle[] = [];
 
     private timer?: Phaser.Time.TimerEvent;
 
@@ -104,7 +106,7 @@ export default class BridgeArrivalDustView {
         }
     }
 
-    private resetParticle(particle: ArrivalDustParticle, scattered: boolean): void {
+    private resetParticle(particle: ViewscreenDustParticle, scattered: boolean): void {
         particle.angle = Math.random() * Math.PI * 2;
         particle.distance = scattered ? Math.random() * BRIDGE_VIEWSCREEN_RECT.width * 0.45 : 0;
         particle.speed = Phaser.Math.Between(8, 18);
