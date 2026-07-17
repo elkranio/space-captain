@@ -1,20 +1,16 @@
-// src/app/scenes/game/bridge/view/ui/contact/BridgeContactPortraitView.ts
+// src/app/scenes/game/bridge/view/ui/contact/portrait/BridgeContactPortraitView.ts
 
-import type { CharacterPortraitId } from '../../../../../../../engine/defs/character';
-import { CHARACTER_PORTRAIT_SPRITES } from '../../../../../../manifests/characters/character_portrait';
-import { FONT_COLOR, FONT_FAMILY, FONT_SIZE } from '../../../../../../theme/font';
-import type BridgeScene from '../../../BridgeScene';
-import { BRIDGE_CONTACT_LAYOUT } from './bridge_contact_layout';
+import type { CharacterPortraitId } from '../../../../../../../../engine/defs/character';
+import { CHARACTER_PORTRAIT_SPRITES } from '../../../../../../../manifests/characters/character_portrait';
+import { FONT_COLOR, FONT_FAMILY, FONT_SIZE } from '../../../../../../../theme/font';
+import type BridgeScene from '../../../../BridgeScene';
+import { BRIDGE_CONTACT_LAYOUT } from '../bridge_contact_layout';
 
+// View портрета и имени текущего comms contact.
+// Владеет только visual content внутри portrait-зоны contact panel.
 export default class BridgeContactPortraitView {
-    // #region Fields
     private readonly root: Phaser.GameObjects.Container;
 
-    private portrait?: Phaser.GameObjects.Image;
-    private nameLabel?: Phaser.GameObjects.BitmapText;
-    // #endregion
-
-    // #region Lifecycle
     constructor(private readonly scene: BridgeScene) {
         this.root = this.scene.add.container(0, 0);
     }
@@ -22,9 +18,7 @@ export default class BridgeContactPortraitView {
     public destroy(): void {
         this.root.destroy(true);
     }
-    // #endregion
 
-    // #region Public API
     public getRoot(): Phaser.GameObjects.Container {
         return this.root;
     }
@@ -36,14 +30,9 @@ export default class BridgeContactPortraitView {
     public render(contactName: string, portraitId: CharacterPortraitId): void {
         this.clear();
 
-        this.portrait = this.createPortrait(portraitId);
-        this.nameLabel = this.createNameLabel(contactName);
-
-        this.root.add([this.portrait, this.nameLabel]);
+        this.root.add([this.createPortrait(portraitId), this.createNameLabel(contactName)]);
     }
-    // #endregion
 
-    // #region Rendering
     private createPortrait(portraitId: CharacterPortraitId): Phaser.GameObjects.Image {
         const sprite = CHARACTER_PORTRAIT_SPRITES[portraitId];
 
@@ -72,14 +61,8 @@ export default class BridgeContactPortraitView {
             )
             .setTint(FONT_COLOR.PRIMARY);
     }
-    // #endregion
 
-    // #region State
     private clear(): void {
         this.root.removeAll(true);
-
-        this.portrait = undefined;
-        this.nameLabel = undefined;
     }
-    // #endregion
 }

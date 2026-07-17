@@ -32,7 +32,6 @@ export const BRIDGE_CONTACT_LAYOUT = {
         y: 26,
         width: 374,
         height: 236,
-        lineHeight: 18,
         gap: 4,
     },
 } as const;

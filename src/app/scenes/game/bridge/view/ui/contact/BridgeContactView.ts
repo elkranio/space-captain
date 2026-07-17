@@ -8,30 +8,25 @@ import {
     type BridgeContactStartedPayload,
 } from '../../../events/bridge_event';
 import type BridgeEventBus from '../../../events/BridgeEventBus';
-import BridgeContactMessagesView from './BridgeContactMessagesView';
-import BridgeContactPortraitView from './BridgeContactPortraitView';
+import BridgeContactMessagesView from './messages/BridgeContactMessagesView';
+import BridgeContactPortraitView from './portrait/BridgeContactPortraitView';
 import { BRIDGE_CONTACT_LAYOUT } from './bridge_contact_layout';
 
+// Composite-view contact panel.
+// Показывает текущий comms contact, но не блокирует bridge целиком.
 export default class BridgeContactView {
-    // #region Fields
-    private readonly blocker: Phaser.GameObjects.Rectangle;
     private readonly root: Phaser.GameObjects.Container;
     private readonly portraitView: BridgeContactPortraitView;
     private readonly messagesView: BridgeContactMessagesView;
-    // #endregion
 
-    // #region Lifecycle
     constructor(
         private readonly scene: BridgeScene,
         private readonly eventBus: BridgeEventBus,
     ) {
-        this.blocker = this.createBlocker();
-
         this.root = this.scene.add
             .container(BRIDGE_CONTACT_LAYOUT.panel.x, BRIDGE_CONTACT_LAYOUT.panel.y)
             .setVisible(false);
 
-        this.scene.layers.get('ui_blocker').add(this.blocker);
         this.scene.layers.get('ui').add(this.root);
 
         this.createPanelBackground();
@@ -45,27 +40,20 @@ export default class BridgeContactView {
         this.root.add([this.portraitView.getRoot(), this.messagesView.getRoot()]);
 
         this.eventBus.on(BRIDGE_EVENT.CONTACT_STARTED, this.handleContactStarted, this);
-
         this.eventBus.on(BRIDGE_EVENT.CONTACT_MESSAGE_ADDED, this.handleContactMessageAdded, this);
-
         this.eventBus.on(BRIDGE_EVENT.CONTACT_ENDED, this.handleContactEnded, this);
     }
 
     public destroy(): void {
         this.eventBus.off(BRIDGE_EVENT.CONTACT_STARTED, this.handleContactStarted, this);
-
         this.eventBus.off(BRIDGE_EVENT.CONTACT_MESSAGE_ADDED, this.handleContactMessageAdded, this);
-
         this.eventBus.off(BRIDGE_EVENT.CONTACT_ENDED, this.handleContactEnded, this);
 
         this.portraitView.destroy();
         this.messagesView.destroy();
-        this.root.destroy(true);
-        this.blocker.destroy();
+        this.root.destroy(false);
     }
-    // #endregion
 
-    // #region Event handlers
     private handleContactStarted(payload: BridgeContactStartedPayload): void {
         this.messagesView.clear();
         this.portraitView.render(payload.contactName, payload.contactPortraitId);
@@ -79,9 +67,7 @@ export default class BridgeContactView {
     private handleContactEnded(): void {
         this.close();
     }
-    // #endregion
 
-    // #region Rendering
     private createPanelBackground(): void {
         const sprite = CONTACT_PANEL_SPRITES[CONTACT_PANEL_SPRITE_ID.PANEL_00];
 
@@ -92,30 +78,12 @@ export default class BridgeContactView {
 
         this.root.add(background);
     }
-    // #endregion
 
-    // #region State
     private open(): void {
         this.root.setVisible(true);
-
-        this.blocker.setVisible(true).setInteractive();
     }
 
     private close(): void {
         this.root.setVisible(false);
-
-        this.blocker.disableInteractive().setVisible(false);
     }
-    // #endregion
-
-    // #region Creation
-    private createBlocker(): Phaser.GameObjects.Rectangle {
-        return this.scene.add
-            .rectangle(0, 0, this.scene.scale.width, this.scene.scale.height, 0x000000, 0)
-            .setOrigin(0, 0)
-            .setVisible(false)
-            .setInteractive()
-            .disableInteractive();
-    }
-    // #endregion
 }

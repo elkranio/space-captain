@@ -2,12 +2,14 @@
 
 import type BridgeScene from '../../BridgeScene';
 import type BridgeEventBus from '../../events/BridgeEventBus';
-import BridgeOfficerContextMenuView from './officer_context_menu/BridgeOfficerContextMenuView';
 import BridgeContactView from './contact/BridgeContactView';
+import BridgeOfficerContextMenuView from './officer_context_menu/BridgeOfficerContextMenuView';
 
+// Root view для bridge UI layer.
+// Собирает самостоятельные UI-модули: contact panel и officer context menu.
 export default class BridgeUiView {
     private readonly officerContextMenuView: BridgeOfficerContextMenuView;
-    private contactView?: BridgeContactView;
+    private readonly contactView: BridgeContactView;
 
     constructor(
         private readonly scene: BridgeScene,
@@ -18,8 +20,7 @@ export default class BridgeUiView {
     }
 
     public destroy(): void {
-        this.contactView?.destroy();
-        this.contactView = undefined;
+        this.contactView.destroy();
         this.officerContextMenuView.destroy();
     }
 }
