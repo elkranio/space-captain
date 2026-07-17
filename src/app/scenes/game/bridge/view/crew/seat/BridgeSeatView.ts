@@ -1,10 +1,7 @@
 // src/app/scenes/game/bridge/view/crew/seat/BridgeSeatView.ts
 
 import type { OfficerDefinition, OfficerRole } from '../../../../../../../engine/defs/officer';
-import {
-    OFFICER_STATION_FRAME_ID,
-    OFFICER_STATION_FRAME_SPRITES,
-} from '../../../../../../manifests/bridge/officer_station';
+import { OFFICER_STATION_SPRITE_ID, OFFICER_STATION_SPRITES } from '../../../../../../manifests/bridge/officer_station';
 import { BRIDGE_EVENT } from '../../../events/bridge_event';
 import type BridgeEventBus from '../../../events/BridgeEventBus';
 import type BridgeScene from '../../../BridgeScene';
@@ -32,7 +29,7 @@ export default class BridgeSeatView {
         this.root = this.scene.add.container(position.x, position.y);
         parent.add(this.root);
 
-        const frameAsset = OFFICER_STATION_FRAME_SPRITES[OFFICER_STATION_FRAME_ID.EMPTY];
+        const frameAsset = OFFICER_STATION_SPRITES[OFFICER_STATION_SPRITE_ID.FRAME_EMPTY];
 
         this.frameImage = this.scene.add.image(0, 0, frameAsset.atlasKey, frameAsset.frameKey).setOrigin(0.5, 0.5);
 
