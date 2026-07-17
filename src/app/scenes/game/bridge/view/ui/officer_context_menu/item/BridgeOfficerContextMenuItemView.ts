@@ -1,24 +1,20 @@
-// src/app/scenes/game/bridge/view/ui/officer_context_menu/BridgeOfficerContextMenuItemView.ts
+// src/app/scenes/game/bridge/view/ui/officer_context_menu/item/BridgeOfficerContextMenuItemView.ts
 
 import {
     OFFICER_CONTEXT_MENU_SPRITE_ID,
     OFFICER_CONTEXT_MENU_SPRITES,
-} from '../../../../../../manifests/bridge/officer_context_menu';
-import { FONT_COLOR, FONT_FAMILY, FONT_SIZE } from '../../../../../../theme/font';
-import type BridgeScene from '../../../BridgeScene';
-import type { BridgeOfficerCommandMenuItemPayload } from '../../../events/bridge_event';
-import { UI_EVENT } from '../ui_event';
-import { OFFICER_CONTEXT_MENU_LAYOUT } from './bridge_officer_context_menu_layout';
+} from '../../../../../../../manifests/bridge/officer_context_menu';
+import { FONT_COLOR, FONT_FAMILY, FONT_SIZE } from '../../../../../../../theme/font';
+import type BridgeScene from '../../../../BridgeScene';
+import type { BridgeOfficerCommandMenuItemPayload } from '../../../../events/bridge_event';
+import { UI_EVENT } from '../../ui_event';
+import { OFFICER_CONTEXT_MENU_LAYOUT } from '../bridge_officer_context_menu_layout';
 
+// Leaf/composite-view одной command row в officer context menu.
+// Владеет row background, hover state, label и локальным click input.
 export default class BridgeOfficerContextMenuItemView {
-    // #region Fields
-
     private readonly root: Phaser.GameObjects.Container;
     private readonly hoverBackground: Phaser.GameObjects.Image;
-
-    // #endregion
-
-    // #region Lifecycle
 
     constructor(
         private readonly scene: BridgeScene,
@@ -38,10 +34,6 @@ export default class BridgeOfficerContextMenuItemView {
         this.root.destroy(true);
     }
 
-    // #endregion
-
-    // #region Public API
-
     public getRoot(): Phaser.GameObjects.Container {
         return this.root;
     }
@@ -49,10 +41,6 @@ export default class BridgeOfficerContextMenuItemView {
     public setPosition(x: number, y: number): void {
         this.root.setPosition(x, y);
     }
-
-    // #endregion
-
-    // #region Rendering
 
     private createNormalBackground(): Phaser.GameObjects.Image {
         const sprite = OFFICER_CONTEXT_MENU_SPRITES[OFFICER_CONTEXT_MENU_SPRITE_ID.COMMAND_ROW];
@@ -82,10 +70,6 @@ export default class BridgeOfficerContextMenuItemView {
             .setTint(FONT_COLOR.WHITE);
     }
 
-    // #endregion
-
-    // #region Input
-
     private makeInteractive(background: Phaser.GameObjects.Image): void {
         background.setInteractive(
             new Phaser.Geom.Rectangle(
@@ -98,9 +82,7 @@ export default class BridgeOfficerContextMenuItemView {
         );
 
         background.on(Phaser.Input.Events.POINTER_OVER, this.handlePointerOver, this);
-
         background.on(Phaser.Input.Events.POINTER_OUT, this.handlePointerOut, this);
-
         background.on(Phaser.Input.Events.POINTER_DOWN, this.handlePointerDown, this);
     }
 
@@ -115,6 +97,4 @@ export default class BridgeOfficerContextMenuItemView {
     private handlePointerDown(): void {
         this.root.emit(UI_EVENT.CLICK, this.item);
     }
-
-    // #endregion
 }

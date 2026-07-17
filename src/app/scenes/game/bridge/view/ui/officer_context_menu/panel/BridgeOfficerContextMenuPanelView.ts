@@ -1,15 +1,13 @@
-// src/app/scenes/game/bridge/view/ui/officer_context_menu/BridgeOfficerContextMenuPanelView.ts
+// src/app/scenes/game/bridge/view/ui/officer_context_menu/panel/BridgeOfficerContextMenuPanelView.ts
 
 import {
     OFFICER_CONTEXT_MENU_SPRITE_ID,
     OFFICER_CONTEXT_MENU_SPRITES,
     type OfficerContextMenuSpriteId,
-} from '../../../../../../manifests/bridge/officer_context_menu';
-import { FONT_COLOR, FONT_FAMILY, FONT_SIZE } from '../../../../../../theme/font';
-import type BridgeScene from '../../../BridgeScene';
-import { OFFICER_CONTEXT_MENU_LAYOUT } from './bridge_officer_context_menu_layout';
-
-// #region Types
+} from '../../../../../../../manifests/bridge/officer_context_menu';
+import { FONT_COLOR, FONT_FAMILY, FONT_SIZE } from '../../../../../../../theme/font';
+import type BridgeScene from '../../../../BridgeScene';
+import { OFFICER_CONTEXT_MENU_LAYOUT } from '../bridge_officer_context_menu_layout';
 
 type OfficerContextMenuPanelMetrics = {
     topHeight: number;
@@ -17,71 +15,53 @@ type OfficerContextMenuPanelMetrics = {
     bottomHeight: number;
 };
 
-// #endregion
-
+// View panel-frame officer context menu.
+// Собирает stretchable panel из top/middle/bottom pieces и рисует title.
 export default class BridgeOfficerContextMenuPanelView {
-    // #region Fields
-
     private readonly root: Phaser.GameObjects.Container;
-
-    // #endregion
-
-    // #region Lifecycle
+    private readonly metrics: OfficerContextMenuPanelMetrics;
 
     constructor(private readonly scene: BridgeScene) {
         this.root = this.scene.add.container(0, 0);
+        this.metrics = this.createPanelMetrics();
     }
 
     public destroy(): void {
         this.root.destroy(true);
     }
 
-    // #endregion
-
-    // #region Public API
-
     public getRoot(): Phaser.GameObjects.Container {
         return this.root;
     }
 
-    public render(title: string, minHeight: number): number {
+    public render(title: string, minHeight: number): void {
         this.clear();
 
-        const metrics = this.getPanelMetrics();
-        const middleCount = this.getMiddleCount(minHeight, metrics);
-        const panelHeight = this.renderPanelPieces(metrics, middleCount);
+        const middleCount = this.getMiddleCount(minHeight);
 
+        this.renderPanelPieces(middleCount);
         this.renderTitle(title);
-
-        return panelHeight;
     }
 
-    // #endregion
-
-    // #region Rendering
-
-    private renderPanelPieces(metrics: OfficerContextMenuPanelMetrics, middleCount: number): number {
-        const top = this.createImage(OFFICER_CONTEXT_MENU_SPRITE_ID.PANEL_TOP, 0, 0);
+    private renderPanelPieces(middleCount: number): void {
+        const top = this.createPanelImage(OFFICER_CONTEXT_MENU_SPRITE_ID.PANEL_TOP, 0, 0);
 
         this.root.add(top);
 
         for (let index = 0; index < middleCount; index += 1) {
-            const middle = this.createImage(
+            const middle = this.createPanelImage(
                 OFFICER_CONTEXT_MENU_SPRITE_ID.PANEL_MIDDLE,
                 0,
-                metrics.topHeight + index * metrics.middleHeight,
+                this.metrics.topHeight + index * this.metrics.middleHeight,
             );
 
             this.root.add(middle);
         }
 
-        const bottomY = metrics.topHeight + middleCount * metrics.middleHeight;
-
-        const bottom = this.createImage(OFFICER_CONTEXT_MENU_SPRITE_ID.PANEL_BOTTOM, 0, bottomY);
+        const bottomY = this.metrics.topHeight + middleCount * this.metrics.middleHeight;
+        const bottom = this.createPanelImage(OFFICER_CONTEXT_MENU_SPRITE_ID.PANEL_BOTTOM, 0, bottomY);
 
         this.root.add(bottom);
-
-        return bottomY + metrics.bottomHeight;
     }
 
     private renderTitle(title: string): void {
@@ -103,15 +83,9 @@ export default class BridgeOfficerContextMenuPanelView {
         this.root.removeAll(true);
     }
 
-    // #endregion
-
-    // #region Layout calculations
-
-    private getPanelMetrics(): OfficerContextMenuPanelMetrics {
+    private createPanelMetrics(): OfficerContextMenuPanelMetrics {
         const topProbe = this.createImage(OFFICER_CONTEXT_MENU_SPRITE_ID.PANEL_TOP, 0, 0);
-
         const middleProbe = this.createImage(OFFICER_CONTEXT_MENU_SPRITE_ID.PANEL_MIDDLE, 0, 0);
-
         const bottomProbe = this.createImage(OFFICER_CONTEXT_MENU_SPRITE_ID.PANEL_BOTTOM, 0, 0);
 
         const metrics = {
@@ -127,21 +101,22 @@ export default class BridgeOfficerContextMenuPanelView {
         return metrics;
     }
 
-    private getMiddleCount(minHeight: number, metrics: OfficerContextMenuPanelMetrics): number {
-        const middleAreaHeight = Math.max(metrics.middleHeight, minHeight - metrics.topHeight - metrics.bottomHeight);
+    private getMiddleCount(minHeight: number): number {
+        const middleAreaHeight = Math.max(
+            this.metrics.middleHeight,
+            minHeight - this.metrics.topHeight - this.metrics.bottomHeight,
+        );
 
-        return Math.max(1, Math.ceil(middleAreaHeight / metrics.middleHeight));
+        return Math.max(1, Math.ceil(middleAreaHeight / this.metrics.middleHeight));
     }
 
-    // #endregion
-
-    // #region Creation
+    private createPanelImage(spriteId: OfficerContextMenuSpriteId, x: number, y: number): Phaser.GameObjects.Image {
+        return this.createImage(spriteId, x, y).setInteractive();
+    }
 
     private createImage(spriteId: OfficerContextMenuSpriteId, x: number, y: number): Phaser.GameObjects.Image {
         const sprite = OFFICER_CONTEXT_MENU_SPRITES[spriteId];
 
-        return this.scene.add.image(x, y, sprite.atlasKey, sprite.frameKey).setOrigin(0, 0).setInteractive();
+        return this.scene.add.image(x, y, sprite.atlasKey, sprite.frameKey).setOrigin(0, 0);
     }
-
-    // #endregion
 }
