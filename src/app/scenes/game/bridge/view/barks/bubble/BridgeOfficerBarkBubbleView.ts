@@ -1,28 +1,29 @@
-// src/app/scenes/game/bridge/view/barks/BridgeOfficerBarkBubbleView.ts
+// src/app/scenes/game/bridge/view/barks/bubble/BridgeOfficerBarkBubbleView.ts
 
 import {
     SPEECH_BUBBLE_SPRITE_ID,
     SPEECH_BUBBLE_SPRITES,
     type SpeechBubbleSpriteId,
-} from '../../../../../manifests/ui/speech_bubble';
-import { FONT_COLOR, FONT_FAMILY, FONT_SIZE } from '../../../../../theme/font';
-import type BridgeScene from '../../BridgeScene';
-import { BRIDGE_OFFICER_BARK_LAYOUT, OFFICER_BARK_SIDE, type OfficerBarkSide } from './bridge_officer_bark_layout';
+} from '../../../../../../manifests/ui/speech_bubble';
+import { FONT_COLOR, FONT_FAMILY, FONT_SIZE } from '../../../../../../theme/font';
+import type BridgeScene from '../../../BridgeScene';
+import { UI_EVENT } from '../../ui/ui_event';
+import { BRIDGE_OFFICER_BARK_LAYOUT, OFFICER_BARK_SIDE, type OfficerBarkSide } from '../bridge_officer_bark_layout';
 
 const TILE_SIZE = 8;
 const CORNER_SIZE = 16;
 
+// Leaf-view officer bark bubble.
+// Рисует bubble body, tail, text и эмитит click, но не управляет очередью/таймерами.
 export default class BridgeOfficerBarkBubbleView {
-    // #region Fields
     private readonly root: Phaser.GameObjects.Container;
     private readonly bodyRoot: Phaser.GameObjects.Container;
     private readonly text: Phaser.GameObjects.BitmapText;
     private readonly tail: Phaser.GameObjects.Image;
+    private readonly clickArea: Phaser.GameObjects.Rectangle;
 
     private bodyPieces: Phaser.GameObjects.Image[] = [];
-    // #endregion
 
-    // #region Lifecycle
     constructor(private readonly scene: BridgeScene) {
         this.root = this.scene.add.container(0, 0).setVisible(false);
         this.bodyRoot = this.scene.add.container(0, 0);
@@ -40,15 +41,19 @@ export default class BridgeOfficerBarkBubbleView {
             .setOrigin(0, 0)
             .setTint(FONT_COLOR.WHITE);
 
-        this.root.add([this.bodyRoot, this.tail, this.text]);
+        this.clickArea = this.scene.add
+            .rectangle(0, 0, 1, 1, 0x000000, 0)
+            .setOrigin(0, 0)
+            .on(Phaser.Input.Events.POINTER_DOWN, this.handlePointerDown, this);
+
+        this.root.add([this.bodyRoot, this.tail, this.text, this.clickArea]);
     }
 
     public destroy(): void {
+        this.clickArea.off(Phaser.Input.Events.POINTER_DOWN, this.handlePointerDown, this);
         this.root.destroy(true);
     }
-    // #endregion
 
-    // #region Public API
     public getRoot(): Phaser.GameObjects.Container {
         return this.root;
     }
@@ -69,16 +74,16 @@ export default class BridgeOfficerBarkBubbleView {
 
         this.renderBody(width, height);
         this.positionTail(width, height, side);
+        this.updateClickArea(width, height);
 
         this.root.setVisible(true);
     }
 
     public hide(): void {
+        this.clickArea.disableInteractive();
         this.root.setVisible(false);
     }
-    // #endregion
 
-    // #region Body rendering
     private renderBody(width: number, height: number): void {
         this.clearBody();
 
@@ -142,9 +147,7 @@ export default class BridgeOfficerBarkBubbleView {
 
         this.bodyPieces = [];
     }
-    // #endregion
 
-    // #region Tail
     private createTail(): Phaser.GameObjects.Image {
         const sprite = SPEECH_BUBBLE_SPRITES[SPEECH_BUBBLE_SPRITE_ID.OFFICER_BARK_00_TAIL_BOTTOM];
 
@@ -161,9 +164,13 @@ export default class BridgeOfficerBarkBubbleView {
             .setPosition(tailX, height - BRIDGE_OFFICER_BARK_LAYOUT.tail.yFromBottom)
             .setFlipX(side === OFFICER_BARK_SIDE.RIGHT);
     }
-    // #endregion
 
-    // #region Size calculations
+    private updateClickArea(width: number, height: number): void {
+        this.clickArea
+            .setSize(width, height)
+            .setInteractive(new Phaser.Geom.Rectangle(0, 0, width, height), Phaser.Geom.Rectangle.Contains);
+    }
+
     private getBubbleWidth(textWidth: number): number {
         const rawWidth = textWidth + BRIDGE_OFFICER_BARK_LAYOUT.bubble.paddingX * 2;
 
@@ -181,5 +188,8 @@ export default class BridgeOfficerBarkBubbleView {
             Math.ceil(value / BRIDGE_OFFICER_BARK_LAYOUT.bubble.tileStep) * BRIDGE_OFFICER_BARK_LAYOUT.bubble.tileStep
         );
     }
-    // #endregion
+
+    private handlePointerDown(): void {
+        this.root.emit(UI_EVENT.CLICK);
+    }
 }

@@ -1,22 +1,18 @@
 // src/app/scenes/game/bridge/view/barks/BridgeOfficerBarksView.ts
 
+import type { OfficerRole } from '../../../../../../engine/defs/officer';
 import type BridgeScene from '../../BridgeScene';
 import { BRIDGE_EVENT, type BridgeOfficerBarkRequestedPayload } from '../../events/bridge_event';
 import type BridgeEventBus from '../../events/BridgeEventBus';
-import BridgeOfficerBarkBubbleView from './BridgeOfficerBarkBubbleView';
 import { OFFICER_BARK_POSITION_BY_ROLE } from './bridge_officer_bark_layout';
+import BridgeOfficerBarkQueueView from './queue/BridgeOfficerBarkQueueView';
 
-const BARK_DURATION_MS = 2500;
-
+// Root view bark layer.
+// Держит отдельную очередь bark-ов для каждого officer-а.
 export default class BridgeOfficerBarksView {
-    // #region Fields
     private readonly root: Phaser.GameObjects.Container;
-    private readonly bubbleView: BridgeOfficerBarkBubbleView;
+    private readonly queueViewByRole = new Map<OfficerRole, BridgeOfficerBarkQueueView>();
 
-    private hideTimer?: Phaser.Time.TimerEvent;
-    // #endregion
-
-    // #region Lifecycle
     constructor(
         private readonly scene: BridgeScene,
         private readonly eventBus: BridgeEventBus,
@@ -24,45 +20,39 @@ export default class BridgeOfficerBarksView {
         this.root = this.scene.add.container(0, 0);
         this.scene.layers.get('barks').add(this.root);
 
-        this.bubbleView = new BridgeOfficerBarkBubbleView(this.scene);
-        this.root.add(this.bubbleView.getRoot());
+        this.createQueueViews();
 
         this.eventBus.on(BRIDGE_EVENT.OFFICER_BARK_REQUESTED, this.handleOfficerBarkRequested, this);
     }
 
     public destroy(): void {
-        this.stopHideTimer();
-
         this.eventBus.off(BRIDGE_EVENT.OFFICER_BARK_REQUESTED, this.handleOfficerBarkRequested, this);
 
-        this.bubbleView.destroy();
-        this.root.destroy(true);
-    }
-    // #endregion
+        for (const queueView of this.queueViewByRole.values()) {
+            queueView.destroy();
+        }
 
-    // #region Event handlers
+        this.queueViewByRole.clear();
+        this.root.destroy(false);
+    }
+
+    private createQueueViews(): void {
+        for (const role of Object.keys(OFFICER_BARK_POSITION_BY_ROLE) as OfficerRole[]) {
+            const position = OFFICER_BARK_POSITION_BY_ROLE[role];
+
+            const queueView = new BridgeOfficerBarkQueueView(this.scene, this.root, position);
+
+            this.queueViewByRole.set(role, queueView);
+        }
+    }
+
     private handleOfficerBarkRequested(payload: BridgeOfficerBarkRequestedPayload): void {
-        const position = OFFICER_BARK_POSITION_BY_ROLE[payload.role];
+        const queueView = this.queueViewByRole.get(payload.role);
 
-        this.stopHideTimer();
+        if (!queueView) {
+            return;
+        }
 
-        this.bubbleView.setPosition(position.x, position.y);
-        this.bubbleView.show(payload.text, position.side);
-
-        this.hideTimer = this.scene.time.addEvent({
-            delay: BARK_DURATION_MS,
-            callback: () => {
-                this.hideTimer = undefined;
-                this.bubbleView.hide();
-            },
-        });
+        queueView.enqueue(payload.text);
     }
-    // #endregion
-
-    // #region Timers
-    private stopHideTimer(): void {
-        this.hideTimer?.remove(false);
-        this.hideTimer = undefined;
-    }
-    // #endregion
 }
