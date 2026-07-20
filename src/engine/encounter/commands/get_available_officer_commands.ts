@@ -10,6 +10,10 @@ import { tryCreateAvailableOfficerCommandForObject } from './queries/try_create_
 export function getAvailableOfficerCommands(state: EncounterState, role: OfficerRole): AvailableOfficerCommand[] {
     const commands: AvailableOfficerCommand[] = [];
 
+    if (state.officerTasks[role]) {
+        return [];
+    }
+
     for (const object of state.objects) {
         for (const objectCommand of object.officerCommands) {
             if (objectCommand.role !== role) {

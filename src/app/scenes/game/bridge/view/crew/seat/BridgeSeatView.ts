@@ -8,6 +8,7 @@ import type BridgeEventBus from '../../../events/BridgeEventBus';
 import BridgeSeatLabelView from './label/BridgeSeatLabelView';
 import BridgeSeatPortraitView from './portrait/BridgeSeatPortraitView';
 import BridgeSeatStatusLightView from './status_light/BridgeSeatStatusLightView';
+import BridgeSeatActivityView from './activity/BridgeSeatActivityView';
 
 const EMPTY_LABEL = 'EMPTY';
 const STATUS_LIGHT_POSITION = new Phaser.Math.Vector2(0, -97);
@@ -20,6 +21,7 @@ export default class BridgeSeatView {
     private readonly portrait: BridgeSeatPortraitView;
     private readonly label: BridgeSeatLabelView;
     private readonly statusLightView: BridgeSeatStatusLightView;
+    private readonly activityView: BridgeSeatActivityView;
 
     private role: OfficerRole | null = null;
 
@@ -54,6 +56,9 @@ export default class BridgeSeatView {
         );
 
         this.label = new BridgeSeatLabelView(this.scene, this.root, this.getLabelY(), EMPTY_LABEL);
+
+        this.activityView = new BridgeSeatActivityView(this.scene);
+        this.root.add(this.activityView.getRoot());
     }
 
     public setOfficer(officer: OfficerDefinition): void {
@@ -67,10 +72,19 @@ export default class BridgeSeatView {
         this.label.setText(EMPTY_LABEL);
         this.portrait.clearPortrait();
         this.statusLightView.setState('off');
+        this.clearActivity();
     }
 
     public setStatusLightState(state: BridgeOfficerStationIndicatorState): void {
         this.statusLightView.setState(state);
+    }
+
+    public showActivity(label: string): void {
+        this.activityView.show(label);
+    }
+
+    public clearActivity(): void {
+        this.activityView.clear();
     }
 
     public destroy(): void {
@@ -80,6 +94,7 @@ export default class BridgeSeatView {
         this.label.destroy();
         this.portrait.destroy();
         this.frameImage.destroy();
+        this.activityView.destroy();
 
         this.root.destroy(false);
     }

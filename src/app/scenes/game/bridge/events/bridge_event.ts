@@ -83,6 +83,9 @@ export const BRIDGE_EVENT = {
     // Controller/request handler просит root bridge controller перейти в другую Phaser scene.
     // Это bridge-level navigation intent, а не domain event encounter engine.
     SCENE_TRANSITION_REQUESTED: 'scene_transition_requested',
+
+    OFFICER_ACTIVITY_STARTED: 'officer_activity_started',
+    OFFICER_ACTIVITY_CLEARED: 'officer_activity_cleared',
 } as const;
 
 // Payload события CREW_LOADED.
@@ -175,6 +178,15 @@ export type BridgeOfficerStationIndicatorState = 'off' | 'ready' | 'busy';
 // Controller отдаёт полный snapshot role -> lamp state.
 export type BridgeOfficerStationIndicatorsUpdatedPayload = Record<OfficerRole, BridgeOfficerStationIndicatorState>;
 
+export type BridgeOfficerActivityStartedPayload = {
+    role: OfficerRole;
+    label: string;
+};
+
+export type BridgeOfficerActivityClearedPayload = {
+    role: OfficerRole;
+};
+
 // Typed mapping: каждое bridge event name связано со своим payload.
 // undefined означает, что событие несёт только сам факт и не требует данных.
 export type BridgeEventPayloadMap = {
@@ -202,4 +214,7 @@ export type BridgeEventPayloadMap = {
     [BRIDGE_EVENT.DOCKING_ANIMATION_COMPLETED]: undefined;
 
     [BRIDGE_EVENT.SCENE_TRANSITION_REQUESTED]: BridgeSceneTransitionRequestedPayload;
+
+    [BRIDGE_EVENT.OFFICER_ACTIVITY_STARTED]: BridgeOfficerActivityStartedPayload;
+    [BRIDGE_EVENT.OFFICER_ACTIVITY_CLEARED]: BridgeOfficerActivityClearedPayload;
 };

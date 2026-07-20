@@ -14,6 +14,7 @@ export function createInitialEncounterState(): EncounterState {
 
     return {
         spaceBackgroundId: SPACE_BACKGROUND_ID.NEBULA_00,
+        officerTasks: {},
         objects: [
             {
                 id: station.id,

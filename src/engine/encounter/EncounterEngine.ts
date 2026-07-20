@@ -9,6 +9,8 @@ import type { EncounterState } from './model/state';
 import { createInitialEncounterState } from './state/create_initial_encounter_state';
 import type { OfficerAvailabilityStates } from './model/officer_availability';
 import { getOfficerAvailabilityStates } from './officer_availability/queries/get_officer_availability_states';
+import { advanceOfficerTasks } from './officer_tasks/advance_officer_tasks';
+import { resolveFinishedOfficerTasks } from './officer_tasks/resolve_finished_officer_tasks';
 
 export default class EncounterEngine {
     private readonly state: EncounterState;
@@ -30,6 +32,11 @@ export default class EncounterEngine {
     }
 
     public step(deltaMs: number): void {
+        advanceOfficerTasks(this.state, deltaMs);
+        resolveFinishedOfficerTasks({
+            state: this.state,
+            emit: this.emit,
+        });
         this.contactSequenceRunner.step(deltaMs);
     }
 

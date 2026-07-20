@@ -6,6 +6,8 @@ import {
     BRIDGE_EVENT,
     type BridgeCrewLoadedPayload,
     type BridgeOfficerStationIndicatorsUpdatedPayload,
+    type BridgeOfficerActivityClearedPayload,
+    type BridgeOfficerActivityStartedPayload,
 } from '../../events/bridge_event';
 import type BridgeEventBus from '../../events/BridgeEventBus';
 import { BRIDGE_CREW_SEAT_POSITIONS } from './bridge_crew_layout';
@@ -35,6 +37,8 @@ export default class BridgeCrewView {
             this.handleOfficerStationIndicatorsUpdated,
             this,
         );
+        this.eventBus.on(BRIDGE_EVENT.OFFICER_ACTIVITY_STARTED, this.handleOfficerActivityStarted, this);
+        this.eventBus.on(BRIDGE_EVENT.OFFICER_ACTIVITY_CLEARED, this.handleOfficerActivityCleared, this);
     }
 
     public destroy(): void {
@@ -44,6 +48,8 @@ export default class BridgeCrewView {
             this.handleOfficerStationIndicatorsUpdated,
             this,
         );
+        this.eventBus.off(BRIDGE_EVENT.OFFICER_ACTIVITY_STARTED, this.handleOfficerActivityStarted, this);
+        this.eventBus.off(BRIDGE_EVENT.OFFICER_ACTIVITY_CLEARED, this.handleOfficerActivityCleared, this);
 
         for (const seatView of this.seatViews) {
             seatView.destroy();
@@ -108,5 +114,25 @@ export default class BridgeCrewView {
         for (const [role, seatView] of this.seatViewByRole) {
             seatView.setStatusLightState(this.latestIndicatorStates[role]);
         }
+    }
+
+    private handleOfficerActivityStarted(payload: BridgeOfficerActivityStartedPayload): void {
+        const seatView = this.seatViewByRole.get(payload.role);
+
+        if (!seatView) {
+            return;
+        }
+
+        seatView.showActivity(payload.label);
+    }
+
+    private handleOfficerActivityCleared(payload: BridgeOfficerActivityClearedPayload): void {
+        const seatView = this.seatViewByRole.get(payload.role);
+
+        if (!seatView) {
+            return;
+        }
+
+        seatView.clearActivity();
     }
 }

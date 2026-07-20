@@ -4,6 +4,7 @@ import type { CharacterPortraitId } from '../../defs/character';
 import type { OfficerRole } from '../../defs/officer';
 import type { AvailableOfficerCommand } from './command';
 import type { EncounterState } from './state';
+import type { OfficerTaskId } from './officer_task';
 
 // События, которые EncounterEngine отдаёт наружу через outbox.
 // Engine сообщает только о доменных изменениях, app-слой сам решает, как это показать.
@@ -16,6 +17,9 @@ export const ENCOUNTER_EVENT = {
     CONTACT_ENDED: 'contact_ended',
 
     DOCKING_STARTED: 'docking_started',
+
+    OFFICER_TASK_STARTED: 'officer_task_started',
+    OFFICER_TASK_ENDED: 'officer_task_ended',
 } as const;
 
 // Полный snapshot encounter после создания или пересборки состояния.
@@ -58,10 +62,25 @@ export type DockingStartedEvent = {
     targetId: string;
 };
 
+export type OfficerTaskStartedEvent = {
+    type: typeof ENCOUNTER_EVENT.OFFICER_TASK_STARTED;
+    role: OfficerRole;
+    taskId: OfficerTaskId;
+    label: string;
+};
+
+export type OfficerTaskEndedEvent = {
+    type: typeof ENCOUNTER_EVENT.OFFICER_TASK_ENDED;
+    role: OfficerRole;
+    taskId: OfficerTaskId;
+};
+
 export type EncounterEvent =
     | EncounterLoadedEvent
     | AvailableOfficerCommandsUpdatedEvent
     | ContactStartedEvent
     | ContactMessageAddedEvent
     | ContactEndedEvent
+    | OfficerTaskStartedEvent
+    | OfficerTaskEndedEvent
     | DockingStartedEvent;
