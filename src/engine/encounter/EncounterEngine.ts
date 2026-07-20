@@ -35,6 +35,7 @@ export default class EncounterEngine {
             state: this.state,
             emit: this.emit,
             startOfficerTask: this.officerTaskRunner.start,
+            endOfficerTask: this.officerTaskRunner.end,
             startContactSequence: this.contactSequenceRunner.start,
         });
 

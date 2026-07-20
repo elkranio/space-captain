@@ -3,30 +3,42 @@ import type { ContactSequenceStep } from '../contact/contact_sequence';
 import { createStationHailSequence } from '../contact/sequences/create_station_hail_sequence';
 import { ENCOUNTER_OFFICER_COMMAND_ID, type ExecuteOfficerCommandInput } from '../model/command';
 import { ENCOUNTER_EVENT, type EncounterEvent } from '../model/event';
-import type { OfficerTaskState } from '../model/officer_task';
+import { OFFICER_TASK_ID, type OfficerTaskId, type OfficerTaskState } from '../model/officer_task';
 import type { EncounterState } from '../model/state';
 import { ENCOUNTER_OBJECT_KIND } from '../objects/encounter_object';
+import { createCommsHailTask } from '../officer_tasks/factories/create_comms_hail_task';
 import { createCommsRequestDockingTask } from '../officer_tasks/factories/create_comms_request_docking_task';
 import { findEncounterObjectById } from '../state/find_encounter_object_by_id';
 import { getAvailableOfficerCommands } from './get_available_officer_commands';
+
+type StartContactSequence = (steps: ContactSequenceStep[], onContactEnded?: () => void) => void;
 
 type OfficerCommandExecutorOptions = {
     state: EncounterState;
     emit: (event: EncounterEvent) => void;
     startOfficerTask: (task: OfficerTaskState) => void;
-    startContactSequence: (steps: ContactSequenceStep[]) => void;
+    endOfficerTask: (taskId: OfficerTaskId) => void;
+    startContactSequence: StartContactSequence;
 };
 
 export default class OfficerCommandExecutor {
     private readonly state: EncounterState;
     private readonly emit: (event: EncounterEvent) => void;
     private readonly startOfficerTask: (task: OfficerTaskState) => void;
-    private readonly startContactSequence: (steps: ContactSequenceStep[]) => void;
+    private readonly endOfficerTask: (taskId: OfficerTaskId) => void;
+    private readonly startContactSequence: StartContactSequence;
 
-    constructor({ state, emit, startOfficerTask, startContactSequence }: OfficerCommandExecutorOptions) {
+    constructor({
+        state,
+        emit,
+        startOfficerTask,
+        endOfficerTask,
+        startContactSequence,
+    }: OfficerCommandExecutorOptions) {
         this.state = state;
         this.emit = emit;
         this.startOfficerTask = startOfficerTask;
+        this.endOfficerTask = endOfficerTask;
         this.startContactSequence = startContactSequence;
     }
 
@@ -70,7 +82,11 @@ export default class OfficerCommandExecutor {
 
         switch (target.kind) {
             case ENCOUNTER_OBJECT_KIND.STATION:
-                this.startContactSequence(createStationHailSequence(target));
+                this.startOfficerTask(createCommsHailTask(target.id));
+
+                this.startContactSequence(createStationHailSequence(target), () => {
+                    this.endOfficerTask(OFFICER_TASK_ID.COMMS_HAIL);
+                });
                 return;
         }
     }

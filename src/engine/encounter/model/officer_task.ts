@@ -3,6 +3,7 @@ import type { OfficerRole } from '../../defs/officer';
 import type { EncounterOfficerCommandId } from './command';
 
 export const OFFICER_TASK_ID = {
+    COMMS_HAIL: 'comms_hail',
     COMMS_REQUEST_DOCKING: 'comms_request_docking',
 } as const;
 
@@ -15,7 +16,7 @@ export type OfficerTaskState = {
     targetId?: string;
     label: string;
     elapsedMs: number;
-    durationMs: number;
+    durationMs: number | null;
 };
 
 export type OfficerTaskStates = Partial<Record<OfficerRole, OfficerTaskState>>;

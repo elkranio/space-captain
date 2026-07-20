@@ -1,9 +1,8 @@
 // src/engine/encounter/contact/ContactSequenceRunner.ts
-
-import { CONTACT_SEQUENCE_STEP_KIND, type ActiveContactSequence, type ContactSequenceStep } from './contact_sequence';
 import { ENCOUNTER_EVENT, type EncounterEvent } from '../model/event';
 import type { EncounterState } from '../model/state';
 import { grantDockingClearance } from '../state/grant_docking_clearance';
+import { CONTACT_SEQUENCE_STEP_KIND, type ActiveContactSequence, type ContactSequenceStep } from './contact_sequence';
 
 export type ContactSequenceRunnerContext = {
     state: EncounterState;
@@ -14,15 +13,22 @@ export type ContactSequenceRunnerContext = {
 // Хранит текущий шаг, задержку между шагами и применяет эффекты contact step-ов.
 export default class ContactSequenceRunner {
     private activeSequence?: ActiveContactSequence;
+    private onContactEnded?: () => void;
 
     constructor(private readonly context: ContactSequenceRunnerContext) {}
 
-    public start = (steps: ContactSequenceStep[]): void => {
+    public start = (steps: ContactSequenceStep[], onContactEnded?: () => void): void => {
+        console.log('[CONTACT] START', {
+            hasCallback: Boolean(onContactEnded),
+        });
+
         this.activeSequence = {
             steps,
             currentStepIndex: 0,
             waitRemainingMs: 0,
         };
+
+        this.onContactEnded = onContactEnded;
     };
 
     public step(deltaMs: number): void {
@@ -47,7 +53,7 @@ export default class ContactSequenceRunner {
         const step = this.activeSequence.steps[this.activeSequence.currentStepIndex];
 
         if (!step) {
-            this.activeSequence = undefined;
+            this.clearSequence();
             return;
         }
 
@@ -56,7 +62,7 @@ export default class ContactSequenceRunner {
         this.activeSequence.currentStepIndex += 1;
 
         if (this.activeSequence.currentStepIndex >= this.activeSequence.steps.length) {
-            this.activeSequence = undefined;
+            this.clearSequence();
             return;
         }
 
@@ -85,6 +91,9 @@ export default class ContactSequenceRunner {
                 this.context.emit({
                     type: ENCOUNTER_EVENT.CONTACT_ENDED,
                 });
+
+                this.onContactEnded?.();
+                this.onContactEnded = undefined;
                 return;
 
             case CONTACT_SEQUENCE_STEP_KIND.GRANT_DOCKING_CLEARANCE:
@@ -93,5 +102,10 @@ export default class ContactSequenceRunner {
         }
 
         throw new Error(`Unhandled contact sequence step: ${String(step)}`);
+    }
+
+    private clearSequence(): void {
+        this.activeSequence = undefined;
+        this.onContactEnded = undefined;
     }
 }
