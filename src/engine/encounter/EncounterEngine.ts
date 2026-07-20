@@ -1,24 +1,29 @@
 // src/engine/encounter/EncounterEngine.ts
-
 import { executeOfficerCommand as executeOfficerCommandFlow } from './commands/execute_officer_command';
 import { getAvailableOfficerCommands } from './commands/get_available_officer_commands';
 import ContactSequenceRunner from './contact/ContactSequenceRunner';
 import type { ExecuteOfficerCommandInput } from './model/command';
 import { ENCOUNTER_EVENT, type EncounterEvent } from './model/event';
-import type { EncounterState } from './model/state';
-import { createInitialEncounterState } from './state/create_initial_encounter_state';
 import type { OfficerAvailabilityStates } from './model/officer_availability';
+import type { EncounterState } from './model/state';
 import { getOfficerAvailabilityStates } from './officer_availability/queries/get_officer_availability_states';
-import { advanceOfficerTasks } from './officer_tasks/advance_officer_tasks';
-import { resolveFinishedOfficerTasks } from './officer_tasks/resolve_finished_officer_tasks';
+import OfficerTaskRunner from './officer_tasks/OfficerTaskRunner';
+import { createInitialEncounterState } from './state/create_initial_encounter_state';
 
 export default class EncounterEngine {
     private readonly state: EncounterState;
     private readonly events: EncounterEvent[] = [];
+
+    private readonly officerTaskRunner: OfficerTaskRunner;
     private readonly contactSequenceRunner: ContactSequenceRunner;
 
     constructor(state: EncounterState = createInitialEncounterState()) {
         this.state = state;
+
+        this.officerTaskRunner = new OfficerTaskRunner({
+            state: this.state,
+            emit: this.emit,
+        });
 
         this.contactSequenceRunner = new ContactSequenceRunner({
             state: this.state,
@@ -32,11 +37,7 @@ export default class EncounterEngine {
     }
 
     public step(deltaMs: number): void {
-        advanceOfficerTasks(this.state, deltaMs);
-        resolveFinishedOfficerTasks({
-            state: this.state,
-            emit: this.emit,
-        });
+        this.officerTaskRunner.step(deltaMs);
         this.contactSequenceRunner.step(deltaMs);
     }
 
@@ -45,6 +46,7 @@ export default class EncounterEngine {
             state: this.state,
             emit: this.emit,
             startContactSequence: this.contactSequenceRunner.start,
+            startOfficerTask: this.officerTaskRunner.start,
         });
     }
 
