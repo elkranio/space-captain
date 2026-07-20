@@ -5,6 +5,7 @@ import type { EncounterOfficerCommandId } from './command';
 export const OFFICER_TASK_ID = {
     COMMS_HAIL: 'comms_hail',
     COMMS_REQUEST_DOCKING: 'comms_request_docking',
+    HELM_DOCK: 'helm_dock',
 } as const;
 
 export type OfficerTaskId = (typeof OFFICER_TASK_ID)[keyof typeof OFFICER_TASK_ID];

@@ -1,5 +1,4 @@
 // src/app/debug/debug_settings.ts
-
 export type DebugSettings = {
     bridge: {
         encounter: {
@@ -9,6 +8,9 @@ export type DebugSettings = {
         officerCommands: {
             showCommandBark: boolean;
             commandBarkText: string;
+        };
+        officerTasks: {
+            completeTimedTasksImmediately: boolean;
         };
     };
 };
@@ -24,6 +26,9 @@ export const DEBUG_SETTINGS: DebugSettings = {
         officerCommands: {
             showCommandBark: true,
             commandBarkText: 'AYE, CAPTAIN.',
+        },
+        officerTasks: {
+            completeTimedTasksImmediately: false,
         },
     },
 };

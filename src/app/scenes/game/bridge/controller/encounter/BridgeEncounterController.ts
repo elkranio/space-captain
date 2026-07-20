@@ -15,6 +15,7 @@ import { handleOfficerSeatClicked as handleOfficerSeatClickedInput } from './bri
 import type { BridgeEncounterEventHandlerContext } from './engine_events/bridge_encounter_event_handler_context';
 import { dispatchEncounterEvent } from './engine_events/dispatch_encounter_event';
 import BridgeOfficerStationIndicatorsPoller from './officer_station_indicators/BridgeOfficerStationIndicatorsPoller';
+import { DEBUG_SETTINGS } from '../../../../../debug/debug_settings';
 
 // App-controller для bridge encounter flow.
 // Держит EncounterEngine, принимает input events от bridge UI и переводит engine events в bridge events.
@@ -70,7 +71,10 @@ export default class BridgeEncounterController {
     }
 
     private loadEncounter(): void {
-        this.encounterEngine = new EncounterEngine();
+        this.encounterEngine = new EncounterEngine({
+            completeTimedTasksImmediately: DEBUG_SETTINGS.bridge.officerTasks.completeTimedTasksImmediately,
+        });
+
         this.officerStationIndicatorsPoller = new BridgeOfficerStationIndicatorsPoller(
             this.encounterEngine,
             this.eventBus,

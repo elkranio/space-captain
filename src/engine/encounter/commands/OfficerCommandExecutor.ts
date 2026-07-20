@@ -10,6 +10,7 @@ import { createCommsHailTask } from '../officer_tasks/factories/create_comms_hai
 import { createCommsRequestDockingTask } from '../officer_tasks/factories/create_comms_request_docking_task';
 import { findEncounterObjectById } from '../state/find_encounter_object_by_id';
 import { getAvailableOfficerCommands } from './get_available_officer_commands';
+import { createHelmDockTask } from '../officer_tasks/factories/create_helm_dock_task';
 
 type StartContactSequence = (steps: ContactSequenceStep[], onContactEnded?: () => void) => void;
 
@@ -111,6 +112,8 @@ export default class OfficerCommandExecutor {
 
         switch (target.kind) {
             case ENCOUNTER_OBJECT_KIND.STATION:
+                this.startOfficerTask(createHelmDockTask(target.id));
+
                 this.emit({
                     type: ENCOUNTER_EVENT.DOCKING_STARTED,
                     targetId: target.id,

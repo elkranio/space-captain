@@ -1,5 +1,4 @@
 // src/engine/encounter/officer_tasks/OfficerTaskRunner.ts
-
 import { ENCOUNTER_EVENT, type EncounterEvent } from '../model/event';
 import { OFFICER_TASK_ID, type OfficerTaskId, type OfficerTaskState } from '../model/officer_task';
 import type { EncounterState } from '../model/state';
@@ -8,15 +7,18 @@ import { grantDockingClearance } from '../state/grant_docking_clearance';
 type OfficerTaskRunnerOptions = {
     state: EncounterState;
     emit: (event: EncounterEvent) => void;
+    completeTimedTasksImmediately?: boolean;
 };
 
 export default class OfficerTaskRunner {
     private readonly state: EncounterState;
     private readonly emit: (event: EncounterEvent) => void;
+    private readonly completeTimedTasksImmediately: boolean;
 
-    constructor({ state, emit }: OfficerTaskRunnerOptions) {
+    constructor({ state, emit, completeTimedTasksImmediately = false }: OfficerTaskRunnerOptions) {
         this.state = state;
         this.emit = emit;
+        this.completeTimedTasksImmediately = completeTimedTasksImmediately;
     }
 
     public start = (task: OfficerTaskState): void => {
@@ -28,12 +30,12 @@ export default class OfficerTaskRunner {
             taskId: task.id,
             label: task.label,
         });
-    };
 
-    public step(deltaMs: number): void {
-        this.advanceTasks(deltaMs);
-        this.resolveFinishedTasks();
-    }
+        if (this.completeTimedTasksImmediately && task.durationMs !== null) {
+            this.resolveTask(task);
+            this.clearTask(task);
+        }
+    };
 
     public end = (taskId: OfficerTaskId): void => {
         const task = Object.values(this.state.officerTasks).find((task) => {
@@ -46,6 +48,11 @@ export default class OfficerTaskRunner {
 
         this.clearTask(task);
     };
+
+    public step(deltaMs: number): void {
+        this.advanceTasks(deltaMs);
+        this.resolveFinishedTasks();
+    }
 
     private advanceTasks(deltaMs: number): void {
         for (const task of Object.values(this.state.officerTasks)) {
