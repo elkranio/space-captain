@@ -1,5 +1,5 @@
 // src/engine/encounter/EncounterEngine.ts
-import { executeOfficerCommand as executeOfficerCommandFlow } from './commands/execute_officer_command';
+import OfficerCommandExecutor from './commands/OfficerCommandExecutor';
 import { getAvailableOfficerCommands } from './commands/get_available_officer_commands';
 import ContactSequenceRunner from './contact/ContactSequenceRunner';
 import type { ExecuteOfficerCommandInput } from './model/command';
@@ -16,6 +16,7 @@ export default class EncounterEngine {
 
     private readonly officerTaskRunner: OfficerTaskRunner;
     private readonly contactSequenceRunner: ContactSequenceRunner;
+    private readonly officerCommandExecutor: OfficerCommandExecutor;
 
     constructor(state: EncounterState = createInitialEncounterState()) {
         this.state = state;
@@ -30,6 +31,13 @@ export default class EncounterEngine {
             emit: this.emit,
         });
 
+        this.officerCommandExecutor = new OfficerCommandExecutor({
+            state: this.state,
+            emit: this.emit,
+            startOfficerTask: this.officerTaskRunner.start,
+            startContactSequence: this.contactSequenceRunner.start,
+        });
+
         this.emit({
             type: ENCOUNTER_EVENT.ENCOUNTER_LOADED,
             state: this.state,
@@ -42,12 +50,7 @@ export default class EncounterEngine {
     }
 
     public executeOfficerCommand(input: ExecuteOfficerCommandInput): void {
-        executeOfficerCommandFlow(input, {
-            state: this.state,
-            emit: this.emit,
-            startContactSequence: this.contactSequenceRunner.start,
-            startOfficerTask: this.officerTaskRunner.start,
-        });
+        this.officerCommandExecutor.execute(input);
     }
 
     public requestOfficerCommands(role: ExecuteOfficerCommandInput['role']): void {
