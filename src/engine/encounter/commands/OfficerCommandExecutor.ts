@@ -81,13 +81,16 @@ export default class OfficerCommandExecutor {
         }
 
         switch (target.kind) {
-            case ENCOUNTER_OBJECT_KIND.STATION:
+            case ENCOUNTER_OBJECT_KIND.STATION: {
                 this.startOfficerTask(createCommsHailTask(target.id));
 
-                this.startContactSequence(createStationHailSequence(target), () => {
+                const onContactEnded = () => {
                     this.endOfficerTask(OFFICER_TASK_ID.COMMS_HAIL);
-                });
+                };
+
+                this.startContactSequence(createStationHailSequence(target), onContactEnded);
                 return;
+            }
         }
     }
 
