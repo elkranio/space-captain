@@ -16,6 +16,9 @@ import type { BridgeEncounterEventHandlerContext } from './engine_events/bridge_
 import { dispatchEncounterEvent } from './engine_events/dispatch_encounter_event';
 import BridgeOfficerStationIndicatorsPoller from './officer_station_indicators/BridgeOfficerStationIndicatorsPoller';
 import { DEBUG_SETTINGS } from '../../../../../debug/debug_settings';
+import { GAME_RUNTIME } from '../../../../../runtime/GameRuntime';
+import { PLAYER_LOCATION_KIND } from '../../../../../../engine/defs/player_location';
+import { createEncounterStateFromSpaceNode } from '../../../../../../engine/encounter/state/create_encounter_state_from_space_node';
 
 // App-controller для bridge encounter flow.
 // Держит EncounterEngine, принимает input events от bridge UI и переводит engine events в bridge events.
@@ -71,7 +74,23 @@ export default class BridgeEncounterController {
     }
 
     private loadEncounter(): void {
+        const run = GAME_RUNTIME.getCurrentRun();
+        const location = run.player.location;
+
+        if (location.kind !== PLAYER_LOCATION_KIND.SPACE) {
+            throw new Error(`Cannot load bridge encounter for player location: ${location.kind}`);
+        }
+
+        const node = run.universe.nodes.find((candidate) => candidate.id === location.nodeId);
+
+        if (!node) {
+            throw new Error(`Space node not found: ${location.nodeId}`);
+        }
+
+        const state = createEncounterStateFromSpaceNode(node);
+
         this.encounterEngine = new EncounterEngine({
+            state,
             completeTimedTasksImmediately: DEBUG_SETTINGS.bridge.officerTasks.completeTimedTasksImmediately,
         });
 

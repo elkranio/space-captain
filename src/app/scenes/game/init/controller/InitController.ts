@@ -1,7 +1,6 @@
 // src/app/scenes/game/init/controller/InitController.ts
-
+import { PLAYER_LOCATION_KIND, type PlayerLocationState } from '../../../../../engine/defs/player_location';
 import { GAME_RUNTIME } from '../../../../runtime/GameRuntime';
-import { GAME_LOCATION_ID, type GameLocationId } from '../../../../../engine/defs/game_location';
 import { SCENE_KEY, type SceneKey } from '../../../scene_key';
 import type InitScene from '../InitScene';
 
@@ -9,22 +8,26 @@ export default class InitController {
     constructor(private readonly scene: InitScene) {}
 
     public start(): void {
-        const game = GAME_RUNTIME.getCurrentGame();
-        const nextSceneKey = this.getSceneKeyByGameLocation(game.gameLocationId);
+        const run = GAME_RUNTIME.getCurrentRun();
+        const nextSceneKey = this.getSceneKeyByPlayerLocation(run.player.location);
 
         this.scene.scene.start(nextSceneKey);
     }
 
-    private getSceneKeyByGameLocation(gameLocation: GameLocationId): SceneKey {
-        switch (gameLocation) {
-            case GAME_LOCATION_ID.BRIDGE:
+    private getSceneKeyByPlayerLocation(location: PlayerLocationState): SceneKey {
+        switch (location.kind) {
+            case PLAYER_LOCATION_KIND.SPACE:
                 return SCENE_KEY.BRIDGE;
+
+            case PLAYER_LOCATION_KIND.STATION:
+                throw new Error('Station scene is not implemented yet');
+
             default:
-                return this.assertNever(gameLocation);
+                return this.assertNever(location);
         }
     }
 
     private assertNever(value: never): never {
-        throw new Error(`Unhandled game location: ${String(value)}`);
+        throw new Error(`Unhandled player location: ${String(value)}`);
     }
 }

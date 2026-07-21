@@ -8,10 +8,9 @@ import type { OfficerAvailabilityStates } from './model/officer_availability';
 import type { EncounterState } from './model/state';
 import { getOfficerAvailabilityStates } from './officer_availability/queries/get_officer_availability_states';
 import OfficerTaskRunner from './officer_tasks/OfficerTaskRunner';
-import { createInitialEncounterState } from './state/create_initial_encounter_state';
 
 export type EncounterEngineOptions = {
-    state?: EncounterState;
+    state: EncounterState;
     completeTimedTasksImmediately?: boolean;
 };
 
@@ -23,10 +22,7 @@ export default class EncounterEngine {
     private readonly contactSequenceRunner: ContactSequenceRunner;
     private readonly officerCommandExecutor: OfficerCommandExecutor;
 
-    constructor({
-        state = createInitialEncounterState(),
-        completeTimedTasksImmediately = false,
-    }: EncounterEngineOptions = {}) {
+    constructor({ state, completeTimedTasksImmediately = false }: EncounterEngineOptions) {
         this.state = state;
 
         this.officerTaskRunner = new OfficerTaskRunner({

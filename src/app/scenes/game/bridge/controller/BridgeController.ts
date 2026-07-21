@@ -63,9 +63,9 @@ export default class BridgeController {
     // Загружает bridge-level snapshot из runtime и отдаёт его во view через scene-local event bus.
     // Controller не хранит crew state у себя, чтобы root оставался только точкой сборки сцены.
     private loadState(): void {
-        const game = GAME_RUNTIME.getCurrentGame();
+        const run = GAME_RUNTIME.getCurrentRun();
 
-        this.eventBus.emit(BRIDGE_EVENT.CREW_LOADED, game.officers);
+        this.eventBus.emit(BRIDGE_EVENT.CREW_LOADED, run.officers);
     }
 
     // #endregion

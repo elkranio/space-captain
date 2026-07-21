@@ -1,12 +1,12 @@
 // src/app/runtime/GameRuntime.ts
-
-import { NEW_GAME, type NewGameDefinition } from '../../engine/content/new_game';
+import { createNewRunState } from '../../engine/content/new_game';
+import type { RunState } from '../../engine/defs/run';
 
 class GameRuntime {
-    private currentGame: NewGameDefinition = NEW_GAME;
+    private readonly currentRun: RunState = createNewRunState();
 
-    public getCurrentGame(): NewGameDefinition {
-        return this.currentGame;
+    public getCurrentRun(): RunState {
+        return this.currentRun;
     }
 }
 
