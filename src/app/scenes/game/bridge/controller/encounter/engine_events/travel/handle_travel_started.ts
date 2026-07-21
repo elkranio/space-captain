@@ -11,13 +11,20 @@ import type { BridgeEncounterEventHandlerContext } from '../bridge_encounter_eve
 // encounter остаётся неинтерактивным,
 // navigation — TRAVELLING,
 // а Helm продолжает выполнять задачу.
+//
+// taskId проходит через bridge event,
+// чтобы завершение конкретной animation
+// можно было связать с конкретной task instance.
 export function handleTravelStarted(event: TravelStartedEvent, context: BridgeEncounterEventHandlerContext): void {
     context.setEncounterInteractive(false);
 
     context.startEncounterTravel(event.fromObjectId, event.target.id);
 
     context.eventBus.emit(BRIDGE_EVENT.ENCOUNTER_TRAVEL_STARTED, {
+        taskId: event.taskId,
+
         fromObjectId: event.fromObjectId,
+
         targetObjectId: event.target.id,
     });
 }

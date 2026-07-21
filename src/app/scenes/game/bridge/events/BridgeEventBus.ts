@@ -10,8 +10,16 @@ type BridgeEmitArgs<TEvent extends BridgeEventKey> = BridgeEventPayloadMap[TEven
 
 type BridgeEventCallback<TEvent extends BridgeEventKey> = (payload: BridgeEventPayloadMap[TEvent]) => void;
 
-// Scene-local typed event bus для BridgeScene.
-// Это тонкая обёртка над Phaser EventEmitter: типизирует bridge events и чистит listeners на destroy.
+// Scene-local typed event bus
+// для BridgeScene.
+//
+// Это тонкая обёртка над
+// Phaser EventEmitter:
+//
+// - события без данных эмитятся
+//   только с event name;
+// - события с payload требуют payload;
+// - listeners очищаются на destroy.
 export default class BridgeEventBus {
     private readonly emitter = new Phaser.Events.EventEmitter();
 
@@ -23,7 +31,9 @@ export default class BridgeEventBus {
 
     public on<TEvent extends BridgeEventKey>(
         event: TEvent,
+
         callback: BridgeEventCallback<TEvent>,
+
         context?: unknown,
     ): void {
         this.emitter.on(event as string, callback, context);
@@ -31,7 +41,9 @@ export default class BridgeEventBus {
 
     public off<TEvent extends BridgeEventKey>(
         event: TEvent,
+
         callback: BridgeEventCallback<TEvent>,
+
         context?: unknown,
     ): void {
         this.emitter.off(event as string, callback, context);

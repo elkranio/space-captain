@@ -7,22 +7,25 @@ import ContactSequenceRunner from './contact/ContactSequenceRunner';
 import type { ExecuteOfficerCommandInput } from './model/command';
 import { ENCOUNTER_EVENT, type EncounterEvent } from './model/event';
 import type { OfficerAvailabilityStates } from './model/officer_availability';
-import { OFFICER_TASK_ID } from './model/officer_task';
 import type { EncounterState } from './model/state';
 import { getOfficerAvailabilityStates } from './officer_availability/queries/get_officer_availability_states';
 import OfficerTaskRunner from './officer_tasks/OfficerTaskRunner';
 
 export type EncounterEngineOptions = {
     state: EncounterState;
+
     completeTimedTasksImmediately?: boolean;
 };
 
 export default class EncounterEngine {
     private readonly state: EncounterState;
+
     private readonly events: EncounterEvent[] = [];
 
     private readonly officerTaskRunner: OfficerTaskRunner;
+
     private readonly contactSequenceRunner: ContactSequenceRunner;
+
     private readonly officerCommandExecutor: OfficerCommandExecutor;
 
     constructor({ state, completeTimedTasksImmediately = false }: EncounterEngineOptions) {
@@ -30,31 +33,42 @@ export default class EncounterEngine {
 
         this.officerTaskRunner = new OfficerTaskRunner({
             state: this.state,
+
             emit: this.emit,
+
             completeTimedTasksImmediately,
         });
 
         this.contactSequenceRunner = new ContactSequenceRunner({
             state: this.state,
+
             emit: this.emit,
         });
 
         this.officerCommandExecutor = new OfficerCommandExecutor({
             state: this.state,
+
             emit: this.emit,
+
             startOfficerTask: this.officerTaskRunner.start,
-            endOfficerTask: this.officerTaskRunner.end,
+
+            completeOfficerTask: this.officerTaskRunner.complete,
+
             startContactSequence: this.contactSequenceRunner.start,
         });
 
         this.emit({
             type: ENCOUNTER_EVENT.ENCOUNTER_LOADED,
+
             state: this.state,
         });
     }
 
+    // #region Public API
+
     public step(deltaMs: number): void {
         this.officerTaskRunner.step(deltaMs);
+
         this.contactSequenceRunner.step(deltaMs);
     }
 
@@ -69,29 +83,19 @@ export default class EncounterEngine {
 
         this.state.navigation = {
             kind: PLAYER_SPACE_NAVIGATION_KIND.ANCHORED,
+
             anchorObjectId,
         };
 
         return anchorObjectId;
     }
 
-    public completeTravel(): string {
-        const navigation = this.state.navigation;
+    public completeTask(taskId: string): void {
+        this.officerTaskRunner.complete(taskId);
+    }
 
-        if (navigation.kind !== PLAYER_SPACE_NAVIGATION_KIND.TRAVELLING) {
-            throw new Error(`Cannot complete travel from navigation state: ${navigation.kind}`);
-        }
-
-        const anchorObjectId = navigation.targetObjectId;
-
-        this.state.navigation = {
-            kind: PLAYER_SPACE_NAVIGATION_KIND.ANCHORED,
-            anchorObjectId,
-        };
-
-        this.officerTaskRunner.end(OFFICER_TASK_ID.HELM_FLY_TO);
-
-        return anchorObjectId;
+    public cancelTask(taskId: string): void {
+        this.officerTaskRunner.cancel(taskId);
     }
 
     public executeOfficerCommand(input: ExecuteOfficerCommandInput): void {
@@ -101,7 +105,9 @@ export default class EncounterEngine {
     public requestOfficerCommands(role: ExecuteOfficerCommandInput['role']): void {
         this.emit({
             type: ENCOUNTER_EVENT.AVAILABLE_OFFICER_COMMANDS_UPDATED,
+
             role,
+
             commands: getAvailableOfficerCommands(this.state, role),
         });
     }
@@ -112,12 +118,19 @@ export default class EncounterEngine {
 
     public drainEvents(): EncounterEvent[] {
         const events = [...this.events];
+
         this.events.length = 0;
 
         return events;
     }
 
+    // #endregion
+
+    // #region Event outbox
+
     private emit = (event: EncounterEvent): void => {
         this.events.push(event);
     };
+
+    // #endregion
 }

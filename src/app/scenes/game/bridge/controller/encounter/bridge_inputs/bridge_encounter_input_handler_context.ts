@@ -24,7 +24,9 @@ export type BridgeEncounterInputHandlerContext = {
 
     completeEncounterArrival: () => void;
 
-    completeEncounterTravel: () => void;
+    // Visual travel завершается
+    // только для конкретной runtime task.
+    completeEncounterTravel: (taskId: string) => void;
 
     requestOfficerCommands: (role: BridgeOfficerSeatClickedPayload['role']) => void;
 

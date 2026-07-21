@@ -1,58 +1,120 @@
 // src/engine/encounter/officer_tasks/OfficerTaskRunner.ts
-import { ENCOUNTER_EVENT, type EncounterEvent } from '../model/event';
-import { OFFICER_TASK_ID, type OfficerTaskId, type OfficerTaskState } from '../model/officer_task';
+
+import { PLAYER_SPACE_NAVIGATION_KIND } from '../../defs/player_location';
+import {
+    ENCOUNTER_EVENT,
+    OFFICER_TASK_OUTCOME,
+    OFFICER_TASK_RESULT_KIND,
+    type EncounterEvent,
+    type OfficerTaskResult,
+} from '../model/event';
+import { OFFICER_TASK_KIND, type OfficerTaskState } from '../model/officer_task';
 import type { EncounterState } from '../model/state';
 import { grantDockingClearance } from '../state/grant_docking_clearance';
 
 type OfficerTaskRunnerOptions = {
     state: EncounterState;
+
     emit: (event: EncounterEvent) => void;
+
     completeTimedTasksImmediately?: boolean;
 };
 
 export default class OfficerTaskRunner {
     private readonly state: EncounterState;
+
     private readonly emit: (event: EncounterEvent) => void;
+
     private readonly completeTimedTasksImmediately: boolean;
+
+    private nextTaskId = 1;
 
     constructor({ state, emit, completeTimedTasksImmediately = false }: OfficerTaskRunnerOptions) {
         this.state = state;
         this.emit = emit;
+
         this.completeTimedTasksImmediately = completeTimedTasksImmediately;
     }
 
-    public start = (task: OfficerTaskState): void => {
-        this.state.officerTasks[task.role] = task;
+    // #region Public API
+
+    public start = (task: OfficerTaskState): string => {
+        const runtimeTask = this.createRuntimeTask(task);
+
+        this.state.officerTasks[runtimeTask.role] = runtimeTask;
 
         this.emit({
             type: ENCOUNTER_EVENT.OFFICER_TASK_STARTED,
-            role: task.role,
-            taskId: task.id,
-            label: task.label,
+
+            role: runtimeTask.role,
+
+            taskId: runtimeTask.id,
+
+            label: runtimeTask.label,
+
+            task: {
+                ...runtimeTask,
+            },
         });
 
-        if (this.completeTimedTasksImmediately && task.durationMs !== null) {
-            this.resolveTask(task);
-            this.clearTask(task);
+        if (this.completeTimedTasksImmediately && runtimeTask.durationMs !== null) {
+            this.complete(runtimeTask.id);
         }
+
+        return runtimeTask.id;
     };
 
-    public end = (taskId: OfficerTaskId): void => {
-        const task = Object.values(this.state.officerTasks).find((task) => {
-            return task?.id === taskId;
-        });
+    public complete = (taskId: string): void => {
+        const task = this.findTaskById(taskId);
 
         if (!task) {
             return;
         }
 
-        this.clearTask(task);
+        const result = this.resolveTask(task);
+
+        this.finishTask(task, OFFICER_TASK_OUTCOME.COMPLETED, result);
+    };
+
+    public cancel = (taskId: string): void => {
+        const task = this.findTaskById(taskId);
+
+        if (!task) {
+            return;
+        }
+
+        this.finishTask(task, OFFICER_TASK_OUTCOME.CANCELLED);
     };
 
     public step(deltaMs: number): void {
         this.advanceTasks(deltaMs);
-        this.resolveFinishedTasks();
+
+        this.completeFinishedTasks();
     }
+
+    // #endregion
+
+    // #region Runtime task creation
+
+    private createRuntimeTask(task: OfficerTaskState): OfficerTaskState {
+        return {
+            ...task,
+
+            id: this.createTaskId(),
+        };
+    }
+
+    private createTaskId(): string {
+        const taskId = `task_${this.nextTaskId}`;
+
+        this.nextTaskId += 1;
+
+        return taskId;
+    }
+
+    // #endregion
+
+    // #region Timed tasks
 
     private advanceTasks(deltaMs: number): void {
         for (const task of Object.values(this.state.officerTasks)) {
@@ -60,47 +122,123 @@ export default class OfficerTaskRunner {
                 continue;
             }
 
-            task.elapsedMs = Math.min(task.elapsedMs + deltaMs, task.durationMs);
+            task.elapsedMs = Math.min(
+                task.elapsedMs + deltaMs,
+
+                task.durationMs,
+            );
         }
     }
 
-    private resolveFinishedTasks(): void {
-        const finishedTasks = Object.values(this.state.officerTasks).filter((task): task is OfficerTaskState => {
-            return Boolean(task && task.durationMs !== null && task.elapsedMs >= task.durationMs);
-        });
+    private completeFinishedTasks(): void {
+        const finishedTaskIds = Object.values(this.state.officerTasks)
+            .filter((task): task is OfficerTaskState => {
+                return Boolean(task && task.durationMs !== null && task.elapsedMs >= task.durationMs);
+            })
+            .map((task) => task.id);
 
-        for (const task of finishedTasks) {
-            this.resolveTask(task);
-            this.clearTask(task);
+        for (const taskId of finishedTaskIds) {
+            this.complete(taskId);
         }
     }
 
-    private resolveTask(task: OfficerTaskState): void {
-        switch (task.id) {
-            case OFFICER_TASK_ID.COMMS_REQUEST_DOCKING:
-                this.resolveCommsRequestDockingTask(task);
-                return;
+    // #endregion
+
+    // #region Task resolution
+
+    private resolveTask(task: OfficerTaskState): OfficerTaskResult | undefined {
+        switch (task.kind) {
+            case OFFICER_TASK_KIND.COMMS_REQUEST_DOCKING:
+                return this.resolveCommsRequestDockingTask(task);
+
+            case OFFICER_TASK_KIND.HELM_FLY_TO:
+                this.resolveHelmFlyToTask(task);
+
+                return undefined;
+
+            case OFFICER_TASK_KIND.COMMS_HAIL:
+
+            case OFFICER_TASK_KIND.HELM_DOCK:
+                return undefined;
 
             default:
-                throw new Error(`Unhandled officer task: ${task.id}`);
+                throw new Error(`Unhandled officer task kind: ${String(task.kind)}`);
         }
     }
 
-    private resolveCommsRequestDockingTask(task: OfficerTaskState): void {
+    private resolveCommsRequestDockingTask(task: OfficerTaskState): OfficerTaskResult {
         if (!task.targetId) {
             throw new Error('COMMS_REQUEST_DOCKING task requires targetId');
         }
 
         grantDockingClearance(this.state, task.targetId);
+
+        return {
+            kind: OFFICER_TASK_RESULT_KIND.DOCKING_CLEARANCE_GRANTED,
+
+            targetObjectId: task.targetId,
+        };
     }
 
-    private clearTask(task: OfficerTaskState): void {
+    private resolveHelmFlyToTask(task: OfficerTaskState): void {
+        if (!task.targetId) {
+            throw new Error('HELM_FLY_TO task requires targetId');
+        }
+
+        const navigation = this.state.navigation;
+
+        if (navigation.kind !== PLAYER_SPACE_NAVIGATION_KIND.TRAVELLING) {
+            throw new Error(`Cannot complete HELM_FLY_TO from navigation state: ${navigation.kind}`);
+        }
+
+        if (navigation.targetObjectId !== task.targetId) {
+            throw new Error(
+                `HELM_FLY_TO task target does not match navigation target: ${task.targetId} !== ${navigation.targetObjectId}`,
+            );
+        }
+
+        this.state.navigation = {
+            kind: PLAYER_SPACE_NAVIGATION_KIND.ANCHORED,
+
+            anchorObjectId: task.targetId,
+        };
+    }
+
+    // #endregion
+
+    // #region Task lookup and finish
+
+    private findTaskById(taskId: string): OfficerTaskState | undefined {
+        return Object.values(this.state.officerTasks).find((task) => task?.id === taskId);
+    }
+
+    private finishTask(
+        task: OfficerTaskState,
+
+        outcome: (typeof OFFICER_TASK_OUTCOME)[keyof typeof OFFICER_TASK_OUTCOME],
+
+        result?: OfficerTaskResult,
+    ): void {
+        const taskSnapshot = {
+            ...task,
+        };
+
         delete this.state.officerTasks[task.role];
 
         this.emit({
             type: ENCOUNTER_EVENT.OFFICER_TASK_ENDED,
+
             role: task.role,
+
             taskId: task.id,
+
+            task: taskSnapshot,
+
+            outcome,
+
+            result,
         });
     }
+
+    // #endregion
 }

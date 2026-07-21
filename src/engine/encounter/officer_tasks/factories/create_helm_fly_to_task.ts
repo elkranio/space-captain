@@ -2,18 +2,30 @@
 
 import { OFFICER_ROLE } from '../../../defs/officer';
 import { ENCOUNTER_OFFICER_COMMAND_ID } from '../../model/command';
-import { OFFICER_TASK_ID, type OfficerTaskState } from '../../model/officer_task';
+import { OFFICER_TASK_KIND, type OfficerTaskState } from '../../model/officer_task';
 
 export function createHelmFlyToTask(targetId: string): OfficerTaskState {
     return {
-        id: OFFICER_TASK_ID.HELM_FLY_TO,
+        // Временное значение.
+        //
+        // OfficerTaskRunner заменяет его
+        // на уникальный runtime ID.
+        id: OFFICER_TASK_KIND.HELM_FLY_TO,
+
+        kind: OFFICER_TASK_KIND.HELM_FLY_TO,
+
         role: OFFICER_ROLE.HELM,
+
         sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.FLY_TO,
+
         targetId,
+
         label: 'FLY TO',
+
         elapsedMs: 0,
 
-        // Задача завершается после окончания визуального travel flow.
+        // Task завершается после окончания
+        // визуального travel flow.
         durationMs: null,
     };
 }

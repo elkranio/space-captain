@@ -5,7 +5,7 @@ import type { ContactSequenceStep } from '../contact/contact_sequence';
 import { createStationHailSequence } from '../contact/sequences/create_station_hail_sequence';
 import { ENCOUNTER_OFFICER_COMMAND_ID, type ExecuteOfficerCommandInput } from '../model/command';
 import { ENCOUNTER_EVENT, type EncounterEvent } from '../model/event';
-import { OFFICER_TASK_ID, type OfficerTaskId, type OfficerTaskState } from '../model/officer_task';
+import type { OfficerTaskState } from '../model/officer_task';
 import type { EncounterState } from '../model/state';
 import { ENCOUNTER_OBJECT_KIND } from '../objects/encounter_object';
 import { createCommsHailTask } from '../officer_tasks/factories/create_comms_hail_task';
@@ -17,21 +17,30 @@ import { getAvailableOfficerCommands } from './get_available_officer_commands';
 
 type StartContactSequence = (steps: ContactSequenceStep[], onContactEnded?: () => void) => void;
 
+type StartOfficerTask = (task: OfficerTaskState) => string;
+
+type CompleteOfficerTask = (taskId: string) => void;
+
 type OfficerCommandExecutorOptions = {
     state: EncounterState;
+
     emit: (event: EncounterEvent) => void;
-    startOfficerTask: (task: OfficerTaskState) => void;
-    endOfficerTask: (taskId: OfficerTaskId) => void;
+
+    startOfficerTask: StartOfficerTask;
+
+    completeOfficerTask: CompleteOfficerTask;
+
     startContactSequence: StartContactSequence;
 };
 
 export default class OfficerCommandExecutor {
     private readonly state: EncounterState;
+
     private readonly emit: (event: EncounterEvent) => void;
 
-    private readonly startOfficerTask: (task: OfficerTaskState) => void;
+    private readonly startOfficerTask: StartOfficerTask;
 
-    private readonly endOfficerTask: (taskId: OfficerTaskId) => void;
+    private readonly completeOfficerTask: CompleteOfficerTask;
 
     private readonly startContactSequence: StartContactSequence;
 
@@ -39,15 +48,20 @@ export default class OfficerCommandExecutor {
         state,
         emit,
         startOfficerTask,
-        endOfficerTask,
+        completeOfficerTask,
         startContactSequence,
     }: OfficerCommandExecutorOptions) {
         this.state = state;
         this.emit = emit;
+
         this.startOfficerTask = startOfficerTask;
-        this.endOfficerTask = endOfficerTask;
+
+        this.completeOfficerTask = completeOfficerTask;
+
         this.startContactSequence = startContactSequence;
     }
+
+    // #region Public API
 
     public execute(input: ExecuteOfficerCommandInput): void {
         if (!this.canExecute(input)) {
@@ -76,6 +90,10 @@ export default class OfficerCommandExecutor {
         }
     }
 
+    // #endregion
+
+    // #region Command availability
+
     private canExecute(input: ExecuteOfficerCommandInput): boolean {
         const commands = getAvailableOfficerCommands(this.state, input.role);
 
@@ -83,6 +101,10 @@ export default class OfficerCommandExecutor {
             return command.commandId === input.commandId && command.targetId === input.targetId;
         });
     }
+
+    // #endregion
+
+    // #region Command execution
 
     private executeHail(input: ExecuteOfficerCommandInput): void {
         const target = findEncounterObjectById(this.state, input.targetId);
@@ -93,13 +115,18 @@ export default class OfficerCommandExecutor {
 
         switch (target.kind) {
             case ENCOUNTER_OBJECT_KIND.STATION: {
-                this.startOfficerTask(createCommsHailTask(target.id));
+                const commsTaskId = this.startOfficerTask(createCommsHailTask(target.id));
 
-                const onContactEnded = () => {
-                    this.endOfficerTask(OFFICER_TASK_ID.COMMS_HAIL);
+                const onContactEnded = (): void => {
+                    this.completeOfficerTask(commsTaskId);
                 };
 
-                this.startContactSequence(createStationHailSequence(target), onContactEnded);
+                this.startContactSequence(
+                    createStationHailSequence(target),
+
+                    onContactEnded,
+                );
+
                 return;
             }
         }
@@ -126,8 +153,10 @@ export default class OfficerCommandExecutor {
 
                 this.emit({
                     type: ENCOUNTER_EVENT.DOCKING_STARTED,
+
                     targetId: target.id,
                 });
+
                 return;
         }
     }
@@ -153,16 +182,22 @@ export default class OfficerCommandExecutor {
 
         this.state.navigation = {
             kind: PLAYER_SPACE_NAVIGATION_KIND.TRAVELLING,
+
             fromObjectId,
             targetObjectId: target.id,
         };
 
-        this.startOfficerTask(createHelmFlyToTask(target.id));
+        const helmTaskId = this.startOfficerTask(createHelmFlyToTask(target.id));
 
         this.emit({
             type: ENCOUNTER_EVENT.TRAVEL_STARTED,
+
+            taskId: helmTaskId,
+
             fromObjectId,
             target,
         });
     }
+
+    // #endregion
 }

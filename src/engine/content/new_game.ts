@@ -89,6 +89,18 @@ export function createNewRunState(): RunState {
             },
         },
 
+        // player: {
+        //     location: {
+        //         kind: PLAYER_LOCATION_KIND.SPACE,
+        //         nodeId: 'node_station',
+
+        //         navigation: {
+        //             kind: PLAYER_SPACE_NAVIGATION_KIND.ARRIVING,
+        //             targetObjectId: station.id,
+        //         },
+        //     },
+        // },
+
         officers: {
             [OFFICER_ROLE.COMMS]: {
                 role: OFFICER_ROLE.COMMS,

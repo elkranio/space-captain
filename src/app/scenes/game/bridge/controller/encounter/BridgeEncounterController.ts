@@ -7,6 +7,7 @@ import { DEBUG_SETTINGS } from '../../../../../debug/debug_settings';
 import { GAME_RUNTIME } from '../../../../../runtime/GameRuntime';
 import {
     BRIDGE_EVENT,
+    type BridgeEncounterTravelCompletedPayload,
     type BridgeOfficerCommandSelectedPayload,
     type BridgeOfficerSeatClickedPayload,
 } from '../../events/bridge_event';
@@ -23,11 +24,16 @@ import BridgeOfficerStationIndicatorsPoller from './officer_station_indicators/B
 
 // App-controller для bridge encounter flow.
 //
-// Держит EncounterEngine, принимает input events от bridge UI
-// и переводит engine events в bridge events.
+// Держит EncounterEngine,
+// принимает input events от bridge UI
+// и переводит engine events
+// в bridge events.
 //
 // Не содержит domain rules:
-// доступность команд, contact flow и navigation state живут в engine.
+// доступность команд,
+// contact flow
+// и navigation state
+// живут в engine.
 export default class BridgeEncounterController {
     private encounterEngine?: EncounterEngine;
 
@@ -36,6 +42,8 @@ export default class BridgeEncounterController {
     private isEncounterInteractive = false;
 
     constructor(private readonly eventBus: BridgeEventBus) {}
+
+    // #region Public API
 
     public prepare(): void {
         this.registerBridgeEventHandlers();
@@ -46,9 +54,11 @@ export default class BridgeEncounterController {
         this.unregisterBridgeEventHandlers();
 
         this.officerStationIndicatorsPoller?.destroy();
+
         this.officerStationIndicatorsPoller = undefined;
 
         this.encounterEngine = undefined;
+
         this.isEncounterInteractive = false;
     }
 
@@ -62,36 +72,107 @@ export default class BridgeEncounterController {
         }
 
         this.encounterEngine.step(deltaMs);
+
         this.drainEncounterEvents();
+
         this.updateOfficerStationIndicators(deltaMs);
     }
 
+    // #endregion
+
+    // #region Bridge event registration
+
     private registerBridgeEventHandlers(): void {
-        this.eventBus.on(BRIDGE_EVENT.OFFICER_SEAT_CLICKED, this.handleOfficerSeatClicked, this);
+        this.eventBus.on(
+            BRIDGE_EVENT.OFFICER_SEAT_CLICKED,
 
-        this.eventBus.on(BRIDGE_EVENT.ENCOUNTER_ARRIVAL_COMPLETED, this.handleEncounterArrivalCompleted, this);
+            this.handleOfficerSeatClicked,
 
-        this.eventBus.on(BRIDGE_EVENT.ENCOUNTER_TRAVEL_COMPLETED, this.handleEncounterTravelCompleted, this);
+            this,
+        );
 
-        this.eventBus.on(BRIDGE_EVENT.OFFICER_COMMAND_SELECTED, this.handleOfficerCommandSelected, this);
+        this.eventBus.on(
+            BRIDGE_EVENT.ENCOUNTER_ARRIVAL_COMPLETED,
 
-        this.eventBus.on(BRIDGE_EVENT.DOCKING_ANIMATION_COMPLETED, this.handleDockingAnimationCompleted, this);
+            this.handleEncounterArrivalCompleted,
+
+            this,
+        );
+
+        this.eventBus.on(
+            BRIDGE_EVENT.ENCOUNTER_TRAVEL_COMPLETED,
+
+            this.handleEncounterTravelCompleted,
+
+            this,
+        );
+
+        this.eventBus.on(
+            BRIDGE_EVENT.OFFICER_COMMAND_SELECTED,
+
+            this.handleOfficerCommandSelected,
+
+            this,
+        );
+
+        this.eventBus.on(
+            BRIDGE_EVENT.DOCKING_ANIMATION_COMPLETED,
+
+            this.handleDockingAnimationCompleted,
+
+            this,
+        );
     }
 
     private unregisterBridgeEventHandlers(): void {
-        this.eventBus.off(BRIDGE_EVENT.OFFICER_SEAT_CLICKED, this.handleOfficerSeatClicked, this);
+        this.eventBus.off(
+            BRIDGE_EVENT.OFFICER_SEAT_CLICKED,
 
-        this.eventBus.off(BRIDGE_EVENT.ENCOUNTER_ARRIVAL_COMPLETED, this.handleEncounterArrivalCompleted, this);
+            this.handleOfficerSeatClicked,
 
-        this.eventBus.off(BRIDGE_EVENT.ENCOUNTER_TRAVEL_COMPLETED, this.handleEncounterTravelCompleted, this);
+            this,
+        );
 
-        this.eventBus.off(BRIDGE_EVENT.OFFICER_COMMAND_SELECTED, this.handleOfficerCommandSelected, this);
+        this.eventBus.off(
+            BRIDGE_EVENT.ENCOUNTER_ARRIVAL_COMPLETED,
 
-        this.eventBus.off(BRIDGE_EVENT.DOCKING_ANIMATION_COMPLETED, this.handleDockingAnimationCompleted, this);
+            this.handleEncounterArrivalCompleted,
+
+            this,
+        );
+
+        this.eventBus.off(
+            BRIDGE_EVENT.ENCOUNTER_TRAVEL_COMPLETED,
+
+            this.handleEncounterTravelCompleted,
+
+            this,
+        );
+
+        this.eventBus.off(
+            BRIDGE_EVENT.OFFICER_COMMAND_SELECTED,
+
+            this.handleOfficerCommandSelected,
+
+            this,
+        );
+
+        this.eventBus.off(
+            BRIDGE_EVENT.DOCKING_ANIMATION_COMPLETED,
+
+            this.handleDockingAnimationCompleted,
+
+            this,
+        );
     }
+
+    // #endregion
+
+    // #region Encounter setup
 
     private loadEncounter(): void {
         const run = GAME_RUNTIME.getCurrentRun();
+
         const location = run.player.location;
 
         if (location.kind !== PLAYER_LOCATION_KIND.SPACE) {
@@ -120,6 +201,10 @@ export default class BridgeEncounterController {
         this.drainEncounterEvents();
     }
 
+    // #endregion
+
+    // #region Bridge input handlers
+
     private handleOfficerSeatClicked(payload: BridgeOfficerSeatClickedPayload): void {
         handleOfficerSeatClickedInput(payload, this.createEncounterInputHandlerContext());
     }
@@ -130,13 +215,11 @@ export default class BridgeEncounterController {
         this.syncOfficerStationIndicators();
     }
 
-    private handleEncounterTravelCompleted(): void {
-        handleEncounterTravelCompletedInput(this.createEncounterInputHandlerContext());
+    private handleEncounterTravelCompleted(payload: BridgeEncounterTravelCompletedPayload): void {
+        handleEncounterTravelCompletedInput(payload, this.createEncounterInputHandlerContext());
 
-        // completeTravel завершает HELM_FLY_TO
-        // и кладёт OFFICER_TASK_ENDED
-        // в очередь EncounterEngine.
         this.drainEncounterEvents();
+
         this.syncOfficerStationIndicators();
     }
 
@@ -147,6 +230,10 @@ export default class BridgeEncounterController {
     private handleDockingAnimationCompleted(): void {
         handleDockingAnimationCompletedInput(this.createEncounterInputHandlerContext());
     }
+
+    // #endregion
+
+    // #region Engine events
 
     private drainEncounterEvents(): void {
         if (!this.encounterEngine) {
@@ -160,6 +247,10 @@ export default class BridgeEncounterController {
         }
     }
 
+    // #endregion
+
+    // #region Officer station indicators
+
     private updateOfficerStationIndicators(deltaMs: number): void {
         if (!this.isEncounterInteractive) {
             return;
@@ -171,6 +262,10 @@ export default class BridgeEncounterController {
     private syncOfficerStationIndicators(): void {
         this.officerStationIndicatorsPoller?.sync();
     }
+
+    // #endregion
+
+    // #region Handler contexts
 
     private createEncounterEventHandlerContext(): BridgeEncounterEventHandlerContext {
         return {
@@ -186,10 +281,6 @@ export default class BridgeEncounterController {
 
             startEncounterTravel: (fromObjectId, targetObjectId) => {
                 this.startEncounterTravel(fromObjectId, targetObjectId);
-            },
-
-            completeEncounterTravel: () => {
-                this.completeEncounterTravel();
             },
         };
     }
@@ -208,8 +299,8 @@ export default class BridgeEncounterController {
                 this.completeEncounterArrival();
             },
 
-            completeEncounterTravel: () => {
-                this.completeEncounterTravel();
+            completeEncounterTravel: (taskId) => {
+                this.completeEncounterTravel(taskId);
             },
 
             requestOfficerCommands: (role) => {
@@ -230,10 +321,15 @@ export default class BridgeEncounterController {
                 this.encounterEngine.executeOfficerCommand(payload);
 
                 this.drainEncounterEvents();
+
                 this.syncOfficerStationIndicators();
             },
         };
     }
+
+    // #endregion
+
+    // #region Encounter lifecycle
 
     private completeEncounterArrival(): void {
         if (!this.encounterEngine) {
@@ -243,6 +339,7 @@ export default class BridgeEncounterController {
         const anchorObjectId = this.encounterEngine.completeArrival();
 
         const run = GAME_RUNTIME.getCurrentRun();
+
         const location = run.player.location;
 
         if (location.kind !== PLAYER_LOCATION_KIND.SPACE) {
@@ -251,12 +348,14 @@ export default class BridgeEncounterController {
 
         location.navigation = {
             kind: PLAYER_SPACE_NAVIGATION_KIND.ANCHORED,
+
             anchorObjectId,
         };
     }
 
     private startEncounterTravel(fromObjectId: string, targetObjectId: string): void {
         const run = GAME_RUNTIME.getCurrentRun();
+
         const location = run.player.location;
 
         if (location.kind !== PLAYER_LOCATION_KIND.SPACE) {
@@ -265,28 +364,41 @@ export default class BridgeEncounterController {
 
         location.navigation = {
             kind: PLAYER_SPACE_NAVIGATION_KIND.TRAVELLING,
+
             fromObjectId,
             targetObjectId,
         };
     }
 
-    private completeEncounterTravel(): void {
+    private completeEncounterTravel(taskId: string): void {
         if (!this.encounterEngine) {
             return;
         }
 
-        const anchorObjectId = this.encounterEngine.completeTravel();
-
         const run = GAME_RUNTIME.getCurrentRun();
+
         const location = run.player.location;
 
         if (location.kind !== PLAYER_LOCATION_KIND.SPACE) {
             throw new Error(`Cannot complete space travel for player location: ${location.kind}`);
         }
 
+        const navigation = location.navigation;
+
+        if (navigation.kind !== PLAYER_SPACE_NAVIGATION_KIND.TRAVELLING) {
+            throw new Error(`Cannot complete runtime travel from navigation state: ${navigation.kind}`);
+        }
+
+        const anchorObjectId = navigation.targetObjectId;
+
+        this.encounterEngine.completeTask(taskId);
+
         location.navigation = {
             kind: PLAYER_SPACE_NAVIGATION_KIND.ANCHORED,
+
             anchorObjectId,
         };
     }
+
+    // #endregion
 }

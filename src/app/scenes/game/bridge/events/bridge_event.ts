@@ -108,7 +108,9 @@ export type BridgeOfficerSeatClickedPayload = {
 // Payload input-события OFFICER_COMMAND_SELECTED.
 export type BridgeOfficerCommandSelectedPayload = {
     role: OfficerRole;
+
     commandId: EncounterOfficerCommandId;
+
     targetId?: string;
 };
 
@@ -121,32 +123,39 @@ export type BridgeOfficerBarkRequestedPayload = {
 // View-ready описание одного encounter object.
 export type BridgeEncounterObjectPayload = {
     id: string;
+
     sprite: SpriteEntry;
+
     position: Phaser.Math.Vector2;
 };
 
 // Один пункт меню команды офицера.
 export type BridgeOfficerCommandMenuItemPayload = {
     commandId: EncounterOfficerCommandId;
+
     label: string;
+
     targetId?: string;
 };
 
 // Группа пунктов меню.
 export type BridgeOfficerCommandMenuGroupPayload = {
     label: string;
+
     items: BridgeOfficerCommandMenuItemPayload[];
 };
 
 // Payload события OFFICER_COMMAND_MENU_UPDATED.
 export type BridgeOfficerCommandMenuUpdatedPayload = {
     role: OfficerRole;
+
     groups: BridgeOfficerCommandMenuGroupPayload[];
 };
 
 // Payload события CONTACT_STARTED.
 export type BridgeContactStartedPayload = {
     contactName: string;
+
     contactPortraitId: CharacterPortraitId;
 };
 
@@ -162,9 +171,23 @@ export type BridgeDockingStartedPayload = {
 };
 
 // Payload начала визуального travel flow.
+//
+// taskId связывает animation
+// с конкретной HELM_FLY_TO task instance.
 export type BridgeEncounterTravelStartedPayload = {
+    taskId: string;
+
     fromObjectId: string;
+
     targetObjectId: string;
+};
+
+// Payload завершения визуального travel flow.
+//
+// View возвращает тот же taskId,
+// который получил при старте animation.
+export type BridgeEncounterTravelCompletedPayload = {
+    taskId: string;
 };
 
 // Payload события SCENE_TRANSITION_REQUESTED.
@@ -192,7 +215,8 @@ export type BridgeEncounterArrivalStartedPayload = {
 };
 
 // Typed mapping:
-// каждое bridge event name связано со своим payload.
+// каждое bridge event name связано
+// со своим payload.
 //
 // undefined означает,
 // что событие несёт только сам факт.
@@ -217,7 +241,7 @@ export type BridgeEventPayloadMap = {
 
     [BRIDGE_EVENT.ENCOUNTER_TRAVEL_STARTED]: BridgeEncounterTravelStartedPayload;
 
-    [BRIDGE_EVENT.ENCOUNTER_TRAVEL_COMPLETED]: undefined;
+    [BRIDGE_EVENT.ENCOUNTER_TRAVEL_COMPLETED]: BridgeEncounterTravelCompletedPayload;
 
     [BRIDGE_EVENT.OFFICER_COMMAND_MENU_UPDATED]: BridgeOfficerCommandMenuUpdatedPayload;
 
