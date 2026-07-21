@@ -28,7 +28,7 @@ export type BridgeEncounterInputHandlerContext = {
     // только для конкретной runtime task.
     completeEncounterTravel: (taskId: string) => void;
 
-    requestOfficerCommands: (role: BridgeOfficerSeatClickedPayload['role']) => void;
+    openOfficerCommandMenu: (role: BridgeOfficerSeatClickedPayload['role']) => void;
 
-    executeOfficerCommand: (payload: BridgeOfficerCommandSelectedPayload) => void;
+    executeCommand: (payload: BridgeOfficerCommandSelectedPayload) => void;
 };

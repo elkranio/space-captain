@@ -300,38 +300,50 @@ export default class BridgeEncounterController {
                 this.completeEncounterTravel(taskId);
             },
 
-            requestOfficerCommands: (role) => {
-                if (!this.encounterEngine) {
-                    return;
-                }
-
-                const commands = this.encounterEngine.getAvailableCommands(role);
-
-                this.eventBus.emit(
-                    BRIDGE_EVENT.OFFICER_COMMAND_MENU_UPDATED,
-
-                    {
-                        role,
-
-                        groups: createOfficerCommandMenuGroups(commands),
-                    },
-                );
+            openOfficerCommandMenu: (role) => {
+                this.openOfficerCommandMenu(role);
             },
 
-            executeOfficerCommand: (payload) => {
-                if (!this.encounterEngine) {
-                    return;
-                }
-
-                this.encounterEngine.executeCommand(payload);
-
-                this.syncRuntimeNavigationFromEngine();
-
-                this.drainEncounterEvents();
-
-                this.syncOfficerStationIndicators();
+            executeCommand: (payload) => {
+                this.executeCommand(payload);
             },
         };
+    }
+
+    // #endregion
+
+    // #region Officer commands
+
+    private openOfficerCommandMenu(role: BridgeOfficerSeatClickedPayload['role']): void {
+        if (!this.encounterEngine) {
+            return;
+        }
+
+        const commands = this.encounterEngine.getAvailableCommands(role);
+
+        this.eventBus.emit(
+            BRIDGE_EVENT.OFFICER_COMMAND_MENU_UPDATED,
+
+            {
+                role,
+
+                groups: createOfficerCommandMenuGroups(commands),
+            },
+        );
+    }
+
+    private executeCommand(payload: BridgeOfficerCommandSelectedPayload): void {
+        if (!this.encounterEngine) {
+            return;
+        }
+
+        this.encounterEngine.executeCommand(payload);
+
+        this.syncRuntimeNavigationFromEngine();
+
+        this.drainEncounterEvents();
+
+        this.syncOfficerStationIndicators();
     }
 
     // #endregion
