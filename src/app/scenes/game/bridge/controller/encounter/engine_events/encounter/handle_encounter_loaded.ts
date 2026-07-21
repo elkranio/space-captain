@@ -1,9 +1,6 @@
 // src/app/scenes/game/bridge/controller/encounter/engine_events/encounter/handle_encounter_loaded.ts
 
-import {
-    PLAYER_SPACE_NAVIGATION_KIND,
-    type PlayerSpaceNavigationState,
-} from '../../../../../../../../engine/defs/player_location';
+import { PLAYER_SPACE_NAVIGATION_KIND } from '../../../../../../../../engine/defs/player_location';
 import type { EncounterLoadedEvent } from '../../../../../../../../engine/encounter/model/event';
 import { DEBUG_SETTINGS } from '../../../../../../../debug/debug_settings';
 import { BRIDGE_EVENT, type BridgeEncounterObjectPayload } from '../../../../events/bridge_event';
@@ -12,13 +9,14 @@ import type { BridgeEncounterEventHandlerContext } from '../bridge_encounter_eve
 
 // Переводит engine ENCOUNTER_LOADED в initial bridge objects flow.
 //
-// ARRIVING:
-// проигрывается arrival к target object.
-//
-// ANCHORED:
-// текущий anchor сразу показывается в нормальном состоянии.
+// Все encounter objects создаются заранее и остаются во view скрытыми.
+// Navigation state определяет, какой объект показать или анимировать.
 export function handleEncounterLoaded(event: EncounterLoadedEvent, context: BridgeEncounterEventHandlerContext): void {
     const objects = mapEncounterObjectsToBridgeObjectPayloads(event.state);
+
+    // Всегда подготавливаем все объекты ноды.
+    // Это необходимо для будущих локальных перелётов между ними.
+    context.eventBus.emit(BRIDGE_EVENT.ENCOUNTER_OBJECTS_LOADED, objects);
 
     const navigation = event.state.navigation;
 
@@ -53,11 +51,6 @@ function handleArrivingNavigation(
 
     context.setEncounterInteractive(false);
 
-    // Все объекты создаются заранее скрытыми:
-    // target показывается arrival sequence,
-    // остальные пригодятся для будущих локальных перелётов.
-    context.eventBus.emit(BRIDGE_EVENT.ENCOUNTER_OBJECTS_LOADED, objects);
-
     context.eventBus.emit(BRIDGE_EVENT.ENCOUNTER_ARRIVAL_STARTED, {
         targetId: targetObjectId,
     });
@@ -70,8 +63,8 @@ function handleAnchoredNavigation(
 ): void {
     const anchorObject = findObjectOrThrow(objects, anchorObjectId);
 
-    // Это восстановление уже завершённого состояния,
-    // поэтому никакой arrival animation не требуется.
+    // Encounter уже находится возле объекта:
+    // показываем anchor сразу, без arrival animation.
     context.eventBus.emit(BRIDGE_EVENT.ENCOUNTER_OBJECTS_UPDATED, [anchorObject]);
 
     context.setEncounterInteractive(true);
