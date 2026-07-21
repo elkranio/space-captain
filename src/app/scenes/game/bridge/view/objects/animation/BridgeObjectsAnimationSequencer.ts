@@ -4,18 +4,26 @@ import {
     BRIDGE_EVENT,
     type BridgeDockingStartedPayload,
     type BridgeEncounterArrivalStartedPayload,
+    type BridgeEncounterTravelStartedPayload,
 } from '../../../events/bridge_event';
 import { playObjectsArrivalSequence } from './arrival/play_objects_arrival_sequence';
 import type { BridgeObjectsAnimationContext } from './bridge_objects_animation_context';
 import { playObjectsDockingSequence } from './docking/play_objects_docking_sequence';
+import { playObjectsTravelSequence } from './travel/play_objects_travel_sequence';
 
-// View-level sequencer для animations над encounter objects на bridge viewscreen.
-// Хранит active timer и routing bridge events к конкретным sequence-файлам.
+// View-level sequencer для animations
+// над encounter objects на bridge viewscreen.
+//
+// Хранит active timer
+// и routing bridge events
+// к конкретным sequence-файлам.
 export default class BridgeObjectsAnimationSequencer {
     private activeTimer?: Phaser.Time.TimerEvent;
 
     constructor(private readonly context: Omit<BridgeObjectsAnimationContext, 'setActiveTimer' | 'clearActiveTimer'>) {
         this.context.eventBus.on(BRIDGE_EVENT.ENCOUNTER_ARRIVAL_STARTED, this.handleArrivalStarted, this);
+
+        this.context.eventBus.on(BRIDGE_EVENT.ENCOUNTER_TRAVEL_STARTED, this.handleTravelStarted, this);
 
         this.context.eventBus.on(BRIDGE_EVENT.DOCKING_STARTED, this.handleDockingStarted, this);
     }
@@ -30,6 +38,8 @@ export default class BridgeObjectsAnimationSequencer {
 
         this.context.eventBus.off(BRIDGE_EVENT.ENCOUNTER_ARRIVAL_STARTED, this.handleArrivalStarted, this);
 
+        this.context.eventBus.off(BRIDGE_EVENT.ENCOUNTER_TRAVEL_STARTED, this.handleTravelStarted, this);
+
         this.context.eventBus.off(BRIDGE_EVENT.DOCKING_STARTED, this.handleDockingStarted, this);
     }
 
@@ -37,6 +47,12 @@ export default class BridgeObjectsAnimationSequencer {
         this.stop();
 
         playObjectsArrivalSequence(payload.targetId, this.createSequenceContext());
+    }
+
+    private handleTravelStarted(payload: BridgeEncounterTravelStartedPayload): void {
+        this.stop();
+
+        playObjectsTravelSequence(payload, this.createSequenceContext());
     }
 
     private handleDockingStarted(payload: BridgeDockingStartedPayload): void {

@@ -6,17 +6,27 @@ import type {
 } from '../../../events/bridge_event';
 import type BridgeEventBus from '../../../events/BridgeEventBus';
 
-// Контекст для handlers, которые обрабатывают bridge input / visual-flow events.
-// Handlers не знают про BridgeEncounterController напрямую:
-// они проверяют interactivity, вызывают app-level действия и могут эмитить bridge events.
+// Контекст для handlers,
+// которые обрабатывают bridge input
+// и visual-flow events.
+//
+// Handlers не знают про
+// BridgeEncounterController напрямую:
+// они проверяют interactivity,
+// вызывают app-level действия
+// и могут эмитить bridge events.
 export type BridgeEncounterInputHandlerContext = {
     eventBus: BridgeEventBus;
 
     isEncounterInteractive: () => boolean;
+
     setEncounterInteractive: (value: boolean) => void;
 
     completeEncounterArrival: () => void;
 
+    completeEncounterTravel: () => void;
+
     requestOfficerCommands: (role: BridgeOfficerSeatClickedPayload['role']) => void;
+
     executeOfficerCommand: (payload: BridgeOfficerCommandSelectedPayload) => void;
 };

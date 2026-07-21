@@ -16,6 +16,7 @@ import type { BridgeEncounterInputHandlerContext } from './bridge_inputs/bridge_
 import { handleDockingAnimationCompleted as handleDockingAnimationCompletedInput } from './bridge_inputs/docking/handle_docking_animation_completed';
 import { handleOfficerCommandSelected as handleOfficerCommandSelectedInput } from './bridge_inputs/officer_commands/handle_officer_command_selected';
 import { handleOfficerSeatClicked as handleOfficerSeatClickedInput } from './bridge_inputs/officer_commands/handle_officer_seat_clicked';
+import { handleEncounterTravelCompleted as handleEncounterTravelCompletedInput } from './bridge_inputs/travel/handle_encounter_travel_completed';
 import type { BridgeEncounterEventHandlerContext } from './engine_events/bridge_encounter_event_handler_context';
 import { dispatchEncounterEvent } from './engine_events/dispatch_encounter_event';
 import BridgeOfficerStationIndicatorsPoller from './officer_station_indicators/BridgeOfficerStationIndicatorsPoller';
@@ -70,6 +71,8 @@ export default class BridgeEncounterController {
 
         this.eventBus.on(BRIDGE_EVENT.ENCOUNTER_ARRIVAL_COMPLETED, this.handleEncounterArrivalCompleted, this);
 
+        this.eventBus.on(BRIDGE_EVENT.ENCOUNTER_TRAVEL_COMPLETED, this.handleEncounterTravelCompleted, this);
+
         this.eventBus.on(BRIDGE_EVENT.OFFICER_COMMAND_SELECTED, this.handleOfficerCommandSelected, this);
 
         this.eventBus.on(BRIDGE_EVENT.DOCKING_ANIMATION_COMPLETED, this.handleDockingAnimationCompleted, this);
@@ -79,6 +82,8 @@ export default class BridgeEncounterController {
         this.eventBus.off(BRIDGE_EVENT.OFFICER_SEAT_CLICKED, this.handleOfficerSeatClicked, this);
 
         this.eventBus.off(BRIDGE_EVENT.ENCOUNTER_ARRIVAL_COMPLETED, this.handleEncounterArrivalCompleted, this);
+
+        this.eventBus.off(BRIDGE_EVENT.ENCOUNTER_TRAVEL_COMPLETED, this.handleEncounterTravelCompleted, this);
 
         this.eventBus.off(BRIDGE_EVENT.OFFICER_COMMAND_SELECTED, this.handleOfficerCommandSelected, this);
 
@@ -125,6 +130,16 @@ export default class BridgeEncounterController {
         this.syncOfficerStationIndicators();
     }
 
+    private handleEncounterTravelCompleted(): void {
+        handleEncounterTravelCompletedInput(this.createEncounterInputHandlerContext());
+
+        // completeTravel завершает HELM_FLY_TO
+        // и кладёт OFFICER_TASK_ENDED
+        // в очередь EncounterEngine.
+        this.drainEncounterEvents();
+        this.syncOfficerStationIndicators();
+    }
+
     private handleOfficerCommandSelected(payload: BridgeOfficerCommandSelectedPayload): void {
         handleOfficerCommandSelectedInput(payload, this.createEncounterInputHandlerContext());
     }
@@ -154,10 +169,6 @@ export default class BridgeEncounterController {
     }
 
     private syncOfficerStationIndicators(): void {
-        if (!this.isEncounterInteractive) {
-            return;
-        }
-
         this.officerStationIndicatorsPoller?.sync();
     }
 
@@ -193,6 +204,14 @@ export default class BridgeEncounterController {
                 this.isEncounterInteractive = value;
             },
 
+            completeEncounterArrival: () => {
+                this.completeEncounterArrival();
+            },
+
+            completeEncounterTravel: () => {
+                this.completeEncounterTravel();
+            },
+
             requestOfficerCommands: (role) => {
                 if (!this.encounterEngine) {
                     return;
@@ -212,10 +231,6 @@ export default class BridgeEncounterController {
 
                 this.drainEncounterEvents();
                 this.syncOfficerStationIndicators();
-            },
-
-            completeEncounterArrival: () => {
-                this.completeEncounterArrival();
             },
         };
     }
