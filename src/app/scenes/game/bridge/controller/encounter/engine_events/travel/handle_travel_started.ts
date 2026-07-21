@@ -7,24 +7,33 @@ import type { BridgeEncounterEventHandlerContext } from '../bridge_encounter_eve
 // Переводит engine TRAVEL_STARTED
 // в bridge-level visual travel flow.
 //
+// Navigation уже переведена engine
+// в TRAVELLING и синхронизирована
+// с persistent runtime.
+//
 // Пока animation не завершилась,
 // encounter остаётся неинтерактивным,
-// navigation — TRAVELLING,
 // а Helm продолжает выполнять задачу.
 //
 // taskId проходит через bridge event,
 // чтобы завершение конкретной animation
 // можно было связать с конкретной task instance.
-export function handleTravelStarted(event: TravelStartedEvent, context: BridgeEncounterEventHandlerContext): void {
+export function handleTravelStarted(
+    event: TravelStartedEvent,
+
+    context: BridgeEncounterEventHandlerContext,
+): void {
     context.setEncounterInteractive(false);
 
-    context.startEncounterTravel(event.fromObjectId, event.target.id);
+    context.eventBus.emit(
+        BRIDGE_EVENT.ENCOUNTER_TRAVEL_STARTED,
 
-    context.eventBus.emit(BRIDGE_EVENT.ENCOUNTER_TRAVEL_STARTED, {
-        taskId: event.taskId,
+        {
+            taskId: event.taskId,
 
-        fromObjectId: event.fromObjectId,
+            fromObjectId: event.fromObjectId,
 
-        targetObjectId: event.target.id,
-    });
+            targetObjectId: event.target.id,
+        },
+    );
 }

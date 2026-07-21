@@ -6,18 +6,12 @@ import type BridgeEventBus from '../../../events/BridgeEventBus';
 // которые переводят EncounterEngine events
 // в bridge scene events.
 //
-// Handlers не знают про
-// BridgeEncounterController напрямую:
-// только эмитят события,
-// меняют interactivity
-// и вызывают разрешённые
-// encounter lifecycle operations.
+// Engine-event handlers
+// не вызывают domain operations:
+// только эмитят presentation events
+// и управляют interactivity.
 export type BridgeEncounterEventHandlerContext = {
     eventBus: BridgeEventBus;
 
     setEncounterInteractive: (value: boolean) => void;
-
-    completeEncounterArrival: () => void;
-
-    startEncounterTravel: (fromObjectId: string, targetObjectId: string) => void;
 };

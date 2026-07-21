@@ -3,7 +3,6 @@
 import type { CharacterPortraitId } from '../../defs/character';
 import type { OfficerRole } from '../../defs/officer';
 import type { EncounterObjectState } from '../objects/encounter_object';
-import type { AvailableOfficerCommand } from './command';
 import type { OfficerTaskState } from './officer_task';
 import type { EncounterState } from './state';
 
@@ -14,8 +13,6 @@ import type { EncounterState } from './state';
 // app-слой сам решает, как это показать.
 export const ENCOUNTER_EVENT = {
     ENCOUNTER_LOADED: 'encounter_loaded',
-
-    AVAILABLE_OFFICER_COMMANDS_UPDATED: 'available_officer_commands_updated',
 
     CONTACT_STARTED: 'contact_started',
 
@@ -34,6 +31,7 @@ export const ENCOUNTER_EVENT = {
 
 export const OFFICER_TASK_OUTCOME = {
     COMPLETED: 'completed',
+
     CANCELLED: 'cancelled',
 } as const;
 
@@ -57,19 +55,6 @@ export type EncounterLoadedEvent = {
     state: EncounterState;
 };
 
-// Список команд, которые сейчас доступны
-// выбранному офицеру.
-//
-// Это результат resolve-логики,
-// а не выполнение команды.
-export type AvailableOfficerCommandsUpdatedEvent = {
-    type: typeof ENCOUNTER_EVENT.AVAILABLE_OFFICER_COMMANDS_UPDATED;
-
-    role: OfficerRole;
-
-    commands: AvailableOfficerCommand[];
-};
-
 // Начало структурного contact/dialogue flow
 // с внешним собеседником.
 export type ContactStartedEvent = {
@@ -85,6 +70,7 @@ export type ContactMessageAddedEvent = {
     type: typeof ENCOUNTER_EVENT.CONTACT_MESSAGE_ADDED;
 
     speakerName: string;
+
     text: string;
 };
 
@@ -130,7 +116,7 @@ export type OfficerTaskStartedEvent = {
 
     label: string;
 
-    task?: OfficerTaskState;
+    task: OfficerTaskState;
 };
 
 export type OfficerTaskEndedEvent = {
@@ -140,16 +126,15 @@ export type OfficerTaskEndedEvent = {
 
     taskId: string;
 
-    task?: OfficerTaskState;
+    task: OfficerTaskState;
 
-    outcome?: OfficerTaskOutcome;
+    outcome: OfficerTaskOutcome;
 
     result?: OfficerTaskResult;
 };
 
 export type EncounterEvent =
     | EncounterLoadedEvent
-    | AvailableOfficerCommandsUpdatedEvent
     | ContactStartedEvent
     | ContactMessageAddedEvent
     | ContactEndedEvent

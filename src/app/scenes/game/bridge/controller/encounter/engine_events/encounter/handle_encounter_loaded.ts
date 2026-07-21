@@ -17,13 +17,21 @@ import type { BridgeEncounterEventHandlerContext } from '../bridge_encounter_eve
 //
 // Navigation state определяет,
 // какой объект показать или анимировать.
-export function handleEncounterLoaded(event: EncounterLoadedEvent, context: BridgeEncounterEventHandlerContext): void {
+export function handleEncounterLoaded(
+    event: EncounterLoadedEvent,
+
+    context: BridgeEncounterEventHandlerContext,
+): void {
     const objects = mapEncounterObjectsToBridgeObjectPayloads(event.state);
 
     // Всегда подготавливаем все объекты ноды.
     // Это необходимо для локальных
     // перелётов между ними.
-    context.eventBus.emit(BRIDGE_EVENT.ENCOUNTER_OBJECTS_LOADED, objects);
+    context.eventBus.emit(
+        BRIDGE_EVENT.ENCOUNTER_OBJECTS_LOADED,
+
+        objects,
+    );
 
     const navigation = event.state.navigation;
 
@@ -61,7 +69,9 @@ export function handleEncounterLoaded(event: EncounterLoadedEvent, context: Brid
 
 function handleArrivingNavigation(
     targetObjectId: string,
+
     objects: BridgeEncounterObjectPayload[],
+
     context: BridgeEncounterEventHandlerContext,
 ): void {
     const targetObject = findObjectOrThrow(objects, targetObjectId);
@@ -73,9 +83,13 @@ function handleArrivingNavigation(
             [targetObject],
         );
 
-        context.completeEncounterArrival();
-
-        context.setEncounterInteractive(true);
+        // Debug skip имитирует обычное
+        // завершение visual arrival flow.
+        //
+        // Domain transition и возврат
+        // interactivity выполняет тот же
+        // input handler, что после animation.
+        context.eventBus.emit(BRIDGE_EVENT.ENCOUNTER_ARRIVAL_COMPLETED);
 
         return;
     }
@@ -93,7 +107,9 @@ function handleArrivingNavigation(
 
 function handleAnchoredNavigation(
     anchorObjectId: string,
+
     objects: BridgeEncounterObjectPayload[],
+
     context: BridgeEncounterEventHandlerContext,
 ): void {
     const anchorObject = findObjectOrThrow(objects, anchorObjectId);
@@ -112,9 +128,13 @@ function handleAnchoredNavigation(
 
 function handleTravellingNavigation(
     taskId: string,
+
     fromObjectId: string,
+
     targetObjectId: string,
+
     objects: BridgeEncounterObjectPayload[],
+
     context: BridgeEncounterEventHandlerContext,
 ): void {
     // Проверяем обе стороны
@@ -156,7 +176,11 @@ function handleTravellingNavigation(
 
 // #region Loaded task lookup
 
-function findLoadedTravelTaskIdOrThrow(event: EncounterLoadedEvent, targetObjectId: string): string {
+function findLoadedTravelTaskIdOrThrow(
+    event: EncounterLoadedEvent,
+
+    targetObjectId: string,
+): string {
     const task = event.state.officerTasks[OFFICER_ROLE.HELM];
 
     if (!task) {

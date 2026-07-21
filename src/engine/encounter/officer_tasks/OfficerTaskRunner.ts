@@ -31,9 +31,12 @@ export default class OfficerTaskRunner {
 
     constructor({ state, emit, completeTimedTasksImmediately = false }: OfficerTaskRunnerOptions) {
         this.state = state;
+
         this.emit = emit;
 
         this.completeTimedTasksImmediately = completeTimedTasksImmediately;
+
+        this.adoptInitialTasks();
     }
 
     // #region Public API
@@ -95,6 +98,16 @@ export default class OfficerTaskRunner {
     // #endregion
 
     // #region Runtime task creation
+
+    private adoptInitialTasks(): void {
+        for (const task of Object.values(this.state.officerTasks)) {
+            if (!task) {
+                continue;
+            }
+
+            this.state.officerTasks[task.role] = this.createRuntimeTask(task);
+        }
+    }
 
     private createRuntimeTask(task: OfficerTaskState): OfficerTaskState {
         return {

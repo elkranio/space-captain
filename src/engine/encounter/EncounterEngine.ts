@@ -1,10 +1,10 @@
 // src/engine/encounter/EncounterEngine.ts
 
-import { PLAYER_SPACE_NAVIGATION_KIND } from '../defs/player_location';
+import { PLAYER_SPACE_NAVIGATION_KIND, type PlayerSpaceNavigationState } from '../defs/player_location';
 import OfficerCommandExecutor from './commands/OfficerCommandExecutor';
 import { getAvailableOfficerCommands } from './commands/get_available_officer_commands';
 import ContactSequenceRunner from './contact/ContactSequenceRunner';
-import type { ExecuteOfficerCommandInput } from './model/command';
+import type { AvailableOfficerCommand, ExecuteOfficerCommandInput } from './model/command';
 import { ENCOUNTER_EVENT, type EncounterEvent } from './model/event';
 import type { OfficerAvailabilityStates } from './model/officer_availability';
 import type { EncounterState } from './model/state';
@@ -66,28 +66,28 @@ export default class EncounterEngine {
 
     // #region Public API
 
+    public executeCommand(input: ExecuteOfficerCommandInput): void {
+        this.officerCommandExecutor.execute(input);
+    }
+
     public step(deltaMs: number): void {
         this.officerTaskRunner.step(deltaMs);
 
         this.contactSequenceRunner.step(deltaMs);
     }
 
-    public completeArrival(): string {
+    public completeArrival(): void {
         const navigation = this.state.navigation;
 
         if (navigation.kind !== PLAYER_SPACE_NAVIGATION_KIND.ARRIVING) {
             throw new Error(`Cannot complete arrival from navigation state: ${navigation.kind}`);
         }
 
-        const anchorObjectId = navigation.targetObjectId;
-
         this.state.navigation = {
             kind: PLAYER_SPACE_NAVIGATION_KIND.ANCHORED,
 
-            anchorObjectId,
+            anchorObjectId: navigation.targetObjectId,
         };
-
-        return anchorObjectId;
     }
 
     public completeTask(taskId: string): void {
@@ -98,18 +98,14 @@ export default class EncounterEngine {
         this.officerTaskRunner.cancel(taskId);
     }
 
-    public executeOfficerCommand(input: ExecuteOfficerCommandInput): void {
-        this.officerCommandExecutor.execute(input);
+    public getAvailableCommands(role: ExecuteOfficerCommandInput['role']): AvailableOfficerCommand[] {
+        return getAvailableOfficerCommands(this.state, role);
     }
 
-    public requestOfficerCommands(role: ExecuteOfficerCommandInput['role']): void {
-        this.emit({
-            type: ENCOUNTER_EVENT.AVAILABLE_OFFICER_COMMANDS_UPDATED,
-
-            role,
-
-            commands: getAvailableOfficerCommands(this.state, role),
-        });
+    public getNavigationState(): PlayerSpaceNavigationState {
+        return {
+            ...this.state.navigation,
+        };
     }
 
     public getOfficerAvailabilityStates(): OfficerAvailabilityStates {

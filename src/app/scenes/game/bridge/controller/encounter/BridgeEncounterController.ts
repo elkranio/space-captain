@@ -1,6 +1,10 @@
 // src/app/scenes/game/bridge/controller/encounter/BridgeEncounterController.ts
 
-import { PLAYER_LOCATION_KIND, PLAYER_SPACE_NAVIGATION_KIND } from '../../../../../../engine/defs/player_location';
+import {
+    PLAYER_LOCATION_KIND,
+    PLAYER_SPACE_NAVIGATION_KIND,
+    type PlayerSpaceNavigationState,
+} from '../../../../../../engine/defs/player_location';
 import EncounterEngine from '../../../../../../engine/encounter/EncounterEngine';
 import { createEncounterStateFromSpaceNode } from '../../../../../../engine/encounter/state/create_encounter_state_from_space_node';
 import { DEBUG_SETTINGS } from '../../../../../debug/debug_settings';
@@ -18,6 +22,7 @@ import { handleDockingAnimationCompleted as handleDockingAnimationCompletedInput
 import { handleOfficerCommandSelected as handleOfficerCommandSelectedInput } from './bridge_inputs/officer_commands/handle_officer_command_selected';
 import { handleOfficerSeatClicked as handleOfficerSeatClickedInput } from './bridge_inputs/officer_commands/handle_officer_seat_clicked';
 import { handleEncounterTravelCompleted as handleEncounterTravelCompletedInput } from './bridge_inputs/travel/handle_encounter_travel_completed';
+import { createOfficerCommandMenuGroups } from './command_menu/create_officer_command_menu_groups';
 import type { BridgeEncounterEventHandlerContext } from './engine_events/bridge_encounter_event_handler_context';
 import { dispatchEncounterEvent } from './engine_events/dispatch_encounter_event';
 import BridgeOfficerStationIndicatorsPoller from './officer_station_indicators/BridgeOfficerStationIndicatorsPoller';
@@ -274,14 +279,6 @@ export default class BridgeEncounterController {
             setEncounterInteractive: (value) => {
                 this.isEncounterInteractive = value;
             },
-
-            completeEncounterArrival: () => {
-                this.completeEncounterArrival();
-            },
-
-            startEncounterTravel: (fromObjectId, targetObjectId) => {
-                this.startEncounterTravel(fromObjectId, targetObjectId);
-            },
         };
     }
 
@@ -308,9 +305,17 @@ export default class BridgeEncounterController {
                     return;
                 }
 
-                this.encounterEngine.requestOfficerCommands(role);
+                const commands = this.encounterEngine.getAvailableCommands(role);
 
-                this.drainEncounterEvents();
+                this.eventBus.emit(
+                    BRIDGE_EVENT.OFFICER_COMMAND_MENU_UPDATED,
+
+                    {
+                        role,
+
+                        groups: createOfficerCommandMenuGroups(commands),
+                    },
+                );
             },
 
             executeOfficerCommand: (payload) => {
@@ -318,7 +323,9 @@ export default class BridgeEncounterController {
                     return;
                 }
 
-                this.encounterEngine.executeOfficerCommand(payload);
+                this.encounterEngine.executeCommand(payload);
+
+                this.syncRuntimeNavigationFromEngine();
 
                 this.drainEncounterEvents();
 
@@ -336,41 +343,28 @@ export default class BridgeEncounterController {
             return;
         }
 
-        const anchorObjectId = this.encounterEngine.completeArrival();
+        this.encounterEngine.completeArrival();
 
-        const run = GAME_RUNTIME.getCurrentRun();
-
-        const location = run.player.location;
-
-        if (location.kind !== PLAYER_LOCATION_KIND.SPACE) {
-            throw new Error(`Cannot complete space arrival for player location: ${location.kind}`);
-        }
-
-        location.navigation = {
-            kind: PLAYER_SPACE_NAVIGATION_KIND.ANCHORED,
-
-            anchorObjectId,
-        };
-    }
-
-    private startEncounterTravel(fromObjectId: string, targetObjectId: string): void {
-        const run = GAME_RUNTIME.getCurrentRun();
-
-        const location = run.player.location;
-
-        if (location.kind !== PLAYER_LOCATION_KIND.SPACE) {
-            throw new Error(`Cannot start space travel for player location: ${location.kind}`);
-        }
-
-        location.navigation = {
-            kind: PLAYER_SPACE_NAVIGATION_KIND.TRAVELLING,
-
-            fromObjectId,
-            targetObjectId,
-        };
+        this.syncRuntimeNavigationFromEngine(PLAYER_SPACE_NAVIGATION_KIND.ANCHORED);
     }
 
     private completeEncounterTravel(taskId: string): void {
+        if (!this.encounterEngine) {
+            return;
+        }
+
+        this.assertRuntimeNavigationKind(PLAYER_SPACE_NAVIGATION_KIND.TRAVELLING);
+
+        this.encounterEngine.completeTask(taskId);
+
+        this.syncRuntimeNavigationFromEngine(PLAYER_SPACE_NAVIGATION_KIND.ANCHORED);
+    }
+
+    // #endregion
+
+    // #region Runtime synchronization
+
+    private syncRuntimeNavigationFromEngine(expectedKind?: PlayerSpaceNavigationState['kind']): void {
         if (!this.encounterEngine) {
             return;
         }
@@ -380,24 +374,30 @@ export default class BridgeEncounterController {
         const location = run.player.location;
 
         if (location.kind !== PLAYER_LOCATION_KIND.SPACE) {
-            throw new Error(`Cannot complete space travel for player location: ${location.kind}`);
+            throw new Error(`Cannot synchronize space navigation for player location: ${location.kind}`);
         }
 
-        const navigation = location.navigation;
+        const navigation = this.encounterEngine.getNavigationState();
 
-        if (navigation.kind !== PLAYER_SPACE_NAVIGATION_KIND.TRAVELLING) {
-            throw new Error(`Cannot complete runtime travel from navigation state: ${navigation.kind}`);
+        if (expectedKind !== undefined && navigation.kind !== expectedKind) {
+            throw new Error(`Expected engine navigation ${expectedKind}, received ${navigation.kind}`);
         }
 
-        const anchorObjectId = navigation.targetObjectId;
+        location.navigation = navigation;
+    }
 
-        this.encounterEngine.completeTask(taskId);
+    private assertRuntimeNavigationKind(expectedKind: PlayerSpaceNavigationState['kind']): void {
+        const run = GAME_RUNTIME.getCurrentRun();
 
-        location.navigation = {
-            kind: PLAYER_SPACE_NAVIGATION_KIND.ANCHORED,
+        const location = run.player.location;
 
-            anchorObjectId,
-        };
+        if (location.kind !== PLAYER_LOCATION_KIND.SPACE) {
+            throw new Error(`Cannot inspect space navigation for player location: ${location.kind}`);
+        }
+
+        if (location.navigation.kind !== expectedKind) {
+            throw new Error(`Expected runtime navigation ${expectedKind}, received ${location.navigation.kind}`);
+        }
     }
 
     // #endregion
