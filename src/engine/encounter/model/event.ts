@@ -1,7 +1,6 @@
 // src/engine/encounter/model/event.ts
 
 import type { CharacterPortraitId } from '../../defs/character';
-import type { OfficerRole } from '../../defs/officer';
 import type { EncounterObjectState } from '../objects/encounter_object';
 import type { OfficerTaskState } from './officer_task';
 import type { EncounterState } from './state';
@@ -107,24 +106,22 @@ export type DockingStartedEvent = {
     targetId: string;
 };
 
+// Начало officer task.
+//
+// task — единый snapshot,
+// описывающий конкретную runtime task.
 export type OfficerTaskStartedEvent = {
     type: typeof ENCOUNTER_EVENT.OFFICER_TASK_STARTED;
-
-    role: OfficerRole;
-
-    taskId: string;
-
-    label: string;
 
     task: OfficerTaskState;
 };
 
+// Завершение officer task.
+//
+// Событие сохраняет snapshot завершённой task
+// вместе с outcome и возможным domain result.
 export type OfficerTaskEndedEvent = {
     type: typeof ENCOUNTER_EVENT.OFFICER_TASK_ENDED;
-
-    role: OfficerRole;
-
-    taskId: string;
 
     task: OfficerTaskState;
 

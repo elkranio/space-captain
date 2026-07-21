@@ -49,12 +49,6 @@ export default class OfficerTaskRunner {
         this.emit({
             type: ENCOUNTER_EVENT.OFFICER_TASK_STARTED,
 
-            role: runtimeTask.role,
-
-            taskId: runtimeTask.id,
-
-            label: runtimeTask.label,
-
             task: {
                 ...runtimeTask,
             },
@@ -135,11 +129,7 @@ export default class OfficerTaskRunner {
                 continue;
             }
 
-            task.elapsedMs = Math.min(
-                task.elapsedMs + deltaMs,
-
-                task.durationMs,
-            );
+            task.elapsedMs = Math.min(task.elapsedMs + deltaMs, task.durationMs);
         }
     }
 
@@ -227,9 +217,7 @@ export default class OfficerTaskRunner {
 
     private finishTask(
         task: OfficerTaskState,
-
         outcome: (typeof OFFICER_TASK_OUTCOME)[keyof typeof OFFICER_TASK_OUTCOME],
-
         result?: OfficerTaskResult,
     ): void {
         const taskSnapshot = {
@@ -240,10 +228,6 @@ export default class OfficerTaskRunner {
 
         this.emit({
             type: ENCOUNTER_EVENT.OFFICER_TASK_ENDED,
-
-            role: task.role,
-
-            taskId: task.id,
 
             task: taskSnapshot,
 
