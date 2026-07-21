@@ -1,6 +1,10 @@
 // src/app/scenes/game/bridge/controller/encounter/BridgeEncounterController.ts
 
+import { PLAYER_LOCATION_KIND, PLAYER_SPACE_NAVIGATION_KIND } from '../../../../../../engine/defs/player_location';
 import EncounterEngine from '../../../../../../engine/encounter/EncounterEngine';
+import { createEncounterStateFromSpaceNode } from '../../../../../../engine/encounter/state/create_encounter_state_from_space_node';
+import { DEBUG_SETTINGS } from '../../../../../debug/debug_settings';
+import { GAME_RUNTIME } from '../../../../../runtime/GameRuntime';
 import {
     BRIDGE_EVENT,
     type BridgeOfficerCommandSelectedPayload,
@@ -15,17 +19,19 @@ import { handleOfficerSeatClicked as handleOfficerSeatClickedInput } from './bri
 import type { BridgeEncounterEventHandlerContext } from './engine_events/bridge_encounter_event_handler_context';
 import { dispatchEncounterEvent } from './engine_events/dispatch_encounter_event';
 import BridgeOfficerStationIndicatorsPoller from './officer_station_indicators/BridgeOfficerStationIndicatorsPoller';
-import { DEBUG_SETTINGS } from '../../../../../debug/debug_settings';
-import { GAME_RUNTIME } from '../../../../../runtime/GameRuntime';
-import { PLAYER_LOCATION_KIND, PLAYER_SPACE_NAVIGATION_KIND } from '../../../../../../engine/defs/player_location';
-import { createEncounterStateFromSpaceNode } from '../../../../../../engine/encounter/state/create_encounter_state_from_space_node';
 
 // App-controller для bridge encounter flow.
-// Держит EncounterEngine, принимает input events от bridge UI и переводит engine events в bridge events.
-// Не содержит domain rules: доступность команд, contact flow и docking state живут в engine.
+//
+// Держит EncounterEngine, принимает input events от bridge UI
+// и переводит engine events в bridge events.
+//
+// Не содержит domain rules:
+// доступность команд, contact flow и navigation state живут в engine.
 export default class BridgeEncounterController {
     private encounterEngine?: EncounterEngine;
+
     private officerStationIndicatorsPoller?: BridgeOfficerStationIndicatorsPoller;
+
     private isEncounterInteractive = false;
 
     constructor(private readonly eventBus: BridgeEventBus) {}
@@ -61,15 +67,21 @@ export default class BridgeEncounterController {
 
     private registerBridgeEventHandlers(): void {
         this.eventBus.on(BRIDGE_EVENT.OFFICER_SEAT_CLICKED, this.handleOfficerSeatClicked, this);
+
         this.eventBus.on(BRIDGE_EVENT.ENCOUNTER_ARRIVAL_COMPLETED, this.handleEncounterArrivalCompleted, this);
+
         this.eventBus.on(BRIDGE_EVENT.OFFICER_COMMAND_SELECTED, this.handleOfficerCommandSelected, this);
+
         this.eventBus.on(BRIDGE_EVENT.DOCKING_ANIMATION_COMPLETED, this.handleDockingAnimationCompleted, this);
     }
 
     private unregisterBridgeEventHandlers(): void {
         this.eventBus.off(BRIDGE_EVENT.OFFICER_SEAT_CLICKED, this.handleOfficerSeatClicked, this);
+
         this.eventBus.off(BRIDGE_EVENT.ENCOUNTER_ARRIVAL_COMPLETED, this.handleEncounterArrivalCompleted, this);
+
         this.eventBus.off(BRIDGE_EVENT.OFFICER_COMMAND_SELECTED, this.handleOfficerCommandSelected, this);
+
         this.eventBus.off(BRIDGE_EVENT.DOCKING_ANIMATION_COMPLETED, this.handleDockingAnimationCompleted, this);
     }
 
@@ -91,6 +103,7 @@ export default class BridgeEncounterController {
 
         this.encounterEngine = new EncounterEngine({
             state,
+
             completeTimedTasksImmediately: DEBUG_SETTINGS.bridge.officerTasks.completeTimedTasksImmediately,
         });
 
@@ -108,6 +121,7 @@ export default class BridgeEncounterController {
 
     private handleEncounterArrivalCompleted(): void {
         handleEncounterArrivalCompletedInput(this.createEncounterInputHandlerContext());
+
         this.syncOfficerStationIndicators();
     }
 
@@ -150,11 +164,21 @@ export default class BridgeEncounterController {
     private createEncounterEventHandlerContext(): BridgeEncounterEventHandlerContext {
         return {
             eventBus: this.eventBus,
+
             setEncounterInteractive: (value) => {
                 this.isEncounterInteractive = value;
             },
+
             completeEncounterArrival: () => {
                 this.completeEncounterArrival();
+            },
+
+            startEncounterTravel: (fromObjectId, targetObjectId) => {
+                this.startEncounterTravel(fromObjectId, targetObjectId);
+            },
+
+            completeEncounterTravel: () => {
+                this.completeEncounterTravel();
             },
         };
     }
@@ -175,6 +199,7 @@ export default class BridgeEncounterController {
                 }
 
                 this.encounterEngine.requestOfficerCommands(role);
+
                 this.drainEncounterEvents();
             },
 
@@ -184,6 +209,7 @@ export default class BridgeEncounterController {
                 }
 
                 this.encounterEngine.executeOfficerCommand(payload);
+
                 this.drainEncounterEvents();
                 this.syncOfficerStationIndicators();
             },
@@ -206,6 +232,41 @@ export default class BridgeEncounterController {
 
         if (location.kind !== PLAYER_LOCATION_KIND.SPACE) {
             throw new Error(`Cannot complete space arrival for player location: ${location.kind}`);
+        }
+
+        location.navigation = {
+            kind: PLAYER_SPACE_NAVIGATION_KIND.ANCHORED,
+            anchorObjectId,
+        };
+    }
+
+    private startEncounterTravel(fromObjectId: string, targetObjectId: string): void {
+        const run = GAME_RUNTIME.getCurrentRun();
+        const location = run.player.location;
+
+        if (location.kind !== PLAYER_LOCATION_KIND.SPACE) {
+            throw new Error(`Cannot start space travel for player location: ${location.kind}`);
+        }
+
+        location.navigation = {
+            kind: PLAYER_SPACE_NAVIGATION_KIND.TRAVELLING,
+            fromObjectId,
+            targetObjectId,
+        };
+    }
+
+    private completeEncounterTravel(): void {
+        if (!this.encounterEngine) {
+            return;
+        }
+
+        const anchorObjectId = this.encounterEngine.completeTravel();
+
+        const run = GAME_RUNTIME.getCurrentRun();
+        const location = run.player.location;
+
+        if (location.kind !== PLAYER_LOCATION_KIND.SPACE) {
+            throw new Error(`Cannot complete space travel for player location: ${location.kind}`);
         }
 
         location.navigation = {

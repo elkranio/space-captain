@@ -20,7 +20,7 @@ export function getAvailableOfficerCommands(state: EncounterState, role: Officer
                 continue;
             }
 
-            const command = tryCreateAvailableOfficerCommandForObject(object, objectCommand);
+            const command = tryCreateAvailableOfficerCommandForObject(state, object, objectCommand);
 
             if (command) {
                 commands.push(command);

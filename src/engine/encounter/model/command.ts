@@ -8,6 +8,7 @@ export const ENCOUNTER_OFFICER_COMMAND_ID = {
     HAIL: 'hail',
     REQUEST_DOCKING: 'request_docking',
     DOCK: 'dock',
+    FLY_TO: 'fly_to',
 } as const;
 
 export type EncounterOfficerCommandId =

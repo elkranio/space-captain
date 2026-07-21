@@ -1,11 +1,14 @@
 // src/engine/encounter/state/create_encounter_state_from_space_node.ts
+
+import { PLAYER_SPACE_NAVIGATION_KIND, type PlayerSpaceNavigationState } from '../../defs/player_location';
 import { OFFICER_ROLE } from '../../defs/officer';
 import { SPACE_OBJECT_KIND, type SpaceNodeState, type SpaceObjectState } from '../../defs/universe';
 import { ENCOUNTER_OFFICER_COMMAND_ID } from '../model/command';
+import type { OfficerTaskStates } from '../model/officer_task';
 import type { EncounterState } from '../model/state';
 import { ENCOUNTER_OBJECT_KIND, type EncounterObjectState } from '../objects/encounter_object';
 import { DOCKING_CLEARANCE_STATE } from '../objects/station/station_encounter_object';
-import type { PlayerSpaceNavigationState } from '../../defs/player_location';
+import { createHelmFlyToTask } from '../officer_tasks/factories/create_helm_fly_to_task';
 
 export function createEncounterStateFromSpaceNode(
     node: SpaceNodeState,
@@ -20,7 +23,7 @@ export function createEncounterStateFromSpaceNode(
             ...navigation,
         },
 
-        officerTasks: {},
+        officerTasks: createInitialOfficerTasks(navigation),
         objects: node.objects.map(createEncounterObjectState),
     };
 }
@@ -56,6 +59,10 @@ function createEncounterObjectState(object: SpaceObjectState): EncounterObjectSt
                         role: OFFICER_ROLE.HELM,
                         commandId: ENCOUNTER_OFFICER_COMMAND_ID.DOCK,
                     },
+                    {
+                        role: OFFICER_ROLE.HELM,
+                        commandId: ENCOUNTER_OFFICER_COMMAND_ID.FLY_TO,
+                    },
                 ],
             };
 
@@ -71,7 +78,12 @@ function createEncounterObjectState(object: SpaceObjectState): EncounterObjectSt
                     y: -0.05,
                 },
 
-                officerCommands: [],
+                officerCommands: [
+                    {
+                        role: OFFICER_ROLE.HELM,
+                        commandId: ENCOUNTER_OFFICER_COMMAND_ID.FLY_TO,
+                    },
+                ],
             };
 
         case SPACE_OBJECT_KIND.ASTEROID:
@@ -87,12 +99,27 @@ function createEncounterObjectState(object: SpaceObjectState): EncounterObjectSt
                     y: 0.12,
                 },
 
-                officerCommands: [],
+                officerCommands: [
+                    {
+                        role: OFFICER_ROLE.HELM,
+                        commandId: ENCOUNTER_OFFICER_COMMAND_ID.FLY_TO,
+                    },
+                ],
             };
 
         default:
             return assertNever(object);
     }
+}
+
+function createInitialOfficerTasks(navigation: PlayerSpaceNavigationState): OfficerTaskStates {
+    if (navigation.kind !== PLAYER_SPACE_NAVIGATION_KIND.TRAVELLING) {
+        return {};
+    }
+
+    return {
+        [OFFICER_ROLE.HELM]: createHelmFlyToTask(navigation.targetObjectId),
+    };
 }
 
 function assertNever(value: never): never {

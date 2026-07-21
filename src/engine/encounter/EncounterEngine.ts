@@ -1,14 +1,16 @@
 // src/engine/encounter/EncounterEngine.ts
+
+import { PLAYER_SPACE_NAVIGATION_KIND } from '../defs/player_location';
 import OfficerCommandExecutor from './commands/OfficerCommandExecutor';
 import { getAvailableOfficerCommands } from './commands/get_available_officer_commands';
 import ContactSequenceRunner from './contact/ContactSequenceRunner';
 import type { ExecuteOfficerCommandInput } from './model/command';
 import { ENCOUNTER_EVENT, type EncounterEvent } from './model/event';
 import type { OfficerAvailabilityStates } from './model/officer_availability';
+import { OFFICER_TASK_ID } from './model/officer_task';
 import type { EncounterState } from './model/state';
 import { getOfficerAvailabilityStates } from './officer_availability/queries/get_officer_availability_states';
 import OfficerTaskRunner from './officer_tasks/OfficerTaskRunner';
-import { PLAYER_SPACE_NAVIGATION_KIND } from '../defs/player_location';
 
 export type EncounterEngineOptions = {
     state: EncounterState;
@@ -69,6 +71,25 @@ export default class EncounterEngine {
             kind: PLAYER_SPACE_NAVIGATION_KIND.ANCHORED,
             anchorObjectId,
         };
+
+        return anchorObjectId;
+    }
+
+    public completeTravel(): string {
+        const navigation = this.state.navigation;
+
+        if (navigation.kind !== PLAYER_SPACE_NAVIGATION_KIND.TRAVELLING) {
+            throw new Error(`Cannot complete travel from navigation state: ${navigation.kind}`);
+        }
+
+        const anchorObjectId = navigation.targetObjectId;
+
+        this.state.navigation = {
+            kind: PLAYER_SPACE_NAVIGATION_KIND.ANCHORED,
+            anchorObjectId,
+        };
+
+        this.officerTaskRunner.end(OFFICER_TASK_ID.HELM_FLY_TO);
 
         return anchorObjectId;
     }
