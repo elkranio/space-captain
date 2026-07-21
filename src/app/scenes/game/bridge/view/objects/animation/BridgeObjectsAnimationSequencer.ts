@@ -1,6 +1,10 @@
 // src/app/scenes/game/bridge/view/objects/animation/BridgeObjectsAnimationSequencer.ts
 
-import { BRIDGE_EVENT, type BridgeDockingStartedPayload } from '../../../events/bridge_event';
+import {
+    BRIDGE_EVENT,
+    type BridgeDockingStartedPayload,
+    type BridgeEncounterArrivalStartedPayload,
+} from '../../../events/bridge_event';
 import { playObjectsArrivalSequence } from './arrival/play_objects_arrival_sequence';
 import type { BridgeObjectsAnimationContext } from './bridge_objects_animation_context';
 import { playObjectsDockingSequence } from './docking/play_objects_docking_sequence';
@@ -29,22 +33,26 @@ export default class BridgeObjectsAnimationSequencer {
         this.context.eventBus.off(BRIDGE_EVENT.DOCKING_STARTED, this.handleDockingStarted, this);
     }
 
-    private handleArrivalStarted(): void {
+    private handleArrivalStarted(payload: BridgeEncounterArrivalStartedPayload): void {
         this.stop();
-        playObjectsArrivalSequence(this.createSequenceContext());
+
+        playObjectsArrivalSequence(payload.targetId, this.createSequenceContext());
     }
 
     private handleDockingStarted(payload: BridgeDockingStartedPayload): void {
         this.stop();
+
         playObjectsDockingSequence(payload, this.createSequenceContext());
     }
 
     private createSequenceContext(): BridgeObjectsAnimationContext {
         return {
             ...this.context,
+
             setActiveTimer: (timer) => {
                 this.activeTimer = timer;
             },
+
             clearActiveTimer: () => {
                 this.activeTimer = undefined;
             },

@@ -187,6 +187,10 @@ export type BridgeOfficerActivityClearedPayload = {
     role: OfficerRole;
 };
 
+export type BridgeEncounterArrivalStartedPayload = {
+    targetId: string;
+};
+
 // Typed mapping: каждое bridge event name связано со своим payload.
 // undefined означает, что событие несёт только сам факт и не требует данных.
 export type BridgeEventPayloadMap = {
@@ -201,7 +205,7 @@ export type BridgeEventPayloadMap = {
     [BRIDGE_EVENT.ENCOUNTER_OBJECTS_LOADED]: BridgeEncounterObjectPayload[];
     [BRIDGE_EVENT.ENCOUNTER_OBJECTS_UPDATED]: BridgeEncounterObjectPayload[];
 
-    [BRIDGE_EVENT.ENCOUNTER_ARRIVAL_STARTED]: undefined;
+    [BRIDGE_EVENT.ENCOUNTER_ARRIVAL_STARTED]: BridgeEncounterArrivalStartedPayload;
     [BRIDGE_EVENT.ENCOUNTER_ARRIVAL_COMPLETED]: undefined;
 
     [BRIDGE_EVENT.OFFICER_COMMAND_MENU_UPDATED]: BridgeOfficerCommandMenuUpdatedPayload;

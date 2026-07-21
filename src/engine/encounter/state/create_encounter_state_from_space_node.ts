@@ -9,6 +9,7 @@ import { DOCKING_CLEARANCE_STATE } from '../objects/station/station_encounter_ob
 export function createEncounterStateFromSpaceNode(node: SpaceNodeState): EncounterState {
     return {
         spaceBackgroundId: node.spaceBackgroundId,
+        arrivalObjectId: node.arrivalObjectId,
         officerTasks: {},
         objects: node.objects.map(createEncounterObjectState),
     };
@@ -23,8 +24,6 @@ function createEncounterObjectState(object: SpaceObjectState): EncounterObjectSt
                 displayName: object.station.name,
                 station: object.station,
 
-                // Временная позиция на viewscreen.
-                // Позже будет вычисляться из локальной навигации внутри ноды.
                 position: {
                     x: -0.52,
                     y: -0.05,
@@ -57,10 +56,25 @@ function createEncounterObjectState(object: SpaceObjectState): EncounterObjectSt
                 displayName: object.beacon.name,
                 beacon: object.beacon,
 
-                // Пока используем ту же точку прибытия на viewscreen.
                 position: {
                     x: -0.52,
                     y: -0.05,
+                },
+
+                officerCommands: [],
+            };
+
+        case SPACE_OBJECT_KIND.ASTEROID:
+            return {
+                id: object.asteroid.id,
+                kind: ENCOUNTER_OBJECT_KIND.ASTEROID,
+                displayName: object.asteroid.name,
+                asteroid: object.asteroid,
+
+                // Временная постановочная позиция.
+                position: {
+                    x: 0.42,
+                    y: 0.12,
                 },
 
                 officerCommands: [],

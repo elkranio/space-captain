@@ -7,6 +7,7 @@ import { SPECIES_ID } from '../defs/species';
 import { SPACE_OBJECT_KIND } from '../defs/universe';
 import StationGenerator from '../generation/station/StationGenerator';
 import { BEACON_OBJECT_SPRITE_ID } from '../defs/beacon';
+import { ASTEROID_OBJECT_SPRITE_ID } from '../defs/asteroid';
 
 export function createNewRunState(): RunState {
     const station = StationGenerator.generateStation(SPECIES_ID.HUMAN);
@@ -14,6 +15,11 @@ export function createNewRunState(): RunState {
         id: 'beacon_start',
         name: 'NAVIGATION BEACON',
         objectSpriteId: BEACON_OBJECT_SPRITE_ID.NAVIGATION_BEACON_00,
+    };
+    const asteroid = {
+        id: 'asteroid_start',
+        name: 'ASTEROID',
+        objectSpriteId: ASTEROID_OBJECT_SPRITE_ID.ASTEROID_00,
     };
 
     return {
@@ -31,6 +37,20 @@ export function createNewRunState(): RunState {
                         {
                             kind: SPACE_OBJECT_KIND.NAVIGATION_BEACON,
                             beacon: navigationBeacon,
+                            localPosition: {
+                                x: 0,
+                                y: 0,
+                                z: 0,
+                            },
+                        },
+                        {
+                            kind: SPACE_OBJECT_KIND.ASTEROID,
+                            asteroid,
+                            localPosition: {
+                                x: 900,
+                                y: 220,
+                                z: 1400,
+                            },
                         },
                     ],
                 },
@@ -46,6 +66,11 @@ export function createNewRunState(): RunState {
                         {
                             kind: SPACE_OBJECT_KIND.STATION,
                             station,
+                            localPosition: {
+                                x: 0,
+                                y: 0,
+                                z: 0,
+                            },
                         },
                     ],
                 },
