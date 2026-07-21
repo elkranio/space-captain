@@ -1,6 +1,6 @@
 // src/engine/content/new_game.ts
 import { OFFICER_PORTRAIT_ID, OFFICER_ROLE } from '../defs/officer';
-import { PLAYER_LOCATION_KIND } from '../defs/player_location';
+import { PLAYER_LOCATION_KIND, PLAYER_SPACE_NAVIGATION_KIND } from '../defs/player_location';
 import type { RunState } from '../defs/run';
 import { SPACE_BACKGROUND_ID } from '../defs/space_background';
 import { SPECIES_ID } from '../defs/species';
@@ -81,6 +81,11 @@ export function createNewRunState(): RunState {
             location: {
                 kind: PLAYER_LOCATION_KIND.SPACE,
                 nodeId: 'node_start',
+
+                navigation: {
+                    kind: PLAYER_SPACE_NAVIGATION_KIND.ARRIVING,
+                    targetObjectId: navigationBeacon.id,
+                },
             },
         },
 

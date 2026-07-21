@@ -7,4 +7,5 @@ import type BridgeEventBus from '../../../events/BridgeEventBus';
 export type BridgeEncounterEventHandlerContext = {
     eventBus: BridgeEventBus;
     setEncounterInteractive: (value: boolean) => void;
+    completeEncounterArrival: () => void;
 };

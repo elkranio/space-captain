@@ -8,6 +8,7 @@ import type { OfficerAvailabilityStates } from './model/officer_availability';
 import type { EncounterState } from './model/state';
 import { getOfficerAvailabilityStates } from './officer_availability/queries/get_officer_availability_states';
 import OfficerTaskRunner from './officer_tasks/OfficerTaskRunner';
+import { PLAYER_SPACE_NAVIGATION_KIND } from '../defs/player_location';
 
 export type EncounterEngineOptions = {
     state: EncounterState;
@@ -53,6 +54,23 @@ export default class EncounterEngine {
     public step(deltaMs: number): void {
         this.officerTaskRunner.step(deltaMs);
         this.contactSequenceRunner.step(deltaMs);
+    }
+
+    public completeArrival(): string {
+        const navigation = this.state.navigation;
+
+        if (navigation.kind !== PLAYER_SPACE_NAVIGATION_KIND.ARRIVING) {
+            throw new Error(`Cannot complete arrival from navigation state: ${navigation.kind}`);
+        }
+
+        const anchorObjectId = navigation.targetObjectId;
+
+        this.state.navigation = {
+            kind: PLAYER_SPACE_NAVIGATION_KIND.ANCHORED,
+            anchorObjectId,
+        };
+
+        return anchorObjectId;
     }
 
     public executeOfficerCommand(input: ExecuteOfficerCommandInput): void {

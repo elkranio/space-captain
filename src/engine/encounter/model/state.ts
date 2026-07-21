@@ -1,4 +1,5 @@
 // src/engine/encounter/model/state.ts
+import type { PlayerSpaceNavigationState } from '../../defs/player_location';
 import type { SpaceBackgroundId } from '../../defs/space_background';
 import type { EncounterObjectState } from '../objects/encounter_object';
 import type { OfficerTaskStates } from './officer_task';
@@ -7,10 +8,7 @@ import type { OfficerTaskStates } from './officer_task';
 // Здесь хранится только доменное состояние, без Phaser/UI объектов.
 export type EncounterState = {
     spaceBackgroundId: SpaceBackgroundId;
-
-    // Объект, рядом с которым корабль находится при загрузке encounter.
-    arrivalObjectId: string;
-
+    navigation: PlayerSpaceNavigationState;
     objects: EncounterObjectState[];
     officerTasks: OfficerTaskStates;
 };

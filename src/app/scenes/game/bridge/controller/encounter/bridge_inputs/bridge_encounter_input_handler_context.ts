@@ -15,6 +15,8 @@ export type BridgeEncounterInputHandlerContext = {
     isEncounterInteractive: () => boolean;
     setEncounterInteractive: (value: boolean) => void;
 
+    completeEncounterArrival: () => void;
+
     requestOfficerCommands: (role: BridgeOfficerSeatClickedPayload['role']) => void;
     executeOfficerCommand: (payload: BridgeOfficerCommandSelectedPayload) => void;
 };

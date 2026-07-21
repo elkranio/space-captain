@@ -17,7 +17,7 @@ import { dispatchEncounterEvent } from './engine_events/dispatch_encounter_event
 import BridgeOfficerStationIndicatorsPoller from './officer_station_indicators/BridgeOfficerStationIndicatorsPoller';
 import { DEBUG_SETTINGS } from '../../../../../debug/debug_settings';
 import { GAME_RUNTIME } from '../../../../../runtime/GameRuntime';
-import { PLAYER_LOCATION_KIND } from '../../../../../../engine/defs/player_location';
+import { PLAYER_LOCATION_KIND, PLAYER_SPACE_NAVIGATION_KIND } from '../../../../../../engine/defs/player_location';
 import { createEncounterStateFromSpaceNode } from '../../../../../../engine/encounter/state/create_encounter_state_from_space_node';
 
 // App-controller для bridge encounter flow.
@@ -87,7 +87,7 @@ export default class BridgeEncounterController {
             throw new Error(`Space node not found: ${location.nodeId}`);
         }
 
-        const state = createEncounterStateFromSpaceNode(node);
+        const state = createEncounterStateFromSpaceNode(node, location.navigation);
 
         this.encounterEngine = new EncounterEngine({
             state,
@@ -153,6 +153,9 @@ export default class BridgeEncounterController {
             setEncounterInteractive: (value) => {
                 this.isEncounterInteractive = value;
             },
+            completeEncounterArrival: () => {
+                this.completeEncounterArrival();
+            },
         };
     }
 
@@ -184,6 +187,30 @@ export default class BridgeEncounterController {
                 this.drainEncounterEvents();
                 this.syncOfficerStationIndicators();
             },
+
+            completeEncounterArrival: () => {
+                this.completeEncounterArrival();
+            },
+        };
+    }
+
+    private completeEncounterArrival(): void {
+        if (!this.encounterEngine) {
+            return;
+        }
+
+        const anchorObjectId = this.encounterEngine.completeArrival();
+
+        const run = GAME_RUNTIME.getCurrentRun();
+        const location = run.player.location;
+
+        if (location.kind !== PLAYER_LOCATION_KIND.SPACE) {
+            throw new Error(`Cannot complete space arrival for player location: ${location.kind}`);
+        }
+
+        location.navigation = {
+            kind: PLAYER_SPACE_NAVIGATION_KIND.ANCHORED,
+            anchorObjectId,
         };
     }
 }

@@ -5,11 +5,21 @@ import { ENCOUNTER_OFFICER_COMMAND_ID } from '../model/command';
 import type { EncounterState } from '../model/state';
 import { ENCOUNTER_OBJECT_KIND, type EncounterObjectState } from '../objects/encounter_object';
 import { DOCKING_CLEARANCE_STATE } from '../objects/station/station_encounter_object';
+import type { PlayerSpaceNavigationState } from '../../defs/player_location';
 
-export function createEncounterStateFromSpaceNode(node: SpaceNodeState): EncounterState {
+export function createEncounterStateFromSpaceNode(
+    node: SpaceNodeState,
+    navigation: PlayerSpaceNavigationState,
+): EncounterState {
     return {
         spaceBackgroundId: node.spaceBackgroundId,
-        arrivalObjectId: node.arrivalObjectId,
+
+        // Encounter получает собственный runtime snapshot.
+        // Persistent player state обновляется отдельно через GameRuntime.
+        navigation: {
+            ...navigation,
+        },
+
         officerTasks: {},
         objects: node.objects.map(createEncounterObjectState),
     };

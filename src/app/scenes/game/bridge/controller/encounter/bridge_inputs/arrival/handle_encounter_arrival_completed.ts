@@ -2,8 +2,8 @@
 
 import type { BridgeEncounterInputHandlerContext } from '../bridge_encounter_input_handler_context';
 
-// Обрабатывает завершение bridge arrival animation.
-// После arrival flow encounter снова принимает player input.
+// Завершает domain arrival и возвращает управление игроку.
 export function handleEncounterArrivalCompleted(context: BridgeEncounterInputHandlerContext): void {
+    context.completeEncounterArrival();
     context.setEncounterInteractive(true);
 }
