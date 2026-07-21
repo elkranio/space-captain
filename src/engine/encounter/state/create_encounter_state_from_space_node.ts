@@ -50,8 +50,24 @@ function createEncounterObjectState(object: SpaceObjectState): EncounterObjectSt
                 ],
             };
 
+        case SPACE_OBJECT_KIND.NAVIGATION_BEACON:
+            return {
+                id: object.beacon.id,
+                kind: ENCOUNTER_OBJECT_KIND.NAVIGATION_BEACON,
+                displayName: object.beacon.name,
+                beacon: object.beacon,
+
+                // Пока используем ту же точку прибытия на viewscreen.
+                position: {
+                    x: -0.52,
+                    y: -0.05,
+                },
+
+                officerCommands: [],
+            };
+
         default:
-            return assertNever(object.kind);
+            return assertNever(object);
     }
 }
 

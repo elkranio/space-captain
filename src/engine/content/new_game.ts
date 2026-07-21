@@ -6,9 +6,15 @@ import { SPACE_BACKGROUND_ID } from '../defs/space_background';
 import { SPECIES_ID } from '../defs/species';
 import { SPACE_OBJECT_KIND } from '../defs/universe';
 import StationGenerator from '../generation/station/StationGenerator';
+import { BEACON_OBJECT_SPRITE_ID } from '../defs/beacon';
 
 export function createNewRunState(): RunState {
     const station = StationGenerator.generateStation(SPECIES_ID.HUMAN);
+    const navigationBeacon = {
+        id: 'beacon_start',
+        name: 'NAVIGATION BEACON',
+        objectSpriteId: BEACON_OBJECT_SPRITE_ID.NAVIGATION_BEACON_00,
+    };
 
     return {
         universe: {
@@ -19,8 +25,14 @@ export function createNewRunState(): RunState {
                         x: 0,
                         y: 0,
                     },
+                    arrivalObjectId: navigationBeacon.id,
                     spaceBackgroundId: SPACE_BACKGROUND_ID.NEBULA_00,
-                    objects: [],
+                    objects: [
+                        {
+                            kind: SPACE_OBJECT_KIND.NAVIGATION_BEACON,
+                            beacon: navigationBeacon,
+                        },
+                    ],
                 },
                 {
                     id: 'node_station',
@@ -28,6 +40,7 @@ export function createNewRunState(): RunState {
                         x: 100,
                         y: 0,
                     },
+                    arrivalObjectId: station.id,
                     spaceBackgroundId: SPACE_BACKGROUND_ID.NEBULA_00,
                     objects: [
                         {
