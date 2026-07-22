@@ -1,4 +1,5 @@
 // src/engine/encounter/contact/ContactSequenceRunner.ts
+
 import { ENCOUNTER_EVENT, type EncounterEvent } from '../model/event';
 import type { EncounterState } from '../model/state';
 import { grantDockingClearance } from '../state/grant_docking_clearance';
@@ -13,15 +14,12 @@ export type ContactSequenceRunnerContext = {
 // Хранит текущий шаг, задержку между шагами и применяет эффекты contact step-ов.
 export default class ContactSequenceRunner {
     private activeSequence?: ActiveContactSequence;
+
     private onContactEnded?: () => void;
 
     constructor(private readonly context: ContactSequenceRunnerContext) {}
 
     public start = (steps: ContactSequenceStep[], onContactEnded?: () => void): void => {
-        console.log('[CONTACT] START', {
-            hasCallback: Boolean(onContactEnded),
-        });
-
         this.activeSequence = {
             steps,
             currentStepIndex: 0,

@@ -359,8 +359,6 @@ export default class BridgeEncounterController {
             return;
         }
 
-        this.assertRuntimeNavigationKind(PLAYER_SPACE_NAVIGATION_KIND.TRAVELLING);
-
         this.encounterEngine.completeTask(taskId);
 
         this.syncRuntimeNavigationFromEngine(PLAYER_SPACE_NAVIGATION_KIND.ANCHORED);
@@ -390,20 +388,6 @@ export default class BridgeEncounterController {
         }
 
         location.navigation = navigation;
-    }
-
-    private assertRuntimeNavigationKind(expectedKind: PlayerSpaceNavigationState['kind']): void {
-        const run = GAME_RUNTIME.getCurrentRun();
-
-        const location = run.player.location;
-
-        if (location.kind !== PLAYER_LOCATION_KIND.SPACE) {
-            throw new Error(`Cannot inspect space navigation for player location: ${location.kind}`);
-        }
-
-        if (location.navigation.kind !== expectedKind) {
-            throw new Error(`Expected runtime navigation ${expectedKind}, received ${location.navigation.kind}`);
-        }
     }
 
     // #endregion
