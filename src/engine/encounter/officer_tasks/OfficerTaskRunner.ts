@@ -247,15 +247,7 @@ export default class OfficerTaskRunner {
 
         delete this.state.officerTasks[task.role];
 
-        this.emit({
-            type: ENCOUNTER_EVENT.OFFICER_TASK_ENDED,
-
-            task: taskSnapshot,
-
-            outcome,
-
-            result,
-        });
+        this.emit({ type: ENCOUNTER_EVENT.OFFICER_TASK_ENDED, task: taskSnapshot, outcome, result });
     }
 
     // #endregion
