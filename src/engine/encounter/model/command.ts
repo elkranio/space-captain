@@ -1,9 +1,12 @@
 // src/engine/encounter/model/command.ts
 
-import type { OfficerRole } from '../../defs/officer';
+import { OFFICER_ROLE, type OfficerRole } from '../../defs/officer';
 
-// Стабильные id команд, которые капитан может отдать офицерам внутри encounter.
-// Id описывает намерение игрока, а не конкретный пункт меню или runtime-задачу.
+// Стабильные ids команд, которые капитан может отдать
+// офицерам внутри encounter.
+//
+// Id описывает намерение игрока,
+// а не конкретный пункт меню или runtime task.
 export const ENCOUNTER_OFFICER_COMMAND_ID = {
     HAIL: 'hail',
     REQUEST_DOCKING: 'request_docking',
@@ -14,8 +17,132 @@ export const ENCOUNTER_OFFICER_COMMAND_ID = {
 export type EncounterOfficerCommandId =
     (typeof ENCOUNTER_OFFICER_COMMAND_ID)[keyof typeof ENCOUNTER_OFFICER_COMMAND_ID];
 
-// Команда офицера, доступная игроку в текущем состоянии encounter.
-// Это уже resolved menu item: с label и, если нужно, конкретной целью.
+// #region Command definitions
+
+// Тип domain-цели, к которой применяется officer command.
+//
+// NONE:
+// команда не требует выбора конкретной цели.
+//
+// ENCOUNTER_OBJECT:
+// команда применяется к объекту текущего encounter.
+//
+// SHIP_SYSTEM:
+// команда применяется к внутренней системе корабля.
+// Источник таких targets появится вместе с repair mechanics.
+export const OFFICER_COMMAND_TARGET_KIND = {
+    NONE: 'none',
+    ENCOUNTER_OBJECT: 'encounter_object',
+    SHIP_SYSTEM: 'ship_system',
+} as const;
+
+export type OfficerCommandTargetKind = (typeof OFFICER_COMMAND_TARGET_KIND)[keyof typeof OFFICER_COMMAND_TARGET_KIND];
+
+// Пространственный scope команды,
+// которая применяется к encounter object.
+export const ENCOUNTER_OBJECT_TARGET_SCOPE = {
+    CURRENT_ANCHOR: 'current_anchor',
+    ENCOUNTER_NODE: 'encounter_node',
+} as const;
+
+export type EncounterObjectTargetScope =
+    (typeof ENCOUNTER_OBJECT_TARGET_SCOPE)[keyof typeof ENCOUNTER_OBJECT_TARGET_SCOPE];
+
+// Статическое описание допустимого типа цели.
+//
+// Discriminated union не позволяет:
+// - указать scope для targetless command;
+// - указать encounter scope для ship-system command;
+// - случайно не описать тип цели.
+export type OfficerCommandTargeting =
+    | {
+          kind: typeof OFFICER_COMMAND_TARGET_KIND.NONE;
+      }
+    | {
+          kind: typeof OFFICER_COMMAND_TARGET_KIND.ENCOUNTER_OBJECT;
+          scope: EncounterObjectTargetScope;
+      }
+    | {
+          kind: typeof OFFICER_COMMAND_TARGET_KIND.SHIP_SYSTEM;
+      };
+
+// Неизменяемые свойства officer command.
+//
+// Динамические условия доступности сюда не входят.
+// Например:
+// - docking clearance;
+// - текущее navigation state;
+// - наличие повреждений корабельной системы.
+export type OfficerCommandDef = {
+    role: OfficerRole;
+    label: string;
+    targeting: OfficerCommandTargeting;
+
+    // Команду можно начать только тогда,
+    // когда на мостике нет активных officer tasks.
+    requiresIdleBridge: boolean;
+};
+
+// Единый registry статических свойств officer commands.
+//
+// Encounter objects позже будут хранить только command ids.
+// Role, label, targeting и bridge requirement
+// остальные системы будут получать отсюда.
+export const OFFICER_COMMAND_DEFS = {
+    [ENCOUNTER_OFFICER_COMMAND_ID.HAIL]: {
+        role: OFFICER_ROLE.COMMS,
+        label: 'HAIL',
+        targeting: {
+            kind: OFFICER_COMMAND_TARGET_KIND.ENCOUNTER_OBJECT,
+            scope: ENCOUNTER_OBJECT_TARGET_SCOPE.CURRENT_ANCHOR,
+        },
+        requiresIdleBridge: false,
+    },
+
+    [ENCOUNTER_OFFICER_COMMAND_ID.REQUEST_DOCKING]: {
+        role: OFFICER_ROLE.COMMS,
+        label: 'REQUEST DOCKING',
+        targeting: {
+            kind: OFFICER_COMMAND_TARGET_KIND.ENCOUNTER_OBJECT,
+            scope: ENCOUNTER_OBJECT_TARGET_SCOPE.CURRENT_ANCHOR,
+        },
+        requiresIdleBridge: false,
+    },
+
+    [ENCOUNTER_OFFICER_COMMAND_ID.DOCK]: {
+        role: OFFICER_ROLE.HELM,
+        label: 'DOCK',
+        targeting: {
+            kind: OFFICER_COMMAND_TARGET_KIND.ENCOUNTER_OBJECT,
+            scope: ENCOUNTER_OBJECT_TARGET_SCOPE.CURRENT_ANCHOR,
+        },
+        requiresIdleBridge: true,
+    },
+
+    [ENCOUNTER_OFFICER_COMMAND_ID.FLY_TO]: {
+        role: OFFICER_ROLE.HELM,
+        label: 'FLY TO',
+        targeting: {
+            kind: OFFICER_COMMAND_TARGET_KIND.ENCOUNTER_OBJECT,
+            scope: ENCOUNTER_OBJECT_TARGET_SCOPE.ENCOUNTER_NODE,
+        },
+        requiresIdleBridge: true,
+    },
+} satisfies Record<EncounterOfficerCommandId, OfficerCommandDef>;
+
+export function getOfficerCommandDef(commandId: EncounterOfficerCommandId): OfficerCommandDef {
+    return OFFICER_COMMAND_DEFS[commandId];
+}
+
+// #endregion
+
+// #region Available commands
+
+// Команда офицера, доступная игроку
+// в текущем состоянии encounter.
+//
+// Это resolved menu item:
+// с label и, если нужно, конкретной целью.
 export type AvailableOfficerCommand = {
     commandId: EncounterOfficerCommandId;
     label: string;
@@ -23,8 +150,15 @@ export type AvailableOfficerCommand = {
     targetLabel?: string;
 };
 
-// Входной payload выполнения команды после выбора игроком.
-// Engine всё равно должен повторно проверить, что команда сейчас валидна.
+// #endregion
+
+// #region Command execution
+
+// Входной payload выполнения команды
+// после выбора игроком.
+//
+// Engine всё равно должен повторно проверить,
+// что команда сейчас валидна.
 export type ExecuteOfficerCommandInput = {
     role: OfficerRole;
     commandId: EncounterOfficerCommandId;
@@ -43,11 +177,11 @@ export const OFFICER_COMMAND_REJECTION_REASON = {
 
 // Результат попытки выполнить officer command.
 //
-// NOT_AVAILABLE означает, что выбранная команда уже невалидна
-// для текущего encounter state.
+// NOT_AVAILABLE означает, что выбранная команда
+// уже невалидна для текущего encounter state.
 //
-// OFFICERS_BUSY используется для exclusive bridge operations,
-// которым требуется полностью свободный экипаж.
+// OFFICERS_BUSY используется для команд,
+// которым требуется полностью свободный мостик.
 export type ExecuteOfficerCommandResult =
     | {
           status: typeof OFFICER_COMMAND_EXECUTION_STATUS.EXECUTED;
@@ -61,3 +195,5 @@ export type ExecuteOfficerCommandResult =
           reason: typeof OFFICER_COMMAND_REJECTION_REASON.OFFICERS_BUSY;
           busyRoles: OfficerRole[];
       };
+
+// #endregion

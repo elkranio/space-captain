@@ -8,6 +8,8 @@ import {
     ENCOUNTER_OFFICER_COMMAND_ID,
     OFFICER_COMMAND_EXECUTION_STATUS,
     OFFICER_COMMAND_REJECTION_REASON,
+    getOfficerCommandDef,
+    type EncounterOfficerCommandId,
     type ExecuteOfficerCommandInput,
     type ExecuteOfficerCommandResult,
 } from '../model/command';
@@ -129,18 +131,16 @@ export default class OfficerCommandExecutor {
         });
     }
 
-    private getBusyRolesBlockingCommand(commandId: ExecuteOfficerCommandInput['commandId']): OfficerRole[] {
-        if (!this.isExclusiveBridgeOperation(commandId)) {
+    private getBusyRolesBlockingCommand(commandId: EncounterOfficerCommandId): OfficerRole[] {
+        const commandDef = getOfficerCommandDef(commandId);
+
+        if (!commandDef.requiresIdleBridge) {
             return [];
         }
 
         return OFFICER_ROLES.filter((role) => {
             return this.state.officerTasks[role] !== undefined;
         });
-    }
-
-    private isExclusiveBridgeOperation(commandId: ExecuteOfficerCommandInput['commandId']): boolean {
-        return commandId === ENCOUNTER_OFFICER_COMMAND_ID.DOCK || commandId === ENCOUNTER_OFFICER_COMMAND_ID.FLY_TO;
     }
 
     // #endregion

@@ -26,8 +26,8 @@ const OFFICER_STATION_ROLES = [
 
 // Управляет presentation-состоянием всех officer stations.
 //
-// Периодически читает актуальную officer availability из EncounterEngine,
-// переводит domain states в lamp states
+// Периодически читает актуальную officer availability
+// из EncounterEngine, переводит domain states в lamp states
 // и эмитит полный snapshot для bridge views.
 export default class BridgeOfficerStationsController {
     private elapsedMs = 0;
@@ -91,8 +91,18 @@ export default class BridgeOfficerStationsController {
 
             case OFFICER_AVAILABILITY_STATE.BUSY:
                 return 'busy';
+
+            case OFFICER_AVAILABILITY_STATE.BLOCKED:
+                return 'blocked';
+
+            default:
+                return assertNever(availabilityState);
         }
     }
 
     // #endregion
+}
+
+function assertNever(value: never): never {
+    throw new Error(`Unknown officer availability state: ${value}`);
 }

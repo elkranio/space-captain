@@ -1,5 +1,5 @@
 // src/engine/encounter/objects/encounter_object.ts
-import type { OfficerRole } from '../../defs/officer';
+
 import type { EncounterOfficerCommandId } from '../model/command';
 import type { AsteroidEncounterObjectState } from './asteroid/asteroid_encounter_object';
 import type { NavigationBeaconEncounterObjectState } from './navigation_beacon/navigation_beacon_encounter_object';
@@ -16,11 +16,6 @@ export type EncounterObjectPosition = {
     y: number;
 };
 
-export type EncounterObjectOfficerCommand = {
-    role: OfficerRole;
-    commandId: EncounterOfficerCommandId;
-};
-
 export type EncounterObjectBaseState = {
     id: string;
     displayName: string;
@@ -29,7 +24,11 @@ export type EncounterObjectBaseState = {
     // Позже будет вычисляться из localPosition и состояния корабля.
     position: EncounterObjectPosition;
 
-    officerCommands: EncounterObjectOfficerCommand[];
+    // Encounter object определяет только поддерживаемые command ids.
+    //
+    // Role, label, targeting и прочие статические свойства
+    // берутся из соответствующего command def.
+    officerCommandIds: EncounterOfficerCommandId[];
 };
 
 export type EncounterObjectState =

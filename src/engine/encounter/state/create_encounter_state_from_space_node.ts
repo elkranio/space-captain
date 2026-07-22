@@ -1,7 +1,6 @@
 // src/engine/encounter/state/create_encounter_state_from_space_node.ts
 
-import { type PlayerSpaceNavigationState } from '../../defs/player_location';
-import { OFFICER_ROLE } from '../../defs/officer';
+import type { PlayerSpaceNavigationState } from '../../defs/player_location';
 import { SPACE_OBJECT_KIND, type SpaceNodeState, type SpaceObjectState } from '../../defs/universe';
 import { ENCOUNTER_OFFICER_COMMAND_ID } from '../model/command';
 import type { EncounterState } from '../model/state';
@@ -46,23 +45,11 @@ function createEncounterObjectState(object: SpaceObjectState): EncounterObjectSt
                     clearance: DOCKING_CLEARANCE_STATE.NONE,
                 },
 
-                officerCommands: [
-                    {
-                        role: OFFICER_ROLE.COMMS,
-                        commandId: ENCOUNTER_OFFICER_COMMAND_ID.HAIL,
-                    },
-                    {
-                        role: OFFICER_ROLE.COMMS,
-                        commandId: ENCOUNTER_OFFICER_COMMAND_ID.REQUEST_DOCKING,
-                    },
-                    {
-                        role: OFFICER_ROLE.HELM,
-                        commandId: ENCOUNTER_OFFICER_COMMAND_ID.DOCK,
-                    },
-                    {
-                        role: OFFICER_ROLE.HELM,
-                        commandId: ENCOUNTER_OFFICER_COMMAND_ID.FLY_TO,
-                    },
+                officerCommandIds: [
+                    ENCOUNTER_OFFICER_COMMAND_ID.HAIL,
+                    ENCOUNTER_OFFICER_COMMAND_ID.REQUEST_DOCKING,
+                    ENCOUNTER_OFFICER_COMMAND_ID.DOCK,
+                    ENCOUNTER_OFFICER_COMMAND_ID.FLY_TO,
                 ],
             };
 
@@ -78,12 +65,7 @@ function createEncounterObjectState(object: SpaceObjectState): EncounterObjectSt
                     y: -0.05,
                 },
 
-                officerCommands: [
-                    {
-                        role: OFFICER_ROLE.HELM,
-                        commandId: ENCOUNTER_OFFICER_COMMAND_ID.FLY_TO,
-                    },
-                ],
+                officerCommandIds: [ENCOUNTER_OFFICER_COMMAND_ID.FLY_TO],
             };
 
         case SPACE_OBJECT_KIND.ASTEROID:
@@ -99,12 +81,7 @@ function createEncounterObjectState(object: SpaceObjectState): EncounterObjectSt
                     y: 0.12,
                 },
 
-                officerCommands: [
-                    {
-                        role: OFFICER_ROLE.HELM,
-                        commandId: ENCOUNTER_OFFICER_COMMAND_ID.FLY_TO,
-                    },
-                ],
+                officerCommandIds: [ENCOUNTER_OFFICER_COMMAND_ID.FLY_TO],
             };
 
         default:

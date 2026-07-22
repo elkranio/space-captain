@@ -2,54 +2,62 @@
 
 import { PLAYER_SPACE_NAVIGATION_KIND } from '../../../defs/player_location';
 import {
+    ENCOUNTER_OBJECT_TARGET_SCOPE,
     ENCOUNTER_OFFICER_COMMAND_ID,
+    OFFICER_COMMAND_TARGET_KIND,
+    getOfficerCommandDef,
     type AvailableOfficerCommand,
     type EncounterOfficerCommandId,
 } from '../../model/command';
 import type { EncounterState } from '../../model/state';
-import {
-    ENCOUNTER_OBJECT_KIND,
-    type EncounterObjectOfficerCommand,
-    type EncounterObjectState,
-} from '../../objects/encounter_object';
+import { ENCOUNTER_OBJECT_KIND, type EncounterObjectState } from '../../objects/encounter_object';
 import { DOCKING_CLEARANCE_STATE } from '../../objects/station/station_encounter_object';
 
 // Создаёт доступную officer command
 // для конкретного encounter object.
 //
-// Проверка роли и наличие command
-// в object.officerCommands выполняются выше.
+// Статические свойства команды:
+// - label;
+// - target kind;
+// - encounter object scope;
 //
-// FLY_TO доступна для других объектов encounter node.
-// Все остальные object commands доступны только
-// для текущего anchor object.
+// берутся из command def.
 //
-// Здесь также собраны небольшие command-specific
-// правила доступности.
+// Command-specific проверки по текущему EncounterState
+// остаются в этом query.
 export function tryCreateAvailableOfficerCommandForObject(
     state: EncounterState,
     object: EncounterObjectState,
-    objectCommand: EncounterObjectOfficerCommand,
+    commandId: EncounterOfficerCommandId,
 ): AvailableOfficerCommand | undefined {
-    if (objectCommand.commandId !== ENCOUNTER_OFFICER_COMMAND_ID.FLY_TO && !isCurrentAnchorObject(state, object.id)) {
+    const commandDef = getOfficerCommandDef(commandId);
+    const targeting = commandDef.targeting;
+
+    if (targeting.kind !== OFFICER_COMMAND_TARGET_KIND.ENCOUNTER_OBJECT) {
+        throw new Error(
+            `Officer command "${commandId}" is assigned to encounter object ` + `but targets "${targeting.kind}"`,
+        );
+    }
+
+    if (targeting.scope === ENCOUNTER_OBJECT_TARGET_SCOPE.CURRENT_ANCHOR && !isCurrentAnchorObject(state, object.id)) {
         return undefined;
     }
 
-    switch (objectCommand.commandId) {
+    switch (commandId) {
         case ENCOUNTER_OFFICER_COMMAND_ID.HAIL:
-            return createTargetedCommand(ENCOUNTER_OFFICER_COMMAND_ID.HAIL, 'HAIL', object);
+            return createTargetedCommand(commandId, commandDef.label, object);
 
         case ENCOUNTER_OFFICER_COMMAND_ID.REQUEST_DOCKING:
-            return tryCreateRequestDockingCommand(object);
+            return tryCreateRequestDockingCommand(commandId, commandDef.label, object);
 
         case ENCOUNTER_OFFICER_COMMAND_ID.DOCK:
-            return tryCreateDockCommand(object);
+            return tryCreateDockCommand(commandId, commandDef.label, object);
 
         case ENCOUNTER_OFFICER_COMMAND_ID.FLY_TO:
-            return tryCreateFlyToCommand(state, object);
+            return tryCreateFlyToCommand(state, commandId, commandDef.label, object);
     }
 
-    throw new Error(`Unhandled encounter officer command: ${String(objectCommand.commandId)}`);
+    throw new Error(`Unhandled encounter officer command: ${String(commandId)}`);
 }
 
 function isCurrentAnchorObject(state: EncounterState, objectId: string): boolean {
@@ -58,7 +66,11 @@ function isCurrentAnchorObject(state: EncounterState, objectId: string): boolean
     return navigation.kind === PLAYER_SPACE_NAVIGATION_KIND.ANCHORED && navigation.anchorObjectId === objectId;
 }
 
-function tryCreateRequestDockingCommand(object: EncounterObjectState): AvailableOfficerCommand | undefined {
+function tryCreateRequestDockingCommand(
+    commandId: EncounterOfficerCommandId,
+    label: string,
+    object: EncounterObjectState,
+): AvailableOfficerCommand | undefined {
     if (object.kind !== ENCOUNTER_OBJECT_KIND.STATION) {
         return undefined;
     }
@@ -67,10 +79,14 @@ function tryCreateRequestDockingCommand(object: EncounterObjectState): Available
         return undefined;
     }
 
-    return createTargetedCommand(ENCOUNTER_OFFICER_COMMAND_ID.REQUEST_DOCKING, 'REQUEST DOCKING', object);
+    return createTargetedCommand(commandId, label, object);
 }
 
-function tryCreateDockCommand(object: EncounterObjectState): AvailableOfficerCommand | undefined {
+function tryCreateDockCommand(
+    commandId: EncounterOfficerCommandId,
+    label: string,
+    object: EncounterObjectState,
+): AvailableOfficerCommand | undefined {
     if (object.kind !== ENCOUNTER_OBJECT_KIND.STATION) {
         return undefined;
     }
@@ -79,11 +95,13 @@ function tryCreateDockCommand(object: EncounterObjectState): AvailableOfficerCom
         return undefined;
     }
 
-    return createTargetedCommand(ENCOUNTER_OFFICER_COMMAND_ID.DOCK, 'DOCK', object);
+    return createTargetedCommand(commandId, label, object);
 }
 
 function tryCreateFlyToCommand(
     state: EncounterState,
+    commandId: EncounterOfficerCommandId,
+    label: string,
     object: EncounterObjectState,
 ): AvailableOfficerCommand | undefined {
     const navigation = state.navigation;
@@ -96,7 +114,7 @@ function tryCreateFlyToCommand(
         return undefined;
     }
 
-    return createTargetedCommand(ENCOUNTER_OFFICER_COMMAND_ID.FLY_TO, 'FLY TO', object);
+    return createTargetedCommand(commandId, label, object);
 }
 
 function createTargetedCommand(

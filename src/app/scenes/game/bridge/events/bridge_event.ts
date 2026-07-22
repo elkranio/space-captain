@@ -20,6 +20,7 @@ import { SCENE_KEY, type SceneKey } from '../../../scene_key';
 //   факт, на который view реагирует.
 // - *_CLICKED / *_SELECTED / *_REQUESTED =
 //   input/intent от view к controller-у.
+
 export const BRIDGE_EVENT = {
     // Initial snapshot экипажа для bridge UI.
     // Эмитит BridgeController после чтения GAME_RUNTIME.
@@ -117,6 +118,7 @@ export type BridgeOfficerCommandSelectedPayload = {
 // Payload события OFFICER_BARK_REQUESTED.
 export type BridgeOfficerBarkRequestedPayload = {
     role: OfficerRole;
+
     text: string;
 };
 
@@ -162,6 +164,7 @@ export type BridgeContactStartedPayload = {
 // Payload события CONTACT_MESSAGE_ADDED.
 export type BridgeContactMessageAddedPayload = {
     speakerName: string;
+
     text: string;
 };
 
@@ -196,13 +199,14 @@ export type BridgeSceneTransitionRequestedPayload = {
 };
 
 // View-state лампы officer station.
-export type BridgeOfficerStationIndicatorState = 'off' | 'ready' | 'busy';
+export type BridgeOfficerStationIndicatorState = 'off' | 'ready' | 'busy' | 'blocked';
 
 // Payload события OFFICER_STATION_INDICATORS_UPDATED.
 export type BridgeOfficerStationIndicatorsUpdatedPayload = Record<OfficerRole, BridgeOfficerStationIndicatorState>;
 
 export type BridgeOfficerActivityStartedPayload = {
     role: OfficerRole;
+
     label: string;
 };
 
