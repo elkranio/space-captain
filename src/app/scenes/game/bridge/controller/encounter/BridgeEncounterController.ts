@@ -6,6 +6,11 @@ import {
     type PlayerSpaceNavigationState,
 } from '../../../../../../engine/defs/player_location';
 import EncounterEngine from '../../../../../../engine/encounter/EncounterEngine';
+import {
+    OFFICER_COMMAND_EXECUTION_STATUS,
+    OFFICER_COMMAND_REJECTION_REASON,
+    type ExecuteOfficerCommandResult,
+} from '../../../../../../engine/encounter/model/command';
 import { createEncounterStateFromSpaceNode } from '../../../../../../engine/encounter/state/create_encounter_state_from_space_node';
 import { DEBUG_SETTINGS } from '../../../../../debug/debug_settings';
 import { GAME_RUNTIME } from '../../../../../runtime/GameRuntime';
@@ -176,8 +181,13 @@ export default class BridgeEncounterController {
             return;
         }
 
-        this.executeCommand(payload);
-        this.requestOfficerCommandBark(payload);
+        const result = this.executeCommand(payload);
+
+        if (!result) {
+            return;
+        }
+
+        this.handleOfficerCommandResult(payload, result);
     }
 
     private handleDockingAnimationCompleted(): void {
@@ -204,16 +214,47 @@ export default class BridgeEncounterController {
 
     // #region Officer commands
 
-    private executeCommand(payload: BridgeOfficerCommandSelectedPayload): void {
+    private executeCommand(payload: BridgeOfficerCommandSelectedPayload): ExecuteOfficerCommandResult | undefined {
         if (!this.encounterEngine) {
-            return;
+            return undefined;
         }
 
-        this.encounterEngine.executeCommand(payload);
+        const result = this.encounterEngine.executeCommand(payload);
 
-        this.syncRuntimeNavigationFromEngine();
-        this.drainEncounterEvents();
-        this.officerStationsController?.sync();
+        if (result.status === OFFICER_COMMAND_EXECUTION_STATUS.EXECUTED) {
+            this.syncRuntimeNavigationFromEngine();
+            this.drainEncounterEvents();
+            this.officerStationsController?.sync();
+        }
+
+        return result;
+    }
+
+    private handleOfficerCommandResult(
+        payload: BridgeOfficerCommandSelectedPayload,
+        result: ExecuteOfficerCommandResult,
+    ): void {
+        switch (result.status) {
+            case OFFICER_COMMAND_EXECUTION_STATUS.EXECUTED:
+                this.requestOfficerCommandBark(payload);
+                return;
+
+            case OFFICER_COMMAND_EXECUTION_STATUS.REJECTED:
+                switch (result.reason) {
+                    case OFFICER_COMMAND_REJECTION_REASON.NOT_AVAILABLE:
+                        return;
+
+                    case OFFICER_COMMAND_REJECTION_REASON.OFFICERS_BUSY: {
+                        const busyStations = result.busyRoles.map((role) => role.toUpperCase()).join(', ');
+
+                        this.eventBus.emit(BRIDGE_EVENT.OFFICER_BARK_REQUESTED, {
+                            role: payload.role,
+                            text: `CAN'T DO THAT, CAPTAIN. BUSY STATIONS: ${busyStations}.`,
+                        });
+                        return;
+                    }
+                }
+        }
     }
 
     private requestOfficerCommandBark(payload: BridgeOfficerCommandSelectedPayload): void {

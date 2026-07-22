@@ -30,3 +30,34 @@ export type ExecuteOfficerCommandInput = {
     commandId: EncounterOfficerCommandId;
     targetId?: string;
 };
+
+export const OFFICER_COMMAND_EXECUTION_STATUS = {
+    EXECUTED: 'executed',
+    REJECTED: 'rejected',
+} as const;
+
+export const OFFICER_COMMAND_REJECTION_REASON = {
+    NOT_AVAILABLE: 'not_available',
+    OFFICERS_BUSY: 'officers_busy',
+} as const;
+
+// Результат попытки выполнить officer command.
+//
+// NOT_AVAILABLE означает, что выбранная команда уже невалидна
+// для текущего encounter state.
+//
+// OFFICERS_BUSY используется для exclusive bridge operations,
+// которым требуется полностью свободный экипаж.
+export type ExecuteOfficerCommandResult =
+    | {
+          status: typeof OFFICER_COMMAND_EXECUTION_STATUS.EXECUTED;
+      }
+    | {
+          status: typeof OFFICER_COMMAND_EXECUTION_STATUS.REJECTED;
+          reason: typeof OFFICER_COMMAND_REJECTION_REASON.NOT_AVAILABLE;
+      }
+    | {
+          status: typeof OFFICER_COMMAND_EXECUTION_STATUS.REJECTED;
+          reason: typeof OFFICER_COMMAND_REJECTION_REASON.OFFICERS_BUSY;
+          busyRoles: OfficerRole[];
+      };

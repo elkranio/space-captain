@@ -1,9 +1,16 @@
 // src/engine/encounter/commands/OfficerCommandExecutor.ts
 
+import { OFFICER_ROLE, type OfficerRole } from '../../defs/officer';
 import { PLAYER_SPACE_NAVIGATION_KIND } from '../../defs/player_location';
 import type { ContactSequenceStep } from '../contact/contact_sequence';
 import { createStationHailSequence } from '../contact/sequences/create_station_hail_sequence';
-import { ENCOUNTER_OFFICER_COMMAND_ID, type ExecuteOfficerCommandInput } from '../model/command';
+import {
+    ENCOUNTER_OFFICER_COMMAND_ID,
+    OFFICER_COMMAND_EXECUTION_STATUS,
+    OFFICER_COMMAND_REJECTION_REASON,
+    type ExecuteOfficerCommandInput,
+    type ExecuteOfficerCommandResult,
+} from '../model/command';
 import { ENCOUNTER_EVENT, type EncounterEvent } from '../model/event';
 import type { OfficerTaskDraft } from '../model/officer_task';
 import type { EncounterState } from '../model/state';
@@ -25,15 +32,19 @@ type CompleteOfficerTask = (taskId: string) => void;
 
 type OfficerCommandExecutorOptions = {
     state: EncounterState;
-
     emit: (event: EncounterEvent) => void;
-
     startOfficerTask: StartOfficerTask;
-
     completeOfficerTask: CompleteOfficerTask;
-
     startContactSequence: StartContactSequence;
 };
+
+const OFFICER_ROLES = [
+    OFFICER_ROLE.COMMS,
+    OFFICER_ROLE.SCIENCE,
+    OFFICER_ROLE.HELM,
+    OFFICER_ROLE.WEAPONS,
+    OFFICER_ROLE.ENGINEER,
+] as const;
 
 export default class OfficerCommandExecutor {
     private readonly state: EncounterState;
@@ -55,46 +66,60 @@ export default class OfficerCommandExecutor {
     }: OfficerCommandExecutorOptions) {
         this.state = state;
         this.emit = emit;
-
         this.startOfficerTask = startOfficerTask;
-
         this.completeOfficerTask = completeOfficerTask;
-
         this.startContactSequence = startContactSequence;
     }
 
     // #region Public API
 
-    public execute(input: ExecuteOfficerCommandInput): void {
+    public execute(input: ExecuteOfficerCommandInput): ExecuteOfficerCommandResult {
         if (!this.canExecute(input)) {
-            return;
+            return {
+                status: OFFICER_COMMAND_EXECUTION_STATUS.REJECTED,
+                reason: OFFICER_COMMAND_REJECTION_REASON.NOT_AVAILABLE,
+            };
+        }
+
+        const busyRoles = this.getBusyRolesBlockingCommand(input.commandId);
+
+        if (busyRoles.length > 0) {
+            return {
+                status: OFFICER_COMMAND_EXECUTION_STATUS.REJECTED,
+                reason: OFFICER_COMMAND_REJECTION_REASON.OFFICERS_BUSY,
+                busyRoles,
+            };
         }
 
         switch (input.commandId) {
             case ENCOUNTER_OFFICER_COMMAND_ID.HAIL:
                 this.executeHail(input);
-                return;
+                break;
 
             case ENCOUNTER_OFFICER_COMMAND_ID.REQUEST_DOCKING:
                 this.executeRequestDocking(input);
-                return;
+                break;
 
             case ENCOUNTER_OFFICER_COMMAND_ID.DOCK:
                 this.executeDock(input);
-                return;
+                break;
 
             case ENCOUNTER_OFFICER_COMMAND_ID.FLY_TO:
                 this.executeFlyTo(input);
-                return;
+                break;
 
             default:
                 throw new Error(`Unhandled encounter officer command: ${String(input.commandId)}`);
         }
+
+        return {
+            status: OFFICER_COMMAND_EXECUTION_STATUS.EXECUTED,
+        };
     }
 
     // #endregion
 
-    // #region Command availability
+    // #region Command validation
 
     private canExecute(input: ExecuteOfficerCommandInput): boolean {
         const commands = getAvailableOfficerCommands(this.state, input.role);
@@ -102,6 +127,20 @@ export default class OfficerCommandExecutor {
         return commands.some((command) => {
             return command.commandId === input.commandId && command.targetId === input.targetId;
         });
+    }
+
+    private getBusyRolesBlockingCommand(commandId: ExecuteOfficerCommandInput['commandId']): OfficerRole[] {
+        if (!this.isExclusiveBridgeOperation(commandId)) {
+            return [];
+        }
+
+        return OFFICER_ROLES.filter((role) => {
+            return this.state.officerTasks[role] !== undefined;
+        });
+    }
+
+    private isExclusiveBridgeOperation(commandId: ExecuteOfficerCommandInput['commandId']): boolean {
+        return commandId === ENCOUNTER_OFFICER_COMMAND_ID.DOCK || commandId === ENCOUNTER_OFFICER_COMMAND_ID.FLY_TO;
     }
 
     // #endregion

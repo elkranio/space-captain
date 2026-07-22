@@ -4,7 +4,7 @@ import { PLAYER_SPACE_NAVIGATION_KIND, type PlayerSpaceNavigationState } from '.
 import OfficerCommandExecutor from './commands/OfficerCommandExecutor';
 import { getAvailableOfficerCommands } from './commands/get_available_officer_commands';
 import ContactSequenceRunner from './contact/ContactSequenceRunner';
-import type { AvailableOfficerCommand, ExecuteOfficerCommandInput } from './model/command';
+import type { AvailableOfficerCommand, ExecuteOfficerCommandInput, ExecuteOfficerCommandResult } from './model/command';
 import { ENCOUNTER_EVENT, type EncounterEvent } from './model/event';
 import type { OfficerAvailabilityStates } from './model/officer_availability';
 import type { EncounterState } from './model/state';
@@ -13,7 +13,6 @@ import OfficerTaskRunner from './officer_tasks/OfficerTaskRunner';
 
 export type EncounterEngineOptions = {
     state: EncounterState;
-
     completeTimedTasksImmediately?: boolean;
 };
 
@@ -33,46 +32,37 @@ export default class EncounterEngine {
 
         this.officerTaskRunner = new OfficerTaskRunner({
             state: this.state,
-
             emit: this.emit,
-
             completeTimedTasksImmediately,
         });
 
         this.contactSequenceRunner = new ContactSequenceRunner({
             state: this.state,
-
             emit: this.emit,
         });
 
         this.officerCommandExecutor = new OfficerCommandExecutor({
             state: this.state,
-
             emit: this.emit,
-
             startOfficerTask: this.officerTaskRunner.start,
-
             completeOfficerTask: this.officerTaskRunner.complete,
-
             startContactSequence: this.contactSequenceRunner.start,
         });
 
         this.emit({
             type: ENCOUNTER_EVENT.ENCOUNTER_LOADED,
-
             state: this.state,
         });
     }
 
     // #region Public API
 
-    public executeCommand(input: ExecuteOfficerCommandInput): void {
-        this.officerCommandExecutor.execute(input);
+    public executeCommand(input: ExecuteOfficerCommandInput): ExecuteOfficerCommandResult {
+        return this.officerCommandExecutor.execute(input);
     }
 
     public step(deltaMs: number): void {
         this.officerTaskRunner.step(deltaMs);
-
         this.contactSequenceRunner.step(deltaMs);
     }
 
@@ -85,7 +75,6 @@ export default class EncounterEngine {
 
         this.state.navigation = {
             kind: PLAYER_SPACE_NAVIGATION_KIND.ANCHORED,
-
             anchorObjectId: navigation.targetObjectId,
         };
     }

@@ -52,6 +52,15 @@ export function createNewRunState(): RunState {
                                 z: 1400,
                             },
                         },
+                        {
+                            kind: SPACE_OBJECT_KIND.STATION,
+                            station,
+                            localPosition: {
+                                x: -900,
+                                y: 220,
+                                z: -1400,
+                            },
+                        },
                     ],
                 },
                 {
@@ -90,29 +99,29 @@ export function createNewRunState(): RunState {
         //     },
         // },
 
-        // player: {
-        //     location: {
-        //         kind: PLAYER_LOCATION_KIND.SPACE,
-        //         nodeId: 'node_start',
-
-        //         navigation: {
-        //             kind: PLAYER_SPACE_NAVIGATION_KIND.ARRIVING,
-        //             targetObjectId: navigationBeacon.id,
-        //         },
-        //     },
-        // },
-
         player: {
             location: {
                 kind: PLAYER_LOCATION_KIND.SPACE,
-                nodeId: 'node_station',
+                nodeId: 'node_start',
 
                 navigation: {
                     kind: PLAYER_SPACE_NAVIGATION_KIND.ARRIVING,
-                    targetObjectId: station.id,
+                    targetObjectId: navigationBeacon.id,
                 },
             },
         },
+
+        // player: {
+        //     location: {
+        //         kind: PLAYER_LOCATION_KIND.SPACE,
+        //         nodeId: 'node_station',
+
+        //         navigation: {
+        //             kind: PLAYER_SPACE_NAVIGATION_KIND.ARRIVING,
+        //             targetObjectId: station.id,
+        //         },
+        //     },
+        // },
 
         officers: {
             [OFFICER_ROLE.COMMS]: {
