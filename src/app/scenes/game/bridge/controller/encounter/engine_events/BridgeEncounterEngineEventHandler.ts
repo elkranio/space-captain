@@ -8,10 +8,17 @@ import {
     type EncounterLoadedEvent,
 } from '../../../../../../../engine/encounter/model/event';
 import { OFFICER_TASK_KIND } from '../../../../../../../engine/encounter/model/officer_task';
+import type { EncounterState } from '../../../../../../../engine/encounter/model/state';
+import {
+    ENCOUNTER_OBJECT_KIND,
+    type EncounterObjectState,
+} from '../../../../../../../engine/encounter/objects/encounter_object';
 import { DEBUG_SETTINGS } from '../../../../../../debug/debug_settings';
+import { ASTEROID_OBJECT_SPRITES } from '../../../../../../manifests/asteroids/asteroid_srpite';
+import { BEACON_OBJECT_SPRITES } from '../../../../../../manifests/beacons/beacon_sprite';
+import { STATION_OBJECT_SPRITES } from '../../../../../../manifests/stations/station_sprite';
 import { BRIDGE_EVENT, type BridgeEncounterObjectPayload } from '../../../events/bridge_event';
 import type BridgeEventBus from '../../../events/BridgeEventBus';
-import { mapEncounterObjectsToBridgeObjectPayloads } from '../objects/map_encounter_objects_to_bridge_object_payloads';
 
 type SetEncounterInteractive = (value: boolean) => void;
 
@@ -97,7 +104,7 @@ export default class BridgeEncounterEngineEventHandler {
     // #region Encounter loaded
 
     private handleEncounterLoaded(event: EncounterLoadedEvent): void {
-        const objects = mapEncounterObjectsToBridgeObjectPayloads(event.state);
+        const objects = this.mapEncounterObjectsToBridgeObjectPayloads(event.state);
 
         this.eventBus.emit(BRIDGE_EVENT.ENCOUNTER_OBJECTS_LOADED, objects);
 
@@ -122,7 +129,7 @@ export default class BridgeEncounterEngineEventHandler {
                 return;
 
             default:
-                return this.assertNever(navigation);
+                return this.assertNeverNavigation(navigation);
         }
     }
 
@@ -172,6 +179,44 @@ export default class BridgeEncounterEngineEventHandler {
 
     // #endregion
 
+    // #region Encounter object mapping
+
+    private mapEncounterObjectsToBridgeObjectPayloads(state: EncounterState): BridgeEncounterObjectPayload[] {
+        return state.objects.map((object) => {
+            return this.mapEncounterObjectToBridgeObjectPayload(object);
+        });
+    }
+
+    private mapEncounterObjectToBridgeObjectPayload(object: EncounterObjectState): BridgeEncounterObjectPayload {
+        switch (object.kind) {
+            case ENCOUNTER_OBJECT_KIND.STATION:
+                return {
+                    id: object.id,
+                    sprite: STATION_OBJECT_SPRITES[object.station.objectSpriteId],
+                    position: new Phaser.Math.Vector2(object.position.x, object.position.y),
+                };
+
+            case ENCOUNTER_OBJECT_KIND.NAVIGATION_BEACON:
+                return {
+                    id: object.id,
+                    sprite: BEACON_OBJECT_SPRITES[object.beacon.objectSpriteId],
+                    position: new Phaser.Math.Vector2(object.position.x, object.position.y),
+                };
+
+            case ENCOUNTER_OBJECT_KIND.ASTEROID:
+                return {
+                    id: object.id,
+                    sprite: ASTEROID_OBJECT_SPRITES[object.asteroid.objectSpriteId],
+                    position: new Phaser.Math.Vector2(object.position.x, object.position.y),
+                };
+
+            default:
+                return this.assertNeverEncounterObject(object);
+        }
+    }
+
+    // #endregion
+
     // #region Loaded task lookup
 
     private findLoadedTravelTaskIdOrThrow(event: EncounterLoadedEvent, targetObjectId: string): string {
@@ -210,7 +255,11 @@ export default class BridgeEncounterEngineEventHandler {
 
     // #endregion
 
-    private assertNever(value: never): never {
+    private assertNeverNavigation(value: never): never {
         throw new Error(`Unhandled player space navigation state: ${String(value)}`);
+    }
+
+    private assertNeverEncounterObject(value: never): never {
+        throw new Error(`Unhandled encounter object: ${String(value)}`);
     }
 }

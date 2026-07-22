@@ -17,7 +17,7 @@ import {
     type BridgeOfficerSeatClickedPayload,
 } from '../../events/bridge_event';
 import type BridgeEventBus from '../../events/BridgeEventBus';
-import { createOfficerCommandMenuGroups } from './command_menu/create_officer_command_menu_groups';
+import BridgeOfficerCommandMenuController from './command_menu/BridgeOfficerCommandMenuController';
 import BridgeEncounterEngineEventHandler from './engine_events/BridgeEncounterEngineEventHandler';
 import BridgeOfficerStationIndicatorsPoller from './officer_station_indicators/BridgeOfficerStationIndicatorsPoller';
 
@@ -34,6 +34,8 @@ import BridgeOfficerStationIndicatorsPoller from './officer_station_indicators/B
 // живут в engine.
 export default class BridgeEncounterController {
     private encounterEngine?: EncounterEngine;
+
+    private officerCommandMenuController?: BridgeOfficerCommandMenuController;
 
     private officerStationIndicatorsPoller?: BridgeOfficerStationIndicatorsPoller;
 
@@ -59,8 +61,8 @@ export default class BridgeEncounterController {
 
         this.officerStationIndicatorsPoller?.destroy();
 
+        this.officerCommandMenuController = undefined;
         this.officerStationIndicatorsPoller = undefined;
-
         this.encounterEngine = undefined;
         this.isEncounterInteractive = false;
     }
@@ -133,6 +135,8 @@ export default class BridgeEncounterController {
             completeTimedTasksImmediately: DEBUG_SETTINGS.bridge.officerTasks.completeTimedTasksImmediately,
         });
 
+        this.officerCommandMenuController = new BridgeOfficerCommandMenuController(this.encounterEngine, this.eventBus);
+
         this.officerStationIndicatorsPoller = new BridgeOfficerStationIndicatorsPoller(
             this.encounterEngine,
             this.eventBus,
@@ -150,7 +154,7 @@ export default class BridgeEncounterController {
             return;
         }
 
-        this.openOfficerCommandMenu(payload.role);
+        this.officerCommandMenuController?.open(payload.role);
     }
 
     private handleEncounterArrivalCompleted(): void {
@@ -218,19 +222,6 @@ export default class BridgeEncounterController {
     // #endregion
 
     // #region Officer commands
-
-    private openOfficerCommandMenu(role: BridgeOfficerSeatClickedPayload['role']): void {
-        if (!this.encounterEngine) {
-            return;
-        }
-
-        const commands = this.encounterEngine.getAvailableCommands(role);
-
-        this.eventBus.emit(BRIDGE_EVENT.OFFICER_COMMAND_MENU_UPDATED, {
-            role,
-            groups: createOfficerCommandMenuGroups(commands),
-        });
-    }
 
     private executeCommand(payload: BridgeOfficerCommandSelectedPayload): void {
         if (!this.encounterEngine) {
