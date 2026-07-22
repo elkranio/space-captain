@@ -38,7 +38,6 @@ export default class OfficerTaskRunner {
 
         this.completeTimedTasksImmediately = completeTimedTasksImmediately;
 
-        this.adoptInitialTasks();
         this.restoreMissingNavigationTask();
     }
 
@@ -97,16 +96,6 @@ export default class OfficerTaskRunner {
     // #endregion
 
     // #region Runtime task creation
-
-    private adoptInitialTasks(): void {
-        for (const task of Object.values(this.state.officerTasks)) {
-            if (!task) {
-                continue;
-            }
-
-            this.state.officerTasks[task.role] = this.createRuntimeTask(task);
-        }
-    }
 
     private restoreMissingNavigationTask(): void {
         const navigation = this.state.navigation;
