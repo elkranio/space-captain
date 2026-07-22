@@ -5,7 +5,7 @@ import type { ContactSequenceStep } from '../contact/contact_sequence';
 import { createStationHailSequence } from '../contact/sequences/create_station_hail_sequence';
 import { ENCOUNTER_OFFICER_COMMAND_ID, type ExecuteOfficerCommandInput } from '../model/command';
 import { ENCOUNTER_EVENT, type EncounterEvent } from '../model/event';
-import type { OfficerTaskState } from '../model/officer_task';
+import type { OfficerTaskDraft } from '../model/officer_task';
 import type { EncounterState } from '../model/state';
 import { ENCOUNTER_OBJECT_KIND } from '../objects/encounter_object';
 import { createCommsHailTask } from '../officer_tasks/factories/create_comms_hail_task';
@@ -17,7 +17,7 @@ import { getAvailableOfficerCommands } from './get_available_officer_commands';
 
 type StartContactSequence = (steps: ContactSequenceStep[], onContactEnded?: () => void) => void;
 
-type StartOfficerTask = (task: OfficerTaskState) => string;
+type StartOfficerTask = (task: OfficerTaskDraft) => string;
 
 type CompleteOfficerTask = (taskId: string) => void;
 
@@ -121,11 +121,7 @@ export default class OfficerCommandExecutor {
                     this.completeOfficerTask(commsTaskId);
                 };
 
-                this.startContactSequence(
-                    createStationHailSequence(target),
-
-                    onContactEnded,
-                );
+                this.startContactSequence(createStationHailSequence(target), onContactEnded);
 
                 return;
             }
@@ -184,6 +180,7 @@ export default class OfficerCommandExecutor {
             kind: PLAYER_SPACE_NAVIGATION_KIND.TRAVELLING,
 
             fromObjectId,
+
             targetObjectId: target.id,
         };
 
@@ -195,6 +192,7 @@ export default class OfficerCommandExecutor {
             taskId: helmTaskId,
 
             fromObjectId,
+
             target,
         });
     }

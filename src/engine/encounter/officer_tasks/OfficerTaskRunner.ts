@@ -1,5 +1,6 @@
 // src/engine/encounter/officer_tasks/OfficerTaskRunner.ts
 
+import { OFFICER_ROLE } from '../../defs/officer';
 import { PLAYER_SPACE_NAVIGATION_KIND } from '../../defs/player_location';
 import {
     ENCOUNTER_EVENT,
@@ -8,9 +9,10 @@ import {
     type EncounterEvent,
     type OfficerTaskResult,
 } from '../model/event';
-import { OFFICER_TASK_KIND, type OfficerTaskState } from '../model/officer_task';
+import { OFFICER_TASK_KIND, type OfficerTaskDraft, type OfficerTaskState } from '../model/officer_task';
 import type { EncounterState } from '../model/state';
 import { grantDockingClearance } from '../state/grant_docking_clearance';
+import { createHelmFlyToTask } from './factories/create_helm_fly_to_task';
 
 type OfficerTaskRunnerOptions = {
     state: EncounterState;
@@ -37,11 +39,14 @@ export default class OfficerTaskRunner {
         this.completeTimedTasksImmediately = completeTimedTasksImmediately;
 
         this.adoptInitialTasks();
+        this.restoreMissingNavigationTask();
     }
 
     // #region Public API
 
-    public start = (task: OfficerTaskState): string => {
+    public start = (task: OfficerTaskDraft): string => {
+        this.assertOfficerAvailable(task);
+
         const runtimeTask = this.createRuntimeTask(task);
 
         this.state.officerTasks[runtimeTask.role] = runtimeTask;
@@ -103,7 +108,35 @@ export default class OfficerTaskRunner {
         }
     }
 
-    private createRuntimeTask(task: OfficerTaskState): OfficerTaskState {
+    private restoreMissingNavigationTask(): void {
+        const navigation = this.state.navigation;
+
+        if (navigation.kind !== PLAYER_SPACE_NAVIGATION_KIND.TRAVELLING) {
+            return;
+        }
+
+        if (this.state.officerTasks[OFFICER_ROLE.HELM]) {
+            return;
+        }
+
+        this.state.officerTasks[OFFICER_ROLE.HELM] = this.createRuntimeTask(
+            createHelmFlyToTask(navigation.targetObjectId),
+        );
+    }
+
+    private assertOfficerAvailable(task: OfficerTaskDraft): void {
+        const activeTask = this.state.officerTasks[task.role];
+
+        if (!activeTask) {
+            return;
+        }
+
+        throw new Error(
+            `Cannot start officer task ${task.kind}: officer ${task.role} is already busy with ${activeTask.kind}`,
+        );
+    }
+
+    private createRuntimeTask(task: OfficerTaskDraft): OfficerTaskState {
         return {
             ...task,
 

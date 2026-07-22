@@ -2,16 +2,10 @@
 
 import { OFFICER_ROLE } from '../../../defs/officer';
 import { ENCOUNTER_OFFICER_COMMAND_ID } from '../../model/command';
-import { OFFICER_TASK_KIND, type OfficerTaskState } from '../../model/officer_task';
+import { OFFICER_TASK_KIND, type OfficerTaskDraft } from '../../model/officer_task';
 
-export function createHelmFlyToTask(targetId: string): OfficerTaskState {
+export function createHelmFlyToTask(targetId: string): OfficerTaskDraft {
     return {
-        // Временное значение.
-        //
-        // OfficerTaskRunner заменяет его
-        // на уникальный runtime ID.
-        id: OFFICER_TASK_KIND.HELM_FLY_TO,
-
         kind: OFFICER_TASK_KIND.HELM_FLY_TO,
 
         role: OFFICER_ROLE.HELM,

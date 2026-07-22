@@ -2,19 +2,16 @@
 
 import { OFFICER_ROLE } from '../../../defs/officer';
 import { ENCOUNTER_OFFICER_COMMAND_ID } from '../../model/command';
-import { OFFICER_TASK_KIND, type OfficerTaskState } from '../../model/officer_task';
+import { OFFICER_TASK_KIND, type OfficerTaskDraft } from '../../model/officer_task';
 
 const REQUEST_DOCKING_BASE_DURATION_MS = 3000;
 
-// Создаёт task запроса docking clearance.
+// Создаёт draft запроса docking clearance.
 //
-// Пока id временно совпадает с kind.
-// После добавления runtime task ID
-// фабрика начнёт получать уникальный id снаружи.
-export function createCommsRequestDockingTask(targetId: string): OfficerTaskState {
+// Runtime id назначает OfficerTaskRunner
+// в момент запуска task.
+export function createCommsRequestDockingTask(targetId: string): OfficerTaskDraft {
     return {
-        id: OFFICER_TASK_KIND.COMMS_REQUEST_DOCKING,
-
         kind: OFFICER_TASK_KIND.COMMS_REQUEST_DOCKING,
 
         role: OFFICER_ROLE.COMMS,
@@ -26,6 +23,7 @@ export function createCommsRequestDockingTask(targetId: string): OfficerTaskStat
         label: 'REQ DOCK',
 
         elapsedMs: 0,
+
         durationMs: REQUEST_DOCKING_BASE_DURATION_MS,
     };
 }
