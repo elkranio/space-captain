@@ -19,7 +19,7 @@ import {
 import type BridgeEventBus from '../../events/BridgeEventBus';
 import BridgeOfficerCommandMenuController from './command_menu/BridgeOfficerCommandMenuController';
 import BridgeEncounterEngineEventHandler from './engine_events/BridgeEncounterEngineEventHandler';
-import BridgeOfficerStationIndicatorsPoller from './officer_station_indicators/BridgeOfficerStationIndicatorsPoller';
+import BridgeOfficerStationsController from './officer_stations/BridgeOfficerStationsController';
 
 // App-controller для bridge encounter flow.
 //
@@ -37,7 +37,7 @@ export default class BridgeEncounterController {
 
     private officerCommandMenuController?: BridgeOfficerCommandMenuController;
 
-    private officerStationIndicatorsPoller?: BridgeOfficerStationIndicatorsPoller;
+    private officerStationsController?: BridgeOfficerStationsController;
 
     private readonly engineEventHandler: BridgeEncounterEngineEventHandler;
 
@@ -59,10 +59,10 @@ export default class BridgeEncounterController {
     public destroy(): void {
         this.unregisterBridgeEventHandlers();
 
-        this.officerStationIndicatorsPoller?.destroy();
+        this.officerStationsController?.destroy();
 
         this.officerCommandMenuController = undefined;
-        this.officerStationIndicatorsPoller = undefined;
+        this.officerStationsController = undefined;
         this.encounterEngine = undefined;
         this.isEncounterInteractive = false;
     }
@@ -79,7 +79,7 @@ export default class BridgeEncounterController {
         this.encounterEngine.step(deltaMs);
 
         this.drainEncounterEvents();
-        this.updateOfficerStationIndicators(deltaMs);
+        this.officerStationsController?.step(deltaMs);
     }
 
     // #endregion
@@ -137,10 +137,7 @@ export default class BridgeEncounterController {
 
         this.officerCommandMenuController = new BridgeOfficerCommandMenuController(this.encounterEngine, this.eventBus);
 
-        this.officerStationIndicatorsPoller = new BridgeOfficerStationIndicatorsPoller(
-            this.encounterEngine,
-            this.eventBus,
-        );
+        this.officerStationsController = new BridgeOfficerStationsController(this.encounterEngine, this.eventBus);
 
         this.drainEncounterEvents();
     }
@@ -162,7 +159,7 @@ export default class BridgeEncounterController {
 
         this.isEncounterInteractive = true;
 
-        this.syncOfficerStationIndicators();
+        this.officerStationsController?.sync();
     }
 
     private handleEncounterTravelCompleted(payload: BridgeEncounterTravelCompletedPayload): void {
@@ -171,7 +168,7 @@ export default class BridgeEncounterController {
         this.isEncounterInteractive = true;
 
         this.drainEncounterEvents();
-        this.syncOfficerStationIndicators();
+        this.officerStationsController?.sync();
     }
 
     private handleOfficerCommandSelected(payload: BridgeOfficerCommandSelectedPayload): void {
@@ -205,22 +202,6 @@ export default class BridgeEncounterController {
 
     // #endregion
 
-    // #region Officer station indicators
-
-    private updateOfficerStationIndicators(deltaMs: number): void {
-        if (!this.isEncounterInteractive) {
-            return;
-        }
-
-        this.officerStationIndicatorsPoller?.step(deltaMs);
-    }
-
-    private syncOfficerStationIndicators(): void {
-        this.officerStationIndicatorsPoller?.sync();
-    }
-
-    // #endregion
-
     // #region Officer commands
 
     private executeCommand(payload: BridgeOfficerCommandSelectedPayload): void {
@@ -232,7 +213,7 @@ export default class BridgeEncounterController {
 
         this.syncRuntimeNavigationFromEngine();
         this.drainEncounterEvents();
-        this.syncOfficerStationIndicators();
+        this.officerStationsController?.sync();
     }
 
     private requestOfficerCommandBark(payload: BridgeOfficerCommandSelectedPayload): void {

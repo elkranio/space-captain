@@ -77,18 +77,18 @@ export function createNewRunState(): RunState {
             ],
         },
 
-        player: {
-            location: {
-                kind: PLAYER_LOCATION_KIND.SPACE,
-                nodeId: 'node_start',
+        // player: {
+        //     location: {
+        //         kind: PLAYER_LOCATION_KIND.SPACE,
+        //         nodeId: 'node_start',
 
-                navigation: {
-                    kind: PLAYER_SPACE_NAVIGATION_KIND.TRAVELLING,
-                    targetObjectId: navigationBeacon.id,
-                    fromObjectId: asteroid.id,
-                },
-            },
-        },
+        //         navigation: {
+        //             kind: PLAYER_SPACE_NAVIGATION_KIND.TRAVELLING,
+        //             targetObjectId: navigationBeacon.id,
+        //             fromObjectId: asteroid.id,
+        //         },
+        //     },
+        // },
 
         // player: {
         //     location: {
@@ -102,17 +102,17 @@ export function createNewRunState(): RunState {
         //     },
         // },
 
-        // player: {
-        //     location: {
-        //         kind: PLAYER_LOCATION_KIND.SPACE,
-        //         nodeId: 'node_station',
+        player: {
+            location: {
+                kind: PLAYER_LOCATION_KIND.SPACE,
+                nodeId: 'node_station',
 
-        //         navigation: {
-        //             kind: PLAYER_SPACE_NAVIGATION_KIND.ARRIVING,
-        //             targetObjectId: station.id,
-        //         },
-        //     },
-        // },
+                navigation: {
+                    kind: PLAYER_SPACE_NAVIGATION_KIND.ARRIVING,
+                    targetObjectId: station.id,
+                },
+            },
+        },
 
         officers: {
             [OFFICER_ROLE.COMMS]: {

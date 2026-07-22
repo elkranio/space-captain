@@ -1,4 +1,4 @@
-// src/app/scenes/game/bridge/controller/encounter/officer_station_indicators/BridgeOfficerStationIndicatorsPoller.ts
+// src/app/scenes/game/bridge/controller/encounter/officer_stations/BridgeOfficerStationsController.ts
 
 import { OFFICER_ROLE } from '../../../../../../../engine/defs/officer';
 import type EncounterEngine from '../../../../../../../engine/encounter/EncounterEngine';
@@ -14,9 +14,9 @@ import {
 } from '../../../events/bridge_event';
 import type BridgeEventBus from '../../../events/BridgeEventBus';
 
-const OFFICER_STATION_INDICATOR_POLL_INTERVAL_MS = 200;
+const OFFICER_STATIONS_SYNC_INTERVAL_MS = 200;
 
-const OFFICER_STATION_INDICATOR_ROLES = [
+const OFFICER_STATION_ROLES = [
     OFFICER_ROLE.COMMS,
     OFFICER_ROLE.SCIENCE,
     OFFICER_ROLE.HELM,
@@ -24,20 +24,25 @@ const OFFICER_STATION_INDICATOR_ROLES = [
     OFFICER_ROLE.ENGINEER,
 ] as const;
 
-// Poller bridge-level состояний officer station indicators.
-// Периодически читает engine availability, мапит её в lamp states и эмитит полный snapshot.
-export default class BridgeOfficerStationIndicatorsPoller {
+// Управляет presentation-состоянием всех officer stations.
+//
+// Периодически читает актуальную officer availability из EncounterEngine,
+// переводит domain states в lamp states
+// и эмитит полный snapshot для bridge views.
+export default class BridgeOfficerStationsController {
     private elapsedMs = 0;
 
     constructor(
-        private readonly engine: EncounterEngine,
+        private readonly encounterEngine: EncounterEngine,
         private readonly eventBus: BridgeEventBus,
     ) {}
+
+    // #region Public API
 
     public step(deltaMs: number): void {
         this.elapsedMs += deltaMs;
 
-        if (this.elapsedMs < OFFICER_STATION_INDICATOR_POLL_INTERVAL_MS) {
+        if (this.elapsedMs < OFFICER_STATIONS_SYNC_INTERVAL_MS) {
             return;
         }
 
@@ -46,9 +51,11 @@ export default class BridgeOfficerStationIndicatorsPoller {
     }
 
     public sync(): void {
+        const availabilityStates = this.encounterEngine.getOfficerAvailabilityStates();
+
         this.eventBus.emit(
             BRIDGE_EVENT.OFFICER_STATION_INDICATORS_UPDATED,
-            this.createStationIndicatorStates(this.engine.getOfficerAvailabilityStates()),
+            this.createIndicatorStates(availabilityStates),
         );
     }
 
@@ -56,19 +63,23 @@ export default class BridgeOfficerStationIndicatorsPoller {
         this.elapsedMs = 0;
     }
 
-    private createStationIndicatorStates(
+    // #endregion
+
+    // #region Indicator state creation
+
+    private createIndicatorStates(
         availabilityStates: OfficerAvailabilityStates,
     ): BridgeOfficerStationIndicatorsUpdatedPayload {
-        const states = {} as BridgeOfficerStationIndicatorsUpdatedPayload;
+        const indicatorStates = {} as BridgeOfficerStationIndicatorsUpdatedPayload;
 
-        for (const role of OFFICER_STATION_INDICATOR_ROLES) {
-            states[role] = this.mapAvailabilityToStationIndicatorState(availabilityStates[role]);
+        for (const role of OFFICER_STATION_ROLES) {
+            indicatorStates[role] = this.mapAvailabilityToIndicatorState(availabilityStates[role]);
         }
 
-        return states;
+        return indicatorStates;
     }
 
-    private mapAvailabilityToStationIndicatorState(
+    private mapAvailabilityToIndicatorState(
         availabilityState: OfficerAvailabilityState,
     ): BridgeOfficerStationIndicatorState {
         switch (availabilityState) {
@@ -82,4 +93,6 @@ export default class BridgeOfficerStationIndicatorsPoller {
                 return 'busy';
         }
     }
+
+    // #endregion
 }
