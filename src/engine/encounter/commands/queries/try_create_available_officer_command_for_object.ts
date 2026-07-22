@@ -20,13 +20,21 @@ import { DOCKING_CLEARANCE_STATE } from '../../objects/station/station_encounter
 // Проверка роли и наличие command
 // в object.officerCommands выполняются выше.
 //
-// Здесь собраны небольшие command-specific
+// FLY_TO доступна для других объектов encounter node.
+// Все остальные object commands доступны только
+// для текущего anchor object.
+//
+// Здесь также собраны небольшие command-specific
 // правила доступности.
 export function tryCreateAvailableOfficerCommandForObject(
     state: EncounterState,
     object: EncounterObjectState,
     objectCommand: EncounterObjectOfficerCommand,
 ): AvailableOfficerCommand | undefined {
+    if (objectCommand.commandId !== ENCOUNTER_OFFICER_COMMAND_ID.FLY_TO && !isCurrentAnchorObject(state, object.id)) {
+        return undefined;
+    }
+
     switch (objectCommand.commandId) {
         case ENCOUNTER_OFFICER_COMMAND_ID.HAIL:
             return createTargetedCommand(ENCOUNTER_OFFICER_COMMAND_ID.HAIL, 'HAIL', object);
@@ -42,6 +50,12 @@ export function tryCreateAvailableOfficerCommandForObject(
     }
 
     throw new Error(`Unhandled encounter officer command: ${String(objectCommand.commandId)}`);
+}
+
+function isCurrentAnchorObject(state: EncounterState, objectId: string): boolean {
+    const navigation = state.navigation;
+
+    return navigation.kind === PLAYER_SPACE_NAVIGATION_KIND.ANCHORED && navigation.anchorObjectId === objectId;
 }
 
 function tryCreateRequestDockingCommand(object: EncounterObjectState): AvailableOfficerCommand | undefined {
