@@ -1,23 +1,20 @@
 // src/engine/encounter/contact/ContactSequenceRunner.ts
 
 import { ENCOUNTER_EVENT, type EncounterEvent } from '../model/event';
-import type { EncounterState } from '../model/state';
-import { grantDockingClearance } from '../state/grant_docking_clearance';
 import { CONTACT_SEQUENCE_STEP_KIND, type ActiveContactSequence, type ContactSequenceStep } from './contact_sequence';
 
 export type ContactSequenceRunnerContext = {
-    state: EncounterState;
     emit: (event: EncounterEvent) => void;
 };
 
-// Runtime-runner для активной contact sequence.
-// Хранит текущий шаг, задержку между шагами и применяет эффекты contact step-ов.
 export default class ContactSequenceRunner {
     private activeSequence?: ActiveContactSequence;
 
     private onContactEnded?: () => void;
 
     constructor(private readonly context: ContactSequenceRunnerContext) {}
+
+    // #region Public API
 
     public start = (steps: ContactSequenceStep[], onContactEnded?: () => void): void => {
         this.activeSequence = {
@@ -42,6 +39,10 @@ export default class ContactSequenceRunner {
 
         this.processCurrentStep();
     }
+
+    // #endregion
+
+    // #region Sequence processing
 
     private processCurrentStep(): void {
         if (!this.activeSequence) {
@@ -94,16 +95,15 @@ export default class ContactSequenceRunner {
                 this.onContactEnded = undefined;
                 return;
 
-            case CONTACT_SEQUENCE_STEP_KIND.GRANT_DOCKING_CLEARANCE:
-                grantDockingClearance(this.context.state, step.targetId);
-                return;
+            default:
+                throw new Error(`Unhandled contact sequence step: ${String(step)}`);
         }
-
-        throw new Error(`Unhandled contact sequence step: ${String(step)}`);
     }
 
     private clearSequence(): void {
         this.activeSequence = undefined;
         this.onContactEnded = undefined;
     }
+
+    // #endregion
 }

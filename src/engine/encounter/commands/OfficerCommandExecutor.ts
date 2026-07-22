@@ -1,7 +1,6 @@
 // src/engine/encounter/commands/OfficerCommandExecutor.ts
 
 import { OFFICER_ROLE, type OfficerRole } from '../../defs/officer';
-import { PLAYER_SPACE_NAVIGATION_KIND } from '../../defs/player_location';
 import type { ContactSequenceStep } from '../contact/contact_sequence';
 import { createStationHailSequence } from '../contact/sequences/create_station_hail_sequence';
 import {
@@ -15,7 +14,6 @@ import {
 } from '../model/command';
 import { ENCOUNTER_EVENT, type EncounterEvent } from '../model/event';
 import type { OfficerTaskDraft } from '../model/officer_task';
-import type { EncounterState } from '../model/state';
 import { ENCOUNTER_OBJECT_KIND } from '../objects/encounter_object';
 import {
     createCommsHailTask,
@@ -23,7 +21,7 @@ import {
     createHelmDockTask,
     createHelmFlyToTask,
 } from '../officer_tasks/create_officer_task_draft';
-import { findEncounterObjectById } from '../state/find_encounter_object_by_id';
+import EncounterStateStore from '../state/EncounterStateStore';
 import { getAvailableOfficerCommands } from './get_available_officer_commands';
 
 type StartContactSequence = (steps: ContactSequenceStep[], onContactEnded?: () => void) => void;
@@ -33,8 +31,10 @@ type StartOfficerTask = (task: OfficerTaskDraft) => string;
 type CompleteOfficerTask = (taskId: string) => void;
 
 type OfficerCommandExecutorOptions = {
-    state: EncounterState;
+    stateStore: EncounterStateStore;
+
     emit: (event: EncounterEvent) => void;
+
     startOfficerTask: StartOfficerTask;
     completeOfficerTask: CompleteOfficerTask;
     startContactSequence: StartContactSequence;
@@ -49,7 +49,7 @@ const OFFICER_ROLES = [
 ] as const;
 
 export default class OfficerCommandExecutor {
-    private readonly state: EncounterState;
+    private readonly stateStore: EncounterStateStore;
 
     private readonly emit: (event: EncounterEvent) => void;
 
@@ -60,13 +60,13 @@ export default class OfficerCommandExecutor {
     private readonly startContactSequence: StartContactSequence;
 
     constructor({
-        state,
+        stateStore,
         emit,
         startOfficerTask,
         completeOfficerTask,
         startContactSequence,
     }: OfficerCommandExecutorOptions) {
-        this.state = state;
+        this.stateStore = stateStore;
         this.emit = emit;
         this.startOfficerTask = startOfficerTask;
         this.completeOfficerTask = completeOfficerTask;
@@ -124,7 +124,7 @@ export default class OfficerCommandExecutor {
     // #region Command validation
 
     private canExecute(input: ExecuteOfficerCommandInput): boolean {
-        const commands = getAvailableOfficerCommands(this.state, input.role);
+        const commands = getAvailableOfficerCommands(this.stateStore.getState(), input.role);
 
         return commands.some((command) => {
             return command.commandId === input.commandId && command.targetId === input.targetId;
@@ -139,7 +139,7 @@ export default class OfficerCommandExecutor {
         }
 
         return OFFICER_ROLES.filter((role) => {
-            return this.state.officerTasks[role] !== undefined;
+            return this.stateStore.getOfficerTask(role) !== undefined;
         });
     }
 
@@ -148,7 +148,7 @@ export default class OfficerCommandExecutor {
     // #region Command execution
 
     private executeHail(input: ExecuteOfficerCommandInput): void {
-        const target = findEncounterObjectById(this.state, input.targetId);
+        const target = this.stateStore.findObjectById(input.targetId);
 
         if (!target) {
             return;
@@ -177,7 +177,7 @@ export default class OfficerCommandExecutor {
     }
 
     private executeDock(input: ExecuteOfficerCommandInput): void {
-        const target = findEncounterObjectById(this.state, input.targetId);
+        const target = this.stateStore.findObjectById(input.targetId);
 
         if (!target) {
             return;
@@ -200,25 +200,7 @@ export default class OfficerCommandExecutor {
             throw new Error('FLY_TO command requires targetId');
         }
 
-        const navigation = this.state.navigation;
-
-        if (navigation.kind !== PLAYER_SPACE_NAVIGATION_KIND.ANCHORED) {
-            throw new Error(`Cannot execute FLY_TO from navigation state: ${navigation.kind}`);
-        }
-
-        const target = findEncounterObjectById(this.state, input.targetId);
-
-        if (!target) {
-            throw new Error(`FLY_TO target not found: ${input.targetId}`);
-        }
-
-        const fromObjectId = navigation.anchorObjectId;
-
-        this.state.navigation = {
-            kind: PLAYER_SPACE_NAVIGATION_KIND.TRAVELLING,
-            fromObjectId,
-            targetObjectId: target.id,
-        };
+        const { fromObjectId, target } = this.stateStore.startTravel(input.targetId);
 
         const helmTaskId = this.startOfficerTask(createHelmFlyToTask(target.id));
 

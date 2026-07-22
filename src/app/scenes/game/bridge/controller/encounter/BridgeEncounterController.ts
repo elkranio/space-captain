@@ -11,7 +11,6 @@ import {
     OFFICER_COMMAND_REJECTION_REASON,
     type ExecuteOfficerCommandResult,
 } from '../../../../../../engine/encounter/model/command';
-import { createEncounterStateFromSpaceNode } from '../../../../../../engine/encounter/state/create_encounter_state_from_space_node';
 import { DEBUG_SETTINGS } from '../../../../../debug/debug_settings';
 import { GAME_RUNTIME } from '../../../../../runtime/GameRuntime';
 import { SCENE_KEY } from '../../../../scene_key';
@@ -133,10 +132,9 @@ export default class BridgeEncounterController {
             throw new Error(`Space node not found: ${location.nodeId}`);
         }
 
-        const state = createEncounterStateFromSpaceNode(node, location.navigation);
-
         this.encounterEngine = new EncounterEngine({
-            state,
+            node,
+            navigation: location.navigation,
             completeTimedTasksImmediately: DEBUG_SETTINGS.bridge.officerTasks.completeTimedTasksImmediately,
         });
 

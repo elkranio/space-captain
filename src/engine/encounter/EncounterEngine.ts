@@ -1,23 +1,25 @@
 // src/engine/encounter/EncounterEngine.ts
 
-import { PLAYER_SPACE_NAVIGATION_KIND, type PlayerSpaceNavigationState } from '../defs/player_location';
+import type { PlayerSpaceNavigationState } from '../defs/player_location';
+import type { SpaceNodeState } from '../defs/universe';
 import OfficerCommandExecutor from './commands/OfficerCommandExecutor';
 import { getAvailableOfficerCommands } from './commands/get_available_officer_commands';
 import ContactSequenceRunner from './contact/ContactSequenceRunner';
 import type { AvailableOfficerCommand, ExecuteOfficerCommandInput, ExecuteOfficerCommandResult } from './model/command';
 import { ENCOUNTER_EVENT, type EncounterEvent } from './model/event';
 import type { OfficerAvailabilityStates } from './model/officer_availability';
-import type { EncounterState } from './model/state';
 import { getOfficerAvailabilityStates } from './officer_availability/queries/get_officer_availability_states';
 import OfficerTaskRunner from './officer_tasks/OfficerTaskRunner';
+import EncounterStateStore from './state/EncounterStateStore';
 
 export type EncounterEngineOptions = {
-    state: EncounterState;
+    node: SpaceNodeState;
+    navigation: PlayerSpaceNavigationState;
     completeTimedTasksImmediately?: boolean;
 };
 
 export default class EncounterEngine {
-    private readonly state: EncounterState;
+    private readonly stateStore: EncounterStateStore;
 
     private readonly events: EncounterEvent[] = [];
 
@@ -27,22 +29,23 @@ export default class EncounterEngine {
 
     private readonly officerCommandExecutor: OfficerCommandExecutor;
 
-    constructor({ state, completeTimedTasksImmediately = false }: EncounterEngineOptions) {
-        this.state = state;
+    constructor({ node, navigation, completeTimedTasksImmediately = false }: EncounterEngineOptions) {
+        this.stateStore = EncounterStateStore.fromSpaceNode(node, navigation);
+
+        const encounterState = this.stateStore.getState();
 
         this.officerTaskRunner = new OfficerTaskRunner({
-            state: this.state,
+            stateStore: this.stateStore,
             emit: this.emit,
             completeTimedTasksImmediately,
         });
 
         this.contactSequenceRunner = new ContactSequenceRunner({
-            state: this.state,
             emit: this.emit,
         });
 
         this.officerCommandExecutor = new OfficerCommandExecutor({
-            state: this.state,
+            stateStore: this.stateStore,
             emit: this.emit,
             startOfficerTask: this.officerTaskRunner.start,
             completeOfficerTask: this.officerTaskRunner.complete,
@@ -51,7 +54,7 @@ export default class EncounterEngine {
 
         this.emit({
             type: ENCOUNTER_EVENT.ENCOUNTER_LOADED,
-            state: this.state,
+            state: encounterState,
         });
     }
 
@@ -67,16 +70,7 @@ export default class EncounterEngine {
     }
 
     public completeArrival(): void {
-        const navigation = this.state.navigation;
-
-        if (navigation.kind !== PLAYER_SPACE_NAVIGATION_KIND.ARRIVING) {
-            throw new Error(`Cannot complete arrival from navigation state: ${navigation.kind}`);
-        }
-
-        this.state.navigation = {
-            kind: PLAYER_SPACE_NAVIGATION_KIND.ANCHORED,
-            anchorObjectId: navigation.targetObjectId,
-        };
+        this.stateStore.completeArrival();
     }
 
     public completeTask(taskId: string): void {
@@ -88,17 +82,15 @@ export default class EncounterEngine {
     }
 
     public getAvailableCommands(role: ExecuteOfficerCommandInput['role']): AvailableOfficerCommand[] {
-        return getAvailableOfficerCommands(this.state, role);
+        return getAvailableOfficerCommands(this.stateStore.getState(), role);
     }
 
     public getNavigationState(): PlayerSpaceNavigationState {
-        return {
-            ...this.state.navigation,
-        };
+        return this.stateStore.getNavigationState();
     }
 
     public getOfficerAvailabilityStates(): OfficerAvailabilityStates {
-        return getOfficerAvailabilityStates(this.state);
+        return getOfficerAvailabilityStates(this.stateStore.getState());
     }
 
     public drainEvents(): EncounterEvent[] {
