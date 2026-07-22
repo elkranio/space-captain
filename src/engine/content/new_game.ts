@@ -77,30 +77,30 @@ export function createNewRunState(): RunState {
             ],
         },
 
-        // player: {
-        //     location: {
-        //         kind: PLAYER_LOCATION_KIND.SPACE,
-        //         nodeId: 'node_start',
-
-        //         navigation: {
-        //             kind: PLAYER_SPACE_NAVIGATION_KIND.TRAVELLING,
-        //             targetObjectId: navigationBeacon.id,
-        //             fromObjectId: asteroid.id,
-        //         },
-        //     },
-        // },
-
         player: {
             location: {
                 kind: PLAYER_LOCATION_KIND.SPACE,
                 nodeId: 'node_start',
 
                 navigation: {
-                    kind: PLAYER_SPACE_NAVIGATION_KIND.ARRIVING,
+                    kind: PLAYER_SPACE_NAVIGATION_KIND.TRAVELLING,
                     targetObjectId: navigationBeacon.id,
+                    fromObjectId: asteroid.id,
                 },
             },
         },
+
+        // player: {
+        //     location: {
+        //         kind: PLAYER_LOCATION_KIND.SPACE,
+        //         nodeId: 'node_start',
+
+        //         navigation: {
+        //             kind: PLAYER_SPACE_NAVIGATION_KIND.ARRIVING,
+        //             targetObjectId: navigationBeacon.id,
+        //         },
+        //     },
+        // },
 
         // player: {
         //     location: {

@@ -12,7 +12,7 @@ import {
 import { OFFICER_TASK_KIND, type OfficerTaskDraft, type OfficerTaskState } from '../model/officer_task';
 import type { EncounterState } from '../model/state';
 import { grantDockingClearance } from '../state/grant_docking_clearance';
-import { createHelmFlyToTask } from './factories/create_helm_fly_to_task';
+import { createHelmFlyToTask } from './create_officer_task_draft';
 
 type OfficerTaskRunnerOptions = {
     state: EncounterState;
@@ -182,7 +182,6 @@ export default class OfficerTaskRunner {
                 return undefined;
 
             case OFFICER_TASK_KIND.COMMS_HAIL:
-
             case OFFICER_TASK_KIND.HELM_DOCK:
                 return undefined;
 

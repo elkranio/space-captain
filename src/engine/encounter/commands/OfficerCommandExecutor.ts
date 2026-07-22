@@ -8,10 +8,12 @@ import { ENCOUNTER_EVENT, type EncounterEvent } from '../model/event';
 import type { OfficerTaskDraft } from '../model/officer_task';
 import type { EncounterState } from '../model/state';
 import { ENCOUNTER_OBJECT_KIND } from '../objects/encounter_object';
-import { createCommsHailTask } from '../officer_tasks/factories/create_comms_hail_task';
-import { createCommsRequestDockingTask } from '../officer_tasks/factories/create_comms_request_docking_task';
-import { createHelmDockTask } from '../officer_tasks/factories/create_helm_dock_task';
-import { createHelmFlyToTask } from '../officer_tasks/factories/create_helm_fly_to_task';
+import {
+    createCommsHailTask,
+    createCommsRequestDockingTask,
+    createHelmDockTask,
+    createHelmFlyToTask,
+} from '../officer_tasks/create_officer_task_draft';
 import { findEncounterObjectById } from '../state/find_encounter_object_by_id';
 import { getAvailableOfficerCommands } from './get_available_officer_commands';
 
@@ -122,7 +124,6 @@ export default class OfficerCommandExecutor {
                 };
 
                 this.startContactSequence(createStationHailSequence(target), onContactEnded);
-
                 return;
             }
         }
@@ -149,10 +150,8 @@ export default class OfficerCommandExecutor {
 
                 this.emit({
                     type: ENCOUNTER_EVENT.DOCKING_STARTED,
-
                     targetId: target.id,
                 });
-
                 return;
         }
     }
@@ -178,9 +177,7 @@ export default class OfficerCommandExecutor {
 
         this.state.navigation = {
             kind: PLAYER_SPACE_NAVIGATION_KIND.TRAVELLING,
-
             fromObjectId,
-
             targetObjectId: target.id,
         };
 
@@ -188,11 +185,8 @@ export default class OfficerCommandExecutor {
 
         this.emit({
             type: ENCOUNTER_EVENT.TRAVEL_STARTED,
-
             taskId: helmTaskId,
-
             fromObjectId,
-
             target,
         });
     }
