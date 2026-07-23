@@ -1,5 +1,6 @@
-// src/engine/encounter/commands/queries/try_create_available_officer_command_for_object.ts
+// src/engine/encounter/commands/queries/get_available_officer_commands.ts
 
+import type { OfficerRole } from '../../../defs/officer';
 import { PLAYER_SPACE_NAVIGATION_KIND } from '../../../defs/player_location';
 import {
     ENCOUNTER_OBJECT_TARGET_SCOPE,
@@ -13,19 +14,38 @@ import type { EncounterState } from '../../model/state';
 import { ENCOUNTER_OBJECT_KIND, type EncounterObjectState } from '../../objects/encounter_object';
 import { DOCKING_CLEARANCE_STATE } from '../../objects/station/station_encounter_object';
 
-// Создаёт доступную officer command
-// для конкретного encounter object.
+// Возвращает команды, которые выбранный офицер
+// может предложить игроку прямо сейчас.
 //
-// Статические свойства команды:
-// - label;
-// - target kind;
-// - encounter object scope;
-//
-// берутся из command def.
-//
-// Command-specific проверки по текущему EncounterState
-// остаются в этом query.
-export function tryCreateAvailableOfficerCommandForObject(
+// Это чистый query по encounter state:
+// без мутаций, событий и запуска command flow.
+export function getAvailableOfficerCommands(state: EncounterState, role: OfficerRole): AvailableOfficerCommand[] {
+    const commands: AvailableOfficerCommand[] = [];
+
+    if (state.officerTasks[role]) {
+        return [];
+    }
+
+    for (const object of state.objects) {
+        for (const commandId of object.officerCommandIds) {
+            const commandDef = getOfficerCommandDef(commandId);
+
+            if (commandDef.role !== role) {
+                continue;
+            }
+
+            const command = tryCreateAvailableOfficerCommandForObject(state, object, commandId);
+
+            if (command) {
+                commands.push(command);
+            }
+        }
+    }
+
+    return commands;
+}
+
+function tryCreateAvailableOfficerCommandForObject(
     state: EncounterState,
     object: EncounterObjectState,
     commandId: EncounterOfficerCommandId,

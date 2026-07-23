@@ -2,7 +2,7 @@
 
 import { OFFICER_ROLE, type OfficerRole } from '../../../defs/officer';
 import { PLAYER_SPACE_NAVIGATION_KIND } from '../../../defs/player_location';
-import { getAvailableOfficerCommands } from '../../commands/get_available_officer_commands';
+import { getAvailableOfficerCommands } from '../../commands/queries/get_available_officer_commands';
 import { getOfficerCommandDef } from '../../model/command';
 import {
     OFFICER_AVAILABILITY_STATE,

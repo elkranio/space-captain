@@ -3,7 +3,7 @@
 import type { PlayerSpaceNavigationState } from '../defs/player_location';
 import type { SpaceNodeState } from '../defs/universe';
 import OfficerCommandExecutor from './commands/OfficerCommandExecutor';
-import { getAvailableOfficerCommands } from './commands/get_available_officer_commands';
+import { getAvailableOfficerCommands } from './commands/queries/get_available_officer_commands';
 import ContactSequenceRunner from './contact/ContactSequenceRunner';
 import type { AvailableOfficerCommand, ExecuteOfficerCommandInput, ExecuteOfficerCommandResult } from './model/command';
 import { ENCOUNTER_EVENT, type EncounterEvent } from './model/event';

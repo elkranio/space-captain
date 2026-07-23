@@ -22,7 +22,7 @@ import {
     createHelmFlyToTask,
 } from '../officer_tasks/create_officer_task_draft';
 import EncounterStateStore from '../state/EncounterStateStore';
-import { getAvailableOfficerCommands } from './get_available_officer_commands';
+import { getAvailableOfficerCommands } from './queries/get_available_officer_commands';
 
 type StartContactSequence = (steps: ContactSequenceStep[], onContactEnded?: () => void) => void;
 
