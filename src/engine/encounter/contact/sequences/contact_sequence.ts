@@ -1,6 +1,6 @@
-// src/engine/encounter/contact/contact_sequence.ts
+// src/engine/encounter/contact/sequences/contact_sequence.ts
 
-import type { CharacterPortraitId } from '../../defs/character';
+import type { CharacterPortraitId } from '../../../defs/character';
 
 export const CONTACT_SEQUENCE_STEP_KIND = {
     START_CONTACT: 'start_contact',
@@ -27,4 +27,4 @@ type EndContactSequenceStep = {
     waitAfterMs: number;
 };
 
-export type ContactSequenceStep = StartContactSequenceStep | MessageContactSequenceStep | EndContactSequenceStep; //
+export type ContactSequenceStep = StartContactSequenceStep | MessageContactSequenceStep | EndContactSequenceStep;

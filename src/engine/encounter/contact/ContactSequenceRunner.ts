@@ -1,7 +1,7 @@
 // src/engine/encounter/contact/ContactSequenceRunner.ts
 
 import { ENCOUNTER_EVENT, type EncounterEvent } from '../model/event';
-import { CONTACT_SEQUENCE_STEP_KIND, type ContactSequenceStep } from './contact_sequence';
+import { CONTACT_SEQUENCE_STEP_KIND, type ContactSequenceStep } from './sequences/contact_sequence';
 
 type ActiveContactSequence = {
     steps: ContactSequenceStep[];
