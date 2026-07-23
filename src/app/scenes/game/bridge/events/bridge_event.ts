@@ -66,6 +66,11 @@ export const BRIDGE_EVENT = {
     // между encounter objects.
     ENCOUNTER_TRAVEL_STARTED: 'encounter_travel_started',
 
+    // Началась поступательная фаза визуального перелёта.
+    // При yaw-перелёте эмитится после завершения поворота.
+    // При forward travel — сразу.
+    ENCOUNTER_TRAVEL_FLIGHT_STARTED: 'encounter_travel_flight_started',
+
     // Визуальный перелёт завершился.
     // View сообщает об этом controller-у.
     ENCOUNTER_TRAVEL_COMPLETED: 'encounter_travel_completed',
@@ -257,6 +262,8 @@ export type BridgeEventPayloadMap = {
     [BRIDGE_EVENT.ENCOUNTER_ARRIVAL_COMPLETED]: undefined;
 
     [BRIDGE_EVENT.ENCOUNTER_TRAVEL_STARTED]: BridgeEncounterTravelStartedPayload;
+
+    [BRIDGE_EVENT.ENCOUNTER_TRAVEL_FLIGHT_STARTED]: undefined;
 
     [BRIDGE_EVENT.ENCOUNTER_TRAVEL_COMPLETED]: BridgeEncounterTravelCompletedPayload;
 

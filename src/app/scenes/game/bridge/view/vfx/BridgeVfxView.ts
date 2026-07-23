@@ -21,12 +21,22 @@ export default class BridgeVfxView {
         this.viewscreenDustView = new BridgeViewscreenDustView(this.scene, this.root);
 
         this.eventBus.on(BRIDGE_EVENT.ENCOUNTER_ARRIVAL_STARTED, this.startViewscreenDust, this);
+
         this.eventBus.on(BRIDGE_EVENT.ENCOUNTER_ARRIVAL_COMPLETED, this.stopViewscreenDust, this);
+
+        this.eventBus.on(BRIDGE_EVENT.ENCOUNTER_TRAVEL_FLIGHT_STARTED, this.startViewscreenDust, this);
+
+        this.eventBus.on(BRIDGE_EVENT.ENCOUNTER_TRAVEL_COMPLETED, this.stopViewscreenDust, this);
     }
 
     public destroy(): void {
         this.eventBus.off(BRIDGE_EVENT.ENCOUNTER_ARRIVAL_STARTED, this.startViewscreenDust, this);
+
         this.eventBus.off(BRIDGE_EVENT.ENCOUNTER_ARRIVAL_COMPLETED, this.stopViewscreenDust, this);
+
+        this.eventBus.off(BRIDGE_EVENT.ENCOUNTER_TRAVEL_FLIGHT_STARTED, this.startViewscreenDust, this);
+
+        this.eventBus.off(BRIDGE_EVENT.ENCOUNTER_TRAVEL_COMPLETED, this.stopViewscreenDust, this);
 
         this.viewscreenDustView.destroy();
         this.root.destroy(false);
