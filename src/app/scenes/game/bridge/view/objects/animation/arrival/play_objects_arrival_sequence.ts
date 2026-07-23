@@ -3,13 +3,17 @@
 import { BRIDGE_EVENT } from '../../../../events/bridge_event';
 import type BridgeObjectSpriteView from '../../object_sprite/BridgeObjectSpriteView';
 import type { BridgeObjectsAnimationContext } from '../bridge_objects_animation_context';
+import { playSteppedAnimation } from '../play_stepped_animation';
 
-const ARRIVAL_SCALE_STEPS = [0, 0.06, 0.12, 0.2, 0.32, 0.46, 0.62, 0.78, 0.9, 1] as const;
+const ARRIVAL_DURATION_MS = 1000;
 
-const ARRIVAL_STEP_DELAY_MS = 100;
+const ARRIVAL_FRAMES_PER_SECOND = 12;
 
 // Проигрывает arrival sequence
 // для всей визуальной группы target anchor.
+//
+// Scale вычисляется формулой,
+// но обновляется дискретными VGA-style кадрами.
 export function playObjectsArrivalSequence(targetId: string, context: BridgeObjectsAnimationContext): void {
     const targetViews = getAnchorObjectViewsOrThrow(targetId, context);
 
@@ -17,25 +21,21 @@ export function playObjectsArrivalSequence(targetId: string, context: BridgeObje
         view.showForArrival();
     }
 
-    let stepIndex = 0;
+    const timer = playSteppedAnimation({
+        scene: context.scene,
 
-    const timer = context.scene.time.addEvent({
-        delay: ARRIVAL_STEP_DELAY_MS,
-        repeat: ARRIVAL_SCALE_STEPS.length - 1,
+        durationMs: ARRIVAL_DURATION_MS,
+        framesPerSecond: ARRIVAL_FRAMES_PER_SECOND,
 
-        callback: () => {
-            const scale = ARRIVAL_SCALE_STEPS[stepIndex];
+        ease: Phaser.Math.Easing.Cubic.InOut,
 
+        onStep: (progress) => {
             for (const view of targetViews) {
-                view.setArrivalScale(scale);
+                view.setArrivalScale(progress);
             }
+        },
 
-            stepIndex += 1;
-
-            if (stepIndex < ARRIVAL_SCALE_STEPS.length) {
-                return;
-            }
-
+        onComplete: () => {
             context.clearActiveTimer();
 
             for (const view of targetViews) {
