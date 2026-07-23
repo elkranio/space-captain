@@ -1,18 +1,28 @@
 // src/engine/encounter/contact/ContactSequenceRunner.ts
 
 import { ENCOUNTER_EVENT, type EncounterEvent } from '../model/event';
-import { CONTACT_SEQUENCE_STEP_KIND, type ActiveContactSequence, type ContactSequenceStep } from './contact_sequence';
+import { CONTACT_SEQUENCE_STEP_KIND, type ContactSequenceStep } from './contact_sequence';
 
-export type ContactSequenceRunnerContext = {
+type ActiveContactSequence = {
+    steps: ContactSequenceStep[];
+    currentStepIndex: number;
+    waitRemainingMs: number;
+};
+
+type ContactSequenceRunnerOptions = {
     emit: (event: EncounterEvent) => void;
 };
 
 export default class ContactSequenceRunner {
+    private readonly emit: (event: EncounterEvent) => void;
+
     private activeSequence?: ActiveContactSequence;
 
     private onContactEnded?: () => void;
 
-    constructor(private readonly context: ContactSequenceRunnerContext) {}
+    constructor({ emit }: ContactSequenceRunnerOptions) {
+        this.emit = emit;
+    }
 
     // #region Public API
 
@@ -71,7 +81,7 @@ export default class ContactSequenceRunner {
     private executeStep(step: ContactSequenceStep): void {
         switch (step.kind) {
             case CONTACT_SEQUENCE_STEP_KIND.START_CONTACT:
-                this.context.emit({
+                this.emit({
                     type: ENCOUNTER_EVENT.CONTACT_STARTED,
                     contactName: step.contactName,
                     contactPortraitId: step.contactPortraitId,
@@ -79,7 +89,7 @@ export default class ContactSequenceRunner {
                 return;
 
             case CONTACT_SEQUENCE_STEP_KIND.MESSAGE:
-                this.context.emit({
+                this.emit({
                     type: ENCOUNTER_EVENT.CONTACT_MESSAGE_ADDED,
                     speakerName: step.speakerName,
                     text: step.text,
@@ -87,7 +97,7 @@ export default class ContactSequenceRunner {
                 return;
 
             case CONTACT_SEQUENCE_STEP_KIND.END_CONTACT:
-                this.context.emit({
+                this.emit({
                     type: ENCOUNTER_EVENT.CONTACT_ENDED,
                 });
 
