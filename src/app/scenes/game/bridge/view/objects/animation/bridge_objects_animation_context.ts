@@ -4,16 +4,23 @@ import type BridgeScene from '../../../BridgeScene';
 import type BridgeEventBus from '../../../events/BridgeEventBus';
 import type BridgeObjectSpriteView from '../object_sprite/BridgeObjectSpriteView';
 
-// Общий context для object-level animation sequences.
+// Общий context для view-level animation sequences.
 //
-// Sequencer владеет lifecycle таймера,
-// а sequence-файлы получают доступ к scene, events,
-// отдельным object views и целым anchor groups.
+// Sequencer владеет:
+// - lifecycle активного timer;
+// - текущим yaw камеры.
+//
+// Sequence-файлы получают доступ к scene, events,
+// encounter object views и transient camera orientation.
 export type BridgeObjectsAnimationContext = {
     scene: BridgeScene;
     eventBus: BridgeEventBus;
 
     panBackgroundBy: (screenX: number, screenY: number) => void;
+
+    getCameraYawDegrees: () => number | undefined;
+
+    setCameraYawDegrees: (yawDegrees: number) => void;
 
     getObjectView: (objectId: string) => BridgeObjectSpriteView | undefined;
 

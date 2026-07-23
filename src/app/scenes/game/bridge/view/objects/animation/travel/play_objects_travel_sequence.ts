@@ -8,12 +8,19 @@ import { playSteppedAnimation } from '../play_stepped_animation';
 
 const TRAVEL_FRAMES_PER_SECOND = 12;
 
-const TURN_DURATION_MS = 500;
-const TURN_SHIFT_PX = 90;
-const TURN_SCALE_DELTA = 0.08;
+const MIN_TURN_ANGLE_DEGREES = 0.5;
 
-const BACKGROUND_TURN_PAN_X_PX = 360;
-const BACKGROUND_TURN_PAN_Y_PX = 100;
+const TURN_MIN_DURATION_MS = 250;
+const TURN_MAX_DURATION_MS = 700;
+
+// Сдвиг текущего anchor при развороте на 180°.
+const TURN_SHIFT_FOR_HALF_TURN_PX = 240;
+
+// Сдвиг панорамы при развороте на 180°.
+// Это намеренно слабый visual parallax, а не физически точная проекция.
+const BACKGROUND_PAN_FOR_HALF_TURN_PX = 100;
+
+const TURN_SCALE_DELTA_FOR_HALF_TURN = 0.08;
 
 const DEPARTURE_DURATION_MS = 800;
 const DEPARTURE_PUSH_PX = 720;
@@ -37,22 +44,20 @@ type TravelObjectMotion = {
     turnPosition: Phaser.Math.Vector2;
 
     depth: number;
-
     turnScale: number;
 };
 
 // Проигрывает локальный перелёт
 // между двумя visual anchor groups.
 //
-// Пространственный вектор navigation objects
-// задаёт направление поворота.
+// TURN использует geometry x/z:
+// - текущий camera yaw хранится между перелётами;
+// - target yaw вычисляется из from → target;
+// - выбирается кратчайший signed-разворот;
+// - anchor и панорама смещаются пропорционально углу.
 //
-// Во время TURN:
-// - текущая anchor group смещается против направления цели;
-// - космическая панорама смещается в ту же экранную сторону.
-//
-// Объекты внутри anchor используют
-// собственные normalPosition и perspectiveDepth.
+// Координата y и pitch пока не участвуют.
+// Это отдельный следующий слой, если он понадобится.
 export function playObjectsTravelSequence(
     payload: BridgeEncounterTravelStartedPayload,
     context: BridgeObjectsAnimationContext,
@@ -62,9 +67,11 @@ export function playObjectsTravelSequence(
     }
 
     const fromAnchorView = getObjectViewOrThrow(payload.fromObjectId, context);
+
     const targetAnchorView = getObjectViewOrThrow(payload.targetObjectId, context);
 
     const fromViews = getAnchorObjectViewsOrThrow(payload.fromObjectId, context);
+
     const targetViews = getAnchorObjectViewsOrThrow(payload.targetObjectId, context);
 
     for (const view of fromViews) {
@@ -75,19 +82,43 @@ export function playObjectsTravelSequence(
         view.prepareForArrival();
     }
 
-    const travelDirection = getScreenTravelDirection(fromAnchorView, targetAnchorView);
+    const currentYawDegrees = context.getCameraYawDegrees() ?? getInitialAnchorYawDegrees(fromAnchorView);
 
-    // При повороте текущий мир смещается
-    // в сторону, противоположную цели.
-    const turnShiftDirection = travelDirection.clone().scale(-1);
+    context.setCameraYawDegrees(currentYawDegrees);
 
-    // Если lateral direction отсутствует,
-    // departure всё равно должен иметь направление выхода.
+    const targetYawDegrees = getTravelYawDegrees(fromAnchorView, targetAnchorView, currentYawDegrees);
+
+    const yawDeltaDegrees = getShortestYawDeltaDegrees(currentYawDegrees, targetYawDegrees);
+
+    const turnAngleProgress = Phaser.Math.Clamp(Math.abs(yawDeltaDegrees) / 180, 0, 1);
+
+    // Positive yaw означает поворот камеры вправо.
+    // Мир при этом уезжает влево.
+    const turnShiftDirection = new Phaser.Math.Vector2(-Math.sign(yawDeltaDegrees), 0);
+
     const departureDirection = getDepartureDirection(turnShiftDirection, fromAnchorView);
 
-    const fromMotions = createTravelObjectMotions(fromViews, turnShiftDirection);
+    const fromMotions = createTravelObjectMotions(fromViews, turnShiftDirection, turnAngleProgress);
 
-    playTurnPhase(payload.taskId, fromMotions, targetViews, turnShiftDirection, departureDirection, context);
+    if (Math.abs(yawDeltaDegrees) < MIN_TURN_ANGLE_DEGREES) {
+        context.setCameraYawDegrees(targetYawDegrees);
+
+        playDeparturePhase(payload.taskId, fromMotions, targetViews, departureDirection, context);
+
+        return;
+    }
+
+    playTurnPhase(
+        payload.taskId,
+        fromMotions,
+        targetViews,
+        currentYawDegrees,
+        targetYawDegrees,
+        yawDeltaDegrees,
+        turnAngleProgress,
+        departureDirection,
+        context,
+    );
 }
 
 // #region Turn
@@ -96,16 +127,22 @@ function playTurnPhase(
     taskId: string,
     fromMotions: TravelObjectMotion[],
     targetViews: BridgeObjectSpriteView[],
-    turnShiftDirection: Phaser.Math.Vector2,
+    currentYawDegrees: number,
+    targetYawDegrees: number,
+    yawDeltaDegrees: number,
+    turnAngleProgress: number,
     departureDirection: Phaser.Math.Vector2,
     context: BridgeObjectsAnimationContext,
 ): void {
     let previousProgress = 0;
+    let animatedYawDegrees = currentYawDegrees;
+
+    const durationMs = Math.round(Phaser.Math.Linear(TURN_MIN_DURATION_MS, TURN_MAX_DURATION_MS, turnAngleProgress));
 
     const timer = playSteppedAnimation({
         scene: context.scene,
 
-        durationMs: TURN_DURATION_MS,
+        durationMs,
         framesPerSecond: TRAVEL_FRAMES_PER_SECOND,
 
         ease: Phaser.Math.Easing.Cubic.InOut,
@@ -121,21 +158,28 @@ function playTurnPhase(
                 setQuantizedTransform(motion.view, x, y, scale);
             }
 
-            // panBackgroundBy принимает не абсолютную позицию,
-            // а delta текущего stepped-кадра.
             const progressDelta = progress - previousProgress;
 
-            context.panBackgroundBy(
-                turnShiftDirection.x * BACKGROUND_TURN_PAN_X_PX * progressDelta,
+            const yawStepDegrees = yawDeltaDegrees * progressDelta;
 
-                turnShiftDirection.y * BACKGROUND_TURN_PAN_Y_PX * progressDelta,
-            );
+            // Positive camera yaw поворачивает вправо,
+            // поэтому panorama визуально сдвигается влево.
+            const backgroundScreenX = (-yawStepDegrees / 180) * BACKGROUND_PAN_FOR_HALF_TURN_PX;
+
+            context.panBackgroundBy(backgroundScreenX, 0);
+
+            animatedYawDegrees = normalizeYawDegrees(animatedYawDegrees + yawStepDegrees);
+
+            context.setCameraYawDegrees(animatedYawDegrees);
 
             previousProgress = progress;
         },
 
         onComplete: () => {
             context.clearActiveTimer();
+
+            // Убираем возможную накопленную погрешность.
+            context.setCameraYawDegrees(targetYawDegrees);
 
             playDeparturePhase(taskId, fromMotions, targetViews, departureDirection, context);
         },
@@ -170,6 +214,7 @@ function playDeparturePhase(
                 const depthProgress = getDepthProgress(progress, motion.depth);
 
                 const radialX = motion.turnPosition.x - viewscreenCenter.x;
+
                 const radialY = motion.turnPosition.y - viewscreenCenter.y;
 
                 const pushDistance = DEPARTURE_PUSH_PX * depthProgress * motion.depth;
@@ -294,9 +339,13 @@ function playArrivalPhase(
 function createTravelObjectMotions(
     views: BridgeObjectSpriteView[],
     turnShiftDirection: Phaser.Math.Vector2,
+    turnAngleProgress: number,
 ): TravelObjectMotion[] {
+    const turnShiftDistance = TURN_SHIFT_FOR_HALF_TURN_PX * turnAngleProgress;
+
     return views.map((view) => {
         const normalPosition = view.getNormalPosition();
+
         const depth = getPerspectiveDepth(view);
 
         return {
@@ -304,35 +353,78 @@ function createTravelObjectMotions(
             normalPosition,
 
             turnPosition: new Phaser.Math.Vector2(
-                normalPosition.x + turnShiftDirection.x * TURN_SHIFT_PX * depth,
+                normalPosition.x + turnShiftDirection.x * turnShiftDistance * depth,
 
-                normalPosition.y + turnShiftDirection.y * TURN_SHIFT_PX * depth,
+                normalPosition.y + turnShiftDirection.y * turnShiftDistance * depth,
             ),
 
             depth,
 
-            turnScale: 1 + TURN_SCALE_DELTA * depth,
+            turnScale: 1 + TURN_SCALE_DELTA_FOR_HALF_TURN * turnAngleProgress * depth,
         };
     });
 }
 
-function getScreenTravelDirection(
-    fromView: BridgeObjectSpriteView,
-    targetView: BridgeObjectSpriteView,
-): Phaser.Math.Vector2 {
-    const fromPosition = fromView.getLocalPosition();
-    const targetPosition = targetView.getLocalPosition();
+// #endregion
 
-    // Engine-space y направлен вверх,
-    // screen-space y направлен вниз.
-    const direction = new Phaser.Math.Vector2(targetPosition.x - fromPosition.x, -(targetPosition.y - fromPosition.y));
+// #region Yaw
 
-    if (direction.lengthSq() === 0) {
-        return direction;
+function getInitialAnchorYawDegrees(anchorView: BridgeObjectSpriteView): number {
+    const position = anchorView.getLocalPosition();
+
+    if (position.x === 0 && position.z === 0) {
+        return 0;
     }
 
-    return direction.normalize();
+    return getYawDegrees(position.x, position.z);
 }
+
+function getTravelYawDegrees(
+    fromView: BridgeObjectSpriteView,
+    targetView: BridgeObjectSpriteView,
+    fallbackYawDegrees: number,
+): number {
+    const fromPosition = fromView.getLocalPosition();
+
+    const targetPosition = targetView.getLocalPosition();
+
+    const deltaX = targetPosition.x - fromPosition.x;
+
+    const deltaZ = targetPosition.z - fromPosition.z;
+
+    if (deltaX === 0 && deltaZ === 0) {
+        return fallbackYawDegrees;
+    }
+
+    return getYawDegrees(deltaX, deltaZ);
+}
+
+function getYawDegrees(x: number, z: number): number {
+    return normalizeYawDegrees((Math.atan2(x, z) * 180) / Math.PI);
+}
+
+function getShortestYawDeltaDegrees(fromYawDegrees: number, targetYawDegrees: number): number {
+    const rawDelta = targetYawDegrees - fromYawDegrees;
+
+    const normalizedDelta = normalizeYawDegrees(rawDelta);
+
+    // Ровно 180° можно пройти в обе стороны.
+    // Сохраняем знак исходной разницы,
+    // чтобы обратный маршрут разворачивался обратно.
+    if (Math.abs(Math.abs(normalizedDelta) - 180) < 0.0001) {
+        return rawDelta >= 0 ? 180 : -180;
+    }
+
+    return normalizedDelta;
+}
+
+function normalizeYawDegrees(yawDegrees: number): number {
+    return ((((yawDegrees + 180) % 360) + 360) % 360) - 180;
+}
+
+// #endregion
+
+// #region Direction
 
 function getDepartureDirection(
     turnShiftDirection: Phaser.Math.Vector2,
@@ -343,10 +435,12 @@ function getDepartureDirection(
     }
 
     const viewscreenCenter = getViewscreenCenter();
+
     const normalPosition = fromAnchorView.getNormalPosition();
 
     const radialDirection = new Phaser.Math.Vector2(
         normalPosition.x - viewscreenCenter.x,
+
         normalPosition.y - viewscreenCenter.y,
     );
 

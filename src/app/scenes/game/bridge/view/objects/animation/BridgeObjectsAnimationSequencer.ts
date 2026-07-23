@@ -11,16 +11,24 @@ import type { BridgeObjectsAnimationContext } from './bridge_objects_animation_c
 import { playObjectsDockingSequence } from './docking/play_objects_docking_sequence';
 import { playObjectsTravelSequence } from './travel/play_objects_travel_sequence';
 
-// View-level sequencer для animations
-// над encounter objects на bridge viewscreen.
+type SequencerContext = Omit<
+    BridgeObjectsAnimationContext,
+    'getCameraYawDegrees' | 'setCameraYawDegrees' | 'setActiveTimer' | 'clearActiveTimer'
+>;
+
+// View-level sequencer animations
+// над encounter presentation на bridge viewscreen.
 //
-// Хранит active timer
-// и routing bridge events
-// к конкретным sequence-файлам.
+// Хранит:
+// - active timer;
+// - transient camera yaw на время жизни Bridge Scene;
+// - routing bridge events к конкретным sequences.
 export default class BridgeObjectsAnimationSequencer {
     private activeTimer?: Phaser.Time.TimerEvent;
 
-    constructor(private readonly context: Omit<BridgeObjectsAnimationContext, 'setActiveTimer' | 'clearActiveTimer'>) {
+    private cameraYawDegrees?: number;
+
+    constructor(private readonly context: SequencerContext) {
         this.context.eventBus.on(BRIDGE_EVENT.ENCOUNTER_ARRIVAL_STARTED, this.handleArrivalStarted, this);
 
         this.context.eventBus.on(BRIDGE_EVENT.ENCOUNTER_TRAVEL_STARTED, this.handleTravelStarted, this);
@@ -64,6 +72,14 @@ export default class BridgeObjectsAnimationSequencer {
     private createSequenceContext(): BridgeObjectsAnimationContext {
         return {
             ...this.context,
+
+            getCameraYawDegrees: () => {
+                return this.cameraYawDegrees;
+            },
+
+            setCameraYawDegrees: (yawDegrees) => {
+                this.cameraYawDegrees = yawDegrees;
+            },
 
             setActiveTimer: (timer) => {
                 this.activeTimer = timer;
