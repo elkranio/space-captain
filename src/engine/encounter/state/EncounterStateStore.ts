@@ -1,6 +1,6 @@
 // src/engine/encounter/state/EncounterStateStore.ts
 
-import { OFFICER_ROLE, type OfficerRole } from '../../defs/officer';
+import type { OfficerRole } from '../../defs/officer';
 import { PLAYER_SPACE_NAVIGATION_KIND, type PlayerSpaceNavigationState } from '../../defs/player_location';
 import { SPACE_OBJECT_KIND, type SpaceNodeState, type SpaceObjectState } from '../../defs/universe';
 import { ENCOUNTER_OFFICER_COMMAND_ID } from '../model/command';
@@ -201,10 +201,6 @@ export default class EncounterStateStore {
 
             task.elapsedMs = Math.min(task.elapsedMs + deltaMs, task.durationMs);
         }
-    }
-
-    public hasActiveHelmTask(): boolean {
-        return this.state.officerTasks[OFFICER_ROLE.HELM] !== undefined;
     }
 
     // #endregion
