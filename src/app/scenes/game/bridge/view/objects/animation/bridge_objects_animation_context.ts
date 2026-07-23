@@ -10,13 +10,13 @@ import type BridgeObjectSpriteView from '../object_sprite/BridgeObjectSpriteView
 // - lifecycle активного timer;
 // - текущим yaw камеры.
 //
-// Sequence-файлы получают доступ к scene, events,
-// encounter object views и transient camera orientation.
+// Space background получает не screen pixels,
+// а реальную yaw delta в градусах.
 export type BridgeObjectsAnimationContext = {
     scene: BridgeScene;
     eventBus: BridgeEventBus;
 
-    panBackgroundBy: (screenX: number, screenY: number) => void;
+    turnBackgroundYawBy: (yawDeltaDegrees: number) => void;
 
     getCameraYawDegrees: () => number | undefined;
 

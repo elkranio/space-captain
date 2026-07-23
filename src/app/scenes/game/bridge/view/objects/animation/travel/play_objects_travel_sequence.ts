@@ -10,56 +10,68 @@ const TRAVEL_FRAMES_PER_SECOND = 12;
 
 const MIN_TURN_ANGLE_DEGREES = 0.5;
 
-const TURN_MIN_DURATION_MS = 250;
-const TURN_MAX_DURATION_MS = 700;
+// Примерный горизонтальный угол обзора viewscreen.
+// Используется только для screen-space движения объектов.
+const VIEW_HORIZONTAL_FOV_DEGREES = 100;
 
-// Сдвиг текущего anchor при развороте на 180°.
-const TURN_SHIFT_FOR_HALF_TURN_PX = 240;
+const TURN_MIN_DURATION_MS = 300;
+const TURN_MAX_DURATION_MS = 900;
 
-// Сдвиг панорамы при развороте на 180°.
-// Это намеренно слабый visual parallax, а не физически точная проекция.
-const BACKGROUND_PAN_FOR_HALF_TURN_PX = 100;
+const TURN_OFFSCREEN_MARGIN_PX = 160;
 
-const TURN_SCALE_DELTA_FOR_HALF_TURN = 0.08;
+const APPROACH_DURATION_MS = 1000;
+const APPROACH_MIN_SCALE = 0.04;
 
-const DEPARTURE_DURATION_MS = 800;
-const DEPARTURE_PUSH_PX = 720;
-const DEPARTURE_RADIAL_EXPANSION = 1.2;
-const DEPARTURE_TARGET_SCALE = 3;
-
-const EMPTY_SPACE_DURATION_MS = 120;
-
-const ARRIVAL_DURATION_MS = 1000;
-const ARRIVAL_MIN_SCALE = 0.04;
+// Fallback для перелёта практически без yaw-разворота.
+const FORWARD_DEPARTURE_DURATION_MS = 700;
+const FORWARD_DEPARTURE_SCALE = 3;
+const FORWARD_DEPARTURE_PUSH_PX = 500;
 
 const MIN_PERSPECTIVE_DEPTH = 0.25;
 const MAX_PERSPECTIVE_DEPTH = 4;
 
 const SCALE_QUANTIZATION = 64;
 
-type TravelObjectMotion = {
+type SourceTurnMotion = {
     view: BridgeObjectSpriteView;
 
     normalPosition: Phaser.Math.Vector2;
-    turnPosition: Phaser.Math.Vector2;
 
-    depth: number;
-    turnScale: number;
+    turnPosition: Phaser.Math.Vector2;
 };
 
-// Проигрывает локальный перелёт
-// между двумя visual anchor groups.
+type TargetTravelMotion = {
+    view: BridgeObjectSpriteView;
+
+    normalPosition: Phaser.Math.Vector2;
+
+    turnStartPosition: Phaser.Math.Vector2;
+
+    turnEndPosition: Phaser.Math.Vector2;
+
+    depth: number;
+};
+
+type ForwardDepartureMotion = {
+    view: BridgeObjectSpriteView;
+
+    normalPosition: Phaser.Math.Vector2;
+
+    depth: number;
+};
+
+// Проигрывает локальный перелёт между anchor groups.
 //
-// TURN использует geometry x/z:
-// - текущий camera yaw хранится между перелётами;
-// - target yaw вычисляется из from → target;
-// - выбирается кратчайший signed-разворот;
-// - anchor и панорама смещаются пропорционально углу.
+// При yaw-развороте:
+// - source уходит за край;
+// - target одновременно входит с противоположного края;
+// - background прокручивается на реальную yaw delta;
+// - затем target приближается до normal composition.
 //
-// Координата y и pitch пока не участвуют.
-// Это отдельный следующий слой, если он понадобится.
+// При почти нулевом yaw используется forward departure.
 export function playObjectsTravelSequence(
     payload: BridgeEncounterTravelStartedPayload,
+
     context: BridgeObjectsAnimationContext,
 ): void {
     if (payload.fromObjectId === payload.targetObjectId) {
@@ -90,33 +102,27 @@ export function playObjectsTravelSequence(
 
     const yawDeltaDegrees = getShortestYawDeltaDegrees(currentYawDegrees, targetYawDegrees);
 
-    const turnAngleProgress = Phaser.Math.Clamp(Math.abs(yawDeltaDegrees) / 180, 0, 1);
-
-    // Positive yaw означает поворот камеры вправо.
-    // Мир при этом уезжает влево.
-    const turnShiftDirection = new Phaser.Math.Vector2(-Math.sign(yawDeltaDegrees), 0);
-
-    const departureDirection = getDepartureDirection(turnShiftDirection, fromAnchorView);
-
-    const fromMotions = createTravelObjectMotions(fromViews, turnShiftDirection, turnAngleProgress);
-
     if (Math.abs(yawDeltaDegrees) < MIN_TURN_ANGLE_DEGREES) {
-        context.setCameraYawDegrees(targetYawDegrees);
-
-        playDeparturePhase(payload.taskId, fromMotions, targetViews, departureDirection, context);
+        playForwardDeparturePhase(payload.taskId, fromViews, targetViews, context);
 
         return;
     }
 
+    const turnDirectionX = -Math.sign(yawDeltaDegrees);
+
+    const turnDistance = getTurnTravelDistance(yawDeltaDegrees);
+
+    const sourceMotions = createSourceTurnMotions(fromViews, turnDirectionX, turnDistance);
+
+    const targetMotions = createTargetTravelMotions(targetViews, turnDirectionX, turnDistance);
+
     playTurnPhase(
         payload.taskId,
-        fromMotions,
-        targetViews,
+        sourceMotions,
+        targetMotions,
         currentYawDegrees,
         targetYawDegrees,
         yawDeltaDegrees,
-        turnAngleProgress,
-        departureDirection,
         context,
     );
 }
@@ -125,35 +131,58 @@ export function playObjectsTravelSequence(
 
 function playTurnPhase(
     taskId: string,
-    fromMotions: TravelObjectMotion[],
-    targetViews: BridgeObjectSpriteView[],
+
+    sourceMotions: SourceTurnMotion[],
+
+    targetMotions: TargetTravelMotion[],
+
     currentYawDegrees: number,
     targetYawDegrees: number,
     yawDeltaDegrees: number,
-    turnAngleProgress: number,
-    departureDirection: Phaser.Math.Vector2,
+
     context: BridgeObjectsAnimationContext,
 ): void {
     let previousProgress = 0;
+
     let animatedYawDegrees = currentYawDegrees;
 
-    const durationMs = Math.round(Phaser.Math.Linear(TURN_MIN_DURATION_MS, TURN_MAX_DURATION_MS, turnAngleProgress));
+    const angleProgress = Phaser.Math.Clamp(
+        Math.abs(yawDeltaDegrees) / 180,
+
+        0,
+        1,
+    );
+
+    const durationMs = Math.round(Phaser.Math.Linear(TURN_MIN_DURATION_MS, TURN_MAX_DURATION_MS, angleProgress));
+
+    for (const motion of targetMotions) {
+        motion.view.showForArrival();
+    }
 
     const timer = playSteppedAnimation({
         scene: context.scene,
 
         durationMs,
+
         framesPerSecond: TRAVEL_FRAMES_PER_SECOND,
 
         ease: Phaser.Math.Easing.Cubic.InOut,
 
         onStep: (progress) => {
-            for (const motion of fromMotions) {
+            for (const motion of sourceMotions) {
                 const x = Phaser.Math.Linear(motion.normalPosition.x, motion.turnPosition.x, progress);
 
                 const y = Phaser.Math.Linear(motion.normalPosition.y, motion.turnPosition.y, progress);
 
-                const scale = Phaser.Math.Linear(1, motion.turnScale, progress);
+                setQuantizedTransform(motion.view, x, y, 1);
+            }
+
+            for (const motion of targetMotions) {
+                const x = Phaser.Math.Linear(motion.turnStartPosition.x, motion.turnEndPosition.x, progress);
+
+                const y = Phaser.Math.Linear(motion.turnStartPosition.y, motion.turnEndPosition.y, progress);
+
+                const scale = Phaser.Math.Linear(0, APPROACH_MIN_SCALE, progress);
 
                 setQuantizedTransform(motion.view, x, y, scale);
             }
@@ -162,11 +191,7 @@ function playTurnPhase(
 
             const yawStepDegrees = yawDeltaDegrees * progressDelta;
 
-            // Positive camera yaw поворачивает вправо,
-            // поэтому panorama визуально сдвигается влево.
-            const backgroundScreenX = (-yawStepDegrees / 180) * BACKGROUND_PAN_FOR_HALF_TURN_PX;
-
-            context.panBackgroundBy(backgroundScreenX, 0);
+            context.turnBackgroundYawBy(yawStepDegrees);
 
             animatedYawDegrees = normalizeYawDegrees(animatedYawDegrees + yawStepDegrees);
 
@@ -178,69 +203,13 @@ function playTurnPhase(
         onComplete: () => {
             context.clearActiveTimer();
 
-            // Убираем возможную накопленную погрешность.
             context.setCameraYawDegrees(targetYawDegrees);
 
-            playDeparturePhase(taskId, fromMotions, targetViews, departureDirection, context);
-        },
-    });
-
-    context.setActiveTimer(timer);
-}
-
-// #endregion
-
-// #region Departure
-
-function playDeparturePhase(
-    taskId: string,
-    fromMotions: TravelObjectMotion[],
-    targetViews: BridgeObjectSpriteView[],
-    departureDirection: Phaser.Math.Vector2,
-    context: BridgeObjectsAnimationContext,
-): void {
-    const viewscreenCenter = getViewscreenCenter();
-
-    const timer = playSteppedAnimation({
-        scene: context.scene,
-
-        durationMs: DEPARTURE_DURATION_MS,
-        framesPerSecond: TRAVEL_FRAMES_PER_SECOND,
-
-        ease: Phaser.Math.Easing.Cubic.In,
-
-        onStep: (progress) => {
-            for (const motion of fromMotions) {
-                const depthProgress = getDepthProgress(progress, motion.depth);
-
-                const radialX = motion.turnPosition.x - viewscreenCenter.x;
-
-                const radialY = motion.turnPosition.y - viewscreenCenter.y;
-
-                const pushDistance = DEPARTURE_PUSH_PX * depthProgress * motion.depth;
-
-                const radialExpansion = DEPARTURE_RADIAL_EXPANSION * depthProgress * motion.depth;
-
-                const x = motion.turnPosition.x + departureDirection.x * pushDistance + radialX * radialExpansion;
-
-                const y = motion.turnPosition.y + departureDirection.y * pushDistance + radialY * radialExpansion;
-
-                const targetScale = Math.max(motion.turnScale, DEPARTURE_TARGET_SCALE * motion.depth);
-
-                const scale = Phaser.Math.Linear(motion.turnScale, targetScale, depthProgress);
-
-                setQuantizedTransform(motion.view, x, y, scale);
-            }
-        },
-
-        onComplete: () => {
-            context.clearActiveTimer();
-
-            for (const motion of fromMotions) {
+            for (const motion of sourceMotions) {
                 motion.view.prepareForArrival();
             }
 
-            playEmptySpacePhase(taskId, targetViews, context);
+            playApproachPhase(taskId, targetMotions, context);
         },
     });
 
@@ -249,38 +218,20 @@ function playDeparturePhase(
 
 // #endregion
 
-// #region Empty space
+// #region Forward departure
 
-function playEmptySpacePhase(
+function playForwardDeparturePhase(
     taskId: string,
+
+    fromViews: BridgeObjectSpriteView[],
+
     targetViews: BridgeObjectSpriteView[],
-    context: BridgeObjectsAnimationContext,
-): void {
-    const timer = context.scene.time.delayedCall(
-        EMPTY_SPACE_DURATION_MS,
 
-        () => {
-            context.clearActiveTimer();
-
-            playArrivalPhase(taskId, targetViews, context);
-        },
-    );
-
-    context.setActiveTimer(timer);
-}
-
-// #endregion
-
-// #region Arrival
-
-function playArrivalPhase(
-    taskId: string,
-    targetViews: BridgeObjectSpriteView[],
     context: BridgeObjectsAnimationContext,
 ): void {
     const viewscreenCenter = getViewscreenCenter();
 
-    const targetMotions = targetViews.map((view) => {
+    const motions: ForwardDepartureMotion[] = fromViews.map((view) => {
         return {
             view,
 
@@ -290,14 +241,84 @@ function playArrivalPhase(
         };
     });
 
-    for (const motion of targetMotions) {
-        motion.view.showForArrival();
-    }
-
     const timer = playSteppedAnimation({
         scene: context.scene,
 
-        durationMs: ARRIVAL_DURATION_MS,
+        durationMs: FORWARD_DEPARTURE_DURATION_MS,
+
+        framesPerSecond: TRAVEL_FRAMES_PER_SECOND,
+
+        ease: Phaser.Math.Easing.Cubic.In,
+
+        onStep: (progress) => {
+            for (const motion of motions) {
+                const depthProgress = getDepthProgress(progress, motion.depth);
+
+                const radialX = motion.normalPosition.x - viewscreenCenter.x;
+
+                const radialY = motion.normalPosition.y - viewscreenCenter.y;
+
+                const radialLength = Math.sqrt(radialX * radialX + radialY * radialY);
+
+                const directionX = radialLength > 0 ? radialX / radialLength : 0;
+
+                const directionY = radialLength > 0 ? radialY / radialLength : 1;
+
+                const pushDistance = FORWARD_DEPARTURE_PUSH_PX * depthProgress * motion.depth;
+
+                const x = motion.normalPosition.x + directionX * pushDistance;
+
+                const y = motion.normalPosition.y + directionY * pushDistance;
+
+                const scale = Phaser.Math.Linear(1, FORWARD_DEPARTURE_SCALE * motion.depth, depthProgress);
+
+                setQuantizedTransform(motion.view, x, y, scale);
+            }
+        },
+
+        onComplete: () => {
+            context.clearActiveTimer();
+
+            for (const motion of motions) {
+                motion.view.prepareForArrival();
+            }
+
+            const targetMotions = createTargetTravelMotions(targetViews, 0, 0);
+
+            for (const motion of targetMotions) {
+                motion.view.showForArrival();
+
+                setQuantizedTransform(
+                    motion.view,
+                    motion.turnEndPosition.x,
+                    motion.turnEndPosition.y,
+                    APPROACH_MIN_SCALE,
+                );
+            }
+
+            playApproachPhase(taskId, targetMotions, context);
+        },
+    });
+
+    context.setActiveTimer(timer);
+}
+
+// #endregion
+
+// #region Approach
+
+function playApproachPhase(
+    taskId: string,
+
+    targetMotions: TargetTravelMotion[],
+
+    context: BridgeObjectsAnimationContext,
+): void {
+    const timer = playSteppedAnimation({
+        scene: context.scene,
+
+        durationMs: APPROACH_DURATION_MS,
+
         framesPerSecond: TRAVEL_FRAMES_PER_SECOND,
 
         ease: Phaser.Math.Easing.Cubic.Out,
@@ -306,11 +327,11 @@ function playArrivalPhase(
             for (const motion of targetMotions) {
                 const depthProgress = getDepthProgress(progress, motion.depth);
 
-                const x = Phaser.Math.Linear(viewscreenCenter.x, motion.normalPosition.x, depthProgress);
+                const x = Phaser.Math.Linear(motion.turnEndPosition.x, motion.normalPosition.x, depthProgress);
 
-                const y = Phaser.Math.Linear(viewscreenCenter.y, motion.normalPosition.y, depthProgress);
+                const y = Phaser.Math.Linear(motion.turnEndPosition.y, motion.normalPosition.y, depthProgress);
 
-                const scale = Phaser.Math.Linear(ARRIVAL_MIN_SCALE, 1, depthProgress);
+                const scale = Phaser.Math.Linear(APPROACH_MIN_SCALE, 1, depthProgress);
 
                 setQuantizedTransform(motion.view, x, y, scale);
             }
@@ -323,9 +344,13 @@ function playArrivalPhase(
                 motion.view.showNormal();
             }
 
-            context.eventBus.emit(BRIDGE_EVENT.ENCOUNTER_TRAVEL_COMPLETED, {
-                taskId,
-            });
+            context.eventBus.emit(
+                BRIDGE_EVENT.ENCOUNTER_TRAVEL_COMPLETED,
+
+                {
+                    taskId,
+                },
+            );
         },
     });
 
@@ -336,13 +361,12 @@ function playArrivalPhase(
 
 // #region Motion preparation
 
-function createTravelObjectMotions(
+function createSourceTurnMotions(
     views: BridgeObjectSpriteView[],
-    turnShiftDirection: Phaser.Math.Vector2,
-    turnAngleProgress: number,
-): TravelObjectMotion[] {
-    const turnShiftDistance = TURN_SHIFT_FOR_HALF_TURN_PX * turnAngleProgress;
 
+    turnDirectionX: number,
+    turnDistance: number,
+): SourceTurnMotion[] {
     return views.map((view) => {
         const normalPosition = view.getNormalPosition();
 
@@ -353,16 +377,55 @@ function createTravelObjectMotions(
             normalPosition,
 
             turnPosition: new Phaser.Math.Vector2(
-                normalPosition.x + turnShiftDirection.x * turnShiftDistance * depth,
+                normalPosition.x + turnDirectionX * turnDistance * depth,
 
-                normalPosition.y + turnShiftDirection.y * turnShiftDistance * depth,
+                normalPosition.y,
             ),
-
-            depth,
-
-            turnScale: 1 + TURN_SCALE_DELTA_FOR_HALF_TURN * turnAngleProgress * depth,
         };
     });
+}
+
+function createTargetTravelMotions(
+    views: BridgeObjectSpriteView[],
+
+    sourceTurnDirectionX: number,
+    turnDistance: number,
+): TargetTravelMotion[] {
+    const viewscreenCenter = getViewscreenCenter();
+
+    return views.map((view) => {
+        const normalPosition = view.getNormalPosition();
+
+        const depth = getPerspectiveDepth(view);
+
+        const turnEndPosition = new Phaser.Math.Vector2(
+            viewscreenCenter.x + (normalPosition.x - viewscreenCenter.x) * APPROACH_MIN_SCALE,
+
+            viewscreenCenter.y + (normalPosition.y - viewscreenCenter.y) * APPROACH_MIN_SCALE,
+        );
+
+        return {
+            view,
+            normalPosition,
+            depth,
+
+            turnStartPosition: new Phaser.Math.Vector2(
+                turnEndPosition.x - sourceTurnDirectionX * turnDistance * depth,
+
+                turnEndPosition.y,
+            ),
+
+            turnEndPosition,
+        };
+    });
+}
+
+function getTurnTravelDistance(yawDeltaDegrees: number): number {
+    const projectedDistance = (Math.abs(yawDeltaDegrees) / VIEW_HORIZONTAL_FOV_DEGREES) * BRIDGE_VIEWSCREEN_RECT.width;
+
+    const maximumDistance = BRIDGE_VIEWSCREEN_RECT.width + TURN_OFFSCREEN_MARGIN_PX;
+
+    return Math.min(projectedDistance, maximumDistance);
 }
 
 // #endregion
@@ -381,7 +444,9 @@ function getInitialAnchorYawDegrees(anchorView: BridgeObjectSpriteView): number 
 
 function getTravelYawDegrees(
     fromView: BridgeObjectSpriteView,
+
     targetView: BridgeObjectSpriteView,
+
     fallbackYawDegrees: number,
 ): number {
     const fromPosition = fromView.getLocalPosition();
@@ -408,9 +473,8 @@ function getShortestYawDeltaDegrees(fromYawDegrees: number, targetYawDegrees: nu
 
     const normalizedDelta = normalizeYawDegrees(rawDelta);
 
-    // Ровно 180° можно пройти в обе стороны.
-    // Сохраняем знак исходной разницы,
-    // чтобы обратный маршрут разворачивался обратно.
+    // Для ровно 180° сохраняем знак raw delta,
+    // чтобы обратный маршрут крутился обратно.
     if (Math.abs(Math.abs(normalizedDelta) - 180) < 0.0001) {
         return rawDelta >= 0 ? 180 : -180;
     }
@@ -424,38 +488,15 @@ function normalizeYawDegrees(yawDegrees: number): number {
 
 // #endregion
 
-// #region Direction
-
-function getDepartureDirection(
-    turnShiftDirection: Phaser.Math.Vector2,
-    fromAnchorView: BridgeObjectSpriteView,
-): Phaser.Math.Vector2 {
-    if (turnShiftDirection.lengthSq() > 0) {
-        return turnShiftDirection.clone().normalize();
-    }
-
-    const viewscreenCenter = getViewscreenCenter();
-
-    const normalPosition = fromAnchorView.getNormalPosition();
-
-    const radialDirection = new Phaser.Math.Vector2(
-        normalPosition.x - viewscreenCenter.x,
-
-        normalPosition.y - viewscreenCenter.y,
-    );
-
-    if (radialDirection.lengthSq() > 0) {
-        return radialDirection.normalize();
-    }
-
-    return new Phaser.Math.Vector2(0, 1);
-}
-
-// #endregion
-
 // #region Transform helpers
 
-function setQuantizedTransform(view: BridgeObjectSpriteView, x: number, y: number, scale: number): void {
+function setQuantizedTransform(
+    view: BridgeObjectSpriteView,
+
+    x: number,
+    y: number,
+    scale: number,
+): void {
     view.setPosition(Math.round(x), Math.round(y));
 
     view.setScale(Math.round(scale * SCALE_QUANTIZATION) / SCALE_QUANTIZATION);
@@ -481,7 +522,11 @@ function getViewscreenCenter(): Phaser.Math.Vector2 {
 
 // #region Object lookup
 
-function getObjectViewOrThrow(objectId: string, context: BridgeObjectsAnimationContext): BridgeObjectSpriteView {
+function getObjectViewOrThrow(
+    objectId: string,
+
+    context: BridgeObjectsAnimationContext,
+): BridgeObjectSpriteView {
     const view = context.getObjectView(objectId);
 
     if (!view) {
@@ -493,6 +538,7 @@ function getObjectViewOrThrow(objectId: string, context: BridgeObjectsAnimationC
 
 function getAnchorObjectViewsOrThrow(
     anchorObjectId: string,
+
     context: BridgeObjectsAnimationContext,
 ): BridgeObjectSpriteView[] {
     const views = context.getAnchorObjectViews(anchorObjectId);

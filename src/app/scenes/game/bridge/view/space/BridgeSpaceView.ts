@@ -7,10 +7,11 @@ import BridgeSpaceBackgroundView from './BridgeSpaceBackgroundView';
 
 // Составной view мира за bridge viewscreen.
 //
-// Владеет space background и encounter objects,
-// а также локально связывает их animation motion.
+// Владеет background и encounter objects,
+// а также локально связывает их camera motion.
 export default class BridgeSpaceView {
     private readonly backgroundView: BridgeSpaceBackgroundView;
+
     private readonly objectsView: BridgeObjectsView;
 
     constructor(scene: BridgeScene, eventBus: BridgeEventBus) {
@@ -20,8 +21,8 @@ export default class BridgeSpaceView {
             scene,
             eventBus,
 
-            (screenX, screenY) => {
-                this.backgroundView.panBy(screenX, screenY);
+            (yawDeltaDegrees) => {
+                this.backgroundView.turnYawBy(yawDeltaDegrees);
             },
         );
     }

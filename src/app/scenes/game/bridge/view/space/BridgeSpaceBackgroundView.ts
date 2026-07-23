@@ -9,13 +9,11 @@ const PANORAMA_DISPLAY_SCALE = 2;
 
 // Панорамный фон за bridge viewscreen.
 //
-// TileSprite:
-// - сам обрезает изображение по размеру viewscreen;
-// - горизонтально зацикливает панораму;
-// - позволяет менять направление взгляда через tilePosition.
+// Горизонтальное положение панорамы соответствует camera yaw:
 //
-// Вертикальное движение ограничено границами исходного изображения,
-// поскольку верх и низ панорамы не предназначены для зацикливания.
+// 360° = полная ширина панорамы.
+// 180° = половина панорамы.
+// 90° = четверть панорамы.
 export default class BridgeSpaceBackgroundView {
     private readonly root: Phaser.GameObjects.Container;
     private readonly background: Phaser.GameObjects.TileSprite;
@@ -40,6 +38,7 @@ export default class BridgeSpaceBackgroundView {
             .setOrigin(0, 0);
 
         this.background.tileScaleX = PANORAMA_DISPLAY_SCALE;
+
         this.background.tileScaleY = PANORAMA_DISPLAY_SCALE;
 
         this.root.add(this.background);
@@ -55,17 +54,18 @@ export default class BridgeSpaceBackgroundView {
         this.centerPanorama();
     }
 
-    // screenX / screenY означают желаемое визуальное смещение фона
-    // в координатах bridge viewscreen.
-    public panBy(screenX: number, screenY: number): void {
-        // Рост tilePosition двигает изображение в обратную сторону,
-        // поэтому применяем отрицательный visual delta.
-        this.panoramaPosition.x -= screenX / PANORAMA_DISPLAY_SCALE;
+    // Positive yaw означает поворот камеры вправо.
+    // Tile position увеличивается, поэтому панорама
+    // визуально уезжает влево.
+    public turnYawBy(yawDeltaDegrees: number): void {
+        const panoramaWidth = this.background.frame.cutWidth;
 
-        this.panoramaPosition.y = Phaser.Math.Clamp(
-            this.panoramaPosition.y - screenY / PANORAMA_DISPLAY_SCALE,
-            0,
-            this.getMaximumVerticalPosition(),
+        const textureDelta = (yawDeltaDegrees / 360) * panoramaWidth;
+
+        this.panoramaPosition.x = wrap(
+            this.panoramaPosition.x + textureDelta,
+
+            panoramaWidth,
         );
 
         this.applyPanoramaPosition();
@@ -81,6 +81,7 @@ export default class BridgeSpaceBackgroundView {
         const visibleTextureHeight = BRIDGE_VIEWSCREEN_RECT.height / PANORAMA_DISPLAY_SCALE;
 
         const frameWidth = this.background.frame.cutWidth;
+
         const frameHeight = this.background.frame.cutHeight;
 
         this.panoramaPosition.set(
@@ -92,17 +93,17 @@ export default class BridgeSpaceBackgroundView {
         this.applyPanoramaPosition();
     }
 
-    private getMaximumVerticalPosition(): number {
-        const visibleTextureHeight = BRIDGE_VIEWSCREEN_RECT.height / PANORAMA_DISPLAY_SCALE;
-
-        return Math.max(0, this.background.frame.cutHeight - visibleTextureHeight);
-    }
-
     private applyPanoramaPosition(): void {
-        // Background обновляется теми же дискретными кадрами,
-        // что и object animations.
         this.background.tilePositionX = Math.round(this.panoramaPosition.x);
 
         this.background.tilePositionY = Math.round(this.panoramaPosition.y);
     }
+}
+
+function wrap(value: number, size: number): number {
+    if (size <= 0) {
+        return 0;
+    }
+
+    return ((value % size) + size) % size;
 }

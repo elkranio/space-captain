@@ -9,9 +9,11 @@ import BridgeObjectSpriteView from './object_sprite/BridgeObjectSpriteView';
 // View encounter objects на bridge viewscreen.
 //
 // Все объекты текущей ноды могут существовать во view одновременно,
-// но видимыми становятся только объекты из актуального presentation update.
+// но видимыми становятся только объекты
+// из актуального presentation update.
 export default class BridgeObjectsView {
     private readonly root: Phaser.GameObjects.Container;
+
     private readonly objectViews = new Map<string, BridgeObjectSpriteView>();
 
     private readonly animationSequencer: BridgeObjectsAnimationSequencer;
@@ -19,17 +21,19 @@ export default class BridgeObjectsView {
     constructor(
         private readonly scene: BridgeScene,
         private readonly eventBus: BridgeEventBus,
-        private readonly panBackgroundBy: (screenX: number, screenY: number) => void,
+
+        private readonly turnBackgroundYawBy: (yawDeltaDegrees: number) => void,
     ) {
         this.root = this.scene.add.container(0, 0);
+
         this.scene.layers.get('objects').add(this.root);
 
         this.animationSequencer = new BridgeObjectsAnimationSequencer({
             scene: this.scene,
             eventBus: this.eventBus,
 
-            panBackgroundBy: (screenX, screenY) => {
-                this.panBackgroundBy(screenX, screenY);
+            turnBackgroundYawBy: (yawDeltaDegrees) => {
+                this.turnBackgroundYawBy(yawDeltaDegrees);
             },
 
             getObjectView: (objectId) => {
@@ -48,6 +52,7 @@ export default class BridgeObjectsView {
         });
 
         this.eventBus.on(BRIDGE_EVENT.ENCOUNTER_OBJECTS_LOADED, this.prepareObjects, this);
+
         this.eventBus.on(BRIDGE_EVENT.ENCOUNTER_OBJECTS_UPDATED, this.syncObjects, this);
     }
 
@@ -55,6 +60,7 @@ export default class BridgeObjectsView {
         this.animationSequencer.destroy();
 
         this.eventBus.off(BRIDGE_EVENT.ENCOUNTER_OBJECTS_LOADED, this.prepareObjects, this);
+
         this.eventBus.off(BRIDGE_EVENT.ENCOUNTER_OBJECTS_UPDATED, this.syncObjects, this);
 
         for (const view of this.objectViews.values()) {
@@ -77,19 +83,17 @@ export default class BridgeObjectsView {
         }
     }
 
-    // Presentation update: показывает переданный набор объектов,
-    // но не уничтожает остальные подготовленные object views.
+    // Presentation update показывает переданный набор,
+    // но не уничтожает остальные prepared views.
     private syncObjects(objects: BridgeEncounterObjectPayload[]): void {
         this.animationSequencer.stop();
 
         this.syncObjectViews(objects, false);
 
-        // Сначала скрываем все объекты ноды.
         for (const view of this.objectViews.values()) {
             view.prepareForArrival();
         }
 
-        // Затем показываем только активный presentation subset.
         for (const object of objects) {
             const view = this.objectViews.get(object.id);
 
@@ -101,7 +105,11 @@ export default class BridgeObjectsView {
         }
     }
 
-    private syncObjectViews(objects: BridgeEncounterObjectPayload[], removeMissingObjects: boolean): void {
+    private syncObjectViews(
+        objects: BridgeEncounterObjectPayload[],
+
+        removeMissingObjects: boolean,
+    ): void {
         const receivedObjectIds = new Set<string>();
 
         for (const object of objects) {
@@ -111,6 +119,7 @@ export default class BridgeObjectsView {
 
             if (existingView) {
                 existingView.update(object);
+
                 continue;
             }
 
@@ -129,6 +138,7 @@ export default class BridgeObjectsView {
             }
 
             view.destroy();
+
             this.objectViews.delete(objectId);
         }
     }
