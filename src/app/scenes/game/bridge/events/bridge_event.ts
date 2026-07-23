@@ -4,7 +4,8 @@ import type { CharacterPortraitId } from '../../../../../engine/defs/character';
 import type { OfficerDefinition, OfficerRole } from '../../../../../engine/defs/officer';
 import type { EncounterOfficerCommandId } from '../../../../../engine/encounter/model/command';
 import type { SpriteEntry } from '../../../../manifests/types';
-import { SCENE_KEY, type SceneKey } from '../../../scene_key';
+import { type SceneKey } from '../../../scene_key';
+import type { Vec3 } from '../../../../../engine/defs/vector';
 
 // Scene-local события bridge scene.
 //
@@ -126,8 +127,20 @@ export type BridgeOfficerBarkRequestedPayload = {
 export type BridgeEncounterObjectPayload = {
     id: string;
 
+    // Navigation object, вокруг которого
+    // собирается визуальная anchor group.
+    anchorObjectId: string;
+
+    // Позиция внутри space node.
+    localPosition: Vec3;
+
+    // Коэффициент псевдоперспективы.
+    perspectiveDepth: number;
+
     sprite: SpriteEntry;
 
+    // Финальная композиционная позиция
+    // внутри bridge viewscreen.
     position: Phaser.Math.Vector2;
 };
 

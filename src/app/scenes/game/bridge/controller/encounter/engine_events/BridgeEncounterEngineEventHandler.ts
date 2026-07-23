@@ -192,6 +192,11 @@ export default class BridgeEncounterEngineEventHandler {
             case ENCOUNTER_OBJECT_KIND.STATION:
                 return {
                     id: object.id,
+                    anchorObjectId: object.anchorObjectId,
+                    localPosition: {
+                        ...object.localPosition,
+                    },
+                    perspectiveDepth: object.perspectiveDepth,
                     sprite: STATION_OBJECT_SPRITES[object.station.objectSpriteId],
                     position: new Phaser.Math.Vector2(object.position.x, object.position.y),
                 };
@@ -199,6 +204,11 @@ export default class BridgeEncounterEngineEventHandler {
             case ENCOUNTER_OBJECT_KIND.NAVIGATION_BEACON:
                 return {
                     id: object.id,
+                    anchorObjectId: object.anchorObjectId,
+                    localPosition: {
+                        ...object.localPosition,
+                    },
+                    perspectiveDepth: object.perspectiveDepth,
                     sprite: BEACON_OBJECT_SPRITES[object.beacon.objectSpriteId],
                     position: new Phaser.Math.Vector2(object.position.x, object.position.y),
                 };
@@ -206,6 +216,11 @@ export default class BridgeEncounterEngineEventHandler {
             case ENCOUNTER_OBJECT_KIND.ASTEROID:
                 return {
                     id: object.id,
+                    anchorObjectId: object.anchorObjectId,
+                    localPosition: {
+                        ...object.localPosition,
+                    },
+                    perspectiveDepth: object.perspectiveDepth,
                     sprite: ASTEROID_OBJECT_SPRITES[object.asteroid.objectSpriteId],
                     position: new Phaser.Math.Vector2(object.position.x, object.position.y),
                 };

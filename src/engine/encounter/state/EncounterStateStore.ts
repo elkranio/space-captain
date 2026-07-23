@@ -216,10 +216,18 @@ export default class EncounterStateStore {
                     displayName: object.station.name,
                     station: object.station,
 
+                    anchorObjectId: object.station.id,
+
+                    localPosition: {
+                        ...object.localPosition,
+                    },
+
                     position: {
                         x: -0.52,
                         y: -0.05,
                     },
+
+                    perspectiveDepth: 1,
 
                     docking: {
                         clearance: DOCKING_CLEARANCE_STATE.NONE,
@@ -240,10 +248,18 @@ export default class EncounterStateStore {
                     displayName: object.beacon.name,
                     beacon: object.beacon,
 
+                    anchorObjectId: object.beacon.id,
+
+                    localPosition: {
+                        ...object.localPosition,
+                    },
+
                     position: {
                         x: -0.52,
                         y: -0.05,
                     },
+
+                    perspectiveDepth: 1,
 
                     officerCommandIds: [ENCOUNTER_OFFICER_COMMAND_ID.FLY_TO],
                 };
@@ -255,11 +271,19 @@ export default class EncounterStateStore {
                     displayName: object.asteroid.name,
                     asteroid: object.asteroid,
 
+                    anchorObjectId: object.asteroid.id,
+
+                    localPosition: {
+                        ...object.localPosition,
+                    },
+
                     // Временная постановочная позиция.
                     position: {
                         x: 0.42,
                         y: 0.12,
                     },
+
+                    perspectiveDepth: 1,
 
                     officerCommandIds: [ENCOUNTER_OFFICER_COMMAND_ID.FLY_TO],
                 };
