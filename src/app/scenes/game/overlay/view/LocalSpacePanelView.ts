@@ -30,10 +30,13 @@ export type LocalSpacePanelRow = {
     isCurrent: boolean;
 };
 
-// Read-only LOCAL SPACE modal.
+// Read-only LOCAL SPACE panel.
 //
 // Получает готовые presentation rows:
 // view не знает о SpaceObjectState и не собирает названия объектов.
+//
+// Input перехватывается только внутри самой панели.
+// Остальная часть игровой сцены остаётся интерактивной.
 export default class LocalSpacePanelView {
     private readonly root: Phaser.GameObjects.Container;
     private readonly closeButtonImage: Phaser.GameObjects.Image;
@@ -46,14 +49,11 @@ export default class LocalSpacePanelView {
         this.root = this.scene.add.container(0, 0);
         this.scene.layers.add('ui', this.root);
 
-        const screenWidth = this.scene.scale.width;
-        const screenHeight = this.scene.scale.height;
+        const panelX = this.getPanelX();
+        const panelY = this.getPanelY();
 
-        const panelX = Math.floor((screenWidth - PANEL_WIDTH) / 2);
-        const panelY = Math.floor((screenHeight - PANEL_HEIGHT) / 2);
-
-        const inputBlocker = this.scene.add
-            .rectangle(0, 0, screenWidth, screenHeight, 0x000000, 0.001)
+        const panelInputArea = this.scene.add
+            .rectangle(panelX, panelY, PANEL_WIDTH, PANEL_HEIGHT, 0x000000, 0.001)
             .setOrigin(0, 0)
             .setInteractive();
 
@@ -78,7 +78,7 @@ export default class LocalSpacePanelView {
             .image(panelX, panelY + TOP_HEIGHT + MIDDLE_HEIGHT, bottomSprite.atlasKey, bottomSprite.frameKey)
             .setOrigin(0, 0);
 
-        this.root.add([inputBlocker, topImage, middleImage, bottomImage]);
+        this.root.add([panelInputArea, topImage, middleImage, bottomImage]);
 
         const closeButtonSprite = UI_BUTTON_SPRITES[UI_BUTTON_SPRITE_ID.CLOSE_00];
 
@@ -104,7 +104,7 @@ export default class LocalSpacePanelView {
     }
 
     public show(rows: readonly LocalSpacePanelRow[]): void {
-        this.renderRows(rows);
+        this.setRows(rows);
 
         this.root.setVisible(true);
         this.root.setActive(true);
@@ -113,6 +113,14 @@ export default class LocalSpacePanelView {
     public hide(): void {
         this.root.setVisible(false);
         this.root.setActive(false);
+    }
+
+    public isVisible(): boolean {
+        return this.root.visible;
+    }
+
+    public setRows(rows: readonly LocalSpacePanelRow[]): void {
+        this.renderRows(rows);
     }
 
     public destroy(): void {

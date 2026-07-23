@@ -299,20 +299,13 @@ export default class BridgeEncounterController {
             return;
         }
 
-        const run = GAME_RUNTIME.getCurrentRun();
-        const location = run.player.location;
-
-        if (location.kind !== PLAYER_LOCATION_KIND.SPACE) {
-            throw new Error(`Cannot synchronize space navigation for player location: ${location.kind}`);
-        }
-
         const navigation = this.encounterEngine.getNavigationState();
 
         if (expectedKind !== undefined && navigation.kind !== expectedKind) {
             throw new Error(`Expected engine navigation ${expectedKind}, received ${navigation.kind}`);
         }
 
-        location.navigation = navigation;
+        GAME_RUNTIME.setPlayerSpaceNavigation(navigation);
     }
 
     // #endregion

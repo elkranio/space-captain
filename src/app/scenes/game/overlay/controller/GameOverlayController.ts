@@ -33,15 +33,17 @@ export default class GameOverlayController {
 
     public prepare(): void {
         this.registerEventHandlers();
+        this.registerRuntimeEventHandlers();
 
         this.localSpaceButtonView = new LocalSpaceButtonView(this.scene, this.eventBus);
 
-        // Создаётся после кнопки, поэтому modal root находится выше неё
+        // Создаётся после кнопки, поэтому panel root находится выше неё
         // внутри overlay UI layer.
         this.localSpacePanelView = new LocalSpacePanelView(this.scene, this.eventBus);
     }
 
     public destroy(): void {
+        this.unregisterRuntimeEventHandlers();
         this.unregisterEventHandlers();
 
         this.localSpacePanelView?.destroy();
@@ -73,15 +75,29 @@ export default class GameOverlayController {
         );
     }
 
-    private handleLocalSpaceButtonClicked(): void {
-        const rows = this.createLocalSpacePanelRows();
+    private registerRuntimeEventHandlers(): void {
+        GAME_RUNTIME.onPlayerLocationChanged(this.handlePlayerLocationChanged);
+    }
 
-        this.localSpacePanelView?.show(rows);
+    private unregisterRuntimeEventHandlers(): void {
+        GAME_RUNTIME.offPlayerLocationChanged(this.handlePlayerLocationChanged);
+    }
+
+    private handleLocalSpaceButtonClicked(): void {
+        this.localSpacePanelView?.show(this.createLocalSpacePanelRows());
     }
 
     private handleLocalSpacePanelCloseClicked(): void {
         this.localSpacePanelView?.hide();
     }
+
+    private readonly handlePlayerLocationChanged = (): void => {
+        if (!this.localSpacePanelView?.isVisible()) {
+            return;
+        }
+
+        this.localSpacePanelView.setRows(this.createLocalSpacePanelRows());
+    };
 
     private createLocalSpacePanelRows(): LocalSpacePanelRow[] {
         const run = GAME_RUNTIME.getCurrentRun();
