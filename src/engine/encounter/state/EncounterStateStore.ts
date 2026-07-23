@@ -143,7 +143,7 @@ export default class EncounterStateStore {
         const target = this.findObjectById(targetObjectId);
 
         if (!target) {
-            return;
+            throw new Error(`Cannot grant docking clearance: encounter object not found: ${targetObjectId}`);
         }
 
         switch (target.kind) {
@@ -177,11 +177,30 @@ export default class EncounterStateStore {
     }
 
     public assignOfficerTask(task: OfficerTaskState): void {
+        const activeTask = this.getOfficerTask(task.role);
+
+        if (activeTask) {
+            throw new Error(
+                `Cannot assign officer task ${task.kind}: ` +
+                    `officer ${task.role} is already busy with ${activeTask.kind}`,
+            );
+        }
+
         this.state.officerTasks[task.role] = task;
     }
 
     public removeOfficerTask(role: OfficerRole): void {
         delete this.state.officerTasks[role];
+    }
+
+    public advanceOfficerTasks(deltaMs: number): void {
+        for (const task of this.getOfficerTasks()) {
+            if (task.durationMs === null) {
+                continue;
+            }
+
+            task.elapsedMs = Math.min(task.elapsedMs + deltaMs, task.durationMs);
+        }
     }
 
     public hasActiveHelmTask(): boolean {

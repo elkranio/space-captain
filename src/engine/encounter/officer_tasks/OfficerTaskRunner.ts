@@ -1,143 +1,201 @@
 // src/engine/encounter/officer_tasks/OfficerTaskRunner.ts
 
-import { PLAYER_SPACE_NAVIGATION_KIND } from '../../defs/player_location';
-import {
-    ENCOUNTER_EVENT,
-    OFFICER_TASK_OUTCOME,
-    OFFICER_TASK_RESULT_KIND,
-    type EncounterEvent,
-    type OfficerTaskResult,
-} from '../model/event';
-import { OFFICER_TASK_KIND, type OfficerTaskDraft, type OfficerTaskState } from '../model/officer_task';
-import EncounterStateStore from '../state/EncounterStateStore';
-import { createHelmFlyToTask } from './create_officer_task_draft';
+import type { OfficerRole } from '../../defs/officer';
+import { PLAYER_SPACE_NAVIGATION_KIND, type PlayerSpaceNavigationState } from '../../defs/player_location';
+import { SPACE_OBJECT_KIND, type SpaceNodeState, type SpaceObjectState } from '../../defs/universe';
+import { ENCOUNTER_OFFICER_COMMAND_ID } from '../model/command';
+import type { OfficerTaskState } from '../model/officer_task';
+import type { EncounterState } from '../model/state';
+import { ENCOUNTER_OBJECT_KIND, type EncounterObjectState } from '../objects/encounter_object';
+import { DOCKING_CLEARANCE_STATE } from '../objects/station/station_encounter_object';
 
-type OfficerTaskRunnerOptions = {
-    stateStore: EncounterStateStore;
-    emit: (event: EncounterEvent) => void;
-    completeTimedTasksImmediately?: boolean;
+export type EncounterTravelStart = {
+    fromObjectId: string;
+    target: EncounterObjectState;
 };
 
-export default class OfficerTaskRunner {
-    private readonly stateStore: EncounterStateStore;
+// Владеет mutable runtime state одного encounter.
+//
+// Подсистемы решают, когда должна произойти операция.
+// EncounterStateStore выполняет саму state mutation
+// и проверяет локальные invariants состояния.
+export default class EncounterStateStore {
+    constructor(private readonly state: EncounterState) {}
 
-    private readonly emit: (event: EncounterEvent) => void;
+    // #region Creation
 
-    private readonly completeTimedTasksImmediately: boolean;
+    public static fromSpaceNode(node: SpaceNodeState, navigation: PlayerSpaceNavigationState): EncounterStateStore {
+        return new EncounterStateStore({
+            spaceBackgroundId: node.spaceBackgroundId,
 
-    private nextTaskId = 1;
-
-    constructor({ stateStore, emit, completeTimedTasksImmediately = false }: OfficerTaskRunnerOptions) {
-        this.stateStore = stateStore;
-        this.emit = emit;
-        this.completeTimedTasksImmediately = completeTimedTasksImmediately;
-
-        this.restoreMissingNavigationTask();
-    }
-
-    // #region Public API
-
-    public start = (task: OfficerTaskDraft): string => {
-        this.assertOfficerAvailable(task);
-
-        const runtimeTask = this.createRuntimeTask(task);
-
-        this.stateStore.assignOfficerTask(runtimeTask);
-
-        this.emit({
-            type: ENCOUNTER_EVENT.OFFICER_TASK_STARTED,
-            task: {
-                ...runtimeTask,
+            // Encounter получает собственный runtime snapshot.
+            // Persistent player state обновляется отдельно.
+            navigation: {
+                ...navigation,
             },
+
+            officerTasks: {},
+
+            objects: node.objects.map((object) => {
+                return this.createEncounterObjectState(object);
+            }),
         });
-
-        if (this.completeTimedTasksImmediately && runtimeTask.durationMs !== null) {
-            this.complete(runtimeTask.id);
-        }
-
-        return runtimeTask.id;
-    };
-
-    public complete = (taskId: string): void => {
-        const task = this.stateStore.findOfficerTaskById(taskId);
-
-        if (!task) {
-            return;
-        }
-
-        const result = this.resolveTask(task);
-
-        this.finishTask(task, OFFICER_TASK_OUTCOME.COMPLETED, result);
-    };
-
-    public cancel = (taskId: string): void => {
-        const task = this.stateStore.findOfficerTaskById(taskId);
-
-        if (!task) {
-            return;
-        }
-
-        this.finishTask(task, OFFICER_TASK_OUTCOME.CANCELLED);
-    };
-
-    public step(deltaMs: number): void {
-        this.advanceTasks(deltaMs);
-        this.completeFinishedTasks();
     }
 
     // #endregion
 
-    // #region Runtime task creation
+    // #region State reading
 
-    private restoreMissingNavigationTask(): void {
-        const navigation = this.stateStore.getNavigationState();
-
-        if (navigation.kind !== PLAYER_SPACE_NAVIGATION_KIND.TRAVELLING) {
-            return;
-        }
-
-        if (this.stateStore.hasActiveHelmTask()) {
-            return;
-        }
-
-        const runtimeTask = this.createRuntimeTask(createHelmFlyToTask(navigation.targetObjectId));
-
-        this.stateStore.assignOfficerTask(runtimeTask);
+    // Пока raw state нужен существующим pure queries
+    // и ENCOUNTER_LOADED event.
+    //
+    // Все новые mutations должны добавляться
+    // отдельными методами EncounterState Все новые mutations должны добавляться
+    // отдельными методами EncounterStateStore.
+    public getState(): EncounterState {
+        return this.state;
     }
 
-    private assertOfficerAvailable(task: OfficerTaskDraft): void {
-        const activeTask = this.stateStore.getOfficerTask(task.role);
-
-        if (!activeTask) {
-            return;
-        }
-
-        throw new Error(
-            `Cannot start officer task ${task.kind}: ` + `officer ${task.role} is already busy with ${activeTask.kind}`,
-        );
-    }
-
-    private createRuntimeTask(task: OfficerTaskDraft): OfficerTaskState {
+    public getNavigationState(): PlayerSpaceNavigationState {
         return {
-            ...task,
-            id: this.createTaskId(),
+            ...this.state.navigation,
         };
     }
 
-    private createTaskId(): string {
-        const taskId = `task_${this.nextTaskId}`;
+    public findObjectById(objectId: string | undefined): EncounterObjectState | undefined {
+        if (!objectId) {
+            return undefined;
+        }
 
-        this.nextTaskId += 1;
-
-        return taskId;
+        return this.state.objects.find((object) => {
+            return object.id === objectId;
+        });
     }
 
     // #endregion
 
-    // #region Timed tasks
+    // #region Navigation
 
-    private advanceTasks(deltaMs: number): void {
-        for (const task of this.stateStore.getOfficerTasks()) {
+    public completeArrival(): void {
+        const navigation = this.state.navigation;
+
+        if (navigation.kind !== PLAYER_SPACE_NAVIGATION_KIND.ARRIVING) {
+            throw new Error(`Cannot complete arrival from navigation state: ${navigation.kind}`);
+        }
+
+        this.state.navigation = {
+            kind: PLAYER_SPACE_NAVIGATION_KIND.ANCHORED,
+            anchorObjectId: navigation.targetObjectId,
+        };
+    }
+
+    public startTravel(targetObjectId: string): EncounterTravelStart {
+        const navigation = this.state.navigation;
+
+        if (navigation.kind !== PLAYER_SPACE_NAVIGATION_KIND.ANCHORED) {
+            throw new Error(`Cannot start travel from navigation state: ${navigation.kind}`);
+        }
+
+        const target = this.findObjectById(targetObjectId);
+
+        if (!target) {
+            throw new Error(`Travel target not found: ${targetObjectId}`);
+        }
+
+        const fromObjectId = navigation.anchorObjectId;
+
+        this.state.navigation = {
+            kind: PLAYER_SPACE_NAVIGATION_KIND.TRAVELLING,
+            fromObjectId,
+            targetObjectId: target.id,
+        };
+
+        return {
+            fromObjectId,
+            target,
+        };
+    }
+
+    public completeTravel(targetObjectId: string): void {
+        const navigation = this.state.navigation;
+
+        if (navigation.kind !== PLAYER_SPACE_NAVIGATION_KIND.TRAVELLING) {
+            throw new Error(`Cannot complete travel from navigation state: ${navigation.kind}`);
+        }
+
+        if (navigation.targetObjectId !== targetObjectId) {
+            throw new Error(
+                `Travel target does not match navigation target: ` +
+                    `${targetObjectId} !== ${navigation.targetObjectId}`,
+            );
+        }
+
+        this.state.navigation = {
+            kind: PLAYER_SPACE_NAVIGATION_KIND.ANCHORED,
+            anchorObjectId: targetObjectId,
+        };
+    }
+
+    // #endregion
+
+    // #region Encounter object mutations
+
+    public grantDockingClearance(targetObjectId: string): void {
+        const target = this.findObjectById(targetObjectId);
+
+        if (!target) {
+            throw new Error(`Cannot grant docking clearance: encounter object not found: ${targetObjectId}`);
+        }
+
+        switch (target.kind) {
+            case ENCOUNTER_OBJECT_KIND.STATION:
+                target.docking.clearance = DOCKING_CLEARANCE_STATE.GRANTED;
+                return;
+
+            default:
+                throw new Error(`Cannot grant docking clearance to encounter object: ${target.kind}`);
+        }
+    }
+
+    // #endregion
+
+    // #region Officer task storage
+
+    public getOfficerTask(role: OfficerRole): OfficerTaskState | undefined {
+        return this.state.officerTasks[role];
+    }
+
+    public getOfficerTasks(): OfficerTaskState[] {
+        return Object.values(this.state.officerTasks).filter((task): task is OfficerTaskState => {
+            return task !== undefined;
+        });
+    }
+
+    public findOfficerTaskById(taskId: string): OfficerTaskState | undefined {
+        return this.getOfficerTasks().find((task) => {
+            return task.id === taskId;
+        });
+    }
+
+    public assignOfficerTask(task: OfficerTaskState): void {
+        const activeTask = this.getOfficerTask(task.role);
+
+        if (activeTask) {
+            throw new Error(
+                `Cannot assign officer task ${task.kind}: ` +
+                    `officer ${task.role} is already busy with ${activeTask.kind}`,
+            );
+        }
+
+        this.state.officerTasks[task.role] = task;
+    }
+
+    public removeOfficerTask(role: OfficerRole): void {
+        delete this.state.officerTasks[role];
+    }
+
+    public advanceOfficerTasks(deltaMs: number): void {
+        for (const task of this.getOfficerTasks()) {
             if (task.durationMs === null) {
                 continue;
             }
@@ -146,83 +204,74 @@ export default class OfficerTaskRunner {
         }
     }
 
-    private completeFinishedTasks(): void {
-        const finishedTaskIds = this.stateStore
-            .getOfficerTasks()
-            .filter((task) => {
-                return task.durationMs !== null && task.elapsedMs >= task.durationMs;
-            })
-            .map((task) => task.id);
-
-        for (const taskId of finishedTaskIds) {
-            this.complete(taskId);
-        }
-    }
-
     // #endregion
 
-    // #region Task resolution
+    // #region Encounter state creation
 
-    private resolveTask(task: OfficerTaskState): OfficerTaskResult | undefined {
-        switch (task.kind) {
-            case OFFICER_TASK_KIND.COMMS_REQUEST_DOCKING:
-                return this.resolveCommsRequestDockingTask(task);
+    private static createEncounterObjectState(object: SpaceObjectState): EncounterObjectState {
+        switch (object.kind) {
+            case SPACE_OBJECT_KIND.STATION:
+                return {
+                    id: object.station.id,
+                    kind: ENCOUNTER_OBJECT_KIND.STATION,
+                    displayName: object.station.name,
+                    station: object.station,
 
-            case OFFICER_TASK_KIND.HELM_FLY_TO:
-                this.resolveHelmFlyToTask(task);
-                return undefined;
+                    position: {
+                        x: -0.52,
+                        y: -0.05,
+                    },
 
-            case OFFICER_TASK_KIND.COMMS_HAIL:
-            case OFFICER_TASK_KIND.HELM_DOCK:
-                return undefined;
+                    docking: {
+                        clearance: DOCKING_CLEARANCE_STATE.NONE,
+                    },
+
+                    officerCommandIds: [
+                        ENCOUNTER_OFFICER_COMMAND_ID.HAIL,
+                        ENCOUNTER_OFFICER_COMMAND_ID.REQUEST_DOCKING,
+                        ENCOUNTER_OFFICER_COMMAND_ID.DOCK,
+                        ENCOUNTER_OFFICER_COMMAND_ID.FLY_TO,
+                    ],
+                };
+
+            case SPACE_OBJECT_KIND.NAVIGATION_BEACON:
+                return {
+                    id: object.beacon.id,
+                    kind: ENCOUNTER_OBJECT_KIND.NAVIGATION_BEACON,
+                    displayName: object.beacon.name,
+                    beacon: object.beacon,
+
+                    position: {
+                        x: -0.52,
+                        y: -0.05,
+                    },
+
+                    officerCommandIds: [ENCOUNTER_OFFICER_COMMAND_ID.FLY_TO],
+                };
+
+            case SPACE_OBJECT_KIND.ASTEROID:
+                return {
+                    id: object.asteroid.id,
+                    kind: ENCOUNTER_OBJECT_KIND.ASTEROID,
+                    displayName: object.asteroid.name,
+                    asteroid: object.asteroid,
+
+                    // Временная постановочная позиция.
+                    position: {
+                        x: 0.42,
+                        y: 0.12,
+                    },
+
+                    officerCommandIds: [ENCOUNTER_OFFICER_COMMAND_ID.FLY_TO],
+                };
 
             default:
-                throw new Error(`Unhandled officer task kind: ${String(task.kind)}`);
+                return this.assertNever(object);
         }
     }
 
-    private resolveCommsRequestDockingTask(task: OfficerTaskState): OfficerTaskResult {
-        if (!task.targetId) {
-            throw new Error('COMMS_REQUEST_DOCKING task requires targetId');
-        }
-
-        this.stateStore.grantDockingClearance(task.targetId);
-
-        return {
-            kind: OFFICER_TASK_RESULT_KIND.DOCKING_CLEARANCE_GRANTED,
-            targetObjectId: task.targetId,
-        };
-    }
-
-    private resolveHelmFlyToTask(task: OfficerTaskState): void {
-        if (!task.targetId) {
-            throw new Error('HELM_FLY_TO task requires targetId');
-        }
-
-        this.stateStore.completeTravel(task.targetId);
-    }
-
-    // #endregion
-
-    // #region Task finish
-
-    private finishTask(
-        task: OfficerTaskState,
-        outcome: (typeof OFFICER_TASK_OUTCOME)[keyof typeof OFFICER_TASK_OUTCOME],
-        result?: OfficerTaskResult,
-    ): void {
-        const taskSnapshot = {
-            ...task,
-        };
-
-        this.stateStore.removeOfficerTask(task.role);
-
-        this.emit({
-            type: ENCOUNTER_EVENT.OFFICER_TASK_ENDED,
-            task: taskSnapshot,
-            outcome,
-            result,
-        });
+    private static assertNever(value: never): never {
+        throw new Error(`Unhandled space object: ${String(value)}`);
     }
 
     // #endregion
