@@ -5,7 +5,6 @@ import { PLAYER_SPACE_NAVIGATION_KIND } from '../../../defs/player_location';
 import {
     ENCOUNTER_OBJECT_TARGET_SCOPE,
     ENCOUNTER_OFFICER_COMMAND_ID,
-    OFFICER_COMMAND_TARGET_KIND,
     getOfficerCommandDef,
     type AvailableOfficerCommand,
     type EncounterOfficerCommandId,
@@ -51,15 +50,11 @@ function tryCreateAvailableOfficerCommandForObject(
     commandId: EncounterOfficerCommandId,
 ): AvailableOfficerCommand | undefined {
     const commandDef = getOfficerCommandDef(commandId);
-    const targeting = commandDef.targeting;
 
-    if (targeting.kind !== OFFICER_COMMAND_TARGET_KIND.ENCOUNTER_OBJECT) {
-        throw new Error(
-            `Officer command "${commandId}" is assigned to encounter object ` + `but targets "${targeting.kind}"`,
-        );
-    }
-
-    if (targeting.scope === ENCOUNTER_OBJECT_TARGET_SCOPE.CURRENT_ANCHOR && !isCurrentAnchorObject(state, object.id)) {
+    if (
+        commandDef.targeting.scope === ENCOUNTER_OBJECT_TARGET_SCOPE.CURRENT_ANCHOR &&
+        !isCurrentAnchorObject(state, object.id)
+    ) {
         return undefined;
     }
 

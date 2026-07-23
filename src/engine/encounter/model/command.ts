@@ -21,19 +21,13 @@ export type EncounterOfficerCommandId =
 
 // Тип domain-цели, к которой применяется officer command.
 //
-// NONE:
-// команда не требует выбора конкретной цели.
+// Сейчас encounter поддерживает только команды,
+// направленные на объекты текущего encounter.
 //
-// ENCOUNTER_OBJECT:
-// команда применяется к объекту текущего encounter.
-//
-// SHIP_SYSTEM:
-// команда применяется к внутренней системе корабля.
-// Источник таких targets появится вместе с repair mechanics.
+// Новые target kinds следует добавлять вместе
+// с реальным источником и правилами доступности таких целей.
 export const OFFICER_COMMAND_TARGET_KIND = {
-    NONE: 'none',
     ENCOUNTER_OBJECT: 'encounter_object',
-    SHIP_SYSTEM: 'ship_system',
 } as const;
 
 export type OfficerCommandTargetKind = (typeof OFFICER_COMMAND_TARGET_KIND)[keyof typeof OFFICER_COMMAND_TARGET_KIND];
@@ -48,23 +42,15 @@ export const ENCOUNTER_OBJECT_TARGET_SCOPE = {
 export type EncounterObjectTargetScope =
     (typeof ENCOUNTER_OBJECT_TARGET_SCOPE)[keyof typeof ENCOUNTER_OBJECT_TARGET_SCOPE];
 
-// Статическое описание допустимого типа цели.
+// Статическое описание допустимой цели.
 //
-// Discriminated union не позволяет:
-// - указать scope для targetless command;
-// - указать encounter scope для ship-system command;
-// - случайно не описать тип цели.
-export type OfficerCommandTargeting =
-    | {
-          kind: typeof OFFICER_COMMAND_TARGET_KIND.NONE;
-      }
-    | {
-          kind: typeof OFFICER_COMMAND_TARGET_KIND.ENCOUNTER_OBJECT;
-          scope: EncounterObjectTargetScope;
-      }
-    | {
-          kind: typeof OFFICER_COMMAND_TARGET_KIND.SHIP_SYSTEM;
-      };
+// kind сохраняется как явная точка расширения:
+// когда появится реально поддержанный новый тип цели,
+// targeting снова станет discriminated union.
+export type OfficerCommandTargeting = {
+    kind: typeof OFFICER_COMMAND_TARGET_KIND.ENCOUNTER_OBJECT;
+    scope: EncounterObjectTargetScope;
+};
 
 // Неизменяемые свойства officer command.
 //
@@ -85,9 +71,9 @@ export type OfficerCommandDef = {
 
 // Единый registry статических свойств officer commands.
 //
-// Encounter objects позже будут хранить только command ids.
+// Encounter objects хранят только command ids.
 // Role, label, targeting и bridge requirement
-// остальные системы будут получать отсюда.
+// остальные системы получают отсюда.
 export const OFFICER_COMMAND_DEFS = {
     [ENCOUNTER_OFFICER_COMMAND_ID.HAIL]: {
         role: OFFICER_ROLE.COMMS,

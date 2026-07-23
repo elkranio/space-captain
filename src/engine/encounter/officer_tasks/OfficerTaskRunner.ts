@@ -108,6 +108,7 @@ export default class OfficerTaskRunner {
         return {
             ...task,
             id: this.createTaskId(),
+            elapsedMs: 0,
         };
     }
 

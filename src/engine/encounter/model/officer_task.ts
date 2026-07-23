@@ -24,7 +24,7 @@ export type OfficerTaskKind = (typeof OFFICER_TASK_KIND)[keyof typeof OFFICER_TA
 // Описание task до её запуска.
 //
 // Factory определяет содержание работы,
-// но не создаёт runtime identity.
+// но не создаёт runtime identity или progress.
 export type OfficerTaskDraft = {
     kind: OfficerTaskKind;
 
@@ -36,17 +36,17 @@ export type OfficerTaskDraft = {
 
     label: string;
 
-    elapsedMs: number;
-
     durationMs: number | null;
 };
 
 // Активная runtime task.
 //
-// id назначает OfficerTaskRunner
+// id и начальный progress назначает OfficerTaskRunner
 // в момент запуска конкретного экземпляра.
 export type OfficerTaskState = OfficerTaskDraft & {
     id: string;
+
+    elapsedMs: number;
 };
 
 export type OfficerTaskStates = Partial<Record<OfficerRole, OfficerTaskState>>;

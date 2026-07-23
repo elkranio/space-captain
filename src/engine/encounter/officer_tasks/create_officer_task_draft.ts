@@ -13,7 +13,6 @@ export function createCommsHailTask(targetId: string): OfficerTaskDraft {
         sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.HAIL,
         targetId,
         label: 'HAIL',
-        elapsedMs: 0,
 
         // Завершается вместе с contact flow.
         durationMs: null,
@@ -27,7 +26,6 @@ export function createCommsRequestDockingTask(targetId: string): OfficerTaskDraf
         sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.REQUEST_DOCKING,
         targetId,
         label: 'REQ DOCK',
-        elapsedMs: 0,
         durationMs: REQUEST_DOCKING_BASE_DURATION_MS,
     };
 }
@@ -39,7 +37,6 @@ export function createHelmDockTask(targetId: string): OfficerTaskDraft {
         sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.DOCK,
         targetId,
         label: 'DOCK',
-        elapsedMs: 0,
 
         // Завершается внешним docking visual flow.
         durationMs: null,
@@ -53,7 +50,6 @@ export function createHelmFlyToTask(targetId: string): OfficerTaskDraft {
         sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.FLY_TO,
         targetId,
         label: 'FLY TO',
-        elapsedMs: 0,
 
         // Завершается внешним travel visual flow.
         durationMs: null,
