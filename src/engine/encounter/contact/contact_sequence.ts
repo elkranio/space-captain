@@ -8,31 +8,23 @@ export const CONTACT_SEQUENCE_STEP_KIND = {
     END_CONTACT: 'end_contact',
 } as const;
 
-export type ContactSequenceStepKind = (typeof CONTACT_SEQUENCE_STEP_KIND)[keyof typeof CONTACT_SEQUENCE_STEP_KIND];
-
-export type StartContactSequenceStep = {
+type StartContactSequenceStep = {
     kind: typeof CONTACT_SEQUENCE_STEP_KIND.START_CONTACT;
     waitAfterMs: number;
     contactName: string;
     contactPortraitId: CharacterPortraitId;
 };
 
-export type MessageContactSequenceStep = {
+type MessageContactSequenceStep = {
     kind: typeof CONTACT_SEQUENCE_STEP_KIND.MESSAGE;
     waitAfterMs: number;
     speakerName: string;
     text: string;
 };
 
-export type EndContactSequenceStep = {
+type EndContactSequenceStep = {
     kind: typeof CONTACT_SEQUENCE_STEP_KIND.END_CONTACT;
     waitAfterMs: number;
 };
 
 export type ContactSequenceStep = StartContactSequenceStep | MessageContactSequenceStep | EndContactSequenceStep;
-
-export type ActiveContactSequence = {
-    steps: ContactSequenceStep[];
-    currentStepIndex: number;
-    waitRemainingMs: number;
-};
