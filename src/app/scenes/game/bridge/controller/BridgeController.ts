@@ -1,11 +1,12 @@
 // src/app/scenes/game/bridge/controller/BridgeController.ts
 
 import { GAME_RUNTIME } from '../../../../runtime/GameRuntime';
+import { SCENE_RUNTIME } from '../../../../runtime/SceneRuntime';
 import type BridgeScene from '../BridgeScene';
 import BridgeEventBus from '../events/BridgeEventBus';
+import { BRIDGE_EVENT, type BridgeSceneTransitionRequestedPayload } from '../events/bridge_event';
 import BridgeView from '../view/BridgeView';
 import BridgeEncounterController from './encounter/BridgeEncounterController';
-import { BRIDGE_EVENT, type BridgeSceneTransitionRequestedPayload } from '../events/bridge_event';
 
 // Root-controller bridge scene.
 // Собирает view/controller-модули сцены и держит scene-local event bus.
@@ -79,8 +80,9 @@ export default class BridgeController {
     }
 
     // Выполняет scene transition, запрошенный bridge-level flow.
-    // Конкретный controller/request handler выбирает sceneKey, root controller делает Phaser transition.
+    // Конкретный controller/request handler выбирает sceneKey,
+    // а SceneRuntime управляет Phaser lifecycle и постоянным overlay.
     private handleSceneTransitionRequested(payload: BridgeSceneTransitionRequestedPayload): void {
-        this.scene.scene.start(payload.sceneKey);
+        SCENE_RUNTIME.startGameScene(this.scene, payload.sceneKey);
     }
 }

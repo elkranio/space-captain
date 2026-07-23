@@ -1,7 +1,7 @@
 {
   "textures": [
     {
-      "image": "atlas-0.png?v=1784815098614",
+      "image": "atlas-0.png?v=1784823128624",
       "format": "RGBA8888",
       "size": {
         "w": 1825,
@@ -829,6 +829,27 @@
           }
         },
         {
+          "filename": "ui/buttons/local_space_00",
+          "rotated": false,
+          "trimmed": false,
+          "sourceSize": {
+            "w": 32,
+            "h": 32
+          },
+          "spriteSourceSize": {
+            "x": 0,
+            "y": 0,
+            "w": 32,
+            "h": 32
+          },
+          "frame": {
+            "x": 1509,
+            "y": 1256,
+            "w": 32,
+            "h": 32
+          }
+        },
+        {
           "filename": "bridge/officer_station/status_light_blocked_00",
           "rotated": false,
           "trimmed": false,
@@ -885,8 +906,8 @@
             "h": 12
           },
           "frame": {
-            "x": 1509,
-            "y": 1256,
+            "x": 1255,
+            "y": 1496,
             "w": 48,
             "h": 12
           }
@@ -1116,8 +1137,8 @@
             "h": 16
           },
           "frame": {
-            "x": 1255,
-            "y": 1496,
+            "x": 1321,
+            "y": 1430,
             "w": 8,
             "h": 16
           }
@@ -1128,6 +1149,6 @@
   "meta": {
     "app": "https://www.codeandweb.com/texturepacker",
     "version": "3.0",
-    "smartupdate": "$TexturePacker:SmartUpdate:1f4c4485e16709d073c069c0db226be7:ce830a92805dc5473f888669b7e56149:cf935fe037ea9b5d3744d532996e235e$"
+    "smartupdate": "$TexturePacker:SmartUpdate:41356a76fc287f2e0e8c4440d5e0f8e3:96d8b5a8c1bc40976f4ef34fe7ad5443:cf935fe037ea9b5d3744d532996e235e$"
   }
 }

@@ -1,6 +1,8 @@
 // src/app/scenes/game/init/controller/InitController.ts
+
 import { PLAYER_LOCATION_KIND, type PlayerLocationState } from '../../../../../engine/defs/player_location';
 import { GAME_RUNTIME } from '../../../../runtime/GameRuntime';
+import { SCENE_RUNTIME } from '../../../../runtime/SceneRuntime';
 import { SCENE_KEY, type SceneKey } from '../../../scene_key';
 import type InitScene from '../InitScene';
 
@@ -11,7 +13,7 @@ export default class InitController {
         const run = GAME_RUNTIME.getCurrentRun();
         const nextSceneKey = this.getSceneKeyByPlayerLocation(run.player.location);
 
-        this.scene.scene.start(nextSceneKey);
+        SCENE_RUNTIME.startGameScene(this.scene, nextSceneKey);
     }
 
     private getSceneKeyByPlayerLocation(location: PlayerLocationState): SceneKey {
