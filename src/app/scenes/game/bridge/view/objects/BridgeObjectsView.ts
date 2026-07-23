@@ -30,10 +30,15 @@ export default class BridgeObjectsView {
             getObjectView: (objectId) => this.objectViews.get(objectId),
 
             getObjectViews: () => [...this.objectViews.values()],
+
+            getAnchorObjectViews: (anchorObjectId) => {
+                return [...this.objectViews.values()].filter((view) => {
+                    return view.getAnchorObjectId() === anchorObjectId;
+                });
+            },
         });
 
         this.eventBus.on(BRIDGE_EVENT.ENCOUNTER_OBJECTS_LOADED, this.prepareObjects, this);
-
         this.eventBus.on(BRIDGE_EVENT.ENCOUNTER_OBJECTS_UPDATED, this.syncObjects, this);
     }
 
@@ -41,7 +46,6 @@ export default class BridgeObjectsView {
         this.animationSequencer.destroy();
 
         this.eventBus.off(BRIDGE_EVENT.ENCOUNTER_OBJECTS_LOADED, this.prepareObjects, this);
-
         this.eventBus.off(BRIDGE_EVENT.ENCOUNTER_OBJECTS_UPDATED, this.syncObjects, this);
 
         for (const view of this.objectViews.values()) {

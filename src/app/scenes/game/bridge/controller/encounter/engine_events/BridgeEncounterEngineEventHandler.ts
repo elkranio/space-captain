@@ -134,10 +134,10 @@ export default class BridgeEncounterEngineEventHandler {
     }
 
     private handleArrivingNavigation(targetObjectId: string, objects: BridgeEncounterObjectPayload[]): void {
-        const targetObject = this.findObjectOrThrow(objects, targetObjectId);
+        const targetAnchorObjects = this.findAnchorObjectsOrThrow(objects, targetObjectId);
 
         if (DEBUG_SETTINGS.bridge.encounter.skipArrival) {
-            this.eventBus.emit(BRIDGE_EVENT.ENCOUNTER_OBJECTS_UPDATED, [targetObject]);
+            this.eventBus.emit(BRIDGE_EVENT.ENCOUNTER_OBJECTS_UPDATED, targetAnchorObjects);
 
             this.eventBus.emit(BRIDGE_EVENT.ENCOUNTER_ARRIVAL_COMPLETED);
             return;
@@ -151,9 +151,9 @@ export default class BridgeEncounterEngineEventHandler {
     }
 
     private handleAnchoredNavigation(anchorObjectId: string, objects: BridgeEncounterObjectPayload[]): void {
-        const anchorObject = this.findObjectOrThrow(objects, anchorObjectId);
+        const anchorObjects = this.findAnchorObjectsOrThrow(objects, anchorObjectId);
 
-        this.eventBus.emit(BRIDGE_EVENT.ENCOUNTER_OBJECTS_UPDATED, [anchorObject]);
+        this.eventBus.emit(BRIDGE_EVENT.ENCOUNTER_OBJECTS_UPDATED, anchorObjects);
 
         this.setEncounterInteractive(true);
     }
@@ -164,13 +164,13 @@ export default class BridgeEncounterEngineEventHandler {
         targetObjectId: string,
         objects: BridgeEncounterObjectPayload[],
     ): void {
-        this.findObjectOrThrow(objects, fromObjectId);
+        this.findAnchorObjectsOrThrow(objects, fromObjectId);
 
-        const targetObject = this.findObjectOrThrow(objects, targetObjectId);
+        const targetAnchorObjects = this.findAnchorObjectsOrThrow(objects, targetObjectId);
 
         this.setEncounterInteractive(false);
 
-        this.eventBus.emit(BRIDGE_EVENT.ENCOUNTER_OBJECTS_UPDATED, [targetObject]);
+        this.eventBus.emit(BRIDGE_EVENT.ENCOUNTER_OBJECTS_UPDATED, targetAnchorObjects);
 
         this.eventBus.emit(BRIDGE_EVENT.ENCOUNTER_TRAVEL_COMPLETED, {
             taskId,
@@ -193,9 +193,11 @@ export default class BridgeEncounterEngineEventHandler {
                 return {
                     id: object.id,
                     anchorObjectId: object.anchorObjectId,
+
                     localPosition: {
                         ...object.localPosition,
                     },
+
                     perspectiveDepth: object.perspectiveDepth,
                     sprite: STATION_OBJECT_SPRITES[object.station.objectSpriteId],
                     position: new Phaser.Math.Vector2(object.position.x, object.position.y),
@@ -205,9 +207,11 @@ export default class BridgeEncounterEngineEventHandler {
                 return {
                     id: object.id,
                     anchorObjectId: object.anchorObjectId,
+
                     localPosition: {
                         ...object.localPosition,
                     },
+
                     perspectiveDepth: object.perspectiveDepth,
                     sprite: BEACON_OBJECT_SPRITES[object.beacon.objectSpriteId],
                     position: new Phaser.Math.Vector2(object.position.x, object.position.y),
@@ -217,9 +221,11 @@ export default class BridgeEncounterEngineEventHandler {
                 return {
                     id: object.id,
                     anchorObjectId: object.anchorObjectId,
+
                     localPosition: {
                         ...object.localPosition,
                     },
+
                     perspectiveDepth: object.perspectiveDepth,
                     sprite: ASTEROID_OBJECT_SPRITES[object.asteroid.objectSpriteId],
                     position: new Phaser.Math.Vector2(object.position.x, object.position.y),
@@ -247,7 +253,8 @@ export default class BridgeEncounterEngineEventHandler {
 
         if (task.targetId !== targetObjectId) {
             throw new Error(
-                `Loaded HELM_FLY_TO task target does not match navigation target: ${String(task.targetId)} !== ${targetObjectId}`,
+                `Loaded HELM_FLY_TO task target does not match navigation target: ` +
+                    `${String(task.targetId)} !== ${targetObjectId}`,
             );
         }
 
@@ -257,6 +264,23 @@ export default class BridgeEncounterEngineEventHandler {
     // #endregion
 
     // #region Object lookup
+
+    private findAnchorObjectsOrThrow(
+        objects: BridgeEncounterObjectPayload[],
+        anchorObjectId: string,
+    ): BridgeEncounterObjectPayload[] {
+        this.findObjectOrThrow(objects, anchorObjectId);
+
+        const anchorObjects = objects.filter((object) => {
+            return object.anchorObjectId === anchorObjectId;
+        });
+
+        if (anchorObjects.length === 0) {
+            throw new Error(`Encounter anchor objects not found: ${anchorObjectId}`);
+        }
+
+        return anchorObjects;
+    }
 
     private findObjectOrThrow(objects: BridgeEncounterObjectPayload[], objectId: string): BridgeEncounterObjectPayload {
         const object = objects.find((candidate) => candidate.id === objectId);

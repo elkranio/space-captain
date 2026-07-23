@@ -1,21 +1,21 @@
 // src/app/scenes/game/bridge/view/objects/animation/arrival/play_objects_arrival_sequence.ts
 
 import { BRIDGE_EVENT } from '../../../../events/bridge_event';
+import type BridgeObjectSpriteView from '../../object_sprite/BridgeObjectSpriteView';
 import type { BridgeObjectsAnimationContext } from '../bridge_objects_animation_context';
 
 const ARRIVAL_SCALE_STEPS = [0, 0.06, 0.12, 0.2, 0.32, 0.46, 0.62, 0.78, 0.9, 1] as const;
 
 const ARRIVAL_STEP_DELAY_MS = 100;
 
-// Проигрывает arrival sequence только для объекта прибытия.
+// Проигрывает arrival sequence
+// для всей визуальной группы target anchor.
 export function playObjectsArrivalSequence(targetId: string, context: BridgeObjectsAnimationContext): void {
-    const view = context.getObjectView(targetId);
+    const targetViews = getAnchorObjectViewsOrThrow(targetId, context);
 
-    if (!view) {
-        throw new Error(`Arrival object view not found: ${targetId}`);
+    for (const view of targetViews) {
+        view.showForArrival();
     }
-
-    view.showForArrival();
 
     let stepIndex = 0;
 
@@ -26,16 +26,38 @@ export function playObjectsArrivalSequence(targetId: string, context: BridgeObje
         callback: () => {
             const scale = ARRIVAL_SCALE_STEPS[stepIndex];
 
-            view.setArrivalScale(scale);
+            for (const view of targetViews) {
+                view.setArrivalScale(scale);
+            }
+
             stepIndex += 1;
 
-            if (stepIndex >= ARRIVAL_SCALE_STEPS.length) {
-                context.clearActiveTimer();
-
-                context.eventBus.emit(BRIDGE_EVENT.ENCOUNTER_ARRIVAL_COMPLETED);
+            if (stepIndex < ARRIVAL_SCALE_STEPS.length) {
+                return;
             }
+
+            context.clearActiveTimer();
+
+            for (const view of targetViews) {
+                view.showNormal();
+            }
+
+            context.eventBus.emit(BRIDGE_EVENT.ENCOUNTER_ARRIVAL_COMPLETED);
         },
     });
 
     context.setActiveTimer(timer);
+}
+
+function getAnchorObjectViewsOrThrow(
+    anchorObjectId: string,
+    context: BridgeObjectsAnimationContext,
+): BridgeObjectSpriteView[] {
+    const views = context.getAnchorObjectViews(anchorObjectId);
+
+    if (views.length === 0) {
+        throw new Error(`Arrival anchor object views not found: ${anchorObjectId}`);
+    }
+
+    return views;
 }

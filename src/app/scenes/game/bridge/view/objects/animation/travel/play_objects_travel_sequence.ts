@@ -13,56 +13,56 @@ const DEPARTURE_SCALE_STEPS = [0.82, 0.62, 0.44, 0.28, 0.14, 0] as const;
 const ARRIVAL_SCALE_STEPS = [0.08, 0.18, 0.32, 0.5, 0.68, 0.84, 1] as const;
 
 // Проигрывает локальный перелёт
-// между двумя encounter objects.
+// между двумя anchor groups.
 //
-// Сначала текущий anchor удаляется вдаль,
-// затем после короткой пустой фазы
-// target появляется издалека.
+// Сейчас визуальное поведение остаётся старым:
+// текущая группа уменьшается,
+// затем target group появляется издалека.
 //
-// taskId проходит через весь visual flow
-// и возвращается controller-у
-// после завершения animation.
+// Следующий change заменит это
+// на turn → departure → arrival.
 export function playObjectsTravelSequence(
     payload: BridgeEncounterTravelStartedPayload,
-
     context: BridgeObjectsAnimationContext,
 ): void {
     if (payload.fromObjectId === payload.targetObjectId) {
         throw new Error(`Cannot travel from encounter object to itself: ${payload.fromObjectId}`);
     }
 
-    const fromView = getObjectViewOrThrow(payload.fromObjectId, context);
+    const fromViews = getAnchorObjectViewsOrThrow(payload.fromObjectId, context);
+    const targetViews = getAnchorObjectViewsOrThrow(payload.targetObjectId, context);
 
-    const targetView = getObjectViewOrThrow(payload.targetObjectId, context);
+    for (const view of fromViews) {
+        view.showNormal();
+    }
 
-    fromView.showNormal();
-    targetView.prepareForArrival();
+    for (const view of targetViews) {
+        view.prepareForArrival();
+    }
 
-    playDeparturePhase(payload.taskId, fromView, targetView, context);
+    playDeparturePhase(payload.taskId, fromViews, targetViews, context);
 }
 
 // #region Travel phases
 
 function playDeparturePhase(
     taskId: string,
-
-    fromView: BridgeObjectSpriteView,
-
-    targetView: BridgeObjectSpriteView,
-
+    fromViews: BridgeObjectSpriteView[],
+    targetViews: BridgeObjectSpriteView[],
     context: BridgeObjectsAnimationContext,
 ): void {
     let stepIndex = 0;
 
     const timer = context.scene.time.addEvent({
         delay: TRAVEL_STEP_DELAY_MS,
-
         repeat: DEPARTURE_SCALE_STEPS.length - 1,
 
         callback: () => {
             const scale = DEPARTURE_SCALE_STEPS[stepIndex];
 
-            fromView.setScale(scale);
+            for (const view of fromViews) {
+                view.setScale(scale);
+            }
 
             stepIndex += 1;
 
@@ -72,9 +72,11 @@ function playDeparturePhase(
 
             context.clearActiveTimer();
 
-            fromView.prepareForArrival();
+            for (const view of fromViews) {
+                view.prepareForArrival();
+            }
 
-            playEmptySpacePhase(taskId, targetView, context);
+            playEmptySpacePhase(taskId, targetViews, context);
         },
     });
 
@@ -83,44 +85,39 @@ function playDeparturePhase(
 
 function playEmptySpacePhase(
     taskId: string,
-
-    targetView: BridgeObjectSpriteView,
-
+    targetViews: BridgeObjectSpriteView[],
     context: BridgeObjectsAnimationContext,
 ): void {
-    const timer = context.scene.time.delayedCall(
-        TRAVEL_EMPTY_SPACE_DELAY_MS,
+    const timer = context.scene.time.delayedCall(TRAVEL_EMPTY_SPACE_DELAY_MS, () => {
+        context.clearActiveTimer();
 
-        () => {
-            context.clearActiveTimer();
-
-            playArrivalPhase(taskId, targetView, context);
-        },
-    );
+        playArrivalPhase(taskId, targetViews, context);
+    });
 
     context.setActiveTimer(timer);
 }
 
 function playArrivalPhase(
     taskId: string,
-
-    targetView: BridgeObjectSpriteView,
-
+    targetViews: BridgeObjectSpriteView[],
     context: BridgeObjectsAnimationContext,
 ): void {
-    targetView.showForArrival();
+    for (const view of targetViews) {
+        view.showForArrival();
+    }
 
     let stepIndex = 0;
 
     const timer = context.scene.time.addEvent({
         delay: TRAVEL_STEP_DELAY_MS,
-
         repeat: ARRIVAL_SCALE_STEPS.length - 1,
 
         callback: () => {
             const scale = ARRIVAL_SCALE_STEPS[stepIndex];
 
-            targetView.setScale(scale);
+            for (const view of targetViews) {
+                view.setScale(scale);
+            }
 
             stepIndex += 1;
 
@@ -130,15 +127,13 @@ function playArrivalPhase(
 
             context.clearActiveTimer();
 
-            targetView.showNormal();
+            for (const view of targetViews) {
+                view.showNormal();
+            }
 
-            context.eventBus.emit(
-                BRIDGE_EVENT.ENCOUNTER_TRAVEL_COMPLETED,
-
-                {
-                    taskId,
-                },
-            );
+            context.eventBus.emit(BRIDGE_EVENT.ENCOUNTER_TRAVEL_COMPLETED, {
+                taskId,
+            });
         },
     });
 
@@ -147,20 +142,19 @@ function playArrivalPhase(
 
 // #endregion
 
-// #region Object lookup
+// #region Anchor lookup
 
-function getObjectViewOrThrow(
-    objectId: string,
-
+function getAnchorObjectViewsOrThrow(
+    anchorObjectId: string,
     context: BridgeObjectsAnimationContext,
-): BridgeObjectSpriteView {
-    const view = context.getObjectView(objectId);
+): BridgeObjectSpriteView[] {
+    const views = context.getAnchorObjectViews(anchorObjectId);
 
-    if (!view) {
-        throw new Error(`Travel object view not found: ${objectId}`);
+    if (views.length === 0) {
+        throw new Error(`Travel anchor object views not found: ${anchorObjectId}`);
     }
 
-    return view;
+    return views;
 }
 
 // #endregion
