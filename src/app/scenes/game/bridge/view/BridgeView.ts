@@ -2,21 +2,19 @@
 
 import type BridgeScene from '../BridgeScene';
 import type BridgeEventBus from '../events/BridgeEventBus';
+import BridgeOfficerBarksView from './barks/BridgeOfficerBarksView';
 import BridgeCrewView from './crew/BridgeCrewView';
 import BridgeInteriorView from './interior/BridgeInteriorView';
-import BridgeSpaceBackgroundView from './space/BridgeSpaceBackgroundView';
-import BridgeObjectsView from './objects/BridgeObjectsView';
-import BridgeVfxView from './vfx/BridgeVfxView';
+import BridgeSpaceView from './space/BridgeSpaceView';
 import BridgeUiView from './ui/BridgeUiView';
-import BridgeOfficerBarksView from './barks/BridgeOfficerBarksView';
+import BridgeVfxView from './vfx/BridgeVfxView';
 
 // Root view bridge scene.
 // Собирает визуальные модули bridge и отвечает только за их lifecycle.
 export default class BridgeView {
     private interiorView?: BridgeInteriorView;
     private crewView?: BridgeCrewView;
-    private spaceBackgroundView?: BridgeSpaceBackgroundView;
-    private objectsView?: BridgeObjectsView;
+    private spaceView?: BridgeSpaceView;
     private vfxView?: BridgeVfxView;
     private uiView?: BridgeUiView;
     private officerBarksView?: BridgeOfficerBarksView;
@@ -27,12 +25,16 @@ export default class BridgeView {
     ) {}
 
     public prepare(): void {
-        this.spaceBackgroundView = new BridgeSpaceBackgroundView(this.scene);
-        this.objectsView = new BridgeObjectsView(this.scene, this.eventBus);
+        this.spaceView = new BridgeSpaceView(this.scene, this.eventBus);
+
         this.vfxView = new BridgeVfxView(this.scene, this.eventBus);
+
         this.interiorView = new BridgeInteriorView(this.scene);
+
         this.crewView = new BridgeCrewView(this.scene, this.eventBus);
+
         this.uiView = new BridgeUiView(this.scene, this.eventBus);
+
         this.officerBarksView = new BridgeOfficerBarksView(this.scene, this.eventBus);
     }
 
@@ -42,15 +44,13 @@ export default class BridgeView {
         this.crewView?.destroy();
         this.interiorView?.destroy();
         this.vfxView?.destroy();
-        this.objectsView?.destroy();
-        this.spaceBackgroundView?.destroy();
+        this.spaceView?.destroy();
 
         this.officerBarksView = undefined;
         this.uiView = undefined;
         this.crewView = undefined;
         this.interiorView = undefined;
         this.vfxView = undefined;
-        this.objectsView = undefined;
-        this.spaceBackgroundView = undefined;
+        this.spaceView = undefined;
     }
 }

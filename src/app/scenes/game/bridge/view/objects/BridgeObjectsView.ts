@@ -19,6 +19,7 @@ export default class BridgeObjectsView {
     constructor(
         private readonly scene: BridgeScene,
         private readonly eventBus: BridgeEventBus,
+        private readonly panBackgroundBy: (screenX: number, screenY: number) => void,
     ) {
         this.root = this.scene.add.container(0, 0);
         this.scene.layers.get('objects').add(this.root);
@@ -27,9 +28,17 @@ export default class BridgeObjectsView {
             scene: this.scene,
             eventBus: this.eventBus,
 
-            getObjectView: (objectId) => this.objectViews.get(objectId),
+            panBackgroundBy: (screenX, screenY) => {
+                this.panBackgroundBy(screenX, screenY);
+            },
 
-            getObjectViews: () => [...this.objectViews.values()],
+            getObjectView: (objectId) => {
+                return this.objectViews.get(objectId);
+            },
+
+            getObjectViews: () => {
+                return [...this.objectViews.values()];
+            },
 
             getAnchorObjectViews: (anchorObjectId) => {
                 return [...this.objectViews.values()].filter((view) => {

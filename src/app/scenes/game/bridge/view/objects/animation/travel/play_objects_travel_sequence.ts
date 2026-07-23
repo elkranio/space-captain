@@ -12,6 +12,9 @@ const TURN_DURATION_MS = 500;
 const TURN_SHIFT_PX = 90;
 const TURN_SCALE_DELTA = 0.08;
 
+const BACKGROUND_TURN_PAN_X_PX = 360;
+const BACKGROUND_TURN_PAN_Y_PX = 100;
+
 const DEPARTURE_DURATION_MS = 800;
 const DEPARTURE_PUSH_PX = 720;
 const DEPARTURE_RADIAL_EXPANSION = 1.2;
@@ -44,6 +47,10 @@ type TravelObjectMotion = {
 // Пространственный вектор navigation objects
 // задаёт направление поворота.
 //
+// Во время TURN:
+// - текущая anchor group смещается против направления цели;
+// - космическая панорама смещается в ту же экранную сторону.
+//
 // Объекты внутри anchor используют
 // собственные normalPosition и perspectiveDepth.
 export function playObjectsTravelSequence(
@@ -74,14 +81,13 @@ export function playObjectsTravelSequence(
     // в сторону, противоположную цели.
     const turnShiftDirection = travelDirection.clone().scale(-1);
 
-    // Если цель находится строго впереди/сзади
-    // и lateral direction отсутствует,
+    // Если lateral direction отсутствует,
     // departure всё равно должен иметь направление выхода.
     const departureDirection = getDepartureDirection(turnShiftDirection, fromAnchorView);
 
     const fromMotions = createTravelObjectMotions(fromViews, turnShiftDirection);
 
-    playTurnPhase(payload.taskId, fromMotions, targetViews, departureDirection, context);
+    playTurnPhase(payload.taskId, fromMotions, targetViews, turnShiftDirection, departureDirection, context);
 }
 
 // #region Turn
@@ -90,9 +96,12 @@ function playTurnPhase(
     taskId: string,
     fromMotions: TravelObjectMotion[],
     targetViews: BridgeObjectSpriteView[],
+    turnShiftDirection: Phaser.Math.Vector2,
     departureDirection: Phaser.Math.Vector2,
     context: BridgeObjectsAnimationContext,
 ): void {
+    let previousProgress = 0;
+
     const timer = playSteppedAnimation({
         scene: context.scene,
 
@@ -111,6 +120,18 @@ function playTurnPhase(
 
                 setQuantizedTransform(motion.view, x, y, scale);
             }
+
+            // panBackgroundBy принимает не абсолютную позицию,
+            // а delta текущего stepped-кадра.
+            const progressDelta = progress - previousProgress;
+
+            context.panBackgroundBy(
+                turnShiftDirection.x * BACKGROUND_TURN_PAN_X_PX * progressDelta,
+
+                turnShiftDirection.y * BACKGROUND_TURN_PAN_Y_PX * progressDelta,
+            );
+
+            previousProgress = progress;
         },
 
         onComplete: () => {
@@ -284,6 +305,7 @@ function createTravelObjectMotions(
 
             turnPosition: new Phaser.Math.Vector2(
                 normalPosition.x + turnShiftDirection.x * TURN_SHIFT_PX * depth,
+
                 normalPosition.y + turnShiftDirection.y * TURN_SHIFT_PX * depth,
             ),
 
@@ -356,6 +378,7 @@ function getPerspectiveDepth(view: BridgeObjectSpriteView): number {
 function getViewscreenCenter(): Phaser.Math.Vector2 {
     return new Phaser.Math.Vector2(
         BRIDGE_VIEWSCREEN_RECT.x + BRIDGE_VIEWSCREEN_RECT.width / 2,
+
         BRIDGE_VIEWSCREEN_RECT.y + BRIDGE_VIEWSCREEN_RECT.height / 2,
     );
 }

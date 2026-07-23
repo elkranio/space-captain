@@ -13,11 +13,15 @@ export type BridgeObjectsAnimationContext = {
     scene: BridgeScene;
     eventBus: BridgeEventBus;
 
+    panBackgroundBy: (screenX: number, screenY: number) => void;
+
     getObjectView: (objectId: string) => BridgeObjectSpriteView | undefined;
+
     getObjectViews: () => BridgeObjectSpriteView[];
 
     getAnchorObjectViews: (anchorObjectId: string) => BridgeObjectSpriteView[];
 
     setActiveTimer: (timer: Phaser.Time.TimerEvent) => void;
+
     clearActiveTimer: () => void;
 };
