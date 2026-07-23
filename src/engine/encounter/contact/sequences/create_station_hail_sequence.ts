@@ -1,4 +1,5 @@
 // src/engine/encounter/contact/sequences/create_station_hail_sequence.ts
+
 import type { StationEncounterObjectState } from '../../objects/station/station_encounter_object';
 import { CONTACT_SEQUENCE_STEP_KIND, type ContactSequenceStep } from './contact_sequence';
 
@@ -32,7 +33,6 @@ export function createStationHailSequence(target: StationEncounterObjectState): 
         },
         {
             kind: CONTACT_SEQUENCE_STEP_KIND.END_CONTACT,
-            waitAfterMs: 1000,
         },
     ];
 }

@@ -66,6 +66,8 @@ export default class ContactSequenceRunner {
             return;
         }
 
+        const waitAfterMs = step.kind === CONTACT_SEQUENCE_STEP_KIND.END_CONTACT ? 0 : step.waitAfterMs;
+
         this.executeStep(step);
 
         this.activeSequence.currentStepIndex += 1;
@@ -75,7 +77,7 @@ export default class ContactSequenceRunner {
             return;
         }
 
-        this.activeSequence.waitRemainingMs += step.waitAfterMs;
+        this.activeSequence.waitRemainingMs += waitAfterMs;
     }
 
     private executeStep(step: ContactSequenceStep): void {

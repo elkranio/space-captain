@@ -24,7 +24,7 @@ type MessageContactSequenceStep = {
 
 type EndContactSequenceStep = {
     kind: typeof CONTACT_SEQUENCE_STEP_KIND.END_CONTACT;
-    waitAfterMs: number;
+    waitAfterMs?: number;
 };
 
 export type ContactSequenceStep = StartContactSequenceStep | MessageContactSequenceStep | EndContactSequenceStep;
