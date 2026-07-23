@@ -1,7 +1,7 @@
 // src/engine/encounter/commands/OfficerCommandExecutor.ts
 
 import { OFFICER_ROLE, type OfficerRole } from '../../defs/officer';
-import { type ContactSequenceStep } from '../contact/sequences/contact_sequence';
+import type { ContactSequenceStep } from '../contact/sequences/contact_sequence';
 import { createStationHailSequence } from '../contact/sequences/create_station_hail_sequence';
 import {
     ENCOUNTER_OFFICER_COMMAND_ID,
@@ -15,6 +15,7 @@ import {
 import { ENCOUNTER_EVENT, type EncounterEvent } from '../model/event';
 import type { OfficerTaskDraft } from '../model/officer_task';
 import { ENCOUNTER_OBJECT_KIND } from '../objects/encounter_object';
+import type { StationEncounterObjectState } from '../objects/station/station_encounter_object';
 import {
     createCommsHailTask,
     createCommsRequestDockingTask,
@@ -148,24 +149,15 @@ export default class OfficerCommandExecutor {
     // #region Command execution
 
     private executeHail(input: ExecuteOfficerCommandInput): void {
-        const target = this.stateStore.findObjectById(input.targetId);
+        const target = this.getStationTarget(input);
 
-        if (!target) {
-            return;
-        }
+        const commsTaskId = this.startOfficerTask(createCommsHailTask(target.id));
 
-        switch (target.kind) {
-            case ENCOUNTER_OBJECT_KIND.STATION: {
-                const commsTaskId = this.startOfficerTask(createCommsHailTask(target.id));
+        const onContactEnded = (): void => {
+            this.completeOfficerTask(commsTaskId);
+        };
 
-                const onContactEnded = (): void => {
-                    this.completeOfficerTask(commsTaskId);
-                };
-
-                this.startContactSequence(createStationHailSequence(target), onContactEnded);
-                return;
-            }
-        }
+        this.startContactSequence(createStationHailSequence(target), onContactEnded);
     }
 
     private executeRequestDocking(input: ExecuteOfficerCommandInput): void {
@@ -177,22 +169,14 @@ export default class OfficerCommandExecutor {
     }
 
     private executeDock(input: ExecuteOfficerCommandInput): void {
-        const target = this.stateStore.findObjectById(input.targetId);
+        const target = this.getStationTarget(input);
 
-        if (!target) {
-            return;
-        }
+        this.startOfficerTask(createHelmDockTask(target.id));
 
-        switch (target.kind) {
-            case ENCOUNTER_OBJECT_KIND.STATION:
-                this.startOfficerTask(createHelmDockTask(target.id));
-
-                this.emit({
-                    type: ENCOUNTER_EVENT.DOCKING_STARTED,
-                    targetId: target.id,
-                });
-                return;
-        }
+        this.emit({
+            type: ENCOUNTER_EVENT.DOCKING_STARTED,
+            targetId: target.id,
+        });
     }
 
     private executeFlyTo(input: ExecuteOfficerCommandInput): void {
@@ -210,6 +194,24 @@ export default class OfficerCommandExecutor {
             fromObjectId,
             target,
         });
+    }
+
+    private getStationTarget(input: ExecuteOfficerCommandInput): StationEncounterObjectState {
+        if (!input.targetId) {
+            throw new Error(`${input.commandId} command requires targetId`);
+        }
+
+        const target = this.stateStore.findObjectById(input.targetId);
+
+        if (!target) {
+            throw new Error(`${input.commandId} command target not found: ${input.targetId}`);
+        }
+
+        if (target.kind !== ENCOUNTER_OBJECT_KIND.STATION) {
+            throw new Error(`${input.commandId} command does not support encounter object: ${target.kind}`);
+        }
+
+        return target;
     }
 
     // #endregion
