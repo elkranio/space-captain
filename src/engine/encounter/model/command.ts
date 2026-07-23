@@ -8,10 +8,10 @@ import { OFFICER_ROLE, type OfficerRole } from '../../defs/officer';
 // Id описывает намерение игрока,
 // а не конкретный пункт меню или runtime task.
 export const ENCOUNTER_OFFICER_COMMAND_ID = {
-    HAIL: 'hail',
-    REQUEST_DOCKING: 'request_docking',
-    DOCK: 'dock',
-    FLY_TO: 'fly_to',
+    COMMS_HAIL: 'comms_hail',
+    COMMS_REQUEST_DOCKING: 'comms_request_docking',
+    HELM_DOCK: 'helm_dock',
+    HELM_FLY_TO: 'helm_fly_to',
 } as const;
 
 export type EncounterOfficerCommandId =
@@ -75,7 +75,7 @@ export type OfficerCommandDef = {
 // Role, label, targeting и bridge requirement
 // остальные системы получают отсюда.
 export const OFFICER_COMMAND_DEFS = {
-    [ENCOUNTER_OFFICER_COMMAND_ID.HAIL]: {
+    [ENCOUNTER_OFFICER_COMMAND_ID.COMMS_HAIL]: {
         role: OFFICER_ROLE.COMMS,
         label: 'HAIL',
         targeting: {
@@ -85,7 +85,7 @@ export const OFFICER_COMMAND_DEFS = {
         requiresIdleBridge: false,
     },
 
-    [ENCOUNTER_OFFICER_COMMAND_ID.REQUEST_DOCKING]: {
+    [ENCOUNTER_OFFICER_COMMAND_ID.COMMS_REQUEST_DOCKING]: {
         role: OFFICER_ROLE.COMMS,
         label: 'REQUEST DOCKING',
         targeting: {
@@ -95,7 +95,7 @@ export const OFFICER_COMMAND_DEFS = {
         requiresIdleBridge: false,
     },
 
-    [ENCOUNTER_OFFICER_COMMAND_ID.DOCK]: {
+    [ENCOUNTER_OFFICER_COMMAND_ID.HELM_DOCK]: {
         role: OFFICER_ROLE.HELM,
         label: 'DOCK',
         targeting: {
@@ -105,7 +105,7 @@ export const OFFICER_COMMAND_DEFS = {
         requiresIdleBridge: true,
     },
 
-    [ENCOUNTER_OFFICER_COMMAND_ID.FLY_TO]: {
+    [ENCOUNTER_OFFICER_COMMAND_ID.HELM_FLY_TO]: {
         role: OFFICER_ROLE.HELM,
         label: 'FLY TO',
         targeting: {

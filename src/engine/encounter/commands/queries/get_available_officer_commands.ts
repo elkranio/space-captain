@@ -59,16 +59,16 @@ function tryCreateAvailableOfficerCommandForObject(
     }
 
     switch (commandId) {
-        case ENCOUNTER_OFFICER_COMMAND_ID.HAIL:
+        case ENCOUNTER_OFFICER_COMMAND_ID.COMMS_HAIL:
             return createTargetedCommand(commandId, commandDef.label, object);
 
-        case ENCOUNTER_OFFICER_COMMAND_ID.REQUEST_DOCKING:
+        case ENCOUNTER_OFFICER_COMMAND_ID.COMMS_REQUEST_DOCKING:
             return tryCreateRequestDockingCommand(commandId, commandDef.label, object);
 
-        case ENCOUNTER_OFFICER_COMMAND_ID.DOCK:
+        case ENCOUNTER_OFFICER_COMMAND_ID.HELM_DOCK:
             return tryCreateDockCommand(commandId, commandDef.label, object);
 
-        case ENCOUNTER_OFFICER_COMMAND_ID.FLY_TO:
+        case ENCOUNTER_OFFICER_COMMAND_ID.HELM_FLY_TO:
             return tryCreateFlyToCommand(state, commandId, commandDef.label, object);
     }
 

@@ -95,19 +95,19 @@ export default class OfficerCommandExecutor {
         }
 
         switch (input.commandId) {
-            case ENCOUNTER_OFFICER_COMMAND_ID.HAIL:
+            case ENCOUNTER_OFFICER_COMMAND_ID.COMMS_HAIL:
                 this.executeHail(input);
                 break;
 
-            case ENCOUNTER_OFFICER_COMMAND_ID.REQUEST_DOCKING:
+            case ENCOUNTER_OFFICER_COMMAND_ID.COMMS_REQUEST_DOCKING:
                 this.executeRequestDocking(input);
                 break;
 
-            case ENCOUNTER_OFFICER_COMMAND_ID.DOCK:
+            case ENCOUNTER_OFFICER_COMMAND_ID.HELM_DOCK:
                 this.executeDock(input);
                 break;
 
-            case ENCOUNTER_OFFICER_COMMAND_ID.FLY_TO:
+            case ENCOUNTER_OFFICER_COMMAND_ID.HELM_FLY_TO:
                 this.executeFlyTo(input);
                 break;
 

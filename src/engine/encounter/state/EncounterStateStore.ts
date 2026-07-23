@@ -234,10 +234,10 @@ export default class EncounterStateStore {
                     },
 
                     officerCommandIds: [
-                        ENCOUNTER_OFFICER_COMMAND_ID.HAIL,
-                        ENCOUNTER_OFFICER_COMMAND_ID.REQUEST_DOCKING,
-                        ENCOUNTER_OFFICER_COMMAND_ID.DOCK,
-                        ENCOUNTER_OFFICER_COMMAND_ID.FLY_TO,
+                        ENCOUNTER_OFFICER_COMMAND_ID.COMMS_HAIL,
+                        ENCOUNTER_OFFICER_COMMAND_ID.COMMS_REQUEST_DOCKING,
+                        ENCOUNTER_OFFICER_COMMAND_ID.HELM_DOCK,
+                        ENCOUNTER_OFFICER_COMMAND_ID.HELM_FLY_TO,
                     ],
                 };
 
@@ -261,7 +261,7 @@ export default class EncounterStateStore {
 
                     perspectiveDepth: 1,
 
-                    officerCommandIds: [ENCOUNTER_OFFICER_COMMAND_ID.FLY_TO],
+                    officerCommandIds: [ENCOUNTER_OFFICER_COMMAND_ID.HELM_FLY_TO],
                 };
 
             case SPACE_OBJECT_KIND.ASTEROID:
@@ -285,7 +285,7 @@ export default class EncounterStateStore {
 
                     perspectiveDepth: 1,
 
-                    officerCommandIds: [ENCOUNTER_OFFICER_COMMAND_ID.FLY_TO],
+                    officerCommandIds: [ENCOUNTER_OFFICER_COMMAND_ID.HELM_FLY_TO],
                 };
 
             default:
