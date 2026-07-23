@@ -1,7 +1,7 @@
 // src/engine/encounter/commands/OfficerCommandExecutor.ts
 
 import { OFFICER_ROLE, type OfficerRole } from '../../defs/officer';
-import { ContactSequenceStep } from '../contact/sequences/contact_sequence';
+import { type ContactSequenceStep } from '../contact/sequences/contact_sequence';
 import { createStationHailSequence } from '../contact/sequences/create_station_hail_sequence';
 import {
     ENCOUNTER_OFFICER_COMMAND_ID,
