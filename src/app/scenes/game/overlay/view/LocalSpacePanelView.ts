@@ -1,5 +1,6 @@
 // src/app/scenes/game/overlay/view/LocalSpacePanelView.ts
 
+import { FONT_COLOR, FONT_FAMILY, FONT_SIZE } from '../../../../theme/font';
 import { LOCAL_SPACE_PANEL_SPRITE_ID, LOCAL_SPACE_PANEL_SPRITES } from '../../../../manifests/ui/local_space_panel';
 import { UI_BUTTON_SPRITE_ID, UI_BUTTON_SPRITES } from '../../../../manifests/ui/button';
 import type GameOverlayEventBus from '../events/GameOverlayEventBus';
@@ -21,17 +22,22 @@ const CLOSE_BUTTON_HIT_AREA_HEIGHT = 35;
 
 const ROW_X = 32;
 const FIRST_ROW_Y = 59;
-const ROW_GAP = 23;
+const ROW_GAP = 24;
 
-const MOCK_ROWS = ['> GENERIC STATION', '  NAVIGATION BEACON', '  ASTEROID'] as const;
+export type LocalSpacePanelRow = {
+    objectId: string;
+    label: string;
+    isCurrent: boolean;
+};
 
 // Read-only LOCAL SPACE modal.
 //
-// Пока использует mock rows.
-// Runtime query и настоящий presentation payload добавим следующим атомом.
+// Получает готовые presentation rows:
+// view не знает о SpaceObjectState и не собирает названия объектов.
 export default class LocalSpacePanelView {
     private readonly root: Phaser.GameObjects.Container;
     private readonly closeButtonImage: Phaser.GameObjects.Image;
+    private readonly rowTexts: Phaser.GameObjects.BitmapText[] = [];
 
     constructor(
         private readonly scene: GameOverlayScene,
@@ -74,15 +80,6 @@ export default class LocalSpacePanelView {
 
         this.root.add([inputBlocker, topImage, middleImage, bottomImage]);
 
-        MOCK_ROWS.forEach((row, index) => {
-            const rowText = this.scene.add
-                .bitmapText(panelX + ROW_X, panelY + FIRST_ROW_Y + index * ROW_GAP, 'vga_8x14', row, 14)
-                .setOrigin(0, 0)
-                .setTint(0xe8dfbf);
-
-            this.root.add(rowText);
-        });
-
         const closeButtonSprite = UI_BUTTON_SPRITES[UI_BUTTON_SPRITE_ID.CLOSE_00];
 
         this.closeButtonImage = this.scene.add
@@ -106,7 +103,9 @@ export default class LocalSpacePanelView {
         this.hide();
     }
 
-    public show(): void {
+    public show(rows: readonly LocalSpacePanelRow[]): void {
+        this.renderRows(rows);
+
         this.root.setVisible(true);
         this.root.setActive(true);
     }
@@ -119,7 +118,47 @@ export default class LocalSpacePanelView {
     public destroy(): void {
         this.closeButtonImage.off(Phaser.Input.Events.POINTER_UP, this.handleClosePointerUp, this);
 
+        this.clearRows();
         this.root.destroy(true);
+    }
+
+    private renderRows(rows: readonly LocalSpacePanelRow[]): void {
+        this.clearRows();
+
+        rows.forEach((row, index) => {
+            const marker = row.isCurrent ? '> ' : '  ';
+            const text = `${marker}${row.label.toUpperCase()}`;
+
+            const rowText = this.scene.add
+                .bitmapText(
+                    this.getPanelX() + ROW_X,
+                    this.getPanelY() + FIRST_ROW_Y + index * ROW_GAP,
+                    FONT_FAMILY.VGA_8X14,
+                    text,
+                    FONT_SIZE.PX_16,
+                )
+                .setOrigin(0, 0)
+                .setTint(row.isCurrent ? FONT_COLOR.LOCAL_SPACE_CURRENT_OBJECT : FONT_COLOR.LOCAL_SPACE_OBJECT);
+
+            this.root.add(rowText);
+            this.rowTexts.push(rowText);
+        });
+    }
+
+    private clearRows(): void {
+        for (const rowText of this.rowTexts) {
+            rowText.destroy();
+        }
+
+        this.rowTexts.length = 0;
+    }
+
+    private getPanelX(): number {
+        return Math.floor((this.scene.scale.width - PANEL_WIDTH) / 2);
+    }
+
+    private getPanelY(): number {
+        return Math.floor((this.scene.scale.height - PANEL_HEIGHT) / 2);
     }
 
     private handleClosePointerUp(): void {

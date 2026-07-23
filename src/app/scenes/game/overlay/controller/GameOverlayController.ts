@@ -1,14 +1,28 @@
 // src/app/scenes/game/overlay/controller/GameOverlayController.ts
 
+import {
+    PLAYER_LOCATION_KIND,
+    PLAYER_SPACE_NAVIGATION_KIND,
+    type PlayerLocationState,
+} from '../../../../../engine/defs/player_location';
+import { SPACE_OBJECT_KIND, type SpaceObjectState } from '../../../../../engine/defs/universe';
+import { getCurrentNode } from '../../../../../engine/universe/queries/get_current_node';
+import { GAME_RUNTIME } from '../../../../runtime/GameRuntime';
 import GameOverlayEventBus from '../events/GameOverlayEventBus';
 import { GAME_OVERLAY_EVENT } from '../events/game_overlay_event';
 import type GameOverlayScene from '../GameOverlayScene';
 import LocalSpaceButtonView from '../view/LocalSpaceButtonView';
-import LocalSpacePanelView from '../view/LocalSpacePanelView';
+import LocalSpacePanelView, { type LocalSpacePanelRow } from '../view/LocalSpacePanelView';
+
+type SpaceObjectIdentity = {
+    id: string;
+    name: string;
+};
 
 // Root-controller постоянного game overlay.
 //
-// Собирает overlay views и обрабатывает scene-local UI intents.
+// Собирает overlay views, обрабатывает UI intents
+// и подготавливает presentation payload из текущего RunState.
 export default class GameOverlayController {
     private readonly eventBus = new GameOverlayEventBus();
 
@@ -60,10 +74,85 @@ export default class GameOverlayController {
     }
 
     private handleLocalSpaceButtonClicked(): void {
-        this.localSpacePanelView?.show();
+        const rows = this.createLocalSpacePanelRows();
+
+        this.localSpacePanelView?.show(rows);
     }
 
     private handleLocalSpacePanelCloseClicked(): void {
         this.localSpacePanelView?.hide();
+    }
+
+    private createLocalSpacePanelRows(): LocalSpacePanelRow[] {
+        const run = GAME_RUNTIME.getCurrentRun();
+        const currentNode = getCurrentNode(run);
+        const currentObjectId = this.getCurrentObjectId(run.player.location);
+
+        return currentNode.objects.map((object) => {
+            const identity = this.getSpaceObjectIdentity(object);
+
+            return {
+                objectId: identity.id,
+                label: identity.name,
+                isCurrent: identity.id === currentObjectId,
+            };
+        });
+    }
+
+    private getCurrentObjectId(location: PlayerLocationState): string | undefined {
+        switch (location.kind) {
+            case PLAYER_LOCATION_KIND.SPACE: {
+                const navigation = location.navigation;
+
+                switch (navigation.kind) {
+                    case PLAYER_SPACE_NAVIGATION_KIND.ARRIVING:
+                        return navigation.targetObjectId;
+
+                    case PLAYER_SPACE_NAVIGATION_KIND.ANCHORED:
+                        return navigation.anchorObjectId;
+
+                    case PLAYER_SPACE_NAVIGATION_KIND.TRAVELLING:
+                        return undefined;
+
+                    default:
+                        return this.assertNever(navigation);
+                }
+            }
+
+            case PLAYER_LOCATION_KIND.STATION:
+                return location.stationId;
+
+            default:
+                return this.assertNever(location);
+        }
+    }
+
+    private getSpaceObjectIdentity(object: SpaceObjectState): SpaceObjectIdentity {
+        switch (object.kind) {
+            case SPACE_OBJECT_KIND.STATION:
+                return {
+                    id: object.station.id,
+                    name: object.station.name,
+                };
+
+            case SPACE_OBJECT_KIND.NAVIGATION_BEACON:
+                return {
+                    id: object.beacon.id,
+                    name: object.beacon.name,
+                };
+
+            case SPACE_OBJECT_KIND.ASTEROID:
+                return {
+                    id: object.asteroid.id,
+                    name: object.asteroid.name,
+                };
+
+            default:
+                return this.assertNever(object);
+        }
+    }
+
+    private assertNever(value: never): never {
+        throw new Error(`Unhandled value: ${String(value)}`);
     }
 }
