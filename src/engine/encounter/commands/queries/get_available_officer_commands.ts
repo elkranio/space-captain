@@ -5,6 +5,7 @@ import { PLAYER_SPACE_NAVIGATION_KIND } from '../../../defs/player_location';
 import {
     ENCOUNTER_OBJECT_TARGET_SCOPE,
     ENCOUNTER_OFFICER_COMMAND_ID,
+    OFFICER_COMMAND_TARGET_KIND,
     getOfficerCommandDef,
     type AvailableOfficerCommand,
     type EncounterOfficerCommandId,
@@ -25,6 +26,8 @@ export function getAvailableOfficerCommands(state: EncounterState, role: Officer
         return [];
     }
 
+    appendUntargetedCommands(commands, role);
+
     for (const object of state.objects) {
         for (const commandId of object.officerCommandIds) {
             const commandDef = getOfficerCommandDef(commandId);
@@ -44,12 +47,37 @@ export function getAvailableOfficerCommands(state: EncounterState, role: Officer
     return commands;
 }
 
+function appendUntargetedCommands(commands: AvailableOfficerCommand[], role: OfficerRole): void {
+    const commandIds: EncounterOfficerCommandId[] = Object.values(ENCOUNTER_OFFICER_COMMAND_ID);
+
+    for (const commandId of commandIds) {
+        const commandDef = getOfficerCommandDef(commandId);
+
+        if (commandDef.role !== role) {
+            continue;
+        }
+
+        if (commandDef.targeting.kind !== OFFICER_COMMAND_TARGET_KIND.NONE) {
+            continue;
+        }
+
+        commands.push({
+            commandId,
+            label: commandDef.label,
+        });
+    }
+}
+
 function tryCreateAvailableOfficerCommandForObject(
     state: EncounterState,
     object: EncounterObjectState,
     commandId: EncounterOfficerCommandId,
 ): AvailableOfficerCommand | undefined {
     const commandDef = getOfficerCommandDef(commandId);
+
+    if (commandDef.targeting.kind !== OFFICER_COMMAND_TARGET_KIND.ENCOUNTER_OBJECT) {
+        throw new Error(`Encounter object contains untargeted officer command: ${commandId}`);
+    }
 
     if (
         commandDef.targeting.scope === ENCOUNTER_OBJECT_TARGET_SCOPE.CURRENT_ANCHOR &&
@@ -72,7 +100,7 @@ function tryCreateAvailableOfficerCommandForObject(
             return tryCreateFlyToCommand(state, commandId, commandDef.label, object);
     }
 
-    throw new Error(`Unhandled encounter officer command: ${String(commandId)}`);
+    throw new Error(`Unhandled encounter object officer command: ${String(commandId)}`);
 }
 
 function isCurrentAnchorObject(state: EncounterState, objectId: string): boolean {

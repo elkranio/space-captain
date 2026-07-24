@@ -21,6 +21,7 @@ import {
     createCommsRequestDockingTask,
     createHelmDockTask,
     createHelmFlyToTask,
+    createSciencePlotCourseTask,
 } from '../officer_tasks/create_officer_task_draft';
 import EncounterStateStore from '../state/EncounterStateStore';
 import { getAvailableOfficerCommands } from './queries/get_available_officer_commands';
@@ -103,6 +104,10 @@ export default class OfficerCommandExecutor {
                 this.executeRequestDocking(input);
                 break;
 
+            case ENCOUNTER_OFFICER_COMMAND_ID.SCIENCE_PLOT_COURSE:
+                this.executeSciencePlotCourse();
+                break;
+
             case ENCOUNTER_OFFICER_COMMAND_ID.HELM_DOCK:
                 this.executeDock(input);
                 break;
@@ -166,6 +171,10 @@ export default class OfficerCommandExecutor {
         }
 
         this.startOfficerTask(createCommsRequestDockingTask(input.targetId));
+    }
+
+    private executeSciencePlotCourse(): void {
+        this.startOfficerTask(createSciencePlotCourseTask());
     }
 
     private executeDock(input: ExecuteOfficerCommandInput): void {

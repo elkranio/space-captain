@@ -10,6 +10,9 @@ import { OFFICER_ROLE, type OfficerRole } from '../../defs/officer';
 export const ENCOUNTER_OFFICER_COMMAND_ID = {
     COMMS_HAIL: 'comms_hail',
     COMMS_REQUEST_DOCKING: 'comms_request_docking',
+
+    SCIENCE_PLOT_COURSE: 'science_plot_course',
+
     HELM_DOCK: 'helm_dock',
     HELM_FLY_TO: 'helm_fly_to',
 } as const;
@@ -21,12 +24,13 @@ export type EncounterOfficerCommandId =
 
 // Тип domain-цели, к которой применяется officer command.
 //
-// Сейчас encounter поддерживает только команды,
-// направленные на объекты текущего encounter.
+// NONE используется для команд,
+// которые не требуют выбора конкретной цели.
 //
-// Новые target kinds следует добавлять вместе
-// с реальным источником и правилами доступности таких целей.
+// ENCOUNTER_OBJECT используется для команд,
+// направленных на объекты текущего encounter.
 export const OFFICER_COMMAND_TARGET_KIND = {
+    NONE: 'none',
     ENCOUNTER_OBJECT: 'encounter_object',
 } as const;
 
@@ -42,15 +46,15 @@ export const ENCOUNTER_OBJECT_TARGET_SCOPE = {
 export type EncounterObjectTargetScope =
     (typeof ENCOUNTER_OBJECT_TARGET_SCOPE)[keyof typeof ENCOUNTER_OBJECT_TARGET_SCOPE];
 
-// Статическое описание допустимой цели.
-//
-// kind сохраняется как явная точка расширения:
-// когда появится реально поддержанный новый тип цели,
-// targeting снова станет discriminated union.
-export type OfficerCommandTargeting = {
-    kind: typeof OFFICER_COMMAND_TARGET_KIND.ENCOUNTER_OBJECT;
-    scope: EncounterObjectTargetScope;
-};
+// Неизменяемое описание допустимой цели officer command.
+export type OfficerCommandTargeting =
+    | {
+          kind: typeof OFFICER_COMMAND_TARGET_KIND.NONE;
+      }
+    | {
+          kind: typeof OFFICER_COMMAND_TARGET_KIND.ENCOUNTER_OBJECT;
+          scope: EncounterObjectTargetScope;
+      };
 
 // Неизменяемые свойства officer command.
 //
@@ -71,7 +75,12 @@ export type OfficerCommandDef = {
 
 // Единый registry статических свойств officer commands.
 //
-// Encounter objects хранят только command ids.
+// Encounter objects хранят только ids команд,
+// направленных на encounter objects.
+//
+// Нетаргетированные команды доступны напрямую
+// через registry.
+//
 // Role, label, targeting и bridge requirement
 // остальные системы получают отсюда.
 export const OFFICER_COMMAND_DEFS = {
@@ -91,6 +100,15 @@ export const OFFICER_COMMAND_DEFS = {
         targeting: {
             kind: OFFICER_COMMAND_TARGET_KIND.ENCOUNTER_OBJECT,
             scope: ENCOUNTER_OBJECT_TARGET_SCOPE.CURRENT_ANCHOR,
+        },
+        requiresIdleBridge: false,
+    },
+
+    [ENCOUNTER_OFFICER_COMMAND_ID.SCIENCE_PLOT_COURSE]: {
+        role: OFFICER_ROLE.SCIENCE,
+        label: 'PLOT COURSE',
+        targeting: {
+            kind: OFFICER_COMMAND_TARGET_KIND.NONE,
         },
         requiresIdleBridge: false,
     },

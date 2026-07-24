@@ -151,6 +151,7 @@ export default class OfficerTaskRunner {
                 return undefined;
 
             case OFFICER_TASK_KIND.COMMS_HAIL:
+            case OFFICER_TASK_KIND.SCIENCE_PLOT_COURSE:
             case OFFICER_TASK_KIND.HELM_DOCK:
                 return undefined;
 

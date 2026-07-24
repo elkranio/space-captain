@@ -5,6 +5,7 @@ import { ENCOUNTER_OFFICER_COMMAND_ID } from '../model/command';
 import { OFFICER_TASK_KIND, type OfficerTaskDraft } from '../model/officer_task';
 
 const REQUEST_DOCKING_BASE_DURATION_MS = 3000;
+const PLOT_COURSE_BASE_DURATION_MS = 5000;
 
 export function createCommsHailTask(targetId: string): OfficerTaskDraft {
     return {
@@ -27,6 +28,16 @@ export function createCommsRequestDockingTask(targetId: string): OfficerTaskDraf
         targetId,
         label: 'REQ DOCK',
         durationMs: REQUEST_DOCKING_BASE_DURATION_MS,
+    };
+}
+
+export function createSciencePlotCourseTask(): OfficerTaskDraft {
+    return {
+        kind: OFFICER_TASK_KIND.SCIENCE_PLOT_COURSE,
+        role: OFFICER_ROLE.SCIENCE,
+        sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.SCIENCE_PLOT_COURSE,
+        label: 'PLOT COURSE',
+        durationMs: PLOT_COURSE_BASE_DURATION_MS,
     };
 }
 

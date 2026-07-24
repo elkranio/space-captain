@@ -14,6 +14,8 @@ export const OFFICER_TASK_KIND = {
 
     COMMS_REQUEST_DOCKING: 'comms_request_docking',
 
+    SCIENCE_PLOT_COURSE: 'science_plot_course',
+
     HELM_DOCK: 'helm_dock',
 
     HELM_FLY_TO: 'helm_fly_to',
