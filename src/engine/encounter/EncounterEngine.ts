@@ -11,6 +11,7 @@ import type { OfficerAvailabilityStates } from './model/officer_availability';
 import { getOfficerAvailabilityStates } from './officer_availability/queries/get_officer_availability_states';
 import OfficerTaskRunner from './officer_tasks/OfficerTaskRunner';
 import EncounterStateStore from './state/EncounterStateStore';
+import type { OfficerRole } from '../defs/officer';
 
 export type EncounterEngineOptions = {
     node: SpaceNodeState;
@@ -81,7 +82,7 @@ export default class EncounterEngine {
         this.officerTaskRunner.cancel(taskId);
     }
 
-    public getAvailableCommands(role: ExecuteOfficerCommandInput['role']): AvailableOfficerCommand[] {
+    public getAvailableCommands(role: OfficerRole): AvailableOfficerCommand[] {
         return getAvailableOfficerCommands(this.stateStore.getState(), role);
     }
 
