@@ -76,11 +76,13 @@ export default class GameOverlayController {
     }
 
     private registerRuntimeEventHandlers(): void {
-        GAME_RUNTIME.onPlayerLocationChanged(this.handlePlayerLocationChanged);
+        GAME_RUNTIME.onPlayerLocationChanged(this.handleRuntimeStateChanged);
+        GAME_RUNTIME.onCurrentNodeObjectsChanged(this.handleRuntimeStateChanged);
     }
 
     private unregisterRuntimeEventHandlers(): void {
-        GAME_RUNTIME.offPlayerLocationChanged(this.handlePlayerLocationChanged);
+        GAME_RUNTIME.offPlayerLocationChanged(this.handleRuntimeStateChanged);
+        GAME_RUNTIME.offCurrentNodeObjectsChanged(this.handleRuntimeStateChanged);
     }
 
     private handleLocalSpaceButtonClicked(): void {
@@ -91,7 +93,7 @@ export default class GameOverlayController {
         this.localSpacePanelView?.hide();
     }
 
-    private readonly handlePlayerLocationChanged = (): void => {
+    private readonly handleRuntimeStateChanged = (): void => {
         if (!this.localSpacePanelView?.isVisible()) {
             return;
         }
@@ -161,6 +163,12 @@ export default class GameOverlayController {
                 return {
                     id: object.asteroid.id,
                     name: object.asteroid.name,
+                };
+
+            case SPACE_OBJECT_KIND.JUMP_POINT:
+                return {
+                    id: object.jumpPoint.id,
+                    name: object.jumpPoint.name,
                 };
 
             default:

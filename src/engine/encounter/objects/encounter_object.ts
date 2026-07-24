@@ -5,11 +5,13 @@ import type { EncounterOfficerCommandId } from '../model/command';
 import type { AsteroidEncounterObjectState } from './asteroid/asteroid_encounter_object';
 import type { NavigationBeaconEncounterObjectState } from './navigation_beacon/navigation_beacon_encounter_object';
 import type { StationEncounterObjectState } from './station/station_encounter_object';
+import type { JumpPointEncounterObjectState } from './jump_point/jump_point_encounter_object';
 
 export const ENCOUNTER_OBJECT_KIND = {
     STATION: 'station',
     NAVIGATION_BEACON: 'navigation_beacon',
     ASTEROID: 'asteroid',
+    JUMP_POINT: 'jump_point',
 } as const;
 
 export type EncounterObjectPosition = {
@@ -56,4 +58,5 @@ export type EncounterObjectBaseState = {
 export type EncounterObjectState =
     | StationEncounterObjectState
     | NavigationBeaconEncounterObjectState
-    | AsteroidEncounterObjectState;
+    | AsteroidEncounterObjectState
+    | JumpPointEncounterObjectState;

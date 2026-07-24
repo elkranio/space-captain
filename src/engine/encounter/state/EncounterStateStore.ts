@@ -8,6 +8,8 @@ import type { OfficerTaskState } from '../model/officer_task';
 import type { EncounterState } from '../model/state';
 import { ENCOUNTER_OBJECT_KIND, type EncounterObjectState } from '../objects/encounter_object';
 import { DOCKING_CLEARANCE_STATE } from '../objects/station/station_encounter_object';
+import { JUMP_POINT_OBJECT_SPRITE_ID } from '../../defs/jump_point';
+import type { JumpPointEncounterObjectState } from '../objects/jump_point/jump_point_encounter_object';
 
 export type EncounterTravelStart = {
     fromObjectId: string;
@@ -138,6 +140,57 @@ export default class EncounterStateStore {
     // #endregion
 
     // #region Encounter object mutations
+
+    public createJumpPoint(targetNodeId: string): JumpPointEncounterObjectState {
+        const existingJumpPoint = this.state.objects.find((object) => {
+            return object.kind === ENCOUNTER_OBJECT_KIND.JUMP_POINT;
+        });
+
+        if (existingJumpPoint) {
+            throw new Error(`Encounter already contains jump point: ${existingJumpPoint.id}`);
+        }
+
+        const id = `jump_point_${targetNodeId}`;
+
+        if (this.findObjectById(id)) {
+            throw new Error(`Cannot create duplicate encounter object: ${id}`);
+        }
+
+        const object: JumpPointEncounterObjectState = {
+            id,
+            kind: ENCOUNTER_OBJECT_KIND.JUMP_POINT,
+            displayName: 'JUMP POINT',
+
+            jumpPoint: {
+                id,
+                name: 'JUMP POINT',
+                targetNodeId,
+                objectSpriteId: JUMP_POINT_OBJECT_SPRITE_ID.JUMP_POINT_00,
+            },
+
+            anchorObjectId: id,
+
+            // Временная постановочная позиция внутри текущей ноды.
+            localPosition: {
+                x: 1500,
+                y: -250,
+                z: 700,
+            },
+
+            position: {
+                x: 0,
+                y: 0,
+            },
+
+            perspectiveDepth: 1,
+
+            officerCommandIds: [ENCOUNTER_OFFICER_COMMAND_ID.HELM_FLY_TO],
+        };
+
+        this.state.objects.push(object);
+
+        return object;
+    }
 
     public grantDockingClearance(targetObjectId: string): void {
         const target = this.findObjectById(targetObjectId);
@@ -281,6 +334,29 @@ export default class EncounterStateStore {
                     position: {
                         x: 0.42,
                         y: 0.12,
+                    },
+
+                    perspectiveDepth: 1,
+
+                    officerCommandIds: [ENCOUNTER_OFFICER_COMMAND_ID.HELM_FLY_TO],
+                };
+
+            case SPACE_OBJECT_KIND.JUMP_POINT:
+                return {
+                    id: object.jumpPoint.id,
+                    kind: ENCOUNTER_OBJECT_KIND.JUMP_POINT,
+                    displayName: object.jumpPoint.name,
+                    jumpPoint: object.jumpPoint,
+
+                    anchorObjectId: object.jumpPoint.id,
+
+                    localPosition: {
+                        ...object.localPosition,
+                    },
+
+                    position: {
+                        x: 0,
+                        y: 0,
                     },
 
                     perspectiveDepth: 1,

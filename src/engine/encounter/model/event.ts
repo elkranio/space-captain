@@ -4,6 +4,7 @@ import type { CharacterPortraitId } from '../../defs/character';
 import type { EncounterObjectState } from '../objects/encounter_object';
 import type { OfficerTaskState } from './officer_task';
 import type { EncounterState } from './state';
+import type { JumpPointEncounterObjectState } from '../objects/jump_point/jump_point_encounter_object';
 
 // События, которые EncounterEngine отдаёт наружу
 // через outbox.
@@ -38,13 +39,18 @@ export type OfficerTaskOutcome = (typeof OFFICER_TASK_OUTCOME)[keyof typeof OFFI
 
 export const OFFICER_TASK_RESULT_KIND = {
     DOCKING_CLEARANCE_GRANTED: 'docking_clearance_granted',
+    JUMP_POINT_CALCULATED: 'jump_point_calculated',
 } as const;
 
-export type OfficerTaskResult = {
-    kind: typeof OFFICER_TASK_RESULT_KIND.DOCKING_CLEARANCE_GRANTED;
-
-    targetObjectId: string;
-};
+export type OfficerTaskResult =
+    | {
+          kind: typeof OFFICER_TASK_RESULT_KIND.DOCKING_CLEARANCE_GRANTED;
+          targetObjectId: string;
+      }
+    | {
+          kind: typeof OFFICER_TASK_RESULT_KIND.JUMP_POINT_CALCULATED;
+          object: JumpPointEncounterObjectState;
+      };
 
 // Полный snapshot encounter после создания
 // или пересборки состояния.

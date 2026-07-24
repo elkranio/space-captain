@@ -7,8 +7,11 @@ import {
     type PlayerSpaceNavigationState,
 } from '../../engine/defs/player_location';
 import type { RunState } from '../../engine/defs/run';
+import { SPACE_OBJECT_KIND, type SpaceObjectState } from '../../engine/defs/universe';
+import { getCurrentNode } from '../../engine/universe/queries/get_current_node';
 
 type PlayerLocationChangedListener = () => void;
+type CurrentNodeObjectsChangedListener = () => void;
 
 // Runtime текущей игровой сессии.
 //
@@ -17,8 +20,8 @@ type PlayerLocationChangedListener = () => void;
 // чтобы постоянные UI-системы могли перечитать актуальное состояние.
 class GameRuntime {
     private readonly currentRun: RunState = createNewRunState();
-
     private readonly playerLocationChangedListeners = new Set<PlayerLocationChangedListener>();
+    private readonly currentNodeObjectsChangedListeners = new Set<CurrentNodeObjectsChangedListener>();
 
     public getCurrentRun(): RunState {
         return this.currentRun;
@@ -42,6 +45,29 @@ class GameRuntime {
         this.emitPlayerLocationChanged();
     }
 
+    public addCurrentNodeObject(object: SpaceObjectState): void {
+        const location = this.currentRun.player.location;
+
+        if (location.kind !== PLAYER_LOCATION_KIND.SPACE) {
+            throw new Error(`Cannot add space object for player location: ${location.kind}`);
+        }
+
+        const node = getCurrentNode(this.currentRun);
+        const objectId = this.getSpaceObjectId(object);
+
+        const existingObject = node.objects.find((candidate) => {
+            return this.getSpaceObjectId(candidate) === objectId;
+        });
+
+        if (existingObject) {
+            throw new Error(`Current node already contains space object: ${objectId}`);
+        }
+
+        node.objects.push(object);
+
+        this.emitCurrentNodeObjectsChanged();
+    }
+
     public onPlayerLocationChanged(listener: PlayerLocationChangedListener): void {
         this.playerLocationChangedListeners.add(listener);
     }
@@ -50,8 +76,22 @@ class GameRuntime {
         this.playerLocationChangedListeners.delete(listener);
     }
 
+    public onCurrentNodeObjectsChanged(listener: CurrentNodeObjectsChangedListener): void {
+        this.currentNodeObjectsChangedListeners.add(listener);
+    }
+
+    public offCurrentNodeObjectsChanged(listener: CurrentNodeObjectsChangedListener): void {
+        this.currentNodeObjectsChangedListeners.delete(listener);
+    }
+
     private emitPlayerLocationChanged(): void {
         for (const listener of [...this.playerLocationChangedListeners]) {
+            listener();
+        }
+    }
+
+    private emitCurrentNodeObjectsChanged(): void {
+        for (const listener of [...this.currentNodeObjectsChangedListeners]) {
             listener();
         }
     }
@@ -82,6 +122,25 @@ class GameRuntime {
 
             default:
                 return this.assertNever(current);
+        }
+    }
+
+    private getSpaceObjectId(object: SpaceObjectState): string {
+        switch (object.kind) {
+            case SPACE_OBJECT_KIND.STATION:
+                return object.station.id;
+
+            case SPACE_OBJECT_KIND.NAVIGATION_BEACON:
+                return object.beacon.id;
+
+            case SPACE_OBJECT_KIND.ASTEROID:
+                return object.asteroid.id;
+
+            case SPACE_OBJECT_KIND.JUMP_POINT:
+                return object.jumpPoint.id;
+
+            default:
+                return this.assertNever(object);
         }
     }
 

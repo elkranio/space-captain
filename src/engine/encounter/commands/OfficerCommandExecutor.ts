@@ -105,7 +105,7 @@ export default class OfficerCommandExecutor {
                 break;
 
             case ENCOUNTER_OFFICER_COMMAND_ID.SCIENCE_PLOT_COURSE:
-                this.executeSciencePlotCourse();
+                this.executeSciencePlotCourse(input);
                 break;
 
             case ENCOUNTER_OFFICER_COMMAND_ID.HELM_DOCK:
@@ -130,6 +130,10 @@ export default class OfficerCommandExecutor {
     // #region Command validation
 
     private canExecute(input: ExecuteOfficerCommandInput): boolean {
+        if (input.commandId === ENCOUNTER_OFFICER_COMMAND_ID.SCIENCE_PLOT_COURSE && !input.targetNodeId) {
+            return false;
+        }
+
         const commands = getAvailableOfficerCommands(this.stateStore.getState(), input.role);
 
         return commands.some((command) => {
@@ -173,8 +177,12 @@ export default class OfficerCommandExecutor {
         this.startOfficerTask(createCommsRequestDockingTask(input.targetId));
     }
 
-    private executeSciencePlotCourse(): void {
-        this.startOfficerTask(createSciencePlotCourseTask());
+    private executeSciencePlotCourse(input: ExecuteOfficerCommandInput): void {
+        if (!input.targetNodeId) {
+            throw new Error('SCIENCE_PLOT_COURSE command requires targetNodeId');
+        }
+
+        this.startOfficerTask(createSciencePlotCourseTask(input.targetNodeId));
     }
 
     private executeDock(input: ExecuteOfficerCommandInput): void {

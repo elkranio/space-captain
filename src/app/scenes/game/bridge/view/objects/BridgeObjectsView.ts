@@ -52,16 +52,16 @@ export default class BridgeObjectsView {
         });
 
         this.eventBus.on(BRIDGE_EVENT.ENCOUNTER_OBJECTS_LOADED, this.prepareObjects, this);
-
         this.eventBus.on(BRIDGE_EVENT.ENCOUNTER_OBJECTS_UPDATED, this.syncObjects, this);
+        this.eventBus.on(BRIDGE_EVENT.ENCOUNTER_OBJECT_ADDED, this.addObject, this);
     }
 
     public destroy(): void {
         this.animationSequencer.destroy();
 
         this.eventBus.off(BRIDGE_EVENT.ENCOUNTER_OBJECTS_LOADED, this.prepareObjects, this);
-
         this.eventBus.off(BRIDGE_EVENT.ENCOUNTER_OBJECTS_UPDATED, this.syncObjects, this);
+        this.eventBus.off(BRIDGE_EVENT.ENCOUNTER_OBJECT_ADDED, this.addObject, this);
 
         for (const view of this.objectViews.values()) {
             view.destroy();
@@ -81,6 +81,21 @@ export default class BridgeObjectsView {
         for (const view of this.objectViews.values()) {
             view.prepareForArrival();
         }
+    }
+
+    // Добавляет новый объект в prepared views,
+    // не меняя текущую картинку viewscreen.
+    private addObject(object: BridgeEncounterObjectPayload): void {
+        let view = this.objectViews.get(object.id);
+
+        if (view) {
+            view.update(object);
+        } else {
+            view = new BridgeObjectSpriteView(this.scene, this.root, object);
+            this.objectViews.set(object.id, view);
+        }
+
+        view.prepareForArrival();
     }
 
     // Presentation update показывает переданный набор,

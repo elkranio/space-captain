@@ -166,7 +166,11 @@ export type AvailableOfficerCommand = {
 export type ExecuteOfficerCommandInput = {
     role: OfficerRole;
     commandId: EncounterOfficerCommandId;
+
     targetId?: string;
+
+    // Destination, выбранная до запуска команды PLOT COURSE.
+    targetNodeId?: string;
 };
 
 export const OFFICER_COMMAND_EXECUTION_STATUS = {

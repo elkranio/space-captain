@@ -151,9 +151,11 @@ export default class OfficerTaskRunner {
                 return undefined;
 
             case OFFICER_TASK_KIND.COMMS_HAIL:
-            case OFFICER_TASK_KIND.SCIENCE_PLOT_COURSE:
             case OFFICER_TASK_KIND.HELM_DOCK:
                 return undefined;
+
+            case OFFICER_TASK_KIND.SCIENCE_PLOT_COURSE:
+                return this.resolveSciencePlotCourseTask(task);
 
             default:
                 throw new Error(`Unhandled officer task kind: ${String(task.kind)}`);
@@ -179,6 +181,19 @@ export default class OfficerTaskRunner {
         }
 
         this.stateStore.completeTravel(task.targetId);
+    }
+
+    private resolveSciencePlotCourseTask(task: OfficerTaskState): OfficerTaskResult {
+        if (!task.targetNodeId) {
+            throw new Error('SCIENCE_PLOT_COURSE task requires targetNodeId');
+        }
+
+        const object = this.stateStore.createJumpPoint(task.targetNodeId);
+
+        return {
+            kind: OFFICER_TASK_RESULT_KIND.JUMP_POINT_CALCULATED,
+            object,
+        };
     }
 
     // #endregion

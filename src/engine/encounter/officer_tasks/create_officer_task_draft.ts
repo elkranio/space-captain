@@ -31,11 +31,12 @@ export function createCommsRequestDockingTask(targetId: string): OfficerTaskDraf
     };
 }
 
-export function createSciencePlotCourseTask(): OfficerTaskDraft {
+export function createSciencePlotCourseTask(targetNodeId: string): OfficerTaskDraft {
     return {
         kind: OFFICER_TASK_KIND.SCIENCE_PLOT_COURSE,
         role: OFFICER_ROLE.SCIENCE,
         sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.SCIENCE_PLOT_COURSE,
+        targetNodeId,
         label: 'PLOT COURSE',
         durationMs: PLOT_COURSE_BASE_DURATION_MS,
     };

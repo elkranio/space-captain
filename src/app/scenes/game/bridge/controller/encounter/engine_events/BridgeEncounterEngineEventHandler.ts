@@ -6,6 +6,7 @@ import {
     ENCOUNTER_EVENT,
     type EncounterEvent,
     type EncounterLoadedEvent,
+    OFFICER_TASK_RESULT_KIND,
 } from '../../../../../../../engine/encounter/model/event';
 import { OFFICER_TASK_KIND } from '../../../../../../../engine/encounter/model/officer_task';
 import type { EncounterState } from '../../../../../../../engine/encounter/model/state';
@@ -19,6 +20,7 @@ import { BEACON_OBJECT_SPRITES } from '../../../../../../manifests/beacons/beaco
 import { STATION_OBJECT_SPRITES } from '../../../../../../manifests/stations/station_sprite';
 import { BRIDGE_EVENT, type BridgeEncounterObjectPayload } from '../../../events/bridge_event';
 import type BridgeEventBus from '../../../events/BridgeEventBus';
+import { JUMP_POINT_OBJECT_SPRITES } from '../../../../../../manifests/jump_points/jump_point_sprite';
 
 type SetEncounterInteractive = (value: boolean) => void;
 
@@ -90,6 +92,13 @@ export default class BridgeEncounterEngineEventHandler {
                 return;
 
             case ENCOUNTER_EVENT.OFFICER_TASK_ENDED:
+                if (event.result?.kind === OFFICER_TASK_RESULT_KIND.JUMP_POINT_CALCULATED) {
+                    this.eventBus.emit(
+                        BRIDGE_EVENT.ENCOUNTER_OBJECT_ADDED,
+                        this.mapEncounterObjectToBridgeObjectPayload(event.result.object),
+                    );
+                }
+
                 this.eventBus.emit(BRIDGE_EVENT.OFFICER_ACTIVITY_CLEARED, {
                     role: event.task.role,
                 });
@@ -228,6 +237,20 @@ export default class BridgeEncounterEngineEventHandler {
 
                     perspectiveDepth: object.perspectiveDepth,
                     sprite: ASTEROID_OBJECT_SPRITES[object.asteroid.objectSpriteId],
+                    position: new Phaser.Math.Vector2(object.position.x, object.position.y),
+                };
+
+            case ENCOUNTER_OBJECT_KIND.JUMP_POINT:
+                return {
+                    id: object.id,
+                    anchorObjectId: object.anchorObjectId,
+
+                    localPosition: {
+                        ...object.localPosition,
+                    },
+
+                    perspectiveDepth: object.perspectiveDepth,
+                    sprite: JUMP_POINT_OBJECT_SPRITES[object.jumpPoint.objectSpriteId],
                     position: new Phaser.Math.Vector2(object.position.x, object.position.y),
                 };
 

@@ -29,15 +29,11 @@ export type OfficerTaskKind = (typeof OFFICER_TASK_KIND)[keyof typeof OFFICER_TA
 // но не создаёт runtime identity или progress.
 export type OfficerTaskDraft = {
     kind: OfficerTaskKind;
-
     role: OfficerRole;
-
     sourceCommandId: EncounterOfficerCommandId;
-
     targetId?: string;
-
+    targetNodeId?: string;
     label: string;
-
     durationMs: number | null;
 };
 

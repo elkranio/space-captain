@@ -7,8 +7,10 @@ import {
 } from '../../../../../../engine/defs/player_location';
 import EncounterEngine from '../../../../../../engine/encounter/EncounterEngine';
 import {
+    ENCOUNTER_OFFICER_COMMAND_ID,
     OFFICER_COMMAND_EXECUTION_STATUS,
     OFFICER_COMMAND_REJECTION_REASON,
+    type ExecuteOfficerCommandInput,
     type ExecuteOfficerCommandResult,
 } from '../../../../../../engine/encounter/model/command';
 import { DEBUG_SETTINGS } from '../../../../../debug/debug_settings';
@@ -24,6 +26,12 @@ import type BridgeEventBus from '../../events/BridgeEventBus';
 import BridgeOfficerCommandMenuController from './command_menu/BridgeOfficerCommandMenuController';
 import BridgeEncounterEngineEventHandler from './engine_events/BridgeEncounterEngineEventHandler';
 import BridgeOfficerStationsController from './officer_stations/BridgeOfficerStationsController';
+import { SPACE_OBJECT_KIND } from '../../../../../../engine/defs/universe';
+import {
+    ENCOUNTER_EVENT,
+    OFFICER_TASK_RESULT_KIND,
+    type EncounterEvent,
+} from '../../../../../../engine/encounter/model/event';
 
 // App-controller для bridge encounter flow.
 //
@@ -205,6 +213,7 @@ export default class BridgeEncounterController {
 
         const events = this.encounterEngine.drainEvents();
 
+        this.syncRuntimeObjectsFromEncounterEvents(events);
         this.engineEventHandler.handle(events);
     }
 
@@ -217,7 +226,8 @@ export default class BridgeEncounterController {
             return undefined;
         }
 
-        const result = this.encounterEngine.executeCommand(payload);
+        const input = this.createExecuteCommandInput(payload);
+        const result = this.encounterEngine.executeCommand(input);
 
         if (result.status === OFFICER_COMMAND_EXECUTION_STATUS.EXECUTED) {
             this.syncRuntimeNavigationFromEngine();
@@ -226,6 +236,32 @@ export default class BridgeEncounterController {
         }
 
         return result;
+    }
+
+    private createExecuteCommandInput(payload: BridgeOfficerCommandSelectedPayload): ExecuteOfficerCommandInput {
+        if (payload.commandId !== ENCOUNTER_OFFICER_COMMAND_ID.SCIENCE_PLOT_COURSE) {
+            return payload;
+        }
+
+        return {
+            ...payload,
+            targetNodeId: this.getAutomaticPlotCourseTargetNodeId(),
+        };
+    }
+
+    private getAutomaticPlotCourseTargetNodeId(): string {
+        const run = GAME_RUNTIME.getCurrentRun();
+        const currentNodeId = run.player.location.nodeId;
+
+        const targetNode = run.universe.nodes.find((node) => {
+            return node.id !== currentNodeId;
+        });
+
+        if (!targetNode) {
+            throw new Error(`No plot-course destination available from node: ${currentNodeId}`);
+        }
+
+        return targetNode.id;
     }
 
     private handleOfficerCommandResult(
@@ -306,6 +342,32 @@ export default class BridgeEncounterController {
         }
 
         GAME_RUNTIME.setPlayerSpaceNavigation(navigation);
+    }
+
+    private syncRuntimeObjectsFromEncounterEvents(events: EncounterEvent[]): void {
+        for (const event of events) {
+            if (event.type !== ENCOUNTER_EVENT.OFFICER_TASK_ENDED) {
+                continue;
+            }
+
+            if (event.result?.kind !== OFFICER_TASK_RESULT_KIND.JUMP_POINT_CALCULATED) {
+                continue;
+            }
+
+            const object = event.result.object;
+
+            GAME_RUNTIME.addCurrentNodeObject({
+                kind: SPACE_OBJECT_KIND.JUMP_POINT,
+
+                jumpPoint: {
+                    ...object.jumpPoint,
+                },
+
+                localPosition: {
+                    ...object.localPosition,
+                },
+            });
+        }
     }
 
     // #endregion

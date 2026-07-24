@@ -51,6 +51,10 @@ export const BRIDGE_EVENT = {
     // Первый snapshot encounter objects.
     ENCOUNTER_OBJECTS_LOADED: 'encounter_objects_loaded',
 
+    // Новый encounter object подготовлен во view,
+    // но не становится текущей presentation-группой.
+    ENCOUNTER_OBJECT_ADDED: 'encounter_object_added',
+
     // Обновление presentation
     // уже известных encounter objects.
     ENCOUNTER_OBJECTS_UPDATED: 'encounter_objects_updated',
@@ -254,6 +258,8 @@ export type BridgeEventPayloadMap = {
     [BRIDGE_EVENT.OFFICER_STATION_INDICATORS_UPDATED]: BridgeOfficerStationIndicatorsUpdatedPayload;
 
     [BRIDGE_EVENT.ENCOUNTER_OBJECTS_LOADED]: BridgeEncounterObjectPayload[];
+
+    [BRIDGE_EVENT.ENCOUNTER_OBJECT_ADDED]: BridgeEncounterObjectPayload;
 
     [BRIDGE_EVENT.ENCOUNTER_OBJECTS_UPDATED]: BridgeEncounterObjectPayload[];
 

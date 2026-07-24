@@ -4,11 +4,13 @@ import type { NavigationBeaconState } from './beacon';
 import type { SpaceBackgroundId } from './space_background';
 import type { StationState } from './station';
 import type { Vec2, Vec3 } from './vector';
+import type { JumpPointState } from './jump_point';
 
 export const SPACE_OBJECT_KIND = {
     STATION: 'station',
     NAVIGATION_BEACON: 'navigation_beacon',
     ASTEROID: 'asteroid',
+    JUMP_POINT: 'jump_point',
 } as const;
 
 export type SpaceObjectBaseState = {
@@ -32,7 +34,16 @@ export type AsteroidSpaceObjectState = SpaceObjectBaseState & {
     asteroid: AsteroidState;
 };
 
-export type SpaceObjectState = StationSpaceObjectState | NavigationBeaconSpaceObjectState | AsteroidSpaceObjectState;
+export type JumpPointSpaceObjectState = SpaceObjectBaseState & {
+    kind: typeof SPACE_OBJECT_KIND.JUMP_POINT;
+    jumpPoint: JumpPointState;
+};
+
+export type SpaceObjectState =
+    | StationSpaceObjectState
+    | NavigationBeaconSpaceObjectState
+    | AsteroidSpaceObjectState
+    | JumpPointSpaceObjectState;
 
 export type SpaceNodeState = {
     id: string;

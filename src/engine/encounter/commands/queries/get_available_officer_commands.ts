@@ -26,7 +26,7 @@ export function getAvailableOfficerCommands(state: EncounterState, role: Officer
         return [];
     }
 
-    appendUntargetedCommands(commands, role);
+    appendUntargetedCommands(state, commands, role);
 
     for (const object of state.objects) {
         for (const commandId of object.officerCommandIds) {
@@ -47,7 +47,7 @@ export function getAvailableOfficerCommands(state: EncounterState, role: Officer
     return commands;
 }
 
-function appendUntargetedCommands(commands: AvailableOfficerCommand[], role: OfficerRole): void {
+function appendUntargetedCommands(state: EncounterState, commands: AvailableOfficerCommand[], role: OfficerRole): void {
     const commandIds: EncounterOfficerCommandId[] = Object.values(ENCOUNTER_OFFICER_COMMAND_ID);
 
     for (const commandId of commandIds) {
@@ -58,6 +58,15 @@ function appendUntargetedCommands(commands: AvailableOfficerCommand[], role: Off
         }
 
         if (commandDef.targeting.kind !== OFFICER_COMMAND_TARGET_KIND.NONE) {
+            continue;
+        }
+
+        // Первый vertical slice поддерживает только одну
+        // рассчитанную jump solution одновременно.
+        if (
+            commandId === ENCOUNTER_OFFICER_COMMAND_ID.SCIENCE_PLOT_COURSE &&
+            state.objects.some((object) => object.kind === ENCOUNTER_OBJECT_KIND.JUMP_POINT)
+        ) {
             continue;
         }
 
