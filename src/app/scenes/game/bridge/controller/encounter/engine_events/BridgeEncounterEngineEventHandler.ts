@@ -76,6 +76,15 @@ export default class BridgeEncounterEngineEventHandler {
                 });
                 return;
 
+            case ENCOUNTER_EVENT.JUMP_STARTED:
+                this.setEncounterInteractive(false);
+
+                this.eventBus.emit(BRIDGE_EVENT.ENCOUNTER_JUMP_STARTED, {
+                    taskId: event.taskId,
+                    targetNodeId: event.targetNodeId,
+                });
+                return;
+
             case ENCOUNTER_EVENT.DOCKING_STARTED:
                 this.setEncounterInteractive(false);
 

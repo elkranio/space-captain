@@ -15,12 +15,14 @@ import {
 import { ENCOUNTER_EVENT, type EncounterEvent } from '../model/event';
 import type { OfficerTaskDraft } from '../model/officer_task';
 import { ENCOUNTER_OBJECT_KIND } from '../objects/encounter_object';
+import type { JumpPointEncounterObjectState } from '../objects/jump_point/jump_point_encounter_object';
 import type { StationEncounterObjectState } from '../objects/station/station_encounter_object';
 import {
     createCommsHailTask,
     createCommsRequestDockingTask,
     createHelmDockTask,
     createHelmFlyToTask,
+    createHelmJumpTask,
     createSciencePlotCourseTask,
 } from '../officer_tasks/create_officer_task_draft';
 import EncounterStateStore from '../state/EncounterStateStore';
@@ -114,6 +116,10 @@ export default class OfficerCommandExecutor {
 
             case ENCOUNTER_OFFICER_COMMAND_ID.HELM_FLY_TO:
                 this.executeFlyTo(input);
+                break;
+
+            case ENCOUNTER_OFFICER_COMMAND_ID.HELM_JUMP:
+                this.executeJump(input);
                 break;
 
             default:
@@ -213,6 +219,22 @@ export default class OfficerCommandExecutor {
         });
     }
 
+    private executeJump(input: ExecuteOfficerCommandInput): void {
+        const target = this.getJumpPointTarget(input);
+
+        const helmTaskId = this.startOfficerTask(createHelmJumpTask(target.id, target.jumpPoint.targetNodeId));
+
+        this.emit({
+            type: ENCOUNTER_EVENT.JUMP_STARTED,
+            taskId: helmTaskId,
+            targetNodeId: target.jumpPoint.targetNodeId,
+        });
+    }
+
+    // #endregion
+
+    // #region Target lookup
+
     private getStationTarget(input: ExecuteOfficerCommandInput): StationEncounterObjectState {
         if (!input.targetId) {
             throw new Error(`${input.commandId} command requires targetId`);
@@ -225,6 +247,24 @@ export default class OfficerCommandExecutor {
         }
 
         if (target.kind !== ENCOUNTER_OBJECT_KIND.STATION) {
+            throw new Error(`${input.commandId} command does not support encounter object: ${target.kind}`);
+        }
+
+        return target;
+    }
+
+    private getJumpPointTarget(input: ExecuteOfficerCommandInput): JumpPointEncounterObjectState {
+        if (!input.targetId) {
+            throw new Error(`${input.commandId} command requires targetId`);
+        }
+
+        const target = this.stateStore.findObjectById(input.targetId);
+
+        if (!target) {
+            throw new Error(`${input.commandId} command target not found: ${input.targetId}`);
+        }
+
+        if (target.kind !== ENCOUNTER_OBJECT_KIND.JUMP_POINT) {
             throw new Error(`${input.commandId} command does not support encounter object: ${target.kind}`);
         }
 

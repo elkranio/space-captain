@@ -184,7 +184,7 @@ export default class EncounterStateStore {
 
             perspectiveDepth: 1,
 
-            officerCommandIds: [ENCOUNTER_OFFICER_COMMAND_ID.HELM_FLY_TO],
+            officerCommandIds: [ENCOUNTER_OFFICER_COMMAND_ID.HELM_FLY_TO, ENCOUNTER_OFFICER_COMMAND_ID.HELM_JUMP],
         };
 
         this.state.objects.push(object);
@@ -361,7 +361,10 @@ export default class EncounterStateStore {
 
                     perspectiveDepth: 1,
 
-                    officerCommandIds: [ENCOUNTER_OFFICER_COMMAND_ID.HELM_FLY_TO],
+                    officerCommandIds: [
+                        ENCOUNTER_OFFICER_COMMAND_ID.HELM_FLY_TO,
+                        ENCOUNTER_OFFICER_COMMAND_ID.HELM_JUMP,
+                    ],
                 };
 
             default:

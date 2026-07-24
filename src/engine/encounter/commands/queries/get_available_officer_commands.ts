@@ -107,6 +107,9 @@ function tryCreateAvailableOfficerCommandForObject(
 
         case ENCOUNTER_OFFICER_COMMAND_ID.HELM_FLY_TO:
             return tryCreateFlyToCommand(state, commandId, commandDef.label, object);
+
+        case ENCOUNTER_OFFICER_COMMAND_ID.HELM_JUMP:
+            return tryCreateJumpCommand(commandId, commandDef.label, object);
     }
 
     throw new Error(`Unhandled encounter object officer command: ${String(commandId)}`);
@@ -163,6 +166,18 @@ function tryCreateFlyToCommand(
     }
 
     if (object.id === navigation.anchorObjectId) {
+        return undefined;
+    }
+
+    return createTargetedCommand(commandId, label, object);
+}
+
+function tryCreateJumpCommand(
+    commandId: EncounterOfficerCommandId,
+    label: string,
+    object: EncounterObjectState,
+): AvailableOfficerCommand | undefined {
+    if (object.kind !== ENCOUNTER_OBJECT_KIND.JUMP_POINT) {
         return undefined;
     }
 

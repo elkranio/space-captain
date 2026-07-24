@@ -79,6 +79,13 @@ export const BRIDGE_EVENT = {
     // View сообщает об этом controller-у.
     ENCOUNTER_TRAVEL_COMPLETED: 'encounter_travel_completed',
 
+    // Начался visual flow межнодового прыжка.
+    ENCOUNTER_JUMP_STARTED: 'encounter_jump_started',
+
+    // Visual flow завершён.
+    // View возвращает controller-у исходный jump payload.
+    ENCOUNTER_JUMP_COMPLETED: 'encounter_jump_completed',
+
     // Controller отдаёт view
     // актуальное меню команд офицера.
     OFFICER_COMMAND_MENU_UPDATED: 'officer_command_menu_updated',
@@ -215,6 +222,12 @@ export type BridgeEncounterTravelCompletedPayload = {
     taskId: string;
 };
 
+export type BridgeEncounterJumpPayload = {
+    taskId: string;
+
+    targetNodeId: string;
+};
+
 // Payload события SCENE_TRANSITION_REQUESTED.
 export type BridgeSceneTransitionRequestedPayload = {
     sceneKey: SceneKey;
@@ -272,6 +285,10 @@ export type BridgeEventPayloadMap = {
     [BRIDGE_EVENT.ENCOUNTER_TRAVEL_FLIGHT_STARTED]: undefined;
 
     [BRIDGE_EVENT.ENCOUNTER_TRAVEL_COMPLETED]: BridgeEncounterTravelCompletedPayload;
+
+    [BRIDGE_EVENT.ENCOUNTER_JUMP_STARTED]: BridgeEncounterJumpPayload;
+
+    [BRIDGE_EVENT.ENCOUNTER_JUMP_COMPLETED]: BridgeEncounterJumpPayload;
 
     [BRIDGE_EVENT.OFFICER_COMMAND_MENU_UPDATED]: BridgeOfficerCommandMenuUpdatedPayload;
 

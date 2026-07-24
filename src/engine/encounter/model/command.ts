@@ -15,6 +15,7 @@ export const ENCOUNTER_OFFICER_COMMAND_ID = {
 
     HELM_DOCK: 'helm_dock',
     HELM_FLY_TO: 'helm_fly_to',
+    HELM_JUMP: 'helm_jump',
 } as const;
 
 export type EncounterOfficerCommandId =
@@ -129,6 +130,15 @@ export const OFFICER_COMMAND_DEFS = {
         targeting: {
             kind: OFFICER_COMMAND_TARGET_KIND.ENCOUNTER_OBJECT,
             scope: ENCOUNTER_OBJECT_TARGET_SCOPE.ENCOUNTER_NODE,
+        },
+        requiresIdleBridge: true,
+    },
+    [ENCOUNTER_OFFICER_COMMAND_ID.HELM_JUMP]: {
+        role: OFFICER_ROLE.HELM,
+        label: 'JUMP',
+        targeting: {
+            kind: OFFICER_COMMAND_TARGET_KIND.ENCOUNTER_OBJECT,
+            scope: ENCOUNTER_OBJECT_TARGET_SCOPE.CURRENT_ANCHOR,
         },
         requiresIdleBridge: true,
     },

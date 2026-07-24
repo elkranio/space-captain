@@ -67,3 +67,17 @@ export function createHelmFlyToTask(targetId: string): OfficerTaskDraft {
         durationMs: null,
     };
 }
+
+export function createHelmJumpTask(targetId: string, targetNodeId: string): OfficerTaskDraft {
+    return {
+        kind: OFFICER_TASK_KIND.HELM_JUMP,
+        role: OFFICER_ROLE.HELM,
+        sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.HELM_JUMP,
+        targetId,
+        targetNodeId,
+        label: 'JUMP',
+
+        // Завершается внешним jump visual flow.
+        durationMs: null,
+    };
+}

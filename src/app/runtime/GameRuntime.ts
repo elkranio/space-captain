@@ -68,6 +68,77 @@ class GameRuntime {
         this.emitCurrentNodeObjectsChanged();
     }
 
+    public jumpPlayerToNode(targetNodeId: string): void {
+        const location = this.currentRun.player.location;
+
+        if (location.kind !== PLAYER_LOCATION_KIND.SPACE) {
+            throw new Error(`Cannot jump from player location: ${location.kind}`);
+        }
+
+        if (location.navigation.kind !== PLAYER_SPACE_NAVIGATION_KIND.ANCHORED) {
+            throw new Error(`Cannot jump from space navigation state: ${location.navigation.kind}`);
+        }
+
+        const sourceNode = getCurrentNode(this.currentRun);
+        const anchorObjectId = location.navigation.anchorObjectId;
+
+        const anchorObject = sourceNode.objects.find((object) => {
+            return this.getSpaceObjectId(object) === anchorObjectId;
+        });
+
+        if (!anchorObject) {
+            throw new Error(`Jump anchor object not found: ${anchorObjectId}`);
+        }
+
+        if (anchorObject.kind !== SPACE_OBJECT_KIND.JUMP_POINT) {
+            throw new Error(`Cannot jump from space object: ${anchorObject.kind}`);
+        }
+
+        if (anchorObject.jumpPoint.targetNodeId !== targetNodeId) {
+            throw new Error(
+                `Jump point destination does not match requested node: ` +
+                    `${anchorObject.jumpPoint.targetNodeId} !== ${targetNodeId}`,
+            );
+        }
+
+        const targetNode = this.currentRun.universe.nodes.find((node) => {
+            return node.id === targetNodeId;
+        });
+
+        if (!targetNode) {
+            throw new Error(`Jump destination node not found: ${targetNodeId}`);
+        }
+
+        if (targetNode.id === sourceNode.id) {
+            throw new Error(`Cannot jump to current node: ${targetNodeId}`);
+        }
+
+        const arrivalObject = targetNode.objects.find((object) => {
+            return this.getSpaceObjectId(object) === targetNode.arrivalObjectId;
+        });
+
+        if (!arrivalObject) {
+            throw new Error(`Jump destination arrival object not found: ${targetNode.arrivalObjectId}`);
+        }
+
+        // Все рассчитанные искажения принадлежат старому node visit.
+        sourceNode.objects = sourceNode.objects.filter((object) => {
+            return object.kind !== SPACE_OBJECT_KIND.JUMP_POINT;
+        });
+
+        this.currentRun.player.location = {
+            kind: PLAYER_LOCATION_KIND.SPACE,
+            nodeId: targetNode.id,
+
+            navigation: {
+                kind: PLAYER_SPACE_NAVIGATION_KIND.ARRIVING,
+                targetObjectId: targetNode.arrivalObjectId,
+            },
+        };
+
+        this.emitPlayerLocationChanged();
+    }
+
     public onPlayerLocationChanged(listener: PlayerLocationChangedListener): void {
         this.playerLocationChangedListeners.add(listener);
     }

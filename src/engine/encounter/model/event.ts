@@ -13,19 +13,13 @@ import type { JumpPointEncounterObjectState } from '../objects/jump_point/jump_p
 // app-слой сам решает, как это показать.
 export const ENCOUNTER_EVENT = {
     ENCOUNTER_LOADED: 'encounter_loaded',
-
     CONTACT_STARTED: 'contact_started',
-
     CONTACT_MESSAGE_ADDED: 'contact_message_added',
-
     CONTACT_ENDED: 'contact_ended',
-
     TRAVEL_STARTED: 'travel_started',
-
+    JUMP_STARTED: 'jump_started',
     DOCKING_STARTED: 'docking_started',
-
     OFFICER_TASK_STARTED: 'officer_task_started',
-
     OFFICER_TASK_ENDED: 'officer_task_ended',
 } as const;
 
@@ -101,6 +95,19 @@ export type TravelStartedEvent = {
     target: EncounterObjectState;
 };
 
+// Начало межнодового прыжка.
+//
+// Visual flow выполняет app-слой.
+// После его завершения GameRuntime переносит игрока
+// в destination node и пересоздаёт encounter.
+export type JumpStartedEvent = {
+    type: typeof ENCOUNTER_EVENT.JUMP_STARTED;
+
+    taskId: string;
+
+    targetNodeId: string;
+};
+
 // Начало docking flow
 // с конкретной encounter-целью.
 //
@@ -142,6 +149,7 @@ export type EncounterEvent =
     | ContactMessageAddedEvent
     | ContactEndedEvent
     | TravelStartedEvent
+    | JumpStartedEvent
     | DockingStartedEvent
     | OfficerTaskStartedEvent
     | OfficerTaskEndedEvent;

@@ -21,6 +21,7 @@ import {
     type BridgeEncounterTravelCompletedPayload,
     type BridgeOfficerCommandSelectedPayload,
     type BridgeOfficerSeatClickedPayload,
+    type BridgeEncounterJumpPayload,
 } from '../../events/bridge_event';
 import type BridgeEventBus from '../../events/BridgeEventBus';
 import BridgeOfficerCommandMenuController from './command_menu/BridgeOfficerCommandMenuController';
@@ -108,6 +109,8 @@ export default class BridgeEncounterController {
         this.eventBus.on(BRIDGE_EVENT.OFFICER_COMMAND_SELECTED, this.handleOfficerCommandSelected, this);
 
         this.eventBus.on(BRIDGE_EVENT.DOCKING_ANIMATION_COMPLETED, this.handleDockingAnimationCompleted, this);
+
+        this.eventBus.on(BRIDGE_EVENT.ENCOUNTER_JUMP_COMPLETED, this.handleEncounterJumpCompleted, this);
     }
 
     private unregisterBridgeEventHandlers(): void {
@@ -120,6 +123,8 @@ export default class BridgeEncounterController {
         this.eventBus.off(BRIDGE_EVENT.OFFICER_COMMAND_SELECTED, this.handleOfficerCommandSelected, this);
 
         this.eventBus.off(BRIDGE_EVENT.DOCKING_ANIMATION_COMPLETED, this.handleDockingAnimationCompleted, this);
+
+        this.eventBus.off(BRIDGE_EVENT.ENCOUNTER_JUMP_COMPLETED, this.handleEncounterJumpCompleted, this);
     }
 
     // #endregion
@@ -180,6 +185,21 @@ export default class BridgeEncounterController {
 
         this.drainEncounterEvents();
         this.officerStationsController?.sync();
+    }
+
+    private handleEncounterJumpCompleted(payload: BridgeEncounterJumpPayload): void {
+        if (!this.encounterEngine) {
+            return;
+        }
+
+        this.encounterEngine.completeTask(payload.taskId);
+        this.drainEncounterEvents();
+
+        GAME_RUNTIME.jumpPlayerToNode(payload.targetNodeId);
+
+        this.eventBus.emit(BRIDGE_EVENT.SCENE_TRANSITION_REQUESTED, {
+            sceneKey: SCENE_KEY.BRIDGE,
+        });
     }
 
     private handleOfficerCommandSelected(payload: BridgeOfficerCommandSelectedPayload): void {

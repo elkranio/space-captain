@@ -11,14 +11,11 @@ import type { EncounterOfficerCommandId } from './command';
 // Это не идентификатор конкретного запуска task.
 export const OFFICER_TASK_KIND = {
     COMMS_HAIL: 'comms_hail',
-
     COMMS_REQUEST_DOCKING: 'comms_request_docking',
-
     SCIENCE_PLOT_COURSE: 'science_plot_course',
-
     HELM_DOCK: 'helm_dock',
-
     HELM_FLY_TO: 'helm_fly_to',
+    HELM_JUMP: 'helm_jump',
 } as const;
 
 export type OfficerTaskKind = (typeof OFFICER_TASK_KIND)[keyof typeof OFFICER_TASK_KIND];

@@ -13,7 +13,12 @@ class SceneRuntime {
     public startGameScene(scene: Phaser.Scene, sceneKey: SceneKey): void {
         this.ensureGameOverlayStarted(scene);
 
-        scene.scene.start(sceneKey);
+        if (scene.sys.settings.key === sceneKey) {
+            scene.scene.restart();
+        } else {
+            scene.scene.start(sceneKey);
+        }
+
         scene.scene.bringToTop(SCENE_KEY.GAME_OVERLAY);
     }
 
