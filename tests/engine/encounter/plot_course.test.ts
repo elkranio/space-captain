@@ -91,7 +91,7 @@ describe('PLOT_COURSE', () => {
                 result: expect.objectContaining({
                     kind: OFFICER_TASK_RESULT_KIND.JUMP_POINT_CALCULATED,
 
-                    object: expect.objectContaining({
+                    anchor: expect.objectContaining({
                         kind: ENCOUNTER_ANCHOR_KIND.JUMP_POINT,
                         displayName: 'JUMP POINT',
 
