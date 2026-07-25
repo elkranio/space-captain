@@ -11,7 +11,8 @@
         "build": "npm run copy:live && vite build",
         "preview": "vite preview",
         "deploy": "npm run build && node -r dotenv/config deploy/deploy.js",
-        "typecheck": "tsc --noEmit"
+        "typecheck": "tsc --noEmit",
+        "test": "vitest run"
     },
     "keywords": [],
     "author": "",
@@ -27,6 +28,7 @@
         "ftp-deploy": "^2.4.7",
         "glob": "^11.0.1",
         "typescript": "^5.8.3",
-        "vite": "^6.2.5"
+        "vite": "^6.2.5",
+        "vitest": "^4.1.10"
     }
 }
