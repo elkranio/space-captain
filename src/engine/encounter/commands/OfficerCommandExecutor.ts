@@ -44,13 +44,7 @@ type OfficerCommandExecutorOptions = {
     startContactSequence: StartContactSequence;
 };
 
-const OFFICER_ROLES = [
-    OFFICER_ROLE.COMMS,
-    OFFICER_ROLE.SCIENCE,
-    OFFICER_ROLE.HELM,
-    OFFICER_ROLE.WEAPONS,
-    OFFICER_ROLE.ENGINEER,
-] as const;
+const OFFICER_ROLES = Object.values(OFFICER_ROLE);
 
 export default class OfficerCommandExecutor {
     private readonly stateStore: EncounterStateStore;
