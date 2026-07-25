@@ -49,13 +49,13 @@ export default class EncounterStateStore {
         };
     }
 
-    public findObjectById(objectId: string | undefined): EncounterObjectState | undefined {
-        if (!objectId) {
+    public findAnchorById(anchorId: string | undefined): EncounterObjectState | undefined {
+        if (!anchorId) {
             return undefined;
         }
 
-        return this.state.objects.find((object) => {
-            return object.id === objectId;
+        return this.state.anchors.find((anchor) => {
+            return anchor.id === anchorId;
         });
     }
 
@@ -83,7 +83,7 @@ export default class EncounterStateStore {
             throw new Error(`Cannot start travel from navigation state: ${navigation.kind}`);
         }
 
-        const target = this.findObjectById(targetObjectId);
+        const target = this.findAnchorById(targetObjectId);
 
         if (!target) {
             throw new Error(`Travel target not found: ${targetObjectId}`);
@@ -128,8 +128,8 @@ export default class EncounterStateStore {
     // #region Encounter object mutations
 
     public createJumpPoint(targetNodeId: string): JumpPointEncounterObjectState {
-        const existingJumpPoint = this.state.objects.find((object) => {
-            return object.kind === ENCOUNTER_OBJECT_KIND.JUMP_POINT;
+        const existingJumpPoint = this.state.anchors.find((anchor) => {
+            return anchor.kind === ENCOUNTER_OBJECT_KIND.JUMP_POINT;
         });
 
         if (existingJumpPoint) {
@@ -138,7 +138,7 @@ export default class EncounterStateStore {
 
         const id = `jump_point_${targetNodeId}`;
 
-        if (this.findObjectById(id)) {
+        if (this.findAnchorById(id)) {
             throw new Error(`Cannot create duplicate encounter object: ${id}`);
         }
 
@@ -171,13 +171,13 @@ export default class EncounterStateStore {
             perspectiveDepth: 1,
         };
 
-        this.state.objects.push(object);
+        this.state.anchors.push(object);
 
         return object;
     }
 
     public grantDockingClearance(targetObjectId: string): void {
-        const target = this.findObjectById(targetObjectId);
+        const target = this.findAnchorById(targetObjectId);
 
         if (!target) {
             throw new Error(`Cannot grant docking clearance: encounter object not found: ${targetObjectId}`);

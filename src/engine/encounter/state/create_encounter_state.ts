@@ -18,7 +18,7 @@ export function createEncounterState(node: SpaceNodeState, navigation: PlayerSpa
 
         officerTasks: {},
 
-        objects: node.objects.map((object) => {
+        anchors: node.objects.map((object) => {
             return createEncounterObjectState(object);
         }),
     };

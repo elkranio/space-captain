@@ -122,7 +122,7 @@ export default class BridgeEncounterEngineEventHandler {
     // #region Encounter loaded
 
     private handleEncounterLoaded(event: EncounterLoadedEvent): void {
-        const objects = this.mapEncounterObjectsToBridgeObjectPayloads(event.state);
+        const objects = this.mapEncounterAnchorsToBridgeObjectPayloads(event.state);
 
         this.eventBus.emit(BRIDGE_EVENT.ENCOUNTER_OBJECTS_LOADED, objects);
 
@@ -199,9 +199,9 @@ export default class BridgeEncounterEngineEventHandler {
 
     // #region Encounter object mapping
 
-    private mapEncounterObjectsToBridgeObjectPayloads(state: EncounterState): BridgeEncounterObjectPayload[] {
-        return state.objects.map((object) => {
-            return this.mapEncounterObjectToBridgeObjectPayload(object);
+    private mapEncounterAnchorsToBridgeObjectPayloads(state: EncounterState): BridgeEncounterObjectPayload[] {
+        return state.anchors.map((anchor) => {
+            return this.mapEncounterObjectToBridgeObjectPayload(anchor);
         });
     }
 

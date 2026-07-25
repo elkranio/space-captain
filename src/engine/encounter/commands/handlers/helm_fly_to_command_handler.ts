@@ -38,7 +38,7 @@ export const helmFlyToCommandHandler = {
             return [];
         }
 
-        return state.objects
+        return state.anchors
             .filter((object) => {
                 return object.id !== navigation.anchorObjectId;
             })

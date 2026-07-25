@@ -33,7 +33,7 @@ export const helmDockCommandHandler = {
     def: COMMAND_DEF,
 
     getAvailableCommands(state) {
-        return state.objects
+        return state.anchors
             .filter((object) => {
                 return (
                     object.kind === ENCOUNTER_OBJECT_KIND.STATION &&

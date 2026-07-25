@@ -25,7 +25,7 @@ export const sciencePlotCourseCommandHandler = {
     def: COMMAND_DEF,
 
     getAvailableCommands(state) {
-        const jumpPointExists = state.objects.some((object) => {
+        const jumpPointExists = state.anchors.some((object) => {
             return object.kind === ENCOUNTER_OBJECT_KIND.JUMP_POINT;
         });
 

@@ -52,7 +52,7 @@ export function getStationTarget(
     input: ExecuteOfficerCommandInput,
 ): StationEncounterObjectState {
     const targetId = requireTargetId(input);
-    const target = context.stateStore.findObjectById(targetId);
+    const target = context.stateStore.findAnchorById(targetId);
 
     if (!target) {
         throw new Error(`${input.commandId} command target not found: ${targetId}`);
@@ -70,7 +70,7 @@ export function getJumpPointTarget(
     input: ExecuteOfficerCommandInput,
 ): JumpPointEncounterObjectState {
     const targetId = requireTargetId(input);
-    const target = context.stateStore.findObjectById(targetId);
+    const target = context.stateStore.findAnchorById(targetId);
 
     if (!target) {
         throw new Error(`${input.commandId} command target not found: ${targetId}`);
