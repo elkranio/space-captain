@@ -2,8 +2,8 @@
 
 import { OFFICER_ROLE, type OfficerRole } from '../../../defs/officer';
 import { PLAYER_SPACE_NAVIGATION_KIND } from '../../../defs/player_location';
+import { getOfficerCommandDef } from '../../commands/officer_command_handlers';
 import { getAvailableOfficerCommands } from '../../commands/queries/get_available_officer_commands';
-import { getOfficerCommandDef } from '../../model/command';
 import {
     OFFICER_AVAILABILITY_STATE,
     type OfficerAvailabilityState,
@@ -87,6 +87,7 @@ function createCommandReferenceState(
 
     return {
         ...state,
+
         navigation: {
             kind: PLAYER_SPACE_NAVIGATION_KIND.ANCHORED,
             anchorObjectId: navigation.fromObjectId,

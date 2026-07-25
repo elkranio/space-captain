@@ -1,87 +1,44 @@
 // src/engine/encounter/commands/OfficerCommandExecutor.ts
 
 import { OFFICER_ROLE, type OfficerRole } from '../../defs/officer';
-import type { ContactSequenceStep } from '../contact/sequences/contact_sequence';
-import { createStationHailSequence } from '../contact/sequences/create_station_hail_sequence';
 import {
-    ENCOUNTER_OFFICER_COMMAND_ID,
     OFFICER_COMMAND_EXECUTION_STATUS,
     OFFICER_COMMAND_REJECTION_REASON,
-    getOfficerCommandDef,
-    type EncounterOfficerCommandId,
     type ExecuteOfficerCommandInput,
     type ExecuteOfficerCommandResult,
 } from '../model/command';
-import { ENCOUNTER_EVENT, type EncounterEvent } from '../model/event';
-import type { OfficerTaskDraft } from '../model/officer_task';
-import { ENCOUNTER_OBJECT_KIND } from '../objects/encounter_object';
-import type { JumpPointEncounterObjectState } from '../objects/jump_point/jump_point_encounter_object';
-import type { StationEncounterObjectState } from '../objects/station/station_encounter_object';
-import {
-    createCommsHailTask,
-    createCommsRequestDockingTask,
-    createHelmDockTask,
-    createHelmFlyToTask,
-    createHelmJumpTask,
-    createSciencePlotCourseTask,
-} from '../officer_tasks/create_officer_task_draft';
+import type { OfficerCommandExecutionContext, OfficerCommandHandler } from '../model/officer_command_handler';
 import EncounterStateStore from '../state/EncounterStateStore';
+import { getOfficerCommandHandler } from './officer_command_handlers';
 import { getAvailableOfficerCommands } from './queries/get_available_officer_commands';
 
-type StartContactSequence = (steps: ContactSequenceStep[], onContactEnded?: () => void) => void;
-
-type StartOfficerTask = (task: OfficerTaskDraft) => string;
-
-type CompleteOfficerTask = (taskId: string) => void;
-
-type OfficerCommandExecutorOptions = {
-    stateStore: EncounterStateStore;
-
-    emit: (event: EncounterEvent) => void;
-
-    startOfficerTask: StartOfficerTask;
-    completeOfficerTask: CompleteOfficerTask;
-    startContactSequence: StartContactSequence;
-};
+type OfficerCommandExecutorOptions = OfficerCommandExecutionContext;
 
 const OFFICER_ROLES = Object.values(OFFICER_ROLE);
 
 export default class OfficerCommandExecutor {
     private readonly stateStore: EncounterStateStore;
 
-    private readonly emit: (event: EncounterEvent) => void;
+    private readonly executionContext: OfficerCommandExecutionContext;
 
-    private readonly startOfficerTask: StartOfficerTask;
-
-    private readonly completeOfficerTask: CompleteOfficerTask;
-
-    private readonly startContactSequence: StartContactSequence;
-
-    constructor({
-        stateStore,
-        emit,
-        startOfficerTask,
-        completeOfficerTask,
-        startContactSequence,
-    }: OfficerCommandExecutorOptions) {
-        this.stateStore = stateStore;
-        this.emit = emit;
-        this.startOfficerTask = startOfficerTask;
-        this.completeOfficerTask = completeOfficerTask;
-        this.startContactSequence = startContactSequence;
+    constructor(options: OfficerCommandExecutorOptions) {
+        this.stateStore = options.stateStore;
+        this.executionContext = options;
     }
 
     // #region Public API
 
     public execute(input: ExecuteOfficerCommandInput): ExecuteOfficerCommandResult {
-        if (!this.isCommandAvailable(input)) {
+        const handler = getOfficerCommandHandler(input.commandId);
+
+        if (!this.isCommandAvailable(handler, input)) {
             return {
                 status: OFFICER_COMMAND_EXECUTION_STATUS.REJECTED,
                 reason: OFFICER_COMMAND_REJECTION_REASON.NOT_AVAILABLE,
             };
         }
 
-        const busyRoles = this.getBusyRolesBlockingCommand(input.commandId);
+        const busyRoles = this.getBusyRolesBlockingCommand(handler);
 
         if (busyRoles.length > 0) {
             return {
@@ -91,34 +48,7 @@ export default class OfficerCommandExecutor {
             };
         }
 
-        switch (input.commandId) {
-            case ENCOUNTER_OFFICER_COMMAND_ID.COMMS_HAIL:
-                this.executeHail(input);
-                break;
-
-            case ENCOUNTER_OFFICER_COMMAND_ID.COMMS_REQUEST_DOCKING:
-                this.executeRequestDocking(input);
-                break;
-
-            case ENCOUNTER_OFFICER_COMMAND_ID.SCIENCE_PLOT_COURSE:
-                this.executeSciencePlotCourse(input);
-                break;
-
-            case ENCOUNTER_OFFICER_COMMAND_ID.HELM_DOCK:
-                this.executeDock(input);
-                break;
-
-            case ENCOUNTER_OFFICER_COMMAND_ID.HELM_FLY_TO:
-                this.executeFlyTo(input);
-                break;
-
-            case ENCOUNTER_OFFICER_COMMAND_ID.HELM_JUMP:
-                this.executeJump(input);
-                break;
-
-            default:
-                throw new Error(`Unhandled encounter officer command: ${String(input.commandId)}`);
-        }
+        handler.execute(this.executionContext, input);
 
         return {
             status: OFFICER_COMMAND_EXECUTION_STATUS.EXECUTED,
@@ -129,8 +59,12 @@ export default class OfficerCommandExecutor {
 
     // #region Command validation
 
-    private isCommandAvailable(input: ExecuteOfficerCommandInput): boolean {
-        if (input.commandId === ENCOUNTER_OFFICER_COMMAND_ID.SCIENCE_PLOT_COURSE && !input.targetNodeId) {
+    private isCommandAvailable(handler: OfficerCommandHandler, input: ExecuteOfficerCommandInput): boolean {
+        if (handler.def.role !== input.role) {
+            return false;
+        }
+
+        if (handler.isInputValid && !handler.isInputValid(input)) {
             return false;
         }
 
@@ -141,126 +75,14 @@ export default class OfficerCommandExecutor {
         });
     }
 
-    private getBusyRolesBlockingCommand(commandId: EncounterOfficerCommandId): OfficerRole[] {
-        const commandDef = getOfficerCommandDef(commandId);
-
-        if (!commandDef.requiresIdleBridge) {
+    private getBusyRolesBlockingCommand(handler: OfficerCommandHandler): OfficerRole[] {
+        if (!handler.def.requiresIdleBridge) {
             return [];
         }
 
         return OFFICER_ROLES.filter((role) => {
             return this.stateStore.getOfficerTask(role) !== undefined;
         });
-    }
-
-    // #endregion
-
-    // #region Command execution
-
-    private executeHail(input: ExecuteOfficerCommandInput): void {
-        const target = this.getStationTarget(input);
-
-        const commsTaskId = this.startOfficerTask(createCommsHailTask(target.id));
-
-        const onContactEnded = (): void => {
-            this.completeOfficerTask(commsTaskId);
-        };
-
-        this.startContactSequence(createStationHailSequence(target), onContactEnded);
-    }
-
-    private executeRequestDocking(input: ExecuteOfficerCommandInput): void {
-        const target = this.getStationTarget(input);
-
-        this.startOfficerTask(createCommsRequestDockingTask(target.id));
-    }
-
-    private executeSciencePlotCourse(input: ExecuteOfficerCommandInput): void {
-        if (!input.targetNodeId) {
-            throw new Error('SCIENCE_PLOT_COURSE command requires targetNodeId');
-        }
-
-        this.startOfficerTask(createSciencePlotCourseTask(input.targetNodeId));
-    }
-
-    private executeDock(input: ExecuteOfficerCommandInput): void {
-        const target = this.getStationTarget(input);
-
-        this.startOfficerTask(createHelmDockTask(target.id));
-
-        this.emit({
-            type: ENCOUNTER_EVENT.DOCKING_STARTED,
-            targetId: target.id,
-        });
-    }
-
-    private executeFlyTo(input: ExecuteOfficerCommandInput): void {
-        if (!input.targetId) {
-            throw new Error('FLY_TO command requires targetId');
-        }
-
-        const { fromObjectId, target } = this.stateStore.startTravel(input.targetId);
-
-        const helmTaskId = this.startOfficerTask(createHelmFlyToTask(target.id));
-
-        this.emit({
-            type: ENCOUNTER_EVENT.TRAVEL_STARTED,
-            taskId: helmTaskId,
-            fromObjectId,
-            target,
-        });
-    }
-
-    private executeJump(input: ExecuteOfficerCommandInput): void {
-        const target = this.getJumpPointTarget(input);
-
-        const helmTaskId = this.startOfficerTask(createHelmJumpTask(target.id, target.jumpPoint.targetNodeId));
-
-        this.emit({
-            type: ENCOUNTER_EVENT.JUMP_STARTED,
-            taskId: helmTaskId,
-            targetNodeId: target.jumpPoint.targetNodeId,
-        });
-    }
-
-    // #endregion
-
-    // #region Target lookup
-
-    private getStationTarget(input: ExecuteOfficerCommandInput): StationEncounterObjectState {
-        if (!input.targetId) {
-            throw new Error(`${input.commandId} command requires targetId`);
-        }
-
-        const target = this.stateStore.findObjectById(input.targetId);
-
-        if (!target) {
-            throw new Error(`${input.commandId} command target not found: ${input.targetId}`);
-        }
-
-        if (target.kind !== ENCOUNTER_OBJECT_KIND.STATION) {
-            throw new Error(`${input.commandId} command does not support encounter object: ${target.kind}`);
-        }
-
-        return target;
-    }
-
-    private getJumpPointTarget(input: ExecuteOfficerCommandInput): JumpPointEncounterObjectState {
-        if (!input.targetId) {
-            throw new Error(`${input.commandId} command requires targetId`);
-        }
-
-        const target = this.stateStore.findObjectById(input.targetId);
-
-        if (!target) {
-            throw new Error(`${input.commandId} command target not found: ${input.targetId}`);
-        }
-
-        if (target.kind !== ENCOUNTER_OBJECT_KIND.JUMP_POINT) {
-            throw new Error(`${input.commandId} command does not support encounter object: ${target.kind}`);
-        }
-
-        return target;
     }
 
     // #endregion

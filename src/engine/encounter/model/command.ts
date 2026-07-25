@@ -1,6 +1,6 @@
 // src/engine/encounter/model/command.ts
 
-import { OFFICER_ROLE, type OfficerRole } from '../../defs/officer';
+import type { OfficerRole } from '../../defs/officer';
 
 // Стабильные ids команд, которые капитан может отдать
 // офицерам внутри encounter.
@@ -26,7 +26,7 @@ export type EncounterOfficerCommandId =
 // Тип domain-цели, к которой применяется officer command.
 //
 // NONE используется для команд,
-// которые не требуют выбора конкретной цели.
+// которые не требуют выбора конкретной encounter-цели.
 //
 // ENCOUNTER_OBJECT используется для команд,
 // направленных на объекты текущего encounter.
@@ -73,80 +73,6 @@ export type OfficerCommandDef = {
     // когда на мостике нет активных officer tasks.
     requiresIdleBridge: boolean;
 };
-
-// Единый registry статических свойств officer commands.
-//
-// Encounter objects хранят только ids команд,
-// направленных на encounter objects.
-//
-// Нетаргетированные команды доступны напрямую
-// через registry.
-//
-// Role, label, targeting и bridge requirement
-// остальные системы получают отсюда.
-export const OFFICER_COMMAND_DEFS = {
-    [ENCOUNTER_OFFICER_COMMAND_ID.COMMS_HAIL]: {
-        role: OFFICER_ROLE.COMMS,
-        label: 'HAIL',
-        targeting: {
-            kind: OFFICER_COMMAND_TARGET_KIND.ENCOUNTER_OBJECT,
-            scope: ENCOUNTER_OBJECT_TARGET_SCOPE.CURRENT_ANCHOR,
-        },
-        requiresIdleBridge: false,
-    },
-
-    [ENCOUNTER_OFFICER_COMMAND_ID.COMMS_REQUEST_DOCKING]: {
-        role: OFFICER_ROLE.COMMS,
-        label: 'REQUEST DOCKING',
-        targeting: {
-            kind: OFFICER_COMMAND_TARGET_KIND.ENCOUNTER_OBJECT,
-            scope: ENCOUNTER_OBJECT_TARGET_SCOPE.CURRENT_ANCHOR,
-        },
-        requiresIdleBridge: false,
-    },
-
-    [ENCOUNTER_OFFICER_COMMAND_ID.SCIENCE_PLOT_COURSE]: {
-        role: OFFICER_ROLE.SCIENCE,
-        label: 'PLOT COURSE',
-        targeting: {
-            kind: OFFICER_COMMAND_TARGET_KIND.NONE,
-        },
-        requiresIdleBridge: false,
-    },
-
-    [ENCOUNTER_OFFICER_COMMAND_ID.HELM_DOCK]: {
-        role: OFFICER_ROLE.HELM,
-        label: 'DOCK',
-        targeting: {
-            kind: OFFICER_COMMAND_TARGET_KIND.ENCOUNTER_OBJECT,
-            scope: ENCOUNTER_OBJECT_TARGET_SCOPE.CURRENT_ANCHOR,
-        },
-        requiresIdleBridge: true,
-    },
-
-    [ENCOUNTER_OFFICER_COMMAND_ID.HELM_FLY_TO]: {
-        role: OFFICER_ROLE.HELM,
-        label: 'FLY TO',
-        targeting: {
-            kind: OFFICER_COMMAND_TARGET_KIND.ENCOUNTER_OBJECT,
-            scope: ENCOUNTER_OBJECT_TARGET_SCOPE.ENCOUNTER_NODE,
-        },
-        requiresIdleBridge: true,
-    },
-    [ENCOUNTER_OFFICER_COMMAND_ID.HELM_JUMP]: {
-        role: OFFICER_ROLE.HELM,
-        label: 'JUMP',
-        targeting: {
-            kind: OFFICER_COMMAND_TARGET_KIND.ENCOUNTER_OBJECT,
-            scope: ENCOUNTER_OBJECT_TARGET_SCOPE.CURRENT_ANCHOR,
-        },
-        requiresIdleBridge: true,
-    },
-} satisfies Record<EncounterOfficerCommandId, OfficerCommandDef>;
-
-export function getOfficerCommandDef(commandId: EncounterOfficerCommandId): OfficerCommandDef {
-    return OFFICER_COMMAND_DEFS[commandId];
-}
 
 // #endregion
 
