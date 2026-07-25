@@ -12,7 +12,7 @@
         "preview": "vite preview",
         "deploy": "npm run build && node -r dotenv/config deploy/deploy.js",
         "typecheck": "tsc --noEmit",
-        "test": "vitest run"
+        "test": "vitest run --root ."
     },
     "keywords": [],
     "author": "",

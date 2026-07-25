@@ -1,12 +1,7 @@
 // tests/engine/encounter/request_docking.test.ts
 import { describe, expect, it } from 'vitest';
-import { CHARACTER_PORTRAIT_ID } from '../../../src/engine/defs/character';
 import { OFFICER_ROLE } from '../../../src/engine/defs/officer';
 import { PLAYER_SPACE_NAVIGATION_KIND } from '../../../src/engine/defs/player_location';
-import { SPACE_BACKGROUND_ID } from '../../../src/engine/defs/space_background';
-import { SPECIES_ID } from '../../../src/engine/defs/species';
-import { STATION_OBJECT_SPRITE_ID } from '../../../src/engine/defs/station';
-import { SPACE_OBJECT_KIND, type SpaceNodeState } from '../../../src/engine/defs/universe';
 import EncounterEngine from '../../../src/engine/encounter/EncounterEngine';
 import {
     ENCOUNTER_OFFICER_COMMAND_ID,
@@ -18,47 +13,11 @@ import {
     OFFICER_TASK_RESULT_KIND,
 } from '../../../src/engine/encounter/model/event';
 import { OFFICER_TASK_KIND } from '../../../src/engine/encounter/model/officer_task';
+import { createSingleStationNodeFixture } from '../../fixtures/engine/space_node_fixtures';
 
 describe('REQUEST_DOCKING', () => {
     it('grants docking clearance after the Comms task completes', () => {
-        const stationId = 'station_test';
-        const stationName = 'TEST STATION';
-
-        const node: SpaceNodeState = {
-            id: 'node_test',
-
-            position: {
-                x: 0,
-                y: 0,
-            },
-
-            arrivalObjectId: stationId,
-            spaceBackgroundId: SPACE_BACKGROUND_ID.NEBULA_00,
-
-            objects: [
-                {
-                    kind: SPACE_OBJECT_KIND.STATION,
-
-                    station: {
-                        id: stationId,
-                        name: stationName,
-                        originSpecies: SPECIES_ID.HUMAN,
-                        objectSpriteId: STATION_OBJECT_SPRITE_ID.HUMAN_SMALL_00,
-
-                        contact: {
-                            name: 'TEST OPERATOR',
-                            portraitId: CHARACTER_PORTRAIT_ID.COMMS_HUMAN_00_CALM,
-                        },
-                    },
-
-                    localPosition: {
-                        x: 0,
-                        y: 0,
-                        z: 0,
-                    },
-                },
-            ],
-        };
+        const { node, stationId, stationName } = createSingleStationNodeFixture();
 
         const engine = new EncounterEngine({
             node,
