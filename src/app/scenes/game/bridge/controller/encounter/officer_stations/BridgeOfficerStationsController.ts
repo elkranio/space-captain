@@ -16,13 +16,7 @@ import type BridgeEventBus from '../../../events/BridgeEventBus';
 
 const OFFICER_STATIONS_SYNC_INTERVAL_MS = 200;
 
-const OFFICER_STATION_ROLES = [
-    OFFICER_ROLE.COMMS,
-    OFFICER_ROLE.SCIENCE,
-    OFFICER_ROLE.HELM,
-    OFFICER_ROLE.WEAPONS,
-    OFFICER_ROLE.ENGINEER,
-] as const;
+const OFFICER_STATION_ROLES = Object.values(OFFICER_ROLE);
 
 // Управляет presentation-состоянием всех officer stations.
 //
