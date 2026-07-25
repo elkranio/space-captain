@@ -14,7 +14,7 @@ import {
     OFFICER_TASK_RESULT_KIND,
 } from '../../../src/engine/encounter/model/event';
 import { OFFICER_TASK_KIND } from '../../../src/engine/encounter/model/officer_task';
-import { ENCOUNTER_OBJECT_KIND } from '../../../src/engine/encounter/objects/encounter_object';
+import { ENCOUNTER_ANCHOR_KIND } from '../../../src/engine/encounter/anchors/encounter_anchor';
 import { createSingleStationNodeFixture } from '../../fixtures/engine/space_node_fixtures';
 
 describe('PLOT_COURSE', () => {
@@ -92,7 +92,7 @@ describe('PLOT_COURSE', () => {
                     kind: OFFICER_TASK_RESULT_KIND.JUMP_POINT_CALCULATED,
 
                     object: expect.objectContaining({
-                        kind: ENCOUNTER_OBJECT_KIND.JUMP_POINT,
+                        kind: ENCOUNTER_ANCHOR_KIND.JUMP_POINT,
                         displayName: 'JUMP POINT',
 
                         jumpPoint: expect.objectContaining({
@@ -115,7 +115,7 @@ describe('PLOT_COURSE', () => {
             throw new Error('Expected completed PLOT COURSE task result');
         }
 
-        const jumpPoint = taskEndedEvent.result.object;
+        const jumpPoint = taskEndedEvent.result.anchor;
 
         // Пока jump point уже существует, новый курс построить нельзя.
         expect(engine.getAvailableCommands(OFFICER_ROLE.SCIENCE)).toEqual([]);

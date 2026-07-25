@@ -2,16 +2,16 @@
 
 import { OFFICER_ROLE } from '../../../defs/officer';
 import {
-    ENCOUNTER_OBJECT_TARGET_SCOPE,
+    ENCOUNTER_ANCHOR_TARGET_SCOPE,
     ENCOUNTER_OFFICER_COMMAND_ID,
     OFFICER_COMMAND_TARGET_KIND,
     type OfficerCommandDef,
 } from '../../model/command';
 import { ENCOUNTER_EVENT } from '../../model/event';
 import type { OfficerCommandHandler } from '../../model/officer_command_handler';
-import { ENCOUNTER_OBJECT_KIND } from '../../objects/encounter_object';
+import { ENCOUNTER_ANCHOR_KIND } from '../../anchors/encounter_anchor';
 import { createHelmJumpTask } from '../../officer_tasks/create_officer_task_draft';
-import { createTargetedCommand, getJumpPointTarget, isCurrentAnchorObject } from './command_handler_helpers';
+import { createTargetedCommand, getJumpPointTarget, isCurrentAnchor } from './command_handler_helpers';
 
 const COMMAND_ID = ENCOUNTER_OFFICER_COMMAND_ID.HELM_JUMP;
 
@@ -20,8 +20,8 @@ const COMMAND_DEF = {
     label: 'JUMP',
 
     targeting: {
-        kind: OFFICER_COMMAND_TARGET_KIND.ENCOUNTER_OBJECT,
-        scope: ENCOUNTER_OBJECT_TARGET_SCOPE.CURRENT_ANCHOR,
+        kind: OFFICER_COMMAND_TARGET_KIND.ANCHOR,
+        scope: ENCOUNTER_ANCHOR_TARGET_SCOPE.CURRENT_ANCHOR,
     },
 
     requiresIdleBridge: true,
@@ -34,7 +34,7 @@ export const helmJumpCommandHandler = {
     getAvailableCommands(state) {
         return state.anchors
             .filter((object) => {
-                return object.kind === ENCOUNTER_OBJECT_KIND.JUMP_POINT && isCurrentAnchorObject(state, object);
+                return object.kind === ENCOUNTER_ANCHOR_KIND.JUMP_POINT && isCurrentAnchor(state, object);
             })
             .map((object) => {
                 return createTargetedCommand(COMMAND_ID, COMMAND_DEF.label, object);

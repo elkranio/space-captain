@@ -189,11 +189,11 @@ export default class OfficerTaskRunner {
             throw new Error('SCIENCE_PLOT_COURSE task requires targetNodeId');
         }
 
-        const object = this.stateStore.createJumpPoint(task.targetNodeId);
+        const anchor = this.stateStore.createJumpPoint(task.targetNodeId);
 
         return {
             kind: OFFICER_TASK_RESULT_KIND.JUMP_POINT_CALCULATED,
-            object,
+            anchor,
         };
     }
 

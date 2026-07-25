@@ -8,14 +8,14 @@ import type {
 } from '../../model/command';
 import type { OfficerCommandExecutionContext } from '../../model/officer_command_handler';
 import type { EncounterState } from '../../model/state';
-import { ENCOUNTER_OBJECT_KIND, type EncounterObjectState } from '../../objects/encounter_object';
-import type { JumpPointEncounterObjectState } from '../../objects/jump_point/jump_point_encounter_object';
-import type { StationEncounterObjectState } from '../../objects/station/station_encounter_object';
+import { ENCOUNTER_ANCHOR_KIND, type EncounterAnchorState } from '../../anchors/encounter_anchor';
+import type { JumpPointEncounterAnchorState } from '../../anchors/jump_point/jump_point_encounter_anchor';
+import type { StationEncounterAnchorState } from '../../anchors/station/station_encounter_anchor';
 
 export function createTargetedCommand(
     commandId: EncounterOfficerCommandId,
     label: string,
-    object: EncounterObjectState,
+    object: EncounterAnchorState,
 ): AvailableOfficerCommand {
     return {
         commandId,
@@ -25,7 +25,7 @@ export function createTargetedCommand(
     };
 }
 
-export function isCurrentAnchorObject(state: EncounterState, object: EncounterObjectState): boolean {
+export function isCurrentAnchor(state: EncounterState, object: EncounterAnchorState): boolean {
     const navigation = state.navigation;
 
     return navigation.kind === PLAYER_SPACE_NAVIGATION_KIND.ANCHORED && navigation.anchorObjectId === object.id;
@@ -50,7 +50,7 @@ export function requireTargetNodeId(input: ExecuteOfficerCommandInput): string {
 export function getStationTarget(
     context: OfficerCommandExecutionContext,
     input: ExecuteOfficerCommandInput,
-): StationEncounterObjectState {
+): StationEncounterAnchorState {
     const targetId = requireTargetId(input);
     const target = context.stateStore.findAnchorById(targetId);
 
@@ -58,7 +58,7 @@ export function getStationTarget(
         throw new Error(`${input.commandId} command target not found: ${targetId}`);
     }
 
-    if (target.kind !== ENCOUNTER_OBJECT_KIND.STATION) {
+    if (target.kind !== ENCOUNTER_ANCHOR_KIND.STATION) {
         throw new Error(`${input.commandId} command does not support encounter object: ${target.kind}`);
     }
 
@@ -68,7 +68,7 @@ export function getStationTarget(
 export function getJumpPointTarget(
     context: OfficerCommandExecutionContext,
     input: ExecuteOfficerCommandInput,
-): JumpPointEncounterObjectState {
+): JumpPointEncounterAnchorState {
     const targetId = requireTargetId(input);
     const target = context.stateStore.findAnchorById(targetId);
 
@@ -76,7 +76,7 @@ export function getJumpPointTarget(
         throw new Error(`${input.commandId} command target not found: ${targetId}`);
     }
 
-    if (target.kind !== ENCOUNTER_OBJECT_KIND.JUMP_POINT) {
+    if (target.kind !== ENCOUNTER_ANCHOR_KIND.JUMP_POINT) {
         throw new Error(`${input.commandId} command does not support encounter object: ${target.kind}`);
     }
 

@@ -3,8 +3,8 @@
 import type { PlayerSpaceNavigationState } from '../../defs/player_location';
 import { SPACE_OBJECT_KIND, type SpaceNodeState, type SpaceObjectState } from '../../defs/universe';
 import type { EncounterState } from '../model/state';
-import { ENCOUNTER_OBJECT_KIND, type EncounterObjectState } from '../objects/encounter_object';
-import { DOCKING_CLEARANCE_STATE } from '../objects/station/station_encounter_object';
+import { ENCOUNTER_ANCHOR_KIND, type EncounterAnchorState } from '../anchors/encounter_anchor';
+import { DOCKING_CLEARANCE_STATE } from '../anchors/station/station_encounter_anchor';
 
 export function createEncounterState(node: SpaceNodeState, navigation: PlayerSpaceNavigationState): EncounterState {
     return {
@@ -19,21 +19,19 @@ export function createEncounterState(node: SpaceNodeState, navigation: PlayerSpa
         officerTasks: {},
 
         anchors: node.objects.map((object) => {
-            return createEncounterObjectState(object);
+            return createEncounterAnchorState(object);
         }),
     };
 }
 
-function createEncounterObjectState(object: SpaceObjectState): EncounterObjectState {
+function createEncounterAnchorState(object: SpaceObjectState): EncounterAnchorState {
     switch (object.kind) {
         case SPACE_OBJECT_KIND.STATION:
             return {
                 id: object.station.id,
-                kind: ENCOUNTER_OBJECT_KIND.STATION,
+                kind: ENCOUNTER_ANCHOR_KIND.STATION,
                 displayName: object.station.name,
                 station: object.station,
-
-                anchorObjectId: object.station.id,
 
                 localPosition: {
                     ...object.localPosition,
@@ -54,11 +52,9 @@ function createEncounterObjectState(object: SpaceObjectState): EncounterObjectSt
         case SPACE_OBJECT_KIND.NAVIGATION_BEACON:
             return {
                 id: object.beacon.id,
-                kind: ENCOUNTER_OBJECT_KIND.NAVIGATION_BEACON,
+                kind: ENCOUNTER_ANCHOR_KIND.NAVIGATION_BEACON,
                 displayName: object.beacon.name,
                 beacon: object.beacon,
-
-                anchorObjectId: object.beacon.id,
 
                 localPosition: {
                     ...object.localPosition,
@@ -75,11 +71,9 @@ function createEncounterObjectState(object: SpaceObjectState): EncounterObjectSt
         case SPACE_OBJECT_KIND.ASTEROID:
             return {
                 id: object.asteroid.id,
-                kind: ENCOUNTER_OBJECT_KIND.ASTEROID,
+                kind: ENCOUNTER_ANCHOR_KIND.ASTEROID,
                 displayName: object.asteroid.name,
                 asteroid: object.asteroid,
-
-                anchorObjectId: object.asteroid.id,
 
                 localPosition: {
                     ...object.localPosition,
@@ -97,11 +91,9 @@ function createEncounterObjectState(object: SpaceObjectState): EncounterObjectSt
         case SPACE_OBJECT_KIND.JUMP_POINT:
             return {
                 id: object.jumpPoint.id,
-                kind: ENCOUNTER_OBJECT_KIND.JUMP_POINT,
+                kind: ENCOUNTER_ANCHOR_KIND.JUMP_POINT,
                 displayName: object.jumpPoint.name,
                 jumpPoint: object.jumpPoint,
-
-                anchorObjectId: object.jumpPoint.id,
 
                 localPosition: {
                     ...object.localPosition,

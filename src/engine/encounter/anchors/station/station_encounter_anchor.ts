@@ -1,6 +1,7 @@
-// src/engine/encounter/objects/station/station_encounter_object.ts
+// src/engine/encounter/anchors/station/station_encounter_anchor.ts
+
 import type { StationState } from '../../../defs/station';
-import { ENCOUNTER_OBJECT_KIND, type EncounterObjectBaseState } from '../encounter_object';
+import { ENCOUNTER_ANCHOR_KIND, type EncounterAnchorBaseState } from '../encounter_anchor';
 
 export const DOCKING_CLEARANCE_STATE = {
     NONE: 'none',
@@ -15,8 +16,8 @@ export type StationDockingState = {
     clearance: DockingClearanceState;
 };
 
-export type StationEncounterObjectState = EncounterObjectBaseState & {
-    kind: typeof ENCOUNTER_OBJECT_KIND.STATION;
+export type StationEncounterAnchorState = EncounterAnchorBaseState & {
+    kind: typeof ENCOUNTER_ANCHOR_KIND.STATION;
     station: StationState;
     docking: StationDockingState;
 };

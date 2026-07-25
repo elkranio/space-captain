@@ -2,16 +2,16 @@
 
 import { OFFICER_ROLE } from '../../../defs/officer';
 import {
-    ENCOUNTER_OBJECT_TARGET_SCOPE,
+    ENCOUNTER_ANCHOR_TARGET_SCOPE,
     ENCOUNTER_OFFICER_COMMAND_ID,
     OFFICER_COMMAND_TARGET_KIND,
     type OfficerCommandDef,
 } from '../../model/command';
 import type { OfficerCommandHandler } from '../../model/officer_command_handler';
-import { ENCOUNTER_OBJECT_KIND } from '../../objects/encounter_object';
-import { DOCKING_CLEARANCE_STATE } from '../../objects/station/station_encounter_object';
+import { ENCOUNTER_ANCHOR_KIND } from '../../anchors/encounter_anchor';
+import { DOCKING_CLEARANCE_STATE } from '../../anchors/station/station_encounter_anchor';
 import { createCommsRequestDockingTask } from '../../officer_tasks/create_officer_task_draft';
-import { createTargetedCommand, getStationTarget, isCurrentAnchorObject } from './command_handler_helpers';
+import { createTargetedCommand, getStationTarget, isCurrentAnchor } from './command_handler_helpers';
 
 const COMMAND_ID = ENCOUNTER_OFFICER_COMMAND_ID.COMMS_REQUEST_DOCKING;
 
@@ -20,8 +20,8 @@ const COMMAND_DEF = {
     label: 'REQUEST DOCKING',
 
     targeting: {
-        kind: OFFICER_COMMAND_TARGET_KIND.ENCOUNTER_OBJECT,
-        scope: ENCOUNTER_OBJECT_TARGET_SCOPE.CURRENT_ANCHOR,
+        kind: OFFICER_COMMAND_TARGET_KIND.ANCHOR,
+        scope: ENCOUNTER_ANCHOR_TARGET_SCOPE.CURRENT_ANCHOR,
     },
 
     requiresIdleBridge: false,
@@ -35,8 +35,8 @@ export const commsRequestDockingCommandHandler = {
         return state.anchors
             .filter((object) => {
                 return (
-                    object.kind === ENCOUNTER_OBJECT_KIND.STATION &&
-                    isCurrentAnchorObject(state, object) &&
+                    object.kind === ENCOUNTER_ANCHOR_KIND.STATION &&
+                    isCurrentAnchor(state, object) &&
                     object.docking.clearance === DOCKING_CLEARANCE_STATE.NONE
                 );
             })

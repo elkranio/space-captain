@@ -5,15 +5,15 @@ import { PLAYER_SPACE_NAVIGATION_KIND, type PlayerSpaceNavigationState } from '.
 import type { SpaceNodeState } from '../../defs/universe';
 import type { OfficerTaskState } from '../model/officer_task';
 import type { EncounterState } from '../model/state';
-import { ENCOUNTER_OBJECT_KIND, type EncounterObjectState } from '../objects/encounter_object';
+import { ENCOUNTER_ANCHOR_KIND, type EncounterAnchorState } from '../anchors/encounter_anchor';
 import { JUMP_POINT_OBJECT_SPRITE_ID } from '../../defs/jump_point';
-import type { JumpPointEncounterObjectState } from '../objects/jump_point/jump_point_encounter_object';
-import { DOCKING_CLEARANCE_STATE } from '../objects/station/station_encounter_object';
+import type { JumpPointEncounterAnchorState } from '../anchors/jump_point/jump_point_encounter_anchor';
+import { DOCKING_CLEARANCE_STATE } from '../anchors/station/station_encounter_anchor';
 import { createEncounterState } from './create_encounter_state';
 
 export type EncounterTravelStart = {
     fromObjectId: string;
-    target: EncounterObjectState;
+    target: EncounterAnchorState;
 };
 
 // Владеет mutable runtime state одного encounter.
@@ -49,7 +49,7 @@ export default class EncounterStateStore {
         };
     }
 
-    public findAnchorById(anchorId: string | undefined): EncounterObjectState | undefined {
+    public findAnchorById(anchorId: string | undefined): EncounterAnchorState | undefined {
         if (!anchorId) {
             return undefined;
         }
@@ -127,9 +127,9 @@ export default class EncounterStateStore {
 
     // #region Encounter object mutations
 
-    public createJumpPoint(targetNodeId: string): JumpPointEncounterObjectState {
+    public createJumpPoint(targetNodeId: string): JumpPointEncounterAnchorState {
         const existingJumpPoint = this.state.anchors.find((anchor) => {
-            return anchor.kind === ENCOUNTER_OBJECT_KIND.JUMP_POINT;
+            return anchor.kind === ENCOUNTER_ANCHOR_KIND.JUMP_POINT;
         });
 
         if (existingJumpPoint) {
@@ -142,9 +142,9 @@ export default class EncounterStateStore {
             throw new Error(`Cannot create duplicate encounter object: ${id}`);
         }
 
-        const object: JumpPointEncounterObjectState = {
+        const object: JumpPointEncounterAnchorState = {
             id,
-            kind: ENCOUNTER_OBJECT_KIND.JUMP_POINT,
+            kind: ENCOUNTER_ANCHOR_KIND.JUMP_POINT,
             displayName: 'JUMP POINT',
 
             jumpPoint: {
@@ -153,8 +153,6 @@ export default class EncounterStateStore {
                 targetNodeId,
                 objectSpriteId: JUMP_POINT_OBJECT_SPRITE_ID.JUMP_POINT_00,
             },
-
-            anchorObjectId: id,
 
             // Временная постановочная позиция внутри текущей ноды.
             localPosition: {
@@ -184,7 +182,7 @@ export default class EncounterStateStore {
         }
 
         switch (target.kind) {
-            case ENCOUNTER_OBJECT_KIND.STATION:
+            case ENCOUNTER_ANCHOR_KIND.STATION:
                 target.docking.clearance = DOCKING_CLEARANCE_STATE.GRANTED;
                 return;
 

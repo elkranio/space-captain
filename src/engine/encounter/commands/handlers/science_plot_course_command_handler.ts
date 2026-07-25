@@ -3,7 +3,7 @@
 import { OFFICER_ROLE } from '../../../defs/officer';
 import { ENCOUNTER_OFFICER_COMMAND_ID, OFFICER_COMMAND_TARGET_KIND, type OfficerCommandDef } from '../../model/command';
 import type { OfficerCommandHandler } from '../../model/officer_command_handler';
-import { ENCOUNTER_OBJECT_KIND } from '../../objects/encounter_object';
+import { ENCOUNTER_ANCHOR_KIND } from '../../anchors/encounter_anchor';
 import { createSciencePlotCourseTask } from '../../officer_tasks/create_officer_task_draft';
 import { requireTargetNodeId } from './command_handler_helpers';
 
@@ -26,7 +26,7 @@ export const sciencePlotCourseCommandHandler = {
 
     getAvailableCommands(state) {
         const jumpPointExists = state.anchors.some((object) => {
-            return object.kind === ENCOUNTER_OBJECT_KIND.JUMP_POINT;
+            return object.kind === ENCOUNTER_ANCHOR_KIND.JUMP_POINT;
         });
 
         if (jumpPointExists) {

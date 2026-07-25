@@ -3,7 +3,7 @@
 import { OFFICER_ROLE } from '../../../defs/officer';
 import { PLAYER_SPACE_NAVIGATION_KIND } from '../../../defs/player_location';
 import {
-    ENCOUNTER_OBJECT_TARGET_SCOPE,
+    ENCOUNTER_ANCHOR_TARGET_SCOPE,
     ENCOUNTER_OFFICER_COMMAND_ID,
     OFFICER_COMMAND_TARGET_KIND,
     type OfficerCommandDef,
@@ -20,8 +20,8 @@ const COMMAND_DEF = {
     label: 'FLY TO',
 
     targeting: {
-        kind: OFFICER_COMMAND_TARGET_KIND.ENCOUNTER_OBJECT,
-        scope: ENCOUNTER_OBJECT_TARGET_SCOPE.ENCOUNTER_NODE,
+        kind: OFFICER_COMMAND_TARGET_KIND.ANCHOR,
+        scope: ENCOUNTER_ANCHOR_TARGET_SCOPE.ENCOUNTER_NODE,
     },
 
     requiresIdleBridge: true,

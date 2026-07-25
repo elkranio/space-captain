@@ -360,17 +360,17 @@ export default class BridgeEncounterController {
                 continue;
             }
 
-            const object = event.result.object;
+            const anchor = event.result.anchor;
 
             GAME_RUNTIME.addCurrentNodeObject({
                 kind: SPACE_OBJECT_KIND.JUMP_POINT,
 
                 jumpPoint: {
-                    ...object.jumpPoint,
+                    ...anchor.jumpPoint,
                 },
 
                 localPosition: {
-                    ...object.localPosition,
+                    ...anchor.localPosition,
                 },
             });
         }

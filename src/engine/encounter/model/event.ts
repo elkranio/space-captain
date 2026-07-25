@@ -1,10 +1,10 @@
 // src/engine/encounter/model/event.ts
 
 import type { CharacterPortraitId } from '../../defs/character';
-import type { EncounterObjectState } from '../objects/encounter_object';
+import type { EncounterAnchorState } from '../anchors/encounter_anchor';
 import type { OfficerTaskState } from './officer_task';
 import type { EncounterState } from './state';
-import type { JumpPointEncounterObjectState } from '../objects/jump_point/jump_point_encounter_object';
+import type { JumpPointEncounterAnchorState } from '../anchors/jump_point/jump_point_encounter_anchor';
 
 // События, которые EncounterEngine отдаёт наружу
 // через outbox.
@@ -43,7 +43,7 @@ export type OfficerTaskResult =
       }
     | {
           kind: typeof OFFICER_TASK_RESULT_KIND.JUMP_POINT_CALCULATED;
-          object: JumpPointEncounterObjectState;
+          anchor: JumpPointEncounterAnchorState;
       };
 
 // Полный snapshot encounter после создания
@@ -92,7 +92,7 @@ export type TravelStartedEvent = {
 
     fromObjectId: string;
 
-    target: EncounterObjectState;
+    target: EncounterAnchorState;
 };
 
 // Начало межнодового прыжка.

@@ -3,24 +3,24 @@
 import { OFFICER_ROLE } from '../../../../../../../engine/defs/officer';
 import { PLAYER_SPACE_NAVIGATION_KIND } from '../../../../../../../engine/defs/player_location';
 import {
+    ENCOUNTER_ANCHOR_KIND,
+    type EncounterAnchorState,
+} from '../../../../../../../engine/encounter/anchors/encounter_anchor';
+import {
     ENCOUNTER_EVENT,
+    OFFICER_TASK_RESULT_KIND,
     type EncounterEvent,
     type EncounterLoadedEvent,
-    OFFICER_TASK_RESULT_KIND,
 } from '../../../../../../../engine/encounter/model/event';
 import { OFFICER_TASK_KIND } from '../../../../../../../engine/encounter/model/officer_task';
 import type { EncounterState } from '../../../../../../../engine/encounter/model/state';
-import {
-    ENCOUNTER_OBJECT_KIND,
-    type EncounterObjectState,
-} from '../../../../../../../engine/encounter/objects/encounter_object';
 import { DEBUG_SETTINGS } from '../../../../../../debug/debug_settings';
 import { ASTEROID_OBJECT_SPRITES } from '../../../../../../manifests/asteroids/asteroid_srpite';
 import { BEACON_OBJECT_SPRITES } from '../../../../../../manifests/beacons/beacon_sprite';
+import { JUMP_POINT_OBJECT_SPRITES } from '../../../../../../manifests/jump_points/jump_point_sprite';
 import { STATION_OBJECT_SPRITES } from '../../../../../../manifests/stations/station_sprite';
 import { BRIDGE_EVENT, type BridgeEncounterObjectPayload } from '../../../events/bridge_event';
 import type BridgeEventBus from '../../../events/BridgeEventBus';
-import { JUMP_POINT_OBJECT_SPRITES } from '../../../../../../manifests/jump_points/jump_point_sprite';
 
 type SetEncounterInteractive = (value: boolean) => void;
 
@@ -104,7 +104,7 @@ export default class BridgeEncounterEngineEventHandler {
                 if (event.result?.kind === OFFICER_TASK_RESULT_KIND.JUMP_POINT_CALCULATED) {
                     this.eventBus.emit(
                         BRIDGE_EVENT.ENCOUNTER_OBJECT_ADDED,
-                        this.mapEncounterObjectToBridgeObjectPayload(event.result.object),
+                        this.mapEncounterAnchorToBridgeObjectPayload(event.result.anchor),
                     );
                 }
 
@@ -197,74 +197,82 @@ export default class BridgeEncounterEngineEventHandler {
 
     // #endregion
 
-    // #region Encounter object mapping
+    // #region Encounter anchor mapping
 
     private mapEncounterAnchorsToBridgeObjectPayloads(state: EncounterState): BridgeEncounterObjectPayload[] {
         return state.anchors.map((anchor) => {
-            return this.mapEncounterObjectToBridgeObjectPayload(anchor);
+            return this.mapEncounterAnchorToBridgeObjectPayload(anchor);
         });
     }
 
-    private mapEncounterObjectToBridgeObjectPayload(object: EncounterObjectState): BridgeEncounterObjectPayload {
-        switch (object.kind) {
-            case ENCOUNTER_OBJECT_KIND.STATION:
+    private mapEncounterAnchorToBridgeObjectPayload(anchor: EncounterAnchorState): BridgeEncounterObjectPayload {
+        switch (anchor.kind) {
+            case ENCOUNTER_ANCHOR_KIND.STATION:
                 return {
-                    id: object.id,
-                    anchorObjectId: object.anchorObjectId,
+                    id: anchor.id,
+                    anchorObjectId: anchor.id,
 
                     localPosition: {
-                        ...object.localPosition,
+                        ...anchor.localPosition,
                     },
 
-                    perspectiveDepth: object.perspectiveDepth,
-                    sprite: STATION_OBJECT_SPRITES[object.station.objectSpriteId],
-                    position: new Phaser.Math.Vector2(object.position.x, object.position.y),
+                    perspectiveDepth: anchor.perspectiveDepth,
+
+                    sprite: STATION_OBJECT_SPRITES[anchor.station.objectSpriteId],
+
+                    position: new Phaser.Math.Vector2(anchor.position.x, anchor.position.y),
                 };
 
-            case ENCOUNTER_OBJECT_KIND.NAVIGATION_BEACON:
+            case ENCOUNTER_ANCHOR_KIND.NAVIGATION_BEACON:
                 return {
-                    id: object.id,
-                    anchorObjectId: object.anchorObjectId,
+                    id: anchor.id,
+                    anchorObjectId: anchor.id,
 
                     localPosition: {
-                        ...object.localPosition,
+                        ...anchor.localPosition,
                     },
 
-                    perspectiveDepth: object.perspectiveDepth,
-                    sprite: BEACON_OBJECT_SPRITES[object.beacon.objectSpriteId],
-                    position: new Phaser.Math.Vector2(object.position.x, object.position.y),
+                    perspectiveDepth: anchor.perspectiveDepth,
+
+                    sprite: BEACON_OBJECT_SPRITES[anchor.beacon.objectSpriteId],
+
+                    position: new Phaser.Math.Vector2(anchor.position.x, anchor.position.y),
                 };
 
-            case ENCOUNTER_OBJECT_KIND.ASTEROID:
+            case ENCOUNTER_ANCHOR_KIND.ASTEROID:
                 return {
-                    id: object.id,
-                    anchorObjectId: object.anchorObjectId,
+                    id: anchor.id,
+                    anchorObjectId: anchor.id,
 
                     localPosition: {
-                        ...object.localPosition,
+                        ...anchor.localPosition,
                     },
 
-                    perspectiveDepth: object.perspectiveDepth,
-                    sprite: ASTEROID_OBJECT_SPRITES[object.asteroid.objectSpriteId],
-                    position: new Phaser.Math.Vector2(object.position.x, object.position.y),
+                    perspectiveDepth: anchor.perspectiveDepth,
+
+                    sprite: ASTEROID_OBJECT_SPRITES[anchor.asteroid.objectSpriteId],
+
+                    position: new Phaser.Math.Vector2(anchor.position.x, anchor.position.y),
                 };
 
-            case ENCOUNTER_OBJECT_KIND.JUMP_POINT:
+            case ENCOUNTER_ANCHOR_KIND.JUMP_POINT:
                 return {
-                    id: object.id,
-                    anchorObjectId: object.anchorObjectId,
+                    id: anchor.id,
+                    anchorObjectId: anchor.id,
 
                     localPosition: {
-                        ...object.localPosition,
+                        ...anchor.localPosition,
                     },
 
-                    perspectiveDepth: object.perspectiveDepth,
-                    sprite: JUMP_POINT_OBJECT_SPRITES[object.jumpPoint.objectSpriteId],
-                    position: new Phaser.Math.Vector2(object.position.x, object.position.y),
+                    perspectiveDepth: anchor.perspectiveDepth,
+
+                    sprite: JUMP_POINT_OBJECT_SPRITES[anchor.jumpPoint.objectSpriteId],
+
+                    position: new Phaser.Math.Vector2(anchor.position.x, anchor.position.y),
                 };
 
             default:
-                return this.assertNeverEncounterObject(object);
+                return this.assertNeverEncounterAnchor(anchor);
         }
     }
 
@@ -280,7 +288,7 @@ export default class BridgeEncounterEngineEventHandler {
         }
 
         if (task.kind !== OFFICER_TASK_KIND.HELM_FLY_TO) {
-            throw new Error(`TRAVELLING encounter requires HELM_FLY_TO task, received: ${task.kind}`);
+            throw new Error(`TRAVELLING encounter requires HELM_FLY_TO task, ` + `received: ${task.kind}`);
         }
 
         if (task.targetId !== targetObjectId) {
@@ -295,7 +303,7 @@ export default class BridgeEncounterEngineEventHandler {
 
     // #endregion
 
-    // #region Object lookup
+    // #region Bridge object lookup
 
     private findAnchorObjectsOrThrow(
         objects: BridgeEncounterObjectPayload[],
@@ -315,10 +323,12 @@ export default class BridgeEncounterEngineEventHandler {
     }
 
     private findObjectOrThrow(objects: BridgeEncounterObjectPayload[], objectId: string): BridgeEncounterObjectPayload {
-        const object = objects.find((candidate) => candidate.id === objectId);
+        const object = objects.find((candidate) => {
+            return candidate.id === objectId;
+        });
 
         if (!object) {
-            throw new Error(`Navigation encounter object not found: ${objectId}`);
+            throw new Error(`Navigation bridge object not found: ${objectId}`);
         }
 
         return object;
@@ -330,7 +340,7 @@ export default class BridgeEncounterEngineEventHandler {
         throw new Error(`Unhandled player space navigation state: ${String(value)}`);
     }
 
-    private assertNeverEncounterObject(value: never): never {
-        throw new Error(`Unhandled encounter object: ${String(value)}`);
+    private assertNeverEncounterAnchor(value: never): never {
+        throw new Error(`Unhandled encounter anchor: ${String(value)}`);
     }
 }

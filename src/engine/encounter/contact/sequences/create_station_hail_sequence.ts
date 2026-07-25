@@ -1,11 +1,11 @@
 // src/engine/encounter/contact/sequences/create_station_hail_sequence.ts
 
-import type { StationEncounterObjectState } from '../../objects/station/station_encounter_object';
+import type { StationEncounterAnchorState } from '../../anchors/station/station_encounter_anchor';
 import { CONTACT_SEQUENCE_STEP_KIND, type ContactSequenceStep } from './contact_sequence';
 
 // Создаёт contact sequence для обычного HAIL станции.
 // Команда только выбирает sequence, но не знает его внутренние шаги.
-export function createStationHailSequence(target: StationEncounterObjectState): ContactSequenceStep[] {
+export function createStationHailSequence(target: StationEncounterAnchorState): ContactSequenceStep[] {
     return [
         {
             kind: CONTACT_SEQUENCE_STEP_KIND.START_CONTACT,
