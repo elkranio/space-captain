@@ -18,10 +18,13 @@ const TEST_STATION_NAME = 'TEST STATION';
 const TEST_BEACON_ID = 'beacon_test';
 const TEST_BEACON_NAME = 'TEST BEACON';
 
+const TEST_STATION_CONTACT_NAME = 'TEST OPERATOR';
+
 export type SingleStationNodeFixture = {
     node: SpaceNodeState;
     stationId: string;
     stationName: string;
+    stationContactName: string;
 };
 
 export type StationAndBeaconNodeFixture = {
@@ -29,6 +32,7 @@ export type StationAndBeaconNodeFixture = {
 
     stationId: string;
     stationName: string;
+    stationContactName: string;
 
     beaconId: string;
     beaconName: string;
@@ -38,6 +42,7 @@ export function createSingleStationNodeFixture(): SingleStationNodeFixture {
     return {
         stationId: TEST_STATION_ID,
         stationName: TEST_STATION_NAME,
+        stationContactName: TEST_STATION_CONTACT_NAME,
 
         node: {
             id: 'single_station_node',
@@ -65,6 +70,7 @@ export function createStationAndBeaconNodeFixture(): StationAndBeaconNodeFixture
     return {
         stationId: TEST_STATION_ID,
         stationName: TEST_STATION_NAME,
+        stationContactName: TEST_STATION_CONTACT_NAME,
 
         beaconId: TEST_BEACON_ID,
         beaconName: TEST_BEACON_NAME,
@@ -108,7 +114,7 @@ function createTestStationObject(localPosition: Vec3): StationSpaceObjectState {
             objectSpriteId: STATION_OBJECT_SPRITE_ID.HUMAN_SMALL_00,
 
             contact: {
-                name: 'TEST OPERATOR',
+                name: TEST_STATION_CONTACT_NAME,
                 portraitId: CHARACTER_PORTRAIT_ID.COMMS_HUMAN_00_CALM,
             },
         },
