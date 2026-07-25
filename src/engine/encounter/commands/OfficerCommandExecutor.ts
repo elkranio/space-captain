@@ -74,7 +74,7 @@ export default class OfficerCommandExecutor {
     // #region Public API
 
     public execute(input: ExecuteOfficerCommandInput): ExecuteOfficerCommandResult {
-        if (!this.canExecute(input)) {
+        if (!this.isCommandAvailable(input)) {
             return {
                 status: OFFICER_COMMAND_EXECUTION_STATUS.REJECTED,
                 reason: OFFICER_COMMAND_REJECTION_REASON.NOT_AVAILABLE,
@@ -129,7 +129,7 @@ export default class OfficerCommandExecutor {
 
     // #region Command validation
 
-    private canExecute(input: ExecuteOfficerCommandInput): boolean {
+    private isCommandAvailable(input: ExecuteOfficerCommandInput): boolean {
         if (input.commandId === ENCOUNTER_OFFICER_COMMAND_ID.SCIENCE_PLOT_COURSE && !input.targetNodeId) {
             return false;
         }
