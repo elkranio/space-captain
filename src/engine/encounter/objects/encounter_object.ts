@@ -1,11 +1,10 @@
 // src/engine/encounter/objects/encounter_object.ts
 
 import type { Vec3 } from '../../defs/vector';
-import type { EncounterOfficerCommandId } from '../model/command';
 import type { AsteroidEncounterObjectState } from './asteroid/asteroid_encounter_object';
+import type { JumpPointEncounterObjectState } from './jump_point/jump_point_encounter_object';
 import type { NavigationBeaconEncounterObjectState } from './navigation_beacon/navigation_beacon_encounter_object';
 import type { StationEncounterObjectState } from './station/station_encounter_object';
-import type { JumpPointEncounterObjectState } from './jump_point/jump_point_encounter_object';
 
 export const ENCOUNTER_OBJECT_KIND = {
     STATION: 'station',
@@ -47,12 +46,6 @@ export type EncounterObjectBaseState = {
     // меньше 1 — объект визуально дальше;
     // больше 1 — объект визуально ближе.
     perspectiveDepth: number;
-
-    // Encounter object определяет только поддерживаемые command ids.
-    //
-    // Role, label, targeting и прочие статические свойства
-    // берутся из соответствующего command def.
-    officerCommandIds: EncounterOfficerCommandId[];
 };
 
 export type EncounterObjectState =

@@ -3,7 +3,6 @@
 import type { OfficerRole } from '../../defs/officer';
 import { PLAYER_SPACE_NAVIGATION_KIND, type PlayerSpaceNavigationState } from '../../defs/player_location';
 import { SPACE_OBJECT_KIND, type SpaceNodeState, type SpaceObjectState } from '../../defs/universe';
-import { ENCOUNTER_OFFICER_COMMAND_ID } from '../model/command';
 import type { OfficerTaskState } from '../model/officer_task';
 import type { EncounterState } from '../model/state';
 import { ENCOUNTER_OBJECT_KIND, type EncounterObjectState } from '../objects/encounter_object';
@@ -183,8 +182,6 @@ export default class EncounterStateStore {
             },
 
             perspectiveDepth: 1,
-
-            officerCommandIds: [ENCOUNTER_OFFICER_COMMAND_ID.HELM_FLY_TO, ENCOUNTER_OFFICER_COMMAND_ID.HELM_JUMP],
         };
 
         this.state.objects.push(object);
@@ -285,13 +282,6 @@ export default class EncounterStateStore {
                     docking: {
                         clearance: DOCKING_CLEARANCE_STATE.NONE,
                     },
-
-                    officerCommandIds: [
-                        ENCOUNTER_OFFICER_COMMAND_ID.COMMS_HAIL,
-                        ENCOUNTER_OFFICER_COMMAND_ID.COMMS_REQUEST_DOCKING,
-                        ENCOUNTER_OFFICER_COMMAND_ID.HELM_DOCK,
-                        ENCOUNTER_OFFICER_COMMAND_ID.HELM_FLY_TO,
-                    ],
                 };
 
             case SPACE_OBJECT_KIND.NAVIGATION_BEACON:
@@ -313,8 +303,6 @@ export default class EncounterStateStore {
                     },
 
                     perspectiveDepth: 1,
-
-                    officerCommandIds: [ENCOUNTER_OFFICER_COMMAND_ID.HELM_FLY_TO],
                 };
 
             case SPACE_OBJECT_KIND.ASTEROID:
@@ -337,8 +325,6 @@ export default class EncounterStateStore {
                     },
 
                     perspectiveDepth: 1,
-
-                    officerCommandIds: [ENCOUNTER_OFFICER_COMMAND_ID.HELM_FLY_TO],
                 };
 
             case SPACE_OBJECT_KIND.JUMP_POINT:
@@ -360,11 +346,6 @@ export default class EncounterStateStore {
                     },
 
                     perspectiveDepth: 1,
-
-                    officerCommandIds: [
-                        ENCOUNTER_OFFICER_COMMAND_ID.HELM_FLY_TO,
-                        ENCOUNTER_OFFICER_COMMAND_ID.HELM_JUMP,
-                    ],
                 };
 
             default:
