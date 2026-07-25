@@ -12,5 +12,5 @@
         "types": ["vite/client"],
         "lib": ["ESNext", "DOM"]
     },
-    "include": ["src", "src/types"]
+    "include": ["src", "src/types", "tests"]
 }
