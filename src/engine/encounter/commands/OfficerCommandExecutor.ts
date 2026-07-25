@@ -170,11 +170,9 @@ export default class OfficerCommandExecutor {
     }
 
     private executeRequestDocking(input: ExecuteOfficerCommandInput): void {
-        if (!input.targetId) {
-            throw new Error('REQUEST_DOCKING command requires targetId');
-        }
+        const target = this.getStationTarget(input);
 
-        this.startOfficerTask(createCommsRequestDockingTask(input.targetId));
+        this.startOfficerTask(createCommsRequestDockingTask(target.id));
     }
 
     private executeSciencePlotCourse(input: ExecuteOfficerCommandInput): void {
