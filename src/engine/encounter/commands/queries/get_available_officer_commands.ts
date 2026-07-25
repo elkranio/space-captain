@@ -27,7 +27,12 @@ export function getAvailableOfficerCommands(state: EncounterState, role: Officer
     }
 
     appendUntargetedCommands(state, commands, role);
+    appendTargetedCommands(state, commands, role);
 
+    return commands;
+}
+
+function appendTargetedCommands(state: EncounterState, commands: AvailableOfficerCommand[], role: OfficerRole): void {
     for (const object of state.objects) {
         for (const commandId of object.officerCommandIds) {
             const commandDef = getOfficerCommandDef(commandId);
@@ -43,8 +48,6 @@ export function getAvailableOfficerCommands(state: EncounterState, role: Officer
             }
         }
     }
-
-    return commands;
 }
 
 function appendUntargetedCommands(state: EncounterState, commands: AvailableOfficerCommand[], role: OfficerRole): void {
