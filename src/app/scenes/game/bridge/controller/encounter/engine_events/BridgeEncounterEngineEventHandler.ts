@@ -31,8 +31,8 @@ import type BridgeEventBus from '../../../events/BridgeEventBus';
 type SetEncounterInteractive = (value: boolean) => void;
 
 const SHIP_ACTOR_POSITION_OFFSET = {
-    x: 0.28,
-    y: -0.08,
+    x: 0.65,
+    y: -0.2,
 } as const;
 
 const SHIP_ACTOR_PERSPECTIVE_DEPTH = 0.75;
