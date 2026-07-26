@@ -1,7 +1,12 @@
 // src/app/scenes/game/bridge/controller/encounter/engine_events/BridgeEncounterEngineEventHandler.ts
 
+import { SHIPS } from '../../../../../../../engine/content/ships';
 import { OFFICER_ROLE } from '../../../../../../../engine/defs/officer';
 import { PLAYER_SPACE_NAVIGATION_KIND } from '../../../../../../../engine/defs/player_location';
+import {
+    ENCOUNTER_ACTOR_KIND,
+    type EncounterActorState,
+} from '../../../../../../../engine/encounter/actors/encounter_actor';
 import {
     ENCOUNTER_ANCHOR_KIND,
     type EncounterAnchorState,
@@ -18,11 +23,19 @@ import { DEBUG_SETTINGS } from '../../../../../../debug/debug_settings';
 import { ASTEROID_OBJECT_SPRITES } from '../../../../../../manifests/asteroids/asteroid_srpite';
 import { BEACON_OBJECT_SPRITES } from '../../../../../../manifests/beacons/beacon_sprite';
 import { JUMP_POINT_OBJECT_SPRITES } from '../../../../../../manifests/jump_points/jump_point_sprite';
+import { SHIP_SPRITES } from '../../../../../../manifests/ships/ship_sprite';
 import { STATION_OBJECT_SPRITES } from '../../../../../../manifests/stations/station_sprite';
 import { BRIDGE_EVENT, type BridgeEncounterObjectPayload } from '../../../events/bridge_event';
 import type BridgeEventBus from '../../../events/BridgeEventBus';
 
 type SetEncounterInteractive = (value: boolean) => void;
+
+const SHIP_ACTOR_POSITION_OFFSET = {
+    x: 0.28,
+    y: -0.08,
+} as const;
+
+const SHIP_ACTOR_PERSPECTIVE_DEPTH = 0.75;
 
 export default class BridgeEncounterEngineEventHandler {
     constructor(
@@ -51,6 +64,7 @@ export default class BridgeEncounterEngineEventHandler {
             case ENCOUNTER_EVENT.CONTACT_STARTED:
                 this.eventBus.emit(BRIDGE_EVENT.CONTACT_STARTED, {
                     contactName: event.contactName,
+
                     contactPortraitId: event.contactPortraitId,
                 });
                 return;
@@ -58,6 +72,7 @@ export default class BridgeEncounterEngineEventHandler {
             case ENCOUNTER_EVENT.CONTACT_MESSAGE_ADDED:
                 this.eventBus.emit(BRIDGE_EVENT.CONTACT_MESSAGE_ADDED, {
                     speakerName: event.speakerName,
+
                     text: event.text,
                 });
                 return;
@@ -75,6 +90,7 @@ export default class BridgeEncounterEngineEventHandler {
                     // Engine navigation хранит anchors,
                     // bridge view двигает presentation objects.
                     fromObjectId: event.fromAnchorId,
+
                     targetObjectId: event.target.id,
                 });
                 return;
@@ -84,6 +100,7 @@ export default class BridgeEncounterEngineEventHandler {
 
                 this.eventBus.emit(BRIDGE_EVENT.ENCOUNTER_JUMP_STARTED, {
                     taskId: event.taskId,
+
                     targetNodeId: event.targetNodeId,
                 });
                 return;
@@ -108,6 +125,7 @@ export default class BridgeEncounterEngineEventHandler {
                 if (event.result?.kind === OFFICER_TASK_RESULT_KIND.JUMP_POINT_CALCULATED) {
                     this.eventBus.emit(
                         BRIDGE_EVENT.ENCOUNTER_OBJECT_ADDED,
+
                         this.mapEncounterAnchorToBridgeObjectPayload(event.result.anchor),
                     );
                 }
@@ -126,7 +144,7 @@ export default class BridgeEncounterEngineEventHandler {
     // #region Encounter loaded
 
     private handleEncounterLoaded(event: EncounterLoadedEvent): void {
-        const objects = this.mapEncounterAnchorsToBridgeObjectPayloads(event.state);
+        const objects = this.mapEncounterStateToBridgeObjectPayloads(event.state);
 
         this.eventBus.emit(BRIDGE_EVENT.ENCOUNTER_OBJECTS_LOADED, objects);
 
@@ -144,6 +162,7 @@ export default class BridgeEncounterEngineEventHandler {
             case PLAYER_SPACE_NAVIGATION_KIND.TRAVELLING:
                 this.handleTravellingNavigation(
                     this.findLoadedTravelTaskIdOrThrow(event, navigation.targetAnchorId),
+
                     navigation.fromAnchorId,
                     navigation.targetAnchorId,
                     objects,
@@ -201,7 +220,17 @@ export default class BridgeEncounterEngineEventHandler {
 
     // #endregion
 
-    // #region Encounter anchor mapping
+    // #region Encounter object mapping
+
+    private mapEncounterStateToBridgeObjectPayloads(state: EncounterState): BridgeEncounterObjectPayload[] {
+        return [
+            ...this.mapEncounterAnchorsToBridgeObjectPayloads(state),
+
+            ...state.actors.map((actor) => {
+                return this.mapEncounterActorToBridgeObjectPayload(actor, state);
+            }),
+        ];
+    }
 
     private mapEncounterAnchorsToBridgeObjectPayloads(state: EncounterState): BridgeEncounterObjectPayload[] {
         return state.anchors.map((anchor) => {
@@ -280,6 +309,53 @@ export default class BridgeEncounterEngineEventHandler {
         }
     }
 
+    private mapEncounterActorToBridgeObjectPayload(
+        actor: EncounterActorState,
+        state: EncounterState,
+    ): BridgeEncounterObjectPayload {
+        const anchor = state.anchors.find((candidate) => {
+            return candidate.id === actor.anchorId;
+        });
+
+        if (!anchor) {
+            throw new Error(`Encounter actor anchor not found: ` + `${actor.id} -> ${actor.anchorId}`);
+        }
+
+        switch (actor.kind) {
+            case ENCOUNTER_ACTOR_KIND.SHIP: {
+                const ship = SHIPS[actor.shipId];
+
+                return {
+                    id: actor.id,
+
+                    // Actor входит в presentation group
+                    // anchor, возле которого находится.
+                    anchorObjectId: actor.anchorId,
+
+                    // Travel yaw определяется пространственным
+                    // положением navigation anchor.
+                    localPosition: {
+                        ...anchor.localPosition,
+                    },
+
+                    perspectiveDepth: SHIP_ACTOR_PERSPECTIVE_DEPTH,
+
+                    sprite: SHIP_SPRITES[ship.spriteId],
+
+                    position: new Phaser.Math.Vector2(
+                        anchor.position.x + SHIP_ACTOR_POSITION_OFFSET.x,
+
+                        anchor.position.y + SHIP_ACTOR_POSITION_OFFSET.y,
+                    ),
+                };
+            }
+
+            default:
+                // return this.assertNeverEncounterActor(actor);
+                throw new Error(`Unhandled encounter actor: ${String(actor)}`);
+        }
+    }
+
     // #endregion
 
     // #region Loaded task lookup
@@ -347,5 +423,9 @@ export default class BridgeEncounterEngineEventHandler {
 
     private assertNeverEncounterAnchor(value: never): never {
         throw new Error(`Unhandled encounter anchor: ${String(value)}`);
+    }
+
+    private assertNeverEncounterActor(value: never): never {
+        throw new Error(`Unhandled encounter actor: ${String(value)}`);
     }
 }

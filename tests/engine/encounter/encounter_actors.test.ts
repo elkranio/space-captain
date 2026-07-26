@@ -8,6 +8,8 @@ import { ENCOUNTER_ACTOR_KIND } from '../../../src/engine/encounter/actors/encou
 import EncounterStateStore from '../../../src/engine/encounter/state/EncounterStateStore';
 import { createEncounterState } from '../../../src/engine/encounter/state/create_encounter_state';
 import { createSingleStationNodeFixture } from '../../fixtures/engine/space_node_fixtures';
+import EncounterEngine from '../../../src/engine/encounter/EncounterEngine';
+import { ENCOUNTER_EVENT } from '../../../src/engine/encounter/model/event';
 
 describe('encounter actors', () => {
     it('spawns a runtime ship separately from navigation anchors', () => {
@@ -80,5 +82,48 @@ describe('encounter actors', () => {
                 anchorId: stationId,
             });
         }).toThrow('Encounter actor already exists: ship_test_00');
+    });
+
+    it('includes initial ship actors in the loaded encounter snapshot', () => {
+        const { node, stationId } = createSingleStationNodeFixture();
+
+        const engine = new EncounterEngine({
+            node,
+
+            navigation: {
+                kind: PLAYER_SPACE_NAVIGATION_KIND.ANCHORED,
+
+                anchorId: stationId,
+            },
+
+            initialShipActors: [
+                {
+                    actorId: 'ship_generic_00',
+                    shipId: SHIP_ID.GENERIC_00,
+                    anchorId: stationId,
+                },
+            ],
+        });
+
+        expect(engine.drainEvents()).toEqual([
+            expect.objectContaining({
+                type: ENCOUNTER_EVENT.ENCOUNTER_LOADED,
+
+                state: expect.objectContaining({
+                    actors: [
+                        {
+                            id: 'ship_generic_00',
+
+                            kind: ENCOUNTER_ACTOR_KIND.SHIP,
+
+                            displayName: SHIPS[SHIP_ID.GENERIC_00].name,
+
+                            anchorId: stationId,
+                            shipId: SHIP_ID.GENERIC_00,
+                        },
+                    ],
+                }),
+            }),
+        ]);
     });
 });

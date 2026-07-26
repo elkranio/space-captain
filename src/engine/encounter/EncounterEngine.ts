@@ -12,11 +12,14 @@ import type { OfficerAvailabilityStates } from './model/officer_availability';
 import { OFFICER_TASK_KIND, type OfficerTaskKind } from './model/officer_task';
 import { getOfficerAvailabilityStates } from './officer_availability/queries/get_officer_availability_states';
 import OfficerTaskRunner from './officer_tasks/OfficerTaskRunner';
-import EncounterStateStore from './state/EncounterStateStore';
+import EncounterStateStore, { type SpawnShipActorInput } from './state/EncounterStateStore';
 
 export type EncounterEngineOptions = {
     node: SpaceNodeState;
     navigation: PlayerSpaceNavigationState;
+
+    initialShipActors?: SpawnShipActorInput[];
+
     completeTimedTasksImmediately?: boolean;
 };
 
@@ -31,8 +34,17 @@ export default class EncounterEngine {
 
     private readonly officerCommandExecutor: OfficerCommandExecutor;
 
-    constructor({ node, navigation, completeTimedTasksImmediately = false }: EncounterEngineOptions) {
+    constructor({
+        node,
+        navigation,
+        initialShipActors = [],
+        completeTimedTasksImmediately = false,
+    }: EncounterEngineOptions) {
         this.stateStore = EncounterStateStore.fromSpaceNode(node, navigation);
+
+        for (const shipActor of initialShipActors) {
+            this.stateStore.spawnShipActor(shipActor);
+        }
 
         const encounterState = this.stateStore.getState();
 
@@ -49,6 +61,7 @@ export default class EncounterEngine {
         this.officerCommandExecutor = new OfficerCommandExecutor({
             stateStore: this.stateStore,
             emit: this.emit,
+
             startOfficerTask: this.officerTaskRunner.start,
 
             // Generic completion остаётся внутренней связью
@@ -60,6 +73,7 @@ export default class EncounterEngine {
 
         this.emit({
             type: ENCOUNTER_EVENT.ENCOUNTER_LOADED,
+
             state: encounterState,
         });
     }
