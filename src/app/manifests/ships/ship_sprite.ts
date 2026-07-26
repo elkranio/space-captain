@@ -11,6 +11,6 @@ export const SHIP_SPRITES = {
 
     [SHIP_SPRITE_ID.GENERIC_00]: {
         atlasKey: DEFAULT_ATLAS_KEY,
-        frameKey: 'ships/krelboid_pirate_00',
+        frameKey: 'ships/generic_ship_00',
     },
 } satisfies Record<ShipSpriteId, SpriteEntry>;

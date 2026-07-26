@@ -1,16 +1,22 @@
 // src/engine/encounter/actors/encounter_actor.ts
 
-// Эфемерный участник текущего encounter.
+import type { ShipEncounterActorState } from './ship/ship_encounter_actor';
+
+export const ENCOUNTER_ACTOR_KIND = {
+    SHIP: 'ship',
+} as const;
+
+// Общая runtime-часть эфемерного участника encounter.
 //
-// Actor существует только внутри runtime encounter
-// и не является persistent space anchor.
-//
-// Конкретные actor kinds добавим вместе
-// с первым реальным actor gameplay slice.
-export type EncounterActorState = {
+// Actor существует только внутри текущего encounter,
+// не является persistent space anchor
+// и не участвует в navigation topology.
+export type EncounterActorBaseState = {
     id: string;
     displayName: string;
 
     // Anchor, возле которого actor сейчас находится.
     anchorId: string;
 };
+
+export type EncounterActorState = ShipEncounterActorState;

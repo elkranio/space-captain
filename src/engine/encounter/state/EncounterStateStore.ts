@@ -10,11 +10,20 @@ import { JUMP_POINT_OBJECT_SPRITE_ID } from '../../defs/jump_point';
 import type { JumpPointEncounterAnchorState } from '../anchors/jump_point/jump_point_encounter_anchor';
 import { DOCKING_CLEARANCE_STATE } from '../anchors/station/station_encounter_anchor';
 import { createEncounterState } from './create_encounter_state';
-import type { EncounterActorState } from '../actors/encounter_actor';
+import { SHIPS } from '../../content/ships';
+import type { ShipId } from '../../defs/ship';
+import { ENCOUNTER_ACTOR_KIND, type EncounterActorState } from '../actors/encounter_actor';
+import type { ShipEncounterActorState } from '../actors/ship/ship_encounter_actor';
 
 export type EncounterTravelStart = {
     fromAnchorId: string;
     target: EncounterAnchorState;
+};
+
+export type SpawnShipActorInput = {
+    actorId: string;
+    shipId: ShipId;
+    anchorId: string;
 };
 
 // Владеет mutable runtime state одного encounter.
@@ -74,6 +83,31 @@ export default class EncounterStateStore {
         return this.state.actors.filter((actor) => {
             return actor.anchorId === anchorId;
         });
+    }
+
+    public spawnShipActor({ actorId, shipId, anchorId }: SpawnShipActorInput): ShipEncounterActorState {
+        if (!this.findAnchorById(anchorId)) {
+            throw new Error(`Cannot spawn ship actor: ` + `anchor not found: ${anchorId}`);
+        }
+
+        if (this.findActorById(actorId)) {
+            throw new Error(`Encounter actor already exists: ${actorId}`);
+        }
+
+        const ship = SHIPS[shipId];
+
+        const actor: ShipEncounterActorState = {
+            id: actorId,
+            kind: ENCOUNTER_ACTOR_KIND.SHIP,
+            displayName: ship.name,
+
+            anchorId,
+            shipId,
+        };
+
+        this.state.actors.push(actor);
+
+        return actor;
     }
 
     // #endregion
