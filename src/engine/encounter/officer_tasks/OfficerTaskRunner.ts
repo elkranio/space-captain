@@ -2,16 +2,11 @@
 
 import { OFFICER_ROLE } from '../../defs/officer';
 import { PLAYER_SPACE_NAVIGATION_KIND } from '../../defs/player_location';
-import {
-    ENCOUNTER_EVENT,
-    OFFICER_TASK_OUTCOME,
-    OFFICER_TASK_RESULT_KIND,
-    type EncounterEvent,
-    type OfficerTaskResult,
-} from '../model/event';
-import { OFFICER_TASK_KIND, type OfficerTaskDraft, type OfficerTaskState } from '../model/officer_task';
+import { ENCOUNTER_EVENT, OFFICER_TASK_OUTCOME, type EncounterEvent, type OfficerTaskResult } from '../model/event';
+import { type OfficerTaskDraft, type OfficerTaskState } from '../model/officer_task';
 import EncounterStateStore from '../state/EncounterStateStore';
 import { createHelmFlyToTask } from './create_officer_task_draft';
+import OfficerTaskResolver from './OfficerTaskResolver';
 
 type OfficerTaskRunnerOptions = {
     stateStore: EncounterStateStore;
@@ -19,6 +14,14 @@ type OfficerTaskRunnerOptions = {
     completeTimedTasksImmediately?: boolean;
 };
 
+// Управляет lifecycle officer tasks:
+//
+// - создаёт runtime task;
+// - хранит progress;
+// - завершает и отменяет task;
+// - эмитит lifecycle events.
+//
+// Task-specific domain effects выполняет OfficerTaskResolver.
 export default class OfficerTaskRunner {
     private readonly stateStore: EncounterStateStore;
 
@@ -26,12 +29,16 @@ export default class OfficerTaskRunner {
 
     private readonly completeTimedTasksImmediately: boolean;
 
+    private readonly taskResolver: OfficerTaskResolver;
+
     private nextTaskId = 1;
 
     constructor({ stateStore, emit, completeTimedTasksImmediately = false }: OfficerTaskRunnerOptions) {
         this.stateStore = stateStore;
         this.emit = emit;
         this.completeTimedTasksImmediately = completeTimedTasksImmediately;
+
+        this.taskResolver = new OfficerTaskResolver(this.stateStore);
 
         this.restoreMissingNavigationTask();
     }
@@ -45,6 +52,7 @@ export default class OfficerTaskRunner {
 
         this.emit({
             type: ENCOUNTER_EVENT.OFFICER_TASK_STARTED,
+
             task: {
                 ...runtimeTask,
             },
@@ -64,7 +72,7 @@ export default class OfficerTaskRunner {
             return;
         }
 
-        const result = this.resolveTask(task);
+        const result = this.taskResolver.resolve(task);
 
         this.finishTask(task, OFFICER_TASK_OUTCOME.COMPLETED, result);
     };
@@ -135,66 +143,6 @@ export default class OfficerTaskRunner {
         for (const taskId of finishedTaskIds) {
             this.complete(taskId);
         }
-    }
-
-    // #endregion
-
-    // #region Task resolution
-
-    private resolveTask(task: OfficerTaskState): OfficerTaskResult | undefined {
-        switch (task.kind) {
-            case OFFICER_TASK_KIND.COMMS_REQUEST_DOCKING:
-                return this.resolveCommsRequestDockingTask(task);
-
-            case OFFICER_TASK_KIND.HELM_FLY_TO:
-                this.resolveHelmFlyToTask(task);
-                return undefined;
-
-            case OFFICER_TASK_KIND.COMMS_HAIL:
-            case OFFICER_TASK_KIND.HELM_DOCK:
-            case OFFICER_TASK_KIND.HELM_JUMP:
-                return undefined;
-
-            case OFFICER_TASK_KIND.SCIENCE_PLOT_COURSE:
-                return this.resolveSciencePlotCourseTask(task);
-
-            default:
-                throw new Error(`Unhandled officer task kind: ${String(task.kind)}`);
-        }
-    }
-
-    private resolveCommsRequestDockingTask(task: OfficerTaskState): OfficerTaskResult {
-        if (!task.targetId) {
-            throw new Error('COMMS_REQUEST_DOCKING task requires targetId');
-        }
-
-        this.stateStore.grantDockingClearance(task.targetId);
-
-        return {
-            kind: OFFICER_TASK_RESULT_KIND.DOCKING_CLEARANCE_GRANTED,
-            targetObjectId: task.targetId,
-        };
-    }
-
-    private resolveHelmFlyToTask(task: OfficerTaskState): void {
-        if (!task.targetId) {
-            throw new Error('HELM_FLY_TO task requires targetId');
-        }
-
-        this.stateStore.completeTravel(task.targetId);
-    }
-
-    private resolveSciencePlotCourseTask(task: OfficerTaskState): OfficerTaskResult {
-        if (!task.targetNodeId) {
-            throw new Error('SCIENCE_PLOT_COURSE task requires targetNodeId');
-        }
-
-        const anchor = this.stateStore.createJumpPoint(task.targetNodeId);
-
-        return {
-            kind: OFFICER_TASK_RESULT_KIND.JUMP_POINT_CALCULATED,
-            anchor,
-        };
     }
 
     // #endregion
