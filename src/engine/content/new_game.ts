@@ -118,7 +118,7 @@ export function createNewRunState(): RunState {
 
         //         navigation: {
         //             kind: PLAYER_SPACE_NAVIGATION_KIND.ARRIVING,
-        //             targetObjectId: station.id,
+        //             targetAnchorId: station.id,
         //         },
         //     },
         // },
