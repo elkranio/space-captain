@@ -124,10 +124,10 @@ export default class GameOverlayController {
 
                 switch (navigation.kind) {
                     case PLAYER_SPACE_NAVIGATION_KIND.ARRIVING:
-                        return navigation.targetObjectId;
+                        return navigation.targetAnchorId;
 
                     case PLAYER_SPACE_NAVIGATION_KIND.ANCHORED:
-                        return navigation.anchorObjectId;
+                        return navigation.anchorId;
 
                     case PLAYER_SPACE_NAVIGATION_KIND.TRAVELLING:
                         return undefined;

@@ -25,10 +25,10 @@ export function createTargetedCommand(
     };
 }
 
-export function isCurrentAnchor(state: EncounterState, object: EncounterAnchorState): boolean {
+export function isCurrentAnchor(state: EncounterState, anchor: EncounterAnchorState): boolean {
     const navigation = state.navigation;
 
-    return navigation.kind === PLAYER_SPACE_NAVIGATION_KIND.ANCHORED && navigation.anchorObjectId === object.id;
+    return navigation.kind === PLAYER_SPACE_NAVIGATION_KIND.ANCHORED && navigation.anchorId === anchor.id;
 }
 
 export function requireTargetId(input: ExecuteOfficerCommandInput): string {

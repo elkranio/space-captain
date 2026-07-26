@@ -13,18 +13,18 @@ export const PLAYER_SPACE_NAVIGATION_KIND = {
 
 export type PlayerSpaceArrivingNavigationState = {
     kind: typeof PLAYER_SPACE_NAVIGATION_KIND.ARRIVING;
-    targetObjectId: string;
+    targetAnchorId: string;
 };
 
 export type PlayerSpaceAnchoredNavigationState = {
     kind: typeof PLAYER_SPACE_NAVIGATION_KIND.ANCHORED;
-    anchorObjectId: string;
+    anchorId: string;
 };
 
 export type PlayerSpaceTravellingNavigationState = {
     kind: typeof PLAYER_SPACE_NAVIGATION_KIND.TRAVELLING;
-    fromObjectId: string;
-    targetObjectId: string;
+    fromAnchorId: string;
+    targetAnchorId: string;
 };
 
 export type PlayerSpaceNavigationState =

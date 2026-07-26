@@ -79,7 +79,7 @@ export type ContactEndedEvent = {
 };
 
 // Начало локального перелёта
-// между encounter objects.
+// между encounter anchors.
 //
 // Визуальный travel flow выполняет app-слой.
 //
@@ -90,7 +90,7 @@ export type TravelStartedEvent = {
 
     taskId: string;
 
-    fromObjectId: string;
+    fromAnchorId: string;
 
     target: EncounterAnchorState;
 };

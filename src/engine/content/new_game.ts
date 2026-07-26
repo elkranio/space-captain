@@ -93,8 +93,8 @@ export function createNewRunState(): RunState {
 
         //         navigation: {
         //             kind: PLAYER_SPACE_NAVIGATION_KIND.TRAVELLING,
-        //             targetObjectId: navigationBeacon.id,
-        //             fromObjectId: asteroid.id,
+        //             targetAnchorId: navigationBeacon.id,
+        //             fromAnchorId: asteroid.id,
         //         },
         //     },
         // },
@@ -106,7 +106,7 @@ export function createNewRunState(): RunState {
 
                 navigation: {
                     kind: PLAYER_SPACE_NAVIGATION_KIND.ARRIVING,
-                    targetObjectId: navigationBeacon.id,
+                    targetAnchorId: navigationBeacon.id,
                 },
             },
         },

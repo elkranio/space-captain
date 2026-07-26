@@ -82,7 +82,7 @@ class GameRuntime {
         }
 
         const sourceNode = getCurrentNode(this.currentRun);
-        const anchorId = location.navigation.anchorObjectId;
+        const anchorId = location.navigation.anchorId;
 
         const anchor = sourceNode.anchors.find((candidate) => {
             return this.getSpaceAnchorId(candidate) === anchorId;
@@ -134,9 +134,7 @@ class GameRuntime {
 
             navigation: {
                 kind: PLAYER_SPACE_NAVIGATION_KIND.ARRIVING,
-
-                // Navigation IDs переименуем отдельным атомом.
-                targetObjectId: targetNode.arrivalAnchorId,
+                targetAnchorId: targetNode.arrivalAnchorId,
             },
         };
 
@@ -179,20 +177,17 @@ class GameRuntime {
             case PLAYER_SPACE_NAVIGATION_KIND.ARRIVING:
                 return (
                     next.kind === PLAYER_SPACE_NAVIGATION_KIND.ARRIVING &&
-                    current.targetObjectId === next.targetObjectId
+                    current.targetAnchorId === next.targetAnchorId
                 );
 
             case PLAYER_SPACE_NAVIGATION_KIND.ANCHORED:
-                return (
-                    next.kind === PLAYER_SPACE_NAVIGATION_KIND.ANCHORED &&
-                    current.anchorObjectId === next.anchorObjectId
-                );
+                return next.kind === PLAYER_SPACE_NAVIGATION_KIND.ANCHORED && current.anchorId === next.anchorId;
 
             case PLAYER_SPACE_NAVIGATION_KIND.TRAVELLING:
                 return (
                     next.kind === PLAYER_SPACE_NAVIGATION_KIND.TRAVELLING &&
-                    current.fromObjectId === next.fromObjectId &&
-                    current.targetObjectId === next.targetObjectId
+                    current.fromAnchorId === next.fromAnchorId &&
+                    current.targetAnchorId === next.targetAnchorId
                 );
 
             default:

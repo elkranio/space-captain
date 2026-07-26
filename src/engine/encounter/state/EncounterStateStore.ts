@@ -12,7 +12,7 @@ import { DOCKING_CLEARANCE_STATE } from '../anchors/station/station_encounter_an
 import { createEncounterState } from './create_encounter_state';
 
 export type EncounterTravelStart = {
-    fromObjectId: string;
+    fromAnchorId: string;
     target: EncounterAnchorState;
 };
 
@@ -72,54 +72,54 @@ export default class EncounterStateStore {
 
         this.state.navigation = {
             kind: PLAYER_SPACE_NAVIGATION_KIND.ANCHORED,
-            anchorObjectId: navigation.targetObjectId,
+            anchorId: navigation.targetAnchorId,
         };
     }
 
-    public startTravel(targetObjectId: string): EncounterTravelStart {
+    public startTravel(targetAnchorId: string): EncounterTravelStart {
         const navigation = this.state.navigation;
 
         if (navigation.kind !== PLAYER_SPACE_NAVIGATION_KIND.ANCHORED) {
             throw new Error(`Cannot start travel from navigation state: ${navigation.kind}`);
         }
 
-        const target = this.findAnchorById(targetObjectId);
+        const target = this.findAnchorById(targetAnchorId);
 
         if (!target) {
-            throw new Error(`Travel target not found: ${targetObjectId}`);
+            throw new Error(`Travel target not found: ${targetAnchorId}`);
         }
 
-        const fromObjectId = navigation.anchorObjectId;
+        const fromAnchorId = navigation.anchorId;
 
         this.state.navigation = {
             kind: PLAYER_SPACE_NAVIGATION_KIND.TRAVELLING,
-            fromObjectId,
-            targetObjectId: target.id,
+            fromAnchorId,
+            targetAnchorId: target.id,
         };
 
         return {
-            fromObjectId,
+            fromAnchorId,
             target,
         };
     }
 
-    public completeTravel(targetObjectId: string): void {
+    public completeTravel(targetAnchorId: string): void {
         const navigation = this.state.navigation;
 
         if (navigation.kind !== PLAYER_SPACE_NAVIGATION_KIND.TRAVELLING) {
             throw new Error(`Cannot complete travel from navigation state: ${navigation.kind}`);
         }
 
-        if (navigation.targetObjectId !== targetObjectId) {
+        if (navigation.targetAnchorId !== targetAnchorId) {
             throw new Error(
                 `Travel target does not match navigation target: ` +
-                    `${targetObjectId} !== ${navigation.targetObjectId}`,
+                    `${targetAnchorId} !== ${navigation.targetAnchorId}`,
             );
         }
 
         this.state.navigation = {
             kind: PLAYER_SPACE_NAVIGATION_KIND.ANCHORED,
-            anchorObjectId: targetObjectId,
+            anchorId: targetAnchorId,
         };
     }
 

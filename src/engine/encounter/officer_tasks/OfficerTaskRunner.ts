@@ -99,7 +99,7 @@ export default class OfficerTaskRunner {
             return;
         }
 
-        const runtimeTask = this.createRuntimeTask(createHelmFlyToTask(navigation.targetObjectId));
+        const runtimeTask = this.createRuntimeTask(createHelmFlyToTask(navigation.targetAnchorId));
 
         this.stateStore.assignOfficerTask(runtimeTask);
     }

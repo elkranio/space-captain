@@ -71,7 +71,10 @@ export default class BridgeEncounterEngineEventHandler {
 
                 this.eventBus.emit(BRIDGE_EVENT.ENCOUNTER_TRAVEL_STARTED, {
                     taskId: event.taskId,
-                    fromObjectId: event.fromObjectId,
+
+                    // Engine navigation хранит anchors,
+                    // bridge view двигает presentation objects.
+                    fromObjectId: event.fromAnchorId,
                     targetObjectId: event.target.id,
                 });
                 return;
@@ -130,18 +133,18 @@ export default class BridgeEncounterEngineEventHandler {
 
         switch (navigation.kind) {
             case PLAYER_SPACE_NAVIGATION_KIND.ARRIVING:
-                this.handleArrivingNavigation(navigation.targetObjectId, objects);
+                this.handleArrivingNavigation(navigation.targetAnchorId, objects);
                 return;
 
             case PLAYER_SPACE_NAVIGATION_KIND.ANCHORED:
-                this.handleAnchoredNavigation(navigation.anchorObjectId, objects);
+                this.handleAnchoredNavigation(navigation.anchorId, objects);
                 return;
 
             case PLAYER_SPACE_NAVIGATION_KIND.TRAVELLING:
                 this.handleTravellingNavigation(
-                    this.findLoadedTravelTaskIdOrThrow(event, navigation.targetObjectId),
-                    navigation.fromObjectId,
-                    navigation.targetObjectId,
+                    this.findLoadedTravelTaskIdOrThrow(event, navigation.targetAnchorId),
+                    navigation.fromAnchorId,
+                    navigation.targetAnchorId,
                     objects,
                 );
                 return;
@@ -151,8 +154,8 @@ export default class BridgeEncounterEngineEventHandler {
         }
     }
 
-    private handleArrivingNavigation(targetObjectId: string, objects: BridgeEncounterObjectPayload[]): void {
-        const targetAnchorObjects = this.findAnchorObjectsOrThrow(objects, targetObjectId);
+    private handleArrivingNavigation(targetAnchorId: string, objects: BridgeEncounterObjectPayload[]): void {
+        const targetAnchorObjects = this.findAnchorObjectsOrThrow(objects, targetAnchorId);
 
         if (DEBUG_SETTINGS.bridge.encounter.skipArrival) {
             this.eventBus.emit(BRIDGE_EVENT.ENCOUNTER_OBJECTS_UPDATED, targetAnchorObjects);
@@ -164,12 +167,12 @@ export default class BridgeEncounterEngineEventHandler {
         this.setEncounterInteractive(false);
 
         this.eventBus.emit(BRIDGE_EVENT.ENCOUNTER_ARRIVAL_STARTED, {
-            targetId: targetObjectId,
+            targetId: targetAnchorId,
         });
     }
 
-    private handleAnchoredNavigation(anchorObjectId: string, objects: BridgeEncounterObjectPayload[]): void {
-        const anchorObjects = this.findAnchorObjectsOrThrow(objects, anchorObjectId);
+    private handleAnchoredNavigation(anchorId: string, objects: BridgeEncounterObjectPayload[]): void {
+        const anchorObjects = this.findAnchorObjectsOrThrow(objects, anchorId);
 
         this.eventBus.emit(BRIDGE_EVENT.ENCOUNTER_OBJECTS_UPDATED, anchorObjects);
 
@@ -178,13 +181,13 @@ export default class BridgeEncounterEngineEventHandler {
 
     private handleTravellingNavigation(
         taskId: string,
-        fromObjectId: string,
-        targetObjectId: string,
+        fromAnchorId: string,
+        targetAnchorId: string,
         objects: BridgeEncounterObjectPayload[],
     ): void {
-        this.findAnchorObjectsOrThrow(objects, fromObjectId);
+        this.findAnchorObjectsOrThrow(objects, fromAnchorId);
 
-        const targetAnchorObjects = this.findAnchorObjectsOrThrow(objects, targetObjectId);
+        const targetAnchorObjects = this.findAnchorObjectsOrThrow(objects, targetAnchorId);
 
         this.setEncounterInteractive(false);
 
@@ -280,7 +283,7 @@ export default class BridgeEncounterEngineEventHandler {
 
     // #region Loaded task lookup
 
-    private findLoadedTravelTaskIdOrThrow(event: EncounterLoadedEvent, targetObjectId: string): string {
+    private findLoadedTravelTaskIdOrThrow(event: EncounterLoadedEvent, targetAnchorId: string): string {
         const task = event.state.officerTasks[OFFICER_ROLE.HELM];
 
         if (!task) {
@@ -291,10 +294,11 @@ export default class BridgeEncounterEngineEventHandler {
             throw new Error(`TRAVELLING encounter requires HELM_FLY_TO task, ` + `received: ${task.kind}`);
         }
 
-        if (task.targetId !== targetObjectId) {
+        if (task.targetId !== targetAnchorId) {
             throw new Error(
-                `Loaded HELM_FLY_TO task target does not match navigation target: ` +
-                    `${String(task.targetId)} !== ${targetObjectId}`,
+                `Loaded HELM_FLY_TO task target does not match ` +
+                    `navigation target: ` +
+                    `${String(task.targetId)} !== ${targetAnchorId}`,
             );
         }
 
