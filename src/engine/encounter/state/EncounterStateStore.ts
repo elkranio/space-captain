@@ -10,6 +10,7 @@ import { JUMP_POINT_OBJECT_SPRITE_ID } from '../../defs/jump_point';
 import type { JumpPointEncounterAnchorState } from '../anchors/jump_point/jump_point_encounter_anchor';
 import { DOCKING_CLEARANCE_STATE } from '../anchors/station/station_encounter_anchor';
 import { createEncounterState } from './create_encounter_state';
+import type { EncounterActorState } from '../actors/encounter_actor';
 
 export type EncounterTravelStart = {
     fromAnchorId: string;
@@ -56,6 +57,22 @@ export default class EncounterStateStore {
 
         return this.state.anchors.find((anchor) => {
             return anchor.id === anchorId;
+        });
+    }
+
+    public findActorById(actorId: string | undefined): EncounterActorState | undefined {
+        if (!actorId) {
+            return undefined;
+        }
+
+        return this.state.actors.find((actor) => {
+            return actor.id === actorId;
+        });
+    }
+
+    public getActorsAtAnchor(anchorId: string): EncounterActorState[] {
+        return this.state.actors.filter((actor) => {
+            return actor.anchorId === anchorId;
         });
     }
 

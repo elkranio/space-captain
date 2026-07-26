@@ -2,6 +2,7 @@
 
 import type { PlayerSpaceNavigationState } from '../../defs/player_location';
 import type { SpaceBackgroundId } from '../../defs/space_background';
+import type { EncounterActorState } from '../actors/encounter_actor';
 import type { EncounterAnchorState } from '../anchors/encounter_anchor';
 import type { OfficerTaskStates } from './officer_task';
 
@@ -14,6 +15,10 @@ export type EncounterState = {
     // Пространственные точки текущего encounter:
     // station, beacon, asteroid, jump point.
     anchors: EncounterAnchorState[];
+
+    // Эфемерные участники encounter,
+    // находящиеся возле anchors.
+    actors: EncounterActorState[];
 
     officerTasks: OfficerTaskStates;
 };

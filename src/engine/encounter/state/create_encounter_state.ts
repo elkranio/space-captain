@@ -21,6 +21,10 @@ export function createEncounterState(node: SpaceNodeState, navigation: PlayerSpa
         anchors: node.anchors.map((anchor) => {
             return createEncounterAnchorState(anchor);
         }),
+
+        // Persistent universe пока не хранит actors.
+        // Они создаются только runtime encounter flows.
+        actors: [],
     };
 }
 
