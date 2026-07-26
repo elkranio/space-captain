@@ -16,14 +16,37 @@ export const ENCOUNTER_OFFICER_COMMAND_ID = {
 export type EncounterOfficerCommandId =
     (typeof ENCOUNTER_OFFICER_COMMAND_ID)[keyof typeof ENCOUNTER_OFFICER_COMMAND_ID];
 
-// #region Command definitions
+// #region Command targets
 
 export const OFFICER_COMMAND_TARGET_KIND = {
     NONE: 'none',
     ANCHOR: 'anchor',
+    ACTOR: 'actor',
+    SPACE_NODE: 'space_node',
 } as const;
 
 export type OfficerCommandTargetKind = (typeof OFFICER_COMMAND_TARGET_KIND)[keyof typeof OFFICER_COMMAND_TARGET_KIND];
+
+export type OfficerCommandTarget =
+    | {
+          kind: typeof OFFICER_COMMAND_TARGET_KIND.NONE;
+      }
+    | {
+          kind: typeof OFFICER_COMMAND_TARGET_KIND.ANCHOR;
+          anchorId: string;
+      }
+    | {
+          kind: typeof OFFICER_COMMAND_TARGET_KIND.ACTOR;
+          actorId: string;
+      }
+    | {
+          kind: typeof OFFICER_COMMAND_TARGET_KIND.SPACE_NODE;
+          nodeId: string;
+      };
+
+// #endregion
+
+// #region Command definitions
 
 export const ENCOUNTER_ANCHOR_TARGET_SCOPE = {
     CURRENT_ANCHOR: 'current_anchor',
@@ -40,6 +63,12 @@ export type OfficerCommandTargeting =
     | {
           kind: typeof OFFICER_COMMAND_TARGET_KIND.ANCHOR;
           scope: EncounterAnchorTargetScope;
+      }
+    | {
+          kind: typeof OFFICER_COMMAND_TARGET_KIND.ACTOR;
+      }
+    | {
+          kind: typeof OFFICER_COMMAND_TARGET_KIND.SPACE_NODE;
       };
 
 export type OfficerCommandDef = {
@@ -59,7 +88,9 @@ export type OfficerCommandDef = {
 export type AvailableOfficerCommand = {
     commandId: EncounterOfficerCommandId;
     label: string;
-    targetId?: string;
+
+    target: OfficerCommandTarget;
+
     targetLabel?: string;
 };
 
@@ -71,10 +102,7 @@ export type ExecuteOfficerCommandInput = {
     role: OfficerRole;
     commandId: EncounterOfficerCommandId;
 
-    targetId?: string;
-
-    // Destination, выбранная до запуска команды PLOT COURSE.
-    targetNodeId?: string;
+    target: OfficerCommandTarget;
 };
 
 export const OFFICER_COMMAND_EXECUTION_STATUS = {

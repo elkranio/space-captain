@@ -5,7 +5,7 @@ import { ENCOUNTER_OFFICER_COMMAND_ID, OFFICER_COMMAND_TARGET_KIND, type Officer
 import type { OfficerCommandHandler } from '../../model/officer_command_handler';
 import { ENCOUNTER_ANCHOR_KIND } from '../../anchors/encounter_anchor';
 import { createSciencePlotCourseTask } from '../../officer_tasks/create_officer_task_draft';
-import { requireTargetNodeId } from './command_handler_helpers';
+import { createUntargetedCommand, requireSpaceNodeTargetId } from './command_handler_helpers';
 
 const COMMAND_ID = ENCOUNTER_OFFICER_COMMAND_ID.SCIENCE_PLOT_COURSE;
 
@@ -14,7 +14,7 @@ const COMMAND_DEF = {
     label: 'PLOT COURSE',
 
     targeting: {
-        kind: OFFICER_COMMAND_TARGET_KIND.NONE,
+        kind: OFFICER_COMMAND_TARGET_KIND.SPACE_NODE,
     },
 
     requiresIdleBridge: false,
@@ -25,28 +25,21 @@ export const sciencePlotCourseCommandHandler = {
     def: COMMAND_DEF,
 
     getAvailableCommands(state) {
-        const jumpPointExists = state.anchors.some((object) => {
-            return object.kind === ENCOUNTER_ANCHOR_KIND.JUMP_POINT;
+        const jumpPointExists = state.anchors.some((anchor) => {
+            return anchor.kind === ENCOUNTER_ANCHOR_KIND.JUMP_POINT;
         });
 
         if (jumpPointExists) {
             return [];
         }
 
-        return [
-            {
-                commandId: COMMAND_ID,
-                label: COMMAND_DEF.label,
-            },
-        ];
-    },
-
-    isInputValid(input) {
-        return Boolean(input.targetNodeId);
+        // Destination выбирается app-слоем
+        // после выбора общей команды PLOT COURSE.
+        return [createUntargetedCommand(COMMAND_ID, COMMAND_DEF.label)];
     },
 
     execute(context, input) {
-        const targetNodeId = requireTargetNodeId(input);
+        const targetNodeId = requireSpaceNodeTargetId(input);
 
         context.startOfficerTask(createSciencePlotCourseTask(targetNodeId));
     },

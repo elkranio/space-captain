@@ -29,11 +29,5 @@ export type OfficerCommandHandler = {
 
     getAvailableCommands(state: EncounterState): AvailableOfficerCommand[];
 
-    // Временная дополнительная проверка execution payload.
-    //
-    // Нужна, пока ExecuteOfficerCommandInput использует
-    // отдельные optional targetId и targetNodeId.
-    isInputValid?: (input: ExecuteOfficerCommandInput) => boolean;
-
     execute(context: OfficerCommandExecutionContext, input: ExecuteOfficerCommandInput): void;
 };

@@ -11,7 +11,7 @@ import { ENCOUNTER_EVENT } from '../../model/event';
 import type { OfficerCommandHandler } from '../../model/officer_command_handler';
 import { ENCOUNTER_ANCHOR_KIND } from '../../anchors/encounter_anchor';
 import { createHelmJumpTask } from '../../officer_tasks/create_officer_task_draft';
-import { createTargetedCommand, getJumpPointTarget, isCurrentAnchor } from './command_handler_helpers';
+import { createAnchorTargetedCommand, getJumpPointTarget, isCurrentAnchor } from './command_handler_helpers';
 
 const COMMAND_ID = ENCOUNTER_OFFICER_COMMAND_ID.HELM_JUMP;
 
@@ -37,7 +37,7 @@ export const helmJumpCommandHandler = {
                 return object.kind === ENCOUNTER_ANCHOR_KIND.JUMP_POINT && isCurrentAnchor(state, object);
             })
             .map((object) => {
-                return createTargetedCommand(COMMAND_ID, COMMAND_DEF.label, object);
+                return createAnchorTargetedCommand(COMMAND_ID, COMMAND_DEF.label, object);
             });
     },
 

@@ -13,6 +13,8 @@ import {
     OFFICER_COMMAND_REJECTION_REASON,
     type ExecuteOfficerCommandInput,
     type ExecuteOfficerCommandResult,
+    OFFICER_COMMAND_TARGET_KIND,
+    type OfficerCommandTarget,
 } from '../../../../../../engine/encounter/model/command';
 import {
     ENCOUNTER_EVENT,
@@ -274,14 +276,32 @@ export default class BridgeEncounterController {
     }
 
     private createExecuteCommandInput(payload: BridgeOfficerCommandSelectedPayload): ExecuteOfficerCommandInput {
-        if (payload.commandId !== ENCOUNTER_OFFICER_COMMAND_ID.SCIENCE_PLOT_COURSE) {
-            return payload;
+        let target: OfficerCommandTarget;
+
+        if (payload.commandId === ENCOUNTER_OFFICER_COMMAND_ID.SCIENCE_PLOT_COURSE) {
+            target = {
+                kind: OFFICER_COMMAND_TARGET_KIND.SPACE_NODE,
+
+                nodeId: this.getAutomaticPlotCourseTargetNodeId(),
+            };
+        } else if (payload.targetId) {
+            // Все текущие targetId из bridge menu
+            // относятся к encounter anchors.
+            target = {
+                kind: OFFICER_COMMAND_TARGET_KIND.ANCHOR,
+
+                anchorId: payload.targetId,
+            };
+        } else {
+            target = {
+                kind: OFFICER_COMMAND_TARGET_KIND.NONE,
+            };
         }
 
         return {
-            ...payload,
-
-            targetNodeId: this.getAutomaticPlotCourseTargetNodeId(),
+            role: payload.role,
+            commandId: payload.commandId,
+            target,
         };
     }
 

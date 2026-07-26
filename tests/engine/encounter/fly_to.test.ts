@@ -7,6 +7,7 @@ import EncounterEngine from '../../../src/engine/encounter/EncounterEngine';
 import {
     ENCOUNTER_OFFICER_COMMAND_ID,
     OFFICER_COMMAND_EXECUTION_STATUS,
+    OFFICER_COMMAND_TARGET_KIND,
 } from '../../../src/engine/encounter/model/command';
 import { ENCOUNTER_EVENT, OFFICER_TASK_OUTCOME } from '../../../src/engine/encounter/model/event';
 import { OFFICER_AVAILABILITY_STATE } from '../../../src/engine/encounter/model/officer_availability';
@@ -14,7 +15,7 @@ import { OFFICER_TASK_KIND } from '../../../src/engine/encounter/model/officer_t
 import { createStationAndBeaconNodeFixture } from '../../fixtures/engine/space_node_fixtures';
 
 describe('FLY_TO', () => {
-    it('travels between encounter objects and blocks the bridge until completion', () => {
+    it('travels between encounter anchors and blocks the bridge until completion', () => {
         const { node, stationId, stationName, beaconId, beaconName } = createStationAndBeaconNodeFixture();
 
         const engine = new EncounterEngine({
@@ -22,6 +23,7 @@ describe('FLY_TO', () => {
 
             navigation: {
                 kind: PLAYER_SPACE_NAVIGATION_KIND.ANCHORED,
+
                 anchorId: stationId,
             },
         });
@@ -33,7 +35,13 @@ describe('FLY_TO', () => {
             commandId: ENCOUNTER_OFFICER_COMMAND_ID.HELM_FLY_TO,
 
             label: 'FLY TO',
-            targetId: beaconId,
+
+            target: {
+                kind: OFFICER_COMMAND_TARGET_KIND.ANCHOR,
+
+                anchorId: beaconId,
+            },
+
             targetLabel: beaconName,
         });
 
@@ -42,7 +50,11 @@ describe('FLY_TO', () => {
 
             commandId: ENCOUNTER_OFFICER_COMMAND_ID.HELM_FLY_TO,
 
-            targetId: beaconId,
+            target: {
+                kind: OFFICER_COMMAND_TARGET_KIND.ANCHOR,
+
+                anchorId: beaconId,
+            },
         });
 
         expect(executionResult).toEqual({
@@ -158,7 +170,13 @@ describe('FLY_TO', () => {
             commandId: ENCOUNTER_OFFICER_COMMAND_ID.HELM_FLY_TO,
 
             label: 'FLY TO',
-            targetId: stationId,
+
+            target: {
+                kind: OFFICER_COMMAND_TARGET_KIND.ANCHOR,
+
+                anchorId: stationId,
+            },
+
             targetLabel: stationName,
         });
     });

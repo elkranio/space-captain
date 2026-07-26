@@ -1,10 +1,11 @@
 // src/engine/encounter/commands/handlers/command_handler_helpers.ts
 
 import { PLAYER_SPACE_NAVIGATION_KIND } from '../../../defs/player_location';
-import type {
-    AvailableOfficerCommand,
-    EncounterOfficerCommandId,
-    ExecuteOfficerCommandInput,
+import {
+    OFFICER_COMMAND_TARGET_KIND,
+    type AvailableOfficerCommand,
+    type EncounterOfficerCommandId,
+    type ExecuteOfficerCommandInput,
 } from '../../model/command';
 import type { OfficerCommandExecutionContext } from '../../model/officer_command_handler';
 import type { EncounterState } from '../../model/state';
@@ -12,16 +13,32 @@ import { ENCOUNTER_ANCHOR_KIND, type EncounterAnchorState } from '../../anchors/
 import type { JumpPointEncounterAnchorState } from '../../anchors/jump_point/jump_point_encounter_anchor';
 import type { StationEncounterAnchorState } from '../../anchors/station/station_encounter_anchor';
 
-export function createTargetedCommand(
+export function createUntargetedCommand(commandId: EncounterOfficerCommandId, label: string): AvailableOfficerCommand {
+    return {
+        commandId,
+        label,
+
+        target: {
+            kind: OFFICER_COMMAND_TARGET_KIND.NONE,
+        },
+    };
+}
+
+export function createAnchorTargetedCommand(
     commandId: EncounterOfficerCommandId,
     label: string,
-    object: EncounterAnchorState,
+    anchor: EncounterAnchorState,
 ): AvailableOfficerCommand {
     return {
         commandId,
         label,
-        targetId: object.id,
-        targetLabel: object.displayName,
+
+        target: {
+            kind: OFFICER_COMMAND_TARGET_KIND.ANCHOR,
+            anchorId: anchor.id,
+        },
+
+        targetLabel: anchor.displayName,
     };
 }
 
@@ -31,35 +48,35 @@ export function isCurrentAnchor(state: EncounterState, anchor: EncounterAnchorSt
     return navigation.kind === PLAYER_SPACE_NAVIGATION_KIND.ANCHORED && navigation.anchorId === anchor.id;
 }
 
-export function requireTargetId(input: ExecuteOfficerCommandInput): string {
-    if (!input.targetId) {
-        throw new Error(`${input.commandId} command requires targetId`);
+export function requireAnchorTargetId(input: ExecuteOfficerCommandInput): string {
+    if (input.target.kind !== OFFICER_COMMAND_TARGET_KIND.ANCHOR) {
+        throw new Error(`${input.commandId} command requires anchor target`);
     }
 
-    return input.targetId;
+    return input.target.anchorId;
 }
 
-export function requireTargetNodeId(input: ExecuteOfficerCommandInput): string {
-    if (!input.targetNodeId) {
-        throw new Error(`${input.commandId} command requires targetNodeId`);
+export function requireSpaceNodeTargetId(input: ExecuteOfficerCommandInput): string {
+    if (input.target.kind !== OFFICER_COMMAND_TARGET_KIND.SPACE_NODE) {
+        throw new Error(`${input.commandId} command requires space node target`);
     }
 
-    return input.targetNodeId;
+    return input.target.nodeId;
 }
 
 export function getStationTarget(
     context: OfficerCommandExecutionContext,
     input: ExecuteOfficerCommandInput,
 ): StationEncounterAnchorState {
-    const targetId = requireTargetId(input);
-    const target = context.stateStore.findAnchorById(targetId);
+    const anchorId = requireAnchorTargetId(input);
+    const target = context.stateStore.findAnchorById(anchorId);
 
     if (!target) {
-        throw new Error(`${input.commandId} command target not found: ${targetId}`);
+        throw new Error(`${input.commandId} command target not found: ${anchorId}`);
     }
 
     if (target.kind !== ENCOUNTER_ANCHOR_KIND.STATION) {
-        throw new Error(`${input.commandId} command does not support encounter object: ${target.kind}`);
+        throw new Error(`${input.commandId} command does not support encounter anchor: ${target.kind}`);
     }
 
     return target;
@@ -69,15 +86,15 @@ export function getJumpPointTarget(
     context: OfficerCommandExecutionContext,
     input: ExecuteOfficerCommandInput,
 ): JumpPointEncounterAnchorState {
-    const targetId = requireTargetId(input);
-    const target = context.stateStore.findAnchorById(targetId);
+    const anchorId = requireAnchorTargetId(input);
+    const target = context.stateStore.findAnchorById(anchorId);
 
     if (!target) {
-        throw new Error(`${input.commandId} command target not found: ${targetId}`);
+        throw new Error(`${input.commandId} command target not found: ${anchorId}`);
     }
 
     if (target.kind !== ENCOUNTER_ANCHOR_KIND.JUMP_POINT) {
-        throw new Error(`${input.commandId} command does not support encounter object: ${target.kind}`);
+        throw new Error(`${input.commandId} command does not support encounter anchor: ${target.kind}`);
     }
 
     return target;

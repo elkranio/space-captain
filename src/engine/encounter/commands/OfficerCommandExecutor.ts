@@ -4,8 +4,11 @@ import { OFFICER_ROLE, type OfficerRole } from '../../defs/officer';
 import {
     OFFICER_COMMAND_EXECUTION_STATUS,
     OFFICER_COMMAND_REJECTION_REASON,
+    OFFICER_COMMAND_TARGET_KIND,
+    type AvailableOfficerCommand,
     type ExecuteOfficerCommandInput,
     type ExecuteOfficerCommandResult,
+    type OfficerCommandTarget,
 } from '../model/command';
 import type { OfficerCommandExecutionContext, OfficerCommandHandler } from '../model/officer_command_handler';
 import EncounterStateStore from '../state/EncounterStateStore';
@@ -34,6 +37,7 @@ export default class OfficerCommandExecutor {
         if (!this.isCommandAvailable(handler, input)) {
             return {
                 status: OFFICER_COMMAND_EXECUTION_STATUS.REJECTED,
+
                 reason: OFFICER_COMMAND_REJECTION_REASON.NOT_AVAILABLE,
             };
         }
@@ -43,7 +47,9 @@ export default class OfficerCommandExecutor {
         if (busyRoles.length > 0) {
             return {
                 status: OFFICER_COMMAND_EXECUTION_STATUS.REJECTED,
+
                 reason: OFFICER_COMMAND_REJECTION_REASON.OFFICERS_BUSY,
+
                 busyRoles,
             };
         }
@@ -64,15 +70,60 @@ export default class OfficerCommandExecutor {
             return false;
         }
 
-        if (handler.isInputValid && !handler.isInputValid(input)) {
+        if (handler.def.targeting.kind !== input.target.kind) {
             return false;
         }
 
-        const commands = getAvailableOfficerCommands(this.stateStore.getState(), input.role);
+        const availableCommands = getAvailableOfficerCommands(this.stateStore.getState(), input.role).filter(
+            (command) => {
+                return command.commandId === input.commandId;
+            },
+        );
 
-        return commands.some((command) => {
-            return command.commandId === input.commandId && command.targetId === input.targetId;
+        if (availableCommands.length === 0) {
+            return false;
+        }
+
+        // Destination PLOT COURSE пока выбирается
+        // app-слоем перед execution.
+        //
+        // Encounter проверяет доступность самой команды
+        // и правильный typed target kind.
+        if (input.target.kind === OFFICER_COMMAND_TARGET_KIND.SPACE_NODE) {
+            return true;
+        }
+
+        return availableCommands.some((command) => {
+            return this.areTargetsEqual(command.target, input.target);
         });
+    }
+
+    private areTargetsEqual(availableTarget: OfficerCommandTarget, inputTarget: OfficerCommandTarget): boolean {
+        switch (availableTarget.kind) {
+            case OFFICER_COMMAND_TARGET_KIND.NONE:
+                return inputTarget.kind === OFFICER_COMMAND_TARGET_KIND.NONE;
+
+            case OFFICER_COMMAND_TARGET_KIND.ANCHOR:
+                return (
+                    inputTarget.kind === OFFICER_COMMAND_TARGET_KIND.ANCHOR &&
+                    availableTarget.anchorId === inputTarget.anchorId
+                );
+
+            case OFFICER_COMMAND_TARGET_KIND.ACTOR:
+                return (
+                    inputTarget.kind === OFFICER_COMMAND_TARGET_KIND.ACTOR &&
+                    availableTarget.actorId === inputTarget.actorId
+                );
+
+            case OFFICER_COMMAND_TARGET_KIND.SPACE_NODE:
+                return (
+                    inputTarget.kind === OFFICER_COMMAND_TARGET_KIND.SPACE_NODE &&
+                    availableTarget.nodeId === inputTarget.nodeId
+                );
+
+            default:
+                return this.assertNever(availableTarget);
+        }
     }
 
     private getBusyRolesBlockingCommand(handler: OfficerCommandHandler): OfficerRole[] {
@@ -83,6 +134,10 @@ export default class OfficerCommandExecutor {
         return OFFICER_ROLES.filter((role) => {
             return this.stateStore.getOfficerTask(role) !== undefined;
         });
+    }
+
+    private assertNever(value: never): never {
+        throw new Error(`Unhandled officer command target: ${String(value)}`);
     }
 
     // #endregion

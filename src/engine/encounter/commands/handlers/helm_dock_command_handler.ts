@@ -12,7 +12,7 @@ import type { OfficerCommandHandler } from '../../model/officer_command_handler'
 import { ENCOUNTER_ANCHOR_KIND } from '../../anchors/encounter_anchor';
 import { DOCKING_CLEARANCE_STATE } from '../../anchors/station/station_encounter_anchor';
 import { createHelmDockTask } from '../../officer_tasks/create_officer_task_draft';
-import { createTargetedCommand, getStationTarget, isCurrentAnchor } from './command_handler_helpers';
+import { createAnchorTargetedCommand, getStationTarget, isCurrentAnchor } from './command_handler_helpers';
 
 const COMMAND_ID = ENCOUNTER_OFFICER_COMMAND_ID.HELM_DOCK;
 
@@ -42,7 +42,7 @@ export const helmDockCommandHandler = {
                 );
             })
             .map((object) => {
-                return createTargetedCommand(COMMAND_ID, COMMAND_DEF.label, object);
+                return createAnchorTargetedCommand(COMMAND_ID, COMMAND_DEF.label, object);
             });
     },
 

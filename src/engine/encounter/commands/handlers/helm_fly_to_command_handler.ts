@@ -11,7 +11,7 @@ import {
 } from '../../model/command';
 import { ENCOUNTER_EVENT } from '../../model/event';
 import type { OfficerCommandHandler } from '../../model/officer_command_handler';
-import { createTargetedCommand, requireTargetId } from './command_handler_helpers';
+import { createAnchorTargetedCommand, requireAnchorTargetId } from './command_handler_helpers';
 
 const COMMAND_ID = ENCOUNTER_OFFICER_COMMAND_ID.HELM_FLY_TO;
 
@@ -43,12 +43,12 @@ export const helmFlyToCommandHandler = {
                 return anchor.id !== navigation.anchorId;
             })
             .map((anchor) => {
-                return createTargetedCommand(COMMAND_ID, COMMAND_DEF.label, anchor);
+                return createAnchorTargetedCommand(COMMAND_ID, COMMAND_DEF.label, anchor);
             });
     },
 
     execute(context, input) {
-        const targetId = requireTargetId(input);
+        const targetId = requireAnchorTargetId(input);
 
         const { fromAnchorId, target } = context.stateStore.startTravel(targetId);
 

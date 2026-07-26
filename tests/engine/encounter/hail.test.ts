@@ -1,4 +1,5 @@
 // tests/engine/encounter/hail.test.ts
+
 import { describe, expect, it } from 'vitest';
 import { OFFICER_ROLE } from '../../../src/engine/defs/officer';
 import { PLAYER_SPACE_NAVIGATION_KIND } from '../../../src/engine/defs/player_location';
@@ -6,6 +7,7 @@ import EncounterEngine from '../../../src/engine/encounter/EncounterEngine';
 import {
     ENCOUNTER_OFFICER_COMMAND_ID,
     OFFICER_COMMAND_EXECUTION_STATUS,
+    OFFICER_COMMAND_TARGET_KIND,
 } from '../../../src/engine/encounter/model/command';
 import { ENCOUNTER_EVENT, OFFICER_TASK_OUTCOME } from '../../../src/engine/encounter/model/event';
 import { OFFICER_TASK_KIND } from '../../../src/engine/encounter/model/officer_task';
@@ -20,6 +22,7 @@ describe('HAIL', () => {
 
             navigation: {
                 kind: PLAYER_SPACE_NAVIGATION_KIND.ANCHORED,
+
                 anchorId: stationId,
             },
         });
@@ -29,15 +32,28 @@ describe('HAIL', () => {
 
         expect(engine.getAvailableCommands(OFFICER_ROLE.COMMS)).toContainEqual({
             commandId: ENCOUNTER_OFFICER_COMMAND_ID.COMMS_HAIL,
+
             label: 'HAIL',
-            targetId: stationId,
+
+            target: {
+                kind: OFFICER_COMMAND_TARGET_KIND.ANCHOR,
+
+                anchorId: stationId,
+            },
+
             targetLabel: stationName,
         });
 
         const executionResult = engine.executeCommand({
             role: OFFICER_ROLE.COMMS,
+
             commandId: ENCOUNTER_OFFICER_COMMAND_ID.COMMS_HAIL,
-            targetId: stationId,
+
+            target: {
+                kind: OFFICER_COMMAND_TARGET_KIND.ANCHOR,
+
+                anchorId: stationId,
+            },
         });
 
         expect(executionResult).toEqual({
@@ -54,8 +70,11 @@ describe('HAIL', () => {
 
                 task: expect.objectContaining({
                     kind: OFFICER_TASK_KIND.COMMS_HAIL,
+
                     role: OFFICER_ROLE.COMMS,
+
                     sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.COMMS_HAIL,
+
                     targetId: stationId,
                     label: 'HAIL',
                     durationMs: null,
@@ -79,6 +98,7 @@ describe('HAIL', () => {
         expect(engine.drainEvents()).toEqual([
             expect.objectContaining({
                 type: ENCOUNTER_EVENT.CONTACT_STARTED,
+
                 contactName: stationContactName,
             }),
         ]);
@@ -88,6 +108,7 @@ describe('HAIL', () => {
         expect(engine.drainEvents()).toEqual([
             expect.objectContaining({
                 type: ENCOUNTER_EVENT.CONTACT_MESSAGE_ADDED,
+
                 speakerName: stationContactName,
             }),
         ]);
@@ -97,6 +118,7 @@ describe('HAIL', () => {
         expect(engine.drainEvents()).toEqual([
             expect.objectContaining({
                 type: ENCOUNTER_EVENT.CONTACT_MESSAGE_ADDED,
+
                 speakerName: 'COMMS',
             }),
         ]);
@@ -106,6 +128,7 @@ describe('HAIL', () => {
         expect(engine.drainEvents()).toEqual([
             expect.objectContaining({
                 type: ENCOUNTER_EVENT.CONTACT_MESSAGE_ADDED,
+
                 speakerName: stationContactName,
             }),
         ]);
@@ -121,11 +144,14 @@ describe('HAIL', () => {
 
             expect.objectContaining({
                 type: ENCOUNTER_EVENT.OFFICER_TASK_ENDED,
+
                 outcome: OFFICER_TASK_OUTCOME.COMPLETED,
 
                 task: expect.objectContaining({
                     id: taskId,
+
                     kind: OFFICER_TASK_KIND.COMMS_HAIL,
+
                     role: OFFICER_ROLE.COMMS,
                     targetId: stationId,
                 }),
@@ -134,8 +160,15 @@ describe('HAIL', () => {
 
         expect(engine.getAvailableCommands(OFFICER_ROLE.COMMS)).toContainEqual({
             commandId: ENCOUNTER_OFFICER_COMMAND_ID.COMMS_HAIL,
+
             label: 'HAIL',
-            targetId: stationId,
+
+            target: {
+                kind: OFFICER_COMMAND_TARGET_KIND.ANCHOR,
+
+                anchorId: stationId,
+            },
+
             targetLabel: stationName,
         });
     });
