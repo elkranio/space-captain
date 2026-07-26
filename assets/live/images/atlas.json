@@ -1,7 +1,7 @@
 {
   "textures": [
     {
-      "image": "atlas-0.png?v=1784883732832",
+      "image": "atlas-0.png?v=1785093095776",
       "format": "RGBA8888",
       "size": {
         "w": 1833,
@@ -388,7 +388,7 @@
           }
         },
         {
-          "filename": "ships/krelboid_pirate_00",
+          "filename": "ships/generic_ship_00",
           "rotated": false,
           "trimmed": false,
           "sourceSize": {
@@ -1170,6 +1170,6 @@
   "meta": {
     "app": "https://www.codeandweb.com/texturepacker",
     "version": "3.0",
-    "smartupdate": "$TexturePacker:SmartUpdate:f4efa3c83836f119a7411e3fd9469bce:c68f9b63b5ddb2a1f6e35d25c93817c5:cf935fe037ea9b5d3744d532996e235e$"
+    "smartupdate": "$TexturePacker:SmartUpdate:72ec20ef94169dde8ba3d5db97be2d86:c68f9b63b5ddb2a1f6e35d25c93817c5:cf935fe037ea9b5d3744d532996e235e$"
   }
 }
