@@ -5,7 +5,6 @@ import {
     OFFICER_COMMAND_EXECUTION_STATUS,
     OFFICER_COMMAND_REJECTION_REASON,
     OFFICER_COMMAND_TARGET_KIND,
-    type AvailableOfficerCommand,
     type ExecuteOfficerCommandInput,
     type ExecuteOfficerCommandResult,
     type OfficerCommandTarget,
