@@ -424,8 +424,4 @@ export default class BridgeEncounterEngineEventHandler {
     private assertNeverEncounterAnchor(value: never): never {
         throw new Error(`Unhandled encounter anchor: ${String(value)}`);
     }
-
-    private assertNeverEncounterActor(value: never): never {
-        throw new Error(`Unhandled encounter actor: ${String(value)}`);
-    }
 }
