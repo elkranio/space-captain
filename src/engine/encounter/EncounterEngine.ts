@@ -1,5 +1,6 @@
 // src/engine/encounter/EncounterEngine.ts
 
+import type { OfficerRole } from '../defs/officer';
 import type { PlayerSpaceNavigationState } from '../defs/player_location';
 import type { SpaceNodeState } from '../defs/universe';
 import OfficerCommandExecutor from './commands/OfficerCommandExecutor';
@@ -8,10 +9,10 @@ import ContactSequenceRunner from './contact/ContactSequenceRunner';
 import type { AvailableOfficerCommand, ExecuteOfficerCommandInput, ExecuteOfficerCommandResult } from './model/command';
 import { ENCOUNTER_EVENT, type EncounterEvent } from './model/event';
 import type { OfficerAvailabilityStates } from './model/officer_availability';
+import { OFFICER_TASK_KIND, type OfficerTaskKind } from './model/officer_task';
 import { getOfficerAvailabilityStates } from './officer_availability/queries/get_officer_availability_states';
 import OfficerTaskRunner from './officer_tasks/OfficerTaskRunner';
 import EncounterStateStore from './state/EncounterStateStore';
-import type { OfficerRole } from '../defs/officer';
 
 export type EncounterEngineOptions = {
     node: SpaceNodeState;
@@ -49,7 +50,11 @@ export default class EncounterEngine {
             stateStore: this.stateStore,
             emit: this.emit,
             startOfficerTask: this.officerTaskRunner.start,
+
+            // Generic completion остаётся внутренней связью
+            // command handler → task runner для HAIL.
             completeOfficerTask: this.officerTaskRunner.complete,
+
             startContactSequence: this.contactSequenceRunner.start,
         });
 
@@ -74,8 +79,16 @@ export default class EncounterEngine {
         this.stateStore.completeArrival();
     }
 
-    public completeTask(taskId: string): void {
-        this.officerTaskRunner.complete(taskId);
+    public completeTravel(taskId: string): void {
+        this.completeExpectedTask(taskId, OFFICER_TASK_KIND.HELM_FLY_TO);
+    }
+
+    public completeDocking(taskId: string): void {
+        this.completeExpectedTask(taskId, OFFICER_TASK_KIND.HELM_DOCK);
+    }
+
+    public completeJump(taskId: string): void {
+        this.completeExpectedTask(taskId, OFFICER_TASK_KIND.HELM_JUMP);
     }
 
     public cancelTask(taskId: string): void {
@@ -100,6 +113,26 @@ export default class EncounterEngine {
         this.events.length = 0;
 
         return events;
+    }
+
+    // #endregion
+
+    // #region Officer task completion
+
+    private completeExpectedTask(taskId: string, expectedKind: OfficerTaskKind): void {
+        const task = this.stateStore.findOfficerTaskById(taskId);
+
+        if (!task) {
+            throw new Error(`Officer task not found: ${taskId}`);
+        }
+
+        if (task.kind !== expectedKind) {
+            throw new Error(
+                `Cannot complete officer task ${taskId}: ` + `expected ${expectedKind}, ` + `received ${task.kind}`,
+            );
+        }
+
+        this.officerTaskRunner.complete(taskId);
     }
 
     // #endregion

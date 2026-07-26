@@ -197,9 +197,15 @@ export type BridgeContactMessageAddedPayload = {
     text: string;
 };
 
-// Payload события DOCKING_STARTED.
+// Payload начала визуального docking flow.
 export type BridgeDockingStartedPayload = {
+    taskId: string;
     targetId: string;
+};
+
+// Payload завершения визуального docking flow.
+export type BridgeDockingCompletedPayload = {
+    taskId: string;
 };
 
 // Payload начала визуального travel flow.
@@ -300,7 +306,7 @@ export type BridgeEventPayloadMap = {
 
     [BRIDGE_EVENT.DOCKING_STARTED]: BridgeDockingStartedPayload;
 
-    [BRIDGE_EVENT.DOCKING_ANIMATION_COMPLETED]: undefined;
+    [BRIDGE_EVENT.DOCKING_ANIMATION_COMPLETED]: BridgeDockingCompletedPayload;
 
     [BRIDGE_EVENT.SCENE_TRANSITION_REQUESTED]: BridgeSceneTransitionRequestedPayload;
 

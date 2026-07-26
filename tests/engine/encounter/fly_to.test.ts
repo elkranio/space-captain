@@ -1,4 +1,5 @@
 // tests/engine/encounter/fly_to.test.ts
+
 import { describe, expect, it } from 'vitest';
 import { OFFICER_ROLE } from '../../../src/engine/defs/officer';
 import { PLAYER_SPACE_NAVIGATION_KIND } from '../../../src/engine/defs/player_location';
@@ -30,6 +31,7 @@ describe('FLY_TO', () => {
 
         expect(engine.getAvailableCommands(OFFICER_ROLE.HELM)).toContainEqual({
             commandId: ENCOUNTER_OFFICER_COMMAND_ID.HELM_FLY_TO,
+
             label: 'FLY TO',
             targetId: beaconId,
             targetLabel: beaconName,
@@ -37,7 +39,9 @@ describe('FLY_TO', () => {
 
         const executionResult = engine.executeCommand({
             role: OFFICER_ROLE.HELM,
+
             commandId: ENCOUNTER_OFFICER_COMMAND_ID.HELM_FLY_TO,
+
             targetId: beaconId,
         });
 
@@ -47,15 +51,20 @@ describe('FLY_TO', () => {
 
         expect(engine.getNavigationState()).toEqual({
             kind: PLAYER_SPACE_NAVIGATION_KIND.TRAVELLING,
+
             fromAnchorId: stationId,
             targetAnchorId: beaconId,
         });
 
         expect(engine.getOfficerAvailabilityStates()).toEqual({
             [OFFICER_ROLE.COMMS]: OFFICER_AVAILABILITY_STATE.BLOCKED,
+
             [OFFICER_ROLE.SCIENCE]: OFFICER_AVAILABILITY_STATE.BLOCKED,
+
             [OFFICER_ROLE.HELM]: OFFICER_AVAILABILITY_STATE.BUSY,
+
             [OFFICER_ROLE.WEAPONS]: OFFICER_AVAILABILITY_STATE.UNAVAILABLE,
+
             [OFFICER_ROLE.ENGINEER]: OFFICER_AVAILABILITY_STATE.UNAVAILABLE,
         });
 
@@ -67,8 +76,11 @@ describe('FLY_TO', () => {
 
                 task: expect.objectContaining({
                     kind: OFFICER_TASK_KIND.HELM_FLY_TO,
+
                     role: OFFICER_ROLE.HELM,
+
                     sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.HELM_FLY_TO,
+
                     targetId: beaconId,
                     label: 'FLY TO',
                     durationMs: null,
@@ -96,21 +108,34 @@ describe('FLY_TO', () => {
             throw new Error('Expected TRAVEL_STARTED event');
         }
 
-        engine.completeTask(travelStartedEvent.taskId);
+        expect(() => {
+            engine.completeJump(travelStartedEvent.taskId);
+        }).toThrow(
+            `Cannot complete officer task ` +
+                `${travelStartedEvent.taskId}: ` +
+                `expected ${OFFICER_TASK_KIND.HELM_JUMP}, ` +
+                `received ${OFFICER_TASK_KIND.HELM_FLY_TO}`,
+        );
+
+        engine.completeTravel(travelStartedEvent.taskId);
 
         expect(engine.getNavigationState()).toEqual({
             kind: PLAYER_SPACE_NAVIGATION_KIND.ANCHORED,
+
             anchorId: beaconId,
         });
 
         expect(engine.drainEvents()).toEqual([
             expect.objectContaining({
                 type: ENCOUNTER_EVENT.OFFICER_TASK_ENDED,
+
                 outcome: OFFICER_TASK_OUTCOME.COMPLETED,
 
                 task: expect.objectContaining({
                     id: travelStartedEvent.taskId,
+
                     kind: OFFICER_TASK_KIND.HELM_FLY_TO,
+
                     role: OFFICER_ROLE.HELM,
                     targetId: beaconId,
                 }),
@@ -119,14 +144,19 @@ describe('FLY_TO', () => {
 
         expect(engine.getOfficerAvailabilityStates()).toEqual({
             [OFFICER_ROLE.COMMS]: OFFICER_AVAILABILITY_STATE.UNAVAILABLE,
+
             [OFFICER_ROLE.SCIENCE]: OFFICER_AVAILABILITY_STATE.AVAILABLE,
+
             [OFFICER_ROLE.HELM]: OFFICER_AVAILABILITY_STATE.AVAILABLE,
+
             [OFFICER_ROLE.WEAPONS]: OFFICER_AVAILABILITY_STATE.UNAVAILABLE,
+
             [OFFICER_ROLE.ENGINEER]: OFFICER_AVAILABILITY_STATE.UNAVAILABLE,
         });
 
         expect(engine.getAvailableCommands(OFFICER_ROLE.HELM)).toContainEqual({
             commandId: ENCOUNTER_OFFICER_COMMAND_ID.HELM_FLY_TO,
+
             label: 'FLY TO',
             targetId: stationId,
             targetLabel: stationName,

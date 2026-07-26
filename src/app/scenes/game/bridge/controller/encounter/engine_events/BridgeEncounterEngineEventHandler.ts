@@ -92,6 +92,7 @@ export default class BridgeEncounterEngineEventHandler {
                 this.setEncounterInteractive(false);
 
                 this.eventBus.emit(BRIDGE_EVENT.DOCKING_STARTED, {
+                    taskId: event.taskId,
                     targetId: event.targetId,
                 });
                 return;

@@ -28,29 +28,41 @@ export function playObjectsDockingSequence(
     if (!targetView) {
         console.warn('Cannot start docking animation. Target object not found:', payload);
 
-        completeDockingAnimation(context);
+        completeDockingAnimation(payload.taskId, context);
         return;
     }
 
-    playDockingXAlign(targetView, context);
+    playDockingXAlign(targetView, payload.taskId, context);
 }
 
-function playDockingXAlign(targetView: BridgeObjectSpriteView, context: BridgeObjectsAnimationContext): void {
+function playDockingXAlign(
+    targetView: BridgeObjectSpriteView,
+    taskId: string,
+    context: BridgeObjectsAnimationContext,
+): void {
     const viewscreenCenter = getViewscreenCenter();
     const offsetX = viewscreenCenter.x - targetView.getX();
 
     const startPositions = getObjectViewStartPositions(context);
 
-    playDockingPositionPhase(startPositions, offsetX, 0, context, () => playDockingYAlign(targetView, context));
+    playDockingPositionPhase(startPositions, offsetX, 0, context, () => {
+        playDockingYAlign(targetView, taskId, context);
+    });
 }
 
-function playDockingYAlign(targetView: BridgeObjectSpriteView, context: BridgeObjectsAnimationContext): void {
+function playDockingYAlign(
+    targetView: BridgeObjectSpriteView,
+    taskId: string,
+    context: BridgeObjectsAnimationContext,
+): void {
     const viewscreenCenter = getViewscreenCenter();
     const offsetY = viewscreenCenter.y - targetView.getY();
 
     const startPositions = getObjectViewStartPositions(context);
 
-    playDockingPositionPhase(startPositions, 0, offsetY, context, () => playDockingScale(targetView, context));
+    playDockingPositionPhase(startPositions, 0, offsetY, context, () => {
+        playDockingScale(targetView, taskId, context);
+    });
 }
 
 function playDockingPositionPhase(
@@ -87,7 +99,11 @@ function playDockingPositionPhase(
     context.setActiveTimer(timer);
 }
 
-function playDockingScale(targetView: BridgeObjectSpriteView, context: BridgeObjectsAnimationContext): void {
+function playDockingScale(
+    targetView: BridgeObjectSpriteView,
+    taskId: string,
+    context: BridgeObjectsAnimationContext,
+): void {
     const startScale = targetView.getScale();
     const scaleDelta = DOCKING_TARGET_SCALE - startScale;
 
@@ -106,7 +122,7 @@ function playDockingScale(targetView: BridgeObjectSpriteView, context: BridgeObj
 
             if (stepIndex >= DOCKING_SCALE_PROGRESS_STEPS.length) {
                 context.clearActiveTimer();
-                completeDockingAnimation(context);
+                completeDockingAnimation(taskId, context);
             }
         },
     });
@@ -114,8 +130,10 @@ function playDockingScale(targetView: BridgeObjectSpriteView, context: BridgeObj
     context.setActiveTimer(timer);
 }
 
-function completeDockingAnimation(context: BridgeObjectsAnimationContext): void {
-    context.eventBus.emit(BRIDGE_EVENT.DOCKING_ANIMATION_COMPLETED);
+function completeDockingAnimation(taskId: string, context: BridgeObjectsAnimationContext): void {
+    context.eventBus.emit(BRIDGE_EVENT.DOCKING_ANIMATION_COMPLETED, {
+        taskId,
+    });
 }
 
 function getObjectViewStartPositions(context: BridgeObjectsAnimationContext): ObjectViewStartPosition[] {

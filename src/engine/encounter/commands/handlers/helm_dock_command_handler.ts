@@ -49,10 +49,11 @@ export const helmDockCommandHandler = {
     execute(context, input) {
         const target = getStationTarget(context, input);
 
-        context.startOfficerTask(createHelmDockTask(target.id));
+        const taskId = context.startOfficerTask(createHelmDockTask(target.id));
 
         context.emit({
             type: ENCOUNTER_EVENT.DOCKING_STARTED,
+            taskId,
             targetId: target.id,
         });
     },

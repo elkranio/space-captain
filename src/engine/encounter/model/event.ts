@@ -116,6 +116,8 @@ export type JumpStartedEvent = {
 export type DockingStartedEvent = {
     type: typeof ENCOUNTER_EVENT.DOCKING_STARTED;
 
+    taskId: string;
+
     targetId: string;
 };
 
