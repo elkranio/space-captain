@@ -24,7 +24,7 @@ describe('REQUEST_DOCKING', () => {
 
             navigation: {
                 kind: PLAYER_SPACE_NAVIGATION_KIND.ANCHORED,
-                anchorObjectId: stationId,
+                anchorId: stationId,
             },
         });
 

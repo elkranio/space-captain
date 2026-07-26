@@ -21,7 +21,7 @@ describe('FLY_TO', () => {
 
             navigation: {
                 kind: PLAYER_SPACE_NAVIGATION_KIND.ANCHORED,
-                anchorObjectId: stationId,
+                anchorId: stationId,
             },
         });
 
@@ -47,8 +47,8 @@ describe('FLY_TO', () => {
 
         expect(engine.getNavigationState()).toEqual({
             kind: PLAYER_SPACE_NAVIGATION_KIND.TRAVELLING,
-            fromObjectId: stationId,
-            targetObjectId: beaconId,
+            fromAnchorId: stationId,
+            targetAnchorId: beaconId,
         });
 
         expect(engine.getOfficerAvailabilityStates()).toEqual({
@@ -79,7 +79,7 @@ describe('FLY_TO', () => {
             expect.objectContaining({
                 type: ENCOUNTER_EVENT.TRAVEL_STARTED,
                 taskId: expect.any(String),
-                fromObjectId: stationId,
+                fromAnchorId: stationId,
 
                 target: expect.objectContaining({
                     id: beaconId,
@@ -100,7 +100,7 @@ describe('FLY_TO', () => {
 
         expect(engine.getNavigationState()).toEqual({
             kind: PLAYER_SPACE_NAVIGATION_KIND.ANCHORED,
-            anchorObjectId: beaconId,
+            anchorId: beaconId,
         });
 
         expect(engine.drainEvents()).toEqual([

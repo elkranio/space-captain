@@ -27,7 +27,7 @@ describe('PLOT_COURSE', () => {
 
             navigation: {
                 kind: PLAYER_SPACE_NAVIGATION_KIND.ANCHORED,
-                anchorObjectId: stationId,
+                anchorId: stationId,
             },
         });
 
