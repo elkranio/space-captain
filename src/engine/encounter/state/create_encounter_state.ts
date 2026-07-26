@@ -1,7 +1,7 @@
 // src/engine/encounter/state/create_encounter_state.ts
 
 import type { PlayerSpaceNavigationState } from '../../defs/player_location';
-import { SPACE_OBJECT_KIND, type SpaceNodeState, type SpaceObjectState } from '../../defs/universe';
+import { SPACE_ANCHOR_KIND, type SpaceNodeState, type SpaceAnchorState } from '../../defs/universe';
 import type { EncounterState } from '../model/state';
 import { ENCOUNTER_ANCHOR_KIND, type EncounterAnchorState } from '../anchors/encounter_anchor';
 import { DOCKING_CLEARANCE_STATE } from '../anchors/station/station_encounter_anchor';
@@ -18,23 +18,23 @@ export function createEncounterState(node: SpaceNodeState, navigation: PlayerSpa
 
         officerTasks: {},
 
-        anchors: node.objects.map((object) => {
-            return createEncounterAnchorState(object);
+        anchors: node.anchors.map((anchors) => {
+            return createEncounterAnchorState(anchors);
         }),
     };
 }
 
-function createEncounterAnchorState(object: SpaceObjectState): EncounterAnchorState {
-    switch (object.kind) {
-        case SPACE_OBJECT_KIND.STATION:
+function createEncounterAnchorState(anchor: SpaceAnchorState): EncounterAnchorState {
+    switch (anchor.kind) {
+        case SPACE_ANCHOR_KIND.STATION:
             return {
-                id: object.station.id,
+                id: anchor.station.id,
                 kind: ENCOUNTER_ANCHOR_KIND.STATION,
-                displayName: object.station.name,
-                station: object.station,
+                displayName: anchor.station.name,
+                station: anchor.station,
 
                 localPosition: {
-                    ...object.localPosition,
+                    ...anchor.localPosition,
                 },
 
                 position: {
@@ -49,15 +49,15 @@ function createEncounterAnchorState(object: SpaceObjectState): EncounterAnchorSt
                 },
             };
 
-        case SPACE_OBJECT_KIND.NAVIGATION_BEACON:
+        case SPACE_ANCHOR_KIND.NAVIGATION_BEACON:
             return {
-                id: object.beacon.id,
+                id: anchor.beacon.id,
                 kind: ENCOUNTER_ANCHOR_KIND.NAVIGATION_BEACON,
-                displayName: object.beacon.name,
-                beacon: object.beacon,
+                displayName: anchor.beacon.name,
+                beacon: anchor.beacon,
 
                 localPosition: {
-                    ...object.localPosition,
+                    ...anchor.localPosition,
                 },
 
                 position: {
@@ -68,15 +68,15 @@ function createEncounterAnchorState(object: SpaceObjectState): EncounterAnchorSt
                 perspectiveDepth: 1,
             };
 
-        case SPACE_OBJECT_KIND.ASTEROID:
+        case SPACE_ANCHOR_KIND.ASTEROID:
             return {
-                id: object.asteroid.id,
+                id: anchor.asteroid.id,
                 kind: ENCOUNTER_ANCHOR_KIND.ASTEROID,
-                displayName: object.asteroid.name,
-                asteroid: object.asteroid,
+                displayName: anchor.asteroid.name,
+                asteroid: anchor.asteroid,
 
                 localPosition: {
-                    ...object.localPosition,
+                    ...anchor.localPosition,
                 },
 
                 // Временная постановочная позиция.
@@ -88,15 +88,15 @@ function createEncounterAnchorState(object: SpaceObjectState): EncounterAnchorSt
                 perspectiveDepth: 1,
             };
 
-        case SPACE_OBJECT_KIND.JUMP_POINT:
+        case SPACE_ANCHOR_KIND.JUMP_POINT:
             return {
-                id: object.jumpPoint.id,
+                id: anchor.jumpPoint.id,
                 kind: ENCOUNTER_ANCHOR_KIND.JUMP_POINT,
-                displayName: object.jumpPoint.name,
-                jumpPoint: object.jumpPoint,
+                displayName: anchor.jumpPoint.name,
+                jumpPoint: anchor.jumpPoint,
 
                 localPosition: {
-                    ...object.localPosition,
+                    ...anchor.localPosition,
                 },
 
                 position: {
@@ -108,7 +108,7 @@ function createEncounterAnchorState(object: SpaceObjectState): EncounterAnchorSt
             };
 
         default:
-            return assertNever(object);
+            return assertNever(anchor);
     }
 }
 

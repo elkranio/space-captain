@@ -4,7 +4,7 @@ import { PLAYER_LOCATION_KIND, PLAYER_SPACE_NAVIGATION_KIND } from '../defs/play
 import type { RunState } from '../defs/run';
 import { SPACE_BACKGROUND_ID } from '../defs/space_background';
 import { SPECIES_ID } from '../defs/species';
-import { SPACE_OBJECT_KIND } from '../defs/universe';
+import { SPACE_ANCHOR_KIND } from '../defs/universe';
 import StationGenerator from '../generation/station/StationGenerator';
 import { BEACON_OBJECT_SPRITE_ID } from '../defs/beacon';
 import { ASTEROID_OBJECT_SPRITE_ID } from '../defs/asteroid';
@@ -31,11 +31,11 @@ export function createNewRunState(): RunState {
                         x: 0,
                         y: 0,
                     },
-                    arrivalObjectId: navigationBeacon.id,
+                    arrivalAnchorId: navigationBeacon.id,
                     spaceBackgroundId: SPACE_BACKGROUND_ID.NEBULA_00,
-                    objects: [
+                    anchors: [
                         {
-                            kind: SPACE_OBJECT_KIND.NAVIGATION_BEACON,
+                            kind: SPACE_ANCHOR_KIND.NAVIGATION_BEACON,
                             beacon: navigationBeacon,
                             localPosition: {
                                 x: 0,
@@ -44,7 +44,7 @@ export function createNewRunState(): RunState {
                             },
                         },
                         {
-                            kind: SPACE_OBJECT_KIND.ASTEROID,
+                            kind: SPACE_ANCHOR_KIND.ASTEROID,
                             asteroid,
                             localPosition: {
                                 x: 900,
@@ -53,7 +53,7 @@ export function createNewRunState(): RunState {
                             },
                         },
                         {
-                            kind: SPACE_OBJECT_KIND.STATION,
+                            kind: SPACE_ANCHOR_KIND.STATION,
                             station,
                             localPosition: {
                                 x: -900,
@@ -69,11 +69,11 @@ export function createNewRunState(): RunState {
                         x: 100,
                         y: 0,
                     },
-                    arrivalObjectId: station.id,
+                    arrivalAnchorId: station.id,
                     spaceBackgroundId: SPACE_BACKGROUND_ID.NEBULA_00,
-                    objects: [
+                    anchors: [
                         {
-                            kind: SPACE_OBJECT_KIND.STATION,
+                            kind: SPACE_ANCHOR_KIND.STATION,
                             station,
                             localPosition: {
                                 x: 0,

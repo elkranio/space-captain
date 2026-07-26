@@ -5,7 +5,7 @@ import {
     PLAYER_SPACE_NAVIGATION_KIND,
     type PlayerLocationState,
 } from '../../../../../engine/defs/player_location';
-import { SPACE_OBJECT_KIND, type SpaceObjectState } from '../../../../../engine/defs/universe';
+import { SPACE_ANCHOR_KIND, type SpaceAnchorState } from '../../../../../engine/defs/universe';
 import { getCurrentNode } from '../../../../../engine/universe/queries/get_current_node';
 import { GAME_RUNTIME } from '../../../../runtime/GameRuntime';
 import GameOverlayEventBus from '../events/GameOverlayEventBus';
@@ -77,12 +77,12 @@ export default class GameOverlayController {
 
     private registerRuntimeEventHandlers(): void {
         GAME_RUNTIME.onPlayerLocationChanged(this.handleRuntimeStateChanged);
-        GAME_RUNTIME.onCurrentNodeObjectsChanged(this.handleRuntimeStateChanged);
+        GAME_RUNTIME.onCurrentNodeAnchorsChanged(this.handleRuntimeStateChanged);
     }
 
     private unregisterRuntimeEventHandlers(): void {
         GAME_RUNTIME.offPlayerLocationChanged(this.handleRuntimeStateChanged);
-        GAME_RUNTIME.offCurrentNodeObjectsChanged(this.handleRuntimeStateChanged);
+        GAME_RUNTIME.offCurrentNodeAnchorsChanged(this.handleRuntimeStateChanged);
     }
 
     private handleLocalSpaceButtonClicked(): void {
@@ -106,8 +106,8 @@ export default class GameOverlayController {
         const currentNode = getCurrentNode(run);
         const currentObjectId = this.getCurrentObjectId(run.player.location);
 
-        return currentNode.objects.map((object) => {
-            const identity = this.getSpaceObjectIdentity(object);
+        return currentNode.anchors.map((anchor) => {
+            const identity = this.getSpaceAnchorIdentity(anchor);
 
             return {
                 objectId: identity.id,
@@ -145,27 +145,27 @@ export default class GameOverlayController {
         }
     }
 
-    private getSpaceObjectIdentity(object: SpaceObjectState): SpaceObjectIdentity {
+    private getSpaceAnchorIdentity(object: SpaceAnchorState): SpaceObjectIdentity {
         switch (object.kind) {
-            case SPACE_OBJECT_KIND.STATION:
+            case SPACE_ANCHOR_KIND.STATION:
                 return {
                     id: object.station.id,
                     name: object.station.name,
                 };
 
-            case SPACE_OBJECT_KIND.NAVIGATION_BEACON:
+            case SPACE_ANCHOR_KIND.NAVIGATION_BEACON:
                 return {
                     id: object.beacon.id,
                     name: object.beacon.name,
                 };
 
-            case SPACE_OBJECT_KIND.ASTEROID:
+            case SPACE_ANCHOR_KIND.ASTEROID:
                 return {
                     id: object.asteroid.id,
                     name: object.asteroid.name,
                 };
 
-            case SPACE_OBJECT_KIND.JUMP_POINT:
+            case SPACE_ANCHOR_KIND.JUMP_POINT:
                 return {
                     id: object.jumpPoint.id,
                     name: object.jumpPoint.name,

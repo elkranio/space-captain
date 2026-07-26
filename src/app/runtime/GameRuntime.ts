@@ -7,11 +7,11 @@ import {
     type PlayerSpaceNavigationState,
 } from '../../engine/defs/player_location';
 import type { RunState } from '../../engine/defs/run';
-import { SPACE_OBJECT_KIND, type SpaceObjectState } from '../../engine/defs/universe';
+import { SPACE_ANCHOR_KIND, type SpaceAnchorState } from '../../engine/defs/universe';
 import { getCurrentNode } from '../../engine/universe/queries/get_current_node';
 
 type PlayerLocationChangedListener = () => void;
-type CurrentNodeObjectsChangedListener = () => void;
+type CurrentNodeAnchorsChangedListener = () => void;
 
 // Runtime текущей игровой сессии.
 //
@@ -20,8 +20,10 @@ type CurrentNodeObjectsChangedListener = () => void;
 // чтобы постоянные UI-системы могли перечитать актуальное состояние.
 class GameRuntime {
     private readonly currentRun: RunState = createNewRunState();
+
     private readonly playerLocationChangedListeners = new Set<PlayerLocationChangedListener>();
-    private readonly currentNodeObjectsChangedListeners = new Set<CurrentNodeObjectsChangedListener>();
+
+    private readonly currentNodeAnchorsChangedListeners = new Set<CurrentNodeAnchorsChangedListener>();
 
     public getCurrentRun(): RunState {
         return this.currentRun;
@@ -31,7 +33,7 @@ class GameRuntime {
         const location = this.currentRun.player.location;
 
         if (location.kind !== PLAYER_LOCATION_KIND.SPACE) {
-            throw new Error(`Cannot set space navigation for player location: ${location.kind}`);
+            throw new Error(`Cannot set space navigation for player location: ` + `${location.kind}`);
         }
 
         if (this.isSamePlayerSpaceNavigation(location.navigation, navigation)) {
@@ -45,27 +47,27 @@ class GameRuntime {
         this.emitPlayerLocationChanged();
     }
 
-    public addCurrentNodeObject(object: SpaceObjectState): void {
+    public addCurrentNodeAnchor(anchor: SpaceAnchorState): void {
         const location = this.currentRun.player.location;
 
         if (location.kind !== PLAYER_LOCATION_KIND.SPACE) {
-            throw new Error(`Cannot add space object for player location: ${location.kind}`);
+            throw new Error(`Cannot add space anchor for player location: ` + `${location.kind}`);
         }
 
         const node = getCurrentNode(this.currentRun);
-        const objectId = this.getSpaceObjectId(object);
+        const anchorId = this.getSpaceAnchorId(anchor);
 
-        const existingObject = node.objects.find((candidate) => {
-            return this.getSpaceObjectId(candidate) === objectId;
+        const existingAnchor = node.anchors.find((candidate) => {
+            return this.getSpaceAnchorId(candidate) === anchorId;
         });
 
-        if (existingObject) {
-            throw new Error(`Current node already contains space object: ${objectId}`);
+        if (existingAnchor) {
+            throw new Error(`Current node already contains space anchor: ${anchorId}`);
         }
 
-        node.objects.push(object);
+        node.anchors.push(anchor);
 
-        this.emitCurrentNodeObjectsChanged();
+        this.emitCurrentNodeAnchorsChanged();
     }
 
     public jumpPlayerToNode(targetNodeId: string): void {
@@ -76,28 +78,28 @@ class GameRuntime {
         }
 
         if (location.navigation.kind !== PLAYER_SPACE_NAVIGATION_KIND.ANCHORED) {
-            throw new Error(`Cannot jump from space navigation state: ${location.navigation.kind}`);
+            throw new Error(`Cannot jump from space navigation state: ` + `${location.navigation.kind}`);
         }
 
         const sourceNode = getCurrentNode(this.currentRun);
-        const anchorObjectId = location.navigation.anchorObjectId;
+        const anchorId = location.navigation.anchorObjectId;
 
-        const anchorObject = sourceNode.objects.find((object) => {
-            return this.getSpaceObjectId(object) === anchorObjectId;
+        const anchor = sourceNode.anchors.find((candidate) => {
+            return this.getSpaceAnchorId(candidate) === anchorId;
         });
 
-        if (!anchorObject) {
-            throw new Error(`Jump anchor object not found: ${anchorObjectId}`);
+        if (!anchor) {
+            throw new Error(`Jump anchor not found: ${anchorId}`);
         }
 
-        if (anchorObject.kind !== SPACE_OBJECT_KIND.JUMP_POINT) {
-            throw new Error(`Cannot jump from space object: ${anchorObject.kind}`);
+        if (anchor.kind !== SPACE_ANCHOR_KIND.JUMP_POINT) {
+            throw new Error(`Cannot jump from space anchor: ${anchor.kind}`);
         }
 
-        if (anchorObject.jumpPoint.targetNodeId !== targetNodeId) {
+        if (anchor.jumpPoint.targetNodeId !== targetNodeId) {
             throw new Error(
                 `Jump point destination does not match requested node: ` +
-                    `${anchorObject.jumpPoint.targetNodeId} !== ${targetNodeId}`,
+                    `${anchor.jumpPoint.targetNodeId} !== ${targetNodeId}`,
             );
         }
 
@@ -113,17 +115,17 @@ class GameRuntime {
             throw new Error(`Cannot jump to current node: ${targetNodeId}`);
         }
 
-        const arrivalObject = targetNode.objects.find((object) => {
-            return this.getSpaceObjectId(object) === targetNode.arrivalObjectId;
+        const arrivalAnchor = targetNode.anchors.find((candidate) => {
+            return this.getSpaceAnchorId(candidate) === targetNode.arrivalAnchorId;
         });
 
-        if (!arrivalObject) {
-            throw new Error(`Jump destination arrival object not found: ${targetNode.arrivalObjectId}`);
+        if (!arrivalAnchor) {
+            throw new Error(`Jump destination arrival anchor not found: ` + `${targetNode.arrivalAnchorId}`);
         }
 
         // Все рассчитанные искажения принадлежат старому node visit.
-        sourceNode.objects = sourceNode.objects.filter((object) => {
-            return object.kind !== SPACE_OBJECT_KIND.JUMP_POINT;
+        sourceNode.anchors = sourceNode.anchors.filter((candidate) => {
+            return candidate.kind !== SPACE_ANCHOR_KIND.JUMP_POINT;
         });
 
         this.currentRun.player.location = {
@@ -132,7 +134,9 @@ class GameRuntime {
 
             navigation: {
                 kind: PLAYER_SPACE_NAVIGATION_KIND.ARRIVING,
-                targetObjectId: targetNode.arrivalObjectId,
+
+                // Navigation IDs переименуем отдельным атомом.
+                targetObjectId: targetNode.arrivalAnchorId,
             },
         };
 
@@ -147,12 +151,12 @@ class GameRuntime {
         this.playerLocationChangedListeners.delete(listener);
     }
 
-    public onCurrentNodeObjectsChanged(listener: CurrentNodeObjectsChangedListener): void {
-        this.currentNodeObjectsChangedListeners.add(listener);
+    public onCurrentNodeAnchorsChanged(listener: CurrentNodeAnchorsChangedListener): void {
+        this.currentNodeAnchorsChangedListeners.add(listener);
     }
 
-    public offCurrentNodeObjectsChanged(listener: CurrentNodeObjectsChangedListener): void {
-        this.currentNodeObjectsChangedListeners.delete(listener);
+    public offCurrentNodeAnchorsChanged(listener: CurrentNodeAnchorsChangedListener): void {
+        this.currentNodeAnchorsChangedListeners.delete(listener);
     }
 
     private emitPlayerLocationChanged(): void {
@@ -161,8 +165,8 @@ class GameRuntime {
         }
     }
 
-    private emitCurrentNodeObjectsChanged(): void {
-        for (const listener of [...this.currentNodeObjectsChangedListeners]) {
+    private emitCurrentNodeAnchorsChanged(): void {
+        for (const listener of [...this.currentNodeAnchorsChangedListeners]) {
             listener();
         }
     }
@@ -196,27 +200,27 @@ class GameRuntime {
         }
     }
 
-    private getSpaceObjectId(object: SpaceObjectState): string {
-        switch (object.kind) {
-            case SPACE_OBJECT_KIND.STATION:
-                return object.station.id;
+    private getSpaceAnchorId(anchor: SpaceAnchorState): string {
+        switch (anchor.kind) {
+            case SPACE_ANCHOR_KIND.STATION:
+                return anchor.station.id;
 
-            case SPACE_OBJECT_KIND.NAVIGATION_BEACON:
-                return object.beacon.id;
+            case SPACE_ANCHOR_KIND.NAVIGATION_BEACON:
+                return anchor.beacon.id;
 
-            case SPACE_OBJECT_KIND.ASTEROID:
-                return object.asteroid.id;
+            case SPACE_ANCHOR_KIND.ASTEROID:
+                return anchor.asteroid.id;
 
-            case SPACE_OBJECT_KIND.JUMP_POINT:
-                return object.jumpPoint.id;
+            case SPACE_ANCHOR_KIND.JUMP_POINT:
+                return anchor.jumpPoint.id;
 
             default:
-                return this.assertNever(object);
+                return this.assertNever(anchor);
         }
     }
 
     private assertNever(value: never): never {
-        throw new Error(`Unhandled player navigation: ${String(value)}`);
+        throw new Error(`Unhandled GameRuntime state: ${String(value)}`);
     }
 }
 

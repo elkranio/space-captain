@@ -6,10 +6,10 @@ import { SPECIES_ID } from '../../../src/engine/defs/species';
 import { STATION_OBJECT_SPRITE_ID } from '../../../src/engine/defs/station';
 import type { Vec3 } from '../../../src/engine/defs/vector';
 import {
-    SPACE_OBJECT_KIND,
-    type NavigationBeaconSpaceObjectState,
+    SPACE_ANCHOR_KIND,
+    type NavigationBeaconSpaceAnchorState,
     type SpaceNodeState,
-    type StationSpaceObjectState,
+    type StationSpaceAnchorState,
 } from '../../../src/engine/defs/universe';
 
 const TEST_STATION_ID = 'station_test';
@@ -52,11 +52,11 @@ export function createSingleStationNodeFixture(): SingleStationNodeFixture {
                 y: 0,
             },
 
-            arrivalObjectId: TEST_STATION_ID,
+            arrivalAnchorId: TEST_STATION_ID,
             spaceBackgroundId: SPACE_BACKGROUND_ID.NEBULA_00,
 
-            objects: [
-                createTestStationObject({
+            anchors: [
+                createTestStationAnchor({
                     x: 0,
                     y: 0,
                     z: 0,
@@ -83,17 +83,17 @@ export function createStationAndBeaconNodeFixture(): StationAndBeaconNodeFixture
                 y: 0,
             },
 
-            arrivalObjectId: TEST_STATION_ID,
+            arrivalAnchorId: TEST_STATION_ID,
             spaceBackgroundId: SPACE_BACKGROUND_ID.NEBULA_00,
 
-            objects: [
-                createTestStationObject({
+            anchors: [
+                createTestStationAnchor({
                     x: 0,
                     y: 0,
                     z: 0,
                 }),
 
-                createTestBeaconObject({
+                createTestBeaconAnchor({
                     x: 1000,
                     y: 0,
                     z: 0,
@@ -103,9 +103,9 @@ export function createStationAndBeaconNodeFixture(): StationAndBeaconNodeFixture
     };
 }
 
-function createTestStationObject(localPosition: Vec3): StationSpaceObjectState {
+function createTestStationAnchor(localPosition: Vec3): StationSpaceAnchorState {
     return {
-        kind: SPACE_OBJECT_KIND.STATION,
+        kind: SPACE_ANCHOR_KIND.STATION,
 
         station: {
             id: TEST_STATION_ID,
@@ -125,9 +125,9 @@ function createTestStationObject(localPosition: Vec3): StationSpaceObjectState {
     };
 }
 
-function createTestBeaconObject(localPosition: Vec3): NavigationBeaconSpaceObjectState {
+function createTestBeaconAnchor(localPosition: Vec3): NavigationBeaconSpaceAnchorState {
     return {
-        kind: SPACE_OBJECT_KIND.NAVIGATION_BEACON,
+        kind: SPACE_ANCHOR_KIND.NAVIGATION_BEACON,
 
         beacon: {
             id: TEST_BEACON_ID,

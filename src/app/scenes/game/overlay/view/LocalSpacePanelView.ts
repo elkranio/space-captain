@@ -33,7 +33,7 @@ export type LocalSpacePanelRow = {
 // Read-only LOCAL SPACE panel.
 //
 // Получает готовые presentation rows:
-// view не знает о SpaceObjectState и не собирает названия объектов.
+// view не знает о SpaceAnchorState и не собирает названия объектов.
 //
 // Input перехватывается только внутри самой панели.
 // Остальная часть игровой сцены остаётся интерактивной.

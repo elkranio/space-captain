@@ -27,7 +27,7 @@ import type BridgeEventBus from '../../events/BridgeEventBus';
 import BridgeOfficerCommandMenuController from './command_menu/BridgeOfficerCommandMenuController';
 import BridgeEncounterEngineEventHandler from './engine_events/BridgeEncounterEngineEventHandler';
 import BridgeOfficerStationsController from './officer_stations/BridgeOfficerStationsController';
-import { SPACE_OBJECT_KIND } from '../../../../../../engine/defs/universe';
+import { SPACE_ANCHOR_KIND } from '../../../../../../engine/defs/universe';
 import {
     ENCOUNTER_EVENT,
     OFFICER_TASK_RESULT_KIND,
@@ -219,7 +219,7 @@ export default class BridgeEncounterController {
 
         const events = this.encounterEngine.drainEvents();
 
-        this.syncRuntimeObjectsFromEncounterEvents(events);
+        this.syncRuntimeAnchorsFromEncounterEvents(events);
         this.engineEventHandler.handle(events);
     }
 
@@ -350,7 +350,7 @@ export default class BridgeEncounterController {
         GAME_RUNTIME.setPlayerSpaceNavigation(navigation);
     }
 
-    private syncRuntimeObjectsFromEncounterEvents(events: EncounterEvent[]): void {
+    private syncRuntimeAnchorsFromEncounterEvents(events: EncounterEvent[]): void {
         for (const event of events) {
             if (event.type !== ENCOUNTER_EVENT.OFFICER_TASK_ENDED) {
                 continue;
@@ -362,8 +362,8 @@ export default class BridgeEncounterController {
 
             const anchor = event.result.anchor;
 
-            GAME_RUNTIME.addCurrentNodeObject({
-                kind: SPACE_OBJECT_KIND.JUMP_POINT,
+            GAME_RUNTIME.addCurrentNodeAnchor({
+                kind: SPACE_ANCHOR_KIND.JUMP_POINT,
 
                 jumpPoint: {
                     ...anchor.jumpPoint,
