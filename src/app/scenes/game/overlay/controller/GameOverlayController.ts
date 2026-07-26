@@ -145,34 +145,34 @@ export default class GameOverlayController {
         }
     }
 
-    private getSpaceAnchorIdentity(object: SpaceAnchorState): SpaceObjectIdentity {
-        switch (object.kind) {
+    private getSpaceAnchorIdentity(anchor: SpaceAnchorState): SpaceObjectIdentity {
+        switch (anchor.kind) {
             case SPACE_ANCHOR_KIND.STATION:
                 return {
-                    id: object.station.id,
-                    name: object.station.name,
+                    id: anchor.station.id,
+                    name: anchor.station.name,
                 };
 
             case SPACE_ANCHOR_KIND.NAVIGATION_BEACON:
                 return {
-                    id: object.beacon.id,
-                    name: object.beacon.name,
+                    id: anchor.beacon.id,
+                    name: anchor.beacon.name,
                 };
 
             case SPACE_ANCHOR_KIND.ASTEROID:
                 return {
-                    id: object.asteroid.id,
-                    name: object.asteroid.name,
+                    id: anchor.asteroid.id,
+                    name: anchor.asteroid.name,
                 };
 
             case SPACE_ANCHOR_KIND.JUMP_POINT:
                 return {
-                    id: object.jumpPoint.id,
-                    name: object.jumpPoint.name,
+                    id: anchor.jumpPoint.id,
+                    name: anchor.jumpPoint.name,
                 };
 
             default:
-                return this.assertNever(object);
+                return this.assertNever(anchor);
         }
     }
 

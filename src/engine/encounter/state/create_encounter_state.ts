@@ -18,8 +18,8 @@ export function createEncounterState(node: SpaceNodeState, navigation: PlayerSpa
 
         officerTasks: {},
 
-        anchors: node.anchors.map((anchors) => {
-            return createEncounterAnchorState(anchors);
+        anchors: node.anchors.map((anchor) => {
+            return createEncounterAnchorState(anchor);
         }),
     };
 }
@@ -113,5 +113,5 @@ function createEncounterAnchorState(anchor: SpaceAnchorState): EncounterAnchorSt
 }
 
 function assertNever(value: never): never {
-    throw new Error(`Unhandled space object: ${String(value)}`);
+    throw new Error(`Unhandled space anchor: ${String(value)}`);
 }

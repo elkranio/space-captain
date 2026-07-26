@@ -33,7 +33,7 @@ class GameRuntime {
         const location = this.currentRun.player.location;
 
         if (location.kind !== PLAYER_LOCATION_KIND.SPACE) {
-            throw new Error(`Cannot set space navigation for player location: ` + `${location.kind}`);
+            throw new Error(`Cannot set space navigation for player location: ${location.kind}`);
         }
 
         if (this.isSamePlayerSpaceNavigation(location.navigation, navigation)) {
@@ -51,7 +51,7 @@ class GameRuntime {
         const location = this.currentRun.player.location;
 
         if (location.kind !== PLAYER_LOCATION_KIND.SPACE) {
-            throw new Error(`Cannot add space anchor for player location: ` + `${location.kind}`);
+            throw new Error(`Cannot add space anchor for player location: ${location.kind}`);
         }
 
         const node = getCurrentNode(this.currentRun);
@@ -78,7 +78,7 @@ class GameRuntime {
         }
 
         if (location.navigation.kind !== PLAYER_SPACE_NAVIGATION_KIND.ANCHORED) {
-            throw new Error(`Cannot jump from space navigation state: ` + `${location.navigation.kind}`);
+            throw new Error(`Cannot jump from space navigation state: ${location.navigation.kind}`);
         }
 
         const sourceNode = getCurrentNode(this.currentRun);
@@ -120,7 +120,7 @@ class GameRuntime {
         });
 
         if (!arrivalAnchor) {
-            throw new Error(`Jump destination arrival anchor not found: ` + `${targetNode.arrivalAnchorId}`);
+            throw new Error(`Jump destination arrival anchor not found: ${targetNode.arrivalAnchorId}`);
         }
 
         // Все рассчитанные искажения принадлежат старому node visit.
