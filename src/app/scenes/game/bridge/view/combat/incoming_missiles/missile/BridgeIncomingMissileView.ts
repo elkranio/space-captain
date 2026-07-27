@@ -1,4 +1,4 @@
-// src/app/scenes/game/bridge/view/combat/incoming_missiles/BridgeIncomingMissileView.ts
+// src/app/scenes/game/bridge/view/combat/incoming_missiles/missile/BridgeIncomingMissileView.ts
 
 import { MISSILE_SPRITE_ID, MISSILE_SPRITES } from '../../../../../../../manifests/combat/missiles/missile_sprite';
 import { FONT_FAMILY, FONT_SIZE } from '../../../../../../../theme/font';
@@ -28,6 +28,9 @@ const TARGETING_FRAME = {
     color: 0xea9e3e,
 
     padding: 5,
+
+    minHalfWidth: 30,
+    minHalfHeight: 18,
 
     cornerLength: 8,
     thickness: 2,
@@ -141,9 +144,17 @@ export default class BridgeIncomingMissileView {
     }
 
     private drawTargetingFrame(): void {
-        const halfWidth = Math.ceil(Math.abs(this.image.displayWidth) / 2) + TARGETING_FRAME.padding;
+        const halfWidth = Math.max(
+            TARGETING_FRAME.minHalfWidth,
 
-        const halfHeight = Math.ceil(Math.abs(this.image.displayHeight) / 2) + TARGETING_FRAME.padding;
+            Math.ceil(Math.abs(this.image.displayWidth) / 2) + TARGETING_FRAME.padding,
+        );
+
+        const halfHeight = Math.max(
+            TARGETING_FRAME.minHalfHeight,
+
+            Math.ceil(Math.abs(this.image.displayHeight) / 2) + TARGETING_FRAME.padding,
+        );
 
         const left = -halfWidth;
         const right = halfWidth;
