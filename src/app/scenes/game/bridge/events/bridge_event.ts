@@ -2,10 +2,10 @@
 
 import type { CharacterPortraitId } from '../../../../../engine/defs/character';
 import type { OfficerDefinition, OfficerRole } from '../../../../../engine/defs/officer';
+import type { Vec3 } from '../../../../../engine/defs/vector';
 import type { EncounterOfficerCommandId } from '../../../../../engine/encounter/model/command';
 import type { SpriteEntry } from '../../../../manifests/types';
-import { type SceneKey } from '../../../scene_key';
-import type { Vec3 } from '../../../../../engine/defs/vector';
+import type { SceneKey } from '../../../scene_key';
 
 // Scene-local события bridge scene.
 //
@@ -17,36 +17,54 @@ import type { Vec3 } from '../../../../../engine/defs/vector';
 // - вложенные UI/view модули.
 //
 // Naming rule:
-// - *_LOADED / *_UPDATED / *_STARTED / *_ENDED =
-//   факт, на который view реагирует.
+// - *_LOADED / *_UPDATED / *_STARTED / *_ENDED / *_CLEARED =
+//   факт или snapshot, на который реагирует view/controller;
 // - *_CLICKED / *_SELECTED / *_REQUESTED =
-//   input/intent от view к controller-у.
-
+//   input или intent от view к controller.
 export const BRIDGE_EVENT = {
+    // #region Crew and officer commands
+
     // Initial snapshot экипажа для bridge UI.
     // Эмитит BridgeController после чтения GAME_RUNTIME.
     // Слушает crew view.
     CREW_LOADED: 'crew_loaded',
 
     // Игрок кликнул по officer seat.
-    // Это input event: view не решает,
-    // какие команды доступны,
-    // а просит controller разобраться.
+    // View не определяет доступные команды,
+    // а просит encounter controller открыть меню.
     OFFICER_SEAT_CLICKED: 'officer_seat_clicked',
 
-    // Игрок выбрал команду
-    // в officer context menu.
-    // Controller передаст команду
-    // в encounter engine.
+    // Открытое officer menu просит encounter controller
+    // заново получить доступные команды текущей роли.
+    OFFICER_COMMAND_MENU_REFRESH_REQUESTED: 'officer_command_menu_refresh_requested',
+
+    // Игрок выбрал команду в officer context menu.
+    // Encounter controller передаст её в engine.
     OFFICER_COMMAND_SELECTED: 'officer_command_selected',
+
+    // Encounter controller отдаёт view
+    // актуальный snapshot меню команд офицера.
+    OFFICER_COMMAND_MENU_UPDATED: 'officer_command_menu_updated',
 
     // Controller просит показать
     // короткий officer bark bubble.
     OFFICER_BARK_REQUESTED: 'officer_bark_requested',
 
-    // Controller отдаёт view
-    // актуальные состояния ламп.
+    // Controller отдаёт crew view
+    // актуальные состояния station lights.
     OFFICER_STATION_INDICATORS_UPDATED: 'officer_station_indicators_updated',
+
+    // Офицер начал runtime task.
+    // Crew view показывает activity label.
+    OFFICER_ACTIVITY_STARTED: 'officer_activity_started',
+
+    // Runtime task офицера завершён или очищен.
+    // Crew view убирает activity label.
+    OFFICER_ACTIVITY_CLEARED: 'officer_activity_cleared',
+
+    // #endregion
+
+    // #region Encounter objects and navigation
 
     // Первый snapshot encounter objects.
     ENCOUNTER_OBJECTS_LOADED: 'encounter_objects_loaded',
@@ -64,6 +82,7 @@ export const BRIDGE_EVENT = {
     ENCOUNTER_ARRIVAL_STARTED: 'encounter_arrival_started',
 
     // Arrival animation завершилась.
+    // View сообщает об этом controller-у.
     ENCOUNTER_ARRIVAL_COMPLETED: 'encounter_arrival_completed',
 
     // Начало визуального перелёта
@@ -82,13 +101,13 @@ export const BRIDGE_EVENT = {
     // Начался visual flow межнодового прыжка.
     ENCOUNTER_JUMP_STARTED: 'encounter_jump_started',
 
-    // Visual flow завершён.
+    // Visual flow межнодового прыжка завершён.
     // View возвращает controller-у исходный jump payload.
     ENCOUNTER_JUMP_COMPLETED: 'encounter_jump_completed',
 
-    // Controller отдаёт view
-    // актуальное меню команд офицера.
-    OFFICER_COMMAND_MENU_UPDATED: 'officer_command_menu_updated',
+    // #endregion
+
+    // #region Contact and docking
 
     // Начался structured contact/dialogue flow.
     CONTACT_STARTED: 'contact_started',
@@ -96,40 +115,64 @@ export const BRIDGE_EVENT = {
     // В contact flow добавилась новая реплика.
     CONTACT_MESSAGE_ADDED: 'contact_message_added',
 
-    // Contact flow завершился.
+    // Structured contact/dialogue flow завершён.
     CONTACT_ENDED: 'contact_ended',
 
     // Encounter engine разрешил
-    // начать docking flow.
+    // начать визуальный docking flow.
     DOCKING_STARTED: 'docking_started',
 
     // Визуальная docking animation завершилась.
+    // View сообщает об этом controller-у.
     DOCKING_ANIMATION_COMPLETED: 'docking_animation_completed',
+
+    // #endregion
+
+    // #region Scene lifecycle
 
     // Запрос перехода
     // в другую Phaser scene.
     SCENE_TRANSITION_REQUESTED: 'scene_transition_requested',
 
-    OFFICER_ACTIVITY_STARTED: 'officer_activity_started',
+    // #endregion
 
-    OFFICER_ACTIVITY_CLEARED: 'officer_activity_cleared',
+    // #region Combat presentation
 
+    // Вражеская missile launcher
+    // начала фазу подготовки/наведения.
     MISSILE_TARGETING_WARNING_STARTED: 'missile_targeting_warning_started',
 
+    // Фаза подготовки/наведения завершилась
+    // или была отменена.
     MISSILE_TARGETING_WARNING_CLEARED: 'missile_targeting_warning_cleared',
 
+    // В encounter появилась новая
+    // входящая вражеская ракета.
     INCOMING_MISSILE_ADDED: 'incoming_missile_added',
 
+    // Входящая ракета удалена
+    // после impact или другого завершения.
     INCOMING_MISSILE_REMOVED: 'incoming_missile_removed',
 
+    // Актуальный временной snapshot
+    // всех входящих ракет.
     INCOMING_MISSILES_UPDATED: 'incoming_missiles_updated',
+
+    // #endregion
 } as const;
 
-// Payload события CREW_LOADED.
+// #region Crew and officer commands
+
+// Payload initial crew snapshot.
 export type BridgeCrewLoadedPayload = Record<OfficerRole, OfficerDefinition>;
 
 // Payload input-события OFFICER_SEAT_CLICKED.
 export type BridgeOfficerSeatClickedPayload = {
+    role: OfficerRole;
+};
+
+// Payload polling-запроса открытого officer menu.
+export type BridgeOfficerCommandMenuRefreshRequestedPayload = {
     role: OfficerRole;
 };
 
@@ -142,12 +185,59 @@ export type BridgeOfficerCommandSelectedPayload = {
     targetId?: string;
 };
 
-// Payload события OFFICER_BARK_REQUESTED.
+// Один пункт меню команды офицера.
+export type BridgeOfficerCommandMenuItemPayload = {
+    commandId: EncounterOfficerCommandId;
+
+    label: string;
+
+    targetId?: string;
+};
+
+// Группа пунктов меню.
+// Сейчас группа соответствует target label
+// или GENERAL для untargeted commands.
+export type BridgeOfficerCommandMenuGroupPayload = {
+    label: string;
+
+    items: BridgeOfficerCommandMenuItemPayload[];
+};
+
+// Актуальный view-ready snapshot officer menu.
+export type BridgeOfficerCommandMenuUpdatedPayload = {
+    role: OfficerRole;
+
+    groups: BridgeOfficerCommandMenuGroupPayload[];
+};
+
+// Payload запроса officer bark.
 export type BridgeOfficerBarkRequestedPayload = {
     role: OfficerRole;
 
     text: string;
 };
+
+// View-state лампы officer station.
+export type BridgeOfficerStationIndicatorState = 'off' | 'ready' | 'busy' | 'blocked';
+
+// Snapshot ламп всех officer stations.
+export type BridgeOfficerStationIndicatorsUpdatedPayload = Record<OfficerRole, BridgeOfficerStationIndicatorState>;
+
+// Офицер начал activity/task.
+export type BridgeOfficerActivityStartedPayload = {
+    role: OfficerRole;
+
+    label: string;
+};
+
+// Activity/task офицера очищен.
+export type BridgeOfficerActivityClearedPayload = {
+    role: OfficerRole;
+};
+
+// #endregion
+
+// #region Encounter objects and navigation
 
 // View-ready описание одного encounter object.
 export type BridgeEncounterObjectPayload = {
@@ -170,52 +260,9 @@ export type BridgeEncounterObjectPayload = {
     position: Phaser.Math.Vector2;
 };
 
-// Один пункт меню команды офицера.
-export type BridgeOfficerCommandMenuItemPayload = {
-    commandId: EncounterOfficerCommandId;
-
-    label: string;
-
-    targetId?: string;
-};
-
-// Группа пунктов меню.
-export type BridgeOfficerCommandMenuGroupPayload = {
-    label: string;
-
-    items: BridgeOfficerCommandMenuItemPayload[];
-};
-
-// Payload события OFFICER_COMMAND_MENU_UPDATED.
-export type BridgeOfficerCommandMenuUpdatedPayload = {
-    role: OfficerRole;
-
-    groups: BridgeOfficerCommandMenuGroupPayload[];
-};
-
-// Payload события CONTACT_STARTED.
-export type BridgeContactStartedPayload = {
-    contactName: string;
-
-    contactPortraitId: CharacterPortraitId;
-};
-
-// Payload события CONTACT_MESSAGE_ADDED.
-export type BridgeContactMessageAddedPayload = {
-    speakerName: string;
-
-    text: string;
-};
-
-// Payload начала визуального docking flow.
-export type BridgeDockingStartedPayload = {
-    taskId: string;
+// Payload начала arrival flow.
+export type BridgeEncounterArrivalStartedPayload = {
     targetId: string;
-};
-
-// Payload завершения визуального docking flow.
-export type BridgeDockingCompletedPayload = {
-    taskId: string;
 };
 
 // Payload начала визуального travel flow.
@@ -238,37 +285,59 @@ export type BridgeEncounterTravelCompletedPayload = {
     taskId: string;
 };
 
+// Общий payload начала и завершения
+// визуального межнодового jump flow.
 export type BridgeEncounterJumpPayload = {
     taskId: string;
 
     targetNodeId: string;
 };
 
-// Payload события SCENE_TRANSITION_REQUESTED.
+// #endregion
+
+// #region Contact and docking
+
+// Payload начала structured contact flow.
+export type BridgeContactStartedPayload = {
+    contactName: string;
+
+    contactPortraitId: CharacterPortraitId;
+};
+
+// Новая реплика structured contact flow.
+export type BridgeContactMessageAddedPayload = {
+    speakerName: string;
+
+    text: string;
+};
+
+// Payload начала визуального docking flow.
+export type BridgeDockingStartedPayload = {
+    taskId: string;
+
+    targetId: string;
+};
+
+// Payload завершения визуального docking flow.
+export type BridgeDockingCompletedPayload = {
+    taskId: string;
+};
+
+// #endregion
+
+// #region Scene lifecycle
+
+// Payload запроса перехода
+// в другую Phaser scene.
 export type BridgeSceneTransitionRequestedPayload = {
     sceneKey: SceneKey;
 };
 
-// View-state лампы officer station.
-export type BridgeOfficerStationIndicatorState = 'off' | 'ready' | 'busy' | 'blocked';
+// #endregion
 
-// Payload события OFFICER_STATION_INDICATORS_UPDATED.
-export type BridgeOfficerStationIndicatorsUpdatedPayload = Record<OfficerRole, BridgeOfficerStationIndicatorState>;
+// #region Combat presentation
 
-export type BridgeOfficerActivityStartedPayload = {
-    role: OfficerRole;
-
-    label: string;
-};
-
-export type BridgeOfficerActivityClearedPayload = {
-    role: OfficerRole;
-};
-
-export type BridgeEncounterArrivalStartedPayload = {
-    targetId: string;
-};
-
+// Новая входящая ракета.
 export type BridgeIncomingMissileAddedPayload = {
     projectileId: string;
 
@@ -277,17 +346,22 @@ export type BridgeIncomingMissileAddedPayload = {
     initialTimeToImpactMs: number;
 };
 
+// Входящая ракета завершила runtime lifecycle.
 export type BridgeIncomingMissileRemovedPayload = {
     projectileId: string;
 };
 
+// Актуальное runtime-состояние одной входящей ракеты.
 export type BridgeIncomingMissileUpdatePayload = {
     projectileId: string;
 
     timeToImpactMs: number;
 };
 
+// Актуальный snapshot всех входящих ракет.
 export type BridgeIncomingMissilesUpdatedPayload = BridgeIncomingMissileUpdatePayload[];
+
+// #endregion
 
 // Typed mapping:
 // каждое bridge event name связано
@@ -296,15 +370,27 @@ export type BridgeIncomingMissilesUpdatedPayload = BridgeIncomingMissileUpdatePa
 // undefined означает,
 // что событие несёт только сам факт.
 export type BridgeEventPayloadMap = {
+    // Crew and officer commands
+
     [BRIDGE_EVENT.CREW_LOADED]: BridgeCrewLoadedPayload;
 
     [BRIDGE_EVENT.OFFICER_SEAT_CLICKED]: BridgeOfficerSeatClickedPayload;
 
+    [BRIDGE_EVENT.OFFICER_COMMAND_MENU_REFRESH_REQUESTED]: BridgeOfficerCommandMenuRefreshRequestedPayload;
+
     [BRIDGE_EVENT.OFFICER_COMMAND_SELECTED]: BridgeOfficerCommandSelectedPayload;
+
+    [BRIDGE_EVENT.OFFICER_COMMAND_MENU_UPDATED]: BridgeOfficerCommandMenuUpdatedPayload;
 
     [BRIDGE_EVENT.OFFICER_BARK_REQUESTED]: BridgeOfficerBarkRequestedPayload;
 
     [BRIDGE_EVENT.OFFICER_STATION_INDICATORS_UPDATED]: BridgeOfficerStationIndicatorsUpdatedPayload;
+
+    [BRIDGE_EVENT.OFFICER_ACTIVITY_STARTED]: BridgeOfficerActivityStartedPayload;
+
+    [BRIDGE_EVENT.OFFICER_ACTIVITY_CLEARED]: BridgeOfficerActivityClearedPayload;
+
+    // Encounter objects and navigation
 
     [BRIDGE_EVENT.ENCOUNTER_OBJECTS_LOADED]: BridgeEncounterObjectPayload[];
 
@@ -326,7 +412,7 @@ export type BridgeEventPayloadMap = {
 
     [BRIDGE_EVENT.ENCOUNTER_JUMP_COMPLETED]: BridgeEncounterJumpPayload;
 
-    [BRIDGE_EVENT.OFFICER_COMMAND_MENU_UPDATED]: BridgeOfficerCommandMenuUpdatedPayload;
+    // Contact and docking
 
     [BRIDGE_EVENT.CONTACT_STARTED]: BridgeContactStartedPayload;
 
@@ -338,11 +424,11 @@ export type BridgeEventPayloadMap = {
 
     [BRIDGE_EVENT.DOCKING_ANIMATION_COMPLETED]: BridgeDockingCompletedPayload;
 
+    // Scene lifecycle
+
     [BRIDGE_EVENT.SCENE_TRANSITION_REQUESTED]: BridgeSceneTransitionRequestedPayload;
 
-    [BRIDGE_EVENT.OFFICER_ACTIVITY_STARTED]: BridgeOfficerActivityStartedPayload;
-
-    [BRIDGE_EVENT.OFFICER_ACTIVITY_CLEARED]: BridgeOfficerActivityClearedPayload;
+    // Combat presentation
 
     [BRIDGE_EVENT.MISSILE_TARGETING_WARNING_STARTED]: undefined;
 

@@ -17,6 +17,8 @@ import {
 } from './height/get_officer_context_menu_min_height';
 import BridgeOfficerContextMenuPanelView from './panel/BridgeOfficerContextMenuPanelView';
 
+const REFRESH_INTERVAL_MS = 200;
+
 // Root view officer command context menu.
 // Управляет open/close, outside click, текущей role и отправкой выбранной команды наверх.
 export default class BridgeOfficerContextMenuView {
@@ -27,6 +29,9 @@ export default class BridgeOfficerContextMenuView {
     private readonly contentView: BridgeOfficerContextMenuContentView;
 
     private currentRole?: OfficerRole;
+
+    private latestMenuSnapshot?: string;
+    private refreshTimer?: Phaser.Time.TimerEvent;
 
     constructor(
         private readonly scene: BridgeScene,
@@ -51,6 +56,8 @@ export default class BridgeOfficerContextMenuView {
     }
 
     public destroy(): void {
+        this.stopRefreshPolling();
+
         this.eventBus.off(BRIDGE_EVENT.OFFICER_COMMAND_MENU_UPDATED, this.handleOfficerCommandMenuUpdated, this);
 
         this.outsideClickCatcher.off(Phaser.Input.Events.POINTER_DOWN, this.handleOutsidePointerDown, this);
@@ -64,6 +71,13 @@ export default class BridgeOfficerContextMenuView {
     }
 
     private handleOfficerCommandMenuUpdated(menu: BridgeOfficerCommandMenuUpdatedPayload): void {
+        const snapshot = JSON.stringify(menu);
+
+        if (snapshot === this.latestMenuSnapshot) {
+            return;
+        }
+
+        this.latestMenuSnapshot = snapshot;
         this.contentView.clear();
 
         if (getOfficerContextMenuItemCount(menu) === 0) {
@@ -112,12 +126,47 @@ export default class BridgeOfficerContextMenuView {
     private openMenu(): void {
         this.root.setVisible(true);
         this.outsideClickCatcher.setVisible(true).setInteractive();
+
+        this.startRefreshPolling();
     }
 
     private closeMenu(): void {
+        this.stopRefreshPolling();
+
         this.root.setVisible(false);
         this.outsideClickCatcher.disableInteractive().setVisible(false);
+
         this.currentRole = undefined;
+        this.latestMenuSnapshot = undefined;
+    }
+
+    private startRefreshPolling(): void {
+        if (this.refreshTimer) {
+            return;
+        }
+
+        this.refreshTimer = this.scene.time.addEvent({
+            delay: REFRESH_INTERVAL_MS,
+            loop: true,
+
+            callback: this.requestRefresh,
+            callbackScope: this,
+        });
+    }
+
+    private stopRefreshPolling(): void {
+        this.refreshTimer?.destroy();
+        this.refreshTimer = undefined;
+    }
+
+    private requestRefresh(): void {
+        if (!this.currentRole) {
+            return;
+        }
+
+        this.eventBus.emit(BRIDGE_EVENT.OFFICER_COMMAND_MENU_REFRESH_REQUESTED, {
+            role: this.currentRole,
+        });
     }
 
     private createOutsideClickCatcher(): Phaser.GameObjects.Rectangle {

@@ -11,9 +11,9 @@ import {
     ENCOUNTER_OFFICER_COMMAND_ID,
     OFFICER_COMMAND_EXECUTION_STATUS,
     OFFICER_COMMAND_REJECTION_REASON,
+    OFFICER_COMMAND_TARGET_KIND,
     type ExecuteOfficerCommandInput,
     type ExecuteOfficerCommandResult,
-    OFFICER_COMMAND_TARGET_KIND,
     type OfficerCommandTarget,
 } from '../../../../../../engine/encounter/model/command';
 import {
@@ -29,6 +29,7 @@ import {
     type BridgeDockingCompletedPayload,
     type BridgeEncounterJumpPayload,
     type BridgeEncounterTravelCompletedPayload,
+    type BridgeOfficerCommandMenuRefreshRequestedPayload,
     type BridgeOfficerCommandSelectedPayload,
     type BridgeOfficerSeatClickedPayload,
 } from '../../events/bridge_event';
@@ -44,11 +45,12 @@ import BridgeOfficerStationsController from './officer_stations/BridgeOfficerSta
 // и управляет encounter orchestration.
 //
 // Не содержит domain rules:
-// доступность команд,
-// contact flow
-// и navigation state
-// живут в engine.
+// - доступность и execution команд живут в engine;
+// - officer tasks и combat живут в engine;
+// - controller только синхронизирует engine, GAME_RUNTIME и bridge view.
 export default class BridgeEncounterController {
+    // #region Fields
+
     private encounterEngine?: EncounterEngine;
 
     private officerCommandMenuController?: BridgeOfficerCommandMenuController;
@@ -58,6 +60,8 @@ export default class BridgeEncounterController {
     private readonly engineEventHandler: BridgeEncounterEngineEventHandler;
 
     private isEncounterInteractive = false;
+
+    // #endregion
 
     constructor(private readonly eventBus: BridgeEventBus) {
         this.engineEventHandler = new BridgeEncounterEngineEventHandler(
@@ -71,7 +75,7 @@ export default class BridgeEncounterController {
         );
     }
 
-    // #region Public API
+    // #region Lifecycle
 
     public prepare(): void {
         this.registerBridgeEventHandlers();
@@ -86,8 +90,13 @@ export default class BridgeEncounterController {
         this.officerCommandMenuController = undefined;
         this.officerStationsController = undefined;
         this.encounterEngine = undefined;
+
         this.isEncounterInteractive = false;
     }
+
+    // #endregion
+
+    // #region Scene update
 
     public step(deltaMs: number): void {
         if (!this.encounterEngine) {
@@ -113,29 +122,41 @@ export default class BridgeEncounterController {
     private registerBridgeEventHandlers(): void {
         this.eventBus.on(BRIDGE_EVENT.OFFICER_SEAT_CLICKED, this.handleOfficerSeatClicked, this);
 
+        this.eventBus.on(
+            BRIDGE_EVENT.OFFICER_COMMAND_MENU_REFRESH_REQUESTED,
+            this.handleOfficerCommandMenuRefreshRequested,
+            this,
+        );
+
+        this.eventBus.on(BRIDGE_EVENT.OFFICER_COMMAND_SELECTED, this.handleOfficerCommandSelected, this);
+
         this.eventBus.on(BRIDGE_EVENT.ENCOUNTER_ARRIVAL_COMPLETED, this.handleEncounterArrivalCompleted, this);
 
         this.eventBus.on(BRIDGE_EVENT.ENCOUNTER_TRAVEL_COMPLETED, this.handleEncounterTravelCompleted, this);
 
-        this.eventBus.on(BRIDGE_EVENT.OFFICER_COMMAND_SELECTED, this.handleOfficerCommandSelected, this);
+        this.eventBus.on(BRIDGE_EVENT.ENCOUNTER_JUMP_COMPLETED, this.handleEncounterJumpCompleted, this);
 
         this.eventBus.on(BRIDGE_EVENT.DOCKING_ANIMATION_COMPLETED, this.handleDockingAnimationCompleted, this);
-
-        this.eventBus.on(BRIDGE_EVENT.ENCOUNTER_JUMP_COMPLETED, this.handleEncounterJumpCompleted, this);
     }
 
     private unregisterBridgeEventHandlers(): void {
         this.eventBus.off(BRIDGE_EVENT.OFFICER_SEAT_CLICKED, this.handleOfficerSeatClicked, this);
 
+        this.eventBus.off(
+            BRIDGE_EVENT.OFFICER_COMMAND_MENU_REFRESH_REQUESTED,
+            this.handleOfficerCommandMenuRefreshRequested,
+            this,
+        );
+
+        this.eventBus.off(BRIDGE_EVENT.OFFICER_COMMAND_SELECTED, this.handleOfficerCommandSelected, this);
+
         this.eventBus.off(BRIDGE_EVENT.ENCOUNTER_ARRIVAL_COMPLETED, this.handleEncounterArrivalCompleted, this);
 
         this.eventBus.off(BRIDGE_EVENT.ENCOUNTER_TRAVEL_COMPLETED, this.handleEncounterTravelCompleted, this);
 
-        this.eventBus.off(BRIDGE_EVENT.OFFICER_COMMAND_SELECTED, this.handleOfficerCommandSelected, this);
+        this.eventBus.off(BRIDGE_EVENT.ENCOUNTER_JUMP_COMPLETED, this.handleEncounterJumpCompleted, this);
 
         this.eventBus.off(BRIDGE_EVENT.DOCKING_ANIMATION_COMPLETED, this.handleDockingAnimationCompleted, this);
-
-        this.eventBus.off(BRIDGE_EVENT.ENCOUNTER_JUMP_COMPLETED, this.handleEncounterJumpCompleted, this);
     }
 
     // #endregion
@@ -174,7 +195,7 @@ export default class BridgeEncounterController {
 
     // #endregion
 
-    // #region Bridge input handlers
+    // #region Officer command input
 
     private handleOfficerSeatClicked(payload: BridgeOfficerSeatClickedPayload): void {
         if (!this.isEncounterInteractive) {
@@ -183,6 +204,32 @@ export default class BridgeEncounterController {
 
         this.officerCommandMenuController?.open(payload.role);
     }
+
+    private handleOfficerCommandMenuRefreshRequested(payload: BridgeOfficerCommandMenuRefreshRequestedPayload): void {
+        if (!this.isEncounterInteractive) {
+            return;
+        }
+
+        this.officerCommandMenuController?.open(payload.role);
+    }
+
+    private handleOfficerCommandSelected(payload: BridgeOfficerCommandSelectedPayload): void {
+        if (!this.isEncounterInteractive) {
+            return;
+        }
+
+        const result = this.executeCommand(payload);
+
+        if (!result) {
+            return;
+        }
+
+        this.handleOfficerCommandResult(payload, result);
+    }
+
+    // #endregion
+
+    // #region Encounter presentation callbacks
 
     private handleEncounterArrivalCompleted(): void {
         this.completeEncounterArrival();
@@ -217,20 +264,6 @@ export default class BridgeEncounterController {
         });
     }
 
-    private handleOfficerCommandSelected(payload: BridgeOfficerCommandSelectedPayload): void {
-        if (!this.isEncounterInteractive) {
-            return;
-        }
-
-        const result = this.executeCommand(payload);
-
-        if (!result) {
-            return;
-        }
-
-        this.handleOfficerCommandResult(payload, result);
-    }
-
     private handleDockingAnimationCompleted(payload: BridgeDockingCompletedPayload): void {
         if (!this.encounterEngine) {
             return;
@@ -247,7 +280,7 @@ export default class BridgeEncounterController {
 
     // #endregion
 
-    // #region Engine events
+    // #region Engine events and snapshots
 
     private drainEncounterEvents(): void {
         if (!this.encounterEngine) {
@@ -257,7 +290,6 @@ export default class BridgeEncounterController {
         const events = this.encounterEngine.drainEvents();
 
         this.syncRuntimeAnchorsFromEncounterEvents(events);
-
         this.engineEventHandler.handle(events);
     }
 
@@ -282,7 +314,7 @@ export default class BridgeEncounterController {
 
     // #endregion
 
-    // #region Officer commands
+    // #region Officer command execution
 
     private executeCommand(payload: BridgeOfficerCommandSelectedPayload): ExecuteOfficerCommandResult | undefined {
         if (!this.encounterEngine) {
@@ -290,7 +322,6 @@ export default class BridgeEncounterController {
         }
 
         const input = this.createExecuteCommandInput(payload);
-
         const result = this.encounterEngine.executeCommand(input);
 
         if (result.status === OFFICER_COMMAND_EXECUTION_STATUS.EXECUTED) {
@@ -371,7 +402,7 @@ export default class BridgeEncounterController {
                         this.eventBus.emit(BRIDGE_EVENT.OFFICER_BARK_REQUESTED, {
                             role: payload.role,
 
-                            text: `CAN'T DO THAT, CAPTAIN. ` + `BUSY STATIONS: ${busyStations}.`,
+                            text: `CAN'T DO THAT, CAPTAIN. BUSY STATIONS: ${busyStations}.`,
                         });
 
                         return;
@@ -428,7 +459,7 @@ export default class BridgeEncounterController {
         const navigation = this.encounterEngine.getNavigationState();
 
         if (expectedKind !== undefined && navigation.kind !== expectedKind) {
-            throw new Error(`Expected engine navigation ${expectedKind}, ` + `received ${navigation.kind}`);
+            throw new Error(`Expected engine navigation ${expectedKind}, received ${navigation.kind}`);
         }
 
         GAME_RUNTIME.setPlayerSpaceNavigation(navigation);
