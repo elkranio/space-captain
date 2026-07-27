@@ -7,6 +7,7 @@ import type { SpaceBackgroundId } from './space_background';
 import type { StationState } from './station';
 import type { Vec2, Vec3 } from './vector';
 import type { ShipId } from './ship';
+import type { ShipWeaponState } from './ship_weapon';
 
 export const SPACE_ANCHOR_KIND = {
     STATION: 'station',
@@ -43,6 +44,7 @@ export type ShipSpaceNodeActorState = SpaceNodeActorBaseState & {
     kind: typeof SPACE_NODE_ACTOR_KIND.SHIP;
 
     shipId: ShipId;
+    weapons: ShipWeaponState[];
 };
 
 export type SpaceNodeActorState = ShipSpaceNodeActorState;

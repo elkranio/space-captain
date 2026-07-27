@@ -14,6 +14,7 @@ import { SHIPS } from '../../content/ships';
 import type { ShipId } from '../../defs/ship';
 import { ENCOUNTER_ACTOR_KIND, type EncounterActorState } from '../actors/encounter_actor';
 import type { ShipEncounterActorState } from '../actors/ship/ship_encounter_actor';
+import type { ShipWeaponState } from '../../defs/ship_weapon';
 
 export type EncounterTravelStart = {
     fromAnchorId: string;
@@ -24,6 +25,8 @@ export type SpawnShipActorInput = {
     actorId: string;
     shipId: ShipId;
     anchorId: string;
+
+    weapons: ShipWeaponState[];
 };
 
 // Владеет mutable runtime state одного encounter.
@@ -44,6 +47,7 @@ export default class EncounterStateStore {
                 actorId: actor.id,
                 shipId: actor.shipId,
                 anchorId: actor.anchorId,
+                weapons: actor.weapons,
             });
         }
 
@@ -95,7 +99,7 @@ export default class EncounterStateStore {
         });
     }
 
-    public spawnShipActor({ actorId, shipId, anchorId }: SpawnShipActorInput): ShipEncounterActorState {
+    public spawnShipActor({ actorId, shipId, anchorId, weapons }: SpawnShipActorInput): ShipEncounterActorState {
         if (!this.findAnchorById(anchorId)) {
             throw new Error(`Cannot spawn ship actor: ` + `anchor not found: ${anchorId}`);
         }
@@ -113,6 +117,14 @@ export default class EncounterStateStore {
 
             anchorId,
             shipId,
+
+            // Encounter получает отдельный mutable loadout.
+            // Изменение боезапаса не мутирует node seed.
+            weapons: weapons.map((weapon) => {
+                return {
+                    ...weapon,
+                };
+            }),
         };
 
         this.state.actors.push(actor);

@@ -9,6 +9,7 @@ describe('GameRuntime player ship hull', () => {
         expect(runtime.getCurrentRun().player.ship).toEqual({
             hull: 3,
             maxHull: 3,
+            weapons: [],
         });
     });
 
@@ -30,6 +31,7 @@ describe('GameRuntime player ship hull', () => {
         expect(runtime.getCurrentRun().player.ship).toEqual({
             hull: 0,
             maxHull: 3,
+            weapons: [],
         });
     });
 

@@ -9,12 +9,15 @@ import { BEACON_OBJECT_SPRITE_ID } from '../defs/beacon';
 import { ASTEROID_OBJECT_SPRITE_ID } from '../defs/asteroid';
 import { SHIP_ID } from '../defs/ship';
 import { SPACE_ANCHOR_KIND, SPACE_NODE_ACTOR_KIND } from '../defs/universe';
+import { MISSILE_GUIDANCE_KIND, MISSILE_ID } from '../defs/missile';
+import { SHIP_WEAPON_KIND } from '../defs/ship_weapon';
 import type { PlayerShipState } from '../defs/player';
 
 export function createNewRunState(): RunState {
     const playerShip: PlayerShipState = {
         hull: 3,
         maxHull: 3,
+        weapons: [],
     };
 
     const station = StationGenerator.generateStation(SPECIES_ID.HUMAN);
@@ -76,6 +79,19 @@ export function createNewRunState(): RunState {
 
                             shipId: SHIP_ID.GENERIC_00,
                             anchorId: navigationBeacon.id,
+
+                            weapons: [
+                                {
+                                    id: 'missile_launcher_00',
+                                    kind: SHIP_WEAPON_KIND.MISSILE_LAUNCHER,
+
+                                    firmwareGuidanceKind: MISSILE_GUIDANCE_KIND.HEAT,
+                                    loadedMissileId: MISSILE_ID.HEAT_00,
+
+                                    ammoCount: 5,
+                                    ammoCapacity: 5,
+                                },
+                            ],
                         },
                     ],
                 },
