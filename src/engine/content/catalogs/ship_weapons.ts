@@ -1,7 +1,7 @@
-// src/engine/content/ship_weapons.ts
+// src/engine/content/catalogs/ship_weapons.ts
 
-import { MISSILE_GUIDANCE_KIND } from '../defs/missile';
-import { SHIP_WEAPON_ID, SHIP_WEAPON_KIND, type ShipWeaponDefinition, type ShipWeaponId } from '../defs/ship_weapon';
+import { MISSILE_GUIDANCE_KIND } from '../../defs/missile';
+import { SHIP_WEAPON_ID, SHIP_WEAPON_KIND, type ShipWeaponDefinition, type ShipWeaponId } from '../../defs/ship_weapon';
 
 export const SHIP_WEAPONS = {
     [SHIP_WEAPON_ID.HEAT_MISSILE_LAUNCHER_00]: {

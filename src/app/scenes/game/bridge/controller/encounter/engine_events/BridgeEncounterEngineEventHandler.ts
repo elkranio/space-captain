@@ -1,6 +1,6 @@
 // src/app/scenes/game/bridge/controller/encounter/engine_events/BridgeEncounterEngineEventHandler.ts
 
-import { SHIPS } from '../../../../../../../engine/content/ships';
+import { SHIPS } from '../../../../../../../engine/content/catalogs/ships';
 import { OFFICER_ROLE } from '../../../../../../../engine/defs/officer';
 import { PLAYER_SPACE_NAVIGATION_KIND } from '../../../../../../../engine/defs/player_location';
 import {

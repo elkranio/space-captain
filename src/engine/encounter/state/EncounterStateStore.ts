@@ -10,7 +10,7 @@ import { JUMP_POINT_OBJECT_SPRITE_ID } from '../../defs/jump_point';
 import type { JumpPointEncounterAnchorState } from '../anchors/jump_point/jump_point_encounter_anchor';
 import { DOCKING_CLEARANCE_STATE } from '../anchors/station/station_encounter_anchor';
 import { createEncounterState } from './create_encounter_state';
-import { SHIPS } from '../../content/ships';
+import { SHIPS } from '../../content/catalogs/ships';
 import type { ShipId } from '../../defs/ship';
 import { ENCOUNTER_ACTOR_KIND, type EncounterActorState } from '../actors/encounter_actor';
 import type { ShipEncounterActorState } from '../actors/ship/ship_encounter_actor';

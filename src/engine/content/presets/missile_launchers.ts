@@ -2,7 +2,7 @@
 
 import { MISSILE_ID, type MissileId } from '../../defs/missile';
 import { SHIP_WEAPON_ID, type ShipWeaponId } from '../../defs/ship_weapon';
-import { SHIP_WEAPONS } from '../ship_weapons';
+import { SHIP_WEAPONS } from '../catalogs/ship_weapons';
 
 export const MISSILE_LAUNCHER_PRESET_ID = {
     BASIC_HEAT_FULL_00: 'basic_heat_full_00',

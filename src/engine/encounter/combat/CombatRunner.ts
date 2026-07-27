@@ -1,7 +1,7 @@
 // src/engine/encounter/combat/CombatRunner.ts
 
-import { MISSILES } from '../../content/missiles';
-import { SHIP_WEAPONS } from '../../content/ship_weapons';
+import { MISSILES } from '../../content/catalogs/missiles';
+import { SHIP_WEAPONS } from '../../content/catalogs/ship_weapons';
 import { ENCOUNTER_TEAM } from '../../defs/encounter_team';
 import { PLAYER_SPACE_NAVIGATION_KIND } from '../../defs/player_location';
 import {

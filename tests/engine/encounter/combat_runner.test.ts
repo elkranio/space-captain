@@ -2,7 +2,7 @@
 
 import { describe, expect, it } from 'vitest';
 import { SHIP_NODE_ACTOR_PRESET_ID } from '../../../src/engine/content/presets/ship_node_actors';
-import { SHIP_WEAPONS } from '../../../src/engine/content/ship_weapons';
+import { SHIP_WEAPONS } from '../../../src/engine/content/catalogs/ship_weapons';
 import { MISSILE_ID } from '../../../src/engine/defs/missile';
 import { PLAYER_SPACE_NAVIGATION_KIND } from '../../../src/engine/defs/player_location';
 import { SHIP_WEAPON_PHASE } from '../../../src/engine/defs/ship_weapon';
