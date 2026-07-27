@@ -13,6 +13,7 @@ import { OFFICER_TASK_KIND, type OfficerTaskKind } from './model/officer_task';
 import { getOfficerAvailabilityStates } from './officer_availability/queries/get_officer_availability_states';
 import OfficerTaskRunner from './officer_tasks/OfficerTaskRunner';
 import EncounterStateStore from './state/EncounterStateStore';
+import CombatRunner from './combat/CombatRunner';
 
 export type EncounterEngineOptions = {
     node: SpaceNodeState;
@@ -32,10 +33,17 @@ export default class EncounterEngine {
 
     private readonly officerCommandExecutor: OfficerCommandExecutor;
 
+    private readonly combatRunner: CombatRunner;
+
     constructor({ node, navigation, completeTimedTasksImmediately = false }: EncounterEngineOptions) {
         this.stateStore = EncounterStateStore.fromSpaceNode(node, navigation);
 
         const encounterState = this.stateStore.getState();
+
+        this.combatRunner = new CombatRunner({
+            state: encounterState,
+            emit: this.emit,
+        });
 
         this.officerTaskRunner = new OfficerTaskRunner({
             stateStore: this.stateStore,
@@ -76,6 +84,7 @@ export default class EncounterEngine {
     public step(deltaMs: number): void {
         this.officerTaskRunner.step(deltaMs);
         this.contactSequenceRunner.step(deltaMs);
+        this.combatRunner.step(deltaMs);
     }
 
     public completeArrival(): void {

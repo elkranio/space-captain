@@ -8,6 +8,8 @@ export const MISSILES = {
         name: 'HEAT SEEKER',
 
         guidanceKind: MISSILE_GUIDANCE_KIND.HEAT,
+
         damage: 1,
+        flightDurationMs: 4000,
     },
 } satisfies Record<MissileId, MissileDefinition>;

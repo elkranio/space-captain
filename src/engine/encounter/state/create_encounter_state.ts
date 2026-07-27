@@ -27,6 +27,10 @@ export function createEncounterState(node: SpaceNodeState, navigation: PlayerSpa
         // чтобы initial и dynamic actors использовали
         // один validated spawn path.
         actors: [],
+
+        combat: {
+            projectiles: [],
+        },
     };
 }
 

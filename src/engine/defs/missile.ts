@@ -17,5 +17,7 @@ export type MissileDefinition = {
     name: string;
 
     guidanceKind: MissileGuidanceKind;
+
     damage: number;
+    flightDurationMs: number;
 };

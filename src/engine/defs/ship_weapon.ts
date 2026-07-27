@@ -6,17 +6,31 @@ export const SHIP_WEAPON_KIND = {
     MISSILE_LAUNCHER: 'missile_launcher',
 } as const;
 
-export type MissileLauncherState = {
-    // Runtime id конкретной установленной ракетницы.
+export const SHIP_WEAPON_PHASE = {
+    READY: 'ready',
+    PREPARING: 'preparing',
+    COOLDOWN: 'cooldown',
+} as const;
+
+export type ShipWeaponPhase = (typeof SHIP_WEAPON_PHASE)[keyof typeof SHIP_WEAPON_PHASE];
+
+export type ShipWeaponBaseState = {
+    // Runtime id конкретного установленного оружия.
     id: string;
 
+    phase: ShipWeaponPhase;
+    phaseElapsedMs: number;
+
+    preparationDurationMs: number;
+    cooldownDurationMs: number;
+};
+
+export type MissileLauncherState = ShipWeaponBaseState & {
     kind: typeof SHIP_WEAPON_KIND.MISSILE_LAUNCHER;
 
     // Прошивка разрешает ракеты с одним типом наведения.
     firmwareGuidanceKind: MissileGuidanceKind;
 
-    // null позволит позже представить пустую ракетницу
-    // после продажи боезапаса или перепрошивки.
     loadedMissileId: MissileId | null;
 
     ammoCount: number;

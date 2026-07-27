@@ -8,6 +8,7 @@ import type { StationState } from './station';
 import type { Vec2, Vec3 } from './vector';
 import type { ShipId } from './ship';
 import type { ShipWeaponState } from './ship_weapon';
+import type { EncounterTeam } from './encounter_team';
 
 export const SPACE_ANCHOR_KIND = {
     STATION: 'station',
@@ -35,6 +36,8 @@ export const SPACE_NODE_ACTOR_KIND = {
 // до создания runtime encounter.
 export type SpaceNodeActorBaseState = {
     id: string;
+
+    team: EncounterTeam;
 
     // Anchor, возле которого actor находится внутри ноды.
     anchorId: string;

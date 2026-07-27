@@ -10,8 +10,9 @@ import { ASTEROID_OBJECT_SPRITE_ID } from '../defs/asteroid';
 import { SHIP_ID } from '../defs/ship';
 import { SPACE_ANCHOR_KIND, SPACE_NODE_ACTOR_KIND } from '../defs/universe';
 import { MISSILE_GUIDANCE_KIND, MISSILE_ID } from '../defs/missile';
-import { SHIP_WEAPON_KIND } from '../defs/ship_weapon';
 import type { PlayerShipState } from '../defs/player';
+import { ENCOUNTER_TEAM } from '../defs/encounter_team';
+import { SHIP_WEAPON_KIND, SHIP_WEAPON_PHASE } from '../defs/ship_weapon';
 
 export function createNewRunState(): RunState {
     const playerShip: PlayerShipState = {
@@ -77,6 +78,8 @@ export function createNewRunState(): RunState {
                             id: 'ship_generic_00',
                             kind: SPACE_NODE_ACTOR_KIND.SHIP,
 
+                            team: ENCOUNTER_TEAM.ENEMY,
+
                             shipId: SHIP_ID.GENERIC_00,
                             anchorId: navigationBeacon.id,
 
@@ -90,6 +93,12 @@ export function createNewRunState(): RunState {
 
                                     ammoCount: 5,
                                     ammoCapacity: 5,
+
+                                    phase: SHIP_WEAPON_PHASE.READY,
+                                    phaseElapsedMs: 0,
+
+                                    preparationDurationMs: 2000,
+                                    cooldownDurationMs: 3000,
                                 },
                             ],
                         },

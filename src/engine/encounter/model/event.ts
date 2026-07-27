@@ -5,6 +5,7 @@ import type { EncounterAnchorState } from '../anchors/encounter_anchor';
 import type { OfficerTaskState } from './officer_task';
 import type { EncounterState } from './state';
 import type { JumpPointEncounterAnchorState } from '../anchors/jump_point/jump_point_encounter_anchor';
+import type { MissileCombatProjectileState } from './combat';
 
 // События, которые EncounterEngine отдаёт наружу
 // через outbox.
@@ -21,6 +22,8 @@ export const ENCOUNTER_EVENT = {
     DOCKING_STARTED: 'docking_started',
     OFFICER_TASK_STARTED: 'officer_task_started',
     OFFICER_TASK_ENDED: 'officer_task_ended',
+    PLAYER_SHIP_TARGETING_DETECTED: 'player_ship_targeting_detected',
+    MISSILE_LAUNCHED: 'missile_launched',
 } as const;
 
 export const OFFICER_TASK_OUTCOME = {
@@ -145,6 +148,19 @@ export type OfficerTaskEndedEvent = {
     result?: OfficerTaskResult;
 };
 
+export type PlayerShipTargetingDetectedEvent = {
+    type: typeof ENCOUNTER_EVENT.PLAYER_SHIP_TARGETING_DETECTED;
+
+    sourceActorId: string;
+    sourceWeaponId: string;
+};
+
+export type MissileLaunchedEvent = {
+    type: typeof ENCOUNTER_EVENT.MISSILE_LAUNCHED;
+
+    projectile: MissileCombatProjectileState;
+};
+
 export type EncounterEvent =
     | EncounterLoadedEvent
     | ContactStartedEvent
@@ -154,4 +170,6 @@ export type EncounterEvent =
     | JumpStartedEvent
     | DockingStartedEvent
     | OfficerTaskStartedEvent
-    | OfficerTaskEndedEvent;
+    | OfficerTaskEndedEvent
+    | PlayerShipTargetingDetectedEvent
+    | MissileLaunchedEvent;
