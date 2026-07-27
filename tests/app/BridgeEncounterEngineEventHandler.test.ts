@@ -73,6 +73,8 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
                 {
                     projectileId: 'projectile_test_00',
 
+                    sourceActorId: 'ship_enemy_00',
+
                     initialTimeToImpactMs: 4000,
                 },
             ],
@@ -135,6 +137,7 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
         expect(runtime.getCurrentRun().player.ship.hull).toBe(0);
 
         expect(setEncounterInteractive).toHaveBeenCalledTimes(1);
+
         expect(setEncounterInteractive).toHaveBeenCalledWith(false);
 
         expect(emit.mock.calls).toEqual([
@@ -163,8 +166,8 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
             ],
         ]);
 
-        // Повторный synthetic impact не должен
-        // повторно запускать scene transition.
+        // Повторный synthetic impact
+        // не запускает второй transition.
         handler.handle([
             {
                 type: ENCOUNTER_EVENT.MISSILE_IMPACTED_PLAYER_SHIP,

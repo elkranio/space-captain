@@ -27,6 +27,10 @@ export default class BridgeSpaceView {
         );
     }
 
+    public getObjectPosition(objectId: string): Phaser.Math.Vector2 | undefined {
+        return this.objectsView.getObjectPosition(objectId);
+    }
+
     public destroy(): void {
         this.objectsView.destroy();
         this.backgroundView.destroy();

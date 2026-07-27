@@ -14,6 +14,7 @@ import { getOfficerAvailabilityStates } from './officer_availability/queries/get
 import OfficerTaskRunner from './officer_tasks/OfficerTaskRunner';
 import EncounterStateStore from './state/EncounterStateStore';
 import CombatRunner from './combat/CombatRunner';
+import type { CombatProjectileState } from './model/combat';
 
 export type EncounterEngineOptions = {
     node: SpaceNodeState;
@@ -117,6 +118,14 @@ export default class EncounterEngine {
 
     public getOfficerAvailabilityStates(): OfficerAvailabilityStates {
         return getOfficerAvailabilityStates(this.stateStore.getState());
+    }
+
+    public getCombatProjectiles(): CombatProjectileState[] {
+        return this.stateStore.getState().combat.projectiles.map((projectile) => {
+            return {
+                ...projectile,
+            };
+        });
     }
 
     public drainEvents(): EncounterEvent[] {

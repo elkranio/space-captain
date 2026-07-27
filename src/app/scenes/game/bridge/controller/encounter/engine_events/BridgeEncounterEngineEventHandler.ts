@@ -148,6 +148,8 @@ export default class BridgeEncounterEngineEventHandler {
                 this.eventBus.emit(BRIDGE_EVENT.INCOMING_MISSILE_ADDED, {
                     projectileId: event.projectile.id,
 
+                    sourceActorId: event.projectile.sourceActorId,
+
                     initialTimeToImpactMs: event.projectile.initialTimeToImpactMs,
                 });
                 return;

@@ -36,13 +36,22 @@ export default class BridgeView {
     ) {}
 
     public prepare(): void {
-        this.spaceView = new BridgeSpaceView(this.scene, this.eventBus);
+        const spaceView = new BridgeSpaceView(this.scene, this.eventBus);
 
-        // Создаётся перед общим VFX root,
-        // чтобы dust и jump flash могли рисоваться поверх ракеты.
-        this.incomingMissilesView = new BridgeIncomingMissilesView(this.scene, this.eventBus);
+        this.spaceView = spaceView;
+
+        this.incomingMissilesView = new BridgeIncomingMissilesView(
+            this.scene,
+            this.eventBus,
+
+            (objectId) => {
+                return spaceView.getObjectPosition(objectId);
+            },
+        );
 
         this.vfxView = new BridgeVfxView(this.scene, this.eventBus);
+
+        // дальше без изменений
 
         this.interiorView = new BridgeInteriorView(this.scene);
 

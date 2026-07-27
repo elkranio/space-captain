@@ -71,6 +71,16 @@ export default class BridgeObjectsView {
         this.root.destroy(false);
     }
 
+    public getObjectPosition(objectId: string): Phaser.Math.Vector2 | undefined {
+        const view = this.objectViews.get(objectId);
+
+        if (!view) {
+            return undefined;
+        }
+
+        return new Phaser.Math.Vector2(view.getX(), view.getY());
+    }
+
     // Полный snapshot объектов текущей ноды.
     // Отсутствующие объекты действительно удаляются.
     private prepareObjects(objects: BridgeEncounterObjectPayload[]): void {

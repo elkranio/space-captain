@@ -101,6 +101,8 @@ export default class BridgeEncounterController {
         this.encounterEngine.step(deltaMs);
 
         this.drainEncounterEvents();
+        this.syncIncomingMissiles();
+
         this.officerStationsController?.step(deltaMs);
     }
 
@@ -257,6 +259,25 @@ export default class BridgeEncounterController {
         this.syncRuntimeAnchorsFromEncounterEvents(events);
 
         this.engineEventHandler.handle(events);
+    }
+
+    private syncIncomingMissiles(): void {
+        if (!this.encounterEngine) {
+            return;
+        }
+
+        const projectiles = this.encounterEngine.getCombatProjectiles();
+
+        this.eventBus.emit(
+            BRIDGE_EVENT.INCOMING_MISSILES_UPDATED,
+
+            projectiles.map((projectile) => {
+                return {
+                    projectileId: projectile.id,
+                    timeToImpactMs: projectile.timeToImpactMs,
+                };
+            }),
+        );
     }
 
     // #endregion
