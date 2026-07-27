@@ -1,4 +1,4 @@
-// src/engine/content/generation-pools/station/names.ts
+// src/engine/content/generation_pools/station/names.ts
 
 import { SPECIES_ID, type SpeciesId } from '../../../defs/species';
 

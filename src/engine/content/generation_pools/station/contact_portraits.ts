@@ -1,4 +1,4 @@
-// src/engine/content/generation-pools/station/contact_portraits.ts
+// src/engine/content/generation_pools/station/contact_portraits.ts
 
 import { CHARACTER_PORTRAIT_ID, type CharacterPortraitId } from '../../../defs/character';
 import { SPECIES_ID, type SpeciesId } from '../../../defs/species';

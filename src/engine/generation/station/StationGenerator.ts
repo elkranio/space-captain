@@ -1,8 +1,8 @@
 // src/engine/generation/station/StationGenerator.ts
 
-import { STATION_CONTACT_PORTRAIT_POOLS_BY_SPECIES } from '../../content/generation-pools/station/contact_portraits';
-import { STATION_NAME_POOLS_BY_SPECIES } from '../../content/generation-pools/station/names';
-import { STATION_OBJECT_SPRITE_POOLS_BY_SPECIES } from '../../content/generation-pools/station/object_sprites';
+import { STATION_CONTACT_PORTRAIT_POOLS_BY_SPECIES } from '../../content/generation_pools/station/contact_portraits';
+import { STATION_NAME_POOLS_BY_SPECIES } from '../../content/generation_pools/station/names';
+import { STATION_OBJECT_SPRITE_POOLS_BY_SPECIES } from '../../content/generation_pools/station/object_sprites';
 import type { CharacterPortraitId } from '../../defs/character';
 import type { SpeciesId } from '../../defs/species';
 import type { StationObjectSpriteId, StationState } from '../../defs/station';
