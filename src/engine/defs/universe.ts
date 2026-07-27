@@ -6,6 +6,7 @@ import type { JumpPointState } from './jump_point';
 import type { SpaceBackgroundId } from './space_background';
 import type { StationState } from './station';
 import type { Vec2, Vec3 } from './vector';
+import type { ShipId } from './ship';
 
 export const SPACE_ANCHOR_KIND = {
     STATION: 'station',
@@ -24,6 +25,27 @@ export type StationSpaceAnchorState = SpaceAnchorBaseState & {
     kind: typeof SPACE_ANCHOR_KIND.STATION;
     station: StationState;
 };
+
+export const SPACE_NODE_ACTOR_KIND = {
+    SHIP: 'ship',
+} as const;
+
+// Persistent actor, который уже находится внутри ноды
+// до создания runtime encounter.
+export type SpaceNodeActorBaseState = {
+    id: string;
+
+    // Anchor, возле которого actor находится внутри ноды.
+    anchorId: string;
+};
+
+export type ShipSpaceNodeActorState = SpaceNodeActorBaseState & {
+    kind: typeof SPACE_NODE_ACTOR_KIND.SHIP;
+
+    shipId: ShipId;
+};
+
+export type SpaceNodeActorState = ShipSpaceNodeActorState;
 
 export type NavigationBeaconSpaceAnchorState = SpaceAnchorBaseState & {
     kind: typeof SPACE_ANCHOR_KIND.NAVIGATION_BEACON;
@@ -56,7 +78,12 @@ export type SpaceNodeState = {
     arrivalAnchorId: string;
 
     spaceBackgroundId: SpaceBackgroundId;
+
     anchors: SpaceAnchorState[];
+
+    // Persistent actors, уже находящиеся внутри ноды.
+    // Encounter получает их runtime-копии при загрузке.
+    actors: SpaceNodeActorState[];
 };
 
 export type UniverseState = {

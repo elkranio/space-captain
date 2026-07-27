@@ -10,6 +10,7 @@ import { createEncounterState } from '../../../src/engine/encounter/state/create
 import { createSingleStationNodeFixture } from '../../fixtures/engine/space_node_fixtures';
 import EncounterEngine from '../../../src/engine/encounter/EncounterEngine';
 import { ENCOUNTER_EVENT } from '../../../src/engine/encounter/model/event';
+import { SPACE_NODE_ACTOR_KIND } from '../../../src/engine/defs/universe';
 
 describe('encounter actors', () => {
     it('spawns a runtime ship separately from navigation anchors', () => {
@@ -84,8 +85,16 @@ describe('encounter actors', () => {
         }).toThrow('Encounter actor already exists: ship_test_00');
     });
 
-    it('includes initial ship actors in the loaded encounter snapshot', () => {
+    it('includes persistent node ship actors in the loaded encounter snapshot', () => {
         const { node, stationId } = createSingleStationNodeFixture();
+
+        node.actors.push({
+            id: 'ship_generic_00',
+            kind: SPACE_NODE_ACTOR_KIND.SHIP,
+
+            shipId: SHIP_ID.GENERIC_00,
+            anchorId: stationId,
+        });
 
         const engine = new EncounterEngine({
             node,
@@ -95,14 +104,6 @@ describe('encounter actors', () => {
 
                 anchorId: stationId,
             },
-
-            initialShipActors: [
-                {
-                    actorId: 'ship_generic_00',
-                    shipId: SHIP_ID.GENERIC_00,
-                    anchorId: stationId,
-                },
-            ],
         });
 
         expect(engine.drainEvents()).toEqual([

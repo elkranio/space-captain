@@ -62,6 +62,8 @@ export function createSingleStationNodeFixture(): SingleStationNodeFixture {
                     z: 0,
                 }),
             ],
+
+            actors: [],
         },
     };
 }
@@ -99,6 +101,8 @@ export function createStationAndBeaconNodeFixture(): StationAndBeaconNodeFixture
                     z: 0,
                 }),
             ],
+
+            actors: [],
         },
     };
 }

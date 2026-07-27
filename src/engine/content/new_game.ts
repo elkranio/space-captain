@@ -4,10 +4,11 @@ import { PLAYER_LOCATION_KIND, PLAYER_SPACE_NAVIGATION_KIND } from '../defs/play
 import type { RunState } from '../defs/run';
 import { SPACE_BACKGROUND_ID } from '../defs/space_background';
 import { SPECIES_ID } from '../defs/species';
-import { SPACE_ANCHOR_KIND } from '../defs/universe';
 import StationGenerator from '../generation/station/StationGenerator';
 import { BEACON_OBJECT_SPRITE_ID } from '../defs/beacon';
 import { ASTEROID_OBJECT_SPRITE_ID } from '../defs/asteroid';
+import { SHIP_ID } from '../defs/ship';
+import { SPACE_ANCHOR_KIND, SPACE_NODE_ACTOR_KIND } from '../defs/universe';
 
 export function createNewRunState(): RunState {
     const station = StationGenerator.generateStation(SPECIES_ID.HUMAN);
@@ -62,6 +63,15 @@ export function createNewRunState(): RunState {
                             },
                         },
                     ],
+                    actors: [
+                        {
+                            id: 'ship_generic_00',
+                            kind: SPACE_NODE_ACTOR_KIND.SHIP,
+
+                            shipId: SHIP_ID.GENERIC_00,
+                            anchorId: navigationBeacon.id,
+                        },
+                    ],
                 },
                 {
                     id: 'node_station',
@@ -82,6 +92,7 @@ export function createNewRunState(): RunState {
                             },
                         },
                     ],
+                    actors: [],
                 },
             ],
         },

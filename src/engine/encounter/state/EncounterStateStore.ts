@@ -37,7 +37,17 @@ export default class EncounterStateStore {
     // #region Creation
 
     public static fromSpaceNode(node: SpaceNodeState, navigation: PlayerSpaceNavigationState): EncounterStateStore {
-        return new EncounterStateStore(createEncounterState(node, navigation));
+        const store = new EncounterStateStore(createEncounterState(node, navigation));
+
+        for (const actor of node.actors) {
+            store.spawnShipActor({
+                actorId: actor.id,
+                shipId: actor.shipId,
+                anchorId: actor.anchorId,
+            });
+        }
+
+        return store;
     }
 
     // #endregion

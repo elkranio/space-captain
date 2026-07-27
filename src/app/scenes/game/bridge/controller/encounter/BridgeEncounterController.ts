@@ -36,9 +36,6 @@ import type BridgeEventBus from '../../events/BridgeEventBus';
 import BridgeOfficerCommandMenuController from './command_menu/BridgeOfficerCommandMenuController';
 import BridgeEncounterEngineEventHandler from './engine_events/BridgeEncounterEngineEventHandler';
 import BridgeOfficerStationsController from './officer_stations/BridgeOfficerStationsController';
-import { SHIP_ID } from '../../../../../../engine/defs/ship';
-
-const INITIAL_SHIP_ACTOR_ID = 'ship_generic_00';
 
 // App-controller для bridge encounter flow.
 //
@@ -157,15 +154,6 @@ export default class BridgeEncounterController {
             node,
             navigation: location.navigation,
 
-            initialShipActors: [
-                {
-                    actorId: INITIAL_SHIP_ACTOR_ID,
-                    shipId: SHIP_ID.GENERIC_00,
-
-                    anchorId: this.getEncounterFocusAnchorId(location.navigation),
-                },
-            ],
-
             completeTimedTasksImmediately: DEBUG_SETTINGS.bridge.officerTasks.completeTimedTasksImmediately,
         });
 
@@ -174,24 +162,6 @@ export default class BridgeEncounterController {
         this.officerStationsController = new BridgeOfficerStationsController(this.encounterEngine, this.eventBus);
 
         this.drainEncounterEvents();
-    }
-
-    private getEncounterFocusAnchorId(navigation: PlayerSpaceNavigationState): string {
-        switch (navigation.kind) {
-            case PLAYER_SPACE_NAVIGATION_KIND.ARRIVING:
-                return navigation.targetAnchorId;
-
-            case PLAYER_SPACE_NAVIGATION_KIND.ANCHORED:
-                return navigation.anchorId;
-
-            case PLAYER_SPACE_NAVIGATION_KIND.TRAVELLING:
-                // Restore flow уже показывает target group
-                // и завершает восстановленный перелёт.
-                return navigation.targetAnchorId;
-
-            default:
-                throw new Error(`Unhandled player space navigation state: ` + `${String(navigation)}`);
-        }
     }
 
     // #endregion

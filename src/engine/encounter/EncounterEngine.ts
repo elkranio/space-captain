@@ -12,13 +12,11 @@ import type { OfficerAvailabilityStates } from './model/officer_availability';
 import { OFFICER_TASK_KIND, type OfficerTaskKind } from './model/officer_task';
 import { getOfficerAvailabilityStates } from './officer_availability/queries/get_officer_availability_states';
 import OfficerTaskRunner from './officer_tasks/OfficerTaskRunner';
-import EncounterStateStore, { type SpawnShipActorInput } from './state/EncounterStateStore';
+import EncounterStateStore from './state/EncounterStateStore';
 
 export type EncounterEngineOptions = {
     node: SpaceNodeState;
     navigation: PlayerSpaceNavigationState;
-
-    initialShipActors?: SpawnShipActorInput[];
 
     completeTimedTasksImmediately?: boolean;
 };
@@ -34,17 +32,8 @@ export default class EncounterEngine {
 
     private readonly officerCommandExecutor: OfficerCommandExecutor;
 
-    constructor({
-        node,
-        navigation,
-        initialShipActors = [],
-        completeTimedTasksImmediately = false,
-    }: EncounterEngineOptions) {
+    constructor({ node, navigation, completeTimedTasksImmediately = false }: EncounterEngineOptions) {
         this.stateStore = EncounterStateStore.fromSpaceNode(node, navigation);
-
-        for (const shipActor of initialShipActors) {
-            this.stateStore.spawnShipActor(shipActor);
-        }
 
         const encounterState = this.stateStore.getState();
 
