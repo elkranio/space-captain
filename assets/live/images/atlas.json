@@ -1,7 +1,7 @@
 {
   "textures": [
     {
-      "image": "atlas-0.png?v=1785096509934",
+      "image": "atlas-0.png?v=1785161688788",
       "format": "RGBA8888",
       "size": {
         "w": 2035,
@@ -745,6 +745,27 @@
           }
         },
         {
+          "filename": "combat/missiles/generic_00",
+          "rotated": false,
+          "trimmed": false,
+          "sourceSize": {
+            "w": 85,
+            "h": 60
+          },
+          "spriteSourceSize": {
+            "x": 0,
+            "y": 0,
+            "w": 85,
+            "h": 60
+          },
+          "frame": {
+            "x": 1949,
+            "y": 950,
+            "w": 85,
+            "h": 60
+          }
+        },
+        {
           "filename": "vips/alien_princess_00_calm",
           "rotated": false,
           "trimmed": false,
@@ -760,7 +781,7 @@
           },
           "frame": {
             "x": 1949,
-            "y": 950,
+            "y": 1012,
             "w": 84,
             "h": 105
           }
@@ -781,7 +802,7 @@
           },
           "frame": {
             "x": 1949,
-            "y": 1057,
+            "y": 1119,
             "w": 77,
             "h": 105
           }
@@ -1033,7 +1054,7 @@
           },
           "frame": {
             "x": 1949,
-            "y": 1164,
+            "y": 1226,
             "w": 16,
             "h": 16
           }
@@ -1170,6 +1191,6 @@
   "meta": {
     "app": "https://www.codeandweb.com/texturepacker",
     "version": "3.0",
-    "smartupdate": "$TexturePacker:SmartUpdate:6960c6a8c8ec2b9a4af04c239064cd8b:f4f758942c102c1c0bb5218feab7cca4:cf935fe037ea9b5d3744d532996e235e$"
+    "smartupdate": "$TexturePacker:SmartUpdate:6b9ac2b250a1612ef125cb19d166d99c:6eded453b1e2b0c571a2df8fb53d3e08:cf935fe037ea9b5d3744d532996e235e$"
   }
 }
