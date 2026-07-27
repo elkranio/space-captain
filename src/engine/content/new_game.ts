@@ -9,8 +9,14 @@ import { BEACON_OBJECT_SPRITE_ID } from '../defs/beacon';
 import { ASTEROID_OBJECT_SPRITE_ID } from '../defs/asteroid';
 import { SHIP_ID } from '../defs/ship';
 import { SPACE_ANCHOR_KIND, SPACE_NODE_ACTOR_KIND } from '../defs/universe';
+import { PlayerShipState } from '../defs/player';
 
 export function createNewRunState(): RunState {
+    const playerShip: PlayerShipState = {
+        hull: 3,
+        maxHull: 3,
+    };
+
     const station = StationGenerator.generateStation(SPECIES_ID.HUMAN);
     const navigationBeacon = {
         id: 'beacon_start',
@@ -98,6 +104,8 @@ export function createNewRunState(): RunState {
         },
 
         // player: {
+        //  ship: playerShip,
+
         //     location: {
         //         kind: PLAYER_LOCATION_KIND.SPACE,
         //         nodeId: 'node_start',
@@ -111,6 +119,8 @@ export function createNewRunState(): RunState {
         // },
 
         player: {
+            ship: playerShip,
+
             location: {
                 kind: PLAYER_LOCATION_KIND.SPACE,
                 nodeId: 'node_start',
@@ -123,6 +133,8 @@ export function createNewRunState(): RunState {
         },
 
         // player: {
+        //  ship: playerShip,
+
         //     location: {
         //         kind: PLAYER_LOCATION_KIND.SPACE,
         //         nodeId: 'node_station',

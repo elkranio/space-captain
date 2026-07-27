@@ -13,12 +13,18 @@ import { getCurrentNode } from '../../engine/universe/queries/get_current_node';
 type PlayerLocationChangedListener = () => void;
 type CurrentNodeAnchorsChangedListener = () => void;
 
+export type PlayerShipHullDamageResult = {
+    previousHull: number;
+    currentHull: number;
+    destroyed: boolean;
+};
+
 // Runtime текущей игровой сессии.
 //
 // Владеет persistent RunState и предоставляет контролируемые mutations.
 // После изменения player location уведомляет app-слой,
 // чтобы постоянные UI-системы могли перечитать актуальное состояние.
-class GameRuntime {
+export class GameRuntime {
     private readonly currentRun: RunState = createNewRunState();
 
     private readonly playerLocationChangedListeners = new Set<PlayerLocationChangedListener>();
@@ -27,6 +33,23 @@ class GameRuntime {
 
     public getCurrentRun(): RunState {
         return this.currentRun;
+    }
+
+    public damagePlayerShipHull(damage: number): PlayerShipHullDamageResult {
+        if (!Number.isFinite(damage) || damage <= 0) {
+            throw new Error(`Player ship hull damage must be positive: ${damage}`);
+        }
+
+        const ship = this.currentRun.player.ship;
+        const previousHull = ship.hull;
+
+        ship.hull = Math.max(0, previousHull - damage);
+
+        return {
+            previousHull,
+            currentHull: ship.hull,
+            destroyed: ship.hull === 0,
+        };
     }
 
     public setPlayerSpaceNavigation(navigation: PlayerSpaceNavigationState): void {
