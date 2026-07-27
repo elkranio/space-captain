@@ -113,6 +113,10 @@ export const BRIDGE_EVENT = {
     OFFICER_ACTIVITY_STARTED: 'officer_activity_started',
 
     OFFICER_ACTIVITY_CLEARED: 'officer_activity_cleared',
+
+    MISSILE_TARGETING_WARNING_STARTED: 'missile_targeting_warning_started',
+
+    MISSILE_TARGETING_WARNING_CLEARED: 'missile_targeting_warning_cleared',
 } as const;
 
 // Payload события CREW_LOADED.
@@ -313,4 +317,8 @@ export type BridgeEventPayloadMap = {
     [BRIDGE_EVENT.OFFICER_ACTIVITY_STARTED]: BridgeOfficerActivityStartedPayload;
 
     [BRIDGE_EVENT.OFFICER_ACTIVITY_CLEARED]: BridgeOfficerActivityClearedPayload;
+
+    [BRIDGE_EVENT.MISSILE_TARGETING_WARNING_STARTED]: undefined;
+
+    [BRIDGE_EVENT.MISSILE_TARGETING_WARNING_CLEARED]: undefined;
 };

@@ -31,7 +31,7 @@ const impactedProjectile = {
 };
 
 describe('BridgeEncounterEngineEventHandler combat events', () => {
-    it('accepts targeting and missile launch events before combat visuals exist', () => {
+    it('maps targeting and missile launch to bridge warning events', () => {
         const runtime = new GameRuntime();
 
         const emit = vi.fn();
@@ -43,28 +43,31 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
 
         const handler = new BridgeEncounterEngineEventHandler(eventBus, setEncounterInteractive, runtime);
 
-        expect(() => {
-            handler.handle([
-                {
-                    type: ENCOUNTER_EVENT.PLAYER_SHIP_TARGETING_DETECTED,
+        handler.handle([
+            {
+                type: ENCOUNTER_EVENT.PLAYER_SHIP_TARGETING_DETECTED,
 
-                    sourceActorId: 'ship_enemy_00',
-                    sourceWeaponId: 'missile_launcher_00',
+                sourceActorId: 'ship_enemy_00',
+                sourceWeaponId: 'missile_launcher_00',
+            },
+
+            {
+                type: ENCOUNTER_EVENT.MISSILE_LAUNCHED,
+
+                projectile: {
+                    ...launchedProjectile,
                 },
-
-                {
-                    type: ENCOUNTER_EVENT.MISSILE_LAUNCHED,
-
-                    projectile: {
-                        ...launchedProjectile,
-                    },
-                },
-            ]);
-        }).not.toThrow();
+            },
+        ]);
 
         expect(runtime.getCurrentRun().player.ship.hull).toBe(3);
 
-        expect(emit).not.toHaveBeenCalled();
+        expect(emit.mock.calls).toEqual([
+            [BRIDGE_EVENT.MISSILE_TARGETING_WARNING_STARTED],
+
+            [BRIDGE_EVENT.MISSILE_TARGETING_WARNING_CLEARED],
+        ]);
+
         expect(setEncounterInteractive).not.toHaveBeenCalled();
     });
 

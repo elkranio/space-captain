@@ -139,11 +139,11 @@ export default class BridgeEncounterEngineEventHandler {
                 return;
 
             case ENCOUNTER_EVENT.PLAYER_SHIP_TARGETING_DETECTED:
-                // Visual detector подключим отдельным атомом.
+                this.eventBus.emit(BRIDGE_EVENT.MISSILE_TARGETING_WARNING_STARTED);
                 return;
 
             case ENCOUNTER_EVENT.MISSILE_LAUNCHED:
-                // Projectile view подключим отдельным атомом.
+                this.eventBus.emit(BRIDGE_EVENT.MISSILE_TARGETING_WARNING_CLEARED);
                 return;
 
             case ENCOUNTER_EVENT.MISSILE_IMPACTED_PLAYER_SHIP:
