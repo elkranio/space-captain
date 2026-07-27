@@ -10,6 +10,6 @@ export const MISSILES = {
         guidanceKind: MISSILE_GUIDANCE_KIND.HEAT,
 
         damage: 1,
-        flightDurationMs: 4000,
+        flightDurationMs: 12000,
     },
 } satisfies Record<MissileId, MissileDefinition>;

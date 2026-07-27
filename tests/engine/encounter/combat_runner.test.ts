@@ -96,8 +96,8 @@ describe('CombatRunner', () => {
 
                     missileId: MISSILE_ID.HEAT_00,
 
-                    timeToImpactMs: 4000,
-                    initialTimeToImpactMs: 4000,
+                    timeToImpactMs: 12000,
+                    initialTimeToImpactMs: 12000,
                 },
             },
         ]);
@@ -117,8 +117,8 @@ describe('CombatRunner', () => {
 
                 missileId: MISSILE_ID.HEAT_00,
 
-                timeToImpactMs: 4000,
-                initialTimeToImpactMs: 4000,
+                timeToImpactMs: 12000,
+                initialTimeToImpactMs: 12000,
             },
         ]);
 
@@ -132,7 +132,7 @@ describe('CombatRunner', () => {
         expect(launcher.phaseElapsedMs).toBe(0);
         expect(launcher.ammoCount).toBe(0);
 
-        expect(projectile.timeToImpactMs).toBe(1000);
+        expect(projectile.timeToImpactMs).toBe(9000);
 
         engine.step(projectile.timeToImpactMs);
 
@@ -151,7 +151,7 @@ describe('CombatRunner', () => {
                     missileId: MISSILE_ID.HEAT_00,
 
                     timeToImpactMs: 0,
-                    initialTimeToImpactMs: 4000,
+                    initialTimeToImpactMs: 12000,
                 },
 
                 damage: 1,

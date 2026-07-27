@@ -20,8 +20,8 @@ const launchedProjectile = {
 
     missileId: MISSILE_ID.HEAT_00,
 
-    timeToImpactMs: 4000,
-    initialTimeToImpactMs: 4000,
+    timeToImpactMs: 12000,
+    initialTimeToImpactMs: 12000,
 };
 
 const impactedProjectile = {
@@ -75,7 +75,7 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
 
                     sourceActorId: 'ship_enemy_00',
 
-                    initialTimeToImpactMs: 4000,
+                    initialTimeToImpactMs: 12000,
                 },
             ],
         ]);

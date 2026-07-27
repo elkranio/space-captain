@@ -1,6 +1,5 @@
 // src/app/scenes/game/bridge/view/combat/incoming_missiles/BridgeIncomingMissilesView.ts
 
-import { MISSILE_SPRITE_ID, MISSILE_SPRITES } from '../../../../../../manifests/combat/missiles/missile_sprite';
 import type BridgeScene from '../../../BridgeScene';
 import {
     BRIDGE_EVENT,
@@ -10,47 +9,31 @@ import {
 } from '../../../events/bridge_event';
 import type BridgeEventBus from '../../../events/BridgeEventBus';
 import { BRIDGE_VIEWSCREEN_RECT } from '../../bridge_viewscreen_layout';
+import BridgeIncomingMissileView from './missile/BridgeIncomingMissileView';
 
 type GetObjectPosition = (objectId: string) => Phaser.Math.Vector2 | undefined;
 
-type IncomingMissileViewState = {
-    image: Phaser.GameObjects.Image;
+const INCOMING_MISSILE_IMPACT_AREA = {
+    // Центральная зона по X.
+    insetX: 260,
 
-    startPosition: Phaser.Math.Vector2;
-    controlPosition: Phaser.Math.Vector2;
-    targetPosition: Phaser.Math.Vector2;
-
-    initialTimeToImpactMs: number;
-};
-
-const INCOMING_MISSILE_PRESENTATION = {
-    minScale: 0.12,
-    maxScale: 1,
-
-    // Presentation двигается дискретными шагами,
-    // но authoritative engine time остаётся плавным.
-    framesPerSecond: 12,
-
-    impactInsetX: 260,
-
-    // Финальная точка находится уже под viewscreen.
-    // Bridge interior естественно перекрывает ракету.
-    impactOffsetBelowViewscreenMin: 25,
-    impactOffsetBelowViewscreenMax: 55,
-
-    controlDriftX: 60,
-    controlDriftY: 30,
+    // Нижняя часть viewscreen,
+    // но sprite, brackets и timer остаются внутри окна.
+    topOffset: 215,
+    bottomInset: 40,
 } as const;
 
-// Presentation летящих в игрока ракет.
+// Manager-view летящих в игрока ракет.
 //
-// Engine является источником progress:
-// view только интерполирует положение и масштаб
-// между полученными projectile snapshots.
+// Отвечает только за:
+// - bridge events;
+// - поиск source position;
+// - выбор случайной impact point;
+// - lifecycle отдельных missile views.
 export default class BridgeIncomingMissilesView {
     private readonly root: Phaser.GameObjects.Container;
 
-    private readonly missiles = new Map<string, IncomingMissileViewState>();
+    private readonly missiles = new Map<string, BridgeIncomingMissileView>();
 
     constructor(
         private readonly scene: BridgeScene,
@@ -77,8 +60,13 @@ export default class BridgeIncomingMissilesView {
 
         this.eventBus.off(BRIDGE_EVENT.INCOMING_MISSILE_REMOVED, this.removeMissile, this);
 
+        for (const missile of this.missiles.values()) {
+            missile.destroy();
+        }
+
         this.missiles.clear();
-        this.root.destroy(true);
+
+        this.root.destroy(false);
     }
 
     private addMissile(payload: BridgeIncomingMissileAddedPayload): void {
@@ -92,34 +80,17 @@ export default class BridgeIncomingMissilesView {
             throw new Error(`Incoming missile source object not found: ` + payload.sourceActorId);
         }
 
-        const targetPosition = this.createImpactPosition();
-
-        const controlPosition = this.createControlPosition(startPosition, targetPosition);
-
-        const sprite = MISSILE_SPRITES[MISSILE_SPRITE_ID.GENERIC_00];
-
-        const image = this.scene.add
-            .image(
-                startPosition.x,
-                startPosition.y,
-
-                sprite.atlasKey,
-                sprite.frameKey,
-            )
-            .setScale(INCOMING_MISSILE_PRESENTATION.minScale)
-            .setFlipX(targetPosition.x < startPosition.x);
-
-        this.root.add(image);
-
-        this.missiles.set(payload.projectileId, {
-            image,
+        const missile = new BridgeIncomingMissileView({
+            scene: this.scene,
+            parent: this.root,
 
             startPosition,
-            controlPosition,
-            targetPosition,
+            targetPosition: this.createImpactPosition(),
 
             initialTimeToImpactMs: payload.initialTimeToImpactMs,
         });
+
+        this.missiles.set(payload.projectileId, missile);
     }
 
     private updateMissiles(updates: BridgeIncomingMissilesUpdatedPayload): void {
@@ -130,26 +101,7 @@ export default class BridgeIncomingMissilesView {
                 throw new Error(`Incoming missile not found during update: ` + update.projectileId);
             }
 
-            const progress = this.getQuantizedProgress(missile.initialTimeToImpactMs, update.timeToImpactMs);
-
-            const position = this.getQuadraticBezierPosition(
-                missile.startPosition,
-                missile.controlPosition,
-                missile.targetPosition,
-                progress,
-            );
-
-            // Масштаб растёт медленнее в начале
-            // и резко ближе к impact.
-            const scaleProgress = progress * progress;
-
-            const scale = Phaser.Math.Linear(
-                INCOMING_MISSILE_PRESENTATION.minScale,
-                INCOMING_MISSILE_PRESENTATION.maxScale,
-                scaleProgress,
-            );
-
-            missile.image.setPosition(position.x, position.y).setScale(scale);
+            missile.update(update.timeToImpactMs);
         }
     }
 
@@ -160,80 +112,24 @@ export default class BridgeIncomingMissilesView {
             throw new Error(`Incoming missile not found: ` + payload.projectileId);
         }
 
-        missile.image.destroy();
+        missile.destroy();
 
         this.missiles.delete(payload.projectileId);
     }
 
-    private getQuantizedProgress(initialTimeToImpactMs: number, timeToImpactMs: number): number {
-        const elapsedMs = initialTimeToImpactMs - timeToImpactMs;
-
-        const frameDurationMs = 1000 / INCOMING_MISSILE_PRESENTATION.framesPerSecond;
-
-        const quantizedElapsedMs = Math.floor(elapsedMs / frameDurationMs) * frameDurationMs;
-
-        return Phaser.Math.Clamp(
-            quantizedElapsedMs / initialTimeToImpactMs,
-
-            0,
-            1,
-        );
-    }
-
     private createImpactPosition(): Phaser.Math.Vector2 {
-        const viewscreenBottom = BRIDGE_VIEWSCREEN_RECT.y + BRIDGE_VIEWSCREEN_RECT.height;
-
         return new Phaser.Math.Vector2(
             Phaser.Math.Between(
-                BRIDGE_VIEWSCREEN_RECT.x + INCOMING_MISSILE_PRESENTATION.impactInsetX,
+                BRIDGE_VIEWSCREEN_RECT.x + INCOMING_MISSILE_IMPACT_AREA.insetX,
 
-                BRIDGE_VIEWSCREEN_RECT.x + BRIDGE_VIEWSCREEN_RECT.width - INCOMING_MISSILE_PRESENTATION.impactInsetX,
+                BRIDGE_VIEWSCREEN_RECT.x + BRIDGE_VIEWSCREEN_RECT.width - INCOMING_MISSILE_IMPACT_AREA.insetX,
             ),
 
             Phaser.Math.Between(
-                viewscreenBottom + INCOMING_MISSILE_PRESENTATION.impactOffsetBelowViewscreenMin,
+                BRIDGE_VIEWSCREEN_RECT.y + INCOMING_MISSILE_IMPACT_AREA.topOffset,
 
-                viewscreenBottom + INCOMING_MISSILE_PRESENTATION.impactOffsetBelowViewscreenMax,
+                BRIDGE_VIEWSCREEN_RECT.y + BRIDGE_VIEWSCREEN_RECT.height - INCOMING_MISSILE_IMPACT_AREA.bottomInset,
             ),
-        );
-    }
-
-    private createControlPosition(start: Phaser.Math.Vector2, target: Phaser.Math.Vector2): Phaser.Math.Vector2 {
-        const midpoint = start.clone().lerp(target, 0.5);
-
-        midpoint.x += Phaser.Math.Between(
-            -INCOMING_MISSILE_PRESENTATION.controlDriftX,
-
-            INCOMING_MISSILE_PRESENTATION.controlDriftX,
-        );
-
-        midpoint.y += Phaser.Math.Between(
-            -INCOMING_MISSILE_PRESENTATION.controlDriftY,
-
-            INCOMING_MISSILE_PRESENTATION.controlDriftY,
-        );
-
-        return midpoint;
-    }
-
-    private getQuadraticBezierPosition(
-        start: Phaser.Math.Vector2,
-        control: Phaser.Math.Vector2,
-        target: Phaser.Math.Vector2,
-        progress: number,
-    ): Phaser.Math.Vector2 {
-        const inverseProgress = 1 - progress;
-
-        const startWeight = inverseProgress * inverseProgress;
-
-        const controlWeight = 2 * inverseProgress * progress;
-
-        const targetWeight = progress * progress;
-
-        return new Phaser.Math.Vector2(
-            startWeight * start.x + controlWeight * control.x + targetWeight * target.x,
-
-            startWeight * start.y + controlWeight * control.y + targetWeight * target.y,
         );
     }
 }
