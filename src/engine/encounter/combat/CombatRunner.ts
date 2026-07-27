@@ -1,12 +1,14 @@
 // src/engine/encounter/combat/CombatRunner.ts
 
 import { MISSILES } from '../../content/missiles';
+import { SHIP_WEAPONS } from '../../content/ship_weapons';
 import { ENCOUNTER_TEAM } from '../../defs/encounter_team';
 import { PLAYER_SPACE_NAVIGATION_KIND } from '../../defs/player_location';
 import {
     SHIP_WEAPON_KIND,
     SHIP_WEAPON_PHASE,
     type MissileLauncherState,
+    type ShipWeaponDefinition,
     type ShipWeaponState,
 } from '../../defs/ship_weapon';
 import type { ShipEncounterActorState } from '../actors/ship/ship_encounter_actor';
@@ -28,7 +30,7 @@ type CombatRunnerOptions = {
 // - эмитит combat events.
 //
 // Корабли, оружие и projectiles остаются частью EncounterState.
-// Отдельных копий units внутри runner нет.
+// Статические параметры моделей оружия читаются из content.
 export default class CombatRunner {
     private readonly state: EncounterState;
 
@@ -82,6 +84,7 @@ export default class CombatRunner {
             }
 
             weapon.phase = SHIP_WEAPON_PHASE.PREPARING;
+
             weapon.phaseElapsedMs = 0;
 
             this.emit({
@@ -117,26 +120,33 @@ export default class CombatRunner {
     private advanceWeapons(deltaMs: number): void {
         for (const actor of this.state.actors) {
             for (const weapon of actor.weapons) {
+                const definition = this.getWeaponDefinition(weapon);
+
                 switch (weapon.phase) {
                     case SHIP_WEAPON_PHASE.READY:
                         break;
 
                     case SHIP_WEAPON_PHASE.PREPARING:
-                        this.advancePreparingWeapon(actor, weapon, deltaMs);
+                        this.advancePreparingWeapon(actor, weapon, definition, deltaMs);
                         break;
 
                     case SHIP_WEAPON_PHASE.COOLDOWN:
-                        this.advanceWeaponCooldown(weapon, deltaMs);
+                        this.advanceWeaponCooldown(weapon, definition, deltaMs);
                         break;
                 }
             }
         }
     }
 
-    private advancePreparingWeapon(actor: ShipEncounterActorState, weapon: ShipWeaponState, deltaMs: number): void {
+    private advancePreparingWeapon(
+        actor: ShipEncounterActorState,
+        weapon: ShipWeaponState,
+        definition: ShipWeaponDefinition,
+        deltaMs: number,
+    ): void {
         weapon.phaseElapsedMs += deltaMs;
 
-        if (weapon.phaseElapsedMs < weapon.preparationDurationMs) {
+        if (weapon.phaseElapsedMs < definition.preparationDurationMs) {
             return;
         }
 
@@ -151,15 +161,25 @@ export default class CombatRunner {
         }
     }
 
-    private advanceWeaponCooldown(weapon: ShipWeaponState, deltaMs: number): void {
+    private advanceWeaponCooldown(weapon: ShipWeaponState, definition: ShipWeaponDefinition, deltaMs: number): void {
         weapon.phaseElapsedMs += deltaMs;
 
-        if (weapon.phaseElapsedMs < weapon.cooldownDurationMs) {
+        if (weapon.phaseElapsedMs < definition.cooldownDurationMs) {
             return;
         }
 
         weapon.phase = SHIP_WEAPON_PHASE.READY;
         weapon.phaseElapsedMs = 0;
+    }
+
+    private getWeaponDefinition(weapon: ShipWeaponState): ShipWeaponDefinition {
+        const definition = SHIP_WEAPONS[weapon.weaponId];
+
+        if (definition.kind !== weapon.kind) {
+            throw new Error(`Ship weapon kind does not match definition: ` + `${weapon.id}/${weapon.weaponId}`);
+        }
+
+        return definition;
     }
 
     // #endregion
@@ -177,6 +197,7 @@ export default class CombatRunner {
 
         launcher.ammoCount -= 1;
         launcher.phase = SHIP_WEAPON_PHASE.COOLDOWN;
+
         launcher.phaseElapsedMs = 0;
 
         const projectile: MissileCombatProjectileState = {
@@ -190,6 +211,7 @@ export default class CombatRunner {
             missileId,
 
             timeToImpactMs: missile.flightDurationMs,
+
             initialTimeToImpactMs: missile.flightDurationMs,
         };
 

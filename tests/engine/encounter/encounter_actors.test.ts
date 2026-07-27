@@ -2,11 +2,12 @@
 
 import { describe, expect, it } from 'vitest';
 import { SHIPS } from '../../../src/engine/content/ships';
+import { SHIP_WEAPONS } from '../../../src/engine/content/ship_weapons';
 import { ENCOUNTER_TEAM } from '../../../src/engine/defs/encounter_team';
-import { MISSILE_GUIDANCE_KIND, MISSILE_ID } from '../../../src/engine/defs/missile';
+import { MISSILE_ID } from '../../../src/engine/defs/missile';
 import { PLAYER_SPACE_NAVIGATION_KIND } from '../../../src/engine/defs/player_location';
 import { SHIP_ID } from '../../../src/engine/defs/ship';
-import { SHIP_WEAPON_KIND, SHIP_WEAPON_PHASE } from '../../../src/engine/defs/ship_weapon';
+import { SHIP_WEAPON_ID, SHIP_WEAPON_PHASE } from '../../../src/engine/defs/ship_weapon';
 import { SPACE_NODE_ACTOR_KIND, type ShipSpaceNodeActorState } from '../../../src/engine/defs/universe';
 import { ENCOUNTER_ACTOR_KIND } from '../../../src/engine/encounter/actors/encounter_actor';
 import EncounterEngine from '../../../src/engine/encounter/EncounterEngine';
@@ -101,11 +102,13 @@ describe('encounter actors', () => {
                 team: ENCOUNTER_TEAM.NEUTRAL,
                 weapons: [],
             });
-        }).toThrow('Encounter actor already exists: ship_test_00');
+        }).toThrow('Encounter actor already exists: ' + 'ship_test_00');
     });
 
     it('copies persistent node ship loadout into the loaded encounter snapshot', () => {
         const { node, stationId } = createSingleStationNodeFixture();
+
+        const launcherDefinition = SHIP_WEAPONS[SHIP_WEAPON_ID.HEAT_MISSILE_LAUNCHER_00];
 
         const nodeActor: ShipSpaceNodeActorState = {
             id: 'ship_generic_00',
@@ -119,19 +122,18 @@ describe('encounter actors', () => {
             weapons: [
                 {
                     id: 'missile_launcher_00',
-                    kind: SHIP_WEAPON_KIND.MISSILE_LAUNCHER,
 
-                    firmwareGuidanceKind: MISSILE_GUIDANCE_KIND.HEAT,
+                    weaponId: launcherDefinition.id,
+
+                    kind: launcherDefinition.kind,
+
                     loadedMissileId: MISSILE_ID.HEAT_00,
 
-                    ammoCount: 5,
-                    ammoCapacity: 5,
+                    ammoCount: launcherDefinition.ammoCapacity,
 
                     phase: SHIP_WEAPON_PHASE.READY,
-                    phaseElapsedMs: 0,
 
-                    preparationDurationMs: 2000,
-                    cooldownDurationMs: 3000,
+                    phaseElapsedMs: 0,
                 },
             ],
         };
@@ -158,6 +160,7 @@ describe('encounter actors', () => {
                     actors: [
                         {
                             id: 'ship_generic_00',
+
                             kind: ENCOUNTER_ACTOR_KIND.SHIP,
 
                             displayName: SHIPS[SHIP_ID.GENERIC_00].name,
@@ -170,19 +173,18 @@ describe('encounter actors', () => {
                             weapons: [
                                 {
                                     id: 'missile_launcher_00',
-                                    kind: SHIP_WEAPON_KIND.MISSILE_LAUNCHER,
 
-                                    firmwareGuidanceKind: MISSILE_GUIDANCE_KIND.HEAT,
+                                    weaponId: launcherDefinition.id,
+
+                                    kind: launcherDefinition.kind,
+
                                     loadedMissileId: MISSILE_ID.HEAT_00,
 
-                                    ammoCount: 5,
-                                    ammoCapacity: 5,
+                                    ammoCount: launcherDefinition.ammoCapacity,
 
                                     phase: SHIP_WEAPON_PHASE.READY,
-                                    phaseElapsedMs: 0,
 
-                                    preparationDurationMs: 2000,
-                                    cooldownDurationMs: 3000,
+                                    phaseElapsedMs: 0,
                                 },
                             ],
                         },
@@ -192,18 +194,21 @@ describe('encounter actors', () => {
         );
 
         if (event.type !== ENCOUNTER_EVENT.ENCOUNTER_LOADED) {
-            throw new Error(`Expected encounter loaded event, received: ${event.type}`);
+            throw new Error(`Expected encounter loaded event, received: ` + `${event.type}`);
         }
 
         const encounterActor = event.state.actors[0];
 
         expect(encounterActor.weapons).not.toBe(nodeActor.weapons);
+
         expect(encounterActor.weapons[0]).not.toBe(nodeActor.weapons[0]);
 
         encounterActor.weapons[0].ammoCount = 4;
+
         encounterActor.weapons[0].phase = SHIP_WEAPON_PHASE.COOLDOWN;
 
-        expect(nodeActor.weapons[0].ammoCount).toBe(5);
+        expect(nodeActor.weapons[0].ammoCount).toBe(launcherDefinition.ammoCapacity);
+
         expect(nodeActor.weapons[0].phase).toBe(SHIP_WEAPON_PHASE.READY);
     });
 });

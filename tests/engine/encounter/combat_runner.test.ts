@@ -1,13 +1,14 @@
 // tests/engine/encounter/combat_runner.test.ts
 
 import { describe, expect, it } from 'vitest';
-import EncounterEngine from '../../../src/engine/encounter/EncounterEngine';
+import { SHIP_WEAPONS } from '../../../src/engine/content/ship_weapons';
 import { ENCOUNTER_TEAM } from '../../../src/engine/defs/encounter_team';
-import { MISSILE_GUIDANCE_KIND, MISSILE_ID } from '../../../src/engine/defs/missile';
+import { MISSILE_ID } from '../../../src/engine/defs/missile';
 import { PLAYER_SPACE_NAVIGATION_KIND } from '../../../src/engine/defs/player_location';
 import { SHIP_ID } from '../../../src/engine/defs/ship';
-import { SHIP_WEAPON_KIND, SHIP_WEAPON_PHASE } from '../../../src/engine/defs/ship_weapon';
+import { SHIP_WEAPON_ID, SHIP_WEAPON_PHASE } from '../../../src/engine/defs/ship_weapon';
 import { SPACE_NODE_ACTOR_KIND } from '../../../src/engine/defs/universe';
+import EncounterEngine from '../../../src/engine/encounter/EncounterEngine';
 import { COMBAT_PROJECTILE_KIND } from '../../../src/engine/encounter/model/combat';
 import { ENCOUNTER_EVENT } from '../../../src/engine/encounter/model/event';
 import { createSingleStationNodeFixture } from '../../fixtures/engine/space_node_fixtures';
@@ -15,6 +16,8 @@ import { createSingleStationNodeFixture } from '../../fixtures/engine/space_node
 describe('CombatRunner', () => {
     it('runs an enemy missile launcher through preparation, flight and impact', () => {
         const { node, stationId } = createSingleStationNodeFixture();
+
+        const launcherDefinition = SHIP_WEAPONS[SHIP_WEAPON_ID.HEAT_MISSILE_LAUNCHER_00];
 
         node.actors.push({
             id: 'ship_enemy_00',
@@ -28,19 +31,18 @@ describe('CombatRunner', () => {
             weapons: [
                 {
                     id: 'missile_launcher_00',
-                    kind: SHIP_WEAPON_KIND.MISSILE_LAUNCHER,
 
-                    firmwareGuidanceKind: MISSILE_GUIDANCE_KIND.HEAT,
+                    weaponId: launcherDefinition.id,
+
+                    kind: launcherDefinition.kind,
+
                     loadedMissileId: MISSILE_ID.HEAT_00,
 
                     ammoCount: 1,
-                    ammoCapacity: 1,
 
                     phase: SHIP_WEAPON_PHASE.READY,
-                    phaseElapsedMs: 0,
 
-                    preparationDurationMs: 2000,
-                    cooldownDurationMs: 3000,
+                    phaseElapsedMs: 0,
                 },
             ],
         });
@@ -50,6 +52,7 @@ describe('CombatRunner', () => {
 
             navigation: {
                 kind: PLAYER_SPACE_NAVIGATION_KIND.ANCHORED,
+
                 anchorId: stationId,
             },
         });
@@ -57,13 +60,17 @@ describe('CombatRunner', () => {
         const [loadedEvent] = engine.drainEvents();
 
         if (loadedEvent.type !== ENCOUNTER_EVENT.ENCOUNTER_LOADED) {
-            throw new Error(`Expected encounter loaded event, received: ${loadedEvent.type}`);
+            throw new Error(`Expected encounter loaded event, received: ` + `${loadedEvent.type}`);
         }
 
         const enemy = loadedEvent.state.actors[0];
+
         const launcher = enemy.weapons[0];
 
+        const loadedLauncherDefinition = SHIP_WEAPONS[launcher.weaponId];
+
         expect(loadedEvent.state.combat.projectiles).toEqual([]);
+
         expect(launcher.phase).toBe(SHIP_WEAPON_PHASE.READY);
 
         engine.step(1);
@@ -78,9 +85,10 @@ describe('CombatRunner', () => {
         ]);
 
         expect(launcher.phase).toBe(SHIP_WEAPON_PHASE.PREPARING);
+
         expect(launcher.phaseElapsedMs).toBe(1);
 
-        engine.step(launcher.preparationDurationMs - launcher.phaseElapsedMs);
+        engine.step(loadedLauncherDefinition.preparationDurationMs - launcher.phaseElapsedMs);
 
         expect(engine.drainEvents()).toEqual([
             {
@@ -103,7 +111,9 @@ describe('CombatRunner', () => {
         ]);
 
         expect(launcher.phase).toBe(SHIP_WEAPON_PHASE.COOLDOWN);
+
         expect(launcher.phaseElapsedMs).toBe(0);
+
         expect(launcher.ammoCount).toBe(0);
 
         expect(loadedEvent.state.combat.projectiles).toEqual([
@@ -124,12 +134,14 @@ describe('CombatRunner', () => {
 
         const [projectile] = loadedEvent.state.combat.projectiles;
 
-        engine.step(launcher.cooldownDurationMs);
+        engine.step(loadedLauncherDefinition.cooldownDurationMs);
 
         expect(engine.drainEvents()).toEqual([]);
 
         expect(launcher.phase).toBe(SHIP_WEAPON_PHASE.READY);
+
         expect(launcher.phaseElapsedMs).toBe(0);
+
         expect(launcher.ammoCount).toBe(0);
 
         expect(projectile.timeToImpactMs).toBe(9000);
@@ -163,6 +175,7 @@ describe('CombatRunner', () => {
         // Ракетница технически READY,
         // но без боезапаса новое наведение не начинается.
         expect(launcher.phase).toBe(SHIP_WEAPON_PHASE.READY);
+
         expect(launcher.ammoCount).toBe(0);
 
         engine.step(1);

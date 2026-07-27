@@ -6,6 +6,14 @@ export const SHIP_WEAPON_KIND = {
     MISSILE_LAUNCHER: 'missile_launcher',
 } as const;
 
+export type ShipWeaponKind = (typeof SHIP_WEAPON_KIND)[keyof typeof SHIP_WEAPON_KIND];
+
+export const SHIP_WEAPON_ID = {
+    HEAT_MISSILE_LAUNCHER_00: 'heat_missile_launcher_00',
+} as const;
+
+export type ShipWeaponId = (typeof SHIP_WEAPON_ID)[keyof typeof SHIP_WEAPON_ID];
+
 export const SHIP_WEAPON_PHASE = {
     READY: 'ready',
     PREPARING: 'preparing',
@@ -14,27 +22,47 @@ export const SHIP_WEAPON_PHASE = {
 
 export type ShipWeaponPhase = (typeof SHIP_WEAPON_PHASE)[keyof typeof SHIP_WEAPON_PHASE];
 
-export type ShipWeaponBaseState = {
-    // Runtime id конкретного установленного оружия.
-    id: string;
+// Неизменяемое описание модели оружия.
+// Конкретная установленная ракетница хранит только weaponId
+// и собственное mutable runtime state.
+export type ShipWeaponDefinitionBase = {
+    id: ShipWeaponId;
+    name: string;
 
-    phase: ShipWeaponPhase;
-    phaseElapsedMs: number;
+    kind: ShipWeaponKind;
 
     preparationDurationMs: number;
     cooldownDurationMs: number;
 };
 
-export type MissileLauncherState = ShipWeaponBaseState & {
+export type MissileLauncherDefinition = ShipWeaponDefinitionBase & {
     kind: typeof SHIP_WEAPON_KIND.MISSILE_LAUNCHER;
 
-    // Прошивка разрешает ракеты с одним типом наведения.
     firmwareGuidanceKind: MissileGuidanceKind;
+
+    ammoCapacity: number;
+};
+
+export type ShipWeaponDefinition = MissileLauncherDefinition;
+
+// Mutable state конкретного установленного оружия.
+export type ShipWeaponBaseState = {
+    // Runtime id экземпляра на конкретном корабле.
+    id: string;
+
+    // Ссылка на неизменяемое content definition.
+    weaponId: ShipWeaponId;
+
+    phase: ShipWeaponPhase;
+    phaseElapsedMs: number;
+};
+
+export type MissileLauncherState = ShipWeaponBaseState & {
+    kind: typeof SHIP_WEAPON_KIND.MISSILE_LAUNCHER;
 
     loadedMissileId: MissileId | null;
 
     ammoCount: number;
-    ammoCapacity: number;
 };
 
 export type ShipWeaponState = MissileLauncherState;
