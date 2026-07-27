@@ -1,189 +1,33 @@
 // src/engine/content/new_game.ts
 
-import { ASTEROID_OBJECT_SPRITE_ID } from '../defs/asteroid';
-import { BEACON_OBJECT_SPRITE_ID } from '../defs/beacon';
 import { OFFICER_PORTRAIT_ID, OFFICER_ROLE } from '../defs/officer';
-import { PLAYER_LOCATION_KIND, PLAYER_SPACE_NAVIGATION_KIND } from '../defs/player_location';
 import type { PlayerShipState } from '../defs/player';
 import type { RunState } from '../defs/run';
-import { SPACE_BACKGROUND_ID } from '../defs/space_background';
-import { SPECIES_ID } from '../defs/species';
-import { SPACE_ANCHOR_KIND } from '../defs/universe';
-import ShipNodeActorFactory from '../generation/space_node_actor/ShipNodeActorFactory';
-import StationGenerator from '../generation/station/StationGenerator';
-import { SHIP_NODE_ACTOR_PRESET_ID } from './ship_node_actor_presets';
+import NewGameUniverseFactory from '../generation/new_game/NewGameUniverseFactory';
 
 export function createNewRunState(): RunState {
+    const world = NewGameUniverseFactory.create();
+
     const playerShip: PlayerShipState = {
         hull: 3,
         maxHull: 3,
         weapons: [],
     };
 
-    const station = StationGenerator.generateStation(SPECIES_ID.HUMAN);
-
-    const navigationBeacon = {
-        id: 'beacon_start',
-
-        name: 'NAVIGATION BEACON',
-
-        objectSpriteId: BEACON_OBJECT_SPRITE_ID.NAVIGATION_BEACON_00,
-    };
-
-    const asteroid = {
-        id: 'asteroid_start',
-
-        name: 'ASTEROID',
-
-        objectSpriteId: ASTEROID_OBJECT_SPRITE_ID.ASTEROID_00,
-    };
+    // Для smoke полёта:
+    // world.playerLocations.travellingToStart
+    //
+    // Для smoke прилёта к станции:
+    // world.playerLocations.arrivingAtStation
+    const playerLocation = world.playerLocations.arrivingAtStart;
 
     return {
-        universe: {
-            nodes: [
-                {
-                    id: 'node_start',
-
-                    position: {
-                        x: 0,
-                        y: 0,
-                    },
-
-                    arrivalAnchorId: navigationBeacon.id,
-
-                    spaceBackgroundId: SPACE_BACKGROUND_ID.NEBULA_00,
-
-                    anchors: [
-                        {
-                            kind: SPACE_ANCHOR_KIND.NAVIGATION_BEACON,
-
-                            beacon: navigationBeacon,
-
-                            localPosition: {
-                                x: 0,
-                                y: 0,
-                                z: 0,
-                            },
-                        },
-
-                        {
-                            kind: SPACE_ANCHOR_KIND.ASTEROID,
-
-                            asteroid,
-
-                            localPosition: {
-                                x: 900,
-                                y: 220,
-                                z: 1400,
-                            },
-                        },
-
-                        {
-                            kind: SPACE_ANCHOR_KIND.STATION,
-
-                            station,
-
-                            localPosition: {
-                                x: -900,
-                                y: 220,
-                                z: -1400,
-                            },
-                        },
-                    ],
-
-                    actors: [
-                        ShipNodeActorFactory.create({
-                            id: 'ship_generic_00',
-
-                            presetId: SHIP_NODE_ACTOR_PRESET_ID.ENEMY_GENERIC_00,
-
-                            anchorId: navigationBeacon.id,
-                        }),
-                    ],
-                },
-
-                {
-                    id: 'node_station',
-
-                    position: {
-                        x: 100,
-                        y: 0,
-                    },
-
-                    arrivalAnchorId: station.id,
-
-                    spaceBackgroundId: SPACE_BACKGROUND_ID.NEBULA_00,
-
-                    anchors: [
-                        {
-                            kind: SPACE_ANCHOR_KIND.STATION,
-
-                            station,
-
-                            localPosition: {
-                                x: 0,
-                                y: 0,
-                                z: 0,
-                            },
-                        },
-                    ],
-
-                    actors: [],
-                },
-            ],
-        },
-
-        // player: {
-        //     ship: playerShip,
-        //
-        //     location: {
-        //         kind: PLAYER_LOCATION_KIND.SPACE,
-        //         nodeId: 'node_start',
-        //
-        //         navigation: {
-        //             kind:
-        //                 PLAYER_SPACE_NAVIGATION_KIND
-        //                     .TRAVELLING,
-        //
-        //             targetAnchorId:
-        //                 navigationBeacon.id,
-        //
-        //             fromAnchorId: asteroid.id,
-        //         },
-        //     },
-        // },
+        universe: world.universe,
 
         player: {
             ship: playerShip,
-
-            location: {
-                kind: PLAYER_LOCATION_KIND.SPACE,
-                nodeId: 'node_start',
-
-                navigation: {
-                    kind: PLAYER_SPACE_NAVIGATION_KIND.ARRIVING,
-
-                    targetAnchorId: navigationBeacon.id,
-                },
-            },
+            location: playerLocation,
         },
-
-        // player: {
-        //     ship: playerShip,
-        //
-        //     location: {
-        //         kind: PLAYER_LOCATION_KIND.SPACE,
-        //         nodeId: 'node_station',
-        //
-        //         navigation: {
-        //             kind:
-        //                 PLAYER_SPACE_NAVIGATION_KIND
-        //                     .ARRIVING,
-        //
-        //             targetAnchorId: station.id,
-        //         },
-        //     },
-        // },
 
         officers: {
             [OFFICER_ROLE.COMMS]: {
