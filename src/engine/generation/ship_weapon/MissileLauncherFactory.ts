@@ -1,6 +1,6 @@
 // src/engine/generation/ship_weapon/MissileLauncherFactory.ts
 
-import { MISSILE_LAUNCHER_PRESETS, type MissileLauncherPresetId } from '../../content/ship_weapon_presets';
+import { MISSILE_LAUNCHER_PRESETS, type MissileLauncherPresetId } from '../../content/presets/missile_launchers';
 import { SHIP_WEAPONS } from '../../content/ship_weapons';
 import { SHIP_WEAPON_KIND, SHIP_WEAPON_PHASE, type MissileLauncherState } from '../../defs/ship_weapon';
 

@@ -1,7 +1,7 @@
 // tests/engine/generation/missile_launcher_factory.test.ts
 
 import { describe, expect, it } from 'vitest';
-import { MISSILE_LAUNCHER_PRESET_ID } from '../../../src/engine/content/ship_weapon_presets';
+import { MISSILE_LAUNCHER_PRESET_ID } from '../../../src/engine/content/presets/missile_launchers';
 import { SHIP_WEAPONS } from '../../../src/engine/content/ship_weapons';
 import { MISSILE_GUIDANCE_KIND, MISSILE_ID } from '../../../src/engine/defs/missile';
 import { SHIP_WEAPON_ID, SHIP_WEAPON_KIND, SHIP_WEAPON_PHASE } from '../../../src/engine/defs/ship_weapon';

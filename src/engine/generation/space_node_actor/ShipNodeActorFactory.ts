@@ -4,7 +4,7 @@ import {
     SHIP_NODE_ACTOR_PRESETS,
     type ShipNodeActorPresetId,
     type ShipNodeActorWeaponPreset,
-} from '../../content/ship_node_actor_presets';
+} from '../../content/presets/ship_node_actors';
 import { SHIP_WEAPON_KIND, type ShipWeaponState } from '../../defs/ship_weapon';
 import { SPACE_NODE_ACTOR_KIND, type ShipSpaceNodeActorState } from '../../defs/universe';
 import MissileLauncherFactory from '../ship_weapon/MissileLauncherFactory';

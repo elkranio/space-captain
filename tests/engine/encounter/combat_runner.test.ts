@@ -1,7 +1,7 @@
 // tests/engine/encounter/combat_runner.test.ts
 
 import { describe, expect, it } from 'vitest';
-import { SHIP_NODE_ACTOR_PRESET_ID } from '../../../src/engine/content/ship_node_actor_presets';
+import { SHIP_NODE_ACTOR_PRESET_ID } from '../../../src/engine/content/presets/ship_node_actors';
 import { SHIP_WEAPONS } from '../../../src/engine/content/ship_weapons';
 import { MISSILE_ID } from '../../../src/engine/defs/missile';
 import { PLAYER_SPACE_NAVIGATION_KIND } from '../../../src/engine/defs/player_location';

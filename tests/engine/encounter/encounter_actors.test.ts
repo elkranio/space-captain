@@ -1,7 +1,7 @@
 // tests/engine/encounter/encounter_actors.test.ts
 
 import { describe, expect, it } from 'vitest';
-import { SHIP_NODE_ACTOR_PRESET_ID } from '../../../src/engine/content/ship_node_actor_presets';
+import { SHIP_NODE_ACTOR_PRESET_ID } from '../../../src/engine/content/presets/ship_node_actors';
 import { SHIPS } from '../../../src/engine/content/ships';
 import { ENCOUNTER_TEAM } from '../../../src/engine/defs/encounter_team';
 import { PLAYER_SPACE_NAVIGATION_KIND } from '../../../src/engine/defs/player_location';

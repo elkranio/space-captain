@@ -1,9 +1,9 @@
-// src/engine/content/ship_node_actor_presets.ts
+// src/engine/content/presets/ship_node_actors.ts
 
-import { MISSILE_LAUNCHER_PRESET_ID, type MissileLauncherPresetId } from './ship_weapon_presets';
-import { ENCOUNTER_TEAM, type EncounterTeam } from '../defs/encounter_team';
-import { SHIP_ID, type ShipId } from '../defs/ship';
-import { SHIP_WEAPON_KIND } from '../defs/ship_weapon';
+import { ENCOUNTER_TEAM, type EncounterTeam } from '../../defs/encounter_team';
+import { SHIP_ID, type ShipId } from '../../defs/ship';
+import { SHIP_WEAPON_KIND } from '../../defs/ship_weapon';
+import { MISSILE_LAUNCHER_PRESET_ID, type MissileLauncherPresetId } from './missile_launchers';
 
 export const SHIP_NODE_ACTOR_PRESET_ID = {
     ENEMY_GENERIC_00: 'enemy_generic_00',
