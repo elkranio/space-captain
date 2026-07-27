@@ -27,6 +27,8 @@ import { SHIP_SPRITES } from '../../../../../../manifests/ships/ship_sprite';
 import { STATION_OBJECT_SPRITES } from '../../../../../../manifests/stations/station_sprite';
 import { BRIDGE_EVENT, type BridgeEncounterObjectPayload } from '../../../events/bridge_event';
 import type BridgeEventBus from '../../../events/BridgeEventBus';
+import type { GameRuntime } from '../../../../../../runtime/GameRuntime';
+import { SCENE_KEY } from '../../../../../scene_key';
 
 type SetEncounterInteractive = (value: boolean) => void;
 
@@ -41,6 +43,7 @@ export default class BridgeEncounterEngineEventHandler {
     constructor(
         private readonly eventBus: BridgeEventBus,
         private readonly setEncounterInteractive: SetEncounterInteractive,
+        private readonly gameRuntime: GameRuntime,
     ) {}
 
     // #region Public API
@@ -134,9 +137,41 @@ export default class BridgeEncounterEngineEventHandler {
                     role: event.task.role,
                 });
                 return;
+
+            case ENCOUNTER_EVENT.PLAYER_SHIP_TARGETING_DETECTED:
+                // Visual detector подключим отдельным атомом.
+                return;
+
+            case ENCOUNTER_EVENT.MISSILE_LAUNCHED:
+                // Projectile view подключим отдельным атомом.
+                return;
+
+            case ENCOUNTER_EVENT.MISSILE_IMPACTED_PLAYER_SHIP:
+                this.handleMissileImpactedPlayerShip(event.damage);
+                return;
         }
 
         throw new Error(`Unhandled encounter event: ${String(event)}`);
+    }
+
+    // #endregion
+
+    // #region Combat
+
+    private handleMissileImpactedPlayerShip(damage: number): void {
+        const result = this.gameRuntime.damagePlayerShipHull(damage);
+
+        // destroyed === true также вернётся при повторном damage,
+        // когда hull уже был равен нулю.
+        if (!result.destroyed || result.previousHull === 0) {
+            return;
+        }
+
+        this.setEncounterInteractive(false);
+
+        this.eventBus.emit(BRIDGE_EVENT.SCENE_TRANSITION_REQUESTED, {
+            sceneKey: SCENE_KEY.END,
+        });
     }
 
     // #endregion

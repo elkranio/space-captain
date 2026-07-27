@@ -60,9 +60,15 @@ export default class BridgeEncounterController {
     private isEncounterInteractive = false;
 
     constructor(private readonly eventBus: BridgeEventBus) {
-        this.engineEventHandler = new BridgeEncounterEngineEventHandler(this.eventBus, (value) => {
-            this.isEncounterInteractive = value;
-        });
+        this.engineEventHandler = new BridgeEncounterEngineEventHandler(
+            this.eventBus,
+
+            (value) => {
+                this.isEncounterInteractive = value;
+            },
+
+            GAME_RUNTIME,
+        );
     }
 
     // #region Public API
