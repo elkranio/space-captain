@@ -23,7 +23,8 @@ type CombatRunnerOptions = {
 //
 // - принимает простые решения за enemy ships;
 // - управляет lifecycle установленного оружия;
-// - создаёт projectiles;
+// - создаёт и двигает projectiles;
+// - разрешает projectile impacts;
 // - эмитит combat events.
 //
 // Корабли, оружие и projectiles остаются частью EncounterState.
@@ -41,6 +42,11 @@ export default class CombatRunner {
     }
 
     public step(deltaMs: number): void {
+        // Существующие projectiles двигаются до оружия,
+        // чтобы созданный в этом step projectile
+        // не получил тот же deltaMs повторно.
+        this.advanceProjectiles(deltaMs);
+
         this.startEnemyWeaponPreparation();
         this.advanceWeapons(deltaMs);
     }
@@ -197,6 +203,50 @@ export default class CombatRunner {
             },
         });
     }
+
+    // #endregion
+
+    // #region Projectiles
+
+    private advanceProjectiles(deltaMs: number): void {
+        // Идём с конца, потому что impacted projectiles
+        // удаляются из массива во время обхода.
+        for (let index = this.state.combat.projectiles.length - 1; index >= 0; index -= 1) {
+            const projectile = this.state.combat.projectiles[index];
+
+            projectile.timeToImpactMs = Math.max(0, projectile.timeToImpactMs - deltaMs);
+
+            if (projectile.timeToImpactMs > 0) {
+                continue;
+            }
+
+            this.resolveMissileImpact(index, projectile);
+        }
+    }
+
+    private resolveMissileImpact(index: number, projectile: MissileCombatProjectileState): void {
+        const missile = MISSILES[projectile.missileId];
+
+        const projectileSnapshot: MissileCombatProjectileState = {
+            ...projectile,
+
+            timeToImpactMs: 0,
+        };
+
+        this.state.combat.projectiles.splice(index, 1);
+
+        this.emit({
+            type: ENCOUNTER_EVENT.MISSILE_IMPACTED_PLAYER_SHIP,
+
+            projectile: projectileSnapshot,
+
+            damage: missile.damage,
+        });
+    }
+
+    // #endregion
+
+    // #region Runtime ids
 
     private createProjectileId(): string {
         const id = `projectile_${this.nextProjectileId}`;

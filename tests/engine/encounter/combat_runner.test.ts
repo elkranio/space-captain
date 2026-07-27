@@ -13,7 +13,7 @@ import { ENCOUNTER_EVENT } from '../../../src/engine/encounter/model/event';
 import { createSingleStationNodeFixture } from '../../fixtures/engine/space_node_fixtures';
 
 describe('CombatRunner', () => {
-    it('prepares an enemy launcher, launches a missile and starts cooldown', () => {
+    it('runs an enemy missile launcher through preparation, flight and impact', () => {
         const { node, stationId } = createSingleStationNodeFixture();
 
         node.actors.push({
@@ -33,8 +33,8 @@ describe('CombatRunner', () => {
                     firmwareGuidanceKind: MISSILE_GUIDANCE_KIND.HEAT,
                     loadedMissileId: MISSILE_ID.HEAT_00,
 
-                    ammoCount: 5,
-                    ammoCapacity: 5,
+                    ammoCount: 1,
+                    ammoCapacity: 1,
 
                     phase: SHIP_WEAPON_PHASE.READY,
                     phaseElapsedMs: 0,
@@ -104,7 +104,7 @@ describe('CombatRunner', () => {
 
         expect(launcher.phase).toBe(SHIP_WEAPON_PHASE.COOLDOWN);
         expect(launcher.phaseElapsedMs).toBe(0);
-        expect(launcher.ammoCount).toBe(4);
+        expect(launcher.ammoCount).toBe(0);
 
         expect(loadedEvent.state.combat.projectiles).toEqual([
             {
@@ -122,12 +122,51 @@ describe('CombatRunner', () => {
             },
         ]);
 
+        const [projectile] = loadedEvent.state.combat.projectiles;
+
         engine.step(launcher.cooldownDurationMs);
 
         expect(engine.drainEvents()).toEqual([]);
 
         expect(launcher.phase).toBe(SHIP_WEAPON_PHASE.READY);
         expect(launcher.phaseElapsedMs).toBe(0);
-        expect(launcher.ammoCount).toBe(4);
+        expect(launcher.ammoCount).toBe(0);
+
+        expect(projectile.timeToImpactMs).toBe(1000);
+
+        engine.step(projectile.timeToImpactMs);
+
+        expect(engine.drainEvents()).toEqual([
+            {
+                type: ENCOUNTER_EVENT.MISSILE_IMPACTED_PLAYER_SHIP,
+
+                projectile: {
+                    id: 'projectile_1',
+
+                    kind: COMBAT_PROJECTILE_KIND.MISSILE,
+
+                    sourceActorId: enemy.id,
+                    sourceWeaponId: launcher.id,
+
+                    missileId: MISSILE_ID.HEAT_00,
+
+                    timeToImpactMs: 0,
+                    initialTimeToImpactMs: 4000,
+                },
+
+                damage: 1,
+            },
+        ]);
+
+        expect(loadedEvent.state.combat.projectiles).toEqual([]);
+
+        // Ракетница технически READY,
+        // но без боезапаса новое наведение не начинается.
+        expect(launcher.phase).toBe(SHIP_WEAPON_PHASE.READY);
+        expect(launcher.ammoCount).toBe(0);
+
+        engine.step(1);
+
+        expect(engine.drainEvents()).toEqual([]);
     });
 });

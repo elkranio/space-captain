@@ -24,6 +24,7 @@ export const ENCOUNTER_EVENT = {
     OFFICER_TASK_ENDED: 'officer_task_ended',
     PLAYER_SHIP_TARGETING_DETECTED: 'player_ship_targeting_detected',
     MISSILE_LAUNCHED: 'missile_launched',
+    MISSILE_IMPACTED_PLAYER_SHIP: 'missile_impacted_player_ship',
 } as const;
 
 export const OFFICER_TASK_OUTCOME = {
@@ -161,6 +162,14 @@ export type MissileLaunchedEvent = {
     projectile: MissileCombatProjectileState;
 };
 
+export type MissileImpactedPlayerShipEvent = {
+    type: typeof ENCOUNTER_EVENT.MISSILE_IMPACTED_PLAYER_SHIP;
+
+    projectile: MissileCombatProjectileState;
+
+    damage: number;
+};
+
 export type EncounterEvent =
     | EncounterLoadedEvent
     | ContactStartedEvent
@@ -172,4 +181,5 @@ export type EncounterEvent =
     | OfficerTaskStartedEvent
     | OfficerTaskEndedEvent
     | PlayerShipTargetingDetectedEvent
-    | MissileLaunchedEvent;
+    | MissileLaunchedEvent
+    | MissileImpactedPlayerShipEvent;
