@@ -1,5 +1,4 @@
 // tests/engine/content/new_game_universe_factory.test.ts
-// tests/engine/generation/new_game_universe_factory.test.ts
 
 import { describe, expect, it } from 'vitest';
 import { PLAYER_LOCATION_KIND, PLAYER_SPACE_NAVIGATION_KIND } from '../../../src/engine/defs/player_location';

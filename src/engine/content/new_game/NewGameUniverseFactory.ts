@@ -10,7 +10,7 @@ import {
 import { SPACE_BACKGROUND_ID } from '../../defs/space_background';
 import { SPECIES_ID } from '../../defs/species';
 import { SPACE_ANCHOR_KIND, type SpaceNodeState, type UniverseState } from '../../defs/universe';
-import { SHIP_NODE_ACTOR_PRESET_ID } from '../../content/presets/ship_node_actors';
+import { SHIP_NODE_ACTOR_PRESET_ID } from '../presets/ship_node_actors';
 import ShipNodeActorFactory from '../../generation/space_node_actor/ShipNodeActorFactory';
 import StationGenerator from '../../generation/station/StationGenerator';
 
