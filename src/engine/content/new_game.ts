@@ -9,7 +9,7 @@ import { BEACON_OBJECT_SPRITE_ID } from '../defs/beacon';
 import { ASTEROID_OBJECT_SPRITE_ID } from '../defs/asteroid';
 import { SHIP_ID } from '../defs/ship';
 import { SPACE_ANCHOR_KIND, SPACE_NODE_ACTOR_KIND } from '../defs/universe';
-import { PlayerShipState } from '../defs/player';
+import type { PlayerShipState } from '../defs/player';
 
 export function createNewRunState(): RunState {
     const playerShip: PlayerShipState = {
