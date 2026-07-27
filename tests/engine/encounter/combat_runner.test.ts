@@ -1,50 +1,33 @@
 // tests/engine/encounter/combat_runner.test.ts
 
 import { describe, expect, it } from 'vitest';
+import { SHIP_NODE_ACTOR_PRESET_ID } from '../../../src/engine/content/ship_node_actor_presets';
 import { SHIP_WEAPONS } from '../../../src/engine/content/ship_weapons';
-import { ENCOUNTER_TEAM } from '../../../src/engine/defs/encounter_team';
 import { MISSILE_ID } from '../../../src/engine/defs/missile';
 import { PLAYER_SPACE_NAVIGATION_KIND } from '../../../src/engine/defs/player_location';
-import { SHIP_ID } from '../../../src/engine/defs/ship';
-import { SHIP_WEAPON_ID, SHIP_WEAPON_PHASE } from '../../../src/engine/defs/ship_weapon';
-import { SPACE_NODE_ACTOR_KIND } from '../../../src/engine/defs/universe';
+import { SHIP_WEAPON_PHASE } from '../../../src/engine/defs/ship_weapon';
 import EncounterEngine from '../../../src/engine/encounter/EncounterEngine';
 import { COMBAT_PROJECTILE_KIND } from '../../../src/engine/encounter/model/combat';
 import { ENCOUNTER_EVENT } from '../../../src/engine/encounter/model/event';
+import ShipNodeActorFactory from '../../../src/engine/generation/space_node_actor/ShipNodeActorFactory';
 import { createSingleStationNodeFixture } from '../../fixtures/engine/space_node_fixtures';
 
 describe('CombatRunner', () => {
     it('runs an enemy missile launcher through preparation, flight, impact and cooldown', () => {
         const { node, stationId } = createSingleStationNodeFixture();
 
-        const launcherDefinition = SHIP_WEAPONS[SHIP_WEAPON_ID.HEAT_MISSILE_LAUNCHER_00];
-
-        node.actors.push({
+        const nodeEnemy = ShipNodeActorFactory.create({
             id: 'ship_enemy_00',
-            kind: SPACE_NODE_ACTOR_KIND.SHIP,
 
-            team: ENCOUNTER_TEAM.ENEMY,
+            presetId: SHIP_NODE_ACTOR_PRESET_ID.ENEMY_GENERIC_00,
 
-            shipId: SHIP_ID.GENERIC_00,
             anchorId: stationId,
-
-            weapons: [
-                {
-                    id: 'missile_launcher_00',
-
-                    weaponId: launcherDefinition.id,
-                    kind: launcherDefinition.kind,
-
-                    loadedMissileId: MISSILE_ID.HEAT_00,
-
-                    ammoCount: 1,
-
-                    phase: SHIP_WEAPON_PHASE.READY,
-
-                    phaseElapsedMs: 0,
-                },
-            ],
         });
+
+        // Тесту нужен ровно один выстрел.
+        nodeEnemy.weapons[0].ammoCount = 1;
+
+        node.actors.push(nodeEnemy);
 
         const engine = new EncounterEngine({
             node,
@@ -130,7 +113,6 @@ describe('CombatRunner', () => {
             initialTimeToImpactMs: 12000,
         });
 
-        // Projectile и cooldown движутся одновременно.
         engine.step(1000);
 
         expect(engine.drainEvents()).toEqual([]);
@@ -141,7 +123,6 @@ describe('CombatRunner', () => {
 
         expect(launcher.phaseElapsedMs).toBe(1000);
 
-        // Доводим ракету до impact.
         engine.step(projectile.timeToImpactMs);
 
         expect(engine.drainEvents()).toEqual([
@@ -168,8 +149,6 @@ describe('CombatRunner', () => {
 
         expect(loadedEvent.state.combat.projectiles).toEqual([]);
 
-        // Полёт занял 12 секунд,
-        // но cooldown ракетницы длится 15.
         expect(launcher.phase).toBe(SHIP_WEAPON_PHASE.COOLDOWN);
 
         expect(launcher.phaseElapsedMs).toBe(projectile.initialTimeToImpactMs);
@@ -187,8 +166,6 @@ describe('CombatRunner', () => {
         expect(launcher.phaseElapsedMs).toBe(0);
         expect(launcher.ammoCount).toBe(0);
 
-        // Оружие снова READY, но без боезапаса
-        // новое наведение не начинается.
         engine.step(1);
 
         expect(engine.drainEvents()).toEqual([]);

@@ -1,19 +1,18 @@
 // tests/engine/encounter/encounter_actors.test.ts
 
 import { describe, expect, it } from 'vitest';
-import { MISSILE_LAUNCHER_PRESET_ID } from '../../../src/engine/content/ship_weapon_presets';
+import { SHIP_NODE_ACTOR_PRESET_ID } from '../../../src/engine/content/ship_node_actor_presets';
 import { SHIPS } from '../../../src/engine/content/ships';
 import { ENCOUNTER_TEAM } from '../../../src/engine/defs/encounter_team';
 import { PLAYER_SPACE_NAVIGATION_KIND } from '../../../src/engine/defs/player_location';
 import { SHIP_ID } from '../../../src/engine/defs/ship';
 import { SHIP_WEAPON_PHASE } from '../../../src/engine/defs/ship_weapon';
-import { SPACE_NODE_ACTOR_KIND, type ShipSpaceNodeActorState } from '../../../src/engine/defs/universe';
 import { ENCOUNTER_ACTOR_KIND } from '../../../src/engine/encounter/actors/encounter_actor';
 import EncounterEngine from '../../../src/engine/encounter/EncounterEngine';
 import { ENCOUNTER_EVENT } from '../../../src/engine/encounter/model/event';
 import EncounterStateStore from '../../../src/engine/encounter/state/EncounterStateStore';
 import { createEncounterState } from '../../../src/engine/encounter/state/create_encounter_state';
-import MissileLauncherFactory from '../../../src/engine/generation/ship_weapon/MissileLauncherFactory';
+import ShipNodeActorFactory from '../../../src/engine/generation/space_node_actor/ShipNodeActorFactory';
 import { createSingleStationNodeFixture } from '../../fixtures/engine/space_node_fixtures';
 
 describe('encounter actors', () => {
@@ -108,25 +107,15 @@ describe('encounter actors', () => {
     it('copies persistent node ship loadout into the loaded encounter snapshot', () => {
         const { node, stationId } = createSingleStationNodeFixture();
 
-        const nodeLauncher = MissileLauncherFactory.create({
-            id: 'missile_launcher_00',
+        const nodeActor = ShipNodeActorFactory.create({
+            id: 'ship_generic_00',
 
-            presetId: MISSILE_LAUNCHER_PRESET_ID.BASIC_HEAT_FULL_00,
+            presetId: SHIP_NODE_ACTOR_PRESET_ID.ENEMY_GENERIC_00,
+
+            anchorId: stationId,
         });
 
-        const initialAmmoCount = nodeLauncher.ammoCount;
-
-        const nodeActor: ShipSpaceNodeActorState = {
-            id: 'ship_generic_00',
-            kind: SPACE_NODE_ACTOR_KIND.SHIP,
-
-            team: ENCOUNTER_TEAM.ENEMY,
-
-            shipId: SHIP_ID.GENERIC_00,
-            anchorId: stationId,
-
-            weapons: [nodeLauncher],
-        };
+        const initialAmmoCount = nodeActor.weapons[0].ammoCount;
 
         node.actors.push(nodeActor);
 
@@ -149,20 +138,21 @@ describe('encounter actors', () => {
                 state: expect.objectContaining({
                     actors: [
                         {
-                            id: 'ship_generic_00',
+                            id: nodeActor.id,
 
                             kind: ENCOUNTER_ACTOR_KIND.SHIP,
 
-                            displayName: SHIPS[SHIP_ID.GENERIC_00].name,
+                            displayName: SHIPS[nodeActor.shipId].name,
 
-                            team: ENCOUNTER_TEAM.ENEMY,
+                            team: nodeActor.team,
 
-                            anchorId: stationId,
-                            shipId: SHIP_ID.GENERIC_00,
+                            anchorId: nodeActor.anchorId,
+
+                            shipId: nodeActor.shipId,
 
                             weapons: [
                                 {
-                                    ...nodeLauncher,
+                                    ...nodeActor.weapons[0],
                                 },
                             ],
                         },

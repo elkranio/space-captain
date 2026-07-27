@@ -1,19 +1,17 @@
 // src/engine/content/new_game.ts
 
+import { ASTEROID_OBJECT_SPRITE_ID } from '../defs/asteroid';
+import { BEACON_OBJECT_SPRITE_ID } from '../defs/beacon';
 import { OFFICER_PORTRAIT_ID, OFFICER_ROLE } from '../defs/officer';
 import { PLAYER_LOCATION_KIND, PLAYER_SPACE_NAVIGATION_KIND } from '../defs/player_location';
 import type { PlayerShipState } from '../defs/player';
 import type { RunState } from '../defs/run';
 import { SPACE_BACKGROUND_ID } from '../defs/space_background';
 import { SPECIES_ID } from '../defs/species';
-import { ASTEROID_OBJECT_SPRITE_ID } from '../defs/asteroid';
-import { BEACON_OBJECT_SPRITE_ID } from '../defs/beacon';
-import { ENCOUNTER_TEAM } from '../defs/encounter_team';
-import { SHIP_ID } from '../defs/ship';
-import { SPACE_ANCHOR_KIND, SPACE_NODE_ACTOR_KIND } from '../defs/universe';
-import MissileLauncherFactory from '../generation/ship_weapon/MissileLauncherFactory';
+import { SPACE_ANCHOR_KIND } from '../defs/universe';
+import ShipNodeActorFactory from '../generation/space_node_actor/ShipNodeActorFactory';
 import StationGenerator from '../generation/station/StationGenerator';
-import { MISSILE_LAUNCHER_PRESET_ID } from './ship_weapon_presets';
+import { SHIP_NODE_ACTOR_PRESET_ID } from './ship_node_actor_presets';
 
 export function createNewRunState(): RunState {
     const playerShip: PlayerShipState = {
@@ -94,25 +92,13 @@ export function createNewRunState(): RunState {
                     ],
 
                     actors: [
-                        {
+                        ShipNodeActorFactory.create({
                             id: 'ship_generic_00',
 
-                            kind: SPACE_NODE_ACTOR_KIND.SHIP,
-
-                            team: ENCOUNTER_TEAM.ENEMY,
-
-                            shipId: SHIP_ID.GENERIC_00,
+                            presetId: SHIP_NODE_ACTOR_PRESET_ID.ENEMY_GENERIC_00,
 
                             anchorId: navigationBeacon.id,
-
-                            weapons: [
-                                MissileLauncherFactory.create({
-                                    id: 'missile_launcher_00',
-
-                                    presetId: MISSILE_LAUNCHER_PRESET_ID.BASIC_HEAT_FULL_00,
-                                }),
-                            ],
-                        },
+                        }),
                     ],
                 },
 
