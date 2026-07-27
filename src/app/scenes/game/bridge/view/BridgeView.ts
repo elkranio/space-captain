@@ -4,6 +4,7 @@ import type BridgeScene from '../BridgeScene';
 import type BridgeEventBus from '../events/BridgeEventBus';
 import BridgeOfficerBarksView from './barks/BridgeOfficerBarksView';
 import BridgeCrewView from './crew/BridgeCrewView';
+import BridgeTargetingWarningView from './indicators/targeting_warning/BridgeTargetingWarningView';
 import BridgeInteriorView from './interior/BridgeInteriorView';
 import BridgeSpaceView from './space/BridgeSpaceView';
 import BridgeUiView from './ui/BridgeUiView';
@@ -13,10 +14,17 @@ import BridgeVfxView from './vfx/BridgeVfxView';
 // Собирает визуальные модули bridge и отвечает только за их lifecycle.
 export default class BridgeView {
     private interiorView?: BridgeInteriorView;
+
+    private targetingWarningView?: BridgeTargetingWarningView;
+
     private crewView?: BridgeCrewView;
+
     private spaceView?: BridgeSpaceView;
+
     private vfxView?: BridgeVfxView;
+
     private uiView?: BridgeUiView;
+
     private officerBarksView?: BridgeOfficerBarksView;
 
     constructor(
@@ -31,6 +39,11 @@ export default class BridgeView {
 
         this.interiorView = new BridgeInteriorView(this.scene);
 
+        // Создаётся после interior,
+        // поэтому находится поверх фоновой картинки
+        // внутри того же bridge layer.
+        this.targetingWarningView = new BridgeTargetingWarningView(this.scene, this.eventBus);
+
         this.crewView = new BridgeCrewView(this.scene, this.eventBus);
 
         this.uiView = new BridgeUiView(this.scene, this.eventBus);
@@ -42,6 +55,7 @@ export default class BridgeView {
         this.officerBarksView?.destroy();
         this.uiView?.destroy();
         this.crewView?.destroy();
+        this.targetingWarningView?.destroy();
         this.interiorView?.destroy();
         this.vfxView?.destroy();
         this.spaceView?.destroy();
@@ -49,6 +63,7 @@ export default class BridgeView {
         this.officerBarksView = undefined;
         this.uiView = undefined;
         this.crewView = undefined;
+        this.targetingWarningView = undefined;
         this.interiorView = undefined;
         this.vfxView = undefined;
         this.spaceView = undefined;
