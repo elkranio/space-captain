@@ -3,6 +3,7 @@
 import type BridgeScene from '../BridgeScene';
 import type BridgeEventBus from '../events/BridgeEventBus';
 import BridgeOfficerBarksView from './barks/BridgeOfficerBarksView';
+import BridgeIncomingMissilesView from './combat/incoming_missiles/BridgeIncomingMissilesView';
 import BridgeCrewView from './crew/BridgeCrewView';
 import BridgeTargetingWarningView from './indicators/targeting_warning/BridgeTargetingWarningView';
 import BridgeInteriorView from './interior/BridgeInteriorView';
@@ -16,6 +17,8 @@ export default class BridgeView {
     private interiorView?: BridgeInteriorView;
 
     private targetingWarningView?: BridgeTargetingWarningView;
+
+    private incomingMissilesView?: BridgeIncomingMissilesView;
 
     private crewView?: BridgeCrewView;
 
@@ -35,13 +38,14 @@ export default class BridgeView {
     public prepare(): void {
         this.spaceView = new BridgeSpaceView(this.scene, this.eventBus);
 
+        // Создаётся перед общим VFX root,
+        // чтобы dust и jump flash могли рисоваться поверх ракеты.
+        this.incomingMissilesView = new BridgeIncomingMissilesView(this.scene, this.eventBus);
+
         this.vfxView = new BridgeVfxView(this.scene, this.eventBus);
 
         this.interiorView = new BridgeInteriorView(this.scene);
 
-        // Создаётся после interior,
-        // поэтому находится поверх фоновой картинки
-        // внутри того же bridge layer.
         this.targetingWarningView = new BridgeTargetingWarningView(this.scene, this.eventBus);
 
         this.crewView = new BridgeCrewView(this.scene, this.eventBus);
@@ -58,6 +62,7 @@ export default class BridgeView {
         this.targetingWarningView?.destroy();
         this.interiorView?.destroy();
         this.vfxView?.destroy();
+        this.incomingMissilesView?.destroy();
         this.spaceView?.destroy();
 
         this.officerBarksView = undefined;
@@ -66,6 +71,7 @@ export default class BridgeView {
         this.targetingWarningView = undefined;
         this.interiorView = undefined;
         this.vfxView = undefined;
+        this.incomingMissilesView = undefined;
         this.spaceView = undefined;
     }
 }

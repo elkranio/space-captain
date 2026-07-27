@@ -31,7 +31,7 @@ const impactedProjectile = {
 };
 
 describe('BridgeEncounterEngineEventHandler combat events', () => {
-    it('maps targeting and missile launch to bridge warning events', () => {
+    it('maps targeting and missile launch to bridge presentation events', () => {
         const runtime = new GameRuntime();
 
         const emit = vi.fn();
@@ -66,12 +66,22 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
             [BRIDGE_EVENT.MISSILE_TARGETING_WARNING_STARTED],
 
             [BRIDGE_EVENT.MISSILE_TARGETING_WARNING_CLEARED],
+
+            [
+                BRIDGE_EVENT.INCOMING_MISSILE_ADDED,
+
+                {
+                    projectileId: 'projectile_test_00',
+
+                    initialTimeToImpactMs: 4000,
+                },
+            ],
         ]);
 
         expect(setEncounterInteractive).not.toHaveBeenCalled();
     });
 
-    it('damages persistent hull and requests END only when the ship is first destroyed', () => {
+    it('removes impacted missiles, damages hull and requests END only on first destruction', () => {
         const runtime = new GameRuntime();
 
         const emit = vi.fn();
@@ -97,7 +107,16 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
 
         expect(runtime.getCurrentRun().player.ship.hull).toBe(2);
 
-        expect(emit).not.toHaveBeenCalled();
+        expect(emit.mock.calls).toEqual([
+            [
+                BRIDGE_EVENT.INCOMING_MISSILE_REMOVED,
+
+                {
+                    projectileId: 'projectile_test_00',
+                },
+            ],
+        ]);
+
         expect(setEncounterInteractive).not.toHaveBeenCalled();
 
         handler.handle([
@@ -118,17 +137,34 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
         expect(setEncounterInteractive).toHaveBeenCalledTimes(1);
         expect(setEncounterInteractive).toHaveBeenCalledWith(false);
 
-        expect(emit).toHaveBeenCalledTimes(1);
-        expect(emit).toHaveBeenCalledWith(
-            BRIDGE_EVENT.SCENE_TRANSITION_REQUESTED,
+        expect(emit.mock.calls).toEqual([
+            [
+                BRIDGE_EVENT.INCOMING_MISSILE_REMOVED,
 
-            {
-                sceneKey: SCENE_KEY.END,
-            },
-        );
+                {
+                    projectileId: 'projectile_test_00',
+                },
+            ],
 
-        // Повторный impact по уже уничтоженному кораблю
-        // не должен повторно запускать scene transition.
+            [
+                BRIDGE_EVENT.INCOMING_MISSILE_REMOVED,
+
+                {
+                    projectileId: 'projectile_test_01',
+                },
+            ],
+
+            [
+                BRIDGE_EVENT.SCENE_TRANSITION_REQUESTED,
+
+                {
+                    sceneKey: SCENE_KEY.END,
+                },
+            ],
+        ]);
+
+        // Повторный synthetic impact не должен
+        // повторно запускать scene transition.
         handler.handle([
             {
                 type: ENCOUNTER_EVENT.MISSILE_IMPACTED_PLAYER_SHIP,
@@ -145,6 +181,39 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
         expect(runtime.getCurrentRun().player.ship.hull).toBe(0);
 
         expect(setEncounterInteractive).toHaveBeenCalledTimes(1);
-        expect(emit).toHaveBeenCalledTimes(1);
+
+        expect(emit.mock.calls).toEqual([
+            [
+                BRIDGE_EVENT.INCOMING_MISSILE_REMOVED,
+
+                {
+                    projectileId: 'projectile_test_00',
+                },
+            ],
+
+            [
+                BRIDGE_EVENT.INCOMING_MISSILE_REMOVED,
+
+                {
+                    projectileId: 'projectile_test_01',
+                },
+            ],
+
+            [
+                BRIDGE_EVENT.SCENE_TRANSITION_REQUESTED,
+
+                {
+                    sceneKey: SCENE_KEY.END,
+                },
+            ],
+
+            [
+                BRIDGE_EVENT.INCOMING_MISSILE_REMOVED,
+
+                {
+                    projectileId: 'projectile_test_02',
+                },
+            ],
+        ]);
     });
 });

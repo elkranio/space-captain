@@ -144,9 +144,19 @@ export default class BridgeEncounterEngineEventHandler {
 
             case ENCOUNTER_EVENT.MISSILE_LAUNCHED:
                 this.eventBus.emit(BRIDGE_EVENT.MISSILE_TARGETING_WARNING_CLEARED);
+
+                this.eventBus.emit(BRIDGE_EVENT.INCOMING_MISSILE_ADDED, {
+                    projectileId: event.projectile.id,
+
+                    initialTimeToImpactMs: event.projectile.initialTimeToImpactMs,
+                });
                 return;
 
             case ENCOUNTER_EVENT.MISSILE_IMPACTED_PLAYER_SHIP:
+                this.eventBus.emit(BRIDGE_EVENT.INCOMING_MISSILE_REMOVED, {
+                    projectileId: event.projectile.id,
+                });
+
                 this.handleMissileImpactedPlayerShip(event.damage);
                 return;
         }

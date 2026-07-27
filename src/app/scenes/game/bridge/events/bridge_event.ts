@@ -117,6 +117,10 @@ export const BRIDGE_EVENT = {
     MISSILE_TARGETING_WARNING_STARTED: 'missile_targeting_warning_started',
 
     MISSILE_TARGETING_WARNING_CLEARED: 'missile_targeting_warning_cleared',
+
+    INCOMING_MISSILE_ADDED: 'incoming_missile_added',
+
+    INCOMING_MISSILE_REMOVED: 'incoming_missile_removed',
 } as const;
 
 // Payload события CREW_LOADED.
@@ -263,6 +267,18 @@ export type BridgeEncounterArrivalStartedPayload = {
     targetId: string;
 };
 
+export type BridgeIncomingMissileAddedPayload = {
+    projectileId: string;
+
+    // Сейчас view ещё не использует duration.
+    // В следующем атоме по нему запустим flight tween.
+    initialTimeToImpactMs: number;
+};
+
+export type BridgeIncomingMissileRemovedPayload = {
+    projectileId: string;
+};
+
 // Typed mapping:
 // каждое bridge event name связано
 // со своим payload.
@@ -321,4 +337,8 @@ export type BridgeEventPayloadMap = {
     [BRIDGE_EVENT.MISSILE_TARGETING_WARNING_STARTED]: undefined;
 
     [BRIDGE_EVENT.MISSILE_TARGETING_WARNING_CLEARED]: undefined;
+
+    [BRIDGE_EVENT.INCOMING_MISSILE_ADDED]: BridgeIncomingMissileAddedPayload;
+
+    [BRIDGE_EVENT.INCOMING_MISSILE_REMOVED]: BridgeIncomingMissileRemovedPayload;
 };
