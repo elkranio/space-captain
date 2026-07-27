@@ -1,10 +1,11 @@
+// tests/engine/content/new_game_universe_factory.test.ts
 // tests/engine/generation/new_game_universe_factory.test.ts
 
 import { describe, expect, it } from 'vitest';
 import { PLAYER_LOCATION_KIND, PLAYER_SPACE_NAVIGATION_KIND } from '../../../src/engine/defs/player_location';
 import { SPACE_BACKGROUND_ID } from '../../../src/engine/defs/space_background';
 import { SPACE_ANCHOR_KIND, SPACE_NODE_ACTOR_KIND } from '../../../src/engine/defs/universe';
-import NewGameUniverseFactory from '../../../src/engine/generation/new_game/NewGameUniverseFactory';
+import NewGameUniverseFactory from '../../../src/engine/content/new_game/NewGameUniverseFactory';
 
 describe('NewGameUniverseFactory', () => {
     it('creates a connected new game universe and dev player locations', () => {

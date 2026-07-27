@@ -1,9 +1,9 @@
-// src/engine/content/new_game.ts
+// src/engine/content/new_game/create_new_run_state.ts
 
-import { OFFICER_PORTRAIT_ID, OFFICER_ROLE } from '../defs/officer';
-import type { PlayerShipState } from '../defs/player';
-import type { RunState } from '../defs/run';
-import NewGameUniverseFactory from '../generation/new_game/NewGameUniverseFactory';
+import { OFFICER_PORTRAIT_ID, OFFICER_ROLE } from '../../defs/officer';
+import type { PlayerShipState } from '../../defs/player';
+import type { RunState } from '../../defs/run';
+import NewGameUniverseFactory from './NewGameUniverseFactory';
 
 export function createNewRunState(): RunState {
     const world = NewGameUniverseFactory.create();

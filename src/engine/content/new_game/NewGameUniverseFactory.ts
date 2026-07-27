@@ -1,4 +1,4 @@
-// src/engine/generation/new_game/NewGameUniverseFactory.ts
+// src/engine/content/new_game/NewGameUniverseFactory.ts
 
 import { ASTEROID_OBJECT_SPRITE_ID, type AsteroidState } from '../../defs/asteroid';
 import { BEACON_OBJECT_SPRITE_ID, type NavigationBeaconState } from '../../defs/beacon';
@@ -11,8 +11,8 @@ import { SPACE_BACKGROUND_ID } from '../../defs/space_background';
 import { SPECIES_ID } from '../../defs/species';
 import { SPACE_ANCHOR_KIND, type SpaceNodeState, type UniverseState } from '../../defs/universe';
 import { SHIP_NODE_ACTOR_PRESET_ID } from '../../content/presets/ship_node_actors';
-import ShipNodeActorFactory from '../space_node_actor/ShipNodeActorFactory';
-import StationGenerator from '../station/StationGenerator';
+import ShipNodeActorFactory from '../../generation/space_node_actor/ShipNodeActorFactory';
+import StationGenerator from '../../generation/station/StationGenerator';
 
 export type NewGamePlayerLocations = {
     arrivingAtStart: PlayerSpaceLocationState;

@@ -1,6 +1,6 @@
 // src/app/runtime/GameRuntime.ts
 
-import { createNewRunState } from '../../engine/content/new_game';
+import { createNewRunState } from '../../engine/content/new_game/create_new_run_state';
 import {
     PLAYER_LOCATION_KIND,
     PLAYER_SPACE_NAVIGATION_KIND,
