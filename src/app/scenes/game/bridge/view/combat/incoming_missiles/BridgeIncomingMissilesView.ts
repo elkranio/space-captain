@@ -27,12 +27,16 @@ const INCOMING_MISSILE_PRESENTATION = {
     minScale: 0.12,
     maxScale: 1,
 
-    // Центрально-нижняя область viewscreen.
-    // Ракета попадает не строго в одну точку,
-    // но и не выглядит промахнувшейся.
+    // Presentation двигается дискретными шагами,
+    // но authoritative engine time остаётся плавным.
+    framesPerSecond: 12,
+
     impactInsetX: 260,
-    impactTopOffset: 190,
-    impactBottomInset: 35,
+
+    // Финальная точка находится уже под viewscreen.
+    // Bridge interior естественно перекрывает ракету.
+    impactOffsetBelowViewscreenMin: 25,
+    impactOffsetBelowViewscreenMax: 55,
 
     controlDriftX: 60,
     controlDriftY: 30,
@@ -103,9 +107,6 @@ export default class BridgeIncomingMissilesView {
                 sprite.frameKey,
             )
             .setScale(INCOMING_MISSILE_PRESENTATION.minScale)
-            // Asset по умолчанию смотрит направо.
-            // Flip выбирается один раз по общему
-            // направлению полёта.
             .setFlipX(targetPosition.x < startPosition.x);
 
         this.root.add(image);
@@ -129,12 +130,7 @@ export default class BridgeIncomingMissilesView {
                 throw new Error(`Incoming missile not found during update: ` + update.projectileId);
             }
 
-            const progress = Phaser.Math.Clamp(
-                1 - update.timeToImpactMs / missile.initialTimeToImpactMs,
-
-                0,
-                1,
-            );
+            const progress = this.getQuantizedProgress(missile.initialTimeToImpactMs, update.timeToImpactMs);
 
             const position = this.getQuadraticBezierPosition(
                 missile.startPosition,
@@ -169,7 +165,24 @@ export default class BridgeIncomingMissilesView {
         this.missiles.delete(payload.projectileId);
     }
 
+    private getQuantizedProgress(initialTimeToImpactMs: number, timeToImpactMs: number): number {
+        const elapsedMs = initialTimeToImpactMs - timeToImpactMs;
+
+        const frameDurationMs = 1000 / INCOMING_MISSILE_PRESENTATION.framesPerSecond;
+
+        const quantizedElapsedMs = Math.floor(elapsedMs / frameDurationMs) * frameDurationMs;
+
+        return Phaser.Math.Clamp(
+            quantizedElapsedMs / initialTimeToImpactMs,
+
+            0,
+            1,
+        );
+    }
+
     private createImpactPosition(): Phaser.Math.Vector2 {
+        const viewscreenBottom = BRIDGE_VIEWSCREEN_RECT.y + BRIDGE_VIEWSCREEN_RECT.height;
+
         return new Phaser.Math.Vector2(
             Phaser.Math.Between(
                 BRIDGE_VIEWSCREEN_RECT.x + INCOMING_MISSILE_PRESENTATION.impactInsetX,
@@ -178,11 +191,9 @@ export default class BridgeIncomingMissilesView {
             ),
 
             Phaser.Math.Between(
-                BRIDGE_VIEWSCREEN_RECT.y + INCOMING_MISSILE_PRESENTATION.impactTopOffset,
+                viewscreenBottom + INCOMING_MISSILE_PRESENTATION.impactOffsetBelowViewscreenMin,
 
-                BRIDGE_VIEWSCREEN_RECT.y +
-                    BRIDGE_VIEWSCREEN_RECT.height -
-                    INCOMING_MISSILE_PRESENTATION.impactBottomInset,
+                viewscreenBottom + INCOMING_MISSILE_PRESENTATION.impactOffsetBelowViewscreenMax,
             ),
         );
     }
