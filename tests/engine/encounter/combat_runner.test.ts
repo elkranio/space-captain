@@ -14,7 +14,7 @@ import { ENCOUNTER_EVENT } from '../../../src/engine/encounter/model/event';
 import { createSingleStationNodeFixture } from '../../fixtures/engine/space_node_fixtures';
 
 describe('CombatRunner', () => {
-    it('runs an enemy missile launcher through preparation, flight and impact', () => {
+    it('runs an enemy missile launcher through preparation, flight, impact and cooldown', () => {
         const { node, stationId } = createSingleStationNodeFixture();
 
         const launcherDefinition = SHIP_WEAPONS[SHIP_WEAPON_ID.HEAT_MISSILE_LAUNCHER_00];
@@ -33,7 +33,6 @@ describe('CombatRunner', () => {
                     id: 'missile_launcher_00',
 
                     weaponId: launcherDefinition.id,
-
                     kind: launcherDefinition.kind,
 
                     loadedMissileId: MISSILE_ID.HEAT_00,
@@ -113,39 +112,36 @@ describe('CombatRunner', () => {
         expect(launcher.phase).toBe(SHIP_WEAPON_PHASE.COOLDOWN);
 
         expect(launcher.phaseElapsedMs).toBe(0);
-
         expect(launcher.ammoCount).toBe(0);
-
-        expect(loadedEvent.state.combat.projectiles).toEqual([
-            {
-                id: 'projectile_1',
-
-                kind: COMBAT_PROJECTILE_KIND.MISSILE,
-
-                sourceActorId: enemy.id,
-                sourceWeaponId: launcher.id,
-
-                missileId: MISSILE_ID.HEAT_00,
-
-                timeToImpactMs: 12000,
-                initialTimeToImpactMs: 12000,
-            },
-        ]);
 
         const [projectile] = loadedEvent.state.combat.projectiles;
 
-        engine.step(loadedLauncherDefinition.cooldownDurationMs);
+        expect(projectile).toEqual({
+            id: 'projectile_1',
+
+            kind: COMBAT_PROJECTILE_KIND.MISSILE,
+
+            sourceActorId: enemy.id,
+            sourceWeaponId: launcher.id,
+
+            missileId: MISSILE_ID.HEAT_00,
+
+            timeToImpactMs: 12000,
+            initialTimeToImpactMs: 12000,
+        });
+
+        // Projectile и cooldown движутся одновременно.
+        engine.step(1000);
 
         expect(engine.drainEvents()).toEqual([]);
 
-        expect(launcher.phase).toBe(SHIP_WEAPON_PHASE.READY);
+        expect(projectile.timeToImpactMs).toBe(11000);
 
-        expect(launcher.phaseElapsedMs).toBe(0);
+        expect(launcher.phase).toBe(SHIP_WEAPON_PHASE.COOLDOWN);
 
-        expect(launcher.ammoCount).toBe(0);
+        expect(launcher.phaseElapsedMs).toBe(1000);
 
-        expect(projectile.timeToImpactMs).toBe(9000);
-
+        // Доводим ракету до impact.
         engine.step(projectile.timeToImpactMs);
 
         expect(engine.drainEvents()).toEqual([
@@ -172,14 +168,31 @@ describe('CombatRunner', () => {
 
         expect(loadedEvent.state.combat.projectiles).toEqual([]);
 
-        // Ракетница технически READY,
-        // но без боезапаса новое наведение не начинается.
+        // Полёт занял 12 секунд,
+        // но cooldown ракетницы длится 15.
+        expect(launcher.phase).toBe(SHIP_WEAPON_PHASE.COOLDOWN);
+
+        expect(launcher.phaseElapsedMs).toBe(projectile.initialTimeToImpactMs);
+
+        const remainingCooldownMs = loadedLauncherDefinition.cooldownDurationMs - launcher.phaseElapsedMs;
+
+        expect(remainingCooldownMs).toBe(3000);
+
+        engine.step(remainingCooldownMs);
+
+        expect(engine.drainEvents()).toEqual([]);
+
         expect(launcher.phase).toBe(SHIP_WEAPON_PHASE.READY);
 
+        expect(launcher.phaseElapsedMs).toBe(0);
         expect(launcher.ammoCount).toBe(0);
 
+        // Оружие снова READY, но без боезапаса
+        // новое наведение не начинается.
         engine.step(1);
 
         expect(engine.drainEvents()).toEqual([]);
+
+        expect(launcher.phase).toBe(SHIP_WEAPON_PHASE.READY);
     });
 });
