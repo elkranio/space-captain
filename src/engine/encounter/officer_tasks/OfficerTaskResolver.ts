@@ -26,6 +26,9 @@ export default class OfficerTaskResolver {
             case OFFICER_TASK_KIND.SCIENCE_PLOT_COURSE:
                 return this.resolveSciencePlotCourseTask(task);
 
+            case OFFICER_TASK_KIND.SCIENCE_IDENTIFY_THREAT:
+                return this.resolveScienceIdentifyThreatTask(task);
+
             case OFFICER_TASK_KIND.COMMS_HAIL:
             case OFFICER_TASK_KIND.HELM_DOCK:
             case OFFICER_TASK_KIND.HELM_JUMP:
@@ -67,6 +70,25 @@ export default class OfficerTaskResolver {
         return {
             kind: OFFICER_TASK_RESULT_KIND.JUMP_POINT_CALCULATED,
             anchor,
+        };
+    }
+
+    private resolveScienceIdentifyThreatTask(task: OfficerTaskState): OfficerTaskResult | undefined {
+        if (!task.targetId) {
+            throw new Error('SCIENCE_IDENTIFY_THREAT task requires targetId');
+        }
+
+        const guidanceKind = this.stateStore.identifyThreat(task.targetId);
+
+        if (!guidanceKind) {
+            return undefined;
+        }
+
+        return {
+            kind: OFFICER_TASK_RESULT_KIND.THREAT_IDENTIFIED,
+
+            threatId: task.targetId,
+            guidanceKind,
         };
     }
 

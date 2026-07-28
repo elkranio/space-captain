@@ -1,0 +1,157 @@
+// tests/engine/encounter/science_identify_threat.test.ts
+
+import { describe, expect, it } from 'vitest';
+import { SHIP_WEAPONS } from '../../../src/engine/content/catalogs/ship_weapons';
+import { SHIP_NODE_ACTOR_PRESET_ID } from '../../../src/engine/content/presets/ship_node_actors';
+import { MISSILE_GUIDANCE_KIND } from '../../../src/engine/defs/missile';
+import { OFFICER_ROLE } from '../../../src/engine/defs/officer';
+import { PLAYER_SPACE_NAVIGATION_KIND } from '../../../src/engine/defs/player_location';
+import EncounterEngine from '../../../src/engine/encounter/EncounterEngine';
+import {
+    ENCOUNTER_OFFICER_COMMAND_ID,
+    OFFICER_COMMAND_EXECUTION_STATUS,
+    OFFICER_COMMAND_TARGET_KIND,
+} from '../../../src/engine/encounter/model/command';
+import { THREAT_IDENTIFICATION_STATUS } from '../../../src/engine/encounter/model/combat';
+import {
+    ENCOUNTER_EVENT,
+    OFFICER_TASK_OUTCOME,
+    OFFICER_TASK_RESULT_KIND,
+} from '../../../src/engine/encounter/model/event';
+import { OFFICER_TASK_KIND } from '../../../src/engine/encounter/model/officer_task';
+import ShipNodeActorFactory from '../../../src/engine/generation/space_node_actor/ShipNodeActorFactory';
+import { createSingleStationNodeFixture } from '../../fixtures/engine/space_node_fixtures';
+
+describe('Science identify threat command', () => {
+    it('identifies an unknown incoming missile threat', () => {
+        const { node, stationId } = createSingleStationNodeFixture();
+
+        const nodeEnemy = ShipNodeActorFactory.create({
+            id: 'ship_enemy_00',
+
+            presetId: SHIP_NODE_ACTOR_PRESET_ID.ENEMY_GENERIC_00,
+
+            anchorId: stationId,
+        });
+
+        nodeEnemy.weapons[0].ammoCount = 1;
+
+        node.actors.push(nodeEnemy);
+
+        const engine = new EncounterEngine({
+            node,
+
+            navigation: {
+                kind: PLAYER_SPACE_NAVIGATION_KIND.ANCHORED,
+                anchorId: stationId,
+            },
+
+            completeTimedTasksImmediately: true,
+        });
+
+        const [loadedEvent] = engine.drainEvents();
+
+        if (loadedEvent.type !== ENCOUNTER_EVENT.ENCOUNTER_LOADED) {
+            throw new Error(`Expected encounter loaded event, received: ${loadedEvent.type}`);
+        }
+
+        const enemy = loadedEvent.state.actors[0];
+        const launcher = enemy.weapons[0];
+
+        const launcherDefinition = SHIP_WEAPONS[launcher.weaponId];
+
+        engine.step(1);
+
+        engine.drainEvents();
+
+        engine.step(launcherDefinition.preparationDurationMs - 1);
+
+        engine.drainEvents();
+
+        const identifyCommand = engine.getAvailableCommands(OFFICER_ROLE.SCIENCE).find((command) => {
+            return command.commandId === ENCOUNTER_OFFICER_COMMAND_ID.SCIENCE_IDENTIFY_THREAT;
+        });
+
+        expect(identifyCommand).toEqual({
+            commandId: ENCOUNTER_OFFICER_COMMAND_ID.SCIENCE_IDENTIFY_THREAT,
+
+            label: 'MISSILE M1',
+
+            target: {
+                kind: OFFICER_COMMAND_TARGET_KIND.THREAT,
+                threatId: 'projectile_1',
+            },
+
+            targetLabel: 'IDENTIFY THREAT',
+        });
+
+        if (!identifyCommand) {
+            throw new Error('Expected IDENTIFY THREAT command');
+        }
+
+        expect(
+            engine.executeCommand({
+                role: OFFICER_ROLE.SCIENCE,
+                commandId: identifyCommand.commandId,
+                target: identifyCommand.target,
+            }),
+        ).toEqual({
+            status: OFFICER_COMMAND_EXECUTION_STATUS.EXECUTED,
+        });
+
+        expect(engine.getCombatProjectiles()[0].identification).toEqual({
+            status: THREAT_IDENTIFICATION_STATUS.IDENTIFIED,
+
+            guidanceKind: MISSILE_GUIDANCE_KIND.HEAT,
+        });
+
+        expect(
+            engine.getAvailableCommands(OFFICER_ROLE.SCIENCE).find((command) => {
+                return command.commandId === ENCOUNTER_OFFICER_COMMAND_ID.SCIENCE_IDENTIFY_THREAT;
+            }),
+        ).toBeUndefined();
+
+        expect(engine.drainEvents()).toEqual([
+            {
+                type: ENCOUNTER_EVENT.OFFICER_TASK_STARTED,
+
+                task: {
+                    kind: OFFICER_TASK_KIND.SCIENCE_IDENTIFY_THREAT,
+                    role: OFFICER_ROLE.SCIENCE,
+                    sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.SCIENCE_IDENTIFY_THREAT,
+                    targetId: 'projectile_1',
+                    label: 'IDENTIFY',
+                    durationMs: 3000,
+
+                    id: 'task_1',
+                    elapsedMs: 0,
+                },
+            },
+
+            {
+                type: ENCOUNTER_EVENT.OFFICER_TASK_ENDED,
+
+                task: {
+                    kind: OFFICER_TASK_KIND.SCIENCE_IDENTIFY_THREAT,
+                    role: OFFICER_ROLE.SCIENCE,
+                    sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.SCIENCE_IDENTIFY_THREAT,
+                    targetId: 'projectile_1',
+                    label: 'IDENTIFY',
+                    durationMs: 3000,
+
+                    id: 'task_1',
+                    elapsedMs: 0,
+                },
+
+                outcome: OFFICER_TASK_OUTCOME.COMPLETED,
+
+                result: {
+                    kind: OFFICER_TASK_RESULT_KIND.THREAT_IDENTIFIED,
+
+                    threatId: 'projectile_1',
+                    guidanceKind: MISSILE_GUIDANCE_KIND.HEAT,
+                },
+            },
+        ]);
+    });
+});

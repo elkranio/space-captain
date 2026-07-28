@@ -6,6 +6,7 @@ import { OFFICER_TASK_KIND, type OfficerTaskDraft } from '../model/officer_task'
 
 const REQUEST_DOCKING_BASE_DURATION_MS = 3000;
 const PLOT_COURSE_BASE_DURATION_MS = 5000;
+const IDENTIFY_THREAT_BASE_DURATION_MS = 3000;
 
 export function createCommsHailTask(targetId: string): OfficerTaskDraft {
     return {
@@ -39,6 +40,17 @@ export function createSciencePlotCourseTask(targetNodeId: string): OfficerTaskDr
         targetNodeId,
         label: 'PLOT COURSE',
         durationMs: PLOT_COURSE_BASE_DURATION_MS,
+    };
+}
+
+export function createScienceIdentifyThreatTask(threatId: string): OfficerTaskDraft {
+    return {
+        kind: OFFICER_TASK_KIND.SCIENCE_IDENTIFY_THREAT,
+        role: OFFICER_ROLE.SCIENCE,
+        sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.SCIENCE_IDENTIFY_THREAT,
+        targetId: threatId,
+        label: 'IDENTIFY',
+        durationMs: IDENTIFY_THREAT_BASE_DURATION_MS,
     };
 }
 

@@ -6,6 +6,7 @@ import type { OfficerTaskState } from './officer_task';
 import type { EncounterState } from './state';
 import type { JumpPointEncounterAnchorState } from '../anchors/jump_point/jump_point_encounter_anchor';
 import type { MissileCombatProjectileState } from './combat';
+import type { MissileGuidanceKind } from '../../defs/missile';
 
 // События, которые EncounterEngine отдаёт наружу
 // через outbox.
@@ -38,6 +39,7 @@ export type OfficerTaskOutcome = (typeof OFFICER_TASK_OUTCOME)[keyof typeof OFFI
 export const OFFICER_TASK_RESULT_KIND = {
     DOCKING_CLEARANCE_GRANTED: 'docking_clearance_granted',
     JUMP_POINT_CALCULATED: 'jump_point_calculated',
+    THREAT_IDENTIFIED: 'threat_identified',
 } as const;
 
 export type OfficerTaskResult =
@@ -48,6 +50,12 @@ export type OfficerTaskResult =
     | {
           kind: typeof OFFICER_TASK_RESULT_KIND.JUMP_POINT_CALCULATED;
           anchor: JumpPointEncounterAnchorState;
+      }
+    | {
+          kind: typeof OFFICER_TASK_RESULT_KIND.THREAT_IDENTIFIED;
+
+          threatId: string;
+          guidanceKind: MissileGuidanceKind;
       };
 
 // Полный snapshot encounter после создания

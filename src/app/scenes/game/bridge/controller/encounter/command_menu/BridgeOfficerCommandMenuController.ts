@@ -84,6 +84,9 @@ export default class BridgeOfficerCommandMenuController {
             case OFFICER_COMMAND_TARGET_KIND.SPACE_NODE:
                 return target.nodeId;
 
+            case OFFICER_COMMAND_TARGET_KIND.THREAT:
+                return target.threatId;
+
             default:
                 return this.assertNever(target);
         }

@@ -99,3 +99,11 @@ export function getJumpPointTarget(
 
     return target;
 }
+
+export function requireThreatTargetId(input: ExecuteOfficerCommandInput): string {
+    if (input.target.kind !== OFFICER_COMMAND_TARGET_KIND.THREAT) {
+        throw new Error(`${input.commandId} command requires threat target`);
+    }
+
+    return input.target.threatId;
+}

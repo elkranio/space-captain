@@ -342,8 +342,18 @@ export default class BridgeEncounterController {
 
                 nodeId: this.getAutomaticPlotCourseTargetNodeId(),
             };
+        } else if (payload.commandId === ENCOUNTER_OFFICER_COMMAND_ID.SCIENCE_IDENTIFY_THREAT) {
+            if (!payload.targetId) {
+                throw new Error(`${payload.commandId} bridge command requires targetId`);
+            }
+
+            target = {
+                kind: OFFICER_COMMAND_TARGET_KIND.THREAT,
+
+                threatId: payload.targetId,
+            };
         } else if (payload.targetId) {
-            // Все текущие targetId из bridge menu
+            // Остальные текущие targetId из bridge menu
             // относятся к encounter anchors.
             target = {
                 kind: OFFICER_COMMAND_TARGET_KIND.ANCHOR,

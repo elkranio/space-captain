@@ -7,6 +7,7 @@ export const ENCOUNTER_OFFICER_COMMAND_ID = {
     COMMS_REQUEST_DOCKING: 'comms_request_docking',
 
     SCIENCE_PLOT_COURSE: 'science_plot_course',
+    SCIENCE_IDENTIFY_THREAT: 'science_identify_threat',
 
     HELM_DOCK: 'helm_dock',
     HELM_FLY_TO: 'helm_fly_to',
@@ -23,6 +24,7 @@ export const OFFICER_COMMAND_TARGET_KIND = {
     ANCHOR: 'anchor',
     ACTOR: 'actor',
     SPACE_NODE: 'space_node',
+    THREAT: 'threat',
 } as const;
 
 export type OfficerCommandTargetKind = (typeof OFFICER_COMMAND_TARGET_KIND)[keyof typeof OFFICER_COMMAND_TARGET_KIND];
@@ -42,6 +44,10 @@ export type OfficerCommandTarget =
     | {
           kind: typeof OFFICER_COMMAND_TARGET_KIND.SPACE_NODE;
           nodeId: string;
+      }
+    | {
+          kind: typeof OFFICER_COMMAND_TARGET_KIND.THREAT;
+          threatId: string;
       };
 
 // #endregion
@@ -69,6 +75,9 @@ export type OfficerCommandTargeting =
       }
     | {
           kind: typeof OFFICER_COMMAND_TARGET_KIND.SPACE_NODE;
+      }
+    | {
+          kind: typeof OFFICER_COMMAND_TARGET_KIND.THREAT;
       };
 
 export type OfficerCommandDef = {

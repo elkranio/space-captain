@@ -16,6 +16,9 @@ import { ENCOUNTER_ACTOR_KIND, type EncounterActorState } from '../actors/encoun
 import type { ShipEncounterActorState } from '../actors/ship/ship_encounter_actor';
 import type { ShipWeaponState } from '../../defs/ship_weapon';
 import type { EncounterTeam } from '../../defs/encounter_team';
+import { MISSILES } from '../../content/catalogs/missiles';
+import type { MissileGuidanceKind } from '../../defs/missile';
+import { THREAT_IDENTIFICATION_STATUS } from '../model/combat';
 
 export type EncounterTravelStart = {
     fromAnchorId: string;
@@ -199,6 +202,35 @@ export default class EncounterStateStore {
             kind: PLAYER_SPACE_NAVIGATION_KIND.ANCHORED,
             anchorId: targetAnchorId,
         };
+    }
+
+    // #endregion
+
+    // #region Combat
+
+    public identifyThreat(threatId: string): MissileGuidanceKind | undefined {
+        const threat = this.state.combat.projectiles.find((projectile) => {
+            return projectile.id === threatId;
+        });
+
+        // Угроза могла ударить или быть уничтожена
+        // до завершения Science task.
+        if (!threat) {
+            return undefined;
+        }
+
+        if (threat.identification.status === THREAT_IDENTIFICATION_STATUS.IDENTIFIED) {
+            return threat.identification.guidanceKind;
+        }
+
+        const guidanceKind = MISSILES[threat.missileId].guidanceKind;
+
+        threat.identification = {
+            status: THREAT_IDENTIFICATION_STATUS.IDENTIFIED,
+            guidanceKind,
+        };
+
+        return guidanceKind;
     }
 
     // #endregion
