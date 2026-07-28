@@ -10,6 +10,7 @@ import { MISSILE_ID } from '../../src/engine/defs/missile';
 import {
     COMBAT_PROJECTILE_KIND,
     COMBAT_TARGET_KIND,
+    THREAT_IDENTIFICATION_STATUS,
     type MissileCombatProjectileState,
 } from '../../src/engine/encounter/model/combat';
 import { ENCOUNTER_EVENT } from '../../src/engine/encounter/model/event';
@@ -22,8 +23,13 @@ const launchedProjectile: MissileCombatProjectileState = {
 
     sourceActorId: 'ship_enemy_00',
     sourceWeaponId: 'missile_launcher_00',
+
     target: {
         kind: COMBAT_TARGET_KIND.PLAYER_SHIP,
+    },
+
+    identification: {
+        status: THREAT_IDENTIFICATION_STATUS.UNKNOWN,
     },
 
     missileId: MISSILE_ID.HEAT_00,

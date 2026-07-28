@@ -1,6 +1,6 @@
 // src/engine/encounter/model/combat.ts
 
-import type { MissileId } from '../../defs/missile';
+import type { MissileGuidanceKind, MissileId } from '../../defs/missile';
 
 export const COMBAT_PROJECTILE_KIND = {
     MISSILE: 'missile',
@@ -21,6 +21,21 @@ export type CombatTarget =
           actorId: string;
       };
 
+export const THREAT_IDENTIFICATION_STATUS = {
+    UNKNOWN: 'unknown',
+    IDENTIFIED: 'identified',
+} as const;
+
+export type MissileThreatIdentification =
+    | {
+          status: typeof THREAT_IDENTIFICATION_STATUS.UNKNOWN;
+      }
+    | {
+          status: typeof THREAT_IDENTIFICATION_STATUS.IDENTIFIED;
+
+          guidanceKind: MissileGuidanceKind;
+      };
+
 export type MissileCombatProjectileState = {
     id: string;
 
@@ -34,6 +49,10 @@ export type MissileCombatProjectileState = {
     sourceWeaponId: string;
 
     target: CombatTarget;
+
+    // Знание игрока о свойствах угрозы.
+    // Объективный тип ракеты остаётся в missileId.
+    identification: MissileThreatIdentification;
 
     missileId: MissileId;
 
