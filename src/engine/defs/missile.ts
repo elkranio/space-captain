@@ -1,13 +1,14 @@
 // src/engine/defs/missile.ts
 
-export const MISSILE_GUIDANCE_KIND = {
-    HEAT: 'heat',
+export const MISSILE_SPECTRAL_BAND = {
+    RED: 'red',
+    BLUE: 'blue',
 } as const;
 
-export type MissileGuidanceKind = (typeof MISSILE_GUIDANCE_KIND)[keyof typeof MISSILE_GUIDANCE_KIND];
+export type MissileSpectralBand = (typeof MISSILE_SPECTRAL_BAND)[keyof typeof MISSILE_SPECTRAL_BAND];
 
 export const MISSILE_ID = {
-    HEAT_00: 'heat_00',
+    RED_00: 'red_00',
 } as const;
 
 export type MissileId = (typeof MISSILE_ID)[keyof typeof MISSILE_ID];
@@ -16,7 +17,7 @@ export type MissileDefinition = {
     id: MissileId;
     name: string;
 
-    guidanceKind: MissileGuidanceKind;
+    spectralBand: MissileSpectralBand;
 
     damage: number;
     flightDurationMs: number;

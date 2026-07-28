@@ -102,7 +102,7 @@ export default class BridgeIncomingMissilesView {
                 throw new Error(`Incoming missile not found during update: ` + update.projectileId);
             }
 
-            missile.update(update.timeToImpactMs, update.guidanceKind);
+            missile.update(update.timeToImpactMs, update.spectralBand);
         }
     }
 

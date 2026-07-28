@@ -17,7 +17,7 @@ import type { ShipEncounterActorState } from '../actors/ship/ship_encounter_acto
 import type { ShipWeaponState } from '../../defs/ship_weapon';
 import type { EncounterTeam } from '../../defs/encounter_team';
 import { MISSILES } from '../../content/catalogs/missiles';
-import type { MissileGuidanceKind } from '../../defs/missile';
+import type { MissileSpectralBand } from '../../defs/missile';
 import { THREAT_IDENTIFICATION_STATUS } from '../model/combat';
 
 export type EncounterTravelStart = {
@@ -208,7 +208,7 @@ export default class EncounterStateStore {
 
     // #region Combat
 
-    public identifyThreat(threatId: string): MissileGuidanceKind | undefined {
+    public identifyThreat(threatId: string): MissileSpectralBand | undefined {
         const threat = this.state.combat.projectiles.find((projectile) => {
             return projectile.id === threatId;
         });
@@ -220,17 +220,17 @@ export default class EncounterStateStore {
         }
 
         if (threat.identification.status === THREAT_IDENTIFICATION_STATUS.IDENTIFIED) {
-            return threat.identification.guidanceKind;
+            return threat.identification.spectralBand;
         }
 
-        const guidanceKind = MISSILES[threat.missileId].guidanceKind;
+        const spectralBand = MISSILES[threat.missileId].spectralBand;
 
         threat.identification = {
             status: THREAT_IDENTIFICATION_STATUS.IDENTIFIED,
-            guidanceKind,
+            spectralBand,
         };
 
-        return guidanceKind;
+        return spectralBand;
     }
 
     // #endregion

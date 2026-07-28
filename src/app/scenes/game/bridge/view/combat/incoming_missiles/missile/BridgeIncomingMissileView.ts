@@ -1,6 +1,6 @@
 // src/app/scenes/game/bridge/view/combat/incoming_missiles/missile/BridgeIncomingMissileView.ts
 
-import type { MissileGuidanceKind } from '../../../../../../../../engine/defs/missile';
+import type { MissileSpectralBand } from '../../../../../../../../engine/defs/missile';
 import { MISSILE_SPRITE_ID, MISSILE_SPRITES } from '../../../../../../../manifests/combat/missiles/missile_sprite';
 import { FONT_FAMILY, FONT_SIZE } from '../../../../../../../theme/font';
 import type BridgeScene from '../../../../BridgeScene';
@@ -130,7 +130,7 @@ export default class BridgeIncomingMissileView {
         this.update(initialTimeToImpactMs);
     }
 
-    public update(timeToImpactMs: number, guidanceKind?: MissileGuidanceKind): void {
+    public update(timeToImpactMs: number, spectralBand?: MissileSpectralBand): void {
         const progress = this.getQuantizedProgress(timeToImpactMs);
 
         const position = this.getQuadraticBezierPosition(progress);
@@ -145,7 +145,7 @@ export default class BridgeIncomingMissileView {
 
         this.drawTargetingFrame();
 
-        this.statusLabel.setText(this.formatStatusLabel(timeToImpactMs, guidanceKind));
+        this.statusLabel.setText(this.formatStatusLabel(timeToImpactMs, spectralBand));
     }
 
     public destroy(): void {
@@ -201,11 +201,11 @@ export default class BridgeIncomingMissileView {
         this.statusLabel.setPosition(0, bottom + TARGETING_FRAME.labelGap);
     }
 
-    private formatStatusLabel(timeToImpactMs: number, guidanceKind?: MissileGuidanceKind): string {
+    private formatStatusLabel(timeToImpactMs: number, spectralBand?: MissileSpectralBand): string {
         const parts = [this.designation];
 
-        if (guidanceKind) {
-            parts.push(guidanceKind.toUpperCase());
+        if (spectralBand) {
+            parts.push(spectralBand.toUpperCase());
         }
 
         parts.push(this.formatTimeToImpact(timeToImpactMs));

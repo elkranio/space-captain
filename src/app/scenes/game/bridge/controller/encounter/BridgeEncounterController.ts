@@ -311,7 +311,7 @@ export default class BridgeEncounterController {
 
                     ...(projectile.identification.status === THREAT_IDENTIFICATION_STATUS.IDENTIFIED
                         ? {
-                              guidanceKind: projectile.identification.guidanceKind,
+                              spectralBand: projectile.identification.spectralBand,
                           }
                         : {}),
                 };

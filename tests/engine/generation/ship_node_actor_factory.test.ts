@@ -40,11 +40,11 @@ describe('ShipNodeActorFactory', () => {
                 {
                     id: 'missile_launcher_00',
 
-                    weaponId: SHIP_WEAPON_ID.HEAT_MISSILE_LAUNCHER_00,
+                    weaponId: SHIP_WEAPON_ID.MISSILE_LAUNCHER_00,
 
                     kind: SHIP_WEAPON_KIND.MISSILE_LAUNCHER,
 
-                    loadedMissileId: MISSILE_ID.HEAT_00,
+                    loadedMissileId: MISSILE_ID.RED_00,
 
                     ammoCount: 5,
 
@@ -57,9 +57,11 @@ describe('ShipNodeActorFactory', () => {
 
         expect(first).not.toBe(second);
         expect(first.weapons).not.toBe(second.weapons);
+
         expect(first.weapons[0]).not.toBe(second.weapons[0]);
 
         first.weapons[0].ammoCount = 0;
+
         first.weapons[0].phase = SHIP_WEAPON_PHASE.COOLDOWN;
 
         expect(second.weapons[0].ammoCount).toBe(5);

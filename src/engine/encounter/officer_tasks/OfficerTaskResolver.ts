@@ -78,9 +78,9 @@ export default class OfficerTaskResolver {
             throw new Error('SCIENCE_IDENTIFY_THREAT task requires targetId');
         }
 
-        const guidanceKind = this.stateStore.identifyThreat(task.targetId);
+        const spectralBand = this.stateStore.identifyThreat(task.targetId);
 
-        if (!guidanceKind) {
+        if (!spectralBand) {
             return undefined;
         }
 
@@ -88,7 +88,7 @@ export default class OfficerTaskResolver {
             kind: OFFICER_TASK_RESULT_KIND.THREAT_IDENTIFIED,
 
             threatId: task.targetId,
-            guidanceKind,
+            spectralBand,
         };
     }
 

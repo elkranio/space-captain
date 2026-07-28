@@ -97,7 +97,7 @@ describe('CombatRunner', () => {
                         status: THREAT_IDENTIFICATION_STATUS.UNKNOWN,
                     },
 
-                    missileId: MISSILE_ID.HEAT_00,
+                    missileId: MISSILE_ID.RED_00,
 
                     timeToImpactMs: 12000,
                     initialTimeToImpactMs: 12000,
@@ -108,7 +108,6 @@ describe('CombatRunner', () => {
         expect(launcher.phase).toBe(SHIP_WEAPON_PHASE.COOLDOWN);
 
         expect(launcher.phaseElapsedMs).toBe(0);
-
         expect(launcher.ammoCount).toBe(0);
 
         const [projectile] = loadedEvent.state.combat.projectiles;
@@ -130,7 +129,7 @@ describe('CombatRunner', () => {
                 status: THREAT_IDENTIFICATION_STATUS.UNKNOWN,
             },
 
-            missileId: MISSILE_ID.HEAT_00,
+            missileId: MISSILE_ID.RED_00,
 
             timeToImpactMs: 12000,
             initialTimeToImpactMs: 12000,
@@ -169,7 +168,7 @@ describe('CombatRunner', () => {
                         status: THREAT_IDENTIFICATION_STATUS.UNKNOWN,
                     },
 
-                    missileId: MISSILE_ID.HEAT_00,
+                    missileId: MISSILE_ID.RED_00,
 
                     timeToImpactMs: 0,
                     initialTimeToImpactMs: 12000,
@@ -196,7 +195,6 @@ describe('CombatRunner', () => {
         expect(launcher.phase).toBe(SHIP_WEAPON_PHASE.READY);
 
         expect(launcher.phaseElapsedMs).toBe(0);
-
         expect(launcher.ammoCount).toBe(0);
 
         engine.step(1);

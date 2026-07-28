@@ -1,6 +1,6 @@
 // src/engine/defs/ship_weapon.ts
 
-import type { MissileGuidanceKind, MissileId } from './missile';
+import type { MissileId } from './missile';
 
 export const SHIP_WEAPON_KIND = {
     MISSILE_LAUNCHER: 'missile_launcher',
@@ -9,7 +9,7 @@ export const SHIP_WEAPON_KIND = {
 export type ShipWeaponKind = (typeof SHIP_WEAPON_KIND)[keyof typeof SHIP_WEAPON_KIND];
 
 export const SHIP_WEAPON_ID = {
-    HEAT_MISSILE_LAUNCHER_00: 'heat_missile_launcher_00',
+    MISSILE_LAUNCHER_00: 'missile_launcher_00',
 } as const;
 
 export type ShipWeaponId = (typeof SHIP_WEAPON_ID)[keyof typeof SHIP_WEAPON_ID];
@@ -37,8 +37,6 @@ export type ShipWeaponDefinitionBase = {
 
 export type MissileLauncherDefinition = ShipWeaponDefinitionBase & {
     kind: typeof SHIP_WEAPON_KIND.MISSILE_LAUNCHER;
-
-    firmwareGuidanceKind: MissileGuidanceKind;
 
     ammoCapacity: number;
 };

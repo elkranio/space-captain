@@ -32,7 +32,7 @@ const launchedProjectile: MissileCombatProjectileState = {
         status: THREAT_IDENTIFICATION_STATUS.UNKNOWN,
     },
 
-    missileId: MISSILE_ID.HEAT_00,
+    missileId: MISSILE_ID.RED_00,
 
     timeToImpactMs: 12000,
     initialTimeToImpactMs: 12000,

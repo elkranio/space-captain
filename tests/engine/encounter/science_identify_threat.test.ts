@@ -3,7 +3,7 @@
 import { describe, expect, it } from 'vitest';
 import { SHIP_WEAPONS } from '../../../src/engine/content/catalogs/ship_weapons';
 import { SHIP_NODE_ACTOR_PRESET_ID } from '../../../src/engine/content/presets/ship_node_actors';
-import { MISSILE_GUIDANCE_KIND } from '../../../src/engine/defs/missile';
+import { MISSILE_SPECTRAL_BAND } from '../../../src/engine/defs/missile';
 import { OFFICER_ROLE } from '../../../src/engine/defs/officer';
 import { PLAYER_SPACE_NAVIGATION_KIND } from '../../../src/engine/defs/player_location';
 import EncounterEngine from '../../../src/engine/encounter/EncounterEngine';
@@ -102,7 +102,7 @@ describe('Science identify threat command', () => {
         expect(engine.getCombatProjectiles()[0].identification).toEqual({
             status: THREAT_IDENTIFICATION_STATUS.IDENTIFIED,
 
-            guidanceKind: MISSILE_GUIDANCE_KIND.HEAT,
+            spectralBand: MISSILE_SPECTRAL_BAND.RED,
         });
 
         expect(
@@ -117,9 +117,13 @@ describe('Science identify threat command', () => {
 
                 task: {
                     kind: OFFICER_TASK_KIND.SCIENCE_IDENTIFY_THREAT,
+
                     role: OFFICER_ROLE.SCIENCE,
+
                     sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.SCIENCE_IDENTIFY_THREAT,
+
                     targetId: 'projectile_1',
+
                     label: 'IDENTIFY',
                     durationMs: 3000,
 
@@ -133,9 +137,13 @@ describe('Science identify threat command', () => {
 
                 task: {
                     kind: OFFICER_TASK_KIND.SCIENCE_IDENTIFY_THREAT,
+
                     role: OFFICER_ROLE.SCIENCE,
+
                     sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.SCIENCE_IDENTIFY_THREAT,
+
                     targetId: 'projectile_1',
+
                     label: 'IDENTIFY',
                     durationMs: 3000,
 
@@ -149,7 +157,8 @@ describe('Science identify threat command', () => {
                     kind: OFFICER_TASK_RESULT_KIND.THREAT_IDENTIFIED,
 
                     threatId: 'projectile_1',
-                    guidanceKind: MISSILE_GUIDANCE_KIND.HEAT,
+
+                    spectralBand: MISSILE_SPECTRAL_BAND.RED,
                 },
             },
         ]);

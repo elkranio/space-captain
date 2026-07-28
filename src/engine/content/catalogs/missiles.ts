@@ -1,13 +1,13 @@
 // src/engine/content/catalogs/missiles.ts
 
-import { MISSILE_GUIDANCE_KIND, MISSILE_ID, type MissileDefinition, type MissileId } from '../../defs/missile';
+import { MISSILE_ID, MISSILE_SPECTRAL_BAND, type MissileDefinition, type MissileId } from '../../defs/missile';
 
 export const MISSILES = {
-    [MISSILE_ID.HEAT_00]: {
-        id: MISSILE_ID.HEAT_00,
-        name: 'HEAT SEEKER',
+    [MISSILE_ID.RED_00]: {
+        id: MISSILE_ID.RED_00,
+        name: 'RED-BAND MISSILE',
 
-        guidanceKind: MISSILE_GUIDANCE_KIND.HEAT,
+        spectralBand: MISSILE_SPECTRAL_BAND.RED,
 
         damage: 1,
         flightDurationMs: 12000,

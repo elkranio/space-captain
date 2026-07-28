@@ -42,7 +42,7 @@ export const SHIP_NODE_ACTOR_PRESETS = {
 
                 kind: SHIP_WEAPON_KIND.MISSILE_LAUNCHER,
 
-                presetId: MISSILE_LAUNCHER_PRESET_ID.BASIC_HEAT_FULL_00,
+                presetId: MISSILE_LAUNCHER_PRESET_ID.BASIC_RED_FULL_00,
             },
         ],
     },

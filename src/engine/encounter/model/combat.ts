@@ -1,6 +1,6 @@
 // src/engine/encounter/model/combat.ts
 
-import type { MissileGuidanceKind, MissileId } from '../../defs/missile';
+import type { MissileSpectralBand, MissileId } from '../../defs/missile';
 
 export const COMBAT_PROJECTILE_KIND = {
     MISSILE: 'missile',
@@ -33,7 +33,7 @@ export type MissileThreatIdentification =
     | {
           status: typeof THREAT_IDENTIFICATION_STATUS.IDENTIFIED;
 
-          guidanceKind: MissileGuidanceKind;
+          spectralBand: MissileSpectralBand;
       };
 
 export type MissileCombatProjectileState = {

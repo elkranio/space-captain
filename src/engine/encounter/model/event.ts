@@ -6,7 +6,7 @@ import type { OfficerTaskState } from './officer_task';
 import type { EncounterState } from './state';
 import type { JumpPointEncounterAnchorState } from '../anchors/jump_point/jump_point_encounter_anchor';
 import type { MissileCombatProjectileState } from './combat';
-import type { MissileGuidanceKind } from '../../defs/missile';
+import type { MissileSpectralBand } from '../../defs/missile';
 
 // События, которые EncounterEngine отдаёт наружу
 // через outbox.
@@ -55,7 +55,7 @@ export type OfficerTaskResult =
           kind: typeof OFFICER_TASK_RESULT_KIND.THREAT_IDENTIFIED;
 
           threatId: string;
-          guidanceKind: MissileGuidanceKind;
+          spectralBand: MissileSpectralBand;
       };
 
 // Полный snapshot encounter после создания
