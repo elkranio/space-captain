@@ -1,18 +1,14 @@
 // src/engine/encounter/commands/officer_command_handlers.ts
 
-import {
-    ENCOUNTER_OFFICER_COMMAND_ID,
-    type EncounterOfficerCommandId,
-    type OfficerCommandDef,
-} from '../../model/command';
-import type { OfficerCommandHandler } from '../../model/officer_command_handler';
-import { commsHailCommandHandler } from './comms_hail_command_handler';
-import { commsRequestDockingCommandHandler } from './comms_request_docking_command_handler';
-import { helmDockCommandHandler } from './helm_dock_command_handler';
-import { helmFlyToCommandHandler } from './helm_fly_to_command_handler';
-import { helmJumpCommandHandler } from './helm_jump_command_handler';
-import { scienceIdentifyThreatCommandHandler } from './science_identify_threat_command_handler';
-import { sciencePlotCourseCommandHandler } from './science_plot_course_command_handler';
+import { ENCOUNTER_OFFICER_COMMAND_ID, type EncounterOfficerCommandId, type OfficerCommandDef } from '../model/command';
+import type { OfficerCommandHandler } from '../model/officer_command_handler';
+import { commsHailCommandHandler } from './handlers/comms_hail_command_handler';
+import { commsRequestDockingCommandHandler } from './handlers/comms_request_docking_command_handler';
+import { helmDockCommandHandler } from './handlers/helm_dock_command_handler';
+import { helmFlyToCommandHandler } from './handlers/helm_fly_to_command_handler';
+import { helmJumpCommandHandler } from './handlers/helm_jump_command_handler';
+import { scienceIdentifyThreatCommandHandler } from './handlers/science_identify_threat_command_handler';
+import { sciencePlotCourseCommandHandler } from './handlers/science_plot_course_command_handler';
 
 const OFFICER_COMMAND_HANDLER_BY_ID = {
     [ENCOUNTER_OFFICER_COMMAND_ID.COMMS_HAIL]: commsHailCommandHandler,
