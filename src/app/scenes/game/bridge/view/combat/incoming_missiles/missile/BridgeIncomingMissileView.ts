@@ -1,5 +1,6 @@
 // src/app/scenes/game/bridge/view/combat/incoming_missiles/missile/BridgeIncomingMissileView.ts
 
+import type { MissileGuidanceKind } from '../../../../../../../../engine/defs/missile';
 import { MISSILE_SPRITE_ID, MISSILE_SPRITES } from '../../../../../../../manifests/combat/missiles/missile_sprite';
 import { FONT_FAMILY, FONT_SIZE } from '../../../../../../../theme/font';
 import type BridgeScene from '../../../../BridgeScene';
@@ -47,10 +48,11 @@ const TARGETING_FRAME = {
 // - траекторией;
 // - targeting brackets;
 // - коротким designation;
+// - известным guidance kind;
 // - countdown.
 //
-// Engine остаётся источником времени.
-// View только отображает полученный timeToImpactMs.
+// Engine остаётся источником времени и знания.
+// View только отображает полученный snapshot.
 export default class BridgeIncomingMissileView {
     private readonly root: Phaser.GameObjects.Container;
 
@@ -84,7 +86,6 @@ export default class BridgeIncomingMissileView {
         this.designation = designation;
 
         this.startPosition = startPosition.clone();
-
         this.targetPosition = targetPosition.clone();
 
         this.controlPosition = this.createControlPosition(this.startPosition, this.targetPosition);
@@ -129,7 +130,7 @@ export default class BridgeIncomingMissileView {
         this.update(initialTimeToImpactMs);
     }
 
-    public update(timeToImpactMs: number): void {
+    public update(timeToImpactMs: number, guidanceKind?: MissileGuidanceKind): void {
         const progress = this.getQuantizedProgress(timeToImpactMs);
 
         const position = this.getQuadraticBezierPosition(progress);
@@ -144,7 +145,7 @@ export default class BridgeIncomingMissileView {
 
         this.drawTargetingFrame();
 
-        this.statusLabel.setText(`${this.designation} ${this.formatTimeToImpact(timeToImpactMs)}`);
+        this.statusLabel.setText(this.formatStatusLabel(timeToImpactMs, guidanceKind));
     }
 
     public destroy(): void {
@@ -179,21 +180,37 @@ export default class BridgeIncomingMissileView {
 
         // Top-left.
         this.targetingFrame.fillRect(left, top, length, thickness);
+
         this.targetingFrame.fillRect(left, top, thickness, length);
 
         // Top-right.
         this.targetingFrame.fillRect(right - length, top, length, thickness);
+
         this.targetingFrame.fillRect(right - thickness, top, thickness, length);
 
         // Bottom-left.
         this.targetingFrame.fillRect(left, bottom - thickness, length, thickness);
+
         this.targetingFrame.fillRect(left, bottom - length, thickness, length);
 
         // Bottom-right.
         this.targetingFrame.fillRect(right - length, bottom - thickness, length, thickness);
+
         this.targetingFrame.fillRect(right - thickness, bottom - length, thickness, length);
 
         this.statusLabel.setPosition(0, bottom + TARGETING_FRAME.labelGap);
+    }
+
+    private formatStatusLabel(timeToImpactMs: number, guidanceKind?: MissileGuidanceKind): string {
+        const parts = [this.designation];
+
+        if (guidanceKind) {
+            parts.push(guidanceKind.toUpperCase());
+        }
+
+        parts.push(this.formatTimeToImpact(timeToImpactMs));
+
+        return parts.join(' ');
     }
 
     private formatTimeToImpact(timeToImpactMs: number): string {

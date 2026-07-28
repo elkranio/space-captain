@@ -88,7 +88,6 @@ export default class BridgeIncomingMissilesView {
 
             startPosition,
             targetPosition: this.createImpactPosition(),
-
             initialTimeToImpactMs: payload.initialTimeToImpactMs,
         });
 
@@ -103,7 +102,7 @@ export default class BridgeIncomingMissilesView {
                 throw new Error(`Incoming missile not found during update: ` + update.projectileId);
             }
 
-            missile.update(update.timeToImpactMs);
+            missile.update(update.timeToImpactMs, update.guidanceKind);
         }
     }
 

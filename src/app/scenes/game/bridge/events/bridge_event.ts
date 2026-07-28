@@ -6,6 +6,7 @@ import type { Vec3 } from '../../../../../engine/defs/vector';
 import type { EncounterOfficerCommandId } from '../../../../../engine/encounter/model/command';
 import type { SpriteEntry } from '../../../../manifests/types';
 import type { SceneKey } from '../../../scene_key';
+import type { MissileGuidanceKind } from '../../../../../engine/defs/missile';
 
 // Scene-local события bridge scene.
 //
@@ -358,6 +359,8 @@ export type BridgeIncomingMissileUpdatePayload = {
     projectileId: string;
 
     timeToImpactMs: number;
+
+    guidanceKind?: MissileGuidanceKind;
 };
 
 // Актуальный snapshot всех входящих ракет.

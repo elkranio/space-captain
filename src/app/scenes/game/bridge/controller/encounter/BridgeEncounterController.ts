@@ -37,6 +37,7 @@ import type BridgeEventBus from '../../events/BridgeEventBus';
 import BridgeOfficerCommandMenuController from './command_menu/BridgeOfficerCommandMenuController';
 import BridgeEncounterEngineEventHandler from './engine_events/BridgeEncounterEngineEventHandler';
 import BridgeOfficerStationsController from './officer_stations/BridgeOfficerStationsController';
+import { THREAT_IDENTIFICATION_STATUS } from '../../../../../../engine/encounter/model/combat';
 
 // App-controller для bridge encounter flow.
 //
@@ -307,6 +308,12 @@ export default class BridgeEncounterController {
                 return {
                     projectileId: projectile.id,
                     timeToImpactMs: projectile.timeToImpactMs,
+
+                    ...(projectile.identification.status === THREAT_IDENTIFICATION_STATUS.IDENTIFIED
+                        ? {
+                              guidanceKind: projectile.identification.guidanceKind,
+                          }
+                        : {}),
                 };
             }),
         );
