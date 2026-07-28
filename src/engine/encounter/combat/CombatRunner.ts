@@ -12,7 +12,7 @@ import {
     type ShipWeaponState,
 } from '../../defs/ship_weapon';
 import type { ShipEncounterActorState } from '../actors/ship/ship_encounter_actor';
-import { COMBAT_PROJECTILE_KIND, type MissileCombatProjectileState } from '../model/combat';
+import { COMBAT_PROJECTILE_KIND, COMBAT_TARGET_KIND, type MissileCombatProjectileState } from '../model/combat';
 import { ENCOUNTER_EVENT, type EncounterEvent } from '../model/event';
 import type { EncounterState } from '../model/state';
 
@@ -214,6 +214,10 @@ export default class CombatRunner {
             sourceActorId: actor.id,
             sourceWeaponId: launcher.id,
 
+            target: {
+                kind: COMBAT_TARGET_KIND.PLAYER_SHIP,
+            },
+
             missileId,
 
             timeToImpactMs: missile.flightDurationMs,
@@ -252,7 +256,15 @@ export default class CombatRunner {
     }
 
     private resolveMissileImpact(index: number, projectile: MissileCombatProjectileState): void {
+        if (projectile.target.kind !== COMBAT_TARGET_KIND.PLAYER_SHIP) {
+            throw new Error(
+                `Cannot resolve missile impact for unsupported target: ` + `${projectile.id}/${projectile.target.kind}`,
+            );
+        }
+
         const missile = MISSILES[projectile.missileId];
+
+        // остальной текущий метод без изменений
 
         const projectileSnapshot: MissileCombatProjectileState = {
             ...projectile,

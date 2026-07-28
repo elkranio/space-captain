@@ -7,7 +7,7 @@ import { MISSILE_ID } from '../../../src/engine/defs/missile';
 import { PLAYER_SPACE_NAVIGATION_KIND } from '../../../src/engine/defs/player_location';
 import { SHIP_WEAPON_PHASE } from '../../../src/engine/defs/ship_weapon';
 import EncounterEngine from '../../../src/engine/encounter/EncounterEngine';
-import { COMBAT_PROJECTILE_KIND } from '../../../src/engine/encounter/model/combat';
+import { COMBAT_PROJECTILE_KIND, COMBAT_TARGET_KIND } from '../../../src/engine/encounter/model/combat';
 import { ENCOUNTER_EVENT } from '../../../src/engine/encounter/model/event';
 import ShipNodeActorFactory from '../../../src/engine/generation/space_node_actor/ShipNodeActorFactory';
 import { createSingleStationNodeFixture } from '../../fixtures/engine/space_node_fixtures';
@@ -85,6 +85,10 @@ describe('CombatRunner', () => {
                     sourceActorId: enemy.id,
                     sourceWeaponId: launcher.id,
 
+                    target: {
+                        kind: COMBAT_TARGET_KIND.PLAYER_SHIP,
+                    },
+
                     missileId: MISSILE_ID.HEAT_00,
 
                     timeToImpactMs: 12000,
@@ -109,6 +113,10 @@ describe('CombatRunner', () => {
 
             sourceActorId: enemy.id,
             sourceWeaponId: launcher.id,
+
+            target: {
+                kind: COMBAT_TARGET_KIND.PLAYER_SHIP,
+            },
 
             missileId: MISSILE_ID.HEAT_00,
 
@@ -140,6 +148,10 @@ describe('CombatRunner', () => {
 
                     sourceActorId: enemy.id,
                     sourceWeaponId: launcher.id,
+
+                    target: {
+                        kind: COMBAT_TARGET_KIND.PLAYER_SHIP,
+                    },
 
                     missileId: MISSILE_ID.HEAT_00,
 

@@ -7,7 +7,11 @@ import { BRIDGE_EVENT } from '../../src/app/scenes/game/bridge/events/bridge_eve
 import type BridgeEventBus from '../../src/app/scenes/game/bridge/events/BridgeEventBus';
 import { SCENE_KEY } from '../../src/app/scenes/scene_key';
 import { MISSILE_ID } from '../../src/engine/defs/missile';
-import { COMBAT_PROJECTILE_KIND, type MissileCombatProjectileState } from '../../src/engine/encounter/model/combat';
+import {
+    COMBAT_PROJECTILE_KIND,
+    COMBAT_TARGET_KIND,
+    type MissileCombatProjectileState,
+} from '../../src/engine/encounter/model/combat';
 import { ENCOUNTER_EVENT } from '../../src/engine/encounter/model/event';
 
 const launchedProjectile: MissileCombatProjectileState = {
@@ -18,6 +22,9 @@ const launchedProjectile: MissileCombatProjectileState = {
 
     sourceActorId: 'ship_enemy_00',
     sourceWeaponId: 'missile_launcher_00',
+    target: {
+        kind: COMBAT_TARGET_KIND.PLAYER_SHIP,
+    },
 
     missileId: MISSILE_ID.HEAT_00,
 
