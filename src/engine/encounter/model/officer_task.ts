@@ -1,6 +1,7 @@
 // src/engine/encounter/model/officer_task.ts
 
 import type { OfficerRole } from '../../defs/officer';
+import type { PointDefenseBeamBand } from '../../defs/point_defense';
 import type { EncounterOfficerCommandId } from './command';
 
 // Стабильный тип офицерской работы.
@@ -15,6 +16,8 @@ export const OFFICER_TASK_KIND = {
 
     SCIENCE_PLOT_COURSE: 'science_plot_course',
     SCIENCE_IDENTIFY_THREAT: 'science_identify_threat',
+
+    WEAPONS_POINT_DEFENSE: 'weapons_point_defense',
 
     HELM_DOCK: 'helm_dock',
     HELM_FLY_TO: 'helm_fly_to',
@@ -31,8 +34,12 @@ export type OfficerTaskDraft = {
     kind: OfficerTaskKind;
     role: OfficerRole;
     sourceCommandId: EncounterOfficerCommandId;
+
     targetId?: string;
     targetNodeId?: string;
+
+    pointDefenseBeamBand?: PointDefenseBeamBand;
+
     label: string;
     durationMs: number | null;
 };

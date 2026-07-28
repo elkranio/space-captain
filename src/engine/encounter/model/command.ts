@@ -9,6 +9,9 @@ export const ENCOUNTER_OFFICER_COMMAND_ID = {
     SCIENCE_PLOT_COURSE: 'science_plot_course',
     SCIENCE_IDENTIFY_THREAT: 'science_identify_threat',
 
+    WEAPONS_FIRE_RED_BEAM: 'weapons_fire_red_beam',
+    WEAPONS_FIRE_BLUE_BEAM: 'weapons_fire_blue_beam',
+
     HELM_DOCK: 'helm_dock',
     HELM_FLY_TO: 'helm_fly_to',
     HELM_JUMP: 'helm_jump',

@@ -1,12 +1,14 @@
 // src/engine/encounter/officer_tasks/create_officer_task_draft.ts
 
 import { OFFICER_ROLE } from '../../defs/officer';
-import { ENCOUNTER_OFFICER_COMMAND_ID } from '../model/command';
+import { ENCOUNTER_OFFICER_COMMAND_ID, type EncounterOfficerCommandId } from '../model/command';
 import { OFFICER_TASK_KIND, type OfficerTaskDraft } from '../model/officer_task';
+import type { PointDefenseBeamBand } from '../../defs/point_defense';
 
 const REQUEST_DOCKING_BASE_DURATION_MS = 3000;
 const PLOT_COURSE_BASE_DURATION_MS = 5000;
 const IDENTIFY_THREAT_BASE_DURATION_MS = 3000;
+const POINT_DEFENSE_AIM_BASE_DURATION_MS = 3000;
 
 export function createCommsHailTask(targetId: string): OfficerTaskDraft {
     return {
@@ -51,6 +53,25 @@ export function createScienceIdentifyThreatTask(threatId: string): OfficerTaskDr
         targetId: threatId,
         label: 'IDENTIFY',
         durationMs: IDENTIFY_THREAT_BASE_DURATION_MS,
+    };
+}
+
+export function createWeaponsPointDefenseTask(
+    sourceCommandId: EncounterOfficerCommandId,
+    threatId: string,
+    pointDefenseBeamBand: PointDefenseBeamBand,
+): OfficerTaskDraft {
+    return {
+        kind: OFFICER_TASK_KIND.WEAPONS_POINT_DEFENSE,
+        role: OFFICER_ROLE.WEAPONS,
+
+        sourceCommandId,
+
+        targetId: threatId,
+        pointDefenseBeamBand,
+
+        label: 'PD AIM',
+        durationMs: POINT_DEFENSE_AIM_BASE_DURATION_MS,
     };
 }
 

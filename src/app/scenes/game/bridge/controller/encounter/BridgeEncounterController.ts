@@ -329,6 +329,7 @@ export default class BridgeEncounterController {
         }
 
         const input = this.createExecuteCommandInput(payload);
+
         const result = this.encounterEngine.executeCommand(input);
 
         if (result.status === OFFICER_COMMAND_EXECUTION_STATUS.EXECUTED) {
@@ -349,7 +350,11 @@ export default class BridgeEncounterController {
 
                 nodeId: this.getAutomaticPlotCourseTargetNodeId(),
             };
-        } else if (payload.commandId === ENCOUNTER_OFFICER_COMMAND_ID.SCIENCE_IDENTIFY_THREAT) {
+        } else if (
+            payload.commandId === ENCOUNTER_OFFICER_COMMAND_ID.SCIENCE_IDENTIFY_THREAT ||
+            payload.commandId === ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_RED_BEAM ||
+            payload.commandId === ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_BLUE_BEAM
+        ) {
             if (!payload.targetId) {
                 throw new Error(`${payload.commandId} bridge command requires targetId`);
             }
@@ -419,7 +424,7 @@ export default class BridgeEncounterController {
                         this.eventBus.emit(BRIDGE_EVENT.OFFICER_BARK_REQUESTED, {
                             role: payload.role,
 
-                            text: `CAN'T DO THAT, CAPTAIN. BUSY STATIONS: ${busyStations}.`,
+                            text: `CAN'T DO THAT, CAPTAIN. ` + `BUSY STATIONS: ${busyStations}.`,
                         });
 
                         return;
@@ -476,7 +481,7 @@ export default class BridgeEncounterController {
         const navigation = this.encounterEngine.getNavigationState();
 
         if (expectedKind !== undefined && navigation.kind !== expectedKind) {
-            throw new Error(`Expected engine navigation ${expectedKind}, received ${navigation.kind}`);
+            throw new Error(`Expected engine navigation ${expectedKind}, ` + `received ${navigation.kind}`);
         }
 
         GAME_RUNTIME.setPlayerSpaceNavigation(navigation);
