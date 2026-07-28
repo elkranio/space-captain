@@ -18,9 +18,9 @@ const INCOMING_MISSILE_IMPACT_AREA = {
     insetX: 260,
 
     // Нижняя часть viewscreen,
-    // но sprite, brackets и timer остаются внутри окна.
+    // но sprite, brackets и HUD label остаются внутри окна.
     topOffset: 215,
-    bottomInset: 40,
+    bottomInset: 60,
 } as const;
 
 // Manager-view летящих в игрока ракет.
@@ -83,6 +83,8 @@ export default class BridgeIncomingMissilesView {
         const missile = new BridgeIncomingMissileView({
             scene: this.scene,
             parent: this.root,
+
+            designation: payload.designation,
 
             startPosition,
             targetPosition: this.createImpactPosition(),

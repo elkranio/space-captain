@@ -1,8 +1,8 @@
 // tests/engine/encounter/combat_runner.test.ts
 
 import { describe, expect, it } from 'vitest';
-import { SHIP_NODE_ACTOR_PRESET_ID } from '../../../src/engine/content/presets/ship_node_actors';
 import { SHIP_WEAPONS } from '../../../src/engine/content/catalogs/ship_weapons';
+import { SHIP_NODE_ACTOR_PRESET_ID } from '../../../src/engine/content/presets/ship_node_actors';
 import { MISSILE_ID } from '../../../src/engine/defs/missile';
 import { PLAYER_SPACE_NAVIGATION_KIND } from '../../../src/engine/defs/player_location';
 import { SHIP_WEAPON_PHASE } from '../../../src/engine/defs/ship_weapon';
@@ -78,6 +78,7 @@ describe('CombatRunner', () => {
 
                 projectile: {
                     id: 'projectile_1',
+                    designation: 'M1',
 
                     kind: COMBAT_PROJECTILE_KIND.MISSILE,
 
@@ -95,12 +96,14 @@ describe('CombatRunner', () => {
         expect(launcher.phase).toBe(SHIP_WEAPON_PHASE.COOLDOWN);
 
         expect(launcher.phaseElapsedMs).toBe(0);
+
         expect(launcher.ammoCount).toBe(0);
 
         const [projectile] = loadedEvent.state.combat.projectiles;
 
         expect(projectile).toEqual({
             id: 'projectile_1',
+            designation: 'M1',
 
             kind: COMBAT_PROJECTILE_KIND.MISSILE,
 
@@ -131,6 +134,7 @@ describe('CombatRunner', () => {
 
                 projectile: {
                     id: 'projectile_1',
+                    designation: 'M1',
 
                     kind: COMBAT_PROJECTILE_KIND.MISSILE,
 
@@ -164,6 +168,7 @@ describe('CombatRunner', () => {
         expect(launcher.phase).toBe(SHIP_WEAPON_PHASE.READY);
 
         expect(launcher.phaseElapsedMs).toBe(0);
+
         expect(launcher.ammoCount).toBe(0);
 
         engine.step(1);

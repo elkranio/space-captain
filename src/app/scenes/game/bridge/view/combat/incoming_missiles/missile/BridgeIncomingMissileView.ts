@@ -8,6 +8,8 @@ type BridgeIncomingMissileViewOptions = {
     scene: BridgeScene;
     parent: Phaser.GameObjects.Container;
 
+    designation: string;
+
     startPosition: Phaser.Math.Vector2;
     targetPosition: Phaser.Math.Vector2;
 
@@ -35,7 +37,7 @@ const TARGETING_FRAME = {
     cornerLength: 8,
     thickness: 2,
 
-    timerGap: 3,
+    labelGap: 3,
 } as const;
 
 // Leaf-view одной ракеты.
@@ -44,6 +46,7 @@ const TARGETING_FRAME = {
 // - sprite;
 // - траекторией;
 // - targeting brackets;
+// - коротким designation;
 // - countdown.
 //
 // Engine остаётся источником времени.
@@ -55,7 +58,9 @@ export default class BridgeIncomingMissileView {
 
     private readonly targetingFrame: Phaser.GameObjects.Graphics;
 
-    private readonly countdown: Phaser.GameObjects.BitmapText;
+    private readonly statusLabel: Phaser.GameObjects.BitmapText;
+
+    private readonly designation: string;
 
     private readonly startPosition: Phaser.Math.Vector2;
 
@@ -69,11 +74,15 @@ export default class BridgeIncomingMissileView {
         scene,
         parent,
 
+        designation,
+
         startPosition,
         targetPosition,
 
         initialTimeToImpactMs,
     }: BridgeIncomingMissileViewOptions) {
+        this.designation = designation;
+
         this.startPosition = startPosition.clone();
 
         this.targetPosition = targetPosition.clone();
@@ -101,22 +110,21 @@ export default class BridgeIncomingMissileView {
 
         this.targetingFrame = scene.add.graphics();
 
-        this.countdown = scene.add
+        this.statusLabel = scene.add
             .bitmapText(
                 0,
                 0,
 
                 FONT_FAMILY.VGA_8X14,
                 '',
-
                 FONT_SIZE.PX_16,
             )
-            .setOrigin(0.5, 1)
+            .setOrigin(0.5, 0)
             .setTint(TARGETING_FRAME.color);
 
         this.root.add(this.image);
         this.root.add(this.targetingFrame);
-        this.root.add(this.countdown);
+        this.root.add(this.statusLabel);
 
         this.update(initialTimeToImpactMs);
     }
@@ -136,7 +144,7 @@ export default class BridgeIncomingMissileView {
 
         this.drawTargetingFrame();
 
-        this.countdown.setText(this.formatTimeToImpact(timeToImpactMs));
+        this.statusLabel.setText(`${this.designation} ${this.formatTimeToImpact(timeToImpactMs)}`);
     }
 
     public destroy(): void {
@@ -171,25 +179,21 @@ export default class BridgeIncomingMissileView {
 
         // Top-left.
         this.targetingFrame.fillRect(left, top, length, thickness);
-
         this.targetingFrame.fillRect(left, top, thickness, length);
 
         // Top-right.
         this.targetingFrame.fillRect(right - length, top, length, thickness);
-
         this.targetingFrame.fillRect(right - thickness, top, thickness, length);
 
         // Bottom-left.
         this.targetingFrame.fillRect(left, bottom - thickness, length, thickness);
-
         this.targetingFrame.fillRect(left, bottom - length, thickness, length);
 
         // Bottom-right.
         this.targetingFrame.fillRect(right - length, bottom - thickness, length, thickness);
-
         this.targetingFrame.fillRect(right - thickness, bottom - length, thickness, length);
 
-        this.countdown.setPosition(0, top - TARGETING_FRAME.timerGap);
+        this.statusLabel.setPosition(0, bottom + TARGETING_FRAME.labelGap);
     }
 
     private formatTimeToImpact(timeToImpactMs: number): string {

@@ -341,6 +341,8 @@ export type BridgeSceneTransitionRequestedPayload = {
 export type BridgeIncomingMissileAddedPayload = {
     projectileId: string;
 
+    designation: string;
+
     sourceActorId: string;
 
     initialTimeToImpactMs: number;

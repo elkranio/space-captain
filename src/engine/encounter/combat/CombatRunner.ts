@@ -38,6 +38,13 @@ export default class CombatRunner {
 
     private nextProjectileId = 1;
 
+    // Общая последовательность коротких обозначений угроз.
+    //
+    // Позже разные типы смогут использовать
+    // собственный prefix при общем номере:
+    // M1, M2, L3, M4.
+    private nextThreatDesignationNumber = 1;
+
     constructor({ state, emit }: CombatRunnerOptions) {
         this.state = state;
         this.emit = emit;
@@ -84,7 +91,6 @@ export default class CombatRunner {
             }
 
             weapon.phase = SHIP_WEAPON_PHASE.PREPARING;
-
             weapon.phaseElapsedMs = 0;
 
             this.emit({
@@ -197,11 +203,11 @@ export default class CombatRunner {
 
         launcher.ammoCount -= 1;
         launcher.phase = SHIP_WEAPON_PHASE.COOLDOWN;
-
         launcher.phaseElapsedMs = 0;
 
         const projectile: MissileCombatProjectileState = {
             id: this.createProjectileId(),
+            designation: this.createThreatDesignation('M'),
 
             kind: COMBAT_PROJECTILE_KIND.MISSILE,
 
@@ -211,7 +217,6 @@ export default class CombatRunner {
             missileId,
 
             timeToImpactMs: missile.flightDurationMs,
-
             initialTimeToImpactMs: missile.flightDurationMs,
         };
 
@@ -268,7 +273,7 @@ export default class CombatRunner {
 
     // #endregion
 
-    // #region Runtime ids
+    // #region Runtime identities
 
     private createProjectileId(): string {
         const id = `projectile_${this.nextProjectileId}`;
@@ -276,6 +281,14 @@ export default class CombatRunner {
         this.nextProjectileId += 1;
 
         return id;
+    }
+
+    private createThreatDesignation(prefix: string): string {
+        const designation = `${prefix}${this.nextThreatDesignationNumber}`;
+
+        this.nextThreatDesignationNumber += 1;
+
+        return designation;
     }
 
     // #endregion

@@ -7,11 +7,12 @@ import { BRIDGE_EVENT } from '../../src/app/scenes/game/bridge/events/bridge_eve
 import type BridgeEventBus from '../../src/app/scenes/game/bridge/events/BridgeEventBus';
 import { SCENE_KEY } from '../../src/app/scenes/scene_key';
 import { MISSILE_ID } from '../../src/engine/defs/missile';
-import { COMBAT_PROJECTILE_KIND } from '../../src/engine/encounter/model/combat';
+import { COMBAT_PROJECTILE_KIND, type MissileCombatProjectileState } from '../../src/engine/encounter/model/combat';
 import { ENCOUNTER_EVENT } from '../../src/engine/encounter/model/event';
 
-const launchedProjectile = {
+const launchedProjectile: MissileCombatProjectileState = {
     id: 'projectile_test_00',
+    designation: 'M1',
 
     kind: COMBAT_PROJECTILE_KIND.MISSILE,
 
@@ -24,7 +25,7 @@ const launchedProjectile = {
     initialTimeToImpactMs: 12000,
 };
 
-const impactedProjectile = {
+const impactedProjectile: MissileCombatProjectileState = {
     ...launchedProjectile,
 
     timeToImpactMs: 0,
@@ -72,6 +73,8 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
 
                 {
                     projectileId: 'projectile_test_00',
+
+                    designation: 'M1',
 
                     sourceActorId: 'ship_enemy_00',
 
@@ -127,7 +130,9 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
 
                 projectile: {
                     ...impactedProjectile,
+
                     id: 'projectile_test_01',
+                    designation: 'M2',
                 },
 
                 damage: 2,
@@ -137,7 +142,6 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
         expect(runtime.getCurrentRun().player.ship.hull).toBe(0);
 
         expect(setEncounterInteractive).toHaveBeenCalledTimes(1);
-
         expect(setEncounterInteractive).toHaveBeenCalledWith(false);
 
         expect(emit.mock.calls).toEqual([
@@ -174,7 +178,9 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
 
                 projectile: {
                     ...impactedProjectile,
+
                     id: 'projectile_test_02',
+                    designation: 'M3',
                 },
 
                 damage: 1,

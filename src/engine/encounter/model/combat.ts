@@ -9,6 +9,10 @@ export const COMBAT_PROJECTILE_KIND = {
 export type MissileCombatProjectileState = {
     id: string;
 
+    // Короткое стабильное обозначение
+    // конкретной угрозы внутри encounter.
+    designation: string;
+
     kind: typeof COMBAT_PROJECTILE_KIND.MISSILE;
 
     sourceActorId: string;
