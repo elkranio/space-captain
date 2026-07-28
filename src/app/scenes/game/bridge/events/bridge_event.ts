@@ -7,6 +7,7 @@ import type { EncounterOfficerCommandId } from '../../../../../engine/encounter/
 import type { SpriteEntry } from '../../../../manifests/types';
 import type { SceneKey } from '../../../scene_key';
 import type { MissileSpectralBand } from '../../../../../engine/defs/missile';
+import type { PointDefenseBeamBand, PointDefenseShotOutcome } from '../../../../../engine/defs/point_defense';
 
 // Scene-local события bridge scene.
 //
@@ -158,6 +159,10 @@ export const BRIDGE_EVENT = {
     // Актуальный временной snapshot
     // всех входящих ракет.
     INCOMING_MISSILES_UPDATED: 'incoming_missiles_updated',
+
+    // Point-defense завершил наведение
+    // и разрешил выстрел по угрозе.
+    POINT_DEFENSE_FIRED: 'point_defense_fired',
 
     // #endregion
 } as const;
@@ -366,6 +371,13 @@ export type BridgeIncomingMissileUpdatePayload = {
 // Актуальный snapshot всех входящих ракет.
 export type BridgeIncomingMissilesUpdatedPayload = BridgeIncomingMissileUpdatePayload[];
 
+export type BridgePointDefenseFiredPayload = {
+    projectileId: string;
+
+    beamBand: PointDefenseBeamBand;
+    outcome: PointDefenseShotOutcome;
+};
+
 // #endregion
 
 // Typed mapping:
@@ -444,4 +456,6 @@ export type BridgeEventPayloadMap = {
     [BRIDGE_EVENT.INCOMING_MISSILE_REMOVED]: BridgeIncomingMissileRemovedPayload;
 
     [BRIDGE_EVENT.INCOMING_MISSILES_UPDATED]: BridgeIncomingMissilesUpdatedPayload;
+
+    [BRIDGE_EVENT.POINT_DEFENSE_FIRED]: BridgePointDefenseFiredPayload;
 };

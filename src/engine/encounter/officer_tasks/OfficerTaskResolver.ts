@@ -29,8 +29,10 @@ export default class OfficerTaskResolver {
             case OFFICER_TASK_KIND.SCIENCE_IDENTIFY_THREAT:
                 return this.resolveScienceIdentifyThreatTask(task);
 
-            case OFFICER_TASK_KIND.COMMS_HAIL:
             case OFFICER_TASK_KIND.WEAPONS_POINT_DEFENSE:
+                return this.resolveWeaponsPointDefenseTask(task);
+
+            case OFFICER_TASK_KIND.COMMS_HAIL:
             case OFFICER_TASK_KIND.HELM_DOCK:
             case OFFICER_TASK_KIND.HELM_JUMP:
                 return undefined;
@@ -49,6 +51,7 @@ export default class OfficerTaskResolver {
 
         return {
             kind: OFFICER_TASK_RESULT_KIND.DOCKING_CLEARANCE_GRANTED,
+
             targetObjectId: task.targetId,
         };
     }
@@ -70,6 +73,7 @@ export default class OfficerTaskResolver {
 
         return {
             kind: OFFICER_TASK_RESULT_KIND.JUMP_POINT_CALCULATED,
+
             anchor,
         };
     }
@@ -90,6 +94,31 @@ export default class OfficerTaskResolver {
 
             threatId: task.targetId,
             spectralBand,
+        };
+    }
+
+    private resolveWeaponsPointDefenseTask(task: OfficerTaskState): OfficerTaskResult | undefined {
+        if (!task.targetId) {
+            throw new Error('WEAPONS_POINT_DEFENSE task requires targetId');
+        }
+
+        if (!task.pointDefenseBeamBand) {
+            throw new Error('WEAPONS_POINT_DEFENSE task requires pointDefenseBeamBand');
+        }
+
+        const outcome = this.stateStore.firePointDefense(task.targetId, task.pointDefenseBeamBand);
+
+        if (!outcome) {
+            return undefined;
+        }
+
+        return {
+            kind: OFFICER_TASK_RESULT_KIND.POINT_DEFENSE_FIRED,
+
+            threatId: task.targetId,
+
+            beamBand: task.pointDefenseBeamBand,
+            outcome,
         };
     }
 

@@ -19,6 +19,11 @@ import type { EncounterTeam } from '../../defs/encounter_team';
 import { MISSILES } from '../../content/catalogs/missiles';
 import type { MissileSpectralBand } from '../../defs/missile';
 import { THREAT_IDENTIFICATION_STATUS } from '../model/combat';
+import {
+    POINT_DEFENSE_SHOT_OUTCOME,
+    type PointDefenseBeamBand,
+    type PointDefenseShotOutcome,
+} from '../../defs/point_defense';
 
 export type EncounterTravelStart = {
     fromAnchorId: string;
@@ -231,6 +236,31 @@ export default class EncounterStateStore {
         };
 
         return spectralBand;
+    }
+
+    public firePointDefense(threatId: string, beamBand: PointDefenseBeamBand): PointDefenseShotOutcome | undefined {
+        const threatIndex = this.state.combat.projectiles.findIndex((projectile) => {
+            return projectile.id === threatId;
+        });
+
+        // Ракета могла ударить или быть уничтожена
+        // до завершения Weapons task.
+        if (threatIndex < 0) {
+            return undefined;
+        }
+
+        const threat = this.state.combat.projectiles[threatIndex];
+
+        const missile = MISSILES[threat.missileId];
+
+        const outcome =
+            missile.spectralBand === beamBand ? POINT_DEFENSE_SHOT_OUTCOME.HIT : POINT_DEFENSE_SHOT_OUTCOME.MISS;
+
+        if (outcome === POINT_DEFENSE_SHOT_OUTCOME.HIT) {
+            this.state.combat.projectiles.splice(threatIndex, 1);
+        }
+
+        return outcome;
     }
 
     // #endregion

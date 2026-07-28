@@ -133,9 +133,19 @@ export default class BridgeEncounterEngineEventHandler {
                     );
                 }
 
+                if (event.result?.kind === OFFICER_TASK_RESULT_KIND.POINT_DEFENSE_FIRED) {
+                    this.eventBus.emit(BRIDGE_EVENT.POINT_DEFENSE_FIRED, {
+                        projectileId: event.result.threatId,
+
+                        beamBand: event.result.beamBand,
+                        outcome: event.result.outcome,
+                    });
+                }
+
                 this.eventBus.emit(BRIDGE_EVENT.OFFICER_ACTIVITY_CLEARED, {
                     role: event.task.role,
                 });
+
                 return;
 
             case ENCOUNTER_EVENT.PLAYER_SHIP_TARGETING_DETECTED:

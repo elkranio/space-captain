@@ -1,11 +1,13 @@
 // src/app/scenes/game/bridge/view/combat/incoming_missiles/BridgeIncomingMissilesView.ts
 
+import { POINT_DEFENSE_SHOT_OUTCOME } from '../../../../../../../engine/defs/point_defense';
 import type BridgeScene from '../../../BridgeScene';
 import {
     BRIDGE_EVENT,
     type BridgeIncomingMissileAddedPayload,
     type BridgeIncomingMissileRemovedPayload,
     type BridgeIncomingMissilesUpdatedPayload,
+    type BridgePointDefenseFiredPayload,
 } from '../../../events/bridge_event';
 import type BridgeEventBus from '../../../events/BridgeEventBus';
 import { BRIDGE_VIEWSCREEN_RECT } from '../../bridge_viewscreen_layout';
@@ -51,6 +53,8 @@ export default class BridgeIncomingMissilesView {
         this.eventBus.on(BRIDGE_EVENT.INCOMING_MISSILES_UPDATED, this.updateMissiles, this);
 
         this.eventBus.on(BRIDGE_EVENT.INCOMING_MISSILE_REMOVED, this.removeMissile, this);
+
+        this.eventBus.on(BRIDGE_EVENT.POINT_DEFENSE_FIRED, this.handlePointDefenseFired, this);
     }
 
     public destroy(): void {
@@ -59,6 +63,8 @@ export default class BridgeIncomingMissilesView {
         this.eventBus.off(BRIDGE_EVENT.INCOMING_MISSILES_UPDATED, this.updateMissiles, this);
 
         this.eventBus.off(BRIDGE_EVENT.INCOMING_MISSILE_REMOVED, this.removeMissile, this);
+
+        this.eventBus.off(BRIDGE_EVENT.POINT_DEFENSE_FIRED, this.handlePointDefenseFired, this);
 
         for (const missile of this.missiles.values()) {
             missile.destroy();
@@ -87,7 +93,9 @@ export default class BridgeIncomingMissilesView {
             designation: payload.designation,
 
             startPosition,
+
             targetPosition: this.createImpactPosition(),
+
             initialTimeToImpactMs: payload.initialTimeToImpactMs,
         });
 
@@ -118,6 +126,23 @@ export default class BridgeIncomingMissilesView {
         this.missiles.delete(payload.projectileId);
     }
 
+    private handlePointDefenseFired(payload: BridgePointDefenseFiredPayload): void {
+        switch (payload.outcome) {
+            case POINT_DEFENSE_SHOT_OUTCOME.HIT:
+                this.removeMissile({
+                    projectileId: payload.projectileId,
+                });
+
+                return;
+
+            case POINT_DEFENSE_SHOT_OUTCOME.MISS:
+                return;
+
+            default:
+                return this.assertNever(payload.outcome);
+        }
+    }
+
     private createImpactPosition(): Phaser.Math.Vector2 {
         return new Phaser.Math.Vector2(
             Phaser.Math.Between(
@@ -132,5 +157,9 @@ export default class BridgeIncomingMissilesView {
                 BRIDGE_VIEWSCREEN_RECT.y + BRIDGE_VIEWSCREEN_RECT.height - INCOMING_MISSILE_IMPACT_AREA.bottomInset,
             ),
         );
+    }
+
+    private assertNever(value: never): never {
+        throw new Error(`Unhandled point-defense outcome: ${String(value)}`);
     }
 }

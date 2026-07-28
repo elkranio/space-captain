@@ -7,6 +7,7 @@ import type { EncounterState } from './state';
 import type { JumpPointEncounterAnchorState } from '../anchors/jump_point/jump_point_encounter_anchor';
 import type { MissileCombatProjectileState } from './combat';
 import type { MissileSpectralBand } from '../../defs/missile';
+import type { PointDefenseBeamBand, PointDefenseShotOutcome } from '../../defs/point_defense';
 
 // События, которые EncounterEngine отдаёт наружу
 // через outbox.
@@ -40,6 +41,7 @@ export const OFFICER_TASK_RESULT_KIND = {
     DOCKING_CLEARANCE_GRANTED: 'docking_clearance_granted',
     JUMP_POINT_CALCULATED: 'jump_point_calculated',
     THREAT_IDENTIFIED: 'threat_identified',
+    POINT_DEFENSE_FIRED: 'point_defense_fired',
 } as const;
 
 export type OfficerTaskResult =
@@ -56,6 +58,14 @@ export type OfficerTaskResult =
 
           threatId: string;
           spectralBand: MissileSpectralBand;
+      }
+    | {
+          kind: typeof OFFICER_TASK_RESULT_KIND.POINT_DEFENSE_FIRED;
+
+          threatId: string;
+
+          beamBand: PointDefenseBeamBand;
+          outcome: PointDefenseShotOutcome;
       };
 
 // Полный snapshot encounter после создания

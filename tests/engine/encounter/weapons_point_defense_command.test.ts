@@ -5,62 +5,26 @@ import { SHIP_WEAPONS } from '../../../src/engine/content/catalogs/ship_weapons'
 import { SHIP_NODE_ACTOR_PRESET_ID } from '../../../src/engine/content/presets/ship_node_actors';
 import { OFFICER_ROLE } from '../../../src/engine/defs/officer';
 import { PLAYER_SPACE_NAVIGATION_KIND } from '../../../src/engine/defs/player_location';
-import { POINT_DEFENSE_BEAM_BAND } from '../../../src/engine/defs/point_defense';
+import { POINT_DEFENSE_BEAM_BAND, POINT_DEFENSE_SHOT_OUTCOME } from '../../../src/engine/defs/point_defense';
 import EncounterEngine from '../../../src/engine/encounter/EncounterEngine';
 import {
     ENCOUNTER_OFFICER_COMMAND_ID,
     OFFICER_COMMAND_EXECUTION_STATUS,
     OFFICER_COMMAND_TARGET_KIND,
+    type EncounterOfficerCommandId,
 } from '../../../src/engine/encounter/model/command';
-import { ENCOUNTER_EVENT, OFFICER_TASK_OUTCOME } from '../../../src/engine/encounter/model/event';
+import {
+    ENCOUNTER_EVENT,
+    OFFICER_TASK_OUTCOME,
+    OFFICER_TASK_RESULT_KIND,
+} from '../../../src/engine/encounter/model/event';
 import { OFFICER_TASK_KIND } from '../../../src/engine/encounter/model/officer_task';
 import ShipNodeActorFactory from '../../../src/engine/generation/space_node_actor/ShipNodeActorFactory';
 import { createSingleStationNodeFixture } from '../../fixtures/engine/space_node_fixtures';
 
 describe('Weapons point defense command', () => {
-    it('offers both beam bands and runs a timed aiming task', () => {
-        const { node, stationId } = createSingleStationNodeFixture();
-
-        const nodeEnemy = ShipNodeActorFactory.create({
-            id: 'ship_enemy_00',
-
-            presetId: SHIP_NODE_ACTOR_PRESET_ID.ENEMY_GENERIC_00,
-
-            anchorId: stationId,
-        });
-
-        nodeEnemy.weapons[0].ammoCount = 1;
-
-        node.actors.push(nodeEnemy);
-
-        const engine = new EncounterEngine({
-            node,
-
-            navigation: {
-                kind: PLAYER_SPACE_NAVIGATION_KIND.ANCHORED,
-
-                anchorId: stationId,
-            },
-        });
-
-        const [loadedEvent] = engine.drainEvents();
-
-        if (loadedEvent.type !== ENCOUNTER_EVENT.ENCOUNTER_LOADED) {
-            throw new Error(`Expected encounter loaded event, received: ` + `${loadedEvent.type}`);
-        }
-
-        const enemy = loadedEvent.state.actors[0];
-        const launcher = enemy.weapons[0];
-
-        const launcherDefinition = SHIP_WEAPONS[launcher.weaponId];
-
-        engine.step(1);
-
-        engine.drainEvents();
-
-        engine.step(launcherDefinition.preparationDurationMs - 1);
-
-        engine.drainEvents();
+    it('destroys a missile when the beam band matches', () => {
+        const { engine, state } = createEngineWithIncomingMissile();
 
         const commands = engine.getAvailableCommands(OFFICER_ROLE.WEAPONS);
 
@@ -94,20 +58,13 @@ describe('Weapons point defense command', () => {
             },
         ]);
 
-        const redBeamCommand = commands.find((command) => {
-            return command.commandId === ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_RED_BEAM;
-        });
-
-        if (!redBeamCommand) {
-            throw new Error('Expected RED BEAM command');
-        }
+        const redBeamCommand = getCommand(engine, ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_RED_BEAM);
 
         expect(
             engine.executeCommand({
                 role: OFFICER_ROLE.WEAPONS,
 
                 commandId: redBeamCommand.commandId,
-
                 target: redBeamCommand.target,
             }),
         ).toEqual({
@@ -144,7 +101,7 @@ describe('Weapons point defense command', () => {
 
         expect(engine.drainEvents()).toEqual([]);
 
-        expect(loadedEvent.state.officerTasks[OFFICER_ROLE.WEAPONS]).toEqual({
+        expect(state.officerTasks[OFFICER_ROLE.WEAPONS]).toEqual({
             kind: OFFICER_TASK_KIND.WEAPONS_POINT_DEFENSE,
 
             role: OFFICER_ROLE.WEAPONS,
@@ -161,6 +118,8 @@ describe('Weapons point defense command', () => {
             id: 'task_1',
             elapsedMs: 2999,
         });
+
+        expect(state.combat.projectiles).toHaveLength(1);
 
         engine.step(1);
 
@@ -187,9 +146,146 @@ describe('Weapons point defense command', () => {
                 },
 
                 outcome: OFFICER_TASK_OUTCOME.COMPLETED,
+
+                result: {
+                    kind: OFFICER_TASK_RESULT_KIND.POINT_DEFENSE_FIRED,
+
+                    threatId: 'projectile_1',
+
+                    beamBand: POINT_DEFENSE_BEAM_BAND.RED,
+
+                    outcome: POINT_DEFENSE_SHOT_OUTCOME.HIT,
+                },
             },
         ]);
 
-        expect(engine.getAvailableCommands(OFFICER_ROLE.WEAPONS)).toEqual(commands);
+        expect(state.combat.projectiles).toEqual([]);
+
+        expect(engine.getAvailableCommands(OFFICER_ROLE.WEAPONS)).toEqual([]);
+    });
+
+    it('leaves the missile active when the beam band does not match', () => {
+        const { engine, state } = createEngineWithIncomingMissile();
+
+        const blueBeamCommand = getCommand(engine, ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_BLUE_BEAM);
+
+        expect(
+            engine.executeCommand({
+                role: OFFICER_ROLE.WEAPONS,
+
+                commandId: blueBeamCommand.commandId,
+                target: blueBeamCommand.target,
+            }),
+        ).toEqual({
+            status: OFFICER_COMMAND_EXECUTION_STATUS.EXECUTED,
+        });
+
+        engine.drainEvents();
+
+        engine.step(3000);
+
+        expect(engine.drainEvents()).toEqual([
+            {
+                type: ENCOUNTER_EVENT.OFFICER_TASK_ENDED,
+
+                task: {
+                    kind: OFFICER_TASK_KIND.WEAPONS_POINT_DEFENSE,
+
+                    role: OFFICER_ROLE.WEAPONS,
+
+                    sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_BLUE_BEAM,
+
+                    targetId: 'projectile_1',
+
+                    pointDefenseBeamBand: POINT_DEFENSE_BEAM_BAND.BLUE,
+
+                    label: 'PD AIM',
+                    durationMs: 3000,
+
+                    id: 'task_1',
+                    elapsedMs: 3000,
+                },
+
+                outcome: OFFICER_TASK_OUTCOME.COMPLETED,
+
+                result: {
+                    kind: OFFICER_TASK_RESULT_KIND.POINT_DEFENSE_FIRED,
+
+                    threatId: 'projectile_1',
+
+                    beamBand: POINT_DEFENSE_BEAM_BAND.BLUE,
+
+                    outcome: POINT_DEFENSE_SHOT_OUTCOME.MISS,
+                },
+            },
+        ]);
+
+        expect(state.combat.projectiles).toHaveLength(1);
+
+        expect(state.combat.projectiles[0].timeToImpactMs).toBe(9000);
+
+        expect(engine.getAvailableCommands(OFFICER_ROLE.WEAPONS)).toHaveLength(2);
     });
 });
+
+function createEngineWithIncomingMissile() {
+    const { node, stationId } = createSingleStationNodeFixture();
+
+    const nodeEnemy = ShipNodeActorFactory.create({
+        id: 'ship_enemy_00',
+
+        presetId: SHIP_NODE_ACTOR_PRESET_ID.ENEMY_GENERIC_00,
+
+        anchorId: stationId,
+    });
+
+    nodeEnemy.weapons[0].ammoCount = 1;
+
+    node.actors.push(nodeEnemy);
+
+    const engine = new EncounterEngine({
+        node,
+
+        navigation: {
+            kind: PLAYER_SPACE_NAVIGATION_KIND.ANCHORED,
+
+            anchorId: stationId,
+        },
+    });
+
+    const [loadedEvent] = engine.drainEvents();
+
+    if (loadedEvent.type !== ENCOUNTER_EVENT.ENCOUNTER_LOADED) {
+        throw new Error(`Expected encounter loaded event, received: ` + `${loadedEvent.type}`);
+    }
+
+    const enemy = loadedEvent.state.actors[0];
+    const launcher = enemy.weapons[0];
+
+    const launcherDefinition = SHIP_WEAPONS[launcher.weaponId];
+
+    engine.step(1);
+
+    engine.drainEvents();
+
+    engine.step(launcherDefinition.preparationDurationMs - 1);
+
+    engine.drainEvents();
+
+    return {
+        engine,
+        state: loadedEvent.state,
+    };
+}
+
+function getCommand(engine: EncounterEngine, commandId: EncounterOfficerCommandId) {
+    const command = engine.getAvailableCommands(OFFICER_ROLE.WEAPONS).find((candidate) => {
+        return candidate.commandId === commandId;
+    });
+
+    if (!command) {
+        throw new Error(`Expected Weapons command: ${commandId}`);
+    }
+
+    return command;
+}
