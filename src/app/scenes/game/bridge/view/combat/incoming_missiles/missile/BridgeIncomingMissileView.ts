@@ -48,7 +48,7 @@ const TARGETING_FRAME = {
 // - траекторией;
 // - targeting brackets;
 // - коротким designation;
-// - известным guidance kind;
+// - известной spectral band;
 // - countdown.
 //
 // Engine остаётся источником времени и знания.
@@ -146,6 +146,10 @@ export default class BridgeIncomingMissileView {
         this.drawTargetingFrame();
 
         this.statusLabel.setText(this.formatStatusLabel(timeToImpactMs, spectralBand));
+    }
+
+    public getPosition(): Phaser.Math.Vector2 {
+        return new Phaser.Math.Vector2(this.root.x, this.root.y);
     }
 
     public destroy(): void {

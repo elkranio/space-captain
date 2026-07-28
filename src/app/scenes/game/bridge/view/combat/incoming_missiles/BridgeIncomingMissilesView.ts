@@ -11,6 +11,7 @@ import {
 } from '../../../events/bridge_event';
 import type BridgeEventBus from '../../../events/BridgeEventBus';
 import { BRIDGE_VIEWSCREEN_RECT } from '../../bridge_viewscreen_layout';
+import BridgePointDefenseBeamView from '../point_defense/BridgePointDefenseBeamView';
 import BridgeIncomingMissileView from './missile/BridgeIncomingMissileView';
 
 type GetObjectPosition = (objectId: string) => Phaser.Math.Vector2 | undefined;
@@ -31,11 +32,14 @@ const INCOMING_MISSILE_IMPACT_AREA = {
 // - bridge events;
 // - поиск source position;
 // - выбор случайной impact point;
-// - lifecycle отдельных missile views.
+// - lifecycle missile views;
+// - lifecycle point-defense effects.
 export default class BridgeIncomingMissilesView {
     private readonly root: Phaser.GameObjects.Container;
 
     private readonly missiles = new Map<string, BridgeIncomingMissileView>();
+
+    private readonly pointDefenseEffects = new Set<BridgePointDefenseBeamView>();
 
     constructor(
         private readonly scene: BridgeScene,
@@ -65,6 +69,12 @@ export default class BridgeIncomingMissilesView {
         this.eventBus.off(BRIDGE_EVENT.INCOMING_MISSILE_REMOVED, this.removeMissile, this);
 
         this.eventBus.off(BRIDGE_EVENT.POINT_DEFENSE_FIRED, this.handlePointDefenseFired, this);
+
+        for (const effect of this.pointDefenseEffects) {
+            effect.destroy();
+        }
+
+        this.pointDefenseEffects.clear();
 
         for (const missile of this.missiles.values()) {
             missile.destroy();
@@ -127,6 +137,30 @@ export default class BridgeIncomingMissilesView {
     }
 
     private handlePointDefenseFired(payload: BridgePointDefenseFiredPayload): void {
+        const missile = this.missiles.get(payload.projectileId);
+
+        if (!missile) {
+            throw new Error(`Point-defense target not found: ` + payload.projectileId);
+        }
+
+        const effect = new BridgePointDefenseBeamView({
+            scene: this.scene,
+            parent: this.root,
+
+            beamBand: payload.beamBand,
+            outcome: payload.outcome,
+
+            // Последняя реально отображённая позиция.
+            // Именно в неё игрок видел выстрел.
+            targetPosition: missile.getPosition(),
+
+            onComplete: (completedEffect) => {
+                this.pointDefenseEffects.delete(completedEffect);
+            },
+        });
+
+        this.pointDefenseEffects.add(effect);
+
         switch (payload.outcome) {
             case POINT_DEFENSE_SHOT_OUTCOME.HIT:
                 this.removeMissile({
