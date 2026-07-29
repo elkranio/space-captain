@@ -6,11 +6,10 @@ import type BridgeEventBus from '../../../events/BridgeEventBus';
 import BridgeHullStatusView from './hull/BridgeHullStatusView';
 
 const SHIP_STATUS_PANEL = {
-    x: 16,
-    y: 16,
+    y: 4,
 
     width: 192,
-    height: 48,
+    height: 32,
 
     backgroundColor: 0x10131d,
     backgroundAlpha: 0.9,
@@ -19,7 +18,7 @@ const SHIP_STATUS_PANEL = {
     borderThickness: 2,
 } as const;
 
-const HULL_STATUS_POSITION = new Phaser.Math.Vector2(12, 14);
+const HULL_STATUS_POSITION = new Phaser.Math.Vector2(12, 8);
 
 // Временная root-view ship status panel.
 //
@@ -40,7 +39,11 @@ export default class BridgeShipStatusView {
 
         private readonly eventBus: BridgeEventBus,
     ) {
-        this.root = scene.add.container(SHIP_STATUS_PANEL.x, SHIP_STATUS_PANEL.y);
+        this.root = scene.add.container(
+            scene.cameras.main.centerX - SHIP_STATUS_PANEL.width / 2,
+
+            SHIP_STATUS_PANEL.y,
+        );
 
         scene.layers.get('ui').add(this.root);
 
