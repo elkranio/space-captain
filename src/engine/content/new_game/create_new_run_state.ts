@@ -1,27 +1,12 @@
 // src/engine/content/new_game/create_new_run_state.ts
 
 import { OFFICER_PORTRAIT_ID, OFFICER_ROLE } from '../../defs/officer';
-import type { PlayerShipState } from '../../defs/player';
 import type { RunState } from '../../defs/run';
+import { createNewGamePlayer } from './create_new_game_player';
 import NewGameUniverseFactory from './NewGameUniverseFactory';
-
-const PLAYER_POINT_DEFENSE_MAX_CHARGES = 4;
 
 export function createNewRunState(): RunState {
     const world = NewGameUniverseFactory.create();
-
-    const playerShip: PlayerShipState = {
-        hull: 3,
-        maxHull: 3,
-
-        pointDefense: {
-            charges: PLAYER_POINT_DEFENSE_MAX_CHARGES,
-
-            maxCharges: PLAYER_POINT_DEFENSE_MAX_CHARGES,
-        },
-
-        weapons: [],
-    };
 
     // Для smoke полёта:
     // world.playerLocations.travellingToStart
@@ -33,10 +18,7 @@ export function createNewRunState(): RunState {
     return {
         universe: world.universe,
 
-        player: {
-            ship: playerShip,
-            location: playerLocation,
-        },
+        player: createNewGamePlayer(playerLocation),
 
         officers: {
             [OFFICER_ROLE.COMMS]: {
