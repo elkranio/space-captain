@@ -66,6 +66,8 @@ export type OfficerTaskResult =
 
           beamBand: PointDefenseBeamBand;
           outcome: PointDefenseShotOutcome;
+
+          remainingCharges: number;
       };
 
 // Полный snapshot encounter после создания

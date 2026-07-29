@@ -112,13 +112,22 @@ export default class OfficerTaskResolver {
             return undefined;
         }
 
+        const result = this.stateStore.firePointDefense(task.targetId, task.pointDefenseBeamBand);
+
+        if (!result) {
+            return undefined;
+        }
+
         return {
             kind: OFFICER_TASK_RESULT_KIND.POINT_DEFENSE_FIRED,
 
             threatId: task.targetId,
 
             beamBand: task.pointDefenseBeamBand,
-            outcome,
+
+            outcome: result.outcome,
+
+            remainingCharges: result.remainingCharges,
         };
     }
 

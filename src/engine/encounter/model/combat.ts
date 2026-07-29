@@ -1,6 +1,7 @@
 // src/engine/encounter/model/combat.ts
 
 import type { MissileSpectralBand, MissileId } from '../../defs/missile';
+import type { PointDefenseState } from '../../defs/point_defense';
 
 export const COMBAT_PROJECTILE_KIND = {
     MISSILE: 'missile',
@@ -63,5 +64,7 @@ export type MissileCombatProjectileState = {
 export type CombatProjectileState = MissileCombatProjectileState;
 
 export type EncounterCombatState = {
+    pointDefense: PointDefenseState;
+
     projectiles: CombatProjectileState[];
 };

@@ -52,6 +52,21 @@ export class GameRuntime {
         };
     }
 
+    public setPlayerShipPointDefenseCharges(charges: number): void {
+        const pointDefense = this.currentRun.player.ship.pointDefense;
+
+        if (!Number.isInteger(charges) || charges < 0 || charges > pointDefense.maxCharges) {
+            throw new Error(
+                `Player point-defense charges ` +
+                    `must be an integer between ` +
+                    `0 and ${pointDefense.maxCharges}: ` +
+                    `${charges}`,
+            );
+        }
+
+        pointDefense.charges = charges;
+    }
+
     public setPlayerSpaceNavigation(navigation: PlayerSpaceNavigationState): void {
         const location = this.currentRun.player.location;
 

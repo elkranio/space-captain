@@ -5,12 +5,21 @@ import type { PlayerShipState } from '../../defs/player';
 import type { RunState } from '../../defs/run';
 import NewGameUniverseFactory from './NewGameUniverseFactory';
 
+const PLAYER_POINT_DEFENSE_MAX_CHARGES = 4;
+
 export function createNewRunState(): RunState {
     const world = NewGameUniverseFactory.create();
 
     const playerShip: PlayerShipState = {
         hull: 3,
         maxHull: 3,
+
+        pointDefense: {
+            charges: PLAYER_POINT_DEFENSE_MAX_CHARGES,
+
+            maxCharges: PLAYER_POINT_DEFENSE_MAX_CHARGES,
+        },
+
         weapons: [],
     };
 

@@ -1,11 +1,14 @@
 // src/engine/defs/player.ts
 
 import type { PlayerLocationState } from './player_location';
+import type { PointDefenseState } from './point_defense';
 import type { ShipWeaponState } from './ship_weapon';
 
 export type PlayerShipState = {
     hull: number;
     maxHull: number;
+
+    pointDefense: PointDefenseState;
 
     weapons: ShipWeaponState[];
 };

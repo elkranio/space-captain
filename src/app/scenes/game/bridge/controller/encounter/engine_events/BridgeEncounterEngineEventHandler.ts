@@ -134,12 +134,19 @@ export default class BridgeEncounterEngineEventHandler {
                 }
 
                 if (event.result?.kind === OFFICER_TASK_RESULT_KIND.POINT_DEFENSE_FIRED) {
-                    this.eventBus.emit(BRIDGE_EVENT.POINT_DEFENSE_FIRED, {
-                        projectileId: event.result.threatId,
+                    this.gameRuntime.setPlayerShipPointDefenseCharges(event.result.remainingCharges);
 
-                        beamBand: event.result.beamBand,
-                        outcome: event.result.outcome,
-                    });
+                    this.eventBus.emit(
+                        BRIDGE_EVENT.POINT_DEFENSE_FIRED,
+
+                        {
+                            projectileId: event.result.threatId,
+
+                            beamBand: event.result.beamBand,
+
+                            outcome: event.result.outcome,
+                        },
+                    );
                 }
 
                 this.eventBus.emit(BRIDGE_EVENT.OFFICER_ACTIVITY_CLEARED, {
