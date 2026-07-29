@@ -53,7 +53,13 @@ function createEncounterAnchorState(anchor: SpaceAnchorState): EncounterAnchorSt
 
                 displayName: anchor.station.name,
 
-                station: anchor.station,
+                station: {
+                    ...anchor.station,
+
+                    contact: {
+                        ...anchor.station.contact,
+                    },
+                },
 
                 localPosition: {
                     ...anchor.localPosition,
@@ -79,7 +85,9 @@ function createEncounterAnchorState(anchor: SpaceAnchorState): EncounterAnchorSt
 
                 displayName: anchor.beacon.name,
 
-                beacon: anchor.beacon,
+                beacon: {
+                    ...anchor.beacon,
+                },
 
                 localPosition: {
                     ...anchor.localPosition,
@@ -101,7 +109,9 @@ function createEncounterAnchorState(anchor: SpaceAnchorState): EncounterAnchorSt
 
                 displayName: anchor.asteroid.name,
 
-                asteroid: anchor.asteroid,
+                asteroid: {
+                    ...anchor.asteroid,
+                },
 
                 localPosition: {
                     ...anchor.localPosition,
@@ -124,7 +134,9 @@ function createEncounterAnchorState(anchor: SpaceAnchorState): EncounterAnchorSt
 
                 displayName: anchor.jumpPoint.name,
 
-                jumpPoint: anchor.jumpPoint,
+                jumpPoint: {
+                    ...anchor.jumpPoint,
+                },
 
                 localPosition: {
                     ...anchor.localPosition,
