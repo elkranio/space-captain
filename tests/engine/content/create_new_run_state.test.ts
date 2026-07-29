@@ -1,5 +1,4 @@
 // tests/engine/content/create_new_run_state.test.ts
-// tests/engine/content/new_game/create_new_run_state.test.ts
 
 import { describe, expect, it } from 'vitest';
 import { createNewRunState } from '../../../src/engine/content/new_game/create_new_run_state';

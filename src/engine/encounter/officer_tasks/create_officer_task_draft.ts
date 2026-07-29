@@ -1,14 +1,10 @@
 // src/engine/encounter/officer_tasks/create_officer_task_draft.ts
 
+import { OFFICER_TASK_BASE_DURATION_MS } from '../../content/rules/officer_tasks';
 import { OFFICER_ROLE } from '../../defs/officer';
 import type { PointDefenseBeamBand } from '../../defs/point_defense';
 import { ENCOUNTER_OFFICER_COMMAND_ID, type EncounterOfficerCommandId } from '../model/command';
 import { OFFICER_TASK_KIND, type OfficerTaskDraft } from '../model/officer_task';
-
-const REQUEST_DOCKING_BASE_DURATION_MS = 3000;
-const PLOT_COURSE_BASE_DURATION_MS = 5000;
-const IDENTIFY_THREAT_BASE_DURATION_MS = 3000;
-const POINT_DEFENSE_AIM_BASE_DURATION_MS = 3000;
 
 export function createCommsHailTask(targetId: string): OfficerTaskDraft {
     return {
@@ -40,7 +36,7 @@ export function createCommsRequestDockingTask(targetId: string): OfficerTaskDraf
         label: 'REQ DOCK',
         showProgress: false,
 
-        durationMs: REQUEST_DOCKING_BASE_DURATION_MS,
+        durationMs: OFFICER_TASK_BASE_DURATION_MS.COMMS_REQUEST_DOCKING,
     };
 }
 
@@ -57,7 +53,7 @@ export function createSciencePlotCourseTask(targetNodeId: string): OfficerTaskDr
         label: 'PLOT COURSE',
         showProgress: false,
 
-        durationMs: PLOT_COURSE_BASE_DURATION_MS,
+        durationMs: OFFICER_TASK_BASE_DURATION_MS.SCIENCE_PLOT_COURSE,
     };
 }
 
@@ -74,7 +70,7 @@ export function createScienceIdentifyThreatTask(threatId: string): OfficerTaskDr
         label: 'IDENTIFY',
         showProgress: true,
 
-        durationMs: IDENTIFY_THREAT_BASE_DURATION_MS,
+        durationMs: OFFICER_TASK_BASE_DURATION_MS.SCIENCE_IDENTIFY_THREAT,
     };
 }
 
@@ -87,7 +83,6 @@ export function createWeaponsPointDefenseTask(
         kind: OFFICER_TASK_KIND.WEAPONS_POINT_DEFENSE,
 
         role: OFFICER_ROLE.WEAPONS,
-
         sourceCommandId,
 
         targetId: threatId,
@@ -96,7 +91,7 @@ export function createWeaponsPointDefenseTask(
         label: 'PD AIM',
         showProgress: true,
 
-        durationMs: POINT_DEFENSE_AIM_BASE_DURATION_MS,
+        durationMs: OFFICER_TASK_BASE_DURATION_MS.WEAPONS_POINT_DEFENSE_AIM,
     };
 }
 
