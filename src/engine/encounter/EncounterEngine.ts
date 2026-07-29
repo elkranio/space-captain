@@ -9,7 +9,7 @@ import ContactSequenceRunner from './contact/ContactSequenceRunner';
 import type { AvailableOfficerCommand, ExecuteOfficerCommandInput, ExecuteOfficerCommandResult } from './model/command';
 import { ENCOUNTER_EVENT, type EncounterEvent } from './model/event';
 import type { OfficerAvailabilityStates } from './model/officer_availability';
-import { OFFICER_TASK_KIND, type OfficerTaskKind } from './model/officer_task';
+import { OFFICER_TASK_KIND, type OfficerTaskKind, type OfficerTaskState } from './model/officer_task';
 import { getOfficerAvailabilityStates } from './officer_availability/queries/get_officer_availability_states';
 import OfficerTaskRunner from './officer_tasks/OfficerTaskRunner';
 import EncounterStateStore from './state/EncounterStateStore';
@@ -118,6 +118,14 @@ export default class EncounterEngine {
 
     public getOfficerAvailabilityStates(): OfficerAvailabilityStates {
         return getOfficerAvailabilityStates(this.stateStore.getState());
+    }
+
+    public getOfficerTasks(): OfficerTaskState[] {
+        return this.stateStore.getOfficerTasks().map((task) => {
+            return {
+                ...task,
+            };
+        });
     }
 
     public getCombatProjectiles(): CombatProjectileState[] {

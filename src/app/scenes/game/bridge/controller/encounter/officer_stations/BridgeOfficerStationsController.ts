@@ -7,8 +7,10 @@ import {
     type OfficerAvailabilityState,
     type OfficerAvailabilityStates,
 } from '../../../../../../../engine/encounter/model/officer_availability';
+import type { OfficerTaskState } from '../../../../../../../engine/encounter/model/officer_task';
 import {
     BRIDGE_EVENT,
+    type BridgeOfficerActivityProgressUpdatedPayload,
     type BridgeOfficerStationIndicatorState,
     type BridgeOfficerStationIndicatorsUpdatedPayload,
 } from '../../../events/bridge_event';
@@ -20,20 +22,31 @@ const OFFICER_STATION_ROLES = Object.values(OFFICER_ROLE);
 
 // Управляет presentation-состоянием всех officer stations.
 //
-// Периодически читает актуальную officer availability
-// из EncounterEngine, переводит domain states в lamp states
-// и эмитит полный snapshot для bridge views.
+// Station lights:
+// - периодически читает officer availability;
+// - переводит domain states в lamp states;
+// - эмитит полный snapshot.
+//
+// Task progress:
+// - каждый frame читает активные officer tasks;
+// - переводит elapsed/duration в progress 0..1;
+// - не показывает progress для task с showProgress=false.
 export default class BridgeOfficerStationsController {
     private elapsedMs = 0;
 
     constructor(
         private readonly encounterEngine: EncounterEngine,
+
         private readonly eventBus: BridgeEventBus,
     ) {}
 
     // #region Public API
 
     public step(deltaMs: number): void {
+        // Progress должен двигаться плавно,
+        // поэтому не привязан к 200 ms lamp polling.
+        this.syncActivityProgress();
+
         this.elapsedMs += deltaMs;
 
         if (this.elapsedMs < OFFICER_STATIONS_SYNC_INTERVAL_MS) {
@@ -41,20 +54,41 @@ export default class BridgeOfficerStationsController {
         }
 
         this.elapsedMs = 0;
-        this.sync();
+
+        this.syncIndicators();
     }
 
     public sync(): void {
-        const availabilityStates = this.encounterEngine.getOfficerAvailabilityStates();
-
-        this.eventBus.emit(
-            BRIDGE_EVENT.OFFICER_STATION_INDICATORS_UPDATED,
-            this.createIndicatorStates(availabilityStates),
-        );
+        this.syncIndicators();
+        this.syncActivityProgress();
     }
 
     public destroy(): void {
         this.elapsedMs = 0;
+    }
+
+    // #endregion
+
+    // #region Synchronization
+
+    private syncIndicators(): void {
+        const availabilityStates = this.encounterEngine.getOfficerAvailabilityStates();
+
+        this.eventBus.emit(
+            BRIDGE_EVENT.OFFICER_STATION_INDICATORS_UPDATED,
+
+            this.createIndicatorStates(availabilityStates),
+        );
+    }
+
+    private syncActivityProgress(): void {
+        const tasks = this.encounterEngine.getOfficerTasks();
+
+        this.eventBus.emit(
+            BRIDGE_EVENT.OFFICER_ACTIVITY_PROGRESS_UPDATED,
+
+            this.createActivityProgressStates(tasks),
+        );
     }
 
     // #endregion
@@ -95,6 +129,38 @@ export default class BridgeOfficerStationsController {
     }
 
     // #endregion
+
+    // #region Activity progress creation
+
+    private createActivityProgressStates(tasks: OfficerTaskState[]): BridgeOfficerActivityProgressUpdatedPayload {
+        const progressStates = {} as BridgeOfficerActivityProgressUpdatedPayload;
+
+        // Полный snapshot:
+        // отсутствие task тоже представлено явно.
+        for (const role of OFFICER_STATION_ROLES) {
+            progressStates[role] = null;
+        }
+
+        for (const task of tasks) {
+            if (!task.showProgress) {
+                continue;
+            }
+
+            if (task.durationMs === null || task.durationMs <= 0) {
+                throw new Error(`Officer task ${task.kind} ` + `cannot show progress without ` + `a positive duration`);
+            }
+
+            progressStates[task.role] = clampProgress(task.elapsedMs / task.durationMs);
+        }
+
+        return progressStates;
+    }
+
+    // #endregion
+}
+
+function clampProgress(value: number): number {
+    return Math.min(Math.max(value, 0), 1);
 }
 
 function assertNever(value: never): never {

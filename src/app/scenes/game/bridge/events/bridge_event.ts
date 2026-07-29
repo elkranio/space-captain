@@ -64,6 +64,13 @@ export const BRIDGE_EVENT = {
     // Crew view убирает activity label.
     OFFICER_ACTIVITY_CLEARED: 'officer_activity_cleared',
 
+    // Полный snapshot отображаемого progress
+    // officer tasks.
+    //
+    // Значение 0..1 означает заполнение бара.
+    // null означает, что для роли бар не показывается.
+    OFFICER_ACTIVITY_PROGRESS_UPDATED: 'officer_activity_progress_updated',
+
     // #endregion
 
     // #region Encounter objects and navigation
@@ -241,6 +248,13 @@ export type BridgeOfficerActivityClearedPayload = {
     role: OfficerRole;
 };
 
+// Полный snapshot progress всех officer stations.
+//
+// null:
+// - task отсутствует;
+// - либо task не должна показывать progress.
+export type BridgeOfficerActivityProgressUpdatedPayload = Record<OfficerRole, number | null>;
+
 // #endregion
 
 // #region Encounter objects and navigation
@@ -406,6 +420,8 @@ export type BridgeEventPayloadMap = {
     [BRIDGE_EVENT.OFFICER_ACTIVITY_STARTED]: BridgeOfficerActivityStartedPayload;
 
     [BRIDGE_EVENT.OFFICER_ACTIVITY_CLEARED]: BridgeOfficerActivityClearedPayload;
+
+    [BRIDGE_EVENT.OFFICER_ACTIVITY_PROGRESS_UPDATED]: BridgeOfficerActivityProgressUpdatedPayload;
 
     // Encounter objects and navigation
 
