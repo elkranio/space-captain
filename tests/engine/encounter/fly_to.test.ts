@@ -96,7 +96,7 @@ describe('FLY_TO', () => {
 
                     sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.HELM_FLY_TO,
 
-                    targetId: beaconId,
+                    targetAnchorId: beaconId,
                     label: 'FLY TO',
                     durationMs: null,
                     elapsedMs: 0,

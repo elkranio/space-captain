@@ -118,7 +118,7 @@ function createOfficerTasks(): OfficerTaskState[] {
 
             sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_RED_BEAM,
 
-            targetId: 'projectile_1',
+            threatId: 'projectile_1',
 
             pointDefenseBeamBand: POINT_DEFENSE_BEAM_BAND.RED,
 

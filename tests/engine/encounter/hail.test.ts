@@ -78,7 +78,7 @@ describe('HAIL', () => {
 
                     sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.COMMS_HAIL,
 
-                    targetId: stationId,
+                    targetAnchorId: stationId,
                     label: 'HAIL',
                     durationMs: null,
                     elapsedMs: 0,

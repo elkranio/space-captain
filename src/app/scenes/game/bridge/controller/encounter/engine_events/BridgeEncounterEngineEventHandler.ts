@@ -316,11 +316,11 @@ export default class BridgeEncounterEngineEventHandler {
             throw new Error(`TRAVELLING encounter requires HELM_FLY_TO task, ` + `received: ${task.kind}`);
         }
 
-        if (task.targetId !== targetAnchorId) {
+        if (task.targetAnchorId !== targetAnchorId) {
             throw new Error(
                 `Loaded HELM_FLY_TO task target does not match ` +
                     `navigation target: ` +
-                    `${String(task.targetId)} !== ${targetAnchorId}`,
+                    `${task.targetAnchorId} !== ${targetAnchorId}`,
             );
         }
 

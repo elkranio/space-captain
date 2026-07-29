@@ -6,14 +6,14 @@ import type { PointDefenseBeamBand } from '../../defs/point_defense';
 import { ENCOUNTER_OFFICER_COMMAND_ID, type WeaponsPointDefenseCommandId } from '../model/command';
 import { OFFICER_TASK_KIND, type OfficerTaskDraft } from '../model/officer_task';
 
-export function createCommsHailTask(targetId: string): OfficerTaskDraft {
+export function createCommsHailTask(targetAnchorId: string): OfficerTaskDraft {
     return {
         kind: OFFICER_TASK_KIND.COMMS_HAIL,
         role: OFFICER_ROLE.COMMS,
 
         sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.COMMS_HAIL,
 
-        targetId,
+        targetAnchorId,
 
         label: 'HAIL',
         showProgress: false,
@@ -23,15 +23,14 @@ export function createCommsHailTask(targetId: string): OfficerTaskDraft {
     };
 }
 
-export function createCommsRequestDockingTask(targetId: string): OfficerTaskDraft {
+export function createCommsRequestDockingTask(targetAnchorId: string): OfficerTaskDraft {
     return {
         kind: OFFICER_TASK_KIND.COMMS_REQUEST_DOCKING,
-
         role: OFFICER_ROLE.COMMS,
 
         sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.COMMS_REQUEST_DOCKING,
 
-        targetId,
+        targetAnchorId,
 
         label: 'REQ DOCK',
         showProgress: false,
@@ -43,7 +42,6 @@ export function createCommsRequestDockingTask(targetId: string): OfficerTaskDraf
 export function createSciencePlotCourseTask(targetNodeId: string): OfficerTaskDraft {
     return {
         kind: OFFICER_TASK_KIND.SCIENCE_PLOT_COURSE,
-
         role: OFFICER_ROLE.SCIENCE,
 
         sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.SCIENCE_PLOT_COURSE,
@@ -60,12 +58,11 @@ export function createSciencePlotCourseTask(targetNodeId: string): OfficerTaskDr
 export function createScienceIdentifyThreatTask(threatId: string): OfficerTaskDraft {
     return {
         kind: OFFICER_TASK_KIND.SCIENCE_IDENTIFY_THREAT,
-
         role: OFFICER_ROLE.SCIENCE,
 
         sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.SCIENCE_IDENTIFY_THREAT,
 
-        targetId: threatId,
+        threatId,
 
         label: 'IDENTIFY',
         showProgress: true,
@@ -81,11 +78,11 @@ export function createWeaponsPointDefenseTask(
 ): OfficerTaskDraft {
     return {
         kind: OFFICER_TASK_KIND.WEAPONS_POINT_DEFENSE,
-
         role: OFFICER_ROLE.WEAPONS,
+
         sourceCommandId,
 
-        targetId: threatId,
+        threatId,
         pointDefenseBeamBand,
 
         label: 'PD AIM',
@@ -95,14 +92,14 @@ export function createWeaponsPointDefenseTask(
     };
 }
 
-export function createHelmDockTask(targetId: string): OfficerTaskDraft {
+export function createHelmDockTask(targetAnchorId: string): OfficerTaskDraft {
     return {
         kind: OFFICER_TASK_KIND.HELM_DOCK,
         role: OFFICER_ROLE.HELM,
 
         sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.HELM_DOCK,
 
-        targetId,
+        targetAnchorId,
 
         label: 'DOCK',
         showProgress: false,
@@ -112,14 +109,14 @@ export function createHelmDockTask(targetId: string): OfficerTaskDraft {
     };
 }
 
-export function createHelmFlyToTask(targetId: string): OfficerTaskDraft {
+export function createHelmFlyToTask(targetAnchorId: string): OfficerTaskDraft {
     return {
         kind: OFFICER_TASK_KIND.HELM_FLY_TO,
         role: OFFICER_ROLE.HELM,
 
         sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.HELM_FLY_TO,
 
-        targetId,
+        targetAnchorId,
 
         label: 'FLY TO',
         showProgress: false,
@@ -129,14 +126,14 @@ export function createHelmFlyToTask(targetId: string): OfficerTaskDraft {
     };
 }
 
-export function createHelmJumpTask(targetId: string, targetNodeId: string): OfficerTaskDraft {
+export function createHelmJumpTask(targetAnchorId: string, targetNodeId: string): OfficerTaskDraft {
     return {
         kind: OFFICER_TASK_KIND.HELM_JUMP,
         role: OFFICER_ROLE.HELM,
 
         sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.HELM_JUMP,
 
-        targetId,
+        targetAnchorId,
         targetNodeId,
 
         label: 'JUMP',

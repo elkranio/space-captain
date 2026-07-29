@@ -68,7 +68,8 @@ describe('REQUEST_DOCKING', () => {
 
                     sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.COMMS_REQUEST_DOCKING,
 
-                    targetId: stationId,
+                    targetAnchorId: stationId,
+
                     label: 'REQ DOCK',
                     durationMs: 3000,
                     elapsedMs: 0,
@@ -99,7 +100,7 @@ describe('REQUEST_DOCKING', () => {
                 result: {
                     kind: OFFICER_TASK_RESULT_KIND.DOCKING_CLEARANCE_GRANTED,
 
-                    targetObjectId: stationId,
+                    targetAnchorId: stationId,
                 },
             }),
         ]);

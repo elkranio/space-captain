@@ -42,7 +42,7 @@ type CommsHailOfficerTaskDraft = OfficerTaskDraftBase & {
 
     sourceCommandId: typeof ENCOUNTER_OFFICER_COMMAND_ID.COMMS_HAIL;
 
-    targetId: string;
+    targetAnchorId: string;
 };
 
 type CommsRequestDockingOfficerTaskDraft = OfficerTaskDraftBase & {
@@ -51,7 +51,7 @@ type CommsRequestDockingOfficerTaskDraft = OfficerTaskDraftBase & {
 
     sourceCommandId: typeof ENCOUNTER_OFFICER_COMMAND_ID.COMMS_REQUEST_DOCKING;
 
-    targetId: string;
+    targetAnchorId: string;
 };
 
 type SciencePlotCourseOfficerTaskDraft = OfficerTaskDraftBase & {
@@ -69,7 +69,7 @@ type ScienceIdentifyThreatOfficerTaskDraft = OfficerTaskDraftBase & {
 
     sourceCommandId: typeof ENCOUNTER_OFFICER_COMMAND_ID.SCIENCE_IDENTIFY_THREAT;
 
-    targetId: string;
+    threatId: string;
 };
 
 type WeaponsPointDefenseOfficerTaskDraft = OfficerTaskDraftBase & {
@@ -78,7 +78,7 @@ type WeaponsPointDefenseOfficerTaskDraft = OfficerTaskDraftBase & {
 
     sourceCommandId: WeaponsPointDefenseCommandId;
 
-    targetId: string;
+    threatId: string;
     pointDefenseBeamBand: PointDefenseBeamBand;
 };
 
@@ -88,7 +88,7 @@ type HelmDockOfficerTaskDraft = OfficerTaskDraftBase & {
 
     sourceCommandId: typeof ENCOUNTER_OFFICER_COMMAND_ID.HELM_DOCK;
 
-    targetId: string;
+    targetAnchorId: string;
 };
 
 type HelmFlyToOfficerTaskDraft = OfficerTaskDraftBase & {
@@ -97,7 +97,7 @@ type HelmFlyToOfficerTaskDraft = OfficerTaskDraftBase & {
 
     sourceCommandId: typeof ENCOUNTER_OFFICER_COMMAND_ID.HELM_FLY_TO;
 
-    targetId: string;
+    targetAnchorId: string;
 };
 
 type HelmJumpOfficerTaskDraft = OfficerTaskDraftBase & {
@@ -106,7 +106,7 @@ type HelmJumpOfficerTaskDraft = OfficerTaskDraftBase & {
 
     sourceCommandId: typeof ENCOUNTER_OFFICER_COMMAND_ID.HELM_JUMP;
 
-    targetId: string;
+    targetAnchorId: string;
     targetNodeId: string;
 };
 

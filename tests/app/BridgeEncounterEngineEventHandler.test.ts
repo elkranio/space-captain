@@ -311,7 +311,7 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
 
                     sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_RED_BEAM,
 
-                    targetId: 'projectile_test_00',
+                    threatId: 'projectile_test_00',
 
                     pointDefenseBeamBand: POINT_DEFENSE_BEAM_BAND.RED,
 
@@ -372,7 +372,7 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
 
                     sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_RED_BEAM,
 
-                    targetId: 'projectile_test_00',
+                    threatId: 'projectile_test_00',
 
                     pointDefenseBeamBand: POINT_DEFENSE_BEAM_BAND.RED,
 

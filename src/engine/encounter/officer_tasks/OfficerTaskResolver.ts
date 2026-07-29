@@ -78,17 +78,17 @@ export default class OfficerTaskResolver {
     }
 
     private resolveCommsRequestDockingTask(task: CommsRequestDockingTaskState): OfficerTaskResult {
-        this.stateStore.grantDockingClearance(task.targetId);
+        this.stateStore.grantDockingClearance(task.targetAnchorId);
 
         return {
             kind: OFFICER_TASK_RESULT_KIND.DOCKING_CLEARANCE_GRANTED,
 
-            targetObjectId: task.targetId,
+            targetAnchorId: task.targetAnchorId,
         };
     }
 
     private resolveHelmFlyToTask(task: HelmFlyToTaskState): void {
-        this.stateStore.completeTravel(task.targetId);
+        this.stateStore.completeTravel(task.targetAnchorId);
     }
 
     private resolveSciencePlotCourseTask(task: SciencePlotCourseTaskState): OfficerTaskResult {
@@ -102,7 +102,7 @@ export default class OfficerTaskResolver {
     }
 
     private resolveScienceIdentifyThreatTask(task: ScienceIdentifyThreatTaskState): OfficerTaskResult | undefined {
-        const spectralBand = this.stateStore.identifyThreat(task.targetId);
+        const spectralBand = this.stateStore.identifyThreat(task.threatId);
 
         if (!spectralBand) {
             return undefined;
@@ -111,13 +111,13 @@ export default class OfficerTaskResolver {
         return {
             kind: OFFICER_TASK_RESULT_KIND.THREAT_IDENTIFIED,
 
-            threatId: task.targetId,
+            threatId: task.threatId,
             spectralBand,
         };
     }
 
     private resolveWeaponsPointDefenseTask(task: WeaponsPointDefenseTaskState): OfficerTaskResult | undefined {
-        const outcome = this.stateStore.firePointDefense(task.targetId, task.pointDefenseBeamBand);
+        const outcome = this.stateStore.firePointDefense(task.threatId, task.pointDefenseBeamBand);
 
         if (!outcome) {
             return undefined;
@@ -126,7 +126,7 @@ export default class OfficerTaskResolver {
         return {
             kind: OFFICER_TASK_RESULT_KIND.POINT_DEFENSE_FIRED,
 
-            threatId: task.targetId,
+            threatId: task.threatId,
 
             beamBand: task.pointDefenseBeamBand,
             outcome,

@@ -125,7 +125,7 @@ describe('Science identify threat command', () => {
 
                     sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.SCIENCE_IDENTIFY_THREAT,
 
-                    targetId: 'projectile_1',
+                    threatId: 'projectile_1',
 
                     label: 'IDENTIFY',
                     showProgress: true,
@@ -146,7 +146,7 @@ describe('Science identify threat command', () => {
 
                     sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.SCIENCE_IDENTIFY_THREAT,
 
-                    targetId: 'projectile_1',
+                    threatId: 'projectile_1',
 
                     label: 'IDENTIFY',
                     showProgress: true,

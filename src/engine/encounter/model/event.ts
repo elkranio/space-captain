@@ -48,7 +48,7 @@ export const OFFICER_TASK_RESULT_KIND = {
 export type OfficerTaskResult =
     | {
           kind: typeof OFFICER_TASK_RESULT_KIND.DOCKING_CLEARANCE_GRANTED;
-          targetObjectId: string;
+          targetAnchorId: string;
       }
     | {
           kind: typeof OFFICER_TASK_RESULT_KIND.JUMP_POINT_CALCULATED;

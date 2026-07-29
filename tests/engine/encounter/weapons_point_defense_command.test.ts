@@ -100,7 +100,7 @@ describe('Weapons point defense command', () => {
 
                     sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_RED_BEAM,
 
-                    targetId: 'projectile_1',
+                    threatId: 'projectile_1',
 
                     pointDefenseBeamBand: POINT_DEFENSE_BEAM_BAND.RED,
 
@@ -130,7 +130,7 @@ describe('Weapons point defense command', () => {
 
             sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_RED_BEAM,
 
-            targetId: 'projectile_1',
+            threatId: 'projectile_1',
 
             pointDefenseBeamBand: POINT_DEFENSE_BEAM_BAND.RED,
 
@@ -162,7 +162,7 @@ describe('Weapons point defense command', () => {
 
                     sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_RED_BEAM,
 
-                    targetId: 'projectile_1',
+                    threatId: 'projectile_1',
 
                     pointDefenseBeamBand: POINT_DEFENSE_BEAM_BAND.RED,
 
@@ -239,7 +239,7 @@ describe('Weapons point defense command', () => {
 
                     sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_BLUE_BEAM,
 
-                    targetId: 'projectile_1',
+                    threatId: 'projectile_1',
 
                     pointDefenseBeamBand: POINT_DEFENSE_BEAM_BAND.BLUE,
 
@@ -335,7 +335,7 @@ describe('Weapons point defense command', () => {
 
                     sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_RED_BEAM,
 
-                    targetId: 'projectile_1',
+                    threatId: 'projectile_1',
 
                     pointDefenseBeamBand: POINT_DEFENSE_BEAM_BAND.RED,
 
