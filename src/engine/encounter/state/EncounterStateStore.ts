@@ -298,10 +298,10 @@ export default class EncounterStateStore {
         const id = `jump_point_${targetNodeId}`;
 
         if (this.findAnchorById(id)) {
-            throw new Error(`Cannot create duplicate encounter object: ${id}`);
+            throw new Error(`Cannot create duplicate encounter anchor: ${id}`);
         }
 
-        const object: JumpPointEncounterAnchorState = {
+        const anchor: JumpPointEncounterAnchorState = {
             id,
             kind: ENCOUNTER_ANCHOR_KIND.JUMP_POINT,
             displayName: 'JUMP POINT',
@@ -328,16 +328,16 @@ export default class EncounterStateStore {
             perspectiveDepth: 1,
         };
 
-        this.state.anchors.push(object);
+        this.state.anchors.push(anchor);
 
-        return object;
+        return anchor;
     }
 
-    public grantDockingClearance(targetObjectId: string): void {
-        const target = this.findAnchorById(targetObjectId);
+    public grantDockingClearance(targetAnchorId: string): void {
+        const target = this.findAnchorById(targetAnchorId);
 
         if (!target) {
-            throw new Error(`Cannot grant docking clearance: encounter object not found: ${targetObjectId}`);
+            throw new Error(`Cannot grant docking clearance: ` + `encounter anchor not found: ${targetAnchorId}`);
         }
 
         switch (target.kind) {
@@ -346,7 +346,7 @@ export default class EncounterStateStore {
                 return;
 
             default:
-                throw new Error(`Cannot grant docking clearance to encounter object: ${target.kind}`);
+                throw new Error(`Cannot grant docking clearance to encounter anchor: ` + `${target.kind}`);
         }
     }
 
