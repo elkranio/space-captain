@@ -10,7 +10,7 @@ import {
     type EncounterAnchorState,
 } from '../../../../../../../engine/encounter/anchors/encounter_anchor';
 import type { EncounterState } from '../../../../../../../engine/encounter/model/state';
-import { ASTEROID_OBJECT_SPRITES } from '../../../../../../manifests/asteroids/asteroid_srpite';
+import { ASTEROID_OBJECT_SPRITES } from '../../../../../../manifests/asteroids/asteroid_sprite';
 import { BEACON_OBJECT_SPRITES } from '../../../../../../manifests/beacons/beacon_sprite';
 import { JUMP_POINT_OBJECT_SPRITES } from '../../../../../../manifests/jump_points/jump_point_sprite';
 import { SHIP_SPRITES } from '../../../../../../manifests/ships/ship_sprite';
