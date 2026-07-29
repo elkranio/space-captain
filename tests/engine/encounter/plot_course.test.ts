@@ -80,6 +80,7 @@ describe('PLOT_COURSE', () => {
 
                     targetNodeId,
                     label: 'PLOT COURSE',
+                    showProgress: false,
                     durationMs: 5000,
                     elapsedMs: 0,
                 }),

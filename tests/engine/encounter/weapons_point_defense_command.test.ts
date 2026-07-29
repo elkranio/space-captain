@@ -89,6 +89,7 @@ describe('Weapons point defense command', () => {
                     pointDefenseBeamBand: POINT_DEFENSE_BEAM_BAND.RED,
 
                     label: 'PD AIM',
+                    showProgress: true,
                     durationMs: 3000,
 
                     id: 'task_1',
@@ -113,6 +114,7 @@ describe('Weapons point defense command', () => {
             pointDefenseBeamBand: POINT_DEFENSE_BEAM_BAND.RED,
 
             label: 'PD AIM',
+            showProgress: true,
             durationMs: 3000,
 
             id: 'task_1',
@@ -139,6 +141,7 @@ describe('Weapons point defense command', () => {
                     pointDefenseBeamBand: POINT_DEFENSE_BEAM_BAND.RED,
 
                     label: 'PD AIM',
+                    showProgress: true,
                     durationMs: 3000,
 
                     id: 'task_1',
@@ -200,6 +203,7 @@ describe('Weapons point defense command', () => {
                     pointDefenseBeamBand: POINT_DEFENSE_BEAM_BAND.BLUE,
 
                     label: 'PD AIM',
+                    showProgress: true,
                     durationMs: 3000,
 
                     id: 'task_1',

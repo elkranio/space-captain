@@ -125,6 +125,7 @@ describe('Science identify threat command', () => {
                     targetId: 'projectile_1',
 
                     label: 'IDENTIFY',
+                    showProgress: true,
                     durationMs: 3000,
 
                     id: 'task_1',
@@ -145,6 +146,7 @@ describe('Science identify threat command', () => {
                     targetId: 'projectile_1',
 
                     label: 'IDENTIFY',
+                    showProgress: true,
                     durationMs: 3000,
 
                     id: 'task_1',

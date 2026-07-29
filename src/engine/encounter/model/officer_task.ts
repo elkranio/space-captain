@@ -41,6 +41,11 @@ export type OfficerTaskDraft = {
     pointDefenseBeamBand?: PointDefenseBeamBand;
 
     label: string;
+
+    // Нужно ли presentation-слою показывать
+    // игроку точный прогресс этой task.
+    showProgress: boolean;
+
     durationMs: number | null;
 };
 
