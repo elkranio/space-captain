@@ -1,4 +1,4 @@
-// src\app\scenes\BaseScene.ts
+// src/app/scenes/BaseScene.ts
 import LayerManager from '../../system/LayerManager';
 
 /**

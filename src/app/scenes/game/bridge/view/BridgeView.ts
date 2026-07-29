@@ -51,8 +51,6 @@ export default class BridgeView {
 
         this.vfxView = new BridgeVfxView(this.scene, this.eventBus);
 
-        // дальше без изменений
-
         this.interiorView = new BridgeInteriorView(this.scene);
 
         this.targetingWarningView = new BridgeTargetingWarningView(this.scene, this.eventBus);
