@@ -147,6 +147,8 @@ export default class BridgeEncounterEngineEventHandler {
                             outcome: event.result.outcome,
                         },
                     );
+
+                    this.emitPlayerShipStatusUpdated();
                 }
 
                 this.eventBus.emit(BRIDGE_EVENT.OFFICER_ACTIVITY_CLEARED, {
@@ -195,17 +197,9 @@ export default class BridgeEncounterEngineEventHandler {
         if (result.currentHull !== result.previousHull) {
             const ship = this.gameRuntime.getCurrentRun().player.ship;
 
-            this.eventBus.emit(
-                BRIDGE_EVENT.PLAYER_SHIP_STATUS_UPDATED,
-
-                {
-                    hull: {
-                        current: result.currentHull,
-
-                        max: ship.maxHull,
-                    },
-                },
-            );
+            if (result.currentHull !== result.previousHull) {
+                this.emitPlayerShipStatusUpdated();
+            }
         }
 
         // destroyed === true также вернётся
@@ -222,6 +216,27 @@ export default class BridgeEncounterEngineEventHandler {
 
             {
                 sceneKey: SCENE_KEY.END,
+            },
+        );
+    }
+
+    private emitPlayerShipStatusUpdated(): void {
+        const ship = this.gameRuntime.getCurrentRun().player.ship;
+
+        this.eventBus.emit(
+            BRIDGE_EVENT.PLAYER_SHIP_STATUS_UPDATED,
+
+            {
+                hull: {
+                    current: ship.hull,
+                    max: ship.maxHull,
+                },
+
+                pointDefense: {
+                    current: ship.pointDefense.charges,
+
+                    max: ship.pointDefense.maxCharges,
+                },
             },
         );
     }

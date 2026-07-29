@@ -4,6 +4,7 @@ import type BridgeScene from '../../../BridgeScene';
 import { BRIDGE_EVENT, type BridgePlayerShipStatusUpdatedPayload } from '../../../events/bridge_event';
 import type BridgeEventBus from '../../../events/BridgeEventBus';
 import BridgeHullStatusView from './hull/BridgeHullStatusView';
+import BridgePointDefenseChargesView from './point_defense/BridgePointDefenseChargesView';
 
 const SHIP_STATUS_PANEL = {
     y: 4,
@@ -20,6 +21,8 @@ const SHIP_STATUS_PANEL = {
 
 const HULL_STATUS_POSITION = new Phaser.Math.Vector2(12, 8);
 
+const POINT_DEFENSE_STATUS_POSITION = new Phaser.Math.Vector2(112, 8);
+
 // Временная root-view ship status panel.
 //
 // Отвечает за:
@@ -33,6 +36,8 @@ export default class BridgeShipStatusView {
     private readonly background: Phaser.GameObjects.Rectangle;
 
     private readonly hullView: BridgeHullStatusView;
+
+    private readonly pointDefenseView: BridgePointDefenseChargesView;
 
     constructor(
         scene: BridgeScene,
@@ -70,7 +75,11 @@ export default class BridgeShipStatusView {
 
         this.hullView.setPosition(HULL_STATUS_POSITION.x, HULL_STATUS_POSITION.y);
 
-        this.root.add([this.background, this.hullView.getRoot()]);
+        this.pointDefenseView = new BridgePointDefenseChargesView(scene);
+
+        this.pointDefenseView.setPosition(POINT_DEFENSE_STATUS_POSITION.x, POINT_DEFENSE_STATUS_POSITION.y);
+
+        this.root.add([this.background, this.hullView.getRoot(), this.pointDefenseView.getRoot()]);
 
         this.eventBus.on(
             BRIDGE_EVENT.PLAYER_SHIP_STATUS_UPDATED,
@@ -88,7 +97,9 @@ export default class BridgeShipStatusView {
             this,
         );
 
+        this.pointDefenseView.destroy();
         this.hullView.destroy();
+
         this.background.destroy();
 
         this.root.destroy(false);
@@ -96,5 +107,7 @@ export default class BridgeShipStatusView {
 
     private handlePlayerShipStatusUpdated(payload: BridgePlayerShipStatusUpdatedPayload): void {
         this.hullView.setState(payload.hull.current, payload.hull.max);
+
+        this.pointDefenseView.setState(payload.pointDefense.current, payload.pointDefense.max);
     }
 }

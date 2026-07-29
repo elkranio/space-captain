@@ -272,6 +272,11 @@ export type BridgePlayerShipStatusUpdatedPayload = {
         current: number;
         max: number;
     };
+
+    pointDefense: {
+        current: number;
+        max: number;
+    };
 };
 
 // #endregion

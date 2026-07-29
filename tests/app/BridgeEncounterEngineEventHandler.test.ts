@@ -53,6 +53,20 @@ const impactedProjectile: MissileCombatProjectileState = {
     timeToImpactMs: 0,
 };
 
+function createPlayerShipStatusPayload(hullCurrent: number, pointDefenseCurrent = 4) {
+    return {
+        hull: {
+            current: hullCurrent,
+            max: 3,
+        },
+
+        pointDefense: {
+            current: pointDefenseCurrent,
+            max: 4,
+        },
+    };
+}
+
 describe('BridgeEncounterEngineEventHandler combat events', () => {
     it('maps targeting and missile launch to bridge presentation events', () => {
         const runtime = new GameRuntime();
@@ -146,16 +160,7 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
                 },
             ],
 
-            [
-                BRIDGE_EVENT.PLAYER_SHIP_STATUS_UPDATED,
-
-                {
-                    hull: {
-                        current: 2,
-                        max: 3,
-                    },
-                },
-            ],
+            [BRIDGE_EVENT.PLAYER_SHIP_STATUS_UPDATED, createPlayerShipStatusPayload(2)],
         ]);
 
         expect(setEncounterInteractive).not.toHaveBeenCalled();
@@ -191,16 +196,7 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
                 },
             ],
 
-            [
-                BRIDGE_EVENT.PLAYER_SHIP_STATUS_UPDATED,
-
-                {
-                    hull: {
-                        current: 2,
-                        max: 3,
-                    },
-                },
-            ],
+            [BRIDGE_EVENT.PLAYER_SHIP_STATUS_UPDATED, createPlayerShipStatusPayload(2)],
 
             [
                 BRIDGE_EVENT.INCOMING_MISSILE_REMOVED,
@@ -210,16 +206,7 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
                 },
             ],
 
-            [
-                BRIDGE_EVENT.PLAYER_SHIP_STATUS_UPDATED,
-
-                {
-                    hull: {
-                        current: 0,
-                        max: 3,
-                    },
-                },
-            ],
+            [BRIDGE_EVENT.PLAYER_SHIP_STATUS_UPDATED, createPlayerShipStatusPayload(0)],
 
             [
                 BRIDGE_EVENT.SCENE_TRANSITION_REQUESTED,
@@ -262,16 +249,7 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
                 },
             ],
 
-            [
-                BRIDGE_EVENT.PLAYER_SHIP_STATUS_UPDATED,
-
-                {
-                    hull: {
-                        current: 2,
-                        max: 3,
-                    },
-                },
-            ],
+            [BRIDGE_EVENT.PLAYER_SHIP_STATUS_UPDATED, createPlayerShipStatusPayload(2)],
 
             [
                 BRIDGE_EVENT.INCOMING_MISSILE_REMOVED,
@@ -281,16 +259,7 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
                 },
             ],
 
-            [
-                BRIDGE_EVENT.PLAYER_SHIP_STATUS_UPDATED,
-
-                {
-                    hull: {
-                        current: 0,
-                        max: 3,
-                    },
-                },
-            ],
+            [BRIDGE_EVENT.PLAYER_SHIP_STATUS_UPDATED, createPlayerShipStatusPayload(0)],
 
             [
                 BRIDGE_EVENT.SCENE_TRANSITION_REQUESTED,
@@ -380,6 +349,8 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
                     outcome: POINT_DEFENSE_SHOT_OUTCOME.HIT,
                 },
             ],
+
+            [BRIDGE_EVENT.PLAYER_SHIP_STATUS_UPDATED, createPlayerShipStatusPayload(3, 3)],
 
             [
                 BRIDGE_EVENT.OFFICER_ACTIVITY_CLEARED,
