@@ -28,7 +28,7 @@ import { createPointDefenseFixture } from '../../fixtures/engine/point_defense_f
 import { createSingleStationNodeFixture } from '../../fixtures/engine/space_node_fixtures';
 
 describe('Weapons point defense command', () => {
-    it('destroys a missile and spends one charge when the beam band matches', () => {
+    it('spends one charge immediately and destroys a missile when the beam band matches', () => {
         const { engine, state } = createEngineWithIncomingMissile();
 
         const commands = engine.getAvailableCommands(OFFICER_ROLE.WEAPONS);
@@ -85,6 +85,12 @@ describe('Weapons point defense command', () => {
 
         expect(engine.drainEvents()).toEqual([
             {
+                type: ENCOUNTER_EVENT.PLAYER_POINT_DEFENSE_CHARGE_SPENT,
+
+                remainingCharges: 3,
+            },
+
+            {
                 type: ENCOUNTER_EVENT.OFFICER_TASK_STARTED,
 
                 task: {
@@ -107,6 +113,11 @@ describe('Weapons point defense command', () => {
                 },
             },
         ]);
+
+        expect(state.combat.pointDefense).toEqual({
+            charges: 3,
+            maxCharges: 4,
+        });
 
         engine.step(2999);
 
@@ -133,10 +144,8 @@ describe('Weapons point defense command', () => {
 
         expect(state.combat.projectiles).toHaveLength(1);
 
-        // Заряд расходуется только
-        // в момент реального выстрела.
         expect(state.combat.pointDefense).toEqual({
-            charges: 4,
+            charges: 3,
             maxCharges: 4,
         });
 
@@ -175,8 +184,6 @@ describe('Weapons point defense command', () => {
                     beamBand: POINT_DEFENSE_BEAM_BAND.RED,
 
                     outcome: POINT_DEFENSE_SHOT_OUTCOME.HIT,
-
-                    remainingCharges: 3,
                 },
             },
         ]);
@@ -191,7 +198,7 @@ describe('Weapons point defense command', () => {
         expect(engine.getAvailableCommands(OFFICER_ROLE.WEAPONS)).toEqual([]);
     });
 
-    it('leaves the missile active and spends one charge when the beam band does not match', () => {
+    it('spends one charge immediately and leaves the missile active when the beam band does not match', () => {
         const { engine, state } = createEngineWithIncomingMissile();
 
         const blueBeamCommand = getCommand(
@@ -210,6 +217,11 @@ describe('Weapons point defense command', () => {
             }),
         ).toEqual({
             status: OFFICER_COMMAND_EXECUTION_STATUS.EXECUTED,
+        });
+
+        expect(state.combat.pointDefense).toEqual({
+            charges: 3,
+            maxCharges: 4,
         });
 
         engine.drainEvents();
@@ -249,8 +261,6 @@ describe('Weapons point defense command', () => {
                     beamBand: POINT_DEFENSE_BEAM_BAND.BLUE,
 
                     outcome: POINT_DEFENSE_SHOT_OUTCOME.MISS,
-
-                    remainingCharges: 3,
                 },
             },
         ]);
@@ -280,7 +290,7 @@ describe('Weapons point defense command', () => {
         expect(engine.getAvailableCommands(OFFICER_ROLE.WEAPONS)).toEqual([]);
     });
 
-    it('does not spend a charge when the target disappears before task completion', () => {
+    it('does not refund the spent charge when the target disappears before task completion', () => {
         const { engine, state } = createEngineWithIncomingMissile();
 
         const redBeamCommand = getCommand(
@@ -302,6 +312,11 @@ describe('Weapons point defense command', () => {
         });
 
         engine.drainEvents();
+
+        expect(state.combat.pointDefense).toEqual({
+            charges: 3,
+            maxCharges: 4,
+        });
 
         // Имитируем уничтожение ракеты
         // другой системой до завершения aim.
@@ -337,9 +352,62 @@ describe('Weapons point defense command', () => {
         ]);
 
         expect(state.combat.pointDefense).toEqual({
-            charges: 4,
+            charges: 3,
             maxCharges: 4,
         });
+    });
+
+    it('does not refund the spent charge when point-defense aim is cancelled', () => {
+        const { engine, state } = createEngineWithIncomingMissile();
+
+        const redBeamCommand = getCommand(
+            engine,
+
+            ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_RED_BEAM,
+        );
+
+        expect(
+            engine.executeCommand({
+                role: OFFICER_ROLE.WEAPONS,
+
+                commandId: redBeamCommand.commandId,
+
+                target: redBeamCommand.target,
+            }),
+        ).toEqual({
+            status: OFFICER_COMMAND_EXECUTION_STATUS.EXECUTED,
+        });
+
+        engine.drainEvents();
+
+        const task = state.officerTasks[OFFICER_ROLE.WEAPONS];
+
+        if (!task) {
+            throw new Error('Expected active point-defense task');
+        }
+
+        engine.cancelTask(task.id);
+
+        expect(engine.drainEvents()).toEqual([
+            {
+                type: ENCOUNTER_EVENT.OFFICER_TASK_ENDED,
+
+                task: {
+                    ...task,
+                },
+
+                outcome: OFFICER_TASK_OUTCOME.CANCELLED,
+            },
+        ]);
+
+        expect(state.combat.pointDefense).toEqual({
+            charges: 3,
+            maxCharges: 4,
+        });
+
+        expect(state.combat.projectiles).toHaveLength(1);
+
+        expect(engine.getAvailableCommands(OFFICER_ROLE.WEAPONS)).toHaveLength(2);
     });
 });
 
@@ -377,7 +445,6 @@ function createEngineWithIncomingMissile(pointDefense: PointDefenseState = creat
     }
 
     const enemy = loadedEvent.state.actors[0];
-
     const launcher = enemy.weapons[0];
 
     const launcherDefinition = SHIP_WEAPONS[launcher.weaponId];

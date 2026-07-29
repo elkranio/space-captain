@@ -7,6 +7,8 @@ import { BRIDGE_EVENT } from '../../src/app/scenes/game/bridge/events/bridge_eve
 import type BridgeEventBus from '../../src/app/scenes/game/bridge/events/BridgeEventBus';
 import { SCENE_KEY } from '../../src/app/scenes/scene_key';
 import { MISSILE_ID } from '../../src/engine/defs/missile';
+import { OFFICER_ROLE } from '../../src/engine/defs/officer';
+import { POINT_DEFENSE_BEAM_BAND, POINT_DEFENSE_SHOT_OUTCOME } from '../../src/engine/defs/point_defense';
 import {
     COMBAT_PROJECTILE_KIND,
     COMBAT_TARGET_KIND,
@@ -20,8 +22,6 @@ import {
     OFFICER_TASK_RESULT_KIND,
 } from '../../src/engine/encounter/model/event';
 import { OFFICER_TASK_KIND } from '../../src/engine/encounter/model/officer_task';
-import { OFFICER_ROLE } from '../../src/engine/defs/officer';
-import { POINT_DEFENSE_BEAM_BAND, POINT_DEFENSE_SHOT_OUTCOME } from '../../src/engine/defs/point_defense';
 
 const launchedProjectile: MissileCombatProjectileState = {
     id: 'projectile_test_00',
@@ -279,7 +279,74 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
         ]);
     });
 
-    it('syncs point-defense charges after a real shot', () => {
+    it('syncs point-defense charges before point-defense activity starts', () => {
+        const runtime = new GameRuntime();
+
+        const emit = vi.fn();
+
+        const setEncounterInteractive = vi.fn();
+
+        const eventBus = {
+            emit,
+        } as unknown as BridgeEventBus;
+
+        const handler = new BridgeEncounterEngineEventHandler(eventBus, setEncounterInteractive, runtime);
+
+        handler.handle([
+            {
+                type: ENCOUNTER_EVENT.PLAYER_POINT_DEFENSE_CHARGE_SPENT,
+
+                remainingCharges: 3,
+            },
+
+            {
+                type: ENCOUNTER_EVENT.OFFICER_TASK_STARTED,
+
+                task: {
+                    id: 'task_1',
+
+                    kind: OFFICER_TASK_KIND.WEAPONS_POINT_DEFENSE,
+
+                    role: OFFICER_ROLE.WEAPONS,
+
+                    sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_RED_BEAM,
+
+                    targetId: 'projectile_test_00',
+
+                    pointDefenseBeamBand: POINT_DEFENSE_BEAM_BAND.RED,
+
+                    label: 'PD AIM',
+                    showProgress: true,
+
+                    durationMs: 3000,
+                    elapsedMs: 0,
+                },
+            },
+        ]);
+
+        expect(runtime.getCurrentRun().player.ship.pointDefense).toEqual({
+            charges: 3,
+            maxCharges: 4,
+        });
+
+        expect(emit.mock.calls).toEqual([
+            [BRIDGE_EVENT.PLAYER_SHIP_STATUS_UPDATED, createPlayerShipStatusPayload(3, 3)],
+
+            [
+                BRIDGE_EVENT.OFFICER_ACTIVITY_STARTED,
+
+                {
+                    role: OFFICER_ROLE.WEAPONS,
+
+                    label: 'PD AIM',
+                },
+            ],
+        ]);
+
+        expect(setEncounterInteractive).not.toHaveBeenCalled();
+    });
+
+    it('maps a completed point-defense shot without spending another charge', () => {
         const runtime = new GameRuntime();
 
         const emit = vi.fn();
@@ -326,14 +393,12 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
                     beamBand: POINT_DEFENSE_BEAM_BAND.RED,
 
                     outcome: POINT_DEFENSE_SHOT_OUTCOME.HIT,
-
-                    remainingCharges: 3,
                 },
             },
         ]);
 
         expect(runtime.getCurrentRun().player.ship.pointDefense).toEqual({
-            charges: 3,
+            charges: 4,
             maxCharges: 4,
         });
 
@@ -349,8 +414,6 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
                     outcome: POINT_DEFENSE_SHOT_OUTCOME.HIT,
                 },
             ],
-
-            [BRIDGE_EVENT.PLAYER_SHIP_STATUS_UPDATED, createPlayerShipStatusPayload(3, 3)],
 
             [
                 BRIDGE_EVENT.OFFICER_ACTIVITY_CLEARED,

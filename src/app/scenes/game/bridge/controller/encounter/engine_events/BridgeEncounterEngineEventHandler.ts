@@ -117,6 +117,13 @@ export default class BridgeEncounterEngineEventHandler {
                 });
                 return;
 
+            case ENCOUNTER_EVENT.PLAYER_POINT_DEFENSE_CHARGE_SPENT:
+                this.gameRuntime.setPlayerShipPointDefenseCharges(event.remainingCharges);
+
+                this.emitPlayerShipStatusUpdated();
+
+                return;
+
             case ENCOUNTER_EVENT.OFFICER_TASK_STARTED:
                 this.eventBus.emit(BRIDGE_EVENT.OFFICER_ACTIVITY_STARTED, {
                     role: event.task.role,
@@ -134,8 +141,6 @@ export default class BridgeEncounterEngineEventHandler {
                 }
 
                 if (event.result?.kind === OFFICER_TASK_RESULT_KIND.POINT_DEFENSE_FIRED) {
-                    this.gameRuntime.setPlayerShipPointDefenseCharges(event.result.remainingCharges);
-
                     this.eventBus.emit(
                         BRIDGE_EVENT.POINT_DEFENSE_FIRED,
 
@@ -147,8 +152,6 @@ export default class BridgeEncounterEngineEventHandler {
                             outcome: event.result.outcome,
                         },
                     );
-
-                    this.emitPlayerShipStatusUpdated();
                 }
 
                 this.eventBus.emit(BRIDGE_EVENT.OFFICER_ACTIVITY_CLEARED, {
@@ -195,11 +198,7 @@ export default class BridgeEncounterEngineEventHandler {
         const result = this.gameRuntime.damagePlayerShipHull(damage);
 
         if (result.currentHull !== result.previousHull) {
-            const ship = this.gameRuntime.getCurrentRun().player.ship;
-
-            if (result.currentHull !== result.previousHull) {
-                this.emitPlayerShipStatusUpdated();
-            }
+            this.emitPlayerShipStatusUpdated();
         }
 
         // destroyed === true также вернётся

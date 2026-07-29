@@ -24,6 +24,7 @@ export const ENCOUNTER_EVENT = {
     DOCKING_STARTED: 'docking_started',
     OFFICER_TASK_STARTED: 'officer_task_started',
     OFFICER_TASK_ENDED: 'officer_task_ended',
+    PLAYER_POINT_DEFENSE_CHARGE_SPENT: 'player_point_defense_charge_spent',
     PLAYER_SHIP_TARGETING_DETECTED: 'player_ship_targeting_detected',
     MISSILE_LAUNCHED: 'missile_launched',
     MISSILE_IMPACTED_PLAYER_SHIP: 'missile_impacted_player_ship',
@@ -66,8 +67,6 @@ export type OfficerTaskResult =
 
           beamBand: PointDefenseBeamBand;
           outcome: PointDefenseShotOutcome;
-
-          remainingCharges: number;
       };
 
 // Полный snapshot encounter после создания
@@ -169,6 +168,12 @@ export type OfficerTaskEndedEvent = {
     result?: OfficerTaskResult;
 };
 
+export type PlayerPointDefenseChargeSpentEvent = {
+    type: typeof ENCOUNTER_EVENT.PLAYER_POINT_DEFENSE_CHARGE_SPENT;
+
+    remainingCharges: number;
+};
+
 export type PlayerShipTargetingDetectedEvent = {
     type: typeof ENCOUNTER_EVENT.PLAYER_SHIP_TARGETING_DETECTED;
 
@@ -200,6 +205,7 @@ export type EncounterEvent =
     | DockingStartedEvent
     | OfficerTaskStartedEvent
     | OfficerTaskEndedEvent
+    | PlayerPointDefenseChargeSpentEvent
     | PlayerShipTargetingDetectedEvent
     | MissileLaunchedEvent
     | MissileImpactedPlayerShipEvent;

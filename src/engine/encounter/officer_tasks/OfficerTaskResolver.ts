@@ -106,9 +106,9 @@ export default class OfficerTaskResolver {
             throw new Error('WEAPONS_POINT_DEFENSE task requires pointDefenseBeamBand');
         }
 
-        const result = this.stateStore.firePointDefense(task.targetId, task.pointDefenseBeamBand);
+        const outcome = this.stateStore.firePointDefense(task.targetId, task.pointDefenseBeamBand);
 
-        if (!result) {
+        if (!outcome) {
             return undefined;
         }
 
@@ -119,9 +119,7 @@ export default class OfficerTaskResolver {
 
             beamBand: task.pointDefenseBeamBand,
 
-            outcome: result.outcome,
-
-            remainingCharges: result.remainingCharges,
+            outcome,
         };
     }
 

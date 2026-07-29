@@ -10,6 +10,7 @@ import {
     type EncounterOfficerCommandId,
     type OfficerCommandDef,
 } from '../../model/command';
+import { ENCOUNTER_EVENT } from '../../model/event';
 import type { OfficerCommandHandler } from '../../model/officer_command_handler';
 import { createWeaponsPointDefenseTask } from '../../officer_tasks/create_officer_task_draft';
 import { requireThreatTargetId } from './command_handler_helpers';
@@ -94,6 +95,14 @@ function createWeaponsPointDefenseCommandHandler(
 
         execute(context, input) {
             const threatId = requireThreatTargetId(input);
+
+            const remainingCharges = context.stateStore.spendPointDefenseCharge();
+
+            context.emit({
+                type: ENCOUNTER_EVENT.PLAYER_POINT_DEFENSE_CHARGE_SPENT,
+
+                remainingCharges,
+            });
 
             context.startOfficerTask(createWeaponsPointDefenseTask(commandId, threatId, pointDefenseBeamBand));
         },

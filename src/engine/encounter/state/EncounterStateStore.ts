@@ -22,7 +22,7 @@ import { THREAT_IDENTIFICATION_STATUS } from '../model/combat';
 import {
     POINT_DEFENSE_SHOT_OUTCOME,
     type PointDefenseBeamBand,
-    type PointDefenseFireResult,
+    type PointDefenseShotOutcome,
     type PointDefenseState,
 } from '../../defs/point_defense';
 
@@ -244,7 +244,19 @@ export default class EncounterStateStore {
         return spectralBand;
     }
 
-    public firePointDefense(threatId: string, beamBand: PointDefenseBeamBand): PointDefenseFireResult | undefined {
+    public spendPointDefenseCharge(): number {
+        const pointDefense = this.state.combat.pointDefense;
+
+        if (pointDefense.charges <= 0) {
+            throw new Error('Cannot spend point-defense charge: no charges remaining');
+        }
+
+        pointDefense.charges -= 1;
+
+        return pointDefense.charges;
+    }
+
+    public firePointDefense(threatId: string, beamBand: PointDefenseBeamBand): PointDefenseShotOutcome | undefined {
         const threatIndex = this.state.combat.projectiles.findIndex((projectile) => {
             return projectile.id === threatId;
         });
@@ -252,19 +264,10 @@ export default class EncounterStateStore {
         // Ракета могла ударить или быть уничтожена
         // до завершения Weapons task.
         //
-        // Выстрела не произошло,
-        // поэтому заряд не расходуется.
+        // Заряд уже был потрачен при начале aim.
         if (threatIndex < 0) {
             return undefined;
         }
-
-        const pointDefense = this.state.combat.pointDefense;
-
-        if (pointDefense.charges <= 0) {
-            throw new Error('Cannot fire point defense without charges');
-        }
-
-        pointDefense.charges -= 1;
 
         const threat = this.state.combat.projectiles[threatIndex];
 
@@ -277,11 +280,7 @@ export default class EncounterStateStore {
             this.state.combat.projectiles.splice(threatIndex, 1);
         }
 
-        return {
-            outcome,
-
-            remainingCharges: pointDefense.charges,
-        };
+        return outcome;
     }
     // #endregion
 

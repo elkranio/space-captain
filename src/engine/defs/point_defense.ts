@@ -18,9 +18,3 @@ export const POINT_DEFENSE_SHOT_OUTCOME = {
 } as const;
 
 export type PointDefenseShotOutcome = (typeof POINT_DEFENSE_SHOT_OUTCOME)[keyof typeof POINT_DEFENSE_SHOT_OUTCOME];
-
-export type PointDefenseFireResult = {
-    outcome: PointDefenseShotOutcome;
-
-    remainingCharges: number;
-};
