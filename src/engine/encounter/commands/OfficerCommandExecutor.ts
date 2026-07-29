@@ -8,6 +8,7 @@ import {
     type ExecuteOfficerCommandInput,
     type ExecuteOfficerCommandResult,
     type OfficerCommandTarget,
+    ENCOUNTER_OFFICER_COMMAND_ID,
 } from '../model/command';
 import type { OfficerCommandExecutionContext, OfficerCommandHandler } from '../model/officer_command_handler';
 import EncounterStateStore from '../state/EncounterStateStore';
@@ -86,9 +87,14 @@ export default class OfficerCommandExecutor {
         // Destination PLOT COURSE пока выбирается
         // app-слоем перед execution.
         //
-        // Encounter проверяет доступность самой команды
-        // и правильный typed target kind.
-        if (input.target.kind === OFFICER_COMMAND_TARGET_KIND.SPACE_NODE) {
+        // Это исключение относится только к текущему
+        // deferred-target контракту PLOT COURSE.
+        // Другие SPACE_NODE-команды должны проходить
+        // обычную проверку конкретной цели.
+        if (
+            input.commandId === ENCOUNTER_OFFICER_COMMAND_ID.SCIENCE_PLOT_COURSE &&
+            input.target.kind === OFFICER_COMMAND_TARGET_KIND.SPACE_NODE
+        ) {
             return true;
         }
 
