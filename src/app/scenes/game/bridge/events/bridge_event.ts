@@ -3,11 +3,11 @@
 import type { CharacterPortraitId } from '../../../../../engine/defs/character';
 import type { OfficerDefinition, OfficerRole } from '../../../../../engine/defs/officer';
 import type { Vec3 } from '../../../../../engine/defs/vector';
-import type { EncounterOfficerCommandId } from '../../../../../engine/encounter/model/command';
 import type { SpriteEntry } from '../../../../manifests/types';
 import type { SceneKey } from '../../../scene_key';
 import type { MissileSpectralBand } from '../../../../../engine/defs/missile';
 import type { PointDefenseBeamBand, PointDefenseShotOutcome } from '../../../../../engine/defs/point_defense';
+import type { EncounterOfficerCommandId, OfficerCommandTarget } from '../../../../../engine/encounter/model/command';
 
 // Scene-local события bridge scene.
 //
@@ -202,8 +202,7 @@ export type BridgeOfficerCommandSelectedPayload = {
     role: OfficerRole;
 
     commandId: EncounterOfficerCommandId;
-
-    targetId?: string;
+    target: OfficerCommandTarget;
 };
 
 // Один пункт меню команды офицера.
@@ -212,7 +211,7 @@ export type BridgeOfficerCommandMenuItemPayload = {
 
     label: string;
 
-    targetId?: string;
+    target: OfficerCommandTarget;
 };
 
 // Группа пунктов меню.

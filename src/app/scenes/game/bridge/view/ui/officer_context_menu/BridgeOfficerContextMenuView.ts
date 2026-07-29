@@ -109,7 +109,10 @@ export default class BridgeOfficerContextMenuView {
         this.eventBus.emit(BRIDGE_EVENT.OFFICER_COMMAND_SELECTED, {
             role,
             commandId: item.commandId,
-            targetId: item.targetId,
+
+            target: {
+                ...item.target,
+            },
         });
     }
 
