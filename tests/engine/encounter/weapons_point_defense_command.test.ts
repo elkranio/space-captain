@@ -2,7 +2,10 @@
 
 import { describe, expect, it } from 'vitest';
 import { SHIP_WEAPONS } from '../../../src/engine/content/catalogs/ship_weapons';
-import { SHIP_NODE_ACTOR_PRESET_ID } from '../../../src/engine/content/presets/ship_node_actors';
+import {
+    SHIP_NODE_ACTOR_PRESET_ID,
+    type ShipNodeActorPresetId,
+} from '../../../src/engine/content/presets/ship_node_actors';
 import { OFFICER_ROLE } from '../../../src/engine/defs/officer';
 import { PLAYER_SPACE_NAVIGATION_KIND } from '../../../src/engine/defs/player_location';
 import {
@@ -28,257 +31,299 @@ import { createPointDefenseFixture } from '../../fixtures/engine/point_defense_f
 import { createSingleStationNodeFixture } from '../../fixtures/engine/space_node_fixtures';
 
 describe('Weapons point defense command', () => {
-    it('spends one charge immediately and destroys a missile when the beam band matches', () => {
-        const { engine, state } = createEngineWithIncomingMissile();
+    it.each([
+        {
+            missileLabel: 'RED',
 
-        const commands = engine.getAvailableCommands(OFFICER_ROLE.WEAPONS);
+            presetId: SHIP_NODE_ACTOR_PRESET_ID.ENEMY_GENERIC_00,
 
-        expect(commands).toEqual([
-            {
-                commandId: ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_RED_BEAM,
+            commandId: ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_RED_BEAM,
 
-                label: 'RED BEAM',
+            beamBand: POINT_DEFENSE_BEAM_BAND.RED,
+        },
+        {
+            missileLabel: 'BLUE',
 
-                target: {
-                    kind: OFFICER_COMMAND_TARGET_KIND.THREAT,
+            presetId: SHIP_NODE_ACTOR_PRESET_ID.ENEMY_GENERIC_BLUE_00,
 
-                    threatId: 'projectile_1',
+            commandId: ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_BLUE_BEAM,
+
+            beamBand: POINT_DEFENSE_BEAM_BAND.BLUE,
+        },
+    ] as const)(
+        'spends one charge immediately and destroys a $missileLabel missile when the beam band matches',
+        ({ presetId, commandId, beamBand }) => {
+            const { engine, state } = createEngineWithIncomingMissile({
+                presetId,
+            });
+
+            const commands = engine.getAvailableCommands(OFFICER_ROLE.WEAPONS);
+
+            expect(commands).toEqual([
+                {
+                    commandId: ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_RED_BEAM,
+
+                    label: 'RED BEAM',
+
+                    target: {
+                        kind: OFFICER_COMMAND_TARGET_KIND.THREAT,
+
+                        threatId: 'projectile_1',
+                    },
+
+                    targetLabel: 'MISSILE M1',
                 },
 
-                targetLabel: 'MISSILE M1',
-            },
+                {
+                    commandId: ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_BLUE_BEAM,
 
-            {
-                commandId: ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_BLUE_BEAM,
+                    label: 'BLUE BEAM',
 
-                label: 'BLUE BEAM',
+                    target: {
+                        kind: OFFICER_COMMAND_TARGET_KIND.THREAT,
 
-                target: {
-                    kind: OFFICER_COMMAND_TARGET_KIND.THREAT,
+                        threatId: 'projectile_1',
+                    },
 
-                    threatId: 'projectile_1',
+                    targetLabel: 'MISSILE M1',
+                },
+            ]);
+
+            const beamCommand = getCommand(engine, commandId);
+
+            expect(
+                engine.executeCommand({
+                    role: OFFICER_ROLE.WEAPONS,
+
+                    commandId: beamCommand.commandId,
+                    target: beamCommand.target,
+                }),
+            ).toEqual({
+                status: OFFICER_COMMAND_EXECUTION_STATUS.EXECUTED,
+            });
+
+            expect(engine.getAvailableCommands(OFFICER_ROLE.WEAPONS)).toEqual([]);
+
+            expect(engine.drainEvents()).toEqual([
+                {
+                    type: ENCOUNTER_EVENT.PLAYER_POINT_DEFENSE_CHARGE_SPENT,
+
+                    remainingCharges: 3,
                 },
 
-                targetLabel: 'MISSILE M1',
-            },
-        ]);
+                {
+                    type: ENCOUNTER_EVENT.OFFICER_TASK_STARTED,
 
-        const redBeamCommand = getCommand(
-            engine,
+                    task: {
+                        kind: OFFICER_TASK_KIND.WEAPONS_POINT_DEFENSE,
 
-            ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_RED_BEAM,
-        );
+                        role: OFFICER_ROLE.WEAPONS,
 
-        expect(
-            engine.executeCommand({
+                        sourceCommandId: commandId,
+
+                        threatId: 'projectile_1',
+
+                        pointDefenseBeamBand: beamBand,
+
+                        label: 'PD AIM',
+                        showProgress: true,
+                        durationMs: 3000,
+
+                        id: 'task_1',
+                        elapsedMs: 0,
+                    },
+                },
+            ]);
+
+            expect(state.combat.pointDefense).toEqual({
+                charges: 3,
+                maxCharges: 4,
+            });
+
+            engine.step(2999);
+
+            expect(engine.drainEvents()).toEqual([]);
+
+            expect(state.officerTasks[OFFICER_ROLE.WEAPONS]).toEqual({
+                kind: OFFICER_TASK_KIND.WEAPONS_POINT_DEFENSE,
+
                 role: OFFICER_ROLE.WEAPONS,
 
-                commandId: redBeamCommand.commandId,
+                sourceCommandId: commandId,
 
-                target: redBeamCommand.target,
-            }),
-        ).toEqual({
-            status: OFFICER_COMMAND_EXECUTION_STATUS.EXECUTED,
-        });
+                threatId: 'projectile_1',
 
-        expect(engine.getAvailableCommands(OFFICER_ROLE.WEAPONS)).toEqual([]);
+                pointDefenseBeamBand: beamBand,
 
-        expect(engine.drainEvents()).toEqual([
-            {
-                type: ENCOUNTER_EVENT.PLAYER_POINT_DEFENSE_CHARGE_SPENT,
+                label: 'PD AIM',
+                showProgress: true,
+                durationMs: 3000,
 
-                remainingCharges: 3,
-            },
+                id: 'task_1',
+                elapsedMs: 2999,
+            });
 
-            {
-                type: ENCOUNTER_EVENT.OFFICER_TASK_STARTED,
+            expect(state.combat.projectiles).toHaveLength(1);
 
-                task: {
-                    kind: OFFICER_TASK_KIND.WEAPONS_POINT_DEFENSE,
+            expect(state.combat.pointDefense).toEqual({
+                charges: 3,
+                maxCharges: 4,
+            });
 
+            engine.step(1);
+
+            expect(engine.drainEvents()).toEqual([
+                {
+                    type: ENCOUNTER_EVENT.OFFICER_TASK_ENDED,
+
+                    task: {
+                        kind: OFFICER_TASK_KIND.WEAPONS_POINT_DEFENSE,
+
+                        role: OFFICER_ROLE.WEAPONS,
+
+                        sourceCommandId: commandId,
+
+                        threatId: 'projectile_1',
+
+                        pointDefenseBeamBand: beamBand,
+
+                        label: 'PD AIM',
+                        showProgress: true,
+                        durationMs: 3000,
+
+                        id: 'task_1',
+                        elapsedMs: 3000,
+                    },
+
+                    outcome: OFFICER_TASK_OUTCOME.COMPLETED,
+
+                    result: {
+                        kind: OFFICER_TASK_RESULT_KIND.POINT_DEFENSE_FIRED,
+
+                        threatId: 'projectile_1',
+
+                        beamBand,
+
+                        outcome: POINT_DEFENSE_SHOT_OUTCOME.HIT,
+                    },
+                },
+            ]);
+
+            expect(state.combat.pointDefense).toEqual({
+                charges: 3,
+                maxCharges: 4,
+            });
+
+            expect(state.combat.projectiles).toEqual([]);
+
+            expect(engine.getAvailableCommands(OFFICER_ROLE.WEAPONS)).toEqual([]);
+        },
+    );
+
+    it.each([
+        {
+            missileLabel: 'RED',
+            beamLabel: 'BLUE',
+
+            presetId: SHIP_NODE_ACTOR_PRESET_ID.ENEMY_GENERIC_00,
+
+            commandId: ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_BLUE_BEAM,
+
+            beamBand: POINT_DEFENSE_BEAM_BAND.BLUE,
+        },
+        {
+            missileLabel: 'BLUE',
+            beamLabel: 'RED',
+
+            presetId: SHIP_NODE_ACTOR_PRESET_ID.ENEMY_GENERIC_BLUE_00,
+
+            commandId: ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_RED_BEAM,
+
+            beamBand: POINT_DEFENSE_BEAM_BAND.RED,
+        },
+    ] as const)(
+        'spends one charge and leaves a $missileLabel missile active after a $beamLabel beam miss',
+        ({ presetId, commandId, beamBand }) => {
+            const { engine, state } = createEngineWithIncomingMissile({
+                presetId,
+            });
+
+            const beamCommand = getCommand(engine, commandId);
+
+            expect(
+                engine.executeCommand({
                     role: OFFICER_ROLE.WEAPONS,
 
-                    sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_RED_BEAM,
+                    commandId: beamCommand.commandId,
+                    target: beamCommand.target,
+                }),
+            ).toEqual({
+                status: OFFICER_COMMAND_EXECUTION_STATUS.EXECUTED,
+            });
 
-                    threatId: 'projectile_1',
+            expect(state.combat.pointDefense).toEqual({
+                charges: 3,
+                maxCharges: 4,
+            });
 
-                    pointDefenseBeamBand: POINT_DEFENSE_BEAM_BAND.RED,
+            engine.drainEvents();
 
-                    label: 'PD AIM',
-                    showProgress: true,
-                    durationMs: 3000,
+            engine.step(3000);
 
-                    id: 'task_1',
-                    elapsedMs: 0,
+            expect(engine.drainEvents()).toEqual([
+                {
+                    type: ENCOUNTER_EVENT.OFFICER_TASK_ENDED,
+
+                    task: {
+                        kind: OFFICER_TASK_KIND.WEAPONS_POINT_DEFENSE,
+
+                        role: OFFICER_ROLE.WEAPONS,
+
+                        sourceCommandId: commandId,
+
+                        threatId: 'projectile_1',
+
+                        pointDefenseBeamBand: beamBand,
+
+                        label: 'PD AIM',
+                        showProgress: true,
+                        durationMs: 3000,
+
+                        id: 'task_1',
+                        elapsedMs: 3000,
+                    },
+
+                    outcome: OFFICER_TASK_OUTCOME.COMPLETED,
+
+                    result: {
+                        kind: OFFICER_TASK_RESULT_KIND.POINT_DEFENSE_FIRED,
+
+                        threatId: 'projectile_1',
+
+                        beamBand,
+
+                        outcome: POINT_DEFENSE_SHOT_OUTCOME.MISS,
+                    },
                 },
-            },
-        ]);
+            ]);
 
-        expect(state.combat.pointDefense).toEqual({
-            charges: 3,
-            maxCharges: 4,
-        });
+            expect(state.combat.pointDefense).toEqual({
+                charges: 3,
+                maxCharges: 4,
+            });
 
-        engine.step(2999);
+            expect(state.combat.projectiles).toHaveLength(1);
 
-        expect(engine.drainEvents()).toEqual([]);
+            expect(state.combat.projectiles[0].timeToImpactMs).toBe(9000);
 
-        expect(state.officerTasks[OFFICER_ROLE.WEAPONS]).toEqual({
-            kind: OFFICER_TASK_KIND.WEAPONS_POINT_DEFENSE,
-
-            role: OFFICER_ROLE.WEAPONS,
-
-            sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_RED_BEAM,
-
-            threatId: 'projectile_1',
-
-            pointDefenseBeamBand: POINT_DEFENSE_BEAM_BAND.RED,
-
-            label: 'PD AIM',
-            showProgress: true,
-            durationMs: 3000,
-
-            id: 'task_1',
-            elapsedMs: 2999,
-        });
-
-        expect(state.combat.projectiles).toHaveLength(1);
-
-        expect(state.combat.pointDefense).toEqual({
-            charges: 3,
-            maxCharges: 4,
-        });
-
-        engine.step(1);
-
-        expect(engine.drainEvents()).toEqual([
-            {
-                type: ENCOUNTER_EVENT.OFFICER_TASK_ENDED,
-
-                task: {
-                    kind: OFFICER_TASK_KIND.WEAPONS_POINT_DEFENSE,
-
-                    role: OFFICER_ROLE.WEAPONS,
-
-                    sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_RED_BEAM,
-
-                    threatId: 'projectile_1',
-
-                    pointDefenseBeamBand: POINT_DEFENSE_BEAM_BAND.RED,
-
-                    label: 'PD AIM',
-                    showProgress: true,
-                    durationMs: 3000,
-
-                    id: 'task_1',
-                    elapsedMs: 3000,
-                },
-
-                outcome: OFFICER_TASK_OUTCOME.COMPLETED,
-
-                result: {
-                    kind: OFFICER_TASK_RESULT_KIND.POINT_DEFENSE_FIRED,
-
-                    threatId: 'projectile_1',
-
-                    beamBand: POINT_DEFENSE_BEAM_BAND.RED,
-
-                    outcome: POINT_DEFENSE_SHOT_OUTCOME.HIT,
-                },
-            },
-        ]);
-
-        expect(state.combat.pointDefense).toEqual({
-            charges: 3,
-            maxCharges: 4,
-        });
-
-        expect(state.combat.projectiles).toEqual([]);
-
-        expect(engine.getAvailableCommands(OFFICER_ROLE.WEAPONS)).toEqual([]);
-    });
-
-    it('spends one charge immediately and leaves the missile active when the beam band does not match', () => {
-        const { engine, state } = createEngineWithIncomingMissile();
-
-        const blueBeamCommand = getCommand(
-            engine,
-
-            ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_BLUE_BEAM,
-        );
-
-        expect(
-            engine.executeCommand({
-                role: OFFICER_ROLE.WEAPONS,
-
-                commandId: blueBeamCommand.commandId,
-
-                target: blueBeamCommand.target,
-            }),
-        ).toEqual({
-            status: OFFICER_COMMAND_EXECUTION_STATUS.EXECUTED,
-        });
-
-        expect(state.combat.pointDefense).toEqual({
-            charges: 3,
-            maxCharges: 4,
-        });
-
-        engine.drainEvents();
-
-        engine.step(3000);
-
-        expect(engine.drainEvents()).toEqual([
-            {
-                type: ENCOUNTER_EVENT.OFFICER_TASK_ENDED,
-
-                task: {
-                    kind: OFFICER_TASK_KIND.WEAPONS_POINT_DEFENSE,
-
-                    role: OFFICER_ROLE.WEAPONS,
-
-                    sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_BLUE_BEAM,
-
-                    threatId: 'projectile_1',
-
-                    pointDefenseBeamBand: POINT_DEFENSE_BEAM_BAND.BLUE,
-
-                    label: 'PD AIM',
-                    showProgress: true,
-                    durationMs: 3000,
-
-                    id: 'task_1',
-                    elapsedMs: 3000,
-                },
-
-                outcome: OFFICER_TASK_OUTCOME.COMPLETED,
-
-                result: {
-                    kind: OFFICER_TASK_RESULT_KIND.POINT_DEFENSE_FIRED,
-
-                    threatId: 'projectile_1',
-
-                    beamBand: POINT_DEFENSE_BEAM_BAND.BLUE,
-
-                    outcome: POINT_DEFENSE_SHOT_OUTCOME.MISS,
-                },
-            },
-        ]);
-
-        expect(state.combat.pointDefense).toEqual({
-            charges: 3,
-            maxCharges: 4,
-        });
-
-        expect(state.combat.projectiles).toHaveLength(1);
-
-        expect(state.combat.projectiles[0].timeToImpactMs).toBe(9000);
-
-        expect(engine.getAvailableCommands(OFFICER_ROLE.WEAPONS)).toHaveLength(2);
-    });
+            expect(engine.getAvailableCommands(OFFICER_ROLE.WEAPONS)).toHaveLength(2);
+        },
+    );
 
     it('does not offer point-defense commands without charges', () => {
-        const { engine, state } = createEngineWithIncomingMissile(createPointDefenseFixture(0));
+        const { engine, state } = createEngineWithIncomingMissile({
+            pointDefense: createPointDefenseFixture(0),
+        });
 
         expect(state.combat.pointDefense).toEqual({
             charges: 0,
@@ -304,7 +349,6 @@ describe('Weapons point defense command', () => {
                 role: OFFICER_ROLE.WEAPONS,
 
                 commandId: redBeamCommand.commandId,
-
                 target: redBeamCommand.target,
             }),
         ).toEqual({
@@ -371,7 +415,6 @@ describe('Weapons point defense command', () => {
                 role: OFFICER_ROLE.WEAPONS,
 
                 commandId: redBeamCommand.commandId,
-
                 target: redBeamCommand.target,
             }),
         ).toEqual({
@@ -411,13 +454,23 @@ describe('Weapons point defense command', () => {
     });
 });
 
-function createEngineWithIncomingMissile(pointDefense: PointDefenseState = createPointDefenseFixture()) {
+type CreateEngineWithIncomingMissileOptions = {
+    presetId?: ShipNodeActorPresetId;
+
+    pointDefense?: PointDefenseState;
+};
+
+function createEngineWithIncomingMissile({
+    presetId = SHIP_NODE_ACTOR_PRESET_ID.ENEMY_GENERIC_00,
+
+    pointDefense = createPointDefenseFixture(),
+}: CreateEngineWithIncomingMissileOptions = {}) {
     const { node, stationId } = createSingleStationNodeFixture();
 
     const nodeEnemy = ShipNodeActorFactory.create({
         id: 'ship_enemy_00',
 
-        presetId: SHIP_NODE_ACTOR_PRESET_ID.ENEMY_GENERIC_00,
+        presetId,
 
         anchorId: stationId,
     });
@@ -445,6 +498,7 @@ function createEngineWithIncomingMissile(pointDefense: PointDefenseState = creat
     }
 
     const enemy = loadedEvent.state.actors[0];
+
     const launcher = enemy.weapons[0];
 
     const launcherDefinition = SHIP_WEAPONS[launcher.weaponId];
