@@ -5,6 +5,7 @@ import { CONTACT_SEQUENCE_STEP_KIND, type ContactSequenceStep } from './sequence
 
 type ActiveContactSequence = {
     steps: ContactSequenceStep[];
+
     currentStepIndex: number;
     waitRemainingMs: number;
 };
@@ -29,6 +30,7 @@ export default class ContactSequenceRunner {
     public start = (steps: ContactSequenceStep[], onContactEnded?: () => void): void => {
         this.activeSequence = {
             steps,
+
             currentStepIndex: 0,
             waitRemainingMs: 0,
         };
@@ -43,11 +45,14 @@ export default class ContactSequenceRunner {
 
         this.activeSequence.waitRemainingMs -= deltaMs;
 
-        if (this.activeSequence.waitRemainingMs > 0) {
-            return;
+        // Один engine step может перекрыть несколько
+        // последовательных wait-интервалов.
+        //
+        // Не теряем остаток deltaMs и догоняем sequence
+        // до актуального временного состояния.
+        while (this.activeSequence && this.activeSequence.waitRemainingMs <= 0) {
+            this.processCurrentStep();
         }
-
-        this.processCurrentStep();
     }
 
     // #endregion
@@ -85,6 +90,7 @@ export default class ContactSequenceRunner {
             case CONTACT_SEQUENCE_STEP_KIND.START_CONTACT:
                 this.emit({
                     type: ENCOUNTER_EVENT.CONTACT_STARTED,
+
                     contactName: step.contactName,
                     contactPortraitId: step.contactPortraitId,
                 });
@@ -93,6 +99,7 @@ export default class ContactSequenceRunner {
             case CONTACT_SEQUENCE_STEP_KIND.MESSAGE:
                 this.emit({
                     type: ENCOUNTER_EVENT.CONTACT_MESSAGE_ADDED,
+
                     speakerName: step.speakerName,
                     text: step.text,
                 });

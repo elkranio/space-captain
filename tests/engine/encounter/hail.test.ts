@@ -11,8 +11,8 @@ import {
 } from '../../../src/engine/encounter/model/command';
 import { ENCOUNTER_EVENT, OFFICER_TASK_OUTCOME } from '../../../src/engine/encounter/model/event';
 import { OFFICER_TASK_KIND } from '../../../src/engine/encounter/model/officer_task';
-import { createSingleStationNodeFixture } from '../../fixtures/engine/space_node_fixtures';
 import { createPointDefenseFixture } from '../../fixtures/engine/point_defense_fixtures';
+import { createSingleStationNodeFixture } from '../../fixtures/engine/space_node_fixtures';
 
 describe('HAIL', () => {
     it('keeps Comms busy until the contact sequence ends', () => {
@@ -79,6 +79,7 @@ describe('HAIL', () => {
                     sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.COMMS_HAIL,
 
                     targetAnchorId: stationId,
+
                     label: 'HAIL',
                     durationMs: null,
                     elapsedMs: 0,
@@ -174,5 +175,64 @@ describe('HAIL', () => {
 
             targetLabel: stationName,
         });
+    });
+
+    it('consumes a large delta across the whole contact sequence', () => {
+        const { node, stationId } = createSingleStationNodeFixture();
+
+        const engine = new EncounterEngine({
+            node,
+
+            navigation: {
+                kind: PLAYER_SPACE_NAVIGATION_KIND.ANCHORED,
+
+                anchorId: stationId,
+            },
+
+            pointDefense: createPointDefenseFixture(),
+        });
+
+        // Убираем начальный ENCOUNTER_LOADED.
+        engine.drainEvents();
+
+        expect(
+            engine.executeCommand({
+                role: OFFICER_ROLE.COMMS,
+
+                commandId: ENCOUNTER_OFFICER_COMMAND_ID.COMMS_HAIL,
+
+                target: {
+                    kind: OFFICER_COMMAND_TARGET_KIND.ANCHOR,
+
+                    anchorId: stationId,
+                },
+            }),
+        ).toEqual({
+            status: OFFICER_COMMAND_EXECUTION_STATUS.EXECUTED,
+        });
+
+        // Убираем OFFICER_TASK_STARTED.
+        engine.drainEvents();
+
+        // Имитируем большой frame delta после лага
+        // или возвращения в активную вкладку.
+        engine.step(100_000);
+
+        expect(engine.drainEvents().map((event) => event.type)).toEqual([
+            ENCOUNTER_EVENT.CONTACT_STARTED,
+
+            ENCOUNTER_EVENT.CONTACT_MESSAGE_ADDED,
+            ENCOUNTER_EVENT.CONTACT_MESSAGE_ADDED,
+            ENCOUNTER_EVENT.CONTACT_MESSAGE_ADDED,
+
+            ENCOUNTER_EVENT.CONTACT_ENDED,
+            ENCOUNTER_EVENT.OFFICER_TASK_ENDED,
+        ]);
+
+        expect(engine.getAvailableCommands(OFFICER_ROLE.COMMS)).toContainEqual(
+            expect.objectContaining({
+                commandId: ENCOUNTER_OFFICER_COMMAND_ID.COMMS_HAIL,
+            }),
+        );
     });
 });
