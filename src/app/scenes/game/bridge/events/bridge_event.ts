@@ -73,6 +73,14 @@ export const BRIDGE_EVENT = {
 
     // #endregion
 
+    // #region Player ship status
+
+    // Полный view-ready snapshot
+    // состояния корабля игрока.
+    PLAYER_SHIP_STATUS_UPDATED: 'player_ship_status_updated',
+
+    // #endregion
+
     // #region Encounter objects and navigation
 
     // Первый snapshot encounter objects.
@@ -257,6 +265,17 @@ export type BridgeOfficerActivityProgressUpdatedPayload = Record<OfficerRole, nu
 
 // #endregion
 
+// #region Player ship status
+
+export type BridgePlayerShipStatusUpdatedPayload = {
+    hull: {
+        current: number;
+        max: number;
+    };
+};
+
+// #endregion
+
 // #region Encounter objects and navigation
 
 // View-ready описание одного encounter object.
@@ -422,6 +441,10 @@ export type BridgeEventPayloadMap = {
     [BRIDGE_EVENT.OFFICER_ACTIVITY_CLEARED]: BridgeOfficerActivityClearedPayload;
 
     [BRIDGE_EVENT.OFFICER_ACTIVITY_PROGRESS_UPDATED]: BridgeOfficerActivityProgressUpdatedPayload;
+
+    // Player ship status
+
+    [BRIDGE_EVENT.PLAYER_SHIP_STATUS_UPDATED]: BridgePlayerShipStatusUpdatedPayload;
 
     // Encounter objects and navigation
 

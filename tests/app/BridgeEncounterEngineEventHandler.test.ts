@@ -22,6 +22,7 @@ const launchedProjectile: MissileCombatProjectileState = {
     kind: COMBAT_PROJECTILE_KIND.MISSILE,
 
     sourceActorId: 'ship_enemy_00',
+
     sourceWeaponId: 'missile_launcher_00',
 
     target: {
@@ -49,6 +50,7 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
         const runtime = new GameRuntime();
 
         const emit = vi.fn();
+
         const setEncounterInteractive = vi.fn();
 
         const eventBus = {
@@ -62,6 +64,7 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
                 type: ENCOUNTER_EVENT.PLAYER_SHIP_TARGETING_DETECTED,
 
                 sourceActorId: 'ship_enemy_00',
+
                 sourceWeaponId: 'missile_launcher_00',
             },
 
@@ -99,10 +102,11 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
         expect(setEncounterInteractive).not.toHaveBeenCalled();
     });
 
-    it('removes impacted missiles, damages hull and requests END only on first destruction', () => {
+    it('updates hull status and requests END only on first destruction', () => {
         const runtime = new GameRuntime();
 
         const emit = vi.fn();
+
         const setEncounterInteractive = vi.fn();
 
         const eventBus = {
@@ -133,6 +137,17 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
                     projectileId: 'projectile_test_00',
                 },
             ],
+
+            [
+                BRIDGE_EVENT.PLAYER_SHIP_STATUS_UPDATED,
+
+                {
+                    hull: {
+                        current: 2,
+                        max: 3,
+                    },
+                },
+            ],
         ]);
 
         expect(setEncounterInteractive).not.toHaveBeenCalled();
@@ -145,6 +160,7 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
                     ...impactedProjectile,
 
                     id: 'projectile_test_01',
+
                     designation: 'M2',
                 },
 
@@ -155,6 +171,7 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
         expect(runtime.getCurrentRun().player.ship.hull).toBe(0);
 
         expect(setEncounterInteractive).toHaveBeenCalledTimes(1);
+
         expect(setEncounterInteractive).toHaveBeenCalledWith(false);
 
         expect(emit.mock.calls).toEqual([
@@ -167,10 +184,32 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
             ],
 
             [
+                BRIDGE_EVENT.PLAYER_SHIP_STATUS_UPDATED,
+
+                {
+                    hull: {
+                        current: 2,
+                        max: 3,
+                    },
+                },
+            ],
+
+            [
                 BRIDGE_EVENT.INCOMING_MISSILE_REMOVED,
 
                 {
                     projectileId: 'projectile_test_01',
+                },
+            ],
+
+            [
+                BRIDGE_EVENT.PLAYER_SHIP_STATUS_UPDATED,
+
+                {
+                    hull: {
+                        current: 0,
+                        max: 3,
+                    },
                 },
             ],
 
@@ -184,7 +223,8 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
         ]);
 
         // Повторный synthetic impact
-        // не запускает второй transition.
+        // не меняет hull и не запускает
+        // второй status/transition event.
         handler.handle([
             {
                 type: ENCOUNTER_EVENT.MISSILE_IMPACTED_PLAYER_SHIP,
@@ -193,6 +233,7 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
                     ...impactedProjectile,
 
                     id: 'projectile_test_02',
+
                     designation: 'M3',
                 },
 
@@ -214,10 +255,32 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
             ],
 
             [
+                BRIDGE_EVENT.PLAYER_SHIP_STATUS_UPDATED,
+
+                {
+                    hull: {
+                        current: 2,
+                        max: 3,
+                    },
+                },
+            ],
+
+            [
                 BRIDGE_EVENT.INCOMING_MISSILE_REMOVED,
 
                 {
                     projectileId: 'projectile_test_01',
+                },
+            ],
+
+            [
+                BRIDGE_EVENT.PLAYER_SHIP_STATUS_UPDATED,
+
+                {
+                    hull: {
+                        current: 0,
+                        max: 3,
+                    },
                 },
             ],
 

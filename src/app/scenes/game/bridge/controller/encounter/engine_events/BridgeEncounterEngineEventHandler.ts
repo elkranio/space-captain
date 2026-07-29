@@ -185,7 +185,24 @@ export default class BridgeEncounterEngineEventHandler {
     private handleMissileImpactedPlayerShip(damage: number): void {
         const result = this.gameRuntime.damagePlayerShipHull(damage);
 
-        // destroyed === true также вернётся при повторном damage,
+        if (result.currentHull !== result.previousHull) {
+            const ship = this.gameRuntime.getCurrentRun().player.ship;
+
+            this.eventBus.emit(
+                BRIDGE_EVENT.PLAYER_SHIP_STATUS_UPDATED,
+
+                {
+                    hull: {
+                        current: result.currentHull,
+
+                        max: ship.maxHull,
+                    },
+                },
+            );
+        }
+
+        // destroyed === true также вернётся
+        // при повторном damage,
         // когда hull уже был равен нулю.
         if (!result.destroyed || result.previousHull === 0) {
             return;
@@ -193,9 +210,13 @@ export default class BridgeEncounterEngineEventHandler {
 
         this.setEncounterInteractive(false);
 
-        this.eventBus.emit(BRIDGE_EVENT.SCENE_TRANSITION_REQUESTED, {
-            sceneKey: SCENE_KEY.END,
-        });
+        this.eventBus.emit(
+            BRIDGE_EVENT.SCENE_TRANSITION_REQUESTED,
+
+            {
+                sceneKey: SCENE_KEY.END,
+            },
+        );
     }
 
     // #endregion
