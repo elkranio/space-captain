@@ -12,4 +12,13 @@ export const MISSILES = {
         damage: 1,
         flightDurationMs: 12000,
     },
+    [MISSILE_ID.BLUE_00]: {
+        id: MISSILE_ID.BLUE_00,
+        name: 'BLUE-BAND MISSILE',
+
+        spectralBand: MISSILE_SPECTRAL_BAND.BLUE,
+
+        damage: 1,
+        flightDurationMs: 12000,
+    },
 } satisfies Record<MissileId, MissileDefinition>;

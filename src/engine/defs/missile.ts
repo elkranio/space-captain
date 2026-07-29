@@ -9,6 +9,7 @@ export type MissileSpectralBand = (typeof MISSILE_SPECTRAL_BAND)[keyof typeof MI
 
 export const MISSILE_ID = {
     RED_00: 'red_00',
+    BLUE_00: 'blue_00',
 } as const;
 
 export type MissileId = (typeof MISSILE_ID)[keyof typeof MISSILE_ID];

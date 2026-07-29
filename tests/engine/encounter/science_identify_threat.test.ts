@@ -20,17 +20,32 @@ import {
 } from '../../../src/engine/encounter/model/event';
 import { OFFICER_TASK_KIND } from '../../../src/engine/encounter/model/officer_task';
 import ShipNodeActorFactory from '../../../src/engine/generation/space_node_actor/ShipNodeActorFactory';
-import { createSingleStationNodeFixture } from '../../fixtures/engine/space_node_fixtures';
 import { createPointDefenseFixture } from '../../fixtures/engine/point_defense_fixtures';
+import { createSingleStationNodeFixture } from '../../fixtures/engine/space_node_fixtures';
 
 describe('Science identify threat command', () => {
-    it('identifies an unknown incoming missile threat', () => {
+    it.each([
+        {
+            label: 'RED',
+
+            presetId: SHIP_NODE_ACTOR_PRESET_ID.ENEMY_GENERIC_00,
+
+            expectedBand: MISSILE_SPECTRAL_BAND.RED,
+        },
+        {
+            label: 'BLUE',
+
+            presetId: SHIP_NODE_ACTOR_PRESET_ID.ENEMY_GENERIC_BLUE_00,
+
+            expectedBand: MISSILE_SPECTRAL_BAND.BLUE,
+        },
+    ])('identifies an unknown $label incoming missile threat', ({ presetId, expectedBand }) => {
         const { node, stationId } = createSingleStationNodeFixture();
 
         const nodeEnemy = ShipNodeActorFactory.create({
             id: 'ship_enemy_00',
 
-            presetId: SHIP_NODE_ACTOR_PRESET_ID.ENEMY_GENERIC_00,
+            presetId,
 
             anchorId: stationId,
         });
@@ -44,6 +59,7 @@ describe('Science identify threat command', () => {
 
             navigation: {
                 kind: PLAYER_SPACE_NAVIGATION_KIND.ANCHORED,
+
                 anchorId: stationId,
             },
 
@@ -55,7 +71,7 @@ describe('Science identify threat command', () => {
         const [loadedEvent] = engine.drainEvents();
 
         if (loadedEvent.type !== ENCOUNTER_EVENT.ENCOUNTER_LOADED) {
-            throw new Error(`Expected encounter loaded event, received: ${loadedEvent.type}`);
+            throw new Error(`Expected encounter loaded event, ` + `received: ${loadedEvent.type}`);
         }
 
         const enemy = loadedEvent.state.actors[0];
@@ -82,6 +98,7 @@ describe('Science identify threat command', () => {
 
             target: {
                 kind: OFFICER_COMMAND_TARGET_KIND.THREAT,
+
                 threatId: 'projectile_1',
             },
 
@@ -95,6 +112,7 @@ describe('Science identify threat command', () => {
         expect(
             engine.executeCommand({
                 role: OFFICER_ROLE.SCIENCE,
+
                 commandId: identifyCommand.commandId,
                 target: identifyCommand.target,
             }),
@@ -105,7 +123,7 @@ describe('Science identify threat command', () => {
         expect(engine.getCombatProjectiles()[0].identification).toEqual({
             status: THREAT_IDENTIFICATION_STATUS.IDENTIFIED,
 
-            spectralBand: MISSILE_SPECTRAL_BAND.RED,
+            spectralBand: expectedBand,
         });
 
         expect(
@@ -163,7 +181,7 @@ describe('Science identify threat command', () => {
 
                     threatId: 'projectile_1',
 
-                    spectralBand: MISSILE_SPECTRAL_BAND.RED,
+                    spectralBand: expectedBand,
                 },
             },
         ]);

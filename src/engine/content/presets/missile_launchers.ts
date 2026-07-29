@@ -6,6 +6,7 @@ import { SHIP_WEAPONS } from '../catalogs/ship_weapons';
 
 export const MISSILE_LAUNCHER_PRESET_ID = {
     BASIC_RED_FULL_00: 'basic_red_full_00',
+    BASIC_BLUE_FULL_00: 'basic_blue_full_00',
 } as const;
 
 export type MissileLauncherPresetId = (typeof MISSILE_LAUNCHER_PRESET_ID)[keyof typeof MISSILE_LAUNCHER_PRESET_ID];
@@ -29,6 +30,14 @@ export const MISSILE_LAUNCHER_PRESETS = {
 
         loadedMissileId: MISSILE_ID.RED_00,
 
+        ammoCount: basicLauncher.ammoCapacity,
+    },
+    [MISSILE_LAUNCHER_PRESET_ID.BASIC_BLUE_FULL_00]: {
+        id: MISSILE_LAUNCHER_PRESET_ID.BASIC_BLUE_FULL_00,
+
+        weaponId: basicLauncher.id,
+
+        loadedMissileId: MISSILE_ID.BLUE_00,
         ammoCount: basicLauncher.ammoCapacity,
     },
 } satisfies Record<MissileLauncherPresetId, MissileLauncherPreset>;
