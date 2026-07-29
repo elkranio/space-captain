@@ -13,7 +13,15 @@ import {
     THREAT_IDENTIFICATION_STATUS,
     type MissileCombatProjectileState,
 } from '../../src/engine/encounter/model/combat';
-import { ENCOUNTER_EVENT } from '../../src/engine/encounter/model/event';
+import { ENCOUNTER_OFFICER_COMMAND_ID } from '../../src/engine/encounter/model/command';
+import {
+    ENCOUNTER_EVENT,
+    OFFICER_TASK_OUTCOME,
+    OFFICER_TASK_RESULT_KIND,
+} from '../../src/engine/encounter/model/event';
+import { OFFICER_TASK_KIND } from '../../src/engine/encounter/model/officer_task';
+import { OFFICER_ROLE } from '../../src/engine/defs/officer';
+import { POINT_DEFENSE_BEAM_BAND, POINT_DEFENSE_SHOT_OUTCOME } from '../../src/engine/defs/point_defense';
 
 const launchedProjectile: MissileCombatProjectileState = {
     id: 'projectile_test_00',
@@ -300,5 +308,88 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
                 },
             ],
         ]);
+    });
+
+    it('syncs point-defense charges after a real shot', () => {
+        const runtime = new GameRuntime();
+
+        const emit = vi.fn();
+
+        const setEncounterInteractive = vi.fn();
+
+        const eventBus = {
+            emit,
+        } as unknown as BridgeEventBus;
+
+        const handler = new BridgeEncounterEngineEventHandler(eventBus, setEncounterInteractive, runtime);
+
+        handler.handle([
+            {
+                type: ENCOUNTER_EVENT.OFFICER_TASK_ENDED,
+
+                task: {
+                    id: 'task_1',
+
+                    kind: OFFICER_TASK_KIND.WEAPONS_POINT_DEFENSE,
+
+                    role: OFFICER_ROLE.WEAPONS,
+
+                    sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_RED_BEAM,
+
+                    targetId: 'projectile_test_00',
+
+                    pointDefenseBeamBand: POINT_DEFENSE_BEAM_BAND.RED,
+
+                    label: 'PD AIM',
+                    showProgress: true,
+
+                    durationMs: 3000,
+                    elapsedMs: 3000,
+                },
+
+                outcome: OFFICER_TASK_OUTCOME.COMPLETED,
+
+                result: {
+                    kind: OFFICER_TASK_RESULT_KIND.POINT_DEFENSE_FIRED,
+
+                    threatId: 'projectile_test_00',
+
+                    beamBand: POINT_DEFENSE_BEAM_BAND.RED,
+
+                    outcome: POINT_DEFENSE_SHOT_OUTCOME.HIT,
+
+                    remainingCharges: 3,
+                },
+            },
+        ]);
+
+        expect(runtime.getCurrentRun().player.ship.pointDefense).toEqual({
+            charges: 3,
+            maxCharges: 4,
+        });
+
+        expect(emit.mock.calls).toEqual([
+            [
+                BRIDGE_EVENT.POINT_DEFENSE_FIRED,
+
+                {
+                    projectileId: 'projectile_test_00',
+
+                    beamBand: POINT_DEFENSE_BEAM_BAND.RED,
+
+                    outcome: POINT_DEFENSE_SHOT_OUTCOME.HIT,
+                },
+            ],
+
+            [
+                BRIDGE_EVENT.OFFICER_ACTIVITY_CLEARED,
+
+                {
+                    role: OFFICER_ROLE.WEAPONS,
+                },
+            ],
+        ]);
+
+        expect(setEncounterInteractive).not.toHaveBeenCalled();
     });
 });
