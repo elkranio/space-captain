@@ -93,7 +93,7 @@ describe('REQUEST_DOCKING', () => {
                     kind: OFFICER_TASK_KIND.COMMS_REQUEST_DOCKING,
 
                     role: OFFICER_ROLE.COMMS,
-                    targetId: stationId,
+                    targetAnchorId: stationId,
                     elapsedMs: 3000,
                 }),
 

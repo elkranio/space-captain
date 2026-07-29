@@ -156,7 +156,7 @@ describe('HAIL', () => {
                     kind: OFFICER_TASK_KIND.COMMS_HAIL,
 
                     role: OFFICER_ROLE.COMMS,
-                    targetId: stationId,
+                    targetAnchorId: stationId,
                 }),
             }),
         ]);

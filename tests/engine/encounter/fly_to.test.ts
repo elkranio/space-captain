@@ -152,7 +152,7 @@ describe('FLY_TO', () => {
                     kind: OFFICER_TASK_KIND.HELM_FLY_TO,
 
                     role: OFFICER_ROLE.HELM,
-                    targetId: beaconId,
+                    targetAnchorId: beaconId,
                 }),
             }),
         ]);
