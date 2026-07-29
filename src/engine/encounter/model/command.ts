@@ -20,6 +20,10 @@ export const ENCOUNTER_OFFICER_COMMAND_ID = {
 export type EncounterOfficerCommandId =
     (typeof ENCOUNTER_OFFICER_COMMAND_ID)[keyof typeof ENCOUNTER_OFFICER_COMMAND_ID];
 
+export type WeaponsPointDefenseCommandId =
+    | typeof ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_RED_BEAM
+    | typeof ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_BLUE_BEAM;
+
 // #region Command targets
 
 export const OFFICER_COMMAND_TARGET_KIND = {

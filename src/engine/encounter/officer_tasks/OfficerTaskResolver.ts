@@ -4,6 +4,41 @@ import { OFFICER_TASK_RESULT_KIND, type OfficerTaskResult } from '../model/event
 import { OFFICER_TASK_KIND, type OfficerTaskState } from '../model/officer_task';
 import EncounterStateStore from '../state/EncounterStateStore';
 
+type CommsRequestDockingTaskState = Extract<
+    OfficerTaskState,
+    {
+        kind: typeof OFFICER_TASK_KIND.COMMS_REQUEST_DOCKING;
+    }
+>;
+
+type HelmFlyToTaskState = Extract<
+    OfficerTaskState,
+    {
+        kind: typeof OFFICER_TASK_KIND.HELM_FLY_TO;
+    }
+>;
+
+type SciencePlotCourseTaskState = Extract<
+    OfficerTaskState,
+    {
+        kind: typeof OFFICER_TASK_KIND.SCIENCE_PLOT_COURSE;
+    }
+>;
+
+type ScienceIdentifyThreatTaskState = Extract<
+    OfficerTaskState,
+    {
+        kind: typeof OFFICER_TASK_KIND.SCIENCE_IDENTIFY_THREAT;
+    }
+>;
+
+type WeaponsPointDefenseTaskState = Extract<
+    OfficerTaskState,
+    {
+        kind: typeof OFFICER_TASK_KIND.WEAPONS_POINT_DEFENSE;
+    }
+>;
+
 // Применяет domain effects завершённой officer task.
 //
 // Не управляет lifecycle task:
@@ -38,15 +73,11 @@ export default class OfficerTaskResolver {
                 return undefined;
 
             default:
-                return this.assertNever(task.kind);
+                return this.assertNever(task);
         }
     }
 
-    private resolveCommsRequestDockingTask(task: OfficerTaskState): OfficerTaskResult {
-        if (!task.targetId) {
-            throw new Error('COMMS_REQUEST_DOCKING task requires targetId');
-        }
-
+    private resolveCommsRequestDockingTask(task: CommsRequestDockingTaskState): OfficerTaskResult {
         this.stateStore.grantDockingClearance(task.targetId);
 
         return {
@@ -56,19 +87,11 @@ export default class OfficerTaskResolver {
         };
     }
 
-    private resolveHelmFlyToTask(task: OfficerTaskState): void {
-        if (!task.targetId) {
-            throw new Error('HELM_FLY_TO task requires targetId');
-        }
-
+    private resolveHelmFlyToTask(task: HelmFlyToTaskState): void {
         this.stateStore.completeTravel(task.targetId);
     }
 
-    private resolveSciencePlotCourseTask(task: OfficerTaskState): OfficerTaskResult {
-        if (!task.targetNodeId) {
-            throw new Error('SCIENCE_PLOT_COURSE task requires targetNodeId');
-        }
-
+    private resolveSciencePlotCourseTask(task: SciencePlotCourseTaskState): OfficerTaskResult {
         const anchor = this.stateStore.createJumpPoint(task.targetNodeId);
 
         return {
@@ -78,11 +101,7 @@ export default class OfficerTaskResolver {
         };
     }
 
-    private resolveScienceIdentifyThreatTask(task: OfficerTaskState): OfficerTaskResult | undefined {
-        if (!task.targetId) {
-            throw new Error('SCIENCE_IDENTIFY_THREAT task requires targetId');
-        }
-
+    private resolveScienceIdentifyThreatTask(task: ScienceIdentifyThreatTaskState): OfficerTaskResult | undefined {
         const spectralBand = this.stateStore.identifyThreat(task.targetId);
 
         if (!spectralBand) {
@@ -97,15 +116,7 @@ export default class OfficerTaskResolver {
         };
     }
 
-    private resolveWeaponsPointDefenseTask(task: OfficerTaskState): OfficerTaskResult | undefined {
-        if (!task.targetId) {
-            throw new Error('WEAPONS_POINT_DEFENSE task requires targetId');
-        }
-
-        if (!task.pointDefenseBeamBand) {
-            throw new Error('WEAPONS_POINT_DEFENSE task requires pointDefenseBeamBand');
-        }
-
+    private resolveWeaponsPointDefenseTask(task: WeaponsPointDefenseTaskState): OfficerTaskResult | undefined {
         const outcome = this.stateStore.firePointDefense(task.targetId, task.pointDefenseBeamBand);
 
         if (!outcome) {
@@ -118,12 +129,11 @@ export default class OfficerTaskResolver {
             threatId: task.targetId,
 
             beamBand: task.pointDefenseBeamBand,
-
             outcome,
         };
     }
 
     private assertNever(value: never): never {
-        throw new Error(`Unhandled officer task kind: ${String(value)}`);
+        throw new Error(`Unhandled officer task: ${String(value)}`);
     }
 }

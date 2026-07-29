@@ -3,7 +3,7 @@
 import { OFFICER_TASK_BASE_DURATION_MS } from '../../content/rules/officer_tasks';
 import { OFFICER_ROLE } from '../../defs/officer';
 import type { PointDefenseBeamBand } from '../../defs/point_defense';
-import { ENCOUNTER_OFFICER_COMMAND_ID, type EncounterOfficerCommandId } from '../model/command';
+import { ENCOUNTER_OFFICER_COMMAND_ID, type WeaponsPointDefenseCommandId } from '../model/command';
 import { OFFICER_TASK_KIND, type OfficerTaskDraft } from '../model/officer_task';
 
 export function createCommsHailTask(targetId: string): OfficerTaskDraft {
@@ -75,7 +75,7 @@ export function createScienceIdentifyThreatTask(threatId: string): OfficerTaskDr
 }
 
 export function createWeaponsPointDefenseTask(
-    sourceCommandId: EncounterOfficerCommandId,
+    sourceCommandId: WeaponsPointDefenseCommandId,
     threatId: string,
     pointDefenseBeamBand: PointDefenseBeamBand,
 ): OfficerTaskDraft {

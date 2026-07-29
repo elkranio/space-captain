@@ -7,7 +7,7 @@ import { COMBAT_PROJECTILE_KIND, COMBAT_TARGET_KIND } from '../../model/combat';
 import {
     ENCOUNTER_OFFICER_COMMAND_ID,
     OFFICER_COMMAND_TARGET_KIND,
-    type EncounterOfficerCommandId,
+    type WeaponsPointDefenseCommandId,
     type OfficerCommandDef,
 } from '../../model/command';
 import { ENCOUNTER_EVENT } from '../../model/event';
@@ -32,7 +32,7 @@ export const weaponsFireBlueBeamCommandHandler = createWeaponsPointDefenseComman
 );
 
 function createWeaponsPointDefenseCommandHandler(
-    commandId: EncounterOfficerCommandId,
+    commandId: WeaponsPointDefenseCommandId,
     label: string,
 
     pointDefenseBeamBand: PointDefenseBeamBand,
