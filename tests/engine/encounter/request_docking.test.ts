@@ -16,6 +16,7 @@ import {
 } from '../../../src/engine/encounter/model/event';
 import { OFFICER_TASK_KIND } from '../../../src/engine/encounter/model/officer_task';
 import { createSingleStationNodeFixture } from '../../fixtures/engine/space_node_fixtures';
+import { createPointDefenseFixture } from '../../fixtures/engine/point_defense_fixtures';
 
 describe('REQUEST_DOCKING', () => {
     it('grants docking clearance after the Comms task completes', () => {
@@ -29,6 +30,8 @@ describe('REQUEST_DOCKING', () => {
 
                 anchorId: stationId,
             },
+
+            pointDefense: createPointDefenseFixture(),
         });
 
         // Убираем начальный ENCOUNTER_LOADED.

@@ -14,16 +14,22 @@ import EncounterStateStore from '../../../src/engine/encounter/state/EncounterSt
 import { createEncounterState } from '../../../src/engine/encounter/state/create_encounter_state';
 import ShipNodeActorFactory from '../../../src/engine/generation/space_node_actor/ShipNodeActorFactory';
 import { createSingleStationNodeFixture } from '../../fixtures/engine/space_node_fixtures';
+import { createPointDefenseFixture } from '../../fixtures/engine/point_defense_fixtures';
 
 describe('encounter actors', () => {
     it('spawns a runtime ship separately from navigation anchors', () => {
         const { node, stationId } = createSingleStationNodeFixture();
 
-        const state = createEncounterState(node, {
-            kind: PLAYER_SPACE_NAVIGATION_KIND.ANCHORED,
+        const state = createEncounterState(
+            node,
 
-            anchorId: stationId,
-        });
+            {
+                kind: PLAYER_SPACE_NAVIGATION_KIND.ANCHORED,
+                anchorId: stationId,
+            },
+
+            createPointDefenseFixture(),
+        );
 
         const store = new EncounterStateStore(state);
 
@@ -64,11 +70,17 @@ describe('encounter actors', () => {
     it('rejects an unknown anchor and duplicate actor id', () => {
         const { node, stationId } = createSingleStationNodeFixture();
 
-        const state = createEncounterState(node, {
-            kind: PLAYER_SPACE_NAVIGATION_KIND.ANCHORED,
+        const state = createEncounterState(
+            node,
 
-            anchorId: stationId,
-        });
+            {
+                kind: PLAYER_SPACE_NAVIGATION_KIND.ANCHORED,
+
+                anchorId: stationId,
+            },
+
+            createPointDefenseFixture(),
+        );
 
         const store = new EncounterStateStore(state);
 
@@ -127,6 +139,7 @@ describe('encounter actors', () => {
 
                 anchorId: stationId,
             },
+            pointDefense: createPointDefenseFixture(),
         });
 
         const [event] = engine.drainEvents();

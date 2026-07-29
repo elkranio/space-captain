@@ -15,6 +15,7 @@ import {
 import { ENCOUNTER_EVENT } from '../../../src/engine/encounter/model/event';
 import ShipNodeActorFactory from '../../../src/engine/generation/space_node_actor/ShipNodeActorFactory';
 import { createSingleStationNodeFixture } from '../../fixtures/engine/space_node_fixtures';
+import { createPointDefenseFixture } from '../../fixtures/engine/point_defense_fixtures';
 
 describe('CombatRunner', () => {
     it('runs an enemy missile launcher through preparation, flight, impact and cooldown', () => {
@@ -41,6 +42,7 @@ describe('CombatRunner', () => {
 
                 anchorId: stationId,
             },
+            pointDefense: createPointDefenseFixture(),
         });
 
         const [loadedEvent] = engine.drainEvents();

@@ -22,7 +22,8 @@ import { THREAT_IDENTIFICATION_STATUS } from '../model/combat';
 import {
     POINT_DEFENSE_SHOT_OUTCOME,
     type PointDefenseBeamBand,
-    type PointDefenseShotOutcome,
+    type PointDefenseFireResult,
+    type PointDefenseState,
 } from '../../defs/point_defense';
 
 export type EncounterTravelStart = {
@@ -50,8 +51,12 @@ export default class EncounterStateStore {
 
     // #region Creation
 
-    public static fromSpaceNode(node: SpaceNodeState, navigation: PlayerSpaceNavigationState): EncounterStateStore {
-        const store = new EncounterStateStore(createEncounterState(node, navigation));
+    public static fromSpaceNode(
+        node: SpaceNodeState,
+        navigation: PlayerSpaceNavigationState,
+        pointDefense: PointDefenseState,
+    ): EncounterStateStore {
+        const store = new EncounterStateStore(createEncounterState(node, navigation, pointDefense));
 
         for (const actor of node.actors) {
             store.spawnShipActor({
@@ -60,6 +65,7 @@ export default class EncounterStateStore {
                 anchorId: actor.anchorId,
 
                 team: actor.team,
+
                 weapons: actor.weapons,
             });
         }
@@ -238,16 +244,27 @@ export default class EncounterStateStore {
         return spectralBand;
     }
 
-    public firePointDefense(threatId: string, beamBand: PointDefenseBeamBand): PointDefenseShotOutcome | undefined {
+    public firePointDefense(threatId: string, beamBand: PointDefenseBeamBand): PointDefenseFireResult | undefined {
         const threatIndex = this.state.combat.projectiles.findIndex((projectile) => {
             return projectile.id === threatId;
         });
 
         // Ракета могла ударить или быть уничтожена
         // до завершения Weapons task.
+        //
+        // Выстрела не произошло,
+        // поэтому заряд не расходуется.
         if (threatIndex < 0) {
             return undefined;
         }
+
+        const pointDefense = this.state.combat.pointDefense;
+
+        if (pointDefense.charges <= 0) {
+            throw new Error('Cannot fire point defense without charges');
+        }
+
+        pointDefense.charges -= 1;
 
         const threat = this.state.combat.projectiles[threatIndex];
 
@@ -260,9 +277,12 @@ export default class EncounterStateStore {
             this.state.combat.projectiles.splice(threatIndex, 1);
         }
 
-        return outcome;
-    }
+        return {
+            outcome,
 
+            remainingCharges: pointDefense.charges,
+        };
+    }
     // #endregion
 
     // #region Encounter object mutations

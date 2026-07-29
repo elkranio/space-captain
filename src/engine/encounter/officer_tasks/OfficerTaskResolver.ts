@@ -106,12 +106,6 @@ export default class OfficerTaskResolver {
             throw new Error('WEAPONS_POINT_DEFENSE task requires pointDefenseBeamBand');
         }
 
-        const outcome = this.stateStore.firePointDefense(task.targetId, task.pointDefenseBeamBand);
-
-        if (!outcome) {
-            return undefined;
-        }
-
         const result = this.stateStore.firePointDefense(task.targetId, task.pointDefenseBeamBand);
 
         if (!result) {

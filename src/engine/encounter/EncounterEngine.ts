@@ -2,23 +2,26 @@
 
 import type { OfficerRole } from '../defs/officer';
 import type { PlayerSpaceNavigationState } from '../defs/player_location';
+import type { PointDefenseState } from '../defs/point_defense';
 import type { SpaceNodeState } from '../defs/universe';
+import CombatRunner from './combat/CombatRunner';
 import OfficerCommandExecutor from './commands/OfficerCommandExecutor';
 import { getAvailableOfficerCommands } from './commands/queries/get_available_officer_commands';
 import ContactSequenceRunner from './contact/ContactSequenceRunner';
 import type { AvailableOfficerCommand, ExecuteOfficerCommandInput, ExecuteOfficerCommandResult } from './model/command';
+import type { CombatProjectileState } from './model/combat';
 import { ENCOUNTER_EVENT, type EncounterEvent } from './model/event';
 import type { OfficerAvailabilityStates } from './model/officer_availability';
 import { OFFICER_TASK_KIND, type OfficerTaskKind, type OfficerTaskState } from './model/officer_task';
 import { getOfficerAvailabilityStates } from './officer_availability/queries/get_officer_availability_states';
 import OfficerTaskRunner from './officer_tasks/OfficerTaskRunner';
 import EncounterStateStore from './state/EncounterStateStore';
-import CombatRunner from './combat/CombatRunner';
-import type { CombatProjectileState } from './model/combat';
 
 export type EncounterEngineOptions = {
     node: SpaceNodeState;
     navigation: PlayerSpaceNavigationState;
+
+    pointDefense: PointDefenseState;
 
     completeTimedTasksImmediately?: boolean;
 };
@@ -36,8 +39,14 @@ export default class EncounterEngine {
 
     private readonly combatRunner: CombatRunner;
 
-    constructor({ node, navigation, completeTimedTasksImmediately = false }: EncounterEngineOptions) {
-        this.stateStore = EncounterStateStore.fromSpaceNode(node, navigation);
+    constructor({
+        node,
+        navigation,
+        pointDefense,
+
+        completeTimedTasksImmediately = false,
+    }: EncounterEngineOptions) {
+        this.stateStore = EncounterStateStore.fromSpaceNode(node, navigation, pointDefense);
 
         const encounterState = this.stateStore.getState();
 
@@ -49,6 +58,7 @@ export default class EncounterEngine {
         this.officerTaskRunner = new OfficerTaskRunner({
             stateStore: this.stateStore,
             emit: this.emit,
+
             completeTimedTasksImmediately,
         });
 

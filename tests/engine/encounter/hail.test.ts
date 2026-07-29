@@ -12,6 +12,7 @@ import {
 import { ENCOUNTER_EVENT, OFFICER_TASK_OUTCOME } from '../../../src/engine/encounter/model/event';
 import { OFFICER_TASK_KIND } from '../../../src/engine/encounter/model/officer_task';
 import { createSingleStationNodeFixture } from '../../fixtures/engine/space_node_fixtures';
+import { createPointDefenseFixture } from '../../fixtures/engine/point_defense_fixtures';
 
 describe('HAIL', () => {
     it('keeps Comms busy until the contact sequence ends', () => {
@@ -25,6 +26,8 @@ describe('HAIL', () => {
 
                 anchorId: stationId,
             },
+
+            pointDefense: createPointDefenseFixture(),
         });
 
         // Убираем начальный ENCOUNTER_LOADED.

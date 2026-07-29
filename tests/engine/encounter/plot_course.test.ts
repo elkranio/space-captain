@@ -18,6 +18,7 @@ import {
 import { OFFICER_TASK_KIND } from '../../../src/engine/encounter/model/officer_task';
 import { ENCOUNTER_ANCHOR_KIND } from '../../../src/engine/encounter/anchors/encounter_anchor';
 import { createSingleStationNodeFixture } from '../../fixtures/engine/space_node_fixtures';
+import { createPointDefenseFixture } from '../../fixtures/engine/point_defense_fixtures';
 
 describe('PLOT_COURSE', () => {
     it('creates one jump point after the Science task completes', () => {
@@ -33,6 +34,8 @@ describe('PLOT_COURSE', () => {
 
                 anchorId: stationId,
             },
+
+            pointDefense: createPointDefenseFixture(),
         });
 
         // Убираем начальный ENCOUNTER_LOADED.

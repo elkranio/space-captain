@@ -13,6 +13,7 @@ import { ENCOUNTER_EVENT, OFFICER_TASK_OUTCOME } from '../../../src/engine/encou
 import { OFFICER_AVAILABILITY_STATE } from '../../../src/engine/encounter/model/officer_availability';
 import { OFFICER_TASK_KIND } from '../../../src/engine/encounter/model/officer_task';
 import { createStationAndBeaconNodeFixture } from '../../fixtures/engine/space_node_fixtures';
+import { createPointDefenseFixture } from '../../fixtures/engine/point_defense_fixtures';
 
 describe('FLY_TO', () => {
     it('travels between encounter anchors and blocks the bridge until completion', () => {
@@ -26,6 +27,8 @@ describe('FLY_TO', () => {
 
                 anchorId: stationId,
             },
+
+            pointDefense: createPointDefenseFixture(),
         });
 
         // Убираем начальный ENCOUNTER_LOADED.

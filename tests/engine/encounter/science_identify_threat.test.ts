@@ -21,6 +21,7 @@ import {
 import { OFFICER_TASK_KIND } from '../../../src/engine/encounter/model/officer_task';
 import ShipNodeActorFactory from '../../../src/engine/generation/space_node_actor/ShipNodeActorFactory';
 import { createSingleStationNodeFixture } from '../../fixtures/engine/space_node_fixtures';
+import { createPointDefenseFixture } from '../../fixtures/engine/point_defense_fixtures';
 
 describe('Science identify threat command', () => {
     it('identifies an unknown incoming missile threat', () => {
@@ -47,6 +48,8 @@ describe('Science identify threat command', () => {
             },
 
             completeTimedTasksImmediately: true,
+
+            pointDefense: createPointDefenseFixture(),
         });
 
         const [loadedEvent] = engine.drainEvents();

@@ -16,19 +16,24 @@ import { requireThreatTargetId } from './command_handler_helpers';
 
 export const weaponsFireRedBeamCommandHandler = createWeaponsPointDefenseCommandHandler(
     ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_RED_BEAM,
+
     'RED BEAM',
+
     POINT_DEFENSE_BEAM_BAND.RED,
 );
 
 export const weaponsFireBlueBeamCommandHandler = createWeaponsPointDefenseCommandHandler(
     ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_BLUE_BEAM,
+
     'BLUE BEAM',
+
     POINT_DEFENSE_BEAM_BAND.BLUE,
 );
 
 function createWeaponsPointDefenseCommandHandler(
     commandId: EncounterOfficerCommandId,
     label: string,
+
     pointDefenseBeamBand: PointDefenseBeamBand,
 ): OfficerCommandHandler {
     const def = {
@@ -47,6 +52,10 @@ function createWeaponsPointDefenseCommandHandler(
         def,
 
         getAvailableCommands(state) {
+            if (state.combat.pointDefense.charges <= 0) {
+                return [];
+            }
+
             return state.combat.projectiles
                 .filter((projectile) => {
                     if (projectile.kind !== COMBAT_PROJECTILE_KIND.MISSILE) {
@@ -78,7 +87,7 @@ function createWeaponsPointDefenseCommandHandler(
                             threatId: projectile.id,
                         },
 
-                        targetLabel: `MISSILE ${projectile.designation}`,
+                        targetLabel: `MISSILE ` + projectile.designation,
                     };
                 });
         },
