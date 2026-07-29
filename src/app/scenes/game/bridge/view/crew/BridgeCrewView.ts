@@ -1,6 +1,6 @@
 // src/app/scenes/game/bridge/view/crew/BridgeCrewView.ts
 
-import type { OfficerDefinition, OfficerRole } from '../../../../../../engine/defs/officer';
+import { OFFICER_ROLE, type OfficerRole } from '../../../../../../engine/defs/officer';
 import type BridgeScene from '../../BridgeScene';
 import {
     BRIDGE_EVENT,
@@ -11,8 +11,10 @@ import {
     type BridgeOfficerStationIndicatorsUpdatedPayload,
 } from '../../events/bridge_event';
 import type BridgeEventBus from '../../events/BridgeEventBus';
-import { BRIDGE_CREW_SEAT_POSITIONS } from './bridge_crew_layout';
+import { BRIDGE_CREW_SEAT_LAYOUT } from './bridge_crew_layout';
 import BridgeSeatView from './seat/BridgeSeatView';
+
+const OFFICER_ROLES = Object.values(OFFICER_ROLE);
 
 // Root view bridge crew layer.
 //
@@ -99,27 +101,41 @@ export default class BridgeCrewView {
     }
 
     private createSeatViews(): void {
-        for (const position of BRIDGE_CREW_SEAT_POSITIONS) {
-            const seatView = new BridgeSeatView(this.scene, this.root, position, this.eventBus);
+        for (const seatLayout of BRIDGE_CREW_SEAT_LAYOUT) {
+            const seatView = new BridgeSeatView(this.scene, this.root, seatLayout.position, this.eventBus);
 
             this.seatViews.push(seatView);
+
+            if (seatLayout.officerRole === null) {
+                continue;
+            }
+
+            if (this.seatViewByRole.has(seatLayout.officerRole)) {
+                throw new Error(`Duplicate bridge seat for officer role: ${seatLayout.officerRole}`);
+            }
+
+            this.seatViewByRole.set(seatLayout.officerRole, seatView);
+        }
+
+        for (const role of OFFICER_ROLES) {
+            if (!this.seatViewByRole.has(role)) {
+                throw new Error(`Bridge seat not configured for officer role: ${role}`);
+            }
         }
     }
 
     private handleCrewLoaded(payload: BridgeCrewLoadedPayload): void {
         this.clearSeats();
 
-        const officers = Object.values(payload);
+        for (const role of OFFICER_ROLES) {
+            const officer = payload[role];
 
-        officers.forEach((officer, index) => {
-            const seatView = this.seatViews[index];
-
-            if (!seatView) {
-                return;
+            if (officer.role !== role) {
+                throw new Error(`Officer record role mismatch: ${role} !== ${officer.role}`);
             }
 
-            this.setSeatOfficer(seatView, officer);
-        });
+            this.getSeatViewOrThrow(role).setOfficer(officer);
+        }
 
         this.applyLatestIndicatorStates();
         this.applyLatestActivityProgressStates();
@@ -137,15 +153,7 @@ export default class BridgeCrewView {
         this.applyLatestActivityProgressStates();
     }
 
-    private setSeatOfficer(seatView: BridgeSeatView, officer: OfficerDefinition): void {
-        seatView.setOfficer(officer);
-
-        this.seatViewByRole.set(officer.role, seatView);
-    }
-
     private clearSeats(): void {
-        this.seatViewByRole.clear();
-
         for (const seatView of this.seatViews) {
             seatView.clearOfficer();
         }
@@ -172,22 +180,20 @@ export default class BridgeCrewView {
     }
 
     private handleOfficerActivityStarted(payload: BridgeOfficerActivityStartedPayload): void {
-        const seatView = this.seatViewByRole.get(payload.role);
-
-        if (!seatView) {
-            return;
-        }
-
-        seatView.showActivity(payload.label);
+        this.getSeatViewOrThrow(payload.role).showActivity(payload.label);
     }
 
     private handleOfficerActivityCleared(payload: BridgeOfficerActivityClearedPayload): void {
-        const seatView = this.seatViewByRole.get(payload.role);
+        this.getSeatViewOrThrow(payload.role).clearActivity();
+    }
+
+    private getSeatViewOrThrow(role: OfficerRole): BridgeSeatView {
+        const seatView = this.seatViewByRole.get(role);
 
         if (!seatView) {
-            return;
+            throw new Error(`Bridge seat not found for officer role: ${role}`);
         }
 
-        seatView.clearActivity();
+        return seatView;
     }
 }
