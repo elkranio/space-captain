@@ -1,30 +1,33 @@
 // src/engine/encounter/state/EncounterStateStore.ts
 
+import { MISSILES } from '../../content/catalogs/missiles';
+import { SHIPS } from '../../content/catalogs/ships';
+import { JUMP_POINT_OBJECT_SPRITE_ID } from '../../defs/jump_point';
 import type { OfficerRole } from '../../defs/officer';
 import { PLAYER_SPACE_NAVIGATION_KIND, type PlayerSpaceNavigationState } from '../../defs/player_location';
-import type { SpaceNodeState } from '../../defs/universe';
-import type { OfficerTaskState } from '../model/officer_task';
-import type { EncounterState } from '../model/state';
-import { ENCOUNTER_ANCHOR_KIND, type EncounterAnchorState } from '../anchors/encounter_anchor';
-import { JUMP_POINT_OBJECT_SPRITE_ID } from '../../defs/jump_point';
-import type { JumpPointEncounterAnchorState } from '../anchors/jump_point/jump_point_encounter_anchor';
-import { DOCKING_CLEARANCE_STATE } from '../anchors/station/station_encounter_anchor';
-import { createEncounterState } from './create_encounter_state';
-import { SHIPS } from '../../content/catalogs/ships';
-import type { ShipId } from '../../defs/ship';
-import { ENCOUNTER_ACTOR_KIND, type EncounterActorState } from '../actors/encounter_actor';
-import type { ShipEncounterActorState } from '../actors/ship/ship_encounter_actor';
-import type { ShipWeaponState } from '../../defs/ship_weapon';
-import type { EncounterTeam } from '../../defs/encounter_team';
-import { MISSILES } from '../../content/catalogs/missiles';
-import type { MissileSpectralBand } from '../../defs/missile';
-import { THREAT_IDENTIFICATION_STATUS } from '../model/combat';
 import {
     POINT_DEFENSE_SHOT_OUTCOME,
     type PointDefenseBeamBand,
     type PointDefenseShotOutcome,
     type PointDefenseState,
 } from '../../defs/point_defense';
+import type { ShipId } from '../../defs/ship';
+import type { ShipWeaponState } from '../../defs/ship_weapon';
+import type { SpaceNodeState } from '../../defs/universe';
+import { ENCOUNTER_ACTOR_KIND, type EncounterActorState } from '../actors/encounter_actor';
+import type { ShipEncounterActorState } from '../actors/ship/ship_encounter_actor';
+import { ENCOUNTER_ANCHOR_KIND, type EncounterAnchorState } from '../anchors/encounter_anchor';
+import type { JumpPointEncounterAnchorState } from '../anchors/jump_point/jump_point_encounter_anchor';
+import { DOCKING_CLEARANCE_STATE } from '../anchors/station/station_encounter_anchor';
+import type { EncounterTeam } from '../../defs/encounter_team';
+import {
+    COMBAT_THREAT_KIND,
+    THREAT_IDENTIFICATION_STATUS,
+    type ThreatIdentificationResult,
+} from '../model/combat';
+import type { OfficerTaskState } from '../model/officer_task';
+import type { EncounterState } from '../model/state';
+import { createEncounterState } from './create_encounter_state';
 
 export type EncounterTravelStart = {
     fromAnchorId: string;
@@ -219,29 +222,63 @@ export default class EncounterStateStore {
 
     // #region Combat
 
-    public identifyThreat(threatId: string): MissileSpectralBand | undefined {
-        const threat = this.state.combat.projectiles.find((projectile) => {
-            return projectile.id === threatId;
+    public identifyThreat(threatId: string): ThreatIdentificationResult | undefined {
+        const projectile = this.state.combat.projectiles.find((candidate) => {
+            return candidate.id === threatId;
         });
 
-        // Угроза могла ударить или быть уничтожена
+        if (projectile) {
+            if (projectile.identification.status === THREAT_IDENTIFICATION_STATUS.IDENTIFIED) {
+                return {
+                    kind: COMBAT_THREAT_KIND.MISSILE,
+
+                    spectralBand: projectile.identification.spectralBand,
+                };
+            }
+
+            const spectralBand = MISSILES[projectile.missileId].spectralBand;
+
+            projectile.identification = {
+                status: THREAT_IDENTIFICATION_STATUS.IDENTIFIED,
+                spectralBand,
+            };
+
+            return {
+                kind: COMBAT_THREAT_KIND.MISSILE,
+
+                spectralBand,
+            };
+        }
+
+        const laserAttack = this.state.combat.laserAttacks.find((candidate) => {
+            return candidate.id === threatId;
+        });
+
+        // Угроза могла сработать или быть уничтожена
         // до завершения Science task.
-        if (!threat) {
+        if (!laserAttack) {
             return undefined;
         }
 
-        if (threat.identification.status === THREAT_IDENTIFICATION_STATUS.IDENTIFIED) {
-            return threat.identification.spectralBand;
+        if (laserAttack.identification.status === THREAT_IDENTIFICATION_STATUS.IDENTIFIED) {
+            return {
+                kind: COMBAT_THREAT_KIND.LASER,
+
+                targetZone: laserAttack.identification.targetZone,
+            };
         }
 
-        const spectralBand = MISSILES[threat.missileId].spectralBand;
-
-        threat.identification = {
+        laserAttack.identification = {
             status: THREAT_IDENTIFICATION_STATUS.IDENTIFIED,
-            spectralBand,
+
+            targetZone: laserAttack.targetZone,
         };
 
-        return spectralBand;
+        return {
+            kind: COMBAT_THREAT_KIND.LASER,
+
+            targetZone: laserAttack.targetZone,
+        };
     }
 
     public spendPointDefenseCharge(): number {
@@ -282,6 +319,7 @@ export default class EncounterStateStore {
 
         return outcome;
     }
+
     // #endregion
 
     // #region Encounter object mutations

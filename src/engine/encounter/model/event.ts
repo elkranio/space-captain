@@ -1,11 +1,14 @@
 // src/engine/encounter/model/event.ts
 
 import type { CharacterPortraitId } from '../../defs/character';
-import type { MissileSpectralBand } from '../../defs/missile';
 import type { PointDefenseBeamBand, PointDefenseShotOutcome } from '../../defs/point_defense';
 import type { EncounterAnchorState } from '../anchors/encounter_anchor';
 import type { JumpPointEncounterAnchorState } from '../anchors/jump_point/jump_point_encounter_anchor';
-import type { LaserAttackState, MissileCombatProjectileState } from './combat';
+import type {
+    LaserAttackState,
+    MissileCombatProjectileState,
+    ThreatIdentificationResult,
+} from './combat';
 import type { OfficerTaskState } from './officer_task';
 import type { EncounterState } from './state';
 
@@ -60,7 +63,7 @@ export type OfficerTaskResult =
           kind: typeof OFFICER_TASK_RESULT_KIND.THREAT_IDENTIFIED;
 
           threatId: string;
-          spectralBand: MissileSpectralBand;
+          identification: ThreatIdentificationResult;
       }
     | {
           kind: typeof OFFICER_TASK_RESULT_KIND.POINT_DEFENSE_FIRED;

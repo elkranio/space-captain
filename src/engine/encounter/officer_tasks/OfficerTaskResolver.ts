@@ -102,9 +102,9 @@ export default class OfficerTaskResolver {
     }
 
     private resolveScienceIdentifyThreatTask(task: ScienceIdentifyThreatTaskState): OfficerTaskResult | undefined {
-        const spectralBand = this.stateStore.identifyThreat(task.threatId);
+        const identification = this.stateStore.identifyThreat(task.threatId);
 
-        if (!spectralBand) {
+        if (!identification) {
             return undefined;
         }
 
@@ -112,7 +112,7 @@ export default class OfficerTaskResolver {
             kind: OFFICER_TASK_RESULT_KIND.THREAT_IDENTIFIED,
 
             threatId: task.threatId,
-            spectralBand,
+            identification,
         };
     }
 

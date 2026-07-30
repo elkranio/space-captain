@@ -8,6 +8,13 @@ export const COMBAT_PROJECTILE_KIND = {
     MISSILE: 'missile',
 } as const;
 
+export const COMBAT_THREAT_KIND = {
+    MISSILE: 'missile',
+    LASER: 'laser',
+} as const;
+
+export type CombatThreatKind = (typeof COMBAT_THREAT_KIND)[keyof typeof COMBAT_THREAT_KIND];
+
 export const COMBAT_TARGET_KIND = {
     PLAYER_SHIP: 'player_ship',
     ACTOR: 'actor',
@@ -44,6 +51,18 @@ export type LaserThreatIdentification =
       }
     | {
           status: typeof THREAT_IDENTIFICATION_STATUS.IDENTIFIED;
+
+          targetZone: LaserTargetZone;
+      };
+
+export type ThreatIdentificationResult =
+    | {
+          kind: typeof COMBAT_THREAT_KIND.MISSILE;
+
+          spectralBand: MissileSpectralBand;
+      }
+    | {
+          kind: typeof COMBAT_THREAT_KIND.LASER;
 
           targetZone: LaserTargetZone;
       };
