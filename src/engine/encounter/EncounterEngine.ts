@@ -80,18 +80,22 @@ export default class EncounterEngine {
             emit: this.emit,
         });
 
-        this.combatRunner = new CombatRunner({
-            state: encounterState,
-            emit: this.emit,
-
-            random,
-        });
-
         this.officerTaskRunner = new OfficerTaskRunner({
             stateStore: this.stateStore,
             emit: this.emit,
 
             completeTimedTasksImmediately,
+        });
+
+        this.combatRunner = new CombatRunner({
+            state: encounterState,
+            emit: this.emit,
+
+            random,
+
+            interruptRandomOfficerTask: () => {
+                this.interruptRandomOfficerTask(random);
+            },
         });
 
         this.contactSequenceRunner = new ContactSequenceRunner({
@@ -246,6 +250,49 @@ export default class EncounterEngine {
         }
 
         this.officerTaskRunner.complete(taskId);
+    }
+
+    // #endregion
+
+    // #region Combat consequences
+
+    private interruptRandomOfficerTask(random: () => number): void {
+        const activeTasks = this.stateStore.getOfficerTasks();
+
+        if (activeTasks.length === 0) {
+            return;
+        }
+
+        if (activeTasks.length === 1) {
+            const [task] = activeTasks;
+
+            if (!task) {
+                throw new Error('Cannot interrupt missing officer task');
+            }
+
+            this.officerTaskRunner.cancel(task.id);
+            return;
+        }
+
+        const randomValue = random();
+
+        if (!Number.isFinite(randomValue) || randomValue < 0 || randomValue >= 1) {
+            throw new Error(
+                `Encounter random source must return a value in [0, 1): ${randomValue}`,
+            );
+        }
+
+        const taskIndex = Math.floor(randomValue * activeTasks.length);
+        const task = activeTasks[taskIndex];
+
+        if (!task) {
+            throw new Error(
+                `Cannot select random officer task: ` +
+                    `${taskIndex}/${activeTasks.length}`,
+            );
+        }
+
+        this.officerTaskRunner.cancel(task.id);
     }
 
     // #endregion

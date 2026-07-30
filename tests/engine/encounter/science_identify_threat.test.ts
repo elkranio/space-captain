@@ -19,6 +19,7 @@ import {
 } from '../../../src/engine/encounter/model/command';
 import {
     COMBAT_THREAT_KIND,
+    LASER_SHOT_OUTCOME,
     THREAT_IDENTIFICATION_STATUS,
 } from '../../../src/engine/encounter/model/combat';
 import {
@@ -323,7 +324,7 @@ describe('Science identify threat command', () => {
         ]);
     });
 
-    it('finishes without identification result when the laser fires before Science completes', () => {
+    it('cancels unfinished Science identification when the laser hits', () => {
         const { engine, laserChargeDurationMs } = createLaserEngine();
 
         engine.step(SHIP_WEAPON_TARGETING_DURATION_MS);
@@ -361,26 +362,33 @@ describe('Science identify threat command', () => {
 
         engine.step(2000);
 
-        const [laserFiredEvent] = engine.drainEvents();
+        const [laserFiredEvent, taskEndedEvent] = engine.drainEvents();
 
-        expect(laserFiredEvent.type).toBe(ENCOUNTER_EVENT.LASER_FIRED);
+        expect(laserFiredEvent).toMatchObject({
+            type: ENCOUNTER_EVENT.LASER_FIRED,
+
+            outcome: LASER_SHOT_OUTCOME.HIT,
+            damage: 1,
+        });
+
+        expect(taskEndedEvent).toEqual({
+            type: ENCOUNTER_EVENT.OFFICER_TASK_ENDED,
+
+            task: {
+                ...taskStartedEvent.task,
+
+                elapsedMs: 2000,
+            },
+
+            outcome: OFFICER_TASK_OUTCOME.CANCELLED,
+        });
+
         expect(engine.getLaserAttacks()).toEqual([]);
+        expect(engine.getOfficerTasks()).toEqual([]);
 
         engine.step(1000);
 
-        expect(engine.drainEvents()).toEqual([
-            {
-                type: ENCOUNTER_EVENT.OFFICER_TASK_ENDED,
-
-                task: {
-                    ...taskStartedEvent.task,
-
-                    elapsedMs: 3000,
-                },
-
-                outcome: OFFICER_TASK_OUTCOME.COMPLETED,
-            },
-        ]);
+        expect(engine.drainEvents()).toEqual([]);
     });
 });
 

@@ -34,6 +34,8 @@ type CombatRunnerOptions = {
     emit: (event: EncounterEvent) => void;
 
     random: () => number;
+
+    interruptRandomOfficerTask: () => void;
 };
 
 // Владеет боевым циклом encounter:
@@ -54,6 +56,8 @@ export default class CombatRunner {
 
     private readonly random: () => number;
 
+    private readonly interruptRandomOfficerTask: () => void;
+
     private nextProjectileId = 1;
     private nextLaserAttackId = 1;
 
@@ -61,10 +65,20 @@ export default class CombatRunner {
     // M1, L2, M3, L4.
     private nextThreatDesignationNumber = 1;
 
-    constructor({ state, emit, random }: CombatRunnerOptions) {
+    constructor({
+        state,
+        emit,
+
+        random,
+
+        interruptRandomOfficerTask,
+    }: CombatRunnerOptions) {
         this.state = state;
         this.emit = emit;
+
         this.random = random;
+
+        this.interruptRandomOfficerTask = interruptRandomOfficerTask;
     }
 
     public step(deltaMs: number): void {
@@ -402,6 +416,8 @@ export default class CombatRunner {
             outcome: LASER_SHOT_OUTCOME.HIT,
             damage: definition.damage,
         });
+
+        this.interruptRandomOfficerTask();
     }
 
     private isLaserBlocked(attack: LaserAttackState): boolean {
