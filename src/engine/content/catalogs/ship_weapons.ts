@@ -28,7 +28,7 @@ export const SHIP_WEAPONS = {
 
         damage: 1,
 
-        chargeDurationMs: 6000,
-        cooldownDurationMs: 7000,
+        chargeDurationMs: 12000,
+        cooldownDurationMs: 15000,
     },
 } satisfies Record<ShipWeaponId, ShipWeaponDefinition>;
