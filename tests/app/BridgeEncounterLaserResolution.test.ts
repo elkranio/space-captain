@@ -45,7 +45,7 @@ describe('BridgeEncounterEngineEventHandler laser resolution', () => {
         ]);
     });
 
-    it('removes the threat without damaging hull when the laser is blocked', () => {
+    it('removes the threat, emits a blocked beam and does not damage hull', () => {
         const { handler, runtime, emit, setEncounterInteractive } = createHandler();
 
         handler.handle([
@@ -68,12 +68,23 @@ describe('BridgeEncounterEngineEventHandler laser resolution', () => {
                     attackId: 'laser_attack_1',
                 },
             ],
+
+            [
+                BRIDGE_EVENT.LASER_BEAM_FIRED,
+
+                {
+                    sourceActorId: 'ship_enemy_00',
+
+                    targetZone: LASER_TARGET_ZONE.CENTER,
+                    outcome: LASER_SHOT_OUTCOME.BLOCKED,
+                },
+            ],
         ]);
 
         expect(setEncounterInteractive).not.toHaveBeenCalled();
     });
 
-    it('removes the threat and damages hull when the laser hits', () => {
+    it('removes the threat, emits a hit beam and damages hull', () => {
         const { handler, runtime, emit, setEncounterInteractive } = createHandler();
 
         handler.handle([
@@ -95,6 +106,17 @@ describe('BridgeEncounterEngineEventHandler laser resolution', () => {
 
                 {
                     attackId: 'laser_attack_1',
+                },
+            ],
+
+            [
+                BRIDGE_EVENT.LASER_BEAM_FIRED,
+
+                {
+                    sourceActorId: 'ship_enemy_00',
+
+                    targetZone: LASER_TARGET_ZONE.CENTER,
+                    outcome: LASER_SHOT_OUTCOME.HIT,
                 },
             ],
 

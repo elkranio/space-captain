@@ -9,6 +9,7 @@ import type { LaserTargetZone } from '../../../../../engine/defs/laser';
 import type { MissileSpectralBand } from '../../../../../engine/defs/missile';
 import type { PointDefenseBeamBand, PointDefenseShotOutcome } from '../../../../../engine/defs/point_defense';
 import type { EncounterOfficerCommandId, OfficerCommandTarget } from '../../../../../engine/encounter/model/command';
+import type { LaserShotOutcome } from '../../../../../engine/encounter/model/combat';
 
 // Scene-local события bridge scene.
 //
@@ -189,6 +190,10 @@ export const BRIDGE_EVENT = {
     // Актуальный временной и identification snapshot
     // всех активных laser charging threats.
     LASER_THREATS_UPDATED: 'laser_threats_updated',
+
+    // Вражеский laser разрешил выстрел,
+    // который bridge view показывает коротким beam VFX.
+    LASER_BEAM_FIRED: 'laser_beam_fired',
 
     // #endregion
 } as const;
@@ -454,6 +459,13 @@ export type BridgeLaserThreatUpdatePayload = {
 
 export type BridgeLaserThreatsUpdatedPayload = BridgeLaserThreatUpdatePayload[];
 
+export type BridgeLaserBeamFiredPayload = {
+    sourceActorId: string;
+
+    targetZone: LaserTargetZone;
+    outcome: LaserShotOutcome;
+};
+
 // #endregion
 
 // Typed mapping:
@@ -546,4 +558,6 @@ export type BridgeEventPayloadMap = {
     [BRIDGE_EVENT.LASER_THREAT_REMOVED]: BridgeLaserThreatRemovedPayload;
 
     [BRIDGE_EVENT.LASER_THREATS_UPDATED]: BridgeLaserThreatsUpdatedPayload;
+
+    [BRIDGE_EVENT.LASER_BEAM_FIRED]: BridgeLaserBeamFiredPayload;
 };

@@ -195,6 +195,13 @@ export default class BridgeEncounterEngineEventHandler {
                     attackId: event.attack.id,
                 });
 
+                this.eventBus.emit(BRIDGE_EVENT.LASER_BEAM_FIRED, {
+                    sourceActorId: event.attack.sourceActorId,
+
+                    targetZone: event.attack.targetZone,
+                    outcome: event.outcome,
+                });
+
                 if (event.outcome === LASER_SHOT_OUTCOME.BLOCKED) {
                     return;
                 }
