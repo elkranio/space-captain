@@ -1,10 +1,11 @@
 // tests/engine/content/new_game_universe_factory.test.ts
 
 import { describe, expect, it } from 'vitest';
+import NewGameUniverseFactory from '../../../src/engine/content/new_game/NewGameUniverseFactory';
 import { PLAYER_LOCATION_KIND, PLAYER_SPACE_NAVIGATION_KIND } from '../../../src/engine/defs/player_location';
 import { SPACE_BACKGROUND_ID } from '../../../src/engine/defs/space_background';
+import { SHIP_WEAPON_KIND } from '../../../src/engine/defs/ship_weapon';
 import { SPACE_ANCHOR_KIND, SPACE_NODE_ACTOR_KIND } from '../../../src/engine/defs/universe';
-import NewGameUniverseFactory from '../../../src/engine/content/new_game/NewGameUniverseFactory';
 
 describe('NewGameUniverseFactory', () => {
     it('creates a connected new game universe and dev player locations', () => {
@@ -151,19 +152,28 @@ describe('NewGameUniverseFactory', () => {
         const second = NewGameUniverseFactory.create();
 
         expect(first.universe).not.toBe(second.universe);
-
         expect(first.universe.nodes).not.toBe(second.universe.nodes);
 
         expect(first.universe.nodes[0]).not.toBe(second.universe.nodes[0]);
 
         expect(first.universe.nodes[0].actors[0]).not.toBe(second.universe.nodes[0].actors[0]);
 
-        expect(first.universe.nodes[0].actors[0].weapons[0]).not.toBe(second.universe.nodes[0].actors[0].weapons[0]);
+        const firstWeapon = first.universe.nodes[0].actors[0].weapons[0];
+        const secondWeapon = second.universe.nodes[0].actors[0].weapons[0];
+
+        expect(firstWeapon).not.toBe(secondWeapon);
+
+        if (
+            firstWeapon.kind !== SHIP_WEAPON_KIND.MISSILE_LAUNCHER ||
+            secondWeapon.kind !== SHIP_WEAPON_KIND.MISSILE_LAUNCHER
+        ) {
+            throw new Error('Expected new-game enemy missile launcher weapons');
+        }
 
         expect(first.playerLocations.arrivingAtStart).not.toBe(second.playerLocations.arrivingAtStart);
 
-        first.universe.nodes[0].actors[0].weapons[0].ammoCount = 0;
+        firstWeapon.ammoCount = 0;
 
-        expect(second.universe.nodes[0].actors[0].weapons[0].ammoCount).toBe(5);
+        expect(secondWeapon.ammoCount).toBe(5);
     });
 });

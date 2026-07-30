@@ -6,6 +6,7 @@ import { SHIP_NODE_ACTOR_PRESET_ID } from '../../../src/engine/content/presets/s
 import { MISSILE_SPECTRAL_BAND } from '../../../src/engine/defs/missile';
 import { OFFICER_ROLE } from '../../../src/engine/defs/officer';
 import { PLAYER_SPACE_NAVIGATION_KIND } from '../../../src/engine/defs/player_location';
+import { SHIP_WEAPON_KIND } from '../../../src/engine/defs/ship_weapon';
 import EncounterEngine from '../../../src/engine/encounter/EncounterEngine';
 import {
     ENCOUNTER_OFFICER_COMMAND_ID,
@@ -50,7 +51,13 @@ describe('Science identify threat command', () => {
             anchorId: stationId,
         });
 
-        nodeEnemy.weapons[0].ammoCount = 1;
+        const nodeLauncher = nodeEnemy.weapons[0];
+
+        if (nodeLauncher.kind !== SHIP_WEAPON_KIND.MISSILE_LAUNCHER) {
+            throw new Error('Expected enemy missile launcher');
+        }
+
+        nodeLauncher.ammoCount = 1;
 
         node.actors.push(nodeEnemy);
 

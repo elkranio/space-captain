@@ -1,20 +1,23 @@
 // tests/engine/encounter/encounter_actors.test.ts
 
 import { describe, expect, it } from 'vitest';
-import { SHIP_NODE_ACTOR_PRESET_ID } from '../../../src/engine/content/presets/ship_node_actors';
 import { SHIPS } from '../../../src/engine/content/catalogs/ships';
+import { SHIP_NODE_ACTOR_PRESET_ID } from '../../../src/engine/content/presets/ship_node_actors';
 import { ENCOUNTER_TEAM } from '../../../src/engine/defs/encounter_team';
 import { PLAYER_SPACE_NAVIGATION_KIND } from '../../../src/engine/defs/player_location';
 import { SHIP_ID } from '../../../src/engine/defs/ship';
-import { SHIP_WEAPON_PHASE } from '../../../src/engine/defs/ship_weapon';
+import {
+    SHIP_WEAPON_KIND,
+    SHIP_WEAPON_PHASE,
+} from '../../../src/engine/defs/ship_weapon';
 import { ENCOUNTER_ACTOR_KIND } from '../../../src/engine/encounter/actors/encounter_actor';
 import EncounterEngine from '../../../src/engine/encounter/EncounterEngine';
 import { ENCOUNTER_EVENT } from '../../../src/engine/encounter/model/event';
 import EncounterStateStore from '../../../src/engine/encounter/state/EncounterStateStore';
 import { createEncounterState } from '../../../src/engine/encounter/state/create_encounter_state';
 import ShipNodeActorFactory from '../../../src/engine/generation/space_node_actor/ShipNodeActorFactory';
-import { createSingleStationNodeFixture } from '../../fixtures/engine/space_node_fixtures';
 import { createPointDefenseFixture } from '../../fixtures/engine/point_defense_fixtures';
+import { createSingleStationNodeFixture } from '../../fixtures/engine/space_node_fixtures';
 
 describe('encounter actors', () => {
     it('spawns a runtime ship separately from navigation anchors', () => {
@@ -127,7 +130,13 @@ describe('encounter actors', () => {
             anchorId: stationId,
         });
 
-        const initialAmmoCount = nodeActor.weapons[0].ammoCount;
+        const nodeWeapon = nodeActor.weapons[0];
+
+        if (nodeWeapon.kind !== SHIP_WEAPON_KIND.MISSILE_LAUNCHER) {
+            throw new Error('Expected persistent missile launcher');
+        }
+
+        const initialAmmoCount = nodeWeapon.ammoCount;
 
         node.actors.push(nodeActor);
 
@@ -156,16 +165,13 @@ describe('encounter actors', () => {
                             kind: ENCOUNTER_ACTOR_KIND.SHIP,
 
                             displayName: SHIPS[nodeActor.shipId].name,
-
                             team: nodeActor.team,
-
                             anchorId: nodeActor.anchorId,
-
                             shipId: nodeActor.shipId,
 
                             weapons: [
                                 {
-                                    ...nodeActor.weapons[0],
+                                    ...nodeWeapon,
                                 },
                             ],
                         },
@@ -182,14 +188,20 @@ describe('encounter actors', () => {
 
         expect(encounterActor.weapons).not.toBe(nodeActor.weapons);
 
-        expect(encounterActor.weapons[0]).not.toBe(nodeActor.weapons[0]);
+        const encounterWeapon = encounterActor.weapons[0];
 
-        encounterActor.weapons[0].ammoCount = 4;
+        expect(encounterWeapon).not.toBe(nodeWeapon);
 
-        encounterActor.weapons[0].phase = SHIP_WEAPON_PHASE.COOLDOWN;
+        if (encounterWeapon.kind !== SHIP_WEAPON_KIND.MISSILE_LAUNCHER) {
+            throw new Error('Expected encounter missile launcher');
+        }
 
-        expect(nodeActor.weapons[0].ammoCount).toBe(initialAmmoCount);
+        encounterWeapon.ammoCount = 4;
 
-        expect(nodeActor.weapons[0].phase).toBe(SHIP_WEAPON_PHASE.READY);
+        encounterWeapon.phase = SHIP_WEAPON_PHASE.COOLDOWN;
+
+        expect(nodeWeapon.ammoCount).toBe(initialAmmoCount);
+
+        expect(nodeWeapon.phase).toBe(SHIP_WEAPON_PHASE.READY);
     });
 });

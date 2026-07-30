@@ -5,7 +5,10 @@ import { SHIP_WEAPONS } from '../../../src/engine/content/catalogs/ship_weapons'
 import { SHIP_NODE_ACTOR_PRESET_ID } from '../../../src/engine/content/presets/ship_node_actors';
 import { MISSILE_ID } from '../../../src/engine/defs/missile';
 import { PLAYER_SPACE_NAVIGATION_KIND } from '../../../src/engine/defs/player_location';
-import { SHIP_WEAPON_PHASE } from '../../../src/engine/defs/ship_weapon';
+import {
+    SHIP_WEAPON_KIND,
+    SHIP_WEAPON_PHASE,
+} from '../../../src/engine/defs/ship_weapon';
 import EncounterEngine from '../../../src/engine/encounter/EncounterEngine';
 import {
     COMBAT_PROJECTILE_KIND,
@@ -14,8 +17,8 @@ import {
 } from '../../../src/engine/encounter/model/combat';
 import { ENCOUNTER_EVENT } from '../../../src/engine/encounter/model/event';
 import ShipNodeActorFactory from '../../../src/engine/generation/space_node_actor/ShipNodeActorFactory';
-import { createSingleStationNodeFixture } from '../../fixtures/engine/space_node_fixtures';
 import { createPointDefenseFixture } from '../../fixtures/engine/point_defense_fixtures';
+import { createSingleStationNodeFixture } from '../../fixtures/engine/space_node_fixtures';
 
 describe('CombatRunner', () => {
     it('runs an enemy missile launcher through preparation, flight, impact and cooldown', () => {
@@ -29,8 +32,14 @@ describe('CombatRunner', () => {
             anchorId: stationId,
         });
 
+        const nodeLauncher = nodeEnemy.weapons[0];
+
+        if (nodeLauncher.kind !== SHIP_WEAPON_KIND.MISSILE_LAUNCHER) {
+            throw new Error('Expected enemy missile launcher');
+        }
+
         // Тесту нужен ровно один выстрел.
-        nodeEnemy.weapons[0].ammoCount = 1;
+        nodeLauncher.ammoCount = 1;
 
         node.actors.push(nodeEnemy);
 
@@ -54,6 +63,10 @@ describe('CombatRunner', () => {
         const enemy = loadedEvent.state.actors[0];
 
         const launcher = enemy.weapons[0];
+
+        if (launcher.kind !== SHIP_WEAPON_KIND.MISSILE_LAUNCHER) {
+            throw new Error('Expected loaded enemy missile launcher');
+        }
 
         const loadedLauncherDefinition = SHIP_WEAPONS[launcher.weaponId];
 

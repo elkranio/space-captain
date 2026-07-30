@@ -2,10 +2,7 @@
 
 import { describe, expect, it } from 'vitest';
 import { SHIP_WEAPONS } from '../../../src/engine/content/catalogs/ship_weapons';
-import {
-    SHIP_NODE_ACTOR_PRESET_ID,
-    type ShipNodeActorPresetId,
-} from '../../../src/engine/content/presets/ship_node_actors';
+import { SHIP_NODE_ACTOR_PRESET_ID } from '../../../src/engine/content/presets/ship_node_actors';
 import { OFFICER_ROLE } from '../../../src/engine/defs/officer';
 import { PLAYER_SPACE_NAVIGATION_KIND } from '../../../src/engine/defs/player_location';
 import {
@@ -13,6 +10,7 @@ import {
     POINT_DEFENSE_SHOT_OUTCOME,
     type PointDefenseState,
 } from '../../../src/engine/defs/point_defense';
+import { SHIP_WEAPON_KIND } from '../../../src/engine/defs/ship_weapon';
 import EncounterEngine from '../../../src/engine/encounter/EncounterEngine';
 import {
     ENCOUNTER_OFFICER_COMMAND_ID,
@@ -454,8 +452,12 @@ describe('Weapons point defense command', () => {
     });
 });
 
+type IncomingMissileActorPresetId =
+    | typeof SHIP_NODE_ACTOR_PRESET_ID.ENEMY_GENERIC_00
+    | typeof SHIP_NODE_ACTOR_PRESET_ID.ENEMY_GENERIC_BLUE_00;
+
 type CreateEngineWithIncomingMissileOptions = {
-    presetId?: ShipNodeActorPresetId;
+    presetId?: IncomingMissileActorPresetId;
 
     pointDefense?: PointDefenseState;
 };
@@ -475,7 +477,13 @@ function createEngineWithIncomingMissile({
         anchorId: stationId,
     });
 
-    nodeEnemy.weapons[0].ammoCount = 1;
+    const nodeLauncher = nodeEnemy.weapons[0];
+
+    if (nodeLauncher.kind !== SHIP_WEAPON_KIND.MISSILE_LAUNCHER) {
+        throw new Error('Expected enemy missile launcher');
+    }
+
+    nodeLauncher.ammoCount = 1;
 
     node.actors.push(nodeEnemy);
 
