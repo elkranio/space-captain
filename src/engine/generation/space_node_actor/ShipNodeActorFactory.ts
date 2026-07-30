@@ -7,6 +7,7 @@ import {
 } from '../../content/presets/ship_node_actors';
 import { SHIP_WEAPON_KIND, type ShipWeaponState } from '../../defs/ship_weapon';
 import { SPACE_NODE_ACTOR_KIND, type ShipSpaceNodeActorState } from '../../defs/universe';
+import LaserWeaponFactory from '../ship_weapon/LaserWeaponFactory';
 import MissileLauncherFactory from '../ship_weapon/MissileLauncherFactory';
 
 export type CreateShipNodeActorInput = {
@@ -44,7 +45,15 @@ export default class ShipNodeActorFactory {
             case SHIP_WEAPON_KIND.MISSILE_LAUNCHER:
                 return MissileLauncherFactory.create({
                     id: preset.id,
+
                     presetId: preset.presetId,
+                });
+
+            case SHIP_WEAPON_KIND.LASER:
+                return LaserWeaponFactory.create({
+                    id: preset.id,
+
+                    weaponId: preset.weaponId,
                 });
         }
     }

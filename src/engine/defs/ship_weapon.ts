@@ -4,12 +4,14 @@ import type { MissileId } from './missile';
 
 export const SHIP_WEAPON_KIND = {
     MISSILE_LAUNCHER: 'missile_launcher',
+    LASER: 'laser',
 } as const;
 
 export type ShipWeaponKind = (typeof SHIP_WEAPON_KIND)[keyof typeof SHIP_WEAPON_KIND];
 
 export const SHIP_WEAPON_ID = {
     MISSILE_LAUNCHER_00: 'missile_launcher_00',
+    LASER_00: 'laser_00',
 } as const;
 
 export type ShipWeaponId = (typeof SHIP_WEAPON_ID)[keyof typeof SHIP_WEAPON_ID];
@@ -23,7 +25,7 @@ export const SHIP_WEAPON_PHASE = {
 export type ShipWeaponPhase = (typeof SHIP_WEAPON_PHASE)[keyof typeof SHIP_WEAPON_PHASE];
 
 // Неизменяемое описание модели оружия.
-// Конкретная установленная ракетница хранит только weaponId
+// Конкретное установленное оружие хранит только weaponId
 // и собственное mutable runtime state.
 export type ShipWeaponDefinitionBase = {
     id: ShipWeaponId;
@@ -41,7 +43,13 @@ export type MissileLauncherDefinition = ShipWeaponDefinitionBase & {
     ammoCapacity: number;
 };
 
-export type ShipWeaponDefinition = MissileLauncherDefinition;
+export type LaserWeaponDefinition = ShipWeaponDefinitionBase & {
+    kind: typeof SHIP_WEAPON_KIND.LASER;
+
+    damage: number;
+};
+
+export type ShipWeaponDefinition = MissileLauncherDefinition | LaserWeaponDefinition;
 
 // Mutable state конкретного установленного оружия.
 export type ShipWeaponBaseState = {
@@ -63,4 +71,8 @@ export type MissileLauncherState = ShipWeaponBaseState & {
     ammoCount: number;
 };
 
-export type ShipWeaponState = MissileLauncherState;
+export type LaserWeaponState = ShipWeaponBaseState & {
+    kind: typeof SHIP_WEAPON_KIND.LASER;
+};
+
+export type ShipWeaponState = MissileLauncherState | LaserWeaponState;

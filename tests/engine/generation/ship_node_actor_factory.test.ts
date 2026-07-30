@@ -58,14 +58,59 @@ describe('ShipNodeActorFactory', () => {
         expect(first).not.toBe(second);
         expect(first.weapons).not.toBe(second.weapons);
 
-        expect(first.weapons[0]).not.toBe(second.weapons[0]);
+        const firstWeapon = first.weapons[0];
+        const secondWeapon = second.weapons[0];
 
-        first.weapons[0].ammoCount = 0;
+        expect(firstWeapon).not.toBe(secondWeapon);
 
-        first.weapons[0].phase = SHIP_WEAPON_PHASE.COOLDOWN;
+        if (
+            firstWeapon.kind !== SHIP_WEAPON_KIND.MISSILE_LAUNCHER ||
+            secondWeapon.kind !== SHIP_WEAPON_KIND.MISSILE_LAUNCHER
+        ) {
+            throw new Error('Expected missile launcher weapons');
+        }
 
-        expect(second.weapons[0].ammoCount).toBe(5);
+        firstWeapon.ammoCount = 0;
 
-        expect(second.weapons[0].phase).toBe(SHIP_WEAPON_PHASE.READY);
+        firstWeapon.phase = SHIP_WEAPON_PHASE.COOLDOWN;
+
+        expect(secondWeapon.ammoCount).toBe(5);
+
+        expect(secondWeapon.phase).toBe(SHIP_WEAPON_PHASE.READY);
+    });
+
+    it('creates a ship actor with a laser weapon', () => {
+        const actor = ShipNodeActorFactory.create({
+            id: 'ship_enemy_00',
+
+            presetId: SHIP_NODE_ACTOR_PRESET_ID.ENEMY_GENERIC_LASER_00,
+
+            anchorId: 'station_00',
+        });
+
+        expect(actor).toEqual({
+            id: 'ship_enemy_00',
+
+            kind: SPACE_NODE_ACTOR_KIND.SHIP,
+
+            team: ENCOUNTER_TEAM.ENEMY,
+
+            shipId: SHIP_ID.GENERIC_00,
+            anchorId: 'station_00',
+
+            weapons: [
+                {
+                    id: 'laser_00',
+
+                    weaponId: SHIP_WEAPON_ID.LASER_00,
+
+                    kind: SHIP_WEAPON_KIND.LASER,
+
+                    phase: SHIP_WEAPON_PHASE.READY,
+
+                    phaseElapsedMs: 0,
+                },
+            ],
+        });
     });
 });

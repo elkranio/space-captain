@@ -15,4 +15,17 @@ export const SHIP_WEAPONS = {
         preparationDurationMs: 3000,
         cooldownDurationMs: 15000,
     },
+
+    [SHIP_WEAPON_ID.LASER_00]: {
+        id: SHIP_WEAPON_ID.LASER_00,
+
+        name: 'LASER EMITTER',
+
+        kind: SHIP_WEAPON_KIND.LASER,
+
+        damage: 1,
+
+        preparationDurationMs: 9000,
+        cooldownDurationMs: 7000,
+    },
 } satisfies Record<ShipWeaponId, ShipWeaponDefinition>;
