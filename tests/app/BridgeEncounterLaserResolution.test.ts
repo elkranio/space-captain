@@ -81,6 +81,11 @@ describe('BridgeEncounterEngineEventHandler laser resolution', () => {
                     current: 4,
                     max: 4,
                 },
+
+                shieldGenerator: {
+                    current: 3,
+                    max: 3,
+                },
             },
         );
 

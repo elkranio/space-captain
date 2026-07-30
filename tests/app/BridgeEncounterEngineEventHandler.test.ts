@@ -64,6 +64,11 @@ function createPlayerShipStatusPayload(hullCurrent: number, pointDefenseCurrent 
             current: pointDefenseCurrent,
             max: 4,
         },
+
+        shieldGenerator: {
+            current: 3,
+            max: 3,
+        },
     };
 }
 
@@ -306,7 +311,6 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
                     id: 'task_1',
 
                     kind: OFFICER_TASK_KIND.WEAPONS_POINT_DEFENSE,
-
                     role: OFFICER_ROLE.WEAPONS,
 
                     sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_RED_BEAM,
@@ -367,7 +371,6 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
                     id: 'task_1',
 
                     kind: OFFICER_TASK_KIND.WEAPONS_POINT_DEFENSE,
-
                     role: OFFICER_ROLE.WEAPONS,
 
                     sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_RED_BEAM,

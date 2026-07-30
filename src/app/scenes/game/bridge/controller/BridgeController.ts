@@ -92,6 +92,12 @@ export default class BridgeController {
 
                     max: run.player.ship.pointDefense.maxCharges,
                 },
+
+                shieldGenerator: {
+                    current: run.player.ship.shieldGenerator.charges,
+
+                    max: run.player.ship.shieldGenerator.maxCharges,
+                },
             },
         );
     }
@@ -121,7 +127,10 @@ export default class BridgeController {
     // Выполняет scene transition,
     // запрошенный bridge-level flow.
     private handleSceneTransitionRequested(payload: BridgeSceneTransitionRequestedPayload): void {
-        SCENE_RUNTIME.startGameScene(this.scene, payload.sceneKey);
+        SCENE_RUNTIME.startGameScene(
+            this.scene,
+            payload.sceneKey,
+        );
     }
 
     // #endregion

@@ -76,7 +76,6 @@ export default class BridgeEncounterEngineEventHandler {
                     // Engine navigation хранит anchors,
                     // bridge view двигает presentation objects.
                     fromObjectId: event.fromAnchorId,
-
                     targetObjectId: event.target.id,
                 });
                 return;
@@ -107,10 +106,18 @@ export default class BridgeEncounterEngineEventHandler {
 
                 return;
 
-            case ENCOUNTER_EVENT.PLAYER_SHIELD_GENERATOR_STATE_CHANGED:
+            case ENCOUNTER_EVENT.PLAYER_SHIELD_GENERATOR_STATE_CHANGED: {
+                const previousCharges =
+                    this.gameRuntime.getCurrentRun().player.ship.shieldGenerator.charges;
+
                 this.gameRuntime.setPlayerShipShieldGeneratorState(event.shieldGenerator);
 
+                if (event.shieldGenerator.charges !== previousCharges) {
+                    this.emitPlayerShipStatusUpdated();
+                }
+
                 return;
+            }
 
             case ENCOUNTER_EVENT.OFFICER_TASK_STARTED:
                 this.eventBus.emit(BRIDGE_EVENT.OFFICER_ACTIVITY_STARTED, {
@@ -123,7 +130,6 @@ export default class BridgeEncounterEngineEventHandler {
                 if (event.result?.kind === OFFICER_TASK_RESULT_KIND.JUMP_POINT_CALCULATED) {
                     this.eventBus.emit(
                         BRIDGE_EVENT.ENCOUNTER_OBJECT_ADDED,
-
                         mapEncounterAnchorToBridgeObjectPayload(event.result.anchor),
                     );
                 }
@@ -131,12 +137,10 @@ export default class BridgeEncounterEngineEventHandler {
                 if (event.result?.kind === OFFICER_TASK_RESULT_KIND.POINT_DEFENSE_FIRED) {
                     this.eventBus.emit(
                         BRIDGE_EVENT.POINT_DEFENSE_FIRED,
-
                         {
                             projectileId: event.result.threatId,
 
                             beamBand: event.result.beamBand,
-
                             outcome: event.result.outcome,
                         },
                     );
@@ -212,7 +216,6 @@ export default class BridgeEncounterEngineEventHandler {
 
         this.eventBus.emit(
             BRIDGE_EVENT.SCENE_TRANSITION_REQUESTED,
-
             {
                 sceneKey: SCENE_KEY.END,
             },
@@ -224,7 +227,6 @@ export default class BridgeEncounterEngineEventHandler {
 
         this.eventBus.emit(
             BRIDGE_EVENT.PLAYER_SHIP_STATUS_UPDATED,
-
             {
                 hull: {
                     current: ship.hull,
@@ -235,6 +237,12 @@ export default class BridgeEncounterEngineEventHandler {
                     current: ship.pointDefense.charges,
 
                     max: ship.pointDefense.maxCharges,
+                },
+
+                shieldGenerator: {
+                    current: ship.shieldGenerator.charges,
+
+                    max: ship.shieldGenerator.maxCharges,
                 },
             },
         );
@@ -250,7 +258,6 @@ export default class BridgeEncounterEngineEventHandler {
         this.eventBus.emit(BRIDGE_EVENT.ENCOUNTER_OBJECTS_LOADED, objects);
 
         const navigation = event.state.navigation;
-
         switch (navigation.kind) {
             case PLAYER_SPACE_NAVIGATION_KIND.ARRIVING:
                 this.handleArrivingNavigation(navigation.targetAnchorId, objects);
@@ -266,6 +273,7 @@ export default class BridgeEncounterEngineEventHandler {
 
                     navigation.fromAnchorId,
                     navigation.targetAnchorId,
+
                     objects,
                 );
                 return;
@@ -275,11 +283,20 @@ export default class BridgeEncounterEngineEventHandler {
         }
     }
 
-    private handleArrivingNavigation(targetAnchorId: string, objects: BridgeEncounterObjectPayload[]): void {
-        const targetAnchorObjects = this.findAnchorObjectsOrThrow(objects, targetAnchorId);
+    private handleArrivingNavigation(
+        targetAnchorId: string,
+        objects: BridgeEncounterObjectPayload[],
+    ): void {
+        const targetAnchorObjects = this.findAnchorObjectsOrThrow(
+            objects,
+            targetAnchorId,
+        );
 
         if (DEBUG_SETTINGS.bridge.encounter.skipArrival) {
-            this.eventBus.emit(BRIDGE_EVENT.ENCOUNTER_OBJECTS_UPDATED, targetAnchorObjects);
+            this.eventBus.emit(
+                BRIDGE_EVENT.ENCOUNTER_OBJECTS_UPDATED,
+                targetAnchorObjects,
+            );
 
             this.eventBus.emit(BRIDGE_EVENT.ENCOUNTER_ARRIVAL_COMPLETED);
             return;
@@ -292,27 +309,47 @@ export default class BridgeEncounterEngineEventHandler {
         });
     }
 
-    private handleAnchoredNavigation(anchorId: string, objects: BridgeEncounterObjectPayload[]): void {
-        const anchorObjects = this.findAnchorObjectsOrThrow(objects, anchorId);
+    private handleAnchoredNavigation(
+        anchorId: string,
+        objects: BridgeEncounterObjectPayload[],
+    ): void {
+        const anchorObjects = this.findAnchorObjectsOrThrow(
+            objects,
+            anchorId,
+        );
 
-        this.eventBus.emit(BRIDGE_EVENT.ENCOUNTER_OBJECTS_UPDATED, anchorObjects);
+        this.eventBus.emit(
+            BRIDGE_EVENT.ENCOUNTER_OBJECTS_UPDATED,
+            anchorObjects,
+        );
 
         this.setEncounterInteractive(true);
     }
 
     private handleTravellingNavigation(
         taskId: string,
+
         fromAnchorId: string,
         targetAnchorId: string,
+
         objects: BridgeEncounterObjectPayload[],
     ): void {
-        this.findAnchorObjectsOrThrow(objects, fromAnchorId);
+        this.findAnchorObjectsOrThrow(
+            objects,
+            fromAnchorId,
+        );
 
-        const targetAnchorObjects = this.findAnchorObjectsOrThrow(objects, targetAnchorId);
+        const targetAnchorObjects = this.findAnchorObjectsOrThrow(
+            objects,
+            targetAnchorId,
+        );
 
         this.setEncounterInteractive(false);
 
-        this.eventBus.emit(BRIDGE_EVENT.ENCOUNTER_OBJECTS_UPDATED, targetAnchorObjects);
+        this.eventBus.emit(
+            BRIDGE_EVENT.ENCOUNTER_OBJECTS_UPDATED,
+            targetAnchorObjects,
+        );
 
         this.eventBus.emit(BRIDGE_EVENT.ENCOUNTER_TRAVEL_COMPLETED, {
             taskId,
@@ -323,15 +360,20 @@ export default class BridgeEncounterEngineEventHandler {
 
     // #region Loaded task lookup
 
-    private findLoadedTravelTaskIdOrThrow(event: EncounterLoadedEvent, targetAnchorId: string): string {
+    private findLoadedTravelTaskIdOrThrow(
+        event: EncounterLoadedEvent,
+        targetAnchorId: string,
+    ): string {
         const task = event.state.officerTasks[OFFICER_ROLE.HELM];
-
         if (!task) {
             throw new Error('TRAVELLING encounter requires active Helm task');
         }
 
         if (task.kind !== OFFICER_TASK_KIND.HELM_FLY_TO) {
-            throw new Error(`TRAVELLING encounter requires HELM_FLY_TO task, ` + `received: ${task.kind}`);
+            throw new Error(
+                `TRAVELLING encounter requires HELM_FLY_TO task, ` +
+                    `received: ${task.kind}`,
+            );
         }
 
         if (task.targetAnchorId !== targetAnchorId) {
@@ -353,26 +395,36 @@ export default class BridgeEncounterEngineEventHandler {
         objects: BridgeEncounterObjectPayload[],
         anchorObjectId: string,
     ): BridgeEncounterObjectPayload[] {
-        this.findObjectOrThrow(objects, anchorObjectId);
+        this.findObjectOrThrow(
+            objects,
+            anchorObjectId,
+        );
 
         const anchorObjects = objects.filter((object) => {
             return object.anchorObjectId === anchorObjectId;
         });
 
         if (anchorObjects.length === 0) {
-            throw new Error(`Encounter anchor objects not found: ${anchorObjectId}`);
+            throw new Error(
+                `Encounter anchor objects not found: ${anchorObjectId}`,
+            );
         }
 
         return anchorObjects;
     }
 
-    private findObjectOrThrow(objects: BridgeEncounterObjectPayload[], objectId: string): BridgeEncounterObjectPayload {
+    private findObjectOrThrow(
+        objects: BridgeEncounterObjectPayload[],
+        objectId: string,
+    ): BridgeEncounterObjectPayload {
         const object = objects.find((candidate) => {
             return candidate.id === objectId;
         });
 
         if (!object) {
-            throw new Error(`Navigation bridge object not found: ${objectId}`);
+            throw new Error(
+                `Navigation bridge object not found: ${objectId}`,
+            );
         }
 
         return object;
@@ -381,6 +433,8 @@ export default class BridgeEncounterEngineEventHandler {
     // #endregion
 
     private assertNeverNavigation(value: never): never {
-        throw new Error(`Unhandled player space navigation state: ${String(value)}`);
+        throw new Error(
+            `Unhandled player space navigation state: ${String(value)}`,
+        );
     }
 }

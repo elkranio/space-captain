@@ -5,11 +5,12 @@ import { BRIDGE_EVENT, type BridgePlayerShipStatusUpdatedPayload } from '../../.
 import type BridgeEventBus from '../../../events/BridgeEventBus';
 import BridgeHullStatusView from './hull/BridgeHullStatusView';
 import BridgePointDefenseChargesView from './point_defense/BridgePointDefenseChargesView';
+import BridgeShieldChargesView from './shield/BridgeShieldChargesView';
 
 const SHIP_STATUS_PANEL = {
     y: 4,
 
-    width: 192,
+    width: 296,
     height: 32,
 
     backgroundColor: 0x10131d,
@@ -20,8 +21,8 @@ const SHIP_STATUS_PANEL = {
 } as const;
 
 const HULL_STATUS_POSITION = new Phaser.Math.Vector2(12, 8);
-
 const POINT_DEFENSE_STATUS_POSITION = new Phaser.Math.Vector2(112, 8);
+const SHIELD_STATUS_POSITION = new Phaser.Math.Vector2(204, 8);
 
 // Временная root-view ship status panel.
 //
@@ -38,6 +39,8 @@ export default class BridgeShipStatusView {
     private readonly hullView: BridgeHullStatusView;
 
     private readonly pointDefenseView: BridgePointDefenseChargesView;
+
+    private readonly shieldView: BridgeShieldChargesView;
 
     constructor(
         scene: BridgeScene,
@@ -61,7 +64,6 @@ export default class BridgeShipStatusView {
                 SHIP_STATUS_PANEL.height,
 
                 SHIP_STATUS_PANEL.backgroundColor,
-
                 SHIP_STATUS_PANEL.backgroundAlpha,
             )
             .setOrigin(0, 0)
@@ -73,13 +75,32 @@ export default class BridgeShipStatusView {
 
         this.hullView = new BridgeHullStatusView(scene);
 
-        this.hullView.setPosition(HULL_STATUS_POSITION.x, HULL_STATUS_POSITION.y);
+        this.hullView.setPosition(
+            HULL_STATUS_POSITION.x,
+            HULL_STATUS_POSITION.y,
+        );
 
         this.pointDefenseView = new BridgePointDefenseChargesView(scene);
 
-        this.pointDefenseView.setPosition(POINT_DEFENSE_STATUS_POSITION.x, POINT_DEFENSE_STATUS_POSITION.y);
+        this.pointDefenseView.setPosition(
+            POINT_DEFENSE_STATUS_POSITION.x,
+            POINT_DEFENSE_STATUS_POSITION.y,
+        );
 
-        this.root.add([this.background, this.hullView.getRoot(), this.pointDefenseView.getRoot()]);
+        this.shieldView = new BridgeShieldChargesView(scene);
+
+        this.shieldView.setPosition(
+            SHIELD_STATUS_POSITION.x,
+            SHIELD_STATUS_POSITION.y,
+        );
+
+        this.root.add([
+            this.background,
+
+            this.hullView.getRoot(),
+            this.pointDefenseView.getRoot(),
+            this.shieldView.getRoot(),
+        ]);
 
         this.eventBus.on(
             BRIDGE_EVENT.PLAYER_SHIP_STATUS_UPDATED,
@@ -97,17 +118,28 @@ export default class BridgeShipStatusView {
             this,
         );
 
+        this.shieldView.destroy();
         this.pointDefenseView.destroy();
         this.hullView.destroy();
 
         this.background.destroy();
-
         this.root.destroy(false);
     }
 
     private handlePlayerShipStatusUpdated(payload: BridgePlayerShipStatusUpdatedPayload): void {
-        this.hullView.setState(payload.hull.current, payload.hull.max);
+        this.hullView.setState(
+            payload.hull.current,
+            payload.hull.max,
+        );
 
-        this.pointDefenseView.setState(payload.pointDefense.current, payload.pointDefense.max);
+        this.pointDefenseView.setState(
+            payload.pointDefense.current,
+            payload.pointDefense.max,
+        );
+
+        this.shieldView.setState(
+            payload.shieldGenerator.current,
+            payload.shieldGenerator.max,
+        );
     }
 }

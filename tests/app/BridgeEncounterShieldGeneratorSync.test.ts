@@ -3,6 +3,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { GameRuntime } from '../../src/app/runtime/GameRuntime';
 import BridgeEncounterEngineEventHandler from '../../src/app/scenes/game/bridge/controller/encounter/engine_events/BridgeEncounterEngineEventHandler';
+import { BRIDGE_EVENT } from '../../src/app/scenes/game/bridge/events/bridge_event';
 import type BridgeEventBus from '../../src/app/scenes/game/bridge/events/BridgeEventBus';
 import { ENCOUNTER_EVENT } from '../../src/engine/encounter/model/event';
 
@@ -41,7 +42,28 @@ describe('BridgeEncounterEngineEventHandler shield generator sync', () => {
             chargeRegenerationElapsedMs: 7500,
         });
 
-        expect(emit).not.toHaveBeenCalled();
+        expect(emit).toHaveBeenCalledTimes(1);
+        expect(emit).toHaveBeenCalledWith(
+            BRIDGE_EVENT.PLAYER_SHIP_STATUS_UPDATED,
+
+            {
+                hull: {
+                    current: 3,
+                    max: 3,
+                },
+
+                pointDefense: {
+                    current: 4,
+                    max: 4,
+                },
+
+                shieldGenerator: {
+                    current: 1,
+                    max: 3,
+                },
+            },
+        );
+
         expect(setEncounterInteractive).not.toHaveBeenCalled();
     });
 });
