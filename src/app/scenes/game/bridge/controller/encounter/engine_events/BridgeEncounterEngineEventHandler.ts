@@ -2,6 +2,7 @@
 
 import { OFFICER_ROLE } from '../../../../../../../engine/defs/officer';
 import { PLAYER_SPACE_NAVIGATION_KIND } from '../../../../../../../engine/defs/player_location';
+import { LASER_SHOT_OUTCOME } from '../../../../../../../engine/encounter/model/combat';
 import {
     ENCOUNTER_EVENT,
     OFFICER_TASK_RESULT_KIND,
@@ -165,12 +166,24 @@ export default class BridgeEncounterEngineEventHandler {
                 });
                 return;
 
+            case ENCOUNTER_EVENT.LASER_ATTACK_STARTED:
+                this.eventBus.emit(BRIDGE_EVENT.MISSILE_TARGETING_WARNING_CLEARED);
+                return;
+
             case ENCOUNTER_EVENT.MISSILE_IMPACTED_PLAYER_SHIP:
                 this.eventBus.emit(BRIDGE_EVENT.INCOMING_MISSILE_REMOVED, {
                     projectileId: event.projectile.id,
                 });
 
-                this.handleMissileImpactedPlayerShip(event.damage);
+                this.handlePlayerShipDamaged(event.damage);
+                return;
+
+            case ENCOUNTER_EVENT.LASER_FIRED:
+                if (event.outcome === LASER_SHOT_OUTCOME.BLOCKED) {
+                    return;
+                }
+
+                this.handlePlayerShipDamaged(event.damage);
                 return;
         }
 
@@ -181,7 +194,7 @@ export default class BridgeEncounterEngineEventHandler {
 
     // #region Combat
 
-    private handleMissileImpactedPlayerShip(damage: number): void {
+    private handlePlayerShipDamaged(damage: number): void {
         const result = this.gameRuntime.damagePlayerShipHull(damage);
 
         if (result.currentHull !== result.previousHull) {

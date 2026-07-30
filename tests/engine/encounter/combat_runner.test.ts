@@ -17,6 +17,7 @@ import EncounterEngine from '../../../src/engine/encounter/EncounterEngine';
 import {
     COMBAT_PROJECTILE_KIND,
     COMBAT_TARGET_KIND,
+    LASER_SHOT_OUTCOME,
     THREAT_IDENTIFICATION_STATUS,
 } from '../../../src/engine/encounter/model/combat';
 import { ENCOUNTER_EVENT } from '../../../src/engine/encounter/model/event';
@@ -343,6 +344,9 @@ describe('CombatRunner', () => {
                 type: ENCOUNTER_EVENT.LASER_FIRED,
 
                 attack: firstAttack,
+
+                outcome: LASER_SHOT_OUTCOME.HIT,
+                damage: laserDefinition.damage,
             },
         ]);
 

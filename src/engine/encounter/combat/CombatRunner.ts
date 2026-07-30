@@ -21,6 +21,7 @@ import type { ShipEncounterActorState } from '../actors/ship/ship_encounter_acto
 import {
     COMBAT_PROJECTILE_KIND,
     COMBAT_TARGET_KIND,
+    LASER_SHOT_OUTCOME,
     THREAT_IDENTIFICATION_STATUS,
     type LaserAttackState,
     type MissileCombatProjectileState,
@@ -374,17 +375,39 @@ export default class CombatRunner {
         }
 
         const attackSnapshot = this.cloneLaserAttack(attack);
+        const definition = this.getLaserDefinition(laser);
 
         this.state.combat.laserAttacks.splice(attackIndex, 1);
 
         laser.phase = SHIP_WEAPON_PHASE.COOLDOWN;
         laser.phaseElapsedMs = 0;
 
+        if (this.isLaserBlocked(attack)) {
+            this.emit({
+                type: ENCOUNTER_EVENT.LASER_FIRED,
+
+                attack: attackSnapshot,
+
+                outcome: LASER_SHOT_OUTCOME.BLOCKED,
+            });
+
+            return;
+        }
+
         this.emit({
             type: ENCOUNTER_EVENT.LASER_FIRED,
 
             attack: attackSnapshot,
+
+            outcome: LASER_SHOT_OUTCOME.HIT,
+            damage: definition.damage,
         });
+    }
+
+    private isLaserBlocked(attack: LaserAttackState): boolean {
+        const activeShield = this.state.combat.activeShield;
+
+        return activeShield?.zone === attack.targetZone;
     }
 
     private selectLaserTargetZone(): LaserTargetZone {

@@ -5,6 +5,7 @@ import type { PointDefenseBeamBand, PointDefenseShotOutcome } from '../../defs/p
 import type { ShieldGeneratorState } from '../../defs/shield_generator';
 import type { EncounterAnchorState } from '../anchors/encounter_anchor';
 import type { JumpPointEncounterAnchorState } from '../anchors/jump_point/jump_point_encounter_anchor';
+import { LASER_SHOT_OUTCOME } from './combat';
 import type {
     ActiveShieldState,
     LaserAttackState,
@@ -221,11 +222,22 @@ export type LaserAttackStartedEvent = {
     attack: LaserAttackState;
 };
 
-export type LaserFiredEvent = {
-    type: typeof ENCOUNTER_EVENT.LASER_FIRED;
+export type LaserFiredEvent =
+    | {
+          type: typeof ENCOUNTER_EVENT.LASER_FIRED;
 
-    attack: LaserAttackState;
-};
+          attack: LaserAttackState;
+
+          outcome: typeof LASER_SHOT_OUTCOME.BLOCKED;
+      }
+    | {
+          type: typeof ENCOUNTER_EVENT.LASER_FIRED;
+
+          attack: LaserAttackState;
+
+          outcome: typeof LASER_SHOT_OUTCOME.HIT;
+          damage: number;
+      };
 
 export type EncounterEvent =
     | EncounterLoadedEvent
