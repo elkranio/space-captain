@@ -6,6 +6,7 @@ import type { ShieldGeneratorState } from '../../defs/shield_generator';
 import type { EncounterAnchorState } from '../anchors/encounter_anchor';
 import type { JumpPointEncounterAnchorState } from '../anchors/jump_point/jump_point_encounter_anchor';
 import type {
+    ActiveShieldState,
     LaserAttackState,
     MissileCombatProjectileState,
     ThreatIdentificationResult,
@@ -49,6 +50,7 @@ export const OFFICER_TASK_RESULT_KIND = {
     DOCKING_CLEARANCE_GRANTED: 'docking_clearance_granted',
     JUMP_POINT_CALCULATED: 'jump_point_calculated',
     THREAT_IDENTIFIED: 'threat_identified',
+    SHIELD_DEPLOYED: 'shield_deployed',
     POINT_DEFENSE_FIRED: 'point_defense_fired',
 } as const;
 
@@ -66,6 +68,11 @@ export type OfficerTaskResult =
 
           threatId: string;
           identification: ThreatIdentificationResult;
+      }
+    | {
+          kind: typeof OFFICER_TASK_RESULT_KIND.SHIELD_DEPLOYED;
+
+          shield: ActiveShieldState;
       }
     | {
           kind: typeof OFFICER_TASK_RESULT_KIND.POINT_DEFENSE_FIRED;

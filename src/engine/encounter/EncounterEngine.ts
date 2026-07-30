@@ -6,12 +6,17 @@ import type { PointDefenseState } from '../defs/point_defense';
 import type { ShieldGeneratorState } from '../defs/shield_generator';
 import type { SpaceNodeState } from '../defs/universe';
 import CombatRunner from './combat/CombatRunner';
+import PlayerShieldRunner from './combat/PlayerShieldRunner';
 import ShieldGeneratorRunner from './combat/ShieldGeneratorRunner';
 import OfficerCommandExecutor from './commands/OfficerCommandExecutor';
 import { getAvailableOfficerCommands } from './commands/queries/get_available_officer_commands';
 import ContactSequenceRunner from './contact/ContactSequenceRunner';
 import type { AvailableOfficerCommand, ExecuteOfficerCommandInput, ExecuteOfficerCommandResult } from './model/command';
-import type { CombatProjectileState, LaserAttackState } from './model/combat';
+import type {
+    ActiveShieldState,
+    CombatProjectileState,
+    LaserAttackState,
+} from './model/combat';
 import { ENCOUNTER_EVENT, type EncounterEvent } from './model/event';
 import type { OfficerAvailabilityStates } from './model/officer_availability';
 import { OFFICER_TASK_KIND, type OfficerTaskKind, type OfficerTaskState } from './model/officer_task';
@@ -48,6 +53,8 @@ export default class EncounterEngine {
 
     private readonly combatRunner: CombatRunner;
 
+    private readonly playerShieldRunner: PlayerShieldRunner;
+
     private readonly shieldGeneratorRunner: ShieldGeneratorRunner;
 
     constructor({
@@ -63,6 +70,10 @@ export default class EncounterEngine {
         this.stateStore = EncounterStateStore.fromSpaceNode(node, navigation, pointDefense, shieldGenerator);
 
         const encounterState = this.stateStore.getState();
+
+        this.playerShieldRunner = new PlayerShieldRunner({
+            state: encounterState,
+        });
 
         this.shieldGeneratorRunner = new ShieldGeneratorRunner({
             state: encounterState,
@@ -114,6 +125,7 @@ export default class EncounterEngine {
     }
 
     public step(deltaMs: number): void {
+        this.playerShieldRunner.step(deltaMs);
         this.officerTaskRunner.step(deltaMs);
         this.contactSequenceRunner.step(deltaMs);
         this.shieldGeneratorRunner.step(deltaMs);
@@ -193,6 +205,18 @@ export default class EncounterEngine {
 
         return {
             ...shieldGenerator,
+        };
+    }
+
+    public getActiveShieldState(): ActiveShieldState | undefined {
+        const activeShield = this.stateStore.getState().combat.activeShield;
+
+        if (!activeShield) {
+            return undefined;
+        }
+
+        return {
+            ...activeShield,
         };
     }
 

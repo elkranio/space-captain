@@ -32,6 +32,13 @@ type ScienceIdentifyThreatTaskState = Extract<
     }
 >;
 
+type EngineerDeployShieldTaskState = Extract<
+    OfficerTaskState,
+    {
+        kind: typeof OFFICER_TASK_KIND.ENGINEER_DEPLOY_SHIELD;
+    }
+>;
+
 type WeaponsPointDefenseTaskState = Extract<
     OfficerTaskState,
     {
@@ -64,11 +71,13 @@ export default class OfficerTaskResolver {
             case OFFICER_TASK_KIND.SCIENCE_IDENTIFY_THREAT:
                 return this.resolveScienceIdentifyThreatTask(task);
 
+            case OFFICER_TASK_KIND.ENGINEER_DEPLOY_SHIELD:
+                return this.resolveEngineerDeployShieldTask(task);
+
             case OFFICER_TASK_KIND.WEAPONS_POINT_DEFENSE:
                 return this.resolveWeaponsPointDefenseTask(task);
 
             case OFFICER_TASK_KIND.COMMS_HAIL:
-            case OFFICER_TASK_KIND.ENGINEER_DEPLOY_SHIELD:
             case OFFICER_TASK_KIND.HELM_DOCK:
             case OFFICER_TASK_KIND.HELM_JUMP:
                 return undefined;
@@ -114,6 +123,18 @@ export default class OfficerTaskResolver {
 
             threatId: task.threatId,
             identification,
+        };
+    }
+
+    private resolveEngineerDeployShieldTask(
+        task: EngineerDeployShieldTaskState,
+    ): OfficerTaskResult {
+        const shield = this.stateStore.deployPlayerShield(task.shieldZone);
+
+        return {
+            kind: OFFICER_TASK_RESULT_KIND.SHIELD_DEPLOYED,
+
+            shield,
         };
     }
 

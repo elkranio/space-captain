@@ -116,12 +116,23 @@ export type LaserAttackState = {
     identification: LaserThreatIdentification;
 };
 
+export type ActiveShieldState = {
+    zone: LaserTargetZone;
+
+    elapsedMs: number;
+    durationMs: number;
+};
+
 export type EncounterCombatState = {
     pointDefense: PointDefenseState;
 
     // Некоторые ships могут не иметь shield generator.
     // Starter player ship передаёт его явно.
     shieldGenerator?: ShieldGeneratorState;
+
+    // Временное поле существует только внутри encounter.
+    // Новый shield заменяет предыдущий целиком.
+    activeShield?: ActiveShieldState;
 
     projectiles: CombatProjectileState[];
     laserAttacks: LaserAttackState[];

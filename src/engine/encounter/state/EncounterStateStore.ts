@@ -2,7 +2,9 @@
 
 import { MISSILES } from '../../content/catalogs/missiles';
 import { SHIPS } from '../../content/catalogs/ships';
+import { PLAYER_SHIELD_DURATION_MS } from '../../content/rules/shields';
 import { JUMP_POINT_OBJECT_SPRITE_ID } from '../../defs/jump_point';
+import type { LaserTargetZone } from '../../defs/laser';
 import type { OfficerRole } from '../../defs/officer';
 import { PLAYER_SPACE_NAVIGATION_KIND, type PlayerSpaceNavigationState } from '../../defs/player_location';
 import {
@@ -24,6 +26,7 @@ import type { EncounterTeam } from '../../defs/encounter_team';
 import {
     COMBAT_THREAT_KIND,
     THREAT_IDENTIFICATION_STATUS,
+    type ActiveShieldState,
     type ThreatIdentificationResult,
 } from '../model/combat';
 import type { OfficerTaskState } from '../model/officer_task';
@@ -282,6 +285,23 @@ export default class EncounterStateStore {
             kind: COMBAT_THREAT_KIND.LASER,
 
             targetZone: laserAttack.targetZone,
+        };
+    }
+
+    public deployPlayerShield(zone: LaserTargetZone): ActiveShieldState {
+        const activeShield: ActiveShieldState = {
+            zone,
+
+            elapsedMs: 0,
+            durationMs: PLAYER_SHIELD_DURATION_MS,
+        };
+
+        // Повторное развёртывание заменяет старую зону
+        // и полностью обновляет lifetime.
+        this.state.combat.activeShield = activeShield;
+
+        return {
+            ...activeShield,
         };
     }
 
