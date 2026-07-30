@@ -3,10 +3,12 @@
 import { MISSILES } from '../../content/catalogs/missiles';
 import { SHIP_WEAPONS } from '../../content/catalogs/ship_weapons';
 import { ENCOUNTER_TEAM } from '../../defs/encounter_team';
+import { LASER_TARGET_ZONES, type LaserTargetZone } from '../../defs/laser';
 import { PLAYER_SPACE_NAVIGATION_KIND } from '../../defs/player_location';
 import {
     SHIP_WEAPON_KIND,
     SHIP_WEAPON_PHASE,
+    type LaserWeaponState,
     type MissileLauncherState,
     type ShipWeaponDefinition,
     type ShipWeaponState,
@@ -16,6 +18,7 @@ import {
     COMBAT_PROJECTILE_KIND,
     COMBAT_TARGET_KIND,
     THREAT_IDENTIFICATION_STATUS,
+    type LaserAttackState,
     type MissileCombatProjectileState,
 } from '../model/combat';
 import { ENCOUNTER_EVENT, type EncounterEvent } from '../model/event';
@@ -24,6 +27,8 @@ import type { EncounterState } from '../model/state';
 type CombatRunnerOptions = {
     state: EncounterState;
     emit: (event: EncounterEvent) => void;
+
+    random: () => number;
 };
 
 // Владеет боевым циклом encounter:
@@ -31,28 +36,30 @@ type CombatRunnerOptions = {
 // - принимает простые решения за enemy ships;
 // - управляет lifecycle установленного оружия;
 // - создаёт и двигает projectiles;
+// - управляет активными laser attacks;
 // - разрешает projectile impacts;
 // - эмитит combat events.
 //
-// Корабли, оружие и projectiles остаются частью EncounterState.
+// Корабли, оружие и угрозы остаются частью EncounterState.
 // Статические параметры моделей оружия читаются из content.
 export default class CombatRunner {
     private readonly state: EncounterState;
 
     private readonly emit: (event: EncounterEvent) => void;
 
-    private nextProjectileId = 1;
+    private readonly random: () => number;
 
-    // Общая последовательность коротких обозначений угроз.
-    //
-    // Позже разные типы смогут использовать
-    // собственный prefix при общем номере:
-    // M1, M2, L3, M4.
+    private nextProjectileId = 1;
+    private nextLaserAttackId = 1;
+
+    // Общая последовательность коротких обозначений угроз:
+    // M1, L2, M3, L4.
     private nextThreatDesignationNumber = 1;
 
-    constructor({ state, emit }: CombatRunnerOptions) {
+    constructor({ state, emit, random }: CombatRunnerOptions) {
         this.state = state;
         this.emit = emit;
+        this.random = random;
     }
 
     public step(deltaMs: number): void {
@@ -98,12 +105,25 @@ export default class CombatRunner {
             weapon.phase = SHIP_WEAPON_PHASE.PREPARING;
             weapon.phaseElapsedMs = 0;
 
+            const laserAttack =
+                weapon.kind === SHIP_WEAPON_KIND.LASER
+                    ? this.createLaserAttack(actor, weapon)
+                    : undefined;
+
             this.emit({
                 type: ENCOUNTER_EVENT.PLAYER_SHIP_TARGETING_DETECTED,
 
                 sourceActorId: actor.id,
                 sourceWeaponId: weapon.id,
             });
+
+            if (laserAttack) {
+                this.emit({
+                    type: ENCOUNTER_EVENT.LASER_ATTACK_STARTED,
+
+                    attack: this.cloneLaserAttack(laserAttack),
+                });
+            }
         }
     }
 
@@ -123,9 +143,7 @@ export default class CombatRunner {
                 return weapon.loadedMissileId !== null && weapon.ammoCount > 0;
 
             case SHIP_WEAPON_KIND.LASER:
-                // Laser lifecycle добавляется
-                // следующим атомом.
-                return false;
+                return true;
         }
     }
 
@@ -173,6 +191,10 @@ export default class CombatRunner {
         switch (weapon.kind) {
             case SHIP_WEAPON_KIND.MISSILE_LAUNCHER:
                 this.launchMissile(actor, weapon);
+                return;
+
+            case SHIP_WEAPON_KIND.LASER:
+                this.fireLaser(actor, weapon);
                 return;
         }
     }
@@ -251,6 +273,97 @@ export default class CombatRunner {
 
     // #endregion
 
+    // #region Laser
+
+    private createLaserAttack(actor: ShipEncounterActorState, laser: LaserWeaponState): LaserAttackState {
+        const existingAttack = this.state.combat.laserAttacks.find((attack) => {
+            return attack.sourceActorId === actor.id && attack.sourceWeaponId === laser.id;
+        });
+
+        if (existingAttack) {
+            throw new Error(`Laser weapon already has active attack: ` + `${actor.id}/${laser.id}/${existingAttack.id}`);
+        }
+
+        const attack: LaserAttackState = {
+            id: this.createLaserAttackId(),
+            designation: this.createThreatDesignation('L'),
+
+            sourceActorId: actor.id,
+            sourceWeaponId: laser.id,
+
+            target: {
+                kind: COMBAT_TARGET_KIND.PLAYER_SHIP,
+            },
+
+            targetZone: this.selectLaserTargetZone(),
+
+            identification: {
+                status: THREAT_IDENTIFICATION_STATUS.UNKNOWN,
+            },
+        };
+
+        this.state.combat.laserAttacks.push(attack);
+
+        return attack;
+    }
+
+    private fireLaser(actor: ShipEncounterActorState, laser: LaserWeaponState): void {
+        const attackIndex = this.state.combat.laserAttacks.findIndex((attack) => {
+            return attack.sourceActorId === actor.id && attack.sourceWeaponId === laser.id;
+        });
+
+        if (attackIndex < 0) {
+            throw new Error(`Cannot fire laser without active attack: ` + `${actor.id}/${laser.id}`);
+        }
+
+        const attack = this.state.combat.laserAttacks[attackIndex];
+        const attackSnapshot = this.cloneLaserAttack(attack);
+
+        this.state.combat.laserAttacks.splice(attackIndex, 1);
+
+        laser.phase = SHIP_WEAPON_PHASE.COOLDOWN;
+        laser.phaseElapsedMs = 0;
+
+        this.emit({
+            type: ENCOUNTER_EVENT.LASER_FIRED,
+
+            attack: attackSnapshot,
+        });
+    }
+
+    private selectLaserTargetZone(): LaserTargetZone {
+        const randomValue = this.random();
+
+        if (!Number.isFinite(randomValue) || randomValue < 0 || randomValue >= 1) {
+            throw new Error(`Combat random source must return a value in [0, 1): ${randomValue}`);
+        }
+
+        const index = Math.floor(randomValue * LASER_TARGET_ZONES.length);
+        const targetZone = LASER_TARGET_ZONES[index];
+
+        if (!targetZone) {
+            throw new Error(`Cannot select laser target zone for random value: ${randomValue}`);
+        }
+
+        return targetZone;
+    }
+
+    private cloneLaserAttack(attack: LaserAttackState): LaserAttackState {
+        return {
+            ...attack,
+
+            target: {
+                ...attack.target,
+            },
+
+            identification: {
+                ...attack.identification,
+            },
+        };
+    }
+
+    // #endregion
+
     // #region Projectiles
 
     private advanceProjectiles(deltaMs: number): void {
@@ -303,6 +416,14 @@ export default class CombatRunner {
         const id = `projectile_${this.nextProjectileId}`;
 
         this.nextProjectileId += 1;
+
+        return id;
+    }
+
+    private createLaserAttackId(): string {
+        const id = `laser_attack_${this.nextLaserAttackId}`;
+
+        this.nextLaserAttackId += 1;
 
         return id;
     }

@@ -3,6 +3,7 @@
 import { describe, expect, it } from 'vitest';
 import { SHIP_WEAPONS } from '../../../src/engine/content/catalogs/ship_weapons';
 import { SHIP_NODE_ACTOR_PRESET_ID } from '../../../src/engine/content/presets/ship_node_actors';
+import { LASER_TARGET_ZONE } from '../../../src/engine/defs/laser';
 import { MISSILE_ID } from '../../../src/engine/defs/missile';
 import { PLAYER_SPACE_NAVIGATION_KIND } from '../../../src/engine/defs/player_location';
 import {
@@ -71,6 +72,7 @@ describe('CombatRunner', () => {
         const loadedLauncherDefinition = SHIP_WEAPONS[launcher.weaponId];
 
         expect(loadedEvent.state.combat.projectiles).toEqual([]);
+        expect(loadedEvent.state.combat.laserAttacks).toEqual([]);
 
         expect(launcher.phase).toBe(SHIP_WEAPON_PHASE.READY);
 
@@ -217,5 +219,148 @@ describe('CombatRunner', () => {
         expect(engine.drainEvents()).toEqual([]);
 
         expect(launcher.phase).toBe(SHIP_WEAPON_PHASE.READY);
+    });
+
+    it('runs an enemy laser through targeting, fire and cooldown', () => {
+        const { node, stationId } = createSingleStationNodeFixture();
+
+        const nodeEnemy = ShipNodeActorFactory.create({
+            id: 'ship_enemy_00',
+
+            presetId: SHIP_NODE_ACTOR_PRESET_ID.ENEMY_GENERIC_LASER_00,
+
+            anchorId: stationId,
+        });
+
+        node.actors.push(nodeEnemy);
+
+        const engine = new EncounterEngine({
+            node,
+
+            navigation: {
+                kind: PLAYER_SPACE_NAVIGATION_KIND.ANCHORED,
+
+                anchorId: stationId,
+            },
+
+            pointDefense: createPointDefenseFixture(),
+
+            // [left, center, right] → center.
+            random: () => 0.5,
+        });
+
+        const [loadedEvent] = engine.drainEvents();
+
+        if (loadedEvent.type !== ENCOUNTER_EVENT.ENCOUNTER_LOADED) {
+            throw new Error(`Expected encounter loaded event, received: ` + `${loadedEvent.type}`);
+        }
+
+        const enemy = loadedEvent.state.actors[0];
+        const laser = enemy.weapons[0];
+
+        if (laser.kind !== SHIP_WEAPON_KIND.LASER) {
+            throw new Error('Expected loaded enemy laser');
+        }
+
+        const laserDefinition = SHIP_WEAPONS[laser.weaponId];
+
+        expect(loadedEvent.state.combat.projectiles).toEqual([]);
+        expect(loadedEvent.state.combat.laserAttacks).toEqual([]);
+
+        expect(laser.phase).toBe(SHIP_WEAPON_PHASE.READY);
+
+        engine.step(1);
+
+        const firstAttack = {
+            id: 'laser_attack_1',
+            designation: 'L1',
+
+            sourceActorId: enemy.id,
+            sourceWeaponId: laser.id,
+
+            target: {
+                kind: COMBAT_TARGET_KIND.PLAYER_SHIP,
+            },
+
+            targetZone: LASER_TARGET_ZONE.CENTER,
+
+            identification: {
+                status: THREAT_IDENTIFICATION_STATUS.UNKNOWN,
+            },
+        };
+
+        expect(engine.drainEvents()).toEqual([
+            {
+                type: ENCOUNTER_EVENT.PLAYER_SHIP_TARGETING_DETECTED,
+
+                sourceActorId: enemy.id,
+                sourceWeaponId: laser.id,
+            },
+
+            {
+                type: ENCOUNTER_EVENT.LASER_ATTACK_STARTED,
+
+                attack: firstAttack,
+            },
+        ]);
+
+        expect(laser.phase).toBe(SHIP_WEAPON_PHASE.PREPARING);
+        expect(laser.phaseElapsedMs).toBe(1);
+
+        expect(engine.getLaserAttacks()).toEqual([firstAttack]);
+
+        engine.step(laserDefinition.preparationDurationMs - laser.phaseElapsedMs);
+
+        expect(engine.drainEvents()).toEqual([
+            {
+                type: ENCOUNTER_EVENT.LASER_FIRED,
+
+                attack: firstAttack,
+            },
+        ]);
+
+        expect(engine.getLaserAttacks()).toEqual([]);
+
+        expect(laser.phase).toBe(SHIP_WEAPON_PHASE.COOLDOWN);
+        expect(laser.phaseElapsedMs).toBe(0);
+
+        engine.step(laserDefinition.cooldownDurationMs - 1);
+
+        expect(engine.drainEvents()).toEqual([]);
+
+        expect(laser.phase).toBe(SHIP_WEAPON_PHASE.COOLDOWN);
+        expect(laser.phaseElapsedMs).toBe(laserDefinition.cooldownDurationMs - 1);
+
+        engine.step(1);
+
+        expect(engine.drainEvents()).toEqual([]);
+
+        expect(laser.phase).toBe(SHIP_WEAPON_PHASE.READY);
+        expect(laser.phaseElapsedMs).toBe(0);
+
+        engine.step(1);
+
+        expect(engine.drainEvents()).toEqual([
+            {
+                type: ENCOUNTER_EVENT.PLAYER_SHIP_TARGETING_DETECTED,
+
+                sourceActorId: enemy.id,
+                sourceWeaponId: laser.id,
+            },
+
+            {
+                type: ENCOUNTER_EVENT.LASER_ATTACK_STARTED,
+
+                attack: {
+                    ...firstAttack,
+
+                    id: 'laser_attack_2',
+                    designation: 'L2',
+                },
+            },
+        ]);
+
+        expect(laser.phase).toBe(SHIP_WEAPON_PHASE.PREPARING);
+        expect(laser.phaseElapsedMs).toBe(1);
     });
 });

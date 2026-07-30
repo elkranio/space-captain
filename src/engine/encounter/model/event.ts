@@ -1,13 +1,13 @@
 // src/engine/encounter/model/event.ts
 
 import type { CharacterPortraitId } from '../../defs/character';
-import type { EncounterAnchorState } from '../anchors/encounter_anchor';
-import type { OfficerTaskState } from './officer_task';
-import type { EncounterState } from './state';
-import type { JumpPointEncounterAnchorState } from '../anchors/jump_point/jump_point_encounter_anchor';
-import type { MissileCombatProjectileState } from './combat';
 import type { MissileSpectralBand } from '../../defs/missile';
 import type { PointDefenseBeamBand, PointDefenseShotOutcome } from '../../defs/point_defense';
+import type { EncounterAnchorState } from '../anchors/encounter_anchor';
+import type { JumpPointEncounterAnchorState } from '../anchors/jump_point/jump_point_encounter_anchor';
+import type { LaserAttackState, MissileCombatProjectileState } from './combat';
+import type { OfficerTaskState } from './officer_task';
+import type { EncounterState } from './state';
 
 // События, которые EncounterEngine отдаёт наружу
 // через outbox.
@@ -28,6 +28,8 @@ export const ENCOUNTER_EVENT = {
     PLAYER_SHIP_TARGETING_DETECTED: 'player_ship_targeting_detected',
     MISSILE_LAUNCHED: 'missile_launched',
     MISSILE_IMPACTED_PLAYER_SHIP: 'missile_impacted_player_ship',
+    LASER_ATTACK_STARTED: 'laser_attack_started',
+    LASER_FIRED: 'laser_fired',
 } as const;
 
 export const OFFICER_TASK_OUTCOME = {
@@ -195,6 +197,18 @@ export type MissileImpactedPlayerShipEvent = {
     damage: number;
 };
 
+export type LaserAttackStartedEvent = {
+    type: typeof ENCOUNTER_EVENT.LASER_ATTACK_STARTED;
+
+    attack: LaserAttackState;
+};
+
+export type LaserFiredEvent = {
+    type: typeof ENCOUNTER_EVENT.LASER_FIRED;
+
+    attack: LaserAttackState;
+};
+
 export type EncounterEvent =
     | EncounterLoadedEvent
     | ContactStartedEvent
@@ -208,4 +222,6 @@ export type EncounterEvent =
     | PlayerPointDefenseChargeSpentEvent
     | PlayerShipTargetingDetectedEvent
     | MissileLaunchedEvent
-    | MissileImpactedPlayerShipEvent;
+    | MissileImpactedPlayerShipEvent
+    | LaserAttackStartedEvent
+    | LaserFiredEvent;

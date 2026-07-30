@@ -9,7 +9,7 @@ import OfficerCommandExecutor from './commands/OfficerCommandExecutor';
 import { getAvailableOfficerCommands } from './commands/queries/get_available_officer_commands';
 import ContactSequenceRunner from './contact/ContactSequenceRunner';
 import type { AvailableOfficerCommand, ExecuteOfficerCommandInput, ExecuteOfficerCommandResult } from './model/command';
-import type { CombatProjectileState } from './model/combat';
+import type { CombatProjectileState, LaserAttackState } from './model/combat';
 import { ENCOUNTER_EVENT, type EncounterEvent } from './model/event';
 import type { OfficerAvailabilityStates } from './model/officer_availability';
 import { OFFICER_TASK_KIND, type OfficerTaskKind, type OfficerTaskState } from './model/officer_task';
@@ -24,6 +24,9 @@ export type EncounterEngineOptions = {
     pointDefense: PointDefenseState;
 
     completeTimedTasksImmediately?: boolean;
+
+    // Test seam и будущая точка подключения seeded RNG.
+    random?: () => number;
 };
 
 export default class EncounterEngine {
@@ -45,6 +48,8 @@ export default class EncounterEngine {
         pointDefense,
 
         completeTimedTasksImmediately = false,
+
+        random = Math.random,
     }: EncounterEngineOptions) {
         this.stateStore = EncounterStateStore.fromSpaceNode(node, navigation, pointDefense);
 
@@ -53,6 +58,8 @@ export default class EncounterEngine {
         this.combatRunner = new CombatRunner({
             state: encounterState,
             emit: this.emit,
+
+            random,
         });
 
         this.officerTaskRunner = new OfficerTaskRunner({
@@ -142,6 +149,22 @@ export default class EncounterEngine {
         return this.stateStore.getState().combat.projectiles.map((projectile) => {
             return {
                 ...projectile,
+            };
+        });
+    }
+
+    public getLaserAttacks(): LaserAttackState[] {
+        return this.stateStore.getState().combat.laserAttacks.map((attack) => {
+            return {
+                ...attack,
+
+                target: {
+                    ...attack.target,
+                },
+
+                identification: {
+                    ...attack.identification,
+                },
             };
         });
     }
