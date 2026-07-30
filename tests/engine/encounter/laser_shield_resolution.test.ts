@@ -21,7 +21,7 @@ import { createPointDefenseFixture } from '../../fixtures/engine/point_defense_f
 import { createSingleStationNodeFixture } from '../../fixtures/engine/space_node_fixtures';
 
 describe('Laser shield resolution', () => {
-    it('blocks a laser aimed at the active shield zone', () => {
+    it('blocks a laser aimed at the active shield zone and consumes the matching shield', () => {
         const { engine, state, laserChargeDurationMs } = createLaserEngine();
 
         startLaserCharging(engine);
@@ -48,12 +48,7 @@ describe('Laser shield resolution', () => {
             },
         ]);
 
-        expect(engine.getActiveShieldState()).toEqual({
-            zone: LASER_TARGET_ZONE.CENTER,
-
-            elapsedMs: 1,
-            durationMs: 5000,
-        });
+        expect(engine.getActiveShieldState()).toBeUndefined();
     });
 
     it('hits when the active shield protects another zone', () => {

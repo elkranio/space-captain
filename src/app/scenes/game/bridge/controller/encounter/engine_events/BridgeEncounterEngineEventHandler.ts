@@ -146,6 +146,23 @@ export default class BridgeEncounterEngineEventHandler {
                     );
                 }
 
+                if (event.result?.kind === OFFICER_TASK_RESULT_KIND.SHIELD_DEPLOYED) {
+                    this.eventBus.emit(
+                        BRIDGE_EVENT.PLAYER_SHIELD_UPDATED,
+                        {
+                            zone: event.result.shield.zone,
+
+                            remainingDurationMs: Math.max(
+                                0,
+                                event.result.shield.durationMs -
+                                    event.result.shield.elapsedMs,
+                            ),
+
+                            initialDurationMs: event.result.shield.durationMs,
+                        },
+                    );
+                }
+
                 this.eventBus.emit(BRIDGE_EVENT.OFFICER_ACTIVITY_CLEARED, {
                     role: event.task.role,
                 });

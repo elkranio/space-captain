@@ -102,9 +102,7 @@ describe('NewGameUniverseFactory', () => {
         const [enemy] = startNode.actors;
 
         expect(enemy.id).toBe('ship_generic_00');
-
         expect(enemy.kind).toBe(SPACE_NODE_ACTOR_KIND.SHIP);
-
         expect(enemy.anchorId).toBe(navigationBeaconAnchor.beacon.id);
 
         expect(generated.playerLocations.arrivingAtStart).toEqual({
@@ -114,7 +112,6 @@ describe('NewGameUniverseFactory', () => {
 
             navigation: {
                 kind: PLAYER_SPACE_NAVIGATION_KIND.ARRIVING,
-
                 targetAnchorId: navigationBeaconAnchor.beacon.id,
             },
         });
@@ -126,9 +123,7 @@ describe('NewGameUniverseFactory', () => {
 
             navigation: {
                 kind: PLAYER_SPACE_NAVIGATION_KIND.TRAVELLING,
-
                 fromAnchorId: asteroidAnchor.asteroid.id,
-
                 targetAnchorId: navigationBeaconAnchor.beacon.id,
             },
         });
@@ -140,7 +135,6 @@ describe('NewGameUniverseFactory', () => {
 
             navigation: {
                 kind: PLAYER_SPACE_NAVIGATION_KIND.ARRIVING,
-
                 targetAnchorId: stationNodeAnchor.station.id,
             },
         });
@@ -164,16 +158,16 @@ describe('NewGameUniverseFactory', () => {
         expect(firstWeapon).not.toBe(secondWeapon);
 
         if (
-            firstWeapon.kind !== SHIP_WEAPON_KIND.MISSILE_LAUNCHER ||
-            secondWeapon.kind !== SHIP_WEAPON_KIND.MISSILE_LAUNCHER
+            firstWeapon.kind !== SHIP_WEAPON_KIND.LASER ||
+            secondWeapon.kind !== SHIP_WEAPON_KIND.LASER
         ) {
-            throw new Error('Expected new-game enemy missile launcher weapons');
+            throw new Error('Expected new-game enemy laser weapons');
         }
 
         expect(first.playerLocations.arrivingAtStart).not.toBe(second.playerLocations.arrivingAtStart);
 
-        firstWeapon.ammoCount = 0;
+        firstWeapon.phaseElapsedMs = 1234;
 
-        expect(secondWeapon.ammoCount).toBe(5);
+        expect(secondWeapon.phaseElapsedMs).toBe(0);
     });
 });

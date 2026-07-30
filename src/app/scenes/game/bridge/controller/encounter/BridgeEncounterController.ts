@@ -111,6 +111,7 @@ export default class BridgeEncounterController {
         this.drainEncounterEvents();
         this.syncIncomingMissiles();
         this.syncLaserThreats();
+        this.syncPlayerShield();
 
         this.officerStationsController?.step(deltaMs);
     }
@@ -345,6 +346,31 @@ export default class BridgeEncounterController {
                         : {}),
                 };
             }),
+        );
+    }
+
+    private syncPlayerShield(): void {
+        if (!this.encounterEngine) {
+            return;
+        }
+
+        const shield = this.encounterEngine.getActiveShieldState();
+
+        this.eventBus.emit(
+            BRIDGE_EVENT.PLAYER_SHIELD_UPDATED,
+
+            shield
+                ? {
+                      zone: shield.zone,
+
+                      remainingDurationMs: Math.max(
+                          0,
+                          shield.durationMs - shield.elapsedMs,
+                      ),
+
+                      initialDurationMs: shield.durationMs,
+                  }
+                : undefined,
         );
     }
 

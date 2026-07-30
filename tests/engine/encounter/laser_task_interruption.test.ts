@@ -72,6 +72,8 @@ describe('Laser hit officer task interruption', () => {
                 elapsedMs: 1,
             },
         ]);
+
+        expect(engine.getActiveShieldState()).toBeUndefined();
     });
 
     it('uses encounter RNG to cancel one of several active tasks after a hit', () => {

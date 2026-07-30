@@ -396,7 +396,7 @@ export default class CombatRunner {
         laser.phase = SHIP_WEAPON_PHASE.COOLDOWN;
         laser.phaseElapsedMs = 0;
 
-        if (this.isLaserBlocked(attack)) {
+        if (this.consumeMatchingShield(attack)) {
             this.emit({
                 type: ENCOUNTER_EVENT.LASER_FIRED,
 
@@ -420,10 +420,16 @@ export default class CombatRunner {
         this.interruptRandomOfficerTask();
     }
 
-    private isLaserBlocked(attack: LaserAttackState): boolean {
+    private consumeMatchingShield(attack: LaserAttackState): boolean {
         const activeShield = this.state.combat.activeShield;
 
-        return activeShield?.zone === attack.targetZone;
+        if (activeShield?.zone !== attack.targetZone) {
+            return false;
+        }
+
+        delete this.state.combat.activeShield;
+
+        return true;
     }
 
     private selectLaserTargetZone(): LaserTargetZone {

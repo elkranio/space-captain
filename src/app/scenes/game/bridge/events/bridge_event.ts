@@ -81,6 +81,10 @@ export const BRIDGE_EVENT = {
     // состояния корабля игрока.
     PLAYER_SHIP_STATUS_UPDATED: 'player_ship_status_updated',
 
+    // Актуальное encounter-only состояние
+    // выставленного player shield field.
+    PLAYER_SHIELD_UPDATED: 'player_shield_updated',
+
     // #endregion
 
     // #region Encounter objects and navigation
@@ -299,6 +303,15 @@ export type BridgePlayerShipStatusUpdatedPayload = {
     };
 };
 
+export type BridgePlayerShieldUpdatedPayload =
+    | {
+          zone: LaserTargetZone;
+
+          remainingDurationMs: number;
+          initialDurationMs: number;
+      }
+    | undefined;
+
 // #endregion
 
 // #region Encounter objects and navigation
@@ -500,6 +513,8 @@ export type BridgeEventPayloadMap = {
     // Player ship status
 
     [BRIDGE_EVENT.PLAYER_SHIP_STATUS_UPDATED]: BridgePlayerShipStatusUpdatedPayload;
+
+    [BRIDGE_EVENT.PLAYER_SHIELD_UPDATED]: BridgePlayerShieldUpdatedPayload;
 
     // Encounter objects and navigation
 
