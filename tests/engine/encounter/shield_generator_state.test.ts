@@ -14,6 +14,9 @@ describe('Encounter shield generator state', () => {
         const persistentShieldGenerator = {
             charges: 1,
             maxCharges: 3,
+
+            chargeRegenerationDurationMs: 20000,
+            chargeRegenerationElapsedMs: 7500,
         };
 
         const engine = new EncounterEngine({
@@ -37,6 +40,9 @@ describe('Encounter shield generator state', () => {
         expect(loadedEvent.state.combat.shieldGenerator).toEqual({
             charges: 1,
             maxCharges: 3,
+
+            chargeRegenerationDurationMs: 20000,
+            chargeRegenerationElapsedMs: 7500,
         });
 
         expect(loadedEvent.state.combat.shieldGenerator).not.toBe(persistentShieldGenerator);
@@ -46,15 +52,22 @@ describe('Encounter shield generator state', () => {
         }
 
         loadedEvent.state.combat.shieldGenerator.charges = 0;
+        loadedEvent.state.combat.shieldGenerator.chargeRegenerationElapsedMs = 10000;
 
         expect(persistentShieldGenerator).toEqual({
             charges: 1,
             maxCharges: 3,
+
+            chargeRegenerationDurationMs: 20000,
+            chargeRegenerationElapsedMs: 7500,
         });
 
         expect(engine.getShieldGeneratorState()).toEqual({
             charges: 0,
             maxCharges: 3,
+
+            chargeRegenerationDurationMs: 20000,
+            chargeRegenerationElapsedMs: 10000,
         });
     });
 

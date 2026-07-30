@@ -6,6 +6,7 @@ import type { PointDefenseState } from '../defs/point_defense';
 import type { ShieldGeneratorState } from '../defs/shield_generator';
 import type { SpaceNodeState } from '../defs/universe';
 import CombatRunner from './combat/CombatRunner';
+import ShieldGeneratorRunner from './combat/ShieldGeneratorRunner';
 import OfficerCommandExecutor from './commands/OfficerCommandExecutor';
 import { getAvailableOfficerCommands } from './commands/queries/get_available_officer_commands';
 import ContactSequenceRunner from './contact/ContactSequenceRunner';
@@ -47,6 +48,8 @@ export default class EncounterEngine {
 
     private readonly combatRunner: CombatRunner;
 
+    private readonly shieldGeneratorRunner: ShieldGeneratorRunner;
+
     constructor({
         node,
         navigation,
@@ -60,6 +63,11 @@ export default class EncounterEngine {
         this.stateStore = EncounterStateStore.fromSpaceNode(node, navigation, pointDefense, shieldGenerator);
 
         const encounterState = this.stateStore.getState();
+
+        this.shieldGeneratorRunner = new ShieldGeneratorRunner({
+            state: encounterState,
+            emit: this.emit,
+        });
 
         this.combatRunner = new CombatRunner({
             state: encounterState,
@@ -108,6 +116,7 @@ export default class EncounterEngine {
     public step(deltaMs: number): void {
         this.officerTaskRunner.step(deltaMs);
         this.contactSequenceRunner.step(deltaMs);
+        this.shieldGeneratorRunner.step(deltaMs);
         this.combatRunner.step(deltaMs);
     }
 

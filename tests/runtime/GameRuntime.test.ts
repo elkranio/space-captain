@@ -19,6 +19,9 @@ describe('GameRuntime player ship hull', () => {
             shieldGenerator: {
                 charges: 3,
                 maxCharges: 3,
+
+                chargeRegenerationDurationMs: 20000,
+                chargeRegenerationElapsedMs: 0,
             },
 
             weapons: [],
@@ -52,6 +55,9 @@ describe('GameRuntime player ship hull', () => {
             shieldGenerator: {
                 charges: 3,
                 maxCharges: 3,
+
+                chargeRegenerationDurationMs: 20000,
+                chargeRegenerationElapsedMs: 0,
             },
 
             weapons: [],
@@ -104,5 +110,61 @@ describe('GameRuntime player point defense', () => {
         expect(() => {
             runtime.setPlayerShipPointDefenseCharges(1.5);
         }).toThrow('Player point-defense charges ' + 'must be an integer between ' + '0 and 4: 1.5');
+    });
+});
+
+describe('GameRuntime player shield generator', () => {
+    it('updates persistent shield-generator runtime state', () => {
+        const runtime = new GameRuntime();
+
+        runtime.setPlayerShipShieldGeneratorState({
+            charges: 1,
+            maxCharges: 3,
+
+            chargeRegenerationDurationMs: 20000,
+            chargeRegenerationElapsedMs: 7500,
+        });
+
+        expect(runtime.getCurrentRun().player.ship.shieldGenerator).toEqual({
+            charges: 1,
+            maxCharges: 3,
+
+            chargeRegenerationDurationMs: 20000,
+            chargeRegenerationElapsedMs: 7500,
+        });
+    });
+
+    it('rejects invalid shield-generator runtime state', () => {
+        const runtime = new GameRuntime();
+
+        expect(() => {
+            runtime.setPlayerShipShieldGeneratorState({
+                charges: 4,
+                maxCharges: 3,
+
+                chargeRegenerationDurationMs: 20000,
+                chargeRegenerationElapsedMs: 0,
+            });
+        }).toThrow('Player shield-generator charges must be an integer between 0 and 3: 4');
+
+        expect(() => {
+            runtime.setPlayerShipShieldGeneratorState({
+                charges: 2,
+                maxCharges: 3,
+
+                chargeRegenerationDurationMs: 20000,
+                chargeRegenerationElapsedMs: 20000,
+            });
+        }).toThrow('Player shield-generator regeneration elapsed must be in [0, 20000): 20000');
+
+        expect(() => {
+            runtime.setPlayerShipShieldGeneratorState({
+                charges: 3,
+                maxCharges: 3,
+
+                chargeRegenerationDurationMs: 20000,
+                chargeRegenerationElapsedMs: 1,
+            });
+        }).toThrow('Fully charged player shield generator must have zero regeneration elapsed: 1');
     });
 });

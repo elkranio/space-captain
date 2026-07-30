@@ -3,4 +3,7 @@
 export type ShieldGeneratorState = {
     charges: number;
     maxCharges: number;
+
+    chargeRegenerationDurationMs: number;
+    chargeRegenerationElapsedMs: number;
 };

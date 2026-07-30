@@ -28,6 +28,9 @@ function createPlayerShip(presetId: PlayerShipPresetId): PlayerShipState {
         shieldGenerator: {
             charges: preset.shieldGenerator.maxCharges,
             maxCharges: preset.shieldGenerator.maxCharges,
+
+            chargeRegenerationDurationMs: preset.shieldGenerator.chargeRegenerationDurationMs,
+            chargeRegenerationElapsedMs: 0,
         },
 
         weapons: [],

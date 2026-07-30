@@ -17,6 +17,7 @@ export type PlayerShipPreset = {
 
     shieldGenerator: {
         maxCharges: number;
+        chargeRegenerationDurationMs: number;
     };
 };
 
@@ -32,6 +33,7 @@ export const PLAYER_SHIP_PRESETS = {
 
         shieldGenerator: {
             maxCharges: 3,
+            chargeRegenerationDurationMs: 20000,
         },
     },
 } satisfies Record<PlayerShipPresetId, PlayerShipPreset>;
