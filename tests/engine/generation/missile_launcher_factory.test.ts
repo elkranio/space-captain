@@ -23,7 +23,6 @@ describe('MissileLauncherFactory', () => {
 
             ammoCapacity: 5,
 
-            preparationDurationMs: 3000,
             cooldownDurationMs: 15000,
         });
 

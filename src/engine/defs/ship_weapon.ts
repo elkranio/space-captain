@@ -18,7 +18,8 @@ export type ShipWeaponId = (typeof SHIP_WEAPON_ID)[keyof typeof SHIP_WEAPON_ID];
 
 export const SHIP_WEAPON_PHASE = {
     READY: 'ready',
-    PREPARING: 'preparing',
+    TARGETING: 'targeting',
+    CHARGING: 'charging',
     COOLDOWN: 'cooldown',
 } as const;
 
@@ -33,7 +34,6 @@ export type ShipWeaponDefinitionBase = {
 
     kind: ShipWeaponKind;
 
-    preparationDurationMs: number;
     cooldownDurationMs: number;
 };
 
@@ -47,6 +47,8 @@ export type LaserWeaponDefinition = ShipWeaponDefinitionBase & {
     kind: typeof SHIP_WEAPON_KIND.LASER;
 
     damage: number;
+
+    chargeDurationMs: number;
 };
 
 export type ShipWeaponDefinition = MissileLauncherDefinition | LaserWeaponDefinition;

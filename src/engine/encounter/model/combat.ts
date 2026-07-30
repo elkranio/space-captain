@@ -74,6 +74,8 @@ export type MissileCombatProjectileState = {
 
 export type CombatProjectileState = MissileCombatProjectileState;
 
+// Существует только во время CHARGING.
+// Общая TARGETING-фаза ещё не создаёт видимую laser threat.
 export type LaserAttackState = {
     id: string;
 

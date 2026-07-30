@@ -1,7 +1,7 @@
 // tests/engine/encounter/weapons_point_defense_command.test.ts
 
 import { describe, expect, it } from 'vitest';
-import { SHIP_WEAPONS } from '../../../src/engine/content/catalogs/ship_weapons';
+import { SHIP_WEAPON_TARGETING_DURATION_MS } from '../../../src/engine/content/catalogs/ship_weapons';
 import { SHIP_NODE_ACTOR_PRESET_ID } from '../../../src/engine/content/presets/ship_node_actors';
 import { OFFICER_ROLE } from '../../../src/engine/defs/officer';
 import { PLAYER_SPACE_NAVIGATION_KIND } from '../../../src/engine/defs/player_location';
@@ -505,17 +505,11 @@ function createEngineWithIncomingMissile({
         throw new Error(`Expected encounter loaded event, ` + `received: ${loadedEvent.type}`);
     }
 
-    const enemy = loadedEvent.state.actors[0];
-
-    const launcher = enemy.weapons[0];
-
-    const launcherDefinition = SHIP_WEAPONS[launcher.weaponId];
-
     engine.step(1);
 
     engine.drainEvents();
 
-    engine.step(launcherDefinition.preparationDurationMs - 1);
+    engine.step(SHIP_WEAPON_TARGETING_DURATION_MS - 1);
 
     engine.drainEvents();
 

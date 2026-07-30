@@ -1,13 +1,17 @@
 // src/engine/encounter/combat/CombatRunner.ts
 
 import { MISSILES } from '../../content/catalogs/missiles';
-import { SHIP_WEAPONS } from '../../content/catalogs/ship_weapons';
+import {
+    SHIP_WEAPONS,
+    SHIP_WEAPON_TARGETING_DURATION_MS,
+} from '../../content/catalogs/ship_weapons';
 import { ENCOUNTER_TEAM } from '../../defs/encounter_team';
 import { LASER_TARGET_ZONES, type LaserTargetZone } from '../../defs/laser';
 import { PLAYER_SPACE_NAVIGATION_KIND } from '../../defs/player_location';
 import {
     SHIP_WEAPON_KIND,
     SHIP_WEAPON_PHASE,
+    type LaserWeaponDefinition,
     type LaserWeaponState,
     type MissileLauncherState,
     type ShipWeaponDefinition,
@@ -68,13 +72,13 @@ export default class CombatRunner {
         // не получил тот же deltaMs повторно.
         this.advanceProjectiles(deltaMs);
 
-        this.startEnemyWeaponPreparation();
+        this.startEnemyWeaponTargeting();
         this.advanceWeapons(deltaMs);
     }
 
     // #region Enemy decisions
 
-    private startEnemyWeaponPreparation(): void {
+    private startEnemyWeaponTargeting(): void {
         const navigation = this.state.navigation;
 
         if (navigation.kind !== PLAYER_SPACE_NAVIGATION_KIND.ANCHORED) {
@@ -90,25 +94,20 @@ export default class CombatRunner {
                 continue;
             }
 
-            if (this.hasPreparingWeapon(actor)) {
+            if (this.hasActiveWeapon(actor)) {
                 continue;
             }
 
             const weapon = actor.weapons.find((candidate) => {
-                return this.canPrepareWeapon(candidate);
+                return this.canTargetWeapon(candidate);
             });
 
             if (!weapon) {
                 continue;
             }
 
-            weapon.phase = SHIP_WEAPON_PHASE.PREPARING;
+            weapon.phase = SHIP_WEAPON_PHASE.TARGETING;
             weapon.phaseElapsedMs = 0;
-
-            const laserAttack =
-                weapon.kind === SHIP_WEAPON_KIND.LASER
-                    ? this.createLaserAttack(actor, weapon)
-                    : undefined;
 
             this.emit({
                 type: ENCOUNTER_EVENT.PLAYER_SHIP_TARGETING_DETECTED,
@@ -116,24 +115,19 @@ export default class CombatRunner {
                 sourceActorId: actor.id,
                 sourceWeaponId: weapon.id,
             });
-
-            if (laserAttack) {
-                this.emit({
-                    type: ENCOUNTER_EVENT.LASER_ATTACK_STARTED,
-
-                    attack: this.cloneLaserAttack(laserAttack),
-                });
-            }
         }
     }
 
-    private hasPreparingWeapon(actor: ShipEncounterActorState): boolean {
+    private hasActiveWeapon(actor: ShipEncounterActorState): boolean {
         return actor.weapons.some((weapon) => {
-            return weapon.phase === SHIP_WEAPON_PHASE.PREPARING;
+            return (
+                weapon.phase === SHIP_WEAPON_PHASE.TARGETING ||
+                weapon.phase === SHIP_WEAPON_PHASE.CHARGING
+            );
         });
     }
 
-    private canPrepareWeapon(weapon: ShipWeaponState): boolean {
+    private canTargetWeapon(weapon: ShipWeaponState): boolean {
         if (weapon.phase !== SHIP_WEAPON_PHASE.READY) {
             return false;
         }
@@ -154,52 +148,70 @@ export default class CombatRunner {
     private advanceWeapons(deltaMs: number): void {
         for (const actor of this.state.actors) {
             for (const weapon of actor.weapons) {
-                const definition = this.getWeaponDefinition(weapon);
-
                 switch (weapon.phase) {
                     case SHIP_WEAPON_PHASE.READY:
                         break;
 
-                    case SHIP_WEAPON_PHASE.PREPARING:
-                        this.advancePreparingWeapon(actor, weapon, definition, deltaMs);
+                    case SHIP_WEAPON_PHASE.TARGETING:
+                        this.advanceWeaponTargeting(actor, weapon, deltaMs);
+                        break;
+
+                    case SHIP_WEAPON_PHASE.CHARGING:
+                        this.advanceWeaponCharging(actor, weapon, deltaMs);
                         break;
 
                     case SHIP_WEAPON_PHASE.COOLDOWN:
-                        this.advanceWeaponCooldown(weapon, definition, deltaMs);
+                        this.advanceWeaponCooldown(weapon, deltaMs);
                         break;
                 }
             }
         }
     }
 
-    private advancePreparingWeapon(
+    private advanceWeaponTargeting(
         actor: ShipEncounterActorState,
         weapon: ShipWeaponState,
-        definition: ShipWeaponDefinition,
         deltaMs: number,
     ): void {
         weapon.phaseElapsedMs += deltaMs;
 
-        if (weapon.phaseElapsedMs < definition.preparationDurationMs) {
+        if (weapon.phaseElapsedMs < SHIP_WEAPON_TARGETING_DURATION_MS) {
             return;
         }
 
-        this.activateWeapon(actor, weapon);
+        this.completeWeaponTargeting(actor, weapon);
     }
 
-    private activateWeapon(actor: ShipEncounterActorState, weapon: ShipWeaponState): void {
+    private completeWeaponTargeting(actor: ShipEncounterActorState, weapon: ShipWeaponState): void {
         switch (weapon.kind) {
             case SHIP_WEAPON_KIND.MISSILE_LAUNCHER:
                 this.launchMissile(actor, weapon);
                 return;
 
             case SHIP_WEAPON_KIND.LASER:
-                this.fireLaser(actor, weapon);
+                this.startLaserCharging(actor, weapon);
                 return;
         }
     }
 
-    private advanceWeaponCooldown(weapon: ShipWeaponState, definition: ShipWeaponDefinition, deltaMs: number): void {
+    private advanceWeaponCharging(
+        actor: ShipEncounterActorState,
+        weapon: ShipWeaponState,
+        deltaMs: number,
+    ): void {
+        switch (weapon.kind) {
+            case SHIP_WEAPON_KIND.MISSILE_LAUNCHER:
+                throw new Error(`Missile launcher cannot enter charging phase: ` + `${actor.id}/${weapon.id}`);
+
+            case SHIP_WEAPON_KIND.LASER:
+                this.advanceLaserCharging(actor, weapon, deltaMs);
+                return;
+        }
+    }
+
+    private advanceWeaponCooldown(weapon: ShipWeaponState, deltaMs: number): void {
+        const definition = this.getWeaponDefinition(weapon);
+
         weapon.phaseElapsedMs += deltaMs;
 
         if (weapon.phaseElapsedMs < definition.cooldownDurationMs) {
@@ -215,6 +227,16 @@ export default class CombatRunner {
 
         if (definition.kind !== weapon.kind) {
             throw new Error(`Ship weapon kind does not match definition: ` + `${weapon.id}/${weapon.weaponId}`);
+        }
+
+        return definition;
+    }
+
+    private getLaserDefinition(laser: LaserWeaponState): LaserWeaponDefinition {
+        const definition = SHIP_WEAPONS[laser.weaponId];
+
+        if (definition.kind !== SHIP_WEAPON_KIND.LASER) {
+            throw new Error(`Laser weapon kind does not match definition: ` + `${laser.id}/${laser.weaponId}`);
         }
 
         return definition;
@@ -275,6 +297,35 @@ export default class CombatRunner {
 
     // #region Laser
 
+    private startLaserCharging(actor: ShipEncounterActorState, laser: LaserWeaponState): void {
+        const attack = this.createLaserAttack(actor, laser);
+
+        laser.phase = SHIP_WEAPON_PHASE.CHARGING;
+        laser.phaseElapsedMs = 0;
+
+        this.emit({
+            type: ENCOUNTER_EVENT.LASER_ATTACK_STARTED,
+
+            attack: this.cloneLaserAttack(attack),
+        });
+    }
+
+    private advanceLaserCharging(
+        actor: ShipEncounterActorState,
+        laser: LaserWeaponState,
+        deltaMs: number,
+    ): void {
+        const definition = this.getLaserDefinition(laser);
+
+        laser.phaseElapsedMs += deltaMs;
+
+        if (laser.phaseElapsedMs < definition.chargeDurationMs) {
+            return;
+        }
+
+        this.fireLaser(actor, laser);
+    }
+
     private createLaserAttack(actor: ShipEncounterActorState, laser: LaserWeaponState): LaserAttackState {
         const existingAttack = this.state.combat.laserAttacks.find((attack) => {
             return attack.sourceActorId === actor.id && attack.sourceWeaponId === laser.id;
@@ -317,6 +368,11 @@ export default class CombatRunner {
         }
 
         const attack = this.state.combat.laserAttacks[attackIndex];
+
+        if (!attack) {
+            throw new Error(`Laser attack disappeared before fire: ` + `${actor.id}/${laser.id}`);
+        }
+
         const attackSnapshot = this.cloneLaserAttack(attack);
 
         this.state.combat.laserAttacks.splice(attackIndex, 1);
