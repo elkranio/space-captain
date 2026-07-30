@@ -324,6 +324,9 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
 
                     durationMs: 3000,
                     elapsedMs: 0,
+
+                    canBeCancelledByPlayer: true,
+                    canBeInterruptedByDamage: true,
                 },
             },
         ]);
@@ -384,6 +387,9 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
 
                     durationMs: 3000,
                     elapsedMs: 3000,
+
+                    canBeCancelledByPlayer: true,
+                    canBeInterruptedByDamage: true,
                 },
 
                 outcome: OFFICER_TASK_OUTCOME.COMPLETED,

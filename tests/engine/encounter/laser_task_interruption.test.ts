@@ -229,6 +229,9 @@ function createScienceTask(): OfficerTaskState {
         label: 'IDENTIFY',
         showProgress: true,
 
+        canBeCancelledByPlayer: true,
+        canBeInterruptedByDamage: true,
+
         durationMs: 3000,
         elapsedMs: 0,
     };
@@ -246,6 +249,9 @@ function createEngineerTask(): OfficerTaskState {
 
         label: 'SHIELD LEFT',
         showProgress: true,
+
+        canBeCancelledByPlayer: true,
+        canBeInterruptedByDamage: true,
 
         durationMs: 2000,
         elapsedMs: 0,

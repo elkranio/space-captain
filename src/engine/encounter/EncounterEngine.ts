@@ -162,7 +162,20 @@ export default class EncounterEngine {
     }
 
     public cancelTask(taskId: string): void {
-        this.officerTaskRunner.cancel(taskId);
+        const task = this.stateStore.findOfficerTaskById(taskId);
+
+        if (!task) {
+            return;
+        }
+
+        if (!task.canBeCancelledByPlayer) {
+            throw new Error(
+                `Officer task cannot be cancelled by player: ` +
+                    `${task.id}/${task.kind}`,
+            );
+        }
+
+        this.officerTaskRunner.cancel(task.id);
     }
 
     public getAvailableCommands(role: OfficerRole): AvailableOfficerCommand[] {
@@ -314,14 +327,18 @@ export default class EncounterEngine {
     // #region Combat consequences
 
     private interruptRandomOfficerTask(random: () => number): void {
-        const activeTasks = this.stateStore.getOfficerTasks();
+        const interruptibleTasks = this.stateStore
+            .getOfficerTasks()
+            .filter((task) => {
+                return task.canBeInterruptedByDamage;
+            });
 
-        if (activeTasks.length === 0) {
+        if (interruptibleTasks.length === 0) {
             return;
         }
 
-        if (activeTasks.length === 1) {
-            const [task] = activeTasks;
+        if (interruptibleTasks.length === 1) {
+            const [task] = interruptibleTasks;
 
             if (!task) {
                 throw new Error('Cannot interrupt missing officer task');
@@ -339,13 +356,13 @@ export default class EncounterEngine {
             );
         }
 
-        const taskIndex = Math.floor(randomValue * activeTasks.length);
-        const task = activeTasks[taskIndex];
+        const taskIndex = Math.floor(randomValue * interruptibleTasks.length);
+        const task = interruptibleTasks[taskIndex];
 
         if (!task) {
             throw new Error(
                 `Cannot select random officer task: ` +
-                    `${taskIndex}/${activeTasks.length}`,
+                    `${taskIndex}/${interruptibleTasks.length}`,
             );
         }
 

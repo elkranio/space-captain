@@ -3,7 +3,11 @@
 import { OFFICER_ROLE } from '../../defs/officer';
 import { PLAYER_SPACE_NAVIGATION_KIND } from '../../defs/player_location';
 import { ENCOUNTER_EVENT, OFFICER_TASK_OUTCOME, type EncounterEvent, type OfficerTaskResult } from '../model/event';
-import { type OfficerTaskDraft, type OfficerTaskState } from '../model/officer_task';
+import {
+    getOfficerTaskCancellationPolicy,
+    type OfficerTaskDraft,
+    type OfficerTaskState,
+} from '../model/officer_task';
 import EncounterStateStore from '../state/EncounterStateStore';
 import { createHelmFlyToTask } from './create_officer_task_draft';
 import OfficerTaskResolver from './OfficerTaskResolver';
@@ -115,6 +119,8 @@ export default class OfficerTaskRunner {
     private createRuntimeTask(task: OfficerTaskDraft): OfficerTaskState {
         return {
             ...task,
+            ...getOfficerTaskCancellationPolicy(task.kind),
+
             id: this.createTaskId(),
             elapsedMs: 0,
         };

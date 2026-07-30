@@ -125,6 +125,10 @@ describe('Weapons point defense command', () => {
 
                         label: 'PD AIM',
                         showProgress: true,
+
+                        canBeCancelledByPlayer: true,
+                        canBeInterruptedByDamage: true,
+
                         durationMs: 3000,
 
                         id: 'task_1',
@@ -155,6 +159,10 @@ describe('Weapons point defense command', () => {
 
                 label: 'PD AIM',
                 showProgress: true,
+
+                canBeCancelledByPlayer: true,
+                canBeInterruptedByDamage: true,
+
                 durationMs: 3000,
 
                 id: 'task_1',
@@ -187,6 +195,10 @@ describe('Weapons point defense command', () => {
 
                         label: 'PD AIM',
                         showProgress: true,
+
+                        canBeCancelledByPlayer: true,
+                        canBeInterruptedByDamage: true,
+
                         durationMs: 3000,
 
                         id: 'task_1',
@@ -285,6 +297,10 @@ describe('Weapons point defense command', () => {
 
                         label: 'PD AIM',
                         showProgress: true,
+
+                        canBeCancelledByPlayer: true,
+                        canBeInterruptedByDamage: true,
+
                         durationMs: 3000,
 
                         id: 'task_1',
@@ -383,6 +399,10 @@ describe('Weapons point defense command', () => {
 
                     label: 'PD AIM',
                     showProgress: true,
+
+                    canBeCancelledByPlayer: true,
+                    canBeInterruptedByDamage: true,
+
                     durationMs: 3000,
 
                     id: 'task_1',
@@ -390,6 +410,8 @@ describe('Weapons point defense command', () => {
                 },
 
                 outcome: OFFICER_TASK_OUTCOME.COMPLETED,
+
+                result: undefined,
             },
         ]);
 

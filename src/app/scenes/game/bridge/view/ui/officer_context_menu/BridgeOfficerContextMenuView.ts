@@ -20,7 +20,8 @@ import BridgeOfficerContextMenuPanelView from './panel/BridgeOfficerContextMenuP
 const REFRESH_INTERVAL_MS = 200;
 
 // Root view officer command context menu.
-// Управляет open/close, outside click, текущей role и отправкой выбранной команды наверх.
+// Управляет open/close, outside click, текущей role
+// и отправкой выбранного menu action наверх.
 export default class BridgeOfficerContextMenuView {
     private readonly root: Phaser.GameObjects.Container;
     private readonly outsideClickCatcher: Phaser.GameObjects.Rectangle;
@@ -43,25 +44,49 @@ export default class BridgeOfficerContextMenuView {
         this.scene.layers.get('ui_blocker').add(this.outsideClickCatcher);
         this.scene.layers.get('ui').add(this.root);
 
-        this.outsideClickCatcher.on(Phaser.Input.Events.POINTER_DOWN, this.handleOutsidePointerDown, this);
+        this.outsideClickCatcher.on(
+            Phaser.Input.Events.POINTER_DOWN,
+            this.handleOutsidePointerDown,
+            this,
+        );
 
         this.panelView = new BridgeOfficerContextMenuPanelView(this.scene);
         this.contentView = new BridgeOfficerContextMenuContentView(this.scene);
 
-        this.contentView.getRoot().on(UI_EVENT.CLICK, this.handleItemSelected, this);
+        this.contentView
+            .getRoot()
+            .on(UI_EVENT.CLICK, this.handleItemSelected, this);
 
-        this.root.add([this.panelView.getRoot(), this.contentView.getRoot()]);
+        this.root.add([
+            this.panelView.getRoot(),
+            this.contentView.getRoot(),
+        ]);
 
-        this.eventBus.on(BRIDGE_EVENT.OFFICER_COMMAND_MENU_UPDATED, this.handleOfficerCommandMenuUpdated, this);
+        this.eventBus.on(
+            BRIDGE_EVENT.OFFICER_COMMAND_MENU_UPDATED,
+            this.handleOfficerCommandMenuUpdated,
+            this,
+        );
     }
 
     public destroy(): void {
         this.stopRefreshPolling();
 
-        this.eventBus.off(BRIDGE_EVENT.OFFICER_COMMAND_MENU_UPDATED, this.handleOfficerCommandMenuUpdated, this);
+        this.eventBus.off(
+            BRIDGE_EVENT.OFFICER_COMMAND_MENU_UPDATED,
+            this.handleOfficerCommandMenuUpdated,
+            this,
+        );
 
-        this.outsideClickCatcher.off(Phaser.Input.Events.POINTER_DOWN, this.handleOutsidePointerDown, this);
-        this.contentView.getRoot().off(UI_EVENT.CLICK, this.handleItemSelected, this);
+        this.outsideClickCatcher.off(
+            Phaser.Input.Events.POINTER_DOWN,
+            this.handleOutsidePointerDown,
+            this,
+        );
+
+        this.contentView
+            .getRoot()
+            .off(UI_EVENT.CLICK, this.handleItemSelected, this);
 
         this.contentView.destroy();
         this.panelView.destroy();
@@ -70,7 +95,9 @@ export default class BridgeOfficerContextMenuView {
         this.root.destroy(false);
     }
 
-    private handleOfficerCommandMenuUpdated(menu: BridgeOfficerCommandMenuUpdatedPayload): void {
+    private handleOfficerCommandMenuUpdated(
+        menu: BridgeOfficerCommandMenuUpdatedPayload,
+    ): void {
         const snapshot = JSON.stringify(menu);
 
         if (snapshot === this.latestMenuSnapshot) {
@@ -90,6 +117,7 @@ export default class BridgeOfficerContextMenuView {
         this.positionMenu(menu.role);
         this.renderPanel(menu);
         this.contentView.render(menu.groups);
+
         this.openMenu();
     }
 
@@ -97,23 +125,47 @@ export default class BridgeOfficerContextMenuView {
         this.closeMenu();
     }
 
-    private handleItemSelected(item: BridgeOfficerCommandMenuItemPayload): void {
+    private handleItemSelected(
+        item: BridgeOfficerCommandMenuItemPayload,
+    ): void {
         if (!this.currentRole) {
             return;
         }
 
         const role = this.currentRole;
 
-        this.closeMenu();
+        switch (item.kind) {
+            case 'command':
+                this.closeMenu();
 
-        this.eventBus.emit(BRIDGE_EVENT.OFFICER_COMMAND_SELECTED, {
-            role,
-            commandId: item.commandId,
+                this.eventBus.emit(
+                    BRIDGE_EVENT.OFFICER_COMMAND_SELECTED,
+                    {
+                        role,
+                        commandId: item.commandId,
 
-            target: {
-                ...item.target,
-            },
-        });
+                        target: {
+                            ...item.target,
+                        },
+                    },
+                );
+
+                return;
+
+            case 'cancel_task':
+                // Menu остаётся открытым.
+                // Controller синхронно пришлёт новый snapshot
+                // уже с доступными командами роли.
+                this.eventBus.emit(
+                    BRIDGE_EVENT.OFFICER_TASK_CANCEL_SELECTED,
+                    {
+                        role,
+                        taskId: item.taskId,
+                    },
+                );
+
+                return;
+        }
     }
 
     private positionMenu(role: OfficerRole): void {
@@ -122,8 +174,13 @@ export default class BridgeOfficerContextMenuView {
         this.root.setPosition(position.x, position.y);
     }
 
-    private renderPanel(menu: BridgeOfficerCommandMenuUpdatedPayload): void {
-        this.panelView.render(menu.role.toUpperCase(), getOfficerContextMenuMinHeight(menu));
+    private renderPanel(
+        menu: BridgeOfficerCommandMenuUpdatedPayload,
+    ): void {
+        this.panelView.render(
+            menu.role.toUpperCase(),
+            getOfficerContextMenuMinHeight(menu),
+        );
     }
 
     private openMenu(): void {
@@ -167,14 +224,26 @@ export default class BridgeOfficerContextMenuView {
             return;
         }
 
-        this.eventBus.emit(BRIDGE_EVENT.OFFICER_COMMAND_MENU_REFRESH_REQUESTED, {
-            role: this.currentRole,
-        });
+        this.eventBus.emit(
+            BRIDGE_EVENT.OFFICER_COMMAND_MENU_REFRESH_REQUESTED,
+            {
+                role: this.currentRole,
+            },
+        );
     }
 
     private createOutsideClickCatcher(): Phaser.GameObjects.Rectangle {
         return this.scene.add
-            .rectangle(0, 0, this.scene.scale.width, this.scene.scale.height, 0x000000, 0)
+            .rectangle(
+                0,
+                0,
+
+                this.scene.scale.width,
+                this.scene.scale.height,
+
+                0x000000,
+                0,
+            )
             .setOrigin(0, 0)
             .setVisible(false)
             .setInteractive()

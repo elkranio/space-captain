@@ -33,6 +33,16 @@ export const OFFICER_TASK_KIND = {
 
 export type OfficerTaskKind = (typeof OFFICER_TASK_KIND)[keyof typeof OFFICER_TASK_KIND];
 
+export type OfficerTaskCancellationPolicy = {
+    // Можно ли показать игроку CANCEL TASK
+    // и принять ручную отмену из bridge UI.
+    canBeCancelledByPlayer: boolean;
+
+    // Может ли damage consequence
+    // принудительно прервать эту task.
+    canBeInterruptedByDamage: boolean;
+};
+
 type OfficerTaskDraftBase = {
     label: string;
 
@@ -129,7 +139,8 @@ type HelmJumpOfficerTaskDraft = OfficerTaskDraftBase & {
 // Описание task до её запуска.
 //
 // Factory определяет содержание работы,
-// но не создаёт runtime identity или progress.
+// но не создаёт runtime identity, progress
+// или cancellation policy.
 //
 // Task-specific поля принадлежат только тем
 // вариантам task, которым они действительно нужны.
@@ -146,12 +157,45 @@ export type OfficerTaskDraft =
 
 // Активная runtime task.
 //
-// id и начальный progress назначает OfficerTaskRunner
-// в момент запуска конкретного экземпляра.
-export type OfficerTaskState = OfficerTaskDraft & {
-    id: string;
+// id, начальный progress и cancellation policy
+// назначает OfficerTaskRunner при запуске.
+export type OfficerTaskState = OfficerTaskDraft &
+    OfficerTaskCancellationPolicy & {
+        id: string;
 
-    elapsedMs: number;
-};
+        elapsedMs: number;
+    };
 
 export type OfficerTaskStates = Partial<Record<OfficerRole, OfficerTaskState>>;
+
+export function getOfficerTaskCancellationPolicy(
+    kind: OfficerTaskKind,
+): OfficerTaskCancellationPolicy {
+    switch (kind) {
+        case OFFICER_TASK_KIND.HELM_DOCK:
+        case OFFICER_TASK_KIND.HELM_FLY_TO:
+            return {
+                canBeCancelledByPlayer: false,
+                canBeInterruptedByDamage: false,
+            };
+
+        case OFFICER_TASK_KIND.COMMS_HAIL:
+        case OFFICER_TASK_KIND.COMMS_REQUEST_DOCKING:
+        case OFFICER_TASK_KIND.SCIENCE_PLOT_COURSE:
+        case OFFICER_TASK_KIND.SCIENCE_IDENTIFY_THREAT:
+        case OFFICER_TASK_KIND.ENGINEER_DEPLOY_SHIELD:
+        case OFFICER_TASK_KIND.WEAPONS_POINT_DEFENSE:
+        case OFFICER_TASK_KIND.HELM_JUMP:
+            return {
+                canBeCancelledByPlayer: true,
+                canBeInterruptedByDamage: true,
+            };
+
+        default:
+            return assertNever(kind);
+    }
+}
+
+function assertNever(value: never): never {
+    throw new Error(`Unknown officer task kind: ${value}`);
+}

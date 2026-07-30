@@ -155,6 +155,10 @@ describe('Science identify threat command', () => {
 
                     label: 'IDENTIFY',
                     showProgress: true,
+
+                    canBeCancelledByPlayer: true,
+                    canBeInterruptedByDamage: true,
+
                     durationMs: 3000,
 
                     id: 'task_1',
@@ -174,6 +178,10 @@ describe('Science identify threat command', () => {
 
                     label: 'IDENTIFY',
                     showProgress: true,
+
+                    canBeCancelledByPlayer: true,
+                    canBeInterruptedByDamage: true,
+
                     durationMs: 3000,
 
                     id: 'task_1',
@@ -282,6 +290,10 @@ describe('Science identify threat command', () => {
 
                     label: 'IDENTIFY',
                     showProgress: true,
+
+                    canBeCancelledByPlayer: true,
+                    canBeInterruptedByDamage: true,
+
                     durationMs: 3000,
 
                     id: 'task_1',
@@ -301,6 +313,10 @@ describe('Science identify threat command', () => {
 
                     label: 'IDENTIFY',
                     showProgress: true,
+
+                    canBeCancelledByPlayer: true,
+                    canBeInterruptedByDamage: true,
+
                     durationMs: 3000,
 
                     id: 'task_1',

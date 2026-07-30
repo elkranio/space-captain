@@ -127,6 +127,9 @@ function createOfficerTasks(): OfficerTaskState[] {
 
             durationMs: 3000,
             elapsedMs: 1500,
+
+            canBeCancelledByPlayer: true,
+            canBeInterruptedByDamage: true,
         },
 
         {
@@ -148,6 +151,9 @@ function createOfficerTasks(): OfficerTaskState[] {
 
             durationMs: 5000,
             elapsedMs: 2500,
+
+            canBeCancelledByPlayer: true,
+            canBeInterruptedByDamage: true,
         },
     ];
 }

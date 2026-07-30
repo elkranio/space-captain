@@ -46,6 +46,10 @@ export const BRIDGE_EVENT = {
     // Encounter controller передаст её в engine.
     OFFICER_COMMAND_SELECTED: 'officer_command_selected',
 
+    // Игрок выбрал ручную отмену
+    // текущей cancellable officer task.
+    OFFICER_TASK_CANCEL_SELECTED: 'officer_task_cancel_selected',
+
     // Encounter controller отдаёт view
     // актуальный snapshot меню команд офицера.
     OFFICER_COMMAND_MENU_UPDATED: 'officer_command_menu_updated',
@@ -225,13 +229,32 @@ export type BridgeOfficerCommandSelectedPayload = {
     target: OfficerCommandTarget;
 };
 
-// Один пункт меню команды офицера.
-export type BridgeOfficerCommandMenuItemPayload = {
-    commandId: EncounterOfficerCommandId;
+// Один пункт officer context menu.
+//
+// Menu показывает либо обычную engine-команду,
+// либо app-intent ручной отмены текущей task.
+export type BridgeOfficerCommandMenuItemPayload =
+    | {
+          kind: 'command';
 
-    label: string;
+          commandId: EncounterOfficerCommandId;
 
-    target: OfficerCommandTarget;
+          label: string;
+
+          target: OfficerCommandTarget;
+      }
+    | {
+          kind: 'cancel_task';
+
+          label: string;
+
+          taskId: string;
+      };
+
+export type BridgeOfficerTaskCancelSelectedPayload = {
+    role: OfficerRole;
+
+    taskId: string;
 };
 
 // Группа пунктов меню.
@@ -497,6 +520,8 @@ export type BridgeEventPayloadMap = {
     [BRIDGE_EVENT.OFFICER_COMMAND_MENU_REFRESH_REQUESTED]: BridgeOfficerCommandMenuRefreshRequestedPayload;
 
     [BRIDGE_EVENT.OFFICER_COMMAND_SELECTED]: BridgeOfficerCommandSelectedPayload;
+
+    [BRIDGE_EVENT.OFFICER_TASK_CANCEL_SELECTED]: BridgeOfficerTaskCancelSelectedPayload;
 
     [BRIDGE_EVENT.OFFICER_COMMAND_MENU_UPDATED]: BridgeOfficerCommandMenuUpdatedPayload;
 

@@ -401,6 +401,9 @@ function createEngineerShieldTask({
         label: `SHIELD ${zone.toUpperCase()}`,
         showProgress: true,
 
+        canBeCancelledByPlayer: true,
+        canBeInterruptedByDamage: true,
+
         durationMs: 2000,
         elapsedMs,
     };

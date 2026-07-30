@@ -37,8 +37,7 @@ describe('BridgeEncounterEngineEventHandler player shield presentation', () => {
 
                     kind: OFFICER_TASK_KIND.ENGINEER_DEPLOY_SHIELD,
                     role: OFFICER_ROLE.ENGINEER,
-                    sourceCommandId:
-                        ENCOUNTER_OFFICER_COMMAND_ID.ENGINEER_DEPLOY_SHIELD_RIGHT,
+                    sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.ENGINEER_DEPLOY_SHIELD_RIGHT,
 
                     shieldZone: LASER_TARGET_ZONE.RIGHT,
 
@@ -47,6 +46,9 @@ describe('BridgeEncounterEngineEventHandler player shield presentation', () => {
 
                     durationMs: 2000,
                     elapsedMs: 2000,
+
+                    canBeCancelledByPlayer: true,
+                    canBeInterruptedByDamage: true,
                 },
 
                 outcome: OFFICER_TASK_OUTCOME.COMPLETED,
