@@ -179,6 +179,12 @@ export const BRIDGE_EVENT = {
     // и разрешил выстрел по угрозе.
     POINT_DEFENSE_FIRED: 'point_defense_fired',
 
+    // Вражеский laser начал видимую charging-фазу.
+    LASER_THREAT_ADDED: 'laser_threat_added',
+
+    // Laser charging threat завершилась выстрелом.
+    LASER_THREAT_REMOVED: 'laser_threat_removed',
+
     // #endregion
 } as const;
 
@@ -420,6 +426,18 @@ export type BridgePointDefenseFiredPayload = {
     outcome: PointDefenseShotOutcome;
 };
 
+export type BridgeLaserThreatAddedPayload = {
+    attackId: string;
+
+    designation: string;
+
+    sourceActorId: string;
+};
+
+export type BridgeLaserThreatRemovedPayload = {
+    attackId: string;
+};
+
 // #endregion
 
 // Typed mapping:
@@ -506,4 +524,8 @@ export type BridgeEventPayloadMap = {
     [BRIDGE_EVENT.INCOMING_MISSILES_UPDATED]: BridgeIncomingMissilesUpdatedPayload;
 
     [BRIDGE_EVENT.POINT_DEFENSE_FIRED]: BridgePointDefenseFiredPayload;
+
+    [BRIDGE_EVENT.LASER_THREAT_ADDED]: BridgeLaserThreatAddedPayload;
+
+    [BRIDGE_EVENT.LASER_THREAT_REMOVED]: BridgeLaserThreatRemovedPayload;
 };

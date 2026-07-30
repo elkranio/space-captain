@@ -15,7 +15,7 @@ import {
 import { ENCOUNTER_EVENT } from '../../src/engine/encounter/model/event';
 
 describe('BridgeEncounterEngineEventHandler laser resolution', () => {
-    it('clears the common targeting warning when laser charging starts', () => {
+    it('clears the common warning and adds a laser threat when charging starts', () => {
         const { handler, emit } = createHandler();
 
         handler.handle([
@@ -26,13 +26,26 @@ describe('BridgeEncounterEngineEventHandler laser resolution', () => {
             },
         ]);
 
-        expect(emit).toHaveBeenCalledTimes(1);
-        expect(emit).toHaveBeenCalledWith(
-            BRIDGE_EVENT.MISSILE_TARGETING_WARNING_CLEARED,
-        );
+        expect(emit.mock.calls).toEqual([
+            [
+                BRIDGE_EVENT.MISSILE_TARGETING_WARNING_CLEARED,
+            ],
+
+            [
+                BRIDGE_EVENT.LASER_THREAT_ADDED,
+
+                {
+                    attackId: 'laser_attack_1',
+
+                    designation: 'L1',
+
+                    sourceActorId: 'ship_enemy_00',
+                },
+            ],
+        ]);
     });
 
-    it('does not damage hull when the laser is blocked', () => {
+    it('removes the threat without damaging hull when the laser is blocked', () => {
         const { handler, runtime, emit, setEncounterInteractive } = createHandler();
 
         handler.handle([
@@ -47,11 +60,20 @@ describe('BridgeEncounterEngineEventHandler laser resolution', () => {
 
         expect(runtime.getCurrentRun().player.ship.hull).toBe(3);
 
-        expect(emit).not.toHaveBeenCalled();
+        expect(emit.mock.calls).toEqual([
+            [
+                BRIDGE_EVENT.LASER_THREAT_REMOVED,
+
+                {
+                    attackId: 'laser_attack_1',
+                },
+            ],
+        ]);
+
         expect(setEncounterInteractive).not.toHaveBeenCalled();
     });
 
-    it('damages hull when the laser hits', () => {
+    it('removes the threat and damages hull when the laser hits', () => {
         const { handler, runtime, emit, setEncounterInteractive } = createHandler();
 
         handler.handle([
@@ -67,27 +89,36 @@ describe('BridgeEncounterEngineEventHandler laser resolution', () => {
 
         expect(runtime.getCurrentRun().player.ship.hull).toBe(2);
 
-        expect(emit).toHaveBeenCalledTimes(1);
-        expect(emit).toHaveBeenCalledWith(
-            BRIDGE_EVENT.PLAYER_SHIP_STATUS_UPDATED,
+        expect(emit.mock.calls).toEqual([
+            [
+                BRIDGE_EVENT.LASER_THREAT_REMOVED,
 
-            {
-                hull: {
-                    current: 2,
-                    max: 3,
+                {
+                    attackId: 'laser_attack_1',
                 },
+            ],
 
-                pointDefense: {
-                    current: 4,
-                    max: 4,
-                },
+            [
+                BRIDGE_EVENT.PLAYER_SHIP_STATUS_UPDATED,
 
-                shieldGenerator: {
-                    current: 3,
-                    max: 3,
+                {
+                    hull: {
+                        current: 2,
+                        max: 3,
+                    },
+
+                    pointDefense: {
+                        current: 4,
+                        max: 4,
+                    },
+
+                    shieldGenerator: {
+                        current: 3,
+                        max: 3,
+                    },
                 },
-            },
-        );
+            ],
+        ]);
 
         expect(setEncounterInteractive).not.toHaveBeenCalled();
     });

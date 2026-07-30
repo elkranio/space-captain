@@ -172,6 +172,14 @@ export default class BridgeEncounterEngineEventHandler {
 
             case ENCOUNTER_EVENT.LASER_ATTACK_STARTED:
                 this.eventBus.emit(BRIDGE_EVENT.MISSILE_TARGETING_WARNING_CLEARED);
+
+                this.eventBus.emit(BRIDGE_EVENT.LASER_THREAT_ADDED, {
+                    attackId: event.attack.id,
+
+                    designation: event.attack.designation,
+
+                    sourceActorId: event.attack.sourceActorId,
+                });
                 return;
 
             case ENCOUNTER_EVENT.MISSILE_IMPACTED_PLAYER_SHIP:
@@ -183,6 +191,10 @@ export default class BridgeEncounterEngineEventHandler {
                 return;
 
             case ENCOUNTER_EVENT.LASER_FIRED:
+                this.eventBus.emit(BRIDGE_EVENT.LASER_THREAT_REMOVED, {
+                    attackId: event.attack.id,
+                });
+
                 if (event.outcome === LASER_SHOT_OUTCOME.BLOCKED) {
                     return;
                 }
