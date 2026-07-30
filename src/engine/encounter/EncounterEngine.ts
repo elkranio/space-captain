@@ -1,9 +1,11 @@
 // src/engine/encounter/EncounterEngine.ts
 
+import { SHIP_WEAPONS } from '../content/catalogs/ship_weapons';
 import type { OfficerRole } from '../defs/officer';
 import type { PlayerSpaceNavigationState } from '../defs/player_location';
 import type { PointDefenseState } from '../defs/point_defense';
 import type { ShieldGeneratorState } from '../defs/shield_generator';
+import { SHIP_WEAPON_KIND, SHIP_WEAPON_PHASE } from '../defs/ship_weapon';
 import type { SpaceNodeState } from '../defs/universe';
 import CombatRunner from './combat/CombatRunner';
 import PlayerShieldRunner from './combat/PlayerShieldRunner';
@@ -23,6 +25,13 @@ import { OFFICER_TASK_KIND, type OfficerTaskKind, type OfficerTaskState } from '
 import { getOfficerAvailabilityStates } from './officer_availability/queries/get_officer_availability_states';
 import OfficerTaskRunner from './officer_tasks/OfficerTaskRunner';
 import EncounterStateStore from './state/EncounterStateStore';
+
+export type LaserThreatSnapshot = {
+    attack: LaserAttackState;
+
+    timeToFireMs: number;
+    initialTimeToFireMs: number;
+};
 
 export type EncounterEngineOptions = {
     node: SpaceNodeState;
@@ -186,16 +195,64 @@ export default class EncounterEngine {
 
     public getLaserAttacks(): LaserAttackState[] {
         return this.stateStore.getState().combat.laserAttacks.map((attack) => {
+            return this.cloneLaserAttack(attack);
+        });
+    }
+
+    public getLaserThreatSnapshots(): LaserThreatSnapshot[] {
+        const state = this.stateStore.getState();
+
+        return state.combat.laserAttacks.map((attack) => {
+            const actor = state.actors.find((candidate) => {
+                return candidate.id === attack.sourceActorId;
+            });
+
+            if (!actor) {
+                throw new Error(
+                    `Laser threat source actor not found: ` +
+                        `${attack.id}/${attack.sourceActorId}`,
+                );
+            }
+
+            const weapon = actor.weapons.find((candidate) => {
+                return candidate.id === attack.sourceWeaponId;
+            });
+
+            if (!weapon) {
+                throw new Error(
+                    `Laser threat source weapon not found: ` +
+                        `${attack.id}/${attack.sourceWeaponId}`,
+                );
+            }
+
+            if (
+                weapon.kind !== SHIP_WEAPON_KIND.LASER ||
+                weapon.phase !== SHIP_WEAPON_PHASE.CHARGING
+            ) {
+                throw new Error(
+                    `Laser threat source weapon is not charging: ` +
+                        `${attack.id}/${weapon.id}/${weapon.kind}/${weapon.phase}`,
+                );
+            }
+
+            const definition = SHIP_WEAPONS[weapon.weaponId];
+
+            if (definition.kind !== SHIP_WEAPON_KIND.LASER) {
+                throw new Error(
+                    `Laser threat weapon definition mismatch: ` +
+                        `${attack.id}/${weapon.id}/${weapon.weaponId}`,
+                );
+            }
+
             return {
-                ...attack,
+                attack: this.cloneLaserAttack(attack),
 
-                target: {
-                    ...attack.target,
-                },
+                timeToFireMs: Math.max(
+                    0,
+                    definition.chargeDurationMs - weapon.phaseElapsedMs,
+                ),
 
-                identification: {
-                    ...attack.identification,
-                },
+                initialTimeToFireMs: definition.chargeDurationMs,
             };
         });
     }
@@ -293,6 +350,24 @@ export default class EncounterEngine {
         }
 
         this.officerTaskRunner.cancel(task.id);
+    }
+
+    // #endregion
+
+    // #region Combat snapshots
+
+    private cloneLaserAttack(attack: LaserAttackState): LaserAttackState {
+        return {
+            ...attack,
+
+            target: {
+                ...attack.target,
+            },
+
+            identification: {
+                ...attack.identification,
+            },
+        };
     }
 
     // #endregion

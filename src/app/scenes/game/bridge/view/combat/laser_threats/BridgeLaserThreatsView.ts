@@ -5,6 +5,7 @@ import {
     BRIDGE_EVENT,
     type BridgeLaserThreatAddedPayload,
     type BridgeLaserThreatRemovedPayload,
+    type BridgeLaserThreatsUpdatedPayload,
 } from '../../../events/bridge_event';
 import type BridgeEventBus from '../../../events/BridgeEventBus';
 import BridgeLaserThreatView from './laser/BridgeLaserThreatView';
@@ -16,7 +17,7 @@ type GetObjectPosition = (objectId: string) => Phaser.Math.Vector2 | undefined;
 // Отвечает только за:
 // - bridge events;
 // - поиск origin source actor;
-// - lifecycle laser threat views.
+// - lifecycle и snapshot updates laser threat views.
 export default class BridgeLaserThreatsView {
     private readonly root: Phaser.GameObjects.Container;
 
@@ -44,6 +45,12 @@ export default class BridgeLaserThreatsView {
             this.removeThreat,
             this,
         );
+
+        this.eventBus.on(
+            BRIDGE_EVENT.LASER_THREATS_UPDATED,
+            this.updateThreats,
+            this,
+        );
     }
 
     public destroy(): void {
@@ -56,6 +63,12 @@ export default class BridgeLaserThreatsView {
         this.eventBus.off(
             BRIDGE_EVENT.LASER_THREAT_REMOVED,
             this.removeThreat,
+            this,
+        );
+
+        this.eventBus.off(
+            BRIDGE_EVENT.LASER_THREATS_UPDATED,
+            this.updateThreats,
             this,
         );
 
@@ -106,5 +119,23 @@ export default class BridgeLaserThreatsView {
         threat.destroy();
 
         this.threats.delete(payload.attackId);
+    }
+
+    private updateThreats(payload: BridgeLaserThreatsUpdatedPayload): void {
+        for (const update of payload) {
+            const threat = this.threats.get(update.attackId);
+
+            if (!threat) {
+                throw new Error(
+                    `Laser threat update target not found: ${update.attackId}`,
+                );
+            }
+
+            threat.update(
+                update.timeToFireMs,
+                update.initialTimeToFireMs,
+                update.targetZone,
+            );
+        }
     }
 }

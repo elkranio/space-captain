@@ -86,7 +86,6 @@ export default class BridgeEncounterController {
         this.unregisterBridgeEventHandlers();
 
         this.officerStationsController?.destroy();
-
         this.officerCommandMenuController = undefined;
         this.officerStationsController = undefined;
         this.encounterEngine = undefined;
@@ -111,6 +110,7 @@ export default class BridgeEncounterController {
 
         this.drainEncounterEvents();
         this.syncIncomingMissiles();
+        this.syncLaserThreats();
 
         this.officerStationsController?.step(deltaMs);
     }
@@ -321,6 +321,33 @@ export default class BridgeEncounterController {
         );
     }
 
+    private syncLaserThreats(): void {
+        if (!this.encounterEngine) {
+            return;
+        }
+
+        const snapshots = this.encounterEngine.getLaserThreatSnapshots();
+
+        this.eventBus.emit(
+            BRIDGE_EVENT.LASER_THREATS_UPDATED,
+
+            snapshots.map((snapshot) => {
+                return {
+                    attackId: snapshot.attack.id,
+
+                    timeToFireMs: snapshot.timeToFireMs,
+                    initialTimeToFireMs: snapshot.initialTimeToFireMs,
+
+                    ...(snapshot.attack.identification.status === THREAT_IDENTIFICATION_STATUS.IDENTIFIED
+                        ? {
+                              targetZone: snapshot.attack.identification.targetZone,
+                          }
+                        : {}),
+                };
+            }),
+        );
+    }
+
     // #endregion
 
     // #region Officer command execution
@@ -337,6 +364,7 @@ export default class BridgeEncounterController {
         if (result.status === OFFICER_COMMAND_EXECUTION_STATUS.EXECUTED) {
             this.syncRuntimeNavigationFromEngine();
             this.drainEncounterEvents();
+            this.syncLaserThreats();
             this.officerStationsController?.sync();
         }
 

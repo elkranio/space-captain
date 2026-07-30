@@ -5,6 +5,7 @@ import type { OfficerDefinition, OfficerRole } from '../../../../../engine/defs/
 import type { Vec3 } from '../../../../../engine/defs/vector';
 import type { SpriteEntry } from '../../../../manifests/types';
 import type { SceneKey } from '../../../scene_key';
+import type { LaserTargetZone } from '../../../../../engine/defs/laser';
 import type { MissileSpectralBand } from '../../../../../engine/defs/missile';
 import type { PointDefenseBeamBand, PointDefenseShotOutcome } from '../../../../../engine/defs/point_defense';
 import type { EncounterOfficerCommandId, OfficerCommandTarget } from '../../../../../engine/encounter/model/command';
@@ -184,6 +185,10 @@ export const BRIDGE_EVENT = {
 
     // Laser charging threat завершилась выстрелом.
     LASER_THREAT_REMOVED: 'laser_threat_removed',
+
+    // Актуальный временной и identification snapshot
+    // всех активных laser charging threats.
+    LASER_THREATS_UPDATED: 'laser_threats_updated',
 
     // #endregion
 } as const;
@@ -438,6 +443,17 @@ export type BridgeLaserThreatRemovedPayload = {
     attackId: string;
 };
 
+export type BridgeLaserThreatUpdatePayload = {
+    attackId: string;
+
+    timeToFireMs: number;
+    initialTimeToFireMs: number;
+
+    targetZone?: LaserTargetZone;
+};
+
+export type BridgeLaserThreatsUpdatedPayload = BridgeLaserThreatUpdatePayload[];
+
 // #endregion
 
 // Typed mapping:
@@ -528,4 +544,6 @@ export type BridgeEventPayloadMap = {
     [BRIDGE_EVENT.LASER_THREAT_ADDED]: BridgeLaserThreatAddedPayload;
 
     [BRIDGE_EVENT.LASER_THREAT_REMOVED]: BridgeLaserThreatRemovedPayload;
+
+    [BRIDGE_EVENT.LASER_THREATS_UPDATED]: BridgeLaserThreatsUpdatedPayload;
 };
