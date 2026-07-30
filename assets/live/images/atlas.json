@@ -1,7 +1,7 @@
 {
   "textures": [
     {
-      "image": "atlas-0.png?v=1785428561102",
+      "image": "atlas-0.png?v=1785429023360",
       "format": "RGBA8888",
       "size": {
         "w": 1778,
@@ -115,7 +115,7 @@
           }
         },
         {
-          "filename": "combat/shields/side_right_center",
+          "filename": "combat/shields/center_00",
           "rotated": false,
           "trimmed": false,
           "sourceSize": {
@@ -1254,6 +1254,6 @@
   "meta": {
     "app": "https://www.codeandweb.com/texturepacker",
     "version": "3.0",
-    "smartupdate": "$TexturePacker:SmartUpdate:43695f1d267357f8742df207776816fd:395478032d835dbf36dab665c3447943:cf935fe037ea9b5d3744d532996e235e$"
+    "smartupdate": "$TexturePacker:SmartUpdate:211063d51e5ae4ca64718efbc84f8bd7:3b65aa8620e79f5fd6c27c1509f9417e:cf935fe037ea9b5d3744d532996e235e$"
   }
 }
