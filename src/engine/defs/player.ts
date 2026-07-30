@@ -2,6 +2,7 @@
 
 import type { PlayerLocationState } from './player_location';
 import type { PointDefenseState } from './point_defense';
+import type { ShieldGeneratorState } from './shield_generator';
 import type { ShipWeaponState } from './ship_weapon';
 
 export type PlayerShipState = {
@@ -9,6 +10,7 @@ export type PlayerShipState = {
     maxHull: number;
 
     pointDefense: PointDefenseState;
+    shieldGenerator: ShieldGeneratorState;
 
     weapons: ShipWeaponState[];
 };

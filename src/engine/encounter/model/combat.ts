@@ -3,6 +3,7 @@
 import type { LaserTargetZone } from '../../defs/laser';
 import type { MissileSpectralBand, MissileId } from '../../defs/missile';
 import type { PointDefenseState } from '../../defs/point_defense';
+import type { ShieldGeneratorState } from '../../defs/shield_generator';
 
 export const COMBAT_PROJECTILE_KIND = {
     MISSILE: 'missile',
@@ -117,6 +118,10 @@ export type LaserAttackState = {
 
 export type EncounterCombatState = {
     pointDefense: PointDefenseState;
+
+    // Некоторые ships могут не иметь shield generator.
+    // Starter player ship передаёт его явно.
+    shieldGenerator?: ShieldGeneratorState;
 
     projectiles: CombatProjectileState[];
     laserAttacks: LaserAttackState[];

@@ -3,6 +3,7 @@
 import type { OfficerRole } from '../defs/officer';
 import type { PlayerSpaceNavigationState } from '../defs/player_location';
 import type { PointDefenseState } from '../defs/point_defense';
+import type { ShieldGeneratorState } from '../defs/shield_generator';
 import type { SpaceNodeState } from '../defs/universe';
 import CombatRunner from './combat/CombatRunner';
 import OfficerCommandExecutor from './commands/OfficerCommandExecutor';
@@ -22,6 +23,10 @@ export type EncounterEngineOptions = {
     navigation: PlayerSpaceNavigationState;
 
     pointDefense: PointDefenseState;
+
+    // undefined означает, что у player ship
+    // физически нет shield generator.
+    shieldGenerator?: ShieldGeneratorState;
 
     completeTimedTasksImmediately?: boolean;
 
@@ -46,12 +51,13 @@ export default class EncounterEngine {
         node,
         navigation,
         pointDefense,
+        shieldGenerator,
 
         completeTimedTasksImmediately = false,
 
         random = Math.random,
     }: EncounterEngineOptions) {
-        this.stateStore = EncounterStateStore.fromSpaceNode(node, navigation, pointDefense);
+        this.stateStore = EncounterStateStore.fromSpaceNode(node, navigation, pointDefense, shieldGenerator);
 
         const encounterState = this.stateStore.getState();
 
@@ -167,6 +173,18 @@ export default class EncounterEngine {
                 },
             };
         });
+    }
+
+    public getShieldGeneratorState(): ShieldGeneratorState | undefined {
+        const shieldGenerator = this.stateStore.getState().combat.shieldGenerator;
+
+        if (!shieldGenerator) {
+            return undefined;
+        }
+
+        return {
+            ...shieldGenerator,
+        };
     }
 
     public drainEvents(): EncounterEvent[] {

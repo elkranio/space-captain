@@ -14,6 +14,10 @@ export type PlayerShipPreset = {
     pointDefense: {
         maxCharges: number;
     };
+
+    shieldGenerator: {
+        maxCharges: number;
+    };
 };
 
 export const PLAYER_SHIP_PRESETS = {
@@ -24,6 +28,10 @@ export const PLAYER_SHIP_PRESETS = {
 
         pointDefense: {
             maxCharges: 4,
+        },
+
+        shieldGenerator: {
+            maxCharges: 3,
         },
     },
 } satisfies Record<PlayerShipPresetId, PlayerShipPreset>;

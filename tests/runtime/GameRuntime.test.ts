@@ -16,6 +16,11 @@ describe('GameRuntime player ship hull', () => {
                 maxCharges: 4,
             },
 
+            shieldGenerator: {
+                charges: 3,
+                maxCharges: 3,
+            },
+
             weapons: [],
         });
     });
@@ -42,6 +47,11 @@ describe('GameRuntime player ship hull', () => {
             pointDefense: {
                 charges: 4,
                 maxCharges: 4,
+            },
+
+            shieldGenerator: {
+                charges: 3,
+                maxCharges: 3,
             },
 
             weapons: [],

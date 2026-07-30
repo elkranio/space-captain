@@ -11,6 +11,7 @@ import {
     type PointDefenseShotOutcome,
     type PointDefenseState,
 } from '../../defs/point_defense';
+import type { ShieldGeneratorState } from '../../defs/shield_generator';
 import type { ShipId } from '../../defs/ship';
 import type { ShipWeaponState } from '../../defs/ship_weapon';
 import type { SpaceNodeState } from '../../defs/universe';
@@ -58,8 +59,11 @@ export default class EncounterStateStore {
         node: SpaceNodeState,
         navigation: PlayerSpaceNavigationState,
         pointDefense: PointDefenseState,
+        shieldGenerator?: ShieldGeneratorState,
     ): EncounterStateStore {
-        const store = new EncounterStateStore(createEncounterState(node, navigation, pointDefense));
+        const store = new EncounterStateStore(
+            createEncounterState(node, navigation, pointDefense, shieldGenerator),
+        );
 
         for (const actor of node.actors) {
             store.spawnShipActor({

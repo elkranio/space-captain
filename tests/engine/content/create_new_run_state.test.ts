@@ -16,6 +16,11 @@ describe('createNewRunState', () => {
                 maxCharges: 4,
             },
 
+            shieldGenerator: {
+                charges: 3,
+                maxCharges: 3,
+            },
+
             weapons: [],
         });
     });
@@ -26,6 +31,7 @@ describe('createNewRunState', () => {
 
         firstRun.player.ship.hull = 1;
         firstRun.player.ship.pointDefense.charges = 0;
+        firstRun.player.ship.shieldGenerator.charges = 0;
 
         expect(secondRun.player.ship).toEqual({
             hull: 3,
@@ -34,6 +40,11 @@ describe('createNewRunState', () => {
             pointDefense: {
                 charges: 4,
                 maxCharges: 4,
+            },
+
+            shieldGenerator: {
+                charges: 3,
+                maxCharges: 3,
             },
 
             weapons: [],
