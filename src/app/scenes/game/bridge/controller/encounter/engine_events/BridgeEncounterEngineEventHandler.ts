@@ -111,16 +111,6 @@ export default class BridgeEncounterEngineEventHandler {
 
                 return;
 
-            case ENCOUNTER_EVENT.PLAYER_SHIELD_GENERATOR_STATE_CHANGED:
-                this.gameRuntime.setPlayerShipShieldGeneratorState(event.shieldGenerator);
-
-                return;
-
-            case ENCOUNTER_EVENT.PLAYER_SHIELD_GENERATOR_STATE_CHANGED:
-                this.gameRuntime.setPlayerShipShieldGeneratorState(event.shieldGenerator);
-
-                return;
-
             case ENCOUNTER_EVENT.OFFICER_TASK_STARTED:
                 this.eventBus.emit(BRIDGE_EVENT.OFFICER_ACTIVITY_STARTED, {
                     role: event.task.role,

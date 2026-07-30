@@ -9,6 +9,10 @@ export const ENCOUNTER_OFFICER_COMMAND_ID = {
     SCIENCE_PLOT_COURSE: 'science_plot_course',
     SCIENCE_IDENTIFY_THREAT: 'science_identify_threat',
 
+    ENGINEER_DEPLOY_SHIELD_LEFT: 'engineer_deploy_shield_left',
+    ENGINEER_DEPLOY_SHIELD_CENTER: 'engineer_deploy_shield_center',
+    ENGINEER_DEPLOY_SHIELD_RIGHT: 'engineer_deploy_shield_right',
+
     WEAPONS_FIRE_RED_BEAM: 'weapons_fire_red_beam',
     WEAPONS_FIRE_BLUE_BEAM: 'weapons_fire_blue_beam',
 
@@ -19,6 +23,11 @@ export const ENCOUNTER_OFFICER_COMMAND_ID = {
 
 export type EncounterOfficerCommandId =
     (typeof ENCOUNTER_OFFICER_COMMAND_ID)[keyof typeof ENCOUNTER_OFFICER_COMMAND_ID];
+
+export type EngineerDeployShieldCommandId =
+    | typeof ENCOUNTER_OFFICER_COMMAND_ID.ENGINEER_DEPLOY_SHIELD_LEFT
+    | typeof ENCOUNTER_OFFICER_COMMAND_ID.ENGINEER_DEPLOY_SHIELD_CENTER
+    | typeof ENCOUNTER_OFFICER_COMMAND_ID.ENGINEER_DEPLOY_SHIELD_RIGHT;
 
 export type WeaponsPointDefenseCommandId =
     | typeof ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_RED_BEAM

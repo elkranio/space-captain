@@ -1,8 +1,13 @@
 // src/engine/encounter/model/officer_task.ts
 
+import type { LaserTargetZone } from '../../defs/laser';
 import { OFFICER_ROLE, type OfficerRole } from '../../defs/officer';
 import type { PointDefenseBeamBand } from '../../defs/point_defense';
-import { ENCOUNTER_OFFICER_COMMAND_ID, type WeaponsPointDefenseCommandId } from './command';
+import {
+    ENCOUNTER_OFFICER_COMMAND_ID,
+    type EngineerDeployShieldCommandId,
+    type WeaponsPointDefenseCommandId,
+} from './command';
 
 // Стабильный тип офицерской работы.
 //
@@ -16,6 +21,8 @@ export const OFFICER_TASK_KIND = {
 
     SCIENCE_PLOT_COURSE: 'science_plot_course',
     SCIENCE_IDENTIFY_THREAT: 'science_identify_threat',
+
+    ENGINEER_DEPLOY_SHIELD: 'engineer_deploy_shield',
 
     WEAPONS_POINT_DEFENSE: 'weapons_point_defense',
 
@@ -72,6 +79,15 @@ type ScienceIdentifyThreatOfficerTaskDraft = OfficerTaskDraftBase & {
     threatId: string;
 };
 
+type EngineerDeployShieldOfficerTaskDraft = OfficerTaskDraftBase & {
+    kind: typeof OFFICER_TASK_KIND.ENGINEER_DEPLOY_SHIELD;
+    role: typeof OFFICER_ROLE.ENGINEER;
+
+    sourceCommandId: EngineerDeployShieldCommandId;
+
+    shieldZone: LaserTargetZone;
+};
+
 type WeaponsPointDefenseOfficerTaskDraft = OfficerTaskDraftBase & {
     kind: typeof OFFICER_TASK_KIND.WEAPONS_POINT_DEFENSE;
     role: typeof OFFICER_ROLE.WEAPONS;
@@ -122,6 +138,7 @@ export type OfficerTaskDraft =
     | CommsRequestDockingOfficerTaskDraft
     | SciencePlotCourseOfficerTaskDraft
     | ScienceIdentifyThreatOfficerTaskDraft
+    | EngineerDeployShieldOfficerTaskDraft
     | WeaponsPointDefenseOfficerTaskDraft
     | HelmDockOfficerTaskDraft
     | HelmFlyToOfficerTaskDraft

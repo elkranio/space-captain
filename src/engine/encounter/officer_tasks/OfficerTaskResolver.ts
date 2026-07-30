@@ -68,6 +68,7 @@ export default class OfficerTaskResolver {
                 return this.resolveWeaponsPointDefenseTask(task);
 
             case OFFICER_TASK_KIND.COMMS_HAIL:
+            case OFFICER_TASK_KIND.ENGINEER_DEPLOY_SHIELD:
             case OFFICER_TASK_KIND.HELM_DOCK:
             case OFFICER_TASK_KIND.HELM_JUMP:
                 return undefined;

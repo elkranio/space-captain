@@ -1,9 +1,14 @@
 // src/engine/encounter/officer_tasks/create_officer_task_draft.ts
 
 import { OFFICER_TASK_BASE_DURATION_MS } from '../../content/rules/officer_tasks';
+import type { LaserTargetZone } from '../../defs/laser';
 import { OFFICER_ROLE } from '../../defs/officer';
 import type { PointDefenseBeamBand } from '../../defs/point_defense';
-import { ENCOUNTER_OFFICER_COMMAND_ID, type WeaponsPointDefenseCommandId } from '../model/command';
+import {
+    ENCOUNTER_OFFICER_COMMAND_ID,
+    type EngineerDeployShieldCommandId,
+    type WeaponsPointDefenseCommandId,
+} from '../model/command';
 import { OFFICER_TASK_KIND, type OfficerTaskDraft } from '../model/officer_task';
 
 export function createCommsHailTask(targetAnchorId: string): OfficerTaskDraft {
@@ -68,6 +73,25 @@ export function createScienceIdentifyThreatTask(threatId: string): OfficerTaskDr
         showProgress: true,
 
         durationMs: OFFICER_TASK_BASE_DURATION_MS.SCIENCE_IDENTIFY_THREAT,
+    };
+}
+
+export function createEngineerDeployShieldTask(
+    sourceCommandId: EngineerDeployShieldCommandId,
+    shieldZone: LaserTargetZone,
+): OfficerTaskDraft {
+    return {
+        kind: OFFICER_TASK_KIND.ENGINEER_DEPLOY_SHIELD,
+        role: OFFICER_ROLE.ENGINEER,
+
+        sourceCommandId,
+
+        shieldZone,
+
+        label: `SHIELD ${shieldZone.toUpperCase()}`,
+        showProgress: true,
+
+        durationMs: OFFICER_TASK_BASE_DURATION_MS.ENGINEER_DEPLOY_SHIELD,
     };
 }
 

@@ -285,6 +285,26 @@ export default class EncounterStateStore {
         };
     }
 
+    public spendShieldGeneratorCharge(): ShieldGeneratorState {
+        const shieldGenerator = this.state.combat.shieldGenerator;
+
+        if (!shieldGenerator) {
+            throw new Error('Cannot spend shield-generator charge: generator not installed');
+        }
+
+        if (shieldGenerator.charges <= 0) {
+            throw new Error('Cannot spend shield-generator charge: no charges remaining');
+        }
+
+        shieldGenerator.charges -= 1;
+
+        // Текущий progress последовательной регенерации
+        // не сбрасывается при расходе ещё одного charge.
+        return {
+            ...shieldGenerator,
+        };
+    }
+
     public spendPointDefenseCharge(): number {
         const pointDefense = this.state.combat.pointDefense;
 
