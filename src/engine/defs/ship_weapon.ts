@@ -25,6 +25,7 @@ export const SHIP_WEAPON_PHASE = {
     TARGETING: 'targeting',
     CHARGING: 'charging',
     CHANNELING: 'channeling',
+    DISPENSING: 'dispensing',
     COOLDOWN: 'cooldown',
 } as const;
 

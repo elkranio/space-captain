@@ -14,6 +14,7 @@ import type {
     MissileCombatProjectileState,
     SpamChannelOutcome,
     SpamChannelState,
+    StickyMineState,
     ThreatIdentificationResult,
 } from './combat';
 import type { OfficerTaskState } from './officer_task';
@@ -45,6 +46,8 @@ export const ENCOUNTER_EVENT = {
     LASER_FIRED: 'laser_fired',
     SPAM_CHANNEL_STARTED: 'spam_channel_started',
     SPAM_CHANNEL_ENDED: 'spam_channel_ended',
+    STICKY_MINE_ATTACHED: 'sticky_mine_attached',
+    STICKY_MINE_DETONATED: 'sticky_mine_detonated',
 } as const;
 
 export const OFFICER_TASK_OUTCOME = {
@@ -241,6 +244,20 @@ export type MissileImpactedPlayerShipEvent = {
     damage: number;
 };
 
+export type StickyMineAttachedEvent = {
+    type: typeof ENCOUNTER_EVENT.STICKY_MINE_ATTACHED;
+
+    mine: StickyMineState;
+};
+
+export type StickyMineDetonatedEvent = {
+    type: typeof ENCOUNTER_EVENT.STICKY_MINE_DETONATED;
+
+    mine: StickyMineState;
+
+    damage: number;
+};
+
 export type LaserAttackStartedEvent = {
     type: typeof ENCOUNTER_EVENT.LASER_ATTACK_STARTED;
 
@@ -295,6 +312,8 @@ export type EncounterEvent =
     | PlayerShipTargetingDetectedEvent
     | MissileLaunchedEvent
     | MissileImpactedPlayerShipEvent
+    | StickyMineAttachedEvent
+    | StickyMineDetonatedEvent
     | LaserAttackStartedEvent
     | LaserFiredEvent
     | SpamChannelStartedEvent

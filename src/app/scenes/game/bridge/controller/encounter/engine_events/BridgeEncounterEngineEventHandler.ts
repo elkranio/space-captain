@@ -215,6 +215,13 @@ export default class BridgeEncounterEngineEventHandler {
                 this.eventBus.emit(BRIDGE_EVENT.MISSILE_TARGETING_WARNING_STARTED);
                 return;
 
+            case ENCOUNTER_EVENT.STICKY_MINE_ATTACHED:
+                this.eventBus.emit(
+                    BRIDGE_EVENT
+                        .MISSILE_TARGETING_WARNING_CLEARED,
+                );
+                return;
+
             case ENCOUNTER_EVENT.MISSILE_LAUNCHED:
                 this.eventBus.emit(BRIDGE_EVENT.MISSILE_TARGETING_WARNING_CLEARED);
 
@@ -272,6 +279,12 @@ export default class BridgeEncounterEngineEventHandler {
                 });
 
                 this.handlePlayerShipDamaged(event.damage);
+                return;
+
+            case ENCOUNTER_EVENT.STICKY_MINE_DETONATED:
+                this.handlePlayerShipDamaged(
+                    event.damage,
+                );
                 return;
 
             case ENCOUNTER_EVENT.LASER_FIRED:

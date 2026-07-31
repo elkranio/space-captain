@@ -16,6 +16,8 @@ import {
     type MissileLauncherState,
     type SpamProjectorDefinition,
     type SpamProjectorState,
+    type StickyMineDispenserDefinition,
+    type StickyMineDispenserState,
     type ShipWeaponDefinition,
     type ShipWeaponState,
 } from '../../defs/ship_weapon';
@@ -30,6 +32,7 @@ import {
     type MissileCombatProjectileState,
     type SpamChannelOutcome,
     type SpamChannelState,
+    type StickyMineState,
 } from '../model/combat';
 import { ENCOUNTER_EVENT, type EncounterEvent } from '../model/event';
 import type { EncounterState } from '../model/state';
@@ -66,6 +69,7 @@ export default class CombatRunner {
     private nextProjectileId = 1;
     private nextLaserAttackId = 1;
     private nextSpamChannelId = 1;
+    private nextStickyMineId = 1;
 
     // Общая последовательность коротких обозначений угроз:
     // M1, L2, M3, L4.
@@ -88,10 +92,11 @@ export default class CombatRunner {
     }
 
     public step(deltaMs: number): void {
-        // Существующие projectiles двигаются до оружия,
-        // чтобы созданный в этом step projectile
-        // не получил тот же deltaMs повторно.
+        // Существующие угрозы двигаются до оружия,
+        // чтобы созданная в этом step угроза
+        // не получила тот же deltaMs повторно.
         this.advanceProjectiles(deltaMs);
+        this.advanceStickyMines(deltaMs);
 
         this.startEnemyWeaponTargeting();
         this.advanceWeapons(deltaMs);
@@ -200,7 +205,8 @@ export default class CombatRunner {
             return (
                 weapon.phase === SHIP_WEAPON_PHASE.TARGETING ||
                 weapon.phase === SHIP_WEAPON_PHASE.CHARGING ||
-                weapon.phase === SHIP_WEAPON_PHASE.CHANNELING
+                weapon.phase === SHIP_WEAPON_PHASE.CHANNELING ||
+                weapon.phase === SHIP_WEAPON_PHASE.DISPENSING
             );
         });
     }
@@ -221,8 +227,7 @@ export default class CombatRunner {
                 return weapon.activeChannelId === null;
 
             case SHIP_WEAPON_KIND.STICKY_MINE_DISPENSER:
-                // Lifecycle подключается следующим атомом.
-                return false;
+                return true;
         }
     }
 
@@ -249,6 +254,10 @@ export default class CombatRunner {
                         this.advanceWeaponChanneling(actor, weapon, deltaMs);
                         break;
 
+                    case SHIP_WEAPON_PHASE.DISPENSING:
+                        this.advanceWeaponDispensing(actor, weapon, deltaMs);
+                        break;
+
                     case SHIP_WEAPON_PHASE.COOLDOWN:
                         this.advanceWeaponCooldown(weapon, deltaMs);
                         break;
@@ -262,16 +271,36 @@ export default class CombatRunner {
         weapon: ShipWeaponState,
         deltaMs: number,
     ): void {
-        weapon.phaseElapsedMs += deltaMs;
+        const elapsedMs =
+            weapon.phaseElapsedMs + deltaMs;
 
-        if (weapon.phaseElapsedMs < SHIP_WEAPON_TARGETING_DURATION_MS) {
+        if (
+            elapsedMs <
+            SHIP_WEAPON_TARGETING_DURATION_MS
+        ) {
+            weapon.phaseElapsedMs = elapsedMs;
             return;
         }
 
-        this.completeWeaponTargeting(actor, weapon);
+        const targetingOverflowMs =
+            elapsedMs -
+            SHIP_WEAPON_TARGETING_DURATION_MS;
+
+        weapon.phaseElapsedMs =
+            SHIP_WEAPON_TARGETING_DURATION_MS;
+
+        this.completeWeaponTargeting(
+            actor,
+            weapon,
+            targetingOverflowMs,
+        );
     }
 
-    private completeWeaponTargeting(actor: ShipEncounterActorState, weapon: ShipWeaponState): void {
+    private completeWeaponTargeting(
+        actor: ShipEncounterActorState,
+        weapon: ShipWeaponState,
+        targetingOverflowMs: number,
+    ): void {
         switch (weapon.kind) {
             case SHIP_WEAPON_KIND.MISSILE_LAUNCHER:
                 this.launchMissile(actor, weapon);
@@ -286,10 +315,12 @@ export default class CombatRunner {
                 return;
 
             case SHIP_WEAPON_KIND.STICKY_MINE_DISPENSER:
-                throw new Error(
-                    'Sticky-mine dispenser lifecycle is not enabled: ' +
-                        actor.id + '/' + weapon.id,
+                this.startStickyMineDispensing(
+                    actor,
+                    weapon,
+                    targetingOverflowMs,
                 );
+                return;
         }
     }
 
@@ -309,6 +340,12 @@ export default class CombatRunner {
             case SHIP_WEAPON_KIND.SPAM_PROJECTOR:
                 throw new Error(
                     `Spam projector cannot enter charging phase: ` +
+                        `${actor.id}/${weapon.id}`,
+                );
+
+            case SHIP_WEAPON_KIND.STICKY_MINE_DISPENSER:
+                throw new Error(
+                    `Sticky-mine dispenser cannot enter charging phase: ` +
                         `${actor.id}/${weapon.id}`,
                 );
         }
@@ -335,7 +372,35 @@ export default class CombatRunner {
             case SHIP_WEAPON_KIND.SPAM_PROJECTOR:
                 this.advanceSpamChanneling(actor, weapon, deltaMs);
                 return;
+
+            case SHIP_WEAPON_KIND.STICKY_MINE_DISPENSER:
+                throw new Error(
+                    `Sticky-mine dispenser cannot enter channeling phase: ` +
+                        `${actor.id}/${weapon.id}`,
+                );
         }
+    }
+
+    private advanceWeaponDispensing(
+        actor: ShipEncounterActorState,
+        weapon: ShipWeaponState,
+        deltaMs: number,
+    ): void {
+        if (
+            weapon.kind !==
+            SHIP_WEAPON_KIND.STICKY_MINE_DISPENSER
+        ) {
+            throw new Error(
+                `Only sticky-mine dispenser can enter dispensing phase: ` +
+                    `${actor.id}/${weapon.id}/${weapon.kind}`,
+            );
+        }
+
+        this.advanceStickyMineDispensing(
+            actor,
+            weapon,
+            deltaMs,
+        );
     }
 
     private advanceWeaponCooldown(weapon: ShipWeaponState, deltaMs: number): void {
@@ -349,6 +414,13 @@ export default class CombatRunner {
 
         weapon.phase = SHIP_WEAPON_PHASE.READY;
         weapon.phaseElapsedMs = 0;
+
+        if (
+            weapon.kind ===
+            SHIP_WEAPON_KIND.STICKY_MINE_DISPENSER
+        ) {
+            weapon.dispensedMineCount = 0;
+        }
     }
 
     private getWeaponDefinition(weapon: ShipWeaponState): ShipWeaponDefinition {
@@ -380,6 +452,25 @@ export default class CombatRunner {
             throw new Error(
                 `Spam projector kind does not match definition: ` +
                     `${projector.id}/${projector.weaponId}`,
+            );
+        }
+
+        return definition;
+    }
+
+    private getStickyMineDispenserDefinition(
+        dispenser: StickyMineDispenserState,
+    ): StickyMineDispenserDefinition {
+        const definition =
+            SHIP_WEAPONS[dispenser.weaponId];
+
+        if (
+            definition.kind !==
+            SHIP_WEAPON_KIND.STICKY_MINE_DISPENSER
+        ) {
+            throw new Error(
+                `Sticky-mine dispenser kind does not match definition: ` +
+                    `${dispenser.id}/${dispenser.weaponId}`,
             );
         }
 
@@ -689,6 +780,207 @@ export default class CombatRunner {
 
     // #endregion
 
+    // #region Sticky mines
+
+    private startStickyMineDispensing(
+        actor: ShipEncounterActorState,
+        dispenser: StickyMineDispenserState,
+        targetingOverflowMs: number,
+    ): void {
+        dispenser.phase =
+            SHIP_WEAPON_PHASE.DISPENSING;
+        dispenser.phaseElapsedMs = 0;
+        dispenser.dispensedMineCount = 0;
+
+        this.attachStickyMine(
+            actor,
+            dispenser,
+            targetingOverflowMs,
+        );
+
+        this.advanceStickyMineDispensing(
+            actor,
+            dispenser,
+            targetingOverflowMs,
+        );
+    }
+
+    private advanceStickyMineDispensing(
+        actor: ShipEncounterActorState,
+        dispenser: StickyMineDispenserState,
+        deltaMs: number,
+    ): void {
+        const definition =
+            this.getStickyMineDispenserDefinition(
+                dispenser,
+            );
+
+        dispenser.phaseElapsedMs += deltaMs;
+
+        while (
+            dispenser.dispensedMineCount <
+                definition.burstSize &&
+            dispenser.phaseElapsedMs >=
+                definition.launchIntervalMs
+        ) {
+            dispenser.phaseElapsedMs -=
+                definition.launchIntervalMs;
+
+            this.attachStickyMine(
+                actor,
+                dispenser,
+                dispenser.phaseElapsedMs,
+            );
+        }
+
+        if (
+            dispenser.dispensedMineCount <
+            definition.burstSize
+        ) {
+            return;
+        }
+
+        const cooldownElapsedMs =
+            dispenser.phaseElapsedMs;
+
+        dispenser.phase =
+            SHIP_WEAPON_PHASE.COOLDOWN;
+        dispenser.phaseElapsedMs = 0;
+
+        this.advanceWeaponCooldown(
+            dispenser,
+            cooldownElapsedMs,
+        );
+    }
+
+    private attachStickyMine(
+        actor: ShipEncounterActorState,
+        dispenser: StickyMineDispenserState,
+        ageMs: number,
+    ): void {
+        const definition =
+            this.getStickyMineDispenserDefinition(
+                dispenser,
+            );
+
+        if (
+            dispenser.dispensedMineCount >=
+            definition.burstSize
+        ) {
+            throw new Error(
+                `Cannot exceed sticky-mine burst size: ` +
+                    `${actor.id}/${dispenser.id}/${definition.burstSize}`,
+            );
+        }
+
+        const mine: StickyMineState = {
+            id: this.createStickyMineId(),
+
+            sourceActorId: actor.id,
+            sourceWeaponId: dispenser.id,
+
+            timeToDetonationMs: Math.max(
+                0,
+                definition.fuseDurationMs -
+                    ageMs,
+            ),
+            initialTimeToDetonationMs:
+                definition.fuseDurationMs,
+
+            damage: definition.damage,
+        };
+
+        dispenser.dispensedMineCount += 1;
+
+        this.state.combat.stickyMines.push(
+            mine,
+        );
+
+        this.emit({
+            type:
+                ENCOUNTER_EVENT
+                    .STICKY_MINE_ATTACHED,
+
+            mine: {
+                ...mine,
+            },
+        });
+
+        if (mine.timeToDetonationMs > 0) {
+            return;
+        }
+
+        this.resolveStickyMineDetonation(
+            this.state.combat.stickyMines.length -
+                1,
+            mine,
+        );
+    }
+
+    private advanceStickyMines(
+        deltaMs: number,
+    ): void {
+        let index = 0;
+
+        while (
+            index <
+            this.state.combat.stickyMines.length
+        ) {
+            const mine =
+                this.state.combat
+                    .stickyMines[index];
+
+            mine.timeToDetonationMs =
+                Math.max(
+                    0,
+                    mine.timeToDetonationMs -
+                        deltaMs,
+                );
+
+            if (
+                mine.timeToDetonationMs > 0
+            ) {
+                index += 1;
+                continue;
+            }
+
+            this.resolveStickyMineDetonation(
+                index,
+                mine,
+            );
+        }
+    }
+
+    private resolveStickyMineDetonation(
+        index: number,
+        mine: StickyMineState,
+    ): void {
+        const mineSnapshot: StickyMineState = {
+            ...mine,
+
+            timeToDetonationMs: 0,
+        };
+
+        this.state.combat.stickyMines.splice(
+            index,
+            1,
+        );
+
+        this.emit({
+            type:
+                ENCOUNTER_EVENT
+                    .STICKY_MINE_DETONATED,
+
+            mine: mineSnapshot,
+
+            damage: mine.damage,
+        });
+
+        this.interruptRandomOfficerTask();
+    }
+
+    // #endregion
+
     // #region Projectiles
 
     private advanceProjectiles(deltaMs: number): void {
@@ -757,6 +1049,15 @@ export default class CombatRunner {
         const id = `spam_channel_${this.nextSpamChannelId}`;
 
         this.nextSpamChannelId += 1;
+
+        return id;
+    }
+
+    private createStickyMineId(): string {
+        const id =
+            `sticky_mine_${this.nextStickyMineId}`;
+
+        this.nextStickyMineId += 1;
 
         return id;
     }
