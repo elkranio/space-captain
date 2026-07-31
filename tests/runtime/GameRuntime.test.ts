@@ -2,6 +2,10 @@
 
 import { describe, expect, it } from 'vitest';
 import { GameRuntime } from '../../src/app/runtime/GameRuntime';
+import {
+    SHIP_DRIVE_ID,
+    SHIP_DRIVE_STATUS,
+} from '../../src/engine/defs/ship_drive';
 
 describe('GameRuntime player ship hull', () => {
     it('creates a new run with full player ship state', () => {
@@ -10,6 +14,15 @@ describe('GameRuntime player ship hull', () => {
         expect(runtime.getCurrentRun().player.ship).toEqual({
             hull: 3,
             maxHull: 3,
+
+            drive: {
+                id: 'drive_player_00',
+                driveId:
+                    SHIP_DRIVE_ID.BASIC_00,
+
+                status:
+                    SHIP_DRIVE_STATUS.ONLINE,
+            },
 
             pointDefense: {
                 charges: 4,
@@ -47,6 +60,15 @@ describe('GameRuntime player ship hull', () => {
             hull: 0,
             maxHull: 3,
 
+            drive: {
+                id: 'drive_player_00',
+                driveId:
+                    SHIP_DRIVE_ID.BASIC_00,
+
+                status:
+                    SHIP_DRIVE_STATUS.ONLINE,
+            },
+
             pointDefense: {
                 charges: 4,
                 maxCharges: 4,
@@ -74,6 +96,32 @@ describe('GameRuntime player ship hull', () => {
         expect(() => {
             runtime.damagePlayerShipHull(-1);
         }).toThrow('Player ship hull damage must be positive: -1');
+    });
+});
+
+describe('GameRuntime player drive', () => {
+    it('updates persistent drive status without replacing the installed drive', () => {
+        const runtime = new GameRuntime();
+
+        runtime.setPlayerShipDriveState({
+            id: 'drive_player_00',
+            driveId:
+                SHIP_DRIVE_ID.BASIC_00,
+
+            status:
+                SHIP_DRIVE_STATUS.DISABLED,
+        });
+
+        expect(
+            runtime.getCurrentRun().player.ship.drive,
+        ).toEqual({
+            id: 'drive_player_00',
+            driveId:
+                SHIP_DRIVE_ID.BASIC_00,
+
+            status:
+                SHIP_DRIVE_STATUS.DISABLED,
+        });
     });
 });
 

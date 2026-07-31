@@ -57,7 +57,11 @@ export default class OfficerTaskRunner {
         this.emit = emit;
         this.completeTimedTasksImmediately = completeTimedTasksImmediately;
 
-        this.taskResolver = new OfficerTaskResolver(this.stateStore, purgeSpamChannel);
+        this.taskResolver = new OfficerTaskResolver(
+            this.stateStore,
+            purgeSpamChannel,
+            this.emit,
+        );
 
         this.performanceResolver = new OfficerPerformanceResolver(this.stateStore);
 

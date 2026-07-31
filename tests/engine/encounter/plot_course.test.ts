@@ -1,5 +1,6 @@
 // tests/engine/encounter/plot_course.test.ts
 
+import { createShipDriveFixture } from '../../fixtures/engine/ship_drive_fixtures';
 import { describe, expect, it } from 'vitest';
 import { OFFICER_ROLE } from '../../../src/engine/defs/officer';
 import { PLAYER_SPACE_NAVIGATION_KIND } from '../../../src/engine/defs/player_location';
@@ -27,6 +28,7 @@ describe('PLOT_COURSE', () => {
         const targetNodeId = 'node_destination';
 
         const engine = new EncounterEngine({
+            drive: createShipDriveFixture(),
             node,
 
             navigation: {

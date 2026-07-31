@@ -1,6 +1,11 @@
 // src/engine/encounter/officer_tasks/OfficerTaskResolver.ts
 
-import { OFFICER_TASK_RESULT_KIND, type OfficerTaskResult } from '../model/event';
+import {
+    ENCOUNTER_EVENT,
+    OFFICER_TASK_RESULT_KIND,
+    type EncounterEvent,
+    type OfficerTaskResult,
+} from '../model/event';
 import { OFFICER_TASK_KIND, type OfficerTaskState } from '../model/officer_task';
 import EncounterStateStore from '../state/EncounterStateStore';
 
@@ -57,6 +62,7 @@ export default class OfficerTaskResolver {
     constructor(
         private readonly stateStore: EncounterStateStore,
         private readonly purgeSpamChannel: (channelId: string) => boolean,
+        private readonly emit: (event: EncounterEvent) => void,
     ) {}
 
     public resolve(task: OfficerTaskState): OfficerTaskResult | undefined {
@@ -80,6 +86,20 @@ export default class OfficerTaskResolver {
 
             case OFFICER_TASK_KIND.ENGINEER_DEPLOY_SHIELD:
                 return this.resolveEngineerDeployShieldTask(task);
+
+            case OFFICER_TASK_KIND.ENGINEER_REPAIR_DRIVE: {
+                const drive =
+                    this.stateStore.repairPlayerDrive();
+
+                this.emit({
+                    type:
+                        ENCOUNTER_EVENT.PLAYER_SHIP_DRIVE_STATE_CHANGED,
+
+                    drive,
+                });
+
+                return undefined;
+            }
 
             case OFFICER_TASK_KIND.WEAPONS_POINT_DEFENSE:
                 return this.resolveWeaponsPointDefenseTask(task);

@@ -111,6 +111,23 @@ export function createEngineerDeployShieldTask(
     };
 }
 
+export function createEngineerRepairDriveTask(): OfficerTaskDraft {
+    return {
+        kind:
+            OFFICER_TASK_KIND.ENGINEER_REPAIR_DRIVE,
+        role: OFFICER_ROLE.ENGINEER,
+
+        sourceCommandId:
+            ENCOUNTER_OFFICER_COMMAND_ID.ENGINEER_REPAIR_DRIVE,
+
+        label: 'REPAIR ENGINE',
+        showProgress: true,
+
+        durationMs:
+            OFFICER_TASK_BASE_DURATION_MS.ENGINEER_REPAIR_DRIVE,
+    };
+}
+
 export function createWeaponsPointDefenseTask(
     sourceCommandId: WeaponsPointDefenseCommandId,
     threatId: string,

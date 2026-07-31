@@ -1,5 +1,6 @@
 // tests/engine/encounter/laser_task_interruption.test.ts
 
+import { createShipDriveFixture } from '../../fixtures/engine/ship_drive_fixtures';
 import { describe, expect, it } from 'vitest';
 import {
     SHIP_WEAPONS,
@@ -148,6 +149,7 @@ function createLaserEngine(randomValues: number[]) {
     let randomIndex = 0;
 
     const engine = new EncounterEngine({
+        drive: createShipDriveFixture(),
         node,
 
         navigation: {

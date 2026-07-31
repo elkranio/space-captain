@@ -1,5 +1,6 @@
 // tests/engine/encounter/request_docking.test.ts
 
+import { createShipDriveFixture } from '../../fixtures/engine/ship_drive_fixtures';
 import { describe, expect, it } from 'vitest';
 import { OFFICER_ROLE } from '../../../src/engine/defs/officer';
 import { PLAYER_SPACE_NAVIGATION_KIND } from '../../../src/engine/defs/player_location';
@@ -23,6 +24,7 @@ describe('REQUEST_DOCKING', () => {
         const { node, stationId, stationName } = createSingleStationNodeFixture();
 
         const engine = new EncounterEngine({
+            drive: createShipDriveFixture(),
             node,
 
             navigation: {

@@ -4,6 +4,7 @@ import { ENCOUNTER_OFFICER_COMMAND_ID, type EncounterOfficerCommandId, type Offi
 import type { OfficerCommandHandler } from '../model/officer_command_handler';
 import { commsHailCommandHandler } from './handlers/comms_hail_command_handler';
 import { commsRequestDockingCommandHandler } from './handlers/comms_request_docking_command_handler';
+import { engineerRepairDriveCommandHandler } from './handlers/engineer_repair_drive_command_handler';
 import {
     engineerDeployShieldCenterCommandHandler,
     engineerDeployShieldLeftCommandHandler,
@@ -36,6 +37,8 @@ const OFFICER_COMMAND_HANDLER_BY_ID = {
     [ENCOUNTER_OFFICER_COMMAND_ID.ENGINEER_DEPLOY_SHIELD_CENTER]: engineerDeployShieldCenterCommandHandler,
 
     [ENCOUNTER_OFFICER_COMMAND_ID.ENGINEER_DEPLOY_SHIELD_RIGHT]: engineerDeployShieldRightCommandHandler,
+
+    [ENCOUNTER_OFFICER_COMMAND_ID.ENGINEER_REPAIR_DRIVE]: engineerRepairDriveCommandHandler,
 
     [ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_RED_BEAM]: weaponsFireRedBeamCommandHandler,
 

@@ -21,6 +21,9 @@ const COMMAND_DEF = {
         kind: OFFICER_COMMAND_TARGET_KIND.THREAT,
     },
 
+    requiresOnlineDrive: false,
+
+
     requiresIdleBridge: false,
 } satisfies OfficerCommandDef;
 

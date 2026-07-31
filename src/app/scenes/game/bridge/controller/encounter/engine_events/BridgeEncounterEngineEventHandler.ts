@@ -119,6 +119,14 @@ export default class BridgeEncounterEngineEventHandler {
                 return;
             }
 
+            case ENCOUNTER_EVENT.PLAYER_SHIP_DRIVE_STATE_CHANGED:
+                this.gameRuntime.setPlayerShipDriveState(
+                    event.drive,
+                );
+
+                // UI status добавим отдельным атомом.
+                return;
+
             case ENCOUNTER_EVENT.OFFICER_TASK_STARTED:
                 this.eventBus.emit(BRIDGE_EVENT.OFFICER_ACTIVITY_STARTED, {
                     role: event.task.role,

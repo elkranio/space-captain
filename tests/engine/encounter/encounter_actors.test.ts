@@ -1,15 +1,13 @@
 // tests/engine/encounter/encounter_actors.test.ts
 
+import { createShipDriveFixture } from '../../fixtures/engine/ship_drive_fixtures';
 import { describe, expect, it } from 'vitest';
 import { SHIPS } from '../../../src/engine/content/catalogs/ships';
 import { SHIP_NODE_ACTOR_PRESET_ID } from '../../../src/engine/content/presets/ship_node_actors';
 import { ENCOUNTER_TEAM } from '../../../src/engine/defs/encounter_team';
 import { PLAYER_SPACE_NAVIGATION_KIND } from '../../../src/engine/defs/player_location';
 import { SHIP_ID } from '../../../src/engine/defs/ship';
-import {
-    SHIP_WEAPON_KIND,
-    SHIP_WEAPON_PHASE,
-} from '../../../src/engine/defs/ship_weapon';
+import { SHIP_WEAPON_KIND, SHIP_WEAPON_PHASE } from '../../../src/engine/defs/ship_weapon';
 import { ENCOUNTER_ACTOR_KIND } from '../../../src/engine/encounter/actors/encounter_actor';
 import EncounterEngine from '../../../src/engine/encounter/EncounterEngine';
 import { ENCOUNTER_EVENT } from '../../../src/engine/encounter/model/event';
@@ -31,6 +29,7 @@ describe('encounter actors', () => {
                 anchorId: stationId,
             },
 
+            createShipDriveFixture(),
             createPointDefenseFixture(),
         );
 
@@ -82,6 +81,7 @@ describe('encounter actors', () => {
                 anchorId: stationId,
             },
 
+            createShipDriveFixture(),
             createPointDefenseFixture(),
         );
 
@@ -141,6 +141,7 @@ describe('encounter actors', () => {
         node.actors.push(nodeActor);
 
         const engine = new EncounterEngine({
+            drive: createShipDriveFixture(),
             node,
 
             navigation: {

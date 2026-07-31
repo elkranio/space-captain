@@ -5,6 +5,7 @@ import type { OfficerRole } from '../defs/officer';
 import type { PlayerSpaceNavigationState } from '../defs/player_location';
 import type { PointDefenseState } from '../defs/point_defense';
 import type { ShieldGeneratorState } from '../defs/shield_generator';
+import type { ShipDriveState } from '../defs/ship_drive';
 import { SHIP_WEAPON_KIND, SHIP_WEAPON_PHASE } from '../defs/ship_weapon';
 import type { SpaceNodeState } from '../defs/universe';
 import CombatRunner from './combat/CombatRunner';
@@ -38,6 +39,8 @@ export type EncounterEngineOptions = {
     node: SpaceNodeState;
     navigation: PlayerSpaceNavigationState;
 
+    drive: ShipDriveState;
+
     pointDefense: PointDefenseState;
 
     // undefined означает, что у player ship
@@ -70,6 +73,7 @@ export default class EncounterEngine {
     constructor({
         node,
         navigation,
+        drive,
         pointDefense,
         shieldGenerator,
 
@@ -77,7 +81,14 @@ export default class EncounterEngine {
 
         random = Math.random,
     }: EncounterEngineOptions) {
-        this.stateStore = EncounterStateStore.fromSpaceNode(node, navigation, pointDefense, shieldGenerator);
+        this.stateStore =
+            EncounterStateStore.fromSpaceNode(
+                node,
+                navigation,
+                drive,
+                pointDefense,
+                shieldGenerator,
+            );
 
         const encounterState = this.stateStore.getState();
 
@@ -191,6 +202,12 @@ export default class EncounterEngine {
 
     public getNavigationState(): PlayerSpaceNavigationState {
         return this.stateStore.getNavigationState();
+    }
+
+    public getDriveState(): ShipDriveState {
+        return {
+            ...this.stateStore.getState().drive,
+        };
     }
 
     public getOfficerAvailabilityStates(): OfficerAvailabilityStates {

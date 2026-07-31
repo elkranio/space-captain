@@ -14,6 +14,10 @@ import {
     type PointDefenseState,
 } from '../../defs/point_defense';
 import type { ShieldGeneratorState } from '../../defs/shield_generator';
+import {
+    SHIP_DRIVE_STATUS,
+    type ShipDriveState,
+} from '../../defs/ship_drive';
 import type { ShipId } from '../../defs/ship';
 import type { ShipWeaponState } from '../../defs/ship_weapon';
 import type { SpaceNodeState } from '../../defs/universe';
@@ -61,11 +65,18 @@ export default class EncounterStateStore {
     public static fromSpaceNode(
         node: SpaceNodeState,
         navigation: PlayerSpaceNavigationState,
+        drive: ShipDriveState,
         pointDefense: PointDefenseState,
         shieldGenerator?: ShieldGeneratorState,
     ): EncounterStateStore {
         const store = new EncounterStateStore(
-            createEncounterState(node, navigation, pointDefense, shieldGenerator),
+            createEncounterState(
+                node,
+                navigation,
+                drive,
+                pointDefense,
+                shieldGenerator,
+            ),
         );
 
         for (const actor of node.actors) {
@@ -222,6 +233,31 @@ export default class EncounterStateStore {
         this.state.navigation = {
             kind: PLAYER_SPACE_NAVIGATION_KIND.ANCHORED,
             anchorId: targetAnchorId,
+        };
+    }
+
+    // #endregion
+
+    // #region Player drive
+
+    public repairPlayerDrive(): ShipDriveState {
+        const drive = this.state.drive;
+
+        if (
+            drive.status !==
+            SHIP_DRIVE_STATUS.DISABLED
+        ) {
+            throw new Error(
+                'Cannot repair player drive from status: ' +
+                    drive.status,
+            );
+        }
+
+        drive.status =
+            SHIP_DRIVE_STATUS.ONLINE;
+
+        return {
+            ...drive,
         };
     }
 

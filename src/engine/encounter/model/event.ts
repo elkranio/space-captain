@@ -3,6 +3,7 @@
 import type { CharacterPortraitId } from '../../defs/character';
 import type { PointDefenseBeamBand, PointDefenseShotOutcome } from '../../defs/point_defense';
 import type { ShieldGeneratorState } from '../../defs/shield_generator';
+import type { ShipDriveState } from '../../defs/ship_drive';
 import type { EncounterAnchorState } from '../anchors/encounter_anchor';
 import type { JumpPointEncounterAnchorState } from '../anchors/jump_point/jump_point_encounter_anchor';
 import { LASER_SHOT_OUTCOME } from './combat';
@@ -34,6 +35,7 @@ export const ENCOUNTER_EVENT = {
     OFFICER_TASK_ENDED: 'officer_task_ended',
     PLAYER_POINT_DEFENSE_CHARGE_SPENT: 'player_point_defense_charge_spent',
     PLAYER_SHIELD_GENERATOR_STATE_CHANGED: 'player_shield_generator_state_changed',
+    PLAYER_SHIP_DRIVE_STATE_CHANGED: 'player_ship_drive_state_changed',
     PLAYER_SHIP_TARGETING_DETECTED: 'player_ship_targeting_detected',
     MISSILE_LAUNCHED: 'missile_launched',
     MISSILE_IMPACTED_PLAYER_SHIP: 'missile_impacted_player_ship',
@@ -199,6 +201,13 @@ export type PlayerShieldGeneratorStateChangedEvent = {
     shieldGenerator: ShieldGeneratorState;
 };
 
+export type PlayerShipDriveStateChangedEvent = {
+    type:
+        typeof ENCOUNTER_EVENT.PLAYER_SHIP_DRIVE_STATE_CHANGED;
+
+    drive: ShipDriveState;
+};
+
 export type PlayerShipTargetingDetectedEvent = {
     type: typeof ENCOUNTER_EVENT.PLAYER_SHIP_TARGETING_DETECTED;
 
@@ -269,6 +278,7 @@ export type EncounterEvent =
     | OfficerTaskEndedEvent
     | PlayerPointDefenseChargeSpentEvent
     | PlayerShieldGeneratorStateChangedEvent
+    | PlayerShipDriveStateChangedEvent
     | PlayerShipTargetingDetectedEvent
     | MissileLaunchedEvent
     | MissileImpactedPlayerShipEvent

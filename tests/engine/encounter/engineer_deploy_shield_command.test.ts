@@ -1,5 +1,6 @@
 // tests/engine/encounter/engineer_deploy_shield_command.test.ts
 
+import { createShipDriveFixture } from '../../fixtures/engine/ship_drive_fixtures';
 import { describe, expect, it } from 'vitest';
 import { SHIP_WEAPON_TARGETING_DURATION_MS } from '../../../src/engine/content/catalogs/ship_weapons';
 import { SHIP_NODE_ACTOR_PRESET_ID } from '../../../src/engine/content/presets/ship_node_actors';
@@ -296,6 +297,7 @@ function createLaserEngine({
     node.actors.push(enemy);
 
     const engine = new EncounterEngine({
+        drive: createShipDriveFixture(),
         node,
 
         navigation: {

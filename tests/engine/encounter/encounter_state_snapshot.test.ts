@@ -6,6 +6,7 @@ import { SPACE_ANCHOR_KIND } from '../../../src/engine/defs/universe';
 import { ENCOUNTER_ANCHOR_KIND } from '../../../src/engine/encounter/anchors/encounter_anchor';
 import { createEncounterState } from '../../../src/engine/encounter/state/create_encounter_state';
 import { createPointDefenseFixture } from '../../fixtures/engine/point_defense_fixtures';
+import { createShipDriveFixture } from '../../fixtures/engine/ship_drive_fixtures';
 import { createSingleStationNodeFixture } from '../../fixtures/engine/space_node_fixtures';
 
 describe('encounter state snapshot', () => {
@@ -17,9 +18,18 @@ describe('encounter state snapshot', () => {
             anchorId: stationId,
         } as const;
 
-        const pointDefense = createPointDefenseFixture();
+        const drive =
+            createShipDriveFixture();
 
-        const state = createEncounterState(node, navigation, pointDefense);
+        const pointDefense =
+            createPointDefenseFixture();
+
+        const state = createEncounterState(
+            node,
+            navigation,
+            drive,
+            pointDefense,
+        );
 
         const persistentAnchor = node.anchors[0];
         const encounterAnchor = state.anchors[0];
@@ -33,6 +43,7 @@ describe('encounter state snapshot', () => {
         }
 
         expect(state.navigation).not.toBe(navigation);
+        expect(state.drive).not.toBe(drive);
         expect(state.combat.pointDefense).not.toBe(pointDefense);
 
         expect(encounterAnchor.localPosition).not.toBe(persistentAnchor.localPosition);

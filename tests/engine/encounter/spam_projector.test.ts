@@ -1,5 +1,6 @@
 // tests/engine/encounter/spam_projector.test.ts
 
+import { createShipDriveFixture } from '../../fixtures/engine/ship_drive_fixtures';
 import { describe, expect, it } from 'vitest';
 import {
     SHIP_WEAPONS,
@@ -35,6 +36,7 @@ describe('Spam projector', () => {
         node.actors.push(nodeEnemy);
 
         const engine = new EncounterEngine({
+            drive: createShipDriveFixture(),
             node,
 
             navigation: {

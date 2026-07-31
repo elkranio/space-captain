@@ -2,6 +2,7 @@
 
 import type { PlayerSpaceNavigationState } from '../../defs/player_location';
 import type { SpaceBackgroundId } from '../../defs/space_background';
+import type { ShipDriveState } from '../../defs/ship_drive';
 import type { EncounterActorState } from '../actors/encounter_actor';
 import type { EncounterAnchorState } from '../anchors/encounter_anchor';
 import type { OfficerTaskStates } from './officer_task';
@@ -12,6 +13,8 @@ import type { EncounterCombatState } from './combat';
 export type EncounterState = {
     spaceBackgroundId: SpaceBackgroundId;
     navigation: PlayerSpaceNavigationState;
+
+    drive: ShipDriveState;
 
     combat: EncounterCombatState;
 

@@ -1,5 +1,6 @@
 // tests/engine/encounter/combat_runner.test.ts
 
+import { createShipDriveFixture } from '../../fixtures/engine/ship_drive_fixtures';
 import { describe, expect, it } from 'vitest';
 import {
     SHIP_WEAPONS,
@@ -49,6 +50,7 @@ describe('CombatRunner', () => {
         node.actors.push(nodeEnemy);
 
         const engine = new EncounterEngine({
+            drive: createShipDriveFixture(),
             node,
 
             navigation: {
@@ -239,6 +241,7 @@ describe('CombatRunner', () => {
         node.actors.push(nodeEnemy);
 
         const engine = new EncounterEngine({
+            drive: createShipDriveFixture(),
             node,
 
             navigation: {

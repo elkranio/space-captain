@@ -1,5 +1,6 @@
 // tests/engine/encounter/officer_task_cancellation.test.ts
 
+import { createShipDriveFixture } from '../../fixtures/engine/ship_drive_fixtures';
 import { describe, expect, it } from 'vitest';
 import { LASER_TARGET_ZONE } from '../../../src/engine/defs/laser';
 import { OFFICER_ROLE } from '../../../src/engine/defs/officer';
@@ -63,6 +64,7 @@ function createEngine() {
     const { node, stationId } = createSingleStationNodeFixture();
 
     const engine = new EncounterEngine({
+        drive: createShipDriveFixture(),
         node,
 
         navigation: {

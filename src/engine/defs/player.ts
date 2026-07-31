@@ -3,11 +3,14 @@
 import type { PlayerLocationState } from './player_location';
 import type { PointDefenseState } from './point_defense';
 import type { ShieldGeneratorState } from './shield_generator';
+import type { ShipDriveState } from './ship_drive';
 import type { ShipWeaponState } from './ship_weapon';
 
 export type PlayerShipState = {
     hull: number;
     maxHull: number;
+
+    drive: ShipDriveState;
 
     pointDefense: PointDefenseState;
     shieldGenerator: ShieldGeneratorState;

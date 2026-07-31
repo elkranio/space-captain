@@ -24,6 +24,9 @@ const COMMAND_DEF = {
         scope: ENCOUNTER_ANCHOR_TARGET_SCOPE.CURRENT_ANCHOR,
     },
 
+    requiresOnlineDrive: false,
+
+
     requiresIdleBridge: false,
 } satisfies OfficerCommandDef;
 

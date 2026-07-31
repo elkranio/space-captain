@@ -48,6 +48,9 @@ function createEngineerDeployShieldCommandHandler(
             kind: OFFICER_COMMAND_TARGET_KIND.NONE,
         },
 
+        requiresOnlineDrive: false,
+
+
         requiresIdleBridge: false,
     } satisfies OfficerCommandDef;
 

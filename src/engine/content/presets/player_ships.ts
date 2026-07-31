@@ -1,5 +1,10 @@
 // src/engine/content/presets/player_ships.ts
 
+import {
+    SHIP_DRIVE_ID,
+    type ShipDriveId,
+} from '../../defs/ship_drive';
+
 export const PLAYER_SHIP_PRESET_ID = {
     STARTER_00: 'starter_00',
 } as const;
@@ -10,6 +15,8 @@ export type PlayerShipPreset = {
     id: PlayerShipPresetId;
 
     maxHull: number;
+
+    driveId: ShipDriveId;
 
     pointDefense: {
         maxCharges: number;
@@ -26,6 +33,9 @@ export const PLAYER_SHIP_PRESETS = {
         id: PLAYER_SHIP_PRESET_ID.STARTER_00,
 
         maxHull: 3,
+
+        driveId:
+            SHIP_DRIVE_ID.BASIC_00,
 
         pointDefense: {
             maxCharges: 4,

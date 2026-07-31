@@ -14,6 +14,8 @@ export const ENCOUNTER_OFFICER_COMMAND_ID = {
     ENGINEER_DEPLOY_SHIELD_CENTER: 'engineer_deploy_shield_center',
     ENGINEER_DEPLOY_SHIELD_RIGHT: 'engineer_deploy_shield_right',
 
+    ENGINEER_REPAIR_DRIVE: 'engineer_repair_drive',
+
     WEAPONS_FIRE_RED_BEAM: 'weapons_fire_red_beam',
     WEAPONS_FIRE_BLUE_BEAM: 'weapons_fire_blue_beam',
 
@@ -101,6 +103,11 @@ export type OfficerCommandDef = {
     role: OfficerRole;
     label: string;
     targeting: OfficerCommandTargeting;
+
+    // Нужен ли рабочий main drive.
+    // Маневровые Helm-команды смогут
+    // явно оставлять это значение false.
+    requiresOnlineDrive: boolean;
 
     // Команду можно начать только тогда,
     // когда на мостике нет активных officer tasks.

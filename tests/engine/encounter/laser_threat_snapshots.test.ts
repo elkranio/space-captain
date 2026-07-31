@@ -1,5 +1,6 @@
 // tests/engine/encounter/laser_threat_snapshots.test.ts
 
+import { createShipDriveFixture } from '../../fixtures/engine/ship_drive_fixtures';
 import { describe, expect, it } from 'vitest';
 import {
     SHIP_WEAPONS,
@@ -102,6 +103,7 @@ function createLaserEngine() {
     node.actors.push(enemy);
 
     const engine = new EncounterEngine({
+        drive: createShipDriveFixture(),
         node,
 
         navigation: {

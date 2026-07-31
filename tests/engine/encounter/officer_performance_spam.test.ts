@@ -1,5 +1,6 @@
 // tests/engine/encounter/officer_performance_spam.test.ts
 
+import { createShipDriveFixture } from '../../fixtures/engine/ship_drive_fixtures';
 import { describe, expect, it } from 'vitest';
 import { SHIP_WEAPON_TARGETING_DURATION_MS } from '../../../src/engine/content/catalogs/ship_weapons';
 import { SHIP_NODE_ACTOR_PRESET_ID } from '../../../src/engine/content/presets/ship_node_actors';
@@ -109,6 +110,7 @@ function createActiveSpamEncounter() {
     );
 
     const engine = new EncounterEngine({
+        drive: createShipDriveFixture(),
         node,
         navigation: {
             kind: PLAYER_SPACE_NAVIGATION_KIND.ANCHORED,

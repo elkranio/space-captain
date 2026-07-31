@@ -8,6 +8,7 @@ import {
 } from '../../engine/defs/player_location';
 import type { RunState } from '../../engine/defs/run';
 import type { ShieldGeneratorState } from '../../engine/defs/shield_generator';
+import type { ShipDriveState } from '../../engine/defs/ship_drive';
 import { SPACE_ANCHOR_KIND, type SpaceAnchorState } from '../../engine/defs/universe';
 import { getCurrentNode } from '../../engine/universe/queries/get_current_node';
 
@@ -113,6 +114,27 @@ export class GameRuntime {
 
         current.charges = next.charges;
         current.chargeRegenerationElapsedMs = next.chargeRegenerationElapsedMs;
+    }
+
+    public setPlayerShipDriveState(next: ShipDriveState): void {
+        const current =
+            this.currentRun.player.ship.drive;
+
+        if (next.id !== current.id) {
+            throw new Error(
+                'Player drive runtime id cannot change: ' +
+                    `${next.id} !== ${current.id}`,
+            );
+        }
+
+        if (next.driveId !== current.driveId) {
+            throw new Error(
+                'Player drive definition cannot change: ' +
+                    `${next.driveId} !== ${current.driveId}`,
+            );
+        }
+
+        current.status = next.status;
     }
 
     public setPlayerSpaceNavigation(navigation: PlayerSpaceNavigationState): void {

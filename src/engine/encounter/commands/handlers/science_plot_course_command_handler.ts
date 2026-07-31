@@ -17,6 +17,9 @@ const COMMAND_DEF = {
         kind: OFFICER_COMMAND_TARGET_KIND.SPACE_NODE,
     },
 
+    requiresOnlineDrive: false,
+
+
     requiresIdleBridge: false,
 } satisfies OfficerCommandDef;
 

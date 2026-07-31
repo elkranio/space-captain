@@ -3,6 +3,7 @@
 import type { PlayerSpaceNavigationState } from '../../defs/player_location';
 import type { PointDefenseState } from '../../defs/point_defense';
 import type { ShieldGeneratorState } from '../../defs/shield_generator';
+import type { ShipDriveState } from '../../defs/ship_drive';
 import { SPACE_ANCHOR_KIND, type SpaceAnchorState, type SpaceNodeState } from '../../defs/universe';
 import { ENCOUNTER_ANCHOR_KIND, type EncounterAnchorState } from '../anchors/encounter_anchor';
 import { DOCKING_CLEARANCE_STATE } from '../anchors/station/station_encounter_anchor';
@@ -11,6 +12,7 @@ import type { EncounterState } from '../model/state';
 export function createEncounterState(
     node: SpaceNodeState,
     navigation: PlayerSpaceNavigationState,
+    drive: ShipDriveState,
     pointDefense: PointDefenseState,
     shieldGenerator?: ShieldGeneratorState,
 ): EncounterState {
@@ -21,6 +23,10 @@ export function createEncounterState(
         // Persistent player state обновляется отдельно.
         navigation: {
             ...navigation,
+        },
+
+        drive: {
+            ...drive,
         },
 
         officerTasks: {},

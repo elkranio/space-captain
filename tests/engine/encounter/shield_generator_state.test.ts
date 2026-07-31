@@ -1,5 +1,6 @@
 // tests/engine/encounter/shield_generator_state.test.ts
 
+import { createShipDriveFixture } from '../../fixtures/engine/ship_drive_fixtures';
 import { describe, expect, it } from 'vitest';
 import { PLAYER_SPACE_NAVIGATION_KIND } from '../../../src/engine/defs/player_location';
 import EncounterEngine from '../../../src/engine/encounter/EncounterEngine';
@@ -20,6 +21,7 @@ describe('Encounter shield generator state', () => {
         };
 
         const engine = new EncounterEngine({
+            drive: createShipDriveFixture(),
             node,
 
             navigation: {
@@ -75,6 +77,7 @@ describe('Encounter shield generator state', () => {
         const { node, stationId } = createSingleStationNodeFixture();
 
         const engine = new EncounterEngine({
+            drive: createShipDriveFixture(),
             node,
 
             navigation: {
