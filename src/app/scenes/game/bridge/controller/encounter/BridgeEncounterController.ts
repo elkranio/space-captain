@@ -104,6 +104,7 @@ export default class BridgeEncounterController {
 
         this.drainEncounterEvents();
         this.syncIncomingMissiles();
+        this.syncStickyMines();
         this.syncLaserThreats();
         this.syncPlayerShield();
 
@@ -321,10 +322,16 @@ export default class BridgeEncounterController {
                 };
             }),
         );
-    
+    }
+
+    private syncStickyMines(): void {
+        if (!this.encounterEngine) {
+            return;
+        }
 
         this.eventBus.emit(
             BRIDGE_EVENT.STICKY_MINES_UPDATED,
+
             this.encounterEngine
                 .getStickyMineSnapshots()
                 .map((snapshot) => {
@@ -333,17 +340,19 @@ export default class BridgeEncounterController {
 
                         remainingTimeToDetonationMs:
                             snapshot.mine.timeToDetonationMs,
+
                         initialTimeToDetonationMs:
                             snapshot.mine.initialTimeToDetonationMs,
 
                         isBeingCleared:
                             snapshot.isBeingCleared,
+
                         isNextClearTarget:
                             snapshot.isNextClearTarget,
                     };
                 }),
         );
-}
+    }
 
     private syncLaserThreats(): void {
         if (!this.encounterEngine) {
