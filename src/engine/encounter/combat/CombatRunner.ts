@@ -14,6 +14,8 @@ import {
     type LaserWeaponDefinition,
     type LaserWeaponState,
     type MissileLauncherState,
+    type SpamProjectorDefinition,
+    type SpamProjectorState,
     type ShipWeaponDefinition,
     type ShipWeaponState,
 } from '../../defs/ship_weapon';
@@ -22,9 +24,12 @@ import {
     COMBAT_PROJECTILE_KIND,
     COMBAT_TARGET_KIND,
     LASER_SHOT_OUTCOME,
+    SPAM_CHANNEL_OUTCOME,
     THREAT_IDENTIFICATION_STATUS,
     type LaserAttackState,
     type MissileCombatProjectileState,
+    type SpamChannelOutcome,
+    type SpamChannelState,
 } from '../model/combat';
 import { ENCOUNTER_EVENT, type EncounterEvent } from '../model/event';
 import type { EncounterState } from '../model/state';
@@ -60,6 +65,7 @@ export default class CombatRunner {
 
     private nextProjectileId = 1;
     private nextLaserAttackId = 1;
+    private nextSpamChannelId = 1;
 
     // Общая последовательность коротких обозначений угроз:
     // M1, L2, M3, L4.
@@ -89,6 +95,62 @@ export default class CombatRunner {
 
         this.startEnemyWeaponTargeting();
         this.advanceWeapons(deltaMs);
+    }
+
+    public getSpamChannels(): SpamChannelState[] {
+        const channels: SpamChannelState[] = [];
+
+        for (const actor of this.state.actors) {
+            for (const weapon of actor.weapons) {
+                if (
+                    weapon.kind !== SHIP_WEAPON_KIND.SPAM_PROJECTOR ||
+                    weapon.phase !== SHIP_WEAPON_PHASE.CHANNELING
+                ) {
+                    continue;
+                }
+
+                channels.push(
+                    this.createSpamChannelSnapshot(actor, weapon),
+                );
+            }
+        }
+
+        return channels;
+    }
+
+    public purgeSpamChannel(channelId: string): boolean {
+        for (const actor of this.state.actors) {
+            for (const weapon of actor.weapons) {
+                if (
+                    weapon.kind !== SHIP_WEAPON_KIND.SPAM_PROJECTOR ||
+                    weapon.activeChannelId !== channelId
+                ) {
+                    continue;
+                }
+
+                if (weapon.phase !== SHIP_WEAPON_PHASE.CHANNELING) {
+                    throw new Error(
+                        `Spam projector has active channel outside channeling phase: ` +
+                            `${actor.id}/${weapon.id}/${channelId}/${weapon.phase}`,
+                    );
+                }
+
+                const channel = this.createSpamChannelSnapshot(
+                    actor,
+                    weapon,
+                );
+
+                this.endSpamChannel(
+                    weapon,
+                    channel,
+                    SPAM_CHANNEL_OUTCOME.PURGED,
+                );
+
+                return true;
+            }
+        }
+
+        return false;
     }
 
     // #region Enemy decisions
@@ -137,7 +199,8 @@ export default class CombatRunner {
         return actor.weapons.some((weapon) => {
             return (
                 weapon.phase === SHIP_WEAPON_PHASE.TARGETING ||
-                weapon.phase === SHIP_WEAPON_PHASE.CHARGING
+                weapon.phase === SHIP_WEAPON_PHASE.CHARGING ||
+                weapon.phase === SHIP_WEAPON_PHASE.CHANNELING
             );
         });
     }
@@ -153,6 +216,9 @@ export default class CombatRunner {
 
             case SHIP_WEAPON_KIND.LASER:
                 return true;
+
+            case SHIP_WEAPON_KIND.SPAM_PROJECTOR:
+                return weapon.activeChannelId === null;
         }
     }
 
@@ -173,6 +239,10 @@ export default class CombatRunner {
 
                     case SHIP_WEAPON_PHASE.CHARGING:
                         this.advanceWeaponCharging(actor, weapon, deltaMs);
+                        break;
+
+                    case SHIP_WEAPON_PHASE.CHANNELING:
+                        this.advanceWeaponChanneling(actor, weapon, deltaMs);
                         break;
 
                     case SHIP_WEAPON_PHASE.COOLDOWN:
@@ -206,6 +276,10 @@ export default class CombatRunner {
             case SHIP_WEAPON_KIND.LASER:
                 this.startLaserCharging(actor, weapon);
                 return;
+
+            case SHIP_WEAPON_KIND.SPAM_PROJECTOR:
+                this.startSpamCharging(actor, weapon);
+                return;
         }
     }
 
@@ -220,6 +294,34 @@ export default class CombatRunner {
 
             case SHIP_WEAPON_KIND.LASER:
                 this.advanceLaserCharging(actor, weapon, deltaMs);
+                return;
+
+            case SHIP_WEAPON_KIND.SPAM_PROJECTOR:
+                this.advanceSpamCharging(actor, weapon, deltaMs);
+                return;
+        }
+    }
+
+    private advanceWeaponChanneling(
+        actor: ShipEncounterActorState,
+        weapon: ShipWeaponState,
+        deltaMs: number,
+    ): void {
+        switch (weapon.kind) {
+            case SHIP_WEAPON_KIND.MISSILE_LAUNCHER:
+                throw new Error(
+                    `Missile launcher cannot enter channeling phase: ` +
+                        `${actor.id}/${weapon.id}`,
+                );
+
+            case SHIP_WEAPON_KIND.LASER:
+                throw new Error(
+                    `Laser cannot enter channeling phase: ` +
+                        `${actor.id}/${weapon.id}`,
+                );
+
+            case SHIP_WEAPON_KIND.SPAM_PROJECTOR:
+                this.advanceSpamChanneling(actor, weapon, deltaMs);
                 return;
         }
     }
@@ -252,6 +354,21 @@ export default class CombatRunner {
 
         if (definition.kind !== SHIP_WEAPON_KIND.LASER) {
             throw new Error(`Laser weapon kind does not match definition: ` + `${laser.id}/${laser.weaponId}`);
+        }
+
+        return definition;
+    }
+
+    private getSpamProjectorDefinition(
+        projector: SpamProjectorState,
+    ): SpamProjectorDefinition {
+        const definition = SHIP_WEAPONS[projector.weaponId];
+
+        if (definition.kind !== SHIP_WEAPON_KIND.SPAM_PROJECTOR) {
+            throw new Error(
+                `Spam projector kind does not match definition: ` +
+                    `${projector.id}/${projector.weaponId}`,
+            );
         }
 
         return definition;
@@ -465,6 +582,138 @@ export default class CombatRunner {
 
     // #endregion
 
+    // #region Spam projector
+
+    private startSpamCharging(
+        actor: ShipEncounterActorState,
+        projector: SpamProjectorState,
+    ): void {
+        if (projector.activeChannelId !== null) {
+            throw new Error(
+                `Cannot charge spam projector with active channel: ` +
+                    `${actor.id}/${projector.id}/${projector.activeChannelId}`,
+            );
+        }
+
+        projector.phase = SHIP_WEAPON_PHASE.CHARGING;
+        projector.phaseElapsedMs = 0;
+
+        this.emit({
+            type: ENCOUNTER_EVENT.SPAM_ATTACK_STARTED,
+
+            sourceActorId: actor.id,
+            sourceWeaponId: projector.id,
+        });
+    }
+
+    private advanceSpamCharging(
+        actor: ShipEncounterActorState,
+        projector: SpamProjectorState,
+        deltaMs: number,
+    ): void {
+        const definition = this.getSpamProjectorDefinition(projector);
+
+        projector.phaseElapsedMs += deltaMs;
+
+        if (projector.phaseElapsedMs < definition.chargeDurationMs) {
+            return;
+        }
+
+        this.startSpamChannel(actor, projector);
+    }
+
+    private startSpamChannel(
+        actor: ShipEncounterActorState,
+        projector: SpamProjectorState,
+    ): void {
+        if (projector.activeChannelId !== null) {
+            throw new Error(
+                `Spam projector already has active channel: ` +
+                    `${actor.id}/${projector.id}/${projector.activeChannelId}`,
+            );
+        }
+
+        projector.phase = SHIP_WEAPON_PHASE.CHANNELING;
+        projector.phaseElapsedMs = 0;
+        projector.activeChannelId = this.createSpamChannelId();
+
+        this.emit({
+            type: ENCOUNTER_EVENT.SPAM_CHANNEL_STARTED,
+
+            channel: this.createSpamChannelSnapshot(actor, projector),
+        });
+    }
+
+    private advanceSpamChanneling(
+        actor: ShipEncounterActorState,
+        projector: SpamProjectorState,
+        deltaMs: number,
+    ): void {
+        const definition = this.getSpamProjectorDefinition(projector);
+
+        projector.phaseElapsedMs += deltaMs;
+
+        if (projector.phaseElapsedMs < definition.channelDurationMs) {
+            return;
+        }
+
+        const channel = this.createSpamChannelSnapshot(actor, projector);
+
+        this.endSpamChannel(
+            projector,
+            channel,
+            SPAM_CHANNEL_OUTCOME.EXPIRED,
+        );
+    }
+
+    private endSpamChannel(
+        projector: SpamProjectorState,
+        channel: SpamChannelState,
+        outcome: SpamChannelOutcome,
+    ): void {
+        projector.activeChannelId = null;
+        projector.phase = SHIP_WEAPON_PHASE.COOLDOWN;
+        projector.phaseElapsedMs = 0;
+
+        this.emit({
+            type: ENCOUNTER_EVENT.SPAM_CHANNEL_ENDED,
+
+            channel,
+            outcome,
+        });
+    }
+
+    private createSpamChannelSnapshot(
+        actor: ShipEncounterActorState,
+        projector: SpamProjectorState,
+    ): SpamChannelState {
+        const channelId = projector.activeChannelId;
+
+        if (!channelId) {
+            throw new Error(
+                `Spam projector channel id is missing: ` +
+                    `${actor.id}/${projector.id}/${projector.phase}`,
+            );
+        }
+
+        const definition = this.getSpamProjectorDefinition(projector);
+
+        return {
+            id: channelId,
+
+            sourceActorId: actor.id,
+            sourceWeaponId: projector.id,
+
+            elapsedMs: Math.min(
+                projector.phaseElapsedMs,
+                definition.channelDurationMs,
+            ),
+            durationMs: definition.channelDurationMs,
+        };
+    }
+
+    // #endregion
+
     // #region Projectiles
 
     private advanceProjectiles(deltaMs: number): void {
@@ -525,6 +774,14 @@ export default class CombatRunner {
         const id = `laser_attack_${this.nextLaserAttackId}`;
 
         this.nextLaserAttackId += 1;
+
+        return id;
+    }
+
+    private createSpamChannelId(): string {
+        const id = `spam_channel_${this.nextSpamChannelId}`;
+
+        this.nextSpamChannelId += 1;
 
         return id;
     }

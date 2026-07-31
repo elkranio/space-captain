@@ -11,6 +11,8 @@ export const SHIP_NODE_ACTOR_PRESET_ID = {
     ENEMY_GENERIC_BLUE_00: 'enemy_generic_blue_00',
 
     ENEMY_GENERIC_LASER_00: 'enemy_generic_laser_00',
+
+    ENEMY_GENERIC_SPAM_00: 'enemy_generic_spam_00',
 } as const;
 
 export type ShipNodeActorPresetId = (typeof SHIP_NODE_ACTOR_PRESET_ID)[keyof typeof SHIP_NODE_ACTOR_PRESET_ID];
@@ -33,7 +35,19 @@ type LaserShipNodeActorWeaponPreset = {
     weaponId: typeof SHIP_WEAPON_ID.LASER_00;
 };
 
-export type ShipNodeActorWeaponPreset = MissileLauncherShipNodeActorWeaponPreset | LaserShipNodeActorWeaponPreset;
+type SpamProjectorShipNodeActorWeaponPreset = {
+    // Runtime id оружия внутри корабля.
+    id: string;
+
+    kind: typeof SHIP_WEAPON_KIND.SPAM_PROJECTOR;
+
+    weaponId: typeof SHIP_WEAPON_ID.SPAM_PROJECTOR_00;
+};
+
+export type ShipNodeActorWeaponPreset =
+    | MissileLauncherShipNodeActorWeaponPreset
+    | LaserShipNodeActorWeaponPreset
+    | SpamProjectorShipNodeActorWeaponPreset;
 
 export type ShipNodeActorPreset = {
     id: ShipNodeActorPresetId;
@@ -92,6 +106,23 @@ export const SHIP_NODE_ACTOR_PRESETS = {
                 kind: SHIP_WEAPON_KIND.LASER,
 
                 weaponId: SHIP_WEAPON_ID.LASER_00,
+            },
+        ],
+    },
+
+    [SHIP_NODE_ACTOR_PRESET_ID.ENEMY_GENERIC_SPAM_00]: {
+        id: SHIP_NODE_ACTOR_PRESET_ID.ENEMY_GENERIC_SPAM_00,
+
+        team: ENCOUNTER_TEAM.ENEMY,
+        shipId: SHIP_ID.GENERIC_00,
+
+        weapons: [
+            {
+                id: 'spam_projector_00',
+
+                kind: SHIP_WEAPON_KIND.SPAM_PROJECTOR,
+
+                weaponId: SHIP_WEAPON_ID.SPAM_PROJECTOR_00,
             },
         ],
     },

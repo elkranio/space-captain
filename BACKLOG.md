@@ -8,11 +8,27 @@ An item should move into active implementation only after it is selected explici
 
 Keep items concrete enough that they remain understandable in a future chat.
 
-Last updated: 2026-07-29
+Last updated: 2026-07-31
 
 ---
 
 # 1. Near-term combat debts
+
+## Spam officer-task slowdown modifier
+
+The initial Spam Projector weapon channels its attack but does not yet slow officer work.
+
+Future contract:
+
+- while at least one hostile spam channel is active, officer task progress is multiplied by a slowdown coefficient;
+- apply the coefficient to elapsed progress instead of mutating task `durationMs`;
+- the coefficient belongs to the Spam Projector definition;
+- integrate this through the future task/modifier system instead of hard-coding spam inside `OfficerTaskRunner`;
+- decide explicit stacking behavior before supporting several simultaneous spam channels.
+
+Do not add an unused coefficient field before the modifier path exists.
+
+---
 
 ## Actual BLUE missile content
 

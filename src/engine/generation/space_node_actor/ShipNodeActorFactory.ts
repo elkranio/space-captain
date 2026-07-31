@@ -9,6 +9,7 @@ import { SHIP_WEAPON_KIND, type ShipWeaponState } from '../../defs/ship_weapon';
 import { SPACE_NODE_ACTOR_KIND, type ShipSpaceNodeActorState } from '../../defs/universe';
 import LaserWeaponFactory from '../ship_weapon/LaserWeaponFactory';
 import MissileLauncherFactory from '../ship_weapon/MissileLauncherFactory';
+import SpamProjectorFactory from '../ship_weapon/SpamProjectorFactory';
 
 export type CreateShipNodeActorInput = {
     // Runtime id конкретного корабля внутри ноды.
@@ -51,6 +52,13 @@ export default class ShipNodeActorFactory {
 
             case SHIP_WEAPON_KIND.LASER:
                 return LaserWeaponFactory.create({
+                    id: preset.id,
+
+                    weaponId: preset.weaponId,
+                });
+
+            case SHIP_WEAPON_KIND.SPAM_PROJECTOR:
+                return SpamProjectorFactory.create({
                     id: preset.id,
 
                     weaponId: preset.weaponId,

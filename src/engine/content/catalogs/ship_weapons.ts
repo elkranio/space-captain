@@ -31,4 +31,16 @@ export const SHIP_WEAPONS = {
         chargeDurationMs: 12000,
         cooldownDurationMs: 15000,
     },
+
+    [SHIP_WEAPON_ID.SPAM_PROJECTOR_00]: {
+        id: SHIP_WEAPON_ID.SPAM_PROJECTOR_00,
+
+        name: 'SPAM PROJECTOR',
+
+        kind: SHIP_WEAPON_KIND.SPAM_PROJECTOR,
+
+        chargeDurationMs: 12000,
+        channelDurationMs: 20000,
+        cooldownDurationMs: 15000,
+    },
 } satisfies Record<ShipWeaponId, ShipWeaponDefinition>;

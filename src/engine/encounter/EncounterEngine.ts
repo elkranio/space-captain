@@ -18,6 +18,7 @@ import type {
     ActiveShieldState,
     CombatProjectileState,
     LaserAttackState,
+    SpamChannelState,
 } from './model/combat';
 import { ENCOUNTER_EVENT, type EncounterEvent } from './model/event';
 import type { OfficerAvailabilityStates } from './model/officer_availability';
@@ -210,6 +211,14 @@ export default class EncounterEngine {
         return this.stateStore.getState().combat.laserAttacks.map((attack) => {
             return this.cloneLaserAttack(attack);
         });
+    }
+
+    public getSpamChannels(): SpamChannelState[] {
+        return this.combatRunner.getSpamChannels();
+    }
+
+    public purgeSpamChannel(channelId: string): boolean {
+        return this.combatRunner.purgeSpamChannel(channelId);
     }
 
     public getLaserThreatSnapshots(): LaserThreatSnapshot[] {

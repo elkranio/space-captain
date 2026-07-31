@@ -5,6 +5,7 @@ import type { MissileId } from './missile';
 export const SHIP_WEAPON_KIND = {
     MISSILE_LAUNCHER: 'missile_launcher',
     LASER: 'laser',
+    SPAM_PROJECTOR: 'spam_projector',
 } as const;
 
 export type ShipWeaponKind = (typeof SHIP_WEAPON_KIND)[keyof typeof SHIP_WEAPON_KIND];
@@ -12,6 +13,7 @@ export type ShipWeaponKind = (typeof SHIP_WEAPON_KIND)[keyof typeof SHIP_WEAPON_
 export const SHIP_WEAPON_ID = {
     MISSILE_LAUNCHER_00: 'missile_launcher_00',
     LASER_00: 'laser_00',
+    SPAM_PROJECTOR_00: 'spam_projector_00',
 } as const;
 
 export type ShipWeaponId = (typeof SHIP_WEAPON_ID)[keyof typeof SHIP_WEAPON_ID];
@@ -20,6 +22,7 @@ export const SHIP_WEAPON_PHASE = {
     READY: 'ready',
     TARGETING: 'targeting',
     CHARGING: 'charging',
+    CHANNELING: 'channeling',
     COOLDOWN: 'cooldown',
 } as const;
 
@@ -51,7 +54,17 @@ export type LaserWeaponDefinition = ShipWeaponDefinitionBase & {
     chargeDurationMs: number;
 };
 
-export type ShipWeaponDefinition = MissileLauncherDefinition | LaserWeaponDefinition;
+export type SpamProjectorDefinition = ShipWeaponDefinitionBase & {
+    kind: typeof SHIP_WEAPON_KIND.SPAM_PROJECTOR;
+
+    chargeDurationMs: number;
+    channelDurationMs: number;
+};
+
+export type ShipWeaponDefinition =
+    | MissileLauncherDefinition
+    | LaserWeaponDefinition
+    | SpamProjectorDefinition;
 
 // Mutable state конкретного установленного оружия.
 export type ShipWeaponBaseState = {
@@ -77,4 +90,13 @@ export type LaserWeaponState = ShipWeaponBaseState & {
     kind: typeof SHIP_WEAPON_KIND.LASER;
 };
 
-export type ShipWeaponState = MissileLauncherState | LaserWeaponState;
+export type SpamProjectorState = ShipWeaponBaseState & {
+    kind: typeof SHIP_WEAPON_KIND.SPAM_PROJECTOR;
+
+    activeChannelId: string | null;
+};
+
+export type ShipWeaponState =
+    | MissileLauncherState
+    | LaserWeaponState
+    | SpamProjectorState;

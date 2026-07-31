@@ -10,6 +10,8 @@ import type {
     ActiveShieldState,
     LaserAttackState,
     MissileCombatProjectileState,
+    SpamChannelOutcome,
+    SpamChannelState,
     ThreatIdentificationResult,
 } from './combat';
 import type { OfficerTaskState } from './officer_task';
@@ -37,6 +39,9 @@ export const ENCOUNTER_EVENT = {
     MISSILE_IMPACTED_PLAYER_SHIP: 'missile_impacted_player_ship',
     LASER_ATTACK_STARTED: 'laser_attack_started',
     LASER_FIRED: 'laser_fired',
+    SPAM_ATTACK_STARTED: 'spam_attack_started',
+    SPAM_CHANNEL_STARTED: 'spam_channel_started',
+    SPAM_CHANNEL_ENDED: 'spam_channel_ended',
 } as const;
 
 export const OFFICER_TASK_OUTCOME = {
@@ -239,6 +244,26 @@ export type LaserFiredEvent =
           damage: number;
       };
 
+export type SpamAttackStartedEvent = {
+    type: typeof ENCOUNTER_EVENT.SPAM_ATTACK_STARTED;
+
+    sourceActorId: string;
+    sourceWeaponId: string;
+};
+
+export type SpamChannelStartedEvent = {
+    type: typeof ENCOUNTER_EVENT.SPAM_CHANNEL_STARTED;
+
+    channel: SpamChannelState;
+};
+
+export type SpamChannelEndedEvent = {
+    type: typeof ENCOUNTER_EVENT.SPAM_CHANNEL_ENDED;
+
+    channel: SpamChannelState;
+    outcome: SpamChannelOutcome;
+};
+
 export type EncounterEvent =
     | EncounterLoadedEvent
     | ContactStartedEvent
@@ -255,4 +280,7 @@ export type EncounterEvent =
     | MissileLaunchedEvent
     | MissileImpactedPlayerShipEvent
     | LaserAttackStartedEvent
-    | LaserFiredEvent;
+    | LaserFiredEvent
+    | SpamAttackStartedEvent
+    | SpamChannelStartedEvent
+    | SpamChannelEndedEvent;

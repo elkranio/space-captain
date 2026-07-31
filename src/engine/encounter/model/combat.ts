@@ -23,6 +23,14 @@ export const LASER_SHOT_OUTCOME = {
 
 export type LaserShotOutcome = (typeof LASER_SHOT_OUTCOME)[keyof typeof LASER_SHOT_OUTCOME];
 
+export const SPAM_CHANNEL_OUTCOME = {
+    EXPIRED: 'expired',
+    PURGED: 'purged',
+} as const;
+
+export type SpamChannelOutcome =
+    (typeof SPAM_CHANNEL_OUTCOME)[keyof typeof SPAM_CHANNEL_OUTCOME];
+
 export const COMBAT_TARGET_KIND = {
     PLAYER_SHIP: 'player_ship',
     ACTOR: 'actor',
@@ -121,6 +129,18 @@ export type LaserAttackState = {
     // identification — текущее знание игрока о ней.
     targetZone: LaserTargetZone;
     identification: LaserThreatIdentification;
+};
+
+// Derived snapshot of one actively channeling spam projector.
+// The mutable elapsed time remains authoritative on the weapon phase.
+export type SpamChannelState = {
+    id: string;
+
+    sourceActorId: string;
+    sourceWeaponId: string;
+
+    elapsedMs: number;
+    durationMs: number;
 };
 
 export type ActiveShieldState = {

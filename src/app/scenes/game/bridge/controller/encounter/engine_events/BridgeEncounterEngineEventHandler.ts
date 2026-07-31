@@ -199,6 +199,18 @@ export default class BridgeEncounterEngineEventHandler {
                 });
                 return;
 
+            case ENCOUNTER_EVENT.SPAM_ATTACK_STARTED:
+                this.eventBus.emit(BRIDGE_EVENT.MISSILE_TARGETING_WARNING_CLEARED);
+                return;
+
+            case ENCOUNTER_EVENT.SPAM_CHANNEL_STARTED:
+                // Projection presentation подключается следующим атомом.
+                return;
+
+            case ENCOUNTER_EVENT.SPAM_CHANNEL_ENDED:
+                // Projection presentation подключается следующим атомом.
+                return;
+
             case ENCOUNTER_EVENT.MISSILE_IMPACTED_PLAYER_SHIP:
                 this.eventBus.emit(BRIDGE_EVENT.INCOMING_MISSILE_REMOVED, {
                     projectileId: event.projectile.id,
