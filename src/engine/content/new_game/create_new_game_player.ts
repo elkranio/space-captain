@@ -1,25 +1,34 @@
 // src/engine/content/new_game/create_new_game_player.ts
 
-import type { PlayerState, PlayerShipState } from '../../defs/player';
+import type {
+    PlayerState,
+    PlayerShipState,
+} from '../../defs/player';
 import type { PlayerLocationState } from '../../defs/player_location';
 import { SHIP_DRIVE_STATUS } from '../../defs/ship_drive';
 import { SHIP_DRIVES } from '../catalogs/ship_drives';
-import { PLAYER_SHIP_PRESETS, PLAYER_SHIP_PRESET_ID, type PlayerShipPresetId } from '../presets/player_ships';
-
-const NEW_GAME_PLAYER_SHIP_PRESET_ID = PLAYER_SHIP_PRESET_ID.STARTER_00;
+import {
+    PLAYER_SHIP_PRESETS,
+    type PlayerShipPresetId,
+} from '../presets/player_ships';
 
 const NEW_GAME_PLAYER_SHIP_SYSTEM_ID = {
     DRIVE: 'drive_player_00',
 } as const;
 
-export function createNewGamePlayer(location: PlayerLocationState): PlayerState {
+export function createNewGamePlayer(
+    location: PlayerLocationState,
+    shipPresetId: PlayerShipPresetId,
+): PlayerState {
     return {
-        ship: createPlayerShip(NEW_GAME_PLAYER_SHIP_PRESET_ID),
+        ship: createPlayerShip(shipPresetId),
         location,
     };
 }
 
-function createPlayerShip(presetId: PlayerShipPresetId): PlayerShipState {
+function createPlayerShip(
+    presetId: PlayerShipPresetId,
+): PlayerShipState {
     const preset = PLAYER_SHIP_PRESETS[presetId];
     const drive = SHIP_DRIVES[preset.driveId];
 
@@ -45,7 +54,10 @@ function createPlayerShip(presetId: PlayerShipPresetId): PlayerShipState {
             charges: preset.shieldGenerator.maxCharges,
             maxCharges: preset.shieldGenerator.maxCharges,
 
-            chargeRegenerationDurationMs: preset.shieldGenerator.chargeRegenerationDurationMs,
+            chargeRegenerationDurationMs:
+                preset.shieldGenerator
+                    .chargeRegenerationDurationMs,
+
             chargeRegenerationElapsedMs: 0,
         },
 

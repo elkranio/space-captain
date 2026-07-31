@@ -1,60 +1,29 @@
 // src/engine/content/new_game/create_new_run_state.ts
 
-import { OFFICER_PORTRAIT_ID, OFFICER_ROLE } from '../../defs/officer';
 import type { RunState } from '../../defs/run';
 import { createNewGamePlayer } from './create_new_game_player';
+import {
+    createNewGameOfficers,
+    NEW_GAME_CONFIG,
+} from './new_game_config';
 import NewGameUniverseFactory from './NewGameUniverseFactory';
 
 export function createNewRunState(): RunState {
     const world = NewGameUniverseFactory.create();
 
-    // Для smoke полёта:
-    // world.playerLocations.travellingToStart
-    //
-    // Для smoke прилёта к станции:
-    // world.playerLocations.arrivingAtStation
-    const playerLocation = world.playerLocations.arrivingAtStart;
+    const playerLocation =
+        world.playerLocations[
+            NEW_GAME_CONFIG.player.locationId
+        ];
 
     return {
         universe: world.universe,
 
-        player: createNewGamePlayer(playerLocation),
+        player: createNewGamePlayer(
+            playerLocation,
+            NEW_GAME_CONFIG.player.shipPresetId,
+        ),
 
-        officers: {
-            [OFFICER_ROLE.COMMS]: {
-                role: OFFICER_ROLE.COMMS,
-                name: 'Pip Voxley',
-
-                portraitId: OFFICER_PORTRAIT_ID.COMMS_HUMAN_00,
-            },
-
-            [OFFICER_ROLE.SCIENCE]: {
-                role: OFFICER_ROLE.SCIENCE,
-                name: 'Dr. Zella Quark',
-
-                portraitId: OFFICER_PORTRAIT_ID.SCIENCE_ALIEN_00,
-            },
-
-            [OFFICER_ROLE.HELM]: {
-                role: OFFICER_ROLE.HELM,
-                name: 'Dash Nulligan',
-
-                portraitId: OFFICER_PORTRAIT_ID.HELM_HUMAN_00,
-            },
-
-            [OFFICER_ROLE.WEAPONS]: {
-                role: OFFICER_ROLE.WEAPONS,
-                name: 'Buck Varnish',
-
-                portraitId: OFFICER_PORTRAIT_ID.WEAPONS_ALIEN_00,
-            },
-
-            [OFFICER_ROLE.ENGINEER]: {
-                role: OFFICER_ROLE.ENGINEER,
-                name: 'Mira Wrenchly',
-
-                portraitId: OFFICER_PORTRAIT_ID.ENGINEER_HUMAN_00,
-            },
-        },
+        officers: createNewGameOfficers(),
     };
 }
