@@ -10,6 +10,7 @@ import {
     type OfficerTaskState,
 } from '../model/officer_task';
 import { getActiveEnemySpamChannels } from '../combat/queries/get_active_enemy_spam_channels';
+import { getOfficerCommandDef } from '../commands/officer_command_handlers';
 import OfficerPerformanceResolver from '../officer_performance/OfficerPerformanceResolver';
 import EncounterStateStore from '../state/EncounterStateStore';
 import { createHelmFlyToTask } from './create_officer_task_draft';
@@ -124,6 +125,29 @@ export default class OfficerTaskRunner {
         }
 
         this.completeFinishedTasks();
+    }
+
+    public cancelTasksRequiringOnlineDrive(): void {
+        const tasks = this.stateStore
+            .getOfficerTasks()
+            .filter((task) => {
+                return getOfficerCommandDef(
+                    task.sourceCommandId,
+                ).requiresOnlineDrive;
+            });
+
+        for (const task of tasks) {
+            if (
+                task.kind ===
+                OFFICER_TASK_KIND.HELM_FLY_TO
+            ) {
+                this.stateStore.abortTravel(
+                    task.targetAnchorId,
+                );
+            }
+
+            this.cancel(task.id);
+        }
     }
 
     public cancelTasksWithMissingTargets(): void {

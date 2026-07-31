@@ -1,6 +1,7 @@
 // src/engine/encounter/EncounterEngine.ts
 
 import { SHIP_WEAPONS } from '../content/catalogs/ship_weapons';
+import type { EncounterTeam } from '../defs/encounter_team';
 import type { OfficerRole } from '../defs/officer';
 import type { PlayerSpaceNavigationState } from '../defs/player_location';
 import type { PointDefenseState } from '../defs/point_defense';
@@ -8,6 +9,7 @@ import type { ShieldGeneratorState } from '../defs/shield_generator';
 import type { ShipDriveState } from '../defs/ship_drive';
 import { SHIP_WEAPON_KIND, SHIP_WEAPON_PHASE } from '../defs/ship_weapon';
 import type { SpaceNodeState } from '../defs/universe';
+import CombatEngagementRunner from './combat/CombatEngagementRunner';
 import CombatRunner from './combat/CombatRunner';
 import PlayerShieldRunner from './combat/PlayerShieldRunner';
 import ShieldGeneratorRunner from './combat/ShieldGeneratorRunner';
@@ -66,6 +68,9 @@ export default class EncounterEngine {
 
     private readonly combatRunner: CombatRunner;
 
+    private readonly combatEngagementRunner:
+        CombatEngagementRunner;
+
     private readonly playerShieldRunner: PlayerShieldRunner;
 
     private readonly shieldGeneratorRunner: ShieldGeneratorRunner;
@@ -123,6 +128,13 @@ export default class EncounterEngine {
             completeTimedTasksImmediately,
         });
 
+        this.combatEngagementRunner =
+            new CombatEngagementRunner(
+                this.stateStore,
+                this.officerTaskRunner,
+                this.emit,
+            );
+
         this.contactSequenceRunner = new ContactSequenceRunner({
             emit: this.emit,
         });
@@ -151,6 +163,21 @@ export default class EncounterEngine {
 
     public executeCommand(input: ExecuteOfficerCommandInput): ExecuteOfficerCommandResult {
         return this.officerCommandExecutor.execute(input);
+    }
+
+    public engageHostileActors(): void {
+        this.combatEngagementRunner
+            .engageCurrentHostileActors();
+    }
+
+    public setActorTeam(
+        actorId: string,
+        team: EncounterTeam,
+    ): void {
+        this.combatEngagementRunner.setActorTeam(
+            actorId,
+            team,
+        );
     }
 
     public step(deltaMs: number): void {

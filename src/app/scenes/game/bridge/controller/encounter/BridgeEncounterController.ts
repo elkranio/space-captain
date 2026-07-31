@@ -197,6 +197,11 @@ export default class BridgeEncounterController {
         this.officerStationsController = new BridgeOfficerStationsController(this.encounterEngine, this.eventBus);
 
         this.drainEncounterEvents();
+
+        if (this.isEncounterInteractive) {
+            this.engageHostileActors();
+            this.officerStationsController.sync();
+        }
     }
 
     // #endregion
@@ -242,6 +247,7 @@ export default class BridgeEncounterController {
 
         this.isEncounterInteractive = true;
 
+        this.engageHostileActors();
         this.officerStationsController?.sync();
     }
 
@@ -482,6 +488,15 @@ export default class BridgeEncounterController {
     // #endregion
 
     // #region Encounter lifecycle
+
+    private engageHostileActors(): void {
+        if (!this.encounterEngine) {
+            return;
+        }
+
+        this.encounterEngine.engageHostileActors();
+        this.drainEncounterEvents();
+    }
 
     private completeEncounterArrival(): void {
         if (!this.encounterEngine) {

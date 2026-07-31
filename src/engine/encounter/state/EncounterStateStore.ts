@@ -160,6 +160,8 @@ export default class EncounterStateStore {
             anchorId,
             shipId,
 
+            hasUsedOpeningDisruptionPulse: false,
+
             weapons: weapons.map((weapon) => {
                 return {
                     ...weapon,
@@ -168,6 +170,48 @@ export default class EncounterStateStore {
         };
 
         this.state.actors.push(actor);
+
+        return actor;
+    }
+
+    public setActorTeam(
+        actorId: string,
+        team: EncounterTeam,
+    ): ShipEncounterActorState {
+        const actor =
+            this.findActorById(actorId);
+
+        if (!actor) {
+            throw new Error(
+                `Encounter actor not found: ${actorId}`,
+            );
+        }
+
+        actor.team = team;
+
+        return actor;
+    }
+
+    public consumeOpeningDisruptionPulse(
+        actorId: string,
+    ): ShipEncounterActorState | undefined {
+        const actor =
+            this.findActorById(actorId);
+
+        if (!actor) {
+            throw new Error(
+                `Encounter actor not found: ${actorId}`,
+            );
+        }
+
+        if (
+            actor.hasUsedOpeningDisruptionPulse
+        ) {
+            return undefined;
+        }
+
+        actor.hasUsedOpeningDisruptionPulse =
+            true;
 
         return actor;
     }
@@ -236,9 +280,62 @@ export default class EncounterStateStore {
         };
     }
 
+    public abortTravel(
+        expectedTargetAnchorId: string,
+    ): void {
+        const navigation =
+            this.state.navigation;
+
+        if (
+            navigation.kind !==
+            PLAYER_SPACE_NAVIGATION_KIND.TRAVELLING
+        ) {
+            throw new Error(
+                `Cannot abort travel from navigation state: ` +
+                    navigation.kind,
+            );
+        }
+
+        if (
+            navigation.targetAnchorId !==
+            expectedTargetAnchorId
+        ) {
+            throw new Error(
+                `Travel target does not match aborted task: ` +
+                    `${navigation.targetAnchorId} !== ` +
+                    expectedTargetAnchorId,
+            );
+        }
+
+        this.state.navigation = {
+            kind:
+                PLAYER_SPACE_NAVIGATION_KIND.ANCHORED,
+            anchorId: navigation.fromAnchorId,
+        };
+    }
+
     // #endregion
 
     // #region Player drive
+
+    public disablePlayerDrive():
+        ShipDriveState | undefined {
+        const drive = this.state.drive;
+
+        if (
+            drive.status ===
+            SHIP_DRIVE_STATUS.DISABLED
+        ) {
+            return undefined;
+        }
+
+        drive.status =
+            SHIP_DRIVE_STATUS.DISABLED;
+
+        return {
+            ...drive,
+        };
+    }
 
     public repairPlayerDrive(): ShipDriveState {
         const drive = this.state.drive;

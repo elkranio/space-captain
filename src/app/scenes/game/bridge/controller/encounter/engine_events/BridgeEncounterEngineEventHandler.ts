@@ -119,6 +119,18 @@ export default class BridgeEncounterEngineEventHandler {
                 return;
             }
 
+            case ENCOUNTER_EVENT.PLAYER_SHIP_DRIVE_DISRUPTED:
+                this.gameRuntime.setPlayerShipDriveState(
+                    event.drive,
+                );
+
+                this.gameRuntime.setPlayerSpaceNavigation(
+                    event.navigation,
+                );
+
+                // View effect добавим следующим атомом.
+                return;
+
             case ENCOUNTER_EVENT.PLAYER_SHIP_DRIVE_STATE_CHANGED:
                 this.gameRuntime.setPlayerShipDriveState(
                     event.drive,

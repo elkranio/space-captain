@@ -57,6 +57,8 @@ describe('encounter actors', () => {
             anchorId: stationId,
             shipId: SHIP_ID.GENERIC_00,
 
+            hasUsedOpeningDisruptionPulse: false,
+
             weapons: [],
         });
 
@@ -169,6 +171,8 @@ describe('encounter actors', () => {
                             team: nodeActor.team,
                             anchorId: nodeActor.anchorId,
                             shipId: nodeActor.shipId,
+
+                            hasUsedOpeningDisruptionPulse: false,
 
                             weapons: [
                                 {

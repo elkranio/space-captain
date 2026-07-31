@@ -1,6 +1,7 @@
 // src/engine/encounter/model/event.ts
 
 import type { CharacterPortraitId } from '../../defs/character';
+import type { PlayerSpaceNavigationState } from '../../defs/player_location';
 import type { PointDefenseBeamBand, PointDefenseShotOutcome } from '../../defs/point_defense';
 import type { ShieldGeneratorState } from '../../defs/shield_generator';
 import type { ShipDriveState } from '../../defs/ship_drive';
@@ -36,6 +37,7 @@ export const ENCOUNTER_EVENT = {
     PLAYER_POINT_DEFENSE_CHARGE_SPENT: 'player_point_defense_charge_spent',
     PLAYER_SHIELD_GENERATOR_STATE_CHANGED: 'player_shield_generator_state_changed',
     PLAYER_SHIP_DRIVE_STATE_CHANGED: 'player_ship_drive_state_changed',
+    PLAYER_SHIP_DRIVE_DISRUPTED: 'player_ship_drive_disrupted',
     PLAYER_SHIP_TARGETING_DETECTED: 'player_ship_targeting_detected',
     MISSILE_LAUNCHED: 'missile_launched',
     MISSILE_IMPACTED_PLAYER_SHIP: 'missile_impacted_player_ship',
@@ -208,6 +210,16 @@ export type PlayerShipDriveStateChangedEvent = {
     drive: ShipDriveState;
 };
 
+export type PlayerShipDriveDisruptedEvent = {
+    type:
+        typeof ENCOUNTER_EVENT.PLAYER_SHIP_DRIVE_DISRUPTED;
+
+    sourceActorId: string;
+
+    drive: ShipDriveState;
+    navigation: PlayerSpaceNavigationState;
+};
+
 export type PlayerShipTargetingDetectedEvent = {
     type: typeof ENCOUNTER_EVENT.PLAYER_SHIP_TARGETING_DETECTED;
 
@@ -279,6 +291,7 @@ export type EncounterEvent =
     | PlayerPointDefenseChargeSpentEvent
     | PlayerShieldGeneratorStateChangedEvent
     | PlayerShipDriveStateChangedEvent
+    | PlayerShipDriveDisruptedEvent
     | PlayerShipTargetingDetectedEvent
     | MissileLaunchedEvent
     | MissileImpactedPlayerShipEvent

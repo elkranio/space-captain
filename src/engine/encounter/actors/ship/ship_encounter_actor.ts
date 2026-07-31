@@ -14,6 +14,10 @@ export type ShipEncounterActorState = EncounterActorBaseState & {
 
     shipId: ShipId;
 
+    // Одноразовое opening action этого ship
+    // внутри текущего encounter.
+    hasUsedOpeningDisruptionPulse: boolean;
+
     // Mutable loadout только текущего encounter.
     weapons: ShipWeaponState[];
 };
