@@ -1,7 +1,7 @@
 {
   "textures": [
     {
-      "image": "atlas-0.png?v=1785483334111",
+      "image": "atlas-0.png?v=1785519231289",
       "format": "RGBA8888",
       "size": {
         "w": 2035,
@@ -1081,6 +1081,27 @@
           }
         },
         {
+          "filename": "combat/mines/sticky_00",
+          "rotated": false,
+          "trimmed": false,
+          "sourceSize": {
+            "w": 71,
+            "h": 40
+          },
+          "spriteSourceSize": {
+            "x": 0,
+            "y": 0,
+            "w": 71,
+            "h": 40
+          },
+          "frame": {
+            "x": 1897,
+            "y": 1012,
+            "w": 71,
+            "h": 40
+          }
+        },
+        {
           "filename": "blank",
           "rotated": false,
           "trimmed": false,
@@ -1401,6 +1422,6 @@
   "meta": {
     "app": "https://www.codeandweb.com/texturepacker",
     "version": "3.0",
-    "smartupdate": "$TexturePacker:SmartUpdate:0308cc2dffc8bda936d7909551237adf:20256c2c72b7594d9691696f77d82032:cf935fe037ea9b5d3744d532996e235e$"
+    "smartupdate": "$TexturePacker:SmartUpdate:017a81b4192f00f1ed6d1d2d5fab340f:634e960427a97aa90d6832b32459f489:cf935fe037ea9b5d3744d532996e235e$"
   }
 }
