@@ -189,6 +189,10 @@ export const BRIDGE_EVENT = {
     // после impact или другого завершения.
     INCOMING_MISSILE_REMOVED: 'incoming_missile_removed',
 
+    STICKY_MINE_ADDED: 'sticky_mine_added',
+    STICKY_MINES_UPDATED: 'sticky_mines_updated',
+    STICKY_MINE_REMOVED: 'sticky_mine_removed',
+
     // Актуальный временной snapshot
     // всех входящих ракет.
     INCOMING_MISSILES_UPDATED: 'incoming_missiles_updated',
@@ -540,7 +544,47 @@ export type BridgeSpamChannelEndedPayload = {
 //
 // undefined означает,
 // что событие несёт только сам факт.
+
+export const BRIDGE_STICKY_MINE_REMOVAL_OUTCOME = {
+    CLEARED: 'cleared',
+    DETONATED: 'detonated',
+} as const;
+
+export type BridgeStickyMineRemovalOutcome =
+    (typeof BRIDGE_STICKY_MINE_REMOVAL_OUTCOME)[keyof typeof BRIDGE_STICKY_MINE_REMOVAL_OUTCOME];
+
+export type BridgeStickyMineAddedPayload = {
+    mineId: string;
+
+    sourceActorId: string;
+
+    initialTimeToDetonationMs: number;
+};
+
+export type BridgeStickyMineSnapshotPayload = {
+    mineId: string;
+
+    remainingTimeToDetonationMs: number;
+    initialTimeToDetonationMs: number;
+
+    isBeingCleared: boolean;
+    isNextClearTarget: boolean;
+};
+
+export type BridgeStickyMinesUpdatedPayload =
+    BridgeStickyMineSnapshotPayload[];
+
+export type BridgeStickyMineRemovedPayload = {
+    mineId: string;
+
+    outcome: BridgeStickyMineRemovalOutcome;
+};
+
 export type BridgeEventPayloadMap = {
+    [BRIDGE_EVENT.STICKY_MINE_ADDED]: BridgeStickyMineAddedPayload;
+    [BRIDGE_EVENT.STICKY_MINES_UPDATED]: BridgeStickyMinesUpdatedPayload;
+    [BRIDGE_EVENT.STICKY_MINE_REMOVED]: BridgeStickyMineRemovedPayload;
+
     // Crew and officer commands
 
     [BRIDGE_EVENT.CREW_LOADED]: BridgeCrewLoadedPayload;

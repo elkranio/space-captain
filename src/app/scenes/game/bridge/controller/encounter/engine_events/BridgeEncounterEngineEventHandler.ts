@@ -14,7 +14,11 @@ import { OFFICER_TASK_KIND } from '../../../../../../../engine/encounter/model/o
 import { DEBUG_SETTINGS } from '../../../../../../debug/debug_settings';
 import type { GameRuntime } from '../../../../../../runtime/GameRuntime';
 import { SCENE_KEY } from '../../../../../scene_key';
-import { BRIDGE_EVENT, type BridgeEncounterObjectPayload } from '../../../events/bridge_event';
+import {
+    BRIDGE_EVENT,
+    BRIDGE_STICKY_MINE_REMOVAL_OUTCOME,
+    type BridgeEncounterObjectPayload,
+} from '../../../events/bridge_event';
 import type BridgeEventBus from '../../../events/BridgeEventBus';
 import { mapPlayerShipToBridgeStatusPayload } from '../../player_ship_status/BridgePlayerShipStatusMapper';
 import {
@@ -205,6 +209,22 @@ export default class BridgeEncounterEngineEventHandler {
                     );
                 }
 
+                if (
+                    event.result?.kind ===
+                    OFFICER_TASK_RESULT_KIND.STICKY_MINE_CLEARED
+                ) {
+                    this.eventBus.emit(
+                        BRIDGE_EVENT.STICKY_MINE_REMOVED,
+                        {
+                            mineId:
+                                event.result.mineId,
+
+                            outcome:
+                                BRIDGE_STICKY_MINE_REMOVAL_OUTCOME.CLEARED,
+                        },
+                    );
+                }
+
                 this.eventBus.emit(BRIDGE_EVENT.OFFICER_ACTIVITY_CLEARED, {
                     role: event.task.role,
                 });
@@ -219,6 +239,19 @@ export default class BridgeEncounterEngineEventHandler {
                 this.eventBus.emit(
                     BRIDGE_EVENT
                         .MISSILE_TARGETING_WARNING_CLEARED,
+                );
+
+                this.eventBus.emit(
+                    BRIDGE_EVENT.STICKY_MINE_ADDED,
+                    {
+                        mineId: event.mine.id,
+
+                        sourceActorId:
+                            event.mine.sourceActorId,
+
+                        initialTimeToDetonationMs:
+                            event.mine.initialTimeToDetonationMs,
+                    },
                 );
                 return;
 
@@ -282,6 +315,16 @@ export default class BridgeEncounterEngineEventHandler {
                 return;
 
             case ENCOUNTER_EVENT.STICKY_MINE_DETONATED:
+                this.eventBus.emit(
+                    BRIDGE_EVENT.STICKY_MINE_REMOVED,
+                    {
+                        mineId: event.mine.id,
+
+                        outcome:
+                            BRIDGE_STICKY_MINE_REMOVAL_OUTCOME.DETONATED,
+                    },
+                );
+
                 this.handlePlayerShipDamaged(
                     event.damage,
                 );

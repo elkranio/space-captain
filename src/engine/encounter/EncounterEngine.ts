@@ -13,6 +13,10 @@ import {
     getLaserThreatSnapshots,
     type LaserThreatSnapshot,
 } from './combat/queries/get_laser_threat_snapshots';
+import {
+    getStickyMineSnapshots,
+    type StickyMineSnapshot,
+} from './combat/queries/get_sticky_mine_snapshots';
 import PlayerShieldRunner from './combat/PlayerShieldRunner';
 import ShieldGeneratorRunner from './combat/ShieldGeneratorRunner';
 import OfficerCommandExecutor from './commands/OfficerCommandExecutor';
@@ -33,6 +37,7 @@ import OfficerTaskRunner from './officer_tasks/OfficerTaskRunner';
 import EncounterStateStore from './state/EncounterStateStore';
 
 export type { LaserThreatSnapshot } from './combat/queries/get_laser_threat_snapshots';
+export type { StickyMineSnapshot } from './combat/queries/get_sticky_mine_snapshots';
 
 export type EncounterEngineOptions = {
     node: SpaceNodeState;
@@ -257,6 +262,12 @@ export default class EncounterEngine {
                 ...projectile,
             };
         });
+    }
+
+    public getStickyMineSnapshots(): StickyMineSnapshot[] {
+        return getStickyMineSnapshots(
+            this.stateStore.getState(),
+        );
     }
 
     public getLaserAttacks(): LaserAttackState[] {

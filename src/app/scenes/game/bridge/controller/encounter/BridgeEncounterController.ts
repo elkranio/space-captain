@@ -321,7 +321,29 @@ export default class BridgeEncounterController {
                 };
             }),
         );
-    }
+    
+
+        this.eventBus.emit(
+            BRIDGE_EVENT.STICKY_MINES_UPDATED,
+            this.encounterEngine
+                .getStickyMineSnapshots()
+                .map((snapshot) => {
+                    return {
+                        mineId: snapshot.mine.id,
+
+                        remainingTimeToDetonationMs:
+                            snapshot.mine.timeToDetonationMs,
+                        initialTimeToDetonationMs:
+                            snapshot.mine.initialTimeToDetonationMs,
+
+                        isBeingCleared:
+                            snapshot.isBeingCleared,
+                        isNextClearTarget:
+                            snapshot.isNextClearTarget,
+                    };
+                }),
+        );
+}
 
     private syncLaserThreats(): void {
         if (!this.encounterEngine) {

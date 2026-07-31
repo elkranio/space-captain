@@ -5,6 +5,7 @@ import { GameRuntime } from '../../src/app/runtime/GameRuntime';
 import BridgeEncounterEngineEventHandler from '../../src/app/scenes/game/bridge/controller/encounter/engine_events/BridgeEncounterEngineEventHandler';
 import {
     BRIDGE_EVENT,
+    BRIDGE_STICKY_MINE_REMOVAL_OUTCOME,
 } from '../../src/app/scenes/game/bridge/events/bridge_event';
 import type BridgeEventBus from '../../src/app/scenes/game/bridge/events/BridgeEventBus';
 import { SCENE_KEY } from '../../src/app/scenes/scene_key';
@@ -115,6 +116,34 @@ describe('Bridge sticky-mine damage', () => {
 
             [
                 BRIDGE_EVENT
+                    .STICKY_MINE_ADDED,
+
+                {
+                    mineId: 'sticky_mine_1',
+
+                    sourceActorId:
+                        'ship_enemy_00',
+
+                    initialTimeToDetonationMs:
+                        7500,
+                },
+            ],
+
+            [
+                BRIDGE_EVENT
+                    .STICKY_MINE_REMOVED,
+
+                {
+                    mineId: 'sticky_mine_1',
+
+                    outcome:
+                        BRIDGE_STICKY_MINE_REMOVAL_OUTCOME
+                            .DETONATED,
+                },
+            ],
+
+            [
+                BRIDGE_EVENT
                     .PLAYER_SHIP_STATUS_UPDATED,
 
                 createBridgePlayerShipStatusPayload({
@@ -126,6 +155,19 @@ describe('Bridge sticky-mine damage', () => {
 
             [
                 BRIDGE_EVENT
+                    .STICKY_MINE_REMOVED,
+
+                {
+                    mineId: 'sticky_mine_2',
+
+                    outcome:
+                        BRIDGE_STICKY_MINE_REMOVAL_OUTCOME
+                            .DETONATED,
+                },
+            ],
+
+            [
+                BRIDGE_EVENT
                     .PLAYER_SHIP_STATUS_UPDATED,
 
                 createBridgePlayerShipStatusPayload({
@@ -133,6 +175,19 @@ describe('Bridge sticky-mine damage', () => {
                         current: 1,
                     },
                 }),
+            ],
+
+            [
+                BRIDGE_EVENT
+                    .STICKY_MINE_REMOVED,
+
+                {
+                    mineId: 'sticky_mine_3',
+
+                    outcome:
+                        BRIDGE_STICKY_MINE_REMOVAL_OUTCOME
+                            .DETONATED,
+                },
             ],
 
             [
