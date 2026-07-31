@@ -6,21 +6,8 @@ import {
     type BridgeEncounterJumpPayload,
 } from '../../events/bridge_event';
 import type BridgeEventBus from '../../events/BridgeEventBus';
-import { BRIDGE_VIEWSCREEN_RECT } from '../bridge_viewscreen_layout';
+import BridgeDriveDisruptionView from './drive_disruption/BridgeDriveDisruptionView';
 import BridgeViewscreenDustView from './viewscreen_dust/BridgeViewscreenDustView';
-
-const DRIVE_DISRUPTION = {
-    flashColor: 0xd9c2ff,
-    flashAlpha: 0.82,
-
-    flashDurationMs: 45,
-    flashRepeatDelayMs: 35,
-
-    bandColor: 0xf5eeff,
-    bandAlpha: 0.95,
-    bandHeight: 10,
-    bandDurationMs: 260,
-} as const;
 
 // Root view для bridge VFX layer.
 // Собирает vfx child views и переводит bridge events
@@ -31,22 +18,13 @@ export default class BridgeVfxView {
     private readonly viewscreenDustView:
         BridgeViewscreenDustView;
 
+    private readonly driveDisruptionView:
+        BridgeDriveDisruptionView;
+
     private readonly jumpFlash:
         Phaser.GameObjects.Rectangle;
 
-    private readonly driveDisruptionFlash:
-        Phaser.GameObjects.Rectangle;
-
-    private readonly driveDisruptionBand:
-        Phaser.GameObjects.Rectangle;
-
     private jumpTween?: Phaser.Tweens.Tween;
-
-    private driveDisruptionFlashTween?:
-        Phaser.Tweens.Tween;
-
-    private driveDisruptionBandTween?:
-        Phaser.Tweens.Tween;
 
     constructor(
         private readonly scene: BridgeScene,
@@ -62,7 +40,7 @@ export default class BridgeVfxView {
             );
 
         // VFX layer расположен под bridge interior,
-        // поэтому full-screen flashes видны главным образом
+        // поэтому full-screen flash виден главным образом
         // через viewscreen.
         this.jumpFlash = this.scene.add
             .rectangle(
@@ -80,47 +58,13 @@ export default class BridgeVfxView {
                 Phaser.BlendModes.ADD,
             );
 
-        this.driveDisruptionFlash =
-            this.scene.add
-                .rectangle(
-                    0,
-                    0,
-                    this.scene.scale.width,
-                    this.scene.scale.height,
-                    DRIVE_DISRUPTION.flashColor,
-                    1,
-                )
-                .setOrigin(0, 0)
-                .setAlpha(0)
-                .setVisible(false)
-                .setBlendMode(
-                    Phaser.BlendModes.ADD,
-                );
+        this.root.add(this.jumpFlash);
 
-        this.driveDisruptionBand =
-            this.scene.add
-                .rectangle(
-                    BRIDGE_VIEWSCREEN_RECT.x,
-                    BRIDGE_VIEWSCREEN_RECT.y,
-
-                    BRIDGE_VIEWSCREEN_RECT.width,
-                    DRIVE_DISRUPTION.bandHeight,
-
-                    DRIVE_DISRUPTION.bandColor,
-                    1,
-                )
-                .setOrigin(0, 0)
-                .setAlpha(0)
-                .setVisible(false)
-                .setBlendMode(
-                    Phaser.BlendModes.ADD,
-                );
-
-        this.root.add([
-            this.jumpFlash,
-            this.driveDisruptionFlash,
-            this.driveDisruptionBand,
-        ]);
+        this.driveDisruptionView =
+            new BridgeDriveDisruptionView(
+                this.scene,
+                this.root,
+            );
 
         this.eventBus.on(
             BRIDGE_EVENT.ENCOUNTER_ARRIVAL_STARTED,
@@ -199,24 +143,11 @@ export default class BridgeVfxView {
         this.jumpTween?.stop();
         this.jumpTween = undefined;
 
-        this.driveDisruptionFlashTween?.stop();
-        this.driveDisruptionFlashTween = undefined;
-
-        this.driveDisruptionBandTween?.stop();
-        this.driveDisruptionBandTween = undefined;
-
         this.scene.tweens.killTweensOf(
             this.jumpFlash,
         );
 
-        this.scene.tweens.killTweensOf(
-            this.driveDisruptionFlash,
-        );
-
-        this.scene.tweens.killTweensOf(
-            this.driveDisruptionBand,
-        );
-
+        this.driveDisruptionView.destroy();
         this.viewscreenDustView.destroy();
         this.root.destroy(false);
     }
@@ -264,87 +195,6 @@ export default class BridgeVfxView {
     }
 
     private playDriveDisruption(): void {
-        this.driveDisruptionFlashTween?.stop();
-        this.driveDisruptionBandTween?.stop();
-
-        this.scene.tweens.killTweensOf(
-            this.driveDisruptionFlash,
-        );
-
-        this.scene.tweens.killTweensOf(
-            this.driveDisruptionBand,
-        );
-
-        this.driveDisruptionFlash
-            .setVisible(true)
-            .setAlpha(0);
-
-        this.driveDisruptionBand
-            .setVisible(true)
-            .setPosition(
-                BRIDGE_VIEWSCREEN_RECT.x,
-                BRIDGE_VIEWSCREEN_RECT.y,
-            )
-            .setAlpha(
-                DRIVE_DISRUPTION.bandAlpha,
-            );
-
-        this.driveDisruptionFlashTween =
-            this.scene.tweens.add({
-                targets:
-                    this.driveDisruptionFlash,
-
-                alpha:
-                    DRIVE_DISRUPTION.flashAlpha,
-
-                duration:
-                    DRIVE_DISRUPTION
-                        .flashDurationMs,
-
-                ease: 'Linear',
-                yoyo: true,
-
-                repeat: 1,
-                repeatDelay:
-                    DRIVE_DISRUPTION
-                        .flashRepeatDelayMs,
-
-                onComplete: () => {
-                    this.driveDisruptionFlashTween =
-                        undefined;
-
-                    this.driveDisruptionFlash
-                        .setVisible(false)
-                        .setAlpha(0);
-                },
-            });
-
-        this.driveDisruptionBandTween =
-            this.scene.tweens.add({
-                targets:
-                    this.driveDisruptionBand,
-
-                y:
-                    BRIDGE_VIEWSCREEN_RECT.y +
-                    BRIDGE_VIEWSCREEN_RECT.height -
-                    DRIVE_DISRUPTION.bandHeight,
-
-                alpha: 0,
-
-                duration:
-                    DRIVE_DISRUPTION
-                        .bandDurationMs,
-
-                ease: 'Linear',
-
-                onComplete: () => {
-                    this.driveDisruptionBandTween =
-                        undefined;
-
-                    this.driveDisruptionBand
-                        .setVisible(false)
-                        .setAlpha(0);
-                },
-            });
+        this.driveDisruptionView.play();
     }
 }
