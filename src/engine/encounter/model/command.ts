@@ -8,6 +8,7 @@ export const ENCOUNTER_OFFICER_COMMAND_ID = {
 
     SCIENCE_PLOT_COURSE: 'science_plot_course',
     SCIENCE_IDENTIFY_THREAT: 'science_identify_threat',
+    SCIENCE_PURGE_SPAM: 'science_purge_spam',
 
     ENGINEER_DEPLOY_SHIELD_LEFT: 'engineer_deploy_shield_left',
     ENGINEER_DEPLOY_SHIELD_CENTER: 'engineer_deploy_shield_center',

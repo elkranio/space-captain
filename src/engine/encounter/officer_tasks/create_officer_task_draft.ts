@@ -76,6 +76,22 @@ export function createScienceIdentifyThreatTask(threatId: string): OfficerTaskDr
     };
 }
 
+export function createSciencePurgeSpamTask(channelId: string): OfficerTaskDraft {
+    return {
+        kind: OFFICER_TASK_KIND.SCIENCE_PURGE_SPAM,
+        role: OFFICER_ROLE.SCIENCE,
+
+        sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.SCIENCE_PURGE_SPAM,
+
+        channelId,
+
+        label: 'PURGE SPAM',
+        showProgress: true,
+
+        durationMs: OFFICER_TASK_BASE_DURATION_MS.SCIENCE_PURGE_SPAM,
+    };
+}
+
 export function createEngineerDeployShieldTask(
     sourceCommandId: EngineerDeployShieldCommandId,
     shieldZone: LaserTargetZone,

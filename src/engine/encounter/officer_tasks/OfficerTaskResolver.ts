@@ -54,7 +54,10 @@ type WeaponsPointDefenseTaskState = Extract<
 // - не удаляет task;
 // - не эмитит lifecycle events.
 export default class OfficerTaskResolver {
-    constructor(private readonly stateStore: EncounterStateStore) {}
+    constructor(
+        private readonly stateStore: EncounterStateStore,
+        private readonly purgeSpamChannel: (channelId: string) => boolean,
+    ) {}
 
     public resolve(task: OfficerTaskState): OfficerTaskResult | undefined {
         switch (task.kind) {
@@ -70,6 +73,10 @@ export default class OfficerTaskResolver {
 
             case OFFICER_TASK_KIND.SCIENCE_IDENTIFY_THREAT:
                 return this.resolveScienceIdentifyThreatTask(task);
+
+            case OFFICER_TASK_KIND.SCIENCE_PURGE_SPAM:
+                this.purgeSpamChannel(task.channelId);
+                return undefined;
 
             case OFFICER_TASK_KIND.ENGINEER_DEPLOY_SHIELD:
                 return this.resolveEngineerDeployShieldTask(task);

@@ -90,13 +90,6 @@ export default class EncounterEngine {
             emit: this.emit,
         });
 
-        this.officerTaskRunner = new OfficerTaskRunner({
-            stateStore: this.stateStore,
-            emit: this.emit,
-
-            completeTimedTasksImmediately,
-        });
-
         this.combatRunner = new CombatRunner({
             state: encounterState,
             emit: this.emit,
@@ -106,6 +99,17 @@ export default class EncounterEngine {
             interruptRandomOfficerTask: () => {
                 this.interruptRandomOfficerTask(random);
             },
+        });
+
+        this.officerTaskRunner = new OfficerTaskRunner({
+            stateStore: this.stateStore,
+            emit: this.emit,
+
+            purgeSpamChannel: (channelId) => {
+                return this.combatRunner.purgeSpamChannel(channelId);
+            },
+
+            completeTimedTasksImmediately,
         });
 
         this.contactSequenceRunner = new ContactSequenceRunner({

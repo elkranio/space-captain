@@ -15,6 +15,9 @@ import OfficerTaskResolver from './OfficerTaskResolver';
 type OfficerTaskRunnerOptions = {
     stateStore: EncounterStateStore;
     emit: (event: EncounterEvent) => void;
+
+    purgeSpamChannel: (channelId: string) => boolean;
+
     completeTimedTasksImmediately?: boolean;
 };
 
@@ -37,12 +40,22 @@ export default class OfficerTaskRunner {
 
     private nextTaskId = 1;
 
-    constructor({ stateStore, emit, completeTimedTasksImmediately = false }: OfficerTaskRunnerOptions) {
+    constructor({
+        stateStore,
+        emit,
+
+        purgeSpamChannel,
+
+        completeTimedTasksImmediately = false,
+    }: OfficerTaskRunnerOptions) {
         this.stateStore = stateStore;
         this.emit = emit;
         this.completeTimedTasksImmediately = completeTimedTasksImmediately;
 
-        this.taskResolver = new OfficerTaskResolver(this.stateStore);
+        this.taskResolver = new OfficerTaskResolver(
+            this.stateStore,
+            purgeSpamChannel,
+        );
 
         this.restoreMissingNavigationTask();
     }

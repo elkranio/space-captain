@@ -21,6 +21,7 @@ export const OFFICER_TASK_KIND = {
 
     SCIENCE_PLOT_COURSE: 'science_plot_course',
     SCIENCE_IDENTIFY_THREAT: 'science_identify_threat',
+    SCIENCE_PURGE_SPAM: 'science_purge_spam',
 
     ENGINEER_DEPLOY_SHIELD: 'engineer_deploy_shield',
 
@@ -89,6 +90,15 @@ type ScienceIdentifyThreatOfficerTaskDraft = OfficerTaskDraftBase & {
     threatId: string;
 };
 
+type SciencePurgeSpamOfficerTaskDraft = OfficerTaskDraftBase & {
+    kind: typeof OFFICER_TASK_KIND.SCIENCE_PURGE_SPAM;
+    role: typeof OFFICER_ROLE.SCIENCE;
+
+    sourceCommandId: typeof ENCOUNTER_OFFICER_COMMAND_ID.SCIENCE_PURGE_SPAM;
+
+    channelId: string;
+};
+
 type EngineerDeployShieldOfficerTaskDraft = OfficerTaskDraftBase & {
     kind: typeof OFFICER_TASK_KIND.ENGINEER_DEPLOY_SHIELD;
     role: typeof OFFICER_ROLE.ENGINEER;
@@ -149,6 +159,7 @@ export type OfficerTaskDraft =
     | CommsRequestDockingOfficerTaskDraft
     | SciencePlotCourseOfficerTaskDraft
     | ScienceIdentifyThreatOfficerTaskDraft
+    | SciencePurgeSpamOfficerTaskDraft
     | EngineerDeployShieldOfficerTaskDraft
     | WeaponsPointDefenseOfficerTaskDraft
     | HelmDockOfficerTaskDraft
@@ -183,6 +194,7 @@ export function getOfficerTaskCancellationPolicy(
         case OFFICER_TASK_KIND.COMMS_REQUEST_DOCKING:
         case OFFICER_TASK_KIND.SCIENCE_PLOT_COURSE:
         case OFFICER_TASK_KIND.SCIENCE_IDENTIFY_THREAT:
+        case OFFICER_TASK_KIND.SCIENCE_PURGE_SPAM:
         case OFFICER_TASK_KIND.ENGINEER_DEPLOY_SHIELD:
         case OFFICER_TASK_KIND.WEAPONS_POINT_DEFENSE:
         case OFFICER_TASK_KIND.HELM_JUMP:
