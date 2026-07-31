@@ -54,9 +54,10 @@ export type SpawnShipActorInput = {
 
 // Владеет mutable runtime state одного encounter.
 //
-// Подсистемы решают, когда должна произойти операция.
-// EncounterStateStore выполняет саму state mutation
-// и проверяет локальные invariants состояния.
+// Encounter runners могут изменять принадлежащие им
+// участки state напрямую.
+// Store централизует общие lookups, cross-system mutations
+// и локальные invariants, которым нужен единый владелец.
 export default class EncounterStateStore {
     constructor(private readonly state: EncounterState) {}
 
@@ -96,13 +97,10 @@ export default class EncounterStateStore {
 
     // #endregion
 
-    // #region State reading
+    // #region State access
 
-    // Пока raw state нужен существующим pure queries
-    // и ENCOUNTER_LOADED event.
-    //
-    // Все новые mutations должны добавляться
-    // отдельными методами EncounterStateStore.
+    // Mutable state намеренно доступен encounter runners.
+    // Queries используют тот же объект только для чтения.
     public getState(): EncounterState {
         return this.state;
     }
@@ -138,6 +136,10 @@ export default class EncounterStateStore {
             return actor.anchorId === anchorId;
         });
     }
+
+    // #endregion
+
+    // #region Actor mutations
 
     public spawnShipActor({ actorId, shipId, anchorId, team, weapons }: SpawnShipActorInput): ShipEncounterActorState {
         if (!this.findAnchorById(anchorId)) {
