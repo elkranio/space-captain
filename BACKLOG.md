@@ -2,9 +2,9 @@
 
 Deferred implementation work, design debts and reminders.
 
-This file is not the active sprint plan.
+This file is not automatically the active sprint plan.
 
-An item should move into active implementation only after it is selected explicitly.
+An item moves into active implementation only after it is selected explicitly.
 
 Keep items concrete enough that they remain understandable in a future chat.
 
@@ -12,23 +12,288 @@ Last updated: 2026-07-31
 
 ---
 
-# 1. Near-term combat debts
+# 1. Next selected work: cognitive refactor pass
 
-## Spam officer-task slowdown modifier
+The next development chat should begin with an audit, not an implementation script.
 
-The initial Spam Projector weapon channels its attack but does not yet slow officer work.
+The purpose is:
 
-Future contract:
+```text
+make the code easier to hold in working memory
+```
 
-- while at least one hostile spam channel is active, officer task progress is multiplied by a slowdown coefficient;
-- apply the coefficient to elapsed progress instead of mutating task `durationMs`;
-- the coefficient belongs to the Spam Projector definition;
-- integrate this through the future task/modifier system instead of hard-coding spam inside `OfficerTaskRunner`;
-- decide explicit stacking behavior before supporting several simultaneous spam channels.
+The target is not maximum abstraction.
 
-Do not add an unused coefficient field before the modifier path exists.
+The target is:
+
+- obvious ownership;
+- obvious data flow;
+- fewer unnecessary file jumps;
+- fewer places that must change together;
+- explicit, boring code;
+- removal of accidental spaghetti.
+
+## Audit procedure
+
+Before proposing changes:
+
+1. Read fresh `master`.
+2. Read `PROJECT_CONTEXT.md`.
+3. Read this file.
+4. Inspect the actual current files.
+5. Do not treat refactor ideas from the previous chat as verified facts.
+6. Produce a short list of concrete problems with file-level evidence.
+7. Agree on the order of atoms before editing.
+
+Audit these areas:
+
+### Mutable state ownership
+
+Identify:
+
+- which class owns each mutable encounter value;
+- which class is allowed to mutate persistent runtime state;
+- whether the same state is synchronized from more than one app class;
+- whether any view or controller bypasses the intended owner.
+
+The desired direction remains:
+
+```text
+engine mutation
+→ encounter event
+→ app/runtime synchronization
+→ bridge presentation event
+```
+
+Do not force this shape where a synchronous completion callback is simpler and already clear.
+
+### `EncounterEngine` ↔ `GameRuntime` synchronization
+
+Verify whether runtime synchronization is split between:
+
+- `BridgeEncounterController`;
+- `BridgeEncounterEngineEventHandler`;
+- any other integration class.
+
+Look specifically at:
+
+- navigation;
+- drive;
+- point-defense charges;
+- shield-generator state;
+- hull;
+- newly created persistent anchors.
+
+Do not introduce a new synchronizer class unless it clearly reduces the number of owners and file jumps.
+
+### `BridgeEncounterController`
+
+Check whether it currently owns too many unrelated responsibilities:
+
+- bridge input;
+- encounter lifecycle;
+- runtime persistence;
+- snapshot polling;
+- scene transitions;
+- presentation callbacks.
+
+Possible outcomes include:
+
+- moving one coherent responsibility out;
+- introducing one small helper;
+- leaving the class intact if splitting would create more jumps.
+
+File size alone is not evidence.
+
+### New-game startup data
+
+Inspect:
+
+- `create_new_run_state.ts`;
+- `create_new_game_player.ts`;
+- `NewGameUniverseFactory.ts`;
+- relevant presets/catalogs.
+
+Find genuinely scattered choices such as:
+
+- selected starter ship preset;
+- selected starting location;
+- starting officers;
+- persistent system instance IDs;
+- selected enemy/node actor preset.
+
+Centralize only top-level startup choices.
+
+Do not move all universe geometry into one giant configuration object.
+
+Also verify whether the same station state object is intentionally reused in more than one node.
+
+### `EncounterEngine` facade
+
+Check whether `EncounterEngine` contains domain work that belongs in:
+
+- a pure query;
+- an existing runner;
+- officer-task logic;
+- combat logic.
+
+Likely audit candidates:
+
+- laser threat snapshot construction;
+- random task interruption;
+- cloning helpers.
+
+Do not make the engine indirect merely to reduce line count.
+
+Keep the explicit subsystem `step()` order visible.
+
+### `CombatRunner`
+
+`CombatRunner` is large, but that alone is not a problem.
+
+Do not split missile, laser and spam logic automatically.
+
+Split only when there is a concrete gain such as:
+
+- one subsystem can own a complete lifecycle;
+- dependencies become fewer;
+- shared weapon-phase rules stay readable;
+- tests become more local;
+- adding a new weapon no longer requires touching unrelated sections.
+
+Avoid replacing one long linear file with a graph of tiny runners.
+
+### `EncounterStateStore`
+
+Keep one authoritative mutable encounter state owner unless the audit proves a real ownership conflict.
+
+Do not split it into several stores merely because it is long.
+
+Its current regional organization may be cognitively cheaper than multiple cross-store calls.
+
+Potential cleanup is still allowed:
+
+- clearer method names;
+- local helper extraction;
+- removal of duplicate lookup/validation code;
+- moving static content creation out when it is truly content rather than mutation.
+
+### Views and VFX ownership
+
+Inspect whether root views have started accumulating complete child-effect implementations.
+
+Candidate:
+
+```text
+BridgeVfxView
+```
+
+A split is justified when each child owns:
+
+- its objects;
+- its tweens;
+- its event subscription;
+- its cleanup.
+
+Do not create child classes for effects that remain only a few obvious lines.
+
+### Test fixtures
+
+Find repeated full payloads that fail whenever one field is added.
+
+Current candidate:
+
+```text
+PLAYER_SHIP_STATUS_UPDATED
+```
+
+A focused fixture/builder is justified if it:
+
+- provides explicit starter defaults;
+- lets tests override only the relevant value;
+- remains easier to read than handwritten payloads.
+
+Do not create a universal test-data framework.
+
+### Cleanup pass
+
+After structural atoms are done, perform a final narrow cleanup:
+
+- obsolete comments;
+- comments describing already completed future work;
+- double blank lines left by scripts;
+- unused imports;
+- dead helpers;
+- inconsistent naming;
+- duplicated error construction where a tiny local helper is clearer.
+
+Do not mix this cleanup into behavior-changing atoms unless required.
+
+## Refactor rules
+
+Every refactor atom must:
+
+- preserve gameplay behavior;
+- have a single cognitive goal;
+- include focused tests when behavior ownership moves;
+- pass typecheck;
+- pass tests;
+- pass runtime smoke when app flow changes;
+- be pushed and re-read before the next atom.
+
+Prefer:
+
+```text
+one obvious owner
+```
+
+over:
+
+```text
+several flexible collaborators
+```
+
+Prefer:
+
+```text
+explicit sequence
+```
+
+over:
+
+```text
+generic registry / pipeline / effect graph
+```
+
+Prefer:
+
+```text
+small duplication that keeps behavior local
+```
+
+over:
+
+```text
+abstraction that forces constant jumping
+```
+
+## Refactor non-goals
+
+Do not introduce during this pass:
+
+- entity-component systems;
+- generic resource frameworks;
+- generic effect graphs;
+- dependency injection containers;
+- event-sourcing architecture;
+- universal command scripting;
+- speculative save migration;
+- generalized modifier frameworks;
+- large folder reorganizations without behavior-level benefit.
 
 ---
+
+# 2. Near-term combat debts
 
 ## Actual BLUE missile content
 
@@ -67,33 +332,7 @@ Potential cases:
 - Weapons is already busy;
 - command target does not match an available command.
 
-The current executor validates availability before calling the handler, but the contract should eventually be locked by a focused test.
-
-Not urgent because current typecheck, tests and runtime behavior are green.
-
----
-
-## Point-defense cancellation UI
-
-Engine task cancellation exists, but the player-facing cancellation flow is not yet designed.
-
-Required contract is already decided:
-
-```text
-cancelled PD AIM
-→ spent charge is not refunded
-```
-
-Need later:
-
-- how the player selects an active task;
-- whether all officer tasks can be cancelled;
-- which tasks are non-cancellable;
-- officer feedback after cancellation;
-- keyboard/gamepad interaction;
-- prevention of accidental cancellation.
-
-Do not build a generic cancellation framework before the UI interaction is designed.
+The executor currently validates availability before calling the handler, but the resource contract deserves one focused regression test.
 
 ---
 
@@ -136,11 +375,49 @@ Need to decide where persistence and replenishment rules live.
 
 ---
 
-# 2. Missile and threat system
+## Which enemies have an opening disruption pulse
+
+Current prototype behavior gives the opening pulse to hostile encounter ships through engagement logic.
+
+Future content should decide whether the pulse belongs to:
+
+- every hostile ship;
+- a ship definition capability;
+- a specific installed system;
+- selected encounter presets;
+- scripted encounter openings.
+
+Do not leave universal pulse behavior accidental once enemy variety appears.
+
+The one-shot-per-source encounter rule can remain even if capability becomes content-driven.
+
+---
+
+## Opening pulse presentation polish
+
+Current effect is intentionally simple:
+
+- violet additive flash;
+- horizontal interference band;
+- no camera shake.
+
+Possible later polish:
+
+- sound effect;
+- bridge light flicker;
+- slightly more irregular static;
+- clearer timing before `ENGINE` turns red;
+- source-direction hint only if it helps gameplay.
+
+Avoid making it look like physical hull impact.
+
+---
+
+# 3. Missile and threat system
 
 ## Launcher identification persistence
 
-Current Science identification applies to one active projectile.
+Current Science identification applies to one active threat.
 
 Future direction:
 
@@ -171,26 +448,28 @@ Possible outputs:
 - possible critical target;
 - uncertain versus confirmed information.
 
-This should compete with missile identification for Science time.
+This should compete with threat identification and spam purging for Science time.
 
 Avoid turning the result into a large spreadsheet.
 
 ---
 
-## Multiple simultaneous missiles
+## Multiple simultaneous threats
 
 Current combat philosophy prefers few readable threats.
 
 Later tests should explore:
 
+- missile plus laser;
+- missile plus spam;
 - two missiles with different time-to-impact;
 - different spectral bands;
 - one Science officer;
 - one Weapons officer;
-- limited point-defense charges;
-- prioritization under time pressure.
+- one Engineer;
+- limited defensive resources.
 
-Do not scale to large missile swarms.
+Do not scale to large swarms.
 
 The intended question is:
 
@@ -237,21 +516,68 @@ Potential improvements:
 
 ---
 
-# 3. Player defensive systems
+# 4. Player defensive systems
 
 ## Helm evade fallback
 
-When point defense is unavailable, Helm may later attempt an evade.
+Future EVADE should use maneuvering thrusters rather than the main drive.
+
+Therefore:
+
+```text
+main drive DISABLED
+≠ EVADE unavailable
+```
+
+Possible outcome model:
+
+```text
+MISS
+GLANCING
+DIRECT
+```
 
 Possible characteristics:
 
-- lower success chance than the correct point-defense beam;
+- lower reliability than the exact counter;
 - consumes Helm time;
-- may change impact damage rather than fully avoid it;
-- effectiveness may depend on engine state;
+- may reduce damage rather than fully avoid it;
+- may depend on maneuvering-thruster condition;
 - should not become direct arcade steering.
 
-No contract is currently locked.
+No final contract is locked.
+
+---
+
+## Maneuvering-thruster system
+
+If EVADE is implemented, decide whether maneuvering thrusters are:
+
+- always available baseline hardware;
+- a persistent ship system with state;
+- damageable;
+- repairable;
+- limited by charges/heat;
+- represented separately from the main drive.
+
+Do not introduce the system before EVADE needs it.
+
+---
+
+## Shield decisions beyond one laser
+
+Directional shields are implemented for one active zone.
+
+Future questions:
+
+- can several laser threats overlap;
+- can the shield be redeployed while active;
+- does redeployment consume another charge;
+- should Science identification reveal zone early enough;
+- should some lasers penetrate or overload shields;
+- how shield choice competes with drive repair and other Engineer work.
+
+Keep the system readable.
 
 ---
 
@@ -273,32 +599,9 @@ This belongs after the basic combat loop proves fun.
 
 ---
 
-## Directional shields
-
-Future beam-threat counter.
-
-The enemy beam asks a different defensive question than missiles:
-
-```text
-where should the ship defend?
-```
-
-Possible system:
-
-- shield can protect one sector;
-- enemy telegraphs firing direction;
-- player assigns an officer/system before impact;
-- shield positioning competes with other bridge work.
-
-Do not implement before missile combat is stable.
-
----
-
-# 4. Player offense
+# 5. Player offense
 
 ## Player weapon commands
-
-The current vertical slice begins with enemy attack.
 
 Player offensive actions are not yet implemented.
 
@@ -319,7 +622,8 @@ Avoid conventional cooldown-button combat with no officer decisions.
 Possible future targets:
 
 - missile launcher;
-- beam weapon;
+- laser;
+- spam projector;
 - engines;
 - shields;
 - sensors;
@@ -344,46 +648,44 @@ The player should make a visible command decision based on the information.
 
 ---
 
-# 5. Ship damage and escape
+# 6. Ship damage, repair and escape
 
-## Engine disabled at combat start
+## Repair tasks beyond the main drive
 
-Design idea:
+`REPAIR ENGINE` is implemented.
 
-The obsolete player ship may have its engine knocked out early in a fight.
+Future Engineer work may include:
 
-Consequences:
+- restore shield generator;
+- stabilize hull;
+- restore sensors;
+- restore maneuvering thrusters;
+- clear bridge hazards;
+- accelerate point-defense recharge outside combat.
 
-- Engineer must repair it before escape;
-- player may remain and fight instead;
-- escape becomes a timed strategic option;
-- the captain dashboard can show engine state.
+Each repair must create a visible decision and compete for Engineer time.
 
-Not implemented.
+Avoid generic health-bar healing.
 
 ---
 
-## Repair tasks
+## Escape flow
 
-Engineer needs meaningful timed tasks.
+The main drive can now be disabled and repaired, but a complete escape flow is not implemented.
 
-Possible tasks:
+Need to decide:
 
-- repair engine;
-- restore shield system;
-- stabilize hull;
-- restore sensors;
-- accelerate point-defense recharge outside combat.
-
-Need prioritization and visible consequences.
-
-Avoid generic health-bar healing with no bridge decision.
+- which command initiates escape;
+- whether jump or FLY TO is the escape action;
+- whether an enemy can interrupt escape preparation;
+- how encounter victory/escape is resolved;
+- whether enemies can pursue into the next node.
 
 ---
 
 ## Damage beyond hull
 
-Current player damage model is hull only.
+Current direct damage model still mainly resolves into hull loss plus task interruption.
 
 Possible later states:
 
@@ -397,7 +699,7 @@ Add only when each state creates a meaningful command decision.
 
 ---
 
-# 6. Ship status presentation
+# 7. Ship status presentation
 
 ## Temporary status panel replacement
 
@@ -406,6 +708,8 @@ Current top-center panel displays:
 ```text
 HULL
 PD
+SHD
+ENGINE
 ```
 
 It is intentionally temporary.
@@ -433,7 +737,8 @@ Long-term scene idea:
 - hull state;
 - engine state;
 - point-defense charge count;
-- possibly shield sector;
+- shield-generator charges;
+- possibly active shield zone;
 - important ship-wide alerts.
 
 Visual design should remain Sierra-style and readable.
@@ -454,7 +759,7 @@ Long-term goals:
 
 ---
 
-# 7. Command UI
+# 8. Command UI
 
 ## Keyboard officer shortcuts
 
@@ -497,7 +802,7 @@ The player should be able to reach critical threat actions in one or two decisio
 
 Potential improvements:
 
-- persistent missile indicators;
+- persistent missile/laser indicators;
 - direct threat selection;
 - reopening the last relevant officer menu;
 - keyboard shortcuts;
@@ -507,20 +812,22 @@ Avoid repeatedly reopening deep context menus.
 
 ---
 
-## Command-menu polling test
+## Command-menu polling regression coverage
 
 The open officer menu polls available commands approximately every 200 ms.
 
-Add or maintain regression coverage for cases such as:
+Maintain regression coverage for cases such as:
 
 - Science creates a jump point while Helm menu is open;
-- a missile appears while Science/Weapons menu is open;
+- a threat appears while Science/Weapons menu is open;
 - point-defense charges reach zero while Weapons menu is open;
-- an officer task finishes while the menu is open.
+- an officer task finishes while the menu is open;
+- drive becomes disabled or repaired while Helm/Engineer menus are open;
+- spam channel expires while Science menu is open.
 
 ---
 
-# 8. Encounter and navigation polish
+# 9. Encounter and navigation polish
 
 ## Ship sprite scale consistency
 
@@ -541,9 +848,9 @@ Continue moving literal encounter configuration into reusable content presets wh
 
 Candidates:
 
-- missile loadouts;
-- launcher loadouts;
+- mixed missile loadouts;
 - enemy combat archetypes;
+- disruption-capable ships;
 - node actors;
 - station encounters;
 - combat encounter variants.
@@ -565,17 +872,35 @@ Potential improvements:
 
 ---
 
-# 9. Test and architecture debts
+# 10. Test and architecture debts
 
 ## Persistence across encounter recreation
 
-Add focused coverage proving that:
+Maintain focused coverage proving that persistent combat resources survive encounter recreation:
 
-- spent point-defense charges persist in `GameRuntime`;
-- recreating `EncounterEngine` receives the current persistent value;
-- leaving/re-entering the bridge does not restore charges accidentally.
+- spent point-defense charges;
+- shield-generator charges/regeneration state;
+- drive disabled/repaired state;
+- navigation rollback after disruption.
 
-Current runtime flow appears correct, but a dedicated persistence regression test would protect the resource contract.
+Leaving and re-entering the bridge must not restore resources accidentally.
+
+---
+
+## Full player ship status fixture
+
+`PLAYER_SHIP_STATUS_UPDATED` now contains:
+
+- hull;
+- drive;
+- point defense;
+- shield generator.
+
+Several app tests hand-write the same complete payload.
+
+During the cognitive refactor pass, consider a focused test fixture with explicit starter defaults and small overrides.
+
+Do not build a universal fixture framework.
 
 ---
 
@@ -583,44 +908,53 @@ Current runtime flow appears correct, but a dedicated persistence regression tes
 
 `BridgeController` and `BridgeEncounterEngineEventHandler` both construct the full player ship status payload.
 
-A shared mapper/helper may become useful after more resources are added.
+The field count has grown enough that drift is now a realistic risk.
 
-Do not extract it yet unless duplication grows or fields begin drifting.
+During the refactor audit, verify whether one small pure mapper would reduce duplication without hiding the payload.
 
 ---
 
-## Encounter/runtime resource synchronization
+## Encounter/runtime synchronization ownership
 
-Point-defense state intentionally exists in:
+Persistent state currently includes:
 
-- persistent player ship state;
-- encounter snapshot.
+- navigation;
+- hull;
+- drive;
+- point defense;
+- shield generator;
+- generated persistent anchors.
 
-The encounter is authoritative while running.
+The encounter snapshot is authoritative while running.
 
-Synchronization currently occurs through domain events.
+During the refactor audit, verify that each mutation has one obvious app-side synchronization owner.
 
-When adding new mutable persistent combat resources, preserve this direction and avoid per-frame synchronization.
+Avoid:
+
+- per-frame synchronization;
+- views reading runtime;
+- controllers and event handlers both owning the same resource;
+- broad generic persistence frameworks.
 
 ---
 
 ## Event naming review
 
-Current event:
+Current explicit events include resource-specific and behavior-specific names such as:
 
 ```text
 PLAYER_POINT_DEFENSE_CHARGE_SPENT
+PLAYER_SHIP_DRIVE_STATE_CHANGED
+PLAYER_SHIP_DRIVE_DISRUPTED
 ```
 
-is explicit and correct for the current behavior.
+Keep explicit events while they make behavior clearer.
 
-If many player-resource events appear later, consider whether a more general resource snapshot event is justified.
-
-Do not generalize based on one resource.
+Only generalize if several events truly share the same contract and consumers.
 
 ---
 
-# 10. Larger future systems
+# 11. Larger future systems
 
 ## Crew stress and fatigue
 
@@ -661,6 +995,7 @@ Not part of the current combat prototype.
 Future enemy variety may come from:
 
 - faction missile preferences;
+- disruption technology;
 - missing countermeasure technology;
 - different launcher firmware;
 - different willingness to retreat;
@@ -686,7 +1021,7 @@ The combat system should support mission context rather than exist as an isolate
 
 ---
 
-# 11. Design risks to keep visible
+# 12. Design risks to keep visible
 
 ## Menu matching
 
@@ -705,7 +1040,7 @@ Mitigation should come from:
 - limited charges;
 - competing officer tasks;
 - incomplete information;
-- multiple threats;
+- multiple threat types;
 - offensive opportunities;
 - meaningful fallback options.
 
@@ -751,11 +1086,13 @@ Before removing it, ensure the diegetic replacement preserves:
 - update timing;
 - current/max values;
 - damage feedback;
-- charge-spend feedback.
+- charge-spend feedback;
+- drive-disabled feedback;
+- shield state feedback.
 
 ---
 
-# 12. Backlog maintenance
+# 13. Backlog maintenance
 
 At the end of each development chat:
 
