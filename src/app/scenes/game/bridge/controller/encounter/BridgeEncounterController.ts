@@ -5,7 +5,6 @@ import {
     PLAYER_SPACE_NAVIGATION_KIND,
     type PlayerSpaceNavigationState,
 } from '../../../../../../engine/defs/player_location';
-import { SPACE_ANCHOR_KIND } from '../../../../../../engine/defs/universe';
 import EncounterEngine from '../../../../../../engine/encounter/EncounterEngine';
 import {
     ENCOUNTER_OFFICER_COMMAND_ID,
@@ -15,11 +14,6 @@ import {
     type ExecuteOfficerCommandInput,
     type ExecuteOfficerCommandResult,
 } from '../../../../../../engine/encounter/model/command';
-import {
-    ENCOUNTER_EVENT,
-    OFFICER_TASK_RESULT_KIND,
-    type EncounterEvent,
-} from '../../../../../../engine/encounter/model/event';
 import { DEBUG_SETTINGS } from '../../../../../debug/debug_settings';
 import { GAME_RUNTIME } from '../../../../../runtime/GameRuntime';
 import { SCENE_KEY } from '../../../../scene_key';
@@ -301,7 +295,6 @@ export default class BridgeEncounterController {
 
         const events = this.encounterEngine.drainEvents();
 
-        this.syncRuntimeAnchorsFromEncounterEvents(events);
         this.engineEventHandler.handle(events);
     }
 
@@ -534,32 +527,6 @@ export default class BridgeEncounterController {
         }
 
         GAME_RUNTIME.setPlayerSpaceNavigation(navigation);
-    }
-
-    private syncRuntimeAnchorsFromEncounterEvents(events: EncounterEvent[]): void {
-        for (const event of events) {
-            if (event.type !== ENCOUNTER_EVENT.OFFICER_TASK_ENDED) {
-                continue;
-            }
-
-            if (event.result?.kind !== OFFICER_TASK_RESULT_KIND.JUMP_POINT_CALCULATED) {
-                continue;
-            }
-
-            const anchor = event.result.anchor;
-
-            GAME_RUNTIME.addCurrentNodeAnchor({
-                kind: SPACE_ANCHOR_KIND.JUMP_POINT,
-
-                jumpPoint: {
-                    ...anchor.jumpPoint,
-                },
-
-                localPosition: {
-                    ...anchor.localPosition,
-                },
-            });
-        }
     }
 
     // #endregion

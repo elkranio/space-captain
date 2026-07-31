@@ -2,6 +2,7 @@
 
 import { OFFICER_ROLE } from '../../../../../../../engine/defs/officer';
 import { PLAYER_SPACE_NAVIGATION_KIND } from '../../../../../../../engine/defs/player_location';
+import { SPACE_ANCHOR_KIND } from '../../../../../../../engine/defs/universe';
 import { LASER_SHOT_OUTCOME } from '../../../../../../../engine/encounter/model/combat';
 import {
     ENCOUNTER_EVENT,
@@ -154,9 +155,23 @@ export default class BridgeEncounterEngineEventHandler {
 
             case ENCOUNTER_EVENT.OFFICER_TASK_ENDED:
                 if (event.result?.kind === OFFICER_TASK_RESULT_KIND.JUMP_POINT_CALCULATED) {
+                    const anchor = event.result.anchor;
+
+                    this.gameRuntime.addCurrentNodeAnchor({
+                        kind: SPACE_ANCHOR_KIND.JUMP_POINT,
+
+                        jumpPoint: {
+                            ...anchor.jumpPoint,
+                        },
+
+                        localPosition: {
+                            ...anchor.localPosition,
+                        },
+                    });
+
                     this.eventBus.emit(
                         BRIDGE_EVENT.ENCOUNTER_OBJECT_ADDED,
-                        mapEncounterAnchorToBridgeObjectPayload(event.result.anchor),
+                        mapEncounterAnchorToBridgeObjectPayload(anchor),
                     );
                 }
 
