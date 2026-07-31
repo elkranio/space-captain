@@ -22,6 +22,8 @@ type OfficerTaskRunnerOptions = {
 
     purgeSpamChannel: (channelId: string) => boolean;
 
+    random: () => number;
+
     completeTimedTasksImmediately?: boolean;
 };
 
@@ -40,6 +42,8 @@ export default class OfficerTaskRunner {
 
     private readonly completeTimedTasksImmediately: boolean;
 
+    private readonly random: () => number;
+
     private readonly taskResolver: OfficerTaskResolver;
 
     private readonly performanceResolver: OfficerPerformanceResolver;
@@ -52,10 +56,12 @@ export default class OfficerTaskRunner {
 
         purgeSpamChannel,
 
+        random,
         completeTimedTasksImmediately = false,
     }: OfficerTaskRunnerOptions) {
         this.stateStore = stateStore;
         this.emit = emit;
+        this.random = random;
         this.completeTimedTasksImmediately = completeTimedTasksImmediately;
 
         this.taskResolver = new OfficerTaskResolver(
@@ -112,6 +118,58 @@ export default class OfficerTaskRunner {
 
         this.finishTask(task, OFFICER_TASK_OUTCOME.CANCELLED);
     };
+
+    public interruptRandomTaskByDamage(): void {
+        const interruptibleTasks = this.stateStore
+            .getOfficerTasks()
+            .filter((task) => {
+                return task.canBeInterruptedByDamage;
+            });
+
+        if (interruptibleTasks.length === 0) {
+            return;
+        }
+
+        if (interruptibleTasks.length === 1) {
+            const [task] = interruptibleTasks;
+
+            if (!task) {
+                throw new Error(
+                    'Cannot interrupt missing officer task',
+                );
+            }
+
+            this.cancel(task.id);
+            return;
+        }
+
+        const randomValue = this.random();
+
+        if (
+            !Number.isFinite(randomValue) ||
+            randomValue < 0 ||
+            randomValue >= 1
+        ) {
+            throw new Error(
+                `Encounter random source must return a value in [0, 1): ${randomValue}`,
+            );
+        }
+
+        const taskIndex = Math.floor(
+            randomValue * interruptibleTasks.length,
+        );
+
+        const task = interruptibleTasks[taskIndex];
+
+        if (!task) {
+            throw new Error(
+                `Cannot select random officer task: ` +
+                    `${taskIndex}/${interruptibleTasks.length}`,
+            );
+        }
+
+        this.cancel(task.id);
+    }
 
     public step(deltaMs: number): void {
         for (const task of this.stateStore.getOfficerTasks()) {
