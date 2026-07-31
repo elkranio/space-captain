@@ -13,6 +13,10 @@ import {
 } from '../../bridge_viewscreen_layout';
 import BridgeStickyMineView from './mine/BridgeStickyMineView';
 
+type GetObjectPosition = (
+    objectId: string,
+) => Phaser.Math.Vector2 | undefined;
+
 type StickyMineEntry = {
     slotIndex: number;
     view: BridgeStickyMineView;
@@ -52,6 +56,7 @@ const STICKY_MINE_SLOT_OFFSETS = [
 //
 // Отвечает только за:
 // - bridge events;
+// - поиск source position;
 // - стабильные display slots;
 // - lifecycle дочерних views.
 export default class BridgeStickyMinesView {
@@ -67,6 +72,8 @@ export default class BridgeStickyMinesView {
     constructor(
         private readonly scene: BridgeScene,
         private readonly eventBus: BridgeEventBus,
+        private readonly getObjectPosition:
+            GetObjectPosition,
     ) {
         this.root =
             this.scene.add.container(0, 0);
@@ -149,23 +156,41 @@ export default class BridgeStickyMinesView {
             );
         }
 
+        const sourcePosition =
+            this.getObjectPosition(
+                payload.sourceActorId,
+            );
+
+        if (!sourcePosition) {
+            throw new Error(
+                `Sticky-mine source object not found: ` +
+                    payload.sourceActorId,
+            );
+        }
+
         const slot =
             STICKY_MINE_SLOT_OFFSETS[
                 slotIndex
             ];
+
+        const targetPosition =
+            new Phaser.Math.Vector2(
+                BRIDGE_VIEWSCREEN_RECT.x +
+                    slot.x,
+
+                BRIDGE_VIEWSCREEN_RECT.y +
+                    slot.y,
+            );
 
         const view =
             new BridgeStickyMineView({
                 scene: this.scene,
                 parent: this.root,
 
-                x:
-                    BRIDGE_VIEWSCREEN_RECT.x +
-                    slot.x,
+                startPosition:
+                    sourcePosition,
 
-                y:
-                    BRIDGE_VIEWSCREEN_RECT.y +
-                    slot.y,
+                targetPosition,
 
                 initialTimeToDetonationMs:
                     payload
@@ -202,10 +227,17 @@ export default class BridgeStickyMinesView {
                 );
             }
 
-            entry.view.update(
-                update
-                    .remainingTimeToDetonationMs,
-            );
+            entry.view.update({
+                timeToDetonationMs:
+                    update
+                        .remainingTimeToDetonationMs,
+
+                isBeingCleared:
+                    update.isBeingCleared,
+
+                isNextClearTarget:
+                    update.isNextClearTarget,
+            });
         }
     }
 
@@ -224,6 +256,10 @@ export default class BridgeStickyMinesView {
                     payload.mineId,
             );
         }
+
+        entry.view.playRemovalEffect(
+            payload.outcome,
+        );
 
         entry.view.destroy();
 

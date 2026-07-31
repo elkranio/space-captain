@@ -97,6 +97,10 @@ export default class BridgeView {
         this.stickyMinesView = new BridgeStickyMinesView(
             this.scene,
             this.eventBus,
+
+            (objectId) => {
+                return spaceView.getObjectPosition(objectId);
+            },
         );
 
         this.interiorView = new BridgeInteriorView(this.scene);
