@@ -6,6 +6,7 @@ export const SHIP_WEAPON_KIND = {
     MISSILE_LAUNCHER: 'missile_launcher',
     LASER: 'laser',
     SPAM_PROJECTOR: 'spam_projector',
+    STICKY_MINE_DISPENSER: 'sticky_mine_dispenser',
 } as const;
 
 export type ShipWeaponKind = (typeof SHIP_WEAPON_KIND)[keyof typeof SHIP_WEAPON_KIND];
@@ -14,6 +15,7 @@ export const SHIP_WEAPON_ID = {
     MISSILE_LAUNCHER_00: 'missile_launcher_00',
     LASER_00: 'laser_00',
     SPAM_PROJECTOR_00: 'spam_projector_00',
+    STICKY_MINE_DISPENSER_00: 'sticky_mine_dispenser_00',
 } as const;
 
 export type ShipWeaponId = (typeof SHIP_WEAPON_ID)[keyof typeof SHIP_WEAPON_ID];
@@ -62,10 +64,23 @@ export type SpamProjectorDefinition = ShipWeaponDefinitionBase & {
     officerTaskProgressMultiplier: number;
 };
 
+export type StickyMineDispenserDefinition =
+    ShipWeaponDefinitionBase & {
+        kind:
+            typeof SHIP_WEAPON_KIND.STICKY_MINE_DISPENSER;
+
+        burstSize: number;
+        launchIntervalMs: number;
+
+        fuseDurationMs: number;
+        damage: number;
+    };
+
 export type ShipWeaponDefinition =
     | MissileLauncherDefinition
     | LaserWeaponDefinition
-    | SpamProjectorDefinition;
+    | SpamProjectorDefinition
+    | StickyMineDispenserDefinition;
 
 // Mutable state конкретного установленного оружия.
 export type ShipWeaponBaseState = {
@@ -97,7 +112,17 @@ export type SpamProjectorState = ShipWeaponBaseState & {
     activeChannelId: string | null;
 };
 
+export type StickyMineDispenserState =
+    ShipWeaponBaseState & {
+        kind:
+            typeof SHIP_WEAPON_KIND.STICKY_MINE_DISPENSER;
+
+        // Сбрасывается при начале новой очереди.
+        dispensedMineCount: number;
+    };
+
 export type ShipWeaponState =
     | MissileLauncherState
     | LaserWeaponState
-    | SpamProjectorState;
+    | SpamProjectorState
+    | StickyMineDispenserState;

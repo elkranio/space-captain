@@ -150,6 +150,21 @@ export type ActiveShieldState = {
     durationMs: number;
 };
 
+// После прикрепления мина живёт независимо
+// от дальнейшего состояния launcher.
+// Поэтому fuse и damage хранятся в runtime state.
+export type StickyMineState = {
+    id: string;
+
+    sourceActorId: string;
+    sourceWeaponId: string;
+
+    timeToDetonationMs: number;
+    initialTimeToDetonationMs: number;
+
+    damage: number;
+};
+
 export type EncounterCombatState = {
     pointDefense: PointDefenseState;
 
@@ -163,4 +178,6 @@ export type EncounterCombatState = {
 
     projectiles: CombatProjectileState[];
     laserAttacks: LaserAttackState[];
+
+    stickyMines: StickyMineState[];
 };

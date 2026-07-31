@@ -219,6 +219,10 @@ export default class CombatRunner {
 
             case SHIP_WEAPON_KIND.SPAM_PROJECTOR:
                 return weapon.activeChannelId === null;
+
+            case SHIP_WEAPON_KIND.STICKY_MINE_DISPENSER:
+                // Lifecycle подключается следующим атомом.
+                return false;
         }
     }
 
@@ -280,6 +284,12 @@ export default class CombatRunner {
             case SHIP_WEAPON_KIND.SPAM_PROJECTOR:
                 this.startSpamChannel(actor, weapon);
                 return;
+
+            case SHIP_WEAPON_KIND.STICKY_MINE_DISPENSER:
+                throw new Error(
+                    'Sticky-mine dispenser lifecycle is not enabled: ' +
+                        actor.id + '/' + weapon.id,
+                );
         }
     }
 

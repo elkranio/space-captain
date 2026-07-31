@@ -45,4 +45,22 @@ export const SHIP_WEAPONS = {
 
         cooldownDurationMs: 15000,
     },
+
+    [SHIP_WEAPON_ID.STICKY_MINE_DISPENSER_00]: {
+        id:
+            SHIP_WEAPON_ID.STICKY_MINE_DISPENSER_00,
+
+        name: 'STICKY MINE DISPENSER',
+
+        kind:
+            SHIP_WEAPON_KIND.STICKY_MINE_DISPENSER,
+
+        burstSize: 6,
+        launchIntervalMs: 2000,
+
+        fuseDurationMs: 7500,
+        damage: 1,
+
+        cooldownDurationMs: 15000,
+    },
 } satisfies Record<ShipWeaponId, ShipWeaponDefinition>;

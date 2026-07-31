@@ -56,6 +56,7 @@ export function createEncounterState(
 
             projectiles: [],
             laserAttacks: [],
+            stickyMines: [],
         },
     };
 }
