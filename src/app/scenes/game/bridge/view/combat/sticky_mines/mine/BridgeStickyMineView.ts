@@ -44,9 +44,20 @@ const MINE_FRAME = {
     cornerLength: 8,
     thickness: 2,
 
-    clearingInset: 4,
-
     labelGap: 3,
+} as const;
+
+const MINE_CLEARING_MARK = {
+    color: 0x59e06f,
+    shadowColor: 0x08220e,
+
+    halfSize: 16,
+
+    blockSize: 4,
+    shadowBlockSize: 6,
+
+    blinkIntervalMs: 140,
+    dimAlpha: 0.35,
 } as const;
 
 const ATTACH_ANIMATION = {
@@ -69,6 +80,9 @@ export default class BridgeStickyMineView {
         Phaser.GameObjects.Image;
 
     private readonly frame:
+        Phaser.GameObjects.Graphics;
+
+    private readonly clearingMark:
         Phaser.GameObjects.Graphics;
 
     private readonly fuseLabel:
@@ -122,6 +136,9 @@ export default class BridgeStickyMineView {
         this.frame =
             scene.add.graphics();
 
+        this.clearingMark =
+            scene.add.graphics();
+
         this.fuseLabel = scene.add
             .bitmapText(
                 0,
@@ -135,7 +152,10 @@ export default class BridgeStickyMineView {
 
         this.root.add(this.image);
         this.root.add(this.frame);
+        this.root.add(this.clearingMark);
         this.root.add(this.fuseLabel);
+
+        this.drawClearingMark();
 
         this.update({
             timeToDetonationMs:
@@ -163,7 +183,6 @@ export default class BridgeStickyMineView {
         const color =
             this.getPresentationColor({
                 isCritical,
-                isBeingCleared,
                 isNextClearTarget,
             });
 
@@ -173,12 +192,17 @@ export default class BridgeStickyMineView {
                 isNextClearTarget,
             });
 
-        this.drawFrame(
-            color,
-            isBeingCleared,
-        );
+        this.drawFrame(color);
 
         this.frame.setAlpha(alpha);
+
+        this.clearingMark
+            .setVisible(isBeingCleared)
+            .setAlpha(
+                isBeingCleared
+                    ? this.getClearingMarkAlpha()
+                    : 0,
+            );
 
         this.fuseLabel
             .setText(
@@ -373,7 +397,6 @@ export default class BridgeStickyMineView {
 
     private drawFrame(
         color: number,
-        isBeingCleared: boolean,
     ): void {
         const halfWidth = Math.max(
             MINE_FRAME.minHalfWidth,
@@ -406,18 +429,6 @@ export default class BridgeStickyMineView {
             halfWidth,
             halfHeight,
         );
-
-        if (isBeingCleared) {
-            this.drawCornerFrame(
-                halfWidth -
-                    MINE_FRAME
-                        .clearingInset,
-
-                halfHeight -
-                    MINE_FRAME
-                        .clearingInset,
-            );
-        }
 
         this.fuseLabel.setPosition(
             0,
@@ -499,21 +510,73 @@ export default class BridgeStickyMineView {
         );
     }
 
+    private drawClearingMark(): void {
+        this.clearingMark.clear();
+
+        this.clearingMark.fillStyle(
+            MINE_CLEARING_MARK.shadowColor,
+            1,
+        );
+
+        this.drawPixelCross(
+            MINE_CLEARING_MARK
+                .shadowBlockSize,
+        );
+
+        this.clearingMark.fillStyle(
+            MINE_CLEARING_MARK.color,
+            1,
+        );
+
+        this.drawPixelCross(
+            MINE_CLEARING_MARK.blockSize,
+        );
+    }
+
+    private drawPixelCross(
+        blockSize: number,
+    ): void {
+        const halfBlock =
+            blockSize / 2;
+
+        for (
+            let offset =
+                -MINE_CLEARING_MARK
+                    .halfSize;
+
+            offset <=
+            MINE_CLEARING_MARK
+                .halfSize;
+
+            offset +=
+                MINE_CLEARING_MARK
+                    .blockSize
+        ) {
+            this.clearingMark.fillRect(
+                offset - halfBlock,
+                offset - halfBlock,
+                blockSize,
+                blockSize,
+            );
+
+            this.clearingMark.fillRect(
+                offset - halfBlock,
+                -offset - halfBlock,
+                blockSize,
+                blockSize,
+            );
+        }
+    }
+
     private getPresentationColor({
         isCritical,
-        isBeingCleared,
         isNextClearTarget,
     }: {
         isCritical: boolean;
-        isBeingCleared: boolean;
         isNextClearTarget: boolean;
     }): number {
         if (isCritical) {
             return FONT_COLOR.DANGER;
-        }
-
-        if (isBeingCleared) {
-            return FONT_COLOR.PRIMARY;
         }
 
         if (isNextClearTarget) {
@@ -560,6 +623,21 @@ export default class BridgeStickyMineView {
         }
 
         return 1;
+    }
+
+    private getClearingMarkAlpha(): number {
+        return (
+            Math.floor(
+                this.scene.time.now /
+                    MINE_CLEARING_MARK
+                        .blinkIntervalMs,
+            ) %
+                2 ===
+            0
+                ? 1
+                : MINE_CLEARING_MARK
+                      .dimAlpha
+        );
     }
 
     private formatTimeToDetonation(
