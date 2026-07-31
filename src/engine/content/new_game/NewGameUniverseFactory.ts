@@ -117,9 +117,7 @@ export default class NewGameUniverseFactory {
                 ShipNodeActorFactory.create({
                     id: NEW_GAME_ID.ENEMY_SHIP,
 
-                    presetId: SHIP_NODE_ACTOR_PRESET_ID.ENEMY_GENERIC_SPAM_00,
-
-                    anchorId: navigationBeacon.id,
+                    presetId: SHIP_NODE_ACTOR_PRESET_ID.ENEMY_GENERIC_STICKY_MINES_00,anchorId: navigationBeacon.id,
                 }),
             ],
         };
