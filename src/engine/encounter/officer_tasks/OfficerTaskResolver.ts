@@ -16,6 +16,14 @@ type CommsRequestDockingTaskState = Extract<
     }
 >;
 
+type ClearStickyMineTaskState = Extract<
+    OfficerTaskState,
+    {
+        kind:
+            typeof OFFICER_TASK_KIND.CLEAR_STICKY_MINE;
+    }
+>;
+
 type HelmFlyToTaskState = Extract<
     OfficerTaskState,
     {
@@ -62,6 +70,7 @@ export default class OfficerTaskResolver {
     constructor(
         private readonly stateStore: EncounterStateStore,
         private readonly purgeSpamChannel: (channelId: string) => boolean,
+        private readonly clearStickyMine: (mineId: string) => boolean,
         private readonly emit: (event: EncounterEvent) => void,
     ) {}
 
@@ -103,6 +112,9 @@ export default class OfficerTaskResolver {
 
             case OFFICER_TASK_KIND.WEAPONS_POINT_DEFENSE:
                 return this.resolveWeaponsPointDefenseTask(task);
+
+            case OFFICER_TASK_KIND.CLEAR_STICKY_MINE:
+                return this.resolveClearStickyMineTask(task);
 
             case OFFICER_TASK_KIND.COMMS_HAIL:
             case OFFICER_TASK_KIND.HELM_DOCK:
@@ -179,6 +191,21 @@ export default class OfficerTaskResolver {
 
             beamBand: task.pointDefenseBeamBand,
             outcome,
+        };
+    }
+
+    private resolveClearStickyMineTask(
+        task: ClearStickyMineTaskState,
+    ): OfficerTaskResult | undefined {
+        if (!this.clearStickyMine(task.mineId)) {
+            return undefined;
+        }
+
+        return {
+            kind:
+                OFFICER_TASK_RESULT_KIND.STICKY_MINE_CLEARED,
+
+            mineId: task.mineId,
         };
     }
 

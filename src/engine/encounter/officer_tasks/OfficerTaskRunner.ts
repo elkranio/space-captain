@@ -21,6 +21,7 @@ type OfficerTaskRunnerOptions = {
     emit: (event: EncounterEvent) => void;
 
     purgeSpamChannel: (channelId: string) => boolean;
+    clearStickyMine: (mineId: string) => boolean;
 
     random: () => number;
 
@@ -55,6 +56,7 @@ export default class OfficerTaskRunner {
         emit,
 
         purgeSpamChannel,
+        clearStickyMine,
 
         random,
         completeTimedTasksImmediately = false,
@@ -67,6 +69,7 @@ export default class OfficerTaskRunner {
         this.taskResolver = new OfficerTaskResolver(
             this.stateStore,
             purgeSpamChannel,
+            clearStickyMine,
             this.emit,
         );
 
@@ -209,14 +212,34 @@ export default class OfficerTaskRunner {
     }
 
     public cancelTasksWithMissingTargets(): void {
+        const state = this.stateStore.getState();
+
         const activeSpamChannelIds = new Set(
-            getActiveEnemySpamChannels(this.stateStore.getState()).map((channel) => channel.id),
+            getActiveEnemySpamChannels(state).map((channel) => channel.id),
+        );
+
+        const activeStickyMineIds = new Set(
+            state.combat.stickyMines.map((mine) => mine.id),
         );
 
         const invalidTaskIds = this.stateStore
             .getOfficerTasks()
             .filter((task) => {
-                return task.kind === OFFICER_TASK_KIND.SCIENCE_PURGE_SPAM && !activeSpamChannelIds.has(task.channelId);
+                if (
+                    task.kind ===
+                    OFFICER_TASK_KIND.SCIENCE_PURGE_SPAM
+                ) {
+                    return !activeSpamChannelIds.has(task.channelId);
+                }
+
+                if (
+                    task.kind ===
+                    OFFICER_TASK_KIND.CLEAR_STICKY_MINE
+                ) {
+                    return !activeStickyMineIds.has(task.mineId);
+                }
+
+                return false;
             })
             .map((task) => task.id);
 

@@ -28,6 +28,8 @@ export const OFFICER_TASK_KIND = {
 
     WEAPONS_POINT_DEFENSE: 'weapons_point_defense',
 
+    CLEAR_STICKY_MINE: 'clear_sticky_mine',
+
     HELM_DOCK: 'helm_dock',
     HELM_FLY_TO: 'helm_fly_to',
     HELM_JUMP: 'helm_jump',
@@ -126,6 +128,17 @@ type WeaponsPointDefenseOfficerTaskDraft = OfficerTaskDraftBase & {
     pointDefenseBeamBand: PointDefenseBeamBand;
 };
 
+type ClearStickyMineOfficerTaskDraft = OfficerTaskDraftBase & {
+    kind:
+        typeof OFFICER_TASK_KIND.CLEAR_STICKY_MINE;
+    role: OfficerRole;
+
+    sourceCommandId:
+        typeof ENCOUNTER_OFFICER_COMMAND_ID.CLEAR_STICKY_MINE;
+
+    mineId: string;
+};
+
 type HelmDockOfficerTaskDraft = OfficerTaskDraftBase & {
     kind: typeof OFFICER_TASK_KIND.HELM_DOCK;
     role: typeof OFFICER_ROLE.HELM;
@@ -171,6 +184,7 @@ export type OfficerTaskDraft =
     | EngineerDeployShieldOfficerTaskDraft
     | EngineerRepairDriveOfficerTaskDraft
     | WeaponsPointDefenseOfficerTaskDraft
+    | ClearStickyMineOfficerTaskDraft
     | HelmDockOfficerTaskDraft
     | HelmFlyToOfficerTaskDraft
     | HelmJumpOfficerTaskDraft;
@@ -207,6 +221,7 @@ export function getOfficerTaskCancellationPolicy(
         case OFFICER_TASK_KIND.ENGINEER_DEPLOY_SHIELD:
         case OFFICER_TASK_KIND.ENGINEER_REPAIR_DRIVE:
         case OFFICER_TASK_KIND.WEAPONS_POINT_DEFENSE:
+        case OFFICER_TASK_KIND.CLEAR_STICKY_MINE:
         case OFFICER_TASK_KIND.HELM_JUMP:
             return {
                 canBeCancelledByPlayer: true,

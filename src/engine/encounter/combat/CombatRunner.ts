@@ -158,6 +158,24 @@ export default class CombatRunner {
         return false;
     }
 
+    public clearStickyMine(mineId: string): boolean {
+        const mineIndex =
+            this.state.combat.stickyMines.findIndex((mine) => {
+                return mine.id === mineId;
+            });
+
+        if (mineIndex < 0) {
+            return false;
+        }
+
+        this.state.combat.stickyMines.splice(
+            mineIndex,
+            1,
+        );
+
+        return true;
+    }
+
     // #region Enemy decisions
 
     private startEnemyWeaponTargeting(): void {

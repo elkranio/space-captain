@@ -64,6 +64,7 @@ export const OFFICER_TASK_RESULT_KIND = {
     THREAT_IDENTIFIED: 'threat_identified',
     SHIELD_DEPLOYED: 'shield_deployed',
     POINT_DEFENSE_FIRED: 'point_defense_fired',
+    STICKY_MINE_CLEARED: 'sticky_mine_cleared',
 } as const;
 
 export type OfficerTaskResult =
@@ -93,6 +94,11 @@ export type OfficerTaskResult =
 
           beamBand: PointDefenseBeamBand;
           outcome: PointDefenseShotOutcome;
+      }
+    | {
+          kind: typeof OFFICER_TASK_RESULT_KIND.STICKY_MINE_CLEARED;
+
+          mineId: string;
       };
 
 // Полный snapshot encounter после создания

@@ -122,6 +122,10 @@ export default class EncounterEngine {
                 return this.combatRunner.purgeSpamChannel(channelId);
             },
 
+            clearStickyMine: (mineId) => {
+                return this.combatRunner.clearStickyMine(mineId);
+            },
+
             random,
             completeTimedTasksImmediately,
         });

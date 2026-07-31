@@ -2,7 +2,10 @@
 
 import { OFFICER_TASK_BASE_DURATION_MS } from '../../content/rules/officer_tasks';
 import type { LaserTargetZone } from '../../defs/laser';
-import { OFFICER_ROLE } from '../../defs/officer';
+import {
+    OFFICER_ROLE,
+    type OfficerRole,
+} from '../../defs/officer';
 import type { PointDefenseBeamBand } from '../../defs/point_defense';
 import {
     ENCOUNTER_OFFICER_COMMAND_ID,
@@ -146,6 +149,28 @@ export function createWeaponsPointDefenseTask(
         showProgress: true,
 
         durationMs: OFFICER_TASK_BASE_DURATION_MS.WEAPONS_POINT_DEFENSE_AIM,
+    };
+}
+
+export function createClearStickyMineTask(
+    role: OfficerRole,
+    mineId: string,
+): OfficerTaskDraft {
+    return {
+        kind:
+            OFFICER_TASK_KIND.CLEAR_STICKY_MINE,
+        role,
+
+        sourceCommandId:
+            ENCOUNTER_OFFICER_COMMAND_ID.CLEAR_STICKY_MINE,
+
+        mineId,
+
+        label: 'CLEAR MINE',
+        showProgress: true,
+
+        durationMs:
+            OFFICER_TASK_BASE_DURATION_MS.CLEAR_STICKY_MINE,
     };
 }
 
