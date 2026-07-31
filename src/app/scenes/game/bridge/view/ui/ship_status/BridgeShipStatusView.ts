@@ -1,8 +1,12 @@
 // src/app/scenes/game/bridge/view/ui/ship_status/BridgeShipStatusView.ts
 
 import type BridgeScene from '../../../BridgeScene';
-import { BRIDGE_EVENT, type BridgePlayerShipStatusUpdatedPayload } from '../../../events/bridge_event';
+import {
+    BRIDGE_EVENT,
+    type BridgePlayerShipStatusUpdatedPayload,
+} from '../../../events/bridge_event';
 import type BridgeEventBus from '../../../events/BridgeEventBus';
+import BridgeDriveStatusView from './drive/BridgeDriveStatusView';
 import BridgeHullStatusView from './hull/BridgeHullStatusView';
 import BridgePointDefenseChargesView from './point_defense/BridgePointDefenseChargesView';
 import BridgeShieldChargesView from './shield/BridgeShieldChargesView';
@@ -10,7 +14,7 @@ import BridgeShieldChargesView from './shield/BridgeShieldChargesView';
 const SHIP_STATUS_PANEL = {
     y: 4,
 
-    width: 296,
+    width: 368,
     height: 32,
 
     backgroundColor: 0x10131d,
@@ -20,9 +24,17 @@ const SHIP_STATUS_PANEL = {
     borderThickness: 2,
 } as const;
 
-const HULL_STATUS_POSITION = new Phaser.Math.Vector2(12, 8);
-const POINT_DEFENSE_STATUS_POSITION = new Phaser.Math.Vector2(112, 8);
-const SHIELD_STATUS_POSITION = new Phaser.Math.Vector2(204, 8);
+const HULL_STATUS_POSITION =
+    new Phaser.Math.Vector2(12, 8);
+
+const POINT_DEFENSE_STATUS_POSITION =
+    new Phaser.Math.Vector2(112, 8);
+
+const SHIELD_STATUS_POSITION =
+    new Phaser.Math.Vector2(204, 8);
+
+const DRIVE_STATUS_POSITION =
+    new Phaser.Math.Vector2(296, 8);
 
 // Временная root-view ship status panel.
 //
@@ -38,9 +50,12 @@ export default class BridgeShipStatusView {
 
     private readonly hullView: BridgeHullStatusView;
 
-    private readonly pointDefenseView: BridgePointDefenseChargesView;
+    private readonly pointDefenseView:
+        BridgePointDefenseChargesView;
 
     private readonly shieldView: BridgeShieldChargesView;
+
+    private readonly driveView: BridgeDriveStatusView;
 
     constructor(
         scene: BridgeScene,
@@ -48,7 +63,8 @@ export default class BridgeShipStatusView {
         private readonly eventBus: BridgeEventBus,
     ) {
         this.root = scene.add.container(
-            scene.cameras.main.centerX - SHIP_STATUS_PANEL.width / 2,
+            scene.cameras.main.centerX -
+                SHIP_STATUS_PANEL.width / 2,
 
             SHIP_STATUS_PANEL.y,
         );
@@ -73,25 +89,36 @@ export default class BridgeShipStatusView {
                 SHIP_STATUS_PANEL.borderColor,
             );
 
-        this.hullView = new BridgeHullStatusView(scene);
+        this.hullView =
+            new BridgeHullStatusView(scene);
 
         this.hullView.setPosition(
             HULL_STATUS_POSITION.x,
             HULL_STATUS_POSITION.y,
         );
 
-        this.pointDefenseView = new BridgePointDefenseChargesView(scene);
+        this.pointDefenseView =
+            new BridgePointDefenseChargesView(scene);
 
         this.pointDefenseView.setPosition(
             POINT_DEFENSE_STATUS_POSITION.x,
             POINT_DEFENSE_STATUS_POSITION.y,
         );
 
-        this.shieldView = new BridgeShieldChargesView(scene);
+        this.shieldView =
+            new BridgeShieldChargesView(scene);
 
         this.shieldView.setPosition(
             SHIELD_STATUS_POSITION.x,
             SHIELD_STATUS_POSITION.y,
+        );
+
+        this.driveView =
+            new BridgeDriveStatusView(scene);
+
+        this.driveView.setPosition(
+            DRIVE_STATUS_POSITION.x,
+            DRIVE_STATUS_POSITION.y,
         );
 
         this.root.add([
@@ -100,6 +127,7 @@ export default class BridgeShipStatusView {
             this.hullView.getRoot(),
             this.pointDefenseView.getRoot(),
             this.shieldView.getRoot(),
+            this.driveView.getRoot(),
         ]);
 
         this.eventBus.on(
@@ -118,6 +146,7 @@ export default class BridgeShipStatusView {
             this,
         );
 
+        this.driveView.destroy();
         this.shieldView.destroy();
         this.pointDefenseView.destroy();
         this.hullView.destroy();
@@ -126,7 +155,9 @@ export default class BridgeShipStatusView {
         this.root.destroy(false);
     }
 
-    private handlePlayerShipStatusUpdated(payload: BridgePlayerShipStatusUpdatedPayload): void {
+    private handlePlayerShipStatusUpdated(
+        payload: BridgePlayerShipStatusUpdatedPayload,
+    ): void {
         this.hullView.setState(
             payload.hull.current,
             payload.hull.max,
@@ -140,6 +171,10 @@ export default class BridgeShipStatusView {
         this.shieldView.setState(
             payload.shieldGenerator.current,
             payload.shieldGenerator.max,
+        );
+
+        this.driveView.setState(
+            payload.drive.status,
         );
     }
 }

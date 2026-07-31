@@ -7,6 +7,9 @@ import { BRIDGE_EVENT } from '../../src/app/scenes/game/bridge/events/bridge_eve
 import type BridgeEventBus from '../../src/app/scenes/game/bridge/events/BridgeEventBus';
 import { LASER_TARGET_ZONE } from '../../src/engine/defs/laser';
 import {
+    SHIP_DRIVE_STATUS,
+} from '../../src/engine/defs/ship_drive';
+import {
     COMBAT_TARGET_KIND,
     LASER_SHOT_OUTCOME,
     THREAT_IDENTIFICATION_STATUS,
@@ -127,6 +130,11 @@ describe('BridgeEncounterEngineEventHandler laser resolution', () => {
                     hull: {
                         current: 2,
                         max: 3,
+                    },
+
+                    drive: {
+                        status:
+                            SHIP_DRIVE_STATUS.ONLINE,
                     },
 
                     pointDefense: {

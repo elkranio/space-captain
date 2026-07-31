@@ -128,7 +128,12 @@ export default class BridgeEncounterEngineEventHandler {
                     event.navigation,
                 );
 
-                // View effect добавим следующим атомом.
+                this.emitPlayerShipStatusUpdated();
+
+                this.eventBus.emit(
+                    BRIDGE_EVENT.PLAYER_SHIP_DRIVE_DISRUPTED,
+                );
+
                 return;
 
             case ENCOUNTER_EVENT.PLAYER_SHIP_DRIVE_STATE_CHANGED:
@@ -136,7 +141,8 @@ export default class BridgeEncounterEngineEventHandler {
                     event.drive,
                 );
 
-                // UI status добавим отдельным атомом.
+                this.emitPlayerShipStatusUpdated();
+
                 return;
 
             case ENCOUNTER_EVENT.OFFICER_TASK_STARTED:
@@ -312,6 +318,10 @@ export default class BridgeEncounterEngineEventHandler {
                 hull: {
                     current: ship.hull,
                     max: ship.maxHull,
+                },
+
+                drive: {
+                    status: ship.drive.status,
                 },
 
                 pointDefense: {

@@ -8,6 +8,7 @@ import type { SceneKey } from '../../../scene_key';
 import type { LaserTargetZone } from '../../../../../engine/defs/laser';
 import type { MissileSpectralBand } from '../../../../../engine/defs/missile';
 import type { PointDefenseBeamBand, PointDefenseShotOutcome } from '../../../../../engine/defs/point_defense';
+import type { ShipDriveStatus } from '../../../../../engine/defs/ship_drive';
 import type { EncounterOfficerCommandId, OfficerCommandTarget } from '../../../../../engine/encounter/model/command';
 import type {
     LaserShotOutcome,
@@ -168,6 +169,10 @@ export const BRIDGE_EVENT = {
 
     // #region Combat presentation
 
+    // Opening disruption pulse отключил
+    // main drive player ship.
+    PLAYER_SHIP_DRIVE_DISRUPTED: 'player_ship_drive_disrupted',
+
     // Вражеская missile launcher
     // начала фазу подготовки/наведения.
     MISSILE_TARGETING_WARNING_STARTED: 'missile_targeting_warning_started',
@@ -324,6 +329,10 @@ export type BridgePlayerShipStatusUpdatedPayload = {
     hull: {
         current: number;
         max: number;
+    };
+
+    drive: {
+        status: ShipDriveStatus;
     };
 
     pointDefense: {
@@ -601,6 +610,8 @@ export type BridgeEventPayloadMap = {
     [BRIDGE_EVENT.SCENE_TRANSITION_REQUESTED]: BridgeSceneTransitionRequestedPayload;
 
     // Combat presentation
+
+    [BRIDGE_EVENT.PLAYER_SHIP_DRIVE_DISRUPTED]: undefined;
 
     [BRIDGE_EVENT.MISSILE_TARGETING_WARNING_STARTED]: undefined;
 

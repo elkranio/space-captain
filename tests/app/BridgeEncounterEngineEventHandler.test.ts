@@ -9,6 +9,7 @@ import { SCENE_KEY } from '../../src/app/scenes/scene_key';
 import { MISSILE_ID } from '../../src/engine/defs/missile';
 import { OFFICER_ROLE } from '../../src/engine/defs/officer';
 import { POINT_DEFENSE_BEAM_BAND, POINT_DEFENSE_SHOT_OUTCOME } from '../../src/engine/defs/point_defense';
+import { SHIP_DRIVE_STATUS } from '../../src/engine/defs/ship_drive';
 import {
     COMBAT_PROJECTILE_KIND,
     COMBAT_TARGET_KIND,
@@ -58,6 +59,11 @@ function createPlayerShipStatusPayload(hullCurrent: number, pointDefenseCurrent 
         hull: {
             current: hullCurrent,
             max: 3,
+        },
+
+        drive: {
+            status:
+                SHIP_DRIVE_STATUS.ONLINE,
         },
 
         pointDefense: {

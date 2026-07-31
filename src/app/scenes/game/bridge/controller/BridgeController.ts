@@ -87,6 +87,11 @@ export default class BridgeController {
                     max: run.player.ship.maxHull,
                 },
 
+                drive: {
+                    status:
+                        run.player.ship.drive.status,
+                },
+
                 pointDefense: {
                     current: run.player.ship.pointDefense.charges,
 
