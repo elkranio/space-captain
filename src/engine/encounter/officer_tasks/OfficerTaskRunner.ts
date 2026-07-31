@@ -5,9 +5,12 @@ import { PLAYER_SPACE_NAVIGATION_KIND } from '../../defs/player_location';
 import { ENCOUNTER_EVENT, OFFICER_TASK_OUTCOME, type EncounterEvent, type OfficerTaskResult } from '../model/event';
 import {
     getOfficerTaskCancellationPolicy,
+    OFFICER_TASK_KIND,
     type OfficerTaskDraft,
     type OfficerTaskState,
 } from '../model/officer_task';
+import { getActiveEnemySpamChannels } from '../combat/queries/get_active_enemy_spam_channels';
+import OfficerPerformanceResolver from '../officer_performance/OfficerPerformanceResolver';
 import EncounterStateStore from '../state/EncounterStateStore';
 import { createHelmFlyToTask } from './create_officer_task_draft';
 import OfficerTaskResolver from './OfficerTaskResolver';
@@ -38,6 +41,8 @@ export default class OfficerTaskRunner {
 
     private readonly taskResolver: OfficerTaskResolver;
 
+    private readonly performanceResolver: OfficerPerformanceResolver;
+
     private nextTaskId = 1;
 
     constructor({
@@ -52,10 +57,9 @@ export default class OfficerTaskRunner {
         this.emit = emit;
         this.completeTimedTasksImmediately = completeTimedTasksImmediately;
 
-        this.taskResolver = new OfficerTaskResolver(
-            this.stateStore,
-            purgeSpamChannel,
-        );
+        this.taskResolver = new OfficerTaskResolver(this.stateStore, purgeSpamChannel);
+
+        this.performanceResolver = new OfficerPerformanceResolver(this.stateStore);
 
         this.restoreMissingNavigationTask();
     }
@@ -105,8 +109,34 @@ export default class OfficerTaskRunner {
     };
 
     public step(deltaMs: number): void {
-        this.stateStore.advanceOfficerTasks(deltaMs);
+        for (const task of this.stateStore.getOfficerTasks()) {
+            if (task.durationMs === null) {
+                continue;
+            }
+
+            const multiplier = this.performanceResolver.getTaskProgressMultiplier(task);
+
+            this.stateStore.advanceOfficerTask(task.id, deltaMs * multiplier);
+        }
+
         this.completeFinishedTasks();
+    }
+
+    public cancelTasksWithMissingTargets(): void {
+        const activeSpamChannelIds = new Set(
+            getActiveEnemySpamChannels(this.stateStore.getState()).map((channel) => channel.id),
+        );
+
+        const invalidTaskIds = this.stateStore
+            .getOfficerTasks()
+            .filter((task) => {
+                return task.kind === OFFICER_TASK_KIND.SCIENCE_PURGE_SPAM && !activeSpamChannelIds.has(task.channelId);
+            })
+            .map((task) => task.id);
+
+        for (const taskId of invalidTaskIds) {
+            this.cancel(taskId);
+        }
     }
 
     // #endregion

@@ -469,14 +469,27 @@ export default class EncounterStateStore {
         delete this.state.officerTasks[role];
     }
 
-    public advanceOfficerTasks(deltaMs: number): void {
-        for (const task of this.getOfficerTasks()) {
-            if (task.durationMs === null) {
-                continue;
-            }
-
-            task.elapsedMs = Math.min(task.elapsedMs + deltaMs, task.durationMs);
+    public advanceOfficerTask(
+        taskId: string,
+        progressDeltaMs: number,
+    ): void {
+        if (!Number.isFinite(progressDeltaMs) || progressDeltaMs < 0) {
+            throw new Error(
+                'Invalid officer task progress delta: ' +
+                    taskId + '/' + progressDeltaMs,
+            );
         }
+
+        const task = this.findOfficerTaskById(taskId);
+
+        if (!task || task.durationMs === null) {
+            return;
+        }
+
+        task.elapsedMs = Math.min(
+            task.elapsedMs + progressDeltaMs,
+            task.durationMs,
+        );
     }
 
     // #endregion

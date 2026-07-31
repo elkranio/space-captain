@@ -58,6 +58,8 @@ export type SpamProjectorDefinition = ShipWeaponDefinitionBase & {
     kind: typeof SHIP_WEAPON_KIND.SPAM_PROJECTOR;
 
     channelDurationMs: number;
+
+    officerTaskProgressMultiplier: number;
 };
 
 export type ShipWeaponDefinition =

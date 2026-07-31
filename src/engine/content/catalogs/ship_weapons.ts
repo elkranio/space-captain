@@ -40,6 +40,9 @@ export const SHIP_WEAPONS = {
         kind: SHIP_WEAPON_KIND.SPAM_PROJECTOR,
 
         channelDurationMs: 20000,
+
+        officerTaskProgressMultiplier: 0.5,
+
         cooldownDurationMs: 15000,
     },
 } satisfies Record<ShipWeaponId, ShipWeaponDefinition>;

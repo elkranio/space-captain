@@ -148,6 +148,8 @@ export default class EncounterEngine {
         this.contactSequenceRunner.step(deltaMs);
         this.shieldGeneratorRunner.step(deltaMs);
         this.combatRunner.step(deltaMs);
+
+        this.officerTaskRunner.cancelTasksWithMissingTargets();
     }
 
     public completeArrival(): void {
