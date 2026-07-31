@@ -1,12 +1,10 @@
 // tests/app/BridgeEncounterShieldStatus.test.ts
 
 import { describe, expect, it, vi } from 'vitest';
+import { createBridgePlayerShipStatusPayload } from './fixtures/create_bridge_player_ship_status_payload';
 import { GameRuntime } from '../../src/app/runtime/GameRuntime';
 import BridgeEncounterEngineEventHandler from '../../src/app/scenes/game/bridge/controller/encounter/engine_events/BridgeEncounterEngineEventHandler';
 import { BRIDGE_EVENT } from '../../src/app/scenes/game/bridge/events/bridge_event';
-import {
-    SHIP_DRIVE_STATUS,
-} from '../../src/engine/defs/ship_drive';
 import type BridgeEventBus from '../../src/app/scenes/game/bridge/events/BridgeEventBus';
 import { ENCOUNTER_EVENT } from '../../src/engine/encounter/model/event';
 
@@ -70,27 +68,11 @@ describe('BridgeEncounterEngineEventHandler shield status', () => {
         expect(emit).toHaveBeenCalledWith(
             BRIDGE_EVENT.PLAYER_SHIP_STATUS_UPDATED,
 
-            {
-                hull: {
-                    current: 3,
-                    max: 3,
-                },
-
-                drive: {
-                    status:
-                        SHIP_DRIVE_STATUS.ONLINE,
-                },
-
-                pointDefense: {
-                    current: 4,
-                    max: 4,
-                },
-
+            createBridgePlayerShipStatusPayload({
                 shieldGenerator: {
                     current: 2,
-                    max: 3,
                 },
-            },
+            }),
         );
     });
 });

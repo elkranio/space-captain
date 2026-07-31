@@ -1,6 +1,7 @@
 // tests/app/BridgeEncounterDriveSync.test.ts
 
 import { describe, expect, it, vi } from 'vitest';
+import { createBridgePlayerShipStatusPayload } from './fixtures/create_bridge_player_ship_status_payload';
 import { GameRuntime } from '../../src/app/runtime/GameRuntime';
 import BridgeEncounterEngineEventHandler from '../../src/app/scenes/game/bridge/controller/encounter/engine_events/BridgeEncounterEngineEventHandler';
 import {
@@ -14,7 +15,6 @@ import {
 import {
     SHIP_DRIVE_ID,
     SHIP_DRIVE_STATUS,
-    type ShipDriveStatus,
 } from '../../src/engine/defs/ship_drive';
 import {
     ENCOUNTER_EVENT,
@@ -67,9 +67,12 @@ describe('Bridge encounter drive sync', () => {
         expect(emit.mock.calls).toEqual([
             [
                 BRIDGE_EVENT.PLAYER_SHIP_STATUS_UPDATED,
-                createPlayerShipStatusPayload(
-                    SHIP_DRIVE_STATUS.ONLINE,
-                ),
+                createBridgePlayerShipStatusPayload({
+                    drive: {
+                        status:
+                            SHIP_DRIVE_STATUS.ONLINE,
+                    },
+                }),
             ],
         ]);
     });
@@ -137,9 +140,12 @@ describe('Bridge encounter drive sync', () => {
         expect(emit.mock.calls).toEqual([
             [
                 BRIDGE_EVENT.PLAYER_SHIP_STATUS_UPDATED,
-                createPlayerShipStatusPayload(
-                    SHIP_DRIVE_STATUS.DISABLED,
-                ),
+                createBridgePlayerShipStatusPayload({
+                    drive: {
+                        status:
+                            SHIP_DRIVE_STATUS.DISABLED,
+                    },
+                }),
             ],
 
             [
@@ -149,27 +155,3 @@ describe('Bridge encounter drive sync', () => {
     });
 });
 
-function createPlayerShipStatusPayload(
-    driveStatus: ShipDriveStatus,
-) {
-    return {
-        hull: {
-            current: 3,
-            max: 3,
-        },
-
-        drive: {
-            status: driveStatus,
-        },
-
-        pointDefense: {
-            current: 4,
-            max: 4,
-        },
-
-        shieldGenerator: {
-            current: 3,
-            max: 3,
-        },
-    };
-}
