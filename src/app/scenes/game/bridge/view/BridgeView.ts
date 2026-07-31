@@ -7,6 +7,7 @@ import BridgeIncomingMissilesView from './combat/incoming_missiles/BridgeIncomin
 import BridgeLaserBeamsView from './combat/laser_beams/BridgeLaserBeamsView';
 import BridgeLaserThreatsView from './combat/laser_threats/BridgeLaserThreatsView';
 import BridgePlayerShieldsView from './combat/player_shields/BridgePlayerShieldsView';
+import BridgeSpamView from './combat/spam/BridgeSpamView';
 import BridgeCrewView from './crew/BridgeCrewView';
 import BridgeTargetingWarningView from './indicators/targeting_warning/BridgeTargetingWarningView';
 import BridgeInteriorView from './interior/BridgeInteriorView';
@@ -28,6 +29,8 @@ export default class BridgeView {
     private laserBeamsView?: BridgeLaserBeamsView;
 
     private playerShieldsView?: BridgePlayerShieldsView;
+
+    private spamView?: BridgeSpamView;
 
     private crewView?: BridgeCrewView;
 
@@ -83,6 +86,11 @@ export default class BridgeView {
 
         this.vfxView = new BridgeVfxView(this.scene, this.eventBus);
 
+        this.spamView = new BridgeSpamView(
+            this.scene,
+            this.eventBus,
+        );
+
         this.interiorView = new BridgeInteriorView(this.scene);
 
         this.targetingWarningView = new BridgeTargetingWarningView(this.scene, this.eventBus);
@@ -100,6 +108,7 @@ export default class BridgeView {
         this.crewView?.destroy();
         this.targetingWarningView?.destroy();
         this.interiorView?.destroy();
+        this.spamView?.destroy();
         this.vfxView?.destroy();
         this.laserBeamsView?.destroy();
         this.laserThreatsView?.destroy();
@@ -112,6 +121,7 @@ export default class BridgeView {
         this.crewView = undefined;
         this.targetingWarningView = undefined;
         this.interiorView = undefined;
+        this.spamView = undefined;
         this.vfxView = undefined;
         this.laserBeamsView = undefined;
         this.laserThreatsView = undefined;

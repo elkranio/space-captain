@@ -204,11 +204,23 @@ export default class BridgeEncounterEngineEventHandler {
                 return;
 
             case ENCOUNTER_EVENT.SPAM_CHANNEL_STARTED:
-                // Projection presentation подключается следующим атомом.
+                this.eventBus.emit(
+                    BRIDGE_EVENT.SPAM_CHANNEL_STARTED,
+                    {
+                        channelId: event.channel.id,
+                    },
+                );
                 return;
 
             case ENCOUNTER_EVENT.SPAM_CHANNEL_ENDED:
-                // Projection presentation подключается следующим атомом.
+                this.eventBus.emit(
+                    BRIDGE_EVENT.SPAM_CHANNEL_ENDED,
+                    {
+                        channelId: event.channel.id,
+
+                        outcome: event.outcome,
+                    },
+                );
                 return;
 
             case ENCOUNTER_EVENT.MISSILE_IMPACTED_PLAYER_SHIP:

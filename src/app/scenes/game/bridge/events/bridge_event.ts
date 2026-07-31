@@ -9,7 +9,10 @@ import type { LaserTargetZone } from '../../../../../engine/defs/laser';
 import type { MissileSpectralBand } from '../../../../../engine/defs/missile';
 import type { PointDefenseBeamBand, PointDefenseShotOutcome } from '../../../../../engine/defs/point_defense';
 import type { EncounterOfficerCommandId, OfficerCommandTarget } from '../../../../../engine/encounter/model/command';
-import type { LaserShotOutcome } from '../../../../../engine/encounter/model/combat';
+import type {
+    LaserShotOutcome,
+    SpamChannelOutcome,
+} from '../../../../../engine/encounter/model/combat';
 
 // Scene-local события bridge scene.
 //
@@ -202,6 +205,14 @@ export const BRIDGE_EVENT = {
     // Вражеский laser разрешил выстрел,
     // который bridge view показывает коротким beam VFX.
     LASER_BEAM_FIRED: 'laser_beam_fired',
+
+    // Hostile spam channel начал
+    // проецировать popup-помехи на viewscreen.
+    SPAM_CHANNEL_STARTED: 'spam_channel_started',
+
+    // Hostile spam channel завершился
+    // естественно или был очищен игроком.
+    SPAM_CHANNEL_ENDED: 'spam_channel_ended',
 
     // #endregion
 } as const;
@@ -502,6 +513,16 @@ export type BridgeLaserBeamFiredPayload = {
     outcome: LaserShotOutcome;
 };
 
+export type BridgeSpamChannelStartedPayload = {
+    channelId: string;
+};
+
+export type BridgeSpamChannelEndedPayload = {
+    channelId: string;
+
+    outcome: SpamChannelOutcome;
+};
+
 // #endregion
 
 // Typed mapping:
@@ -600,4 +621,8 @@ export type BridgeEventPayloadMap = {
     [BRIDGE_EVENT.LASER_THREATS_UPDATED]: BridgeLaserThreatsUpdatedPayload;
 
     [BRIDGE_EVENT.LASER_BEAM_FIRED]: BridgeLaserBeamFiredPayload;
+
+    [BRIDGE_EVENT.SPAM_CHANNEL_STARTED]: BridgeSpamChannelStartedPayload;
+
+    [BRIDGE_EVENT.SPAM_CHANNEL_ENDED]: BridgeSpamChannelEndedPayload;
 };
