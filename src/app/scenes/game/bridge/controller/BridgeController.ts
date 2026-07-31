@@ -7,6 +7,7 @@ import BridgeEventBus from '../events/BridgeEventBus';
 import { BRIDGE_EVENT, type BridgeSceneTransitionRequestedPayload } from '../events/bridge_event';
 import BridgeView from '../view/BridgeView';
 import BridgeEncounterController from './encounter/BridgeEncounterController';
+import { mapPlayerShipToBridgeStatusPayload } from './player_ship_status/BridgePlayerShipStatusMapper';
 
 // Root-controller bridge scene.
 //
@@ -79,31 +80,7 @@ export default class BridgeController {
 
         this.eventBus.emit(
             BRIDGE_EVENT.PLAYER_SHIP_STATUS_UPDATED,
-
-            {
-                hull: {
-                    current: run.player.ship.hull,
-
-                    max: run.player.ship.maxHull,
-                },
-
-                drive: {
-                    status:
-                        run.player.ship.drive.status,
-                },
-
-                pointDefense: {
-                    current: run.player.ship.pointDefense.charges,
-
-                    max: run.player.ship.pointDefense.maxCharges,
-                },
-
-                shieldGenerator: {
-                    current: run.player.ship.shieldGenerator.charges,
-
-                    max: run.player.ship.shieldGenerator.maxCharges,
-                },
-            },
+            mapPlayerShipToBridgeStatusPayload(run.player.ship),
         );
     }
 

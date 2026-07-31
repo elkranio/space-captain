@@ -16,6 +16,7 @@ import type { GameRuntime } from '../../../../../../runtime/GameRuntime';
 import { SCENE_KEY } from '../../../../../scene_key';
 import { BRIDGE_EVENT, type BridgeEncounterObjectPayload } from '../../../events/bridge_event';
 import type BridgeEventBus from '../../../events/BridgeEventBus';
+import { mapPlayerShipToBridgeStatusPayload } from '../../player_ship_status/BridgePlayerShipStatusMapper';
 import {
     mapEncounterAnchorToBridgeObjectPayload,
     mapEncounterStateToBridgeObjectPayloads,
@@ -329,28 +330,7 @@ export default class BridgeEncounterEngineEventHandler {
 
         this.eventBus.emit(
             BRIDGE_EVENT.PLAYER_SHIP_STATUS_UPDATED,
-            {
-                hull: {
-                    current: ship.hull,
-                    max: ship.maxHull,
-                },
-
-                drive: {
-                    status: ship.drive.status,
-                },
-
-                pointDefense: {
-                    current: ship.pointDefense.charges,
-
-                    max: ship.pointDefense.maxCharges,
-                },
-
-                shieldGenerator: {
-                    current: ship.shieldGenerator.charges,
-
-                    max: ship.shieldGenerator.maxCharges,
-                },
-            },
+            mapPlayerShipToBridgeStatusPayload(ship),
         );
     }
 
