@@ -39,7 +39,6 @@ export const ENCOUNTER_EVENT = {
     MISSILE_IMPACTED_PLAYER_SHIP: 'missile_impacted_player_ship',
     LASER_ATTACK_STARTED: 'laser_attack_started',
     LASER_FIRED: 'laser_fired',
-    SPAM_ATTACK_STARTED: 'spam_attack_started',
     SPAM_CHANNEL_STARTED: 'spam_channel_started',
     SPAM_CHANNEL_ENDED: 'spam_channel_ended',
 } as const;
@@ -244,12 +243,6 @@ export type LaserFiredEvent =
           damage: number;
       };
 
-export type SpamAttackStartedEvent = {
-    type: typeof ENCOUNTER_EVENT.SPAM_ATTACK_STARTED;
-
-    sourceActorId: string;
-    sourceWeaponId: string;
-};
 
 export type SpamChannelStartedEvent = {
     type: typeof ENCOUNTER_EVENT.SPAM_CHANNEL_STARTED;
@@ -281,6 +274,5 @@ export type EncounterEvent =
     | MissileImpactedPlayerShipEvent
     | LaserAttackStartedEvent
     | LaserFiredEvent
-    | SpamAttackStartedEvent
     | SpamChannelStartedEvent
     | SpamChannelEndedEvent;

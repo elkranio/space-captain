@@ -278,7 +278,7 @@ export default class CombatRunner {
                 return;
 
             case SHIP_WEAPON_KIND.SPAM_PROJECTOR:
-                this.startSpamCharging(actor, weapon);
+                this.startSpamChannel(actor, weapon);
                 return;
         }
     }
@@ -297,8 +297,10 @@ export default class CombatRunner {
                 return;
 
             case SHIP_WEAPON_KIND.SPAM_PROJECTOR:
-                this.advanceSpamCharging(actor, weapon, deltaMs);
-                return;
+                throw new Error(
+                    `Spam projector cannot enter charging phase: ` +
+                        `${actor.id}/${weapon.id}`,
+                );
         }
     }
 
@@ -584,43 +586,6 @@ export default class CombatRunner {
 
     // #region Spam projector
 
-    private startSpamCharging(
-        actor: ShipEncounterActorState,
-        projector: SpamProjectorState,
-    ): void {
-        if (projector.activeChannelId !== null) {
-            throw new Error(
-                `Cannot charge spam projector with active channel: ` +
-                    `${actor.id}/${projector.id}/${projector.activeChannelId}`,
-            );
-        }
-
-        projector.phase = SHIP_WEAPON_PHASE.CHARGING;
-        projector.phaseElapsedMs = 0;
-
-        this.emit({
-            type: ENCOUNTER_EVENT.SPAM_ATTACK_STARTED,
-
-            sourceActorId: actor.id,
-            sourceWeaponId: projector.id,
-        });
-    }
-
-    private advanceSpamCharging(
-        actor: ShipEncounterActorState,
-        projector: SpamProjectorState,
-        deltaMs: number,
-    ): void {
-        const definition = this.getSpamProjectorDefinition(projector);
-
-        projector.phaseElapsedMs += deltaMs;
-
-        if (projector.phaseElapsedMs < definition.chargeDurationMs) {
-            return;
-        }
-
-        this.startSpamChannel(actor, projector);
-    }
 
     private startSpamChannel(
         actor: ShipEncounterActorState,

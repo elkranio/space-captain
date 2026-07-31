@@ -19,9 +19,9 @@ export const BRIDGE_SPAM_PRESENTATION = {
     purgeCloseStaggerMs: 65,
     expiredCloseStaggerMs: 240,
 
-    baseAlpha: 0.94,
+    baseAlpha: 0.9,
 
-    flickerAmplitude: 0.02,
+    flickerAmplitude: 0.05,
     flickerFrameMs: 110,
 
     positionJitterX: 28,
@@ -62,10 +62,7 @@ export const BRIDGE_SPAM_LAYOUT_SLOTS: readonly BridgeSpamLayoutSlot[] = [
     },
 ];
 
-export function takeRandomBagItem<T>(
-    source: readonly T[],
-    bag: T[],
-): T {
+export function takeRandomBagItem<T>(source: readonly T[], bag: T[]): T {
     if (source.length === 0) {
         throw new Error('Random bag source must not be empty');
     }
@@ -74,10 +71,7 @@ export function takeRandomBagItem<T>(
         bag.push(...source);
     }
 
-    const index = Phaser.Math.Between(
-        0,
-        bag.length - 1,
-    );
+    const index = Phaser.Math.Between(0, bag.length - 1);
 
     const item = bag.splice(index, 1)[0];
 
@@ -88,20 +82,12 @@ export function takeRandomBagItem<T>(
     return item;
 }
 
-export function createSpamPopupPosition(
-    slot: BridgeSpamLayoutSlot,
-): Phaser.Math.Vector2 {
+export function createSpamPopupPosition(slot: BridgeSpamLayoutSlot): Phaser.Math.Vector2 {
     return new Phaser.Math.Vector2(
         slot.x +
-            Phaser.Math.Between(
-                -BRIDGE_SPAM_PRESENTATION.positionJitterX,
-                BRIDGE_SPAM_PRESENTATION.positionJitterX,
-            ),
+            Phaser.Math.Between(-BRIDGE_SPAM_PRESENTATION.positionJitterX, BRIDGE_SPAM_PRESENTATION.positionJitterX),
 
         slot.y +
-            Phaser.Math.Between(
-                -BRIDGE_SPAM_PRESENTATION.positionJitterY,
-                BRIDGE_SPAM_PRESENTATION.positionJitterY,
-            ),
+            Phaser.Math.Between(-BRIDGE_SPAM_PRESENTATION.positionJitterY, BRIDGE_SPAM_PRESENTATION.positionJitterY),
     );
 }

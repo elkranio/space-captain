@@ -57,7 +57,6 @@ export type LaserWeaponDefinition = ShipWeaponDefinitionBase & {
 export type SpamProjectorDefinition = ShipWeaponDefinitionBase & {
     kind: typeof SHIP_WEAPON_KIND.SPAM_PROJECTOR;
 
-    chargeDurationMs: number;
     channelDurationMs: number;
 };
 

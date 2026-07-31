@@ -199,11 +199,12 @@ export default class BridgeEncounterEngineEventHandler {
                 });
                 return;
 
-            case ENCOUNTER_EVENT.SPAM_ATTACK_STARTED:
-                this.eventBus.emit(BRIDGE_EVENT.MISSILE_TARGETING_WARNING_CLEARED);
-                return;
 
             case ENCOUNTER_EVENT.SPAM_CHANNEL_STARTED:
+                this.eventBus.emit(
+                    BRIDGE_EVENT.MISSILE_TARGETING_WARNING_CLEARED,
+                );
+
                 this.eventBus.emit(
                     BRIDGE_EVENT.SPAM_CHANNEL_STARTED,
                     {

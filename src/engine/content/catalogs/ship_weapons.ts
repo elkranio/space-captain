@@ -39,7 +39,6 @@ export const SHIP_WEAPONS = {
 
         kind: SHIP_WEAPON_KIND.SPAM_PROJECTOR,
 
-        chargeDurationMs: 12000,
         channelDurationMs: 20000,
         cooldownDurationMs: 15000,
     },
