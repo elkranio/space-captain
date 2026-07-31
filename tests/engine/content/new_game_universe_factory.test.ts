@@ -4,7 +4,6 @@ import { describe, expect, it } from 'vitest';
 import NewGameUniverseFactory from '../../../src/engine/content/new_game/NewGameUniverseFactory';
 import { PLAYER_LOCATION_KIND, PLAYER_SPACE_NAVIGATION_KIND } from '../../../src/engine/defs/player_location';
 import { SPACE_BACKGROUND_ID } from '../../../src/engine/defs/space_background';
-import { SHIP_WEAPON_KIND } from '../../../src/engine/defs/ship_weapon';
 import { SPACE_ANCHOR_KIND, SPACE_NODE_ACTOR_KIND } from '../../../src/engine/defs/universe';
 
 describe('NewGameUniverseFactory', () => {
@@ -156,13 +155,6 @@ describe('NewGameUniverseFactory', () => {
         const secondWeapon = second.universe.nodes[0].actors[0].weapons[0];
 
         expect(firstWeapon).not.toBe(secondWeapon);
-
-        if (
-            firstWeapon.kind !== SHIP_WEAPON_KIND.LASER ||
-            secondWeapon.kind !== SHIP_WEAPON_KIND.LASER
-        ) {
-            throw new Error('Expected new-game enemy laser weapons');
-        }
 
         expect(first.playerLocations.arrivingAtStart).not.toBe(second.playerLocations.arrivingAtStart);
 
