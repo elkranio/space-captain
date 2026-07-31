@@ -100,7 +100,7 @@ export type OfficerCommandTargeting =
       };
 
 export type OfficerCommandDef = {
-    role: OfficerRole;
+    availableToRoles: readonly OfficerRole[];
     label: string;
     targeting: OfficerCommandTargeting;
 

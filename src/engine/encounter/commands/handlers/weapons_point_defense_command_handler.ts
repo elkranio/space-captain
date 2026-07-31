@@ -38,7 +38,7 @@ function createWeaponsPointDefenseCommandHandler(
     pointDefenseBeamBand: PointDefenseBeamBand,
 ): OfficerCommandHandler {
     const def = {
-        role: OFFICER_ROLE.WEAPONS,
+        availableToRoles: [OFFICER_ROLE.WEAPONS],
         label,
 
         targeting: {

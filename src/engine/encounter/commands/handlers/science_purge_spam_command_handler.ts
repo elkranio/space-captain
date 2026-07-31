@@ -14,7 +14,7 @@ import { requireThreatTargetId } from './command_handler_helpers';
 const COMMAND_ID = ENCOUNTER_OFFICER_COMMAND_ID.SCIENCE_PURGE_SPAM;
 
 const COMMAND_DEF = {
-    role: OFFICER_ROLE.SCIENCE,
+    availableToRoles: [OFFICER_ROLE.SCIENCE],
     label: 'PURGE SPAM',
 
     targeting: {

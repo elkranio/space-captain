@@ -14,7 +14,7 @@ const COMMAND_ID =
     ENCOUNTER_OFFICER_COMMAND_ID.ENGINEER_REPAIR_DRIVE;
 
 const COMMAND_DEF = {
-    role: OFFICER_ROLE.ENGINEER,
+    availableToRoles: [OFFICER_ROLE.ENGINEER],
     label: 'REPAIR ENGINE',
 
     targeting: {

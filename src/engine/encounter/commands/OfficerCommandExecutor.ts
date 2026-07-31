@@ -66,7 +66,11 @@ export default class OfficerCommandExecutor {
     // #region Command validation
 
     private isCommandAvailable(handler: OfficerCommandHandler, input: ExecuteOfficerCommandInput): boolean {
-        if (handler.def.role !== input.role) {
+        if (
+            !handler.def.availableToRoles.includes(
+                input.role,
+            )
+        ) {
             return false;
         }
 

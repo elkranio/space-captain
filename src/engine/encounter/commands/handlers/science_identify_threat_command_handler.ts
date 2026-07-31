@@ -25,7 +25,7 @@ import { requireThreatTargetId } from './command_handler_helpers';
 const COMMAND_ID = ENCOUNTER_OFFICER_COMMAND_ID.SCIENCE_IDENTIFY_THREAT;
 
 const COMMAND_DEF = {
-    role: OFFICER_ROLE.SCIENCE,
+    availableToRoles: [OFFICER_ROLE.SCIENCE],
     label: 'IDENTIFY THREAT',
 
     targeting: {

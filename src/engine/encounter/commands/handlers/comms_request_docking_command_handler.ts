@@ -16,7 +16,7 @@ import { createAnchorTargetedCommand, getStationTarget, isCurrentAnchor } from '
 const COMMAND_ID = ENCOUNTER_OFFICER_COMMAND_ID.COMMS_REQUEST_DOCKING;
 
 const COMMAND_DEF = {
-    role: OFFICER_ROLE.COMMS,
+    availableToRoles: [OFFICER_ROLE.COMMS],
     label: 'REQUEST DOCKING',
 
     targeting: {

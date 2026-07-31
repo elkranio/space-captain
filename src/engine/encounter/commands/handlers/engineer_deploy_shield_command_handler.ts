@@ -41,7 +41,7 @@ function createEngineerDeployShieldCommandHandler(
     shieldZone: LaserTargetZone,
 ): OfficerCommandHandler {
     const def = {
-        role: OFFICER_ROLE.ENGINEER,
+        availableToRoles: [OFFICER_ROLE.ENGINEER],
         label,
 
         targeting: {

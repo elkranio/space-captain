@@ -17,7 +17,7 @@ import { createAnchorTargetedCommand, getStationTarget, isCurrentAnchor } from '
 const COMMAND_ID = ENCOUNTER_OFFICER_COMMAND_ID.HELM_DOCK;
 
 const COMMAND_DEF = {
-    role: OFFICER_ROLE.HELM,
+    availableToRoles: [OFFICER_ROLE.HELM],
     label: 'DOCK',
 
     targeting: {

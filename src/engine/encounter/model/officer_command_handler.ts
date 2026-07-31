@@ -1,5 +1,6 @@
 // src/engine/encounter/model/officer_command_handler.ts
 
+import type { OfficerRole } from '../../defs/officer';
 import type { ContactSequenceStep } from '../contact/sequences/contact_sequence';
 import type EncounterStateStore from '../state/EncounterStateStore';
 import type {
@@ -27,7 +28,10 @@ export type OfficerCommandHandler = {
     commandId: EncounterOfficerCommandId;
     def: OfficerCommandDef;
 
-    getAvailableCommands(state: EncounterState): AvailableOfficerCommand[];
+    getAvailableCommands(
+        state: EncounterState,
+        role: OfficerRole,
+    ): AvailableOfficerCommand[];
 
     execute(context: OfficerCommandExecutionContext, input: ExecuteOfficerCommandInput): void;
 };
