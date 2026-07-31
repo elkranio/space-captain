@@ -1,16 +1,18 @@
 // src/engine/encounter/EncounterEngine.ts
 
-import { SHIP_WEAPONS } from '../content/catalogs/ship_weapons';
 import type { EncounterTeam } from '../defs/encounter_team';
 import type { OfficerRole } from '../defs/officer';
 import type { PlayerSpaceNavigationState } from '../defs/player_location';
 import type { PointDefenseState } from '../defs/point_defense';
 import type { ShieldGeneratorState } from '../defs/shield_generator';
 import type { ShipDriveState } from '../defs/ship_drive';
-import { SHIP_WEAPON_KIND, SHIP_WEAPON_PHASE } from '../defs/ship_weapon';
 import type { SpaceNodeState } from '../defs/universe';
 import CombatEngagementRunner from './combat/CombatEngagementRunner';
 import CombatRunner from './combat/CombatRunner';
+import {
+    getLaserThreatSnapshots,
+    type LaserThreatSnapshot,
+} from './combat/queries/get_laser_threat_snapshots';
 import PlayerShieldRunner from './combat/PlayerShieldRunner';
 import ShieldGeneratorRunner from './combat/ShieldGeneratorRunner';
 import OfficerCommandExecutor from './commands/OfficerCommandExecutor';
@@ -30,12 +32,7 @@ import { getOfficerAvailabilityStates } from './officer_availability/queries/get
 import OfficerTaskRunner from './officer_tasks/OfficerTaskRunner';
 import EncounterStateStore from './state/EncounterStateStore';
 
-export type LaserThreatSnapshot = {
-    attack: LaserAttackState;
-
-    timeToFireMs: number;
-    initialTimeToFireMs: number;
-};
+export type { LaserThreatSnapshot } from './combat/queries/get_laser_threat_snapshots';
 
 export type EncounterEngineOptions = {
     node: SpaceNodeState;
@@ -273,61 +270,9 @@ export default class EncounterEngine {
     }
 
     public getLaserThreatSnapshots(): LaserThreatSnapshot[] {
-        const state = this.stateStore.getState();
-
-        return state.combat.laserAttacks.map((attack) => {
-            const actor = state.actors.find((candidate) => {
-                return candidate.id === attack.sourceActorId;
-            });
-
-            if (!actor) {
-                throw new Error(
-                    `Laser threat source actor not found: ` +
-                        `${attack.id}/${attack.sourceActorId}`,
-                );
-            }
-
-            const weapon = actor.weapons.find((candidate) => {
-                return candidate.id === attack.sourceWeaponId;
-            });
-
-            if (!weapon) {
-                throw new Error(
-                    `Laser threat source weapon not found: ` +
-                        `${attack.id}/${attack.sourceWeaponId}`,
-                );
-            }
-
-            if (
-                weapon.kind !== SHIP_WEAPON_KIND.LASER ||
-                weapon.phase !== SHIP_WEAPON_PHASE.CHARGING
-            ) {
-                throw new Error(
-                    `Laser threat source weapon is not charging: ` +
-                        `${attack.id}/${weapon.id}/${weapon.kind}/${weapon.phase}`,
-                );
-            }
-
-            const definition = SHIP_WEAPONS[weapon.weaponId];
-
-            if (definition.kind !== SHIP_WEAPON_KIND.LASER) {
-                throw new Error(
-                    `Laser threat weapon definition mismatch: ` +
-                        `${attack.id}/${weapon.id}/${weapon.weaponId}`,
-                );
-            }
-
-            return {
-                attack: this.cloneLaserAttack(attack),
-
-                timeToFireMs: Math.max(
-                    0,
-                    definition.chargeDurationMs - weapon.phaseElapsedMs,
-                ),
-
-                initialTimeToFireMs: definition.chargeDurationMs,
-            };
-        });
+        return getLaserThreatSnapshots(
+            this.stateStore.getState(),
+        );
     }
 
     public getShieldGeneratorState(): ShieldGeneratorState | undefined {
