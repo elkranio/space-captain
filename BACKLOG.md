@@ -8,292 +8,116 @@ An item moves into active implementation only after it is selected explicitly.
 
 Keep items concrete enough that they remain understandable in a future chat.
 
-Last updated: 2026-07-31
+Last updated: 2026-08-01
 
 ---
 
-# 1. Next selected work: cognitive refactor pass
+# 1. Current selected work
 
-The next development chat should begin with an audit, not an implementation script.
-
-The purpose is:
+Current selected slice:
 
 ```text
-make the code easier to hold in working memory
+PLAYER MISSILE OFFENSE
 ```
 
-The target is not maximum abstraction.
-
-The target is:
-
-- obvious ownership;
-- obvious data flow;
-- fewer unnecessary file jumps;
-- fewer places that must change together;
-- explicit, boring code;
-- removal of accidental spaghetti.
-
-## Audit procedure
-
-Before proposing changes:
-
-1. Read fresh `master`.
-2. Read `PROJECT_CONTEXT.md`.
-3. Read this file.
-4. Inspect the actual current files.
-5. Do not treat refactor ideas from the previous chat as verified facts.
-6. Produce a short list of concrete problems with file-level evidence.
-7. Agree on the order of atoms before editing.
-
-Audit these areas:
-
-### Mutable state ownership
-
-Identify:
-
-- which class owns each mutable encounter value;
-- which class is allowed to mutate persistent runtime state;
-- whether the same state is synchronized from more than one app class;
-- whether any view or controller bypasses the intended owner.
-
-The desired direction remains:
+The active contract and implementation order are kept in:
 
 ```text
-engine mutation
-→ encounter event
-→ app/runtime synchronization
-→ bridge presentation event
+PLAYER_MISSILE_HANDOFF.md
 ```
 
-Do not force this shape where a synchronous completion callback is simpler and already clear.
+Do not duplicate the active atom plan here.
 
-### `EncounterEngine` ↔ `GameRuntime` synchronization
+When the slice closes:
 
-Verify whether runtime synchronization is split between:
-
-- `BridgeEncounterController`;
-- `BridgeEncounterEngineEventHandler`;
-- any other integration class.
-
-Look specifically at:
-
-- navigation;
-- drive;
-- point-defense charges;
-- shield-generator state;
-- hull;
-- newly created persistent anchors.
-
-Do not introduce a new synchronizer class unless it clearly reduces the number of owners and file jumps.
-
-### `BridgeEncounterController`
-
-Check whether it currently owns too many unrelated responsibilities:
-
-- bridge input;
-- encounter lifecycle;
-- runtime persistence;
-- snapshot polling;
-- scene transitions;
-- presentation callbacks.
-
-Possible outcomes include:
-
-- moving one coherent responsibility out;
-- introducing one small helper;
-- leaving the class intact if splitting would create more jumps.
-
-File size alone is not evidence.
-
-### New-game startup data
-
-Inspect:
-
-- `create_new_run_state.ts`;
-- `create_new_game_player.ts`;
-- `NewGameUniverseFactory.ts`;
-- relevant presets/catalogs.
-
-Find genuinely scattered choices such as:
-
-- selected starter ship preset;
-- selected starting location;
-- starting officers;
-- persistent system instance IDs;
-- selected enemy/node actor preset.
-
-Centralize only top-level startup choices.
-
-Do not move all universe geometry into one giant configuration object.
-
-Also verify whether the same station state object is intentionally reused in more than one node.
-
-### `EncounterEngine` facade
-
-Check whether `EncounterEngine` contains domain work that belongs in:
-
-- a pure query;
-- an existing runner;
-- officer-task logic;
-- combat logic.
-
-Likely audit candidates:
-
-- laser threat snapshot construction;
-- random task interruption;
-- cloning helpers.
-
-Do not make the engine indirect merely to reduce line count.
-
-Keep the explicit subsystem `step()` order visible.
-
-### `CombatRunner`
-
-`CombatRunner` is large, but that alone is not a problem.
-
-Do not split missile, laser and spam logic automatically.
-
-Split only when there is a concrete gain such as:
-
-- one subsystem can own a complete lifecycle;
-- dependencies become fewer;
-- shared weapon-phase rules stay readable;
-- tests become more local;
-- adding a new weapon no longer requires touching unrelated sections.
-
-Avoid replacing one long linear file with a graph of tiny runners.
-
-### `EncounterStateStore`
-
-Keep one authoritative mutable encounter state owner unless the audit proves a real ownership conflict.
-
-Do not split it into several stores merely because it is long.
-
-Its current regional organization may be cognitively cheaper than multiple cross-store calls.
-
-Potential cleanup is still allowed:
-
-- clearer method names;
-- local helper extraction;
-- removal of duplicate lookup/validation code;
-- moving static content creation out when it is truly content rather than mutation.
-
-### Views and VFX ownership
-
-Inspect whether root views have started accumulating complete child-effect implementations.
-
-Candidate:
-
-```text
-BridgeVfxView
-```
-
-A split is justified when each child owns:
-
-- its objects;
-- its tweens;
-- its event subscription;
-- its cleanup.
-
-Do not create child classes for effects that remain only a few obvious lines.
-
-### Test fixtures
-
-Find repeated full payloads that fail whenever one field is added.
-
-Current candidate:
-
-```text
-PLAYER_SHIP_STATUS_UPDATED
-```
-
-A focused fixture/builder is justified if it:
-
-- provides explicit starter defaults;
-- lets tests override only the relevant value;
-- remains easier to read than handwritten payloads.
-
-Do not create a universal test-data framework.
-
-### Cleanup pass
-
-After structural atoms are done, perform a final narrow cleanup:
-
-- obsolete comments;
-- comments describing already completed future work;
-- double blank lines left by scripts;
-- unused imports;
-- dead helpers;
-- inconsistent naming;
-- duplicated error construction where a tiny local helper is clearer.
-
-Do not mix this cleanup into behavior-changing atoms unless required.
-
-## Refactor rules
-
-Every refactor atom must:
-
-- preserve gameplay behavior;
-- have a single cognitive goal;
-- include focused tests when behavior ownership moves;
-- pass typecheck;
-- pass tests;
-- pass runtime smoke when app flow changes;
-- be pushed and re-read before the next atom.
-
-Prefer:
-
-```text
-one obvious owner
-```
-
-over:
-
-```text
-several flexible collaborators
-```
-
-Prefer:
-
-```text
-explicit sequence
-```
-
-over:
-
-```text
-generic registry / pipeline / effect graph
-```
-
-Prefer:
-
-```text
-small duplication that keeps behavior local
-```
-
-over:
-
-```text
-abstraction that forces constant jumping
-```
-
-## Refactor non-goals
-
-Do not introduce during this pass:
-
-- entity-component systems;
-- generic resource frameworks;
-- generic effect graphs;
-- dependency injection containers;
-- event-sourcing architecture;
-- universal command scripting;
-- speculative save migration;
-- generalized modifier frameworks;
-- large folder reorganizations without behavior-level benefit.
+- remove or archive the handoff file;
+- update `PROJECT_CONTEXT.md`;
+- move only genuinely deferred discoveries back into this backlog.
 
 ---
 
-# 2. Near-term combat debts
+# 2. Immediate follow-up after player missile
+
+## Enemy defense behavior pass
+
+Do not add enemy countermeasures inside the first player missile slice.
+
+The later behavior pass should decide how enemy policy uses available defensive roles and systems.
+
+Candidate responses:
+
+- enemy point defense against player missiles;
+- enemy Engineer choosing a shield sector during player laser telegraph;
+- enemy role conflicts between offense and defense;
+- policy differences between cautious/aggressive ships;
+- deliberate failure when the required role is occupied.
+
+The important rule is:
+
+```text
+enemy captain = policy
+enemy crew roles = constrained operators
+```
+
+Avoid special-case scripted reactions disconnected from the shared combat grammar.
+
+---
+
+## Restore enemy SCIENCE / spam in the development encounter
+
+The development enemy currently removes SCIENCE from local crew roles.
+
+The Spam Projector remains installed but cannot operate.
+
+Restore SCIENCE after the player missile slice and its runtime acceptance are complete.
+
+Then verify combined pressure:
+
+- WEAPONS rotates missile / laser / sticky mines;
+- SCIENCE can channel spam in parallel;
+- player offensive commands compete with defensive work;
+- enemy destruction clears spam and active hostile control state.
+
+Do not rebalance timings before the complete loop can be played.
+
+---
+
+## Runtime verification of player weapon persistence
+
+Automated tests cover persistent weapon state.
+
+A manual runtime check remains deferred:
+
+```text
+fire a player weapon
+→ reconstruct or re-enter Bridge during cooldown
+→ weapon must not reset to READY
+```
+
+This is awkward to trigger and does not block the current missile implementation.
+
+Perform it during a broader combat acceptance pass.
+
+---
+
+## Player laser TARGETING presentation
+
+Current visible charge presentation begins at `CHARGING`.
+
+The first 3000 ms `TARGETING` phase is communicated mainly through the Weapons task.
+
+Possible improvement:
+
+- subtle mount movement;
+- targeting light;
+- reticle lock;
+- low-intensity pre-charge effect.
+
+Do not mix this into player missile work.
+
+---
+
+# 3. Missile and threat system
 
 ## Actual BLUE missile content
 
@@ -305,115 +129,24 @@ Not implemented
 
 Current state:
 
-- missile spectral bands support RED and BLUE;
+- spectral bands support RED and BLUE;
 - point defense supports RED BEAM and BLUE BEAM;
-- existing missile content is RED;
-- BLUE BEAM is currently always a miss.
+- current missile content used in prototype encounters is RED;
+- starter player launcher is also RED.
 
 Need to decide:
 
 - separate missile definition;
 - sprite reuse versus separate sprite;
-- launcher loadout;
-- deterministic or random band selection;
-- test control over selection;
-- encounter content demonstrating both bands.
+- launcher loadouts;
+- authored faction preference;
+- deterministic versus selected/random loadout;
+- how tests control missile band;
+- whether prototype encounters deliberately demonstrate both bands.
+
+Do not add BLUE only to make the menu symmetric without a content purpose.
 
 ---
-
-## Rejected point-defense command regression test
-
-Add an explicit engine regression test proving that a rejected or stale point-defense command does not spend a charge.
-
-Potential cases:
-
-- command submitted with zero charges;
-- target no longer exists when command is submitted;
-- Weapons is already busy;
-- command target does not match an available command.
-
-The executor currently validates availability before calling the handler, but the resource contract deserves one focused regression test.
-
----
-
-## Zero-charge player feedback
-
-At zero charges the point-defense commands currently disappear.
-
-Consider whether the final UI should instead provide stronger feedback:
-
-- disabled command with `NO CHARGES`;
-- Weapons bark;
-- red/empty resource indicator;
-- alert when the last charge is spent.
-
-Do not add this until the command-menu UX direction is clearer.
-
----
-
-## Point-defense replenishment
-
-Current combat contract:
-
-```text
-no recharge during combat
-```
-
-Future replenishment possibilities:
-
-- docking service;
-- station purchase;
-- Engineering recharge outside combat;
-- consumable capacitor packs;
-- automatic refill between prototype encounters.
-
-Lore direction:
-
-Point-defense charges are charged pulse capacitors rather than physical ammunition.
-
-Need to decide where persistence and replenishment rules live.
-
----
-
-## Which enemies have an opening disruption pulse
-
-Current prototype behavior gives the opening pulse to hostile encounter ships through engagement logic.
-
-Future content should decide whether the pulse belongs to:
-
-- every hostile ship;
-- a ship definition capability;
-- a specific installed system;
-- selected encounter presets;
-- scripted encounter openings.
-
-Do not leave universal pulse behavior accidental once enemy variety appears.
-
-The one-shot-per-source encounter rule can remain even if capability becomes content-driven.
-
----
-
-## Opening pulse presentation polish
-
-Current effect is intentionally simple:
-
-- violet additive flash;
-- horizontal interference band;
-- no camera shake.
-
-Possible later polish:
-
-- sound effect;
-- bridge light flicker;
-- slightly more irregular static;
-- clearer timing before `ENGINE` turns red;
-- source-direction hint only if it helps gameplay.
-
-Avoid making it look like physical hull impact.
-
----
-
-# 3. Missile and threat system
 
 ## Launcher identification persistence
 
@@ -423,10 +156,10 @@ Future direction:
 
 - identify an enemy launcher;
 - later missiles from the same launcher become known automatically;
-- launcher knowledge may persist for the encounter;
-- possibly persist after previous encounters with the same faction or ship type.
+- encounter-local launcher knowledge;
+- possible long-term faction/ship knowledge later.
 
-Need a clear distinction between:
+Keep separate concepts:
 
 - projectile identification;
 - launcher identification;
@@ -437,86 +170,282 @@ Need a clear distinction between:
 
 ## Science: Analyze Enemy
 
-After basic threat identification, Science should have other meaningful work.
+After basic threat identification, Science should have meaningful offensive work.
 
 Possible outputs:
 
 - enemy weapon type;
-- launcher spectral behavior;
+- shield capability;
+- launcher behavior;
 - cooldown estimate;
 - weak system;
 - possible critical target;
 - uncertain versus confirmed information.
 
-This should compete with threat identification and spam purging for Science time.
+This should compete with:
 
-Avoid turning the result into a large spreadsheet.
+- threat identification;
+- spam purging;
+- other Science tasks.
+
+Avoid turning enemy telemetry into a spreadsheet.
 
 ---
 
-## Multiple simultaneous threats
+## Multiple simultaneous missiles
 
-Current combat philosophy prefers few readable threats.
+Future tests should explore:
 
-Later tests should explore:
-
-- missile plus laser;
-- missile plus spam;
 - two missiles with different time-to-impact;
 - different spectral bands;
 - one Science officer;
 - one Weapons officer;
-- one Engineer;
-- limited defensive resources.
+- limited point-defense charges;
+- an offensive opportunity competing with defense.
 
-Do not scale to large swarms.
+Do not scale toward swarms.
 
-The intended question is:
+The intended decision is prioritization, not click speed.
+
+---
+
+## Player missile ammunition and resupply
+
+The starter launcher currently begins full.
+
+No resupply contract is defined.
+
+Possible future sources:
+
+- docking service;
+- station purchase;
+- mission-issued ammunition;
+- cargo conversion;
+- rare salvaged missiles.
+
+Need to decide:
+
+- whether ammo persists across all encounters;
+- whether a run can become permanently missile-empty;
+- how the final captain desk displays ammo;
+- whether loaded missile type can be changed outside combat.
+
+Do not add automatic refill unless prototype testing requires it explicitly.
+
+---
+
+## Outgoing missile art and presentation polish
+
+The first player missile view needs a dedicated outgoing sprite.
+
+Draw it only when the view atom is ready so the required:
+
+- direction;
+- size;
+- launch point;
+- target scale;
+- frame name;
+- atlas path
+
+are known.
+
+Potential presentation elements:
+
+- launch flash at the player mount;
+- step-based flight;
+- enemy impact;
+- shield block;
+- target-lost self-destruction.
+
+Avoid reusing the incoming missile sprite blindly if perspective/readability differ.
+
+---
+
+# 4. Enemy combat behavior
+
+## Enemy Engineer directional shields
+
+Future contract:
 
 ```text
-Which threat do I spend time and resources on?
+player laser telegraph reveals target sector
+→ enemy policy checks Engineer availability
+→ Engineer may deploy shield to a chosen sector
 ```
 
-not:
+Questions:
+
+- does the enemy know the exact sector immediately;
+- can policy intentionally guess wrong;
+- is shield deployment a timed officer task;
+- how many shield charges does the enemy have;
+- does defense compete with repairs;
+- how is the decision exposed in telemetry.
+
+Implement during the enemy defense behavior pass, not as a hardcoded reaction in player laser code.
+
+---
+
+## Enemy point defense
+
+Player missiles currently have no enemy counter.
+
+Later decisions:
+
+- which enemies have point defense;
+- finite charges or cooldown-only;
+- exact versus probabilistic interception;
+- whether Science analysis reveals capability;
+- how point defense occupies enemy Weapons or another role;
+- whether some factions cannot counter certain missile types.
+
+Do not mirror the player RED/BLUE command system automatically.
+
+---
+
+## Enemy subsystem damage
+
+Possible future targets:
+
+- missile launcher;
+- laser;
+- spam projector;
+- engines;
+- shields;
+- sensors;
+- communications.
+
+Subsystem damage must create visible command consequences.
+
+Avoid many hidden percentages.
+
+---
+
+## Retreat and surrender
+
+Enemy destruction is implemented.
+
+Future alternatives may include:
+
+- retreat preparation;
+- disabled-but-alive ship;
+- surrender;
+- boarding or salvage;
+- mission requirement to avoid destruction.
+
+These need authored encounter consequences before implementation.
+
+---
+
+## Opening disruption capability
+
+Current prototype hostile engagement can trigger the opening disruption pulse.
+
+Future content should decide whether the pulse belongs to:
+
+- every hostile ship;
+- a ship capability;
+- an installed system;
+- selected presets;
+- scripted encounter openings.
+
+Do not leave universal pulse behavior accidental once enemy variety expands.
+
+---
+
+# 5. Player offense beyond basic laser/missile
+
+## Science-enabled critical attacks
+
+Science analysis may unlock:
+
+- named weak point;
+- increased damage;
+- disabling a system;
+- improved hit result;
+- a special target choice.
+
+The player should make an explicit command decision based on the information.
+
+Avoid passive percentage buffs with no visible choice.
+
+---
+
+## Additional offensive weapon
+
+After laser and missile are complete, a third player weapon should not be another reskinned cooldown attack.
+
+It should create a different officer/resource decision.
+
+Candidates require design first.
+
+---
+
+## Friendly-fire and collateral consequences
+
+Possible mission pressure:
+
+- target near a station;
+- cargo/VIP aboard enemy;
+- capture requirement;
+- civilian ship misidentification.
+
+Do not add until missions need it.
+
+---
+
+# 6. Player defensive systems
+
+## Rejected point-defense command regression
+
+Add a focused engine test proving rejected or stale commands do not spend a charge.
+
+Candidate cases:
+
+- zero charges;
+- target removed before execution;
+- Weapons already busy;
+- command no longer appears in availability.
+
+Current executor validates availability before the handler, but the resource contract deserves explicit coverage.
+
+---
+
+## Zero-charge point-defense feedback
+
+At zero charges, point-defense commands disappear.
+
+Possible final feedback:
+
+- disabled command with `NO CHARGES`;
+- Weapons bark;
+- empty/red resource indicator;
+- warning when the last charge is spent.
+
+Wait for the final command-menu/captain-desk UX direction.
+
+---
+
+## Point-defense replenishment
+
+Current rule:
 
 ```text
-Can I click fast enough?
+no recharge during combat
 ```
 
----
+Lore direction:
 
-## Missile HUD polish
+Point-defense charges are pulse capacitors rather than physical ammunition.
 
-Current HUD is functional.
+Possible replenishment:
 
-Possible polish:
-
-- clearer identified/unknown state;
-- color treatment for RED/BLUE;
-- stronger time-to-impact urgency;
-- more readable bracket frame;
-- better scaling at small missile sizes;
-- clear destroyed/missed feedback;
-- avoid the HUD competing with the missile sprite.
+- docking service;
+- Engineering recharge outside combat;
+- consumable capacitor pack;
+- automatic prototype refill between missions.
 
 ---
-
-## Incoming missile movement polish
-
-Current movement uses step-based growth and imperfect drift.
-
-Potential improvements:
-
-- hand-authored drift patterns;
-- clearer depth progression;
-- better final approach;
-- no smooth modern tween look;
-- maintain approximately 12 fps retro motion;
-- prevent missile movement from covering important UI.
-
----
-
-# 4. Player defensive systems
 
 ## Helm evade fallback
 
@@ -537,118 +466,19 @@ GLANCING
 DIRECT
 ```
 
-Possible characteristics:
-
-- lower reliability than the exact counter;
-- consumes Helm time;
-- may reduce damage rather than fully avoid it;
-- may depend on maneuvering-thruster condition;
-- should not become direct arcade steering.
-
 No final contract is locked.
 
 ---
 
 ## Maneuvering-thruster system
 
-If EVADE is implemented, decide whether maneuvering thrusters are:
+Only introduce persistent maneuvering-thruster state if EVADE or damage rules need it.
 
-- always available baseline hardware;
-- a persistent ship system with state;
-- damageable;
-- repairable;
-- limited by charges/heat;
-- represented separately from the main drive.
-
-Do not introduce the system before EVADE needs it.
+Do not add it speculatively.
 
 ---
 
-## Shield decisions beyond one laser
-
-Directional shields are implemented for one active zone.
-
-Future questions:
-
-- can several laser threats overlap;
-- can the shield be redeployed while active;
-- does redeployment consume another charge;
-- should Science identification reveal zone early enough;
-- should some lasers penetrate or overload shields;
-- how shield choice competes with drive repair and other Engineer work.
-
-Keep the system readable.
-
----
-
-## Universal countermeasure technology
-
-Lore/design idea:
-
-The old player ship may possess unusual universal countermeasure hardware.
-
-Possible consequences:
-
-- player can eventually load different countermeasure programs;
-- some enemy factions lack counters for certain missile types;
-- trading posts can reprogram launcher/countermeasure firmware;
-- changing configuration may take time;
-- currently loaded supplies may be sold or replaced.
-
-This belongs after the basic combat loop proves fun.
-
----
-
-# 5. Player offense
-
-## Player weapon commands
-
-Player offensive actions are not yet implemented.
-
-Potential loop:
-
-- Weapons prepares attack;
-- Science analyzes enemy;
-- identified weak points enable better attacks;
-- attacking competes with point defense for Weapons time;
-- limited resources prevent automatic firing.
-
-Avoid conventional cooldown-button combat with no officer decisions.
-
----
-
-## Enemy subsystem damage
-
-Possible future targets:
-
-- missile launcher;
-- laser;
-- spam projector;
-- engines;
-- shields;
-- sensors;
-- communications.
-
-Subsystem damage should create understandable tactical consequences.
-
-Avoid a large simulation with many hidden percentages.
-
----
-
-## Critical hits and Science knowledge
-
-Science analysis may unlock:
-
-- named weak point;
-- increased hit probability;
-- higher damage;
-- disabling a specific system.
-
-The player should make a visible command decision based on the information.
-
----
-
-# 6. Ship damage, repair and escape
+# 7. Ship damage, repair and escape
 
 ## Repair tasks beyond the main drive
 
@@ -661,9 +491,9 @@ Future Engineer work may include:
 - restore sensors;
 - restore maneuvering thrusters;
 - clear bridge hazards;
-- accelerate point-defense recharge outside combat.
+- accelerate resource recovery outside combat.
 
-Each repair must create a visible decision and compete for Engineer time.
+Each repair should create a visible decision and compete for Engineer time.
 
 Avoid generic health-bar healing.
 
@@ -671,95 +501,85 @@ Avoid generic health-bar healing.
 
 ## Escape flow
 
-The main drive can now be disabled and repaired, but a complete escape flow is not implemented.
+A complete escape flow is not implemented.
 
 Need to decide:
 
 - which command initiates escape;
-- whether jump or FLY TO is the escape action;
-- whether an enemy can interrupt escape preparation;
-- how encounter victory/escape is resolved;
-- whether enemies can pursue into the next node.
+- whether FLY TO or JUMP acts as escape;
+- whether enemy attacks interrupt preparation;
+- whether pursuit continues into another node;
+- how victory/escape is recorded.
 
 ---
 
 ## Damage beyond hull
 
-Current direct damage model still mainly resolves into hull loss plus task interruption.
-
-Possible later states:
+Possible future consequences:
 
 - system disabled;
 - reduced task speed;
 - officer injured;
 - console unavailable;
-- temporary bridge hazard.
+- temporary bridge hazard;
+- cargo/VIP damage.
 
-Add only when each state creates a meaningful command decision.
-
----
-
-# 7. Ship status presentation
-
-## Temporary status panel replacement
-
-Current top-center panel displays:
-
-```text
-HULL
-PD
-SHD
-ENGINE
-```
-
-It is intentionally temporary.
-
-Long-term presentation candidates:
-
-- captain's physical table;
-- bridge console indicators;
-- Weapons station resource display;
-- Engineer station ship-damage display;
-- warning lamps;
-- diegetic gauges.
-
-Do not remove the temporary panel until the replacement communicates the same information reliably.
+Add only when the state creates a meaningful command decision.
 
 ---
+
+# 8. Ship status and telemetry presentation
 
 ## Captain dashboard
 
-Long-term scene idea:
+Long-term direction:
 
-- player seen from behind in captain chair;
-- physical command table rather than a flat modern screen;
-- attack warning lamp;
-- hull state;
+- captain seen from behind;
+- physical desk/dashboard integrated into the bridge;
+- hull;
+- point-defense charges;
+- shield charges;
 - engine state;
-- point-defense charge count;
-- shield-generator charges;
-- possibly active shield zone;
-- important ship-wide alerts.
+- weapon/ammunition state;
+- attack warning lamps;
+- one enemy telemetry screen.
 
-Visual design should remain Sierra-style and readable.
+The current flat status and enemy telemetry panels are temporary.
+
+Do not remove them until the diegetic replacement preserves timing and readability.
+
+---
+
+## Enemy telemetry ownership
+
+Enemy telemetry currently supports the player offense prototype.
+
+Future questions:
+
+- what Science must reveal;
+- which values are always known;
+- how shield/hull changes animate;
+- how subsystem damage is represented;
+- how destroyed/retreating state clears;
+- whether telemetry remains readable with one enemy only.
+
+Avoid floating HP bars over ordinary ships.
 
 ---
 
 ## Living officers at stations
 
-Current officer presentation is still prototype-oriented.
-
 Long-term goals:
 
-- officers visibly occupy stations;
-- activity reflected through animation/state;
-- stress, injury and personality visible;
-- station UI remains readable over character presentation;
-- officer reactions provide feedback without excessive text.
+- officers physically occupy stations;
+- activity reflected in animation/state;
+- stress, injury and personality are visible;
+- station UI remains readable;
+- reactions provide feedback without text spam.
 
 ---
 
-# 8. Command UI
+# 9. Command UI
 
 ## Keyboard officer shortcuts
 
@@ -769,93 +589,85 @@ Planned mapping:
 1–5
 ```
 
-Each key should select/open the corresponding officer station.
-
 Need:
 
 - stable role order;
 - input blocking during transitions;
 - menu close behavior;
 - visible focus;
-- compatibility with text/debug input.
+- compatibility with debug/text input.
 
 ---
 
 ## Gamepad support
 
-Officer-command navigation should be designed for:
+Design officer command navigation for:
 
 - directional selection;
-- confirm;
-- cancel;
+- confirm/cancel;
 - switching officers;
-- selecting grouped targets;
+- target selection;
 - active task cancellation.
 
-Avoid UI interactions requiring precise mouse positioning.
+Avoid precise mouse-only interaction.
 
 ---
 
 ## Persistent threat access
 
-The player should be able to reach critical threat actions in one or two decisions.
+Critical threat actions should take one or two decisions.
 
 Potential improvements:
 
-- persistent missile/laser indicators;
+- persistent threat indicators;
 - direct threat selection;
-- reopening the last relevant officer menu;
+- reopen last relevant officer menu;
 - keyboard shortcuts;
-- visual link from threat to available counter.
-
-Avoid repeatedly reopening deep context menus.
+- visible link from threat to available response.
 
 ---
 
 ## Command-menu polling regression coverage
 
-The open officer menu polls available commands approximately every 200 ms.
+Maintain coverage for open menus while state changes:
 
-Maintain regression coverage for cases such as:
-
-- Science creates a jump point while Helm menu is open;
-- a threat appears while Science/Weapons menu is open;
-- point-defense charges reach zero while Weapons menu is open;
-- an officer task finishes while the menu is open;
-- drive becomes disabled or repaired while Helm/Engineer menus are open;
-- spam channel expires while Science menu is open.
-
----
-
-# 9. Encounter and navigation polish
-
-## Ship sprite scale consistency
-
-Current direction:
-
-- ship sprites should preferably be authored at appropriate display size;
-- avoid per-object scaling hacks;
-- decide later whether all ships are displayed 1:1;
-- perspective/depth scaling should only be introduced if it improves gameplay readability.
-
-Do not add a generalized distance-scaling system prematurely.
+- a threat appears;
+- point-defense reaches zero;
+- officer task finishes;
+- drive is disabled/repaired;
+- spam expires;
+- enemy is destroyed;
+- player launcher enters cooldown or becomes empty.
 
 ---
 
-## Encounter content presets
+# 10. Encounter and persistence rules
 
-Continue moving literal encounter configuration into reusable content presets where it reduces duplication.
+## Combat objects remain encounter-local
 
-Candidates:
+Locked rule:
 
-- mixed missile loadouts;
-- enemy combat archetypes;
-- disruption-capable ships;
-- node actors;
-- station encounters;
-- combat encounter variants.
+```text
+leave zone / reconstruct encounter
+→ missiles, mines, shields, laser attacks and spam disappear
+```
 
-Do not create generic factories without at least two real uses.
+Do not add save/runtime persistence for these objects.
+
+Installed player systems and surviving universe actors remain persistent.
+
+---
+
+## Enemy actor removal regression
+
+Current runtime acceptance confirms destroyed enemies do not return after FLY TO or JUMP.
+
+Maintain automated coverage around:
+
+- encounter actor removal;
+- persistent current-node actor removal;
+- telemetry clearing;
+- no `EndScene` transition.
 
 ---
 
@@ -863,107 +675,129 @@ Do not create generic factories without at least two real uses.
 
 Potential improvements:
 
-- better transition between rotation and forward movement;
+- rotation-to-movement transition;
 - ship-bracing feedback;
 - object parallax;
-- dust activation exactly at flight start;
+- dust activation timing;
 - consistent arrival framing;
 - old-engine vibration.
 
 ---
 
-# 10. Test and architecture debts
+## Ship sprite scale consistency
 
-## Persistence across encounter recreation
+Prefer authoring sprites at intended display size.
 
-Maintain focused coverage proving that persistent combat resources survive encounter recreation:
-
-- spent point-defense charges;
-- shield-generator charges/regeneration state;
-- drive disabled/repaired state;
-- navigation rollback after disruption.
-
-Leaving and re-entering the bridge must not restore resources accidentally.
+Avoid a generalized distance-scaling system unless it improves gameplay readability.
 
 ---
 
-## Full player ship status fixture
+# 11. Test and architecture debts
 
-`PLAYER_SHIP_STATUS_UPDATED` now contains:
+## Full player ship fixtures
 
-- hull;
-- drive;
-- point defense;
-- shield generator.
+Adding the second installed weapon caused several full-snapshot tests to change.
 
-Several app tests hand-write the same complete payload.
+Potential focused helpers:
 
-During the cognitive refactor pass, consider a focused test fixture with explicit starter defaults and small overrides.
+- explicit starter player ship fixture;
+- explicit starter weapon loadout fixture;
+- small override functions.
+
+A helper is justified only if it reduces churn while keeping expected state visible.
 
 Do not build a universal fixture framework.
 
 ---
 
+## Player weapon-array tests
+
+`setPlayerShipWeaponStates()` requires the complete installed loadout.
+
+Tests changing one weapon should preserve all untouched weapons explicitly.
+
+Prefer a small local mapping helper over one-element arrays that accidentally replace the loadout.
+
+---
+
 ## Shared player ship status mapper
 
-`BridgeController` and `BridgeEncounterEngineEventHandler` both construct the full player ship status payload.
+`BridgeController` and `BridgeEncounterEngineEventHandler` construct the full player status payload.
 
-The field count has grown enough that drift is now a realistic risk.
+Verify whether a small pure mapper would reduce drift.
 
-During the refactor audit, verify whether one small pure mapper would reduce duplication without hiding the payload.
+Do not extract a broad status framework.
 
 ---
 
 ## Encounter/runtime synchronization ownership
 
-Persistent state currently includes:
+Persistent state now includes weapon states in addition to:
 
 - navigation;
 - hull;
 - drive;
 - point defense;
 - shield generator;
-- generated persistent anchors.
+- generated anchors.
 
-The encounter snapshot is authoritative while running.
-
-During the refactor audit, verify that each mutation has one obvious app-side synchronization owner.
+Keep one obvious synchronization owner per mutation path.
 
 Avoid:
 
-- per-frame synchronization;
 - views reading runtime;
-- controllers and event handlers both owning the same resource;
-- broad generic persistence frameworks.
+- broad per-frame synchronization;
+- duplicate controller/handler ownership;
+- generic persistence frameworks.
 
 ---
 
-## Event naming review
+## CombatRunner size
 
-Current explicit events include resource-specific and behavior-specific names such as:
+`CombatRunner` is large.
 
-```text
-PLAYER_POINT_DEFENSE_CHARGE_SPENT
-PLAYER_SHIP_DRIVE_STATE_CHANGED
-PLAYER_SHIP_DRIVE_DISRUPTED
-```
+Do not split it because of line count.
 
-Keep explicit events while they make behavior clearer.
+A split is justified only when a subsystem can own a complete lifecycle with fewer dependencies and fewer unrelated edits.
 
-Only generalize if several events truly share the same contract and consumers.
+Avoid replacing a linear file with a graph of tiny runners.
 
 ---
 
-# 11. Larger future systems
+## Apply-script reliability
+
+Recent failures came from:
+
+- broad field-pattern replacement;
+- incomplete usage inventory;
+- inferred factory input;
+- stale one-weapon test assumptions;
+- a guard that checked the wrong literal.
+
+Required discipline:
+
+1. inspect exact files;
+2. search all usages and full snapshots;
+3. read factory/type contracts;
+4. stage all transformations;
+5. validate before writing;
+6. use targeted anchors or full-file rewrites;
+7. keep recovery atoms narrow.
+
+This is a process debt, not an architecture feature.
+
+---
+
+# 12. Larger future systems
 
 ## Crew stress and fatigue
 
 Future crew layer:
 
 - officers accumulate stress/fatigue;
-- command performance and behavior may change;
+- command performance and behavior changes;
 - downtime becomes meaningful;
-- the captain may choose whom to monitor.
+- captain chooses whom to monitor.
 
 This should create story and decision pressure, not routine stat maintenance.
 
@@ -971,35 +805,33 @@ This should create story and decision pressure, not routine stat maintenance.
 
 ## R&R locations
 
-Content-first future system:
+Possible content:
 
 - space resorts;
 - stations;
 - shore leave;
 - several days of downtime;
-- captain may rest or monitor one crew member;
-- unmonitored officers can trigger absurd but serious consequences.
+- captain rests or monitors one crew member;
+- unmonitored crew can trigger absurd but serious consequences.
 
-Example consequences discussed:
+Examples discussed:
 
 - Comms develops alcoholism;
 - Engineer insults a species and creates a diplomatic incident;
 - Weapons develops a personal vendetta.
 
-Not part of the current combat prototype.
-
 ---
 
 ## Factions and sector-specific enemies
 
-Future enemy variety may come from:
+Future enemy identity may come from:
 
-- faction missile preferences;
-- disruption technology;
-- missing countermeasure technology;
-- different launcher firmware;
-- different willingness to retreat;
-- social and diplomatic consequences.
+- missile preferences;
+- defensive technology;
+- disruption capability;
+- launcher firmware;
+- retreat policy;
+- social/diplomatic consequences.
 
 Prefer authored faction identity over random stat variation.
 
@@ -1007,57 +839,58 @@ Prefer authored faction identity over random stat variation.
 
 ## Content-driven missions
 
-Possible mission pressures:
+Possible pressures:
 
 - timed delivery;
 - limited resupply;
 - damaged systems;
-- hostile faction territory;
+- hostile territory;
 - crew conflict;
 - station access restrictions;
-- choosing whether to spend rare defensive resources now.
+- rare resource use;
+- capture versus destruction requirements.
 
-The combat system should support mission context rather than exist as an isolated arena.
+Combat should serve mission context rather than exist as an isolated arena.
 
 ---
 
-# 12. Design risks to keep visible
+# 13. Design risks
 
 ## Menu matching
 
-Primary combat risk:
+Risk:
 
 ```text
 read RED
 → click RED
 ```
 
-can become trivial word matching.
+can become trivial.
 
 Mitigation should come from:
 
 - limited time;
-- limited charges;
+- limited charges/ammo;
 - competing officer tasks;
 - incomplete information;
-- multiple threat types;
+- different threat families;
 - offensive opportunities;
-- meaningful fallback options.
+- meaningful fallback choices.
 
-Do not solve this merely by adding more colors.
+Do not solve this merely by adding colors.
 
 ---
 
 ## Too many simultaneous threats
 
-More objects do not automatically create more depth.
+More objects do not automatically create depth.
 
 Maintain:
 
 - readable telegraphs;
-- enough time to understand;
-- small number of consequential decisions;
-- clear feedback.
+- enough comprehension time;
+- few consequential decisions;
+- clear results.
 
 ---
 
@@ -1067,46 +900,47 @@ Do not build:
 
 - universal resource framework;
 - generic effect graph;
-- highly abstract command scripting;
-- large entity-component system;
+- ECS;
+- dependency injection container;
+- universal command scripting;
 - speculative save migration;
-- generalized targeting framework beyond current needs.
-
-Add abstraction after repeated concrete usage demonstrates the need.
+- generalized modifier system;
+- generic targeting framework beyond demonstrated needs.
 
 ---
 
-## Prototype UI becoming permanent accidentally
+## Prototype UI becoming permanent
 
-Temporary UI should remain clearly identified as temporary.
+Temporary UI must remain marked as temporary.
 
-Before removing it, ensure the diegetic replacement preserves:
+A diegetic replacement must preserve:
 
 - readability;
 - update timing;
 - current/max values;
 - damage feedback;
-- charge-spend feedback;
-- drive-disabled feedback;
-- shield state feedback.
+- resource-spend feedback;
+- engine/shield state;
+- enemy destruction clearing.
 
 ---
 
-# 13. Backlog maintenance
+# 14. Backlog maintenance
 
 At the end of each development chat:
 
 - add newly discovered deferred work;
 - remove completed items;
-- update items whose design contract changed;
-- avoid duplicating the active checkpoint from `PROJECT_CONTEXT.md`;
-- keep speculative ideas in the larger-future sections;
+- update changed contracts;
+- avoid duplicating the active checkpoint;
+- keep speculative ideas in future sections;
 - keep near-term concrete debts near the top.
 
-When selecting the next task:
+When selecting work:
 
 1. read `PROJECT_CONTEXT.md`;
 2. read this file;
-3. inspect fresh `master`;
-4. choose one coherent atom;
-5. do not opportunistically fix unrelated backlog items.
+3. read any active handoff file;
+4. inspect fresh `master`;
+5. choose one coherent atom;
+6. do not opportunistically fix unrelated backlog items.

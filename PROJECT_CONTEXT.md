@@ -13,27 +13,28 @@ Update it at the end of the chat when any of the following changes:
 - important collaboration rules;
 - latest verified commit.
 
-Last updated: 2026-07-31
+Last updated: 2026-08-01
 
 Latest verified `master`:
 
 ```text
-761414fbe96568c23f1851a40a6355d181da1437
+66e5caadd0594cc0bc81dc3f429be9cce020b946
 ```
 
-Current state:
+Current verification state:
 
 ```text
 typecheck green
 tests green
-runtime smoke test green
+latest loadout-only atom does not require runtime smoke
+enemy destruction / no-resurrection runtime acceptance passed
 ```
 
 ---
 
 # 1. Project
 
-Space Captain is a comedic retro science-fiction bridge-command game.
+Space Captain is a comedic retro science-fiction bridge-command roguelite.
 
 The player is the captain of an obsolete starship and gives commands to officers instead of directly controlling every ship system.
 
@@ -43,32 +44,32 @@ The central gameplay language is:
 enemy telegraphs a threat
 → player gathers information
 → player assigns a limited officer/system
-→ player chooses an exact counter or accepts risk
+→ player chooses an exact response or accepts risk
 → the result is shown clearly on the bridge
 ```
+
+Combat should remain:
+
+- time-and-decision based;
+- readable;
+- sparse;
+- centered on officer allocation;
+- mechanically simpler than a tactical simulator;
+- driven by overlapping responsibilities and limited resources.
 
 The game should not become:
 
 - bullet hell;
 - conventional real-time strategy;
 - spreadsheet combat;
-- a menu where the player merely matches identical words;
+- a menu where the player only matches identical words;
 - architecture built for hypothetical future features.
 
-The intended experience is mostly about:
-
-- time;
-- incomplete information;
-- officer allocation;
-- prioritization;
-- limited ship resources;
-- accepting risk under pressure.
-
-Combat should normally contain a small number of readable threats rather than many simultaneous projectiles.
+One command-capable enemy ship per encounter is the intended default.
 
 ---
 
-# 2. Collaboration rules
+# 2. Collaboration and delivery rules
 
 Repository:
 
@@ -87,8 +88,8 @@ GitHub workflow:
 - assistant uses GitHub as read-only;
 - user edits, tests and pushes;
 - before proposing code, assistant reads fresh `master`;
-- after the user says that changes were pushed, assistant checks the new HEAD and diff;
-- never combine code from an old checkpoint with the current repository state.
+- after the user says changes were pushed, assistant checks the new HEAD and diff;
+- never combine code from an old checkpoint with current repository state.
 
 Conversation language:
 
@@ -101,7 +102,7 @@ Preferred response style:
 - direct;
 - practical;
 - critical when necessary;
-- small implementation atoms;
+- small coherent implementation atoms;
 - no generic praise;
 - no unnecessary architecture;
 - no speculative refactors unless they reduce cognitive load now.
@@ -109,10 +110,23 @@ Preferred response style:
 Code delivery:
 
 - provide complete files by default for tests;
-- provide complete files for nontrivial source changes when patching would be difficult to reason about;
-- several files in one atom are acceptable when they form one coherent behavior;
-- do not split one simple behavior into many tiny ceremonial steps;
-- for generated apply scripts, package the `.mjs` file inside a ZIP.
+- provide complete files for small or nontrivial source files when patches are harder to reason about;
+- several files in one atom are acceptable when they form one behavior;
+- generated apply scripts are delivered as `.mjs` inside a ZIP;
+- apply scripts use an exact HEAD guard;
+- transformations must be fully validated before any source file is written;
+- scripts self-delete only after successful apply.
+
+Apply-script process after the recent missile-source/loadout work:
+
+1. Read fresh HEAD.
+2. Search all affected usages and full-snapshot tests before writing the script.
+3. Read exact factory/type contracts instead of inferring them from adjacent systems.
+4. Prefer full-file rewrites for small files and tests.
+5. Avoid broad regex replacements when the same field shape appears in several domain types.
+6. Stage all edits in memory.
+7. Validate exact replacement counts and final invariants.
+8. Write only after all validation succeeds.
 
 Meaning of common user messages:
 
@@ -132,7 +146,7 @@ Art workflow:
 
 - do not generate images unless explicitly requested;
 - when asked for an image prompt, provide only the prompt;
-- asset paths and manifest changes should be agreed before committing implementation.
+- agree asset paths and manifest changes before implementation.
 
 ---
 
@@ -146,7 +160,7 @@ Core stack:
 - Vitest;
 - minimal `p34t` Phaser wrapper/project foundation.
 
-Target game resolution:
+Target resolution:
 
 ```text
 1280 × 720
@@ -173,7 +187,7 @@ Atlas frame names do not include `.png`.
 
 ---
 
-# 4. Architecture principles
+# 4. Architecture and state ownership
 
 The repository separates engine code from Phaser/application code.
 
@@ -181,7 +195,7 @@ The repository separates engine code from Phaser/application code.
 src/engine
 ```
 
-Contains gameplay/domain state and rules.
+Contains gameplay/domain state, rules, content and factories.
 
 ```text
 src/app
@@ -191,78 +205,45 @@ Contains Phaser scenes, controllers, views, runtime integration and presentation
 
 General rules:
 
-- scenes should remain dumb containers;
+- scenes remain dumb containers;
 - controllers coordinate flows;
-- views display already prepared state;
-- views should not read `GAME_RUNTIME` directly;
-- engine rules should not depend on Phaser;
+- views display prepared state;
+- views do not read `GAME_RUNTIME` directly;
+- engine rules do not depend on Phaser;
 - persistent run state belongs to `GameRuntime`;
-- encounter state is a mutable runtime snapshot used by `EncounterEngine`;
+- encounter state is a mutable runtime snapshot owned by `EncounterEngine` / `EncounterStateStore`;
 - engine emits encounter events through an outbox;
-- app integration translates encounter events into persistent runtime updates and bridge-local presentation events;
-- avoid multiple authoritative sources of the same runtime state;
-- avoid duplicate parallel folder structures;
-- prefer plain `string` IDs unless a stronger type clearly prevents mistakes;
-- explicit code is preferred over generic frameworks when both are correct.
+- app integration translates domain events into runtime updates and bridge presentation events;
+- avoid multiple authoritative sources for the same mutable value;
+- prefer explicit code over generic frameworks.
 
-Content configuration belongs under:
+Current ship/content composition direction:
 
 ```text
-src/engine/content
+ShipChassisDefinition → physical base
+ShipPreset            → equipment/loadout
+CrewPreset            → abstract roles
+BehaviorPreset        → enemy policy
+ShipNodeActorPreset   → composition
 ```
 
-Presentation asset manifests belong under:
+Current persistent player state includes:
 
-```text
-src/app/manifests
-```
+- hull;
+- main drive;
+- point-defense charges;
+- shield-generator state;
+- installed weapon states;
+- navigation;
+- generated persistent anchors.
 
-Refactors are justified when they:
-
-- remove duplicated runtime truth;
-- make ownership clearer;
-- reduce jumps between files;
-- reduce cognitive load;
-- prevent a demonstrated bug.
-
-Refactors are not justified merely because:
-
-- a file is long;
-- a more generic architecture might be useful later;
-- several concrete systems could theoretically share a framework.
+Current persistent universe state includes enemy ship actors until they are removed or destroyed.
 
 ---
 
-# 5. Visual direction
+# 5. Bridge, officers and tasks
 
-The visual target is original early-1990s Sierra VGA comedy science fiction, with the general atmosphere of Space Quest-era bridge interfaces.
-
-Visual characteristics:
-
-- chunky visible pixels;
-- limited VGA-style color ramps;
-- crisp nearest-neighbor edges;
-- selective dithering;
-- readable silhouettes;
-- dark navy, purple and blue bridge interior;
-- warm ivory/yellow reusable controls;
-- humorous retro-industrial machinery.
-
-Avoid:
-
-- modern glossy science-fiction concept art;
-- photorealistic military design;
-- smooth anti-aliased rendering;
-- tiny unreadable detail;
-- debug-looking UI in normal gameplay.
-
-Current flat status panels and labels are temporary prototype presentation.
-
----
-
-# 6. Bridge, officers and tasks
-
-The bridge has five main officer roles:
+The bridge has five officer roles:
 
 - Helm;
 - Comms;
@@ -272,28 +253,16 @@ The bridge has five main officer roles:
 
 Officer commands create officer tasks.
 
-`OfficerTaskState` includes:
+Tasks include:
 
-- task ID;
-- task kind;
-- officer role;
+- task ID and kind;
+- role;
 - source command ID;
 - task-specific target data;
 - label;
 - progress visibility;
-- elapsed and total duration;
-- `canBeCancelledByPlayer`;
-- `canBeInterruptedByDamage`.
-
-Task duration may be `null` for indefinite tasks such as HAIL.
-
-Officer availability is derived from current encounter state and tasks.
-
-Officer stations display:
-
-- ready/busy/blocked lights;
-- blinking activity label;
-- optional progress bar.
+- elapsed/total duration;
+- cancellation/interruption flags.
 
 Manual task cancellation is implemented.
 
@@ -303,30 +272,26 @@ Busy officer menus can show:
 CANCEL TASK
 ```
 
-Cancellation rules are task-specific:
+Cancellation rules are task-specific.
 
-- cancellable tasks can be cancelled by the player;
-- damage only selects tasks marked `canBeInterruptedByDamage`;
-- cancelled/interrupted timed work loses its progress;
-- resource costs already paid at task start are not refunded unless a future rule explicitly says otherwise.
+An open officer menu polls command availability approximately every 200 ms.
 
-An open officer command menu refreshes available commands by polling the engine approximately every 200 ms.
+Current bridge/application structure includes:
 
-Officer commands should eventually be reachable with keyboard keys `1–5` and should remain gamepad-friendly.
+- `BridgeController`;
+- `BridgeEncounterController`;
+- `BridgeEncounterEngineEventHandler`;
+- `BridgeOfficerCommandMenuController`;
+- `BridgeUiView`;
+- encounter object/threat/VFX views.
+
+The temporary status and telemetry panels are prototype UI, not the final diegetic captain desk.
 
 ---
 
-# 7. Navigation and encounters
+# 6. Navigation and encounter-local state
 
-Player navigation state is persistent.
-
-Encounter state is reconstructed from:
-
-- current space node;
-- persistent player navigation;
-- persistent drive state;
-- persistent point-defense state;
-- persistent shield-generator state.
+Player navigation is persistent.
 
 Implemented navigation/contact flows include:
 
@@ -339,170 +304,89 @@ Implemented navigation/contact flows include:
 - jump-point creation;
 - arrival/travel/jump presentation.
 
-The obsolete player ship cannot create a stable jump window by itself.
+Combat objects are encounter-local:
 
-Science locates a temporary natural spatial distortion and computes a navigational solution around it.
+- flying missiles;
+- active laser attacks;
+- sticky mines attached during the current encounter;
+- directional shield deployments;
+- spam channels;
+- presentation-only effects.
 
-The current pseudo-3D travel presentation uses:
-
-- horizontal panorama;
-- parallax;
-- step-like low-frame-rate motion;
-- runtime encounter objects positioned using local coordinates and perspective depth.
-
-Drive-dependent commands are currently:
+Locked persistence rule:
 
 ```text
-FLY TO
-DOCK
-JUMP
+leave the zone / reconstruct the encounter
+→ all active combat objects disappear
 ```
 
-They require the main drive to be `ONLINE`.
+Do not persist combat projectiles or temporary combat effects.
 
-Future maneuvering commands such as EVADE must not automatically require the main drive.
+The exception is the enemy ship actor itself:
+
+```text
+enemy ship survives travel/re-entry while alive
+enemy ship is removed persistently when destroyed
+```
 
 ---
 
-# 8. Current combat slice
+# 7. Enemy combat 1.0
 
-Combat now contains three enemy weapon families:
+Enemy combat uses abstract crew roles and behavior policy.
 
-- missile launcher;
-- laser;
-- spam projector.
+Current offensive roles:
 
-Enemy weapons share a phase lifecycle built around states such as:
+- WEAPONS serializes missile, laser and sticky-mine attacks;
+- SCIENCE can operate spam independently when present.
+
+Current scheduler properties:
+
+- independent role availability;
+- approximately 2000 ms role delay before offensive work;
+- deterministic weapon selection for the current prototype;
+- current WEAPONS rotation is missile → laser → sticky mines;
+- weapon cooldown does not keep the role occupied;
+- role remains occupied only while operator control is required.
+
+Current development encounter intentionally removes enemy SCIENCE from its local crew roles.
+
+Reason:
 
 ```text
-READY
-TARGETING
-CHARGING / CHANNELING
-COOLDOWN
+keep spam isolated while player offense is being completed
 ```
 
-The combat loop remains intentionally sparse and readable.
+The Spam Projector remains installed but cannot run without SCIENCE.
 
-Encounter step order is explicit.
+Enemy telemetry is shown in a temporary bridge panel.
 
-Officer tasks resolve before missile impact in the same step, so point defense wins an exact timing tie.
+It exposes enough state to test shields/hull and player offense without adding a floating HP bar over the ship.
+
+Future enemy defensive policy is deferred.
 
 ---
 
-# 9. Missiles, identification and point defense
+# 8. Player defense
 
-Incoming missiles initially appear unidentified.
+Implemented defensive responses include:
 
-Science command:
+## Point defense
 
-```text
-IDENTIFY THREAT
-```
-
-Current duration:
-
-```text
-3000 ms
-```
-
-Identification reveals the missile spectral band:
-
-```text
-RED
-BLUE
-```
-
-Weapons commands:
+Weapons offers:
 
 ```text
 RED BEAM
 BLUE BEAM
 ```
 
-Point-defense aiming duration:
+Accepted point-defense commands spend a charge immediately when `PD AIM` begins.
 
-```text
-3000 ms
-```
+Cancellation, interruption or disappearing targets do not refund the charge.
 
-Correct beam band:
+## Directional shields
 
-```text
-HIT
-```
-
-Wrong beam band:
-
-```text
-MISS
-```
-
-Point-defense charges:
-
-```text
-4 / 4
-```
-
-Current charge contract:
-
-```text
-accepted point-defense command
-→ charge is spent immediately
-→ PLAYER_POINT_DEFENSE_CHARGE_SPENT event
-→ PD AIM task begins
-```
-
-Additional rules:
-
-```text
-HIT
-→ no additional charge is spent
-
-MISS
-→ no additional charge is spent
-
-task cancelled
-→ charge is not refunded
-
-task interrupted by damage
-→ charge is not refunded
-
-target disappears before aim completes
-→ charge is not refunded
-→ no shot presentation occurs
-
-command rejected
-→ charge is not spent
-
-0 charges
-→ RED BEAM and BLUE BEAM are not offered
-```
-
-The encounter snapshot is authoritative while the encounter is running.
-
-Runtime persistence is updated through encounter events rather than per-frame synchronization.
-
-Current content limitation:
-
-```text
-Only RED missile content exists.
-```
-
-Therefore BLUE BEAM is currently always the wrong choice.
-
----
-
-# 10. Lasers and directional shields
-
-Enemy lasers:
-
-- telegraph a charging threat;
-- choose a target zone;
-- become identifiable by Science;
-- fire after their charge window;
-- damage hull when unblocked.
-
-Player shield zones:
+Engineer deploys a shield to:
 
 ```text
 LEFT
@@ -510,253 +394,278 @@ CENTER
 RIGHT
 ```
 
-Engineer deploys a directional shield to one zone.
+A matching zone blocks an enemy laser and consumes the shield.
 
-A matching shield blocks the laser and is consumed.
+## Sticky mines
 
-A mismatched or absent shield allows the laser to hit.
+Sticky mines attach to the hull.
 
-Shield-generator charges are persistent ship state and synchronize back into `GameRuntime`.
+Any allowed officer can clear them.
 
-Shield charges regenerate according to the installed generator rules.
+The clear command automatically targets the mine nearest detonation.
 
----
+The mechanic is intended to force cycling through officers rather than one permanent counter role.
 
-# 11. Spam projector
+## Drive disruption and repair
 
-The hostile Spam Projector uses:
+The hostile opening disruption pulse can disable the main drive.
 
-```text
-READY
-→ TARGETING
-→ CHANNELING
-→ COOLDOWN
-```
-
-Current timing:
-
-```text
-TARGETING: 3000 ms
-CHANNELING: 20000 ms
-COOLDOWN: 15000 ms
-```
-
-While a hostile spam channel is active:
-
-- spam popups appear over the bridge viewscreen;
-- officer task progress is slowed;
-- several active channels use the strongest slowdown rather than stacking multiplicatively.
-
-Science command:
-
-```text
-PURGE SPAM
-```
-
-Base purge duration:
-
-```text
-5000 ms
-```
-
-Because spam slows officer work, the effective first purge currently takes approximately:
-
-```text
-10000 ms
-```
-
-Natural channel expiry cancels a purge task whose target channel no longer exists.
-
-Seven retro spam popup assets currently exist under:
-
-```text
-assets/raw/images/combat/spam
-```
-
----
-
-# 12. Player main drive and opening disruption pulse
-
-Player drive state:
-
-```text
-ONLINE
-DISABLED
-```
-
-The drive is persistent player ship state and is copied into the encounter snapshot.
-
-Hostile ships currently perform an opening disruption pulse:
-
-- hostile ships pulse when an encounter becomes interactive;
-- a ship that changes from neutral to enemy pulses at that transition;
-- each source ship can use the pulse only once per encounter;
-- simultaneous hostile ships all consume their one-shot pulse;
-- only the first `ONLINE → DISABLED` transition causes drive disruption consequences.
-
-Drive disruption:
-
-- sets the player drive to `DISABLED`;
-- cancels active officer tasks whose source command requires an online drive;
-- rolls an interrupted FLY TO navigation state back to its original anchor;
-- synchronizes both drive and navigation into `GameRuntime`;
-- emits a bridge presentation event.
-
-Engineer command:
+Engineer can use:
 
 ```text
 REPAIR ENGINE
 ```
 
-Duration:
-
-```text
-12000 ms
-```
-
-Repair behavior:
-
-- task is cancellable;
-- task can be interrupted by damage;
-- cancellation/interruption loses all progress;
-- successful completion restores the drive to `ONLINE`;
-- repaired state persists in `GameRuntime`.
-
-Opening pulse presentation:
-
-- short violet additive flash;
-- horizontal interference band across the viewscreen;
-- no physical camera shake.
+Drive state persists in `GameRuntime`.
 
 ---
 
-# 13. Player ship status
+# 9. Player laser offense
 
-A temporary top-center ship status panel displays:
-
-```text
-HULL
-PD
-SHD
-ENGINE
-```
-
-The bridge uses one full snapshot event:
+Player Offense 1.0 laser flow is implemented:
 
 ```text
-PLAYER_SHIP_STATUS_UPDATED
+FIRE LASER
+→ choose LEFT / CENTER / RIGHT
+→ Weapons performs LASER AIM
+→ player laser enters TARGETING
+→ CHARGING
+→ visible beam
+→ enemy shield absorbs first
+→ otherwise enemy hull takes damage
+→ cooldown
 ```
 
-Payload contains:
-
-- current/max hull;
-- drive status;
-- current/max point-defense charges;
-- current/max shield-generator charges.
-
-Current drive presentation:
+Current lifecycle:
 
 ```text
-ONLINE   → ENGINE text is white
-DISABLED → ENGINE text is red
+TARGETING: 3000 ms
+CHARGING: 12000 ms
+COOLDOWN: 15000 ms
 ```
 
-The panel root owns:
+Player laser presentation includes:
 
-- common background;
-- layout;
-- event subscription;
-- child lifecycle.
+- visible temporary player weapon mount;
+- shared retro charge effect;
+- beam from the player side to the selected enemy zone;
+- blocked or hull-hit impact effect.
 
-Current child views:
+Current minor presentation limitation:
 
 ```text
-BridgeHullStatusView
-BridgePointDefenseChargesView
-BridgeShieldChargesView
-BridgeDriveStatusView
+the first TARGETING phase is represented mainly by the officer task;
+the large visible charge effect begins at CHARGING
 ```
 
-The panel is intentionally temporary.
+This is deferred, not part of the missile slice.
 
-Long-term ship state should be represented by physical bridge consoles, officer stations or the captain dashboard rather than a permanent flat status strip.
+---
+
+# 10. Enemy destruction and encounter continuation
+
+Enemy destruction flow is implemented and runtime-verified:
+
+```text
+enemy hull reaches 0
+→ enemy actor removed from encounter state
+→ enemy actor removed from persistent node state
+→ enemy telemetry clears
+→ hostile active laser/spam state clears
+→ short pixel explosion
+→ enemy sprite disappears
+→ bridge interaction resumes
+→ player remains in the current node/anchor
+```
+
+Enemy destruction does not transition to `EndScene`.
+
+A short approximately 600 ms cinematic pause freezes encounter updates during the explosion.
+
+Threat behavior after enemy destruction:
+
+- already launched enemy missiles remain and continue;
+- already attached sticky mines remain and continue;
+- enemy tasks, weapons, spam and active charging lasers stop.
+
+Runtime acceptance passed:
+
+- enemy destroyed;
+- FLY TO away/back does not resurrect it;
+- JUMP away/back does not resurrect it.
+
+---
+
+# 11. Player weapon persistence
+
+Installed player weapon state is synchronized from the encounter snapshot back into `GameRuntime`.
+
+Mutable state includes values such as:
+
+- phase;
+- phase elapsed time;
+- missile ammunition.
+
+`GameRuntime.setPlayerShipWeaponStates()` verifies that the installed loadout is not silently replaced:
+
+- same count;
+- same runtime IDs;
+- same weapon kinds;
+- same weapon definitions.
+
+The runtime persistence contract is covered by tests.
+
+Manual runtime verification of bridge reconstruction during an active weapon cooldown remains deferred because it requires an awkward setup.
+
+---
+
+# 12. Generic missile model
+
+`MissileCombatProjectileState` now uses a generic source:
+
+```ts
+source:
+    | { kind: 'actor'; actorId: string }
+    | { kind: 'player_ship' }
+```
+
+Missile target already supports player ship or actor targets.
+
+Existing incoming-missile behavior remains actor-sourced.
+
+Science identification and point-defense command filters explicitly accept only:
+
+```text
+actor-sourced missile
+→ targeted at player ship
+```
+
+A future player missile must not appear as an incoming threat.
+
+The current bridge handler for `MISSILE_LAUNCHED` still assumes an actor-sourced incoming missile and rejects a player source.
+
+The player missile slice must address this event/presentation boundary deliberately rather than passing a player projectile through the incoming-missile path unchanged.
+
+---
+
+# 13. Starter player missile launcher
+
+The starter ship now has two installed weapons:
+
+```text
+laser_player_00
+missile_launcher_player_00
+```
+
+The missile launcher uses:
+
+```text
+MISSILE_LAUNCHER_PRESET_ID.BASIC_RED_FULL_00
+```
+
+Current launcher state at new game:
+
+```text
+kind: missile_launcher
+weaponId: missile_launcher_00
+loadedMissileId: red_00
+ammoCount: 5
+phase: ready
+phaseElapsedMs: 0
+```
+
+Initialization goes through `MissileLauncherFactory`.
+
+The player ship preset points to a launcher preset rather than duplicating missile/ammunition content.
+
+Typecheck and tests are green.
+
+No player missile command or projectile lifecycle has been implemented yet.
 
 ---
 
 # 14. Current checkpoint
 
-Latest completed slice:
+Latest completed atoms:
 
 ```text
-Persistent main drive
-+ Engineer repair
-+ opening hostile disruption pulse
-+ drive status HUD
-+ disruption VFX
+generic missile source
+→ starter player missile launcher in loadout
 ```
 
-Verified behavior:
+Verified:
 
-- persistent player drive exists;
-- encounter receives a drive snapshot;
-- FLY TO, DOCK and JUMP require an online drive;
-- REPAIR ENGINE restores a disabled drive after 12 seconds;
-- cancelled/interrupted repair loses progress;
-- hostile ships pulse once per encounter;
-- neutral-to-enemy transition triggers the same pulse flow;
-- pulse cancels drive-dependent tasks;
-- interrupted travel returns to the original anchor;
-- drive/navigation persist into `GameRuntime`;
-- ENGINE status updates immediately;
-- disruption VFX plays;
+- existing enemy missiles still use actor source;
+- threat identification ignores player-sourced missiles;
+- point defense ignores player-sourced missiles;
+- projectile snapshots detach nested source/target/identification objects;
+- starter ship creates a fully loaded RED launcher;
+- launcher state is fresh for every new run;
+- full player weapon arrays are preserved by runtime persistence tests;
+- laser command tests preserve the untouched launcher;
 - typecheck passes;
-- tests pass;
-- runtime smoke test passes.
+- tests pass.
 
 Latest verified commit:
 
 ```text
-761414fbe96568c23f1851a40a6355d181da1437
+66e5caadd0594cc0bc81dc3f429be9cce020b946
 ```
 
 ---
 
-# 15. Next task
+# 15. Next selected slice
 
-The next task is not another gameplay feature.
-
-The next task is:
+Next task:
 
 ```text
-COGNITIVE REFACTOR PASS
+PLAYER MISSILE OFFENSE
 ```
 
-Goals:
+Locked gameplay direction:
 
-- make ownership easier to understand;
-- reduce unnecessary jumps between files;
-- identify duplicated orchestration;
-- identify state synchronized by several owners;
-- centralize genuinely scattered startup configuration;
-- remove obsolete comments and formatting debris;
-- keep code explicit and intentionally boring.
+```text
+launcher READY + ammo > 0 + live enemy
+→ Weapons can choose FIRE MISSILE
+→ Weapons performs missile aiming
+→ cancellation before launch spends no ammo
+→ launch spends one missile
+→ Weapons becomes free immediately
+→ launcher enters cooldown
+→ projectile flies independently toward the enemy
+→ enemy shield absorbs first
+→ otherwise hull takes damage
+→ normal enemy destruction flow may trigger
+```
 
-Before changing code:
+Target rules:
 
-1. read fresh `master`;
-2. read `PROJECT_CONTEXT.md`;
-3. read `BACKLOG.md`;
-4. audit the current code without treating previous-chat guesses as facts;
-5. agree on a concrete ordered list of refactor atoms.
+- one current hostile actor;
+- no target-zone choice for the first missile version;
+- if the target disappears during aiming, the task ends without spending ammo;
+- if the target disappears after launch, the outgoing missile self-destructs/disappears;
+- shield state is checked at impact, not launch.
 
-The detailed refactor instructions and candidate audit areas are in `BACKLOG.md`.
+Persistence rules:
 
-Do not:
+- launcher mutable state persists through existing player weapon synchronization;
+- the flying missile is encounter-local and must not persist.
 
-- split files merely because they are long;
-- create frameworks for hypothetical features;
-- refactor several independent areas in one unreviewable batch;
-- change gameplay behavior accidentally during cleanup.
+Out of scope for this slice:
+
+- enemy point defense;
+- enemy evasive behavior;
+- enemy Engineer shield decisions;
+- general enemy defense policy;
+- missile resupply;
+- multiple player missile types;
+- final outgoing-missile art until the view atom.
+
+Detailed handoff and implementation order:
+
+```text
+PLAYER_MISSILE_HANDOFF.md
+```
 
 ---
 
@@ -765,19 +674,21 @@ Do not:
 Before moving to a new chat:
 
 1. Read fresh `master`.
-2. Update `Latest verified master`.
-3. Update `Current checkpoint`.
-4. Update any changed gameplay contracts.
-5. Update `Next task`.
+2. Update latest verified master.
+3. Update current checkpoint.
+4. Update changed gameplay contracts.
+5. Update next selected work.
 6. Move deferred discoveries into `BACKLOG.md`.
 7. Remove statements that are no longer true.
-8. Push both documents with the final implementation checkpoint.
+8. Update or remove the active handoff file when its slice closes.
+9. Push the documentation with the final implementation checkpoint.
 
-At the start of the next chat, the assistant should read:
+At the start of the next chat, read:
 
 ```text
 PROJECT_CONTEXT.md
 BACKLOG.md
+PLAYER_MISSILE_HANDOFF.md
 ```
 
-and then inspect fresh `master` before proposing implementation.
+Then inspect fresh `master` before proposing code.
