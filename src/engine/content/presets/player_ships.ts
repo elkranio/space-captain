@@ -4,6 +4,10 @@ import {
     SHIP_DRIVE_ID,
     type ShipDriveId,
 } from '../../defs/ship_drive';
+import {
+    SHIELD_GENERATOR_PRESET_ID,
+    type ShieldGeneratorPresetId,
+} from './shield_generators';
 
 export const PLAYER_SHIP_PRESET_ID = {
     STARTER_00: 'starter_00',
@@ -22,10 +26,8 @@ export type PlayerShipPreset = {
         maxCharges: number;
     };
 
-    shieldGenerator: {
-        maxCharges: number;
-        chargeRegenerationDurationMs: number;
-    };
+    shieldGeneratorPresetId:
+        ShieldGeneratorPresetId;
 };
 
 export const PLAYER_SHIP_PRESETS = {
@@ -41,9 +43,7 @@ export const PLAYER_SHIP_PRESETS = {
             maxCharges: 4,
         },
 
-        shieldGenerator: {
-            maxCharges: 3,
-            chargeRegenerationDurationMs: 20000,
-        },
+        shieldGeneratorPresetId:
+            SHIELD_GENERATOR_PRESET_ID.BASIC_00,
     },
 } satisfies Record<PlayerShipPresetId, PlayerShipPreset>;

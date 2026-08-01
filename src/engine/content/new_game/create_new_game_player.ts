@@ -6,6 +6,7 @@ import type {
 } from '../../defs/player';
 import type { PlayerLocationState } from '../../defs/player_location';
 import { SHIP_DRIVE_STATUS } from '../../defs/ship_drive';
+import ShieldGeneratorFactory from '../../generation/ship_system/ShieldGeneratorFactory';
 import { SHIP_DRIVES } from '../catalogs/ship_drives';
 import {
     PLAYER_SHIP_PRESETS,
@@ -50,16 +51,11 @@ function createPlayerShip(
             maxCharges: preset.pointDefense.maxCharges,
         },
 
-        shieldGenerator: {
-            charges: preset.shieldGenerator.maxCharges,
-            maxCharges: preset.shieldGenerator.maxCharges,
-
-            chargeRegenerationDurationMs:
-                preset.shieldGenerator
-                    .chargeRegenerationDurationMs,
-
-            chargeRegenerationElapsedMs: 0,
-        },
+        shieldGenerator:
+            ShieldGeneratorFactory.create({
+                presetId:
+                    preset.shieldGeneratorPresetId,
+            }),
 
         weapons: [],
     };
