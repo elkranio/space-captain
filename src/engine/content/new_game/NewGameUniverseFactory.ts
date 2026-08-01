@@ -119,7 +119,7 @@ export default class NewGameUniverseFactory {
 
                     presetId:
                         SHIP_NODE_ACTOR_PRESET_ID
-                            .ENEMY_GENERIC_STICKY_MINES_00,
+                            .ENEMY_COMBAT_00,
 
                     anchorId: navigationBeacon.id,
                 }),
