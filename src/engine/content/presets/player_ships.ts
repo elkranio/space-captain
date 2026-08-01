@@ -49,7 +49,7 @@ export const PLAYER_SHIP_PRESETS = {
     [PLAYER_SHIP_PRESET_ID.STARTER_00]: {
         id: PLAYER_SHIP_PRESET_ID.STARTER_00,
 
-        maxHull: 300,
+        maxHull: 3,
 
         driveId: SHIP_DRIVE_ID.BASIC_00,
 
