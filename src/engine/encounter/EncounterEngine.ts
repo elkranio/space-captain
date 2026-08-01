@@ -160,6 +160,14 @@ export default class EncounterEngine {
                 stateStore:
                     this.stateStore,
 
+                queuePlayerMissileLaunch:
+                    (input) => {
+                        this.combatRunner
+                            .queuePlayerMissileLaunch(
+                                input,
+                            );
+                    },
+
                 emit: this.emit,
 
                 completeOfficerTask:

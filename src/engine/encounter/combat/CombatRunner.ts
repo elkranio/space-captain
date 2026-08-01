@@ -2,6 +2,12 @@
 
 import { MISSILES } from '../../content/catalogs/missiles';
 import {
+    ENCOUNTER_TEAM,
+} from '../../defs/encounter_team';
+import type {
+    MissileId,
+} from '../../defs/missile';
+import {
     SHIP_WEAPONS,
     SHIP_WEAPON_TARGETING_DURATION_MS,
 } from '../../content/catalogs/ship_weapons';
@@ -37,6 +43,12 @@ import { ENCOUNTER_EVENT, type EncounterEvent } from '../model/event';
 import type { EncounterState } from '../model/state';
 import EnemyTaskScheduler from './EnemyTaskScheduler';
 
+type PlayerMissileLaunchInput = {
+    sourceWeaponId: string;
+    missileId: MissileId;
+    targetActorId: string;
+};
+
 type CombatRunnerOptions = {
     state: EncounterState;
     emit: (event: EncounterEvent) => void;
@@ -68,6 +80,9 @@ export default class CombatRunner {
 
     private readonly enemyTaskScheduler:
         EnemyTaskScheduler;
+
+    private readonly pendingPlayerMissileLaunches:
+        PlayerMissileLaunchInput[] = [];
 
     private nextProjectileId = 1;
     private nextLaserAttackId = 1;
@@ -106,6 +121,11 @@ export default class CombatRunner {
         // не получила тот же deltaMs повторно.
         this.advanceProjectiles(deltaMs);
         this.advanceStickyMines(deltaMs);
+
+        // PlayerWeaponRunner работает раньше CombatRunner.
+        // Flush после advance не даёт новой ракете
+        // получить тот же deltaMs в момент запуска.
+        this.flushPlayerMissileLaunches();
 
         this.enemyTaskScheduler.schedule(deltaMs);
         this.advanceWeapons(deltaMs);
@@ -174,6 +194,14 @@ export default class CombatRunner {
         }
 
         return false;
+    }
+
+    public queuePlayerMissileLaunch(
+        input: PlayerMissileLaunchInput,
+    ): void {
+        this.pendingPlayerMissileLaunches.push({
+            ...input,
+        });
     }
 
     public clearStickyMine(mineId: string): boolean {
@@ -445,6 +473,111 @@ export default class CombatRunner {
     // #endregion
 
     // #region Missile launcher
+
+    private flushPlayerMissileLaunches(): void {
+        const launches =
+            this.pendingPlayerMissileLaunches
+                .splice(0);
+
+        for (const launch of launches) {
+            this.createPlayerMissileProjectile(
+                launch,
+            );
+        }
+    }
+
+    private createPlayerMissileProjectile(
+        launch: PlayerMissileLaunchInput,
+    ): void {
+        const target =
+            this.state.actors.find(
+                (actor) => {
+                    return (
+                        actor.id ===
+                        launch.targetActorId
+                    );
+                },
+            );
+
+        if (
+            !target ||
+            target.team !==
+                ENCOUNTER_TEAM.ENEMY ||
+            target.hull <= 0
+        ) {
+            throw new Error(
+                'Cannot launch player missile ' +
+                    'at invalid target: ' +
+                    `${launch.sourceWeaponId}/` +
+                    `${launch.targetActorId}`,
+            );
+        }
+
+        const missile =
+            MISSILES[launch.missileId];
+
+        const projectile:
+            MissileCombatProjectileState = {
+                id:
+                    this.createProjectileId(),
+
+                designation:
+                    this.createThreatDesignation(
+                        'M',
+                    ),
+
+                kind:
+                    COMBAT_PROJECTILE_KIND
+                        .MISSILE,
+
+                source: {
+                    kind:
+                        COMBAT_SOURCE_KIND
+                            .PLAYER_SHIP,
+                },
+
+                sourceWeaponId:
+                    launch.sourceWeaponId,
+
+                target: {
+                    kind:
+                        COMBAT_TARGET_KIND.ACTOR,
+
+                    actorId:
+                        launch.targetActorId,
+                },
+
+                // Собственная ракета известна игроку.
+                // Threat queries всё равно фильтруют
+                // только actor -> player угрозы.
+                identification: {
+                    status:
+                        THREAT_IDENTIFICATION_STATUS
+                            .IDENTIFIED,
+
+                    spectralBand:
+                        missile.spectralBand,
+                },
+
+                missileId:
+                    launch.missileId,
+
+                timeToImpactMs:
+                    missile.flightDurationMs,
+
+                initialTimeToImpactMs:
+                    missile.flightDurationMs,
+            };
+
+        this.state.combat.projectiles.push(
+            projectile,
+        );
+
+        // Existing MISSILE_LAUNCHED event belongs
+        // to incoming bridge presentation.
+        // Atom 4 will add an explicit outgoing
+        // presentation contract.
+    }
 
     private launchMissile(actor: ShipEncounterActorState, launcher: MissileLauncherState): void {
         const missileId = launcher.loadedMissileId;
@@ -957,6 +1090,15 @@ export default class CombatRunner {
         // удаляются из массива во время обхода.
         for (let index = this.state.combat.projectiles.length - 1; index >= 0; index -= 1) {
             const projectile = this.state.combat.projectiles[index];
+
+            // Atom 3 добавит actor-target flight
+            // и target-loss / impact resolution.
+            if (
+                projectile.target.kind !==
+                COMBAT_TARGET_KIND.PLAYER_SHIP
+            ) {
+                continue;
+            }
 
             projectile.timeToImpactMs = Math.max(0, projectile.timeToImpactMs - deltaMs);
 

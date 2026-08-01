@@ -7,6 +7,9 @@ import {
 import {
     ENCOUNTER_TEAM,
 } from '../../defs/encounter_team';
+import type {
+    MissileId,
+} from '../../defs/missile';
 import {
     OFFICER_ROLE,
 } from '../../defs/officer';
@@ -15,6 +18,7 @@ import {
     SHIP_WEAPON_PHASE,
     type LaserWeaponDefinition,
     type LaserWeaponState,
+    type MissileLauncherState,
     type ShipWeaponDefinition,
     type ShipWeaponState,
 } from '../../defs/ship_weapon';
@@ -32,6 +36,15 @@ import {
 import OfficerPerformanceResolver from '../officer_performance/OfficerPerformanceResolver';
 import type EncounterStateStore from '../state/EncounterStateStore';
 
+type WeaponsFireMissileTaskState = Extract<
+    OfficerTaskState,
+    {
+        kind:
+            typeof OFFICER_TASK_KIND
+                .WEAPONS_FIRE_MISSILE;
+    }
+>;
+
 type WeaponsFireLaserTaskState = Extract<
     OfficerTaskState,
     {
@@ -40,6 +53,10 @@ type WeaponsFireLaserTaskState = Extract<
                 .WEAPONS_FIRE_LASER;
     }
 >;
+
+type PlayerWeaponTargetTaskState =
+    | WeaponsFireMissileTaskState
+    | WeaponsFireLaserTaskState;
 
 type PlayerLaserImpact =
     | {
@@ -58,6 +75,14 @@ type PlayerLaserImpact =
 
 type PlayerWeaponRunnerOptions = {
     stateStore: EncounterStateStore;
+
+    queuePlayerMissileLaunch: (
+        input: {
+            sourceWeaponId: string;
+            missileId: MissileId;
+            targetActorId: string;
+        },
+    ) => void;
 
     emit: (event: EncounterEvent) => void;
 
@@ -82,6 +107,11 @@ export default class PlayerWeaponRunner {
         private readonly stateStore:
             EncounterStateStore,
 
+        private readonly queuePlayerMissileLaunch:
+            PlayerWeaponRunnerOptions[
+                'queuePlayerMissileLaunch'
+            ],
+
         private readonly emit:
             PlayerWeaponRunnerOptions['emit'],
 
@@ -98,12 +128,14 @@ export default class PlayerWeaponRunner {
 
     public static create({
         stateStore,
+        queuePlayerMissileLaunch,
         emit,
         completeOfficerTask,
     }: PlayerWeaponRunnerOptions):
         PlayerWeaponRunner {
         return new PlayerWeaponRunner(
             stateStore,
+            queuePlayerMissileLaunch,
             emit,
             completeOfficerTask,
         );
@@ -117,15 +149,93 @@ export default class PlayerWeaponRunner {
                 OFFICER_ROLE.WEAPONS,
             );
 
-        if (
-            !task ||
-            task.kind !==
-                OFFICER_TASK_KIND
-                    .WEAPONS_FIRE_LASER
-        ) {
+        if (!task) {
             return;
         }
 
+        switch (task.kind) {
+            case OFFICER_TASK_KIND
+                .WEAPONS_FIRE_MISSILE:
+                this.advanceMissileTask(
+                    task,
+                    deltaMs,
+                );
+                return;
+
+            case OFFICER_TASK_KIND
+                .WEAPONS_FIRE_LASER:
+                this.advanceLaserTask(
+                    task,
+                    deltaMs,
+                );
+                return;
+
+            default:
+                return;
+        }
+    }
+
+    private advanceMissileTask(
+        task: WeaponsFireMissileTaskState,
+        deltaMs: number,
+    ): void {
+        if (!this.hasValidTarget(task)) {
+            // OfficerTaskRunner отменит task
+            // в конце encounter step.
+            return;
+        }
+
+        const launcher =
+            this.findTaskMissileLauncher(
+                task,
+            );
+
+        if (!launcher) {
+            // Missing weapon также отменит task
+            // через общий missing-target cleanup.
+            return;
+        }
+
+        const effectiveDeltaMs =
+            deltaMs *
+            this.performanceResolver
+                .getTaskProgressMultiplier(
+                    task,
+                );
+
+        switch (launcher.phase) {
+            case SHIP_WEAPON_PHASE.TARGETING:
+                this.advanceMissileTargeting(
+                    task,
+                    launcher,
+                    effectiveDeltaMs,
+                );
+                return;
+
+            case SHIP_WEAPON_PHASE.READY:
+            case SHIP_WEAPON_PHASE.CHARGING:
+            case SHIP_WEAPON_PHASE.CHANNELING:
+            case SHIP_WEAPON_PHASE.DISPENSING:
+            case SHIP_WEAPON_PHASE.COOLDOWN:
+                throw new Error(
+                    'Player missile task has ' +
+                        'invalid weapon phase: ' +
+                        `${task.id}/` +
+                        `${launcher.id}/` +
+                        `${launcher.phase}`,
+                );
+
+            default:
+                return assertNever(
+                    launcher.phase,
+                );
+        }
+    }
+
+    private advanceLaserTask(
+        task: WeaponsFireLaserTaskState,
+        deltaMs: number,
+    ): void {
         if (!this.hasValidTarget(task)) {
             // OfficerTaskRunner отменит task
             // в конце encounter step.
@@ -226,6 +336,67 @@ export default class PlayerWeaponRunner {
                 weapon.dispensedMineCount = 0;
             }
         }
+    }
+
+    private advanceMissileTargeting(
+        task: WeaponsFireMissileTaskState,
+        launcher: MissileLauncherState,
+        deltaMs: number,
+    ): void {
+        const elapsedMs =
+            launcher.phaseElapsedMs +
+            deltaMs;
+
+        if (
+            elapsedMs <
+            SHIP_WEAPON_TARGETING_DURATION_MS
+        ) {
+            launcher.phaseElapsedMs =
+                elapsedMs;
+
+            return;
+        }
+
+        const missileId =
+            launcher.loadedMissileId;
+
+        if (
+            !missileId ||
+            launcher.ammoCount <= 0
+        ) {
+            throw new Error(
+                'Player missile launcher became ' +
+                    'empty during targeting: ' +
+                    `${task.id}/` +
+                    `${launcher.id}/` +
+                    `${launcher.ammoCount}`,
+            );
+        }
+
+        launcher.ammoCount -= 1;
+
+        launcher.phase =
+            SHIP_WEAPON_PHASE.COOLDOWN;
+
+        // Targeting overflow does not advance
+        // cooldown or the new projectile.
+        launcher.phaseElapsedMs = 0;
+
+        this.queuePlayerMissileLaunch({
+            sourceWeaponId:
+                launcher.id,
+
+            missileId,
+
+            targetActorId:
+                task.targetActorId,
+        });
+
+        // Weapons освобождается сразу после launch.
+        // Cooldown и projectile больше не занимают офицера.
+        this.completeOfficerTask(
+            task.id,
+        );
     }
 
     private advanceLaserTargeting(
@@ -411,6 +582,42 @@ export default class PlayerWeaponRunner {
         };
     }
 
+    private findTaskMissileLauncher(
+        task: WeaponsFireMissileTaskState,
+    ): MissileLauncherState | undefined {
+        const weapon =
+            this.stateStore
+                .getState()
+                .combat
+                .playerWeapons
+                .find((candidate) => {
+                    return (
+                        candidate.id ===
+                        task.weaponId
+                    );
+                });
+
+        if (!weapon) {
+            return undefined;
+        }
+
+        if (
+            weapon.kind !==
+            SHIP_WEAPON_KIND
+                .MISSILE_LAUNCHER
+        ) {
+            throw new Error(
+                'Player missile task references ' +
+                    'non-launcher weapon: ' +
+                    `${task.id}/` +
+                    `${weapon.id}/` +
+                    `${weapon.kind}`,
+            );
+        }
+
+        return weapon;
+    }
+
     private findTaskLaser(
         task: WeaponsFireLaserTaskState,
     ): LaserWeaponState | undefined {
@@ -447,7 +654,7 @@ export default class PlayerWeaponRunner {
     }
 
     private hasValidTarget(
-        task: WeaponsFireLaserTaskState,
+        task: PlayerWeaponTargetTaskState,
     ): boolean {
         const actor =
             this.stateStore.findActorById(
