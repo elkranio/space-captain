@@ -6,6 +6,7 @@ import { OFFICER_ROLE } from '../../../defs/officer';
 import { SHIP_WEAPON_KIND, SHIP_WEAPON_PHASE } from '../../../defs/ship_weapon';
 import { ENCOUNTER_ACTOR_KIND } from '../../actors/encounter_actor';
 import {
+    COMBAT_SOURCE_KIND,
     COMBAT_TARGET_KIND,
     COMBAT_THREAT_KIND,
     THREAT_IDENTIFICATION_STATUS,
@@ -91,7 +92,14 @@ function getUnknownEnemyThreats(state: EncounterState): AvailableThreat[] {
             continue;
         }
 
-        if (!isEnemyThreatSource(state, projectile.sourceActorId)) {
+        if (
+            projectile.source.kind !==
+                COMBAT_SOURCE_KIND.ACTOR ||
+            !isEnemyThreatSource(
+                state,
+                projectile.source.actorId,
+            )
+        ) {
             continue;
         }
 

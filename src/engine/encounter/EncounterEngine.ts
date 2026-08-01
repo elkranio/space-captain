@@ -313,6 +313,18 @@ export default class EncounterEngine {
         return this.stateStore.getState().combat.projectiles.map((projectile) => {
             return {
                 ...projectile,
+
+                source: {
+                    ...projectile.source,
+                },
+
+                target: {
+                    ...projectile.target,
+                },
+
+                identification: {
+                    ...projectile.identification,
+                },
             };
         });
     }

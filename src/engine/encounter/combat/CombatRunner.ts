@@ -22,6 +22,7 @@ import {
 import type { ShipEncounterActorState } from '../actors/ship/ship_encounter_actor';
 import {
     COMBAT_PROJECTILE_KIND,
+    COMBAT_SOURCE_KIND,
     COMBAT_TARGET_KIND,
     LASER_SHOT_OUTCOME,
     SPAM_CHANNEL_OUTCOME,
@@ -464,7 +465,11 @@ export default class CombatRunner {
 
             kind: COMBAT_PROJECTILE_KIND.MISSILE,
 
-            sourceActorId: actor.id,
+            source: {
+                kind: COMBAT_SOURCE_KIND.ACTOR,
+                actorId: actor.id,
+            },
+
             sourceWeaponId: launcher.id,
 
             target: {

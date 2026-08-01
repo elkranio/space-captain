@@ -34,6 +34,25 @@ export const SPAM_CHANNEL_OUTCOME = {
 export type SpamChannelOutcome =
     (typeof SPAM_CHANNEL_OUTCOME)[keyof typeof SPAM_CHANNEL_OUTCOME];
 
+export const COMBAT_SOURCE_KIND = {
+    PLAYER_SHIP: 'player_ship',
+    ACTOR: 'actor',
+} as const;
+
+export type CombatSource =
+    | {
+          kind:
+              typeof COMBAT_SOURCE_KIND
+                  .PLAYER_SHIP;
+      }
+    | {
+          kind:
+              typeof COMBAT_SOURCE_KIND
+                  .ACTOR;
+
+          actorId: string;
+      };
+
 export const COMBAT_TARGET_KIND = {
     PLAYER_SHIP: 'player_ship',
     ACTOR: 'actor',
@@ -95,7 +114,7 @@ export type MissileCombatProjectileState = {
 
     kind: typeof COMBAT_PROJECTILE_KIND.MISSILE;
 
-    sourceActorId: string;
+    source: CombatSource;
     sourceWeaponId: string;
 
     target: CombatTarget;

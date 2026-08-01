@@ -17,6 +17,7 @@ import {
 import EncounterEngine from '../../../src/engine/encounter/EncounterEngine';
 import {
     COMBAT_PROJECTILE_KIND,
+    COMBAT_SOURCE_KIND,
     COMBAT_TARGET_KIND,
     LASER_SHOT_OUTCOME,
     THREAT_IDENTIFICATION_STATUS,
@@ -109,7 +110,11 @@ describe('CombatRunner', () => {
 
                     kind: COMBAT_PROJECTILE_KIND.MISSILE,
 
-                    sourceActorId: enemy.id,
+                    source: {
+                        kind: COMBAT_SOURCE_KIND.ACTOR,
+                        actorId: enemy.id,
+                    },
+
                     sourceWeaponId: launcher.id,
 
                     target: {
@@ -141,7 +146,11 @@ describe('CombatRunner', () => {
 
             kind: COMBAT_PROJECTILE_KIND.MISSILE,
 
-            sourceActorId: enemy.id,
+            source: {
+                kind: COMBAT_SOURCE_KIND.ACTOR,
+                actorId: enemy.id,
+            },
+
             sourceWeaponId: launcher.id,
 
             target: {
@@ -180,7 +189,11 @@ describe('CombatRunner', () => {
 
                     kind: COMBAT_PROJECTILE_KIND.MISSILE,
 
-                    sourceActorId: enemy.id,
+                    source: {
+                        kind: COMBAT_SOURCE_KIND.ACTOR,
+                        actorId: enemy.id,
+                    },
+
                     sourceWeaponId: launcher.id,
 
                     target: {

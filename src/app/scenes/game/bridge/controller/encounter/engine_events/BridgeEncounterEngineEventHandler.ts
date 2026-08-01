@@ -3,7 +3,10 @@
 import { OFFICER_ROLE } from '../../../../../../../engine/defs/officer';
 import { PLAYER_SPACE_NAVIGATION_KIND } from '../../../../../../../engine/defs/player_location';
 import { SPACE_ANCHOR_KIND } from '../../../../../../../engine/defs/universe';
-import { LASER_SHOT_OUTCOME } from '../../../../../../../engine/encounter/model/combat';
+import {
+    COMBAT_SOURCE_KIND,
+    LASER_SHOT_OUTCOME,
+} from '../../../../../../../engine/encounter/model/combat';
 import {
     ENCOUNTER_EVENT,
     OFFICER_TASK_OUTCOME,
@@ -359,6 +362,18 @@ export default class BridgeEncounterEngineEventHandler {
                 return;
 
             case ENCOUNTER_EVENT.MISSILE_LAUNCHED:
+                if (
+                    event.projectile.source.kind !==
+                    COMBAT_SOURCE_KIND.ACTOR
+                ) {
+                    throw new Error(
+                        'Incoming missile source must be an actor: ' +
+                            event.projectile.id +
+                            '/' +
+                            event.projectile.source.kind,
+                    );
+                }
+
                 this.eventBus.emit(BRIDGE_EVENT.MISSILE_TARGETING_WARNING_CLEARED);
 
                 this.eventBus.emit(BRIDGE_EVENT.INCOMING_MISSILE_ADDED, {
@@ -366,7 +381,8 @@ export default class BridgeEncounterEngineEventHandler {
 
                     designation: event.projectile.designation,
 
-                    sourceActorId: event.projectile.sourceActorId,
+                    sourceActorId:
+                        event.projectile.source.actorId,
 
                     initialTimeToImpactMs: event.projectile.initialTimeToImpactMs,
                 });

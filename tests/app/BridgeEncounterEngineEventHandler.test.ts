@@ -12,6 +12,7 @@ import { OFFICER_ROLE } from '../../src/engine/defs/officer';
 import { POINT_DEFENSE_BEAM_BAND, POINT_DEFENSE_SHOT_OUTCOME } from '../../src/engine/defs/point_defense';
 import {
     COMBAT_PROJECTILE_KIND,
+    COMBAT_SOURCE_KIND,
     COMBAT_TARGET_KIND,
     THREAT_IDENTIFICATION_STATUS,
     type MissileCombatProjectileState,
@@ -30,7 +31,10 @@ const launchedProjectile: MissileCombatProjectileState = {
 
     kind: COMBAT_PROJECTILE_KIND.MISSILE,
 
-    sourceActorId: 'ship_enemy_00',
+    source: {
+        kind: COMBAT_SOURCE_KIND.ACTOR,
+        actorId: 'ship_enemy_00',
+    },
 
     sourceWeaponId: 'missile_launcher_00',
 

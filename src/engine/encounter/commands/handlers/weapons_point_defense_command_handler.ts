@@ -3,7 +3,11 @@
 import { ENCOUNTER_TEAM } from '../../../defs/encounter_team';
 import { OFFICER_ROLE } from '../../../defs/officer';
 import { POINT_DEFENSE_BEAM_BAND, type PointDefenseBeamBand } from '../../../defs/point_defense';
-import { COMBAT_PROJECTILE_KIND, COMBAT_TARGET_KIND } from '../../model/combat';
+import {
+    COMBAT_PROJECTILE_KIND,
+    COMBAT_SOURCE_KIND,
+    COMBAT_TARGET_KIND,
+} from '../../model/combat';
 import {
     ENCOUNTER_OFFICER_COMMAND_ID,
     OFFICER_COMMAND_TARGET_KIND,
@@ -70,8 +74,21 @@ function createWeaponsPointDefenseCommandHandler(
                         return false;
                     }
 
+                    if (
+                        projectile.source.kind !==
+                        COMBAT_SOURCE_KIND.ACTOR
+                    ) {
+                        return false;
+                    }
+
+                    const sourceActorId =
+                        projectile.source.actorId;
+
                     const sourceActor = state.actors.find((actor) => {
-                        return actor.id === projectile.sourceActorId;
+                        return (
+                            actor.id ===
+                            sourceActorId
+                        );
                     });
 
                     return sourceActor?.team === ENCOUNTER_TEAM.ENEMY;
