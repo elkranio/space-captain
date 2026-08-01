@@ -202,6 +202,10 @@ export default class EncounterStateStore {
                 ...shieldGenerator,
             },
 
+            decision: {
+                nextWeaponIndexByRole: {},
+            },
+
             crewTasks: {},
 
             hasUsedOpeningDisruptionPulse: false,

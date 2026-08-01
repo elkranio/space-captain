@@ -15,6 +15,9 @@ import type {
 import type {
     ShipCrewTaskStates,
 } from '../../model/ship_crew_task';
+import type {
+    ShipDecisionState,
+} from '../../model/ship_decision';
 import {
     ENCOUNTER_ACTOR_KIND,
     type EncounterActorBaseState,
@@ -39,6 +42,10 @@ export type ShipEncounterActorState =
         drive: ShipDriveState;
         shieldGenerator:
             ShieldGeneratorState;
+
+        // Runtime-память captain policy.
+        // Persistent universe state её не хранит.
+        decision: ShipDecisionState;
 
         // Абстрактные задачи экипажа NPC-корабля.
         // Persistent universe state их не хранит.

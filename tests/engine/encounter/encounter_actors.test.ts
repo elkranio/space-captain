@@ -127,6 +127,10 @@ describe('encounter actors', () => {
                 ...shieldGenerator,
             },
 
+            decision: {
+                nextWeaponIndexByRole: {},
+            },
+
             crewTasks: {},
 
             hasUsedOpeningDisruptionPulse: false,
@@ -355,6 +359,11 @@ describe('encounter actors', () => {
                                 shieldGenerator: {
                                     ...nodeActor
                                         .shieldGenerator,
+                                },
+
+                                decision: {
+                                    nextWeaponIndexByRole:
+                                        {},
                                 },
 
                                 crewTasks: {},
