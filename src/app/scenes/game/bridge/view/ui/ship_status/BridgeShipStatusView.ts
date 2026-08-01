@@ -4,18 +4,20 @@ import type BridgeScene from '../../../BridgeScene';
 import {
     BRIDGE_EVENT,
     type BridgePlayerShipStatusUpdatedPayload,
+    type BridgePlayerWeaponsStatusUpdatedPayload,
 } from '../../../events/bridge_event';
 import type BridgeEventBus from '../../../events/BridgeEventBus';
 import BridgeDriveStatusView from './drive/BridgeDriveStatusView';
 import BridgeHullStatusView from './hull/BridgeHullStatusView';
 import BridgePointDefenseChargesView from './point_defense/BridgePointDefenseChargesView';
 import BridgeShieldChargesView from './shield/BridgeShieldChargesView';
+import BridgePlayerWeaponsStatusView from './weapons/BridgePlayerWeaponsStatusView';
 
 const SHIP_STATUS_PANEL = {
     y: 4,
 
     width: 368,
-    height: 32,
+    height: 56,
 
     backgroundColor: 0x10131d,
     backgroundAlpha: 0.9,
@@ -35,6 +37,9 @@ const SHIELD_STATUS_POSITION =
 
 const DRIVE_STATUS_POSITION =
     new Phaser.Math.Vector2(296, 8);
+
+const WEAPONS_STATUS_POSITION =
+    new Phaser.Math.Vector2(12, 32);
 
 // Временная root-view ship status panel.
 //
@@ -56,6 +61,9 @@ export default class BridgeShipStatusView {
     private readonly shieldView: BridgeShieldChargesView;
 
     private readonly driveView: BridgeDriveStatusView;
+
+    private readonly weaponsView:
+        BridgePlayerWeaponsStatusView;
 
     constructor(
         scene: BridgeScene,
@@ -121,6 +129,16 @@ export default class BridgeShipStatusView {
             DRIVE_STATUS_POSITION.y,
         );
 
+        this.weaponsView =
+            new BridgePlayerWeaponsStatusView(
+                scene,
+            );
+
+        this.weaponsView.setPosition(
+            WEAPONS_STATUS_POSITION.x,
+            WEAPONS_STATUS_POSITION.y,
+        );
+
         this.root.add([
             this.background,
 
@@ -128,12 +146,21 @@ export default class BridgeShipStatusView {
             this.pointDefenseView.getRoot(),
             this.shieldView.getRoot(),
             this.driveView.getRoot(),
+            this.weaponsView.getRoot(),
         ]);
 
         this.eventBus.on(
             BRIDGE_EVENT.PLAYER_SHIP_STATUS_UPDATED,
 
             this.handlePlayerShipStatusUpdated,
+            this,
+        );
+
+        this.eventBus.on(
+            BRIDGE_EVENT
+                .PLAYER_WEAPONS_STATUS_UPDATED,
+
+            this.handlePlayerWeaponsStatusUpdated,
             this,
         );
     }
@@ -146,6 +173,15 @@ export default class BridgeShipStatusView {
             this,
         );
 
+        this.eventBus.off(
+            BRIDGE_EVENT
+                .PLAYER_WEAPONS_STATUS_UPDATED,
+
+            this.handlePlayerWeaponsStatusUpdated,
+            this,
+        );
+
+        this.weaponsView.destroy();
         this.driveView.destroy();
         this.shieldView.destroy();
         this.pointDefenseView.destroy();
@@ -175,6 +211,15 @@ export default class BridgeShipStatusView {
 
         this.driveView.setState(
             payload.drive.status,
+        );
+    }
+
+    private handlePlayerWeaponsStatusUpdated(
+        payload:
+            BridgePlayerWeaponsStatusUpdatedPayload,
+    ): void {
+        this.weaponsView.setState(
+            payload,
         );
     }
 }

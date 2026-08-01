@@ -32,6 +32,7 @@ import BridgeOfficerCommandMenuController from './command_menu/BridgeOfficerComm
 import BridgeEncounterEngineEventHandler from './engine_events/BridgeEncounterEngineEventHandler';
 import BridgeOfficerStationsController from './officer_stations/BridgeOfficerStationsController';
 import { THREAT_IDENTIFICATION_STATUS } from '../../../../../../engine/encounter/model/combat';
+import { mapPlayerWeaponsToBridgeStatusPayload } from '../player_weapon_status/BridgePlayerWeaponStatusMapper';
 
 // App-controller для bridge encounter flow.
 //
@@ -103,7 +104,7 @@ export default class BridgeEncounterController {
 
         this.encounterEngine.step(deltaMs);
 
-        this.syncRuntimePlayerWeaponsFromEngine();
+        this.syncPlayerWeaponsFromEngine();
         this.drainEncounterEvents();
         this.syncIncomingMissiles();
         this.syncOutgoingMissiles();
@@ -215,13 +216,14 @@ export default class BridgeEncounterController {
                 this.eventBus,
 
                 () => {
-                    this.syncRuntimePlayerWeaponsFromEngine();
+                    this.syncPlayerWeaponsFromEngine();
                 },
             );
 
         this.officerStationsController = new BridgeOfficerStationsController(this.encounterEngine, this.eventBus);
 
         this.drainEncounterEvents();
+        this.syncPlayerWeaponsFromEngine();
         this.syncEnemyShipTelemetry();
 
         if (this.isEncounterInteractive) {
@@ -534,7 +536,7 @@ export default class BridgeEncounterController {
         const result = this.encounterEngine.executeCommand(input);
 
         if (result.status === OFFICER_COMMAND_EXECUTION_STATUS.EXECUTED) {
-            this.syncRuntimePlayerWeaponsFromEngine();
+            this.syncPlayerWeaponsFromEngine();
             this.syncRuntimeNavigationFromEngine();
             this.drainEncounterEvents();
             this.syncLaserThreats();
@@ -661,16 +663,28 @@ export default class BridgeEncounterController {
 
     // #region Runtime synchronization
 
-    private syncRuntimePlayerWeaponsFromEngine(): void {
+    private syncPlayerWeaponsFromEngine(): void {
         if (!this.encounterEngine) {
             return;
         }
 
+        const weapons =
+            this.encounterEngine
+                .getPlayerWeaponStates();
+
         GAME_RUNTIME
             .setPlayerShipWeaponStates(
-                this.encounterEngine
-                    .getPlayerWeaponStates(),
+                weapons,
             );
+
+        this.eventBus.emit(
+            BRIDGE_EVENT
+                .PLAYER_WEAPONS_STATUS_UPDATED,
+
+            mapPlayerWeaponsToBridgeStatusPayload(
+                weapons,
+            ),
+        );
     }
 
     private syncRuntimeNavigationFromEngine(expectedKind?: PlayerSpaceNavigationState['kind']): void {

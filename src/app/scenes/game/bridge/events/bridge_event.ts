@@ -97,6 +97,11 @@ export const BRIDGE_EVENT = {
     // состояния корабля игрока.
     PLAYER_SHIP_STATUS_UPDATED: 'player_ship_status_updated',
 
+    // Актуальные состояния установленных
+    // player laser и missile launcher.
+    PLAYER_WEAPONS_STATUS_UPDATED:
+        'player_weapons_status_updated',
+
     // Полный view-ready snapshot
     // текущего enemy ship у navigation anchor.
     ENEMY_SHIP_TELEMETRY_UPDATED:
@@ -396,6 +401,24 @@ export type BridgePlayerShipStatusUpdatedPayload = {
         current: number;
         max: number;
     };
+};
+
+export type BridgePlayerWeaponStatusPayload = {
+    phase: ShipWeaponPhase;
+
+    remainingPhaseMs?: number;
+};
+
+export type BridgePlayerWeaponsStatusUpdatedPayload = {
+    laser?: BridgePlayerWeaponStatusPayload;
+
+    missileLauncher?:
+        BridgePlayerWeaponStatusPayload & {
+            ammo: {
+                current: number;
+                max: number;
+            };
+        };
 };
 
 export type BridgeEnemyShipTelemetryUpdatedPayload =
@@ -743,6 +766,9 @@ export type BridgeEventPayloadMap = {
     // Player ship status
 
     [BRIDGE_EVENT.PLAYER_SHIP_STATUS_UPDATED]: BridgePlayerShipStatusUpdatedPayload;
+
+    [BRIDGE_EVENT.PLAYER_WEAPONS_STATUS_UPDATED]:
+        BridgePlayerWeaponsStatusUpdatedPayload;
 
     [BRIDGE_EVENT.ENEMY_SHIP_TELEMETRY_UPDATED]:
         BridgeEnemyShipTelemetryUpdatedPayload;
