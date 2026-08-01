@@ -6,6 +6,7 @@ import { SPACE_ANCHOR_KIND } from '../../../../../../../engine/defs/universe';
 import { LASER_SHOT_OUTCOME } from '../../../../../../../engine/encounter/model/combat';
 import {
     ENCOUNTER_EVENT,
+    OFFICER_TASK_OUTCOME,
     OFFICER_TASK_RESULT_KIND,
     type EncounterEvent,
     type EncounterLoadedEvent,
@@ -225,6 +226,22 @@ export default class BridgeEncounterEngineEventHandler {
                     );
                 }
 
+                if (
+                    event.task.kind ===
+                        OFFICER_TASK_KIND.WEAPONS_FIRE_LASER &&
+                    event.outcome ===
+                        OFFICER_TASK_OUTCOME.CANCELLED
+                ) {
+                    this.eventBus.emit(
+                        BRIDGE_EVENT
+                            .PLAYER_LASER_CHARGING_CLEARED,
+                        {
+                            weaponId:
+                                event.task.weaponId,
+                        },
+                    );
+                }
+
                 this.eventBus.emit(BRIDGE_EVENT.OFFICER_ACTIVITY_CLEARED, {
                     role: event.task.role,
                 });
@@ -256,9 +273,49 @@ export default class BridgeEncounterEngineEventHandler {
                 return;
 
             case ENCOUNTER_EVENT.PLAYER_LASER_CHARGING_STARTED:
+                this.eventBus.emit(
+                    BRIDGE_EVENT
+                        .PLAYER_LASER_CHARGING_STARTED,
+                    {
+                        weaponId:
+                            event.weaponId,
+
+                        targetActorId:
+                            event.targetActorId,
+
+                        targetZone:
+                            event.targetZone,
+                    },
+                );
+                return;
+
             case ENCOUNTER_EVENT.PLAYER_LASER_FIRED:
-                // Final bridge art добавит
-                // видимое player weapon и VFX.
+                this.eventBus.emit(
+                    BRIDGE_EVENT
+                        .PLAYER_LASER_CHARGING_CLEARED,
+                    {
+                        weaponId:
+                            event.weaponId,
+                    },
+                );
+
+                this.eventBus.emit(
+                    BRIDGE_EVENT
+                        .PLAYER_LASER_FIRED,
+                    {
+                        weaponId:
+                            event.weaponId,
+
+                        targetActorId:
+                            event.targetActorId,
+
+                        targetZone:
+                            event.targetZone,
+
+                        outcome:
+                            event.outcome,
+                    },
+                );
                 return;
 
             case ENCOUNTER_EVENT.ENEMY_SHIP_DESTROYED:

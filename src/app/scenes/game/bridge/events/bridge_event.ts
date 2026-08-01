@@ -224,6 +224,15 @@ export const BRIDGE_EVENT = {
     // который bridge view показывает коротким beam VFX.
     LASER_BEAM_FIRED: 'laser_beam_fired',
 
+    PLAYER_LASER_CHARGING_STARTED:
+        'player_laser_charging_started',
+
+    PLAYER_LASER_CHARGING_CLEARED:
+        'player_laser_charging_cleared',
+
+    PLAYER_LASER_FIRED:
+        'player_laser_fired',
+
     // Hostile spam channel начал
     // проецировать popup-помехи на viewscreen.
     SPAM_CHANNEL_STARTED: 'spam_channel_started',
@@ -562,6 +571,26 @@ export type BridgeLaserBeamFiredPayload = {
     outcome: LaserShotOutcome;
 };
 
+export type BridgePlayerLaserChargingStartedPayload = {
+    weaponId: string;
+
+    targetActorId: string;
+    targetZone: LaserTargetZone;
+};
+
+export type BridgePlayerLaserChargingClearedPayload = {
+    weaponId: string;
+};
+
+export type BridgePlayerLaserFiredPayload = {
+    weaponId: string;
+
+    targetActorId: string;
+    targetZone: LaserTargetZone;
+
+    outcome: LaserShotOutcome;
+};
+
 export type BridgeSpamChannelStartedPayload = {
     channelId: string;
 };
@@ -715,6 +744,15 @@ export type BridgeEventPayloadMap = {
     [BRIDGE_EVENT.LASER_THREATS_UPDATED]: BridgeLaserThreatsUpdatedPayload;
 
     [BRIDGE_EVENT.LASER_BEAM_FIRED]: BridgeLaserBeamFiredPayload;
+
+    [BRIDGE_EVENT.PLAYER_LASER_CHARGING_STARTED]:
+        BridgePlayerLaserChargingStartedPayload;
+
+    [BRIDGE_EVENT.PLAYER_LASER_CHARGING_CLEARED]:
+        BridgePlayerLaserChargingClearedPayload;
+
+    [BRIDGE_EVENT.PLAYER_LASER_FIRED]:
+        BridgePlayerLaserFiredPayload;
 
     [BRIDGE_EVENT.SPAM_CHANNEL_STARTED]: BridgeSpamChannelStartedPayload;
 

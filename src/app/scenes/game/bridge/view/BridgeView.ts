@@ -6,6 +6,7 @@ import BridgeOfficerBarksView from './barks/BridgeOfficerBarksView';
 import BridgeIncomingMissilesView from './combat/incoming_missiles/BridgeIncomingMissilesView';
 import BridgeLaserBeamsView from './combat/laser_beams/BridgeLaserBeamsView';
 import BridgeLaserThreatsView from './combat/laser_threats/BridgeLaserThreatsView';
+import BridgePlayerLaserView from './combat/player_laser/BridgePlayerLaserView';
 import BridgePlayerShieldsView from './combat/player_shields/BridgePlayerShieldsView';
 import BridgeSpamView from './combat/spam/BridgeSpamView';
 import BridgeStickyMinesView from './combat/sticky_mines/BridgeStickyMinesView';
@@ -28,6 +29,8 @@ export default class BridgeView {
     private laserThreatsView?: BridgeLaserThreatsView;
 
     private laserBeamsView?: BridgeLaserBeamsView;
+
+    private playerLaserView?: BridgePlayerLaserView;
 
     private playerShieldsView?: BridgePlayerShieldsView;
 
@@ -87,6 +90,15 @@ export default class BridgeView {
             },
         );
 
+        this.playerLaserView = new BridgePlayerLaserView(
+            this.scene,
+            this.eventBus,
+
+            (objectId) => {
+                return spaceView.getObjectPosition(objectId);
+            },
+        );
+
         this.vfxView = new BridgeVfxView(this.scene, this.eventBus);
 
         this.spamView = new BridgeSpamView(
@@ -123,6 +135,7 @@ export default class BridgeView {
         this.stickyMinesView?.destroy();
         this.spamView?.destroy();
         this.vfxView?.destroy();
+        this.playerLaserView?.destroy();
         this.laserBeamsView?.destroy();
         this.laserThreatsView?.destroy();
         this.incomingMissilesView?.destroy();
@@ -137,6 +150,7 @@ export default class BridgeView {
         this.stickyMinesView = undefined;
         this.spamView = undefined;
         this.vfxView = undefined;
+        this.playerLaserView = undefined;
         this.laserBeamsView = undefined;
         this.laserThreatsView = undefined;
         this.incomingMissilesView = undefined;

@@ -6,8 +6,16 @@ type BridgeLaserBeamViewOptions = {
     scene: BridgeScene;
     parent: Phaser.GameObjects.Container;
 
-    sourcePosition: Phaser.Math.Vector2;
-    targetPosition: Phaser.Math.Vector2;
+    sourcePosition:
+        Phaser.Math.Vector2;
+
+    targetPosition:
+        Phaser.Math.Vector2;
+
+    // true:
+    // player source находится ближе камеры,
+    // поэтому beam шире у source.
+    sourceNear?: boolean;
 
     onComplete: () => void;
 };
@@ -21,32 +29,33 @@ const LASER_BEAM = {
     bodyColor: 0x43d9ff,
     coreColor: 0xd7f9ff,
 
-    outlineSourceHalfWidth: 2.5,
-    outlineTargetHalfWidth: 7,
+    outlineFarHalfWidth: 2.5,
+    outlineNearHalfWidth: 7,
 
-    bodySourceHalfWidth: 1.5,
-    bodyTargetHalfWidth: 5,
+    bodyFarHalfWidth: 1.5,
+    bodyNearHalfWidth: 5,
 
-    coreSourceHalfWidth: 0.5,
-    coreTargetHalfWidth: 1.5,
+    coreFarHalfWidth: 0.5,
+    coreNearHalfWidth: 1.5,
 } as const;
 
-// Один короткий enemy laser shot.
+// Один короткий laser shot.
 //
-// Beam появляется почти мгновенно, а не летит как projectile.
-// Перспектива задаётся трапецией:
-// узкий источник у enemy weapon и более широкий ближний конец.
+// Beam подходит и enemy, и player:
+// sourceNear определяет, какой конец
+// перспективно расположен ближе камеры.
 export default class BridgeLaserBeamView {
-    private readonly scene: BridgeScene;
+    private readonly graphics:
+        Phaser.GameObjects.Graphics;
 
-    private readonly graphics: Phaser.GameObjects.Graphics;
+    private readonly sourcePosition:
+        Phaser.Math.Vector2;
 
-    private readonly sourcePosition: Phaser.Math.Vector2;
-    private readonly targetPosition: Phaser.Math.Vector2;
-
-    private readonly onComplete: () => void;
+    private readonly targetPosition:
+        Phaser.Math.Vector2;
 
     private elapsedMs = 0;
+
     private completed = false;
     private destroyed = false;
 
@@ -57,16 +66,27 @@ export default class BridgeLaserBeamView {
         sourcePosition,
         targetPosition,
 
+        sourceNear = false,
+
         onComplete,
     }: BridgeLaserBeamViewOptions) {
         this.scene = scene;
 
-        this.sourcePosition = sourcePosition.clone();
-        this.targetPosition = targetPosition.clone();
+        this.sourcePosition =
+            sourcePosition.clone();
 
-        this.onComplete = onComplete;
+        this.targetPosition =
+            targetPosition.clone();
 
-        this.graphics = scene.add.graphics();
+        this.sourceNear =
+            sourceNear;
+
+        this.onComplete =
+            onComplete;
+
+        this.graphics =
+            scene.add.graphics();
+
         parent.add(this.graphics);
 
         this.draw();
@@ -77,6 +97,15 @@ export default class BridgeLaserBeamView {
             this,
         );
     }
+
+    private readonly scene:
+        BridgeScene;
+
+    private readonly sourceNear:
+        boolean;
+
+    private readonly onComplete:
+        () => void;
 
     public destroy(): void {
         if (this.destroyed) {
@@ -94,7 +123,10 @@ export default class BridgeLaserBeamView {
         this.graphics.destroy();
     }
 
-    private handleSceneUpdate(_time: number, deltaMs: number): void {
+    private handleSceneUpdate(
+        _time: number,
+        deltaMs: number,
+    ): void {
         if (this.completed) {
             return;
         }
@@ -102,13 +134,20 @@ export default class BridgeLaserBeamView {
         this.elapsedMs += deltaMs;
 
         const totalDurationMs =
-            LASER_BEAM.extendDurationMs +
-            LASER_BEAM.holdDurationMs +
-            LASER_BEAM.fadeDurationMs;
+            LASER_BEAM
+                .extendDurationMs +
+            LASER_BEAM
+                .holdDurationMs +
+            LASER_BEAM
+                .fadeDurationMs;
 
-        if (this.elapsedMs >= totalDurationMs) {
+        if (
+            this.elapsedMs >=
+            totalDurationMs
+        ) {
             this.completed = true;
             this.onComplete();
+
             return;
         }
 
@@ -118,110 +157,204 @@ export default class BridgeLaserBeamView {
     private draw(): void {
         this.graphics.clear();
 
-        const extensionProgress = Phaser.Math.Clamp(
-            this.elapsedMs / LASER_BEAM.extendDurationMs,
-            0,
-            1,
-        );
+        const extensionProgress =
+            Phaser.Math.Clamp(
+                this.elapsedMs /
+                    LASER_BEAM
+                        .extendDurationMs,
 
-        const easedExtensionProgress =
-            1 - Math.pow(1 - extensionProgress, 3);
+                0,
+                1,
+            );
 
-        const currentTarget = this.sourcePosition.clone().lerp(
-            this.targetPosition,
-            easedExtensionProgress,
-        );
+        const easedProgress =
+            1 -
+            Math.pow(
+                1 -
+                    extensionProgress,
 
-        const alpha = this.getAlpha();
+                3,
+            );
+
+        const currentTarget =
+            this.sourcePosition
+                .clone()
+                .lerp(
+                    this.targetPosition,
+                    easedProgress,
+                );
+
+        const alpha =
+            this.getAlpha();
 
         this.drawBeamLayer(
             currentTarget,
-            LASER_BEAM.outlineSourceHalfWidth,
-            Phaser.Math.Linear(
-                LASER_BEAM.outlineSourceHalfWidth,
-                LASER_BEAM.outlineTargetHalfWidth,
-                easedExtensionProgress,
-            ),
-            LASER_BEAM.outlineColor,
+
+            LASER_BEAM
+                .outlineFarHalfWidth,
+
+            LASER_BEAM
+                .outlineNearHalfWidth,
+
+            LASER_BEAM
+                .outlineColor,
+
             alpha,
+            easedProgress,
         );
 
         this.drawBeamLayer(
             currentTarget,
-            LASER_BEAM.bodySourceHalfWidth,
-            Phaser.Math.Linear(
-                LASER_BEAM.bodySourceHalfWidth,
-                LASER_BEAM.bodyTargetHalfWidth,
-                easedExtensionProgress,
-            ),
+
+            LASER_BEAM
+                .bodyFarHalfWidth,
+
+            LASER_BEAM
+                .bodyNearHalfWidth,
+
             LASER_BEAM.bodyColor,
+
             alpha,
+            easedProgress,
         );
 
         this.drawBeamLayer(
             currentTarget,
-            LASER_BEAM.coreSourceHalfWidth,
-            Phaser.Math.Linear(
-                LASER_BEAM.coreSourceHalfWidth,
-                LASER_BEAM.coreTargetHalfWidth,
-                easedExtensionProgress,
-            ),
+
+            LASER_BEAM
+                .coreFarHalfWidth,
+
+            LASER_BEAM
+                .coreNearHalfWidth,
+
             LASER_BEAM.coreColor,
+
             alpha,
+            easedProgress,
         );
     }
 
     private drawBeamLayer(
-        currentTarget: Phaser.Math.Vector2,
+        currentTarget:
+            Phaser.Math.Vector2,
 
-        sourceHalfWidth: number,
-        targetHalfWidth: number,
+        farHalfWidth: number,
+        nearHalfWidth: number,
 
         color: number,
         alpha: number,
-    ): void {
-        const direction = currentTarget.clone().subtract(this.sourcePosition);
 
-        if (direction.lengthSq() <= 0) {
+        extensionProgress: number,
+    ): void {
+        const direction =
+            currentTarget
+                .clone()
+                .subtract(
+                    this.sourcePosition,
+                );
+
+        if (
+            direction.lengthSq() <= 0
+        ) {
             return;
         }
 
         direction.normalize();
 
-        const perpendicular = new Phaser.Math.Vector2(
-            -direction.y,
-            direction.x,
+        const perpendicular =
+            new Phaser.Math.Vector2(
+                -direction.y,
+                direction.x,
+            );
+
+        const sourceHalfWidth =
+            this.sourceNear
+                ? nearHalfWidth
+                : farHalfWidth;
+
+        const finalTargetHalfWidth =
+            this.sourceNear
+                ? farHalfWidth
+                : nearHalfWidth;
+
+        const targetHalfWidth =
+            Phaser.Math.Linear(
+                sourceHalfWidth,
+                finalTargetHalfWidth,
+                extensionProgress,
+            );
+
+        const sourceOffset =
+            perpendicular
+                .clone()
+                .scale(
+                    sourceHalfWidth,
+                );
+
+        const targetOffset =
+            perpendicular
+                .clone()
+                .scale(
+                    targetHalfWidth,
+                );
+
+        this.graphics.fillStyle(
+            color,
+            alpha,
         );
-
-        const sourceOffset = perpendicular.clone().scale(sourceHalfWidth);
-        const targetOffset = perpendicular.clone().scale(targetHalfWidth);
-
-        this.graphics.fillStyle(color, alpha);
 
         this.graphics.fillPoints(
             [
-                this.sourcePosition.clone().add(sourceOffset),
-                currentTarget.clone().add(targetOffset),
-                currentTarget.clone().subtract(targetOffset),
-                this.sourcePosition.clone().subtract(sourceOffset),
+                this.sourcePosition
+                    .clone()
+                    .add(
+                        sourceOffset,
+                    ),
+
+                currentTarget
+                    .clone()
+                    .add(
+                        targetOffset,
+                    ),
+
+                currentTarget
+                    .clone()
+                    .subtract(
+                        targetOffset,
+                    ),
+
+                this.sourcePosition
+                    .clone()
+                    .subtract(
+                        sourceOffset,
+                    ),
             ],
+
             true,
         );
     }
 
     private getAlpha(): number {
         const fadeStartMs =
-            LASER_BEAM.extendDurationMs +
-            LASER_BEAM.holdDurationMs;
+            LASER_BEAM
+                .extendDurationMs +
+            LASER_BEAM
+                .holdDurationMs;
 
-        if (this.elapsedMs <= fadeStartMs) {
+        if (
+            this.elapsedMs <=
+            fadeStartMs
+        ) {
             return 1;
         }
 
         return Phaser.Math.Clamp(
             1 -
-                (this.elapsedMs - fadeStartMs) /
-                    LASER_BEAM.fadeDurationMs,
+                (this.elapsedMs -
+                    fadeStartMs) /
+                    LASER_BEAM
+                        .fadeDurationMs,
+
             0,
             1,
         );
