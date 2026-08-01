@@ -44,9 +44,15 @@ describe('Player laser command', () => {
         const installedWeapon =
             run.player.ship.weapons[0];
 
-        if (!installedWeapon) {
+        const installedLauncher =
+            run.player.ship.weapons[1];
+
+        if (
+            !installedWeapon ||
+            !installedLauncher
+        ) {
             throw new Error(
-                'Expected installed player laser',
+                'Expected installed player weapons',
             );
         }
 
@@ -259,6 +265,8 @@ describe('Player laser command', () => {
 
                 phaseElapsedMs: 0,
             },
+
+            installedLauncher,
         ]);
 
         const [task] =

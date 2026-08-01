@@ -9,6 +9,9 @@ import {
     createNewRunState,
 } from '../../../src/engine/content/new_game/create_new_run_state';
 import {
+    MISSILE_ID,
+} from '../../../src/engine/defs/missile';
+import {
     SHIP_DRIVE_ID,
     SHIP_DRIVE_STATUS,
 } from '../../../src/engine/defs/ship_drive';
@@ -61,6 +64,29 @@ describe('createNewRunState', () => {
 
                     kind:
                         SHIP_WEAPON_KIND.LASER,
+
+                    phase:
+                        SHIP_WEAPON_PHASE.READY,
+
+                    phaseElapsedMs: 0,
+                },
+
+                {
+                    id:
+                        'missile_launcher_player_00',
+
+                    weaponId:
+                        SHIP_WEAPON_ID
+                            .MISSILE_LAUNCHER_00,
+
+                    kind:
+                        SHIP_WEAPON_KIND
+                            .MISSILE_LAUNCHER,
+
+                    loadedMissileId:
+                        MISSILE_ID.RED_00,
+
+                    ammoCount: 5,
 
                     phase:
                         SHIP_WEAPON_PHASE.READY,
@@ -165,6 +191,29 @@ describe('createNewRunState', () => {
 
                     kind:
                         SHIP_WEAPON_KIND.LASER,
+
+                    phase:
+                        SHIP_WEAPON_PHASE.READY,
+
+                    phaseElapsedMs: 0,
+                },
+
+                {
+                    id:
+                        'missile_launcher_player_00',
+
+                    weaponId:
+                        SHIP_WEAPON_ID
+                            .MISSILE_LAUNCHER_00,
+
+                    kind:
+                        SHIP_WEAPON_KIND
+                            .MISSILE_LAUNCHER,
+
+                    loadedMissileId:
+                        MISSILE_ID.RED_00,
+
+                    ammoCount: 5,
 
                     phase:
                         SHIP_WEAPON_PHASE.READY,

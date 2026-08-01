@@ -9,13 +9,16 @@ import {
     createNewRunState,
 } from '../../../src/engine/content/new_game/create_new_run_state';
 import {
+    MISSILE_ID,
+} from '../../../src/engine/defs/missile';
+import {
     SHIP_WEAPON_ID,
     SHIP_WEAPON_KIND,
     SHIP_WEAPON_PHASE,
 } from '../../../src/engine/defs/ship_weapon';
 
 describe('New-game player weapons', () => {
-    it('creates a fresh installed laser for every run', () => {
+    it('creates fresh installed weapons for every run', () => {
         const firstRun =
             createNewRunState();
 
@@ -39,6 +42,29 @@ describe('New-game player weapons', () => {
 
                 phaseElapsedMs: 0,
             },
+
+            {
+                id:
+                    'missile_launcher_player_00',
+
+                weaponId:
+                    SHIP_WEAPON_ID
+                        .MISSILE_LAUNCHER_00,
+
+                kind:
+                    SHIP_WEAPON_KIND
+                        .MISSILE_LAUNCHER,
+
+                loadedMissileId:
+                    MISSILE_ID.RED_00,
+
+                ammoCount: 5,
+
+                phase:
+                    SHIP_WEAPON_PHASE.READY,
+
+                phaseElapsedMs: 0,
+            },
         ]);
 
         expect(
@@ -47,33 +73,60 @@ describe('New-game player weapons', () => {
             secondRun.player.ship.weapons,
         );
 
-        const firstWeapon =
+        const firstLaser =
             firstRun.player.ship.weapons[0];
 
-        const secondWeapon =
+        const secondLaser =
             secondRun.player.ship.weapons[0];
 
-        if (!firstWeapon || !secondWeapon) {
+        const firstLauncher =
+            firstRun.player.ship.weapons[1];
+
+        const secondLauncher =
+            secondRun.player.ship.weapons[1];
+
+        if (
+            !firstLaser ||
+            !secondLaser ||
+            !firstLauncher ||
+            !secondLauncher ||
+            firstLauncher.kind !==
+                SHIP_WEAPON_KIND
+                    .MISSILE_LAUNCHER ||
+            secondLauncher.kind !==
+                SHIP_WEAPON_KIND
+                    .MISSILE_LAUNCHER
+        ) {
             throw new Error(
-                'Expected installed player lasers',
+                'Expected installed player weapons',
             );
         }
 
-        expect(firstWeapon).not.toBe(
-            secondWeapon,
+        expect(firstLaser).not.toBe(
+            secondLaser,
         );
 
-        firstWeapon.phase =
+        expect(firstLauncher).not.toBe(
+            secondLauncher,
+        );
+
+        firstLaser.phase =
             SHIP_WEAPON_PHASE.COOLDOWN;
 
-        firstWeapon.phaseElapsedMs = 500;
+        firstLaser.phaseElapsedMs = 500;
 
-        expect(secondWeapon.phase).toBe(
+        firstLauncher.ammoCount = 0;
+
+        expect(secondLaser.phase).toBe(
             SHIP_WEAPON_PHASE.READY,
         );
 
         expect(
-            secondWeapon.phaseElapsedMs,
+            secondLaser.phaseElapsedMs,
         ).toBe(0);
+
+        expect(
+            secondLauncher.ammoCount,
+        ).toBe(5);
     });
 });

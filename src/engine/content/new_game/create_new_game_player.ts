@@ -10,14 +10,20 @@ import type {
 import {
     SHIP_DRIVE_STATUS,
 } from '../../defs/ship_drive';
+import {
+    SHIP_WEAPON_ID,
+    type ShipWeaponState,
+} from '../../defs/ship_weapon';
 import ShieldGeneratorFactory from '../../generation/ship_system/ShieldGeneratorFactory';
 import LaserWeaponFactory from '../../generation/ship_weapon/LaserWeaponFactory';
+import MissileLauncherFactory from '../../generation/ship_weapon/MissileLauncherFactory';
 import {
     SHIP_DRIVES,
 } from '../catalogs/ship_drives';
 import {
     PLAYER_SHIP_PRESETS,
     type PlayerShipPresetId,
+    type PlayerShipWeaponPreset,
 } from '../presets/player_ships';
 
 const NEW_GAME_PLAYER_SHIP_SYSTEM_ID = {
@@ -72,15 +78,44 @@ function createPlayerShip(
                         .shieldGeneratorPresetId,
             }),
 
-        weapons: preset.weapons.map(
-            (weapon) => {
-                return LaserWeaponFactory.create({
-                    id: weapon.id,
-
-                    weaponId:
-                        weapon.weaponId,
-                });
-            },
-        ),
+        weapons:
+            preset.weapons.map(
+                createPlayerWeapon,
+            ),
     };
+}
+
+function createPlayerWeapon(
+    weapon: PlayerShipWeaponPreset,
+): ShipWeaponState {
+    switch (weapon.weaponId) {
+        case SHIP_WEAPON_ID.LASER_00:
+            return LaserWeaponFactory.create({
+                id: weapon.id,
+
+                weaponId:
+                    weapon.weaponId,
+            });
+
+        case SHIP_WEAPON_ID
+            .MISSILE_LAUNCHER_00:
+            return MissileLauncherFactory.create({
+                id: weapon.id,
+
+                presetId:
+                    weapon.presetId,
+            });
+
+        default:
+            return assertNever(weapon);
+    }
+}
+
+function assertNever(
+    value: never,
+): never {
+    throw new Error(
+        'Unhandled player ship weapon preset: ' +
+            String(value),
+    );
 }
