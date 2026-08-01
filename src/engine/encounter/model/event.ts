@@ -1,6 +1,9 @@
 // src/engine/encounter/model/event.ts
 
 import type { CharacterPortraitId } from '../../defs/character';
+import type {
+    LaserTargetZone,
+} from '../../defs/laser';
 import type { PlayerSpaceNavigationState } from '../../defs/player_location';
 import type { PointDefenseBeamBand, PointDefenseShotOutcome } from '../../defs/point_defense';
 import type { ShieldGeneratorState } from '../../defs/shield_generator';
@@ -40,6 +43,13 @@ export const ENCOUNTER_EVENT = {
     PLAYER_SHIP_DRIVE_STATE_CHANGED: 'player_ship_drive_state_changed',
     PLAYER_SHIP_DRIVE_DISRUPTED: 'player_ship_drive_disrupted',
     PLAYER_SHIP_TARGETING_DETECTED: 'player_ship_targeting_detected',
+
+    PLAYER_LASER_CHARGING_STARTED:
+        'player_laser_charging_started',
+
+    PLAYER_LASER_FIRED:
+        'player_laser_fired',
+
     MISSILE_LAUNCHED: 'missile_launched',
     MISSILE_IMPACTED_PLAYER_SHIP: 'missile_impacted_player_ship',
     LASER_ATTACK_STARTED: 'laser_attack_started',
@@ -236,6 +246,30 @@ export type PlayerShipTargetingDetectedEvent = {
     sourceWeaponId: string;
 };
 
+export type PlayerLaserChargingStartedEvent = {
+    type:
+        typeof ENCOUNTER_EVENT.PLAYER_LASER_CHARGING_STARTED;
+
+    weaponId: string;
+
+    targetActorId: string;
+    targetZone: LaserTargetZone;
+
+    chargeDurationMs: number;
+};
+
+export type PlayerLaserFiredEvent = {
+    type:
+        typeof ENCOUNTER_EVENT.PLAYER_LASER_FIRED;
+
+    weaponId: string;
+
+    targetActorId: string;
+    targetZone: LaserTargetZone;
+
+    damage: number;
+};
+
 export type MissileLaunchedEvent = {
     type: typeof ENCOUNTER_EVENT.MISSILE_LAUNCHED;
 
@@ -316,6 +350,8 @@ export type EncounterEvent =
     | PlayerShipDriveStateChangedEvent
     | PlayerShipDriveDisruptedEvent
     | PlayerShipTargetingDetectedEvent
+    | PlayerLaserChargingStartedEvent
+    | PlayerLaserFiredEvent
     | MissileLaunchedEvent
     | MissileImpactedPlayerShipEvent
     | StickyMineAttachedEvent

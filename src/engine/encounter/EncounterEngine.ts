@@ -25,6 +25,7 @@ import {
     type StickyMineSnapshot,
 } from './combat/queries/get_sticky_mine_snapshots';
 import PlayerShieldRunner from './combat/PlayerShieldRunner';
+import PlayerWeaponRunner from './combat/PlayerWeaponRunner';
 import ShieldGeneratorRunner from './combat/ShieldGeneratorRunner';
 import OfficerCommandExecutor from './commands/OfficerCommandExecutor';
 import { getAvailableOfficerCommands } from './commands/queries/get_available_officer_commands';
@@ -83,6 +84,9 @@ export default class EncounterEngine {
     private readonly officerCommandExecutor: OfficerCommandExecutor;
 
     private readonly combatRunner: CombatRunner;
+
+    private readonly playerWeaponRunner:
+        PlayerWeaponRunner;
 
     private readonly combatEngagementRunner:
         CombatEngagementRunner;
@@ -151,6 +155,18 @@ export default class EncounterEngine {
             completeTimedTasksImmediately,
         });
 
+        this.playerWeaponRunner =
+            PlayerWeaponRunner.create({
+                stateStore:
+                    this.stateStore,
+
+                emit: this.emit,
+
+                completeOfficerTask:
+                    this.officerTaskRunner
+                        .complete,
+            });
+
         this.combatEngagementRunner =
             new CombatEngagementRunner(
                 this.stateStore,
@@ -208,6 +224,7 @@ export default class EncounterEngine {
         this.officerTaskRunner.step(deltaMs);
         this.contactSequenceRunner.step(deltaMs);
         this.shieldGeneratorRunner.step(deltaMs);
+        this.playerWeaponRunner.step(deltaMs);
         this.combatRunner.step(deltaMs);
 
         this.officerTaskRunner.cancelTasksWithMissingTargets();

@@ -255,6 +255,12 @@ export default class BridgeEncounterEngineEventHandler {
                 );
                 return;
 
+            case ENCOUNTER_EVENT.PLAYER_LASER_CHARGING_STARTED:
+            case ENCOUNTER_EVENT.PLAYER_LASER_FIRED:
+                // Final bridge art добавит
+                // видимое player weapon и VFX.
+                return;
+
             case ENCOUNTER_EVENT.MISSILE_LAUNCHED:
                 this.eventBus.emit(BRIDGE_EVENT.MISSILE_TARGETING_WARNING_CLEARED);
 
