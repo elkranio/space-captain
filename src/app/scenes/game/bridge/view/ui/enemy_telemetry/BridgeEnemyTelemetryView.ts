@@ -23,7 +23,7 @@ import {
 import type BridgeEventBus from '../../../events/BridgeEventBus';
 
 const ENEMY_TELEMETRY_PANEL = {
-    y: 548,
+    y: 522,
 
     width: 600,
     height: 64,

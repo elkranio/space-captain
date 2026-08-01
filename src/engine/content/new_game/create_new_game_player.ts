@@ -4,10 +4,17 @@ import type {
     PlayerState,
     PlayerShipState,
 } from '../../defs/player';
-import type { PlayerLocationState } from '../../defs/player_location';
-import { SHIP_DRIVE_STATUS } from '../../defs/ship_drive';
+import type {
+    PlayerLocationState,
+} from '../../defs/player_location';
+import {
+    SHIP_DRIVE_STATUS,
+} from '../../defs/ship_drive';
 import ShieldGeneratorFactory from '../../generation/ship_system/ShieldGeneratorFactory';
-import { SHIP_DRIVES } from '../catalogs/ship_drives';
+import LaserWeaponFactory from '../../generation/ship_weapon/LaserWeaponFactory';
+import {
+    SHIP_DRIVES,
+} from '../catalogs/ship_drives';
 import {
     PLAYER_SHIP_PRESETS,
     type PlayerShipPresetId,
@@ -30,8 +37,11 @@ export function createNewGamePlayer(
 function createPlayerShip(
     presetId: PlayerShipPresetId,
 ): PlayerShipState {
-    const preset = PLAYER_SHIP_PRESETS[presetId];
-    const drive = SHIP_DRIVES[preset.driveId];
+    const preset =
+        PLAYER_SHIP_PRESETS[presetId];
+
+    const drive =
+        SHIP_DRIVES[preset.driveId];
 
     return {
         hull: preset.maxHull,
@@ -39,7 +49,8 @@ function createPlayerShip(
 
         drive: {
             id:
-                NEW_GAME_PLAYER_SHIP_SYSTEM_ID.DRIVE,
+                NEW_GAME_PLAYER_SHIP_SYSTEM_ID
+                    .DRIVE,
 
             driveId: drive.id,
             status:
@@ -47,16 +58,29 @@ function createPlayerShip(
         },
 
         pointDefense: {
-            charges: preset.pointDefense.maxCharges,
-            maxCharges: preset.pointDefense.maxCharges,
+            charges:
+                preset.pointDefense.maxCharges,
+
+            maxCharges:
+                preset.pointDefense.maxCharges,
         },
 
         shieldGenerator:
             ShieldGeneratorFactory.create({
                 presetId:
-                    preset.shieldGeneratorPresetId,
+                    preset
+                        .shieldGeneratorPresetId,
             }),
 
-        weapons: [],
+        weapons: preset.weapons.map(
+            (weapon) => {
+                return LaserWeaponFactory.create({
+                    id: weapon.id,
+
+                    weaponId:
+                        weapon.weaponId,
+                });
+            },
+        ),
     };
 }
