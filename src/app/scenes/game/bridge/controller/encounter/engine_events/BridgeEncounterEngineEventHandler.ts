@@ -321,12 +321,39 @@ export default class BridgeEncounterEngineEventHandler {
             case ENCOUNTER_EVENT.ENEMY_SHIP_DESTROYED:
                 this.setEncounterInteractive(false);
 
+                this.gameRuntime
+                    .removeCurrentNodeActor(
+                        event.actorId,
+                    );
+
                 this.eventBus.emit(
                     BRIDGE_EVENT
-                        .SCENE_TRANSITION_REQUESTED,
+                        .MISSILE_TARGETING_WARNING_CLEARED,
+                );
+
+                this.eventBus.emit(
+                    BRIDGE_EVENT
+                        .ENEMY_SHIP_TELEMETRY_UPDATED,
+                    undefined,
+                );
+
+                // View фиксирует position
+                // до удаления object sprite.
+                this.eventBus.emit(
+                    BRIDGE_EVENT
+                        .ENEMY_SHIP_DESTRUCTION_STARTED,
                     {
-                        sceneKey:
-                            SCENE_KEY.END,
+                        actorId:
+                            event.actorId,
+                    },
+                );
+
+                this.eventBus.emit(
+                    BRIDGE_EVENT
+                        .ENCOUNTER_OBJECT_REMOVED,
+                    {
+                        objectId:
+                            event.actorId,
                     },
                 );
                 return;

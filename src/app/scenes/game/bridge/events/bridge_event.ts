@@ -113,6 +113,11 @@ export const BRIDGE_EVENT = {
     // но не становится текущей presentation-группой.
     ENCOUNTER_OBJECT_ADDED: 'encounter_object_added',
 
+    // Encounter object permanently removed
+    // from both runtime and presentation.
+    ENCOUNTER_OBJECT_REMOVED:
+        'encounter_object_removed',
+
     // Обновление presentation
     // уже известных encounter objects.
     ENCOUNTER_OBJECTS_UPDATED: 'encounter_objects_updated',
@@ -232,6 +237,12 @@ export const BRIDGE_EVENT = {
 
     PLAYER_LASER_FIRED:
         'player_laser_fired',
+
+    ENEMY_SHIP_DESTRUCTION_STARTED:
+        'enemy_ship_destruction_started',
+
+    ENEMY_SHIP_DESTRUCTION_COMPLETED:
+        'enemy_ship_destruction_completed',
 
     // Hostile spam channel начал
     // проецировать popup-помехи на viewscreen.
@@ -430,6 +441,10 @@ export type BridgeEncounterObjectPayload = {
 };
 
 // Payload начала arrival flow.
+export type BridgeEncounterObjectRemovedPayload = {
+    objectId: string;
+};
+
 export type BridgeEncounterArrivalStartedPayload = {
     targetId: string;
 };
@@ -591,6 +606,10 @@ export type BridgePlayerLaserFiredPayload = {
     outcome: LaserShotOutcome;
 };
 
+export type BridgeEnemyShipDestructionPayload = {
+    actorId: string;
+};
+
 export type BridgeSpamChannelStartedPayload = {
     channelId: string;
 };
@@ -689,6 +708,9 @@ export type BridgeEventPayloadMap = {
 
     [BRIDGE_EVENT.ENCOUNTER_OBJECT_ADDED]: BridgeEncounterObjectPayload;
 
+    [BRIDGE_EVENT.ENCOUNTER_OBJECT_REMOVED]:
+        BridgeEncounterObjectRemovedPayload;
+
     [BRIDGE_EVENT.ENCOUNTER_OBJECTS_UPDATED]: BridgeEncounterObjectPayload[];
 
     [BRIDGE_EVENT.ENCOUNTER_ARRIVAL_STARTED]: BridgeEncounterArrivalStartedPayload;
@@ -753,6 +775,12 @@ export type BridgeEventPayloadMap = {
 
     [BRIDGE_EVENT.PLAYER_LASER_FIRED]:
         BridgePlayerLaserFiredPayload;
+
+    [BRIDGE_EVENT.ENEMY_SHIP_DESTRUCTION_STARTED]:
+        BridgeEnemyShipDestructionPayload;
+
+    [BRIDGE_EVENT.ENEMY_SHIP_DESTRUCTION_COMPLETED]:
+        BridgeEnemyShipDestructionPayload;
 
     [BRIDGE_EVENT.SPAM_CHANNEL_STARTED]: BridgeSpamChannelStartedPayload;
 

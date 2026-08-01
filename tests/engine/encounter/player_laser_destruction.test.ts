@@ -123,16 +123,12 @@ describe('Player laser enemy destruction', () => {
 
         expect(
             engine
-                .getEnemyShipTelemetrySnapshots()[0],
-        ).toMatchObject({
-            actorId:
-                enemyId,
+                .getEnemyShipTelemetrySnapshots(),
+        ).toEqual([]);
 
-            hull: {
-                current: 0,
-                max: 3,
-            },
-        });
+        expect(
+            engine.getLaserAttacks(),
+        ).toEqual([]);
 
         expect(
             engine

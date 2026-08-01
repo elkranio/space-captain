@@ -3,6 +3,7 @@
 import type BridgeScene from '../BridgeScene';
 import type BridgeEventBus from '../events/BridgeEventBus';
 import BridgeOfficerBarksView from './barks/BridgeOfficerBarksView';
+import BridgeEnemyShipDestructionView from './combat/enemy_destruction/BridgeEnemyShipDestructionView';
 import BridgeIncomingMissilesView from './combat/incoming_missiles/BridgeIncomingMissilesView';
 import BridgeLaserBeamsView from './combat/laser_beams/BridgeLaserBeamsView';
 import BridgeLaserThreatsView from './combat/laser_threats/BridgeLaserThreatsView';
@@ -23,6 +24,9 @@ export default class BridgeView {
     private interiorView?: BridgeInteriorView;
 
     private targetingWarningView?: BridgeTargetingWarningView;
+
+    private enemyShipDestructionView?:
+        BridgeEnemyShipDestructionView;
 
     private incomingMissilesView?: BridgeIncomingMissilesView;
 
@@ -99,6 +103,19 @@ export default class BridgeView {
             },
         );
 
+        this.enemyShipDestructionView =
+            new BridgeEnemyShipDestructionView(
+                this.scene,
+                this.eventBus,
+
+                (objectId) => {
+                    return spaceView
+                        .getObjectPosition(
+                            objectId,
+                        );
+                },
+            );
+
         this.vfxView = new BridgeVfxView(this.scene, this.eventBus);
 
         this.spamView = new BridgeSpamView(
@@ -135,6 +152,8 @@ export default class BridgeView {
         this.stickyMinesView?.destroy();
         this.spamView?.destroy();
         this.vfxView?.destroy();
+        this.enemyShipDestructionView
+            ?.destroy();
         this.playerLaserView?.destroy();
         this.laserBeamsView?.destroy();
         this.laserThreatsView?.destroy();
@@ -150,6 +169,8 @@ export default class BridgeView {
         this.stickyMinesView = undefined;
         this.spamView = undefined;
         this.vfxView = undefined;
+        this.enemyShipDestructionView =
+            undefined;
         this.playerLaserView = undefined;
         this.laserBeamsView = undefined;
         this.laserThreatsView = undefined;

@@ -331,6 +331,10 @@ export default class PlayerWeaponRunner {
             impact.damage > 0 &&
             impact.remainingHull === 0
         ) {
+            this.stateStore.removeActor(
+                task.targetActorId,
+            );
+
             this.emit({
                 type:
                     ENCOUNTER_EVENT

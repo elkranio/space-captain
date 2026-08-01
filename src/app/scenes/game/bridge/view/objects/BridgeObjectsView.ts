@@ -1,7 +1,11 @@
 // src/app/scenes/game/bridge/view/objects/BridgeObjectsView.ts
 
 import type BridgeScene from '../../BridgeScene';
-import { BRIDGE_EVENT, type BridgeEncounterObjectPayload } from '../../events/bridge_event';
+import {
+    BRIDGE_EVENT,
+    type BridgeEncounterObjectPayload,
+    type BridgeEncounterObjectRemovedPayload,
+} from '../../events/bridge_event';
 import type BridgeEventBus from '../../events/BridgeEventBus';
 import BridgeObjectsAnimationSequencer from './animation/BridgeObjectsAnimationSequencer';
 import BridgeObjectSpriteView from './object_sprite/BridgeObjectSpriteView';
@@ -54,6 +58,11 @@ export default class BridgeObjectsView {
         this.eventBus.on(BRIDGE_EVENT.ENCOUNTER_OBJECTS_LOADED, this.prepareObjects, this);
         this.eventBus.on(BRIDGE_EVENT.ENCOUNTER_OBJECTS_UPDATED, this.syncObjects, this);
         this.eventBus.on(BRIDGE_EVENT.ENCOUNTER_OBJECT_ADDED, this.addObject, this);
+        this.eventBus.on(
+            BRIDGE_EVENT.ENCOUNTER_OBJECT_REMOVED,
+            this.removeObject,
+            this,
+        );
     }
 
     public destroy(): void {
@@ -62,6 +71,11 @@ export default class BridgeObjectsView {
         this.eventBus.off(BRIDGE_EVENT.ENCOUNTER_OBJECTS_LOADED, this.prepareObjects, this);
         this.eventBus.off(BRIDGE_EVENT.ENCOUNTER_OBJECTS_UPDATED, this.syncObjects, this);
         this.eventBus.off(BRIDGE_EVENT.ENCOUNTER_OBJECT_ADDED, this.addObject, this);
+        this.eventBus.off(
+            BRIDGE_EVENT.ENCOUNTER_OBJECT_REMOVED,
+            this.removeObject,
+            this,
+        );
 
         for (const view of this.objectViews.values()) {
             view.destroy();
@@ -106,6 +120,29 @@ export default class BridgeObjectsView {
         }
 
         view.prepareForArrival();
+    }
+
+    private removeObject(
+        payload:
+            BridgeEncounterObjectRemovedPayload,
+    ): void {
+        const view =
+            this.objectViews.get(
+                payload.objectId,
+            );
+
+        if (!view) {
+            throw new Error(
+                'Bridge object view not found: ' +
+                    payload.objectId,
+            );
+        }
+
+        view.destroy();
+
+        this.objectViews.delete(
+            payload.objectId,
+        );
     }
 
     // Presentation update показывает переданный набор,

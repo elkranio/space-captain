@@ -253,6 +253,76 @@ export default class EncounterStateStore {
         return actor;
     }
 
+    public removeActor(
+        actorId: string,
+    ): EncounterActorState {
+        const actorIndex =
+            this.state.actors
+                .findIndex((actor) => {
+                    return (
+                        actor.id ===
+                        actorId
+                    );
+                });
+
+        if (actorIndex < 0) {
+            throw new Error(
+                'Encounter actor not found: ' +
+                    actorId,
+            );
+        }
+
+        const actor =
+            this.state.actors[
+                actorIndex
+            ];
+
+        if (!actor) {
+            throw new Error(
+                'Encounter actor disappeared ' +
+                    'before removal: ' +
+                    actorId,
+            );
+        }
+
+        this.state.actors.splice(
+            actorIndex,
+            1,
+        );
+
+        for (
+            let index =
+                this.state.combat
+                    .laserAttacks
+                    .length - 1;
+
+            index >= 0;
+
+            index -= 1
+        ) {
+            const attack =
+                this.state.combat
+                    .laserAttacks[
+                        index
+                    ];
+
+            if (
+                attack?.sourceActorId !==
+                actorId
+            ) {
+                continue;
+            }
+
+            this.state.combat
+                .laserAttacks.splice(
+                    index,
+                    1,
+                );
+        }
+
+        return actor;
+    }
+
     public setActorTeam(
         actorId: string,
         team: EncounterTeam,

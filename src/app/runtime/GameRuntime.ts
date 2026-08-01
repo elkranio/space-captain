@@ -178,6 +178,37 @@ export class GameRuntime {
         this.emitCurrentNodeAnchorsChanged();
     }
 
+    public removeCurrentNodeActor(
+        actorId: string,
+    ): void {
+        const node =
+            getCurrentNode(
+                this.currentRun,
+            );
+
+        const actorIndex =
+            node.actors.findIndex(
+                (actor) => {
+                    return (
+                        actor.id ===
+                        actorId
+                    );
+                },
+            );
+
+        if (actorIndex < 0) {
+            throw new Error(
+                'Current node actor not found: ' +
+                    actorId,
+            );
+        }
+
+        node.actors.splice(
+            actorIndex,
+            1,
+        );
+    }
+
     public jumpPlayerToNode(targetNodeId: string): void {
         const location = this.currentRun.player.location;
 

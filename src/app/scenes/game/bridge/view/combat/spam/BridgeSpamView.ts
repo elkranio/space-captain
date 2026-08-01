@@ -9,6 +9,7 @@ import type { SpriteEntry } from '../../../../../../manifests/types';
 import type BridgeScene from '../../../BridgeScene';
 import {
     BRIDGE_EVENT,
+    type BridgeEnemyShipDestructionPayload,
     type BridgeSpamChannelEndedPayload,
     type BridgeSpamChannelStartedPayload,
 } from '../../../events/bridge_event';
@@ -75,6 +76,14 @@ export default class BridgeSpamView {
             this,
         );
 
+        this.eventBus.on(
+            BRIDGE_EVENT
+                .ENEMY_SHIP_DESTRUCTION_STARTED,
+
+            this.handleEnemyShipDestruction,
+            this,
+        );
+
         this.scene.events.on(
             Phaser.Scenes.Events.UPDATE,
             this.handleSceneUpdate,
@@ -92,6 +101,14 @@ export default class BridgeSpamView {
         this.eventBus.off(
             BRIDGE_EVENT.SPAM_CHANNEL_ENDED,
             this.handleSpamChannelEnded,
+            this,
+        );
+
+        this.eventBus.off(
+            BRIDGE_EVENT
+                .ENEMY_SHIP_DESTRUCTION_STARTED,
+
+            this.handleEnemyShipDestruction,
             this,
         );
 
@@ -158,6 +175,29 @@ export default class BridgeSpamView {
         this.spawnElapsedMs = 0;
 
         this.closeAllPopups(payload.outcome);
+    }
+
+    private handleEnemyShipDestruction(
+        _payload:
+            BridgeEnemyShipDestructionPayload,
+    ): void {
+        this.closeSequenceId += 1;
+
+        this.activeChannelIds.clear();
+
+        this.spawnElapsedMs = 0;
+        this.nextSpawnDelayMs = 0;
+
+        this.visiblePopups.length = 0;
+
+        for (
+            const popup of
+            this.popupViews
+        ) {
+            popup.destroy();
+        }
+
+        this.popupViews.clear();
     }
 
     private handleSceneUpdate(

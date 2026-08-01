@@ -21,6 +21,7 @@ import {
     BRIDGE_EVENT,
     type BridgeDockingCompletedPayload,
     type BridgeEncounterJumpPayload,
+    type BridgeEnemyShipDestructionPayload,
     type BridgeEncounterTravelCompletedPayload,
     type BridgeOfficerCommandMenuRefreshRequestedPayload,
     type BridgeOfficerCommandSelectedPayload,
@@ -134,6 +135,14 @@ export default class BridgeEncounterController {
         this.eventBus.on(BRIDGE_EVENT.ENCOUNTER_JUMP_COMPLETED, this.handleEncounterJumpCompleted, this);
 
         this.eventBus.on(BRIDGE_EVENT.DOCKING_ANIMATION_COMPLETED, this.handleDockingAnimationCompleted, this);
+
+        this.eventBus.on(
+            BRIDGE_EVENT
+                .ENEMY_SHIP_DESTRUCTION_COMPLETED,
+
+            this.handleEnemyShipDestructionCompleted,
+            this,
+        );
     }
 
     private unregisterBridgeEventHandlers(): void {
@@ -154,6 +163,14 @@ export default class BridgeEncounterController {
         this.eventBus.off(BRIDGE_EVENT.ENCOUNTER_JUMP_COMPLETED, this.handleEncounterJumpCompleted, this);
 
         this.eventBus.off(BRIDGE_EVENT.DOCKING_ANIMATION_COMPLETED, this.handleDockingAnimationCompleted, this);
+
+        this.eventBus.off(
+            BRIDGE_EVENT
+                .ENEMY_SHIP_DESTRUCTION_COMPLETED,
+
+            this.handleEnemyShipDestructionCompleted,
+            this,
+        );
     }
 
     // #endregion
@@ -287,6 +304,16 @@ export default class BridgeEncounterController {
         this.eventBus.emit(BRIDGE_EVENT.SCENE_TRANSITION_REQUESTED, {
             sceneKey: SCENE_KEY.END,
         });
+    }
+
+    private handleEnemyShipDestructionCompleted(
+        _payload:
+            BridgeEnemyShipDestructionPayload,
+    ): void {
+        this.isEncounterInteractive = true;
+
+        this.officerStationsController
+            ?.sync();
     }
 
     // #endregion
