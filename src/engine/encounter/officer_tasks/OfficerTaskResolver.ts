@@ -16,6 +16,14 @@ type CommsRequestDockingTaskState = Extract<
     }
 >;
 
+type WeaponsFireLaserTaskState = Extract<
+    OfficerTaskState,
+    {
+        kind:
+            typeof OFFICER_TASK_KIND.WEAPONS_FIRE_LASER;
+    }
+>;
+
 type ClearStickyMineTaskState = Extract<
     OfficerTaskState,
     {
@@ -113,6 +121,11 @@ export default class OfficerTaskResolver {
             case OFFICER_TASK_KIND.WEAPONS_POINT_DEFENSE:
                 return this.resolveWeaponsPointDefenseTask(task);
 
+            // Player weapon lifecycle
+            // завершит task снаружи.
+            case OFFICER_TASK_KIND.WEAPONS_FIRE_LASER:
+                return undefined;
+
             case OFFICER_TASK_KIND.CLEAR_STICKY_MINE:
                 return this.resolveClearStickyMineTask(task);
 
@@ -124,6 +137,30 @@ export default class OfficerTaskResolver {
             default:
                 return this.assertNever(task);
         }
+    }
+
+    public cancel(
+        task: OfficerTaskState,
+    ): void {
+        if (
+            task.kind !==
+            OFFICER_TASK_KIND
+                .WEAPONS_FIRE_LASER
+        ) {
+            return;
+        }
+
+        this.cancelWeaponsFireLaserTask(
+            task,
+        );
+    }
+
+    private cancelWeaponsFireLaserTask(
+        task: WeaponsFireLaserTaskState,
+    ): void {
+        this.stateStore.resetPlayerWeapon(
+            task.weaponId,
+        );
     }
 
     private resolveCommsRequestDockingTask(task: CommsRequestDockingTaskState): OfficerTaskResult {

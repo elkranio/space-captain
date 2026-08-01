@@ -124,6 +124,18 @@ export default class OfficerCommandExecutor {
                     availableTarget.actorId === inputTarget.actorId
                 );
 
+            case OFFICER_COMMAND_TARGET_KIND.ACTOR_LASER_ZONE:
+                return (
+                    inputTarget.kind ===
+                        OFFICER_COMMAND_TARGET_KIND.ACTOR_LASER_ZONE &&
+                    availableTarget.weaponId ===
+                        inputTarget.weaponId &&
+                    availableTarget.actorId ===
+                        inputTarget.actorId &&
+                    availableTarget.targetZone ===
+                        inputTarget.targetZone
+                );
+
             case OFFICER_COMMAND_TARGET_KIND.THREAT:
                 return (
                     inputTarget.kind === OFFICER_COMMAND_TARGET_KIND.THREAT &&

@@ -20,7 +20,12 @@ import {
     type ShipDriveState,
 } from '../../defs/ship_drive';
 import type { ShipChassisId } from '../../defs/ship_chassis';
-import type { ShipWeaponState } from '../../defs/ship_weapon';
+import {
+    SHIP_WEAPON_KIND,
+    SHIP_WEAPON_PHASE,
+    type LaserWeaponState,
+    type ShipWeaponState,
+} from '../../defs/ship_weapon';
 import type { SpaceNodeState } from '../../defs/universe';
 import { ENCOUNTER_ACTOR_KIND, type EncounterActorState } from '../actors/encounter_actor';
 import type { ShipEncounterActorState } from '../actors/ship/ship_encounter_actor';
@@ -435,6 +440,87 @@ export default class EncounterStateStore {
     // #endregion
 
     // #region Combat
+
+    public startPlayerLaserTargeting(
+        weaponId: string,
+    ): LaserWeaponState {
+        const weapon =
+            this.state.combat
+                .playerWeapons
+                .find((candidate) => {
+                    return (
+                        candidate.id ===
+                        weaponId
+                    );
+                });
+
+        if (!weapon) {
+            throw new Error(
+                'Player weapon not found: ' +
+                    weaponId,
+            );
+        }
+
+        if (
+            weapon.kind !==
+            SHIP_WEAPON_KIND.LASER
+        ) {
+            throw new Error(
+                'Player weapon is not a laser: ' +
+                    weaponId +
+                    '/' +
+                    weapon.kind,
+            );
+        }
+
+        if (
+            weapon.phase !==
+            SHIP_WEAPON_PHASE.READY
+        ) {
+            throw new Error(
+                'Player laser is not ready: ' +
+                    weaponId +
+                    '/' +
+                    weapon.phase,
+            );
+        }
+
+        weapon.phase =
+            SHIP_WEAPON_PHASE.TARGETING;
+
+        weapon.phaseElapsedMs = 0;
+
+        return {
+            ...weapon,
+        };
+    }
+
+    public resetPlayerWeapon(
+        weaponId: string,
+    ): ShipWeaponState | undefined {
+        const weapon =
+            this.state.combat
+                .playerWeapons
+                .find((candidate) => {
+                    return (
+                        candidate.id ===
+                        weaponId
+                    );
+                });
+
+        if (!weapon) {
+            return undefined;
+        }
+
+        weapon.phase =
+            SHIP_WEAPON_PHASE.READY;
+
+        weapon.phaseElapsedMs = 0;
+
+        return {
+            ...weapon,
+        };
+    }
 
     public identifyThreat(threatId: string): ThreatIdentificationResult | undefined {
         const projectile = this.state.combat.projectiles.find((candidate) => {

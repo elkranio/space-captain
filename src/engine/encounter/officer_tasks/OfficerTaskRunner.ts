@@ -1,5 +1,8 @@
 // src/engine/encounter/officer_tasks/OfficerTaskRunner.ts
 
+import {
+    ENCOUNTER_TEAM,
+} from '../../defs/encounter_team';
 import { OFFICER_ROLE } from '../../defs/officer';
 import { PLAYER_SPACE_NAVIGATION_KIND } from '../../defs/player_location';
 import { ENCOUNTER_EVENT, OFFICER_TASK_OUTCOME, type EncounterEvent, type OfficerTaskResult } from '../model/event';
@@ -119,7 +122,12 @@ export default class OfficerTaskRunner {
             return;
         }
 
-        this.finishTask(task, OFFICER_TASK_OUTCOME.CANCELLED);
+        this.taskResolver.cancel(task);
+
+        this.finishTask(
+            task,
+            OFFICER_TASK_OUTCOME.CANCELLED,
+        );
     };
 
     public interruptRandomTaskByDamage(): void {
@@ -237,6 +245,40 @@ export default class OfficerTaskRunner {
                     OFFICER_TASK_KIND.CLEAR_STICKY_MINE
                 ) {
                     return !activeStickyMineIds.has(task.mineId);
+                }
+
+                if (
+                    task.kind ===
+                    OFFICER_TASK_KIND
+                        .WEAPONS_FIRE_LASER
+                ) {
+                    const targetActor =
+                        state.actors.find(
+                            (actor) => {
+                                return (
+                                    actor.id ===
+                                    task.targetActorId
+                                );
+                            },
+                        );
+
+                    const weapon =
+                        state.combat
+                            .playerWeapons
+                            .find(
+                                (candidate) => {
+                                    return (
+                                        candidate.id ===
+                                        task.weaponId
+                                    );
+                                },
+                            );
+
+                    return (
+                        targetActor?.team !==
+                            ENCOUNTER_TEAM.ENEMY ||
+                        !weapon
+                    );
                 }
 
                 return false;

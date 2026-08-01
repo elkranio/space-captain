@@ -152,6 +152,35 @@ export function createWeaponsPointDefenseTask(
     };
 }
 
+export function createWeaponsFireLaserTask(
+    weaponId: string,
+    targetActorId: string,
+    targetZone: LaserTargetZone,
+): OfficerTaskDraft {
+    return {
+        kind:
+            OFFICER_TASK_KIND
+                .WEAPONS_FIRE_LASER,
+
+        role: OFFICER_ROLE.WEAPONS,
+
+        sourceCommandId:
+            ENCOUNTER_OFFICER_COMMAND_ID
+                .WEAPONS_FIRE_LASER,
+
+        weaponId,
+        targetActorId,
+        targetZone,
+
+        label: 'LASER AIM',
+        showProgress: false,
+
+        // Завершится через player weapon
+        // lifecycle, а не обычный timer.
+        durationMs: null,
+    };
+}
+
 export function createClearStickyMineTask(
     role: OfficerRole,
     mineId: string,

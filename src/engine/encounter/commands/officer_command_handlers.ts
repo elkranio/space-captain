@@ -21,6 +21,9 @@ import {
     weaponsFireBlueBeamCommandHandler,
     weaponsFireRedBeamCommandHandler,
 } from './handlers/weapons_point_defense_command_handler';
+import {
+    weaponsFireLaserCommandHandler,
+} from './handlers/weapons_fire_laser_command_handler';
 
 const OFFICER_COMMAND_HANDLER_BY_ID = {
     [ENCOUNTER_OFFICER_COMMAND_ID.CLEAR_STICKY_MINE]: clearStickyMineCommandHandler,
@@ -46,6 +49,9 @@ const OFFICER_COMMAND_HANDLER_BY_ID = {
     [ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_RED_BEAM]: weaponsFireRedBeamCommandHandler,
 
     [ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_BLUE_BEAM]: weaponsFireBlueBeamCommandHandler,
+
+    [ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_LASER]:
+        weaponsFireLaserCommandHandler,
 
     [ENCOUNTER_OFFICER_COMMAND_ID.HELM_DOCK]: helmDockCommandHandler,
 
