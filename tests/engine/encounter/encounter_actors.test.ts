@@ -127,6 +127,8 @@ describe('encounter actors', () => {
                 ...shieldGenerator,
             },
 
+            crewTasks: {},
+
             hasUsedOpeningDisruptionPulse: false,
 
             weapons: [],
@@ -354,6 +356,8 @@ describe('encounter actors', () => {
                                     ...nodeActor
                                         .shieldGenerator,
                                 },
+
+                                crewTasks: {},
 
                                 hasUsedOpeningDisruptionPulse:
                                     false,

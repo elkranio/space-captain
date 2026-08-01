@@ -12,6 +12,9 @@ import type {
 import type {
     ShipWeaponState,
 } from '../../../defs/ship_weapon';
+import type {
+    ShipCrewTaskStates,
+} from '../../model/ship_crew_task';
 import {
     ENCOUNTER_ACTOR_KIND,
     type EncounterActorBaseState,
@@ -36,6 +39,10 @@ export type ShipEncounterActorState =
         drive: ShipDriveState;
         shieldGenerator:
             ShieldGeneratorState;
+
+        // Абстрактные задачи экипажа NPC-корабля.
+        // Persistent universe state их не хранит.
+        crewTasks: ShipCrewTaskStates;
 
         // Одноразовое opening action этого ship
         // внутри текущего encounter.

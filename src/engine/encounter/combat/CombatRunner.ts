@@ -5,9 +5,7 @@ import {
     SHIP_WEAPONS,
     SHIP_WEAPON_TARGETING_DURATION_MS,
 } from '../../content/catalogs/ship_weapons';
-import { ENCOUNTER_TEAM } from '../../defs/encounter_team';
 import { LASER_TARGET_ZONES, type LaserTargetZone } from '../../defs/laser';
-import { PLAYER_SPACE_NAVIGATION_KIND } from '../../defs/player_location';
 import {
     SHIP_WEAPON_KIND,
     SHIP_WEAPON_PHASE,
@@ -36,6 +34,7 @@ import {
 } from '../model/combat';
 import { ENCOUNTER_EVENT, type EncounterEvent } from '../model/event';
 import type { EncounterState } from '../model/state';
+import EnemyTaskScheduler from './EnemyTaskScheduler';
 
 type CombatRunnerOptions = {
     state: EncounterState;
@@ -48,7 +47,7 @@ type CombatRunnerOptions = {
 
 // Владеет боевым циклом encounter:
 //
-// - принимает простые решения за enemy ships;
+// - исполняет решения enemy task scheduler;
 // - управляет lifecycle установленного оружия;
 // - создаёт и двигает projectiles;
 // - управляет активными laser attacks;
@@ -65,6 +64,9 @@ export default class CombatRunner {
     private readonly random: () => number;
 
     private readonly interruptRandomOfficerTask: () => void;
+
+    private readonly enemyTaskScheduler:
+        EnemyTaskScheduler;
 
     private nextProjectileId = 1;
     private nextLaserAttackId = 1;
@@ -89,6 +91,12 @@ export default class CombatRunner {
         this.random = random;
 
         this.interruptRandomOfficerTask = interruptRandomOfficerTask;
+
+        this.enemyTaskScheduler =
+            new EnemyTaskScheduler({
+                state: this.state,
+                emit: this.emit,
+            });
     }
 
     public step(deltaMs: number): void {
@@ -98,8 +106,10 @@ export default class CombatRunner {
         this.advanceProjectiles(deltaMs);
         this.advanceStickyMines(deltaMs);
 
-        this.startEnemyWeaponTargeting();
+        this.enemyTaskScheduler.schedule();
         this.advanceWeapons(deltaMs);
+        this.enemyTaskScheduler
+            .synchronizeTasks();
     }
 
     public getSpamChannels(): SpamChannelState[] {
@@ -151,6 +161,9 @@ export default class CombatRunner {
                     SPAM_CHANNEL_OUTCOME.PURGED,
                 );
 
+                this.enemyTaskScheduler
+                    .synchronizeTasks();
+
                 return true;
             }
         }
@@ -175,81 +188,6 @@ export default class CombatRunner {
 
         return true;
     }
-
-    // #region Enemy decisions
-
-    private startEnemyWeaponTargeting(): void {
-        const navigation = this.state.navigation;
-
-        if (navigation.kind !== PLAYER_SPACE_NAVIGATION_KIND.ANCHORED) {
-            return;
-        }
-
-        for (const actor of this.state.actors) {
-            if (actor.team !== ENCOUNTER_TEAM.ENEMY) {
-                continue;
-            }
-
-            if (actor.anchorId !== navigation.anchorId) {
-                continue;
-            }
-
-            if (this.hasActiveWeapon(actor)) {
-                continue;
-            }
-
-            const weapon = actor.weapons.find((candidate) => {
-                return this.canTargetWeapon(candidate);
-            });
-
-            if (!weapon) {
-                continue;
-            }
-
-            weapon.phase = SHIP_WEAPON_PHASE.TARGETING;
-            weapon.phaseElapsedMs = 0;
-
-            this.emit({
-                type: ENCOUNTER_EVENT.PLAYER_SHIP_TARGETING_DETECTED,
-
-                sourceActorId: actor.id,
-                sourceWeaponId: weapon.id,
-            });
-        }
-    }
-
-    private hasActiveWeapon(actor: ShipEncounterActorState): boolean {
-        return actor.weapons.some((weapon) => {
-            return (
-                weapon.phase === SHIP_WEAPON_PHASE.TARGETING ||
-                weapon.phase === SHIP_WEAPON_PHASE.CHARGING ||
-                weapon.phase === SHIP_WEAPON_PHASE.CHANNELING ||
-                weapon.phase === SHIP_WEAPON_PHASE.DISPENSING
-            );
-        });
-    }
-
-    private canTargetWeapon(weapon: ShipWeaponState): boolean {
-        if (weapon.phase !== SHIP_WEAPON_PHASE.READY) {
-            return false;
-        }
-
-        switch (weapon.kind) {
-            case SHIP_WEAPON_KIND.MISSILE_LAUNCHER:
-                return weapon.loadedMissileId !== null && weapon.ammoCount > 0;
-
-            case SHIP_WEAPON_KIND.LASER:
-                return true;
-
-            case SHIP_WEAPON_KIND.SPAM_PROJECTOR:
-                return weapon.activeChannelId === null;
-
-            case SHIP_WEAPON_KIND.STICKY_MINE_DISPENSER:
-                return true;
-        }
-    }
-
-    // #endregion
 
     // #region Weapon lifecycle
 

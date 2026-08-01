@@ -202,6 +202,8 @@ export default class EncounterStateStore {
                 ...shieldGenerator,
             },
 
+            crewTasks: {},
+
             hasUsedOpeningDisruptionPulse: false,
 
             weapons: weapons.map((weapon) => {
