@@ -34,6 +34,9 @@ import {
     OFFICER_COMMAND_TARGET_KIND,
 } from '../../../src/engine/encounter/model/command';
 import {
+    LASER_SHOT_OUTCOME,
+} from '../../../src/engine/encounter/model/combat';
+import {
     ENCOUNTER_EVENT,
     OFFICER_TASK_OUTCOME,
 } from '../../../src/engine/encounter/model/event';
@@ -250,8 +253,10 @@ describe('Player laser lifecycle', () => {
             targetZone:
                 LASER_TARGET_ZONE.CENTER,
 
-            damage:
-                laserDefinition.damage,
+            outcome:
+                LASER_SHOT_OUTCOME.BLOCKED,
+
+            remainingShieldCharges: 2,
         });
 
         expect(fireEvents).toContainEqual(

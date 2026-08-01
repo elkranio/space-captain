@@ -19,6 +19,9 @@ import {
     type ShipWeaponState,
 } from '../../defs/ship_weapon';
 import {
+    LASER_SHOT_OUTCOME,
+} from '../model/combat';
+import {
     ENCOUNTER_EVENT,
     type EncounterEvent,
 } from '../model/event';
@@ -37,6 +40,21 @@ type WeaponsFireLaserTaskState = Extract<
                 .WEAPONS_FIRE_LASER;
     }
 >;
+
+type PlayerLaserImpact =
+    | {
+          outcome:
+              typeof LASER_SHOT_OUTCOME.BLOCKED;
+
+          remainingShieldCharges: number;
+      }
+    | {
+          outcome:
+              typeof LASER_SHOT_OUTCOME.HIT;
+
+          damage: number;
+          remainingHull: number;
+      };
 
 type PlayerWeaponRunnerOptions = {
     stateStore: EncounterStateStore;
@@ -278,6 +296,15 @@ export default class PlayerWeaponRunner {
 
         laser.phaseElapsedMs = 0;
 
+        // Damage разрешается до события,
+        // чтобы telemetry в этом же step
+        // увидела уже новое состояние цели.
+        const impact =
+            this.resolveLaserImpact(
+                task,
+                definition.damage,
+            );
+
         this.emit({
             type:
                 ENCOUNTER_EVENT
@@ -291,12 +318,77 @@ export default class PlayerWeaponRunner {
             targetZone:
                 task.targetZone,
 
-            damage: definition.damage,
+            ...impact,
         });
 
         // Weapons освобождается сразу после выстрела.
         // Cooldown не занимает офицера.
         this.completeOfficerTask(task.id);
+    }
+
+    private resolveLaserImpact(
+        task: WeaponsFireLaserTaskState,
+        damage: number,
+    ): PlayerLaserImpact {
+        const target =
+            this.stateStore.findActorById(
+                task.targetActorId,
+            );
+
+        if (
+            !target ||
+            target.team !==
+                ENCOUNTER_TEAM.ENEMY
+        ) {
+            throw new Error(
+                'Player laser target disappeared ' +
+                    'before impact: ' +
+                    `${task.id}/` +
+                    `${task.targetActorId}`,
+            );
+        }
+
+        if (
+            target.shieldGenerator.charges >
+            0
+        ) {
+            target.shieldGenerator.charges -= 1;
+
+            // Будущая enemy shield regeneration
+            // начнёт новый цикл с момента попадания.
+            target
+                .shieldGenerator
+                .chargeRegenerationElapsedMs = 0;
+
+            return {
+                outcome:
+                    LASER_SHOT_OUTCOME.BLOCKED,
+
+                remainingShieldCharges:
+                    target
+                        .shieldGenerator
+                        .charges,
+            };
+        }
+
+        const appliedDamage =
+            Math.min(
+                damage,
+                target.hull,
+            );
+
+        target.hull = Math.max(
+            0,
+            target.hull - appliedDamage,
+        );
+
+        return {
+            outcome:
+                LASER_SHOT_OUTCOME.HIT,
+
+            damage: appliedDamage,
+            remainingHull: target.hull,
+        };
     }
 
     private findTaskLaser(

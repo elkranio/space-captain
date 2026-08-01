@@ -258,17 +258,36 @@ export type PlayerLaserChargingStartedEvent = {
     chargeDurationMs: number;
 };
 
-export type PlayerLaserFiredEvent = {
-    type:
-        typeof ENCOUNTER_EVENT.PLAYER_LASER_FIRED;
+export type PlayerLaserFiredEvent =
+    | {
+          type:
+              typeof ENCOUNTER_EVENT.PLAYER_LASER_FIRED;
 
-    weaponId: string;
+          weaponId: string;
 
-    targetActorId: string;
-    targetZone: LaserTargetZone;
+          targetActorId: string;
+          targetZone: LaserTargetZone;
 
-    damage: number;
-};
+          outcome:
+              typeof LASER_SHOT_OUTCOME.BLOCKED;
+
+          remainingShieldCharges: number;
+      }
+    | {
+          type:
+              typeof ENCOUNTER_EVENT.PLAYER_LASER_FIRED;
+
+          weaponId: string;
+
+          targetActorId: string;
+          targetZone: LaserTargetZone;
+
+          outcome:
+              typeof LASER_SHOT_OUTCOME.HIT;
+
+          damage: number;
+          remainingHull: number;
+      };
 
 export type MissileLaunchedEvent = {
     type: typeof ENCOUNTER_EVENT.MISSILE_LAUNCHED;
