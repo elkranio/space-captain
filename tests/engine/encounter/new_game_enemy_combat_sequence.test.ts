@@ -15,6 +15,9 @@ import {
     SHIP_BEHAVIOR_PRESET_ID,
 } from '../../../src/engine/content/presets/ship_behaviors';
 import {
+    OFFICER_ROLE,
+} from '../../../src/engine/defs/officer';
+import {
     PLAYER_SPACE_NAVIGATION_KIND,
 } from '../../../src/engine/defs/player_location';
 import {
@@ -43,7 +46,7 @@ const LASER_CHARGE_DURATION_MS =
     ].chargeDurationMs;
 
 describe('New-game enemy combat sequence', () => {
-    it('uses the full combat loadout in deterministic weapons order', () => {
+    it('runs the dev weapons sequence without activating spam', () => {
         const generation =
             NewGameUniverseFactory.create();
 
@@ -116,13 +119,18 @@ describe('New-game enemy combat sequence', () => {
             'spam_projector_00',
         ]);
 
+        expect(
+            enemy.crewRoles,
+        ).not.toContain(
+            OFFICER_ROLE.SCIENCE,
+        );
+
         engine.step(0);
 
         expect(
             drainTargetedWeaponIds(engine),
         ).toEqual([
             'missile_launcher_00',
-            'spam_projector_00',
         ]);
 
         engine.step(

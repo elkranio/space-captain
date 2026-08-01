@@ -2,6 +2,7 @@
 
 import { ASTEROID_OBJECT_SPRITE_ID, type AsteroidState } from '../../defs/asteroid';
 import { BEACON_OBJECT_SPRITE_ID, type NavigationBeaconState } from '../../defs/beacon';
+import { OFFICER_ROLE } from '../../defs/officer';
 import {
     PLAYER_LOCATION_KIND,
     PLAYER_SPACE_NAVIGATION_KIND,
@@ -63,6 +64,32 @@ export default class NewGameUniverseFactory {
             objectSpriteId: ASTEROID_OBJECT_SPRITE_ID.ASTEROID_00,
         };
 
+        const enemyShip =
+            ShipNodeActorFactory.create({
+                id: NEW_GAME_ID.ENEMY_SHIP,
+
+                presetId:
+                    SHIP_NODE_ACTOR_PRESET_ID
+                        .ENEMY_COMBAT_00,
+
+                anchorId:
+                    navigationBeacon.id,
+            });
+
+        // Временно изолируем Weapons-цикл
+        // для читаемого runtime smoke test.
+        // Spam остаётся установлен,
+        // но без Science не запускается.
+        enemyShip.crewRoles =
+            enemyShip.crewRoles.filter(
+                (role) => {
+                    return (
+                        role !==
+                        OFFICER_ROLE.SCIENCE
+                    );
+                },
+            );
+
         const startNode: SpaceNodeState = {
             id: NEW_GAME_ID.START_NODE,
 
@@ -114,16 +141,8 @@ export default class NewGameUniverseFactory {
             ],
 
             actors: [
-                ShipNodeActorFactory.create({
-                    id: NEW_GAME_ID.ENEMY_SHIP,
-
-                    presetId:
-                        SHIP_NODE_ACTOR_PRESET_ID
-                            .ENEMY_COMBAT_00,
-
-                    anchorId: navigationBeacon.id,
-                }),
-            ],
+            enemyShip,
+        ],
         };
 
         const stationNode: SpaceNodeState = {
