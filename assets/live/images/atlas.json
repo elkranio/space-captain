@@ -1,7 +1,7 @@
 {
   "textures": [
     {
-      "image": "atlas-0.png?v=1785616998942",
+      "image": "atlas-0.png?v=1785617564983",
       "format": "RGBA8888",
       "size": {
         "w": 2035,
@@ -1102,27 +1102,6 @@
           }
         },
         {
-          "filename": "combat/missiles/generic_00",
-          "rotated": false,
-          "trimmed": false,
-          "sourceSize": {
-            "w": 85,
-            "h": 60
-          },
-          "spriteSourceSize": {
-            "x": 0,
-            "y": 0,
-            "w": 85,
-            "h": 60
-          },
-          "frame": {
-            "x": 1897,
-            "y": 974,
-            "w": 85,
-            "h": 60
-          }
-        },
-        {
           "filename": "combat/missiles/generic_incoming_00",
           "rotated": false,
           "trimmed": false,
@@ -1464,6 +1443,6 @@
   "meta": {
     "app": "https://www.codeandweb.com/texturepacker",
     "version": "3.0",
-    "smartupdate": "$TexturePacker:SmartUpdate:1e90dbe1be12519eaacd1b20aa6348e9:e1b29d6b3571129122c06c8a35fd6773:cf935fe037ea9b5d3744d532996e235e$"
+    "smartupdate": "$TexturePacker:SmartUpdate:215133a2587bd1d7aba2c7e1ca6f1a5e:adb3e745e25e60d34ffe660d1816df38:cf935fe037ea9b5d3744d532996e235e$"
   }
 }

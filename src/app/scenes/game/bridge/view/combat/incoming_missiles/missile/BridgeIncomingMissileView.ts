@@ -96,7 +96,11 @@ export default class BridgeIncomingMissileView {
 
         parent.add(this.root);
 
-        const sprite = MISSILE_SPRITES[MISSILE_SPRITE_ID.GENERIC_00];
+        const sprite =
+            MISSILE_SPRITES[
+                MISSILE_SPRITE_ID
+                    .GENERIC_INCOMING_00
+            ];
 
         this.image = scene.add
             .image(

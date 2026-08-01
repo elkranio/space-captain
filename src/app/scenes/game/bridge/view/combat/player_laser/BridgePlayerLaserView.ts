@@ -16,8 +16,8 @@ import {
 } from '../../../events/bridge_event';
 import type BridgeEventBus from '../../../events/BridgeEventBus';
 import {
-    BRIDGE_VIEWSCREEN_RECT,
-} from '../../bridge_viewscreen_layout';
+    getBridgePlayerWeaponSourcePosition,
+} from '../bridge_player_weapon_layout';
 import BridgeLaserBeamView from '../laser_beams/beam/BridgeLaserBeamView';
 import BridgeLaserChargeView from '../laser_charge/BridgeLaserChargeView';
 import BridgePlayerLaserImpactView from './impact/BridgePlayerLaserImpactView';
@@ -27,10 +27,6 @@ type GetObjectPosition = (
 ) => Phaser.Math.Vector2 | undefined;
 
 const PLAYER_LASER_LAYOUT = {
-    sourceXRatio: 1 / 2,
-
-    sourceYFromBottom: 18,
-
     targetZoneOffsetX: 30,
 } as const;
 
@@ -346,21 +342,7 @@ export default class BridgePlayerLaserView {
 
     private getSourcePosition():
         Phaser.Math.Vector2 {
-        return new Phaser.Math.Vector2(
-            Math.round(
-                BRIDGE_VIEWSCREEN_RECT.x +
-                    BRIDGE_VIEWSCREEN_RECT
-                        .width *
-                        PLAYER_LASER_LAYOUT
-                            .sourceXRatio,
-            ),
-
-            BRIDGE_VIEWSCREEN_RECT.y +
-                BRIDGE_VIEWSCREEN_RECT
-                    .height -
-                PLAYER_LASER_LAYOUT
-                    .sourceYFromBottom,
-        );
+        return getBridgePlayerWeaponSourcePosition();
     }
 
     private getTargetPosition(
