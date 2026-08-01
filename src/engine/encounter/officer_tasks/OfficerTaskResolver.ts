@@ -16,11 +16,14 @@ type CommsRequestDockingTaskState = Extract<
     }
 >;
 
-type WeaponsFireLaserTaskState = Extract<
+type PlayerWeaponTaskState = Extract<
     OfficerTaskState,
     {
         kind:
-            typeof OFFICER_TASK_KIND.WEAPONS_FIRE_LASER;
+            | typeof OFFICER_TASK_KIND
+                  .WEAPONS_FIRE_MISSILE
+            | typeof OFFICER_TASK_KIND
+                  .WEAPONS_FIRE_LASER;
     }
 >;
 
@@ -123,6 +126,7 @@ export default class OfficerTaskResolver {
 
             // Player weapon lifecycle
             // завершит task снаружи.
+            case OFFICER_TASK_KIND.WEAPONS_FIRE_MISSILE:
             case OFFICER_TASK_KIND.WEAPONS_FIRE_LASER:
                 return undefined;
 
@@ -142,21 +146,23 @@ export default class OfficerTaskResolver {
     public cancel(
         task: OfficerTaskState,
     ): void {
-        if (
-            task.kind !==
-            OFFICER_TASK_KIND
-                .WEAPONS_FIRE_LASER
-        ) {
-            return;
-        }
+        switch (task.kind) {
+            case OFFICER_TASK_KIND
+                .WEAPONS_FIRE_MISSILE:
+            case OFFICER_TASK_KIND
+                .WEAPONS_FIRE_LASER:
+                this.cancelPlayerWeaponTask(
+                    task,
+                );
+                return;
 
-        this.cancelWeaponsFireLaserTask(
-            task,
-        );
+            default:
+                return;
+        }
     }
 
-    private cancelWeaponsFireLaserTask(
-        task: WeaponsFireLaserTaskState,
+    private cancelPlayerWeaponTask(
+        task: PlayerWeaponTaskState,
     ): void {
         this.stateStore.resetPlayerWeapon(
             task.weaponId,

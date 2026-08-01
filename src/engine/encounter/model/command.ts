@@ -34,6 +34,9 @@ export const ENCOUNTER_OFFICER_COMMAND_ID = {
     WEAPONS_FIRE_BLUE_BEAM:
         'weapons_fire_blue_beam',
 
+    WEAPONS_FIRE_MISSILE:
+        'weapons_fire_missile',
+
     WEAPONS_FIRE_LASER:
         'weapons_fire_laser',
 

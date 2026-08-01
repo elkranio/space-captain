@@ -28,6 +28,9 @@ export const OFFICER_TASK_KIND = {
 
     WEAPONS_POINT_DEFENSE: 'weapons_point_defense',
 
+    WEAPONS_FIRE_MISSILE:
+        'weapons_fire_missile',
+
     WEAPONS_FIRE_LASER:
         'weapons_fire_laser',
 
@@ -131,6 +134,23 @@ type WeaponsPointDefenseOfficerTaskDraft = OfficerTaskDraftBase & {
     pointDefenseBeamBand: PointDefenseBeamBand;
 };
 
+type WeaponsFireMissileOfficerTaskDraft =
+    OfficerTaskDraftBase & {
+        kind:
+            typeof OFFICER_TASK_KIND
+                .WEAPONS_FIRE_MISSILE;
+
+        role:
+            typeof OFFICER_ROLE.WEAPONS;
+
+        sourceCommandId:
+            typeof ENCOUNTER_OFFICER_COMMAND_ID
+                .WEAPONS_FIRE_MISSILE;
+
+        weaponId: string;
+        targetActorId: string;
+    };
+
 type WeaponsFireLaserOfficerTaskDraft =
     OfficerTaskDraftBase & {
         kind:
@@ -204,6 +224,7 @@ export type OfficerTaskDraft =
     | EngineerDeployShieldOfficerTaskDraft
     | EngineerRepairDriveOfficerTaskDraft
     | WeaponsPointDefenseOfficerTaskDraft
+    | WeaponsFireMissileOfficerTaskDraft
     | WeaponsFireLaserOfficerTaskDraft
     | ClearStickyMineOfficerTaskDraft
     | HelmDockOfficerTaskDraft
@@ -242,6 +263,7 @@ export function getOfficerTaskCancellationPolicy(
         case OFFICER_TASK_KIND.ENGINEER_DEPLOY_SHIELD:
         case OFFICER_TASK_KIND.ENGINEER_REPAIR_DRIVE:
         case OFFICER_TASK_KIND.WEAPONS_POINT_DEFENSE:
+        case OFFICER_TASK_KIND.WEAPONS_FIRE_MISSILE:
         case OFFICER_TASK_KIND.WEAPONS_FIRE_LASER:
         case OFFICER_TASK_KIND.CLEAR_STICKY_MINE:
         case OFFICER_TASK_KIND.HELM_JUMP:

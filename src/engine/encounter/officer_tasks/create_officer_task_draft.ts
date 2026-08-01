@@ -152,6 +152,33 @@ export function createWeaponsPointDefenseTask(
     };
 }
 
+export function createWeaponsFireMissileTask(
+    weaponId: string,
+    targetActorId: string,
+): OfficerTaskDraft {
+    return {
+        kind:
+            OFFICER_TASK_KIND
+                .WEAPONS_FIRE_MISSILE,
+
+        role: OFFICER_ROLE.WEAPONS,
+
+        sourceCommandId:
+            ENCOUNTER_OFFICER_COMMAND_ID
+                .WEAPONS_FIRE_MISSILE,
+
+        weaponId,
+        targetActorId,
+
+        label: 'MISSILE AIM',
+        showProgress: false,
+
+        // Atom 2 завершит task через
+        // player weapon lifecycle.
+        durationMs: null,
+    };
+}
+
 export function createWeaponsFireLaserTask(
     weaponId: string,
     targetActorId: string,

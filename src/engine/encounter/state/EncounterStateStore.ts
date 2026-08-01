@@ -24,6 +24,7 @@ import {
     SHIP_WEAPON_KIND,
     SHIP_WEAPON_PHASE,
     type LaserWeaponState,
+    type MissileLauncherState,
     type ShipWeaponState,
 } from '../../defs/ship_weapon';
 import type { SpaceNodeState } from '../../defs/universe';
@@ -510,6 +511,73 @@ export default class EncounterStateStore {
     // #endregion
 
     // #region Combat
+
+    public startPlayerMissileTargeting(
+        weaponId: string,
+    ): MissileLauncherState {
+        const weapon =
+            this.state.combat
+                .playerWeapons
+                .find((candidate) => {
+                    return (
+                        candidate.id ===
+                        weaponId
+                    );
+                });
+
+        if (!weapon) {
+            throw new Error(
+                'Player weapon not found: ' +
+                    weaponId,
+            );
+        }
+
+        if (
+            weapon.kind !==
+            SHIP_WEAPON_KIND
+                .MISSILE_LAUNCHER
+        ) {
+            throw new Error(
+                'Player weapon is not a missile launcher: ' +
+                    weaponId +
+                    '/' +
+                    weapon.kind,
+            );
+        }
+
+        if (
+            weapon.phase !==
+            SHIP_WEAPON_PHASE.READY
+        ) {
+            throw new Error(
+                'Player missile launcher is not ready: ' +
+                    weaponId +
+                    '/' +
+                    weapon.phase,
+            );
+        }
+
+        if (
+            weapon.loadedMissileId === null ||
+            weapon.ammoCount <= 0
+        ) {
+            throw new Error(
+                'Player missile launcher is empty: ' +
+                    weaponId +
+                    '/' +
+                    weapon.ammoCount,
+            );
+        }
+
+        weapon.phase =
+            SHIP_WEAPON_PHASE.TARGETING;
+
+        weapon.phaseElapsedMs = 0;
+
+        return {
+            ...weapon,
+        };
+    }
 
     public startPlayerLaserTargeting(
         weaponId: string,

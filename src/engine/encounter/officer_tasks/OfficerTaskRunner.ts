@@ -249,8 +249,11 @@ export default class OfficerTaskRunner {
 
                 if (
                     task.kind ===
-                    OFFICER_TASK_KIND
-                        .WEAPONS_FIRE_LASER
+                        OFFICER_TASK_KIND
+                            .WEAPONS_FIRE_MISSILE ||
+                    task.kind ===
+                        OFFICER_TASK_KIND
+                            .WEAPONS_FIRE_LASER
                 ) {
                     const targetActor =
                         state.actors.find(
