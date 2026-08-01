@@ -13,12 +13,12 @@ Update it at the end of the chat when any of the following changes:
 - important collaboration rules;
 - latest verified commit.
 
-Last updated: 2026-08-01
+Last updated: 2026-08-02
 
 Latest verified `master`:
 
 ```text
-66e5caadd0594cc0bc81dc3f429be9cce020b946
+5935cbdbcd0d48483acd3e1271484c0b1aff140b
 ```
 
 Current verification state:
@@ -26,8 +26,10 @@ Current verification state:
 ```text
 typecheck green
 tests green
-latest loadout-only atom does not require runtime smoke
-enemy destruction / no-resurrection runtime acceptance passed
+player missile runtime acceptance passed
+direct hull impact verified while enemy shield remains unchanged
+weapon ammo / phase / cooldown status verified in runtime
+player missile slice closed
 ```
 
 ---
@@ -117,7 +119,7 @@ Code delivery:
 - transformations must be fully validated before any source file is written;
 - scripts self-delete only after successful apply.
 
-Apply-script process after the recent missile-source/loadout work:
+Apply-script process:
 
 1. Read fresh HEAD.
 2. Search all affected usages and full-snapshot tests before writing the script.
@@ -127,6 +129,8 @@ Apply-script process after the recent missile-source/loadout work:
 6. Stage all edits in memory.
 7. Validate exact replacement counts and final invariants.
 8. Write only after all validation succeeds.
+9. After revising an apply script, audit the whole script for stale identifiers and stale section markers.
+10. When an apply fails, re-check the complete transform instead of patching only the reported line.
 
 Meaning of common user messages:
 
@@ -519,9 +523,9 @@ Manual runtime verification of bridge reconstruction during an active weapon coo
 
 ---
 
-# 12. Generic missile model
+# 12. Missile model and presentation boundary
 
-`MissileCombatProjectileState` now uses a generic source:
+`MissileCombatProjectileState` supports both sources:
 
 ```ts
 source:
@@ -529,143 +533,173 @@ source:
     | { kind: 'player_ship' }
 ```
 
-Missile target already supports player ship or actor targets.
-
-Existing incoming-missile behavior remains actor-sourced.
-
-Science identification and point-defense command filters explicitly accept only:
+Incoming-threat rules remain strict:
 
 ```text
 actor-sourced missile
 → targeted at player ship
+→ may appear in Science identification and player point-defense commands
 ```
 
-A future player missile must not appear as an incoming threat.
+Player missiles use a separate presentation contract:
 
-The current bridge handler for `MISSILE_LAUNCHED` still assumes an actor-sourced incoming missile and rejects a player source.
+- `PLAYER_MISSILE_LAUNCHED`;
+- `PLAYER_MISSILE_RESOLVED`;
+- `OUTGOING_MISSILE_ADDED`;
+- `OUTGOING_MISSILES_UPDATED`;
+- `OUTGOING_MISSILE_REMOVED`.
 
-The player missile slice must address this event/presentation boundary deliberately rather than passing a player projectile through the incoming-missile path unchanged.
+Incoming and outgoing missile views do not share lifecycle events.
+
+Current atlas frames:
+
+```text
+combat/missiles/generic_incoming_00
+combat/missiles/generic_outgoing_00
+```
+
+The outgoing sprite is authored nose-up and is rotated by the view along its trajectory.
+
+Flying missiles remain encounter-local.
 
 ---
 
-# 13. Starter player missile launcher
+# 13. Player missile offense
 
-The starter ship now has two installed weapons:
+Player missile offense V0 is implemented and runtime-verified.
 
-```text
-laser_player_00
-missile_launcher_player_00
-```
-
-The missile launcher uses:
+Current flow:
 
 ```text
-MISSILE_LAUNCHER_PRESET_ID.BASIC_RED_FULL_00
+launcher READY + ammo > 0 + live enemy
+→ Weapons chooses FIRE MISSILE
+→ Weapons performs MISSILE AIM
+→ cancellation before launch spends no ammo
+→ launch spends one missile
+→ Weapons becomes free immediately
+→ launcher enters cooldown
+→ missile flies independently
+→ live target takes direct hull damage
+→ existing enemy destruction flow may trigger
 ```
 
-Current launcher state at new game:
+Locked impact rule:
 
 ```text
-kind: missile_launcher
-weaponId: missile_launcher_00
-loadedMissileId: red_00
-ammoCount: 5
-phase: ready
-phaseElapsedMs: 0
+enemy shield generator does not interact with missiles
+point defense is the missile counter
 ```
 
-Initialization goes through `MissileLauncherFactory`.
+Enemy point defense is not implemented yet.
 
-The player ship preset points to a launcher preset rather than duplicating missile/ammunition content.
+Target-loss rules:
 
-Typecheck and tests are green.
+- target disappears during aiming → cancel/reset, no ammunition spent;
+- target disappears after launch → projectile disappears without damage.
 
-No player missile command or projectile lifecycle has been implemented yet.
+Persistence rules:
+
+- launcher phase, phase elapsed time and ammunition persist through player weapon synchronization;
+- the flying projectile does not persist outside the encounter.
+
+Starter launcher:
+
+```text
+runtime id: missile_launcher_player_00
+weapon: missile_launcher_00
+loaded missile: red_00
+capacity: 5
+```
+
+Player weapon status is visible in the temporary bridge panel:
+
+```text
+LASER READY / AIM / CHG / CD
+MISSILE current/max READY / AIM / CD / EMPTY
+```
+
+The UI-only `EMPTY` label means:
+
+```text
+domain phase READY + ammoCount 0
+```
+
+There is no separate domain `EMPTY` phase.
 
 ---
 
 # 14. Current checkpoint
 
-Latest completed atoms:
+Latest completed slice:
 
 ```text
-generic missile source
-→ starter player missile launcher in loadout
+PLAYER MISSILE OFFENSE V0
 ```
 
-Verified:
+Completed and verified:
 
-- existing enemy missiles still use actor source;
-- threat identification ignores player-sourced missiles;
-- point defense ignores player-sourced missiles;
-- projectile snapshots detach nested source/target/identification objects;
-- starter ship creates a fully loaded RED launcher;
-- launcher state is fresh for every new run;
-- full player weapon arrays are preserved by runtime persistence tests;
-- laser command tests preserve the untouched launcher;
-- typecheck passes;
-- tests pass.
+- explicit FIRE MISSILE command and cancellable aiming task;
+- ammunition spent only at launch;
+- Weapons released immediately after launch;
+- independent launcher cooldown;
+- encounter-local outgoing projectile;
+- target-loss cleanup;
+- direct enemy hull damage;
+- enemy shield charges remain unchanged;
+- existing enemy destruction integration;
+- dedicated outgoing missile sprite and flight presentation;
+- incoming/outgoing manifest split;
+- player laser and missile ammunition/phase/countdown status;
+- runtime verification of the complete player missile flow;
+- typecheck green;
+- tests green.
 
 Latest verified commit:
 
 ```text
-66e5caadd0594cc0bc81dc3f429be9cce020b946
+5935cbdbcd0d48483acd3e1271484c0b1aff140b
 ```
+
+Deferred player missile polish lives in `BACKLOG.md`.
+
+The temporary player-missile handoff is closed and removed by this documentation update.
 
 ---
 
 # 15. Next selected slice
 
-Next task:
+Next selected work:
 
 ```text
-PLAYER MISSILE OFFENSE
+STICKY MINES — NEXT PASS
 ```
 
-Locked gameplay direction:
+Important starting fact:
 
 ```text
-launcher READY + ammo > 0 + live enemy
-→ Weapons can choose FIRE MISSILE
-→ Weapons performs missile aiming
-→ cancellation before launch spends no ammo
-→ launch spends one missile
-→ Weapons becomes free immediately
-→ launcher enters cooldown
-→ projectile flies independently toward the enemy
-→ enemy shield does not interact with missiles
-→ hull takes damage on impact
-→ normal enemy destruction flow may trigger
+enemy sticky mines already exist
 ```
 
-Target rules:
+Current implementation already includes:
 
-- one current hostile actor;
-- no target-zone choice for the first missile version;
-- if the target disappears during aiming, the task ends without spending ammo;
-- if the target disappears after launch, the outgoing missile self-destructs/disappears;
-- enemy shield generator does not interact with missiles; point defense is the missile counter.
+- sequential mine dispensing;
+- mines attached to the player hull;
+- fuse countdown and detonation;
+- automatic selection of the mine nearest detonation;
+- clearing by allowed officers;
+- a visible clearing marker;
+- encounter-local mine lifecycle.
 
-Persistence rules:
+Do not reimplement the existing mine slice from memory.
 
-- launcher mutable state persists through existing player weapon synchronization;
-- the flying missile is encounter-local and must not persist.
+At the start of the next chat:
 
-Out of scope for this slice:
+1. Read fresh `PROJECT_CONTEXT.md` and `BACKLOG.md`.
+2. Inspect current sticky-mine engine, commands, tests and views.
+3. State clearly what already works.
+4. Lock the exact next mine atom before code.
 
-- enemy point defense;
-- enemy evasive behavior;
-- enemy Engineer shield decisions;
-- general enemy defense policy;
-- missile resupply;
-- multiple player missile types;
-- final outgoing-missile art until the view atom.
-
-Detailed handoff and implementation order:
-
-```text
-PLAYER_MISSILE_HANDOFF.md
-```
+The phrase “do mines” alone must not be expanded into an assumed player mine weapon, rebalance or visual rewrite without discussion.
 
 ---
 
@@ -688,7 +722,6 @@ At the start of the next chat, read:
 ```text
 PROJECT_CONTEXT.md
 BACKLOG.md
-PLAYER_MISSILE_HANDOFF.md
 ```
 
 Then inspect fresh `master` before proposing code.

@@ -8,7 +8,7 @@ An item moves into active implementation only after it is selected explicitly.
 
 Keep items concrete enough that they remain understandable in a future chat.
 
-Last updated: 2026-08-01
+Last updated: 2026-08-02
 
 ---
 
@@ -17,30 +17,30 @@ Last updated: 2026-08-01
 Current selected slice:
 
 ```text
-PLAYER MISSILE OFFENSE
+STICKY MINES — NEXT PASS
 ```
 
-The active contract and implementation order are kept in:
+No temporary handoff file exists yet.
 
-```text
-PLAYER_MISSILE_HANDOFF.md
-```
+Current sticky-mine behavior is already implemented, so the next chat must begin with an implementation inventory rather than assuming a fresh slice.
 
-Do not duplicate the active atom plan here.
+Before code, decide explicitly whether the selected atom is:
 
-When the slice closes:
+- a mechanic correction;
+- balancing;
+- presentation polish;
+- cleanup/refactor;
+- or a new player-facing mine mechanic.
 
-- remove or archive the handoff file;
-- update `PROJECT_CONTEXT.md`;
-- move only genuinely deferred discoveries back into this backlog.
+Do not infer “player mines” merely from the word “mines”.
 
 ---
 
-# 2. Immediate follow-up after player missile
+# 2. Near-term combat follow-ups
 
 ## Enemy defense behavior pass
 
-Do not add enemy countermeasures inside the first player missile slice.
+Player missile V0 is complete. Enemy countermeasures remain a separate future behavior pass.
 
 The later behavior pass should decide how enemy policy uses available defensive roles and systems.
 
@@ -69,7 +69,7 @@ The development enemy currently removes SCIENCE from local crew roles.
 
 The Spam Projector remains installed but cannot operate.
 
-Restore SCIENCE after the player missile slice and its runtime acceptance are complete.
+Player missile runtime acceptance is complete. Restore SCIENCE when combined combat pressure becomes the selected task.
 
 Then verify combined pressure:
 
@@ -94,7 +94,7 @@ fire a player weapon
 → weapon must not reset to READY
 ```
 
-This is awkward to trigger and does not block the current missile implementation.
+This is awkward to trigger and does not block the next selected work.
 
 Perform it during a broader combat acceptance pass.
 
@@ -113,7 +113,7 @@ Possible improvement:
 - reticle lock;
 - low-intensity pre-charge effect.
 
-Do not mix this into player missile work.
+Keep this separate from the next mine slice.
 
 ---
 
@@ -234,30 +234,32 @@ Do not add automatic refill unless prototype testing requires it explicitly.
 
 ---
 
-## Outgoing missile art and presentation polish
+## Player missile presentation polish
 
-The first player missile view needs a dedicated outgoing sprite.
+Status:
 
-Draw it only when the view atom is ready so the required:
+- dedicated incoming and outgoing missile sprites are implemented;
+- manifest IDs are explicit;
+- outgoing flight and perspective scaling are implemented;
+- direct hull impact is runtime-verified;
+- weapon ammunition and cooldown state are visible.
 
-- direction;
-- size;
-- launch point;
-- target scale;
-- frame name;
-- atlas path
+Deferred polish:
 
-are known.
+- launch flash at the player weapon source;
+- short hull-impact flash;
+- target-lost disappearance/self-destruction effect;
+- optional tuning of flight path, scale curve and timing.
 
-Potential presentation elements:
+Locked rule:
 
-- launch flash at the player mount;
-- step-based flight;
-- enemy impact;
-- shield block;
-- target-lost self-destruction.
+```text
+player missile impact has no shield-block presentation
+```
 
-Avoid reusing the incoming missile sprite blindly if perspective/readability differ.
+Enemy shields do not interact with missiles.
+
+Do not reopen the completed missile slice merely to add these effects. Select them as a presentation atom later.
 
 ---
 
