@@ -107,6 +107,7 @@ export default class BridgeEncounterController {
         this.syncStickyMines();
         this.syncLaserThreats();
         this.syncPlayerShield();
+        this.syncEnemyShipTelemetry();
 
         this.officerStationsController?.step(deltaMs);
     }
@@ -192,6 +193,7 @@ export default class BridgeEncounterController {
         this.officerStationsController = new BridgeOfficerStationsController(this.encounterEngine, this.eventBus);
 
         this.drainEncounterEvents();
+        this.syncEnemyShipTelemetry();
 
         if (this.isEncounterInteractive) {
             this.engageHostileActors();
@@ -297,6 +299,49 @@ export default class BridgeEncounterController {
         const events = this.encounterEngine.drainEvents();
 
         this.engineEventHandler.handle(events);
+    }
+
+    private syncEnemyShipTelemetry(): void {
+        if (!this.encounterEngine) {
+            return;
+        }
+
+        const [snapshot] =
+            this.encounterEngine
+                .getEnemyShipTelemetrySnapshots();
+
+        this.eventBus.emit(
+            BRIDGE_EVENT
+                .ENEMY_SHIP_TELEMETRY_UPDATED,
+
+            snapshot
+                ? {
+                      actorId: snapshot.actorId,
+
+                      hull: {
+                          ...snapshot.hull,
+                      },
+
+                      drive: {
+                          ...snapshot.drive,
+                      },
+
+                      shieldGenerator: {
+                          ...snapshot
+                              .shieldGenerator,
+                      },
+
+                      weapons:
+                          snapshot.weapons.map(
+                              (weapon) => {
+                                  return {
+                                      ...weapon,
+                                  };
+                              },
+                          ),
+                  }
+                : undefined,
+        );
     }
 
     private syncIncomingMissiles(): void {

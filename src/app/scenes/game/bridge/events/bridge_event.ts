@@ -9,6 +9,10 @@ import type { LaserTargetZone } from '../../../../../engine/defs/laser';
 import type { MissileSpectralBand } from '../../../../../engine/defs/missile';
 import type { PointDefenseBeamBand, PointDefenseShotOutcome } from '../../../../../engine/defs/point_defense';
 import type { ShipDriveStatus } from '../../../../../engine/defs/ship_drive';
+import type {
+    ShipWeaponKind,
+    ShipWeaponPhase,
+} from '../../../../../engine/defs/ship_weapon';
 import type { EncounterOfficerCommandId, OfficerCommandTarget } from '../../../../../engine/encounter/model/command';
 import type {
     LaserShotOutcome,
@@ -88,6 +92,11 @@ export const BRIDGE_EVENT = {
     // Полный view-ready snapshot
     // состояния корабля игрока.
     PLAYER_SHIP_STATUS_UPDATED: 'player_ship_status_updated',
+
+    // Полный view-ready snapshot
+    // текущего enemy ship у navigation anchor.
+    ENEMY_SHIP_TELEMETRY_UPDATED:
+        'enemy_ship_telemetry_updated',
 
     // Актуальное encounter-only состояние
     // выставленного player shield field.
@@ -349,6 +358,33 @@ export type BridgePlayerShipStatusUpdatedPayload = {
         max: number;
     };
 };
+
+export type BridgeEnemyShipTelemetryUpdatedPayload =
+    | {
+          actorId: string;
+
+          hull: {
+              current: number;
+              max: number;
+          };
+
+          drive: {
+              status: ShipDriveStatus;
+          };
+
+          shieldGenerator: {
+              current: number;
+              max: number;
+          };
+
+          weapons: {
+              id: string;
+
+              kind: ShipWeaponKind;
+              phase: ShipWeaponPhase;
+          }[];
+      }
+    | undefined;
 
 export type BridgePlayerShieldUpdatedPayload =
     | {
@@ -612,6 +648,9 @@ export type BridgeEventPayloadMap = {
     // Player ship status
 
     [BRIDGE_EVENT.PLAYER_SHIP_STATUS_UPDATED]: BridgePlayerShipStatusUpdatedPayload;
+
+    [BRIDGE_EVENT.ENEMY_SHIP_TELEMETRY_UPDATED]:
+        BridgeEnemyShipTelemetryUpdatedPayload;
 
     [BRIDGE_EVENT.PLAYER_SHIELD_UPDATED]: BridgePlayerShieldUpdatedPayload;
 

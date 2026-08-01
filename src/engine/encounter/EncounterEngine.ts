@@ -10,6 +10,10 @@ import type { SpaceNodeState } from '../defs/universe';
 import CombatEngagementRunner from './combat/CombatEngagementRunner';
 import CombatRunner from './combat/CombatRunner';
 import {
+    getEnemyShipTelemetrySnapshots,
+    type EnemyShipTelemetrySnapshot,
+} from './combat/queries/get_enemy_ship_telemetry_snapshots';
+import {
     getLaserThreatSnapshots,
     type LaserThreatSnapshot,
 } from './combat/queries/get_laser_threat_snapshots';
@@ -36,6 +40,9 @@ import { getOfficerAvailabilityStates } from './officer_availability/queries/get
 import OfficerTaskRunner from './officer_tasks/OfficerTaskRunner';
 import EncounterStateStore from './state/EncounterStateStore';
 
+export type {
+    EnemyShipTelemetrySnapshot,
+} from './combat/queries/get_enemy_ship_telemetry_snapshots';
 export type { LaserThreatSnapshot } from './combat/queries/get_laser_threat_snapshots';
 export type { StickyMineSnapshot } from './combat/queries/get_sticky_mine_snapshots';
 
@@ -254,6 +261,13 @@ export default class EncounterEngine {
                 ...task,
             };
         });
+    }
+
+    public getEnemyShipTelemetrySnapshots():
+        EnemyShipTelemetrySnapshot[] {
+        return getEnemyShipTelemetrySnapshots(
+            this.stateStore.getState(),
+        );
     }
 
     public getCombatProjectiles(): CombatProjectileState[] {
