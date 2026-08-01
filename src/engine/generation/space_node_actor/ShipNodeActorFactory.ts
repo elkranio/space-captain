@@ -1,6 +1,9 @@
 // src/engine/generation/space_node_actor/ShipNodeActorFactory.ts
 
 import {
+    SHIP_CREW_PRESETS,
+} from '../../content/presets/ship_crews';
+import {
     SHIP_NODE_ACTOR_PRESETS,
     type ShipNodeActorPresetId,
 } from '../../content/presets/ship_node_actors';
@@ -34,6 +37,11 @@ export default class ShipNodeActorFactory {
             presetId: actorPreset.shipPresetId,
         });
 
+        const crew =
+            SHIP_CREW_PRESETS[
+                actorPreset.crewPresetId
+            ];
+
         return {
             id,
             kind: SPACE_NODE_ACTOR_KIND.SHIP,
@@ -49,6 +57,10 @@ export default class ShipNodeActorFactory {
             drive: ship.drive,
             shieldGenerator:
                 ship.shieldGenerator,
+
+            crewRoles: [
+                ...crew.roles,
+            ],
 
             weapons: ship.weapons,
         };

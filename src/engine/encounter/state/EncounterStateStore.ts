@@ -55,6 +55,8 @@ export type SpawnShipActorInput = {
     drive: ShipDriveState;
     shieldGenerator: ShieldGeneratorState;
 
+    crewRoles: OfficerRole[];
+
     weapons: ShipWeaponState[];
 };
 
@@ -100,6 +102,9 @@ export default class EncounterStateStore {
                 drive: actor.drive,
                 shieldGenerator:
                     actor.shieldGenerator,
+
+                crewRoles:
+                    actor.crewRoles,
 
                 weapons: actor.weapons,
             });
@@ -163,6 +168,7 @@ export default class EncounterStateStore {
         maxHull,
         drive,
         shieldGenerator,
+        crewRoles,
         weapons,
     }: SpawnShipActorInput): ShipEncounterActorState {
         if (!this.findAnchorById(anchorId)) {
@@ -201,6 +207,10 @@ export default class EncounterStateStore {
             shieldGenerator: {
                 ...shieldGenerator,
             },
+
+            crewRoles: [
+                ...crewRoles,
+            ],
 
             decision: {
                 nextWeaponIndexByRole: {},

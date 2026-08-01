@@ -187,15 +187,58 @@ describe('Enemy task scheduler', () => {
             SHIP_WEAPON_PHASE.READY,
         );
     });
+
+    it('does not schedule a weapon task for a missing crew role', () => {
+        const {
+            engine,
+            actor,
+        } = createEnemyCombatEngine([
+            OFFICER_ROLE.WEAPONS,
+        ]);
+
+        engine.step(0);
+
+        expect(engine.drainEvents()).toEqual([
+            {
+                type:
+                    ENCOUNTER_EVENT
+                        .PLAYER_SHIP_TARGETING_DETECTED,
+
+                sourceActorId: actor.id,
+                sourceWeaponId:
+                    'missile_launcher_00',
+            },
+        ]);
+
+        expect(
+            actor.crewTasks[
+                OFFICER_ROLE.WEAPONS
+            ],
+        ).toBeDefined();
+
+        expect(
+            actor.crewTasks[
+                OFFICER_ROLE.SCIENCE
+            ],
+        ).toBeUndefined();
+
+        expect(
+            actor.weapons[3]?.phase,
+        ).toBe(
+            SHIP_WEAPON_PHASE.READY,
+        );
+    });
 });
 
-function createEnemyCombatEngine() {
+function createEnemyCombatEngine(
+    crewRoles?: typeof OFFICER_ROLE[keyof typeof OFFICER_ROLE][],
+) {
     const {
         node,
         stationId,
     } = createSingleStationNodeFixture();
 
-    node.actors.push(
+    const nodeActor =
         ShipNodeActorFactory.create({
             id: 'ship_enemy_combat_00',
 
@@ -204,8 +247,15 @@ function createEnemyCombatEngine() {
                     .ENEMY_COMBAT_00,
 
             anchorId: stationId,
-        }),
-    );
+        });
+
+    if (crewRoles) {
+        nodeActor.crewRoles = [
+            ...crewRoles,
+        ];
+    }
+
+    node.actors.push(nodeActor);
 
     const engine = new EncounterEngine({
         node,

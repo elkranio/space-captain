@@ -15,6 +15,9 @@ import {
     ENCOUNTER_TEAM,
 } from '../../../src/engine/defs/encounter_team';
 import {
+    OFFICER_ROLE,
+} from '../../../src/engine/defs/officer';
+import {
     PLAYER_SPACE_NAVIGATION_KIND,
 } from '../../../src/engine/defs/player_location';
 import {
@@ -98,6 +101,10 @@ describe('encounter actors', () => {
             drive,
             shieldGenerator,
 
+            crewRoles: [
+                OFFICER_ROLE.WEAPONS,
+            ],
+
             weapons: [],
         });
 
@@ -126,6 +133,10 @@ describe('encounter actors', () => {
             shieldGenerator: {
                 ...shieldGenerator,
             },
+
+            crewRoles: [
+                OFFICER_ROLE.WEAPONS,
+            ],
 
             decision: {
                 nextWeaponIndexByRole: {},
@@ -206,6 +217,10 @@ describe('encounter actors', () => {
                 shieldGenerator:
                     createShieldGeneratorFixture(),
 
+                crewRoles: [
+                    OFFICER_ROLE.WEAPONS,
+                ],
+
                 weapons: [],
             });
         }).toThrow(
@@ -229,6 +244,10 @@ describe('encounter actors', () => {
             shieldGenerator:
                 createShieldGeneratorFixture(),
 
+            crewRoles: [
+                OFFICER_ROLE.WEAPONS,
+            ],
+
             weapons: [],
         });
 
@@ -250,6 +269,10 @@ describe('encounter actors', () => {
                     createShipDriveFixture(),
                 shieldGenerator:
                     createShieldGeneratorFixture(),
+
+                crewRoles: [
+                    OFFICER_ROLE.WEAPONS,
+                ],
 
                 weapons: [],
             });
@@ -361,6 +384,11 @@ describe('encounter actors', () => {
                                         .shieldGenerator,
                                 },
 
+                                crewRoles: [
+                                    ...nodeActor
+                                        .crewRoles,
+                                ],
+
                                 decision: {
                                     nextWeaponIndexByRole:
                                         {},
@@ -410,6 +438,10 @@ describe('encounter actors', () => {
         );
 
         expect(
+            encounterActor.crewRoles,
+        ).not.toBe(nodeActor.crewRoles);
+
+        expect(
             encounterActor.weapons,
         ).not.toBe(nodeActor.weapons);
 
@@ -439,6 +471,8 @@ describe('encounter actors', () => {
             .shieldGenerator
             .charges = 0;
 
+        encounterActor.crewRoles.length = 0;
+
         encounterWeapon.ammoCount = 4;
         encounterWeapon.phase =
             SHIP_WEAPON_PHASE.COOLDOWN;
@@ -458,6 +492,10 @@ describe('encounter actors', () => {
                 .shieldGenerator
                 .maxCharges,
         );
+
+        expect(
+            nodeActor.crewRoles.length,
+        ).toBeGreaterThan(0);
 
         expect(nodeWeapon.ammoCount).toBe(
             initialAmmoCount,

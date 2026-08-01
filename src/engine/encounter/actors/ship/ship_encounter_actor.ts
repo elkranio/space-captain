@@ -1,6 +1,9 @@
 // src/engine/encounter/actors/ship/ship_encounter_actor.ts
 
 import type {
+    OfficerRole,
+} from '../../../defs/officer';
+import type {
     ShieldGeneratorState,
 } from '../../../defs/shield_generator';
 import type {
@@ -42,6 +45,10 @@ export type ShipEncounterActorState =
         drive: ShipDriveState;
         shieldGenerator:
             ShieldGeneratorState;
+
+        // Абстрактные роли,
+        // физически доступные этому экипажу.
+        crewRoles: OfficerRole[];
 
         // Runtime-память captain policy.
         // Persistent universe state её не хранит.

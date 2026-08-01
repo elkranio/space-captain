@@ -45,6 +45,7 @@ const WEAPON_TASK_ROLES = [
 //
 // Lifecycle самого оружия остаётся в CombatRunner.
 // Scheduler только:
+// - проверяет, что роль физически есть;
 // - занимает роль;
 // - запускает targeting;
 // - освобождает роль,
@@ -98,6 +99,15 @@ export default class EnemyTaskScheduler {
             for (
                 const role of WEAPON_TASK_ROLES
             ) {
+                if (
+                    !this.hasCrewRole(
+                        actor,
+                        role,
+                    )
+                ) {
+                    continue;
+                }
+
                 this.scheduleRole(
                     actor,
                     role,
@@ -115,6 +125,16 @@ export default class EnemyTaskScheduler {
                     actor.crewTasks[role];
 
                 if (!task) {
+                    continue;
+                }
+
+                if (
+                    !this.hasCrewRole(
+                        actor,
+                        role,
+                    )
+                ) {
+                    delete actor.crewTasks[role];
                     continue;
                 }
 
@@ -180,6 +200,13 @@ export default class EnemyTaskScheduler {
             sourceActorId: actor.id,
             sourceWeaponId: weapon.id,
         });
+    }
+
+    private hasCrewRole(
+        actor: ShipEncounterActorState,
+        role: OfficerRole,
+    ): boolean {
+        return actor.crewRoles.includes(role);
     }
 
     private isWeaponActive(

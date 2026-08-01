@@ -15,6 +15,9 @@ import {
     MISSILE_ID,
 } from '../../../src/engine/defs/missile';
 import {
+    OFFICER_ROLE,
+} from '../../../src/engine/defs/officer';
+import {
     SHIP_CHASSIS_ID,
 } from '../../../src/engine/defs/ship_chassis';
 import {
@@ -30,6 +33,14 @@ import {
     SPACE_NODE_ACTOR_KIND,
 } from '../../../src/engine/defs/universe';
 import ShipNodeActorFactory from '../../../src/engine/generation/space_node_actor/ShipNodeActorFactory';
+
+const STANDARD_CREW_ROLES = [
+    OFFICER_ROLE.COMMS,
+    OFFICER_ROLE.SCIENCE,
+    OFFICER_ROLE.HELM,
+    OFFICER_ROLE.WEAPONS,
+    OFFICER_ROLE.ENGINEER,
+];
 
 describe('ShipNodeActorFactory', () => {
     it('creates fresh enemy ship state from content preset', () => {
@@ -85,6 +96,9 @@ describe('ShipNodeActorFactory', () => {
                 chargeRegenerationElapsedMs: 0,
             },
 
+            crewRoles:
+                STANDARD_CREW_ROLES,
+
             weapons: [
                 {
                     id: 'missile_launcher_00',
@@ -118,6 +132,9 @@ describe('ShipNodeActorFactory', () => {
         expect(first.shieldGenerator).not.toBe(
             second.shieldGenerator,
         );
+        expect(first.crewRoles).not.toBe(
+            second.crewRoles,
+        );
         expect(first.weapons).not.toBe(
             second.weapons,
         );
@@ -149,6 +166,8 @@ describe('ShipNodeActorFactory', () => {
 
         first.shieldGenerator.charges = 0;
 
+        first.crewRoles.length = 0;
+
         firstWeapon.ammoCount = 0;
         firstWeapon.phase =
             SHIP_WEAPON_PHASE.COOLDOWN;
@@ -162,6 +181,10 @@ describe('ShipNodeActorFactory', () => {
         expect(
             second.shieldGenerator.charges,
         ).toBe(3);
+
+        expect(second.crewRoles).toEqual(
+            STANDARD_CREW_ROLES,
+        );
 
         expect(secondWeapon.ammoCount).toBe(5);
         expect(secondWeapon.phase).toBe(
@@ -210,6 +233,9 @@ describe('ShipNodeActorFactory', () => {
                     20000,
                 chargeRegenerationElapsedMs: 0,
             },
+
+            crewRoles:
+                STANDARD_CREW_ROLES,
 
             weapons: [
                 {
