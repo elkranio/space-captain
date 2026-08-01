@@ -26,6 +26,15 @@ export const LASER_SHOT_OUTCOME = {
 
 export type LaserShotOutcome = (typeof LASER_SHOT_OUTCOME)[keyof typeof LASER_SHOT_OUTCOME];
 
+export const PLAYER_MISSILE_OUTCOME = {
+    TARGET_LOST: 'target_lost',
+    BLOCKED: 'blocked',
+    HIT: 'hit',
+} as const;
+
+export type PlayerMissileOutcome =
+    (typeof PLAYER_MISSILE_OUTCOME)[keyof typeof PLAYER_MISSILE_OUTCOME];
+
 export const SPAM_CHANNEL_OUTCOME = {
     EXPIRED: 'expired',
     PURGED: 'purged',

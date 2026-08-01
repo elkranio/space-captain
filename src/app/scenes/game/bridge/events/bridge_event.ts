@@ -6,7 +6,10 @@ import type { Vec3 } from '../../../../../engine/defs/vector';
 import type { SpriteEntry } from '../../../../manifests/types';
 import type { SceneKey } from '../../../scene_key';
 import type { LaserTargetZone } from '../../../../../engine/defs/laser';
-import type { MissileSpectralBand } from '../../../../../engine/defs/missile';
+import type {
+    MissileId,
+    MissileSpectralBand,
+} from '../../../../../engine/defs/missile';
 import type { PointDefenseBeamBand, PointDefenseShotOutcome } from '../../../../../engine/defs/point_defense';
 import type { ShipDriveStatus } from '../../../../../engine/defs/ship_drive';
 import type {
@@ -16,6 +19,7 @@ import type {
 import type { EncounterOfficerCommandId, OfficerCommandTarget } from '../../../../../engine/encounter/model/command';
 import type {
     LaserShotOutcome,
+    PlayerMissileOutcome,
     SpamChannelOutcome,
 } from '../../../../../engine/encounter/model/combat';
 
@@ -210,6 +214,21 @@ export const BRIDGE_EVENT = {
     // Актуальный временной snapshot
     // всех входящих ракет.
     INCOMING_MISSILES_UPDATED: 'incoming_missiles_updated',
+
+    // Player ship запустил ракету
+    // в actor encounter-цель.
+    OUTGOING_MISSILE_ADDED:
+        'outgoing_missile_added',
+
+    // Актуальный временной snapshot
+    // всех ракет игрока в полёте.
+    OUTGOING_MISSILES_UPDATED:
+        'outgoing_missiles_updated',
+
+    // Ракета игрока завершила lifecycle:
+    // target lost, shield block или hull hit.
+    OUTGOING_MISSILE_REMOVED:
+        'outgoing_missile_removed',
 
     // Point-defense завершил наведение
     // и разрешил выстрел по угрозе.
@@ -549,6 +568,34 @@ export type BridgeIncomingMissileUpdatePayload = {
 // Актуальный snapshot всех входящих ракет.
 export type BridgeIncomingMissilesUpdatedPayload = BridgeIncomingMissileUpdatePayload[];
 
+export type BridgeOutgoingMissileAddedPayload = {
+    projectileId: string;
+
+    missileId: MissileId;
+
+    targetActorId: string;
+
+    initialTimeToImpactMs: number;
+};
+
+export type BridgeOutgoingMissileUpdatePayload = {
+    projectileId: string;
+
+    timeToImpactMs: number;
+    initialTimeToImpactMs: number;
+};
+
+export type BridgeOutgoingMissilesUpdatedPayload =
+    BridgeOutgoingMissileUpdatePayload[];
+
+export type BridgeOutgoingMissileRemovedPayload = {
+    projectileId: string;
+
+    targetActorId: string;
+
+    outcome: PlayerMissileOutcome;
+};
+
 export type BridgePointDefenseFiredPayload = {
     projectileId: string;
 
@@ -756,6 +803,15 @@ export type BridgeEventPayloadMap = {
     [BRIDGE_EVENT.INCOMING_MISSILE_REMOVED]: BridgeIncomingMissileRemovedPayload;
 
     [BRIDGE_EVENT.INCOMING_MISSILES_UPDATED]: BridgeIncomingMissilesUpdatedPayload;
+
+    [BRIDGE_EVENT.OUTGOING_MISSILE_ADDED]:
+        BridgeOutgoingMissileAddedPayload;
+
+    [BRIDGE_EVENT.OUTGOING_MISSILES_UPDATED]:
+        BridgeOutgoingMissilesUpdatedPayload;
+
+    [BRIDGE_EVENT.OUTGOING_MISSILE_REMOVED]:
+        BridgeOutgoingMissileRemovedPayload;
 
     [BRIDGE_EVENT.POINT_DEFENSE_FIRED]: BridgePointDefenseFiredPayload;
 

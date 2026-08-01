@@ -34,11 +34,13 @@ import OfficerCommandExecutor from './commands/OfficerCommandExecutor';
 import { getAvailableOfficerCommands } from './commands/queries/get_available_officer_commands';
 import ContactSequenceRunner from './contact/ContactSequenceRunner';
 import type { AvailableOfficerCommand, ExecuteOfficerCommandInput, ExecuteOfficerCommandResult } from './model/command';
-import type {
-    ActiveShieldState,
-    CombatProjectileState,
-    LaserAttackState,
-    SpamChannelState,
+import {
+    COMBAT_SOURCE_KIND,
+    COMBAT_TARGET_KIND,
+    type ActiveShieldState,
+    type CombatProjectileState,
+    type LaserAttackState,
+    type SpamChannelState,
 } from './model/combat';
 import { ENCOUNTER_EVENT, type EncounterEvent } from './model/event';
 import type { OfficerAvailabilityStates } from './model/officer_availability';
@@ -326,24 +328,64 @@ export default class EncounterEngine {
         );
     }
 
-    public getCombatProjectiles(): CombatProjectileState[] {
-        return this.stateStore.getState().combat.projectiles.map((projectile) => {
-            return {
-                ...projectile,
+    public getCombatProjectiles():
+        CombatProjectileState[] {
+        return this.stateStore
+            .getState()
+            .combat
+            .projectiles
+            .map((projectile) => {
+                return this
+                    .cloneCombatProjectile(
+                        projectile,
+                    );
+            });
+    }
 
-                source: {
-                    ...projectile.source,
-                },
+    public getIncomingMissileProjectiles():
+        CombatProjectileState[] {
+        return this.stateStore
+            .getState()
+            .combat
+            .projectiles
+            .filter((projectile) => {
+                return (
+                    projectile.source.kind ===
+                        COMBAT_SOURCE_KIND.ACTOR &&
+                    projectile.target.kind ===
+                        COMBAT_TARGET_KIND
+                            .PLAYER_SHIP
+                );
+            })
+            .map((projectile) => {
+                return this
+                    .cloneCombatProjectile(
+                        projectile,
+                    );
+            });
+    }
 
-                target: {
-                    ...projectile.target,
-                },
-
-                identification: {
-                    ...projectile.identification,
-                },
-            };
-        });
+    public getOutgoingMissileProjectiles():
+        CombatProjectileState[] {
+        return this.stateStore
+            .getState()
+            .combat
+            .projectiles
+            .filter((projectile) => {
+                return (
+                    projectile.source.kind ===
+                        COMBAT_SOURCE_KIND
+                            .PLAYER_SHIP &&
+                    projectile.target.kind ===
+                        COMBAT_TARGET_KIND.ACTOR
+                );
+            })
+            .map((projectile) => {
+                return this
+                    .cloneCombatProjectile(
+                        projectile,
+                    );
+            });
     }
 
     public getStickyMineSnapshots(): StickyMineSnapshot[] {
@@ -427,6 +469,27 @@ export default class EncounterEngine {
     // #endregion
 
     // #region Combat snapshots
+
+    private cloneCombatProjectile(
+        projectile:
+            CombatProjectileState,
+    ): CombatProjectileState {
+        return {
+            ...projectile,
+
+            source: {
+                ...projectile.source,
+            },
+
+            target: {
+                ...projectile.target,
+            },
+
+            identification: {
+                ...projectile.identification,
+            },
+        };
+    }
 
     private cloneLaserAttack(attack: LaserAttackState): LaserAttackState {
         return {

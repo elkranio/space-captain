@@ -106,6 +106,7 @@ export default class BridgeEncounterController {
         this.syncRuntimePlayerWeaponsFromEngine();
         this.drainEncounterEvents();
         this.syncIncomingMissiles();
+        this.syncOutgoingMissiles();
         this.syncStickyMines();
         this.syncLaserThreats();
         this.syncPlayerShield();
@@ -387,7 +388,9 @@ export default class BridgeEncounterController {
             return;
         }
 
-        const projectiles = this.encounterEngine.getCombatProjectiles();
+        const projectiles =
+            this.encounterEngine
+                .getIncomingMissileProjectiles();
 
         this.eventBus.emit(
             BRIDGE_EVENT.INCOMING_MISSILES_UPDATED,
@@ -404,6 +407,34 @@ export default class BridgeEncounterController {
                         : {}),
                 };
             }),
+        );
+    }
+
+    private syncOutgoingMissiles(): void {
+        if (!this.encounterEngine) {
+            return;
+        }
+
+        this.eventBus.emit(
+            BRIDGE_EVENT
+                .OUTGOING_MISSILES_UPDATED,
+
+            this.encounterEngine
+                .getOutgoingMissileProjectiles()
+                .map((projectile) => {
+                    return {
+                        projectileId:
+                            projectile.id,
+
+                        timeToImpactMs:
+                            projectile
+                                .timeToImpactMs,
+
+                        initialTimeToImpactMs:
+                            projectile
+                                .initialTimeToImpactMs,
+                    };
+                }),
         );
     }
 

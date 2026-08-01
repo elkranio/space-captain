@@ -5,6 +5,7 @@ import { PLAYER_SPACE_NAVIGATION_KIND } from '../../../../../../../engine/defs/p
 import { SPACE_ANCHOR_KIND } from '../../../../../../../engine/defs/universe';
 import {
     COMBAT_SOURCE_KIND,
+    COMBAT_TARGET_KIND,
     LASER_SHOT_OUTCOME,
 } from '../../../../../../../engine/encounter/model/combat';
 import {
@@ -314,6 +315,82 @@ export default class BridgeEncounterEngineEventHandler {
 
                         targetZone:
                             event.targetZone,
+
+                        outcome:
+                            event.outcome,
+                    },
+                );
+                return;
+
+            case ENCOUNTER_EVENT.PLAYER_MISSILE_LAUNCHED:
+                if (
+                    event.projectile.source.kind !==
+                        COMBAT_SOURCE_KIND
+                            .PLAYER_SHIP ||
+                    event.projectile.target.kind !==
+                        COMBAT_TARGET_KIND.ACTOR
+                ) {
+                    throw new Error(
+                        'Outgoing missile has invalid ' +
+                            'source or target: ' +
+                            event.projectile.id +
+                            '/' +
+                            event.projectile.source.kind +
+                            '/' +
+                            event.projectile.target.kind,
+                    );
+                }
+
+                this.eventBus.emit(
+                    BRIDGE_EVENT
+                        .OUTGOING_MISSILE_ADDED,
+                    {
+                        projectileId:
+                            event.projectile.id,
+
+                        missileId:
+                            event.projectile.missileId,
+
+                        targetActorId:
+                            event.projectile
+                                .target.actorId,
+
+                        initialTimeToImpactMs:
+                            event.projectile
+                                .initialTimeToImpactMs,
+                    },
+                );
+                return;
+
+            case ENCOUNTER_EVENT.PLAYER_MISSILE_RESOLVED:
+                if (
+                    event.projectile.source.kind !==
+                        COMBAT_SOURCE_KIND
+                            .PLAYER_SHIP ||
+                    event.projectile.target.kind !==
+                        COMBAT_TARGET_KIND.ACTOR
+                ) {
+                    throw new Error(
+                        'Resolved outgoing missile has ' +
+                            'invalid source or target: ' +
+                            event.projectile.id +
+                            '/' +
+                            event.projectile.source.kind +
+                            '/' +
+                            event.projectile.target.kind,
+                    );
+                }
+
+                this.eventBus.emit(
+                    BRIDGE_EVENT
+                        .OUTGOING_MISSILE_REMOVED,
+                    {
+                        projectileId:
+                            event.projectile.id,
+
+                        targetActorId:
+                            event.projectile
+                                .target.actorId,
 
                         outcome:
                             event.outcome,

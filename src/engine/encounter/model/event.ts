@@ -10,7 +10,10 @@ import type { ShieldGeneratorState } from '../../defs/shield_generator';
 import type { ShipDriveState } from '../../defs/ship_drive';
 import type { EncounterAnchorState } from '../anchors/encounter_anchor';
 import type { JumpPointEncounterAnchorState } from '../anchors/jump_point/jump_point_encounter_anchor';
-import { LASER_SHOT_OUTCOME } from './combat';
+import {
+    LASER_SHOT_OUTCOME,
+    PLAYER_MISSILE_OUTCOME,
+} from './combat';
 import type {
     ActiveShieldState,
     LaserAttackState,
@@ -49,6 +52,12 @@ export const ENCOUNTER_EVENT = {
 
     PLAYER_LASER_FIRED:
         'player_laser_fired',
+
+    PLAYER_MISSILE_LAUNCHED:
+        'player_missile_launched',
+
+    PLAYER_MISSILE_RESOLVED:
+        'player_missile_resolved',
 
     ENEMY_SHIP_DESTROYED:
         'enemy_ship_destroyed',
@@ -292,6 +301,58 @@ export type PlayerLaserFiredEvent =
           remainingHull: number;
       };
 
+export type PlayerMissileLaunchedEvent = {
+    type:
+        typeof ENCOUNTER_EVENT
+            .PLAYER_MISSILE_LAUNCHED;
+
+    projectile:
+        MissileCombatProjectileState;
+};
+
+export type PlayerMissileResolvedEvent =
+    | {
+          type:
+              typeof ENCOUNTER_EVENT
+                  .PLAYER_MISSILE_RESOLVED;
+
+          projectile:
+              MissileCombatProjectileState;
+
+          outcome:
+              typeof PLAYER_MISSILE_OUTCOME
+                  .TARGET_LOST;
+      }
+    | {
+          type:
+              typeof ENCOUNTER_EVENT
+                  .PLAYER_MISSILE_RESOLVED;
+
+          projectile:
+              MissileCombatProjectileState;
+
+          outcome:
+              typeof PLAYER_MISSILE_OUTCOME
+                  .BLOCKED;
+
+          remainingShieldCharges: number;
+      }
+    | {
+          type:
+              typeof ENCOUNTER_EVENT
+                  .PLAYER_MISSILE_RESOLVED;
+
+          projectile:
+              MissileCombatProjectileState;
+
+          outcome:
+              typeof PLAYER_MISSILE_OUTCOME
+                  .HIT;
+
+          damage: number;
+          remainingHull: number;
+      };
+
 export type EnemyShipDestroyedEvent = {
     type:
         typeof ENCOUNTER_EVENT.ENEMY_SHIP_DESTROYED;
@@ -381,6 +442,8 @@ export type EncounterEvent =
     | PlayerShipTargetingDetectedEvent
     | PlayerLaserChargingStartedEvent
     | PlayerLaserFiredEvent
+    | PlayerMissileLaunchedEvent
+    | PlayerMissileResolvedEvent
     | EnemyShipDestroyedEvent
     | MissileLaunchedEvent
     | MissileImpactedPlayerShipEvent

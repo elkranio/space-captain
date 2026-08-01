@@ -31,6 +31,7 @@ import {
     COMBAT_SOURCE_KIND,
     COMBAT_TARGET_KIND,
     LASER_SHOT_OUTCOME,
+    PLAYER_MISSILE_OUTCOME,
     SPAM_CHANNEL_OUTCOME,
     THREAT_IDENTIFICATION_STATUS,
     type LaserAttackState,
@@ -585,10 +586,16 @@ export default class CombatRunner {
             projectile,
         );
 
-        // Existing MISSILE_LAUNCHED event belongs
-        // to incoming bridge presentation.
-        // Atom 4 will add an explicit outgoing
-        // presentation contract.
+        this.emit({
+            type:
+                ENCOUNTER_EVENT
+                    .PLAYER_MISSILE_LAUNCHED,
+
+            projectile:
+                this.cloneMissileProjectile(
+                    projectile,
+                ),
+        });
     }
 
     private launchMissile(actor: ShipEncounterActorState, launcher: MissileLauncherState): void {
@@ -1207,6 +1214,21 @@ export default class CombatRunner {
                     1,
                 );
 
+            this.emit({
+                type:
+                    ENCOUNTER_EVENT
+                        .PLAYER_MISSILE_RESOLVED,
+
+                projectile:
+                    this.cloneMissileProjectile(
+                        projectile,
+                    ),
+
+                outcome:
+                    PLAYER_MISSILE_OUTCOME
+                        .TARGET_LOST,
+            });
+
             return;
         }
 
@@ -1307,6 +1329,26 @@ export default class CombatRunner {
                 .chargeRegenerationElapsedMs =
                 0;
 
+            this.emit({
+                type:
+                    ENCOUNTER_EVENT
+                        .PLAYER_MISSILE_RESOLVED,
+
+                projectile:
+                    this.cloneMissileProjectile(
+                        projectile,
+                    ),
+
+                outcome:
+                    PLAYER_MISSILE_OUTCOME
+                        .BLOCKED,
+
+                remainingShieldCharges:
+                    target
+                        .shieldGenerator
+                        .charges,
+            });
+
             return;
         }
 
@@ -1322,6 +1364,26 @@ export default class CombatRunner {
                 appliedDamage,
         );
 
+        this.emit({
+            type:
+                ENCOUNTER_EVENT
+                    .PLAYER_MISSILE_RESOLVED,
+
+            projectile:
+                this.cloneMissileProjectile(
+                    projectile,
+                ),
+
+            outcome:
+                PLAYER_MISSILE_OUTCOME.HIT,
+
+            damage:
+                appliedDamage,
+
+            remainingHull:
+                target.hull,
+        });
+
         if (
             appliedDamage > 0 &&
             target.hull === 0
@@ -1330,6 +1392,27 @@ export default class CombatRunner {
                 target.id,
             );
         }
+    }
+
+    private cloneMissileProjectile(
+        projectile:
+            MissileCombatProjectileState,
+    ): MissileCombatProjectileState {
+        return {
+            ...projectile,
+
+            source: {
+                ...projectile.source,
+            },
+
+            target: {
+                ...projectile.target,
+            },
+
+            identification: {
+                ...projectile.identification,
+            },
+        };
     }
 
     // #endregion
