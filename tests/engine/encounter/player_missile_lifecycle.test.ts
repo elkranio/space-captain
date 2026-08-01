@@ -226,12 +226,12 @@ describe('Player missile lifecycle', () => {
             phaseElapsedMs: 1000,
         });
 
-        // Outgoing flight starts in Atom 3.
         expect(
             engine.getCombatProjectiles()[0]
                 ?.timeToImpactMs,
         ).toBe(
-            missile.flightDurationMs,
+            missile.flightDurationMs -
+                1000,
         );
     });
 
@@ -327,7 +327,7 @@ describe('Player missile lifecycle', () => {
 
         expect(
             engine.getCombatProjectiles(),
-        ).toHaveLength(1);
+        ).toEqual([]);
 
         expect(
             engine

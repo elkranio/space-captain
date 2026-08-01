@@ -1,6 +1,9 @@
 // src/engine/encounter/EncounterEngine.ts
 
-import type { EncounterTeam } from '../defs/encounter_team';
+import {
+    ENCOUNTER_TEAM,
+    type EncounterTeam,
+} from '../defs/encounter_team';
 import type { OfficerRole } from '../defs/officer';
 import type { PlayerSpaceNavigationState } from '../defs/player_location';
 import type { PointDefenseState } from '../defs/point_defense';
@@ -137,6 +140,9 @@ export default class EncounterEngine {
             interruptRandomOfficerTask: () => {
                 this.officerTaskRunner.interruptRandomTaskByDamage();
             },
+
+            destroyEnemyActor:
+                this.destroyEnemyActor,
         });
 
         this.officerTaskRunner = new OfficerTaskRunner({
@@ -167,6 +173,9 @@ export default class EncounterEngine {
                                 input,
                             );
                     },
+
+                destroyEnemyActor:
+                    this.destroyEnemyActor,
 
                 emit: this.emit,
 
@@ -432,6 +441,52 @@ export default class EncounterEngine {
             },
         };
     }
+
+    // #endregion
+
+    // #region Enemy destruction
+
+    private destroyEnemyActor = (
+        actorId: string,
+    ): void => {
+        const actor =
+            this.stateStore.findActorById(
+                actorId,
+            );
+
+        // Multiple impacts in one step must not
+        // produce duplicate destruction events.
+        if (!actor) {
+            return;
+        }
+
+        if (
+            actor.team !==
+                ENCOUNTER_TEAM.ENEMY ||
+            actor.hull > 0
+        ) {
+            throw new Error(
+                'Cannot destroy a live or ' +
+                    'non-enemy actor: ' +
+                    `${actor.id}/` +
+                    `${actor.team}/` +
+                    `${actor.hull}`,
+            );
+        }
+
+        this.stateStore.removeActor(
+            actor.id,
+        );
+
+        this.emit({
+            type:
+                ENCOUNTER_EVENT
+                    .ENEMY_SHIP_DESTROYED,
+
+            actorId:
+                actor.id,
+        });
+    };
 
     // #endregion
 

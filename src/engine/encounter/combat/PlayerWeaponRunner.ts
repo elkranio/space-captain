@@ -84,6 +84,9 @@ type PlayerWeaponRunnerOptions = {
         },
     ) => void;
 
+    destroyEnemyActor:
+        (actorId: string) => void;
+
     emit: (event: EncounterEvent) => void;
 
     completeOfficerTask:
@@ -112,6 +115,11 @@ export default class PlayerWeaponRunner {
                 'queuePlayerMissileLaunch'
             ],
 
+        private readonly destroyEnemyActor:
+            PlayerWeaponRunnerOptions[
+                'destroyEnemyActor'
+            ],
+
         private readonly emit:
             PlayerWeaponRunnerOptions['emit'],
 
@@ -129,6 +137,7 @@ export default class PlayerWeaponRunner {
     public static create({
         stateStore,
         queuePlayerMissileLaunch,
+        destroyEnemyActor,
         emit,
         completeOfficerTask,
     }: PlayerWeaponRunnerOptions):
@@ -136,6 +145,7 @@ export default class PlayerWeaponRunner {
         return new PlayerWeaponRunner(
             stateStore,
             queuePlayerMissileLaunch,
+            destroyEnemyActor,
             emit,
             completeOfficerTask,
         );
@@ -502,18 +512,9 @@ export default class PlayerWeaponRunner {
             impact.damage > 0 &&
             impact.remainingHull === 0
         ) {
-            this.stateStore.removeActor(
+            this.destroyEnemyActor(
                 task.targetActorId,
             );
-
-            this.emit({
-                type:
-                    ENCOUNTER_EVENT
-                        .ENEMY_SHIP_DESTROYED,
-
-                actorId:
-                    task.targetActorId,
-            });
         }
     }
 

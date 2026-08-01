@@ -56,6 +56,9 @@ type CombatRunnerOptions = {
     random: () => number;
 
     interruptRandomOfficerTask: () => void;
+
+    destroyEnemyActor:
+        (actorId: string) => void;
 };
 
 // Владеет боевым циклом encounter:
@@ -77,6 +80,11 @@ export default class CombatRunner {
     private readonly random: () => number;
 
     private readonly interruptRandomOfficerTask: () => void;
+
+    private readonly destroyEnemyActor:
+        CombatRunnerOptions[
+            'destroyEnemyActor'
+        ];
 
     private readonly enemyTaskScheduler:
         EnemyTaskScheduler;
@@ -100,6 +108,7 @@ export default class CombatRunner {
         random,
 
         interruptRandomOfficerTask,
+        destroyEnemyActor,
     }: CombatRunnerOptions) {
         this.state = state;
         this.emit = emit;
@@ -107,6 +116,9 @@ export default class CombatRunner {
         this.random = random;
 
         this.interruptRandomOfficerTask = interruptRandomOfficerTask;
+
+        this.destroyEnemyActor =
+            destroyEnemyActor;
 
         this.enemyTaskScheduler =
             new EnemyTaskScheduler({
@@ -1085,55 +1097,239 @@ export default class CombatRunner {
 
     // #region Projectiles
 
-    private advanceProjectiles(deltaMs: number): void {
-        // Идём с конца, потому что impacted projectiles
-        // удаляются из массива во время обхода.
-        for (let index = this.state.combat.projectiles.length - 1; index >= 0; index -= 1) {
-            const projectile = this.state.combat.projectiles[index];
+    private advanceProjectiles(
+        deltaMs: number,
+    ): void {
+        // Идём с конца, потому что impacted
+        // и target-lost projectiles удаляются
+        // из массива во время обхода.
+        for (
+            let index =
+                this.state.combat
+                    .projectiles.length - 1;
 
-            // Atom 3 добавит actor-target flight
-            // и target-loss / impact resolution.
+            index >= 0;
+
+            index -= 1
+        ) {
+            const projectile =
+                this.state.combat
+                    .projectiles[index];
+
             if (
-                projectile.target.kind !==
+                projectile.target.kind ===
                 COMBAT_TARGET_KIND.PLAYER_SHIP
             ) {
+                this.advanceIncomingMissile(
+                    index,
+                    projectile,
+                    deltaMs,
+                );
+
                 continue;
             }
 
-            projectile.timeToImpactMs = Math.max(0, projectile.timeToImpactMs - deltaMs);
-
-            if (projectile.timeToImpactMs > 0) {
-                continue;
-            }
-
-            this.resolveMissileImpact(index, projectile);
+            this.advancePlayerMissile(
+                index,
+                projectile,
+                projectile.target.actorId,
+                deltaMs,
+            );
         }
     }
 
-    private resolveMissileImpact(index: number, projectile: MissileCombatProjectileState): void {
-        if (projectile.target.kind !== COMBAT_TARGET_KIND.PLAYER_SHIP) {
+    private advanceIncomingMissile(
+        index: number,
+        projectile:
+            MissileCombatProjectileState,
+        deltaMs: number,
+    ): void {
+        projectile.timeToImpactMs =
+            Math.max(
+                0,
+                projectile.timeToImpactMs -
+                    deltaMs,
+            );
+
+        if (
+            projectile.timeToImpactMs >
+            0
+        ) {
+            return;
+        }
+
+        this.resolveMissileImpactOnPlayerShip(
+            index,
+            projectile,
+        );
+    }
+
+    private advancePlayerMissile(
+        index: number,
+        projectile:
+            MissileCombatProjectileState,
+        targetActorId: string,
+        deltaMs: number,
+    ): void {
+        if (
+            projectile.source.kind !==
+            COMBAT_SOURCE_KIND.PLAYER_SHIP
+        ) {
             throw new Error(
-                `Cannot resolve missile impact for unsupported target: ` + `${projectile.id}/${projectile.target.kind}`,
+                'Actor-target missile has ' +
+                    'unsupported source: ' +
+                    `${projectile.id}/` +
+                    `${projectile.source.kind}`,
             );
         }
 
-        const missile = MISSILES[projectile.missileId];
+        const target =
+            this.state.actors.find(
+                (actor) => {
+                    return (
+                        actor.id ===
+                        targetActorId
+                    );
+                },
+            );
 
-        const projectileSnapshot: MissileCombatProjectileState = {
-            ...projectile,
+        if (
+            !target ||
+            target.team !==
+                ENCOUNTER_TEAM.ENEMY ||
+            target.hull <= 0
+        ) {
+            // После launch ракета живёт независимо,
+            // но без валидной цели просто исчезает.
+            this.state.combat
+                .projectiles.splice(
+                    index,
+                    1,
+                );
 
-            timeToImpactMs: 0,
-        };
+            return;
+        }
 
-        this.state.combat.projectiles.splice(index, 1);
+        projectile.timeToImpactMs =
+            Math.max(
+                0,
+                projectile.timeToImpactMs -
+                    deltaMs,
+            );
+
+        if (
+            projectile.timeToImpactMs >
+            0
+        ) {
+            return;
+        }
+
+        this.resolvePlayerMissileImpact(
+            index,
+            projectile,
+            target,
+        );
+    }
+
+    private resolveMissileImpactOnPlayerShip(
+        index: number,
+        projectile:
+            MissileCombatProjectileState,
+    ): void {
+        if (
+            projectile.target.kind !==
+            COMBAT_TARGET_KIND.PLAYER_SHIP
+        ) {
+            throw new Error(
+                'Cannot resolve incoming missile ' +
+                    'impact for target: ' +
+                    `${projectile.id}/` +
+                    `${projectile.target.kind}`,
+            );
+        }
+
+        const missile =
+            MISSILES[projectile.missileId];
+
+        const projectileSnapshot:
+            MissileCombatProjectileState = {
+                ...projectile,
+
+                timeToImpactMs: 0,
+            };
+
+        this.state.combat.projectiles.splice(
+            index,
+            1,
+        );
 
         this.emit({
-            type: ENCOUNTER_EVENT.MISSILE_IMPACTED_PLAYER_SHIP,
+            type:
+                ENCOUNTER_EVENT
+                    .MISSILE_IMPACTED_PLAYER_SHIP,
 
-            projectile: projectileSnapshot,
+            projectile:
+                projectileSnapshot,
 
-            damage: missile.damage,
+            damage:
+                missile.damage,
         });
+    }
+
+    private resolvePlayerMissileImpact(
+        index: number,
+        projectile:
+            MissileCombatProjectileState,
+        target:
+            ShipEncounterActorState,
+    ): void {
+        const missile =
+            MISSILES[projectile.missileId];
+
+        projectile.timeToImpactMs = 0;
+
+        this.state.combat.projectiles.splice(
+            index,
+            1,
+        );
+
+        if (
+            target.shieldGenerator.charges >
+            0
+        ) {
+            target.shieldGenerator.charges -=
+                1;
+
+            // Будущая enemy shield regeneration
+            // начнёт новый цикл с impact.
+            target
+                .shieldGenerator
+                .chargeRegenerationElapsedMs =
+                0;
+
+            return;
+        }
+
+        const appliedDamage =
+            Math.min(
+                missile.damage,
+                target.hull,
+            );
+
+        target.hull = Math.max(
+            0,
+            target.hull -
+                appliedDamage,
+        );
+
+        if (
+            appliedDamage > 0 &&
+            target.hull === 0
+        ) {
+            this.destroyEnemyActor(
+                target.id,
+            );
+        }
     }
 
     // #endregion
