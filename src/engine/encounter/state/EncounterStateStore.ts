@@ -49,6 +49,12 @@ export type SpawnShipActorInput = {
 
     team: EncounterTeam;
 
+    hull: number;
+    maxHull: number;
+
+    drive: ShipDriveState;
+    shieldGenerator: ShieldGeneratorState;
+
     weapons: ShipWeaponState[];
 };
 
@@ -87,6 +93,13 @@ export default class EncounterStateStore {
                 anchorId: actor.anchorId,
 
                 team: actor.team,
+
+                hull: actor.hull,
+                maxHull: actor.maxHull,
+
+                drive: actor.drive,
+                shieldGenerator:
+                    actor.shieldGenerator,
 
                 weapons: actor.weapons,
             });
@@ -141,16 +154,32 @@ export default class EncounterStateStore {
 
     // #region Actor mutations
 
-    public spawnShipActor({ actorId, chassisId, anchorId, team, weapons }: SpawnShipActorInput): ShipEncounterActorState {
+    public spawnShipActor({
+        actorId,
+        chassisId,
+        anchorId,
+        team,
+        hull,
+        maxHull,
+        drive,
+        shieldGenerator,
+        weapons,
+    }: SpawnShipActorInput): ShipEncounterActorState {
         if (!this.findAnchorById(anchorId)) {
-            throw new Error(`Cannot spawn ship actor: ` + `anchor not found: ${anchorId}`);
+            throw new Error(
+                `Cannot spawn ship actor: ` +
+                `anchor not found: ${anchorId}`,
+            );
         }
 
         if (this.findActorById(actorId)) {
-            throw new Error(`Encounter actor already exists: ${actorId}`);
+            throw new Error(
+                `Encounter actor already exists: ${actorId}`,
+            );
         }
 
-        const ship = SHIP_CHASSIS[chassisId];
+        const ship =
+            SHIP_CHASSIS[chassisId];
 
         const actor: ShipEncounterActorState = {
             id: actorId,
@@ -161,6 +190,17 @@ export default class EncounterStateStore {
 
             anchorId,
             chassisId,
+
+            hull,
+            maxHull,
+
+            drive: {
+                ...drive,
+            },
+
+            shieldGenerator: {
+                ...shieldGenerator,
+            },
 
             hasUsedOpeningDisruptionPulse: false,
 

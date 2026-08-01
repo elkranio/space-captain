@@ -3,14 +3,12 @@
 import {
     SHIP_NODE_ACTOR_PRESETS,
     type ShipNodeActorPresetId,
-    type ShipNodeActorWeaponPreset,
 } from '../../content/presets/ship_node_actors';
-import { SHIP_WEAPON_KIND, type ShipWeaponState } from '../../defs/ship_weapon';
-import { SPACE_NODE_ACTOR_KIND, type ShipSpaceNodeActorState } from '../../defs/universe';
-import LaserWeaponFactory from '../ship_weapon/LaserWeaponFactory';
-import MissileLauncherFactory from '../ship_weapon/MissileLauncherFactory';
-import SpamProjectorFactory from '../ship_weapon/SpamProjectorFactory';
-import StickyMineDispenserFactory from '../ship_weapon/StickyMineDispenserFactory';
+import {
+    SPACE_NODE_ACTOR_KIND,
+    type ShipSpaceNodeActorState,
+} from '../../defs/universe';
+import ShipFactory from '../ship/ShipFactory';
 
 export type CreateShipNodeActorInput = {
     // Runtime id конкретного корабля внутри ноды.
@@ -24,53 +22,35 @@ export type CreateShipNodeActorInput = {
 // Собирает свежий persistent state корабля,
 // который затем копируется в runtime encounter.
 export default class ShipNodeActorFactory {
-    public static create({ id, presetId, anchorId }: CreateShipNodeActorInput): ShipSpaceNodeActorState {
-        const preset = SHIP_NODE_ACTOR_PRESETS[presetId];
+    public static create({
+        id,
+        presetId,
+        anchorId,
+    }: CreateShipNodeActorInput): ShipSpaceNodeActorState {
+        const actorPreset =
+            SHIP_NODE_ACTOR_PRESETS[presetId];
+
+        const ship = ShipFactory.create({
+            presetId: actorPreset.shipPresetId,
+        });
 
         return {
             id,
             kind: SPACE_NODE_ACTOR_KIND.SHIP,
 
-            team: preset.team,
+            team: actorPreset.team,
 
-            chassisId: preset.chassisId,
+            chassisId: ship.chassisId,
             anchorId,
 
-            weapons: preset.weapons.map((weapon) => {
-                return this.createWeapon(weapon);
-            }),
+            hull: ship.hull,
+            maxHull: ship.maxHull,
+
+            drive: ship.drive,
+            shieldGenerator:
+                ship.shieldGenerator,
+
+            weapons: ship.weapons,
         };
-    }
-
-    private static createWeapon(preset: ShipNodeActorWeaponPreset): ShipWeaponState {
-        switch (preset.kind) {
-            case SHIP_WEAPON_KIND.MISSILE_LAUNCHER:
-                return MissileLauncherFactory.create({
-                    id: preset.id,
-
-                    presetId: preset.presetId,
-                });
-
-            case SHIP_WEAPON_KIND.LASER:
-                return LaserWeaponFactory.create({
-                    id: preset.id,
-
-                    weaponId: preset.weaponId,
-                });
-
-            case SHIP_WEAPON_KIND.SPAM_PROJECTOR:
-                return SpamProjectorFactory.create({
-                    id: preset.id,
-
-                    weaponId: preset.weaponId,
-                });
-
-            case SHIP_WEAPON_KIND.STICKY_MINE_DISPENSER:
-                return StickyMineDispenserFactory.create({
-                    id: preset.id,
-
-                    weaponId: preset.weaponId,
-                });
-        }
     }
 }

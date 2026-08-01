@@ -1,7 +1,8 @@
 // src/engine/defs/ship_chassis.ts
 
 // Стабильные id типов кораблей из контентной базы.
-// Runtime-id конкретного корабля в энкаунтере должен быть обычной строкой отдельно.
+// Runtime-id конкретного корабля в энкаунтере
+// должен быть обычной строкой отдельно.
 export const SHIP_CHASSIS_ID = {
     GENERIC_00: 'generic_00',
 } as const;
@@ -17,10 +18,13 @@ export const SHIP_SPRITE_ID = {
 
 export type ShipSpriteId = (typeof SHIP_SPRITE_ID)[keyof typeof SHIP_SPRITE_ID];
 
-// Базовое описание типа корабля.
-// Боевые статы, фракция, экипаж и runtime-состояние добавляются отдельными моделями.
+// Неизменяемые физические свойства корпуса.
+// Установленные системы и оружие задаются ShipPreset.
 export type ShipChassisDefinition = {
     id: ShipChassisId;
+
     name: string;
     spriteId: ShipSpriteId;
+
+    maxHull: number;
 };

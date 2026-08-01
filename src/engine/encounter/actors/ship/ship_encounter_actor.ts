@@ -1,23 +1,47 @@
 // src/engine/encounter/actors/ship/ship_encounter_actor.ts
 
-import type { ShipChassisId } from '../../../defs/ship_chassis';
-import type { ShipWeaponState } from '../../../defs/ship_weapon';
-import { ENCOUNTER_ACTOR_KIND, type EncounterActorBaseState } from '../encounter_actor';
+import type {
+    ShieldGeneratorState,
+} from '../../../defs/shield_generator';
+import type {
+    ShipChassisId,
+} from '../../../defs/ship_chassis';
+import type {
+    ShipDriveState,
+} from '../../../defs/ship_drive';
+import type {
+    ShipWeaponState,
+} from '../../../defs/ship_weapon';
+import {
+    ENCOUNTER_ACTOR_KIND,
+    type EncounterActorBaseState,
+} from '../encounter_actor';
 
 // Runtime-состояние конкретного корабля
 // внутри текущего encounter.
 //
-// chassisId указывает на стабильный ShipChassisDefinition.
+// chassisId указывает
+// на стабильный ShipChassisDefinition.
 // id остаётся runtime id конкретного экземпляра.
-export type ShipEncounterActorState = EncounterActorBaseState & {
-    kind: typeof ENCOUNTER_ACTOR_KIND.SHIP;
+export type ShipEncounterActorState =
+    EncounterActorBaseState & {
+        kind:
+            typeof ENCOUNTER_ACTOR_KIND.SHIP;
 
-    chassisId: ShipChassisId;
+        chassisId: ShipChassisId;
 
-    // Одноразовое opening action этого ship
-    // внутри текущего encounter.
-    hasUsedOpeningDisruptionPulse: boolean;
+        hull: number;
+        maxHull: number;
 
-    // Mutable loadout только текущего encounter.
-    weapons: ShipWeaponState[];
-};
+        drive: ShipDriveState;
+        shieldGenerator:
+            ShieldGeneratorState;
+
+        // Одноразовое opening action этого ship
+        // внутри текущего encounter.
+        hasUsedOpeningDisruptionPulse: boolean;
+
+        // Mutable loadout
+        // только текущего encounter.
+        weapons: ShipWeaponState[];
+    };

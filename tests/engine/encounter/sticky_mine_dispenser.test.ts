@@ -4,21 +4,18 @@ import { describe, expect, it } from 'vitest';
 import {
     SHIP_WEAPON_TARGETING_DURATION_MS,
 } from '../../../src/engine/content/catalogs/ship_weapons';
-import { ENCOUNTER_TEAM } from '../../../src/engine/defs/encounter_team';
+import {
+    SHIP_NODE_ACTOR_PRESET_ID,
+} from '../../../src/engine/content/presets/ship_node_actors';
 import { LASER_TARGET_ZONE } from '../../../src/engine/defs/laser';
 import { OFFICER_ROLE } from '../../../src/engine/defs/officer';
 import { PLAYER_SPACE_NAVIGATION_KIND } from '../../../src/engine/defs/player_location';
-import { SHIP_CHASSIS_ID } from '../../../src/engine/defs/ship_chassis';
 import {
-    SHIP_WEAPON_ID,
     SHIP_WEAPON_KIND,
     SHIP_WEAPON_PHASE,
 } from '../../../src/engine/defs/ship_weapon';
-import {
-    SPACE_NODE_ACTOR_KIND,
-    type ShipSpaceNodeActorState,
-} from '../../../src/engine/defs/universe';
 import EncounterEngine from '../../../src/engine/encounter/EncounterEngine';
+import ShipNodeActorFactory from '../../../src/engine/generation/space_node_actor/ShipNodeActorFactory';
 import { ENCOUNTER_OFFICER_COMMAND_ID } from '../../../src/engine/encounter/model/command';
 import {
     ENCOUNTER_EVENT,
@@ -285,37 +282,16 @@ function createStickyMineEngine() {
         stationId,
     } = createSingleStationNodeFixture();
 
-    const enemy: ShipSpaceNodeActorState = {
-        id: 'ship_enemy_00',
+    const enemy =
+        ShipNodeActorFactory.create({
+            id: 'ship_enemy_00',
 
-        kind: SPACE_NODE_ACTOR_KIND.SHIP,
+            presetId:
+                SHIP_NODE_ACTOR_PRESET_ID
+                    .ENEMY_GENERIC_STICKY_MINES_00,
 
-        team: ENCOUNTER_TEAM.ENEMY,
-
-        chassisId: SHIP_CHASSIS_ID.GENERIC_00,
-        anchorId: stationId,
-
-        weapons: [
-            {
-                id:
-                    'sticky_mine_dispenser_00',
-
-                weaponId:
-                    SHIP_WEAPON_ID
-                        .STICKY_MINE_DISPENSER_00,
-
-                kind:
-                    SHIP_WEAPON_KIND
-                        .STICKY_MINE_DISPENSER,
-
-                phase:
-                    SHIP_WEAPON_PHASE.READY,
-                phaseElapsedMs: 0,
-
-                dispensedMineCount: 0,
-            },
-        ],
-    };
+            anchorId: stationId,
+        });
 
     node.actors.push(enemy);
 

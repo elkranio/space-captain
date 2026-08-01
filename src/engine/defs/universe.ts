@@ -3,12 +3,26 @@
 import type { AsteroidState } from './asteroid';
 import type { NavigationBeaconState } from './beacon';
 import type { JumpPointState } from './jump_point';
-import type { SpaceBackgroundId } from './space_background';
+import type {
+    ShieldGeneratorState,
+} from './shield_generator';
+import type {
+    ShipChassisId,
+} from './ship_chassis';
+import type {
+    ShipDriveState,
+} from './ship_drive';
+import type {
+    ShipWeaponState,
+} from './ship_weapon';
+import type {
+    SpaceBackgroundId,
+} from './space_background';
 import type { StationState } from './station';
 import type { Vec2, Vec3 } from './vector';
-import type { ShipChassisId } from './ship_chassis';
-import type { ShipWeaponState } from './ship_weapon';
-import type { EncounterTeam } from './encounter_team';
+import type {
+    EncounterTeam,
+} from './encounter_team';
 
 export const SPACE_ANCHOR_KIND = {
     STATION: 'station',
@@ -23,10 +37,12 @@ export type SpaceAnchorBaseState = {
     localPosition: Vec3;
 };
 
-export type StationSpaceAnchorState = SpaceAnchorBaseState & {
-    kind: typeof SPACE_ANCHOR_KIND.STATION;
-    station: StationState;
-};
+export type StationSpaceAnchorState =
+    SpaceAnchorBaseState & {
+        kind:
+            typeof SPACE_ANCHOR_KIND.STATION;
+        station: StationState;
+    };
 
 export const SPACE_NODE_ACTOR_KIND = {
     SHIP: 'ship',
@@ -43,29 +59,49 @@ export type SpaceNodeActorBaseState = {
     anchorId: string;
 };
 
-export type ShipSpaceNodeActorState = SpaceNodeActorBaseState & {
-    kind: typeof SPACE_NODE_ACTOR_KIND.SHIP;
+export type ShipSpaceNodeActorState =
+    SpaceNodeActorBaseState & {
+        kind:
+            typeof SPACE_NODE_ACTOR_KIND.SHIP;
 
-    chassisId: ShipChassisId;
-    weapons: ShipWeaponState[];
-};
+        chassisId: ShipChassisId;
 
-export type SpaceNodeActorState = ShipSpaceNodeActorState;
+        hull: number;
+        maxHull: number;
 
-export type NavigationBeaconSpaceAnchorState = SpaceAnchorBaseState & {
-    kind: typeof SPACE_ANCHOR_KIND.NAVIGATION_BEACON;
-    beacon: NavigationBeaconState;
-};
+        drive: ShipDriveState;
+        shieldGenerator:
+            ShieldGeneratorState;
 
-export type AsteroidSpaceAnchorState = SpaceAnchorBaseState & {
-    kind: typeof SPACE_ANCHOR_KIND.ASTEROID;
-    asteroid: AsteroidState;
-};
+        weapons: ShipWeaponState[];
+    };
 
-export type JumpPointSpaceAnchorState = SpaceAnchorBaseState & {
-    kind: typeof SPACE_ANCHOR_KIND.JUMP_POINT;
-    jumpPoint: JumpPointState;
-};
+export type SpaceNodeActorState =
+    ShipSpaceNodeActorState;
+
+export type NavigationBeaconSpaceAnchorState =
+    SpaceAnchorBaseState & {
+        kind:
+            typeof SPACE_ANCHOR_KIND
+                .NAVIGATION_BEACON;
+        beacon: NavigationBeaconState;
+    };
+
+export type AsteroidSpaceAnchorState =
+    SpaceAnchorBaseState & {
+        kind:
+            typeof SPACE_ANCHOR_KIND
+                .ASTEROID;
+        asteroid: AsteroidState;
+    };
+
+export type JumpPointSpaceAnchorState =
+    SpaceAnchorBaseState & {
+        kind:
+            typeof SPACE_ANCHOR_KIND
+                .JUMP_POINT;
+        jumpPoint: JumpPointState;
+    };
 
 export type SpaceAnchorState =
     | StationSpaceAnchorState
@@ -79,15 +115,18 @@ export type SpaceNodeState = {
     // Позиция ноды на общей 2D-карте вселенной.
     position: Vec2;
 
-    // Anchor, рядом с которым корабль появляется после прыжка.
+    // Anchor, рядом с которым корабль
+    // появляется после прыжка.
     arrivalAnchorId: string;
 
     spaceBackgroundId: SpaceBackgroundId;
 
     anchors: SpaceAnchorState[];
 
-    // Persistent actors, уже находящиеся внутри ноды.
-    // Encounter получает их runtime-копии при загрузке.
+    // Persistent actors,
+    // уже находящиеся внутри ноды.
+    // Encounter получает их runtime-копии
+    // при загрузке.
     actors: SpaceNodeActorState[];
 };
 
