@@ -44,7 +44,7 @@ type MissileImpactSetupOptions = {
 };
 
 describe('Player missile impact', () => {
-    it('advances flight and consumes the current enemy shield before hull', () => {
+    it('advances flight and damages hull without consuming the enemy shield', () => {
         const {
             engine,
             missileId,
@@ -99,11 +99,12 @@ describe('Player missile impact', () => {
         ).toMatchObject({
             hull: {
                 current:
-                    initialHull,
+                    initialHull -
+                    missile.damage,
             },
 
             shieldGenerator: {
-                current: 0,
+                current: 1,
             },
         });
 

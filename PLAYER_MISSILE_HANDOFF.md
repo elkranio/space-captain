@@ -34,7 +34,7 @@ Weapons chooses FIRE MISSILE
 → Weapons becomes free
 → launcher enters cooldown
 → missile flies independently
-→ shield or hull impact
+→ direct hull impact
 → possible enemy destruction
 ```
 
@@ -213,12 +213,13 @@ enemy dies
 At impact:
 
 ```text
-check current enemy shield state
-→ consume/block with shield first
-→ otherwise damage hull
+missile reaches a live enemy
+→ damage hull directly
 ```
 
-Shield state is checked at impact, not launch.
+Enemy shield generator does not interact with missiles.
+
+Missiles are countered by point defense. Enemy point defense remains outside this slice.
 
 If hull reaches zero, use the existing enemy destruction flow.
 
@@ -408,14 +409,14 @@ Scope:
 - advance player missile flight;
 - actor target lookup;
 - target-lost self-destruction/removal;
-- shield-first impact;
-- hull damage;
+- direct hull damage;
+- enemy shield remains unchanged;
 - existing enemy destruction flow.
 
 Tests:
 
-- shield consumes impact;
-- unshielded hull loses expected damage;
+- shielded hull still loses expected damage;
+- enemy shield charges remain unchanged;
 - hull zero emits existing destruction event once;
 - target removed before impact removes projectile with no damage;
 - player missile remains absent from Science/PD threat commands.
@@ -450,7 +451,7 @@ Then draw/import the outgoing missile and implement:
 
 - launch flash;
 - flight;
-- shield block or hull impact;
+- hull impact;
 - target-lost self-destruction.
 
 ## Atom 6 — Runtime acceptance
@@ -506,8 +507,8 @@ enemy destroyed after launch
 ## Impact
 
 ```text
-shield present → shield first
-no shield → hull damage
+shield present → shield unchanged and hull damaged
+no shield → hull damaged
 hull zero → existing destruction flow
 ```
 
@@ -542,7 +543,7 @@ After typecheck/tests:
 5. Weapons becomes free while the missile is still flying.
 6. Launcher enters cooldown.
 7. Missile visibly travels toward the enemy.
-8. Enemy shield blocks before hull damage.
+8. Enemy shield does not block the missile; hull takes damage.
 9. Unshielded impact damages hull.
 10. Missile can trigger the existing enemy destruction explosion.
 11. Laser destroys the enemy while missile is in flight:
@@ -593,7 +594,7 @@ command
 + launch/ammo/cooldown
 + independent projectile
 + target-loss self-destruction
-+ shield/hull impact
++ direct hull impact
 + enemy destruction integration
 + bridge presentation
 + runtime acceptance

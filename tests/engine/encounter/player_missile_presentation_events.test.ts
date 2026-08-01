@@ -163,48 +163,10 @@ describe('Player missile presentation events', () => {
         ).toEqual([]);
     });
 
-    it('reports shield block and hull hit outcomes', () => {
-        const blocked =
-            createSetup({
-                enemyShieldCharges: 1,
-                enemyHull: 2,
-            });
-
-        launchMissile(
-            blocked.engine,
-            blocked.targetActorId,
-        );
-
-        blocked.engine.drainEvents();
-
-        blocked.engine.step(
-            MISSILES[blocked.missileId]
-                .flightDurationMs,
-        );
-
-        expect(
-            blocked.engine.drainEvents(),
-        ).toContainEqual({
-            type:
-                ENCOUNTER_EVENT
-                    .PLAYER_MISSILE_RESOLVED,
-
-            projectile:
-                expect.objectContaining({
-                    id: 'projectile_1',
-                    timeToImpactMs: 0,
-                }),
-
-            outcome:
-                PLAYER_MISSILE_OUTCOME
-                    .BLOCKED,
-
-            remainingShieldCharges: 0,
-        });
-
+    it('reports a hull hit even while the enemy shield is charged', () => {
         const hit =
             createSetup({
-                enemyShieldCharges: 0,
+                enemyShieldCharges: 1,
                 enemyHull: 2,
             });
 

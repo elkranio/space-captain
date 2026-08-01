@@ -333,20 +333,6 @@ export type PlayerMissileResolvedEvent =
 
           outcome:
               typeof PLAYER_MISSILE_OUTCOME
-                  .BLOCKED;
-
-          remainingShieldCharges: number;
-      }
-    | {
-          type:
-              typeof ENCOUNTER_EVENT
-                  .PLAYER_MISSILE_RESOLVED;
-
-          projectile:
-              MissileCombatProjectileState;
-
-          outcome:
-              typeof PLAYER_MISSILE_OUTCOME
                   .HIT;
 
           damage: number;

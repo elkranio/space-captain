@@ -1315,43 +1315,6 @@ export default class CombatRunner {
             1,
         );
 
-        if (
-            target.shieldGenerator.charges >
-            0
-        ) {
-            target.shieldGenerator.charges -=
-                1;
-
-            // Будущая enemy shield regeneration
-            // начнёт новый цикл с impact.
-            target
-                .shieldGenerator
-                .chargeRegenerationElapsedMs =
-                0;
-
-            this.emit({
-                type:
-                    ENCOUNTER_EVENT
-                        .PLAYER_MISSILE_RESOLVED,
-
-                projectile:
-                    this.cloneMissileProjectile(
-                        projectile,
-                    ),
-
-                outcome:
-                    PLAYER_MISSILE_OUTCOME
-                        .BLOCKED,
-
-                remainingShieldCharges:
-                    target
-                        .shieldGenerator
-                        .charges,
-            });
-
-            return;
-        }
-
         const appliedDamage =
             Math.min(
                 missile.damage,

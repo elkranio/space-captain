@@ -633,8 +633,8 @@ launcher READY + ammo > 0 + live enemy
 → Weapons becomes free immediately
 → launcher enters cooldown
 → projectile flies independently toward the enemy
-→ enemy shield absorbs first
-→ otherwise hull takes damage
+→ enemy shield does not interact with missiles
+→ hull takes damage on impact
 → normal enemy destruction flow may trigger
 ```
 
@@ -644,7 +644,7 @@ Target rules:
 - no target-zone choice for the first missile version;
 - if the target disappears during aiming, the task ends without spending ammo;
 - if the target disappears after launch, the outgoing missile self-destructs/disappears;
-- shield state is checked at impact, not launch.
+- enemy shield generator does not interact with missiles; point defense is the missile counter.
 
 Persistence rules:
 

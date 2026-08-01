@@ -114,9 +114,10 @@ describe('Bridge player missile event mapping', () => {
 
                 outcome:
                     PLAYER_MISSILE_OUTCOME
-                        .BLOCKED,
+                        .HIT,
 
-                remainingShieldCharges: 0,
+                damage: 1,
+                remainingHull: 1,
             },
         ]);
 
@@ -155,7 +156,7 @@ describe('Bridge player missile event mapping', () => {
 
                     outcome:
                         PLAYER_MISSILE_OUTCOME
-                            .BLOCKED,
+                            .HIT,
                 },
             ],
         ]);

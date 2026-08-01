@@ -226,7 +226,7 @@ export const BRIDGE_EVENT = {
         'outgoing_missiles_updated',
 
     // Ракета игрока завершила lifecycle:
-    // target lost, shield block или hull hit.
+    // target lost или hull hit.
     OUTGOING_MISSILE_REMOVED:
         'outgoing_missile_removed',
 
