@@ -49,7 +49,8 @@ const WEAPON_TASK_ROLES = [
 // - занимает роль;
 // - запускает targeting;
 // - освобождает роль,
-//   когда оружие закончило активную работу.
+//   когда оружие закончило активную работу;
+// - сообщает policy о завершении offensive task.
 export default class EnemyTaskScheduler {
     private readonly state: EncounterState;
 
@@ -67,8 +68,9 @@ export default class EnemyTaskScheduler {
         this.emit = emit;
     }
 
-    public schedule(): void {
+    public schedule(deltaMs: number): void {
         this.synchronizeTasks();
+        this.advanceDecisions(deltaMs);
 
         const navigation =
             this.state.navigation;
@@ -156,7 +158,33 @@ export default class EnemyTaskScheduler {
                 }
 
                 delete actor.crewTasks[role];
+
+                if (weapon) {
+                    this.decisionPolicy
+                        .onOffensiveTaskCompleted(
+                            actor,
+                            role,
+                        );
+                }
             }
+        }
+    }
+
+    private advanceDecisions(
+        deltaMs: number,
+    ): void {
+        for (const actor of this.state.actors) {
+            if (
+                actor.team !==
+                ENCOUNTER_TEAM.ENEMY
+            ) {
+                continue;
+            }
+
+            this.decisionPolicy.advance(
+                actor,
+                deltaMs,
+            );
         }
     }
 

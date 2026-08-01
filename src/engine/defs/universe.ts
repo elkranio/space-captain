@@ -10,6 +10,9 @@ import type {
     ShieldGeneratorState,
 } from './shield_generator';
 import type {
+    ShipBehaviorState,
+} from './ship_behavior';
+import type {
     ShipChassisId,
 } from './ship_chassis';
 import type {
@@ -75,6 +78,8 @@ export type ShipSpaceNodeActorState =
         drive: ShipDriveState;
         shieldGenerator:
             ShieldGeneratorState;
+
+        behavior: ShipBehaviorState;
 
         crewRoles: OfficerRole[];
 

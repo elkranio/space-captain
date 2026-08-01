@@ -5,6 +5,10 @@ import {
     type EncounterTeam,
 } from '../../defs/encounter_team';
 import {
+    SHIP_BEHAVIOR_PRESET_ID,
+    type ShipBehaviorPresetId,
+} from './ship_behaviors';
+import {
     SHIP_CREW_PRESET_ID,
     type ShipCrewPresetId,
 } from './ship_crews';
@@ -42,6 +46,8 @@ export type ShipNodeActorPreset = {
 
     shipPresetId: ShipPresetId;
     crewPresetId: ShipCrewPresetId;
+    behaviorPresetId:
+        ShipBehaviorPresetId;
 };
 
 export const SHIP_NODE_ACTOR_PRESETS = {
@@ -58,6 +64,10 @@ export const SHIP_NODE_ACTOR_PRESETS = {
 
         crewPresetId:
             SHIP_CREW_PRESET_ID.STANDARD_00,
+
+        behaviorPresetId:
+            SHIP_BEHAVIOR_PRESET_ID
+                .STANDARD_COMBAT_00,
     },
 
     [SHIP_NODE_ACTOR_PRESET_ID.ENEMY_GENERIC_BLUE_00]: {
@@ -73,6 +83,10 @@ export const SHIP_NODE_ACTOR_PRESETS = {
 
         crewPresetId:
             SHIP_CREW_PRESET_ID.STANDARD_00,
+
+        behaviorPresetId:
+            SHIP_BEHAVIOR_PRESET_ID
+                .STANDARD_COMBAT_00,
     },
 
     [SHIP_NODE_ACTOR_PRESET_ID.ENEMY_GENERIC_LASER_00]: {
@@ -88,6 +102,10 @@ export const SHIP_NODE_ACTOR_PRESETS = {
 
         crewPresetId:
             SHIP_CREW_PRESET_ID.STANDARD_00,
+
+        behaviorPresetId:
+            SHIP_BEHAVIOR_PRESET_ID
+                .STANDARD_COMBAT_00,
     },
 
     [SHIP_NODE_ACTOR_PRESET_ID.ENEMY_GENERIC_SPAM_00]: {
@@ -103,6 +121,10 @@ export const SHIP_NODE_ACTOR_PRESETS = {
 
         crewPresetId:
             SHIP_CREW_PRESET_ID.STANDARD_00,
+
+        behaviorPresetId:
+            SHIP_BEHAVIOR_PRESET_ID
+                .STANDARD_COMBAT_00,
     },
 
     [SHIP_NODE_ACTOR_PRESET_ID.ENEMY_GENERIC_STICKY_MINES_00]: {
@@ -118,6 +140,10 @@ export const SHIP_NODE_ACTOR_PRESETS = {
 
         crewPresetId:
             SHIP_CREW_PRESET_ID.STANDARD_00,
+
+        behaviorPresetId:
+            SHIP_BEHAVIOR_PRESET_ID
+                .STANDARD_COMBAT_00,
     },
 
     [SHIP_NODE_ACTOR_PRESET_ID.ENEMY_COMBAT_00]: {
@@ -133,6 +159,10 @@ export const SHIP_NODE_ACTOR_PRESETS = {
 
         crewPresetId:
             SHIP_CREW_PRESET_ID.STANDARD_00,
+
+        behaviorPresetId:
+            SHIP_BEHAVIOR_PRESET_ID
+                .STANDARD_COMBAT_00,
     },
 } satisfies Record<
     ShipNodeActorPresetId,

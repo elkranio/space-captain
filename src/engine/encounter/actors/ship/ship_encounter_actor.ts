@@ -7,6 +7,9 @@ import type {
     ShieldGeneratorState,
 } from '../../../defs/shield_generator';
 import type {
+    ShipBehaviorState,
+} from '../../../defs/ship_behavior';
+import type {
     ShipChassisId,
 } from '../../../defs/ship_chassis';
 import type {
@@ -45,6 +48,8 @@ export type ShipEncounterActorState =
         drive: ShipDriveState;
         shieldGenerator:
             ShieldGeneratorState;
+
+        behavior: ShipBehaviorState;
 
         // Абстрактные роли,
         // физически доступные этому экипажу.

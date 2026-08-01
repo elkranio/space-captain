@@ -49,6 +49,9 @@ import {
     createShieldGeneratorFixture,
 } from '../../fixtures/engine/shield_generator_fixtures';
 import {
+    createShipBehaviorFixture,
+} from '../../fixtures/engine/ship_behavior_fixtures';
+import {
     createShipDriveFixture,
 } from '../../fixtures/engine/ship_drive_fixtures';
 import {
@@ -87,6 +90,9 @@ describe('encounter actors', () => {
         const shieldGenerator =
             createShieldGeneratorFixture();
 
+        const behavior =
+            createShipBehaviorFixture();
+
         const actor = store.spawnShipActor({
             actorId: 'ship_test_00',
             chassisId:
@@ -100,6 +106,7 @@ describe('encounter actors', () => {
 
             drive,
             shieldGenerator,
+            behavior,
 
             crewRoles: [
                 OFFICER_ROLE.WEAPONS,
@@ -134,12 +141,19 @@ describe('encounter actors', () => {
                 ...shieldGenerator,
             },
 
+            behavior: {
+                ...behavior,
+            },
+
             crewRoles: [
                 OFFICER_ROLE.WEAPONS,
             ],
 
             decision: {
                 nextWeaponIndexByRole: {},
+
+                offensiveTaskDelayRemainingMsByRole:
+                    {},
             },
 
             crewTasks: {},
@@ -153,6 +167,10 @@ describe('encounter actors', () => {
         expect(
             actor.shieldGenerator,
         ).not.toBe(shieldGenerator);
+
+        expect(actor.behavior).not.toBe(
+            behavior,
+        );
 
         expect(
             store.findAnchorById(actor.id),
@@ -217,6 +235,9 @@ describe('encounter actors', () => {
                 shieldGenerator:
                     createShieldGeneratorFixture(),
 
+                behavior:
+                    createShipBehaviorFixture(),
+
                 crewRoles: [
                     OFFICER_ROLE.WEAPONS,
                 ],
@@ -244,6 +265,9 @@ describe('encounter actors', () => {
             shieldGenerator:
                 createShieldGeneratorFixture(),
 
+            behavior:
+                createShipBehaviorFixture(),
+
             crewRoles: [
                 OFFICER_ROLE.WEAPONS,
             ],
@@ -269,6 +293,9 @@ describe('encounter actors', () => {
                     createShipDriveFixture(),
                 shieldGenerator:
                     createShieldGeneratorFixture(),
+
+                behavior:
+                    createShipBehaviorFixture(),
 
                 crewRoles: [
                     OFFICER_ROLE.WEAPONS,
@@ -384,6 +411,11 @@ describe('encounter actors', () => {
                                         .shieldGenerator,
                                 },
 
+                                behavior: {
+                                    ...nodeActor
+                                        .behavior,
+                                },
+
                                 crewRoles: [
                                     ...nodeActor
                                         .crewRoles,
@@ -391,6 +423,9 @@ describe('encounter actors', () => {
 
                                 decision: {
                                     nextWeaponIndexByRole:
+                                        {},
+
+                                    offensiveTaskDelayRemainingMsByRole:
                                         {},
                                 },
 
@@ -438,6 +473,10 @@ describe('encounter actors', () => {
         );
 
         expect(
+            encounterActor.behavior,
+        ).not.toBe(nodeActor.behavior);
+
+        expect(
             encounterActor.crewRoles,
         ).not.toBe(nodeActor.crewRoles);
 
@@ -471,6 +510,9 @@ describe('encounter actors', () => {
             .shieldGenerator
             .charges = 0;
 
+        encounterActor.behavior
+            .offensiveTaskDelayMs = 0;
+
         encounterActor.crewRoles.length = 0;
 
         encounterWeapon.ammoCount = 4;
@@ -492,6 +534,11 @@ describe('encounter actors', () => {
                 .shieldGenerator
                 .maxCharges,
         );
+
+        expect(
+            nodeActor.behavior
+                .offensiveTaskDelayMs,
+        ).toBe(2000);
 
         expect(
             nodeActor.crewRoles.length,

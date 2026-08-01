@@ -96,6 +96,10 @@ describe('ShipNodeActorFactory', () => {
                 chargeRegenerationElapsedMs: 0,
             },
 
+            behavior: {
+                offensiveTaskDelayMs: 2000,
+            },
+
             crewRoles:
                 STANDARD_CREW_ROLES,
 
@@ -132,6 +136,9 @@ describe('ShipNodeActorFactory', () => {
         expect(first.shieldGenerator).not.toBe(
             second.shieldGenerator,
         );
+        expect(first.behavior).not.toBe(
+            second.behavior,
+        );
         expect(first.crewRoles).not.toBe(
             second.crewRoles,
         );
@@ -166,6 +173,9 @@ describe('ShipNodeActorFactory', () => {
 
         first.shieldGenerator.charges = 0;
 
+        first.behavior
+            .offensiveTaskDelayMs = 0;
+
         first.crewRoles.length = 0;
 
         firstWeapon.ammoCount = 0;
@@ -181,6 +191,11 @@ describe('ShipNodeActorFactory', () => {
         expect(
             second.shieldGenerator.charges,
         ).toBe(3);
+
+        expect(
+            second.behavior
+                .offensiveTaskDelayMs,
+        ).toBe(2000);
 
         expect(second.crewRoles).toEqual(
             STANDARD_CREW_ROLES,
@@ -232,6 +247,10 @@ describe('ShipNodeActorFactory', () => {
                 chargeRegenerationDurationMs:
                     20000,
                 chargeRegenerationElapsedMs: 0,
+            },
+
+            behavior: {
+                offensiveTaskDelayMs: 2000,
             },
 
             crewRoles:

@@ -18,15 +18,86 @@ import type {
 // - для каждой роли идёт round-robin
 //   по её оружию в порядке loadout;
 // - недоступное оружие пропускается;
+// - завершённая offensive task запускает
+//   отдельную паузу только для этой роли;
 // - scheduler остаётся только исполнителем.
 //
 // Позже здесь появятся состояние боя,
-// defensive priorities и behavior preset.
+// defensive priorities и разные behavior presets.
 export default class EnemyDecisionPolicy {
+    public advance(
+        actor: ShipEncounterActorState,
+        deltaMs: number,
+    ): void {
+        const delays =
+            actor.decision
+                .offensiveTaskDelayRemainingMsByRole;
+
+        const roles =
+            Object.keys(delays) as OfficerRole[];
+
+        for (const role of roles) {
+            const remainingMs =
+                delays[role];
+
+            if (remainingMs === undefined) {
+                continue;
+            }
+
+            const nextRemainingMs =
+                Math.max(
+                    0,
+                    remainingMs - deltaMs,
+                );
+
+            if (nextRemainingMs === 0) {
+                delete delays[role];
+                continue;
+            }
+
+            delays[role] =
+                nextRemainingMs;
+        }
+    }
+
+    public onOffensiveTaskCompleted(
+        actor: ShipEncounterActorState,
+        role: OfficerRole,
+    ): void {
+        const delayMs =
+            actor.behavior
+                .offensiveTaskDelayMs;
+
+        if (delayMs <= 0) {
+            delete actor.decision
+                .offensiveTaskDelayRemainingMsByRole[
+                    role
+                ];
+
+            return;
+        }
+
+        actor.decision
+            .offensiveTaskDelayRemainingMsByRole[
+                role
+            ] = delayMs;
+    }
+
     public selectWeapon(
         actor: ShipEncounterActorState,
         role: OfficerRole,
     ): ShipWeaponState | undefined {
+        if (
+            (
+                actor.decision
+                    .offensiveTaskDelayRemainingMsByRole[
+                        role
+                    ] ?? 0
+            ) > 0
+        ) {
+            return undefined;
+        }
+
         const weapons =
             actor.weapons.filter((weapon) => {
                 return (

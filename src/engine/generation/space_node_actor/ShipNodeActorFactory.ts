@@ -1,6 +1,9 @@
 // src/engine/generation/space_node_actor/ShipNodeActorFactory.ts
 
 import {
+    SHIP_BEHAVIOR_PRESETS,
+} from '../../content/presets/ship_behaviors';
+import {
     SHIP_CREW_PRESETS,
 } from '../../content/presets/ship_crews';
 import {
@@ -42,6 +45,11 @@ export default class ShipNodeActorFactory {
                 actorPreset.crewPresetId
             ];
 
+        const behavior =
+            SHIP_BEHAVIOR_PRESETS[
+                actorPreset.behaviorPresetId
+            ];
+
         return {
             id,
             kind: SPACE_NODE_ACTOR_KIND.SHIP,
@@ -57,6 +65,12 @@ export default class ShipNodeActorFactory {
             drive: ship.drive,
             shieldGenerator:
                 ship.shieldGenerator,
+
+            behavior: {
+                offensiveTaskDelayMs:
+                    behavior
+                        .offensiveTaskDelayMs,
+            },
 
             crewRoles: [
                 ...crew.roles,

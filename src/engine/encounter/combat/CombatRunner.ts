@@ -106,7 +106,7 @@ export default class CombatRunner {
         this.advanceProjectiles(deltaMs);
         this.advanceStickyMines(deltaMs);
 
-        this.enemyTaskScheduler.schedule();
+        this.enemyTaskScheduler.schedule(deltaMs);
         this.advanceWeapons(deltaMs);
         this.enemyTaskScheduler
             .synchronizeTasks();

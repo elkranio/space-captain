@@ -9,10 +9,15 @@ import {
     SHIP_WEAPON_TARGETING_DURATION_MS,
 } from '../../../src/engine/content/catalogs/ship_weapons';
 import {
+    SHIP_BEHAVIOR_PRESETS,
+    SHIP_BEHAVIOR_PRESET_ID,
+} from '../../../src/engine/content/presets/ship_behaviors';
+import {
     SHIP_NODE_ACTOR_PRESET_ID,
 } from '../../../src/engine/content/presets/ship_node_actors';
 import {
     OFFICER_ROLE,
+    type OfficerRole,
 } from '../../../src/engine/defs/officer';
 import {
     PLAYER_SPACE_NAVIGATION_KIND,
@@ -37,6 +42,12 @@ import {
 import {
     createSingleStationNodeFixture,
 } from '../../fixtures/engine/space_node_fixtures';
+
+const OFFENSIVE_TASK_DELAY_MS =
+    SHIP_BEHAVIOR_PRESETS[
+        SHIP_BEHAVIOR_PRESET_ID
+            .STANDARD_COMBAT_00
+    ].offensiveTaskDelayMs;
 
 describe('Enemy task scheduler', () => {
     it('starts one weapons task and one science task in parallel', () => {
@@ -104,7 +115,7 @@ describe('Enemy task scheduler', () => {
         ]);
     });
 
-    it('releases a completed role before scheduling the next weapon', () => {
+    it('waits after a completed offensive task before scheduling the next weapon', () => {
         const {
             engine,
             actor,
@@ -135,6 +146,13 @@ describe('Enemy task scheduler', () => {
         ).toBeUndefined();
 
         expect(
+            actor.decision
+                .offensiveTaskDelayRemainingMsByRole[
+                    OFFICER_ROLE.WEAPONS
+                ],
+        ).toBe(OFFENSIVE_TASK_DELAY_MS);
+
+        expect(
             actor.crewTasks[
                 OFFICER_ROLE.SCIENCE
             ],
@@ -148,7 +166,19 @@ describe('Enemy task scheduler', () => {
             weaponId: 'spam_projector_00',
         });
 
-        engine.step(0);
+        engine.step(
+            OFFENSIVE_TASK_DELAY_MS - 1,
+        );
+
+        expect(engine.drainEvents()).toEqual([]);
+
+        expect(
+            actor.crewTasks[
+                OFFICER_ROLE.WEAPONS
+            ],
+        ).toBeUndefined();
+
+        engine.step(1);
 
         expect(engine.drainEvents()).toEqual([
             {
@@ -231,7 +261,7 @@ describe('Enemy task scheduler', () => {
 });
 
 function createEnemyCombatEngine(
-    crewRoles?: typeof OFFICER_ROLE[keyof typeof OFFICER_ROLE][],
+    crewRoles?: OfficerRole[],
 ) {
     const {
         node,

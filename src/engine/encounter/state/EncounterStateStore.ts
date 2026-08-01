@@ -14,6 +14,7 @@ import {
     type PointDefenseState,
 } from '../../defs/point_defense';
 import type { ShieldGeneratorState } from '../../defs/shield_generator';
+import type { ShipBehaviorState } from '../../defs/ship_behavior';
 import {
     SHIP_DRIVE_STATUS,
     type ShipDriveState,
@@ -54,6 +55,8 @@ export type SpawnShipActorInput = {
 
     drive: ShipDriveState;
     shieldGenerator: ShieldGeneratorState;
+
+    behavior: ShipBehaviorState;
 
     crewRoles: OfficerRole[];
 
@@ -102,6 +105,9 @@ export default class EncounterStateStore {
                 drive: actor.drive,
                 shieldGenerator:
                     actor.shieldGenerator,
+
+                behavior:
+                    actor.behavior,
 
                 crewRoles:
                     actor.crewRoles,
@@ -168,6 +174,7 @@ export default class EncounterStateStore {
         maxHull,
         drive,
         shieldGenerator,
+        behavior,
         crewRoles,
         weapons,
     }: SpawnShipActorInput): ShipEncounterActorState {
@@ -208,12 +215,19 @@ export default class EncounterStateStore {
                 ...shieldGenerator,
             },
 
+            behavior: {
+                ...behavior,
+            },
+
             crewRoles: [
                 ...crewRoles,
             ],
 
             decision: {
                 nextWeaponIndexByRole: {},
+
+                offensiveTaskDelayRemainingMsByRole:
+                    {},
             },
 
             crewTasks: {},
