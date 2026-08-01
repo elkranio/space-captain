@@ -6,6 +6,9 @@ import type { PlayerSpaceNavigationState } from '../defs/player_location';
 import type { PointDefenseState } from '../defs/point_defense';
 import type { ShieldGeneratorState } from '../defs/shield_generator';
 import type { ShipDriveState } from '../defs/ship_drive';
+import type {
+    ShipWeaponState,
+} from '../defs/ship_weapon';
 import type { SpaceNodeState } from '../defs/universe';
 import CombatEngagementRunner from './combat/CombatEngagementRunner';
 import CombatRunner from './combat/CombatRunner';
@@ -58,6 +61,10 @@ export type EncounterEngineOptions = {
     // физически нет shield generator.
     shieldGenerator?: ShieldGeneratorState;
 
+    // Installed player weapons.
+    // Empty loadout remains valid.
+    weapons?: ShipWeaponState[];
+
     completeTimedTasksImmediately?: boolean;
 
     // Test seam и будущая точка подключения seeded RNG.
@@ -90,6 +97,7 @@ export default class EncounterEngine {
         drive,
         pointDefense,
         shieldGenerator,
+        weapons = [],
 
         completeTimedTasksImmediately = false,
 
@@ -102,6 +110,7 @@ export default class EncounterEngine {
                 drive,
                 pointDefense,
                 shieldGenerator,
+                weapons,
             );
 
         const encounterState = this.stateStore.getState();
@@ -261,6 +270,19 @@ export default class EncounterEngine {
                 ...task,
             };
         });
+    }
+
+    public getPlayerWeaponStates():
+        ShipWeaponState[] {
+        return this.stateStore
+            .getState()
+            .combat
+            .playerWeapons
+            .map((weapon) => {
+                return {
+                    ...weapon,
+                };
+            });
     }
 
     public getEnemyShipTelemetrySnapshots():

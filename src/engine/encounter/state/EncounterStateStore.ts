@@ -80,6 +80,7 @@ export default class EncounterStateStore {
         drive: ShipDriveState,
         pointDefense: PointDefenseState,
         shieldGenerator?: ShieldGeneratorState,
+        playerWeapons: ShipWeaponState[] = [],
     ): EncounterStateStore {
         const store = new EncounterStateStore(
             createEncounterState(
@@ -88,6 +89,7 @@ export default class EncounterStateStore {
                 drive,
                 pointDefense,
                 shieldGenerator,
+                playerWeapons,
             ),
         );
 

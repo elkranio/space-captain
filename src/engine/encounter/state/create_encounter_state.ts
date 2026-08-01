@@ -4,6 +4,9 @@ import type { PlayerSpaceNavigationState } from '../../defs/player_location';
 import type { PointDefenseState } from '../../defs/point_defense';
 import type { ShieldGeneratorState } from '../../defs/shield_generator';
 import type { ShipDriveState } from '../../defs/ship_drive';
+import type {
+    ShipWeaponState,
+} from '../../defs/ship_weapon';
 import { SPACE_ANCHOR_KIND, type SpaceAnchorState, type SpaceNodeState } from '../../defs/universe';
 import { ENCOUNTER_ANCHOR_KIND, type EncounterAnchorState } from '../anchors/encounter_anchor';
 import { DOCKING_CLEARANCE_STATE } from '../anchors/station/station_encounter_anchor';
@@ -15,6 +18,7 @@ export function createEncounterState(
     drive: ShipDriveState,
     pointDefense: PointDefenseState,
     shieldGenerator?: ShieldGeneratorState,
+    playerWeapons: ShipWeaponState[] = [],
 ): EncounterState {
     return {
         spaceBackgroundId: node.spaceBackgroundId,
@@ -45,6 +49,15 @@ export function createEncounterState(
             pointDefense: {
                 ...pointDefense,
             },
+
+            playerWeapons:
+                playerWeapons.map(
+                    (weapon) => {
+                        return {
+                            ...weapon,
+                        };
+                    },
+                ),
 
             ...(shieldGenerator
                 ? {

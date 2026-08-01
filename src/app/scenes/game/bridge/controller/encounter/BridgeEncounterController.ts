@@ -185,6 +185,8 @@ export default class BridgeEncounterController {
             pointDefense: run.player.ship.pointDefense,
             shieldGenerator: run.player.ship.shieldGenerator,
 
+            weapons: run.player.ship.weapons,
+
             completeTimedTasksImmediately: DEBUG_SETTINGS.bridge.officerTasks.completeTimedTasksImmediately,
         });
 
