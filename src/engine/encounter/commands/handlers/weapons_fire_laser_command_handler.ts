@@ -153,6 +153,7 @@ function findCurrentEnemyShip(
         return (
             actor.team ===
                 ENCOUNTER_TEAM.ENEMY &&
+            actor.hull > 0 &&
             actor.anchorId ===
                 navigation.anchorId
         );

@@ -91,6 +91,10 @@ export default class EnemyTaskScheduler {
                 continue;
             }
 
+            if (actor.hull <= 0) {
+                continue;
+            }
+
             if (
                 actor.anchorId !==
                 navigation.anchorId
@@ -120,6 +124,18 @@ export default class EnemyTaskScheduler {
 
     public synchronizeTasks(): void {
         for (const actor of this.state.actors) {
+            if (actor.hull <= 0) {
+                for (
+                    const role of
+                        WEAPON_TASK_ROLES
+                ) {
+                    delete actor
+                        .crewTasks[role];
+                }
+
+                continue;
+            }
+
             for (
                 const role of WEAPON_TASK_ROLES
             ) {
@@ -178,6 +194,10 @@ export default class EnemyTaskScheduler {
                 actor.team !==
                 ENCOUNTER_TEAM.ENEMY
             ) {
+                continue;
+            }
+
+            if (actor.hull <= 0) {
                 continue;
             }
 

@@ -261,6 +261,19 @@ export default class BridgeEncounterEngineEventHandler {
                 // видимое player weapon и VFX.
                 return;
 
+            case ENCOUNTER_EVENT.ENEMY_SHIP_DESTROYED:
+                this.setEncounterInteractive(false);
+
+                this.eventBus.emit(
+                    BRIDGE_EVENT
+                        .SCENE_TRANSITION_REQUESTED,
+                    {
+                        sceneKey:
+                            SCENE_KEY.END,
+                    },
+                );
+                return;
+
             case ENCOUNTER_EVENT.MISSILE_LAUNCHED:
                 this.eventBus.emit(BRIDGE_EVENT.MISSILE_TARGETING_WARNING_CLEARED);
 

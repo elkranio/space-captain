@@ -50,6 +50,9 @@ export const ENCOUNTER_EVENT = {
     PLAYER_LASER_FIRED:
         'player_laser_fired',
 
+    ENEMY_SHIP_DESTROYED:
+        'enemy_ship_destroyed',
+
     MISSILE_LAUNCHED: 'missile_launched',
     MISSILE_IMPACTED_PLAYER_SHIP: 'missile_impacted_player_ship',
     LASER_ATTACK_STARTED: 'laser_attack_started',
@@ -289,6 +292,13 @@ export type PlayerLaserFiredEvent =
           remainingHull: number;
       };
 
+export type EnemyShipDestroyedEvent = {
+    type:
+        typeof ENCOUNTER_EVENT.ENEMY_SHIP_DESTROYED;
+
+    actorId: string;
+};
+
 export type MissileLaunchedEvent = {
     type: typeof ENCOUNTER_EVENT.MISSILE_LAUNCHED;
 
@@ -371,6 +381,7 @@ export type EncounterEvent =
     | PlayerShipTargetingDetectedEvent
     | PlayerLaserChargingStartedEvent
     | PlayerLaserFiredEvent
+    | EnemyShipDestroyedEvent
     | MissileLaunchedEvent
     | MissileImpactedPlayerShipEvent
     | StickyMineAttachedEvent

@@ -116,6 +116,10 @@ export default class CombatRunner {
         const channels: SpamChannelState[] = [];
 
         for (const actor of this.state.actors) {
+            if (actor.hull <= 0) {
+                continue;
+            }
+
             for (const weapon of actor.weapons) {
                 if (
                     weapon.kind !== SHIP_WEAPON_KIND.SPAM_PROJECTOR ||
@@ -193,6 +197,10 @@ export default class CombatRunner {
 
     private advanceWeapons(deltaMs: number): void {
         for (const actor of this.state.actors) {
+            if (actor.hull <= 0) {
+                continue;
+            }
+
             for (const weapon of actor.weapons) {
                 switch (weapon.phase) {
                     case SHIP_WEAPON_PHASE.READY:

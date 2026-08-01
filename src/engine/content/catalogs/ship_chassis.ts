@@ -18,7 +18,4 @@ export const SHIP_CHASSIS = {
 
         maxHull: 3,
     },
-} satisfies Record<
-    ShipChassisId,
-    ShipChassisDefinition
->;
+} satisfies Record<ShipChassisId, ShipChassisDefinition>;

@@ -324,6 +324,22 @@ export default class PlayerWeaponRunner {
         // Weapons освобождается сразу после выстрела.
         // Cooldown не занимает офицера.
         this.completeOfficerTask(task.id);
+
+        if (
+            impact.outcome ===
+                LASER_SHOT_OUTCOME.HIT &&
+            impact.damage > 0 &&
+            impact.remainingHull === 0
+        ) {
+            this.emit({
+                type:
+                    ENCOUNTER_EVENT
+                        .ENEMY_SHIP_DESTROYED,
+
+                actorId:
+                    task.targetActorId,
+            });
+        }
     }
 
     private resolveLaserImpact(
