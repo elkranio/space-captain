@@ -103,6 +103,7 @@ export default class BridgeEncounterController {
 
         this.encounterEngine.step(deltaMs);
 
+        this.syncRuntimePlayerWeaponsFromEngine();
         this.drainEncounterEvents();
         this.syncIncomingMissiles();
         this.syncStickyMines();
@@ -207,7 +208,15 @@ export default class BridgeEncounterController {
             completeTimedTasksImmediately: DEBUG_SETTINGS.bridge.officerTasks.completeTimedTasksImmediately,
         });
 
-        this.officerCommandMenuController = new BridgeOfficerCommandMenuController(this.encounterEngine, this.eventBus);
+        this.officerCommandMenuController =
+            new BridgeOfficerCommandMenuController(
+                this.encounterEngine,
+                this.eventBus,
+
+                () => {
+                    this.syncRuntimePlayerWeaponsFromEngine();
+                },
+            );
 
         this.officerStationsController = new BridgeOfficerStationsController(this.encounterEngine, this.eventBus);
 
@@ -494,6 +503,7 @@ export default class BridgeEncounterController {
         const result = this.encounterEngine.executeCommand(input);
 
         if (result.status === OFFICER_COMMAND_EXECUTION_STATUS.EXECUTED) {
+            this.syncRuntimePlayerWeaponsFromEngine();
             this.syncRuntimeNavigationFromEngine();
             this.drainEncounterEvents();
             this.syncLaserThreats();
@@ -619,6 +629,18 @@ export default class BridgeEncounterController {
     // #endregion
 
     // #region Runtime synchronization
+
+    private syncRuntimePlayerWeaponsFromEngine(): void {
+        if (!this.encounterEngine) {
+            return;
+        }
+
+        GAME_RUNTIME
+            .setPlayerShipWeaponStates(
+                this.encounterEngine
+                    .getPlayerWeaponStates(),
+            );
+    }
 
     private syncRuntimeNavigationFromEngine(expectedKind?: PlayerSpaceNavigationState['kind']): void {
         if (!this.encounterEngine) {

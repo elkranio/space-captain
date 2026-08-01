@@ -9,6 +9,7 @@ import {
 import type { RunState } from '../../engine/defs/run';
 import type { ShieldGeneratorState } from '../../engine/defs/shield_generator';
 import type { ShipDriveState } from '../../engine/defs/ship_drive';
+import type { ShipWeaponState } from '../../engine/defs/ship_weapon';
 import { SPACE_ANCHOR_KIND, type SpaceAnchorState } from '../../engine/defs/universe';
 import { getCurrentNode } from '../../engine/universe/queries/get_current_node';
 
@@ -135,6 +136,110 @@ export class GameRuntime {
         }
 
         current.status = next.status;
+    }
+
+    public setPlayerShipWeaponStates(
+        next: ShipWeaponState[],
+    ): void {
+        const current =
+            this.currentRun
+                .player
+                .ship
+                .weapons;
+
+        if (
+            next.length !==
+            current.length
+        ) {
+            throw new Error(
+                'Player ship weapon count cannot change: ' +
+                    `${next.length} !== ${current.length}`,
+            );
+        }
+
+        const nextById =
+            new Map<
+                string,
+                ShipWeaponState
+            >();
+
+        for (const weapon of next) {
+            if (
+                nextById.has(weapon.id)
+            ) {
+                throw new Error(
+                    'Duplicate player ship weapon runtime id: ' +
+                        weapon.id,
+                );
+            }
+
+            if (
+                !Number.isFinite(
+                    weapon.phaseElapsedMs,
+                ) ||
+                weapon.phaseElapsedMs < 0
+            ) {
+                throw new Error(
+                    'Player ship weapon phase elapsed must be non-negative: ' +
+                        `${weapon.id}/${weapon.phaseElapsedMs}`,
+                );
+            }
+
+            nextById.set(
+                weapon.id,
+                weapon,
+            );
+        }
+
+        for (
+            const currentWeapon of
+            current
+        ) {
+            const nextWeapon =
+                nextById.get(
+                    currentWeapon.id,
+                );
+
+            if (!nextWeapon) {
+                throw new Error(
+                    'Player ship weapon runtime id cannot change: ' +
+                        currentWeapon.id,
+                );
+            }
+
+            if (
+                nextWeapon.kind !==
+                currentWeapon.kind
+            ) {
+                throw new Error(
+                    'Player ship weapon kind cannot change: ' +
+                        `${currentWeapon.id}/` +
+                        `${nextWeapon.kind} !== ${currentWeapon.kind}`,
+                );
+            }
+
+            if (
+                nextWeapon.weaponId !==
+                currentWeapon.weaponId
+            ) {
+                throw new Error(
+                    'Player ship weapon definition cannot change: ' +
+                        `${currentWeapon.id}/` +
+                        `${nextWeapon.weaponId} !== ${currentWeapon.weaponId}`,
+                );
+            }
+        }
+
+        current.splice(
+            0,
+            current.length,
+
+            ...next.map((weapon) => {
+                return {
+                    ...weapon,
+                };
+            }),
+        );
     }
 
     public setPlayerSpaceNavigation(navigation: PlayerSpaceNavigationState): void {

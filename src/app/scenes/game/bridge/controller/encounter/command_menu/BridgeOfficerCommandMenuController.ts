@@ -11,10 +11,16 @@ import {
 } from '../../../events/bridge_event';
 import type BridgeEventBus from '../../../events/BridgeEventBus';
 
+type OnEngineStateChanged =
+    () => void;
+
 export default class BridgeOfficerCommandMenuController {
     constructor(
         private readonly encounterEngine: EncounterEngine,
         private readonly eventBus: BridgeEventBus,
+
+        private readonly onEngineStateChanged:
+            OnEngineStateChanged,
     ) {
         this.eventBus.on(
             BRIDGE_EVENT.OFFICER_TASK_CANCEL_SELECTED,
@@ -56,6 +62,8 @@ export default class BridgeOfficerCommandMenuController {
         }
 
         this.encounterEngine.cancelTask(task.id);
+
+        this.onEngineStateChanged();
 
         // Не закрываем menu:
         // после синхронного изменения engine state

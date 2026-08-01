@@ -70,6 +70,9 @@ describe('BridgeOfficerCommandMenuController task cancellation', () => {
 
         const emit = vi.fn();
 
+        const onEngineStateChanged =
+            vi.fn();
+
         let cancelSelected:
             | ((payload: BridgeOfficerTaskCancelSelectedPayload) => void)
             | undefined;
@@ -91,6 +94,8 @@ describe('BridgeOfficerCommandMenuController task cancellation', () => {
         const controller = new BridgeOfficerCommandMenuController(
             encounterEngine,
             eventBus,
+
+            onEngineStateChanged,
         );
 
         controller.open(OFFICER_ROLE.ENGINEER);
@@ -128,6 +133,10 @@ describe('BridgeOfficerCommandMenuController task cancellation', () => {
         });
 
         expect(cancelTask).toHaveBeenCalledWith('task_engineer');
+
+        expect(
+            onEngineStateChanged,
+        ).toHaveBeenCalledTimes(1);
 
         expect(emit.mock.calls.at(-1)).toEqual([
             BRIDGE_EVENT.OFFICER_COMMAND_MENU_UPDATED,
