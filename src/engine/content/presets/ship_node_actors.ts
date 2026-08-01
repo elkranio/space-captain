@@ -1,7 +1,7 @@
 // src/engine/content/presets/ship_node_actors.ts
 
 import { ENCOUNTER_TEAM, type EncounterTeam } from '../../defs/encounter_team';
-import { SHIP_ID, type ShipId } from '../../defs/ship';
+import { SHIP_CHASSIS_ID, type ShipChassisId } from '../../defs/ship_chassis';
 import { SHIP_WEAPON_ID, SHIP_WEAPON_KIND } from '../../defs/ship_weapon';
 import { MISSILE_LAUNCHER_PRESET_ID, type MissileLauncherPresetId } from './missile_launchers';
 
@@ -68,7 +68,7 @@ export type ShipNodeActorPreset = {
     id: ShipNodeActorPresetId;
 
     team: EncounterTeam;
-    shipId: ShipId;
+    chassisId: ShipChassisId;
 
     weapons: ShipNodeActorWeaponPreset[];
 };
@@ -78,7 +78,7 @@ export const SHIP_NODE_ACTOR_PRESETS = {
         id: SHIP_NODE_ACTOR_PRESET_ID.ENEMY_GENERIC_00,
 
         team: ENCOUNTER_TEAM.ENEMY,
-        shipId: SHIP_ID.GENERIC_00,
+        chassisId: SHIP_CHASSIS_ID.GENERIC_00,
 
         weapons: [
             {
@@ -95,7 +95,7 @@ export const SHIP_NODE_ACTOR_PRESETS = {
         id: SHIP_NODE_ACTOR_PRESET_ID.ENEMY_GENERIC_BLUE_00,
 
         team: ENCOUNTER_TEAM.ENEMY,
-        shipId: SHIP_ID.GENERIC_00,
+        chassisId: SHIP_CHASSIS_ID.GENERIC_00,
 
         weapons: [
             {
@@ -112,7 +112,7 @@ export const SHIP_NODE_ACTOR_PRESETS = {
         id: SHIP_NODE_ACTOR_PRESET_ID.ENEMY_GENERIC_LASER_00,
 
         team: ENCOUNTER_TEAM.ENEMY,
-        shipId: SHIP_ID.GENERIC_00,
+        chassisId: SHIP_CHASSIS_ID.GENERIC_00,
 
         weapons: [
             {
@@ -129,7 +129,7 @@ export const SHIP_NODE_ACTOR_PRESETS = {
         id: SHIP_NODE_ACTOR_PRESET_ID.ENEMY_GENERIC_SPAM_00,
 
         team: ENCOUNTER_TEAM.ENEMY,
-        shipId: SHIP_ID.GENERIC_00,
+        chassisId: SHIP_CHASSIS_ID.GENERIC_00,
 
         weapons: [
             {
@@ -148,7 +148,7 @@ export const SHIP_NODE_ACTOR_PRESETS = {
                 .ENEMY_GENERIC_STICKY_MINES_00,
 
         team: ENCOUNTER_TEAM.ENEMY,
-        shipId: SHIP_ID.GENERIC_00,
+        chassisId: SHIP_CHASSIS_ID.GENERIC_00,
 
         weapons: [
             {

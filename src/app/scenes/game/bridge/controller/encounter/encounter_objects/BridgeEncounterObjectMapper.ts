@@ -1,6 +1,6 @@
 // src/app/scenes/game/bridge/controller/encounter/encounter_objects/BridgeEncounterObjectMapper.ts
 
-import { SHIPS } from '../../../../../../../engine/content/catalogs/ships';
+import { SHIP_CHASSIS } from '../../../../../../../engine/content/catalogs/ship_chassis';
 import {
     ENCOUNTER_ACTOR_KIND,
     type EncounterActorState,
@@ -117,7 +117,7 @@ function mapEncounterActorToBridgeObjectPayload(
 
     switch (actor.kind) {
         case ENCOUNTER_ACTOR_KIND.SHIP: {
-            const ship = SHIPS[actor.shipId];
+            const ship = SHIP_CHASSIS[actor.chassisId];
 
             return {
                 id: actor.id,

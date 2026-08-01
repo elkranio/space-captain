@@ -8,7 +8,7 @@ import { ENCOUNTER_TEAM } from '../../../src/engine/defs/encounter_team';
 import { LASER_TARGET_ZONE } from '../../../src/engine/defs/laser';
 import { OFFICER_ROLE } from '../../../src/engine/defs/officer';
 import { PLAYER_SPACE_NAVIGATION_KIND } from '../../../src/engine/defs/player_location';
-import { SHIP_ID } from '../../../src/engine/defs/ship';
+import { SHIP_CHASSIS_ID } from '../../../src/engine/defs/ship_chassis';
 import {
     SHIP_WEAPON_ID,
     SHIP_WEAPON_KIND,
@@ -292,7 +292,7 @@ function createStickyMineEngine() {
 
         team: ENCOUNTER_TEAM.ENEMY,
 
-        shipId: SHIP_ID.GENERIC_00,
+        chassisId: SHIP_CHASSIS_ID.GENERIC_00,
         anchorId: stationId,
 
         weapons: [

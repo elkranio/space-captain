@@ -2,11 +2,11 @@
 
 import { createShipDriveFixture } from '../../fixtures/engine/ship_drive_fixtures';
 import { describe, expect, it } from 'vitest';
-import { SHIPS } from '../../../src/engine/content/catalogs/ships';
+import { SHIP_CHASSIS } from '../../../src/engine/content/catalogs/ship_chassis';
 import { SHIP_NODE_ACTOR_PRESET_ID } from '../../../src/engine/content/presets/ship_node_actors';
 import { ENCOUNTER_TEAM } from '../../../src/engine/defs/encounter_team';
 import { PLAYER_SPACE_NAVIGATION_KIND } from '../../../src/engine/defs/player_location';
-import { SHIP_ID } from '../../../src/engine/defs/ship';
+import { SHIP_CHASSIS_ID } from '../../../src/engine/defs/ship_chassis';
 import { SHIP_WEAPON_KIND, SHIP_WEAPON_PHASE } from '../../../src/engine/defs/ship_weapon';
 import { ENCOUNTER_ACTOR_KIND } from '../../../src/engine/encounter/actors/encounter_actor';
 import EncounterEngine from '../../../src/engine/encounter/EncounterEngine';
@@ -39,7 +39,7 @@ describe('encounter actors', () => {
 
         const actor = store.spawnShipActor({
             actorId: 'ship_test_00',
-            shipId: SHIP_ID.GENERIC_00,
+            chassisId: SHIP_CHASSIS_ID.GENERIC_00,
             anchorId: stationId,
 
             team: ENCOUNTER_TEAM.NEUTRAL,
@@ -50,12 +50,12 @@ describe('encounter actors', () => {
             id: 'ship_test_00',
             kind: ENCOUNTER_ACTOR_KIND.SHIP,
 
-            displayName: SHIPS[SHIP_ID.GENERIC_00].name,
+            displayName: SHIP_CHASSIS[SHIP_CHASSIS_ID.GENERIC_00].name,
 
             team: ENCOUNTER_TEAM.NEUTRAL,
 
             anchorId: stationId,
-            shipId: SHIP_ID.GENERIC_00,
+            chassisId: SHIP_CHASSIS_ID.GENERIC_00,
 
             hasUsedOpeningDisruptionPulse: false,
 
@@ -92,7 +92,7 @@ describe('encounter actors', () => {
         expect(() => {
             store.spawnShipActor({
                 actorId: 'ship_missing_anchor',
-                shipId: SHIP_ID.GENERIC_00,
+                chassisId: SHIP_CHASSIS_ID.GENERIC_00,
                 anchorId: 'missing_anchor',
 
                 team: ENCOUNTER_TEAM.NEUTRAL,
@@ -102,7 +102,7 @@ describe('encounter actors', () => {
 
         store.spawnShipActor({
             actorId: 'ship_test_00',
-            shipId: SHIP_ID.GENERIC_00,
+            chassisId: SHIP_CHASSIS_ID.GENERIC_00,
             anchorId: stationId,
 
             team: ENCOUNTER_TEAM.NEUTRAL,
@@ -112,7 +112,7 @@ describe('encounter actors', () => {
         expect(() => {
             store.spawnShipActor({
                 actorId: 'ship_test_00',
-                shipId: SHIP_ID.GENERIC_00,
+                chassisId: SHIP_CHASSIS_ID.GENERIC_00,
                 anchorId: stationId,
 
                 team: ENCOUNTER_TEAM.NEUTRAL,
@@ -167,10 +167,10 @@ describe('encounter actors', () => {
 
                             kind: ENCOUNTER_ACTOR_KIND.SHIP,
 
-                            displayName: SHIPS[nodeActor.shipId].name,
+                            displayName: SHIP_CHASSIS[nodeActor.chassisId].name,
                             team: nodeActor.team,
                             anchorId: nodeActor.anchorId,
-                            shipId: nodeActor.shipId,
+                            chassisId: nodeActor.chassisId,
 
                             hasUsedOpeningDisruptionPulse: false,
 

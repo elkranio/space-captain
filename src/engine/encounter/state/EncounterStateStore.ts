@@ -1,7 +1,7 @@
 // src/engine/encounter/state/EncounterStateStore.ts
 
 import { MISSILES } from '../../content/catalogs/missiles';
-import { SHIPS } from '../../content/catalogs/ships';
+import { SHIP_CHASSIS } from '../../content/catalogs/ship_chassis';
 import { PLAYER_SHIELD_DURATION_MS } from '../../content/rules/shields';
 import { JUMP_POINT_OBJECT_SPRITE_ID } from '../../defs/jump_point';
 import type { LaserTargetZone } from '../../defs/laser';
@@ -18,7 +18,7 @@ import {
     SHIP_DRIVE_STATUS,
     type ShipDriveState,
 } from '../../defs/ship_drive';
-import type { ShipId } from '../../defs/ship';
+import type { ShipChassisId } from '../../defs/ship_chassis';
 import type { ShipWeaponState } from '../../defs/ship_weapon';
 import type { SpaceNodeState } from '../../defs/universe';
 import { ENCOUNTER_ACTOR_KIND, type EncounterActorState } from '../actors/encounter_actor';
@@ -44,7 +44,7 @@ export type EncounterTravelStart = {
 
 export type SpawnShipActorInput = {
     actorId: string;
-    shipId: ShipId;
+    chassisId: ShipChassisId;
     anchorId: string;
 
     team: EncounterTeam;
@@ -83,7 +83,7 @@ export default class EncounterStateStore {
         for (const actor of node.actors) {
             store.spawnShipActor({
                 actorId: actor.id,
-                shipId: actor.shipId,
+                chassisId: actor.chassisId,
                 anchorId: actor.anchorId,
 
                 team: actor.team,
@@ -141,7 +141,7 @@ export default class EncounterStateStore {
 
     // #region Actor mutations
 
-    public spawnShipActor({ actorId, shipId, anchorId, team, weapons }: SpawnShipActorInput): ShipEncounterActorState {
+    public spawnShipActor({ actorId, chassisId, anchorId, team, weapons }: SpawnShipActorInput): ShipEncounterActorState {
         if (!this.findAnchorById(anchorId)) {
             throw new Error(`Cannot spawn ship actor: ` + `anchor not found: ${anchorId}`);
         }
@@ -150,7 +150,7 @@ export default class EncounterStateStore {
             throw new Error(`Encounter actor already exists: ${actorId}`);
         }
 
-        const ship = SHIPS[shipId];
+        const ship = SHIP_CHASSIS[chassisId];
 
         const actor: ShipEncounterActorState = {
             id: actorId,
@@ -160,7 +160,7 @@ export default class EncounterStateStore {
             team,
 
             anchorId,
-            shipId,
+            chassisId,
 
             hasUsedOpeningDisruptionPulse: false,
 

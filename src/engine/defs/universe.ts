@@ -6,7 +6,7 @@ import type { JumpPointState } from './jump_point';
 import type { SpaceBackgroundId } from './space_background';
 import type { StationState } from './station';
 import type { Vec2, Vec3 } from './vector';
-import type { ShipId } from './ship';
+import type { ShipChassisId } from './ship_chassis';
 import type { ShipWeaponState } from './ship_weapon';
 import type { EncounterTeam } from './encounter_team';
 
@@ -46,7 +46,7 @@ export type SpaceNodeActorBaseState = {
 export type ShipSpaceNodeActorState = SpaceNodeActorBaseState & {
     kind: typeof SPACE_NODE_ACTOR_KIND.SHIP;
 
-    shipId: ShipId;
+    chassisId: ShipChassisId;
     weapons: ShipWeaponState[];
 };
 

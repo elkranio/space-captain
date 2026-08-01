@@ -33,7 +33,7 @@ export default class ShipNodeActorFactory {
 
             team: preset.team,
 
-            shipId: preset.shipId,
+            chassisId: preset.chassisId,
             anchorId,
 
             weapons: preset.weapons.map((weapon) => {

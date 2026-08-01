@@ -1,12 +1,12 @@
-// src/engine/defs/ship.ts
+// src/engine/defs/ship_chassis.ts
 
 // Стабильные id типов кораблей из контентной базы.
 // Runtime-id конкретного корабля в энкаунтере должен быть обычной строкой отдельно.
-export const SHIP_ID = {
+export const SHIP_CHASSIS_ID = {
     GENERIC_00: 'generic_00',
 } as const;
 
-export type ShipId = (typeof SHIP_ID)[keyof typeof SHIP_ID];
+export type ShipChassisId = (typeof SHIP_CHASSIS_ID)[keyof typeof SHIP_CHASSIS_ID];
 
 // Стабильные id визуальных вариантов кораблей.
 // App-слой мапит эти id на конкретные atlas/frame.
@@ -19,8 +19,8 @@ export type ShipSpriteId = (typeof SHIP_SPRITE_ID)[keyof typeof SHIP_SPRITE_ID];
 
 // Базовое описание типа корабля.
 // Боевые статы, фракция, экипаж и runtime-состояние добавляются отдельными моделями.
-export type ShipDefinition = {
-    id: ShipId;
+export type ShipChassisDefinition = {
+    id: ShipChassisId;
     name: string;
     spriteId: ShipSpriteId;
 };

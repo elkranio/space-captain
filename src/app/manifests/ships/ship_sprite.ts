@@ -1,6 +1,6 @@
 // src/app/manifests/ships/ship_sprite.ts
 
-import { SHIP_SPRITE_ID, type ShipSpriteId } from '../../../engine/defs/ship';
+import { SHIP_SPRITE_ID, type ShipSpriteId } from '../../../engine/defs/ship_chassis';
 import { DEFAULT_ATLAS_KEY, type SpriteEntry } from '../types';
 
 export const SHIP_SPRITES = {
