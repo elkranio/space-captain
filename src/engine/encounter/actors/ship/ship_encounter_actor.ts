@@ -22,6 +22,9 @@ import type {
     ShipWeaponState,
 } from '../../../defs/ship_weapon';
 import type {
+    EnemyThreatObservationState,
+} from '../../model/enemy_threat_observation';
+import type {
     ShipCrewTaskStates,
 } from '../../model/ship_crew_task';
 import type {
@@ -70,6 +73,12 @@ export type ShipEncounterActorState =
         // Абстрактные задачи экипажа NPC-корабля.
         // Persistent universe state их не хранит.
         crewTasks: ShipCrewTaskStates;
+
+        // Наблюдаемые incoming threats.
+        // Объективные параметры остаются
+        // в authoritative combat objects/tasks.
+        threatObservations:
+            EnemyThreatObservationState[];
 
         // Одноразовое opening action этого ship
         // внутри текущего encounter.

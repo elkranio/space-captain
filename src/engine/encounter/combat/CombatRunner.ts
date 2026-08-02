@@ -51,6 +51,7 @@ import type {
     EnemyHullDamageResult,
 } from '../state/EncounterStateStore';
 import EnemyTaskScheduler from './EnemyTaskScheduler';
+import EnemyThreatObserver from './EnemyThreatObserver';
 
 type PlayerMissileLaunchInput = {
     sourceWeaponId: string;
@@ -115,6 +116,9 @@ export default class CombatRunner {
     private readonly enemyTaskScheduler:
         EnemyTaskScheduler;
 
+    private readonly enemyThreatObserver:
+        EnemyThreatObserver;
+
     private readonly pendingPlayerMissileLaunches:
         PlayerMissileLaunchInput[] = [];
 
@@ -158,6 +162,11 @@ export default class CombatRunner {
                 state: this.state,
                 emit: this.emit,
             });
+
+        this.enemyThreatObserver =
+            new EnemyThreatObserver(
+                this.state,
+            );
     }
 
     public step(deltaMs: number): void {
@@ -186,6 +195,11 @@ export default class CombatRunner {
         this.flushPlayerMissileLaunches();
         this.flushPlayerStickyMineAttachments();
 
+        // Новые player threats уже существуют,
+        // но ещё не получают текущий deltaMs.
+        this.enemyThreatObserver
+            .synchronize();
+
         this.advanceProjectiles(
             projectileIdsToAdvance,
             deltaMs,
@@ -195,6 +209,12 @@ export default class CombatRunner {
             stickyMineIdsToAdvance,
             deltaMs,
         );
+
+        // Удаляем observations угроз,
+        // которые разрешились в этом step,
+        // до следующего enemy decision.
+        this.enemyThreatObserver
+            .synchronize();
 
         this.enemyTaskScheduler.schedule(deltaMs);
         this.advanceWeapons(deltaMs);

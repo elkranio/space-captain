@@ -162,6 +162,8 @@ describe('encounter actors', () => {
 
             crewTasks: {},
 
+            threatObservations: [],
+
             hasUsedOpeningDisruptionPulse: false,
 
             weapons: [],
@@ -442,6 +444,8 @@ describe('encounter actors', () => {
                                 },
 
                                 crewTasks: {},
+
+                                threatObservations: [],
 
                                 hasUsedOpeningDisruptionPulse:
                                     false,

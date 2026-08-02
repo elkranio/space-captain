@@ -276,6 +276,8 @@ export default class EncounterStateStore {
 
             crewTasks: {},
 
+            threatObservations: [],
+
             hasUsedOpeningDisruptionPulse: false,
 
             weapons: weapons.map((weapon) => {
