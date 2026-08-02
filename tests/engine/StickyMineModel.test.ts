@@ -16,8 +16,10 @@ import {
     SHIP_WEAPON_PHASE,
     type StickyMineDispenserState,
 } from '../../src/engine/defs/ship_weapon';
-import type {
-    StickyMineState,
+import {
+    COMBAT_SOURCE_KIND,
+    COMBAT_TARGET_KIND,
+    type StickyMineState,
 } from '../../src/engine/encounter/model/combat';
 
 describe('Sticky mine model', () => {
@@ -85,8 +87,24 @@ describe('Sticky mine model', () => {
         const mine: StickyMineState = {
             id: 'sticky_mine_1',
 
-            sourceActorId: 'enemy_ship',
-            sourceWeaponId: dispenser.id,
+            mineId:
+                STICKY_MINE_ID.BASIC_00,
+
+            source: {
+                kind:
+                    COMBAT_SOURCE_KIND.ACTOR,
+
+                actorId: 'enemy_ship',
+            },
+
+            sourceWeaponId:
+                dispenser.id,
+
+            target: {
+                kind:
+                    COMBAT_TARGET_KIND
+                        .PLAYER_SHIP,
+            },
 
             timeToDetonationMs: 7500,
             initialTimeToDetonationMs: 7500,

@@ -1,10 +1,8 @@
 // src/engine/encounter/combat/queries/get_sticky_mine_snapshots.ts
 
 import {
-    getNextClearableStickyMine,
-} from './get_next_clearable_sticky_mine';
-import type {
-    StickyMineState,
+    COMBAT_TARGET_KIND,
+    type StickyMineState,
 } from '../../model/combat';
 import {
     OFFICER_TASK_KIND,
@@ -12,6 +10,9 @@ import {
 import type {
     EncounterState,
 } from '../../model/state';
+import {
+    getNextClearableStickyMine,
+} from './get_next_clearable_sticky_mine';
 
 export type StickyMineSnapshot = {
     mine: StickyMineState;
@@ -20,10 +21,13 @@ export type StickyMineSnapshot = {
     isNextClearTarget: boolean;
 };
 
+// Bridge sticky-mine view represents only mines
+// physically attached to the player ship.
 export function getStickyMineSnapshots(
     state: EncounterState,
 ): StickyMineSnapshot[] {
-    const reservedMineIds = new Set<string>();
+    const reservedMineIds =
+        new Set<string>();
 
     for (
         const task of Object.values(
@@ -32,30 +36,53 @@ export function getStickyMineSnapshots(
     ) {
         if (
             task?.kind !==
-            OFFICER_TASK_KIND.CLEAR_STICKY_MINE
+            OFFICER_TASK_KIND
+                .CLEAR_STICKY_MINE
         ) {
             continue;
         }
 
-        reservedMineIds.add(task.mineId);
+        reservedMineIds.add(
+            task.mineId,
+        );
     }
 
     const nextMine =
-        getNextClearableStickyMine(state);
+        getNextClearableStickyMine(
+            state,
+        );
 
-    return state.combat.stickyMines.map(
-        (mine) => {
+    return state.combat
+        .stickyMines
+        .filter((mine) => {
+            return (
+                mine.target.kind ===
+                COMBAT_TARGET_KIND
+                    .PLAYER_SHIP
+            );
+        })
+        .map((mine) => {
             return {
                 mine: {
                     ...mine,
+
+                    source: {
+                        ...mine.source,
+                    },
+
+                    target: {
+                        ...mine.target,
+                    },
                 },
 
                 isBeingCleared:
-                    reservedMineIds.has(mine.id),
+                    reservedMineIds.has(
+                        mine.id,
+                    ),
 
                 isNextClearTarget:
-                    mine.id === nextMine?.id,
+                    mine.id ===
+                    nextMine?.id,
             };
-        },
-    );
+        });
 }

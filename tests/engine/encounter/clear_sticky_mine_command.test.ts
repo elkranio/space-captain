@@ -25,8 +25,13 @@ import {
     OFFICER_COMMAND_EXECUTION_STATUS,
     OFFICER_COMMAND_TARGET_KIND,
 } from '../../../src/engine/encounter/model/command';
-import type {
-    StickyMineState,
+import {
+    STICKY_MINE_ID,
+} from '../../../src/engine/defs/sticky_mine';
+import {
+    COMBAT_SOURCE_KIND,
+    COMBAT_TARGET_KIND,
+    type StickyMineState,
 } from '../../../src/engine/encounter/model/combat';
 import {
     ENCOUNTER_EVENT,
@@ -60,6 +65,12 @@ describe('CLEAR MINE command', () => {
 
         state.combat.stickyMines.push(
             createMine('mine_slow', 9000),
+
+            createOutgoingMine(
+                'mine_outgoing',
+                1000,
+            ),
+
             createMine('mine_urgent', 5000),
             createMine('mine_middle', 7000),
         );
@@ -570,6 +581,39 @@ function findTaskMineId(
     return task.mineId;
 }
 
+function createOutgoingMine(
+    id: string,
+    timeToDetonationMs: number,
+): StickyMineState {
+    return {
+        id,
+
+        mineId:
+            STICKY_MINE_ID.BASIC_00,
+
+        source: {
+            kind:
+                COMBAT_SOURCE_KIND
+                    .PLAYER_SHIP,
+        },
+
+        sourceWeaponId:
+            'player_dispenser',
+
+        target: {
+            kind:
+                COMBAT_TARGET_KIND.ACTOR,
+
+            actorId: 'ship_enemy_00',
+        },
+
+        timeToDetonationMs,
+        initialTimeToDetonationMs: 20000,
+
+        damage: 1,
+    };
+}
+
 function createMine(
     id: string,
     timeToDetonationMs: number,
@@ -577,9 +621,24 @@ function createMine(
     return {
         id,
 
-        sourceActorId: 'ship_enemy_00',
+        mineId:
+            STICKY_MINE_ID.BASIC_00,
+
+        source: {
+            kind:
+                COMBAT_SOURCE_KIND.ACTOR,
+
+            actorId: 'ship_enemy_00',
+        },
+
         sourceWeaponId:
             'sticky_mine_dispenser_00',
+
+        target: {
+            kind:
+                COMBAT_TARGET_KIND
+                    .PLAYER_SHIP,
+        },
 
         timeToDetonationMs,
         initialTimeToDetonationMs: 20000,

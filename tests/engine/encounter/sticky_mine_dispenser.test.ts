@@ -25,7 +25,14 @@ import {
     OFFICER_TASK_KIND,
     type OfficerTaskState,
 } from '../../../src/engine/encounter/model/officer_task';
-import type { StickyMineState } from '../../../src/engine/encounter/model/combat';
+import {
+    STICKY_MINE_ID,
+} from '../../../src/engine/defs/sticky_mine';
+import {
+    COMBAT_SOURCE_KIND,
+    COMBAT_TARGET_KIND,
+    type StickyMineState,
+} from '../../../src/engine/encounter/model/combat';
 import { createPointDefenseFixture } from '../../fixtures/engine/point_defense_fixtures';
 import { createShipDriveFixture } from '../../fixtures/engine/ship_drive_fixtures';
 import { createSingleStationNodeFixture } from '../../fixtures/engine/space_node_fixtures';
@@ -378,9 +385,24 @@ function createMine(
     return {
         id,
 
-        sourceActorId: 'ship_enemy_00',
+        mineId:
+            STICKY_MINE_ID.BASIC_00,
+
+        source: {
+            kind:
+                COMBAT_SOURCE_KIND.ACTOR,
+
+            actorId: 'ship_enemy_00',
+        },
+
         sourceWeaponId:
             'sticky_mine_dispenser_00',
+
+        target: {
+            kind:
+                COMBAT_TARGET_KIND
+                    .PLAYER_SHIP,
+        },
 
         timeToDetonationMs,
         initialTimeToDetonationMs: 7500,

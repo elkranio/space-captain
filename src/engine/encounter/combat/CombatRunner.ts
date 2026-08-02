@@ -221,7 +221,12 @@ export default class CombatRunner {
     public clearStickyMine(mineId: string): boolean {
         const mineIndex =
             this.state.combat.stickyMines.findIndex((mine) => {
-                return mine.id === mineId;
+                return (
+                    mine.id === mineId &&
+                    mine.target.kind ===
+                        COMBAT_TARGET_KIND
+                            .PLAYER_SHIP
+                );
             });
 
         if (mineIndex < 0) {
@@ -1016,8 +1021,22 @@ export default class CombatRunner {
         const mine: StickyMineState = {
             id: this.createStickyMineId(),
 
-            sourceActorId: actor.id,
+            mineId,
+
+            source: {
+                kind:
+                    COMBAT_SOURCE_KIND.ACTOR,
+
+                actorId: actor.id,
+            },
+
             sourceWeaponId: dispenser.id,
+
+            target: {
+                kind:
+                    COMBAT_TARGET_KIND
+                        .PLAYER_SHIP,
+            },
 
             timeToDetonationMs: Math.max(
                 0,
@@ -1044,6 +1063,14 @@ export default class CombatRunner {
 
             mine: {
                 ...mine,
+
+                source: {
+                    ...mine.source,
+                },
+
+                target: {
+                    ...mine.target,
+                },
             },
         });
 
@@ -1096,8 +1123,33 @@ export default class CombatRunner {
         index: number,
         mine: StickyMineState,
     ): void {
+        if (
+            mine.source.kind !==
+                COMBAT_SOURCE_KIND.ACTOR ||
+            mine.target.kind !==
+                COMBAT_TARGET_KIND
+                    .PLAYER_SHIP
+        ) {
+            throw new Error(
+                'Unsupported sticky-mine detonation route: ' +
+                    mine.id +
+                    '/' +
+                    mine.source.kind +
+                    '/' +
+                    mine.target.kind,
+            );
+        }
+
         const mineSnapshot: StickyMineState = {
             ...mine,
+
+            source: {
+                ...mine.source,
+            },
+
+            target: {
+                ...mine.target,
+            },
 
             timeToDetonationMs: 0,
         };

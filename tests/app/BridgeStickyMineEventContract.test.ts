@@ -19,6 +19,13 @@ import {
     OFFICER_ROLE,
 } from '../../src/engine/defs/officer';
 import {
+    STICKY_MINE_ID,
+} from '../../src/engine/defs/sticky_mine';
+import {
+    COMBAT_SOURCE_KIND,
+    COMBAT_TARGET_KIND,
+} from '../../src/engine/encounter/model/combat';
+import {
     ENCOUNTER_EVENT,
     OFFICER_TASK_OUTCOME,
     OFFICER_TASK_RESULT_KIND,
@@ -158,8 +165,23 @@ function createMine(
     return {
         id,
 
-        sourceActorId: 'enemy',
+        mineId:
+            STICKY_MINE_ID.BASIC_00,
+
+        source: {
+            kind:
+                COMBAT_SOURCE_KIND.ACTOR,
+
+            actorId: 'enemy',
+        },
+
         sourceWeaponId: 'dispenser',
+
+        target: {
+            kind:
+                COMBAT_TARGET_KIND
+                    .PLAYER_SHIP,
+        },
 
         timeToDetonationMs,
         initialTimeToDetonationMs: 7500,

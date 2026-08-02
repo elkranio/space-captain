@@ -9,8 +9,13 @@ import {
 } from '../../src/app/scenes/game/bridge/events/bridge_event';
 import type BridgeEventBus from '../../src/app/scenes/game/bridge/events/BridgeEventBus';
 import { SCENE_KEY } from '../../src/app/scenes/scene_key';
-import type {
-    StickyMineState,
+import {
+    STICKY_MINE_ID,
+} from '../../src/engine/defs/sticky_mine';
+import {
+    COMBAT_SOURCE_KIND,
+    COMBAT_TARGET_KIND,
+    type StickyMineState,
 } from '../../src/engine/encounter/model/combat';
 import {
     ENCOUNTER_EVENT,
@@ -219,9 +224,24 @@ function createMine(
     return {
         id,
 
-        sourceActorId: 'ship_enemy_00',
+        mineId:
+            STICKY_MINE_ID.BASIC_00,
+
+        source: {
+            kind:
+                COMBAT_SOURCE_KIND.ACTOR,
+
+            actorId: 'ship_enemy_00',
+        },
+
         sourceWeaponId:
             'sticky_mine_dispenser_00',
+
+        target: {
+            kind:
+                COMBAT_TARGET_KIND
+                    .PLAYER_SHIP,
+        },
 
         timeToDetonationMs: 7500,
         initialTimeToDetonationMs: 7500,

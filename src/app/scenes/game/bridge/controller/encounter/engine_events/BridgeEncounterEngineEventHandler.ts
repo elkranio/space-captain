@@ -257,6 +257,24 @@ export default class BridgeEncounterEngineEventHandler {
                 return;
 
             case ENCOUNTER_EVENT.STICKY_MINE_ATTACHED:
+                if (
+                    event.mine.source.kind !==
+                        COMBAT_SOURCE_KIND.ACTOR ||
+                    event.mine.target.kind !==
+                        COMBAT_TARGET_KIND
+                            .PLAYER_SHIP
+                ) {
+                    throw new Error(
+                        'Incoming sticky mine has invalid ' +
+                            'source or target: ' +
+                            event.mine.id +
+                            '/' +
+                            event.mine.source.kind +
+                            '/' +
+                            event.mine.target.kind,
+                    );
+                }
+
                 this.eventBus.emit(
                     BRIDGE_EVENT
                         .MISSILE_TARGETING_WARNING_CLEARED,
@@ -268,7 +286,8 @@ export default class BridgeEncounterEngineEventHandler {
                         mineId: event.mine.id,
 
                         sourceActorId:
-                            event.mine.sourceActorId,
+                            event.mine.source
+                                .actorId,
 
                         initialTimeToDetonationMs:
                             event.mine.initialTimeToDetonationMs,
@@ -511,6 +530,24 @@ export default class BridgeEncounterEngineEventHandler {
                 return;
 
             case ENCOUNTER_EVENT.STICKY_MINE_DETONATED:
+                if (
+                    event.mine.source.kind !==
+                        COMBAT_SOURCE_KIND.ACTOR ||
+                    event.mine.target.kind !==
+                        COMBAT_TARGET_KIND
+                            .PLAYER_SHIP
+                ) {
+                    throw new Error(
+                        'Detonated incoming sticky mine has ' +
+                            'invalid source or target: ' +
+                            event.mine.id +
+                            '/' +
+                            event.mine.source.kind +
+                            '/' +
+                            event.mine.target.kind,
+                    );
+                }
+
                 this.eventBus.emit(
                     BRIDGE_EVENT.STICKY_MINE_REMOVED,
                     {

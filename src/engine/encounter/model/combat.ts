@@ -5,6 +5,9 @@ import type { MissileSpectralBand, MissileId } from '../../defs/missile';
 import type { PointDefenseState } from '../../defs/point_defense';
 import type { ShieldGeneratorState } from '../../defs/shield_generator';
 import type {
+    StickyMineId,
+} from '../../defs/sticky_mine';
+import type {
     ShipWeaponState,
 } from '../../defs/ship_weapon';
 
@@ -181,13 +184,24 @@ export type ActiveShieldState = {
 };
 
 // После прикрепления мина живёт независимо
-// от дальнейшего состояния launcher.
-// Поэтому fuse и damage хранятся в runtime state.
+// от дальнейшего состояния dispenser.
+//
+// mineId сохраняет тип боеприпаса,
+// source/target позволяют одной runtime-модели
+// обслуживать оба направления атаки.
+//
+// Fuse и damage остаются snapshot payload,
+// чтобы активная мина не зависела
+// от последующих content-изменений.
 export type StickyMineState = {
     id: string;
 
-    sourceActorId: string;
+    mineId: StickyMineId;
+
+    source: CombatSource;
     sourceWeaponId: string;
+
+    target: CombatTarget;
 
     timeToDetonationMs: number;
     initialTimeToDetonationMs: number;
