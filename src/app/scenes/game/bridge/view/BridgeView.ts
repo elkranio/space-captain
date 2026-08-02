@@ -7,6 +7,7 @@ import BridgeEnemyShipDestructionView from './combat/enemy_destruction/BridgeEne
 import BridgeIncomingMissilesView from './combat/incoming_missiles/BridgeIncomingMissilesView';
 import BridgeLaserBeamsView from './combat/laser_beams/BridgeLaserBeamsView';
 import BridgeOutgoingMissilesView from './combat/outgoing_missiles/BridgeOutgoingMissilesView';
+import BridgeOutgoingStickyMinesView from './combat/outgoing_sticky_mines/BridgeOutgoingStickyMinesView';
 import BridgeLaserThreatsView from './combat/laser_threats/BridgeLaserThreatsView';
 import BridgePlayerLaserView from './combat/player_laser/BridgePlayerLaserView';
 import BridgePlayerShieldsView from './combat/player_shields/BridgePlayerShieldsView';
@@ -32,6 +33,9 @@ export default class BridgeView {
     private incomingMissilesView?: BridgeIncomingMissilesView;
 
     private outgoingMissilesView?: BridgeOutgoingMissilesView;
+
+    private outgoingStickyMinesView?:
+        BridgeOutgoingStickyMinesView;
 
     private laserThreatsView?: BridgeLaserThreatsView;
 
@@ -81,6 +85,19 @@ export default class BridgeView {
 
         this.outgoingMissilesView =
             new BridgeOutgoingMissilesView(
+                this.scene,
+                this.eventBus,
+
+                (objectId) => {
+                    return spaceView
+                        .getObjectPosition(
+                            objectId,
+                        );
+                },
+            );
+
+        this.outgoingStickyMinesView =
+            new BridgeOutgoingStickyMinesView(
                 this.scene,
                 this.eventBus,
 
@@ -173,6 +190,8 @@ export default class BridgeView {
         this.playerLaserView?.destroy();
         this.laserBeamsView?.destroy();
         this.laserThreatsView?.destroy();
+        this.outgoingStickyMinesView
+            ?.destroy();
         this.outgoingMissilesView?.destroy();
         this.incomingMissilesView?.destroy();
         this.playerShieldsView?.destroy();
@@ -191,6 +210,8 @@ export default class BridgeView {
         this.playerLaserView = undefined;
         this.laserBeamsView = undefined;
         this.laserThreatsView = undefined;
+        this.outgoingStickyMinesView =
+            undefined;
         this.outgoingMissilesView = undefined;
         this.incomingMissilesView = undefined;
         this.playerShieldsView = undefined;
