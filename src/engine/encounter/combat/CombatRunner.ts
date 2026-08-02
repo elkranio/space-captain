@@ -144,18 +144,40 @@ export default class CombatRunner {
     }
 
     public step(deltaMs: number): void {
-        // Существующие угрозы двигаются до оружия,
-        // чтобы созданная в этом step угроза
-        // не получила тот же deltaMs повторно.
-        this.advanceProjectiles(deltaMs);
-        this.advanceStickyMines(deltaMs);
+        // PlayerWeaponRunner уже выполнил физический launch,
+        // но новые combat objects пока лежат в очередях.
+        // Сначала запоминаем только старые объекты.
+        const projectileIdsToAdvance =
+            this.state.combat
+                .projectiles
+                .map((projectile) => {
+                    return projectile.id;
+                })
+                .reverse();
 
-        // PlayerWeaponRunner работает раньше CombatRunner.
-        // Flush после advance не даёт новым player
-        // projectiles/mines получить тот же deltaMs
-        // в момент физического запуска.
+        const stickyMineIdsToAdvance =
+            this.state.combat
+                .stickyMines
+                .map((mine) => {
+                    return mine.id;
+                });
+
+        // Новый launch должен существовать до resolution
+        // старых угроз: lethal impact сможет сразу завершить
+        // его как TARGET_LOST. При этом новые объекты не входят
+        // в snapshots выше и не получают текущий deltaMs.
         this.flushPlayerMissileLaunches();
         this.flushPlayerStickyMineAttachments();
+
+        this.advanceProjectiles(
+            projectileIdsToAdvance,
+            deltaMs,
+        );
+
+        this.advanceStickyMines(
+            stickyMineIdsToAdvance,
+            deltaMs,
+        );
 
         this.enemyTaskScheduler.schedule(deltaMs);
         this.advanceWeapons(deltaMs);
@@ -1236,14 +1258,26 @@ export default class CombatRunner {
     }
 
     private advanceStickyMines(
+        mineIds: readonly string[],
         deltaMs: number,
     ): void {
-        let index = 0;
+        for (const mineId of mineIds) {
+            const index =
+                this.state.combat
+                    .stickyMines
+                    .findIndex((mine) => {
+                        return (
+                            mine.id ===
+                            mineId
+                        );
+                    });
 
-        while (
-            index <
-            this.state.combat.stickyMines.length
-        ) {
+            // A previous lethal resolution may have
+            // removed this mine during the same step.
+            if (index < 0) {
+                continue;
+            }
+
             const mine =
                 this.state.combat
                     .stickyMines[index];
@@ -1290,7 +1324,6 @@ export default class CombatRunner {
             if (
                 mine.timeToDetonationMs > 0
             ) {
-                index += 1;
                 continue;
             }
 
@@ -1542,20 +1575,29 @@ export default class CombatRunner {
     // #region Projectiles
 
     private advanceProjectiles(
+        projectileIds: readonly string[],
         deltaMs: number,
     ): void {
-        // Идём с конца, потому что impacted
-        // и target-lost projectiles удаляются
-        // из массива во время обхода.
         for (
-            let index =
-                this.state.combat
-                    .projectiles.length - 1;
-
-            index >= 0;
-
-            index -= 1
+            const projectileId of
+            projectileIds
         ) {
+            const index =
+                this.state.combat
+                    .projectiles
+                    .findIndex((projectile) => {
+                        return (
+                            projectile.id ===
+                            projectileId
+                        );
+                    });
+
+            // A previous lethal resolution may have
+            // removed this projectile during the same step.
+            if (index < 0) {
+                continue;
+            }
+
             const projectile =
                 this.state.combat
                     .projectiles[index];

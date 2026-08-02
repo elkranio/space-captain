@@ -222,6 +222,353 @@ describe('Enemy actor combat cleanup', () => {
             );
         }
     });
+
+it('flushes a new sticky mine before an older missile destroys the target in the same step', () => {
+    const {
+        engine,
+        state,
+        targetActorId,
+    } = createCombatCleanupTestSetup();
+
+    executeWeaponsCommand(
+        engine,
+        ENCOUNTER_OFFICER_COMMAND_ID
+            .WEAPONS_FIRE_MISSILE,
+    );
+
+    engine.step(
+        SHIP_WEAPON_TARGETING_DURATION_MS,
+    );
+
+    const killerMissile =
+        state.combat.projectiles.find(
+            (projectile) => {
+                return (
+                    projectile.source.kind ===
+                        COMBAT_SOURCE_KIND
+                            .PLAYER_SHIP &&
+                    projectile.target.kind ===
+                        COMBAT_TARGET_KIND
+                            .ACTOR &&
+                    projectile.target.actorId ===
+                        targetActorId
+                );
+            },
+        );
+
+    if (!killerMissile) {
+        throw new Error(
+            'Expected outgoing killer missile',
+        );
+    }
+
+    const olderMissile = {
+        ...killerMissile,
+
+        id:
+            killerMissile.id +
+            '_older',
+
+        source: {
+            ...killerMissile.source,
+        },
+
+        target: {
+            ...killerMissile.target,
+        },
+
+        identification: {
+            ...killerMissile
+                .identification,
+        },
+
+        timeToImpactMs:
+            killerMissile
+                .initialTimeToImpactMs,
+    };
+
+    // Put a second old projectile before the killer.
+    // A mutable reverse-index loop would process the
+    // killer first, remove both entries, then read a
+    // stale index on its next iteration.
+    state.combat.projectiles.unshift(
+        olderMissile,
+    );
+
+    killerMissile.timeToImpactMs = 0;
+
+    const target =
+        state.actors.find((actor) => {
+            return (
+                actor.id ===
+                targetActorId
+            );
+        });
+
+    if (!target) {
+        throw new Error(
+            'Expected live enemy target',
+        );
+    }
+
+    target.hull = 1;
+
+    executeWeaponsCommand(
+        engine,
+        ENCOUNTER_OFFICER_COMMAND_ID
+            .WEAPONS_FIRE_STICKY_MINES,
+    );
+
+    engine.drainEvents();
+
+    engine.step(0);
+
+    expect(
+        engine
+            .getOutgoingMissileProjectiles(),
+    ).toEqual([]);
+
+    expect(
+        engine.getOutgoingStickyMines(),
+    ).toEqual([]);
+
+    const events =
+        engine.drainEvents();
+
+    const attachedIndex =
+        events.findIndex((event) => {
+            return (
+                event.type ===
+                    ENCOUNTER_EVENT
+                        .PLAYER_STICKY_MINE_ATTACHED
+            );
+        });
+
+    const hitIndex =
+        events.findIndex((event) => {
+            return (
+                event.type ===
+                    ENCOUNTER_EVENT
+                        .PLAYER_MISSILE_RESOLVED &&
+                event.outcome ===
+                    PLAYER_MISSILE_OUTCOME
+                        .HIT
+            );
+        });
+
+    const oldMissileTargetLostIndex =
+        events.findIndex((event) => {
+            return (
+                event.type ===
+                    ENCOUNTER_EVENT
+                        .PLAYER_MISSILE_RESOLVED &&
+                event.outcome ===
+                    PLAYER_MISSILE_OUTCOME
+                        .TARGET_LOST
+            );
+        });
+
+    const newMineTargetLostIndex =
+        events.findIndex((event) => {
+            return (
+                event.type ===
+                    ENCOUNTER_EVENT
+                        .PLAYER_STICKY_MINE_RESOLVED &&
+                event.outcome ===
+                    PLAYER_STICKY_MINE_OUTCOME
+                        .TARGET_LOST
+            );
+        });
+
+    const destructionIndex =
+        events.findIndex((event) => {
+            return (
+                event.type ===
+                    ENCOUNTER_EVENT
+                        .ENEMY_SHIP_DESTROYED
+            );
+        });
+
+    expect(attachedIndex)
+        .toBeGreaterThanOrEqual(0);
+
+    expect(hitIndex).toBeGreaterThan(
+        attachedIndex,
+    );
+
+    expect(
+        oldMissileTargetLostIndex,
+    ).toBeGreaterThan(hitIndex);
+
+    expect(
+        newMineTargetLostIndex,
+    ).toBeGreaterThan(hitIndex);
+
+    expect(destructionIndex)
+        .toBeGreaterThan(
+            oldMissileTargetLostIndex,
+        );
+
+    expect(destructionIndex)
+        .toBeGreaterThan(
+            newMineTargetLostIndex,
+        );
+});
+
+it('flushes a new missile before an older sticky mine destroys the target in the same step', () => {
+    const {
+        engine,
+        state,
+        targetActorId,
+    } = createCombatCleanupTestSetup();
+
+    executeWeaponsCommand(
+        engine,
+        ENCOUNTER_OFFICER_COMMAND_ID
+            .WEAPONS_FIRE_STICKY_MINES,
+    );
+
+    engine.step(0);
+    engine.step(1000);
+    engine.step(1000);
+
+    const outgoingMines =
+        state.combat.stickyMines.filter(
+            (mine) => {
+                return (
+                    mine.source.kind ===
+                        COMBAT_SOURCE_KIND
+                            .PLAYER_SHIP &&
+                    mine.target.kind ===
+                        COMBAT_TARGET_KIND
+                            .ACTOR &&
+                    mine.target.actorId ===
+                        targetActorId
+                );
+            },
+        );
+
+    expect(outgoingMines)
+        .toHaveLength(3);
+
+    for (const mine of outgoingMines) {
+        mine.timeToDetonationMs =
+            10000;
+    }
+
+    const killerMine =
+        outgoingMines[0];
+
+    if (!killerMine) {
+        throw new Error(
+            'Expected outgoing killer mine',
+        );
+    }
+
+    killerMine.timeToDetonationMs = 0;
+
+    const target =
+        state.actors.find((actor) => {
+            return (
+                actor.id ===
+                targetActorId
+            );
+        });
+
+    if (!target) {
+        throw new Error(
+            'Expected live enemy target',
+        );
+    }
+
+    target.hull = 1;
+
+    executeWeaponsCommand(
+        engine,
+        ENCOUNTER_OFFICER_COMMAND_ID
+            .WEAPONS_FIRE_MISSILE,
+    );
+
+    engine.drainEvents();
+
+    engine.step(
+        SHIP_WEAPON_TARGETING_DURATION_MS,
+    );
+
+    expect(
+        engine
+            .getOutgoingMissileProjectiles(),
+    ).toEqual([]);
+
+    expect(
+        engine.getOutgoingStickyMines(),
+    ).toEqual([]);
+
+    const events =
+        engine.drainEvents();
+
+    const launchedIndex =
+        events.findIndex((event) => {
+            return (
+                event.type ===
+                    ENCOUNTER_EVENT
+                        .PLAYER_MISSILE_LAUNCHED
+            );
+        });
+
+    const detonationIndex =
+        events.findIndex((event) => {
+            return (
+                event.type ===
+                    ENCOUNTER_EVENT
+                        .PLAYER_STICKY_MINE_RESOLVED &&
+                event.outcome ===
+                    PLAYER_STICKY_MINE_OUTCOME
+                        .DETONATED
+            );
+        });
+
+    const newMissileTargetLostIndex =
+        events.findIndex((event) => {
+            return (
+                event.type ===
+                    ENCOUNTER_EVENT
+                        .PLAYER_MISSILE_RESOLVED &&
+                event.outcome ===
+                    PLAYER_MISSILE_OUTCOME
+                        .TARGET_LOST
+            );
+        });
+
+    const destructionIndex =
+        events.findIndex((event) => {
+            return (
+                event.type ===
+                    ENCOUNTER_EVENT
+                        .ENEMY_SHIP_DESTROYED
+            );
+        });
+
+    expect(launchedIndex)
+        .toBeGreaterThanOrEqual(0);
+
+    expect(detonationIndex)
+        .toBeGreaterThan(
+            launchedIndex,
+        );
+
+    expect(
+        newMissileTargetLostIndex,
+    ).toBeGreaterThan(
+        detonationIndex,
+    );
+
+    expect(destructionIndex)
+        .toBeGreaterThan(
+            newMissileTargetLostIndex,
+        );
+});
+
 });
 
 function createCombatCleanupTestSetup() {
