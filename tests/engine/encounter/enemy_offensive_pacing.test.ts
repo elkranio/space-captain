@@ -20,6 +20,9 @@ import EnemyDecisionPolicy from '../../../src/engine/encounter/combat/EnemyDecis
 import {
     ENCOUNTER_EVENT,
 } from '../../../src/engine/encounter/model/event';
+import {
+    SHIP_CREW_TASK_KIND,
+} from '../../../src/engine/encounter/model/ship_crew_task';
 import ShipNodeActorFactory from '../../../src/engine/generation/space_node_actor/ShipNodeActorFactory';
 import {
     createPointDefenseFixture,
@@ -40,11 +43,20 @@ describe('Enemy offensive pacing', () => {
             new EnemyDecisionPolicy();
 
         expect(
-            policy.selectWeapon(
+            policy.selectWork(
                 actor,
                 OFFICER_ROLE.WEAPONS,
-            )?.id,
-        ).toBe('missile_launcher_00');
+            ),
+        ).toEqual({
+            kind:
+                SHIP_CREW_TASK_KIND
+                    .OPERATE_WEAPON,
+
+            role: OFFICER_ROLE.WEAPONS,
+
+            weaponId:
+                'missile_launcher_00',
+        });
 
         policy.onOffensiveTaskCompleted(
             actor,
@@ -52,18 +64,27 @@ describe('Enemy offensive pacing', () => {
         );
 
         expect(
-            policy.selectWeapon(
+            policy.selectWork(
                 actor,
                 OFFICER_ROLE.WEAPONS,
             ),
         ).toBeUndefined();
 
         expect(
-            policy.selectWeapon(
+            policy.selectWork(
                 actor,
                 OFFICER_ROLE.SCIENCE,
-            )?.id,
-        ).toBe('spam_projector_00');
+            ),
+        ).toEqual({
+            kind:
+                SHIP_CREW_TASK_KIND
+                    .OPERATE_WEAPON,
+
+            role: OFFICER_ROLE.SCIENCE,
+
+            weaponId:
+                'spam_projector_00',
+        });
 
         policy.advance(
             actor,
@@ -72,7 +93,7 @@ describe('Enemy offensive pacing', () => {
         );
 
         expect(
-            policy.selectWeapon(
+            policy.selectWork(
                 actor,
                 OFFICER_ROLE.WEAPONS,
             ),
@@ -81,11 +102,19 @@ describe('Enemy offensive pacing', () => {
         policy.advance(actor, 1);
 
         expect(
-            policy.selectWeapon(
+            policy.selectWork(
                 actor,
                 OFFICER_ROLE.WEAPONS,
-            )?.id,
-        ).toBe('laser_00');
+            ),
+        ).toEqual({
+            kind:
+                SHIP_CREW_TASK_KIND
+                    .OPERATE_WEAPON,
+
+            role: OFFICER_ROLE.WEAPONS,
+
+            weaponId: 'laser_00',
+        });
     });
 });
 

@@ -1,6 +1,8 @@
 // tests/engine/encounter/enemy_decision_policy.test.ts
 
-import { createPlayerHullFixture } from '../../fixtures/engine/player_hull_fixtures';
+import {
+    createPlayerHullFixture,
+} from '../../fixtures/engine/player_hull_fixtures';
 import {
     describe,
     expect,
@@ -24,6 +26,13 @@ import EnemyDecisionPolicy from '../../../src/engine/encounter/combat/EnemyDecis
 import {
     ENCOUNTER_EVENT,
 } from '../../../src/engine/encounter/model/event';
+import {
+    ENEMY_THREAT_KIND,
+    ENEMY_THREAT_SOURCE_KIND,
+} from '../../../src/engine/encounter/model/enemy_threat_observation';
+import {
+    SHIP_CREW_TASK_KIND,
+} from '../../../src/engine/encounter/model/ship_crew_task';
 import ShipNodeActorFactory from '../../../src/engine/generation/space_node_actor/ShipNodeActorFactory';
 import {
     createPointDefenseFixture,
@@ -36,77 +45,101 @@ import {
 } from '../../fixtures/engine/space_node_fixtures';
 
 describe('Enemy decision policy', () => {
-    it('rotates weapons in loadout order and skips unavailable weapons', () => {
+    it('rotates weapon work in loadout order and skips unavailable weapons', () => {
         const actor = createEnemyCombatActor();
         const policy =
             new EnemyDecisionPolicy();
 
-        const missile =
-            policy.selectWeapon(
+        expect(
+            policy.selectWork(
                 actor,
                 OFFICER_ROLE.WEAPONS,
-            );
+            ),
+        ).toEqual({
+            kind:
+                SHIP_CREW_TASK_KIND
+                    .OPERATE_WEAPON,
 
-        expect(missile?.id).toBe(
+            role:
+                OFFICER_ROLE.WEAPONS,
+
+            weaponId:
+                'missile_launcher_00',
+        });
+
+        getWeapon(
+            actor,
             'missile_launcher_00',
-        );
-
-        if (!missile) {
-            throw new Error(
-                'Expected missile launcher',
-            );
-        }
-
-        missile.phase =
+        ).phase =
             SHIP_WEAPON_PHASE.COOLDOWN;
 
-        const laser =
-            policy.selectWeapon(
+        expect(
+            policy.selectWork(
                 actor,
                 OFFICER_ROLE.WEAPONS,
-            );
+            ),
+        ).toEqual({
+            kind:
+                SHIP_CREW_TASK_KIND
+                    .OPERATE_WEAPON,
 
-        expect(laser?.id).toBe('laser_00');
+            role:
+                OFFICER_ROLE.WEAPONS,
 
-        if (!laser) {
-            throw new Error(
-                'Expected laser',
-            );
-        }
+            weaponId: 'laser_00',
+        });
 
-        laser.phase =
+        getWeapon(
+            actor,
+            'laser_00',
+        ).phase =
             SHIP_WEAPON_PHASE.COOLDOWN;
 
-        const mines =
-            policy.selectWeapon(
+        expect(
+            policy.selectWork(
                 actor,
                 OFFICER_ROLE.WEAPONS,
-            );
+            ),
+        ).toEqual({
+            kind:
+                SHIP_CREW_TASK_KIND
+                    .OPERATE_WEAPON,
 
-        expect(mines?.id).toBe(
+            role:
+                OFFICER_ROLE.WEAPONS,
+
+            weaponId:
+                'sticky_mine_dispenser_00',
+        });
+
+        getWeapon(
+            actor,
             'sticky_mine_dispenser_00',
-        );
-
-        if (!mines) {
-            throw new Error(
-                'Expected sticky-mine dispenser',
-            );
-        }
-
-        mines.phase =
+        ).phase =
             SHIP_WEAPON_PHASE.COOLDOWN;
-        missile.phase =
+
+        getWeapon(
+            actor,
+            'missile_launcher_00',
+        ).phase =
             SHIP_WEAPON_PHASE.READY;
 
-        const wrapped =
-            policy.selectWeapon(
+        expect(
+            policy.selectWork(
                 actor,
                 OFFICER_ROLE.WEAPONS,
-            );
+            ),
+        ).toEqual({
+            kind:
+                SHIP_CREW_TASK_KIND
+                    .OPERATE_WEAPON,
 
-        expect(wrapped?.id).toBe(
-            'missile_launcher_00',
-        );
+            role:
+                OFFICER_ROLE.WEAPONS,
+
+            weaponId:
+                'missile_launcher_00',
+        });
 
         expect(
             actor.decision
@@ -116,7 +149,7 @@ describe('Enemy decision policy', () => {
         ).toBe(1);
     });
 
-    it('skips an empty sticky-mine dispenser', () => {
+    it('does not select work for an empty sticky-mine dispenser', () => {
         const actor = createEnemyCombatActor();
         const policy =
             new EnemyDecisionPolicy();
@@ -146,32 +179,39 @@ describe('Enemy decision policy', () => {
         mines.ammoCount = 0;
 
         expect(
-            policy.selectWeapon(
+            policy.selectWork(
                 actor,
                 OFFICER_ROLE.WEAPONS,
             ),
         ).toBeUndefined();
     });
 
-    it('keeps science weapon selection independent from weapons', () => {
+    it('keeps Science weapon rotation independent from Weapons', () => {
         const actor = createEnemyCombatActor();
         const policy =
             new EnemyDecisionPolicy();
 
-        policy.selectWeapon(
+        policy.selectWork(
             actor,
             OFFICER_ROLE.WEAPONS,
         );
 
-        const scienceWeapon =
-            policy.selectWeapon(
+        expect(
+            policy.selectWork(
                 actor,
                 OFFICER_ROLE.SCIENCE,
-            );
+            ),
+        ).toEqual({
+            kind:
+                SHIP_CREW_TASK_KIND
+                    .OPERATE_WEAPON,
 
-        expect(scienceWeapon?.id).toBe(
-            'spam_projector_00',
-        );
+            role:
+                OFFICER_ROLE.SCIENCE,
+
+            weaponId:
+                'spam_projector_00',
+        });
 
         expect(
             actor.decision
@@ -187,7 +227,95 @@ describe('Enemy decision policy', () => {
                 ],
         ).toBe(0);
     });
+
+    it('prioritizes unresolved threat identification over Science weapon work', () => {
+        const actor = createEnemyCombatActor();
+        const policy =
+            new EnemyDecisionPolicy();
+
+        actor.threatObservations.push({
+            id:
+                'missile:projectile_00',
+
+            kind:
+                ENEMY_THREAT_KIND.MISSILE,
+
+            source: {
+                kind:
+                    ENEMY_THREAT_SOURCE_KIND
+                        .COMBAT_PROJECTILE,
+
+                projectileId:
+                    'projectile_00',
+            },
+        });
+
+        expect(
+            policy.selectWork(
+                actor,
+                OFFICER_ROLE.SCIENCE,
+            ),
+        ).toEqual({
+            kind:
+                SHIP_CREW_TASK_KIND
+                    .IDENTIFY_THREAT,
+
+            role:
+                OFFICER_ROLE.SCIENCE,
+
+            observationId:
+                'missile:projectile_00',
+        });
+
+        expect(
+            actor.decision
+                .nextWeaponIndexByRole[
+                    OFFICER_ROLE.SCIENCE
+                ],
+        ).toBeUndefined();
+
+        actor.threatObservations.length = 0;
+
+        expect(
+            policy.selectWork(
+                actor,
+                OFFICER_ROLE.SCIENCE,
+            ),
+        ).toEqual({
+            kind:
+                SHIP_CREW_TASK_KIND
+                    .OPERATE_WEAPON,
+
+            role:
+                OFFICER_ROLE.SCIENCE,
+
+            weaponId:
+                'spam_projector_00',
+        });
+    });
 });
+
+function getWeapon(
+    actor:
+        ReturnType<
+            typeof createEnemyCombatActor
+        >,
+    weaponId: string,
+) {
+    const weapon =
+        actor.weapons.find((candidate) => {
+            return candidate.id === weaponId;
+        });
+
+    if (!weapon) {
+        throw new Error(
+            'Expected enemy weapon: ' +
+                weaponId,
+        );
+    }
+
+    return weapon;
+}
 
 function createEnemyCombatActor() {
     const {
@@ -208,7 +336,8 @@ function createEnemyCombatActor() {
     );
 
     const engine = new EncounterEngine({
-        playerHull: createPlayerHullFixture(),
+        playerHull:
+            createPlayerHullFixture(),
 
         node,
 

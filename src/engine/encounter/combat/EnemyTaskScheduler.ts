@@ -24,16 +24,15 @@ import {
     type EncounterEvent,
 } from '../model/event';
 import {
-    ENEMY_THREAT_KIND,
-} from '../model/enemy_threat_observation';
-import {
     SHIP_CREW_TASK_KIND,
 } from '../model/ship_crew_task';
 import type {
     EncounterState,
 } from '../model/state';
 import EnemyCrewTaskRunner from './EnemyCrewTaskRunner';
-import EnemyDecisionPolicy from './EnemyDecisionPolicy';
+import EnemyDecisionPolicy, {
+    type EnemyWorkIntent,
+} from './EnemyDecisionPolicy';
 import EnemyScienceIntelResolver from './EnemyScienceIntelResolver';
 
 type EnemyTaskSchedulerOptions = {
@@ -42,23 +41,24 @@ type EnemyTaskSchedulerOptions = {
     emit: (event: EncounterEvent) => void;
 };
 
-const WEAPON_TASK_ROLES = [
+const ENEMY_WORK_ROLES = [
     OFFICER_ROLE.WEAPONS,
     OFFICER_ROLE.SCIENCE,
 ] as const;
 
-// Назначает выбранные policy задачи
-// на ограниченные роли вражеского экипажа.
-//
-// Priority внутри одной роли:
-// Science intel → offensive weapon work.
+// Исполняет выбранные policy задачи
+// через ограниченные роли вражеского экипажа.
 //
 // Scheduler только:
-// - выбирает доступную работу;
+// - проверяет наличие и занятость роли;
+// - запрашивает один intent у policy;
+// - валидирует физическую цель intent;
 // - просит task runner занять роль;
-// - запускает физический targeting оружия;
+// - запускает targeting оружия;
 // - эмитит видимый telegraph.
 //
+// Strategic priorities и выбор цели
+// принадлежат EnemyDecisionPolicy.
 // Lifecycle crew tasks живёт
 // в EnemyCrewTaskRunner.
 // Objective truth → report boundary
@@ -182,22 +182,10 @@ export default class EnemyTaskScheduler {
                 continue;
             }
 
-            this.scheduleScienceIdentification(
-                actor,
-            );
-
             for (
-                const role of WEAPON_TASK_ROLES
+                const role of
+                ENEMY_WORK_ROLES
             ) {
-                if (
-                    !this.hasCrewRole(
-                        actor,
-                        role,
-                    )
-                ) {
-                    continue;
-                }
-
                 this.scheduleRole(
                     actor,
                     role,
@@ -233,57 +221,105 @@ export default class EnemyTaskScheduler {
         }
     }
 
-    private scheduleScienceIdentification(
+    private scheduleRole(
         actor: ShipEncounterActorState,
+        role: OfficerRole,
     ): void {
         if (
             !this.hasCrewRole(
                 actor,
-                OFFICER_ROLE.SCIENCE,
+                role,
             ) ||
             this.crewTaskRunner
                 .isRoleBusy(
                     actor,
-                    OFFICER_ROLE.SCIENCE,
+                    role,
                 )
         ) {
             return;
         }
 
+        const intent =
+            this.decisionPolicy
+                .selectWork(
+                    actor,
+                    role,
+                );
+
+        if (!intent) {
+            return;
+        }
+
+        this.startWork(
+            actor,
+            intent,
+        );
+    }
+
+    private startWork(
+        actor: ShipEncounterActorState,
+        intent: EnemyWorkIntent,
+    ): void {
+        switch (intent.kind) {
+            case SHIP_CREW_TASK_KIND
+                .IDENTIFY_THREAT:
+                this.startThreatIdentification(
+                    actor,
+                    intent,
+                );
+
+                return;
+
+            case SHIP_CREW_TASK_KIND
+                .OPERATE_WEAPON:
+                this.startWeaponOperation(
+                    actor,
+                    intent,
+                );
+
+                return;
+        }
+    }
+
+    private startThreatIdentification(
+        actor: ShipEncounterActorState,
+        intent:
+            Extract<
+                EnemyWorkIntent,
+                {
+                    kind:
+                        typeof SHIP_CREW_TASK_KIND
+                            .IDENTIFY_THREAT;
+                }
+            >,
+    ): void {
         const observation =
             actor
                 .threatObservations
                 .find((candidate) => {
                     return (
-                        candidate.report ===
-                            undefined &&
-                        (
-                            candidate.kind ===
-                                ENEMY_THREAT_KIND
-                                    .MISSILE ||
-                            candidate.kind ===
-                                ENEMY_THREAT_KIND
-                                    .LASER
-                        )
+                        candidate.id ===
+                        intent.observationId
                     );
                 });
 
-        if (!observation) {
-            return;
+        if (
+            !observation ||
+            observation.report
+        ) {
+            throw new Error(
+                'Cannot start enemy threat ' +
+                    'identification: ' +
+                    actor.id +
+                    '/' +
+                    intent.observationId,
+            );
         }
 
         this.crewTaskRunner.start(
             actor,
             {
-                kind:
-                    SHIP_CREW_TASK_KIND
-                        .IDENTIFY_THREAT,
-
-                role:
-                    OFFICER_ROLE.SCIENCE,
-
-                observationId:
-                    observation.id,
+                ...intent,
 
                 elapsedMs: 0,
 
@@ -294,41 +330,44 @@ export default class EnemyTaskScheduler {
         );
     }
 
-    private scheduleRole(
+    private startWeaponOperation(
         actor: ShipEncounterActorState,
-        role: OfficerRole,
+        intent:
+            Extract<
+                EnemyWorkIntent,
+                {
+                    kind:
+                        typeof SHIP_CREW_TASK_KIND
+                            .OPERATE_WEAPON;
+                }
+            >,
     ): void {
-        if (
-            this.crewTaskRunner
-                .isRoleBusy(
-                    actor,
-                    role,
-                )
-        ) {
-            return;
-        }
-
         const weapon =
-            this.decisionPolicy.selectWeapon(
-                actor,
-                role,
-            );
+            actor.weapons.find((candidate) => {
+                return (
+                    candidate.id ===
+                    intent.weaponId
+                );
+            });
 
-        if (!weapon) {
-            return;
+        if (
+            !weapon ||
+            weapon.phase !==
+                SHIP_WEAPON_PHASE.READY
+        ) {
+            throw new Error(
+                'Cannot start enemy weapon work: ' +
+                    actor.id +
+                    '/' +
+                    intent.role +
+                    '/' +
+                    intent.weaponId,
+            );
         }
 
         this.crewTaskRunner.start(
             actor,
-            {
-                kind:
-                    SHIP_CREW_TASK_KIND
-                        .OPERATE_WEAPON,
-
-                role,
-
-                weaponId: weapon.id,
-            },
+            intent,
         );
 
         weapon.phase =

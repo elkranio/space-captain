@@ -11,7 +11,7 @@ Architecture and ownership belong in `SYSTEM_MAP.md`.
 Last reviewed against:
 
 ```text
-cf5ae358d949dc9cbcb76425e9172a514ce317a7
+dfeb316fcab3aee6b35c3c5584e4c58fa668b316
 ```
 
 Contract labels:
@@ -89,41 +89,35 @@ Enemy ship identity persists in its node until destroyed.
 
 ---
 
-# 3. Surviving enemy persistence — LOCKED RESET
+# 3. Surviving enemy persistence — UNRESOLVED
 
-A surviving enemy resets when its encounter is reconstructed.
+Before further encounter reconstruction work, choose one contract.
 
-```text
-leave encounter and return
-→ hydrate enemy again from persistent node actor
-→ restore encounter hull, ammunition and system state
-```
+## Option A — persistent damage and resources
 
-The persistent node actor keeps identity and baseline loadout, but non-lethal
-encounter damage and resource spending are not written back.
-
-Reset includes:
+A surviving enemy keeps:
 
 - hull;
-- weapon ammunition and phases;
-- drive and shield-generator encounter state;
-- crew tasks;
-- threat observations and Science reports;
-- captain-policy runtime memory;
-- opening-action usage;
-- temporary combat objects.
+- ammunition;
+- drive/system state;
+- shield-generator state;
+- other persistent equipment state.
 
-A destroyed enemy is removed from the persistent node and does not return.
+Temporary combat objects and current crew tasks still disappear.
 
-Player hull, ammunition, charges and navigation remain persistent.
+## Option B — encounter reset
 
-This rule intentionally prevents hit-and-run repair loops against durable
-targets. A future retreat/repair mechanic must be explicit gameplay and must
-not arise from accidental partial synchronization.
+A surviving enemy reconstructs from its persistent preset/state and may restore
+some or all combat resources.
+
+If this option is chosen, restoration must be explicit gameplay rather than an
+accidental consequence of unsynchronized state.
+
+No code should silently assume either option.
 
 ---
 
-# 4. Player hull ownership — LOCKED DESIGN, PENDING REFACTOR
+# 4. Player hull ownership — LOCKED
 
 Incoming damage is a gameplay-domain result.
 
@@ -136,7 +130,7 @@ The engine must determine:
 The app layer may persist and present that result, but must not own hull damage
 rules or decide destruction from a raw damage event.
 
-Target contract:
+Current contract:
 
 ```text
 incoming impact
@@ -319,13 +313,13 @@ Rules:
 
 ---
 
-# 11. Enemy work ownership — LOCKED DIRECTION
+# 11. Enemy work ownership — LOCKED
 
 The enemy captain policy chooses work.
 
 The scheduler does not invent strategic priorities.
 
-Target grammar:
+Current grammar:
 
 ```text
 policy selects intent

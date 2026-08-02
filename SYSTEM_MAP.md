@@ -19,7 +19,7 @@ It does not contain gameplay balance or implementation backlog.
 Last mapped commit:
 
 ```text
-cf5ae358d949dc9cbcb76425e9172a514ce317a7
+dfeb316fcab3aee6b35c3c5584e4c58fa668b316
 ```
 
 ---
@@ -60,10 +60,10 @@ Hard rules:
 | Point-defense charges | `EncounterState.combat.pointDefense` | command/task execution | yes, synchronized to `GameRuntime` | player ship status |
 | Shield-generator state | `EncounterState.combat.shieldGenerator` | shield-generator runner/store | yes, synchronized to `GameRuntime` | player ship status |
 | Player weapon state | `EncounterState.combat.playerWeapons` | `PlayerWeaponRunner` / store | yes, synchronized to `GameRuntime` | player weapon status |
-| Player hull | `EncounterState.playerHull` | `EncounterStateStore.damagePlayerHull()` | yes, exact result synchronized to `GameRuntime` | player ship status |
-| Enemy encounter actor | `EncounterState.actors` | encounter/combat systems | identity/baseline only | encounter object + telemetry |
-| Enemy hull | ship encounter actor | `EncounterStateStore.damageEnemyActorHull()` | resets from node actor on reconstruction | enemy telemetry |
-| Enemy weapon state | ship encounter actor | `CombatRunner` | resets from node actor on reconstruction | enemy telemetry |
+| Player hull | currently `GameRuntime` | currently bridge engine-event handler | yes | player ship status |
+| Enemy encounter actor | `EncounterState.actors` | encounter/combat systems | design-dependent | encounter object + telemetry |
+| Enemy hull | ship encounter actor | `EncounterStateStore.damageEnemyActorHull()` | unresolved for surviving enemies | enemy telemetry |
+| Enemy weapon state | ship encounter actor | `CombatRunner` | unresolved for surviving enemies | enemy telemetry |
 | Player/incoming projectiles | `EncounterState.combat.projectiles` | `CombatRunner` | no | missile views |
 | Sticky mines | `EncounterState.combat.stickyMines` | `CombatRunner` | no | sticky-mine views |
 | Active laser attacks | `EncounterState.combat.laserAttacks` | `CombatRunner` | no | laser threat/VFX views |
@@ -74,12 +74,8 @@ Hard rules:
 | Enemy Science report | `observation.report` | `EnemyScienceIntelResolver` through task completion | no | enemy policy input |
 | Enemy policy memory | `actor.decision` | `EnemyDecisionPolicy` | no | none |
 
-Player hull is authoritative inside the encounter and is persisted from the
-applied engine result.
-
-Surviving enemy combat state intentionally resets from its persistent node
-actor when the encounter is reconstructed. Do not add partial enemy-state
-writeback without changing the locked gameplay contract.
+The player-hull and surviving-enemy persistence rows are active architectural
+questions. Do not silently invent a second synchronization route.
 
 ---
 
@@ -200,12 +196,13 @@ Locked semantic distinctions:
 - the report intentionally contains no reliability flag;
 - policy must not bypass the report to read hidden objective threat details.
 
-Current decision ownership is split:
+Current decision ownership:
 
-- `EnemyDecisionPolicy` selects offensive weapons and owns offensive delays;
-- `EnemyTaskScheduler` independently prioritizes Science identification.
-
-Refactor target:
+- `EnemyDecisionPolicy.selectWork(actor, role)` selects one `EnemyWorkIntent`;
+- policy owns Science-identification priority, weapon round-robin and offensive
+  delays;
+- `EnemyTaskScheduler` validates and starts the selected intent;
+- scheduler does not search observations or select weapons independently.
 
 ```text
 EnemyDecisionPolicy selects EnemyWorkIntent
@@ -375,10 +372,10 @@ Stop and inspect architecture when a local feature requires any of these:
 # 10. Current cleanup sequence
 
 ```text
-1. lock gameplay/persistence contracts
-2. resolve player-hull and surviving-enemy ownership
-3. make EnemyDecisionPolicy the single decision owner
-4. centralize crew-controlled weapon-phase semantics
+1. done — lock gameplay/persistence contracts
+2. done — resolve player-hull and surviving-enemy ownership
+3. done — make EnemyDecisionPolicy the single decision owner
+4. next — centralize crew-controlled weapon-phase semantics
 5. expose CombatRunner step phases explicitly
 6. separate bridge persistence transport from presentation transport
 7. audit again before command-palette implementation

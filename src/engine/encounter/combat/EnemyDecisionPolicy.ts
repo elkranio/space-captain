@@ -12,15 +12,46 @@ import {
 import type {
     ShipEncounterActorState,
 } from '../actors/ship/ship_encounter_actor';
+import {
+    ENEMY_THREAT_KIND,
+} from '../model/enemy_threat_observation';
+import {
+    SHIP_CREW_TASK_KIND,
+} from '../model/ship_crew_task';
+
+export type EnemyWorkIntent =
+    | {
+          kind:
+              typeof SHIP_CREW_TASK_KIND
+                  .IDENTIFY_THREAT;
+
+          role:
+              typeof OFFICER_ROLE.SCIENCE;
+
+          observationId: string;
+      }
+    | {
+          kind:
+              typeof SHIP_CREW_TASK_KIND
+                  .OPERATE_WEAPON;
+
+          role: OfficerRole;
+          weaponId: string;
+      };
 
 // Пока policy намеренно простая:
 //
-// - для каждой роли идёт round-robin
+// - выбирает одну работу для конкретной роли;
+// - Science сначала идентифицирует
+//   замеченную missile/laser threat;
+// - иначе для роли идёт round-robin
 //   по её оружию в порядке loadout;
 // - недоступное оружие пропускается;
 // - завершённая offensive task запускает
-//   отдельную паузу только для этой роли;
-// - scheduler остаётся только исполнителем.
+//   отдельную паузу только для этой роли.
+//
+// Scheduler исполняет выбранный intent
+// и не содержит собственных priorities.
 //
 // Позже здесь появятся состояние боя,
 // defensive priorities и разные behavior presets.
@@ -83,7 +114,80 @@ export default class EnemyDecisionPolicy {
             ] = delayMs;
     }
 
-    public selectWeapon(
+    public selectWork(
+        actor: ShipEncounterActorState,
+        role: OfficerRole,
+    ): EnemyWorkIntent | undefined {
+        const observationId =
+            this.selectThreatObservationId(
+                actor,
+                role,
+            );
+
+        if (observationId) {
+            return {
+                kind:
+                    SHIP_CREW_TASK_KIND
+                        .IDENTIFY_THREAT,
+
+                role:
+                    OFFICER_ROLE.SCIENCE,
+
+                observationId,
+            };
+        }
+
+        const weapon =
+            this.selectWeapon(
+                actor,
+                role,
+            );
+
+        if (!weapon) {
+            return undefined;
+        }
+
+        return {
+            kind:
+                SHIP_CREW_TASK_KIND
+                    .OPERATE_WEAPON,
+
+            role,
+            weaponId: weapon.id,
+        };
+    }
+
+    private selectThreatObservationId(
+        actor: ShipEncounterActorState,
+        role: OfficerRole,
+    ): string | undefined {
+        if (
+            role !==
+            OFFICER_ROLE.SCIENCE
+        ) {
+            return undefined;
+        }
+
+        return actor
+            .threatObservations
+            .find((observation) => {
+                return (
+                    observation.report ===
+                        undefined &&
+                    (
+                        observation.kind ===
+                            ENEMY_THREAT_KIND
+                                .MISSILE ||
+                        observation.kind ===
+                            ENEMY_THREAT_KIND
+                                .LASER
+                    )
+                );
+            })
+            ?.id;
+    }
+
+    private selectWeapon(
         actor: ShipEncounterActorState,
         role: OfficerRole,
     ): ShipWeaponState | undefined {

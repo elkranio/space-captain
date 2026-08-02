@@ -1,6 +1,8 @@
 // tests/engine/encounter/enemy_task_scheduler.test.ts
 
-import { createPlayerHullFixture } from '../../fixtures/engine/player_hull_fixtures';
+import {
+    createPlayerHullFixture,
+} from '../../fixtures/engine/player_hull_fixtures';
 import {
     describe,
     expect,
@@ -17,6 +19,9 @@ import {
     SHIP_NODE_ACTOR_PRESET_ID,
 } from '../../../src/engine/content/presets/ship_node_actors';
 import {
+    OFFICER_TASK_BASE_DURATION_MS,
+} from '../../../src/engine/content/rules/officer_tasks';
+import {
     OFFICER_ROLE,
     type OfficerRole,
 } from '../../../src/engine/defs/officer';
@@ -27,9 +32,15 @@ import {
     SHIP_WEAPON_PHASE,
 } from '../../../src/engine/defs/ship_weapon';
 import EncounterEngine from '../../../src/engine/encounter/EncounterEngine';
+import EnemyTaskScheduler from '../../../src/engine/encounter/combat/EnemyTaskScheduler';
 import {
     ENCOUNTER_EVENT,
+    type EncounterEvent,
 } from '../../../src/engine/encounter/model/event';
+import {
+    ENEMY_THREAT_KIND,
+    ENEMY_THREAT_SOURCE_KIND,
+} from '../../../src/engine/encounter/model/enemy_threat_observation';
 import {
     SHIP_CREW_TASK_KIND,
 } from '../../../src/engine/encounter/model/ship_crew_task';
@@ -51,7 +62,7 @@ const OFFENSIVE_TASK_DELAY_MS =
     ].offensiveTaskDelayMs;
 
 describe('Enemy task scheduler', () => {
-    it('starts one weapons task and one science task in parallel', () => {
+    it('starts one Weapons task and one Science task in parallel', () => {
         const {
             engine,
             actor,
@@ -114,6 +125,93 @@ describe('Enemy task scheduler', () => {
             SHIP_WEAPON_PHASE.READY,
             SHIP_WEAPON_PHASE.TARGETING,
         ]);
+    });
+
+    it('executes Science identification intent before Science weapon work', () => {
+        const {
+            state,
+            actor,
+        } = createEnemyCombatEngine();
+
+        const events:
+            EncounterEvent[] = [];
+
+        const scheduler =
+            new EnemyTaskScheduler({
+                state,
+
+                emit: (event) => {
+                    events.push(event);
+                },
+            });
+
+        actor.threatObservations.push({
+            id:
+                'missile:projectile_00',
+
+            kind:
+                ENEMY_THREAT_KIND.MISSILE,
+
+            source: {
+                kind:
+                    ENEMY_THREAT_SOURCE_KIND
+                        .COMBAT_PROJECTILE,
+
+                projectileId:
+                    'projectile_00',
+            },
+        });
+
+        scheduler.schedule(0);
+
+        expect(events).toEqual([
+            {
+                type:
+                    ENCOUNTER_EVENT
+                        .PLAYER_SHIP_TARGETING_DETECTED,
+
+                sourceActorId: actor.id,
+                sourceWeaponId:
+                    'missile_launcher_00',
+            },
+        ]);
+
+        expect(actor.crewTasks).toEqual({
+            [OFFICER_ROLE.WEAPONS]: {
+                kind:
+                    SHIP_CREW_TASK_KIND
+                        .OPERATE_WEAPON,
+
+                role: OFFICER_ROLE.WEAPONS,
+
+                weaponId:
+                    'missile_launcher_00',
+            },
+
+            [OFFICER_ROLE.SCIENCE]: {
+                kind:
+                    SHIP_CREW_TASK_KIND
+                        .IDENTIFY_THREAT,
+
+                role:
+                    OFFICER_ROLE.SCIENCE,
+
+                observationId:
+                    'missile:projectile_00',
+
+                elapsedMs: 0,
+
+                durationMs:
+                    OFFICER_TASK_BASE_DURATION_MS
+                        .SCIENCE_IDENTIFY_THREAT,
+            },
+        });
+
+        expect(
+            actor.weapons[3]?.phase,
+        ).toBe(
+            SHIP_WEAPON_PHASE.READY,
+        );
     });
 
     it('waits after a completed offensive task before scheduling the next weapon', () => {
@@ -219,7 +317,7 @@ describe('Enemy task scheduler', () => {
         );
     });
 
-    it('does not schedule a weapon task for a missing crew role', () => {
+    it('does not schedule work for a missing crew role', () => {
         const {
             engine,
             actor,
@@ -289,7 +387,8 @@ function createEnemyCombatEngine(
     node.actors.push(nodeActor);
 
     const engine = new EncounterEngine({
-        playerHull: createPlayerHullFixture(),
+        playerHull:
+            createPlayerHullFixture(),
 
         node,
 
@@ -332,6 +431,9 @@ function createEnemyCombatEngine(
 
     return {
         engine,
+        state:
+            loadedEvent.state,
+
         actor,
     };
 }
