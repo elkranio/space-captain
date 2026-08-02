@@ -417,6 +417,81 @@ export default class BridgeEncounterEngineEventHandler {
                 );
                 return;
 
+            case ENCOUNTER_EVENT
+                .PLAYER_STICKY_MINE_ATTACHED:
+                if (
+                    event.mine.source.kind !==
+                        COMBAT_SOURCE_KIND
+                            .PLAYER_SHIP ||
+                    event.mine.target.kind !==
+                        COMBAT_TARGET_KIND.ACTOR
+                ) {
+                    throw new Error(
+                        'Outgoing sticky mine has invalid ' +
+                            'source or target: ' +
+                            event.mine.id +
+                            '/' +
+                            event.mine.source.kind +
+                            '/' +
+                            event.mine.target.kind,
+                    );
+                }
+
+                this.eventBus.emit(
+                    BRIDGE_EVENT
+                        .OUTGOING_STICKY_MINE_ADDED,
+                    {
+                        mineId:
+                            event.mine.id,
+
+                        targetActorId:
+                            event.mine.target
+                                .actorId,
+
+                        initialTimeToDetonationMs:
+                            event.mine
+                                .initialTimeToDetonationMs,
+                    },
+                );
+                return;
+
+            case ENCOUNTER_EVENT
+                .PLAYER_STICKY_MINE_RESOLVED:
+                if (
+                    event.mine.source.kind !==
+                        COMBAT_SOURCE_KIND
+                            .PLAYER_SHIP ||
+                    event.mine.target.kind !==
+                        COMBAT_TARGET_KIND.ACTOR
+                ) {
+                    throw new Error(
+                        'Resolved outgoing sticky mine has ' +
+                            'invalid source or target: ' +
+                            event.mine.id +
+                            '/' +
+                            event.mine.source.kind +
+                            '/' +
+                            event.mine.target.kind,
+                    );
+                }
+
+                this.eventBus.emit(
+                    BRIDGE_EVENT
+                        .OUTGOING_STICKY_MINE_REMOVED,
+                    {
+                        mineId:
+                            event.mine.id,
+
+                        targetActorId:
+                            event.mine.target
+                                .actorId,
+
+                        outcome:
+                            event.outcome,
+                    },
+                );
+                return;
+
             case ENCOUNTER_EVENT.ENEMY_SHIP_DESTROYED:
                 this.setEncounterInteractive(false);
 

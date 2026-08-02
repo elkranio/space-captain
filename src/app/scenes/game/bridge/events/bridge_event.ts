@@ -20,6 +20,7 @@ import type { EncounterOfficerCommandId, OfficerCommandTarget } from '../../../.
 import type {
     LaserShotOutcome,
     PlayerMissileOutcome,
+    PlayerStickyMineOutcome,
     SpamChannelOutcome,
 } from '../../../../../engine/encounter/model/combat';
 
@@ -234,6 +235,15 @@ export const BRIDGE_EVENT = {
     // target lost или hull hit.
     OUTGOING_MISSILE_REMOVED:
         'outgoing_missile_removed',
+
+    OUTGOING_STICKY_MINE_ADDED:
+        'outgoing_sticky_mine_added',
+
+    OUTGOING_STICKY_MINES_UPDATED:
+        'outgoing_sticky_mines_updated',
+
+    OUTGOING_STICKY_MINE_REMOVED:
+        'outgoing_sticky_mine_removed',
 
     // Point-defense завершил наведение
     // и разрешил выстрел по угрозе.
@@ -619,6 +629,32 @@ export type BridgeOutgoingMissileRemovedPayload = {
     outcome: PlayerMissileOutcome;
 };
 
+export type BridgeOutgoingStickyMineAddedPayload = {
+    mineId: string;
+
+    targetActorId: string;
+
+    initialTimeToDetonationMs: number;
+};
+
+export type BridgeOutgoingStickyMineUpdatePayload = {
+    mineId: string;
+
+    remainingTimeToDetonationMs: number;
+    initialTimeToDetonationMs: number;
+};
+
+export type BridgeOutgoingStickyMinesUpdatedPayload =
+    BridgeOutgoingStickyMineUpdatePayload[];
+
+export type BridgeOutgoingStickyMineRemovedPayload = {
+    mineId: string;
+
+    targetActorId: string;
+
+    outcome: PlayerStickyMineOutcome;
+};
+
 export type BridgePointDefenseFiredPayload = {
     projectileId: string;
 
@@ -838,6 +874,15 @@ export type BridgeEventPayloadMap = {
 
     [BRIDGE_EVENT.OUTGOING_MISSILE_REMOVED]:
         BridgeOutgoingMissileRemovedPayload;
+
+    [BRIDGE_EVENT.OUTGOING_STICKY_MINE_ADDED]:
+        BridgeOutgoingStickyMineAddedPayload;
+
+    [BRIDGE_EVENT.OUTGOING_STICKY_MINES_UPDATED]:
+        BridgeOutgoingStickyMinesUpdatedPayload;
+
+    [BRIDGE_EVENT.OUTGOING_STICKY_MINE_REMOVED]:
+        BridgeOutgoingStickyMineRemovedPayload;
 
     [BRIDGE_EVENT.POINT_DEFENSE_FIRED]: BridgePointDefenseFiredPayload;
 

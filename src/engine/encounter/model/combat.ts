@@ -37,6 +37,14 @@ export const PLAYER_MISSILE_OUTCOME = {
 export type PlayerMissileOutcome =
     (typeof PLAYER_MISSILE_OUTCOME)[keyof typeof PLAYER_MISSILE_OUTCOME];
 
+export const PLAYER_STICKY_MINE_OUTCOME = {
+    TARGET_LOST: 'target_lost',
+    DETONATED: 'detonated',
+} as const;
+
+export type PlayerStickyMineOutcome =
+    (typeof PLAYER_STICKY_MINE_OUTCOME)[keyof typeof PLAYER_STICKY_MINE_OUTCOME];
+
 export const SPAM_CHANNEL_OUTCOME = {
     EXPIRED: 'expired',
     PURGED: 'purged',

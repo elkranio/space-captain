@@ -36,6 +36,7 @@ import {
     COMBAT_TARGET_KIND,
     LASER_SHOT_OUTCOME,
     PLAYER_MISSILE_OUTCOME,
+    PLAYER_STICKY_MINE_OUTCOME,
     SPAM_CHANNEL_OUTCOME,
     THREAT_IDENTIFICATION_STATUS,
     type LaserAttackState,
@@ -324,8 +325,16 @@ export default class CombatRunner {
             mine.id,
         );
 
-        // Outgoing presentation contract
-        // будет отдельным атомом.
+        this.emit({
+            type:
+                ENCOUNTER_EVENT
+                    .PLAYER_STICKY_MINE_ATTACHED,
+
+            mine:
+                this.cloneStickyMine(
+                    mine,
+                ),
+        });
     }
 
     public clearStickyMine(mineId: string): boolean {
@@ -1231,14 +1240,10 @@ export default class CombatRunner {
                         ENCOUNTER_TEAM.ENEMY ||
                     target.hull <= 0
                 ) {
-                    this.freshStickyMineIds
-                        .delete(mine.id);
-
-                    this.state.combat
-                        .stickyMines.splice(
-                            index,
-                            1,
-                        );
+                    this.resolvePlayerStickyMineTargetLost(
+                        index,
+                        mine,
+                    );
 
                     continue;
                 }
@@ -1330,7 +1335,7 @@ export default class CombatRunner {
                 COMBAT_TARGET_KIND.ACTOR
         ) {
             this.resolvePlayerStickyMineImpact(
-                mine,
+                mineSnapshot,
                 mine.target.actorId,
             );
             return;
@@ -1381,8 +1386,27 @@ export default class CombatRunner {
                 appliedDamage,
         );
 
-        // Outgoing detonation presentation
-        // будет отдельным атомом.
+        this.emit({
+            type:
+                ENCOUNTER_EVENT
+                    .PLAYER_STICKY_MINE_RESOLVED,
+
+            mine:
+                this.cloneStickyMine(
+                    mine,
+                ),
+
+            outcome:
+                PLAYER_STICKY_MINE_OUTCOME
+                    .DETONATED,
+
+            damage:
+                appliedDamage,
+
+            remainingHull:
+                target.hull,
+        });
+
         if (
             appliedDamage <= 0 ||
             target.hull > 0
@@ -1397,6 +1421,56 @@ export default class CombatRunner {
         this.destroyEnemyActor(
             target.id,
         );
+    }
+
+    private resolvePlayerStickyMineTargetLost(
+        index: number,
+        mine: StickyMineState,
+    ): void {
+        if (
+            mine.source.kind !==
+                COMBAT_SOURCE_KIND
+                    .PLAYER_SHIP ||
+            mine.target.kind !==
+                COMBAT_TARGET_KIND.ACTOR
+        ) {
+            throw new Error(
+                'Cannot resolve player sticky-mine target loss for route: ' +
+                    mine.id +
+                    '/' +
+                    mine.source.kind +
+                    '/' +
+                    mine.target.kind,
+            );
+        }
+
+        const mineSnapshot =
+            this.cloneStickyMine(
+                mine,
+            );
+
+        this.freshStickyMineIds.delete(
+            mine.id,
+        );
+
+        this.state.combat
+            .stickyMines.splice(
+                index,
+                1,
+            );
+
+        this.emit({
+            type:
+                ENCOUNTER_EVENT
+                    .PLAYER_STICKY_MINE_RESOLVED,
+
+            mine:
+                mineSnapshot,
+
+            outcome:
+                PLAYER_STICKY_MINE_OUTCOME
+                    .TARGET_LOST,
+        });
     }
 
     private removeStickyMinesTargetingActor(
@@ -1424,16 +1498,27 @@ export default class CombatRunner {
                 continue;
             }
 
-            this.freshStickyMineIds.delete(
-                mine.id,
+            this.resolvePlayerStickyMineTargetLost(
+                index,
+                mine,
             );
-
-            this.state.combat
-                .stickyMines.splice(
-                    index,
-                    1,
-                );
         }
+    }
+
+    private cloneStickyMine(
+        mine: StickyMineState,
+    ): StickyMineState {
+        return {
+            ...mine,
+
+            source: {
+                ...mine.source,
+            },
+
+            target: {
+                ...mine.target,
+            },
+        };
     }
 
     // #endregion

@@ -37,6 +37,7 @@ import {
 import {
     COMBAT_SOURCE_KIND,
     COMBAT_TARGET_KIND,
+    PLAYER_STICKY_MINE_OUTCOME,
     type StickyMineState,
 } from '../../../src/engine/encounter/model/combat';
 import {
@@ -160,6 +161,36 @@ describe('Player sticky-mine command', () => {
         engine.step(0);
 
         expect(
+            engine.drainEvents(),
+        ).toContainEqual(
+            expect.objectContaining({
+                type:
+                    ENCOUNTER_EVENT
+                        .PLAYER_STICKY_MINE_ATTACHED,
+
+                mine:
+                    expect.objectContaining({
+                        source: {
+                            kind:
+                                COMBAT_SOURCE_KIND
+                                    .PLAYER_SHIP,
+                        },
+
+                        target: {
+                            kind:
+                                COMBAT_TARGET_KIND.ACTOR,
+
+                            actorId:
+                                target.id,
+                        },
+
+                        initialTimeToDetonationMs:
+                            7500,
+                    }),
+            }),
+        );
+
+        expect(
             engine.getOutgoingStickyMines(),
         ).toHaveLength(1);
         expect(dispenser.ammoCount).toBe(5);
@@ -231,8 +262,72 @@ describe('Player sticky-mine command', () => {
             engine.getOutgoingStickyMines(),
         ).toEqual([]);
 
+        const resolutionEvents =
+            engine.drainEvents();
+
         expect(
-            engine.drainEvents(),
+            resolutionEvents
+                .filter((event) => {
+                    return (
+                        event.type ===
+                        ENCOUNTER_EVENT
+                            .PLAYER_STICKY_MINE_RESOLVED
+                    );
+                })
+                .map((event) => {
+                    if (
+                        event.type !==
+                            ENCOUNTER_EVENT
+                                .PLAYER_STICKY_MINE_RESOLVED ||
+                        event.outcome !==
+                            PLAYER_STICKY_MINE_OUTCOME
+                                .DETONATED
+                    ) {
+                        throw new Error(
+                            'Expected detonated player sticky mine',
+                        );
+                    }
+
+                    return {
+                        outcome:
+                            event.outcome,
+
+                        damage:
+                            event.damage,
+
+                        remainingHull:
+                            event.remainingHull,
+                    };
+                }),
+        ).toEqual([
+            {
+                outcome:
+                    PLAYER_STICKY_MINE_OUTCOME
+                        .DETONATED,
+
+                damage: 1,
+                remainingHull: 2,
+            },
+            {
+                outcome:
+                    PLAYER_STICKY_MINE_OUTCOME
+                        .DETONATED,
+
+                damage: 1,
+                remainingHull: 1,
+            },
+            {
+                outcome:
+                    PLAYER_STICKY_MINE_OUTCOME
+                        .DETONATED,
+
+                damage: 1,
+                remainingHull: 0,
+            },
+        ]);
+
+        expect(
+            resolutionEvents,
         ).toContainEqual({
             type:
                 ENCOUNTER_EVENT
@@ -306,6 +401,56 @@ describe('Player sticky-mine command', () => {
         expect(
             engine.getOfficerTasks(),
         ).toEqual([]);
+    });
+
+    it('emits target lost and removes an attached outgoing mine when the actor stops being hostile', () => {
+        const {
+            engine,
+            target,
+        } = createStickyMineTestSetup();
+
+        executeStickyMineCommand(
+            engine,
+        );
+
+        engine.step(0);
+        engine.drainEvents();
+
+        engine.setActorTeam(
+            target.id,
+            ENCOUNTER_TEAM.NEUTRAL,
+        );
+
+        engine.step(0);
+
+        expect(
+            engine.getOutgoingStickyMines(),
+        ).toEqual([]);
+
+        expect(
+            engine.drainEvents(),
+        ).toContainEqual(
+            expect.objectContaining({
+                type:
+                    ENCOUNTER_EVENT
+                        .PLAYER_STICKY_MINE_RESOLVED,
+
+                outcome:
+                    PLAYER_STICKY_MINE_OUTCOME
+                        .TARGET_LOST,
+
+                mine:
+                    expect.objectContaining({
+                        target: {
+                            kind:
+                                COMBAT_TARGET_KIND.ACTOR,
+
+                            actorId:
+                                target.id,
+                        },
+                    }),
+            }),
+        );
     });
 
     it('enters cooldown and preserves unlaunched ammunition when damage interrupts an active salvo', () => {

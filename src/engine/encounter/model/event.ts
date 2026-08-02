@@ -13,6 +13,7 @@ import type { JumpPointEncounterAnchorState } from '../anchors/jump_point/jump_p
 import {
     LASER_SHOT_OUTCOME,
     PLAYER_MISSILE_OUTCOME,
+    PLAYER_STICKY_MINE_OUTCOME,
 } from './combat';
 import type {
     ActiveShieldState,
@@ -58,6 +59,12 @@ export const ENCOUNTER_EVENT = {
 
     PLAYER_MISSILE_RESOLVED:
         'player_missile_resolved',
+
+    PLAYER_STICKY_MINE_ATTACHED:
+        'player_sticky_mine_attached',
+
+    PLAYER_STICKY_MINE_RESOLVED:
+        'player_sticky_mine_resolved',
 
     ENEMY_SHIP_DESTROYED:
         'enemy_ship_destroyed',
@@ -339,6 +346,41 @@ export type PlayerMissileResolvedEvent =
           remainingHull: number;
       };
 
+export type PlayerStickyMineAttachedEvent = {
+    type:
+        typeof ENCOUNTER_EVENT
+            .PLAYER_STICKY_MINE_ATTACHED;
+
+    mine: StickyMineState;
+};
+
+export type PlayerStickyMineResolvedEvent =
+    | {
+          type:
+              typeof ENCOUNTER_EVENT
+                  .PLAYER_STICKY_MINE_RESOLVED;
+
+          mine: StickyMineState;
+
+          outcome:
+              typeof PLAYER_STICKY_MINE_OUTCOME
+                  .TARGET_LOST;
+      }
+    | {
+          type:
+              typeof ENCOUNTER_EVENT
+                  .PLAYER_STICKY_MINE_RESOLVED;
+
+          mine: StickyMineState;
+
+          outcome:
+              typeof PLAYER_STICKY_MINE_OUTCOME
+                  .DETONATED;
+
+          damage: number;
+          remainingHull: number;
+      };
+
 export type EnemyShipDestroyedEvent = {
     type:
         typeof ENCOUNTER_EVENT.ENEMY_SHIP_DESTROYED;
@@ -430,6 +472,8 @@ export type EncounterEvent =
     | PlayerLaserFiredEvent
     | PlayerMissileLaunchedEvent
     | PlayerMissileResolvedEvent
+    | PlayerStickyMineAttachedEvent
+    | PlayerStickyMineResolvedEvent
     | EnemyShipDestroyedEvent
     | MissileLaunchedEvent
     | MissileImpactedPlayerShipEvent
