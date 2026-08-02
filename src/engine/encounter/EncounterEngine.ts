@@ -144,6 +144,15 @@ export default class EncounterEngine {
                 this.officerTaskRunner.interruptRandomTaskByDamage();
             },
 
+            damageEnemyActorHull:
+                (actorId, damage) => {
+                    return this.stateStore
+                        .damageEnemyActorHull(
+                            actorId,
+                            damage,
+                        );
+                },
+
             destroyEnemyActor:
                 this.destroyEnemyActor,
         });

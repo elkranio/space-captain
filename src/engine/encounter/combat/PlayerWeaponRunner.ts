@@ -756,23 +756,24 @@ export default class PlayerWeaponRunner {
             };
         }
 
-        const appliedDamage =
-            Math.min(
-                damage,
-                target.hull,
-            );
-
-        target.hull = Math.max(
-            0,
-            target.hull - appliedDamage,
-        );
+        const damageResult =
+            this.stateStore
+                .damageEnemyActorHull(
+                    target.id,
+                    damage,
+                );
 
         return {
             outcome:
                 LASER_SHOT_OUTCOME.HIT,
 
-            damage: appliedDamage,
-            remainingHull: target.hull,
+            damage:
+                damageResult
+                    .appliedDamage,
+
+            remainingHull:
+                damageResult
+                    .remainingHull,
         };
     }
 

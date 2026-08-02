@@ -47,6 +47,9 @@ import {
 } from '../model/combat';
 import { ENCOUNTER_EVENT, type EncounterEvent } from '../model/event';
 import type { EncounterState } from '../model/state';
+import type {
+    EnemyHullDamageResult,
+} from '../state/EncounterStateStore';
 import EnemyTaskScheduler from './EnemyTaskScheduler';
 
 type PlayerMissileLaunchInput = {
@@ -69,6 +72,11 @@ type CombatRunnerOptions = {
     random: () => number;
 
     interruptRandomOfficerTask: () => void;
+
+    damageEnemyActorHull: (
+        actorId: string,
+        damage: number,
+    ) => EnemyHullDamageResult;
 
     destroyEnemyActor:
         (actorId: string) => void;
@@ -93,6 +101,11 @@ export default class CombatRunner {
     private readonly random: () => number;
 
     private readonly interruptRandomOfficerTask: () => void;
+
+    private readonly damageEnemyActorHull:
+        CombatRunnerOptions[
+            'damageEnemyActorHull'
+        ];
 
     private readonly destroyEnemyActor:
         CombatRunnerOptions[
@@ -124,6 +137,7 @@ export default class CombatRunner {
         random,
 
         interruptRandomOfficerTask,
+        damageEnemyActorHull,
         destroyEnemyActor,
     }: CombatRunnerOptions) {
         this.state = state;
@@ -132,6 +146,9 @@ export default class CombatRunner {
         this.random = random;
 
         this.interruptRandomOfficerTask = interruptRandomOfficerTask;
+
+        this.damageEnemyActorHull =
+            damageEnemyActorHull;
 
         this.destroyEnemyActor =
             destroyEnemyActor;
@@ -1428,17 +1445,11 @@ export default class CombatRunner {
             return;
         }
 
-        const appliedDamage =
-            Math.min(
+        const damageResult =
+            this.damageEnemyActorHull(
+                target.id,
                 mine.damage,
-                target.hull,
             );
-
-        target.hull = Math.max(
-            0,
-            target.hull -
-                appliedDamage,
-        );
 
         this.emit({
             type:
@@ -1455,16 +1466,15 @@ export default class CombatRunner {
                     .DETONATED,
 
             damage:
-                appliedDamage,
+                damageResult
+                    .appliedDamage,
 
             remainingHull:
-                target.hull,
+                damageResult
+                    .remainingHull,
         });
 
-        if (
-            appliedDamage <= 0 ||
-            target.hull > 0
-        ) {
+        if (!damageResult.destroyed) {
             return;
         }
 
@@ -1858,17 +1868,11 @@ export default class CombatRunner {
             1,
         );
 
-        const appliedDamage =
-            Math.min(
+        const damageResult =
+            this.damageEnemyActorHull(
+                target.id,
                 missile.damage,
-                target.hull,
             );
-
-        target.hull = Math.max(
-            0,
-            target.hull -
-                appliedDamage,
-        );
 
         this.emit({
             type:
@@ -1884,16 +1888,15 @@ export default class CombatRunner {
                 PLAYER_MISSILE_OUTCOME.HIT,
 
             damage:
-                appliedDamage,
+                damageResult
+                    .appliedDamage,
 
             remainingHull:
-                target.hull,
+                damageResult
+                    .remainingHull,
         });
 
-        if (
-            appliedDamage > 0 &&
-            target.hull === 0
-        ) {
+        if (damageResult.destroyed) {
             this.destroyEnemyActor(
                 target.id,
             );

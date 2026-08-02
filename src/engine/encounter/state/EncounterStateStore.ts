@@ -34,7 +34,10 @@ import type { ShipEncounterActorState } from '../actors/ship/ship_encounter_acto
 import { ENCOUNTER_ANCHOR_KIND, type EncounterAnchorState } from '../anchors/encounter_anchor';
 import type { JumpPointEncounterAnchorState } from '../anchors/jump_point/jump_point_encounter_anchor';
 import { DOCKING_CLEARANCE_STATE } from '../anchors/station/station_encounter_anchor';
-import type { EncounterTeam } from '../../defs/encounter_team';
+import {
+    ENCOUNTER_TEAM,
+    type EncounterTeam,
+} from '../../defs/encounter_team';
 import {
     COMBAT_THREAT_KIND,
     THREAT_IDENTIFICATION_STATUS,
@@ -48,6 +51,12 @@ import { createEncounterState } from './create_encounter_state';
 export type EncounterTravelStart = {
     fromAnchorId: string;
     target: EncounterAnchorState;
+};
+
+export type EnemyHullDamageResult = {
+    appliedDamage: number;
+    remainingHull: number;
+    destroyed: boolean;
 };
 
 export type SpawnShipActorInput = {
@@ -341,6 +350,73 @@ export default class EncounterStateStore {
         actor.team = team;
 
         return actor;
+    }
+
+    public damageEnemyActorHull(
+        actorId: string,
+        damage: number,
+    ): EnemyHullDamageResult {
+        if (
+            !Number.isFinite(damage) ||
+            damage < 0
+        ) {
+            throw new Error(
+                'Invalid enemy hull damage: ' +
+                    String(damage),
+            );
+        }
+
+        const actor =
+            this.findActorById(actorId);
+
+        if (!actor) {
+            throw new Error(
+                'Enemy actor not found for hull damage: ' +
+                    actorId,
+            );
+        }
+
+        if (
+            actor.team !==
+            ENCOUNTER_TEAM.ENEMY
+        ) {
+            throw new Error(
+                'Cannot damage non-enemy actor hull: ' +
+                    actorId +
+                    '/' +
+                    actor.team,
+            );
+        }
+
+        if (actor.hull <= 0) {
+            throw new Error(
+                'Cannot damage destroyed enemy actor hull: ' +
+                    actorId,
+            );
+        }
+
+        const appliedDamage =
+            Math.min(
+                damage,
+                actor.hull,
+            );
+
+        actor.hull = Math.max(
+            0,
+            actor.hull -
+                appliedDamage,
+        );
+
+        return {
+            appliedDamage,
+
+            remainingHull:
+                actor.hull,
+
+            destroyed:
+                appliedDamage > 0 &&
+                actor.hull === 0,
+        };
     }
 
     public consumeOpeningDisruptionPulse(
