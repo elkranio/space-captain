@@ -1,5 +1,6 @@
 // tests/engine/encounter/player_laser_destruction.test.ts
 
+import { createPlayerHullFixture } from '../../fixtures/engine/player_hull_fixtures';
 import {
     describe,
     expect,
@@ -256,6 +257,8 @@ function createCombatFixture({
     }
 
     const engine = new EncounterEngine({
+        playerHull: createPlayerHullFixture(),
+
         node:
             startNode,
 

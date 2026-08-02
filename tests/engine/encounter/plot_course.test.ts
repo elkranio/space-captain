@@ -1,5 +1,6 @@
 // tests/engine/encounter/plot_course.test.ts
 
+import { createPlayerHullFixture } from '../../fixtures/engine/player_hull_fixtures';
 import { createShipDriveFixture } from '../../fixtures/engine/ship_drive_fixtures';
 import { describe, expect, it } from 'vitest';
 import { OFFICER_ROLE } from '../../../src/engine/defs/officer';
@@ -28,6 +29,8 @@ describe('PLOT_COURSE', () => {
         const targetNodeId = 'node_destination';
 
         const engine = new EncounterEngine({
+            playerHull: createPlayerHullFixture(),
+
             drive: createShipDriveFixture(),
             node,
 

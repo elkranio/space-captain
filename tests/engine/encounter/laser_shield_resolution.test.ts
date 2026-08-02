@@ -1,5 +1,6 @@
 // tests/engine/encounter/laser_shield_resolution.test.ts
 
+import { createPlayerHullFixture } from '../../fixtures/engine/player_hull_fixtures';
 import { createShipDriveFixture } from '../../fixtures/engine/ship_drive_fixtures';
 import { describe, expect, it } from 'vitest';
 import {
@@ -76,7 +77,9 @@ describe('Laser shield resolution', () => {
                 attack: createExpectedAttack(),
 
                 outcome: LASER_SHOT_OUTCOME.HIT,
-                damage: 1,
+                appliedDamage: 1,
+                remainingHull: 2,
+                destroyed: false,
             },
         ]);
 
@@ -102,7 +105,9 @@ describe('Laser shield resolution', () => {
                 attack: createExpectedAttack(),
 
                 outcome: LASER_SHOT_OUTCOME.HIT,
-                damage: 1,
+                appliedDamage: 1,
+                remainingHull: 2,
+                destroyed: false,
             },
         ]);
     });
@@ -122,6 +127,8 @@ function createLaserEngine() {
     node.actors.push(enemy);
 
     const engine = new EncounterEngine({
+        playerHull: createPlayerHullFixture(),
+
         drive: createShipDriveFixture(),
         node,
 

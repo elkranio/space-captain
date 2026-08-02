@@ -1,5 +1,6 @@
 // tests/engine/encounter/player_laser_lifecycle.test.ts
 
+import { createPlayerHullFixture } from '../../fixtures/engine/player_hull_fixtures';
 import {
     describe,
     expect,
@@ -84,6 +85,8 @@ describe('Player laser lifecycle', () => {
         enemy.weapons = [];
 
         const engine = new EncounterEngine({
+            playerHull: createPlayerHullFixture(),
+
             node: startNode,
 
             navigation: {

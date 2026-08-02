@@ -136,7 +136,9 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
                     ...impactedProjectile,
                 },
 
-                damage: 1,
+                appliedDamage: 1,
+                remainingHull: 2,
+                destroyed: false,
             },
         ]);
 
@@ -172,7 +174,9 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
                     designation: 'M2',
                 },
 
-                damage: 2,
+                appliedDamage: 2,
+                remainingHull: 0,
+                destroyed: true,
             },
         ]);
 
@@ -235,7 +239,9 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
                     designation: 'M3',
                 },
 
-                damage: 1,
+                appliedDamage: 0,
+                remainingHull: 0,
+                destroyed: false,
             },
         ]);
 

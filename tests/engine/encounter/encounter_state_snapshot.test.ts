@@ -1,5 +1,6 @@
 // tests/engine/encounter/encounter_state_snapshot.test.ts
 
+import { createPlayerHullFixture } from '../../fixtures/engine/player_hull_fixtures';
 import { describe, expect, it } from 'vitest';
 import { PLAYER_SPACE_NAVIGATION_KIND } from '../../../src/engine/defs/player_location';
 import { SPACE_ANCHOR_KIND } from '../../../src/engine/defs/universe';
@@ -24,12 +25,17 @@ describe('encounter state snapshot', () => {
         const pointDefense =
             createPointDefenseFixture();
 
-        const state = createEncounterState(
+        const state = createEncounterState({
             node,
+
             navigation,
+
+            playerHull: createPlayerHullFixture(),
+
             drive,
+
             pointDefense,
-        );
+        });
 
         const persistentAnchor = node.anchors[0];
         const encounterAnchor = state.anchors[0];

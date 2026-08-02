@@ -1,5 +1,6 @@
 // tests/engine/encounter/engineer_deploy_shield_command.test.ts
 
+import { createPlayerHullFixture } from '../../fixtures/engine/player_hull_fixtures';
 import { createShipDriveFixture } from '../../fixtures/engine/ship_drive_fixtures';
 import { describe, expect, it } from 'vitest';
 import { SHIP_WEAPON_TARGETING_DURATION_MS } from '../../../src/engine/content/catalogs/ship_weapons';
@@ -297,6 +298,8 @@ function createLaserEngine({
     node.actors.push(enemy);
 
     const engine = new EncounterEngine({
+        playerHull: createPlayerHullFixture(),
+
         drive: createShipDriveFixture(),
         node,
 

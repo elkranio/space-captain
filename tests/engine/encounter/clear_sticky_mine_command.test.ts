@@ -1,5 +1,6 @@
 // tests/engine/encounter/clear_sticky_mine_command.test.ts
 
+import { createPlayerHullFixture } from '../../fixtures/engine/player_hull_fixtures';
 import {
     describe,
     expect,
@@ -310,7 +311,9 @@ describe('CLEAR MINE command', () => {
                     0,
                 ),
 
-                damage: 1,
+                appliedDamage: 1,
+                remainingHull: 2,
+                destroyed: false,
             },
 
             {
@@ -488,6 +491,8 @@ function createEngine({
     }
 
     const engine = new EncounterEngine({
+        playerHull: createPlayerHullFixture(),
+
         drive: createShipDriveFixture(),
         node,
 

@@ -1,5 +1,8 @@
 // src/engine/encounter/model/state.ts
 
+import type {
+    PlayerHullState,
+} from '../../defs/player';
 import type { PlayerSpaceNavigationState } from '../../defs/player_location';
 import type { SpaceBackgroundId } from '../../defs/space_background';
 import type { ShipDriveState } from '../../defs/ship_drive';
@@ -12,6 +15,9 @@ import type { EncounterCombatState } from './combat';
 // Здесь хранится только доменное состояние, без Phaser/UI объектов.
 export type EncounterState = {
     spaceBackgroundId: SpaceBackgroundId;
+
+    playerHull: PlayerHullState;
+
     navigation: PlayerSpaceNavigationState;
 
     drive: ShipDriveState;

@@ -1,5 +1,6 @@
 // tests/engine/encounter/combat_test_support.ts
 
+import { createPlayerHullFixture } from '../../fixtures/engine/player_hull_fixtures';
 import {
     createNewRunState,
 } from '../../../src/engine/content/new_game/create_new_run_state';
@@ -50,6 +51,8 @@ export function createAnchoredPlayerCombatTestSetup():
 
     const engine =
         new EncounterEngine({
+            playerHull: createPlayerHullFixture(),
+
             node:
                 startNode,
 

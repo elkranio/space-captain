@@ -1,5 +1,6 @@
 // tests/engine/encounter/new_game_enemy_combat_sequence.test.ts
 
+import { createPlayerHullFixture } from '../../fixtures/engine/player_hull_fixtures';
 import {
     describe,
     expect,
@@ -67,6 +68,8 @@ describe('New-game enemy combat sequence', () => {
         }
 
         const engine = new EncounterEngine({
+            playerHull: createPlayerHullFixture(),
+
             node: startNode,
 
             navigation: {

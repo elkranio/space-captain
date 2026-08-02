@@ -1,5 +1,6 @@
 // tests/engine/encounter/player_missile_presentation_events.test.ts
 
+import { createPlayerHullFixture } from '../../fixtures/engine/player_hull_fixtures';
 import {
     describe,
     expect,
@@ -297,6 +298,8 @@ function createSetup({
 
     const engine =
         new EncounterEngine({
+            playerHull: createPlayerHullFixture(),
+
             node:
                 startNode,
 

@@ -95,7 +95,9 @@ describe('BridgeEncounterEngineEventHandler laser resolution', () => {
                 attack: createAttack(),
 
                 outcome: LASER_SHOT_OUTCOME.HIT,
-                damage: 1,
+                appliedDamage: 1,
+                remainingHull: 2,
+                destroyed: false,
             },
         ]);
 

@@ -1,5 +1,6 @@
 // tests/engine/encounter/science_identify_threat.test.ts
 
+import { createPlayerHullFixture } from '../../fixtures/engine/player_hull_fixtures';
 import { createShipDriveFixture } from '../../fixtures/engine/ship_drive_fixtures';
 import { describe, expect, it } from 'vitest';
 import {
@@ -71,6 +72,8 @@ describe('Science identify threat command', () => {
         node.actors.push(nodeEnemy);
 
         const engine = new EncounterEngine({
+            playerHull: createPlayerHullFixture(),
+
             drive: createShipDriveFixture(),
             node,
 
@@ -386,7 +389,9 @@ describe('Science identify threat command', () => {
             type: ENCOUNTER_EVENT.LASER_FIRED,
 
             outcome: LASER_SHOT_OUTCOME.HIT,
-            damage: 1,
+            appliedDamage: 1,
+            remainingHull: 2,
+            destroyed: false,
         });
 
         expect(taskEndedEvent).toEqual({
@@ -430,6 +435,8 @@ function createLaserEngine({
     node.actors.push(nodeEnemy);
 
     const engine = new EncounterEngine({
+        playerHull: createPlayerHullFixture(),
+
         drive: createShipDriveFixture(),
         node,
 

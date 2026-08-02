@@ -1,5 +1,6 @@
 // tests/engine/encounter/player_laser_damage.test.ts
 
+import { createPlayerHullFixture } from '../../fixtures/engine/player_hull_fixtures';
 import {
     describe,
     expect,
@@ -87,6 +88,8 @@ describe('Player laser damage', () => {
             .chargeRegenerationElapsedMs = 0;
 
         const engine = new EncounterEngine({
+            playerHull: createPlayerHullFixture(),
+
             node: startNode,
 
             navigation: {

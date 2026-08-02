@@ -1,5 +1,8 @@
 // src/engine/encounter/state/create_encounter_state.ts
 
+import type {
+    PlayerHullState,
+} from '../../defs/player';
 import type { PlayerSpaceNavigationState } from '../../defs/player_location';
 import type { PointDefenseState } from '../../defs/point_defense';
 import type { ShieldGeneratorState } from '../../defs/shield_generator';
@@ -12,16 +15,38 @@ import { ENCOUNTER_ANCHOR_KIND, type EncounterAnchorState } from '../anchors/enc
 import { DOCKING_CLEARANCE_STATE } from '../anchors/station/station_encounter_anchor';
 import type { EncounterState } from '../model/state';
 
-export function createEncounterState(
-    node: SpaceNodeState,
-    navigation: PlayerSpaceNavigationState,
-    drive: ShipDriveState,
-    pointDefense: PointDefenseState,
-    shieldGenerator?: ShieldGeneratorState,
-    playerWeapons: ShipWeaponState[] = [],
-): EncounterState {
+export type CreateEncounterStateInput = {
+    node: SpaceNodeState;
+    navigation: PlayerSpaceNavigationState;
+
+    playerHull: PlayerHullState;
+    drive: ShipDriveState;
+
+    pointDefense: PointDefenseState;
+    shieldGenerator?: ShieldGeneratorState;
+
+    playerWeapons?: ShipWeaponState[];
+};
+
+export function createEncounterState({
+    node,
+    navigation,
+    playerHull,
+    drive,
+    pointDefense,
+    shieldGenerator,
+    playerWeapons = [],
+}: CreateEncounterStateInput): EncounterState {
+    validatePlayerHull(
+        playerHull,
+    );
+
     return {
         spaceBackgroundId: node.spaceBackgroundId,
+
+        playerHull: {
+            ...playerHull,
+        },
 
         // Encounter получает собственный runtime snapshot.
         // Persistent player state обновляется отдельно.
@@ -72,6 +97,40 @@ export function createEncounterState(
             stickyMines: [],
         },
     };
+}
+
+function validatePlayerHull(
+    playerHull: PlayerHullState,
+): void {
+    if (
+        !Number.isFinite(
+            playerHull.maxHull,
+        ) ||
+        playerHull.maxHull <= 0
+    ) {
+        throw new Error(
+            'Player max hull must be positive: ' +
+                String(
+                    playerHull.maxHull,
+                ),
+        );
+    }
+
+    if (
+        !Number.isFinite(
+            playerHull.hull,
+        ) ||
+        playerHull.hull < 0 ||
+        playerHull.hull >
+            playerHull.maxHull
+    ) {
+        throw new Error(
+            'Player hull must be in [0, maxHull]: ' +
+                playerHull.hull +
+                '/' +
+                playerHull.maxHull,
+        );
+    }
 }
 
 function createEncounterAnchorState(anchor: SpaceAnchorState): EncounterAnchorState {

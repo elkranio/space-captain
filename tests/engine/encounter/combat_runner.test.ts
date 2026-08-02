@@ -1,5 +1,6 @@
 // tests/engine/encounter/combat_runner.test.ts
 
+import { createPlayerHullFixture } from '../../fixtures/engine/player_hull_fixtures';
 import { createShipDriveFixture } from '../../fixtures/engine/ship_drive_fixtures';
 import { describe, expect, it } from 'vitest';
 import {
@@ -51,6 +52,8 @@ describe('CombatRunner', () => {
         node.actors.push(nodeEnemy);
 
         const engine = new EncounterEngine({
+            playerHull: createPlayerHullFixture(),
+
             drive: createShipDriveFixture(),
             node,
 
@@ -210,9 +213,18 @@ describe('CombatRunner', () => {
                     initialTimeToImpactMs: 12000,
                 },
 
-                damage: 1,
+                appliedDamage: 1,
+                remainingHull: 2,
+                destroyed: false,
             },
         ]);
+
+        expect(
+            engine.getPlayerHullState(),
+        ).toEqual({
+            hull: 2,
+            maxHull: 3,
+        });
 
         expect(loadedEvent.state.combat.projectiles).toEqual([]);
 
@@ -254,6 +266,8 @@ describe('CombatRunner', () => {
         node.actors.push(nodeEnemy);
 
         const engine = new EncounterEngine({
+            playerHull: createPlayerHullFixture(),
+
             drive: createShipDriveFixture(),
             node,
 
@@ -362,7 +376,9 @@ describe('CombatRunner', () => {
                 attack: firstAttack,
 
                 outcome: LASER_SHOT_OUTCOME.HIT,
-                damage: laserDefinition.damage,
+                appliedDamage: laserDefinition.damage,
+                remainingHull: 2,
+                destroyed: false,
             },
         ]);
 

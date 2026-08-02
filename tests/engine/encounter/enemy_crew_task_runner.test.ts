@@ -1,5 +1,6 @@
 // tests/engine/encounter/enemy_crew_task_runner.test.ts
 
+import { createPlayerHullFixture } from '../../fixtures/engine/player_hull_fixtures';
 import {
     describe,
     expect,
@@ -302,21 +303,21 @@ function createRunnerFixture() {
         stationId,
     } = createSingleStationNodeFixture();
 
-    const state = createEncounterState(
+    const state = createEncounterState({
         node,
 
-        {
-            kind:
-                PLAYER_SPACE_NAVIGATION_KIND
-                    .ANCHORED,
-
-            anchorId:
-                stationId,
+        navigation: {
+            kind: PLAYER_SPACE_NAVIGATION_KIND
+                .ANCHORED,
+            anchorId: stationId,
         },
 
-        createShipDriveFixture(),
-        createPointDefenseFixture(),
-    );
+        playerHull: createPlayerHullFixture(),
+
+        drive: createShipDriveFixture(),
+
+        pointDefense: createPointDefenseFixture(),
+    });
 
     const store =
         new EncounterStateStore(state);

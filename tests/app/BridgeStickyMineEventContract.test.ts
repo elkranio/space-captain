@@ -90,7 +90,9 @@ describe('Bridge sticky-mine event contract', () => {
                     0,
                 ),
 
-                damage: 1,
+                appliedDamage: 1,
+                remainingHull: 2,
+                destroyed: false,
             },
         ] as EncounterEvent[]);
 

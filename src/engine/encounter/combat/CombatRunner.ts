@@ -47,9 +47,7 @@ import {
 } from '../model/combat';
 import { ENCOUNTER_EVENT, type EncounterEvent } from '../model/event';
 import type { EncounterState } from '../model/state';
-import type {
-    EnemyHullDamageResult,
-} from '../state/EncounterStateStore';
+import EncounterStateStore from '../state/EncounterStateStore';
 import EnemyTaskScheduler from './EnemyTaskScheduler';
 import EnemyThreatObserver from './EnemyThreatObserver';
 
@@ -67,17 +65,13 @@ type PlayerStickyMineAttachInput = {
 };
 
 type CombatRunnerOptions = {
-    state: EncounterState;
+    stateStore: EncounterStateStore;
+
     emit: (event: EncounterEvent) => void;
 
     random: () => number;
 
     interruptRandomOfficerTask: () => void;
-
-    damageEnemyActorHull: (
-        actorId: string,
-        damage: number,
-    ) => EnemyHullDamageResult;
 
     destroyEnemyActor:
         (actorId: string) => void;
@@ -95,6 +89,9 @@ type CombatRunnerOptions = {
 // Корабли, оружие и угрозы остаются частью EncounterState.
 // Статические параметры моделей оружия читаются из content.
 export default class CombatRunner {
+    private readonly stateStore:
+        EncounterStateStore;
+
     private readonly state: EncounterState;
 
     private readonly emit: (event: EncounterEvent) => void;
@@ -102,11 +99,6 @@ export default class CombatRunner {
     private readonly random: () => number;
 
     private readonly interruptRandomOfficerTask: () => void;
-
-    private readonly damageEnemyActorHull:
-        CombatRunnerOptions[
-            'damageEnemyActorHull'
-        ];
 
     private readonly destroyEnemyActor:
         CombatRunnerOptions[
@@ -135,24 +127,26 @@ export default class CombatRunner {
     private nextThreatDesignationNumber = 1;
 
     constructor({
-        state,
+        stateStore,
         emit,
 
         random,
 
         interruptRandomOfficerTask,
-        damageEnemyActorHull,
         destroyEnemyActor,
     }: CombatRunnerOptions) {
-        this.state = state;
+        this.stateStore =
+            stateStore;
+
+        this.state =
+            this.stateStore
+                .getState();
+
         this.emit = emit;
 
         this.random = random;
 
         this.interruptRandomOfficerTask = interruptRandomOfficerTask;
-
-        this.damageEnemyActorHull =
-            damageEnemyActorHull;
 
         this.destroyEnemyActor =
             destroyEnemyActor;
@@ -964,13 +958,20 @@ export default class CombatRunner {
             return;
         }
 
+        const damageResult =
+            this.stateStore
+                .damagePlayerHull(
+                    definition.damage,
+                );
+
         this.emit({
             type: ENCOUNTER_EVENT.LASER_FIRED,
 
             attack: attackSnapshot,
 
             outcome: LASER_SHOT_OUTCOME.HIT,
-            damage: definition.damage,
+
+            ...damageResult,
         });
 
         this.interruptRandomOfficerTask();
@@ -1402,6 +1403,12 @@ export default class CombatRunner {
                 COMBAT_TARGET_KIND
                     .PLAYER_SHIP
         ) {
+            const damageResult =
+                this.stateStore
+                    .damagePlayerHull(
+                        mine.damage,
+                    );
+
             this.emit({
                 type:
                     ENCOUNTER_EVENT
@@ -1410,8 +1417,7 @@ export default class CombatRunner {
                 mine:
                     mineSnapshot,
 
-                damage:
-                    mine.damage,
+                ...damageResult,
             });
 
             this.interruptRandomOfficerTask();
@@ -1466,7 +1472,7 @@ export default class CombatRunner {
         }
 
         const damageResult =
-            this.damageEnemyActorHull(
+            this.stateStore.damageEnemyActorHull(
                 target.id,
                 mine.damage,
             );
@@ -1858,6 +1864,12 @@ export default class CombatRunner {
             1,
         );
 
+        const damageResult =
+            this.stateStore
+                .damagePlayerHull(
+                    missile.damage,
+                );
+
         this.emit({
             type:
                 ENCOUNTER_EVENT
@@ -1866,8 +1878,7 @@ export default class CombatRunner {
             projectile:
                 projectileSnapshot,
 
-            damage:
-                missile.damage,
+            ...damageResult,
         });
     }
 
@@ -1889,7 +1900,7 @@ export default class CombatRunner {
         );
 
         const damageResult =
-            this.damageEnemyActorHull(
+            this.stateStore.damageEnemyActorHull(
                 target.id,
                 missile.damage,
             );

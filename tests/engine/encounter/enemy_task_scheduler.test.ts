@@ -1,5 +1,6 @@
 // tests/engine/encounter/enemy_task_scheduler.test.ts
 
+import { createPlayerHullFixture } from '../../fixtures/engine/player_hull_fixtures';
 import {
     describe,
     expect,
@@ -288,6 +289,8 @@ function createEnemyCombatEngine(
     node.actors.push(nodeActor);
 
     const engine = new EncounterEngine({
+        playerHull: createPlayerHullFixture(),
+
         node,
 
         navigation: {

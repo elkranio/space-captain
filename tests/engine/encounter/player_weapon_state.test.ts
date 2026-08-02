@@ -1,5 +1,6 @@
 // tests/engine/encounter/player_weapon_state.test.ts
 
+import { createPlayerHullFixture } from '../../fixtures/engine/player_hull_fixtures';
 import {
     describe,
     expect,
@@ -48,6 +49,8 @@ describe('Player weapon encounter state', () => {
         ];
 
         const engine = new EncounterEngine({
+            playerHull: createPlayerHullFixture(),
+
             node,
 
             navigation: {

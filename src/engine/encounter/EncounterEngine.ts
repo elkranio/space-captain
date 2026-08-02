@@ -5,6 +5,9 @@ import {
     type EncounterTeam,
 } from '../defs/encounter_team';
 import type { OfficerRole } from '../defs/officer';
+import type {
+    PlayerHullState,
+} from '../defs/player';
 import type { PlayerSpaceNavigationState } from '../defs/player_location';
 import type { PointDefenseState } from '../defs/point_defense';
 import type { ShieldGeneratorState } from '../defs/shield_generator';
@@ -60,6 +63,7 @@ export type EncounterEngineOptions = {
     node: SpaceNodeState;
     navigation: PlayerSpaceNavigationState;
 
+    playerHull: PlayerHullState;
     drive: ShipDriveState;
 
     pointDefense: PointDefenseState;
@@ -104,6 +108,7 @@ export default class EncounterEngine {
     constructor({
         node,
         navigation,
+        playerHull,
         drive,
         pointDefense,
         shieldGenerator,
@@ -114,14 +119,19 @@ export default class EncounterEngine {
         random = Math.random,
     }: EncounterEngineOptions) {
         this.stateStore =
-            EncounterStateStore.fromSpaceNode(
+            EncounterStateStore.fromSpaceNode({
                 node,
                 navigation,
+
+                playerHull,
                 drive,
+
                 pointDefense,
                 shieldGenerator,
-                weapons,
-            );
+
+                playerWeapons:
+                    weapons,
+            });
 
         const encounterState = this.stateStore.getState();
 
@@ -135,7 +145,9 @@ export default class EncounterEngine {
         });
 
         this.combatRunner = new CombatRunner({
-            state: encounterState,
+            stateStore:
+                this.stateStore,
+
             emit: this.emit,
 
             random,
@@ -143,15 +155,6 @@ export default class EncounterEngine {
             interruptRandomOfficerTask: () => {
                 this.officerTaskRunner.interruptRandomTaskByDamage();
             },
-
-            damageEnemyActorHull:
-                (actorId, damage) => {
-                    return this.stateStore
-                        .damageEnemyActorHull(
-                            actorId,
-                            damage,
-                        );
-                },
 
             destroyEnemyActor:
                 this.destroyEnemyActor,
@@ -311,6 +314,15 @@ export default class EncounterEngine {
     public getDriveState(): ShipDriveState {
         return {
             ...this.stateStore.getState().drive,
+        };
+    }
+
+    public getPlayerHullState():
+        PlayerHullState {
+        return {
+            ...this.stateStore
+                .getState()
+                .playerHull,
         };
     }
 

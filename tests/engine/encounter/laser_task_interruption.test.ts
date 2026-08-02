@@ -1,5 +1,6 @@
 // tests/engine/encounter/laser_task_interruption.test.ts
 
+import { createPlayerHullFixture } from '../../fixtures/engine/player_hull_fixtures';
 import { createShipDriveFixture } from '../../fixtures/engine/ship_drive_fixtures';
 import { describe, expect, it } from 'vitest';
 import {
@@ -107,7 +108,9 @@ describe('Laser hit officer task interruption', () => {
                 attack: createExpectedAttack(),
 
                 outcome: LASER_SHOT_OUTCOME.HIT,
-                damage: 1,
+                appliedDamage: 1,
+                remainingHull: 2,
+                destroyed: false,
             },
 
             {
@@ -149,6 +152,8 @@ function createLaserEngine(randomValues: number[]) {
     let randomIndex = 0;
 
     const engine = new EncounterEngine({
+        playerHull: createPlayerHullFixture(),
+
         drive: createShipDriveFixture(),
         node,
 

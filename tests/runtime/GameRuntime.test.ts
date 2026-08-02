@@ -127,24 +127,21 @@ describe('GameRuntime player ship hull', () => {
         });
     });
 
-    it('damages player ship hull and clamps it at zero', () => {
+    it('persists an exact player hull snapshot', () => {
         const runtime = new GameRuntime();
 
-        expect(
-            runtime.damagePlayerShipHull(1),
-        ).toEqual({
-            previousHull: 3,
-            currentHull: 2,
-            destroyed: false,
-        });
+        runtime.setPlayerShipHull(
+            2,
+        );
 
         expect(
-            runtime.damagePlayerShipHull(10),
-        ).toEqual({
-            previousHull: 2,
-            currentHull: 0,
-            destroyed: true,
-        });
+            runtime.getCurrentRun()
+                .player.ship.hull,
+        ).toBe(2);
+
+        runtime.setPlayerShipHull(
+            0,
+        );
 
         expect(
             runtime.getCurrentRun().player.ship,
@@ -245,19 +242,23 @@ describe('GameRuntime player ship hull', () => {
         });
     });
 
-    it('rejects non-positive player ship hull damage', () => {
+    it('rejects a player hull snapshot outside its installed maximum', () => {
         const runtime = new GameRuntime();
 
         expect(() => {
-            runtime.damagePlayerShipHull(0);
+            runtime.setPlayerShipHull(
+                -1,
+            );
         }).toThrow(
-            'Player ship hull damage must be positive: 0',
+            'Player ship hull must be in [0, maxHull]: -1/3',
         );
 
         expect(() => {
-            runtime.damagePlayerShipHull(-1);
+            runtime.setPlayerShipHull(
+                4,
+            );
         }).toThrow(
-            'Player ship hull damage must be positive: -1',
+            'Player ship hull must be in [0, maxHull]: 4/3',
         );
     });
 });

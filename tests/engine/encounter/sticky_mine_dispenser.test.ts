@@ -1,5 +1,6 @@
 // tests/engine/encounter/sticky_mine_dispenser.test.ts
 
+import { createPlayerHullFixture } from '../../fixtures/engine/player_hull_fixtures';
 import { describe, expect, it } from 'vitest';
 import {
     SHIP_WEAPON_TARGETING_DURATION_MS,
@@ -137,7 +138,9 @@ describe('Sticky mine dispenser', () => {
                     0,
                 ),
 
-                damage: 1,
+                appliedDamage: 1,
+                remainingHull: 2,
+                destroyed: false,
             },
         ]);
 
@@ -241,7 +244,9 @@ describe('Sticky mine dispenser', () => {
                     0,
                 ),
 
-                damage: 1,
+                appliedDamage: 1,
+                remainingHull: 2,
+                destroyed: false,
             },
 
             {
@@ -330,6 +335,8 @@ function createStickyMineEngine({
     node.actors.push(enemy);
 
     const engine = new EncounterEngine({
+        playerHull: createPlayerHullFixture(),
+
         drive: createShipDriveFixture(),
         node,
 

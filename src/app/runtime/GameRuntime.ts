@@ -16,12 +16,6 @@ import { getCurrentNode } from '../../engine/universe/queries/get_current_node';
 type PlayerLocationChangedListener = () => void;
 type CurrentNodeAnchorsChangedListener = () => void;
 
-export type PlayerShipHullDamageResult = {
-    previousHull: number;
-    currentHull: number;
-    destroyed: boolean;
-};
-
 // Runtime текущей игровой сессии.
 //
 // Владеет persistent RunState и предоставляет контролируемые mutations.
@@ -38,21 +32,28 @@ export class GameRuntime {
         return this.currentRun;
     }
 
-    public damagePlayerShipHull(damage: number): PlayerShipHullDamageResult {
-        if (!Number.isFinite(damage) || damage <= 0) {
-            throw new Error(`Player ship hull damage must be positive: ${damage}`);
+    public setPlayerShipHull(
+        hull: number,
+    ): void {
+        const ship =
+            this.currentRun
+                .player
+                .ship;
+
+        if (
+            !Number.isFinite(hull) ||
+            hull < 0 ||
+            hull > ship.maxHull
+        ) {
+            throw new Error(
+                'Player ship hull must be in [0, maxHull]: ' +
+                    hull +
+                    '/' +
+                    ship.maxHull,
+            );
         }
 
-        const ship = this.currentRun.player.ship;
-        const previousHull = ship.hull;
-
-        ship.hull = Math.max(0, previousHull - damage);
-
-        return {
-            previousHull,
-            currentHull: ship.hull,
-            destroyed: ship.hull === 0,
-        };
+        ship.hull = hull;
     }
 
     public setPlayerShipPointDefenseCharges(charges: number): void {

@@ -8,13 +8,15 @@ import type {
 import { PLAYER_SHIELD_DURATION_MS } from '../../content/rules/shields';
 import { JUMP_POINT_OBJECT_SPRITE_ID } from '../../defs/jump_point';
 import type { LaserTargetZone } from '../../defs/laser';
+import type {
+    PlayerHullDamageResult,
+} from '../../defs/player';
 import type { OfficerRole } from '../../defs/officer';
 import { PLAYER_SPACE_NAVIGATION_KIND, type PlayerSpaceNavigationState } from '../../defs/player_location';
 import {
     POINT_DEFENSE_SHOT_OUTCOME,
     type PointDefenseBeamBand,
     type PointDefenseShotOutcome,
-    type PointDefenseState,
 } from '../../defs/point_defense';
 import type { ShieldGeneratorState } from '../../defs/shield_generator';
 import type { ShipBehaviorState } from '../../defs/ship_behavior';
@@ -31,7 +33,6 @@ import {
     type ShipWeaponState,
     type StickyMineDispenserState,
 } from '../../defs/ship_weapon';
-import type { SpaceNodeState } from '../../defs/universe';
 import { ENCOUNTER_ACTOR_KIND, type EncounterActorState } from '../actors/encounter_actor';
 import type { ShipEncounterActorState } from '../actors/ship/ship_encounter_actor';
 import { ENCOUNTER_ANCHOR_KIND, type EncounterAnchorState } from '../anchors/encounter_anchor';
@@ -49,7 +50,10 @@ import {
 } from '../model/combat';
 import type { OfficerTaskState } from '../model/officer_task';
 import type { EncounterState } from '../model/state';
-import { createEncounterState } from './create_encounter_state';
+import {
+    createEncounterState,
+    type CreateEncounterStateInput,
+} from './create_encounter_state';
 
 export type EncounterTravelStart = {
     fromAnchorId: string;
@@ -96,25 +100,19 @@ export default class EncounterStateStore {
     // #region Creation
 
     public static fromSpaceNode(
-        node: SpaceNodeState,
-        navigation: PlayerSpaceNavigationState,
-        drive: ShipDriveState,
-        pointDefense: PointDefenseState,
-        shieldGenerator?: ShieldGeneratorState,
-        playerWeapons: ShipWeaponState[] = [],
+        input: CreateEncounterStateInput,
     ): EncounterStateStore {
-        const store = new EncounterStateStore(
-            createEncounterState(
-                node,
-                navigation,
-                drive,
-                pointDefense,
-                shieldGenerator,
-                playerWeapons,
-            ),
-        );
+        const store =
+            new EncounterStateStore(
+                createEncounterState(
+                    input,
+                ),
+            );
 
-        for (const actor of node.actors) {
+        for (
+            const actor of
+            input.node.actors
+        ) {
             store.spawnShipActor({
                 actorId: actor.id,
                 chassisId: actor.chassisId,
@@ -185,6 +183,55 @@ export default class EncounterStateStore {
         return this.state.actors.filter((actor) => {
             return actor.anchorId === anchorId;
         });
+    }
+
+    // #endregion
+
+    // #region Player hull
+
+    public damagePlayerHull(
+        damage: number,
+    ): PlayerHullDamageResult {
+        if (
+            !Number.isFinite(damage) ||
+            damage < 0
+        ) {
+            throw new Error(
+                'Invalid player hull damage: ' +
+                    String(damage),
+            );
+        }
+
+        const playerHull =
+            this.state.playerHull;
+
+        const appliedDamage =
+            Math.min(
+                damage,
+                playerHull.hull,
+            );
+
+        const wasAlive =
+            playerHull.hull > 0;
+
+        playerHull.hull =
+            Math.max(
+                0,
+                playerHull.hull -
+                    appliedDamage,
+            );
+
+        return {
+            appliedDamage,
+
+            remainingHull:
+                playerHull.hull,
+
+            destroyed:
+                wasAlive &&
+                appliedDamage > 0 &&
+                playerHull.hull === 0,
+        };
     }
 
     // #endregion

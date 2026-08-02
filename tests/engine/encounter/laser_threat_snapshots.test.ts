@@ -1,5 +1,6 @@
 // tests/engine/encounter/laser_threat_snapshots.test.ts
 
+import { createPlayerHullFixture } from '../../fixtures/engine/player_hull_fixtures';
 import { createShipDriveFixture } from '../../fixtures/engine/ship_drive_fixtures';
 import { describe, expect, it } from 'vitest';
 import {
@@ -103,6 +104,8 @@ function createLaserEngine() {
     node.actors.push(enemy);
 
     const engine = new EncounterEngine({
+        playerHull: createPlayerHullFixture(),
+
         drive: createShipDriveFixture(),
         node,
 

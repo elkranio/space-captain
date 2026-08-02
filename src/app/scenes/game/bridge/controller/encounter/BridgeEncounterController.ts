@@ -201,6 +201,15 @@ export default class BridgeEncounterController {
             node,
             navigation: location.navigation,
 
+            playerHull: {
+                hull:
+                    run.player.ship.hull,
+
+                maxHull:
+                    run.player.ship
+                        .maxHull,
+            },
+
             drive: run.player.ship.drive,
 
             pointDefense: run.player.ship.pointDefense,

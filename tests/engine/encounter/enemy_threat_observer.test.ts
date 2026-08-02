@@ -1,5 +1,6 @@
 // tests/engine/encounter/enemy_threat_observer.test.ts
 
+import { createPlayerHullFixture } from '../../fixtures/engine/player_hull_fixtures';
 import {
     describe,
     expect,
@@ -225,25 +226,27 @@ function createObserverFixture() {
         phaseElapsedMs: 0,
     } as const;
 
-    const state = createEncounterState(
+    const state = createEncounterState({
         node,
 
-        {
-            kind:
-                PLAYER_SPACE_NAVIGATION_KIND
-                    .ANCHORED,
-
-            anchorId:
-                stationId,
+        navigation: {
+            kind: PLAYER_SPACE_NAVIGATION_KIND
+                .ANCHORED,
+            anchorId: stationId,
         },
 
-        createShipDriveFixture(),
-        createPointDefenseFixture(),
-        undefined,
-        [
+        playerHull: createPlayerHullFixture(),
+
+        drive: createShipDriveFixture(),
+
+        pointDefense: createPointDefenseFixture(),
+
+        shieldGenerator: undefined,
+
+        playerWeapons: [
             playerLaser,
         ],
-    );
+    });
 
     const store =
         new EncounterStateStore(state);

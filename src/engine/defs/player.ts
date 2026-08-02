@@ -6,17 +6,30 @@ import type { ShieldGeneratorState } from './shield_generator';
 import type { ShipDriveState } from './ship_drive';
 import type { ShipWeaponState } from './ship_weapon';
 
-export type PlayerShipState = {
+export type PlayerHullState = {
     hull: number;
     maxHull: number;
-
-    drive: ShipDriveState;
-
-    pointDefense: PointDefenseState;
-    shieldGenerator: ShieldGeneratorState;
-
-    weapons: ShipWeaponState[];
 };
+
+export type PlayerHullDamageResult = {
+    appliedDamage: number;
+    remainingHull: number;
+    destroyed: boolean;
+};
+
+export type PlayerShipState =
+    PlayerHullState & {
+        drive: ShipDriveState;
+
+        pointDefense:
+            PointDefenseState;
+
+        shieldGenerator:
+            ShieldGeneratorState;
+
+        weapons:
+            ShipWeaponState[];
+    };
 
 export type PlayerState = {
     ship: PlayerShipState;

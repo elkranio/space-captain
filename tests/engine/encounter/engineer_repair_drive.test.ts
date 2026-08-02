@@ -1,5 +1,6 @@
 // tests/engine/encounter/engineer_repair_drive.test.ts
 
+import { createPlayerHullFixture } from '../../fixtures/engine/player_hull_fixtures';
 import { describe, expect, it } from 'vitest';
 import { OFFICER_ROLE } from '../../../src/engine/defs/officer';
 import {
@@ -36,6 +37,8 @@ describe('Engineer repair drive command', () => {
         } = createStationAndBeaconNodeFixture();
 
         const engine = new EncounterEngine({
+            playerHull: createPlayerHullFixture(),
+
             drive: createShipDriveFixture(
                 SHIP_DRIVE_STATUS.DISABLED,
             ),
@@ -252,6 +255,8 @@ describe('Engineer repair drive command', () => {
         } = createStationAndBeaconNodeFixture();
 
         const engine = new EncounterEngine({
+            playerHull: createPlayerHullFixture(),
+
             drive: createShipDriveFixture(
                 SHIP_DRIVE_STATUS.DISABLED,
             ),

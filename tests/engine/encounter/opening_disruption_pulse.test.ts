@@ -1,5 +1,6 @@
 // tests/engine/encounter/opening_disruption_pulse.test.ts
 
+import { createPlayerHullFixture } from '../../fixtures/engine/player_hull_fixtures';
 import { describe, expect, it } from 'vitest';
 import { SHIP_NODE_ACTOR_PRESET_ID } from '../../../src/engine/content/presets/ship_node_actors';
 import { ENCOUNTER_TEAM } from '../../../src/engine/defs/encounter_team';
@@ -43,6 +44,8 @@ describe('opening disruption pulse', () => {
         const drive = createShipDriveFixture();
 
         const engine = new EncounterEngine({
+            playerHull: createPlayerHullFixture(),
+
             node,
 
             navigation: {
@@ -163,6 +166,8 @@ describe('opening disruption pulse', () => {
         node.actors.push(actor);
 
         const engine = new EncounterEngine({
+            playerHull: createPlayerHullFixture(),
+
             node,
 
             navigation: {
@@ -313,6 +318,8 @@ function createNeutralEncounter() {
     node.actors.push(actor);
 
     const engine = new EncounterEngine({
+        playerHull: createPlayerHullFixture(),
+
         node,
 
         navigation: {

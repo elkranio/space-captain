@@ -1,5 +1,6 @@
 // tests/engine/encounter/enemy_ship_telemetry.test.ts
 
+import { createPlayerHullFixture } from '../../fixtures/engine/player_hull_fixtures';
 import {
     describe,
     expect,
@@ -46,6 +47,8 @@ describe('Enemy ship telemetry', () => {
         }
 
         const engine = new EncounterEngine({
+            playerHull: createPlayerHullFixture(),
+
             node: startNode,
 
             navigation: {
@@ -209,6 +212,8 @@ describe('Enemy ship telemetry', () => {
         }
 
         const engine = new EncounterEngine({
+            playerHull: createPlayerHullFixture(),
+
             node: stationNode,
 
             navigation: {

@@ -1,5 +1,6 @@
 // tests/engine/encounter/shield_generator_regeneration.test.ts
 
+import { createPlayerHullFixture } from '../../fixtures/engine/player_hull_fixtures';
 import { createShipDriveFixture } from '../../fixtures/engine/ship_drive_fixtures';
 import { describe, expect, it } from 'vitest';
 import { PLAYER_SPACE_NAVIGATION_KIND } from '../../../src/engine/defs/player_location';
@@ -121,6 +122,8 @@ describe('ShieldGeneratorRunner', () => {
         const { node, stationId } = createSingleStationNodeFixture();
 
         const engine = new EncounterEngine({
+            playerHull: createPlayerHullFixture(),
+
             drive: createShipDriveFixture(),
             node,
 
@@ -150,6 +153,8 @@ function createEngine(shieldGenerator: {
     const { node, stationId } = createSingleStationNodeFixture();
 
     const engine = new EncounterEngine({
+        playerHull: createPlayerHullFixture(),
+
         drive: createShipDriveFixture(),
         node,
 

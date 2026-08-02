@@ -1,5 +1,6 @@
 // tests/engine/encounter/hail.test.ts
 
+import { createPlayerHullFixture } from '../../fixtures/engine/player_hull_fixtures';
 import { createShipDriveFixture } from '../../fixtures/engine/ship_drive_fixtures';
 import { describe, expect, it } from 'vitest';
 import { OFFICER_ROLE } from '../../../src/engine/defs/officer';
@@ -20,6 +21,8 @@ describe('HAIL', () => {
         const { node, stationId, stationName, stationContactName } = createSingleStationNodeFixture();
 
         const engine = new EncounterEngine({
+            playerHull: createPlayerHullFixture(),
+
             drive: createShipDriveFixture(),
             node,
 
@@ -183,6 +186,8 @@ describe('HAIL', () => {
         const { node, stationId } = createSingleStationNodeFixture();
 
         const engine = new EncounterEngine({
+            playerHull: createPlayerHullFixture(),
+
             drive: createShipDriveFixture(),
             node,
 

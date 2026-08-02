@@ -2,6 +2,9 @@
 
 import type { CharacterPortraitId } from '../../defs/character';
 import type {
+    PlayerHullDamageResult,
+} from '../../defs/player';
+import type {
     LaserTargetZone,
 } from '../../defs/laser';
 import type { PlayerSpaceNavigationState } from '../../defs/player_location';
@@ -394,13 +397,15 @@ export type MissileLaunchedEvent = {
     projectile: MissileCombatProjectileState;
 };
 
-export type MissileImpactedPlayerShipEvent = {
-    type: typeof ENCOUNTER_EVENT.MISSILE_IMPACTED_PLAYER_SHIP;
+export type MissileImpactedPlayerShipEvent =
+    PlayerHullDamageResult & {
+        type:
+            typeof ENCOUNTER_EVENT
+                .MISSILE_IMPACTED_PLAYER_SHIP;
 
-    projectile: MissileCombatProjectileState;
-
-    damage: number;
-};
+        projectile:
+            MissileCombatProjectileState;
+    };
 
 export type StickyMineAttachedEvent = {
     type: typeof ENCOUNTER_EVENT.STICKY_MINE_ATTACHED;
@@ -408,13 +413,14 @@ export type StickyMineAttachedEvent = {
     mine: StickyMineState;
 };
 
-export type StickyMineDetonatedEvent = {
-    type: typeof ENCOUNTER_EVENT.STICKY_MINE_DETONATED;
+export type StickyMineDetonatedEvent =
+    PlayerHullDamageResult & {
+        type:
+            typeof ENCOUNTER_EVENT
+                .STICKY_MINE_DETONATED;
 
-    mine: StickyMineState;
-
-    damage: number;
-};
+        mine: StickyMineState;
+    };
 
 export type LaserAttackStartedEvent = {
     type: typeof ENCOUNTER_EVENT.LASER_ATTACK_STARTED;
@@ -430,14 +436,16 @@ export type LaserFiredEvent =
 
           outcome: typeof LASER_SHOT_OUTCOME.BLOCKED;
       }
-    | {
-          type: typeof ENCOUNTER_EVENT.LASER_FIRED;
+    | (PlayerHullDamageResult & {
+          type:
+              typeof ENCOUNTER_EVENT
+                  .LASER_FIRED;
 
           attack: LaserAttackState;
 
-          outcome: typeof LASER_SHOT_OUTCOME.HIT;
-          damage: number;
-      };
+          outcome:
+              typeof LASER_SHOT_OUTCOME.HIT;
+      });
 
 
 export type SpamChannelStartedEvent = {

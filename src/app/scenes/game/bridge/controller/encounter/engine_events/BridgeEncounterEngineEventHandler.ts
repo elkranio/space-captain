@@ -1,6 +1,9 @@
 // src/app/scenes/game/bridge/controller/encounter/engine_events/BridgeEncounterEngineEventHandler.ts
 
 import { OFFICER_ROLE } from '../../../../../../../engine/defs/officer';
+import type {
+    PlayerHullDamageResult,
+} from '../../../../../../../engine/defs/player';
 import { PLAYER_SPACE_NAVIGATION_KIND } from '../../../../../../../engine/defs/player_location';
 import { SPACE_ANCHOR_KIND } from '../../../../../../../engine/defs/universe';
 import {
@@ -601,7 +604,7 @@ export default class BridgeEncounterEngineEventHandler {
                     projectileId: event.projectile.id,
                 });
 
-                this.handlePlayerShipDamaged(event.damage);
+                this.handlePlayerShipDamaged(event);
                 return;
 
             case ENCOUNTER_EVENT.STICKY_MINE_DETONATED:
@@ -634,7 +637,7 @@ export default class BridgeEncounterEngineEventHandler {
                 );
 
                 this.handlePlayerShipDamaged(
-                    event.damage,
+                    event,
                 );
                 return;
 
@@ -654,7 +657,7 @@ export default class BridgeEncounterEngineEventHandler {
                     return;
                 }
 
-                this.handlePlayerShipDamaged(event.damage);
+                this.handlePlayerShipDamaged(event);
                 return;
         }
 
@@ -665,17 +668,21 @@ export default class BridgeEncounterEngineEventHandler {
 
     // #region Combat
 
-    private handlePlayerShipDamaged(damage: number): void {
-        const result = this.gameRuntime.damagePlayerShipHull(damage);
+    private handlePlayerShipDamaged(
+        result: PlayerHullDamageResult,
+    ): void {
+        this.gameRuntime
+            .setPlayerShipHull(
+                result.remainingHull,
+            );
 
-        if (result.currentHull !== result.previousHull) {
+        if (
+            result.appliedDamage > 0
+        ) {
             this.emitPlayerShipStatusUpdated();
         }
 
-        // destroyed === true также вернётся
-        // при повторном damage,
-        // когда hull уже был равен нулю.
-        if (!result.destroyed || result.previousHull === 0) {
+        if (!result.destroyed) {
             return;
         }
 

@@ -1,5 +1,6 @@
 // tests/engine/encounter/sticky_mine_snapshots.test.ts
 
+import { createPlayerHullFixture } from '../../fixtures/engine/player_hull_fixtures';
 import {
     describe,
     expect,
@@ -135,6 +136,8 @@ function createEngine() {
     } = createSingleStationNodeFixture();
 
     const engine = new EncounterEngine({
+        playerHull: createPlayerHullFixture(),
+
         drive: createShipDriveFixture(),
         node,
 

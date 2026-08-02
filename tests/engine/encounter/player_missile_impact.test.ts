@@ -1,5 +1,6 @@
 // tests/engine/encounter/player_missile_impact.test.ts
 
+import { createPlayerHullFixture } from '../../fixtures/engine/player_hull_fixtures';
 import {
     describe,
     expect,
@@ -386,6 +387,8 @@ function createMissileImpactSetup({
         launcher.loadedMissileId;
 
     const engine = new EncounterEngine({
+        playerHull: createPlayerHullFixture(),
+
         node:
             startNode,
 

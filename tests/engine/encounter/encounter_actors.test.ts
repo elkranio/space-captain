@@ -1,5 +1,6 @@
 // tests/engine/encounter/encounter_actors.test.ts
 
+import { createPlayerHullFixture } from '../../fixtures/engine/player_hull_fixtures';
 import {
     describe,
     expect,
@@ -65,19 +66,21 @@ describe('encounter actors', () => {
             stationId,
         } = createSingleStationNodeFixture();
 
-        const state = createEncounterState(
+        const state = createEncounterState({
             node,
 
-            {
-                kind:
-                    PLAYER_SPACE_NAVIGATION_KIND
-                        .ANCHORED,
+            navigation: {
+                kind: PLAYER_SPACE_NAVIGATION_KIND
+                    .ANCHORED,
                 anchorId: stationId,
             },
 
-            createShipDriveFixture(),
-            createPointDefenseFixture(),
-        );
+            playerHull: createPlayerHullFixture(),
+
+            drive: createShipDriveFixture(),
+
+            pointDefense: createPointDefenseFixture(),
+        });
 
         const store =
             new EncounterStateStore(state);
@@ -203,20 +206,21 @@ describe('encounter actors', () => {
             stationId,
         } = createSingleStationNodeFixture();
 
-        const state = createEncounterState(
+        const state = createEncounterState({
             node,
 
-            {
-                kind:
-                    PLAYER_SPACE_NAVIGATION_KIND
-                        .ANCHORED,
-
+            navigation: {
+                kind: PLAYER_SPACE_NAVIGATION_KIND
+                    .ANCHORED,
                 anchorId: stationId,
             },
 
-            createShipDriveFixture(),
-            createPointDefenseFixture(),
-        );
+            playerHull: createPlayerHullFixture(),
+
+            drive: createShipDriveFixture(),
+
+            pointDefense: createPointDefenseFixture(),
+        });
 
         const store =
             new EncounterStateStore(state);
@@ -351,6 +355,8 @@ describe('encounter actors', () => {
         node.actors.push(nodeActor);
 
         const engine = new EncounterEngine({
+            playerHull: createPlayerHullFixture(),
+
             drive: createShipDriveFixture(),
             node,
 

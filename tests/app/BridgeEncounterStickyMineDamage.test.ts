@@ -70,7 +70,9 @@ describe('Bridge sticky-mine damage', () => {
                     timeToDetonationMs: 0,
                 },
 
-                damage: 1,
+                appliedDamage: 1,
+                remainingHull: 2,
+                destroyed: false,
             },
 
             {
@@ -83,7 +85,9 @@ describe('Bridge sticky-mine damage', () => {
                     timeToDetonationMs: 0,
                 },
 
-                damage: 1,
+                appliedDamage: 1,
+                remainingHull: 1,
+                destroyed: false,
             },
 
             {
@@ -96,7 +100,9 @@ describe('Bridge sticky-mine damage', () => {
                     timeToDetonationMs: 0,
                 },
 
-                damage: 1,
+                appliedDamage: 1,
+                remainingHull: 0,
+                destroyed: true,
             },
         ]);
 

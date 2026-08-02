@@ -1,5 +1,6 @@
 // tests/engine/encounter/player_missile_lifecycle.test.ts
 
+import { createPlayerHullFixture } from '../../fixtures/engine/player_hull_fixtures';
 import {
     describe,
     expect,
@@ -423,6 +424,8 @@ function createMissileLifecycleSetup(
     }
 
     const engine = new EncounterEngine({
+        playerHull: createPlayerHullFixture(),
+
         node: startNode,
 
         navigation: {

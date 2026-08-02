@@ -1,5 +1,6 @@
 // tests/engine/encounter/fly_to.test.ts
 
+import { createPlayerHullFixture } from '../../fixtures/engine/player_hull_fixtures';
 import { createShipDriveFixture } from '../../fixtures/engine/ship_drive_fixtures';
 import { describe, expect, it } from 'vitest';
 import { OFFICER_ROLE } from '../../../src/engine/defs/officer';
@@ -21,6 +22,8 @@ describe('FLY_TO', () => {
         const { node, stationId, stationName, beaconId, beaconName } = createStationAndBeaconNodeFixture();
 
         const engine = new EncounterEngine({
+            playerHull: createPlayerHullFixture(),
+
             drive: createShipDriveFixture(),
             node,
 

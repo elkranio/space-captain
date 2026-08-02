@@ -1,5 +1,6 @@
 // tests/engine/encounter/enemy_offensive_pacing.test.ts
 
+import { createPlayerHullFixture } from '../../fixtures/engine/player_hull_fixtures';
 import {
     describe,
     expect,
@@ -107,6 +108,8 @@ function createEnemyCombatActor() {
     );
 
     const engine = new EncounterEngine({
+        playerHull: createPlayerHullFixture(),
+
         node,
 
         navigation: {
