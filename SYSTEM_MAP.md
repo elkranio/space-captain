@@ -19,7 +19,7 @@ It does not contain gameplay balance or implementation backlog.
 Last mapped commit:
 
 ```text
-29003f681c1c8ba0498cdb4d3edb5ed9f9a1eac5
+df1e29a93b5c0998f4347ee01eb0aeb416ec3a6d
 ```
 
 ---
@@ -160,7 +160,7 @@ Locked lifecycle reason:
 
 Any edit to this order requires focused regression tests.
 
-Target readability for this pipeline:
+Current readable phase pipeline:
 
 ```text
 capture
@@ -173,8 +173,9 @@ capture
 → finalize
 ```
 
-This may be expressed through private phase methods inside `CombatRunner`;
-it does not require another coordinator class.
+`CombatRunner.step()` expresses this order through private phase methods.
+Do not inline the pipeline back into one mixed orchestration block and do not
+introduce another coordinator class.
 
 ---
 
@@ -208,7 +209,6 @@ Current decision ownership:
 - `EnemyTaskScheduler` validates and starts the selected intent;
 - scheduler does not search observations or select weapons independently.
 
-
 ```text
 EnemyDecisionPolicy selects EnemyWorkIntent
 → EnemyTaskScheduler validates and executes the intent
@@ -232,11 +232,16 @@ Enemy weapon lifecycle currently belongs to `CombatRunner`.
 Officer/crew tasks describe operator occupation and selected targets. Cooldowns
 do not occupy the operator.
 
-The meaning of "weapon still requires an operator" must have one shared query.
-Do not duplicate the list of active operator-controlled phases in several
-systems.
+The shared domain query is:
 
-Expected rule:
+```text
+doesShipWeaponPhaseRequireOperator(phase)
+```
+
+Do not duplicate the list of active operator-controlled phases in another
+runner, scheduler or command rule.
+
+Current rule:
 
 ```text
 TARGETING / CHARGING / CHANNELING / DISPENSING
@@ -380,9 +385,9 @@ Stop and inspect architecture when a local feature requires any of these:
 1. done — lock gameplay/persistence contracts
 2. done — resolve player-hull and surviving-enemy ownership
 3. done — make EnemyDecisionPolicy the single decision owner
-4. next — centralize crew-controlled weapon-phase semantics
-5. expose CombatRunner step phases explicitly
-6. separate bridge persistence transport from presentation transport
+4. done — centralize crew-controlled weapon-phase semantics
+5. done — expose CombatRunner step phases explicitly
+6. next — separate bridge persistence transport from presentation transport
 7. audit again before command-palette implementation
 ```
 

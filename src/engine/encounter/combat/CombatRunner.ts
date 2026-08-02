@@ -64,6 +64,11 @@ type PlayerStickyMineAttachInput = {
     ageMs: number;
 };
 
+type CombatStepExistingObjectIds = {
+    projectileIds: string[];
+    stickyMineIds: string[];
+};
+
 type CombatRunnerOptions = {
     stateStore: EncounterStateStore;
 
@@ -164,54 +169,91 @@ export default class CombatRunner {
     }
 
     public step(deltaMs: number): void {
+        const existingCombatObjectIds =
+            this.captureExistingCombatObjectIds();
+
+        this.integratePendingPlayerCombatObjects();
+        this.perceivePlayerThreats();
+
+        this.resolveExistingCombatObjects(
+            existingCombatObjectIds,
+            deltaMs,
+        );
+
+        this.perceivePlayerThreats();
+        this.decideEnemyWork(deltaMs);
+        this.advanceWeapons(deltaMs);
+        this.finalizeEnemyCrewTasks();
+    }
+
+    private captureExistingCombatObjectIds():
+        CombatStepExistingObjectIds {
         // PlayerWeaponRunner уже выполнил физический launch,
         // но новые combat objects пока лежат в очередях.
-        // Сначала запоминаем только старые объекты.
-        const projectileIdsToAdvance =
-            this.state.combat
-                .projectiles
-                .map((projectile) => {
-                    return projectile.id;
-                })
-                .reverse();
+        // Snapshot содержит только объекты, существовавшие
+        // до начала этого combat step.
+        return {
+            projectileIds:
+                this.state.combat
+                    .projectiles
+                    .map((projectile) => {
+                        return projectile.id;
+                    })
+                    .reverse(),
 
-        const stickyMineIdsToAdvance =
-            this.state.combat
-                .stickyMines
-                .map((mine) => {
-                    return mine.id;
-                });
+            stickyMineIds:
+                this.state.combat
+                    .stickyMines
+                    .map((mine) => {
+                        return mine.id;
+                    }),
+        };
+    }
 
+    private integratePendingPlayerCombatObjects():
+        void {
         // Новый launch должен существовать до resolution
         // старых угроз: lethal impact сможет сразу завершить
-        // его как TARGET_LOST. При этом новые объекты не входят
-        // в snapshots выше и не получают текущий deltaMs.
+        // его как TARGET_LOST. При этом новый объект
+        // отсутствует в captured IDs и не получает
+        // текущий deltaMs.
         this.flushPlayerMissileLaunches();
         this.flushPlayerStickyMineAttachments();
+    }
 
-        // Новые player threats уже существуют,
-        // но ещё не получают текущий deltaMs.
+    private perceivePlayerThreats(): void {
         this.enemyThreatObserver
             .synchronize();
+    }
 
+    private resolveExistingCombatObjects(
+        existingIds:
+            CombatStepExistingObjectIds,
+        deltaMs: number,
+    ): void {
         this.advanceProjectiles(
-            projectileIdsToAdvance,
+            existingIds.projectileIds,
             deltaMs,
         );
 
         this.advanceStickyMines(
-            stickyMineIdsToAdvance,
+            existingIds.stickyMineIds,
             deltaMs,
         );
+    }
 
-        // Удаляем observations угроз,
-        // которые разрешились в этом step,
-        // до следующего enemy decision.
-        this.enemyThreatObserver
-            .synchronize();
+    private decideEnemyWork(
+        deltaMs: number,
+    ): void {
+        // Scheduler сначала двигает текущие crew tasks
+        // и policy timers, затем выбирает и запускает
+        // новую работу доступных ролей.
+        this.enemyTaskScheduler
+            .schedule(deltaMs);
+    }
 
-        this.enemyTaskScheduler.schedule(deltaMs);
-        this.advanceWeapons(deltaMs);
+    private finalizeEnemyCrewTasks(): void {
+        // Weapon advancement мог освободить оператора.
         this.enemyTaskScheduler
             .synchronizeTasks();
     }
