@@ -2,6 +2,9 @@
 
 import { MISSILES } from '../../content/catalogs/missiles';
 import { SHIP_CHASSIS } from '../../content/catalogs/ship_chassis';
+import type {
+    CrewTraitsByRole,
+} from '../../defs/crew_trait';
 import { PLAYER_SHIELD_DURATION_MS } from '../../content/rules/shields';
 import { JUMP_POINT_OBJECT_SPRITE_ID } from '../../defs/jump_point';
 import type { LaserTargetZone } from '../../defs/laser';
@@ -75,6 +78,8 @@ export type SpawnShipActorInput = {
     behavior: ShipBehaviorState;
 
     crewRoles: OfficerRole[];
+    crewTraitsByRole?:
+        CrewTraitsByRole;
 
     weapons: ShipWeaponState[];
 };
@@ -129,6 +134,9 @@ export default class EncounterStateStore {
 
                 crewRoles:
                     actor.crewRoles,
+
+                crewTraitsByRole:
+                    actor.crewTraitsByRole,
 
                 weapons: actor.weapons,
             });
@@ -194,6 +202,7 @@ export default class EncounterStateStore {
         shieldGenerator,
         behavior,
         crewRoles,
+        crewTraitsByRole = {},
         weapons,
     }: SpawnShipActorInput): ShipEncounterActorState {
         if (!this.findAnchorById(anchorId)) {
@@ -211,6 +220,20 @@ export default class EncounterStateStore {
 
         const ship =
             SHIP_CHASSIS[chassisId];
+
+        const copiedCrewTraitsByRole:
+            CrewTraitsByRole = {};
+
+        for (const role of crewRoles) {
+            copiedCrewTraitsByRole[role] = [
+                ...(
+                    crewTraitsByRole[
+                        role
+                    ] ??
+                    []
+                ),
+            ];
+        }
 
         const actor: ShipEncounterActorState = {
             id: actorId,
@@ -240,6 +263,9 @@ export default class EncounterStateStore {
             crewRoles: [
                 ...crewRoles,
             ],
+
+            crewTraitsByRole:
+                copiedCrewTraitsByRole,
 
             decision: {
                 nextWeaponIndexByRole: {},

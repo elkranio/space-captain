@@ -90,6 +90,11 @@ export default class NewGameUniverseFactory {
                 },
             );
 
+        delete enemyShip
+            .crewTraitsByRole[
+                OFFICER_ROLE.SCIENCE
+            ];
+
         const startNode: SpaceNodeState = {
             id: NEW_GAME_ID.START_NODE,
 

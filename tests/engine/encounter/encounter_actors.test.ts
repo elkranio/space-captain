@@ -149,6 +149,10 @@ describe('encounter actors', () => {
                 OFFICER_ROLE.WEAPONS,
             ],
 
+            crewTraitsByRole: {
+                [OFFICER_ROLE.WEAPONS]: [],
+            },
+
             decision: {
                 nextWeaponIndexByRole: {},
 
@@ -421,6 +425,14 @@ describe('encounter actors', () => {
                                         .crewRoles,
                                 ],
 
+                                crewTraitsByRole: {
+                                    [OFFICER_ROLE.COMMS]: [],
+                                    [OFFICER_ROLE.SCIENCE]: [],
+                                    [OFFICER_ROLE.HELM]: [],
+                                    [OFFICER_ROLE.WEAPONS]: [],
+                                    [OFFICER_ROLE.ENGINEER]: [],
+                                },
+
                                 decision: {
                                     nextWeaponIndexByRole:
                                         {},
@@ -479,6 +491,22 @@ describe('encounter actors', () => {
         expect(
             encounterActor.crewRoles,
         ).not.toBe(nodeActor.crewRoles);
+
+        expect(
+            encounterActor.crewTraitsByRole,
+        ).not.toBe(
+            nodeActor.crewTraitsByRole,
+        );
+
+        for (const role of nodeActor.crewRoles) {
+            expect(
+                encounterActor
+                    .crewTraitsByRole[role],
+            ).not.toBe(
+                nodeActor
+                    .crewTraitsByRole[role],
+            );
+        }
 
         expect(
             encounterActor.weapons,

@@ -1,6 +1,9 @@
 // src/engine/encounter/actors/ship/ship_encounter_actor.ts
 
 import type {
+    CrewTraitsByRole,
+} from '../../../defs/crew_trait';
+import type {
     OfficerRole,
 } from '../../../defs/officer';
 import type {
@@ -54,6 +57,11 @@ export type ShipEncounterActorState =
         // Абстрактные роли,
         // физически доступные этому экипажу.
         crewRoles: OfficerRole[];
+
+        // Persistent traits конкретных ролей.
+        // Encounter получает независимую копию.
+        crewTraitsByRole:
+            CrewTraitsByRole;
 
         // Runtime-память captain policy.
         // Persistent universe state её не хранит.
