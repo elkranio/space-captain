@@ -115,6 +115,53 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
         expect(setEncounterInteractive).not.toHaveBeenCalled();
     });
 
+    it('synchronizes runtime before translating a damage event', () => {
+        const runtime = new GameRuntime();
+
+        const observedHullByBridgeEvent:
+            number[] = [];
+
+        const emit = vi.fn(() => {
+            observedHullByBridgeEvent.push(
+                runtime.getCurrentRun()
+                    .player.ship.hull,
+            );
+        });
+
+        const handler =
+            new BridgeEncounterEngineEventHandler(
+                {
+                    emit,
+                } as unknown as BridgeEventBus,
+
+                vi.fn(),
+                runtime,
+            );
+
+        handler.handle([
+            {
+                type:
+                    ENCOUNTER_EVENT
+                        .MISSILE_IMPACTED_PLAYER_SHIP,
+
+                projectile: {
+                    ...impactedProjectile,
+                },
+
+                appliedDamage: 1,
+                remainingHull: 2,
+                destroyed: false,
+            },
+        ]);
+
+        expect(
+            observedHullByBridgeEvent,
+        ).toEqual([
+            2,
+            2,
+        ]);
+    });
+
     it('updates hull status and requests END only on first destruction', () => {
         const runtime = new GameRuntime();
 

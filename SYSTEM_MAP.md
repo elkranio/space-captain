@@ -19,7 +19,7 @@ It does not contain gameplay balance or implementation backlog.
 Last mapped commit:
 
 ```text
-df1e29a93b5c0998f4347ee01eb0aeb416ec3a6d
+ab31d4e12540f1966e970714405a92de00a06187
 ```
 
 ---
@@ -292,9 +292,26 @@ Use snapshots for continuously changing state:
 
 ## Persistence synchronization
 
-Persistence sync copies authoritative encounter state back into `GameRuntime`.
+Event-driven persistence is owned by:
 
-It must not be hidden inside presentation mapping.
+```text
+BridgeEncounterRuntimeSynchronizer
+```
+
+For each encounter event, the app order is:
+
+```text
+EncounterEvent
+→ synchronize persistent GameRuntime state
+→ translate presentation / scene-flow effects
+```
+
+`BridgeEncounterEngineEventHandler` owns bridge presentation and scene flow but
+must not call `GameRuntime` mutation methods directly.
+
+Snapshot-based synchronization remains explicit in `BridgeEncounterController`
+for player weapons and navigation lifecycle boundaries. Do not move these to a
+per-frame generic synchronizer.
 
 ## Bridge events
 
@@ -338,8 +355,8 @@ definition/state
 → combat object or direct effect
 → authoritative mutation
 → engine event/snapshot
-→ bridge presentation
 → persistence sync
+→ bridge presentation
 → tests
 ```
 
@@ -387,8 +404,8 @@ Stop and inspect architecture when a local feature requires any of these:
 3. done — make EnemyDecisionPolicy the single decision owner
 4. done — centralize crew-controlled weapon-phase semantics
 5. done — expose CombatRunner step phases explicitly
-6. next — separate bridge persistence transport from presentation transport
-7. audit again before command-palette implementation
+6. done — separate bridge persistence transport from presentation transport
+7. next — audit again before command-palette implementation
 ```
 
 Small adjacent cleanups are allowed when they:

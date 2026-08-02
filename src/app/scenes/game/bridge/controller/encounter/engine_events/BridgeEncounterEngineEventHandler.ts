@@ -5,7 +5,6 @@ import type {
     PlayerHullDamageResult,
 } from '../../../../../../../engine/defs/player';
 import { PLAYER_SPACE_NAVIGATION_KIND } from '../../../../../../../engine/defs/player_location';
-import { SPACE_ANCHOR_KIND } from '../../../../../../../engine/defs/universe';
 import {
     COMBAT_SOURCE_KIND,
     COMBAT_TARGET_KIND,
@@ -29,6 +28,9 @@ import {
 } from '../../../events/bridge_event';
 import type BridgeEventBus from '../../../events/BridgeEventBus';
 import { mapPlayerShipToBridgeStatusPayload } from '../../player_ship_status/BridgePlayerShipStatusMapper';
+import BridgeEncounterRuntimeSynchronizer, {
+    type BridgeEncounterRuntimeSyncResult,
+} from './BridgeEncounterRuntimeSynchronizer';
 import {
     mapEncounterAnchorToBridgeObjectPayload,
     mapEncounterStateToBridgeObjectPayloads,
@@ -37,17 +39,32 @@ import {
 type SetEncounterInteractive = (value: boolean) => void;
 
 export default class BridgeEncounterEngineEventHandler {
+    private readonly runtimeSynchronizer:
+        BridgeEncounterRuntimeSynchronizer;
+
     constructor(
         private readonly eventBus: BridgeEventBus,
         private readonly setEncounterInteractive: SetEncounterInteractive,
         private readonly gameRuntime: GameRuntime,
-    ) {}
+    ) {
+        this.runtimeSynchronizer =
+            new BridgeEncounterRuntimeSynchronizer(
+                this.gameRuntime,
+            );
+    }
 
     // #region Public API
 
     public handle(events: EncounterEvent[]): void {
         for (const event of events) {
-            this.handleEvent(event);
+            const runtimeSync =
+                this.runtimeSynchronizer
+                    .synchronize(event);
+
+            this.handleEvent(
+                event,
+                runtimeSync,
+            );
         }
     }
 
@@ -55,7 +72,11 @@ export default class BridgeEncounterEngineEventHandler {
 
     // #region Event dispatch
 
-    private handleEvent(event: EncounterEvent): void {
+    private handleEvent(
+        event: EncounterEvent,
+        runtimeSync:
+            BridgeEncounterRuntimeSyncResult,
+    ): void {
         switch (event.type) {
             case ENCOUNTER_EVENT.ENCOUNTER_LOADED:
                 this.handleEncounterLoaded(event);
@@ -114,35 +135,23 @@ export default class BridgeEncounterEngineEventHandler {
                 return;
 
             case ENCOUNTER_EVENT.PLAYER_POINT_DEFENSE_CHARGE_SPENT:
-                this.gameRuntime.setPlayerShipPointDefenseCharges(event.remainingCharges);
-
-                this.emitPlayerShipStatusUpdated();
-
-                return;
-
-            case ENCOUNTER_EVENT.PLAYER_SHIELD_GENERATOR_STATE_CHANGED: {
-                const previousCharges =
-                    this.gameRuntime.getCurrentRun().player.ship.shieldGenerator.charges;
-
-                this.gameRuntime.setPlayerShipShieldGeneratorState(event.shieldGenerator);
-
-                if (event.shieldGenerator.charges !== previousCharges) {
-                    this.emitPlayerShipStatusUpdated();
-                }
+                this.emitPlayerShipStatusIfChanged(
+                    runtimeSync,
+                );
 
                 return;
-            }
+
+            case ENCOUNTER_EVENT.PLAYER_SHIELD_GENERATOR_STATE_CHANGED:
+                this.emitPlayerShipStatusIfChanged(
+                    runtimeSync,
+                );
+
+                return;
 
             case ENCOUNTER_EVENT.PLAYER_SHIP_DRIVE_DISRUPTED:
-                this.gameRuntime.setPlayerShipDriveState(
-                    event.drive,
+                this.emitPlayerShipStatusIfChanged(
+                    runtimeSync,
                 );
-
-                this.gameRuntime.setPlayerSpaceNavigation(
-                    event.navigation,
-                );
-
-                this.emitPlayerShipStatusUpdated();
 
                 this.eventBus.emit(
                     BRIDGE_EVENT.PLAYER_SHIP_DRIVE_DISRUPTED,
@@ -151,11 +160,9 @@ export default class BridgeEncounterEngineEventHandler {
                 return;
 
             case ENCOUNTER_EVENT.PLAYER_SHIP_DRIVE_STATE_CHANGED:
-                this.gameRuntime.setPlayerShipDriveState(
-                    event.drive,
+                this.emitPlayerShipStatusIfChanged(
+                    runtimeSync,
                 );
-
-                this.emitPlayerShipStatusUpdated();
 
                 return;
 
@@ -169,18 +176,6 @@ export default class BridgeEncounterEngineEventHandler {
             case ENCOUNTER_EVENT.OFFICER_TASK_ENDED:
                 if (event.result?.kind === OFFICER_TASK_RESULT_KIND.JUMP_POINT_CALCULATED) {
                     const anchor = event.result.anchor;
-
-                    this.gameRuntime.addCurrentNodeAnchor({
-                        kind: SPACE_ANCHOR_KIND.JUMP_POINT,
-
-                        jumpPoint: {
-                            ...anchor.jumpPoint,
-                        },
-
-                        localPosition: {
-                            ...anchor.localPosition,
-                        },
-                    });
 
                     this.eventBus.emit(
                         BRIDGE_EVENT.ENCOUNTER_OBJECT_ADDED,
@@ -498,11 +493,6 @@ export default class BridgeEncounterEngineEventHandler {
             case ENCOUNTER_EVENT.ENEMY_SHIP_DESTROYED:
                 this.setEncounterInteractive(false);
 
-                this.gameRuntime
-                    .removeCurrentNodeActor(
-                        event.actorId,
-                    );
-
                 this.eventBus.emit(
                     BRIDGE_EVENT
                         .MISSILE_TARGETING_WARNING_CLEARED,
@@ -604,28 +594,13 @@ export default class BridgeEncounterEngineEventHandler {
                     projectileId: event.projectile.id,
                 });
 
-                this.handlePlayerShipDamaged(event);
+                this.handlePlayerShipDamaged(
+                    event,
+                    runtimeSync,
+                );
                 return;
 
             case ENCOUNTER_EVENT.STICKY_MINE_DETONATED:
-                if (
-                    event.mine.source.kind !==
-                        COMBAT_SOURCE_KIND.ACTOR ||
-                    event.mine.target.kind !==
-                        COMBAT_TARGET_KIND
-                            .PLAYER_SHIP
-                ) {
-                    throw new Error(
-                        'Detonated incoming sticky mine has ' +
-                            'invalid source or target: ' +
-                            event.mine.id +
-                            '/' +
-                            event.mine.source.kind +
-                            '/' +
-                            event.mine.target.kind,
-                    );
-                }
-
                 this.eventBus.emit(
                     BRIDGE_EVENT.STICKY_MINE_REMOVED,
                     {
@@ -638,6 +613,7 @@ export default class BridgeEncounterEngineEventHandler {
 
                 this.handlePlayerShipDamaged(
                     event,
+                    runtimeSync,
                 );
                 return;
 
@@ -657,7 +633,10 @@ export default class BridgeEncounterEngineEventHandler {
                     return;
                 }
 
-                this.handlePlayerShipDamaged(event);
+                this.handlePlayerShipDamaged(
+                    event,
+                    runtimeSync,
+                );
                 return;
         }
 
@@ -670,17 +649,12 @@ export default class BridgeEncounterEngineEventHandler {
 
     private handlePlayerShipDamaged(
         result: PlayerHullDamageResult,
+        runtimeSync:
+            BridgeEncounterRuntimeSyncResult,
     ): void {
-        this.gameRuntime
-            .setPlayerShipHull(
-                result.remainingHull,
-            );
-
-        if (
-            result.appliedDamage > 0
-        ) {
-            this.emitPlayerShipStatusUpdated();
-        }
+        this.emitPlayerShipStatusIfChanged(
+            runtimeSync,
+        );
 
         if (!result.destroyed) {
             return;
@@ -694,6 +668,20 @@ export default class BridgeEncounterEngineEventHandler {
                 sceneKey: SCENE_KEY.END,
             },
         );
+    }
+
+    private emitPlayerShipStatusIfChanged(
+        runtimeSync:
+            BridgeEncounterRuntimeSyncResult,
+    ): void {
+        if (
+            !runtimeSync
+                .playerShipStatusChanged
+        ) {
+            return;
+        }
+
+        this.emitPlayerShipStatusUpdated();
     }
 
     private emitPlayerShipStatusUpdated(): void {
