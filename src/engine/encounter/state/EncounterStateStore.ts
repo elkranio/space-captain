@@ -589,18 +589,26 @@ export default class EncounterStateStore {
 
     // #region Combat
 
+    public findPlayerWeaponById(
+        weaponId: string,
+    ): ShipWeaponState | undefined {
+        return this.state.combat
+            .playerWeapons
+            .find((weapon) => {
+                return (
+                    weapon.id ===
+                    weaponId
+                );
+            });
+    }
+
     public startPlayerMissileTargeting(
         weaponId: string,
     ): MissileLauncherState {
         const weapon =
-            this.state.combat
-                .playerWeapons
-                .find((candidate) => {
-                    return (
-                        candidate.id ===
-                        weaponId
-                    );
-                });
+            this.findPlayerWeaponById(
+                weaponId,
+            );
 
         if (!weapon) {
             throw new Error(
@@ -660,14 +668,9 @@ export default class EncounterStateStore {
         weaponId: string,
     ): StickyMineDispenserState {
         const weapon =
-            this.state.combat
-                .playerWeapons
-                .find((candidate) => {
-                    return (
-                        candidate.id ===
-                        weaponId
-                    );
-                });
+            this.findPlayerWeaponById(
+                weaponId,
+            );
 
         if (!weapon) {
             throw new Error(
@@ -728,14 +731,9 @@ export default class EncounterStateStore {
         weaponId: string,
     ): StickyMineDispenserState | undefined {
         const weapon =
-            this.state.combat
-                .playerWeapons
-                .find((candidate) => {
-                    return (
-                        candidate.id ===
-                        weaponId
-                    );
-                });
+            this.findPlayerWeaponById(
+                weaponId,
+            );
 
         if (!weapon) {
             return undefined;
@@ -789,14 +787,9 @@ export default class EncounterStateStore {
         weaponId: string,
     ): LaserWeaponState {
         const weapon =
-            this.state.combat
-                .playerWeapons
-                .find((candidate) => {
-                    return (
-                        candidate.id ===
-                        weaponId
-                    );
-                });
+            this.findPlayerWeaponById(
+                weaponId,
+            );
 
         if (!weapon) {
             throw new Error(
@@ -843,14 +836,9 @@ export default class EncounterStateStore {
         weaponId: string,
     ): ShipWeaponState | undefined {
         const weapon =
-            this.state.combat
-                .playerWeapons
-                .find((candidate) => {
-                    return (
-                        candidate.id ===
-                        weaponId
-                    );
-                });
+            this.findPlayerWeaponById(
+                weaponId,
+            );
 
         if (!weapon) {
             return undefined;

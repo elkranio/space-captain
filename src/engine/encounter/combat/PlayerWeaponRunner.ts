@@ -127,59 +127,65 @@ type PlayerWeaponRunnerOptions = {
 // Cooldown — внутреннее время системы,
 // поэтому не зависит от officer performance.
 export default class PlayerWeaponRunner {
+    private readonly stateStore:
+        EncounterStateStore;
+
+    private readonly queuePlayerStickyMineAttach:
+        PlayerWeaponRunnerOptions[
+            'queuePlayerStickyMineAttach'
+        ];
+
+    private readonly queuePlayerMissileLaunch:
+        PlayerWeaponRunnerOptions[
+            'queuePlayerMissileLaunch'
+        ];
+
+    private readonly destroyEnemyActor:
+        PlayerWeaponRunnerOptions[
+            'destroyEnemyActor'
+        ];
+
+    private readonly emit:
+        PlayerWeaponRunnerOptions['emit'];
+
+    private readonly completeOfficerTask:
+        PlayerWeaponRunnerOptions[
+            'completeOfficerTask'
+        ];
+
     private readonly performanceResolver:
         OfficerPerformanceResolver;
 
-    constructor(
-        private readonly stateStore:
-            EncounterStateStore,
-
-        private readonly queuePlayerStickyMineAttach:
-            PlayerWeaponRunnerOptions[
-                'queuePlayerStickyMineAttach'
-            ],
-
-        private readonly queuePlayerMissileLaunch:
-            PlayerWeaponRunnerOptions[
-                'queuePlayerMissileLaunch'
-            ],
-
-        private readonly destroyEnemyActor:
-            PlayerWeaponRunnerOptions[
-                'destroyEnemyActor'
-            ],
-
-        private readonly emit:
-            PlayerWeaponRunnerOptions['emit'],
-
-        private readonly completeOfficerTask:
-            PlayerWeaponRunnerOptions[
-                'completeOfficerTask'
-            ],
-    ) {
-        this.performanceResolver =
-            new OfficerPerformanceResolver(
-                this.stateStore,
-            );
-    }
-
-    public static create({
+    constructor({
         stateStore,
         queuePlayerStickyMineAttach,
         queuePlayerMissileLaunch,
         destroyEnemyActor,
         emit,
         completeOfficerTask,
-    }: PlayerWeaponRunnerOptions):
-        PlayerWeaponRunner {
-        return new PlayerWeaponRunner(
-            stateStore,
-            queuePlayerStickyMineAttach,
-            queuePlayerMissileLaunch,
-            destroyEnemyActor,
-            emit,
-            completeOfficerTask,
-        );
+    }: PlayerWeaponRunnerOptions) {
+        this.stateStore =
+            stateStore;
+
+        this.queuePlayerStickyMineAttach =
+            queuePlayerStickyMineAttach;
+
+        this.queuePlayerMissileLaunch =
+            queuePlayerMissileLaunch;
+
+        this.destroyEnemyActor =
+            destroyEnemyActor;
+
+        this.emit =
+            emit;
+
+        this.completeOfficerTask =
+            completeOfficerTask;
+
+        this.performanceResolver =
+            new OfficerPerformanceResolver(
+                this.stateStore,
+            );
     }
 
     public step(deltaMs: number): void {
@@ -782,15 +788,9 @@ export default class PlayerWeaponRunner {
     ): MissileLauncherState | undefined {
         const weapon =
             this.stateStore
-                .getState()
-                .combat
-                .playerWeapons
-                .find((candidate) => {
-                    return (
-                        candidate.id ===
-                        task.weaponId
-                    );
-                });
+                .findPlayerWeaponById(
+                    task.weaponId,
+                );
 
         if (!weapon) {
             return undefined;
@@ -818,15 +818,9 @@ export default class PlayerWeaponRunner {
     ): StickyMineDispenserState | undefined {
         const weapon =
             this.stateStore
-                .getState()
-                .combat
-                .playerWeapons
-                .find((candidate) => {
-                    return (
-                        candidate.id ===
-                        task.weaponId
-                    );
-                });
+                .findPlayerWeaponById(
+                    task.weaponId,
+                );
 
         if (!weapon) {
             return undefined;
@@ -855,15 +849,9 @@ export default class PlayerWeaponRunner {
     ): LaserWeaponState | undefined {
         const weapon =
             this.stateStore
-                .getState()
-                .combat
-                .playerWeapons
-                .find((candidate) => {
-                    return (
-                        candidate.id ===
-                        task.weaponId
-                    );
-                });
+                .findPlayerWeaponById(
+                    task.weaponId,
+                );
 
         if (!weapon) {
             return undefined;

@@ -174,7 +174,7 @@ export default class EncounterEngine {
         });
 
         this.playerWeaponRunner =
-            PlayerWeaponRunner.create({
+            new PlayerWeaponRunner({
                 stateStore:
                     this.stateStore,
 
