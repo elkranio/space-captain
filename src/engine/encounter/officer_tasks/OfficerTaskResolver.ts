@@ -16,7 +16,7 @@ type CommsRequestDockingTaskState = Extract<
     }
 >;
 
-type PlayerWeaponTaskState = Extract<
+type ResettablePlayerWeaponTaskState = Extract<
     OfficerTaskState,
     {
         kind:
@@ -24,6 +24,15 @@ type PlayerWeaponTaskState = Extract<
                   .WEAPONS_FIRE_MISSILE
             | typeof OFFICER_TASK_KIND
                   .WEAPONS_FIRE_LASER;
+    }
+>;
+
+type WeaponsFireStickyMinesTaskState = Extract<
+    OfficerTaskState,
+    {
+        kind:
+            typeof OFFICER_TASK_KIND
+                .WEAPONS_FIRE_STICKY_MINES;
     }
 >;
 
@@ -127,6 +136,8 @@ export default class OfficerTaskResolver {
             // Player weapon lifecycle
             // завершит task снаружи.
             case OFFICER_TASK_KIND.WEAPONS_FIRE_MISSILE:
+            case OFFICER_TASK_KIND
+                .WEAPONS_FIRE_STICKY_MINES:
             case OFFICER_TASK_KIND.WEAPONS_FIRE_LASER:
                 return undefined;
 
@@ -148,10 +159,17 @@ export default class OfficerTaskResolver {
     ): void {
         switch (task.kind) {
             case OFFICER_TASK_KIND
+                .WEAPONS_FIRE_STICKY_MINES:
+                this.cancelWeaponsFireStickyMinesTask(
+                    task,
+                );
+                return;
+
+            case OFFICER_TASK_KIND
                 .WEAPONS_FIRE_MISSILE:
             case OFFICER_TASK_KIND
                 .WEAPONS_FIRE_LASER:
-                this.cancelPlayerWeaponTask(
+                this.cancelResettablePlayerWeaponTask(
                     task,
                 );
                 return;
@@ -161,12 +179,21 @@ export default class OfficerTaskResolver {
         }
     }
 
-    private cancelPlayerWeaponTask(
-        task: PlayerWeaponTaskState,
+    private cancelResettablePlayerWeaponTask(
+        task: ResettablePlayerWeaponTaskState,
     ): void {
         this.stateStore.resetPlayerWeapon(
             task.weaponId,
         );
+    }
+
+    private cancelWeaponsFireStickyMinesTask(
+        task: WeaponsFireStickyMinesTaskState,
+    ): void {
+        this.stateStore
+            .cancelPlayerStickyMineDispensing(
+                task.weaponId,
+            );
     }
 
     private resolveCommsRequestDockingTask(task: CommsRequestDockingTaskState): OfficerTaskResult {

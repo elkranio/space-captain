@@ -12,6 +12,9 @@ import {
     MISSILE_ID,
 } from '../../../src/engine/defs/missile';
 import {
+    STICKY_MINE_ID,
+} from '../../../src/engine/defs/sticky_mine';
+import {
     SHIP_WEAPON_ID,
     SHIP_WEAPON_KIND,
     SHIP_WEAPON_PHASE,
@@ -65,6 +68,31 @@ describe('New-game player weapons', () => {
 
                 phaseElapsedMs: 0,
             },
+
+            {
+                id:
+                    'sticky_mine_dispenser_player_00',
+
+                weaponId:
+                    SHIP_WEAPON_ID
+                        .STICKY_MINE_DISPENSER_00,
+
+                kind:
+                    SHIP_WEAPON_KIND
+                        .STICKY_MINE_DISPENSER,
+
+                loadedMineId:
+                    STICKY_MINE_ID.BASIC_00,
+
+                ammoCount: 6,
+
+                phase:
+                    SHIP_WEAPON_PHASE.READY,
+
+                phaseElapsedMs: 0,
+
+                dispensedMineCount: 0,
+            },
         ]);
 
         expect(
@@ -85,17 +113,31 @@ describe('New-game player weapons', () => {
         const secondLauncher =
             secondRun.player.ship.weapons[1];
 
+        const firstDispenser =
+            firstRun.player.ship.weapons[2];
+
+        const secondDispenser =
+            secondRun.player.ship.weapons[2];
+
         if (
             !firstLaser ||
             !secondLaser ||
             !firstLauncher ||
             !secondLauncher ||
+            !firstDispenser ||
+            !secondDispenser ||
             firstLauncher.kind !==
                 SHIP_WEAPON_KIND
                     .MISSILE_LAUNCHER ||
             secondLauncher.kind !==
                 SHIP_WEAPON_KIND
-                    .MISSILE_LAUNCHER
+                    .MISSILE_LAUNCHER ||
+            firstDispenser.kind !==
+                SHIP_WEAPON_KIND
+                    .STICKY_MINE_DISPENSER ||
+            secondDispenser.kind !==
+                SHIP_WEAPON_KIND
+                    .STICKY_MINE_DISPENSER
         ) {
             throw new Error(
                 'Expected installed player weapons',
@@ -110,12 +152,19 @@ describe('New-game player weapons', () => {
             secondLauncher,
         );
 
+        expect(firstDispenser).not.toBe(
+            secondDispenser,
+        );
+
         firstLaser.phase =
             SHIP_WEAPON_PHASE.COOLDOWN;
 
         firstLaser.phaseElapsedMs = 500;
 
         firstLauncher.ammoCount = 0;
+
+        firstDispenser.ammoCount = 0;
+        firstDispenser.dispensedMineCount = 2;
 
         expect(secondLaser.phase).toBe(
             SHIP_WEAPON_PHASE.READY,
@@ -128,5 +177,14 @@ describe('New-game player weapons', () => {
         expect(
             secondLauncher.ammoCount,
         ).toBe(5);
+
+        expect(
+            secondDispenser.ammoCount,
+        ).toBe(6);
+
+        expect(
+            secondDispenser
+                .dispensedMineCount,
+        ).toBe(0);
     });
 });

@@ -10,6 +10,9 @@ import {
 import type {
     MissileId,
 } from '../../defs/missile';
+import type {
+    StickyMineId,
+} from '../../defs/sticky_mine';
 import {
     OFFICER_ROLE,
 } from '../../defs/officer';
@@ -21,6 +24,8 @@ import {
     type MissileLauncherState,
     type ShipWeaponDefinition,
     type ShipWeaponState,
+    type StickyMineDispenserDefinition,
+    type StickyMineDispenserState,
 } from '../../defs/ship_weapon';
 import {
     LASER_SHOT_OUTCOME,
@@ -45,6 +50,15 @@ type WeaponsFireMissileTaskState = Extract<
     }
 >;
 
+type WeaponsFireStickyMinesTaskState = Extract<
+    OfficerTaskState,
+    {
+        kind:
+            typeof OFFICER_TASK_KIND
+                .WEAPONS_FIRE_STICKY_MINES;
+    }
+>;
+
 type WeaponsFireLaserTaskState = Extract<
     OfficerTaskState,
     {
@@ -56,6 +70,7 @@ type WeaponsFireLaserTaskState = Extract<
 
 type PlayerWeaponTargetTaskState =
     | WeaponsFireMissileTaskState
+    | WeaponsFireStickyMinesTaskState
     | WeaponsFireLaserTaskState;
 
 type PlayerLaserImpact =
@@ -75,6 +90,15 @@ type PlayerLaserImpact =
 
 type PlayerWeaponRunnerOptions = {
     stateStore: EncounterStateStore;
+
+    attachPlayerStickyMine: (
+        input: {
+            sourceWeaponId: string;
+            mineId: StickyMineId;
+            targetActorId: string;
+            ageMs: number;
+        },
+    ) => void;
 
     queuePlayerMissileLaunch: (
         input: {
@@ -110,6 +134,11 @@ export default class PlayerWeaponRunner {
         private readonly stateStore:
             EncounterStateStore,
 
+        private readonly attachPlayerStickyMine:
+            PlayerWeaponRunnerOptions[
+                'attachPlayerStickyMine'
+            ],
+
         private readonly queuePlayerMissileLaunch:
             PlayerWeaponRunnerOptions[
                 'queuePlayerMissileLaunch'
@@ -136,6 +165,7 @@ export default class PlayerWeaponRunner {
 
     public static create({
         stateStore,
+        attachPlayerStickyMine,
         queuePlayerMissileLaunch,
         destroyEnemyActor,
         emit,
@@ -144,6 +174,7 @@ export default class PlayerWeaponRunner {
         PlayerWeaponRunner {
         return new PlayerWeaponRunner(
             stateStore,
+            attachPlayerStickyMine,
             queuePlayerMissileLaunch,
             destroyEnemyActor,
             emit,
@@ -167,6 +198,14 @@ export default class PlayerWeaponRunner {
             case OFFICER_TASK_KIND
                 .WEAPONS_FIRE_MISSILE:
                 this.advanceMissileTask(
+                    task,
+                    deltaMs,
+                );
+                return;
+
+            case OFFICER_TASK_KIND
+                .WEAPONS_FIRE_STICKY_MINES:
+                this.advanceStickyMineTask(
                     task,
                     deltaMs,
                 );
@@ -240,6 +279,107 @@ export default class PlayerWeaponRunner {
                     launcher.phase,
                 );
         }
+    }
+
+    private advanceStickyMineTask(
+        task: WeaponsFireStickyMinesTaskState,
+        deltaMs: number,
+    ): void {
+        if (!this.hasValidTarget(task)) {
+            // OfficerTaskRunner завершит
+            // target-loss cancellation.
+            return;
+        }
+
+        const dispenser =
+            this.findTaskStickyMineDispenser(
+                task,
+            );
+
+        if (!dispenser) {
+            return;
+        }
+
+        if (
+            dispenser.phase !==
+            SHIP_WEAPON_PHASE.DISPENSING
+        ) {
+            throw new Error(
+                'Player sticky-mine task has invalid weapon phase: ' +
+                    task.id +
+                    '/' +
+                    dispenser.id +
+                    '/' +
+                    dispenser.phase,
+            );
+        }
+
+        const definition =
+            this.getStickyMineDispenserDefinition(
+                dispenser,
+            );
+
+        const effectiveDeltaMs =
+            deltaMs *
+            this.performanceResolver
+                .getTaskProgressMultiplier(
+                    task,
+                );
+
+        dispenser.phaseElapsedMs +=
+            effectiveDeltaMs;
+
+        // Нет aiming/prep phase:
+        // первая мина уходит сразу при первом step,
+        // включая step(0).
+        if (
+            dispenser.dispensedMineCount ===
+            0
+        ) {
+            this.launchPlayerStickyMine(
+                task,
+                dispenser,
+                definition,
+                dispenser.phaseElapsedMs,
+            );
+        }
+
+        while (
+            dispenser.dispensedMineCount <
+                definition.salvoSize &&
+            dispenser.ammoCount > 0 &&
+            dispenser.phaseElapsedMs >=
+                definition.launchIntervalMs
+        ) {
+            dispenser.phaseElapsedMs -=
+                definition.launchIntervalMs;
+
+            this.launchPlayerStickyMine(
+                task,
+                dispenser,
+                definition,
+                dispenser.phaseElapsedMs,
+            );
+        }
+
+        if (
+            dispenser.dispensedMineCount <
+                definition.salvoSize &&
+            dispenser.ammoCount > 0
+        ) {
+            return;
+        }
+
+        dispenser.phase =
+            SHIP_WEAPON_PHASE.COOLDOWN;
+
+        // Как у player missile/laser:
+        // overflow новой phase не переносим.
+        dispenser.phaseElapsedMs = 0;
+
+        this.completeOfficerTask(
+            task.id,
+        );
     }
 
     private advanceLaserTask(
@@ -346,6 +486,59 @@ export default class PlayerWeaponRunner {
                 weapon.dispensedMineCount = 0;
             }
         }
+    }
+
+    private launchPlayerStickyMine(
+        task: WeaponsFireStickyMinesTaskState,
+        dispenser: StickyMineDispenserState,
+        definition: StickyMineDispenserDefinition,
+        ageMs: number,
+    ): void {
+        if (
+            dispenser.dispensedMineCount >=
+            definition.salvoSize
+        ) {
+            throw new Error(
+                'Cannot exceed player sticky-mine salvo size: ' +
+                    task.id +
+                    '/' +
+                    dispenser.id +
+                    '/' +
+                    definition.salvoSize,
+            );
+        }
+
+        const mineId =
+            dispenser.loadedMineId;
+
+        if (
+            !mineId ||
+            dispenser.ammoCount <= 0
+        ) {
+            throw new Error(
+                'Player sticky-mine dispenser became empty during salvo: ' +
+                    task.id +
+                    '/' +
+                    dispenser.id +
+                    '/' +
+                    dispenser.ammoCount,
+            );
+        }
+
+        this.attachPlayerStickyMine({
+            sourceWeaponId:
+                dispenser.id,
+
+            mineId,
+
+            targetActorId:
+                task.targetActorId,
+
+            ageMs,
+        });
+
+        dispenser.ammoCount -= 1;
+        dispenser.dispensedMineCount += 1;
     }
 
     private advanceMissileTargeting(
@@ -619,6 +812,43 @@ export default class PlayerWeaponRunner {
         return weapon;
     }
 
+    private findTaskStickyMineDispenser(
+        task: WeaponsFireStickyMinesTaskState,
+    ): StickyMineDispenserState | undefined {
+        const weapon =
+            this.stateStore
+                .getState()
+                .combat
+                .playerWeapons
+                .find((candidate) => {
+                    return (
+                        candidate.id ===
+                        task.weaponId
+                    );
+                });
+
+        if (!weapon) {
+            return undefined;
+        }
+
+        if (
+            weapon.kind !==
+            SHIP_WEAPON_KIND
+                .STICKY_MINE_DISPENSER
+        ) {
+            throw new Error(
+                'Player sticky-mine task references non-dispenser weapon: ' +
+                    task.id +
+                    '/' +
+                    weapon.id +
+                    '/' +
+                    weapon.kind,
+            );
+        }
+
+        return weapon;
+    }
+
     private findTaskLaser(
         task: WeaponsFireLaserTaskState,
     ): LaserWeaponState | undefined {
@@ -683,6 +913,30 @@ export default class PlayerWeaponRunner {
                     'match definition: ' +
                     `${weapon.id}/` +
                     `${weapon.weaponId}`,
+            );
+        }
+
+        return definition;
+    }
+
+    private getStickyMineDispenserDefinition(
+        dispenser: StickyMineDispenserState,
+    ): StickyMineDispenserDefinition {
+        const definition =
+            SHIP_WEAPONS[
+                dispenser.weaponId
+            ];
+
+        if (
+            definition.kind !==
+            SHIP_WEAPON_KIND
+                .STICKY_MINE_DISPENSER
+        ) {
+            throw new Error(
+                'Player sticky-mine dispenser kind does not match definition: ' +
+                    dispenser.id +
+                    '/' +
+                    dispenser.weaponId,
             );
         }
 

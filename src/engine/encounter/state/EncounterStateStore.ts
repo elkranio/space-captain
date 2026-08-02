@@ -26,6 +26,7 @@ import {
     type LaserWeaponState,
     type MissileLauncherState,
     type ShipWeaponState,
+    type StickyMineDispenserState,
 } from '../../defs/ship_weapon';
 import type { SpaceNodeState } from '../../defs/universe';
 import { ENCOUNTER_ACTOR_KIND, type EncounterActorState } from '../actors/encounter_actor';
@@ -573,6 +574,135 @@ export default class EncounterStateStore {
             SHIP_WEAPON_PHASE.TARGETING;
 
         weapon.phaseElapsedMs = 0;
+
+        return {
+            ...weapon,
+        };
+    }
+
+    public startPlayerStickyMineDispensing(
+        weaponId: string,
+    ): StickyMineDispenserState {
+        const weapon =
+            this.state.combat
+                .playerWeapons
+                .find((candidate) => {
+                    return (
+                        candidate.id ===
+                        weaponId
+                    );
+                });
+
+        if (!weapon) {
+            throw new Error(
+                'Player weapon not found: ' +
+                    weaponId,
+            );
+        }
+
+        if (
+            weapon.kind !==
+            SHIP_WEAPON_KIND
+                .STICKY_MINE_DISPENSER
+        ) {
+            throw new Error(
+                'Player weapon is not a sticky-mine dispenser: ' +
+                    weaponId +
+                    '/' +
+                    weapon.kind,
+            );
+        }
+
+        if (
+            weapon.phase !==
+            SHIP_WEAPON_PHASE.READY
+        ) {
+            throw new Error(
+                'Player sticky-mine dispenser is not ready: ' +
+                    weaponId +
+                    '/' +
+                    weapon.phase,
+            );
+        }
+
+        if (
+            weapon.loadedMineId === null ||
+            weapon.ammoCount <= 0
+        ) {
+            throw new Error(
+                'Player sticky-mine dispenser is empty: ' +
+                    weaponId +
+                    '/' +
+                    weapon.ammoCount,
+            );
+        }
+
+        weapon.phase =
+            SHIP_WEAPON_PHASE.DISPENSING;
+
+        weapon.phaseElapsedMs = 0;
+        weapon.dispensedMineCount = 0;
+
+        return {
+            ...weapon,
+        };
+    }
+
+    public cancelPlayerStickyMineDispensing(
+        weaponId: string,
+    ): StickyMineDispenserState | undefined {
+        const weapon =
+            this.state.combat
+                .playerWeapons
+                .find((candidate) => {
+                    return (
+                        candidate.id ===
+                        weaponId
+                    );
+                });
+
+        if (!weapon) {
+            return undefined;
+        }
+
+        if (
+            weapon.kind !==
+            SHIP_WEAPON_KIND
+                .STICKY_MINE_DISPENSER
+        ) {
+            throw new Error(
+                'Player sticky-mine task references non-dispenser weapon: ' +
+                    weaponId +
+                    '/' +
+                    weapon.kind,
+            );
+        }
+
+        if (
+            weapon.phase !==
+            SHIP_WEAPON_PHASE.DISPENSING
+        ) {
+            throw new Error(
+                'Cannot cancel player sticky-mine salvo from phase: ' +
+                    weaponId +
+                    '/' +
+                    weapon.phase,
+            );
+        }
+
+        weapon.phase =
+            weapon.dispensedMineCount > 0
+                ? SHIP_WEAPON_PHASE.COOLDOWN
+                : SHIP_WEAPON_PHASE.READY;
+
+        weapon.phaseElapsedMs = 0;
+
+        if (
+            weapon.phase ===
+            SHIP_WEAPON_PHASE.READY
+        ) {
+            weapon.dispensedMineCount = 0;
+        }
 
         return {
             ...weapon,

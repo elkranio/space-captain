@@ -179,6 +179,33 @@ export function createWeaponsFireMissileTask(
     };
 }
 
+export function createWeaponsFireStickyMinesTask(
+    weaponId: string,
+    targetActorId: string,
+): OfficerTaskDraft {
+    return {
+        kind:
+            OFFICER_TASK_KIND
+                .WEAPONS_FIRE_STICKY_MINES,
+
+        role: OFFICER_ROLE.WEAPONS,
+
+        sourceCommandId:
+            ENCOUNTER_OFFICER_COMMAND_ID
+                .WEAPONS_FIRE_STICKY_MINES,
+
+        weaponId,
+        targetActorId,
+
+        label: 'MINE SALVO',
+        showProgress: false,
+
+        // PlayerWeaponRunner завершает task
+        // после последней реально запущенной мины.
+        durationMs: null,
+    };
+}
+
 export function createWeaponsFireLaserTask(
     weaponId: string,
     targetActorId: string,

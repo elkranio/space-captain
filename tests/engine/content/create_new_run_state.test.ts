@@ -12,6 +12,9 @@ import {
     MISSILE_ID,
 } from '../../../src/engine/defs/missile';
 import {
+    STICKY_MINE_ID,
+} from '../../../src/engine/defs/sticky_mine';
+import {
     SHIP_DRIVE_ID,
     SHIP_DRIVE_STATUS,
 } from '../../../src/engine/defs/ship_drive';
@@ -92,6 +95,31 @@ describe('createNewRunState', () => {
                         SHIP_WEAPON_PHASE.READY,
 
                     phaseElapsedMs: 0,
+                },
+
+                {
+                    id:
+                        'sticky_mine_dispenser_player_00',
+
+                    weaponId:
+                        SHIP_WEAPON_ID
+                            .STICKY_MINE_DISPENSER_00,
+
+                    kind:
+                        SHIP_WEAPON_KIND
+                            .STICKY_MINE_DISPENSER,
+
+                    loadedMineId:
+                        STICKY_MINE_ID.BASIC_00,
+
+                    ammoCount: 6,
+
+                    phase:
+                        SHIP_WEAPON_PHASE.READY,
+
+                    phaseElapsedMs: 0,
+
+                    dispensedMineCount: 0,
                 },
             ],
         });
@@ -219,6 +247,31 @@ describe('createNewRunState', () => {
                         SHIP_WEAPON_PHASE.READY,
 
                     phaseElapsedMs: 0,
+                },
+
+                {
+                    id:
+                        'sticky_mine_dispenser_player_00',
+
+                    weaponId:
+                        SHIP_WEAPON_ID
+                            .STICKY_MINE_DISPENSER_00,
+
+                    kind:
+                        SHIP_WEAPON_KIND
+                            .STICKY_MINE_DISPENSER,
+
+                    loadedMineId:
+                        STICKY_MINE_ID.BASIC_00,
+
+                    ammoCount: 6,
+
+                    phase:
+                        SHIP_WEAPON_PHASE.READY,
+
+                    phaseElapsedMs: 0,
+
+                    dispensedMineCount: 0,
                 },
             ],
         });

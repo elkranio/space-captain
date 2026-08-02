@@ -1,6 +1,10 @@
 // src/engine/content/presets/player_ships.ts
 
 import { MISSILE_LAUNCHER_PRESET_ID, type MissileLauncherPresetId } from './missile_launchers';
+import {
+    STICKY_MINE_DISPENSER_PRESET_ID,
+    type StickyMineDispenserPresetId,
+} from './sticky_mine_dispensers';
 import { SHIP_DRIVE_ID, type ShipDriveId } from '../../defs/ship_drive';
 import { SHIP_WEAPON_ID } from '../../defs/ship_weapon';
 import { SHIELD_GENERATOR_PRESET_ID, type ShieldGeneratorPresetId } from './shield_generators';
@@ -27,7 +31,22 @@ export type PlayerShipMissileLauncherPreset = {
     presetId: MissileLauncherPresetId;
 };
 
-export type PlayerShipWeaponPreset = PlayerShipLaserPreset | PlayerShipMissileLauncherPreset;
+export type PlayerShipStickyMineDispenserPreset = {
+    // Runtime id установленного dispenser.
+    id: string;
+
+    weaponId:
+        typeof SHIP_WEAPON_ID
+            .STICKY_MINE_DISPENSER_00;
+
+    presetId:
+        StickyMineDispenserPresetId;
+};
+
+export type PlayerShipWeaponPreset =
+    | PlayerShipLaserPreset
+    | PlayerShipMissileLauncherPreset
+    | PlayerShipStickyMineDispenserPreset;
 
 export type PlayerShipPreset = {
     id: PlayerShipPresetId;
@@ -72,6 +91,19 @@ export const PLAYER_SHIP_PRESETS = {
                 weaponId: SHIP_WEAPON_ID.MISSILE_LAUNCHER_00,
 
                 presetId: MISSILE_LAUNCHER_PRESET_ID.BASIC_RED_FULL_00,
+            },
+
+            {
+                id:
+                    'sticky_mine_dispenser_player_00',
+
+                weaponId:
+                    SHIP_WEAPON_ID
+                        .STICKY_MINE_DISPENSER_00,
+
+                presetId:
+                    STICKY_MINE_DISPENSER_PRESET_ID
+                        .BASIC_FULL_00,
             },
         ],
     },

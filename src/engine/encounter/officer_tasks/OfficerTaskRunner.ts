@@ -253,6 +253,9 @@ export default class OfficerTaskRunner {
                             .WEAPONS_FIRE_MISSILE ||
                     task.kind ===
                         OFFICER_TASK_KIND
+                            .WEAPONS_FIRE_STICKY_MINES ||
+                    task.kind ===
+                        OFFICER_TASK_KIND
                             .WEAPONS_FIRE_LASER
                 ) {
                     const targetActor =

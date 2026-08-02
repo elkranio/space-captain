@@ -17,6 +17,7 @@ import {
 import ShieldGeneratorFactory from '../../generation/ship_system/ShieldGeneratorFactory';
 import LaserWeaponFactory from '../../generation/ship_weapon/LaserWeaponFactory';
 import MissileLauncherFactory from '../../generation/ship_weapon/MissileLauncherFactory';
+import StickyMineDispenserFactory from '../../generation/ship_weapon/StickyMineDispenserFactory';
 import {
     SHIP_DRIVES,
 } from '../catalogs/ship_drives';
@@ -100,6 +101,15 @@ function createPlayerWeapon(
         case SHIP_WEAPON_ID
             .MISSILE_LAUNCHER_00:
             return MissileLauncherFactory.create({
+                id: weapon.id,
+
+                presetId:
+                    weapon.presetId,
+            });
+
+        case SHIP_WEAPON_ID
+            .STICKY_MINE_DISPENSER_00:
+            return StickyMineDispenserFactory.create({
                 id: weapon.id,
 
                 presetId:

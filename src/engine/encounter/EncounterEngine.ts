@@ -41,6 +41,7 @@ import {
     type CombatProjectileState,
     type LaserAttackState,
     type SpamChannelState,
+    type StickyMineState,
 } from './model/combat';
 import { ENCOUNTER_EVENT, type EncounterEvent } from './model/event';
 import type { OfficerAvailabilityStates } from './model/officer_availability';
@@ -167,6 +168,14 @@ export default class EncounterEngine {
             PlayerWeaponRunner.create({
                 stateStore:
                     this.stateStore,
+
+                attachPlayerStickyMine:
+                    (input) => {
+                        this.combatRunner
+                            .attachPlayerStickyMine(
+                                input,
+                            );
+                    },
 
                 queuePlayerMissileLaunch:
                     (input) => {
@@ -385,6 +394,36 @@ export default class EncounterEngine {
                     .cloneCombatProjectile(
                         projectile,
                     );
+            });
+    }
+
+    public getOutgoingStickyMines():
+        StickyMineState[] {
+        return this.stateStore
+            .getState()
+            .combat
+            .stickyMines
+            .filter((mine) => {
+                return (
+                    mine.source.kind ===
+                        COMBAT_SOURCE_KIND
+                            .PLAYER_SHIP &&
+                    mine.target.kind ===
+                        COMBAT_TARGET_KIND.ACTOR
+                );
+            })
+            .map((mine) => {
+                return {
+                    ...mine,
+
+                    source: {
+                        ...mine.source,
+                    },
+
+                    target: {
+                        ...mine.target,
+                    },
+                };
             });
     }
 

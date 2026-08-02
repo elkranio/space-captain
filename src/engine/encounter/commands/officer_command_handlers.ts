@@ -25,6 +25,9 @@ import {
     weaponsFireMissileCommandHandler,
 } from './handlers/weapons_fire_missile_command_handler';
 import {
+    weaponsFireStickyMinesCommandHandler,
+} from './handlers/weapons_fire_sticky_mines_command_handler';
+import {
     weaponsFireLaserCommandHandler,
 } from './handlers/weapons_fire_laser_command_handler';
 
@@ -55,6 +58,9 @@ const OFFICER_COMMAND_HANDLER_BY_ID = {
 
     [ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_MISSILE]:
         weaponsFireMissileCommandHandler,
+
+    [ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_STICKY_MINES]:
+        weaponsFireStickyMinesCommandHandler,
 
     [ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_LASER]:
         weaponsFireLaserCommandHandler,

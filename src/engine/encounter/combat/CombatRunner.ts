@@ -8,6 +8,9 @@ import {
 import type {
     MissileId,
 } from '../../defs/missile';
+import type {
+    StickyMineId,
+} from '../../defs/sticky_mine';
 import {
     SHIP_WEAPONS,
     SHIP_WEAPON_TARGETING_DURATION_MS,
@@ -49,6 +52,13 @@ type PlayerMissileLaunchInput = {
     sourceWeaponId: string;
     missileId: MissileId;
     targetActorId: string;
+};
+
+type PlayerStickyMineAttachInput = {
+    sourceWeaponId: string;
+    mineId: StickyMineId;
+    targetActorId: string;
+    ageMs: number;
 };
 
 type CombatRunnerOptions = {
@@ -93,6 +103,12 @@ export default class CombatRunner {
 
     private readonly pendingPlayerMissileLaunches:
         PlayerMissileLaunchInput[] = [];
+
+    // PlayerWeaponRunner добавляет outgoing mines
+    // до CombatRunner.step. Их age уже учтён
+    // относительно текущего deltaMs.
+    private readonly freshStickyMineIds =
+        new Set<string>();
 
     private nextProjectileId = 1;
     private nextLaserAttackId = 1;
@@ -216,6 +232,100 @@ export default class CombatRunner {
         this.pendingPlayerMissileLaunches.push({
             ...input,
         });
+    }
+
+    public attachPlayerStickyMine(
+        input: PlayerStickyMineAttachInput,
+    ): void {
+        if (
+            !Number.isFinite(input.ageMs) ||
+            input.ageMs < 0
+        ) {
+            throw new Error(
+                'Invalid player sticky-mine age: ' +
+                    String(input.ageMs),
+            );
+        }
+
+        const target =
+            this.state.actors.find(
+                (actor) => {
+                    return (
+                        actor.id ===
+                        input.targetActorId
+                    );
+                },
+            );
+
+        if (
+            !target ||
+            target.team !==
+                ENCOUNTER_TEAM.ENEMY ||
+            target.hull <= 0
+        ) {
+            throw new Error(
+                'Cannot attach player sticky mine to invalid target: ' +
+                    input.sourceWeaponId +
+                    '/' +
+                    input.targetActorId,
+            );
+        }
+
+        const mineDefinition =
+            STICKY_MINES[
+                input.mineId
+            ];
+
+        const mine: StickyMineState = {
+            id:
+                this.createStickyMineId(),
+
+            mineId:
+                input.mineId,
+
+            source: {
+                kind:
+                    COMBAT_SOURCE_KIND
+                        .PLAYER_SHIP,
+            },
+
+            sourceWeaponId:
+                input.sourceWeaponId,
+
+            target: {
+                kind:
+                    COMBAT_TARGET_KIND.ACTOR,
+
+                actorId:
+                    input.targetActorId,
+            },
+
+            timeToDetonationMs:
+                Math.max(
+                    0,
+                    mineDefinition
+                        .fuseDurationMs -
+                        input.ageMs,
+                ),
+
+            initialTimeToDetonationMs:
+                mineDefinition
+                    .fuseDurationMs,
+
+            damage:
+                mineDefinition.damage,
+        };
+
+        this.state.combat.stickyMines.push(
+            mine,
+        );
+
+        this.freshStickyMineIds.add(
+            mine.id,
+        );
+
+        // Outgoing presentation contract
+        // будет отдельным атомом.
     }
 
     public clearStickyMine(mineId: string): boolean {
@@ -1098,12 +1208,54 @@ export default class CombatRunner {
                 this.state.combat
                     .stickyMines[index];
 
-            mine.timeToDetonationMs =
-                Math.max(
-                    0,
-                    mine.timeToDetonationMs -
-                        deltaMs,
-                );
+            if (
+                mine.target.kind ===
+                COMBAT_TARGET_KIND.ACTOR
+            ) {
+                const targetActorId =
+                    mine.target.actorId;
+
+                const target =
+                    this.state.actors.find(
+                        (actor) => {
+                            return (
+                                actor.id ===
+                                targetActorId
+                            );
+                        },
+                    );
+
+                if (
+                    !target ||
+                    target.team !==
+                        ENCOUNTER_TEAM.ENEMY ||
+                    target.hull <= 0
+                ) {
+                    this.freshStickyMineIds
+                        .delete(mine.id);
+
+                    this.state.combat
+                        .stickyMines.splice(
+                            index,
+                            1,
+                        );
+
+                    continue;
+                }
+            }
+
+            const isFresh =
+                this.freshStickyMineIds
+                    .delete(mine.id);
+
+            if (!isFresh) {
+                mine.timeToDetonationMs =
+                    Math.max(
+                        0,
+                        mine.timeToDetonationMs -
+                            deltaMs,
+                    );
+            }
 
             if (
                 mine.timeToDetonationMs > 0
@@ -1123,53 +1275,165 @@ export default class CombatRunner {
         index: number,
         mine: StickyMineState,
     ): void {
-        if (
-            mine.source.kind !==
-                COMBAT_SOURCE_KIND.ACTOR ||
-            mine.target.kind !==
-                COMBAT_TARGET_KIND
-                    .PLAYER_SHIP
-        ) {
-            throw new Error(
-                'Unsupported sticky-mine detonation route: ' +
-                    mine.id +
-                    '/' +
-                    mine.source.kind +
-                    '/' +
-                    mine.target.kind,
-            );
-        }
+        const mineSnapshot:
+            StickyMineState = {
+                ...mine,
 
-        const mineSnapshot: StickyMineState = {
-            ...mine,
+                source: {
+                    ...mine.source,
+                },
 
-            source: {
-                ...mine.source,
-            },
+                target: {
+                    ...mine.target,
+                },
 
-            target: {
-                ...mine.target,
-            },
+                timeToDetonationMs: 0,
+            };
 
-            timeToDetonationMs: 0,
-        };
+        this.freshStickyMineIds.delete(
+            mine.id,
+        );
 
         this.state.combat.stickyMines.splice(
             index,
             1,
         );
 
-        this.emit({
-            type:
-                ENCOUNTER_EVENT
-                    .STICKY_MINE_DETONATED,
+        if (
+            mine.source.kind ===
+                COMBAT_SOURCE_KIND.ACTOR &&
+            mine.target.kind ===
+                COMBAT_TARGET_KIND
+                    .PLAYER_SHIP
+        ) {
+            this.emit({
+                type:
+                    ENCOUNTER_EVENT
+                        .STICKY_MINE_DETONATED,
 
-            mine: mineSnapshot,
+                mine:
+                    mineSnapshot,
 
-            damage: mine.damage,
-        });
+                damage:
+                    mine.damage,
+            });
 
-        this.interruptRandomOfficerTask();
+            this.interruptRandomOfficerTask();
+            return;
+        }
+
+        if (
+            mine.source.kind ===
+                COMBAT_SOURCE_KIND
+                    .PLAYER_SHIP &&
+            mine.target.kind ===
+                COMBAT_TARGET_KIND.ACTOR
+        ) {
+            this.resolvePlayerStickyMineImpact(
+                mine,
+                mine.target.actorId,
+            );
+            return;
+        }
+
+        throw new Error(
+            'Unsupported sticky-mine detonation route: ' +
+                mine.id +
+                '/' +
+                mine.source.kind +
+                '/' +
+                mine.target.kind,
+        );
+    }
+
+    private resolvePlayerStickyMineImpact(
+        mine: StickyMineState,
+        targetActorId: string,
+    ): void {
+        const target =
+            this.state.actors.find(
+                (actor) => {
+                    return (
+                        actor.id ===
+                        targetActorId
+                    );
+                },
+            );
+
+        if (
+            !target ||
+            target.team !==
+                ENCOUNTER_TEAM.ENEMY ||
+            target.hull <= 0
+        ) {
+            return;
+        }
+
+        const appliedDamage =
+            Math.min(
+                mine.damage,
+                target.hull,
+            );
+
+        target.hull = Math.max(
+            0,
+            target.hull -
+                appliedDamage,
+        );
+
+        // Outgoing detonation presentation
+        // будет отдельным атомом.
+        if (
+            appliedDamage <= 0 ||
+            target.hull > 0
+        ) {
+            return;
+        }
+
+        this.removeStickyMinesTargetingActor(
+            target.id,
+        );
+
+        this.destroyEnemyActor(
+            target.id,
+        );
+    }
+
+    private removeStickyMinesTargetingActor(
+        actorId: string,
+    ): void {
+        for (
+            let index =
+                this.state.combat
+                    .stickyMines.length - 1;
+
+            index >= 0;
+
+            index -= 1
+        ) {
+            const mine =
+                this.state.combat
+                    .stickyMines[index];
+
+            if (
+                mine.target.kind !==
+                    COMBAT_TARGET_KIND.ACTOR ||
+                mine.target.actorId !==
+                    actorId
+            ) {
+                continue;
+            }
+
+            this.freshStickyMineIds.delete(
+                mine.id,
+            );
+
+            this.state.combat
+                .stickyMines.splice(
+                    index,
+                    1,
+                );
+        }
     }
 
     // #endregion

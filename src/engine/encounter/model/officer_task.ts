@@ -31,6 +31,9 @@ export const OFFICER_TASK_KIND = {
     WEAPONS_FIRE_MISSILE:
         'weapons_fire_missile',
 
+    WEAPONS_FIRE_STICKY_MINES:
+        'weapons_fire_sticky_mines',
+
     WEAPONS_FIRE_LASER:
         'weapons_fire_laser',
 
@@ -151,6 +154,23 @@ type WeaponsFireMissileOfficerTaskDraft =
         targetActorId: string;
     };
 
+type WeaponsFireStickyMinesOfficerTaskDraft =
+    OfficerTaskDraftBase & {
+        kind:
+            typeof OFFICER_TASK_KIND
+                .WEAPONS_FIRE_STICKY_MINES;
+
+        role:
+            typeof OFFICER_ROLE.WEAPONS;
+
+        sourceCommandId:
+            typeof ENCOUNTER_OFFICER_COMMAND_ID
+                .WEAPONS_FIRE_STICKY_MINES;
+
+        weaponId: string;
+        targetActorId: string;
+    };
+
 type WeaponsFireLaserOfficerTaskDraft =
     OfficerTaskDraftBase & {
         kind:
@@ -225,6 +245,7 @@ export type OfficerTaskDraft =
     | EngineerRepairDriveOfficerTaskDraft
     | WeaponsPointDefenseOfficerTaskDraft
     | WeaponsFireMissileOfficerTaskDraft
+    | WeaponsFireStickyMinesOfficerTaskDraft
     | WeaponsFireLaserOfficerTaskDraft
     | ClearStickyMineOfficerTaskDraft
     | HelmDockOfficerTaskDraft
@@ -253,6 +274,13 @@ export function getOfficerTaskCancellationPolicy(
             return {
                 canBeCancelledByPlayer: false,
                 canBeInterruptedByDamage: false,
+            };
+
+        case OFFICER_TASK_KIND
+            .WEAPONS_FIRE_STICKY_MINES:
+            return {
+                canBeCancelledByPlayer: false,
+                canBeInterruptedByDamage: true,
             };
 
         case OFFICER_TASK_KIND.COMMS_HAIL:
