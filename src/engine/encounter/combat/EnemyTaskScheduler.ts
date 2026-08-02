@@ -1,6 +1,9 @@
 // src/engine/encounter/combat/EnemyTaskScheduler.ts
 
 import {
+    OFFICER_TASK_BASE_DURATION_MS,
+} from '../../content/rules/officer_tasks';
+import {
     ENCOUNTER_TEAM,
 } from '../../defs/encounter_team';
 import {
@@ -21,6 +24,9 @@ import {
     type EncounterEvent,
 } from '../model/event';
 import {
+    ENEMY_THREAT_KIND,
+} from '../model/enemy_threat_observation';
+import {
     SHIP_CREW_TASK_KIND,
 } from '../model/ship_crew_task';
 import type {
@@ -28,6 +34,7 @@ import type {
 } from '../model/state';
 import EnemyCrewTaskRunner from './EnemyCrewTaskRunner';
 import EnemyDecisionPolicy from './EnemyDecisionPolicy';
+import EnemyScienceIntelResolver from './EnemyScienceIntelResolver';
 
 type EnemyTaskSchedulerOptions = {
     state: EncounterState;
@@ -43,16 +50,19 @@ const WEAPON_TASK_ROLES = [
 // Назначает выбранные policy задачи
 // на ограниченные роли вражеского экипажа.
 //
+// Priority внутри одной роли:
+// Science intel → offensive weapon work.
+//
 // Scheduler только:
-// - выбирает доступную работу через policy;
+// - выбирает доступную работу;
 // - просит task runner занять роль;
 // - запускает физический targeting оружия;
 // - эмитит видимый telegraph.
 //
 // Lifecycle crew tasks живёт
 // в EnemyCrewTaskRunner.
-// Lifecycle самого оружия остаётся
-// в CombatRunner.
+// Objective truth → report boundary
+// живёт в EnemyScienceIntelResolver.
 export default class EnemyTaskScheduler {
     private readonly state: EncounterState;
 
@@ -61,6 +71,9 @@ export default class EnemyTaskScheduler {
 
     private readonly decisionPolicy =
         new EnemyDecisionPolicy();
+
+    private readonly scienceIntelResolver:
+        EnemyScienceIntelResolver;
 
     private readonly crewTaskRunner:
         EnemyCrewTaskRunner;
@@ -71,6 +84,11 @@ export default class EnemyTaskScheduler {
     }: EnemyTaskSchedulerOptions) {
         this.state = state;
         this.emit = emit;
+
+        this.scienceIntelResolver =
+            new EnemyScienceIntelResolver(
+                this.state,
+            );
 
         this.crewTaskRunner =
             new EnemyCrewTaskRunner({
@@ -84,12 +102,53 @@ export default class EnemyTaskScheduler {
                                 role,
                             );
                     },
+
+                onThreatIdentificationCompleted:
+                    (
+                        actor,
+                        observationId,
+                    ) => {
+                        const observation =
+                            actor
+                                .threatObservations
+                                .find(
+                                    (
+                                        candidate,
+                                    ) => {
+                                        return (
+                                            candidate
+                                                .id ===
+                                            observationId
+                                        );
+                                    },
+                                );
+
+                        if (!observation) {
+                            throw new Error(
+                                'Enemy threat ' +
+                                    'observation ' +
+                                    'disappeared before ' +
+                                    'report: ' +
+                                    actor.id +
+                                    '/' +
+                                    observationId,
+                            );
+                        }
+
+                        observation.report =
+                            this
+                                .scienceIntelResolver
+                                .resolve(
+                                    actor,
+                                    observationId,
+                                );
+                    },
             });
     }
 
     public schedule(deltaMs: number): void {
         this.crewTaskRunner
-            .synchronize();
+            .advance(deltaMs);
 
         this.advanceDecisions(deltaMs);
 
@@ -122,6 +181,10 @@ export default class EnemyTaskScheduler {
             ) {
                 continue;
             }
+
+            this.scheduleScienceIdentification(
+                actor,
+            );
 
             for (
                 const role of WEAPON_TASK_ROLES
@@ -168,6 +231,67 @@ export default class EnemyTaskScheduler {
                 deltaMs,
             );
         }
+    }
+
+    private scheduleScienceIdentification(
+        actor: ShipEncounterActorState,
+    ): void {
+        if (
+            !this.hasCrewRole(
+                actor,
+                OFFICER_ROLE.SCIENCE,
+            ) ||
+            this.crewTaskRunner
+                .isRoleBusy(
+                    actor,
+                    OFFICER_ROLE.SCIENCE,
+                )
+        ) {
+            return;
+        }
+
+        const observation =
+            actor
+                .threatObservations
+                .find((candidate) => {
+                    return (
+                        candidate.report ===
+                            undefined &&
+                        (
+                            candidate.kind ===
+                                ENEMY_THREAT_KIND
+                                    .MISSILE ||
+                            candidate.kind ===
+                                ENEMY_THREAT_KIND
+                                    .LASER
+                        )
+                    );
+                });
+
+        if (!observation) {
+            return;
+        }
+
+        this.crewTaskRunner.start(
+            actor,
+            {
+                kind:
+                    SHIP_CREW_TASK_KIND
+                        .IDENTIFY_THREAT,
+
+                role:
+                    OFFICER_ROLE.SCIENCE,
+
+                observationId:
+                    observation.id,
+
+                elapsedMs: 0,
+
+                durationMs:
+                    OFFICER_TASK_BASE_DURATION_MS
+                        .SCIENCE_IDENTIFY_THREAT,
+            },
+        );
     }
 
     private scheduleRole(

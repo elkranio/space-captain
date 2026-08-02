@@ -12,6 +12,7 @@ import type {
 } from '../actors/ship/ship_encounter_actor';
 import {
     SHIP_CREW_TASK_KIND,
+    type IdentifyThreatShipCrewTaskState,
     type ShipCrewTaskState,
 } from '../model/ship_crew_task';
 import type {
@@ -25,6 +26,11 @@ type EnemyCrewTaskRunnerOptions = {
         actor: ShipEncounterActorState,
         role: OfficerRole,
     ) => void;
+
+    onThreatIdentificationCompleted: (
+        actor: ShipEncounterActorState,
+        observationId: string,
+    ) => void;
 };
 
 // Владеет lifecycle задач абстрактного
@@ -34,14 +40,11 @@ type EnemyCrewTaskRunnerOptions = {
 // Этот runner:
 // - занимает одну конкретную роль;
 // - не допускает параллельные задачи одной роли;
+// - двигает timed tasks;
 // - отменяет задачи при смерти actor,
 //   исчезновении роли или цели;
 // - завершает задачу по её физическому lifecycle;
 // - сообщает о natural completion владельцу policy.
-//
-// Пока существует только OPERATE_WEAPON.
-// Новые timed defensive tasks будут добавляться
-// сюда отдельными ветками, а не в scheduler.
 export default class EnemyCrewTaskRunner {
     private readonly state: EncounterState;
 
@@ -50,14 +53,23 @@ export default class EnemyCrewTaskRunner {
             'onOffensiveTaskCompleted'
         ];
 
+    private readonly onThreatIdentificationCompleted:
+        EnemyCrewTaskRunnerOptions[
+            'onThreatIdentificationCompleted'
+        ];
+
     constructor({
         state,
         onOffensiveTaskCompleted,
+        onThreatIdentificationCompleted,
     }: EnemyCrewTaskRunnerOptions) {
         this.state = state;
 
         this.onOffensiveTaskCompleted =
             onOffensiveTaskCompleted;
+
+        this.onThreatIdentificationCompleted =
+            onThreatIdentificationCompleted;
     }
 
     public isRoleBusy(
@@ -127,7 +139,34 @@ export default class EnemyCrewTaskRunner {
         return task;
     }
 
+    public advance(
+        deltaMs: number,
+    ): void {
+        if (deltaMs < 0) {
+            throw new Error(
+                'Enemy crew task deltaMs ' +
+                    'cannot be negative: ' +
+                    deltaMs,
+            );
+        }
+
+        this.processTasks(
+            deltaMs,
+            true,
+        );
+    }
+
     public synchronize(): void {
+        this.processTasks(
+            0,
+            false,
+        );
+    }
+
+    private processTasks(
+        deltaMs: number,
+        advanceTimedTasks: boolean,
+    ): void {
         for (const actor of this.state.actors) {
             if (actor.hull <= 0) {
                 this.cancelAll(actor);
@@ -171,19 +210,23 @@ export default class EnemyCrewTaskRunner {
                     continue;
                 }
 
-                this.synchronizeTask(
+                this.processTask(
                     actor,
                     role,
                     task,
+                    deltaMs,
+                    advanceTimedTasks,
                 );
             }
         }
     }
 
-    private synchronizeTask(
+    private processTask(
         actor: ShipEncounterActorState,
         role: OfficerRole,
         task: ShipCrewTaskState,
+        deltaMs: number,
+        advanceTimedTasks: boolean,
     ): void {
         switch (task.kind) {
             case SHIP_CREW_TASK_KIND
@@ -195,8 +238,19 @@ export default class EnemyCrewTaskRunner {
                 );
 
                 return;
-        }
 
+            case SHIP_CREW_TASK_KIND
+                .IDENTIFY_THREAT:
+                this.processIdentifyThreat(
+                    actor,
+                    role,
+                    task,
+                    deltaMs,
+                    advanceTimedTasks,
+                );
+
+                return;
+        }
     }
 
     private synchronizeOperateWeapon(
@@ -237,6 +291,65 @@ export default class EnemyCrewTaskRunner {
         );
 
         this.onOffensiveTaskCompleted(
+            actor,
+            role,
+        );
+    }
+
+    private processIdentifyThreat(
+        actor: ShipEncounterActorState,
+        role: OfficerRole,
+        task:
+            IdentifyThreatShipCrewTaskState,
+        deltaMs: number,
+        advanceTimedTasks: boolean,
+    ): void {
+        const observation =
+            actor
+                .threatObservations
+                .find((candidate) => {
+                    return (
+                        candidate.id ===
+                        task.observationId
+                    );
+                });
+
+        if (
+            !observation ||
+            observation.report
+        ) {
+            this.cancel(
+                actor,
+                role,
+            );
+
+            return;
+        }
+
+        if (!advanceTimedTasks) {
+            return;
+        }
+
+        task.elapsedMs =
+            Math.min(
+                task.durationMs,
+                task.elapsedMs +
+                    deltaMs,
+            );
+
+        if (
+            task.elapsedMs <
+            task.durationMs
+        ) {
+            return;
+        }
+
+        this.onThreatIdentificationCompleted(
+            actor,
+            task.observationId,
+        );
+
+        this.complete(
             actor,
             role,
         );

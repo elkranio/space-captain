@@ -1,5 +1,12 @@
 // src/engine/encounter/model/enemy_threat_observation.ts
 
+import type {
+    LaserTargetZone,
+} from '../../defs/laser';
+import type {
+    MissileSpectralBand,
+} from '../../defs/missile';
+
 export const ENEMY_THREAT_KIND = {
     MISSILE: 'missile',
     LASER: 'laser',
@@ -43,6 +50,24 @@ export type EnemyThreatSource =
           stickyMineId: string;
       };
 
+export type EnemyThreatReport =
+    | {
+          kind:
+              typeof ENEMY_THREAT_KIND
+                  .MISSILE;
+
+          spectralBand:
+              MissileSpectralBand;
+      }
+    | {
+          kind:
+              typeof ENEMY_THREAT_KIND
+                  .LASER;
+
+          targetZone:
+              LaserTargetZone;
+      };
+
 // Это только факт наблюдения enemy crew.
 //
 // Объективные missileId, targetZone,
@@ -50,12 +75,14 @@ export type EnemyThreatSource =
 // не хранятся. Истина остаётся
 // в соответствующем combat object/task.
 //
-// Следующий Science atom сможет добавить
-// сюда отдельный reported intel,
-// не открывая policy прямой доступ к истине.
+// report — вывод Science, а не истина.
+// Он может быть ошибочным и намеренно
+// не содержит флага достоверности.
 export type EnemyThreatObservationState = {
     id: string;
 
     kind: EnemyThreatKind;
     source: EnemyThreatSource;
+
+    report?: EnemyThreatReport;
 };

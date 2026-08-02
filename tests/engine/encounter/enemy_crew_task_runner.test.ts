@@ -403,6 +403,9 @@ function createRunnerFixture() {
                         role,
                     );
                 },
+
+            onThreatIdentificationCompleted:
+                () => {},
         });
 
     return {
