@@ -71,6 +71,13 @@ export const OFFICER_COMMAND_TARGET_KIND = {
     ACTOR: 'actor',
 
     // Полностью разрешённая команда
+    // физического player weapon:
+    // - конкретный установленный экземпляр;
+    // - конкретный enemy actor.
+    ACTOR_WEAPON:
+        'actor_weapon',
+
+    // Полностью разрешённая команда
     // player laser:
     // - конкретная установленная пушка;
     // - конкретный enemy actor;
@@ -100,6 +107,13 @@ export type OfficerCommandTarget =
           kind:
               typeof OFFICER_COMMAND_TARGET_KIND.ACTOR;
 
+          actorId: string;
+      }
+    | {
+          kind:
+              typeof OFFICER_COMMAND_TARGET_KIND.ACTOR_WEAPON;
+
+          weaponId: string;
           actorId: string;
       }
     | {
@@ -150,6 +164,10 @@ export type OfficerCommandTargeting =
     | {
           kind:
               typeof OFFICER_COMMAND_TARGET_KIND.ACTOR;
+      }
+    | {
+          kind:
+              typeof OFFICER_COMMAND_TARGET_KIND.ACTOR_WEAPON;
       }
     | {
           kind:

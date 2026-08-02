@@ -184,6 +184,9 @@ READY launcher + ammo + live target
 
 Rules:
 
+- each ready physical launcher is a separate command identified by its runtime
+  `weaponId`;
+- execution uses the selected launcher and never re-selects another ready one;
 - cancellation before launch spends no ammunition;
 - target loss before launch resets without spending ammunition;
 - target loss after launch resolves the projectile without damage;
@@ -232,6 +235,9 @@ mine damage: 1
 
 Rules:
 
+- each ready physical dispenser is a separate command identified by its runtime
+  `weaponId`;
+- execution uses the selected dispenser and never re-selects another ready one;
 - each mine has its own fuse and damage;
 - damage is cumulative;
 - each mine is spent at physical launch;

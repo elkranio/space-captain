@@ -66,7 +66,10 @@ describe('Player missile command', () => {
                 target: {
                     kind:
                         OFFICER_COMMAND_TARGET_KIND
-                            .ACTOR,
+                            .ACTOR_WEAPON,
+
+                    weaponId:
+                        launcher.id,
 
                     actorId:
                         targetActorId,
@@ -86,7 +89,10 @@ describe('Player missile command', () => {
                 target: {
                     kind:
                         OFFICER_COMMAND_TARGET_KIND
-                            .ACTOR,
+                            .ACTOR_WEAPON,
+
+                    weaponId:
+                        launcher.id,
 
                     actorId:
                         targetActorId,
@@ -178,6 +184,128 @@ describe('Player missile command', () => {
         expect(
             getMissileCommands(engine),
         ).toHaveLength(1);
+    });
+
+    it('offers and executes one command per ready missile launcher instance', () => {
+        const {
+            engine,
+            state,
+            targetActor,
+        } =
+            createAnchoredPlayerCombatTestSetup();
+
+        const firstLauncher =
+            getPlayerWeaponOrThrow(
+                state,
+                SHIP_WEAPON_KIND
+                    .MISSILE_LAUNCHER,
+            );
+
+        const secondLauncher:
+            MissileLauncherState = {
+                ...firstLauncher,
+
+                id:
+                    'missile_launcher_player_01',
+            };
+
+        state.combat
+            .playerWeapons
+            .push(secondLauncher);
+
+        const commands =
+            getMissileCommands(engine);
+
+        expect(
+            commands.map((command) => {
+                return command.target;
+            }),
+        ).toEqual([
+            {
+                kind:
+                    OFFICER_COMMAND_TARGET_KIND
+                        .ACTOR_WEAPON,
+
+                weaponId:
+                    firstLauncher.id,
+
+                actorId:
+                    targetActor.id,
+            },
+            {
+                kind:
+                    OFFICER_COMMAND_TARGET_KIND
+                        .ACTOR_WEAPON,
+
+                weaponId:
+                    secondLauncher.id,
+
+                actorId:
+                    targetActor.id,
+            },
+        ]);
+
+        const secondCommand =
+            commands.find((command) => {
+                return (
+                    command.target.kind ===
+                        OFFICER_COMMAND_TARGET_KIND
+                            .ACTOR_WEAPON &&
+                    command.target.weaponId ===
+                        secondLauncher.id
+                );
+            });
+
+        if (!secondCommand) {
+            throw new Error(
+                'Expected second launcher command',
+            );
+        }
+
+        expect(
+            engine.executeCommand({
+                role:
+                    OFFICER_ROLE.WEAPONS,
+
+                commandId:
+                    secondCommand.commandId,
+
+                target:
+                    secondCommand.target,
+            }),
+        ).toEqual({
+            status:
+                OFFICER_COMMAND_EXECUTION_STATUS
+                    .EXECUTED,
+        });
+
+        expect(
+            firstLauncher.phase,
+        ).toBe(
+            SHIP_WEAPON_PHASE.READY,
+        );
+
+        expect(
+            secondLauncher.phase,
+        ).toBe(
+            SHIP_WEAPON_PHASE.TARGETING,
+        );
+
+        expect(
+            engine.getOfficerTasks(),
+        ).toEqual([
+            expect.objectContaining({
+                kind:
+                    OFFICER_TASK_KIND
+                        .WEAPONS_FIRE_MISSILE,
+
+                weaponId:
+                    secondLauncher.id,
+
+                targetActorId:
+                    targetActor.id,
+            }),
+        ]);
     });
 
     it('hides FIRE MISSILE without a ready loaded launcher or live enemy', () => {

@@ -345,22 +345,39 @@ function launchMissile(
     engine: EncounterEngine,
     targetActorId: string,
 ): void {
+    const command =
+        engine
+            .getAvailableCommands(
+                OFFICER_ROLE.WEAPONS,
+            )
+            .find((candidate) => {
+                return (
+                    candidate.commandId ===
+                        ENCOUNTER_OFFICER_COMMAND_ID
+                            .WEAPONS_FIRE_MISSILE &&
+                    candidate.target.kind ===
+                        OFFICER_COMMAND_TARGET_KIND
+                            .ACTOR_WEAPON &&
+                    candidate.target.actorId ===
+                        targetActorId
+                );
+            });
+
+    if (!command) {
+        throw new Error(
+            'Expected FIRE MISSILE command',
+        );
+    }
+
     engine.executeCommand({
         role:
             OFFICER_ROLE.WEAPONS,
 
         commandId:
-            ENCOUNTER_OFFICER_COMMAND_ID
-                .WEAPONS_FIRE_MISSILE,
+            command.commandId,
 
-        target: {
-            kind:
-                OFFICER_COMMAND_TARGET_KIND
-                    .ACTOR,
-
-            actorId:
-                targetActorId,
-        },
+        target:
+            command.target,
     });
 
     engine.step(

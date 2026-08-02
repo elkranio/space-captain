@@ -37,7 +37,7 @@ const def = {
     targeting: {
         kind:
             OFFICER_COMMAND_TARGET_KIND
-                .ACTOR,
+                .ACTOR_WEAPON,
     },
 
     requiresOnlineDrive: false,
@@ -56,20 +56,14 @@ export const weaponsFireStickyMinesCommandHandler:
             const targetActor =
                 findCurrentEnemyShip(state);
 
-            const dispenser =
-                findReadyStickyMineDispenser(
-                    state,
-                );
-
-            if (
-                !targetActor ||
-                !dispenser
-            ) {
+            if (!targetActor) {
                 return [];
             }
 
-            return [
-                {
+            return getReadyStickyMineDispensers(
+                state,
+            ).map((dispenser) => {
+                return {
                     commandId:
                         ENCOUNTER_OFFICER_COMMAND_ID
                             .WEAPONS_FIRE_STICKY_MINES,
@@ -79,7 +73,10 @@ export const weaponsFireStickyMinesCommandHandler:
                     target: {
                         kind:
                             OFFICER_COMMAND_TARGET_KIND
-                                .ACTOR,
+                                .ACTOR_WEAPON,
+
+                        weaponId:
+                            dispenser.id,
 
                         actorId:
                             targetActor.id,
@@ -88,55 +85,42 @@ export const weaponsFireStickyMinesCommandHandler:
                     targetLabel:
                         targetActor
                             .displayName,
-                },
-            ];
+                };
+            });
         },
 
         execute(context, input) {
             if (
                 input.target.kind !==
                 OFFICER_COMMAND_TARGET_KIND
-                    .ACTOR
+                    .ACTOR_WEAPON
             ) {
                 throw new Error(
                     'FIRE MINES requires ' +
-                        'an actor target',
-                );
-            }
-
-            const dispenser =
-                findReadyStickyMineDispenser(
-                    context.stateStore
-                        .getState(),
-                );
-
-            if (!dispenser) {
-                throw new Error(
-                    'FIRE MINES executed ' +
-                        'without a ready dispenser',
+                        'an actor-weapon target',
                 );
             }
 
             context.stateStore
                 .startPlayerStickyMineDispensing(
-                    dispenser.id,
+                    input.target.weaponId,
                 );
 
             context.startOfficerTask(
                 createWeaponsFireStickyMinesTask(
-                    dispenser.id,
+                    input.target.weaponId,
                     input.target.actorId,
                 ),
             );
         },
     };
 
-function findReadyStickyMineDispenser(
+function getReadyStickyMineDispensers(
     state: EncounterState,
-): StickyMineDispenserState | undefined {
+): StickyMineDispenserState[] {
     return state.combat
         .playerWeapons
-        .find(
+        .filter(
             isReadyStickyMineDispenser,
         );
 }

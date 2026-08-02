@@ -430,7 +430,10 @@ function createMissileImpactSetup({
         target: {
             kind:
                 OFFICER_COMMAND_TARGET_KIND
-                    .ACTOR,
+                    .ACTOR_WEAPON,
+
+            weaponId:
+                launcher.id,
 
             actorId:
                 enemy.id,

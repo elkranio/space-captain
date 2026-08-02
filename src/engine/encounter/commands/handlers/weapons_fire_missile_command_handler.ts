@@ -37,7 +37,7 @@ const def = {
     targeting: {
         kind:
             OFFICER_COMMAND_TARGET_KIND
-                .ACTOR,
+                .ACTOR_WEAPON,
     },
 
     requiresOnlineDrive: false,
@@ -56,20 +56,14 @@ export const weaponsFireMissileCommandHandler:
             const targetActor =
                 findCurrentEnemyShip(state);
 
-            const launcher =
-                findReadyMissileLauncher(
-                    state,
-                );
-
-            if (
-                !targetActor ||
-                !launcher
-            ) {
+            if (!targetActor) {
                 return [];
             }
 
-            return [
-                {
+            return getReadyMissileLaunchers(
+                state,
+            ).map((launcher) => {
+                return {
                     commandId:
                         ENCOUNTER_OFFICER_COMMAND_ID
                             .WEAPONS_FIRE_MISSILE,
@@ -79,7 +73,10 @@ export const weaponsFireMissileCommandHandler:
                     target: {
                         kind:
                             OFFICER_COMMAND_TARGET_KIND
-                                .ACTOR,
+                                .ACTOR_WEAPON,
+
+                        weaponId:
+                            launcher.id,
 
                         actorId:
                             targetActor.id,
@@ -88,55 +85,42 @@ export const weaponsFireMissileCommandHandler:
                     targetLabel:
                         targetActor
                             .displayName,
-                },
-            ];
+                };
+            });
         },
 
         execute(context, input) {
             if (
                 input.target.kind !==
                 OFFICER_COMMAND_TARGET_KIND
-                    .ACTOR
+                    .ACTOR_WEAPON
             ) {
                 throw new Error(
                     'FIRE MISSILE requires ' +
-                        'an actor target',
-                );
-            }
-
-            const launcher =
-                findReadyMissileLauncher(
-                    context.stateStore
-                        .getState(),
-                );
-
-            if (!launcher) {
-                throw new Error(
-                    'FIRE MISSILE executed ' +
-                        'without a ready launcher',
+                        'an actor-weapon target',
                 );
             }
 
             context.stateStore
                 .startPlayerMissileTargeting(
-                    launcher.id,
+                    input.target.weaponId,
                 );
 
             context.startOfficerTask(
                 createWeaponsFireMissileTask(
-                    launcher.id,
+                    input.target.weaponId,
                     input.target.actorId,
                 ),
             );
         },
     };
 
-function findReadyMissileLauncher(
+function getReadyMissileLaunchers(
     state: EncounterState,
-): MissileLauncherState | undefined {
+): MissileLauncherState[] {
     return state.combat
         .playerWeapons
-        .find(
+        .filter(
             isReadyMissileLauncher,
         );
 }

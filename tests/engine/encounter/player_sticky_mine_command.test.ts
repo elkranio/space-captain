@@ -81,7 +81,10 @@ describe('Player sticky-mine command', () => {
             target: {
                 kind:
                     OFFICER_COMMAND_TARGET_KIND
-                        .ACTOR,
+                        .ACTOR_WEAPON,
+
+                weaponId:
+                    dispenser.id,
 
                 actorId: target.id,
             },
@@ -334,6 +337,124 @@ describe('Player sticky-mine command', () => {
             actorId:
                 target.id,
         });
+    });
+
+    it('offers and executes one command per ready sticky-mine dispenser instance', () => {
+        const {
+            engine,
+            state,
+            target,
+            dispenser:
+                firstDispenser,
+        } = createStickyMineTestSetup();
+
+        const secondDispenser:
+            StickyMineDispenserState = {
+                ...firstDispenser,
+
+                id:
+                    'sticky_mine_dispenser_player_01',
+            };
+
+        state.combat
+            .playerWeapons
+            .push(secondDispenser);
+
+        const commands =
+            getStickyMineCommands(
+                engine,
+            );
+
+        expect(
+            commands.map((command) => {
+                return command.target;
+            }),
+        ).toEqual([
+            {
+                kind:
+                    OFFICER_COMMAND_TARGET_KIND
+                        .ACTOR_WEAPON,
+
+                weaponId:
+                    firstDispenser.id,
+
+                actorId:
+                    target.id,
+            },
+            {
+                kind:
+                    OFFICER_COMMAND_TARGET_KIND
+                        .ACTOR_WEAPON,
+
+                weaponId:
+                    secondDispenser.id,
+
+                actorId:
+                    target.id,
+            },
+        ]);
+
+        const secondCommand =
+            commands.find((command) => {
+                return (
+                    command.target.kind ===
+                        OFFICER_COMMAND_TARGET_KIND
+                            .ACTOR_WEAPON &&
+                    command.target.weaponId ===
+                        secondDispenser.id
+                );
+            });
+
+        if (!secondCommand) {
+            throw new Error(
+                'Expected second dispenser command',
+            );
+        }
+
+        expect(
+            engine.executeCommand({
+                role:
+                    OFFICER_ROLE.WEAPONS,
+
+                commandId:
+                    secondCommand.commandId,
+
+                target:
+                    secondCommand.target,
+            }),
+        ).toEqual({
+            status:
+                OFFICER_COMMAND_EXECUTION_STATUS
+                    .EXECUTED,
+        });
+
+        expect(
+            firstDispenser.phase,
+        ).toBe(
+            SHIP_WEAPON_PHASE.READY,
+        );
+
+        expect(
+            secondDispenser.phase,
+        ).toBe(
+            SHIP_WEAPON_PHASE.DISPENSING,
+        );
+
+        expect(
+            engine.getOfficerTasks(),
+        ).toEqual([
+            expect.objectContaining({
+                kind:
+                    OFFICER_TASK_KIND
+                        .WEAPONS_FIRE_STICKY_MINES,
+
+                weaponId:
+                    secondDispenser.id,
+
+                targetActorId:
+                    target.id,
+            }),
+        ]);
     });
 
     it('preserves salvo launch ages when one large step launches the whole salvo', () => {

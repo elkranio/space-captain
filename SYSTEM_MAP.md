@@ -19,7 +19,7 @@ It does not contain gameplay balance or implementation backlog.
 Last mapped commit:
 
 ```text
-ab31d4e12540f1966e970714405a92de00a06187
+a2918ae6edc900e34b8a290c8051d3a65a4e44e8
 ```
 
 ---
@@ -254,6 +254,19 @@ COOLDOWN / READY
 A weapon family may receive its own runner only when that split makes the
 current lifecycle smaller and leaves a narrow public contract.
 
+Physical player-weapon commands use the resolved target:
+
+```text
+ACTOR_WEAPON
+├─ weaponId — installed runtime weapon instance
+└─ actorId  — enemy target
+```
+
+Availability emits one command per ready physical weapon instance.
+`OfficerCommandExecutor` validates the exact `weaponId + actorId` pair.
+Command handlers execute that exact weapon instance and must not search again
+for the first ready launcher/dispenser.
+
 ---
 
 # 7. Engine-to-app transport
@@ -405,8 +418,13 @@ Stop and inspect architecture when a local feature requires any of these:
 4. done — centralize crew-controlled weapon-phase semantics
 5. done — expose CombatRunner step phases explicitly
 6. done — separate bridge persistence transport from presentation transport
-7. next — audit again before command-palette implementation
+7. done — audit again before command-palette implementation
 ```
+
+Audit result: physical launchers/dispensers now keep stable command identity
+through availability, validation and execution. No further architecture
+refactor is required before replacing the old command menu with the complete
+command-palette interaction flow.
 
 Small adjacent cleanups are allowed when they:
 
