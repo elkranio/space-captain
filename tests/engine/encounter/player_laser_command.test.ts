@@ -6,130 +6,58 @@ import {
     it,
 } from 'vitest';
 import {
-    createNewRunState,
-} from '../../../src/engine/content/new_game/create_new_run_state';
-import {
-    ENCOUNTER_TEAM,
-} from '../../../src/engine/defs/encounter_team';
-import {
     LASER_TARGET_ZONE,
 } from '../../../src/engine/defs/laser';
 import {
     OFFICER_ROLE,
 } from '../../../src/engine/defs/officer';
 import {
-    PLAYER_SPACE_NAVIGATION_KIND,
-} from '../../../src/engine/defs/player_location';
-import {
+    SHIP_WEAPON_KIND,
     SHIP_WEAPON_PHASE,
 } from '../../../src/engine/defs/ship_weapon';
-import EncounterEngine from '../../../src/engine/encounter/EncounterEngine';
 import {
     ENCOUNTER_OFFICER_COMMAND_ID,
     OFFICER_COMMAND_EXECUTION_STATUS,
     OFFICER_COMMAND_TARGET_KIND,
 } from '../../../src/engine/encounter/model/command';
 import {
-    ENCOUNTER_EVENT,
-} from '../../../src/engine/encounter/model/event';
-import {
     OFFICER_TASK_KIND,
 } from '../../../src/engine/encounter/model/officer_task';
+import {
+    createAnchoredPlayerCombatTestSetup,
+    getPlayerWeaponOrThrow,
+} from './combat_test_support';
 
 describe('Player laser command', () => {
     it('offers three zones through one command and starts a cancellable targeting task', () => {
-        const run =
-            createNewRunState();
+        const {
+            engine,
+            state,
+            targetActor,
+        } = createAnchoredPlayerCombatTestSetup();
 
-        const installedWeapon =
-            run.player.ship.weapons[0];
+        const installedWeapon = {
+            ...getPlayerWeaponOrThrow(
+                state,
+                SHIP_WEAPON_KIND.LASER,
+            ),
+        };
 
-        const installedLauncher =
-            run.player.ship.weapons[1];
+        const installedLauncher = {
+            ...getPlayerWeaponOrThrow(
+                state,
+                SHIP_WEAPON_KIND
+                    .MISSILE_LAUNCHER,
+            ),
+        };
 
-        const installedMineDispenser =
-            run.player.ship.weapons[2];
-
-        if (
-            !installedWeapon ||
-            !installedLauncher ||
-            !installedMineDispenser
-        ) {
-            throw new Error(
-                'Expected installed player weapons',
-            );
-        }
-
-        const startNode =
-            run.universe.nodes.find(
-                (node) => {
-                    return (
-                        node.id ===
-                        'node_start'
-                    );
-                },
-            );
-
-        if (!startNode) {
-            throw new Error(
-                'Expected new-game start node',
-            );
-        }
-
-        const engine = new EncounterEngine({
-            node: startNode,
-
-            navigation: {
-                kind:
-                    PLAYER_SPACE_NAVIGATION_KIND
-                        .ANCHORED,
-
-                anchorId:
-                    startNode.arrivalAnchorId,
-            },
-
-            drive:
-                run.player.ship.drive,
-
-            pointDefense:
-                run.player.ship
-                    .pointDefense,
-
-            shieldGenerator:
-                run.player.ship
-                    .shieldGenerator,
-
-            weapons:
-                run.player.ship.weapons,
-        });
-
-        const [loadedEvent] =
-            engine.drainEvents();
-
-        if (
-            loadedEvent.type !==
-            ENCOUNTER_EVENT.ENCOUNTER_LOADED
-        ) {
-            throw new Error(
-                'Expected encounter loaded event',
-            );
-        }
-
-        const targetActor =
-            loadedEvent.state.actors.find(
-                (actor) => {
-                    return (
-                        actor.team ===
-                        ENCOUNTER_TEAM.ENEMY
-                    );
-                },
-            );
-
-        if (!targetActor) {
-            throw new Error(
-                'Expected enemy target actor',
-            );
-        }
+        const installedMineDispenser = {
+            ...getPlayerWeaponOrThrow(
+                state,
+                SHIP_WEAPON_KIND
+                    .STICKY_MINE_DISPENSER,
+            ),
+        };
 
         const laserCommands =
             engine

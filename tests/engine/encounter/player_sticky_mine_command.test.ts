@@ -6,17 +6,11 @@ import {
     it,
 } from 'vitest';
 import {
-    createNewRunState,
-} from '../../../src/engine/content/new_game/create_new_run_state';
-import {
     ENCOUNTER_TEAM,
 } from '../../../src/engine/defs/encounter_team';
 import {
     OFFICER_ROLE,
 } from '../../../src/engine/defs/officer';
-import {
-    PLAYER_SPACE_NAVIGATION_KIND,
-} from '../../../src/engine/defs/player_location';
 import {
     STICKY_MINE_ID,
 } from '../../../src/engine/defs/sticky_mine';
@@ -50,6 +44,10 @@ import {
 import type {
     EncounterState,
 } from '../../../src/engine/encounter/model/state';
+import {
+    createAnchoredPlayerCombatTestSetup,
+    getPlayerWeaponOrThrow,
+} from './combat_test_support';
 
 describe('Player sticky-mine command', () => {
     it('launches one immediate three-mine salvo and keeps Weapons busy until the final launch', () => {
@@ -562,110 +560,26 @@ function createStickyMineTestSetup(): {
     target:
         ShipEncounterActorState;
 } {
-    const run =
-        createNewRunState();
-
-    const startNode =
-        run.universe.nodes.find(
-            (node) => {
-                return (
-                    node.id ===
-                    'node_start'
-                );
-            },
-        );
-
-    if (!startNode) {
-        throw new Error(
-            'Expected new-game start node',
-        );
-    }
-
-    const engine = new EncounterEngine({
-        node: startNode,
-
-        navigation: {
-            kind:
-                PLAYER_SPACE_NAVIGATION_KIND
-                    .ANCHORED,
-
-            anchorId:
-                startNode.arrivalAnchorId,
-        },
-
-        drive:
-            run.player.ship.drive,
-
-        pointDefense:
-            run.player.ship
-                .pointDefense,
-
-        shieldGenerator:
-            run.player.ship
-                .shieldGenerator,
-
-        weapons:
-            run.player.ship.weapons,
-    });
-
-    const [loadedEvent] =
-        engine.drainEvents();
-
-    if (
-        loadedEvent.type !==
-        ENCOUNTER_EVENT.ENCOUNTER_LOADED
-    ) {
-        throw new Error(
-            'Expected encounter loaded event',
-        );
-    }
+    const {
+        engine,
+        state,
+        targetActor,
+    } = createAnchoredPlayerCombatTestSetup();
 
     const dispenser =
-        loadedEvent.state
-            .combat
-            .playerWeapons
-            .find((weapon) => {
-                return (
-                    weapon.kind ===
-                    SHIP_WEAPON_KIND
-                        .STICKY_MINE_DISPENSER
-                );
-            });
-
-    if (
-        !dispenser ||
-        dispenser.kind !==
+        getPlayerWeaponOrThrow(
+            state,
             SHIP_WEAPON_KIND
-                .STICKY_MINE_DISPENSER
-    ) {
-        throw new Error(
-            'Expected player sticky-mine dispenser',
+                .STICKY_MINE_DISPENSER,
         );
-    }
-
-    const target =
-        loadedEvent.state
-            .actors
-            .find((actor) => {
-                return (
-                    actor.team ===
-                    ENCOUNTER_TEAM.ENEMY
-                );
-            });
-
-    if (!target) {
-        throw new Error(
-            'Expected enemy target actor',
-        );
-    }
 
     return {
         engine,
-        state:
-            loadedEvent.state,
+        state,
 
         dispenser,
-        target,
+        target:
+            targetActor,
     };
 }
 

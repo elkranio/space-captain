@@ -6,20 +6,11 @@ import {
     it,
 } from 'vitest';
 import {
-    createNewRunState,
-} from '../../../src/engine/content/new_game/create_new_run_state';
-import {
     SHIP_WEAPON_TARGETING_DURATION_MS,
 } from '../../../src/engine/content/catalogs/ship_weapons';
 import {
-    ENCOUNTER_TEAM,
-} from '../../../src/engine/defs/encounter_team';
-import {
     OFFICER_ROLE,
 } from '../../../src/engine/defs/officer';
-import {
-    PLAYER_SPACE_NAVIGATION_KIND,
-} from '../../../src/engine/defs/player_location';
 import EncounterEngine from '../../../src/engine/encounter/EncounterEngine';
 import {
     ENCOUNTER_OFFICER_COMMAND_ID,
@@ -34,6 +25,9 @@ import {
 import {
     ENCOUNTER_EVENT,
 } from '../../../src/engine/encounter/model/event';
+import {
+    createAnchoredPlayerCombatTestSetup,
+} from './combat_test_support';
 
 describe('Enemy actor combat cleanup', () => {
     it('resolves remaining player missiles and mines before the enemy destruction event', () => {
@@ -572,86 +566,18 @@ it('flushes a new missile before an older sticky mine destroys the target in the
 });
 
 function createCombatCleanupTestSetup() {
-    const run =
-        createNewRunState();
-
-    const startNode =
-        run.universe.nodes.find((node) => {
-            return node.id === 'node_start';
-        });
-
-    if (!startNode) {
-        throw new Error(
-            'Expected new-game start node',
-        );
-    }
-
-    const engine =
-        new EncounterEngine({
-            node:
-                startNode,
-
-            navigation: {
-                kind:
-                    PLAYER_SPACE_NAVIGATION_KIND
-                        .ANCHORED,
-
-                anchorId:
-                    startNode
-                        .arrivalAnchorId,
-            },
-
-            drive:
-                run.player.ship.drive,
-
-            pointDefense:
-                run.player.ship
-                    .pointDefense,
-
-            shieldGenerator:
-                run.player.ship
-                    .shieldGenerator,
-
-            weapons:
-                run.player.ship
-                    .weapons,
-        });
-
-    const [loadedEvent] =
-        engine.drainEvents();
-
-    if (
-        loadedEvent.type !==
-        ENCOUNTER_EVENT.ENCOUNTER_LOADED
-    ) {
-        throw new Error(
-            'Expected encounter loaded event',
-        );
-    }
-
-    const target =
-        loadedEvent.state.actors.find(
-            (actor) => {
-                return (
-                    actor.team ===
-                    ENCOUNTER_TEAM.ENEMY
-                );
-            },
-        );
-
-    if (!target) {
-        throw new Error(
-            'Expected enemy target actor',
-        );
-    }
+    const {
+        engine,
+        state,
+        targetActor,
+    } = createAnchoredPlayerCombatTestSetup();
 
     return {
         engine,
-        state:
-            loadedEvent.state,
+        state,
 
         targetActorId:
-            target.id,
+            targetActor.id,
     };
 }
 
