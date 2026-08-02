@@ -1,6 +1,7 @@
 // src/engine/encounter/combat/CombatRunner.ts
 
 import { MISSILES } from '../../content/catalogs/missiles';
+import { STICKY_MINES } from '../../content/catalogs/sticky_mines';
 import {
     ENCOUNTER_TEAM,
 } from '../../defs/encounter_team';
@@ -940,7 +941,8 @@ export default class CombatRunner {
 
         while (
             dispenser.dispensedMineCount <
-                definition.burstSize &&
+                definition.salvoSize &&
+            dispenser.ammoCount > 0 &&
             dispenser.phaseElapsedMs >=
                 definition.launchIntervalMs
         ) {
@@ -956,7 +958,8 @@ export default class CombatRunner {
 
         if (
             dispenser.dispensedMineCount <
-            definition.burstSize
+                definition.salvoSize &&
+            dispenser.ammoCount > 0
         ) {
             return;
         }
@@ -986,13 +989,29 @@ export default class CombatRunner {
 
         if (
             dispenser.dispensedMineCount >=
-            definition.burstSize
+            definition.salvoSize
         ) {
             throw new Error(
-                `Cannot exceed sticky-mine burst size: ` +
-                    `${actor.id}/${dispenser.id}/${definition.burstSize}`,
+                `Cannot exceed sticky-mine salvo size: ` +
+                    `${actor.id}/${dispenser.id}/${definition.salvoSize}`,
             );
         }
+
+        const mineId =
+            dispenser.loadedMineId;
+
+        if (
+            !mineId ||
+            dispenser.ammoCount <= 0
+        ) {
+            throw new Error(
+                `Cannot launch sticky mine from empty dispenser: ` +
+                    `${actor.id}/${dispenser.id}`,
+            );
+        }
+
+        const mineDefinition =
+            STICKY_MINES[mineId];
 
         const mine: StickyMineState = {
             id: this.createStickyMineId(),
@@ -1002,15 +1021,16 @@ export default class CombatRunner {
 
             timeToDetonationMs: Math.max(
                 0,
-                definition.fuseDurationMs -
+                mineDefinition.fuseDurationMs -
                     ageMs,
             ),
             initialTimeToDetonationMs:
-                definition.fuseDurationMs,
+                mineDefinition.fuseDurationMs,
 
-            damage: definition.damage,
+            damage: mineDefinition.damage,
         };
 
+        dispenser.ammoCount -= 1;
         dispenser.dispensedMineCount += 1;
 
         this.state.combat.stickyMines.push(

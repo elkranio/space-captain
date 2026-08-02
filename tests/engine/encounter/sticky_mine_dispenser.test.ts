@@ -31,7 +31,7 @@ import { createShipDriveFixture } from '../../fixtures/engine/ship_drive_fixture
 import { createSingleStationNodeFixture } from '../../fixtures/engine/space_node_fixtures';
 
 describe('Sticky mine dispenser', () => {
-    it('attaches the first mine after targeting and catches up missed burst intervals', () => {
+    it('spends one mine per launch and catches up missed salvo intervals', () => {
         const {
             engine,
             state,
@@ -69,13 +69,13 @@ describe('Sticky mine dispenser', () => {
             SHIP_WEAPON_PHASE.DISPENSING,
         );
         expect(dispenser.phaseElapsedMs).toBe(0);
-        expect(dispenser.dispensedMineCount).toBe(1);
 
-        expect(state.combat.stickyMines).toEqual([
-            createMine('sticky_mine_1', 7500),
-        ]);
+        expect(
+            dispenser.dispensedMineCount,
+        ).toBe(1);
+        expect(dispenser.ammoCount).toBe(5);
 
-        engine.step(5000);
+        engine.step(2500);
 
         expect(engine.drainEvents()).toEqual([
             {
@@ -85,7 +85,7 @@ describe('Sticky mine dispenser', () => {
 
                 mine: createMine(
                     'sticky_mine_2',
-                    4500,
+                    6000,
                 ),
             },
 
@@ -96,21 +96,25 @@ describe('Sticky mine dispenser', () => {
 
                 mine: createMine(
                     'sticky_mine_3',
-                    6500,
+                    7000,
                 ),
             },
         ]);
 
         expect(dispenser.phase).toBe(
-            SHIP_WEAPON_PHASE.DISPENSING,
+            SHIP_WEAPON_PHASE.COOLDOWN,
         );
-        expect(dispenser.phaseElapsedMs).toBe(1000);
-        expect(dispenser.dispensedMineCount).toBe(3);
+        expect(dispenser.phaseElapsedMs).toBe(500);
+
+        expect(
+            dispenser.dispensedMineCount,
+        ).toBe(3);
+        expect(dispenser.ammoCount).toBe(3);
 
         expect(state.combat.stickyMines).toEqual([
-            createMine('sticky_mine_1', 2500),
-            createMine('sticky_mine_2', 4500),
-            createMine('sticky_mine_3', 6500),
+            createMine('sticky_mine_1', 5000),
+            createMine('sticky_mine_2', 6000),
+            createMine('sticky_mine_3', 7000),
         ]);
 
         engine.step(5000);
@@ -128,49 +132,42 @@ describe('Sticky mine dispenser', () => {
 
                 damage: 1,
             },
+        ]);
 
+        expect(state.combat.stickyMines).toEqual([
+            createMine('sticky_mine_2', 1000),
+            createMine('sticky_mine_3', 2000),
+        ]);
+    });
+
+    it('launches a partial final salvo and stays empty after cooldown', () => {
+        const {
+            engine,
+            dispenser,
+        } = createStickyMineEngine({
+            ammoCount: 2,
+        });
+
+        engine.step(
+            SHIP_WEAPON_TARGETING_DURATION_MS,
+        );
+        engine.drainEvents();
+
+        expect(dispenser.ammoCount).toBe(1);
+        expect(
+            dispenser.dispensedMineCount,
+        ).toBe(1);
+
+        engine.step(1000);
+
+        expect(engine.drainEvents()).toEqual([
             {
                 type:
                     ENCOUNTER_EVENT
-                        .STICKY_MINE_DETONATED,
+                        .STICKY_MINE_ATTACHED,
 
                 mine: createMine(
                     'sticky_mine_2',
-                    0,
-                ),
-
-                damage: 1,
-            },
-
-            {
-                type:
-                    ENCOUNTER_EVENT
-                        .STICKY_MINE_ATTACHED,
-
-                mine: createMine(
-                    'sticky_mine_4',
-                    3500,
-                ),
-            },
-
-            {
-                type:
-                    ENCOUNTER_EVENT
-                        .STICKY_MINE_ATTACHED,
-
-                mine: createMine(
-                    'sticky_mine_5',
-                    5500,
-                ),
-            },
-
-            {
-                type:
-                    ENCOUNTER_EVENT
-                        .STICKY_MINE_ATTACHED,
-
-                mine: createMine(
-                    'sticky_mine_6',
                     7500,
                 ),
             },
@@ -180,14 +177,31 @@ describe('Sticky mine dispenser', () => {
             SHIP_WEAPON_PHASE.COOLDOWN,
         );
         expect(dispenser.phaseElapsedMs).toBe(0);
-        expect(dispenser.dispensedMineCount).toBe(6);
 
-        expect(state.combat.stickyMines).toEqual([
-            createMine('sticky_mine_3', 1500),
-            createMine('sticky_mine_4', 3500),
-            createMine('sticky_mine_5', 5500),
-            createMine('sticky_mine_6', 7500),
-        ]);
+        expect(dispenser.ammoCount).toBe(0);
+        expect(
+            dispenser.dispensedMineCount,
+        ).toBe(2);
+
+        engine.step(15000);
+        engine.drainEvents();
+
+        expect(dispenser.phase).toBe(
+            SHIP_WEAPON_PHASE.READY,
+        );
+        expect(dispenser.phaseElapsedMs).toBe(0);
+
+        expect(dispenser.ammoCount).toBe(0);
+        expect(
+            dispenser.dispensedMineCount,
+        ).toBe(0);
+
+        engine.step(0);
+
+        expect(engine.drainEvents()).toEqual([]);
+        expect(dispenser.phase).toBe(
+            SHIP_WEAPON_PHASE.READY,
+        );
     });
 
     it('uses the normal damage interruption path when a mine detonates', () => {
@@ -245,7 +259,7 @@ describe('Sticky mine dispenser', () => {
 
                 mine: createMine(
                     'sticky_mine_2',
-                    2000,
+                    1000,
                 ),
             },
 
@@ -256,27 +270,22 @@ describe('Sticky mine dispenser', () => {
 
                 mine: createMine(
                     'sticky_mine_3',
-                    4000,
-                ),
-            },
-
-            {
-                type:
-                    ENCOUNTER_EVENT
-                        .STICKY_MINE_ATTACHED,
-
-                mine: createMine(
-                    'sticky_mine_4',
-                    6000,
+                    2000,
                 ),
             },
         ]);
 
-        expect(engine.getOfficerTasks()).toEqual([]);
+        expect(
+            engine.getOfficerTasks(),
+        ).toEqual([]);
     });
 });
 
-function createStickyMineEngine() {
+function createStickyMineEngine({
+    ammoCount,
+}: {
+    ammoCount?: number;
+} = {}) {
     const {
         node,
         stationId,
@@ -292,6 +301,24 @@ function createStickyMineEngine() {
 
             anchorId: stationId,
         });
+
+    const nodeDispenser =
+        enemy.weapons[0];
+
+    if (
+        nodeDispenser.kind !==
+        SHIP_WEAPON_KIND
+            .STICKY_MINE_DISPENSER
+    ) {
+        throw new Error(
+            'Expected node sticky-mine dispenser',
+        );
+    }
+
+    if (ammoCount !== undefined) {
+        nodeDispenser.ammoCount =
+            ammoCount;
+    }
 
     node.actors.push(enemy);
 

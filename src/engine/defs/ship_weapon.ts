@@ -1,6 +1,9 @@
 // src/engine/defs/ship_weapon.ts
 
 import type { MissileId } from './missile';
+import type {
+    StickyMineId,
+} from './sticky_mine';
 
 export const SHIP_WEAPON_KIND = {
     MISSILE_LAUNCHER: 'missile_launcher',
@@ -70,11 +73,10 @@ export type StickyMineDispenserDefinition =
         kind:
             typeof SHIP_WEAPON_KIND.STICKY_MINE_DISPENSER;
 
-        burstSize: number;
-        launchIntervalMs: number;
+        ammoCapacity: number;
 
-        fuseDurationMs: number;
-        damage: number;
+        salvoSize: number;
+        launchIntervalMs: number;
     };
 
 export type ShipWeaponDefinition =
@@ -118,7 +120,12 @@ export type StickyMineDispenserState =
         kind:
             typeof SHIP_WEAPON_KIND.STICKY_MINE_DISPENSER;
 
-        // Сбрасывается при начале новой очереди.
+        loadedMineId: StickyMineId | null;
+
+        ammoCount: number;
+
+        // Количество мин, реально запущенных
+        // в текущем salvo.
         dispensedMineCount: number;
     };
 

@@ -55,11 +55,10 @@ export const SHIP_WEAPONS = {
         kind:
             SHIP_WEAPON_KIND.STICKY_MINE_DISPENSER,
 
-        burstSize: 6,
-        launchIntervalMs: 2000,
+        ammoCapacity: 6,
 
-        fuseDurationMs: 7500,
-        damage: 1,
+        salvoSize: 3,
+        launchIntervalMs: 1000,
 
         cooldownDurationMs: 15000,
     },

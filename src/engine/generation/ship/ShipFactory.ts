@@ -121,7 +121,7 @@ export default class ShipFactory {
                 return StickyMineDispenserFactory.create({
                     id: preset.id,
 
-                    weaponId: preset.weaponId,
+                    presetId: preset.presetId,
                 });
         }
     }

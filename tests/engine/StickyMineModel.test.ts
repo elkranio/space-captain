@@ -2,8 +2,14 @@
 
 import { describe, expect, it } from 'vitest';
 import {
+    STICKY_MINES,
+} from '../../src/engine/content/catalogs/sticky_mines';
+import {
     SHIP_WEAPONS,
 } from '../../src/engine/content/catalogs/ship_weapons';
+import {
+    STICKY_MINE_ID,
+} from '../../src/engine/defs/sticky_mine';
 import {
     SHIP_WEAPON_ID,
     SHIP_WEAPON_KIND,
@@ -15,31 +21,44 @@ import type {
 } from '../../src/engine/encounter/model/combat';
 
 describe('Sticky mine model', () => {
-    it('defines the initial sticky-mine burst tuning', () => {
-        const definition =
+    it('separates mine payload from dispenser delivery rules', () => {
+        const dispenserDefinition =
             SHIP_WEAPONS[
                 SHIP_WEAPON_ID
                     .STICKY_MINE_DISPENSER_00
             ];
 
-        expect(definition).toMatchObject({
+        expect(dispenserDefinition).toMatchObject({
             name: 'STICKY MINE DISPENSER',
 
             kind:
                 SHIP_WEAPON_KIND
                     .STICKY_MINE_DISPENSER,
 
-            burstSize: 6,
-            launchIntervalMs: 2000,
+            ammoCapacity: 6,
 
-            fuseDurationMs: 7500,
-            damage: 1,
+            salvoSize: 3,
+            launchIntervalMs: 1000,
 
             cooldownDurationMs: 15000,
         });
+
+        expect(
+            STICKY_MINES[
+                STICKY_MINE_ID.BASIC_00
+            ],
+        ).toEqual({
+            id:
+                STICKY_MINE_ID.BASIC_00,
+
+            name: 'STICKY MINE',
+
+            fuseDurationMs: 7500,
+            damage: 1,
+        });
     });
 
-    it('keeps dispenser progress and attached mine state explicit', () => {
+    it('keeps dispenser ammunition and attached mine state explicit', () => {
         const dispenser: StickyMineDispenserState = {
             id: 'enemy_sticky_mine_dispenser',
 
@@ -51,7 +70,13 @@ describe('Sticky mine model', () => {
                 SHIP_WEAPON_KIND
                     .STICKY_MINE_DISPENSER,
 
-            phase: SHIP_WEAPON_PHASE.READY,
+            loadedMineId:
+                STICKY_MINE_ID.BASIC_00,
+
+            ammoCount: 6,
+
+            phase:
+                SHIP_WEAPON_PHASE.READY,
             phaseElapsedMs: 0,
 
             dispensedMineCount: 0,
@@ -69,7 +94,9 @@ describe('Sticky mine model', () => {
             damage: 1,
         };
 
+        expect(dispenser.ammoCount).toBe(6);
         expect(dispenser.dispensedMineCount).toBe(0);
+
         expect(mine.timeToDetonationMs).toBe(7500);
         expect(mine.damage).toBe(1);
     });

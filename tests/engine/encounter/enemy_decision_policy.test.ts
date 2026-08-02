@@ -15,6 +15,7 @@ import {
     PLAYER_SPACE_NAVIGATION_KIND,
 } from '../../../src/engine/defs/player_location';
 import {
+    SHIP_WEAPON_KIND,
     SHIP_WEAPON_PHASE,
 } from '../../../src/engine/defs/ship_weapon';
 import EncounterEngine from '../../../src/engine/encounter/EncounterEngine';
@@ -112,6 +113,43 @@ describe('Enemy decision policy', () => {
                     OFFICER_ROLE.WEAPONS
                 ],
         ).toBe(1);
+    });
+
+    it('skips an empty sticky-mine dispenser', () => {
+        const actor = createEnemyCombatActor();
+        const policy =
+            new EnemyDecisionPolicy();
+
+        const missile = actor.weapons[0];
+        const laser = actor.weapons[1];
+        const mines = actor.weapons[2];
+
+        if (
+            !missile ||
+            !laser ||
+            !mines ||
+            mines.kind !==
+                SHIP_WEAPON_KIND
+                    .STICKY_MINE_DISPENSER
+        ) {
+            throw new Error(
+                'Expected combat weapon loadout',
+            );
+        }
+
+        missile.phase =
+            SHIP_WEAPON_PHASE.COOLDOWN;
+        laser.phase =
+            SHIP_WEAPON_PHASE.COOLDOWN;
+
+        mines.ammoCount = 0;
+
+        expect(
+            policy.selectWeapon(
+                actor,
+                OFFICER_ROLE.WEAPONS,
+            ),
+        ).toBeUndefined();
     });
 
     it('keeps science weapon selection independent from weapons', () => {

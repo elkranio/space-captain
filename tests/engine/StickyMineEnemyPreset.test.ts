@@ -9,6 +9,9 @@ import {
     SHIP_NODE_ACTOR_PRESET_ID,
 } from '../../src/engine/content/presets/ship_node_actors';
 import {
+    STICKY_MINE_ID,
+} from '../../src/engine/defs/sticky_mine';
+import {
     SHIP_WEAPON_ID,
     SHIP_WEAPON_KIND,
     SHIP_WEAPON_PHASE,
@@ -16,7 +19,7 @@ import {
 import ShipNodeActorFactory from '../../src/engine/generation/space_node_actor/ShipNodeActorFactory';
 
 describe('Sticky-mine enemy preset', () => {
-    it('creates one ready sticky-mine dispenser', () => {
+    it('creates one ready fully loaded sticky-mine dispenser', () => {
         const actor =
             ShipNodeActorFactory.create({
                 id: 'enemy_sticky_mines',
@@ -40,6 +43,11 @@ describe('Sticky-mine enemy preset', () => {
                 kind:
                     SHIP_WEAPON_KIND
                         .STICKY_MINE_DISPENSER,
+
+                loadedMineId:
+                    STICKY_MINE_ID.BASIC_00,
+
+                ammoCount: 6,
 
                 phase:
                     SHIP_WEAPON_PHASE.READY,
