@@ -169,10 +169,10 @@ export default class EncounterEngine {
                 stateStore:
                     this.stateStore,
 
-                attachPlayerStickyMine:
+                queuePlayerStickyMineAttach:
                     (input) => {
                         this.combatRunner
-                            .attachPlayerStickyMine(
+                            .queuePlayerStickyMineAttach(
                                 input,
                             );
                     },

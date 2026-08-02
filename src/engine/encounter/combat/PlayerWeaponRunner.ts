@@ -91,7 +91,7 @@ type PlayerLaserImpact =
 type PlayerWeaponRunnerOptions = {
     stateStore: EncounterStateStore;
 
-    attachPlayerStickyMine: (
+    queuePlayerStickyMineAttach: (
         input: {
             sourceWeaponId: string;
             mineId: StickyMineId;
@@ -134,9 +134,9 @@ export default class PlayerWeaponRunner {
         private readonly stateStore:
             EncounterStateStore,
 
-        private readonly attachPlayerStickyMine:
+        private readonly queuePlayerStickyMineAttach:
             PlayerWeaponRunnerOptions[
-                'attachPlayerStickyMine'
+                'queuePlayerStickyMineAttach'
             ],
 
         private readonly queuePlayerMissileLaunch:
@@ -165,7 +165,7 @@ export default class PlayerWeaponRunner {
 
     public static create({
         stateStore,
-        attachPlayerStickyMine,
+        queuePlayerStickyMineAttach,
         queuePlayerMissileLaunch,
         destroyEnemyActor,
         emit,
@@ -174,7 +174,7 @@ export default class PlayerWeaponRunner {
         PlayerWeaponRunner {
         return new PlayerWeaponRunner(
             stateStore,
-            attachPlayerStickyMine,
+            queuePlayerStickyMineAttach,
             queuePlayerMissileLaunch,
             destroyEnemyActor,
             emit,
@@ -525,7 +525,7 @@ export default class PlayerWeaponRunner {
             );
         }
 
-        this.attachPlayerStickyMine({
+        this.queuePlayerStickyMineAttach({
             sourceWeaponId:
                 dispenser.id,
 

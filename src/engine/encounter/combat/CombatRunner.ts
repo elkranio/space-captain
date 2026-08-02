@@ -105,11 +105,8 @@ export default class CombatRunner {
     private readonly pendingPlayerMissileLaunches:
         PlayerMissileLaunchInput[] = [];
 
-    // PlayerWeaponRunner добавляет outgoing mines
-    // до CombatRunner.step. Их age уже учтён
-    // относительно текущего deltaMs.
-    private readonly freshStickyMineIds =
-        new Set<string>();
+    private readonly pendingPlayerStickyMineAttachments:
+        PlayerStickyMineAttachInput[] = [];
 
     private nextProjectileId = 1;
     private nextLaserAttackId = 1;
@@ -154,9 +151,11 @@ export default class CombatRunner {
         this.advanceStickyMines(deltaMs);
 
         // PlayerWeaponRunner работает раньше CombatRunner.
-        // Flush после advance не даёт новой ракете
-        // получить тот же deltaMs в момент запуска.
+        // Flush после advance не даёт новым player
+        // projectiles/mines получить тот же deltaMs
+        // в момент физического запуска.
         this.flushPlayerMissileLaunches();
+        this.flushPlayerStickyMineAttachments();
 
         this.enemyTaskScheduler.schedule(deltaMs);
         this.advanceWeapons(deltaMs);
@@ -235,7 +234,7 @@ export default class CombatRunner {
         });
     }
 
-    public attachPlayerStickyMine(
+    public queuePlayerStickyMineAttach(
         input: PlayerStickyMineAttachInput,
     ): void {
         if (
@@ -248,6 +247,30 @@ export default class CombatRunner {
             );
         }
 
+        this.pendingPlayerStickyMineAttachments
+            .push({
+                ...input,
+            });
+    }
+
+    private flushPlayerStickyMineAttachments(): void {
+        const attachments =
+            this.pendingPlayerStickyMineAttachments
+                .splice(0);
+
+        for (
+            const attachment of
+            attachments
+        ) {
+            this.attachPlayerStickyMine(
+                attachment,
+            );
+        }
+    }
+
+    private attachPlayerStickyMine(
+        input: PlayerStickyMineAttachInput,
+    ): void {
         const target =
             this.state.actors.find(
                 (actor) => {
@@ -319,10 +342,6 @@ export default class CombatRunner {
 
         this.state.combat.stickyMines.push(
             mine,
-        );
-
-        this.freshStickyMineIds.add(
-            mine.id,
         );
 
         this.emit({
@@ -1261,18 +1280,12 @@ export default class CombatRunner {
                 }
             }
 
-            const isFresh =
-                this.freshStickyMineIds
-                    .delete(mine.id);
-
-            if (!isFresh) {
-                mine.timeToDetonationMs =
-                    Math.max(
-                        0,
-                        mine.timeToDetonationMs -
-                            deltaMs,
-                    );
-            }
+            mine.timeToDetonationMs =
+                Math.max(
+                    0,
+                    mine.timeToDetonationMs -
+                        deltaMs,
+                );
 
             if (
                 mine.timeToDetonationMs > 0
@@ -1306,10 +1319,6 @@ export default class CombatRunner {
 
                 timeToDetonationMs: 0,
             };
-
-        this.freshStickyMineIds.delete(
-            mine.id,
-        );
 
         this.state.combat.stickyMines.splice(
             index,
@@ -1456,10 +1465,6 @@ export default class CombatRunner {
             this.cloneStickyMine(
                 mine,
             );
-
-        this.freshStickyMineIds.delete(
-            mine.id,
-        );
 
         this.state.combat
             .stickyMines.splice(

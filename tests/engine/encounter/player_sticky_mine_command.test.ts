@@ -338,6 +338,44 @@ describe('Player sticky-mine command', () => {
         });
     });
 
+    it('preserves salvo launch ages when one large step launches the whole salvo', () => {
+        const {
+            engine,
+            dispenser,
+        } = createStickyMineTestSetup();
+
+        executeStickyMineCommand(
+            engine,
+        );
+
+        engine.step(2500);
+
+        expect(
+            engine.getOutgoingStickyMines()
+                .map((mine) => {
+                    return mine
+                        .timeToDetonationMs;
+                }),
+        ).toEqual([
+            5000,
+            6000,
+            7000,
+        ]);
+
+        expect(dispenser.ammoCount).toBe(3);
+        expect(
+            dispenser.dispensedMineCount,
+        ).toBe(3);
+
+        expect(dispenser.phase).toBe(
+            SHIP_WEAPON_PHASE.COOLDOWN,
+        );
+
+        expect(
+            engine.getOfficerTasks(),
+        ).toEqual([]);
+    });
+
     it('launches a partial final salvo when fewer mines remain than salvo size', () => {
         const {
             engine,
