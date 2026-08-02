@@ -576,6 +576,11 @@ export default class EncounterEngine {
             );
         }
 
+        this.combatRunner
+            .removePlayerCombatObjectsTargetingActor(
+                actor.id,
+            );
+
         this.stateStore.removeActor(
             actor.id,
         );

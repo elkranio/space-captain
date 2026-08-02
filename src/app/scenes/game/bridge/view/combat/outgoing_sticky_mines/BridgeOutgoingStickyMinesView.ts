@@ -6,7 +6,6 @@ import {
 import type BridgeScene from '../../../BridgeScene';
 import {
     BRIDGE_EVENT,
-    type BridgeEnemyShipDestructionPayload,
     type BridgeOutgoingStickyMineAddedPayload,
     type BridgeOutgoingStickyMineRemovedPayload,
     type BridgeOutgoingStickyMinesUpdatedPayload,
@@ -82,13 +81,6 @@ export default class BridgeOutgoingStickyMinesView {
             Set<number>
         >();
 
-    // Enemy destruction can clear views before
-    // delayed target-lost events are mapped.
-    // Keep those ids so a later valid removal
-    // does not look like an unknown-mine bug.
-    private readonly clearedByTargetDestruction =
-        new Set<string>();
-
     constructor(
         private readonly scene:
             BridgeScene,
@@ -133,13 +125,6 @@ export default class BridgeOutgoingStickyMinesView {
             this,
         );
 
-        this.eventBus.on(
-            BRIDGE_EVENT
-                .ENEMY_SHIP_DESTRUCTION_STARTED,
-
-            this.handleTargetDestruction,
-            this,
-        );
     }
 
     public destroy(): void {
@@ -167,14 +152,6 @@ export default class BridgeOutgoingStickyMinesView {
             this,
         );
 
-        this.eventBus.off(
-            BRIDGE_EVENT
-                .ENEMY_SHIP_DESTRUCTION_STARTED,
-
-            this.handleTargetDestruction,
-            this,
-        );
-
         for (
             const entry of
             this.mines.values()
@@ -185,9 +162,6 @@ export default class BridgeOutgoingStickyMinesView {
         this.mines.clear();
 
         this.occupiedSlotIndexesByTarget
-            .clear();
-
-        this.clearedByTargetDestruction
             .clear();
 
         this.root.destroy(false);
@@ -319,15 +293,6 @@ export default class BridgeOutgoingStickyMinesView {
             );
 
         if (!entry) {
-            if (
-                this.clearedByTargetDestruction
-                    .delete(
-                        payload.mineId,
-                    )
-            ) {
-                return;
-            }
-
             throw new Error(
                 'Outgoing sticky mine not found: ' +
                     payload.mineId,
@@ -347,33 +312,6 @@ export default class BridgeOutgoingStickyMinesView {
             payload.mineId,
             entry,
         );
-    }
-
-    private handleTargetDestruction(
-        payload:
-            BridgeEnemyShipDestructionPayload,
-    ): void {
-        for (
-            const [
-                mineId,
-                entry,
-            ] of this.mines
-        ) {
-            if (
-                entry.targetActorId !==
-                payload.actorId
-            ) {
-                continue;
-            }
-
-            this.clearedByTargetDestruction
-                .add(mineId);
-
-            this.destroyEntry(
-                mineId,
-                entry,
-            );
-        }
     }
 
     private destroyEntry(

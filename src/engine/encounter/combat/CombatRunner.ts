@@ -360,6 +360,18 @@ export default class CombatRunner {
         return true;
     }
 
+    public removePlayerCombatObjectsTargetingActor(
+        actorId: string,
+    ): void {
+        this.removePlayerMissilesTargetingActor(
+            actorId,
+        );
+
+        this.removeStickyMinesTargetingActor(
+            actorId,
+        );
+    }
+
     // #region Weapon lifecycle
 
     private advanceWeapons(deltaMs: number): void {
@@ -1414,10 +1426,6 @@ export default class CombatRunner {
             return;
         }
 
-        this.removeStickyMinesTargetingActor(
-            target.id,
-        );
-
         this.destroyEnemyActor(
             target.id,
         );
@@ -1490,6 +1498,9 @@ export default class CombatRunner {
                     .stickyMines[index];
 
             if (
+                mine.source.kind !==
+                    COMBAT_SOURCE_KIND
+                        .PLAYER_SHIP ||
                 mine.target.kind !==
                     COMBAT_TARGET_KIND.ACTOR ||
                 mine.target.actorId !==
@@ -1627,28 +1638,10 @@ export default class CombatRunner {
                 ENCOUNTER_TEAM.ENEMY ||
             target.hull <= 0
         ) {
-            // После launch ракета живёт независимо,
-            // но без валидной цели просто исчезает.
-            this.state.combat
-                .projectiles.splice(
-                    index,
-                    1,
-                );
-
-            this.emit({
-                type:
-                    ENCOUNTER_EVENT
-                        .PLAYER_MISSILE_RESOLVED,
-
-                projectile:
-                    this.cloneMissileProjectile(
-                        projectile,
-                    ),
-
-                outcome:
-                    PLAYER_MISSILE_OUTCOME
-                        .TARGET_LOST,
-            });
+            this.resolvePlayerMissileTargetLost(
+                index,
+                projectile,
+            );
 
             return;
         }
@@ -1672,6 +1665,88 @@ export default class CombatRunner {
             projectile,
             target,
         );
+    }
+
+    private resolvePlayerMissileTargetLost(
+        index: number,
+        projectile:
+            MissileCombatProjectileState,
+    ): void {
+        if (
+            projectile.source.kind !==
+                COMBAT_SOURCE_KIND
+                    .PLAYER_SHIP ||
+            projectile.target.kind !==
+                COMBAT_TARGET_KIND.ACTOR
+        ) {
+            throw new Error(
+                'Cannot resolve player missile target loss for route: ' +
+                    projectile.id +
+                    '/' +
+                    projectile.source.kind +
+                    '/' +
+                    projectile.target.kind,
+            );
+        }
+
+        const projectileSnapshot =
+            this.cloneMissileProjectile(
+                projectile,
+            );
+
+        this.state.combat
+            .projectiles.splice(
+                index,
+                1,
+            );
+
+        this.emit({
+            type:
+                ENCOUNTER_EVENT
+                    .PLAYER_MISSILE_RESOLVED,
+
+            projectile:
+                projectileSnapshot,
+
+            outcome:
+                PLAYER_MISSILE_OUTCOME
+                    .TARGET_LOST,
+        });
+    }
+
+    private removePlayerMissilesTargetingActor(
+        actorId: string,
+    ): void {
+        for (
+            let index =
+                this.state.combat
+                    .projectiles.length - 1;
+
+            index >= 0;
+
+            index -= 1
+        ) {
+            const projectile =
+                this.state.combat
+                    .projectiles[index];
+
+            if (
+                projectile.source.kind !==
+                    COMBAT_SOURCE_KIND
+                        .PLAYER_SHIP ||
+                projectile.target.kind !==
+                    COMBAT_TARGET_KIND.ACTOR ||
+                projectile.target.actorId !==
+                    actorId
+            ) {
+                continue;
+            }
+
+            this.resolvePlayerMissileTargetLost(
+                index,
+                projectile,
+            );
+        }
     }
 
     private resolveMissileImpactOnPlayerShip(
