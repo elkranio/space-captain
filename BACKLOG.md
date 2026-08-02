@@ -17,40 +17,51 @@ Last updated: 2026-08-02
 Current selected slice:
 
 ```text
-STICKY MINES — NEXT PASS
+ENEMY BEHAVIORS — POLICY PASS
 ```
 
-No temporary handoff file exists yet.
+No temporary handoff file exists.
 
-Current sticky-mine behavior is already implemented, so the next chat must begin with an implementation inventory rather than assuming a fresh slice.
+The first activity is design and implementation inventory, not code.
 
-Before code, decide explicitly whether the selected atom is:
+Inspect:
 
-- a mechanic correction;
-- balancing;
-- presentation polish;
-- cleanup/refactor;
-- or a new player-facing mine mechanic.
+- behavior presets;
+- `EnemyDecisionPolicy`;
+- `EnemyTaskScheduler`;
+- role occupancy;
+- weapon cooldown and operator-control boundaries;
+- existing enemy offense/spam tests.
 
-Do not infer “player mines” merely from the word “mines”.
+Lock before implementation:
+
+- the behavior grammar;
+- the first visible difference between behavior presets;
+- offense-versus-defense priority;
+- the role that owns each defensive response;
+- the outcome when that role is busy;
+- the player-facing telegraph and result.
+
+Do not refactor the scheduler merely because it is old or deterministic.
+
+Do not implement the command UI redesign in the same atom.
 
 ---
 
 # 2. Near-term combat follow-ups
 
-## Enemy defense behavior pass
+## Enemy behavior policy pass — active
 
-Player missile V0 is complete. Enemy countermeasures remain a separate future behavior pass.
+Player laser, missile and sticky-mine offense V0 are complete.
 
-The later behavior pass should decide how enemy policy uses available defensive roles and systems.
+The active pass must decide how behavior presets choose work while crew roles remain constrained operators.
 
-Candidate responses:
+Candidate first vertical slices:
 
-- enemy point defense against player missiles;
-- enemy Engineer choosing a shield sector during player laser telegraph;
-- enemy role conflicts between offense and defense;
-- policy differences between cautious/aggressive ships;
-- deliberate failure when the required role is occupied.
+- enemy point defense against a player missile;
+- enemy Engineer choosing a directional shield response to a player laser;
+- a clear aggressive-versus-cautious priority difference using existing offense;
+- deliberate failure or delay when the required defensive role is occupied.
 
 The important rule is:
 
@@ -59,7 +70,13 @@ enemy captain = policy
 enemy crew roles = constrained operators
 ```
 
-Avoid special-case scripted reactions disconnected from the shared combat grammar.
+Implementation constraints:
+
+- keep policy separate from weapon execution;
+- keep role occupancy visible and consequential;
+- do not hardcode a reaction inside player weapon code;
+- do not build a generic utility-AI framework;
+- preserve one command-capable enemy ship as the default combat read.
 
 ---
 
@@ -113,7 +130,40 @@ Possible improvement:
 - reticle lock;
 - low-intensity pre-charge effect.
 
-Keep this separate from the next mine slice.
+Keep this separate from the active enemy behavior pass.
+
+---
+
+## Player sticky-mine presentation and balance polish
+
+Player sticky-mine offense V0 is complete.
+
+Deferred presentation work:
+
+- tune outgoing mine placement around the enemy sprite;
+- optional launch flash at the player dispenser source;
+- clearer detonation/hull-impact flash;
+- target-lost disappearance effect;
+- final captain-desk ammo/phase display for the dispenser.
+
+Deferred balance work:
+
+- enemy hull used for broader combat acceptance;
+- salvo size / interval / fuse / cooldown tuning only after enemy behaviors can respond;
+- resupply contract for finite mine ammunition.
+
+Locked current baseline:
+
+```text
+capacity 6
+salvo 3
+interval 1000 ms
+cooldown 15000 ms
+fuse 7500 ms
+damage 1
+```
+
+Do not reopen the completed mine lifecycle while doing presentation or balance.
 
 ---
 
@@ -373,13 +423,13 @@ Avoid passive percentage buffs with no visible choice.
 
 ---
 
-## Additional offensive weapon
+## Further offensive weapon beyond laser / missile / sticky mines
 
-After laser and missile are complete, a third player weapon should not be another reskinned cooldown attack.
+Sticky mines now provide the third distinct player offense.
 
-It should create a different officer/resource decision.
+Any later fourth weapon must create a new officer/resource decision rather than another reskinned cooldown attack.
 
-Candidates require design first.
+This is not near-term work.
 
 ---
 
@@ -583,6 +633,48 @@ Long-term goals:
 
 # 9. Command UI
 
+## Combat command palette redesign
+
+This work follows the enemy behavior pass.
+
+Agreed direction:
+
+- officer station = where to look;
+- command palette = what can be done;
+- bottom subtitle strip = explanation;
+- viewscreen/captain desk = threats and general ship state.
+
+Station layer:
+
+- show the current task/progress;
+- show small persistent actionable lights;
+- Weapons should distinguish offense availability from point-defense availability;
+- threat-blocked and generally unavailable states must read differently.
+
+Command palette:
+
+- fixed icon positions, preferably one horizontal row;
+- unavailable commands remain visible but disabled;
+- commands never disappear or reorder merely because state changed;
+- direct commands use one click;
+- a second compact screen appears only for a real choice such as laser sector or point-defense band;
+- multiple physical launchers remain separate icons with their own ammo/cooldown;
+- hover/focus writes a short explanation into the dedicated bottom strip;
+- two decisions are acceptable; menu hunting is not.
+
+Timing to test after the UI and behavior grammar exist:
+
+```text
+missile / laser response windows: approximately 18–20 s
+enemy role decision delay: approximately 3–4 s
+```
+
+Do not add tactical pause or slow motion before testing the clearer UI and gentler timings.
+
+Do not incrementally decorate the current text menu. Design the complete interaction flow first.
+
+---
+
 ## Keyboard officer shortcuts
 
 Planned mapping:
@@ -698,17 +790,22 @@ Avoid a generalized distance-scaling system unless it improves gameplay readabil
 
 ## Full player ship fixtures
 
-Adding the second installed weapon caused several full-snapshot tests to change.
+A focused helper now exists:
 
-Potential focused helpers:
+```text
+tests/engine/encounter/combat_test_support.ts
+```
 
-- explicit starter player ship fixture;
-- explicit starter weapon loadout fixture;
-- small override functions.
+It owns only:
 
-A helper is justified only if it reduces churn while keeping expected state visible.
+- anchored starter combat setup;
+- loaded encounter state;
+- current enemy actor;
+- typed installed player weapon lookup.
 
-Do not build a universal fixture framework.
+Commands, steps and assertions remain local to each test.
+
+Further fixture work is justified only when a new repeated setup appears. Do not generalize this into a universal fixture framework.
 
 ---
 
@@ -774,7 +871,9 @@ Recent failures came from:
 - incomplete usage inventory;
 - inferred factory input;
 - stale one-weapon test assumptions;
-- a guard that checked the wrong literal.
+- a guard that checked the wrong literal;
+- a range replacement that preserved its end marker while the replacement duplicated it;
+- a recovery script that mixed the required repair with unrelated cleanup.
 
 Required discipline:
 
@@ -784,7 +883,9 @@ Required discipline:
 4. stage all transformations;
 5. validate before writing;
 6. use targeted anchors or full-file rewrites;
-7. keep recovery atoms narrow.
+7. document whether a range helper preserves its end marker;
+8. never repeat a preserved marker inside the replacement;
+9. keep recovery atoms narrow and repair only the failed invariant.
 
 This is a process debt, not an architecture feature.
 

@@ -18,7 +18,7 @@ Last updated: 2026-08-02
 Latest verified `master`:
 
 ```text
-5935cbdbcd0d48483acd3e1271484c0b1aff140b
+3a75356b9dff1dcbb04486f9f9400c904ed1de6d
 ```
 
 Current verification state:
@@ -26,10 +26,11 @@ Current verification state:
 ```text
 typecheck green
 tests green
-player missile runtime acceptance passed
-direct hull impact verified while enemy shield remains unchanged
-weapon ammo / phase / cooldown status verified in runtime
-player missile slice closed
+player sticky-mine offense runtime acceptance passed
+outgoing sticky-mine presentation verified in runtime
+combat lifecycle/refactor pass closed
+player laser, missile and sticky-mine hull contracts green
+next selected work: enemy behavior policy pass
 ```
 
 ---
@@ -131,6 +132,8 @@ Apply-script process:
 8. Write only after all validation succeeds.
 9. After revising an apply script, audit the whole script for stale identifiers and stale section markers.
 10. When an apply fails, re-check the complete transform instead of patching only the reported line.
+11. A range helper must document whether it preserves the end marker; never include a preserved marker again in the replacement.
+12. Recovery scripts must repair only the failed invariant. Do not mix unrelated cleanup into a repair atom.
 
 Meaning of common user messages:
 
@@ -242,6 +245,18 @@ Current persistent player state includes:
 - generated persistent anchors.
 
 Current persistent universe state includes enemy ship actors until they are removed or destroyed.
+
+Current combat ownership after the refactor pass:
+
+- `EncounterStateStore.damageEnemyActorHull()` is the single mutation path for enemy hull damage from player laser, missile and sticky mines;
+- `EncounterStateStore.findPlayerWeaponById()` is the shared runtime weapon lookup;
+- player missile launches and sticky-mine attachments are queued only across the runner integration boundary;
+- at the start of a combat step, pre-existing projectile/mine IDs are snapshotted;
+- newly launched player combat objects are flushed before old objects resolve, but do not receive the current step's `deltaMs`;
+- old objects advance by stable ID, so lethal cleanup can safely remove related objects during iteration;
+- destroying an enemy actor resolves remaining player missiles/mines as `TARGET_LOST` before actor removal and `ENEMY_SHIP_DESTROYED`.
+
+Do not replace these narrow ownership rules with a generic combat/effect framework.
 
 ---
 
@@ -367,7 +382,11 @@ Enemy telemetry is shown in a temporary bridge panel.
 
 It exposes enough state to test shields/hull and player offense without adding a floating HP bar over the ship.
 
-Future enemy defensive policy is deferred.
+Enemy behavior policy is the next selected work.
+
+The existing `EnemyDecisionPolicy`, `EnemyTaskScheduler`, behavior presets and role constraints were deliberately left unchanged during the refactor pass.
+
+Before editing them, lock the intended behavior grammar. Do not turn the deterministic prototype into either a generic AI framework or a set of hardcoded reactions.
 
 ---
 
@@ -462,7 +481,7 @@ the first TARGETING phase is represented mainly by the officer task;
 the large visible charge effect begins at CHARGING
 ```
 
-This is deferred, not part of the missile slice.
+This is deferred and is not part of the enemy behavior pass.
 
 ---
 
@@ -508,7 +527,7 @@ Mutable state includes values such as:
 
 - phase;
 - phase elapsed time;
-- missile ammunition.
+- missile and sticky-mine ammunition.
 
 `GameRuntime.setPlayerShipWeaponStates()` verifies that the installed loadout is not silently replaced:
 
@@ -628,82 +647,150 @@ There is no separate domain `EMPTY` phase.
 
 ---
 
-# 14. Current checkpoint
+# 14. Player sticky-mine offense
 
-Latest completed slice:
+Player sticky-mine offense V0 is implemented and runtime-verified.
+
+Current flow:
 
 ```text
-PLAYER MISSILE OFFENSE V0
+dispenser READY + ammo > 0 + live enemy
+→ Weapons chooses FIRE MINES
+→ non-cancellable MINE SALVO task begins
+→ first mine launches on the next encounter step, including step(0)
+→ one mine is spent at each physical launch
+→ mines launch at 1000 ms intervals
+→ Weapons remains busy until the final actual launch
+→ dispenser enters cooldown
+→ each attached mine keeps its own fuse
+→ each detonation deals direct enemy hull damage
+→ cumulative detonations may destroy the target
+```
+
+Starter dispenser contract:
+
+```text
+capacity: 6
+salvo size: 3
+launch interval: 1000 ms
+post-salvo cooldown: 15000 ms
+mine fuse: 7500 ms
+mine damage: 1
+```
+
+A final partial salvo is valid when fewer mines remain than the configured salvo size.
+
+Interruption and target-loss contract:
+
+- before the first mine launches → ammunition unchanged, dispenser returns to `READY`, no cooldown;
+- after at least one mine launches → already attached mines continue, unlaunched ammunition is preserved, dispenser enters `COOLDOWN`, Weapons becomes free;
+- manual player cancellation is never allowed;
+- damage may interrupt the active salvo;
+- attached mines targeting a destroyed actor resolve as `TARGET_LOST` during actor cleanup.
+
+Domain/presentation boundary:
+
+```text
+physical launch
+→ ammo -1
+→ mine immediately attaches in domain state
+→ fuse begins
+→ presentation may show a short visual flight to a stable enemy slot
+```
+
+There is no separate mine flight state in V0.
+
+Incoming player-hull mines and outgoing enemy-hull mines remain separate presentation flows.
+
+---
+
+# 15. Current checkpoint
+
+Latest completed work:
+
+```text
+PLAYER STICKY-MINE OFFENSE V0
++
+COMBAT LIFECYCLE / COGNITIVE-LOAD REFACTOR PASS
 ```
 
 Completed and verified:
 
-- explicit FIRE MISSILE command and cancellable aiming task;
-- ammunition spent only at launch;
-- Weapons released immediately after launch;
-- independent launcher cooldown;
-- encounter-local outgoing projectile;
-- target-loss cleanup;
-- direct enemy hull damage;
-- enemy shield charges remain unchanged;
-- existing enemy destruction integration;
-- dedicated outgoing missile sprite and flight presentation;
-- incoming/outgoing manifest split;
-- player laser and missile ammunition/phase/countdown status;
-- runtime verification of the complete player missile flow;
+- player sticky-mine content, dispenser preset/factory validation and starter loadout;
+- FIRE MINES command and non-cancellable Weapons salvo task;
+- per-launch ammunition spend, partial final salvos and post-launch cooldown rules;
+- independent attached mine fuses and cumulative direct hull damage;
+- target-loss and damage-interruption contracts;
+- dedicated outgoing sticky-mine events, snapshots and Phaser views;
+- stable enemy-space mine slots and encounter-local cleanup;
+- immediate actor-dependent player projectile/mine cleanup;
+- safe same-step ordering when a new launch and an old lethal object share a step;
+- stable-ID advancement after lethal cleanup;
+- centralized enemy hull mutation;
+- centralized player weapon lookup;
+- shared current enemy ship command query;
+- shared anchored combat test support;
+- typed player-weapon target task guard;
 - typecheck green;
 - tests green.
 
 Latest verified commit:
 
 ```text
-5935cbdbcd0d48483acd3e1271484c0b1aff140b
+3a75356b9dff1dcbb04486f9f9400c904ed1de6d
 ```
 
-Deferred player missile polish lives in `BACKLOG.md`.
+The refactor pass is closed.
 
-The temporary player-missile handoff is closed and removed by this documentation update.
+Do not continue opportunistic cleanup before enemy behavior work. Remaining presentation, balance and UI items live in `BACKLOG.md`.
 
 ---
 
-# 15. Next selected slice
+# 16. Next selected slice
 
 Next selected work:
 
 ```text
-STICKY MINES — NEXT PASS
+ENEMY BEHAVIORS — POLICY PASS
 ```
 
-Important starting fact:
+Important starting facts:
 
-```text
-enemy sticky mines already exist
-```
-
-Current implementation already includes:
-
-- sequential mine dispensing;
-- mines attached to the player hull;
-- fuse countdown and detonation;
-- automatic selection of the mine nearest detonation;
-- clearing by allowed officers;
-- a visible clearing marker;
-- encounter-local mine lifecycle.
-
-Do not reimplement the existing mine slice from memory.
+- enemy offense already runs through behavior presets, `EnemyDecisionPolicy` and `EnemyTaskScheduler`;
+- WEAPONS currently uses deterministic missile → laser → sticky-mine rotation;
+- SCIENCE can run spam independently when the role exists;
+- the current development enemy intentionally omits SCIENCE;
+- role occupancy and weapon cooldowns already constrain enemy actions;
+- the refactor pass deliberately did not alter enemy scheduling or policy.
 
 At the start of the next chat:
 
 1. Read fresh `PROJECT_CONTEXT.md` and `BACKLOG.md`.
-2. Inspect current sticky-mine engine, commands, tests and views.
-3. State clearly what already works.
-4. Lock the exact next mine atom before code.
+2. Inspect behavior presets, `EnemyDecisionPolicy`, `EnemyTaskScheduler`, enemy weapon runners and existing tests.
+3. Describe the current decision flow before proposing changes.
+4. Lock the behavior grammar on paper.
+5. Select one vertical behavior slice before code.
 
-The phrase “do mines” alone must not be expanded into an assumed player mine weapon, rebalance or visual rewrite without discussion.
+Likely questions for the design pass:
+
+- what makes two enemy behavior presets play differently;
+- how policy prioritizes offense versus defense;
+- which enemy role operates point defense and directional shields;
+- whether a busy role causes delayed defense, deliberate failure or a fallback;
+- what information the player sees before and after an enemy decision.
+
+Locked direction:
+
+```text
+enemy captain = policy
+enemy crew roles = constrained operators
+```
+
+Do not implement the command UI redesign during this slice. It follows enemy behavior work.
 
 ---
 
-# 16. End-of-chat update procedure
+# 17. End-of-chat update procedure
 
 Before moving to a new chat:
 
