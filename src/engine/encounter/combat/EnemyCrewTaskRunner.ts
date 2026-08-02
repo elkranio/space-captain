@@ -4,8 +4,7 @@ import type {
     OfficerRole,
 } from '../../defs/officer';
 import {
-    SHIP_WEAPON_PHASE,
-    type ShipWeaponState,
+    doesShipWeaponPhaseRequireOperator,
 } from '../../defs/ship_weapon';
 import type {
     ShipEncounterActorState,
@@ -278,8 +277,8 @@ export default class EnemyCrewTaskRunner {
         }
 
         if (
-            this.isWeaponActive(
-                weapon,
+            doesShipWeaponPhaseRequireOperator(
+                weapon.phase,
             )
         ) {
             return;
@@ -394,18 +393,4 @@ export default class EnemyCrewTaskRunner {
         }
     }
 
-    private isWeaponActive(
-        weapon: ShipWeaponState,
-    ): boolean {
-        return (
-            weapon.phase ===
-                SHIP_WEAPON_PHASE.TARGETING ||
-            weapon.phase ===
-                SHIP_WEAPON_PHASE.CHARGING ||
-            weapon.phase ===
-                SHIP_WEAPON_PHASE.CHANNELING ||
-            weapon.phase ===
-                SHIP_WEAPON_PHASE.DISPENSING
-        );
-    }
 }

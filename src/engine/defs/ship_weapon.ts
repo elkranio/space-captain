@@ -34,6 +34,33 @@ export const SHIP_WEAPON_PHASE = {
 
 export type ShipWeaponPhase = (typeof SHIP_WEAPON_PHASE)[keyof typeof SHIP_WEAPON_PHASE];
 
+// Единый domain query для занятости оператора оружия.
+//
+// Cooldown и ready не требуют участия crew/officer.
+// Любой новый phase должен быть явно классифицирован здесь.
+export function doesShipWeaponPhaseRequireOperator(
+    phase: ShipWeaponPhase,
+): boolean {
+    switch (phase) {
+        case SHIP_WEAPON_PHASE.TARGETING:
+        case SHIP_WEAPON_PHASE.CHARGING:
+        case SHIP_WEAPON_PHASE.CHANNELING:
+        case SHIP_WEAPON_PHASE.DISPENSING:
+            return true;
+
+        case SHIP_WEAPON_PHASE.READY:
+        case SHIP_WEAPON_PHASE.COOLDOWN:
+            return false;
+
+        default: {
+            const exhaustivePhase: never =
+                phase;
+
+            return exhaustivePhase;
+        }
+    }
+}
+
 // Неизменяемое описание модели оружия.
 // Конкретное установленное оружие хранит только weaponId
 // и собственное mutable runtime state.
