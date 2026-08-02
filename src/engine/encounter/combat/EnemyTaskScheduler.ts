@@ -12,7 +12,6 @@ import {
 } from '../../defs/player_location';
 import {
     SHIP_WEAPON_PHASE,
-    type ShipWeaponState,
 } from '../../defs/ship_weapon';
 import type {
     ShipEncounterActorState,
@@ -27,6 +26,7 @@ import {
 import type {
     EncounterState,
 } from '../model/state';
+import EnemyCrewTaskRunner from './EnemyCrewTaskRunner';
 import EnemyDecisionPolicy from './EnemyDecisionPolicy';
 
 type EnemyTaskSchedulerOptions = {
@@ -43,14 +43,16 @@ const WEAPON_TASK_ROLES = [
 // Назначает выбранные policy задачи
 // на ограниченные роли вражеского экипажа.
 //
-// Lifecycle самого оружия остаётся в CombatRunner.
 // Scheduler только:
-// - проверяет, что роль физически есть;
-// - занимает роль;
-// - запускает targeting;
-// - освобождает роль,
-//   когда оружие закончило активную работу;
-// - сообщает policy о завершении offensive task.
+// - выбирает доступную работу через policy;
+// - просит task runner занять роль;
+// - запускает физический targeting оружия;
+// - эмитит видимый telegraph.
+//
+// Lifecycle crew tasks живёт
+// в EnemyCrewTaskRunner.
+// Lifecycle самого оружия остаётся
+// в CombatRunner.
 export default class EnemyTaskScheduler {
     private readonly state: EncounterState;
 
@@ -60,16 +62,35 @@ export default class EnemyTaskScheduler {
     private readonly decisionPolicy =
         new EnemyDecisionPolicy();
 
+    private readonly crewTaskRunner:
+        EnemyCrewTaskRunner;
+
     constructor({
         state,
         emit,
     }: EnemyTaskSchedulerOptions) {
         this.state = state;
         this.emit = emit;
+
+        this.crewTaskRunner =
+            new EnemyCrewTaskRunner({
+                state: this.state,
+
+                onOffensiveTaskCompleted:
+                    (actor, role) => {
+                        this.decisionPolicy
+                            .onOffensiveTaskCompleted(
+                                actor,
+                                role,
+                            );
+                    },
+            });
     }
 
     public schedule(deltaMs: number): void {
-        this.synchronizeTasks();
+        this.crewTaskRunner
+            .synchronize();
+
         this.advanceDecisions(deltaMs);
 
         const navigation =
@@ -123,67 +144,8 @@ export default class EnemyTaskScheduler {
     }
 
     public synchronizeTasks(): void {
-        for (const actor of this.state.actors) {
-            if (actor.hull <= 0) {
-                for (
-                    const role of
-                        WEAPON_TASK_ROLES
-                ) {
-                    delete actor
-                        .crewTasks[role];
-                }
-
-                continue;
-            }
-
-            for (
-                const role of WEAPON_TASK_ROLES
-            ) {
-                const task =
-                    actor.crewTasks[role];
-
-                if (!task) {
-                    continue;
-                }
-
-                if (
-                    !this.hasCrewRole(
-                        actor,
-                        role,
-                    )
-                ) {
-                    delete actor.crewTasks[role];
-                    continue;
-                }
-
-                const weapon =
-                    actor.weapons.find(
-                        (candidate) => {
-                            return (
-                                candidate.id ===
-                                task.weaponId
-                            );
-                        },
-                    );
-
-                if (
-                    weapon &&
-                    this.isWeaponActive(weapon)
-                ) {
-                    continue;
-                }
-
-                delete actor.crewTasks[role];
-
-                if (weapon) {
-                    this.decisionPolicy
-                        .onOffensiveTaskCompleted(
-                            actor,
-                            role,
-                        );
-                }
-            }
-        }
+        this.crewTaskRunner
+            .synchronize();
     }
 
     private advanceDecisions(
@@ -212,7 +174,13 @@ export default class EnemyTaskScheduler {
         actor: ShipEncounterActorState,
         role: OfficerRole,
     ): void {
-        if (actor.crewTasks[role]) {
+        if (
+            this.crewTaskRunner
+                .isRoleBusy(
+                    actor,
+                    role,
+                )
+        ) {
             return;
         }
 
@@ -226,15 +194,18 @@ export default class EnemyTaskScheduler {
             return;
         }
 
-        actor.crewTasks[role] = {
-            kind:
-                SHIP_CREW_TASK_KIND
-                    .OPERATE_WEAPON,
+        this.crewTaskRunner.start(
+            actor,
+            {
+                kind:
+                    SHIP_CREW_TASK_KIND
+                        .OPERATE_WEAPON,
 
-            role,
+                role,
 
-            weaponId: weapon.id,
-        };
+                weaponId: weapon.id,
+            },
+        );
 
         weapon.phase =
             SHIP_WEAPON_PHASE.TARGETING;
@@ -255,20 +226,5 @@ export default class EnemyTaskScheduler {
         role: OfficerRole,
     ): boolean {
         return actor.crewRoles.includes(role);
-    }
-
-    private isWeaponActive(
-        weapon: ShipWeaponState,
-    ): boolean {
-        return (
-            weapon.phase ===
-                SHIP_WEAPON_PHASE.TARGETING ||
-            weapon.phase ===
-                SHIP_WEAPON_PHASE.CHARGING ||
-            weapon.phase ===
-                SHIP_WEAPON_PHASE.CHANNELING ||
-            weapon.phase ===
-                SHIP_WEAPON_PHASE.DISPENSING
-        );
     }
 }

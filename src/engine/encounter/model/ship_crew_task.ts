@@ -11,15 +11,18 @@ export const SHIP_CREW_TASK_KIND = {
 export type ShipCrewTaskKind =
     (typeof SHIP_CREW_TASK_KIND)[keyof typeof SHIP_CREW_TASK_KIND];
 
-export type OperateWeaponShipCrewTaskState = {
-    kind:
-        typeof SHIP_CREW_TASK_KIND
-            .OPERATE_WEAPON;
-
+export type ShipCrewTaskBaseState = {
     role: OfficerRole;
-
-    weaponId: string;
 };
+
+export type OperateWeaponShipCrewTaskState =
+    ShipCrewTaskBaseState & {
+        kind:
+            typeof SHIP_CREW_TASK_KIND
+                .OPERATE_WEAPON;
+
+        weaponId: string;
+    };
 
 export type ShipCrewTaskState =
     OperateWeaponShipCrewTaskState;
