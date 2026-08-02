@@ -19,7 +19,7 @@ It does not contain gameplay balance or implementation backlog.
 Last mapped commit:
 
 ```text
-dfeb316fcab3aee6b35c3c5584e4c58fa668b316
+29003f681c1c8ba0498cdb4d3edb5ed9f9a1eac5
 ```
 
 ---
@@ -60,10 +60,10 @@ Hard rules:
 | Point-defense charges | `EncounterState.combat.pointDefense` | command/task execution | yes, synchronized to `GameRuntime` | player ship status |
 | Shield-generator state | `EncounterState.combat.shieldGenerator` | shield-generator runner/store | yes, synchronized to `GameRuntime` | player ship status |
 | Player weapon state | `EncounterState.combat.playerWeapons` | `PlayerWeaponRunner` / store | yes, synchronized to `GameRuntime` | player weapon status |
-| Player hull | currently `GameRuntime` | currently bridge engine-event handler | yes | player ship status |
-| Enemy encounter actor | `EncounterState.actors` | encounter/combat systems | design-dependent | encounter object + telemetry |
-| Enemy hull | ship encounter actor | `EncounterStateStore.damageEnemyActorHull()` | unresolved for surviving enemies | enemy telemetry |
-| Enemy weapon state | ship encounter actor | `CombatRunner` | unresolved for surviving enemies | enemy telemetry |
+| Player hull | `EncounterState.playerHull` | `EncounterStateStore.damagePlayerHull()` | yes, exact result synchronized to `GameRuntime` | player ship status |
+| Enemy encounter actor | `EncounterState.actors` | encounter/combat systems | identity/baseline only | encounter object + telemetry |
+| Enemy hull | ship encounter actor | `EncounterStateStore.damageEnemyActorHull()` | resets from node actor on reconstruction | enemy telemetry |
+| Enemy weapon state | ship encounter actor | `CombatRunner` | resets from node actor on reconstruction | enemy telemetry |
 | Player/incoming projectiles | `EncounterState.combat.projectiles` | `CombatRunner` | no | missile views |
 | Sticky mines | `EncounterState.combat.stickyMines` | `CombatRunner` | no | sticky-mine views |
 | Active laser attacks | `EncounterState.combat.laserAttacks` | `CombatRunner` | no | laser threat/VFX views |
@@ -74,8 +74,12 @@ Hard rules:
 | Enemy Science report | `observation.report` | `EnemyScienceIntelResolver` through task completion | no | enemy policy input |
 | Enemy policy memory | `actor.decision` | `EnemyDecisionPolicy` | no | none |
 
-The player-hull and surviving-enemy persistence rows are active architectural
-questions. Do not silently invent a second synchronization route.
+Player hull is authoritative inside the encounter and is persisted from the
+applied engine result.
+
+Surviving enemy combat state intentionally resets from its persistent node
+actor when the encounter is reconstructed. Do not add partial enemy-state
+writeback without changing the locked gameplay contract.
 
 ---
 
@@ -203,6 +207,7 @@ Current decision ownership:
   delays;
 - `EnemyTaskScheduler` validates and starts the selected intent;
 - scheduler does not search observations or select weapons independently.
+
 
 ```text
 EnemyDecisionPolicy selects EnemyWorkIntent

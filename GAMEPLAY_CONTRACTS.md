@@ -11,7 +11,7 @@ Architecture and ownership belong in `SYSTEM_MAP.md`.
 Last reviewed against:
 
 ```text
-dfeb316fcab3aee6b35c3c5584e4c58fa668b316
+29003f681c1c8ba0498cdb4d3edb5ed9f9a1eac5
 ```
 
 Contract labels:
@@ -89,31 +89,37 @@ Enemy ship identity persists in its node until destroyed.
 
 ---
 
-# 3. Surviving enemy persistence — UNRESOLVED
+# 3. Surviving enemy persistence — LOCKED RESET
 
-Before further encounter reconstruction work, choose one contract.
+A surviving enemy resets when its encounter is reconstructed.
 
-## Option A — persistent damage and resources
+```text
+leave encounter and return
+→ hydrate enemy again from persistent node actor
+→ restore encounter hull, ammunition and system state
+```
 
-A surviving enemy keeps:
+The persistent node actor keeps identity and baseline loadout, but non-lethal
+encounter damage and resource spending are not written back.
+
+Reset includes:
 
 - hull;
-- ammunition;
-- drive/system state;
-- shield-generator state;
-- other persistent equipment state.
+- weapon ammunition and phases;
+- drive and shield-generator encounter state;
+- crew tasks;
+- threat observations and Science reports;
+- captain-policy runtime memory;
+- opening-action usage;
+- temporary combat objects.
 
-Temporary combat objects and current crew tasks still disappear.
+A destroyed enemy is removed from the persistent node and does not return.
 
-## Option B — encounter reset
+Player hull, ammunition, charges and navigation remain persistent.
 
-A surviving enemy reconstructs from its persistent preset/state and may restore
-some or all combat resources.
-
-If this option is chosen, restoration must be explicit gameplay rather than an
-accidental consequence of unsynchronized state.
-
-No code should silently assume either option.
+This rule intentionally prevents hit-and-run repair loops against durable
+targets. A future retreat/repair mechanic must be explicit gameplay and must
+not arise from accidental partial synchronization.
 
 ---
 
