@@ -1,14 +1,8 @@
 // src/engine/encounter/commands/handlers/weapons_fire_sticky_mines_command_handler.ts
 
 import {
-    ENCOUNTER_TEAM,
-} from '../../../defs/encounter_team';
-import {
     OFFICER_ROLE,
 } from '../../../defs/officer';
-import {
-    PLAYER_SPACE_NAVIGATION_KIND,
-} from '../../../defs/player_location';
 import {
     SHIP_WEAPON_KIND,
     SHIP_WEAPON_PHASE,
@@ -26,6 +20,9 @@ import type {
 import type {
     EncounterState,
 } from '../../model/state';
+import {
+    findCurrentEnemyShip,
+} from '../queries/find_current_enemy_ship';
 import {
     createWeaponsFireStickyMinesTask,
 } from '../../officer_tasks/create_officer_task_draft';
@@ -133,30 +130,6 @@ export const weaponsFireStickyMinesCommandHandler:
             );
         },
     };
-
-function findCurrentEnemyShip(
-    state: EncounterState,
-) {
-    const navigation = state.navigation;
-
-    if (
-        navigation.kind !==
-        PLAYER_SPACE_NAVIGATION_KIND
-            .ANCHORED
-    ) {
-        return undefined;
-    }
-
-    return state.actors.find((actor) => {
-        return (
-            actor.team ===
-                ENCOUNTER_TEAM.ENEMY &&
-            actor.hull > 0 &&
-            actor.anchorId ===
-                navigation.anchorId
-        );
-    });
-}
 
 function findReadyStickyMineDispenser(
     state: EncounterState,
