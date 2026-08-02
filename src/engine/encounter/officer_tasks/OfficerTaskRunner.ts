@@ -31,6 +31,20 @@ type OfficerTaskRunnerOptions = {
     completeTimedTasksImmediately?: boolean;
 };
 
+type PlayerWeaponTargetTaskState =
+    Extract<
+        OfficerTaskState,
+        {
+            kind:
+                | typeof OFFICER_TASK_KIND
+                      .WEAPONS_FIRE_MISSILE
+                | typeof OFFICER_TASK_KIND
+                      .WEAPONS_FIRE_STICKY_MINES
+                | typeof OFFICER_TASK_KIND
+                      .WEAPONS_FIRE_LASER;
+        }
+    >;
+
 // Управляет lifecycle officer tasks:
 //
 // - создаёт runtime task;
@@ -248,15 +262,9 @@ export default class OfficerTaskRunner {
                 }
 
                 if (
-                    task.kind ===
-                        OFFICER_TASK_KIND
-                            .WEAPONS_FIRE_MISSILE ||
-                    task.kind ===
-                        OFFICER_TASK_KIND
-                            .WEAPONS_FIRE_STICKY_MINES ||
-                    task.kind ===
-                        OFFICER_TASK_KIND
-                            .WEAPONS_FIRE_LASER
+                    isPlayerWeaponTargetTask(
+                        task,
+                    )
                 ) {
                     const targetActor =
                         state.actors.find(
@@ -269,15 +277,9 @@ export default class OfficerTaskRunner {
                         );
 
                     const weapon =
-                        state.combat
-                            .playerWeapons
-                            .find(
-                                (candidate) => {
-                                    return (
-                                        candidate.id ===
-                                        task.weaponId
-                                    );
-                                },
+                        this.stateStore
+                            .findPlayerWeaponById(
+                                task.weaponId,
                             );
 
                     return (
@@ -375,4 +377,23 @@ export default class OfficerTaskRunner {
     }
 
     // #endregion
+}
+
+function isPlayerWeaponTargetTask(
+    task: OfficerTaskState,
+): task is PlayerWeaponTargetTaskState {
+    switch (task.kind) {
+        case OFFICER_TASK_KIND
+            .WEAPONS_FIRE_MISSILE:
+
+        case OFFICER_TASK_KIND
+            .WEAPONS_FIRE_STICKY_MINES:
+
+        case OFFICER_TASK_KIND
+            .WEAPONS_FIRE_LASER:
+            return true;
+
+        default:
+            return false;
+    }
 }
