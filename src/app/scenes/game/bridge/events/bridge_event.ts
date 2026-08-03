@@ -74,6 +74,10 @@ export const BRIDGE_EVENT = {
     // актуальные состояния station lights.
     OFFICER_STATION_INDICATORS_UPDATED: 'officer_station_indicators_updated',
 
+    // Полный snapshot контекстных combat hints
+    // на свободных officer station monitors.
+    OFFICER_COMBAT_HINTS_UPDATED: 'officer_combat_hints_updated',
+
     // Офицер начал runtime task.
     // Crew view показывает activity label.
     OFFICER_ACTIVITY_STARTED: 'officer_activity_started',
@@ -358,6 +362,10 @@ export type BridgeOfficerStationIndicatorState = 'off' | 'ready' | 'busy' | 'blo
 
 // Snapshot ламп всех officer stations.
 export type BridgeOfficerStationIndicatorsUpdatedPayload = Record<OfficerRole, BridgeOfficerStationIndicatorState>;
+
+// Максимум две уже приоритизированные строки на роль.
+// Пустой массив явно очищает monitor hints.
+export type BridgeOfficerCombatHintsUpdatedPayload = Record<OfficerRole, string[]>;
 
 // Офицер начал activity/task.
 export type BridgeOfficerActivityStartedPayload = {
@@ -768,6 +776,8 @@ export type BridgeEventPayloadMap = {
     [BRIDGE_EVENT.OFFICER_BARK_REQUESTED]: BridgeOfficerBarkRequestedPayload;
 
     [BRIDGE_EVENT.OFFICER_STATION_INDICATORS_UPDATED]: BridgeOfficerStationIndicatorsUpdatedPayload;
+
+    [BRIDGE_EVENT.OFFICER_COMBAT_HINTS_UPDATED]: BridgeOfficerCombatHintsUpdatedPayload;
 
     [BRIDGE_EVENT.OFFICER_ACTIVITY_STARTED]: BridgeOfficerActivityStartedPayload;
 

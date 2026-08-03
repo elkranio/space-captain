@@ -16,7 +16,7 @@ BRIDGE_V01_HANDOFF.md          completed migration reference only
 COMMAND_PALETTE_ART_PLAN.md   only when palette work resumes
 ```
 
-The selected next slice is documented in `BACKLOG.md` under combat action hints.
+The current acceptance slice is documented in `BACKLOG.md` under combat action hints.
 
 Last updated:
 
@@ -27,7 +27,7 @@ Last updated:
 Latest verified `master`:
 
 ```text
-e59f7e70097ec3224e79bbe0505a8d0a2b431407
+7bd81645c6087b0c22ed1abdba3e2ae00c5a5cc6
 ```
 
 Last code-bearing commit reported green by the user:
@@ -53,7 +53,8 @@ task labels, optional progress, work pulses and availability lights complete
 role abbreviations on officer backs complete
 old five-seat presentation removed
 obsolete old station frame/status assets removed
-next selected work is combat action hints on idle station monitors
+combat action hints implemented on idle station monitors
+combat action hints await runtime visual acceptance
 command-menu redesign remains deferred
 enemy behavior implementation is paused, not discarded
 ```
@@ -515,7 +516,7 @@ The palette itself is not implemented.
 
 The old text context menu and polling flow still exist.
 
-Current plan remains deferred while combat action hints are implemented.
+Current plan remains deferred until combat action hints pass runtime acceptance.
 
 Important current decisions:
 
@@ -551,7 +552,7 @@ A. bridge V0.1 migration — complete
    - runtime navigation/combat acceptance
    - obsolete station asset cleanup
 
-B. combat action hints — selected next
+B. combat action hints — implementation complete, runtime acceptance pending
    - only during active combat
    - only for a free officer
    - only commands available right now
@@ -559,7 +560,7 @@ B. combat action hints — selected next
    - task presentation replaces hints while busy
    - no command-menu or selected-state changes
 
-C. choose the following behavior slice explicitly
+C. after acceptance, choose the following behavior slice explicitly
    - enemy point defense against player missiles
    - or enemy Engineer directional shield response
 

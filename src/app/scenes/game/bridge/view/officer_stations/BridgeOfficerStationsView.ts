@@ -6,6 +6,7 @@ import {
     type BridgeOfficerActivityClearedPayload,
     type BridgeOfficerActivityProgressUpdatedPayload,
     type BridgeOfficerActivityStartedPayload,
+    type BridgeOfficerCombatHintsUpdatedPayload,
     type BridgeOfficerStationIndicatorsUpdatedPayload,
 } from '../../events/bridge_event';
 import { BRIDGE_OFFICER_STATION_LAYOUT } from './bridge_officer_station_layout';
@@ -59,6 +60,12 @@ export default class BridgeOfficerStationsView {
             this,
         );
 
+        this.eventBus.on(
+            BRIDGE_EVENT.OFFICER_COMBAT_HINTS_UPDATED,
+            this.handleCombatHintsUpdated,
+            this,
+        );
+
         this.eventBus.on(BRIDGE_EVENT.OFFICER_ACTIVITY_STARTED, this.handleActivityStarted, this);
         this.eventBus.on(BRIDGE_EVENT.OFFICER_ACTIVITY_CLEARED, this.handleActivityCleared, this);
 
@@ -76,6 +83,12 @@ export default class BridgeOfficerStationsView {
             this,
         );
 
+        this.eventBus.off(
+            BRIDGE_EVENT.OFFICER_COMBAT_HINTS_UPDATED,
+            this.handleCombatHintsUpdated,
+            this,
+        );
+
         this.eventBus.off(BRIDGE_EVENT.OFFICER_ACTIVITY_STARTED, this.handleActivityStarted, this);
         this.eventBus.off(BRIDGE_EVENT.OFFICER_ACTIVITY_CLEARED, this.handleActivityCleared, this);
 
@@ -89,6 +102,12 @@ export default class BridgeOfficerStationsView {
     private handleIndicatorsUpdated(payload: BridgeOfficerStationIndicatorsUpdatedPayload): void {
         for (const [role, stationView] of this.stationViewByRole) {
             stationView.setIndicatorState(payload[role]);
+        }
+    }
+
+    private handleCombatHintsUpdated(payload: BridgeOfficerCombatHintsUpdatedPayload): void {
+        for (const [role, stationView] of this.stationViewByRole) {
+            stationView.setCombatHints(payload[role]);
         }
     }
 

@@ -608,10 +608,14 @@ four gameplay roles only
 + tests/typecheck/runtime green
 ```
 
-Next selected slice:
+Follow-up slice implemented after the migration:
 
 ```text
 combat action hints on idle station monitors
 ```
 
-The current command menu remains unchanged during that slice.
+The hints are derived from currently available commands during active combat,
+deduplicated through one app-level fixed-priority mapper and capped at two
+lines. Runtime tasks replace them on the monitor while an officer is busy.
+
+The current command menu and selected-station treatment remain unchanged.

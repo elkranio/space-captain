@@ -12,6 +12,7 @@ import {
 import type BridgeEventBus from '../../../events/BridgeEventBus';
 import type { BridgeOfficerStationLayoutEntry } from '../bridge_officer_station_layout';
 import BridgeOfficerStationActivityView from './activity/BridgeOfficerStationActivityView';
+import BridgeOfficerStationHintsView from './hints/BridgeOfficerStationHintsView';
 import BridgeOfficerStationIndicatorsView from './indicators/BridgeOfficerStationIndicatorsView';
 
 // One reusable bridge station presentation.
@@ -25,6 +26,8 @@ export default class BridgeOfficerStationView {
 
     private readonly activityView: BridgeOfficerStationActivityView;
 
+    private readonly hintsView: BridgeOfficerStationHintsView;
+
     private readonly indicatorsView: BridgeOfficerStationIndicatorsView;
 
     private readonly officerImage: Phaser.GameObjects.Image;
@@ -32,6 +35,10 @@ export default class BridgeOfficerStationView {
     private readonly hitArea: Phaser.GameObjects.Zone;
 
     private readonly role: OfficerRole;
+
+    private combatHints: string[] = [];
+
+    private hasActiveActivity = false;
 
     constructor(
         private readonly scene: BridgeScene,
@@ -53,6 +60,7 @@ export default class BridgeOfficerStationView {
             .setOrigin(0.5, 0.5);
 
         this.activityView = new BridgeOfficerStationActivityView(this.scene);
+        this.hintsView = new BridgeOfficerStationHintsView(this.scene);
         this.indicatorsView = new BridgeOfficerStationIndicatorsView(this.scene);
 
         const officerAsset = BRIDGE_SEATED_OFFICER_SPRITES[layout.seatedOfficerSpriteId];
@@ -71,6 +79,7 @@ export default class BridgeOfficerStationView {
 
         this.root.add([
             this.stationImage,
+            this.hintsView.getRoot(),
             this.activityView.getRoot(),
             this.indicatorsView.getRoot(),
             this.officerImage,
@@ -83,6 +92,7 @@ export default class BridgeOfficerStationView {
         this.hitArea.off(Phaser.Input.Events.POINTER_DOWN, this.handlePointerDown, this);
 
         this.activityView.destroy();
+        this.hintsView.destroy();
         this.indicatorsView.destroy();
 
         this.hitArea.destroy();
@@ -97,7 +107,20 @@ export default class BridgeOfficerStationView {
     }
 
     public showActivity(label: string): void {
+        this.hasActiveActivity = true;
+        this.hintsView.clear();
+
         this.activityView.show(label);
+    }
+
+    public setCombatHints(hints: readonly string[]): void {
+        this.combatHints = [...hints];
+
+        if (this.hasActiveActivity) {
+            return;
+        }
+
+        this.hintsView.setHints(this.combatHints);
     }
 
     public setActivityProgress(progress: number | null): void {
@@ -105,7 +128,9 @@ export default class BridgeOfficerStationView {
     }
 
     public clearActivity(): void {
+        this.hasActiveActivity = false;
         this.activityView.clear();
+        this.hintsView.setHints(this.combatHints);
     }
 
     private handlePointerDown(): void {

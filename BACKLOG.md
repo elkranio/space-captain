@@ -17,7 +17,7 @@ Last updated: 2026-08-03
 Current selected slice:
 
 ```text
-COMBAT ACTION HINTS
+COMBAT ACTION HINTS — RUNTIME ACCEPTANCE
 ```
 
 Bridge V0.1 migration is complete and runtime-accepted:
@@ -32,16 +32,19 @@ Bridge V0.1 migration is complete and runtime-accepted:
 - readable role abbreviations on officer backs;
 - removal of the obsolete old seat presentation and its station assets.
 
-Selected next atom:
+Implemented in the current atom:
 
 - show hints only during active combat;
 - show hints only when the officer is free;
 - derive hints from commands that are actually available now;
 - display at most two short text lines on the idle monitor;
 - use one centralized fixed-priority table;
-- hide hints when a task starts and restore them when availability changes;
+- hide hints when a task starts and restore the latest snapshot when it clears;
 - keep the current command menu unchanged;
 - do not add selected-station treatment in this atom.
+
+Runtime acceptance still needs to verify line fit, monitor coordinates and
+state transitions under live combat timing.
 
 Locked V0.1 copy:
 
@@ -52,7 +55,7 @@ SCI
 > CLEAR MINE
 
 ENG
-> REPAIR SHIP
+> REPAIR DRIVE
 > RAISE SHIELD
 > CLEAR MINE
 
@@ -69,6 +72,10 @@ WPN
 If more than two actions are available, choose by fixed urgency rather than
 command-menu order. Defensive response to an active threat comes before cleanup,
 repair, offense and escape.
+
+After runtime acceptance, explicitly choose either enemy point defense or the
+enemy Engineer directional-shield response. Neither is silently part of this
+presentation atom.
 
 `BRIDGE_V01_HANDOFF.md` remains as the completed migration reference.
 

@@ -14,6 +14,7 @@ import BridgeOfficerStationsController from '../../src/app/scenes/game/bridge/co
 import {
     BRIDGE_EVENT,
     type BridgeOfficerActivityProgressUpdatedPayload,
+    type BridgeOfficerCombatHintsUpdatedPayload,
     type BridgeOfficerStationIndicatorsUpdatedPayload,
 } from '../../src/app/scenes/game/bridge/events/bridge_event';
 import type BridgeEventBus from '../../src/app/scenes/game/bridge/events/BridgeEventBus';
@@ -38,9 +39,19 @@ describe('BridgeOfficerStationsController', () => {
             });
         });
 
+        const getEnemyShipTelemetrySnapshots = vi.fn(() => {
+            return [];
+        });
+
+        const getAvailableCommands = vi.fn(() => {
+            return [];
+        });
+
         const encounterEngine = {
             getOfficerAvailabilityStates,
             getOfficerTasks,
+            getEnemyShipTelemetrySnapshots,
+            getAvailableCommands,
         } as unknown as EncounterEngine;
 
         const emit = vi.fn();
@@ -55,6 +66,8 @@ describe('BridgeOfficerStationsController', () => {
 
         expect(emit.mock.calls).toEqual([
             [BRIDGE_EVENT.OFFICER_STATION_INDICATORS_UPDATED, createReadyIndicatorStates()],
+
+            [BRIDGE_EVENT.OFFICER_COMBAT_HINTS_UPDATED, createEmptyCombatHintStates()],
 
             [BRIDGE_EVENT.OFFICER_ACTIVITY_PROGRESS_UPDATED, createExpectedProgressStates(0.5)],
         ]);
@@ -75,6 +88,9 @@ describe('BridgeOfficerStationsController', () => {
 
         expect(getOfficerAvailabilityStates).toHaveBeenCalledTimes(1);
 
+        expect(getEnemyShipTelemetrySnapshots).toHaveBeenCalledTimes(1);
+        expect(getAvailableCommands).not.toHaveBeenCalled();
+
         expect(getOfficerTasks).toHaveBeenCalledTimes(2);
     });
 
@@ -91,6 +107,30 @@ describe('BridgeOfficerStationsController', () => {
 
             getOfficerTasks: vi.fn(() => {
                 return [];
+            }),
+
+            getEnemyShipTelemetrySnapshots: vi.fn(() => {
+                return [
+                    {
+                        hull: {
+                            current: 10,
+                            max: 10,
+                        },
+                    },
+                ];
+            }),
+
+            getAvailableCommands: vi.fn(() => {
+                return [
+                    {
+                        commandId: ENCOUNTER_OFFICER_COMMAND_ID.HELM_FLY_TO,
+                        label: 'FLY TO',
+                        target: {
+                            kind: 'anchor',
+                            anchorId: 'escape_anchor',
+                        },
+                    },
+                ];
             }),
         } as unknown as EncounterEngine;
 
@@ -113,6 +153,16 @@ describe('BridgeOfficerStationsController', () => {
                 [OFFICER_ROLE.ENGINEER]: 'blocked',
             },
         ]);
+
+        expect(emit.mock.calls[1]).toEqual([
+            BRIDGE_EVENT.OFFICER_COMBAT_HINTS_UPDATED,
+            {
+                [OFFICER_ROLE.SCIENCE]: [],
+                [OFFICER_ROLE.HELM]: ['ESCAPE'],
+                [OFFICER_ROLE.WEAPONS]: [],
+                [OFFICER_ROLE.ENGINEER]: [],
+            },
+        ]);
     });
 });
 
@@ -130,6 +180,16 @@ function createReadyIndicatorStates(): BridgeOfficerStationIndicatorsUpdatedPayl
             return [role, 'ready'];
         }),
     ) as BridgeOfficerStationIndicatorsUpdatedPayload;
+}
+
+function createEmptyCombatHintStates(): BridgeOfficerCombatHintsUpdatedPayload {
+    const states = {} as BridgeOfficerCombatHintsUpdatedPayload;
+
+    for (const role of OFFICER_ROLES) {
+        states[role] = [];
+    }
+
+    return states;
 }
 
 function createExpectedProgressStates(weaponsProgress: number): BridgeOfficerActivityProgressUpdatedPayload {

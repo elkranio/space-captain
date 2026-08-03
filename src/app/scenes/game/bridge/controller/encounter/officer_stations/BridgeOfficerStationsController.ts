@@ -11,10 +11,12 @@ import type { OfficerTaskState } from '../../../../../../../engine/encounter/mod
 import {
     BRIDGE_EVENT,
     type BridgeOfficerActivityProgressUpdatedPayload,
+    type BridgeOfficerCombatHintsUpdatedPayload,
     type BridgeOfficerStationIndicatorState,
     type BridgeOfficerStationIndicatorsUpdatedPayload,
 } from '../../../events/bridge_event';
 import type BridgeEventBus from '../../../events/BridgeEventBus';
+import CombatActionHintMapper from './CombatActionHintMapper';
 
 const OFFICER_STATIONS_SYNC_INTERVAL_MS = 200;
 
@@ -33,6 +35,8 @@ const OFFICER_STATION_ROLES = Object.values(OFFICER_ROLE);
 // - не показывает progress для task с showProgress=false.
 export default class BridgeOfficerStationsController {
     private elapsedMs = 0;
+
+    private readonly combatActionHintMapper = new CombatActionHintMapper();
 
     constructor(
         private readonly encounterEngine: EncounterEngine,
@@ -55,11 +59,11 @@ export default class BridgeOfficerStationsController {
 
         this.elapsedMs = 0;
 
-        this.syncIndicators();
+        this.syncStationStatus();
     }
 
     public sync(): void {
-        this.syncIndicators();
+        this.syncStationStatus();
         this.syncActivityProgress();
     }
 
@@ -71,7 +75,7 @@ export default class BridgeOfficerStationsController {
 
     // #region Synchronization
 
-    private syncIndicators(): void {
+    private syncStationStatus(): void {
         const availabilityStates = this.encounterEngine.getOfficerAvailabilityStates();
 
         this.eventBus.emit(
@@ -79,6 +83,44 @@ export default class BridgeOfficerStationsController {
 
             this.createIndicatorStates(availabilityStates),
         );
+
+        this.eventBus.emit(
+            BRIDGE_EVENT.OFFICER_COMBAT_HINTS_UPDATED,
+
+            this.createCombatHintStates(availabilityStates),
+        );
+    }
+
+    private createCombatHintStates(
+        availabilityStates: OfficerAvailabilityStates,
+    ): BridgeOfficerCombatHintsUpdatedPayload {
+        const hintStates = {} as BridgeOfficerCombatHintsUpdatedPayload;
+
+        for (const role of OFFICER_STATION_ROLES) {
+            hintStates[role] = [];
+        }
+
+        const hasActiveEnemy = this.encounterEngine
+            .getEnemyShipTelemetrySnapshots()
+            .some((enemy) => {
+                return enemy.hull.current > 0;
+            });
+
+        if (!hasActiveEnemy) {
+            return hintStates;
+        }
+
+        for (const role of OFFICER_STATION_ROLES) {
+            if (availabilityStates[role] !== OFFICER_AVAILABILITY_STATE.AVAILABLE) {
+                continue;
+            }
+
+            hintStates[role] = this.combatActionHintMapper.map(
+                this.encounterEngine.getAvailableCommands(role),
+            );
+        }
+
+        return hintStates;
     }
 
     private syncActivityProgress(): void {
