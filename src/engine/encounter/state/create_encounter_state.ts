@@ -12,7 +12,6 @@ import type {
 } from '../../defs/ship_weapon';
 import { SPACE_ANCHOR_KIND, type SpaceAnchorState, type SpaceNodeState } from '../../defs/universe';
 import { ENCOUNTER_ANCHOR_KIND, type EncounterAnchorState } from '../anchors/encounter_anchor';
-import { DOCKING_CLEARANCE_STATE } from '../anchors/station/station_encounter_anchor';
 import type { EncounterState } from '../model/state';
 
 export type CreateEncounterStateInput = {
@@ -162,9 +161,6 @@ function createEncounterAnchorState(anchor: SpaceAnchorState): EncounterAnchorSt
 
                 perspectiveDepth: 1,
 
-                docking: {
-                    clearance: DOCKING_CLEARANCE_STATE.NONE,
-                },
             };
 
         case SPACE_ANCHOR_KIND.NAVIGATION_BEACON:

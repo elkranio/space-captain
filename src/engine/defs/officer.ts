@@ -3,7 +3,6 @@
 // Стабильные роли мостика.
 // Роль определяет seat, доступные команды и место офицера в captain flow.
 export const OFFICER_ROLE = {
-    COMMS: 'comms',
     SCIENCE: 'science',
     HELM: 'helm',
     WEAPONS: 'weapons',
@@ -16,9 +15,6 @@ export type OfficerRole = (typeof OFFICER_ROLE)[keyof typeof OFFICER_ROLE];
 // Это отдельный набор от generic character portraits, потому что офицерские портреты живут в crew panels.
 export const OFFICER_PORTRAIT_ID = {
     SILHOUETTE_00: 'silhouette_00',
-
-    COMMS_HUMAN_00: 'comms_human_00',
-    COMMS_ALIEN_00: 'comms_alien_00',
 
     SCIENCE_HUMAN_00: 'science_human_00',
     SCIENCE_ALIEN_00: 'science_alien_00',

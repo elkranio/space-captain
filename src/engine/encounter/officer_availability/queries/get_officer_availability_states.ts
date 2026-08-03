@@ -13,7 +13,6 @@ import type { OfficerTaskState } from '../../model/officer_task';
 import type { EncounterState } from '../../model/state';
 
 const OFFICER_AVAILABILITY_ROLES = [
-    OFFICER_ROLE.COMMS,
     OFFICER_ROLE.SCIENCE,
     OFFICER_ROLE.HELM,
     OFFICER_ROLE.WEAPONS,

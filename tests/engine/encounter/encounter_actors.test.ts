@@ -434,7 +434,6 @@ describe('encounter actors', () => {
                                 ],
 
                                 crewTraitsByRole: {
-                                    [OFFICER_ROLE.COMMS]: [],
                                     [OFFICER_ROLE.SCIENCE]: [],
                                     [OFFICER_ROLE.HELM]: [],
                                     [OFFICER_ROLE.WEAPONS]: [],

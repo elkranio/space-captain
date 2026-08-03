@@ -1,6 +1,5 @@
 // src/engine/encounter/model/event.ts
 
-import type { CharacterPortraitId } from '../../defs/character';
 import type {
     PlayerHullDamageResult,
 } from '../../defs/player';
@@ -37,9 +36,6 @@ import type { EncounterState } from './state';
 // app-слой сам решает, как это показать.
 export const ENCOUNTER_EVENT = {
     ENCOUNTER_LOADED: 'encounter_loaded',
-    CONTACT_STARTED: 'contact_started',
-    CONTACT_MESSAGE_ADDED: 'contact_message_added',
-    CONTACT_ENDED: 'contact_ended',
     TRAVEL_STARTED: 'travel_started',
     JUMP_STARTED: 'jump_started',
     DOCKING_STARTED: 'docking_started',
@@ -91,7 +87,6 @@ export const OFFICER_TASK_OUTCOME = {
 export type OfficerTaskOutcome = (typeof OFFICER_TASK_OUTCOME)[keyof typeof OFFICER_TASK_OUTCOME];
 
 export const OFFICER_TASK_RESULT_KIND = {
-    DOCKING_CLEARANCE_GRANTED: 'docking_clearance_granted',
     JUMP_POINT_CALCULATED: 'jump_point_calculated',
     THREAT_IDENTIFIED: 'threat_identified',
     SHIELD_DEPLOYED: 'shield_deployed',
@@ -100,10 +95,6 @@ export const OFFICER_TASK_RESULT_KIND = {
 } as const;
 
 export type OfficerTaskResult =
-    | {
-          kind: typeof OFFICER_TASK_RESULT_KIND.DOCKING_CLEARANCE_GRANTED;
-          targetAnchorId: string;
-      }
     | {
           kind: typeof OFFICER_TASK_RESULT_KIND.JUMP_POINT_CALCULATED;
           anchor: JumpPointEncounterAnchorState;
@@ -139,30 +130,6 @@ export type EncounterLoadedEvent = {
     type: typeof ENCOUNTER_EVENT.ENCOUNTER_LOADED;
 
     state: EncounterState;
-};
-
-// Начало структурного contact/dialogue flow
-// с внешним собеседником.
-export type ContactStartedEvent = {
-    type: typeof ENCOUNTER_EVENT.CONTACT_STARTED;
-
-    contactName: string;
-
-    contactPortraitId: CharacterPortraitId;
-};
-
-// Новая реплика внутри active contact flow.
-export type ContactMessageAddedEvent = {
-    type: typeof ENCOUNTER_EVENT.CONTACT_MESSAGE_ADDED;
-
-    speakerName: string;
-
-    text: string;
-};
-
-// Завершение active contact flow.
-export type ContactEndedEvent = {
-    type: typeof ENCOUNTER_EVENT.CONTACT_ENDED;
 };
 
 // Начало локального перелёта
@@ -463,9 +430,6 @@ export type SpamChannelEndedEvent = {
 
 export type EncounterEvent =
     | EncounterLoadedEvent
-    | ContactStartedEvent
-    | ContactMessageAddedEvent
-    | ContactEndedEvent
     | TravelStartedEvent
     | JumpStartedEvent
     | DockingStartedEvent

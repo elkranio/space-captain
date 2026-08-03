@@ -33,7 +33,6 @@ export const SHIP_CREW_PRESETS = {
         id: SHIP_CREW_PRESET_ID.STANDARD_00,
 
         roles: [
-            OFFICER_ROLE.COMMS,
             OFFICER_ROLE.SCIENCE,
             OFFICER_ROLE.HELM,
             OFFICER_ROLE.WEAPONS,

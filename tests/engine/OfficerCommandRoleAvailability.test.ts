@@ -14,14 +14,6 @@ describe('Officer command role availability', () => {
     it('keeps existing commands limited to their specialist roles', () => {
         expect(
             getOfficerCommandHandler(
-                ENCOUNTER_OFFICER_COMMAND_ID.COMMS_HAIL,
-            ).def.availableToRoles,
-        ).toEqual([
-            OFFICER_ROLE.COMMS,
-        ]);
-
-        expect(
-            getOfficerCommandHandler(
                 ENCOUNTER_OFFICER_COMMAND_ID
                     .SCIENCE_IDENTIFY_THREAT,
             ).def.availableToRoles,

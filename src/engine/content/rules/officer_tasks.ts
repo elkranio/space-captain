@@ -6,8 +6,6 @@
 // Модификаторы офицеров, повреждений и стресса
 // позже должны применяться поверх этих значений.
 export const OFFICER_TASK_BASE_DURATION_MS = {
-    COMMS_REQUEST_DOCKING: 3000,
-
     SCIENCE_PLOT_COURSE: 5000,
     SCIENCE_IDENTIFY_THREAT: 3000,
     SCIENCE_PURGE_SPAM: 5000,

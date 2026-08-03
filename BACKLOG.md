@@ -8,7 +8,7 @@ An item moves into active implementation only after it is selected explicitly.
 
 Keep items concrete enough that they remain understandable in a future chat.
 
-Last updated: 2026-08-02
+Last updated: 2026-08-03
 
 ---
 
@@ -17,40 +17,40 @@ Last updated: 2026-08-02
 Current selected slice:
 
 ```text
-ENEMY BEHAVIORS — POLICY PASS
+BRIDGE V0.1 MIGRATION
 ```
 
-No temporary handoff file exists.
+Active handoff:
 
-The first activity is design and implementation inventory, not code.
+```text
+BRIDGE_V01_HANDOFF.md
+```
 
-Inspect:
+Asset import is complete.
 
-- behavior presets;
-- `EnemyDecisionPolicy`;
-- `EnemyTaskScheduler`;
-- role occupancy;
-- weapon cooldown and operator-control boundaries;
-- existing enemy offense/spam tests.
+The current Comms-cut atom removes:
 
-Lock before implementation:
+- the Comms gameplay role;
+- `REQUEST DOCKING` and docking clearance;
+- `HAIL`, contact sequence internals and the old contact UI.
 
-- the behavior grammar;
-- the first visible difference between behavior presets;
-- offense-versus-defense priority;
-- the role that owns each defensive response;
-- the outcome when that role is busy;
-- the player-facing telegraph and result.
+Normal Helm `DOCK` becomes direct at the current station.
 
-Do not refactor the scheduler merely because it is old or deterministic.
+After that atom is green, continue with:
 
-Do not implement the command UI redesign in the same atom.
+- bridge shell/viewscreen geometry verification;
+- four modular station/officer views;
+- runtime task/progress overlays;
+- removal of obsolete old seat presentation.
+
+Do not resume enemy behavior policy or implement the command palette inside this
+visual migration.
 
 ---
 
 # 2. Near-term combat follow-ups
 
-## Enemy behavior policy pass — active
+## Enemy behavior policy pass — deferred until bridge V0.1 is playable
 
 Player laser, missile and sticky-mine offense V0 are complete.
 

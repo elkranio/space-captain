@@ -16,9 +16,6 @@ import {
 //
 // Это не идентификатор конкретного запуска task.
 export const OFFICER_TASK_KIND = {
-    COMMS_HAIL: 'comms_hail',
-    COMMS_REQUEST_DOCKING: 'comms_request_docking',
-
     SCIENCE_PLOT_COURSE: 'science_plot_course',
     SCIENCE_IDENTIFY_THREAT: 'science_identify_threat',
     SCIENCE_PURGE_SPAM: 'science_purge_spam',
@@ -64,24 +61,6 @@ type OfficerTaskDraftBase = {
     showProgress: boolean;
 
     durationMs: number | null;
-};
-
-type CommsHailOfficerTaskDraft = OfficerTaskDraftBase & {
-    kind: typeof OFFICER_TASK_KIND.COMMS_HAIL;
-    role: typeof OFFICER_ROLE.COMMS;
-
-    sourceCommandId: typeof ENCOUNTER_OFFICER_COMMAND_ID.COMMS_HAIL;
-
-    targetAnchorId: string;
-};
-
-type CommsRequestDockingOfficerTaskDraft = OfficerTaskDraftBase & {
-    kind: typeof OFFICER_TASK_KIND.COMMS_REQUEST_DOCKING;
-    role: typeof OFFICER_ROLE.COMMS;
-
-    sourceCommandId: typeof ENCOUNTER_OFFICER_COMMAND_ID.COMMS_REQUEST_DOCKING;
-
-    targetAnchorId: string;
 };
 
 type SciencePlotCourseOfficerTaskDraft = OfficerTaskDraftBase & {
@@ -236,8 +215,6 @@ type HelmJumpOfficerTaskDraft = OfficerTaskDraftBase & {
 // Task-specific поля принадлежат только тем
 // вариантам task, которым они действительно нужны.
 export type OfficerTaskDraft =
-    | CommsHailOfficerTaskDraft
-    | CommsRequestDockingOfficerTaskDraft
     | SciencePlotCourseOfficerTaskDraft
     | ScienceIdentifyThreatOfficerTaskDraft
     | SciencePurgeSpamOfficerTaskDraft
@@ -283,8 +260,6 @@ export function getOfficerTaskCancellationPolicy(
                 canBeInterruptedByDamage: true,
             };
 
-        case OFFICER_TASK_KIND.COMMS_HAIL:
-        case OFFICER_TASK_KIND.COMMS_REQUEST_DOCKING:
         case OFFICER_TASK_KIND.SCIENCE_PLOT_COURSE:
         case OFFICER_TASK_KIND.SCIENCE_IDENTIFY_THREAT:
         case OFFICER_TASK_KIND.SCIENCE_PURGE_SPAM:

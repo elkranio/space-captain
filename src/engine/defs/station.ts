@@ -15,7 +15,7 @@ export const STATION_OBJECT_SPRITE_ID = {
 
 export type StationObjectSpriteId = (typeof STATION_OBJECT_SPRITE_ID)[keyof typeof STATION_OBJECT_SPRITE_ID];
 
-// Контактное лицо станции для comms/contact UI.
+// Контактное лицо станции для будущего authored contact flow.
 // Это не вся станция, а тот, кто отвечает игроку в текущем сценарии.
 export type StationContactState = {
     name: string;

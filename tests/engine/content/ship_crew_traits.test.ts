@@ -70,8 +70,6 @@ describe(
                 expect(
                     actor.crewTraitsByRole,
                 ).toEqual({
-                    [OFFICER_ROLE.COMMS]:
-                        [],
                     [OFFICER_ROLE.SCIENCE]:
                         [],
                     [OFFICER_ROLE.HELM]:

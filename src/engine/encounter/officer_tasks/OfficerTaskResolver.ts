@@ -9,13 +9,6 @@ import {
 import { OFFICER_TASK_KIND, type OfficerTaskState } from '../model/officer_task';
 import EncounterStateStore from '../state/EncounterStateStore';
 
-type CommsRequestDockingTaskState = Extract<
-    OfficerTaskState,
-    {
-        kind: typeof OFFICER_TASK_KIND.COMMS_REQUEST_DOCKING;
-    }
->;
-
 type ResettablePlayerWeaponTaskState = Extract<
     OfficerTaskState,
     {
@@ -96,9 +89,6 @@ export default class OfficerTaskResolver {
 
     public resolve(task: OfficerTaskState): OfficerTaskResult | undefined {
         switch (task.kind) {
-            case OFFICER_TASK_KIND.COMMS_REQUEST_DOCKING:
-                return this.resolveCommsRequestDockingTask(task);
-
             case OFFICER_TASK_KIND.HELM_FLY_TO:
                 this.resolveHelmFlyToTask(task);
                 return undefined;
@@ -144,7 +134,6 @@ export default class OfficerTaskResolver {
             case OFFICER_TASK_KIND.CLEAR_STICKY_MINE:
                 return this.resolveClearStickyMineTask(task);
 
-            case OFFICER_TASK_KIND.COMMS_HAIL:
             case OFFICER_TASK_KIND.HELM_DOCK:
             case OFFICER_TASK_KIND.HELM_JUMP:
                 return undefined;
@@ -194,16 +183,6 @@ export default class OfficerTaskResolver {
             .cancelPlayerStickyMineDispensing(
                 task.weaponId,
             );
-    }
-
-    private resolveCommsRequestDockingTask(task: CommsRequestDockingTaskState): OfficerTaskResult {
-        this.stateStore.grantDockingClearance(task.targetAnchorId);
-
-        return {
-            kind: OFFICER_TASK_RESULT_KIND.DOCKING_CLEARANCE_GRANTED,
-
-            targetAnchorId: task.targetAnchorId,
-        };
     }
 
     private resolveHelmFlyToTask(task: HelmFlyToTaskState): void {

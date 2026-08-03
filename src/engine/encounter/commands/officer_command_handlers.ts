@@ -3,8 +3,6 @@
 import { ENCOUNTER_OFFICER_COMMAND_ID, type EncounterOfficerCommandId, type OfficerCommandDef } from '../model/command';
 import type { OfficerCommandHandler } from '../model/officer_command_handler';
 import { clearStickyMineCommandHandler } from './handlers/clear_sticky_mine_command_handler';
-import { commsHailCommandHandler } from './handlers/comms_hail_command_handler';
-import { commsRequestDockingCommandHandler } from './handlers/comms_request_docking_command_handler';
 import { engineerRepairDriveCommandHandler } from './handlers/engineer_repair_drive_command_handler';
 import {
     engineerDeployShieldCenterCommandHandler,
@@ -33,10 +31,6 @@ import {
 
 const OFFICER_COMMAND_HANDLER_BY_ID = {
     [ENCOUNTER_OFFICER_COMMAND_ID.CLEAR_STICKY_MINE]: clearStickyMineCommandHandler,
-
-    [ENCOUNTER_OFFICER_COMMAND_ID.COMMS_HAIL]: commsHailCommandHandler,
-
-    [ENCOUNTER_OFFICER_COMMAND_ID.COMMS_REQUEST_DOCKING]: commsRequestDockingCommandHandler,
 
     [ENCOUNTER_OFFICER_COMMAND_ID.SCIENCE_PLOT_COURSE]: sciencePlotCourseCommandHandler,
 

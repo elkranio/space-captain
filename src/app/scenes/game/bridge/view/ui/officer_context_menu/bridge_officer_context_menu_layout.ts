@@ -40,11 +40,6 @@ export const OFFICER_CONTEXT_MENU_LAYOUT = {
 } as const;
 
 export const OFFICER_CONTEXT_MENU_POSITION_BY_ROLE = {
-    [OFFICER_ROLE.COMMS]: {
-        x: 220,
-        y: 78,
-    },
-
     [OFFICER_ROLE.SCIENCE]: {
         x: 220,
         y: 250,

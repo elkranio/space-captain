@@ -35,7 +35,6 @@ import PlayerWeaponRunner from './combat/PlayerWeaponRunner';
 import ShieldGeneratorRunner from './combat/ShieldGeneratorRunner';
 import OfficerCommandExecutor from './commands/OfficerCommandExecutor';
 import { getAvailableOfficerCommands } from './commands/queries/get_available_officer_commands';
-import ContactSequenceRunner from './contact/ContactSequenceRunner';
 import type { AvailableOfficerCommand, ExecuteOfficerCommandInput, ExecuteOfficerCommandResult } from './model/command';
 import {
     COMBAT_SOURCE_KIND,
@@ -88,8 +87,6 @@ export default class EncounterEngine {
     private readonly events: EncounterEvent[] = [];
 
     private readonly officerTaskRunner: OfficerTaskRunner;
-
-    private readonly contactSequenceRunner: ContactSequenceRunner;
 
     private readonly officerCommandExecutor: OfficerCommandExecutor;
 
@@ -214,21 +211,11 @@ export default class EncounterEngine {
                 this.emit,
             );
 
-        this.contactSequenceRunner = new ContactSequenceRunner({
-            emit: this.emit,
-        });
-
         this.officerCommandExecutor = new OfficerCommandExecutor({
             stateStore: this.stateStore,
             emit: this.emit,
 
             startOfficerTask: this.officerTaskRunner.start,
-
-            // Generic completion остаётся внутренней связью
-            // command handler → task runner для HAIL.
-            completeOfficerTask: this.officerTaskRunner.complete,
-
-            startContactSequence: this.contactSequenceRunner.start,
         });
 
         this.emit({
@@ -262,7 +249,6 @@ export default class EncounterEngine {
     public step(deltaMs: number): void {
         this.playerShieldRunner.step(deltaMs);
         this.officerTaskRunner.step(deltaMs);
-        this.contactSequenceRunner.step(deltaMs);
         this.shieldGeneratorRunner.step(deltaMs);
         this.playerWeaponRunner.step(deltaMs);
         this.combatRunner.step(deltaMs);

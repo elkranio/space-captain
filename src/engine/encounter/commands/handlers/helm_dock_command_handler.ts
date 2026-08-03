@@ -10,7 +10,6 @@ import {
 import { ENCOUNTER_EVENT } from '../../model/event';
 import type { OfficerCommandHandler } from '../../model/officer_command_handler';
 import { ENCOUNTER_ANCHOR_KIND } from '../../anchors/encounter_anchor';
-import { DOCKING_CLEARANCE_STATE } from '../../anchors/station/station_encounter_anchor';
 import { createHelmDockTask } from '../../officer_tasks/create_officer_task_draft';
 import { createAnchorTargetedCommand, getStationTarget, isCurrentAnchor } from './command_handler_helpers';
 
@@ -40,8 +39,7 @@ export const helmDockCommandHandler = {
             .filter((object) => {
                 return (
                     object.kind === ENCOUNTER_ANCHOR_KIND.STATION &&
-                    isCurrentAnchor(state, object) &&
-                    object.docking.clearance === DOCKING_CLEARANCE_STATE.GRANTED
+                    isCurrentAnchor(state, object)
                 );
             })
             .map((object) => {

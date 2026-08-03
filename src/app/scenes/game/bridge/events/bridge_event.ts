@@ -1,6 +1,5 @@
 // src/app/scenes/game/bridge/events/bridge_event.ts
 
-import type { CharacterPortraitId } from '../../../../../engine/defs/character';
 import type { OfficerDefinition, OfficerRole } from '../../../../../engine/defs/officer';
 import type { Vec3 } from '../../../../../engine/defs/vector';
 import type { SpriteEntry } from '../../../../manifests/types';
@@ -162,16 +161,7 @@ export const BRIDGE_EVENT = {
 
     // #endregion
 
-    // #region Contact and docking
-
-    // Начался structured contact/dialogue flow.
-    CONTACT_STARTED: 'contact_started',
-
-    // В contact flow добавилась новая реплика.
-    CONTACT_MESSAGE_ADDED: 'contact_message_added',
-
-    // Structured contact/dialogue flow завершён.
-    CONTACT_ENDED: 'contact_ended',
+    // #region Docking
 
     // Encounter engine разрешил
     // начать визуальный docking flow.
@@ -531,21 +521,7 @@ export type BridgeEncounterJumpPayload = {
 
 // #endregion
 
-// #region Contact and docking
-
-// Payload начала structured contact flow.
-export type BridgeContactStartedPayload = {
-    contactName: string;
-
-    contactPortraitId: CharacterPortraitId;
-};
-
-// Новая реплика structured contact flow.
-export type BridgeContactMessageAddedPayload = {
-    speakerName: string;
-
-    text: string;
-};
+// #region Docking
 
 // Payload начала визуального docking flow.
 export type BridgeDockingStartedPayload = {
@@ -836,13 +812,7 @@ export type BridgeEventPayloadMap = {
 
     [BRIDGE_EVENT.ENCOUNTER_JUMP_COMPLETED]: BridgeEncounterJumpPayload;
 
-    // Contact and docking
-
-    [BRIDGE_EVENT.CONTACT_STARTED]: BridgeContactStartedPayload;
-
-    [BRIDGE_EVENT.CONTACT_MESSAGE_ADDED]: BridgeContactMessageAddedPayload;
-
-    [BRIDGE_EVENT.CONTACT_ENDED]: undefined;
+    // Docking
 
     [BRIDGE_EVENT.DOCKING_STARTED]: BridgeDockingStartedPayload;
 

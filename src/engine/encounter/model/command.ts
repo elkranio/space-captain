@@ -8,10 +8,6 @@ import type {
 } from '../../defs/officer';
 
 export const ENCOUNTER_OFFICER_COMMAND_ID = {
-    COMMS_HAIL: 'comms_hail',
-    COMMS_REQUEST_DOCKING:
-        'comms_request_docking',
-
     SCIENCE_PLOT_COURSE:
         'science_plot_course',
     SCIENCE_IDENTIFY_THREAT:

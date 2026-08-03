@@ -37,7 +37,6 @@ import { ENCOUNTER_ACTOR_KIND, type EncounterActorState } from '../actors/encoun
 import type { ShipEncounterActorState } from '../actors/ship/ship_encounter_actor';
 import { ENCOUNTER_ANCHOR_KIND, type EncounterAnchorState } from '../anchors/encounter_anchor';
 import type { JumpPointEncounterAnchorState } from '../anchors/jump_point/jump_point_encounter_anchor';
-import { DOCKING_CLEARANCE_STATE } from '../anchors/station/station_encounter_anchor';
 import {
     ENCOUNTER_TEAM,
     type EncounterTeam,
@@ -1113,23 +1112,6 @@ export default class EncounterStateStore {
         this.state.anchors.push(anchor);
 
         return anchor;
-    }
-
-    public grantDockingClearance(targetAnchorId: string): void {
-        const target = this.findAnchorById(targetAnchorId);
-
-        if (!target) {
-            throw new Error(`Cannot grant docking clearance: ` + `encounter anchor not found: ${targetAnchorId}`);
-        }
-
-        switch (target.kind) {
-            case ENCOUNTER_ANCHOR_KIND.STATION:
-                target.docking.clearance = DOCKING_CLEARANCE_STATE.GRANTED;
-                return;
-
-            default:
-                throw new Error(`Cannot grant docking clearance to encounter anchor: ` + `${target.kind}`);
-        }
     }
 
     // #endregion

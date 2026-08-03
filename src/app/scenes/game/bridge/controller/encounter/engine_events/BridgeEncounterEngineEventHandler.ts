@@ -82,26 +82,6 @@ export default class BridgeEncounterEngineEventHandler {
                 this.handleEncounterLoaded(event);
                 return;
 
-            case ENCOUNTER_EVENT.CONTACT_STARTED:
-                this.eventBus.emit(BRIDGE_EVENT.CONTACT_STARTED, {
-                    contactName: event.contactName,
-
-                    contactPortraitId: event.contactPortraitId,
-                });
-                return;
-
-            case ENCOUNTER_EVENT.CONTACT_MESSAGE_ADDED:
-                this.eventBus.emit(BRIDGE_EVENT.CONTACT_MESSAGE_ADDED, {
-                    speakerName: event.speakerName,
-
-                    text: event.text,
-                });
-                return;
-
-            case ENCOUNTER_EVENT.CONTACT_ENDED:
-                this.eventBus.emit(BRIDGE_EVENT.CONTACT_ENDED);
-                return;
-
             case ENCOUNTER_EVENT.TRAVEL_STARTED:
                 this.setEncounterInteractive(false);
 

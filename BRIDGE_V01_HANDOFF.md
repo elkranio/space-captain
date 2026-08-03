@@ -10,10 +10,10 @@ Last updated:
 2026-08-03
 ```
 
-Current repository checkpoint:
+Base repository checkpoint for the current Comms-cut atom:
 
 ```text
-ec044be8516f119cd4d09b162d2fcc57684d2753
+d9016a1d3ca5d2a4efb2528432b1d2f803b608b7
 ```
 
 ---
@@ -64,9 +64,11 @@ Comms removal rationale:
 
 - `REQUEST DOCKING` is a meaningless universal ritual;
 - normal docking should be direct when permitted;
-- authored docking restrictions belong to station/contact content;
-- `HAIL` is a captain dialogue action;
+- the current `HAIL`/contact prototype has no required gameplay function;
 - four roles reduce cognitive load and improve visual orientation.
+
+`HAIL`, its contact sequence and its bridge UI are removed in this migration.
+Future contact/dialogue will be designed again from actual content requirements.
 
 Bridge composition:
 
@@ -143,18 +145,12 @@ Does not contain:
 
 ## Officer art
 
-Deferred.
+Four seated officer sprites are imported as separate bridge-specific assets.
 
-Reason:
+They share the station's `242×180` source canvas so every officer can be placed
+over the station at the same position and origin.
 
-```text
-no current officer animation mechanic
-→ no need to produce four seated officer sprites now
-```
-
-Barks may be drawn over the station.
-
-Future officer sprites remain separate from station art.
+The sprites are not portraits and do not reuse old officer-portrait IDs.
 
 ---
 
@@ -162,11 +158,15 @@ Future officer sprites remain separate from station art.
 
 Before coding, export and save the current accepted assets.
 
-Required production PNGs:
+Imported production PNGs:
 
 ```text
-bridge shell
-station base
+assets/raw/images/bridge/interior/generic.png
+assets/raw/images/bridge/station/base_00.png
+assets/raw/images/bridge/officers/science_seated_00.png
+assets/raw/images/bridge/officers/weapons_seated_00.png
+assets/raw/images/bridge/officers/helm_seated_00.png
+assets/raw/images/bridge/officers/engineer_seated_00.png
 ```
 
 Recommended additional non-atlas reference:
@@ -236,35 +236,16 @@ Do not use the flattened composite as the only source of truth.
 
 # 5. Asset naming
 
-Do not guess the source asset root.
-
-First inspect:
-
-- current texture-packer input directories;
-- current bridge image paths;
-- manifest conventions;
-- atlas frame naming style;
-- existing bridge frame consumers.
-
-Then lock names before modifying views.
-
-Logical frame roles:
+Locked atlas frame IDs:
 
 ```text
-bridge V0.1 shell
-bridge V0.1 station base
+bridge/interior/generic
+bridge/station/base_00
+bridge/officers/science_seated_00
+bridge/officers/weapons_seated_00
+bridge/officers/helm_seated_00
+bridge/officers/engineer_seated_00
 ```
-
-Tentative semantic IDs only:
-
-```text
-bridge/v01/shell
-bridge/v01/station
-```
-
-These are not final until repository conventions are inspected.
-
-Do not create role-specific station sprites for V0.1.
 
 One base station should serve all four roles.
 
@@ -376,7 +357,7 @@ Derive it from current task/activity presentation state.
 
 Barks may use a role-specific anchor near/above the station.
 
-No officer sprite is required.
+The seated officer sprite is presentation only and does not own bark state.
 
 Ensure barks do not cover:
 
@@ -389,17 +370,14 @@ Ensure barks do not cover:
 
 # 8. Comms cut
 
-The art supports four stations, but the current code still contains Comms.
-
-Do not hide this mismatch permanently.
-
-Use a dedicated behavior/domain atom after asset import.
+The dedicated behavior/domain atom removes Comms before the station-view
+migration.
 
 Required design outcome:
 
 ```text
 remove REQUEST DOCKING
-move HAIL to captain/contact action
+remove HAIL/contact flow and rebuild it later if required
 remove Comms from playable bridge roles
 normal DOCK is direct when eligible
 ```
@@ -410,7 +388,7 @@ Likely affected areas to inspect fresh:
 - starter crew/presets;
 - command availability;
 - command handlers;
-- docking clearance/contact tasks;
+- docking clearance and contact tasks;
 - bridge layout/configuration;
 - officer menu shortcuts;
 - tests and full state snapshots;
@@ -427,7 +405,7 @@ Do not combine the Comms cut with enemy AI changes.
 
 # 9. Implementation atoms
 
-## Atom 0 — inventory only
+## Atom 0 — inventory only — complete
 
 Read fresh `master`.
 
@@ -452,7 +430,7 @@ Output:
 - final frame IDs;
 - no code changes.
 
-## Atom 1 — asset import
+## Atom 1 — asset import — complete
 
 - add shell PNG;
 - add station PNG;
@@ -472,14 +450,14 @@ npm test
 
 No runtime behavior change.
 
-## Atom 2 — Comms gameplay cut
+## Atom 2 — Comms gameplay cut — complete
 
 - remove request-docking flow;
 - make docking direct when eligible;
-- move HAIL into captain/contact flow;
+- remove HAIL, contact sequence and contact UI;
 - remove Comms from playable role collections;
 - update tests;
-- preserve authored contact/docking restrictions.
+- make Helm DOCK direct at the current station.
 
 Keep this atom behavior-focused.
 
@@ -504,12 +482,13 @@ Runtime acceptance:
 
 - add one reusable station-base view;
 - place four instances;
+- place four matching seated-officer sprites over the bases;
 - exact shallow-chevron placement from composite;
 - stable role hit areas;
 - remove old fifth-seat presentation;
 - keep old command flow temporarily if needed.
 
-Do not add final officer art.
+Do not add officer animation or extra visual variants in this atom.
 
 ## Atom 5 — station activity
 
@@ -546,12 +525,6 @@ Navigation:
 - DOCK;
 - JUMP;
 - leave/return.
-
-Contact:
-
-- captain HAIL path;
-- authored station restriction path;
-- no universal request-docking ritual.
 
 Officer/task:
 

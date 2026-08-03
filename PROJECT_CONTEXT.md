@@ -18,9 +18,6 @@ COMMAND_PALETTE_ART_PLAN.md   only when palette work resumes
 
 `BRIDGE_V01_HANDOFF.md` is the active-slice document.
 
-The old "current selected work" section in `BACKLOG.md` is stale until it is
-updated. The active work is now the bridge V0.1 migration described below.
-
 Last updated:
 
 ```text
@@ -30,17 +27,14 @@ Last updated:
 Latest verified `master`:
 
 ```text
-ec044be8516f119cd4d09b162d2fcc57684d2753
+d9016a1d3ca5d2a4efb2528432b1d2f803b608b7
 ```
 
 Last code-bearing commit reported green by the user:
 
 ```text
-5bf6654d76c4ae2b8fbda321d5a18157df3df955
+d9016a1d3ca5d2a4efb2528432b1d2f803b608b7
 ```
-
-The later `ec044be...` commit is documentation-only and adds the previous
-command-palette art plan.
 
 Current checkpoint:
 
@@ -50,6 +44,9 @@ explicit physical player-weapon command identity complete
 typecheck green
 tests green
 active work moved from enemy behavior to bridge V0.1 migration
+bridge shell, station and four seated-officer assets imported
+Comms/HAIL/request-docking cut complete in the current atom
+normal Helm DOCK is direct at the current station
 enemy behavior implementation is paused, not discarded
 ```
 
@@ -237,15 +234,12 @@ Comms is removed as a gameplay role.
 Reason:
 
 - `REQUEST DOCKING` is ritual interaction with no meaningful decision;
-- `HAIL` is the captain speaking and choosing dialogue, not an officer command;
+- the current `HAIL` prototype has no required gameplay function;
 - four strong roles reduce cognitive load and make station layout clearer.
 
 Locked command ownership direction:
 
 ```text
-CAPTAIN
-→ HAIL / dialogue / authored contact choices
-
 HELM
 → navigation, fly, dock, jump
 
@@ -259,7 +253,10 @@ ENGINEER
 → shields and repair
 ```
 
-`REQUEST DOCKING` should be removed.
+`REQUEST DOCKING`, `HAIL` and the current contact sequence/UI are removed.
+
+Future contact/dialogue will be designed again when a real mission or content
+requirement exists. It must not inherit the deleted officer-task flow by default.
 
 Normal docking should not require a preliminary bureaucratic task.
 
@@ -271,7 +268,8 @@ station contact gives a condition
 → docking remains unavailable until condition is met
 ```
 
-The exact Comms-removal code atom has not been implemented yet.
+Normal `DOCK` is directly available from Helm at the current station when the
+usual drive and bridge-idle requirements are satisfied.
 
 ---
 
@@ -526,7 +524,7 @@ Important current decisions:
 - exact physical `weaponId` is already available in command targets;
 - station monitor displays current task/progress;
 - palette displays available actions;
-- captain actions such as HAIL are outside officer palettes;
+- future captain actions remain outside officer palettes;
 - the final captain dashboard is not part of the current art migration.
 
 Updated plan:
@@ -542,21 +540,20 @@ COMMAND_PALETTE_ART_PLAN.md
 Use this order unless a fresh repo inspection exposes a blocker:
 
 ```text
-A. art-only preparation
+A. art-only preparation — complete
    - export bridge shell
    - export station base
    - confirm transparency and dimensions
    - lock atlas paths/frame IDs
    - pack atlas
 
-B. Comms gameplay cut
+B. Comms gameplay cut — complete in the current atom
    - remove REQUEST DOCKING flow
    - make normal DOCK direct when eligible
-   - move HAIL to captain/contact flow
+   - remove HAIL/contact flow and rebuild it later from real requirements
    - remove Comms from playable officer roster and tests
-   - keep this separate from broad view cleanup
 
-C. bridge shell migration
+C. bridge shell migration — next
    - replace old bridge background/shell
    - preserve viewscreen/world/VFX layering and bounds
    - keep temporary debug status panels

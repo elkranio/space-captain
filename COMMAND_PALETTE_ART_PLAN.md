@@ -48,11 +48,14 @@ There is no Comms palette.
 
 Captain actions are outside officer palettes.
 
-Current captain action:
+Current captain actions:
 
 ```text
-HAIL
+none
 ```
+
+`HAIL` and the prototype contact flow were removed. A future contact action
+must be designed from actual mission/dialogue requirements.
 
 `REQUEST DOCKING` is removed.
 
@@ -227,9 +230,8 @@ Current/future:
 
 Outside officer palette:
 
-- Hail;
-- dialogue choices;
-- authored contact decisions;
+- future dialogue choices;
+- future authored contact decisions;
 - future captain-only actions.
 
 Do not force captain actions into an officer role.
@@ -387,9 +389,9 @@ Do not draw every icon before one role works in runtime.
 
 Suggested first icon set:
 
-- Hail only if testing captain-action placement;
 - Identify Threat;
 - missile launcher;
+- directional shield;
 - Cancel Task.
 
 ---
@@ -430,7 +432,7 @@ it.
 Palette work is complete when:
 
 - exactly four officer palettes exist;
-- captain HAIL is outside officer palettes;
+- future captain actions are outside officer palettes;
 - no request-docking command exists;
 - slots remain stable while availability changes;
 - physical weapons keep separate identities;

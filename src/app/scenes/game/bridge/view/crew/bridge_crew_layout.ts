@@ -8,11 +8,7 @@ export type BridgeCrewSeatLayoutEntry = {
 };
 
 export const BRIDGE_CREW_SEAT_LAYOUT = [
-    // Левый ряд: верх / середина / низ
-    {
-        officerRole: OFFICER_ROLE.COMMS,
-        position: new Phaser.Math.Vector2(125, 135),
-    },
+    // Левый ряд: середина / низ
     {
         officerRole: OFFICER_ROLE.SCIENCE,
         position: new Phaser.Math.Vector2(125, 350),

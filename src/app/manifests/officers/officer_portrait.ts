@@ -10,15 +10,6 @@ export const OFFICER_PORTRAIT_SPRITES = {
         frameKey: 'officers/silhouette_00',
     },
 
-    [OFFICER_PORTRAIT_ID.COMMS_HUMAN_00]: {
-        atlasKey: DEFAULT_ATLAS_KEY,
-        frameKey: 'officers/comms/human_00_calm',
-    },
-    [OFFICER_PORTRAIT_ID.COMMS_ALIEN_00]: {
-        atlasKey: DEFAULT_ATLAS_KEY,
-        frameKey: 'officers/comms/alien_00_calm',
-    },
-
     [OFFICER_PORTRAIT_ID.SCIENCE_HUMAN_00]: {
         atlasKey: DEFAULT_ATLAS_KEY,
         frameKey: 'officers/science/human_00_calm',

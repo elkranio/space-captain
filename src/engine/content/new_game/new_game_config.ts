@@ -35,14 +35,6 @@ export const NEW_GAME_CONFIG = {
     },
 
     officers: {
-        [OFFICER_ROLE.COMMS]: {
-            role: OFFICER_ROLE.COMMS,
-            name: 'Pip Voxley',
-
-            portraitId:
-                OFFICER_PORTRAIT_ID.COMMS_HUMAN_00,
-        },
-
         [OFFICER_ROLE.SCIENCE]: {
             role: OFFICER_ROLE.SCIENCE,
             name: 'Dr. Zella Quark',
@@ -84,10 +76,6 @@ export function createNewGameOfficers(): Record<
     const officers = NEW_GAME_CONFIG.officers;
 
     return {
-        [OFFICER_ROLE.COMMS]: {
-            ...officers[OFFICER_ROLE.COMMS],
-        },
-
         [OFFICER_ROLE.SCIENCE]: {
             ...officers[OFFICER_ROLE.SCIENCE],
         },

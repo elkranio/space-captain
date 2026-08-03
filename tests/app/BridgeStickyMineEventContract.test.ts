@@ -64,7 +64,7 @@ describe('Bridge sticky-mine event contract', () => {
                         .OFFICER_TASK_ENDED,
 
                 task: {
-                    role: OFFICER_ROLE.COMMS,
+                    role: OFFICER_ROLE.SCIENCE,
                 },
 
                 outcome:
@@ -133,7 +133,7 @@ describe('Bridge sticky-mine event contract', () => {
 
                 {
                     role:
-                        OFFICER_ROLE.COMMS,
+                        OFFICER_ROLE.SCIENCE,
                 },
             ],
 

@@ -14,39 +14,6 @@ import {
 } from '../model/command';
 import { OFFICER_TASK_KIND, type OfficerTaskDraft } from '../model/officer_task';
 
-export function createCommsHailTask(targetAnchorId: string): OfficerTaskDraft {
-    return {
-        kind: OFFICER_TASK_KIND.COMMS_HAIL,
-        role: OFFICER_ROLE.COMMS,
-
-        sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.COMMS_HAIL,
-
-        targetAnchorId,
-
-        label: 'HAIL',
-        showProgress: false,
-
-        // Завершается вместе с contact flow.
-        durationMs: null,
-    };
-}
-
-export function createCommsRequestDockingTask(targetAnchorId: string): OfficerTaskDraft {
-    return {
-        kind: OFFICER_TASK_KIND.COMMS_REQUEST_DOCKING,
-        role: OFFICER_ROLE.COMMS,
-
-        sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.COMMS_REQUEST_DOCKING,
-
-        targetAnchorId,
-
-        label: 'REQ DOCK',
-        showProgress: false,
-
-        durationMs: OFFICER_TASK_BASE_DURATION_MS.COMMS_REQUEST_DOCKING,
-    };
-}
-
 export function createSciencePlotCourseTask(targetNodeId: string): OfficerTaskDraft {
     return {
         kind: OFFICER_TASK_KIND.SCIENCE_PLOT_COURSE,

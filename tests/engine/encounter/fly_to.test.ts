@@ -77,8 +77,6 @@ describe('FLY_TO', () => {
         });
 
         expect(engine.getOfficerAvailabilityStates()).toEqual({
-            [OFFICER_ROLE.COMMS]: OFFICER_AVAILABILITY_STATE.BLOCKED,
-
             [OFFICER_ROLE.SCIENCE]: OFFICER_AVAILABILITY_STATE.BLOCKED,
 
             [OFFICER_ROLE.HELM]: OFFICER_AVAILABILITY_STATE.BUSY,
@@ -163,8 +161,6 @@ describe('FLY_TO', () => {
         ]);
 
         expect(engine.getOfficerAvailabilityStates()).toEqual({
-            [OFFICER_ROLE.COMMS]: OFFICER_AVAILABILITY_STATE.UNAVAILABLE,
-
             [OFFICER_ROLE.SCIENCE]: OFFICER_AVAILABILITY_STATE.AVAILABLE,
 
             [OFFICER_ROLE.HELM]: OFFICER_AVAILABILITY_STATE.AVAILABLE,

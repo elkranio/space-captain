@@ -44,12 +44,6 @@ export const BRIDGE_OFFICER_BARK_LAYOUT = {
 } as const;
 
 export const OFFICER_BARK_POSITION_BY_ROLE = {
-    [OFFICER_ROLE.COMMS]: {
-        x: 130,
-        y: 60,
-        side: OFFICER_BARK_SIDE.LEFT,
-    },
-
     [OFFICER_ROLE.SCIENCE]: {
         x: 130,
         y: 275,

@@ -101,15 +101,15 @@ describe('CLEAR MINE command', () => {
 
         executeClearMine(
             engine,
-            OFFICER_ROLE.COMMS,
-        );
-        executeClearMine(
-            engine,
             OFFICER_ROLE.SCIENCE,
         );
         executeClearMine(
             engine,
             OFFICER_ROLE.HELM,
+        );
+        executeClearMine(
+            engine,
+            OFFICER_ROLE.WEAPONS,
         );
 
         const tasks = engine.getOfficerTasks();
@@ -117,30 +117,23 @@ describe('CLEAR MINE command', () => {
         expect(
             findTaskMineId(
                 tasks,
-                OFFICER_ROLE.COMMS,
+                OFFICER_ROLE.SCIENCE,
             ),
         ).toBe('mine_urgent');
 
         expect(
             findTaskMineId(
                 tasks,
-                OFFICER_ROLE.SCIENCE,
+                OFFICER_ROLE.HELM,
             ),
         ).toBe('mine_middle');
 
         expect(
             findTaskMineId(
                 tasks,
-                OFFICER_ROLE.HELM,
-            ),
-        ).toBe('mine_slow');
-
-        expect(
-            getClearMineCommand(
-                engine,
                 OFFICER_ROLE.WEAPONS,
             ),
-        ).toBeUndefined();
+        ).toBe('mine_slow');
 
         expect(
             getClearMineCommand(
@@ -163,11 +156,11 @@ describe('CLEAR MINE command', () => {
 
         executeClearMine(
             engine,
-            OFFICER_ROLE.COMMS,
+            OFFICER_ROLE.SCIENCE,
         );
         executeClearMine(
             engine,
-            OFFICER_ROLE.SCIENCE,
+            OFFICER_ROLE.HELM,
         );
 
         engine.drainEvents();
@@ -197,7 +190,7 @@ describe('CLEAR MINE command', () => {
                         OFFICER_TASK_KIND
                             .CLEAR_STICKY_MINE,
 
-                    role: OFFICER_ROLE.COMMS,
+                    role: OFFICER_ROLE.SCIENCE,
 
                     sourceCommandId:
                         ENCOUNTER_OFFICER_COMMAND_ID
@@ -243,7 +236,7 @@ describe('CLEAR MINE command', () => {
                             .CLEAR_STICKY_MINE,
 
                     role:
-                        OFFICER_ROLE.SCIENCE,
+                        OFFICER_ROLE.HELM,
 
                     sourceCommandId:
                         ENCOUNTER_OFFICER_COMMAND_ID
