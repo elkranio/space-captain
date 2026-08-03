@@ -16,7 +16,7 @@ BRIDGE_V01_HANDOFF.md          completed migration reference only
 COMMAND_PALETTE_ART_PLAN.md   only when palette work resumes
 ```
 
-The current cleanup slice is documented in `BACKLOG.md` under encounter snapshot transport.
+The current cleanup slice is documented in `BACKLOG.md` under combat missile lifecycle extraction.
 
 Last updated:
 
@@ -27,13 +27,13 @@ Last updated:
 Latest verified `master` before the current atom:
 
 ```text
-cb87f6fa4e15f62aa956b7741ffd762e9d296b47
+cd955ced656536f11ac5a89359dc5009a6923836
 ```
 
 Last code-bearing commit reported green by the user:
 
 ```text
-cb87f6fa4e15f62aa956b7741ffd762e9d296b47
+cd955ced656536f11ac5a89359dc5009a6923836
 ```
 
 Current checkpoint:
@@ -60,6 +60,8 @@ engine detached-read / snapshot-clone cleanup complete
 EncounterSnapshotReader owns app-facing encounter reads
 encounter outbox detaches every event at emit time
 ENCOUNTER_LOADED is a real snapshot, not a mutable test handle
+complete missile lifecycle extracted from CombatRunner
+shared combat runtime IDs/designations have one explicit owner
 command-menu redesign remains deferred
 enemy defensive behavior is the next gameplay slice
 ```

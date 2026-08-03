@@ -17,7 +17,7 @@ Last updated: 2026-08-03
 Current selected slice:
 
 ```text
-ENCOUNTER SNAPSHOT BOUNDARY CLEANUP
+COMBAT MISSILE LIFECYCLE EXTRACTION
 ```
 
 Bridge V0.1 migration is complete and runtime-accepted:
@@ -55,6 +55,18 @@ Implemented across the two snapshot refactor atoms:
 - replaced tests' accidental mutable event dependency with one explicit
   test-only state handle;
 - preserved gameplay rules, step order and persistence ownership.
+
+Implemented in the current refactor atom:
+
+- identified `CombatRunner` as the first remaining production god-object;
+- extracted queued player launches, player/enemy projectile creation, flight,
+  impact, target loss and actor-target cleanup into `CombatMissileRunner`;
+- kept enemy launcher targeting/cooldown and the top-level combat phase order in
+  `CombatRunner`;
+- centralized transient combat IDs and the mixed `M1 / L2 / M3` designation
+  sequence in one encounter-local `CombatRuntimeIdentityFactory`;
+- preserved the public `EncounterEngine` API and all gameplay behavior;
+- added a focused identity-sequence regression test.
 
 Next gameplay slice:
 
@@ -913,13 +925,20 @@ Avoid:
 
 ## CombatRunner size
 
-`CombatRunner` is large.
+`CombatRunner` was the first justified god-object split after the snapshot
+cleanup. The complete missile-object lifecycle now belongs to
+`CombatMissileRunner`; `CombatRunner` retains combat phase orchestration, enemy
+weapon phases, lasers, spam and sticky mines.
 
 Do not split it because of line count.
 
 A split is justified only when a subsystem can own a complete lifecycle with fewer dependencies and fewer unrelated edits.
 
 Avoid replacing a linear file with a graph of tiny runners.
+
+Do not immediately continue splitting the remaining weapon families. Re-audit
+after enemy point defense: extract another lifecycle only if it gains an equally
+narrow API and removes unrelated edits from `CombatRunner`.
 
 ---
 

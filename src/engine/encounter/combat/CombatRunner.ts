@@ -1,13 +1,9 @@
 // src/engine/encounter/combat/CombatRunner.ts
 
-import { MISSILES } from '../../content/catalogs/missiles';
 import { STICKY_MINES } from '../../content/catalogs/sticky_mines';
 import {
     ENCOUNTER_TEAM,
 } from '../../defs/encounter_team';
-import type {
-    MissileId,
-} from '../../defs/missile';
 import type {
     StickyMineId,
 } from '../../defs/sticky_mine';
@@ -21,7 +17,6 @@ import {
     SHIP_WEAPON_PHASE,
     type LaserWeaponDefinition,
     type LaserWeaponState,
-    type MissileLauncherState,
     type SpamProjectorDefinition,
     type SpamProjectorState,
     type StickyMineDispenserDefinition,
@@ -31,16 +26,13 @@ import {
 } from '../../defs/ship_weapon';
 import type { ShipEncounterActorState } from '../actors/ship/ship_encounter_actor';
 import {
-    COMBAT_PROJECTILE_KIND,
     COMBAT_SOURCE_KIND,
     COMBAT_TARGET_KIND,
     LASER_SHOT_OUTCOME,
-    PLAYER_MISSILE_OUTCOME,
     PLAYER_STICKY_MINE_OUTCOME,
     SPAM_CHANNEL_OUTCOME,
     THREAT_IDENTIFICATION_STATUS,
     type LaserAttackState,
-    type MissileCombatProjectileState,
     type SpamChannelOutcome,
     type SpamChannelState,
     type StickyMineState,
@@ -48,14 +40,12 @@ import {
 import { ENCOUNTER_EVENT, type EncounterEvent } from '../model/event';
 import type { EncounterState } from '../model/state';
 import EncounterStateStore from '../state/EncounterStateStore';
+import CombatMissileRunner, {
+    type PlayerMissileLaunchInput,
+} from './CombatMissileRunner';
+import CombatRuntimeIdentityFactory from './CombatRuntimeIdentityFactory';
 import EnemyTaskScheduler from './EnemyTaskScheduler';
 import EnemyThreatObserver from './EnemyThreatObserver';
-
-type PlayerMissileLaunchInput = {
-    sourceWeaponId: string;
-    missileId: MissileId;
-    targetActorId: string;
-};
 
 type PlayerStickyMineAttachInput = {
     sourceWeaponId: string;
@@ -116,20 +106,14 @@ export default class CombatRunner {
     private readonly enemyThreatObserver:
         EnemyThreatObserver;
 
-    private readonly pendingPlayerMissileLaunches:
-        PlayerMissileLaunchInput[] = [];
+    private readonly identities:
+        CombatRuntimeIdentityFactory;
+
+    private readonly missileRunner:
+        CombatMissileRunner;
 
     private readonly pendingPlayerStickyMineAttachments:
         PlayerStickyMineAttachInput[] = [];
-
-    private nextProjectileId = 1;
-    private nextLaserAttackId = 1;
-    private nextSpamChannelId = 1;
-    private nextStickyMineId = 1;
-
-    // Общая последовательность коротких обозначений угроз:
-    // M1, L2, M3, L4.
-    private nextThreatDesignationNumber = 1;
 
     constructor({
         stateStore,
@@ -155,6 +139,24 @@ export default class CombatRunner {
 
         this.destroyEnemyActor =
             destroyEnemyActor;
+
+        this.identities =
+            new CombatRuntimeIdentityFactory();
+
+        this.missileRunner =
+            new CombatMissileRunner({
+                stateStore:
+                    this.stateStore,
+
+                identities:
+                    this.identities,
+
+                emit:
+                    this.emit,
+
+                destroyEnemyActor:
+                    this.destroyEnemyActor,
+            });
 
         this.enemyTaskScheduler =
             new EnemyTaskScheduler({
@@ -194,12 +196,8 @@ export default class CombatRunner {
         // до начала этого combat step.
         return {
             projectileIds:
-                this.state.combat
-                    .projectiles
-                    .map((projectile) => {
-                        return projectile.id;
-                    })
-                    .reverse(),
+                this.missileRunner
+                    .captureExistingProjectileIds(),
 
             stickyMineIds:
                 this.state.combat
@@ -217,7 +215,8 @@ export default class CombatRunner {
         // его как TARGET_LOST. При этом новый объект
         // отсутствует в captured IDs и не получает
         // текущий deltaMs.
-        this.flushPlayerMissileLaunches();
+        this.missileRunner
+            .integratePendingPlayerLaunches();
         this.flushPlayerStickyMineAttachments();
     }
 
@@ -231,7 +230,8 @@ export default class CombatRunner {
             CombatStepExistingObjectIds,
         deltaMs: number,
     ): void {
-        this.advanceProjectiles(
+        this.missileRunner
+            .advanceExistingProjectiles(
             existingIds.projectileIds,
             deltaMs,
         );
@@ -299,9 +299,8 @@ export default class CombatRunner {
     public queuePlayerMissileLaunch(
         input: PlayerMissileLaunchInput,
     ): void {
-        this.pendingPlayerMissileLaunches.push({
-            ...input,
-        });
+        this.missileRunner
+            .queuePlayerLaunch(input);
     }
 
     public queuePlayerStickyMineAttach(
@@ -372,7 +371,8 @@ export default class CombatRunner {
 
         const mine: StickyMineState = {
             id:
-                this.createStickyMineId(),
+                this.identities
+                    .createStickyMineId(),
 
             mineId:
                 input.mineId,
@@ -449,9 +449,10 @@ export default class CombatRunner {
     public removePlayerCombatObjectsTargetingActor(
         actorId: string,
     ): void {
-        this.removePlayerMissilesTargetingActor(
-            actorId,
-        );
+        this.missileRunner
+            .removePlayerMissilesTargetingActor(
+                actorId,
+            );
 
         this.removeStickyMinesTargetingActor(
             actorId,
@@ -532,7 +533,11 @@ export default class CombatRunner {
     ): void {
         switch (weapon.kind) {
             case SHIP_WEAPON_KIND.MISSILE_LAUNCHER:
-                this.launchMissile(actor, weapon);
+                this.missileRunner
+                    .launchEnemyMissile(
+                        actor,
+                        weapon,
+                    );
                 return;
 
             case SHIP_WEAPON_KIND.LASER:
@@ -708,167 +713,6 @@ export default class CombatRunner {
 
     // #endregion
 
-    // #region Missile launcher
-
-    private flushPlayerMissileLaunches(): void {
-        const launches =
-            this.pendingPlayerMissileLaunches
-                .splice(0);
-
-        for (const launch of launches) {
-            this.createPlayerMissileProjectile(
-                launch,
-            );
-        }
-    }
-
-    private createPlayerMissileProjectile(
-        launch: PlayerMissileLaunchInput,
-    ): void {
-        const target =
-            this.state.actors.find(
-                (actor) => {
-                    return (
-                        actor.id ===
-                        launch.targetActorId
-                    );
-                },
-            );
-
-        if (
-            !target ||
-            target.team !==
-                ENCOUNTER_TEAM.ENEMY ||
-            target.hull <= 0
-        ) {
-            throw new Error(
-                'Cannot launch player missile ' +
-                    'at invalid target: ' +
-                    `${launch.sourceWeaponId}/` +
-                    `${launch.targetActorId}`,
-            );
-        }
-
-        const missile =
-            MISSILES[launch.missileId];
-
-        const projectile:
-            MissileCombatProjectileState = {
-                id:
-                    this.createProjectileId(),
-
-                designation:
-                    this.createThreatDesignation(
-                        'M',
-                    ),
-
-                kind:
-                    COMBAT_PROJECTILE_KIND
-                        .MISSILE,
-
-                source: {
-                    kind:
-                        COMBAT_SOURCE_KIND
-                            .PLAYER_SHIP,
-                },
-
-                sourceWeaponId:
-                    launch.sourceWeaponId,
-
-                target: {
-                    kind:
-                        COMBAT_TARGET_KIND.ACTOR,
-
-                    actorId:
-                        launch.targetActorId,
-                },
-
-                // Собственная ракета известна игроку.
-                // Threat queries всё равно фильтруют
-                // только actor -> player угрозы.
-                identification: {
-                    status:
-                        THREAT_IDENTIFICATION_STATUS
-                            .IDENTIFIED,
-
-                    spectralBand:
-                        missile.spectralBand,
-                },
-
-                missileId:
-                    launch.missileId,
-
-                timeToImpactMs:
-                    missile.flightDurationMs,
-
-                initialTimeToImpactMs:
-                    missile.flightDurationMs,
-            };
-
-        this.state.combat.projectiles.push(
-            projectile,
-        );
-
-        this.emit({
-            type:
-                ENCOUNTER_EVENT
-                    .PLAYER_MISSILE_LAUNCHED,
-
-            projectile,
-        });
-    }
-
-    private launchMissile(actor: ShipEncounterActorState, launcher: MissileLauncherState): void {
-        const missileId = launcher.loadedMissileId;
-
-        if (!missileId || launcher.ammoCount <= 0) {
-            throw new Error(`Cannot launch missile from empty launcher: ` + `${actor.id}/${launcher.id}`);
-        }
-
-        const missile = MISSILES[missileId];
-
-        launcher.ammoCount -= 1;
-        launcher.phase = SHIP_WEAPON_PHASE.COOLDOWN;
-        launcher.phaseElapsedMs = 0;
-
-        const projectile: MissileCombatProjectileState = {
-            id: this.createProjectileId(),
-            designation: this.createThreatDesignation('M'),
-
-            kind: COMBAT_PROJECTILE_KIND.MISSILE,
-
-            source: {
-                kind: COMBAT_SOURCE_KIND.ACTOR,
-                actorId: actor.id,
-            },
-
-            sourceWeaponId: launcher.id,
-
-            target: {
-                kind: COMBAT_TARGET_KIND.PLAYER_SHIP,
-            },
-
-            identification: {
-                status: THREAT_IDENTIFICATION_STATUS.UNKNOWN,
-            },
-
-            missileId,
-
-            timeToImpactMs: missile.flightDurationMs,
-            initialTimeToImpactMs: missile.flightDurationMs,
-        };
-
-        this.state.combat.projectiles.push(projectile);
-
-        this.emit({
-            type: ENCOUNTER_EVENT.MISSILE_LAUNCHED,
-
-            projectile,
-        });
-    }
-
-    // #endregion
-
     // #region Laser
 
     private startLaserCharging(actor: ShipEncounterActorState, laser: LaserWeaponState): void {
@@ -910,8 +754,15 @@ export default class CombatRunner {
         }
 
         const attack: LaserAttackState = {
-            id: this.createLaserAttackId(),
-            designation: this.createThreatDesignation('L'),
+            id:
+                this.identities
+                    .createLaserAttackId(),
+
+            designation:
+                this.identities
+                    .createThreatDesignation(
+                        'L',
+                    ),
 
             sourceActorId: actor.id,
             sourceWeaponId: laser.id,
@@ -1032,7 +883,9 @@ export default class CombatRunner {
 
         projector.phase = SHIP_WEAPON_PHASE.CHANNELING;
         projector.phaseElapsedMs = 0;
-        projector.activeChannelId = this.createSpamChannelId();
+        projector.activeChannelId =
+            this.identities
+                .createSpamChannelId();
 
         this.emit({
             type: ENCOUNTER_EVENT.SPAM_CHANNEL_STARTED,
@@ -1223,7 +1076,9 @@ export default class CombatRunner {
             STICKY_MINES[mineId];
 
         const mine: StickyMineState = {
-            id: this.createStickyMineId(),
+            id:
+                this.identities
+                    .createStickyMineId(),
 
             mineId,
 
@@ -1553,361 +1408,4 @@ export default class CombatRunner {
 
     // #endregion
 
-    // #region Projectiles
-
-    private advanceProjectiles(
-        projectileIds: readonly string[],
-        deltaMs: number,
-    ): void {
-        for (
-            const projectileId of
-            projectileIds
-        ) {
-            const index =
-                this.state.combat
-                    .projectiles
-                    .findIndex((projectile) => {
-                        return (
-                            projectile.id ===
-                            projectileId
-                        );
-                    });
-
-            // A previous lethal resolution may have
-            // removed this projectile during the same step.
-            if (index < 0) {
-                continue;
-            }
-
-            const projectile =
-                this.state.combat
-                    .projectiles[index];
-
-            if (
-                projectile.target.kind ===
-                COMBAT_TARGET_KIND.PLAYER_SHIP
-            ) {
-                this.advanceIncomingMissile(
-                    index,
-                    projectile,
-                    deltaMs,
-                );
-
-                continue;
-            }
-
-            this.advancePlayerMissile(
-                index,
-                projectile,
-                projectile.target.actorId,
-                deltaMs,
-            );
-        }
-    }
-
-    private advanceIncomingMissile(
-        index: number,
-        projectile:
-            MissileCombatProjectileState,
-        deltaMs: number,
-    ): void {
-        projectile.timeToImpactMs =
-            Math.max(
-                0,
-                projectile.timeToImpactMs -
-                    deltaMs,
-            );
-
-        if (
-            projectile.timeToImpactMs >
-            0
-        ) {
-            return;
-        }
-
-        this.resolveMissileImpactOnPlayerShip(
-            index,
-            projectile,
-        );
-    }
-
-    private advancePlayerMissile(
-        index: number,
-        projectile:
-            MissileCombatProjectileState,
-        targetActorId: string,
-        deltaMs: number,
-    ): void {
-        if (
-            projectile.source.kind !==
-            COMBAT_SOURCE_KIND.PLAYER_SHIP
-        ) {
-            throw new Error(
-                'Actor-target missile has ' +
-                    'unsupported source: ' +
-                    `${projectile.id}/` +
-                    `${projectile.source.kind}`,
-            );
-        }
-
-        const target =
-            this.state.actors.find(
-                (actor) => {
-                    return (
-                        actor.id ===
-                        targetActorId
-                    );
-                },
-            );
-
-        if (
-            !target ||
-            target.team !==
-                ENCOUNTER_TEAM.ENEMY ||
-            target.hull <= 0
-        ) {
-            this.resolvePlayerMissileTargetLost(
-                index,
-                projectile,
-            );
-
-            return;
-        }
-
-        projectile.timeToImpactMs =
-            Math.max(
-                0,
-                projectile.timeToImpactMs -
-                    deltaMs,
-            );
-
-        if (
-            projectile.timeToImpactMs >
-            0
-        ) {
-            return;
-        }
-
-        this.resolvePlayerMissileImpact(
-            index,
-            projectile,
-            target,
-        );
-    }
-
-    private resolvePlayerMissileTargetLost(
-        index: number,
-        projectile:
-            MissileCombatProjectileState,
-    ): void {
-        if (
-            projectile.source.kind !==
-                COMBAT_SOURCE_KIND
-                    .PLAYER_SHIP ||
-            projectile.target.kind !==
-                COMBAT_TARGET_KIND.ACTOR
-        ) {
-            throw new Error(
-                'Cannot resolve player missile target loss for route: ' +
-                    projectile.id +
-                    '/' +
-                    projectile.source.kind +
-                    '/' +
-                    projectile.target.kind,
-            );
-        }
-
-        this.state.combat
-            .projectiles.splice(
-                index,
-                1,
-            );
-
-        this.emit({
-            type:
-                ENCOUNTER_EVENT
-                    .PLAYER_MISSILE_RESOLVED,
-
-            projectile,
-
-            outcome:
-                PLAYER_MISSILE_OUTCOME
-                    .TARGET_LOST,
-        });
-    }
-
-    private removePlayerMissilesTargetingActor(
-        actorId: string,
-    ): void {
-        for (
-            let index =
-                this.state.combat
-                    .projectiles.length - 1;
-
-            index >= 0;
-
-            index -= 1
-        ) {
-            const projectile =
-                this.state.combat
-                    .projectiles[index];
-
-            if (
-                projectile.source.kind !==
-                    COMBAT_SOURCE_KIND
-                        .PLAYER_SHIP ||
-                projectile.target.kind !==
-                    COMBAT_TARGET_KIND.ACTOR ||
-                projectile.target.actorId !==
-                    actorId
-            ) {
-                continue;
-            }
-
-            this.resolvePlayerMissileTargetLost(
-                index,
-                projectile,
-            );
-        }
-    }
-
-    private resolveMissileImpactOnPlayerShip(
-        index: number,
-        projectile:
-            MissileCombatProjectileState,
-    ): void {
-        if (
-            projectile.target.kind !==
-            COMBAT_TARGET_KIND.PLAYER_SHIP
-        ) {
-            throw new Error(
-                'Cannot resolve incoming missile ' +
-                    'impact for target: ' +
-                    `${projectile.id}/` +
-                    `${projectile.target.kind}`,
-            );
-        }
-
-        const missile =
-            MISSILES[projectile.missileId];
-
-        projectile.timeToImpactMs = 0;
-
-        this.state.combat.projectiles.splice(
-            index,
-            1,
-        );
-
-        const damageResult =
-            this.stateStore
-                .damagePlayerHull(
-                    missile.damage,
-                );
-
-        this.emit({
-            type:
-                ENCOUNTER_EVENT
-                    .MISSILE_IMPACTED_PLAYER_SHIP,
-
-            projectile,
-
-            ...damageResult,
-        });
-    }
-
-    private resolvePlayerMissileImpact(
-        index: number,
-        projectile:
-            MissileCombatProjectileState,
-        target:
-            ShipEncounterActorState,
-    ): void {
-        const missile =
-            MISSILES[projectile.missileId];
-
-        projectile.timeToImpactMs = 0;
-
-        this.state.combat.projectiles.splice(
-            index,
-            1,
-        );
-
-        const damageResult =
-            this.stateStore.damageEnemyActorHull(
-                target.id,
-                missile.damage,
-            );
-
-        this.emit({
-            type:
-                ENCOUNTER_EVENT
-                    .PLAYER_MISSILE_RESOLVED,
-
-            projectile,
-
-            outcome:
-                PLAYER_MISSILE_OUTCOME.HIT,
-
-            damage:
-                damageResult
-                    .appliedDamage,
-
-            remainingHull:
-                damageResult
-                    .remainingHull,
-        });
-
-        if (damageResult.destroyed) {
-            this.destroyEnemyActor(
-                target.id,
-            );
-        }
-    }
-
-    // #endregion
-
-    // #region Runtime identities
-
-    private createProjectileId(): string {
-        const id = `projectile_${this.nextProjectileId}`;
-
-        this.nextProjectileId += 1;
-
-        return id;
-    }
-
-    private createLaserAttackId(): string {
-        const id = `laser_attack_${this.nextLaserAttackId}`;
-
-        this.nextLaserAttackId += 1;
-
-        return id;
-    }
-
-    private createSpamChannelId(): string {
-        const id = `spam_channel_${this.nextSpamChannelId}`;
-
-        this.nextSpamChannelId += 1;
-
-        return id;
-    }
-
-    private createStickyMineId(): string {
-        const id =
-            `sticky_mine_${this.nextStickyMineId}`;
-
-        this.nextStickyMineId += 1;
-
-        return id;
-    }
-
-    private createThreatDesignation(prefix: string): string {
-        const designation = `${prefix}${this.nextThreatDesignationNumber}`;
-
-        this.nextThreatDesignationNumber += 1;
-
-        return designation;
-    }
-
-    // #endregion
 }

@@ -13,10 +13,11 @@ Last updated:
 Current repository checkpoint:
 
 ```text
-ec044be8516f119cd4d09b162d2fcc57684d2753
+cd955ced656536f11ac5a89359dc5009a6923836
 ```
 
-Enemy behavior is paused while the bridge V0.1 migration is active.
+Bridge V0.1 migration is complete. Enemy defensive behavior is the next
+gameplay slice after the current missile-lifecycle refactor.
 
 This file records the exact implementation boundary so the next behavior pass
 does not repeat completed architecture work.
@@ -220,6 +221,8 @@ src/engine/encounter/combat/EnemyCrewTaskRunner.ts
 src/engine/encounter/combat/EnemyThreatObserver.ts
 src/engine/encounter/combat/EnemyScienceIntelResolver.ts
 src/engine/encounter/combat/CombatRunner.ts
+src/engine/encounter/combat/CombatMissileRunner.ts
+src/engine/encounter/combat/CombatRuntimeIdentityFactory.ts
 src/engine/defs/ship_weapon.ts
 src/engine/encounter/actors/ship/ship_encounter_actor.ts
 src/engine/encounter/model/enemy_threat_observation.ts
@@ -395,7 +398,8 @@ Do not:
 - create a behavior tree;
 - create generic utility AI;
 - create one class per event;
-- split `CombatRunner` per weapon without a current simplification win.
+- split the remaining `CombatRunner` weapon families without the same complete
+  lifecycle and narrow-API simplification win already established for missiles.
 
 ---
 
@@ -435,6 +439,8 @@ Why it is a good candidate:
 - player missiles currently have no enemy counter;
 - missile is already an observed/reported threat;
 - target-loss and projectile lifecycle already exist;
+- the complete missile lifecycle now has one physical owner in
+  `CombatMissileRunner`;
 - result is visually clear;
 - scope can remain narrow.
 

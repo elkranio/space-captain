@@ -19,7 +19,7 @@ It does not contain gameplay balance or implementation backlog.
 Last mapped commit:
 
 ```text
-a2918ae6edc900e34b8a290c8051d3a65a4e44e8
+cd955ced656536f11ac5a89359dc5009a6923836
 ```
 
 ---
@@ -64,7 +64,7 @@ Hard rules:
 | Enemy encounter actor | `EncounterState.actors` | encounter/combat systems | identity/baseline only | encounter object + telemetry |
 | Enemy hull | ship encounter actor | `EncounterStateStore.damageEnemyActorHull()` | resets from node actor on reconstruction | enemy telemetry |
 | Enemy weapon state | ship encounter actor | `CombatRunner` | resets from node actor on reconstruction | enemy telemetry |
-| Player/incoming projectiles | `EncounterState.combat.projectiles` | `CombatRunner` | no | missile views |
+| Player/incoming projectiles | `EncounterState.combat.projectiles` | `CombatMissileRunner` | no | missile views |
 | Sticky mines | `EncounterState.combat.stickyMines` | `CombatRunner` | no | sticky-mine views |
 | Active laser attacks | `EncounterState.combat.laserAttacks` | `CombatRunner` | no | laser threat/VFX views |
 | Player officer tasks | `EncounterState.officerTasks` | `OfficerTaskRunner` / store | only through reconstructed navigation tasks where required | officer activity |
@@ -96,6 +96,8 @@ EncounterEngine
 ├─ OfficerTaskRunner
 ├─ PlayerWeaponRunner
 ├─ CombatRunner
+│  ├─ CombatMissileRunner
+│  ├─ CombatRuntimeIdentityFactory
 │  ├─ EnemyThreatObserver
 │  └─ EnemyTaskScheduler
 │     ├─ EnemyDecisionPolicy
@@ -227,7 +229,25 @@ Do not build a generic planner, behavior tree or utility-AI framework.
 
 Player weapon lifecycle belongs to `PlayerWeaponRunner`.
 
-Enemy weapon lifecycle currently belongs to `CombatRunner`.
+Enemy weapon phase lifecycle currently belongs to `CombatRunner`.
+
+The complete missile-object lifecycle belongs to `CombatMissileRunner`:
+
+```text
+queued player launch
+→ player/enemy projectile creation
+→ flight
+→ impact or target loss
+→ actor-target cleanup
+```
+
+`CombatRunner` owns the locked phase order and calls the missile runner through
+that narrow lifecycle API. Enemy launcher targeting/cooldown remains part of the
+shared enemy weapon-phase lifecycle.
+
+Transient combat IDs and the shared mixed threat-designation sequence
+(`M1, L2, M3...`) belong to one encounter-local
+`CombatRuntimeIdentityFactory` instance.
 
 Officer/crew tasks describe operator occupation and selected targets. Cooldowns
 do not occupy the operator.
@@ -453,7 +473,8 @@ Stop and inspect architecture when a local feature requires any of these:
 7. done — audit again before command-palette implementation
 8. done — extract app snapshot transport from BridgeEncounterController
 9. done — centralize detached engine reads and snapshot cloning
-10. next — return to one narrow enemy defensive behavior slice
+10. done — extract complete missile-object lifecycle from CombatRunner
+11. next — return to one narrow enemy defensive behavior slice
 ```
 
 Audit result: physical launchers/dispensers now keep stable command identity
@@ -462,7 +483,10 @@ refactor is required before replacing the old command menu with the complete
 command-palette interaction flow.
 
 The snapshot cleanup removed duplicated transport and unsafe mutable references
-without changing gameplay ownership or step order.
+without changing gameplay ownership or step order. The following size audit
+found one justified lifecycle split: missile creation, flight, resolution and
+cleanup now form one `CombatMissileRunner`; the remaining weapon families stay
+in `CombatRunner` until they independently satisfy the same criterion.
 
 Small adjacent cleanups are allowed when they:
 
