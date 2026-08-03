@@ -303,6 +303,17 @@ Use snapshots for continuously changing state:
 - current weapon status;
 - current command availability.
 
+App-side collection and bridge delivery of continuously changing encounter
+read models is owned by:
+
+```text
+BridgeEncounterSnapshotSynchronizer
+```
+
+It may map engine read models to bridge payloads and emit complete snapshot
+updates. It does not own domain decisions, navigation lifecycle or event
+translation.
+
 ## Persistence synchronization
 
 Event-driven persistence is owned by:
@@ -322,9 +333,11 @@ EncounterEvent
 `BridgeEncounterEngineEventHandler` owns bridge presentation and scene flow but
 must not call `GameRuntime` mutation methods directly.
 
-Snapshot-based synchronization remains explicit in `BridgeEncounterController`
-for player weapons and navigation lifecycle boundaries. Do not move these to a
-per-frame generic synchronizer.
+Snapshot-based player-weapon persistence is owned by
+`BridgeEncounterSnapshotSynchronizer`, next to the matching bridge-status
+projection. Navigation synchronization remains explicit in
+`BridgeEncounterController` at lifecycle boundaries and must not be folded into
+per-frame snapshot transport.
 
 ## Bridge events
 
@@ -419,12 +432,18 @@ Stop and inspect architecture when a local feature requires any of these:
 5. done — expose CombatRunner step phases explicitly
 6. done — separate bridge persistence transport from presentation transport
 7. done — audit again before command-palette implementation
+8. done — extract app snapshot transport from BridgeEncounterController
+9. next — centralize detached engine reads and snapshot cloning
 ```
 
 Audit result: physical launchers/dispensers now keep stable command identity
 through availability, validation and execution. No further architecture
 refactor is required before replacing the old command menu with the complete
 command-palette interaction flow.
+
+The new snapshot cleanup is narrower than the earlier combat architecture pass:
+it removes duplicated transport and unsafe mutable references without changing
+gameplay ownership or step order.
 
 Small adjacent cleanups are allowed when they:
 

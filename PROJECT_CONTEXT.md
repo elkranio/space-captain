@@ -16,7 +16,7 @@ BRIDGE_V01_HANDOFF.md          completed migration reference only
 COMMAND_PALETTE_ART_PLAN.md   only when palette work resumes
 ```
 
-The current acceptance slice is documented in `BACKLOG.md` under combat action hints.
+The current cleanup slice is documented in `BACKLOG.md` under encounter snapshot transport.
 
 Last updated:
 
@@ -27,13 +27,13 @@ Last updated:
 Latest verified `master`:
 
 ```text
-7bd81645c6087b0c22ed1abdba3e2ae00c5a5cc6
+60f2c772fe6d1f0f455f247a42c2f1e29f16692b
 ```
 
 Last code-bearing commit reported green by the user:
 
 ```text
-e59f7e70097ec3224e79bbe0505a8d0a2b431407
+60f2c772fe6d1f0f455f247a42c2f1e29f16692b
 ```
 
 Current checkpoint:
@@ -54,7 +54,9 @@ role abbreviations on officer backs complete
 old five-seat presentation removed
 obsolete old station frame/status assets removed
 combat action hints implemented on idle station monitors
-combat action hints await runtime visual acceptance
+combat action hints runtime-accepted with local presentation tuning
+app encounter snapshot transport extracted from BridgeEncounterController
+engine detached-read / snapshot-clone cleanup remains next
 command-menu redesign remains deferred
 enemy behavior implementation is paused, not discarded
 ```

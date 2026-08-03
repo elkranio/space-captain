@@ -17,7 +17,7 @@ Last updated: 2026-08-03
 Current selected slice:
 
 ```text
-COMBAT ACTION HINTS — RUNTIME ACCEPTANCE
+ENCOUNTER SNAPSHOT TRANSPORT CLEANUP
 ```
 
 Bridge V0.1 migration is complete and runtime-accepted:
@@ -32,7 +32,31 @@ Bridge V0.1 migration is complete and runtime-accepted:
 - readable role abbreviations on officer backs;
 - removal of the obsolete old seat presentation and its station assets.
 
-Implemented in the current atom:
+Combat action hints are runtime-accepted for the current V0.1 presentation.
+Text density and a possible future icon replacement remain polish work, not a
+blocker.
+
+Implemented in the current refactor atom:
+
+- extracted `BridgeEncounterSnapshotSynchronizer` from
+  `BridgeEncounterController`;
+- centralized app-side collection and mapping of continuously changing combat
+  read models;
+- kept player-weapon snapshot persistence beside its bridge-status projection;
+- kept navigation synchronization in explicit encounter lifecycle methods;
+- preserved frame order: engine step → weapon sync → domain events → combat
+  snapshots → station poll;
+- added a transport-contract test for initial and per-frame snapshot mapping.
+
+Next narrow atom:
+
+- add one state-bound engine snapshot reader;
+- centralize detached copies returned through the app-facing engine API;
+- remove duplicated projectile / mine / laser clone logic;
+- fix event payloads that still retain mutable encounter references;
+- do not change gameplay rules, step order or persistence ownership.
+
+Accepted combat action-hint contract:
 
 - show hints only during active combat;
 - show hints only when the officer is free;
@@ -42,9 +66,6 @@ Implemented in the current atom:
 - hide hints when a task starts and restore the latest snapshot when it clears;
 - keep the current command menu unchanged;
 - do not add selected-station treatment in this atom.
-
-Runtime acceptance still needs to verify line fit, monitor coordinates and
-state transitions under live combat timing.
 
 Locked V0.1 copy:
 
@@ -73,9 +94,8 @@ If more than two actions are available, choose by fixed urgency rather than
 command-menu order. Defensive response to an active threat comes before cleanup,
 repair, offense and escape.
 
-After runtime acceptance, explicitly choose either enemy point defense or the
-enemy Engineer directional-shield response. Neither is silently part of this
-presentation atom.
+After snapshot cleanup, return to enemy behavior and explicitly choose either
+enemy point defense or the enemy Engineer directional-shield response.
 
 `BRIDGE_V01_HANDOFF.md` remains as the completed migration reference.
 

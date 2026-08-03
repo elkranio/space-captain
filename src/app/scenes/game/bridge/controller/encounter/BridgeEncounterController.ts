@@ -31,8 +31,7 @@ import type BridgeEventBus from '../../events/BridgeEventBus';
 import BridgeOfficerCommandMenuController from './command_menu/BridgeOfficerCommandMenuController';
 import BridgeEncounterEngineEventHandler from './engine_events/BridgeEncounterEngineEventHandler';
 import BridgeOfficerStationsController from './officer_stations/BridgeOfficerStationsController';
-import { THREAT_IDENTIFICATION_STATUS } from '../../../../../../engine/encounter/model/combat';
-import { mapPlayerWeaponsToBridgeStatusPayload } from '../player_weapon_status/BridgePlayerWeaponStatusMapper';
+import BridgeEncounterSnapshotSynchronizer from './snapshots/BridgeEncounterSnapshotSynchronizer';
 
 // App-controller для bridge encounter flow.
 //
@@ -52,6 +51,8 @@ export default class BridgeEncounterController {
     private officerCommandMenuController?: BridgeOfficerCommandMenuController;
 
     private officerStationsController?: BridgeOfficerStationsController;
+
+    private snapshotSynchronizer?: BridgeEncounterSnapshotSynchronizer;
 
     private readonly engineEventHandler: BridgeEncounterEngineEventHandler;
 
@@ -84,6 +85,7 @@ export default class BridgeEncounterController {
         this.officerStationsController?.destroy();
         this.officerCommandMenuController = undefined;
         this.officerStationsController = undefined;
+        this.snapshotSynchronizer = undefined;
         this.encounterEngine = undefined;
 
         this.isEncounterInteractive = false;
@@ -103,16 +105,9 @@ export default class BridgeEncounterController {
         }
 
         this.encounterEngine.step(deltaMs);
-
-        this.syncPlayerWeaponsFromEngine();
+        this.snapshotSynchronizer?.syncPlayerWeapons();
         this.drainEncounterEvents();
-        this.syncIncomingMissiles();
-        this.syncOutgoingMissiles();
-        this.syncOutgoingStickyMines();
-        this.syncStickyMines();
-        this.syncLaserThreats();
-        this.syncPlayerShield();
-        this.syncEnemyShipTelemetry();
+        this.snapshotSynchronizer?.syncCombatPresentation();
 
         this.officerStationsController?.step(deltaMs);
     }
@@ -236,21 +231,26 @@ export default class BridgeEncounterController {
             completeTimedTasksImmediately: DEBUG_SETTINGS.bridge.officerTasks.completeTimedTasksImmediately,
         });
 
+        this.snapshotSynchronizer = new BridgeEncounterSnapshotSynchronizer(
+            this.encounterEngine,
+            this.eventBus,
+            GAME_RUNTIME,
+        );
+
         this.officerCommandMenuController =
             new BridgeOfficerCommandMenuController(
                 this.encounterEngine,
                 this.eventBus,
 
                 () => {
-                    this.syncPlayerWeaponsFromEngine();
+                    this.snapshotSynchronizer?.syncPlayerWeapons();
                 },
             );
 
         this.officerStationsController = new BridgeOfficerStationsController(this.encounterEngine, this.eventBus);
 
         this.drainEncounterEvents();
-        this.syncPlayerWeaponsFromEngine();
-        this.syncEnemyShipTelemetry();
+        this.snapshotSynchronizer.syncInitial();
 
         if (this.isEncounterInteractive) {
             this.engageHostileActors();
@@ -361,7 +361,7 @@ export default class BridgeEncounterController {
 
     // #endregion
 
-    // #region Engine events and snapshots
+    // #region Engine events
 
     private drainEncounterEvents(): void {
         if (!this.encounterEngine) {
@@ -371,212 +371,6 @@ export default class BridgeEncounterController {
         const events = this.encounterEngine.drainEvents();
 
         this.engineEventHandler.handle(events);
-    }
-
-    private syncEnemyShipTelemetry(): void {
-        if (!this.encounterEngine) {
-            return;
-        }
-
-        const [snapshot] =
-            this.encounterEngine
-                .getEnemyShipTelemetrySnapshots();
-
-        this.eventBus.emit(
-            BRIDGE_EVENT
-                .ENEMY_SHIP_TELEMETRY_UPDATED,
-
-            snapshot
-                ? {
-                      actorId: snapshot.actorId,
-
-                      hull: {
-                          ...snapshot.hull,
-                      },
-
-                      drive: {
-                          ...snapshot.drive,
-                      },
-
-                      shieldGenerator: {
-                          ...snapshot
-                              .shieldGenerator,
-                      },
-
-                      weapons:
-                          snapshot.weapons.map(
-                              (weapon) => {
-                                  return {
-                                      ...weapon,
-                                  };
-                              },
-                          ),
-                  }
-                : undefined,
-        );
-    }
-
-    private syncIncomingMissiles(): void {
-        if (!this.encounterEngine) {
-            return;
-        }
-
-        const projectiles =
-            this.encounterEngine
-                .getIncomingMissileProjectiles();
-
-        this.eventBus.emit(
-            BRIDGE_EVENT.INCOMING_MISSILES_UPDATED,
-
-            projectiles.map((projectile) => {
-                return {
-                    projectileId: projectile.id,
-                    timeToImpactMs: projectile.timeToImpactMs,
-
-                    ...(projectile.identification.status === THREAT_IDENTIFICATION_STATUS.IDENTIFIED
-                        ? {
-                              spectralBand: projectile.identification.spectralBand,
-                          }
-                        : {}),
-                };
-            }),
-        );
-    }
-
-    private syncOutgoingMissiles(): void {
-        if (!this.encounterEngine) {
-            return;
-        }
-
-        this.eventBus.emit(
-            BRIDGE_EVENT
-                .OUTGOING_MISSILES_UPDATED,
-
-            this.encounterEngine
-                .getOutgoingMissileProjectiles()
-                .map((projectile) => {
-                    return {
-                        projectileId:
-                            projectile.id,
-
-                        timeToImpactMs:
-                            projectile
-                                .timeToImpactMs,
-
-                        initialTimeToImpactMs:
-                            projectile
-                                .initialTimeToImpactMs,
-                    };
-                }),
-        );
-    }
-
-    private syncOutgoingStickyMines(): void {
-        if (!this.encounterEngine) {
-            return;
-        }
-
-        this.eventBus.emit(
-            BRIDGE_EVENT
-                .OUTGOING_STICKY_MINES_UPDATED,
-
-            this.encounterEngine
-                .getOutgoingStickyMines()
-                .map((mine) => {
-                    return {
-                        mineId:
-                            mine.id,
-
-                        remainingTimeToDetonationMs:
-                            mine.timeToDetonationMs,
-
-                        initialTimeToDetonationMs:
-                            mine.initialTimeToDetonationMs,
-                    };
-                }),
-        );
-    }
-
-    private syncStickyMines(): void {
-        if (!this.encounterEngine) {
-            return;
-        }
-
-        this.eventBus.emit(
-            BRIDGE_EVENT.STICKY_MINES_UPDATED,
-
-            this.encounterEngine
-                .getStickyMineSnapshots()
-                .map((snapshot) => {
-                    return {
-                        mineId: snapshot.mine.id,
-
-                        remainingTimeToDetonationMs:
-                            snapshot.mine.timeToDetonationMs,
-
-                        initialTimeToDetonationMs:
-                            snapshot.mine.initialTimeToDetonationMs,
-
-                        isBeingCleared:
-                            snapshot.isBeingCleared,
-
-                        isNextClearTarget:
-                            snapshot.isNextClearTarget,
-                    };
-                }),
-        );
-    }
-
-    private syncLaserThreats(): void {
-        if (!this.encounterEngine) {
-            return;
-        }
-
-        const snapshots = this.encounterEngine.getLaserThreatSnapshots();
-
-        this.eventBus.emit(
-            BRIDGE_EVENT.LASER_THREATS_UPDATED,
-
-            snapshots.map((snapshot) => {
-                return {
-                    attackId: snapshot.attack.id,
-
-                    timeToFireMs: snapshot.timeToFireMs,
-                    initialTimeToFireMs: snapshot.initialTimeToFireMs,
-
-                    ...(snapshot.attack.identification.status === THREAT_IDENTIFICATION_STATUS.IDENTIFIED
-                        ? {
-                              targetZone: snapshot.attack.identification.targetZone,
-                          }
-                        : {}),
-                };
-            }),
-        );
-    }
-
-    private syncPlayerShield(): void {
-        if (!this.encounterEngine) {
-            return;
-        }
-
-        const shield = this.encounterEngine.getActiveShieldState();
-
-        this.eventBus.emit(
-            BRIDGE_EVENT.PLAYER_SHIELD_UPDATED,
-
-            shield
-                ? {
-                      zone: shield.zone,
-
-                      remainingDurationMs: Math.max(
-                          0,
-                          shield.durationMs - shield.elapsedMs,
-                      ),
-
-                      initialDurationMs: shield.durationMs,
-                  }
-                : undefined,
-        );
     }
 
     // #endregion
@@ -593,10 +387,10 @@ export default class BridgeEncounterController {
         const result = this.encounterEngine.executeCommand(input);
 
         if (result.status === OFFICER_COMMAND_EXECUTION_STATUS.EXECUTED) {
-            this.syncPlayerWeaponsFromEngine();
+            this.snapshotSynchronizer?.syncPlayerWeapons();
             this.syncRuntimeNavigationFromEngine();
             this.drainEncounterEvents();
-            this.syncLaserThreats();
+            this.snapshotSynchronizer?.syncLaserThreats();
             this.officerStationsController?.sync();
         }
 
@@ -719,30 +513,6 @@ export default class BridgeEncounterController {
     // #endregion
 
     // #region Runtime synchronization
-
-    private syncPlayerWeaponsFromEngine(): void {
-        if (!this.encounterEngine) {
-            return;
-        }
-
-        const weapons =
-            this.encounterEngine
-                .getPlayerWeaponStates();
-
-        GAME_RUNTIME
-            .setPlayerShipWeaponStates(
-                weapons,
-            );
-
-        this.eventBus.emit(
-            BRIDGE_EVENT
-                .PLAYER_WEAPONS_STATUS_UPDATED,
-
-            mapPlayerWeaponsToBridgeStatusPayload(
-                weapons,
-            ),
-        );
-    }
 
     private syncRuntimeNavigationFromEngine(expectedKind?: PlayerSpaceNavigationState['kind']): void {
         if (!this.encounterEngine) {
