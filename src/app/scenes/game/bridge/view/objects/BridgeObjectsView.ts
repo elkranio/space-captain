@@ -26,7 +26,10 @@ export default class BridgeObjectsView {
         private readonly scene: BridgeScene,
         private readonly eventBus: BridgeEventBus,
 
-        private readonly turnBackgroundYawBy: (yawDeltaDegrees: number) => void,
+        private readonly applyCameraTurn: (
+            yawDeltaDegrees: number,
+            transientWorldOffsetX: number,
+        ) => void,
     ) {
         this.root = this.scene.add.container(0, 0);
 
@@ -36,8 +39,11 @@ export default class BridgeObjectsView {
             scene: this.scene,
             eventBus: this.eventBus,
 
-            turnBackgroundYawBy: (yawDeltaDegrees) => {
-                this.turnBackgroundYawBy(yawDeltaDegrees);
+            applyCameraTurn: (yawDeltaDegrees, transientWorldOffsetX) => {
+                this.applyCameraTurn(
+                    yawDeltaDegrees,
+                    transientWorldOffsetX,
+                );
             },
 
             getObjectView: (objectId) => {

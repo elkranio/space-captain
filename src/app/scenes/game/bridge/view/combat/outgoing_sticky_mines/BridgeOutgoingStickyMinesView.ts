@@ -170,6 +170,14 @@ export default class BridgeOutgoingStickyMinesView {
         this.root.destroy(false);
     }
 
+    public setCameraTurnOffsetX(
+        offsetX: number,
+    ): void {
+        this.root.x = Math.round(
+            offsetX,
+        );
+    }
+
     private addMine(
         payload:
             BridgeOutgoingStickyMineAddedPayload,
@@ -278,6 +286,10 @@ export default class BridgeOutgoingStickyMinesView {
                 );
             },
         );
+
+        if (updates.length === 0) {
+            this.setCameraTurnOffsetX(0);
+        }
 
         for (const update of updates) {
             const entry =

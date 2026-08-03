@@ -116,6 +116,14 @@ export default class BridgeOutgoingMissilesView {
         this.root.destroy(false);
     }
 
+    public setCameraTurnOffsetX(
+        offsetX: number,
+    ): void {
+        this.root.x = Math.round(
+            offsetX,
+        );
+    }
+
     private addMissile(
         payload:
             BridgeOutgoingMissileAddedPayload,
@@ -183,6 +191,10 @@ export default class BridgeOutgoingMissilesView {
                 );
             },
         );
+
+        if (updates.length === 0) {
+            this.setCameraTurnOffsetX(0);
+        }
 
         for (const update of updates) {
             const missile =

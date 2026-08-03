@@ -119,6 +119,14 @@ export default class BridgeLaserThreatsView {
         this.root.destroy(false);
     }
 
+    public setCameraTurnOffsetX(
+        offsetX: number,
+    ): void {
+        this.root.x = Math.round(
+            offsetX,
+        );
+    }
+
     private addThreat(
         payload:
             BridgeLaserThreatAddedPayload,
@@ -207,6 +215,10 @@ export default class BridgeLaserThreatsView {
                 );
             },
         );
+
+        if (payload.length === 0) {
+            this.setCameraTurnOffsetX(0);
+        }
 
         for (const update of payload) {
             const threat =

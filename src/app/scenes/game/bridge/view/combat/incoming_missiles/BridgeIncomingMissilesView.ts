@@ -88,6 +88,10 @@ export default class BridgeIncomingMissilesView {
         this.root.destroy(false);
     }
 
+    public setCameraTurnOffsetX(offsetX: number): void {
+        this.root.x = Math.round(offsetX);
+    }
+
     private addMissile(payload: BridgeIncomingMissileAddedPayload): void {
         if (this.missiles.has(payload.projectileId)) {
             throw new Error(`Incoming missile already exists: ` + payload.projectileId);
@@ -128,6 +132,10 @@ export default class BridgeIncomingMissilesView {
                 );
             },
         );
+
+        if (updates.length === 0) {
+            this.setCameraTurnOffsetX(0);
+        }
 
         for (const update of updates) {
             const missile = this.missiles.get(update.projectileId);

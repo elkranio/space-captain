@@ -120,6 +120,8 @@ export function playObjectsTravelSequence(
         payload.taskId,
         sourceMotions,
         targetMotions,
+        turnDirectionX,
+        turnDistance,
         currentYawDegrees,
         targetYawDegrees,
         yawDeltaDegrees,
@@ -135,6 +137,9 @@ function playTurnPhase(
     sourceMotions: SourceTurnMotion[],
 
     targetMotions: TargetTravelMotion[],
+
+    turnDirectionX: number,
+    turnDistance: number,
 
     currentYawDegrees: number,
     targetYawDegrees: number,
@@ -191,7 +196,10 @@ function playTurnPhase(
 
             const yawStepDegrees = yawDeltaDegrees * progressDelta;
 
-            context.turnBackgroundYawBy(yawStepDegrees);
+            context.applyCameraTurn(
+                yawStepDegrees,
+                turnDirectionX * turnDistance * progress,
+            );
 
             animatedYawDegrees = normalizeYawDegrees(animatedYawDegrees + yawStepDegrees);
 

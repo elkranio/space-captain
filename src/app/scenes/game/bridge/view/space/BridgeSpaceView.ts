@@ -14,15 +14,20 @@ export default class BridgeSpaceView {
 
     private readonly objectsView: BridgeObjectsView;
 
-    constructor(scene: BridgeScene, eventBus: BridgeEventBus) {
+    constructor(
+        scene: BridgeScene,
+        eventBus: BridgeEventBus,
+        setTransientWorldOffsetX: (offsetX: number) => void,
+    ) {
         this.backgroundView = new BridgeSpaceBackgroundView(scene);
 
         this.objectsView = new BridgeObjectsView(
             scene,
             eventBus,
 
-            (yawDeltaDegrees) => {
+            (yawDeltaDegrees, transientWorldOffsetX) => {
                 this.backgroundView.turnYawBy(yawDeltaDegrees);
+                setTransientWorldOffsetX(transientWorldOffsetX);
             },
         );
     }

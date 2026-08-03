@@ -65,7 +65,14 @@ export default class BridgeView {
     ) {}
 
     public prepare(): void {
-        const spaceView = new BridgeSpaceView(this.scene, this.eventBus);
+        const spaceView = new BridgeSpaceView(
+            this.scene,
+            this.eventBus,
+
+            (offsetX) => {
+                this.setTransientCombatWorldOffsetX(offsetX);
+            },
+        );
 
         this.spaceView = spaceView;
 
@@ -216,5 +223,12 @@ export default class BridgeView {
         this.incomingMissilesView = undefined;
         this.playerShieldsView = undefined;
         this.spaceView = undefined;
+    }
+
+    private setTransientCombatWorldOffsetX(offsetX: number): void {
+        this.incomingMissilesView?.setCameraTurnOffsetX(offsetX);
+        this.outgoingMissilesView?.setCameraTurnOffsetX(offsetX);
+        this.outgoingStickyMinesView?.setCameraTurnOffsetX(offsetX);
+        this.laserThreatsView?.setCameraTurnOffsetX(offsetX);
     }
 }
