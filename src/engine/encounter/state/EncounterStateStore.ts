@@ -26,6 +26,7 @@ import {
 } from '../../defs/ship_drive';
 import type { ShipChassisId } from '../../defs/ship_chassis';
 import {
+    doesShipWeaponPhaseRequireOperator,
     SHIP_WEAPON_KIND,
     SHIP_WEAPON_PHASE,
     type LaserWeaponState,
@@ -549,6 +550,8 @@ export default class EncounterStateStore {
 
         const fromAnchorId = navigation.anchorId;
 
+        this.clearCombatZone(fromAnchorId);
+
         this.state.navigation = {
             kind: PLAYER_SPACE_NAVIGATION_KIND.TRAVELLING,
             fromAnchorId,
@@ -613,6 +616,57 @@ export default class EncounterStateStore {
                 PLAYER_SPACE_NAVIGATION_KIND.ANCHORED,
             anchorId: navigation.fromAnchorId,
         };
+    }
+
+    // #endregion
+
+    // #region Combat-zone lifecycle
+
+    private clearCombatZone(
+        anchorId: string,
+    ): void {
+        const combat =
+            this.state.combat;
+
+        combat.projectiles.length = 0;
+        combat.laserAttacks.length = 0;
+        combat.stickyMines.length = 0;
+
+        delete combat.activeShield;
+
+        for (const actor of this.getActorsAtAnchor(anchorId)) {
+            actor.crewTasks = {};
+            actor.threatObservations.length = 0;
+
+            for (const weapon of actor.weapons) {
+                if (
+                    !doesShipWeaponPhaseRequireOperator(
+                        weapon.phase,
+                    )
+                ) {
+                    continue;
+                }
+
+                weapon.phase =
+                    SHIP_WEAPON_PHASE.READY;
+                weapon.phaseElapsedMs = 0;
+
+                if (
+                    weapon.kind ===
+                    SHIP_WEAPON_KIND.SPAM_PROJECTOR
+                ) {
+                    weapon.activeChannelId = null;
+                }
+
+                if (
+                    weapon.kind ===
+                    SHIP_WEAPON_KIND
+                        .STICKY_MINE_DISPENSER
+                ) {
+                    weapon.dispensedMineCount = 0;
+                }
+            }
+        }
     }
 
     // #endregion

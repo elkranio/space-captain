@@ -9,7 +9,6 @@ import type { SpriteEntry } from '../../../../../../manifests/types';
 import type BridgeScene from '../../../BridgeScene';
 import {
     BRIDGE_EVENT,
-    type BridgeEnemyShipDestructionPayload,
     type BridgeSpamChannelEndedPayload,
     type BridgeSpamChannelStartedPayload,
 } from '../../../events/bridge_event';
@@ -80,7 +79,14 @@ export default class BridgeSpamView {
             BRIDGE_EVENT
                 .ENEMY_SHIP_DESTRUCTION_STARTED,
 
-            this.handleEnemyShipDestruction,
+            this.clearImmediately,
+            this,
+        );
+
+        this.eventBus.on(
+            BRIDGE_EVENT.ENCOUNTER_TRAVEL_STARTED,
+
+            this.clearImmediately,
             this,
         );
 
@@ -108,7 +114,14 @@ export default class BridgeSpamView {
             BRIDGE_EVENT
                 .ENEMY_SHIP_DESTRUCTION_STARTED,
 
-            this.handleEnemyShipDestruction,
+            this.clearImmediately,
+            this,
+        );
+
+        this.eventBus.off(
+            BRIDGE_EVENT.ENCOUNTER_TRAVEL_STARTED,
+
+            this.clearImmediately,
             this,
         );
 
@@ -177,10 +190,7 @@ export default class BridgeSpamView {
         this.closeAllPopups(payload.outcome);
     }
 
-    private handleEnemyShipDestruction(
-        _payload:
-            BridgeEnemyShipDestructionPayload,
-    ): void {
+    private clearImmediately(): void {
         this.closeSequenceId += 1;
 
         this.activeChannelIds.clear();

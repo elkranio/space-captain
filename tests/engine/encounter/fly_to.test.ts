@@ -3,8 +3,18 @@
 import { createPlayerHullFixture } from '../../fixtures/engine/player_hull_fixtures';
 import { createShipDriveFixture } from '../../fixtures/engine/ship_drive_fixtures';
 import { describe, expect, it } from 'vitest';
+import {
+    SHIP_WEAPONS,
+    SHIP_WEAPON_TARGETING_DURATION_MS,
+} from '../../../src/engine/content/catalogs/ship_weapons';
+import { SHIP_NODE_ACTOR_PRESET_ID } from '../../../src/engine/content/presets/ship_node_actors';
+import { LASER_TARGET_ZONE } from '../../../src/engine/defs/laser';
 import { OFFICER_ROLE } from '../../../src/engine/defs/officer';
 import { PLAYER_SPACE_NAVIGATION_KIND } from '../../../src/engine/defs/player_location';
+import {
+    SHIP_WEAPON_KIND,
+    SHIP_WEAPON_PHASE,
+} from '../../../src/engine/defs/ship_weapon';
 import EncounterEngine from '../../../src/engine/encounter/EncounterEngine';
 import {
     ENCOUNTER_OFFICER_COMMAND_ID,
@@ -16,6 +26,7 @@ import { OFFICER_AVAILABILITY_STATE } from '../../../src/engine/encounter/model/
 import { OFFICER_TASK_KIND } from '../../../src/engine/encounter/model/officer_task';
 import { createStationAndBeaconNodeFixture } from '../../fixtures/engine/space_node_fixtures';
 import { createPointDefenseFixture } from '../../fixtures/engine/point_defense_fixtures';
+import ShipNodeActorFactory from '../../../src/engine/generation/space_node_actor/ShipNodeActorFactory';
 
 describe('FLY_TO', () => {
     it('travels between encounter anchors and blocks the bridge until completion', () => {
@@ -183,5 +194,165 @@ describe('FLY_TO', () => {
 
             targetLabel: stationName,
         });
+    });
+
+    it('clears a charging laser when the player leaves its combat zone', () => {
+        const {
+            node,
+            stationId,
+            beaconId,
+        } = createStationAndBeaconNodeFixture();
+
+        node.actors.push(
+            ShipNodeActorFactory.create({
+                id: 'ship_enemy_00',
+
+                presetId:
+                    SHIP_NODE_ACTOR_PRESET_ID
+                        .ENEMY_GENERIC_LASER_00,
+
+                anchorId: stationId,
+            }),
+        );
+
+        const engine = new EncounterEngine({
+            playerHull: createPlayerHullFixture(),
+
+            drive: createShipDriveFixture(),
+            node,
+
+            navigation: {
+                kind:
+                    PLAYER_SPACE_NAVIGATION_KIND
+                        .ANCHORED,
+
+                anchorId: stationId,
+            },
+
+            pointDefense: createPointDefenseFixture(),
+        });
+
+        const [loadedEvent] = engine.drainEvents();
+
+        if (
+            loadedEvent.type !==
+            ENCOUNTER_EVENT.ENCOUNTER_LOADED
+        ) {
+            throw new Error(
+                'Expected ENCOUNTER_LOADED event',
+            );
+        }
+
+        const enemy =
+            loadedEvent.state.actors[0];
+        const laser = enemy?.weapons[0];
+
+        if (
+            !enemy ||
+            !laser ||
+            laser.kind !==
+                SHIP_WEAPON_KIND.LASER
+        ) {
+            throw new Error(
+                'Expected loaded enemy laser',
+            );
+        }
+
+        const laserDefinition =
+            SHIP_WEAPONS[laser.weaponId];
+
+        if (
+            laserDefinition.kind !==
+            SHIP_WEAPON_KIND.LASER
+        ) {
+            throw new Error(
+                'Expected laser definition',
+            );
+        }
+
+        engine.step(1);
+        engine.drainEvents();
+
+        engine.step(
+            SHIP_WEAPON_TARGETING_DURATION_MS - 1,
+        );
+        engine.drainEvents();
+
+        expect(laser.phase).toBe(
+            SHIP_WEAPON_PHASE.CHARGING,
+        );
+        expect(engine.getLaserAttacks()).toHaveLength(1);
+
+        loadedEvent.state.combat.activeShield = {
+            zone: LASER_TARGET_ZONE.CENTER,
+
+            elapsedMs: 0,
+            durationMs: 5000,
+        };
+
+        const executionResult = engine.executeCommand({
+            role: OFFICER_ROLE.HELM,
+
+            commandId:
+                ENCOUNTER_OFFICER_COMMAND_ID
+                    .HELM_FLY_TO,
+
+            target: {
+                kind:
+                    OFFICER_COMMAND_TARGET_KIND
+                        .ANCHOR,
+
+                anchorId: beaconId,
+            },
+        });
+
+        expect(executionResult).toEqual({
+            status:
+                OFFICER_COMMAND_EXECUTION_STATUS
+                    .EXECUTED,
+        });
+
+        expect(engine.getLaserAttacks()).toEqual([]);
+        expect(engine.getActiveShieldState()).toBeUndefined();
+
+        expect(laser).toMatchObject({
+            phase: SHIP_WEAPON_PHASE.READY,
+            phaseElapsedMs: 0,
+        });
+
+        expect(enemy.crewTasks).toEqual({});
+
+        const travelStartedEvent =
+            engine.drainEvents()
+                .find((event) => {
+                    return (
+                        event.type ===
+                        ENCOUNTER_EVENT.TRAVEL_STARTED
+                    );
+                });
+
+        if (
+            !travelStartedEvent ||
+            travelStartedEvent.type !==
+                ENCOUNTER_EVENT.TRAVEL_STARTED
+        ) {
+            throw new Error(
+                'Expected TRAVEL_STARTED event',
+            );
+        }
+
+        engine.completeTravel(
+            travelStartedEvent.taskId,
+        );
+        engine.drainEvents();
+
+        engine.step(
+            laserDefinition.chargeDurationMs,
+        );
+
+        expect(engine.drainEvents()).toEqual([]);
+        expect(engine.getPlayerHullState()).toEqual(
+            createPlayerHullFixture(),
+        );
     });
 });

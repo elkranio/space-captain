@@ -7,6 +7,7 @@ import BridgeEncounterEngineEventHandler from '../../src/app/scenes/game/bridge/
 import { BRIDGE_EVENT } from '../../src/app/scenes/game/bridge/events/bridge_event';
 import type BridgeEventBus from '../../src/app/scenes/game/bridge/events/BridgeEventBus';
 import { SCENE_KEY } from '../../src/app/scenes/scene_key';
+import { BEACON_OBJECT_SPRITE_ID } from '../../src/engine/defs/beacon';
 import { MISSILE_ID } from '../../src/engine/defs/missile';
 import { OFFICER_ROLE } from '../../src/engine/defs/officer';
 import { POINT_DEFENSE_BEAM_BAND, POINT_DEFENSE_SHOT_OUTCOME } from '../../src/engine/defs/point_defense';
@@ -18,6 +19,7 @@ import {
     type MissileCombatProjectileState,
 } from '../../src/engine/encounter/model/combat';
 import { ENCOUNTER_OFFICER_COMMAND_ID } from '../../src/engine/encounter/model/command';
+import { ENCOUNTER_ANCHOR_KIND } from '../../src/engine/encounter/anchors/encounter_anchor';
 import {
     ENCOUNTER_EVENT,
     OFFICER_TASK_OUTCOME,
@@ -59,6 +61,117 @@ const impactedProjectile: MissileCombatProjectileState = {
 };
 
 describe('BridgeEncounterEngineEventHandler combat events', () => {
+    it('clears combat presentation before local travel starts', () => {
+        const runtime = new GameRuntime();
+
+        const emit = vi.fn();
+        const setEncounterInteractive = vi.fn();
+
+        const handler =
+            new BridgeEncounterEngineEventHandler(
+                {
+                    emit,
+                } as unknown as BridgeEventBus,
+
+                setEncounterInteractive,
+                runtime,
+            );
+
+        handler.handle([
+            {
+                type: ENCOUNTER_EVENT.TRAVEL_STARTED,
+
+                taskId: 'task_travel_1',
+                fromAnchorId: 'station_test',
+
+                target: {
+                    id: 'beacon_test',
+
+                    kind:
+                        ENCOUNTER_ANCHOR_KIND
+                            .NAVIGATION_BEACON,
+
+                    displayName: 'TEST BEACON',
+
+                    beacon: {
+                        id: 'beacon_test',
+                        name: 'TEST BEACON',
+
+                        objectSpriteId:
+                            BEACON_OBJECT_SPRITE_ID
+                                .NAVIGATION_BEACON_00,
+                    },
+
+                    localPosition: {
+                        x: 1000,
+                        y: 0,
+                        z: 0,
+                    },
+
+                    position: {
+                        x: 0,
+                        y: 0,
+                    },
+
+                    perspectiveDepth: 1,
+                },
+            },
+        ]);
+
+        expect(setEncounterInteractive).toHaveBeenCalledWith(
+            false,
+        );
+
+        expect(emit.mock.calls).toEqual([
+            [
+                BRIDGE_EVENT
+                    .MISSILE_TARGETING_WARNING_CLEARED,
+            ],
+
+            [
+                BRIDGE_EVENT.INCOMING_MISSILES_UPDATED,
+                [],
+            ],
+
+            [
+                BRIDGE_EVENT.OUTGOING_MISSILES_UPDATED,
+                [],
+            ],
+
+            [
+                BRIDGE_EVENT
+                    .OUTGOING_STICKY_MINES_UPDATED,
+                [],
+            ],
+
+            [
+                BRIDGE_EVENT.STICKY_MINES_UPDATED,
+                [],
+            ],
+
+            [
+                BRIDGE_EVENT.LASER_THREATS_UPDATED,
+                [],
+            ],
+
+            [
+                BRIDGE_EVENT.PLAYER_SHIELD_UPDATED,
+                undefined,
+            ],
+
+            [
+                BRIDGE_EVENT.ENCOUNTER_TRAVEL_STARTED,
+
+                {
+                    taskId: 'task_travel_1',
+
+                    fromObjectId: 'station_test',
+                    targetObjectId: 'beacon_test',
+                },
+            ],
+        ]);
+    });
+
     it('maps targeting and missile launch to bridge presentation events', () => {
         const runtime = new GameRuntime();
 
