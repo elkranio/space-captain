@@ -134,6 +134,14 @@ export default class BridgeEncounterController {
 
         this.eventBus.on(BRIDGE_EVENT.ENCOUNTER_ARRIVAL_COMPLETED, this.handleEncounterArrivalCompleted, this);
 
+        this.eventBus.on(
+            BRIDGE_EVENT
+                .ENCOUNTER_TRAVEL_FLIGHT_STARTED,
+
+            this.handleEncounterTravelFlightStarted,
+            this,
+        );
+
         this.eventBus.on(BRIDGE_EVENT.ENCOUNTER_TRAVEL_COMPLETED, this.handleEncounterTravelCompleted, this);
 
         this.eventBus.on(BRIDGE_EVENT.ENCOUNTER_JUMP_COMPLETED, this.handleEncounterJumpCompleted, this);
@@ -161,6 +169,14 @@ export default class BridgeEncounterController {
         this.eventBus.off(BRIDGE_EVENT.OFFICER_COMMAND_SELECTED, this.handleOfficerCommandSelected, this);
 
         this.eventBus.off(BRIDGE_EVENT.ENCOUNTER_ARRIVAL_COMPLETED, this.handleEncounterArrivalCompleted, this);
+
+        this.eventBus.off(
+            BRIDGE_EVENT
+                .ENCOUNTER_TRAVEL_FLIGHT_STARTED,
+
+            this.handleEncounterTravelFlightStarted,
+            this,
+        );
 
         this.eventBus.off(BRIDGE_EVENT.ENCOUNTER_TRAVEL_COMPLETED, this.handleEncounterTravelCompleted, this);
 
@@ -287,6 +303,11 @@ export default class BridgeEncounterController {
 
         this.engageHostileActors();
         this.officerStationsController?.sync();
+    }
+
+    private handleEncounterTravelFlightStarted(): void {
+        this.engineEventHandler
+            .clearCombatPresentation();
     }
 
     private handleEncounterTravelCompleted(payload: BridgeEncounterTravelCompletedPayload): void {

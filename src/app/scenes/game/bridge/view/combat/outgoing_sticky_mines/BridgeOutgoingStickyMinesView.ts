@@ -14,6 +14,9 @@ import type BridgeEventBus from '../../../events/BridgeEventBus';
 import {
     getBridgePlayerWeaponSourcePosition,
 } from '../bridge_player_weapon_layout';
+import {
+    removeMissingCombatSnapshotEntries,
+} from '../remove_missing_combat_snapshot_entries';
 import BridgeOutgoingStickyMineView from './mine/BridgeOutgoingStickyMineView';
 
 type GetObjectPosition = (
@@ -263,6 +266,19 @@ export default class BridgeOutgoingStickyMinesView {
         updates:
             BridgeOutgoingStickyMinesUpdatedPayload,
     ): void {
+        removeMissingCombatSnapshotEntries(
+            this.mines,
+            updates.map((update) => {
+                return update.mineId;
+            }),
+            (mineId, entry) => {
+                this.destroyEntry(
+                    mineId,
+                    entry,
+                );
+            },
+        );
+
         for (const update of updates) {
             const entry =
                 this.mines.get(

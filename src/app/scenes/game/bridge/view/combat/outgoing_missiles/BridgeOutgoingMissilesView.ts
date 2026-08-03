@@ -11,6 +11,9 @@ import type BridgeEventBus from '../../../events/BridgeEventBus';
 import {
     getBridgePlayerWeaponSourcePosition,
 } from '../bridge_player_weapon_layout';
+import {
+    removeMissingCombatSnapshotEntries,
+} from '../remove_missing_combat_snapshot_entries';
 import BridgeOutgoingMissileView from './missile/BridgeOutgoingMissileView';
 
 type GetObjectPosition = (
@@ -168,6 +171,19 @@ export default class BridgeOutgoingMissilesView {
         updates:
             BridgeOutgoingMissilesUpdatedPayload,
     ): void {
+        removeMissingCombatSnapshotEntries(
+            this.missiles,
+            updates.map((update) => {
+                return update.projectileId;
+            }),
+            (projectileId, missile) => {
+                missile.destroy();
+                this.missiles.delete(
+                    projectileId,
+                );
+            },
+        );
+
         for (const update of updates) {
             const missile =
                 this.missiles.get(

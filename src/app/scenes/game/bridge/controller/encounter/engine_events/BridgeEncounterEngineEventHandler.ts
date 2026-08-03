@@ -68,6 +68,50 @@ export default class BridgeEncounterEngineEventHandler {
         }
     }
 
+    public clearCombatPresentation(): void {
+        this.eventBus.emit(
+            BRIDGE_EVENT
+                .ENEMY_SHIP_TELEMETRY_UPDATED,
+            undefined,
+        );
+
+        this.eventBus.emit(
+            BRIDGE_EVENT
+                .MISSILE_TARGETING_WARNING_CLEARED,
+        );
+
+        this.eventBus.emit(
+            BRIDGE_EVENT.INCOMING_MISSILES_UPDATED,
+            [],
+        );
+
+        this.eventBus.emit(
+            BRIDGE_EVENT.OUTGOING_MISSILES_UPDATED,
+            [],
+        );
+
+        this.eventBus.emit(
+            BRIDGE_EVENT
+                .OUTGOING_STICKY_MINES_UPDATED,
+            [],
+        );
+
+        this.eventBus.emit(
+            BRIDGE_EVENT.STICKY_MINES_UPDATED,
+            [],
+        );
+
+        this.eventBus.emit(
+            BRIDGE_EVENT.LASER_THREATS_UPDATED,
+            [],
+        );
+
+        this.eventBus.emit(
+            BRIDGE_EVENT.PLAYER_SHIELD_UPDATED,
+            undefined,
+        );
+    }
+
     // #endregion
 
     // #region Event dispatch
@@ -84,8 +128,6 @@ export default class BridgeEncounterEngineEventHandler {
 
             case ENCOUNTER_EVENT.TRAVEL_STARTED:
                 this.setEncounterInteractive(false);
-
-                this.clearCombatPresentation();
 
                 this.eventBus.emit(BRIDGE_EVENT.ENCOUNTER_TRAVEL_STARTED, {
                     taskId: event.taskId,
@@ -628,44 +670,6 @@ export default class BridgeEncounterEngineEventHandler {
     // #endregion
 
     // #region Combat
-
-    private clearCombatPresentation(): void {
-        this.eventBus.emit(
-            BRIDGE_EVENT
-                .MISSILE_TARGETING_WARNING_CLEARED,
-        );
-
-        this.eventBus.emit(
-            BRIDGE_EVENT.INCOMING_MISSILES_UPDATED,
-            [],
-        );
-
-        this.eventBus.emit(
-            BRIDGE_EVENT.OUTGOING_MISSILES_UPDATED,
-            [],
-        );
-
-        this.eventBus.emit(
-            BRIDGE_EVENT
-                .OUTGOING_STICKY_MINES_UPDATED,
-            [],
-        );
-
-        this.eventBus.emit(
-            BRIDGE_EVENT.STICKY_MINES_UPDATED,
-            [],
-        );
-
-        this.eventBus.emit(
-            BRIDGE_EVENT.LASER_THREATS_UPDATED,
-            [],
-        );
-
-        this.eventBus.emit(
-            BRIDGE_EVENT.PLAYER_SHIELD_UPDATED,
-            undefined,
-        );
-    }
 
     private handlePlayerShipDamaged(
         result: PlayerHullDamageResult,

@@ -12,6 +12,9 @@ import {
 import type BridgeEventBus from '../../../events/BridgeEventBus';
 import { BRIDGE_VIEWSCREEN_RECT } from '../../bridge_viewscreen_layout';
 import BridgePointDefenseBeamView from '../point_defense/BridgePointDefenseBeamView';
+import {
+    removeMissingCombatSnapshotEntries,
+} from '../remove_missing_combat_snapshot_entries';
 import BridgeIncomingMissileView from './missile/BridgeIncomingMissileView';
 
 type GetObjectPosition = (objectId: string) => Phaser.Math.Vector2 | undefined;
@@ -113,6 +116,19 @@ export default class BridgeIncomingMissilesView {
     }
 
     private updateMissiles(updates: BridgeIncomingMissilesUpdatedPayload): void {
+        removeMissingCombatSnapshotEntries(
+            this.missiles,
+            updates.map((update) => {
+                return update.projectileId;
+            }),
+            (projectileId, missile) => {
+                missile.destroy();
+                this.missiles.delete(
+                    projectileId,
+                );
+            },
+        );
+
         for (const update of updates) {
             const missile = this.missiles.get(update.projectileId);
 

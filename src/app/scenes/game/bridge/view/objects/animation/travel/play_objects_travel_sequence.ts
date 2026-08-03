@@ -231,8 +231,6 @@ function playForwardDeparturePhase(
 
     context: BridgeObjectsAnimationContext,
 ): void {
-    context.eventBus.emit(BRIDGE_EVENT.ENCOUNTER_TRAVEL_FLIGHT_STARTED);
-
     const viewscreenCenter = getViewscreenCenter();
 
     const motions: ForwardDepartureMotion[] = fromViews.map((view) => {
@@ -286,6 +284,11 @@ function playForwardDeparturePhase(
             for (const motion of motions) {
                 motion.view.prepareForArrival();
             }
+
+            context.eventBus.emit(
+                BRIDGE_EVENT
+                    .ENCOUNTER_TRAVEL_FLIGHT_STARTED,
+            );
 
             const targetMotions = createTargetTravelMotions(targetViews, 0, 0);
 

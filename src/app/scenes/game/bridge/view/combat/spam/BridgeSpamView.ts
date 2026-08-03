@@ -84,7 +84,8 @@ export default class BridgeSpamView {
         );
 
         this.eventBus.on(
-            BRIDGE_EVENT.ENCOUNTER_TRAVEL_STARTED,
+            BRIDGE_EVENT
+                .ENCOUNTER_TRAVEL_FLIGHT_STARTED,
 
             this.clearImmediately,
             this,
@@ -119,7 +120,8 @@ export default class BridgeSpamView {
         );
 
         this.eventBus.off(
-            BRIDGE_EVENT.ENCOUNTER_TRAVEL_STARTED,
+            BRIDGE_EVENT
+                .ENCOUNTER_TRAVEL_FLIGHT_STARTED,
 
             this.clearImmediately,
             this,

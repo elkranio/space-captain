@@ -9,6 +9,9 @@ import {
     type BridgeLaserThreatsUpdatedPayload,
 } from '../../../events/bridge_event';
 import type BridgeEventBus from '../../../events/BridgeEventBus';
+import {
+    removeMissingCombatSnapshotEntries,
+} from '../remove_missing_combat_snapshot_entries';
 import BridgeLaserThreatView from './laser/BridgeLaserThreatView';
 
 type GetObjectPosition = (
@@ -192,6 +195,19 @@ export default class BridgeLaserThreatsView {
         payload:
             BridgeLaserThreatsUpdatedPayload,
     ): void {
+        removeMissingCombatSnapshotEntries(
+            this.threats,
+            payload.map((update) => {
+                return update.attackId;
+            }),
+            (attackId, threat) => {
+                threat.destroy();
+                this.threats.delete(
+                    attackId,
+                );
+            },
+        );
+
         for (const update of payload) {
             const threat =
                 this.threats.get(

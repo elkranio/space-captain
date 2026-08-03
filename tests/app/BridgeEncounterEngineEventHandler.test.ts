@@ -61,7 +61,7 @@ const impactedProjectile: MissileCombatProjectileState = {
 };
 
 describe('BridgeEncounterEngineEventHandler combat events', () => {
-    it('clears combat presentation before local travel starts', () => {
+    it('does not clear combat presentation before local travel starts', () => {
         const runtime = new GameRuntime();
 
         const emit = vi.fn();
@@ -124,6 +124,43 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
 
         expect(emit.mock.calls).toEqual([
             [
+                BRIDGE_EVENT.ENCOUNTER_TRAVEL_STARTED,
+
+                {
+                    taskId: 'task_travel_1',
+
+                    fromObjectId: 'station_test',
+                    targetObjectId: 'beacon_test',
+                },
+            ],
+        ]);
+    });
+
+    it('clears combat presentation at the physical travel boundary', () => {
+        const runtime = new GameRuntime();
+
+        const emit = vi.fn();
+
+        const handler =
+            new BridgeEncounterEngineEventHandler(
+                {
+                    emit,
+                } as unknown as BridgeEventBus,
+
+                vi.fn(),
+                runtime,
+            );
+
+        handler.clearCombatPresentation();
+
+        expect(emit.mock.calls).toEqual([
+            [
+                BRIDGE_EVENT
+                    .ENEMY_SHIP_TELEMETRY_UPDATED,
+                undefined,
+            ],
+
+            [
                 BRIDGE_EVENT
                     .MISSILE_TARGETING_WARNING_CLEARED,
             ],
@@ -157,17 +194,6 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
             [
                 BRIDGE_EVENT.PLAYER_SHIELD_UPDATED,
                 undefined,
-            ],
-
-            [
-                BRIDGE_EVENT.ENCOUNTER_TRAVEL_STARTED,
-
-                {
-                    taskId: 'task_travel_1',
-
-                    fromObjectId: 'station_test',
-                    targetObjectId: 'beacon_test',
-                },
             ],
         ]);
     });
