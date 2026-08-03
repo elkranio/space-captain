@@ -16,7 +16,7 @@ BRIDGE_V01_HANDOFF.md          completed migration reference only
 COMMAND_PALETTE_ART_PLAN.md   only when palette work resumes
 ```
 
-The current cleanup slice is documented in `BACKLOG.md` under combat sticky-mine lifecycle extraction.
+The current cleanup slice is documented in `BACKLOG.md` under combat laser lifecycle extraction.
 
 Last updated:
 
@@ -27,13 +27,13 @@ Last updated:
 Latest verified `master` before the current atom:
 
 ```text
-e5ce61870288e4d2251ad2ad58c997464d96845f
+d4ccfcc77eab554485a662939f7084d23e1922a5
 ```
 
 Last code-bearing commit reported green by the user:
 
 ```text
-e5ce61870288e4d2251ad2ad58c997464d96845f
+d4ccfcc77eab554485a662939f7084d23e1922a5
 ```
 
 Current checkpoint:
@@ -62,9 +62,11 @@ encounter outbox detaches every event at emit time
 ENCOUNTER_LOADED is a real snapshot, not a mutable test handle
 complete missile lifecycle extracted from CombatRunner
 complete sticky-mine lifecycle extracted from CombatRunner
+complete incoming-laser lifecycle extracted from CombatRunner
 shared combat runtime IDs/designations have one explicit owner
 command-menu redesign remains deferred
-enemy defensive behavior is the next gameplay slice
+spam lifecycle extraction is the final planned CombatRunner split
+enemy defensive behavior follows the cleanup
 ```
 
 ---

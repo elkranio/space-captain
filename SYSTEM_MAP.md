@@ -66,7 +66,7 @@ Hard rules:
 | Enemy weapon state | ship encounter actor | owning combat weapon runner | resets from node actor on reconstruction | enemy telemetry |
 | Player/incoming projectiles | `EncounterState.combat.projectiles` | `CombatMissileRunner` | no | missile views |
 | Sticky mines | `EncounterState.combat.stickyMines` | `CombatStickyMineRunner` | no | sticky-mine views |
-| Active laser attacks | `EncounterState.combat.laserAttacks` | `CombatRunner` | no | laser threat/VFX views |
+| Active laser attacks | `EncounterState.combat.laserAttacks` | `CombatLaserRunner` | no | laser threat/VFX views |
 | Player officer tasks | `EncounterState.officerTasks` | `OfficerTaskRunner` / store | only through reconstructed navigation tasks where required | officer activity |
 | Enemy crew tasks | `ShipEncounterActorState.crewTasks` | `EnemyCrewTaskRunner` | no | currently no direct bridge projection |
 | Objective player threat | combat object or player officer task | owning runner | no | outgoing weapon presentation |
@@ -98,6 +98,7 @@ EncounterEngine
 ├─ CombatRunner
 │  ├─ CombatMissileRunner
 │  ├─ CombatStickyMineRunner
+│  ├─ CombatLaserRunner
 │  ├─ CombatRuntimeIdentityFactory
 │  ├─ EnemyThreatObserver
 │  └─ EnemyTaskScheduler
@@ -260,6 +261,19 @@ queued player attachment
 Unlike missiles, the enemy dispenser's weapon phases are also owned by its
 concrete runner. `CombatRunner` only dispatches the dispenser during the shared
 weapon phase.
+
+The complete incoming-laser lifecycle belongs to `CombatLaserRunner`:
+
+```text
+enemy targeting
+→ charge + active threat
+→ matching-shield block or player-hull hit
+→ damage interruption
+→ cooldown
+```
+
+Player laser execution remains in `PlayerWeaponRunner`. `CombatRunner` only
+dispatches enemy lasers during the shared weapon phase.
 
 Transient combat IDs and the shared mixed threat-designation sequence
 (`M1, L2, M3...`) belong to one encounter-local
@@ -491,7 +505,8 @@ Stop and inspect architecture when a local feature requires any of these:
 9. done — centralize detached engine reads and snapshot cloning
 10. done — extract complete missile-object lifecycle from CombatRunner
 11. done — extract complete sticky-mine lifecycle from CombatRunner
-12. next — extract the laser lifecycle before combat-design exploration
+12. done — extract the incoming-laser lifecycle from CombatRunner
+13. next — extract the complete spam-projector lifecycle
 ```
 
 Audit result: physical launchers/dispensers now keep stable command identity
@@ -503,9 +518,10 @@ The snapshot cleanup removed duplicated transport and unsafe mutable references
 without changing gameplay ownership or step order. The following size audit
 found two justified lifecycle splits: missiles belong to
 `CombatMissileRunner`, while dispenser phases and active mines belong to
-`CombatStickyMineRunner`. Lasers and spam may follow as concrete runners because
-they are upcoming combat-design change zones; do not generalize them behind an
-abstract attack framework.
+`CombatStickyMineRunner`, and incoming lasers belong to `CombatLaserRunner`.
+Spam may follow as the final concrete runner because it is an upcoming
+combat-design change zone; do not generalize these lifecycles behind an abstract
+attack framework.
 
 Small adjacent cleanups are allowed when they:
 

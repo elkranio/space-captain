@@ -68,7 +68,7 @@ Implemented in the previous refactor atom:
 - preserved the public `EncounterEngine` API and all gameplay behavior;
 - added a focused identity-sequence regression test.
 
-Implemented in the current refactor atom:
+Implemented in the previous refactor atom:
 
 - extracted queued player attachments, enemy dispenser phases, active fuses,
   detonation, target loss and actor-target cleanup into
@@ -80,7 +80,21 @@ Implemented in the current refactor atom:
 - preserved the existing mine contract suites for salvo catch-up, cooldown,
   interruption, same-step integration and target-loss cleanup.
 
-Next gameplay slice:
+Implemented in the current refactor atom:
+
+- extracted enemy laser targeting, charging, threat creation, shield/hull
+  resolution, damage interruption and cooldown into `CombatLaserRunner`;
+- kept player laser execution in `PlayerWeaponRunner`;
+- preserved the shared combat phase order, mixed threat designation sequence
+  and public `EncounterEngine` API;
+- kept all laser timing, shield, damage and interruption contracts unchanged.
+
+Next cleanup slice:
+
+- extract the complete spam-projector lifecycle into `CombatSpamRunner`;
+- keep it concrete and narrow; do not build a generic attack-runner hierarchy.
+
+Following gameplay slice:
 
 - return to enemy defensive behavior;
 - first candidate: enemy point defense against a player missile;
@@ -940,8 +954,9 @@ Avoid:
 `CombatRunner` was the first justified god-object split after the snapshot
 cleanup. The complete missile-object lifecycle now belongs to
 `CombatMissileRunner`; the complete sticky-mine lifecycle now belongs to
-`CombatStickyMineRunner`. `CombatRunner` retains combat phase orchestration,
-the remaining shared weapon phases, lasers and spam.
+`CombatStickyMineRunner`; the complete incoming-laser lifecycle now belongs to
+`CombatLaserRunner`. `CombatRunner` retains combat phase orchestration, the
+remaining shared missile/spam phases and spam channels.
 
 Do not split it because of line count.
 
@@ -949,9 +964,9 @@ A split is justified only when a subsystem can own a complete lifecycle with few
 
 Avoid replacing a linear file with a graph of tiny runners.
 
-The upcoming combat-design exploration makes lasers and spam active change
-zones. Continue extracting them only as complete concrete lifecycles with narrow
-APIs. Do not create a generic attack-runner hierarchy.
+The upcoming combat-design exploration makes spam an active change zone.
+Extract it only as a complete concrete lifecycle with a narrow API. Do not
+create a generic attack-runner hierarchy.
 
 ---
 

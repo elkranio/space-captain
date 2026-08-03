@@ -4,12 +4,9 @@ import {
     SHIP_WEAPONS,
     SHIP_WEAPON_TARGETING_DURATION_MS,
 } from '../../content/catalogs/ship_weapons';
-import { LASER_TARGET_ZONES, type LaserTargetZone } from '../../defs/laser';
 import {
     SHIP_WEAPON_KIND,
     SHIP_WEAPON_PHASE,
-    type LaserWeaponDefinition,
-    type LaserWeaponState,
     type SpamProjectorDefinition,
     type SpamProjectorState,
     type ShipWeaponDefinition,
@@ -17,17 +14,14 @@ import {
 } from '../../defs/ship_weapon';
 import type { ShipEncounterActorState } from '../actors/ship/ship_encounter_actor';
 import {
-    COMBAT_TARGET_KIND,
-    LASER_SHOT_OUTCOME,
     SPAM_CHANNEL_OUTCOME,
-    THREAT_IDENTIFICATION_STATUS,
-    type LaserAttackState,
     type SpamChannelOutcome,
     type SpamChannelState,
 } from '../model/combat';
 import { ENCOUNTER_EVENT, type EncounterEvent } from '../model/event';
 import type { EncounterState } from '../model/state';
 import EncounterStateStore from '../state/EncounterStateStore';
+import CombatLaserRunner from './CombatLaserRunner';
 import CombatMissileRunner, {
     type PlayerMissileLaunchInput,
 } from './CombatMissileRunner';
@@ -59,10 +53,9 @@ type CombatRunnerOptions = {
 // Владеет боевым циклом encounter:
 //
 // - исполняет решения enemy task scheduler;
-// - управляет lifecycle установленного оружия;
-// - создаёт и двигает projectiles;
-// - управляет активными laser attacks;
-// - разрешает projectile impacts;
+// - фиксирует порядок combat phases;
+// - оркестрирует concrete weapon-family runners;
+// - пока управляет общими missile/spam phases и spam channels;
 // - эмитит combat events.
 //
 // Корабли, оружие и угрозы остаются частью EncounterState.
@@ -74,8 +67,6 @@ export default class CombatRunner {
     private readonly state: EncounterState;
 
     private readonly emit: (event: EncounterEvent) => void;
-
-    private readonly random: () => number;
 
     private readonly interruptRandomOfficerTask: () => void;
 
@@ -95,6 +86,9 @@ export default class CombatRunner {
 
     private readonly missileRunner:
         CombatMissileRunner;
+
+    private readonly laserRunner:
+        CombatLaserRunner;
 
     private readonly stickyMineRunner:
         CombatStickyMineRunner;
@@ -117,8 +111,6 @@ export default class CombatRunner {
 
         this.emit = emit;
 
-        this.random = random;
-
         this.interruptRandomOfficerTask = interruptRandomOfficerTask;
 
         this.destroyEnemyActor =
@@ -140,6 +132,23 @@ export default class CombatRunner {
 
                 destroyEnemyActor:
                     this.destroyEnemyActor,
+            });
+
+        this.laserRunner =
+            new CombatLaserRunner({
+                stateStore:
+                    this.stateStore,
+
+                identities:
+                    this.identities,
+
+                emit:
+                    this.emit,
+
+                random,
+
+                interruptRandomOfficerTask:
+                    this.interruptRandomOfficerTask,
             });
 
         this.stickyMineRunner =
@@ -341,6 +350,20 @@ export default class CombatRunner {
             for (const weapon of actor.weapons) {
                 if (
                     weapon.kind ===
+                    SHIP_WEAPON_KIND.LASER
+                ) {
+                    this.laserRunner
+                        .advanceEnemyLaser(
+                            actor,
+                            weapon,
+                            deltaMs,
+                        );
+
+                    continue;
+                }
+
+                if (
+                    weapon.kind ===
                     SHIP_WEAPON_KIND
                         .STICKY_MINE_DISPENSER
                 ) {
@@ -423,8 +446,10 @@ export default class CombatRunner {
                 return;
 
             case SHIP_WEAPON_KIND.LASER:
-                this.startLaserCharging(actor, weapon);
-                return;
+                throw new Error(
+                    `Laser targeting must be advanced by its runner: ` +
+                        `${actor.id}/${weapon.id}`,
+                );
 
             case SHIP_WEAPON_KIND.SPAM_PROJECTOR:
                 this.startSpamChannel(actor, weapon);
@@ -448,8 +473,10 @@ export default class CombatRunner {
                 throw new Error(`Missile launcher cannot enter charging phase: ` + `${actor.id}/${weapon.id}`);
 
             case SHIP_WEAPON_KIND.LASER:
-                this.advanceLaserCharging(actor, weapon, deltaMs);
-                return;
+                throw new Error(
+                    `Laser charging must be advanced by its runner: ` +
+                        `${actor.id}/${weapon.id}`,
+                );
 
             case SHIP_WEAPON_KIND.SPAM_PROJECTOR:
                 throw new Error(
@@ -518,16 +545,6 @@ export default class CombatRunner {
         return definition;
     }
 
-    private getLaserDefinition(laser: LaserWeaponState): LaserWeaponDefinition {
-        const definition = SHIP_WEAPONS[laser.weaponId];
-
-        if (definition.kind !== SHIP_WEAPON_KIND.LASER) {
-            throw new Error(`Laser weapon kind does not match definition: ` + `${laser.id}/${laser.weaponId}`);
-        }
-
-        return definition;
-    }
-
     private getSpamProjectorDefinition(
         projector: SpamProjectorState,
     ): SpamProjectorDefinition {
@@ -541,160 +558,6 @@ export default class CombatRunner {
         }
 
         return definition;
-    }
-
-    // #endregion
-
-    // #region Laser
-
-    private startLaserCharging(actor: ShipEncounterActorState, laser: LaserWeaponState): void {
-        const attack = this.createLaserAttack(actor, laser);
-
-        laser.phase = SHIP_WEAPON_PHASE.CHARGING;
-        laser.phaseElapsedMs = 0;
-
-        this.emit({
-            type: ENCOUNTER_EVENT.LASER_ATTACK_STARTED,
-
-            attack,
-        });
-    }
-
-    private advanceLaserCharging(
-        actor: ShipEncounterActorState,
-        laser: LaserWeaponState,
-        deltaMs: number,
-    ): void {
-        const definition = this.getLaserDefinition(laser);
-
-        laser.phaseElapsedMs += deltaMs;
-
-        if (laser.phaseElapsedMs < definition.chargeDurationMs) {
-            return;
-        }
-
-        this.fireLaser(actor, laser);
-    }
-
-    private createLaserAttack(actor: ShipEncounterActorState, laser: LaserWeaponState): LaserAttackState {
-        const existingAttack = this.state.combat.laserAttacks.find((attack) => {
-            return attack.sourceActorId === actor.id && attack.sourceWeaponId === laser.id;
-        });
-
-        if (existingAttack) {
-            throw new Error(`Laser weapon already has active attack: ` + `${actor.id}/${laser.id}/${existingAttack.id}`);
-        }
-
-        const attack: LaserAttackState = {
-            id:
-                this.identities
-                    .createLaserAttackId(),
-
-            designation:
-                this.identities
-                    .createThreatDesignation(
-                        'L',
-                    ),
-
-            sourceActorId: actor.id,
-            sourceWeaponId: laser.id,
-
-            target: {
-                kind: COMBAT_TARGET_KIND.PLAYER_SHIP,
-            },
-
-            targetZone: this.selectLaserTargetZone(),
-
-            identification: {
-                status: THREAT_IDENTIFICATION_STATUS.UNKNOWN,
-            },
-        };
-
-        this.state.combat.laserAttacks.push(attack);
-
-        return attack;
-    }
-
-    private fireLaser(actor: ShipEncounterActorState, laser: LaserWeaponState): void {
-        const attackIndex = this.state.combat.laserAttacks.findIndex((attack) => {
-            return attack.sourceActorId === actor.id && attack.sourceWeaponId === laser.id;
-        });
-
-        if (attackIndex < 0) {
-            throw new Error(`Cannot fire laser without active attack: ` + `${actor.id}/${laser.id}`);
-        }
-
-        const attack = this.state.combat.laserAttacks[attackIndex];
-
-        if (!attack) {
-            throw new Error(`Laser attack disappeared before fire: ` + `${actor.id}/${laser.id}`);
-        }
-
-        const definition = this.getLaserDefinition(laser);
-
-        this.state.combat.laserAttacks.splice(attackIndex, 1);
-
-        laser.phase = SHIP_WEAPON_PHASE.COOLDOWN;
-        laser.phaseElapsedMs = 0;
-
-        if (this.consumeMatchingShield(attack)) {
-            this.emit({
-                type: ENCOUNTER_EVENT.LASER_FIRED,
-
-                attack,
-
-                outcome: LASER_SHOT_OUTCOME.BLOCKED,
-            });
-
-            return;
-        }
-
-        const damageResult =
-            this.stateStore
-                .damagePlayerHull(
-                    definition.damage,
-                );
-
-        this.emit({
-            type: ENCOUNTER_EVENT.LASER_FIRED,
-
-            attack,
-
-            outcome: LASER_SHOT_OUTCOME.HIT,
-
-            ...damageResult,
-        });
-
-        this.interruptRandomOfficerTask();
-    }
-
-    private consumeMatchingShield(attack: LaserAttackState): boolean {
-        const activeShield = this.state.combat.activeShield;
-
-        if (activeShield?.zone !== attack.targetZone) {
-            return false;
-        }
-
-        delete this.state.combat.activeShield;
-
-        return true;
-    }
-
-    private selectLaserTargetZone(): LaserTargetZone {
-        const randomValue = this.random();
-
-        if (!Number.isFinite(randomValue) || randomValue < 0 || randomValue >= 1) {
-            throw new Error(`Combat random source must return a value in [0, 1): ${randomValue}`);
-        }
-
-        const index = Math.floor(randomValue * LASER_TARGET_ZONES.length);
-        const targetZone = LASER_TARGET_ZONES[index];
-
-        if (!targetZone) {
-            throw new Error(`Cannot select laser target zone for random value: ${randomValue}`);
-        }
-
-        return targetZone;
     }
 
     // #endregion

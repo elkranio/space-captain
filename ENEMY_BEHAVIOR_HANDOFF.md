@@ -223,6 +223,7 @@ src/engine/encounter/combat/EnemyScienceIntelResolver.ts
 src/engine/encounter/combat/CombatRunner.ts
 src/engine/encounter/combat/CombatMissileRunner.ts
 src/engine/encounter/combat/CombatStickyMineRunner.ts
+src/engine/encounter/combat/CombatLaserRunner.ts
 src/engine/encounter/combat/CombatRuntimeIdentityFactory.ts
 src/engine/defs/ship_weapon.ts
 src/engine/encounter/actors/ship/ship_encounter_actor.ts
