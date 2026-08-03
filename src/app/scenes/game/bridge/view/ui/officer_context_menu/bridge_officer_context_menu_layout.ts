@@ -1,6 +1,7 @@
 // src/app/scenes/game/bridge/view/ui/officer_context_menu/bridge_officer_context_menu_layout.ts
 
 import { OFFICER_ROLE, type OfficerRole } from '../../../../../../../engine/defs/officer';
+import { BRIDGE_OFFICER_STATION_LAYOUT } from '../../officer_stations/bridge_officer_station_layout';
 
 export type OfficerContextMenuPosition = {
     x: number;
@@ -40,23 +41,11 @@ export const OFFICER_CONTEXT_MENU_LAYOUT = {
 } as const;
 
 export const OFFICER_CONTEXT_MENU_POSITION_BY_ROLE = {
-    [OFFICER_ROLE.SCIENCE]: {
-        x: 220,
-        y: 250,
-    },
+    [OFFICER_ROLE.SCIENCE]: BRIDGE_OFFICER_STATION_LAYOUT[OFFICER_ROLE.SCIENCE].contextMenuPosition,
 
-    [OFFICER_ROLE.HELM]: {
-        x: 220,
-        y: 392,
-    },
+    [OFFICER_ROLE.HELM]: BRIDGE_OFFICER_STATION_LAYOUT[OFFICER_ROLE.HELM].contextMenuPosition,
 
-    [OFFICER_ROLE.WEAPONS]: {
-        x: 684,
-        y: 78,
-    },
+    [OFFICER_ROLE.WEAPONS]: BRIDGE_OFFICER_STATION_LAYOUT[OFFICER_ROLE.WEAPONS].contextMenuPosition,
 
-    [OFFICER_ROLE.ENGINEER]: {
-        x: 684,
-        y: 250,
-    },
+    [OFFICER_ROLE.ENGINEER]: BRIDGE_OFFICER_STATION_LAYOUT[OFFICER_ROLE.ENGINEER].contextMenuPosition,
 } satisfies Record<OfficerRole, OfficerContextMenuPosition>;

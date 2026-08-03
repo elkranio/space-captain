@@ -463,7 +463,7 @@ Keep this atom behavior-focused.
 
 Do not add the command palette.
 
-## Atom 3 — bridge shell
+## Atom 3 — bridge shell — complete
 
 - replace old bridge background/shell;
 - remap `BRIDGE_VIEWSCREEN_RECT` to the shell's transparent bounding box:
@@ -484,7 +484,7 @@ Runtime acceptance:
 - no shell overlap;
 - 1280×720 crop correct.
 
-## Atom 4 — four station bases
+## Atom 4 — four station bases — complete in the current atom
 
 - add one reusable station-base view;
 - place four instances;
@@ -492,7 +492,9 @@ Runtime acceptance:
 - exact shallow-chevron placement from composite;
 - stable role hit areas;
 - remove old fifth-seat presentation;
-- keep old command flow temporarily if needed.
+- rename the click contract from seat to station;
+- preserve officer command flow;
+- centralize station, menu and bark placement.
 
 Do not add officer animation or extra visual variants in this atom.
 
@@ -503,7 +505,7 @@ Do not add officer animation or extra visual variants in this atom.
 - optional progress;
 - touch-panel cosmetic animation;
 - selected/ready/busy/blocked treatment;
-- bark anchors.
+- fine-tune bark anchors during runtime acceptance if needed.
 
 Reuse existing task/read-model data where possible.
 
@@ -511,9 +513,8 @@ Do not add a second gameplay state for visual progress.
 
 ## Atom 6 — cleanup
 
-- remove obsolete old seat/background views and frames;
+- remove obsolete old station manifests/assets and frames;
 - remove dead layout constants;
-- centralize station configuration;
 - update docs;
 - runtime acceptance.
 

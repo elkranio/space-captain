@@ -13,9 +13,9 @@ import BridgePlayerLaserView from './combat/player_laser/BridgePlayerLaserView';
 import BridgePlayerShieldsView from './combat/player_shields/BridgePlayerShieldsView';
 import BridgeSpamView from './combat/spam/BridgeSpamView';
 import BridgeStickyMinesView from './combat/sticky_mines/BridgeStickyMinesView';
-import BridgeCrewView from './crew/BridgeCrewView';
 import BridgeTargetingWarningView from './indicators/targeting_warning/BridgeTargetingWarningView';
 import BridgeInteriorView from './interior/BridgeInteriorView';
+import BridgeOfficerStationsView from './officer_stations/BridgeOfficerStationsView';
 import BridgeSpaceView from './space/BridgeSpaceView';
 import BridgeUiView from './ui/BridgeUiView';
 import BridgeVfxView from './vfx/BridgeVfxView';
@@ -49,7 +49,7 @@ export default class BridgeView {
 
     private stickyMinesView?: BridgeStickyMinesView;
 
-    private crewView?: BridgeCrewView;
+    private officerStationsView?: BridgeOfficerStationsView;
 
     private spaceView?: BridgeSpaceView;
 
@@ -169,7 +169,7 @@ export default class BridgeView {
 
         this.targetingWarningView = new BridgeTargetingWarningView(this.scene, this.eventBus);
 
-        this.crewView = new BridgeCrewView(this.scene, this.eventBus);
+        this.officerStationsView = new BridgeOfficerStationsView(this.scene, this.eventBus);
 
         this.uiView = new BridgeUiView(this.scene, this.eventBus);
 
@@ -179,7 +179,7 @@ export default class BridgeView {
     public destroy(): void {
         this.officerBarksView?.destroy();
         this.uiView?.destroy();
-        this.crewView?.destroy();
+        this.officerStationsView?.destroy();
         this.targetingWarningView?.destroy();
         this.interiorView?.destroy();
         this.stickyMinesView?.destroy();
@@ -199,7 +199,7 @@ export default class BridgeView {
 
         this.officerBarksView = undefined;
         this.uiView = undefined;
-        this.crewView = undefined;
+        this.officerStationsView = undefined;
         this.targetingWarningView = undefined;
         this.interiorView = undefined;
         this.stickyMinesView = undefined;

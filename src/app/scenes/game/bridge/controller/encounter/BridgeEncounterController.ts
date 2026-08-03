@@ -25,7 +25,7 @@ import {
     type BridgeEncounterTravelCompletedPayload,
     type BridgeOfficerCommandMenuRefreshRequestedPayload,
     type BridgeOfficerCommandSelectedPayload,
-    type BridgeOfficerSeatClickedPayload,
+    type BridgeOfficerStationClickedPayload,
 } from '../../events/bridge_event';
 import type BridgeEventBus from '../../events/BridgeEventBus';
 import BridgeOfficerCommandMenuController from './command_menu/BridgeOfficerCommandMenuController';
@@ -122,7 +122,7 @@ export default class BridgeEncounterController {
     // #region Bridge event registration
 
     private registerBridgeEventHandlers(): void {
-        this.eventBus.on(BRIDGE_EVENT.OFFICER_SEAT_CLICKED, this.handleOfficerSeatClicked, this);
+        this.eventBus.on(BRIDGE_EVENT.OFFICER_STATION_CLICKED, this.handleOfficerStationClicked, this);
 
         this.eventBus.on(
             BRIDGE_EVENT.OFFICER_COMMAND_MENU_REFRESH_REQUESTED,
@@ -150,7 +150,7 @@ export default class BridgeEncounterController {
     }
 
     private unregisterBridgeEventHandlers(): void {
-        this.eventBus.off(BRIDGE_EVENT.OFFICER_SEAT_CLICKED, this.handleOfficerSeatClicked, this);
+        this.eventBus.off(BRIDGE_EVENT.OFFICER_STATION_CLICKED, this.handleOfficerStationClicked, this);
 
         this.eventBus.off(
             BRIDGE_EVENT.OFFICER_COMMAND_MENU_REFRESH_REQUESTED,
@@ -246,7 +246,7 @@ export default class BridgeEncounterController {
 
     // #region Officer command input
 
-    private handleOfficerSeatClicked(payload: BridgeOfficerSeatClickedPayload): void {
+    private handleOfficerStationClicked(payload: BridgeOfficerStationClickedPayload): void {
         if (!this.isEncounterInteractive) {
             return;
         }

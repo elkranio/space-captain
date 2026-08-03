@@ -28,20 +28,20 @@ BRIDGE_V01_HANDOFF.md
 
 Asset import is complete.
 
-The current Comms-cut atom removes:
+Completed migration atoms:
 
-- the Comms gameplay role;
-- `REQUEST DOCKING` and docking clearance;
-- `HAIL`, contact sequence internals and the old contact UI.
+- Comms/HAIL/request-docking cut;
+- direct Helm `DOCK` at the current station;
+- bridge shell and viewscreen geometry;
+- four modular station/officer views with stable role hit areas;
+- removal of the obsolete old seat presentation.
 
-Normal Helm `DOCK` becomes direct at the current station.
+Continue with:
 
-After that atom is green, continue with:
-
-- bridge shell/viewscreen geometry verification;
-- four modular station/officer views;
-- runtime task/progress overlays;
-- removal of obsolete old seat presentation.
+- runtime station task/progress overlays;
+- ready/busy/blocked/selected treatment;
+- touch-panel work animation;
+- removal of dead old manifests/assets after runtime acceptance.
 
 Do not resume enemy behavior policy or implement the command palette inside this
 visual migration.

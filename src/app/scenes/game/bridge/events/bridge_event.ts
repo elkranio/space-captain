@@ -45,10 +45,10 @@ export const BRIDGE_EVENT = {
     // Слушает crew view.
     CREW_LOADED: 'crew_loaded',
 
-    // Игрок кликнул по officer seat.
+    // Игрок кликнул по officer station.
     // View не определяет доступные команды,
     // а просит encounter controller открыть меню.
-    OFFICER_SEAT_CLICKED: 'officer_seat_clicked',
+    OFFICER_STATION_CLICKED: 'officer_station_clicked',
 
     // Открытое officer menu просит encounter controller
     // заново получить доступные команды текущей роли.
@@ -284,8 +284,8 @@ export const BRIDGE_EVENT = {
 // Payload initial crew snapshot.
 export type BridgeCrewLoadedPayload = Record<OfficerRole, OfficerDefinition>;
 
-// Payload input-события OFFICER_SEAT_CLICKED.
-export type BridgeOfficerSeatClickedPayload = {
+// Payload input-события OFFICER_STATION_CLICKED.
+export type BridgeOfficerStationClickedPayload = {
     role: OfficerRole;
 };
 
@@ -755,7 +755,7 @@ export type BridgeEventPayloadMap = {
 
     [BRIDGE_EVENT.CREW_LOADED]: BridgeCrewLoadedPayload;
 
-    [BRIDGE_EVENT.OFFICER_SEAT_CLICKED]: BridgeOfficerSeatClickedPayload;
+    [BRIDGE_EVENT.OFFICER_STATION_CLICKED]: BridgeOfficerStationClickedPayload;
 
     [BRIDGE_EVENT.OFFICER_COMMAND_MENU_REFRESH_REQUESTED]: BridgeOfficerCommandMenuRefreshRequestedPayload;
 

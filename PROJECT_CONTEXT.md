@@ -27,13 +27,13 @@ Last updated:
 Latest verified `master`:
 
 ```text
-d9016a1d3ca5d2a4efb2528432b1d2f803b608b7
+42e8133c246962092c60202e39291c4368e4e6e8
 ```
 
 Last code-bearing commit reported green by the user:
 
 ```text
-d9016a1d3ca5d2a4efb2528432b1d2f803b608b7
+42e8133c246962092c60202e39291c4368e4e6e8
 ```
 
 Current checkpoint:
@@ -45,8 +45,11 @@ typecheck green
 tests green
 active work moved from enemy behavior to bridge V0.1 migration
 bridge shell, station and four seated-officer assets imported
-Comms/HAIL/request-docking cut complete in the current atom
+Comms/HAIL/request-docking cut complete
 normal Helm DOCK is direct at the current station
+bridge shell/viewscreen geometry complete and runtime-verified
+four modular station/officer views complete in the current atom
+old five-seat presentation removed
 enemy behavior implementation is paused, not discarded
 ```
 
@@ -553,12 +556,12 @@ B. Comms gameplay cut — complete in the current atom
    - remove HAIL/contact flow and rebuild it later from real requirements
    - remove Comms from playable officer roster and tests
 
-C. bridge shell migration — next
+C. bridge shell migration — complete
    - replace old bridge background/shell
    - preserve viewscreen/world/VFX layering and bounds
    - keep temporary debug status panels
 
-D. four-station view migration
+D. four-station view migration — complete in the current atom
    - one reusable station view
    - four role placements
    - stable role hit areas

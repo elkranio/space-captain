@@ -1,6 +1,7 @@
 // src/app/scenes/game/bridge/view/barks/bridge_officer_bark_layout.ts
 
 import { OFFICER_ROLE, type OfficerRole } from '../../../../../../engine/defs/officer';
+import { BRIDGE_OFFICER_STATION_LAYOUT } from '../officer_stations/bridge_officer_station_layout';
 
 export const OFFICER_BARK_SIDE = {
     LEFT: 'left',
@@ -44,27 +45,11 @@ export const BRIDGE_OFFICER_BARK_LAYOUT = {
 } as const;
 
 export const OFFICER_BARK_POSITION_BY_ROLE = {
-    [OFFICER_ROLE.SCIENCE]: {
-        x: 130,
-        y: 275,
-        side: OFFICER_BARK_SIDE.LEFT,
-    },
+    [OFFICER_ROLE.SCIENCE]: BRIDGE_OFFICER_STATION_LAYOUT[OFFICER_ROLE.SCIENCE].barkPosition,
 
-    [OFFICER_ROLE.HELM]: {
-        x: 130,
-        y: 490,
-        side: OFFICER_BARK_SIDE.LEFT,
-    },
+    [OFFICER_ROLE.HELM]: BRIDGE_OFFICER_STATION_LAYOUT[OFFICER_ROLE.HELM].barkPosition,
 
-    [OFFICER_ROLE.WEAPONS]: {
-        x: 1000,
-        y: 60,
-        side: OFFICER_BARK_SIDE.RIGHT,
-    },
+    [OFFICER_ROLE.WEAPONS]: BRIDGE_OFFICER_STATION_LAYOUT[OFFICER_ROLE.WEAPONS].barkPosition,
 
-    [OFFICER_ROLE.ENGINEER]: {
-        x: 1000,
-        y: 275,
-        side: OFFICER_BARK_SIDE.RIGHT,
-    },
+    [OFFICER_ROLE.ENGINEER]: BRIDGE_OFFICER_STATION_LAYOUT[OFFICER_ROLE.ENGINEER].barkPosition,
 } satisfies Record<OfficerRole, OfficerBarkPosition>;
