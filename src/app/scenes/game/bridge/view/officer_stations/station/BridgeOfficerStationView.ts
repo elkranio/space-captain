@@ -5,9 +5,14 @@ import {
     BRIDGE_STATION_SPRITES,
 } from '../../../../../../manifests/bridge/station';
 import type BridgeScene from '../../../BridgeScene';
-import { BRIDGE_EVENT } from '../../../events/bridge_event';
+import {
+    BRIDGE_EVENT,
+    type BridgeOfficerStationIndicatorState,
+} from '../../../events/bridge_event';
 import type BridgeEventBus from '../../../events/BridgeEventBus';
 import type { BridgeOfficerStationLayoutEntry } from '../bridge_officer_station_layout';
+import BridgeOfficerStationActivityView from './activity/BridgeOfficerStationActivityView';
+import BridgeOfficerStationIndicatorsView from './indicators/BridgeOfficerStationIndicatorsView';
 
 // One reusable bridge station presentation.
 //
@@ -17,6 +22,10 @@ export default class BridgeOfficerStationView {
     private readonly root: Phaser.GameObjects.Container;
 
     private readonly stationImage: Phaser.GameObjects.Image;
+
+    private readonly activityView: BridgeOfficerStationActivityView;
+
+    private readonly indicatorsView: BridgeOfficerStationIndicatorsView;
 
     private readonly officerImage: Phaser.GameObjects.Image;
 
@@ -43,6 +52,9 @@ export default class BridgeOfficerStationView {
             .image(0, 0, stationAsset.atlasKey, stationAsset.frameKey)
             .setOrigin(0.5, 0.5);
 
+        this.activityView = new BridgeOfficerStationActivityView(this.scene);
+        this.indicatorsView = new BridgeOfficerStationIndicatorsView(this.scene);
+
         const officerAsset = BRIDGE_SEATED_OFFICER_SPRITES[layout.seatedOfficerSpriteId];
 
         this.officerImage = this.scene.add
@@ -57,13 +69,43 @@ export default class BridgeOfficerStationView {
             })
             .on(Phaser.Input.Events.POINTER_DOWN, this.handlePointerDown, this);
 
-        this.root.add([this.stationImage, this.officerImage, this.hitArea]);
+        this.root.add([
+            this.stationImage,
+            this.activityView.getRoot(),
+            this.indicatorsView.getRoot(),
+            this.officerImage,
+            this.hitArea,
+        ]);
+
     }
 
     public destroy(): void {
         this.hitArea.off(Phaser.Input.Events.POINTER_DOWN, this.handlePointerDown, this);
 
-        this.root.destroy(true);
+        this.activityView.destroy();
+        this.indicatorsView.destroy();
+
+        this.hitArea.destroy();
+        this.officerImage.destroy();
+        this.stationImage.destroy();
+
+        this.root.destroy(false);
+    }
+
+    public setIndicatorState(state: BridgeOfficerStationIndicatorState): void {
+        this.indicatorsView.setState(state);
+    }
+
+    public showActivity(label: string): void {
+        this.activityView.show(label);
+    }
+
+    public setActivityProgress(progress: number | null): void {
+        this.activityView.setProgress(progress);
+    }
+
+    public clearActivity(): void {
+        this.activityView.clear();
     }
 
     private handlePointerDown(): void {

@@ -77,6 +77,43 @@ describe('BridgeOfficerStationsController', () => {
 
         expect(getOfficerTasks).toHaveBeenCalledTimes(2);
     });
+
+    it('maps every officer availability state to the station indicator contract', () => {
+        const encounterEngine = {
+            getOfficerAvailabilityStates: vi.fn(() => {
+                return {
+                    [OFFICER_ROLE.SCIENCE]: OFFICER_AVAILABILITY_STATE.UNAVAILABLE,
+                    [OFFICER_ROLE.HELM]: OFFICER_AVAILABILITY_STATE.AVAILABLE,
+                    [OFFICER_ROLE.WEAPONS]: OFFICER_AVAILABILITY_STATE.BUSY,
+                    [OFFICER_ROLE.ENGINEER]: OFFICER_AVAILABILITY_STATE.BLOCKED,
+                };
+            }),
+
+            getOfficerTasks: vi.fn(() => {
+                return [];
+            }),
+        } as unknown as EncounterEngine;
+
+        const emit = vi.fn();
+
+        const eventBus = {
+            emit,
+        } as unknown as BridgeEventBus;
+
+        const controller = new BridgeOfficerStationsController(encounterEngine, eventBus);
+
+        controller.sync();
+
+        expect(emit.mock.calls[0]).toEqual([
+            BRIDGE_EVENT.OFFICER_STATION_INDICATORS_UPDATED,
+            {
+                [OFFICER_ROLE.SCIENCE]: 'off',
+                [OFFICER_ROLE.HELM]: 'ready',
+                [OFFICER_ROLE.WEAPONS]: 'busy',
+                [OFFICER_ROLE.ENGINEER]: 'blocked',
+            },
+        ]);
+    });
 });
 
 function createAvailabilityStates(): OfficerAvailabilityStates {
