@@ -17,7 +17,7 @@ Last updated: 2026-08-03
 Current selected slice:
 
 ```text
-COMBAT MISSILE LIFECYCLE EXTRACTION
+COMBAT STICKY-MINE LIFECYCLE EXTRACTION
 ```
 
 Bridge V0.1 migration is complete and runtime-accepted:
@@ -56,7 +56,7 @@ Implemented across the two snapshot refactor atoms:
   test-only state handle;
 - preserved gameplay rules, step order and persistence ownership.
 
-Implemented in the current refactor atom:
+Implemented in the previous refactor atom:
 
 - identified `CombatRunner` as the first remaining production god-object;
 - extracted queued player launches, player/enemy projectile creation, flight,
@@ -67,6 +67,18 @@ Implemented in the current refactor atom:
   sequence in one encounter-local `CombatRuntimeIdentityFactory`;
 - preserved the public `EncounterEngine` API and all gameplay behavior;
 - added a focused identity-sequence regression test.
+
+Implemented in the current refactor atom:
+
+- extracted queued player attachments, enemy dispenser phases, active fuses,
+  detonation, target loss and actor-target cleanup into
+  `CombatStickyMineRunner`;
+- moved sticky-mine `TARGETING / DISPENSING / COOLDOWN` details out of the
+  shared weapon-phase dispatcher;
+- kept the locked top-level combat step order and public `EncounterEngine` API
+  unchanged;
+- preserved the existing mine contract suites for salvo catch-up, cooldown,
+  interruption, same-step integration and target-loss cleanup.
 
 Next gameplay slice:
 
@@ -927,8 +939,9 @@ Avoid:
 
 `CombatRunner` was the first justified god-object split after the snapshot
 cleanup. The complete missile-object lifecycle now belongs to
-`CombatMissileRunner`; `CombatRunner` retains combat phase orchestration, enemy
-weapon phases, lasers, spam and sticky mines.
+`CombatMissileRunner`; the complete sticky-mine lifecycle now belongs to
+`CombatStickyMineRunner`. `CombatRunner` retains combat phase orchestration,
+the remaining shared weapon phases, lasers and spam.
 
 Do not split it because of line count.
 
@@ -936,9 +949,9 @@ A split is justified only when a subsystem can own a complete lifecycle with few
 
 Avoid replacing a linear file with a graph of tiny runners.
 
-Do not immediately continue splitting the remaining weapon families. Re-audit
-after enemy point defense: extract another lifecycle only if it gains an equally
-narrow API and removes unrelated edits from `CombatRunner`.
+The upcoming combat-design exploration makes lasers and spam active change
+zones. Continue extracting them only as complete concrete lifecycles with narrow
+APIs. Do not create a generic attack-runner hierarchy.
 
 ---
 

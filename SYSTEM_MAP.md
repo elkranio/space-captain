@@ -19,7 +19,7 @@ It does not contain gameplay balance or implementation backlog.
 Last mapped commit:
 
 ```text
-cd955ced656536f11ac5a89359dc5009a6923836
+e5ce61870288e4d2251ad2ad58c997464d96845f
 ```
 
 ---
@@ -63,9 +63,9 @@ Hard rules:
 | Player hull | `EncounterState.playerHull` | `EncounterStateStore.damagePlayerHull()` | yes, exact result synchronized to `GameRuntime` | player ship status |
 | Enemy encounter actor | `EncounterState.actors` | encounter/combat systems | identity/baseline only | encounter object + telemetry |
 | Enemy hull | ship encounter actor | `EncounterStateStore.damageEnemyActorHull()` | resets from node actor on reconstruction | enemy telemetry |
-| Enemy weapon state | ship encounter actor | `CombatRunner` | resets from node actor on reconstruction | enemy telemetry |
+| Enemy weapon state | ship encounter actor | owning combat weapon runner | resets from node actor on reconstruction | enemy telemetry |
 | Player/incoming projectiles | `EncounterState.combat.projectiles` | `CombatMissileRunner` | no | missile views |
-| Sticky mines | `EncounterState.combat.stickyMines` | `CombatRunner` | no | sticky-mine views |
+| Sticky mines | `EncounterState.combat.stickyMines` | `CombatStickyMineRunner` | no | sticky-mine views |
 | Active laser attacks | `EncounterState.combat.laserAttacks` | `CombatRunner` | no | laser threat/VFX views |
 | Player officer tasks | `EncounterState.officerTasks` | `OfficerTaskRunner` / store | only through reconstructed navigation tasks where required | officer activity |
 | Enemy crew tasks | `ShipEncounterActorState.crewTasks` | `EnemyCrewTaskRunner` | no | currently no direct bridge projection |
@@ -97,6 +97,7 @@ EncounterEngine
 ├─ PlayerWeaponRunner
 ├─ CombatRunner
 │  ├─ CombatMissileRunner
+│  ├─ CombatStickyMineRunner
 │  ├─ CombatRuntimeIdentityFactory
 │  ├─ EnemyThreatObserver
 │  └─ EnemyTaskScheduler
@@ -229,7 +230,8 @@ Do not build a generic planner, behavior tree or utility-AI framework.
 
 Player weapon lifecycle belongs to `PlayerWeaponRunner`.
 
-Enemy weapon phase lifecycle currently belongs to `CombatRunner`.
+`CombatRunner` owns the locked top-level combat phase order. Concrete runners
+own complete attack-family lifecycles when a clean boundary exists.
 
 The complete missile-object lifecycle belongs to `CombatMissileRunner`:
 
@@ -244,6 +246,20 @@ queued player launch
 `CombatRunner` owns the locked phase order and calls the missile runner through
 that narrow lifecycle API. Enemy launcher targeting/cooldown remains part of the
 shared enemy weapon-phase lifecycle.
+
+The complete sticky-mine lifecycle belongs to `CombatStickyMineRunner`:
+
+```text
+queued player attachment
+→ enemy dispenser targeting / salvo / cooldown
+→ active fuse
+→ detonation or target loss
+→ actor-target cleanup
+```
+
+Unlike missiles, the enemy dispenser's weapon phases are also owned by its
+concrete runner. `CombatRunner` only dispatches the dispenser during the shared
+weapon phase.
 
 Transient combat IDs and the shared mixed threat-designation sequence
 (`M1, L2, M3...`) belong to one encounter-local
@@ -474,7 +490,8 @@ Stop and inspect architecture when a local feature requires any of these:
 8. done — extract app snapshot transport from BridgeEncounterController
 9. done — centralize detached engine reads and snapshot cloning
 10. done — extract complete missile-object lifecycle from CombatRunner
-11. next — return to one narrow enemy defensive behavior slice
+11. done — extract complete sticky-mine lifecycle from CombatRunner
+12. next — extract the laser lifecycle before combat-design exploration
 ```
 
 Audit result: physical launchers/dispensers now keep stable command identity
@@ -484,9 +501,11 @@ command-palette interaction flow.
 
 The snapshot cleanup removed duplicated transport and unsafe mutable references
 without changing gameplay ownership or step order. The following size audit
-found one justified lifecycle split: missile creation, flight, resolution and
-cleanup now form one `CombatMissileRunner`; the remaining weapon families stay
-in `CombatRunner` until they independently satisfy the same criterion.
+found two justified lifecycle splits: missiles belong to
+`CombatMissileRunner`, while dispenser phases and active mines belong to
+`CombatStickyMineRunner`. Lasers and spam may follow as concrete runners because
+they are upcoming combat-design change zones; do not generalize them behind an
+abstract attack framework.
 
 Small adjacent cleanups are allowed when they:
 

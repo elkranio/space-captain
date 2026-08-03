@@ -13,11 +13,11 @@ Last updated:
 Current repository checkpoint:
 
 ```text
-cd955ced656536f11ac5a89359dc5009a6923836
+e5ce61870288e4d2251ad2ad58c997464d96845f
 ```
 
 Bridge V0.1 migration is complete. Enemy defensive behavior is the next
-gameplay slice after the current missile-lifecycle refactor.
+gameplay slice after the current concrete attack-runner refactors.
 
 This file records the exact implementation boundary so the next behavior pass
 does not repeat completed architecture work.
@@ -222,6 +222,7 @@ src/engine/encounter/combat/EnemyThreatObserver.ts
 src/engine/encounter/combat/EnemyScienceIntelResolver.ts
 src/engine/encounter/combat/CombatRunner.ts
 src/engine/encounter/combat/CombatMissileRunner.ts
+src/engine/encounter/combat/CombatStickyMineRunner.ts
 src/engine/encounter/combat/CombatRuntimeIdentityFactory.ts
 src/engine/defs/ship_weapon.ts
 src/engine/encounter/actors/ship/ship_encounter_actor.ts
@@ -398,8 +399,9 @@ Do not:
 - create a behavior tree;
 - create generic utility AI;
 - create one class per event;
-- split the remaining `CombatRunner` weapon families without the same complete
-  lifecycle and narrow-API simplification win already established for missiles.
+- split a weapon family without moving its complete lifecycle behind a narrow
+  concrete API;
+- create a generic attack-runner hierarchy for missiles, mines, lasers or spam.
 
 ---
 

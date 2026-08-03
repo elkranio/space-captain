@@ -1,12 +1,5 @@
 // src/engine/encounter/combat/CombatRunner.ts
 
-import { STICKY_MINES } from '../../content/catalogs/sticky_mines';
-import {
-    ENCOUNTER_TEAM,
-} from '../../defs/encounter_team';
-import type {
-    StickyMineId,
-} from '../../defs/sticky_mine';
 import {
     SHIP_WEAPONS,
     SHIP_WEAPON_TARGETING_DURATION_MS,
@@ -19,23 +12,18 @@ import {
     type LaserWeaponState,
     type SpamProjectorDefinition,
     type SpamProjectorState,
-    type StickyMineDispenserDefinition,
-    type StickyMineDispenserState,
     type ShipWeaponDefinition,
     type ShipWeaponState,
 } from '../../defs/ship_weapon';
 import type { ShipEncounterActorState } from '../actors/ship/ship_encounter_actor';
 import {
-    COMBAT_SOURCE_KIND,
     COMBAT_TARGET_KIND,
     LASER_SHOT_OUTCOME,
-    PLAYER_STICKY_MINE_OUTCOME,
     SPAM_CHANNEL_OUTCOME,
     THREAT_IDENTIFICATION_STATUS,
     type LaserAttackState,
     type SpamChannelOutcome,
     type SpamChannelState,
-    type StickyMineState,
 } from '../model/combat';
 import { ENCOUNTER_EVENT, type EncounterEvent } from '../model/event';
 import type { EncounterState } from '../model/state';
@@ -44,15 +32,11 @@ import CombatMissileRunner, {
     type PlayerMissileLaunchInput,
 } from './CombatMissileRunner';
 import CombatRuntimeIdentityFactory from './CombatRuntimeIdentityFactory';
+import CombatStickyMineRunner, {
+    type PlayerStickyMineAttachInput,
+} from './CombatStickyMineRunner';
 import EnemyTaskScheduler from './EnemyTaskScheduler';
 import EnemyThreatObserver from './EnemyThreatObserver';
-
-type PlayerStickyMineAttachInput = {
-    sourceWeaponId: string;
-    mineId: StickyMineId;
-    targetActorId: string;
-    ageMs: number;
-};
 
 type CombatStepExistingObjectIds = {
     projectileIds: string[];
@@ -112,8 +96,8 @@ export default class CombatRunner {
     private readonly missileRunner:
         CombatMissileRunner;
 
-    private readonly pendingPlayerStickyMineAttachments:
-        PlayerStickyMineAttachInput[] = [];
+    private readonly stickyMineRunner:
+        CombatStickyMineRunner;
 
     constructor({
         stateStore,
@@ -153,6 +137,24 @@ export default class CombatRunner {
 
                 emit:
                     this.emit,
+
+                destroyEnemyActor:
+                    this.destroyEnemyActor,
+            });
+
+        this.stickyMineRunner =
+            new CombatStickyMineRunner({
+                stateStore:
+                    this.stateStore,
+
+                identities:
+                    this.identities,
+
+                emit:
+                    this.emit,
+
+                interruptRandomOfficerTask:
+                    this.interruptRandomOfficerTask,
 
                 destroyEnemyActor:
                     this.destroyEnemyActor,
@@ -200,11 +202,8 @@ export default class CombatRunner {
                     .captureExistingProjectileIds(),
 
             stickyMineIds:
-                this.state.combat
-                    .stickyMines
-                    .map((mine) => {
-                        return mine.id;
-                    }),
+                this.stickyMineRunner
+                    .captureExistingMineIds(),
         };
     }
 
@@ -217,7 +216,8 @@ export default class CombatRunner {
         // текущий deltaMs.
         this.missileRunner
             .integratePendingPlayerLaunches();
-        this.flushPlayerStickyMineAttachments();
+        this.stickyMineRunner
+            .integratePendingPlayerAttachments();
     }
 
     private perceivePlayerThreats(): void {
@@ -236,7 +236,8 @@ export default class CombatRunner {
             deltaMs,
         );
 
-        this.advanceStickyMines(
+        this.stickyMineRunner
+            .advanceExistingMines(
             existingIds.stickyMineIds,
             deltaMs,
         );
@@ -306,144 +307,13 @@ export default class CombatRunner {
     public queuePlayerStickyMineAttach(
         input: PlayerStickyMineAttachInput,
     ): void {
-        if (
-            !Number.isFinite(input.ageMs) ||
-            input.ageMs < 0
-        ) {
-            throw new Error(
-                'Invalid player sticky-mine age: ' +
-                    String(input.ageMs),
-            );
-        }
-
-        this.pendingPlayerStickyMineAttachments
-            .push({
-                ...input,
-            });
-    }
-
-    private flushPlayerStickyMineAttachments(): void {
-        const attachments =
-            this.pendingPlayerStickyMineAttachments
-                .splice(0);
-
-        for (
-            const attachment of
-            attachments
-        ) {
-            this.attachPlayerStickyMine(
-                attachment,
-            );
-        }
-    }
-
-    private attachPlayerStickyMine(
-        input: PlayerStickyMineAttachInput,
-    ): void {
-        const target =
-            this.state.actors.find(
-                (actor) => {
-                    return (
-                        actor.id ===
-                        input.targetActorId
-                    );
-                },
-            );
-
-        if (
-            !target ||
-            target.team !==
-                ENCOUNTER_TEAM.ENEMY ||
-            target.hull <= 0
-        ) {
-            throw new Error(
-                'Cannot attach player sticky mine to invalid target: ' +
-                    input.sourceWeaponId +
-                    '/' +
-                    input.targetActorId,
-            );
-        }
-
-        const mineDefinition =
-            STICKY_MINES[
-                input.mineId
-            ];
-
-        const mine: StickyMineState = {
-            id:
-                this.identities
-                    .createStickyMineId(),
-
-            mineId:
-                input.mineId,
-
-            source: {
-                kind:
-                    COMBAT_SOURCE_KIND
-                        .PLAYER_SHIP,
-            },
-
-            sourceWeaponId:
-                input.sourceWeaponId,
-
-            target: {
-                kind:
-                    COMBAT_TARGET_KIND.ACTOR,
-
-                actorId:
-                    input.targetActorId,
-            },
-
-            timeToDetonationMs:
-                Math.max(
-                    0,
-                    mineDefinition
-                        .fuseDurationMs -
-                        input.ageMs,
-                ),
-
-            initialTimeToDetonationMs:
-                mineDefinition
-                    .fuseDurationMs,
-
-            damage:
-                mineDefinition.damage,
-        };
-
-        this.state.combat.stickyMines.push(
-            mine,
-        );
-
-        this.emit({
-            type:
-                ENCOUNTER_EVENT
-                    .PLAYER_STICKY_MINE_ATTACHED,
-
-            mine,
-        });
+        this.stickyMineRunner
+            .queuePlayerAttach(input);
     }
 
     public clearStickyMine(mineId: string): boolean {
-        const mineIndex =
-            this.state.combat.stickyMines.findIndex((mine) => {
-                return (
-                    mine.id === mineId &&
-                    mine.target.kind ===
-                        COMBAT_TARGET_KIND
-                            .PLAYER_SHIP
-                );
-            });
-
-        if (mineIndex < 0) {
-            return false;
-        }
-
-        this.state.combat.stickyMines.splice(
-            mineIndex,
-            1,
-        );
-
-        return true;
+        return this.stickyMineRunner
+            .clearMine(mineId);
     }
 
     public removePlayerCombatObjectsTargetingActor(
@@ -454,9 +324,10 @@ export default class CombatRunner {
                 actorId,
             );
 
-        this.removeStickyMinesTargetingActor(
-            actorId,
-        );
+        this.stickyMineRunner
+            .removePlayerMinesTargetingActor(
+                actorId,
+            );
     }
 
     // #region Weapon lifecycle
@@ -468,6 +339,21 @@ export default class CombatRunner {
             }
 
             for (const weapon of actor.weapons) {
+                if (
+                    weapon.kind ===
+                    SHIP_WEAPON_KIND
+                        .STICKY_MINE_DISPENSER
+                ) {
+                    this.stickyMineRunner
+                        .advanceEnemyDispenser(
+                            actor,
+                            weapon,
+                            deltaMs,
+                        );
+
+                    continue;
+                }
+
                 switch (weapon.phase) {
                     case SHIP_WEAPON_PHASE.READY:
                         break;
@@ -485,8 +371,10 @@ export default class CombatRunner {
                         break;
 
                     case SHIP_WEAPON_PHASE.DISPENSING:
-                        this.advanceWeaponDispensing(actor, weapon, deltaMs);
-                        break;
+                        throw new Error(
+                            `Only sticky-mine dispenser can enter dispensing phase: ` +
+                                `${actor.id}/${weapon.id}/${weapon.kind}`,
+                        );
 
                     case SHIP_WEAPON_PHASE.COOLDOWN:
                         this.advanceWeaponCooldown(weapon, deltaMs);
@@ -512,24 +400,18 @@ export default class CombatRunner {
             return;
         }
 
-        const targetingOverflowMs =
-            elapsedMs -
-            SHIP_WEAPON_TARGETING_DURATION_MS;
-
         weapon.phaseElapsedMs =
             SHIP_WEAPON_TARGETING_DURATION_MS;
 
         this.completeWeaponTargeting(
             actor,
             weapon,
-            targetingOverflowMs,
         );
     }
 
     private completeWeaponTargeting(
         actor: ShipEncounterActorState,
         weapon: ShipWeaponState,
-        targetingOverflowMs: number,
     ): void {
         switch (weapon.kind) {
             case SHIP_WEAPON_KIND.MISSILE_LAUNCHER:
@@ -549,12 +431,10 @@ export default class CombatRunner {
                 return;
 
             case SHIP_WEAPON_KIND.STICKY_MINE_DISPENSER:
-                this.startStickyMineDispensing(
-                    actor,
-                    weapon,
-                    targetingOverflowMs,
+                throw new Error(
+                    `Sticky-mine dispenser targeting must be advanced by its runner: ` +
+                        `${actor.id}/${weapon.id}`,
                 );
-                return;
         }
     }
 
@@ -615,28 +495,6 @@ export default class CombatRunner {
         }
     }
 
-    private advanceWeaponDispensing(
-        actor: ShipEncounterActorState,
-        weapon: ShipWeaponState,
-        deltaMs: number,
-    ): void {
-        if (
-            weapon.kind !==
-            SHIP_WEAPON_KIND.STICKY_MINE_DISPENSER
-        ) {
-            throw new Error(
-                `Only sticky-mine dispenser can enter dispensing phase: ` +
-                    `${actor.id}/${weapon.id}/${weapon.kind}`,
-            );
-        }
-
-        this.advanceStickyMineDispensing(
-            actor,
-            weapon,
-            deltaMs,
-        );
-    }
-
     private advanceWeaponCooldown(weapon: ShipWeaponState, deltaMs: number): void {
         const definition = this.getWeaponDefinition(weapon);
 
@@ -648,13 +506,6 @@ export default class CombatRunner {
 
         weapon.phase = SHIP_WEAPON_PHASE.READY;
         weapon.phaseElapsedMs = 0;
-
-        if (
-            weapon.kind ===
-            SHIP_WEAPON_KIND.STICKY_MINE_DISPENSER
-        ) {
-            weapon.dispensedMineCount = 0;
-        }
     }
 
     private getWeaponDefinition(weapon: ShipWeaponState): ShipWeaponDefinition {
@@ -686,25 +537,6 @@ export default class CombatRunner {
             throw new Error(
                 `Spam projector kind does not match definition: ` +
                     `${projector.id}/${projector.weaponId}`,
-            );
-        }
-
-        return definition;
-    }
-
-    private getStickyMineDispenserDefinition(
-        dispenser: StickyMineDispenserState,
-    ): StickyMineDispenserDefinition {
-        const definition =
-            SHIP_WEAPONS[dispenser.weaponId];
-
-        if (
-            definition.kind !==
-            SHIP_WEAPON_KIND.STICKY_MINE_DISPENSER
-        ) {
-            throw new Error(
-                `Sticky-mine dispenser kind does not match definition: ` +
-                    `${dispenser.id}/${dispenser.weaponId}`,
             );
         }
 
@@ -960,450 +792,6 @@ export default class CombatRunner {
             ),
             durationMs: definition.channelDurationMs,
         };
-    }
-
-    // #endregion
-
-    // #region Sticky mines
-
-    private startStickyMineDispensing(
-        actor: ShipEncounterActorState,
-        dispenser: StickyMineDispenserState,
-        targetingOverflowMs: number,
-    ): void {
-        dispenser.phase =
-            SHIP_WEAPON_PHASE.DISPENSING;
-        dispenser.phaseElapsedMs = 0;
-        dispenser.dispensedMineCount = 0;
-
-        this.attachStickyMine(
-            actor,
-            dispenser,
-            targetingOverflowMs,
-        );
-
-        this.advanceStickyMineDispensing(
-            actor,
-            dispenser,
-            targetingOverflowMs,
-        );
-    }
-
-    private advanceStickyMineDispensing(
-        actor: ShipEncounterActorState,
-        dispenser: StickyMineDispenserState,
-        deltaMs: number,
-    ): void {
-        const definition =
-            this.getStickyMineDispenserDefinition(
-                dispenser,
-            );
-
-        dispenser.phaseElapsedMs += deltaMs;
-
-        while (
-            dispenser.dispensedMineCount <
-                definition.salvoSize &&
-            dispenser.ammoCount > 0 &&
-            dispenser.phaseElapsedMs >=
-                definition.launchIntervalMs
-        ) {
-            dispenser.phaseElapsedMs -=
-                definition.launchIntervalMs;
-
-            this.attachStickyMine(
-                actor,
-                dispenser,
-                dispenser.phaseElapsedMs,
-            );
-        }
-
-        if (
-            dispenser.dispensedMineCount <
-                definition.salvoSize &&
-            dispenser.ammoCount > 0
-        ) {
-            return;
-        }
-
-        const cooldownElapsedMs =
-            dispenser.phaseElapsedMs;
-
-        dispenser.phase =
-            SHIP_WEAPON_PHASE.COOLDOWN;
-        dispenser.phaseElapsedMs = 0;
-
-        this.advanceWeaponCooldown(
-            dispenser,
-            cooldownElapsedMs,
-        );
-    }
-
-    private attachStickyMine(
-        actor: ShipEncounterActorState,
-        dispenser: StickyMineDispenserState,
-        ageMs: number,
-    ): void {
-        const definition =
-            this.getStickyMineDispenserDefinition(
-                dispenser,
-            );
-
-        if (
-            dispenser.dispensedMineCount >=
-            definition.salvoSize
-        ) {
-            throw new Error(
-                `Cannot exceed sticky-mine salvo size: ` +
-                    `${actor.id}/${dispenser.id}/${definition.salvoSize}`,
-            );
-        }
-
-        const mineId =
-            dispenser.loadedMineId;
-
-        if (
-            !mineId ||
-            dispenser.ammoCount <= 0
-        ) {
-            throw new Error(
-                `Cannot launch sticky mine from empty dispenser: ` +
-                    `${actor.id}/${dispenser.id}`,
-            );
-        }
-
-        const mineDefinition =
-            STICKY_MINES[mineId];
-
-        const mine: StickyMineState = {
-            id:
-                this.identities
-                    .createStickyMineId(),
-
-            mineId,
-
-            source: {
-                kind:
-                    COMBAT_SOURCE_KIND.ACTOR,
-
-                actorId: actor.id,
-            },
-
-            sourceWeaponId: dispenser.id,
-
-            target: {
-                kind:
-                    COMBAT_TARGET_KIND
-                        .PLAYER_SHIP,
-            },
-
-            timeToDetonationMs: Math.max(
-                0,
-                mineDefinition.fuseDurationMs -
-                    ageMs,
-            ),
-            initialTimeToDetonationMs:
-                mineDefinition.fuseDurationMs,
-
-            damage: mineDefinition.damage,
-        };
-
-        dispenser.ammoCount -= 1;
-        dispenser.dispensedMineCount += 1;
-
-        this.state.combat.stickyMines.push(
-            mine,
-        );
-
-        this.emit({
-            type:
-                ENCOUNTER_EVENT
-                    .STICKY_MINE_ATTACHED,
-
-            mine,
-        });
-
-        if (mine.timeToDetonationMs > 0) {
-            return;
-        }
-
-        this.resolveStickyMineDetonation(
-            this.state.combat.stickyMines.length -
-                1,
-            mine,
-        );
-    }
-
-    private advanceStickyMines(
-        mineIds: readonly string[],
-        deltaMs: number,
-    ): void {
-        for (const mineId of mineIds) {
-            const index =
-                this.state.combat
-                    .stickyMines
-                    .findIndex((mine) => {
-                        return (
-                            mine.id ===
-                            mineId
-                        );
-                    });
-
-            // A previous lethal resolution may have
-            // removed this mine during the same step.
-            if (index < 0) {
-                continue;
-            }
-
-            const mine =
-                this.state.combat
-                    .stickyMines[index];
-
-            if (
-                mine.target.kind ===
-                COMBAT_TARGET_KIND.ACTOR
-            ) {
-                const targetActorId =
-                    mine.target.actorId;
-
-                const target =
-                    this.state.actors.find(
-                        (actor) => {
-                            return (
-                                actor.id ===
-                                targetActorId
-                            );
-                        },
-                    );
-
-                if (
-                    !target ||
-                    target.team !==
-                        ENCOUNTER_TEAM.ENEMY ||
-                    target.hull <= 0
-                ) {
-                    this.resolvePlayerStickyMineTargetLost(
-                        index,
-                        mine,
-                    );
-
-                    continue;
-                }
-            }
-
-            mine.timeToDetonationMs =
-                Math.max(
-                    0,
-                    mine.timeToDetonationMs -
-                        deltaMs,
-                );
-
-            if (
-                mine.timeToDetonationMs > 0
-            ) {
-                continue;
-            }
-
-            this.resolveStickyMineDetonation(
-                index,
-                mine,
-            );
-        }
-    }
-
-    private resolveStickyMineDetonation(
-        index: number,
-        mine: StickyMineState,
-    ): void {
-        mine.timeToDetonationMs = 0;
-
-        this.state.combat.stickyMines.splice(
-            index,
-            1,
-        );
-
-        if (
-            mine.source.kind ===
-                COMBAT_SOURCE_KIND.ACTOR &&
-            mine.target.kind ===
-                COMBAT_TARGET_KIND
-                    .PLAYER_SHIP
-        ) {
-            const damageResult =
-                this.stateStore
-                    .damagePlayerHull(
-                        mine.damage,
-                    );
-
-            this.emit({
-                type:
-                    ENCOUNTER_EVENT
-                        .STICKY_MINE_DETONATED,
-
-                mine,
-
-                ...damageResult,
-            });
-
-            this.interruptRandomOfficerTask();
-            return;
-        }
-
-        if (
-            mine.source.kind ===
-                COMBAT_SOURCE_KIND
-                    .PLAYER_SHIP &&
-            mine.target.kind ===
-                COMBAT_TARGET_KIND.ACTOR
-        ) {
-            this.resolvePlayerStickyMineImpact(
-                mine,
-                mine.target.actorId,
-            );
-            return;
-        }
-
-        throw new Error(
-            'Unsupported sticky-mine detonation route: ' +
-                mine.id +
-                '/' +
-                mine.source.kind +
-                '/' +
-                mine.target.kind,
-        );
-    }
-
-    private resolvePlayerStickyMineImpact(
-        mine: StickyMineState,
-        targetActorId: string,
-    ): void {
-        const target =
-            this.state.actors.find(
-                (actor) => {
-                    return (
-                        actor.id ===
-                        targetActorId
-                    );
-                },
-            );
-
-        if (
-            !target ||
-            target.team !==
-                ENCOUNTER_TEAM.ENEMY ||
-            target.hull <= 0
-        ) {
-            return;
-        }
-
-        const damageResult =
-            this.stateStore.damageEnemyActorHull(
-                target.id,
-                mine.damage,
-            );
-
-        this.emit({
-            type:
-                ENCOUNTER_EVENT
-                    .PLAYER_STICKY_MINE_RESOLVED,
-
-            mine,
-
-            outcome:
-                PLAYER_STICKY_MINE_OUTCOME
-                    .DETONATED,
-
-            damage:
-                damageResult
-                    .appliedDamage,
-
-            remainingHull:
-                damageResult
-                    .remainingHull,
-        });
-
-        if (!damageResult.destroyed) {
-            return;
-        }
-
-        this.destroyEnemyActor(
-            target.id,
-        );
-    }
-
-    private resolvePlayerStickyMineTargetLost(
-        index: number,
-        mine: StickyMineState,
-    ): void {
-        if (
-            mine.source.kind !==
-                COMBAT_SOURCE_KIND
-                    .PLAYER_SHIP ||
-            mine.target.kind !==
-                COMBAT_TARGET_KIND.ACTOR
-        ) {
-            throw new Error(
-                'Cannot resolve player sticky-mine target loss for route: ' +
-                    mine.id +
-                    '/' +
-                    mine.source.kind +
-                    '/' +
-                    mine.target.kind,
-            );
-        }
-
-        this.state.combat
-            .stickyMines.splice(
-                index,
-                1,
-            );
-
-        this.emit({
-            type:
-                ENCOUNTER_EVENT
-                    .PLAYER_STICKY_MINE_RESOLVED,
-
-            mine,
-
-            outcome:
-                PLAYER_STICKY_MINE_OUTCOME
-                    .TARGET_LOST,
-        });
-    }
-
-    private removeStickyMinesTargetingActor(
-        actorId: string,
-    ): void {
-        for (
-            let index =
-                this.state.combat
-                    .stickyMines.length - 1;
-
-            index >= 0;
-
-            index -= 1
-        ) {
-            const mine =
-                this.state.combat
-                    .stickyMines[index];
-
-            if (
-                mine.source.kind !==
-                    COMBAT_SOURCE_KIND
-                        .PLAYER_SHIP ||
-                mine.target.kind !==
-                    COMBAT_TARGET_KIND.ACTOR ||
-                mine.target.actorId !==
-                    actorId
-            ) {
-                continue;
-            }
-
-            this.resolvePlayerStickyMineTargetLost(
-                index,
-                mine,
-            );
-        }
     }
 
     // #endregion
