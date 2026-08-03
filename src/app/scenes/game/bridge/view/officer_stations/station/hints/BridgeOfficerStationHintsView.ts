@@ -1,17 +1,18 @@
+// src/app/scenes/game/bridge/view/officer_stations/station/hints/BridgeOfficerStationHintsView.ts
 import { FONT_COLOR, FONT_FAMILY, FONT_SIZE } from '../../../../../../../theme/font';
 import type BridgeScene from '../../../../BridgeScene';
 
 const HINT_LAYOUT = {
-    x: -60,
-    firstY: -74,
+    x: -65,
+    firstY: -70,
     rowGapY: 17,
     maxRows: 2,
 } as const;
 
 const HINT_BLINK = {
     brightAlpha: 1,
-    dimAlpha: 0.4,
-    intervalMs: 480,
+    dimAlpha: 0.9,
+    intervalMs: 600,
 } as const;
 
 // Idle combat actions shown directly on the station monitor.
@@ -65,9 +66,7 @@ export default class BridgeOfficerStationHintsView {
 
             hasVisibleHints = true;
 
-            this.rows[index]
-                .setText(`> ${hint}`)
-                .setVisible(true);
+            this.rows[index].setText(`> ${hint}`).setVisible(true);
         }
 
         if (hasVisibleHints) {
@@ -103,11 +102,7 @@ export default class BridgeOfficerStationHintsView {
             callback: () => {
                 this.isDimmed = !this.isDimmed;
 
-                this.root.setAlpha(
-                    this.isDimmed
-                        ? HINT_BLINK.dimAlpha
-                        : HINT_BLINK.brightAlpha,
-                );
+                this.root.setAlpha(this.isDimmed ? HINT_BLINK.dimAlpha : HINT_BLINK.brightAlpha);
             },
         });
     }
