@@ -4,7 +4,7 @@
     "description": "",
     "main": "index.js",
     "scripts": {
-        "pack:tex": "node scripts/pack-textures.js && node scripts/bust-atlas-cache.js",
+        "pack:tex": "node scripts/pack-textures.js && node scripts/bust-atlas-cache.js && npm run copy:live",
         "pack:sfx": "node scripts/build-audiosprite.js && node scripts/bust-audiosprite-cache.js",
         "copy:live": "node scripts/copy-live-assets.js",
         "dev": "npm run copy:live && vite",
