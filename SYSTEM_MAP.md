@@ -19,7 +19,7 @@ It does not contain gameplay balance or implementation backlog.
 Last mapped commit:
 
 ```text
-e5ce61870288e4d2251ad2ad58c997464d96845f
+04e01064508ae0d2f7b7fe9398e624aeac9cbab7
 ```
 
 ---
@@ -67,6 +67,7 @@ Hard rules:
 | Player/incoming projectiles | `EncounterState.combat.projectiles` | `CombatMissileRunner` | no | missile views |
 | Sticky mines | `EncounterState.combat.stickyMines` | `CombatStickyMineRunner` | no | sticky-mine views |
 | Active laser attacks | `EncounterState.combat.laserAttacks` | `CombatLaserRunner` | no | laser threat/VFX views |
+| Active hostile spam | spam-projector weapon state | `CombatSpamRunner` | no | spam channel snapshots |
 | Player officer tasks | `EncounterState.officerTasks` | `OfficerTaskRunner` / store | only through reconstructed navigation tasks where required | officer activity |
 | Enemy crew tasks | `ShipEncounterActorState.crewTasks` | `EnemyCrewTaskRunner` | no | currently no direct bridge projection |
 | Objective player threat | combat object or player officer task | owning runner | no | outgoing weapon presentation |
@@ -99,6 +100,7 @@ EncounterEngine
 │  ├─ CombatMissileRunner
 │  ├─ CombatStickyMineRunner
 │  ├─ CombatLaserRunner
+│  ├─ CombatSpamRunner
 │  ├─ CombatRuntimeIdentityFactory
 │  ├─ EnemyThreatObserver
 │  └─ EnemyTaskScheduler
@@ -238,6 +240,7 @@ The complete missile-object lifecycle belongs to `CombatMissileRunner`:
 
 ```text
 queued player launch
+→ enemy launcher targeting / launch / cooldown
 → player/enemy projectile creation
 → flight
 → impact or target loss
@@ -245,8 +248,8 @@ queued player launch
 ```
 
 `CombatRunner` owns the locked phase order and calls the missile runner through
-that narrow lifecycle API. Enemy launcher targeting/cooldown remains part of the
-shared enemy weapon-phase lifecycle.
+that narrow lifecycle API. Enemy launcher phases no longer leak into the
+orchestrator.
 
 The complete sticky-mine lifecycle belongs to `CombatStickyMineRunner`:
 
@@ -274,6 +277,19 @@ enemy targeting
 
 Player laser execution remains in `PlayerWeaponRunner`. `CombatRunner` only
 dispatches enemy lasers during the shared weapon phase.
+
+The complete hostile-spam lifecycle belongs to `CombatSpamRunner`:
+
+```text
+enemy targeting
+→ channel start + active channel
+→ expiry or player purge
+→ cooldown
+```
+
+`CombatRunner` only dispatches spam advancement. A successful player purge is
+followed there by explicit enemy-task synchronization because that is
+cross-system orchestration, not spam lifecycle ownership.
 
 Transient combat IDs and the shared mixed threat-designation sequence
 (`M1, L2, M3...`) belong to one encounter-local
@@ -506,7 +522,7 @@ Stop and inspect architecture when a local feature requires any of these:
 10. done — extract complete missile-object lifecycle from CombatRunner
 11. done — extract complete sticky-mine lifecycle from CombatRunner
 12. done — extract the incoming-laser lifecycle from CombatRunner
-13. next — extract the complete spam-projector lifecycle
+13. done — extract the complete spam-projector lifecycle
 ```
 
 Audit result: physical launchers/dispensers now keep stable command identity
@@ -518,10 +534,12 @@ The snapshot cleanup removed duplicated transport and unsafe mutable references
 without changing gameplay ownership or step order. The following size audit
 found two justified lifecycle splits: missiles belong to
 `CombatMissileRunner`, while dispenser phases and active mines belong to
-`CombatStickyMineRunner`, and incoming lasers belong to `CombatLaserRunner`.
-Spam may follow as the final concrete runner because it is an upcoming
-combat-design change zone; do not generalize these lifecycles behind an abstract
-attack framework.
+`CombatStickyMineRunner`, incoming lasers belong to `CombatLaserRunner`, and
+hostile spam belongs to `CombatSpamRunner`. Enemy missile-launcher phases were
+also moved into `CombatMissileRunner` after the shared phase helpers stopped
+serving another family. `CombatRunner` is now the locked order/orchestration
+owner; do not generalize the concrete lifecycles behind an abstract attack
+framework.
 
 Small adjacent cleanups are allowed when they:
 

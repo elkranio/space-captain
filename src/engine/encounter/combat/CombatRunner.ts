@@ -1,24 +1,9 @@
 // src/engine/encounter/combat/CombatRunner.ts
 
 import {
-    SHIP_WEAPONS,
-    SHIP_WEAPON_TARGETING_DURATION_MS,
-} from '../../content/catalogs/ship_weapons';
-import {
     SHIP_WEAPON_KIND,
-    SHIP_WEAPON_PHASE,
-    type SpamProjectorDefinition,
-    type SpamProjectorState,
-    type ShipWeaponDefinition,
-    type ShipWeaponState,
 } from '../../defs/ship_weapon';
-import type { ShipEncounterActorState } from '../actors/ship/ship_encounter_actor';
-import {
-    SPAM_CHANNEL_OUTCOME,
-    type SpamChannelOutcome,
-    type SpamChannelState,
-} from '../model/combat';
-import { ENCOUNTER_EVENT, type EncounterEvent } from '../model/event';
+import type { EncounterEvent } from '../model/event';
 import type { EncounterState } from '../model/state';
 import EncounterStateStore from '../state/EncounterStateStore';
 import CombatLaserRunner from './CombatLaserRunner';
@@ -26,6 +11,7 @@ import CombatMissileRunner, {
     type PlayerMissileLaunchInput,
 } from './CombatMissileRunner';
 import CombatRuntimeIdentityFactory from './CombatRuntimeIdentityFactory';
+import CombatSpamRunner from './CombatSpamRunner';
 import CombatStickyMineRunner, {
     type PlayerStickyMineAttachInput,
 } from './CombatStickyMineRunner';
@@ -55,7 +41,7 @@ type CombatRunnerOptions = {
 // - исполняет решения enemy task scheduler;
 // - фиксирует порядок combat phases;
 // - оркестрирует concrete weapon-family runners;
-// - пока управляет общими missile/spam phases и spam channels;
+// - делегирует каждый weapon lifecycle его concrete runner-у;
 // - эмитит combat events.
 //
 // Корабли, оружие и угрозы остаются частью EncounterState.
@@ -92,6 +78,9 @@ export default class CombatRunner {
 
     private readonly stickyMineRunner:
         CombatStickyMineRunner;
+
+    private readonly spamRunner:
+        CombatSpamRunner;
 
     constructor({
         stateStore,
@@ -167,6 +156,18 @@ export default class CombatRunner {
 
                 destroyEnemyActor:
                     this.destroyEnemyActor,
+            });
+
+        this.spamRunner =
+            new CombatSpamRunner({
+                stateStore:
+                    this.stateStore,
+
+                identities:
+                    this.identities,
+
+                emit:
+                    this.emit,
             });
 
         this.enemyTaskScheduler =
@@ -269,41 +270,16 @@ export default class CombatRunner {
     }
 
     public purgeSpamChannel(channelId: string): boolean {
-        for (const actor of this.state.actors) {
-            for (const weapon of actor.weapons) {
-                if (
-                    weapon.kind !== SHIP_WEAPON_KIND.SPAM_PROJECTOR ||
-                    weapon.activeChannelId !== channelId
-                ) {
-                    continue;
-                }
+        const purged =
+            this.spamRunner
+                .purgeChannel(channelId);
 
-                if (weapon.phase !== SHIP_WEAPON_PHASE.CHANNELING) {
-                    throw new Error(
-                        `Spam projector has active channel outside channeling phase: ` +
-                            `${actor.id}/${weapon.id}/${channelId}/${weapon.phase}`,
-                    );
-                }
-
-                const channel = this.createSpamChannelSnapshot(
-                    actor,
-                    weapon,
-                );
-
-                this.endSpamChannel(
-                    weapon,
-                    channel,
-                    SPAM_CHANNEL_OUTCOME.PURGED,
-                );
-
-                this.enemyTaskScheduler
-                    .synchronizeTasks();
-
-                return true;
-            }
+        if (purged) {
+            this.enemyTaskScheduler
+                .synchronizeTasks();
         }
 
-        return false;
+        return purged;
     }
 
     public queuePlayerMissileLaunch(
@@ -348,313 +324,48 @@ export default class CombatRunner {
             }
 
             for (const weapon of actor.weapons) {
-                if (
-                    weapon.kind ===
-                    SHIP_WEAPON_KIND.LASER
-                ) {
-                    this.laserRunner
-                        .advanceEnemyLaser(
-                            actor,
-                            weapon,
-                            deltaMs,
-                        );
-
-                    continue;
-                }
-
-                if (
-                    weapon.kind ===
-                    SHIP_WEAPON_KIND
-                        .STICKY_MINE_DISPENSER
-                ) {
-                    this.stickyMineRunner
-                        .advanceEnemyDispenser(
-                            actor,
-                            weapon,
-                            deltaMs,
-                        );
-
-                    continue;
-                }
-
-                switch (weapon.phase) {
-                    case SHIP_WEAPON_PHASE.READY:
+                switch (weapon.kind) {
+                    case SHIP_WEAPON_KIND
+                        .MISSILE_LAUNCHER:
+                        this.missileRunner
+                            .advanceEnemyLauncher(
+                                actor,
+                                weapon,
+                                deltaMs,
+                            );
                         break;
 
-                    case SHIP_WEAPON_PHASE.TARGETING:
-                        this.advanceWeaponTargeting(actor, weapon, deltaMs);
+                    case SHIP_WEAPON_KIND.LASER:
+                        this.laserRunner
+                            .advanceEnemyLaser(
+                                actor,
+                                weapon,
+                                deltaMs,
+                            );
                         break;
 
-                    case SHIP_WEAPON_PHASE.CHARGING:
-                        this.advanceWeaponCharging(actor, weapon, deltaMs);
+                    case SHIP_WEAPON_KIND
+                        .STICKY_MINE_DISPENSER:
+                        this.stickyMineRunner
+                            .advanceEnemyDispenser(
+                                actor,
+                                weapon,
+                                deltaMs,
+                            );
                         break;
 
-                    case SHIP_WEAPON_PHASE.CHANNELING:
-                        this.advanceWeaponChanneling(actor, weapon, deltaMs);
-                        break;
-
-                    case SHIP_WEAPON_PHASE.DISPENSING:
-                        throw new Error(
-                            `Only sticky-mine dispenser can enter dispensing phase: ` +
-                                `${actor.id}/${weapon.id}/${weapon.kind}`,
-                        );
-
-                    case SHIP_WEAPON_PHASE.COOLDOWN:
-                        this.advanceWeaponCooldown(weapon, deltaMs);
+                    case SHIP_WEAPON_KIND
+                        .SPAM_PROJECTOR:
+                        this.spamRunner
+                            .advanceEnemyProjector(
+                                actor,
+                                weapon,
+                                deltaMs,
+                            );
                         break;
                 }
             }
         }
-    }
-
-    private advanceWeaponTargeting(
-        actor: ShipEncounterActorState,
-        weapon: ShipWeaponState,
-        deltaMs: number,
-    ): void {
-        const elapsedMs =
-            weapon.phaseElapsedMs + deltaMs;
-
-        if (
-            elapsedMs <
-            SHIP_WEAPON_TARGETING_DURATION_MS
-        ) {
-            weapon.phaseElapsedMs = elapsedMs;
-            return;
-        }
-
-        weapon.phaseElapsedMs =
-            SHIP_WEAPON_TARGETING_DURATION_MS;
-
-        this.completeWeaponTargeting(
-            actor,
-            weapon,
-        );
-    }
-
-    private completeWeaponTargeting(
-        actor: ShipEncounterActorState,
-        weapon: ShipWeaponState,
-    ): void {
-        switch (weapon.kind) {
-            case SHIP_WEAPON_KIND.MISSILE_LAUNCHER:
-                this.missileRunner
-                    .launchEnemyMissile(
-                        actor,
-                        weapon,
-                    );
-                return;
-
-            case SHIP_WEAPON_KIND.LASER:
-                throw new Error(
-                    `Laser targeting must be advanced by its runner: ` +
-                        `${actor.id}/${weapon.id}`,
-                );
-
-            case SHIP_WEAPON_KIND.SPAM_PROJECTOR:
-                this.startSpamChannel(actor, weapon);
-                return;
-
-            case SHIP_WEAPON_KIND.STICKY_MINE_DISPENSER:
-                throw new Error(
-                    `Sticky-mine dispenser targeting must be advanced by its runner: ` +
-                        `${actor.id}/${weapon.id}`,
-                );
-        }
-    }
-
-    private advanceWeaponCharging(
-        actor: ShipEncounterActorState,
-        weapon: ShipWeaponState,
-        deltaMs: number,
-    ): void {
-        switch (weapon.kind) {
-            case SHIP_WEAPON_KIND.MISSILE_LAUNCHER:
-                throw new Error(`Missile launcher cannot enter charging phase: ` + `${actor.id}/${weapon.id}`);
-
-            case SHIP_WEAPON_KIND.LASER:
-                throw new Error(
-                    `Laser charging must be advanced by its runner: ` +
-                        `${actor.id}/${weapon.id}`,
-                );
-
-            case SHIP_WEAPON_KIND.SPAM_PROJECTOR:
-                throw new Error(
-                    `Spam projector cannot enter charging phase: ` +
-                        `${actor.id}/${weapon.id}`,
-                );
-
-            case SHIP_WEAPON_KIND.STICKY_MINE_DISPENSER:
-                throw new Error(
-                    `Sticky-mine dispenser cannot enter charging phase: ` +
-                        `${actor.id}/${weapon.id}`,
-                );
-        }
-    }
-
-    private advanceWeaponChanneling(
-        actor: ShipEncounterActorState,
-        weapon: ShipWeaponState,
-        deltaMs: number,
-    ): void {
-        switch (weapon.kind) {
-            case SHIP_WEAPON_KIND.MISSILE_LAUNCHER:
-                throw new Error(
-                    `Missile launcher cannot enter channeling phase: ` +
-                        `${actor.id}/${weapon.id}`,
-                );
-
-            case SHIP_WEAPON_KIND.LASER:
-                throw new Error(
-                    `Laser cannot enter channeling phase: ` +
-                        `${actor.id}/${weapon.id}`,
-                );
-
-            case SHIP_WEAPON_KIND.SPAM_PROJECTOR:
-                this.advanceSpamChanneling(actor, weapon, deltaMs);
-                return;
-
-            case SHIP_WEAPON_KIND.STICKY_MINE_DISPENSER:
-                throw new Error(
-                    `Sticky-mine dispenser cannot enter channeling phase: ` +
-                        `${actor.id}/${weapon.id}`,
-                );
-        }
-    }
-
-    private advanceWeaponCooldown(weapon: ShipWeaponState, deltaMs: number): void {
-        const definition = this.getWeaponDefinition(weapon);
-
-        weapon.phaseElapsedMs += deltaMs;
-
-        if (weapon.phaseElapsedMs < definition.cooldownDurationMs) {
-            return;
-        }
-
-        weapon.phase = SHIP_WEAPON_PHASE.READY;
-        weapon.phaseElapsedMs = 0;
-    }
-
-    private getWeaponDefinition(weapon: ShipWeaponState): ShipWeaponDefinition {
-        const definition = SHIP_WEAPONS[weapon.weaponId];
-
-        if (definition.kind !== weapon.kind) {
-            throw new Error(`Ship weapon kind does not match definition: ` + `${weapon.id}/${weapon.weaponId}`);
-        }
-
-        return definition;
-    }
-
-    private getSpamProjectorDefinition(
-        projector: SpamProjectorState,
-    ): SpamProjectorDefinition {
-        const definition = SHIP_WEAPONS[projector.weaponId];
-
-        if (definition.kind !== SHIP_WEAPON_KIND.SPAM_PROJECTOR) {
-            throw new Error(
-                `Spam projector kind does not match definition: ` +
-                    `${projector.id}/${projector.weaponId}`,
-            );
-        }
-
-        return definition;
-    }
-
-    // #endregion
-
-    // #region Spam projector
-
-
-    private startSpamChannel(
-        actor: ShipEncounterActorState,
-        projector: SpamProjectorState,
-    ): void {
-        if (projector.activeChannelId !== null) {
-            throw new Error(
-                `Spam projector already has active channel: ` +
-                    `${actor.id}/${projector.id}/${projector.activeChannelId}`,
-            );
-        }
-
-        projector.phase = SHIP_WEAPON_PHASE.CHANNELING;
-        projector.phaseElapsedMs = 0;
-        projector.activeChannelId =
-            this.identities
-                .createSpamChannelId();
-
-        this.emit({
-            type: ENCOUNTER_EVENT.SPAM_CHANNEL_STARTED,
-
-            channel: this.createSpamChannelSnapshot(actor, projector),
-        });
-    }
-
-    private advanceSpamChanneling(
-        actor: ShipEncounterActorState,
-        projector: SpamProjectorState,
-        deltaMs: number,
-    ): void {
-        const definition = this.getSpamProjectorDefinition(projector);
-
-        projector.phaseElapsedMs += deltaMs;
-
-        if (projector.phaseElapsedMs < definition.channelDurationMs) {
-            return;
-        }
-
-        const channel = this.createSpamChannelSnapshot(actor, projector);
-
-        this.endSpamChannel(
-            projector,
-            channel,
-            SPAM_CHANNEL_OUTCOME.EXPIRED,
-        );
-    }
-
-    private endSpamChannel(
-        projector: SpamProjectorState,
-        channel: SpamChannelState,
-        outcome: SpamChannelOutcome,
-    ): void {
-        projector.activeChannelId = null;
-        projector.phase = SHIP_WEAPON_PHASE.COOLDOWN;
-        projector.phaseElapsedMs = 0;
-
-        this.emit({
-            type: ENCOUNTER_EVENT.SPAM_CHANNEL_ENDED,
-
-            channel,
-            outcome,
-        });
-    }
-
-    private createSpamChannelSnapshot(
-        actor: ShipEncounterActorState,
-        projector: SpamProjectorState,
-    ): SpamChannelState {
-        const channelId = projector.activeChannelId;
-
-        if (!channelId) {
-            throw new Error(
-                `Spam projector channel id is missing: ` +
-                    `${actor.id}/${projector.id}/${projector.phase}`,
-            );
-        }
-
-        const definition = this.getSpamProjectorDefinition(projector);
-
-        return {
-            id: channelId,
-
-            sourceActorId: actor.id,
-            sourceWeaponId: projector.id,
-
-            elapsedMs: Math.min(
-                projector.phaseElapsedMs,
-                definition.channelDurationMs,
-            ),
-            durationMs: definition.channelDurationMs,
-        };
     }
 
     // #endregion

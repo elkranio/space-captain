@@ -16,7 +16,7 @@ BRIDGE_V01_HANDOFF.md          completed migration reference only
 COMMAND_PALETTE_ART_PLAN.md   only when palette work resumes
 ```
 
-The current cleanup slice is documented in `BACKLOG.md` under combat laser lifecycle extraction.
+The completed cleanup slice is documented in `BACKLOG.md` under combat runner extraction.
 
 Last updated:
 
@@ -27,13 +27,13 @@ Last updated:
 Latest verified `master` before the current atom:
 
 ```text
-d4ccfcc77eab554485a662939f7084d23e1922a5
+04e01064508ae0d2f7b7fe9398e624aeac9cbab7
 ```
 
 Last code-bearing commit reported green by the user:
 
 ```text
-d4ccfcc77eab554485a662939f7084d23e1922a5
+04e01064508ae0d2f7b7fe9398e624aeac9cbab7
 ```
 
 Current checkpoint:
@@ -63,10 +63,12 @@ ENCOUNTER_LOADED is a real snapshot, not a mutable test handle
 complete missile lifecycle extracted from CombatRunner
 complete sticky-mine lifecycle extracted from CombatRunner
 complete incoming-laser lifecycle extracted from CombatRunner
+complete hostile-spam lifecycle extracted from CombatRunner
+enemy missile-launcher phases owned by CombatMissileRunner
 shared combat runtime IDs/designations have one explicit owner
 command-menu redesign remains deferred
-spam lifecycle extraction is the final planned CombatRunner split
-enemy defensive behavior follows the cleanup
+CombatRunner cleanup complete; it owns order, orchestration and cross-system sync
+enemy defensive behavior is the next gameplay slice
 ```
 
 ---

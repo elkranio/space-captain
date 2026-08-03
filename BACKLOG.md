@@ -80,7 +80,7 @@ Implemented in the previous refactor atom:
 - preserved the existing mine contract suites for salvo catch-up, cooldown,
   interruption, same-step integration and target-loss cleanup.
 
-Implemented in the current refactor atom:
+Implemented in the previous refactor atom:
 
 - extracted enemy laser targeting, charging, threat creation, shield/hull
   resolution, damage interruption and cooldown into `CombatLaserRunner`;
@@ -89,12 +89,19 @@ Implemented in the current refactor atom:
   and public `EncounterEngine` API;
 - kept all laser timing, shield, damage and interruption contracts unchanged.
 
-Next cleanup slice:
+Implemented in the current refactor atom:
 
-- extract the complete spam-projector lifecycle into `CombatSpamRunner`;
-- keep it concrete and narrow; do not build a generic attack-runner hierarchy.
+- extracted enemy targeting, channel start/timing, expiry, purge and cooldown
+  into `CombatSpamRunner`;
+- moved the now-unshared enemy missile targeting/cooldown phases into
+  `CombatMissileRunner`;
+- reduced `CombatRunner` to locked step order, concrete-family dispatch and
+  explicit cross-system synchronization;
+- preserved spam timing, purge, task-performance and task-cancellation
+  contracts;
+- kept the runners concrete; no generic attack-runner hierarchy was added.
 
-Following gameplay slice:
+Next gameplay slice:
 
 - return to enemy defensive behavior;
 - first candidate: enemy point defense against a player missile;
@@ -955,8 +962,10 @@ Avoid:
 cleanup. The complete missile-object lifecycle now belongs to
 `CombatMissileRunner`; the complete sticky-mine lifecycle now belongs to
 `CombatStickyMineRunner`; the complete incoming-laser lifecycle now belongs to
-`CombatLaserRunner`. `CombatRunner` retains combat phase orchestration, the
-remaining shared missile/spam phases and spam channels.
+`CombatLaserRunner`; the complete hostile-spam lifecycle now belongs to
+`CombatSpamRunner`. Enemy launcher phases also belong to
+`CombatMissileRunner`. `CombatRunner` retains the locked step order, concrete
+runner dispatch and explicit cross-system synchronization.
 
 Do not split it because of line count.
 
@@ -964,9 +973,9 @@ A split is justified only when a subsystem can own a complete lifecycle with few
 
 Avoid replacing a linear file with a graph of tiny runners.
 
-The upcoming combat-design exploration makes spam an active change zone.
-Extract it only as a complete concrete lifecycle with a narrow API. Do not
-create a generic attack-runner hierarchy.
+The planned concrete lifecycle split is complete. Do not continue splitting the
+orchestrator by line count, and do not replace the four concrete runners with a
+generic attack-runner hierarchy.
 
 ---
 

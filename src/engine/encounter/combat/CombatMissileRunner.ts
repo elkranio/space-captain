@@ -1,10 +1,16 @@
 // src/engine/encounter/combat/CombatMissileRunner.ts
 
 import { MISSILES } from '../../content/catalogs/missiles';
+import {
+    SHIP_WEAPONS,
+    SHIP_WEAPON_TARGETING_DURATION_MS,
+} from '../../content/catalogs/ship_weapons';
 import { ENCOUNTER_TEAM } from '../../defs/encounter_team';
 import type { MissileId } from '../../defs/missile';
 import {
+    SHIP_WEAPON_KIND,
     SHIP_WEAPON_PHASE,
+    type MissileLauncherDefinition,
     type MissileLauncherState,
 } from '../../defs/ship_weapon';
 import type { ShipEncounterActorState } from '../actors/ship/ship_encounter_actor';
@@ -39,7 +45,8 @@ type CombatMissileRunnerOptions = {
 
 // Owns the complete missile lifecycle for both combat directions:
 // queued player launches, enemy launches, flight, impact, target loss and
-// target cleanup. CombatRunner still owns phase order and enemy weapon phases.
+// target cleanup and enemy launcher phases. CombatRunner owns only the locked
+// top-level phase order and concrete-family dispatch.
 export default class CombatMissileRunner {
     private readonly state: EncounterState;
 
@@ -104,7 +111,51 @@ export default class CombatMissileRunner {
         }
     }
 
-    public launchEnemyMissile(
+    public advanceEnemyLauncher(
+        actor: ShipEncounterActorState,
+        launcher: MissileLauncherState,
+        deltaMs: number,
+    ): void {
+        switch (launcher.phase) {
+            case SHIP_WEAPON_PHASE.READY:
+                return;
+
+            case SHIP_WEAPON_PHASE.TARGETING:
+                this.advanceTargeting(
+                    actor,
+                    launcher,
+                    deltaMs,
+                );
+                return;
+
+            case SHIP_WEAPON_PHASE.COOLDOWN:
+                this.advanceCooldown(
+                    launcher,
+                    deltaMs,
+                );
+                return;
+
+            case SHIP_WEAPON_PHASE.CHARGING:
+                throw new Error(
+                    `Missile launcher cannot enter charging phase: ` +
+                        `${actor.id}/${launcher.id}`,
+                );
+
+            case SHIP_WEAPON_PHASE.CHANNELING:
+                throw new Error(
+                    `Missile launcher cannot enter channeling phase: ` +
+                        `${actor.id}/${launcher.id}`,
+                );
+
+            case SHIP_WEAPON_PHASE.DISPENSING:
+                throw new Error(
+                    `Missile launcher cannot enter dispensing phase: ` +
+                        `${actor.id}/${launcher.id}`,
+                );
+        }
+    }
+
+    private launchEnemyMissile(
         actor: ShipEncounterActorState,
         launcher: MissileLauncherState,
     ): void {
@@ -274,6 +325,74 @@ export default class CombatMissileRunner {
                 projectile,
             );
         }
+    }
+
+    private advanceTargeting(
+        actor: ShipEncounterActorState,
+        launcher: MissileLauncherState,
+        deltaMs: number,
+    ): void {
+        const elapsedMs =
+            launcher.phaseElapsedMs + deltaMs;
+
+        if (
+            elapsedMs <
+            SHIP_WEAPON_TARGETING_DURATION_MS
+        ) {
+            launcher.phaseElapsedMs = elapsedMs;
+            return;
+        }
+
+        launcher.phaseElapsedMs =
+            SHIP_WEAPON_TARGETING_DURATION_MS;
+
+        this.launchEnemyMissile(
+            actor,
+            launcher,
+        );
+    }
+
+    private advanceCooldown(
+        launcher: MissileLauncherState,
+        deltaMs: number,
+    ): void {
+        const definition =
+            this.getLauncherDefinition(
+                launcher,
+            );
+
+        launcher.phaseElapsedMs += deltaMs;
+
+        if (
+            launcher.phaseElapsedMs <
+            definition.cooldownDurationMs
+        ) {
+            return;
+        }
+
+        launcher.phase =
+            SHIP_WEAPON_PHASE.READY;
+        launcher.phaseElapsedMs = 0;
+    }
+
+    private getLauncherDefinition(
+        launcher: MissileLauncherState,
+    ): MissileLauncherDefinition {
+        const definition =
+            SHIP_WEAPONS[launcher.weaponId];
+
+        if (
+            definition.kind !==
+            SHIP_WEAPON_KIND
+                .MISSILE_LAUNCHER
+        ) {
+            throw new Error(
+                `Missile launcher kind does not match definition: ` +
+                    `${launcher.id}/${launcher.weaponId}`,
+            );
+        }
+
+        return definition;
     }
 
     private createPlayerProjectile(
