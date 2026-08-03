@@ -8,15 +8,15 @@ Current read order:
 
 ```text
 PROJECT_CONTEXT.md
-BRIDGE_V01_HANDOFF.md
 SYSTEM_MAP.md
 ENEMY_BEHAVIOR_HANDOFF.md
 GAMEPLAY_CONTRACTS.md
 BACKLOG.md
+BRIDGE_V01_HANDOFF.md          completed migration reference only
 COMMAND_PALETTE_ART_PLAN.md   only when palette work resumes
 ```
 
-`BRIDGE_V01_HANDOFF.md` is the active-slice document.
+The selected next slice is documented in `BACKLOG.md` under combat action hints.
 
 Last updated:
 
@@ -27,13 +27,13 @@ Last updated:
 Latest verified `master`:
 
 ```text
-42e8133c246962092c60202e39291c4368e4e6e8
+e59f7e70097ec3224e79bbe0505a8d0a2b431407
 ```
 
 Last code-bearing commit reported green by the user:
 
 ```text
-42e8133c246962092c60202e39291c4368e4e6e8
+e59f7e70097ec3224e79bbe0505a8d0a2b431407
 ```
 
 Current checkpoint:
@@ -43,13 +43,18 @@ combat architecture cleanup complete
 explicit physical player-weapon command identity complete
 typecheck green
 tests green
-active work moved from enemy behavior to bridge V0.1 migration
+bridge V0.1 migration complete and runtime-accepted
 bridge shell, station and four seated-officer assets imported
 Comms/HAIL/request-docking cut complete
 normal Helm DOCK is direct at the current station
 bridge shell/viewscreen geometry complete and runtime-verified
-four modular station/officer views complete in the current atom
+four modular station/officer views complete
+task labels, optional progress, work pulses and availability lights complete
+role abbreviations on officer backs complete
 old five-seat presentation removed
+obsolete old station frame/status assets removed
+next selected work is combat action hints on idle station monitors
+command-menu redesign remains deferred
 enemy behavior implementation is paused, not discarded
 ```
 
@@ -190,36 +195,28 @@ npm run pack:sfx
 Active slice:
 
 ```text
-BRIDGE V0.1 VISUAL / VIEW MIGRATION
+COMBAT ACTION HINTS
 ```
 
 Goal:
 
 ```text
-replace the old five-seat bridge presentation
-with a functional four-station bridge layout
-before resuming enemy behavior and command-palette work
+show a maximum of two immediately available combat actions
+on each idle officer station monitor
 ```
 
-Start with:
+Scope:
 
 ```text
-slice/export current art
-→ save production PNG assets
-→ lock atlas frame names
-→ rebuild atlas
-→ migrate bridge shell and station views
+combat active
++ officer free
++ command available now
+→ show short prioritized hint text
 ```
 
-Do not start by rewriting enemy behavior.
+Do not change the command menu or add selected-station treatment in this slice.
 
-Do not start by implementing the final command palette.
-
-Detailed plan:
-
-```text
-BRIDGE_V01_HANDOFF.md
-```
+The completed bridge migration remains documented in `BRIDGE_V01_HANDOFF.md`.
 
 ---
 
@@ -336,18 +333,11 @@ Current station contract:
 
 The touch panel replaces a literal keyboard.
 
-Later, when an officer visually works, the view may draw simple animated
-touches/pulses over the panel.
+Each station now has a separate seated-officer sprite sharing the station's
+`242×180` source canvas. Role abbreviations on the backs provide immediate
+orientation at gameplay scale.
 
-Officer/chair sprites are deferred because they currently add no mechanic:
-
-- officers do not turn;
-- they do not sleep;
-- they do not visually argue;
-- they do not leave the station;
-- barks can be displayed over the station.
-
-Do not create officer sprites merely to complete the picture.
+While a task is active, four short alpha pulses animate over the touch panel.
 
 Station monitor is the local task surface:
 
@@ -356,14 +346,25 @@ idle
 → role-neutral idle screen
 
 active task without visible progress
-→ task icon / activity state
+→ light-blue task label + touch pulses
 
 active task with visible progress
-→ task icon + progress bar
+→ light-blue task label + progress bar + touch pulses
 
 blocked/interrupted
 → clear local state treatment
 ```
+
+Mirrored indicators display one prepared availability state:
+
+```text
+off     → no light
+ready   → green
+busy    → yellow
+blocked → red
+```
+
+The two lights are decorative duplication, not separate channels.
 
 The station body, monitor UI and interaction/activity overlays must remain
 separate concerns.
@@ -514,7 +515,7 @@ The palette itself is not implemented.
 
 The old text context menu and polling flow still exist.
 
-Current plan is deferred until after bridge V0.1 migration.
+Current plan remains deferred while combat action hints are implemented.
 
 Important current decisions:
 
@@ -543,48 +544,27 @@ COMMAND_PALETTE_ART_PLAN.md
 Use this order unless a fresh repo inspection exposes a blocker:
 
 ```text
-A. art-only preparation — complete
-   - export bridge shell
-   - export station base
-   - confirm transparency and dimensions
-   - lock atlas paths/frame IDs
-   - pack atlas
+A. bridge V0.1 migration — complete
+   - four roles, shell, stations and seated officers
+   - task/progress presentation
+   - work pulses and availability lights
+   - runtime navigation/combat acceptance
+   - obsolete station asset cleanup
 
-B. Comms gameplay cut — complete in the current atom
-   - remove REQUEST DOCKING flow
-   - make normal DOCK direct when eligible
-   - remove HAIL/contact flow and rebuild it later from real requirements
-   - remove Comms from playable officer roster and tests
+B. combat action hints — selected next
+   - only during active combat
+   - only for a free officer
+   - only commands available right now
+   - maximum two fixed-priority text lines
+   - task presentation replaces hints while busy
+   - no command-menu or selected-state changes
 
-C. bridge shell migration — complete
-   - replace old bridge background/shell
-   - preserve viewscreen/world/VFX layering and bounds
-   - keep temporary debug status panels
+C. choose the following behavior slice explicitly
+   - enemy point defense against player missiles
+   - or enemy Engineer directional shield response
 
-D. four-station view migration — complete in the current atom
-   - one reusable station view
-   - four role placements
-   - stable role hit areas
-   - remove old fifth-seat presentation
-
-E. station activity UI
-   - task icon
-   - optional progress
-   - touch-panel work animation
-   - ready/busy/blocked/selected treatment
-   - bark anchors
-
-F. runtime acceptance
-   - navigation
-   - contact
-   - missile/laser/mines
-   - task lifecycle
-   - open menus / command access
-   - enemy destruction
-   - 1280×720 readability
-
-G. resume command palette or enemy behavior
-   - decide explicitly after the new bridge is playable
+D. command palette — deferred
+   - design the complete interaction flow before implementation
 ```
 
 Do not combine all stages into one giant atom.

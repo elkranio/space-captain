@@ -1,6 +1,6 @@
 # Space Captain — Bridge V0.1 Migration Handoff
 
-Active visual/application slice.
+Completed visual/application slice.
 
 Read after `PROJECT_CONTEXT.md`.
 
@@ -10,10 +10,10 @@ Last updated:
 2026-08-03
 ```
 
-Base repository checkpoint after the completed Comms cut:
+Verified runtime checkpoint before final cleanup:
 
 ```text
-149f84e493f6fc419848fded3c26b4f234d076fb
+e59f7e70097ec3224e79bbe0505a8d0a2b431407
 ```
 
 ---
@@ -287,20 +287,19 @@ Do not let station overlays become domain state.
 
 Prefer one reusable station view configured by role.
 
-Prepared station view input should eventually contain:
+The station view currently receives prepared state for:
 
 ```text
 role
-position / depth configuration
-selected
+position / hit-area configuration
 availability state
 current task
-task icon key
 progress visibility
 progress ratio
 touch activity
-bark payload
 ```
+
+Selection treatment is intentionally deferred to the command-menu pass.
 
 The view must not read `GAME_RUNTIME` directly.
 
@@ -319,15 +318,16 @@ dark idle display
 Active task without progress:
 
 ```text
-task icon
-+ activity treatment
+short task label
++ touch-panel pulses
 ```
 
 Active task with progress:
 
 ```text
-task icon
+short task label
 + progress bar
++ touch-panel pulses
 ```
 
 Interrupted / blocked:
@@ -484,7 +484,7 @@ Runtime acceptance:
 - no shell overlap;
 - 1280×720 crop correct.
 
-## Atom 4 — four station bases — complete in the current atom
+## Atom 4 — four station bases — complete
 
 - add one reusable station-base view;
 - place four instances;
@@ -498,25 +498,25 @@ Runtime acceptance:
 
 Do not add officer animation or extra visual variants in this atom.
 
-## Atom 5 — station activity
+## Atom 5 — station activity — complete and runtime-accepted
 
-- monitor idle/task states;
-- icon;
-- optional progress;
-- touch-panel cosmetic animation;
-- selected/ready/busy/blocked treatment;
-- fine-tune bark anchors during runtime acceptance if needed.
+- light-blue task label on the monitor;
+- optional progress bar only when `showProgress` is true;
+- four short asynchronous touch-panel pulses while a task is active;
+- mirrored `off / ready / busy / blocked` indicators;
+- no selected treatment and no command-menu changes;
+- readable role abbreviations authored on the officer backs.
 
 Reuse existing task/read-model data where possible.
 
 Do not add a second gameplay state for visual progress.
 
-## Atom 6 — cleanup
+## Atom 6 — cleanup — complete in this atom
 
-- remove obsolete old station manifests/assets and frames;
-- remove dead layout constants;
-- update docs;
-- runtime acceptance.
+- remove the unreferenced old `bridge/officer_station` manifest;
+- remove its frame/status-light source PNGs and packed frames;
+- retain current station layout constants used by stations, barks and menus;
+- update migration docs and close the slice.
 
 Do not delete old assets until no view/test references them.
 
@@ -608,12 +608,10 @@ four gameplay roles only
 + tests/typecheck/runtime green
 ```
 
-After this, explicitly choose:
+Next selected slice:
 
 ```text
-command palette
-or
-resume enemy defensive behavior
+combat action hints on idle station monitors
 ```
 
-Do not drift into both at once.
+The current command menu remains unchanged during that slice.

@@ -17,34 +17,60 @@ Last updated: 2026-08-03
 Current selected slice:
 
 ```text
-BRIDGE V0.1 MIGRATION
+COMBAT ACTION HINTS
 ```
 
-Active handoff:
-
-```text
-BRIDGE_V01_HANDOFF.md
-```
-
-Asset import is complete.
-
-Completed migration atoms:
+Bridge V0.1 migration is complete and runtime-accepted:
 
 - Comms/HAIL/request-docking cut;
 - direct Helm `DOCK` at the current station;
 - bridge shell and viewscreen geometry;
 - four modular station/officer views with stable role hit areas;
-- removal of the obsolete old seat presentation.
+- task label and optional progress on station monitors;
+- touch-panel work pulses;
+- mirrored `off / ready / busy / blocked` lights;
+- readable role abbreviations on officer backs;
+- removal of the obsolete old seat presentation and its station assets.
 
-Continue with:
+Selected next atom:
 
-- runtime station task/progress overlays;
-- ready/busy/blocked/selected treatment;
-- touch-panel work animation;
-- removal of dead old manifests/assets after runtime acceptance.
+- show hints only during active combat;
+- show hints only when the officer is free;
+- derive hints from commands that are actually available now;
+- display at most two short text lines on the idle monitor;
+- use one centralized fixed-priority table;
+- hide hints when a task starts and restore them when availability changes;
+- keep the current command menu unchanged;
+- do not add selected-station treatment in this atom.
 
-Do not resume enemy behavior policy or implement the command palette inside this
-visual migration.
+Locked V0.1 copy:
+
+```text
+SCI
+> ANALYZE THREAT
+> PURGE SPAM
+> CLEAR MINE
+
+ENG
+> REPAIR SHIP
+> RAISE SHIELD
+> CLEAR MINE
+
+HELM
+> ESCAPE
+> CLEAR MINE
+
+WPN
+> ATTACK ENEMY
+> INTERCEPT MISSILE
+> CLEAR MINE
+```
+
+If more than two actions are available, choose by fixed urgency rather than
+command-menu order. Defensive response to an active threat comes before cleanup,
+repair, offense and escape.
+
+`BRIDGE_V01_HANDOFF.md` remains as the completed migration reference.
 
 ---
 
