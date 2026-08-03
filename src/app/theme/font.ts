@@ -6,6 +6,7 @@ export const FONT_FAMILY = {
 
 export const FONT_SIZE = {
     PX_12: 12,
+    PX_14: 14,
     PX_16: 16,
 } as const;
 
