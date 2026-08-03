@@ -258,31 +258,6 @@ export default class CombatRunner {
             .synchronizeTasks();
     }
 
-    public getSpamChannels(): SpamChannelState[] {
-        const channels: SpamChannelState[] = [];
-
-        for (const actor of this.state.actors) {
-            if (actor.hull <= 0) {
-                continue;
-            }
-
-            for (const weapon of actor.weapons) {
-                if (
-                    weapon.kind !== SHIP_WEAPON_KIND.SPAM_PROJECTOR ||
-                    weapon.phase !== SHIP_WEAPON_PHASE.CHANNELING
-                ) {
-                    continue;
-                }
-
-                channels.push(
-                    this.createSpamChannelSnapshot(actor, weapon),
-                );
-            }
-        }
-
-        return channels;
-    }
-
     public purgeSpamChannel(channelId: string): boolean {
         for (const actor of this.state.actors) {
             for (const weapon of actor.weapons) {
@@ -444,10 +419,7 @@ export default class CombatRunner {
                 ENCOUNTER_EVENT
                     .PLAYER_STICKY_MINE_ATTACHED,
 
-            mine:
-                this.cloneStickyMine(
-                    mine,
-                ),
+            mine,
         });
     }
 
@@ -842,10 +814,7 @@ export default class CombatRunner {
                 ENCOUNTER_EVENT
                     .PLAYER_MISSILE_LAUNCHED,
 
-            projectile:
-                this.cloneMissileProjectile(
-                    projectile,
-                ),
+            projectile,
         });
     }
 
@@ -894,9 +863,7 @@ export default class CombatRunner {
         this.emit({
             type: ENCOUNTER_EVENT.MISSILE_LAUNCHED,
 
-            projectile: {
-                ...projectile,
-            },
+            projectile,
         });
     }
 
@@ -913,7 +880,7 @@ export default class CombatRunner {
         this.emit({
             type: ENCOUNTER_EVENT.LASER_ATTACK_STARTED,
 
-            attack: this.cloneLaserAttack(attack),
+            attack,
         });
     }
 
@@ -980,7 +947,6 @@ export default class CombatRunner {
             throw new Error(`Laser attack disappeared before fire: ` + `${actor.id}/${laser.id}`);
         }
 
-        const attackSnapshot = this.cloneLaserAttack(attack);
         const definition = this.getLaserDefinition(laser);
 
         this.state.combat.laserAttacks.splice(attackIndex, 1);
@@ -992,7 +958,7 @@ export default class CombatRunner {
             this.emit({
                 type: ENCOUNTER_EVENT.LASER_FIRED,
 
-                attack: attackSnapshot,
+                attack,
 
                 outcome: LASER_SHOT_OUTCOME.BLOCKED,
             });
@@ -1009,7 +975,7 @@ export default class CombatRunner {
         this.emit({
             type: ENCOUNTER_EVENT.LASER_FIRED,
 
-            attack: attackSnapshot,
+            attack,
 
             outcome: LASER_SHOT_OUTCOME.HIT,
 
@@ -1046,20 +1012,6 @@ export default class CombatRunner {
         }
 
         return targetZone;
-    }
-
-    private cloneLaserAttack(attack: LaserAttackState): LaserAttackState {
-        return {
-            ...attack,
-
-            target: {
-                ...attack.target,
-            },
-
-            identification: {
-                ...attack.identification,
-            },
-        };
     }
 
     // #endregion
@@ -1313,17 +1265,7 @@ export default class CombatRunner {
                 ENCOUNTER_EVENT
                     .STICKY_MINE_ATTACHED,
 
-            mine: {
-                ...mine,
-
-                source: {
-                    ...mine.source,
-                },
-
-                target: {
-                    ...mine.target,
-                },
-            },
+            mine,
         });
 
         if (mine.timeToDetonationMs > 0) {
@@ -1418,20 +1360,7 @@ export default class CombatRunner {
         index: number,
         mine: StickyMineState,
     ): void {
-        const mineSnapshot:
-            StickyMineState = {
-                ...mine,
-
-                source: {
-                    ...mine.source,
-                },
-
-                target: {
-                    ...mine.target,
-                },
-
-                timeToDetonationMs: 0,
-            };
+        mine.timeToDetonationMs = 0;
 
         this.state.combat.stickyMines.splice(
             index,
@@ -1456,8 +1385,7 @@ export default class CombatRunner {
                     ENCOUNTER_EVENT
                         .STICKY_MINE_DETONATED,
 
-                mine:
-                    mineSnapshot,
+                mine,
 
                 ...damageResult,
             });
@@ -1474,7 +1402,7 @@ export default class CombatRunner {
                 COMBAT_TARGET_KIND.ACTOR
         ) {
             this.resolvePlayerStickyMineImpact(
-                mineSnapshot,
+                mine,
                 mine.target.actorId,
             );
             return;
@@ -1524,10 +1452,7 @@ export default class CombatRunner {
                 ENCOUNTER_EVENT
                     .PLAYER_STICKY_MINE_RESOLVED,
 
-            mine:
-                this.cloneStickyMine(
-                    mine,
-                ),
+            mine,
 
             outcome:
                 PLAYER_STICKY_MINE_OUTCOME
@@ -1572,11 +1497,6 @@ export default class CombatRunner {
             );
         }
 
-        const mineSnapshot =
-            this.cloneStickyMine(
-                mine,
-            );
-
         this.state.combat
             .stickyMines.splice(
                 index,
@@ -1588,8 +1508,7 @@ export default class CombatRunner {
                 ENCOUNTER_EVENT
                     .PLAYER_STICKY_MINE_RESOLVED,
 
-            mine:
-                mineSnapshot,
+            mine,
 
             outcome:
                 PLAYER_STICKY_MINE_OUTCOME
@@ -1630,22 +1549,6 @@ export default class CombatRunner {
                 mine,
             );
         }
-    }
-
-    private cloneStickyMine(
-        mine: StickyMineState,
-    ): StickyMineState {
-        return {
-            ...mine,
-
-            source: {
-                ...mine.source,
-            },
-
-            target: {
-                ...mine.target,
-            },
-        };
     }
 
     // #endregion
@@ -1814,11 +1717,6 @@ export default class CombatRunner {
             );
         }
 
-        const projectileSnapshot =
-            this.cloneMissileProjectile(
-                projectile,
-            );
-
         this.state.combat
             .projectiles.splice(
                 index,
@@ -1830,8 +1728,7 @@ export default class CombatRunner {
                 ENCOUNTER_EVENT
                     .PLAYER_MISSILE_RESOLVED,
 
-            projectile:
-                projectileSnapshot,
+            projectile,
 
             outcome:
                 PLAYER_MISSILE_OUTCOME
@@ -1894,12 +1791,7 @@ export default class CombatRunner {
         const missile =
             MISSILES[projectile.missileId];
 
-        const projectileSnapshot:
-            MissileCombatProjectileState = {
-                ...projectile,
-
-                timeToImpactMs: 0,
-            };
+        projectile.timeToImpactMs = 0;
 
         this.state.combat.projectiles.splice(
             index,
@@ -1917,8 +1809,7 @@ export default class CombatRunner {
                 ENCOUNTER_EVENT
                     .MISSILE_IMPACTED_PLAYER_SHIP,
 
-            projectile:
-                projectileSnapshot,
+            projectile,
 
             ...damageResult,
         });
@@ -1952,10 +1843,7 @@ export default class CombatRunner {
                 ENCOUNTER_EVENT
                     .PLAYER_MISSILE_RESOLVED,
 
-            projectile:
-                this.cloneMissileProjectile(
-                    projectile,
-                ),
+            projectile,
 
             outcome:
                 PLAYER_MISSILE_OUTCOME.HIT,
@@ -1974,27 +1862,6 @@ export default class CombatRunner {
                 target.id,
             );
         }
-    }
-
-    private cloneMissileProjectile(
-        projectile:
-            MissileCombatProjectileState,
-    ): MissileCombatProjectileState {
-        return {
-            ...projectile,
-
-            source: {
-                ...projectile.source,
-            },
-
-            target: {
-                ...projectile.target,
-            },
-
-            identification: {
-                ...projectile.identification,
-            },
-        };
     }
 
     // #endregion

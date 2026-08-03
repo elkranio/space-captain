@@ -16,6 +16,7 @@ import {
     SHIP_WEAPON_PHASE,
 } from '../../../src/engine/defs/ship_weapon';
 import EncounterEngine from '../../../src/engine/encounter/EncounterEngine';
+import { getMutableEncounterStateForTest } from './get_mutable_encounter_state_for_test';
 import {
     COMBAT_PROJECTILE_KIND,
     COMBAT_SOURCE_KIND,
@@ -71,7 +72,8 @@ describe('CombatRunner', () => {
             throw new Error(`Expected encounter loaded event, received: ` + `${loadedEvent.type}`);
         }
 
-        const enemy = loadedEvent.state.actors[0];
+        const state = getMutableEncounterStateForTest(engine);
+        const enemy = state.actors[0];
 
         const launcher = enemy.weapons[0];
 
@@ -81,8 +83,8 @@ describe('CombatRunner', () => {
 
         const loadedLauncherDefinition = SHIP_WEAPONS[launcher.weaponId];
 
-        expect(loadedEvent.state.combat.projectiles).toEqual([]);
-        expect(loadedEvent.state.combat.laserAttacks).toEqual([]);
+        expect(state.combat.projectiles).toEqual([]);
+        expect(state.combat.laserAttacks).toEqual([]);
 
         expect(launcher.phase).toBe(SHIP_WEAPON_PHASE.READY);
 
@@ -141,7 +143,7 @@ describe('CombatRunner', () => {
         expect(launcher.phaseElapsedMs).toBe(0);
         expect(launcher.ammoCount).toBe(0);
 
-        const [projectile] = loadedEvent.state.combat.projectiles;
+        const [projectile] = state.combat.projectiles;
 
         expect(projectile).toEqual({
             id: 'projectile_1',
@@ -226,7 +228,7 @@ describe('CombatRunner', () => {
             maxHull: 3,
         });
 
-        expect(loadedEvent.state.combat.projectiles).toEqual([]);
+        expect(state.combat.projectiles).toEqual([]);
 
         expect(launcher.phase).toBe(SHIP_WEAPON_PHASE.COOLDOWN);
 
@@ -289,7 +291,8 @@ describe('CombatRunner', () => {
             throw new Error(`Expected encounter loaded event, received: ` + `${loadedEvent.type}`);
         }
 
-        const enemy = loadedEvent.state.actors[0];
+        const state = getMutableEncounterStateForTest(engine);
+        const enemy = state.actors[0];
         const laser = enemy.weapons[0];
 
         if (laser.kind !== SHIP_WEAPON_KIND.LASER) {
@@ -302,8 +305,8 @@ describe('CombatRunner', () => {
             throw new Error('Expected laser weapon definition');
         }
 
-        expect(loadedEvent.state.combat.projectiles).toEqual([]);
-        expect(loadedEvent.state.combat.laserAttacks).toEqual([]);
+        expect(state.combat.projectiles).toEqual([]);
+        expect(state.combat.laserAttacks).toEqual([]);
 
         expect(laser.phase).toBe(SHIP_WEAPON_PHASE.READY);
 

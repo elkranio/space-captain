@@ -98,6 +98,27 @@ describe('Player missile presentation events', () => {
             }),
         ).toBe(false);
 
+        const launchEvent = events.find((event) => {
+            return (
+                event.type ===
+                ENCOUNTER_EVENT
+                    .PLAYER_MISSILE_LAUNCHED
+            );
+        });
+
+        if (
+            !launchEvent ||
+            launchEvent.projectile.target.kind !==
+                COMBAT_TARGET_KIND.ACTOR
+        ) {
+            throw new Error(
+                'Expected outgoing player missile launch event',
+            );
+        }
+
+        launchEvent.projectile.target.actorId =
+            'mutated_event_target';
+
         expect(
             engine
                 .getIncomingMissileProjectiles(),
@@ -106,7 +127,18 @@ describe('Player missile presentation events', () => {
         expect(
             engine
                 .getOutgoingMissileProjectiles(),
-        ).toHaveLength(1);
+        ).toEqual([
+            expect.objectContaining({
+                target: {
+                    kind:
+                        COMBAT_TARGET_KIND
+                            .ACTOR,
+
+                    actorId:
+                        targetActorId,
+                },
+            }),
+        ]);
     });
 
     it('emits target-lost resolution without an impact', () => {

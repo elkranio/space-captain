@@ -24,16 +24,16 @@ Last updated:
 2026-08-03
 ```
 
-Latest verified `master`:
+Latest verified `master` before the current atom:
 
 ```text
-60f2c772fe6d1f0f455f247a42c2f1e29f16692b
+cb87f6fa4e15f62aa956b7741ffd762e9d296b47
 ```
 
 Last code-bearing commit reported green by the user:
 
 ```text
-60f2c772fe6d1f0f455f247a42c2f1e29f16692b
+cb87f6fa4e15f62aa956b7741ffd762e9d296b47
 ```
 
 Current checkpoint:
@@ -56,9 +56,12 @@ obsolete old station frame/status assets removed
 combat action hints implemented on idle station monitors
 combat action hints runtime-accepted with local presentation tuning
 app encounter snapshot transport extracted from BridgeEncounterController
-engine detached-read / snapshot-clone cleanup remains next
+engine detached-read / snapshot-clone cleanup complete
+EncounterSnapshotReader owns app-facing encounter reads
+encounter outbox detaches every event at emit time
+ENCOUNTER_LOADED is a real snapshot, not a mutable test handle
 command-menu redesign remains deferred
-enemy behavior implementation is paused, not discarded
+enemy defensive behavior is the next gameplay slice
 ```
 
 ---

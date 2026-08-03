@@ -68,11 +68,11 @@ describe('Encounter shield generator state', () => {
         });
 
         expect(engine.getShieldGeneratorState()).toEqual({
-            charges: 0,
+            charges: 1,
             maxCharges: 3,
 
             chargeRegenerationDurationMs: 20000,
-            chargeRegenerationElapsedMs: 10000,
+            chargeRegenerationElapsedMs: 7500,
         });
     });
 

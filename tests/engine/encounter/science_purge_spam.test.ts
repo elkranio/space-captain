@@ -12,6 +12,7 @@ import {
     SHIP_WEAPON_PHASE,
 } from '../../../src/engine/defs/ship_weapon';
 import EncounterEngine from '../../../src/engine/encounter/EncounterEngine';
+import { getMutableEncounterStateForTest } from './get_mutable_encounter_state_for_test';
 import {
     ENCOUNTER_OFFICER_COMMAND_ID,
     OFFICER_COMMAND_EXECUTION_STATUS,
@@ -67,7 +68,8 @@ describe('Science purge spam command', () => {
             );
         }
 
-        const enemy = loadedEvent.state.actors[0];
+        const enemy = getMutableEncounterStateForTest(engine)
+            .actors[0];
         const projector = enemy.weapons[0];
 
         if (

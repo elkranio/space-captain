@@ -12,6 +12,7 @@ import { LASER_TARGET_ZONE } from '../../../src/engine/defs/laser';
 import { PLAYER_SPACE_NAVIGATION_KIND } from '../../../src/engine/defs/player_location';
 import { SHIP_WEAPON_KIND } from '../../../src/engine/defs/ship_weapon';
 import EncounterEngine from '../../../src/engine/encounter/EncounterEngine';
+import { getMutableEncounterStateForTest } from './get_mutable_encounter_state_for_test';
 import {
     COMBAT_TARGET_KIND,
     LASER_SHOT_OUTCOME,
@@ -158,7 +159,8 @@ function createLaserEngine() {
         throw new Error(`Expected encounter loaded event, received: ${loadedEvent.type}`);
     }
 
-    const laser = loadedEvent.state.actors[0].weapons[0];
+    const state = getMutableEncounterStateForTest(engine);
+    const laser = state.actors[0].weapons[0];
 
     if (laser.kind !== SHIP_WEAPON_KIND.LASER) {
         throw new Error('Expected loaded enemy laser');
@@ -172,7 +174,7 @@ function createLaserEngine() {
 
     return {
         engine,
-        state: loadedEvent.state,
+        state,
 
         laserChargeDurationMs: definition.chargeDurationMs,
     };

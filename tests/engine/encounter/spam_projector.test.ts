@@ -14,6 +14,7 @@ import {
     SHIP_WEAPON_PHASE,
 } from '../../../src/engine/defs/ship_weapon';
 import EncounterEngine from '../../../src/engine/encounter/EncounterEngine';
+import { getMutableEncounterStateForTest } from './get_mutable_encounter_state_for_test';
 import { SPAM_CHANNEL_OUTCOME } from '../../../src/engine/encounter/model/combat';
 import { ENCOUNTER_EVENT } from '../../../src/engine/encounter/model/event';
 import ShipNodeActorFactory from '../../../src/engine/generation/space_node_actor/ShipNodeActorFactory';
@@ -63,7 +64,8 @@ describe('Spam projector', () => {
             );
         }
 
-        const enemy = loadedEvent.state.actors[0];
+        const enemy = getMutableEncounterStateForTest(engine)
+            .actors[0];
         const projector = enemy.weapons[0];
 
         if (

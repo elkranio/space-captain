@@ -13,6 +13,7 @@ import {
     PLAYER_SPACE_NAVIGATION_KIND,
 } from '../../../src/engine/defs/player_location';
 import EncounterEngine from '../../../src/engine/encounter/EncounterEngine';
+import { getMutableEncounterStateForTest } from './get_mutable_encounter_state_for_test';
 import {
     ENCOUNTER_OFFICER_COMMAND_ID,
     OFFICER_COMMAND_EXECUTION_STATUS,
@@ -167,7 +168,7 @@ function createEngine() {
 
     return {
         engine,
-        state: loadedEvent.state,
+        state: getMutableEncounterStateForTest(engine),
     };
 }
 

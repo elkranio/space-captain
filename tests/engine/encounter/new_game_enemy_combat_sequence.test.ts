@@ -25,6 +25,7 @@ import {
     SHIP_WEAPON_ID,
 } from '../../../src/engine/defs/ship_weapon';
 import EncounterEngine from '../../../src/engine/encounter/EncounterEngine';
+import { getMutableEncounterStateForTest } from './get_mutable_encounter_state_for_test';
 import {
     ENCOUNTER_EVENT,
 } from '../../../src/engine/encounter/model/event';
@@ -103,7 +104,7 @@ describe('New-game enemy combat sequence', () => {
         }
 
         const enemy =
-            loadedEvent.state.actors[0];
+            getMutableEncounterStateForTest(engine).actors[0];
 
         if (!enemy) {
             throw new Error(

@@ -7,6 +7,7 @@ import { LASER_TARGET_ZONE } from '../../../src/engine/defs/laser';
 import { OFFICER_ROLE } from '../../../src/engine/defs/officer';
 import { PLAYER_SPACE_NAVIGATION_KIND } from '../../../src/engine/defs/player_location';
 import EncounterEngine from '../../../src/engine/encounter/EncounterEngine';
+import { getMutableEncounterStateForTest } from './get_mutable_encounter_state_for_test';
 import { ENCOUNTER_OFFICER_COMMAND_ID } from '../../../src/engine/encounter/model/command';
 import {
     ENCOUNTER_EVENT,
@@ -88,7 +89,7 @@ function createEngine() {
 
     return {
         engine,
-        state: loadedEvent.state,
+        state: getMutableEncounterStateForTest(engine),
     };
 }
 

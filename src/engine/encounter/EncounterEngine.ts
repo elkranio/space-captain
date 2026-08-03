@@ -18,27 +18,15 @@ import type {
 import type { SpaceNodeState } from '../defs/universe';
 import CombatEngagementRunner from './combat/CombatEngagementRunner';
 import CombatRunner from './combat/CombatRunner';
-import {
-    getEnemyShipTelemetrySnapshots,
-    type EnemyShipTelemetrySnapshot,
-} from './combat/queries/get_enemy_ship_telemetry_snapshots';
-import {
-    getLaserThreatSnapshots,
-    type LaserThreatSnapshot,
-} from './combat/queries/get_laser_threat_snapshots';
-import {
-    getStickyMineSnapshots,
-    type StickyMineSnapshot,
-} from './combat/queries/get_sticky_mine_snapshots';
+import type { EnemyShipTelemetrySnapshot } from './combat/queries/get_enemy_ship_telemetry_snapshots';
+import type { LaserThreatSnapshot } from './combat/queries/get_laser_threat_snapshots';
+import type { StickyMineSnapshot } from './combat/queries/get_sticky_mine_snapshots';
 import PlayerShieldRunner from './combat/PlayerShieldRunner';
 import PlayerWeaponRunner from './combat/PlayerWeaponRunner';
 import ShieldGeneratorRunner from './combat/ShieldGeneratorRunner';
 import OfficerCommandExecutor from './commands/OfficerCommandExecutor';
-import { getAvailableOfficerCommands } from './commands/queries/get_available_officer_commands';
 import type { AvailableOfficerCommand, ExecuteOfficerCommandInput, ExecuteOfficerCommandResult } from './model/command';
 import {
-    COMBAT_SOURCE_KIND,
-    COMBAT_TARGET_KIND,
     type ActiveShieldState,
     type CombatProjectileState,
     type LaserAttackState,
@@ -48,8 +36,9 @@ import {
 import { ENCOUNTER_EVENT, type EncounterEvent } from './model/event';
 import type { OfficerAvailabilityStates } from './model/officer_availability';
 import { OFFICER_TASK_KIND, type OfficerTaskKind, type OfficerTaskState } from './model/officer_task';
-import { getOfficerAvailabilityStates } from './officer_availability/queries/get_officer_availability_states';
 import OfficerTaskRunner from './officer_tasks/OfficerTaskRunner';
+import EncounterSnapshotReader from './snapshots/EncounterSnapshotReader';
+import { createDetachedSnapshot } from './snapshots/create_detached_snapshot';
 import EncounterStateStore from './state/EncounterStateStore';
 
 export type {
@@ -83,6 +72,8 @@ export type EncounterEngineOptions = {
 
 export default class EncounterEngine {
     private readonly stateStore: EncounterStateStore;
+
+    private readonly snapshotReader: EncounterSnapshotReader;
 
     private readonly events: EncounterEvent[] = [];
 
@@ -131,6 +122,10 @@ export default class EncounterEngine {
             });
 
         const encounterState = this.stateStore.getState();
+
+        this.snapshotReader = new EncounterSnapshotReader(
+            encounterState,
+        );
 
         this.playerShieldRunner = new PlayerShieldRunner({
             state: encounterState,
@@ -290,164 +285,70 @@ export default class EncounterEngine {
     }
 
     public getAvailableCommands(role: OfficerRole): AvailableOfficerCommand[] {
-        return getAvailableOfficerCommands(this.stateStore.getState(), role);
+        return this.snapshotReader.getAvailableCommands(role);
     }
 
     public getNavigationState(): PlayerSpaceNavigationState {
-        return this.stateStore.getNavigationState();
+        return this.snapshotReader.getNavigationState();
     }
 
     public getDriveState(): ShipDriveState {
-        return {
-            ...this.stateStore.getState().drive,
-        };
+        return this.snapshotReader.getDriveState();
     }
 
     public getPlayerHullState():
         PlayerHullState {
-        return {
-            ...this.stateStore
-                .getState()
-                .playerHull,
-        };
+        return this.snapshotReader.getPlayerHullState();
     }
 
     public getOfficerAvailabilityStates(): OfficerAvailabilityStates {
-        return getOfficerAvailabilityStates(this.stateStore.getState());
+        return this.snapshotReader.getOfficerAvailabilityStates();
     }
 
     public getOfficerTasks(): OfficerTaskState[] {
-        return this.stateStore.getOfficerTasks().map((task) => {
-            return {
-                ...task,
-            };
-        });
+        return this.snapshotReader.getOfficerTasks();
     }
 
     public getPlayerWeaponStates():
         ShipWeaponState[] {
-        return this.stateStore
-            .getState()
-            .combat
-            .playerWeapons
-            .map((weapon) => {
-                return {
-                    ...weapon,
-                };
-            });
+        return this.snapshotReader.getPlayerWeaponStates();
     }
 
     public getEnemyShipTelemetrySnapshots():
         EnemyShipTelemetrySnapshot[] {
-        return getEnemyShipTelemetrySnapshots(
-            this.stateStore.getState(),
-        );
+        return this.snapshotReader.getEnemyShipTelemetrySnapshots();
     }
 
     public getCombatProjectiles():
         CombatProjectileState[] {
-        return this.stateStore
-            .getState()
-            .combat
-            .projectiles
-            .map((projectile) => {
-                return this
-                    .cloneCombatProjectile(
-                        projectile,
-                    );
-            });
+        return this.snapshotReader.getCombatProjectiles();
     }
 
     public getIncomingMissileProjectiles():
         CombatProjectileState[] {
-        return this.stateStore
-            .getState()
-            .combat
-            .projectiles
-            .filter((projectile) => {
-                return (
-                    projectile.source.kind ===
-                        COMBAT_SOURCE_KIND.ACTOR &&
-                    projectile.target.kind ===
-                        COMBAT_TARGET_KIND
-                            .PLAYER_SHIP
-                );
-            })
-            .map((projectile) => {
-                return this
-                    .cloneCombatProjectile(
-                        projectile,
-                    );
-            });
+        return this.snapshotReader.getIncomingMissileProjectiles();
     }
 
     public getOutgoingMissileProjectiles():
         CombatProjectileState[] {
-        return this.stateStore
-            .getState()
-            .combat
-            .projectiles
-            .filter((projectile) => {
-                return (
-                    projectile.source.kind ===
-                        COMBAT_SOURCE_KIND
-                            .PLAYER_SHIP &&
-                    projectile.target.kind ===
-                        COMBAT_TARGET_KIND.ACTOR
-                );
-            })
-            .map((projectile) => {
-                return this
-                    .cloneCombatProjectile(
-                        projectile,
-                    );
-            });
+        return this.snapshotReader.getOutgoingMissileProjectiles();
     }
 
     public getOutgoingStickyMines():
         StickyMineState[] {
-        return this.stateStore
-            .getState()
-            .combat
-            .stickyMines
-            .filter((mine) => {
-                return (
-                    mine.source.kind ===
-                        COMBAT_SOURCE_KIND
-                            .PLAYER_SHIP &&
-                    mine.target.kind ===
-                        COMBAT_TARGET_KIND.ACTOR
-                );
-            })
-            .map((mine) => {
-                return {
-                    ...mine,
-
-                    source: {
-                        ...mine.source,
-                    },
-
-                    target: {
-                        ...mine.target,
-                    },
-                };
-            });
+        return this.snapshotReader.getOutgoingStickyMines();
     }
 
     public getStickyMineSnapshots(): StickyMineSnapshot[] {
-        return getStickyMineSnapshots(
-            this.stateStore.getState(),
-        );
+        return this.snapshotReader.getStickyMineSnapshots();
     }
 
     public getLaserAttacks(): LaserAttackState[] {
-        return this.stateStore.getState().combat.laserAttacks.map((attack) => {
-            return this.cloneLaserAttack(attack);
-        });
+        return this.snapshotReader.getLaserAttacks();
     }
 
     public getSpamChannels(): SpamChannelState[] {
-        return this.combatRunner.getSpamChannels();
+        return this.snapshotReader.getSpamChannels();
     }
 
     public purgeSpamChannel(channelId: string): boolean {
@@ -455,33 +356,15 @@ export default class EncounterEngine {
     }
 
     public getLaserThreatSnapshots(): LaserThreatSnapshot[] {
-        return getLaserThreatSnapshots(
-            this.stateStore.getState(),
-        );
+        return this.snapshotReader.getLaserThreatSnapshots();
     }
 
     public getShieldGeneratorState(): ShieldGeneratorState | undefined {
-        const shieldGenerator = this.stateStore.getState().combat.shieldGenerator;
-
-        if (!shieldGenerator) {
-            return undefined;
-        }
-
-        return {
-            ...shieldGenerator,
-        };
+        return this.snapshotReader.getShieldGeneratorState();
     }
 
     public getActiveShieldState(): ActiveShieldState | undefined {
-        const activeShield = this.stateStore.getState().combat.activeShield;
-
-        if (!activeShield) {
-            return undefined;
-        }
-
-        return {
-            ...activeShield,
-        };
+        return this.snapshotReader.getActiveShieldState();
     }
 
     public drainEvents(): EncounterEvent[] {
@@ -510,45 +393,6 @@ export default class EncounterEngine {
         }
 
         this.officerTaskRunner.complete(taskId);
-    }
-
-    // #endregion
-
-    // #region Combat snapshots
-
-    private cloneCombatProjectile(
-        projectile:
-            CombatProjectileState,
-    ): CombatProjectileState {
-        return {
-            ...projectile,
-
-            source: {
-                ...projectile.source,
-            },
-
-            target: {
-                ...projectile.target,
-            },
-
-            identification: {
-                ...projectile.identification,
-            },
-        };
-    }
-
-    private cloneLaserAttack(attack: LaserAttackState): LaserAttackState {
-        return {
-            ...attack,
-
-            target: {
-                ...attack.target,
-            },
-
-            identification: {
-                ...attack.identification,
-            },
-        };
     }
 
     // #endregion
@@ -607,7 +451,9 @@ export default class EncounterEngine {
     // #region Event outbox
 
     private emit = (event: EncounterEvent): void => {
-        this.events.push(event);
+        this.events.push(
+            createDetachedSnapshot(event),
+        );
     };
 
     // #endregion

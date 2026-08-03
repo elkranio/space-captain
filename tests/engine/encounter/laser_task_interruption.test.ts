@@ -13,6 +13,7 @@ import { OFFICER_ROLE } from '../../../src/engine/defs/officer';
 import { PLAYER_SPACE_NAVIGATION_KIND } from '../../../src/engine/defs/player_location';
 import { SHIP_WEAPON_KIND } from '../../../src/engine/defs/ship_weapon';
 import EncounterEngine from '../../../src/engine/encounter/EncounterEngine';
+import { getMutableEncounterStateForTest } from './get_mutable_encounter_state_for_test';
 import {
     ENCOUNTER_OFFICER_COMMAND_ID,
 } from '../../../src/engine/encounter/model/command';
@@ -184,7 +185,8 @@ function createLaserEngine(randomValues: number[]) {
         throw new Error(`Expected encounter loaded event, received: ${loadedEvent.type}`);
     }
 
-    const laser = loadedEvent.state.actors[0].weapons[0];
+    const state = getMutableEncounterStateForTest(engine);
+    const laser = state.actors[0].weapons[0];
 
     if (laser.kind !== SHIP_WEAPON_KIND.LASER) {
         throw new Error('Expected loaded enemy laser');
@@ -198,7 +200,7 @@ function createLaserEngine(randomValues: number[]) {
 
     return {
         engine,
-        state: loadedEvent.state,
+        state,
 
         laserChargeDurationMs: definition.chargeDurationMs,
     };

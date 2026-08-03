@@ -16,6 +16,7 @@ import {
     SHIP_WEAPON_PHASE,
 } from '../../../src/engine/defs/ship_weapon';
 import EncounterEngine from '../../../src/engine/encounter/EncounterEngine';
+import { getMutableEncounterStateForTest } from './get_mutable_encounter_state_for_test';
 import ShipNodeActorFactory from '../../../src/engine/generation/space_node_actor/ShipNodeActorFactory';
 import { ENCOUNTER_OFFICER_COMMAND_ID } from '../../../src/engine/encounter/model/command';
 import {
@@ -364,8 +365,11 @@ function createStickyMineEngine({
         );
     }
 
+    const state =
+        getMutableEncounterStateForTest(engine);
+
     const dispenser =
-        loadedEvent.state.actors[0]
+        state.actors[0]
             .weapons[0];
 
     if (
@@ -380,7 +384,7 @@ function createStickyMineEngine({
 
     return {
         engine,
-        state: loadedEvent.state,
+        state,
         dispenser,
     };
 }

@@ -314,6 +314,25 @@ It may map engine read models to bridge payloads and emit complete snapshot
 updates. It does not own domain decisions, navigation lifecycle or event
 translation.
 
+All app-facing reads from one encounter are owned by:
+
+```text
+EncounterSnapshotReader
+```
+
+The reader is bound to the authoritative `EncounterState`, but owns no state
+and caches nothing. Every public read recursively detaches its result before it
+crosses the engine boundary.
+
+The encounter outbox applies the same detached-snapshot rule at `emit` time.
+Event producers may pass their current domain object; queued events never keep
+mutable references to encounter state. `ENCOUNTER_LOADED` is therefore a real
+initial snapshot and must not be used as a mutation handle.
+
+Headless tests that intentionally arrange mid-encounter state use the single
+test-only `getMutableEncounterStateForTest` white-box helper. Runtime code must
+never copy that pattern.
+
 ## Persistence synchronization
 
 Event-driven persistence is owned by:
@@ -433,7 +452,8 @@ Stop and inspect architecture when a local feature requires any of these:
 6. done — separate bridge persistence transport from presentation transport
 7. done — audit again before command-palette implementation
 8. done — extract app snapshot transport from BridgeEncounterController
-9. next — centralize detached engine reads and snapshot cloning
+9. done — centralize detached engine reads and snapshot cloning
+10. next — return to one narrow enemy defensive behavior slice
 ```
 
 Audit result: physical launchers/dispensers now keep stable command identity
@@ -441,9 +461,8 @@ through availability, validation and execution. No further architecture
 refactor is required before replacing the old command menu with the complete
 command-palette interaction flow.
 
-The new snapshot cleanup is narrower than the earlier combat architecture pass:
-it removes duplicated transport and unsafe mutable references without changing
-gameplay ownership or step order.
+The snapshot cleanup removed duplicated transport and unsafe mutable references
+without changing gameplay ownership or step order.
 
 Small adjacent cleanups are allowed when they:
 

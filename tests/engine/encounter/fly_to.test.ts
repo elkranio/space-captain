@@ -16,6 +16,7 @@ import {
     SHIP_WEAPON_PHASE,
 } from '../../../src/engine/defs/ship_weapon';
 import EncounterEngine from '../../../src/engine/encounter/EncounterEngine';
+import { getMutableEncounterStateForTest } from './get_mutable_encounter_state_for_test';
 import {
     ENCOUNTER_OFFICER_COMMAND_ID,
     OFFICER_COMMAND_EXECUTION_STATUS,
@@ -243,8 +244,11 @@ describe('FLY_TO', () => {
             );
         }
 
+        const state =
+            getMutableEncounterStateForTest(engine);
+
         const enemy =
-            loadedEvent.state.actors[0];
+            state.actors[0];
         const laser = enemy?.weapons[0];
 
         if (
@@ -283,7 +287,7 @@ describe('FLY_TO', () => {
         );
         expect(engine.getLaserAttacks()).toHaveLength(1);
 
-        loadedEvent.state.combat.activeShield = {
+        state.combat.activeShield = {
             zone: LASER_TARGET_ZONE.CENTER,
 
             elapsedMs: 0,

@@ -7,6 +7,7 @@ import {
 } from '../../../defs/ship_weapon';
 import type { LaserAttackState } from '../../model/combat';
 import type { EncounterState } from '../../model/state';
+import { createDetachedSnapshot } from '../../snapshots/create_detached_snapshot';
 
 export type LaserThreatSnapshot = {
     attack: LaserAttackState;
@@ -18,75 +19,61 @@ export type LaserThreatSnapshot = {
 export function getLaserThreatSnapshots(
     state: EncounterState,
 ): LaserThreatSnapshot[] {
-    return state.combat.laserAttacks.map((attack) => {
-        const actor = state.actors.find((candidate) => {
-            return candidate.id === attack.sourceActorId;
-        });
+    return createDetachedSnapshot(
+        state.combat.laserAttacks.map((attack) => {
+            const actor = state.actors.find((candidate) => {
+                return candidate.id === attack.sourceActorId;
+            });
 
-        if (!actor) {
-            throw new Error(
-                `Laser threat source actor not found: ` +
-                    `${attack.id}/${attack.sourceActorId}`,
-            );
-        }
+            if (!actor) {
+                throw new Error(
+                    `Laser threat source actor not found: ` +
+                        `${attack.id}/${attack.sourceActorId}`,
+                );
+            }
 
-        const weapon = actor.weapons.find((candidate) => {
-            return candidate.id === attack.sourceWeaponId;
-        });
+            const weapon = actor.weapons.find((candidate) => {
+                return candidate.id === attack.sourceWeaponId;
+            });
 
-        if (!weapon) {
-            throw new Error(
-                `Laser threat source weapon not found: ` +
-                    `${attack.id}/${attack.sourceWeaponId}`,
-            );
-        }
+            if (!weapon) {
+                throw new Error(
+                    `Laser threat source weapon not found: ` +
+                        `${attack.id}/${attack.sourceWeaponId}`,
+                );
+            }
 
-        if (
-            weapon.kind !== SHIP_WEAPON_KIND.LASER ||
-            weapon.phase !== SHIP_WEAPON_PHASE.CHARGING
-        ) {
-            throw new Error(
-                `Laser threat source weapon is not charging: ` +
-                    `${attack.id}/${weapon.id}/${weapon.kind}/${weapon.phase}`,
-            );
-        }
+            if (
+                weapon.kind !== SHIP_WEAPON_KIND.LASER ||
+                weapon.phase !== SHIP_WEAPON_PHASE.CHARGING
+            ) {
+                throw new Error(
+                    `Laser threat source weapon is not charging: ` +
+                        `${attack.id}/${weapon.id}/${weapon.kind}/${weapon.phase}`,
+                );
+            }
 
-        const definition = SHIP_WEAPONS[weapon.weaponId];
+            const definition = SHIP_WEAPONS[weapon.weaponId];
 
-        if (definition.kind !== SHIP_WEAPON_KIND.LASER) {
-            throw new Error(
-                `Laser threat weapon definition mismatch: ` +
-                    `${attack.id}/${weapon.id}/${weapon.weaponId}`,
-            );
-        }
+            if (definition.kind !== SHIP_WEAPON_KIND.LASER) {
+                throw new Error(
+                    `Laser threat weapon definition mismatch: ` +
+                        `${attack.id}/${weapon.id}/${weapon.weaponId}`,
+                );
+            }
 
-        return {
-            attack: cloneLaserAttack(attack),
+            return {
+                attack,
 
-            timeToFireMs: Math.max(
-                0,
-                definition.chargeDurationMs -
-                    weapon.phaseElapsedMs,
-            ),
+                timeToFireMs: Math.max(
+                    0,
+                    definition.chargeDurationMs -
+                        weapon.phaseElapsedMs,
+                ),
 
-            initialTimeToFireMs:
-                definition.chargeDurationMs,
-        };
-    });
-}
-
-function cloneLaserAttack(
-    attack: LaserAttackState,
-): LaserAttackState {
-    return {
-        ...attack,
-
-        target: {
-            ...attack.target,
-        },
-
-        identification: {
-            ...attack.identification,
-        },
-    };
+                initialTimeToFireMs:
+                    definition.chargeDurationMs,
+            };
+        }),
+    );
 }

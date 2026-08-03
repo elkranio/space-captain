@@ -10,6 +10,7 @@ import {
 import type {
     EncounterState,
 } from '../../model/state';
+import { createDetachedSnapshot } from '../../snapshots/create_detached_snapshot';
 import {
     getNextClearableStickyMine,
 } from './get_next_clearable_sticky_mine';
@@ -52,37 +53,29 @@ export function getStickyMineSnapshots(
             state,
         );
 
-    return state.combat
-        .stickyMines
-        .filter((mine) => {
-            return (
-                mine.target.kind ===
-                COMBAT_TARGET_KIND
-                    .PLAYER_SHIP
-            );
-        })
-        .map((mine) => {
-            return {
-                mine: {
-                    ...mine,
+    return createDetachedSnapshot(
+        state.combat
+            .stickyMines
+            .filter((mine) => {
+                return (
+                    mine.target.kind ===
+                    COMBAT_TARGET_KIND
+                        .PLAYER_SHIP
+                );
+            })
+            .map((mine) => {
+                return {
+                    mine,
 
-                    source: {
-                        ...mine.source,
-                    },
+                    isBeingCleared:
+                        reservedMineIds.has(
+                            mine.id,
+                        ),
 
-                    target: {
-                        ...mine.target,
-                    },
-                },
-
-                isBeingCleared:
-                    reservedMineIds.has(
-                        mine.id,
-                    ),
-
-                isNextClearTarget:
-                    mine.id ===
-                    nextMine?.id,
-            };
-        });
+                    isNextClearTarget:
+                        mine.id ===
+                        nextMine?.id,
+                };
+            }),
+    );
 }

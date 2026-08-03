@@ -8,6 +8,7 @@ import { OFFICER_ROLE } from '../../../src/engine/defs/officer';
 import { PLAYER_SPACE_NAVIGATION_KIND } from '../../../src/engine/defs/player_location';
 import { SHIP_DRIVE_STATUS } from '../../../src/engine/defs/ship_drive';
 import EncounterEngine from '../../../src/engine/encounter/EncounterEngine';
+import { getMutableEncounterStateForTest } from './get_mutable_encounter_state_for_test';
 import {
     ENCOUNTER_OFFICER_COMMAND_ID,
     OFFICER_COMMAND_TARGET_KIND,
@@ -103,6 +104,12 @@ describe('opening disruption pulse', () => {
 
         expect(
             loadedEvent.state.actors[0]
+                .hasUsedOpeningDisruptionPulse,
+        ).toBe(false);
+
+        expect(
+            getMutableEncounterStateForTest(engine)
+                .actors[0]
                 .hasUsedOpeningDisruptionPulse,
         ).toBe(true);
 
@@ -345,7 +352,7 @@ function createNeutralEncounter() {
 
     return {
         engine,
-        state: loadedEvent.state,
+        state: getMutableEncounterStateForTest(engine),
         actorId: actor.id,
     };
 }

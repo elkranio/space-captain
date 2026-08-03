@@ -14,6 +14,7 @@ import {
 } from '../../../src/engine/defs/point_defense';
 import { SHIP_WEAPON_KIND } from '../../../src/engine/defs/ship_weapon';
 import EncounterEngine from '../../../src/engine/encounter/EncounterEngine';
+import { getMutableEncounterStateForTest } from './get_mutable_encounter_state_for_test';
 import {
     ENCOUNTER_OFFICER_COMMAND_ID,
     OFFICER_COMMAND_EXECUTION_STATUS,
@@ -542,7 +543,7 @@ function createEngineWithIncomingMissile({
 
     return {
         engine,
-        state: loadedEvent.state,
+        state: getMutableEncounterStateForTest(engine),
     };
 }
 

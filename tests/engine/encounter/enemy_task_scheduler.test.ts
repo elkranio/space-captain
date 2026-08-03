@@ -32,6 +32,7 @@ import {
     SHIP_WEAPON_PHASE,
 } from '../../../src/engine/defs/ship_weapon';
 import EncounterEngine from '../../../src/engine/encounter/EncounterEngine';
+import { getMutableEncounterStateForTest } from './get_mutable_encounter_state_for_test';
 import EnemyTaskScheduler from '../../../src/engine/encounter/combat/EnemyTaskScheduler';
 import {
     ENCOUNTER_EVENT,
@@ -420,8 +421,11 @@ function createEnemyCombatEngine(
         );
     }
 
+    const state =
+        getMutableEncounterStateForTest(engine);
+
     const actor =
-        loadedEvent.state.actors[0];
+        state.actors[0];
 
     if (!actor) {
         throw new Error(
@@ -431,8 +435,7 @@ function createEnemyCombatEngine(
 
     return {
         engine,
-        state:
-            loadedEvent.state,
+        state,
 
         actor,
     };

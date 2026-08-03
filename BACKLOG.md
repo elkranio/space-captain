@@ -17,7 +17,7 @@ Last updated: 2026-08-03
 Current selected slice:
 
 ```text
-ENCOUNTER SNAPSHOT TRANSPORT CLEANUP
+ENCOUNTER SNAPSHOT BOUNDARY CLEANUP
 ```
 
 Bridge V0.1 migration is complete and runtime-accepted:
@@ -36,7 +36,7 @@ Combat action hints are runtime-accepted for the current V0.1 presentation.
 Text density and a possible future icon replacement remain polish work, not a
 blocker.
 
-Implemented in the current refactor atom:
+Implemented across the two snapshot refactor atoms:
 
 - extracted `BridgeEncounterSnapshotSynchronizer` from
   `BridgeEncounterController`;
@@ -47,14 +47,21 @@ Implemented in the current refactor atom:
 - preserved frame order: engine step → weapon sync → domain events → combat
   snapshots → station poll;
 - added a transport-contract test for initial and per-frame snapshot mapping.
+- added state-bound `EncounterSnapshotReader` without cached or duplicate state;
+- centralized recursively detached app-facing engine reads;
+- made encounter outbox detachment an invariant at `emit` time;
+- removed duplicated projectile / mine / laser clone methods;
+- made `ENCOUNTER_LOADED` and nested missile payloads stable snapshots;
+- replaced tests' accidental mutable event dependency with one explicit
+  test-only state handle;
+- preserved gameplay rules, step order and persistence ownership.
 
-Next narrow atom:
+Next gameplay slice:
 
-- add one state-bound engine snapshot reader;
-- centralize detached copies returned through the app-facing engine API;
-- remove duplicated projectile / mine / laser clone logic;
-- fix event payloads that still retain mutable encounter references;
-- do not change gameplay rules, step order or persistence ownership.
+- return to enemy defensive behavior;
+- first candidate: enemy point defense against a player missile;
+- keep the Engineer directional-shield response as the following slice;
+- do not combine both defenses into one implementation atom.
 
 Accepted combat action-hint contract:
 

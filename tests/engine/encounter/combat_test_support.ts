@@ -17,6 +17,7 @@ import {
     type StickyMineDispenserState,
 } from '../../../src/engine/defs/ship_weapon';
 import EncounterEngine from '../../../src/engine/encounter/EncounterEngine';
+import { getMutableEncounterStateForTest } from './get_mutable_encounter_state_for_test';
 import type {
     ShipEncounterActorState,
 } from '../../../src/engine/encounter/actors/ship/ship_encounter_actor';
@@ -94,8 +95,11 @@ export function createAnchoredPlayerCombatTestSetup():
         );
     }
 
+    const state =
+        getMutableEncounterStateForTest(engine);
+
     const targetActor =
-        loadedEvent.state.actors.find(
+        state.actors.find(
             (actor) => {
                 return (
                     actor.team ===
@@ -112,8 +116,7 @@ export function createAnchoredPlayerCombatTestSetup():
 
     return {
         engine,
-        state:
-            loadedEvent.state,
+        state,
 
         targetActor,
     };

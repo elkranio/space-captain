@@ -31,6 +31,7 @@ import {
     type MissileLauncherState,
 } from '../../../src/engine/defs/ship_weapon';
 import EncounterEngine from '../../../src/engine/encounter/EncounterEngine';
+import { getMutableEncounterStateForTest } from './get_mutable_encounter_state_for_test';
 import {
     ENCOUNTER_OFFICER_COMMAND_ID,
     OFFICER_COMMAND_TARGET_KIND,
@@ -465,7 +466,7 @@ function createMissileLifecycleSetup(
     }
 
     const launcher =
-        loadedEvent.state
+        getMutableEncounterStateForTest(engine)
             .combat
             .playerWeapons
             .find((weapon) => {
