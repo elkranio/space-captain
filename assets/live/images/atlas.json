@@ -1,7 +1,7 @@
 {
   "textures": [
     {
-      "image": "atlas-0.png?v=1785762421324",
+      "image": "atlas-0.png?v=1785762918593",
       "format": "RGBA8888",
       "size": {
         "w": 2035,
@@ -766,7 +766,7 @@
           }
         },
         {
-          "filename": "bridge/officers/helm_station",
+          "filename": "bridge/officers/helm_seated_00",
           "rotated": false,
           "trimmed": true,
           "sourceSize": {
@@ -787,7 +787,7 @@
           }
         },
         {
-          "filename": "bridge/officers/weaoins_seated_00",
+          "filename": "bridge/officers/weapons_seated_00",
           "rotated": false,
           "trimmed": true,
           "sourceSize": {
@@ -1548,6 +1548,6 @@
   "meta": {
     "app": "https://www.codeandweb.com/texturepacker",
     "version": "3.0",
-    "smartupdate": "$TexturePacker:SmartUpdate:dff85ce09e4dd473e9055be3c365c22d:eae7752f6deaab29318c75c8bb75144c:cf935fe037ea9b5d3744d532996e235e$"
+    "smartupdate": "$TexturePacker:SmartUpdate:dae8a725343cb6a4ccfcaeb4d1b55e54:eae7752f6deaab29318c75c8bb75144c:cf935fe037ea9b5d3744d532996e235e$"
   }
 }
