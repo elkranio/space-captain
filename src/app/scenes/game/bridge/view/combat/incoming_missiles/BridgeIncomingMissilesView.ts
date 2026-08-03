@@ -18,12 +18,12 @@ type GetObjectPosition = (objectId: string) => Phaser.Math.Vector2 | undefined;
 
 const INCOMING_MISSILE_IMPACT_AREA = {
     // Центральная зона по X.
-    insetX: 260,
+    insetX: 257,
 
     // Нижняя часть viewscreen,
     // но sprite, brackets и HUD label остаются внутри окна.
-    topOffset: 215,
-    bottomInset: 60,
+    topOffset: 185,
+    bottomInset: 52,
 } as const;
 
 // Manager-view летящих в игрока ракет.

@@ -438,11 +438,8 @@ Hull и shields должны показываться точно, а не при
 
 Эти решения пока не зафиксированы окончательно:
 
-- точный порядок пяти ролей в полукруге;
 - форма и размер центрального telemetry display;
 - точная доля экрана, занимаемая капитанским столом;
-- наличие видимых рук игрока;
-- конкретная форма VIP seat;
 - степень анимации офицеров;
 - визуальный язык выбора enemy systems;
 - финальная палитра мостика;
@@ -457,7 +454,7 @@ Hull и shields должны показываться точно, а не при
 Концепт считается удачным, если:
 
 - с первого взгляда понятно, что игрок сидит в кресле капитана;
-- видны все пять офицеров;
+- видны все четыре офицера;
 - понятно, где находится каждый офицер;
 - офицеров удобно мысленно связать с интерактивными зонами;
 - капитанский стол выглядит физическим, но читается как HUD;
@@ -472,4 +469,4 @@ Hull и shields должны показываться точно, а не при
 
 ## 16. Короткий бриф для художника
 
-> Create an original 1280×720 retro VGA starship bridge for a comedic-but-serious bridge-command game. The player sees the bridge from the captain’s seated first-person viewpoint; the captain’s body is not visible. Five real crew members sit at stable interactive stations arranged in a shallow semicircle around a large clean viewscreen. A separate VIP chair sits near the captain, but not directly beside them. The foreground contains a simple physical captain’s desk acting as the main diegetic HUD: a central enemy telemetry display with exact hull and shields, plus clear engine, point-defense, shield-charge and alert indicators. Keep the console chunky and readable, not a Boeing cockpit. Use an original early-1990s Sierra VGA adventure-game feel, limited colors, visible pixel clusters, selective dithering, lived-in working-class sci-fi, and minimal clutter. The layout must prioritize gameplay readability, mouse travel, stable officer hit areas and room for combat threats on the viewscreen.
+> Create an original 1280×720 retro VGA starship bridge for a comedic-but-serious bridge-command game. The player sees the bridge from the captain’s seated first-person viewpoint; the captain’s body is not visible. Four real crew members sit at stable interactive stations arranged in a shallow chevron around a large clean viewscreen: Science and Engineer form the outer/front pair, while Weapons and Helm form the inner/back pair. Do not add a Comms station or VIP chair. The lower foreground remains available for a future simple physical captain’s desk acting as the main diegetic HUD. Keep the consoles chunky and readable, not a Boeing cockpit. Use an original early-1990s Sierra VGA adventure-game feel, limited colors, visible pixel clusters, selective dithering, lived-in working-class sci-fi, and minimal clutter. The layout must prioritize gameplay readability, mouse travel, stable officer hit areas and room for combat threats on the viewscreen.

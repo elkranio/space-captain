@@ -10,10 +10,10 @@ Last updated:
 2026-08-03
 ```
 
-Base repository checkpoint for the current Comms-cut atom:
+Base repository checkpoint after the completed Comms cut:
 
 ```text
-d9016a1d3ca5d2a4efb2528432b1d2f803b608b7
+149f84e493f6fc419848fded3c26b4f234d076fb
 ```
 
 ---
@@ -466,6 +466,12 @@ Do not add the command palette.
 ## Atom 3 — bridge shell
 
 - replace old bridge background/shell;
+- remap `BRIDGE_VIEWSCREEN_RECT` to the shell's transparent bounding box:
+
+```text
+x 225, y 38, width 829, height 258
+```
+
 - preserve viewscreen content/VFX visibility;
 - preserve navigation/combat object positions unless intentionally remapped;
 - keep temporary status panels;
