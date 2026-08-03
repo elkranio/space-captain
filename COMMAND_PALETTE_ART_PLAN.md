@@ -1,544 +1,443 @@
-# Space Captain — Command Palette Art Plan
+# Space Captain — Command Palette Plan
 
-План проектирования и отрисовки новой command palette для мостика.
+Deferred design/implementation plan.
 
-Этот файл фиксирует **процесс**, а не финальный дизайн.  
-Перед кодом сначала делаем скетчи, проверяем композицию и только затем собираем atlas assets.
+This file replaces the earlier five-role art plan.
 
----
+Read only after the bridge V0.1 migration is playable.
 
-# 1. Цель
-
-Заменить старое вертикальное текстовое context menu на постоянную горизонтальную command palette.
-
-Palette должна:
-
-- читаться за долю секунды во время боя;
-- сохранять постоянное расположение команд;
-- не перекрывать важную часть мостика и viewscreen;
-- поддерживать мышь и будущий gamepad;
-- выглядеть частью капитанского интерфейса, а не современным HUD;
-- соответствовать раннему Sierra VGA / Space Quest V вайбу;
-- оставаться простой и игровой, без cockpit clutter.
-
-Главное правило:
+Last updated:
 
 ```text
-сначала композиция и UX
-→ потом визуальный язык
-→ потом финальные спрайты
-→ потом код
+2026-08-03
 ```
 
 ---
 
-# 2. Завтрашний порядок работы
+# 1. Status
 
-## Этап A — быстрые композиционные скетчи
+Architecture blockers are closed.
 
-Сначала делаем несколько грубых чёрно-белых или двухцветных вариантов без детальной пиксельной отрисовки.
+The command palette itself is not implemented.
 
-Нужно проверить минимум три композиции:
+Current bridge still uses the old text/context-menu flow.
 
-### Вариант A — единая нижняя полоса
-
-```text
-[ ROLE ] [ SLOT ][ SLOT ][ SLOT ][ SLOT ][ CANCEL ]
-```
-
-- palette занимает центральную нижнюю часть экрана;
-- choice-row появляется непосредственно над ней;
-- subtitle/status strip находится под слотами или внутри нижней рамки.
-
-### Вариант B — palette встроена в капитанский стол
+Palette work is deferred until:
 
 ```text
-foreground captain desk
-└─ command slots как физические клавиши/экраны
+new bridge shell
++ four station views
++ station task/progress UI
++ Comms removal
 ```
 
-- меньше ощущения отдельного HUD;
-- сильнее связь с bridge background;
-- риск: может потребовать слишком много переделок окружения.
-
-### Вариант C — центральная palette с боковыми status blocks
-
-```text
-[ role/status ] [ command slots ] [ task/cancel ]
-```
-
-- основная сетка остаётся стабильной;
-- роль и активная задача читаются отдельно;
-- риск: полоса может стать слишком широкой и тяжёлой.
-
-Для каждого варианта проверяем:
-
-- читается ли он поверх текущего bridge background;
-- не спорит ли с officer seats;
-- не закрывает ли missile/mines/laser presentation;
-- хватает ли места для 5–7 основных слотов;
-- можно ли добавить choice-row без скачка всей композиции;
-- удобно ли будет выбирать мышью;
-- получится ли позже навигация крестовиной/gamepad.
-
-До выбора композиции финальные пиктограммы не рисуем.
+Do not implement palette and bridge migration in one giant atom.
 
 ---
 
-# 3. UX-flow, который должен поддерживать дизайн
+# 2. Role model
 
-## Выбор офицера
+Officer palettes exist for exactly four roles:
+
+- Science;
+- Helm;
+- Weapons;
+- Engineer.
+
+There is no Comms palette.
+
+Captain actions are outside officer palettes.
+
+Current captain action:
 
 ```text
-клик по officer station
-или клавиша 1–5
-→ palette переключается на выбранную роль
+HAIL
 ```
 
-Palette всегда остаётся на одном месте.
+`REQUEST DOCKING` is removed.
 
-Слоты не должны прыгать при временной недоступности команды.
+Normal docking belongs to Helm and is directly available when the target/state
+permits it.
+
+---
+
+# 3. Information split
+
+Station answers:
 
 ```text
-доступно
-→ нормальный slot
-
-недоступно
-→ тот же slot, но disabled
-
-команда отсутствует физически
-→ slot не создаётся
+where to look
+what the officer is currently doing
+whether the station is ready/busy/blocked
 ```
 
-Последнее относится, например, к неустановленному оружию.
+Station monitor shows:
 
-## Прямая команда
+- current task icon;
+- task progress when meaningful;
+- interrupted/blocked state;
+- local activity.
+
+Command palette answers:
 
 ```text
-клик по slot
+what commands can be issued now
+```
+
+Captain dashboard / debug panels show:
+
+- ship systems;
+- resources;
+- warnings;
+- target/enemy telemetry.
+
+Viewscreen shows:
+
+- physical threats;
+- target ship;
+- projectiles;
+- combat effects;
+- navigation objects.
+
+Do not duplicate the same information in every layer.
+
+---
+
+# 4. Interaction model
+
+Select role:
+
+```text
+click station
+or keyboard shortcut
+→ palette switches to that role
+```
+
+Stable slot rule:
+
+```text
+temporarily unavailable
+→ slot remains in place, disabled
+
+physical equipment not installed
+→ equipment slot does not exist
+```
+
+Direct command:
+
+```text
+click slot
 → execute
 ```
 
-## Команда с выбором
+Real choice:
 
 ```text
-клик по slot
-→ открывается compact choice-row
-→ выбор конкретной resolved command
+click slot
+→ compact choice row
+→ click resolved choice
 → execute
 ```
 
-Choice-row нужен для:
+Choice row is used only when a real choice exists.
 
-- laser target zone: LEFT / CENTER / RIGHT;
-- shield zone: LEFT / CENTER / RIGHT;
-- point defense: конкретная угроза + spectral band;
-- identify threat: конкретная угроза;
-- Fly To / Hail / Dock, если появляется несколько целей.
+Examples:
 
-## Физическое оружие
+- laser sector;
+- shield sector;
+- point-defense target/band;
+- specific threat identification;
+- multiple navigation/contact targets.
 
-Каждый установленный экземпляр имеет отдельный постоянный слот:
+Do not add a second screen merely to confirm one obvious action.
+
+---
+
+# 5. Physical weapon identity
+
+Each installed physical launcher/dispenser gets its own stable slot.
+
+Examples:
 
 ```text
 missile launcher #1
 missile launcher #2
-sticky mine dispenser #1
+sticky-mine dispenser #1
 laser #1
 ```
 
-Runtime `weaponId` не показывается игроку напрямую, но slot должен сохранять identity конкретного устройства.
-
-## Активная задача
-
-Если у роли есть cancellable task:
+Command target already carries:
 
 ```text
-CANCEL TASK
-→ отдельный фиксированный последний slot
+ACTOR_WEAPON {
+    weaponId
+    actorId
+}
 ```
 
-Если task нельзя отменить или task отсутствует:
+Availability, validation and execution preserve the exact `weaponId`.
+
+Do not return to "find first ready launcher" behavior.
+
+---
+
+# 6. Role content direction
+
+Not a final command list.
+
+## Helm
+
+Current/future:
+
+- Plot Course;
+- Fly To;
+- Dock;
+- Jump;
+- future Evade.
+
+## Science
+
+Current/future:
+
+- Identify Threat;
+- Purge Spam;
+- Analyze Enemy;
+- scan/authored science actions.
+
+## Weapons
+
+Current:
+
+- point defense;
+- laser;
+- missile launchers;
+- sticky-mine dispensers;
+- allowed mine-clearing actions.
+
+## Engineer
+
+Current/future:
+
+- directional shield;
+- Repair Engine;
+- allowed mine-clearing actions;
+- future system repairs.
+
+## Captain
+
+Outside officer palette:
+
+- Hail;
+- dialogue choices;
+- authored contact decisions;
+- future captain-only actions.
+
+Do not force captain actions into an officer role.
+
+---
+
+# 7. Task cancellation
+
+`CANCEL TASK` remains a stable final slot for roles that can own cancellable
+tasks.
+
+State:
 
 ```text
-slot остаётся на месте
+cancellable current task
+→ enabled
+
+no task / non-cancellable task
 → disabled
 ```
 
----
-
-# 4. Композиционные решения, которые надо принять на скетчах
-
-Перед финальной отрисовкой нужно ответить на вопросы:
-
-1. Palette является отдельным HUD-окном или частью captain desk?
-2. Какая максимальная ширина допустима при 1280×720?
-3. Где находится название выбранной роли?
-4. Где показывается tooltip / subtitle команды?
-5. Choice-row открывается вверх, вбок или заменяет основной ряд?
-6. Нужны ли визуальные группы внутри роли:
-   - GENERAL;
-   - TARGET;
-   - WEAPONS;
-   - TASK.
-7. Должны ли слоты иметь подписи постоянно или только при hover/selection?
-8. Как различить:
-   - disabled;
-   - selected;
-   - pressed;
-   - active task;
-   - cooldown / temporarily unavailable.
-9. Нужна ли отдельная индикация hotkey/gamepad binding?
-10. Как palette выглядит при открытом node object list и других overlay?
+Do not remove/reorder the slot based on temporary state.
 
 ---
 
-# 5. Предварительные размеры
+# 8. Layout direction
 
-Это стартовые размеры для скетчей, а не locked final values.
+Final palette should be integrated with the future captain dashboard.
 
-## Основной slot
+Current V0.1 bridge has no final dashboard.
 
-```text
-48×48 px
-```
+Therefore:
 
-Пиктограмма внутри:
+- do not draw final palette assets during bridge import;
+- keep temporary debug/status panels;
+- prototype palette geometry only after station layout is stable;
+- reserve lower foreground for future dashboard.
 
-```text
-примерно 28–32 px
-```
-
-Рекомендуемая область безопасного рисунка:
+Likely layout:
 
 ```text
-4–8 px внутреннего отступа
+target / enemy
+→ command palette
+→ ship systems / alerts
 ```
 
-## Choice-row slot
-
-Можно начать с:
-
-```text
-40×32 px
-или
-48×32 px
-```
-
-Choice-row должен быть легче основного ряда и не выглядеть второй полноценной панелью.
-
-## Subtitle strip
-
-Высота:
-
-```text
-16–24 px
-```
-
-Задача полосы:
-
-- название команды;
-- короткий статус;
-- название цели;
-- причина disabled, если это действительно нужно игроку.
-
-Не превращать subtitle в длинный help text.
+This is direction, not locked pixel dimensions.
 
 ---
 
-# 6. Визуальный язык
+# 9. Station activity states
 
-Ориентир:
+Station visual states should distinguish:
 
-- early-1990s Sierra VGA;
-- chunky readable pixels;
-- ограниченная палитра;
-- простые bevel/recessed формы;
-- слегка потёртый рабочий корабль;
-- понятнее, чем реалистично;
-- комедийный sci-fi без игрушечной несерьёзности.
+- idle;
+- ready/actionable;
+- selected;
+- busy;
+- blocked;
+- interrupted;
+- damaged/unavailable later.
 
-Не использовать:
+Do not encode all states only by color.
 
-- modern flat UI;
-- прозрачные glass panels;
-- тонкие neon outlines;
-- мобильные rounded cards;
-- мелкую cockpit-разметку;
-- десятки декоративных кнопок;
-- сложные metallic gradients;
-- слишком подробные пиктограммы.
+Use a combination of:
 
-Palette должна выглядеть как простой корабельный command console:
+- monitor treatment;
+- task icon;
+- progress;
+- small indicators;
+- framing/pulse;
+- touch-panel activity.
 
-```text
-толстая рамка
-+ утопленные или физические клавиши
-+ сильные состояния
-+ минимум мелкой детализации
-```
+Monitor task feedback must remain readable without an officer sprite.
 
 ---
 
-# 7. Состояния slot
+# 10. Palette states
 
-Нужно нарисовать и проверить пять состояний:
+Required slot states:
 
 ```text
 IDLE
-HOVER
+HOVER / FOCUS
 PRESSED
 DISABLED
-SELECTED
+SELECTED / CHOICE OPEN
 ```
 
-## IDLE
+Do not change slot dimensions between states.
 
-- основной нейтральный вид;
-- пиктограмма читается;
-- не конкурирует с viewscreen.
+Disabled must remain recognizable.
 
-## HOVER
+Selected must not be confused with busy/cooldown.
 
-- заметен без сильной вспышки;
-- может подсвечиваться рамка или внутренняя поверхность;
-- не менять размер slot.
-
-## PRESSED
-
-- короткое физическое вдавливание;
-- допустим сдвиг содержимого на 1 px;
-- не должен выглядеть как permanent selected.
-
-## DISABLED
-
-- команда остаётся узнаваемой;
-- нельзя просто сделать её почти невидимой;
-- сниженная яркость и контраст;
-- tooltip/subtitle может объяснять причину.
-
-## SELECTED
-
-Используется, когда открыт choice-row или slot выбран gamepad-навигацией.
-
-- сильнее hover;
-- не путать с active/cooldown;
-- желательно отдельная рамка, лампа или marker.
+Gamepad focus and mouse hover should use the same semantic state.
 
 ---
 
-# 8. Пиктограммы
+# 11. Subtitle / explanation
 
-Пиктограммы должны читаться в маленьком размере без подписей.
+Hover/focus may write one short explanation into a dedicated strip.
 
-Первичный список:
+Use it for:
 
-```text
-hail
-request_docking
-plot_course
-identify_threat
-purge_spam
-deploy_shield
-repair_drive
-point_defense
-missile_launcher
-sticky_mine_dispenser
-laser
-dock
-fly_to
-jump
-clear_mine
-cancel_task
-```
+- command name;
+- target;
+- resource reason;
+- short disabled reason.
 
-Правила:
+Do not use long help paragraphs during combat.
 
-- одна сильная идея на icon;
-- минимум внутренней детализации;
-- крупный силуэт;
-- не использовать мелкий текст внутри icon;
-- не кодировать смысл только цветом;
-- похожие действия должны отличаться силуэтом;
-- missile launcher, mine dispenser и laser должны выглядеть как разные физические устройства;
-- deploy shield должен отличаться от shield status indicator;
-- clear mine не должен выглядеть как fire mines;
-- cancel task не должен выглядеть как закрытие обычного окна.
-
-На этапе скетчей можно использовать временные символы и буквы.  
-Финальные icon sprites рисуются только после утверждения palette composition.
+Do not require subtitle reading for basic icon recognition.
 
 ---
 
-# 9. Atlas frame plan
+# 12. Keyboard and gamepad
 
-Предварительные frame keys.
+Stable role shortcuts must be defined after the final four-role visual order is
+locked.
 
-## Основная панель
+Do not reuse the old `1–5` assumption.
 
-```text
-bridge/ui/command_palette/panel_left
-bridge/ui/command_palette/panel_middle
-bridge/ui/command_palette/panel_right
-```
+Requirements:
 
-## Основные slot states
+- four stable role shortcuts;
+- clear focus;
+- confirm/cancel;
+- choice-row navigation;
+- task cancellation;
+- input blocking during transitions;
+- no conflict with debug/text input.
 
-```text
-bridge/ui/command_palette/slot_idle
-bridge/ui/command_palette/slot_hover
-bridge/ui/command_palette/slot_pressed
-bridge/ui/command_palette/slot_disabled
-bridge/ui/command_palette/slot_selected
-```
-
-## Subtitle / choice-row shell
-
-```text
-bridge/ui/command_palette/subtitle_left
-bridge/ui/command_palette/subtitle_middle
-bridge/ui/command_palette/subtitle_right
-```
-
-После скетчей отдельно решаем, нужны ли отдельные frames для choice-row или он использует уменьшенный вариант основного slot.
-
-## Icons
-
-```text
-bridge/ui/command_palette/icons/hail
-bridge/ui/command_palette/icons/request_docking
-bridge/ui/command_palette/icons/plot_course
-bridge/ui/command_palette/icons/identify_threat
-bridge/ui/command_palette/icons/purge_spam
-bridge/ui/command_palette/icons/deploy_shield
-bridge/ui/command_palette/icons/repair_drive
-bridge/ui/command_palette/icons/point_defense
-bridge/ui/command_palette/icons/missile_launcher
-bridge/ui/command_palette/icons/sticky_mine_dispenser
-bridge/ui/command_palette/icons/laser
-bridge/ui/command_palette/icons/dock
-bridge/ui/command_palette/icons/fly_to
-bridge/ui/command_palette/icons/jump
-bridge/ui/command_palette/icons/clear_mine
-bridge/ui/command_palette/icons/cancel_task
-```
-
-Frame keys можно скорректировать до начала кода, но после подключения view они должны стать стабильными.
+Gamepad support should not require precise pointer movement.
 
 ---
 
-# 10. Sketch deliverables
+# 13. Art production order
 
-Перед финальной отрисовкой должны быть готовы:
-
-1. Три грубых full-screen composition mockup.
-2. Один выбранный вариант поверх актуального bridge screenshot.
-3. Состояния palette для:
-   - COMMS;
-   - SCIENCE;
-   - WEAPONS;
-   - ENGINEER;
-   - HELM.
-4. Пример Weapons palette с несколькими физическими weapons.
-5. Пример choice-row для laser zones.
-6. Пример point-defense choice без третьего уровня меню.
-7. Пример disabled slots.
-8. Пример cancellable task и disabled CANCEL TASK.
-9. Проверка palette вместе с:
-   - enemy ship;
-   - missile threat;
-   - sticky mines;
-   - laser warning;
-   - node object list.
-10. Минимальный gamepad navigation sketch.
-
----
-
-# 11. Art production order
-
-После утверждения композиции:
+After bridge V0.1 is stable:
 
 ```text
-1. panel shell
-2. slot states
-3. subtitle / choice-row shell
-4. 3–4 ключевые icons
-5. runtime mockup в игре или на screenshot
-6. корректировка размеров и контраста
-7. остальные icons
-8. atlas build
-9. code integration
-10. runtime polish
+1. palette geometry mock
+2. one role with placeholder icons
+3. slot states
+4. choice row
+5. subtitle strip
+6. runtime test at 1280×720
+7. first four production icons
+8. remaining icons
+9. dashboard integration
 ```
 
-Не рисовать сразу все 16 icons до проверки первых четырёх в реальном масштабе.
+Do not draw every icon before one role works in runtime.
 
-Для первого визуального теста достаточно:
+Suggested first icon set:
 
-```text
-hail
-identify_threat
-missile_launcher
-cancel_task
-```
-
-Они дают разные типы силуэтов и позволяют проверить читаемость системы.
+- Hail only if testing captain-action placement;
+- Identify Threat;
+- missile launcher;
+- Cancel Task.
 
 ---
 
-# 12. Acceptance criteria для арта
+# 14. Code direction
 
-Композиция считается готовой к коду, когда:
-
-- palette не закрывает ключевые боевые объекты;
-- роль и выбранная команда читаются без поиска глазами;
-- disabled slot остаётся узнаваемым;
-- hover, pressed и selected не путаются;
-- choice-row не двигает всю основную palette;
-- два одинаковых launcher slots остаются визуально различимыми как отдельные устройства;
-- icon читается при масштабе 1:1;
-- panel не выглядит современным overlay;
-- интерфейс сочетается с текущим bridge background;
-- нет необходимости добавлять текстовые костыли к каждой кнопке;
-- layout выдерживает минимум 7 основных slots плюс CANCEL TASK;
-- итоговые frame keys и размеры зафиксированы.
-
----
-
-# 13. Code handoff после готовности assets
-
-После atlas build код делается одним вертикальным срезом:
+Target flow:
 
 ```text
-engine available commands/tasks
-→ palette controller snapshot
+engine command availability
+→ app palette snapshot/model
 → stable role slot definitions
-→ enabled/disabled resolved commands
+→ enabled/disabled resolved command
 → palette view
-→ choice-row
-→ command execution / task cancel
-→ keyboard support
-→ удалить старый command menu polling/view
-→ tests
+→ optional choice row
+→ exact command execution
 ```
 
-Важно:
+The palette view must not read `GAME_RUNTIME`.
 
-- не украшать старое context menu;
-- не поддерживать две полноценные command UI параллельно дольше необходимого;
-- не начинать view implementation до появления реальных atlas frames;
-- временные placeholders допустимы только в отдельном test/mock harness, не в основном bridge view.
+The palette must not own gameplay availability rules.
+
+Avoid:
+
+- decorating the old text menu incrementally;
+- two long-lived command UIs;
+- another generic UI framework;
+- per-frame rebuilding/reordering of slots;
+- view-driven domain decisions.
+
+The old menu may remain only until one complete palette vertical slice replaces
+it.
 
 ---
 
-# 14. Первый шаг завтра
+# 15. Acceptance criteria
 
-```text
-открыть актуальный bridge screenshot
-→ поверх него сделать 3 грубых композиционных скетча
-→ выбрать направление
-→ уточнить размеры
-→ только затем обсуждать стиль рамок и icon language
-```
+Palette work is complete when:
 
-Первая сессия посвящена композиции и UX, а не красивой финальной отрисовке.
+- exactly four officer palettes exist;
+- captain HAIL is outside officer palettes;
+- no request-docking command exists;
+- slots remain stable while availability changes;
+- physical weapons keep separate identities;
+- direct commands take one click;
+- real choices take one additional compact choice;
+- task cancellation is clear;
+- keyboard and mouse both work;
+- open palette updates while encounter state changes;
+- combat remains readable at 1280×720;
+- old text command menu is removed.
