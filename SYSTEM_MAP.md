@@ -19,7 +19,7 @@ It does not contain gameplay balance or implementation backlog.
 Last mapped commit:
 
 ```text
-04e01064508ae0d2f7b7fe9398e624aeac9cbab7
+66c037416f81aa446bbfeb682e16230418aee6b9
 ```
 
 ---
@@ -59,7 +59,7 @@ Hard rules:
 | Player drive | `EncounterState.drive` | `EncounterStateStore` | yes, synchronized to `GameRuntime` | player ship status |
 | Point-defense charges | `EncounterState.combat.pointDefense` | command/task execution | yes, synchronized to `GameRuntime` | player ship status |
 | Shield-generator state | `EncounterState.combat.shieldGenerator` | shield-generator runner/store | yes, synchronized to `GameRuntime` | player ship status |
-| Player weapon state | `EncounterState.combat.playerWeapons` | `PlayerWeaponRunner` / store | yes, synchronized to `GameRuntime` | player weapon status |
+| Player weapon state | `EncounterState.combat.playerWeapons` | owning player weapon-family runner / store | yes, synchronized to `GameRuntime` | player weapon status |
 | Player hull | `EncounterState.playerHull` | `EncounterStateStore.damagePlayerHull()` | yes, exact result synchronized to `GameRuntime` | player ship status |
 | Enemy encounter actor | `EncounterState.actors` | encounter/combat systems | identity/baseline only | encounter object + telemetry |
 | Enemy hull | ship encounter actor | `EncounterStateStore.damageEnemyActorHull()` | resets from node actor on reconstruction | enemy telemetry |
@@ -96,6 +96,9 @@ EncounterEngine
 ├─ OfficerCommandExecutor
 ├─ OfficerTaskRunner
 ├─ PlayerWeaponRunner
+│  ├─ PlayerMissileLauncherRunner
+│  ├─ PlayerStickyMineDispenserRunner
+│  └─ PlayerLaserRunner
 ├─ CombatRunner
 │  ├─ CombatMissileRunner
 │  ├─ CombatStickyMineRunner
@@ -231,7 +234,32 @@ Do not build a generic planner, behavior tree or utility-AI framework.
 
 # 6. Weapon lifecycle ownership
 
-Player weapon lifecycle belongs to `PlayerWeaponRunner`.
+`PlayerWeaponRunner` owns the shared cooldown phase and player-weapon execution
+order:
+
+```text
+advance cooldowns for every installed weapon
+→ dispatch the active Weapons officer task
+```
+
+Concrete player weapon-family runners own their active installed-system
+lifecycles:
+
+```text
+PlayerMissileLauncherRunner
+→ targeting / ammo consumption / physical launch
+
+PlayerStickyMineDispenserRunner
+→ salvo timing / ammo consumption / physical attach
+
+PlayerLaserRunner
+→ targeting / charging / shield or hull resolution / destruction
+```
+
+Officer performance is resolved through one shared `OfficerPerformanceResolver`
+owned by the player-weapon orchestrator. Do not move family phase rules back
+into `PlayerWeaponRunner` and do not introduce a generic player attack base
+class.
 
 `CombatRunner` owns the locked top-level combat phase order. Concrete runners
 own complete attack-family lifecycles when a clean boundary exists.
@@ -275,7 +303,7 @@ enemy targeting
 → cooldown
 ```
 
-Player laser execution remains in `PlayerWeaponRunner`. `CombatRunner` only
+Player laser execution belongs to `PlayerLaserRunner`. `CombatRunner` only
 dispatches enemy lasers during the shared weapon phase.
 
 The complete hostile-spam lifecycle belongs to `CombatSpamRunner`:
@@ -462,7 +490,7 @@ gameplay contract
 definition/state
 → command availability/execution
 → player officer task
-→ PlayerWeaponRunner lifecycle
+→ concrete player weapon-family lifecycle
 → combat object or direct effect
 → authoritative mutation
 → engine event/snapshot
@@ -523,6 +551,7 @@ Stop and inspect architecture when a local feature requires any of these:
 11. done — extract complete sticky-mine lifecycle from CombatRunner
 12. done — extract the incoming-laser lifecycle from CombatRunner
 13. done — extract the complete spam-projector lifecycle
+14. done — extract concrete player weapon-family lifecycles
 ```
 
 Audit result: physical launchers/dispensers now keep stable command identity
@@ -539,7 +568,9 @@ hostile spam belongs to `CombatSpamRunner`. Enemy missile-launcher phases were
 also moved into `CombatMissileRunner` after the shared phase helpers stopped
 serving another family. `CombatRunner` is now the locked order/orchestration
 owner; do not generalize the concrete lifecycles behind an abstract attack
-framework.
+framework. `PlayerWeaponRunner` is now the shared cooldown/order owner; active
+missile-launcher, sticky-mine-dispenser and laser rules belong to their three
+concrete player runners.
 
 Small adjacent cleanups are allowed when they:
 

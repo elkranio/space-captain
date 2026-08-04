@@ -89,7 +89,7 @@ Implemented in the previous refactor atom:
   and public `EncounterEngine` API;
 - kept all laser timing, shield, damage and interruption contracts unchanged.
 
-Implemented in the current refactor atom:
+Implemented in the previous refactor atom:
 
 - extracted enemy targeting, channel start/timing, expiry, purge and cooldown
   into `CombatSpamRunner`;
@@ -100,6 +100,20 @@ Implemented in the current refactor atom:
 - preserved spam timing, purge, task-performance and task-cancellation
   contracts;
 - kept the runners concrete; no generic attack-runner hierarchy was added.
+
+Implemented in the current refactor atom:
+
+- reduced `PlayerWeaponRunner` from a multi-family god object to the shared
+  cooldown-before-task orchestrator;
+- extracted missile targeting, ammo consumption and physical launch
+  into `PlayerMissileLauncherRunner`;
+- extracted sticky-mine salvo timing, ammo consumption and physical attachment
+  into `PlayerStickyMineDispenserRunner`;
+- extracted player laser targeting, charging, shield/hull resolution,
+  and destruction into `PlayerLaserRunner`;
+- preserved player-weapon phase order, officer-performance timing, public
+  `EncounterEngine` API and all existing gameplay contracts;
+- kept the runners concrete; no generic player attack hierarchy was added.
 
 Next gameplay slice:
 
@@ -976,6 +990,27 @@ Avoid replacing a linear file with a graph of tiny runners.
 The planned concrete lifecycle split is complete. Do not continue splitting the
 orchestrator by line count, and do not replace the four concrete runners with a
 generic attack-runner hierarchy.
+
+---
+
+## EncounterEngine callback wiring
+
+`EncounterEngine` still closes one construction-time cycle with callbacks:
+
+```text
+CombatRunner
+→ OfficerTaskRunner damage interruption
+
+OfficerTaskRunner
+→ CombatRunner spam purge / mine cleanup
+```
+
+This is currently stable because constructors do not invoke the callbacks, but
+that temporal assumption is not enforced by types. Do not add another sibling
+callback casually. Revisit the wiring when a gameplay change must touch this
+cycle; do not introduce a DI container or service locator just to remove it.
+
+This debt does not block enemy defensive behavior.
 
 ---
 

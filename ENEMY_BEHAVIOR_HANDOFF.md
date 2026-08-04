@@ -7,17 +7,17 @@ Read after `SYSTEM_MAP.md`.
 Last updated:
 
 ```text
-2026-08-03
+2026-08-04
 ```
 
 Current repository checkpoint:
 
 ```text
-e5ce61870288e4d2251ad2ad58c997464d96845f
+66c037416f81aa446bbfeb682e16230418aee6b9
 ```
 
-Bridge V0.1 migration is complete. Enemy defensive behavior is the next
-gameplay slice after the current concrete attack-runner refactors.
+Bridge V0.1 migration and concrete player/enemy attack-runner refactors are
+complete. Enemy defensive behavior is the next gameplay slice.
 
 This file records the exact implementation boundary so the next behavior pass
 does not repeat completed architecture work.

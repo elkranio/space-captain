@@ -21,19 +21,19 @@ The completed cleanup slice is documented in `BACKLOG.md` under combat runner ex
 Last updated:
 
 ```text
-2026-08-03
+2026-08-04
 ```
 
 Latest verified `master` before the current atom:
 
 ```text
-04e01064508ae0d2f7b7fe9398e624aeac9cbab7
+66c037416f81aa446bbfeb682e16230418aee6b9
 ```
 
 Last code-bearing commit reported green by the user:
 
 ```text
-04e01064508ae0d2f7b7fe9398e624aeac9cbab7
+66c037416f81aa446bbfeb682e16230418aee6b9
 ```
 
 Current checkpoint:
@@ -68,6 +68,8 @@ enemy missile-launcher phases owned by CombatMissileRunner
 shared combat runtime IDs/designations have one explicit owner
 command-menu redesign remains deferred
 CombatRunner cleanup complete; it owns order, orchestration and cross-system sync
+PlayerWeaponRunner cleanup complete; it owns cooldown-before-task order and dispatch
+player missile-launcher, sticky-mine-dispenser and laser lifecycles have concrete owners
 enemy defensive behavior is the next gameplay slice
 ```
 
