@@ -17,6 +17,7 @@ import {
 import ShieldGeneratorFactory from '../../generation/ship_system/ShieldGeneratorFactory';
 import LaserWeaponFactory from '../../generation/ship_weapon/LaserWeaponFactory';
 import MissileLauncherFactory from '../../generation/ship_weapon/MissileLauncherFactory';
+import SpamProjectorFactory from '../../generation/ship_weapon/SpamProjectorFactory';
 import StickyMineDispenserFactory from '../../generation/ship_weapon/StickyMineDispenserFactory';
 import {
     SHIP_DRIVES,
@@ -105,6 +106,15 @@ function createPlayerWeapon(
 
                 presetId:
                     weapon.presetId,
+            });
+
+        case SHIP_WEAPON_ID
+            .SPAM_PROJECTOR_00:
+            return SpamProjectorFactory.create({
+                id: weapon.id,
+
+                weaponId:
+                    weapon.weaponId,
             });
 
         case SHIP_WEAPON_ID

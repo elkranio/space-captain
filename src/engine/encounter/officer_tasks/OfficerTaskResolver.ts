@@ -1,6 +1,9 @@
 // src/engine/encounter/officer_tasks/OfficerTaskResolver.ts
 
 import {
+    PLAYER_SPAM_CHANNEL_OUTCOME,
+} from '../model/combat';
+import {
     ENCOUNTER_EVENT,
     OFFICER_TASK_RESULT_KIND,
     type EncounterEvent,
@@ -17,6 +20,15 @@ type ResettablePlayerWeaponTaskState = Extract<
                   .WEAPONS_FIRE_MISSILE
             | typeof OFFICER_TASK_KIND
                   .WEAPONS_FIRE_LASER;
+    }
+>;
+
+type ScienceFireSpamTaskState = Extract<
+    OfficerTaskState,
+    {
+        kind:
+            typeof OFFICER_TASK_KIND
+                .SCIENCE_FIRE_SPAM;
     }
 >;
 
@@ -129,6 +141,7 @@ export default class OfficerTaskResolver {
             case OFFICER_TASK_KIND
                 .WEAPONS_FIRE_STICKY_MINES:
             case OFFICER_TASK_KIND.WEAPONS_FIRE_LASER:
+            case OFFICER_TASK_KIND.SCIENCE_FIRE_SPAM:
                 return undefined;
 
             case OFFICER_TASK_KIND.CLEAR_STICKY_MINE:
@@ -155,6 +168,14 @@ export default class OfficerTaskResolver {
                 return;
 
             case OFFICER_TASK_KIND
+                .SCIENCE_FIRE_SPAM:
+                this.cancelScienceFireSpamTask(
+                    task,
+                );
+
+                return;
+
+            case OFFICER_TASK_KIND
                 .WEAPONS_FIRE_MISSILE:
             case OFFICER_TASK_KIND
                 .WEAPONS_FIRE_LASER:
@@ -166,6 +187,38 @@ export default class OfficerTaskResolver {
             default:
                 return;
         }
+    }
+
+    private cancelScienceFireSpamTask(
+        task: ScienceFireSpamTaskState,
+    ): void {
+        const channelId =
+            this.stateStore
+                .cancelPlayerSpamProjection(
+                    task.weaponId,
+                );
+
+        if (!channelId) {
+            return;
+        }
+
+        this.emit({
+            type:
+                ENCOUNTER_EVENT
+                    .PLAYER_SPAM_CHANNEL_ENDED,
+
+            channelId,
+
+            sourceWeaponId:
+                task.weaponId,
+
+            targetActorId:
+                task.targetActorId,
+
+            outcome:
+                PLAYER_SPAM_CHANNEL_OUTCOME
+                    .CANCELLED,
+        });
     }
 
     private cancelResettablePlayerWeaponTask(

@@ -43,10 +43,20 @@ export type PlayerShipStickyMineDispenserPreset = {
         StickyMineDispenserPresetId;
 };
 
+export type PlayerShipSpamProjectorPreset = {
+    // Runtime id установленного spam projector.
+    id: string;
+
+    weaponId:
+        typeof SHIP_WEAPON_ID
+            .SPAM_PROJECTOR_00;
+};
+
 export type PlayerShipWeaponPreset =
     | PlayerShipLaserPreset
     | PlayerShipMissileLauncherPreset
-    | PlayerShipStickyMineDispenserPreset;
+    | PlayerShipStickyMineDispenserPreset
+    | PlayerShipSpamProjectorPreset;
 
 export type PlayerShipPreset = {
     id: PlayerShipPresetId;
@@ -104,6 +114,15 @@ export const PLAYER_SHIP_PRESETS = {
                 presetId:
                     STICKY_MINE_DISPENSER_PRESET_ID
                         .BASIC_FULL_00,
+            },
+
+            {
+                id:
+                    'spam_projector_player_00',
+
+                weaponId:
+                    SHIP_WEAPON_ID
+                        .SPAM_PROJECTOR_00,
             },
         ],
     },

@@ -62,6 +62,33 @@ export function createSciencePurgeSpamTask(channelId: string): OfficerTaskDraft 
     };
 }
 
+export function createScienceFireSpamTask(
+    weaponId: string,
+    targetActorId: string,
+): OfficerTaskDraft {
+    return {
+        kind:
+            OFFICER_TASK_KIND
+                .SCIENCE_FIRE_SPAM,
+
+        role: OFFICER_ROLE.SCIENCE,
+
+        sourceCommandId:
+            ENCOUNTER_OFFICER_COMMAND_ID
+                .SCIENCE_FIRE_SPAM,
+
+        weaponId,
+        targetActorId,
+
+        label: 'SPAM PROJECT',
+        showProgress: false,
+
+        // PlayerSpamProjectorRunner releases Science
+        // when the channel expires or is cancelled.
+        durationMs: null,
+    };
+}
+
 export function createEngineerDeployShieldTask(
     sourceCommandId: EngineerDeployShieldCommandId,
     shieldZone: LaserTargetZone,

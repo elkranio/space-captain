@@ -123,6 +123,26 @@ describe('GameRuntime player ship hull', () => {
 
                     dispensedMineCount: 0,
                 },
+
+                {
+                    id:
+                        'spam_projector_player_00',
+
+                    weaponId:
+                        SHIP_WEAPON_ID
+                            .SPAM_PROJECTOR_00,
+
+                    kind:
+                        SHIP_WEAPON_KIND
+                            .SPAM_PROJECTOR,
+
+                    phase:
+                        SHIP_WEAPON_PHASE.READY,
+
+                    phaseElapsedMs: 0,
+
+                    activeChannelId: null,
+                },
             ],
         });
     });
@@ -237,6 +257,26 @@ describe('GameRuntime player ship hull', () => {
                     phaseElapsedMs: 0,
 
                     dispensedMineCount: 0,
+                },
+
+                {
+                    id:
+                        'spam_projector_player_00',
+
+                    weaponId:
+                        SHIP_WEAPON_ID
+                            .SPAM_PROJECTOR_00,
+
+                    kind:
+                        SHIP_WEAPON_KIND
+                            .SPAM_PROJECTOR,
+
+                    phase:
+                        SHIP_WEAPON_PHASE.READY,
+
+                    phaseElapsedMs: 0,
+
+                    activeChannelId: null,
                 },
             ],
         });

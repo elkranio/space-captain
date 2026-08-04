@@ -14,6 +14,7 @@ import {
     SHIP_WEAPON_KIND,
     type LaserWeaponState,
     type MissileLauncherState,
+    type SpamProjectorState,
     type StickyMineDispenserState,
 } from '../../../src/engine/defs/ship_weapon';
 import EncounterEngine from '../../../src/engine/encounter/EncounterEngine';
@@ -154,15 +155,25 @@ export function getPlayerWeaponOrThrow(
 export function getPlayerWeaponOrThrow(
     state: EncounterState,
     kind:
+        typeof SHIP_WEAPON_KIND
+            .SPAM_PROJECTOR,
+): SpamProjectorState;
+
+export function getPlayerWeaponOrThrow(
+    state: EncounterState,
+    kind:
         | typeof SHIP_WEAPON_KIND.LASER
         | typeof SHIP_WEAPON_KIND
               .MISSILE_LAUNCHER
         | typeof SHIP_WEAPON_KIND
-              .STICKY_MINE_DISPENSER,
+              .STICKY_MINE_DISPENSER
+        | typeof SHIP_WEAPON_KIND
+              .SPAM_PROJECTOR,
 ):
     | LaserWeaponState
     | MissileLauncherState
-    | StickyMineDispenserState {
+    | StickyMineDispenserState
+    | SpamProjectorState {
     const weapon =
         state.combat.playerWeapons.find(
             (candidate) => {
@@ -186,12 +197,14 @@ export function getPlayerWeaponOrThrow(
             .MISSILE_LAUNCHER:
         case SHIP_WEAPON_KIND
             .STICKY_MINE_DISPENSER:
+        case SHIP_WEAPON_KIND
+            .SPAM_PROJECTOR:
             return weapon;
 
         default:
             throw new Error(
-                'Unsupported player weapon kind in combat test: ' +
-                    weapon.kind,
+                'Unsupported player weapon in combat test: ' +
+                    String(weapon),
             );
     }
 }

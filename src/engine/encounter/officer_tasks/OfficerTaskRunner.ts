@@ -41,7 +41,9 @@ type PlayerWeaponTargetTaskState =
                 | typeof OFFICER_TASK_KIND
                       .WEAPONS_FIRE_STICKY_MINES
                 | typeof OFFICER_TASK_KIND
-                      .WEAPONS_FIRE_LASER;
+                      .WEAPONS_FIRE_LASER
+                | typeof OFFICER_TASK_KIND
+                      .SCIENCE_FIRE_SPAM;
         }
     >;
 
@@ -391,6 +393,9 @@ function isPlayerWeaponTargetTask(
 
         case OFFICER_TASK_KIND
             .WEAPONS_FIRE_LASER:
+
+        case OFFICER_TASK_KIND
+            .SCIENCE_FIRE_SPAM:
             return true;
 
         default:

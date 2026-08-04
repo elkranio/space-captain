@@ -33,6 +33,7 @@ import {
     type LaserWeaponState,
     type MissileLauncherState,
     type ShipWeaponState,
+    type SpamProjectorState,
     type StickyMineDispenserState,
 } from '../../defs/ship_weapon';
 import { ENCOUNTER_ACTOR_KIND, type EncounterActorState } from '../actors/encounter_actor';
@@ -930,6 +931,141 @@ export default class EncounterStateStore {
         return {
             ...weapon,
         };
+    }
+
+    public startPlayerSpamTargeting(
+        weaponId: string,
+    ): SpamProjectorState {
+        const weapon =
+            this.findPlayerWeaponById(
+                weaponId,
+            );
+
+        if (!weapon) {
+            throw new Error(
+                'Player weapon not found: ' +
+                    weaponId,
+            );
+        }
+
+        if (
+            weapon.kind !==
+            SHIP_WEAPON_KIND
+                .SPAM_PROJECTOR
+        ) {
+            throw new Error(
+                'Player weapon is not a spam projector: ' +
+                    weaponId +
+                    '/' +
+                    weapon.kind,
+            );
+        }
+
+        if (
+            weapon.phase !==
+            SHIP_WEAPON_PHASE.READY
+        ) {
+            throw new Error(
+                'Player spam projector is not ready: ' +
+                    weaponId +
+                    '/' +
+                    weapon.phase,
+            );
+        }
+
+        if (
+            weapon.activeChannelId !==
+            null
+        ) {
+            throw new Error(
+                'Ready player spam projector ' +
+                    'still has an active channel: ' +
+                    weaponId +
+                    '/' +
+                    weapon.activeChannelId,
+            );
+        }
+
+        weapon.phase =
+            SHIP_WEAPON_PHASE.TARGETING;
+
+        weapon.phaseElapsedMs = 0;
+
+        return {
+            ...weapon,
+        };
+    }
+
+    public cancelPlayerSpamProjection(
+        weaponId: string,
+    ): string | undefined {
+        const weapon =
+            this.findPlayerWeaponById(
+                weaponId,
+            );
+
+        if (!weapon) {
+            return undefined;
+        }
+
+        if (
+            weapon.kind !==
+            SHIP_WEAPON_KIND
+                .SPAM_PROJECTOR
+        ) {
+            throw new Error(
+                'Player spam task references ' +
+                    'non-projector weapon: ' +
+                    weaponId +
+                    '/' +
+                    weapon.kind,
+            );
+        }
+
+        switch (weapon.phase) {
+            case SHIP_WEAPON_PHASE.TARGETING:
+                weapon.phase =
+                    SHIP_WEAPON_PHASE.READY;
+
+                weapon.phaseElapsedMs = 0;
+                weapon.activeChannelId =
+                    null;
+
+                return undefined;
+
+            case SHIP_WEAPON_PHASE.CHANNELING: {
+                const channelId =
+                    weapon.activeChannelId;
+
+                if (!channelId) {
+                    throw new Error(
+                        'Player spam channel id ' +
+                            'is missing during cancellation: ' +
+                            weaponId,
+                    );
+                }
+
+                weapon.activeChannelId =
+                    null;
+
+                weapon.phase =
+                    SHIP_WEAPON_PHASE
+                        .COOLDOWN;
+
+                weapon.phaseElapsedMs = 0;
+
+                return channelId;
+            }
+
+            default:
+                throw new Error(
+                    'Cannot cancel player spam ' +
+                        'projection from phase: ' +
+                        weaponId +
+                        '/' +
+                        weapon.phase,
+                );
+        }
     }
 
     public startPlayerLaserTargeting(

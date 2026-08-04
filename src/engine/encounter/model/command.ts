@@ -15,6 +15,9 @@ export const ENCOUNTER_OFFICER_COMMAND_ID = {
     SCIENCE_PURGE_SPAM:
         'science_purge_spam',
 
+    SCIENCE_FIRE_SPAM:
+        'science_fire_spam',
+
     ENGINEER_DEPLOY_SHIELD_LEFT:
         'engineer_deploy_shield_left',
     ENGINEER_DEPLOY_SHIELD_CENTER:

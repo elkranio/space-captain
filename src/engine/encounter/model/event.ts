@@ -21,6 +21,7 @@ import type {
     ActiveShieldState,
     LaserAttackState,
     MissileCombatProjectileState,
+    PlayerSpamChannelOutcome,
     SpamChannelOutcome,
     SpamChannelState,
     StickyMineState,
@@ -70,6 +71,12 @@ export const ENCOUNTER_EVENT = {
 
     PLAYER_STICKY_MINE_RESOLVED:
         'player_sticky_mine_resolved',
+
+    PLAYER_SPAM_CHANNEL_STARTED:
+        'player_spam_channel_started',
+
+    PLAYER_SPAM_CHANNEL_ENDED:
+        'player_spam_channel_ended',
 
     ENEMY_SHIP_DESTROYED:
         'enemy_ship_destroyed',
@@ -411,6 +418,31 @@ export type PlayerStickyMineResolvedEvent =
           remainingHull: number;
       };
 
+export type PlayerSpamChannelStartedEvent = {
+    type:
+        typeof ENCOUNTER_EVENT
+            .PLAYER_SPAM_CHANNEL_STARTED;
+
+    channelId: string;
+
+    sourceWeaponId: string;
+    targetActorId: string;
+};
+
+export type PlayerSpamChannelEndedEvent = {
+    type:
+        typeof ENCOUNTER_EVENT
+            .PLAYER_SPAM_CHANNEL_ENDED;
+
+    channelId: string;
+
+    sourceWeaponId: string;
+    targetActorId: string;
+
+    outcome:
+        PlayerSpamChannelOutcome;
+};
+
 export type EnemyShipDestroyedEvent = {
     type:
         typeof ENCOUNTER_EVENT.ENEMY_SHIP_DESTROYED;
@@ -508,6 +540,8 @@ export type EncounterEvent =
     | EnemyPointDefenseFiredEvent
     | PlayerStickyMineAttachedEvent
     | PlayerStickyMineResolvedEvent
+    | PlayerSpamChannelStartedEvent
+    | PlayerSpamChannelEndedEvent
     | EnemyShipDestroyedEvent
     | MissileLaunchedEvent
     | MissileImpactedPlayerShipEvent

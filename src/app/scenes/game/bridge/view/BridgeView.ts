@@ -8,6 +8,7 @@ import BridgeEnemyShieldsView from './combat/enemy_shields/BridgeEnemyShieldsVie
 import BridgeIncomingMissilesView from './combat/incoming_missiles/BridgeIncomingMissilesView';
 import BridgeLaserBeamsView from './combat/laser_beams/BridgeLaserBeamsView';
 import BridgeOutgoingMissilesView from './combat/outgoing_missiles/BridgeOutgoingMissilesView';
+import BridgeOutgoingSpamView from './combat/outgoing_spam/BridgeOutgoingSpamView';
 import BridgeOutgoingStickyMinesView from './combat/outgoing_sticky_mines/BridgeOutgoingStickyMinesView';
 import BridgeLaserThreatsView from './combat/laser_threats/BridgeLaserThreatsView';
 import BridgePlayerLaserView from './combat/player_laser/BridgePlayerLaserView';
@@ -37,6 +38,9 @@ export default class BridgeView {
 
     private outgoingStickyMinesView?:
         BridgeOutgoingStickyMinesView;
+
+    private outgoingSpamView?:
+        BridgeOutgoingSpamView;
 
     private laserThreatsView?: BridgeLaserThreatsView;
 
@@ -133,6 +137,19 @@ export default class BridgeView {
                 },
             );
 
+        this.outgoingSpamView =
+            new BridgeOutgoingSpamView(
+                this.scene,
+                this.eventBus,
+
+                (objectId) => {
+                    return spaceView
+                        .getObjectPosition(
+                            objectId,
+                        );
+                },
+            );
+
         this.laserThreatsView = new BridgeLaserThreatsView(
             this.scene,
             this.eventBus,
@@ -216,6 +233,7 @@ export default class BridgeView {
         this.laserThreatsView?.destroy();
         this.outgoingStickyMinesView
             ?.destroy();
+        this.outgoingSpamView?.destroy();
         this.outgoingMissilesView?.destroy();
         this.incomingMissilesView?.destroy();
         this.enemyShieldsView?.destroy();
@@ -237,6 +255,7 @@ export default class BridgeView {
         this.laserThreatsView = undefined;
         this.outgoingStickyMinesView =
             undefined;
+        this.outgoingSpamView = undefined;
         this.outgoingMissilesView = undefined;
         this.incomingMissilesView = undefined;
         this.enemyShieldsView = undefined;
@@ -248,6 +267,7 @@ export default class BridgeView {
         this.incomingMissilesView?.setCameraTurnOffsetX(offsetX);
         this.outgoingMissilesView?.setCameraTurnOffsetX(offsetX);
         this.outgoingStickyMinesView?.setCameraTurnOffsetX(offsetX);
+        this.outgoingSpamView?.setCameraTurnOffsetX(offsetX);
         this.laserThreatsView?.setCameraTurnOffsetX(offsetX);
         this.enemyShieldsView
             ?.setCameraTurnOffsetX(

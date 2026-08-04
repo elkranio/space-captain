@@ -554,6 +554,41 @@ export default class BridgeEncounterEngineEventHandler {
                 );
                 return;
 
+            case ENCOUNTER_EVENT
+                .PLAYER_SPAM_CHANNEL_STARTED:
+                this.eventBus.emit(
+                    BRIDGE_EVENT
+                        .OUTGOING_SPAM_CHANNEL_STARTED,
+                    {
+                        channelId:
+                            event.channelId,
+
+                        targetActorId:
+                            event.targetActorId,
+                    },
+                );
+
+                return;
+
+            case ENCOUNTER_EVENT
+                .PLAYER_SPAM_CHANNEL_ENDED:
+                this.eventBus.emit(
+                    BRIDGE_EVENT
+                        .OUTGOING_SPAM_CHANNEL_ENDED,
+                    {
+                        channelId:
+                            event.channelId,
+
+                        targetActorId:
+                            event.targetActorId,
+
+                        outcome:
+                            event.outcome,
+                    },
+                );
+
+                return;
+
             case ENCOUNTER_EVENT.ENEMY_SHIP_DESTROYED:
                 this.setEncounterInteractive(false);
 

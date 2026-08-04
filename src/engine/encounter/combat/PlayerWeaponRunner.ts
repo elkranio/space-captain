@@ -18,6 +18,7 @@ import OfficerPerformanceResolver from '../officer_performance/OfficerPerformanc
 import type EncounterStateStore from '../state/EncounterStateStore';
 import PlayerLaserRunner from './PlayerLaserRunner';
 import PlayerMissileLauncherRunner from './PlayerMissileLauncherRunner';
+import PlayerSpamProjectorRunner from './PlayerSpamProjectorRunner';
 import PlayerStickyMineDispenserRunner from './PlayerStickyMineDispenserRunner';
 
 type PlayerWeaponRunnerOptions = {
@@ -64,6 +65,9 @@ export default class PlayerWeaponRunner {
     private readonly laserRunner:
         PlayerLaserRunner;
 
+    private readonly spamProjectorRunner:
+        PlayerSpamProjectorRunner;
+
     private readonly stateStore:
         EncounterStateStore;
 
@@ -100,6 +104,20 @@ export default class PlayerWeaponRunner {
                     options.completeOfficerTask,
             });
 
+        this.spamProjectorRunner =
+            new PlayerSpamProjectorRunner({
+                stateStore:
+                    this.stateStore,
+
+                performanceResolver,
+
+                emit:
+                    options.emit,
+
+                completeOfficerTask:
+                    options.completeOfficerTask,
+            });
+
         this.laserRunner =
             new PlayerLaserRunner({
                 stateStore:
@@ -116,6 +134,23 @@ export default class PlayerWeaponRunner {
 
     public step(deltaMs: number): void {
         this.advanceCooldowns(deltaMs);
+
+        const scienceTask =
+            this.stateStore.getOfficerTask(
+                OFFICER_ROLE.SCIENCE,
+            );
+
+        if (
+            scienceTask?.kind ===
+            OFFICER_TASK_KIND
+                .SCIENCE_FIRE_SPAM
+        ) {
+            this.spamProjectorRunner
+                .advanceTask(
+                    scienceTask,
+                    deltaMs,
+                );
+        }
 
         const task =
             this.stateStore.getOfficerTask(

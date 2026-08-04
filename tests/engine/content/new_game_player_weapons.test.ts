@@ -93,6 +93,26 @@ describe('New-game player weapons', () => {
 
                 dispensedMineCount: 0,
             },
+
+            {
+                id:
+                    'spam_projector_player_00',
+
+                weaponId:
+                    SHIP_WEAPON_ID
+                        .SPAM_PROJECTOR_00,
+
+                kind:
+                    SHIP_WEAPON_KIND
+                        .SPAM_PROJECTOR,
+
+                phase:
+                    SHIP_WEAPON_PHASE.READY,
+
+                phaseElapsedMs: 0,
+
+                activeChannelId: null,
+            },
         ]);
 
         expect(
@@ -119,6 +139,12 @@ describe('New-game player weapons', () => {
         const secondDispenser =
             secondRun.player.ship.weapons[2];
 
+        const firstProjector =
+            firstRun.player.ship.weapons[3];
+
+        const secondProjector =
+            secondRun.player.ship.weapons[3];
+
         if (
             !firstLaser ||
             !secondLaser ||
@@ -126,6 +152,8 @@ describe('New-game player weapons', () => {
             !secondLauncher ||
             !firstDispenser ||
             !secondDispenser ||
+            !firstProjector ||
+            !secondProjector ||
             firstLauncher.kind !==
                 SHIP_WEAPON_KIND
                     .MISSILE_LAUNCHER ||
@@ -137,7 +165,13 @@ describe('New-game player weapons', () => {
                     .STICKY_MINE_DISPENSER ||
             secondDispenser.kind !==
                 SHIP_WEAPON_KIND
-                    .STICKY_MINE_DISPENSER
+                    .STICKY_MINE_DISPENSER ||
+            firstProjector.kind !==
+                SHIP_WEAPON_KIND
+                    .SPAM_PROJECTOR ||
+            secondProjector.kind !==
+                SHIP_WEAPON_KIND
+                    .SPAM_PROJECTOR
         ) {
             throw new Error(
                 'Expected installed player weapons',
@@ -156,6 +190,10 @@ describe('New-game player weapons', () => {
             secondDispenser,
         );
 
+        expect(firstProjector).not.toBe(
+            secondProjector,
+        );
+
         firstLaser.phase =
             SHIP_WEAPON_PHASE.COOLDOWN;
 
@@ -165,6 +203,15 @@ describe('New-game player weapons', () => {
 
         firstDispenser.ammoCount = 0;
         firstDispenser.dispensedMineCount = 2;
+
+        firstProjector.phase =
+            SHIP_WEAPON_PHASE.CHANNELING;
+
+        firstProjector.phaseElapsedMs =
+            4000;
+
+        firstProjector.activeChannelId =
+            'player_spam:test';
 
         expect(secondLaser.phase).toBe(
             SHIP_WEAPON_PHASE.READY,
@@ -186,5 +233,21 @@ describe('New-game player weapons', () => {
             secondDispenser
                 .dispensedMineCount,
         ).toBe(0);
+
+        expect(
+            secondProjector.phase,
+        ).toBe(
+            SHIP_WEAPON_PHASE.READY,
+        );
+
+        expect(
+            secondProjector
+                .phaseElapsedMs,
+        ).toBe(0);
+
+        expect(
+            secondProjector
+                .activeChannelId,
+        ).toBeNull();
     });
 });

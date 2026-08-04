@@ -19,6 +19,7 @@ export const OFFICER_TASK_KIND = {
     SCIENCE_PLOT_COURSE: 'science_plot_course',
     SCIENCE_IDENTIFY_THREAT: 'science_identify_threat',
     SCIENCE_PURGE_SPAM: 'science_purge_spam',
+    SCIENCE_FIRE_SPAM: 'science_fire_spam',
 
     ENGINEER_DEPLOY_SHIELD: 'engineer_deploy_shield',
     ENGINEER_REPAIR_DRIVE: 'engineer_repair_drive',
@@ -167,6 +168,23 @@ type WeaponsFireLaserOfficerTaskDraft =
         targetZone: LaserTargetZone;
     };
 
+type ScienceFireSpamOfficerTaskDraft =
+    OfficerTaskDraftBase & {
+        kind:
+            typeof OFFICER_TASK_KIND
+                .SCIENCE_FIRE_SPAM;
+
+        role:
+            typeof OFFICER_ROLE.SCIENCE;
+
+        sourceCommandId:
+            typeof ENCOUNTER_OFFICER_COMMAND_ID
+                .SCIENCE_FIRE_SPAM;
+
+        weaponId: string;
+        targetActorId: string;
+    };
+
 type ClearStickyMineOfficerTaskDraft = OfficerTaskDraftBase & {
     kind:
         typeof OFFICER_TASK_KIND.CLEAR_STICKY_MINE;
@@ -224,6 +242,7 @@ export type OfficerTaskDraft =
     | WeaponsFireMissileOfficerTaskDraft
     | WeaponsFireStickyMinesOfficerTaskDraft
     | WeaponsFireLaserOfficerTaskDraft
+    | ScienceFireSpamOfficerTaskDraft
     | ClearStickyMineOfficerTaskDraft
     | HelmDockOfficerTaskDraft
     | HelmFlyToOfficerTaskDraft
@@ -268,6 +287,7 @@ export function getOfficerTaskCancellationPolicy(
         case OFFICER_TASK_KIND.WEAPONS_POINT_DEFENSE:
         case OFFICER_TASK_KIND.WEAPONS_FIRE_MISSILE:
         case OFFICER_TASK_KIND.WEAPONS_FIRE_LASER:
+        case OFFICER_TASK_KIND.SCIENCE_FIRE_SPAM:
         case OFFICER_TASK_KIND.CLEAR_STICKY_MINE:
         case OFFICER_TASK_KIND.HELM_JUMP:
             return {

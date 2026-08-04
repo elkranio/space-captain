@@ -22,6 +22,7 @@ import type {
 import type {
     LaserShotOutcome,
     PlayerMissileOutcome,
+    PlayerSpamChannelOutcome,
     PlayerStickyMineOutcome,
     SpamChannelOutcome,
 } from '../../../../../engine/encounter/model/combat';
@@ -249,6 +250,12 @@ export const BRIDGE_EVENT = {
 
     OUTGOING_STICKY_MINE_REMOVED:
         'outgoing_sticky_mine_removed',
+
+    OUTGOING_SPAM_CHANNEL_STARTED:
+        'outgoing_spam_channel_started',
+
+    OUTGOING_SPAM_CHANNEL_ENDED:
+        'outgoing_spam_channel_ended',
 
     // Point-defense player ship завершил наведение
     // и разрешил выстрел по входящей угрозе.
@@ -670,6 +677,21 @@ export type BridgeOutgoingStickyMineRemovedPayload = {
     outcome: PlayerStickyMineOutcome;
 };
 
+export type BridgeOutgoingSpamChannelStartedPayload = {
+    channelId: string;
+
+    targetActorId: string;
+};
+
+export type BridgeOutgoingSpamChannelEndedPayload = {
+    channelId: string;
+
+    targetActorId: string;
+
+    outcome:
+        PlayerSpamChannelOutcome;
+};
+
 export type BridgePointDefenseFiredPayload = {
     projectileId: string;
 
@@ -908,6 +930,12 @@ export type BridgeEventPayloadMap = {
 
     [BRIDGE_EVENT.OUTGOING_STICKY_MINE_REMOVED]:
         BridgeOutgoingStickyMineRemovedPayload;
+
+    [BRIDGE_EVENT.OUTGOING_SPAM_CHANNEL_STARTED]:
+        BridgeOutgoingSpamChannelStartedPayload;
+
+    [BRIDGE_EVENT.OUTGOING_SPAM_CHANNEL_ENDED]:
+        BridgeOutgoingSpamChannelEndedPayload;
 
     [BRIDGE_EVENT.POINT_DEFENSE_FIRED]: BridgePointDefenseFiredPayload;
 

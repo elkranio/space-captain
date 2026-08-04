@@ -47,6 +47,15 @@ export const PLAYER_STICKY_MINE_OUTCOME = {
 export type PlayerStickyMineOutcome =
     (typeof PLAYER_STICKY_MINE_OUTCOME)[keyof typeof PLAYER_STICKY_MINE_OUTCOME];
 
+export const PLAYER_SPAM_CHANNEL_OUTCOME = {
+    EXPIRED: 'expired',
+    CANCELLED: 'cancelled',
+    PURGED: 'purged',
+} as const;
+
+export type PlayerSpamChannelOutcome =
+    (typeof PLAYER_SPAM_CHANNEL_OUTCOME)[keyof typeof PLAYER_SPAM_CHANNEL_OUTCOME];
+
 export const SPAM_CHANNEL_OUTCOME = {
     EXPIRED: 'expired',
     PURGED: 'purged',

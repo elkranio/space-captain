@@ -59,6 +59,14 @@ describe('Player laser command', () => {
             ),
         };
 
+        const installedSpamProjector = {
+            ...getPlayerWeaponOrThrow(
+                state,
+                SHIP_WEAPON_KIND
+                    .SPAM_PROJECTOR,
+            ),
+        };
+
         const laserCommands =
             engine
                 .getAvailableCommands(
@@ -201,6 +209,8 @@ describe('Player laser command', () => {
             installedLauncher,
 
             installedMineDispenser,
+
+            installedSpamProjector,
         ]);
 
         const [task] =
