@@ -43,8 +43,21 @@ import {
 import {
     SHIP_CREW_TASK_KIND,
 } from '../model/ship_crew_task';
+import {
+    getActivePlayerSpamChannels,
+} from './queries/get_active_player_spam_channels';
 
 export type EnemyWorkIntent =
+    | {
+          kind:
+              typeof SHIP_CREW_TASK_KIND
+                  .PURGE_SPAM;
+
+          role:
+              typeof OFFICER_ROLE.SCIENCE;
+
+          channelId: string;
+      }
     | {
           kind:
               typeof SHIP_CREW_TASK_KIND
@@ -309,6 +322,29 @@ export default class EnemyDecisionPolicy {
         actor: ShipEncounterActorState,
         role: OfficerRole,
     ): EnemyWorkIntent | undefined {
+        // Sticky-mine defense is scheduled before role work.
+        // For idle Science, active hostile spam then outranks
+        // identification and offensive projector operation.
+        const spamChannelId =
+            this.selectSpamChannelId(
+                actor,
+                role,
+            );
+
+        if (spamChannelId) {
+            return {
+                kind:
+                    SHIP_CREW_TASK_KIND
+                        .PURGE_SPAM,
+
+                role:
+                    OFFICER_ROLE.SCIENCE,
+
+                channelId:
+                    spamChannelId,
+            };
+        }
+
         const observationId =
             this.selectThreatObservationId(
                 actor,
@@ -366,6 +402,28 @@ export default class EnemyDecisionPolicy {
             role,
             weaponId: weapon.id,
         };
+    }
+
+    private selectSpamChannelId(
+        actor: ShipEncounterActorState,
+        role: OfficerRole,
+    ): string | undefined {
+        if (
+            role !==
+                OFFICER_ROLE.SCIENCE ||
+            !this.state
+        ) {
+            return undefined;
+        }
+
+        return getActivePlayerSpamChannels(
+            this.state,
+        ).find((channel) => {
+            return (
+                channel.targetActorId ===
+                actor.id
+            );
+        })?.id;
     }
 
     private selectThreatObservationId(

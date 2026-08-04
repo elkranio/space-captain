@@ -38,6 +38,11 @@ type CombatRunnerOptions = {
 
     interruptRandomOfficerTask: () => void;
 
+    purgePlayerSpamChannel: (
+        channelId: string,
+        targetActorId: string,
+    ) => boolean;
+
     destroyEnemyActor:
         (actorId: string) => void;
 };
@@ -101,6 +106,7 @@ export default class CombatRunner {
         random,
 
         interruptRandomOfficerTask,
+        purgePlayerSpamChannel,
         destroyEnemyActor,
     }: CombatRunnerOptions) {
         this.stateStore =
@@ -224,6 +230,8 @@ export default class CombatRunner {
                                 targetActorId,
                             );
                     },
+
+                purgePlayerSpamChannel,
 
                 random,
             });

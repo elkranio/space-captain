@@ -411,6 +411,9 @@ function createRunnerFixture() {
             onStickyMineClearingCompleted:
                 () => {},
 
+            onSpamPurgingCompleted:
+                () => {},
+
             onThreatIdentificationCompleted:
                 () => {},
         });

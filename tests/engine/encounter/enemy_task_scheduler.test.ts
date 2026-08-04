@@ -147,6 +147,9 @@ describe('Enemy task scheduler', () => {
 
                 clearPlayerStickyMine:
                     () => false,
+
+                purgePlayerSpamChannel:
+                    () => false,
             });
 
         actor.threatObservations.push({

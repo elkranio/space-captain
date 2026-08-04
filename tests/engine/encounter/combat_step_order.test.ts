@@ -123,6 +123,9 @@ describe('Combat step order', () => {
                 interruptRandomOfficerTask:
                     () => {},
 
+                purgePlayerSpamChannel:
+                    () => false,
+
                 destroyEnemyActor:
                     (actorId) => {
                         runner

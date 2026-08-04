@@ -436,6 +436,9 @@ function createBaseFixture(
 
             clearPlayerStickyMine:
                 () => false,
+
+            purgePlayerSpamChannel:
+                () => false,
         });
 
     return {

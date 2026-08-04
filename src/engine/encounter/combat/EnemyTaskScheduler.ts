@@ -50,6 +50,9 @@ import EnemyDecisionPolicy, {
     type EnemyWorkIntent,
 } from './EnemyDecisionPolicy';
 import EnemyScienceIntelResolver from './EnemyScienceIntelResolver';
+import {
+    getActivePlayerSpamChannels,
+} from './queries/get_active_player_spam_channels';
 
 type EnemyTaskSchedulerOptions = {
     state: EncounterState;
@@ -58,6 +61,11 @@ type EnemyTaskSchedulerOptions = {
 
     clearPlayerStickyMine: (
         mineId: string,
+        targetActorId: string,
+    ) => boolean;
+
+    purgePlayerSpamChannel: (
+        channelId: string,
         targetActorId: string,
     ) => boolean;
 
@@ -106,6 +114,7 @@ export default class EnemyTaskScheduler {
         state,
         emit,
         clearPlayerStickyMine,
+        purgePlayerSpamChannel,
         random = Math.random,
     }: EnemyTaskSchedulerOptions) {
         this.state = state;
@@ -170,6 +179,29 @@ export default class EnemyTaskScheduler {
                                     actor.id +
                                     '/' +
                                     mineId,
+                            );
+                        }
+                    },
+
+                onSpamPurgingCompleted:
+                    (
+                        actor,
+                        channelId,
+                    ) => {
+                        const purged =
+                            purgePlayerSpamChannel(
+                                channelId,
+                                actor.id,
+                            );
+
+                        if (!purged) {
+                            throw new Error(
+                                'Player spam channel ' +
+                                    'disappeared before ' +
+                                    'enemy purge completion: ' +
+                                    actor.id +
+                                    '/' +
+                                    channelId,
                             );
                         }
                     },
@@ -337,6 +369,15 @@ export default class EnemyTaskScheduler {
     ): void {
         switch (intent.kind) {
             case SHIP_CREW_TASK_KIND
+                .PURGE_SPAM:
+                this.startSpamPurging(
+                    actor,
+                    intent,
+                );
+
+                return;
+
+            case SHIP_CREW_TASK_KIND
                 .CLEAR_STICKY_MINE:
                 this.startStickyMineClearing(
                     actor,
@@ -456,6 +497,53 @@ export default class EnemyTaskScheduler {
                 durationMs:
                     OFFICER_TASK_BASE_DURATION_MS
                         .CLEAR_STICKY_MINE,
+            },
+        );
+    }
+
+    private startSpamPurging(
+        actor: ShipEncounterActorState,
+        intent:
+            Extract<
+                EnemyWorkIntent,
+                {
+                    kind:
+                        typeof SHIP_CREW_TASK_KIND
+                            .PURGE_SPAM;
+                }
+            >,
+    ): void {
+        const channel =
+            getActivePlayerSpamChannels(
+                this.state,
+            ).find((candidate) => {
+                return (
+                    candidate.id ===
+                        intent.channelId &&
+                    candidate.targetActorId ===
+                        actor.id
+                );
+            });
+
+        if (!channel) {
+            throw new Error(
+                'Cannot start enemy spam purge: ' +
+                    actor.id +
+                    '/' +
+                    intent.channelId,
+            );
+        }
+
+        this.crewTaskRunner.start(
+            actor,
+            {
+                ...intent,
+
+                elapsedMs: 0,
+
+                durationMs:
+                    OFFICER_TASK_BASE_DURATION_MS
+                        .SCIENCE_PURGE_SPAM,
             },
         );
     }

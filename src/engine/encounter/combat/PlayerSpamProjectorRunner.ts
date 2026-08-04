@@ -8,6 +8,9 @@ import {
     ENCOUNTER_TEAM,
 } from '../../defs/encounter_team';
 import {
+    OFFICER_ROLE,
+} from '../../defs/officer';
+import {
     SHIP_WEAPON_KIND,
     SHIP_WEAPON_PHASE,
     type SpamProjectorDefinition,
@@ -59,6 +62,90 @@ export default class PlayerSpamProjectorRunner {
         private readonly options:
             PlayerSpamProjectorRunnerOptions,
     ) {}
+
+    public purgeChannel(
+        channelId: string,
+        targetActorId: string,
+    ): boolean {
+        const task =
+            this.options.stateStore
+                .getOfficerTask(
+                    OFFICER_ROLE.SCIENCE,
+                );
+
+        if (
+            !task ||
+            task.kind !==
+                OFFICER_TASK_KIND
+                    .SCIENCE_FIRE_SPAM ||
+            task.targetActorId !==
+                targetActorId
+        ) {
+            return false;
+        }
+
+        const projector =
+            this.findTaskProjector(
+                task,
+            );
+
+        if (
+            !projector ||
+            projector.phase !==
+                SHIP_WEAPON_PHASE
+                    .CHANNELING ||
+            projector.activeChannelId !==
+                channelId
+        ) {
+            return false;
+        }
+
+        const endedChannelId =
+            this.options.stateStore
+                .cancelPlayerSpamProjection(
+                    projector.id,
+                );
+
+        if (
+            endedChannelId !==
+            channelId
+        ) {
+            throw new Error(
+                'Purged player spam channel ' +
+                    'does not match active channel: ' +
+                    targetActorId +
+                    '/' +
+                    channelId +
+                    '/' +
+                    String(
+                        endedChannelId,
+                    ),
+            );
+        }
+
+        this.options.emit({
+            type:
+                ENCOUNTER_EVENT
+                    .PLAYER_SPAM_CHANNEL_ENDED,
+
+            channelId,
+
+            sourceWeaponId:
+                projector.id,
+
+            targetActorId,
+
+            outcome:
+                PLAYER_SPAM_CHANNEL_OUTCOME
+                    .PURGED,
+        });
+
+        this.options.completeOfficerTask(
+            task.id,
+        );
+
+        return true;
+    }
 
     public advanceTask(
         task: ScienceFireSpamTaskState,

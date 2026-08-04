@@ -284,6 +284,24 @@ function createCrewTaskSnapshot(
 ): EnemyDebugCrewTaskSnapshot {
     switch (task.kind) {
         case SHIP_CREW_TASK_KIND
+            .PURGE_SPAM:
+            return {
+                kind:
+                    task.kind,
+
+                label:
+                    'PURGE SPAM',
+
+                progress: {
+                    elapsedMs:
+                        task.elapsedMs,
+
+                    durationMs:
+                        task.durationMs,
+                },
+            };
+
+        case SHIP_CREW_TASK_KIND
             .IDENTIFY_THREAT: {
             const target =
                 threatByObservationId.get(

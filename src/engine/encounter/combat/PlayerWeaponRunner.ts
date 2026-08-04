@@ -131,6 +131,17 @@ export default class PlayerWeaponRunner {
             });
     }
 
+    public purgeSpamChannel(
+        channelId: string,
+        targetActorId: string,
+    ): boolean {
+        return this.spamProjectorRunner
+            .purgeChannel(
+                channelId,
+                targetActorId,
+            );
+    }
+
     public step(deltaMs: number): void {
         this.advanceCooldowns(deltaMs);
 

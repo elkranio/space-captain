@@ -24,12 +24,16 @@ import {
     type ClearStickyMineShipCrewTaskState,
     type DeployShieldShipCrewTaskState,
     type IdentifyThreatShipCrewTaskState,
+    type PurgeSpamShipCrewTaskState,
     type ShipCrewTaskState,
 } from '../model/ship_crew_task';
 import type {
     EncounterState,
 } from '../model/state';
 import CrewPerformanceResolver from '../crew_performance/CrewPerformanceResolver';
+import {
+    getActivePlayerSpamChannels,
+} from './queries/get_active_player_spam_channels';
 
 type EnemyCrewTaskRunnerOptions = {
     state: EncounterState;
@@ -47,6 +51,11 @@ type EnemyCrewTaskRunnerOptions = {
     onStickyMineClearingCompleted: (
         actor: ShipEncounterActorState,
         mineId: string,
+    ) => void;
+
+    onSpamPurgingCompleted: (
+        actor: ShipEncounterActorState,
+        channelId: string,
     ) => void;
 
     onThreatIdentificationCompleted: (
@@ -88,6 +97,11 @@ export default class EnemyCrewTaskRunner {
             'onStickyMineClearingCompleted'
         ];
 
+    private readonly onSpamPurgingCompleted:
+        EnemyCrewTaskRunnerOptions[
+            'onSpamPurgingCompleted'
+        ];
+
     private readonly onThreatIdentificationCompleted:
         EnemyCrewTaskRunnerOptions[
             'onThreatIdentificationCompleted'
@@ -98,6 +112,7 @@ export default class EnemyCrewTaskRunner {
         onOffensiveTaskCompleted,
         onShieldDeploymentCompleted,
         onStickyMineClearingCompleted,
+        onSpamPurgingCompleted,
         onThreatIdentificationCompleted,
     }: EnemyCrewTaskRunnerOptions) {
         this.state = state;
@@ -115,6 +130,9 @@ export default class EnemyCrewTaskRunner {
 
         this.onStickyMineClearingCompleted =
             onStickyMineClearingCompleted;
+
+        this.onSpamPurgingCompleted =
+            onSpamPurgingCompleted;
 
         this.onThreatIdentificationCompleted =
             onThreatIdentificationCompleted;
@@ -341,6 +359,18 @@ export default class EnemyCrewTaskRunner {
                 );
 
                 return;
+
+            case SHIP_CREW_TASK_KIND
+                .PURGE_SPAM:
+                this.processPurgeSpam(
+                    actor,
+                    role,
+                    task,
+                    deltaMs,
+                    advanceTimedTasks,
+                );
+
+                return;
         }
     }
 
@@ -543,6 +573,65 @@ export default class EnemyCrewTaskRunner {
         this.onStickyMineClearingCompleted(
             actor,
             task.mineId,
+        );
+
+        this.complete(
+            actor,
+            role,
+        );
+    }
+
+    private processPurgeSpam(
+        actor: ShipEncounterActorState,
+        role: OfficerRole,
+        task:
+            PurgeSpamShipCrewTaskState,
+        deltaMs: number,
+        advanceTimedTasks: boolean,
+    ): void {
+        const channel =
+            getActivePlayerSpamChannels(
+                this.state,
+            ).find((candidate) => {
+                return (
+                    candidate.id ===
+                        task.channelId &&
+                    candidate.targetActorId ===
+                        actor.id
+                );
+            });
+
+        if (!channel) {
+            this.cancel(
+                actor,
+                role,
+            );
+
+            return;
+        }
+
+        if (!advanceTimedTasks) {
+            return;
+        }
+
+        task.elapsedMs =
+            Math.min(
+                task.durationMs,
+
+                task.elapsedMs +
+                    deltaMs,
+            );
+
+        if (
+            task.elapsedMs <
+            task.durationMs
+        ) {
+            return;
+        }
+
+        this.onSpamPurgingCompleted(
+            actor,
+            task.channelId,
         );
 
         this.complete(

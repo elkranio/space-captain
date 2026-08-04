@@ -169,6 +169,19 @@ export default class EncounterEngine {
                 this.officerTaskRunner.interruptRandomTaskByDamage();
             },
 
+            purgePlayerSpamChannel:
+                (
+                    channelId,
+                    targetActorId,
+                ) => {
+                    return this
+                        .playerWeaponRunner
+                        .purgeSpamChannel(
+                            channelId,
+                            targetActorId,
+                        );
+                },
+
             destroyEnemyActor:
                 this.destroyEnemyActor,
         });
