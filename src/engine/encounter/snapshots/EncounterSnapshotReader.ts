@@ -24,6 +24,10 @@ import {
     getStickyMineSnapshots,
     type StickyMineSnapshot,
 } from '../combat/queries/get_sticky_mine_snapshots';
+import {
+    getEnemyDebugSnapshots,
+    type EnemyDebugSnapshot,
+} from '../debug/get_enemy_debug_snapshots';
 import type { AvailableOfficerCommand } from '../model/command';
 import {
     COMBAT_SOURCE_KIND,
@@ -83,6 +87,13 @@ export default class EncounterSnapshotReader {
 
     public getEnemyShipTelemetrySnapshots(): EnemyShipTelemetrySnapshot[] {
         return this.read(getEnemyShipTelemetrySnapshots);
+    }
+
+    public getEnemyDebugSnapshots():
+        EnemyDebugSnapshot[] {
+        return this.read(
+            getEnemyDebugSnapshots,
+        );
     }
 
     public getCombatProjectiles(): CombatProjectileState[] {

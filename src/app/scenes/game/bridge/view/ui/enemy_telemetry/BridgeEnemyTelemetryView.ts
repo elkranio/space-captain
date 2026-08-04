@@ -22,7 +22,7 @@ import {
 } from '../../../events/bridge_event';
 import type BridgeEventBus from '../../../events/BridgeEventBus';
 
-const ENEMY_TELEMETRY_PANEL = {
+export const ENEMY_TELEMETRY_PANEL = {
     y: 522,
 
     width: 600,

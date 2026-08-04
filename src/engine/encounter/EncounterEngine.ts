@@ -17,6 +17,9 @@ import type {
 } from '../defs/ship_weapon';
 import type { SpaceNodeState } from '../defs/universe';
 import CombatEngagementRunner from './combat/CombatEngagementRunner';
+import type {
+    EnemyDebugSnapshot,
+} from './debug/get_enemy_debug_snapshots';
 import CombatRunner from './combat/CombatRunner';
 import type { EnemyShipTelemetrySnapshot } from './combat/queries/get_enemy_ship_telemetry_snapshots';
 import type { LaserThreatSnapshot } from './combat/queries/get_laser_threat_snapshots';
@@ -44,6 +47,9 @@ import EncounterStateStore from './state/EncounterStateStore';
 export type {
     EnemyShipTelemetrySnapshot,
 } from './combat/queries/get_enemy_ship_telemetry_snapshots';
+export type {
+    EnemyDebugSnapshot,
+} from './debug/get_enemy_debug_snapshots';
 export type { LaserThreatSnapshot } from './combat/queries/get_laser_threat_snapshots';
 export type { StickyMineSnapshot } from './combat/queries/get_sticky_mine_snapshots';
 
@@ -317,6 +323,12 @@ export default class EncounterEngine {
     public getEnemyShipTelemetrySnapshots():
         EnemyShipTelemetrySnapshot[] {
         return this.snapshotReader.getEnemyShipTelemetrySnapshots();
+    }
+
+    public getEnemyDebugSnapshots():
+        EnemyDebugSnapshot[] {
+        return this.snapshotReader
+            .getEnemyDebugSnapshots();
     }
 
     public getCombatProjectiles():

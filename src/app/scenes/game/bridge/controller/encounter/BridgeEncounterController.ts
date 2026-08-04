@@ -33,6 +33,9 @@ import BridgeEncounterEngineEventHandler from './engine_events/BridgeEncounterEn
 import BridgeOfficerStationsController from './officer_stations/BridgeOfficerStationsController';
 import BridgeEncounterSnapshotSynchronizer from './snapshots/BridgeEncounterSnapshotSynchronizer';
 
+const ENEMY_DEBUG_SYNC_INTERVAL_MS =
+    200;
+
 // App-controller для bridge encounter flow.
 //
 // Держит EncounterEngine,
@@ -53,6 +56,8 @@ export default class BridgeEncounterController {
     private officerStationsController?: BridgeOfficerStationsController;
 
     private snapshotSynchronizer?: BridgeEncounterSnapshotSynchronizer;
+
+    private enemyDebugElapsedMs = 0;
 
     private readonly engineEventHandler: BridgeEncounterEngineEventHandler;
 
@@ -88,6 +93,7 @@ export default class BridgeEncounterController {
         this.snapshotSynchronizer = undefined;
         this.encounterEngine = undefined;
 
+        this.enemyDebugElapsedMs = 0;
         this.isEncounterInteractive = false;
     }
 
@@ -108,6 +114,8 @@ export default class BridgeEncounterController {
         this.snapshotSynchronizer?.syncPlayerWeapons();
         this.drainEncounterEvents();
         this.snapshotSynchronizer?.syncCombatPresentation();
+
+        this.stepEnemyDebug(deltaMs);
 
         this.officerStationsController?.step(deltaMs);
     }
@@ -251,6 +259,7 @@ export default class BridgeEncounterController {
 
         this.drainEncounterEvents();
         this.snapshotSynchronizer.syncInitial();
+        this.syncEnemyDebug();
 
         if (this.isEncounterInteractive) {
             this.engageHostileActors();
@@ -362,6 +371,46 @@ export default class BridgeEncounterController {
     // #endregion
 
     // #region Engine events
+
+    private stepEnemyDebug(
+        deltaMs: number,
+    ): void {
+        if (
+            !DEBUG_SETTINGS.bridge
+                .encounter
+                .showEnemyDebugPanel
+        ) {
+            return;
+        }
+
+        this.enemyDebugElapsedMs +=
+            deltaMs;
+
+        if (
+            this.enemyDebugElapsedMs <
+            ENEMY_DEBUG_SYNC_INTERVAL_MS
+        ) {
+            return;
+        }
+
+        this.enemyDebugElapsedMs %=
+            ENEMY_DEBUG_SYNC_INTERVAL_MS;
+
+        this.syncEnemyDebug();
+    }
+
+    private syncEnemyDebug(): void {
+        if (
+            !DEBUG_SETTINGS.bridge
+                .encounter
+                .showEnemyDebugPanel
+        ) {
+            return;
+        }
+
+        this.snapshotSynchronizer
+            ?.syncEnemyDebug();
+    }
 
     private drainEncounterEvents(): void {
         if (!this.encounterEngine) {
@@ -488,6 +537,7 @@ export default class BridgeEncounterController {
 
         this.encounterEngine.engageHostileActors();
         this.drainEncounterEvents();
+        this.syncEnemyDebug();
     }
 
     private completeEncounterArrival(): void {
