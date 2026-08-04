@@ -63,6 +63,12 @@ describe('Enemy point-defense interception', () => {
             () => 0,
         );
 
+        // This case intentionally exercises blind PD without Science.
+        enemy.crewRoles =
+            enemy.crewRoles.filter((role) => {
+                return role !== 'science';
+            });
+
         engine.step(0);
 
         expect(enemy.pointDefense).toMatchObject({
@@ -214,6 +220,12 @@ describe('Enemy point-defense interception', () => {
             () => 0,
         );
 
+        // This case intentionally exercises blind PD without Science.
+        enemy.crewRoles =
+            enemy.crewRoles.filter((role) => {
+                return role !== 'science';
+            });
+
         engine.step(0);
         engine.drainEvents();
 
@@ -278,6 +290,78 @@ describe('Enemy point-defense interception', () => {
             phaseElapsedMs: 0,
         });
     });
+
+    it('uses a ready Science report instead of the blind fallback band', () => {
+        const {
+            engine,
+            enemy,
+            projectile,
+        } = createScenario(
+            MISSILE_ID.BLUE_00,
+            // Blind fallback is RED and would miss.
+            () => 0,
+        );
+
+        engine.step(0);
+
+        const observation =
+            enemy
+                .threatObservations
+                .find((candidate) => {
+                    return (
+                        candidate.kind ===
+                            'missile' &&
+                        candidate.source.kind ===
+                            'combat_projectile' &&
+                        candidate.source.projectileId ===
+                            projectile.id
+                    );
+                });
+
+        if (!observation) {
+            throw new Error(
+                'Expected enemy missile observation',
+            );
+        }
+
+        // The resolver trusts the Science report rather than objective truth.
+        // A later trait atom can therefore make this report wrong.
+        observation.report = {
+            kind: 'missile',
+            spectralBand: 'blue',
+        };
+
+        engine.drainEvents();
+
+        engine.step(LOAD_DURATION_MS);
+
+        expect(
+            engine
+                .getOutgoingMissileProjectiles(),
+        ).toEqual([]);
+
+        expect(
+            engine
+                .drainEvents()
+                .find((event) => {
+                    return (
+                        event.type ===
+                        ENCOUNTER_EVENT
+                            .ENEMY_POINT_DEFENSE_FIRED
+                    );
+                }),
+        ).toMatchObject({
+            projectile: {
+                id: projectile.id,
+            },
+
+            beamBand: 'blue',
+            outcome: 'hit',
+
+            remainingCharges: 2,
+        });
+    });
+
 });
 
 function createScenario(

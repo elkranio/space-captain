@@ -27,6 +27,10 @@ import type {
     EncounterState,
 } from '../model/state';
 
+import {
+    resolveEnemyPointDefenseBeamBand,
+} from './resolve_enemy_point_defense_beam_band';
+
 type EnemyPointDefenseRunnerOptions = {
     state: EncounterState;
 
@@ -39,8 +43,10 @@ type EnemyPointDefenseRunnerOptions = {
 };
 
 // Owns the physical lifecycle of one installed enemy point-defense system.
-// Policy chooses target and beam band. This runner only loads, resolves the
-// deterministic band match, spends a charge and advances cooldown.
+// Policy chooses target and commits a blind fallback band.
+// A ready Science report may deterministically override that fallback at shot
+// time. This runner loads, resolves the band match, spends a charge and
+// advances cooldown.
 export default class EnemyPointDefenseRunner {
     constructor(
         private readonly options:
@@ -119,11 +125,11 @@ export default class EnemyPointDefenseRunner {
             return;
         }
 
-        const beamBand =
+        const fallbackBeamBand =
             pointDefense.loadedBand;
 
         if (
-            !beamBand ||
+            !fallbackBeamBand ||
             pointDefense.charges <= 0
         ) {
             throw new Error(
@@ -133,6 +139,17 @@ export default class EnemyPointDefenseRunner {
                     pointDefense.id,
             );
         }
+
+        const beamBand =
+            resolveEnemyPointDefenseBeamBand({
+                observations:
+                    actor.threatObservations,
+        
+                projectileId:
+                    projectile.id,
+        
+                fallbackBeamBand,
+            });
 
         const missile =
             MISSILES[projectile.missileId];
