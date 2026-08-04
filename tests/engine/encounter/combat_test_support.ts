@@ -34,7 +34,14 @@ export type AnchoredPlayerCombatTestSetup = {
     targetActor: ShipEncounterActorState;
 };
 
-export function createAnchoredPlayerCombatTestSetup():
+export type AnchoredPlayerCombatTestSetupOptions = {
+    random?: () => number;
+};
+
+export function createAnchoredPlayerCombatTestSetup(
+    options:
+        AnchoredPlayerCombatTestSetupOptions = {},
+):
     AnchoredPlayerCombatTestSetup {
     const run =
         createNewRunState();
@@ -81,6 +88,9 @@ export function createAnchoredPlayerCombatTestSetup():
             weapons:
                 run.player.ship
                     .weapons,
+
+            random:
+                options.random,
         });
 
     const [loadedEvent] =

@@ -7,6 +7,7 @@ import {
     OFFICER_TASK_BASE_DURATION_MS,
 } from '../../content/rules/officer_tasks';
 import {
+    ENEMY_SHIELD_IMPACT_RESERVE_RANGE_MS,
     SHIP_SHIELD_DURATION_MS,
 } from '../../content/rules/shields';
 import {
@@ -104,6 +105,9 @@ export type EnemyWorkIntent =
 // Позже здесь появятся состояние боя,
 // defensive priorities и разные behavior presets.
 export default class EnemyDecisionPolicy {
+    private readonly shieldImpactReserveMsByThreat =
+        new Map<string, number>();
+
     constructor(
         private readonly random:
             () => number = Math.random,
@@ -420,19 +424,36 @@ export default class EnemyDecisionPolicy {
             OFFICER_TASK_BASE_DURATION_MS
                 .ENGINEER_DEPLOY_SHIELD;
 
-        // Strict window:
-        // - equal to deploy duration is too late;
-        // - equal to deploy + lifetime is too early because the field
-        //   expires on the same boundary before PlayerWeaponRunner fires.
+        const timingKey =
+            this.getShieldTimingKey(
+                actor.id,
+                observation.id,
+            );
+
+        const impactReserveMs =
+            this.getOrCreateShieldImpactReserveMs(
+                timingKey,
+            );
+
+        const deploymentWindowStartMs =
+            deployDurationMs +
+            SHIP_SHIELD_DURATION_MS -
+            impactReserveMs;
+
+        // Safe timing window:
+        // - above deploymentWindowStartMs: too early, wait;
+        // - equal to deploy duration: too late, laser wins the boundary.
         if (
             remainingLaserMs <=
                 deployDurationMs ||
-            remainingLaserMs >=
-                deployDurationMs +
-                    SHIP_SHIELD_DURATION_MS
+            remainingLaserMs >
+                deploymentWindowStartMs
         ) {
             return undefined;
         }
+
+        this.shieldImpactReserveMsByThreat
+            .delete(timingKey);
 
         return {
             kind:
@@ -447,6 +468,59 @@ export default class EnemyDecisionPolicy {
 
             shieldZone,
         };
+    }
+
+    private getShieldTimingKey(
+        actorId: string,
+        observationId: string,
+    ): string {
+        return (
+            actorId +
+            ':' +
+            observationId
+        );
+    }
+
+    private getOrCreateShieldImpactReserveMs(
+        timingKey: string,
+    ): number {
+        const existing =
+            this.shieldImpactReserveMsByThreat
+                .get(timingKey);
+
+        if (existing !== undefined) {
+            return existing;
+        }
+
+        const randomUnit =
+            Math.max(
+                0,
+                Math.min(
+                    1,
+                    this.random(),
+                ),
+            );
+
+        const range =
+            ENEMY_SHIELD_IMPACT_RESERVE_RANGE_MS;
+
+        const reserveMs =
+            Math.round(
+                range.min +
+                    (
+                        range.max -
+                        range.min
+                    ) *
+                        randomUnit,
+            );
+
+        this.shieldImpactReserveMsByThreat
+            .set(
+                timingKey,
+                reserveMs,
+            );
+
+        return reserveMs;
     }
 
     private getRemainingPlayerLaserMs(
