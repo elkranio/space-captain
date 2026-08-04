@@ -1,4 +1,7 @@
 import {
+    CREW_TRAIT_ID,
+} from '../../../src/engine/defs/crew_trait';
+import {
     describe,
     expect,
     it,
@@ -357,6 +360,102 @@ describe('Enemy point-defense interception', () => {
 
             beamBand: 'blue',
             outcome: 'hit',
+
+            remainingCharges: 2,
+        });
+    });
+
+
+    it('trusts a hungover Science report and misses a missile it could blindly hit', () => {
+        const {
+            engine,
+            enemy,
+            projectile,
+        } = createScenario(
+            MISSILE_ID.BLUE_00,
+
+            // Blind fallback is BLUE and would hit.
+            () => 1,
+        );
+
+        enemy.crewTraitsByRole[
+            OFFICER_ROLE.SCIENCE
+        ] = [
+            CREW_TRAIT_ID.HUNGOVER,
+        ];
+
+        engine.step(0);
+        engine.drainEvents();
+
+        expect(enemy.pointDefense)
+            .toMatchObject({
+                phase:
+                    POINT_DEFENSE_PHASE
+                        .LOADING,
+
+                loadedBand:
+                    POINT_DEFENSE_BEAM_BAND
+                        .BLUE,
+
+                targetProjectileId:
+                    projectile.id,
+            });
+
+        engine.step(LOAD_DURATION_MS);
+
+        const observation =
+            enemy
+                .threatObservations
+                .find((candidate) => {
+                    return (
+                        candidate.kind ===
+                            'missile' &&
+                        candidate.source.kind ===
+                            'combat_projectile' &&
+                        candidate.source.projectileId ===
+                            projectile.id
+                    );
+                });
+
+        expect(observation?.report)
+            .toEqual({
+                kind: 'missile',
+
+                // Truth is BLUE. HUNGOVER Science reports RED.
+                spectralBand: 'red',
+            });
+
+        expect(
+            engine
+                .getOutgoingMissileProjectiles()
+                .some((candidate) => {
+                    return (
+                        candidate.id ===
+                        projectile.id
+                    );
+                }),
+        ).toBe(true);
+
+        expect(
+            engine
+                .drainEvents()
+                .find((event) => {
+                    return (
+                        event.type ===
+                        ENCOUNTER_EVENT
+                            .ENEMY_POINT_DEFENSE_FIRED
+                    );
+                }),
+        ).toMatchObject({
+            projectile: {
+                id: projectile.id,
+            },
+
+            beamBand:
+                POINT_DEFENSE_BEAM_BAND.RED,
+
+            outcome:
+                POINT_DEFENSE_SHOT_OUTCOME.MISS,
 
             remainingCharges: 2,
         });
