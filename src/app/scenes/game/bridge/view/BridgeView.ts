@@ -3,65 +3,26 @@
 import type BridgeScene from '../BridgeScene';
 import type BridgeEventBus from '../events/BridgeEventBus';
 import BridgeOfficerBarksView from './barks/BridgeOfficerBarksView';
-import BridgeEnemyShipDestructionView from './combat/enemy_destruction/BridgeEnemyShipDestructionView';
-import BridgeEnemyShieldsView from './combat/enemy_shields/BridgeEnemyShieldsView';
-import BridgeIncomingMissilesView from './combat/incoming_missiles/BridgeIncomingMissilesView';
-import BridgeLaserBeamsView from './combat/laser_beams/BridgeLaserBeamsView';
-import BridgeOutgoingMissilesView from './combat/outgoing_missiles/BridgeOutgoingMissilesView';
-import BridgeOutgoingSpamView from './combat/outgoing_spam/BridgeOutgoingSpamView';
-import BridgeOutgoingStickyMinesView from './combat/outgoing_sticky_mines/BridgeOutgoingStickyMinesView';
-import BridgeLaserThreatsView from './combat/laser_threats/BridgeLaserThreatsView';
-import BridgePlayerLaserView from './combat/player_laser/BridgePlayerLaserView';
-import BridgePlayerShieldsView from './combat/player_shields/BridgePlayerShieldsView';
-import BridgeSpamView from './combat/spam/BridgeSpamView';
-import BridgeStickyMinesView from './combat/sticky_mines/BridgeStickyMinesView';
+import BridgeCombatView from './combat/BridgeCombatView';
 import BridgeTargetingWarningView from './indicators/targeting_warning/BridgeTargetingWarningView';
 import BridgeInteriorView from './interior/BridgeInteriorView';
 import BridgeOfficerStationsView from './officer_stations/BridgeOfficerStationsView';
 import BridgeSpaceView from './space/BridgeSpaceView';
 import BridgeUiView from './ui/BridgeUiView';
-import BridgeVfxView from './vfx/BridgeVfxView';
 
 // Root view bridge scene.
-// Собирает визуальные модули bridge и отвечает только за их lifecycle.
+// Собирает верхнеуровневые визуальные модули
+// и отвечает только за их lifecycle.
 export default class BridgeView {
     private interiorView?: BridgeInteriorView;
 
     private targetingWarningView?: BridgeTargetingWarningView;
 
-    private enemyShipDestructionView?:
-        BridgeEnemyShipDestructionView;
-
-    private incomingMissilesView?: BridgeIncomingMissilesView;
-
-    private outgoingMissilesView?: BridgeOutgoingMissilesView;
-
-    private outgoingStickyMinesView?:
-        BridgeOutgoingStickyMinesView;
-
-    private outgoingSpamView?:
-        BridgeOutgoingSpamView;
-
-    private laserThreatsView?: BridgeLaserThreatsView;
-
-    private laserBeamsView?: BridgeLaserBeamsView;
-
-    private playerLaserView?: BridgePlayerLaserView;
-
-    private playerShieldsView?: BridgePlayerShieldsView;
-
-    private enemyShieldsView?:
-        BridgeEnemyShieldsView;
-
-    private spamView?: BridgeSpamView;
-
-    private stickyMinesView?: BridgeStickyMinesView;
+    private combatView?: BridgeCombatView;
 
     private officerStationsView?: BridgeOfficerStationsView;
 
     private spaceView?: BridgeSpaceView;
-
-    private vfxView?: BridgeVfxView;
 
     private uiView?: BridgeUiView;
 
@@ -78,133 +39,22 @@ export default class BridgeView {
             this.eventBus,
 
             (offsetX) => {
-                this.setTransientCombatWorldOffsetX(offsetX);
+                this.combatView
+                    ?.setCameraTurnOffsetX(
+                        offsetX,
+                    );
             },
         );
 
         this.spaceView = spaceView;
 
-        this.playerShieldsView = new BridgePlayerShieldsView(
+        this.combatView = new BridgeCombatView(
             this.scene,
             this.eventBus,
+            spaceView,
         );
 
-        this.enemyShieldsView =
-            new BridgeEnemyShieldsView(
-                this.scene,
-                this.eventBus,
-
-                (objectId) => {
-                    return spaceView
-                        .getObjectPosition(
-                            objectId,
-                        );
-                },
-            );
-
-        this.incomingMissilesView = new BridgeIncomingMissilesView(
-            this.scene,
-            this.eventBus,
-
-            (objectId) => {
-                return spaceView.getObjectPosition(objectId);
-            },
-        );
-
-        this.outgoingMissilesView =
-            new BridgeOutgoingMissilesView(
-                this.scene,
-                this.eventBus,
-
-                (objectId) => {
-                    return spaceView
-                        .getObjectPosition(
-                            objectId,
-                        );
-                },
-            );
-
-        this.outgoingStickyMinesView =
-            new BridgeOutgoingStickyMinesView(
-                this.scene,
-                this.eventBus,
-
-                (objectId) => {
-                    return spaceView
-                        .getObjectPosition(
-                            objectId,
-                        );
-                },
-            );
-
-        this.outgoingSpamView =
-            new BridgeOutgoingSpamView(
-                this.scene,
-                this.eventBus,
-
-                (objectId) => {
-                    return spaceView
-                        .getObjectPosition(
-                            objectId,
-                        );
-                },
-            );
-
-        this.laserThreatsView = new BridgeLaserThreatsView(
-            this.scene,
-            this.eventBus,
-
-            (objectId) => {
-                return spaceView.getObjectPosition(objectId);
-            },
-        );
-
-        this.laserBeamsView = new BridgeLaserBeamsView(
-            this.scene,
-            this.eventBus,
-
-            (objectId) => {
-                return spaceView.getObjectPosition(objectId);
-            },
-        );
-
-        this.playerLaserView = new BridgePlayerLaserView(
-            this.scene,
-            this.eventBus,
-
-            (objectId) => {
-                return spaceView.getObjectPosition(objectId);
-            },
-        );
-
-        this.enemyShipDestructionView =
-            new BridgeEnemyShipDestructionView(
-                this.scene,
-                this.eventBus,
-
-                (objectId) => {
-                    return spaceView
-                        .getObjectPosition(
-                            objectId,
-                        );
-                },
-            );
-
-        this.vfxView = new BridgeVfxView(this.scene, this.eventBus);
-
-        this.spamView = new BridgeSpamView(
-            this.scene,
-            this.eventBus,
-        );
-
-        this.stickyMinesView = new BridgeStickyMinesView(
-            this.scene,
-            this.eventBus,
-
-            (objectId) => {
-                return spaceView.getObjectPosition(objectId);
-            },
-        );
+        this.combatView.prepare();
 
         this.interiorView = new BridgeInteriorView(this.scene);
 
@@ -223,21 +73,7 @@ export default class BridgeView {
         this.officerStationsView?.destroy();
         this.targetingWarningView?.destroy();
         this.interiorView?.destroy();
-        this.stickyMinesView?.destroy();
-        this.spamView?.destroy();
-        this.vfxView?.destroy();
-        this.enemyShipDestructionView
-            ?.destroy();
-        this.playerLaserView?.destroy();
-        this.laserBeamsView?.destroy();
-        this.laserThreatsView?.destroy();
-        this.outgoingStickyMinesView
-            ?.destroy();
-        this.outgoingSpamView?.destroy();
-        this.outgoingMissilesView?.destroy();
-        this.incomingMissilesView?.destroy();
-        this.enemyShieldsView?.destroy();
-        this.playerShieldsView?.destroy();
+        this.combatView?.destroy();
         this.spaceView?.destroy();
 
         this.officerBarksView = undefined;
@@ -245,33 +81,7 @@ export default class BridgeView {
         this.officerStationsView = undefined;
         this.targetingWarningView = undefined;
         this.interiorView = undefined;
-        this.stickyMinesView = undefined;
-        this.spamView = undefined;
-        this.vfxView = undefined;
-        this.enemyShipDestructionView =
-            undefined;
-        this.playerLaserView = undefined;
-        this.laserBeamsView = undefined;
-        this.laserThreatsView = undefined;
-        this.outgoingStickyMinesView =
-            undefined;
-        this.outgoingSpamView = undefined;
-        this.outgoingMissilesView = undefined;
-        this.incomingMissilesView = undefined;
-        this.enemyShieldsView = undefined;
-        this.playerShieldsView = undefined;
+        this.combatView = undefined;
         this.spaceView = undefined;
-    }
-
-    private setTransientCombatWorldOffsetX(offsetX: number): void {
-        this.incomingMissilesView?.setCameraTurnOffsetX(offsetX);
-        this.outgoingMissilesView?.setCameraTurnOffsetX(offsetX);
-        this.outgoingStickyMinesView?.setCameraTurnOffsetX(offsetX);
-        this.outgoingSpamView?.setCameraTurnOffsetX(offsetX);
-        this.laserThreatsView?.setCameraTurnOffsetX(offsetX);
-        this.enemyShieldsView
-            ?.setCameraTurnOffsetX(
-                offsetX,
-            );
     }
 }
