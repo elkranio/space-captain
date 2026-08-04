@@ -3,6 +3,7 @@
 import type BridgeScene from '../../../BridgeScene';
 import {
     BRIDGE_EVENT,
+    type BridgeEnemyPointDefenseFiredPayload,
     type BridgeOutgoingMissileAddedPayload,
     type BridgeOutgoingMissileRemovedPayload,
     type BridgeOutgoingMissilesUpdatedPayload,
@@ -11,6 +12,7 @@ import type BridgeEventBus from '../../../events/BridgeEventBus';
 import {
     getBridgePlayerWeaponSourcePosition,
 } from '../bridge_player_weapon_layout';
+import BridgePointDefenseBeamView from '../point_defense/BridgePointDefenseBeamView';
 import {
     removeMissingCombatSnapshotEntries,
 } from '../remove_missing_combat_snapshot_entries';
@@ -24,6 +26,12 @@ type GetObjectPosition = (
 //
 // Target position is captured at launch,
 // before a lethal impact can remove the actor.
+//
+// Enemy point-defense:
+// - ENEMY_POINT_DEFENSE_FIRED arrives while the missile still exists;
+// - the beam captures that last displayed missile position;
+// - a following OUTGOING_MISSILE_REMOVED event removes the sprite on HIT;
+// - MISS has no removal event, so the missile continues its flight.
 export default class BridgeOutgoingMissilesView {
     private readonly root:
         Phaser.GameObjects.Container;
@@ -32,6 +40,11 @@ export default class BridgeOutgoingMissilesView {
         new Map<
             string,
             BridgeOutgoingMissileView
+        >();
+
+    private readonly pointDefenseEffects =
+        new Set<
+            BridgePointDefenseBeamView
         >();
 
     constructor(
@@ -77,6 +90,14 @@ export default class BridgeOutgoingMissilesView {
             this.removeMissile,
             this,
         );
+
+        this.eventBus.on(
+            BRIDGE_EVENT
+                .ENEMY_POINT_DEFENSE_FIRED,
+
+            this.handleEnemyPointDefenseFired,
+            this,
+        );
     }
 
     public destroy(): void {
@@ -103,6 +124,23 @@ export default class BridgeOutgoingMissilesView {
             this.removeMissile,
             this,
         );
+
+        this.eventBus.off(
+            BRIDGE_EVENT
+                .ENEMY_POINT_DEFENSE_FIRED,
+
+            this.handleEnemyPointDefenseFired,
+            this,
+        );
+
+        for (
+            const effect of
+            this.pointDefenseEffects
+        ) {
+            effect.destroy();
+        }
+
+        this.pointDefenseEffects.clear();
 
         for (
             const missile of
@@ -231,12 +269,73 @@ export default class BridgeOutgoingMissilesView {
             );
         }
 
-        // Outcome-specific impact VFX
-        // is deferred until the flight read is verified.
         missile.destroy();
 
         this.missiles.delete(
             payload.projectileId,
+        );
+    }
+
+    private handleEnemyPointDefenseFired(
+        payload:
+            BridgeEnemyPointDefenseFiredPayload,
+    ): void {
+        const missile =
+            this.missiles.get(
+                payload.projectileId,
+            );
+
+        if (!missile) {
+            throw new Error(
+                'Enemy point-defense target not found: ' +
+                    payload.projectileId,
+            );
+        }
+
+        const sourcePosition =
+            this.getObjectPosition(
+                payload.sourceActorId,
+            );
+
+        if (!sourcePosition) {
+            throw new Error(
+                'Enemy point-defense source object not found: ' +
+                    payload.sourceActorId,
+            );
+        }
+
+        const effect =
+            new BridgePointDefenseBeamView({
+                scene:
+                    this.scene,
+
+                parent:
+                    this.root,
+
+                beamBand:
+                    payload.beamBand,
+
+                outcome:
+                    payload.outcome,
+
+                sourcePosition,
+
+                // Last position actually displayed before a possible
+                // interception resolution removes the missile sprite.
+                targetPosition:
+                    missile.getPosition(),
+
+                onComplete:
+                    (completedEffect) => {
+                        this.pointDefenseEffects
+                            .delete(
+                                completedEffect,
+                            );
+                    },
+            });
+
+        this.pointDefenseEffects.add(
+            effect,
         );
     }
 }

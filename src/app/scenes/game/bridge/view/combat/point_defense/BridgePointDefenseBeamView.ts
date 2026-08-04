@@ -16,6 +16,10 @@ type BridgePointDefenseBeamViewOptions = {
     beamBand: PointDefenseBeamBand;
     outcome: PointDefenseShotOutcome;
 
+    // Player PD omits this and uses the existing bridge-edge source.
+    // Enemy PD passes the firing actor position explicitly.
+    sourcePosition?: Phaser.Math.Vector2;
+
     targetPosition: Phaser.Math.Vector2;
 
     onComplete: (view: BridgePointDefenseBeamView) => void;
@@ -59,6 +63,9 @@ const POINT_DEFENSE_BEAM_PRESENTATION = {
 
 // Короткий presentation-effect одного point-defense выстрела.
 //
+// Player и enemy PD используют один visual language.
+// Отличается только explicit/default source position.
+//
 // Не определяет HIT/MISS:
 // результат уже разрешён encounter engine.
 //
@@ -78,6 +85,9 @@ export default class BridgePointDefenseBeamView {
 
     private readonly beamBand: PointDefenseBeamBand;
 
+    private readonly sourcePosition?:
+        Phaser.Math.Vector2;
+
     private readonly targetPosition: Phaser.Math.Vector2;
 
     private readonly onComplete: (view: BridgePointDefenseBeamView) => void;
@@ -95,6 +105,7 @@ export default class BridgePointDefenseBeamView {
         beamBand,
         outcome,
 
+        sourcePosition,
         targetPosition,
 
         onComplete,
@@ -103,6 +114,9 @@ export default class BridgePointDefenseBeamView {
         this.parent = parent;
 
         this.beamBand = beamBand;
+
+        this.sourcePosition =
+            sourcePosition?.clone();
 
         this.targetPosition = targetPosition.clone();
 
@@ -236,6 +250,10 @@ export default class BridgePointDefenseBeamView {
     }
 
     private createStartPosition(targetPosition: Phaser.Math.Vector2): Phaser.Math.Vector2 {
+        if (this.sourcePosition) {
+            return this.sourcePosition.clone();
+        }
+
         const viewscreenCenterX = BRIDGE_VIEWSCREEN_RECT.x + BRIDGE_VIEWSCREEN_RECT.width / 2;
 
         // Стреляем с противоположной стороны нижней

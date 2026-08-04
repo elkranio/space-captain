@@ -122,13 +122,32 @@ export default class BridgeEncounterEngineEventHandler {
             BridgeEncounterRuntimeSyncResult,
     ): void {
         switch (event.type) {
-            // Enemy PD presentation is intentionally deferred.
-            // Engine state/events remain authoritative; for now the bridge
-            // only acknowledges them so the exhaustive router stays strict.
+            // Loading state will be exposed by the enemy debug panel.
+            // The combat view only needs the resolved physical shot.
             case ENCOUNTER_EVENT
                 .ENEMY_POINT_DEFENSE_LOADING_STARTED:
+                return;
+
             case ENCOUNTER_EVENT
                 .ENEMY_POINT_DEFENSE_FIRED:
+                this.eventBus.emit(
+                    BRIDGE_EVENT
+                        .ENEMY_POINT_DEFENSE_FIRED,
+                    {
+                        sourceActorId:
+                            event.sourceActorId,
+
+                        projectileId:
+                            event.projectile.id,
+
+                        beamBand:
+                            event.beamBand,
+
+                        outcome:
+                            event.outcome,
+                    },
+                );
+
                 return;
 
             case ENCOUNTER_EVENT.ENCOUNTER_LOADED:

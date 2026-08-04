@@ -144,6 +144,14 @@ export default class BridgeOutgoingMissileView {
         this.image.setScale(scale);
     }
 
+    public getPosition():
+        Phaser.Math.Vector2 {
+        return new Phaser.Math.Vector2(
+            this.root.x,
+            this.root.y,
+        );
+    }
+
     public destroy(): void {
         this.root.destroy(true);
     }

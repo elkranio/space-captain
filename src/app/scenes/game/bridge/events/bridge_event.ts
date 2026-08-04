@@ -226,7 +226,7 @@ export const BRIDGE_EVENT = {
         'outgoing_missiles_updated',
 
     // Ракета игрока завершила lifecycle:
-    // target lost или hull hit.
+    // target lost, interception или hull hit.
     OUTGOING_MISSILE_REMOVED:
         'outgoing_missile_removed',
 
@@ -239,9 +239,14 @@ export const BRIDGE_EVENT = {
     OUTGOING_STICKY_MINE_REMOVED:
         'outgoing_sticky_mine_removed',
 
-    // Point-defense завершил наведение
-    // и разрешил выстрел по угрозе.
+    // Point-defense player ship завершил наведение
+    // и разрешил выстрел по входящей угрозе.
     POINT_DEFENSE_FIRED: 'point_defense_fired',
+
+    // Enemy point-defense разрешил выстрел
+    // по исходящей ракете игрока.
+    ENEMY_POINT_DEFENSE_FIRED:
+        'enemy_point_defense_fired',
 
     // Вражеский laser начал видимую charging-фазу.
     LASER_THREAT_ADDED: 'laser_threat_added',
@@ -646,6 +651,14 @@ export type BridgePointDefenseFiredPayload = {
     outcome: PointDefenseShotOutcome;
 };
 
+export type BridgeEnemyPointDefenseFiredPayload = {
+    sourceActorId: string;
+    projectileId: string;
+
+    beamBand: PointDefenseBeamBand;
+    outcome: PointDefenseShotOutcome;
+};
+
 export type BridgeLaserThreatAddedPayload = {
     attackId: string;
 
@@ -865,6 +878,9 @@ export type BridgeEventPayloadMap = {
         BridgeOutgoingStickyMineRemovedPayload;
 
     [BRIDGE_EVENT.POINT_DEFENSE_FIRED]: BridgePointDefenseFiredPayload;
+
+    [BRIDGE_EVENT.ENEMY_POINT_DEFENSE_FIRED]:
+        BridgeEnemyPointDefenseFiredPayload;
 
     [BRIDGE_EVENT.LASER_THREAT_ADDED]: BridgeLaserThreatAddedPayload;
 

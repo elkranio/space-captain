@@ -1,0 +1,204 @@
+// tests/app/BridgeEncounterEnemyPointDefenseEvents.test.ts
+
+import {
+    describe,
+    expect,
+    it,
+    vi,
+} from 'vitest';
+import {
+    GameRuntime,
+} from '../../src/app/runtime/GameRuntime';
+import BridgeEncounterEngineEventHandler from '../../src/app/scenes/game/bridge/controller/encounter/engine_events/BridgeEncounterEngineEventHandler';
+import {
+    BRIDGE_EVENT,
+} from '../../src/app/scenes/game/bridge/events/bridge_event';
+import type BridgeEventBus from '../../src/app/scenes/game/bridge/events/BridgeEventBus';
+import {
+    MISSILE_ID,
+} from '../../src/engine/defs/missile';
+import {
+    POINT_DEFENSE_BEAM_BAND,
+    POINT_DEFENSE_SHOT_OUTCOME,
+} from '../../src/engine/defs/point_defense';
+import {
+    COMBAT_PROJECTILE_KIND,
+    COMBAT_SOURCE_KIND,
+    COMBAT_TARGET_KIND,
+    PLAYER_MISSILE_OUTCOME,
+    THREAT_IDENTIFICATION_STATUS,
+    type MissileCombatProjectileState,
+} from '../../src/engine/encounter/model/combat';
+import {
+    ENCOUNTER_EVENT,
+} from '../../src/engine/encounter/model/event';
+
+const projectile:
+    MissileCombatProjectileState = {
+        id:
+            'projectile_player_00',
+
+        designation: 'M1',
+
+        kind:
+            COMBAT_PROJECTILE_KIND
+                .MISSILE,
+
+        source: {
+            kind:
+                COMBAT_SOURCE_KIND
+                    .PLAYER_SHIP,
+        },
+
+        sourceWeaponId:
+            'player_missile_launcher_00',
+
+        target: {
+            kind:
+                COMBAT_TARGET_KIND.ACTOR,
+
+            actorId:
+                'ship_enemy_00',
+        },
+
+        identification: {
+            status:
+                THREAT_IDENTIFICATION_STATUS
+                    .IDENTIFIED,
+
+            spectralBand: 'blue',
+        },
+
+        missileId:
+            MISSILE_ID.BLUE_00,
+
+        timeToImpactMs: 9000,
+        initialTimeToImpactMs: 12000,
+    };
+
+describe(
+    'Bridge enemy point-defense events',
+    () => {
+        it(
+            'emits the shot before intercepted missile removal',
+            () => {
+                const emit = vi.fn();
+
+                const handler =
+                    new BridgeEncounterEngineEventHandler(
+                        {
+                            emit,
+                        } as unknown as BridgeEventBus,
+
+                        vi.fn(),
+                        new GameRuntime(),
+                    );
+
+                handler.handle([
+                    {
+                        type:
+                            ENCOUNTER_EVENT
+                                .ENEMY_POINT_DEFENSE_LOADING_STARTED,
+
+                        sourceActorId:
+                            'ship_enemy_00',
+
+                        pointDefenseId:
+                            'point_defense_00',
+
+                        projectileId:
+                            projectile.id,
+
+                        beamBand:
+                            POINT_DEFENSE_BEAM_BAND
+                                .RED,
+
+                        loadDurationMs: 3000,
+                    },
+
+                    {
+                        type:
+                            ENCOUNTER_EVENT
+                                .ENEMY_POINT_DEFENSE_FIRED,
+
+                        sourceActorId:
+                            'ship_enemy_00',
+
+                        pointDefenseId:
+                            'point_defense_00',
+
+                        projectile: {
+                            ...projectile,
+                        },
+
+                        beamBand:
+                            POINT_DEFENSE_BEAM_BAND
+                                .BLUE,
+
+                        outcome:
+                            POINT_DEFENSE_SHOT_OUTCOME
+                                .HIT,
+
+                        remainingCharges: 2,
+                    },
+
+                    {
+                        type:
+                            ENCOUNTER_EVENT
+                                .PLAYER_MISSILE_RESOLVED,
+
+                        projectile: {
+                            ...projectile,
+                        },
+
+                        outcome:
+                            PLAYER_MISSILE_OUTCOME
+                                .INTERCEPTED,
+                    },
+                ]);
+
+                expect(
+                    emit.mock.calls,
+                ).toEqual([
+                    [
+                        BRIDGE_EVENT
+                            .ENEMY_POINT_DEFENSE_FIRED,
+
+                        {
+                            sourceActorId:
+                                'ship_enemy_00',
+
+                            projectileId:
+                                projectile.id,
+
+                            beamBand:
+                                POINT_DEFENSE_BEAM_BAND
+                                    .BLUE,
+
+                            outcome:
+                                POINT_DEFENSE_SHOT_OUTCOME
+                                    .HIT,
+                        },
+                    ],
+
+                    [
+                        BRIDGE_EVENT
+                            .OUTGOING_MISSILE_REMOVED,
+
+                        {
+                            projectileId:
+                                projectile.id,
+
+                            targetActorId:
+                                'ship_enemy_00',
+
+                            outcome:
+                                PLAYER_MISSILE_OUTCOME
+                                    .INTERCEPTED,
+                        },
+                    ],
+                ]);
+            },
+        );
+    },
+);
