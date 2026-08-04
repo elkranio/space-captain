@@ -11,6 +11,10 @@ import {
     OFFICER_ROLE,
 } from '../../../src/engine/defs/officer';
 import {
+    POINT_DEFENSE_ID,
+    POINT_DEFENSE_PHASE,
+} from '../../../src/engine/defs/point_defense';
+import {
     PLAYER_SPACE_NAVIGATION_KIND,
 } from '../../../src/engine/defs/player_location';
 import EncounterEngine from '../../../src/engine/encounter/EncounterEngine';
@@ -23,6 +27,9 @@ import {
 import {
     createShipDriveFixture,
 } from '../../fixtures/engine/ship_drive_fixtures';
+import {
+    getMutableEncounterStateForTest,
+} from './get_mutable_encounter_state_for_test';
 
 describe('New-game enemy defense sandbox', () => {
     it('wires a fully crewed enemy without offensive weapons', () => {
@@ -54,6 +61,23 @@ describe('New-game enemy defense sandbox', () => {
         }
 
         expect(enemy.weapons).toEqual([]);
+
+        expect(enemy.pointDefense).toEqual({
+            id: 'point_defense_00',
+
+            pointDefenseId:
+                POINT_DEFENSE_ID.BASIC_00,
+
+            charges: 3,
+            maxCharges: 3,
+
+            phase:
+                POINT_DEFENSE_PHASE.READY,
+            phaseElapsedMs: 0,
+
+            loadedBand: null,
+            targetProjectileId: null,
+        });
 
         expect(enemy.crewRoles).toEqual([
             OFFICER_ROLE.SCIENCE,
@@ -96,6 +120,23 @@ describe('New-game enemy defense sandbox', () => {
                 'Expected encounter loaded event',
             );
         }
+
+        const runtimeEnemy =
+            getMutableEncounterStateForTest(
+                engine,
+            ).actors[0];
+
+        if (!runtimeEnemy) {
+            throw new Error(
+                'Expected runtime enemy ship',
+            );
+        }
+
+        expect(runtimeEnemy.pointDefense)
+            .toEqual(enemy.pointDefense);
+
+        expect(runtimeEnemy.pointDefense)
+            .not.toBe(enemy.pointDefense);
 
         engine.step(60000);
 

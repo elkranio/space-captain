@@ -1,6 +1,9 @@
 // src/engine/encounter/combat/EnemyTaskScheduler.ts
 
 import {
+    POINT_DEFENSES,
+} from '../../content/catalogs/point_defenses';
+import {
     OFFICER_TASK_BASE_DURATION_MS,
 } from '../../content/rules/officer_tasks';
 import {
@@ -14,11 +17,18 @@ import {
     PLAYER_SPACE_NAVIGATION_KIND,
 } from '../../defs/player_location';
 import {
+    POINT_DEFENSE_PHASE,
+} from '../../defs/point_defense';
+import {
     SHIP_WEAPON_PHASE,
 } from '../../defs/ship_weapon';
 import type {
     ShipEncounterActorState,
 } from '../actors/ship/ship_encounter_actor';
+import {
+    COMBAT_SOURCE_KIND,
+    COMBAT_TARGET_KIND,
+} from '../model/combat';
 import {
     ENCOUNTER_EVENT,
     type EncounterEvent,
@@ -39,6 +49,8 @@ type EnemyTaskSchedulerOptions = {
     state: EncounterState;
 
     emit: (event: EncounterEvent) => void;
+
+    random?: () => number;
 };
 
 const ENEMY_WORK_ROLES = [
@@ -69,8 +81,8 @@ export default class EnemyTaskScheduler {
     private readonly emit:
         (event: EncounterEvent) => void;
 
-    private readonly decisionPolicy =
-        new EnemyDecisionPolicy();
+    private readonly decisionPolicy:
+        EnemyDecisionPolicy;
 
     private readonly scienceIntelResolver:
         EnemyScienceIntelResolver;
@@ -81,9 +93,15 @@ export default class EnemyTaskScheduler {
     constructor({
         state,
         emit,
+        random = Math.random,
     }: EnemyTaskSchedulerOptions) {
         this.state = state;
         this.emit = emit;
+
+        this.decisionPolicy =
+            new EnemyDecisionPolicy(
+                random,
+            );
 
         this.scienceIntelResolver =
             new EnemyScienceIntelResolver(
@@ -278,6 +296,15 @@ export default class EnemyTaskScheduler {
                 );
 
                 return;
+
+            case SHIP_CREW_TASK_KIND
+                .INTERCEPT_MISSILE:
+                this.startPointDefenseInterception(
+                    actor,
+                    intent,
+                );
+
+                return;
         }
     }
 
@@ -328,6 +355,96 @@ export default class EnemyTaskScheduler {
                         .SCIENCE_IDENTIFY_THREAT,
             },
         );
+    }
+
+    private startPointDefenseInterception(
+        actor: ShipEncounterActorState,
+        intent:
+            Extract<
+                EnemyWorkIntent,
+                {
+                    kind:
+                        typeof SHIP_CREW_TASK_KIND
+                            .INTERCEPT_MISSILE;
+                }
+            >,
+    ): void {
+        const pointDefense =
+            actor.pointDefense;
+
+        const projectile =
+            this.state
+                .combat
+                .projectiles
+                .find((candidate) => {
+                    return (
+                        candidate.id ===
+                        intent.projectileId
+                    );
+                });
+
+        if (
+            !pointDefense ||
+            pointDefense.id !==
+                intent.pointDefenseId ||
+            pointDefense.phase !==
+                POINT_DEFENSE_PHASE.READY ||
+            pointDefense.charges <= 0 ||
+            !projectile ||
+            projectile.source.kind !==
+                COMBAT_SOURCE_KIND
+                    .PLAYER_SHIP ||
+            projectile.target.kind !==
+                COMBAT_TARGET_KIND.ACTOR ||
+            projectile.target.actorId !==
+                actor.id
+        ) {
+            throw new Error(
+                'Cannot start enemy point-defense work: ' +
+                    actor.id +
+                    '/' +
+                    intent.pointDefenseId +
+                    '/' +
+                    intent.projectileId,
+            );
+        }
+
+        this.crewTaskRunner.start(
+            actor,
+            intent,
+        );
+
+        pointDefense.phase =
+            POINT_DEFENSE_PHASE.LOADING;
+        pointDefense.phaseElapsedMs = 0;
+        pointDefense.loadedBand =
+            intent.beamBand;
+        pointDefense.targetProjectileId =
+            intent.projectileId;
+
+        const definition =
+            POINT_DEFENSES[
+                pointDefense.pointDefenseId
+            ];
+
+        this.emit({
+            type:
+                ENCOUNTER_EVENT
+                    .ENEMY_POINT_DEFENSE_LOADING_STARTED,
+
+            sourceActorId: actor.id,
+            pointDefenseId:
+                pointDefense.id,
+
+            projectileId:
+                intent.projectileId,
+
+            beamBand:
+                intent.beamBand,
+
+            loadDurationMs:
+                definition.loadDurationMs,
+        });
     }
 
     private startWeaponOperation(

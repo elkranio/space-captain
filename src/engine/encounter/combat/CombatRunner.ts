@@ -7,6 +7,7 @@ import type { EncounterEvent } from '../model/event';
 import type { EncounterState } from '../model/state';
 import EncounterStateStore from '../state/EncounterStateStore';
 import CombatLaserRunner from './CombatLaserRunner';
+import EnemyPointDefenseRunner from './EnemyPointDefenseRunner';
 import CombatMissileRunner, {
     type PlayerMissileLaunchInput,
 } from './CombatMissileRunner';
@@ -73,6 +74,9 @@ export default class CombatRunner {
     private readonly missileRunner:
         CombatMissileRunner;
 
+    private readonly pointDefenseRunner:
+        EnemyPointDefenseRunner;
+
     private readonly laserRunner:
         CombatLaserRunner;
 
@@ -121,6 +125,26 @@ export default class CombatRunner {
 
                 destroyEnemyActor:
                     this.destroyEnemyActor,
+            });
+
+        this.pointDefenseRunner =
+            new EnemyPointDefenseRunner({
+                state: this.state,
+
+                emit: this.emit,
+
+                interceptPlayerMissile:
+                    (
+                        projectileId,
+                        targetActorId,
+                    ) => {
+                        return this
+                            .missileRunner
+                            .interceptPlayerMissile(
+                                projectileId,
+                                targetActorId,
+                            );
+                    },
             });
 
         this.laserRunner =
@@ -174,6 +198,7 @@ export default class CombatRunner {
             new EnemyTaskScheduler({
                 state: this.state,
                 emit: this.emit,
+                random,
             });
 
         this.enemyThreatObserver =
@@ -196,7 +221,7 @@ export default class CombatRunner {
 
         this.perceivePlayerThreats();
         this.decideEnemyWork(deltaMs);
-        this.advanceWeapons(deltaMs);
+        this.advanceEnemyCombatSystems(deltaMs);
         this.finalizeEnemyCrewTasks();
     }
 
@@ -315,12 +340,23 @@ export default class CombatRunner {
             );
     }
 
-    // #region Weapon lifecycle
+    // #region Enemy combat-system lifecycle
 
-    private advanceWeapons(deltaMs: number): void {
+    private advanceEnemyCombatSystems(
+        deltaMs: number,
+    ): void {
         for (const actor of this.state.actors) {
             if (actor.hull <= 0) {
                 continue;
+            }
+
+            if (actor.pointDefense) {
+                this.pointDefenseRunner
+                    .advance(
+                        actor,
+                        actor.pointDefense,
+                        deltaMs,
+                    );
             }
 
             for (const weapon of actor.weapons) {

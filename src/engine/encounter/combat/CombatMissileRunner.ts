@@ -327,6 +327,64 @@ export default class CombatMissileRunner {
         }
     }
 
+    public interceptPlayerMissile(
+        projectileId: string,
+        targetActorId: string,
+    ): MissileCombatProjectileState {
+        const index =
+            this.state
+                .combat
+                .projectiles
+                .findIndex((projectile) => {
+                    return (
+                        projectile.id ===
+                        projectileId
+                    );
+                });
+
+        const projectile =
+            this.state
+                .combat
+                .projectiles[index];
+
+        if (
+            index < 0 ||
+            !projectile ||
+            projectile.source.kind !==
+                COMBAT_SOURCE_KIND
+                    .PLAYER_SHIP ||
+            projectile.target.kind !==
+                COMBAT_TARGET_KIND.ACTOR ||
+            projectile.target.actorId !==
+                targetActorId
+        ) {
+            throw new Error(
+                'Cannot intercept player missile: ' +
+                    targetActorId +
+                    '/' +
+                    projectileId,
+            );
+        }
+
+        this.state.combat
+            .projectiles
+            .splice(index, 1);
+
+        this.emit({
+            type:
+                ENCOUNTER_EVENT
+                    .PLAYER_MISSILE_RESOLVED,
+
+            projectile,
+
+            outcome:
+                PLAYER_MISSILE_OUTCOME
+                    .INTERCEPTED,
+        });
+
+        return projectile;
+    }
+
     private advanceTargeting(
         actor: ShipEncounterActorState,
         launcher: MissileLauncherState,

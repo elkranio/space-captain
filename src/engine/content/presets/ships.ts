@@ -9,6 +9,10 @@ import {
     type ShipDriveId,
 } from '../../defs/ship_drive';
 import {
+    POINT_DEFENSE_ID,
+    type PointDefenseId,
+} from '../../defs/point_defense';
+import {
     SHIP_WEAPON_ID,
     SHIP_WEAPON_KIND,
 } from '../../defs/ship_weapon';
@@ -108,6 +112,13 @@ export type ShipPreset = {
         id: string;
 
         driveId: ShipDriveId;
+    };
+
+    // Optional installed defensive system.
+    // Runtime state is created by ShipPointDefenseFactory.
+    pointDefense?: {
+        id: string;
+        pointDefenseId: PointDefenseId;
     };
 
     shieldGeneratorPresetId:
@@ -345,11 +356,16 @@ export const SHIP_PRESETS = {
             driveId: SHIP_DRIVE_ID.BASIC_00,
         },
 
+        pointDefense: {
+            id: 'point_defense_00',
+            pointDefenseId:
+                POINT_DEFENSE_ID.BASIC_00,
+        },
+
         shieldGeneratorPresetId:
             SHIELD_GENERATOR_PRESET_ID.BASIC_00,
 
-        // Defensive systems are added in later focused atoms.
-        // This sandbox intentionally cannot schedule offensive work.
+        // Offensive systems remain absent.
         weapons: [],
     },
 } satisfies Record<ShipPresetId, ShipPreset>;

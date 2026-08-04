@@ -10,6 +10,9 @@ import type {
     OfficerRole,
 } from './officer';
 import type {
+    ShipPointDefenseState,
+} from './point_defense';
+import type {
     ShieldGeneratorState,
 } from './shield_generator';
 import type {
@@ -79,6 +82,10 @@ export type ShipSpaceNodeActorState =
         maxHull: number;
 
         drive: ShipDriveState;
+
+        pointDefense?:
+            ShipPointDefenseState;
+
         shieldGenerator:
             ShieldGeneratorState;
 

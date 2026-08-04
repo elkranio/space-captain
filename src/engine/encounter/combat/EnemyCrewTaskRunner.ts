@@ -4,6 +4,9 @@ import type {
     OfficerRole,
 } from '../../defs/officer';
 import {
+    doesPointDefensePhaseRequireOperator,
+} from '../../defs/point_defense';
+import {
     doesShipWeaponPhaseRequireOperator,
 } from '../../defs/ship_weapon';
 import type {
@@ -239,6 +242,16 @@ export default class EnemyCrewTaskRunner {
                 return;
 
             case SHIP_CREW_TASK_KIND
+                .INTERCEPT_MISSILE:
+                this.synchronizeInterceptMissile(
+                    actor,
+                    role,
+                    task.pointDefenseId,
+                );
+
+                return;
+
+            case SHIP_CREW_TASK_KIND
                 .IDENTIFY_THREAT:
                 this.processIdentifyThreat(
                     actor,
@@ -290,6 +303,41 @@ export default class EnemyCrewTaskRunner {
         );
 
         this.onOffensiveTaskCompleted(
+            actor,
+            role,
+        );
+    }
+
+    private synchronizeInterceptMissile(
+        actor: ShipEncounterActorState,
+        role: OfficerRole,
+        pointDefenseId: string,
+    ): void {
+        const pointDefense =
+            actor.pointDefense;
+
+        if (
+            !pointDefense ||
+            pointDefense.id !==
+                pointDefenseId
+        ) {
+            this.cancel(
+                actor,
+                role,
+            );
+
+            return;
+        }
+
+        if (
+            doesPointDefensePhaseRequireOperator(
+                pointDefense.phase,
+            )
+        ) {
+            return;
+        }
+
+        this.complete(
             actor,
             role,
         );

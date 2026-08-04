@@ -122,6 +122,15 @@ export default class BridgeEncounterEngineEventHandler {
             BridgeEncounterRuntimeSyncResult,
     ): void {
         switch (event.type) {
+            // Enemy PD presentation is intentionally deferred.
+            // Engine state/events remain authoritative; for now the bridge
+            // only acknowledges them so the exhaustive router stays strict.
+            case ENCOUNTER_EVENT
+                .ENEMY_POINT_DEFENSE_LOADING_STARTED:
+            case ENCOUNTER_EVENT
+                .ENEMY_POINT_DEFENSE_FIRED:
+                return;
+
             case ENCOUNTER_EVENT.ENCOUNTER_LOADED:
                 this.handleEncounterLoaded(event);
                 return;

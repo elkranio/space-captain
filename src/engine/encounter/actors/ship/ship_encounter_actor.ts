@@ -7,6 +7,9 @@ import type {
     OfficerRole,
 } from '../../../defs/officer';
 import type {
+    ShipPointDefenseState,
+} from '../../../defs/point_defense';
+import type {
     ShieldGeneratorState,
 } from '../../../defs/shield_generator';
 import type {
@@ -52,6 +55,10 @@ export type ShipEncounterActorState =
         maxHull: number;
 
         drive: ShipDriveState;
+
+        pointDefense?:
+            ShipPointDefenseState;
+
         shieldGenerator:
             ShieldGeneratorState;
 

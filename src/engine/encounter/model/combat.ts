@@ -31,6 +31,7 @@ export type LaserShotOutcome = (typeof LASER_SHOT_OUTCOME)[keyof typeof LASER_SH
 
 export const PLAYER_MISSILE_OUTCOME = {
     TARGET_LOST: 'target_lost',
+    INTERCEPTED: 'intercepted',
     HIT: 'hit',
 } as const;
 

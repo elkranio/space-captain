@@ -5,6 +5,10 @@ import {
     type OfficerRole,
 } from '../../defs/officer';
 import {
+    POINT_DEFENSE_BEAM_BAND,
+    POINT_DEFENSE_PHASE,
+} from '../../defs/point_defense';
+import {
     SHIP_WEAPON_KIND,
     SHIP_WEAPON_PHASE,
     type ShipWeaponState,
@@ -14,6 +18,7 @@ import type {
 } from '../actors/ship/ship_encounter_actor';
 import {
     ENEMY_THREAT_KIND,
+    ENEMY_THREAT_SOURCE_KIND,
 } from '../model/enemy_threat_observation';
 import {
     SHIP_CREW_TASK_KIND,
@@ -37,6 +42,21 @@ export type EnemyWorkIntent =
 
           role: OfficerRole;
           weaponId: string;
+      }
+    | {
+          kind:
+              typeof SHIP_CREW_TASK_KIND
+                  .INTERCEPT_MISSILE;
+
+          role:
+              typeof OFFICER_ROLE.WEAPONS;
+
+          pointDefenseId: string;
+          projectileId: string;
+
+          beamBand:
+              typeof POINT_DEFENSE_BEAM_BAND.RED |
+              typeof POINT_DEFENSE_BEAM_BAND.BLUE;
       };
 
 // Пока policy намеренно простая:
@@ -56,6 +76,11 @@ export type EnemyWorkIntent =
 // Позже здесь появятся состояние боя,
 // defensive priorities и разные behavior presets.
 export default class EnemyDecisionPolicy {
+    constructor(
+        private readonly random:
+            () => number = Math.random,
+    ) {}
+
     public advance(
         actor: ShipEncounterActorState,
         deltaMs: number,
@@ -137,6 +162,16 @@ export default class EnemyDecisionPolicy {
             };
         }
 
+        const interception =
+            this.selectPointDefenseInterception(
+                actor,
+                role,
+            );
+
+        if (interception) {
+            return interception;
+        }
+
         const weapon =
             this.selectWeapon(
                 actor,
@@ -185,6 +220,84 @@ export default class EnemyDecisionPolicy {
                 );
             })
             ?.id;
+    }
+
+    private selectPointDefenseInterception(
+        actor: ShipEncounterActorState,
+        role: OfficerRole,
+    ): Extract<
+        EnemyWorkIntent,
+        {
+            kind:
+                typeof SHIP_CREW_TASK_KIND
+                    .INTERCEPT_MISSILE;
+        }
+    > | undefined {
+        if (
+            role !==
+            OFFICER_ROLE.WEAPONS
+        ) {
+            return undefined;
+        }
+
+        const pointDefense =
+            actor.pointDefense;
+
+        if (
+            !pointDefense ||
+            pointDefense.phase !==
+                POINT_DEFENSE_PHASE.READY ||
+            pointDefense.charges <= 0
+        ) {
+            return undefined;
+        }
+
+        const observation =
+            actor
+                .threatObservations
+                .find((candidate) => {
+                    return (
+                        candidate.kind ===
+                            ENEMY_THREAT_KIND
+                                .MISSILE &&
+                        candidate.source.kind ===
+                            ENEMY_THREAT_SOURCE_KIND
+                                .COMBAT_PROJECTILE
+                    );
+                });
+
+        if (
+            !observation ||
+            observation.source.kind !==
+                ENEMY_THREAT_SOURCE_KIND
+                    .COMBAT_PROJECTILE
+        ) {
+            return undefined;
+        }
+
+        return {
+            kind:
+                SHIP_CREW_TASK_KIND
+                    .INTERCEPT_MISSILE,
+
+            role:
+                OFFICER_ROLE.WEAPONS,
+
+            pointDefenseId:
+                pointDefense.id,
+
+            projectileId:
+                observation
+                    .source
+                    .projectileId,
+
+            // First behavior pass is intentionally blind.
+            // The physical runner never chooses or corrects this band.
+            beamBand:
+                this.random() < 0.5
+                    ? POINT_DEFENSE_BEAM_BAND.RED
+                    : POINT_DEFENSE_BEAM_BAND.BLUE,
+        };
     }
 
     private selectWeapon(

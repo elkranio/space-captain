@@ -82,6 +82,16 @@ export default class ShipNodeActorFactory {
             maxHull: ship.maxHull,
 
             drive: ship.drive,
+
+            ...(
+                ship.pointDefense
+                    ? {
+                          pointDefense:
+                              ship.pointDefense,
+                      }
+                    : {}
+            ),
+
             shieldGenerator:
                 ship.shieldGenerator,
 

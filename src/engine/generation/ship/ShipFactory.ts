@@ -11,6 +11,10 @@ import {
     type ShipPresetId,
     type ShipWeaponPreset,
 } from '../../content/presets/ships';
+import type { ShipPreset } from '../../content/presets/ships';
+import type {
+    ShipPointDefenseState,
+} from '../../defs/point_defense';
 import type {
     ShieldGeneratorState,
 } from '../../defs/shield_generator';
@@ -26,6 +30,7 @@ import {
     type ShipWeaponState,
 } from '../../defs/ship_weapon';
 import ShieldGeneratorFactory from '../ship_system/ShieldGeneratorFactory';
+import ShipPointDefenseFactory from '../ship_system/ShipPointDefenseFactory';
 import LaserWeaponFactory from '../ship_weapon/LaserWeaponFactory';
 import MissileLauncherFactory from '../ship_weapon/MissileLauncherFactory';
 import SpamProjectorFactory from '../ship_weapon/SpamProjectorFactory';
@@ -42,6 +47,9 @@ export type CreatedShipState = {
     maxHull: number;
 
     drive: ShipDriveState;
+
+    pointDefense?: ShipPointDefenseState;
+
     shieldGenerator: ShieldGeneratorState;
 
     weapons: ShipWeaponState[];
@@ -53,7 +61,8 @@ export default class ShipFactory {
     public static create({
         presetId,
     }: CreateShipInput): CreatedShipState {
-        const preset = SHIP_PRESETS[presetId];
+        const preset: ShipPreset =
+            SHIP_PRESETS[presetId];
 
         const chassis =
             SHIP_CHASSIS[preset.chassisId];
@@ -74,6 +83,25 @@ export default class ShipFactory {
                 status:
                     SHIP_DRIVE_STATUS.ONLINE,
             },
+
+            ...(
+                preset.pointDefense
+                    ? {
+                          pointDefense:
+                              ShipPointDefenseFactory.create({
+                                  id:
+                                      preset
+                                          .pointDefense
+                                          .id,
+
+                                  pointDefenseId:
+                                      preset
+                                          .pointDefense
+                                          .pointDefenseId,
+                              }),
+                      }
+                    : {}
+            ),
 
             shieldGenerator:
                 ShieldGeneratorFactory.create({

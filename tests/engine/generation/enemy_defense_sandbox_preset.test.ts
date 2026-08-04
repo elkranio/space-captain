@@ -9,6 +9,10 @@ import {
 import {
     OFFICER_ROLE,
 } from '../../../src/engine/defs/officer';
+import {
+    POINT_DEFENSE_ID,
+    POINT_DEFENSE_PHASE,
+} from '../../../src/engine/defs/point_defense';
 import ShipNodeActorFactory from '../../../src/engine/generation/space_node_actor/ShipNodeActorFactory';
 
 describe('Enemy defense sandbox preset', () => {
@@ -26,6 +30,23 @@ describe('Enemy defense sandbox preset', () => {
             });
 
         expect(actor.weapons).toEqual([]);
+
+        expect(actor.pointDefense).toEqual({
+            id: 'point_defense_00',
+
+            pointDefenseId:
+                POINT_DEFENSE_ID.BASIC_00,
+
+            charges: 3,
+            maxCharges: 3,
+
+            phase:
+                POINT_DEFENSE_PHASE.READY,
+            phaseElapsedMs: 0,
+
+            loadedBand: null,
+            targetProjectileId: null,
+        });
 
         expect(actor.crewRoles).toEqual([
             OFFICER_ROLE.SCIENCE,

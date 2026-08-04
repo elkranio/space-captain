@@ -4,9 +4,15 @@ import {
     OFFICER_ROLE,
     type OfficerRole,
 } from '../../defs/officer';
+import type {
+    PointDefenseBeamBand,
+} from '../../defs/point_defense';
 
 export const SHIP_CREW_TASK_KIND = {
     OPERATE_WEAPON: 'operate_weapon',
+
+    INTERCEPT_MISSILE:
+        'intercept_missile',
 
     IDENTIFY_THREAT:
         'identify_threat',
@@ -28,6 +34,22 @@ export type OperateWeaponShipCrewTaskState =
         weaponId: string;
     };
 
+export type InterceptMissileShipCrewTaskState =
+    ShipCrewTaskBaseState & {
+        kind:
+            typeof SHIP_CREW_TASK_KIND
+                .INTERCEPT_MISSILE;
+
+        role:
+            typeof OFFICER_ROLE.WEAPONS;
+
+        // Runtime id of the installed system.
+        pointDefenseId: string;
+
+        projectileId: string;
+        beamBand: PointDefenseBeamBand;
+    };
+
 export type IdentifyThreatShipCrewTaskState =
     ShipCrewTaskBaseState & {
         kind:
@@ -45,6 +67,7 @@ export type IdentifyThreatShipCrewTaskState =
 
 export type ShipCrewTaskState =
     | OperateWeaponShipCrewTaskState
+    | InterceptMissileShipCrewTaskState
     | IdentifyThreatShipCrewTaskState;
 
 export type ShipCrewTaskStates =

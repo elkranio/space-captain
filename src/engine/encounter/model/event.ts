@@ -59,6 +59,12 @@ export const ENCOUNTER_EVENT = {
     PLAYER_MISSILE_RESOLVED:
         'player_missile_resolved',
 
+    ENEMY_POINT_DEFENSE_LOADING_STARTED:
+        'enemy_point_defense_loading_started',
+
+    ENEMY_POINT_DEFENSE_FIRED:
+        'enemy_point_defense_fired',
+
     PLAYER_STICKY_MINE_ATTACHED:
         'player_sticky_mine_attached',
 
@@ -310,11 +316,54 @@ export type PlayerMissileResolvedEvent =
 
           outcome:
               typeof PLAYER_MISSILE_OUTCOME
+                  .INTERCEPTED;
+      }
+    | {
+          type:
+              typeof ENCOUNTER_EVENT
+                  .PLAYER_MISSILE_RESOLVED;
+
+          projectile:
+              MissileCombatProjectileState;
+
+          outcome:
+              typeof PLAYER_MISSILE_OUTCOME
                   .HIT;
 
           damage: number;
           remainingHull: number;
       };
+
+export type EnemyPointDefenseLoadingStartedEvent = {
+    type:
+        typeof ENCOUNTER_EVENT
+            .ENEMY_POINT_DEFENSE_LOADING_STARTED;
+
+    sourceActorId: string;
+    pointDefenseId: string;
+
+    projectileId: string;
+
+    beamBand: PointDefenseBeamBand;
+    loadDurationMs: number;
+};
+
+export type EnemyPointDefenseFiredEvent = {
+    type:
+        typeof ENCOUNTER_EVENT
+            .ENEMY_POINT_DEFENSE_FIRED;
+
+    sourceActorId: string;
+    pointDefenseId: string;
+
+    projectile:
+        MissileCombatProjectileState;
+
+    beamBand: PointDefenseBeamBand;
+    outcome: PointDefenseShotOutcome;
+
+    remainingCharges: number;
+};
 
 export type PlayerStickyMineAttachedEvent = {
     type:
@@ -444,6 +493,8 @@ export type EncounterEvent =
     | PlayerLaserFiredEvent
     | PlayerMissileLaunchedEvent
     | PlayerMissileResolvedEvent
+    | EnemyPointDefenseLoadingStartedEvent
+    | EnemyPointDefenseFiredEvent
     | PlayerStickyMineAttachedEvent
     | PlayerStickyMineResolvedEvent
     | EnemyShipDestroyedEvent

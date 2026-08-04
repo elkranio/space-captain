@@ -17,6 +17,7 @@ import {
     POINT_DEFENSE_SHOT_OUTCOME,
     type PointDefenseBeamBand,
     type PointDefenseShotOutcome,
+    type ShipPointDefenseState,
 } from '../../defs/point_defense';
 import type { ShieldGeneratorState } from '../../defs/shield_generator';
 import type { ShipBehaviorState } from '../../defs/ship_behavior';
@@ -77,6 +78,9 @@ export type SpawnShipActorInput = {
     maxHull: number;
 
     drive: ShipDriveState;
+
+    pointDefense?: ShipPointDefenseState;
+
     shieldGenerator: ShieldGeneratorState;
 
     behavior: ShipBehaviorState;
@@ -124,6 +128,10 @@ export default class EncounterStateStore {
                 maxHull: actor.maxHull,
 
                 drive: actor.drive,
+
+                pointDefense:
+                    actor.pointDefense,
+
                 shieldGenerator:
                     actor.shieldGenerator,
 
@@ -246,6 +254,7 @@ export default class EncounterStateStore {
         hull,
         maxHull,
         drive,
+        pointDefense,
         shieldGenerator,
         behavior,
         crewRoles,
@@ -298,6 +307,16 @@ export default class EncounterStateStore {
             drive: {
                 ...drive,
             },
+
+            ...(
+                pointDefense
+                    ? {
+                          pointDefense: {
+                              ...pointDefense,
+                          },
+                      }
+                    : {}
+            ),
 
             shieldGenerator: {
                 ...shieldGenerator,
