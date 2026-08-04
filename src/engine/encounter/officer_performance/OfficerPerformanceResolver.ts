@@ -1,41 +1,37 @@
 // src/engine/encounter/officer_performance/OfficerPerformanceResolver.ts
 
-import { getActiveEnemySpamChannels } from '../combat/queries/get_active_enemy_spam_channels';
-import type { OfficerTaskState } from '../model/officer_task';
+import CrewPerformanceResolver from '../crew_performance/CrewPerformanceResolver';
+import type {
+    OfficerTaskState,
+} from '../model/officer_task';
 import type EncounterStateStore from '../state/EncounterStateStore';
 
-// Единая точка вычисления текущей производительности officer task.
-// Не хранит state, не двигает progress и не эмитит events.
+// Transitional adapter for existing player task/weapon runner contracts.
+//
+// CrewPerformanceResolver owns all effect discovery, validation and stacking.
+// Atom 14 can remove this adapter when concrete runners receive already-scaled
+// crew delta instead of resolving performance themselves.
 export default class OfficerPerformanceResolver {
+    private readonly resolver:
+        CrewPerformanceResolver;
+
     constructor(
-        private readonly stateStore: EncounterStateStore,
-    ) {}
+        stateStore: EncounterStateStore,
+    ) {
+        this.resolver =
+            new CrewPerformanceResolver(
+                stateStore.getState(),
+            );
+    }
 
     public getTaskProgressMultiplier(
         task: OfficerTaskState,
     ): number {
-        let multiplier = 1;
+        // Kept only for the existing API shape.
+        // Performance no longer depends on task identity.
+        void task;
 
-        for (const channel of getActiveEnemySpamChannels(
-            this.stateStore.getState(),
-        )) {
-            const value = channel.officerTaskProgressMultiplier;
-
-            if (!Number.isFinite(value) || value < 0) {
-                throw new Error(
-                    'Invalid officer task progress multiplier: ' +
-                        task.id +
-                        '/' +
-                        channel.id +
-                        '/' +
-                        value,
-                );
-            }
-
-            // Одинаковые spam effects не перемножаются.
-            multiplier = Math.min(multiplier, value);
-        }
-
-        return multiplier;
+        return this.resolver
+            .getPlayerProgressMultiplier();
     }
 }

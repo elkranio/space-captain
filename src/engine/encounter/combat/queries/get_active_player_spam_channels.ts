@@ -1,24 +1,12 @@
 // src/engine/encounter/combat/queries/get_active_player_spam_channels.ts
 
 import {
-    SHIP_WEAPONS,
-} from '../../../content/catalogs/ship_weapons';
+    getActiveCrewProgressEffects,
+} from '../../crew_performance/get_active_crew_progress_effects';
 import {
-    ENCOUNTER_TEAM,
-} from '../../../defs/encounter_team';
-import {
-    OFFICER_ROLE,
-} from '../../../defs/officer';
-import {
-    SHIP_WEAPON_KIND,
-    SHIP_WEAPON_PHASE,
-} from '../../../defs/ship_weapon';
-import {
-    ENCOUNTER_ACTOR_KIND,
-} from '../../actors/encounter_actor';
-import {
-    OFFICER_TASK_KIND,
-} from '../../model/officer_task';
+    COMBAT_SOURCE_KIND,
+    COMBAT_TARGET_KIND,
+} from '../../model/combat';
 import type {
     EncounterState,
 } from '../../model/state';
@@ -33,125 +21,49 @@ export type ActivePlayerSpamChannel = {
         number;
 };
 
-// Derived query for the one currently supported player Science channel.
+// Transitional compatibility query.
 //
-// The authoritative mutable lifecycle remains:
-// - SCIENCE_FIRE_SPAM officer task owns target identity;
-// - installed spam projector owns phase and active channel id.
-//
-// Returning a detached channel view avoids duplicating mutable state and gives
-// enemy behavior one stable query seam for slowdown and the later purge atom.
+// Active channel discovery now lives in getActiveCrewProgressEffects.
+// Atom 14 can move remaining callers to CrewPerformanceResolver/direct effects
+// and delete this adapter.
 export function getActivePlayerSpamChannels(
     state: EncounterState,
 ): ActivePlayerSpamChannel[] {
-    const task =
-        state.officerTasks[
-            OFFICER_ROLE.SCIENCE
-        ];
+    const channels:
+        ActivePlayerSpamChannel[] = [];
 
-    if (
-        !task ||
-        task.kind !==
-            OFFICER_TASK_KIND
-                .SCIENCE_FIRE_SPAM
+    for (
+        const effect of
+        getActiveCrewProgressEffects(
+            state,
+        )
     ) {
-        return [];
-    }
+        if (
+            effect.source.kind !==
+                COMBAT_SOURCE_KIND
+                    .PLAYER_SHIP ||
+            effect.target.kind !==
+                COMBAT_TARGET_KIND
+                    .ACTOR
+        ) {
+            continue;
+        }
 
-    const target =
-        state.actors.find(
-            (actor) => {
-                return (
-                    actor.id ===
-                    task.targetActorId
-                );
-            },
-        );
-
-    if (
-        !target ||
-        target.kind !==
-            ENCOUNTER_ACTOR_KIND.SHIP ||
-        target.team !==
-            ENCOUNTER_TEAM.ENEMY ||
-        target.hull <= 0
-    ) {
-        return [];
-    }
-
-    const weapon =
-        state.combat
-            .playerWeapons
-            .find((candidate) => {
-                return (
-                    candidate.id ===
-                    task.weaponId
-                );
-            });
-
-    if (!weapon) {
-        return [];
-    }
-
-    if (
-        weapon.kind !==
-        SHIP_WEAPON_KIND
-            .SPAM_PROJECTOR
-    ) {
-        throw new Error(
-            'Player spam task references ' +
-                'non-projector weapon: ' +
-                task.id +
-                '/' +
-                weapon.id +
-                '/' +
-                weapon.kind,
-        );
-    }
-
-    if (
-        weapon.phase !==
-            SHIP_WEAPON_PHASE
-                .CHANNELING ||
-        weapon.activeChannelId ===
-            null
-    ) {
-        return [];
-    }
-
-    const definition =
-        SHIP_WEAPONS[
-            weapon.weaponId
-        ];
-
-    if (
-        definition.kind !==
-        SHIP_WEAPON_KIND
-            .SPAM_PROJECTOR
-    ) {
-        throw new Error(
-            'Player spam projector ' +
-                'definition mismatch: ' +
-                weapon.id +
-                '/' +
-                weapon.weaponId,
-        );
-    }
-
-    return [
-        {
+        channels.push({
             id:
-                weapon.activeChannelId,
+                effect.id,
 
             sourceWeaponId:
-                weapon.id,
+                effect.sourceWeaponId,
 
             targetActorId:
-                task.targetActorId,
+                effect.target.actorId,
 
             officerTaskProgressMultiplier:
-                definition
-                    .officerTaskProgressMultiplier,
-        },
-    ];
+                effect
+                    .progressMultiplier,
+        });
+    }
+
+    return channels;
 }
