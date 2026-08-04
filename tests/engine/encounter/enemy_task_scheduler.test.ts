@@ -144,6 +144,9 @@ describe('Enemy task scheduler', () => {
                 emit: (event) => {
                     events.push(event);
                 },
+
+                clearPlayerStickyMine:
+                    () => false,
             });
 
         actor.threatObservations.push({

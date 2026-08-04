@@ -433,6 +433,9 @@ function createBaseFixture(
             state,
 
             emit: () => {},
+
+            clearPlayerStickyMine:
+                () => false,
         });
 
     return {

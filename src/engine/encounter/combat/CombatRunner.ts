@@ -198,6 +198,20 @@ export default class CombatRunner {
             new EnemyTaskScheduler({
                 state: this.state,
                 emit: this.emit,
+
+                clearPlayerStickyMine:
+                    (
+                        mineId,
+                        targetActorId,
+                    ) => {
+                        return this
+                            .stickyMineRunner
+                            .clearPlayerMineFromActor(
+                                mineId,
+                                targetActorId,
+                            );
+                    },
+
                 random,
             });
 

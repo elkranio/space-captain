@@ -70,6 +70,8 @@ export type EnemyDebugCrewTaskSnapshot = {
 
     progress?:
         EnemyDebugProgressSnapshot;
+
+    targetRemainingMs?: number;
 };
 
 export type EnemyDebugRoleSnapshot = {
@@ -355,6 +357,52 @@ function createCrewTaskSnapshot(
                         task.durationMs,
                 },
             };
+
+        case SHIP_CREW_TASK_KIND
+            .CLEAR_STICKY_MINE: {
+            const mine =
+                state.combat
+                    .stickyMines
+                    .find((candidate) => {
+                        return (
+                            candidate.id ===
+                                task.mineId &&
+                            candidate.source.kind ===
+                                COMBAT_SOURCE_KIND
+                                    .PLAYER_SHIP &&
+                            candidate.target.kind ===
+                                COMBAT_TARGET_KIND
+                                    .ACTOR &&
+                            candidate.target.actorId ===
+                                actor.id
+                        );
+                    });
+
+            return {
+                kind:
+                    task.kind,
+
+                label:
+                    'CLEAN ' +
+                    task.mineId,
+
+                progress: {
+                    elapsedMs:
+                        task.elapsedMs,
+
+                    durationMs:
+                        task.durationMs,
+                },
+
+                ...(mine
+                    ? {
+                          targetRemainingMs:
+                              mine
+                                  .timeToDetonationMs,
+                      }
+                    : {}),
+            };
+        }
 
         case SHIP_CREW_TASK_KIND
             .OPERATE_WEAPON: {

@@ -20,6 +20,9 @@ export const SHIP_CREW_TASK_KIND = {
     DEPLOY_SHIELD:
         'deploy_shield',
 
+    CLEAR_STICKY_MINE:
+        'clear_sticky_mine',
+
     IDENTIFY_THREAT:
         'identify_threat',
 } as const;
@@ -72,6 +75,18 @@ export type DeployShieldShipCrewTaskState =
         durationMs: number;
     };
 
+export type ClearStickyMineShipCrewTaskState =
+    ShipCrewTaskBaseState & {
+        kind:
+            typeof SHIP_CREW_TASK_KIND
+                .CLEAR_STICKY_MINE;
+
+        mineId: string;
+
+        elapsedMs: number;
+        durationMs: number;
+    };
+
 export type IdentifyThreatShipCrewTaskState =
     ShipCrewTaskBaseState & {
         kind:
@@ -91,6 +106,7 @@ export type ShipCrewTaskState =
     | OperateWeaponShipCrewTaskState
     | InterceptMissileShipCrewTaskState
     | DeployShieldShipCrewTaskState
+    | ClearStickyMineShipCrewTaskState
     | IdentifyThreatShipCrewTaskState;
 
 export type ShipCrewTaskStates =

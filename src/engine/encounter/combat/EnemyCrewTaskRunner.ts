@@ -16,7 +16,12 @@ import type {
     ShipEncounterActorState,
 } from '../actors/ship/ship_encounter_actor';
 import {
+    COMBAT_SOURCE_KIND,
+    COMBAT_TARGET_KIND,
+} from '../model/combat';
+import {
     SHIP_CREW_TASK_KIND,
+    type ClearStickyMineShipCrewTaskState,
     type DeployShieldShipCrewTaskState,
     type IdentifyThreatShipCrewTaskState,
     type ShipCrewTaskState,
@@ -36,6 +41,11 @@ type EnemyCrewTaskRunnerOptions = {
     onShieldDeploymentCompleted: (
         actor: ShipEncounterActorState,
         shieldZone: LaserTargetZone,
+    ) => void;
+
+    onStickyMineClearingCompleted: (
+        actor: ShipEncounterActorState,
+        mineId: string,
     ) => void;
 
     onThreatIdentificationCompleted: (
@@ -69,6 +79,11 @@ export default class EnemyCrewTaskRunner {
             'onShieldDeploymentCompleted'
         ];
 
+    private readonly onStickyMineClearingCompleted:
+        EnemyCrewTaskRunnerOptions[
+            'onStickyMineClearingCompleted'
+        ];
+
     private readonly onThreatIdentificationCompleted:
         EnemyCrewTaskRunnerOptions[
             'onThreatIdentificationCompleted'
@@ -78,6 +93,7 @@ export default class EnemyCrewTaskRunner {
         state,
         onOffensiveTaskCompleted,
         onShieldDeploymentCompleted,
+        onStickyMineClearingCompleted,
         onThreatIdentificationCompleted,
     }: EnemyCrewTaskRunnerOptions) {
         this.state = state;
@@ -87,6 +103,9 @@ export default class EnemyCrewTaskRunner {
 
         this.onShieldDeploymentCompleted =
             onShieldDeploymentCompleted;
+
+        this.onStickyMineClearingCompleted =
+            onStickyMineClearingCompleted;
 
         this.onThreatIdentificationCompleted =
             onThreatIdentificationCompleted;
@@ -282,6 +301,18 @@ export default class EnemyCrewTaskRunner {
                 return;
 
             case SHIP_CREW_TASK_KIND
+                .CLEAR_STICKY_MINE:
+                this.processClearStickyMine(
+                    actor,
+                    role,
+                    task,
+                    deltaMs,
+                    advanceTimedTasks,
+                );
+
+                return;
+
+            case SHIP_CREW_TASK_KIND
                 .IDENTIFY_THREAT:
                 this.processIdentifyThreat(
                     actor,
@@ -429,6 +460,71 @@ export default class EnemyCrewTaskRunner {
         this.onShieldDeploymentCompleted(
             actor,
             task.shieldZone,
+        );
+
+        this.complete(
+            actor,
+            role,
+        );
+    }
+
+    private processClearStickyMine(
+        actor: ShipEncounterActorState,
+        role: OfficerRole,
+        task:
+            ClearStickyMineShipCrewTaskState,
+        deltaMs: number,
+        advanceTimedTasks: boolean,
+    ): void {
+        const mine =
+            this.state.combat
+                .stickyMines
+                .find((candidate) => {
+                    return (
+                        candidate.id ===
+                            task.mineId &&
+                        candidate.source.kind ===
+                            COMBAT_SOURCE_KIND
+                                .PLAYER_SHIP &&
+                        candidate.target.kind ===
+                            COMBAT_TARGET_KIND
+                                .ACTOR &&
+                        candidate.target.actorId ===
+                            actor.id
+                    );
+                });
+
+        if (!mine) {
+            this.cancel(
+                actor,
+                role,
+            );
+
+            return;
+        }
+
+        if (!advanceTimedTasks) {
+            return;
+        }
+
+        task.elapsedMs =
+            Math.min(
+                task.durationMs,
+
+                task.elapsedMs +
+                    deltaMs,
+            );
+
+        if (
+            task.elapsedMs <
+            task.durationMs
+        ) {
+            return;
+        }
+
+        this.onStickyMineClearingCompleted(
+            actor,
+            task.mineId,
         );
 
         this.complete(

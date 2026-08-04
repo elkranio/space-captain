@@ -263,6 +263,65 @@ export default class CombatStickyMineRunner {
         return true;
     }
 
+    public clearPlayerMineFromActor(
+        mineId: string,
+        targetActorId: string,
+    ): boolean {
+        const mineIndex =
+            this.state.combat
+                .stickyMines
+                .findIndex((mine) => {
+                    return (
+                        mine.id ===
+                            mineId &&
+                        mine.source.kind ===
+                            COMBAT_SOURCE_KIND
+                                .PLAYER_SHIP &&
+                        mine.target.kind ===
+                            COMBAT_TARGET_KIND
+                                .ACTOR &&
+                        mine.target.actorId ===
+                            targetActorId
+                    );
+                });
+
+        if (mineIndex < 0) {
+            return false;
+        }
+
+        const [
+            mine,
+        ] =
+            this.state.combat
+                .stickyMines
+                .splice(
+                    mineIndex,
+                    1,
+                );
+
+        if (!mine) {
+            throw new Error(
+                'Cleared player sticky mine ' +
+                    'disappeared during removal: ' +
+                    mineId,
+            );
+        }
+
+        this.emit({
+            type:
+                ENCOUNTER_EVENT
+                    .PLAYER_STICKY_MINE_RESOLVED,
+
+            mine,
+
+            outcome:
+                PLAYER_STICKY_MINE_OUTCOME
+                    .CLEARED,
+        });
+
+        return true;
+    }
+
     public removePlayerMinesTargetingActor(
         actorId: string,
     ): void {

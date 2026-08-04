@@ -408,6 +408,9 @@ function createRunnerFixture() {
             onShieldDeploymentCompleted:
                 () => {},
 
+            onStickyMineClearingCompleted:
+                () => {},
+
             onThreatIdentificationCompleted:
                 () => {},
         });

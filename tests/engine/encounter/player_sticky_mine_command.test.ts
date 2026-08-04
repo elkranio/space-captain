@@ -687,6 +687,10 @@ function createStickyMineTestSetup(): {
         targetActor,
     } = createAnchoredPlayerCombatTestSetup();
 
+    // This fixture tests player mine lifecycle, not enemy defense.
+    // Enemy mine-clearing behavior has its own focused integration tests.
+    targetActor.crewRoles = [];
+
     const dispenser =
         getPlayerWeaponOrThrow(
             state,

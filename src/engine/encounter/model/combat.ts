@@ -40,6 +40,7 @@ export type PlayerMissileOutcome =
 
 export const PLAYER_STICKY_MINE_OUTCOME = {
     TARGET_LOST: 'target_lost',
+    CLEARED: 'cleared',
     DETONATED: 'detonated',
 } as const;
 

@@ -27,6 +27,10 @@ import type {
     ShipEncounterActorState,
 } from '../actors/ship/ship_encounter_actor';
 import {
+    COMBAT_SOURCE_KIND,
+    COMBAT_TARGET_KIND,
+} from '../model/combat';
+import {
     OFFICER_TASK_KIND,
 } from '../model/officer_task';
 import type {
@@ -75,6 +79,15 @@ export type EnemyWorkIntent =
     | {
           kind:
               typeof SHIP_CREW_TASK_KIND
+                  .CLEAR_STICKY_MINE;
+
+          role: OfficerRole;
+
+          mineId: string;
+      }
+    | {
+          kind:
+              typeof SHIP_CREW_TASK_KIND
                   .INTERCEPT_MISSILE;
 
           role:
@@ -87,6 +100,13 @@ export type EnemyWorkIntent =
               typeof POINT_DEFENSE_BEAM_BAND.RED |
               typeof POINT_DEFENSE_BEAM_BAND.BLUE;
       };
+
+const ENEMY_MINE_CLEAR_ROLE_PRIORITY = [
+    OFFICER_ROLE.ENGINEER,
+    OFFICER_ROLE.SCIENCE,
+    OFFICER_ROLE.HELM,
+    OFFICER_ROLE.WEAPONS,
+] as const;
 
 // Пока policy намеренно простая:
 //
@@ -174,6 +194,115 @@ export default class EnemyDecisionPolicy {
             .offensiveTaskDelayRemainingMsByRole[
                 role
             ] = delayMs;
+    }
+
+    public selectMineClearing(
+        actor: ShipEncounterActorState,
+    ): Extract<
+        EnemyWorkIntent,
+        {
+            kind:
+                typeof SHIP_CREW_TASK_KIND
+                    .CLEAR_STICKY_MINE;
+        }
+    > | undefined {
+        const state =
+            this.state;
+
+        if (!state) {
+            return undefined;
+        }
+
+        const claimedMineIds =
+            new Set<string>();
+
+        for (
+            const task of
+            Object.values(
+                actor.crewTasks,
+            )
+        ) {
+            if (
+                task?.kind ===
+                SHIP_CREW_TASK_KIND
+                    .CLEAR_STICKY_MINE
+            ) {
+                claimedMineIds.add(
+                    task.mineId,
+                );
+            }
+        }
+
+        let selectedMine:
+            (
+                typeof state.combat
+                    .stickyMines
+            )[number] |
+            undefined;
+
+        for (
+            const mine of
+            state.combat
+                .stickyMines
+        ) {
+            if (
+                mine.source.kind !==
+                    COMBAT_SOURCE_KIND
+                        .PLAYER_SHIP ||
+                mine.target.kind !==
+                    COMBAT_TARGET_KIND
+                        .ACTOR ||
+                mine.target.actorId !==
+                    actor.id ||
+                claimedMineIds.has(
+                    mine.id,
+                )
+            ) {
+                continue;
+            }
+
+            if (
+                !selectedMine ||
+                mine.timeToDetonationMs <
+                    selectedMine
+                        .timeToDetonationMs
+            ) {
+                selectedMine = mine;
+            }
+        }
+
+        if (!selectedMine) {
+            return undefined;
+        }
+
+        const role =
+            ENEMY_MINE_CLEAR_ROLE_PRIORITY
+                .find((candidate) => {
+                    return (
+                        actor.crewRoles
+                            .includes(
+                                candidate,
+                            ) &&
+                        actor.crewTasks[
+                            candidate
+                        ] === undefined
+                    );
+                });
+
+        if (!role) {
+            return undefined;
+        }
+
+        return {
+            kind:
+                SHIP_CREW_TASK_KIND
+                    .CLEAR_STICKY_MINE,
+
+            role,
+
+            mineId:
+                selectedMine.id,
+        };
     }
 
     public selectWork(

@@ -394,6 +394,17 @@ export type PlayerStickyMineResolvedEvent =
 
           outcome:
               typeof PLAYER_STICKY_MINE_OUTCOME
+                  .CLEARED;
+      }
+    | {
+          type:
+              typeof ENCOUNTER_EVENT
+                  .PLAYER_STICKY_MINE_RESOLVED;
+
+          mine: StickyMineState;
+
+          outcome:
+              typeof PLAYER_STICKY_MINE_OUTCOME
                   .DETONATED;
 
           damage: number;

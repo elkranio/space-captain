@@ -56,6 +56,11 @@ type EnemyTaskSchedulerOptions = {
 
     emit: (event: EncounterEvent) => void;
 
+    clearPlayerStickyMine: (
+        mineId: string,
+        targetActorId: string,
+    ) => boolean;
+
     random?: () => number;
 };
 
@@ -100,6 +105,7 @@ export default class EnemyTaskScheduler {
     constructor({
         state,
         emit,
+        clearPlayerStickyMine,
         random = Math.random,
     }: EnemyTaskSchedulerOptions) {
         this.state = state;
@@ -143,6 +149,29 @@ export default class EnemyTaskScheduler {
                             durationMs:
                                 SHIP_SHIELD_DURATION_MS,
                         };
+                    },
+
+                onStickyMineClearingCompleted:
+                    (
+                        actor,
+                        mineId,
+                    ) => {
+                        const cleared =
+                            clearPlayerStickyMine(
+                                mineId,
+                                actor.id,
+                            );
+
+                        if (!cleared) {
+                            throw new Error(
+                                'Enemy sticky mine ' +
+                                    'disappeared before ' +
+                                    'clearing completion: ' +
+                                    actor.id +
+                                    '/' +
+                                    mineId,
+                            );
+                        }
                     },
 
                 onThreatIdentificationCompleted:
@@ -224,6 +253,10 @@ export default class EnemyTaskScheduler {
                 continue;
             }
 
+            this.scheduleMineClearing(
+                actor,
+            );
+
             for (
                 const role of
                 ENEMY_WORK_ROLES
@@ -304,6 +337,15 @@ export default class EnemyTaskScheduler {
     ): void {
         switch (intent.kind) {
             case SHIP_CREW_TASK_KIND
+                .CLEAR_STICKY_MINE:
+                this.startStickyMineClearing(
+                    actor,
+                    intent,
+                );
+
+                return;
+
+            case SHIP_CREW_TASK_KIND
                 .IDENTIFY_THREAT:
                 this.startThreatIdentification(
                     actor,
@@ -339,6 +381,83 @@ export default class EnemyTaskScheduler {
 
                 return;
         }
+    }
+
+    private scheduleMineClearing(
+        actor: ShipEncounterActorState,
+    ): void {
+        while (true) {
+            const intent =
+                this.decisionPolicy
+                    .selectMineClearing(
+                        actor,
+                    );
+
+            if (!intent) {
+                return;
+            }
+
+            this.startWork(
+                actor,
+                intent,
+            );
+        }
+    }
+
+    private startStickyMineClearing(
+        actor: ShipEncounterActorState,
+        intent:
+            Extract<
+                EnemyWorkIntent,
+                {
+                    kind:
+                        typeof SHIP_CREW_TASK_KIND
+                            .CLEAR_STICKY_MINE;
+                }
+            >,
+    ): void {
+        const mine =
+            this.state.combat
+                .stickyMines
+                .find((candidate) => {
+                    return (
+                        candidate.id ===
+                            intent.mineId &&
+                        candidate.source.kind ===
+                            COMBAT_SOURCE_KIND
+                                .PLAYER_SHIP &&
+                        candidate.target.kind ===
+                            COMBAT_TARGET_KIND
+                                .ACTOR &&
+                        candidate.target.actorId ===
+                            actor.id
+                    );
+                });
+
+        if (!mine) {
+            throw new Error(
+                'Cannot start enemy sticky-mine ' +
+                    'clearing: ' +
+                    actor.id +
+                    '/' +
+                    intent.role +
+                    '/' +
+                    intent.mineId,
+            );
+        }
+
+        this.crewTaskRunner.start(
+            actor,
+            {
+                ...intent,
+
+                elapsedMs: 0,
+
+                durationMs:
+                    OFFICER_TASK_BASE_DURATION_MS
+                        .CLEAR_STICKY_MINE,
+            },
+        );
     }
 
     private startThreatIdentification(

@@ -96,6 +96,10 @@ function formatRole(
     return (
         prefix +
         snapshot.task.label +
+        formatTaskTargetTimer(
+            snapshot.task
+                .targetRemainingMs,
+        ) +
         formatProgress(
             snapshot.task.progress,
         )
@@ -298,6 +302,18 @@ function formatThreat(
     }
 
     return parts.join(' ');
+}
+
+function formatTaskTargetTimer(
+    remainingMs?: number,
+): string {
+    return remainingMs ===
+        undefined
+        ? ''
+        : ' FUSE ' +
+              formatTimer(
+                  remainingMs,
+              );
 }
 
 function formatProgress(
