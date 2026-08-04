@@ -14,7 +14,7 @@ import {
 } from '../model/officer_task';
 import { getActiveEnemySpamChannels } from '../combat/queries/get_active_enemy_spam_channels';
 import { getOfficerCommandDef } from '../commands/officer_command_handlers';
-import OfficerPerformanceResolver from '../officer_performance/OfficerPerformanceResolver';
+import CrewPerformanceResolver from '../crew_performance/CrewPerformanceResolver';
 import EncounterStateStore from '../state/EncounterStateStore';
 import { createHelmFlyToTask } from './create_officer_task_draft';
 import OfficerTaskResolver from './OfficerTaskResolver';
@@ -66,7 +66,7 @@ export default class OfficerTaskRunner {
 
     private readonly taskResolver: OfficerTaskResolver;
 
-    private readonly performanceResolver: OfficerPerformanceResolver;
+    private readonly performanceResolver: CrewPerformanceResolver;
 
     private nextTaskId = 1;
 
@@ -92,7 +92,10 @@ export default class OfficerTaskRunner {
             this.emit,
         );
 
-        this.performanceResolver = new OfficerPerformanceResolver(this.stateStore);
+        this.performanceResolver =
+            new CrewPerformanceResolver(
+                this.stateStore.getState(),
+            );
 
         this.restoreMissingNavigationTask();
     }
@@ -199,14 +202,20 @@ export default class OfficerTaskRunner {
     }
 
     public step(deltaMs: number): void {
+        const progressDeltaMs =
+            deltaMs *
+            this.performanceResolver
+                .getPlayerProgressMultiplier();
+
         for (const task of this.stateStore.getOfficerTasks()) {
             if (task.durationMs === null) {
                 continue;
             }
 
-            const multiplier = this.performanceResolver.getTaskProgressMultiplier(task);
-
-            this.stateStore.advanceOfficerTask(task.id, deltaMs * multiplier);
+            this.stateStore.advanceOfficerTask(
+                task.id,
+                progressDeltaMs,
+            );
         }
 
         this.completeFinishedTasks();

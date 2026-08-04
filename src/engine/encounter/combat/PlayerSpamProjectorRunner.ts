@@ -24,7 +24,6 @@ import {
     OFFICER_TASK_KIND,
     type OfficerTaskState,
 } from '../model/officer_task';
-import type OfficerPerformanceResolver from '../officer_performance/OfficerPerformanceResolver';
 import type EncounterStateStore from '../state/EncounterStateStore';
 
 type ScienceFireSpamTaskState =
@@ -40,9 +39,6 @@ type ScienceFireSpamTaskState =
 type PlayerSpamProjectorRunnerOptions = {
     stateStore: EncounterStateStore;
 
-    performanceResolver:
-        OfficerPerformanceResolver;
-
     emit: (event: EncounterEvent) => void;
 
     completeOfficerTask:
@@ -55,9 +51,9 @@ type PlayerSpamProjectorRunnerOptions = {
 // performance multiplier. Once the channel exists, its twenty-second
 // physical lifetime advances in real encounter time.
 //
-// Active channels are exposed through one derived combat query.
-// EnemyCrewPerformanceResolver applies the content-defined x0.5 slowdown
-// to crew-driven enemy work while this channel remains active.
+// Active channels are exposed through the unified crew-progress effect
+// query. CrewPerformanceResolver applies the content-defined slowdown to the
+// targeted enemy crew while this channel remains active.
 export default class PlayerSpamProjectorRunner {
     constructor(
         private readonly options:
@@ -66,7 +62,8 @@ export default class PlayerSpamProjectorRunner {
 
     public advanceTask(
         task: ScienceFireSpamTaskState,
-        deltaMs: number,
+        crewDeltaMs: number,
+        worldDeltaMs: number,
     ): void {
         if (!this.hasValidTarget(task)) {
             // Shared missing-target cleanup cancels the task
@@ -82,29 +79,20 @@ export default class PlayerSpamProjectorRunner {
         }
 
         switch (projector.phase) {
-            case SHIP_WEAPON_PHASE.TARGETING: {
-                const effectiveDeltaMs =
-                    deltaMs *
-                    this.options
-                        .performanceResolver
-                        .getTaskProgressMultiplier(
-                            task,
-                        );
-
+            case SHIP_WEAPON_PHASE.TARGETING:
                 this.advanceTargeting(
                     task,
                     projector,
-                    effectiveDeltaMs,
+                    crewDeltaMs,
                 );
 
                 return;
-            }
 
             case SHIP_WEAPON_PHASE.CHANNELING:
                 this.advanceChanneling(
                     task,
                     projector,
-                    deltaMs,
+                    worldDeltaMs,
                 );
 
                 return;

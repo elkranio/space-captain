@@ -29,7 +29,7 @@ import {
 import type {
     EncounterState,
 } from '../model/state';
-import EnemyCrewPerformanceResolver from './EnemyCrewPerformanceResolver';
+import CrewPerformanceResolver from '../crew_performance/CrewPerformanceResolver';
 
 type EnemyCrewTaskRunnerOptions = {
     state: EncounterState;
@@ -71,7 +71,7 @@ export default class EnemyCrewTaskRunner {
     private readonly state: EncounterState;
 
     private readonly performanceResolver:
-        EnemyCrewPerformanceResolver;
+        CrewPerformanceResolver;
 
     private readonly onOffensiveTaskCompleted:
         EnemyCrewTaskRunnerOptions[
@@ -103,7 +103,7 @@ export default class EnemyCrewTaskRunner {
         this.state = state;
 
         this.performanceResolver =
-            new EnemyCrewPerformanceResolver(
+            new CrewPerformanceResolver(
                 this.state,
             );
 
@@ -225,8 +225,8 @@ export default class EnemyCrewTaskRunner {
                 advanceTimedTasks
                     ? deltaMs *
                       this.performanceResolver
-                          .getTaskProgressMultiplier(
-                              actor,
+                          .getActorProgressMultiplier(
+                              actor.id,
                           )
                     : deltaMs;
 

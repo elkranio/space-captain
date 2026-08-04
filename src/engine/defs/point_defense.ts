@@ -72,6 +72,30 @@ export function doesPointDefensePhaseRequireOperator(
     }
 }
 
+// Central timing policy for installed point defense.
+//
+// Kept separate from occupation so future physical phases can remain
+// world-time without silently changing crew ownership.
+export function doesPointDefensePhaseAdvanceWithCrew(
+    phase: PointDefensePhase,
+): boolean {
+    switch (phase) {
+        case POINT_DEFENSE_PHASE.LOADING:
+            return true;
+
+        case POINT_DEFENSE_PHASE.READY:
+        case POINT_DEFENSE_PHASE.COOLDOWN:
+            return false;
+
+        default: {
+            const exhaustivePhase: never =
+                phase;
+
+            return exhaustivePhase;
+        }
+    }
+}
+
 // Mutable state of one installed ship point-defense system.
 //
 // loadedBand and targetProjectileId remain null outside an active load.

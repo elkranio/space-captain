@@ -11,7 +11,6 @@ import {
     OFFICER_TASK_KIND,
     type OfficerTaskState,
 } from '../model/officer_task';
-import type OfficerPerformanceResolver from '../officer_performance/OfficerPerformanceResolver';
 import type EncounterStateStore from '../state/EncounterStateStore';
 
 type WeaponsFireStickyMinesTaskState = Extract<
@@ -25,8 +24,6 @@ type WeaponsFireStickyMinesTaskState = Extract<
 
 type PlayerStickyMineDispenserRunnerOptions = {
     stateStore: EncounterStateStore;
-    performanceResolver: OfficerPerformanceResolver;
-
     queuePlayerStickyMineAttach: (
         input: {
             sourceWeaponId: string;
@@ -79,16 +76,8 @@ export default class PlayerStickyMineDispenserRunner {
         const definition =
             this.getDefinition(dispenser);
 
-        const effectiveDeltaMs =
-            deltaMs *
-            this.options
-                .performanceResolver
-                .getTaskProgressMultiplier(
-                    task,
-                );
-
         dispenser.phaseElapsedMs +=
-            effectiveDeltaMs;
+            deltaMs;
 
         // There is no aiming/prep phase: the first mine leaves
         // on the first step, including step(0).

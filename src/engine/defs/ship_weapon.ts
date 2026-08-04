@@ -36,8 +36,12 @@ export type ShipWeaponPhase = (typeof SHIP_WEAPON_PHASE)[keyof typeof SHIP_WEAPO
 
 // Единый domain query для занятости оператора оружия.
 //
-// Cooldown и ready не требуют участия crew/officer.
-// Любой новый phase должен быть явно классифицирован здесь.
+// Occupancy is not the same as progress timing:
+// an active spam channel still occupies Science, but its lifetime advances
+// in world time rather than crew-performance time.
+//
+// Cooldown and ready do not require a crew/officer.
+// Any new phase must be classified explicitly here.
 export function doesShipWeaponPhaseRequireOperator(
     phase: ShipWeaponPhase,
 ): boolean {
@@ -57,6 +61,61 @@ export function doesShipWeaponPhaseRequireOperator(
                 phase;
 
             return exhaustivePhase;
+        }
+    }
+}
+
+// Central timing policy for installed weapon phases.
+//
+// true  -> advance with crew-performance time;
+// false -> advance with raw encounter/world time.
+//
+// This is intentionally separate from operator occupancy.
+export function doesShipWeaponPhaseAdvanceWithCrew(
+    kind: ShipWeaponKind,
+    phase: ShipWeaponPhase,
+): boolean {
+    switch (kind) {
+        case SHIP_WEAPON_KIND
+            .MISSILE_LAUNCHER:
+            return (
+                phase ===
+                SHIP_WEAPON_PHASE.TARGETING
+            );
+
+        case SHIP_WEAPON_KIND.LASER:
+            return (
+                phase ===
+                    SHIP_WEAPON_PHASE
+                        .TARGETING ||
+                phase ===
+                    SHIP_WEAPON_PHASE
+                        .CHARGING
+            );
+
+        case SHIP_WEAPON_KIND
+            .SPAM_PROJECTOR:
+            return (
+                phase ===
+                SHIP_WEAPON_PHASE.TARGETING
+            );
+
+        case SHIP_WEAPON_KIND
+            .STICKY_MINE_DISPENSER:
+            return (
+                phase ===
+                    SHIP_WEAPON_PHASE
+                        .TARGETING ||
+                phase ===
+                    SHIP_WEAPON_PHASE
+                        .DISPENSING
+            );
+
+        default: {
+            const exhaustiveKind: never =
+                kind;
+
+            return exhaustiveKind;
         }
     }
 }

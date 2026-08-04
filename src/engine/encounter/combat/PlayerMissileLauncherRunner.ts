@@ -12,7 +12,6 @@ import {
     OFFICER_TASK_KIND,
     type OfficerTaskState,
 } from '../model/officer_task';
-import type OfficerPerformanceResolver from '../officer_performance/OfficerPerformanceResolver';
 import type EncounterStateStore from '../state/EncounterStateStore';
 
 type WeaponsFireMissileTaskState = Extract<
@@ -26,8 +25,6 @@ type WeaponsFireMissileTaskState = Extract<
 
 type PlayerMissileLauncherRunnerOptions = {
     stateStore: EncounterStateStore;
-    performanceResolver: OfficerPerformanceResolver;
-
     queuePlayerMissileLaunch: (
         input: {
             sourceWeaponId: string;
@@ -79,18 +76,10 @@ export default class PlayerMissileLauncherRunner {
             );
         }
 
-        const effectiveDeltaMs =
-            deltaMs *
-            this.options
-                .performanceResolver
-                .getTaskProgressMultiplier(
-                    task,
-                );
-
         this.advanceTargeting(
             task,
             launcher,
-            effectiveDeltaMs,
+            deltaMs,
         );
     }
 

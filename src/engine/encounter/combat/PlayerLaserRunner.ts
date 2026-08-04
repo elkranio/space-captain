@@ -20,7 +20,6 @@ import {
     OFFICER_TASK_KIND,
     type OfficerTaskState,
 } from '../model/officer_task';
-import type OfficerPerformanceResolver from '../officer_performance/OfficerPerformanceResolver';
 import type EncounterStateStore from '../state/EncounterStateStore';
 
 type WeaponsFireLaserTaskState = Extract<
@@ -47,7 +46,6 @@ type PlayerLaserImpact =
 
 type PlayerLaserRunnerOptions = {
     stateStore: EncounterStateStore;
-    performanceResolver: OfficerPerformanceResolver;
     emit: (event: EncounterEvent) => void;
     completeOfficerTask:
         (taskId: string) => void;
@@ -82,20 +80,12 @@ export default class PlayerLaserRunner {
             return;
         }
 
-        const effectiveDeltaMs =
-            deltaMs *
-            this.options
-                .performanceResolver
-                .getTaskProgressMultiplier(
-                    task,
-                );
-
         switch (laser.phase) {
             case SHIP_WEAPON_PHASE.TARGETING:
                 this.advanceTargeting(
                     task,
                     laser,
-                    effectiveDeltaMs,
+                    deltaMs,
                 );
                 return;
 
@@ -103,7 +93,7 @@ export default class PlayerLaserRunner {
                 this.advanceCharging(
                     task,
                     laser,
-                    effectiveDeltaMs,
+                    deltaMs,
                 );
                 return;
 

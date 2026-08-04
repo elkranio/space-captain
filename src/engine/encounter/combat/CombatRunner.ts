@@ -1,6 +1,10 @@
 // src/engine/encounter/combat/CombatRunner.ts
 
 import {
+    doesPointDefensePhaseAdvanceWithCrew,
+} from '../../defs/point_defense';
+import {
+    doesShipWeaponPhaseAdvanceWithCrew,
     SHIP_WEAPON_KIND,
 } from '../../defs/ship_weapon';
 import type { EncounterEvent } from '../model/event';
@@ -12,7 +16,7 @@ import CombatMissileRunner, {
     type PlayerMissileLaunchInput,
 } from './CombatMissileRunner';
 import CombatRuntimeIdentityFactory from './CombatRuntimeIdentityFactory';
-import EnemyCrewPerformanceResolver from './EnemyCrewPerformanceResolver';
+import CrewPerformanceResolver from '../crew_performance/CrewPerformanceResolver';
 import CombatSpamRunner from './CombatSpamRunner';
 import CombatStickyMineRunner, {
     type PlayerStickyMineAttachInput,
@@ -75,8 +79,8 @@ export default class CombatRunner {
     private readonly missileRunner:
         CombatMissileRunner;
 
-    private readonly enemyCrewPerformanceResolver:
-        EnemyCrewPerformanceResolver;
+    private readonly performanceResolver:
+        CrewPerformanceResolver;
 
     private readonly pointDefenseRunner:
         EnemyPointDefenseRunner;
@@ -116,8 +120,8 @@ export default class CombatRunner {
         this.identities =
             new CombatRuntimeIdentityFactory();
 
-        this.enemyCrewPerformanceResolver =
-            new EnemyCrewPerformanceResolver(
+        this.performanceResolver =
+            new CrewPerformanceResolver(
                 this.state,
             );
 
@@ -373,23 +377,38 @@ export default class CombatRunner {
                 continue;
             }
 
-            const crewProgressMultiplier =
-                this.enemyCrewPerformanceResolver
-                    .getTaskProgressMultiplier(
-                        actor,
+            const crewDeltaMs =
+                deltaMs *
+                this.performanceResolver
+                    .getActorProgressMultiplier(
+                        actor.id,
                     );
 
             if (actor.pointDefense) {
+                const pointDefenseDeltaMs =
+                    doesPointDefensePhaseAdvanceWithCrew(
+                        actor.pointDefense.phase,
+                    )
+                        ? crewDeltaMs
+                        : deltaMs;
+
                 this.pointDefenseRunner
                     .advance(
                         actor,
                         actor.pointDefense,
-                        deltaMs,
-                        crewProgressMultiplier,
+                        pointDefenseDeltaMs,
                     );
             }
 
             for (const weapon of actor.weapons) {
+                const weaponDeltaMs =
+                    doesShipWeaponPhaseAdvanceWithCrew(
+                        weapon.kind,
+                        weapon.phase,
+                    )
+                        ? crewDeltaMs
+                        : deltaMs;
+
                 switch (weapon.kind) {
                     case SHIP_WEAPON_KIND
                         .MISSILE_LAUNCHER:
@@ -397,8 +416,7 @@ export default class CombatRunner {
                             .advanceEnemyLauncher(
                                 actor,
                                 weapon,
-                                deltaMs,
-                                crewProgressMultiplier,
+                                weaponDeltaMs,
                             );
                         break;
 
@@ -407,8 +425,7 @@ export default class CombatRunner {
                             .advanceEnemyLaser(
                                 actor,
                                 weapon,
-                                deltaMs,
-                                crewProgressMultiplier,
+                                weaponDeltaMs,
                             );
                         break;
 
@@ -418,8 +435,7 @@ export default class CombatRunner {
                             .advanceEnemyDispenser(
                                 actor,
                                 weapon,
-                                deltaMs,
-                                crewProgressMultiplier,
+                                weaponDeltaMs,
                             );
                         break;
 
@@ -429,8 +445,7 @@ export default class CombatRunner {
                             .advanceEnemyProjector(
                                 actor,
                                 weapon,
-                                deltaMs,
-                                crewProgressMultiplier,
+                                weaponDeltaMs,
                             );
                         break;
                 }

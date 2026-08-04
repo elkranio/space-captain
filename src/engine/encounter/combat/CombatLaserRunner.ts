@@ -77,7 +77,6 @@ export default class CombatLaserRunner {
         actor: ShipEncounterActorState,
         laser: LaserWeaponState,
         deltaMs: number,
-        crewProgressMultiplier = 1,
     ): void {
         switch (laser.phase) {
             case SHIP_WEAPON_PHASE.READY:
@@ -87,8 +86,7 @@ export default class CombatLaserRunner {
                 this.advanceTargeting(
                     actor,
                     laser,
-                    deltaMs *
-                        crewProgressMultiplier,
+                    deltaMs,
                 );
                 return;
 
@@ -96,8 +94,7 @@ export default class CombatLaserRunner {
                 this.advanceCharging(
                     actor,
                     laser,
-                    deltaMs *
-                        crewProgressMultiplier,
+                    deltaMs,
                 );
                 return;
 

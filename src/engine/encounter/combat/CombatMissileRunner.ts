@@ -115,7 +115,6 @@ export default class CombatMissileRunner {
         actor: ShipEncounterActorState,
         launcher: MissileLauncherState,
         deltaMs: number,
-        crewProgressMultiplier = 1,
     ): void {
         switch (launcher.phase) {
             case SHIP_WEAPON_PHASE.READY:
@@ -125,8 +124,7 @@ export default class CombatMissileRunner {
                 this.advanceTargeting(
                     actor,
                     launcher,
-                    deltaMs *
-                        crewProgressMultiplier,
+                    deltaMs,
                 );
                 return;
 

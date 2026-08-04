@@ -14,7 +14,7 @@ import type { EncounterEvent } from '../model/event';
 import {
     OFFICER_TASK_KIND,
 } from '../model/officer_task';
-import OfficerPerformanceResolver from '../officer_performance/OfficerPerformanceResolver';
+import CrewPerformanceResolver from '../crew_performance/CrewPerformanceResolver';
 import type EncounterStateStore from '../state/EncounterStateStore';
 import PlayerLaserRunner from './PlayerLaserRunner';
 import PlayerMissileLauncherRunner from './PlayerMissileLauncherRunner';
@@ -71,22 +71,24 @@ export default class PlayerWeaponRunner {
     private readonly stateStore:
         EncounterStateStore;
 
+    private readonly performanceResolver:
+        CrewPerformanceResolver;
+
     constructor({
         stateStore,
         ...options
     }: PlayerWeaponRunnerOptions) {
         this.stateStore = stateStore;
 
-        const performanceResolver =
-            new OfficerPerformanceResolver(
-                this.stateStore,
+        this.performanceResolver =
+            new CrewPerformanceResolver(
+                this.stateStore.getState(),
             );
 
         this.missileLauncherRunner =
             new PlayerMissileLauncherRunner({
                 stateStore:
                     this.stateStore,
-                performanceResolver,
                 queuePlayerMissileLaunch:
                     options.queuePlayerMissileLaunch,
                 completeOfficerTask:
@@ -97,7 +99,6 @@ export default class PlayerWeaponRunner {
             new PlayerStickyMineDispenserRunner({
                 stateStore:
                     this.stateStore,
-                performanceResolver,
                 queuePlayerStickyMineAttach:
                     options.queuePlayerStickyMineAttach,
                 completeOfficerTask:
@@ -109,7 +110,6 @@ export default class PlayerWeaponRunner {
                 stateStore:
                     this.stateStore,
 
-                performanceResolver,
 
                 emit:
                     options.emit,
@@ -122,7 +122,6 @@ export default class PlayerWeaponRunner {
             new PlayerLaserRunner({
                 stateStore:
                     this.stateStore,
-                performanceResolver,
                 emit:
                     options.emit,
                 completeOfficerTask:
@@ -134,6 +133,11 @@ export default class PlayerWeaponRunner {
 
     public step(deltaMs: number): void {
         this.advanceCooldowns(deltaMs);
+
+        const crewDeltaMs =
+            deltaMs *
+            this.performanceResolver
+                .getPlayerProgressMultiplier();
 
         const scienceTask =
             this.stateStore.getOfficerTask(
@@ -148,6 +152,7 @@ export default class PlayerWeaponRunner {
             this.spamProjectorRunner
                 .advanceTask(
                     scienceTask,
+                    crewDeltaMs,
                     deltaMs,
                 );
         }
@@ -167,7 +172,7 @@ export default class PlayerWeaponRunner {
                 this.missileLauncherRunner
                     .advanceTask(
                         task,
-                        deltaMs,
+                        crewDeltaMs,
                     );
                 return;
 
@@ -176,7 +181,7 @@ export default class PlayerWeaponRunner {
                 this.stickyMineDispenserRunner
                     .advanceTask(
                         task,
-                        deltaMs,
+                        crewDeltaMs,
                     );
                 return;
 
@@ -184,7 +189,7 @@ export default class PlayerWeaponRunner {
                 .WEAPONS_FIRE_LASER:
                 this.laserRunner.advanceTask(
                     task,
-                    deltaMs,
+                    crewDeltaMs,
                 );
                 return;
 
