@@ -34,6 +34,9 @@ export const SHIP_NODE_ACTOR_PRESET_ID = {
 
     ENEMY_COMBAT_00:
         'enemy_combat_00',
+
+    ENEMY_DEFENSE_SANDBOX_00:
+        'enemy_defense_sandbox_00',
 } as const;
 
 export type ShipNodeActorPresetId =
@@ -156,6 +159,25 @@ export const SHIP_NODE_ACTOR_PRESETS = {
         shipPresetId:
             SHIP_PRESET_ID
                 .GENERIC_COMBAT_00,
+
+        crewPresetId:
+            SHIP_CREW_PRESET_ID.STANDARD_00,
+
+        behaviorPresetId:
+            SHIP_BEHAVIOR_PRESET_ID
+                .STANDARD_COMBAT_00,
+    },
+
+    [SHIP_NODE_ACTOR_PRESET_ID.ENEMY_DEFENSE_SANDBOX_00]: {
+        id:
+            SHIP_NODE_ACTOR_PRESET_ID
+                .ENEMY_DEFENSE_SANDBOX_00,
+
+        team: ENCOUNTER_TEAM.ENEMY,
+
+        shipPresetId:
+            SHIP_PRESET_ID
+                .GENERIC_DEFENSE_SANDBOX_00,
 
         crewPresetId:
             SHIP_CREW_PRESET_ID.STANDARD_00,

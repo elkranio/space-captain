@@ -43,6 +43,9 @@ export const SHIP_PRESET_ID = {
 
     GENERIC_COMBAT_00:
         'generic_combat_00',
+
+    GENERIC_DEFENSE_SANDBOX_00:
+        'generic_defense_sandbox_00',
 } as const;
 
 export type ShipPresetId = (typeof SHIP_PRESET_ID)[keyof typeof SHIP_PRESET_ID];
@@ -327,5 +330,26 @@ export const SHIP_PRESETS = {
                         .SPAM_PROJECTOR_00,
             },
         ],
+    },
+
+    [SHIP_PRESET_ID.GENERIC_DEFENSE_SANDBOX_00]: {
+        id:
+            SHIP_PRESET_ID
+                .GENERIC_DEFENSE_SANDBOX_00,
+
+        chassisId:
+            SHIP_CHASSIS_ID.GENERIC_00,
+
+        drive: {
+            id: 'drive_00',
+            driveId: SHIP_DRIVE_ID.BASIC_00,
+        },
+
+        shieldGeneratorPresetId:
+            SHIELD_GENERATOR_PRESET_ID.BASIC_00,
+
+        // Defensive systems are added in later focused atoms.
+        // This sandbox intentionally cannot schedule offensive work.
+        weapons: [],
     },
 } satisfies Record<ShipPresetId, ShipPreset>;

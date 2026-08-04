@@ -2,6 +2,7 @@
 
 import { describe, expect, it } from 'vitest';
 import NewGameUniverseFactory from '../../../src/engine/content/new_game/NewGameUniverseFactory';
+import { OFFICER_ROLE } from '../../../src/engine/defs/officer';
 import { PLAYER_LOCATION_KIND, PLAYER_SPACE_NAVIGATION_KIND } from '../../../src/engine/defs/player_location';
 import { SPACE_BACKGROUND_ID } from '../../../src/engine/defs/space_background';
 import { SPACE_ANCHOR_KIND, SPACE_NODE_ACTOR_KIND } from '../../../src/engine/defs/universe';
@@ -104,6 +105,15 @@ describe('NewGameUniverseFactory', () => {
         expect(enemy.kind).toBe(SPACE_NODE_ACTOR_KIND.SHIP);
         expect(enemy.anchorId).toBe(navigationBeaconAnchor.beacon.id);
 
+        expect(enemy.weapons).toEqual([]);
+
+        expect(enemy.crewRoles).toEqual([
+            OFFICER_ROLE.SCIENCE,
+            OFFICER_ROLE.HELM,
+            OFFICER_ROLE.WEAPONS,
+            OFFICER_ROLE.ENGINEER,
+        ]);
+
         expect(generated.playerLocations.arrivingAtStart).toEqual({
             kind: PLAYER_LOCATION_KIND.SPACE,
 
@@ -151,15 +161,17 @@ describe('NewGameUniverseFactory', () => {
 
         expect(first.universe.nodes[0].actors[0]).not.toBe(second.universe.nodes[0].actors[0]);
 
-        const firstWeapon = first.universe.nodes[0].actors[0].weapons[0];
-        const secondWeapon = second.universe.nodes[0].actors[0].weapons[0];
+        const firstEnemy = first.universe.nodes[0].actors[0];
+        const secondEnemy = second.universe.nodes[0].actors[0];
 
-        expect(firstWeapon).not.toBe(secondWeapon);
+        expect(firstEnemy.weapons).not.toBe(secondEnemy.weapons);
+        expect(firstEnemy.weapons).toEqual([]);
+        expect(secondEnemy.weapons).toEqual([]);
 
         expect(first.playerLocations.arrivingAtStart).not.toBe(second.playerLocations.arrivingAtStart);
 
-        firstWeapon.phaseElapsedMs = 1234;
+        firstEnemy.shieldGenerator.charges = 0;
 
-        expect(secondWeapon.phaseElapsedMs).toBe(0);
+        expect(secondEnemy.shieldGenerator.charges).toBe(3);
     });
 });
