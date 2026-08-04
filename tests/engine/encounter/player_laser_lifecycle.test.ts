@@ -257,9 +257,12 @@ describe('Player laser lifecycle', () => {
                 LASER_TARGET_ZONE.CENTER,
 
             outcome:
-                LASER_SHOT_OUTCOME.BLOCKED,
+                LASER_SHOT_OUTCOME.HIT,
 
-            remainingShieldCharges: 2,
+            damage: 1,
+
+            remainingHull:
+                enemy.hull - 1,
         });
 
         expect(fireEvents).toContainEqual(

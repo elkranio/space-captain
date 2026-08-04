@@ -11,6 +11,9 @@ import {
     SHIP_WEAPON_TARGETING_DURATION_MS,
 } from '../../../src/engine/content/catalogs/ship_weapons';
 import {
+    SHIP_SHIELD_DURATION_MS,
+} from '../../../src/engine/content/rules/shields';
+import {
     createNewRunState,
 } from '../../../src/engine/content/new_game/create_new_run_state';
 import {
@@ -40,9 +43,12 @@ import {
 import {
     ENCOUNTER_EVENT,
 } from '../../../src/engine/encounter/model/event';
+import {
+    getMutableEncounterStateForTest,
+} from './get_mutable_encounter_state_for_test';
 
 describe('Player laser damage', () => {
-    it('consumes enemy shields before damaging hull', () => {
+    it('consumes a matching enemy directional shield before damaging hull', () => {
         const run =
             createNewRunState();
 
@@ -81,12 +87,6 @@ describe('Player laser damage', () => {
         enemy.crewRoles = [];
         enemy.weapons = [];
 
-        enemy.shieldGenerator.charges = 1;
-
-        enemy
-            .shieldGenerator
-            .chargeRegenerationElapsedMs = 0;
-
         const engine = new EncounterEngine({
             playerHull: createPlayerHullFixture(),
 
@@ -118,11 +118,41 @@ describe('Player laser damage', () => {
 
         engine.drainEvents();
 
+        const runtimeEnemy =
+            getMutableEncounterStateForTest(
+                engine,
+            )
+                .actors
+                .find((actor) => {
+                    return (
+                        actor.id ===
+                        enemy.id
+                    );
+                });
+
+        if (!runtimeEnemy) {
+            throw new Error(
+                'Expected runtime enemy target',
+            );
+        }
+
         const firstFireEvents =
             fireLaser(
                 engine,
                 enemy.id,
                 LASER_TARGET_ZONE.LEFT,
+
+                () => {
+                    runtimeEnemy.activeShield = {
+                        zone:
+                            LASER_TARGET_ZONE.LEFT,
+
+                        elapsedMs: 0,
+
+                        durationMs:
+                            SHIP_SHIELD_DURATION_MS,
+                    };
+                },
             );
 
         expect(firstFireEvents).toContainEqual({
@@ -142,8 +172,15 @@ describe('Player laser damage', () => {
             outcome:
                 LASER_SHOT_OUTCOME.BLOCKED,
 
-            remainingShieldCharges: 0,
+            remainingShieldCharges:
+                runtimeEnemy
+                    .shieldGenerator
+                    .charges,
         });
+
+        expect(
+            runtimeEnemy.activeShield,
+        ).toBeUndefined();
 
         expect(
             engine
@@ -151,11 +188,6 @@ describe('Player laser damage', () => {
         ).toMatchObject({
             hull: {
                 current: 3,
-                max: 3,
-            },
-
-            shieldGenerator: {
-                current: 0,
                 max: 3,
             },
         });
@@ -208,11 +240,6 @@ describe('Player laser damage', () => {
                 current: 2,
                 max: 3,
             },
-
-            shieldGenerator: {
-                current: 0,
-                max: 3,
-            },
         });
     });
 });
@@ -221,6 +248,8 @@ function fireLaser(
     engine: EncounterEngine,
     targetActorId: string,
     targetZone: LaserTargetZone,
+
+    prepareImpact?: () => void,
 ) {
     engine.executeCommand({
         role:
@@ -253,11 +282,20 @@ function fireLaser(
 
     engine.drainEvents();
 
-    engine.step(
+    const chargeDurationMs =
         SHIP_WEAPONS[
             SHIP_WEAPON_ID.LASER_00
-        ].chargeDurationMs,
+        ].chargeDurationMs;
+
+    engine.step(
+        chargeDurationMs - 1,
     );
+
+    engine.drainEvents();
+
+    prepareImpact?.();
+
+    engine.step(1);
 
     return engine.drainEvents();
 }

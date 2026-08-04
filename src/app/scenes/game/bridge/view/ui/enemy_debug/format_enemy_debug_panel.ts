@@ -49,7 +49,7 @@ export function formatEnemyDebugPanel(
                 .join('\n'),
 
         systems:
-            formatPointDefense(
+            formatSystems(
                 snapshot,
             ),
 
@@ -100,6 +100,62 @@ function formatRole(
             snapshot.task.progress,
         )
     );
+}
+
+function formatSystems(
+    snapshot: EnemyDebugSnapshot,
+): string {
+    return [
+        formatPointDefense(
+            snapshot,
+        ),
+
+        ...(snapshot.shield
+            ? [
+                  formatShield(
+                      snapshot,
+                  ),
+              ]
+            : []),
+    ].join('   ');
+}
+
+function formatShield(
+    snapshot: EnemyDebugSnapshot,
+): string {
+    const shield =
+        snapshot.shield;
+
+    if (!shield) {
+        return 'SHD NONE';
+    }
+
+    const parts = [
+        'SHD',
+
+        shield.activeZone
+            ?.toUpperCase() ??
+            'OFF',
+    ];
+
+    if (
+        shield.remainingMs !==
+        undefined
+    ) {
+        parts.push(
+            formatSeconds(
+                shield.remainingMs,
+            ),
+        );
+    }
+
+    parts.push(
+        shield.charges +
+            '/' +
+            shield.maxCharges,
+    );
+
+    return parts.join(' ');
 }
 
 function formatPointDefense(

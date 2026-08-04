@@ -405,6 +405,9 @@ function createRunnerFixture() {
                     );
                 },
 
+            onShieldDeploymentCompleted:
+                () => {},
+
             onThreatIdentificationCompleted:
                 () => {},
         });

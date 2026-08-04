@@ -25,6 +25,9 @@ import type {
     ShipWeaponState,
 } from '../../../defs/ship_weapon';
 import type {
+    ActiveShieldState,
+} from '../../model/combat';
+import type {
     EnemyThreatObservationState,
 } from '../../model/enemy_threat_observation';
 import type {
@@ -61,6 +64,11 @@ export type ShipEncounterActorState =
 
         shieldGenerator:
             ShieldGeneratorState;
+
+        // Encounter-only directional field.
+        // Generator charges are spent when Engineer starts deployment.
+        activeShield?:
+            ActiveShieldState;
 
         behavior: ShipBehaviorState;
 

@@ -250,20 +250,17 @@ export default class PlayerLaserRunner {
         }
 
         if (
-            target.shieldGenerator.charges >
-            0
+            target.activeShield?.zone ===
+            task.targetZone
         ) {
-            target.shieldGenerator.charges -= 1;
-
-            // Future enemy shield regeneration starts a new cycle
-            // from the moment of impact.
-            target
-                .shieldGenerator
-                .chargeRegenerationElapsedMs = 0;
+            delete target.activeShield;
 
             return {
                 outcome:
                     LASER_SHOT_OUTCOME.BLOCKED,
+
+                // Charge was already spent when Engineer committed
+                // to deployment. Impact consumes the field, not another charge.
                 remainingShieldCharges:
                     target
                         .shieldGenerator

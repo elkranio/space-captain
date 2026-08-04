@@ -21,6 +21,7 @@ import type {
     EnemyDebugSnapshot,
 } from './debug/get_enemy_debug_snapshots';
 import CombatRunner from './combat/CombatRunner';
+import EnemyShieldRunner from './combat/EnemyShieldRunner';
 import type { EnemyShipTelemetrySnapshot } from './combat/queries/get_enemy_ship_telemetry_snapshots';
 import type { LaserThreatSnapshot } from './combat/queries/get_laser_threat_snapshots';
 import type { StickyMineSnapshot } from './combat/queries/get_sticky_mine_snapshots';
@@ -97,6 +98,9 @@ export default class EncounterEngine {
 
     private readonly playerShieldRunner: PlayerShieldRunner;
 
+    private readonly enemyShieldRunner:
+        EnemyShieldRunner;
+
     private readonly shieldGeneratorRunner: ShieldGeneratorRunner;
 
     constructor({
@@ -136,6 +140,11 @@ export default class EncounterEngine {
         this.playerShieldRunner = new PlayerShieldRunner({
             state: encounterState,
         });
+
+        this.enemyShieldRunner =
+            new EnemyShieldRunner(
+                encounterState,
+            );
 
         this.shieldGeneratorRunner = new ShieldGeneratorRunner({
             state: encounterState,
@@ -249,6 +258,7 @@ export default class EncounterEngine {
 
     public step(deltaMs: number): void {
         this.playerShieldRunner.step(deltaMs);
+        this.enemyShieldRunner.step(deltaMs);
         this.officerTaskRunner.step(deltaMs);
         this.shieldGeneratorRunner.step(deltaMs);
         this.playerWeaponRunner.step(deltaMs);

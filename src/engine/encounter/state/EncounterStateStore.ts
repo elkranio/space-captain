@@ -657,6 +657,8 @@ export default class EncounterStateStore {
             actor.crewTasks = {};
             actor.threatObservations.length = 0;
 
+            delete actor.activeShield;
+
             for (const weapon of actor.weapons) {
                 if (
                     !doesShipWeaponPhaseRequireOperator(
