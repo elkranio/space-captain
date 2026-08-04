@@ -1,106 +1,113 @@
 // src/engine/encounter/state/EncounterStateStore.ts
 
-import { MISSILES } from '../../content/catalogs/missiles';
-import { SHIP_CHASSIS } from '../../content/catalogs/ship_chassis';
-import type {
-    CrewTraitsByRole,
-} from '../../defs/crew_trait';
-import { PLAYER_SHIELD_DURATION_MS } from '../../content/rules/shields';
-import { JUMP_POINT_OBJECT_SPRITE_ID } from '../../defs/jump_point';
 import type { LaserTargetZone } from '../../defs/laser';
+import type { OfficerRole } from '../../defs/officer';
 import type {
     PlayerHullDamageResult,
 } from '../../defs/player';
-import type { OfficerRole } from '../../defs/officer';
-import { PLAYER_SPACE_NAVIGATION_KIND, type PlayerSpaceNavigationState } from '../../defs/player_location';
-import {
-    POINT_DEFENSE_SHOT_OUTCOME,
-    type PointDefenseBeamBand,
-    type PointDefenseShotOutcome,
-    type ShipPointDefenseState,
+import type {
+    PlayerSpaceNavigationState,
+} from '../../defs/player_location';
+import type {
+    PointDefenseBeamBand,
+    PointDefenseShotOutcome,
 } from '../../defs/point_defense';
-import type { ShieldGeneratorState } from '../../defs/shield_generator';
-import type { ShipBehaviorState } from '../../defs/ship_behavior';
-import {
-    SHIP_DRIVE_STATUS,
-    type ShipDriveState,
+import type {
+    ShieldGeneratorState,
+} from '../../defs/shield_generator';
+import type {
+    ShipDriveState,
 } from '../../defs/ship_drive';
-import type { ShipChassisId } from '../../defs/ship_chassis';
-import {
-    doesShipWeaponPhaseRequireOperator,
-    SHIP_WEAPON_KIND,
-    SHIP_WEAPON_PHASE,
-    type LaserWeaponState,
-    type MissileLauncherState,
-    type ShipWeaponState,
-    type SpamProjectorState,
-    type StickyMineDispenserState,
+import type {
+    LaserWeaponState,
+    MissileLauncherState,
+    ShipWeaponState,
+    SpamProjectorState,
+    StickyMineDispenserState,
 } from '../../defs/ship_weapon';
-import { ENCOUNTER_ACTOR_KIND, type EncounterActorState } from '../actors/encounter_actor';
-import type { ShipEncounterActorState } from '../actors/ship/ship_encounter_actor';
-import { ENCOUNTER_ANCHOR_KIND, type EncounterAnchorState } from '../anchors/encounter_anchor';
-import type { JumpPointEncounterAnchorState } from '../anchors/jump_point/jump_point_encounter_anchor';
-import {
-    ENCOUNTER_TEAM,
-    type EncounterTeam,
-} from '../../defs/encounter_team';
-import {
-    COMBAT_THREAT_KIND,
-    THREAT_IDENTIFICATION_STATUS,
-    type ActiveShieldState,
-    type ThreatIdentificationResult,
+import type {
+    EncounterActorState,
+} from '../actors/encounter_actor';
+import type {
+    ShipEncounterActorState,
+} from '../actors/ship/ship_encounter_actor';
+import type {
+    EncounterAnchorState,
+} from '../anchors/encounter_anchor';
+import type {
+    JumpPointEncounterAnchorState,
+} from '../anchors/jump_point/jump_point_encounter_anchor';
+import type {
+    ActiveShieldState,
+    ThreatIdentificationResult,
 } from '../model/combat';
-import type { OfficerTaskState } from '../model/officer_task';
-import type { EncounterState } from '../model/state';
+import type {
+    OfficerTaskState,
+} from '../model/officer_task';
+import type {
+    EncounterState,
+} from '../model/state';
+import EncounterActorStore, {
+    type EnemyHullDamageResult,
+    type SpawnShipActorInput,
+} from './actors/EncounterActorStore';
 import {
     createEncounterState,
     type CreateEncounterStateInput,
 } from './create_encounter_state';
+import EncounterNavigationStore, {
+    type EncounterTravelStart,
+} from './navigation/EncounterNavigationStore';
+import OfficerTaskStore from './officer_tasks/OfficerTaskStore';
+import PlayerShipStore from './player/PlayerShipStore';
 
-export type EncounterTravelStart = {
-    fromAnchorId: string;
-    target: EncounterAnchorState;
+export type {
+    EnemyHullDamageResult,
+    EncounterTravelStart,
+    SpawnShipActorInput,
 };
 
-export type EnemyHullDamageResult = {
-    appliedDamage: number;
-    remainingHull: number;
-    destroyed: boolean;
-};
-
-export type SpawnShipActorInput = {
-    actorId: string;
-    chassisId: ShipChassisId;
-    anchorId: string;
-
-    team: EncounterTeam;
-
-    hull: number;
-    maxHull: number;
-
-    drive: ShipDriveState;
-
-    pointDefense?: ShipPointDefenseState;
-
-    shieldGenerator: ShieldGeneratorState;
-
-    behavior: ShipBehaviorState;
-
-    crewRoles: OfficerRole[];
-    crewTraitsByRole?:
-        CrewTraitsByRole;
-
-    weapons: ShipWeaponState[];
-};
-
-// Владеет mutable runtime state одного encounter.
+// Public mutable-state boundary for one encounter.
 //
-// Encounter runners могут изменять принадлежащие им
-// участки state напрямую.
-// Store централизует общие lookups, cross-system mutations
-// и локальные invariants, которым нужен единый владелец.
+// Specialized stores own concrete mutation groups.
+// This facade preserves the existing engine-facing API,
+// so callers do not need to know the internal decomposition.
 export default class EncounterStateStore {
-    constructor(private readonly state: EncounterState) {}
+    private readonly actors:
+        EncounterActorStore;
+
+    private readonly navigation:
+        EncounterNavigationStore;
+
+    private readonly playerShip:
+        PlayerShipStore;
+
+    private readonly officerTasks:
+        OfficerTaskStore;
+
+    constructor(
+        private readonly state: EncounterState,
+    ) {
+        this.actors =
+            new EncounterActorStore(
+                this.state,
+            );
+
+        this.navigation =
+            new EncounterNavigationStore(
+                this.state,
+            );
+
+        this.playerShip =
+            new PlayerShipStore(
+                this.state,
+            );
+
+        this.officerTasks =
+            new OfficerTaskStore(
+                this.state,
+            );
+    }
 
     // #region Creation
 
@@ -156,386 +163,122 @@ export default class EncounterStateStore {
 
     // #region State access
 
-    // Mutable state намеренно доступен encounter runners.
-    // Queries используют тот же объект только для чтения.
+    // Mutable state intentionally remains available
+    // to encounter runners.
     public getState(): EncounterState {
         return this.state;
     }
 
-    public getNavigationState(): PlayerSpaceNavigationState {
-        return {
-            ...this.state.navigation,
-        };
+    public getNavigationState():
+        PlayerSpaceNavigationState {
+        return this.navigation
+            .getNavigationState();
     }
 
-    public findAnchorById(anchorId: string | undefined): EncounterAnchorState | undefined {
-        if (!anchorId) {
-            return undefined;
-        }
-
-        return this.state.anchors.find((anchor) => {
-            return anchor.id === anchorId;
-        });
+    public findAnchorById(
+        anchorId: string | undefined,
+    ): EncounterAnchorState | undefined {
+        return this.navigation
+            .findAnchorById(
+                anchorId,
+            );
     }
 
-    public findActorById(actorId: string | undefined): EncounterActorState | undefined {
-        if (!actorId) {
-            return undefined;
-        }
-
-        return this.state.actors.find((actor) => {
-            return actor.id === actorId;
-        });
+    public findActorById(
+        actorId: string | undefined,
+    ): EncounterActorState | undefined {
+        return this.actors
+            .findActorById(
+                actorId,
+            );
     }
 
-    public getActorsAtAnchor(anchorId: string): EncounterActorState[] {
-        return this.state.actors.filter((actor) => {
-            return actor.anchorId === anchorId;
-        });
+    public getActorsAtAnchor(
+        anchorId: string,
+    ): EncounterActorState[] {
+        return this.actors
+            .getActorsAtAnchor(
+                anchorId,
+            );
     }
 
     // #endregion
 
-    // #region Player hull
+    // #region Player hull and drive
 
     public damagePlayerHull(
         damage: number,
     ): PlayerHullDamageResult {
-        if (
-            !Number.isFinite(damage) ||
-            damage < 0
-        ) {
-            throw new Error(
-                'Invalid player hull damage: ' +
-                    String(damage),
-            );
-        }
-
-        const playerHull =
-            this.state.playerHull;
-
-        const appliedDamage =
-            Math.min(
+        return this.playerShip
+            .damagePlayerHull(
                 damage,
-                playerHull.hull,
             );
+    }
 
-        const wasAlive =
-            playerHull.hull > 0;
+    public disablePlayerDrive():
+        ShipDriveState | undefined {
+        return this.playerShip
+            .disablePlayerDrive();
+    }
 
-        playerHull.hull =
-            Math.max(
-                0,
-                playerHull.hull -
-                    appliedDamage,
-            );
-
-        return {
-            appliedDamage,
-
-            remainingHull:
-                playerHull.hull,
-
-            destroyed:
-                wasAlive &&
-                appliedDamage > 0 &&
-                playerHull.hull === 0,
-        };
+    public repairPlayerDrive():
+        ShipDriveState {
+        return this.playerShip
+            .repairPlayerDrive();
     }
 
     // #endregion
 
-    // #region Actor mutations
+    // #region Actors
 
-    public spawnShipActor({
-        actorId,
-        chassisId,
-        anchorId,
-        team,
-        hull,
-        maxHull,
-        drive,
-        pointDefense,
-        shieldGenerator,
-        behavior,
-        crewRoles,
-        crewTraitsByRole = {},
-        weapons,
-    }: SpawnShipActorInput): ShipEncounterActorState {
-        if (!this.findAnchorById(anchorId)) {
-            throw new Error(
-                `Cannot spawn ship actor: ` +
-                `anchor not found: ${anchorId}`,
+    public spawnShipActor(
+        input: SpawnShipActorInput,
+    ): ShipEncounterActorState {
+        return this.actors
+            .spawnShipActor(
+                input,
             );
-        }
-
-        if (this.findActorById(actorId)) {
-            throw new Error(
-                `Encounter actor already exists: ${actorId}`,
-            );
-        }
-
-        const ship =
-            SHIP_CHASSIS[chassisId];
-
-        const copiedCrewTraitsByRole:
-            CrewTraitsByRole = {};
-
-        for (const role of crewRoles) {
-            copiedCrewTraitsByRole[role] = [
-                ...(
-                    crewTraitsByRole[
-                        role
-                    ] ??
-                    []
-                ),
-            ];
-        }
-
-        const actor: ShipEncounterActorState = {
-            id: actorId,
-            kind: ENCOUNTER_ACTOR_KIND.SHIP,
-            displayName: ship.name,
-
-            team,
-
-            anchorId,
-            chassisId,
-
-            hull,
-            maxHull,
-
-            drive: {
-                ...drive,
-            },
-
-            ...(
-                pointDefense
-                    ? {
-                          pointDefense: {
-                              ...pointDefense,
-                          },
-                      }
-                    : {}
-            ),
-
-            shieldGenerator: {
-                ...shieldGenerator,
-            },
-
-            behavior: {
-                ...behavior,
-            },
-
-            crewRoles: [
-                ...crewRoles,
-            ],
-
-            crewTraitsByRole:
-                copiedCrewTraitsByRole,
-
-            decision: {
-                nextWeaponIndexByRole: {},
-
-                offensiveTaskDelayRemainingMsByRole:
-                    {},
-            },
-
-            crewTasks: {},
-
-            threatObservations: [],
-
-            hasUsedOpeningDisruptionPulse: false,
-
-            weapons: weapons.map((weapon) => {
-                return {
-                    ...weapon,
-                };
-            }),
-        };
-
-        this.state.actors.push(actor);
-
-        return actor;
     }
 
     public removeActor(
         actorId: string,
     ): EncounterActorState {
-        const actorIndex =
-            this.state.actors
-                .findIndex((actor) => {
-                    return (
-                        actor.id ===
-                        actorId
-                    );
-                });
-
-        if (actorIndex < 0) {
-            throw new Error(
-                'Encounter actor not found: ' +
-                    actorId,
+        return this.actors
+            .removeActor(
+                actorId,
             );
-        }
-
-        const actor =
-            this.state.actors[
-                actorIndex
-            ];
-
-        if (!actor) {
-            throw new Error(
-                'Encounter actor disappeared ' +
-                    'before removal: ' +
-                    actorId,
-            );
-        }
-
-        this.state.actors.splice(
-            actorIndex,
-            1,
-        );
-
-        for (
-            let index =
-                this.state.combat
-                    .laserAttacks
-                    .length - 1;
-
-            index >= 0;
-
-            index -= 1
-        ) {
-            const attack =
-                this.state.combat
-                    .laserAttacks[
-                        index
-                    ];
-
-            if (
-                attack?.sourceActorId !==
-                actorId
-            ) {
-                continue;
-            }
-
-            this.state.combat
-                .laserAttacks.splice(
-                    index,
-                    1,
-                );
-        }
-
-        return actor;
     }
 
     public setActorTeam(
         actorId: string,
-        team: EncounterTeam,
+        team:
+            SpawnShipActorInput['team'],
     ): ShipEncounterActorState {
-        const actor =
-            this.findActorById(actorId);
-
-        if (!actor) {
-            throw new Error(
-                `Encounter actor not found: ${actorId}`,
+        return this.actors
+            .setActorTeam(
+                actorId,
+                team,
             );
-        }
-
-        actor.team = team;
-
-        return actor;
     }
 
     public damageEnemyActorHull(
         actorId: string,
         damage: number,
     ): EnemyHullDamageResult {
-        if (
-            !Number.isFinite(damage) ||
-            damage < 0
-        ) {
-            throw new Error(
-                'Invalid enemy hull damage: ' +
-                    String(damage),
-            );
-        }
-
-        const actor =
-            this.findActorById(actorId);
-
-        if (!actor) {
-            throw new Error(
-                'Enemy actor not found for hull damage: ' +
-                    actorId,
-            );
-        }
-
-        if (
-            actor.team !==
-            ENCOUNTER_TEAM.ENEMY
-        ) {
-            throw new Error(
-                'Cannot damage non-enemy actor hull: ' +
-                    actorId +
-                    '/' +
-                    actor.team,
-            );
-        }
-
-        if (actor.hull <= 0) {
-            throw new Error(
-                'Cannot damage destroyed enemy actor hull: ' +
-                    actorId,
-            );
-        }
-
-        const appliedDamage =
-            Math.min(
+        return this.actors
+            .damageEnemyActorHull(
+                actorId,
                 damage,
-                actor.hull,
             );
-
-        actor.hull = Math.max(
-            0,
-            actor.hull -
-                appliedDamage,
-        );
-
-        return {
-            appliedDamage,
-
-            remainingHull:
-                actor.hull,
-
-            destroyed:
-                appliedDamage > 0 &&
-                actor.hull === 0,
-        };
     }
 
     public consumeOpeningDisruptionPulse(
         actorId: string,
     ): ShipEncounterActorState | undefined {
-        const actor =
-            this.findActorById(actorId);
-
-        if (!actor) {
-            throw new Error(
-                `Encounter actor not found: ${actorId}`,
+        return this.actors
+            .consumeOpeningDisruptionPulse(
+                actorId,
             );
-        }
-
-        if (
-            actor.hasUsedOpeningDisruptionPulse
-        ) {
-            return undefined;
-        }
-
-        actor.hasUsedOpeningDisruptionPulse =
-            true;
-
-        return actor;
     }
 
     // #endregion
@@ -543,846 +286,218 @@ export default class EncounterStateStore {
     // #region Navigation
 
     public completeArrival(): void {
-        const navigation = this.state.navigation;
-
-        if (navigation.kind !== PLAYER_SPACE_NAVIGATION_KIND.ARRIVING) {
-            throw new Error(`Cannot complete arrival from navigation state: ${navigation.kind}`);
-        }
-
-        this.state.navigation = {
-            kind: PLAYER_SPACE_NAVIGATION_KIND.ANCHORED,
-            anchorId: navigation.targetAnchorId,
-        };
+        this.navigation
+            .completeArrival();
     }
 
-    public startTravel(targetAnchorId: string): EncounterTravelStart {
-        const navigation = this.state.navigation;
-
-        if (navigation.kind !== PLAYER_SPACE_NAVIGATION_KIND.ANCHORED) {
-            throw new Error(`Cannot start travel from navigation state: ${navigation.kind}`);
-        }
-
-        const target = this.findAnchorById(targetAnchorId);
-
-        if (!target) {
-            throw new Error(`Travel target not found: ${targetAnchorId}`);
-        }
-
-        const fromAnchorId = navigation.anchorId;
-
-        this.clearCombatZone(fromAnchorId);
-
-        this.state.navigation = {
-            kind: PLAYER_SPACE_NAVIGATION_KIND.TRAVELLING,
-            fromAnchorId,
-            targetAnchorId: target.id,
-        };
-
-        return {
-            fromAnchorId,
-            target,
-        };
-    }
-
-    public completeTravel(targetAnchorId: string): void {
-        const navigation = this.state.navigation;
-
-        if (navigation.kind !== PLAYER_SPACE_NAVIGATION_KIND.TRAVELLING) {
-            throw new Error(`Cannot complete travel from navigation state: ${navigation.kind}`);
-        }
-
-        if (navigation.targetAnchorId !== targetAnchorId) {
-            throw new Error(
-                `Travel target does not match navigation target: ` +
-                    `${targetAnchorId} !== ${navigation.targetAnchorId}`,
+    public startTravel(
+        targetAnchorId: string,
+    ): EncounterTravelStart {
+        return this.navigation
+            .startTravel(
+                targetAnchorId,
             );
-        }
+    }
 
-        this.state.navigation = {
-            kind: PLAYER_SPACE_NAVIGATION_KIND.ANCHORED,
-            anchorId: targetAnchorId,
-        };
+    public completeTravel(
+        targetAnchorId: string,
+    ): void {
+        this.navigation
+            .completeTravel(
+                targetAnchorId,
+            );
     }
 
     public abortTravel(
         expectedTargetAnchorId: string,
     ): void {
-        const navigation =
-            this.state.navigation;
-
-        if (
-            navigation.kind !==
-            PLAYER_SPACE_NAVIGATION_KIND.TRAVELLING
-        ) {
-            throw new Error(
-                `Cannot abort travel from navigation state: ` +
-                    navigation.kind,
+        this.navigation
+            .abortTravel(
+                expectedTargetAnchorId,
             );
-        }
+    }
 
-        if (
-            navigation.targetAnchorId !==
-            expectedTargetAnchorId
-        ) {
-            throw new Error(
-                `Travel target does not match aborted task: ` +
-                    `${navigation.targetAnchorId} !== ` +
-                    expectedTargetAnchorId,
+    public createJumpPoint(
+        targetNodeId: string,
+    ): JumpPointEncounterAnchorState {
+        return this.navigation
+            .createJumpPoint(
+                targetNodeId,
             );
-        }
-
-        this.state.navigation = {
-            kind:
-                PLAYER_SPACE_NAVIGATION_KIND.ANCHORED,
-            anchorId: navigation.fromAnchorId,
-        };
     }
 
     // #endregion
 
-    // #region Combat-zone lifecycle
-
-    private clearCombatZone(
-        anchorId: string,
-    ): void {
-        const combat =
-            this.state.combat;
-
-        combat.projectiles.length = 0;
-        combat.laserAttacks.length = 0;
-        combat.stickyMines.length = 0;
-
-        delete combat.activeShield;
-
-        for (const actor of this.getActorsAtAnchor(anchorId)) {
-            actor.crewTasks = {};
-            actor.threatObservations.length = 0;
-
-            delete actor.activeShield;
-
-            for (const weapon of actor.weapons) {
-                if (
-                    !doesShipWeaponPhaseRequireOperator(
-                        weapon.phase,
-                    )
-                ) {
-                    continue;
-                }
-
-                weapon.phase =
-                    SHIP_WEAPON_PHASE.READY;
-                weapon.phaseElapsedMs = 0;
-
-                if (
-                    weapon.kind ===
-                    SHIP_WEAPON_KIND.SPAM_PROJECTOR
-                ) {
-                    weapon.activeChannelId = null;
-                }
-
-                if (
-                    weapon.kind ===
-                    SHIP_WEAPON_KIND
-                        .STICKY_MINE_DISPENSER
-                ) {
-                    weapon.dispensedMineCount = 0;
-                }
-            }
-        }
-    }
-
-    // #endregion
-
-    // #region Player drive
-
-    public disablePlayerDrive():
-        ShipDriveState | undefined {
-        const drive = this.state.drive;
-
-        if (
-            drive.status ===
-            SHIP_DRIVE_STATUS.DISABLED
-        ) {
-            return undefined;
-        }
-
-        drive.status =
-            SHIP_DRIVE_STATUS.DISABLED;
-
-        return {
-            ...drive,
-        };
-    }
-
-    public repairPlayerDrive(): ShipDriveState {
-        const drive = this.state.drive;
-
-        if (
-            drive.status !==
-            SHIP_DRIVE_STATUS.DISABLED
-        ) {
-            throw new Error(
-                'Cannot repair player drive from status: ' +
-                    drive.status,
-            );
-        }
-
-        drive.status =
-            SHIP_DRIVE_STATUS.ONLINE;
-
-        return {
-            ...drive,
-        };
-    }
-
-    // #endregion
-
-    // #region Combat
+    // #region Player combat systems
 
     public findPlayerWeaponById(
         weaponId: string,
     ): ShipWeaponState | undefined {
-        return this.state.combat
-            .playerWeapons
-            .find((weapon) => {
-                return (
-                    weapon.id ===
-                    weaponId
-                );
-            });
+        return this.playerShip
+            .findPlayerWeaponById(
+                weaponId,
+            );
     }
 
     public startPlayerMissileTargeting(
         weaponId: string,
     ): MissileLauncherState {
-        const weapon =
-            this.findPlayerWeaponById(
+        return this.playerShip
+            .startPlayerMissileTargeting(
                 weaponId,
             );
-
-        if (!weapon) {
-            throw new Error(
-                'Player weapon not found: ' +
-                    weaponId,
-            );
-        }
-
-        if (
-            weapon.kind !==
-            SHIP_WEAPON_KIND
-                .MISSILE_LAUNCHER
-        ) {
-            throw new Error(
-                'Player weapon is not a missile launcher: ' +
-                    weaponId +
-                    '/' +
-                    weapon.kind,
-            );
-        }
-
-        if (
-            weapon.phase !==
-            SHIP_WEAPON_PHASE.READY
-        ) {
-            throw new Error(
-                'Player missile launcher is not ready: ' +
-                    weaponId +
-                    '/' +
-                    weapon.phase,
-            );
-        }
-
-        if (
-            weapon.loadedMissileId === null ||
-            weapon.ammoCount <= 0
-        ) {
-            throw new Error(
-                'Player missile launcher is empty: ' +
-                    weaponId +
-                    '/' +
-                    weapon.ammoCount,
-            );
-        }
-
-        weapon.phase =
-            SHIP_WEAPON_PHASE.TARGETING;
-
-        weapon.phaseElapsedMs = 0;
-
-        return {
-            ...weapon,
-        };
     }
 
     public startPlayerStickyMineDispensing(
         weaponId: string,
     ): StickyMineDispenserState {
-        const weapon =
-            this.findPlayerWeaponById(
+        return this.playerShip
+            .startPlayerStickyMineDispensing(
                 weaponId,
             );
-
-        if (!weapon) {
-            throw new Error(
-                'Player weapon not found: ' +
-                    weaponId,
-            );
-        }
-
-        if (
-            weapon.kind !==
-            SHIP_WEAPON_KIND
-                .STICKY_MINE_DISPENSER
-        ) {
-            throw new Error(
-                'Player weapon is not a sticky-mine dispenser: ' +
-                    weaponId +
-                    '/' +
-                    weapon.kind,
-            );
-        }
-
-        if (
-            weapon.phase !==
-            SHIP_WEAPON_PHASE.READY
-        ) {
-            throw new Error(
-                'Player sticky-mine dispenser is not ready: ' +
-                    weaponId +
-                    '/' +
-                    weapon.phase,
-            );
-        }
-
-        if (
-            weapon.loadedMineId === null ||
-            weapon.ammoCount <= 0
-        ) {
-            throw new Error(
-                'Player sticky-mine dispenser is empty: ' +
-                    weaponId +
-                    '/' +
-                    weapon.ammoCount,
-            );
-        }
-
-        weapon.phase =
-            SHIP_WEAPON_PHASE.DISPENSING;
-
-        weapon.phaseElapsedMs = 0;
-        weapon.dispensedMineCount = 0;
-
-        return {
-            ...weapon,
-        };
     }
 
     public cancelPlayerStickyMineDispensing(
         weaponId: string,
     ): StickyMineDispenserState | undefined {
-        const weapon =
-            this.findPlayerWeaponById(
+        return this.playerShip
+            .cancelPlayerStickyMineDispensing(
                 weaponId,
             );
-
-        if (!weapon) {
-            return undefined;
-        }
-
-        if (
-            weapon.kind !==
-            SHIP_WEAPON_KIND
-                .STICKY_MINE_DISPENSER
-        ) {
-            throw new Error(
-                'Player sticky-mine task references non-dispenser weapon: ' +
-                    weaponId +
-                    '/' +
-                    weapon.kind,
-            );
-        }
-
-        if (
-            weapon.phase !==
-            SHIP_WEAPON_PHASE.DISPENSING
-        ) {
-            throw new Error(
-                'Cannot cancel player sticky-mine salvo from phase: ' +
-                    weaponId +
-                    '/' +
-                    weapon.phase,
-            );
-        }
-
-        weapon.phase =
-            weapon.dispensedMineCount > 0
-                ? SHIP_WEAPON_PHASE.COOLDOWN
-                : SHIP_WEAPON_PHASE.READY;
-
-        weapon.phaseElapsedMs = 0;
-
-        if (
-            weapon.phase ===
-            SHIP_WEAPON_PHASE.READY
-        ) {
-            weapon.dispensedMineCount = 0;
-        }
-
-        return {
-            ...weapon,
-        };
     }
 
     public startPlayerSpamTargeting(
         weaponId: string,
     ): SpamProjectorState {
-        const weapon =
-            this.findPlayerWeaponById(
+        return this.playerShip
+            .startPlayerSpamTargeting(
                 weaponId,
             );
-
-        if (!weapon) {
-            throw new Error(
-                'Player weapon not found: ' +
-                    weaponId,
-            );
-        }
-
-        if (
-            weapon.kind !==
-            SHIP_WEAPON_KIND
-                .SPAM_PROJECTOR
-        ) {
-            throw new Error(
-                'Player weapon is not a spam projector: ' +
-                    weaponId +
-                    '/' +
-                    weapon.kind,
-            );
-        }
-
-        if (
-            weapon.phase !==
-            SHIP_WEAPON_PHASE.READY
-        ) {
-            throw new Error(
-                'Player spam projector is not ready: ' +
-                    weaponId +
-                    '/' +
-                    weapon.phase,
-            );
-        }
-
-        if (
-            weapon.activeChannelId !==
-            null
-        ) {
-            throw new Error(
-                'Ready player spam projector ' +
-                    'still has an active channel: ' +
-                    weaponId +
-                    '/' +
-                    weapon.activeChannelId,
-            );
-        }
-
-        weapon.phase =
-            SHIP_WEAPON_PHASE.TARGETING;
-
-        weapon.phaseElapsedMs = 0;
-
-        return {
-            ...weapon,
-        };
     }
 
     public cancelPlayerSpamProjection(
         weaponId: string,
     ): string | undefined {
-        const weapon =
-            this.findPlayerWeaponById(
+        return this.playerShip
+            .cancelPlayerSpamProjection(
                 weaponId,
             );
-
-        if (!weapon) {
-            return undefined;
-        }
-
-        if (
-            weapon.kind !==
-            SHIP_WEAPON_KIND
-                .SPAM_PROJECTOR
-        ) {
-            throw new Error(
-                'Player spam task references ' +
-                    'non-projector weapon: ' +
-                    weaponId +
-                    '/' +
-                    weapon.kind,
-            );
-        }
-
-        switch (weapon.phase) {
-            case SHIP_WEAPON_PHASE.TARGETING:
-                weapon.phase =
-                    SHIP_WEAPON_PHASE.READY;
-
-                weapon.phaseElapsedMs = 0;
-                weapon.activeChannelId =
-                    null;
-
-                return undefined;
-
-            case SHIP_WEAPON_PHASE.CHANNELING: {
-                const channelId =
-                    weapon.activeChannelId;
-
-                if (!channelId) {
-                    throw new Error(
-                        'Player spam channel id ' +
-                            'is missing during cancellation: ' +
-                            weaponId,
-                    );
-                }
-
-                weapon.activeChannelId =
-                    null;
-
-                weapon.phase =
-                    SHIP_WEAPON_PHASE
-                        .COOLDOWN;
-
-                weapon.phaseElapsedMs = 0;
-
-                return channelId;
-            }
-
-            default:
-                throw new Error(
-                    'Cannot cancel player spam ' +
-                        'projection from phase: ' +
-                        weaponId +
-                        '/' +
-                        weapon.phase,
-                );
-        }
     }
 
     public startPlayerLaserTargeting(
         weaponId: string,
     ): LaserWeaponState {
-        const weapon =
-            this.findPlayerWeaponById(
+        return this.playerShip
+            .startPlayerLaserTargeting(
                 weaponId,
             );
-
-        if (!weapon) {
-            throw new Error(
-                'Player weapon not found: ' +
-                    weaponId,
-            );
-        }
-
-        if (
-            weapon.kind !==
-            SHIP_WEAPON_KIND.LASER
-        ) {
-            throw new Error(
-                'Player weapon is not a laser: ' +
-                    weaponId +
-                    '/' +
-                    weapon.kind,
-            );
-        }
-
-        if (
-            weapon.phase !==
-            SHIP_WEAPON_PHASE.READY
-        ) {
-            throw new Error(
-                'Player laser is not ready: ' +
-                    weaponId +
-                    '/' +
-                    weapon.phase,
-            );
-        }
-
-        weapon.phase =
-            SHIP_WEAPON_PHASE.TARGETING;
-
-        weapon.phaseElapsedMs = 0;
-
-        return {
-            ...weapon,
-        };
     }
 
     public resetPlayerWeapon(
         weaponId: string,
     ): ShipWeaponState | undefined {
-        const weapon =
-            this.findPlayerWeaponById(
+        return this.playerShip
+            .resetPlayerWeapon(
                 weaponId,
             );
-
-        if (!weapon) {
-            return undefined;
-        }
-
-        weapon.phase =
-            SHIP_WEAPON_PHASE.READY;
-
-        weapon.phaseElapsedMs = 0;
-
-        return {
-            ...weapon,
-        };
     }
 
-    public identifyThreat(threatId: string): ThreatIdentificationResult | undefined {
-        const projectile = this.state.combat.projectiles.find((candidate) => {
-            return candidate.id === threatId;
-        });
-
-        if (projectile) {
-            if (projectile.identification.status === THREAT_IDENTIFICATION_STATUS.IDENTIFIED) {
-                return {
-                    kind: COMBAT_THREAT_KIND.MISSILE,
-
-                    spectralBand: projectile.identification.spectralBand,
-                };
-            }
-
-            const spectralBand = MISSILES[projectile.missileId].spectralBand;
-
-            projectile.identification = {
-                status: THREAT_IDENTIFICATION_STATUS.IDENTIFIED,
-                spectralBand,
-            };
-
-            return {
-                kind: COMBAT_THREAT_KIND.MISSILE,
-
-                spectralBand,
-            };
-        }
-
-        const laserAttack = this.state.combat.laserAttacks.find((candidate) => {
-            return candidate.id === threatId;
-        });
-
-        // Угроза могла сработать или быть уничтожена
-        // до завершения Science task.
-        if (!laserAttack) {
-            return undefined;
-        }
-
-        if (laserAttack.identification.status === THREAT_IDENTIFICATION_STATUS.IDENTIFIED) {
-            return {
-                kind: COMBAT_THREAT_KIND.LASER,
-
-                targetZone: laserAttack.identification.targetZone,
-            };
-        }
-
-        laserAttack.identification = {
-            status: THREAT_IDENTIFICATION_STATUS.IDENTIFIED,
-
-            targetZone: laserAttack.targetZone,
-        };
-
-        return {
-            kind: COMBAT_THREAT_KIND.LASER,
-
-            targetZone: laserAttack.targetZone,
-        };
+    public identifyThreat(
+        threatId: string,
+    ): ThreatIdentificationResult | undefined {
+        return this.playerShip
+            .identifyThreat(
+                threatId,
+            );
     }
 
-    public deployPlayerShield(zone: LaserTargetZone): ActiveShieldState {
-        const activeShield: ActiveShieldState = {
-            zone,
-
-            elapsedMs: 0,
-            durationMs: PLAYER_SHIELD_DURATION_MS,
-        };
-
-        // Повторное развёртывание заменяет старую зону
-        // и полностью обновляет lifetime.
-        this.state.combat.activeShield = activeShield;
-
-        return {
-            ...activeShield,
-        };
+    public deployPlayerShield(
+        zone: LaserTargetZone,
+    ): ActiveShieldState {
+        return this.playerShip
+            .deployPlayerShield(
+                zone,
+            );
     }
 
-    public spendShieldGeneratorCharge(): ShieldGeneratorState {
-        const shieldGenerator = this.state.combat.shieldGenerator;
-
-        if (!shieldGenerator) {
-            throw new Error('Cannot spend shield-generator charge: generator not installed');
-        }
-
-        if (shieldGenerator.charges <= 0) {
-            throw new Error('Cannot spend shield-generator charge: no charges remaining');
-        }
-
-        shieldGenerator.charges -= 1;
-
-        // Текущий progress последовательной регенерации
-        // не сбрасывается при расходе ещё одного charge.
-        return {
-            ...shieldGenerator,
-        };
+    public spendShieldGeneratorCharge():
+        ShieldGeneratorState {
+        return this.playerShip
+            .spendShieldGeneratorCharge();
     }
 
-    public spendPointDefenseCharge(): number {
-        const pointDefense = this.state.combat.pointDefense;
-
-        if (pointDefense.charges <= 0) {
-            throw new Error('Cannot spend point-defense charge: no charges remaining');
-        }
-
-        pointDefense.charges -= 1;
-
-        return pointDefense.charges;
+    public spendPointDefenseCharge():
+        number {
+        return this.playerShip
+            .spendPointDefenseCharge();
     }
 
-    public firePointDefense(threatId: string, beamBand: PointDefenseBeamBand): PointDefenseShotOutcome | undefined {
-        const threatIndex = this.state.combat.projectiles.findIndex((projectile) => {
-            return projectile.id === threatId;
-        });
-
-        // Ракета могла ударить или быть уничтожена
-        // до завершения Weapons task.
-        //
-        // Заряд уже был потрачен при начале aim.
-        if (threatIndex < 0) {
-            return undefined;
-        }
-
-        const threat = this.state.combat.projectiles[threatIndex];
-
-        const missile = MISSILES[threat.missileId];
-
-        const outcome =
-            missile.spectralBand === beamBand ? POINT_DEFENSE_SHOT_OUTCOME.HIT : POINT_DEFENSE_SHOT_OUTCOME.MISS;
-
-        if (outcome === POINT_DEFENSE_SHOT_OUTCOME.HIT) {
-            this.state.combat.projectiles.splice(threatIndex, 1);
-        }
-
-        return outcome;
-    }
-
-    // #endregion
-
-    // #region Encounter object mutations
-
-    public createJumpPoint(targetNodeId: string): JumpPointEncounterAnchorState {
-        const existingJumpPoint = this.state.anchors.find((anchor) => {
-            return anchor.kind === ENCOUNTER_ANCHOR_KIND.JUMP_POINT;
-        });
-
-        if (existingJumpPoint) {
-            throw new Error(`Encounter already contains jump point: ${existingJumpPoint.id}`);
-        }
-
-        const id = `jump_point_${targetNodeId}`;
-
-        if (this.findAnchorById(id)) {
-            throw new Error(`Cannot create duplicate encounter anchor: ${id}`);
-        }
-
-        const anchor: JumpPointEncounterAnchorState = {
-            id,
-            kind: ENCOUNTER_ANCHOR_KIND.JUMP_POINT,
-            displayName: 'JUMP POINT',
-
-            jumpPoint: {
-                id,
-                name: 'JUMP POINT',
-                targetNodeId,
-                objectSpriteId: JUMP_POINT_OBJECT_SPRITE_ID.JUMP_POINT_00,
-            },
-
-            // Временная постановочная позиция внутри текущей ноды.
-            localPosition: {
-                x: 1500,
-                y: -250,
-                z: 700,
-            },
-
-            position: {
-                x: 0,
-                y: 0,
-            },
-
-            perspectiveDepth: 1,
-        };
-
-        this.state.anchors.push(anchor);
-
-        return anchor;
+    public firePointDefense(
+        threatId: string,
+        beamBand: PointDefenseBeamBand,
+    ): PointDefenseShotOutcome | undefined {
+        return this.playerShip
+            .firePointDefense(
+                threatId,
+                beamBand,
+            );
     }
 
     // #endregion
 
     // #region Officer task storage
 
-    public getOfficerTask(role: OfficerRole): OfficerTaskState | undefined {
-        return this.state.officerTasks[role];
-    }
-
-    public getOfficerTasks(): OfficerTaskState[] {
-        return Object.values(this.state.officerTasks).filter((task): task is OfficerTaskState => {
-            return task !== undefined;
-        });
-    }
-
-    public findOfficerTaskById(taskId: string): OfficerTaskState | undefined {
-        return this.getOfficerTasks().find((task) => {
-            return task.id === taskId;
-        });
-    }
-
-    public assignOfficerTask(task: OfficerTaskState): void {
-        const activeTask = this.getOfficerTask(task.role);
-
-        if (activeTask) {
-            throw new Error(
-                `Cannot assign officer task ${task.kind}: ` +
-                    `officer ${task.role} is already busy with ${activeTask.kind}`,
+    public getOfficerTask(
+        role: OfficerRole,
+    ): OfficerTaskState | undefined {
+        return this.officerTasks
+            .getOfficerTask(
+                role,
             );
-        }
-
-        this.state.officerTasks[task.role] = task;
     }
 
-    public removeOfficerTask(role: OfficerRole): void {
-        delete this.state.officerTasks[role];
+    public getOfficerTasks():
+        OfficerTaskState[] {
+        return this.officerTasks
+            .getOfficerTasks();
+    }
+
+    public findOfficerTaskById(
+        taskId: string,
+    ): OfficerTaskState | undefined {
+        return this.officerTasks
+            .findOfficerTaskById(
+                taskId,
+            );
+    }
+
+    public assignOfficerTask(
+        task: OfficerTaskState,
+    ): void {
+        this.officerTasks
+            .assignOfficerTask(
+                task,
+            );
+    }
+
+    public removeOfficerTask(
+        role: OfficerRole,
+    ): void {
+        this.officerTasks
+            .removeOfficerTask(
+                role,
+            );
     }
 
     public advanceOfficerTask(
         taskId: string,
         progressDeltaMs: number,
     ): void {
-        if (!Number.isFinite(progressDeltaMs) || progressDeltaMs < 0) {
-            throw new Error(
-                'Invalid officer task progress delta: ' +
-                    taskId + '/' + progressDeltaMs,
+        this.officerTasks
+            .advanceOfficerTask(
+                taskId,
+                progressDeltaMs,
             );
-        }
-
-        const task = this.findOfficerTaskById(taskId);
-
-        if (!task || task.durationMs === null) {
-            return;
-        }
-
-        task.elapsedMs = Math.min(
-            task.elapsedMs + progressDeltaMs,
-            task.durationMs,
-        );
     }
 
     // #endregion
