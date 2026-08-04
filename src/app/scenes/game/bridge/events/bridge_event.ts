@@ -122,6 +122,10 @@ export const BRIDGE_EVENT = {
     // выставленного player shield field.
     PLAYER_SHIELD_UPDATED: 'player_shield_updated',
 
+    // Active directional fields on enemy ships.
+    ENEMY_SHIELDS_UPDATED:
+        'enemy_shields_updated',
+
     // #endregion
 
     // #region Encounter objects and navigation
@@ -480,6 +484,18 @@ export type BridgePlayerShieldUpdatedPayload =
       }
     | undefined;
 
+export type BridgeEnemyShieldSnapshotPayload = {
+    actorId: string;
+
+    zone: LaserTargetZone;
+
+    remainingDurationMs: number;
+    initialDurationMs: number;
+};
+
+export type BridgeEnemyShieldsUpdatedPayload =
+    BridgeEnemyShieldSnapshotPayload[];
+
 // #endregion
 
 // #region Encounter objects and navigation
@@ -822,6 +838,9 @@ export type BridgeEventPayloadMap = {
         BridgeEnemyDebugUpdatedPayload;
 
     [BRIDGE_EVENT.PLAYER_SHIELD_UPDATED]: BridgePlayerShieldUpdatedPayload;
+
+    [BRIDGE_EVENT.ENEMY_SHIELDS_UPDATED]:
+        BridgeEnemyShieldsUpdatedPayload;
 
     // Encounter objects and navigation
 

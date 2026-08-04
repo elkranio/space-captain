@@ -4,6 +4,7 @@ import type BridgeScene from '../BridgeScene';
 import type BridgeEventBus from '../events/BridgeEventBus';
 import BridgeOfficerBarksView from './barks/BridgeOfficerBarksView';
 import BridgeEnemyShipDestructionView from './combat/enemy_destruction/BridgeEnemyShipDestructionView';
+import BridgeEnemyShieldsView from './combat/enemy_shields/BridgeEnemyShieldsView';
 import BridgeIncomingMissilesView from './combat/incoming_missiles/BridgeIncomingMissilesView';
 import BridgeLaserBeamsView from './combat/laser_beams/BridgeLaserBeamsView';
 import BridgeOutgoingMissilesView from './combat/outgoing_missiles/BridgeOutgoingMissilesView';
@@ -45,6 +46,9 @@ export default class BridgeView {
 
     private playerShieldsView?: BridgePlayerShieldsView;
 
+    private enemyShieldsView?:
+        BridgeEnemyShieldsView;
+
     private spamView?: BridgeSpamView;
 
     private stickyMinesView?: BridgeStickyMinesView;
@@ -80,6 +84,19 @@ export default class BridgeView {
             this.scene,
             this.eventBus,
         );
+
+        this.enemyShieldsView =
+            new BridgeEnemyShieldsView(
+                this.scene,
+                this.eventBus,
+
+                (objectId) => {
+                    return spaceView
+                        .getObjectPosition(
+                            objectId,
+                        );
+                },
+            );
 
         this.incomingMissilesView = new BridgeIncomingMissilesView(
             this.scene,
@@ -201,6 +218,7 @@ export default class BridgeView {
             ?.destroy();
         this.outgoingMissilesView?.destroy();
         this.incomingMissilesView?.destroy();
+        this.enemyShieldsView?.destroy();
         this.playerShieldsView?.destroy();
         this.spaceView?.destroy();
 
@@ -221,6 +239,7 @@ export default class BridgeView {
             undefined;
         this.outgoingMissilesView = undefined;
         this.incomingMissilesView = undefined;
+        this.enemyShieldsView = undefined;
         this.playerShieldsView = undefined;
         this.spaceView = undefined;
     }
@@ -230,5 +249,9 @@ export default class BridgeView {
         this.outgoingMissilesView?.setCameraTurnOffsetX(offsetX);
         this.outgoingStickyMinesView?.setCameraTurnOffsetX(offsetX);
         this.laserThreatsView?.setCameraTurnOffsetX(offsetX);
+        this.enemyShieldsView
+            ?.setCameraTurnOffsetX(
+                offsetX,
+            );
     }
 }

@@ -120,6 +120,17 @@ describe('BridgeEncounterSnapshotSynchronizer', () => {
                 },
             ],
             [
+                BRIDGE_EVENT.ENEMY_SHIELDS_UPDATED,
+                [
+                    {
+                        actorId: 'enemy_1',
+                        zone: 'right',
+                        remainingDurationMs: 600,
+                        initialDurationMs: 1000,
+                    },
+                ],
+            ],
+            [
                 BRIDGE_EVENT.ENEMY_SHIP_TELEMETRY_UPDATED,
                 {
                     actorId: 'enemy_1',
@@ -248,6 +259,17 @@ function createEncounterEngine(): EncounterEngine {
                 elapsedMs: 250,
                 durationMs: 1000,
             };
+        }),
+
+        getEnemyShieldSnapshots: vi.fn(() => {
+            return [
+                {
+                    actorId: 'enemy_1',
+                    zone: 'right',
+                    elapsedMs: 400,
+                    durationMs: 1000,
+                },
+            ];
         }),
     } as unknown as EncounterEngine;
 }

@@ -168,6 +168,12 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
 
             [
                 BRIDGE_EVENT
+                    .ENEMY_SHIELDS_UPDATED,
+                [],
+            ],
+
+            [
+                BRIDGE_EVENT
                     .MISSILE_TARGETING_WARNING_CLEARED,
             ],
 

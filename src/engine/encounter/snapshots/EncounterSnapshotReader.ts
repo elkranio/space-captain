@@ -13,6 +13,10 @@ import {
 } from '../../defs/ship_weapon';
 import { getAvailableOfficerCommands } from '../commands/queries/get_available_officer_commands';
 import {
+    getEnemyShieldSnapshots,
+    type EnemyShieldSnapshot,
+} from '../combat/queries/get_enemy_shield_snapshots';
+import {
     getEnemyShipTelemetrySnapshots,
     type EnemyShipTelemetrySnapshot,
 } from '../combat/queries/get_enemy_ship_telemetry_snapshots';
@@ -87,6 +91,13 @@ export default class EncounterSnapshotReader {
 
     public getEnemyShipTelemetrySnapshots(): EnemyShipTelemetrySnapshot[] {
         return this.read(getEnemyShipTelemetrySnapshots);
+    }
+
+    public getEnemyShieldSnapshots():
+        EnemyShieldSnapshot[] {
+        return this.read(
+            getEnemyShieldSnapshots,
+        );
     }
 
     public getEnemyDebugSnapshots():

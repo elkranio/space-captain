@@ -22,6 +22,9 @@ import type {
 } from './debug/get_enemy_debug_snapshots';
 import CombatRunner from './combat/CombatRunner';
 import EnemyShieldRunner from './combat/EnemyShieldRunner';
+import type {
+    EnemyShieldSnapshot,
+} from './combat/queries/get_enemy_shield_snapshots';
 import type { EnemyShipTelemetrySnapshot } from './combat/queries/get_enemy_ship_telemetry_snapshots';
 import type { LaserThreatSnapshot } from './combat/queries/get_laser_threat_snapshots';
 import type { StickyMineSnapshot } from './combat/queries/get_sticky_mine_snapshots';
@@ -45,6 +48,9 @@ import EncounterSnapshotReader from './snapshots/EncounterSnapshotReader';
 import { createDetachedSnapshot } from './snapshots/create_detached_snapshot';
 import EncounterStateStore from './state/EncounterStateStore';
 
+export type {
+    EnemyShieldSnapshot,
+} from './combat/queries/get_enemy_shield_snapshots';
 export type {
     EnemyShipTelemetrySnapshot,
 } from './combat/queries/get_enemy_ship_telemetry_snapshots';
@@ -333,6 +339,12 @@ export default class EncounterEngine {
     public getEnemyShipTelemetrySnapshots():
         EnemyShipTelemetrySnapshot[] {
         return this.snapshotReader.getEnemyShipTelemetrySnapshots();
+    }
+
+    public getEnemyShieldSnapshots():
+        EnemyShieldSnapshot[] {
+        return this.snapshotReader
+            .getEnemyShieldSnapshots();
     }
 
     public getEnemyDebugSnapshots():

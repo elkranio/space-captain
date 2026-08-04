@@ -31,6 +31,7 @@ export default class BridgeEncounterSnapshotSynchronizer {
         this.syncStickyMines();
         this.syncLaserThreats();
         this.syncPlayerShield();
+        this.syncEnemyShields();
         this.syncEnemyShipTelemetry();
     }
 
@@ -74,6 +75,38 @@ export default class BridgeEncounterSnapshotSynchronizer {
                               targetZone: snapshot.attack.identification.targetZone,
                           }
                         : {}),
+                };
+            }),
+        );
+    }
+
+    private syncEnemyShields(): void {
+        const snapshots =
+            this.encounterEngine
+                .getEnemyShieldSnapshots();
+
+        this.eventBus.emit(
+            BRIDGE_EVENT
+                .ENEMY_SHIELDS_UPDATED,
+
+            snapshots.map((snapshot) => {
+                return {
+                    actorId:
+                        snapshot.actorId,
+
+                    zone:
+                        snapshot.zone,
+
+                    remainingDurationMs:
+                        Math.max(
+                            0,
+
+                            snapshot.durationMs -
+                                snapshot.elapsedMs,
+                        ),
+
+                    initialDurationMs:
+                        snapshot.durationMs,
                 };
             }),
         );
