@@ -10,19 +10,19 @@ import {
 import type { EncounterEvent } from '../model/event';
 import type { EncounterState } from '../model/state';
 import EncounterStateStore from '../state/EncounterStateStore';
-import CombatLaserRunner from './CombatLaserRunner';
-import EnemyPointDefenseRunner from './EnemyPointDefenseRunner';
+import CombatLaserRunner from './weapons/laser/CombatLaserRunner';
+import EnemyPointDefenseRunner from './point_defense/EnemyPointDefenseRunner';
 import CombatMissileRunner, {
     type PlayerMissileLaunchInput,
-} from './CombatMissileRunner';
+} from './weapons/missile/CombatMissileRunner';
 import CombatRuntimeIdentityFactory from './CombatRuntimeIdentityFactory';
 import CrewPerformanceResolver from '../crew_performance/CrewPerformanceResolver';
-import CombatSpamRunner from './CombatSpamRunner';
+import CombatSpamRunner from './weapons/spam/CombatSpamRunner';
 import CombatStickyMineRunner, {
     type PlayerStickyMineAttachInput,
-} from './CombatStickyMineRunner';
-import EnemyTaskScheduler from './EnemyTaskScheduler';
-import EnemyThreatObserver from './EnemyThreatObserver';
+} from './weapons/sticky_mine/CombatStickyMineRunner';
+import EnemyTaskScheduler from './enemy/EnemyTaskScheduler';
+import EnemyThreatObserver from './enemy/intel/EnemyThreatObserver';
 
 type CombatStepExistingObjectIds = {
     projectileIds: string[];

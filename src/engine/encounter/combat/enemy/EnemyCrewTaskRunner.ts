@@ -2,23 +2,23 @@
 
 import type {
     LaserTargetZone,
-} from '../../defs/laser';
+} from '../../../defs/laser';
 import type {
     OfficerRole,
-} from '../../defs/officer';
+} from '../../../defs/officer';
 import {
     doesPointDefensePhaseRequireOperator,
-} from '../../defs/point_defense';
+} from '../../../defs/point_defense';
 import {
     doesShipWeaponPhaseRequireOperator,
-} from '../../defs/ship_weapon';
+} from '../../../defs/ship_weapon';
 import type {
     ShipEncounterActorState,
-} from '../actors/ship/ship_encounter_actor';
+} from '../../actors/ship/ship_encounter_actor';
 import {
     COMBAT_SOURCE_KIND,
     COMBAT_TARGET_KIND,
-} from '../model/combat';
+} from '../../model/combat';
 import {
     SHIP_CREW_TASK_KIND,
     type ClearStickyMineShipCrewTaskState,
@@ -26,14 +26,14 @@ import {
     type IdentifyThreatShipCrewTaskState,
     type PurgeSpamShipCrewTaskState,
     type ShipCrewTaskState,
-} from '../model/ship_crew_task';
+} from '../../model/ship_crew_task';
 import type {
     EncounterState,
-} from '../model/state';
-import CrewPerformanceResolver from '../crew_performance/CrewPerformanceResolver';
+} from '../../model/state';
+import CrewPerformanceResolver from '../../crew_performance/CrewPerformanceResolver';
 import {
     getActivePlayerSpamChannels,
-} from './queries/get_active_player_spam_channels';
+} from '../queries/get_active_player_spam_channels';
 
 type EnemyCrewTaskRunnerOptions = {
     state: EncounterState;

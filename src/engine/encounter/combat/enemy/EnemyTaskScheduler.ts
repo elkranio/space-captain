@@ -2,57 +2,57 @@
 
 import {
     POINT_DEFENSES,
-} from '../../content/catalogs/point_defenses';
+} from '../../../content/catalogs/point_defenses';
 import {
     OFFICER_TASK_BASE_DURATION_MS,
-} from '../../content/rules/officer_tasks';
+} from '../../../content/rules/officer_tasks';
 import {
     SHIP_SHIELD_DURATION_MS,
-} from '../../content/rules/shields';
+} from '../../../content/rules/shields';
 import {
     ENCOUNTER_TEAM,
-} from '../../defs/encounter_team';
+} from '../../../defs/encounter_team';
 import {
     OFFICER_ROLE,
     type OfficerRole,
-} from '../../defs/officer';
+} from '../../../defs/officer';
 import {
     PLAYER_SPACE_NAVIGATION_KIND,
-} from '../../defs/player_location';
+} from '../../../defs/player_location';
 import {
     POINT_DEFENSE_PHASE,
-} from '../../defs/point_defense';
+} from '../../../defs/point_defense';
 import {
     SHIP_WEAPON_PHASE,
-} from '../../defs/ship_weapon';
+} from '../../../defs/ship_weapon';
 import type {
     ShipEncounterActorState,
-} from '../actors/ship/ship_encounter_actor';
+} from '../../actors/ship/ship_encounter_actor';
 import {
     COMBAT_SOURCE_KIND,
     COMBAT_TARGET_KIND,
-} from '../model/combat';
+} from '../../model/combat';
 import {
     ENEMY_THREAT_KIND,
-} from '../model/enemy_threat_observation';
+} from '../../model/enemy_threat_observation';
 import {
     ENCOUNTER_EVENT,
     type EncounterEvent,
-} from '../model/event';
+} from '../../model/event';
 import {
     SHIP_CREW_TASK_KIND,
-} from '../model/ship_crew_task';
+} from '../../model/ship_crew_task';
 import type {
     EncounterState,
-} from '../model/state';
+} from '../../model/state';
 import EnemyCrewTaskRunner from './EnemyCrewTaskRunner';
 import EnemyDecisionPolicy, {
     type EnemyWorkIntent,
 } from './EnemyDecisionPolicy';
-import EnemyScienceIntelResolver from './EnemyScienceIntelResolver';
+import EnemyScienceIntelResolver from './intel/EnemyScienceIntelResolver';
 import {
     getActivePlayerSpamChannels,
-} from './queries/get_active_player_spam_channels';
+} from '../queries/get_active_player_spam_channels';
 
 type EnemyTaskSchedulerOptions = {
     state: EncounterState;

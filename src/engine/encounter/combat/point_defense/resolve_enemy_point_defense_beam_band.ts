@@ -2,12 +2,12 @@
 
 import type {
     PointDefenseBeamBand,
-} from '../../defs/point_defense';
+} from '../../../defs/point_defense';
 import {
     ENEMY_THREAT_KIND,
     ENEMY_THREAT_SOURCE_KIND,
     type EnemyThreatObservationState,
-} from '../model/enemy_threat_observation';
+} from '../../model/enemy_threat_observation';
 
 export type ResolveEnemyPointDefenseBeamBandInput = {
     observations:

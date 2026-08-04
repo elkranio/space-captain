@@ -2,50 +2,50 @@
 
 import {
     SHIP_WEAPONS,
-} from '../../content/catalogs/ship_weapons';
+} from '../../../content/catalogs/ship_weapons';
 import {
     OFFICER_TASK_BASE_DURATION_MS,
-} from '../../content/rules/officer_tasks';
+} from '../../../content/rules/officer_tasks';
 import {
     ENEMY_SHIELD_IMPACT_RESERVE_RANGE_MS,
     SHIP_SHIELD_DURATION_MS,
-} from '../../content/rules/shields';
+} from '../../../content/rules/shields';
 import {
     OFFICER_ROLE,
     type OfficerRole,
-} from '../../defs/officer';
+} from '../../../defs/officer';
 import {
     POINT_DEFENSE_BEAM_BAND,
     POINT_DEFENSE_PHASE,
-} from '../../defs/point_defense';
+} from '../../../defs/point_defense';
 import {
     SHIP_WEAPON_KIND,
     SHIP_WEAPON_PHASE,
     type ShipWeaponState,
-} from '../../defs/ship_weapon';
+} from '../../../defs/ship_weapon';
 import type {
     ShipEncounterActorState,
-} from '../actors/ship/ship_encounter_actor';
+} from '../../actors/ship/ship_encounter_actor';
 import {
     COMBAT_SOURCE_KIND,
     COMBAT_TARGET_KIND,
-} from '../model/combat';
+} from '../../model/combat';
 import {
     OFFICER_TASK_KIND,
-} from '../model/officer_task';
+} from '../../model/officer_task';
 import type {
     EncounterState,
-} from '../model/state';
+} from '../../model/state';
 import {
     ENEMY_THREAT_KIND,
     ENEMY_THREAT_SOURCE_KIND,
-} from '../model/enemy_threat_observation';
+} from '../../model/enemy_threat_observation';
 import {
     SHIP_CREW_TASK_KIND,
-} from '../model/ship_crew_task';
+} from '../../model/ship_crew_task';
 import {
     getActivePlayerSpamChannels,
-} from './queries/get_active_player_spam_channels';
+} from '../queries/get_active_player_spam_channels';
 
 export type EnemyWorkIntent =
     | {
@@ -86,7 +86,7 @@ export type EnemyWorkIntent =
 
           observationId: string;
           shieldZone:
-              import('../../defs/laser')
+              import('../../../defs/laser')
                   .LaserTargetZone;
       }
     | {

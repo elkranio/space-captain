@@ -31,7 +31,7 @@ import {
 import {
     SHIP_CHASSIS_ID,
 } from '../../../src/engine/defs/ship_chassis';
-import EnemyTaskScheduler from '../../../src/engine/encounter/combat/EnemyTaskScheduler';
+import EnemyTaskScheduler from '../../../src/engine/encounter/combat/enemy/EnemyTaskScheduler';
 import {
     ENCOUNTER_OFFICER_COMMAND_ID,
 } from '../../../src/engine/encounter/model/command';

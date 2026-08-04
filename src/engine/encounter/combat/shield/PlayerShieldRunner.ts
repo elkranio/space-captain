@@ -1,6 +1,6 @@
 // src/engine/encounter/combat/PlayerShieldRunner.ts
 
-import type { EncounterState } from '../model/state';
+import type { EncounterState } from '../../model/state';
 
 type PlayerShieldRunnerOptions = {
     state: EncounterState;

@@ -1,18 +1,18 @@
 import {
     SHIP_WEAPON_TARGETING_DURATION_MS,
-} from '../../content/catalogs/ship_weapons';
-import { ENCOUNTER_TEAM } from '../../defs/encounter_team';
-import type { MissileId } from '../../defs/missile';
+} from '../../../../content/catalogs/ship_weapons';
+import { ENCOUNTER_TEAM } from '../../../../defs/encounter_team';
+import type { MissileId } from '../../../../defs/missile';
 import {
     SHIP_WEAPON_KIND,
     SHIP_WEAPON_PHASE,
     type MissileLauncherState,
-} from '../../defs/ship_weapon';
+} from '../../../../defs/ship_weapon';
 import {
     OFFICER_TASK_KIND,
     type OfficerTaskState,
-} from '../model/officer_task';
-import type EncounterStateStore from '../state/EncounterStateStore';
+} from '../../../model/officer_task';
+import type EncounterStateStore from '../../../state/EncounterStateStore';
 
 type WeaponsFireMissileTaskState = Extract<
     OfficerTaskState,

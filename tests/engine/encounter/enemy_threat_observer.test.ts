@@ -32,7 +32,7 @@ import {
 import {
     STICKY_MINE_ID,
 } from '../../../src/engine/defs/sticky_mine';
-import EnemyThreatObserver from '../../../src/engine/encounter/combat/EnemyThreatObserver';
+import EnemyThreatObserver from '../../../src/engine/encounter/combat/enemy/intel/EnemyThreatObserver';
 import {
     ENCOUNTER_OFFICER_COMMAND_ID,
 } from '../../../src/engine/encounter/model/command';

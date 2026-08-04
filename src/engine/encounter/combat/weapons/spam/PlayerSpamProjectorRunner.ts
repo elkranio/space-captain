@@ -3,31 +3,31 @@
 import {
     SHIP_WEAPONS,
     SHIP_WEAPON_TARGETING_DURATION_MS,
-} from '../../content/catalogs/ship_weapons';
+} from '../../../../content/catalogs/ship_weapons';
 import {
     ENCOUNTER_TEAM,
-} from '../../defs/encounter_team';
+} from '../../../../defs/encounter_team';
 import {
     OFFICER_ROLE,
-} from '../../defs/officer';
+} from '../../../../defs/officer';
 import {
     SHIP_WEAPON_KIND,
     SHIP_WEAPON_PHASE,
     type SpamProjectorDefinition,
     type SpamProjectorState,
-} from '../../defs/ship_weapon';
+} from '../../../../defs/ship_weapon';
 import {
     PLAYER_SPAM_CHANNEL_OUTCOME,
-} from '../model/combat';
+} from '../../../model/combat';
 import {
     ENCOUNTER_EVENT,
     type EncounterEvent,
-} from '../model/event';
+} from '../../../model/event';
 import {
     OFFICER_TASK_KIND,
     type OfficerTaskState,
-} from '../model/officer_task';
-import type EncounterStateStore from '../state/EncounterStateStore';
+} from '../../../model/officer_task';
+import type EncounterStateStore from '../../../state/EncounterStateStore';
 
 type ScienceFireSpamTaskState =
     Extract<

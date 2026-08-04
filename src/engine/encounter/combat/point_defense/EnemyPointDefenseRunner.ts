@@ -2,30 +2,30 @@
 
 import {
     MISSILES,
-} from '../../content/catalogs/missiles';
+} from '../../../content/catalogs/missiles';
 import {
     POINT_DEFENSES,
-} from '../../content/catalogs/point_defenses';
+} from '../../../content/catalogs/point_defenses';
 import {
     POINT_DEFENSE_PHASE,
     POINT_DEFENSE_SHOT_OUTCOME,
     type ShipPointDefenseState,
-} from '../../defs/point_defense';
+} from '../../../defs/point_defense';
 import type {
     ShipEncounterActorState,
-} from '../actors/ship/ship_encounter_actor';
+} from '../../actors/ship/ship_encounter_actor';
 import {
     COMBAT_SOURCE_KIND,
     COMBAT_TARGET_KIND,
     type MissileCombatProjectileState,
-} from '../model/combat';
+} from '../../model/combat';
 import {
     ENCOUNTER_EVENT,
     type EncounterEvent,
-} from '../model/event';
+} from '../../model/event';
 import type {
     EncounterState,
-} from '../model/state';
+} from '../../model/state';
 
 import {
     resolveEnemyPointDefenseBeamBand,

@@ -17,7 +17,7 @@ import {
 } from '../../../src/engine/defs/player_location';
 import EncounterEngine from '../../../src/engine/encounter/EncounterEngine';
 import { getMutableEncounterStateForTest } from './get_mutable_encounter_state_for_test';
-import EnemyDecisionPolicy from '../../../src/engine/encounter/combat/EnemyDecisionPolicy';
+import EnemyDecisionPolicy from '../../../src/engine/encounter/combat/enemy/EnemyDecisionPolicy';
 import {
     ENCOUNTER_EVENT,
 } from '../../../src/engine/encounter/model/event';

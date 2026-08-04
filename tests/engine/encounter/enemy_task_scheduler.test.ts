@@ -33,7 +33,7 @@ import {
 } from '../../../src/engine/defs/ship_weapon';
 import EncounterEngine from '../../../src/engine/encounter/EncounterEngine';
 import { getMutableEncounterStateForTest } from './get_mutable_encounter_state_for_test';
-import EnemyTaskScheduler from '../../../src/engine/encounter/combat/EnemyTaskScheduler';
+import EnemyTaskScheduler from '../../../src/engine/encounter/combat/enemy/EnemyTaskScheduler';
 import {
     ENCOUNTER_EVENT,
     type EncounterEvent,

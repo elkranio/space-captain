@@ -1,19 +1,19 @@
 // src/engine/encounter/combat/CombatMissileRunner.ts
 
-import { MISSILES } from '../../content/catalogs/missiles';
+import { MISSILES } from '../../../../content/catalogs/missiles';
 import {
     SHIP_WEAPONS,
     SHIP_WEAPON_TARGETING_DURATION_MS,
-} from '../../content/catalogs/ship_weapons';
-import { ENCOUNTER_TEAM } from '../../defs/encounter_team';
-import type { MissileId } from '../../defs/missile';
+} from '../../../../content/catalogs/ship_weapons';
+import { ENCOUNTER_TEAM } from '../../../../defs/encounter_team';
+import type { MissileId } from '../../../../defs/missile';
 import {
     SHIP_WEAPON_KIND,
     SHIP_WEAPON_PHASE,
     type MissileLauncherDefinition,
     type MissileLauncherState,
-} from '../../defs/ship_weapon';
-import type { ShipEncounterActorState } from '../actors/ship/ship_encounter_actor';
+} from '../../../../defs/ship_weapon';
+import type { ShipEncounterActorState } from '../../../actors/ship/ship_encounter_actor';
 import {
     COMBAT_PROJECTILE_KIND,
     COMBAT_SOURCE_KIND,
@@ -21,14 +21,14 @@ import {
     PLAYER_MISSILE_OUTCOME,
     THREAT_IDENTIFICATION_STATUS,
     type MissileCombatProjectileState,
-} from '../model/combat';
+} from '../../../model/combat';
 import {
     ENCOUNTER_EVENT,
     type EncounterEvent,
-} from '../model/event';
-import type { EncounterState } from '../model/state';
-import EncounterStateStore from '../state/EncounterStateStore';
-import CombatRuntimeIdentityFactory from './CombatRuntimeIdentityFactory';
+} from '../../../model/event';
+import type { EncounterState } from '../../../model/state';
+import EncounterStateStore from '../../../state/EncounterStateStore';
+import CombatRuntimeIdentityFactory from '../../CombatRuntimeIdentityFactory';
 
 export type PlayerMissileLaunchInput = {
     sourceWeaponId: string;

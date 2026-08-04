@@ -25,7 +25,7 @@ import {
     SHIP_WEAPON_PHASE,
     type LaserWeaponState,
 } from '../../../src/engine/defs/ship_weapon';
-import EnemyCrewTaskRunner from '../../../src/engine/encounter/combat/EnemyCrewTaskRunner';
+import EnemyCrewTaskRunner from '../../../src/engine/encounter/combat/enemy/EnemyCrewTaskRunner';
 import {
     SHIP_CREW_TASK_KIND,
 } from '../../../src/engine/encounter/model/ship_crew_task';

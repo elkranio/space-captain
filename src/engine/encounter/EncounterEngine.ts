@@ -21,16 +21,16 @@ import type {
     EnemyDebugSnapshot,
 } from './debug/get_enemy_debug_snapshots';
 import CombatRunner from './combat/CombatRunner';
-import EnemyShieldRunner from './combat/EnemyShieldRunner';
+import EnemyShieldRunner from './combat/shield/EnemyShieldRunner';
 import type {
     EnemyShieldSnapshot,
 } from './combat/queries/get_enemy_shield_snapshots';
 import type { EnemyShipTelemetrySnapshot } from './combat/queries/get_enemy_ship_telemetry_snapshots';
 import type { LaserThreatSnapshot } from './combat/queries/get_laser_threat_snapshots';
 import type { StickyMineSnapshot } from './combat/queries/get_sticky_mine_snapshots';
-import PlayerShieldRunner from './combat/PlayerShieldRunner';
-import PlayerWeaponRunner from './combat/PlayerWeaponRunner';
-import ShieldGeneratorRunner from './combat/ShieldGeneratorRunner';
+import PlayerShieldRunner from './combat/shield/PlayerShieldRunner';
+import PlayerWeaponRunner from './combat/weapons/PlayerWeaponRunner';
+import ShieldGeneratorRunner from './combat/shield/ShieldGeneratorRunner';
 import OfficerCommandExecutor from './commands/OfficerCommandExecutor';
 import type { AvailableOfficerCommand, ExecuteOfficerCommandInput, ExecuteOfficerCommandResult } from './model/command';
 import {

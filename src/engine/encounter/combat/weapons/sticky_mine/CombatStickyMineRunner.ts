@@ -1,30 +1,30 @@
-import { STICKY_MINES } from '../../content/catalogs/sticky_mines';
+import { STICKY_MINES } from '../../../../content/catalogs/sticky_mines';
 import {
     SHIP_WEAPONS,
     SHIP_WEAPON_TARGETING_DURATION_MS,
-} from '../../content/catalogs/ship_weapons';
-import { ENCOUNTER_TEAM } from '../../defs/encounter_team';
-import type { StickyMineId } from '../../defs/sticky_mine';
+} from '../../../../content/catalogs/ship_weapons';
+import { ENCOUNTER_TEAM } from '../../../../defs/encounter_team';
+import type { StickyMineId } from '../../../../defs/sticky_mine';
 import {
     SHIP_WEAPON_KIND,
     SHIP_WEAPON_PHASE,
     type StickyMineDispenserDefinition,
     type StickyMineDispenserState,
-} from '../../defs/ship_weapon';
-import type { ShipEncounterActorState } from '../actors/ship/ship_encounter_actor';
+} from '../../../../defs/ship_weapon';
+import type { ShipEncounterActorState } from '../../../actors/ship/ship_encounter_actor';
 import {
     COMBAT_SOURCE_KIND,
     COMBAT_TARGET_KIND,
     PLAYER_STICKY_MINE_OUTCOME,
     type StickyMineState,
-} from '../model/combat';
+} from '../../../model/combat';
 import {
     ENCOUNTER_EVENT,
     type EncounterEvent,
-} from '../model/event';
-import type { EncounterState } from '../model/state';
-import EncounterStateStore from '../state/EncounterStateStore';
-import CombatRuntimeIdentityFactory from './CombatRuntimeIdentityFactory';
+} from '../../../model/event';
+import type { EncounterState } from '../../../model/state';
+import EncounterStateStore from '../../../state/EncounterStateStore';
+import CombatRuntimeIdentityFactory from '../../CombatRuntimeIdentityFactory';
 
 export type PlayerStickyMineAttachInput = {
     sourceWeaponId: string;

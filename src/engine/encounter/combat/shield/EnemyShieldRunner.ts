@@ -2,13 +2,13 @@
 
 import {
     ENCOUNTER_TEAM,
-} from '../../defs/encounter_team';
+} from '../../../defs/encounter_team';
 import type {
     ShipEncounterActorState,
-} from '../actors/ship/ship_encounter_actor';
+} from '../../actors/ship/ship_encounter_actor';
 import type {
     EncounterState,
-} from '../model/state';
+} from '../../model/state';
 
 // Owns enemy shield lifetime and generator regeneration.
 //

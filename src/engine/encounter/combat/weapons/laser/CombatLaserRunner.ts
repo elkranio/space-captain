@@ -1,30 +1,30 @@
 import {
     SHIP_WEAPONS,
     SHIP_WEAPON_TARGETING_DURATION_MS,
-} from '../../content/catalogs/ship_weapons';
+} from '../../../../content/catalogs/ship_weapons';
 import {
     LASER_TARGET_ZONES,
     type LaserTargetZone,
-} from '../../defs/laser';
+} from '../../../../defs/laser';
 import {
     SHIP_WEAPON_PHASE,
     type LaserWeaponDefinition,
     type LaserWeaponState,
-} from '../../defs/ship_weapon';
-import type { ShipEncounterActorState } from '../actors/ship/ship_encounter_actor';
+} from '../../../../defs/ship_weapon';
+import type { ShipEncounterActorState } from '../../../actors/ship/ship_encounter_actor';
 import {
     COMBAT_TARGET_KIND,
     LASER_SHOT_OUTCOME,
     THREAT_IDENTIFICATION_STATUS,
     type LaserAttackState,
-} from '../model/combat';
+} from '../../../model/combat';
 import {
     ENCOUNTER_EVENT,
     type EncounterEvent,
-} from '../model/event';
-import type { EncounterState } from '../model/state';
-import EncounterStateStore from '../state/EncounterStateStore';
-import CombatRuntimeIdentityFactory from './CombatRuntimeIdentityFactory';
+} from '../../../model/event';
+import type { EncounterState } from '../../../model/state';
+import EncounterStateStore from '../../../state/EncounterStateStore';
+import CombatRuntimeIdentityFactory from '../../CombatRuntimeIdentityFactory';
 
 type CombatLaserRunnerOptions = {
     stateStore: EncounterStateStore;

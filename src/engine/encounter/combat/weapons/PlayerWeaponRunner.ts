@@ -1,25 +1,25 @@
 // src/engine/encounter/combat/PlayerWeaponRunner.ts
 
-import { SHIP_WEAPONS } from '../../content/catalogs/ship_weapons';
-import type { MissileId } from '../../defs/missile';
-import { OFFICER_ROLE } from '../../defs/officer';
+import { SHIP_WEAPONS } from '../../../content/catalogs/ship_weapons';
+import type { MissileId } from '../../../defs/missile';
+import { OFFICER_ROLE } from '../../../defs/officer';
 import {
     SHIP_WEAPON_KIND,
     SHIP_WEAPON_PHASE,
     type ShipWeaponDefinition,
     type ShipWeaponState,
-} from '../../defs/ship_weapon';
-import type { StickyMineId } from '../../defs/sticky_mine';
-import type { EncounterEvent } from '../model/event';
+} from '../../../defs/ship_weapon';
+import type { StickyMineId } from '../../../defs/sticky_mine';
+import type { EncounterEvent } from '../../model/event';
 import {
     OFFICER_TASK_KIND,
-} from '../model/officer_task';
-import CrewPerformanceResolver from '../crew_performance/CrewPerformanceResolver';
-import type EncounterStateStore from '../state/EncounterStateStore';
-import PlayerLaserRunner from './PlayerLaserRunner';
-import PlayerMissileLauncherRunner from './PlayerMissileLauncherRunner';
-import PlayerSpamProjectorRunner from './PlayerSpamProjectorRunner';
-import PlayerStickyMineDispenserRunner from './PlayerStickyMineDispenserRunner';
+} from '../../model/officer_task';
+import CrewPerformanceResolver from '../../crew_performance/CrewPerformanceResolver';
+import type EncounterStateStore from '../../state/EncounterStateStore';
+import PlayerLaserRunner from './laser/PlayerLaserRunner';
+import PlayerMissileLauncherRunner from './missile/PlayerMissileLauncherRunner';
+import PlayerSpamProjectorRunner from './spam/PlayerSpamProjectorRunner';
+import PlayerStickyMineDispenserRunner from './sticky_mine/PlayerStickyMineDispenserRunner';
 
 type PlayerWeaponRunnerOptions = {
     stateStore: EncounterStateStore;

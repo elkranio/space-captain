@@ -18,7 +18,7 @@ import {
     SHIP_WEAPON_KIND,
     SHIP_WEAPON_PHASE,
 } from '../../../src/engine/defs/ship_weapon';
-import EnemyDecisionPolicy from '../../../src/engine/encounter/combat/EnemyDecisionPolicy';
+import EnemyDecisionPolicy from '../../../src/engine/encounter/combat/enemy/EnemyDecisionPolicy';
 import {
     getActivePlayerSpamChannels,
 } from '../../../src/engine/encounter/combat/queries/get_active_player_spam_channels';

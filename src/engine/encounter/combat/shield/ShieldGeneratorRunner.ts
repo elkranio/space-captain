@@ -1,8 +1,8 @@
 // src/engine/encounter/combat/ShieldGeneratorRunner.ts
 
-import type { ShieldGeneratorState } from '../../defs/shield_generator';
-import { ENCOUNTER_EVENT, type EncounterEvent } from '../model/event';
-import type { EncounterState } from '../model/state';
+import type { ShieldGeneratorState } from '../../../defs/shield_generator';
+import { ENCOUNTER_EVENT, type EncounterEvent } from '../../model/event';
+import type { EncounterState } from '../../model/state';
 
 type ShieldGeneratorRunnerOptions = {
     state: EncounterState;
