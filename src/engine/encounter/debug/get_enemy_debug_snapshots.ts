@@ -49,6 +49,7 @@ import {
     SHIP_CREW_TASK_KIND,
     type ShipCrewTaskState,
 } from '../model/ship_crew_task';
+import EnemyCrewPerformanceResolver from '../combat/EnemyCrewPerformanceResolver';
 
 const ENEMY_DEBUG_ROLE_ORDER = [
     OFFICER_ROLE.SCIENCE,
@@ -126,6 +127,8 @@ export type EnemyDebugThreatSnapshot = {
 export type EnemyDebugSnapshot = {
     actorId: string;
 
+    crewProgressMultiplier?: number;
+
     roles:
         EnemyDebugRoleSnapshot[];
 
@@ -167,6 +170,13 @@ function createEnemyDebugSnapshot(
     state: EncounterState,
     actor: ShipEncounterActorState,
 ): EnemyDebugSnapshot {
+    const crewProgressMultiplier =
+        new EnemyCrewPerformanceResolver(
+            state,
+        ).getTaskProgressMultiplier(
+            actor,
+        );
+
     const threats =
         createThreatSnapshots(
             state,
@@ -186,6 +196,12 @@ function createEnemyDebugSnapshot(
     return {
         actorId:
             actor.id,
+
+        ...(crewProgressMultiplier < 1
+            ? {
+                  crewProgressMultiplier,
+              }
+            : {}),
 
         roles:
             ENEMY_DEBUG_ROLE_ORDER

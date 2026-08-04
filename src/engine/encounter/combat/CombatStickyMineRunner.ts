@@ -197,6 +197,7 @@ export default class CombatStickyMineRunner {
         actor: ShipEncounterActorState,
         dispenser: StickyMineDispenserState,
         deltaMs: number,
+        crewProgressMultiplier = 1,
     ): void {
         switch (dispenser.phase) {
             case SHIP_WEAPON_PHASE.READY:
@@ -206,7 +207,8 @@ export default class CombatStickyMineRunner {
                 this.advanceTargeting(
                     actor,
                     dispenser,
-                    deltaMs,
+                    deltaMs *
+                        crewProgressMultiplier,
                 );
                 return;
 
@@ -214,7 +216,8 @@ export default class CombatStickyMineRunner {
                 this.advanceDispensing(
                     actor,
                     dispenser,
-                    deltaMs,
+                    deltaMs *
+                        crewProgressMultiplier,
                 );
                 return;
 

@@ -57,6 +57,7 @@ export default class EnemyPointDefenseRunner {
         actor: ShipEncounterActorState,
         pointDefense: ShipPointDefenseState,
         deltaMs: number,
+        crewProgressMultiplier = 1,
     ): void {
         if (deltaMs < 0) {
             throw new Error(
@@ -73,7 +74,8 @@ export default class EnemyPointDefenseRunner {
                 this.advanceLoading(
                     actor,
                     pointDefense,
-                    deltaMs,
+                    deltaMs *
+                        crewProgressMultiplier,
                 );
                 return;
 

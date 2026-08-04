@@ -110,6 +110,17 @@ function formatSystems(
     snapshot: EnemyDebugSnapshot,
 ): string {
     return [
+        ...(snapshot
+            .crewProgressMultiplier !==
+        undefined
+            ? [
+                  'SPAM x' +
+                      snapshot
+                          .crewProgressMultiplier
+                          .toFixed(1),
+              ]
+            : []),
+
         formatPointDefense(
             snapshot,
         ),

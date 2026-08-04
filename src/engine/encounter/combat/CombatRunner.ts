@@ -12,6 +12,7 @@ import CombatMissileRunner, {
     type PlayerMissileLaunchInput,
 } from './CombatMissileRunner';
 import CombatRuntimeIdentityFactory from './CombatRuntimeIdentityFactory';
+import EnemyCrewPerformanceResolver from './EnemyCrewPerformanceResolver';
 import CombatSpamRunner from './CombatSpamRunner';
 import CombatStickyMineRunner, {
     type PlayerStickyMineAttachInput,
@@ -74,6 +75,9 @@ export default class CombatRunner {
     private readonly missileRunner:
         CombatMissileRunner;
 
+    private readonly enemyCrewPerformanceResolver:
+        EnemyCrewPerformanceResolver;
+
     private readonly pointDefenseRunner:
         EnemyPointDefenseRunner;
 
@@ -111,6 +115,11 @@ export default class CombatRunner {
 
         this.identities =
             new CombatRuntimeIdentityFactory();
+
+        this.enemyCrewPerformanceResolver =
+            new EnemyCrewPerformanceResolver(
+                this.state,
+            );
 
         this.missileRunner =
             new CombatMissileRunner({
@@ -364,12 +373,19 @@ export default class CombatRunner {
                 continue;
             }
 
+            const crewProgressMultiplier =
+                this.enemyCrewPerformanceResolver
+                    .getTaskProgressMultiplier(
+                        actor,
+                    );
+
             if (actor.pointDefense) {
                 this.pointDefenseRunner
                     .advance(
                         actor,
                         actor.pointDefense,
                         deltaMs,
+                        crewProgressMultiplier,
                     );
             }
 
@@ -382,6 +398,7 @@ export default class CombatRunner {
                                 actor,
                                 weapon,
                                 deltaMs,
+                                crewProgressMultiplier,
                             );
                         break;
 
@@ -391,6 +408,7 @@ export default class CombatRunner {
                                 actor,
                                 weapon,
                                 deltaMs,
+                                crewProgressMultiplier,
                             );
                         break;
 
@@ -401,6 +419,7 @@ export default class CombatRunner {
                                 actor,
                                 weapon,
                                 deltaMs,
+                                crewProgressMultiplier,
                             );
                         break;
 
@@ -411,6 +430,7 @@ export default class CombatRunner {
                                 actor,
                                 weapon,
                                 deltaMs,
+                                crewProgressMultiplier,
                             );
                         break;
                 }

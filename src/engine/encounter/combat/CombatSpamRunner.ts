@@ -55,6 +55,7 @@ export default class CombatSpamRunner {
         actor: ShipEncounterActorState,
         projector: SpamProjectorState,
         deltaMs: number,
+        crewProgressMultiplier = 1,
     ): void {
         switch (projector.phase) {
             case SHIP_WEAPON_PHASE.READY:
@@ -64,7 +65,8 @@ export default class CombatSpamRunner {
                 this.advanceTargeting(
                     actor,
                     projector,
-                    deltaMs,
+                    deltaMs *
+                        crewProgressMultiplier,
                 );
                 return;
 

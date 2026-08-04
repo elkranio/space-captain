@@ -55,9 +55,9 @@ type PlayerSpamProjectorRunnerOptions = {
 // performance multiplier. Once the channel exists, its twenty-second
 // physical lifetime advances in real encounter time.
 //
-// Atom 11 intentionally adds no gameplay effect to the target.
-// The channel events exist only for outgoing beam presentation.
-// Enemy crew slowdown is atom 12.
+// Active channels are exposed through one derived combat query.
+// EnemyCrewPerformanceResolver applies the content-defined x0.5 slowdown
+// to crew-driven enemy work while this channel remains active.
 export default class PlayerSpamProjectorRunner {
     constructor(
         private readonly options:
