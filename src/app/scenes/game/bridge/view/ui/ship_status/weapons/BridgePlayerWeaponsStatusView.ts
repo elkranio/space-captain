@@ -14,15 +14,16 @@ import type {
     BridgePlayerWeaponsStatusUpdatedPayload,
 } from '../../../../events/bridge_event';
 
-const MISSILE_STATUS_X = 160;
+const MISSILE_STATUS_X = 144;
+
+const SPAM_STATUS_X = 328;
 
 // Временная строка состояния player weapons.
 //
 // Показывает только необходимое для V0:
-// - готовность laser;
-// - targeting / charging / cooldown;
-// - количество ракет;
-// - готовность missile launcher.
+// - готовность и активную фазу laser;
+// - количество ракет и фазу missile launcher;
+// - готовность, targeting, channeling и cooldown spam projector.
 export default class BridgePlayerWeaponsStatusView {
     private readonly root:
         Phaser.GameObjects.Container;
@@ -31,6 +32,9 @@ export default class BridgePlayerWeaponsStatusView {
         Phaser.GameObjects.BitmapText;
 
     private readonly missileLabel:
+        Phaser.GameObjects.BitmapText;
+
+    private readonly spamLabel:
         Phaser.GameObjects.BitmapText;
 
     constructor(scene: BridgeScene) {
@@ -52,9 +56,16 @@ export default class BridgePlayerWeaponsStatusView {
                 MISSILE_STATUS_X,
             );
 
+        this.spamLabel =
+            this.createLabel(
+                scene,
+                SPAM_STATUS_X,
+            );
+
         this.root.add([
             this.laserLabel,
             this.missileLabel,
+            this.spamLabel,
         ]);
     }
 
@@ -107,6 +118,20 @@ export default class BridgePlayerWeaponsStatusView {
                         0,
                 ),
             );
+
+        this.spamLabel
+            .setText(
+                this.formatSpamProjector(
+                    payload
+                        .spamProjector,
+                ),
+            )
+            .setTint(
+                this.getStatusTint(
+                    payload
+                        .spamProjector,
+                ),
+            );
     }
 
     public destroy(): void {
@@ -143,6 +168,24 @@ export default class BridgePlayerWeaponsStatusView {
 
         return (
             'LASER ' +
+            this.formatPhase(
+                status,
+            )
+        );
+    }
+
+    private formatSpamProjector(
+        status:
+            BridgePlayerWeaponsStatusUpdatedPayload[
+                'spamProjector'
+            ],
+    ): string {
+        if (!status) {
+            return 'SPAM --';
+        }
+
+        return (
+            'SPAM ' +
             this.formatPhase(
                 status,
             )

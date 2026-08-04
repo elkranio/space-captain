@@ -26,6 +26,11 @@ export function mapPlayerWeaponsToBridgeStatusPayload(
             'missileLauncher'
         ];
 
+    let spamProjector:
+        BridgePlayerWeaponsStatusUpdatedPayload[
+            'spamProjector'
+        ];
+
     for (const weapon of weapons) {
         switch (weapon.kind) {
             case SHIP_WEAPON_KIND.LASER: {
@@ -88,6 +93,23 @@ export function mapPlayerWeaponsToBridgeStatusPayload(
                 break;
             }
 
+            case SHIP_WEAPON_KIND
+                .SPAM_PROJECTOR: {
+                if (spamProjector) {
+                    throw new Error(
+                        'Bridge weapon status supports ' +
+                            'one player spam projector',
+                    );
+                }
+
+                spamProjector =
+                    mapWeaponStatus(
+                        weapon,
+                    );
+
+                break;
+            }
+
             default:
                 break;
         }
@@ -103,6 +125,12 @@ export function mapPlayerWeaponsToBridgeStatusPayload(
         ...(missileLauncher
             ? {
                   missileLauncher,
+              }
+            : {}),
+
+        ...(spamProjector
+            ? {
+                  spamProjector,
               }
             : {}),
     };
@@ -170,6 +198,23 @@ function getRemainingPhaseMs(
             );
 
         case SHIP_WEAPON_PHASE.CHANNELING:
+            if (
+                definition.kind !==
+                SHIP_WEAPON_KIND
+                    .SPAM_PROJECTOR
+            ) {
+                throw new Error(
+                    'Only player spam projector can be ' +
+                        'in channeling phase: ' +
+                        weapon.id,
+                );
+            }
+
+            return getRemainingMs(
+                definition.channelDurationMs,
+                weapon.phaseElapsedMs,
+            );
+
         case SHIP_WEAPON_PHASE.DISPENSING:
             throw new Error(
                 'Unsupported player weapon phase ' +

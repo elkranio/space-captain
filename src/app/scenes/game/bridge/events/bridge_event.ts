@@ -450,6 +450,9 @@ export type BridgePlayerWeaponsStatusUpdatedPayload = {
                 max: number;
             };
         };
+
+    spamProjector?:
+        BridgePlayerWeaponStatusPayload;
 };
 
 export type BridgeEnemyShipTelemetryUpdatedPayload =

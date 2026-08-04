@@ -16,7 +16,7 @@ import BridgePlayerWeaponsStatusView from './weapons/BridgePlayerWeaponsStatusVi
 const SHIP_STATUS_PANEL = {
     y: 4,
 
-    width: 368,
+    width: 480,
     height: 56,
 
     backgroundColor: 0x10131d,
@@ -30,13 +30,13 @@ const HULL_STATUS_POSITION =
     new Phaser.Math.Vector2(12, 8);
 
 const POINT_DEFENSE_STATUS_POSITION =
-    new Phaser.Math.Vector2(112, 8);
+    new Phaser.Math.Vector2(128, 8);
 
 const SHIELD_STATUS_POSITION =
-    new Phaser.Math.Vector2(204, 8);
+    new Phaser.Math.Vector2(244, 8);
 
 const DRIVE_STATUS_POSITION =
-    new Phaser.Math.Vector2(296, 8);
+    new Phaser.Math.Vector2(376, 8);
 
 const WEAPONS_STATUS_POSITION =
     new Phaser.Math.Vector2(12, 32);
