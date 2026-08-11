@@ -76,6 +76,10 @@ describe(
                             SHIP_WEAPON_PHASE
                                 .CHANNELING,
 
+                        initialPhaseMs:
+                            definition
+                                .channelDurationMs,
+
                         remainingPhaseMs:
                             definition
                                 .channelDurationMs -

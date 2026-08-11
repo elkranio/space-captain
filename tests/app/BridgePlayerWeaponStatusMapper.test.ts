@@ -68,6 +68,9 @@ describe('Bridge player weapon status mapper', () => {
                     SHIP_WEAPON_PHASE
                         .TARGETING,
 
+                initialPhaseMs:
+                    SHIP_WEAPON_TARGETING_DURATION_MS,
+
                 remainingPhaseMs:
                     SHIP_WEAPON_TARGETING_DURATION_MS -
                     1250,
@@ -77,6 +80,9 @@ describe('Bridge player weapon status mapper', () => {
                 phase:
                     SHIP_WEAPON_PHASE
                         .TARGETING,
+
+                initialPhaseMs:
+                    SHIP_WEAPON_TARGETING_DURATION_MS,
 
                 remainingPhaseMs:
                     SHIP_WEAPON_TARGETING_DURATION_MS -
@@ -135,6 +141,9 @@ describe('Bridge player weapon status mapper', () => {
                     SHIP_WEAPON_PHASE
                         .CHARGING,
 
+                initialPhaseMs:
+                    12000,
+
                 remainingPhaseMs:
                     9500,
             },
@@ -143,6 +152,9 @@ describe('Bridge player weapon status mapper', () => {
                 phase:
                     SHIP_WEAPON_PHASE
                         .COOLDOWN,
+
+                initialPhaseMs:
+                    15000,
 
                 remainingPhaseMs:
                     11000,

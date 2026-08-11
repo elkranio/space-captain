@@ -27,6 +27,7 @@ describe('BridgeEncounterSnapshotSynchronizer', () => {
         expect(setPlayerShipWeaponStates).toHaveBeenCalledWith([]);
         expect(emit.mock.calls).toEqual([
             [BRIDGE_EVENT.PLAYER_WEAPONS_STATUS_UPDATED, {}],
+            [BRIDGE_EVENT.PLAYER_SHIP_DASHBOARD_UPDATED, {}],
             [
                 BRIDGE_EVENT.ENEMY_SHIP_TELEMETRY_UPDATED,
                 {
@@ -162,6 +163,19 @@ function createEncounterEngine(): EncounterEngine {
     return {
         getPlayerWeaponStates: vi.fn(() => {
             return [];
+        }),
+
+        getAvailableCommands: vi.fn(() => {
+            return [];
+        }),
+
+        getOfficerAvailabilityStates: vi.fn(() => {
+            return {
+                science: 'available',
+                weapons: 'available',
+                engineer: 'available',
+                helm: 'available',
+            };
         }),
 
         getEnemyShipTelemetrySnapshots: vi.fn(() => {
