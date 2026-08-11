@@ -1,5 +1,8 @@
 // src/engine/encounter/model/combat.ts
 
+import type {
+    DefenseCapacitorState,
+} from '../../defs/defense_capacitor';
 import type { LaserTargetZone } from '../../defs/laser';
 import type { MissileSpectralBand, MissileId } from '../../defs/missile';
 import type { PointDefenseState } from '../../defs/point_defense';
@@ -230,6 +233,11 @@ export type StickyMineState = {
 
 export type EncounterCombatState = {
     pointDefense: PointDefenseState;
+
+    // Shared defensive-energy installation.
+    // Some test/minimal encounters may omit it.
+    defenseCapacitor?:
+        DefenseCapacitorState;
 
     // Mutable installed weapons
     // текущего player ship в encounter.

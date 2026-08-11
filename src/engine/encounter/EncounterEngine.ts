@@ -1,5 +1,8 @@
 // src/engine/encounter/EncounterEngine.ts
 
+import type {
+    DefenseCapacitorState,
+} from '../defs/defense_capacitor';
 import {
     ENCOUNTER_TEAM,
     type EncounterTeam,
@@ -21,6 +24,7 @@ import type {
     EnemyDebugSnapshot,
 } from './debug/get_enemy_debug_snapshots';
 import CombatRunner from './combat/CombatRunner';
+import DefenseCapacitorRunner from './combat/defense/DefenseCapacitorRunner';
 import EnemyShieldRunner from './combat/shield/EnemyShieldRunner';
 import type {
     EnemyShieldSnapshot,
@@ -69,6 +73,9 @@ export type EncounterEngineOptions = {
 
     pointDefense: PointDefenseState;
 
+    defenseCapacitor?:
+        DefenseCapacitorState;
+
     // undefined означает, что у player ship
     // физически нет shield generator.
     shieldGenerator?: ShieldGeneratorState;
@@ -96,6 +103,9 @@ export default class EncounterEngine {
 
     private readonly combatRunner: CombatRunner;
 
+    private readonly defenseCapacitorRunner:
+        DefenseCapacitorRunner;
+
     private readonly playerWeaponRunner:
         PlayerWeaponRunner;
 
@@ -115,6 +125,7 @@ export default class EncounterEngine {
         playerHull,
         drive,
         pointDefense,
+        defenseCapacitor,
         shieldGenerator,
         weapons = [],
 
@@ -131,6 +142,7 @@ export default class EncounterEngine {
                 drive,
 
                 pointDefense,
+                defenseCapacitor,
                 shieldGenerator,
 
                 playerWeapons:
@@ -142,6 +154,11 @@ export default class EncounterEngine {
         this.snapshotReader = new EncounterSnapshotReader(
             encounterState,
         );
+
+        this.defenseCapacitorRunner =
+            new DefenseCapacitorRunner(
+                encounterState,
+            );
 
         this.playerShieldRunner = new PlayerShieldRunner({
             state: encounterState,
@@ -276,6 +293,9 @@ export default class EncounterEngine {
     }
 
     public step(deltaMs: number): void {
+        this.defenseCapacitorRunner
+            .step(deltaMs);
+
         this.playerShieldRunner.step(deltaMs);
         this.enemyShieldRunner.step(deltaMs);
         this.officerTaskRunner.step(deltaMs);
@@ -347,6 +367,12 @@ export default class EncounterEngine {
     public getPlayerWeaponStates():
         ShipWeaponState[] {
         return this.snapshotReader.getPlayerWeaponStates();
+    }
+
+    public getDefenseCapacitorState():
+        DefenseCapacitorState | undefined {
+        return this.snapshotReader
+            .getDefenseCapacitorState();
     }
 
     public getEnemyShipTelemetrySnapshots():

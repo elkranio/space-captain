@@ -1,6 +1,9 @@
 // src/engine/encounter/snapshots/EncounterSnapshotReader.ts
 
 import { SHIP_WEAPONS } from '../../content/catalogs/ship_weapons';
+import type {
+    DefenseCapacitorState,
+} from '../../defs/defense_capacitor';
 import type { OfficerRole } from '../../defs/officer';
 import type { PlayerHullState } from '../../defs/player';
 import type { PlayerSpaceNavigationState } from '../../defs/player_location';
@@ -87,6 +90,15 @@ export default class EncounterSnapshotReader {
 
     public getPlayerWeaponStates(): ShipWeaponState[] {
         return this.read((state) => state.combat.playerWeapons);
+    }
+
+    public getDefenseCapacitorState():
+        DefenseCapacitorState | undefined {
+        return this.read(
+            (state) =>
+                state.combat
+                    .defenseCapacitor,
+        );
     }
 
     public getEnemyShipTelemetrySnapshots(): EnemyShipTelemetrySnapshot[] {

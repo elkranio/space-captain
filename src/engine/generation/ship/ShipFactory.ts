@@ -13,6 +13,9 @@ import {
 } from '../../content/presets/ships';
 import type { ShipPreset } from '../../content/presets/ships';
 import type {
+    DefenseCapacitorState,
+} from '../../defs/defense_capacitor';
+import type {
     ShipPointDefenseState,
 } from '../../defs/point_defense';
 import type {
@@ -29,6 +32,7 @@ import {
     SHIP_WEAPON_KIND,
     type ShipWeaponState,
 } from '../../defs/ship_weapon';
+import DefenseCapacitorFactory from '../ship_system/DefenseCapacitorFactory';
 import ShieldGeneratorFactory from '../ship_system/ShieldGeneratorFactory';
 import ShipPointDefenseFactory from '../ship_system/ShipPointDefenseFactory';
 import LaserWeaponFactory from '../ship_weapon/LaserWeaponFactory';
@@ -49,6 +53,9 @@ export type CreatedShipState = {
     drive: ShipDriveState;
 
     pointDefense?: ShipPointDefenseState;
+
+    defenseCapacitor?:
+        DefenseCapacitorState;
 
     shieldGenerator: ShieldGeneratorState;
 
@@ -98,6 +105,25 @@ export default class ShipFactory {
                                       preset
                                           .pointDefense
                                           .pointDefenseId,
+                              }),
+                      }
+                    : {}
+            ),
+
+            ...(
+                preset.defenseCapacitor
+                    ? {
+                          defenseCapacitor:
+                              DefenseCapacitorFactory.create({
+                                  id:
+                                      preset
+                                          .defenseCapacitor
+                                          .id,
+
+                                  defenseCapacitorId:
+                                      preset
+                                          .defenseCapacitor
+                                          .defenseCapacitorId,
                               }),
                       }
                     : {}

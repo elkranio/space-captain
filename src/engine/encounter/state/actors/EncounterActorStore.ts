@@ -4,6 +4,9 @@ import { SHIP_CHASSIS } from '../../../content/catalogs/ship_chassis';
 import type {
     CrewTraitsByRole,
 } from '../../../defs/crew_trait';
+import type {
+    DefenseCapacitorState,
+} from '../../../defs/defense_capacitor';
 import {
     ENCOUNTER_TEAM,
     type EncounterTeam,
@@ -61,6 +64,9 @@ export type SpawnShipActorInput = {
     pointDefense?:
         ShipPointDefenseState;
 
+    defenseCapacitor?:
+        DefenseCapacitorState;
+
     shieldGenerator:
         ShieldGeneratorState;
 
@@ -112,6 +118,7 @@ export default class EncounterActorStore {
         maxHull,
         drive,
         pointDefense,
+        defenseCapacitor,
         shieldGenerator,
         behavior,
         crewRoles,
@@ -183,6 +190,16 @@ export default class EncounterActorStore {
                     ? {
                           pointDefense: {
                               ...pointDefense,
+                          },
+                      }
+                    : {}
+            ),
+
+            ...(
+                defenseCapacitor
+                    ? {
+                          defenseCapacitor: {
+                              ...defenseCapacitor,
                           },
                       }
                     : {}

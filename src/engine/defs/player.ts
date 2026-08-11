@@ -1,5 +1,8 @@
 // src/engine/defs/player.ts
 
+import type {
+    DefenseCapacitorState,
+} from './defense_capacitor';
 import type { PlayerLocationState } from './player_location';
 import type { PointDefenseState } from './point_defense';
 import type { ShieldGeneratorState } from './shield_generator';
@@ -23,6 +26,9 @@ export type PlayerShipState =
 
         pointDefense:
             PointDefenseState;
+
+        defenseCapacitor:
+            DefenseCapacitorState;
 
         shieldGenerator:
             ShieldGeneratorState;

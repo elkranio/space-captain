@@ -5,6 +5,10 @@ import {
     STICKY_MINE_DISPENSER_PRESET_ID,
     type StickyMineDispenserPresetId,
 } from './sticky_mine_dispensers';
+import {
+    DEFENSE_CAPACITOR_ID,
+    type DefenseCapacitorId,
+} from '../../defs/defense_capacitor';
 import { SHIP_DRIVE_ID, type ShipDriveId } from '../../defs/ship_drive';
 import { SHIP_WEAPON_ID } from '../../defs/ship_weapon';
 import { SHIELD_GENERATOR_PRESET_ID, type ShieldGeneratorPresetId } from './shield_generators';
@@ -69,6 +73,13 @@ export type PlayerShipPreset = {
         maxCharges: number;
     };
 
+    defenseCapacitor: {
+        id: string;
+
+        defenseCapacitorId:
+            DefenseCapacitorId;
+    };
+
     shieldGeneratorPresetId: ShieldGeneratorPresetId;
 
     weapons: PlayerShipWeaponPreset[];
@@ -84,6 +95,15 @@ export const PLAYER_SHIP_PRESETS = {
 
         pointDefense: {
             maxCharges: 4,
+        },
+
+        defenseCapacitor: {
+            id:
+                'defense_capacitor_player_00',
+
+            defenseCapacitorId:
+                DEFENSE_CAPACITOR_ID
+                    .BASIC_00,
         },
 
         shieldGeneratorPresetId: SHIELD_GENERATOR_PRESET_ID.BASIC_00,

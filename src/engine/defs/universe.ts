@@ -1,6 +1,9 @@
 // src/engine/defs/universe.ts
 
 import type { AsteroidState } from './asteroid';
+import type {
+    DefenseCapacitorState,
+} from './defense_capacitor';
 import type { NavigationBeaconState } from './beacon';
 import type { JumpPointState } from './jump_point';
 import type {
@@ -85,6 +88,9 @@ export type ShipSpaceNodeActorState =
 
         pointDefense?:
             ShipPointDefenseState;
+
+        defenseCapacitor?:
+            DefenseCapacitorState;
 
         shieldGenerator:
             ShieldGeneratorState;

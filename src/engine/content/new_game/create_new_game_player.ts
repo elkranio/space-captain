@@ -14,6 +14,7 @@ import {
     SHIP_WEAPON_ID,
     type ShipWeaponState,
 } from '../../defs/ship_weapon';
+import DefenseCapacitorFactory from '../../generation/ship_system/DefenseCapacitorFactory';
 import ShieldGeneratorFactory from '../../generation/ship_system/ShieldGeneratorFactory';
 import LaserWeaponFactory from '../../generation/ship_weapon/LaserWeaponFactory';
 import MissileLauncherFactory from '../../generation/ship_weapon/MissileLauncherFactory';
@@ -72,6 +73,19 @@ function createPlayerShip(
             maxCharges:
                 preset.pointDefense.maxCharges,
         },
+
+        defenseCapacitor:
+            DefenseCapacitorFactory.create({
+                id:
+                    preset
+                        .defenseCapacitor
+                        .id,
+
+                defenseCapacitorId:
+                    preset
+                        .defenseCapacitor
+                        .defenseCapacitorId,
+            }),
 
         shieldGenerator:
             ShieldGeneratorFactory.create({

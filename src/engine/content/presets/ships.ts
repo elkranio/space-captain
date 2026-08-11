@@ -1,6 +1,10 @@
 // src/engine/content/presets/ships.ts
 
 import {
+    DEFENSE_CAPACITOR_ID,
+    type DefenseCapacitorId,
+} from '../../defs/defense_capacitor';
+import {
     SHIP_CHASSIS_ID,
     type ShipChassisId,
 } from '../../defs/ship_chassis';
@@ -119,6 +123,13 @@ export type ShipPreset = {
     pointDefense?: {
         id: string;
         pointDefenseId: PointDefenseId;
+    };
+
+    defenseCapacitor?: {
+        id: string;
+
+        defenseCapacitorId:
+            DefenseCapacitorId;
     };
 
     shieldGeneratorPresetId:
@@ -360,6 +371,15 @@ export const SHIP_PRESETS = {
             id: 'point_defense_00',
             pointDefenseId:
                 POINT_DEFENSE_ID.BASIC_00,
+        },
+
+        defenseCapacitor: {
+            id:
+                'defense_capacitor_00',
+
+            defenseCapacitorId:
+                DEFENSE_CAPACITOR_ID
+                    .BASIC_00,
         },
 
         shieldGeneratorPresetId:

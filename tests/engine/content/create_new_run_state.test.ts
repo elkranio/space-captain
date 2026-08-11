@@ -9,6 +9,9 @@ import {
     createNewRunState,
 } from '../../../src/engine/content/new_game/create_new_run_state';
 import {
+    DEFENSE_CAPACITOR_ID,
+} from '../../../src/engine/defs/defense_capacitor';
+import {
     MISSILE_ID,
 } from '../../../src/engine/defs/missile';
 import {
@@ -45,6 +48,18 @@ describe('createNewRunState', () => {
             pointDefense: {
                 charges: 4,
                 maxCharges: 4,
+            },
+
+            defenseCapacitor: {
+                id:
+                    'defense_capacitor_player_00',
+
+                defenseCapacitorId:
+                    DEFENSE_CAPACITOR_ID
+                        .BASIC_00,
+
+                charges: 4,
+                rechargeElapsedMs: 0,
             },
 
             shieldGenerator: {
@@ -163,6 +178,18 @@ describe('createNewRunState', () => {
         firstRun
             .player
             .ship
+            .defenseCapacitor
+            .charges = 1;
+
+        firstRun
+            .player
+            .ship
+            .defenseCapacitor
+            .rechargeElapsedMs = 12000;
+
+        firstRun
+            .player
+            .ship
             .shieldGenerator
             .charges = 0;
 
@@ -217,6 +244,18 @@ describe('createNewRunState', () => {
             pointDefense: {
                 charges: 4,
                 maxCharges: 4,
+            },
+
+            defenseCapacitor: {
+                id:
+                    'defense_capacitor_player_00',
+
+                defenseCapacitorId:
+                    DEFENSE_CAPACITOR_ID
+                        .BASIC_00,
+
+                charges: 4,
+                rechargeElapsedMs: 0,
             },
 
             shieldGenerator: {

@@ -9,6 +9,9 @@ import {
     GameRuntime,
 } from '../../src/app/runtime/GameRuntime';
 import {
+    DEFENSE_CAPACITOR_ID,
+} from '../../src/engine/defs/defense_capacitor';
+import {
     MISSILE_ID,
 } from '../../src/engine/defs/missile';
 import {
@@ -47,6 +50,18 @@ describe('GameRuntime player ship hull', () => {
             pointDefense: {
                 charges: 4,
                 maxCharges: 4,
+            },
+
+            defenseCapacitor: {
+                id:
+                    'defense_capacitor_player_00',
+
+                defenseCapacitorId:
+                    DEFENSE_CAPACITOR_ID
+                        .BASIC_00,
+
+                charges: 4,
+                rechargeElapsedMs: 0,
             },
 
             shieldGenerator: {
@@ -182,6 +197,18 @@ describe('GameRuntime player ship hull', () => {
             pointDefense: {
                 charges: 4,
                 maxCharges: 4,
+            },
+
+            defenseCapacitor: {
+                id:
+                    'defense_capacitor_player_00',
+
+                defenseCapacitorId:
+                    DEFENSE_CAPACITOR_ID
+                        .BASIC_00,
+
+                charges: 4,
+                rechargeElapsedMs: 0,
             },
 
             shieldGenerator: {

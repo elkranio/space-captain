@@ -92,6 +92,16 @@ export default class ShipNodeActorFactory {
                     : {}
             ),
 
+            ...(
+                ship.defenseCapacitor
+                    ? {
+                          defenseCapacitor:
+                              ship
+                                  .defenseCapacitor,
+                      }
+                    : {}
+            ),
+
             shieldGenerator:
                 ship.shieldGenerator,
 
