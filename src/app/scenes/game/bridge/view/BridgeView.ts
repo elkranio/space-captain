@@ -3,6 +3,7 @@
 import type BridgeScene from '../BridgeScene';
 import type BridgeEventBus from '../events/BridgeEventBus';
 import BridgeOfficerBarksView from './barks/BridgeOfficerBarksView';
+import BridgeCaptainDashboardView from './captain_dashboard/BridgeCaptainDashboardView';
 import BridgeCombatView from './combat/BridgeCombatView';
 import BridgeTargetingWarningView from './indicators/targeting_warning/BridgeTargetingWarningView';
 import BridgeInteriorView from './interior/BridgeInteriorView';
@@ -14,6 +15,8 @@ import BridgeSpaceView from './space/BridgeSpaceView';
 // и отвечает только за их lifecycle.
 export default class BridgeView {
     private interiorView?: BridgeInteriorView;
+
+    private captainDashboardView?: BridgeCaptainDashboardView;
 
     private targetingWarningView?: BridgeTargetingWarningView;
 
@@ -59,11 +62,14 @@ export default class BridgeView {
 
         this.officerStationsView = new BridgeOfficerStationsView(this.scene, this.eventBus);
 
+        this.captainDashboardView = new BridgeCaptainDashboardView(this.scene);
+
         this.officerBarksView = new BridgeOfficerBarksView(this.scene, this.eventBus);
     }
 
     public destroy(): void {
         this.officerBarksView?.destroy();
+        this.captainDashboardView?.destroy();
         this.officerStationsView?.destroy();
         this.targetingWarningView?.destroy();
         this.interiorView?.destroy();
@@ -71,6 +77,7 @@ export default class BridgeView {
         this.spaceView?.destroy();
 
         this.officerBarksView = undefined;
+        this.captainDashboardView = undefined;
         this.officerStationsView = undefined;
         this.targetingWarningView = undefined;
         this.interiorView = undefined;
