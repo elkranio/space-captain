@@ -113,9 +113,15 @@ describe('Weapons point defense command', () => {
 
             expect(engine.drainEvents()).toEqual([
                 {
-                    type: ENCOUNTER_EVENT.PLAYER_POINT_DEFENSE_CHARGE_SPENT,
+                    type:
+                        ENCOUNTER_EVENT
+                            .PLAYER_DEFENSE_CAPACITOR_CHARGE_SPENT,
 
-                    remainingCharges: 3,
+                    defenseCapacitor:
+                        createDefenseCapacitorFixture(
+                            3,
+                            0,
+                        ),
                 },
 
                 {

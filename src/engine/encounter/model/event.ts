@@ -1,6 +1,9 @@
 // src/engine/encounter/model/event.ts
 
 import type {
+    DefenseCapacitorState,
+} from '../../defs/defense_capacitor';
+import type {
     PlayerHullDamageResult,
 } from '../../defs/player';
 import type { PlayerSpaceNavigationState } from '../../defs/player_location';
@@ -37,7 +40,7 @@ export const ENCOUNTER_EVENT = {
     DOCKING_STARTED: 'docking_started',
     OFFICER_TASK_STARTED: 'officer_task_started',
     OFFICER_TASK_ENDED: 'officer_task_ended',
-    PLAYER_POINT_DEFENSE_CHARGE_SPENT: 'player_point_defense_charge_spent',
+    PLAYER_DEFENSE_CAPACITOR_CHARGE_SPENT: 'player_defense_capacitor_charge_spent',
     PLAYER_SHIP_DRIVE_STATE_CHANGED: 'player_ship_drive_state_changed',
     PLAYER_SHIP_DRIVE_DISRUPTED: 'player_ship_drive_disrupted',
     PLAYER_SHIP_TARGETING_DETECTED: 'player_ship_targeting_detected',
@@ -200,10 +203,13 @@ export type OfficerTaskEndedEvent = {
     result?: OfficerTaskResult;
 };
 
-export type PlayerPointDefenseChargeSpentEvent = {
-    type: typeof ENCOUNTER_EVENT.PLAYER_POINT_DEFENSE_CHARGE_SPENT;
+export type PlayerDefenseCapacitorChargeSpentEvent = {
+    type:
+        typeof ENCOUNTER_EVENT
+            .PLAYER_DEFENSE_CAPACITOR_CHARGE_SPENT;
 
-    remainingCharges: number;
+    defenseCapacitor:
+        DefenseCapacitorState;
 };
 
 
@@ -486,7 +492,7 @@ export type EncounterEvent =
     | DockingStartedEvent
     | OfficerTaskStartedEvent
     | OfficerTaskEndedEvent
-    | PlayerPointDefenseChargeSpentEvent
+    | PlayerDefenseCapacitorChargeSpentEvent
     | PlayerShipDriveStateChangedEvent
     | PlayerShipDriveDisruptedEvent
     | PlayerShipTargetingDetectedEvent

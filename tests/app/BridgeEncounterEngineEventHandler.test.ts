@@ -444,7 +444,7 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
         ]);
     });
 
-    it('syncs shared defensive charges before point-defense activity starts', () => {
+    it('syncs shared defensive capacitor before point-defense activity starts', () => {
         const runtime = new GameRuntime();
 
         const emit = vi.fn();
@@ -459,9 +459,20 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
 
         handler.handle([
             {
-                type: ENCOUNTER_EVENT.PLAYER_POINT_DEFENSE_CHARGE_SPENT,
+                type:
+                    ENCOUNTER_EVENT
+                        .PLAYER_DEFENSE_CAPACITOR_CHARGE_SPENT,
 
-                remainingCharges: 3,
+                defenseCapacitor: {
+                    ...runtime
+                        .getCurrentRun()
+                        .player
+                        .ship
+                        .defenseCapacitor,
+
+                    charges: 3,
+                    rechargeElapsedMs: 0,
+                },
             },
 
             {

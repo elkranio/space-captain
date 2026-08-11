@@ -130,11 +130,11 @@ function createWeaponsPointDefenseCommandHandler(
             context.emit({
                 type:
                     ENCOUNTER_EVENT
-                        .PLAYER_POINT_DEFENSE_CHARGE_SPENT,
+                        .PLAYER_DEFENSE_CAPACITOR_CHARGE_SPENT,
 
-                remainingCharges:
-                    defenseCapacitor
-                        .charges,
+                defenseCapacitor: {
+                    ...defenseCapacitor,
+                },
             });
 
             context.startOfficerTask(createWeaponsPointDefenseTask(commandId, threatId, pointDefenseBeamBand));

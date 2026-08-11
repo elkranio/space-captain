@@ -172,7 +172,7 @@ export default class BridgeEncounterEngineEventHandler {
                 });
                 return;
 
-            case ENCOUNTER_EVENT.PLAYER_POINT_DEFENSE_CHARGE_SPENT:
+            case ENCOUNTER_EVENT.PLAYER_DEFENSE_CAPACITOR_CHARGE_SPENT:
                 return;
 
 
