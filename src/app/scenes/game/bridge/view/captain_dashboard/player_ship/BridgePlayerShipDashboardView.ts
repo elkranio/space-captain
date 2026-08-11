@@ -3,7 +3,7 @@ import BridgePlayerShipStatusStripView from './status/BridgePlayerShipStatusStri
 import BridgePlayerShipSystemsView from './systems/BridgePlayerShipSystemsView';
 
 const PANEL = {
-    width: 520,
+    width: 416,
     height: 204,
 
     padding: 8,
