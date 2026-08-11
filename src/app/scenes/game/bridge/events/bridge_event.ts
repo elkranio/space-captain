@@ -17,9 +17,6 @@ import type {
 } from '../../../../../engine/defs/ship_weapon';
 import type { EncounterOfficerCommandId, OfficerCommandTarget } from '../../../../../engine/encounter/model/command';
 import type {
-    EnemyDebugSnapshot,
-} from '../../../../../engine/encounter/debug/get_enemy_debug_snapshots';
-import type {
     LaserShotOutcome,
     PlayerMissileOutcome,
     PlayerSpamChannelOutcome,
@@ -110,11 +107,6 @@ export const BRIDGE_EVENT = {
     // текущего enemy ship у navigation anchor.
     ENEMY_SHIP_TELEMETRY_UPDATED:
         'enemy_ship_telemetry_updated',
-
-    // Dev-only enemy behavior X-ray.
-    ENEMY_DEBUG_UPDATED:
-        'enemy_debug_updated',
-
 
     // #endregion
 
@@ -574,10 +566,6 @@ export type BridgeEnemyShipTelemetryUpdatedPayload =
       }
     | undefined;
 
-export type BridgeEnemyDebugUpdatedPayload =
-    EnemyDebugSnapshot | undefined;
-
-
 // #endregion
 
 // #region Encounter objects and navigation
@@ -926,10 +914,6 @@ export type BridgeEventPayloadMap = {
 
     [BRIDGE_EVENT.ENEMY_SHIP_TELEMETRY_UPDATED]:
         BridgeEnemyShipTelemetryUpdatedPayload;
-
-    [BRIDGE_EVENT.ENEMY_DEBUG_UPDATED]:
-        BridgeEnemyDebugUpdatedPayload;
-
 
     // Encounter objects and navigation
 

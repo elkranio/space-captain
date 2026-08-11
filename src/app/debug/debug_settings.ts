@@ -4,8 +4,6 @@ export type DebugSettings = {
         encounter: {
             skipArrival: boolean;
             skipDockingAnimation: boolean;
-
-            showEnemyDebugPanel: boolean;
         };
         officerCommands: {
             showCommandBark: boolean;
@@ -25,7 +23,6 @@ export const DEBUG_SETTINGS: DebugSettings = {
             skipArrival: false,
             skipDockingAnimation: false,
 
-            showEnemyDebugPanel: true,
         },
         officerCommands: {
             showCommandBark: true,

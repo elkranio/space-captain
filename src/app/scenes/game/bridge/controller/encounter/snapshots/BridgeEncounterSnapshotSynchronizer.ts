@@ -35,19 +35,6 @@ export default class BridgeEncounterSnapshotSynchronizer {
         this.syncEnemyShipTelemetry();
     }
 
-    public syncEnemyDebug(): void {
-        const [snapshot] =
-            this.encounterEngine
-                .getEnemyDebugSnapshots();
-
-        this.eventBus.emit(
-            BRIDGE_EVENT
-                .ENEMY_DEBUG_UPDATED,
-
-            snapshot,
-        );
-    }
-
     public syncPlayerWeapons(): void {
         const defenseCapacitor =
             this.encounterEngine
