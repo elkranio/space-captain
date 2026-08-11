@@ -26,6 +26,7 @@ import {
     type BridgeOfficerCommandMenuRefreshRequestedPayload,
     type BridgeOfficerCommandSelectedPayload,
     type BridgeOfficerStationClickedPayload,
+    type BridgeOfficerTaskCancelSelectedPayload,
 } from '../../events/bridge_event';
 import type BridgeEventBus from '../../events/BridgeEventBus';
 import BridgeOfficerCommandMenuController from './command_menu/BridgeOfficerCommandMenuController';
@@ -127,6 +128,12 @@ export default class BridgeEncounterController {
 
         this.eventBus.on(BRIDGE_EVENT.OFFICER_COMMAND_SELECTED, this.handleOfficerCommandSelected, this);
 
+        this.eventBus.on(
+            BRIDGE_EVENT.OFFICER_TASK_CANCEL_SELECTED,
+            this.handleOfficerTaskCancelSelected,
+            this,
+        );
+
         this.eventBus.on(BRIDGE_EVENT.ENCOUNTER_ARRIVAL_COMPLETED, this.handleEncounterArrivalCompleted, this);
 
         this.eventBus.on(
@@ -162,6 +169,12 @@ export default class BridgeEncounterController {
         );
 
         this.eventBus.off(BRIDGE_EVENT.OFFICER_COMMAND_SELECTED, this.handleOfficerCommandSelected, this);
+
+        this.eventBus.off(
+            BRIDGE_EVENT.OFFICER_TASK_CANCEL_SELECTED,
+            this.handleOfficerTaskCancelSelected,
+            this,
+        );
 
         this.eventBus.off(BRIDGE_EVENT.ENCOUNTER_ARRIVAL_COMPLETED, this.handleEncounterArrivalCompleted, this);
 
@@ -244,10 +257,6 @@ export default class BridgeEncounterController {
             new BridgeOfficerCommandMenuController(
                 this.encounterEngine,
                 this.eventBus,
-
-                () => {
-                    this.snapshotSynchronizer?.syncPlayerShipDashboard();
-                },
             );
 
         this.officerStationsController = new BridgeOfficerStationsController(this.encounterEngine, this.eventBus);
@@ -293,6 +302,22 @@ export default class BridgeEncounterController {
         }
 
         this.handleOfficerCommandResult(payload, result);
+    }
+
+    private handleOfficerTaskCancelSelected(
+        payload: BridgeOfficerTaskCancelSelectedPayload,
+    ): void {
+        if (!this.isEncounterInteractive || !this.encounterEngine) {
+            return;
+        }
+
+        this.encounterEngine.cancelTask(payload.taskId);
+
+        // cancelTask mutates engine state synchronously and queues
+        // OFFICER_TASK_ENDED / task-specific presentation events.
+        this.drainEncounterEvents();
+        this.snapshotSynchronizer?.syncPlayerShipDashboard();
+        this.officerStationsController?.sync();
     }
 
     // #endregion

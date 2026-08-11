@@ -134,38 +134,19 @@ export default class BridgeOfficerContextMenuView {
 
         const role = this.currentRole;
 
-        switch (item.kind) {
-            case 'command':
-                this.closeMenu();
+        this.closeMenu();
 
-                this.eventBus.emit(
-                    BRIDGE_EVENT.OFFICER_COMMAND_SELECTED,
-                    {
-                        role,
-                        commandId: item.commandId,
+        this.eventBus.emit(
+            BRIDGE_EVENT.OFFICER_COMMAND_SELECTED,
+            {
+                role,
+                commandId: item.commandId,
 
-                        target: {
-                            ...item.target,
-                        },
-                    },
-                );
-
-                return;
-
-            case 'cancel_task':
-                // Menu остаётся открытым.
-                // Controller синхронно пришлёт новый snapshot
-                // уже с доступными командами роли.
-                this.eventBus.emit(
-                    BRIDGE_EVENT.OFFICER_TASK_CANCEL_SELECTED,
-                    {
-                        role,
-                        taskId: item.taskId,
-                    },
-                );
-
-                return;
-        }
+                target: {
+                    ...item.target,
+                },
+            },
+        );
     }
 
     private positionMenu(role: OfficerRole): void {

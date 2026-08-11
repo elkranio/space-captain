@@ -59,7 +59,10 @@ export default class BridgeOfficerStationView {
             .image(0, 0, stationAsset.atlasKey, stationAsset.frameKey)
             .setOrigin(0.5, 0.5);
 
-        this.activityView = new BridgeOfficerStationActivityView(this.scene);
+        this.activityView = new BridgeOfficerStationActivityView(
+            this.scene,
+            this.eventBus,
+        );
         this.hintsView = new BridgeOfficerStationHintsView(this.scene);
         this.indicatorsView = new BridgeOfficerStationIndicatorsView(this.scene);
 
@@ -106,11 +109,23 @@ export default class BridgeOfficerStationView {
         this.indicatorsView.setState(state);
     }
 
-    public showActivity(label: string): void {
+    public showActivity(
+        taskId: string,
+        label: string,
+        canBeCancelledByPlayer: boolean,
+    ): void {
         this.hasActiveActivity = true;
         this.hintsView.clear();
 
-        this.activityView.show(label);
+        // Busy station clicks no longer open legacy task menus.
+        // Cancellation has its own direct affordance in activityView.
+        this.hitArea.disableInteractive();
+
+        this.activityView.show(
+            taskId,
+            label,
+            canBeCancelledByPlayer,
+        );
     }
 
     public setCombatHints(hints: readonly string[]): void {
@@ -131,6 +146,10 @@ export default class BridgeOfficerStationView {
         this.hasActiveActivity = false;
         this.activityView.clear();
         this.hintsView.setHints(this.combatHints);
+
+        this.hitArea.setInteractive({
+            useHandCursor: true,
+        });
     }
 
     private handlePointerDown(): void {

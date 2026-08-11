@@ -7,27 +7,14 @@ import type { OfficerTaskState } from '../../../../../../../engine/encounter/mod
 import {
     BRIDGE_EVENT,
     type BridgeOfficerCommandMenuGroupPayload,
-    type BridgeOfficerTaskCancelSelectedPayload,
 } from '../../../events/bridge_event';
 import type BridgeEventBus from '../../../events/BridgeEventBus';
-
-type OnEngineStateChanged =
-    () => void;
 
 export default class BridgeOfficerCommandMenuController {
     constructor(
         private readonly encounterEngine: EncounterEngine,
         private readonly eventBus: BridgeEventBus,
-
-        private readonly onEngineStateChanged:
-            OnEngineStateChanged,
-    ) {
-        this.eventBus.on(
-            BRIDGE_EVENT.OFFICER_TASK_CANCEL_SELECTED,
-            this.handleTaskCancelSelected,
-            this,
-        );
-    }
+    ) {}
 
     // #region Public API
 
@@ -37,8 +24,10 @@ export default class BridgeOfficerCommandMenuController {
         this.eventBus.emit(BRIDGE_EVENT.OFFICER_COMMAND_MENU_UPDATED, {
             role,
 
+            // Busy officer tasks are presented directly on the station.
+            // Legacy context menu no longer owns task cancellation.
             groups: activeTask
-                ? this.createActiveTaskGroups(activeTask)
+                ? []
                 : this.createCommandGroups(
                       this.encounterEngine.getAvailableCommands(role),
                   ),
@@ -47,61 +36,12 @@ export default class BridgeOfficerCommandMenuController {
 
     // #endregion
 
-    // #region Cancellation input
-
-    private handleTaskCancelSelected(
-        payload: BridgeOfficerTaskCancelSelectedPayload,
-    ): void {
-        const task = this.findTaskByRole(payload.role);
-
-        // Task могла завершиться между последним menu snapshot
-        // и кликом игрока. Просто показываем актуальное меню.
-        if (!task || task.id !== payload.taskId) {
-            this.open(payload.role);
-            return;
-        }
-
-        this.encounterEngine.cancelTask(task.id);
-
-        this.onEngineStateChanged();
-
-        // Не закрываем menu:
-        // после синхронного изменения engine state
-        // сразу показываем доступные команды той же роли.
-        this.open(payload.role);
-    }
-
-    // #endregion
-
-    // #region Active task menu
+    // #region Active task state
 
     private findTaskByRole(role: OfficerRole): OfficerTaskState | undefined {
         return this.encounterEngine.getOfficerTasks().find((task) => {
             return task.role === role;
         });
-    }
-
-    private createActiveTaskGroups(
-        task: OfficerTaskState,
-    ): BridgeOfficerCommandMenuGroupPayload[] {
-        if (!task.canBeCancelledByPlayer) {
-            return [];
-        }
-
-        return [
-            {
-                label: 'TASK',
-
-                items: [
-                    {
-                        kind: 'cancel_task',
-
-                        label: 'CANCEL TASK',
-                        taskId: task.id,
-                    },
-                ],
-            },
-        ];
     }
 
     // #endregion

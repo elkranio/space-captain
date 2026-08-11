@@ -301,31 +301,21 @@ export type BridgeOfficerCommandSelectedPayload = {
     target: OfficerCommandTarget;
 };
 
-// Один пункт officer context menu.
-//
-// Menu показывает либо обычную engine-команду,
-// либо app-intent ручной отмены текущей task.
-export type BridgeOfficerCommandMenuItemPayload =
-    | {
-          kind: 'command';
+// Один пункт legacy officer context menu.
+// Пока menu существует, он показывает только engine-команды.
+export type BridgeOfficerCommandMenuItemPayload = {
+    kind: 'command';
 
-          commandId: EncounterOfficerCommandId;
+    commandId: EncounterOfficerCommandId;
 
-          label: string;
+    label: string;
 
-          target: OfficerCommandTarget;
-      }
-    | {
-          kind: 'cancel_task';
+    target: OfficerCommandTarget;
+};
 
-          label: string;
-
-          taskId: string;
-      };
-
+// Direct input от cancel affordance текущей station activity.
+// Runtime task id полностью определяет отменяемую task.
 export type BridgeOfficerTaskCancelSelectedPayload = {
-    role: OfficerRole;
-
     taskId: string;
 };
 

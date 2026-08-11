@@ -112,7 +112,11 @@ export default class BridgeOfficerStationsView {
     }
 
     private handleActivityStarted(payload: BridgeOfficerActivityStartedPayload): void {
-        this.getStationViewOrThrow(payload.role).showActivity(payload.label);
+        this.getStationViewOrThrow(payload.role).showActivity(
+            payload.taskId,
+            payload.label,
+            payload.canBeCancelledByPlayer,
+        );
     }
 
     private handleActivityCleared(payload: BridgeOfficerActivityClearedPayload): void {

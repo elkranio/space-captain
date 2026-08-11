@@ -1,5 +1,7 @@
 import { FONT_COLOR, FONT_FAMILY, FONT_SIZE } from '../../../../../../../theme/font';
 import type BridgeScene from '../../../../BridgeScene';
+import { BRIDGE_EVENT } from '../../../../events/bridge_event';
+import type BridgeEventBus from '../../../../events/BridgeEventBus';
 
 const TASK_LABEL_Y = -70;
 
@@ -11,6 +13,16 @@ const TASK_PROGRESS_BAR = {
     height: 4,
 
     trackColor: 0x0b1b2e,
+} as const;
+
+const TASK_CANCEL_BUTTON = {
+    x: 69,
+    y: -51,
+
+    width: 18,
+    height: 16,
+
+    backgroundColor: 0x0b1b2e,
 } as const;
 
 const INPUT_PULSE_ALPHA = 0.85;
@@ -65,11 +77,20 @@ export default class BridgeOfficerStationActivityView {
 
     private readonly progressFill: Phaser.GameObjects.Rectangle;
 
+    private readonly cancelBackground: Phaser.GameObjects.Rectangle;
+
+    private readonly cancelLabel: Phaser.GameObjects.BitmapText;
+
     private readonly inputPulses: Phaser.GameObjects.Rectangle[];
 
     private inputPulseTweens: Phaser.Tweens.Tween[] = [];
 
-    constructor(private readonly scene: BridgeScene) {
+    private activeTaskId?: string;
+
+    constructor(
+        private readonly scene: BridgeScene,
+        private readonly eventBus: BridgeEventBus,
+    ) {
         this.root = this.scene.add.container(0, 0);
 
         this.label = this.scene.add
@@ -106,6 +127,38 @@ export default class BridgeOfficerStationActivityView {
             .setOrigin(0, 0.5)
             .setVisible(false);
 
+        this.cancelBackground = this.scene.add
+            .rectangle(
+                TASK_CANCEL_BUTTON.x,
+                TASK_CANCEL_BUTTON.y,
+                TASK_CANCEL_BUTTON.width,
+                TASK_CANCEL_BUTTON.height,
+                TASK_CANCEL_BUTTON.backgroundColor,
+            )
+            .setOrigin(0.5, 0.5)
+            .setStrokeStyle(
+                1,
+                FONT_COLOR.SECONDARY,
+            )
+            .setVisible(false)
+            .on(
+                Phaser.Input.Events.POINTER_DOWN,
+                this.handleCancelPointerDown,
+                this,
+            );
+
+        this.cancelLabel = this.scene.add
+            .bitmapText(
+                TASK_CANCEL_BUTTON.x,
+                TASK_CANCEL_BUTTON.y,
+                FONT_FAMILY.VGA_8X14,
+                'X',
+                FONT_SIZE.PX_16,
+            )
+            .setOrigin(0.5, 0.5)
+            .setTint(FONT_COLOR.SECONDARY)
+            .setVisible(false);
+
         this.inputPulses = INPUT_PULSE_DEFINITIONS.map((definition) => {
             return this.scene.add
                 .rectangle(
@@ -123,6 +176,8 @@ export default class BridgeOfficerStationActivityView {
             this.label,
             this.progressTrack,
             this.progressFill,
+            this.cancelBackground,
+            this.cancelLabel,
             ...this.inputPulses,
         ]);
     }
@@ -131,9 +186,19 @@ export default class BridgeOfficerStationActivityView {
         return this.root;
     }
 
-    public show(label: string): void {
+    public show(
+        taskId: string,
+        label: string,
+        canBeCancelledByPlayer: boolean,
+    ): void {
         this.label.setText(label.toUpperCase()).setVisible(true);
         this.setProgress(null);
+
+        this.setCancelTask(
+            canBeCancelledByPlayer
+                ? taskId
+                : undefined,
+        );
 
         this.startInputPulses();
     }
@@ -167,12 +232,53 @@ export default class BridgeOfficerStationActivityView {
 
         this.label.setText('').setVisible(false);
         this.setProgress(null);
+        this.setCancelTask(undefined);
     }
 
     public destroy(): void {
         this.stopInputPulses();
 
+        this.cancelBackground.off(
+            Phaser.Input.Events.POINTER_DOWN,
+            this.handleCancelPointerDown,
+            this,
+        );
+
         this.root.destroy(true);
+    }
+
+    private setCancelTask(taskId: string | undefined): void {
+        this.activeTaskId = taskId;
+
+        if (!taskId) {
+            this.cancelBackground
+                .disableInteractive()
+                .setVisible(false);
+
+            this.cancelLabel.setVisible(false);
+            return;
+        }
+
+        this.cancelBackground
+            .setVisible(true)
+            .setInteractive({
+                useHandCursor: true,
+            });
+
+        this.cancelLabel.setVisible(true);
+    }
+
+    private handleCancelPointerDown(): void {
+        if (!this.activeTaskId) {
+            return;
+        }
+
+        this.eventBus.emit(
+            BRIDGE_EVENT.OFFICER_TASK_CANCEL_SELECTED,
+            {
+                taskId: this.activeTaskId,
+            },
+        );
     }
 
     private startInputPulses(): void {
