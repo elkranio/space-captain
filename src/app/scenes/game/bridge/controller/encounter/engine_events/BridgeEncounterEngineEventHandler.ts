@@ -27,10 +27,7 @@ import {
     type BridgeEncounterObjectPayload,
 } from '../../../events/bridge_event';
 import type BridgeEventBus from '../../../events/BridgeEventBus';
-import { mapPlayerShipToBridgeStatusPayload } from '../../player_ship_status/BridgePlayerShipStatusMapper';
-import BridgeEncounterRuntimeSynchronizer, {
-    type BridgeEncounterRuntimeSyncResult,
-} from './BridgeEncounterRuntimeSynchronizer';
+import BridgeEncounterRuntimeSynchronizer from './BridgeEncounterRuntimeSynchronizer';
 import {
     mapEncounterAnchorToBridgeObjectPayload,
     mapEncounterStateToBridgeObjectPayloads,
@@ -45,11 +42,11 @@ export default class BridgeEncounterEngineEventHandler {
     constructor(
         private readonly eventBus: BridgeEventBus,
         private readonly setEncounterInteractive: SetEncounterInteractive,
-        private readonly gameRuntime: GameRuntime,
+        gameRuntime: GameRuntime,
     ) {
         this.runtimeSynchronizer =
             new BridgeEncounterRuntimeSynchronizer(
-                this.gameRuntime,
+                gameRuntime,
             );
     }
 
@@ -57,13 +54,11 @@ export default class BridgeEncounterEngineEventHandler {
 
     public handle(events: EncounterEvent[]): void {
         for (const event of events) {
-            const runtimeSync =
-                this.runtimeSynchronizer
-                    .synchronize(event);
+            this.runtimeSynchronizer
+                .synchronize(event);
 
             this.handleEvent(
                 event,
-                runtimeSync,
             );
         }
     }
@@ -121,8 +116,6 @@ export default class BridgeEncounterEngineEventHandler {
 
     private handleEvent(
         event: EncounterEvent,
-        runtimeSync:
-            BridgeEncounterRuntimeSyncResult,
     ): void {
         switch (event.type) {
             // Loading state will be exposed by the enemy debug panel.
@@ -190,18 +183,10 @@ export default class BridgeEncounterEngineEventHandler {
                 return;
 
             case ENCOUNTER_EVENT.PLAYER_POINT_DEFENSE_CHARGE_SPENT:
-                this.emitPlayerShipStatusIfChanged(
-                    runtimeSync,
-                );
-
                 return;
 
 
             case ENCOUNTER_EVENT.PLAYER_SHIP_DRIVE_DISRUPTED:
-                this.emitPlayerShipStatusIfChanged(
-                    runtimeSync,
-                );
-
                 this.eventBus.emit(
                     BRIDGE_EVENT.PLAYER_SHIP_DRIVE_DISRUPTED,
                 );
@@ -209,10 +194,6 @@ export default class BridgeEncounterEngineEventHandler {
                 return;
 
             case ENCOUNTER_EVENT.PLAYER_SHIP_DRIVE_STATE_CHANGED:
-                this.emitPlayerShipStatusIfChanged(
-                    runtimeSync,
-                );
-
                 return;
 
             case ENCOUNTER_EVENT.OFFICER_TASK_STARTED:
@@ -665,7 +646,6 @@ export default class BridgeEncounterEngineEventHandler {
 
                 this.handlePlayerShipDamaged(
                     event,
-                    runtimeSync,
                 );
                 return;
 
@@ -682,7 +662,6 @@ export default class BridgeEncounterEngineEventHandler {
 
                 this.handlePlayerShipDamaged(
                     event,
-                    runtimeSync,
                 );
                 return;
 
@@ -704,7 +683,6 @@ export default class BridgeEncounterEngineEventHandler {
 
                 this.handlePlayerShipDamaged(
                     event,
-                    runtimeSync,
                 );
                 return;
         }
@@ -718,13 +696,7 @@ export default class BridgeEncounterEngineEventHandler {
 
     private handlePlayerShipDamaged(
         result: PlayerHullDamageResult,
-        runtimeSync:
-            BridgeEncounterRuntimeSyncResult,
     ): void {
-        this.emitPlayerShipStatusIfChanged(
-            runtimeSync,
-        );
-
         if (!result.destroyed) {
             return;
         }
@@ -736,29 +708,6 @@ export default class BridgeEncounterEngineEventHandler {
             {
                 sceneKey: SCENE_KEY.END,
             },
-        );
-    }
-
-    private emitPlayerShipStatusIfChanged(
-        runtimeSync:
-            BridgeEncounterRuntimeSyncResult,
-    ): void {
-        if (
-            !runtimeSync
-                .playerShipStatusChanged
-        ) {
-            return;
-        }
-
-        this.emitPlayerShipStatusUpdated();
-    }
-
-    private emitPlayerShipStatusUpdated(): void {
-        const ship = this.gameRuntime.getCurrentRun().player.ship;
-
-        this.eventBus.emit(
-            BRIDGE_EVENT.PLAYER_SHIP_STATUS_UPDATED,
-            mapPlayerShipToBridgeStatusPayload(ship),
         );
     }
 

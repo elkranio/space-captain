@@ -101,15 +101,6 @@ export const BRIDGE_EVENT = {
 
     // #region Player ship status
 
-    // Полный view-ready snapshot
-    // состояния корабля игрока.
-    PLAYER_SHIP_STATUS_UPDATED: 'player_ship_status_updated',
-
-    // Актуальные состояния установленных
-    // player laser и missile launcher.
-    PLAYER_WEAPONS_STATUS_UPDATED:
-        'player_weapons_status_updated',
-
     // View-ready captain dashboard snapshot
     // стабильной player-ship части.
     PLAYER_SHIP_DASHBOARD_UPDATED:
@@ -411,27 +402,6 @@ export type BridgeOfficerActivityProgressUpdatedPayload = Record<OfficerRole, nu
 
 // #region Player ship status
 
-export type BridgePlayerShipStatusUpdatedPayload = {
-    hull: {
-        current: number;
-        max: number;
-    };
-
-    drive: {
-        status: ShipDriveStatus;
-    };
-
-    pointDefense: {
-        current: number;
-        max: number;
-    };
-
-    shieldGenerator: {
-        current: number;
-        max: number;
-    };
-};
-
 export type BridgePlayerWeaponStatusPayload = {
     phase: ShipWeaponPhase;
 
@@ -479,8 +449,6 @@ export type BridgePlayerSystemActionState =
 
 export type BridgePlayerShipDashboardUpdatedPayload = {
     // Stable top strip owned by the captain dashboard itself.
-    // Legacy PLAYER_SHIP_STATUS_UPDATED remains for old presentation
-    // until the audit pass, but the new dashboard does not depend on it.
     status?: {
         hull: {
             current: number;
@@ -952,11 +920,6 @@ export type BridgeEventPayloadMap = {
     [BRIDGE_EVENT.OFFICER_ACTIVITY_PROGRESS_UPDATED]: BridgeOfficerActivityProgressUpdatedPayload;
 
     // Player ship status
-
-    [BRIDGE_EVENT.PLAYER_SHIP_STATUS_UPDATED]: BridgePlayerShipStatusUpdatedPayload;
-
-    [BRIDGE_EVENT.PLAYER_WEAPONS_STATUS_UPDATED]:
-        BridgePlayerWeaponsStatusUpdatedPayload;
 
     [BRIDGE_EVENT.PLAYER_SHIP_DASHBOARD_UPDATED]:
         BridgePlayerShipDashboardUpdatedPayload;

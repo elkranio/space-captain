@@ -7,7 +7,6 @@ import BridgeEventBus from '../events/BridgeEventBus';
 import { BRIDGE_EVENT, type BridgeSceneTransitionRequestedPayload } from '../events/bridge_event';
 import BridgeView from '../view/BridgeView';
 import BridgeEncounterController from './encounter/BridgeEncounterController';
-import { mapPlayerShipToBridgeStatusPayload } from './player_ship_status/BridgePlayerShipStatusMapper';
 
 // Root-controller bridge scene.
 //
@@ -76,11 +75,9 @@ export default class BridgeController {
     private loadState(): void {
         const run = GAME_RUNTIME.getCurrentRun();
 
-        this.eventBus.emit(BRIDGE_EVENT.CREW_LOADED, run.officers);
-
         this.eventBus.emit(
-            BRIDGE_EVENT.PLAYER_SHIP_STATUS_UPDATED,
-            mapPlayerShipToBridgeStatusPayload(run.player.ship),
+            BRIDGE_EVENT.CREW_LOADED,
+            run.officers,
         );
     }
 

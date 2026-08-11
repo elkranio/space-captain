@@ -150,12 +150,6 @@ describe('Bridge sticky-mine event contract', () => {
                 },
             ],
 
-            [
-                BRIDGE_EVENT
-                    .PLAYER_SHIP_STATUS_UPDATED,
-
-                expect.any(Object),
-            ],
         ]);
     });
 });

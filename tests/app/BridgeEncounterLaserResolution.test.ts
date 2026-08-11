@@ -1,7 +1,6 @@
 // tests/app/BridgeEncounterLaserResolution.test.ts
 
 import { describe, expect, it, vi } from 'vitest';
-import { createBridgePlayerShipStatusPayload } from './fixtures/create_bridge_player_ship_status_payload';
 import { GameRuntime } from '../../src/app/runtime/GameRuntime';
 import BridgeEncounterEngineEventHandler from '../../src/app/scenes/game/bridge/controller/encounter/engine_events/BridgeEncounterEngineEventHandler';
 import { BRIDGE_EVENT } from '../../src/app/scenes/game/bridge/events/bridge_event';
@@ -123,15 +122,6 @@ describe('BridgeEncounterEngineEventHandler laser resolution', () => {
                 },
             ],
 
-            [
-                BRIDGE_EVENT.PLAYER_SHIP_STATUS_UPDATED,
-
-                createBridgePlayerShipStatusPayload({
-                    hull: {
-                        current: 2,
-                    },
-                }),
-            ],
         ]);
 
         expect(setEncounterInteractive).not.toHaveBeenCalled();

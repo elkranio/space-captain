@@ -1,7 +1,6 @@
 // tests/app/BridgeEncounterDriveSync.test.ts
 
 import { describe, expect, it, vi } from 'vitest';
-import { createBridgePlayerShipStatusPayload } from './fixtures/create_bridge_player_ship_status_payload';
 import { GameRuntime } from '../../src/app/runtime/GameRuntime';
 import BridgeEncounterEngineEventHandler from '../../src/app/scenes/game/bridge/controller/encounter/engine_events/BridgeEncounterEngineEventHandler';
 import {
@@ -21,7 +20,7 @@ import {
 } from '../../src/engine/encounter/model/event';
 
 describe('Bridge encounter drive sync', () => {
-    it('persists repaired drive state and refreshes ship status', () => {
+    it('persists repaired drive state without legacy status presentation', () => {
         const runtime = new GameRuntime();
         const emit = vi.fn();
 
@@ -64,20 +63,10 @@ describe('Bridge encounter drive sync', () => {
             runtime.getCurrentRun().player.ship.drive.status,
         ).toBe(SHIP_DRIVE_STATUS.ONLINE);
 
-        expect(emit.mock.calls).toEqual([
-            [
-                BRIDGE_EVENT.PLAYER_SHIP_STATUS_UPDATED,
-                createBridgePlayerShipStatusPayload({
-                    drive: {
-                        status:
-                            SHIP_DRIVE_STATUS.ONLINE,
-                    },
-                }),
-            ],
-        ]);
+        expect(emit.mock.calls).toEqual([]);
     });
 
-    it('persists disruption, refreshes status and requests VFX', () => {
+    it('persists disruption and requests VFX', () => {
         const runtime = new GameRuntime();
         const emit = vi.fn();
 
@@ -138,16 +127,6 @@ describe('Bridge encounter drive sync', () => {
         });
 
         expect(emit.mock.calls).toEqual([
-            [
-                BRIDGE_EVENT.PLAYER_SHIP_STATUS_UPDATED,
-                createBridgePlayerShipStatusPayload({
-                    drive: {
-                        status:
-                            SHIP_DRIVE_STATUS.DISABLED,
-                    },
-                }),
-            ],
-
             [
                 BRIDGE_EVENT.PLAYER_SHIP_DRIVE_DISRUPTED,
             ],

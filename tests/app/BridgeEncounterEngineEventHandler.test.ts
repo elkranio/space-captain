@@ -1,7 +1,6 @@
 // tests/app/BridgeEncounterEngineEventHandler.test.ts
 
 import { describe, expect, it, vi } from 'vitest';
-import { createBridgePlayerShipStatusPayload } from './fixtures/create_bridge_player_ship_status_payload';
 import { GameRuntime } from '../../src/app/runtime/GameRuntime';
 import BridgeEncounterEngineEventHandler from '../../src/app/scenes/game/bridge/controller/encounter/engine_events/BridgeEncounterEngineEventHandler';
 import { BRIDGE_EVENT } from '../../src/app/scenes/game/bridge/events/bridge_event';
@@ -303,11 +302,10 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
             observedHullByBridgeEvent,
         ).toEqual([
             2,
-            2,
         ]);
     });
 
-    it('updates hull status and requests END only on first destruction', () => {
+    it('persists hull and requests END only on first destruction', () => {
         const runtime = new GameRuntime();
 
         const emit = vi.fn();
@@ -344,12 +342,6 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
                     projectileId: 'projectile_test_00',
                 },
             ],
-
-            [BRIDGE_EVENT.PLAYER_SHIP_STATUS_UPDATED, createBridgePlayerShipStatusPayload({
-                    hull: {
-                        current: 2,
-                    },
-                })],
         ]);
 
         expect(setEncounterInteractive).not.toHaveBeenCalled();
@@ -387,12 +379,6 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
                 },
             ],
 
-            [BRIDGE_EVENT.PLAYER_SHIP_STATUS_UPDATED, createBridgePlayerShipStatusPayload({
-                    hull: {
-                        current: 2,
-                    },
-                })],
-
             [
                 BRIDGE_EVENT.INCOMING_MISSILE_REMOVED,
 
@@ -400,12 +386,6 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
                     projectileId: 'projectile_test_01',
                 },
             ],
-
-            [BRIDGE_EVENT.PLAYER_SHIP_STATUS_UPDATED, createBridgePlayerShipStatusPayload({
-                    hull: {
-                        current: 0,
-                    },
-                })],
 
             [
                 BRIDGE_EVENT.SCENE_TRANSITION_REQUESTED,
@@ -450,12 +430,6 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
                 },
             ],
 
-            [BRIDGE_EVENT.PLAYER_SHIP_STATUS_UPDATED, createBridgePlayerShipStatusPayload({
-                    hull: {
-                        current: 2,
-                    },
-                })],
-
             [
                 BRIDGE_EVENT.INCOMING_MISSILE_REMOVED,
 
@@ -463,12 +437,6 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
                     projectileId: 'projectile_test_01',
                 },
             ],
-
-            [BRIDGE_EVENT.PLAYER_SHIP_STATUS_UPDATED, createBridgePlayerShipStatusPayload({
-                    hull: {
-                        current: 0,
-                    },
-                })],
 
             [
                 BRIDGE_EVENT.SCENE_TRANSITION_REQUESTED,
@@ -562,12 +530,6 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
         });
 
         expect(emit.mock.calls).toEqual([
-            [BRIDGE_EVENT.PLAYER_SHIP_STATUS_UPDATED, createBridgePlayerShipStatusPayload({
-                    pointDefense: {
-                        current: 3,
-                    },
-                })],
-
             [
                 BRIDGE_EVENT.OFFICER_ACTIVITY_STARTED,
 

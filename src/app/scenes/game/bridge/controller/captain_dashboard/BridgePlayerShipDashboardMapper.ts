@@ -1,10 +1,16 @@
 import {
     DEFENSE_CAPACITORS,
 } from '../../../../../../engine/content/catalogs/defense_capacitors';
+import type {
+    DefenseCapacitorState,
+} from '../../../../../../engine/defs/defense_capacitor';
 import { OFFICER_ROLE } from '../../../../../../engine/defs/officer';
 import type {
-    PlayerShipState,
+    PlayerHullState,
 } from '../../../../../../engine/defs/player';
+import type {
+    ShipDriveState,
+} from '../../../../../../engine/defs/ship_drive';
 import {
     SHIP_WEAPON_PHASE,
 } from '../../../../../../engine/defs/ship_weapon';
@@ -84,13 +90,21 @@ type PlayerShipDashboardMapperInput = {
     scienceOfficerAvailability?:
         OfficerAvailabilityState;
 
-    // Optional so focused mapper tests can still exercise weapon rows
-    // without constructing the whole persistent player ship.
-    playerShip?:
-        PlayerShipState;
+    // Optional so focused mapper tests can exercise individual
+    // system rows without constructing unrelated ship status.
+    playerStatus?: {
+        hull:
+            PlayerHullState;
+
+        drive:
+            ShipDriveState;
+
+        defenseCapacitor:
+            DefenseCapacitorState;
+    };
 };
 
-// App-side projection player ship runtime → captain dashboard.
+// App-side projection detached encounter snapshots → captain dashboard.
 //
 // Здесь разрешается только presentation state.
 // Domain availability не пересчитывается:
@@ -116,11 +130,11 @@ export function mapPlayerShipToBridgeDashboardPayload(
             .spamProjector;
 
     return {
-        ...(input.playerShip
+        ...(input.playerStatus
             ? {
                   status:
                       mapStatus(
-                          input.playerShip,
+                          input.playerStatus,
                       ),
               }
             : {}),
@@ -176,8 +190,12 @@ export function mapPlayerShipToBridgeDashboardPayload(
 }
 
 function mapStatus(
-    ship:
-        PlayerShipState,
+    input:
+        NonNullable<
+            PlayerShipDashboardMapperInput[
+                'playerStatus'
+            ]
+        >,
 ): NonNullable<
     BridgePlayerShipDashboardUpdatedPayload[
         'status'
@@ -185,13 +203,13 @@ function mapStatus(
 > {
     const definition =
         DEFENSE_CAPACITORS[
-            ship
+            input
                 .defenseCapacitor
                 .defenseCapacitorId
         ];
 
     const rechargeProgress =
-        ship.defenseCapacitor
+        input.defenseCapacitor
             .charges <
         definition.capacity
             ? Math.max(
@@ -199,7 +217,7 @@ function mapStatus(
                   Math.min(
                       1,
 
-                      ship
+                      input
                           .defenseCapacitor
                           .rechargeElapsedMs /
                           definition
@@ -211,14 +229,14 @@ function mapStatus(
     return {
         hull: {
             current:
-                ship.hull,
+                input.hull.hull,
             max:
-                ship.maxHull,
+                input.hull.maxHull,
         },
 
         defenseCapacitor: {
             current:
-                ship
+                input
                     .defenseCapacitor
                     .charges,
 
@@ -235,7 +253,7 @@ function mapStatus(
 
         drive: {
             status:
-                ship.drive.status,
+                input.drive.status,
         },
     };
 }

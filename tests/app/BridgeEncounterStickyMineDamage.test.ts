@@ -20,9 +20,6 @@ import {
 import {
     ENCOUNTER_EVENT,
 } from '../../src/engine/encounter/model/event';
-import {
-    createBridgePlayerShipStatusPayload,
-} from './fixtures/create_bridge_player_ship_status_payload';
 
 describe('Bridge sticky-mine damage', () => {
     it('clears targeting warning and destroys the starter ship after three detonations', () => {
@@ -155,17 +152,6 @@ describe('Bridge sticky-mine damage', () => {
 
             [
                 BRIDGE_EVENT
-                    .PLAYER_SHIP_STATUS_UPDATED,
-
-                createBridgePlayerShipStatusPayload({
-                    hull: {
-                        current: 2,
-                    },
-                }),
-            ],
-
-            [
-                BRIDGE_EVENT
                     .STICKY_MINE_REMOVED,
 
                 {
@@ -179,17 +165,6 @@ describe('Bridge sticky-mine damage', () => {
 
             [
                 BRIDGE_EVENT
-                    .PLAYER_SHIP_STATUS_UPDATED,
-
-                createBridgePlayerShipStatusPayload({
-                    hull: {
-                        current: 1,
-                    },
-                }),
-            ],
-
-            [
-                BRIDGE_EVENT
                     .STICKY_MINE_REMOVED,
 
                 {
@@ -199,17 +174,6 @@ describe('Bridge sticky-mine damage', () => {
                         BRIDGE_STICKY_MINE_REMOVAL_OUTCOME
                             .DETONATED,
                 },
-            ],
-
-            [
-                BRIDGE_EVENT
-                    .PLAYER_SHIP_STATUS_UPDATED,
-
-                createBridgePlayerShipStatusPayload({
-                    hull: {
-                        current: 0,
-                    },
-                }),
             ],
 
             [

@@ -53,26 +53,34 @@ export default class BridgeEncounterSnapshotSynchronizer {
             this.encounterEngine
                 .getDefenseCapacitorState();
 
-        if (defenseCapacitor) {
-            this.gameRuntime
-                .setPlayerShipDefenseCapacitorState(
-                    defenseCapacitor,
-                );
+        if (!defenseCapacitor) {
+            throw new Error(
+                'Bridge player ship requires a defense capacitor',
+            );
         }
 
-        const weapons = this.encounterEngine.getPlayerWeaponStates();
+        this.gameRuntime
+            .setPlayerShipDefenseCapacitorState(
+                defenseCapacitor,
+            );
 
-        this.gameRuntime.setPlayerShipWeaponStates(weapons);
+        const weapons =
+            this.encounterEngine
+                .getPlayerWeaponStates();
+
+        this.gameRuntime
+            .setPlayerShipWeaponStates(
+                weapons,
+            );
 
         const weaponStatus =
             mapPlayerWeaponsToBridgeStatusPayload(
                 weapons,
             );
 
-        this.eventBus.emit(
-            BRIDGE_EVENT.PLAYER_WEAPONS_STATUS_UPDATED,
-            weaponStatus,
-        );
+        const officerAvailability =
+            this.encounterEngine
+                .getOfficerAvailabilityStates();
 
         this.eventBus.emit(
             BRIDGE_EVENT
@@ -89,10 +97,9 @@ export default class BridgeEncounterSnapshotSynchronizer {
                         ),
 
                 weaponsOfficerAvailability:
-                    this.encounterEngine
-                        .getOfficerAvailabilityStates()[
-                            OFFICER_ROLE.WEAPONS
-                        ],
+                    officerAvailability[
+                        OFFICER_ROLE.WEAPONS
+                    ],
 
                 availableScienceCommands:
                     this.encounterEngine
@@ -101,19 +108,21 @@ export default class BridgeEncounterSnapshotSynchronizer {
                         ),
 
                 scienceOfficerAvailability:
-                    this.encounterEngine
-                        .getOfficerAvailabilityStates()[
-                            OFFICER_ROLE.SCIENCE
-                        ],
+                    officerAvailability[
+                        OFFICER_ROLE.SCIENCE
+                    ],
 
-                // Defense capacitor was persisted above from the
-                // detached encounter snapshot, so this ship already
-                // contains the current charge/recharge state.
-                playerShip:
-                    this.gameRuntime
-                        .getCurrentRun()
-                        .player
-                        .ship,
+                playerStatus: {
+                    hull:
+                        this.encounterEngine
+                            .getPlayerHullState(),
+
+                    drive:
+                        this.encounterEngine
+                            .getDriveState(),
+
+                    defenseCapacitor,
+                },
             }),
         );
     }
