@@ -11,10 +11,7 @@ import type {
 } from '../../../../../engine/defs/missile';
 import type { PointDefenseBeamBand, PointDefenseShotOutcome } from '../../../../../engine/defs/point_defense';
 import type { ShipDriveStatus } from '../../../../../engine/defs/ship_drive';
-import type {
-    ShipWeaponKind,
-    ShipWeaponPhase,
-} from '../../../../../engine/defs/ship_weapon';
+import type { ShipWeaponPhase } from '../../../../../engine/defs/ship_weapon';
 import type { EncounterOfficerCommandId, OfficerCommandTarget } from '../../../../../engine/encounter/model/command';
 import type {
     LaserShotOutcome,
@@ -102,11 +99,6 @@ export const BRIDGE_EVENT = {
     // стабильной player-ship части.
     PLAYER_SHIP_DASHBOARD_UPDATED:
         'player_ship_dashboard_updated',
-
-    // Полный view-ready snapshot
-    // текущего enemy ship у navigation anchor.
-    ENEMY_SHIP_TELEMETRY_UPDATED:
-        'enemy_ship_telemetry_updated',
 
     // #endregion
 
@@ -539,33 +531,6 @@ export type BridgePlayerShipDashboardUpdatedPayload = {
     };
 };
 
-export type BridgeEnemyShipTelemetryUpdatedPayload =
-    | {
-          actorId: string;
-
-          hull: {
-              current: number;
-              max: number;
-          };
-
-          drive: {
-              status: ShipDriveStatus;
-          };
-
-          shieldGenerator: {
-              current: number;
-              max: number;
-          };
-
-          weapons: {
-              id: string;
-
-              kind: ShipWeaponKind;
-              phase: ShipWeaponPhase;
-          }[];
-      }
-    | undefined;
-
 // #endregion
 
 // #region Encounter objects and navigation
@@ -911,9 +876,6 @@ export type BridgeEventPayloadMap = {
 
     [BRIDGE_EVENT.PLAYER_SHIP_DASHBOARD_UPDATED]:
         BridgePlayerShipDashboardUpdatedPayload;
-
-    [BRIDGE_EVENT.ENEMY_SHIP_TELEMETRY_UPDATED]:
-        BridgeEnemyShipTelemetryUpdatedPayload;
 
     // Encounter objects and navigation
 

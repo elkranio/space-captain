@@ -66,12 +66,6 @@ export default class BridgeEncounterEngineEventHandler {
     public clearCombatPresentation(): void {
         this.eventBus.emit(
             BRIDGE_EVENT
-                .ENEMY_SHIP_TELEMETRY_UPDATED,
-            undefined,
-        );
-
-        this.eventBus.emit(
-            BRIDGE_EVENT
                 .MISSILE_TARGETING_WARNING_CLEARED,
         );
 
@@ -532,12 +526,6 @@ export default class BridgeEncounterEngineEventHandler {
                 this.eventBus.emit(
                     BRIDGE_EVENT
                         .MISSILE_TARGETING_WARNING_CLEARED,
-                );
-
-                this.eventBus.emit(
-                    BRIDGE_EVENT
-                        .ENEMY_SHIP_TELEMETRY_UPDATED,
-                    undefined,
                 );
 
                 // View фиксирует position

@@ -69,30 +69,6 @@ describe('BridgeEncounterSnapshotSynchronizer', () => {
                     },
                 },
             ],
-            [
-                BRIDGE_EVENT.ENEMY_SHIP_TELEMETRY_UPDATED,
-                {
-                    actorId: 'enemy_1',
-                    hull: {
-                        current: 2,
-                        max: 3,
-                    },
-                    drive: {
-                        status: 'online',
-                    },
-                    shieldGenerator: {
-                        current: 1,
-                        max: 2,
-                    },
-                    weapons: [
-                        {
-                            id: 'enemy_laser',
-                            kind: 'laser',
-                            phase: 'charging',
-                        },
-                    ],
-                },
-            ],
         ]);
 
         emit.mockClear();
@@ -153,30 +129,6 @@ describe('BridgeEncounterSnapshotSynchronizer', () => {
                     },
                 ],
             ],
-            [
-                BRIDGE_EVENT.ENEMY_SHIP_TELEMETRY_UPDATED,
-                {
-                    actorId: 'enemy_1',
-                    hull: {
-                        current: 2,
-                        max: 3,
-                    },
-                    drive: {
-                        status: 'online',
-                    },
-                    shieldGenerator: {
-                        current: 1,
-                        max: 2,
-                    },
-                    weapons: [
-                        {
-                            id: 'enemy_laser',
-                            kind: 'laser',
-                            phase: 'charging',
-                        },
-                    ],
-                },
-            ],
         ]);
     });
 });
@@ -234,32 +186,6 @@ function createEncounterEngine(): EncounterEngine {
                 engineer: 'available',
                 helm: 'available',
             };
-        }),
-
-        getEnemyShipTelemetrySnapshots: vi.fn(() => {
-            return [
-                {
-                    actorId: 'enemy_1',
-                    hull: {
-                        current: 2,
-                        max: 3,
-                    },
-                    drive: {
-                        status: 'online',
-                    },
-                    shieldGenerator: {
-                        current: 1,
-                        max: 2,
-                    },
-                    weapons: [
-                        {
-                            id: 'enemy_laser',
-                            kind: 'laser',
-                            phase: 'charging',
-                        },
-                    ],
-                },
-            ];
         }),
 
         getIncomingMissileProjectiles: vi.fn(() => {

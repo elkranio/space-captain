@@ -23,7 +23,6 @@ export default class BridgeEncounterSnapshotSynchronizer {
 
     public syncInitial(): void {
         this.syncPlayerWeapons();
-        this.syncEnemyShipTelemetry();
     }
 
     public syncCombatPresentation(): void {
@@ -32,7 +31,6 @@ export default class BridgeEncounterSnapshotSynchronizer {
         this.syncOutgoingStickyMines();
         this.syncStickyMines();
         this.syncLaserThreats();
-        this.syncEnemyShipTelemetry();
     }
 
     public syncPlayerWeapons(): void {
@@ -132,33 +130,6 @@ export default class BridgeEncounterSnapshotSynchronizer {
                         : {}),
                 };
             }),
-        );
-    }
-
-    private syncEnemyShipTelemetry(): void {
-        const [snapshot] = this.encounterEngine.getEnemyShipTelemetrySnapshots();
-
-        this.eventBus.emit(
-            BRIDGE_EVENT.ENEMY_SHIP_TELEMETRY_UPDATED,
-            snapshot
-                ? {
-                      actorId: snapshot.actorId,
-                      hull: {
-                          ...snapshot.hull,
-                      },
-                      drive: {
-                          ...snapshot.drive,
-                      },
-                      shieldGenerator: {
-                          ...snapshot.shieldGenerator,
-                      },
-                      weapons: snapshot.weapons.map((weapon) => {
-                          return {
-                              ...weapon,
-                          };
-                      }),
-                  }
-                : undefined,
         );
     }
 

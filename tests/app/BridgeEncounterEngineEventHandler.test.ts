@@ -159,12 +159,6 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
         expect(emit.mock.calls).toEqual([
             [
                 BRIDGE_EVENT
-                    .ENEMY_SHIP_TELEMETRY_UPDATED,
-                undefined,
-            ],
-
-            [
-                BRIDGE_EVENT
                     .MISSILE_TARGETING_WARNING_CLEARED,
             ],
 
