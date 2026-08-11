@@ -1,4 +1,5 @@
 import type BridgeScene from '../../BridgeScene';
+import type BridgeEventBus from '../../events/BridgeEventBus';
 import BridgePlayerShipDashboardView from './player_ship/BridgePlayerShipDashboardView';
 
 const PLAYER_SHIP_POSITION = {
@@ -21,6 +22,7 @@ export default class BridgeCaptainDashboardView {
 
     constructor(
         private readonly scene: BridgeScene,
+        private readonly eventBus: BridgeEventBus,
     ) {
         this.root =
             this.scene.add.container(
@@ -35,6 +37,7 @@ export default class BridgeCaptainDashboardView {
         this.playerShipView =
             new BridgePlayerShipDashboardView(
                 this.scene,
+                this.eventBus,
             );
 
         this.playerShipView.setPosition(

@@ -4,6 +4,10 @@ import {
     FONT_SIZE,
 } from '../../../../../../../theme/font';
 import type BridgeScene from '../../../../BridgeScene';
+import {
+    BRIDGE_PLAYER_SYSTEM_ACTION_STATE,
+    type BridgePlayerSystemActionState,
+} from '../../../../events/bridge_event';
 
 export type BridgePlayerShipSystemRowLayout = {
     iconLabel: string;
@@ -27,6 +31,10 @@ const ROW = {
     iconBackgroundColor: 0x152332,
     iconBorderColor: 0x45627f,
 
+    progressHeight: 3,
+    progressBackgroundColor: 0x252a2f,
+    progressColor: FONT_COLOR.ACTIVITY,
+
     labelX: 44,
     labelY: 10,
 
@@ -35,23 +43,58 @@ const ROW = {
     roleButtonMarginRight: 6,
     roleButtonY: 4,
 
-    roleButtonBackgroundColor:
-        0x152332,
-    roleButtonBorderColor:
-        0x586f88,
+    actionActiveBackgroundColor:
+        0x193147,
+    actionActiveBorderColor:
+        0x7aa0c4,
+
+    actionDisabledBackgroundColor:
+        0x101923,
+    actionDisabledBorderColor:
+        0x26394c,
+    actionDisabledTextColor:
+        0x536778,
+
+    actionBusyBackgroundColor:
+        0x171a1f,
+    actionBusyBorderColor:
+        0x8a6a35,
+
+    actionEngagedBackgroundColor:
+        0x2a2115,
+    actionEngagedBorderColor:
+        FONT_COLOR.ACTIVITY,
 } as const;
 
 // Один повторяемый визуальный row player system.
 //
-// Пока это только layout placeholder:
-// - icon footprint;
-// - system label/count footprint;
-// - action-role button footprint.
-//
-// Availability, progress и input здесь ещё не живут.
+// Не знает domain-семантику конкретного оружия.
+// Получает уже готовые:
+// - label;
+// - progress 0..1;
+// - presentation state action button;
+// - callback только для ACTIVE action.
 export default class BridgePlayerShipSystemRowView {
     private readonly root:
         Phaser.GameObjects.Container;
+
+    private readonly systemLabel:
+        Phaser.GameObjects.BitmapText;
+
+    private readonly progressBackground:
+        Phaser.GameObjects.Rectangle;
+
+    private readonly progressFill:
+        Phaser.GameObjects.Rectangle;
+
+    private readonly roleButton:
+        Phaser.GameObjects.Rectangle;
+
+    private readonly roleLabel:
+        Phaser.GameObjects.BitmapText;
+
+    private actionHandler?:
+        () => void;
 
     constructor(
         private readonly scene: BridgeScene,
@@ -130,7 +173,41 @@ export default class BridgePlayerShipSystemRowView {
                     FONT_COLOR.SECONDARY,
                 );
 
-        const systemLabel =
+        const progressY =
+            ROW.iconY +
+            ROW.iconSize;
+
+        this.progressBackground =
+            this.scene.add
+                .rectangle(
+                    ROW.iconX,
+                    progressY,
+
+                    ROW.iconSize,
+                    ROW.progressHeight,
+
+                    ROW.progressBackgroundColor,
+                    1,
+                )
+                .setOrigin(0, 0)
+                .setVisible(false);
+
+        this.progressFill =
+            this.scene.add
+                .rectangle(
+                    ROW.iconX,
+                    progressY,
+
+                    ROW.iconSize,
+                    ROW.progressHeight,
+
+                    ROW.progressColor,
+                    1,
+                )
+                .setOrigin(0, 0)
+                .setVisible(false);
+
+        this.systemLabel =
             this.scene.add
                 .bitmapText(
                     ROW.labelX,
@@ -150,7 +227,7 @@ export default class BridgePlayerShipSystemRowView {
             ROW.roleButtonMarginRight -
             ROW.roleButtonWidth;
 
-        const roleButton =
+        this.roleButton =
             this.scene.add
                 .rectangle(
                     roleButtonX,
@@ -159,16 +236,16 @@ export default class BridgePlayerShipSystemRowView {
                     ROW.roleButtonWidth,
                     ROW.roleButtonHeight,
 
-                    ROW.roleButtonBackgroundColor,
+                    ROW.actionDisabledBackgroundColor,
                     1,
                 )
                 .setOrigin(0, 0)
                 .setStrokeStyle(
                     1,
-                    ROW.roleButtonBorderColor,
+                    ROW.actionDisabledBorderColor,
                 );
 
-        const roleLabel =
+        this.roleLabel =
             this.scene.add
                 .bitmapText(
                     roleButtonX +
@@ -186,19 +263,29 @@ export default class BridgePlayerShipSystemRowView {
                 .setOrigin(
                     0.5,
                     0.5,
-                )
-                .setTint(
-                    FONT_COLOR.SECONDARY,
                 );
+
+        this.roleButton.on(
+            'pointerdown',
+            this.handleActionPointerDown,
+            this,
+        );
 
         this.root.add([
             background,
             iconBackground,
             iconLabel,
-            systemLabel,
-            roleButton,
-            roleLabel,
+            this.progressBackground,
+            this.progressFill,
+            this.systemLabel,
+            this.roleButton,
+            this.roleLabel,
         ]);
+
+        this.setAction(
+            BRIDGE_PLAYER_SYSTEM_ACTION_STATE
+                .DISABLED_SYSTEM,
+        );
     }
 
     public getRoot():
@@ -216,7 +303,190 @@ export default class BridgePlayerShipSystemRowView {
         );
     }
 
+    public setSystemLabel(
+        text: string,
+    ): void {
+        this.systemLabel.setText(
+            text,
+        );
+    }
+
+    public setProgress(
+        progress:
+            number | undefined,
+    ): void {
+        if (
+            progress ===
+            undefined
+        ) {
+            this.progressBackground
+                .setVisible(false);
+
+            this.progressFill
+                .setVisible(false);
+
+            return;
+        }
+
+        const clampedProgress =
+            Math.max(
+                0,
+                Math.min(
+                    1,
+                    progress,
+                ),
+            );
+
+        this.progressBackground
+            .setVisible(true);
+
+        this.progressFill
+            .setVisible(true)
+            .setScale(
+                clampedProgress,
+                1,
+            );
+    }
+
+    public setAction(
+        state:
+            BridgePlayerSystemActionState,
+        onSelected?:
+            () => void,
+    ): void {
+        if (
+            state ===
+                BRIDGE_PLAYER_SYSTEM_ACTION_STATE
+                    .ACTIVE &&
+            !onSelected
+        ) {
+            throw new Error(
+                'Active player system action requires click handler',
+            );
+        }
+
+        this.actionHandler =
+            state ===
+            BRIDGE_PLAYER_SYSTEM_ACTION_STATE
+                .ACTIVE
+                ? onSelected
+                : undefined;
+
+        this.applyActionVisualState(
+            state,
+        );
+    }
+
     public destroy(): void {
+        this.roleButton.off(
+            'pointerdown',
+            this.handleActionPointerDown,
+            this,
+        );
+
+        this.actionHandler = undefined;
+
         this.root.destroy(true);
+    }
+
+    private handleActionPointerDown(): void {
+        this.actionHandler?.();
+    }
+
+    private applyActionVisualState(
+        state:
+            BridgePlayerSystemActionState,
+    ): void {
+        this.roleButton
+            .disableInteractive();
+
+        switch (state) {
+            case BRIDGE_PLAYER_SYSTEM_ACTION_STATE
+                .ACTIVE:
+                this.roleButton
+                    .setFillStyle(
+                        ROW.actionActiveBackgroundColor,
+                        1,
+                    )
+                    .setStrokeStyle(
+                        1,
+                        ROW.actionActiveBorderColor,
+                    )
+                    .setInteractive({
+                        useHandCursor: true,
+                    });
+
+                this.roleLabel
+                    .setTint(
+                        FONT_COLOR.WHITE,
+                    );
+
+                return;
+
+            case BRIDGE_PLAYER_SYSTEM_ACTION_STATE
+                .DISABLED_SYSTEM:
+                this.roleButton
+                    .setFillStyle(
+                        ROW.actionDisabledBackgroundColor,
+                        1,
+                    )
+                    .setStrokeStyle(
+                        1,
+                        ROW.actionDisabledBorderColor,
+                    );
+
+                this.roleLabel
+                    .setTint(
+                        ROW.actionDisabledTextColor,
+                    );
+
+                return;
+
+            case BRIDGE_PLAYER_SYSTEM_ACTION_STATE
+                .DISABLED_OFFICER_BUSY:
+                this.roleButton
+                    .setFillStyle(
+                        ROW.actionBusyBackgroundColor,
+                        1,
+                    )
+                    .setStrokeStyle(
+                        1,
+                        ROW.actionBusyBorderColor,
+                    );
+
+                this.roleLabel
+                    .setTint(
+                        ROW.actionBusyBorderColor,
+                    );
+
+                return;
+
+            case BRIDGE_PLAYER_SYSTEM_ACTION_STATE
+                .ENGAGED_CURRENT_WORK:
+                this.roleButton
+                    .setFillStyle(
+                        ROW.actionEngagedBackgroundColor,
+                        1,
+                    )
+                    .setStrokeStyle(
+                        1,
+                        ROW.actionEngagedBorderColor,
+                    );
+
+                this.roleLabel
+                    .setTint(
+                        FONT_COLOR.ACTIVITY,
+                    );
+
+                return;
+
+            default: {
+                const exhaustiveState:
+                    never =
+                    state;
+
+                return exhaustiveState;
+            }
+        }
     }
 }

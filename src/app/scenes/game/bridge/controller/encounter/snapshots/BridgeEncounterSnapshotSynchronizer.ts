@@ -1,8 +1,10 @@
+import { OFFICER_ROLE } from '../../../../../../../engine/defs/officer';
 import type EncounterEngine from '../../../../../../../engine/encounter/EncounterEngine';
 import { THREAT_IDENTIFICATION_STATUS } from '../../../../../../../engine/encounter/model/combat';
 import type { GameRuntime } from '../../../../../../runtime/GameRuntime';
 import { BRIDGE_EVENT } from '../../../events/bridge_event';
 import type BridgeEventBus from '../../../events/BridgeEventBus';
+import { mapPlayerShipToBridgeDashboardPayload } from '../../captain_dashboard/BridgePlayerShipDashboardMapper';
 import { mapPlayerWeaponsToBridgeStatusPayload } from '../../player_weapon_status/BridgePlayerWeaponStatusMapper';
 
 // App-side transport for continuously changing encounter read models.
@@ -53,9 +55,36 @@ export default class BridgeEncounterSnapshotSynchronizer {
 
         this.gameRuntime.setPlayerShipWeaponStates(weapons);
 
+        const weaponStatus =
+            mapPlayerWeaponsToBridgeStatusPayload(
+                weapons,
+            );
+
         this.eventBus.emit(
             BRIDGE_EVENT.PLAYER_WEAPONS_STATUS_UPDATED,
-            mapPlayerWeaponsToBridgeStatusPayload(weapons),
+            weaponStatus,
+        );
+
+        this.eventBus.emit(
+            BRIDGE_EVENT
+                .PLAYER_SHIP_DASHBOARD_UPDATED,
+
+            mapPlayerShipToBridgeDashboardPayload({
+                weapons:
+                    weaponStatus,
+
+                availableWeaponsCommands:
+                    this.encounterEngine
+                        .getAvailableCommands(
+                            OFFICER_ROLE.WEAPONS,
+                        ),
+
+                weaponsOfficerAvailability:
+                    this.encounterEngine
+                        .getOfficerAvailabilityStates()[
+                            OFFICER_ROLE.WEAPONS
+                        ],
+            }),
         );
     }
 

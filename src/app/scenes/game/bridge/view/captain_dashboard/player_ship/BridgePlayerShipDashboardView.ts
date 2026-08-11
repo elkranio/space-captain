@@ -1,4 +1,5 @@
 import type BridgeScene from '../../../BridgeScene';
+import type BridgeEventBus from '../../../events/BridgeEventBus';
 import BridgePlayerShipStatusStripView from './status/BridgePlayerShipStatusStripView';
 import BridgePlayerShipSystemsView from './systems/BridgePlayerShipSystemsView';
 
@@ -21,11 +22,10 @@ const SYSTEMS_HEIGHT = 144;
 
 // Стабильная левая часть captain dashboard.
 //
-// Этот view пока отвечает только за физическую композицию:
+// Этот view отвечает только за физическую композицию:
 // рамка → status strip → список систем.
-//
-// Runtime state и actions намеренно подключим отдельными атомами,
-// после того как примем геометрию на реальном bridge.
+// Runtime presentation конкретных систем живёт ниже,
+// в focused system views.
 export default class BridgePlayerShipDashboardView {
     private readonly root:
         Phaser.GameObjects.Container;
@@ -41,6 +41,7 @@ export default class BridgePlayerShipDashboardView {
 
     constructor(
         private readonly scene: BridgeScene,
+        private readonly eventBus: BridgeEventBus,
     ) {
         this.root =
             this.scene.add.container(
@@ -85,6 +86,7 @@ export default class BridgePlayerShipDashboardView {
         this.systemsView =
             new BridgePlayerShipSystemsView(
                 this.scene,
+                this.eventBus,
                 innerWidth,
                 SYSTEMS_HEIGHT,
             );

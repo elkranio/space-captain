@@ -62,7 +62,10 @@ export default class BridgeView {
 
         this.officerStationsView = new BridgeOfficerStationsView(this.scene, this.eventBus);
 
-        this.captainDashboardView = new BridgeCaptainDashboardView(this.scene);
+        this.captainDashboardView = new BridgeCaptainDashboardView(
+            this.scene,
+            this.eventBus,
+        );
 
         this.officerBarksView = new BridgeOfficerBarksView(this.scene, this.eventBus);
     }

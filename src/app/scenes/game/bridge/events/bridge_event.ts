@@ -110,6 +110,11 @@ export const BRIDGE_EVENT = {
     PLAYER_WEAPONS_STATUS_UPDATED:
         'player_weapons_status_updated',
 
+    // View-ready captain dashboard snapshot
+    // стабильной player-ship части.
+    PLAYER_SHIP_DASHBOARD_UPDATED:
+        'player_ship_dashboard_updated',
+
     // Полный view-ready snapshot
     // текущего enemy ship у navigation anchor.
     ENEMY_SHIP_TELEMETRY_UPDATED:
@@ -437,6 +442,10 @@ export type BridgePlayerShipStatusUpdatedPayload = {
 export type BridgePlayerWeaponStatusPayload = {
     phase: ShipWeaponPhase;
 
+    // Полная длительность текущей timed phase.
+    // Отсутствует для READY.
+    initialPhaseMs?: number;
+
     remainingPhaseMs?: number;
 };
 
@@ -453,6 +462,41 @@ export type BridgePlayerWeaponsStatusUpdatedPayload = {
 
     spamProjector?:
         BridgePlayerWeaponStatusPayload;
+};
+
+export const BRIDGE_PLAYER_SYSTEM_ACTION_STATE = {
+    ACTIVE: 'active',
+    DISABLED_SYSTEM: 'disabled_system',
+    DISABLED_OFFICER_BUSY:
+        'disabled_officer_busy',
+    ENGAGED_CURRENT_WORK:
+        'engaged_current_work',
+} as const;
+
+export type BridgePlayerSystemActionState =
+    (typeof BRIDGE_PLAYER_SYSTEM_ACTION_STATE)[keyof typeof BRIDGE_PLAYER_SYSTEM_ACTION_STATE];
+
+export type BridgePlayerShipDashboardUpdatedPayload = {
+    missileLauncher?: {
+        ammo: {
+            current: number;
+            max: number;
+        };
+
+        // 0..1 elapsed cooldown.
+        // undefined означает, что cooldown bar не показывается.
+        cooldownProgress?: number;
+
+        action: {
+            state:
+                BridgePlayerSystemActionState;
+
+            // Exact engine-resolved command.
+            // Присутствует только у ACTIVE state.
+            command?:
+                BridgeOfficerCommandSelectedPayload;
+        };
+    };
 };
 
 export type BridgeEnemyShipTelemetryUpdatedPayload =
@@ -855,6 +899,9 @@ export type BridgeEventPayloadMap = {
 
     [BRIDGE_EVENT.PLAYER_WEAPONS_STATUS_UPDATED]:
         BridgePlayerWeaponsStatusUpdatedPayload;
+
+    [BRIDGE_EVENT.PLAYER_SHIP_DASHBOARD_UPDATED]:
+        BridgePlayerShipDashboardUpdatedPayload;
 
     [BRIDGE_EVENT.ENEMY_SHIP_TELEMETRY_UPDATED]:
         BridgeEnemyShipTelemetryUpdatedPayload;

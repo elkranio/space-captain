@@ -139,8 +139,8 @@ export function mapPlayerWeaponsToBridgeStatusPayload(
 function mapWeaponStatus(
     weapon: ShipWeaponState,
 ): BridgePlayerWeaponStatusPayload {
-    const remainingPhaseMs =
-        getRemainingPhaseMs(
+    const phaseDurationMs =
+        getPhaseDurationMs(
             weapon,
         );
 
@@ -148,15 +148,22 @@ function mapWeaponStatus(
         phase:
             weapon.phase,
 
-        ...(remainingPhaseMs !== undefined
+        ...(phaseDurationMs !== undefined
             ? {
-                  remainingPhaseMs,
+                  initialPhaseMs:
+                      phaseDurationMs,
+
+                  remainingPhaseMs:
+                      getRemainingMs(
+                          phaseDurationMs,
+                          weapon.phaseElapsedMs,
+                      ),
               }
             : {}),
     };
 }
 
-function getRemainingPhaseMs(
+function getPhaseDurationMs(
     weapon: ShipWeaponState,
 ): number | undefined {
     const definition =
@@ -169,10 +176,7 @@ function getRemainingPhaseMs(
             return undefined;
 
         case SHIP_WEAPON_PHASE.TARGETING:
-            return getRemainingMs(
-                SHIP_WEAPON_TARGETING_DURATION_MS,
-                weapon.phaseElapsedMs,
-            );
+            return SHIP_WEAPON_TARGETING_DURATION_MS;
 
         case SHIP_WEAPON_PHASE.CHARGING:
             if (
@@ -186,16 +190,10 @@ function getRemainingPhaseMs(
                 );
             }
 
-            return getRemainingMs(
-                definition.chargeDurationMs,
-                weapon.phaseElapsedMs,
-            );
+            return definition.chargeDurationMs;
 
         case SHIP_WEAPON_PHASE.COOLDOWN:
-            return getRemainingMs(
-                definition.cooldownDurationMs,
-                weapon.phaseElapsedMs,
-            );
+            return definition.cooldownDurationMs;
 
         case SHIP_WEAPON_PHASE.CHANNELING:
             if (
@@ -210,10 +208,7 @@ function getRemainingPhaseMs(
                 );
             }
 
-            return getRemainingMs(
-                definition.channelDurationMs,
-                weapon.phaseElapsedMs,
-            );
+            return definition.channelDurationMs;
 
         case SHIP_WEAPON_PHASE.DISPENSING:
             throw new Error(
