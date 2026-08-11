@@ -1,16 +1,6 @@
 // src/engine/encounter/combat/EnemyDecisionPolicy.ts
 
 import {
-    SHIP_WEAPONS,
-} from '../../../content/catalogs/ship_weapons';
-import {
-    OFFICER_TASK_BASE_DURATION_MS,
-} from '../../../content/rules/officer_tasks';
-import {
-    ENEMY_SHIELD_IMPACT_RESERVE_RANGE_MS,
-    SHIP_SHIELD_DURATION_MS,
-} from '../../../content/rules/shields';
-import {
     OFFICER_ROLE,
     type OfficerRole,
 } from '../../../defs/officer';
@@ -30,9 +20,6 @@ import {
     COMBAT_SOURCE_KIND,
     COMBAT_TARGET_KIND,
 } from '../../model/combat';
-import {
-    OFFICER_TASK_KIND,
-} from '../../model/officer_task';
 import type {
     EncounterState,
 } from '../../model/state';
@@ -138,15 +125,10 @@ const ENEMY_MINE_CLEAR_ROLE_PRIORITY = [
 // Позже здесь появятся состояние боя,
 // defensive priorities и разные behavior presets.
 export default class EnemyDecisionPolicy {
-    private readonly shieldImpactReserveMsByThreat =
-        new Map<string, number>();
-
     constructor(
         private readonly random:
             () => number = Math.random,
 
-        // Physical timing is observable telegraph data.
-        // Hidden target zone still comes only from Science report.
         private readonly state?:
             EncounterState,
     ) {}
@@ -374,16 +356,6 @@ export default class EnemyDecisionPolicy {
             return interception;
         }
 
-        const shieldDeployment =
-            this.selectShieldDeployment(
-                actor,
-                role,
-            );
-
-        if (shieldDeployment) {
-            return shieldDeployment;
-        }
-
         const weapon =
             this.selectWeapon(
                 actor,
@@ -443,14 +415,9 @@ export default class EnemyDecisionPolicy {
                 return (
                     observation.report ===
                         undefined &&
-                    (
-                        observation.kind ===
-                            ENEMY_THREAT_KIND
-                                .MISSILE ||
-                        observation.kind ===
-                            ENEMY_THREAT_KIND
-                                .LASER
-                    )
+                    observation.kind ===
+                        ENEMY_THREAT_KIND
+                            .MISSILE
                 );
             })
             ?.id;
@@ -532,260 +499,6 @@ export default class EnemyDecisionPolicy {
                     ? POINT_DEFENSE_BEAM_BAND.RED
                     : POINT_DEFENSE_BEAM_BAND.BLUE,
         };
-    }
-
-    private selectShieldDeployment(
-        actor: ShipEncounterActorState,
-        role: OfficerRole,
-    ): Extract<
-        EnemyWorkIntent,
-        {
-            kind:
-                typeof SHIP_CREW_TASK_KIND
-                    .DEPLOY_SHIELD;
-        }
-    > | undefined {
-        if (
-            role !==
-                OFFICER_ROLE.ENGINEER ||
-            !this.state ||
-            actor.shieldGenerator
-                .charges <= 0
-        ) {
-            return undefined;
-        }
-
-        const observation =
-            actor
-                .threatObservations
-                .find((candidate) => {
-                    return (
-                        candidate.kind ===
-                            ENEMY_THREAT_KIND
-                                .LASER &&
-                        candidate.report?.kind ===
-                            ENEMY_THREAT_KIND
-                                .LASER &&
-                        candidate.source.kind ===
-                            ENEMY_THREAT_SOURCE_KIND
-                                .PLAYER_OFFICER_TASK
-                    );
-                });
-
-        if (
-            !observation ||
-            observation.report?.kind !==
-                ENEMY_THREAT_KIND.LASER ||
-            observation.source.kind !==
-                ENEMY_THREAT_SOURCE_KIND
-                    .PLAYER_OFFICER_TASK
-        ) {
-            return undefined;
-        }
-
-        const shieldZone =
-            observation.report
-                .targetZone;
-
-        if (
-            actor.activeShield?.zone ===
-            shieldZone
-        ) {
-            return undefined;
-        }
-
-        const remainingLaserMs =
-            this.getRemainingPlayerLaserMs(
-                observation.source
-                    .officerTaskId,
-            );
-
-        if (
-            remainingLaserMs ===
-            undefined
-        ) {
-            return undefined;
-        }
-
-        const deployDurationMs =
-            OFFICER_TASK_BASE_DURATION_MS
-                .ENGINEER_DEPLOY_SHIELD;
-
-        const timingKey =
-            this.getShieldTimingKey(
-                actor.id,
-                observation.id,
-            );
-
-        const impactReserveMs =
-            this.getOrCreateShieldImpactReserveMs(
-                timingKey,
-            );
-
-        const deploymentWindowStartMs =
-            deployDurationMs +
-            SHIP_SHIELD_DURATION_MS -
-            impactReserveMs;
-
-        // Safe timing window:
-        // - above deploymentWindowStartMs: too early, wait;
-        // - equal to deploy duration: too late, laser wins the boundary.
-        if (
-            remainingLaserMs <=
-                deployDurationMs ||
-            remainingLaserMs >
-                deploymentWindowStartMs
-        ) {
-            return undefined;
-        }
-
-        this.shieldImpactReserveMsByThreat
-            .delete(timingKey);
-
-        return {
-            kind:
-                SHIP_CREW_TASK_KIND
-                    .DEPLOY_SHIELD,
-
-            role:
-                OFFICER_ROLE.ENGINEER,
-
-            observationId:
-                observation.id,
-
-            shieldZone,
-        };
-    }
-
-    private getShieldTimingKey(
-        actorId: string,
-        observationId: string,
-    ): string {
-        return (
-            actorId +
-            ':' +
-            observationId
-        );
-    }
-
-    private getOrCreateShieldImpactReserveMs(
-        timingKey: string,
-    ): number {
-        const existing =
-            this.shieldImpactReserveMsByThreat
-                .get(timingKey);
-
-        if (existing !== undefined) {
-            return existing;
-        }
-
-        const randomUnit =
-            Math.max(
-                0,
-                Math.min(
-                    1,
-                    this.random(),
-                ),
-            );
-
-        const range =
-            ENEMY_SHIELD_IMPACT_RESERVE_RANGE_MS;
-
-        const reserveMs =
-            Math.round(
-                range.min +
-                    (
-                        range.max -
-                        range.min
-                    ) *
-                        randomUnit,
-            );
-
-        this.shieldImpactReserveMsByThreat
-            .set(
-                timingKey,
-                reserveMs,
-            );
-
-        return reserveMs;
-    }
-
-    private getRemainingPlayerLaserMs(
-        officerTaskId: string,
-    ): number | undefined {
-        const state =
-            this.state;
-
-        if (!state) {
-            return undefined;
-        }
-
-        const task =
-            Object
-                .values(
-                    state.officerTasks,
-                )
-                .find((candidate) => {
-                    return (
-                        candidate?.id ===
-                        officerTaskId
-                    );
-                });
-
-        if (
-            !task ||
-            task.kind !==
-                OFFICER_TASK_KIND
-                    .WEAPONS_FIRE_LASER
-        ) {
-            return undefined;
-        }
-
-        const weapon =
-            state.combat
-                .playerWeapons
-                .find((candidate) => {
-                    return (
-                        candidate.id ===
-                        task.weaponId
-                    );
-                });
-
-        if (
-            !weapon ||
-            weapon.kind !==
-                SHIP_WEAPON_KIND.LASER ||
-            weapon.phase !==
-                SHIP_WEAPON_PHASE.CHARGING
-        ) {
-            return undefined;
-        }
-
-        const definition =
-            SHIP_WEAPONS[
-                weapon.weaponId
-            ];
-
-        if (
-            definition.kind !==
-            SHIP_WEAPON_KIND.LASER
-        ) {
-            throw new Error(
-                'Enemy shield policy found ' +
-                    'non-laser definition: ' +
-                    weapon.id +
-                    '/' +
-                    weapon.weaponId,
-            );
-        }
-
-        return Math.max(
-            0,
-
-            definition
-                .chargeDurationMs -
-                weapon.phaseElapsedMs,
-        );
     }
 
     private selectWeapon(

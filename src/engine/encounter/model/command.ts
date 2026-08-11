@@ -1,9 +1,6 @@
 // src/engine/encounter/model/command.ts
 
 import type {
-    LaserTargetZone,
-} from '../../defs/laser';
-import type {
     OfficerRole,
 } from '../../defs/officer';
 
@@ -76,14 +73,6 @@ export const OFFICER_COMMAND_TARGET_KIND = {
     ACTOR_WEAPON:
         'actor_weapon',
 
-    // Полностью разрешённая команда
-    // player laser:
-    // - конкретная установленная пушка;
-    // - конкретный enemy actor;
-    // - конкретная зона попадания.
-    ACTOR_LASER_ZONE:
-        'actor_laser_zone',
-
     SPACE_NODE: 'space_node',
     THREAT: 'threat',
 } as const;
@@ -114,15 +103,6 @@ export type OfficerCommandTarget =
 
           weaponId: string;
           actorId: string;
-      }
-    | {
-          kind:
-              typeof OFFICER_COMMAND_TARGET_KIND.ACTOR_LASER_ZONE;
-
-          weaponId: string;
-          actorId: string;
-
-          targetZone: LaserTargetZone;
       }
     | {
           kind:
@@ -167,10 +147,6 @@ export type OfficerCommandTargeting =
     | {
           kind:
               typeof OFFICER_COMMAND_TARGET_KIND.ACTOR_WEAPON;
-      }
-    | {
-          kind:
-              typeof OFFICER_COMMAND_TARGET_KIND.ACTOR_LASER_ZONE;
       }
     | {
           kind:

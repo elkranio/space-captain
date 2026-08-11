@@ -164,8 +164,6 @@ type WeaponsFireLaserOfficerTaskDraft =
 
         weaponId: string;
         targetActorId: string;
-
-        targetZone: LaserTargetZone;
     };
 
 type ScienceFireSpamOfficerTaskDraft =

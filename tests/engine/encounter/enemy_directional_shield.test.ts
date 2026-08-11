@@ -83,9 +83,8 @@ describe(
 
                 engine.drainEvents();
 
-                // Enemy Science may still inspect the incoming
-                // laser during this migration atom, but old
-                // directional Engineer defense is retired.
+                // Old directional Engineer defense is retired.
+                // The delay below simply advances toward impact.
                 engine.step(
                     OFFICER_TASK_BASE_DURATION_MS
                         .SCIENCE_IDENTIFY_THREAT,

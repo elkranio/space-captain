@@ -203,7 +203,6 @@ export function createWeaponsFireStickyMinesTask(
 export function createWeaponsFireLaserTask(
     weaponId: string,
     targetActorId: string,
-    targetZone: LaserTargetZone,
 ): OfficerTaskDraft {
     return {
         kind:
@@ -218,7 +217,6 @@ export function createWeaponsFireLaserTask(
 
         weaponId,
         targetActorId,
-        targetZone,
 
         label: 'LASER AIM',
         showProgress: false,

@@ -7,10 +7,6 @@ import {
     CREW_TRAIT_ID,
 } from '../../../../defs/crew_trait';
 import {
-    LASER_TARGET_ZONE,
-    type LaserTargetZone,
-} from '../../../../defs/laser';
-import {
     MISSILE_SPECTRAL_BAND,
     type MissileSpectralBand,
 } from '../../../../defs/missile';
@@ -30,9 +26,6 @@ import {
     type EnemyThreatObservationState,
     type EnemyThreatReport,
 } from '../../../model/enemy_threat_observation';
-import {
-    OFFICER_TASK_KIND,
-} from '../../../model/officer_task';
 import type {
     EncounterState,
 } from '../../../model/state';
@@ -105,9 +98,12 @@ export default class EnemyScienceIntelResolver {
                 );
 
             case ENEMY_THREAT_KIND.LASER:
-                return this.resolveLaserTruth(
-                    actor,
-                    observation,
+                throw new Error(
+                    'Player laser Science intel is retired ' +
+                        'until the new shield targeting contract: ' +
+                        actor.id +
+                        '/' +
+                        observation.id,
                 );
 
             case ENEMY_THREAT_KIND
@@ -187,68 +183,6 @@ export default class EnemyScienceIntelResolver {
         };
     }
 
-    private resolveLaserTruth(
-        actor: ShipEncounterActorState,
-        observation:
-            EnemyThreatObservationState,
-    ): EnemyThreatReport {
-        const source =
-            observation.source;
-
-        if (
-            source.kind !==
-            ENEMY_THREAT_SOURCE_KIND
-                .PLAYER_OFFICER_TASK
-        ) {
-            throw new Error(
-                'Laser observation has ' +
-                    'invalid source: ' +
-                    actor.id +
-                    '/' +
-                    observation.id +
-                    '/' +
-                    source.kind,
-            );
-        }
-
-        const task =
-            Object
-                .values(
-                    this.state
-                        .officerTasks,
-                )
-                .find((candidate) => {
-                    return (
-                        candidate?.id ===
-                        source.officerTaskId
-                    );
-                });
-
-        if (
-            !task ||
-            task.kind !==
-                OFFICER_TASK_KIND
-                    .WEAPONS_FIRE_LASER ||
-            task.targetActorId !== actor.id
-        ) {
-            throw new Error(
-                'Laser observation source ' +
-                    'is no longer valid: ' +
-                    actor.id +
-                    '/' +
-                    observation.id,
-            );
-        }
-
-        return {
-            kind:
-                ENEMY_THREAT_KIND.LASER,
-
-            targetZone:
-                task.targetZone,
-        };
-    }
-
     private isScienceHungover(
         actor: ShipEncounterActorState,
     ): boolean {
@@ -284,17 +218,10 @@ export default class EnemyScienceIntelResolver {
                 };
 
             case ENEMY_THREAT_KIND.LASER:
-                return {
-                    kind:
-                        ENEMY_THREAT_KIND
-                            .LASER,
-
-                    targetZone:
-                        this.getWrongLaserZone(
-                            truthfulReport
-                                .targetZone,
-                        ),
-                };
+                // Unreachable while player-laser Science intel is retired.
+                // Keep the union branch exhaustive until the new shield
+                // contract replaces the old laser report type.
+                return truthfulReport;
         }
     }
 
@@ -317,28 +244,4 @@ export default class EnemyScienceIntelResolver {
         }
     }
 
-    private getWrongLaserZone(
-        truthfulZone:
-            LaserTargetZone,
-    ): LaserTargetZone {
-        switch (truthfulZone) {
-            case LASER_TARGET_ZONE.LEFT:
-                return (
-                    LASER_TARGET_ZONE
-                        .CENTER
-                );
-
-            case LASER_TARGET_ZONE.CENTER:
-                return (
-                    LASER_TARGET_ZONE
-                        .RIGHT
-                );
-
-            case LASER_TARGET_ZONE.RIGHT:
-                return (
-                    LASER_TARGET_ZONE
-                        .LEFT
-                );
-        }
-    }
 }

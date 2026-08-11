@@ -1,9 +1,6 @@
 // src/engine/encounter/commands/handlers/weapons_fire_laser_command_handler.ts
 
 import {
-    LASER_TARGET_ZONE,
-} from '../../../defs/laser';
-import {
     OFFICER_ROLE,
 } from '../../../defs/officer';
 import {
@@ -112,13 +109,6 @@ export const weaponsFireLaserCommandHandler:
                 createWeaponsFireLaserTask(
                     input.target.weaponId,
                     input.target.actorId,
-
-                    // Transitional presentation detail.
-                    // The player no longer chooses a side:
-                    // baseline laser targets HULL.
-                    // The remaining zone-based laser/shield
-                    // contract is removed in the next atom.
-                    LASER_TARGET_ZONE.CENTER,
                 ),
             );
         },

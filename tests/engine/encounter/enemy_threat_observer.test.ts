@@ -10,9 +10,6 @@ import {
     ENCOUNTER_TEAM,
 } from '../../../src/engine/defs/encounter_team';
 import {
-    LASER_TARGET_ZONE,
-} from '../../../src/engine/defs/laser';
-import {
     MISSILE_ID,
 } from '../../../src/engine/defs/missile';
 import {
@@ -151,12 +148,6 @@ describe(
                 expect(serialized)
                     .not.toContain(
                         MISSILE_ID.RED_00,
-                    );
-
-                expect(serialized)
-                    .not.toContain(
-                        LASER_TARGET_ZONE
-                            .CENTER,
                     );
 
                 expect(serialized)
@@ -390,9 +381,6 @@ function createObserverFixture() {
 
         targetActorId:
             actor.id,
-
-        targetZone:
-            LASER_TARGET_ZONE.CENTER,
     };
 
     return {

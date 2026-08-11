@@ -890,18 +890,6 @@ function createLaserThreatSnapshot(
               )
             : undefined;
 
-    const truth =
-        laserTask?.targetZone;
-
-    const report =
-        observation.report
-            ? observation.report.kind ===
-              ENEMY_THREAT_KIND.LASER
-                ? observation.report
-                      .targetZone
-                : 'invalid'
-            : undefined;
-
     return {
         id:
             observation.id,
@@ -923,24 +911,9 @@ function createLaserThreatSnapshot(
               }
             : {}),
 
-        ...(report
-            ? {
-                  report,
-              }
-            : {}),
-
-        ...(truth
-            ? {
-                  truth,
-              }
-            : {}),
-
-        mismatch:
-            Boolean(
-                report &&
-                truth &&
-                report !== truth,
-            ),
+        // Directional player-laser truth/report was retired.
+        // The observation remains useful as a physical charging telegraph.
+        mismatch: false,
     };
 }
 

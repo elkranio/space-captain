@@ -194,6 +194,11 @@ describe('Player laser command', () => {
                 elapsedMs: 0,
             });
 
+            expect(task)
+                .not.toHaveProperty(
+                    'targetZone',
+                );
+
             expect(
                 engine.getAvailableCommands(
                     OFFICER_ROLE.WEAPONS,

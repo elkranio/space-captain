@@ -16,9 +16,6 @@ import {
     ENCOUNTER_TEAM,
 } from '../../../src/engine/defs/encounter_team';
 import {
-    LASER_TARGET_ZONE,
-} from '../../../src/engine/defs/laser';
-import {
     MISSILE_ID,
     MISSILE_SPECTRAL_BAND,
 } from '../../../src/engine/defs/missile';
@@ -146,7 +143,7 @@ describe(
         );
 
         it(
-            'stores believable false laser intel for a hungover Science role',
+            'does not spend Science time on retired player-laser directional intel',
             () => {
                 const {
                     actor,
@@ -155,37 +152,17 @@ describe(
 
                 scheduler.schedule(0);
 
-                scheduler.schedule(
-                    OFFICER_TASK_BASE_DURATION_MS
-                        .SCIENCE_IDENTIFY_THREAT,
-                );
+                expect(
+                    actor.crewTasks[
+                        OFFICER_ROLE.SCIENCE
+                    ],
+                ).toBeUndefined();
 
-                const report =
+                expect(
                     actor
                         .threatObservations[0]
-                        ?.report;
-
-                expect(report).toEqual({
-                    kind:
-                        ENEMY_THREAT_KIND
-                            .LASER,
-
-                    targetZone:
-                        LASER_TARGET_ZONE
-                            .RIGHT,
-                });
-
-                expect(
-                    JSON.stringify(report),
-                ).not.toContain(
-                    'false',
-                );
-
-                expect(
-                    JSON.stringify(report),
-                ).not.toContain(
-                    'accuracy',
-                );
+                        ?.report,
+                ).toBeUndefined();
             },
         );
 
@@ -327,9 +304,6 @@ function createLaserFixture() {
 
         targetActorId:
             fixture.actor.id,
-
-        targetZone:
-            LASER_TARGET_ZONE.CENTER,
     };
 
     fixture
