@@ -8,7 +8,6 @@ import BridgeTargetingWarningView from './indicators/targeting_warning/BridgeTar
 import BridgeInteriorView from './interior/BridgeInteriorView';
 import BridgeOfficerStationsView from './officer_stations/BridgeOfficerStationsView';
 import BridgeSpaceView from './space/BridgeSpaceView';
-import BridgeUiView from './ui/BridgeUiView';
 
 // Root view bridge scene.
 // Собирает верхнеуровневые визуальные модули
@@ -23,8 +22,6 @@ export default class BridgeView {
     private officerStationsView?: BridgeOfficerStationsView;
 
     private spaceView?: BridgeSpaceView;
-
-    private uiView?: BridgeUiView;
 
     private officerBarksView?: BridgeOfficerBarksView;
 
@@ -62,14 +59,11 @@ export default class BridgeView {
 
         this.officerStationsView = new BridgeOfficerStationsView(this.scene, this.eventBus);
 
-        this.uiView = new BridgeUiView(this.scene, this.eventBus);
-
         this.officerBarksView = new BridgeOfficerBarksView(this.scene, this.eventBus);
     }
 
     public destroy(): void {
         this.officerBarksView?.destroy();
-        this.uiView?.destroy();
         this.officerStationsView?.destroy();
         this.targetingWarningView?.destroy();
         this.interiorView?.destroy();
@@ -77,7 +71,6 @@ export default class BridgeView {
         this.spaceView?.destroy();
 
         this.officerBarksView = undefined;
-        this.uiView = undefined;
         this.officerStationsView = undefined;
         this.targetingWarningView = undefined;
         this.interiorView = undefined;
