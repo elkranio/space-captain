@@ -12,6 +12,9 @@ import {
     MISSILE_ID,
 } from '../../src/engine/defs/missile';
 import {
+    STICKY_MINE_ID,
+} from '../../src/engine/defs/sticky_mine';
+import {
     SHIP_WEAPON_ID,
     SHIP_WEAPON_KIND,
     SHIP_WEAPON_PHASE,
@@ -41,6 +44,63 @@ describe('Bridge player weapon status mapper', () => {
                     current: 5,
                     max: 5,
                 },
+            },
+
+            stickyMineDispenser: {
+                phase:
+                    SHIP_WEAPON_PHASE.READY,
+
+                ammo: {
+                    current: 6,
+                    max: 6,
+                },
+            },
+        });
+    });
+
+    it('maps sticky mine dispenser ammo and dispensing timing', () => {
+        const weapons =
+            createWeapons();
+
+        const dispenser =
+            weapons[2];
+
+        if (
+            !dispenser ||
+            dispenser.kind !==
+                SHIP_WEAPON_KIND
+                    .STICKY_MINE_DISPENSER
+        ) {
+            throw new Error(
+                'Expected sticky mine dispenser',
+            );
+        }
+
+        dispenser.phase =
+            SHIP_WEAPON_PHASE
+                .DISPENSING;
+
+        dispenser.phaseElapsedMs =
+            500;
+
+        dispenser.ammoCount = 5;
+        dispenser.dispensedMineCount = 1;
+
+        expect(
+            mapPlayerWeaponsToBridgeStatusPayload(
+                weapons,
+            ).stickyMineDispenser,
+        ).toEqual({
+            phase:
+                SHIP_WEAPON_PHASE
+                    .DISPENSING,
+
+            initialPhaseMs: 2000,
+            remainingPhaseMs: 1500,
+
+            ammo: {
+                current: 5,
+                max: 6,
             },
         });
     });
@@ -91,6 +151,24 @@ describe('Bridge player weapon status mapper', () => {
                 ammo: {
                     current: 5,
                     max: 5,
+                },
+            },
+
+            stickyMineDispenser: {
+                phase:
+                    SHIP_WEAPON_PHASE
+                        .TARGETING,
+
+                initialPhaseMs:
+                    SHIP_WEAPON_TARGETING_DURATION_MS,
+
+                remainingPhaseMs:
+                    SHIP_WEAPON_TARGETING_DURATION_MS -
+                    1250,
+
+                ammo: {
+                    current: 6,
+                    max: 6,
                 },
             },
         });
@@ -164,6 +242,16 @@ describe('Bridge player weapon status mapper', () => {
                     max: 5,
                 },
             },
+
+            stickyMineDispenser: {
+                phase:
+                    SHIP_WEAPON_PHASE.READY,
+
+                ammo: {
+                    current: 6,
+                    max: 6,
+                },
+            },
         });
     });
 });
@@ -208,6 +296,31 @@ function createWeapons():
                 MISSILE_ID.RED_00,
 
             ammoCount: 5,
+        },
+
+        {
+            id:
+                'sticky_mine_dispenser_player_00',
+
+            kind:
+                SHIP_WEAPON_KIND
+                    .STICKY_MINE_DISPENSER,
+
+            weaponId:
+                SHIP_WEAPON_ID
+                    .STICKY_MINE_DISPENSER_00,
+
+            phase:
+                SHIP_WEAPON_PHASE.READY,
+
+            phaseElapsedMs: 0,
+
+            loadedMineId:
+                STICKY_MINE_ID
+                    .BASIC_00,
+
+            ammoCount: 6,
+            dispensedMineCount: 0,
         },
     ];
 }

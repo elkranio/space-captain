@@ -26,6 +26,11 @@ export function mapPlayerWeaponsToBridgeStatusPayload(
             'missileLauncher'
         ];
 
+    let stickyMineDispenser:
+        BridgePlayerWeaponsStatusUpdatedPayload[
+            'stickyMineDispenser'
+        ];
+
     let spamProjector:
         BridgePlayerWeaponsStatusUpdatedPayload[
             'spamProjector'
@@ -94,6 +99,50 @@ export function mapPlayerWeaponsToBridgeStatusPayload(
             }
 
             case SHIP_WEAPON_KIND
+                .STICKY_MINE_DISPENSER: {
+                if (stickyMineDispenser) {
+                    throw new Error(
+                        'Bridge weapon status supports ' +
+                            'one player sticky mine dispenser',
+                    );
+                }
+
+                const definition =
+                    SHIP_WEAPONS[
+                        weapon.weaponId
+                    ];
+
+                if (
+                    definition.kind !==
+                    SHIP_WEAPON_KIND
+                        .STICKY_MINE_DISPENSER
+                ) {
+                    throw new Error(
+                        'Player sticky mine dispenser ' +
+                            'definition mismatch: ' +
+                            weapon.id,
+                    );
+                }
+
+                stickyMineDispenser = {
+                    ...mapWeaponStatus(
+                        weapon,
+                    ),
+
+                    ammo: {
+                        current:
+                            weapon.ammoCount,
+
+                        max:
+                            definition
+                                .ammoCapacity,
+                    },
+                };
+
+                break;
+            }
+
+            case SHIP_WEAPON_KIND
                 .SPAM_PROJECTOR: {
                 if (spamProjector) {
                     throw new Error(
@@ -125,6 +174,12 @@ export function mapPlayerWeaponsToBridgeStatusPayload(
         ...(missileLauncher
             ? {
                   missileLauncher,
+              }
+            : {}),
+
+        ...(stickyMineDispenser
+            ? {
+                  stickyMineDispenser,
               }
             : {}),
 
@@ -210,14 +265,43 @@ function getPhaseDurationMs(
 
             return definition.channelDurationMs;
 
-        case SHIP_WEAPON_PHASE.DISPENSING:
-            throw new Error(
-                'Unsupported player weapon phase ' +
-                    'for bridge status: ' +
-                    weapon.id +
-                    '/' +
-                    weapon.phase,
+        case SHIP_WEAPON_PHASE.DISPENSING: {
+            if (
+                definition.kind !==
+                    SHIP_WEAPON_KIND
+                        .STICKY_MINE_DISPENSER ||
+                weapon.kind !==
+                    SHIP_WEAPON_KIND
+                        .STICKY_MINE_DISPENSER
+            ) {
+                throw new Error(
+                    'Only player sticky mine dispenser can be ' +
+                        'in dispensing phase: ' +
+                        weapon.id,
+                );
+            }
+
+            // The first mine is emitted when targeting completes.
+            // DISPENSING then spans the remaining salvo intervals.
+            // current ammo + already dispensed count recovers the
+            // stable ammo-at-salvo-start value.
+            const plannedMineCount =
+                Math.min(
+                    definition.salvoSize,
+
+                    weapon.ammoCount +
+                        weapon
+                            .dispensedMineCount,
+                );
+
+            return Math.max(
+                0,
+
+                (plannedMineCount - 1) *
+                    definition
+                        .launchIntervalMs,
             );
+        }
     }
 }
 

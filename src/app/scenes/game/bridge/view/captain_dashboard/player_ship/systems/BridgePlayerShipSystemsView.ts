@@ -35,6 +35,7 @@ const SYSTEM_ROWS:
 
 const MISSILE_LAUNCHER_ROW_INDEX = 0;
 const LASER_ROW_INDEX = 1;
+const STICKY_MINE_DISPENSER_ROW_INDEX = 2;
 
 // Список player ship systems.
 //
@@ -52,6 +53,9 @@ export default class BridgePlayerShipSystemsView {
         BridgePlayerShipSystemRowView;
 
     private laserView?:
+        BridgePlayerShipSystemRowView;
+
+    private stickyMineDispenserView?:
         BridgePlayerShipSystemRowView;
 
     constructor(
@@ -112,6 +116,14 @@ export default class BridgePlayerShipSystemsView {
                     rowView;
             }
 
+            if (
+                index ===
+                STICKY_MINE_DISPENSER_ROW_INDEX
+            ) {
+                this.stickyMineDispenserView =
+                    rowView;
+            }
+
             this.rowViews.push(
                 rowView,
             );
@@ -123,7 +135,8 @@ export default class BridgePlayerShipSystemsView {
 
         if (
             !this.missileLauncherView ||
-            !this.laserView
+            !this.laserView ||
+            !this.stickyMineDispenserView
         ) {
             throw new Error(
                 'Captain dashboard weapon rows were not created',
@@ -178,6 +191,9 @@ export default class BridgePlayerShipSystemsView {
         this.laserView =
             undefined;
 
+        this.stickyMineDispenserView =
+            undefined;
+
         this.root.destroy(false);
     }
 
@@ -191,6 +207,10 @@ export default class BridgePlayerShipSystemsView {
 
         this.updateLaser(
             payload.laser,
+        );
+
+        this.updateStickyMineDispenser(
+            payload.stickyMineDispenser,
         );
     }
 
@@ -277,6 +297,53 @@ export default class BridgePlayerShipSystemsView {
         this.applyAction(
             view,
             laser.action,
+        );
+    }
+
+    private updateStickyMineDispenser(
+        dispenser:
+            BridgePlayerShipDashboardUpdatedPayload[
+                'stickyMineDispenser'
+            ],
+    ): void {
+        const view =
+            this.stickyMineDispenserView;
+
+        if (!view) {
+            return;
+        }
+
+        if (!dispenser) {
+            view.setSystemLabel(
+                'MINES --/--',
+            );
+
+            view.setProgress(
+                undefined,
+            );
+
+            view.setAction(
+                BRIDGE_PLAYER_SYSTEM_ACTION_STATE
+                    .DISABLED_SYSTEM,
+            );
+
+            return;
+        }
+
+        view.setSystemLabel(
+            'MINES ' +
+                dispenser.ammo.current +
+                '/' +
+                dispenser.ammo.max,
+        );
+
+        view.setProgress(
+            dispenser.cooldownProgress,
+        );
+
+        this.applyAction(
+            view,
+            dispenser.action,
         );
     }
 

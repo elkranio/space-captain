@@ -395,6 +395,200 @@ describe(
         );
 
         it(
+            'maps sticky mine ready, engaged, cooldown and officer-busy states',
+            () => {
+                const command =
+                    createStickyMineCommand();
+
+                expect(
+                    mapPlayerShipToBridgeDashboardPayload({
+                        weapons: {
+                            stickyMineDispenser: {
+                                phase:
+                                    SHIP_WEAPON_PHASE
+                                        .READY,
+
+                                ammo: {
+                                    current: 6,
+                                    max: 6,
+                                },
+                            },
+                        },
+
+                        availableWeaponsCommands: [
+                            command,
+                        ],
+
+                        weaponsOfficerAvailability:
+                            OFFICER_AVAILABILITY_STATE
+                                .AVAILABLE,
+                    }),
+                ).toEqual({
+                    stickyMineDispenser: {
+                        ammo: {
+                            current: 6,
+                            max: 6,
+                        },
+
+                        action: {
+                            state:
+                                BRIDGE_PLAYER_SYSTEM_ACTION_STATE
+                                    .ACTIVE,
+
+                            command: {
+                                role:
+                                    OFFICER_ROLE
+                                        .WEAPONS,
+
+                                commandId:
+                                    command
+                                        .commandId,
+
+                                target:
+                                    command
+                                        .target,
+                            },
+                        },
+                    },
+                });
+
+                for (
+                    const phase of [
+                        SHIP_WEAPON_PHASE
+                            .TARGETING,
+
+                        SHIP_WEAPON_PHASE
+                            .DISPENSING,
+                    ]
+                ) {
+                    expect(
+                        mapPlayerShipToBridgeDashboardPayload({
+                            weapons: {
+                                stickyMineDispenser: {
+                                    phase,
+
+                                    initialPhaseMs:
+                                        2000,
+
+                                    remainingPhaseMs:
+                                        1000,
+
+                                    ammo: {
+                                        current: 5,
+                                        max: 6,
+                                    },
+                                },
+                            },
+
+                            availableWeaponsCommands:
+                                [],
+
+                            weaponsOfficerAvailability:
+                                OFFICER_AVAILABILITY_STATE
+                                    .BUSY,
+                        }),
+                    ).toEqual({
+                        stickyMineDispenser: {
+                            ammo: {
+                                current: 5,
+                                max: 6,
+                            },
+
+                            action: {
+                                state:
+                                    BRIDGE_PLAYER_SYSTEM_ACTION_STATE
+                                        .ENGAGED_CURRENT_WORK,
+                            },
+                        },
+                    });
+                }
+
+                expect(
+                    mapPlayerShipToBridgeDashboardPayload({
+                        weapons: {
+                            stickyMineDispenser: {
+                                phase:
+                                    SHIP_WEAPON_PHASE
+                                        .COOLDOWN,
+
+                                initialPhaseMs:
+                                    15000,
+
+                                remainingPhaseMs:
+                                    9000,
+
+                                ammo: {
+                                    current: 3,
+                                    max: 6,
+                                },
+                            },
+                        },
+
+                        availableWeaponsCommands:
+                            [],
+
+                        weaponsOfficerAvailability:
+                            OFFICER_AVAILABILITY_STATE
+                                .AVAILABLE,
+                    }),
+                ).toEqual({
+                    stickyMineDispenser: {
+                        ammo: {
+                            current: 3,
+                            max: 6,
+                        },
+
+                        cooldownProgress:
+                            1 - 9000 / 15000,
+
+                        action: {
+                            state:
+                                BRIDGE_PLAYER_SYSTEM_ACTION_STATE
+                                    .DISABLED_SYSTEM,
+                        },
+                    },
+                });
+
+                expect(
+                    mapPlayerShipToBridgeDashboardPayload({
+                        weapons: {
+                            stickyMineDispenser: {
+                                phase:
+                                    SHIP_WEAPON_PHASE
+                                        .READY,
+
+                                ammo: {
+                                    current: 6,
+                                    max: 6,
+                                },
+                            },
+                        },
+
+                        availableWeaponsCommands:
+                            [],
+
+                        weaponsOfficerAvailability:
+                            OFFICER_AVAILABILITY_STATE
+                                .BUSY,
+                    }),
+                ).toEqual({
+                    stickyMineDispenser: {
+                        ammo: {
+                            current: 6,
+                            max: 6,
+                        },
+
+                        action: {
+                            state:
+                                BRIDGE_PLAYER_SYSTEM_ACTION_STATE
+                                    .DISABLED_OFFICER_BUSY,
+                        },
+                    },
+                });
+            },
+        );
+
+        it(
             'distinguishes officer busy from unavailable system',
             () => {
                 expect(
@@ -454,6 +648,31 @@ function createMissileCommand():
 
             weaponId:
                 'player_missile_launcher',
+
+            actorId:
+                'enemy_1',
+        },
+    };
+}
+
+
+function createStickyMineCommand():
+    AvailableOfficerCommand {
+    return {
+        commandId:
+            ENCOUNTER_OFFICER_COMMAND_ID
+                .WEAPONS_FIRE_STICKY_MINES,
+
+        label:
+            'FIRE MINES',
+
+        target: {
+            kind:
+                OFFICER_COMMAND_TARGET_KIND
+                    .ACTOR_WEAPON,
+
+            weaponId:
+                'sticky_mine_dispenser_player_00',
 
             actorId:
                 'enemy_1',

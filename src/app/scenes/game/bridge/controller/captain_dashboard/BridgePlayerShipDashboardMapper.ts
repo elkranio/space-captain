@@ -44,6 +44,20 @@ type LaserDashboardPayload =
         ]
     >;
 
+type StickyMineDispenserStatus =
+    NonNullable<
+        BridgePlayerWeaponsStatusUpdatedPayload[
+            'stickyMineDispenser'
+        ]
+    >;
+
+type StickyMineDispenserDashboardPayload =
+    NonNullable<
+        BridgePlayerShipDashboardUpdatedPayload[
+            'stickyMineDispenser'
+        ]
+    >;
+
 type PlayerShipDashboardMapperInput = {
     weapons:
         BridgePlayerWeaponsStatusUpdatedPayload;
@@ -77,6 +91,10 @@ export function mapPlayerShipToBridgeDashboardPayload(
         input.weapons
             .laser;
 
+    const stickyMineDispenser =
+        input.weapons
+            .stickyMineDispenser;
+
     return {
         ...(input.playerShip
             ? {
@@ -103,6 +121,17 @@ export function mapPlayerShipToBridgeDashboardPayload(
                   laser:
                       mapLaser(
                           laser,
+                          input.availableWeaponsCommands,
+                          input.weaponsOfficerAvailability,
+                      ),
+              }
+            : {}),
+
+        ...(stickyMineDispenser
+            ? {
+                  stickyMineDispenser:
+                      mapStickyMineDispenser(
+                          stickyMineDispenser,
                           input.availableWeaponsCommands,
                           input.weaponsOfficerAvailability,
                       ),
@@ -241,6 +270,41 @@ function mapLaser(
     };
 }
 
+function mapStickyMineDispenser(
+    dispenser:
+        StickyMineDispenserStatus,
+    availableWeaponsCommands:
+        AvailableOfficerCommand[],
+    weaponsOfficerAvailability:
+        OfficerAvailabilityState,
+): StickyMineDispenserDashboardPayload {
+    const cooldownProgress =
+        getCooldownProgress(
+            dispenser,
+            'Sticky mine dispenser',
+        );
+
+    return {
+        ammo: {
+            ...dispenser.ammo,
+        },
+
+        ...(cooldownProgress !== undefined &&
+        dispenser.ammo.current > 0
+            ? {
+                  cooldownProgress,
+              }
+            : {}),
+
+        action:
+            mapStickyMineAction(
+                dispenser,
+                availableWeaponsCommands,
+                weaponsOfficerAvailability,
+            ),
+    };
+}
+
 function mapMissileAction(
     launcher:
         MissileLauncherStatus,
@@ -293,6 +357,69 @@ function mapMissileAction(
             command:
                 mapWeaponsCommand(
                     missileCommand,
+                ),
+        };
+    }
+
+    return mapReadyButUnavailableAction(
+        weaponsOfficerAvailability,
+    );
+}
+
+function mapStickyMineAction(
+    dispenser:
+        StickyMineDispenserStatus,
+    availableWeaponsCommands:
+        AvailableOfficerCommand[],
+    weaponsOfficerAvailability:
+        OfficerAvailabilityState,
+): StickyMineDispenserDashboardPayload[
+    'action'
+] {
+    if (
+        dispenser.phase ===
+            SHIP_WEAPON_PHASE.TARGETING ||
+        dispenser.phase ===
+            SHIP_WEAPON_PHASE.DISPENSING
+    ) {
+        return {
+            state:
+                BRIDGE_PLAYER_SYSTEM_ACTION_STATE
+                    .ENGAGED_CURRENT_WORK,
+        };
+    }
+
+    if (
+        dispenser.phase !==
+            SHIP_WEAPON_PHASE.READY ||
+        dispenser.ammo.current <= 0
+    ) {
+        return {
+            state:
+                BRIDGE_PLAYER_SYSTEM_ACTION_STATE
+                    .DISABLED_SYSTEM,
+        };
+    }
+
+    const command =
+        getSingleCommand(
+            availableWeaponsCommands,
+
+            ENCOUNTER_OFFICER_COMMAND_ID
+                .WEAPONS_FIRE_STICKY_MINES,
+
+            'sticky mines',
+        );
+
+    if (command) {
+        return {
+            state:
+                BRIDGE_PLAYER_SYSTEM_ACTION_STATE
+                    .ACTIVE,
+
+            command:
+                mapWeaponsCommand(
+                    command,
                 ),
         };
     }

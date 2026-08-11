@@ -453,6 +453,14 @@ export type BridgePlayerWeaponsStatusUpdatedPayload = {
             };
         };
 
+    stickyMineDispenser?:
+        BridgePlayerWeaponStatusPayload & {
+            ammo: {
+                current: number;
+                max: number;
+            };
+        };
+
     spamProjector?:
         BridgePlayerWeaponStatusPayload;
 };
@@ -518,6 +526,28 @@ export type BridgePlayerShipDashboardUpdatedPayload = {
         // 0..1 elapsed cooldown.
         // Targeting/charging показываются через ENGAGED state,
         // без отдельного progress bar в dashboard.
+        cooldownProgress?: number;
+
+        action: {
+            state:
+                BridgePlayerSystemActionState;
+
+            // Exact engine-resolved command.
+            // Присутствует только у ACTIVE state.
+            command?:
+                BridgeOfficerCommandSelectedPayload;
+        };
+    };
+
+    stickyMineDispenser?: {
+        ammo: {
+            current: number;
+            max: number;
+        };
+
+        // 0..1 elapsed cooldown.
+        // Targeting/dispensing are current Weapons work,
+        // so their progress is intentionally not shown here.
         cooldownProgress?: number;
 
         action: {
