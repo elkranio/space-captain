@@ -2,25 +2,21 @@
 
 Living architecture map for the encounter-heavy part of Space Captain.
 
-Read this file before changing encounter state ownership, combat step order,
-engine/app transport, enemy policy or persistence synchronization.
-
-This file describes:
-
-- authoritative mutable state;
-- subsystem ownership;
-- execution order;
-- transport rules;
-- expected change paths;
-- architectural warning signs.
-
-It does not contain gameplay balance or implementation backlog.
-
 Last mapped commit:
 
 ```text
-66c037416f81aa446bbfeb682e16230418aee6b9
+2011518c8d492eb6b7a99d6d2fc79f429e780f30
 ```
+
+Read this file before changing:
+
+- encounter mutable-state ownership;
+- combat step order;
+- command availability/execution;
+- engine-to-app snapshot transport;
+- bridge UI/controller boundaries;
+- enemy policy;
+- persistence synchronization.
 
 ---
 
@@ -30,555 +26,546 @@ Last mapped commit:
 src/engine
 ```
 
-Owns gameplay/domain state, rules, content, factories and headless simulation.
+Owns gameplay/domain state, rules, content and headless simulation.
 
 ```text
 src/app
 ```
 
-Owns Phaser scenes, views, controllers, presentation events and persistence
-integration with `GameRuntime`.
+Owns Phaser scenes, views, bridge-local input, read-model mapping,
+presentation events and persistence integration.
 
 Hard rules:
 
-- engine code does not import Phaser;
-- scenes are containers, not rule owners;
-- views consume prepared payloads and do not read `GAME_RUNTIME` directly;
-- one mutable value has one authoritative owner;
-- events describe facts and do not become a second mutable state;
-- snapshots/read models are derived projections;
-- generic frameworks are rejected unless current code is simpler after them.
+- engine does not import Phaser;
+- views do not read `GAME_RUNTIME` directly;
+- scenes are containers, not gameplay-rule owners;
+- one mutable datum has one authoritative domain owner;
+- events are facts, not a second mutable state;
+- app snapshots/read models are detached projections;
+- UI never reimplements command availability.
 
 ---
 
-# 2. Runtime ownership matrix
+# 2. Encounter composition
 
-| Datum | Authoritative state during encounter | Main mutator | Persistent after encounter | Presentation |
-|---|---|---|---|---|
-| Player navigation | `EncounterState.navigation` | `EncounterStateStore` / task completion | yes, synchronized to `GameRuntime` | encounter object movement |
-| Player drive | `EncounterState.drive` | `EncounterStateStore` | yes, synchronized to `GameRuntime` | player ship status |
-| Point-defense charges | `EncounterState.combat.pointDefense` | command/task execution | yes, synchronized to `GameRuntime` | player ship status |
-| Shield-generator state | `EncounterState.combat.shieldGenerator` | shield-generator runner/store | yes, synchronized to `GameRuntime` | player ship status |
-| Player weapon state | `EncounterState.combat.playerWeapons` | owning player weapon-family runner / store | yes, synchronized to `GameRuntime` | player weapon status |
-| Player hull | `EncounterState.playerHull` | `EncounterStateStore.damagePlayerHull()` | yes, exact result synchronized to `GameRuntime` | player ship status |
-| Enemy encounter actor | `EncounterState.actors` | encounter/combat systems | identity/baseline only | encounter object + telemetry |
-| Enemy hull | ship encounter actor | `EncounterStateStore.damageEnemyActorHull()` | resets from node actor on reconstruction | enemy telemetry |
-| Enemy weapon state | ship encounter actor | owning combat weapon runner | resets from node actor on reconstruction | enemy telemetry |
-| Player/incoming projectiles | `EncounterState.combat.projectiles` | `CombatMissileRunner` | no | missile views |
-| Sticky mines | `EncounterState.combat.stickyMines` | `CombatStickyMineRunner` | no | sticky-mine views |
-| Active laser attacks | `EncounterState.combat.laserAttacks` | `CombatLaserRunner` | no | laser threat/VFX views |
-| Active hostile spam | spam-projector weapon state | `CombatSpamRunner` | no | spam channel snapshots |
-| Player officer tasks | `EncounterState.officerTasks` | `OfficerTaskRunner` / store | only through reconstructed navigation tasks where required | officer activity |
-| Enemy crew tasks | `ShipEncounterActorState.crewTasks` | `EnemyCrewTaskRunner` | no | currently no direct bridge projection |
-| Objective player threat | combat object or player officer task | owning runner | no | outgoing weapon presentation |
-| Enemy observation | `actor.threatObservations` | `EnemyThreatObserver` | no | enemy policy input |
-| Enemy Science report | `observation.report` | `EnemyScienceIntelResolver` through task completion | no | enemy policy input |
-| Enemy policy memory | `actor.decision` | `EnemyDecisionPolicy` | no | none |
+`EncounterEngine` is the public encounter facade/composition root.
 
-Player hull is authoritative inside the encounter and is persisted from the
-applied engine result.
-
-Surviving enemy combat state intentionally resets from its persistent node
-actor when the encounter is reconstructed. Do not add partial enemy-state
-writeback without changing the locked gameplay contract.
-
----
-
-# 3. Encounter composition
-
-`EncounterEngine` is the public façade and composition root.
-
-Current major subsystems:
+Current major composition:
 
 ```text
 EncounterEngine
 ├─ EncounterStateStore
+│  ├─ EncounterActorStore
+│  ├─ EncounterNavigationStore
+│  ├─ PlayerShipStore
+│  └─ OfficerTaskStore
+├─ EncounterSnapshotReader
 ├─ OfficerCommandExecutor
 ├─ OfficerTaskRunner
 ├─ PlayerWeaponRunner
 │  ├─ PlayerMissileLauncherRunner
 │  ├─ PlayerStickyMineDispenserRunner
-│  └─ PlayerLaserRunner
+│  ├─ PlayerLaserRunner
+│  └─ PlayerSpamProjectorRunner
 ├─ CombatRunner
 │  ├─ CombatMissileRunner
 │  ├─ CombatStickyMineRunner
 │  ├─ CombatLaserRunner
 │  ├─ CombatSpamRunner
-│  ├─ CombatRuntimeIdentityFactory
+│  ├─ EnemyPointDefenseRunner
+│  ├─ EnemyTaskScheduler
+│  │  ├─ EnemyDecisionPolicy
+│  │  ├─ EnemyCrewTaskRunner
+│  │  └─ EnemyScienceIntelResolver
 │  ├─ EnemyThreatObserver
-│  └─ EnemyTaskScheduler
-│     ├─ EnemyDecisionPolicy
-│     ├─ EnemyCrewTaskRunner
-│     └─ EnemyScienceIntelResolver
+│  └─ CombatRuntimeIdentityFactory
 ├─ CombatEngagementRunner
 ├─ PlayerShieldRunner
-├─ ShieldGeneratorRunner
-└─ ContactSequenceRunner
+├─ EnemyShieldRunner
+└─ ShieldGeneratorRunner
 ```
 
-`EncounterEngine` may coordinate siblings, but every new sibling callback is a
-warning sign. Before adding one, check whether:
-
-- the operation is a real cross-system orchestration;
-- two systems have accidentally acquired overlapping ownership;
-- the operation belongs in the state store as a shared invariant;
-- an existing domain event or explicit result can carry the information.
-
-Do not introduce a DI container or service locator.
+`EncounterEngine` may coordinate siblings for real cross-system boundaries.
+Do not add sibling callbacks casually.
 
 ---
 
-# 4. Encounter step order
+# 3. Current encounter step order
 
-Current top-level engine order:
+Current top-level order:
 
 ```text
 PlayerShieldRunner
+→ EnemyShieldRunner
 → OfficerTaskRunner
-→ ContactSequenceRunner
 → ShieldGeneratorRunner
 → PlayerWeaponRunner
 → CombatRunner
 → cancel player tasks with missing targets
 ```
 
-Current combat step order:
+Do not change order without focused regression tests.
 
-```text
-capture IDs of combat objects that existed before this step
-→ integrate queued player missile launches
-→ integrate queued player sticky-mine attachments
-→ synchronize enemy observations
-→ advance only pre-existing projectiles
-→ advance only pre-existing sticky mines
-→ synchronize enemy observations again
-→ advance enemy crew tasks and decisions
-→ schedule enemy work
-→ advance enemy weapons
-→ synchronize enemy crew tasks after weapon advancement
-```
-
-Locked lifecycle reason:
-
-- a player launch physically performed by `PlayerWeaponRunner` must exist before
-  an older lethal impact resolves;
-- the new combat object must not receive the current step's `deltaMs`;
-- actor destruction resolves remaining player combat objects as `TARGET_LOST`
-  before actor removal and destruction presentation;
-- iteration uses stable IDs because lethal cleanup may remove several objects.
-
-Any edit to this order requires focused regression tests.
-
-Current readable phase pipeline:
+Current combat conceptual pipeline:
 
 ```text
 capture
-→ integrate
+→ integrate queued player combat objects
 → perceive
-→ resolve existing objects
-→ perceive
-→ decide
-→ execute
-→ finalize
+→ resolve pre-existing combat objects
+→ perceive again
+→ advance enemy crew decisions/tasks
+→ schedule enemy work
+→ advance enemy physical weapon systems
+→ synchronize crew tasks
 ```
 
-`CombatRunner.step()` expresses this order through private phase methods.
-Do not inline the pipeline back into one mixed orchestration block and do not
-introduce another coordinator class.
+Reason for the pre-existing-object rule:
+
+- a newly created object must not consume the current step's whole `deltaMs`;
+- lethal cleanup may remove several objects;
+- target-loss resolution must happen in a deterministic order.
 
 ---
 
-# 5. Enemy cognition and work ownership
+# 4. Combat folder structure
 
-Current information chain:
-
-```text
-objective combat truth
-→ EnemyThreatObserver
-→ EnemyThreatObservationState
-→ enemy Science task
-→ EnemyScienceIntelResolver
-→ EnemyThreatReport
-→ enemy policy
-```
-
-Locked semantic distinctions:
-
-- objective truth is the actual projectile, sticky mine or player officer task;
-- observation means the enemy crew can currently notice the threat;
-- report is the Science conclusion and may be false;
-- the report intentionally contains no reliability flag;
-- policy must not bypass the report to read hidden objective threat details.
-
-Current decision ownership:
-
-- `EnemyDecisionPolicy.selectWork(actor, role)` selects one `EnemyWorkIntent`;
-- policy owns Science-identification priority, weapon round-robin and offensive
-  delays;
-- `EnemyTaskScheduler` validates and starts the selected intent;
-- scheduler does not search observations or select weapons independently.
+Current grouped structure:
 
 ```text
-EnemyDecisionPolicy selects EnemyWorkIntent
-→ EnemyTaskScheduler validates and executes the intent
-→ EnemyCrewTaskRunner owns task lifecycle
-→ physical subsystem owns weapon/effect lifecycle
+src/engine/encounter/combat/
+├─ CombatRunner.ts
+├─ CombatEngagementRunner.ts
+├─ CombatRuntimeIdentityFactory.ts
+├─ enemy/
+│  ├─ EnemyTaskScheduler.ts
+│  ├─ EnemyDecisionPolicy.ts
+│  ├─ EnemyCrewTaskRunner.ts
+│  └─ intel/
+│     ├─ EnemyThreatObserver.ts
+│     └─ EnemyScienceIntelResolver.ts
+├─ weapons/
+│  ├─ PlayerWeaponRunner.ts
+│  ├─ laser/
+│  │  ├─ CombatLaserRunner.ts
+│  │  └─ PlayerLaserRunner.ts
+│  ├─ missile/
+│  │  ├─ CombatMissileRunner.ts
+│  │  └─ PlayerMissileLauncherRunner.ts
+│  ├─ spam/
+│  │  ├─ CombatSpamRunner.ts
+│  │  └─ PlayerSpamProjectorRunner.ts
+│  └─ sticky_mine/
+│     ├─ CombatStickyMineRunner.ts
+│     └─ PlayerStickyMineDispenserRunner.ts
+├─ shield/
+│  ├─ PlayerShieldRunner.ts
+│  ├─ EnemyShieldRunner.ts
+│  └─ ShieldGeneratorRunner.ts
+├─ point_defense/
+│  ├─ EnemyPointDefenseRunner.ts
+│  └─ resolve_enemy_point_defense_beam_band.ts
+└─ queries/
 ```
 
-Policy decides **what work should be attempted**.
-Scheduler decides **whether and how that intent can be physically started**.
+This was a structural cleanup.
+Do not invent a second combat manager/facade.
 
-Do not build a generic planner, behavior tree or utility-AI framework.
+---
+
+# 5. EncounterStateStore ownership
+
+`EncounterStateStore` remains the public mutable-state boundary.
+
+It is now a facade over focused mutation groups:
+
+```text
+state/
+├─ EncounterStateStore.ts
+├─ create_encounter_state.ts
+├─ actors/
+│  └─ EncounterActorStore.ts
+├─ navigation/
+│  └─ EncounterNavigationStore.ts
+├─ player/
+│  └─ PlayerShipStore.ts
+└─ officer_tasks/
+   └─ OfficerTaskStore.ts
+```
+
+Responsibilities:
+
+```text
+EncounterActorStore
+→ actor lookup/spawn/remove/team/hull/opening pulse
+
+EncounterNavigationStore
+→ arrival/travel/jump-point mutations
+→ combat-zone cleanup when leaving anchor
+
+PlayerShipStore
+→ player hull/drive
+→ player weapons
+→ threat identification
+→ shield/PD mutations
+
+OfficerTaskStore
+→ player officer-task storage/progress
+```
+
+Runners may still mutate their owned concrete state where appropriate.
+Do not force every mutation through a giant store API.
 
 ---
 
 # 6. Weapon lifecycle ownership
 
-`PlayerWeaponRunner` owns the shared cooldown phase and player-weapon execution
-order:
+Shared player order:
 
 ```text
-advance cooldowns for every installed weapon
-→ dispatch the active Weapons officer task
+PlayerWeaponRunner
+→ advance cooldowns for all installed player weapons
+→ resolve current Science spam task
+→ resolve current Weapons task
 ```
 
-Concrete player weapon-family runners own their active installed-system
-lifecycles:
+Concrete owners:
 
 ```text
 PlayerMissileLauncherRunner
-→ targeting / ammo consumption / physical launch
+→ player missile targeting / ammo / launch
 
 PlayerStickyMineDispenserRunner
-→ salvo timing / ammo consumption / physical attach
+→ player mine salvo / ammo / attach
 
 PlayerLaserRunner
-→ targeting / charging / shield or hull resolution / destruction
+→ player laser targeting / charge / enemy shield-hull result
+
+PlayerSpamProjectorRunner
+→ Science targeting / 20s channel / cooldown / purge termination
 ```
 
-Officer performance is resolved through one shared `OfficerPerformanceResolver`
-owned by the player-weapon orchestrator. Do not move family phase rules back
-into `PlayerWeaponRunner` and do not introduce a generic player attack base
-class.
-
-`CombatRunner` owns the locked top-level combat phase order. Concrete runners
-own complete attack-family lifecycles when a clean boundary exists.
-
-The complete missile-object lifecycle belongs to `CombatMissileRunner`:
+Enemy/incoming physical owners:
 
 ```text
-queued player launch
-→ enemy launcher targeting / launch / cooldown
-→ player/enemy projectile creation
-→ flight
-→ impact or target loss
-→ actor-target cleanup
+CombatMissileRunner
+→ missile object lifecycle + enemy missile launcher lifecycle
+
+CombatStickyMineRunner
+→ mine lifecycle + enemy dispenser lifecycle
+
+CombatLaserRunner
+→ incoming enemy laser lifecycle
+
+CombatSpamRunner
+→ hostile enemy spam lifecycle
+
+EnemyPointDefenseRunner
+→ enemy PD physical interception
+
+EnemyShieldRunner
+→ enemy active shield lifetime / generator recovery
 ```
 
-`CombatRunner` owns the locked phase order and calls the missile runner through
-that narrow lifecycle API. Enemy launcher phases no longer leak into the
-orchestrator.
-
-The complete sticky-mine lifecycle belongs to `CombatStickyMineRunner`:
-
-```text
-queued player attachment
-→ enemy dispenser targeting / salvo / cooldown
-→ active fuse
-→ detonation or target loss
-→ actor-target cleanup
-```
-
-Unlike missiles, the enemy dispenser's weapon phases are also owned by its
-concrete runner. `CombatRunner` only dispatches the dispenser during the shared
-weapon phase.
-
-The complete incoming-laser lifecycle belongs to `CombatLaserRunner`:
-
-```text
-enemy targeting
-→ charge + active threat
-→ matching-shield block or player-hull hit
-→ damage interruption
-→ cooldown
-```
-
-Player laser execution belongs to `PlayerLaserRunner`. `CombatRunner` only
-dispatches enemy lasers during the shared weapon phase.
-
-The complete hostile-spam lifecycle belongs to `CombatSpamRunner`:
-
-```text
-enemy targeting
-→ channel start + active channel
-→ expiry or player purge
-→ cooldown
-```
-
-`CombatRunner` only dispatches spam advancement. A successful player purge is
-followed there by explicit enemy-task synchronization because that is
-cross-system orchestration, not spam lifecycle ownership.
-
-Transient combat IDs and the shared mixed threat-designation sequence
-(`M1, L2, M3...`) belong to one encounter-local
-`CombatRuntimeIdentityFactory` instance.
-
-Officer/crew tasks describe operator occupation and selected targets. Cooldowns
-do not occupy the operator.
-
-The shared domain query is:
-
-```text
-doesShipWeaponPhaseRequireOperator(phase)
-```
-
-Do not duplicate the list of active operator-controlled phases in another
-runner, scheduler or command rule.
-
-Current rule:
-
-```text
-TARGETING / CHARGING / CHANNELING / DISPENSING
-→ operator remains occupied
-
-COOLDOWN / READY
-→ operator is free
-```
-
-A weapon family may receive its own runner only when that split makes the
-current lifecycle smaller and leaves a narrow public contract.
-
-Physical player-weapon commands use the resolved target:
-
-```text
-ACTOR_WEAPON
-├─ weaponId — installed runtime weapon instance
-└─ actorId  — enemy target
-```
-
-Availability emits one command per ready physical weapon instance.
-`OfficerCommandExecutor` validates the exact `weaponId + actorId` pair.
-Command handlers execute that exact weapon instance and must not search again
-for the first ready launcher/dispenser.
+Do not replace concrete family runners with a generic attack framework.
 
 ---
 
-# 7. Engine-to-app transport
+# 7. Crew performance
 
-Use one transport purpose per datum.
+`CrewPerformanceResolver` is the single current source of crew task progress
+multipliers.
 
-## Domain events
-
-Use events for:
-
-- identity creation/removal;
-- completed actions and outcomes;
-- one-shot VFX;
-- state transitions requiring persistence side effects;
-- cinematic or scene-flow requests.
-
-Examples:
+Current spam rule:
 
 ```text
-missile launched
-sticky mine resolved
-laser fired
-enemy destroyed
-officer task started/ended
+active spam effect
+→ target crew progress multiplier reduced
+
+multiple same-family slowdowns
+→ strongest slowdown wins
 ```
 
-## Snapshots/read models
+World clocks such as an already-active player spam channel continue in world
+time; crew-operated targeting/task progress uses crew-adjusted delta.
 
-Use snapshots for continuously changing state:
-
-- remaining impact/fuse/charge time;
-- current telemetry;
-- current shield duration;
-- current weapon status;
-- current command availability.
-
-App-side collection and bridge delivery of continuously changing encounter
-read models is owned by:
-
-```text
-BridgeEncounterSnapshotSynchronizer
-```
-
-It may map engine read models to bridge payloads and emit complete snapshot
-updates. It does not own domain decisions, navigation lifecycle or event
-translation.
-
-All app-facing reads from one encounter are owned by:
-
-```text
-EncounterSnapshotReader
-```
-
-The reader is bound to the authoritative `EncounterState`, but owns no state
-and caches nothing. Every public read recursively detaches its result before it
-crosses the engine boundary.
-
-The encounter outbox applies the same detached-snapshot rule at `emit` time.
-Event producers may pass their current domain object; queued events never keep
-mutable references to encounter state. `ENCOUNTER_LOADED` is therefore a real
-initial snapshot and must not be used as a mutation handle.
-
-Headless tests that intentionally arrange mid-encounter state use the single
-test-only `getMutableEncounterStateForTest` white-box helper. Runtime code must
-never copy that pattern.
-
-## Persistence synchronization
-
-Event-driven persistence is owned by:
-
-```text
-BridgeEncounterRuntimeSynchronizer
-```
-
-For each encounter event, the app order is:
-
-```text
-EncounterEvent
-→ synchronize persistent GameRuntime state
-→ translate presentation / scene-flow effects
-```
-
-`BridgeEncounterEngineEventHandler` owns bridge presentation and scene flow but
-must not call `GameRuntime` mutation methods directly.
-
-Snapshot-based player-weapon persistence is owned by
-`BridgeEncounterSnapshotSynchronizer`, next to the matching bridge-status
-projection. Navigation synchronization remains explicit in
-`BridgeEncounterController` at lifecycle boundaries and must not be folded into
-per-frame snapshot transport.
-
-## Bridge events
-
-Bridge events are app-layer delivery messages to views/controllers.
-They are not domain truth and must not be read back as gameplay state.
-
-A new feature should not use both a domain event and snapshot for the same
-purpose. It may use:
-
-```text
-event for add/remove/VFX
-+
-snapshot for continuous current values
-```
+Do not apply crew effects ad hoc inside individual unrelated runners.
 
 ---
 
-# 8. Expected change paths
+# 8. Enemy behavior ownership
 
-## New enemy defensive response
+Information path:
 
 ```text
-gameplay contract
-→ observation/report requirements
-→ EnemyWorkIntent
-→ policy selection
-→ scheduler validation/start
-→ enemy crew task lifecycle
-→ physical resolver
-→ event/snapshot projection
-→ tests
+objective threat
+→ EnemyThreatObserver
+→ actor-local observation
+→ enemy Science task
+→ EnemyScienceIntelResolver
+→ report
+→ EnemyDecisionPolicy
 ```
 
-## New player weapon
+Policy chooses work.
+
+Scheduler validates/starts it.
+
+Crew task runner owns operator occupation/lifecycle.
+
+Physical subsystem owns the actual effect.
+
+Current intent kinds:
+
+- purge player spam;
+- identify threat;
+- operate offensive weapon;
+- intercept missile;
+- deploy shield;
+- clear sticky mine.
+
+Current work roles:
 
 ```text
-definition/state
-→ command availability/execution
-→ player officer task
-→ concrete player weapon-family lifecycle
-→ combat object or direct effect
-→ authoritative mutation
-→ engine event/snapshot
-→ persistence sync
-→ bridge presentation
-→ tests
+WEAPONS
+SCIENCE
+ENGINEER
 ```
 
-## New continuous bridge telemetry
+Mine clearing may also assign HELM through the dedicated mine-clearing priority.
+
+Do not build a behavior tree or generic utility AI.
+
+---
+
+# 9. Engine-to-app read boundary
+
+`EncounterSnapshotReader`:
+
+- binds to authoritative encounter state;
+- caches nothing;
+- returns recursively detached results.
+
+Important public reads:
+
+- navigation;
+- drive;
+- player hull;
+- available commands;
+- officer availability;
+- officer tasks;
+- player weapon states;
+- enemy telemetry;
+- incoming/outgoing missiles;
+- sticky mines;
+- laser threats;
+- active shields;
+- enemy debug.
+
+Dashboard code should consume prepared app read models, not reach into engine
+state directly from Phaser views.
+
+---
+
+# 10. Bridge controller/view composition
+
+Current bridge root:
 
 ```text
-engine query/read model
-→ app mapper
-→ bridge update payload
-→ view
+BridgeController
+├─ BridgeView
+└─ BridgeEncounterController
 ```
 
-## New one-shot bridge effect
+Current `BridgeView` composition:
 
 ```text
-engine event
-→ bridge event translation
-→ view/VFX
+BridgeView
+├─ BridgeSpaceView
+├─ BridgeCombatView
+├─ BridgeInteriorView
+├─ BridgeOfficerStationsView
+├─ BridgeTargetingWarningView
+├─ BridgeUiView
+└─ BridgeOfficerBarksView
+```
+
+`BridgeCombatView` owns combat-only presentation modules and their dependency on
+`BridgeSpaceView` positions.
+
+Current `BridgeUiView` is temporary:
+
+```text
+BridgeUiView
+├─ BridgeShipStatusView
+├─ BridgeEnemyTelemetryView
+├─ optional BridgeEnemyDebugPanelView
+└─ BridgeOfficerContextMenuView
+```
+
+Target dashboard change:
+
+```text
+BridgeUiView
+→ BridgeCaptainDashboardView
+→ focused left/right dashboard subviews as needed
+```
+
+Do not move domain command rules into `BridgeCaptainDashboardView`.
+
+---
+
+# 11. Current command flow
+
+Current role-menu flow:
+
+```text
+station click
+→ OFFICER_STATION_CLICKED
+→ BridgeEncounterController
+→ BridgeOfficerCommandMenuController.open(role)
+→ EncounterEngine.getAvailableCommands(role)
+→ OFFICER_COMMAND_MENU_UPDATED
+→ context menu
+→ OFFICER_COMMAND_SELECTED
+→ BridgeEncounterController
+→ EncounterEngine.executeCommand()
+```
+
+Target dashboard flow should preserve the last half:
+
+```text
+dashboard model resolves current engine commands
+→ dashboard action button
+→ OFFICER_COMMAND_SELECTED
+→ BridgeEncounterController
+→ EncounterEngine.executeCommand()
+```
+
+Do not create a second execution API only for dashboard buttons.
+
+Current `getAvailableCommands(role)` rule:
+
+```text
+role has officer task
+→ no commands returned for that role
 ```
 
 ---
 
-# 9. Refactor warning signs
+# 12. Bridge snapshot transport
 
-Stop and inspect architecture when a local feature requires any of these:
+`BridgeEncounterSnapshotSynchronizer` owns continuously changing encounter
+read-model delivery.
 
-- more than five production files across unrelated subsystems;
-- changes to more than two central discriminated-union switches;
-- both polling and events without distinct purposes;
-- another direct `GAME_RUNTIME` mutation inside presentation code;
+Current relevant emissions:
+
+```text
+PLAYER_WEAPONS_STATUS_UPDATED
+ENEMY_SHIP_TELEMETRY_UPDATED
+INCOMING_MISSILES_UPDATED
+OUTGOING_MISSILES_UPDATED
+OUTGOING_STICKY_MINES_UPDATED
+STICKY_MINES_UPDATED
+LASER_THREATS_UPDATED
+PLAYER_SHIELD_UPDATED
+ENEMY_SHIELDS_UPDATED
+```
+
+It also persists player weapon snapshots into `GameRuntime`.
+
+Navigation persistence remains explicit at lifecycle boundaries in
+`BridgeEncounterController`.
+
+Do not fold all persistence into a broad per-frame sync.
+
+---
+
+# 13. Known dashboard transport gaps
+
+Current player weapon bridge payload includes:
+
+- laser;
+- missile launcher;
+- spam projector.
+
+It does not include the player sticky-mine dispenser.
+
+The new left panel needs all installed current tools.
+Fix the read model/mapping rather than reading engine state from the view.
+
+Current enemy telemetry exposes:
+
+- actor ID;
+- hull;
+- drive;
+- shield generator;
+- physical weapon kinds/phases.
+
+The desired mockup also contains:
+
+- crew composition;
+- discovered weaknesses/intel.
+
+Those are not yet a final player-facing knowledge contract.
+Do not turn debug/omniscient data into permanent UI semantics accidentally.
+
+---
+
+# 14. Persistence ownership
+
+During encounter, authoritative player mutable state lives in `EncounterState`.
+
+Persistent player values synchronized to `GameRuntime` include:
+
+- navigation;
+- hull;
+- drive;
+- PD;
+- shield generator;
+- installed player weapon state.
+
+Enemy:
+
+- persistent node actor identity/baseline survives;
+- destroyed actor is removed persistently;
+- surviving mutable combat state resets when encounter is reconstructed.
+
+Combat objects remain encounter-local.
+
+---
+
+# 15. Refactor warning signs
+
+Stop and inspect when a dashboard feature requires:
+
+- view reading `GAME_RUNTIME`;
+- view reading raw `EncounterState`;
+- duplicated command availability logic;
+- new dashboard-specific command executor;
+- both polling and snapshots for the same purpose;
 - another sibling callback in `EncounterEngine`;
-- copying the same phase/availability rule into another file;
-- storing objective data again inside an observation/report/view payload;
-- changing combat step order without an ordering regression test;
-- a repair script that touches unrelated cleanup;
-- a mapper or handler becoming responsible for domain decisions.
+- copying weapon phase semantics into UI;
+- one giant dashboard view owning data mapping, input and rendering;
+- generic UI framework built before two contexts actually need it;
+- changing combat step order for presentation convenience.
 
 ---
 
-# 10. Current cleanup sequence
+# 16. Current cleanup status
 
-```text
-1. done — lock gameplay/persistence contracts
-2. done — resolve player-hull and surviving-enemy ownership
-3. done — make EnemyDecisionPolicy the single decision owner
-4. done — centralize crew-controlled weapon-phase semantics
-5. done — expose CombatRunner step phases explicitly
-6. done — separate bridge persistence transport from presentation transport
-7. done — audit again before command-palette implementation
-8. done — extract app snapshot transport from BridgeEncounterController
-9. done — centralize detached engine reads and snapshot cloning
-10. done — extract complete missile-object lifecycle from CombatRunner
-11. done — extract complete sticky-mine lifecycle from CombatRunner
-12. done — extract the incoming-laser lifecycle from CombatRunner
-13. done — extract the complete spam-projector lifecycle
-14. done — extract concrete player weapon-family lifecycles
-```
+Completed:
 
-Audit result: physical launchers/dispensers now keep stable command identity
-through availability, validation and execution. No further architecture
-refactor is required before replacing the old command menu with the complete
-command-palette interaction flow.
+- bridge combat presentation composition extraction;
+- combat folder grouping;
+- player weapon-family runner extraction;
+- enemy behavior/defense vertical slices;
+- unified crew-progress slowdown model;
+- app snapshot transport extraction;
+- detached snapshot boundary;
+- `EncounterStateStore` decomposition.
 
-The snapshot cleanup removed duplicated transport and unsafe mutable references
-without changing gameplay ownership or step order. The following size audit
-found two justified lifecycle splits: missiles belong to
-`CombatMissileRunner`, while dispenser phases and active mines belong to
-`CombatStickyMineRunner`, incoming lasers belong to `CombatLaserRunner`, and
-hostile spam belongs to `CombatSpamRunner`. Enemy missile-launcher phases were
-also moved into `CombatMissileRunner` after the shared phase helpers stopped
-serving another family. `CombatRunner` is now the locked order/orchestration
-owner; do not generalize the concrete lifecycles behind an abstract attack
-framework. `PlayerWeaponRunner` is now the shared cooldown/order owner; active
-missile-launcher, sticky-mine-dispenser and laser rules belong to their three
-concrete player runners.
+No architecture cleanup is required before starting the captain dashboard.
 
-Small adjacent cleanups are allowed when they:
-
-- remove duplicated semantics;
-- shorten a transport;
-- clarify ownership;
-- reduce branching;
-- strengthen an invariant;
-- remain behavior-preserving and locally testable.
-
-Do not expand an atom only for naming/style consistency.
+Dashboard work should be a product/UX slice, not another architecture audit.

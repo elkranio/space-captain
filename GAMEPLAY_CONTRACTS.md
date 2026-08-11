@@ -3,218 +3,179 @@
 Stable gameplay and information rules for the encounter-heavy part of
 Space Captain.
 
-This file records design contracts, not current implementation status.
-Implementation checkpoints belong in `PROJECT_CONTEXT.md`.
-Deferred work belongs in `BACKLOG.md`.
-Architecture and ownership belong in `SYSTEM_MAP.md`.
-
-Last reviewed against:
+Last reviewed:
 
 ```text
-29003f681c1c8ba0498cdb4d3edb5ed9f9a1eac5
+2026-08-11
 ```
 
-Contract labels:
+Labels:
 
 ```text
 LOCKED
 ```
 
-Do not change during implementation without explicit design discussion.
+Implementation must follow unless design is explicitly reopened.
 
 ```text
-UNRESOLVED
+CURRENT BASELINE
 ```
 
-A decision is required before code relies on one interpretation.
+Implemented prototype behavior that may still be tuned.
+
+```text
+PROPOSED
+```
+
+Design direction under active discussion; do not treat as implemented.
 
 ---
 
-# 1. Core encounter language — LOCKED
+# 1. Core encounter language — LOCKED DIRECTION
+
+The player should interact with the current problem/opportunity first, not with
+an officer menu first.
 
 ```text
-enemy telegraphs a threat
-→ player gathers information
-→ player assigns a limited officer/system
-→ player chooses an exact response or accepts risk
-→ result is shown clearly on the bridge
+situation / system / encounter object
+→ visible response choices
+→ choice shows responsible officer
+→ officer becomes occupied
+→ physical result appears on bridge
 ```
 
-Combat is:
+Combat depth should come from:
 
-- real-time and decision-driven;
-- sparse and readable;
-- centered on officer allocation;
-- mechanically simpler than a tactical simulator;
-- built around overlapping responsibilities and limited resources.
+- officer contention;
+- incomplete information;
+- task commitment;
+- limited resources;
+- timing;
+- multiple acceptable responses.
 
-Combat is not:
-
-- bullet hell;
-- RTS;
-- a spreadsheet;
-- a menu that only matches identical words;
-- a generic simulation framework.
-
-The default encounter contains one command-capable enemy ship.
+Combat must not require a new player to memorize a hidden table of officer
+responsibilities before basic play is possible.
 
 ---
 
 # 2. State lifetime — LOCKED
 
-Temporary combat objects are encounter-local:
+Encounter-local:
 
 - flying missiles;
 - active laser attacks;
 - sticky mines;
 - directional shields;
 - spam channels;
-- temporary presentation effects.
+- enemy crew tasks;
+- threat observations/reports;
+- temporary combat policy memory.
 
-```text
-leave/reconstruct encounter
-→ temporary combat objects disappear
-```
-
-Persistent player ship systems include:
+Persistent player ship state:
 
 - hull;
 - drive;
-- point-defense charges;
-- shield-generator charges/regeneration;
+- PD charges;
+- shield generator;
 - installed weapon phase/ammunition state;
 - navigation.
 
-Enemy ship identity persists in its node until destroyed.
+Enemy identity persists in the node until destroyed.
 
 ---
 
 # 3. Surviving enemy persistence — LOCKED RESET
 
-A surviving enemy resets when its encounter is reconstructed.
+A surviving enemy is reconstructed from its persistent node baseline when the
+encounter is reconstructed.
 
-```text
-leave encounter and return
-→ hydrate enemy again from persistent node actor
-→ restore encounter hull, ammunition and system state
-```
+Reset includes encounter-local:
 
-The persistent node actor keeps identity and baseline loadout, but non-lethal
-encounter damage and resource spending are not written back.
-
-Reset includes:
-
-- hull;
-- weapon ammunition and phases;
-- drive and shield-generator encounter state;
+- hull damage;
+- weapon ammunition/phases;
+- shield/drive mutable encounter state;
 - crew tasks;
-- threat observations and Science reports;
-- captain-policy runtime memory;
-- opening-action usage;
+- observations/reports;
+- policy memory;
 - temporary combat objects.
 
-A destroyed enemy is removed from the persistent node and does not return.
+Destroyed enemy actors are removed persistently and do not return.
 
-Player hull, ammunition, charges and navigation remain persistent.
-
-This rule intentionally prevents hit-and-run repair loops against durable
-targets. A future retreat/repair mechanic must be explicit gameplay and must
-not arise from accidental partial synchronization.
+Player spent resources remain persistent.
 
 ---
 
 # 4. Player hull ownership — LOCKED
 
-Incoming damage is a gameplay-domain result.
-
-The engine must determine:
-
-- applied damage;
-- remaining player hull;
-- player destruction.
-
-The app layer may persist and present that result, but must not own hull damage
-rules or decide destruction from a raw damage event.
-
-Current contract:
+Incoming hull damage is a domain result.
 
 ```text
-incoming impact
-→ engine mutates encounter player hull
+combat resolver
+→ engine mutates EncounterState.playerHull
 → engine emits applied result
-→ persistence sync copies hull to GameRuntime
-→ app presents damage / requests end scene on destroyed result
+→ app persists exact result
+→ view presents it
 ```
+
+The app does not calculate damage or destruction.
 
 ---
 
 # 5. Officer occupation — LOCKED
 
-Officer tasks represent work that requires an officer.
+Officer tasks represent work requiring a crew member.
 
-Weapon cooldown is autonomous and does not occupy the officer.
-
-For weapon operations:
+Current weapon phase semantics:
 
 ```text
-TARGETING / CHARGING / CHANNELING / DISPENSING
+TARGETING
+CHARGING
+CHANNELING
+DISPENSING
 → operator occupied
 
-COOLDOWN / READY
+COOLDOWN
+READY
 → operator free
 ```
 
-Manual cancellation and damage interruption remain task-specific.
-
-No cancellation may create free ammunition, free charges or skipped cooldown.
+Cancellation cannot refund a resource that was already intentionally spent.
 
 ---
 
 # 6. Player missile offense — LOCKED
 
 ```text
-READY launcher + ammo + live target
-→ FIRE MISSILE
-→ Weapons aims
-→ launch spends one missile
-→ Weapons becomes free
+ready physical launcher + ammo + live target
+→ Weapons targets
+→ physical launch spends missile
+→ Weapons becomes free after launch
 → launcher cooldown proceeds autonomously
-→ missile flies independently
+→ projectile resolves independently
 ```
 
 Rules:
 
-- each ready physical launcher is a separate command identified by its runtime
-  `weaponId`;
-- execution uses the selected launcher and never re-selects another ready one;
-- cancellation before launch spends no ammunition;
-- target loss before launch resets without spending ammunition;
-- target loss after launch resolves the projectile without damage;
+- each physical launcher has stable runtime `weaponId`;
+- selected launcher is preserved through execution;
 - enemy shields do not block missiles;
-- enemy point defense is the intended missile counter;
-- flying projectiles do not persist outside the encounter.
+- enemy point defense is the missile counter;
+- projectile is encounter-local.
 
 ---
 
 # 7. Player laser offense — LOCKED
 
 ```text
-READY laser + live target
-→ choose LEFT / CENTER / RIGHT
+ready laser + target + chosen sector
 → Weapons targets
 → laser charges
-→ enemy shield may absorb
+→ matching enemy shield may block
 → otherwise enemy hull takes damage
 → cooldown
 ```
 
-Rules:
-
-- laser shield interaction is zone-based;
-- a matching enemy shield consumes a charge and blocks the shot;
-- missiles and sticky mines do not use this shield interaction;
-- target loss or interruption follows the task/weapon lifecycle contract;
-- cooldown does not occupy Weapons.
+Directional shield interaction applies to laser only.
 
 ---
 
@@ -222,213 +183,342 @@ Rules:
 
 One command launches one salvo of separate mines.
 
-Starter baseline:
+Current starter baseline:
 
 ```text
 capacity: 6
-salvo size: 3
-launch interval: 1000 ms
+salvo: 3
+interval: 1000 ms
 cooldown: 15000 ms
-mine fuse: 7500 ms
-mine damage: 1
+fuse: 7500 ms
+damage: 1 each
 ```
 
 Rules:
 
-- each ready physical dispenser is a separate command identified by its runtime
-  `weaponId`;
-- execution uses the selected dispenser and never re-selects another ready one;
-- each mine has its own fuse and damage;
-- damage is cumulative;
-- each mine is spent at physical launch;
-- a partial final salvo is allowed;
-- first mine launches on the first weapon step, including `step(0)`;
-- Weapons remains occupied until the final actual launch;
-- task is not manually cancellable;
-- incoming damage may interrupt the task;
+- each launched mine spends ammunition;
+- partial final salvo is allowed;
 - attached mines continue after interruption;
-- unlaunched ammunition is preserved;
-- interruption/target loss before first launch returns the dispenser to READY;
-- interruption/target loss after any launch starts cooldown;
-- cooldown begins after the final actually launched mine;
-- no separate flight-domain object exists in V0;
-- presentation may show a brief throw/flight;
-- each mine immediately becomes attached in the domain and starts its fuse;
-- enemy shields do not block sticky mines.
-
-At zero ammunition:
-
-```text
-domain phase = READY
-presentation status = EMPTY
-```
-
-There is no domain `EMPTY` phase.
+- enemy shield does not block mines;
+- enemy crew may clear player mines.
 
 ---
 
-# 9. Player defense — LOCKED
+# 9. Player spam offense — CURRENT LOCKED BASELINE
+
+Player spam projector is operated by:
+
+```text
+SCIENCE
+```
+
+Current content:
+
+```text
+targeting: shared 3000 ms
+channel: 20000 ms
+target crew progress multiplier: 0.5
+cooldown: 15000 ms
+```
+
+Current behavior:
+
+```text
+Science starts spam
+→ targeting uses crew-adjusted progress
+→ channel becomes active
+→ Science remains occupied through channel
+→ target enemy crew work is slowed
+→ enemy Science may purge
+→ channel expires or is purged
+→ projector cooldown
+```
+
+The active channel's physical lifetime advances in world time.
+
+Spam is a deliberate commitment: the player gives up Science availability for a
+large enemy-crew debuff window.
+
+---
+
+# 10. Player defense — LOCKED CURRENT SYSTEMS
 
 ## Point defense
 
-- Weapons selects the beam band;
+- Weapons operates it;
+- finite charges;
+- beam band is selected;
 - charge is spent when aiming begins;
-- cancellation, interruption or target loss does not refund the charge;
-- only incoming actor-sourced missiles are valid targets;
-- point defense does not clear sticky mines or block lasers.
+- successful matching result can remove incoming missile;
+- does not block laser or clear mine.
 
 ## Directional shield
 
-- Engineer selects LEFT / CENTER / RIGHT;
-- matching enemy laser zone is blocked;
-- deployment is temporary;
-- shield charges regenerate according to generator rules;
-- the same shield system does not intercept missiles or sticky mines.
+- Engineer deploys LEFT/CENTER/RIGHT;
+- matching incoming laser zone is blocked;
+- shield is temporary;
+- generator charges/regeneration follow generator rules;
+- shield does not block missiles/mines.
 
 ## Sticky-mine clearing
 
-- any allowed officer may clear a mine;
-- clear command targets the mine nearest detonation;
-- the intended pressure is cycling through available officers;
-- clearing an enemy-attached outgoing mine is not a player command.
+Allowed officer roles may clear mines.
+The intended pressure is officer allocation, not click speed.
+
+## Drive repair
+
+Engineer repairs disabled main drive.
 
 ---
 
-# 10. Enemy information model — LOCKED
+# 11. Enemy information model — LOCKED
 
-The enemy captain/policy does not receive unrestricted combat truth.
+Enemy policy does not receive unrestricted objective combat truth.
 
 ```text
-objective threat
+objective player threat
 → observation
 → Science work
 → report
-→ policy decision
+→ policy
 ```
 
-Definitions:
-
-- objective threat: real projectile, attached mine or charging player weapon;
-- observation: the enemy crew can currently notice it;
-- report: Science interpretation used by policy.
-
-Rules:
-
-- observation stores stable references, not duplicated hidden parameters;
-- Science reports may be false;
-- false reports contain no reliability flag;
-- policy must treat a report as the available truth;
-- sticky mines may be directly observable without Science classification when
-  the response does not require hidden type information;
-- missing Science or busy Science can delay information and defense;
-- policy may react only through crew roles and physically available systems.
+Reports may be wrong.
+Reports contain no reliability flag.
+Policy must behave using the available report.
 
 ---
 
-# 11. Enemy work ownership — LOCKED
-
-The enemy captain policy chooses work.
-
-The scheduler does not invent strategic priorities.
-
-Current grammar:
+# 12. Enemy work ownership — LOCKED
 
 ```text
-policy selects intent
-→ scheduler validates/starts it
-→ crew-task runner owns operator lifecycle
-→ weapon/effect runner owns physical lifecycle
+EnemyDecisionPolicy
+→ selects work intent
+
+EnemyTaskScheduler
+→ validates / physically starts intent
+
+EnemyCrewTaskRunner
+→ owns crew occupation/task lifecycle
+
+physical combat subsystem
+→ owns actual effect
 ```
 
-Different behavior presets may change priorities and timing without replacing
-this ownership chain.
-
-Do not implement a behavior tree, utility-AI framework or omniscient scripted
-reaction layer for Combat 1.0.
+No behavior-tree or generic utility-AI framework for the current prototype.
 
 ---
 
-# 12. Enemy offensive behavior — CURRENT LOCKED BASELINE
+# 13. Enemy defensive behavior — CURRENT BASELINE
 
-Current prototype uses abstract crew roles:
+Implemented intents include:
 
-- WEAPONS serializes missile, laser and sticky-mine attacks;
-- SCIENCE may independently operate systems assigned to Science;
-- unavailable roles cannot perform their work;
-- cooldown does not keep a role occupied;
-- a short role-specific delay may follow completed offensive work.
+- missile interception;
+- directional shield deployment;
+- sticky-mine clearing;
+- player spam purge;
+- threat identification;
+- normal offensive weapon operation.
 
-The deterministic offensive rotation is a prototype baseline, not the final
-defensive policy grammar.
+Current details:
+
+## Point defense
+
+- Weapons operates enemy PD;
+- requires installed ready PD and charges;
+- current first behavior pass chooses RED/BLUE beam blindly/randomly;
+- physical PD runner does not correct the policy choice.
+
+## Directional shield
+
+- Engineer uses Science report for player laser target zone;
+- deployment is timing-aware so the shield is not always raised immediately;
+- no valid report / no charge / wrong timing / busy Engineer can prevent defense.
+
+## Sticky-mine clearing
+
+- mines attached by player may be cleared;
+- earliest detonation is prioritized;
+- current role priority is:
+
+```text
+ENGINEER
+SCIENCE
+HELM
+WEAPONS
+```
+
+## Player spam purge
+
+Idle enemy Science prioritizes purging active player spam before identification
+or offensive spam operation.
+
+These are prototype priorities, not final enemy personality.
 
 ---
 
-# 13. Enemy destruction — LOCKED
+# 14. Enemy destruction — LOCKED
 
 ```text
 enemy hull reaches zero
-→ remaining player attacks targeting it resolve as TARGET_LOST
-→ enemy actor is removed from encounter state
-→ enemy actor is removed from persistent node state
-→ enemy active tasks/weapons stop
-→ destruction presentation runs
+→ remaining player attacks targeting it resolve target-loss as required
+→ encounter actor removed
+→ persistent node actor removed
+→ active enemy tasks/systems stop
+→ destruction presentation
 → encounter continues
 ```
 
 Already launched enemy missiles continue.
+Already attached enemy mines on the player continue.
 
-Already attached enemy sticky mines on the player continue.
-
-Enemy destruction does not automatically end the encounter or move the player
-to another scene.
+Destruction does not automatically end the encounter.
 
 ---
 
-# 14. Bridge command UI direction — LOCKED
+# 15. Captain dashboard interaction — LOCKED DIRECTION
 
-The final command interaction should minimize search and reading during combat.
-
-Rules:
-
-- officer station shows current task and actionable status signals;
-- commands live in a fixed-position icon palette;
-- unavailable commands remain in place and become disabled;
-- direct commands use one click;
-- a second compact choice screen appears only for real choices;
-- hover/focus explanation belongs in one dedicated subtitle strip;
-- station, command palette, subtitle strip and viewscreen must not duplicate the
-  same information.
-
-Information ownership:
+Normal gameplay interaction should move toward:
 
 ```text
-station
-→ signal and current task
-
-command palette
-→ action and availability
-
-subtitle strip
-→ explanation
-
-viewscreen/captain desk
-→ threat and ship state
+captain dashboard
+→ contextual object/system/threat
+→ action icon + officer role
+→ one click where there is no real subchoice
 ```
 
-The existing text menu is temporary and should not receive a deep incremental
-redesign before the command-palette pass.
+Dashboard geography:
+
+```text
+LEFT
+→ our ship, stable positions
+
+RIGHT
+→ current context, dynamic content
+```
+
+Combat left:
+
+- persistent hull / PD / shield / engine;
+- installed missile / laser / mine / spam systems;
+- system state;
+- direct system actions.
+
+Combat right:
+
+- enemy root context;
+- player-known enemy information;
+- incoming threats;
+- threat response actions.
+
+Normal officer context menus are temporary legacy UI and should be retired after
+the dashboard preserves equivalent functionality.
+
+Officer stations remain important for:
+
+- character presence;
+- work/activity;
+- barks/reactions;
+- task progress;
+- local feedback.
 
 ---
 
-# 15. Design-change rule
+# 16. Dashboard information honesty — LOCKED
 
-A `LOCKED` contract may change only after explicit discussion of:
+A UI mockup may contain conceptual intel placeholders.
+Runtime UI must not reveal domain data merely because the engine internally
+knows it.
+
+In particular:
+
+- final enemy crew knowledge;
+- vulnerabilities;
+- system weaknesses;
+- capability discovery
+
+must have explicit player-facing information rules.
+
+Do not use debug snapshots as permanent captain knowledge.
+
+---
+
+# 17. Global evasive maneuver — PROPOSED
+
+Current preferred direction:
+
+```text
+one global Helm evasive-maneuver task
+```
+
+rather than one evade command per incoming projectile.
+
+Proposed effect:
+
+- Helm occupied for X seconds;
+- mitigates incoming weapon-style threats such as missile/laser;
+- does not directly solve sticky mines or spam;
+- slows player weapon-related task progress while maneuvering;
+- strength/duration may depend on ship/engine/Helm traits.
+
+Open:
+
+- exact damage/accuracy model;
+- exact duration;
+- exact player offensive slowdown;
+- cooldown/recovery;
+- engine-damage interaction.
+
+Do not implement from this text alone; lock numbers and domain representation
+first.
+
+---
+
+# 18. Escape — UNRESOLVED
+
+A full escape/break-contact flow is not implemented.
+
+It must remain easy to access during combat.
+
+Possible UI direction:
+
+- dashboard navigation context/tab;
+- prominent `BREAK CONTACT` action.
+
+Do not bury escape in several role menus.
+
+---
+
+# 19. Dashboard modes/tabs — PROPOSED
+
+Possible modes:
+
+```text
+COMBAT
+NAV
+SHIP / DAMAGE
+```
+
+Possible behavior:
+
+- combat begins → auto-select COMBAT;
+- combat ends → return to NAV;
+- manual switching remains possible.
+
+This is UX direction, not a locked exact tab set.
+
+---
+
+# 20. Design-change rule
+
+Before changing a locked gameplay contract, discuss:
 
 - player-facing reason;
-- affected lifecycle;
+- officer occupation;
+- resource consequences;
+- lifecycle consequences;
+- information/telegraph consequences;
 - persistence consequences;
-- officer occupation consequences;
-- UI/telegraph consequences;
-- required test changes.
+- required tests.
 
-Implementation convenience alone is not a gameplay reason.
+Implementation convenience alone is not enough.

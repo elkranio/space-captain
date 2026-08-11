@@ -1,1200 +1,588 @@
 # Space Captain — Backlog
 
-Deferred implementation work, design debts and reminders.
+Deferred implementation/design work and reminders.
 
-This file is not automatically the active sprint plan.
+Last updated:
 
-An item moves into active implementation only after it is selected explicitly.
+```text
+2026-08-11
+```
 
-Keep items concrete enough that they remain understandable in a future chat.
-
-Last updated: 2026-08-03
+This is not automatically the active sprint.
 
 ---
 
 # 1. Current selected work
 
-Current selected slice:
-
 ```text
-COMBAT STICKY-MINE LIFECYCLE EXTRACTION
+CAPTAIN DASHBOARD
 ```
 
-Bridge V0.1 migration is complete and runtime-accepted:
-
-- Comms/HAIL/request-docking cut;
-- direct Helm `DOCK` at the current station;
-- bridge shell and viewscreen geometry;
-- four modular station/officer views with stable role hit areas;
-- task label and optional progress on station monitors;
-- touch-panel work pulses;
-- mirrored `off / ready / busy / blocked` lights;
-- readable role abbreviations on officer backs;
-- removal of the obsolete old seat presentation and its station assets.
-
-Combat action hints are runtime-accepted for the current V0.1 presentation.
-Text density and a possible future icon replacement remain polish work, not a
-blocker.
-
-Implemented across the two snapshot refactor atoms:
-
-- extracted `BridgeEncounterSnapshotSynchronizer` from
-  `BridgeEncounterController`;
-- centralized app-side collection and mapping of continuously changing combat
-  read models;
-- kept player-weapon snapshot persistence beside its bridge-status projection;
-- kept navigation synchronization in explicit encounter lifecycle methods;
-- preserved frame order: engine step → weapon sync → domain events → combat
-  snapshots → station poll;
-- added a transport-contract test for initial and per-frame snapshot mapping.
-- added state-bound `EncounterSnapshotReader` without cached or duplicate state;
-- centralized recursively detached app-facing engine reads;
-- made encounter outbox detachment an invariant at `emit` time;
-- removed duplicated projectile / mine / laser clone methods;
-- made `ENCOUNTER_LOADED` and nested missile payloads stable snapshots;
-- replaced tests' accidental mutable event dependency with one explicit
-  test-only state handle;
-- preserved gameplay rules, step order and persistence ownership.
-
-Implemented in the previous refactor atom:
-
-- identified `CombatRunner` as the first remaining production god-object;
-- extracted queued player launches, player/enemy projectile creation, flight,
-  impact, target loss and actor-target cleanup into `CombatMissileRunner`;
-- kept enemy launcher targeting/cooldown and the top-level combat phase order in
-  `CombatRunner`;
-- centralized transient combat IDs and the mixed `M1 / L2 / M3` designation
-  sequence in one encounter-local `CombatRuntimeIdentityFactory`;
-- preserved the public `EncounterEngine` API and all gameplay behavior;
-- added a focused identity-sequence regression test.
-
-Implemented in the previous refactor atom:
-
-- extracted queued player attachments, enemy dispenser phases, active fuses,
-  detonation, target loss and actor-target cleanup into
-  `CombatStickyMineRunner`;
-- moved sticky-mine `TARGETING / DISPENSING / COOLDOWN` details out of the
-  shared weapon-phase dispatcher;
-- kept the locked top-level combat step order and public `EncounterEngine` API
-  unchanged;
-- preserved the existing mine contract suites for salvo catch-up, cooldown,
-  interruption, same-step integration and target-loss cleanup.
-
-Implemented in the previous refactor atom:
-
-- extracted enemy laser targeting, charging, threat creation, shield/hull
-  resolution, damage interruption and cooldown into `CombatLaserRunner`;
-- kept player laser execution in `PlayerWeaponRunner`;
-- preserved the shared combat phase order, mixed threat designation sequence
-  and public `EncounterEngine` API;
-- kept all laser timing, shield, damage and interruption contracts unchanged.
-
-Implemented in the previous refactor atom:
-
-- extracted enemy targeting, channel start/timing, expiry, purge and cooldown
-  into `CombatSpamRunner`;
-- moved the now-unshared enemy missile targeting/cooldown phases into
-  `CombatMissileRunner`;
-- reduced `CombatRunner` to locked step order, concrete-family dispatch and
-  explicit cross-system synchronization;
-- preserved spam timing, purge, task-performance and task-cancellation
-  contracts;
-- kept the runners concrete; no generic attack-runner hierarchy was added.
-
-Implemented in the current refactor atom:
-
-- reduced `PlayerWeaponRunner` from a multi-family god object to the shared
-  cooldown-before-task orchestrator;
-- extracted missile targeting, ammo consumption and physical launch
-  into `PlayerMissileLauncherRunner`;
-- extracted sticky-mine salvo timing, ammo consumption and physical attachment
-  into `PlayerStickyMineDispenserRunner`;
-- extracted player laser targeting, charging, shield/hull resolution,
-  and destruction into `PlayerLaserRunner`;
-- preserved player-weapon phase order, officer-performance timing, public
-  `EncounterEngine` API and all existing gameplay contracts;
-- kept the runners concrete; no generic player attack hierarchy was added.
-
-Next gameplay slice:
-
-- return to enemy defensive behavior;
-- first candidate: enemy point defense against a player missile;
-- keep the Engineer directional-shield response as the following slice;
-- do not combine both defenses into one implementation atom.
-
-Accepted combat action-hint contract:
-
-- show hints only during active combat;
-- show hints only when the officer is free;
-- derive hints from commands that are actually available now;
-- display at most two short text lines on the idle monitor;
-- use one centralized fixed-priority table;
-- hide hints when a task starts and restore the latest snapshot when it clears;
-- keep the current command menu unchanged;
-- do not add selected-station treatment in this atom.
-
-Locked V0.1 copy:
+See:
 
 ```text
-SCI
-> ANALYZE THREAT
-> PURGE SPAM
-> CLEAR MINE
-
-ENG
-> REPAIR DRIVE
-> RAISE SHIELD
-> CLEAR MINE
-
-HELM
-> ESCAPE
-> CLEAR MINE
-
-WPN
-> ATTACK ENEMY
-> INTERCEPT MISSILE
-> CLEAR MINE
+CAPTAIN_DASHBOARD_HANDOFF.md
 ```
 
-If more than two actions are available, choose by fixed urgency rather than
-command-menu order. Defensive response to an active threat comes before cleanup,
-repair, offense and escape.
+Immediate work:
 
-After snapshot cleanup, return to enemy behavior and explicitly choose either
-enemy point defense or the enemy Engineer directional-shield response.
-
-`BRIDGE_V01_HANDOFF.md` remains as the completed migration reference.
+- place dashboard against real 1280×720 bridge geometry;
+- implement left persistent player panel first;
+- include missile, laser, mines and spam;
+- expose action-role buttons without duplicating engine command rules;
+- then build right combat context;
+- preserve cancellation/noncombat functionality before removing old menu.
 
 ---
 
-# 2. Near-term combat follow-ups
+# 2. Dashboard implementation follow-ups
 
-## Enemy behavior policy pass — deferred until bridge V0.1 is playable
+## Player weapon read model
 
-Player laser, missile and sticky-mine offense V0 are complete.
+Current bridge weapon payload does not include the player mine dispenser.
 
-The active pass must decide how behavior presets choose work while crew roles remain constrained operators.
+Need dashboard-ready representation for all installed current tools:
 
-Candidate first vertical slices:
+- missile;
+- laser;
+- mine dispenser;
+- spam projector.
 
-- enemy point defense against a player missile;
-- enemy Engineer choosing a directional shield response to a player laser;
-- a clear aggressive-versus-cautious priority difference using existing offense;
-- deliberate failure or delay when the required defensive role is occupied.
+Do not make the view read engine state directly.
 
-The important rule is:
+## Role-action button state
+
+Need clear visual/data states:
+
+- active/clickable;
+- disabled because system unavailable;
+- disabled because officer busy elsewhere;
+- engaged/currently working.
+
+System state and officer state must remain separate concepts.
+
+## Task cancellation
+
+Current officer context menu exposes manual cancellation for cancellable tasks.
+
+Before menu removal:
+
+- design dashboard cancellation affordance;
+- preserve exact existing cancellation eligibility;
+- do not add refunds or new cancellation rules.
+
+## Officer context menu removal
+
+After dashboard replacement is complete:
+
+- remove station-click command menu flow;
+- remove open-menu 200 ms polling;
+- remove obsolete menu view/controller/events;
+- keep only other station interaction if it has a real purpose.
+
+Do not keep two permanent command UIs.
+
+## Station combat hints
+
+Current idle station monitors show combat action hints.
+
+Likely future after dashboard:
+
+- remove/reduce hints;
+- keep task label/progress/activity;
+- use bridge space for character barks/reactions.
+
+Decide only after dashboard runtime test.
+
+---
+
+# 3. Dashboard contexts
+
+## Combat
+
+Active design.
+
+## Navigation
+
+Need a later context for:
+
+- plot course;
+- fly;
+- dock;
+- jump;
+- escape/break contact.
+
+Possible auto-switch:
 
 ```text
-enemy captain = policy
-enemy crew roles = constrained operators
+combat starts → COMBAT
+combat ends   → NAV
 ```
 
-Implementation constraints:
+Exact tab/mode UI not locked.
 
-- keep policy separate from weapon execution;
-- keep role occupancy visible and consequential;
-- do not hardcode a reaction inside player weapon code;
-- do not build a generic utility-AI framework;
-- preserve one command-capable enemy ship as the default combat read.
+## Ship / damage
 
----
+Possible later context if multiple repairable systems justify it.
 
-## Restore enemy SCIENCE / spam in the development encounter
+Avoid a separate damage screen if direct clickable persistent system icons are
+enough.
 
-The development enemy currently removes SCIENCE from local crew roles.
+## Contact / neutral ship / station / anomaly
 
-The Spam Projector remains installed but cannot operate.
-
-Player missile runtime acceptance is complete. Restore SCIENCE when combined combat pressure becomes the selected task.
-
-Then verify combined pressure:
-
-- WEAPONS rotates missile / laser / sticky mines;
-- SCIENCE can channel spam in parallel;
-- player offensive commands compete with defensive work;
-- enemy destruction clears spam and active hostile control state.
-
-Do not rebalance timings before the complete loop can be played.
+Design each from actual content requirements.
+Do not prebuild a generic context framework now.
 
 ---
 
-## Runtime verification of player weapon persistence
+# 4. Global evasive maneuver
 
-Automated tests cover persistent weapon state.
+Proposed, not implemented.
 
-A manual runtime check remains deferred:
+Current direction:
 
-```text
-fire a player weapon
-→ reconstruct or re-enter Bridge during cooldown
-→ weapon must not reset to READY
-```
+- one global Helm task;
+- lasts X seconds;
+- mitigates missile/laser-style incoming pressure;
+- does not solve mines/spam;
+- slows player weapon-related task progress;
+- may scale with Helm traits / engine state.
 
-This is awkward to trigger and does not block the next selected work.
+Need to lock:
 
-Perform it during a broader combat acceptance pass.
+- mitigation model;
+- duration;
+- offensive slowdown;
+- cooldown/recovery;
+- effect of damaged drive;
+- UI engaged state.
 
----
-
-## Player laser TARGETING presentation
-
-Current visible charge presentation begins at `CHARGING`.
-
-The first 3000 ms `TARGETING` phase is communicated mainly through the Weapons task.
-
-Possible improvement:
-
-- subtle mount movement;
-- targeting light;
-- reticle lock;
-- low-intensity pre-charge effect.
-
-Keep this separate from the active enemy behavior pass.
+Do not add maneuvering-thruster persistent state speculatively.
 
 ---
 
-## Player sticky-mine presentation and balance polish
+# 5. Escape flow
 
-Player sticky-mine offense V0 is complete.
+Not implemented.
 
-Deferred presentation work:
+Need:
 
-- tune outgoing mine placement around the enemy sprite;
-- optional launch flash at the player dispenser source;
-- clearer detonation/hull-impact flash;
-- target-lost disappearance effect;
-- final captain-desk ammo/phase display for the dispenser.
+- clear break-contact rule;
+- whether it is Helm/navigation;
+- preparation timing;
+- interruption/pursuit consequences;
+- dashboard location.
 
-Deferred balance work:
-
-- enemy hull used for broader combat acceptance;
-- salvo size / interval / fuse / cooldown tuning only after enemy behaviors can respond;
-- resupply contract for finite mine ammunition.
-
-Locked current baseline:
-
-```text
-capacity 6
-salvo 3
-interval 1000 ms
-cooldown 15000 ms
-fuse 7500 ms
-damage 1
-```
-
-Do not reopen the completed mine lifecycle while doing presentation or balance.
+Escape must stay easy to reach in combat.
 
 ---
 
-# 3. Missile and threat system
+# 6. Combat UX / balance pass
 
-## Actual BLUE missile content
+Do not balance final timings until the dashboard is playable.
 
-Status:
+Questions to test:
 
-```text
-Not implemented
-```
+- can a new player understand threat solutions without memorizing officer roles?
+- does each major threat have more than one reasonable response?
+- does combat become whack-a-mole despite better UI?
+- are 3–4 simultaneous threats readable?
+- how much time is needed once crew traits/slowness matter?
+- is tactical pause still unnecessary?
 
-Current state:
-
-- spectral bands support RED and BLUE;
-- point defense supports RED BEAM and BLUE BEAM;
-- current missile content used in prototype encounters is RED;
-- starter player launcher is also RED.
-
-Need to decide:
-
-- separate missile definition;
-- sprite reuse versus separate sprite;
-- launcher loadouts;
-- authored faction preference;
-- deterministic versus selected/random loadout;
-- how tests control missile band;
-- whether prototype encounters deliberately demonstrate both bands.
-
-Do not add BLUE only to make the menu symmetric without a content purpose.
+Avoid solving depth by only adding more simultaneous threats.
 
 ---
+
+# 7. Enemy intel / Science Analyze Enemy
+
+Current mockups include:
+
+- crew composition;
+- shield weakness;
+- no PD;
+- drive damage.
+
+These are not yet a final player-facing knowledge model.
+
+Need explicit gameplay contract for:
+
+- what is visible immediately;
+- what Science scan reveals;
+- uncertain/false/confirmed data;
+- persistent encounter knowledge;
+- launcher identification;
+- vulnerabilities;
+- how intel affects available actions.
+
+Avoid enemy telemetry spreadsheet.
+
+---
+
+# 8. Enemy behavior future
+
+Current defenses are implemented.
+
+Future:
+
+- visible aggressive/cautious behavior presets;
+- intentional risk-taking;
+- better PD beam selection from knowledge;
+- subsystem priorities;
+- retreat;
+- surrender;
+- faction doctrine;
+- opening disruption capability ownership.
+
+Do not rebuild policy architecture for this.
+
+---
+
+# 9. Weapon/content follow-ups
+
+## BLUE missile content
+
+Spectral system supports RED/BLUE, but prototype content remains mostly RED.
+
+Decide actual gameplay/content purpose before adding symmetry for symmetry's
+sake.
 
 ## Launcher identification persistence
 
-Current Science identification applies to one active threat.
-
-Future direction:
-
-- identify an enemy launcher;
-- later missiles from the same launcher become known automatically;
-- encounter-local launcher knowledge;
-- possible long-term faction/ship knowledge later.
-
-Keep separate concepts:
-
-- projectile identification;
-- launcher identification;
-- enemy ship analysis;
-- faction knowledge.
-
----
-
-## Science: Analyze Enemy
-
-After basic threat identification, Science should have meaningful offensive work.
-
-Possible outputs:
-
-- enemy weapon type;
-- shield capability;
-- launcher behavior;
-- cooldown estimate;
-- weak system;
-- possible critical target;
-- uncertain versus confirmed information.
-
-This should compete with:
-
-- threat identification;
-- spam purging;
-- other Science tasks.
-
-Avoid turning enemy telemetry into a spreadsheet.
-
----
-
-## Multiple simultaneous missiles
-
-Future tests should explore:
-
-- two missiles with different time-to-impact;
-- different spectral bands;
-- one Science officer;
-- one Weapons officer;
-- limited point-defense charges;
-- an offensive opportunity competing with defense.
-
-Do not scale toward swarms.
-
-The intended decision is prioritization, not click speed.
-
----
-
-## Player missile ammunition and resupply
-
-The starter launcher currently begins full.
-
-No resupply contract is defined.
-
-Possible future sources:
-
-- docking service;
-- station purchase;
-- mission-issued ammunition;
-- cargo conversion;
-- rare salvaged missiles.
-
-Need to decide:
-
-- whether ammo persists across all encounters;
-- whether a run can become permanently missile-empty;
-- how the final captain desk displays ammo;
-- whether loaded missile type can be changed outside combat.
-
-Do not add automatic refill unless prototype testing requires it explicitly.
-
----
-
-## Player missile presentation polish
-
-Status:
-
-- dedicated incoming and outgoing missile sprites are implemented;
-- manifest IDs are explicit;
-- outgoing flight and perspective scaling are implemented;
-- direct hull impact is runtime-verified;
-- weapon ammunition and cooldown state are visible.
-
-Deferred polish:
-
-- launch flash at the player weapon source;
-- short hull-impact flash;
-- target-lost disappearance/self-destruction effect;
-- optional tuning of flight path, scale curve and timing.
-
-Locked rule:
+Possible:
 
 ```text
-player missile impact has no shield-block presentation
+identify launcher once
+→ later missiles from same launcher known
 ```
 
-Enemy shields do not interact with missiles.
+Keep distinct from enemy-ship analysis and faction knowledge.
 
-Do not reopen the completed missile slice merely to add these effects. Select them as a presentation atom later.
+## Player ammo/resupply
 
----
+Need run-level contract for missile and mine ammunition:
 
-# 4. Enemy combat behavior
+- docking purchase/service;
+- mission supply;
+- salvage;
+- whether a run can go empty.
 
-## Enemy Engineer directional shields
+Do not auto-refill accidentally.
 
-Future contract:
+## Player laser presentation
 
-```text
-player laser telegraph reveals target sector
-→ enemy policy checks Engineer availability
-→ Engineer may deploy shield to a chosen sector
-```
+Potential:
 
-Questions:
+- targeting movement/light;
+- pre-charge reticle;
+- clearer transition before CHARGING.
 
-- does the enemy know the exact sector immediately;
-- can policy intentionally guess wrong;
-- is shield deployment a timed officer task;
-- how many shield charges does the enemy have;
-- does defense compete with repairs;
-- how is the decision exposed in telemetry.
+## Player missile presentation
 
-Implement during the enemy defense behavior pass, not as a hardcoded reaction in player laser code.
+Deferred:
 
----
+- launch flash;
+- hull impact flash;
+- target-loss disappearance;
+- flight/scale tuning.
 
-## Enemy point defense
+## Player sticky-mine presentation
 
-Player missiles currently have no enemy counter.
+Deferred:
 
-Later decisions:
-
-- which enemies have point defense;
-- finite charges or cooldown-only;
-- exact versus probabilistic interception;
-- whether Science analysis reveals capability;
-- how point defense occupies enemy Weapons or another role;
-- whether some factions cannot counter certain missile types.
-
-Do not mirror the player RED/BLUE command system automatically.
+- outgoing placement tuning;
+- launch flash;
+- detonation feedback;
+- target-loss effect.
 
 ---
 
-## Enemy subsystem damage
+# 10. Player defense follow-ups
 
-Possible future targets:
+## Point-defense rejected-command regression
 
-- missile launcher;
-- laser;
-- spam projector;
-- engines;
-- shields;
-- sensors;
-- communications.
-
-Subsystem damage must create visible command consequences.
-
-Avoid many hidden percentages.
-
----
-
-## Retreat and surrender
-
-Enemy destruction is implemented.
-
-Future alternatives may include:
-
-- retreat preparation;
-- disabled-but-alive ship;
-- surrender;
-- boarding or salvage;
-- mission requirement to avoid destruction.
-
-These need authored encounter consequences before implementation.
-
----
-
-## Opening disruption capability
-
-Current prototype hostile engagement can trigger the opening disruption pulse.
-
-Future content should decide whether the pulse belongs to:
-
-- every hostile ship;
-- a ship capability;
-- an installed system;
-- selected presets;
-- scripted encounter openings.
-
-Do not leave universal pulse behavior accidental once enemy variety expands.
-
----
-
-# 5. Player offense beyond basic laser/missile
-
-## Science-enabled critical attacks
-
-Science analysis may unlock:
-
-- named weak point;
-- increased damage;
-- disabling a system;
-- improved hit result;
-- a special target choice.
-
-The player should make an explicit command decision based on the information.
-
-Avoid passive percentage buffs with no visible choice.
-
----
-
-## Further offensive weapon beyond laser / missile / sticky mines
-
-Sticky mines now provide the third distinct player offense.
-
-Any later fourth weapon must create a new officer/resource decision rather than another reskinned cooldown attack.
-
-This is not near-term work.
-
----
-
-## Friendly-fire and collateral consequences
-
-Possible mission pressure:
-
-- target near a station;
-- cargo/VIP aboard enemy;
-- capture requirement;
-- civilian ship misidentification.
-
-Do not add until missions need it.
-
----
-
-# 6. Player defensive systems
-
-## Rejected point-defense command regression
-
-Add a focused engine test proving rejected or stale commands do not spend a charge.
+Add focused test proving rejected/stale command does not spend an extra charge.
 
 Candidate cases:
 
 - zero charges;
-- target removed before execution;
-- Weapons already busy;
-- command no longer appears in availability.
+- target removed;
+- role busy;
+- command no longer available.
 
-Current executor validates availability before the handler, but the resource contract deserves explicit coverage.
+## Zero-charge feedback
 
----
-
-## Zero-charge point-defense feedback
-
-At zero charges, point-defense commands disappear.
-
-Possible final feedback:
-
-- disabled command with `NO CHARGES`;
-- Weapons bark;
-- empty/red resource indicator;
-- warning when the last charge is spent.
-
-Wait for the final command-menu/captain-desk UX direction.
-
----
+Dashboard should clearly show empty PD without requiring text walls.
 
 ## Point-defense replenishment
 
-Current rule:
+Current combat rule:
 
 ```text
 no recharge during combat
 ```
 
-Lore direction:
+Future out-of-combat replenishment not designed.
 
-Point-defense charges are pulse capacitors rather than physical ammunition.
+## Repair tasks beyond drive
 
-Possible replenishment:
+Future only when systems can really be damaged:
 
-- docking service;
-- Engineering recharge outside combat;
-- consumable capacitor pack;
-- automatic prototype refill between missions.
+- weapon/system repair;
+- shield generator;
+- sensors;
+- other meaningful failures.
+
+No generic health repair bar.
 
 ---
 
-## Helm evade fallback
+# 11. Enemy subsystem damage
 
-Future EVADE should use maneuvering thrusters rather than the main drive.
+Not implemented.
 
-Therefore:
+Possible target systems:
+
+- launcher;
+- laser;
+- spam projector;
+- engine;
+- shield;
+- sensors.
+
+Each damaged subsystem must produce a visible command consequence.
+
+This will interact directly with the new dashboard system-row language.
+
+---
+
+# 12. Enemy retreat / surrender
+
+Not implemented.
+
+Possible future states:
+
+- retreat preparation;
+- surrender;
+- disabled-but-alive;
+- capture/salvage.
+
+Needs mission consequences first.
+
+---
+
+# 13. Persistence/runtime follow-ups
+
+## Manual player weapon persistence smoke
+
+Automated tests cover weapon state.
+
+Deferred manual check:
 
 ```text
-main drive DISABLED
-≠ EVADE unavailable
+fire weapon
+→ reconstruct/re-enter Bridge during cooldown
+→ weapon must remain in current phase
 ```
-
-Possible outcome model:
-
-```text
-MISS
-GLANCING
-DIRECT
-```
-
-No final contract is locked.
-
----
-
-## Maneuvering-thruster system
-
-Only introduce persistent maneuvering-thruster state if EVADE or damage rules need it.
-
-Do not add it speculatively.
-
----
-
-# 7. Ship damage, repair and escape
-
-## Repair tasks beyond the main drive
-
-`REPAIR ENGINE` is implemented.
-
-Future Engineer work may include:
-
-- restore shield generator;
-- stabilize hull;
-- restore sensors;
-- restore maneuvering thrusters;
-- clear bridge hazards;
-- accelerate resource recovery outside combat.
-
-Each repair should create a visible decision and compete for Engineer time.
-
-Avoid generic health-bar healing.
-
----
-
-## Escape flow
-
-A complete escape flow is not implemented.
-
-Need to decide:
-
-- which command initiates escape;
-- whether FLY TO or JUMP acts as escape;
-- whether enemy attacks interrupt preparation;
-- whether pursuit continues into another node;
-- how victory/escape is recorded.
-
----
-
-## Damage beyond hull
-
-Possible future consequences:
-
-- system disabled;
-- reduced task speed;
-- officer injured;
-- console unavailable;
-- temporary bridge hazard;
-- cargo/VIP damage.
-
-Add only when the state creates a meaningful command decision.
-
----
-
-# 8. Ship status and telemetry presentation
-
-## Captain dashboard
-
-Long-term direction:
-
-- captain seen from behind;
-- physical desk/dashboard integrated into the bridge;
-- hull;
-- point-defense charges;
-- shield charges;
-- engine state;
-- weapon/ammunition state;
-- attack warning lamps;
-- one enemy telemetry screen.
-
-The current flat status and enemy telemetry panels are temporary.
-
-Do not remove them until the diegetic replacement preserves timing and readability.
-
----
-
-## Enemy telemetry ownership
-
-Enemy telemetry currently supports the player offense prototype.
-
-Future questions:
-
-- what Science must reveal;
-- which values are always known;
-- how shield/hull changes animate;
-- how subsystem damage is represented;
-- how destroyed/retreating state clears;
-- whether telemetry remains readable with one enemy only.
-
-Avoid floating HP bars over ordinary ships.
-
----
-
-## Living officers at stations
-
-Long-term goals:
-
-- officers physically occupy stations;
-- activity reflected in animation/state;
-- stress, injury and personality are visible;
-- station UI remains readable;
-- reactions provide feedback without text spam.
-
----
-
-# 9. Command UI
-
-## Combat command palette redesign
-
-This work follows the enemy behavior pass.
-
-Agreed direction:
-
-- officer station = where to look;
-- command palette = what can be done;
-- bottom subtitle strip = explanation;
-- viewscreen/captain desk = threats and general ship state.
-
-Station layer:
-
-- show the current task/progress;
-- show small persistent actionable lights;
-- Weapons should distinguish offense availability from point-defense availability;
-- threat-blocked and generally unavailable states must read differently.
-
-Command palette:
-
-- fixed icon positions, preferably one horizontal row;
-- unavailable commands remain visible but disabled;
-- commands never disappear or reorder merely because state changed;
-- direct commands use one click;
-- a second compact screen appears only for a real choice such as laser sector or point-defense band;
-- multiple physical launchers remain separate icons with their own ammo/cooldown;
-- hover/focus writes a short explanation into the dedicated bottom strip;
-- two decisions are acceptable; menu hunting is not.
-
-Timing to test after the UI and behavior grammar exist:
-
-```text
-missile / laser response windows: approximately 18–20 s
-enemy role decision delay: approximately 3–4 s
-```
-
-Do not add tactical pause or slow motion before testing the clearer UI and gentler timings.
-
-Do not incrementally decorate the current text menu. Design the complete interaction flow first.
-
----
-
-## Keyboard officer shortcuts
-
-Planned mapping:
-
-```text
-1–5
-```
-
-Need:
-
-- stable role order;
-- input blocking during transitions;
-- menu close behavior;
-- visible focus;
-- compatibility with debug/text input.
-
----
-
-## Gamepad support
-
-Design officer command navigation for:
-
-- directional selection;
-- confirm/cancel;
-- switching officers;
-- target selection;
-- active task cancellation.
-
-Avoid precise mouse-only interaction.
-
----
-
-## Persistent threat access
-
-Critical threat actions should take one or two decisions.
-
-Potential improvements:
-
-- persistent threat indicators;
-- direct threat selection;
-- reopen last relevant officer menu;
-- keyboard shortcuts;
-- visible link from threat to available response.
-
----
-
-## Command-menu polling regression coverage
-
-Maintain coverage for open menus while state changes:
-
-- a threat appears;
-- point-defense reaches zero;
-- officer task finishes;
-- drive is disabled/repaired;
-- spam expires;
-- enemy is destroyed;
-- player launcher enters cooldown or becomes empty.
-
----
-
-# 10. Encounter and persistence rules
 
 ## Combat objects remain encounter-local
 
-Locked rule:
+Keep locked:
 
 ```text
-leave zone / reconstruct encounter
-→ missiles, mines, shields, laser attacks and spam disappear
+leave/reconstruct encounter
+→ missiles/mines/laser threats/shields/spam channels disappear
 ```
 
-Do not add save/runtime persistence for these objects.
+## Enemy destruction regression
 
-Installed player systems and surviving universe actors remain persistent.
+Maintain:
 
----
-
-## Enemy actor removal regression
-
-Current runtime acceptance confirms destroyed enemies do not return after FLY TO or JUMP.
-
-Maintain automated coverage around:
-
-- encounter actor removal;
-- persistent current-node actor removal;
-- telemetry clearing;
-- no `EndScene` transition.
+- destroyed enemy removed from encounter;
+- persistent node actor removed;
+- does not return;
+- telemetry clears;
+- no automatic EndScene transition.
 
 ---
 
-## Travel presentation polish
+# 14. Bridge/art follow-ups
 
-Potential improvements:
+## Final bridge art
 
-- rotation-to-movement transition;
-- ship-bracing feedback;
-- object parallax;
-- dust activation timing;
-- consistent arrival framing;
+Current bridge is functional prototype art.
+
+Final target:
+
+- stronger Sierra/Space Quest VGA vibe;
+- more humor/personality;
+- less Star Trek cleanliness;
+- viewscreen stays strong;
+- crew remains readable;
+- dashboard does not dominate the screenshot.
+
+## Enemy ship art
+
+Current concept direction:
+
+- near-frontal but slightly angled;
+- readable bridge/viewscreen area;
+- four clear hardpoints suitable for VFX origins;
+- weapon housings relatively universal rather than literal missile/mine props.
+
+## Player system/dashboard icons
+
+Need production icon family:
+
+- same visual footprint;
+- restrained color;
+- status through label/progress/button states rather than rainbow frames.
+
+---
+
+# 15. Navigation/travel presentation
+
+Potential polish:
+
+- turn-to-flight transition;
+- parallax;
+- dust timing;
+- arrival framing;
 - old-engine vibration.
 
----
-
-## Ship sprite scale consistency
-
-Prefer authoring sprites at intended display size.
-
-Avoid a generalized distance-scaling system unless it improves gameplay readability.
+Avoid generalized distance scaling unless gameplay needs it.
 
 ---
 
-# 11. Test and architecture debts
+# 16. Architecture/process debts
 
-## Full player ship fixtures
+## Dashboard model ownership
 
-A focused helper now exists:
+Avoid a god `BridgeCaptainDashboardView`.
+
+Likely split only after real pressure:
 
 ```text
-tests/engine/encounter/combat_test_support.ts
+BridgeCaptainDashboardView
+→ composition/lifecycle
+
+left/right subviews
+→ rendering
+
+controller/mapper
+→ prepared dashboard state
 ```
 
-It owns only:
+Do not build a generic dashboard framework before noncombat context #2 exists.
 
-- anchored starter combat setup;
-- loaded encounter state;
-- current enemy actor;
-- typed installed player weapon lookup.
+## EncounterEngine callback cycle
 
-Commands, steps and assertions remain local to each test.
+Current callback cycle remains:
 
-Further fixture work is justified only when a new repeated setup appears. Do not generalize this into a universal fixture framework.
+- CombatRunner → officer-task damage interruption;
+- OfficerTaskRunner → spam purge / mine cleanup.
 
----
+Stable for now.
+Do not add more sibling callback wiring casually.
 
-## Player weapon-array tests
+## Test fixtures
 
-`setPlayerShipWeaponStates()` requires the complete installed loadout.
+Keep `combat_test_support.ts` focused.
+Do not generalize into universal fixtures.
 
-Tests changing one weapon should preserve all untouched weapons explicitly.
+## Apply-script discipline
 
-Prefer a small local mapping helper over one-element arrays that accidentally replace the loadout.
-
----
-
-## Shared player ship status mapper
-
-`BridgeController` and `BridgeEncounterEngineEventHandler` construct the full player status payload.
-
-Verify whether a small pure mapper would reduce drift.
-
-Do not extract a broad status framework.
+- fresh source inventory;
+- exact anchors;
+- stage/validate before write;
+- no dirty-tree guard by default;
+- no destructive rollback by default;
+- narrow recovery atoms.
 
 ---
 
-## Encounter/runtime synchronization ownership
+# 17. Larger future systems
 
-Persistent state now includes weapon states in addition to:
+## Crew stress/fatigue
 
-- navigation;
-- hull;
-- drive;
-- point defense;
-- shield generator;
-- generated anchors.
+Should create story/decision pressure, not routine stat maintenance.
 
-Keep one obvious synchronization owner per mutation path.
+## R&R
 
-Avoid:
+Possible resorts/stations/shore leave and crew incidents.
 
-- views reading runtime;
-- broad per-frame synchronization;
-- duplicate controller/handler ownership;
-- generic persistence frameworks.
+## Factions
 
----
+Prefer authored identity via:
 
-## CombatRunner size
-
-`CombatRunner` was the first justified god-object split after the snapshot
-cleanup. The complete missile-object lifecycle now belongs to
-`CombatMissileRunner`; the complete sticky-mine lifecycle now belongs to
-`CombatStickyMineRunner`; the complete incoming-laser lifecycle now belongs to
-`CombatLaserRunner`; the complete hostile-spam lifecycle now belongs to
-`CombatSpamRunner`. Enemy launcher phases also belong to
-`CombatMissileRunner`. `CombatRunner` retains the locked step order, concrete
-runner dispatch and explicit cross-system synchronization.
-
-Do not split it because of line count.
-
-A split is justified only when a subsystem can own a complete lifecycle with fewer dependencies and fewer unrelated edits.
-
-Avoid replacing a linear file with a graph of tiny runners.
-
-The planned concrete lifecycle split is complete. Do not continue splitting the
-orchestrator by line count, and do not replace the four concrete runners with a
-generic attack-runner hierarchy.
-
----
-
-## EncounterEngine callback wiring
-
-`EncounterEngine` still closes one construction-time cycle with callbacks:
-
-```text
-CombatRunner
-→ OfficerTaskRunner damage interruption
-
-OfficerTaskRunner
-→ CombatRunner spam purge / mine cleanup
-```
-
-This is currently stable because constructors do not invoke the callbacks, but
-that temporal assumption is not enforced by types. Do not add another sibling
-callback casually. Revisit the wiring when a gameplay change must touch this
-cycle; do not introduce a DI container or service locator just to remove it.
-
-This debt does not block enemy defensive behavior.
-
----
-
-## Apply-script reliability
-
-Recent failures came from:
-
-- broad field-pattern replacement;
-- incomplete usage inventory;
-- inferred factory input;
-- stale one-weapon test assumptions;
-- a guard that checked the wrong literal;
-- a range replacement that preserved its end marker while the replacement duplicated it;
-- a recovery script that mixed the required repair with unrelated cleanup.
-
-Required discipline:
-
-1. inspect exact files;
-2. search all usages and full snapshots;
-3. read factory/type contracts;
-4. stage all transformations;
-5. validate before writing;
-6. use targeted anchors or full-file rewrites;
-7. document whether a range helper preserves its end marker;
-8. never repeat a preserved marker inside the replacement;
-9. keep recovery atoms narrow and repair only the failed invariant.
-
-This is a process debt, not an architecture feature.
-
----
-
-# 12. Larger future systems
-
-## Crew stress and fatigue
-
-Future crew layer:
-
-- officers accumulate stress/fatigue;
-- command performance and behavior changes;
-- downtime becomes meaningful;
-- captain chooses whom to monitor.
-
-This should create story and decision pressure, not routine stat maintenance.
-
----
-
-## R&R locations
-
-Possible content:
-
-- space resorts;
-- stations;
-- shore leave;
-- several days of downtime;
-- captain rests or monitors one crew member;
-- unmonitored crew can trigger absurd but serious consequences.
-
-Examples discussed:
-
-- Comms develops alcoholism;
-- Engineer insults a species and creates a diplomatic incident;
-- Weapons develops a personal vendetta.
-
----
-
-## Factions and sector-specific enemies
-
-Future enemy identity may come from:
-
-- missile preferences;
-- defensive technology;
-- disruption capability;
-- launcher firmware;
+- weapons;
+- defense technology;
+- doctrine;
 - retreat policy;
-- social/diplomatic consequences.
+- social consequences.
 
-Prefer authored faction identity over random stat variation.
+## Missions
 
----
+Combat should serve mission pressure:
 
-## Content-driven missions
-
-Possible pressures:
-
-- timed delivery;
-- limited resupply;
-- damaged systems;
+- delivery;
+- limited supply;
+- damaged ship;
 - hostile territory;
 - crew conflict;
-- station access restrictions;
-- rare resource use;
-- capture versus destruction requirements.
-
-Combat should serve mission context rather than exist as an isolated arena.
+- capture/destruction constraints.
 
 ---
 
-# 13. Design risks
+# 18. Design risks
 
-## Menu matching
+## Counter-table combat
 
 Risk:
 
 ```text
-read RED
-→ click RED
+see threat
+→ press mandatory counter
 ```
 
-can become trivial.
+Mitigate through:
 
-Mitigation should come from:
-
-- limited time;
-- limited charges/ammo;
-- competing officer tasks;
+- officer contention;
+- multiple viable responses;
 - incomplete information;
-- different threat families;
-- offensive opportunities;
-- meaningful fallback choices.
+- limited resources;
+- offensive opportunity cost;
+- commitment.
 
-Do not solve this merely by adding colors.
+## UI Boeing effect
 
----
+Stress-case screenshots may contain:
 
-## Too many simultaneous threats
+- several threats;
+- several player systems;
+- enemy intel;
+- damage.
 
-More objects do not automatically create depth.
+Mitigation:
 
-Maintain:
+- stable left geography;
+- timer-first threat rows;
+- icon + role action buttons;
+- restrained palette;
+- start runs with fewer systems/threats;
+- contextual modes rather than one permanent mega-panel.
 
-- readable telegraphs;
-- enough comprehension time;
-- few consequential decisions;
-- clear results.
+## Prototype UI becoming permanent
 
----
+Do not preserve old context menu/status layout merely because it already works.
 
 ## Over-generalization
 
 Do not build:
 
-- universal resource framework;
-- generic effect graph;
 - ECS;
-- dependency injection container;
-- universal command scripting;
-- speculative save migration;
-- generalized modifier system;
-- generic targeting framework beyond demonstrated needs.
-
----
-
-## Prototype UI becoming permanent
-
-Temporary UI must remain marked as temporary.
-
-A diegetic replacement must preserve:
-
-- readability;
-- update timing;
-- current/max values;
-- damage feedback;
-- resource-spend feedback;
-- engine/shield state;
-- enemy destruction clearing.
-
----
-
-# 14. Backlog maintenance
-
-At the end of each development chat:
-
-- add newly discovered deferred work;
-- remove completed items;
-- update changed contracts;
-- avoid duplicating the active checkpoint;
-- keep speculative ideas in future sections;
-- keep near-term concrete debts near the top.
-
-When selecting work:
-
-1. read `PROJECT_CONTEXT.md`;
-2. read this file;
-3. read any active handoff file;
-4. inspect fresh `master`;
-5. choose one coherent atom;
-6. do not opportunistically fix unrelated backlog items.
+- DI container;
+- generic effect graph;
+- universal command language;
+- universal dashboard component framework;
+- speculative save migration.
