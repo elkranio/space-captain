@@ -12,12 +12,54 @@ import {
     DEFENSE_CAPACITOR_ID,
 } from '../../../src/engine/defs/defense_capacitor';
 import {
+    spendDefenseCapacitorCharge,
+} from '../../../src/engine/encounter/combat/defense/spend_defense_capacitor_charge';
+import {
     createAnchoredPlayerCombatTestSetup,
 } from './combat_test_support';
 
 describe(
     'Defense capacitor recharge',
     () => {
+        it(
+            'spending a charge restarts recharge progress',
+            () => {
+                const {
+                    state,
+                } =
+                    createAnchoredPlayerCombatTestSetup();
+
+                const capacitor =
+                    state.combat
+                        .defenseCapacitor;
+
+                if (!capacitor) {
+                    throw new Error(
+                        'Expected installed player defense capacitor',
+                    );
+                }
+
+                capacitor.charges = 3;
+                capacitor.rechargeElapsedMs = 12000;
+
+                expect(
+                    spendDefenseCapacitorCharge(
+                        capacitor,
+                    ),
+                ).toMatchObject({
+                    charges: 2,
+                    rechargeElapsedMs: 0,
+                });
+
+                expect(
+                    capacitor,
+                ).toMatchObject({
+                    charges: 2,
+                    rechargeElapsedMs: 0,
+                });
+            },
+        );
+
         it(
             'recharges player and enemy installations sequentially',
             () => {

@@ -1,6 +1,12 @@
 // tests/engine/encounter/weapons_point_defense_command.test.ts
 
+import type {
+    DefenseCapacitorState,
+} from '../../../src/engine/defs/defense_capacitor';
 import { createPlayerHullFixture } from '../../fixtures/engine/player_hull_fixtures';
+import {
+    createDefenseCapacitorFixture,
+} from '../../fixtures/engine/defense_capacitor_fixtures';
 import { createShipDriveFixture } from '../../fixtures/engine/ship_drive_fixtures';
 import { describe, expect, it } from 'vitest';
 import { SHIP_WEAPON_TARGETING_DURATION_MS } from '../../../src/engine/content/catalogs/ship_weapons';
@@ -140,9 +146,11 @@ describe('Weapons point defense command', () => {
                 },
             ]);
 
-            expect(state.combat.pointDefense).toEqual({
+            expect(
+                state.combat
+                    .defenseCapacitor,
+            ).toMatchObject({
                 charges: 3,
-                maxCharges: 4,
             });
 
             engine.step(2999);
@@ -174,9 +182,11 @@ describe('Weapons point defense command', () => {
 
             expect(state.combat.projectiles).toHaveLength(1);
 
-            expect(state.combat.pointDefense).toEqual({
+            expect(
+                state.combat
+                    .defenseCapacitor,
+            ).toMatchObject({
                 charges: 3,
-                maxCharges: 4,
             });
 
             engine.step(1);
@@ -222,9 +232,11 @@ describe('Weapons point defense command', () => {
                 },
             ]);
 
-            expect(state.combat.pointDefense).toEqual({
+            expect(
+                state.combat
+                    .defenseCapacitor,
+            ).toMatchObject({
                 charges: 3,
-                maxCharges: 4,
             });
 
             expect(state.combat.projectiles).toEqual([]);
@@ -274,9 +286,11 @@ describe('Weapons point defense command', () => {
                 status: OFFICER_COMMAND_EXECUTION_STATUS.EXECUTED,
             });
 
-            expect(state.combat.pointDefense).toEqual({
+            expect(
+                state.combat
+                    .defenseCapacitor,
+            ).toMatchObject({
                 charges: 3,
-                maxCharges: 4,
             });
 
             engine.drainEvents();
@@ -324,9 +338,11 @@ describe('Weapons point defense command', () => {
                 },
             ]);
 
-            expect(state.combat.pointDefense).toEqual({
+            expect(
+                state.combat
+                    .defenseCapacitor,
+            ).toMatchObject({
                 charges: 3,
-                maxCharges: 4,
             });
 
             expect(state.combat.projectiles).toHaveLength(1);
@@ -337,14 +353,22 @@ describe('Weapons point defense command', () => {
         },
     );
 
-    it('does not offer point-defense commands without charges', () => {
+    it('does not offer point-defense commands without shared defensive charges', () => {
         const { engine, state } = createEngineWithIncomingMissile({
-            pointDefense: createPointDefenseFixture(0),
+            defenseCapacitor:
+                createDefenseCapacitorFixture(
+                    0,
+                ),
         });
 
-        expect(state.combat.pointDefense).toEqual({
+        // Scenario setup advances combat time before this assertion,
+        // so an empty rechargeable capacitor has already accumulated
+        // some recharge progress. Availability depends only on charges.
+        expect(
+            state.combat
+                .defenseCapacitor,
+        ).toMatchObject({
             charges: 0,
-            maxCharges: 4,
         });
 
         expect(state.combat.projectiles).toHaveLength(1);
@@ -374,9 +398,11 @@ describe('Weapons point defense command', () => {
 
         engine.drainEvents();
 
-        expect(state.combat.pointDefense).toEqual({
+        expect(
+            state.combat
+                .defenseCapacitor,
+        ).toMatchObject({
             charges: 3,
-            maxCharges: 4,
         });
 
         // Имитируем уничтожение ракеты
@@ -418,9 +444,11 @@ describe('Weapons point defense command', () => {
             },
         ]);
 
-        expect(state.combat.pointDefense).toEqual({
+        expect(
+            state.combat
+                .defenseCapacitor,
+        ).toMatchObject({
             charges: 3,
-            maxCharges: 4,
         });
     });
 
@@ -466,9 +494,11 @@ describe('Weapons point defense command', () => {
             },
         ]);
 
-        expect(state.combat.pointDefense).toEqual({
+        expect(
+            state.combat
+                .defenseCapacitor,
+        ).toMatchObject({
             charges: 3,
-            maxCharges: 4,
         });
 
         expect(state.combat.projectiles).toHaveLength(1);
@@ -485,12 +515,18 @@ type CreateEngineWithIncomingMissileOptions = {
     presetId?: IncomingMissileActorPresetId;
 
     pointDefense?: PointDefenseState;
+
+    defenseCapacitor?:
+        DefenseCapacitorState;
 };
 
 function createEngineWithIncomingMissile({
     presetId = SHIP_NODE_ACTOR_PRESET_ID.ENEMY_GENERIC_00,
 
     pointDefense = createPointDefenseFixture(),
+
+    defenseCapacitor =
+        createDefenseCapacitorFixture(),
 }: CreateEngineWithIncomingMissileOptions = {}) {
     const { node, stationId } = createSingleStationNodeFixture();
 
@@ -525,6 +561,7 @@ function createEngineWithIncomingMissile({
         },
 
         pointDefense,
+        defenseCapacitor,
     });
 
     const [loadedEvent] = engine.drainEvents();

@@ -15,6 +15,9 @@ import {
     MISSILE_ID,
 } from '../../src/engine/defs/missile';
 import {
+    POINT_DEFENSE_ID,
+} from '../../src/engine/defs/point_defense';
+import {
     STICKY_MINE_ID,
 } from '../../src/engine/defs/sticky_mine';
 import {
@@ -48,8 +51,12 @@ describe('GameRuntime player ship hull', () => {
             },
 
             pointDefense: {
-                charges: 4,
-                maxCharges: 4,
+                id:
+                    'point_defense_player_00',
+
+                pointDefenseId:
+                    POINT_DEFENSE_ID
+                        .BASIC_00,
             },
 
             defenseCapacitor: {
@@ -195,8 +202,12 @@ describe('GameRuntime player ship hull', () => {
             },
 
             pointDefense: {
-                charges: 4,
-                maxCharges: 4,
+                id:
+                    'point_defense_player_00',
+
+                pointDefenseId:
+                    POINT_DEFENSE_ID
+                        .BASIC_00,
             },
 
             defenseCapacitor: {
@@ -358,73 +369,96 @@ describe('GameRuntime player drive', () => {
     });
 });
 
-describe('GameRuntime player point defense', () => {
-    it('updates persistent point-defense charges', () => {
-        const runtime = new GameRuntime();
+describe('GameRuntime player defense capacitor', () => {
+    it('updates persistent defense-capacitor runtime state', () => {
+        const runtime =
+            new GameRuntime();
 
         runtime
-            .setPlayerShipPointDefenseCharges(3);
+            .setPlayerShipDefenseCapacitorState({
+                id:
+                    'defense_capacitor_player_00',
+
+                defenseCapacitorId:
+                    DEFENSE_CAPACITOR_ID
+                        .BASIC_00,
+
+                charges: 2,
+                rechargeElapsedMs: 7500,
+            });
 
         expect(
             runtime
                 .getCurrentRun()
                 .player
                 .ship
-                .pointDefense,
+                .defenseCapacitor,
         ).toEqual({
-            charges: 3,
-            maxCharges: 4,
-        });
+            id:
+                'defense_capacitor_player_00',
 
-        runtime
-            .setPlayerShipPointDefenseCharges(0);
+            defenseCapacitorId:
+                DEFENSE_CAPACITOR_ID
+                    .BASIC_00,
 
-        expect(
-            runtime
-                .getCurrentRun()
-                .player
-                .ship
-                .pointDefense,
-        ).toEqual({
-            charges: 0,
-            maxCharges: 4,
+            charges: 2,
+            rechargeElapsedMs: 7500,
         });
     });
 
-    it('rejects invalid point-defense charges', () => {
-        const runtime = new GameRuntime();
+    it('rejects invalid defense-capacitor runtime state', () => {
+        const runtime =
+            new GameRuntime();
 
         expect(() => {
             runtime
-                .setPlayerShipPointDefenseCharges(
-                    -1,
-                );
+                .setPlayerShipDefenseCapacitorState({
+                    id:
+                        'defense_capacitor_player_00',
+
+                    defenseCapacitorId:
+                        DEFENSE_CAPACITOR_ID
+                            .BASIC_00,
+
+                    charges: 5,
+                    rechargeElapsedMs: 0,
+                });
         }).toThrow(
-            'Player point-defense charges ' +
-                'must be an integer between ' +
-                '0 and 4: -1',
+            'Player defense-capacitor charges must be an integer between 0 and 4: 5',
         );
 
         expect(() => {
             runtime
-                .setPlayerShipPointDefenseCharges(
-                    5,
-                );
+                .setPlayerShipDefenseCapacitorState({
+                    id:
+                        'defense_capacitor_player_00',
+
+                    defenseCapacitorId:
+                        DEFENSE_CAPACITOR_ID
+                            .BASIC_00,
+
+                    charges: 3,
+                    rechargeElapsedMs: 24000,
+                });
         }).toThrow(
-            'Player point-defense charges ' +
-                'must be an integer between ' +
-                '0 and 4: 5',
+            'Player defense-capacitor recharge elapsed must be in [0, 24000): 24000',
         );
 
         expect(() => {
             runtime
-                .setPlayerShipPointDefenseCharges(
-                    1.5,
-                );
+                .setPlayerShipDefenseCapacitorState({
+                    id:
+                        'defense_capacitor_player_00',
+
+                    defenseCapacitorId:
+                        DEFENSE_CAPACITOR_ID
+                            .BASIC_00,
+
+                    charges: 4,
+                    rechargeElapsedMs: 1,
+                });
         }).toThrow(
-            'Player point-defense charges ' +
-                'must be an integer between ' +
-                '0 and 4: 1.5',
+            'Full player defense capacitor must have zero recharge elapsed: 1',
         );
     });
 });

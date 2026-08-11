@@ -1,15 +1,24 @@
 // tests/fixtures/engine/point_defense_fixtures.ts
 
-import type { PointDefenseState } from '../../../src/engine/defs/point_defense';
+import {
+    POINT_DEFENSE_ID,
+    type PointDefenseState,
+} from '../../../src/engine/defs/point_defense';
 
-const DEFAULT_MAX_CHARGES = 4;
-
+// Legacy optional args stay in the fixture signature for this migration
+// so unrelated test setup keeps compiling. Production PD no longer stores them.
+// Tests that actually depended on an empty PD pool must move that setup to
+// DEFENSE CAPACITOR and will fail behaviorally rather than hiding the migration.
 export function createPointDefenseFixture(
-    charges = DEFAULT_MAX_CHARGES,
-    maxCharges = DEFAULT_MAX_CHARGES,
+    _legacyCharges = 4,
+    _legacyMaxCharges = 4,
 ): PointDefenseState {
     return {
-        charges,
-        maxCharges,
+        id:
+            'point_defense_player_test_00',
+
+        pointDefenseId:
+            POINT_DEFENSE_ID
+                .BASIC_00,
     };
 }

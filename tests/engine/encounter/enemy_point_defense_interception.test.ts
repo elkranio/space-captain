@@ -142,14 +142,20 @@ describe('Enemy point-defense interception', () => {
             engine.drainEvents();
 
         expect(enemy.pointDefense).toMatchObject({
-            charges: 2,
-
             phase:
                 POINT_DEFENSE_PHASE.COOLDOWN,
 
             phaseElapsedMs: 0,
             loadedBand: null,
             targetProjectileId: null,
+        });
+
+        expect(
+            enemy.defenseCapacitor,
+        ).toMatchObject({
+            charges: 3,
+            rechargeElapsedMs:
+                LOAD_DURATION_MS,
         });
 
         expect(
@@ -187,7 +193,7 @@ describe('Enemy point-defense interception', () => {
             outcome:
                 POINT_DEFENSE_SHOT_OUTCOME.HIT,
 
-            remainingCharges: 2,
+            remainingCharges: 3,
         });
 
         expect(
@@ -238,9 +244,16 @@ describe('Enemy point-defense interception', () => {
             engine.drainEvents();
 
         expect(enemy.pointDefense).toMatchObject({
-            charges: 2,
             phase:
                 POINT_DEFENSE_PHASE.COOLDOWN,
+        });
+
+        expect(
+            enemy.defenseCapacitor,
+        ).toMatchObject({
+            charges: 3,
+            rechargeElapsedMs:
+                LOAD_DURATION_MS,
         });
 
         expect(
@@ -271,7 +284,7 @@ describe('Enemy point-defense interception', () => {
             outcome:
                 POINT_DEFENSE_SHOT_OUTCOME.MISS,
 
-            remainingCharges: 2,
+            remainingCharges: 3,
         });
 
         expect(
@@ -361,7 +374,7 @@ describe('Enemy point-defense interception', () => {
             beamBand: 'blue',
             outcome: 'hit',
 
-            remainingCharges: 2,
+            remainingCharges: 3,
         });
     });
 
@@ -457,7 +470,7 @@ describe('Enemy point-defense interception', () => {
             outcome:
                 POINT_DEFENSE_SHOT_OUTCOME.MISS,
 
-            remainingCharges: 2,
+            remainingCharges: 3,
         });
     });
 

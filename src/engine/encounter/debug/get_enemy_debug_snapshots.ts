@@ -1,6 +1,9 @@
 // src/engine/encounter/debug/get_enemy_debug_snapshots.ts
 
 import {
+    DEFENSE_CAPACITORS,
+} from '../../content/catalogs/defense_capacitors';
+import {
     MISSILES,
 } from '../../content/catalogs/missiles';
 import {
@@ -83,11 +86,16 @@ export type EnemyDebugRoleSnapshot = {
         EnemyDebugCrewTaskSnapshot;
 };
 
+export type EnemyDebugDefenseCapacitorSnapshot = {
+    charges: number;
+    capacity: number;
+
+    rechargeProgress?:
+        EnemyDebugProgressSnapshot;
+};
+
 export type EnemyDebugPointDefenseSnapshot = {
     phase: PointDefensePhase;
-
-    charges: number;
-    maxCharges: number;
 
     loadedBand:
         PointDefenseBeamBand | null;
@@ -131,6 +139,9 @@ export type EnemyDebugSnapshot = {
 
     roles:
         EnemyDebugRoleSnapshot[];
+
+    defenseCapacitor?:
+        EnemyDebugDefenseCapacitorSnapshot;
 
     pointDefense?:
         EnemyDebugPointDefenseSnapshot;
@@ -213,6 +224,15 @@ function createEnemyDebugSnapshot(
                         threatByObservationId,
                     );
                 }),
+
+        ...(actor.defenseCapacitor
+            ? {
+                  defenseCapacitor:
+                      createDefenseCapacitorSnapshot(
+                          actor,
+                      ),
+              }
+            : {}),
 
         ...(actor.pointDefense
             ? {
@@ -515,6 +535,49 @@ function getWeaponTaskLabel(
     }
 }
 
+function createDefenseCapacitorSnapshot(
+    actor: ShipEncounterActorState,
+): EnemyDebugDefenseCapacitorSnapshot {
+    const defenseCapacitor =
+        actor.defenseCapacitor;
+
+    if (!defenseCapacitor) {
+        throw new Error(
+            'Enemy debug defense capacitor is missing: ' +
+                actor.id,
+        );
+    }
+
+    const definition =
+        DEFENSE_CAPACITORS[
+            defenseCapacitor
+                .defenseCapacitorId
+        ];
+
+    return {
+        charges:
+            defenseCapacitor.charges,
+
+        capacity:
+            definition.capacity,
+
+        ...(defenseCapacitor.charges <
+                definition.capacity
+            ? {
+                  rechargeProgress: {
+                      elapsedMs:
+                          defenseCapacitor
+                              .rechargeElapsedMs,
+
+                      durationMs:
+                          definition
+                              .rechargeDurationMs,
+                  },
+              }
+            : {}),
+    };
+}
+
 function createPointDefenseSnapshot(
     state: EncounterState,
     actor: ShipEncounterActorState,
@@ -551,12 +614,6 @@ function createPointDefenseSnapshot(
     return {
         phase:
             pointDefense.phase,
-
-        charges:
-            pointDefense.charges,
-
-        maxCharges:
-            pointDefense.maxCharges,
 
         loadedBand:
             pointDefense.loadedBand,

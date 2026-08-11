@@ -11,8 +11,6 @@ export const POINT_DEFENSES = {
         id: POINT_DEFENSE_ID.BASIC_00,
         name: 'BASIC POINT DEFENSE',
 
-        maxCharges: 3,
-
         loadDurationMs: 3000,
         cooldownDurationMs: 5000,
     },

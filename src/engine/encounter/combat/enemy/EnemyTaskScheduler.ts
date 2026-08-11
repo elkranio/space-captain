@@ -4,6 +4,9 @@ import {
     POINT_DEFENSES,
 } from '../../../content/catalogs/point_defenses';
 import {
+    spendDefenseCapacitorCharge,
+} from '../defense/spend_defense_capacitor_charge';
+import {
     OFFICER_TASK_BASE_DURATION_MS,
 } from '../../../content/rules/officer_tasks';
 import {
@@ -615,6 +618,9 @@ export default class EnemyTaskScheduler {
         const pointDefense =
             actor.pointDefense;
 
+        const defenseCapacitor =
+            actor.defenseCapacitor;
+
         const projectile =
             this.state
                 .combat
@@ -632,7 +638,8 @@ export default class EnemyTaskScheduler {
                 intent.pointDefenseId ||
             pointDefense.phase !==
                 POINT_DEFENSE_PHASE.READY ||
-            pointDefense.charges <= 0 ||
+            !defenseCapacitor ||
+            defenseCapacitor.charges <= 0 ||
             !projectile ||
             projectile.source.kind !==
                 COMBAT_SOURCE_KIND
@@ -651,6 +658,14 @@ export default class EnemyTaskScheduler {
                     intent.projectileId,
             );
         }
+
+        // Commit defensive energy when work starts.
+        // This mirrors the player rule and prevents
+        // a later shield/PD consumer from double-claiming
+        // the same shared charge.
+        spendDefenseCapacitorCharge(
+            defenseCapacitor,
+        );
 
         this.crewTaskRunner.start(
             actor,

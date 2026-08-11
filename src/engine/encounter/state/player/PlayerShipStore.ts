@@ -3,6 +3,9 @@
 import {
     MISSILES,
 } from '../../../content/catalogs/missiles';
+import type {
+    DefenseCapacitorState,
+} from '../../../defs/defense_capacitor';
 import {
     PLAYER_SHIELD_DURATION_MS,
 } from '../../../content/rules/shields';
@@ -33,6 +36,9 @@ import {
     type SpamProjectorState,
     type StickyMineDispenserState,
 } from '../../../defs/ship_weapon';
+import {
+    spendDefenseCapacitorCharge as spendInstalledDefenseCapacitorCharge,
+} from '../../combat/defense/spend_defense_capacitor_charge';
 import {
     COMBAT_THREAT_KIND,
     THREAT_IDENTIFICATION_STATUS,
@@ -686,23 +692,21 @@ export default class PlayerShipStore {
         };
     }
 
-    public spendPointDefenseCharge():
-        number {
-        const pointDefense =
+    public spendDefenseCapacitorCharge():
+        DefenseCapacitorState {
+        const defenseCapacitor =
             this.state.combat
-                .pointDefense;
+                .defenseCapacitor;
 
-        if (
-            pointDefense.charges <= 0
-        ) {
+        if (!defenseCapacitor) {
             throw new Error(
-                'Cannot spend point-defense charge: no charges remaining',
+                'Cannot spend defense-capacitor charge: installation missing',
             );
         }
 
-        pointDefense.charges -= 1;
-
-        return pointDefense.charges;
+        return spendInstalledDefenseCapacitorCharge(
+            defenseCapacitor,
+        );
     }
 
     public firePointDefense(

@@ -45,8 +45,8 @@ type EnemyPointDefenseRunnerOptions = {
 // Owns the physical lifecycle of one installed enemy point-defense system.
 // Policy chooses target and commits a blind fallback band.
 // A ready Science report may deterministically override that fallback at shot
-// time. This runner loads, resolves the band match, spends a charge and
-// advances cooldown.
+// time. Defensive energy is committed by the scheduler when loading
+// starts; this runner resolves the band match and advances cooldown.
 export default class EnemyPointDefenseRunner {
     constructor(
         private readonly options:
@@ -98,7 +98,8 @@ export default class EnemyPointDefenseRunner {
             );
 
         if (!projectile) {
-            // Target vanished before the shot. No charge is spent.
+            // Target vanished after commitment.
+            // The shared defensive charge remains spent.
             this.resetToReady(
                 pointDefense,
             );
@@ -128,9 +129,12 @@ export default class EnemyPointDefenseRunner {
         const fallbackBeamBand =
             pointDefense.loadedBand;
 
+        const defenseCapacitor =
+            actor.defenseCapacitor;
+
         if (
             !fallbackBeamBand ||
-            pointDefense.charges <= 0
+            !defenseCapacitor
         ) {
             throw new Error(
                 'Enemy point defense cannot fire: ' +
@@ -160,7 +164,6 @@ export default class EnemyPointDefenseRunner {
                 ? POINT_DEFENSE_SHOT_OUTCOME.HIT
                 : POINT_DEFENSE_SHOT_OUTCOME.MISS;
 
-        pointDefense.charges -= 1;
         pointDefense.phase =
             POINT_DEFENSE_PHASE.COOLDOWN;
         pointDefense.phaseElapsedMs = 0;
@@ -185,7 +188,7 @@ export default class EnemyPointDefenseRunner {
             outcome,
 
             remainingCharges:
-                pointDefense.charges,
+                defenseCapacitor.charges,
         });
 
         if (

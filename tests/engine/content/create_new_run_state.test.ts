@@ -15,6 +15,9 @@ import {
     MISSILE_ID,
 } from '../../../src/engine/defs/missile';
 import {
+    POINT_DEFENSE_ID,
+} from '../../../src/engine/defs/point_defense';
+import {
     STICKY_MINE_ID,
 } from '../../../src/engine/defs/sticky_mine';
 import {
@@ -46,8 +49,12 @@ describe('createNewRunState', () => {
             },
 
             pointDefense: {
-                charges: 4,
-                maxCharges: 4,
+                id:
+                    'point_defense_player_00',
+
+                pointDefenseId:
+                    POINT_DEFENSE_ID
+                        .BASIC_00,
             },
 
             defenseCapacitor: {
@@ -169,11 +176,17 @@ describe('createNewRunState', () => {
         firstRun.player.ship.drive.status =
             SHIP_DRIVE_STATUS.DISABLED;
 
-        firstRun
-            .player
-            .ship
-            .pointDefense
-            .charges = 0;
+        expect(
+            firstRun
+                .player
+                .ship
+                .pointDefense,
+        ).not.toBe(
+            secondRun
+                .player
+                .ship
+                .pointDefense,
+        );
 
         firstRun
             .player
@@ -242,8 +255,12 @@ describe('createNewRunState', () => {
             },
 
             pointDefense: {
-                charges: 4,
-                maxCharges: 4,
+                id:
+                    'point_defense_player_00',
+
+                pointDefenseId:
+                    POINT_DEFENSE_ID
+                        .BASIC_00,
             },
 
             defenseCapacitor: {

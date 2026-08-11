@@ -1,6 +1,12 @@
 // src/app/runtime/GameRuntime.ts
 
+import {
+    DEFENSE_CAPACITORS,
+} from '../../engine/content/catalogs/defense_capacitors';
 import { createNewRunState } from '../../engine/content/new_game/create_new_run_state';
+import type {
+    DefenseCapacitorState,
+} from '../../engine/defs/defense_capacitor';
 import {
     PLAYER_LOCATION_KIND,
     PLAYER_SPACE_NAVIGATION_KIND,
@@ -56,19 +62,93 @@ export class GameRuntime {
         ship.hull = hull;
     }
 
-    public setPlayerShipPointDefenseCharges(charges: number): void {
-        const pointDefense = this.currentRun.player.ship.pointDefense;
+    public setPlayerShipDefenseCapacitorState(
+        next: DefenseCapacitorState,
+    ): void {
+        const current =
+            this.currentRun
+                .player
+                .ship
+                .defenseCapacitor;
 
-        if (!Number.isInteger(charges) || charges < 0 || charges > pointDefense.maxCharges) {
+        if (next.id !== current.id) {
             throw new Error(
-                `Player point-defense charges ` +
-                    `must be an integer between ` +
-                    `0 and ${pointDefense.maxCharges}: ` +
-                    `${charges}`,
+                'Player defense-capacitor runtime id cannot change: ' +
+                    next.id +
+                    ' !== ' +
+                    current.id,
             );
         }
 
-        pointDefense.charges = charges;
+        if (
+            next.defenseCapacitorId !==
+            current.defenseCapacitorId
+        ) {
+            throw new Error(
+                'Player defense-capacitor definition cannot change: ' +
+                    next.defenseCapacitorId +
+                    ' !== ' +
+                    current.defenseCapacitorId,
+            );
+        }
+
+        const definition =
+            DEFENSE_CAPACITORS[
+                current
+                    .defenseCapacitorId
+            ];
+
+        if (
+            !Number.isInteger(
+                next.charges,
+            ) ||
+            next.charges < 0 ||
+            next.charges >
+                definition.capacity
+        ) {
+            throw new Error(
+                'Player defense-capacitor charges must be an integer between ' +
+                    '0 and ' +
+                    definition.capacity +
+                    ': ' +
+                    next.charges,
+            );
+        }
+
+        if (
+            !Number.isFinite(
+                next.rechargeElapsedMs,
+            ) ||
+            next.rechargeElapsedMs < 0 ||
+            next.rechargeElapsedMs >=
+                definition
+                    .rechargeDurationMs
+        ) {
+            throw new Error(
+                'Player defense-capacitor recharge elapsed must be in [0, ' +
+                    definition
+                        .rechargeDurationMs +
+                    '): ' +
+                    next.rechargeElapsedMs,
+            );
+        }
+
+        if (
+            next.charges ===
+                definition.capacity &&
+            next.rechargeElapsedMs !== 0
+        ) {
+            throw new Error(
+                'Full player defense capacitor must have zero recharge elapsed: ' +
+                    next.rechargeElapsedMs,
+            );
+        }
+
+        current.charges =
+            next.charges;
+
+        current.rechargeElapsedMs =
+            next.rechargeElapsedMs;
     }
 
     public setPlayerShipShieldGeneratorState(next: ShieldGeneratorState): void {

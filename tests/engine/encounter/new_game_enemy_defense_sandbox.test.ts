@@ -2,6 +2,9 @@
 
 import { createPlayerHullFixture } from '../../fixtures/engine/player_hull_fixtures';
 import {
+    DEFENSE_CAPACITOR_ID,
+} from '../../../src/engine/defs/defense_capacitor';
+import {
     describe,
     expect,
     it,
@@ -68,15 +71,26 @@ describe('New-game enemy defense sandbox', () => {
             pointDefenseId:
                 POINT_DEFENSE_ID.BASIC_00,
 
-            charges: 3,
-            maxCharges: 3,
-
             phase:
                 POINT_DEFENSE_PHASE.READY,
             phaseElapsedMs: 0,
 
             loadedBand: null,
             targetProjectileId: null,
+        });
+
+        expect(
+            enemy.defenseCapacitor,
+        ).toEqual({
+            id:
+                'defense_capacitor_00',
+
+            defenseCapacitorId:
+                DEFENSE_CAPACITOR_ID
+                    .BASIC_00,
+
+            charges: 4,
+            rechargeElapsedMs: 0,
         });
 
         expect(enemy.crewRoles).toEqual([

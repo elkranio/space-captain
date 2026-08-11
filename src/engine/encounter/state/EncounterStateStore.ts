@@ -1,5 +1,8 @@
 // src/engine/encounter/state/EncounterStateStore.ts
 
+import type {
+    DefenseCapacitorState,
+} from '../../defs/defense_capacitor';
 import type { LaserTargetZone } from '../../defs/laser';
 import type { OfficerRole } from '../../defs/officer';
 import type {
@@ -429,10 +432,10 @@ export default class EncounterStateStore {
             .spendShieldGeneratorCharge();
     }
 
-    public spendPointDefenseCharge():
-        number {
+    public spendDefenseCapacitorCharge():
+        DefenseCapacitorState {
         return this.playerShip
-            .spendPointDefenseCharge();
+            .spendDefenseCapacitorCharge();
     }
 
     public firePointDefense(

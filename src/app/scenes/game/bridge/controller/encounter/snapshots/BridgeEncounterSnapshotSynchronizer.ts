@@ -51,6 +51,17 @@ export default class BridgeEncounterSnapshotSynchronizer {
     }
 
     public syncPlayerWeapons(): void {
+        const defenseCapacitor =
+            this.encounterEngine
+                .getDefenseCapacitorState();
+
+        if (defenseCapacitor) {
+            this.gameRuntime
+                .setPlayerShipDefenseCapacitorState(
+                    defenseCapacitor,
+                );
+        }
+
         const weapons = this.encounterEngine.getPlayerWeaponStates();
 
         this.gameRuntime.setPlayerShipWeaponStates(weapons);

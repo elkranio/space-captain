@@ -444,11 +444,15 @@ export default class EnemyDecisionPolicy {
         const pointDefense =
             actor.pointDefense;
 
+        const defenseCapacitor =
+            actor.defenseCapacitor;
+
         if (
             !pointDefense ||
             pointDefense.phase !==
                 POINT_DEFENSE_PHASE.READY ||
-            pointDefense.charges <= 0
+            !defenseCapacitor ||
+            defenseCapacitor.charges <= 0
         ) {
             return undefined;
         }

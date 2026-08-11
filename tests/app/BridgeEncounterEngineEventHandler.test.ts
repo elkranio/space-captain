@@ -10,7 +10,11 @@ import { SCENE_KEY } from '../../src/app/scenes/scene_key';
 import { BEACON_OBJECT_SPRITE_ID } from '../../src/engine/defs/beacon';
 import { MISSILE_ID } from '../../src/engine/defs/missile';
 import { OFFICER_ROLE } from '../../src/engine/defs/officer';
-import { POINT_DEFENSE_BEAM_BAND, POINT_DEFENSE_SHOT_OUTCOME } from '../../src/engine/defs/point_defense';
+import {
+    POINT_DEFENSE_BEAM_BAND,
+    POINT_DEFENSE_ID,
+    POINT_DEFENSE_SHOT_OUTCOME,
+} from '../../src/engine/defs/point_defense';
 import {
     COMBAT_PROJECTILE_KIND,
     COMBAT_SOURCE_KIND,
@@ -494,7 +498,7 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
         ]);
     });
 
-    it('syncs point-defense charges before point-defense activity starts', () => {
+    it('syncs shared defensive charges before point-defense activity starts', () => {
         const runtime = new GameRuntime();
 
         const emit = vi.fn();
@@ -541,9 +545,30 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
             },
         ]);
 
-        expect(runtime.getCurrentRun().player.ship.pointDefense).toEqual({
+        expect(
+            runtime
+                .getCurrentRun()
+                .player
+                .ship
+                .defenseCapacitor,
+        ).toMatchObject({
             charges: 3,
-            maxCharges: 4,
+            rechargeElapsedMs: 0,
+        });
+
+        expect(
+            runtime
+                .getCurrentRun()
+                .player
+                .ship
+                .pointDefense,
+        ).toEqual({
+            id:
+                'point_defense_player_00',
+
+            pointDefenseId:
+                POINT_DEFENSE_ID
+                    .BASIC_00,
         });
 
         expect(emit.mock.calls).toEqual([
@@ -567,7 +592,7 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
         expect(setEncounterInteractive).not.toHaveBeenCalled();
     });
 
-    it('maps a completed point-defense shot without spending another charge', () => {
+    it('maps a completed point-defense shot without spending defensive energy', () => {
         const runtime = new GameRuntime();
 
         const emit = vi.fn();
@@ -620,9 +645,32 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
             },
         ]);
 
-        expect(runtime.getCurrentRun().player.ship.pointDefense).toEqual({
+        // Completion only maps the shot result.
+        // Shared DEF was already committed when the PD task started.
+        expect(
+            runtime
+                .getCurrentRun()
+                .player
+                .ship
+                .defenseCapacitor,
+        ).toMatchObject({
             charges: 4,
-            maxCharges: 4,
+            rechargeElapsedMs: 0,
+        });
+
+        expect(
+            runtime
+                .getCurrentRun()
+                .player
+                .ship
+                .pointDefense,
+        ).toEqual({
+            id:
+                'point_defense_player_00',
+
+            pointDefenseId:
+                POINT_DEFENSE_ID
+                    .BASIC_00,
         });
 
         expect(emit.mock.calls).toEqual([

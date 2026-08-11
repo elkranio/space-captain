@@ -37,6 +37,9 @@ import {
 } from '../../../src/engine/defs/sticky_mine';
 import MissileLauncherFactory from '../../../src/engine/generation/ship_weapon/MissileLauncherFactory';
 import {
+    spendDefenseCapacitorCharge,
+} from '../../../src/engine/encounter/combat/defense/spend_defense_capacitor_charge';
+import {
     getActivePlayerSpamChannels,
 } from '../../../src/engine/encounter/combat/queries/get_active_player_spam_channels';
 import {
@@ -388,8 +391,35 @@ describe(
                 pointDefense.targetProjectileId =
                     projectileId;
 
+                const defenseCapacitor =
+                    setup.targetActor
+                        .defenseCapacitor;
+
+                if (!defenseCapacitor) {
+                    throw new Error(
+                        'Expected enemy defense capacitor',
+                    );
+                }
+
                 const chargesBefore =
-                    pointDefense.charges;
+                    defenseCapacitor
+                        .charges;
+
+                // Этот тест вручную ставит enemy PD
+                // уже в LOADING, обходя scheduler.
+                // В production scheduler списывает DEF
+                // именно при старте loading, поэтому
+                // повторяем тот же commit явно.
+                spendDefenseCapacitorCharge(
+                    defenseCapacitor,
+                );
+
+                expect(
+                    defenseCapacitor
+                        .charges,
+                ).toBe(
+                    chargesBefore - 1,
+                );
 
                 setup.targetActor
                     .pointDefense =
@@ -449,9 +479,10 @@ describe(
                 );
 
                 expect(
-                    pointDefense.charges,
+                    defenseCapacitor
+                        .charges,
                 ).toBe(
-                    chargesBefore,
+                    chargesBefore - 1,
                 );
 
                 setup.engine.step(
@@ -467,7 +498,8 @@ describe(
                 );
 
                 expect(
-                    pointDefense.charges,
+                    defenseCapacitor
+                        .charges,
                 ).toBe(
                     chargesBefore - 1,
                 );

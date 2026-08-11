@@ -33,9 +33,6 @@ describe('ShipPointDefenseFactory', () => {
             pointDefenseId:
                 POINT_DEFENSE_ID.BASIC_00,
 
-            charges: 3,
-            maxCharges: 3,
-
             phase:
                 POINT_DEFENSE_PHASE.READY,
             phaseElapsedMs: 0,
@@ -46,23 +43,17 @@ describe('ShipPointDefenseFactory', () => {
 
         expect(first).not.toBe(second);
 
-        first.charges = 0;
+        first.phase =
+            POINT_DEFENSE_PHASE.COOLDOWN;
 
-        expect(second.charges).toBe(3);
-    });
-
-    it('rejects an invalid charge override', () => {
-        expect(() => {
-            ShipPointDefenseFactory.create({
-                id: 'point_defense_00',
-
-                pointDefenseId:
-                    POINT_DEFENSE_ID.BASIC_00,
-
-                charges: 4,
-            });
-        }).toThrow(
-            'Invalid ship point-defense charge count: 4/3',
+        expect(second.phase).toBe(
+            POINT_DEFENSE_PHASE.READY,
         );
+
+        expect(first)
+            .not.toHaveProperty('charges');
+
+        expect(first)
+            .not.toHaveProperty('maxCharges');
     });
 });

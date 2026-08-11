@@ -232,6 +232,11 @@ export default class BridgeEncounterController {
             drive: run.player.ship.drive,
 
             pointDefense: run.player.ship.pointDefense,
+
+            defenseCapacitor:
+                run.player.ship
+                    .defenseCapacitor,
+
             shieldGenerator: run.player.ship.shieldGenerator,
 
             weapons: run.player.ship.weapons,

@@ -48,13 +48,27 @@ export default class BridgeEncounterRuntimeSynchronizer {
     ): BridgeEncounterRuntimeSyncResult {
         switch (event.type) {
             case ENCOUNTER_EVENT
-                .PLAYER_POINT_DEFENSE_CHARGE_SPENT:
+                .PLAYER_POINT_DEFENSE_CHARGE_SPENT: {
+                const current =
+                    this.gameRuntime
+                        .getCurrentRun()
+                        .player
+                        .ship
+                        .defenseCapacitor;
+
                 this.gameRuntime
-                    .setPlayerShipPointDefenseCharges(
-                        event.remainingCharges,
-                    );
+                    .setPlayerShipDefenseCapacitorState({
+                        ...current,
+
+                        charges:
+                            event.remainingCharges,
+
+                        // Spending restarts the sequential recharge.
+                        rechargeElapsedMs: 0,
+                    });
 
                 return PLAYER_SHIP_STATUS_CHANGED;
+            }
 
             case ENCOUNTER_EVENT
                 .PLAYER_SHIELD_GENERATOR_STATE_CHANGED: {

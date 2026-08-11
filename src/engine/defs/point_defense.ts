@@ -1,13 +1,5 @@
 // src/engine/defs/point_defense.ts
 
-// Legacy player-ship charge state.
-// The player point-defense lifecycle still lives in encounter combat state.
-// Enemy ships use ShipPointDefenseState below.
-export type PointDefenseState = {
-    charges: number;
-    maxCharges: number;
-};
-
 export const POINT_DEFENSE_BEAM_BAND = {
     RED: 'red',
     BLUE: 'blue',
@@ -31,11 +23,22 @@ export const POINT_DEFENSE_ID = {
 export type PointDefenseId =
     (typeof POINT_DEFENSE_ID)[keyof typeof POINT_DEFENSE_ID];
 
+// Installed point-defense identity.
+//
+// Point defense no longer owns an energy/ammo pool.
+// Defensive energy lives exclusively in DEFENSE CAPACITOR.
+export type PointDefenseState = {
+    // Runtime id конкретной установки.
+    id: string;
+
+    // Stable immutable content definition.
+    pointDefenseId:
+        PointDefenseId;
+};
+
 export type PointDefenseDefinition = {
     id: PointDefenseId;
     name: string;
-
-    maxCharges: number;
 
     loadDurationMs: number;
     cooldownDurationMs: number;
@@ -100,16 +103,8 @@ export function doesPointDefensePhaseAdvanceWithCrew(
 //
 // loadedBand and targetProjectileId remain null outside an active load.
 // A later runner atom will own those phase invariants.
-export type ShipPointDefenseState = {
-    // Runtime id of this installation on a concrete ship.
-    id: string;
-
-    // Stable immutable content definition.
-    pointDefenseId: PointDefenseId;
-
-    charges: number;
-    maxCharges: number;
-
+export type ShipPointDefenseState =
+    PointDefenseState & {
     phase: PointDefensePhase;
     phaseElapsedMs: number;
 

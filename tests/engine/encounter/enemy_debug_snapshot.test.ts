@@ -6,6 +6,9 @@ import {
     it,
 } from 'vitest';
 import {
+    DEFENSE_CAPACITOR_ID,
+} from '../../../src/engine/defs/defense_capacitor';
+import {
     ENCOUNTER_TEAM,
 } from '../../../src/engine/defs/encounter_team';
 import {
@@ -188,6 +191,19 @@ describe(
                                 },
                             ],
 
+                            defenseCapacitor: {
+                                id:
+                                    'defense_capacitor_00',
+
+                                defenseCapacitorId:
+                                    DEFENSE_CAPACITOR_ID
+                                        .BASIC_00,
+
+                                charges: 3,
+                                rechargeElapsedMs:
+                                    12000,
+                            },
+
                             pointDefense: {
                                 id:
                                     'point_defense_00',
@@ -195,9 +211,6 @@ describe(
                                 pointDefenseId:
                                     POINT_DEFENSE_ID
                                         .BASIC_00,
-
-                                charges: 3,
-                                maxCharges: 3,
 
                                 phase:
                                     POINT_DEFENSE_PHASE
@@ -309,13 +322,23 @@ describe(
                             },
                         ],
 
+                        defenseCapacitor: {
+                            charges: 3,
+                            capacity: 4,
+
+                            rechargeProgress: {
+                                elapsedMs:
+                                    12000,
+
+                                durationMs:
+                                    24000,
+                            },
+                        },
+
                         pointDefense: {
                             phase:
                                 POINT_DEFENSE_PHASE
                                     .LOADING,
-
-                            charges: 3,
-                            maxCharges: 3,
 
                             loadedBand:
                                 POINT_DEFENSE_BEAM_BAND

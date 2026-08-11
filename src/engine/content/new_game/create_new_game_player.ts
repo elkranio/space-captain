@@ -67,11 +67,15 @@ function createPlayerShip(
         },
 
         pointDefense: {
-            charges:
-                preset.pointDefense.maxCharges,
+            id:
+                preset
+                    .pointDefense
+                    .id,
 
-            maxCharges:
-                preset.pointDefense.maxCharges,
+            pointDefenseId:
+                preset
+                    .pointDefense
+                    .pointDefenseId,
         },
 
         defenseCapacitor:

@@ -10,7 +10,10 @@ describe('BridgeEncounterSnapshotSynchronizer', () => {
         const encounterEngine = createEncounterEngine();
 
         const emit = vi.fn();
-        const setPlayerShipWeaponStates = vi.fn();
+        const setPlayerShipWeaponStates =
+            vi.fn();
+        const setPlayerShipDefenseCapacitorState =
+            vi.fn();
 
         const synchronizer = new BridgeEncounterSnapshotSynchronizer(
             encounterEngine,
@@ -19,10 +22,24 @@ describe('BridgeEncounterSnapshotSynchronizer', () => {
             } as unknown as BridgeEventBus,
             {
                 setPlayerShipWeaponStates,
+                setPlayerShipDefenseCapacitorState,
             } as unknown as GameRuntime,
         );
 
         synchronizer.syncInitial();
+
+        expect(
+            setPlayerShipDefenseCapacitorState,
+        ).toHaveBeenCalledWith({
+            id:
+                'defense_capacitor_player_00',
+
+            defenseCapacitorId:
+                'defense_capacitor_basic_00',
+
+            charges: 3,
+            rechargeElapsedMs: 1200,
+        });
 
         expect(setPlayerShipWeaponStates).toHaveBeenCalledWith([]);
         expect(emit.mock.calls).toEqual([
@@ -161,6 +178,20 @@ describe('BridgeEncounterSnapshotSynchronizer', () => {
 
 function createEncounterEngine(): EncounterEngine {
     return {
+        getDefenseCapacitorState:
+            vi.fn(() => {
+                return {
+                    id:
+                        'defense_capacitor_player_00',
+
+                    defenseCapacitorId:
+                        'defense_capacitor_basic_00',
+
+                    charges: 3,
+                    rechargeElapsedMs: 1200,
+                };
+            }),
+
         getPlayerWeaponStates: vi.fn(() => {
             return [];
         }),

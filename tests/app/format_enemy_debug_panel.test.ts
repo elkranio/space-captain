@@ -101,13 +101,23 @@ describe(
                             },
                         ],
 
+                        defenseCapacitor: {
+                            charges: 3,
+                            capacity: 4,
+
+                            rechargeProgress: {
+                                elapsedMs:
+                                    12000,
+
+                                durationMs:
+                                    24000,
+                            },
+                        },
+
                         pointDefense: {
                             phase:
                                 POINT_DEFENSE_PHASE
                                     .LOADING,
-
-                            charges: 3,
-                            maxCharges: 3,
 
                             loadedBand:
                                 POINT_DEFENSE_BEAM_BAND
@@ -163,7 +173,8 @@ describe(
                         'HELM ABSENT',
 
                     systems:
-                        'PD LOAD M1 BLUE 1.0/3.0 3/3',
+                        'DEF 3/4 12.0/24.0   ' +
+                        'PD LOAD M1 BLUE 1.0/3.0',
 
                     threats:
                         'M1 MSL ETA 09.0 RPT RED TRUE BLUE !',

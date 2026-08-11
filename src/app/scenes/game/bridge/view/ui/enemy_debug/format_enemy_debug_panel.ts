@@ -121,6 +121,10 @@ function formatSystems(
               ]
             : []),
 
+        formatDefenseCapacitor(
+            snapshot,
+        ),
+
         formatPointDefense(
             snapshot,
         ),
@@ -173,6 +177,39 @@ function formatShield(
     return parts.join(' ');
 }
 
+function formatDefenseCapacitor(
+    snapshot: EnemyDebugSnapshot,
+): string {
+    const defenseCapacitor =
+        snapshot.defenseCapacitor;
+
+    if (!defenseCapacitor) {
+        return 'DEF NONE';
+    }
+
+    const parts = [
+        'DEF',
+
+        defenseCapacitor.charges +
+            '/' +
+            defenseCapacitor.capacity,
+    ];
+
+    if (
+        defenseCapacitor
+            .rechargeProgress
+    ) {
+        parts.push(
+            formatProgressValue(
+                defenseCapacitor
+                    .rechargeProgress,
+            ),
+        );
+    }
+
+    return parts.join(' ');
+}
+
 function formatPointDefense(
     snapshot: EnemyDebugSnapshot,
 ): string {
@@ -210,12 +247,6 @@ function formatPointDefense(
             ),
         );
     }
-
-    parts.push(
-        pointDefense.charges +
-            '/' +
-            pointDefense.maxCharges,
-    );
 
     return parts.join(' ');
 }
