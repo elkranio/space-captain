@@ -12,7 +12,7 @@ import type BridgeEventBus from '../../../events/BridgeEventBus';
 import BridgeCaptainMissileThreatsView from './threats/BridgeCaptainMissileThreatsView';
 
 const PANEL = {
-    width: 714,
+    width: 536,
     height: 204,
 
     padding: 8,
