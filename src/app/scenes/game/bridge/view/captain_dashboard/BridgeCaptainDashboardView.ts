@@ -1,5 +1,6 @@
 import type BridgeScene from '../../BridgeScene';
 import type BridgeEventBus from '../../events/BridgeEventBus';
+import BridgeCaptainCombatContextView from './combat_context/BridgeCaptainCombatContextView';
 import BridgePlayerShipDashboardView from './player_ship/BridgePlayerShipDashboardView';
 
 const PLAYER_SHIP_POSITION = {
@@ -7,18 +8,25 @@ const PLAYER_SHIP_POSITION = {
     y: 500,
 } as const;
 
+const COMBAT_CONTEXT_POSITION = {
+    x: 440,
+    y: 500,
+} as const;
+
 // Root view капитанского dashboard.
 //
-// Пока dashboard содержит только стабильную левую часть:
-// состояние и системы корабля игрока.
-// Внешний context/right side добавим только когда начнём
-// соответствующий реальный vertical slice.
+// Левая часть стабильна: player ship.
+// Правая часть context-driven и сейчас содержит
+// первый реальный combat slice: enemy status + missiles.
 export default class BridgeCaptainDashboardView {
     private readonly root:
         Phaser.GameObjects.Container;
 
     private readonly playerShipView:
         BridgePlayerShipDashboardView;
+
+    private readonly combatContextView:
+        BridgeCaptainCombatContextView;
 
     constructor(
         private readonly scene: BridgeScene,
@@ -45,13 +53,27 @@ export default class BridgeCaptainDashboardView {
             PLAYER_SHIP_POSITION.y,
         );
 
-        this.root.add(
-            this.playerShipView.getRoot(),
+        this.combatContextView =
+            new BridgeCaptainCombatContextView(
+                this.scene,
+                this.eventBus,
+            );
+
+        this.combatContextView.setPosition(
+            COMBAT_CONTEXT_POSITION.x,
+            COMBAT_CONTEXT_POSITION.y,
         );
+
+        this.root.add([
+            this.playerShipView.getRoot(),
+            this.combatContextView.getRoot(),
+        ]);
     }
 
     public destroy(): void {
+        this.combatContextView.destroy();
         this.playerShipView.destroy();
+
         this.root.destroy(false);
     }
 }
