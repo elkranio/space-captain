@@ -99,6 +99,11 @@ export const BRIDGE_EVENT = {
     PLAYER_SHIP_DASHBOARD_UPDATED:
         'player_ship_dashboard_updated',
 
+    // View-ready contextual combat snapshot
+    // для правой части captain dashboard.
+    CAPTAIN_COMBAT_CONTEXT_UPDATED:
+        'captain_combat_context_updated',
+
     // #endregion
 
     // #region Encounter objects and navigation
@@ -527,6 +532,37 @@ export type BridgePlayerShipDashboardUpdatedPayload = {
 
 // #endregion
 
+// #region Captain combat context
+
+export type BridgeCaptainIncomingMissilePayload = {
+    projectileId: string;
+    designation: string;
+
+    timeToImpactMs: number;
+    initialTimeToImpactMs: number;
+
+    spectralBand?:
+        MissileSpectralBand;
+
+    actions: {
+        identifyThreat?:
+            BridgeOfficerCommandSelectedPayload;
+
+        fireRedBeam?:
+            BridgeOfficerCommandSelectedPayload;
+
+        fireBlueBeam?:
+            BridgeOfficerCommandSelectedPayload;
+    };
+};
+
+export type BridgeCaptainCombatContextUpdatedPayload = {
+    incomingMissiles:
+        BridgeCaptainIncomingMissilePayload[];
+};
+
+// #endregion
+
 // #region Encounter objects and navigation
 
 // View-ready описание одного encounter object.
@@ -865,6 +901,9 @@ export type BridgeEventPayloadMap = {
 
     [BRIDGE_EVENT.PLAYER_SHIP_DASHBOARD_UPDATED]:
         BridgePlayerShipDashboardUpdatedPayload;
+
+    [BRIDGE_EVENT.CAPTAIN_COMBAT_CONTEXT_UPDATED]:
+        BridgeCaptainCombatContextUpdatedPayload;
 
     // Encounter objects and navigation
 

@@ -4,6 +4,7 @@ import { THREAT_IDENTIFICATION_STATUS } from '../../../../../../../engine/encoun
 import type { GameRuntime } from '../../../../../../runtime/GameRuntime';
 import { BRIDGE_EVENT } from '../../../events/bridge_event';
 import type BridgeEventBus from '../../../events/BridgeEventBus';
+import { mapCaptainCombatContextToBridgePayload } from '../../captain_dashboard/BridgeCaptainCombatContextMapper';
 import { mapPlayerShipToBridgeDashboardPayload } from '../../captain_dashboard/BridgePlayerShipDashboardMapper';
 import { mapPlayerWeaponsToBridgeStatusPayload } from '../../player_weapon_status/BridgePlayerWeaponStatusMapper';
 
@@ -23,6 +24,7 @@ export default class BridgeEncounterSnapshotSynchronizer {
 
     public syncInitial(): void {
         this.syncPlayerShipDashboard();
+        this.syncCaptainCombatContext();
     }
 
     public syncCombatPresentation(): void {
@@ -31,6 +33,7 @@ export default class BridgeEncounterSnapshotSynchronizer {
         this.syncOutgoingStickyMines();
         this.syncStickyMines();
         this.syncLaserThreats();
+        this.syncCaptainCombatContext();
     }
 
     public syncPlayerShipDashboard(): void {
@@ -108,6 +111,31 @@ export default class BridgeEncounterSnapshotSynchronizer {
 
                     defenseCapacitor,
                 },
+            }),
+        );
+    }
+
+    private syncCaptainCombatContext(): void {
+        this.eventBus.emit(
+            BRIDGE_EVENT
+                .CAPTAIN_COMBAT_CONTEXT_UPDATED,
+
+            mapCaptainCombatContextToBridgePayload({
+                incomingMissiles:
+                    this.encounterEngine
+                        .getIncomingMissileProjectiles(),
+
+                availableScienceCommands:
+                    this.encounterEngine
+                        .getAvailableCommands(
+                            OFFICER_ROLE.SCIENCE,
+                        ),
+
+                availableWeaponsCommands:
+                    this.encounterEngine
+                        .getAvailableCommands(
+                            OFFICER_ROLE.WEAPONS,
+                        ),
             }),
         );
     }

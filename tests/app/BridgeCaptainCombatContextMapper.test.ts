@@ -1,0 +1,378 @@
+import {
+    describe,
+    expect,
+    it,
+} from 'vitest';
+import {
+    MISSILE_ID,
+    MISSILE_SPECTRAL_BAND,
+} from '../../src/engine/defs/missile';
+import {
+    OFFICER_ROLE,
+} from '../../src/engine/defs/officer';
+import {
+    COMBAT_PROJECTILE_KIND,
+    COMBAT_SOURCE_KIND,
+    COMBAT_TARGET_KIND,
+    THREAT_IDENTIFICATION_STATUS,
+    type CombatProjectileState,
+} from '../../src/engine/encounter/model/combat';
+import {
+    ENCOUNTER_OFFICER_COMMAND_ID,
+    OFFICER_COMMAND_TARGET_KIND,
+    type AvailableOfficerCommand,
+} from '../../src/engine/encounter/model/command';
+import {
+    mapCaptainCombatContextToBridgePayload,
+} from '../../src/app/scenes/game/bridge/controller/captain_dashboard/BridgeCaptainCombatContextMapper';
+
+describe(
+    'BridgeCaptainCombatContextMapper',
+    () => {
+        it(
+            'maps incoming missiles nearest-first with exact resolved threat commands',
+            () => {
+                const near =
+                    createMissile({
+                        id:
+                            'missile_near',
+
+                        designation:
+                            'M2',
+
+                        timeToImpactMs:
+                            400,
+
+                        initialTimeToImpactMs:
+                            1200,
+
+                        identification: {
+                            status:
+                                THREAT_IDENTIFICATION_STATUS
+                                    .IDENTIFIED,
+
+                            spectralBand:
+                                MISSILE_SPECTRAL_BAND
+                                    .RED,
+                        },
+                    });
+
+                const far =
+                    createMissile({
+                        id:
+                            'missile_far',
+
+                        designation:
+                            'M1',
+
+                        timeToImpactMs:
+                            900,
+
+                        initialTimeToImpactMs:
+                            1400,
+
+                        identification: {
+                            status:
+                                THREAT_IDENTIFICATION_STATUS
+                                    .UNKNOWN,
+                        },
+                    });
+
+                expect(
+                    mapCaptainCombatContextToBridgePayload({
+                        incomingMissiles: [
+                            far,
+                            near,
+                        ],
+
+                        availableScienceCommands: [
+                            createThreatCommand(
+                                ENCOUNTER_OFFICER_COMMAND_ID
+                                    .SCIENCE_IDENTIFY_THREAT,
+
+                                far.id,
+                            ),
+                        ],
+
+                        availableWeaponsCommands: [
+                            createThreatCommand(
+                                ENCOUNTER_OFFICER_COMMAND_ID
+                                    .WEAPONS_FIRE_RED_BEAM,
+
+                                far.id,
+                            ),
+
+                            createThreatCommand(
+                                ENCOUNTER_OFFICER_COMMAND_ID
+                                    .WEAPONS_FIRE_BLUE_BEAM,
+
+                                near.id,
+                            ),
+
+                            createThreatCommand(
+                                ENCOUNTER_OFFICER_COMMAND_ID
+                                    .WEAPONS_FIRE_RED_BEAM,
+
+                                near.id,
+                            ),
+                        ],
+                    }),
+                ).toEqual({
+                    incomingMissiles: [
+                        {
+                            projectileId:
+                                near.id,
+
+                            designation:
+                                'M2',
+
+                            timeToImpactMs:
+                                400,
+
+                            initialTimeToImpactMs:
+                                1200,
+
+                            spectralBand:
+                                MISSILE_SPECTRAL_BAND
+                                    .RED,
+
+                            actions: {
+                                fireRedBeam: {
+                                    role:
+                                        OFFICER_ROLE
+                                            .WEAPONS,
+
+                                    commandId:
+                                        ENCOUNTER_OFFICER_COMMAND_ID
+                                            .WEAPONS_FIRE_RED_BEAM,
+
+                                    target: {
+                                        kind:
+                                            OFFICER_COMMAND_TARGET_KIND
+                                                .THREAT,
+
+                                        threatId:
+                                            near.id,
+                                    },
+                                },
+
+                                fireBlueBeam: {
+                                    role:
+                                        OFFICER_ROLE
+                                            .WEAPONS,
+
+                                    commandId:
+                                        ENCOUNTER_OFFICER_COMMAND_ID
+                                            .WEAPONS_FIRE_BLUE_BEAM,
+
+                                    target: {
+                                        kind:
+                                            OFFICER_COMMAND_TARGET_KIND
+                                                .THREAT,
+
+                                        threatId:
+                                            near.id,
+                                    },
+                                },
+                            },
+                        },
+
+                        {
+                            projectileId:
+                                far.id,
+
+                            designation:
+                                'M1',
+
+                            timeToImpactMs:
+                                900,
+
+                            initialTimeToImpactMs:
+                                1400,
+
+                            actions: {
+                                identifyThreat: {
+                                    role:
+                                        OFFICER_ROLE
+                                            .SCIENCE,
+
+                                    commandId:
+                                        ENCOUNTER_OFFICER_COMMAND_ID
+                                            .SCIENCE_IDENTIFY_THREAT,
+
+                                    target: {
+                                        kind:
+                                            OFFICER_COMMAND_TARGET_KIND
+                                                .THREAT,
+
+                                        threatId:
+                                            far.id,
+                                    },
+                                },
+
+                                fireRedBeam: {
+                                    role:
+                                        OFFICER_ROLE
+                                            .WEAPONS,
+
+                                    commandId:
+                                        ENCOUNTER_OFFICER_COMMAND_ID
+                                            .WEAPONS_FIRE_RED_BEAM,
+
+                                    target: {
+                                        kind:
+                                            OFFICER_COMMAND_TARGET_KIND
+                                                .THREAT,
+
+                                        threatId:
+                                            far.id,
+                                    },
+                                },
+                            },
+                        },
+                    ],
+                });
+            },
+        );
+
+        it(
+            'rejects duplicate resolved actions for one threat',
+            () => {
+                const missile =
+                    createMissile({
+                        id:
+                            'missile_1',
+
+                        designation:
+                            'M1',
+
+                        timeToImpactMs:
+                            800,
+
+                        initialTimeToImpactMs:
+                            1200,
+
+                        identification: {
+                            status:
+                                THREAT_IDENTIFICATION_STATUS
+                                    .UNKNOWN,
+                        },
+                    });
+
+                const duplicate =
+                    createThreatCommand(
+                        ENCOUNTER_OFFICER_COMMAND_ID
+                            .WEAPONS_FIRE_RED_BEAM,
+
+                        missile.id,
+                    );
+
+                expect(() => {
+                    mapCaptainCombatContextToBridgePayload({
+                        incomingMissiles: [
+                            missile,
+                        ],
+
+                        availableScienceCommands:
+                            [],
+
+                        availableWeaponsCommands: [
+                            duplicate,
+                            {
+                                ...duplicate,
+
+                                target: {
+                                    ...duplicate.target,
+                                },
+                            },
+                        ],
+                    });
+                }).toThrow(
+                    'Captain combat context received multiple ' +
+                        'red point-defense commands for threat ' +
+                        missile.id,
+                );
+            },
+        );
+    },
+);
+
+type MissileIdentification =
+    CombatProjectileState[
+        'identification'
+    ];
+
+function createMissile({
+    id,
+    designation,
+    timeToImpactMs,
+    initialTimeToImpactMs,
+    identification,
+}: {
+    id: string;
+    designation: string;
+
+    timeToImpactMs: number;
+    initialTimeToImpactMs: number;
+
+    identification:
+        MissileIdentification;
+}): CombatProjectileState {
+    return {
+        id,
+        designation,
+
+        kind:
+            COMBAT_PROJECTILE_KIND
+                .MISSILE,
+
+        source: {
+            kind:
+                COMBAT_SOURCE_KIND
+                    .ACTOR,
+
+            actorId:
+                'enemy_ship_00',
+        },
+
+        sourceWeaponId:
+            'missile_launcher_00',
+
+        target: {
+            kind:
+                COMBAT_TARGET_KIND
+                    .PLAYER_SHIP,
+        },
+
+        identification,
+
+        missileId:
+            MISSILE_ID.RED_00,
+
+        timeToImpactMs,
+        initialTimeToImpactMs,
+    };
+}
+
+function createThreatCommand(
+    commandId:
+        AvailableOfficerCommand[
+            'commandId'
+        ],
+    threatId: string,
+): AvailableOfficerCommand {
+    return {
+        commandId,
+
+        label:
+            String(commandId),
+
+        target: {
+            kind:
+                OFFICER_COMMAND_TARGET_KIND
+                    .THREAT,
+
+            threatId,
+        },
+    };
+}

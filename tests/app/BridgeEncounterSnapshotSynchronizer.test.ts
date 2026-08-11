@@ -69,6 +69,34 @@ describe('BridgeEncounterSnapshotSynchronizer', () => {
                     },
                 },
             ],
+
+            [
+                BRIDGE_EVENT
+                    .CAPTAIN_COMBAT_CONTEXT_UPDATED,
+
+                {
+                    incomingMissiles: [
+                        {
+                            projectileId:
+                                'incoming_1',
+
+                            designation:
+                                'M1',
+
+                            timeToImpactMs:
+                                800,
+
+                            initialTimeToImpactMs:
+                                1200,
+
+                            spectralBand:
+                                'red',
+
+                            actions: {},
+                        },
+                    ],
+                },
+            ],
         ]);
 
         emit.mockClear();
@@ -127,6 +155,34 @@ describe('BridgeEncounterSnapshotSynchronizer', () => {
                         initialTimeToFireMs: 1000,
                     },
                 ],
+            ],
+
+            [
+                BRIDGE_EVENT
+                    .CAPTAIN_COMBAT_CONTEXT_UPDATED,
+
+                {
+                    incomingMissiles: [
+                        {
+                            projectileId:
+                                'incoming_1',
+
+                            designation:
+                                'M1',
+
+                            timeToImpactMs:
+                                800,
+
+                            initialTimeToImpactMs:
+                                1200,
+
+                            spectralBand:
+                                'red',
+
+                            actions: {},
+                        },
+                    ],
+                },
             ],
         ]);
     });
@@ -191,7 +247,11 @@ function createEncounterEngine(): EncounterEngine {
             return [
                 {
                     id: 'incoming_1',
+                    designation: 'M1',
+
                     timeToImpactMs: 800,
+                    initialTimeToImpactMs: 1200,
+
                     identification: {
                         status: 'identified',
                         spectralBand: 'red',
