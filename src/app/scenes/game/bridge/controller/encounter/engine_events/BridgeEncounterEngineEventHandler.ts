@@ -1,10 +1,8 @@
 // src/app/scenes/game/bridge/controller/encounter/engine_events/BridgeEncounterEngineEventHandler.ts
 
-import { OFFICER_ROLE } from '../../../../../../../engine/defs/officer';
 import type {
     PlayerHullDamageResult,
 } from '../../../../../../../engine/defs/player';
-import { PLAYER_SPACE_NAVIGATION_KIND } from '../../../../../../../engine/defs/player_location';
 import {
     COMBAT_SOURCE_KIND,
     COMBAT_TARGET_KIND,
@@ -14,27 +12,27 @@ import {
     OFFICER_TASK_OUTCOME,
     OFFICER_TASK_RESULT_KIND,
     type EncounterEvent,
-    type EncounterLoadedEvent,
 } from '../../../../../../../engine/encounter/model/event';
 import { OFFICER_TASK_KIND } from '../../../../../../../engine/encounter/model/officer_task';
-import { DEBUG_SETTINGS } from '../../../../../../debug/debug_settings';
 import type { GameRuntime } from '../../../../../../runtime/GameRuntime';
 import { SCENE_KEY } from '../../../../../scene_key';
 import {
     BRIDGE_EVENT,
     BRIDGE_STICKY_MINE_REMOVAL_OUTCOME,
-    type BridgeEncounterObjectPayload,
 } from '../../../events/bridge_event';
 import type BridgeEventBus from '../../../events/BridgeEventBus';
-import BridgeEncounterRuntimeSynchronizer from './BridgeEncounterRuntimeSynchronizer';
 import {
     mapEncounterAnchorToBridgeObjectPayload,
-    mapEncounterStateToBridgeObjectPayloads,
 } from '../encounter_objects/BridgeEncounterObjectMapper';
+import BridgeEncounterLoadPresenter from './BridgeEncounterLoadPresenter';
+import BridgeEncounterRuntimeSynchronizer from './BridgeEncounterRuntimeSynchronizer';
 
 type SetEncounterInteractive = (value: boolean) => void;
 
 export default class BridgeEncounterEngineEventHandler {
+    private readonly loadPresenter:
+        BridgeEncounterLoadPresenter;
+
     private readonly runtimeSynchronizer:
         BridgeEncounterRuntimeSynchronizer;
 
@@ -43,6 +41,12 @@ export default class BridgeEncounterEngineEventHandler {
         private readonly setEncounterInteractive: SetEncounterInteractive,
         gameRuntime: GameRuntime,
     ) {
+        this.loadPresenter =
+            new BridgeEncounterLoadPresenter(
+                this.eventBus,
+                this.setEncounterInteractive,
+            );
+
         this.runtimeSynchronizer =
             new BridgeEncounterRuntimeSynchronizer(
                 gameRuntime,
@@ -133,7 +137,7 @@ export default class BridgeEncounterEngineEventHandler {
                 return;
 
             case ENCOUNTER_EVENT.ENCOUNTER_LOADED:
-                this.handleEncounterLoaded(event);
+                this.loadPresenter.present(event);
                 return;
 
             case ENCOUNTER_EVENT.TRAVEL_STARTED:
@@ -679,191 +683,4 @@ export default class BridgeEncounterEngineEventHandler {
 
     // #endregion
 
-    // #region Encounter loaded
-
-    private handleEncounterLoaded(event: EncounterLoadedEvent): void {
-        const objects = mapEncounterStateToBridgeObjectPayloads(event.state);
-
-        this.eventBus.emit(BRIDGE_EVENT.ENCOUNTER_OBJECTS_LOADED, objects);
-
-        const navigation = event.state.navigation;
-        switch (navigation.kind) {
-            case PLAYER_SPACE_NAVIGATION_KIND.ARRIVING:
-                this.handleArrivingNavigation(navigation.targetAnchorId, objects);
-                return;
-
-            case PLAYER_SPACE_NAVIGATION_KIND.ANCHORED:
-                this.handleAnchoredNavigation(navigation.anchorId, objects);
-                return;
-
-            case PLAYER_SPACE_NAVIGATION_KIND.TRAVELLING:
-                this.handleTravellingNavigation(
-                    this.findLoadedTravelTaskIdOrThrow(event, navigation.targetAnchorId),
-
-                    navigation.fromAnchorId,
-                    navigation.targetAnchorId,
-
-                    objects,
-                );
-                return;
-
-            default:
-                return this.assertNeverNavigation(navigation);
-        }
-    }
-
-    private handleArrivingNavigation(
-        targetAnchorId: string,
-        objects: BridgeEncounterObjectPayload[],
-    ): void {
-        const targetAnchorObjects = this.findAnchorObjectsOrThrow(
-            objects,
-            targetAnchorId,
-        );
-
-        if (DEBUG_SETTINGS.bridge.encounter.skipArrival) {
-            this.eventBus.emit(
-                BRIDGE_EVENT.ENCOUNTER_OBJECTS_UPDATED,
-                targetAnchorObjects,
-            );
-
-            this.eventBus.emit(BRIDGE_EVENT.ENCOUNTER_ARRIVAL_COMPLETED);
-            return;
-        }
-
-        this.setEncounterInteractive(false);
-
-        this.eventBus.emit(BRIDGE_EVENT.ENCOUNTER_ARRIVAL_STARTED, {
-            targetId: targetAnchorId,
-        });
-    }
-
-    private handleAnchoredNavigation(
-        anchorId: string,
-        objects: BridgeEncounterObjectPayload[],
-    ): void {
-        const anchorObjects = this.findAnchorObjectsOrThrow(
-            objects,
-            anchorId,
-        );
-
-        this.eventBus.emit(
-            BRIDGE_EVENT.ENCOUNTER_OBJECTS_UPDATED,
-            anchorObjects,
-        );
-
-        this.setEncounterInteractive(true);
-    }
-
-    private handleTravellingNavigation(
-        taskId: string,
-
-        fromAnchorId: string,
-        targetAnchorId: string,
-
-        objects: BridgeEncounterObjectPayload[],
-    ): void {
-        this.findAnchorObjectsOrThrow(
-            objects,
-            fromAnchorId,
-        );
-
-        const targetAnchorObjects = this.findAnchorObjectsOrThrow(
-            objects,
-            targetAnchorId,
-        );
-
-        this.setEncounterInteractive(false);
-
-        this.eventBus.emit(
-            BRIDGE_EVENT.ENCOUNTER_OBJECTS_UPDATED,
-            targetAnchorObjects,
-        );
-
-        this.eventBus.emit(BRIDGE_EVENT.ENCOUNTER_TRAVEL_COMPLETED, {
-            taskId,
-        });
-    }
-
-    // #endregion
-
-    // #region Loaded task lookup
-
-    private findLoadedTravelTaskIdOrThrow(
-        event: EncounterLoadedEvent,
-        targetAnchorId: string,
-    ): string {
-        const task = event.state.officerTasks[OFFICER_ROLE.HELM];
-        if (!task) {
-            throw new Error('TRAVELLING encounter requires active Helm task');
-        }
-
-        if (task.kind !== OFFICER_TASK_KIND.HELM_FLY_TO) {
-            throw new Error(
-                `TRAVELLING encounter requires HELM_FLY_TO task, ` +
-                    `received: ${task.kind}`,
-            );
-        }
-
-        if (task.targetAnchorId !== targetAnchorId) {
-            throw new Error(
-                `Loaded HELM_FLY_TO task target does not match ` +
-                    `navigation target: ` +
-                    `${task.targetAnchorId} !== ${targetAnchorId}`,
-            );
-        }
-
-        return task.id;
-    }
-
-    // #endregion
-
-    // #region Bridge object lookup
-
-    private findAnchorObjectsOrThrow(
-        objects: BridgeEncounterObjectPayload[],
-        anchorObjectId: string,
-    ): BridgeEncounterObjectPayload[] {
-        this.findObjectOrThrow(
-            objects,
-            anchorObjectId,
-        );
-
-        const anchorObjects = objects.filter((object) => {
-            return object.anchorObjectId === anchorObjectId;
-        });
-
-        if (anchorObjects.length === 0) {
-            throw new Error(
-                `Encounter anchor objects not found: ${anchorObjectId}`,
-            );
-        }
-
-        return anchorObjects;
-    }
-
-    private findObjectOrThrow(
-        objects: BridgeEncounterObjectPayload[],
-        objectId: string,
-    ): BridgeEncounterObjectPayload {
-        const object = objects.find((candidate) => {
-            return candidate.id === objectId;
-        });
-
-        if (!object) {
-            throw new Error(
-                `Navigation bridge object not found: ${objectId}`,
-            );
-        }
-
-        return object;
-    }
-
-    // #endregion
-
-    private assertNeverNavigation(value: never): never {
-        throw new Error(
-            `Unhandled player space navigation state: ${String(value)}`,
-        );
-    }
 }
