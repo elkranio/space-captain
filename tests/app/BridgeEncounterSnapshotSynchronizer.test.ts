@@ -23,6 +23,34 @@ describe('BridgeEncounterSnapshotSynchronizer', () => {
             {
                 setPlayerShipWeaponStates,
                 setPlayerShipDefenseCapacitorState,
+
+                getCurrentRun:
+                    vi.fn(() => {
+                        return {
+                            player: {
+                                ship: {
+                                    hull: 3,
+                                    maxHull: 3,
+
+                                    drive: {
+                                        status:
+                                            'online',
+                                    },
+
+                                    defenseCapacitor: {
+                                        id:
+                                            'defense_capacitor_player_00',
+
+                                        defenseCapacitorId:
+                                            'defense_capacitor_basic_00',
+
+                                        charges: 3,
+                                        rechargeElapsedMs: 1200,
+                                    },
+                                },
+                            },
+                        };
+                    }),
             } as unknown as GameRuntime,
         );
 
@@ -44,7 +72,31 @@ describe('BridgeEncounterSnapshotSynchronizer', () => {
         expect(setPlayerShipWeaponStates).toHaveBeenCalledWith([]);
         expect(emit.mock.calls).toEqual([
             [BRIDGE_EVENT.PLAYER_WEAPONS_STATUS_UPDATED, {}],
-            [BRIDGE_EVENT.PLAYER_SHIP_DASHBOARD_UPDATED, {}],
+            [
+                BRIDGE_EVENT.PLAYER_SHIP_DASHBOARD_UPDATED,
+
+                {
+                    status: {
+                        hull: {
+                            current: 3,
+                            max: 3,
+                        },
+
+                        defenseCapacitor: {
+                            current: 3,
+                            max: 4,
+
+                            rechargeProgress:
+                                0.05,
+                        },
+
+                        drive: {
+                            status:
+                                'online',
+                        },
+                    },
+                },
+            ],
             [
                 BRIDGE_EVENT.ENEMY_SHIP_TELEMETRY_UPDATED,
                 {

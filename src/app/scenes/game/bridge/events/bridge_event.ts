@@ -470,6 +470,29 @@ export type BridgePlayerSystemActionState =
     (typeof BRIDGE_PLAYER_SYSTEM_ACTION_STATE)[keyof typeof BRIDGE_PLAYER_SYSTEM_ACTION_STATE];
 
 export type BridgePlayerShipDashboardUpdatedPayload = {
+    // Stable top strip owned by the captain dashboard itself.
+    // Legacy PLAYER_SHIP_STATUS_UPDATED remains for old presentation
+    // until the audit pass, but the new dashboard does not depend on it.
+    status?: {
+        hull: {
+            current: number;
+            max: number;
+        };
+
+        defenseCapacitor: {
+            current: number;
+            max: number;
+
+            // 0..1 progress toward the next sequential charge.
+            // Undefined at full capacity.
+            rechargeProgress?: number;
+        };
+
+        drive: {
+            status: ShipDriveStatus;
+        };
+    };
+
     missileLauncher?: {
         ammo: {
             current: number;

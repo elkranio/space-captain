@@ -1,4 +1,10 @@
+import {
+    DEFENSE_CAPACITORS,
+} from '../../../../../../engine/content/catalogs/defense_capacitors';
 import { OFFICER_ROLE } from '../../../../../../engine/defs/officer';
+import type {
+    PlayerShipState,
+} from '../../../../../../engine/defs/player';
 import {
     SHIP_WEAPON_PHASE,
 } from '../../../../../../engine/defs/ship_weapon';
@@ -47,6 +53,11 @@ type PlayerShipDashboardMapperInput = {
 
     weaponsOfficerAvailability:
         OfficerAvailabilityState;
+
+    // Optional so focused mapper tests can still exercise weapon rows
+    // without constructing the whole persistent player ship.
+    playerShip?:
+        PlayerShipState;
 };
 
 // App-side projection player ship runtime → captain dashboard.
@@ -67,6 +78,15 @@ export function mapPlayerShipToBridgeDashboardPayload(
             .laser;
 
     return {
+        ...(input.playerShip
+            ? {
+                  status:
+                      mapStatus(
+                          input.playerShip,
+                      ),
+              }
+            : {}),
+
         ...(launcher
             ? {
                   missileLauncher:
@@ -88,6 +108,71 @@ export function mapPlayerShipToBridgeDashboardPayload(
                       ),
               }
             : {}),
+    };
+}
+
+function mapStatus(
+    ship:
+        PlayerShipState,
+): NonNullable<
+    BridgePlayerShipDashboardUpdatedPayload[
+        'status'
+    ]
+> {
+    const definition =
+        DEFENSE_CAPACITORS[
+            ship
+                .defenseCapacitor
+                .defenseCapacitorId
+        ];
+
+    const rechargeProgress =
+        ship.defenseCapacitor
+            .charges <
+        definition.capacity
+            ? Math.max(
+                  0,
+                  Math.min(
+                      1,
+
+                      ship
+                          .defenseCapacitor
+                          .rechargeElapsedMs /
+                          definition
+                              .rechargeDurationMs,
+                  ),
+              )
+            : undefined;
+
+    return {
+        hull: {
+            current:
+                ship.hull,
+            max:
+                ship.maxHull,
+        },
+
+        defenseCapacitor: {
+            current:
+                ship
+                    .defenseCapacitor
+                    .charges,
+
+            max:
+                definition.capacity,
+
+            ...(rechargeProgress !==
+            undefined
+                ? {
+                      rechargeProgress,
+                  }
+                : {}),
+        },
+
+        drive: {
+            status:
+                ship.drive.status,
+        },
     };
 }
 

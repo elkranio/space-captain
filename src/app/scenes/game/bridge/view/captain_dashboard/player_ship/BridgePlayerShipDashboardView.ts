@@ -74,6 +74,7 @@ export default class BridgePlayerShipDashboardView {
         this.statusStripView =
             new BridgePlayerShipStatusStripView(
                 this.scene,
+                this.eventBus,
                 innerWidth,
                 STATUS_HEIGHT,
             );
