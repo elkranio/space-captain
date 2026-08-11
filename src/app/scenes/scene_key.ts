@@ -5,7 +5,6 @@ export const SCENE_KEY = {
     PRELOAD: 'preload',
 
     INIT: 'init',
-    GAME_OVERLAY: 'game_overlay',
     BRIDGE: 'bridge',
     END: 'end',
 } as const;

@@ -8,7 +8,6 @@ import Preload from './app/scenes/system/preload/Preload';
 import InitScene from './app/scenes/game/init/InitScene';
 import BridgeScene from './app/scenes/game/bridge/BridgeScene';
 import EndScene from './app/scenes/game/end/EndScene';
-import GameOverlayScene from './app/scenes/game/overlay/GameOverlayScene';
 
 import applyResponsiveScaling from './utils/applyResponsiveScaling';
 import enforceOrientation from './utils/enforceOrientation';
@@ -22,7 +21,7 @@ window.addEventListener('load', async () => {
         document.title = P34TOptions.title;
     }
 
-    gameConfig.scene = [Boot, Preload, InitScene, BridgeScene, EndScene, GameOverlayScene];
+    gameConfig.scene = [Boot, Preload, InitScene, BridgeScene, EndScene];
 
     new Phaser.Game(gameConfig);
 });
