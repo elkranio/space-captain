@@ -25,7 +25,6 @@ export const COMBAT_THREAT_KIND = {
 export type CombatThreatKind = (typeof COMBAT_THREAT_KIND)[keyof typeof COMBAT_THREAT_KIND];
 
 export const LASER_SHOT_OUTCOME = {
-    BLOCKED: 'blocked',
     HIT: 'hit',
 } as const;
 

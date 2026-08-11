@@ -7,7 +7,6 @@ import { SPACE_ANCHOR_KIND } from '../../../../../../../engine/defs/universe';
 import {
     COMBAT_SOURCE_KIND,
     COMBAT_TARGET_KIND,
-    LASER_SHOT_OUTCOME,
 } from '../../../../../../../engine/encounter/model/combat';
 import {
     ENCOUNTER_EVENT,
@@ -118,13 +117,6 @@ export default class BridgeEncounterRuntimeSynchronizer {
                 return;
 
             case ENCOUNTER_EVENT.LASER_FIRED:
-                if (
-                    event.outcome ===
-                    LASER_SHOT_OUTCOME.BLOCKED
-                ) {
-                    return;
-                }
-
                 this.synchronizePlayerHull(
                     event,
                 );

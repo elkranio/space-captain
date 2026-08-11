@@ -454,23 +454,16 @@ export type LaserAttackStartedEvent = {
 };
 
 export type LaserFiredEvent =
-    | {
-          type: typeof ENCOUNTER_EVENT.LASER_FIRED;
+    PlayerHullDamageResult & {
+        type:
+            typeof ENCOUNTER_EVENT
+                .LASER_FIRED;
 
-          attack: LaserAttackState;
+        attack: LaserAttackState;
 
-          outcome: typeof LASER_SHOT_OUTCOME.BLOCKED;
-      }
-    | (PlayerHullDamageResult & {
-          type:
-              typeof ENCOUNTER_EVENT
-                  .LASER_FIRED;
-
-          attack: LaserAttackState;
-
-          outcome:
-              typeof LASER_SHOT_OUTCOME.HIT;
-      });
+        outcome:
+            typeof LASER_SHOT_OUTCOME.HIT;
+    };
 
 
 export type SpamChannelStartedEvent = {

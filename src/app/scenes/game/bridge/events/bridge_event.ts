@@ -762,7 +762,6 @@ export type BridgeLaserBeamFiredPayload = {
     sourceActorId: string;
 
     targetZone: LaserTargetZone;
-    outcome: LaserShotOutcome;
 };
 
 export type BridgePlayerLaserChargingStartedPayload = {

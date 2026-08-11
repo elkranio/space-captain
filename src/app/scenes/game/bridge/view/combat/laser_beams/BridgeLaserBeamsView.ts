@@ -1,7 +1,6 @@
 // src/app/scenes/game/bridge/view/combat/laser_beams/BridgeLaserBeamsView.ts
 
 import { LASER_TARGET_ZONE, type LaserTargetZone } from '../../../../../../../engine/defs/laser';
-import { LASER_SHOT_OUTCOME } from '../../../../../../../engine/encounter/model/combat';
 import type BridgeScene from '../../../BridgeScene';
 import {
     BRIDGE_EVENT,
@@ -18,16 +17,14 @@ const LASER_TARGET_LAYOUT = {
     centerXRatio: 1 / 2,
     rightXRatio: 5 / 6,
 
-    blockedYFromBottom: 62,
     hitYFromBottom: 12,
 } as const;
 
 // Manager-view коротких enemy laser beam effects.
 //
 // source берётся из текущей presentation-позиции enemy actor.
-// target определяется зоной и outcome:
-// - BLOCKED останавливается на будущей плоскости shield;
-// - HIT проходит глубже, почти до нижней границы viewscreen.
+// target пока определяется старой directional zone; сам beam всегда доходит
+// почти до нижней границы viewscreen. Directional zone уйдёт следующим atom-ом.
 export default class BridgeLaserBeamsView {
     private readonly root: Phaser.GameObjects.Container;
 
@@ -74,7 +71,6 @@ export default class BridgeLaserBeamsView {
 
         const targetPosition = this.getTargetPosition(
             payload.targetZone,
-            payload.outcome === LASER_SHOT_OUTCOME.BLOCKED,
         );
 
         const beam = new BridgeLaserBeamView({
@@ -95,7 +91,6 @@ export default class BridgeLaserBeamsView {
 
     private getTargetPosition(
         targetZone: LaserTargetZone,
-        blocked: boolean,
     ): Phaser.Math.Vector2 {
         const xRatio = this.getTargetXRatio(targetZone);
 
@@ -107,9 +102,7 @@ export default class BridgeLaserBeamsView {
 
             BRIDGE_VIEWSCREEN_RECT.y +
                 BRIDGE_VIEWSCREEN_RECT.height -
-                (blocked
-                    ? LASER_TARGET_LAYOUT.blockedYFromBottom
-                    : LASER_TARGET_LAYOUT.hitYFromBottom),
+                LASER_TARGET_LAYOUT.hitYFromBottom,
         );
     }
 

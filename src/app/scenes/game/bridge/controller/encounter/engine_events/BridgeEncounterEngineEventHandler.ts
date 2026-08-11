@@ -8,7 +8,6 @@ import { PLAYER_SPACE_NAVIGATION_KIND } from '../../../../../../../engine/defs/p
 import {
     COMBAT_SOURCE_KIND,
     COMBAT_TARGET_KIND,
-    LASER_SHOT_OUTCOME,
 } from '../../../../../../../engine/encounter/model/combat';
 import {
     ENCOUNTER_EVENT,
@@ -648,12 +647,7 @@ export default class BridgeEncounterEngineEventHandler {
                     sourceActorId: event.attack.sourceActorId,
 
                     targetZone: event.attack.targetZone,
-                    outcome: event.outcome,
                 });
-
-                if (event.outcome === LASER_SHOT_OUTCOME.BLOCKED) {
-                    return;
-                }
 
                 this.handlePlayerShipDamaged(
                     event,
