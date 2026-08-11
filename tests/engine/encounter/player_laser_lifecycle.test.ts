@@ -126,15 +126,12 @@ describe('Player laser lifecycle', () => {
             target: {
                 kind:
                     OFFICER_COMMAND_TARGET_KIND
-                        .ACTOR_LASER_ZONE,
+                        .ACTOR_WEAPON,
 
                 weaponId:
                     'laser_player_00',
 
                 actorId: enemy.id,
-
-                targetZone:
-                    LASER_TARGET_ZONE.CENTER,
             },
         });
 
@@ -316,6 +313,6 @@ describe('Player laser lifecycle', () => {
                             .WEAPONS_FIRE_LASER
                     );
                 }),
-        ).toHaveLength(3);
+        ).toHaveLength(1);
     });
 });

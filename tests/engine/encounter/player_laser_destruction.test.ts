@@ -62,16 +62,13 @@ describe('Player laser enemy destruction', () => {
             target: {
                 kind:
                     OFFICER_COMMAND_TARGET_KIND
-                        .ACTOR_LASER_ZONE,
+                        .ACTOR_WEAPON,
 
                 weaponId:
                     'laser_player_00',
 
                 actorId:
                     enemyId,
-
-                targetZone:
-                    LASER_TARGET_ZONE.CENTER,
             },
         });
 

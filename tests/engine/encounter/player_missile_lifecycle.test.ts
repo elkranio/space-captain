@@ -217,7 +217,7 @@ describe('Player missile lifecycle', () => {
                     );
                 },
             ),
-        ).toHaveLength(3);
+        ).toHaveLength(1);
 
         engine.step(1000);
 

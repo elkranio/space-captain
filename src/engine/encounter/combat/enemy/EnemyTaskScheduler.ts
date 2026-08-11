@@ -72,10 +72,13 @@ type EnemyTaskSchedulerOptions = {
     random?: () => number;
 };
 
+// Directional laser shielding is temporarily retired.
+ // Engineer remains available to dedicated defensive flows
+ // such as sticky-mine clearing, but is not scheduled through
+ // the old generic role-work loop until the new shield contract.
 const ENEMY_WORK_ROLES = [
     OFFICER_ROLE.WEAPONS,
     OFFICER_ROLE.SCIENCE,
-    OFFICER_ROLE.ENGINEER,
 ] as const;
 
 // Исполняет выбранные policy задачи

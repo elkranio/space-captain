@@ -1,8 +1,7 @@
 // src/engine/encounter/commands/handlers/weapons_fire_laser_command_handler.ts
 
 import {
-    LASER_TARGET_ZONES,
-    type LaserTargetZone,
+    LASER_TARGET_ZONE,
 } from '../../../defs/laser';
 import {
     OFFICER_ROLE,
@@ -21,9 +20,6 @@ import {
 import type {
     OfficerCommandHandler,
 } from '../../model/officer_command_handler';
-import type {
-    EncounterState,
-} from '../../model/state';
 import {
     findCurrentEnemyShip,
 } from '../queries/find_current_enemy_ship';
@@ -41,7 +37,7 @@ const def = {
     targeting: {
         kind:
             OFFICER_COMMAND_TARGET_KIND
-                .ACTOR_LASER_ZONE,
+                .ACTOR_WEAPON,
     },
 
     requiresOnlineDrive: false,
@@ -64,57 +60,46 @@ export const weaponsFireLaserCommandHandler:
                 return [];
             }
 
-            const readyLasers =
-                state.combat.playerWeapons
-                    .filter(isReadyLaser);
+            return state.combat
+                .playerWeapons
+                .filter(isReadyLaser)
+                .map((weapon) => {
+                    return {
+                        commandId:
+                            ENCOUNTER_OFFICER_COMMAND_ID
+                                .WEAPONS_FIRE_LASER,
 
-            return readyLasers.flatMap(
-                (weapon) => {
-                    return LASER_TARGET_ZONES.map(
-                        (targetZone) => {
-                            return {
-                                commandId:
-                                    ENCOUNTER_OFFICER_COMMAND_ID
-                                        .WEAPONS_FIRE_LASER,
+                        label:
+                            def.label,
 
-                                label:
-                                    getCommandLabel(
-                                        targetZone,
-                                    ),
+                        target: {
+                            kind:
+                                OFFICER_COMMAND_TARGET_KIND
+                                    .ACTOR_WEAPON,
 
-                                target: {
-                                    kind:
-                                        OFFICER_COMMAND_TARGET_KIND
-                                            .ACTOR_LASER_ZONE,
+                            weaponId:
+                                weapon.id,
 
-                                    weaponId:
-                                        weapon.id,
-
-                                    actorId:
-                                        targetActor.id,
-
-                                    targetZone,
-                                },
-
-                                targetLabel:
-                                    targetActor
-                                        .displayName,
-                            };
+                            actorId:
+                                targetActor.id,
                         },
-                    );
-                },
-            );
+
+                        targetLabel:
+                            targetActor
+                                .displayName,
+                    };
+                });
         },
 
         execute(context, input) {
             if (
                 input.target.kind !==
                 OFFICER_COMMAND_TARGET_KIND
-                    .ACTOR_LASER_ZONE
+                    .ACTOR_WEAPON
             ) {
                 throw new Error(
                     'FIRE LASER requires ' +
-                        'an actor laser-zone target',
+                        'an actor weapon target',
                 );
             }
 
@@ -127,7 +112,13 @@ export const weaponsFireLaserCommandHandler:
                 createWeaponsFireLaserTask(
                     input.target.weaponId,
                     input.target.actorId,
-                    input.target.targetZone,
+
+                    // Transitional presentation detail.
+                    // The player no longer chooses a side:
+                    // baseline laser targets HULL.
+                    // The remaining zone-based laser/shield
+                    // contract is removed in the next atom.
+                    LASER_TARGET_ZONE.CENTER,
                 ),
             );
         },
@@ -141,14 +132,5 @@ function isReadyLaser(
             SHIP_WEAPON_KIND.LASER &&
         weapon.phase ===
             SHIP_WEAPON_PHASE.READY
-    );
-}
-
-function getCommandLabel(
-    targetZone: LaserTargetZone,
-): string {
-    return (
-        'FIRE LASER: ' +
-        targetZone.toUpperCase()
     );
 }
