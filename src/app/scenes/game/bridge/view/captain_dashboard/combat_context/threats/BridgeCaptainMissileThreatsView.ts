@@ -36,11 +36,11 @@ const SELECTOR = {
     disabledBorderColor: 0x26394c,
     disabledTextColor: 0x536778,
 
-    redBackgroundColor: 0x321a1a,
-    redBorderColor: 0xc96559,
+    redBackgroundColor: 0x2d1818,
+    redBorderColor: 0xd86e61,
 
-    blueBackgroundColor: 0x172a38,
-    blueBorderColor: 0x5c9bc5,
+    blueBackgroundColor: 0x182437,
+    blueBorderColor: 0x63a7d8,
 } as const;
 
 type BeamSelectorButton = {
