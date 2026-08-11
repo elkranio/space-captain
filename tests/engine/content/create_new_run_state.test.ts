@@ -69,16 +69,6 @@ describe('createNewRunState', () => {
                 rechargeElapsedMs: 0,
             },
 
-            shieldGenerator: {
-                charges: 3,
-                maxCharges: 3,
-
-                chargeRegenerationDurationMs:
-                    20000,
-
-                chargeRegenerationElapsedMs: 0,
-            },
-
             weapons: [
                 {
                     id: 'laser_player_00',
@@ -200,19 +190,6 @@ describe('createNewRunState', () => {
             .defenseCapacitor
             .rechargeElapsedMs = 12000;
 
-        firstRun
-            .player
-            .ship
-            .shieldGenerator
-            .charges = 0;
-
-        firstRun
-            .player
-            .ship
-            .shieldGenerator
-            .chargeRegenerationElapsedMs =
-                10000;
-
         const firstWeapon =
             firstRun.player.ship.weapons[0];
 
@@ -273,16 +250,6 @@ describe('createNewRunState', () => {
 
                 charges: 4,
                 rechargeElapsedMs: 0,
-            },
-
-            shieldGenerator: {
-                charges: 3,
-                maxCharges: 3,
-
-                chargeRegenerationDurationMs:
-                    20000,
-
-                chargeRegenerationElapsedMs: 0,
             },
 
             weapons: [

@@ -409,10 +409,6 @@ function createMissileImpactSetup({
             run.player.ship
                 .pointDefense,
 
-        shieldGenerator:
-            run.player.ship
-                .shieldGenerator,
-
         weapons:
             run.player.ship.weapons,
     });

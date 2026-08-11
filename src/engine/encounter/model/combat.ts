@@ -6,7 +6,6 @@ import type {
 import type { LaserTargetZone } from '../../defs/laser';
 import type { MissileSpectralBand, MissileId } from '../../defs/missile';
 import type { PointDefenseState } from '../../defs/point_defense';
-import type { ShieldGeneratorState } from '../../defs/shield_generator';
 import type {
     StickyMineId,
 } from '../../defs/sticky_mine';
@@ -236,11 +235,6 @@ export type EncounterCombatState = {
     // Mutable installed weapons
     // текущего player ship в encounter.
     playerWeapons: ShipWeaponState[];
-
-    // Некоторые ships могут не иметь shield generator.
-    // Starter player ship передаёт его явно.
-    shieldGenerator?: ShieldGeneratorState;
-
 
     projectiles: CombatProjectileState[];
     laserAttacks: LaserAttackState[];

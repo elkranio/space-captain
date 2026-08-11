@@ -7,7 +7,6 @@ import type {
 import type { OfficerRole } from '../../defs/officer';
 import type { PlayerHullState } from '../../defs/player';
 import type { PlayerSpaceNavigationState } from '../../defs/player_location';
-import type { ShieldGeneratorState } from '../../defs/shield_generator';
 import type { ShipDriveState } from '../../defs/ship_drive';
 import {
     SHIP_WEAPON_KIND,
@@ -160,11 +159,6 @@ export default class EncounterSnapshotReader {
     public getLaserThreatSnapshots(): LaserThreatSnapshot[] {
         return this.read(getLaserThreatSnapshots);
     }
-
-    public getShieldGeneratorState(): ShieldGeneratorState | undefined {
-        return this.read((state) => state.combat.shieldGenerator);
-    }
-
 
     private read<T>(select: (state: EncounterState) => T): T {
         return createDetachedSnapshot(select(this.state));

@@ -232,8 +232,6 @@ function createObserverFixture() {
 
         pointDefense: createPointDefenseFixture(),
 
-        shieldGenerator: undefined,
-
         playerWeapons: [
             playerLaser,
         ],

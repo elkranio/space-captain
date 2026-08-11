@@ -8,7 +8,6 @@ import type {
 } from '../../defs/player';
 import type { PlayerSpaceNavigationState } from '../../defs/player_location';
 import type { PointDefenseState } from '../../defs/point_defense';
-import type { ShieldGeneratorState } from '../../defs/shield_generator';
 import type { ShipDriveState } from '../../defs/ship_drive';
 import type {
     ShipWeaponState,
@@ -29,8 +28,6 @@ export type CreateEncounterStateInput = {
     defenseCapacitor?:
         DefenseCapacitorState;
 
-    shieldGenerator?: ShieldGeneratorState;
-
     playerWeapons?: ShipWeaponState[];
 };
 
@@ -41,7 +38,6 @@ export function createEncounterState({
     drive,
     pointDefense,
     defenseCapacitor,
-    shieldGenerator,
     playerWeapons = [],
 }: CreateEncounterStateInput): EncounterState {
     validatePlayerHull(
@@ -98,14 +94,6 @@ export function createEncounterState({
                         };
                     },
                 ),
-
-            ...(shieldGenerator
-                ? {
-                      shieldGenerator: {
-                          ...shieldGenerator,
-                      },
-                  }
-                : {}),
 
             projectiles: [],
             laserAttacks: [],

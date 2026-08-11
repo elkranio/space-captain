@@ -229,8 +229,6 @@ export default class BridgeEncounterController {
                 run.player.ship
                     .defenseCapacitor,
 
-            shieldGenerator: run.player.ship.shieldGenerator,
-
             weapons: run.player.ship.weapons,
 
             completeTimedTasksImmediately: DEBUG_SETTINGS.bridge.officerTasks.completeTimedTasksImmediately,

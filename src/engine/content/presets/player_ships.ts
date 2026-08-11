@@ -15,7 +15,6 @@ import {
 } from '../../defs/point_defense';
 import { SHIP_DRIVE_ID, type ShipDriveId } from '../../defs/ship_drive';
 import { SHIP_WEAPON_ID } from '../../defs/ship_weapon';
-import { SHIELD_GENERATOR_PRESET_ID, type ShieldGeneratorPresetId } from './shield_generators';
 
 export const PLAYER_SHIP_PRESET_ID = {
     STARTER_00: 'starter_00',
@@ -87,8 +86,6 @@ export type PlayerShipPreset = {
             DefenseCapacitorId;
     };
 
-    shieldGeneratorPresetId: ShieldGeneratorPresetId;
-
     weapons: PlayerShipWeaponPreset[];
 };
 
@@ -117,8 +114,6 @@ export const PLAYER_SHIP_PRESETS = {
                 DEFENSE_CAPACITOR_ID
                     .BASIC_00,
         },
-
-        shieldGeneratorPresetId: SHIELD_GENERATOR_PRESET_ID.BASIC_00,
 
         weapons: [
             {

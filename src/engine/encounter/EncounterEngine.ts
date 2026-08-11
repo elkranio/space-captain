@@ -13,7 +13,6 @@ import type {
 } from '../defs/player';
 import type { PlayerSpaceNavigationState } from '../defs/player_location';
 import type { PointDefenseState } from '../defs/point_defense';
-import type { ShieldGeneratorState } from '../defs/shield_generator';
 import type { ShipDriveState } from '../defs/ship_drive';
 import type {
     ShipWeaponState,
@@ -66,10 +65,6 @@ export type EncounterEngineOptions = {
     defenseCapacitor?:
         DefenseCapacitorState;
 
-    // undefined означает, что у player ship
-    // физически нет shield generator.
-    shieldGenerator?: ShieldGeneratorState;
-
     // Installed player weapons.
     // Empty loadout remains valid.
     weapons?: ShipWeaponState[];
@@ -110,7 +105,6 @@ export default class EncounterEngine {
         drive,
         pointDefense,
         defenseCapacitor,
-        shieldGenerator,
         weapons = [],
 
         completeTimedTasksImmediately = false,
@@ -127,7 +121,6 @@ export default class EncounterEngine {
 
                 pointDefense,
                 defenseCapacitor,
-                shieldGenerator,
 
                 playerWeapons:
                     weapons,
@@ -394,11 +387,6 @@ export default class EncounterEngine {
     public getLaserThreatSnapshots(): LaserThreatSnapshot[] {
         return this.snapshotReader.getLaserThreatSnapshots();
     }
-
-    public getShieldGeneratorState(): ShieldGeneratorState | undefined {
-        return this.snapshotReader.getShieldGeneratorState();
-    }
-
 
     public drainEvents(): EncounterEvent[] {
         const events = [...this.events];

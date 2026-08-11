@@ -13,7 +13,6 @@ import {
     type PlayerSpaceNavigationState,
 } from '../../engine/defs/player_location';
 import type { RunState } from '../../engine/defs/run';
-import type { ShieldGeneratorState } from '../../engine/defs/shield_generator';
 import type { ShipDriveState } from '../../engine/defs/ship_drive';
 import type { ShipWeaponState } from '../../engine/defs/ship_weapon';
 import { SPACE_ANCHOR_KIND, type SpaceAnchorState } from '../../engine/defs/universe';
@@ -149,53 +148,6 @@ export class GameRuntime {
 
         current.rechargeElapsedMs =
             next.rechargeElapsedMs;
-    }
-
-    public setPlayerShipShieldGeneratorState(next: ShieldGeneratorState): void {
-        const current = this.currentRun.player.ship.shieldGenerator;
-
-        if (next.maxCharges !== current.maxCharges) {
-            throw new Error(
-                `Player shield-generator max charges cannot change: ` +
-                    `${next.maxCharges} !== ${current.maxCharges}`,
-            );
-        }
-
-        if (next.chargeRegenerationDurationMs !== current.chargeRegenerationDurationMs) {
-            throw new Error(
-                `Player shield-generator regeneration duration cannot change: ` +
-                    `${next.chargeRegenerationDurationMs} !== ${current.chargeRegenerationDurationMs}`,
-            );
-        }
-
-        if (!Number.isInteger(next.charges) || next.charges < 0 || next.charges > current.maxCharges) {
-            throw new Error(
-                `Player shield-generator charges must be an integer between ` +
-                    `0 and ${current.maxCharges}: ${next.charges}`,
-            );
-        }
-
-        if (
-            !Number.isFinite(next.chargeRegenerationElapsedMs) ||
-            next.chargeRegenerationElapsedMs < 0 ||
-            next.chargeRegenerationElapsedMs >= current.chargeRegenerationDurationMs
-        ) {
-            throw new Error(
-                `Player shield-generator regeneration elapsed must be in ` +
-                    `[0, ${current.chargeRegenerationDurationMs}): ` +
-                    `${next.chargeRegenerationElapsedMs}`,
-            );
-        }
-
-        if (next.charges === current.maxCharges && next.chargeRegenerationElapsedMs !== 0) {
-            throw new Error(
-                `Fully charged player shield generator must have zero regeneration elapsed: ` +
-                    `${next.chargeRegenerationElapsedMs}`,
-            );
-        }
-
-        current.charges = next.charges;
-        current.chargeRegenerationElapsedMs = next.chargeRegenerationElapsedMs;
     }
 
     public setPlayerShipDriveState(next: ShipDriveState): void {
