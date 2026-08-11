@@ -74,9 +74,7 @@ export default class BridgeView {
         this.officerBarksView = new BridgeOfficerBarksView(this.scene, this.eventBus);
 
         // Officer station clicks still use the command-menu flow.
-        // The old BridgeUiView root became unreachable after the
-        // captain-dashboard migration, so the menu now belongs
-        // directly to the active BridgeView lifecycle.
+        // The context menu belongs directly to the active BridgeView lifecycle.
         this.officerContextMenuView =
             new BridgeOfficerContextMenuView(
                 this.scene,
