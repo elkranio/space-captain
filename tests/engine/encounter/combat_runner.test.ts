@@ -8,7 +8,6 @@ import {
     SHIP_WEAPON_TARGETING_DURATION_MS,
 } from '../../../src/engine/content/catalogs/ship_weapons';
 import { SHIP_NODE_ACTOR_PRESET_ID } from '../../../src/engine/content/presets/ship_node_actors';
-import { LASER_TARGET_ZONE } from '../../../src/engine/defs/laser';
 import { MISSILE_ID } from '../../../src/engine/defs/missile';
 import { PLAYER_SPACE_NAVIGATION_KIND } from '../../../src/engine/defs/player_location';
 import {
@@ -281,7 +280,6 @@ describe('CombatRunner', () => {
 
             pointDefense: createPointDefenseFixture(),
 
-            // [left, center, right] → center.
             random: () => 0.5,
         });
 
@@ -324,8 +322,8 @@ describe('CombatRunner', () => {
         expect(laser.phase).toBe(SHIP_WEAPON_PHASE.TARGETING);
         expect(laser.phaseElapsedMs).toBe(1);
 
-        // Во время универсального targeting ещё нет L#,
-        // выбранной зоны и Science-цели.
+        // Во время универсального targeting ещё нет
+        // видимой L# charging threat.
         expect(engine.getLaserAttacks()).toEqual([]);
 
         const firstAttack = {
@@ -339,11 +337,6 @@ describe('CombatRunner', () => {
                 kind: COMBAT_TARGET_KIND.PLAYER_SHIP,
             },
 
-            targetZone: LASER_TARGET_ZONE.CENTER,
-
-            identification: {
-                status: THREAT_IDENTIFICATION_STATUS.UNKNOWN,
-            },
         };
 
         engine.step(SHIP_WEAPON_TARGETING_DURATION_MS - laser.phaseElapsedMs);

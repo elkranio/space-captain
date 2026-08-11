@@ -140,7 +140,7 @@ describe(
         );
 
         it(
-            'does not spend Science time on retired player-laser directional intel',
+            'does not spend Science time on player laser without identifiable intel',
             () => {
                 const {
                     actor,

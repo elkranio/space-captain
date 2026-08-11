@@ -3,7 +3,6 @@
 import type {
     DefenseCapacitorState,
 } from '../../defs/defense_capacitor';
-import type { LaserTargetZone } from '../../defs/laser';
 import type { MissileSpectralBand, MissileId } from '../../defs/missile';
 import type { PointDefenseState } from '../../defs/point_defense';
 import type {
@@ -114,27 +113,11 @@ export type MissileThreatIdentification =
           spectralBand: MissileSpectralBand;
       };
 
-export type LaserThreatIdentification =
-    | {
-          status: typeof THREAT_IDENTIFICATION_STATUS.UNKNOWN;
-      }
-    | {
-          status: typeof THREAT_IDENTIFICATION_STATUS.IDENTIFIED;
+export type ThreatIdentificationResult = {
+    kind: typeof COMBAT_THREAT_KIND.MISSILE;
 
-          targetZone: LaserTargetZone;
-      };
-
-export type ThreatIdentificationResult =
-    | {
-          kind: typeof COMBAT_THREAT_KIND.MISSILE;
-
-          spectralBand: MissileSpectralBand;
-      }
-    | {
-          kind: typeof COMBAT_THREAT_KIND.LASER;
-
-          targetZone: LaserTargetZone;
-      };
+    spectralBand: MissileSpectralBand;
+};
 
 export type MissileCombatProjectileState = {
     id: string;
@@ -178,10 +161,6 @@ export type LaserAttackState = {
         kind: typeof COMBAT_TARGET_KIND.PLAYER_SHIP;
     };
 
-    // targetZone — объективно выбранная зона.
-    // identification — текущее знание игрока о ней.
-    targetZone: LaserTargetZone;
-    identification: LaserThreatIdentification;
 };
 
 // Derived snapshot of one actively channeling spam projector.

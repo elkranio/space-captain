@@ -1,6 +1,5 @@
 // src/app/scenes/game/bridge/view/combat/laser_beams/BridgeLaserBeamsView.ts
 
-import { LASER_TARGET_ZONE, type LaserTargetZone } from '../../../../../../../engine/defs/laser';
 import type BridgeScene from '../../../BridgeScene';
 import {
     BRIDGE_EVENT,
@@ -13,18 +12,15 @@ import BridgeLaserBeamView from './beam/BridgeLaserBeamView';
 type GetObjectPosition = (objectId: string) => Phaser.Math.Vector2 | undefined;
 
 const LASER_TARGET_LAYOUT = {
-    leftXRatio: 1 / 6,
-    centerXRatio: 1 / 2,
-    rightXRatio: 5 / 6,
-
+    xRatio: 1 / 2,
     hitYFromBottom: 12,
 } as const;
 
 // Manager-view коротких enemy laser beam effects.
 //
 // source берётся из текущей presentation-позиции enemy actor.
-// target пока определяется старой directional zone; сам beam всегда доходит
-// почти до нижней границы viewscreen. Directional zone уйдёт следующим atom-ом.
+// Пока semantic impact target не введён, входящий beam визуально
+// приходит в центр нижней части viewscreen.
 export default class BridgeLaserBeamsView {
     private readonly root: Phaser.GameObjects.Container;
 
@@ -69,9 +65,8 @@ export default class BridgeLaserBeamsView {
             );
         }
 
-        const targetPosition = this.getTargetPosition(
-            payload.targetZone,
-        );
+        const targetPosition =
+            this.getTargetPosition();
 
         const beam = new BridgeLaserBeamView({
             scene: this.scene,
@@ -89,33 +84,18 @@ export default class BridgeLaserBeamsView {
         this.beams.add(beam);
     }
 
-    private getTargetPosition(
-        targetZone: LaserTargetZone,
-    ): Phaser.Math.Vector2 {
-        const xRatio = this.getTargetXRatio(targetZone);
-
+    private getTargetPosition():
+        Phaser.Math.Vector2 {
         return new Phaser.Math.Vector2(
             Math.round(
                 BRIDGE_VIEWSCREEN_RECT.x +
-                    BRIDGE_VIEWSCREEN_RECT.width * xRatio,
+                    BRIDGE_VIEWSCREEN_RECT.width *
+                        LASER_TARGET_LAYOUT.xRatio,
             ),
 
             BRIDGE_VIEWSCREEN_RECT.y +
                 BRIDGE_VIEWSCREEN_RECT.height -
                 LASER_TARGET_LAYOUT.hitYFromBottom,
         );
-    }
-
-    private getTargetXRatio(targetZone: LaserTargetZone): number {
-        switch (targetZone) {
-            case LASER_TARGET_ZONE.LEFT:
-                return LASER_TARGET_LAYOUT.leftXRatio;
-
-            case LASER_TARGET_ZONE.CENTER:
-                return LASER_TARGET_LAYOUT.centerXRatio;
-
-            case LASER_TARGET_ZONE.RIGHT:
-                return LASER_TARGET_LAYOUT.rightXRatio;
-        }
     }
 }

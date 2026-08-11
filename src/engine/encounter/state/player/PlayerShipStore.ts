@@ -585,54 +585,7 @@ export default class PlayerShipStore {
             };
         }
 
-        const laserAttack =
-            this.state.combat
-                .laserAttacks
-                .find((candidate) => {
-                    return (
-                        candidate.id ===
-                        threatId
-                    );
-                });
-
-        // Threat may resolve before
-        // the Science task completes.
-        if (!laserAttack) {
-            return undefined;
-        }
-
-        if (
-            laserAttack.identification
-                .status ===
-            THREAT_IDENTIFICATION_STATUS
-                .IDENTIFIED
-        ) {
-            return {
-                kind:
-                    COMBAT_THREAT_KIND.LASER,
-
-                targetZone:
-                    laserAttack.identification
-                        .targetZone,
-            };
-        }
-
-        laserAttack.identification = {
-            status:
-                THREAT_IDENTIFICATION_STATUS
-                    .IDENTIFIED,
-
-            targetZone:
-                laserAttack.targetZone,
-        };
-
-        return {
-            kind:
-                COMBAT_THREAT_KIND.LASER,
-
-            targetZone:
-                laserAttack.targetZone,
-        };
+        return undefined;
     }
 
     public spendDefenseCapacitorCharge():

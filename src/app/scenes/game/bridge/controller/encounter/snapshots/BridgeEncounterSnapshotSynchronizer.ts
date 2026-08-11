@@ -122,12 +122,6 @@ export default class BridgeEncounterSnapshotSynchronizer {
                     attackId: snapshot.attack.id,
                     timeToFireMs: snapshot.timeToFireMs,
                     initialTimeToFireMs: snapshot.initialTimeToFireMs,
-
-                    ...(snapshot.attack.identification.status === THREAT_IDENTIFICATION_STATUS.IDENTIFIED
-                        ? {
-                              targetZone: snapshot.attack.identification.targetZone,
-                          }
-                        : {}),
                 };
             }),
         );

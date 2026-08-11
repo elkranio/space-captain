@@ -125,7 +125,6 @@ describe('BridgeEncounterSnapshotSynchronizer', () => {
                         attackId: 'laser_attack_1',
                         timeToFireMs: 500,
                         initialTimeToFireMs: 1000,
-                        targetZone: 'left',
                     },
                 ],
             ],
@@ -240,10 +239,6 @@ function createEncounterEngine(): EncounterEngine {
                 {
                     attack: {
                         id: 'laser_attack_1',
-                        identification: {
-                            status: 'identified',
-                            targetZone: 'left',
-                        },
                     },
                     timeToFireMs: 500,
                     initialTimeToFireMs: 1000,

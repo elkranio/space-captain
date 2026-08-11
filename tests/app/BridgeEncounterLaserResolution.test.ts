@@ -5,11 +5,9 @@ import { GameRuntime } from '../../src/app/runtime/GameRuntime';
 import BridgeEncounterEngineEventHandler from '../../src/app/scenes/game/bridge/controller/encounter/engine_events/BridgeEncounterEngineEventHandler';
 import { BRIDGE_EVENT } from '../../src/app/scenes/game/bridge/events/bridge_event';
 import type BridgeEventBus from '../../src/app/scenes/game/bridge/events/BridgeEventBus';
-import { LASER_TARGET_ZONE } from '../../src/engine/defs/laser';
 import {
     COMBAT_TARGET_KIND,
     LASER_SHOT_OUTCOME,
-    THREAT_IDENTIFICATION_STATUS,
     type LaserAttackState,
 } from '../../src/engine/encounter/model/combat';
 import { ENCOUNTER_EVENT } from '../../src/engine/encounter/model/event';
@@ -77,8 +75,6 @@ describe('BridgeEncounterEngineEventHandler laser resolution', () => {
 
                 {
                     sourceActorId: 'ship_enemy_00',
-
-                    targetZone: LASER_TARGET_ZONE.CENTER,
                 },
             ],
 
@@ -123,10 +119,5 @@ function createAttack(): LaserAttackState {
             kind: COMBAT_TARGET_KIND.PLAYER_SHIP,
         },
 
-        targetZone: LASER_TARGET_ZONE.CENTER,
-
-        identification: {
-            status: THREAT_IDENTIFICATION_STATUS.UNKNOWN,
-        },
     };
 }

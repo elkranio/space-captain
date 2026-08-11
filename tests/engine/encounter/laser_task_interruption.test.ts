@@ -8,7 +8,6 @@ import {
     SHIP_WEAPON_TARGETING_DURATION_MS,
 } from '../../../src/engine/content/catalogs/ship_weapons';
 import { SHIP_NODE_ACTOR_PRESET_ID } from '../../../src/engine/content/presets/ship_node_actors';
-import { LASER_TARGET_ZONE } from '../../../src/engine/defs/laser';
 import { OFFICER_ROLE } from '../../../src/engine/defs/officer';
 import { PLAYER_SPACE_NAVIGATION_KIND } from '../../../src/engine/defs/player_location';
 import { SHIP_WEAPON_KIND } from '../../../src/engine/defs/ship_weapon';
@@ -20,7 +19,6 @@ import {
 import {
     COMBAT_TARGET_KIND,
     LASER_SHOT_OUTCOME,
-    THREAT_IDENTIFICATION_STATUS,
 } from '../../../src/engine/encounter/model/combat';
 import {
     ENCOUNTER_EVENT,
@@ -37,9 +35,6 @@ import { createSingleStationNodeFixture } from '../../fixtures/engine/space_node
 describe('Laser hit officer task interruption', () => {
     it('uses encounter RNG to cancel one of several active tasks after a hit', () => {
         const { engine, state, laserChargeDurationMs } = createLaserEngine([
-            // Laser target zone: center.
-            0.5,
-
             // Two active tasks: select index 1.
             0.75,
         ]);
@@ -185,13 +180,13 @@ function createScienceTask(): OfficerTaskState {
     return {
         id: 'task_science',
 
-        kind: OFFICER_TASK_KIND.SCIENCE_IDENTIFY_THREAT,
+        kind: OFFICER_TASK_KIND.SCIENCE_PLOT_COURSE,
         role: OFFICER_ROLE.SCIENCE,
-        sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.SCIENCE_IDENTIFY_THREAT,
+        sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.SCIENCE_PLOT_COURSE,
 
-        threatId: 'laser_attack_1',
+        targetNodeId: 'node_test',
 
-        label: 'IDENTIFY',
+        label: 'PLOT COURSE',
         showProgress: true,
 
         canBeCancelledByPlayer: true,
@@ -233,10 +228,5 @@ function createExpectedAttack() {
             kind: COMBAT_TARGET_KIND.PLAYER_SHIP,
         },
 
-        targetZone: LASER_TARGET_ZONE.CENTER,
-
-        identification: {
-            status: THREAT_IDENTIFICATION_STATUS.UNKNOWN,
-        },
     };
 }

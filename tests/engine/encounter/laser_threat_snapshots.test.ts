@@ -8,20 +8,12 @@ import {
     SHIP_WEAPON_TARGETING_DURATION_MS,
 } from '../../../src/engine/content/catalogs/ship_weapons';
 import { SHIP_NODE_ACTOR_PRESET_ID } from '../../../src/engine/content/presets/ship_node_actors';
-import { LASER_TARGET_ZONE } from '../../../src/engine/defs/laser';
-import { OFFICER_ROLE } from '../../../src/engine/defs/officer';
 import { PLAYER_SPACE_NAVIGATION_KIND } from '../../../src/engine/defs/player_location';
 import { SHIP_WEAPON_KIND } from '../../../src/engine/defs/ship_weapon';
 import EncounterEngine from '../../../src/engine/encounter/EncounterEngine';
 import { getMutableEncounterStateForTest } from './get_mutable_encounter_state_for_test';
 import {
-    ENCOUNTER_OFFICER_COMMAND_ID,
-    OFFICER_COMMAND_EXECUTION_STATUS,
-    OFFICER_COMMAND_TARGET_KIND,
-} from '../../../src/engine/encounter/model/command';
-import {
     COMBAT_TARGET_KIND,
-    THREAT_IDENTIFICATION_STATUS,
 } from '../../../src/engine/encounter/model/combat';
 import { ENCOUNTER_EVENT } from '../../../src/engine/encounter/model/event';
 import ShipNodeActorFactory from '../../../src/engine/generation/space_node_actor/ShipNodeActorFactory';
@@ -29,7 +21,7 @@ import { createPointDefenseFixture } from '../../fixtures/engine/point_defense_f
 import { createSingleStationNodeFixture } from '../../fixtures/engine/space_node_fixtures';
 
 describe('EncounterEngine laser threat snapshots', () => {
-    it('derives countdown from the charging weapon and exposes identification updates', () => {
+    it('derives countdown from the charging weapon', () => {
         const { engine, chargeDurationMs } = createLaserEngine();
 
         engine.step(SHIP_WEAPON_TARGETING_DURATION_MS);
@@ -37,9 +29,7 @@ describe('EncounterEngine laser threat snapshots', () => {
 
         expect(engine.getLaserThreatSnapshots()).toEqual([
             {
-                attack: createExpectedAttack({
-                    status: THREAT_IDENTIFICATION_STATUS.UNKNOWN,
-                }),
+                attack: createExpectedAttack(),
 
                 timeToFireMs: chargeDurationMs,
                 initialTimeToFireMs: chargeDurationMs,
@@ -51,43 +41,13 @@ describe('EncounterEngine laser threat snapshots', () => {
 
         expect(engine.getLaserThreatSnapshots()).toEqual([
             {
-                attack: createExpectedAttack({
-                    status: THREAT_IDENTIFICATION_STATUS.UNKNOWN,
-                }),
+                attack: createExpectedAttack(),
 
                 timeToFireMs: chargeDurationMs - 1234,
                 initialTimeToFireMs: chargeDurationMs,
             },
         ]);
 
-        expect(
-            engine.executeCommand({
-                role: OFFICER_ROLE.SCIENCE,
-
-                commandId: ENCOUNTER_OFFICER_COMMAND_ID.SCIENCE_IDENTIFY_THREAT,
-
-                target: {
-                    kind: OFFICER_COMMAND_TARGET_KIND.THREAT,
-
-                    threatId: 'laser_attack_1',
-                },
-            }),
-        ).toEqual({
-            status: OFFICER_COMMAND_EXECUTION_STATUS.EXECUTED,
-        });
-
-        expect(engine.getLaserThreatSnapshots()).toEqual([
-            {
-                attack: createExpectedAttack({
-                    status: THREAT_IDENTIFICATION_STATUS.IDENTIFIED,
-
-                    targetZone: LASER_TARGET_ZONE.CENTER,
-                }),
-
-                timeToFireMs: chargeDurationMs - 1234,
-                initialTimeToFireMs: chargeDurationMs,
-            },
-        ]);
     });
 });
 
@@ -117,8 +77,6 @@ function createLaserEngine() {
         },
 
         pointDefense: createPointDefenseFixture(),
-
-        completeTimedTasksImmediately: true,
 
         random: () => {
             return 0.5;
@@ -154,17 +112,7 @@ function createLaserEngine() {
     };
 }
 
-function createExpectedAttack(
-    identification:
-        | {
-              status: typeof THREAT_IDENTIFICATION_STATUS.UNKNOWN;
-          }
-        | {
-              status: typeof THREAT_IDENTIFICATION_STATUS.IDENTIFIED;
-
-              targetZone: typeof LASER_TARGET_ZONE.CENTER;
-          },
-) {
+function createExpectedAttack() {
     return {
         id: 'laser_attack_1',
         designation: 'L1',
@@ -176,8 +124,5 @@ function createExpectedAttack(
             kind: COMBAT_TARGET_KIND.PLAYER_SHIP,
         },
 
-        targetZone: LASER_TARGET_ZONE.CENTER,
-
-        identification,
     };
 }

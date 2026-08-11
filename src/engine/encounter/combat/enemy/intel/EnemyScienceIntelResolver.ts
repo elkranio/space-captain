@@ -99,8 +99,8 @@ export default class EnemyScienceIntelResolver {
 
             case ENEMY_THREAT_KIND.LASER:
                 throw new Error(
-                    'Player laser Science intel is retired ' +
-                        'until the new shield targeting contract: ' +
+                    'Player laser does not expose Science intel ' +
+                        'in the current combat model: ' +
                         actor.id +
                         '/' +
                         observation.id,
@@ -203,26 +203,17 @@ export default class EnemyScienceIntelResolver {
         truthfulReport:
             EnemyThreatReport,
     ): EnemyThreatReport {
-        switch (truthfulReport.kind) {
-            case ENEMY_THREAT_KIND.MISSILE:
-                return {
-                    kind:
-                        ENEMY_THREAT_KIND
-                            .MISSILE,
+        return {
+            kind:
+                ENEMY_THREAT_KIND
+                    .MISSILE,
 
-                    spectralBand:
-                        this.getWrongSpectralBand(
-                            truthfulReport
-                                .spectralBand,
-                        ),
-                };
-
-            case ENEMY_THREAT_KIND.LASER:
-                // Unreachable while player-laser Science intel is retired.
-                // Keep the union branch exhaustive until the new shield
-                // contract replaces the old laser report type.
-                return truthfulReport;
-        }
+            spectralBand:
+                this.getWrongSpectralBand(
+                    truthfulReport
+                        .spectralBand,
+                ),
+        };
     }
 
     private getWrongSpectralBand(

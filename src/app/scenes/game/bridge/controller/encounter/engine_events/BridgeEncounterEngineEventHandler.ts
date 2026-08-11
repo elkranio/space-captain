@@ -645,8 +645,6 @@ export default class BridgeEncounterEngineEventHandler {
 
                 this.eventBus.emit(BRIDGE_EVENT.LASER_BEAM_FIRED, {
                     sourceActorId: event.attack.sourceActorId,
-
-                    targetZone: event.attack.targetZone,
                 });
 
                 this.handlePlayerShipDamaged(

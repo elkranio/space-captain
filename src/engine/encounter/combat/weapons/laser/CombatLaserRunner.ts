@@ -3,10 +3,6 @@ import {
     SHIP_WEAPON_TARGETING_DURATION_MS,
 } from '../../../../content/catalogs/ship_weapons';
 import {
-    LASER_TARGET_ZONES,
-    type LaserTargetZone,
-} from '../../../../defs/laser';
-import {
     SHIP_WEAPON_PHASE,
     type LaserWeaponDefinition,
     type LaserWeaponState,
@@ -15,7 +11,6 @@ import type { ShipEncounterActorState } from '../../../actors/ship/ship_encounte
 import {
     COMBAT_TARGET_KIND,
     LASER_SHOT_OUTCOME,
-    THREAT_IDENTIFICATION_STATUS,
     type LaserAttackState,
 } from '../../../model/combat';
 import {
@@ -30,7 +25,6 @@ type CombatLaserRunnerOptions = {
     stateStore: EncounterStateStore;
     identities: CombatRuntimeIdentityFactory;
     emit: (event: EncounterEvent) => void;
-    random: () => number;
     interruptRandomOfficerTask: () => void;
 };
 
@@ -48,9 +42,6 @@ export default class CombatLaserRunner {
     private readonly emit:
         (event: EncounterEvent) => void;
 
-    private readonly random:
-        () => number;
-
     private readonly interruptRandomOfficerTask:
         () => void;
 
@@ -58,13 +49,11 @@ export default class CombatLaserRunner {
         stateStore,
         identities,
         emit,
-        random,
         interruptRandomOfficerTask,
     }: CombatLaserRunnerOptions) {
         this.stateStore = stateStore;
         this.identities = identities;
         this.emit = emit;
-        this.random = random;
         this.interruptRandomOfficerTask =
             interruptRandomOfficerTask;
 
@@ -245,14 +234,6 @@ export default class CombatLaserRunner {
                         .PLAYER_SHIP,
             },
 
-            targetZone:
-                this.selectTargetZone(),
-
-            identification: {
-                status:
-                    THREAT_IDENTIFICATION_STATUS
-                        .UNKNOWN,
-            },
         };
 
         this.state.combat
@@ -326,39 +307,6 @@ export default class CombatLaserRunner {
         });
 
         this.interruptRandomOfficerTask();
-    }
-
-    private selectTargetZone(): LaserTargetZone {
-        const randomValue = this.random();
-
-        if (
-            !Number.isFinite(randomValue) ||
-            randomValue < 0 ||
-            randomValue >= 1
-        ) {
-            throw new Error(
-                `Combat random source must return a value in [0, 1): ` +
-                    `${randomValue}`,
-            );
-        }
-
-        const index =
-            Math.floor(
-                randomValue *
-                    LASER_TARGET_ZONES.length,
-            );
-
-        const targetZone =
-            LASER_TARGET_ZONES[index];
-
-        if (!targetZone) {
-            throw new Error(
-                `Cannot select laser target zone for random value: ` +
-                    `${randomValue}`,
-            );
-        }
-
-        return targetZone;
     }
 
     private getDefinition(

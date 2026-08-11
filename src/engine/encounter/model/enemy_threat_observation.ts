@@ -1,9 +1,6 @@
 // src/engine/encounter/model/enemy_threat_observation.ts
 
 import type {
-    LaserTargetZone,
-} from '../../defs/laser';
-import type {
     MissileSpectralBand,
 } from '../../defs/missile';
 
@@ -50,28 +47,19 @@ export type EnemyThreatSource =
           stickyMineId: string;
       };
 
-export type EnemyThreatReport =
-    | {
-          kind:
-              typeof ENEMY_THREAT_KIND
-                  .MISSILE;
+export type EnemyThreatReport = {
+    kind:
+        typeof ENEMY_THREAT_KIND
+            .MISSILE;
 
-          spectralBand:
-              MissileSpectralBand;
-      }
-    | {
-          kind:
-              typeof ENEMY_THREAT_KIND
-                  .LASER;
-
-          targetZone:
-              LaserTargetZone;
-      };
+    spectralBand:
+        MissileSpectralBand;
+};
 
 // Это только факт наблюдения enemy crew.
 //
-// Объективные missileId, targetZone,
-// mineId, damage и timers здесь намеренно
+// Объективные missileId, mineId,
+// damage и timers здесь намеренно
 // не хранятся. Истина остаётся
 // в соответствующем combat object/task.
 //

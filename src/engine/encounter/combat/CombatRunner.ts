@@ -177,8 +177,6 @@ export default class CombatRunner {
                 emit:
                     this.emit,
 
-                random,
-
                 interruptRandomOfficerTask:
                     this.interruptRandomOfficerTask,
             });

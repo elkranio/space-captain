@@ -4,7 +4,6 @@ import type { OfficerDefinition, OfficerRole } from '../../../../../engine/defs/
 import type { Vec3 } from '../../../../../engine/defs/vector';
 import type { SpriteEntry } from '../../../../manifests/types';
 import type { SceneKey } from '../../../scene_key';
-import type { LaserTargetZone } from '../../../../../engine/defs/laser';
 import type {
     MissileId,
     MissileSpectralBand,
@@ -752,16 +751,12 @@ export type BridgeLaserThreatUpdatePayload = {
 
     timeToFireMs: number;
     initialTimeToFireMs: number;
-
-    targetZone?: LaserTargetZone;
 };
 
 export type BridgeLaserThreatsUpdatedPayload = BridgeLaserThreatUpdatePayload[];
 
 export type BridgeLaserBeamFiredPayload = {
     sourceActorId: string;
-
-    targetZone: LaserTargetZone;
 };
 
 export type BridgePlayerLaserChargingStartedPayload = {

@@ -239,8 +239,6 @@ export default class BridgeLaserThreatsView {
 
                 update
                     .initialTimeToFireMs,
-
-                update.targetZone,
             );
         }
     }

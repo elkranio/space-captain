@@ -1,8 +1,5 @@
 // src/app/scenes/game/bridge/view/combat/laser_threats/laser/BridgeLaserThreatView.ts
 
-import type {
-    LaserTargetZone,
-} from '../../../../../../../../engine/defs/laser';
 import {
     FONT_FAMILY,
     FONT_SIZE,
@@ -51,9 +48,6 @@ export default class BridgeLaserThreatView {
 
     private initialTimeToFireMs?:
         number;
-
-    private targetZone?:
-        LaserTargetZone;
 
     constructor({
         scene,
@@ -116,8 +110,6 @@ export default class BridgeLaserThreatView {
     public update(
         timeToFireMs: number,
         initialTimeToFireMs: number,
-        targetZone?:
-            LaserTargetZone,
     ): void {
         if (
             !Number.isFinite(
@@ -153,9 +145,6 @@ export default class BridgeLaserThreatView {
 
         this.initialTimeToFireMs =
             initialTimeToFireMs;
-
-        this.targetZone =
-            targetZone;
 
         this.statusLabel.setText(
             this.formatStatusLabel(),
@@ -287,24 +276,13 @@ export default class BridgeLaserThreatView {
             return this.designation;
         }
 
-        const parts = [
-            this.designation,
-        ];
-
-        if (this.targetZone) {
-            parts.push(
-                this.targetZone
-                    .toUpperCase(),
-            );
-        }
-
-        parts.push(
+        return (
+            this.designation +
+            ' ' +
             this.formatTimeToFire(
                 this.timeToFireMs,
-            ),
+            )
         );
-
-        return parts.join(' ');
     }
 
     private formatTimeToFire(
