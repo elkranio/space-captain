@@ -272,8 +272,6 @@ export default class EncounterNavigationStore {
         combat.laserAttacks.length = 0;
         combat.stickyMines.length = 0;
 
-        delete combat.activeShield;
-
         const actors =
             this.state.actors
                 .filter((actor) => {
@@ -286,8 +284,6 @@ export default class EncounterNavigationStore {
         for (const actor of actors) {
             actor.crewTasks = {};
             actor.threatObservations.length = 0;
-
-            delete actor.activeShield;
 
             for (
                 const weapon of

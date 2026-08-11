@@ -70,12 +70,6 @@ type ScienceIdentifyThreatTaskState = Extract<
     }
 >;
 
-type EngineerDeployShieldTaskState = Extract<
-    OfficerTaskState,
-    {
-        kind: typeof OFFICER_TASK_KIND.ENGINEER_DEPLOY_SHIELD;
-    }
->;
 
 type WeaponsPointDefenseTaskState = Extract<
     OfficerTaskState,
@@ -114,9 +108,6 @@ export default class OfficerTaskResolver {
             case OFFICER_TASK_KIND.SCIENCE_PURGE_SPAM:
                 this.purgeSpamChannel(task.channelId);
                 return undefined;
-
-            case OFFICER_TASK_KIND.ENGINEER_DEPLOY_SHIELD:
-                return this.resolveEngineerDeployShieldTask(task);
 
             case OFFICER_TASK_KIND.ENGINEER_REPAIR_DRIVE: {
                 const drive =
@@ -264,18 +255,6 @@ export default class OfficerTaskResolver {
 
             threatId: task.threatId,
             identification,
-        };
-    }
-
-    private resolveEngineerDeployShieldTask(
-        task: EngineerDeployShieldTaskState,
-    ): OfficerTaskResult {
-        const shield = this.stateStore.deployPlayerShield(task.shieldZone);
-
-        return {
-            kind: OFFICER_TASK_RESULT_KIND.SHIELD_DEPLOYED,
-
-            shield,
         };
     }
 

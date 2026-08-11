@@ -1,7 +1,6 @@
 // tests/app/BridgeOfficerTaskCancellationMenu.test.ts
 
 import { describe, expect, it, vi } from 'vitest';
-import { LASER_TARGET_ZONE } from '../../src/engine/defs/laser';
 import { OFFICER_ROLE } from '../../src/engine/defs/officer';
 import type EncounterEngine from '../../src/engine/encounter/EncounterEngine';
 import {
@@ -21,17 +20,15 @@ describe('BridgeOfficerCommandMenuController task cancellation', () => {
         const task = {
             id: 'task_engineer',
 
-            kind: OFFICER_TASK_KIND.ENGINEER_DEPLOY_SHIELD,
+            kind: OFFICER_TASK_KIND.ENGINEER_REPAIR_DRIVE,
             role: OFFICER_ROLE.ENGINEER,
             sourceCommandId:
-                ENCOUNTER_OFFICER_COMMAND_ID.ENGINEER_DEPLOY_SHIELD_CENTER,
+                ENCOUNTER_OFFICER_COMMAND_ID.ENGINEER_REPAIR_DRIVE,
 
-            shieldZone: LASER_TARGET_ZONE.CENTER,
-
-            label: 'SHIELD CENTER',
+            label: 'REPAIR DRIVE',
             showProgress: true,
 
-            durationMs: 2000,
+            durationMs: 12000,
             elapsedMs: 500,
 
             canBeCancelledByPlayer: true,
@@ -54,9 +51,9 @@ describe('BridgeOfficerCommandMenuController task cancellation', () => {
                     {
                         commandId:
                             ENCOUNTER_OFFICER_COMMAND_ID
-                                .ENGINEER_DEPLOY_SHIELD_LEFT,
+                                .ENGINEER_REPAIR_DRIVE,
 
-                        label: 'SHIELD LEFT',
+                        label: 'REPAIR DRIVE',
 
                         target: {
                             kind: OFFICER_COMMAND_TARGET_KIND.NONE,
@@ -154,9 +151,9 @@ describe('BridgeOfficerCommandMenuController task cancellation', () => {
 
                                 commandId:
                                     ENCOUNTER_OFFICER_COMMAND_ID
-                                        .ENGINEER_DEPLOY_SHIELD_LEFT,
+                                        .ENGINEER_REPAIR_DRIVE,
 
-                                label: 'SHIELD LEFT',
+                                label: 'REPAIR DRIVE',
 
                                 target: {
                                     kind: OFFICER_COMMAND_TARGET_KIND.NONE,

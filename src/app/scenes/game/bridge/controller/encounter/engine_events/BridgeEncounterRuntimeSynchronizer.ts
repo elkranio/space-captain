@@ -70,26 +70,6 @@ export default class BridgeEncounterRuntimeSynchronizer {
                 return PLAYER_SHIP_STATUS_CHANGED;
             }
 
-            case ENCOUNTER_EVENT
-                .PLAYER_SHIELD_GENERATOR_STATE_CHANGED: {
-                const previousCharges =
-                    this.gameRuntime
-                        .getCurrentRun()
-                        .player
-                        .ship
-                        .shieldGenerator
-                        .charges;
-
-                this.gameRuntime
-                    .setPlayerShipShieldGeneratorState(
-                        event.shieldGenerator,
-                    );
-
-                return event.shieldGenerator
-                    .charges !== previousCharges
-                    ? PLAYER_SHIP_STATUS_CHANGED
-                    : NO_VISIBLE_RUNTIME_CHANGE;
-            }
 
             case ENCOUNTER_EVENT
                 .PLAYER_SHIP_DRIVE_DISRUPTED:

@@ -1,11 +1,9 @@
 // src/engine/encounter/model/officer_task.ts
 
-import type { LaserTargetZone } from '../../defs/laser';
 import { OFFICER_ROLE, type OfficerRole } from '../../defs/officer';
 import type { PointDefenseBeamBand } from '../../defs/point_defense';
 import {
     ENCOUNTER_OFFICER_COMMAND_ID,
-    type EngineerDeployShieldCommandId,
     type WeaponsPointDefenseCommandId,
 } from './command';
 
@@ -21,7 +19,6 @@ export const OFFICER_TASK_KIND = {
     SCIENCE_PURGE_SPAM: 'science_purge_spam',
     SCIENCE_FIRE_SPAM: 'science_fire_spam',
 
-    ENGINEER_DEPLOY_SHIELD: 'engineer_deploy_shield',
     ENGINEER_REPAIR_DRIVE: 'engineer_repair_drive',
 
     WEAPONS_POINT_DEFENSE: 'weapons_point_defense',
@@ -91,14 +88,6 @@ type SciencePurgeSpamOfficerTaskDraft = OfficerTaskDraftBase & {
     channelId: string;
 };
 
-type EngineerDeployShieldOfficerTaskDraft = OfficerTaskDraftBase & {
-    kind: typeof OFFICER_TASK_KIND.ENGINEER_DEPLOY_SHIELD;
-    role: typeof OFFICER_ROLE.ENGINEER;
-
-    sourceCommandId: EngineerDeployShieldCommandId;
-
-    shieldZone: LaserTargetZone;
-};
 
 type EngineerRepairDriveOfficerTaskDraft = OfficerTaskDraftBase & {
     kind: typeof OFFICER_TASK_KIND.ENGINEER_REPAIR_DRIVE;
@@ -234,7 +223,6 @@ export type OfficerTaskDraft =
     | SciencePlotCourseOfficerTaskDraft
     | ScienceIdentifyThreatOfficerTaskDraft
     | SciencePurgeSpamOfficerTaskDraft
-    | EngineerDeployShieldOfficerTaskDraft
     | EngineerRepairDriveOfficerTaskDraft
     | WeaponsPointDefenseOfficerTaskDraft
     | WeaponsFireMissileOfficerTaskDraft
@@ -280,7 +268,6 @@ export function getOfficerTaskCancellationPolicy(
         case OFFICER_TASK_KIND.SCIENCE_PLOT_COURSE:
         case OFFICER_TASK_KIND.SCIENCE_IDENTIFY_THREAT:
         case OFFICER_TASK_KIND.SCIENCE_PURGE_SPAM:
-        case OFFICER_TASK_KIND.ENGINEER_DEPLOY_SHIELD:
         case OFFICER_TASK_KIND.ENGINEER_REPAIR_DRIVE:
         case OFFICER_TASK_KIND.WEAPONS_POINT_DEFENSE:
         case OFFICER_TASK_KIND.WEAPONS_FIRE_MISSILE:

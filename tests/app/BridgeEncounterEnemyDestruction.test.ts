@@ -112,13 +112,6 @@ describe('Bridge enemy destruction flow', () => {
 
             [
                 BRIDGE_EVENT
-                    .ENEMY_SHIELDS_UPDATED,
-
-                [],
-            ],
-
-            [
-                BRIDGE_EVENT
                     .ENEMY_SHIP_DESTRUCTION_STARTED,
 
                 {

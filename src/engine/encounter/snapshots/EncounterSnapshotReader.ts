@@ -16,10 +16,6 @@ import {
 } from '../../defs/ship_weapon';
 import { getAvailableOfficerCommands } from '../commands/queries/get_available_officer_commands';
 import {
-    getEnemyShieldSnapshots,
-    type EnemyShieldSnapshot,
-} from '../combat/queries/get_enemy_shield_snapshots';
-import {
     getEnemyShipTelemetrySnapshots,
     type EnemyShipTelemetrySnapshot,
 } from '../combat/queries/get_enemy_ship_telemetry_snapshots';
@@ -39,7 +35,6 @@ import type { AvailableOfficerCommand } from '../model/command';
 import {
     COMBAT_SOURCE_KIND,
     COMBAT_TARGET_KIND,
-    type ActiveShieldState,
     type CombatProjectileState,
     type LaserAttackState,
     type SpamChannelState,
@@ -105,12 +100,6 @@ export default class EncounterSnapshotReader {
         return this.read(getEnemyShipTelemetrySnapshots);
     }
 
-    public getEnemyShieldSnapshots():
-        EnemyShieldSnapshot[] {
-        return this.read(
-            getEnemyShieldSnapshots,
-        );
-    }
 
     public getEnemyDebugSnapshots():
         EnemyDebugSnapshot[] {
@@ -176,9 +165,6 @@ export default class EncounterSnapshotReader {
         return this.read((state) => state.combat.shieldGenerator);
     }
 
-    public getActiveShieldState(): ActiveShieldState | undefined {
-        return this.read((state) => state.combat.activeShield);
-    }
 
     private read<T>(select: (state: EncounterState) => T): T {
         return createDetachedSnapshot(select(this.state));

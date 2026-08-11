@@ -3,7 +3,6 @@
 import { createPlayerHullFixture } from '../../fixtures/engine/player_hull_fixtures';
 import { createShipDriveFixture } from '../../fixtures/engine/ship_drive_fixtures';
 import { describe, expect, it } from 'vitest';
-import { LASER_TARGET_ZONE } from '../../../src/engine/defs/laser';
 import { OFFICER_ROLE } from '../../../src/engine/defs/officer';
 import { PLAYER_SPACE_NAVIGATION_KIND } from '../../../src/engine/defs/player_location';
 import EncounterEngine from '../../../src/engine/encounter/EncounterEngine';
@@ -97,17 +96,15 @@ function createEngineerTask(): OfficerTaskState {
     return {
         id: 'task_engineer',
 
-        kind: OFFICER_TASK_KIND.ENGINEER_DEPLOY_SHIELD,
+        kind: OFFICER_TASK_KIND.ENGINEER_REPAIR_DRIVE,
         role: OFFICER_ROLE.ENGINEER,
         sourceCommandId:
-            ENCOUNTER_OFFICER_COMMAND_ID.ENGINEER_DEPLOY_SHIELD_CENTER,
+            ENCOUNTER_OFFICER_COMMAND_ID.ENGINEER_REPAIR_DRIVE,
 
-        shieldZone: LASER_TARGET_ZONE.CENTER,
-
-        label: 'SHIELD CENTER',
+        label: 'REPAIR DRIVE',
         showProgress: true,
 
-        durationMs: 2000,
+        durationMs: 12000,
         elapsedMs: 500,
 
         canBeCancelledByPlayer: true,

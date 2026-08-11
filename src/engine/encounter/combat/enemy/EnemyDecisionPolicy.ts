@@ -66,19 +66,6 @@ export type EnemyWorkIntent =
     | {
           kind:
               typeof SHIP_CREW_TASK_KIND
-                  .DEPLOY_SHIELD;
-
-          role:
-              typeof OFFICER_ROLE.ENGINEER;
-
-          observationId: string;
-          shieldZone:
-              import('../../../defs/laser')
-                  .LaserTargetZone;
-      }
-    | {
-          kind:
-              typeof SHIP_CREW_TASK_KIND
                   .CLEAR_STICKY_MINE;
 
           role: OfficerRole;

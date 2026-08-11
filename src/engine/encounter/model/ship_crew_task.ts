@@ -1,8 +1,5 @@
 // src/engine/encounter/model/ship_crew_task.ts
 
-import type {
-    LaserTargetZone,
-} from '../../defs/laser';
 import {
     OFFICER_ROLE,
     type OfficerRole,
@@ -16,9 +13,6 @@ export const SHIP_CREW_TASK_KIND = {
 
     INTERCEPT_MISSILE:
         'intercept_missile',
-
-    DEPLOY_SHIELD:
-        'deploy_shield',
 
     CLEAR_STICKY_MINE:
         'clear_sticky_mine',
@@ -62,21 +56,6 @@ export type InterceptMissileShipCrewTaskState =
         beamBand: PointDefenseBeamBand;
     };
 
-export type DeployShieldShipCrewTaskState =
-    ShipCrewTaskBaseState & {
-        kind:
-            typeof SHIP_CREW_TASK_KIND
-                .DEPLOY_SHIELD;
-
-        role:
-            typeof OFFICER_ROLE.ENGINEER;
-
-        observationId: string;
-        shieldZone: LaserTargetZone;
-
-        elapsedMs: number;
-        durationMs: number;
-    };
 
 export type ClearStickyMineShipCrewTaskState =
     ShipCrewTaskBaseState & {
@@ -123,7 +102,6 @@ export type PurgeSpamShipCrewTaskState =
 export type ShipCrewTaskState =
     | OperateWeaponShipCrewTaskState
     | InterceptMissileShipCrewTaskState
-    | DeployShieldShipCrewTaskState
     | ClearStickyMineShipCrewTaskState
     | IdentifyThreatShipCrewTaskState
     | PurgeSpamShipCrewTaskState;

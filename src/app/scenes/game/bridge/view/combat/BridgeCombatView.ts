@@ -5,7 +5,6 @@ import type BridgeEventBus from '../../events/BridgeEventBus';
 import type BridgeSpaceView from '../space/BridgeSpaceView';
 import BridgeVfxView from '../vfx/BridgeVfxView';
 import BridgeEnemyShipDestructionView from './enemy_destruction/BridgeEnemyShipDestructionView';
-import BridgeEnemyShieldsView from './enemy_shields/BridgeEnemyShieldsView';
 import BridgeIncomingMissilesView from './incoming_missiles/BridgeIncomingMissilesView';
 import BridgeLaserBeamsView from './laser_beams/BridgeLaserBeamsView';
 import BridgeLaserThreatsView from './laser_threats/BridgeLaserThreatsView';
@@ -13,7 +12,6 @@ import BridgeOutgoingMissilesView from './outgoing_missiles/BridgeOutgoingMissil
 import BridgeOutgoingSpamView from './outgoing_spam/BridgeOutgoingSpamView';
 import BridgeOutgoingStickyMinesView from './outgoing_sticky_mines/BridgeOutgoingStickyMinesView';
 import BridgePlayerLaserView from './player_laser/BridgePlayerLaserView';
-import BridgePlayerShieldsView from './player_shields/BridgePlayerShieldsView';
 import BridgeSpamView from './spam/BridgeSpamView';
 import BridgeStickyMinesView from './sticky_mines/BridgeStickyMinesView';
 
@@ -41,10 +39,6 @@ export default class BridgeCombatView {
 
     private playerLaserView?: BridgePlayerLaserView;
 
-    private playerShieldsView?: BridgePlayerShieldsView;
-
-    private enemyShieldsView?:
-        BridgeEnemyShieldsView;
 
     private spamView?: BridgeSpamView;
 
@@ -59,24 +53,6 @@ export default class BridgeCombatView {
     ) {}
 
     public prepare(): void {
-        this.playerShieldsView = new BridgePlayerShieldsView(
-            this.scene,
-            this.eventBus,
-        );
-
-        this.enemyShieldsView =
-            new BridgeEnemyShieldsView(
-                this.scene,
-                this.eventBus,
-
-                (objectId) => {
-                    return this.spaceView
-                        .getObjectPosition(
-                            objectId,
-                        );
-                },
-            );
-
         this.incomingMissilesView = new BridgeIncomingMissilesView(
             this.scene,
             this.eventBus,
@@ -196,8 +172,6 @@ export default class BridgeCombatView {
         this.outgoingSpamView?.destroy();
         this.outgoingMissilesView?.destroy();
         this.incomingMissilesView?.destroy();
-        this.enemyShieldsView?.destroy();
-        this.playerShieldsView?.destroy();
 
         this.stickyMinesView = undefined;
         this.spamView = undefined;
@@ -212,8 +186,6 @@ export default class BridgeCombatView {
         this.outgoingSpamView = undefined;
         this.outgoingMissilesView = undefined;
         this.incomingMissilesView = undefined;
-        this.enemyShieldsView = undefined;
-        this.playerShieldsView = undefined;
     }
 
     public setCameraTurnOffsetX(
@@ -244,9 +216,5 @@ export default class BridgeCombatView {
                 offsetX,
             );
 
-        this.enemyShieldsView
-            ?.setCameraTurnOffsetX(
-                offsetX,
-            );
     }
 }

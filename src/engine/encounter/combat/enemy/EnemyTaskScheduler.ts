@@ -10,9 +10,6 @@ import {
     OFFICER_TASK_BASE_DURATION_MS,
 } from '../../../content/rules/officer_tasks';
 import {
-    SHIP_SHIELD_DURATION_MS,
-} from '../../../content/rules/shields';
-import {
     ENCOUNTER_TEAM,
 } from '../../../defs/encounter_team';
 import {
@@ -148,22 +145,6 @@ export default class EnemyTaskScheduler {
                                 actor,
                                 role,
                             );
-                    },
-
-                onShieldDeploymentCompleted:
-                    (
-                        actor,
-                        shieldZone,
-                    ) => {
-                        actor.activeShield = {
-                            zone:
-                                shieldZone,
-
-                            elapsedMs: 0,
-
-                            durationMs:
-                                SHIP_SHIELD_DURATION_MS,
-                        };
                     },
 
                 onStickyMineClearingCompleted:
@@ -419,14 +400,6 @@ export default class EnemyTaskScheduler {
 
                 return;
 
-            case SHIP_CREW_TASK_KIND
-                .DEPLOY_SHIELD:
-                this.startShieldDeployment(
-                    actor,
-                    intent,
-                );
-
-                return;
         }
     }
 
@@ -703,69 +676,6 @@ export default class EnemyTaskScheduler {
             loadDurationMs:
                 definition.loadDurationMs,
         });
-    }
-
-    private startShieldDeployment(
-        actor: ShipEncounterActorState,
-        intent:
-            Extract<
-                EnemyWorkIntent,
-                {
-                    kind:
-                        typeof SHIP_CREW_TASK_KIND
-                            .DEPLOY_SHIELD;
-                }
-            >,
-    ): void {
-        const observation =
-            actor
-                .threatObservations
-                .find((candidate) => {
-                    return (
-                        candidate.id ===
-                        intent.observationId
-                    );
-                });
-
-        if (
-            !observation ||
-            observation.kind !==
-                ENEMY_THREAT_KIND.LASER ||
-            observation.report?.kind !==
-                ENEMY_THREAT_KIND.LASER ||
-            observation.report
-                .targetZone !==
-                intent.shieldZone ||
-            actor.shieldGenerator
-                .charges <= 0
-        ) {
-            throw new Error(
-                'Cannot start enemy shield work: ' +
-                    actor.id +
-                    '/' +
-                    intent.observationId +
-                    '/' +
-                    intent.shieldZone,
-            );
-        }
-
-        this.crewTaskRunner.start(
-            actor,
-            {
-                ...intent,
-
-                elapsedMs: 0,
-
-                durationMs:
-                    OFFICER_TASK_BASE_DURATION_MS
-                        .ENGINEER_DEPLOY_SHIELD,
-            },
-        );
-
-        // Same contract as the player:
-        // deployment commitment spends the charge immediately.
-        actor.shieldGenerator
-            .charges -= 1;
     }
 
     private startWeaponOperation(

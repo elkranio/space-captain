@@ -5,7 +5,6 @@ import type {
 } from '../../defs/player';
 import type { PlayerSpaceNavigationState } from '../../defs/player_location';
 import type { PointDefenseBeamBand, PointDefenseShotOutcome } from '../../defs/point_defense';
-import type { ShieldGeneratorState } from '../../defs/shield_generator';
 import type { ShipDriveState } from '../../defs/ship_drive';
 import type { EncounterAnchorState } from '../anchors/encounter_anchor';
 import type { JumpPointEncounterAnchorState } from '../anchors/jump_point/jump_point_encounter_anchor';
@@ -15,7 +14,6 @@ import {
     PLAYER_STICKY_MINE_OUTCOME,
 } from './combat';
 import type {
-    ActiveShieldState,
     LaserAttackState,
     MissileCombatProjectileState,
     PlayerSpamChannelOutcome,
@@ -40,7 +38,6 @@ export const ENCOUNTER_EVENT = {
     OFFICER_TASK_STARTED: 'officer_task_started',
     OFFICER_TASK_ENDED: 'officer_task_ended',
     PLAYER_POINT_DEFENSE_CHARGE_SPENT: 'player_point_defense_charge_spent',
-    PLAYER_SHIELD_GENERATOR_STATE_CHANGED: 'player_shield_generator_state_changed',
     PLAYER_SHIP_DRIVE_STATE_CHANGED: 'player_ship_drive_state_changed',
     PLAYER_SHIP_DRIVE_DISRUPTED: 'player_ship_drive_disrupted',
     PLAYER_SHIP_TARGETING_DETECTED: 'player_ship_targeting_detected',
@@ -99,7 +96,6 @@ export type OfficerTaskOutcome = (typeof OFFICER_TASK_OUTCOME)[keyof typeof OFFI
 export const OFFICER_TASK_RESULT_KIND = {
     JUMP_POINT_CALCULATED: 'jump_point_calculated',
     THREAT_IDENTIFIED: 'threat_identified',
-    SHIELD_DEPLOYED: 'shield_deployed',
     POINT_DEFENSE_FIRED: 'point_defense_fired',
     STICKY_MINE_CLEARED: 'sticky_mine_cleared',
 } as const;
@@ -114,11 +110,6 @@ export type OfficerTaskResult =
 
           threatId: string;
           identification: ThreatIdentificationResult;
-      }
-    | {
-          kind: typeof OFFICER_TASK_RESULT_KIND.SHIELD_DEPLOYED;
-
-          shield: ActiveShieldState;
       }
     | {
           kind: typeof OFFICER_TASK_RESULT_KIND.POINT_DEFENSE_FIRED;
@@ -215,11 +206,6 @@ export type PlayerPointDefenseChargeSpentEvent = {
     remainingCharges: number;
 };
 
-export type PlayerShieldGeneratorStateChangedEvent = {
-    type: typeof ENCOUNTER_EVENT.PLAYER_SHIELD_GENERATOR_STATE_CHANGED;
-
-    shieldGenerator: ShieldGeneratorState;
-};
 
 export type PlayerShipDriveStateChangedEvent = {
     type:
@@ -508,7 +494,6 @@ export type EncounterEvent =
     | OfficerTaskStartedEvent
     | OfficerTaskEndedEvent
     | PlayerPointDefenseChargeSpentEvent
-    | PlayerShieldGeneratorStateChangedEvent
     | PlayerShipDriveStateChangedEvent
     | PlayerShipDriveDisruptedEvent
     | PlayerShipTargetingDetectedEvent

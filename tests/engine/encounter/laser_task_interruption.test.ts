@@ -35,50 +35,6 @@ import { createPointDefenseFixture } from '../../fixtures/engine/point_defense_f
 import { createSingleStationNodeFixture } from '../../fixtures/engine/space_node_fixtures';
 
 describe('Laser hit officer task interruption', () => {
-    it('does not interrupt an active task when the laser is blocked', () => {
-        const { engine, state, laserChargeDurationMs } = createLaserEngine([
-            0.5,
-        ]);
-
-        startLaserCharging(engine);
-
-        engine.step(laserChargeDurationMs - 1);
-        engine.drainEvents();
-
-        const scienceTask = createScienceTask();
-
-        state.officerTasks[OFFICER_ROLE.SCIENCE] = scienceTask;
-
-        state.combat.activeShield = {
-            zone: LASER_TARGET_ZONE.CENTER,
-
-            elapsedMs: 0,
-            durationMs: 5000,
-        };
-
-        engine.step(1);
-
-        expect(engine.drainEvents()).toEqual([
-            {
-                type: ENCOUNTER_EVENT.LASER_FIRED,
-
-                attack: createExpectedAttack(),
-
-                outcome: LASER_SHOT_OUTCOME.BLOCKED,
-            },
-        ]);
-
-        expect(engine.getOfficerTasks()).toEqual([
-            {
-                ...scienceTask,
-
-                elapsedMs: 1,
-            },
-        ]);
-
-        expect(engine.getActiveShieldState()).toBeUndefined();
-    });
-
     it('uses encounter RNG to cancel one of several active tasks after a hit', () => {
         const { engine, state, laserChargeDurationMs } = createLaserEngine([
             // Laser target zone: center.
@@ -250,19 +206,17 @@ function createEngineerTask(): OfficerTaskState {
     return {
         id: 'task_engineer',
 
-        kind: OFFICER_TASK_KIND.ENGINEER_DEPLOY_SHIELD,
+        kind: OFFICER_TASK_KIND.ENGINEER_REPAIR_DRIVE,
         role: OFFICER_ROLE.ENGINEER,
-        sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.ENGINEER_DEPLOY_SHIELD_LEFT,
+        sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.ENGINEER_REPAIR_DRIVE,
 
-        shieldZone: LASER_TARGET_ZONE.LEFT,
-
-        label: 'SHIELD LEFT',
+        label: 'REPAIR DRIVE',
         showProgress: true,
 
         canBeCancelledByPlayer: true,
         canBeInterruptedByDamage: true,
 
-        durationMs: 2000,
+        durationMs: 12000,
         elapsedMs: 0,
     };
 }

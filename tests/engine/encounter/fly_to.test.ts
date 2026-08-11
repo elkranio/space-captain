@@ -8,7 +8,6 @@ import {
     SHIP_WEAPON_TARGETING_DURATION_MS,
 } from '../../../src/engine/content/catalogs/ship_weapons';
 import { SHIP_NODE_ACTOR_PRESET_ID } from '../../../src/engine/content/presets/ship_node_actors';
-import { LASER_TARGET_ZONE } from '../../../src/engine/defs/laser';
 import { OFFICER_ROLE } from '../../../src/engine/defs/officer';
 import { PLAYER_SPACE_NAVIGATION_KIND } from '../../../src/engine/defs/player_location';
 import {
@@ -287,13 +286,6 @@ describe('FLY_TO', () => {
         );
         expect(engine.getLaserAttacks()).toHaveLength(1);
 
-        state.combat.activeShield = {
-            zone: LASER_TARGET_ZONE.CENTER,
-
-            elapsedMs: 0,
-            durationMs: 5000,
-        };
-
         const executionResult = engine.executeCommand({
             role: OFFICER_ROLE.HELM,
 
@@ -317,7 +309,6 @@ describe('FLY_TO', () => {
         });
 
         expect(engine.getLaserAttacks()).toEqual([]);
-        expect(engine.getActiveShieldState()).toBeUndefined();
 
         expect(laser).toMatchObject({
             phase: SHIP_WEAPON_PHASE.READY,

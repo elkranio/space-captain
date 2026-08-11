@@ -198,12 +198,6 @@ export type SpamChannelState = {
     durationMs: number;
 };
 
-export type ActiveShieldState = {
-    zone: LaserTargetZone;
-
-    elapsedMs: number;
-    durationMs: number;
-};
 
 // После прикрепления мина живёт независимо
 // от дальнейшего состояния dispenser.
@@ -247,9 +241,6 @@ export type EncounterCombatState = {
     // Starter player ship передаёт его явно.
     shieldGenerator?: ShieldGeneratorState;
 
-    // Временное поле существует только внутри encounter.
-    // Новый shield заменяет предыдущий целиком.
-    activeShield?: ActiveShieldState;
 
     projectiles: CombatProjectileState[];
     laserAttacks: LaserAttackState[];

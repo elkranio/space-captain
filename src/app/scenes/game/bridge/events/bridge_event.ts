@@ -124,13 +124,6 @@ export const BRIDGE_EVENT = {
     ENEMY_DEBUG_UPDATED:
         'enemy_debug_updated',
 
-    // Актуальное encounter-only состояние
-    // выставленного player shield field.
-    PLAYER_SHIELD_UPDATED: 'player_shield_updated',
-
-    // Active directional fields on enemy ships.
-    ENEMY_SHIELDS_UPDATED:
-        'enemy_shields_updated',
 
     // #endregion
 
@@ -546,26 +539,6 @@ export type BridgeEnemyShipTelemetryUpdatedPayload =
 export type BridgeEnemyDebugUpdatedPayload =
     EnemyDebugSnapshot | undefined;
 
-export type BridgePlayerShieldUpdatedPayload =
-    | {
-          zone: LaserTargetZone;
-
-          remainingDurationMs: number;
-          initialDurationMs: number;
-      }
-    | undefined;
-
-export type BridgeEnemyShieldSnapshotPayload = {
-    actorId: string;
-
-    zone: LaserTargetZone;
-
-    remainingDurationMs: number;
-    initialDurationMs: number;
-};
-
-export type BridgeEnemyShieldsUpdatedPayload =
-    BridgeEnemyShieldSnapshotPayload[];
 
 // #endregion
 
@@ -924,10 +897,6 @@ export type BridgeEventPayloadMap = {
     [BRIDGE_EVENT.ENEMY_DEBUG_UPDATED]:
         BridgeEnemyDebugUpdatedPayload;
 
-    [BRIDGE_EVENT.PLAYER_SHIELD_UPDATED]: BridgePlayerShieldUpdatedPayload;
-
-    [BRIDGE_EVENT.ENEMY_SHIELDS_UPDATED]:
-        BridgeEnemyShieldsUpdatedPayload;
 
     // Encounter objects and navigation
 

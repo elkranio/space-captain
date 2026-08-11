@@ -32,8 +32,6 @@ export default class BridgeEncounterSnapshotSynchronizer {
         this.syncOutgoingStickyMines();
         this.syncStickyMines();
         this.syncLaserThreats();
-        this.syncPlayerShield();
-        this.syncEnemyShields();
         this.syncEnemyShipTelemetry();
     }
 
@@ -115,38 +113,6 @@ export default class BridgeEncounterSnapshotSynchronizer {
                               targetZone: snapshot.attack.identification.targetZone,
                           }
                         : {}),
-                };
-            }),
-        );
-    }
-
-    private syncEnemyShields(): void {
-        const snapshots =
-            this.encounterEngine
-                .getEnemyShieldSnapshots();
-
-        this.eventBus.emit(
-            BRIDGE_EVENT
-                .ENEMY_SHIELDS_UPDATED,
-
-            snapshots.map((snapshot) => {
-                return {
-                    actorId:
-                        snapshot.actorId,
-
-                    zone:
-                        snapshot.zone,
-
-                    remainingDurationMs:
-                        Math.max(
-                            0,
-
-                            snapshot.durationMs -
-                                snapshot.elapsedMs,
-                        ),
-
-                    initialDurationMs:
-                        snapshot.durationMs,
                 };
             }),
         );
@@ -240,18 +206,4 @@ export default class BridgeEncounterSnapshotSynchronizer {
         );
     }
 
-    private syncPlayerShield(): void {
-        const shield = this.encounterEngine.getActiveShieldState();
-
-        this.eventBus.emit(
-            BRIDGE_EVENT.PLAYER_SHIELD_UPDATED,
-            shield
-                ? {
-                      zone: shield.zone,
-                      remainingDurationMs: Math.max(0, shield.durationMs - shield.elapsedMs),
-                      initialDurationMs: shield.durationMs,
-                  }
-                : undefined,
-        );
-    }
 }

@@ -46,20 +46,6 @@ describe('Player laser damage', () => {
             const initialHull =
                 targetActor.hull;
 
-            // Old directional fields no longer intercept
-            // the baseline HULL shot. Keep one synthetic
-            // field here to pin that migration boundary.
-            targetActor.activeShield = {
-                zone: 'left',
-
-                elapsedMs: 0,
-
-                // Long enough to survive targeting + charge.
-                // We want to test that the laser impact itself
-                // does not consume the retired directional field.
-                durationMs: 60000,
-            };
-
             expect(
                 engine.executeCommand({
                     role:
@@ -129,12 +115,6 @@ describe('Player laser damage', () => {
                 initialHull - 1,
             );
 
-            expect(
-                targetActor.activeShield,
-            ).toMatchObject({
-                zone: 'left',
-                durationMs: 60000,
-            });
         },
     );
 });

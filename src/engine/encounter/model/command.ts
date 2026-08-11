@@ -15,12 +15,6 @@ export const ENCOUNTER_OFFICER_COMMAND_ID = {
     SCIENCE_FIRE_SPAM:
         'science_fire_spam',
 
-    ENGINEER_DEPLOY_SHIELD_LEFT:
-        'engineer_deploy_shield_left',
-    ENGINEER_DEPLOY_SHIELD_CENTER:
-        'engineer_deploy_shield_center',
-    ENGINEER_DEPLOY_SHIELD_RIGHT:
-        'engineer_deploy_shield_right',
 
     ENGINEER_REPAIR_DRIVE:
         'engineer_repair_drive',
@@ -50,10 +44,6 @@ export const ENCOUNTER_OFFICER_COMMAND_ID = {
 export type EncounterOfficerCommandId =
     (typeof ENCOUNTER_OFFICER_COMMAND_ID)[keyof typeof ENCOUNTER_OFFICER_COMMAND_ID];
 
-export type EngineerDeployShieldCommandId =
-    | typeof ENCOUNTER_OFFICER_COMMAND_ID.ENGINEER_DEPLOY_SHIELD_LEFT
-    | typeof ENCOUNTER_OFFICER_COMMAND_ID.ENGINEER_DEPLOY_SHIELD_CENTER
-    | typeof ENCOUNTER_OFFICER_COMMAND_ID.ENGINEER_DEPLOY_SHIELD_RIGHT;
 
 export type WeaponsPointDefenseCommandId =
     | typeof ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_RED_BEAM

@@ -392,25 +392,6 @@ function createCrewTaskSnapshot(
             };
         }
 
-        case SHIP_CREW_TASK_KIND
-            .DEPLOY_SHIELD:
-            return {
-                kind:
-                    task.kind,
-
-                label:
-                    'SHIELD ' +
-                    task.shieldZone
-                        .toUpperCase(),
-
-                progress: {
-                    elapsedMs:
-                        task.elapsedMs,
-
-                    durationMs:
-                        task.durationMs,
-                },
-            };
 
         case SHIP_CREW_TASK_KIND
             .CLEAR_STICKY_MINE: {
@@ -687,9 +668,6 @@ function createPointDefenseProgress(
 function createShieldSnapshot(
     actor: ShipEncounterActorState,
 ): EnemyDebugShieldSnapshot {
-    const activeShield =
-        actor.activeShield;
-
     return {
         charges:
             actor.shieldGenerator
@@ -699,22 +677,6 @@ function createShieldSnapshot(
             actor.shieldGenerator
                 .maxCharges,
 
-        ...(activeShield
-            ? {
-                  activeZone:
-                      activeShield.zone,
-
-                  remainingMs:
-                      Math.max(
-                          0,
-
-                          activeShield
-                              .durationMs -
-                              activeShield
-                                  .elapsedMs,
-                      ),
-              }
-            : {}),
     };
 }
 

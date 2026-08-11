@@ -35,7 +35,7 @@ type CombatLaserRunnerOptions = {
 };
 
 // Owns the complete incoming-laser lifecycle: enemy targeting, charging,
-// threat state, shield/hull resolution, cooldown and damage interruption.
+// threat state, hull resolution, cooldown and damage interruption.
 export default class CombatLaserRunner {
     private readonly stateStore:
         EncounterStateStore;
@@ -305,21 +305,6 @@ export default class CombatLaserRunner {
             SHIP_WEAPON_PHASE.COOLDOWN;
         laser.phaseElapsedMs = 0;
 
-        if (this.consumeMatchingShield(attack)) {
-            this.emit({
-                type:
-                    ENCOUNTER_EVENT
-                        .LASER_FIRED,
-
-                attack,
-
-                outcome:
-                    LASER_SHOT_OUTCOME
-                        .BLOCKED,
-            });
-
-            return;
-        }
 
         const damageResult =
             this.stateStore
@@ -341,26 +326,6 @@ export default class CombatLaserRunner {
         });
 
         this.interruptRandomOfficerTask();
-    }
-
-    private consumeMatchingShield(
-        attack: LaserAttackState,
-    ): boolean {
-        const activeShield =
-            this.state.combat
-                .activeShield;
-
-        if (
-            activeShield?.zone !==
-            attack.targetZone
-        ) {
-            return false;
-        }
-
-        delete this.state.combat
-            .activeShield;
-
-        return true;
     }
 
     private selectTargetZone(): LaserTargetZone {

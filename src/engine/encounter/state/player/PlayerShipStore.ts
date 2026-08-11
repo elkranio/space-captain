@@ -6,12 +6,6 @@ import {
 import type {
     DefenseCapacitorState,
 } from '../../../defs/defense_capacitor';
-import {
-    PLAYER_SHIELD_DURATION_MS,
-} from '../../../content/rules/shields';
-import type {
-    LaserTargetZone,
-} from '../../../defs/laser';
 import type {
     PlayerHullDamageResult,
 } from '../../../defs/player';
@@ -20,9 +14,6 @@ import {
     type PointDefenseBeamBand,
     type PointDefenseShotOutcome,
 } from '../../../defs/point_defense';
-import type {
-    ShieldGeneratorState,
-} from '../../../defs/shield_generator';
 import {
     SHIP_DRIVE_STATUS,
     type ShipDriveState,
@@ -42,7 +33,6 @@ import {
 import {
     COMBAT_THREAT_KIND,
     THREAT_IDENTIFICATION_STATUS,
-    type ActiveShieldState,
     type ThreatIdentificationResult,
 } from '../../model/combat';
 import type {
@@ -642,53 +632,6 @@ export default class PlayerShipStore {
 
             targetZone:
                 laserAttack.targetZone,
-        };
-    }
-
-    public deployPlayerShield(
-        zone: LaserTargetZone,
-    ): ActiveShieldState {
-        const activeShield:
-            ActiveShieldState = {
-            zone,
-
-            elapsedMs: 0,
-            durationMs:
-                PLAYER_SHIELD_DURATION_MS,
-        };
-
-        this.state.combat.activeShield =
-            activeShield;
-
-        return {
-            ...activeShield,
-        };
-    }
-
-    public spendShieldGeneratorCharge():
-        ShieldGeneratorState {
-        const shieldGenerator =
-            this.state.combat
-                .shieldGenerator;
-
-        if (!shieldGenerator) {
-            throw new Error(
-                'Cannot spend shield-generator charge: generator not installed',
-            );
-        }
-
-        if (
-            shieldGenerator.charges <= 0
-        ) {
-            throw new Error(
-                'Cannot spend shield-generator charge: no charges remaining',
-            );
-        }
-
-        shieldGenerator.charges -= 1;
-
-        return {
-            ...shieldGenerator,
         };
     }
 

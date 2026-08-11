@@ -8,7 +8,6 @@ import {
 import {
     SHIP_NODE_ACTOR_PRESET_ID,
 } from '../../../src/engine/content/presets/ship_node_actors';
-import { LASER_TARGET_ZONE } from '../../../src/engine/defs/laser';
 import { OFFICER_ROLE } from '../../../src/engine/defs/officer';
 import { PLAYER_SPACE_NAVIGATION_KIND } from '../../../src/engine/defs/player_location';
 import {
@@ -428,17 +427,15 @@ function createEngineerTask(): OfficerTaskState {
 
         kind:
             OFFICER_TASK_KIND
-                .ENGINEER_DEPLOY_SHIELD,
+                .ENGINEER_REPAIR_DRIVE,
 
         role: OFFICER_ROLE.ENGINEER,
 
         sourceCommandId:
             ENCOUNTER_OFFICER_COMMAND_ID
-                .ENGINEER_DEPLOY_SHIELD_LEFT,
+                .ENGINEER_REPAIR_DRIVE,
 
-        shieldZone: LASER_TARGET_ZONE.LEFT,
-
-        label: 'SHIELD LEFT',
+        label: 'REPAIR DRIVE',
         showProgress: true,
 
         canBeCancelledByPlayer: true,

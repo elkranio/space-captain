@@ -25,20 +25,13 @@ import type {
 } from './debug/get_enemy_debug_snapshots';
 import CombatRunner from './combat/CombatRunner';
 import DefenseCapacitorRunner from './combat/defense/DefenseCapacitorRunner';
-import EnemyShieldRunner from './combat/shield/EnemyShieldRunner';
-import type {
-    EnemyShieldSnapshot,
-} from './combat/queries/get_enemy_shield_snapshots';
 import type { EnemyShipTelemetrySnapshot } from './combat/queries/get_enemy_ship_telemetry_snapshots';
 import type { LaserThreatSnapshot } from './combat/queries/get_laser_threat_snapshots';
 import type { StickyMineSnapshot } from './combat/queries/get_sticky_mine_snapshots';
-import PlayerShieldRunner from './combat/shield/PlayerShieldRunner';
 import PlayerWeaponRunner from './combat/weapons/PlayerWeaponRunner';
-import ShieldGeneratorRunner from './combat/shield/ShieldGeneratorRunner';
 import OfficerCommandExecutor from './commands/OfficerCommandExecutor';
 import type { AvailableOfficerCommand, ExecuteOfficerCommandInput, ExecuteOfficerCommandResult } from './model/command';
 import {
-    type ActiveShieldState,
     type CombatProjectileState,
     type LaserAttackState,
     type SpamChannelState,
@@ -52,9 +45,6 @@ import EncounterSnapshotReader from './snapshots/EncounterSnapshotReader';
 import { createDetachedSnapshot } from './snapshots/create_detached_snapshot';
 import EncounterStateStore from './state/EncounterStateStore';
 
-export type {
-    EnemyShieldSnapshot,
-} from './combat/queries/get_enemy_shield_snapshots';
 export type {
     EnemyShipTelemetrySnapshot,
 } from './combat/queries/get_enemy_ship_telemetry_snapshots';
@@ -112,12 +102,6 @@ export default class EncounterEngine {
     private readonly combatEngagementRunner:
         CombatEngagementRunner;
 
-    private readonly playerShieldRunner: PlayerShieldRunner;
-
-    private readonly enemyShieldRunner:
-        EnemyShieldRunner;
-
-    private readonly shieldGeneratorRunner: ShieldGeneratorRunner;
 
     constructor({
         node,
@@ -160,19 +144,6 @@ export default class EncounterEngine {
                 encounterState,
             );
 
-        this.playerShieldRunner = new PlayerShieldRunner({
-            state: encounterState,
-        });
-
-        this.enemyShieldRunner =
-            new EnemyShieldRunner(
-                encounterState,
-            );
-
-        this.shieldGeneratorRunner = new ShieldGeneratorRunner({
-            state: encounterState,
-            emit: this.emit,
-        });
 
         this.combatRunner = new CombatRunner({
             stateStore:
@@ -296,10 +267,7 @@ export default class EncounterEngine {
         this.defenseCapacitorRunner
             .step(deltaMs);
 
-        this.playerShieldRunner.step(deltaMs);
-        this.enemyShieldRunner.step(deltaMs);
         this.officerTaskRunner.step(deltaMs);
-        this.shieldGeneratorRunner.step(deltaMs);
         this.playerWeaponRunner.step(deltaMs);
         this.combatRunner.step(deltaMs);
 
@@ -380,11 +348,6 @@ export default class EncounterEngine {
         return this.snapshotReader.getEnemyShipTelemetrySnapshots();
     }
 
-    public getEnemyShieldSnapshots():
-        EnemyShieldSnapshot[] {
-        return this.snapshotReader
-            .getEnemyShieldSnapshots();
-    }
 
     public getEnemyDebugSnapshots():
         EnemyDebugSnapshot[] {
@@ -436,9 +399,6 @@ export default class EncounterEngine {
         return this.snapshotReader.getShieldGeneratorState();
     }
 
-    public getActiveShieldState(): ActiveShieldState | undefined {
-        return this.snapshotReader.getActiveShieldState();
-    }
 
     public drainEvents(): EncounterEvent[] {
         const events = [...this.events];

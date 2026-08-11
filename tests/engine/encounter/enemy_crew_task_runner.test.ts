@@ -405,9 +405,6 @@ function createRunnerFixture() {
                     );
                 },
 
-            onShieldDeploymentCompleted:
-                () => {},
-
             onStickyMineClearingCompleted:
                 () => {},
 

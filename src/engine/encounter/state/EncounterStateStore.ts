@@ -3,7 +3,6 @@
 import type {
     DefenseCapacitorState,
 } from '../../defs/defense_capacitor';
-import type { LaserTargetZone } from '../../defs/laser';
 import type { OfficerRole } from '../../defs/officer';
 import type {
     PlayerHullDamageResult,
@@ -15,9 +14,6 @@ import type {
     PointDefenseBeamBand,
     PointDefenseShotOutcome,
 } from '../../defs/point_defense';
-import type {
-    ShieldGeneratorState,
-} from '../../defs/shield_generator';
 import type {
     ShipDriveState,
 } from '../../defs/ship_drive';
@@ -41,7 +37,6 @@ import type {
     JumpPointEncounterAnchorState,
 } from '../anchors/jump_point/jump_point_encounter_anchor';
 import type {
-    ActiveShieldState,
     ThreatIdentificationResult,
 } from '../model/combat';
 import type {
@@ -417,20 +412,6 @@ export default class EncounterStateStore {
             );
     }
 
-    public deployPlayerShield(
-        zone: LaserTargetZone,
-    ): ActiveShieldState {
-        return this.playerShip
-            .deployPlayerShield(
-                zone,
-            );
-    }
-
-    public spendShieldGeneratorCharge():
-        ShieldGeneratorState {
-        return this.playerShip
-            .spendShieldGeneratorCharge();
-    }
 
     public spendDefenseCapacitorCharge():
         DefenseCapacitorState {

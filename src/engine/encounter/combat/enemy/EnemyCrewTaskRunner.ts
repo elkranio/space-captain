@@ -1,9 +1,6 @@
 // src/engine/encounter/combat/EnemyCrewTaskRunner.ts
 
 import type {
-    LaserTargetZone,
-} from '../../../defs/laser';
-import type {
     OfficerRole,
 } from '../../../defs/officer';
 import {
@@ -22,7 +19,6 @@ import {
 import {
     SHIP_CREW_TASK_KIND,
     type ClearStickyMineShipCrewTaskState,
-    type DeployShieldShipCrewTaskState,
     type IdentifyThreatShipCrewTaskState,
     type PurgeSpamShipCrewTaskState,
     type ShipCrewTaskState,
@@ -43,10 +39,6 @@ type EnemyCrewTaskRunnerOptions = {
         role: OfficerRole,
     ) => void;
 
-    onShieldDeploymentCompleted: (
-        actor: ShipEncounterActorState,
-        shieldZone: LaserTargetZone,
-    ) => void;
 
     onStickyMineClearingCompleted: (
         actor: ShipEncounterActorState,
@@ -87,10 +79,6 @@ export default class EnemyCrewTaskRunner {
             'onOffensiveTaskCompleted'
         ];
 
-    private readonly onShieldDeploymentCompleted:
-        EnemyCrewTaskRunnerOptions[
-            'onShieldDeploymentCompleted'
-        ];
 
     private readonly onStickyMineClearingCompleted:
         EnemyCrewTaskRunnerOptions[
@@ -110,7 +98,6 @@ export default class EnemyCrewTaskRunner {
     constructor({
         state,
         onOffensiveTaskCompleted,
-        onShieldDeploymentCompleted,
         onStickyMineClearingCompleted,
         onSpamPurgingCompleted,
         onThreatIdentificationCompleted,
@@ -124,9 +111,6 @@ export default class EnemyCrewTaskRunner {
 
         this.onOffensiveTaskCompleted =
             onOffensiveTaskCompleted;
-
-        this.onShieldDeploymentCompleted =
-            onShieldDeploymentCompleted;
 
         this.onStickyMineClearingCompleted =
             onStickyMineClearingCompleted;
@@ -325,18 +309,6 @@ export default class EnemyCrewTaskRunner {
                 return;
 
             case SHIP_CREW_TASK_KIND
-                .DEPLOY_SHIELD:
-                this.processDeployShield(
-                    actor,
-                    role,
-                    task,
-                    deltaMs,
-                    advanceTimedTasks,
-                );
-
-                return;
-
-            case SHIP_CREW_TASK_KIND
                 .CLEAR_STICKY_MINE:
                 this.processClearStickyMine(
                     actor,
@@ -445,70 +417,6 @@ export default class EnemyCrewTaskRunner {
         ) {
             return;
         }
-
-        this.complete(
-            actor,
-            role,
-        );
-    }
-
-    private processDeployShield(
-        actor: ShipEncounterActorState,
-        role: OfficerRole,
-        task:
-            DeployShieldShipCrewTaskState,
-        deltaMs: number,
-        advanceTimedTasks: boolean,
-    ): void {
-        const observation =
-            actor
-                .threatObservations
-                .find((candidate) => {
-                    return (
-                        candidate.id ===
-                        task.observationId
-                    );
-                });
-
-        if (
-            !observation ||
-            observation.report?.kind !==
-                'laser' ||
-            observation.report
-                .targetZone !==
-                task.shieldZone
-        ) {
-            this.cancel(
-                actor,
-                role,
-            );
-
-            return;
-        }
-
-        if (!advanceTimedTasks) {
-            return;
-        }
-
-        task.elapsedMs =
-            Math.min(
-                task.durationMs,
-
-                task.elapsedMs +
-                    deltaMs,
-            );
-
-        if (
-            task.elapsedMs <
-            task.durationMs
-        ) {
-            return;
-        }
-
-        this.onShieldDeploymentCompleted(
-            actor,
-            task.shieldZone,
-        );
 
         this.complete(
             actor,

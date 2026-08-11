@@ -81,11 +81,6 @@ export default class BridgeEncounterEngineEventHandler {
             undefined,
         );
 
-        this.eventBus.emit(
-            BRIDGE_EVENT
-                .ENEMY_SHIELDS_UPDATED,
-            [],
-        );
 
         this.eventBus.emit(
             BRIDGE_EVENT
@@ -118,10 +113,6 @@ export default class BridgeEncounterEngineEventHandler {
             [],
         );
 
-        this.eventBus.emit(
-            BRIDGE_EVENT.PLAYER_SHIELD_UPDATED,
-            undefined,
-        );
     }
 
     // #endregion
@@ -205,12 +196,6 @@ export default class BridgeEncounterEngineEventHandler {
 
                 return;
 
-            case ENCOUNTER_EVENT.PLAYER_SHIELD_GENERATOR_STATE_CHANGED:
-                this.emitPlayerShipStatusIfChanged(
-                    runtimeSync,
-                );
-
-                return;
 
             case ENCOUNTER_EVENT.PLAYER_SHIP_DRIVE_DISRUPTED:
                 this.emitPlayerShipStatusIfChanged(
@@ -259,22 +244,6 @@ export default class BridgeEncounterEngineEventHandler {
                     );
                 }
 
-                if (event.result?.kind === OFFICER_TASK_RESULT_KIND.SHIELD_DEPLOYED) {
-                    this.eventBus.emit(
-                        BRIDGE_EVENT.PLAYER_SHIELD_UPDATED,
-                        {
-                            zone: event.result.shield.zone,
-
-                            remainingDurationMs: Math.max(
-                                0,
-                                event.result.shield.durationMs -
-                                    event.result.shield.elapsedMs,
-                            ),
-
-                            initialDurationMs: event.result.shield.durationMs,
-                        },
-                    );
-                }
 
                 if (
                     event.result?.kind ===
@@ -603,11 +572,6 @@ export default class BridgeEncounterEngineEventHandler {
                     undefined,
                 );
 
-                this.eventBus.emit(
-                    BRIDGE_EVENT
-                        .ENEMY_SHIELDS_UPDATED,
-                    [],
-                );
 
                 // View фиксирует position
                 // до удаления object sprite.

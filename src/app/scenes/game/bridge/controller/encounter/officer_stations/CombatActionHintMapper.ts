@@ -21,21 +21,6 @@ const COMBAT_ACTION_HINT_BY_COMMAND_ID: Partial<
         priority: 10,
     },
 
-    [ENCOUNTER_OFFICER_COMMAND_ID.ENGINEER_DEPLOY_SHIELD_LEFT]: {
-        id: 'raise_shield',
-        label: 'RAISE SHIELD',
-        priority: 10,
-    },
-    [ENCOUNTER_OFFICER_COMMAND_ID.ENGINEER_DEPLOY_SHIELD_CENTER]: {
-        id: 'raise_shield',
-        label: 'RAISE SHIELD',
-        priority: 10,
-    },
-    [ENCOUNTER_OFFICER_COMMAND_ID.ENGINEER_DEPLOY_SHIELD_RIGHT]: {
-        id: 'raise_shield',
-        label: 'RAISE SHIELD',
-        priority: 10,
-    },
 
     [ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_RED_BEAM]: {
         id: 'intercept_missile',
