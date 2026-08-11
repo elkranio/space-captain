@@ -557,6 +557,22 @@ export type BridgeCaptainIncomingMissilePayload = {
 };
 
 export type BridgeCaptainCombatContextUpdatedPayload = {
+    enemyShip?: {
+        actorId: string;
+
+        hull: {
+            current: number;
+            max: number;
+        };
+
+        defenseCapacitor?: {
+            current: number;
+            max: number;
+
+            rechargeProgress?: number;
+        };
+    };
+
     incomingMissiles:
         BridgeCaptainIncomingMissilePayload[];
 };

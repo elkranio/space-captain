@@ -1,5 +1,8 @@
 // src/engine/encounter/combat/queries/get_enemy_ship_telemetry_snapshots.ts
 
+import type {
+    DefenseCapacitorState,
+} from '../../../defs/defense_capacitor';
 import {
     ENCOUNTER_TEAM,
 } from '../../../defs/encounter_team';
@@ -37,6 +40,9 @@ export type EnemyShipTelemetrySnapshot = {
         status: ShipDriveStatus;
     };
 
+    defenseCapacitor?:
+        DefenseCapacitorState;
+
     weapons: EnemyShipWeaponTelemetrySnapshot[];
 };
 
@@ -72,6 +78,14 @@ export function getEnemyShipTelemetrySnapshots(
                 drive: {
                     status: actor.drive.status,
                 },
+
+                ...(actor.defenseCapacitor
+                    ? {
+                          defenseCapacitor: {
+                              ...actor.defenseCapacitor,
+                          },
+                      }
+                    : {}),
 
                 weapons: actor.weapons.map(
                     (weapon) => {

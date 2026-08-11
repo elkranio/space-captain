@@ -75,6 +75,24 @@ describe('BridgeEncounterSnapshotSynchronizer', () => {
                     .CAPTAIN_COMBAT_CONTEXT_UPDATED,
 
                 {
+                    enemyShip: {
+                        actorId:
+                            'enemy_ship_00',
+
+                        hull: {
+                            current: 2,
+                            max: 4,
+                        },
+
+                        defenseCapacitor: {
+                            current: 1,
+                            max: 4,
+
+                            rechargeProgress:
+                                0.5,
+                        },
+                    },
+
                     incomingMissiles: [
                         {
                             projectileId:
@@ -162,6 +180,24 @@ describe('BridgeEncounterSnapshotSynchronizer', () => {
                     .CAPTAIN_COMBAT_CONTEXT_UPDATED,
 
                 {
+                    enemyShip: {
+                        actorId:
+                            'enemy_ship_00',
+
+                        hull: {
+                            current: 2,
+                            max: 4,
+                        },
+
+                        defenseCapacitor: {
+                            current: 1,
+                            max: 4,
+
+                            rechargeProgress:
+                                0.5,
+                        },
+                    },
+
                     incomingMissiles: [
                         {
                             projectileId:
@@ -242,6 +278,40 @@ function createEncounterEngine(): EncounterEngine {
                 helm: 'available',
             };
         }),
+
+        getEnemyShipTelemetrySnapshots:
+            vi.fn(() => {
+                return [
+                    {
+                        actorId:
+                            'enemy_ship_00',
+
+                        hull: {
+                            current: 2,
+                            max: 4,
+                        },
+
+                        drive: {
+                            status:
+                                'online',
+                        },
+
+                        defenseCapacitor: {
+                            id:
+                                'enemy_def_00',
+
+                            defenseCapacitorId:
+                                'defense_capacitor_basic_00',
+
+                            charges: 1,
+                            rechargeElapsedMs:
+                                12000,
+                        },
+
+                        weapons: [],
+                    },
+                ];
+            }),
 
         getIncomingMissileProjectiles: vi.fn(() => {
             return [

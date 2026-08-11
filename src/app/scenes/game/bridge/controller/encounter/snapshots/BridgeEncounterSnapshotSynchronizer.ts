@@ -121,6 +121,10 @@ export default class BridgeEncounterSnapshotSynchronizer {
                 .CAPTAIN_COMBAT_CONTEXT_UPDATED,
 
             mapCaptainCombatContextToBridgePayload({
+                enemyShips:
+                    this.encounterEngine
+                        .getEnemyShipTelemetrySnapshots(),
+
                 incomingMissiles:
                     this.encounterEngine
                         .getIncomingMissileProjectiles(),

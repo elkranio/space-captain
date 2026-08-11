@@ -1,4 +1,10 @@
+import {
+    DEFENSE_CAPACITORS,
+} from '../../../../../../engine/content/catalogs/defense_capacitors';
 import { OFFICER_ROLE, type OfficerRole } from '../../../../../../engine/defs/officer';
+import type {
+    EnemyShipTelemetrySnapshot,
+} from '../../../../../../engine/encounter/EncounterEngine';
 import {
     ENCOUNTER_OFFICER_COMMAND_ID,
     OFFICER_COMMAND_TARGET_KIND,
@@ -15,6 +21,9 @@ import type {
 } from '../../events/bridge_event';
 
 type CaptainCombatContextMapperInput = {
+    enemyShips:
+        EnemyShipTelemetrySnapshot[];
+
     incomingMissiles:
         CombatProjectileState[];
 
@@ -34,7 +43,18 @@ export function mapCaptainCombatContextToBridgePayload(
     input:
         CaptainCombatContextMapperInput,
 ): BridgeCaptainCombatContextUpdatedPayload {
+    const enemyShip =
+        mapEnemyShip(
+            input.enemyShips,
+        );
+
     return {
+        ...(enemyShip
+            ? {
+                  enemyShip,
+              }
+            : {}),
+
         incomingMissiles:
             [...input.incomingMissiles]
                 .sort((left, right) => {
@@ -151,6 +171,100 @@ export function mapCaptainCombatContextToBridgePayload(
                         },
                     };
                 }),
+    };
+}
+
+function mapEnemyShip(
+    enemyShips:
+        EnemyShipTelemetrySnapshot[],
+): NonNullable<
+    BridgeCaptainCombatContextUpdatedPayload[
+        'enemyShip'
+    ]
+> | undefined {
+    if (enemyShips.length > 1) {
+        throw new Error(
+            'Captain combat context supports one current enemy ship',
+        );
+    }
+
+    const enemyShip =
+        enemyShips[0];
+
+    if (!enemyShip) {
+        return undefined;
+    }
+
+    const defenseCapacitor =
+        enemyShip.defenseCapacitor;
+
+    return {
+        actorId:
+            enemyShip.actorId,
+
+        hull: {
+            ...enemyShip.hull,
+        },
+
+        ...(defenseCapacitor
+            ? {
+                  defenseCapacitor:
+                      mapDefenseCapacitor(
+                          defenseCapacitor,
+                      ),
+              }
+            : {}),
+    };
+}
+
+function mapDefenseCapacitor(
+    state:
+        NonNullable<
+            EnemyShipTelemetrySnapshot[
+                'defenseCapacitor'
+            ]
+        >,
+): NonNullable<
+    NonNullable<
+        BridgeCaptainCombatContextUpdatedPayload[
+            'enemyShip'
+        ]
+    >[
+        'defenseCapacitor'
+    ]
+> {
+    const definition =
+        DEFENSE_CAPACITORS[
+            state.defenseCapacitorId
+        ];
+
+    const rechargeProgress =
+        state.charges <
+        definition.capacity
+            ? Math.max(
+                  0,
+                  Math.min(
+                      1,
+                      state.rechargeElapsedMs /
+                          definition
+                              .rechargeDurationMs,
+                  ),
+              )
+            : undefined;
+
+    return {
+        current:
+            state.charges,
+
+        max:
+            definition.capacity,
+
+        ...(rechargeProgress !==
+        undefined
+            ? {
+                  rechargeProgress,
+              }
+            : {}),
     };
 }
 

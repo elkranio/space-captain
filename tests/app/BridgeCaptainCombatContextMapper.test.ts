@@ -80,6 +80,8 @@ describe(
 
                 expect(
                     mapCaptainCombatContextToBridgePayload({
+                        enemyShips: [],
+
                         incomingMissiles: [
                             far,
                             near,
@@ -236,6 +238,76 @@ describe(
         );
 
         it(
+            'maps current enemy hull and defense capacitor',
+            () => {
+                expect(
+                    mapCaptainCombatContextToBridgePayload({
+                        enemyShips: [
+                            {
+                                actorId:
+                                    'enemy_ship_00',
+
+                                hull: {
+                                    current: 3,
+                                    max: 4,
+                                },
+
+                                drive: {
+                                    status:
+                                        'online',
+                                },
+
+                                defenseCapacitor: {
+                                    id:
+                                        'enemy_def_00',
+
+                                    defenseCapacitorId:
+                                        'defense_capacitor_basic_00',
+
+                                    charges: 2,
+                                    rechargeElapsedMs:
+                                        6000,
+                                },
+
+                                weapons: [],
+                            },
+                        ],
+
+                        incomingMissiles:
+                            [],
+
+                        availableScienceCommands:
+                            [],
+
+                        availableWeaponsCommands:
+                            [],
+                    }),
+                ).toEqual({
+                    enemyShip: {
+                        actorId:
+                            'enemy_ship_00',
+
+                        hull: {
+                            current: 3,
+                            max: 4,
+                        },
+
+                        defenseCapacitor: {
+                            current: 2,
+                            max: 4,
+
+                            rechargeProgress:
+                                0.25,
+                        },
+                    },
+
+                    incomingMissiles:
+                        [],
+                });
+            },
+        );
+
+        it(
             'rejects duplicate resolved actions for one threat',
             () => {
                 const missile =
@@ -269,6 +341,8 @@ describe(
 
                 expect(() => {
                     mapCaptainCombatContextToBridgePayload({
+                        enemyShips: [],
+
                         incomingMissiles: [
                             missile,
                         ],
