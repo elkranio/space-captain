@@ -788,7 +788,6 @@ export type BridgePlayerLaserChargingStartedPayload = {
     weaponId: string;
 
     targetActorId: string;
-    targetZone: LaserTargetZone;
 };
 
 export type BridgePlayerLaserChargingClearedPayload = {
@@ -799,7 +798,6 @@ export type BridgePlayerLaserFiredPayload = {
     weaponId: string;
 
     targetActorId: string;
-    targetZone: LaserTargetZone;
 
     outcome: LaserShotOutcome;
 };

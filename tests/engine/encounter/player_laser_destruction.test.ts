@@ -17,9 +17,6 @@ import {
     ENCOUNTER_TEAM,
 } from '../../../src/engine/defs/encounter_team';
 import {
-    LASER_TARGET_ZONE,
-} from '../../../src/engine/defs/laser';
-import {
     OFFICER_ROLE,
 } from '../../../src/engine/defs/officer';
 import {
@@ -99,9 +96,6 @@ describe('Player laser enemy destruction', () => {
 
             targetActorId:
                 enemyId,
-
-            targetZone:
-                LASER_TARGET_ZONE.CENTER,
 
             outcome:
                 LASER_SHOT_OUTCOME.HIT,

@@ -17,9 +17,6 @@ import {
     ENCOUNTER_TEAM,
 } from '../../../src/engine/defs/encounter_team';
 import {
-    LASER_TARGET_ZONE,
-} from '../../../src/engine/defs/laser';
-import {
     OFFICER_ROLE,
 } from '../../../src/engine/defs/officer';
 import {
@@ -189,9 +186,6 @@ describe('Player laser lifecycle', () => {
             targetActorId:
                 enemy.id,
 
-            targetZone:
-                LASER_TARGET_ZONE.CENTER,
-
             chargeDurationMs:
                 SHIP_WEAPONS[
                     SHIP_WEAPON_ID.LASER_00
@@ -249,9 +243,6 @@ describe('Player laser lifecycle', () => {
 
             targetActorId:
                 enemy.id,
-
-            targetZone:
-                LASER_TARGET_ZONE.CENTER,
 
             outcome:
                 LASER_SHOT_OUTCOME.HIT,

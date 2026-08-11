@@ -4,14 +4,10 @@ import {
     LASER_TARGET_ZONE,
     type LaserTargetZone,
 } from '../../../../../../../engine/defs/laser';
-import {
-    LASER_SHOT_OUTCOME,
-} from '../../../../../../../engine/encounter/model/combat';
 import type BridgeScene from '../../../BridgeScene';
 import {
     BRIDGE_EVENT,
     type BridgeEnemyShieldsUpdatedPayload,
-    type BridgePlayerLaserFiredPayload,
 } from '../../../events/bridge_event';
 import type BridgeEventBus from '../../../events/BridgeEventBus';
 import BridgeShieldFieldView from '../shields/BridgeShieldFieldView';
@@ -97,13 +93,6 @@ export default class BridgeEnemyShieldsView {
             this,
         );
 
-        this.eventBus.on(
-            BRIDGE_EVENT
-                .PLAYER_LASER_FIRED,
-
-            this.handlePlayerLaserFired,
-            this,
-        );
     }
 
     public destroy(): void {
@@ -112,14 +101,6 @@ export default class BridgeEnemyShieldsView {
                 .ENEMY_SHIELDS_UPDATED,
 
             this.updateShields,
-            this,
-        );
-
-        this.eventBus.off(
-            BRIDGE_EVENT
-                .PLAYER_LASER_FIRED,
-
-            this.handlePlayerLaserFired,
             this,
         );
 
@@ -249,51 +230,6 @@ export default class BridgeEnemyShieldsView {
                 actorId,
             );
         }
-    }
-
-    private handlePlayerLaserFired(
-        payload:
-            BridgePlayerLaserFiredPayload,
-    ): void {
-        if (
-            payload.outcome !==
-            LASER_SHOT_OUTCOME.BLOCKED
-        ) {
-            return;
-        }
-
-        const entry =
-            this.shields.get(
-                payload.targetActorId,
-            );
-
-        if (!entry) {
-            throw new Error(
-                'Blocked player laser has no ' +
-                    'displayed enemy shield: ' +
-                    payload.targetActorId +
-                    '/' +
-                    payload.targetZone,
-            );
-        }
-
-        if (
-            entry.zone !==
-            payload.targetZone
-        ) {
-            throw new Error(
-                'Blocked player laser zone ' +
-                    'does not match displayed ' +
-                    'enemy shield: ' +
-                    payload.targetActorId +
-                    '/' +
-                    payload.targetZone +
-                    '/' +
-                    entry.zone,
-            );
-        }
-
-        entry.field.playImpact();
     }
 
     private createShield(

@@ -367,9 +367,6 @@ export default class BridgeEncounterEngineEventHandler {
 
                         targetActorId:
                             event.targetActorId,
-
-                        targetZone:
-                            event.targetZone,
                     },
                 );
                 return;
@@ -393,9 +390,6 @@ export default class BridgeEncounterEngineEventHandler {
 
                         targetActorId:
                             event.targetActorId,
-
-                        targetZone:
-                            event.targetZone,
 
                         outcome:
                             event.outcome,

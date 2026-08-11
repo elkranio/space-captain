@@ -3,9 +3,6 @@
 import type {
     PlayerHullDamageResult,
 } from '../../defs/player';
-import type {
-    LaserTargetZone,
-} from '../../defs/laser';
 import type { PlayerSpaceNavigationState } from '../../defs/player_location';
 import type { PointDefenseBeamBand, PointDefenseShotOutcome } from '../../defs/point_defense';
 import type { ShieldGeneratorState } from '../../defs/shield_generator';
@@ -255,41 +252,24 @@ export type PlayerLaserChargingStartedEvent = {
     weaponId: string;
 
     targetActorId: string;
-    targetZone: LaserTargetZone;
 
     chargeDurationMs: number;
 };
 
-export type PlayerLaserFiredEvent =
-    | {
-          type:
-              typeof ENCOUNTER_EVENT.PLAYER_LASER_FIRED;
+export type PlayerLaserFiredEvent = {
+    type:
+        typeof ENCOUNTER_EVENT.PLAYER_LASER_FIRED;
 
-          weaponId: string;
+    weaponId: string;
 
-          targetActorId: string;
-          targetZone: LaserTargetZone;
+    targetActorId: string;
 
-          outcome:
-              typeof LASER_SHOT_OUTCOME.BLOCKED;
+    outcome:
+        typeof LASER_SHOT_OUTCOME.HIT;
 
-          remainingShieldCharges: number;
-      }
-    | {
-          type:
-              typeof ENCOUNTER_EVENT.PLAYER_LASER_FIRED;
-
-          weaponId: string;
-
-          targetActorId: string;
-          targetZone: LaserTargetZone;
-
-          outcome:
-              typeof LASER_SHOT_OUTCOME.HIT;
-
-          damage: number;
-          remainingHull: number;
-      };
+    damage: number;
+    remainingHull: number;
+};
 
 export type PlayerMissileLaunchedEvent = {
     type:

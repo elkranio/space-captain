@@ -31,30 +31,31 @@ type WeaponsFireLaserTaskState = Extract<
     }
 >;
 
-type PlayerLaserImpact =
-    | {
-          outcome:
-              typeof LASER_SHOT_OUTCOME.BLOCKED;
-          remainingShieldCharges: number;
-      }
-    | {
-          outcome:
-              typeof LASER_SHOT_OUTCOME.HIT;
-          damage: number;
-          remainingHull: number;
-      };
+type PlayerLaserImpact = {
+    outcome:
+        typeof LASER_SHOT_OUTCOME.HIT;
+
+    damage: number;
+    remainingHull: number;
+};
 
 type PlayerLaserRunnerOptions = {
     stateStore: EncounterStateStore;
     emit: (event: EncounterEvent) => void;
+
     completeOfficerTask:
         (taskId: string) => void;
+
     destroyEnemyActor:
         (actorId: string) => void;
 };
 
-// Owns the active installed player laser lifecycle: targeting, charging,
-// shield/hull resolution and destruction.
+// Owns the active installed player laser lifecycle:
+// targeting -> charging -> HULL impact -> cooldown.
+//
+// Old directional enemy shields are intentionally not part
+// of this baseline. Node-aware shield interception returns
+// later on the new combat contract.
 export default class PlayerLaserRunner {
     constructor(
         private readonly options:
@@ -140,19 +141,20 @@ export default class PlayerLaserRunner {
         laser.phase =
             SHIP_WEAPON_PHASE.CHARGING;
 
-        // Incoming laser uses the same contract: targeting overflow
-        // is not carried into charging.
+        // Targeting overflow is not carried into charging.
         laser.phaseElapsedMs = 0;
 
         this.options.emit({
             type:
                 ENCOUNTER_EVENT
                     .PLAYER_LASER_CHARGING_STARTED,
-            weaponId: laser.id,
+
+            weaponId:
+                laser.id,
+
             targetActorId:
                 task.targetActorId,
-            targetZone:
-                task.targetZone,
+
             chargeDurationMs:
                 definition.chargeDurationMs,
         });
@@ -177,12 +179,13 @@ export default class PlayerLaserRunner {
 
         laser.phase =
             SHIP_WEAPON_PHASE.COOLDOWN;
+
         laser.phaseElapsedMs = 0;
 
         // Damage resolves before the event so telemetry in this
         // step already observes the new target state.
         const impact =
-            this.resolveImpact(
+            this.resolveHullImpact(
                 task,
                 definition.damage,
             );
@@ -191,11 +194,13 @@ export default class PlayerLaserRunner {
             type:
                 ENCOUNTER_EVENT
                     .PLAYER_LASER_FIRED,
-            weaponId: laser.id,
+
+            weaponId:
+                laser.id,
+
             targetActorId:
                 task.targetActorId,
-            targetZone:
-                task.targetZone,
+
             ...impact,
         });
 
@@ -206,8 +211,6 @@ export default class PlayerLaserRunner {
         );
 
         if (
-            impact.outcome ===
-                LASER_SHOT_OUTCOME.HIT &&
             impact.damage > 0 &&
             impact.remainingHull === 0
         ) {
@@ -217,7 +220,7 @@ export default class PlayerLaserRunner {
         }
     }
 
-    private resolveImpact(
+    private resolveHullImpact(
         task: WeaponsFireLaserTaskState,
         damage: number,
     ): PlayerLaserImpact {
@@ -239,25 +242,6 @@ export default class PlayerLaserRunner {
             );
         }
 
-        if (
-            target.activeShield?.zone ===
-            task.targetZone
-        ) {
-            delete target.activeShield;
-
-            return {
-                outcome:
-                    LASER_SHOT_OUTCOME.BLOCKED,
-
-                // Charge was already spent when Engineer committed
-                // to deployment. Impact consumes the field, not another charge.
-                remainingShieldCharges:
-                    target
-                        .shieldGenerator
-                        .charges,
-            };
-        }
-
         const damageResult =
             this.options.stateStore
                 .damageEnemyActorHull(
@@ -268,8 +252,10 @@ export default class PlayerLaserRunner {
         return {
             outcome:
                 LASER_SHOT_OUTCOME.HIT,
+
             damage:
                 damageResult.appliedDamage,
+
             remainingHull:
                 damageResult.remainingHull,
         };
@@ -322,7 +308,9 @@ export default class PlayerLaserRunner {
         laser: LaserWeaponState,
     ): LaserWeaponDefinition {
         const definition =
-            SHIP_WEAPONS[laser.weaponId];
+            SHIP_WEAPONS[
+                laser.weaponId
+            ];
 
         if (
             definition.kind !==
@@ -339,7 +327,9 @@ export default class PlayerLaserRunner {
     }
 }
 
-function assertNever(value: never): never {
+function assertNever(
+    value: never,
+): never {
     throw new Error(
         `Unhandled player laser phase: ${String(value)}`,
     );

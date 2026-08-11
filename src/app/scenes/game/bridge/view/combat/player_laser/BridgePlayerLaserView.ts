@@ -1,12 +1,5 @@
 // src/app/scenes/game/bridge/view/combat/player_laser/BridgePlayerLaserView.ts
 
-import {
-    LASER_TARGET_ZONE,
-    type LaserTargetZone,
-} from '../../../../../../../engine/defs/laser';
-import {
-    LASER_SHOT_OUTCOME,
-} from '../../../../../../../engine/encounter/model/combat';
 import type BridgeScene from '../../../BridgeScene';
 import {
     BRIDGE_EVENT,
@@ -26,16 +19,11 @@ type GetObjectPosition = (
     objectId: string,
 ) => Phaser.Math.Vector2 | undefined;
 
-const PLAYER_LASER_LAYOUT = {
-    targetZoneOffsetX: 30,
-} as const;
-
 // Temporary player weapon presentation.
 //
-// Пушка уже занимает видимое место
-// в нижней части viewscreen.
-// Финальный ship/weapon art позже заменит mount,
-// не меняя events и geometry flow.
+// Baseline player laser now fires at the visual center of the
+// target actor. Node-specific impact positions return together
+// with the future targeting-node contract.
 export default class BridgePlayerLaserView {
     private readonly root:
         Phaser.GameObjects.Container;
@@ -225,9 +213,14 @@ export default class BridgePlayerLaserView {
             this.getSourcePosition();
 
         const targetPosition =
-            this.getTargetPosition(
-                targetOrigin,
-                payload.targetZone,
+            new Phaser.Math.Vector2(
+                Math.round(
+                    targetOrigin.x,
+                ),
+
+                Math.round(
+                    targetOrigin.y,
+                ),
             );
 
         const beam =
@@ -265,10 +258,8 @@ export default class BridgePlayerLaserView {
                 position:
                     targetPosition,
 
-                blocked:
-                    payload.outcome ===
-                    LASER_SHOT_OUTCOME
-                        .BLOCKED,
+                // Baseline player laser has no shield interception.
+                blocked: false,
 
                 onComplete: () => {
                     impact.destroy();
@@ -343,48 +334,5 @@ export default class BridgePlayerLaserView {
     private getSourcePosition():
         Phaser.Math.Vector2 {
         return getBridgePlayerWeaponSourcePosition();
-    }
-
-    private getTargetPosition(
-        targetOrigin:
-            Phaser.Math.Vector2,
-
-        targetZone:
-            LaserTargetZone,
-    ): Phaser.Math.Vector2 {
-        return new Phaser.Math.Vector2(
-            Math.round(
-                targetOrigin.x +
-                    this.getTargetXOffset(
-                        targetZone,
-                    ),
-            ),
-
-            Math.round(
-                targetOrigin.y,
-            ),
-        );
-    }
-
-    private getTargetXOffset(
-        targetZone:
-            LaserTargetZone,
-    ): number {
-        switch (targetZone) {
-            case LASER_TARGET_ZONE.LEFT:
-                return (
-                    -PLAYER_LASER_LAYOUT
-                        .targetZoneOffsetX
-                );
-
-            case LASER_TARGET_ZONE.CENTER:
-                return 0;
-
-            case LASER_TARGET_ZONE.RIGHT:
-                return (
-                    PLAYER_LASER_LAYOUT
-                        .targetZoneOffsetX
-                );
-        }
     }
 }
