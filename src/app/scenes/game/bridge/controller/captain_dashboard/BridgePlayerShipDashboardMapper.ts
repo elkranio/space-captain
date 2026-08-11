@@ -13,6 +13,7 @@ import {
 import {
     BRIDGE_PLAYER_SYSTEM_ACTION_STATE,
     type BridgePlayerShipDashboardUpdatedPayload,
+    type BridgePlayerWeaponStatusPayload,
     type BridgePlayerWeaponsStatusUpdatedPayload,
 } from '../../events/bridge_event';
 
@@ -27,6 +28,13 @@ type MissileLauncherDashboardPayload =
     NonNullable<
         BridgePlayerShipDashboardUpdatedPayload[
             'missileLauncher'
+        ]
+    >;
+
+type LaserDashboardPayload =
+    NonNullable<
+        BridgePlayerShipDashboardUpdatedPayload[
+            'laser'
         ]
     >;
 
@@ -54,34 +62,97 @@ export function mapPlayerShipToBridgeDashboardPayload(
         input.weapons
             .missileLauncher;
 
-    if (!launcher) {
-        return {};
-    }
+    const laser =
+        input.weapons
+            .laser;
 
+    return {
+        ...(launcher
+            ? {
+                  missileLauncher:
+                      mapMissileLauncher(
+                          launcher,
+                          input.availableWeaponsCommands,
+                          input.weaponsOfficerAvailability,
+                      ),
+              }
+            : {}),
+
+        ...(laser
+            ? {
+                  laser:
+                      mapLaser(
+                          laser,
+                          input.availableWeaponsCommands,
+                          input.weaponsOfficerAvailability,
+                      ),
+              }
+            : {}),
+    };
+}
+
+function mapMissileLauncher(
+    launcher:
+        MissileLauncherStatus,
+    availableWeaponsCommands:
+        AvailableOfficerCommand[],
+    weaponsOfficerAvailability:
+        OfficerAvailabilityState,
+): MissileLauncherDashboardPayload {
     const cooldownProgress =
-        getMissileCooldownProgress(
+        getCooldownProgress(
             launcher,
+            'Missile launcher',
         );
 
     return {
-        missileLauncher: {
-            ammo: {
-                ...launcher.ammo,
-            },
-
-            ...(cooldownProgress !== undefined
-                ? {
-                      cooldownProgress,
-                  }
-                : {}),
-
-            action:
-                mapMissileAction(
-                    launcher,
-                    input.availableWeaponsCommands,
-                    input.weaponsOfficerAvailability,
-                ),
+        ammo: {
+            ...launcher.ammo,
         },
+
+        ...(cooldownProgress !== undefined &&
+        launcher.ammo.current > 0
+            ? {
+                  cooldownProgress,
+              }
+            : {}),
+
+        action:
+            mapMissileAction(
+                launcher,
+                availableWeaponsCommands,
+                weaponsOfficerAvailability,
+            ),
+    };
+}
+
+function mapLaser(
+    laser:
+        BridgePlayerWeaponStatusPayload,
+    availableWeaponsCommands:
+        AvailableOfficerCommand[],
+    weaponsOfficerAvailability:
+        OfficerAvailabilityState,
+): LaserDashboardPayload {
+    const cooldownProgress =
+        getCooldownProgress(
+            laser,
+            'Laser',
+        );
+
+    return {
+        ...(cooldownProgress !== undefined
+            ? {
+                  cooldownProgress,
+              }
+            : {}),
+
+        action:
+            mapLaserAction(
+                laser,
+                availableWeaponsCommands,
+                weaponsOfficerAvailability,
+            ),
     };
 }
 
@@ -119,8 +190,13 @@ function mapMissileAction(
     }
 
     const missileCommand =
-        getSingleMissileCommand(
+        getSingleCommand(
             availableWeaponsCommands,
+
+            ENCOUNTER_OFFICER_COMMAND_ID
+                .WEAPONS_FIRE_MISSILE,
+
+            'missile',
         );
 
     if (missileCommand) {
@@ -129,21 +205,87 @@ function mapMissileAction(
                 BRIDGE_PLAYER_SYSTEM_ACTION_STATE
                     .ACTIVE,
 
-            command: {
-                role:
-                    OFFICER_ROLE.WEAPONS,
-
-                commandId:
-                    missileCommand
-                        .commandId,
-
-                target:
-                    missileCommand
-                        .target,
-            },
+            command:
+                mapWeaponsCommand(
+                    missileCommand,
+                ),
         };
     }
 
+    return mapReadyButUnavailableAction(
+        weaponsOfficerAvailability,
+    );
+}
+
+function mapLaserAction(
+    laser:
+        BridgePlayerWeaponStatusPayload,
+    availableWeaponsCommands:
+        AvailableOfficerCommand[],
+    weaponsOfficerAvailability:
+        OfficerAvailabilityState,
+): LaserDashboardPayload[
+    'action'
+] {
+    if (
+        laser.phase ===
+            SHIP_WEAPON_PHASE.TARGETING ||
+        laser.phase ===
+            SHIP_WEAPON_PHASE.CHARGING
+    ) {
+        return {
+            state:
+                BRIDGE_PLAYER_SYSTEM_ACTION_STATE
+                    .ENGAGED_CURRENT_WORK,
+        };
+    }
+
+    if (
+        laser.phase !==
+        SHIP_WEAPON_PHASE.READY
+    ) {
+        return {
+            state:
+                BRIDGE_PLAYER_SYSTEM_ACTION_STATE
+                    .DISABLED_SYSTEM,
+        };
+    }
+
+    const laserCommand =
+        getSingleCommand(
+            availableWeaponsCommands,
+
+            ENCOUNTER_OFFICER_COMMAND_ID
+                .WEAPONS_FIRE_LASER,
+
+            'laser',
+        );
+
+    if (laserCommand) {
+        return {
+            state:
+                BRIDGE_PLAYER_SYSTEM_ACTION_STATE
+                    .ACTIVE,
+
+            command:
+                mapWeaponsCommand(
+                    laserCommand,
+                ),
+        };
+    }
+
+    return mapReadyButUnavailableAction(
+        weaponsOfficerAvailability,
+    );
+}
+
+function mapReadyButUnavailableAction(
+    weaponsOfficerAvailability:
+        OfficerAvailabilityState,
+):
+    MissileLauncherDashboardPayload[
+        'action'
+    ] {
     if (
         weaponsOfficerAvailability ===
         OFFICER_AVAILABILITY_STATE.BUSY
@@ -162,50 +304,83 @@ function mapMissileAction(
     };
 }
 
-function getSingleMissileCommand(
+function mapWeaponsCommand(
+    command:
+        AvailableOfficerCommand,
+):
+    NonNullable<
+        MissileLauncherDashboardPayload[
+            'action'
+        ][
+            'command'
+        ]
+    > {
+    return {
+        role:
+            OFFICER_ROLE.WEAPONS,
+
+        commandId:
+            command.commandId,
+
+        target:
+            command.target,
+    };
+}
+
+function getSingleCommand(
     commands:
         AvailableOfficerCommand[],
+
+    commandId:
+        AvailableOfficerCommand[
+            'commandId'
+        ],
+
+    label:
+        string,
 ): AvailableOfficerCommand | undefined {
-    const missileCommands =
+    const matchingCommands =
         commands.filter(
             (command) => {
                 return (
                     command.commandId ===
-                    ENCOUNTER_OFFICER_COMMAND_ID
-                        .WEAPONS_FIRE_MISSILE
+                    commandId
                 );
             },
         );
 
     if (
-        missileCommands.length > 1
+        matchingCommands.length > 1
     ) {
         throw new Error(
-            'Captain dashboard missile row received ' +
-                'multiple resolved missile commands',
+            'Captain dashboard ' +
+                label +
+                ' row received multiple ' +
+                'resolved commands',
         );
     }
 
-    return missileCommands[0];
+    return matchingCommands[0];
 }
 
-function getMissileCooldownProgress(
-    launcher:
-        MissileLauncherStatus,
+function getCooldownProgress(
+    weapon:
+        BridgePlayerWeaponStatusPayload,
+    label:
+        string,
 ): number | undefined {
     if (
-        launcher.ammo.current <= 0 ||
-        launcher.phase !==
-            SHIP_WEAPON_PHASE.COOLDOWN
+        weapon.phase !==
+        SHIP_WEAPON_PHASE.COOLDOWN
     ) {
         return undefined;
     }
 
     const initialPhaseMs =
-        launcher.initialPhaseMs;
+        weapon.initialPhaseMs;
 
     const remainingPhaseMs =
-        launcher.remainingPhaseMs;
+        weapon.remainingPhaseMs;
 
     if (
         initialPhaseMs === undefined ||
@@ -213,7 +388,8 @@ function getMissileCooldownProgress(
         initialPhaseMs <= 0
     ) {
         throw new Error(
-            'Missile cooldown dashboard snapshot ' +
+            label +
+                ' cooldown dashboard snapshot ' +
                 'requires valid phase timing',
         );
     }

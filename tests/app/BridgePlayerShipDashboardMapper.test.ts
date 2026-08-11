@@ -226,6 +226,175 @@ describe(
         );
 
         it(
+            'activates the ready laser from the exact resolved engine command',
+            () => {
+                const command =
+                    createLaserCommand();
+
+                expect(
+                    mapPlayerShipToBridgeDashboardPayload({
+                        weapons: {
+                            laser: {
+                                phase:
+                                    SHIP_WEAPON_PHASE
+                                        .READY,
+                            },
+                        },
+
+                        availableWeaponsCommands: [
+                            command,
+                        ],
+
+                        weaponsOfficerAvailability:
+                            OFFICER_AVAILABILITY_STATE
+                                .AVAILABLE,
+                    }),
+                ).toEqual({
+                    laser: {
+                        action: {
+                            state:
+                                BRIDGE_PLAYER_SYSTEM_ACTION_STATE
+                                    .ACTIVE,
+
+                            command: {
+                                role:
+                                    OFFICER_ROLE
+                                        .WEAPONS,
+
+                                commandId:
+                                    command
+                                        .commandId,
+
+                                target:
+                                    command
+                                        .target,
+                            },
+                        },
+                    },
+                });
+            },
+        );
+
+        it(
+            'shows laser targeting and charging as current Weapons work',
+            () => {
+                for (
+                    const phase of [
+                        SHIP_WEAPON_PHASE
+                            .TARGETING,
+
+                        SHIP_WEAPON_PHASE
+                            .CHARGING,
+                    ]
+                ) {
+                    expect(
+                        mapPlayerShipToBridgeDashboardPayload({
+                            weapons: {
+                                laser: {
+                                    phase,
+
+                                    initialPhaseMs:
+                                        12000,
+
+                                    remainingPhaseMs:
+                                        8000,
+                                },
+                            },
+
+                            availableWeaponsCommands:
+                                [],
+
+                            weaponsOfficerAvailability:
+                                OFFICER_AVAILABILITY_STATE
+                                    .BUSY,
+                        }),
+                    ).toEqual({
+                        laser: {
+                            action: {
+                                state:
+                                    BRIDGE_PLAYER_SYSTEM_ACTION_STATE
+                                        .ENGAGED_CURRENT_WORK,
+                            },
+                        },
+                    });
+                }
+            },
+        );
+
+        it(
+            'maps laser cooldown to progress and releases the officer',
+            () => {
+                expect(
+                    mapPlayerShipToBridgeDashboardPayload({
+                        weapons: {
+                            laser: {
+                                phase:
+                                    SHIP_WEAPON_PHASE
+                                        .COOLDOWN,
+
+                                initialPhaseMs:
+                                    10000,
+
+                                remainingPhaseMs:
+                                    2500,
+                            },
+                        },
+
+                        availableWeaponsCommands:
+                            [],
+
+                        weaponsOfficerAvailability:
+                            OFFICER_AVAILABILITY_STATE
+                                .AVAILABLE,
+                    }),
+                ).toEqual({
+                    laser: {
+                        cooldownProgress:
+                            1 - 2500 / 10000,
+
+                        action: {
+                            state:
+                                BRIDGE_PLAYER_SYSTEM_ACTION_STATE
+                                    .DISABLED_SYSTEM,
+                        },
+                    },
+                });
+            },
+        );
+
+        it(
+            'shows a ready laser as officer-busy when Weapons is occupied elsewhere',
+            () => {
+                expect(
+                    mapPlayerShipToBridgeDashboardPayload({
+                        weapons: {
+                            laser: {
+                                phase:
+                                    SHIP_WEAPON_PHASE
+                                        .READY,
+                            },
+                        },
+
+                        availableWeaponsCommands:
+                            [],
+
+                        weaponsOfficerAvailability:
+                            OFFICER_AVAILABILITY_STATE
+                                .BUSY,
+                    }),
+                ).toEqual({
+                    laser: {
+                        action: {
+                            state:
+                                BRIDGE_PLAYER_SYSTEM_ACTION_STATE
+                                    .DISABLED_OFFICER_BUSY,
+                        },
+                    },
+                });
+            },
+        );
+
+        it(
             'distinguishes officer busy from unavailable system',
             () => {
                 expect(
@@ -285,6 +454,31 @@ function createMissileCommand():
 
             weaponId:
                 'player_missile_launcher',
+
+            actorId:
+                'enemy_1',
+        },
+    };
+}
+
+
+function createLaserCommand():
+    AvailableOfficerCommand {
+    return {
+        commandId:
+            ENCOUNTER_OFFICER_COMMAND_ID
+                .WEAPONS_FIRE_LASER,
+
+        label:
+            'FIRE LASER',
+
+        target: {
+            kind:
+                OFFICER_COMMAND_TARGET_KIND
+                    .ACTOR_WEAPON,
+
+            weaponId:
+                'laser_player_00',
 
             actorId:
                 'enemy_1',

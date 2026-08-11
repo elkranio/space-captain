@@ -34,13 +34,13 @@ const SYSTEM_ROWS:
     ];
 
 const MISSILE_LAUNCHER_ROW_INDEX = 0;
+const LASER_ROW_INDEX = 1;
 
 // Список player ship systems.
 //
-// Missile row — первый реальный vertical slice:
-// snapshot и exact resolved command приходят из app/controller,
-// view только отображает presentation state и эмитит существующий
-// OFFICER_COMMAND_SELECTED на активный click.
+// Каждая реальная строка получает уже разрешённый app-side state.
+// View не пересчитывает domain availability:
+// ACTIVE callback только эмитит существующий OFFICER_COMMAND_SELECTED.
 export default class BridgePlayerShipSystemsView {
     private readonly root:
         Phaser.GameObjects.Container;
@@ -49,6 +49,9 @@ export default class BridgePlayerShipSystemsView {
         BridgePlayerShipSystemRowView[] = [];
 
     private missileLauncherView?:
+        BridgePlayerShipSystemRowView;
+
+    private laserView?:
         BridgePlayerShipSystemRowView;
 
     constructor(
@@ -101,6 +104,14 @@ export default class BridgePlayerShipSystemsView {
                     rowView;
             }
 
+            if (
+                index ===
+                LASER_ROW_INDEX
+            ) {
+                this.laserView =
+                    rowView;
+            }
+
             this.rowViews.push(
                 rowView,
             );
@@ -110,15 +121,19 @@ export default class BridgePlayerShipSystemsView {
             );
         }
 
-        if (!this.missileLauncherView) {
+        if (
+            !this.missileLauncherView ||
+            !this.laserView
+        ) {
             throw new Error(
-                'Missile launcher dashboard row was not created',
+                'Captain dashboard weapon rows were not created',
             );
         }
 
         this.eventBus.on(
             BRIDGE_EVENT
                 .PLAYER_SHIP_DASHBOARD_UPDATED,
+
             this.handlePlayerShipDashboardUpdated,
             this,
         );
@@ -143,6 +158,7 @@ export default class BridgePlayerShipSystemsView {
         this.eventBus.off(
             BRIDGE_EVENT
                 .PLAYER_SHIP_DASHBOARD_UPDATED,
+
             this.handlePlayerShipDashboardUpdated,
             this,
         );
@@ -155,7 +171,12 @@ export default class BridgePlayerShipSystemsView {
         }
 
         this.rowViews.length = 0;
-        this.missileLauncherView = undefined;
+
+        this.missileLauncherView =
+            undefined;
+
+        this.laserView =
+            undefined;
 
         this.root.destroy(false);
     }
@@ -164,15 +185,27 @@ export default class BridgePlayerShipSystemsView {
         payload:
             BridgePlayerShipDashboardUpdatedPayload,
     ): void {
+        this.updateMissileLauncher(
+            payload.missileLauncher,
+        );
+
+        this.updateLaser(
+            payload.laser,
+        );
+    }
+
+    private updateMissileLauncher(
+        launcher:
+            BridgePlayerShipDashboardUpdatedPayload[
+                'missileLauncher'
+            ],
+    ): void {
         const view =
             this.missileLauncherView;
 
         if (!view) {
             return;
         }
-
-        const launcher =
-            payload.missileLauncher;
 
         if (!launcher) {
             view.setSystemLabel(
@@ -201,11 +234,70 @@ export default class BridgePlayerShipSystemsView {
             launcher.cooldownProgress,
         );
 
+        this.applyAction(
+            view,
+            launcher.action,
+        );
+    }
+
+    private updateLaser(
+        laser:
+            BridgePlayerShipDashboardUpdatedPayload[
+                'laser'
+            ],
+    ): void {
+        const view =
+            this.laserView;
+
+        if (!view) {
+            return;
+        }
+
+        view.setSystemLabel(
+            'LASER',
+        );
+
+        if (!laser) {
+            view.setProgress(
+                undefined,
+            );
+
+            view.setAction(
+                BRIDGE_PLAYER_SYSTEM_ACTION_STATE
+                    .DISABLED_SYSTEM,
+            );
+
+            return;
+        }
+
+        view.setProgress(
+            laser.cooldownProgress,
+        );
+
+        this.applyAction(
+            view,
+            laser.action,
+        );
+    }
+
+    private applyAction(
+        view:
+            BridgePlayerShipSystemRowView,
+
+        action:
+            NonNullable<
+                BridgePlayerShipDashboardUpdatedPayload[
+                    'missileLauncher'
+                ]
+            >[
+                'action'
+            ],
+    ): void {
         const command =
-            launcher.action.command;
+            action.command;
 
         view.setAction(
-            launcher.action.state,
+            action.state,
 
             command
                 ? () => {

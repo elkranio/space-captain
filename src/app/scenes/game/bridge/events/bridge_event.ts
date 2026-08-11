@@ -497,6 +497,23 @@ export type BridgePlayerShipDashboardUpdatedPayload = {
                 BridgeOfficerCommandSelectedPayload;
         };
     };
+
+    laser?: {
+        // 0..1 elapsed cooldown.
+        // Targeting/charging показываются через ENGAGED state,
+        // без отдельного progress bar в dashboard.
+        cooldownProgress?: number;
+
+        action: {
+            state:
+                BridgePlayerSystemActionState;
+
+            // Exact engine-resolved command.
+            // Присутствует только у ACTIVE state.
+            command?:
+                BridgeOfficerCommandSelectedPayload;
+        };
+    };
 };
 
 export type BridgeEnemyShipTelemetryUpdatedPayload =
