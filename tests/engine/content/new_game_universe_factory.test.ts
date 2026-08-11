@@ -2,9 +2,15 @@
 
 import { describe, expect, it } from 'vitest';
 import NewGameUniverseFactory from '../../../src/engine/content/new_game/NewGameUniverseFactory';
+import { MISSILE_ID } from '../../../src/engine/defs/missile';
 import { OFFICER_ROLE } from '../../../src/engine/defs/officer';
 import { PLAYER_LOCATION_KIND, PLAYER_SPACE_NAVIGATION_KIND } from '../../../src/engine/defs/player_location';
 import { SPACE_BACKGROUND_ID } from '../../../src/engine/defs/space_background';
+import {
+    SHIP_WEAPON_ID,
+    SHIP_WEAPON_KIND,
+    SHIP_WEAPON_PHASE,
+} from '../../../src/engine/defs/ship_weapon';
 import { SPACE_ANCHOR_KIND, SPACE_NODE_ACTOR_KIND } from '../../../src/engine/defs/universe';
 
 describe('NewGameUniverseFactory', () => {
@@ -105,7 +111,30 @@ describe('NewGameUniverseFactory', () => {
         expect(enemy.kind).toBe(SPACE_NODE_ACTOR_KIND.SHIP);
         expect(enemy.anchorId).toBe(navigationBeaconAnchor.beacon.id);
 
-        expect(enemy.weapons).toEqual([]);
+        expect(enemy.weapons).toEqual([
+            {
+                id:
+                    'missile_launcher_00',
+
+                weaponId:
+                    SHIP_WEAPON_ID
+                        .MISSILE_LAUNCHER_00,
+
+                kind:
+                    SHIP_WEAPON_KIND
+                        .MISSILE_LAUNCHER,
+
+                loadedMissileId:
+                    MISSILE_ID.RED_00,
+
+                ammoCount: 5,
+
+                phase:
+                    SHIP_WEAPON_PHASE.READY,
+
+                phaseElapsedMs: 0,
+            },
+        ]);
 
         expect(enemy.crewRoles).toEqual([
             OFFICER_ROLE.SCIENCE,
@@ -165,8 +194,17 @@ describe('NewGameUniverseFactory', () => {
         const secondEnemy = second.universe.nodes[0].actors[0];
 
         expect(firstEnemy.weapons).not.toBe(secondEnemy.weapons);
-        expect(firstEnemy.weapons).toEqual([]);
-        expect(secondEnemy.weapons).toEqual([]);
+
+        expect(firstEnemy.weapons).toHaveLength(1);
+        expect(secondEnemy.weapons).toHaveLength(1);
+
+        expect(firstEnemy.weapons[0]).not.toBe(
+            secondEnemy.weapons[0],
+        );
+
+        expect(firstEnemy.weapons).toEqual(
+            secondEnemy.weapons,
+        );
 
         expect(first.playerLocations.arrivingAtStart).not.toBe(second.playerLocations.arrivingAtStart);
     });

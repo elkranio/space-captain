@@ -357,7 +357,21 @@ export const SHIP_PRESETS = {
                     .BASIC_00,
         },
 
-        // Offensive systems remain absent.
-        weapons: [],
+        // Первый возвращённый offensive system:
+        // threat dashboard сейчас тестируем на enemy missiles.
+        weapons: [
+            {
+                id:
+                    'missile_launcher_00',
+
+                kind:
+                    SHIP_WEAPON_KIND
+                        .MISSILE_LAUNCHER,
+
+                presetId:
+                    MISSILE_LAUNCHER_PRESET_ID
+                        .BASIC_RED_FULL_00,
+            },
+        ],
     },
 } satisfies Record<ShipPresetId, ShipPreset>;

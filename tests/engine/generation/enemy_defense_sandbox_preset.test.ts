@@ -10,16 +10,24 @@ import {
     DEFENSE_CAPACITOR_ID,
 } from '../../../src/engine/defs/defense_capacitor';
 import {
+    MISSILE_ID,
+} from '../../../src/engine/defs/missile';
+import {
     OFFICER_ROLE,
 } from '../../../src/engine/defs/officer';
 import {
     POINT_DEFENSE_ID,
     POINT_DEFENSE_PHASE,
 } from '../../../src/engine/defs/point_defense';
+import {
+    SHIP_WEAPON_ID,
+    SHIP_WEAPON_KIND,
+    SHIP_WEAPON_PHASE,
+} from '../../../src/engine/defs/ship_weapon';
 import ShipNodeActorFactory from '../../../src/engine/generation/space_node_actor/ShipNodeActorFactory';
 
 describe('Enemy defense sandbox preset', () => {
-    it('creates a fully crewed enemy without offensive weapons', () => {
+    it('creates a fully crewed defensive enemy with one red missile launcher', () => {
         const actor =
             ShipNodeActorFactory.create({
                 id:
@@ -32,7 +40,30 @@ describe('Enemy defense sandbox preset', () => {
                 anchorId: 'anchor_00',
             });
 
-        expect(actor.weapons).toEqual([]);
+        expect(actor.weapons).toEqual([
+            {
+                id:
+                    'missile_launcher_00',
+
+                weaponId:
+                    SHIP_WEAPON_ID
+                        .MISSILE_LAUNCHER_00,
+
+                kind:
+                    SHIP_WEAPON_KIND
+                        .MISSILE_LAUNCHER,
+
+                loadedMissileId:
+                    MISSILE_ID.RED_00,
+
+                ammoCount: 5,
+
+                phase:
+                    SHIP_WEAPON_PHASE.READY,
+
+                phaseElapsedMs: 0,
+            },
+        ]);
 
         expect(actor.pointDefense).toEqual({
             id: 'point_defense_00',
