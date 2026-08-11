@@ -174,7 +174,7 @@ describe(
                     durationMs: null,
 
                     canBeCancelledByPlayer:
-                        true,
+                        false,
 
                     canBeInterruptedByDamage:
                         true,
@@ -283,7 +283,7 @@ describe(
         );
 
         it(
-            'ends the visible channel when Science cancels the task',
+            'rejects manual cancellation while the spam channel stays active',
             () => {
                 const {
                     engine,
@@ -340,16 +340,7 @@ describe(
                     SHIP_WEAPON_TARGETING_DURATION_MS,
                 );
 
-                const started =
-                    engine
-                        .drainEvents()
-                        .find((event) => {
-                            return (
-                                event.type ===
-                                ENCOUNTER_EVENT
-                                    .PLAYER_SPAM_CHANNEL_STARTED
-                            );
-                        });
+                engine.drainEvents();
 
                 const [task] =
                     engine.getOfficerTasks();
@@ -365,49 +356,37 @@ describe(
                     );
                 }
 
-                engine.cancelTask(
-                    task.id,
+                expect(
+                    task.canBeCancelledByPlayer,
+                ).toBe(false);
+
+                expect(() => {
+                    engine.cancelTask(
+                        task.id,
+                    );
+                }).toThrow(
+                    'Officer task cannot be cancelled by player: ' +
+                        `${task.id}/${task.kind}`,
                 );
 
                 expect(
                     engine.drainEvents(),
-                ).toContainEqual({
-                    type:
-                        ENCOUNTER_EVENT
-                            .PLAYER_SPAM_CHANNEL_ENDED,
-
-                    channelId:
-                        started?.type ===
-                        ENCOUNTER_EVENT
-                            .PLAYER_SPAM_CHANNEL_STARTED
-                            ? started.channelId
-                            : '',
-
-                    sourceWeaponId:
-                        projector.id,
-
-                    targetActorId:
-                        targetActor.id,
-
-                    outcome:
-                        PLAYER_SPAM_CHANNEL_OUTCOME
-                            .CANCELLED,
-                });
+                ).toEqual([]);
 
                 expect(projector).toMatchObject({
                     phase:
                         SHIP_WEAPON_PHASE
-                            .COOLDOWN,
-
-                    phaseElapsedMs: 0,
+                            .CHANNELING,
 
                     activeChannelId:
-                        null,
+                        expect.stringContaining(
+                            'player_spam:',
+                        ),
                 });
 
                 expect(
                     engine.getOfficerTasks(),
-                ).toEqual([]);
+                ).toEqual([task]);
             },
         );
     },

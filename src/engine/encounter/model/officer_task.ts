@@ -260,6 +260,7 @@ export function getOfficerTaskCancellationPolicy(
 
         case OFFICER_TASK_KIND
             .WEAPONS_FIRE_STICKY_MINES:
+        case OFFICER_TASK_KIND.SCIENCE_FIRE_SPAM:
             return {
                 canBeCancelledByPlayer: false,
                 canBeInterruptedByDamage: true,
@@ -272,7 +273,6 @@ export function getOfficerTaskCancellationPolicy(
         case OFFICER_TASK_KIND.WEAPONS_POINT_DEFENSE:
         case OFFICER_TASK_KIND.WEAPONS_FIRE_MISSILE:
         case OFFICER_TASK_KIND.WEAPONS_FIRE_LASER:
-        case OFFICER_TASK_KIND.SCIENCE_FIRE_SPAM:
         case OFFICER_TASK_KIND.CLEAR_STICKY_MINE:
         case OFFICER_TASK_KIND.HELM_JUMP:
             return {
