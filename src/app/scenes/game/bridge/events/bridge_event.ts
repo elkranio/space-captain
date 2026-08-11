@@ -363,10 +363,15 @@ export type BridgeOfficerStationIndicatorsUpdatedPayload = Record<OfficerRole, B
 export type BridgeOfficerCombatHintsUpdatedPayload = Record<OfficerRole, string[]>;
 
 // Офицер начал activity/task.
+// taskId связывает station presentation с конкретной runtime task.
+// View может показать direct cancel affordance только для cancellable task.
 export type BridgeOfficerActivityStartedPayload = {
     role: OfficerRole;
 
+    taskId: string;
     label: string;
+
+    canBeCancelledByPlayer: boolean;
 };
 
 // Activity/task офицера очищен.

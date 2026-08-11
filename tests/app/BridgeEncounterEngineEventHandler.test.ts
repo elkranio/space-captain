@@ -535,7 +535,10 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
                 {
                     role: OFFICER_ROLE.WEAPONS,
 
+                    taskId: 'task_1',
                     label: 'PD AIM',
+
+                    canBeCancelledByPlayer: true,
                 },
             ],
         ]);

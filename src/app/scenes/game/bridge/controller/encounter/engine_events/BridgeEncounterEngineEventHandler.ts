@@ -189,7 +189,12 @@ export default class BridgeEncounterEngineEventHandler {
             case ENCOUNTER_EVENT.OFFICER_TASK_STARTED:
                 this.eventBus.emit(BRIDGE_EVENT.OFFICER_ACTIVITY_STARTED, {
                     role: event.task.role,
+
+                    taskId: event.task.id,
                     label: event.task.label,
+
+                    canBeCancelledByPlayer:
+                        event.task.canBeCancelledByPlayer,
                 });
                 return;
 
