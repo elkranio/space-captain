@@ -16,20 +16,6 @@ import {
 } from '../../../../../../../engine/encounter/model/event';
 import type { GameRuntime } from '../../../../../../runtime/GameRuntime';
 
-export type BridgeEncounterRuntimeSyncResult = {
-    playerShipStatusChanged: boolean;
-};
-
-const NO_VISIBLE_RUNTIME_CHANGE:
-    BridgeEncounterRuntimeSyncResult = {
-        playerShipStatusChanged: false,
-    };
-
-const PLAYER_SHIP_STATUS_CHANGED:
-    BridgeEncounterRuntimeSyncResult = {
-        playerShipStatusChanged: true,
-    };
-
 // Единственный event-driven transport
 // из EncounterEngine в persistent GameRuntime.
 //
@@ -45,7 +31,7 @@ export default class BridgeEncounterRuntimeSynchronizer {
 
     public synchronize(
         event: EncounterEvent,
-    ): BridgeEncounterRuntimeSyncResult {
+    ): void {
         switch (event.type) {
             case ENCOUNTER_EVENT
                 .PLAYER_POINT_DEFENSE_CHARGE_SPENT: {
@@ -67,7 +53,7 @@ export default class BridgeEncounterRuntimeSynchronizer {
                         rechargeElapsedMs: 0,
                     });
 
-                return PLAYER_SHIP_STATUS_CHANGED;
+                return;
             }
 
 
@@ -83,7 +69,7 @@ export default class BridgeEncounterRuntimeSynchronizer {
                         event.navigation,
                     );
 
-                return PLAYER_SHIP_STATUS_CHANGED;
+                return;
 
             case ENCOUNTER_EVENT
                 .PLAYER_SHIP_DRIVE_STATE_CHANGED:
@@ -92,7 +78,7 @@ export default class BridgeEncounterRuntimeSynchronizer {
                         event.drive,
                     );
 
-                return PLAYER_SHIP_STATUS_CHANGED;
+                return;
 
             case ENCOUNTER_EVENT
                 .OFFICER_TASK_ENDED:
@@ -100,7 +86,7 @@ export default class BridgeEncounterRuntimeSynchronizer {
                     event,
                 );
 
-                return NO_VISIBLE_RUNTIME_CHANGE;
+                return;
 
             case ENCOUNTER_EVENT
                 .ENEMY_SHIP_DESTROYED:
@@ -109,13 +95,15 @@ export default class BridgeEncounterRuntimeSynchronizer {
                         event.actorId,
                     );
 
-                return NO_VISIBLE_RUNTIME_CHANGE;
+                return;
 
             case ENCOUNTER_EVENT
                 .MISSILE_IMPACTED_PLAYER_SHIP:
-                return this.synchronizePlayerHull(
+                this.synchronizePlayerHull(
                     event,
                 );
+
+                return;
 
             case ENCOUNTER_EVENT
                 .STICKY_MINE_DETONATED:
@@ -123,24 +111,28 @@ export default class BridgeEncounterRuntimeSynchronizer {
                     event,
                 );
 
-                return this.synchronizePlayerHull(
+                this.synchronizePlayerHull(
                     event,
                 );
+
+                return;
 
             case ENCOUNTER_EVENT.LASER_FIRED:
                 if (
                     event.outcome ===
                     LASER_SHOT_OUTCOME.BLOCKED
                 ) {
-                    return NO_VISIBLE_RUNTIME_CHANGE;
+                    return;
                 }
 
-                return this.synchronizePlayerHull(
+                this.synchronizePlayerHull(
                     event,
                 );
 
+                return;
+
             default:
-                return NO_VISIBLE_RUNTIME_CHANGE;
+                return;
         }
     }
 
@@ -183,15 +175,11 @@ export default class BridgeEncounterRuntimeSynchronizer {
 
     private synchronizePlayerHull(
         result: PlayerHullDamageResult,
-    ): BridgeEncounterRuntimeSyncResult {
+    ): void {
         this.gameRuntime
             .setPlayerShipHull(
                 result.remainingHull,
             );
-
-        return result.appliedDamage > 0
-            ? PLAYER_SHIP_STATUS_CHANGED
-            : NO_VISIBLE_RUNTIME_CHANGE;
     }
 
     private assertIncomingStickyMine(

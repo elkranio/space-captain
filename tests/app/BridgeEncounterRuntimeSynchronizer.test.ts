@@ -37,7 +37,7 @@ describe(
     'Bridge encounter runtime synchronizer',
     () => {
         it(
-            'persists event-driven player state and reports visible status changes',
+            'persists event-driven player state',
             () => {
                 const runtime =
                     new GameRuntime();
@@ -47,8 +47,7 @@ describe(
                         runtime,
                     );
 
-                expect(
-                    synchronizer.synchronize({
+                synchronizer.synchronize({
                         type:
                             ENCOUNTER_EVENT
                                 .MISSILE_IMPACTED_PLAYER_SHIP,
@@ -96,19 +95,14 @@ describe(
                         appliedDamage: 1,
                         remainingHull: 2,
                         destroyed: false,
-                    }),
-                ).toEqual({
-                    playerShipStatusChanged:
-                        true,
-                });
+                    });
 
                 expect(
                     runtime.getCurrentRun()
                         .player.ship.hull,
                 ).toBe(2);
 
-                expect(
-                    synchronizer.synchronize({
+                synchronizer.synchronize({
                         type:
                             ENCOUNTER_EVENT
                                 .PLAYER_SHIP_DRIVE_DISRUPTED,
@@ -136,11 +130,7 @@ describe(
                             anchorId:
                                 'anchor_safe_00',
                         },
-                    }),
-                ).toEqual({
-                    playerShipStatusChanged:
-                        true,
-                });
+                    });
 
                 const run =
                     runtime.getCurrentRun();
