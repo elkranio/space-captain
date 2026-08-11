@@ -16,9 +16,6 @@ import type {
     ShipPointDefenseState,
 } from './point_defense';
 import type {
-    ShieldGeneratorState,
-} from './shield_generator';
-import type {
     ShipBehaviorState,
 } from './ship_behavior';
 import type {
@@ -91,9 +88,6 @@ export type ShipSpaceNodeActorState =
 
         defenseCapacitor?:
             DefenseCapacitorState;
-
-        shieldGenerator:
-            ShieldGeneratorState;
 
         behavior: ShipBehaviorState;
 

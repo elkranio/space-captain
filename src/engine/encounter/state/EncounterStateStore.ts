@@ -141,9 +141,6 @@ export default class EncounterStateStore {
                 defenseCapacitor:
                     actor.defenseCapacitor,
 
-                shieldGenerator:
-                    actor.shieldGenerator,
-
                 behavior:
                     actor.behavior,
 

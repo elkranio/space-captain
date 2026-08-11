@@ -44,7 +44,6 @@ describe('Player laser enemy destruction', () => {
             enemyId,
         } = createCombatFixture({
             enemyHull: 1,
-            enemyShieldCharges: 0,
             disableEnemyCrew: true,
         });
 
@@ -156,7 +155,6 @@ describe('Player laser enemy destruction', () => {
             engine,
         } = createCombatFixture({
             enemyHull: 0,
-            enemyShieldCharges: 0,
             disableEnemyCrew: false,
         });
 
@@ -190,12 +188,9 @@ describe('Player laser enemy destruction', () => {
 });
 
 function createCombatFixture({
-    enemyHull,
-    enemyShieldCharges,
-    disableEnemyCrew,
+    enemyHull,    disableEnemyCrew,
 }: {
     enemyHull: number;
-    enemyShieldCharges: number;
     disableEnemyCrew: boolean;
 }) {
     const run =
@@ -234,13 +229,6 @@ function createCombatFixture({
     }
 
     enemy.hull = enemyHull;
-
-    enemy.shieldGenerator.charges =
-        enemyShieldCharges;
-
-    enemy
-        .shieldGenerator
-        .chargeRegenerationElapsedMs = 0;
 
     if (disableEnemyCrew) {
         enemy.crewRoles = [];

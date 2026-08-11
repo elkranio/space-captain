@@ -28,10 +28,6 @@ import {
     STICKY_MINE_DISPENSER_PRESET_ID,
     type StickyMineDispenserPresetId,
 } from './sticky_mine_dispensers';
-import {
-    SHIELD_GENERATOR_PRESET_ID,
-    type ShieldGeneratorPresetId,
-} from './shield_generators';
 
 export const SHIP_PRESET_ID = {
     GENERIC_MISSILE_RED_00:
@@ -132,9 +128,6 @@ export type ShipPreset = {
             DefenseCapacitorId;
     };
 
-    shieldGeneratorPresetId:
-        ShieldGeneratorPresetId;
-
     weapons: ShipWeaponPreset[];
 };
 
@@ -151,9 +144,6 @@ export const SHIP_PRESETS = {
             id: 'drive_00',
             driveId: SHIP_DRIVE_ID.BASIC_00,
         },
-
-        shieldGeneratorPresetId:
-            SHIELD_GENERATOR_PRESET_ID.BASIC_00,
 
         weapons: [
             {
@@ -183,9 +173,6 @@ export const SHIP_PRESETS = {
             driveId: SHIP_DRIVE_ID.BASIC_00,
         },
 
-        shieldGeneratorPresetId:
-            SHIELD_GENERATOR_PRESET_ID.BASIC_00,
-
         weapons: [
             {
                 id: 'missile_launcher_00',
@@ -214,9 +201,6 @@ export const SHIP_PRESETS = {
             driveId: SHIP_DRIVE_ID.BASIC_00,
         },
 
-        shieldGeneratorPresetId:
-            SHIELD_GENERATOR_PRESET_ID.BASIC_00,
-
         weapons: [
             {
                 id: 'laser_00',
@@ -241,9 +225,6 @@ export const SHIP_PRESETS = {
             id: 'drive_00',
             driveId: SHIP_DRIVE_ID.BASIC_00,
         },
-
-        shieldGeneratorPresetId:
-            SHIELD_GENERATOR_PRESET_ID.BASIC_00,
 
         weapons: [
             {
@@ -273,9 +254,6 @@ export const SHIP_PRESETS = {
             driveId: SHIP_DRIVE_ID.BASIC_00,
         },
 
-        shieldGeneratorPresetId:
-            SHIELD_GENERATOR_PRESET_ID.BASIC_00,
-
         weapons: [
             {
                 id:
@@ -304,9 +282,6 @@ export const SHIP_PRESETS = {
             id: 'drive_00',
             driveId: SHIP_DRIVE_ID.BASIC_00,
         },
-
-        shieldGeneratorPresetId:
-            SHIELD_GENERATOR_PRESET_ID.BASIC_00,
 
         weapons: [
             {
@@ -381,9 +356,6 @@ export const SHIP_PRESETS = {
                 DEFENSE_CAPACITOR_ID
                     .BASIC_00,
         },
-
-        shieldGeneratorPresetId:
-            SHIELD_GENERATOR_PRESET_ID.BASIC_00,
 
         // Offensive systems remain absent.
         weapons: [],

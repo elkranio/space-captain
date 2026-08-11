@@ -41,11 +41,10 @@ import {
 
 type MissileImpactSetupOptions = {
     enemyHull?: number;
-    enemyShieldCharges?: number;
 };
 
 describe('Player missile impact', () => {
-    it('advances flight and damages hull without consuming the enemy shield', () => {
+    it('advances flight and damages hull on impact', () => {
         const {
             engine,
             missileId,
@@ -53,7 +52,6 @@ describe('Player missile impact', () => {
             initialHull,
         } = createMissileImpactSetup({
             enemyHull: 2,
-            enemyShieldCharges: 1,
         });
 
         const missile =
@@ -80,10 +78,6 @@ describe('Player missile impact', () => {
                 current:
                     initialHull,
             },
-
-            shieldGenerator: {
-                current: 1,
-            },
         });
 
         engine.step(1);
@@ -103,10 +97,6 @@ describe('Player missile impact', () => {
                     initialHull -
                     missile.damage,
             },
-
-            shieldGenerator: {
-                current: 1,
-            },
         });
 
         expect(
@@ -114,7 +104,7 @@ describe('Player missile impact', () => {
         ).toEqual([]);
     });
 
-    it('damages hull when the enemy has no shield charges', () => {
+    it('damages hull when the full flight duration elapses', () => {
         const {
             engine,
             missileId,
@@ -122,7 +112,6 @@ describe('Player missile impact', () => {
             initialHull,
         } = createMissileImpactSetup({
             enemyHull: 2,
-            enemyShieldCharges: 0,
         });
 
         engine.step(
@@ -146,10 +135,6 @@ describe('Player missile impact', () => {
                     MISSILES[missileId]
                         .damage,
             },
-
-            shieldGenerator: {
-                current: 0,
-            },
         });
 
         expect(
@@ -164,7 +149,6 @@ describe('Player missile impact', () => {
             targetActorId,
         } = createMissileImpactSetup({
             enemyHull: 1,
-            enemyShieldCharges: 0,
         });
 
         engine.step(
@@ -207,7 +191,6 @@ describe('Player missile impact', () => {
             targetActorId,
         } = createMissileImpactSetup({
             enemyHull: 2,
-            enemyShieldCharges: 0,
         });
 
         engine.setActorTeam(
@@ -235,10 +218,6 @@ describe('Player missile impact', () => {
             hull: {
                 current: 2,
             },
-
-            shieldGenerator: {
-                current: 0,
-            },
         });
 
         expect(
@@ -251,7 +230,6 @@ describe('Player missile impact', () => {
             engine,
         } = createMissileImpactSetup({
             enemyHull: 2,
-            enemyShieldCharges: 0,
         });
 
         expect(
@@ -289,7 +267,6 @@ describe('Player missile impact', () => {
 
 function createMissileImpactSetup({
     enemyHull = 2,
-    enemyShieldCharges = 0,
 }: MissileImpactSetupOptions): {
     engine: EncounterEngine;
 
@@ -344,21 +321,6 @@ function createMissileImpactSetup({
             enemy.maxHull,
             enemyHull,
         );
-
-    enemy.shieldGenerator.charges =
-        enemyShieldCharges;
-
-    enemy.shieldGenerator.maxCharges =
-        Math.max(
-            enemy.shieldGenerator
-                .maxCharges,
-            enemyShieldCharges,
-        );
-
-    enemy
-        .shieldGenerator
-        .chargeRegenerationElapsedMs =
-        1234;
 
     const launcher =
         run.player.ship.weapons.find(

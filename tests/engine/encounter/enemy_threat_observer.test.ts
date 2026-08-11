@@ -54,9 +54,6 @@ import {
     createPointDefenseFixture,
 } from '../../fixtures/engine/point_defense_fixtures';
 import {
-    createShieldGeneratorFixture,
-} from '../../fixtures/engine/shield_generator_fixtures';
-import {
     createShipBehaviorFixture,
 } from '../../fixtures/engine/ship_behavior_fixtures';
 import {
@@ -260,9 +257,6 @@ function createObserverFixture() {
 
             drive:
                 createShipDriveFixture(),
-
-            shieldGenerator:
-                createShieldGeneratorFixture(),
 
             behavior:
                 createShipBehaviorFixture(),

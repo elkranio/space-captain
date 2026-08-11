@@ -102,9 +102,6 @@ export default class ShipNodeActorFactory {
                     : {}
             ),
 
-            shieldGenerator:
-                ship.shieldGenerator,
-
             behavior: {
                 offensiveTaskDelayMs:
                     behavior

@@ -47,9 +47,6 @@ import {
     createPointDefenseFixture,
 } from '../../fixtures/engine/point_defense_fixtures';
 import {
-    createShieldGeneratorFixture,
-} from '../../fixtures/engine/shield_generator_fixtures';
-import {
     createShipBehaviorFixture,
 } from '../../fixtures/engine/ship_behavior_fixtures';
 import {
@@ -90,9 +87,6 @@ describe('encounter actors', () => {
         const drive =
             createShipDriveFixture();
 
-        const shieldGenerator =
-            createShieldGeneratorFixture();
-
         const behavior =
             createShipBehaviorFixture();
 
@@ -107,9 +101,7 @@ describe('encounter actors', () => {
             hull: 3,
             maxHull: 3,
 
-            drive,
-            shieldGenerator,
-            behavior,
+            drive,            behavior,
 
             crewRoles: [
                 OFFICER_ROLE.WEAPONS,
@@ -138,10 +130,6 @@ describe('encounter actors', () => {
 
             drive: {
                 ...drive,
-            },
-
-            shieldGenerator: {
-                ...shieldGenerator,
             },
 
             behavior: {
@@ -173,10 +161,6 @@ describe('encounter actors', () => {
         });
 
         expect(actor.drive).not.toBe(drive);
-        expect(
-            actor.shieldGenerator,
-        ).not.toBe(shieldGenerator);
-
         expect(actor.behavior).not.toBe(
             behavior,
         );
@@ -242,9 +226,6 @@ describe('encounter actors', () => {
 
                 drive:
                     createShipDriveFixture(),
-                shieldGenerator:
-                    createShieldGeneratorFixture(),
-
                 behavior:
                     createShipBehaviorFixture(),
 
@@ -272,9 +253,6 @@ describe('encounter actors', () => {
 
             drive:
                 createShipDriveFixture(),
-            shieldGenerator:
-                createShieldGeneratorFixture(),
-
             behavior:
                 createShipBehaviorFixture(),
 
@@ -301,9 +279,6 @@ describe('encounter actors', () => {
 
                 drive:
                     createShipDriveFixture(),
-                shieldGenerator:
-                    createShieldGeneratorFixture(),
-
                 behavior:
                     createShipBehaviorFixture(),
 
@@ -418,11 +393,6 @@ describe('encounter actors', () => {
                                         .drive,
                                 },
 
-                                shieldGenerator: {
-                                    ...nodeActor
-                                        .shieldGenerator,
-                                },
-
                                 behavior: {
                                     ...nodeActor
                                         .behavior,
@@ -488,12 +458,6 @@ describe('encounter actors', () => {
         );
 
         expect(
-            encounterActor.shieldGenerator,
-        ).not.toBe(
-            nodeActor.shieldGenerator,
-        );
-
-        expect(
             encounterActor.behavior,
         ).not.toBe(nodeActor.behavior);
 
@@ -543,10 +507,6 @@ describe('encounter actors', () => {
         encounterActor.drive.status =
             SHIP_DRIVE_STATUS.DISABLED;
 
-        encounterActor
-            .shieldGenerator
-            .charges = 0;
-
         encounterActor.behavior
             .offensiveTaskDelayMs = 0;
 
@@ -562,14 +522,6 @@ describe('encounter actors', () => {
 
         expect(nodeActor.drive.status).toBe(
             SHIP_DRIVE_STATUS.ONLINE,
-        );
-
-        expect(
-            nodeActor.shieldGenerator.charges,
-        ).toBe(
-            nodeActor
-                .shieldGenerator
-                .maxCharges,
         );
 
         expect(

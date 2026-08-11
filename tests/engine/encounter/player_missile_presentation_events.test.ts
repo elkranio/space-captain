@@ -48,7 +48,6 @@ describe('Player missile presentation events', () => {
             missileId,
             targetActorId,
         } = createSetup({
-            enemyShieldCharges: 0,
             enemyHull: 2,
         });
 
@@ -146,7 +145,6 @@ describe('Player missile presentation events', () => {
             engine,
             targetActorId,
         } = createSetup({
-            enemyShieldCharges: 0,
             enemyHull: 2,
         });
 
@@ -196,10 +194,9 @@ describe('Player missile presentation events', () => {
         ).toEqual([]);
     });
 
-    it('reports a hull hit even while the enemy shield is charged', () => {
+    it('reports a hull hit on impact', () => {
         const hit =
             createSetup({
-                enemyShieldCharges: 1,
                 enemyHull: 2,
             });
 
@@ -243,11 +240,8 @@ describe('Player missile presentation events', () => {
     });
 });
 
-function createSetup({
-    enemyShieldCharges,
-    enemyHull,
+function createSetup({    enemyHull,
 }: {
-    enemyShieldCharges: number;
     enemyHull: number;
 }) {
     const run =
@@ -293,16 +287,6 @@ function createSetup({
         Math.max(
             enemy.maxHull,
             enemyHull,
-        );
-
-    enemy.shieldGenerator.charges =
-        enemyShieldCharges;
-
-    enemy.shieldGenerator.maxCharges =
-        Math.max(
-            enemy.shieldGenerator
-                .maxCharges,
-            enemyShieldCharges,
         );
 
     const launcher =

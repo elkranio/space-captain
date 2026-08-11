@@ -112,11 +112,6 @@ describe('Enemy ship telemetry', () => {
                     SHIP_DRIVE_STATUS.ONLINE,
             },
 
-            shieldGenerator: {
-                current: 3,
-                max: 3,
-            },
-
             weapons: [
                 {
                     id:

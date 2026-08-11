@@ -169,9 +169,5 @@ describe('NewGameUniverseFactory', () => {
         expect(secondEnemy.weapons).toEqual([]);
 
         expect(first.playerLocations.arrivingAtStart).not.toBe(second.playerLocations.arrivingAtStart);
-
-        firstEnemy.shieldGenerator.charges = 0;
-
-        expect(secondEnemy.shieldGenerator.charges).toBe(3);
     });
 });

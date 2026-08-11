@@ -86,15 +86,6 @@ describe('ShipNodeActorFactory', () => {
                     SHIP_DRIVE_STATUS.ONLINE,
             },
 
-            shieldGenerator: {
-                charges: 3,
-                maxCharges: 3,
-
-                chargeRegenerationDurationMs:
-                    20000,
-                chargeRegenerationElapsedMs: 0,
-            },
-
             behavior: {
                 offensiveTaskDelayMs: 2000,
             },
@@ -138,11 +129,7 @@ describe('ShipNodeActorFactory', () => {
 
         expect(first.drive).not.toBe(
             second.drive,
-        );
-        expect(first.shieldGenerator).not.toBe(
-            second.shieldGenerator,
-        );
-        expect(first.behavior).not.toBe(
+        );        expect(first.behavior).not.toBe(
             second.behavior,
         );
         expect(first.crewRoles).not.toBe(
@@ -192,8 +179,6 @@ describe('ShipNodeActorFactory', () => {
         first.drive.status =
             SHIP_DRIVE_STATUS.DISABLED;
 
-        first.shieldGenerator.charges = 0;
-
         first.behavior
             .offensiveTaskDelayMs = 0;
 
@@ -208,10 +193,6 @@ describe('ShipNodeActorFactory', () => {
         expect(second.drive.status).toBe(
             SHIP_DRIVE_STATUS.ONLINE,
         );
-
-        expect(
-            second.shieldGenerator.charges,
-        ).toBe(3);
 
         expect(
             second.behavior
@@ -259,15 +240,6 @@ describe('ShipNodeActorFactory', () => {
                 driveId: SHIP_DRIVE_ID.BASIC_00,
                 status:
                     SHIP_DRIVE_STATUS.ONLINE,
-            },
-
-            shieldGenerator: {
-                charges: 3,
-                maxCharges: 3,
-
-                chargeRegenerationDurationMs:
-                    20000,
-                chargeRegenerationElapsedMs: 0,
             },
 
             behavior: {

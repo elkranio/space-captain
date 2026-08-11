@@ -19,9 +19,6 @@ import type {
     ShipPointDefenseState,
 } from '../../defs/point_defense';
 import type {
-    ShieldGeneratorState,
-} from '../../defs/shield_generator';
-import type {
     ShipChassisId,
 } from '../../defs/ship_chassis';
 import {
@@ -33,7 +30,6 @@ import {
     type ShipWeaponState,
 } from '../../defs/ship_weapon';
 import DefenseCapacitorFactory from '../ship_system/DefenseCapacitorFactory';
-import ShieldGeneratorFactory from '../ship_system/ShieldGeneratorFactory';
 import ShipPointDefenseFactory from '../ship_system/ShipPointDefenseFactory';
 import LaserWeaponFactory from '../ship_weapon/LaserWeaponFactory';
 import MissileLauncherFactory from '../ship_weapon/MissileLauncherFactory';
@@ -56,8 +52,6 @@ export type CreatedShipState = {
 
     defenseCapacitor?:
         DefenseCapacitorState;
-
-    shieldGenerator: ShieldGeneratorState;
 
     weapons: ShipWeaponState[];
 };
@@ -128,13 +122,6 @@ export default class ShipFactory {
                       }
                     : {}
             ),
-
-            shieldGenerator:
-                ShieldGeneratorFactory.create({
-                    presetId:
-                        preset
-                            .shieldGeneratorPresetId,
-                }),
 
             weapons: preset.weapons.map(
                 (weapon) => {

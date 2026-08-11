@@ -37,11 +37,6 @@ export type EnemyShipTelemetrySnapshot = {
         status: ShipDriveStatus;
     };
 
-    shieldGenerator: {
-        current: number;
-        max: number;
-    };
-
     weapons: EnemyShipWeaponTelemetrySnapshot[];
 };
 
@@ -76,16 +71,6 @@ export function getEnemyShipTelemetrySnapshots(
 
                 drive: {
                     status: actor.drive.status,
-                },
-
-                shieldGenerator: {
-                    current:
-                        actor.shieldGenerator
-                            .charges,
-
-                    max:
-                        actor.shieldGenerator
-                            .maxCharges,
                 },
 
                 weapons: actor.weapons.map(

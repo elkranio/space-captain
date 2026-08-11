@@ -106,14 +106,6 @@ export type EnemyDebugPointDefenseSnapshot = {
         EnemyDebugProgressSnapshot;
 };
 
-export type EnemyDebugShieldSnapshot = {
-    charges: number;
-    maxCharges: number;
-
-    activeZone?: string;
-    remainingMs?: number;
-};
-
 export type EnemyDebugThreatSnapshot = {
     id: string;
 
@@ -145,9 +137,6 @@ export type EnemyDebugSnapshot = {
 
     pointDefense?:
         EnemyDebugPointDefenseSnapshot;
-
-    shield?:
-        EnemyDebugShieldSnapshot;
 
     threats:
         EnemyDebugThreatSnapshot[];
@@ -239,15 +228,6 @@ function createEnemyDebugSnapshot(
                   pointDefense:
                       createPointDefenseSnapshot(
                           state,
-                          actor,
-                      ),
-              }
-            : {}),
-
-        ...(actor.shieldGenerator
-            ? {
-                  shield:
-                      createShieldSnapshot(
                           actor,
                       ),
               }
@@ -663,21 +643,6 @@ function createPointDefenseProgress(
                 pointDefense.phase,
             );
     }
-}
-
-function createShieldSnapshot(
-    actor: ShipEncounterActorState,
-): EnemyDebugShieldSnapshot {
-    return {
-        charges:
-            actor.shieldGenerator
-                .charges,
-
-        maxCharges:
-            actor.shieldGenerator
-                .maxCharges,
-
-    };
 }
 
 function createThreatSnapshots(

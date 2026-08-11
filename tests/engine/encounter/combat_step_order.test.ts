@@ -52,9 +52,6 @@ describe('Combat step order', () => {
                 missile.damage,
             );
 
-        targetActor.shieldGenerator
-            .charges = 0;
-
         targetActor.crewRoles = [];
         targetActor.crewTasks = {};
         targetActor.weapons = [];
