@@ -560,6 +560,23 @@ export type BridgePlayerShipDashboardUpdatedPayload = {
                 BridgeOfficerCommandSelectedPayload;
         };
     };
+
+    spamProjector?: {
+        // 0..1 elapsed cooldown.
+        // Targeting/channeling are current Science work,
+        // so their progress is intentionally not shown here.
+        cooldownProgress?: number;
+
+        action: {
+            state:
+                BridgePlayerSystemActionState;
+
+            // Exact engine-resolved command.
+            // Присутствует только у ACTIVE state.
+            command?:
+                BridgeOfficerCommandSelectedPayload;
+        };
+    };
 };
 
 export type BridgeEnemyShipTelemetryUpdatedPayload =

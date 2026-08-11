@@ -94,6 +94,18 @@ export default class BridgeEncounterSnapshotSynchronizer {
                             OFFICER_ROLE.WEAPONS
                         ],
 
+                availableScienceCommands:
+                    this.encounterEngine
+                        .getAvailableCommands(
+                            OFFICER_ROLE.SCIENCE,
+                        ),
+
+                scienceOfficerAvailability:
+                    this.encounterEngine
+                        .getOfficerAvailabilityStates()[
+                            OFFICER_ROLE.SCIENCE
+                        ],
+
                 // Defense capacitor was persisted above from the
                 // detached encounter snapshot, so this ship already
                 // contains the current charge/recharge state.

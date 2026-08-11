@@ -36,6 +36,7 @@ const SYSTEM_ROWS:
 const MISSILE_LAUNCHER_ROW_INDEX = 0;
 const LASER_ROW_INDEX = 1;
 const STICKY_MINE_DISPENSER_ROW_INDEX = 2;
+const SPAM_PROJECTOR_ROW_INDEX = 3;
 
 // Список player ship systems.
 //
@@ -56,6 +57,9 @@ export default class BridgePlayerShipSystemsView {
         BridgePlayerShipSystemRowView;
 
     private stickyMineDispenserView?:
+        BridgePlayerShipSystemRowView;
+
+    private spamProjectorView?:
         BridgePlayerShipSystemRowView;
 
     constructor(
@@ -124,6 +128,14 @@ export default class BridgePlayerShipSystemsView {
                     rowView;
             }
 
+            if (
+                index ===
+                SPAM_PROJECTOR_ROW_INDEX
+            ) {
+                this.spamProjectorView =
+                    rowView;
+            }
+
             this.rowViews.push(
                 rowView,
             );
@@ -136,7 +148,8 @@ export default class BridgePlayerShipSystemsView {
         if (
             !this.missileLauncherView ||
             !this.laserView ||
-            !this.stickyMineDispenserView
+            !this.stickyMineDispenserView ||
+            !this.spamProjectorView
         ) {
             throw new Error(
                 'Captain dashboard weapon rows were not created',
@@ -194,6 +207,9 @@ export default class BridgePlayerShipSystemsView {
         this.stickyMineDispenserView =
             undefined;
 
+        this.spamProjectorView =
+            undefined;
+
         this.root.destroy(false);
     }
 
@@ -211,6 +227,10 @@ export default class BridgePlayerShipSystemsView {
 
         this.updateStickyMineDispenser(
             payload.stickyMineDispenser,
+        );
+
+        this.updateSpamProjector(
+            payload.spamProjector,
         );
     }
 
@@ -344,6 +364,46 @@ export default class BridgePlayerShipSystemsView {
         this.applyAction(
             view,
             dispenser.action,
+        );
+    }
+
+    private updateSpamProjector(
+        projector:
+            BridgePlayerShipDashboardUpdatedPayload[
+                'spamProjector'
+            ],
+    ): void {
+        const view =
+            this.spamProjectorView;
+
+        if (!view) {
+            return;
+        }
+
+        view.setSystemLabel(
+            'SPAM',
+        );
+
+        if (!projector) {
+            view.setProgress(
+                undefined,
+            );
+
+            view.setAction(
+                BRIDGE_PLAYER_SYSTEM_ACTION_STATE
+                    .DISABLED_SYSTEM,
+            );
+
+            return;
+        }
+
+        view.setProgress(
+            projector.cooldownProgress,
+        );
+
+        this.applyAction(
+            view,
+            projector.action,
         );
     }
 

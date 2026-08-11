@@ -58,6 +58,13 @@ type StickyMineDispenserDashboardPayload =
         ]
     >;
 
+type SpamProjectorDashboardPayload =
+    NonNullable<
+        BridgePlayerShipDashboardUpdatedPayload[
+            'spamProjector'
+        ]
+    >;
+
 type PlayerShipDashboardMapperInput = {
     weapons:
         BridgePlayerWeaponsStatusUpdatedPayload;
@@ -66,6 +73,15 @@ type PlayerShipDashboardMapperInput = {
         AvailableOfficerCommand[];
 
     weaponsOfficerAvailability:
+        OfficerAvailabilityState;
+
+    // Science context is only required when the SPAM row exists.
+    // Keeping it optional avoids forcing unrelated weapon-row tests
+    // to construct another role context.
+    availableScienceCommands?:
+        AvailableOfficerCommand[];
+
+    scienceOfficerAvailability?:
         OfficerAvailabilityState;
 
     // Optional so focused mapper tests can still exercise weapon rows
@@ -94,6 +110,10 @@ export function mapPlayerShipToBridgeDashboardPayload(
     const stickyMineDispenser =
         input.weapons
             .stickyMineDispenser;
+
+    const spamProjector =
+        input.weapons
+            .spamProjector;
 
     return {
         ...(input.playerShip
@@ -134,6 +154,21 @@ export function mapPlayerShipToBridgeDashboardPayload(
                           stickyMineDispenser,
                           input.availableWeaponsCommands,
                           input.weaponsOfficerAvailability,
+                      ),
+              }
+            : {}),
+
+        ...(spamProjector
+            ? {
+                  spamProjector:
+                      mapSpamProjector(
+                          spamProjector,
+                          getRequiredScienceCommands(
+                              input,
+                          ),
+                          getRequiredScienceAvailability(
+                              input,
+                          ),
                       ),
               }
             : {}),
@@ -305,6 +340,36 @@ function mapStickyMineDispenser(
     };
 }
 
+function mapSpamProjector(
+    projector:
+        BridgePlayerWeaponStatusPayload,
+    availableScienceCommands:
+        AvailableOfficerCommand[],
+    scienceOfficerAvailability:
+        OfficerAvailabilityState,
+): SpamProjectorDashboardPayload {
+    const cooldownProgress =
+        getCooldownProgress(
+            projector,
+            'Spam projector',
+        );
+
+    return {
+        ...(cooldownProgress !== undefined
+            ? {
+                  cooldownProgress,
+              }
+            : {}),
+
+        action:
+            mapSpamAction(
+                projector,
+                availableScienceCommands,
+                scienceOfficerAvailability,
+            ),
+    };
+}
+
 function mapMissileAction(
     launcher:
         MissileLauncherStatus,
@@ -429,6 +494,81 @@ function mapStickyMineAction(
     );
 }
 
+function mapSpamAction(
+    projector:
+        BridgePlayerWeaponStatusPayload,
+    availableScienceCommands:
+        AvailableOfficerCommand[],
+    scienceOfficerAvailability:
+        OfficerAvailabilityState,
+): SpamProjectorDashboardPayload[
+    'action'
+] {
+    if (
+        projector.phase ===
+            SHIP_WEAPON_PHASE.TARGETING ||
+        projector.phase ===
+            SHIP_WEAPON_PHASE.CHANNELING
+    ) {
+        return {
+            state:
+                BRIDGE_PLAYER_SYSTEM_ACTION_STATE
+                    .ENGAGED_CURRENT_WORK,
+        };
+    }
+
+    if (
+        projector.phase !==
+        SHIP_WEAPON_PHASE.READY
+    ) {
+        return {
+            state:
+                BRIDGE_PLAYER_SYSTEM_ACTION_STATE
+                    .DISABLED_SYSTEM,
+        };
+    }
+
+    const command =
+        getSingleCommand(
+            availableScienceCommands,
+
+            ENCOUNTER_OFFICER_COMMAND_ID
+                .SCIENCE_FIRE_SPAM,
+
+            'spam',
+        );
+
+    if (command) {
+        return {
+            state:
+                BRIDGE_PLAYER_SYSTEM_ACTION_STATE
+                    .ACTIVE,
+
+            command:
+                mapScienceCommand(
+                    command,
+                ),
+        };
+    }
+
+    if (
+        scienceOfficerAvailability ===
+        OFFICER_AVAILABILITY_STATE.BUSY
+    ) {
+        return {
+            state:
+                BRIDGE_PLAYER_SYSTEM_ACTION_STATE
+                    .DISABLED_OFFICER_BUSY,
+        };
+    }
+
+    return {
+        state:
+            BRIDGE_PLAYER_SYSTEM_ACTION_STATE
+                .DISABLED_SYSTEM,
+    };
+}
+
 function mapLaserAction(
     laser:
         BridgePlayerWeaponStatusPayload,
@@ -537,6 +677,63 @@ function mapWeaponsCommand(
         target:
             command.target,
     };
+}
+
+function mapScienceCommand(
+    command:
+        AvailableOfficerCommand,
+):
+    NonNullable<
+        SpamProjectorDashboardPayload[
+            'action'
+        ][
+            'command'
+        ]
+    > {
+    return {
+        role:
+            OFFICER_ROLE.SCIENCE,
+
+        commandId:
+            command.commandId,
+
+        target:
+            command.target,
+    };
+}
+
+function getRequiredScienceCommands(
+    input:
+        PlayerShipDashboardMapperInput,
+): AvailableOfficerCommand[] {
+    const commands =
+        input
+            .availableScienceCommands;
+
+    if (!commands) {
+        throw new Error(
+            'Captain dashboard SPAM row requires Science commands',
+        );
+    }
+
+    return commands;
+}
+
+function getRequiredScienceAvailability(
+    input:
+        PlayerShipDashboardMapperInput,
+): OfficerAvailabilityState {
+    const availability =
+        input
+            .scienceOfficerAvailability;
+
+    if (!availability) {
+        throw new Error(
+            'Captain dashboard SPAM row requires Science availability',
+        );
+    }
+
+    return availability;
 }
 
 function getSingleCommand(

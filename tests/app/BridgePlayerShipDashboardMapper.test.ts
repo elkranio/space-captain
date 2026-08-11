@@ -589,6 +589,188 @@ describe(
         );
 
         it(
+            'maps spam ready, engaged, cooldown and Science-busy states',
+            () => {
+                const command =
+                    createSpamCommand();
+
+                expect(
+                    mapPlayerShipToBridgeDashboardPayload({
+                        weapons: {
+                            spamProjector: {
+                                phase:
+                                    SHIP_WEAPON_PHASE
+                                        .READY,
+                            },
+                        },
+
+                        availableWeaponsCommands:
+                            [],
+
+                        weaponsOfficerAvailability:
+                            OFFICER_AVAILABILITY_STATE
+                                .AVAILABLE,
+
+                        availableScienceCommands: [
+                            command,
+                        ],
+
+                        scienceOfficerAvailability:
+                            OFFICER_AVAILABILITY_STATE
+                                .AVAILABLE,
+                    }),
+                ).toEqual({
+                    spamProjector: {
+                        action: {
+                            state:
+                                BRIDGE_PLAYER_SYSTEM_ACTION_STATE
+                                    .ACTIVE,
+
+                            command: {
+                                role:
+                                    OFFICER_ROLE
+                                        .SCIENCE,
+
+                                commandId:
+                                    command
+                                        .commandId,
+
+                                target:
+                                    command
+                                        .target,
+                            },
+                        },
+                    },
+                });
+
+                for (
+                    const phase of [
+                        SHIP_WEAPON_PHASE
+                            .TARGETING,
+
+                        SHIP_WEAPON_PHASE
+                            .CHANNELING,
+                    ]
+                ) {
+                    expect(
+                        mapPlayerShipToBridgeDashboardPayload({
+                            weapons: {
+                                spamProjector: {
+                                    phase,
+
+                                    initialPhaseMs:
+                                        20000,
+
+                                    remainingPhaseMs:
+                                        10000,
+                                },
+                            },
+
+                            availableWeaponsCommands:
+                                [],
+
+                            weaponsOfficerAvailability:
+                                OFFICER_AVAILABILITY_STATE
+                                    .AVAILABLE,
+
+                            availableScienceCommands:
+                                [],
+
+                            scienceOfficerAvailability:
+                                OFFICER_AVAILABILITY_STATE
+                                    .BUSY,
+                        }),
+                    ).toEqual({
+                        spamProjector: {
+                            action: {
+                                state:
+                                    BRIDGE_PLAYER_SYSTEM_ACTION_STATE
+                                        .ENGAGED_CURRENT_WORK,
+                            },
+                        },
+                    });
+                }
+
+                expect(
+                    mapPlayerShipToBridgeDashboardPayload({
+                        weapons: {
+                            spamProjector: {
+                                phase:
+                                    SHIP_WEAPON_PHASE
+                                        .COOLDOWN,
+
+                                initialPhaseMs:
+                                    15000,
+
+                                remainingPhaseMs:
+                                    9000,
+                            },
+                        },
+
+                        availableWeaponsCommands:
+                            [],
+
+                        weaponsOfficerAvailability:
+                            OFFICER_AVAILABILITY_STATE
+                                .AVAILABLE,
+
+                        availableScienceCommands:
+                            [],
+
+                        scienceOfficerAvailability:
+                            OFFICER_AVAILABILITY_STATE
+                                .AVAILABLE,
+                    }),
+                ).toEqual({
+                    spamProjector: {
+                        cooldownProgress:
+                            1 - 9000 / 15000,
+
+                        action: {
+                            state:
+                                BRIDGE_PLAYER_SYSTEM_ACTION_STATE
+                                    .DISABLED_SYSTEM,
+                        },
+                    },
+                });
+
+                expect(
+                    mapPlayerShipToBridgeDashboardPayload({
+                        weapons: {
+                            spamProjector: {
+                                phase:
+                                    SHIP_WEAPON_PHASE
+                                        .READY,
+                            },
+                        },
+
+                        availableWeaponsCommands:
+                            [],
+
+                        weaponsOfficerAvailability:
+                            OFFICER_AVAILABILITY_STATE
+                                .AVAILABLE,
+
+                        availableScienceCommands:
+                            [],
+
+                        scienceOfficerAvailability:
+                            OFFICER_AVAILABILITY_STATE
+                                .BUSY,
+                    }),
+                ).toEqual({
+                    spamProjector: {
+                        action: {
+                            state:
+                                BRIDGE_PLAYER_SYSTEM_ACTION_STATE
+                                    .DISABLED_OFFICER_BUSY,
+                        },
+                    },
+                });
+            },
+        );
+
+        it(
             'distinguishes officer busy from unavailable system',
             () => {
                 expect(
@@ -648,6 +830,31 @@ function createMissileCommand():
 
             weaponId:
                 'player_missile_launcher',
+
+            actorId:
+                'enemy_1',
+        },
+    };
+}
+
+
+function createSpamCommand():
+    AvailableOfficerCommand {
+    return {
+        commandId:
+            ENCOUNTER_OFFICER_COMMAND_ID
+                .SCIENCE_FIRE_SPAM,
+
+        label:
+            'FIRE SPAM',
+
+        target: {
+            kind:
+                OFFICER_COMMAND_TARGET_KIND
+                    .ACTOR_WEAPON,
+
+            weaponId:
+                'spam_projector_player_00',
 
             actorId:
                 'enemy_1',
