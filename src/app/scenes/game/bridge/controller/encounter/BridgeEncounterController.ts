@@ -105,7 +105,7 @@ export default class BridgeEncounterController {
         }
 
         this.encounterEngine.step(deltaMs);
-        this.snapshotSynchronizer?.syncPlayerWeapons();
+        this.snapshotSynchronizer?.syncPlayerShipDashboard();
         this.drainEncounterEvents();
         this.snapshotSynchronizer?.syncCombatPresentation();
 
@@ -246,7 +246,7 @@ export default class BridgeEncounterController {
                 this.eventBus,
 
                 () => {
-                    this.snapshotSynchronizer?.syncPlayerWeapons();
+                    this.snapshotSynchronizer?.syncPlayerShipDashboard();
                 },
             );
 
@@ -390,7 +390,7 @@ export default class BridgeEncounterController {
         const result = this.encounterEngine.executeCommand(input);
 
         if (result.status === OFFICER_COMMAND_EXECUTION_STATUS.EXECUTED) {
-            this.snapshotSynchronizer?.syncPlayerWeapons();
+            this.snapshotSynchronizer?.syncPlayerShipDashboard();
             this.syncRuntimeNavigationFromEngine();
             this.drainEncounterEvents();
             this.snapshotSynchronizer?.syncLaserThreats();

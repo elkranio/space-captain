@@ -22,7 +22,7 @@ export default class BridgeEncounterSnapshotSynchronizer {
     ) {}
 
     public syncInitial(): void {
-        this.syncPlayerWeapons();
+        this.syncPlayerShipDashboard();
     }
 
     public syncCombatPresentation(): void {
@@ -33,7 +33,7 @@ export default class BridgeEncounterSnapshotSynchronizer {
         this.syncLaserThreats();
     }
 
-    public syncPlayerWeapons(): void {
+    public syncPlayerShipDashboard(): void {
         const defenseCapacitor =
             this.encounterEngine
                 .getDefenseCapacitorState();
