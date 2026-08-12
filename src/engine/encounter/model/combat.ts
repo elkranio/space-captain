@@ -10,6 +10,9 @@ import type {
 import type {
     ShipWeaponState,
 } from '../../defs/ship_weapon';
+import type {
+    ShieldEmitterState,
+} from '../../defs/shield_emitter';
 
 export const COMBAT_PROJECTILE_KIND = {
     MISSILE: 'missile',
@@ -206,6 +209,11 @@ export type EncounterCombatState = {
     // Some test/minimal encounters may omit it.
     defenseCapacitor?:
         DefenseCapacitorState;
+
+    // Mutable installed shield emitter
+    // текущего player ship в encounter.
+    shieldEmitter?:
+        ShieldEmitterState;
 
     // Mutable installed weapons
     // текущего player ship в encounter.

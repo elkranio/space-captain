@@ -15,6 +15,9 @@ describe('BridgeEncounterSnapshotSynchronizer', () => {
         const setPlayerShipDefenseCapacitorState =
             vi.fn();
 
+        const setPlayerShipShieldEmitterState =
+            vi.fn();
+
         const synchronizer = new BridgeEncounterSnapshotSynchronizer(
             encounterEngine,
             {
@@ -23,6 +26,7 @@ describe('BridgeEncounterSnapshotSynchronizer', () => {
             {
                 setPlayerShipWeaponStates,
                 setPlayerShipDefenseCapacitorState,
+                setPlayerShipShieldEmitterState,
 
             } as unknown as GameRuntime,
         );
@@ -40,6 +44,24 @@ describe('BridgeEncounterSnapshotSynchronizer', () => {
 
             charges: 3,
             rechargeElapsedMs: 1200,
+        });
+
+        expect(
+            setPlayerShipShieldEmitterState,
+        ).toHaveBeenCalledWith({
+            id:
+                'shield_emitter_player_00',
+
+            shieldEmitterId:
+                'shield_emitter_basic_00',
+
+            status:
+                'online',
+
+            phase:
+                'ready',
+
+            phaseElapsedMs: 0,
         });
 
         expect(setPlayerShipWeaponStates).toHaveBeenCalledWith([]);
@@ -275,6 +297,25 @@ function createEncounterEngine(): EncounterEngine {
         getPlayerWeaponStates: vi.fn(() => {
             return [];
         }),
+
+        getShieldEmitterState:
+            vi.fn(() => {
+                return {
+                    id:
+                        'shield_emitter_player_00',
+
+                    shieldEmitterId:
+                        'shield_emitter_basic_00',
+
+                    status:
+                        'online',
+
+                    phase:
+                        'ready',
+
+                    phaseElapsedMs: 0,
+                };
+            }),
 
         getPlayerHullState:
             vi.fn(() => {

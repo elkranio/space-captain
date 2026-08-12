@@ -3,6 +3,9 @@
 import {
     DEFENSE_CAPACITORS,
 } from '../../engine/content/catalogs/defense_capacitors';
+import {
+    SHIELD_EMITTERS,
+} from '../../engine/content/catalogs/shield_emitters';
 import { createNewRunState } from '../../engine/content/new_game/create_new_run_state';
 import type {
     DefenseCapacitorState,
@@ -15,6 +18,10 @@ import {
 import type { RunState } from '../../engine/defs/run';
 import type { ShipDriveState } from '../../engine/defs/ship_drive';
 import type { ShipWeaponState } from '../../engine/defs/ship_weapon';
+import {
+    SHIELD_EMITTER_PHASE,
+    type ShieldEmitterState,
+} from '../../engine/defs/shield_emitter';
 import { SPACE_ANCHOR_KIND, type SpaceAnchorState } from '../../engine/defs/universe';
 import { getCurrentNode } from '../../engine/universe/queries/get_current_node';
 
@@ -148,6 +155,107 @@ export class GameRuntime {
 
         current.rechargeElapsedMs =
             next.rechargeElapsedMs;
+    }
+
+    public setPlayerShipShieldEmitterState(
+        next: ShieldEmitterState,
+    ): void {
+        const current =
+            this.currentRun
+                .player
+                .ship
+                .shieldEmitter;
+
+        if (next.id !== current.id) {
+            throw new Error(
+                'Player shield-emitter runtime id cannot change: ' +
+                    next.id +
+                    ' !== ' +
+                    current.id,
+            );
+        }
+
+        if (
+            next.shieldEmitterId !==
+            current.shieldEmitterId
+        ) {
+            throw new Error(
+                'Player shield-emitter definition cannot change: ' +
+                    next.shieldEmitterId +
+                    ' !== ' +
+                    current.shieldEmitterId,
+            );
+        }
+
+        const definition =
+            SHIELD_EMITTERS[
+                current
+                    .shieldEmitterId
+            ];
+
+        if (
+            !Number.isFinite(
+                next.phaseElapsedMs,
+            ) ||
+            next.phaseElapsedMs < 0
+        ) {
+            throw new Error(
+                'Player shield-emitter phase elapsed must be non-negative: ' +
+                    String(
+                        next.phaseElapsedMs,
+                    ),
+            );
+        }
+
+        switch (next.phase) {
+            case SHIELD_EMITTER_PHASE.READY:
+                if (
+                    next.phaseElapsedMs !==
+                    0
+                ) {
+                    throw new Error(
+                        'Ready player shield emitter must have zero phase elapsed: ' +
+                            String(
+                                next.phaseElapsedMs,
+                            ),
+                    );
+                }
+
+                break;
+
+            case SHIELD_EMITTER_PHASE.COOLDOWN:
+                if (
+                    next.phaseElapsedMs >=
+                    definition
+                        .cooldownDurationMs
+                ) {
+                    throw new Error(
+                        'Player shield-emitter cooldown elapsed must be in [0, ' +
+                            definition
+                                .cooldownDurationMs +
+                            '): ' +
+                            String(
+                                next.phaseElapsedMs,
+                            ),
+                    );
+                }
+
+                break;
+
+            default:
+                this.assertNever(
+                    next.phase,
+                );
+        }
+
+        current.status =
+            next.status;
+
+        current.phase =
+            next.phase;
+
+        current.phaseElapsedMs =
+            next.phaseElapsedMs;
     }
 
     public setPlayerShipDriveState(next: ShipDriveState): void {

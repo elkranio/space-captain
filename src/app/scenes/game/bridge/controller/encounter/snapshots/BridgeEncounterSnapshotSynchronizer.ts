@@ -52,6 +52,21 @@ export default class BridgeEncounterSnapshotSynchronizer {
                 defenseCapacitor,
             );
 
+        const shieldEmitter =
+            this.encounterEngine
+                .getShieldEmitterState();
+
+        if (!shieldEmitter) {
+            throw new Error(
+                'Bridge player ship requires a shield emitter',
+            );
+        }
+
+        this.gameRuntime
+            .setPlayerShipShieldEmitterState(
+                shieldEmitter,
+            );
+
         const weapons =
             this.encounterEngine
                 .getPlayerWeaponStates();

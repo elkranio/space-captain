@@ -13,6 +13,9 @@ import {
     SHIP_WEAPON_PHASE,
     type ShipWeaponState,
 } from '../../defs/ship_weapon';
+import type {
+    ShieldEmitterState,
+} from '../../defs/shield_emitter';
 import { getAvailableOfficerCommands } from '../commands/queries/get_available_officer_commands';
 import {
     getEnemyShipTelemetrySnapshots,
@@ -92,6 +95,15 @@ export default class EncounterSnapshotReader {
             (state) =>
                 state.combat
                     .defenseCapacitor,
+        );
+    }
+
+    public getShieldEmitterState():
+        ShieldEmitterState | undefined {
+        return this.read(
+            (state) =>
+                state.combat
+                    .shieldEmitter,
         );
     }
 

@@ -16,6 +16,9 @@ import type { ShipDriveState } from '../defs/ship_drive';
 import type {
     ShipWeaponState,
 } from '../defs/ship_weapon';
+import type {
+    ShieldEmitterState,
+} from '../defs/shield_emitter';
 import type { SpaceNodeState } from '../defs/universe';
 import CombatEngagementRunner from './combat/CombatEngagementRunner';
 import type {
@@ -23,6 +26,7 @@ import type {
 } from './debug/get_enemy_debug_snapshots';
 import CombatRunner from './combat/CombatRunner';
 import DefenseCapacitorRunner from './combat/defense/DefenseCapacitorRunner';
+import ShieldEmitterRunner from './combat/defense/ShieldEmitterRunner';
 import type { EnemyShipTelemetrySnapshot } from './combat/queries/get_enemy_ship_telemetry_snapshots';
 import type { LaserThreatSnapshot } from './combat/queries/get_laser_threat_snapshots';
 import type { StickyMineSnapshot } from './combat/queries/get_sticky_mine_snapshots';
@@ -62,6 +66,9 @@ export type EncounterEngineOptions = {
     defenseCapacitor?:
         DefenseCapacitorState;
 
+    shieldEmitter?:
+        ShieldEmitterState;
+
     // Installed player weapons.
     // Empty loadout remains valid.
     weapons?: ShipWeaponState[];
@@ -88,6 +95,9 @@ export default class EncounterEngine {
     private readonly defenseCapacitorRunner:
         DefenseCapacitorRunner;
 
+    private readonly shieldEmitterRunner:
+        ShieldEmitterRunner;
+
     private readonly playerWeaponRunner:
         PlayerWeaponRunner;
 
@@ -101,6 +111,7 @@ export default class EncounterEngine {
         playerHull,
         drive,
         defenseCapacitor,
+        shieldEmitter,
         weapons = [],
 
         completeTimedTasksImmediately = false,
@@ -116,6 +127,7 @@ export default class EncounterEngine {
                 drive,
 
                 defenseCapacitor,
+                shieldEmitter,
 
                 playerWeapons:
                     weapons,
@@ -132,6 +144,11 @@ export default class EncounterEngine {
                 encounterState,
             );
 
+
+        this.shieldEmitterRunner =
+            new ShieldEmitterRunner(
+                encounterState,
+            );
 
         this.combatRunner = new CombatRunner({
             stateStore:
@@ -255,6 +272,9 @@ export default class EncounterEngine {
         this.defenseCapacitorRunner
             .step(deltaMs);
 
+        this.shieldEmitterRunner
+            .step(deltaMs);
+
         this.officerTaskRunner.step(deltaMs);
         this.playerWeaponRunner.step(deltaMs);
         this.combatRunner.step(deltaMs);
@@ -329,6 +349,12 @@ export default class EncounterEngine {
         DefenseCapacitorState | undefined {
         return this.snapshotReader
             .getDefenseCapacitorState();
+    }
+
+    public getShieldEmitterState():
+        ShieldEmitterState | undefined {
+        return this.snapshotReader
+            .getShieldEmitterState();
     }
 
     public getEnemyShipTelemetrySnapshots():
