@@ -55,15 +55,6 @@ const ROW = {
     actionDisabledTextColor:
         0x536778,
 
-    actionBusyBackgroundColor:
-        0x171a1f,
-    actionBusyBorderColor:
-        0x8a6a35,
-
-    actionEngagedBackgroundColor:
-        0x2a2115,
-    actionEngagedBorderColor:
-        FONT_COLOR.ACTIVITY,
 } as const;
 
 // Один повторяемый визуальный row player system.
@@ -425,6 +416,10 @@ export default class BridgePlayerShipSystemRowView {
 
             case BRIDGE_PLAYER_SYSTEM_ACTION_STATE
                 .DISABLED_SYSTEM:
+            case BRIDGE_PLAYER_SYSTEM_ACTION_STATE
+                .DISABLED_OFFICER_BUSY:
+            case BRIDGE_PLAYER_SYSTEM_ACTION_STATE
+                .ENGAGED_CURRENT_WORK:
                 this.roleButton
                     .setFillStyle(
                         ROW.actionDisabledBackgroundColor,
@@ -438,44 +433,6 @@ export default class BridgePlayerShipSystemRowView {
                 this.roleLabel
                     .setTint(
                         ROW.actionDisabledTextColor,
-                    );
-
-                return;
-
-            case BRIDGE_PLAYER_SYSTEM_ACTION_STATE
-                .DISABLED_OFFICER_BUSY:
-                this.roleButton
-                    .setFillStyle(
-                        ROW.actionBusyBackgroundColor,
-                        1,
-                    )
-                    .setStrokeStyle(
-                        1,
-                        ROW.actionBusyBorderColor,
-                    );
-
-                this.roleLabel
-                    .setTint(
-                        ROW.actionBusyBorderColor,
-                    );
-
-                return;
-
-            case BRIDGE_PLAYER_SYSTEM_ACTION_STATE
-                .ENGAGED_CURRENT_WORK:
-                this.roleButton
-                    .setFillStyle(
-                        ROW.actionEngagedBackgroundColor,
-                        1,
-                    )
-                    .setStrokeStyle(
-                        1,
-                        ROW.actionEngagedBorderColor,
-                    );
-
-                this.roleLabel
-                    .setTint(
-                        FONT_COLOR.ACTIVITY,
                     );
 
                 return;

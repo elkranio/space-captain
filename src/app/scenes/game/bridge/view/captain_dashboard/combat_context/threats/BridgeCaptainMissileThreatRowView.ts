@@ -45,11 +45,10 @@ const ROW = {
     disabledBorderColor: 0x26394c,
     disabledTextColor: 0x536778,
 
-    scienceBackgroundColor: 0x241a31,
-    scienceBorderColor: 0x9c6fc5,
-
-    weaponsBackgroundColor: 0x321a1a,
-    weaponsBorderColor: 0xc96559,
+    actionActiveBackgroundColor:
+        0x193147,
+    actionActiveBorderColor:
+        0x7aa0c4,
 } as const;
 
 type MissileThreatRowCallbacks = {
@@ -488,12 +487,12 @@ export default class BridgeCaptainMissileThreatRowView {
 
         this.scienceButton
             .setFillStyle(
-                ROW.scienceBackgroundColor,
+                ROW.actionActiveBackgroundColor,
                 1,
             )
             .setStrokeStyle(
                 1,
-                ROW.scienceBorderColor,
+                ROW.actionActiveBorderColor,
             )
             .setInteractive({
                 useHandCursor: true,
@@ -501,7 +500,7 @@ export default class BridgeCaptainMissileThreatRowView {
 
         this.scienceLabel
             .setTint(
-                ROW.scienceBorderColor,
+                FONT_COLOR.WHITE,
             );
     }
 
@@ -559,12 +558,12 @@ export default class BridgeCaptainMissileThreatRowView {
 
         this.weaponsButton
             .setFillStyle(
-                ROW.weaponsBackgroundColor,
+                ROW.actionActiveBackgroundColor,
                 1,
             )
             .setStrokeStyle(
                 1,
-                ROW.weaponsBorderColor,
+                ROW.actionActiveBorderColor,
             )
             .setInteractive({
                 useHandCursor: true,
@@ -572,7 +571,7 @@ export default class BridgeCaptainMissileThreatRowView {
 
         this.weaponsLabel
             .setTint(
-                ROW.weaponsBorderColor,
+                FONT_COLOR.WHITE,
             );
     }
 
