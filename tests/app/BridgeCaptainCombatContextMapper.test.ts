@@ -11,6 +11,9 @@ import {
     OFFICER_ROLE,
 } from '../../src/engine/defs/officer';
 import {
+    STICKY_MINE_ID,
+} from '../../src/engine/defs/sticky_mine';
+import {
     COMBAT_PROJECTILE_KIND,
     COMBAT_SOURCE_KIND,
     COMBAT_TARGET_KIND,
@@ -80,6 +83,12 @@ describe(
 
                 expect(
                     mapCaptainCombatContextToBridgePayload({
+                        stickyMineSnapshots:
+                            [],
+
+                        availableHelmCommands:
+                            [],
+
                         enemyShips: [],
 
                         incomingMissiles: [
@@ -126,6 +135,9 @@ describe(
                         ],
                     }),
                 ).toEqual({
+                    incomingStickyMines:
+                        [],
+
                     incomingLasers:
                         [],
 
@@ -251,6 +263,12 @@ describe(
             () => {
                 expect(
                     mapCaptainCombatContextToBridgePayload({
+                        stickyMineSnapshots:
+                            [],
+
+                        availableHelmCommands:
+                            [],
+
                         enemyShips: [
                             {
                                 actorId:
@@ -298,6 +316,9 @@ describe(
                             [],
                     }),
                 ).toEqual({
+                    incomingStickyMines:
+                        [],
+
                     incomingLasers:
                         [],
 
@@ -347,6 +368,12 @@ describe(
 
                 expect(
                     mapCaptainCombatContextToBridgePayload({
+                        stickyMineSnapshots:
+                            [],
+
+                        availableHelmCommands:
+                            [],
+
                         enemyShips: [],
                         incomingMissiles: [],
 
@@ -391,6 +418,9 @@ describe(
                         ],
                     }),
                 ).toEqual({
+                    incomingStickyMines:
+                        [],
+
                     incomingMissiles: [],
 
                     incomingLasers: [
@@ -431,6 +461,240 @@ describe(
         );
 
         it(
+            'maps attached mines nearest-first and exposes clear actions only on the engine-selected next target',
+            () => {
+                const clearMine:
+                    AvailableOfficerCommand = {
+                        commandId:
+                            ENCOUNTER_OFFICER_COMMAND_ID
+                                .CLEAR_STICKY_MINE,
+
+                        label:
+                            'CLEAR MINE',
+
+                        target: {
+                            kind:
+                                OFFICER_COMMAND_TARGET_KIND
+                                    .NONE,
+                        },
+                    };
+
+                const payload =
+                    mapCaptainCombatContextToBridgePayload({
+                        enemyShips: [],
+                        incomingMissiles: [],
+                        laserThreats: [],
+
+                        stickyMineSnapshots: [
+                            {
+                                mine: {
+                                    id:
+                                        'mine_later',
+
+                                    mineId:
+                                        STICKY_MINE_ID
+                                            .BASIC_00,
+
+                                    source: {
+                                        kind:
+                                            COMBAT_SOURCE_KIND
+                                                .ACTOR,
+
+                                        actorId:
+                                            'enemy_ship_00',
+                                    },
+
+                                    sourceWeaponId:
+                                        'sticky_mine_dispenser_00',
+
+                                    target: {
+                                        kind:
+                                            COMBAT_TARGET_KIND
+                                                .PLAYER_SHIP,
+                                    },
+
+                                    timeToDetonationMs:
+                                        1600,
+
+                                    initialTimeToDetonationMs:
+                                        5000,
+
+                                    damage: 1,
+                                },
+
+                                isBeingCleared:
+                                    true,
+
+                                isNextClearTarget:
+                                    false,
+                            },
+
+                            {
+                                mine: {
+                                    id:
+                                        'mine_next',
+
+                                    mineId:
+                                        STICKY_MINE_ID
+                                            .BASIC_00,
+
+                                    source: {
+                                        kind:
+                                            COMBAT_SOURCE_KIND
+                                                .ACTOR,
+
+                                        actorId:
+                                            'enemy_ship_00',
+                                    },
+
+                                    sourceWeaponId:
+                                        'sticky_mine_dispenser_00',
+
+                                    target: {
+                                        kind:
+                                            COMBAT_TARGET_KIND
+                                                .PLAYER_SHIP,
+                                    },
+
+                                    timeToDetonationMs:
+                                        700,
+
+                                    initialTimeToDetonationMs:
+                                        5000,
+
+                                    damage: 1,
+                                },
+
+                                isBeingCleared:
+                                    false,
+
+                                isNextClearTarget:
+                                    true,
+                            },
+                        ],
+
+                        availableScienceCommands: [
+                            clearMine,
+                        ],
+
+                        availableHelmCommands: [
+                            clearMine,
+                        ],
+
+                        availableWeaponsCommands: [
+                            clearMine,
+                        ],
+
+                        availableEngineeringCommands: [
+                            clearMine,
+                        ],
+                    });
+
+                expect(
+                    payload.incomingStickyMines,
+                ).toEqual([
+                    {
+                        mineId:
+                            'mine_next',
+
+                        timeToDetonationMs:
+                            700,
+
+                        initialTimeToDetonationMs:
+                            5000,
+
+                        isBeingCleared:
+                            false,
+
+                        isNextClearTarget:
+                            true,
+
+                        actions: {
+                            scienceClear: {
+                                role:
+                                    OFFICER_ROLE.SCIENCE,
+
+                                commandId:
+                                    ENCOUNTER_OFFICER_COMMAND_ID
+                                        .CLEAR_STICKY_MINE,
+
+                                target: {
+                                    kind:
+                                        OFFICER_COMMAND_TARGET_KIND
+                                            .NONE,
+                                },
+                            },
+
+                            helmClear: {
+                                role:
+                                    OFFICER_ROLE.HELM,
+
+                                commandId:
+                                    ENCOUNTER_OFFICER_COMMAND_ID
+                                        .CLEAR_STICKY_MINE,
+
+                                target: {
+                                    kind:
+                                        OFFICER_COMMAND_TARGET_KIND
+                                            .NONE,
+                                },
+                            },
+
+                            weaponsClear: {
+                                role:
+                                    OFFICER_ROLE.WEAPONS,
+
+                                commandId:
+                                    ENCOUNTER_OFFICER_COMMAND_ID
+                                        .CLEAR_STICKY_MINE,
+
+                                target: {
+                                    kind:
+                                        OFFICER_COMMAND_TARGET_KIND
+                                            .NONE,
+                                },
+                            },
+
+                            engineerClear: {
+                                role:
+                                    OFFICER_ROLE.ENGINEER,
+
+                                commandId:
+                                    ENCOUNTER_OFFICER_COMMAND_ID
+                                        .CLEAR_STICKY_MINE,
+
+                                target: {
+                                    kind:
+                                        OFFICER_COMMAND_TARGET_KIND
+                                            .NONE,
+                                },
+                            },
+                        },
+                    },
+
+                    {
+                        mineId:
+                            'mine_later',
+
+                        timeToDetonationMs:
+                            1600,
+
+                        initialTimeToDetonationMs:
+                            5000,
+
+                        isBeingCleared:
+                            true,
+
+                        isNextClearTarget:
+                            false,
+
+                        actions: {},
+                    },
+                ]);
+            },
+        );
+
+        it(
             'rejects duplicate resolved actions for one threat',
             () => {
                 const missile =
@@ -464,6 +728,12 @@ describe(
 
                 expect(() => {
                     mapCaptainCombatContextToBridgePayload({
+                        stickyMineSnapshots:
+                            [],
+
+                        availableHelmCommands:
+                            [],
+
                         enemyShips: [],
 
                         incomingMissiles: [

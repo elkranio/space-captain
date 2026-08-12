@@ -8,11 +8,13 @@ import {
     BRIDGE_EVENT,
     type BridgeCaptainIncomingLaserPayload,
     type BridgeCaptainIncomingMissilePayload,
+    type BridgeCaptainStickyMinePayload,
     type BridgeOfficerCommandSelectedPayload,
 } from '../../../../events/bridge_event';
 import type BridgeEventBus from '../../../../events/BridgeEventBus';
 import BridgeCaptainLaserThreatRowView from './BridgeCaptainLaserThreatRowView';
 import BridgeCaptainMissileThreatRowView from './BridgeCaptainMissileThreatRowView';
+import BridgeCaptainStickyMineThreatRowView from './BridgeCaptainStickyMineThreatRowView';
 
 const ROW_HEIGHT = 36;
 
@@ -93,12 +95,20 @@ export default class BridgeCaptainThreatsView {
         BridgeCaptainLaserThreatRowView[] =
             [];
 
+    private readonly stickyMineRowViews:
+        BridgeCaptainStickyMineThreatRowView[] =
+            [];
+
     private missiles:
         BridgeCaptainIncomingMissilePayload[] =
             [];
 
     private lasers:
         BridgeCaptainIncomingLaserPayload[] =
+            [];
+
+    private stickyMines:
+        BridgeCaptainStickyMinePayload[] =
             [];
 
     private selectedMissileId?:
@@ -269,12 +279,18 @@ export default class BridgeCaptainThreatsView {
 
         lasers:
             BridgeCaptainIncomingLaserPayload[],
+
+        stickyMines:
+            BridgeCaptainStickyMinePayload[],
     ): void {
         this.missiles =
             missiles;
 
         this.lasers =
             lasers;
+
+        this.stickyMines =
+            stickyMines;
 
         this.reconcileRows();
         this.reconcileBeamSelector();
@@ -308,6 +324,7 @@ export default class BridgeCaptainThreatsView {
     private reconcileRows(): void {
         this.reconcileMissileRows();
         this.reconcileLaserRows();
+        this.reconcileStickyMineRows();
     }
 
     private reconcileMissileRows(): void {
@@ -466,6 +483,82 @@ export default class BridgeCaptainThreatsView {
 
             rowView.update(
                 laser,
+            );
+        }
+    }
+
+    private reconcileStickyMineRows(): void {
+        while (
+            this.stickyMineRowViews.length >
+            this.stickyMines.length
+        ) {
+            const rowView =
+                this.stickyMineRowViews.pop();
+
+            rowView?.destroy();
+        }
+
+        while (
+            this.stickyMineRowViews.length <
+            this.stickyMines.length
+        ) {
+            const rowView =
+                new BridgeCaptainStickyMineThreatRowView(
+                    this.scene,
+                    this.width,
+                    ROW_HEIGHT,
+
+                    {
+                        onClear:
+                            (command) => {
+                                this.emitCommand(
+                                    command,
+                                );
+                            },
+                    },
+                );
+
+            this.stickyMineRowViews.push(
+                rowView,
+            );
+
+            this.listRoot.add(
+                rowView.getRoot(),
+            );
+        }
+
+        const firstStickyMineRow =
+            this.missiles.length +
+            this.lasers.length;
+
+        for (
+            let index = 0;
+            index <
+            this.stickyMines.length;
+            index += 1
+        ) {
+            const mine =
+                this.stickyMines[index];
+
+            const rowView =
+                this.stickyMineRowViews[index];
+
+            if (
+                !mine ||
+                !rowView
+            ) {
+                continue;
+            }
+
+            rowView.setPosition(
+                0,
+                (firstStickyMineRow +
+                    index) *
+                    ROW_HEIGHT,
+            );
+
+            rowView.update(
+                mine,
             );
         }
     }
@@ -763,8 +856,16 @@ export default class BridgeCaptainThreatsView {
             rowView.destroy();
         }
 
+        for (
+            const rowView
+            of this.stickyMineRowViews
+        ) {
+            rowView.destroy();
+        }
+
         this.missileRowViews.length = 0;
         this.laserRowViews.length = 0;
+        this.stickyMineRowViews.length = 0;
     }
 }
 

@@ -581,6 +581,30 @@ export type BridgeCaptainIncomingLaserPayload = {
     };
 };
 
+export type BridgeCaptainStickyMinePayload = {
+    mineId: string;
+
+    timeToDetonationMs: number;
+    initialTimeToDetonationMs: number;
+
+    isBeingCleared: boolean;
+    isNextClearTarget: boolean;
+
+    actions: {
+        scienceClear?:
+            BridgeOfficerCommandSelectedPayload;
+
+        helmClear?:
+            BridgeOfficerCommandSelectedPayload;
+
+        weaponsClear?:
+            BridgeOfficerCommandSelectedPayload;
+
+        engineerClear?:
+            BridgeOfficerCommandSelectedPayload;
+    };
+};
+
 export type BridgeCaptainCombatContextUpdatedPayload = {
     enemyShip?: {
         actorId: string;
@@ -603,6 +627,9 @@ export type BridgeCaptainCombatContextUpdatedPayload = {
 
     incomingLasers:
         BridgeCaptainIncomingLaserPayload[];
+
+    incomingStickyMines:
+        BridgeCaptainStickyMinePayload[];
 };
 
 // #endregion

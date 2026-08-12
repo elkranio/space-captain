@@ -53,7 +53,8 @@ const DEF_BAR = {
 // Пока она намеренно знает только:
 // - HULL/DEF текущего enemy ship;
 // - incoming missile rows;
-// - incoming laser rows.
+// - incoming laser rows;
+// - attached sticky-mine rows.
 //
 // Другие threat-типы будут добавляться в этот же органичный экран,
 // а не отдельными popup/menu системами.
@@ -351,6 +352,7 @@ export default class BridgeCaptainCombatContextView {
             .update(
                 payload.incomingMissiles,
                 payload.incomingLasers,
+                payload.incomingStickyMines,
             );
     }
 

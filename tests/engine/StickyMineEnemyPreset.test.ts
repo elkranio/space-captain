@@ -57,4 +57,26 @@ describe('Sticky-mine enemy preset', () => {
             },
         ]);
     });
+
+    it('uses sticky mines as the only attack family in the defense sandbox', () => {
+        const actor =
+            ShipNodeActorFactory.create({
+                id: 'enemy_defense_sandbox',
+
+                presetId:
+                    SHIP_NODE_ACTOR_PRESET_ID
+                        .ENEMY_DEFENSE_SANDBOX_00,
+
+                anchorId: 'navigation_beacon',
+            });
+
+        expect(actor.weapons).toHaveLength(1);
+
+        expect(
+            actor.weapons[0]?.kind,
+        ).toBe(
+            SHIP_WEAPON_KIND
+                .STICKY_MINE_DISPENSER,
+        );
+    });
 });

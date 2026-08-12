@@ -150,10 +150,20 @@ export default class BridgeEncounterSnapshotSynchronizer {
                     this.encounterEngine
                         .getLaserThreatSnapshots(),
 
+                stickyMineSnapshots:
+                    this.encounterEngine
+                        .getStickyMineSnapshots(),
+
                 availableScienceCommands:
                     this.encounterEngine
                         .getAvailableCommands(
                             OFFICER_ROLE.SCIENCE,
+                        ),
+
+                availableHelmCommands:
+                    this.encounterEngine
+                        .getAvailableCommands(
+                            OFFICER_ROLE.HELM,
                         ),
 
                 availableWeaponsCommands:

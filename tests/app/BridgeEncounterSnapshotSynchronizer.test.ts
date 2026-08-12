@@ -146,6 +146,27 @@ describe('BridgeEncounterSnapshotSynchronizer', () => {
                         },
                     ],
 
+                    incomingStickyMines: [
+                        {
+                            mineId:
+                                'incoming_mine_1',
+
+                            timeToDetonationMs:
+                                700,
+
+                            initialTimeToDetonationMs:
+                                1000,
+
+                            isBeingCleared:
+                                true,
+
+                            isNextClearTarget:
+                                false,
+
+                            actions: {},
+                        },
+                    ],
+
                     incomingMissiles: [
                         {
                             projectileId:
@@ -277,6 +298,27 @@ describe('BridgeEncounterSnapshotSynchronizer', () => {
 
                             initialTimeToFireMs:
                                 1000,
+
+                            actions: {},
+                        },
+                    ],
+
+                    incomingStickyMines: [
+                        {
+                            mineId:
+                                'incoming_mine_1',
+
+                            timeToDetonationMs:
+                                700,
+
+                            initialTimeToDetonationMs:
+                                1000,
+
+                            isBeingCleared:
+                                true,
+
+                            isNextClearTarget:
+                                false,
 
                             actions: {},
                         },

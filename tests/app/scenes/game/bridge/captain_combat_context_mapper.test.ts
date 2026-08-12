@@ -52,7 +52,13 @@ describe(
                             },
                         ],
 
+                        stickyMineSnapshots:
+                            [],
+
                         availableScienceCommands:
+                            [],
+
+                        availableHelmCommands:
                             [],
 
                         availableWeaponsCommands:
@@ -63,6 +69,8 @@ describe(
                     }),
                 ).toEqual({
                     incomingMissiles: [],
+
+                    incomingStickyMines: [],
 
                     incomingLasers: [
                         {

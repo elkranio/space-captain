@@ -17,6 +17,9 @@ import {
     POINT_DEFENSE_PHASE,
 } from '../../../src/engine/defs/point_defense';
 import {
+    STICKY_MINE_ID,
+} from '../../../src/engine/defs/sticky_mine';
+import {
     SHIP_WEAPON_ID,
     SHIP_WEAPON_KIND,
     SHIP_WEAPON_PHASE,
@@ -24,7 +27,7 @@ import {
 import ShipNodeActorFactory from '../../../src/engine/generation/space_node_actor/ShipNodeActorFactory';
 
 describe('Enemy defense sandbox preset', () => {
-    it('creates a fully crewed defensive enemy with one laser', () => {
+    it('creates a fully crewed defensive enemy with one sticky-mine dispenser', () => {
         const actor =
             ShipNodeActorFactory.create({
                 id:
@@ -39,20 +42,27 @@ describe('Enemy defense sandbox preset', () => {
 
         expect(actor.weapons).toEqual([
             {
-                id: 'laser_00',
+                id:
+                    'sticky_mine_dispenser_00',
 
                 weaponId:
                     SHIP_WEAPON_ID
-                        .LASER_00,
+                        .STICKY_MINE_DISPENSER_00,
 
                 kind:
                     SHIP_WEAPON_KIND
-                        .LASER,
+                        .STICKY_MINE_DISPENSER,
+
+                loadedMineId:
+                    STICKY_MINE_ID.BASIC_00,
+
+                ammoCount: 6,
 
                 phase:
                     SHIP_WEAPON_PHASE.READY,
-
                 phaseElapsedMs: 0,
+
+                dispensedMineCount: 0,
             },
         ]);
 

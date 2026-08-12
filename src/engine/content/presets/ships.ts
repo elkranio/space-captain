@@ -357,17 +357,21 @@ export const SHIP_PRESETS = {
                     .BASIC_00,
         },
 
-        // Изолированный laser slice:
-        // missile вернём после player shield flow.
+        // Изолированный sticky-mine slice:
+        // defense sandbox сохраняет защитные системы,
+        // но атакует только одним weapon family.
         weapons: [
             {
-                id: 'laser_00',
+                id:
+                    'sticky_mine_dispenser_00',
 
                 kind:
-                    SHIP_WEAPON_KIND.LASER,
+                    SHIP_WEAPON_KIND
+                        .STICKY_MINE_DISPENSER,
 
-                weaponId:
-                    SHIP_WEAPON_ID.LASER_00,
+                presetId:
+                    STICKY_MINE_DISPENSER_PRESET_ID
+                        .BASIC_FULL_00,
             },
         ],
     },

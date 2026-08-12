@@ -10,8 +10,10 @@ import {
     SHIELD_EMITTER_PHASE,
 } from '../../../src/engine/defs/shield_emitter';
 import {
+    SHIP_WEAPON_ID,
     SHIP_WEAPON_KIND,
     SHIP_WEAPON_PHASE,
+    type LaserWeaponState,
 } from '../../../src/engine/defs/ship_weapon';
 import {
     SHIP_WEAPONS,
@@ -330,26 +332,29 @@ describe(
                 engine.step(3000);
                 engine.drainEvents();
 
-                const laser =
-                    targetActor.weapons
-                        .find((weapon) => {
-                            return (
-                                weapon.kind ===
-                                SHIP_WEAPON_KIND
-                                    .LASER
-                            );
-                        });
+                const laser:
+                    LaserWeaponState = {
+                        id:
+                            'shield_test_laser_00',
 
-                if (
-                    !laser ||
-                    laser.kind !==
-                        SHIP_WEAPON_KIND
-                            .LASER
-                ) {
-                    throw new Error(
-                        'Expected enemy laser',
-                    );
-                }
+                        weaponId:
+                            SHIP_WEAPON_ID
+                                .LASER_00,
+
+                        kind:
+                            SHIP_WEAPON_KIND
+                                .LASER,
+
+                        phase:
+                            SHIP_WEAPON_PHASE
+                                .READY,
+
+                        phaseElapsedMs: 0,
+                    };
+
+                targetActor.weapons.push(
+                    laser,
+                );
 
                 const definition =
                     SHIP_WEAPONS[

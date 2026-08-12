@@ -6,6 +6,9 @@ import { OFFICER_ROLE } from '../../../src/engine/defs/officer';
 import { PLAYER_LOCATION_KIND, PLAYER_SPACE_NAVIGATION_KIND } from '../../../src/engine/defs/player_location';
 import { SPACE_BACKGROUND_ID } from '../../../src/engine/defs/space_background';
 import {
+    STICKY_MINE_ID,
+} from '../../../src/engine/defs/sticky_mine';
+import {
     SHIP_WEAPON_ID,
     SHIP_WEAPON_KIND,
     SHIP_WEAPON_PHASE,
@@ -112,20 +115,27 @@ describe('NewGameUniverseFactory', () => {
 
         expect(enemy.weapons).toEqual([
             {
-                id: 'laser_00',
+                id:
+                    'sticky_mine_dispenser_00',
 
                 weaponId:
                     SHIP_WEAPON_ID
-                        .LASER_00,
+                        .STICKY_MINE_DISPENSER_00,
 
                 kind:
                     SHIP_WEAPON_KIND
-                        .LASER,
+                        .STICKY_MINE_DISPENSER,
+
+                loadedMineId:
+                    STICKY_MINE_ID.BASIC_00,
+
+                ammoCount: 6,
 
                 phase:
                     SHIP_WEAPON_PHASE.READY,
-
                 phaseElapsedMs: 0,
+
+                dispensedMineCount: 0,
             },
         ]);
 

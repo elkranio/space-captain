@@ -8,6 +8,9 @@ import type {
 import type {
     LaserThreatSnapshot,
 } from '../../../../../../engine/encounter/combat/queries/get_laser_threat_snapshots';
+import type {
+    StickyMineSnapshot,
+} from '../../../../../../engine/encounter/combat/queries/get_sticky_mine_snapshots';
 import {
     ENCOUNTER_OFFICER_COMMAND_ID,
     OFFICER_COMMAND_TARGET_KIND,
@@ -33,7 +36,13 @@ type CaptainCombatContextMapperInput = {
     laserThreats:
         LaserThreatSnapshot[];
 
+    stickyMineSnapshots:
+        StickyMineSnapshot[];
+
     availableScienceCommands:
+        AvailableOfficerCommand[];
+
+    availableHelmCommands:
         AvailableOfficerCommand[];
 
     availableWeaponsCommands:
@@ -192,6 +201,140 @@ export function mapCaptainCombatContextToBridgePayload(
                             ...(fireBlueBeam
                                 ? {
                                       fireBlueBeam,
+                                  }
+                                : {}),
+                        },
+                    };
+                }),
+
+        incomingStickyMines:
+            [...input.stickyMineSnapshots]
+                .sort((left, right) => {
+                    return (
+                        left.mine.timeToDetonationMs -
+                        right.mine.timeToDetonationMs
+                    );
+                })
+                .map((snapshot) => {
+                    const canClear =
+                        snapshot.isNextClearTarget;
+
+                    const scienceClear =
+                        canClear
+                            ? findUntargetedCommand({
+                                  commands:
+                                      input
+                                          .availableScienceCommands,
+
+                                  commandId:
+                                      ENCOUNTER_OFFICER_COMMAND_ID
+                                          .CLEAR_STICKY_MINE,
+
+                                  role:
+                                      OFFICER_ROLE.SCIENCE,
+
+                                  label:
+                                      'Science clear mine',
+                              })
+                            : undefined;
+
+                    const helmClear =
+                        canClear
+                            ? findUntargetedCommand({
+                                  commands:
+                                      input
+                                          .availableHelmCommands,
+
+                                  commandId:
+                                      ENCOUNTER_OFFICER_COMMAND_ID
+                                          .CLEAR_STICKY_MINE,
+
+                                  role:
+                                      OFFICER_ROLE.HELM,
+
+                                  label:
+                                      'Helm clear mine',
+                              })
+                            : undefined;
+
+                    const weaponsClear =
+                        canClear
+                            ? findUntargetedCommand({
+                                  commands:
+                                      input
+                                          .availableWeaponsCommands,
+
+                                  commandId:
+                                      ENCOUNTER_OFFICER_COMMAND_ID
+                                          .CLEAR_STICKY_MINE,
+
+                                  role:
+                                      OFFICER_ROLE.WEAPONS,
+
+                                  label:
+                                      'Weapons clear mine',
+                              })
+                            : undefined;
+
+                    const engineerClear =
+                        canClear
+                            ? findUntargetedCommand({
+                                  commands:
+                                      input
+                                          .availableEngineeringCommands,
+
+                                  commandId:
+                                      ENCOUNTER_OFFICER_COMMAND_ID
+                                          .CLEAR_STICKY_MINE,
+
+                                  role:
+                                      OFFICER_ROLE.ENGINEER,
+
+                                  label:
+                                      'Engineer clear mine',
+                              })
+                            : undefined;
+
+                    return {
+                        mineId:
+                            snapshot.mine.id,
+
+                        timeToDetonationMs:
+                            snapshot.mine
+                                .timeToDetonationMs,
+
+                        initialTimeToDetonationMs:
+                            snapshot.mine
+                                .initialTimeToDetonationMs,
+
+                        isBeingCleared:
+                            snapshot.isBeingCleared,
+
+                        isNextClearTarget:
+                            snapshot.isNextClearTarget,
+
+                        actions: {
+                            ...(scienceClear
+                                ? {
+                                      scienceClear,
+                                  }
+                                : {}),
+
+                            ...(helmClear
+                                ? {
+                                      helmClear,
+                                  }
+                                : {}),
+
+                            ...(weaponsClear
+                                ? {
+                                      weaponsClear,
+                                  }
+                                : {}),
+
+                            ...(engineerClear
+                                ? {
+                                      engineerClear,
                                   }
                                 : {}),
                         },
