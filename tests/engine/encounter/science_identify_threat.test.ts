@@ -27,9 +27,7 @@ import {
     OFFICER_TASK_RESULT_KIND,
 } from '../../../src/engine/encounter/model/event';
 import { OFFICER_TASK_KIND } from '../../../src/engine/encounter/model/officer_task';
-import ShipNodeActorFactory from '../../../src/engine/generation/space_node_actor/ShipNodeActorFactory';
-import { createPointDefenseFixture } from '../../fixtures/engine/point_defense_fixtures';
-import { createSingleStationNodeFixture } from '../../fixtures/engine/space_node_fixtures';
+import ShipNodeActorFactory from '../../../src/engine/generation/space_node_actor/ShipNodeActorFactory';import { createSingleStationNodeFixture } from '../../fixtures/engine/space_node_fixtures';
 
 describe('Science identify threat command', () => {
     it.each([
@@ -80,10 +78,7 @@ describe('Science identify threat command', () => {
                 anchorId: stationId,
             },
 
-            completeTimedTasksImmediately: true,
-
-            pointDefense: createPointDefenseFixture(),
-        });
+            completeTimedTasksImmediately: true,        });
 
         const [loadedEvent] = engine.drainEvents();
 
@@ -258,9 +253,6 @@ function createLaserEngine() {
 
             anchorId: stationId,
         },
-
-        pointDefense: createPointDefenseFixture(),
-
         random: () => 0.5,
     });
 

@@ -33,9 +33,7 @@ import {
     COMBAT_SOURCE_KIND,
     COMBAT_TARGET_KIND,
     type StickyMineState,
-} from '../../../src/engine/encounter/model/combat';
-import { createPointDefenseFixture } from '../../fixtures/engine/point_defense_fixtures';
-import { createShipDriveFixture } from '../../fixtures/engine/ship_drive_fixtures';
+} from '../../../src/engine/encounter/model/combat';import { createShipDriveFixture } from '../../fixtures/engine/ship_drive_fixtures';
 import { createSingleStationNodeFixture } from '../../fixtures/engine/space_node_fixtures';
 
 describe('Sticky mine dispenser', () => {
@@ -346,11 +344,7 @@ function createStickyMineEngine({
                     .ANCHORED,
 
             anchorId: stationId,
-        },
-
-        pointDefense:
-            createPointDefenseFixture(),
-    });
+        },    });
 
     const [loadedEvent] =
         engine.drainEvents();

@@ -12,7 +12,6 @@ import type {
     PlayerHullState,
 } from '../defs/player';
 import type { PlayerSpaceNavigationState } from '../defs/player_location';
-import type { PointDefenseState } from '../defs/point_defense';
 import type { ShipDriveState } from '../defs/ship_drive';
 import type {
     ShipWeaponState,
@@ -60,8 +59,6 @@ export type EncounterEngineOptions = {
     playerHull: PlayerHullState;
     drive: ShipDriveState;
 
-    pointDefense: PointDefenseState;
-
     defenseCapacitor?:
         DefenseCapacitorState;
 
@@ -103,7 +100,6 @@ export default class EncounterEngine {
         navigation,
         playerHull,
         drive,
-        pointDefense,
         defenseCapacitor,
         weapons = [],
 
@@ -119,7 +115,6 @@ export default class EncounterEngine {
                 playerHull,
                 drive,
 
-                pointDefense,
                 defenseCapacitor,
 
                 playerWeapons:

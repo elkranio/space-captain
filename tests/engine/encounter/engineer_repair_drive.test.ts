@@ -23,9 +23,7 @@ import {
 } from '../../../src/engine/encounter/model/event';
 import {
     OFFICER_TASK_KIND,
-} from '../../../src/engine/encounter/model/officer_task';
-import { createPointDefenseFixture } from '../../fixtures/engine/point_defense_fixtures';
-import { createShipDriveFixture } from '../../fixtures/engine/ship_drive_fixtures';
+} from '../../../src/engine/encounter/model/officer_task';import { createShipDriveFixture } from '../../fixtures/engine/ship_drive_fixtures';
 import { createStationAndBeaconNodeFixture } from '../../fixtures/engine/space_node_fixtures';
 
 describe('Engineer repair drive command', () => {
@@ -50,11 +48,7 @@ describe('Engineer repair drive command', () => {
                     PLAYER_SPACE_NAVIGATION_KIND.ANCHORED,
 
                 anchorId: stationId,
-            },
-
-            pointDefense:
-                createPointDefenseFixture(),
-        });
+            },        });
 
         engine.drainEvents();
 
@@ -268,11 +262,7 @@ describe('Engineer repair drive command', () => {
                     PLAYER_SPACE_NAVIGATION_KIND.ANCHORED,
 
                 anchorId: stationId,
-            },
-
-            pointDefense:
-                createPointDefenseFixture(),
-        });
+            },        });
 
         engine.drainEvents();
 

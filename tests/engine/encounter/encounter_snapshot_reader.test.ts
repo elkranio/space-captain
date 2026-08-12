@@ -12,9 +12,7 @@ import {
 import { ENCOUNTER_EVENT } from '../../../src/engine/encounter/model/event';
 import EncounterSnapshotReader from '../../../src/engine/encounter/snapshots/EncounterSnapshotReader';
 import { createEncounterState } from '../../../src/engine/encounter/state/create_encounter_state';
-import { createPlayerHullFixture } from '../../fixtures/engine/player_hull_fixtures';
-import { createPointDefenseFixture } from '../../fixtures/engine/point_defense_fixtures';
-import { createShipDriveFixture } from '../../fixtures/engine/ship_drive_fixtures';
+import { createPlayerHullFixture } from '../../fixtures/engine/player_hull_fixtures';import { createShipDriveFixture } from '../../fixtures/engine/ship_drive_fixtures';
 import { createSingleStationNodeFixture } from '../../fixtures/engine/space_node_fixtures';
 import { PLAYER_SPACE_NAVIGATION_KIND } from '../../../src/engine/defs/player_location';
 import { MISSILE_ID } from '../../../src/engine/defs/missile';
@@ -29,9 +27,7 @@ describe('EncounterSnapshotReader', () => {
                 anchorId: stationId,
             },
             playerHull: createPlayerHullFixture(),
-            drive: createShipDriveFixture(),
-            pointDefense: createPointDefenseFixture(),
-        });
+            drive: createShipDriveFixture(),        });
 
         state.combat.projectiles.push({
             id: 'projectile_test',
@@ -88,9 +84,7 @@ describe('EncounterSnapshotReader', () => {
                 anchorId: stationId,
             },
             playerHull: createPlayerHullFixture(),
-            drive: createShipDriveFixture(),
-            pointDefense: createPointDefenseFixture(),
-        });
+            drive: createShipDriveFixture(),        });
 
         const [loadedEvent] = engine.drainEvents();
 

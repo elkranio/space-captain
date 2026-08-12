@@ -14,11 +14,7 @@ import {
 import EncounterStateStore from '../../../src/engine/encounter/state/EncounterStateStore';
 import {
     createPlayerHullFixture,
-} from '../../fixtures/engine/player_hull_fixtures';
-import {
-    createPointDefenseFixture,
-} from '../../fixtures/engine/point_defense_fixtures';
-import {
+} from '../../fixtures/engine/player_hull_fixtures';import {
     createShipDriveFixture,
 } from '../../fixtures/engine/ship_drive_fixtures';
 import {
@@ -56,11 +52,7 @@ describe(
                         playerHull,
 
                         drive:
-                            createShipDriveFixture(),
-
-                        pointDefense:
-                            createPointDefenseFixture(),
-                    });
+                            createShipDriveFixture(),                    });
 
                 expect(
                     state.playerHull,

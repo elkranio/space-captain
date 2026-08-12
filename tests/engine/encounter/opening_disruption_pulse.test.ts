@@ -21,9 +21,7 @@ import {
     OFFICER_TASK_KIND,
     type OfficerTaskState,
 } from '../../../src/engine/encounter/model/officer_task';
-import ShipNodeActorFactory from '../../../src/engine/generation/space_node_actor/ShipNodeActorFactory';
-import { createPointDefenseFixture } from '../../fixtures/engine/point_defense_fixtures';
-import { createShipDriveFixture } from '../../fixtures/engine/ship_drive_fixtures';
+import ShipNodeActorFactory from '../../../src/engine/generation/space_node_actor/ShipNodeActorFactory';import { createShipDriveFixture } from '../../fixtures/engine/ship_drive_fixtures';
 import {
     createSingleStationNodeFixture,
     createStationAndBeaconNodeFixture,
@@ -55,10 +53,7 @@ describe('opening disruption pulse', () => {
                 anchorId: stationId,
             },
 
-            drive,
-            pointDefense:
-                createPointDefenseFixture(),
-        });
+            drive,        });
 
         const [loadedEvent] = engine.drainEvents();
 
@@ -183,10 +178,7 @@ describe('opening disruption pulse', () => {
                 anchorId: stationId,
             },
 
-            drive: createShipDriveFixture(),
-            pointDefense:
-                createPointDefenseFixture(),
-        });
+            drive: createShipDriveFixture(),        });
 
         engine.drainEvents();
 
@@ -335,9 +327,7 @@ function createNeutralEncounter() {
             anchorId: stationId,
         },
 
-        drive: createShipDriveFixture(),
-        pointDefense: createPointDefenseFixture(),
-    });
+        drive: createShipDriveFixture(),    });
 
     const [loadedEvent] = engine.drainEvents();
 

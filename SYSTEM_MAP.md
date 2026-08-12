@@ -62,7 +62,7 @@ Conceptually:
 ```text
 actors       → actor identity/team/hull/spawn/remove
 navigation   → arrival/travel/jump/dock-related state
-player       → hull/drive/DEF/PD/weapons/player knowledge
+player       → hull/drive/DEF/weapons/player knowledge
 officer task → player task storage/progress/cancel
 ```
 

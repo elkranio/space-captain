@@ -42,11 +42,7 @@ import EncounterStateStore from '../../../src/engine/encounter/state/EncounterSt
 import {
     createEncounterState,
 } from '../../../src/engine/encounter/state/create_encounter_state';
-import ShipNodeActorFactory from '../../../src/engine/generation/space_node_actor/ShipNodeActorFactory';
-import {
-    createPointDefenseFixture,
-} from '../../fixtures/engine/point_defense_fixtures';
-import {
+import ShipNodeActorFactory from '../../../src/engine/generation/space_node_actor/ShipNodeActorFactory';import {
     createShipBehaviorFixture,
 } from '../../fixtures/engine/ship_behavior_fixtures';
 import {
@@ -74,10 +70,7 @@ describe('encounter actors', () => {
 
             playerHull: createPlayerHullFixture(),
 
-            drive: createShipDriveFixture(),
-
-            pointDefense: createPointDefenseFixture(),
-        });
+            drive: createShipDriveFixture(),        });
 
         const store =
             new EncounterStateStore(state);
@@ -201,10 +194,7 @@ describe('encounter actors', () => {
 
             playerHull: createPlayerHullFixture(),
 
-            drive: createShipDriveFixture(),
-
-            pointDefense: createPointDefenseFixture(),
-        });
+            drive: createShipDriveFixture(),        });
 
         const store =
             new EncounterStateStore(state);
@@ -341,11 +331,7 @@ describe('encounter actors', () => {
                         .ANCHORED,
 
                 anchorId: stationId,
-            },
-
-            pointDefense:
-                createPointDefenseFixture(),
-        });
+            },        });
 
         const [event] =
             engine.drainEvents();

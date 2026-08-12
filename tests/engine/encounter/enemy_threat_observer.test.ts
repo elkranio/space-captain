@@ -49,11 +49,7 @@ import {
 import {
     createEncounterState,
 } from '../../../src/engine/encounter/state/create_encounter_state';
-import EncounterStateStore from '../../../src/engine/encounter/state/EncounterStateStore';
-import {
-    createPointDefenseFixture,
-} from '../../fixtures/engine/point_defense_fixtures';
-import {
+import EncounterStateStore from '../../../src/engine/encounter/state/EncounterStateStore';import {
     createShipBehaviorFixture,
 } from '../../fixtures/engine/ship_behavior_fixtures';
 import {
@@ -226,9 +222,6 @@ function createObserverFixture() {
         playerHull: createPlayerHullFixture(),
 
         drive: createShipDriveFixture(),
-
-        pointDefense: createPointDefenseFixture(),
-
         playerWeapons: [
             playerLaser,
         ],

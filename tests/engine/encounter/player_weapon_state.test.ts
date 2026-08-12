@@ -18,11 +18,7 @@ import {
 import LaserWeaponFactory from '../../../src/engine/generation/ship_weapon/LaserWeaponFactory';
 import {
     PLAYER_SPACE_NAVIGATION_KIND,
-} from '../../../src/engine/defs/player_location';
-import {
-    createPointDefenseFixture,
-} from '../../fixtures/engine/point_defense_fixtures';
-import {
+} from '../../../src/engine/defs/player_location';import {
     createShipDriveFixture,
 } from '../../fixtures/engine/ship_drive_fixtures';
 import {
@@ -63,10 +59,6 @@ describe('Player weapon encounter state', () => {
 
             drive:
                 createShipDriveFixture(),
-
-            pointDefense:
-                createPointDefenseFixture(),
-
             weapons: installedWeapons,
         });
 

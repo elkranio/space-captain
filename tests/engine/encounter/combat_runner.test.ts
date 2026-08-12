@@ -24,9 +24,7 @@ import {
     THREAT_IDENTIFICATION_STATUS,
 } from '../../../src/engine/encounter/model/combat';
 import { ENCOUNTER_EVENT } from '../../../src/engine/encounter/model/event';
-import ShipNodeActorFactory from '../../../src/engine/generation/space_node_actor/ShipNodeActorFactory';
-import { createPointDefenseFixture } from '../../fixtures/engine/point_defense_fixtures';
-import { createSingleStationNodeFixture } from '../../fixtures/engine/space_node_fixtures';
+import ShipNodeActorFactory from '../../../src/engine/generation/space_node_actor/ShipNodeActorFactory';import { createSingleStationNodeFixture } from '../../fixtures/engine/space_node_fixtures';
 
 describe('CombatRunner', () => {
     it('runs an enemy missile launcher through targeting, flight, impact and cooldown', () => {
@@ -61,9 +59,7 @@ describe('CombatRunner', () => {
                 kind: PLAYER_SPACE_NAVIGATION_KIND.ANCHORED,
 
                 anchorId: stationId,
-            },
-            pointDefense: createPointDefenseFixture(),
-        });
+            },        });
 
         const [loadedEvent] = engine.drainEvents();
 
@@ -277,9 +273,6 @@ describe('CombatRunner', () => {
 
                 anchorId: stationId,
             },
-
-            pointDefense: createPointDefenseFixture(),
-
             random: () => 0.5,
         });
 

@@ -65,18 +65,6 @@ function createPlayerShip(
                 SHIP_DRIVE_STATUS.ONLINE,
         },
 
-        pointDefense: {
-            id:
-                preset
-                    .pointDefense
-                    .id,
-
-            pointDefenseId:
-                preset
-                    .pointDefense
-                    .pointDefenseId,
-        },
-
         defenseCapacitor:
             DefenseCapacitorFactory.create({
                 id:

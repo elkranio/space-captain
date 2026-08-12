@@ -19,8 +19,7 @@ import {
 } from '../../../src/engine/defs/officer';
 import {
     POINT_DEFENSE_BEAM_BAND,
-    POINT_DEFENSE_ID,
-    POINT_DEFENSE_PHASE,
+    POINT_DEFENSE_ID,    POINT_DEFENSE_PHASE,
 } from '../../../src/engine/defs/point_defense';
 import {
     getEnemyDebugSnapshots,
@@ -203,7 +202,6 @@ describe(
                                 rechargeElapsedMs:
                                     12000,
                             },
-
                             pointDefense: {
                                 id:
                                     'point_defense_00',

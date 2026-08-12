@@ -4,7 +4,6 @@ import type {
     DefenseCapacitorState,
 } from './defense_capacitor';
 import type { PlayerLocationState } from './player_location';
-import type { PointDefenseState } from './point_defense';
 import type { ShipDriveState } from './ship_drive';
 import type { ShipWeaponState } from './ship_weapon';
 
@@ -22,9 +21,6 @@ export type PlayerHullDamageResult = {
 export type PlayerShipState =
     PlayerHullState & {
         drive: ShipDriveState;
-
-        pointDefense:
-            PointDefenseState;
 
         defenseCapacitor:
             DefenseCapacitorState;

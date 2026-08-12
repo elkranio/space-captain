@@ -25,9 +25,8 @@ export type DefenseCapacitorDefinition = {
 // Mutable runtime state одной установленной
 // DEFENSE CAPACITOR.
 //
-// Один charge позже смогут конкурирующе тратить:
-// - point defense;
-// - shield.
+// Shared defensive resource.
+// Все defensive consumers тратят charges из одного pool.
 //
 // Пока operational/broken status намеренно
 // не добавляем: общий контракт поломок

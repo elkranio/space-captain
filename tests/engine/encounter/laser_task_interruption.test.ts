@@ -28,9 +28,7 @@ import {
     OFFICER_TASK_KIND,
     type OfficerTaskState,
 } from '../../../src/engine/encounter/model/officer_task';
-import ShipNodeActorFactory from '../../../src/engine/generation/space_node_actor/ShipNodeActorFactory';
-import { createPointDefenseFixture } from '../../fixtures/engine/point_defense_fixtures';
-import { createSingleStationNodeFixture } from '../../fixtures/engine/space_node_fixtures';
+import ShipNodeActorFactory from '../../../src/engine/generation/space_node_actor/ShipNodeActorFactory';import { createSingleStationNodeFixture } from '../../fixtures/engine/space_node_fixtures';
 
 describe('Laser hit officer task interruption', () => {
     it('uses encounter RNG to cancel one of several active tasks after a hit', () => {
@@ -114,9 +112,6 @@ function createLaserEngine(randomValues: number[]) {
 
             anchorId: stationId,
         },
-
-        pointDefense: createPointDefenseFixture(),
-
         random: () => {
             const value = randomValues[randomIndex];
 

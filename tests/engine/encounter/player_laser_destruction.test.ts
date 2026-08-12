@@ -252,11 +252,6 @@ function createCombatFixture({
 
         drive:
             run.player.ship.drive,
-
-        pointDefense:
-            run.player.ship
-                .pointDefense,
-
         weapons:
             run.player.ship.weapons,
     });

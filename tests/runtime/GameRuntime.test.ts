@@ -13,11 +13,7 @@ import {
 } from '../../src/engine/defs/defense_capacitor';
 import {
     MISSILE_ID,
-} from '../../src/engine/defs/missile';
-import {
-    POINT_DEFENSE_ID,
-} from '../../src/engine/defs/point_defense';
-import {
+} from '../../src/engine/defs/missile';import {
     STICKY_MINE_ID,
 } from '../../src/engine/defs/sticky_mine';
 import {
@@ -49,16 +45,6 @@ describe('GameRuntime player ship hull', () => {
                 status:
                     SHIP_DRIVE_STATUS.ONLINE,
             },
-
-            pointDefense: {
-                id:
-                    'point_defense_player_00',
-
-                pointDefenseId:
-                    POINT_DEFENSE_ID
-                        .BASIC_00,
-            },
-
             defenseCapacitor: {
                 id:
                     'defense_capacitor_player_00',
@@ -190,16 +176,6 @@ describe('GameRuntime player ship hull', () => {
                 status:
                     SHIP_DRIVE_STATUS.ONLINE,
             },
-
-            pointDefense: {
-                id:
-                    'point_defense_player_00',
-
-                pointDefenseId:
-                    POINT_DEFENSE_ID
-                        .BASIC_00,
-            },
-
             defenseCapacitor: {
                 id:
                     'defense_capacitor_player_00',

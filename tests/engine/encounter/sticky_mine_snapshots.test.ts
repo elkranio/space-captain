@@ -29,11 +29,7 @@ import {
 } from '../../../src/engine/encounter/model/combat';
 import {
     ENCOUNTER_EVENT,
-} from '../../../src/engine/encounter/model/event';
-import {
-    createPointDefenseFixture,
-} from '../../fixtures/engine/point_defense_fixtures';
-import {
+} from '../../../src/engine/encounter/model/event';import {
     createShipDriveFixture,
 } from '../../fixtures/engine/ship_drive_fixtures';
 import {
@@ -148,11 +144,7 @@ function createEngine() {
                     .ANCHORED,
 
             anchorId: stationId,
-        },
-
-        pointDefense:
-            createPointDefenseFixture(),
-    });
+        },    });
 
     const [loadedEvent] =
         engine.drainEvents();

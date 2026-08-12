@@ -77,11 +77,6 @@ export function createAnchoredPlayerCombatTestSetup(
 
             drive:
                 run.player.ship.drive,
-
-            pointDefense:
-                run.player.ship
-                    .pointDefense,
-
             defenseCapacitor:
                 run.player.ship
                     .defenseCapacitor,

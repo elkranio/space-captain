@@ -10,9 +10,7 @@ import { BEACON_OBJECT_SPRITE_ID } from '../../src/engine/defs/beacon';
 import { MISSILE_ID } from '../../src/engine/defs/missile';
 import { OFFICER_ROLE } from '../../src/engine/defs/officer';
 import {
-    POINT_DEFENSE_BEAM_BAND,
-    POINT_DEFENSE_ID,
-    POINT_DEFENSE_SHOT_OUTCOME,
+    POINT_DEFENSE_BEAM_BAND,    POINT_DEFENSE_SHOT_OUTCOME,
 } from '../../src/engine/defs/point_defense';
 import {
     COMBAT_PROJECTILE_KIND,
@@ -512,22 +510,6 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
             charges: 3,
             rechargeElapsedMs: 0,
         });
-
-        expect(
-            runtime
-                .getCurrentRun()
-                .player
-                .ship
-                .pointDefense,
-        ).toEqual({
-            id:
-                'point_defense_player_00',
-
-            pointDefenseId:
-                POINT_DEFENSE_ID
-                    .BASIC_00,
-        });
-
         expect(emit.mock.calls).toEqual([
             [
                 BRIDGE_EVENT.OFFICER_ACTIVITY_STARTED,
@@ -611,22 +593,6 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
             charges: 4,
             rechargeElapsedMs: 0,
         });
-
-        expect(
-            runtime
-                .getCurrentRun()
-                .player
-                .ship
-                .pointDefense,
-        ).toEqual({
-            id:
-                'point_defense_player_00',
-
-            pointDefenseId:
-                POINT_DEFENSE_ID
-                    .BASIC_00,
-        });
-
         expect(emit.mock.calls).toEqual([
             [
                 BRIDGE_EVENT.POINT_DEFENSE_FIRED,

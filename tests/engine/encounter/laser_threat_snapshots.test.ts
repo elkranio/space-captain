@@ -16,9 +16,7 @@ import {
     COMBAT_TARGET_KIND,
 } from '../../../src/engine/encounter/model/combat';
 import { ENCOUNTER_EVENT } from '../../../src/engine/encounter/model/event';
-import ShipNodeActorFactory from '../../../src/engine/generation/space_node_actor/ShipNodeActorFactory';
-import { createPointDefenseFixture } from '../../fixtures/engine/point_defense_fixtures';
-import { createSingleStationNodeFixture } from '../../fixtures/engine/space_node_fixtures';
+import ShipNodeActorFactory from '../../../src/engine/generation/space_node_actor/ShipNodeActorFactory';import { createSingleStationNodeFixture } from '../../fixtures/engine/space_node_fixtures';
 
 describe('EncounterEngine laser threat snapshots', () => {
     it('derives countdown from the charging weapon', () => {
@@ -75,9 +73,6 @@ function createLaserEngine() {
 
             anchorId: stationId,
         },
-
-        pointDefense: createPointDefenseFixture(),
-
         random: () => {
             return 0.5;
         },

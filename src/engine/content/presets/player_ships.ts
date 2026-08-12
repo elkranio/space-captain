@@ -9,10 +9,6 @@ import {
     DEFENSE_CAPACITOR_ID,
     type DefenseCapacitorId,
 } from '../../defs/defense_capacitor';
-import {
-    POINT_DEFENSE_ID,
-    type PointDefenseId,
-} from '../../defs/point_defense';
 import { SHIP_DRIVE_ID, type ShipDriveId } from '../../defs/ship_drive';
 import { SHIP_WEAPON_ID } from '../../defs/ship_weapon';
 
@@ -72,13 +68,6 @@ export type PlayerShipPreset = {
 
     driveId: ShipDriveId;
 
-    pointDefense: {
-        id: string;
-
-        pointDefenseId:
-            PointDefenseId;
-    };
-
     defenseCapacitor: {
         id: string;
 
@@ -96,15 +85,6 @@ export const PLAYER_SHIP_PRESETS = {
         maxHull: 3,
 
         driveId: SHIP_DRIVE_ID.BASIC_00,
-
-        pointDefense: {
-            id:
-                'point_defense_player_00',
-
-            pointDefenseId:
-                POINT_DEFENSE_ID
-                    .BASIC_00,
-        },
 
         defenseCapacitor: {
             id:

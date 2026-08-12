@@ -41,18 +41,15 @@ sequential
 
 Point defense spends shared DEF.
 
-Future Engineer shield behavior, if implemented, should spend the same resource
-instead of creating a second shield-generator pool.
+Any future defensive consumer should spend the same resource instead of creating
+its own parallel energy pool.
 
 ## Point defense — CURRENT
 
 - Weapons-operated;
 - responds to incoming missiles;
 - uses shared player DEF;
-- band logic remains relevant to missile spectral behavior;
-- stale event naming may still say “point defense charge”.
-
-Do not infer a separate player PD resource from that name.
+- band logic remains relevant to missile spectral behavior.
 
 ## Player missile — CURRENT
 

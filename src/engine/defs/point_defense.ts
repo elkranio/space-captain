@@ -23,19 +23,6 @@ export const POINT_DEFENSE_ID = {
 export type PointDefenseId =
     (typeof POINT_DEFENSE_ID)[keyof typeof POINT_DEFENSE_ID];
 
-// Installed point-defense identity.
-//
-// Point defense no longer owns an energy/ammo pool.
-// Defensive energy lives exclusively in DEFENSE CAPACITOR.
-export type PointDefenseState = {
-    // Runtime id конкретной установки.
-    id: string;
-
-    // Stable immutable content definition.
-    pointDefenseId:
-        PointDefenseId;
-};
-
 export type PointDefenseDefinition = {
     id: PointDefenseId;
     name: string;
@@ -103,8 +90,14 @@ export function doesPointDefensePhaseAdvanceWithCrew(
 //
 // loadedBand and targetProjectileId remain null outside an active load.
 // A later runner atom will own those phase invariants.
-export type ShipPointDefenseState =
-    PointDefenseState & {
+export type ShipPointDefenseState = {
+    // Runtime id конкретной установки.
+    id: string;
+
+    // Stable immutable content definition.
+    pointDefenseId:
+        PointDefenseId;
+
     phase: PointDefensePhase;
     phaseElapsedMs: number;
 

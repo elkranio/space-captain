@@ -23,11 +23,7 @@ import {
     SHIP_WEAPON_PHASE,
 } from '../../../src/engine/defs/ship_weapon';
 import EncounterEngine from '../../../src/engine/encounter/EncounterEngine';
-import ShipNodeActorFactory from '../../../src/engine/generation/space_node_actor/ShipNodeActorFactory';
-import {
-    createPointDefenseFixture,
-} from '../../fixtures/engine/point_defense_fixtures';
-import {
+import ShipNodeActorFactory from '../../../src/engine/generation/space_node_actor/ShipNodeActorFactory';import {
     createShipDriveFixture,
 } from '../../fixtures/engine/ship_drive_fixtures';
 import {
@@ -86,10 +82,6 @@ describe('Enemy ship telemetry', () => {
 
             drive:
                 createShipDriveFixture(),
-
-            pointDefense:
-                createPointDefenseFixture(),
-
             random: () => 0,
         });
 
@@ -230,11 +222,7 @@ describe('Enemy ship telemetry', () => {
             },
 
             drive:
-                createShipDriveFixture(),
-
-            pointDefense:
-                createPointDefenseFixture(),
-        });
+                createShipDriveFixture(),        });
 
         engine.drainEvents();
 

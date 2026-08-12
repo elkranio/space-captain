@@ -4,7 +4,6 @@ import type {
     DefenseCapacitorState,
 } from '../../defs/defense_capacitor';
 import type { MissileSpectralBand, MissileId } from '../../defs/missile';
-import type { PointDefenseState } from '../../defs/point_defense';
 import type {
     StickyMineId,
 } from '../../defs/sticky_mine';
@@ -203,8 +202,6 @@ export type StickyMineState = {
 };
 
 export type EncounterCombatState = {
-    pointDefense: PointDefenseState;
-
     // Shared defensive-energy installation.
     // Some test/minimal encounters may omit it.
     defenseCapacitor?:

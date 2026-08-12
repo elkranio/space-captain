@@ -331,11 +331,6 @@ function createSetup({    enemyHull,
 
             drive:
                 run.player.ship.drive,
-
-            pointDefense:
-                run.player.ship
-                    .pointDefense,
-
             weapons:
                 run.player.ship.weapons,
         });

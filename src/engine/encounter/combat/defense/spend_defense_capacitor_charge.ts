@@ -7,8 +7,8 @@ import type {
 // One mutation rule for every defensive consumer.
 //
 // Spending a charge restarts the sequential recharge
-// of the next charge. This is intentionally shared by
-// player and enemy PD now, and by the rebuilt shield later.
+// of the next charge. Defensive consumers share this
+// resource instead of owning separate energy pools.
 export function spendDefenseCapacitorCharge(
     capacitor:
         DefenseCapacitorState,

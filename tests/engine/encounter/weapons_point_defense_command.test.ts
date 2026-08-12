@@ -15,9 +15,7 @@ import { OFFICER_ROLE } from '../../../src/engine/defs/officer';
 import { PLAYER_SPACE_NAVIGATION_KIND } from '../../../src/engine/defs/player_location';
 import {
     POINT_DEFENSE_BEAM_BAND,
-    POINT_DEFENSE_SHOT_OUTCOME,
-    type PointDefenseState,
-} from '../../../src/engine/defs/point_defense';
+    POINT_DEFENSE_SHOT_OUTCOME,} from '../../../src/engine/defs/point_defense';
 import { SHIP_WEAPON_KIND } from '../../../src/engine/defs/ship_weapon';
 import EncounterEngine from '../../../src/engine/encounter/EncounterEngine';
 import { getMutableEncounterStateForTest } from './get_mutable_encounter_state_for_test';
@@ -33,9 +31,7 @@ import {
     OFFICER_TASK_RESULT_KIND,
 } from '../../../src/engine/encounter/model/event';
 import { OFFICER_TASK_KIND } from '../../../src/engine/encounter/model/officer_task';
-import ShipNodeActorFactory from '../../../src/engine/generation/space_node_actor/ShipNodeActorFactory';
-import { createPointDefenseFixture } from '../../fixtures/engine/point_defense_fixtures';
-import { createSingleStationNodeFixture } from '../../fixtures/engine/space_node_fixtures';
+import ShipNodeActorFactory from '../../../src/engine/generation/space_node_actor/ShipNodeActorFactory';import { createSingleStationNodeFixture } from '../../fixtures/engine/space_node_fixtures';
 
 describe('Weapons point defense command', () => {
     it.each([
@@ -520,17 +516,12 @@ type IncomingMissileActorPresetId =
 type CreateEngineWithIncomingMissileOptions = {
     presetId?: IncomingMissileActorPresetId;
 
-    pointDefense?: PointDefenseState;
-
     defenseCapacitor?:
         DefenseCapacitorState;
 };
 
 function createEngineWithIncomingMissile({
     presetId = SHIP_NODE_ACTOR_PRESET_ID.ENEMY_GENERIC_00,
-
-    pointDefense = createPointDefenseFixture(),
-
     defenseCapacitor =
         createDefenseCapacitorFixture(),
 }: CreateEngineWithIncomingMissileOptions = {}) {
@@ -564,10 +555,7 @@ function createEngineWithIncomingMissile({
             kind: PLAYER_SPACE_NAVIGATION_KIND.ANCHORED,
 
             anchorId: stationId,
-        },
-
-        pointDefense,
-        defenseCapacitor,
+        },        defenseCapacitor,
     });
 
     const [loadedEvent] = engine.drainEvents();

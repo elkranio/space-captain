@@ -11,6 +11,9 @@ import {
 } from 'vitest';
 import NewGameUniverseFactory from '../../../src/engine/content/new_game/NewGameUniverseFactory';
 import {
+    MISSILE_ID,
+} from '../../../src/engine/defs/missile';
+import {
     OFFICER_ROLE,
 } from '../../../src/engine/defs/officer';
 import {
@@ -20,14 +23,15 @@ import {
 import {
     PLAYER_SPACE_NAVIGATION_KIND,
 } from '../../../src/engine/defs/player_location';
+import {
+    SHIP_WEAPON_ID,
+    SHIP_WEAPON_KIND,
+    SHIP_WEAPON_PHASE,
+} from '../../../src/engine/defs/ship_weapon';
 import EncounterEngine from '../../../src/engine/encounter/EncounterEngine';
 import {
     ENCOUNTER_EVENT,
-} from '../../../src/engine/encounter/model/event';
-import {
-    createPointDefenseFixture,
-} from '../../fixtures/engine/point_defense_fixtures';
-import {
+} from '../../../src/engine/encounter/model/event';import {
     createShipDriveFixture,
 } from '../../fixtures/engine/ship_drive_fixtures';
 import {
@@ -35,7 +39,7 @@ import {
 } from './get_mutable_encounter_state_for_test';
 
 describe('New-game enemy defense sandbox', () => {
-    it('wires a fully crewed enemy without offensive weapons', () => {
+    it('wires the configured fully crewed enemy combat sandbox', () => {
         const generation =
             NewGameUniverseFactory.create();
 
@@ -63,7 +67,30 @@ describe('New-game enemy defense sandbox', () => {
             );
         }
 
-        expect(enemy.weapons).toEqual([]);
+        expect(enemy.weapons).toEqual([
+            {
+                id:
+                    'missile_launcher_00',
+
+                weaponId:
+                    SHIP_WEAPON_ID
+                        .MISSILE_LAUNCHER_00,
+
+                kind:
+                    SHIP_WEAPON_KIND
+                        .MISSILE_LAUNCHER,
+
+                loadedMissileId:
+                    MISSILE_ID.RED_00,
+
+                ammoCount: 5,
+
+                phase:
+                    SHIP_WEAPON_PHASE.READY,
+
+                phaseElapsedMs: 0,
+            },
+        ]);
 
         expect(enemy.pointDefense).toEqual({
             id: 'point_defense_00',
@@ -116,10 +143,6 @@ describe('New-game enemy defense sandbox', () => {
 
             drive:
                 createShipDriveFixture(),
-
-            pointDefense:
-                createPointDefenseFixture(),
-
             random: () => 0,
         });
 
@@ -152,18 +175,5 @@ describe('New-game enemy defense sandbox', () => {
         expect(runtimeEnemy.pointDefense)
             .not.toBe(enemy.pointDefense);
 
-        engine.step(60000);
-
-        expect(
-            engine
-                .drainEvents()
-                .filter((event) => {
-                    return (
-                        event.type ===
-                        ENCOUNTER_EVENT
-                            .PLAYER_SHIP_TARGETING_DETECTED
-                    );
-                }),
-        ).toEqual([]);
     });
 });

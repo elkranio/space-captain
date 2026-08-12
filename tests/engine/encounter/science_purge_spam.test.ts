@@ -24,9 +24,7 @@ import {
     OFFICER_TASK_OUTCOME,
 } from '../../../src/engine/encounter/model/event';
 import { OFFICER_TASK_KIND } from '../../../src/engine/encounter/model/officer_task';
-import ShipNodeActorFactory from '../../../src/engine/generation/space_node_actor/ShipNodeActorFactory';
-import { createPointDefenseFixture } from '../../fixtures/engine/point_defense_fixtures';
-import { createSingleStationNodeFixture } from '../../fixtures/engine/space_node_fixtures';
+import ShipNodeActorFactory from '../../../src/engine/generation/space_node_actor/ShipNodeActorFactory';import { createSingleStationNodeFixture } from '../../fixtures/engine/space_node_fixtures';
 
 describe('Science purge spam command', () => {
     it('purges an active hostile spam channel', () => {
@@ -51,9 +49,7 @@ describe('Science purge spam command', () => {
                 kind:
                     PLAYER_SPACE_NAVIGATION_KIND.ANCHORED,
                 anchorId: stationId,
-            },
-            pointDefense: createPointDefenseFixture(),
-            completeTimedTasksImmediately: true,
+            },            completeTimedTasksImmediately: true,
         });
 
         const [loadedEvent] = engine.drainEvents();

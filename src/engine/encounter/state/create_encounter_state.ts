@@ -7,7 +7,6 @@ import type {
     PlayerHullState,
 } from '../../defs/player';
 import type { PlayerSpaceNavigationState } from '../../defs/player_location';
-import type { PointDefenseState } from '../../defs/point_defense';
 import type { ShipDriveState } from '../../defs/ship_drive';
 import type {
     ShipWeaponState,
@@ -23,8 +22,6 @@ export type CreateEncounterStateInput = {
     playerHull: PlayerHullState;
     drive: ShipDriveState;
 
-    pointDefense: PointDefenseState;
-
     defenseCapacitor?:
         DefenseCapacitorState;
 
@@ -36,7 +33,6 @@ export function createEncounterState({
     navigation,
     playerHull,
     drive,
-    pointDefense,
     defenseCapacitor,
     playerWeapons = [],
 }: CreateEncounterStateInput): EncounterState {
@@ -74,10 +70,6 @@ export function createEncounterState({
         actors: [],
 
         combat: {
-            pointDefense: {
-                ...pointDefense,
-            },
-
             ...(defenseCapacitor
                 ? {
                       defenseCapacitor: {

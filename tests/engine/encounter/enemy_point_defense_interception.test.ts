@@ -41,11 +41,7 @@ import {
 } from '../../../src/engine/encounter/model/ship_crew_task';
 import {
     createPlayerHullFixture,
-} from '../../fixtures/engine/player_hull_fixtures';
-import {
-    createPointDefenseFixture,
-} from '../../fixtures/engine/point_defense_fixtures';
-import {
+} from '../../fixtures/engine/player_hull_fixtures';import {
     createShipDriveFixture,
 } from '../../fixtures/engine/ship_drive_fixtures';
 import {
@@ -515,10 +511,6 @@ function createScenario(
 
         drive:
             createShipDriveFixture(),
-
-        pointDefense:
-            createPointDefenseFixture(),
-
         random,
     });
 
