@@ -41,8 +41,10 @@ const ROW = {
     disabledBorderColor: 0x26394c,
     disabledTextColor: 0x536778,
 
-    engineerBackgroundColor: 0x2b2716,
-    engineerBorderColor: 0xc7ad53,
+    actionActiveBackgroundColor:
+        0x193147,
+    actionActiveBorderColor:
+        0x7aa0c4,
 } as const;
 
 type LaserThreatRowCallbacks = {
@@ -321,12 +323,12 @@ export default class BridgeCaptainLaserThreatRowView {
 
         this.engineerButton
             .setFillStyle(
-                ROW.engineerBackgroundColor,
+                ROW.actionActiveBackgroundColor,
                 1,
             )
             .setStrokeStyle(
                 1,
-                ROW.engineerBorderColor,
+                ROW.actionActiveBorderColor,
             )
             .setInteractive({
                 useHandCursor: true,
@@ -334,7 +336,7 @@ export default class BridgeCaptainLaserThreatRowView {
 
         this.engineerLabel
             .setTint(
-                ROW.engineerBorderColor,
+                FONT_COLOR.WHITE,
             );
     }
 
