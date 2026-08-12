@@ -19,7 +19,8 @@ import {
     ENCOUNTER_EVENT,
     OFFICER_TASK_OUTCOME,
 } from '../../../src/engine/encounter/model/event';
-import ShipNodeActorFactory from '../../../src/engine/generation/space_node_actor/ShipNodeActorFactory';import { createSingleStationNodeFixture } from '../../fixtures/engine/space_node_fixtures';
+import ShipNodeActorFactory from '../../../src/engine/generation/space_node_actor/ShipNodeActorFactory';
+import { createSingleStationNodeFixture } from '../../fixtures/engine/space_node_fixtures';
 
 describe('Officer performance during hostile spam', () => {
     it('slows task progress without changing duration', () => {

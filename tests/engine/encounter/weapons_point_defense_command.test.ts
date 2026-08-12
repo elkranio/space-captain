@@ -31,7 +31,8 @@ import {
     OFFICER_TASK_RESULT_KIND,
 } from '../../../src/engine/encounter/model/event';
 import { OFFICER_TASK_KIND } from '../../../src/engine/encounter/model/officer_task';
-import ShipNodeActorFactory from '../../../src/engine/generation/space_node_actor/ShipNodeActorFactory';import { createSingleStationNodeFixture } from '../../fixtures/engine/space_node_fixtures';
+import ShipNodeActorFactory from '../../../src/engine/generation/space_node_actor/ShipNodeActorFactory';
+import { createSingleStationNodeFixture } from '../../fixtures/engine/space_node_fixtures';
 
 describe('Weapons point defense command', () => {
     it.each([
@@ -555,7 +556,8 @@ function createEngineWithIncomingMissile({
             kind: PLAYER_SPACE_NAVIGATION_KIND.ANCHORED,
 
             anchorId: stationId,
-        },        defenseCapacitor,
+        },
+        defenseCapacitor,
     });
 
     const [loadedEvent] = engine.drainEvents();

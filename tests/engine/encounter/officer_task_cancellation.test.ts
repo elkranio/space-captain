@@ -15,7 +15,8 @@ import {
 import {
     OFFICER_TASK_KIND,
     type OfficerTaskState,
-} from '../../../src/engine/encounter/model/officer_task';import { createSingleStationNodeFixture } from '../../fixtures/engine/space_node_fixtures';
+} from '../../../src/engine/encounter/model/officer_task';
+import { createSingleStationNodeFixture } from '../../fixtures/engine/space_node_fixtures';
 
 describe('Officer task cancellation policy', () => {
     it('allows the player to cancel a cancellable task', () => {

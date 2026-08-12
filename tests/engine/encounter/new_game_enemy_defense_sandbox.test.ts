@@ -31,7 +31,8 @@ import {
 import EncounterEngine from '../../../src/engine/encounter/EncounterEngine';
 import {
     ENCOUNTER_EVENT,
-} from '../../../src/engine/encounter/model/event';import {
+} from '../../../src/engine/encounter/model/event';
+import {
     createShipDriveFixture,
 } from '../../fixtures/engine/ship_drive_fixtures';
 import {
@@ -143,6 +144,7 @@ describe('New-game enemy defense sandbox', () => {
 
             drive:
                 createShipDriveFixture(),
+
             random: () => 0,
         });
 
@@ -174,6 +176,5 @@ describe('New-game enemy defense sandbox', () => {
 
         expect(runtimeEnemy.pointDefense)
             .not.toBe(enemy.pointDefense);
-
     });
 });

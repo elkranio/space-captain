@@ -17,7 +17,8 @@ import EncounterEngine from '../../../src/engine/encounter/EncounterEngine';
 import { getMutableEncounterStateForTest } from './get_mutable_encounter_state_for_test';
 import { SPAM_CHANNEL_OUTCOME } from '../../../src/engine/encounter/model/combat';
 import { ENCOUNTER_EVENT } from '../../../src/engine/encounter/model/event';
-import ShipNodeActorFactory from '../../../src/engine/generation/space_node_actor/ShipNodeActorFactory';import { createSingleStationNodeFixture } from '../../fixtures/engine/space_node_fixtures';
+import ShipNodeActorFactory from '../../../src/engine/generation/space_node_actor/ShipNodeActorFactory';
+import { createSingleStationNodeFixture } from '../../fixtures/engine/space_node_fixtures';
 
 describe('Spam projector', () => {
     it('runs through targeting, channel expiry, cooldown and purge', () => {
@@ -45,7 +46,8 @@ describe('Spam projector', () => {
                 kind: PLAYER_SPACE_NAVIGATION_KIND.ANCHORED,
 
                 anchorId: stationId,
-            },        });
+            },
+        });
 
         const [loadedEvent] = engine.drainEvents();
 

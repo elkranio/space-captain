@@ -32,7 +32,8 @@ import {
 import {
     createEncounterState,
 } from '../../../src/engine/encounter/state/create_encounter_state';
-import EncounterStateStore from '../../../src/engine/encounter/state/EncounterStateStore';import {
+import EncounterStateStore from '../../../src/engine/encounter/state/EncounterStateStore';
+import {
     createShipBehaviorFixture,
 } from '../../fixtures/engine/ship_behavior_fixtures';
 import {

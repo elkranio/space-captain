@@ -24,7 +24,8 @@ import {
 import { ENCOUNTER_EVENT, OFFICER_TASK_OUTCOME } from '../../../src/engine/encounter/model/event';
 import { OFFICER_AVAILABILITY_STATE } from '../../../src/engine/encounter/model/officer_availability';
 import { OFFICER_TASK_KIND } from '../../../src/engine/encounter/model/officer_task';
-import { createStationAndBeaconNodeFixture } from '../../fixtures/engine/space_node_fixtures';import ShipNodeActorFactory from '../../../src/engine/generation/space_node_actor/ShipNodeActorFactory';
+import { createStationAndBeaconNodeFixture } from '../../fixtures/engine/space_node_fixtures';
+import ShipNodeActorFactory from '../../../src/engine/generation/space_node_actor/ShipNodeActorFactory';
 
 describe('FLY_TO', () => {
     it('travels between encounter anchors and blocks the bridge until completion', () => {
@@ -40,7 +41,8 @@ describe('FLY_TO', () => {
                 kind: PLAYER_SPACE_NAVIGATION_KIND.ANCHORED,
 
                 anchorId: stationId,
-            },        });
+            },
+        });
 
         // Убираем начальный ENCOUNTER_LOADED.
         engine.drainEvents();
@@ -222,7 +224,8 @@ describe('FLY_TO', () => {
                         .ANCHORED,
 
                 anchorId: stationId,
-            },        });
+            },
+        });
 
         const [loadedEvent] = engine.drainEvents();
 

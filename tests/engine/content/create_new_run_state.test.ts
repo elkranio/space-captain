@@ -13,7 +13,8 @@ import {
 } from '../../../src/engine/defs/defense_capacitor';
 import {
     MISSILE_ID,
-} from '../../../src/engine/defs/missile';import {
+} from '../../../src/engine/defs/missile';
+import {
     STICKY_MINE_ID,
 } from '../../../src/engine/defs/sticky_mine';
 import {

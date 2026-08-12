@@ -18,7 +18,8 @@ import {
 import LaserWeaponFactory from '../../../src/engine/generation/ship_weapon/LaserWeaponFactory';
 import {
     PLAYER_SPACE_NAVIGATION_KIND,
-} from '../../../src/engine/defs/player_location';import {
+} from '../../../src/engine/defs/player_location';
+import {
     createShipDriveFixture,
 } from '../../fixtures/engine/ship_drive_fixtures';
 import {

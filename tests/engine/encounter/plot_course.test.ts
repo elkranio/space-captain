@@ -36,7 +36,8 @@ describe('PLOT_COURSE', () => {
                 kind: PLAYER_SPACE_NAVIGATION_KIND.ANCHORED,
 
                 anchorId: stationId,
-            },        });
+            },
+        });
 
         // Убираем начальный ENCOUNTER_LOADED.
         engine.drainEvents();

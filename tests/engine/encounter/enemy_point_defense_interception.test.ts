@@ -41,7 +41,8 @@ import {
 } from '../../../src/engine/encounter/model/ship_crew_task';
 import {
     createPlayerHullFixture,
-} from '../../fixtures/engine/player_hull_fixtures';import {
+} from '../../fixtures/engine/player_hull_fixtures';
+import {
     createShipDriveFixture,
 } from '../../fixtures/engine/ship_drive_fixtures';
 import {

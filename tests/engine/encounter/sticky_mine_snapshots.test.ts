@@ -29,7 +29,8 @@ import {
 } from '../../../src/engine/encounter/model/combat';
 import {
     ENCOUNTER_EVENT,
-} from '../../../src/engine/encounter/model/event';import {
+} from '../../../src/engine/encounter/model/event';
+import {
     createShipDriveFixture,
 } from '../../fixtures/engine/ship_drive_fixtures';
 import {

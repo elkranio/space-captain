@@ -21,7 +21,8 @@ import {
     OFFICER_TASK_KIND,
     type OfficerTaskState,
 } from '../../../src/engine/encounter/model/officer_task';
-import ShipNodeActorFactory from '../../../src/engine/generation/space_node_actor/ShipNodeActorFactory';import { createShipDriveFixture } from '../../fixtures/engine/ship_drive_fixtures';
+import ShipNodeActorFactory from '../../../src/engine/generation/space_node_actor/ShipNodeActorFactory';
+import { createShipDriveFixture } from '../../fixtures/engine/ship_drive_fixtures';
 import {
     createSingleStationNodeFixture,
     createStationAndBeaconNodeFixture,
@@ -53,7 +54,8 @@ describe('opening disruption pulse', () => {
                 anchorId: stationId,
             },
 
-            drive,        });
+            drive,
+        });
 
         const [loadedEvent] = engine.drainEvents();
 
@@ -178,7 +180,8 @@ describe('opening disruption pulse', () => {
                 anchorId: stationId,
             },
 
-            drive: createShipDriveFixture(),        });
+            drive: createShipDriveFixture(),
+        });
 
         engine.drainEvents();
 

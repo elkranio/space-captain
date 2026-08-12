@@ -15,7 +15,8 @@ import {
 import {
     OFFICER_TASK_KIND,
 } from '../../../src/engine/encounter/model/officer_task';
-import { createPlayerHullFixture } from '../../fixtures/engine/player_hull_fixtures';import { createShipDriveFixture } from '../../fixtures/engine/ship_drive_fixtures';
+import { createPlayerHullFixture } from '../../fixtures/engine/player_hull_fixtures';
+import { createShipDriveFixture } from '../../fixtures/engine/ship_drive_fixtures';
 import { createSingleStationNodeFixture } from '../../fixtures/engine/space_node_fixtures';
 
 describe('DOCK', () => {
@@ -34,7 +35,8 @@ describe('DOCK', () => {
             navigation: {
                 kind: PLAYER_SPACE_NAVIGATION_KIND.ANCHORED,
                 anchorId: stationId,
-            },        });
+            },
+        });
 
         engine.drainEvents();
 
