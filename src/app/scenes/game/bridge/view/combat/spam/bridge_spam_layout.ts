@@ -46,15 +46,15 @@ export const BRIDGE_SPAM_LAYOUT_SLOTS: readonly BridgeSpamLayoutSlot[] = [
     },
     {
         x: BRIDGE_VIEWSCREEN_RECT.x + 150,
-        y: BRIDGE_VIEWSCREEN_RECT.y + 225,
+        y: BRIDGE_VIEWSCREEN_RECT.y + 175,
     },
     {
         x: BRIDGE_VIEWSCREEN_RECT.x + 390,
-        y: BRIDGE_VIEWSCREEN_RECT.y + 205,
+        y: BRIDGE_VIEWSCREEN_RECT.y + 165,
     },
     {
         x: BRIDGE_VIEWSCREEN_RECT.x + 650,
-        y: BRIDGE_VIEWSCREEN_RECT.y + 220,
+        y: BRIDGE_VIEWSCREEN_RECT.y + 170,
     },
     {
         x: BRIDGE_VIEWSCREEN_RECT.x + 510,

@@ -357,21 +357,20 @@ export const SHIP_PRESETS = {
                     .BASIC_00,
         },
 
-        // Изолированный sticky-mine slice:
+        // Изолированный spam slice:
         // defense sandbox сохраняет защитные системы,
         // но атакует только одним weapon family.
         weapons: [
             {
-                id:
-                    'sticky_mine_dispenser_00',
+                id: 'spam_projector_00',
 
                 kind:
                     SHIP_WEAPON_KIND
-                        .STICKY_MINE_DISPENSER,
+                        .SPAM_PROJECTOR,
 
-                presetId:
-                    STICKY_MINE_DISPENSER_PRESET_ID
-                        .BASIC_FULL_00,
+                weaponId:
+                    SHIP_WEAPON_ID
+                        .SPAM_PROJECTOR_00,
             },
         ],
     },

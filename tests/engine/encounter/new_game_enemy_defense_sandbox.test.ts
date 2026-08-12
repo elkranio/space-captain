@@ -9,6 +9,9 @@ import {
     expect,
     it,
 } from 'vitest';
+import {
+    SHIP_WEAPON_TARGETING_DURATION_MS,
+} from '../../../src/engine/content/catalogs/ship_weapons';
 import NewGameUniverseFactory from '../../../src/engine/content/new_game/NewGameUniverseFactory';
 import {
     OFFICER_ROLE,
@@ -21,9 +24,6 @@ import {
     PLAYER_SPACE_NAVIGATION_KIND,
 } from '../../../src/engine/defs/player_location';
 import {
-    STICKY_MINE_ID,
-} from '../../../src/engine/defs/sticky_mine';
-import {
     SHIP_WEAPON_ID,
     SHIP_WEAPON_KIND,
     SHIP_WEAPON_PHASE,
@@ -32,6 +32,9 @@ import EncounterEngine from '../../../src/engine/encounter/EncounterEngine';
 import {
     ENCOUNTER_EVENT,
 } from '../../../src/engine/encounter/model/event';
+import {
+    SHIP_CREW_TASK_KIND,
+} from '../../../src/engine/encounter/model/ship_crew_task';
 import {
     createShipDriveFixture,
 } from '../../fixtures/engine/ship_drive_fixtures';
@@ -71,26 +74,21 @@ describe('New-game enemy defense sandbox', () => {
         expect(enemy.weapons).toEqual([
             {
                 id:
-                    'sticky_mine_dispenser_00',
+                    'spam_projector_00',
 
                 weaponId:
                     SHIP_WEAPON_ID
-                        .STICKY_MINE_DISPENSER_00,
+                        .SPAM_PROJECTOR_00,
 
                 kind:
                     SHIP_WEAPON_KIND
-                        .STICKY_MINE_DISPENSER,
-
-                loadedMineId:
-                    STICKY_MINE_ID.BASIC_00,
-
-                ammoCount: 6,
+                        .SPAM_PROJECTOR,
 
                 phase:
                     SHIP_WEAPON_PHASE.READY,
                 phaseElapsedMs: 0,
 
-                dispensedMineCount: 0,
+                activeChannelId: null,
             },
         ]);
 
@@ -177,5 +175,103 @@ describe('New-game enemy defense sandbox', () => {
 
         expect(runtimeEnemy.pointDefense)
             .not.toBe(enemy.pointDefense);
+
+        const runtimeProjector =
+            runtimeEnemy.weapons[0];
+
+        if (
+            !runtimeProjector ||
+            runtimeProjector.kind !==
+                SHIP_WEAPON_KIND
+                    .SPAM_PROJECTOR
+        ) {
+            throw new Error(
+                'Expected runtime enemy spam projector',
+            );
+        }
+
+        expect(runtimeProjector.phase)
+            .toBe(
+                SHIP_WEAPON_PHASE.READY,
+            );
+
+        engine.step(
+            SHIP_WEAPON_TARGETING_DURATION_MS,
+        );
+
+        expect(runtimeProjector.phase)
+            .toBe(
+                SHIP_WEAPON_PHASE
+                    .CHANNELING,
+            );
+
+        expect(
+            runtimeEnemy.crewTasks[
+                OFFICER_ROLE.SCIENCE
+            ],
+        ).toEqual({
+            kind:
+                SHIP_CREW_TASK_KIND
+                    .OPERATE_WEAPON,
+
+            role:
+                OFFICER_ROLE.SCIENCE,
+
+            weaponId:
+                runtimeProjector.id,
+        });
+
+        const [spamChannel] =
+            engine.getSpamChannels();
+
+        if (!spamChannel) {
+            throw new Error(
+                'Expected active hostile spam channel',
+            );
+        }
+
+        engine.step(
+            spamChannel.durationMs - 1,
+        );
+
+        expect(runtimeProjector.phase)
+            .toBe(
+                SHIP_WEAPON_PHASE
+                    .CHANNELING,
+            );
+
+        expect(
+            runtimeEnemy.crewTasks[
+                OFFICER_ROLE.SCIENCE
+            ],
+        ).toEqual({
+            kind:
+                SHIP_CREW_TASK_KIND
+                    .OPERATE_WEAPON,
+
+            role:
+                OFFICER_ROLE.SCIENCE,
+
+            weaponId:
+                runtimeProjector.id,
+        });
+
+        engine.step(1);
+
+        expect(
+            engine.getSpamChannels(),
+        ).toEqual([]);
+
+        expect(runtimeProjector.phase)
+            .toBe(
+                SHIP_WEAPON_PHASE
+                    .COOLDOWN,
+            );
+
+        expect(
+            runtimeEnemy.crewTasks[
+                OFFICER_ROLE.SCIENCE
+            ],
+        ).toBeUndefined();
     });
 });
