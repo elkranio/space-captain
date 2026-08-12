@@ -12,10 +12,9 @@ import type {
     EncounterState,
 } from '../../model/state';
 
-// Physical cooldown rule одной установленной player shield-emitter системы.
-//
-// Active shield здесь намеренно ещё не существует.
-// Этот runner отвечает только за installed-system cooldown lifecycle.
+// Runtime lifecycle player shield system:
+// - installed emitter cooldown;
+// - temporary active-shield lifetime.
 export default class ShieldEmitterRunner {
     constructor(
         private readonly state:
@@ -39,12 +38,15 @@ export default class ShieldEmitterRunner {
             this.state.combat
                 .shieldEmitter;
 
-        if (!emitter) {
-            return;
+        if (emitter) {
+            advanceShieldEmitter(
+                emitter,
+                deltaMs,
+            );
         }
 
-        advanceShieldEmitter(
-            emitter,
+        advanceActiveShield(
+            this.state,
             deltaMs,
         );
     }
@@ -105,4 +107,36 @@ export function advanceShieldEmitter(
             return exhaustivePhase;
         }
     }
+}
+
+export function advanceActiveShield(
+    state:
+        EncounterState,
+    deltaMs: number,
+): void {
+    const shield =
+        state.combat
+            .activeShield;
+
+    if (!shield) {
+        return;
+    }
+
+    shield.remainingDurationMs =
+        Math.max(
+            0,
+            shield.remainingDurationMs -
+                deltaMs,
+        );
+
+    if (
+        shield.remainingDurationMs >
+        0
+    ) {
+        return;
+    }
+
+    state.combat
+        .activeShield =
+            null;
 }

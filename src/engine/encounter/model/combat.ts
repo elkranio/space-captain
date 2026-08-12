@@ -27,6 +27,7 @@ export type CombatThreatKind = (typeof COMBAT_THREAT_KIND)[keyof typeof COMBAT_T
 
 export const LASER_SHOT_OUTCOME = {
     HIT: 'hit',
+    ABSORBED: 'absorbed',
 } as const;
 
 export type LaserShotOutcome = (typeof LASER_SHOT_OUTCOME)[keyof typeof LASER_SHOT_OUTCOME];
@@ -165,7 +166,14 @@ export type LaserAttackState = {
 
 };
 
-// Derived snapshot of one actively channeling spam projector.
+// Temporary shield created by the installed Shield Emitter.
+export type ActiveShieldState = {
+    sourceEmitterId: string;
+
+    remainingDurationMs: number;
+    initialDurationMs: number;
+};
+
 // The mutable elapsed time remains authoritative on the weapon phase.
 export type SpamChannelState = {
     id: string;
@@ -214,6 +222,10 @@ export type EncounterCombatState = {
     // текущего player ship в encounter.
     shieldEmitter?:
         ShieldEmitterState;
+
+    // Encounter-only temporary shield.
+    activeShield:
+        ActiveShieldState | null;
 
     // Mutable installed weapons
     // текущего player ship в encounter.

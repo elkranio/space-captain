@@ -123,6 +123,13 @@ export default class OfficerTaskResolver {
                 return undefined;
             }
 
+            case OFFICER_TASK_KIND
+                .ENGINEER_DEPLOY_SHIELD:
+                this.stateStore
+                    .deployPlayerShield();
+
+                return undefined;
+
             case OFFICER_TASK_KIND.WEAPONS_POINT_DEFENSE:
                 return this.resolveWeaponsPointDefenseTask(task);
 

@@ -6,6 +6,7 @@ import type {
 import {
     COMBAT_SOURCE_KIND,
     COMBAT_TARGET_KIND,
+    LASER_SHOT_OUTCOME,
 } from '../../../../../../../engine/encounter/model/combat';
 import {
     ENCOUNTER_EVENT,
@@ -656,9 +657,15 @@ export default class BridgeEncounterEngineEventHandler {
                     sourceActorId: event.attack.sourceActorId,
                 });
 
-                this.handlePlayerShipDamaged(
-                    event,
-                );
+                if (
+                    event.outcome ===
+                    LASER_SHOT_OUTCOME.HIT
+                ) {
+                    this.handlePlayerShipDamaged(
+                        event,
+                    );
+                }
+
                 return;
         }
 

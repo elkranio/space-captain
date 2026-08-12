@@ -21,6 +21,9 @@ export const OFFICER_TASK_KIND = {
 
     ENGINEER_REPAIR_DRIVE: 'engineer_repair_drive',
 
+    ENGINEER_DEPLOY_SHIELD:
+        'engineer_deploy_shield',
+
     WEAPONS_POINT_DEFENSE: 'weapons_point_defense',
 
     WEAPONS_FIRE_MISSILE:
@@ -94,6 +97,17 @@ type EngineerRepairDriveOfficerTaskDraft = OfficerTaskDraftBase & {
     role: typeof OFFICER_ROLE.ENGINEER;
 
     sourceCommandId: typeof ENCOUNTER_OFFICER_COMMAND_ID.ENGINEER_REPAIR_DRIVE;
+};
+
+type EngineerDeployShieldOfficerTaskDraft = OfficerTaskDraftBase & {
+    kind:
+        typeof OFFICER_TASK_KIND.ENGINEER_DEPLOY_SHIELD;
+
+    role:
+        typeof OFFICER_ROLE.ENGINEER;
+
+    sourceCommandId:
+        typeof ENCOUNTER_OFFICER_COMMAND_ID.ENGINEER_DEPLOY_SHIELD;
 };
 
 type WeaponsPointDefenseOfficerTaskDraft = OfficerTaskDraftBase & {
@@ -224,6 +238,7 @@ export type OfficerTaskDraft =
     | ScienceIdentifyThreatOfficerTaskDraft
     | SciencePurgeSpamOfficerTaskDraft
     | EngineerRepairDriveOfficerTaskDraft
+    | EngineerDeployShieldOfficerTaskDraft
     | WeaponsPointDefenseOfficerTaskDraft
     | WeaponsFireMissileOfficerTaskDraft
     | WeaponsFireStickyMinesOfficerTaskDraft
@@ -270,6 +285,7 @@ export function getOfficerTaskCancellationPolicy(
         case OFFICER_TASK_KIND.SCIENCE_IDENTIFY_THREAT:
         case OFFICER_TASK_KIND.SCIENCE_PURGE_SPAM:
         case OFFICER_TASK_KIND.ENGINEER_REPAIR_DRIVE:
+        case OFFICER_TASK_KIND.ENGINEER_DEPLOY_SHIELD:
         case OFFICER_TASK_KIND.WEAPONS_POINT_DEFENSE:
         case OFFICER_TASK_KIND.WEAPONS_FIRE_MISSILE:
         case OFFICER_TASK_KIND.WEAPONS_FIRE_LASER:

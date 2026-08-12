@@ -93,6 +93,8 @@ export function createEncounterState({
                   }
                 : {}),
 
+            activeShield: null,
+
             playerWeapons:
                 playerWeapons.map(
                     (weapon) => {

@@ -37,6 +37,7 @@ import type {
     JumpPointEncounterAnchorState,
 } from '../anchors/jump_point/jump_point_encounter_anchor';
 import type {
+    ActiveShieldState,
     ThreatIdentificationResult,
 } from '../model/combat';
 import type {
@@ -409,6 +410,18 @@ export default class EncounterStateStore {
             );
     }
 
+
+    public deployPlayerShield():
+        ActiveShieldState {
+        return this.playerShip
+            .deployPlayerShield();
+    }
+
+    public consumeActiveShield():
+        ActiveShieldState | undefined {
+        return this.playerShip
+            .consumeActiveShield();
+    }
 
     public spendDefenseCapacitorCharge():
         DefenseCapacitorState {

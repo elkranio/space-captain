@@ -19,6 +19,13 @@ import {
     type ShipDriveState,
 } from '../../../defs/ship_drive';
 import {
+    SHIELD_EMITTERS,
+} from '../../../content/catalogs/shield_emitters';
+import {
+    SHIELD_EMITTER_PHASE,
+    SHIELD_EMITTER_STATUS,
+} from '../../../defs/shield_emitter';
+import {
     SHIP_WEAPON_KIND,
     SHIP_WEAPON_PHASE,
     type LaserWeaponState,
@@ -33,6 +40,7 @@ import {
 import {
     COMBAT_THREAT_KIND,
     THREAT_IDENTIFICATION_STATUS,
+    type ActiveShieldState,
     type ThreatIdentificationResult,
 } from '../../model/combat';
 import type {
@@ -586,6 +594,101 @@ export default class PlayerShipStore {
         }
 
         return undefined;
+    }
+
+    public deployPlayerShield():
+        ActiveShieldState {
+        const emitter =
+            this.state.combat
+                .shieldEmitter;
+
+        if (!emitter) {
+            throw new Error(
+                'Cannot deploy player shield: emitter missing',
+            );
+        }
+
+        if (
+            emitter.status !==
+            SHIELD_EMITTER_STATUS.ONLINE
+        ) {
+            throw new Error(
+                'Cannot deploy player shield from emitter status: ' +
+                    emitter.status,
+            );
+        }
+
+        if (
+            emitter.phase !==
+            SHIELD_EMITTER_PHASE.READY
+        ) {
+            throw new Error(
+                'Cannot deploy player shield from emitter phase: ' +
+                    emitter.phase,
+            );
+        }
+
+        if (
+            this.state.combat
+                .activeShield
+        ) {
+            throw new Error(
+                'Cannot deploy player shield while another shield is active',
+            );
+        }
+
+        const definition =
+            SHIELD_EMITTERS[
+                emitter
+                    .shieldEmitterId
+            ];
+
+        emitter.phase =
+            SHIELD_EMITTER_PHASE
+                .COOLDOWN;
+
+        emitter.phaseElapsedMs = 0;
+
+        const shield:
+            ActiveShieldState = {
+                sourceEmitterId:
+                    emitter.id,
+
+                remainingDurationMs:
+                    definition
+                        .shieldDurationMs,
+
+                initialDurationMs:
+                    definition
+                        .shieldDurationMs,
+            };
+
+        this.state.combat
+            .activeShield =
+                shield;
+
+        return {
+            ...shield,
+        };
+    }
+
+    public consumeActiveShield():
+        ActiveShieldState | undefined {
+        const shield =
+            this.state.combat
+                .activeShield;
+
+        if (!shield) {
+            return undefined;
+        }
+
+        this.state.combat
+            .activeShield =
+                null;
+
+        return {
+            ...shield,
+        };
     }
 
     public spendDefenseCapacitorCharge():

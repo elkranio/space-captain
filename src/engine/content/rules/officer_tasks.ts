@@ -12,6 +12,10 @@ export const OFFICER_TASK_BASE_DURATION_MS = {
 
     ENGINEER_REPAIR_DRIVE: 12000,
 
+    // Baseline deploy window.
+    // Балансируем вместе с shieldDurationMs.
+    ENGINEER_DEPLOY_SHIELD: 3000,
+
     WEAPONS_POINT_DEFENSE_AIM: 3000,
 
     CLEAR_STICKY_MINE: 3000,

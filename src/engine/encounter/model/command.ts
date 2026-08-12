@@ -19,6 +19,9 @@ export const ENCOUNTER_OFFICER_COMMAND_ID = {
     ENGINEER_REPAIR_DRIVE:
         'engineer_repair_drive',
 
+    ENGINEER_DEPLOY_SHIELD:
+        'engineer_deploy_shield',
+
     WEAPONS_FIRE_RED_BEAM:
         'weapons_fire_red_beam',
     WEAPONS_FIRE_BLUE_BEAM:

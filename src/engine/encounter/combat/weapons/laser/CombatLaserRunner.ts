@@ -287,6 +287,26 @@ export default class CombatLaserRunner {
         laser.phaseElapsedMs = 0;
 
 
+        const absorbedByShield =
+            this.stateStore
+                .consumeActiveShield();
+
+        if (absorbedByShield) {
+            this.emit({
+                type:
+                    ENCOUNTER_EVENT
+                        .LASER_FIRED,
+
+                attack,
+
+                outcome:
+                    LASER_SHOT_OUTCOME
+                        .ABSORBED,
+            });
+
+            return;
+        }
+
         const damageResult =
             this.stateStore
                 .damagePlayerHull(
