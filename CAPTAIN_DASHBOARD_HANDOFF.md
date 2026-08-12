@@ -1,181 +1,145 @@
 # Space Captain — Captain Dashboard Handoff
 
-Current design + implementation handoff.
+Updated: 2026-08-12
+Reference HEAD before this docs atom: `fb170a1ea88d8feb49a5c5ff7655982e55edf7c6`
 
-Checkpoint: `5a37de2d24c8212c8ff1251ab097f75b293e5f9b`
+This is the focused handoff for captain dashboard / combat-context work.
 
-Status:
+## Design direction
 
-```text
-left player-ship dashboard implemented
-right combat context pending
-navigation context pending
-old officer context menu temporarily present
-```
+The lower captain console is split conceptually:
 
-## Core UX
+- **OUR SHIP** — stable player state/actions
+- **CURRENT CONTEXT** — enemy + current threats/actions
 
-```text
-problem/system/context object
-→ visible valid action
-→ action shows officer role
-→ officer performs work
-```
+The dashboard should feel like restrained early-1990s VGA / Sierra sci-fi:
+- dark navy / blue-black
+- steel-blue framing
+- muted accents
+- chunky readable pixels
+- low clutter
+- not glossy
+- not a modern flat HUD
+- not a Boeing cockpit
+- not a colorful arcade toy
 
-Bridge = characters/reactions/activity.
-Dashboard = decisions/state/context.
+## Current left side
 
-## Geography
+Implemented rows/status cover:
+- HULL
+- shared DEF capacitor
+- ENGINE
+- MISSILE
+- LASER
+- MINES
+- SPAM
 
-```text
-UPPER        bridge / crew / viewscreen
-LOWER LEFT   OUR SHIP, persistent
-LOWER RIGHT  CURRENT CONTEXT, dynamic
-```
+The UI binds to real engine commands. Do not implement availability rules in the view.
 
-Do not prebuild a universal context framework.
+## Current right side
 
-## Implemented left dashboard
+Implemented:
+- enemy summary
+- enemy HULL
+- enemy DEF
+- incoming missile threats
+- incoming laser threats
 
-```text
-BridgeCaptainDashboardView
-└─ BridgePlayerShipDashboardView
-   ├─ BridgePlayerShipStatusStripView
-   └─ BridgePlayerShipSystemsView
-      └─ BridgePlayerShipSystemRowView
-```
+### Missile row behavior
 
-Status:
+Current prototype provides:
+- timer
+- missile identity/unknown state
+- Science identify action where available
+- Weapons red/blue point-defense response where available
+- inline red/blue selector behavior for unknown missile flow
 
-```text
-HULL
-DEF
-ENGINE
-```
+### Laser row behavior
 
-Rows:
+Current prototype provides:
+- timer
+- laser threat
+- disabled Science placeholder
+- Engineer deploy-shield action when the real command is available
 
-```text
-MISSILE → WPN
-LASER   → WPN
-MINES   → WPN
-SPAM    → SCI
-```
+## Button visual semantics
 
-Button/system states:
+Captain action buttons intentionally do **not** use officer-role colors.
 
-```text
-ACTIVE
-DISABLED_SYSTEM
-DISABLED_OFFICER_BUSY
-ENGAGED_CURRENT_WORK
-```
+Active:
+- background `0x193147`
+- border `0x7aa0c4`
+- white text
 
-System availability and officer availability remain separate.
+Non-interactive / officer busy / current work:
+- background `0x101923`
+- border `0x26394c`
+- text `0x536778`
 
-## DEF
+Red/blue are preserved only in the beam selector because they encode gameplay choice.
 
-Old `[PD] [SHD]` split is obsolete.
+## Threat geometry is provisional
 
-Current resource:
+Do not treat the current repeated horizontal threat row as final UX architecture.
 
-```text
-DEF
-DefenseCapacitorState
-4 charges
-24s sequential recharge
-```
+Current rows were chosen to make mechanics readable during implementation. With real final art, threats may become much smaller, potentially compact tiles rather than rows.
 
-Point defense spends DEF. Future Engineer defense should compete for DEF if designed.
+Therefore:
+- do not build a generic row framework;
+- do not solve final sizing now;
+- keep new mine presentation simple and structurally easy to replace;
+- keep domain/read-model identity independent of visual grouping.
 
-## Current tool semantics
+## Immediate next atom: enemy sticky mines
 
-MISSILE:
-- ammo + WPN action;
-- targeting/launch/cooldown;
-- enemy PD may intercept.
+The mine domain already exists. The missing captain slice is presentation/transport.
 
-LASER:
-- WPN;
-- targeting/charging/cooldown;
-- deterministic hull hit;
-- no spatial target zone.
+Fresh repo facts at the reference HEAD:
+- sandbox enemy is still laser-only: `GENERIC_DEFENSE_SANDBOX_00`
+- a mine-only enemy preset already exists: `GENERIC_STICKY_MINES_00`
+- enemy policy can already choose sticky-mine dispenser as Weapons work
+- scheduler already starts weapon targeting
+- `CombatStickyMineRunner` already creates individual hostile mines, fuses and detonations
+- `getStickyMineSnapshots()` already returns hostile mines attached to player one-by-one
+- old bridge mine presentation already receives those snapshots
+- captain combat mapper currently accepts missiles + lasers only
 
-MINES:
-- ammo current/max;
-- one command launches a salvo of individual mines;
-- targeting/dispensing is engaged work.
+Target behavior:
+- current sandbox enemy attacks with sticky mines instead of laser
+- every attached mine appears independently in captain combat context
+- every displayed mine keeps its own engine-owned fuse timer
+- clear actions come from existing real engine command availability
+- no salvo aggregation in domain/read model
+- minimal placeholder row/tile is fine
 
-SPAM:
-- SCI;
-- targeting/channeling is engaged work;
-- 20s channel;
-- slows enemy crew task progress.
+Do not combine this with:
+- spam captain threat UI
+- final threat-grid redesign
+- generic targeting registry
+- mine-physics rewrite
+- broad context-menu removal
 
-## Right combat context direction
+## Patch delivery rules
 
-Not implemented.
+Mandatory for every coding atom:
 
-Preferred structure:
+1. **Deliver the patch script only inside a `.zip`.**
+2. **After successful work and validation, the script deletes its own `.mjs` file.**
 
-```text
-enemy root/context
-+
-repeated wide horizontal threat rows
-```
+Also:
+- fetch fresh `master` HEAD first;
+- guard expected HEAD;
+- guard tracked clean state;
+- preserve CRLF;
+- validate exact/current code before transforms;
+- run `git -c core.safecrlf=false diff --check`;
+- failed patchers remain for diagnosis.
 
-Threat row:
+## Test discipline
 
-```text
-[TIMER] [ICON] [THREAT NAME] [ACTION+ROLE]...
-```
-
-Avoid tall tiles, button walls, spreadsheet columns and unique card geometry per threat.
-
-Incoming truth:
-
-- missiles: timer + Science spectral-band identification + PD response;
-- lasers: timer, no targetZone, no current useful Science-identify property;
-- sticky mines: individual domain objects, may be visually grouped;
-- hostile spam: needs clean purge representation.
-
-## Future semantic laser targeting
-
-After audit:
-
-```text
-HULL
-ENGINE
-WEAPONS
-BRIDGE
-VULNERABLE NODE
-```
-
-Dashboard implication:
-
-- normal LASER stays one WPN action if only HULL exists;
-- target picker appears only for real subchoice;
-- opening picker costs nothing;
-- task begins after target choice;
-- no permanent subsystem grid required.
-
-## Navigation context
-
-Old top-center Local Space icon/popup is being removed.
-
-Current `FLY_TO` remains through officer context menu.
-
-Future navigation context should present real current-node/anchor actions and Helm
-task state from domain source of truth.
-
-## Temporary legacy still present
-
-`BridgeOfficerContextMenuView` stays for now.
-
-It still matters for:
-
-- navigation/noncombat commands;
-- manual cancellation;
-- remaining station command interaction.
-
-Retire only after dashboard/context replacements preserve required functionality.
+When changing captain mapper inputs/payloads:
+- search all callers first;
+- search all tests first;
+- do not assume there is only one mapper test;
+- update typed and `unknown as` fixtures too;
+- prefer tests that prove mapping uses real commands instead of synthetic UI availability.

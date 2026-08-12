@@ -1,229 +1,142 @@
 # Space Captain — Gameplay Contracts
 
-Reviewed: `2026-08-11`
-Checkpoint: `5a37de2d24c8212c8ff1251ab097f75b293e5f9b`
+Living gameplay invariants only. If code and this file disagree, inspect the current code and fix this document rather than coding from stale prose.
+
+## Encounter shape
+
+- One full enemy ship at a time.
+- Missiles, lasers, spam and sticky mines are weapons/threat objects produced by that ship, not additional command-capable enemies.
+- Combat is telegraph → crew work/response → delivery/impact → cooldown, not bullet hell.
+- The player wins/loses through readable timing pressure and crew execution, not twitch aiming.
+
+## Officer command truth
+
+- Engine decides command availability.
+- App/controller may map a real `AvailableOfficerCommand` to a dashboard affordance.
+- Views never recreate gameplay availability rules.
+- Starting a command creates/owns an officer task in engine state.
+- Cancellation belongs to the active task, not to the UI surface that started it.
 
-## Core interaction — LOCKED DIRECTION
+## Shared Defense Capacitor
+
+There is one shared player defensive energy store.
+
+Current basic contract:
+- capacity: 4 charges
+- sequential recharge
+- one charge recharge duration: 24 s
+- Point Defense and Shield Emitter draw from the same pool
+
+A defensive consumer commits energy when its work starts. Later cancellation/interruption does not refund committed energy.
+
+Future missing contract:
+- capacitor can become BROKEN
+- when broken: charges → 0 and recharge progress → 0
+- no defensive consumer can draw energy while broken
 
-```text
-situation/system/context
-→ visible responses
-→ officer role shown
-→ officer work
-→ bridge result
-```
+## Shield Emitter / Active Shield
 
-Depth comes from contention, information, time, commitment and resources.
+Installed hardware: **Shield Emitter**.
+Temporary encounter object: **Active Shield**.
+
+Shield Emitter:
+- persistent installed player system
+- ONLINE/BROKEN status
+- READY/COOLDOWN phase
+- no private charge pool
+- `ENGINEER_DEPLOY_SHIELD` requires a working/ready emitter, no existing Active Shield and available DEF charge
+- DEF charge is spent at task start
+- current deploy task: 3000 ms
+- current basic emitter cooldown: 5000 ms
 
-## Persistent/current state — CURRENT
+Active Shield:
+- encounter-local, not persistent ship state
+- current basic lifetime: 5000 ms
+- covers the whole hull for now
+- absorbs exactly one incoming laser hit of any power
+- disappears on absorption
+- otherwise expires at TTL
+- final ~1 s blinks visually
+- absorption flashes the shield before it vanishes
 
-Persistent player ship includes:
+Future:
+- breaking the emitter must immediately remove an active shield
+- exact timings remain balance values, not sacred constants
 
-- hull;
-- drive;
-- shared defense capacitor;
-- installed weapon ammo/phase state;
-- navigation.
+## Point Defense
 
-Old persistent shield-generator state is removed.
+Point Defense is a separate installed defensive system.
 
-Combat objects, enemy crew tasks and temporary intel are encounter-local.
+Current direction:
+- no private charge pool
+- consumes shared DEF
+- red/blue beam band matters against missile spectral band
+- player installed-system broken/repair lifecycle is still incomplete
+- enemy Point Defense is already a live independent implementation; do not delete it while changing player PD
 
-## Shared defense capacitor — LOCKED CURRENT
+## Missiles
 
-```text
-DEFENSE CAPACITOR
-UI: DEF
-capacity: 4
-recharge: 24000 ms/charge
-sequential
-```
+- Incoming enemy missile is its own combat projectile with its own impact timer.
+- Science can identify spectral band.
+- Weapons can respond through point-defense beam selection.
+- Unknown missile can still be acted on; UI does not invent certainty.
+- Dashboard currently renders incoming missiles independently.
 
-Point defense spends shared DEF.
+## Lasers
 
-Any future defensive consumer should spend the same resource instead of creating
-its own parallel energy pool.
+- Enemy laser attack is a timed telegraphed threat.
+- Without Active Shield, firing resolves as `HIT` and damages hull.
+- With Active Shield, firing resolves as `ABSORBED`; hull is unchanged and shield is consumed.
+- Engineer shield deployment is exposed as the current captain response.
+- Science slot is intentionally non-functional for laser targeting until a real targeting/intel contract exists.
+- Current whole-hull impact points are presentation anchors, not semantic damage nodes.
 
-## Point defense — CURRENT
+## Sticky mines
 
-- Weapons-operated;
-- responds to incoming missiles;
-- uses shared player DEF;
-- band logic remains relevant to missile spectral behavior.
+Sticky mines are already a two-direction combat system.
 
-## Player missile — CURRENT
+Core invariant:
+- **each attached mine is an independent `StickyMineState` with its own fuse timer.**
+- A salvo is a weapon firing pattern, not one aggregated threat object.
 
-```text
-ready launcher + ammo + target
-→ Weapons targeting
-→ launch spends missile
-→ autonomous cooldown
-→ projectile resolves independently
-```
+Enemy → player:
+- enemy dispenser can target, dispense a salvo and cooldown;
+- each launched mine attaches to `PLAYER_SHIP`;
+- each mine can be cleared independently;
+- detonation damages player hull and may interrupt an officer task.
 
-Enemy PD may intercept.
+Player → enemy:
+- player dispenser launches mines toward the enemy actor;
+- each mine attaches independently;
+- enemy AI can assign crew to clear player mines;
+- uncleared detonation damages enemy hull.
 
-## Player laser — LOCKED CURRENT
+Captain dashboard does not yet show sticky mines in combat context. This is the immediate next slice.
 
-```text
-ready laser + target actor
-→ Weapons targeting
-→ charging
-→ deterministic HULL hit
-→ cooldown
-```
+## Spam
 
-No:
+- Spam is a channel/effect, not a projectile.
+- Science launches player spam.
+- Enemy Science can purge player spam.
+- Player Science can purge enemy spam.
+- Player `SCIENCE_FIRE_SPAM` is not manually cancellable once committed; damage interruption may still stop relevant task flow per engine contract.
+- Captain-context threat presentation for enemy spam is still future work.
 
-```text
-LEFT/CENTER/RIGHT
-targetZone
-directional shield blocking
-```
+## Damage / interruption
 
-## Incoming enemy laser — LOCKED CURRENT
+- Hull damage is engine-owned.
+- Weapon runners resolve physical outcomes; UI only presents them.
+- Damage-interruptible officer tasks are interrupted by engine rules, not by view logic.
+- Do not infer a damage node/targeting system from current visual hit points.
 
-```text
-TARGETING
-→ CHARGING
-→ deterministic player HULL hit
-→ COOLDOWN
-```
+## Enemy crew architecture
 
-Science should not identify a nonexistent laser property.
+Enemy crew is simulated, not a mirrored player bridge.
 
-Future semantic intended-target intel must be a new explicit contract.
+- policy chooses work;
+- scheduler validates and starts work;
+- crew-task runner owns timing/lifecycle;
+- weapon runners own physical phases;
+- science observation/report is separate from objective combat truth.
 
-## Sticky mines — CURRENT
-
-Player command launches separate mine objects. Dashboard may group visually, but
-domain targets stay exact/individual. Clearing pressure is officer allocation.
-
-## Player spam — CURRENT
-
-Operated by SCIENCE.
-
-Baseline:
-
-```text
-channel: 20000 ms
-enemy crew progress multiplier: 0.5
-cooldown: 15000 ms
-```
-
-Science remains occupied through channel; enemy Science may purge.
-
-## Enemy information principle — LOCKED
-
-Do not expose unrestricted objective truth where gameplay calls for observation/intel.
-
-Missile identification remains meaningful.
-
-Old player-laser directional report semantics were removed.
-
-Debug telemetry is not captain knowledge.
-
-## Enemy destruction — LOCKED
-
-```text
-enemy hull 0
-→ clean target-dependent objects as required
-→ remove encounter actor
-→ remove persistent node actor
-→ stop active enemy work
-→ show destruction
-→ encounter may continue
-```
-
-Independent already-launched hostile objects may continue by their own lifecycle.
-
-## Dashboard — LOCKED DIRECTION
-
-```text
-LEFT  → player ship
-RIGHT → current context
-```
-
-Current left:
-
-```text
-HULL
-DEF
-ENGINE
-MISSILE
-LASER
-MINES
-SPAM
-```
-
-Officer context menus are temporary until navigation/cancellation/remaining commands
-have replacements.
-
-## Semantic laser targeting — LOCKED NEXT DESIGN
-
-Not implemented yet.
-
-Targets:
-
-```text
-HULL
-ENGINE
-WEAPONS
-BRIDGE
-VULNERABLE NODE
-```
-
-Semantics:
-
-- HULL: normal hull damage.
-- ENGINE: disable engine only, no hull.
-- WEAPONS: one semantic node; internally disable/damage one working installed weapon, no hull.
-- BRIDGE: officer/bridge disruption, no hull.
-- VULNERABLE NODE: Science-discovered, one successful hit, x2 hull, then disappears.
-
-v0.1 hits deterministic.
-
-Everything besides hull destruction should be temporary/repairable enough to avoid
-permanent snowballing. Game over remains hull-based.
-
-## Target-selection UX — LOCKED NEXT DESIGN
-
-```text
-laser action
-→ only HULL available: direct command
-→ meaningful choices available: open picker
-→ opening picker spends nothing
-→ choose target
-→ officer task begins
-```
-
-No picker when there is no real choice.
-
-## Science analysis — LOCKED NEXT DIRECTION
-
-Science scans should reveal one meaningful “fat” result from an eligible pool,
-for example:
-
-- schematic/system target knowledge;
-- vulnerable node;
-- temporary broad threat identification;
-- authored capability intel.
-
-A schematic may unlock `ENGINE + WEAPONS + BRIDGE` targeting knowledge.
-Vulnerability may be found independently.
-
-Exact command/content is not implemented yet.
-
-## Local Space map — NOT A CONTRACT
-
-Old top-center Local Space icon/popup is legacy presentation and is scheduled for removal.
-
-Navigation source of truth remains in domain state. Current `FLY_TO` is not coupled
-to the old map view.
-
-## Evasive maneuver / escape — UNRESOLVED
-
-Global Helm evasive maneuver remains proposed only.
-
-Escape/break contact must remain easy to reach eventually, likely through navigation
-context, but exact gameplay rules are not locked.
+Keep this separation unless a concrete simplification is proven.

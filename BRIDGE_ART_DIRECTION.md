@@ -1,472 +1,141 @@
 # Space Captain — Bridge Art Direction
 
-## Статус документа
+Visual reference only. Gameplay truth lives in `GAMEPLAY_CONTRACTS.md`; implementation state lives in `PROJECT_CONTEXT.md`.
 
-Этот файл фиксирует целевое направление для финального мостика `Space Captain`.
+## Core fantasy
 
-Это не описание конкретного арта и не требование копировать текущий прототип. Документ нужен как опора для:
+The player sits in the captain’s chair of a small, slightly worn working starship.
 
-- поиска и брифа пиксель-артиста;
-- оценки концептов;
-- дальнейшего проектирования bridge UI;
-- сохранения общей композиции при замене временных ассетов.
+The bridge should feel:
+- physical and lived-in;
+- functional but low-budget;
+- comedic in small details without becoming parody;
+- readable as a game screen first.
 
----
+## Camera / composition
 
-## 1. Основная фантазия
+- fixed first-person captain viewpoint;
+- captain body/back is not shown;
+- captain table occupies the lower foreground;
+- large viewscreen remains the upper visual focus;
+- four officers are visible at stable stations:
+  - Science
+  - Weapons
+  - Helm
+  - Engineer
+- current left-to-right visual order: Science → Weapons → Helm → Engineer
+- VIP seat may exist near the captain area without blocking crew or viewscreen
 
-Игрок — капитан небольшого рабочего космического корабля.
+## Viewscreen
 
-Мостик должен одновременно ощущаться как:
+Keep it visually clean.
 
-- реальное физическое помещение;
-- место, где находятся живые офицеры;
-- главный игровой интерфейс;
-- слегка потрёпанный рабочий корабль, а не стерильный военный флагман;
-- сцена с лёгким комедийным характером, но без превращения в пародийный аттракцион.
+May show:
+- one enemy ship;
+- space;
+- missiles/mines/laser/spam VFX;
+- shield/impact VFX;
+- small temporary targeting indicators.
 
-Главная цель — не максимальная детализация, а ясная игровая композиция.
+Avoid:
+- permanent giant health bars;
+- dense modern HUD overlays;
+- lots of tiny labels;
+- competing telemetry panels over the ship.
 
----
+Persistent combat information belongs on the captain table.
 
-## 2. Камера и роль игрока
+## Captain table
 
-### Вид от первого лица
+Current structural direction:
+- left = **OUR SHIP**
+- right = **CURRENT CONTEXT**
 
-Финальное направление:
+Left side stays stable.
+Right side changes with the encounter.
 
-- игрок смотрит из кресла капитана;
-- тело и спина капитана на экране не показываются;
-- камера воспринимается как взгляд самого игрока;
-- перед игроком находится физический капитанский стол;
-- офицеры и viewscreen видны поверх стола.
+The table should read as physical ship hardware, not a floating web UI, but production clarity beats fake realism.
 
-Это не FPS-камера и не свободное перемещение. Это стабильная сидячая точка обзора.
+Avoid:
+- Boeing/NASA cockpit density;
+- hundreds of controls;
+- bright carnival colors;
+- glossy contemporary sci-fi glass;
+- spreadsheet layouts;
+- oversized cards.
 
-### Почему капитан не показывается
+### Status / systems
 
-Видимый капитан:
+Prefer:
+- chunky icons;
+- discrete pips;
+- short labels;
+- restrained state changes;
+- clear damaged/busy/ready differences.
 
-- занимает центральную часть кадра;
-- перекрывает рабочий стол;
-- создаёт лишнюю дистанцию между игроком и управлением;
-- превращает игрока в наблюдателя за персонажем.
+Do not encode gameplay contracts such as separate “shield charges” vs “PD charges” in art docs. Current gameplay uses shared DEF; visual treatment can evolve independently.
 
-Без видимого капитана:
+### Threats
 
-- игрок напрямую занимает его место;
-- дашборд становится естественным интерфейсом;
-- мостик лучше работает как игровая сцена.
+Current code uses horizontal rows as implementation scaffolding.
 
----
+This is **not** final art direction.
 
-## 3. Общая композиция мостика
+Final threats may be:
+- much more compact;
+- small tiles;
+- icon + timer + one/two compact action affordances;
+- grouped visually without aggregating their gameplay identity.
 
-### Четыре офицерские станции
+The key requirement is rapid scanability under pressure, not preserving current row geometry.
 
-На мостике находятся четыре реальных офицера:
+## Officers
 
-- SCIENCE;
-- WEAPONS;
-- ENGINEER;
-- HELM.
+Officers are real characters in the room, not portrait cards.
 
-Станции образуют неглубокий шеврон перед капитаном:
+Desired life:
+- stable readable silhouettes;
+- subtle hand/console activity;
+- occasional head turns;
+- text barks;
+- stronger reaction only for important events.
 
-1. Helm и Weapons образуют внутреннюю пару ближе к viewscreen;
-2. Science и Engineer образуют внешнюю пару немного ближе к капитану.
+Avoid constant animation that competes with combat.
 
-Это не должен быть идеально симметричный ряд одинаковых терминалов. Нужны небольшие различия форм и глубины, но геометрия должна оставаться ясной.
+## Interaction direction
 
-### UX-цель компоновки
+The captain dashboard is becoming the primary command surface.
 
-Все четыре офицера должны:
+Officer stations still need:
+- readable availability/busy state;
+- activity indicator;
+- direct cancellation affordance for cancellable current work.
 
-- одновременно помещаться в кадре;
-- иметь стабильные экранные позиции;
-- быть достаточно крупными для чтения позы и реакции;
-- находиться недалеко друг от друга;
-- не заставлять игрока постоянно переносить курсор через весь экран;
-- формировать ощущение одной команды, а не пяти изолированных кабинок.
+The old officer context menu is legacy coverage, not a final visual requirement.
 
-Крайние станции не должны уходить глубоко в углы или за пределы удобной зоны взаимодействия.
+## Style
 
-### Роли и геометрия
-
-Текущий порядок слева направо:
-
-```text
-Science → Weapons → Helm → Engineer
-```
-
-Все станции должны читаться одним взглядом и оставлять viewscreen главным
-фокусом кадра.
-
----
-
-## 4. VIP seat
-
-На мостике должно быть отдельное кресло для VIP, пассажира или временного гостя.
-
-Правила:
-
-- кресло находится рядом с зоной капитана;
-- оно не прижато вплотную к капитанскому месту;
-- оно не перекрывает офицеров и viewscreen;
-- оно визуально отличается от рабочих станций;
-- рядом может быть небольшой столик или минимальный личный элемент;
-- кресло должно восприниматься как часть корабля, а не как UI-шутка.
-
-VIP seat нужен не только для юмора. Это будущая физическая точка для сюжетных пассажиров и событий.
-
----
-
-## 5. Viewscreen
-
-### Основное правило боя
-
-В одном encounter присутствует только один полноценный вражеский корабль.
-
-Ракеты, мины, дроны и другие угрозы считаются оружием или порождёнными объектами этого корабля, а не дополнительными command-capable противниками.
-
-### Визуальная задача viewscreen
-
-Viewscreen должен оставаться относительно чистым.
-
-На нём могут находиться:
-
-- один вражеский корабль;
-- космический фон;
-- projectiles и угрозы;
-- shield / impact VFX;
-- минимальные targeting brackets;
-- временные contextual indicators.
-
-На нём не должно быть:
-
-- постоянных больших health bars;
-- тяжёлых современных HUD-слоёв;
-- множества мелких технических подписей;
-- отдельной полноценной панели состояния врага;
-- визуального шума, конкурирующего с кораблём и угрозами.
-
-Постоянная телеметрия переносится на капитанский стол.
-
----
-
-## 6. Капитанский стол
-
-Капитанский стол — главный постоянный HUD игры, встроенный в окружение.
-
-Он должен быть:
-
-- физической частью мостика;
-- достаточно крупным и читаемым;
-- простым;
-- собранным из нескольких ясных модулей;
-- стилистически близким к старой корабельной аппаратуре;
-- удобным для расширения в будущем.
-
-Он не должен выглядеть как:
-
-- кабина Boeing;
-- реалистичная военная командная панель;
-- NASA-пульт;
-- современный стеклянный sci-fi интерфейс;
-- россыпь сотен одинаковых кнопок;
-- обычная плоская игровая панель, приклеенная к нижнему краю экрана.
-
-### Базовые модули стола
-
-#### Центральный дисплей: enemy telemetry
-
-Центральный экран показывает состояние единственного текущего врага.
-
-Всегда доступны:
-
-- enemy hull;
-- enemy shields.
-
-Дополнительная информация раскрывается Science:
-
-- обнаруженные системы;
-- типы оружия;
-- состояние оружия;
-- повреждения систем;
-- текущая активность или ремонт;
-- неизвестные области как `???` или визуально закрытые слоты.
-
-Hull и shields должны показываться точно, а не приблизительно.
-
-Предпочтительная репрезентация:
-
-- дискретные сегменты;
-- пипсы;
-- простая схема корабля;
-- крупные пиктограммы;
-- минимальный текст.
-
-Не использовать обычную длинную RPG-полоску над кораблём.
-
-#### Состояние двигателя игрока
-
-Вместо текстового `ENGINE` предпочтительна крупная иконка двигателя.
-
-Примерные состояния:
-
-- исправен — спокойный рабочий свет;
-- повреждён — предупреждение;
-- отключён — красный свет / мигание;
-- ремонтируется — отдельный зелёный repair marker.
-
-#### Point Defense
-
-Должны быть видны:
-
-- иконка point-defense системы;
-- оставшиеся заряды;
-- недоступность или повреждение системы;
-- возможно, процесс восстановления или перезарядки.
-
-Предпочтительны крупные заряды-пипсы, а не текст `2/4`.
-
-#### Shield charges
-
-Должны быть видны:
-
-- иконка shield generator;
-- доступные заряды;
-- недоступность;
-- повреждение;
-- активное развёртывание или восстановление.
-
-#### Alerts
-
-Нужен небольшой набор физических warning indicators.
-
-Они должны показывать только действительно важные состояния, например:
-
-- hull damage;
-- system failure;
-- incoming critical threat;
-- fire / breach — если такие системы появятся.
-
-Не превращать alerts в длинный список постоянного текста.
-
----
-
-## 7. Офицеры как живые люди
-
-Офицеры — реальные персонажи в пространстве мостика, а не только портреты или UI-карточки.
-
-Они должны:
-
-- физически сидеть за своими станциями;
-- иметь различимые силуэты;
-- выглядеть как рабочая команда;
-- немного отличаться посадкой, формой кресла и рабочей позой;
-- не быть одинаковыми манекенами в униформе.
-
-### Реакции и barks
-
-Живость команды создаётся через:
-
-- обычные текстовые barks;
-- поворот головы к капитану;
-- короткое изменение позы;
-- движение рук;
-- вспышку или изменение экрана станции;
-- более заметную реакцию при важном сообщении.
-
-Когда офицер сообщает критически важную информацию, он может ненадолго повернуть голову в сторону игрока.
-
-Не нужны:
-
-- сложные киношные сцены;
-- постоянная лицевая анимация;
-- большие talking-head портреты поверх центра экрана;
-- частые движения, отвлекающие от боя.
-
----
-
-## 8. Интерактивность и читаемость
-
-Мостик — не просто фон.
-
-Каждая офицерская зона должна иметь:
-
-- ясную кликабельную область;
-- стабильное положение;
-- понятное визуальное состояние;
-- место для activity indicator;
-- возможность показать READY / BUSY / BLOCKED / UNAVAILABLE;
-- возможность открыть context menu рядом со станцией.
-
-Композиция должна поддерживать:
-
-- мышь;
-- хоткеи 1–5;
-- будущий gamepad focus;
-- быстрое визуальное сканирование без поиска нужного офицера.
-
-Декоративные элементы не должны пересекать основные hit areas.
-
----
-
-## 9. Визуальный стиль
-
-### Целевое направление
-
-- оригинальный ретро sci-fi pixel art;
-- ранние 1990-е;
-- Sierra VGA adventure-game feel;
-- визуальный дух `Space Quest V`, но без копирования;
-- ограниченная VGA-палитра;
-- видимые пиксельные кластеры;
-- крупные читаемые формы;
-- выборочный dithering;
+Target:
+- authentic early-1990s VGA adventure-game spirit;
+- Sierra / Space Quest-era mood without copying;
+- restrained 256-color feel;
+- chunky readable pixel clusters;
+- dark navy / blue-black base;
+- steel-blue framing;
+- muted accents;
+- selective dithering;
 - nearest-neighbor edges;
-- умеренная детализация;
-- слегка потрёпанный, обжитой интерьер.
+- slightly worn service-ship materials.
 
-### Тон
+Tone:
+- practical;
+- readable;
+- lightly comedic;
+- not sleek military prestige;
+- not toy-like.
 
-Мир comedic-but-serious:
+## Production rule
 
-- корабль может быть немного нелепым;
-- команда может выглядеть неидеально;
-- возможны небольшие человеческие детали;
-- функциональность и опасность боя остаются серьёзными.
+Final art should preserve stable interaction geometry and readability, but temporary programmer art must not harden into architecture.
 
-Юмор должен жить в деталях, а не разрушать композицию.
-
----
-
-## 10. Чего избегать
-
-### В композиции
-
-- случайного разброса офицеров;
-- слишком глубокого перспективного коридора;
-- офицеров, спрятанных за капитаном или мебелью;
-- крайних станций, до которых неудобно тянуться мышью;
-- огромного пустого пространства между членами команды;
-- обязательной симметрии ради симметрии.
-
-### В дашборде
-
-- Boeing cockpit;
-- сотен кнопок;
-- мелкого нечитаемого текста;
-- множества декоративных графиков без механического смысла;
-- современного holographic HUD;
-- неоновых полупрозрачных панелей;
-- technical porn;
-- интерфейса, который выглядит сложнее самой игры.
-
-### В стиле
-
-- современного гладкого digital painting;
-- фотореализма;
-- high-tech luxury bridge;
-- стерильного военного флота;
-- чрезмерно тёмного изображения, где теряются персонажи;
-- мелких деталей, не читаемых при 1280×720;
-- прямого копирования `Space Quest`, `Star Trek`, `FTL` или текущих AI-концептов.
-
----
-
-## 11. Технические ограничения
-
-Целевая игровая сцена:
-
-- разрешение: `1280×720`;
-- все пять офицеров должны читаться одновременно;
-- нижняя часть кадра занята капитанским столом;
-- центральная и верхняя часть остаются для viewscreen и угроз;
-- ассеты должны хорошо работать с nearest-neighbor scaling;
-- формы должны сохранять читаемость без smooth filtering;
-- важные элементы не должны зависеть от мелкого текста.
-
-Концепт может быть крупнее, но обязан учитывать финальную композицию 16:9.
-
----
-
-## 12. Иерархия внимания
-
-В спокойном состоянии взгляд игрока должен считывать сцену примерно так:
-
-1. viewscreen и текущий объект;
-2. капитанский dashboard;
-3. офицерские станции;
-4. вторичные детали окружения.
-
-Во время угрозы приоритет может временно меняться:
-
-1. incoming threat / critical warning;
-2. relevant officer activity;
-3. нужный dashboard indicator;
-4. enemy ship.
-
-Декор не должен конкурировать с этой иерархией.
-
----
-
-## 13. Необязательные элементы характера
-
-Можно использовать умеренно:
-
-- кружки;
-- личные наклейки;
-- небольшие инструменты;
-- растение;
-- потёртые подписи;
-- разные формы кресел;
-- маленькие role-specific детали;
-- один-два визуальных гэга в сцене.
-
-Они не должны:
-
-- закрывать персонажей;
-- создавать ложные интерактивные зоны;
-- превращать мостик в склад реквизита;
-- быть главным содержанием концепта.
-
----
-
-## 14. Открытые вопросы
-
-Эти решения пока не зафиксированы окончательно:
-
-- форма и размер центрального telemetry display;
-- точная доля экрана, занимаемая капитанским столом;
-- степень анимации офицеров;
-- визуальный язык выбора enemy systems;
-- финальная палитра мостика;
-- количество вариантов bridge interior для разных кораблей.
-
-При поиске художника эти вопросы можно использовать как тестовые задачи, а не как повод менять базовый layout.
-
----
-
-## 15. Критерии хорошего концепта
-
-Концепт считается удачным, если:
-
-- с первого взгляда понятно, что игрок сидит в кресле капитана;
-- видны все четыре офицера;
-- понятно, где находится каждый офицер;
-- офицеров удобно мысленно связать с интерактивными зонами;
-- капитанский стол выглядит физическим, но читается как HUD;
-- enemy hull и shields имеют очевидное место;
-- viewscreen не забит постоянной телеметрией;
-- в кадре есть место для ракет, мин, лазеров, shield effects и warning UI;
-- интерьер выглядит как ретро sci-fi VGA, а не современный cockpit;
-- сцена остаётся читаемой в 1280×720;
-- дизайн можно реализовать в игре отдельными слоями и интерактивными элементами.
-
----
-
-## 16. Короткий бриф для художника
-
-> Create an original 1280×720 retro VGA starship bridge for a comedic-but-serious bridge-command game. The player sees the bridge from the captain’s seated first-person viewpoint; the captain’s body is not visible. Four real crew members sit at stable interactive stations arranged in a shallow chevron around a large clean viewscreen: Science and Engineer form the outer/front pair, while Weapons and Helm form the inner/back pair. Do not add a Comms station or VIP chair. The lower foreground remains available for a future simple physical captain’s desk acting as the main diegetic HUD. Keep the consoles chunky and readable, not a Boeing cockpit. Use an original early-1990s Sierra VGA adventure-game feel, limited colors, visible pixel clusters, selective dithering, lived-in working-class sci-fi, and minimal clutter. The layout must prioritize gameplay readability, mouse travel, stable officer hit areas and room for combat threats on the viewscreen.
+When real art changes the best threat/system composition, prefer changing presentation over distorting gameplay/domain models to fit old mockup geometry.

@@ -1,190 +1,171 @@
 # Space Captain — System Map
 
-Last mapped commit: `5a37de2d24c8212c8ff1251ab097f75b293e5f9b`
+A compact ownership map for fresh coding chats.
 
-## Boundaries
+## High-level layers
 
-```text
-src/engine → gameplay/domain/headless simulation
-src/app    → Phaser/input/presentation/read-model mapping/persistence integration
-```
+### `src/engine/...`
+Pure gameplay/domain/runtime truth.
 
-Rules:
+Owns:
+- universe/run state
+- encounter state
+- navigation
+- officer commands/tasks/availability
+- enemy behavior
+- combat actors/weapons/threats
+- defense capacitor
+- Shield Emitter / Active Shield
+- snapshots/events
 
-- engine does not import Phaser;
-- views do not own command availability;
-- views do not read raw EncounterState;
-- events are facts, not second mutable state;
-- one mutable datum has one authoritative owner;
-- app read models are detached projections.
+No Phaser dependencies should leak into engine definitions.
 
-## EncounterEngine composition
+### `src/app/...`
+Presentation/application layer.
 
-Current high level:
+Owns:
+- scenes/controllers
+- bridge event bus
+- mapping engine snapshots to view payloads
+- captain dashboard
+- Phaser views/VFX
+- persistent `GameRuntime` synchronization
 
-```text
-EncounterEngine
-├─ EncounterStateStore
-├─ EncounterSnapshotReader
-├─ OfficerCommandExecutor
-├─ OfficerTaskRunner
-├─ PlayerWeaponRunner
-├─ CombatRunner
-├─ CombatEngagementRunner
-└─ DefenseCapacitorRunner
-```
+App must not recreate combat rules.
 
-Removed architecture:
+## Encounter composition
 
-```text
-PlayerShieldRunner
-EnemyShieldRunner
-ShieldGeneratorRunner
-shield generator defs/content/factory
-```
+`EncounterEngine` is the public facade/composition root.
 
-## Step order
+Important children include:
+- state store / snapshot reader
+- officer task/command flow
+- `CombatRunner`
+- `DefenseCapacitorRunner`
+- `ShieldEmitterRunner`
+- enemy task scheduler/crew logic
 
-```text
-DefenseCapacitorRunner
-→ OfficerTaskRunner
-→ PlayerWeaponRunner
-→ CombatRunner
-→ cancel officer tasks with missing targets
-```
+Do not split `EncounterEngine` merely because it is central; split only if ownership becomes unclear.
 
-Do not change without focused lifecycle tests.
+## Combat runner ownership
 
-## Mutable state ownership
+Physical combat lifecycle is divided by mechanic.
 
-Conceptually:
+Important current runners:
+- missile
+- laser
+- sticky mine
+- spam
+- enemy point defense
+- player weapon runners
+- defense capacitor
+- shield emitter
 
-```text
-actors       → actor identity/team/hull/spawn/remove
-navigation   → arrival/travel/jump/dock-related state
-player       → hull/drive/DEF/weapons/player knowledge
-officer task → player task storage/progress/cancel
-```
+Sticky mines are already symmetrical at the combat-state level: one runner owns both enemy→player and player→enemy attached mines.
 
-Do not route every mutation through a giant generic store API just for uniformity.
+## Enemy behavior boundary
 
-## Defense
+### `EnemyDecisionPolicy`
+Chooses what an idle enemy role wants to do.
 
-Current player renewable resource:
+### `EnemyTaskScheduler`
+Validates the selected work against physical state, starts the crew task and starts weapon/defense phases.
 
-```text
-DefenseCapacitorState
-DefenseCapacitorRunner
-```
+### `EnemyCrewTaskRunner`
+Advances enemy crew tasks and invokes completion callbacks.
 
-Starter baseline: 4 charges, 24s sequential recharge.
+### `EnemyThreatObserver` / `EnemyScienceIntelResolver`
+Own enemy observation/report behavior; objective combat state stays elsewhere.
 
-Point defense spends shared DEF.
+This split is intentional. Avoid a new enemy god object.
 
-Old directional shield objects/generator state are gone.
+## Bridge synchronization
 
-## Weapon/combat ownership
+### `BridgeEncounterRuntimeSynchronizer`
+Encounter → persistent `GameRuntime` state where persistence is appropriate.
 
-```text
-PlayerWeaponRunner
-├─ PlayerMissileLauncherRunner
-├─ PlayerStickyMineDispenserRunner
-├─ PlayerLaserRunner
-└─ PlayerSpamProjectorRunner
-```
+### `BridgeEncounterSnapshotSynchronizer`
+Continuously changing encounter read models → bridge events/views.
 
-Physical combat families include missile, sticky mine, laser, spam, enemy PD and
-enemy task/policy/intel modules.
+Currently synchronizes:
+- player ship dashboard
+- active player shield
+- incoming/outgoing missiles
+- outgoing/player-attached sticky mines
+- laser threats
+- captain combat context
 
-Laser current truth: no spatial target zones, no shield block, deterministic hull result.
+### `BridgeEncounterEngineEventHandler`
+Consumes discrete encounter events and triggers bridge presentation/VFX.
 
-## Encounter read boundary
+### `BridgeEncounterLoadPresenter`
+Load/start presentation extracted from event handler; keep it separate.
 
-`EncounterSnapshotReader` backs public detached reads such as:
+## Captain dashboard mapping
 
-```text
-getAvailableCommands
-getNavigationState
-getDriveState
-getPlayerHullState
-getOfficerAvailabilityStates
-getOfficerTasks
-getPlayerWeaponStates
-getDefenseCapacitorState
-getEnemyShipTelemetrySnapshots
-getEnemyDebugSnapshots
-getIncoming/Outgoing combat objects
-getStickyMineSnapshots
-getLaserThreatSnapshots
-getSpamChannels
-```
+### `BridgePlayerWeaponStatusMapper`
+Normalizes player weapon state/timing/ammo/catalog details for UI.
 
-Engine debug/telemetry reads may survive deleted presentation if they still serve
-functional observability.
+### `BridgePlayerShipDashboardMapper`
+Builds stable player-ship dashboard rows/actions/status from real command availability.
 
-## BridgeView composition
+### `BridgeCaptainCombatContextMapper`
+Builds current enemy/threat context.
 
-```text
-BridgeView
-├─ BridgeSpaceView
-├─ BridgeCombatView
-├─ BridgeInteriorView
-├─ BridgeTargetingWarningView
-├─ BridgeOfficerStationsView
-├─ BridgeCaptainDashboardView
-├─ BridgeOfficerBarksView
-└─ BridgeOfficerContextMenuView
-```
+Current inputs:
+- enemy telemetry
+- incoming missiles
+- laser threats
+- Science / Weapons / Engineering available commands
 
-Removed: `BridgeUiView`, old enemy telemetry/debug panel, old ship-status UI,
-shield-field view.
+Immediate next extension:
+- hostile sticky-mine snapshots + real clear-mine actions
 
-## Command flow
+Do not merge these mappers; their responsibilities differ.
 
-```text
-UI resolves exact AvailableOfficerCommand
-→ BRIDGE_EVENT.OFFICER_COMMAND_SELECTED
-→ BridgeEncounterController
-→ EncounterEngine.executeCommand(...)
-```
+## Current combat presentation
 
-Authoritative availability:
+Existing views already include:
+- incoming missiles
+- laser telegraphs/beams
+- player laser impacts
+- player Active Shield
+- enemy/player sticky mines
+- spam
+- outgoing player weapons
+- enemy destruction
+- point-defense beam VFX
+- captain dashboard combat context
 
-```text
-EncounterEngine.getAvailableCommands(role)
-```
+The old viewscreen threat VFX and the captain dashboard are separate presentation surfaces. Reuse engine snapshots; do not make one view read state from another.
 
-Do not duplicate in dashboard views.
+## Whole-hull impact anchor seam
 
-## Local Space boundary
+`src/app/scenes/game/bridge/view/combat/bridge_player_hull_combat_points.ts`
 
-Old Local Space/GameOverlay is presentation-only and is next removal target.
+Currently centralizes:
+- hull impact point
+- shield impact point
 
-It is not source of truth for current node/navigation/anchors or `HELM_FLY_TO`.
+This is a deliberately small presentation seam. It is **not** a general semantic target registry. If real ship-node targeting is designed later, extend architecture from actual requirements.
 
-Current fly path is through officer context menu.
+## Next mine slice — exact files to inspect
 
-Future navigation dashboard should project fresh domain data rather than preserve
-old UI transport.
+Engine:
+- `src/engine/content/presets/ships.ts`
+- `src/engine/content/presets/sticky_mine_dispensers.ts`
+- `src/engine/encounter/combat/weapons/sticky_mine/CombatStickyMineRunner.ts`
+- `src/engine/encounter/combat/enemy/EnemyDecisionPolicy.ts`
+- `src/engine/encounter/combat/enemy/EnemyTaskScheduler.ts`
+- `src/engine/encounter/combat/queries/get_sticky_mine_snapshots.ts`
+- `src/engine/encounter/commands/handlers/clear_sticky_mine_command_handler.ts`
 
-## Current audit targets
+App:
+- `src/app/scenes/game/bridge/controller/captain_dashboard/BridgeCaptainCombatContextMapper.ts`
+- `src/app/scenes/game/bridge/controller/encounter/snapshots/BridgeEncounterSnapshotSynchronizer.ts`
+- `src/app/scenes/game/bridge/events/bridge_event.ts`
+- `src/app/scenes/game/bridge/view/captain_dashboard/combat_context/...`
 
-First high-context candidates:
-
-```text
-BridgeEncounterEngineEventHandler
-BridgeEncounterController
-```
-
-Do not split on line count alone.
-
-`EncounterEngine` currently functions as facade/composition root.
-`bridge_event.ts` is a large contract file, not automatically a god object.
-
-## Callback warning
-
-Current real cross-system callbacks include damage interruption, spam purge,
-mine clearing, queued combat objects and enemy destruction.
-
-Good refactor reduces sibling edges/context reconstruction.
-Bad refactor hides same graph behind more forwarding classes.
+Tests:
+- search every mapper/synchronizer caller before widening required input types
+- there have historically been duplicate mapper tests under different paths; search, do not assume one test file
