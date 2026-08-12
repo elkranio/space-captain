@@ -11,6 +11,10 @@ import {
 } from '../../defs/defense_capacitor';
 import { SHIP_DRIVE_ID, type ShipDriveId } from '../../defs/ship_drive';
 import { SHIP_WEAPON_ID } from '../../defs/ship_weapon';
+import {
+    SHIELD_EMITTER_ID,
+    type ShieldEmitterId,
+} from '../../defs/shield_emitter';
 
 export const PLAYER_SHIP_PRESET_ID = {
     STARTER_00: 'starter_00',
@@ -75,6 +79,13 @@ export type PlayerShipPreset = {
             DefenseCapacitorId;
     };
 
+    shieldEmitter: {
+        id: string;
+
+        shieldEmitterId:
+            ShieldEmitterId;
+    };
+
     weapons: PlayerShipWeaponPreset[];
 };
 
@@ -92,6 +103,15 @@ export const PLAYER_SHIP_PRESETS = {
 
             defenseCapacitorId:
                 DEFENSE_CAPACITOR_ID
+                    .BASIC_00,
+        },
+
+        shieldEmitter: {
+            id:
+                'shield_emitter_player_00',
+
+            shieldEmitterId:
+                SHIELD_EMITTER_ID
                     .BASIC_00,
         },
 

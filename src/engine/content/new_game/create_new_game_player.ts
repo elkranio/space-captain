@@ -15,6 +15,7 @@ import {
     type ShipWeaponState,
 } from '../../defs/ship_weapon';
 import DefenseCapacitorFactory from '../../generation/ship_system/DefenseCapacitorFactory';
+import ShieldEmitterFactory from '../../generation/ship_system/ShieldEmitterFactory';
 import LaserWeaponFactory from '../../generation/ship_weapon/LaserWeaponFactory';
 import MissileLauncherFactory from '../../generation/ship_weapon/MissileLauncherFactory';
 import SpamProjectorFactory from '../../generation/ship_weapon/SpamProjectorFactory';
@@ -76,6 +77,19 @@ function createPlayerShip(
                     preset
                         .defenseCapacitor
                         .defenseCapacitorId,
+            }),
+
+        shieldEmitter:
+            ShieldEmitterFactory.create({
+                id:
+                    preset
+                        .shieldEmitter
+                        .id,
+
+                shieldEmitterId:
+                    preset
+                        .shieldEmitter
+                        .shieldEmitterId,
             }),
 
         weapons:

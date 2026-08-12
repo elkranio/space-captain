@@ -26,6 +26,11 @@ import {
     SHIP_WEAPON_KIND,
     SHIP_WEAPON_PHASE,
 } from '../../../src/engine/defs/ship_weapon';
+import {
+    SHIELD_EMITTER_ID,
+    SHIELD_EMITTER_PHASE,
+    SHIELD_EMITTER_STATUS,
+} from '../../../src/engine/defs/shield_emitter';
 
 describe('createNewRunState', () => {
     it('creates the configured starting player ship', () => {
@@ -54,6 +59,25 @@ describe('createNewRunState', () => {
 
                 charges: 4,
                 rechargeElapsedMs: 0,
+            },
+
+            shieldEmitter: {
+                id:
+                    'shield_emitter_player_00',
+
+                shieldEmitterId:
+                    SHIELD_EMITTER_ID
+                        .BASIC_00,
+
+                status:
+                    SHIELD_EMITTER_STATUS
+                        .ONLINE,
+
+                phase:
+                    SHIELD_EMITTER_PHASE
+                        .READY,
+
+                phaseElapsedMs: 0,
             },
 
             weapons: [
@@ -164,6 +188,40 @@ describe('createNewRunState', () => {
             .defenseCapacitor
             .rechargeElapsedMs = 12000;
 
+        firstRun
+            .player
+            .ship
+            .shieldEmitter
+            .status =
+                SHIELD_EMITTER_STATUS
+                    .BROKEN;
+
+        firstRun
+            .player
+            .ship
+            .shieldEmitter
+            .phase =
+                SHIELD_EMITTER_PHASE
+                    .COOLDOWN;
+
+        firstRun
+            .player
+            .ship
+            .shieldEmitter
+            .phaseElapsedMs = 900;
+
+        expect(
+            firstRun
+                .player
+                .ship
+                .shieldEmitter,
+        ).not.toBe(
+            secondRun
+                .player
+                .ship
+                .shieldEmitter,
+        );
+
         const firstWeapon =
             firstRun.player.ship.weapons[0];
 
@@ -214,6 +272,25 @@ describe('createNewRunState', () => {
 
                 charges: 4,
                 rechargeElapsedMs: 0,
+            },
+
+            shieldEmitter: {
+                id:
+                    'shield_emitter_player_00',
+
+                shieldEmitterId:
+                    SHIELD_EMITTER_ID
+                        .BASIC_00,
+
+                status:
+                    SHIELD_EMITTER_STATUS
+                        .ONLINE,
+
+                phase:
+                    SHIELD_EMITTER_PHASE
+                        .READY,
+
+                phaseElapsedMs: 0,
             },
 
             weapons: [

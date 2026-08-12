@@ -6,6 +6,9 @@ import type {
 import type { PlayerLocationState } from './player_location';
 import type { ShipDriveState } from './ship_drive';
 import type { ShipWeaponState } from './ship_weapon';
+import type {
+    ShieldEmitterState,
+} from './shield_emitter';
 
 export type PlayerHullState = {
     hull: number;
@@ -24,6 +27,9 @@ export type PlayerShipState =
 
         defenseCapacitor:
             DefenseCapacitorState;
+
+        shieldEmitter:
+            ShieldEmitterState;
 
         weapons:
             ShipWeaponState[];

@@ -26,6 +26,11 @@ import {
     SHIP_WEAPON_KIND,
     SHIP_WEAPON_PHASE,
 } from '../../src/engine/defs/ship_weapon';
+import {
+    SHIELD_EMITTER_ID,
+    SHIELD_EMITTER_PHASE,
+    SHIELD_EMITTER_STATUS,
+} from '../../src/engine/defs/shield_emitter';
 
 describe('GameRuntime player ship hull', () => {
     it('creates a new run with full player ship state', () => {
@@ -56,6 +61,25 @@ describe('GameRuntime player ship hull', () => {
 
                 charges: 4,
                 rechargeElapsedMs: 0,
+            },
+
+            shieldEmitter: {
+                id:
+                    'shield_emitter_player_00',
+
+                shieldEmitterId:
+                    SHIELD_EMITTER_ID
+                        .BASIC_00,
+
+                status:
+                    SHIELD_EMITTER_STATUS
+                        .ONLINE,
+
+                phase:
+                    SHIELD_EMITTER_PHASE
+                        .READY,
+
+                phaseElapsedMs: 0,
             },
 
             weapons: [
@@ -187,6 +211,25 @@ describe('GameRuntime player ship hull', () => {
 
                 charges: 4,
                 rechargeElapsedMs: 0,
+            },
+
+            shieldEmitter: {
+                id:
+                    'shield_emitter_player_00',
+
+                shieldEmitterId:
+                    SHIELD_EMITTER_ID
+                        .BASIC_00,
+
+                status:
+                    SHIELD_EMITTER_STATUS
+                        .ONLINE,
+
+                phase:
+                    SHIELD_EMITTER_PHASE
+                        .READY,
+
+                phaseElapsedMs: 0,
             },
 
             weapons: [
