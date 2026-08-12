@@ -690,6 +690,9 @@ export default class BridgeEncounterEngineEventHandler {
 
                 this.eventBus.emit(BRIDGE_EVENT.LASER_BEAM_FIRED, {
                     sourceActorId: event.attack.sourceActorId,
+
+                    outcome:
+                        event.outcome,
                 });
 
                 if (

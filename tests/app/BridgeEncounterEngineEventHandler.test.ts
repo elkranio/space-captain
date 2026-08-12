@@ -16,6 +16,7 @@ import {
     COMBAT_PROJECTILE_KIND,
     COMBAT_SOURCE_KIND,
     COMBAT_TARGET_KIND,
+    LASER_SHOT_OUTCOME,
     THREAT_IDENTIFICATION_STATUS,
     type MissileCombatProjectileState,
 } from '../../src/engine/encounter/model/combat';
@@ -534,6 +535,88 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
         expect(setEncounterInteractive).not.toHaveBeenCalled();
     });
 
+
+
+    it(
+        'forwards absorbed laser outcome to beam presentation',
+        () => {
+            const runtime =
+                new GameRuntime();
+
+            const emit =
+                vi.fn();
+
+            const handler =
+                new BridgeEncounterEngineEventHandler(
+                    {
+                        emit,
+                    } as unknown as BridgeEventBus,
+
+                    vi.fn(),
+                    runtime,
+                );
+
+            handler.handle([
+                {
+                    type:
+                        ENCOUNTER_EVENT
+                            .LASER_FIRED,
+
+                    attack: {
+                        id:
+                            'laser_attack_absorbed_00',
+
+                        designation:
+                            'L1',
+
+                        sourceActorId:
+                            'ship_enemy_00',
+
+                        sourceWeaponId:
+                            'laser_enemy_00',
+
+                        target: {
+                            kind:
+                                COMBAT_TARGET_KIND
+                                    .PLAYER_SHIP,
+                        },
+                    },
+
+                    outcome:
+                        LASER_SHOT_OUTCOME
+                            .ABSORBED,
+                },
+            ]);
+
+            expect(
+                emit.mock.calls,
+            ).toEqual([
+                [
+                    BRIDGE_EVENT
+                        .LASER_THREAT_REMOVED,
+
+                    {
+                        attackId:
+                            'laser_attack_absorbed_00',
+                    },
+                ],
+
+                [
+                    BRIDGE_EVENT
+                        .LASER_BEAM_FIRED,
+
+                    {
+                        sourceActorId:
+                            'ship_enemy_00',
+
+                        outcome:
+                            LASER_SHOT_OUTCOME
+                                .ABSORBED,
+                    },
+                ],
+            ]);
+        },
+    );
 
     it(
         'maps player shield lifecycle to bridge presentation events',

@@ -1,20 +1,20 @@
 // src/app/scenes/game/bridge/view/combat/laser_beams/BridgeLaserBeamsView.ts
 
+import {
+    LASER_SHOT_OUTCOME,
+} from '../../../../../../../engine/encounter/model/combat';
 import type BridgeScene from '../../../BridgeScene';
 import {
     BRIDGE_EVENT,
     type BridgeLaserBeamFiredPayload,
 } from '../../../events/bridge_event';
 import type BridgeEventBus from '../../../events/BridgeEventBus';
-import { BRIDGE_VIEWSCREEN_RECT } from '../../bridge_viewscreen_layout';
+import {
+    BRIDGE_PLAYER_HULL_COMBAT_POINTS,
+} from '../bridge_player_hull_combat_points';
 import BridgeLaserBeamView from './beam/BridgeLaserBeamView';
 
 type GetObjectPosition = (objectId: string) => Phaser.Math.Vector2 | undefined;
-
-const LASER_TARGET_LAYOUT = {
-    xRatio: 1 / 2,
-    hitYFromBottom: 12,
-} as const;
 
 // Manager-view коротких enemy laser beam effects.
 //
@@ -66,7 +66,9 @@ export default class BridgeLaserBeamsView {
         }
 
         const targetPosition =
-            this.getTargetPosition();
+            this.getTargetPosition(
+                payload.outcome,
+            );
 
         const beam = new BridgeLaserBeamView({
             scene: this.scene,
@@ -84,18 +86,44 @@ export default class BridgeLaserBeamsView {
         this.beams.add(beam);
     }
 
-    private getTargetPosition():
-        Phaser.Math.Vector2 {
-        return new Phaser.Math.Vector2(
-            Math.round(
-                BRIDGE_VIEWSCREEN_RECT.x +
-                    BRIDGE_VIEWSCREEN_RECT.width *
-                        LASER_TARGET_LAYOUT.xRatio,
-            ),
+    private getTargetPosition(
+        outcome:
+            BridgeLaserBeamFiredPayload['outcome'],
+    ): Phaser.Math.Vector2 {
+        const point =
+            getLaserTargetPoint(
+                outcome,
+            );
 
-            BRIDGE_VIEWSCREEN_RECT.y +
-                BRIDGE_VIEWSCREEN_RECT.height -
-                LASER_TARGET_LAYOUT.hitYFromBottom,
+        return new Phaser.Math.Vector2(
+            point.x,
+            point.y,
         );
+    }
+}
+
+function getLaserTargetPoint(
+    outcome:
+        BridgeLaserBeamFiredPayload['outcome'],
+): {
+    readonly x: number;
+    readonly y: number;
+} {
+    switch (outcome) {
+        case LASER_SHOT_OUTCOME.HIT:
+            return BRIDGE_PLAYER_HULL_COMBAT_POINTS
+                .hullImpactPoint;
+
+        case LASER_SHOT_OUTCOME.ABSORBED:
+            return BRIDGE_PLAYER_HULL_COMBAT_POINTS
+                .shieldImpactPoint;
+
+        default: {
+            const exhaustiveOutcome:
+                never =
+                    outcome;
+
+            return exhaustiveOutcome;
+        }
     }
 }

@@ -832,6 +832,9 @@ export type BridgeLaserThreatsUpdatedPayload = BridgeLaserThreatUpdatePayload[];
 
 export type BridgeLaserBeamFiredPayload = {
     sourceActorId: string;
+
+    outcome:
+        LaserShotOutcome;
 };
 
 export type BridgePlayerShieldSnapshotPayload = {

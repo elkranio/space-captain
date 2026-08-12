@@ -12,8 +12,8 @@ import {
 } from '../../../events/bridge_event';
 import type BridgeEventBus from '../../../events/BridgeEventBus';
 import {
-    BRIDGE_VIEWSCREEN_RECT,
-} from '../../bridge_viewscreen_layout';
+    BRIDGE_PLAYER_HULL_COMBAT_POINTS,
+} from '../bridge_player_hull_combat_points';
 
 const SHIELD = {
     baseAlpha: 0.55,
@@ -52,14 +52,11 @@ export default class BridgePlayerShieldView {
         this.shield =
             this.scene.add
                 .image(
-                    Math.round(
-                        BRIDGE_VIEWSCREEN_RECT.x +
-                            BRIDGE_VIEWSCREEN_RECT.width /
-                                2,
-                    ),
+                    BRIDGE_PLAYER_HULL_COMBAT_POINTS
+                        .shieldAnchor.x,
 
-                    BRIDGE_VIEWSCREEN_RECT.y +
-                        BRIDGE_VIEWSCREEN_RECT.height,
+                    BRIDGE_PLAYER_HULL_COMBAT_POINTS
+                        .shieldAnchor.y,
 
                     asset.atlasKey,
                     asset.frameKey,

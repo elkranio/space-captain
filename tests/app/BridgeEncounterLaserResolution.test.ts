@@ -75,6 +75,9 @@ describe('BridgeEncounterEngineEventHandler laser resolution', () => {
 
                 {
                     sourceActorId: 'ship_enemy_00',
+
+                    outcome:
+                        LASER_SHOT_OUTCOME.HIT,
                 },
             ],
 
