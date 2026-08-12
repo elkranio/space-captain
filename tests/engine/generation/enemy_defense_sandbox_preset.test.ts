@@ -10,9 +10,6 @@ import {
     DEFENSE_CAPACITOR_ID,
 } from '../../../src/engine/defs/defense_capacitor';
 import {
-    MISSILE_ID,
-} from '../../../src/engine/defs/missile';
-import {
     OFFICER_ROLE,
 } from '../../../src/engine/defs/officer';
 import {
@@ -27,7 +24,7 @@ import {
 import ShipNodeActorFactory from '../../../src/engine/generation/space_node_actor/ShipNodeActorFactory';
 
 describe('Enemy defense sandbox preset', () => {
-    it('creates a fully crewed defensive enemy with one red missile launcher', () => {
+    it('creates a fully crewed defensive enemy with one laser', () => {
         const actor =
             ShipNodeActorFactory.create({
                 id:
@@ -42,21 +39,15 @@ describe('Enemy defense sandbox preset', () => {
 
         expect(actor.weapons).toEqual([
             {
-                id:
-                    'missile_launcher_00',
+                id: 'laser_00',
 
                 weaponId:
                     SHIP_WEAPON_ID
-                        .MISSILE_LAUNCHER_00,
+                        .LASER_00,
 
                 kind:
                     SHIP_WEAPON_KIND
-                        .MISSILE_LAUNCHER,
-
-                loadedMissileId:
-                    MISSILE_ID.RED_00,
-
-                ammoCount: 5,
+                        .LASER,
 
                 phase:
                     SHIP_WEAPON_PHASE.READY,

@@ -357,20 +357,17 @@ export const SHIP_PRESETS = {
                     .BASIC_00,
         },
 
-        // Первый возвращённый offensive system:
-        // threat dashboard сейчас тестируем на enemy missiles.
+        // Изолированный laser slice:
+        // missile вернём после player shield flow.
         weapons: [
             {
-                id:
-                    'missile_launcher_00',
+                id: 'laser_00',
 
                 kind:
-                    SHIP_WEAPON_KIND
-                        .MISSILE_LAUNCHER,
+                    SHIP_WEAPON_KIND.LASER,
 
-                presetId:
-                    MISSILE_LAUNCHER_PRESET_ID
-                        .BASIC_RED_FULL_00,
+                weaponId:
+                    SHIP_WEAPON_ID.LASER_00,
             },
         ],
     },

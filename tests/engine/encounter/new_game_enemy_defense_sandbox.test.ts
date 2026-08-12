@@ -11,9 +11,6 @@ import {
 } from 'vitest';
 import NewGameUniverseFactory from '../../../src/engine/content/new_game/NewGameUniverseFactory';
 import {
-    MISSILE_ID,
-} from '../../../src/engine/defs/missile';
-import {
     OFFICER_ROLE,
 } from '../../../src/engine/defs/officer';
 import {
@@ -70,21 +67,15 @@ describe('New-game enemy defense sandbox', () => {
 
         expect(enemy.weapons).toEqual([
             {
-                id:
-                    'missile_launcher_00',
+                id: 'laser_00',
 
                 weaponId:
                     SHIP_WEAPON_ID
-                        .MISSILE_LAUNCHER_00,
+                        .LASER_00,
 
                 kind:
                     SHIP_WEAPON_KIND
-                        .MISSILE_LAUNCHER,
-
-                loadedMissileId:
-                    MISSILE_ID.RED_00,
-
-                ammoCount: 5,
+                        .LASER,
 
                 phase:
                     SHIP_WEAPON_PHASE.READY,
