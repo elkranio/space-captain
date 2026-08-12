@@ -83,6 +83,9 @@ describe(
 
                 expect(
                     mapCaptainCombatContextToBridgePayload({
+                        spamChannels:
+                            [],
+
                         stickyMineSnapshots:
                             [],
 
@@ -135,6 +138,9 @@ describe(
                         ],
                     }),
                 ).toEqual({
+                    activeSpamChannels:
+                        [],
+
                     incomingStickyMines:
                         [],
 
@@ -263,6 +269,9 @@ describe(
             () => {
                 expect(
                     mapCaptainCombatContextToBridgePayload({
+                        spamChannels:
+                            [],
+
                         stickyMineSnapshots:
                             [],
 
@@ -316,6 +325,9 @@ describe(
                             [],
                     }),
                 ).toEqual({
+                    activeSpamChannels:
+                        [],
+
                     incomingStickyMines:
                         [],
 
@@ -368,6 +380,9 @@ describe(
 
                 expect(
                     mapCaptainCombatContextToBridgePayload({
+                        spamChannels:
+                            [],
+
                         stickyMineSnapshots:
                             [],
 
@@ -418,6 +433,9 @@ describe(
                         ],
                     }),
                 ).toEqual({
+                    activeSpamChannels:
+                        [],
+
                     incomingStickyMines:
                         [],
 
@@ -484,6 +502,9 @@ describe(
                         enemyShips: [],
                         incomingMissiles: [],
                         laserThreats: [],
+
+                        spamChannels:
+                            [],
 
                         stickyMineSnapshots: [
                             {
@@ -695,6 +716,94 @@ describe(
         );
 
         it(
+            'maps active spam channel with remaining duration and exact Science purge action',
+            () => {
+                const channelId =
+                    'spam_channel_1';
+
+                const payload =
+                    mapCaptainCombatContextToBridgePayload({
+                        enemyShips: [],
+                        incomingMissiles: [],
+                        laserThreats: [],
+                        stickyMineSnapshots: [],
+
+                        spamChannels: [
+                            {
+                                id:
+                                    channelId,
+
+                                sourceActorId:
+                                    'enemy_ship_00',
+
+                                sourceWeaponId:
+                                    'spam_projector_00',
+
+                                elapsedMs:
+                                    1250,
+
+                                durationMs:
+                                    5000,
+                            },
+                        ],
+
+                        availableScienceCommands: [
+                            createThreatCommand(
+                                ENCOUNTER_OFFICER_COMMAND_ID
+                                    .SCIENCE_PURGE_SPAM,
+
+                                channelId,
+                            ),
+                        ],
+
+                        availableHelmCommands:
+                            [],
+
+                        availableWeaponsCommands:
+                            [],
+
+                        availableEngineeringCommands:
+                            [],
+                    });
+
+                expect(
+                    payload.activeSpamChannels,
+                ).toEqual([
+                    {
+                        channelId,
+
+                        remainingDurationMs:
+                            3750,
+
+                        initialDurationMs:
+                            5000,
+
+                        actions: {
+                            purgeSpam: {
+                                role:
+                                    OFFICER_ROLE
+                                        .SCIENCE,
+
+                                commandId:
+                                    ENCOUNTER_OFFICER_COMMAND_ID
+                                        .SCIENCE_PURGE_SPAM,
+
+                                target: {
+                                    kind:
+                                        OFFICER_COMMAND_TARGET_KIND
+                                            .THREAT,
+
+                                    threatId:
+                                        channelId,
+                                },
+                            },
+                        },
+                    },
+                ]);
+            },
+        );
+
+        it(
             'rejects duplicate resolved actions for one threat',
             () => {
                 const missile =
@@ -728,6 +837,9 @@ describe(
 
                 expect(() => {
                     mapCaptainCombatContextToBridgePayload({
+                        spamChannels:
+                            [],
+
                         stickyMineSnapshots:
                             [],
 

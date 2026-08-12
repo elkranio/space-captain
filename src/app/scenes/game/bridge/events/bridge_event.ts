@@ -605,6 +605,18 @@ export type BridgeCaptainStickyMinePayload = {
     };
 };
 
+export type BridgeCaptainSpamChannelPayload = {
+    channelId: string;
+
+    remainingDurationMs: number;
+    initialDurationMs: number;
+
+    actions: {
+        purgeSpam?:
+            BridgeOfficerCommandSelectedPayload;
+    };
+};
+
 export type BridgeCaptainCombatContextUpdatedPayload = {
     enemyShip?: {
         actorId: string;
@@ -630,6 +642,9 @@ export type BridgeCaptainCombatContextUpdatedPayload = {
 
     incomingStickyMines:
         BridgeCaptainStickyMinePayload[];
+
+    activeSpamChannels:
+        BridgeCaptainSpamChannelPayload[];
 };
 
 // #endregion

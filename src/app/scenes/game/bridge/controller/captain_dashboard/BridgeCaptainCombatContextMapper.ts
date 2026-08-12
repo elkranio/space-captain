@@ -20,6 +20,7 @@ import {
 import {
     THREAT_IDENTIFICATION_STATUS,
     type CombatProjectileState,
+    type SpamChannelState,
 } from '../../../../../../engine/encounter/model/combat';
 import type {
     BridgeCaptainCombatContextUpdatedPayload,
@@ -38,6 +39,9 @@ type CaptainCombatContextMapperInput = {
 
     stickyMineSnapshots:
         StickyMineSnapshot[];
+
+    spamChannels:
+        SpamChannelState[];
 
     availableScienceCommands:
         AvailableOfficerCommand[];
@@ -335,6 +339,54 @@ export function mapCaptainCombatContextToBridgePayload(
                             ...(engineerClear
                                 ? {
                                       engineerClear,
+                                  }
+                                : {}),
+                        },
+                    };
+                }),
+
+        activeSpamChannels:
+            input.spamChannels
+                .map((channel) => {
+                    const purgeSpam =
+                        findThreatCommand({
+                            commands:
+                                input
+                                    .availableScienceCommands,
+
+                            commandId:
+                                ENCOUNTER_OFFICER_COMMAND_ID
+                                    .SCIENCE_PURGE_SPAM,
+
+                            threatId:
+                                channel.id,
+
+                            role:
+                                OFFICER_ROLE.SCIENCE,
+
+                            label:
+                                'purge spam',
+                        });
+
+                    return {
+                        channelId:
+                            channel.id,
+
+                        remainingDurationMs:
+                            Math.max(
+                                0,
+
+                                channel.durationMs -
+                                    channel.elapsedMs,
+                            ),
+
+                        initialDurationMs:
+                            channel.durationMs,
+
+                        actions: {
+                            ...(purgeSpam
+                                ? {
+                                      purgeSpam,
                                   }
                                 : {}),
                         },

@@ -52,6 +52,9 @@ describe(
                             },
                         ],
 
+                        spamChannels:
+                            [],
+
                         stickyMineSnapshots:
                             [],
 
@@ -69,6 +72,9 @@ describe(
                     }),
                 ).toEqual({
                     incomingMissiles: [],
+
+                    activeSpamChannels:
+                        [],
 
                     incomingStickyMines: [],
 

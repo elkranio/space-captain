@@ -128,6 +128,21 @@ describe('BridgeEncounterSnapshotSynchronizer', () => {
                         },
                     },
 
+                    activeSpamChannels: [
+                        {
+                            channelId:
+                                'spam_channel_1',
+
+                            remainingDurationMs:
+                                3250,
+
+                            initialDurationMs:
+                                5000,
+
+                            actions: {},
+                        },
+                    ],
+
                     incomingLasers: [
                         {
                             attackId:
@@ -284,6 +299,21 @@ describe('BridgeEncounterSnapshotSynchronizer', () => {
                                 0.5,
                         },
                     },
+
+                    activeSpamChannels: [
+                        {
+                            channelId:
+                                'spam_channel_1',
+
+                            remainingDurationMs:
+                                3250,
+
+                            initialDurationMs:
+                                5000,
+
+                            actions: {},
+                        },
+                    ],
 
                     incomingLasers: [
                         {
@@ -519,6 +549,27 @@ function createEncounterEngine(): EncounterEngine {
                     },
                     isBeingCleared: true,
                     isNextClearTarget: false,
+                },
+            ];
+        }),
+
+        getSpamChannels: vi.fn(() => {
+            return [
+                {
+                    id:
+                        'spam_channel_1',
+
+                    sourceActorId:
+                        'enemy_ship_00',
+
+                    sourceWeaponId:
+                        'spam_projector_00',
+
+                    elapsedMs:
+                        1750,
+
+                    durationMs:
+                        5000,
                 },
             ];
         }),

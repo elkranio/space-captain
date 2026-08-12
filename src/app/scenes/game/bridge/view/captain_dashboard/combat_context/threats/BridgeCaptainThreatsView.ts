@@ -8,12 +8,14 @@ import {
     BRIDGE_EVENT,
     type BridgeCaptainIncomingLaserPayload,
     type BridgeCaptainIncomingMissilePayload,
+    type BridgeCaptainSpamChannelPayload,
     type BridgeCaptainStickyMinePayload,
     type BridgeOfficerCommandSelectedPayload,
 } from '../../../../events/bridge_event';
 import type BridgeEventBus from '../../../../events/BridgeEventBus';
 import BridgeCaptainLaserThreatRowView from './BridgeCaptainLaserThreatRowView';
 import BridgeCaptainMissileThreatRowView from './BridgeCaptainMissileThreatRowView';
+import BridgeCaptainSpamThreatRowView from './BridgeCaptainSpamThreatRowView';
 import BridgeCaptainStickyMineThreatRowView from './BridgeCaptainStickyMineThreatRowView';
 
 const ROW_HEIGHT = 36;
@@ -99,6 +101,10 @@ export default class BridgeCaptainThreatsView {
         BridgeCaptainStickyMineThreatRowView[] =
             [];
 
+    private readonly spamRowViews:
+        BridgeCaptainSpamThreatRowView[] =
+            [];
+
     private missiles:
         BridgeCaptainIncomingMissilePayload[] =
             [];
@@ -109,6 +115,10 @@ export default class BridgeCaptainThreatsView {
 
     private stickyMines:
         BridgeCaptainStickyMinePayload[] =
+            [];
+
+    private spamChannels:
+        BridgeCaptainSpamChannelPayload[] =
             [];
 
     private selectedMissileId?:
@@ -282,6 +292,9 @@ export default class BridgeCaptainThreatsView {
 
         stickyMines:
             BridgeCaptainStickyMinePayload[],
+
+        spamChannels:
+            BridgeCaptainSpamChannelPayload[],
     ): void {
         this.missiles =
             missiles;
@@ -291,6 +304,9 @@ export default class BridgeCaptainThreatsView {
 
         this.stickyMines =
             stickyMines;
+
+        this.spamChannels =
+            spamChannels;
 
         this.reconcileRows();
         this.reconcileBeamSelector();
@@ -325,6 +341,7 @@ export default class BridgeCaptainThreatsView {
         this.reconcileMissileRows();
         this.reconcileLaserRows();
         this.reconcileStickyMineRows();
+        this.reconcileSpamRows();
     }
 
     private reconcileMissileRows(): void {
@@ -559,6 +576,83 @@ export default class BridgeCaptainThreatsView {
 
             rowView.update(
                 mine,
+            );
+        }
+    }
+
+    private reconcileSpamRows(): void {
+        while (
+            this.spamRowViews.length >
+            this.spamChannels.length
+        ) {
+            const rowView =
+                this.spamRowViews.pop();
+
+            rowView?.destroy();
+        }
+
+        while (
+            this.spamRowViews.length <
+            this.spamChannels.length
+        ) {
+            const rowView =
+                new BridgeCaptainSpamThreatRowView(
+                    this.scene,
+                    this.width,
+                    ROW_HEIGHT,
+
+                    {
+                        onPurge:
+                            (command) => {
+                                this.emitCommand(
+                                    command,
+                                );
+                            },
+                    },
+                );
+
+            this.spamRowViews.push(
+                rowView,
+            );
+
+            this.listRoot.add(
+                rowView.getRoot(),
+            );
+        }
+
+        const firstSpamRow =
+            this.missiles.length +
+            this.lasers.length +
+            this.stickyMines.length;
+
+        for (
+            let index = 0;
+            index <
+            this.spamChannels.length;
+            index += 1
+        ) {
+            const channel =
+                this.spamChannels[index];
+
+            const rowView =
+                this.spamRowViews[index];
+
+            if (
+                !channel ||
+                !rowView
+            ) {
+                continue;
+            }
+
+            rowView.setPosition(
+                0,
+                (firstSpamRow +
+                    index) *
+                    ROW_HEIGHT,
+            );
+
+            rowView.update(
+                channel,
             );
         }
     }
@@ -863,9 +957,17 @@ export default class BridgeCaptainThreatsView {
             rowView.destroy();
         }
 
+        for (
+            const rowView
+            of this.spamRowViews
+        ) {
+            rowView.destroy();
+        }
+
         this.missileRowViews.length = 0;
         this.laserRowViews.length = 0;
         this.stickyMineRowViews.length = 0;
+        this.spamRowViews.length = 0;
     }
 }
 

@@ -54,7 +54,8 @@ const DEF_BAR = {
 // - HULL/DEF текущего enemy ship;
 // - incoming missile rows;
 // - incoming laser rows;
-// - attached sticky-mine rows.
+// - attached sticky-mine rows;
+// - active hostile spam-channel rows.
 //
 // Другие threat-типы будут добавляться в этот же органичный экран,
 // а не отдельными popup/menu системами.
@@ -353,6 +354,7 @@ export default class BridgeCaptainCombatContextView {
                 payload.incomingMissiles,
                 payload.incomingLasers,
                 payload.incomingStickyMines,
+                payload.activeSpamChannels,
             );
     }
 

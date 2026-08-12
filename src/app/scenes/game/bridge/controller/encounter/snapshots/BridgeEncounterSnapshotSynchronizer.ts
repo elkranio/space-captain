@@ -154,6 +154,10 @@ export default class BridgeEncounterSnapshotSynchronizer {
                     this.encounterEngine
                         .getStickyMineSnapshots(),
 
+                spamChannels:
+                    this.encounterEngine
+                        .getSpamChannels(),
+
                 availableScienceCommands:
                     this.encounterEngine
                         .getAvailableCommands(
