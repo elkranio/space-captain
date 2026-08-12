@@ -61,8 +61,8 @@ type BeamSelectorButton = {
 // Selector заменяет содержимое threat-area,
 // поэтому это не popup и не отдельное overlay window.
 //
-// Laser rows пока presentation-only:
-// SCI/WPN slots видимы, но disabled до следующего shield atom.
+// Laser rows:
+// SCI пока disabled, ENG использует real DEPLOY SHIELD command.
 export default class BridgeCaptainThreatsView {
     private readonly root:
         Phaser.GameObjects.Container;
@@ -415,6 +415,15 @@ export default class BridgeCaptainThreatsView {
                     this.scene,
                     this.width,
                     ROW_HEIGHT,
+
+                    {
+                        onDeployShield:
+                            (command) => {
+                                this.emitCommand(
+                                    command,
+                                );
+                            },
+                    },
                 );
 
             this.laserRowViews.push(

@@ -562,6 +562,11 @@ export type BridgeCaptainIncomingLaserPayload = {
 
     timeToFireMs: number;
     initialTimeToFireMs: number;
+
+    actions: {
+        deployShield?:
+            BridgeOfficerCommandSelectedPayload;
+    };
 };
 
 export type BridgeCaptainCombatContextUpdatedPayload = {

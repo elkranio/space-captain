@@ -38,6 +38,9 @@ type CaptainCombatContextMapperInput = {
 
     availableWeaponsCommands:
         AvailableOfficerCommand[];
+
+    availableEngineeringCommands:
+        AvailableOfficerCommand[];
 };
 
 // App-side projection encounter combat state → captain context dashboard.
@@ -53,6 +56,23 @@ export function mapCaptainCombatContextToBridgePayload(
         mapEnemyShip(
             input.enemyShips,
         );
+
+    const deployShield =
+        findUntargetedCommand({
+            commands:
+                input
+                    .availableEngineeringCommands,
+
+            commandId:
+                ENCOUNTER_OFFICER_COMMAND_ID
+                    .ENGINEER_DEPLOY_SHIELD,
+
+            role:
+                OFFICER_ROLE.ENGINEER,
+
+            label:
+                'deploy shield',
+        });
 
     return {
         ...(enemyShip
@@ -201,6 +221,14 @@ export function mapCaptainCombatContextToBridgePayload(
                         initialTimeToFireMs:
                             snapshot
                                 .initialTimeToFireMs,
+
+                        actions: {
+                            ...(deployShield
+                                ? {
+                                      deployShield,
+                                  }
+                                : {}),
+                        },
                     };
                 }),
     };
@@ -343,6 +371,64 @@ function findThreatCommand({
                 label +
                 ' commands for threat ' +
                 threatId,
+        );
+    }
+
+    const command =
+        matchingCommands[0];
+
+    if (!command) {
+        return undefined;
+    }
+
+    return {
+        role,
+
+        commandId:
+            command.commandId,
+
+        target:
+            command.target,
+    };
+}
+
+type FindUntargetedCommandInput = {
+    commands:
+        AvailableOfficerCommand[];
+
+    commandId:
+        EncounterOfficerCommandId;
+
+    role:
+        OfficerRole;
+
+    label: string;
+};
+
+function findUntargetedCommand({
+    commands,
+    commandId,
+    role,
+    label,
+}: FindUntargetedCommandInput):
+    BridgeOfficerCommandSelectedPayload |
+    undefined {
+    const matchingCommands =
+        commands.filter((command) => {
+            return (
+                command.commandId ===
+                    commandId &&
+                command.target.kind ===
+                    OFFICER_COMMAND_TARGET_KIND
+                        .NONE
+            );
+        });
+
+    if (matchingCommands.length > 1) {
+        throw new Error(
+            'Captain combat context received multiple ' +
+                label +
+                ' commands',
         );
     }
 

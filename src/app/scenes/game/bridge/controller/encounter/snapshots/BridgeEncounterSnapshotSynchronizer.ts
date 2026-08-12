@@ -159,6 +159,12 @@ export default class BridgeEncounterSnapshotSynchronizer {
                         .getAvailableCommands(
                             OFFICER_ROLE.WEAPONS,
                         ),
+
+                availableEngineeringCommands:
+                    this.encounterEngine
+                        .getAvailableCommands(
+                            OFFICER_ROLE.ENGINEER,
+                        ),
             }),
         );
     }

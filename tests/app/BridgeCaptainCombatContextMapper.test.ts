@@ -99,6 +99,9 @@ describe(
                             ),
                         ],
 
+                        availableEngineeringCommands:
+                            [],
+
                         availableWeaponsCommands: [
                             createThreatCommand(
                                 ENCOUNTER_OFFICER_COMMAND_ID
@@ -290,6 +293,9 @@ describe(
 
                         availableWeaponsCommands:
                             [],
+
+                        availableEngineeringCommands:
+                            [],
                     }),
                 ).toEqual({
                     incomingLasers:
@@ -315,6 +321,111 @@ describe(
 
                     incomingMissiles:
                         [],
+                });
+            },
+        );
+
+
+        it(
+            'maps the resolved untargeted Engineer shield command onto laser rows',
+            () => {
+                const deployShield:
+                    AvailableOfficerCommand = {
+                        commandId:
+                            ENCOUNTER_OFFICER_COMMAND_ID
+                                .ENGINEER_DEPLOY_SHIELD,
+
+                        label:
+                            'DEPLOY SHIELD',
+
+                        target: {
+                            kind:
+                                OFFICER_COMMAND_TARGET_KIND
+                                    .NONE,
+                        },
+                    };
+
+                expect(
+                    mapCaptainCombatContextToBridgePayload({
+                        enemyShips: [],
+                        incomingMissiles: [],
+
+                        laserThreats: [
+                            {
+                                attack: {
+                                    id:
+                                        'laser_attack_1',
+
+                                    designation:
+                                        'L1',
+
+                                    sourceActorId:
+                                        'enemy_ship_00',
+
+                                    sourceWeaponId:
+                                        'laser_enemy_00',
+
+                                    target: {
+                                        kind:
+                                            COMBAT_TARGET_KIND
+                                                .PLAYER_SHIP,
+                                    },
+                                },
+
+                                timeToFireMs:
+                                    700,
+
+                                initialTimeToFireMs:
+                                    1200,
+                            },
+                        ],
+
+                        availableScienceCommands:
+                            [],
+
+                        availableWeaponsCommands:
+                            [],
+
+                        availableEngineeringCommands: [
+                            deployShield,
+                        ],
+                    }),
+                ).toEqual({
+                    incomingMissiles: [],
+
+                    incomingLasers: [
+                        {
+                            attackId:
+                                'laser_attack_1',
+
+                            designation:
+                                'L1',
+
+                            timeToFireMs:
+                                700,
+
+                            initialTimeToFireMs:
+                                1200,
+
+                            actions: {
+                                deployShield: {
+                                    role:
+                                        OFFICER_ROLE
+                                            .ENGINEER,
+
+                                    commandId:
+                                        ENCOUNTER_OFFICER_COMMAND_ID
+                                            .ENGINEER_DEPLOY_SHIELD,
+
+                                    target: {
+                                        kind:
+                                            OFFICER_COMMAND_TARGET_KIND
+                                                .NONE,
+                                    },
+                                },
+                            },
+                        },
+                    ],
                 });
             },
         );
@@ -363,6 +474,9 @@ describe(
                             [],
 
                         availableScienceCommands:
+                            [],
+
+                        availableEngineeringCommands:
                             [],
 
                         availableWeaponsCommands: [

@@ -40,13 +40,26 @@ const ROW = {
     disabledBackgroundColor: 0x101923,
     disabledBorderColor: 0x26394c,
     disabledTextColor: 0x536778,
+
+    engineerBackgroundColor: 0x2b2716,
+    engineerBorderColor: 0xc7ad53,
 } as const;
+
+type LaserThreatRowCallbacks = {
+    onDeployShield:
+        (
+            command:
+                import('../../../../events/bridge_event')
+                    .BridgeOfficerCommandSelectedPayload,
+        ) => void;
+};
 
 // Первый captain-dashboard laser row.
 //
-// Пока только отображает threat + countdown.
-// SCI/WPN slots намеренно disabled:
-// реальную response-команду добавим после отдельного shield design atom.
+// SCI slot пока намеренно disabled:
+// laser ещё не нацелен на конкретные ship nodes.
+// Второй action slot принадлежит ENG и поднимает shield
+// через обычный resolved officer-command flow.
 export default class BridgeCaptainLaserThreatRowView {
     private readonly root:
         Phaser.GameObjects.Container;
@@ -54,12 +67,24 @@ export default class BridgeCaptainLaserThreatRowView {
     private readonly timerText:
         Phaser.GameObjects.BitmapText;
 
+    private readonly engineerButton:
+        Phaser.GameObjects.Rectangle;
+
+    private readonly engineerLabel:
+        Phaser.GameObjects.BitmapText;
+
+    private engineerHandler?:
+        () => void;
+
     constructor(
         private readonly scene:
             BridgeScene,
 
         width: number,
         height: number,
+
+        private readonly callbacks:
+            LaserThreatRowCallbacks,
     ) {
         this.root =
             this.scene.add.container(
@@ -163,13 +188,13 @@ export default class BridgeCaptainLaserThreatRowView {
                     FONT_COLOR.PRIMARY,
                 );
 
-        const weaponsX =
+        const engineerX =
             width -
             ROW.buttonMarginRight -
             ROW.buttonWidth;
 
         const scienceX =
-            weaponsX -
+            engineerX -
             ROW.buttonGap -
             ROW.buttonWidth;
 
@@ -179,11 +204,23 @@ export default class BridgeCaptainLaserThreatRowView {
                 'SCI',
             );
 
-        const weapons =
+        const engineer =
             this.createDisabledButton(
-                weaponsX,
-                'WPN',
+                engineerX,
+                'ENG',
             );
+
+        this.engineerButton =
+            engineer.background;
+
+        this.engineerLabel =
+            engineer.label;
+
+        this.engineerButton.on(
+            'pointerdown',
+            this.handleEngineerPointerDown,
+            this,
+        );
 
         this.root.add([
             background,
@@ -193,8 +230,8 @@ export default class BridgeCaptainLaserThreatRowView {
             threatLabel,
             science.background,
             science.label,
-            weapons.background,
-            weapons.label,
+            this.engineerButton,
+            this.engineerLabel,
         ]);
     }
 
@@ -222,10 +259,87 @@ export default class BridgeCaptainLaserThreatRowView {
                 laser.timeToFireMs,
             ),
         );
+
+        this.setEngineerAction(
+            laser.actions
+                .deployShield,
+        );
     }
 
     public destroy(): void {
+        this.engineerButton.off(
+            'pointerdown',
+            this.handleEngineerPointerDown,
+            this,
+        );
+
+        this.engineerHandler =
+            undefined;
+
         this.root.destroy(true);
+    }
+
+
+    private setEngineerAction(
+        command:
+            import('../../../../events/bridge_event')
+                .BridgeOfficerCommandSelectedPayload |
+            undefined,
+    ): void {
+        this.engineerButton
+            .disableInteractive();
+
+        this.engineerHandler =
+            undefined;
+
+        if (!command) {
+            this.engineerButton
+                .setFillStyle(
+                    ROW.disabledBackgroundColor,
+                    1,
+                )
+                .setStrokeStyle(
+                    1,
+                    ROW.disabledBorderColor,
+                );
+
+            this.engineerLabel
+                .setTint(
+                    ROW.disabledTextColor,
+                );
+
+            return;
+        }
+
+        this.engineerHandler =
+            () => {
+                this.callbacks
+                    .onDeployShield(
+                        command,
+                    );
+            };
+
+        this.engineerButton
+            .setFillStyle(
+                ROW.engineerBackgroundColor,
+                1,
+            )
+            .setStrokeStyle(
+                1,
+                ROW.engineerBorderColor,
+            )
+            .setInteractive({
+                useHandCursor: true,
+            });
+
+        this.engineerLabel
+            .setTint(
+                ROW.engineerBorderColor,
+            );
+    }
+
+    private handleEngineerPointerDown(): void {
+        this.engineerHandler?.();
     }
 
     private createDisabledButton(

@@ -57,6 +57,9 @@ describe(
 
                         availableWeaponsCommands:
                             [],
+
+                        availableEngineeringCommands:
+                            [],
                     }),
                 ).toEqual({
                     incomingMissiles: [],
@@ -74,6 +77,8 @@ describe(
 
                             initialTimeToFireMs:
                                 10000,
+
+                            actions: {},
                         },
                     ],
                 });

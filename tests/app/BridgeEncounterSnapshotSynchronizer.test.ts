@@ -128,6 +128,8 @@ describe('BridgeEncounterSnapshotSynchronizer', () => {
 
                             initialTimeToFireMs:
                                 1000,
+
+                            actions: {},
                         },
                     ],
 
@@ -249,6 +251,8 @@ describe('BridgeEncounterSnapshotSynchronizer', () => {
 
                             initialTimeToFireMs:
                                 1000,
+
+                            actions: {},
                         },
                     ],
 
