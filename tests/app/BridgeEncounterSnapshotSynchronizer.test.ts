@@ -93,6 +93,22 @@ describe('BridgeEncounterSnapshotSynchronizer', () => {
                         },
                     },
 
+                    incomingLasers: [
+                        {
+                            attackId:
+                                'laser_attack_1',
+
+                            designation:
+                                'L1',
+
+                            timeToFireMs:
+                                500,
+
+                            initialTimeToFireMs:
+                                1000,
+                        },
+                    ],
+
                     incomingMissiles: [
                         {
                             projectileId:
@@ -197,6 +213,22 @@ describe('BridgeEncounterSnapshotSynchronizer', () => {
                                 0.5,
                         },
                     },
+
+                    incomingLasers: [
+                        {
+                            attackId:
+                                'laser_attack_1',
+
+                            designation:
+                                'L1',
+
+                            timeToFireMs:
+                                500,
+
+                            initialTimeToFireMs:
+                                1000,
+                        },
+                    ],
 
                     incomingMissiles: [
                         {
@@ -368,7 +400,11 @@ function createEncounterEngine(): EncounterEngine {
             return [
                 {
                     attack: {
-                        id: 'laser_attack_1',
+                        id:
+                            'laser_attack_1',
+
+                        designation:
+                            'L1',
                     },
                     timeToFireMs: 500,
                     initialTimeToFireMs: 1000,

@@ -9,7 +9,7 @@ import {
     type BridgeCaptainCombatContextUpdatedPayload,
 } from '../../../events/bridge_event';
 import type BridgeEventBus from '../../../events/BridgeEventBus';
-import BridgeCaptainMissileThreatsView from './threats/BridgeCaptainMissileThreatsView';
+import BridgeCaptainThreatsView from './threats/BridgeCaptainThreatsView';
 
 const PANEL = {
     width: 536,
@@ -52,7 +52,8 @@ const DEF_BAR = {
 //
 // Пока она намеренно знает только:
 // - HULL/DEF текущего enemy ship;
-// - incoming missile rows.
+// - incoming missile rows;
+// - incoming laser rows.
 //
 // Другие threat-типы будут добавляться в этот же органичный экран,
 // а не отдельными popup/menu системами.
@@ -78,8 +79,8 @@ export default class BridgeCaptainCombatContextView {
     private readonly defenseBarWidth:
         number;
 
-    private readonly missileThreatsView:
-        BridgeCaptainMissileThreatsView;
+    private readonly threatsView:
+        BridgeCaptainThreatsView;
 
     constructor(
         private readonly scene:
@@ -216,8 +217,8 @@ export default class BridgeCaptainCombatContextView {
                 .setOrigin(0, 0)
                 .setVisible(false);
 
-        this.missileThreatsView =
-            new BridgeCaptainMissileThreatsView(
+        this.threatsView =
+            new BridgeCaptainThreatsView(
                 this.scene,
                 this.eventBus,
 
@@ -225,7 +226,7 @@ export default class BridgeCaptainCombatContextView {
                 THREATS_HEIGHT,
             );
 
-        this.missileThreatsView
+        this.threatsView
             .setPosition(
                 PANEL.padding,
 
@@ -240,7 +241,7 @@ export default class BridgeCaptainCombatContextView {
             this.defenseText,
             this.defenseTrack,
             this.defenseFill,
-            this.missileThreatsView
+            this.threatsView
                 .getRoot(),
         ]);
 
@@ -277,7 +278,7 @@ export default class BridgeCaptainCombatContextView {
             this,
         );
 
-        this.missileThreatsView
+        this.threatsView
             .destroy();
 
         this.root.destroy(true);
@@ -346,9 +347,10 @@ export default class BridgeCaptainCombatContextView {
             payload.enemyShip,
         );
 
-        this.missileThreatsView
+        this.threatsView
             .update(
                 payload.incomingMissiles,
+                payload.incomingLasers,
             );
     }
 

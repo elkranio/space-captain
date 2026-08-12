@@ -5,6 +5,9 @@ import { OFFICER_ROLE, type OfficerRole } from '../../../../../../engine/defs/of
 import type {
     EnemyShipTelemetrySnapshot,
 } from '../../../../../../engine/encounter/EncounterEngine';
+import type {
+    LaserThreatSnapshot,
+} from '../../../../../../engine/encounter/combat/queries/get_laser_threat_snapshots';
 import {
     ENCOUNTER_OFFICER_COMMAND_ID,
     OFFICER_COMMAND_TARGET_KIND,
@@ -26,6 +29,9 @@ type CaptainCombatContextMapperInput = {
 
     incomingMissiles:
         CombatProjectileState[];
+
+    laserThreats:
+        LaserThreatSnapshot[];
 
     availableScienceCommands:
         AvailableOfficerCommand[];
@@ -169,6 +175,32 @@ export function mapCaptainCombatContextToBridgePayload(
                                   }
                                 : {}),
                         },
+                    };
+                }),
+
+        incomingLasers:
+            [...input.laserThreats]
+                .sort((left, right) => {
+                    return (
+                        left.timeToFireMs -
+                        right.timeToFireMs
+                    );
+                })
+                .map((snapshot) => {
+                    return {
+                        attackId:
+                            snapshot.attack.id,
+
+                        designation:
+                            snapshot.attack
+                                .designation,
+
+                        timeToFireMs:
+                            snapshot.timeToFireMs,
+
+                        initialTimeToFireMs:
+                            snapshot
+                                .initialTimeToFireMs,
                     };
                 }),
     };

@@ -129,6 +129,10 @@ export default class BridgeEncounterSnapshotSynchronizer {
                     this.encounterEngine
                         .getIncomingMissileProjectiles(),
 
+                laserThreats:
+                    this.encounterEngine
+                        .getLaserThreatSnapshots(),
+
                 availableScienceCommands:
                     this.encounterEngine
                         .getAvailableCommands(

@@ -6,10 +6,12 @@ import {
 import type BridgeScene from '../../../../BridgeScene';
 import {
     BRIDGE_EVENT,
+    type BridgeCaptainIncomingLaserPayload,
     type BridgeCaptainIncomingMissilePayload,
     type BridgeOfficerCommandSelectedPayload,
 } from '../../../../events/bridge_event';
 import type BridgeEventBus from '../../../../events/BridgeEventBus';
+import BridgeCaptainLaserThreatRowView from './BridgeCaptainLaserThreatRowView';
 import BridgeCaptainMissileThreatRowView from './BridgeCaptainMissileThreatRowView';
 
 const ROW_HEIGHT = 36;
@@ -54,11 +56,14 @@ type BeamSelectorButton = {
         () => void;
 };
 
-// Missile threat list + inline point-defense beam selector.
+// Captain threat list + inline missile point-defense beam selector.
 //
 // Selector заменяет содержимое threat-area,
 // поэтому это не popup и не отдельное overlay window.
-export default class BridgeCaptainMissileThreatsView {
+//
+// Laser rows пока presentation-only:
+// SCI/WPN slots видимы, но disabled до следующего shield atom.
+export default class BridgeCaptainThreatsView {
     private readonly root:
         Phaser.GameObjects.Container;
 
@@ -80,12 +85,20 @@ export default class BridgeCaptainMissileThreatsView {
     private readonly closeButton:
         BeamSelectorButton;
 
-    private readonly rowViews:
+    private readonly missileRowViews:
         BridgeCaptainMissileThreatRowView[] =
+            [];
+
+    private readonly laserRowViews:
+        BridgeCaptainLaserThreatRowView[] =
             [];
 
     private missiles:
         BridgeCaptainIncomingMissilePayload[] =
+            [];
+
+    private lasers:
+        BridgeCaptainIncomingLaserPayload[] =
             [];
 
     private selectedMissileId?:
@@ -253,9 +266,15 @@ export default class BridgeCaptainMissileThreatsView {
     public update(
         missiles:
             BridgeCaptainIncomingMissilePayload[],
+
+        lasers:
+            BridgeCaptainIncomingLaserPayload[],
     ): void {
         this.missiles =
             missiles;
+
+        this.lasers =
+            lasers;
 
         this.reconcileRows();
         this.reconcileBeamSelector();
@@ -287,18 +306,23 @@ export default class BridgeCaptainMissileThreatsView {
     }
 
     private reconcileRows(): void {
+        this.reconcileMissileRows();
+        this.reconcileLaserRows();
+    }
+
+    private reconcileMissileRows(): void {
         while (
-            this.rowViews.length >
+            this.missileRowViews.length >
             this.missiles.length
         ) {
             const rowView =
-                this.rowViews.pop();
+                this.missileRowViews.pop();
 
             rowView?.destroy();
         }
 
         while (
-            this.rowViews.length <
+            this.missileRowViews.length <
             this.missiles.length
         ) {
             const rowView =
@@ -331,7 +355,7 @@ export default class BridgeCaptainMissileThreatsView {
                     },
                 );
 
-            this.rowViews.push(
+            this.missileRowViews.push(
                 rowView,
             );
 
@@ -350,7 +374,7 @@ export default class BridgeCaptainMissileThreatsView {
                 this.missiles[index];
 
             const rowView =
-                this.rowViews[index];
+                this.missileRowViews[index];
 
             if (
                 !missile ||
@@ -371,6 +395,72 @@ export default class BridgeCaptainMissileThreatsView {
         }
     }
 
+    private reconcileLaserRows(): void {
+        while (
+            this.laserRowViews.length >
+            this.lasers.length
+        ) {
+            const rowView =
+                this.laserRowViews.pop();
+
+            rowView?.destroy();
+        }
+
+        while (
+            this.laserRowViews.length <
+            this.lasers.length
+        ) {
+            const rowView =
+                new BridgeCaptainLaserThreatRowView(
+                    this.scene,
+                    this.width,
+                    ROW_HEIGHT,
+                );
+
+            this.laserRowViews.push(
+                rowView,
+            );
+
+            this.listRoot.add(
+                rowView.getRoot(),
+            );
+        }
+
+        const firstLaserRow =
+            this.missiles.length;
+
+        for (
+            let index = 0;
+            index <
+            this.lasers.length;
+            index += 1
+        ) {
+            const laser =
+                this.lasers[index];
+
+            const rowView =
+                this.laserRowViews[index];
+
+            if (
+                !laser ||
+                !rowView
+            ) {
+                continue;
+            }
+
+            rowView.setPosition(
+                0,
+                (firstLaserRow +
+                    index) *
+                    ROW_HEIGHT,
+            );
+
+            rowView.update(
+                laser,
+            );
+        }
+    }
+
     private reconcileBeamSelector(): void {
         if (!this.selectedMissileId) {
             return;
@@ -386,15 +476,11 @@ export default class BridgeCaptainMissileThreatsView {
                 },
             );
 
-        // Threat resolved/removed while selector was open.
         if (!missile) {
             this.closeBeamSelector();
             return;
         }
 
-        // Science may identify it while selector is open.
-        // Return to normal row; next WPN click will use
-        // the resolved beam immediately.
         if (missile.spectralBand) {
             this.closeBeamSelector();
             return;
@@ -656,12 +742,20 @@ export default class BridgeCaptainMissileThreatsView {
     private clearRows(): void {
         for (
             const rowView
-            of this.rowViews
+            of this.missileRowViews
         ) {
             rowView.destroy();
         }
 
-        this.rowViews.length = 0;
+        for (
+            const rowView
+            of this.laserRowViews
+        ) {
+            rowView.destroy();
+        }
+
+        this.missileRowViews.length = 0;
+        this.laserRowViews.length = 0;
     }
 }
 

@@ -87,6 +87,9 @@ describe(
                             near,
                         ],
 
+                        laserThreats:
+                            [],
+
                         availableScienceCommands: [
                             createThreatCommand(
                                 ENCOUNTER_OFFICER_COMMAND_ID
@@ -120,6 +123,9 @@ describe(
                         ],
                     }),
                 ).toEqual({
+                    incomingLasers:
+                        [],
+
                     incomingMissiles: [
                         {
                             projectileId:
@@ -276,6 +282,9 @@ describe(
                         incomingMissiles:
                             [],
 
+                        laserThreats:
+                            [],
+
                         availableScienceCommands:
                             [],
 
@@ -283,6 +292,9 @@ describe(
                             [],
                     }),
                 ).toEqual({
+                    incomingLasers:
+                        [],
+
                     enemyShip: {
                         actorId:
                             'enemy_ship_00',
@@ -346,6 +358,9 @@ describe(
                         incomingMissiles: [
                             missile,
                         ],
+
+                        laserThreats:
+                            [],
 
                         availableScienceCommands:
                             [],

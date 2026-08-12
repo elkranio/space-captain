@@ -556,6 +556,14 @@ export type BridgeCaptainIncomingMissilePayload = {
     };
 };
 
+export type BridgeCaptainIncomingLaserPayload = {
+    attackId: string;
+    designation: string;
+
+    timeToFireMs: number;
+    initialTimeToFireMs: number;
+};
+
 export type BridgeCaptainCombatContextUpdatedPayload = {
     enemyShip?: {
         actorId: string;
@@ -575,6 +583,9 @@ export type BridgeCaptainCombatContextUpdatedPayload = {
 
     incomingMissiles:
         BridgeCaptainIncomingMissilePayload[];
+
+    incomingLasers:
+        BridgeCaptainIncomingLaserPayload[];
 };
 
 // #endregion
