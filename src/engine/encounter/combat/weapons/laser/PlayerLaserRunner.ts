@@ -11,6 +11,7 @@ import {
 } from '../../../../defs/ship_weapon';
 import {
     LASER_SHOT_OUTCOME,
+    type LaserShotOutcome,
 } from '../../../model/combat';
 import {
     ENCOUNTER_EVENT,
@@ -33,7 +34,7 @@ type WeaponsFireLaserTaskState = Extract<
 
 type PlayerLaserImpact = {
     outcome:
-        typeof LASER_SHOT_OUTCOME.HIT;
+        LaserShotOutcome;
 
     damage: number;
     remainingHull: number;
@@ -51,11 +52,9 @@ type PlayerLaserRunnerOptions = {
 };
 
 // Owns the active installed player laser lifecycle:
-// targeting -> charging -> HULL impact -> cooldown.
+// targeting -> charging -> whole-ship shield/hull impact -> cooldown.
 //
-// Old directional enemy shields are intentionally not part
-// of this baseline. Node-aware shield interception returns
-// later on the new combat contract.
+// Node/sector targeting remains intentionally absent in this slice.
 export default class PlayerLaserRunner {
     constructor(
         private readonly options:
@@ -182,10 +181,10 @@ export default class PlayerLaserRunner {
 
         laser.phaseElapsedMs = 0;
 
-        // Damage resolves before the event so telemetry in this
-        // step already observes the new target state.
+        // Impact resolves before the event so same-frame telemetry
+        // already observes the consumed shield or damaged hull.
         const impact =
-            this.resolveHullImpact(
+            this.resolveImpact(
                 task,
                 definition.damage,
             );
@@ -220,7 +219,7 @@ export default class PlayerLaserRunner {
         }
     }
 
-    private resolveHullImpact(
+    private resolveImpact(
         task: WeaponsFireLaserTaskState,
         damage: number,
     ): PlayerLaserImpact {
@@ -240,6 +239,20 @@ export default class PlayerLaserRunner {
                     `${task.id}/` +
                     `${task.targetActorId}`,
             );
+        }
+
+        if (target.activeShield) {
+            delete target.activeShield;
+
+            return {
+                outcome:
+                    LASER_SHOT_OUTCOME
+                        .ABSORBED,
+
+                damage: 0,
+                remainingHull:
+                    target.hull,
+            };
         }
 
         const damageResult =

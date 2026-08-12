@@ -12,6 +12,7 @@ import type { EncounterState } from '../model/state';
 import EncounterStateStore from '../state/EncounterStateStore';
 import CombatLaserRunner from './weapons/laser/CombatLaserRunner';
 import EnemyPointDefenseRunner from './point_defense/EnemyPointDefenseRunner';
+import EnemyShieldRunner from './defense/EnemyShieldRunner';
 import CombatMissileRunner, {
     type PlayerMissileLaunchInput,
 } from './weapons/missile/CombatMissileRunner';
@@ -78,6 +79,9 @@ export default class CombatRunner {
     private readonly enemyThreatObserver:
         EnemyThreatObserver;
 
+    private readonly enemyShieldRunner:
+        EnemyShieldRunner;
+
     private readonly identities:
         CombatRuntimeIdentityFactory;
 
@@ -128,6 +132,11 @@ export default class CombatRunner {
 
         this.performanceResolver =
             new CrewPerformanceResolver(
+                this.state,
+            );
+
+        this.enemyShieldRunner =
+            new EnemyShieldRunner(
                 this.state,
             );
 
@@ -231,6 +240,14 @@ export default class CombatRunner {
 
                 purgePlayerSpamChannel,
 
+                deployEnemyShield:
+                    (actor) => {
+                        this.enemyShieldRunner
+                            .deploy(
+                                actor,
+                            );
+                    },
+
                 random,
             });
 
@@ -241,6 +258,11 @@ export default class CombatRunner {
     }
 
     public step(deltaMs: number): void {
+        // Existing shield/emitter time advances before new enemy work.
+        // A field deployed later in this step starts at full duration.
+        this.enemyShieldRunner
+            .step(deltaMs);
+
         const existingCombatObjectIds =
             this.captureExistingCombatObjectIds();
 

@@ -25,6 +25,12 @@ import type {
     ShipWeaponState,
 } from '../../../defs/ship_weapon';
 import type {
+    ShieldEmitterState,
+} from '../../../defs/shield_emitter';
+import type {
+    ActiveShieldState,
+} from '../../model/combat';
+import type {
     EnemyThreatObservationState,
 } from '../../model/enemy_threat_observation';
 import type {
@@ -62,6 +68,11 @@ export type ShipEncounterActorState =
         defenseCapacitor?:
             DefenseCapacitorState;
 
+        shieldEmitter?:
+            ShieldEmitterState;
+
+        activeShield?:
+            ActiveShieldState;
 
         behavior: ShipBehaviorState;
 

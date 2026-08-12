@@ -17,6 +17,10 @@ import {
     type PointDefenseId,
 } from '../../defs/point_defense';
 import {
+    SHIELD_EMITTER_ID,
+    type ShieldEmitterId,
+} from '../../defs/shield_emitter';
+import {
     SHIP_WEAPON_ID,
     SHIP_WEAPON_KIND,
 } from '../../defs/ship_weapon';
@@ -126,6 +130,13 @@ export type ShipPreset = {
 
         defenseCapacitorId:
             DefenseCapacitorId;
+    };
+
+    shieldEmitter?: {
+        id: string;
+
+        shieldEmitterId:
+            ShieldEmitterId;
     };
 
     weapons: ShipWeaponPreset[];
@@ -357,21 +368,17 @@ export const SHIP_PRESETS = {
                     .BASIC_00,
         },
 
-        // Изолированный spam slice:
-        // defense sandbox сохраняет защитные системы,
-        // но атакует только одним weapon family.
-        weapons: [
-            {
-                id: 'spam_projector_00',
+        shieldEmitter: {
+            id:
+                'shield_emitter_00',
 
-                kind:
-                    SHIP_WEAPON_KIND
-                        .SPAM_PROJECTOR,
+            shieldEmitterId:
+                SHIELD_EMITTER_ID
+                    .BASIC_00,
+        },
 
-                weaponId:
-                    SHIP_WEAPON_ID
-                        .SPAM_PROJECTOR_00,
-            },
-        ],
+        // Shield slice is deliberately defensive-only:
+        // hostile SPAM remains implemented, but is not mounted here.
+        weapons: [],
     },
 } satisfies Record<ShipPresetId, ShipPreset>;

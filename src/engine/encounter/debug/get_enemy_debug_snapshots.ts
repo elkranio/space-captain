@@ -420,6 +420,24 @@ function createCrewTaskSnapshot(
         }
 
         case SHIP_CREW_TASK_KIND
+            .DEPLOY_SHIELD:
+            return {
+                kind:
+                    task.kind,
+
+                label:
+                    'DEPLOY SHIELD',
+
+                progress: {
+                    elapsedMs:
+                        task.elapsedMs,
+
+                    durationMs:
+                        task.durationMs,
+                },
+            };
+
+        case SHIP_CREW_TASK_KIND
             .OPERATE_WEAPON: {
             const weapon =
                 actor.weapons.find(

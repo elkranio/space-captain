@@ -28,6 +28,9 @@ import type {
     ShipWeaponState,
 } from './ship_weapon';
 import type {
+    ShieldEmitterState,
+} from './shield_emitter';
+import type {
     SpaceBackgroundId,
 } from './space_background';
 import type { StationState } from './station';
@@ -88,6 +91,9 @@ export type ShipSpaceNodeActorState =
 
         defenseCapacitor?:
             DefenseCapacitorState;
+
+        shieldEmitter?:
+            ShieldEmitterState;
 
         behavior: ShipBehaviorState;
 

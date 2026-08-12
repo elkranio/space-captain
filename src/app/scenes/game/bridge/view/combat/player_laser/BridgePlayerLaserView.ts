@@ -258,8 +258,9 @@ export default class BridgePlayerLaserView {
                 position:
                     targetPosition,
 
-                // Baseline player laser has no shield interception.
-                blocked: false,
+                blocked:
+                    payload.outcome ===
+                    'absorbed',
 
                 onComplete: () => {
                     impact.destroy();

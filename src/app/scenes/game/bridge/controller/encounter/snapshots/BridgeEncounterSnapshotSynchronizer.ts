@@ -25,6 +25,7 @@ export default class BridgeEncounterSnapshotSynchronizer {
     public syncInitial(): void {
         this.syncPlayerShipDashboard();
         this.syncPlayerShield();
+        this.syncEnemyShields();
         this.syncCaptainCombatContext();
     }
 
@@ -34,6 +35,7 @@ export default class BridgeEncounterSnapshotSynchronizer {
         this.syncOutgoingStickyMines();
         this.syncStickyMines();
         this.syncPlayerShield();
+        this.syncEnemyShields();
         this.syncLaserThreats();
         this.syncCaptainCombatContext();
     }
@@ -205,6 +207,47 @@ export default class BridgeEncounterSnapshotSynchronizer {
                               .initialDurationMs,
                   }
                 : null,
+        );
+    }
+
+    private syncEnemyShields(): void {
+        const shields: Array<{
+            actorId: string;
+            remainingDurationMs: number;
+            initialDurationMs: number;
+        }> = [];
+
+        for (
+            const enemy of
+            this.encounterEngine
+                .getEnemyShipTelemetrySnapshots()
+        ) {
+            const shield =
+                enemy.activeShield;
+
+            if (!shield) {
+                continue;
+            }
+
+            shields.push({
+                actorId:
+                    enemy.actorId,
+
+                remainingDurationMs:
+                    shield
+                        .remainingDurationMs,
+
+                initialDurationMs:
+                    shield
+                        .initialDurationMs,
+            });
+        }
+
+        this.eventBus.emit(
+            BRIDGE_EVENT
+                .ENEMY_SHIELDS_UPDATED,
+
+            shields,
         );
     }
 

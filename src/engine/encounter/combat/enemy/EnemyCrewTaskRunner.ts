@@ -19,10 +19,14 @@ import {
 import {
     SHIP_CREW_TASK_KIND,
     type ClearStickyMineShipCrewTaskState,
+    type DeployShieldShipCrewTaskState,
     type IdentifyThreatShipCrewTaskState,
     type PurgeSpamShipCrewTaskState,
     type ShipCrewTaskState,
 } from '../../model/ship_crew_task';
+import {
+    ENEMY_THREAT_KIND,
+} from '../../model/enemy_threat_observation';
 import type {
     EncounterState,
 } from '../../model/state';
@@ -39,6 +43,10 @@ type EnemyCrewTaskRunnerOptions = {
         role: OfficerRole,
     ) => void;
 
+
+    onShieldDeploymentCompleted?: (
+        actor: ShipEncounterActorState,
+    ) => void;
 
     onStickyMineClearingCompleted: (
         actor: ShipEncounterActorState,
@@ -80,6 +88,12 @@ export default class EnemyCrewTaskRunner {
         ];
 
 
+    private readonly onShieldDeploymentCompleted:
+        (
+            actor:
+                ShipEncounterActorState,
+        ) => void;
+
     private readonly onStickyMineClearingCompleted:
         EnemyCrewTaskRunnerOptions[
             'onStickyMineClearingCompleted'
@@ -98,6 +112,7 @@ export default class EnemyCrewTaskRunner {
     constructor({
         state,
         onOffensiveTaskCompleted,
+        onShieldDeploymentCompleted,
         onStickyMineClearingCompleted,
         onSpamPurgingCompleted,
         onThreatIdentificationCompleted,
@@ -111,6 +126,14 @@ export default class EnemyCrewTaskRunner {
 
         this.onOffensiveTaskCompleted =
             onOffensiveTaskCompleted;
+
+        this.onShieldDeploymentCompleted =
+            onShieldDeploymentCompleted ??
+            (() => {
+                throw new Error(
+                    'Enemy shield deployment callback is missing',
+                );
+            });
 
         this.onStickyMineClearingCompleted =
             onStickyMineClearingCompleted;
@@ -289,6 +312,18 @@ export default class EnemyCrewTaskRunner {
     ): void {
         switch (task.kind) {
             case SHIP_CREW_TASK_KIND
+                .DEPLOY_SHIELD:
+                this.processDeployShield(
+                    actor,
+                    role,
+                    task,
+                    deltaMs,
+                    advanceTimedTasks,
+                );
+
+                return;
+
+            case SHIP_CREW_TASK_KIND
                 .OPERATE_WEAPON:
                 this.synchronizeOperateWeapon(
                     actor,
@@ -344,6 +379,66 @@ export default class EnemyCrewTaskRunner {
 
                 return;
         }
+    }
+
+    private processDeployShield(
+        actor: ShipEncounterActorState,
+        role: OfficerRole,
+        task:
+            DeployShieldShipCrewTaskState,
+        deltaMs: number,
+        advanceTimedTasks: boolean,
+    ): void {
+        const observation =
+            actor
+                .threatObservations
+                .find((candidate) => {
+                    return (
+                        candidate.id ===
+                        task.observationId
+                    );
+                });
+
+        if (
+            !observation ||
+            observation.kind !==
+                ENEMY_THREAT_KIND.LASER
+        ) {
+            // Charge was committed on task start and is not refunded.
+            this.cancel(
+                actor,
+                role,
+            );
+
+            return;
+        }
+
+        if (!advanceTimedTasks) {
+            return;
+        }
+
+        task.elapsedMs =
+            Math.min(
+                task.durationMs,
+                task.elapsedMs +
+                    deltaMs,
+            );
+
+        if (
+            task.elapsedMs <
+            task.durationMs
+        ) {
+            return;
+        }
+
+        this.onShieldDeploymentCompleted(
+            actor,
+        );
+
+        this.complete(
+            actor,
+            role,
+        );
     }
 
     private synchronizeOperateWeapon(

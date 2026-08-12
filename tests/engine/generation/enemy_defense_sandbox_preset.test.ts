@@ -17,80 +17,93 @@ import {
     POINT_DEFENSE_PHASE,
 } from '../../../src/engine/defs/point_defense';
 import {
-    SHIP_WEAPON_ID,
-    SHIP_WEAPON_KIND,
-    SHIP_WEAPON_PHASE,
-} from '../../../src/engine/defs/ship_weapon';
+    SHIELD_EMITTER_ID,
+    SHIELD_EMITTER_PHASE,
+    SHIELD_EMITTER_STATUS,
+} from '../../../src/engine/defs/shield_emitter';
 import ShipNodeActorFactory from '../../../src/engine/generation/space_node_actor/ShipNodeActorFactory';
 
 describe('Enemy defense sandbox preset', () => {
-    it('creates a fully crewed defensive enemy with one spam projector', () => {
-        const actor =
-            ShipNodeActorFactory.create({
+    it(
+        'creates a fully crewed defensive enemy with whole-ship shield support',
+        () => {
+            const actor =
+                ShipNodeActorFactory.create({
+                    id:
+                        'ship_enemy_defense_sandbox_00',
+
+                    presetId:
+                        SHIP_NODE_ACTOR_PRESET_ID
+                            .ENEMY_DEFENSE_SANDBOX_00,
+
+                    anchorId:
+                        'anchor_00',
+                });
+
+            expect(actor.weapons)
+                .toEqual([]);
+
+            expect(actor.pointDefense)
+                .toEqual({
+                    id:
+                        'point_defense_00',
+
+                    pointDefenseId:
+                        POINT_DEFENSE_ID
+                            .BASIC_00,
+
+                    phase:
+                        POINT_DEFENSE_PHASE
+                            .READY,
+                    phaseElapsedMs: 0,
+
+                    loadedBand: null,
+                    targetProjectileId:
+                        null,
+                });
+
+            expect(
+                actor.defenseCapacitor,
+            ).toEqual({
                 id:
-                    'ship_enemy_defense_sandbox_00',
+                    'defense_capacitor_00',
 
-                presetId:
-                    SHIP_NODE_ACTOR_PRESET_ID
-                        .ENEMY_DEFENSE_SANDBOX_00,
+                defenseCapacitorId:
+                    DEFENSE_CAPACITOR_ID
+                        .BASIC_00,
 
-                anchorId: 'anchor_00',
+                charges: 4,
+                rechargeElapsedMs: 0,
             });
 
-        expect(actor.weapons).toEqual([
-            {
+            expect(
+                actor.shieldEmitter,
+            ).toEqual({
                 id:
-                    'spam_projector_00',
+                    'shield_emitter_00',
 
-                weaponId:
-                    SHIP_WEAPON_ID
-                        .SPAM_PROJECTOR_00,
+                shieldEmitterId:
+                    SHIELD_EMITTER_ID
+                        .BASIC_00,
 
-                kind:
-                    SHIP_WEAPON_KIND
-                        .SPAM_PROJECTOR,
+                status:
+                    SHIELD_EMITTER_STATUS
+                        .ONLINE,
 
                 phase:
-                    SHIP_WEAPON_PHASE.READY,
+                    SHIELD_EMITTER_PHASE
+                        .READY,
+
                 phaseElapsedMs: 0,
+            });
 
-                activeChannelId: null,
-            },
-        ]);
-
-        expect(actor.pointDefense).toEqual({
-            id: 'point_defense_00',
-
-            pointDefenseId:
-                POINT_DEFENSE_ID.BASIC_00,
-
-            phase:
-                POINT_DEFENSE_PHASE.READY,
-            phaseElapsedMs: 0,
-
-            loadedBand: null,
-            targetProjectileId: null,
-        });
-
-        expect(
-            actor.defenseCapacitor,
-        ).toEqual({
-            id:
-                'defense_capacitor_00',
-
-            defenseCapacitorId:
-                DEFENSE_CAPACITOR_ID
-                    .BASIC_00,
-
-            charges: 4,
-            rechargeElapsedMs: 0,
-        });
-
-        expect(actor.crewRoles).toEqual([
-            OFFICER_ROLE.SCIENCE,
-            OFFICER_ROLE.HELM,
-            OFFICER_ROLE.WEAPONS,
-            OFFICER_ROLE.ENGINEER,
-        ]);
-    });
+            expect(actor.crewRoles)
+                .toEqual([
+                    OFFICER_ROLE.SCIENCE,
+                    OFFICER_ROLE.HELM,
+                    OFFICER_ROLE.WEAPONS,
+                    OFFICER_ROLE.ENGINEER,
+                ]);
+        },
+    );
 });

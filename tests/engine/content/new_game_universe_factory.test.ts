@@ -6,10 +6,10 @@ import { OFFICER_ROLE } from '../../../src/engine/defs/officer';
 import { PLAYER_LOCATION_KIND, PLAYER_SPACE_NAVIGATION_KIND } from '../../../src/engine/defs/player_location';
 import { SPACE_BACKGROUND_ID } from '../../../src/engine/defs/space_background';
 import {
-    SHIP_WEAPON_ID,
-    SHIP_WEAPON_KIND,
-    SHIP_WEAPON_PHASE,
-} from '../../../src/engine/defs/ship_weapon';
+    SHIELD_EMITTER_ID,
+    SHIELD_EMITTER_PHASE,
+    SHIELD_EMITTER_STATUS,
+} from '../../../src/engine/defs/shield_emitter';
 import { SPACE_ANCHOR_KIND, SPACE_NODE_ACTOR_KIND } from '../../../src/engine/defs/universe';
 
 describe('NewGameUniverseFactory', () => {
@@ -110,26 +110,28 @@ describe('NewGameUniverseFactory', () => {
         expect(enemy.kind).toBe(SPACE_NODE_ACTOR_KIND.SHIP);
         expect(enemy.anchorId).toBe(navigationBeaconAnchor.beacon.id);
 
-        expect(enemy.weapons).toEqual([
-            {
-                id:
-                    'spam_projector_00',
+        expect(enemy.weapons).toEqual([]);
 
-                weaponId:
-                    SHIP_WEAPON_ID
-                        .SPAM_PROJECTOR_00,
+        expect(
+            enemy.shieldEmitter,
+        ).toEqual({
+            id:
+                'shield_emitter_00',
 
-                kind:
-                    SHIP_WEAPON_KIND
-                        .SPAM_PROJECTOR,
+            shieldEmitterId:
+                SHIELD_EMITTER_ID
+                    .BASIC_00,
 
-                phase:
-                    SHIP_WEAPON_PHASE.READY,
-                phaseElapsedMs: 0,
+            status:
+                SHIELD_EMITTER_STATUS
+                    .ONLINE,
 
-                activeChannelId: null,
-            },
-        ]);
+            phase:
+                SHIELD_EMITTER_PHASE
+                    .READY,
+
+            phaseElapsedMs: 0,
+        });
 
         expect(enemy.crewRoles).toEqual([
             OFFICER_ROLE.SCIENCE,
@@ -190,15 +192,31 @@ describe('NewGameUniverseFactory', () => {
 
         expect(firstEnemy.weapons).not.toBe(secondEnemy.weapons);
 
-        expect(firstEnemy.weapons).toHaveLength(1);
-        expect(secondEnemy.weapons).toHaveLength(1);
-
-        expect(firstEnemy.weapons[0]).not.toBe(
-            secondEnemy.weapons[0],
-        );
+        expect(firstEnemy.weapons).toHaveLength(0);
+        expect(secondEnemy.weapons).toHaveLength(0);
 
         expect(firstEnemy.weapons).toEqual(
             secondEnemy.weapons,
+        );
+
+        expect(
+            firstEnemy.shieldEmitter,
+        ).toBeDefined();
+
+        expect(
+            secondEnemy.shieldEmitter,
+        ).toBeDefined();
+
+        expect(
+            firstEnemy.shieldEmitter,
+        ).not.toBe(
+            secondEnemy.shieldEmitter,
+        );
+
+        expect(
+            firstEnemy.shieldEmitter,
+        ).toEqual(
+            secondEnemy.shieldEmitter,
         );
 
         expect(first.playerLocations.arrivingAtStart).not.toBe(second.playerLocations.arrivingAtStart);

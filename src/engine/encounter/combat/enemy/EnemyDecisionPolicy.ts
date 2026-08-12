@@ -1,6 +1,15 @@
 // src/engine/encounter/combat/EnemyDecisionPolicy.ts
 
 import {
+    SHIELD_EMITTERS,
+} from '../../../content/catalogs/shield_emitters';
+import {
+    SHIP_WEAPONS,
+} from '../../../content/catalogs/ship_weapons';
+import {
+    OFFICER_TASK_BASE_DURATION_MS,
+} from '../../../content/rules/officer_tasks';
+import {
     OFFICER_ROLE,
     type OfficerRole,
 } from '../../../defs/officer';
@@ -13,6 +22,10 @@ import {
     SHIP_WEAPON_PHASE,
     type ShipWeaponState,
 } from '../../../defs/ship_weapon';
+import {
+    SHIELD_EMITTER_PHASE,
+    SHIELD_EMITTER_STATUS,
+} from '../../../defs/shield_emitter';
 import type {
     ShipEncounterActorState,
 } from '../../actors/ship/ship_encounter_actor';
@@ -20,6 +33,9 @@ import {
     COMBAT_SOURCE_KIND,
     COMBAT_TARGET_KIND,
 } from '../../model/combat';
+import {
+    OFFICER_TASK_KIND,
+} from '../../model/officer_task';
 import type {
     EncounterState,
 } from '../../model/state';
@@ -35,6 +51,16 @@ import {
 } from '../queries/get_active_player_spam_channels';
 
 export type EnemyWorkIntent =
+    | {
+          kind:
+              typeof SHIP_CREW_TASK_KIND
+                  .DEPLOY_SHIELD;
+
+          role:
+              typeof OFFICER_ROLE.ENGINEER;
+
+          observationId: string;
+      }
     | {
           kind:
               typeof SHIP_CREW_TASK_KIND
@@ -87,6 +113,10 @@ export type EnemyWorkIntent =
               typeof POINT_DEFENSE_BEAM_BAND.RED |
               typeof POINT_DEFENSE_BEAM_BAND.BLUE;
       };
+
+// Normal Engineer should finish with about one second of shield life
+// still reserved after the incoming player laser impact.
+const ENEMY_SHIELD_IMPACT_RESERVE_MS = 1000;
 
 const ENEMY_MINE_CLEAR_ROLE_PRIORITY = [
     OFFICER_ROLE.ENGINEER,
@@ -292,7 +322,18 @@ export default class EnemyDecisionPolicy {
         role: OfficerRole,
     ): EnemyWorkIntent | undefined {
         // Sticky-mine defense is scheduled before role work.
-        // For idle Science, active hostile spam then outranks
+        // Engineer then reacts to a real charging player laser.
+        const shieldDeployment =
+            this.selectShieldDeployment(
+                actor,
+                role,
+            );
+
+        if (shieldDeployment) {
+            return shieldDeployment;
+        }
+
+        // For idle Science, active hostile spam outranks
         // identification and offensive projector operation.
         const spamChannelId =
             this.selectSpamChannelId(
@@ -360,6 +401,184 @@ export default class EnemyDecisionPolicy {
 
             role,
             weaponId: weapon.id,
+        };
+    }
+
+    private selectShieldDeployment(
+        actor: ShipEncounterActorState,
+        role: OfficerRole,
+    ): Extract<
+        EnemyWorkIntent,
+        {
+            kind:
+                typeof SHIP_CREW_TASK_KIND
+                    .DEPLOY_SHIELD;
+        }
+    > | undefined {
+        if (
+            role !==
+                OFFICER_ROLE.ENGINEER
+        ) {
+            return undefined;
+        }
+
+        const state =
+            this.state;
+
+        const emitter =
+            actor.shieldEmitter;
+
+        const capacitor =
+            actor.defenseCapacitor;
+
+        if (
+            !state ||
+            !emitter ||
+            emitter.status !==
+                SHIELD_EMITTER_STATUS
+                    .ONLINE ||
+            emitter.phase !==
+                SHIELD_EMITTER_PHASE
+                    .READY ||
+            actor.activeShield ||
+            !capacitor ||
+            capacitor.charges <= 0
+        ) {
+            return undefined;
+        }
+
+        const observation =
+            actor
+                .threatObservations
+                .find((candidate) => {
+                    return (
+                        candidate.kind ===
+                            ENEMY_THREAT_KIND
+                                .LASER &&
+                        candidate.source.kind ===
+                            ENEMY_THREAT_SOURCE_KIND
+                                .PLAYER_OFFICER_TASK
+                    );
+                });
+
+        if (
+            !observation ||
+            observation.source.kind !==
+                ENEMY_THREAT_SOURCE_KIND
+                    .PLAYER_OFFICER_TASK
+        ) {
+            return undefined;
+        }
+
+        const playerTask =
+            state.officerTasks[
+                OFFICER_ROLE.WEAPONS
+            ];
+
+        if (
+            !playerTask ||
+            playerTask.id !==
+                observation.source
+                    .officerTaskId ||
+            playerTask.kind !==
+                OFFICER_TASK_KIND
+                    .WEAPONS_FIRE_LASER ||
+            playerTask.targetActorId !==
+                actor.id
+        ) {
+            return undefined;
+        }
+
+        const weapon =
+            state.combat
+                .playerWeapons
+                .find((candidate) => {
+                    return (
+                        candidate.id ===
+                        playerTask.weaponId
+                    );
+                });
+
+        if (
+            !weapon ||
+            weapon.kind !==
+                SHIP_WEAPON_KIND.LASER ||
+            weapon.phase !==
+                SHIP_WEAPON_PHASE
+                    .CHARGING
+        ) {
+            return undefined;
+        }
+
+        const weaponDefinition =
+            SHIP_WEAPONS[
+                weapon.weaponId
+            ];
+
+        if (
+            weaponDefinition.kind !==
+            SHIP_WEAPON_KIND.LASER
+        ) {
+            throw new Error(
+                'Player laser definition mismatch while ' +
+                    'scheduling enemy shield: ' +
+                    actor.id +
+                    '/' +
+                    weapon.id +
+                    '/' +
+                    weapon.weaponId,
+            );
+        }
+
+        const emitterDefinition =
+            SHIELD_EMITTERS[
+                emitter.shieldEmitterId
+            ];
+
+        const remainingLaserMs =
+            Math.max(
+                0,
+                weaponDefinition
+                    .chargeDurationMs -
+                    weapon.phaseElapsedMs,
+            );
+
+        const deploymentDurationMs =
+            OFFICER_TASK_BASE_DURATION_MS
+                .ENGINEER_DEPLOY_SHIELD;
+
+        const deploymentWindowStartMs =
+            deploymentDurationMs +
+            emitterDefinition
+                .shieldDurationMs -
+            ENEMY_SHIELD_IMPACT_RESERVE_MS;
+
+        // Too early: wait until one shield lifetime can cover impact.
+        if (
+            remainingLaserMs >
+            deploymentWindowStartMs
+        ) {
+            return undefined;
+        }
+
+        // Too late: do not commit a charge to work that cannot finish.
+        if (
+            remainingLaserMs <=
+            deploymentDurationMs
+        ) {
+            return undefined;
+        }
+
+        return {
+            kind:
+                SHIP_CREW_TASK_KIND
+                    .DEPLOY_SHIELD,
+
+            role:
+                OFFICER_ROLE.ENGINEER,
+
+            observationId:
+                observation.id,
         };
     }
 

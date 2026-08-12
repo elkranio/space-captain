@@ -22,6 +22,9 @@ export const SHIP_CREW_TASK_KIND = {
 
     PURGE_SPAM:
         'purge_spam',
+
+    DEPLOY_SHIELD:
+        'deploy_shield',
 } as const;
 
 export type ShipCrewTaskKind =
@@ -55,7 +58,6 @@ export type InterceptMissileShipCrewTaskState =
         projectileId: string;
         beamBand: PointDefenseBeamBand;
     };
-
 
 export type ClearStickyMineShipCrewTaskState =
     ShipCrewTaskBaseState & {
@@ -99,12 +101,28 @@ export type PurgeSpamShipCrewTaskState =
         durationMs: number;
     };
 
+export type DeployShieldShipCrewTaskState =
+    ShipCrewTaskBaseState & {
+        kind:
+            typeof SHIP_CREW_TASK_KIND
+                .DEPLOY_SHIELD;
+
+        role:
+            typeof OFFICER_ROLE.ENGINEER;
+
+        observationId: string;
+
+        elapsedMs: number;
+        durationMs: number;
+    };
+
 export type ShipCrewTaskState =
     | OperateWeaponShipCrewTaskState
     | InterceptMissileShipCrewTaskState
     | ClearStickyMineShipCrewTaskState
     | IdentifyThreatShipCrewTaskState
-    | PurgeSpamShipCrewTaskState;
+    | PurgeSpamShipCrewTaskState
+    | DeployShieldShipCrewTaskState;
 
 export type ShipCrewTaskStates =
     Partial<

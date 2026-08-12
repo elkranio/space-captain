@@ -1,18 +1,11 @@
 // tests/engine/encounter/new_game_enemy_defense_sandbox.test.ts
 
-import { createPlayerHullFixture } from '../../fixtures/engine/player_hull_fixtures';
-import {
-    DEFENSE_CAPACITOR_ID,
-} from '../../../src/engine/defs/defense_capacitor';
-import {
-    describe,
-    expect,
-    it,
-} from 'vitest';
 import {
     SHIP_WEAPON_TARGETING_DURATION_MS,
 } from '../../../src/engine/content/catalogs/ship_weapons';
-import NewGameUniverseFactory from '../../../src/engine/content/new_game/NewGameUniverseFactory';
+import {
+    DEFENSE_CAPACITOR_ID,
+} from '../../../src/engine/defs/defense_capacitor';
 import {
     OFFICER_ROLE,
 } from '../../../src/engine/defs/officer';
@@ -21,14 +14,22 @@ import {
     POINT_DEFENSE_PHASE,
 } from '../../../src/engine/defs/point_defense';
 import {
-    PLAYER_SPACE_NAVIGATION_KIND,
-} from '../../../src/engine/defs/player_location';
+    SHIELD_EMITTER_ID,
+    SHIELD_EMITTER_PHASE,
+    SHIELD_EMITTER_STATUS,
+} from '../../../src/engine/defs/shield_emitter';
 import {
-    SHIP_WEAPON_ID,
-    SHIP_WEAPON_KIND,
-    SHIP_WEAPON_PHASE,
-} from '../../../src/engine/defs/ship_weapon';
-import EncounterEngine from '../../../src/engine/encounter/EncounterEngine';
+    describe,
+    expect,
+    it,
+} from 'vitest';
+import {
+    ENCOUNTER_OFFICER_COMMAND_ID,
+    OFFICER_COMMAND_EXECUTION_STATUS,
+} from '../../../src/engine/encounter/model/command';
+import {
+    LASER_SHOT_OUTCOME,
+} from '../../../src/engine/encounter/model/combat';
 import {
     ENCOUNTER_EVENT,
 } from '../../../src/engine/encounter/model/event';
@@ -36,242 +37,276 @@ import {
     SHIP_CREW_TASK_KIND,
 } from '../../../src/engine/encounter/model/ship_crew_task';
 import {
-    createShipDriveFixture,
-} from '../../fixtures/engine/ship_drive_fixtures';
-import {
-    getMutableEncounterStateForTest,
-} from './get_mutable_encounter_state_for_test';
+    createAnchoredPlayerCombatTestSetup,
+} from './combat_test_support';
 
 describe('New-game enemy defense sandbox', () => {
-    it('wires the configured fully crewed enemy combat sandbox', () => {
-        const generation =
-            NewGameUniverseFactory.create();
+    it(
+        'wires a defensive runtime enemy without offensive weapons',
+        () => {
+            const {
+                targetActor,
+            } =
+                createAnchoredPlayerCombatTestSetup();
 
-        const startNode =
-            generation.universe.nodes.find(
-                (node) => {
-                    return (
-                        node.id ===
-                        'node_start'
-                    );
-                },
-            );
+            expect(
+                targetActor.weapons,
+            ).toEqual([]);
 
-        if (!startNode) {
-            throw new Error(
-                'Expected new-game start node',
-            );
-        }
-
-        const enemy = startNode.actors[0];
-
-        if (!enemy) {
-            throw new Error(
-                'Expected new-game enemy ship',
-            );
-        }
-
-        expect(enemy.weapons).toEqual([
-            {
+            expect(
+                targetActor.pointDefense,
+            ).toEqual({
                 id:
-                    'spam_projector_00',
+                    'point_defense_00',
 
-                weaponId:
-                    SHIP_WEAPON_ID
-                        .SPAM_PROJECTOR_00,
-
-                kind:
-                    SHIP_WEAPON_KIND
-                        .SPAM_PROJECTOR,
+                pointDefenseId:
+                    POINT_DEFENSE_ID
+                        .BASIC_00,
 
                 phase:
-                    SHIP_WEAPON_PHASE.READY,
+                    POINT_DEFENSE_PHASE
+                        .READY,
+
                 phaseElapsedMs: 0,
 
-                activeChannelId: null,
-            },
-        ]);
+                loadedBand: null,
+                targetProjectileId:
+                    null,
+            });
 
-        expect(enemy.pointDefense).toEqual({
-            id: 'point_defense_00',
+            expect(
+                targetActor
+                    .defenseCapacitor,
+            ).toEqual({
+                id:
+                    'defense_capacitor_00',
 
-            pointDefenseId:
-                POINT_DEFENSE_ID.BASIC_00,
+                defenseCapacitorId:
+                    DEFENSE_CAPACITOR_ID
+                        .BASIC_00,
 
-            phase:
-                POINT_DEFENSE_PHASE.READY,
-            phaseElapsedMs: 0,
+                charges: 4,
+                rechargeElapsedMs: 0,
+            });
 
-            loadedBand: null,
-            targetProjectileId: null,
-        });
+            expect(
+                targetActor
+                    .shieldEmitter,
+            ).toEqual({
+                id:
+                    'shield_emitter_00',
 
-        expect(
-            enemy.defenseCapacitor,
-        ).toEqual({
-            id:
-                'defense_capacitor_00',
+                shieldEmitterId:
+                    SHIELD_EMITTER_ID
+                        .BASIC_00,
 
-            defenseCapacitorId:
-                DEFENSE_CAPACITOR_ID
-                    .BASIC_00,
+                status:
+                    SHIELD_EMITTER_STATUS
+                        .ONLINE,
 
-            charges: 4,
-            rechargeElapsedMs: 0,
-        });
+                phase:
+                    SHIELD_EMITTER_PHASE
+                        .READY,
 
-        expect(enemy.crewRoles).toEqual([
-            OFFICER_ROLE.SCIENCE,
-            OFFICER_ROLE.HELM,
-            OFFICER_ROLE.WEAPONS,
-            OFFICER_ROLE.ENGINEER,
-        ]);
+                phaseElapsedMs: 0,
+            });
+        },
+    );
 
-        const engine = new EncounterEngine({
-            playerHull: createPlayerHullFixture(),
+    it(
+        'times one whole-ship shield to absorb the incoming player laser',
+        () => {
+            const {
+                engine,
+                targetActor,
+            } =
+                createAnchoredPlayerCombatTestSetup();
 
-            node: startNode,
+            const initialHull =
+                targetActor.hull;
 
-            navigation: {
-                kind:
-                    PLAYER_SPACE_NAVIGATION_KIND
-                        .ANCHORED,
+            const laserCommand =
+                engine
+                    .getAvailableCommands(
+                        OFFICER_ROLE.WEAPONS,
+                    )
+                    .find((command) => {
+                        return (
+                            command.commandId ===
+                            ENCOUNTER_OFFICER_COMMAND_ID
+                                .WEAPONS_FIRE_LASER
+                        );
+                    });
 
-                anchorId:
-                    startNode.arrivalAnchorId,
-            },
+            if (!laserCommand) {
+                throw new Error(
+                    'Expected player laser command',
+                );
+            }
 
-            drive:
-                createShipDriveFixture(),
+            expect(
+                engine.executeCommand({
+                    role:
+                        OFFICER_ROLE.WEAPONS,
 
-            random: () => 0,
-        });
+                    commandId:
+                        laserCommand.commandId,
 
-        const [loadedEvent] =
+                    target:
+                        laserCommand.target,
+                }),
+            ).toEqual({
+                status:
+                    OFFICER_COMMAND_EXECUTION_STATUS
+                        .EXECUTED,
+            });
+
             engine.drainEvents();
 
-        if (
-            loadedEvent.type !==
-            ENCOUNTER_EVENT.ENCOUNTER_LOADED
-        ) {
-            throw new Error(
-                'Expected encounter loaded event',
-            );
-        }
-
-        const runtimeEnemy =
-            getMutableEncounterStateForTest(
-                engine,
-            ).actors[0];
-
-        if (!runtimeEnemy) {
-            throw new Error(
-                'Expected runtime enemy ship',
-            );
-        }
-
-        expect(runtimeEnemy.pointDefense)
-            .toEqual(enemy.pointDefense);
-
-        expect(runtimeEnemy.pointDefense)
-            .not.toBe(enemy.pointDefense);
-
-        const runtimeProjector =
-            runtimeEnemy.weapons[0];
-
-        if (
-            !runtimeProjector ||
-            runtimeProjector.kind !==
-                SHIP_WEAPON_KIND
-                    .SPAM_PROJECTOR
-        ) {
-            throw new Error(
-                'Expected runtime enemy spam projector',
-            );
-        }
-
-        expect(runtimeProjector.phase)
-            .toBe(
-                SHIP_WEAPON_PHASE.READY,
+            // Player targeting completes; enemy now observes CHARGING
+            // but correctly waits because a 5s field would expire too early.
+            engine.step(
+                SHIP_WEAPON_TARGETING_DURATION_MS,
             );
 
-        engine.step(
-            SHIP_WEAPON_TARGETING_DURATION_MS,
-        );
+            engine.drainEvents();
 
-        expect(runtimeProjector.phase)
-            .toBe(
-                SHIP_WEAPON_PHASE
-                    .CHANNELING,
-            );
+            expect(
+                targetActor.activeShield,
+            ).toBeUndefined();
 
-        expect(
-            runtimeEnemy.crewTasks[
-                OFFICER_ROLE.SCIENCE
-            ],
-        ).toEqual({
-            kind:
-                SHIP_CREW_TASK_KIND
-                    .OPERATE_WEAPON,
+            expect(
+                targetActor.crewTasks[
+                    OFFICER_ROLE.ENGINEER
+                ],
+            ).toBeUndefined();
 
-            role:
-                OFFICER_ROLE.SCIENCE,
+            // 7s remain: this is the deterministic deployment window.
+            engine.step(5000);
 
-            weaponId:
-                runtimeProjector.id,
-        });
+            const shieldTask =
+                targetActor.crewTasks[
+                    OFFICER_ROLE.ENGINEER
+                ];
 
-        const [spamChannel] =
-            engine.getSpamChannels();
+            expect(
+                shieldTask,
+            ).toMatchObject({
+                kind:
+                    SHIP_CREW_TASK_KIND
+                        .DEPLOY_SHIELD,
 
-        if (!spamChannel) {
-            throw new Error(
-                'Expected active hostile spam channel',
-            );
-        }
+                role:
+                    OFFICER_ROLE.ENGINEER,
 
-        engine.step(
-            spamChannel.durationMs - 1,
-        );
+                elapsedMs: 0,
+                durationMs: 3000,
+            });
 
-        expect(runtimeProjector.phase)
-            .toBe(
-                SHIP_WEAPON_PHASE
-                    .CHANNELING,
-            );
+            expect(
+                targetActor
+                    .defenseCapacitor
+                    ?.charges,
+            ).toBe(3);
 
-        expect(
-            runtimeEnemy.crewTasks[
-                OFFICER_ROLE.SCIENCE
-            ],
-        ).toEqual({
-            kind:
-                SHIP_CREW_TASK_KIND
-                    .OPERATE_WEAPON,
+            expect(
+                targetActor.activeShield,
+            ).toBeUndefined();
 
-            role:
-                OFFICER_ROLE.SCIENCE,
+            engine.drainEvents();
 
-            weaponId:
-                runtimeProjector.id,
-        });
+            // Engineer finishes with 4s left to impact.
+            engine.step(3000);
 
-        engine.step(1);
+            expect(
+                targetActor.activeShield,
+            ).toEqual({
+                sourceEmitterId:
+                    'shield_emitter_00',
 
-        expect(
-            engine.getSpamChannels(),
-        ).toEqual([]);
+                remainingDurationMs:
+                    5000,
 
-        expect(runtimeProjector.phase)
-            .toBe(
-                SHIP_WEAPON_PHASE
+                initialDurationMs:
+                    5000,
+            });
+
+            expect(
+                targetActor.crewTasks[
+                    OFFICER_ROLE.ENGINEER
+                ],
+            ).toBeUndefined();
+
+            expect(
+                targetActor
+                    .shieldEmitter
+                    ?.phase,
+            ).toBe(
+                SHIELD_EMITTER_PHASE
                     .COOLDOWN,
             );
 
-        expect(
-            runtimeEnemy.crewTasks[
-                OFFICER_ROLE.SCIENCE
-            ],
-        ).toBeUndefined();
-    });
+            engine.drainEvents();
+
+            engine.step(3999);
+
+            expect(
+                targetActor.activeShield
+                    ?.remainingDurationMs,
+            ).toBe(1001);
+
+            engine.drainEvents();
+
+            // Player laser resolves before enemy shield time advances
+            // for this last millisecond, so the field is still active.
+            engine.step(1);
+
+            const firedEvent =
+                engine
+                    .drainEvents()
+                    .find((event) => {
+                        return (
+                            event.type ===
+                            ENCOUNTER_EVENT
+                                .PLAYER_LASER_FIRED
+                        );
+                    });
+
+            if (
+                !firedEvent ||
+                firedEvent.type !==
+                    ENCOUNTER_EVENT
+                        .PLAYER_LASER_FIRED
+            ) {
+                throw new Error(
+                    'Expected player laser fired event',
+                );
+            }
+
+            expect(
+                firedEvent.outcome,
+            ).toBe(
+                LASER_SHOT_OUTCOME
+                    .ABSORBED,
+            );
+
+            expect(firedEvent.damage)
+                .toBe(0);
+
+            expect(
+                firedEvent.remainingHull,
+            ).toBe(initialHull);
+
+            expect(targetActor.hull)
+                .toBe(initialHull);
+
+            expect(
+                targetActor.activeShield,
+            ).toBeUndefined();
+
+            expect(
+                engine.getSpamChannels(),
+            ).toEqual([]);
+        },
+    );
 });

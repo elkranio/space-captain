@@ -107,6 +107,24 @@ describe('BridgeEncounterSnapshotSynchronizer', () => {
 
             [
                 BRIDGE_EVENT
+                    .ENEMY_SHIELDS_UPDATED,
+
+                [
+                    {
+                        actorId:
+                            'enemy_ship_00',
+
+                        remainingDurationMs:
+                            900,
+
+                        initialDurationMs:
+                            5000,
+                    },
+                ],
+            ],
+
+            [
+                BRIDGE_EVENT
                     .CAPTAIN_COMBAT_CONTEXT_UPDATED,
 
                 {
@@ -264,6 +282,24 @@ describe('BridgeEncounterSnapshotSynchronizer', () => {
                     initialDurationMs:
                         5000,
                 },
+            ],
+
+            [
+                BRIDGE_EVENT
+                    .ENEMY_SHIELDS_UPDATED,
+
+                [
+                    {
+                        actorId:
+                            'enemy_ship_00',
+
+                        remainingDurationMs:
+                            900,
+
+                        initialDurationMs:
+                            5000,
+                    },
+                ],
             ],
 
             [
@@ -495,6 +531,17 @@ function createEncounterEngine(): EncounterEngine {
                             charges: 1,
                             rechargeElapsedMs:
                                 12000,
+                        },
+
+                        activeShield: {
+                            sourceEmitterId:
+                                'shield_emitter_00',
+
+                            remainingDurationMs:
+                                900,
+
+                            initialDurationMs:
+                                5000,
                         },
 
                         weapons: [],

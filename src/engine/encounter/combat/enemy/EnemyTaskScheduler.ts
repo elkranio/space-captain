@@ -25,6 +25,10 @@ import {
 import {
     SHIP_WEAPON_PHASE,
 } from '../../../defs/ship_weapon';
+import {
+    SHIELD_EMITTER_PHASE,
+    SHIELD_EMITTER_STATUS,
+} from '../../../defs/shield_emitter';
 import type {
     ShipEncounterActorState,
 } from '../../actors/ship/ship_encounter_actor';
@@ -69,16 +73,17 @@ type EnemyTaskSchedulerOptions = {
         targetActorId: string,
     ) => boolean;
 
+    deployEnemyShield?: (
+        actor: ShipEncounterActorState,
+    ) => void;
+
     random?: () => number;
 };
 
-// Directional laser shielding is temporarily retired.
- // Engineer remains available to dedicated defensive flows
- // such as sticky-mine clearing, but is not scheduled through
- // the old generic role-work loop until the new shield contract.
 const ENEMY_WORK_ROLES = [
     OFFICER_ROLE.WEAPONS,
     OFFICER_ROLE.SCIENCE,
+    OFFICER_ROLE.ENGINEER,
 ] as const;
 
 // Исполняет выбранные policy задачи
@@ -118,6 +123,7 @@ export default class EnemyTaskScheduler {
         emit,
         clearPlayerStickyMine,
         purgePlayerSpamChannel,
+        deployEnemyShield,
         random = Math.random,
     }: EnemyTaskSchedulerOptions) {
         this.state = state;
@@ -145,6 +151,19 @@ export default class EnemyTaskScheduler {
                                 actor,
                                 role,
                             );
+                    },
+
+                onShieldDeploymentCompleted:
+                    (actor) => {
+                        if (!deployEnemyShield) {
+                            throw new Error(
+                                'Enemy shield deployment callback is missing',
+                            );
+                        }
+
+                        deployEnemyShield(
+                            actor,
+                        );
                     },
 
                 onStickyMineClearingCompleted:
@@ -356,6 +375,15 @@ export default class EnemyTaskScheduler {
     ): void {
         switch (intent.kind) {
             case SHIP_CREW_TASK_KIND
+                .DEPLOY_SHIELD:
+                this.startShieldDeployment(
+                    actor,
+                    intent,
+                );
+
+                return;
+
+            case SHIP_CREW_TASK_KIND
                 .PURGE_SPAM:
                 this.startSpamPurging(
                     actor,
@@ -401,6 +429,77 @@ export default class EnemyTaskScheduler {
                 return;
 
         }
+    }
+
+    private startShieldDeployment(
+        actor: ShipEncounterActorState,
+        intent:
+            Extract<
+                EnemyWorkIntent,
+                {
+                    kind:
+                        typeof SHIP_CREW_TASK_KIND
+                            .DEPLOY_SHIELD;
+                }
+            >,
+    ): void {
+        const observation =
+            actor
+                .threatObservations
+                .find((candidate) => {
+                    return (
+                        candidate.id ===
+                        intent.observationId
+                    );
+                });
+
+        const emitter =
+            actor.shieldEmitter;
+
+        const capacitor =
+            actor.defenseCapacitor;
+
+        if (
+            !observation ||
+            observation.kind !==
+                ENEMY_THREAT_KIND.LASER ||
+            !emitter ||
+            emitter.status !==
+                SHIELD_EMITTER_STATUS
+                    .ONLINE ||
+            emitter.phase !==
+                SHIELD_EMITTER_PHASE
+                    .READY ||
+            actor.activeShield ||
+            !capacitor ||
+            capacitor.charges <= 0
+        ) {
+            throw new Error(
+                'Cannot start enemy shield deployment: ' +
+                    actor.id +
+                    '/' +
+                    intent.observationId,
+            );
+        }
+
+        // Same economic rule as player defensive work:
+        // charge is committed when Engineer starts.
+        spendDefenseCapacitorCharge(
+            capacitor,
+        );
+
+        this.crewTaskRunner.start(
+            actor,
+            {
+                ...intent,
+
+                elapsedMs: 0,
+
+                durationMs:
+                    OFFICER_TASK_BASE_DURATION_MS
+                        .ENGINEER_DEPLOY_SHIELD,
+            },
+        );
     }
 
     private scheduleMineClearing(

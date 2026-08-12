@@ -5,6 +5,7 @@ import type BridgeEventBus from '../../events/BridgeEventBus';
 import type BridgeSpaceView from '../space/BridgeSpaceView';
 import BridgeVfxView from '../vfx/BridgeVfxView';
 import BridgeEnemyShipDestructionView from './enemy_destruction/BridgeEnemyShipDestructionView';
+import BridgeEnemyShieldView from './enemy_shield/BridgeEnemyShieldView';
 import BridgeIncomingMissilesView from './incoming_missiles/BridgeIncomingMissilesView';
 import BridgeLaserBeamsView from './laser_beams/BridgeLaserBeamsView';
 import BridgeLaserThreatsView from './laser_threats/BridgeLaserThreatsView';
@@ -37,6 +38,9 @@ export default class BridgeCombatView {
     private laserThreatsView?: BridgeLaserThreatsView;
 
     private laserBeamsView?: BridgeLaserBeamsView;
+
+    private enemyShieldView?:
+        BridgeEnemyShieldView;
 
     private playerLaserView?: BridgePlayerLaserView;
 
@@ -122,6 +126,19 @@ export default class BridgeCombatView {
             },
         );
 
+        this.enemyShieldView =
+            new BridgeEnemyShieldView(
+                this.scene,
+                this.eventBus,
+
+                (objectId) => {
+                    return this.spaceView
+                        .getObjectPosition(
+                            objectId,
+                        );
+                },
+            );
+
         this.playerLaserView = new BridgePlayerLaserView(
             this.scene,
             this.eventBus,
@@ -175,6 +192,7 @@ export default class BridgeCombatView {
             ?.destroy();
         this.playerShieldView?.destroy();
         this.playerLaserView?.destroy();
+        this.enemyShieldView?.destroy();
         this.laserBeamsView?.destroy();
         this.laserThreatsView?.destroy();
         this.outgoingStickyMinesView
@@ -190,6 +208,7 @@ export default class BridgeCombatView {
             undefined;
         this.playerShieldView = undefined;
         this.playerLaserView = undefined;
+        this.enemyShieldView = undefined;
         this.laserBeamsView = undefined;
         this.laserThreatsView = undefined;
         this.outgoingStickyMinesView =

@@ -19,6 +19,7 @@ import {
 import type {
     ActiveShieldState,
     LaserAttackState,
+    LaserShotOutcome,
     MissileCombatProjectileState,
     PlayerSpamChannelOutcome,
     SpamChannelOutcome,
@@ -294,7 +295,7 @@ export type PlayerLaserFiredEvent = {
     targetActorId: string;
 
     outcome:
-        typeof LASER_SHOT_OUTCOME.HIT;
+        LaserShotOutcome;
 
     damage: number;
     remainingHull: number;

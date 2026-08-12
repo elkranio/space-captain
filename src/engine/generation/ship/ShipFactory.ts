@@ -29,8 +29,12 @@ import {
     SHIP_WEAPON_KIND,
     type ShipWeaponState,
 } from '../../defs/ship_weapon';
+import type {
+    ShieldEmitterState,
+} from '../../defs/shield_emitter';
 import DefenseCapacitorFactory from '../ship_system/DefenseCapacitorFactory';
 import ShipPointDefenseFactory from '../ship_system/ShipPointDefenseFactory';
+import ShieldEmitterFactory from '../ship_system/ShieldEmitterFactory';
 import LaserWeaponFactory from '../ship_weapon/LaserWeaponFactory';
 import MissileLauncherFactory from '../ship_weapon/MissileLauncherFactory';
 import SpamProjectorFactory from '../ship_weapon/SpamProjectorFactory';
@@ -52,6 +56,9 @@ export type CreatedShipState = {
 
     defenseCapacitor?:
         DefenseCapacitorState;
+
+    shieldEmitter?:
+        ShieldEmitterState;
 
     weapons: ShipWeaponState[];
 };
@@ -118,6 +125,25 @@ export default class ShipFactory {
                                       preset
                                           .defenseCapacitor
                                           .defenseCapacitorId,
+                              }),
+                      }
+                    : {}
+            ),
+
+            ...(
+                preset.shieldEmitter
+                    ? {
+                          shieldEmitter:
+                              ShieldEmitterFactory.create({
+                                  id:
+                                      preset
+                                          .shieldEmitter
+                                          .id,
+
+                                  shieldEmitterId:
+                                      preset
+                                          .shieldEmitter
+                                          .shieldEmitterId,
                               }),
                       }
                     : {}

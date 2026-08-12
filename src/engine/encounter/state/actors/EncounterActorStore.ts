@@ -29,6 +29,9 @@ import type {
 import type {
     ShipWeaponState,
 } from '../../../defs/ship_weapon';
+import type {
+    ShieldEmitterState,
+} from '../../../defs/shield_emitter';
 import {
     ENCOUNTER_ACTOR_KIND,
     type EncounterActorState,
@@ -63,6 +66,9 @@ export type SpawnShipActorInput = {
 
     defenseCapacitor?:
         DefenseCapacitorState;
+
+    shieldEmitter?:
+        ShieldEmitterState;
 
     behavior: ShipBehaviorState;
 
@@ -113,6 +119,7 @@ export default class EncounterActorStore {
         drive,
         pointDefense,
         defenseCapacitor,
+        shieldEmitter,
         behavior,
         crewRoles,
         crewTraitsByRole = {},
@@ -193,6 +200,16 @@ export default class EncounterActorStore {
                     ? {
                           defenseCapacitor: {
                               ...defenseCapacitor,
+                          },
+                      }
+                    : {}
+            ),
+
+            ...(
+                shieldEmitter
+                    ? {
+                          shieldEmitter: {
+                              ...shieldEmitter,
                           },
                       }
                     : {}

@@ -269,6 +269,9 @@ export const BRIDGE_EVENT = {
     PLAYER_SHIELD_ENDED:
         'player_shield_ended',
 
+    ENEMY_SHIELDS_UPDATED:
+        'enemy_shields_updated',
+
     PLAYER_LASER_CHARGING_STARTED:
         'player_laser_charging_started',
 
@@ -893,6 +896,16 @@ export type BridgePlayerShieldEndedPayload = {
         PlayerShieldEndOutcome;
 };
 
+export type BridgeEnemyShieldPayload = {
+    actorId: string;
+
+    remainingDurationMs: number;
+    initialDurationMs: number;
+};
+
+export type BridgeEnemyShieldsUpdatedPayload =
+    BridgeEnemyShieldPayload[];
+
 export type BridgePlayerLaserChargingStartedPayload = {
     weaponId: string;
 
@@ -1102,6 +1115,9 @@ export type BridgeEventPayloadMap = {
 
     [BRIDGE_EVENT.PLAYER_SHIELD_ENDED]:
         BridgePlayerShieldEndedPayload;
+
+    [BRIDGE_EVENT.ENEMY_SHIELDS_UPDATED]:
+        BridgeEnemyShieldsUpdatedPayload;
 
     [BRIDGE_EVENT.PLAYER_LASER_CHARGING_STARTED]:
         BridgePlayerLaserChargingStartedPayload;

@@ -18,6 +18,9 @@ import type {
     ShipWeaponPhase,
 } from '../../../defs/ship_weapon';
 import type {
+    ActiveShieldState,
+} from '../../model/combat';
+import type {
     EncounterState,
 } from '../../model/state';
 
@@ -42,6 +45,9 @@ export type EnemyShipTelemetrySnapshot = {
 
     defenseCapacitor?:
         DefenseCapacitorState;
+
+    activeShield?:
+        ActiveShieldState;
 
     weapons: EnemyShipWeaponTelemetrySnapshot[];
 };
@@ -83,6 +89,14 @@ export function getEnemyShipTelemetrySnapshots(
                     ? {
                           defenseCapacitor: {
                               ...actor.defenseCapacitor,
+                          },
+                      }
+                    : {}),
+
+                ...(actor.activeShield
+                    ? {
+                          activeShield: {
+                              ...actor.activeShield,
                           },
                       }
                     : {}),

@@ -102,6 +102,17 @@ export default class ShipNodeActorFactory {
                     : {}
             ),
 
+            ...(
+                ship.shieldEmitter
+                    ? {
+                          shieldEmitter: {
+                              ...ship
+                                  .shieldEmitter,
+                          },
+                      }
+                    : {}
+            ),
+
             behavior: {
                 offensiveTaskDelayMs:
                     behavior
