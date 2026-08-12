@@ -23,6 +23,7 @@ import {
 import {
     ENCOUNTER_EVENT,
     OFFICER_TASK_OUTCOME,
+    PLAYER_SHIELD_END_OUTCOME,
 } from '../../../src/engine/encounter/model/event';
 import {
     LASER_SHOT_OUTCOME,
@@ -188,6 +189,36 @@ describe(
 
                 engine.step(3000);
 
+                const deployedEvent =
+                    engine
+                        .drainEvents()
+                        .find((event) => {
+                            return (
+                                event.type ===
+                                ENCOUNTER_EVENT
+                                    .PLAYER_SHIELD_DEPLOYED
+                            );
+                        });
+
+                expect(
+                    deployedEvent,
+                ).toEqual({
+                    type:
+                        ENCOUNTER_EVENT
+                            .PLAYER_SHIELD_DEPLOYED,
+
+                    shield: {
+                        sourceEmitterId:
+                            'shield_emitter_player_00',
+
+                        remainingDurationMs:
+                            5000,
+
+                        initialDurationMs:
+                            5000,
+                    },
+                });
+
                 expect(
                     state.combat
                         .activeShield,
@@ -220,6 +251,40 @@ describe(
                 ).toBe(1);
 
                 engine.step(1);
+
+                const expiredEvent =
+                    engine
+                        .drainEvents()
+                        .find((event) => {
+                            return (
+                                event.type ===
+                                ENCOUNTER_EVENT
+                                    .PLAYER_SHIELD_ENDED
+                            );
+                        });
+
+                expect(
+                    expiredEvent,
+                ).toEqual({
+                    type:
+                        ENCOUNTER_EVENT
+                            .PLAYER_SHIELD_ENDED,
+
+                    shield: {
+                        sourceEmitterId:
+                            'shield_emitter_player_00',
+
+                        remainingDurationMs:
+                            0,
+
+                        initialDurationMs:
+                            5000,
+                    },
+
+                    outcome:
+                        PLAYER_SHIELD_END_OUTCOME
+                            .EXPIRED,
+                });
 
                 expect(
                     state.combat
@@ -358,18 +423,29 @@ describe(
                         .activeShield,
                 ).toBeNull();
 
-                const firedEvent =
+                const events =
                     engine
-                        .drainEvents()
-                        .find((event) => {
-                            return (
-                                event.type ===
-                                    ENCOUNTER_EVENT
-                                        .LASER_FIRED &&
-                                event.attack.id ===
-                                    'shield_test_laser'
-                            );
-                        });
+                        .drainEvents();
+
+                const firedEvent =
+                    events.find((event) => {
+                        return (
+                            event.type ===
+                                ENCOUNTER_EVENT
+                                    .LASER_FIRED &&
+                            event.attack.id ===
+                                'shield_test_laser'
+                        );
+                    });
+
+                const shieldEndedEvent =
+                    events.find((event) => {
+                        return (
+                            event.type ===
+                            ENCOUNTER_EVENT
+                                .PLAYER_SHIELD_ENDED
+                        );
+                    });
 
                 expect(
                     firedEvent,
@@ -380,6 +456,29 @@ describe(
 
                     outcome:
                         LASER_SHOT_OUTCOME
+                            .ABSORBED,
+                });
+
+                expect(
+                    shieldEndedEvent,
+                ).toEqual({
+                    type:
+                        ENCOUNTER_EVENT
+                            .PLAYER_SHIELD_ENDED,
+
+                    shield: {
+                        sourceEmitterId:
+                            'shield_emitter_player_00',
+
+                        remainingDurationMs:
+                            5000,
+
+                        initialDurationMs:
+                            5000,
+                    },
+
+                    outcome:
+                        PLAYER_SHIELD_END_OUTCOME
                             .ABSORBED,
                 });
             },

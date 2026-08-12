@@ -99,6 +99,10 @@ export default class BridgeEncounterEngineEventHandler {
             [],
         );
 
+        this.eventBus.emit(
+            BRIDGE_EVENT.PLAYER_SHIELD_UPDATED,
+            null,
+        );
     }
 
     // #endregion
@@ -176,6 +180,37 @@ export default class BridgeEncounterEngineEventHandler {
             case ENCOUNTER_EVENT.PLAYER_DEFENSE_CAPACITOR_CHARGE_SPENT:
                 return;
 
+
+            case ENCOUNTER_EVENT
+                .PLAYER_SHIELD_DEPLOYED:
+                this.eventBus.emit(
+                    BRIDGE_EVENT
+                        .PLAYER_SHIELD_DEPLOYED,
+                    {
+                        remainingDurationMs:
+                            event.shield
+                                .remainingDurationMs,
+
+                        initialDurationMs:
+                            event.shield
+                                .initialDurationMs,
+                    },
+                );
+
+                return;
+
+            case ENCOUNTER_EVENT
+                .PLAYER_SHIELD_ENDED:
+                this.eventBus.emit(
+                    BRIDGE_EVENT
+                        .PLAYER_SHIELD_ENDED,
+                    {
+                        outcome:
+                            event.outcome,
+                    },
+                );
+
+                return;
 
             case ENCOUNTER_EVENT.PLAYER_SHIP_DRIVE_DISRUPTED:
                 this.eventBus.emit(

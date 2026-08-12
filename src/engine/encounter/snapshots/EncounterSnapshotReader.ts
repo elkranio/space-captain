@@ -37,6 +37,7 @@ import type { AvailableOfficerCommand } from '../model/command';
 import {
     COMBAT_SOURCE_KIND,
     COMBAT_TARGET_KIND,
+    type ActiveShieldState,
     type CombatProjectileState,
     type LaserAttackState,
     type SpamChannelState,
@@ -104,6 +105,15 @@ export default class EncounterSnapshotReader {
             (state) =>
                 state.combat
                     .shieldEmitter,
+        );
+    }
+
+    public getActiveShieldState():
+        ActiveShieldState | null {
+        return this.read(
+            (state) =>
+                state.combat
+                    .activeShield,
         );
     }
 

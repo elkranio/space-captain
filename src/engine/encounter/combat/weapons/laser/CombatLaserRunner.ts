@@ -15,6 +15,7 @@ import {
 } from '../../../model/combat';
 import {
     ENCOUNTER_EVENT,
+    PLAYER_SHIELD_END_OUTCOME,
     type EncounterEvent,
 } from '../../../model/event';
 import type { EncounterState } from '../../../model/state';
@@ -301,6 +302,19 @@ export default class CombatLaserRunner {
 
                 outcome:
                     LASER_SHOT_OUTCOME
+                        .ABSORBED,
+            });
+
+            this.emit({
+                type:
+                    ENCOUNTER_EVENT
+                        .PLAYER_SHIELD_ENDED,
+
+                shield:
+                    absorbedByShield,
+
+                outcome:
+                    PLAYER_SHIELD_END_OUTCOME
                         .ABSORBED,
             });
 

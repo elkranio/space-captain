@@ -9,16 +9,28 @@ import {
     type ShieldEmitterState,
 } from '../../../defs/shield_emitter';
 import type {
+    ActiveShieldState,
+} from '../../model/combat';
+import {
+    ENCOUNTER_EVENT,
+    PLAYER_SHIELD_END_OUTCOME,
+    type EncounterEvent,
+} from '../../model/event';
+import type {
     EncounterState,
 } from '../../model/state';
 
 // Runtime lifecycle player shield system:
 // - installed emitter cooldown;
-// - temporary active-shield lifetime.
+// - temporary active-shield lifetime;
+// - natural shield-expiry outbox event.
 export default class ShieldEmitterRunner {
     constructor(
         private readonly state:
             EncounterState,
+
+        private readonly emit:
+            (event: EncounterEvent) => void,
     ) {}
 
     public step(
@@ -45,10 +57,28 @@ export default class ShieldEmitterRunner {
             );
         }
 
-        advanceActiveShield(
-            this.state,
-            deltaMs,
-        );
+        const expiredShield =
+            advanceActiveShield(
+                this.state,
+                deltaMs,
+            );
+
+        if (!expiredShield) {
+            return;
+        }
+
+        this.emit({
+            type:
+                ENCOUNTER_EVENT
+                    .PLAYER_SHIELD_ENDED,
+
+            shield:
+                expiredShield,
+
+            outcome:
+                PLAYER_SHIELD_END_OUTCOME
+                    .EXPIRED,
+        });
     }
 }
 
@@ -113,13 +143,13 @@ export function advanceActiveShield(
     state:
         EncounterState,
     deltaMs: number,
-): void {
+): ActiveShieldState | undefined {
     const shield =
         state.combat
             .activeShield;
 
     if (!shield) {
-        return;
+        return undefined;
     }
 
     shield.remainingDurationMs =
@@ -133,10 +163,16 @@ export function advanceActiveShield(
         shield.remainingDurationMs >
         0
     ) {
-        return;
+        return undefined;
     }
+
+    const endedShield = {
+        ...shield,
+    };
 
     state.combat
         .activeShield =
             null;
+
+    return endedShield;
 }

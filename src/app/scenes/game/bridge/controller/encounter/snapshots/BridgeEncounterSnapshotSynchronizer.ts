@@ -24,6 +24,7 @@ export default class BridgeEncounterSnapshotSynchronizer {
 
     public syncInitial(): void {
         this.syncPlayerShipDashboard();
+        this.syncPlayerShield();
         this.syncCaptainCombatContext();
     }
 
@@ -32,6 +33,7 @@ export default class BridgeEncounterSnapshotSynchronizer {
         this.syncOutgoingMissiles();
         this.syncOutgoingStickyMines();
         this.syncStickyMines();
+        this.syncPlayerShield();
         this.syncLaserThreats();
         this.syncCaptainCombatContext();
     }
@@ -166,6 +168,29 @@ export default class BridgeEncounterSnapshotSynchronizer {
                             OFFICER_ROLE.ENGINEER,
                         ),
             }),
+        );
+    }
+
+    private syncPlayerShield(): void {
+        const shield =
+            this.encounterEngine
+                .getActiveShieldState();
+
+        this.eventBus.emit(
+            BRIDGE_EVENT
+                .PLAYER_SHIELD_UPDATED,
+
+            shield
+                ? {
+                      remainingDurationMs:
+                          shield
+                              .remainingDurationMs,
+
+                      initialDurationMs:
+                          shield
+                              .initialDurationMs,
+                  }
+                : null,
         );
     }
 

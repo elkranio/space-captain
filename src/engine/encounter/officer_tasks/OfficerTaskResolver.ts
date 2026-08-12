@@ -124,11 +124,21 @@ export default class OfficerTaskResolver {
             }
 
             case OFFICER_TASK_KIND
-                .ENGINEER_DEPLOY_SHIELD:
-                this.stateStore
-                    .deployPlayerShield();
+                .ENGINEER_DEPLOY_SHIELD: {
+                const shield =
+                    this.stateStore
+                        .deployPlayerShield();
+
+                this.emit({
+                    type:
+                        ENCOUNTER_EVENT
+                            .PLAYER_SHIELD_DEPLOYED,
+
+                    shield,
+                });
 
                 return undefined;
+            }
 
             case OFFICER_TASK_KIND.WEAPONS_POINT_DEFENSE:
                 return this.resolveWeaponsPointDefenseTask(task);

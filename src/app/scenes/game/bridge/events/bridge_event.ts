@@ -19,6 +19,9 @@ import type {
     PlayerStickyMineOutcome,
     SpamChannelOutcome,
 } from '../../../../../engine/encounter/model/combat';
+import type {
+    PlayerShieldEndOutcome,
+} from '../../../../../engine/encounter/model/event';
 
 // Scene-local события bridge scene.
 //
@@ -256,6 +259,15 @@ export const BRIDGE_EVENT = {
     // Вражеский laser разрешил выстрел,
     // который bridge view показывает коротким beam VFX.
     LASER_BEAM_FIRED: 'laser_beam_fired',
+
+    PLAYER_SHIELD_DEPLOYED:
+        'player_shield_deployed',
+
+    PLAYER_SHIELD_UPDATED:
+        'player_shield_updated',
+
+    PLAYER_SHIELD_ENDED:
+        'player_shield_ended',
 
     PLAYER_LASER_CHARGING_STARTED:
         'player_laser_charging_started',
@@ -822,6 +834,20 @@ export type BridgeLaserBeamFiredPayload = {
     sourceActorId: string;
 };
 
+export type BridgePlayerShieldSnapshotPayload = {
+    remainingDurationMs: number;
+    initialDurationMs: number;
+};
+
+export type BridgePlayerShieldUpdatedPayload =
+    BridgePlayerShieldSnapshotPayload |
+    null;
+
+export type BridgePlayerShieldEndedPayload = {
+    outcome:
+        PlayerShieldEndOutcome;
+};
+
 export type BridgePlayerLaserChargingStartedPayload = {
     weaponId: string;
 
@@ -1022,6 +1048,15 @@ export type BridgeEventPayloadMap = {
     [BRIDGE_EVENT.LASER_THREATS_UPDATED]: BridgeLaserThreatsUpdatedPayload;
 
     [BRIDGE_EVENT.LASER_BEAM_FIRED]: BridgeLaserBeamFiredPayload;
+
+    [BRIDGE_EVENT.PLAYER_SHIELD_DEPLOYED]:
+        BridgePlayerShieldSnapshotPayload;
+
+    [BRIDGE_EVENT.PLAYER_SHIELD_UPDATED]:
+        BridgePlayerShieldUpdatedPayload;
+
+    [BRIDGE_EVENT.PLAYER_SHIELD_ENDED]:
+        BridgePlayerShieldEndedPayload;
 
     [BRIDGE_EVENT.PLAYER_LASER_CHARGING_STARTED]:
         BridgePlayerLaserChargingStartedPayload;

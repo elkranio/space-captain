@@ -25,6 +25,7 @@ import {
     ENCOUNTER_EVENT,
     OFFICER_TASK_OUTCOME,
     OFFICER_TASK_RESULT_KIND,
+    PLAYER_SHIELD_END_OUTCOME,
 } from '../../src/engine/encounter/model/event';
 import { OFFICER_TASK_KIND } from '../../src/engine/encounter/model/officer_task';
 
@@ -186,6 +187,11 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
                 [],
             ],
 
+            [
+                BRIDGE_EVENT
+                    .PLAYER_SHIELD_UPDATED,
+                null,
+            ],
         ]);
     });
 
@@ -527,6 +533,96 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
 
         expect(setEncounterInteractive).not.toHaveBeenCalled();
     });
+
+
+    it(
+        'maps player shield lifecycle to bridge presentation events',
+        () => {
+            const runtime =
+                new GameRuntime();
+
+            const emit =
+                vi.fn();
+
+            const handler =
+                new BridgeEncounterEngineEventHandler(
+                    {
+                        emit,
+                    } as unknown as BridgeEventBus,
+
+                    vi.fn(),
+                    runtime,
+                );
+
+            handler.handle([
+                {
+                    type:
+                        ENCOUNTER_EVENT
+                            .PLAYER_SHIELD_DEPLOYED,
+
+                    shield: {
+                        sourceEmitterId:
+                            'shield_emitter_player_00',
+
+                        remainingDurationMs:
+                            5000,
+
+                        initialDurationMs:
+                            5000,
+                    },
+                },
+
+                {
+                    type:
+                        ENCOUNTER_EVENT
+                            .PLAYER_SHIELD_ENDED,
+
+                    shield: {
+                        sourceEmitterId:
+                            'shield_emitter_player_00',
+
+                        remainingDurationMs:
+                            3200,
+
+                        initialDurationMs:
+                            5000,
+                    },
+
+                    outcome:
+                        PLAYER_SHIELD_END_OUTCOME
+                            .ABSORBED,
+                },
+            ]);
+
+            expect(
+                emit.mock.calls,
+            ).toEqual([
+                [
+                    BRIDGE_EVENT
+                        .PLAYER_SHIELD_DEPLOYED,
+
+                    {
+                        remainingDurationMs:
+                            5000,
+
+                        initialDurationMs:
+                            5000,
+                    },
+                ],
+
+                [
+                    BRIDGE_EVENT
+                        .PLAYER_SHIELD_ENDED,
+
+                    {
+                        outcome:
+                            PLAYER_SHIELD_END_OUTCOME
+                                .ABSORBED,
+                    },
+                ],
+            ]);
+        },
+    );
 
     it('maps a completed point-defense shot without spending defensive energy', () => {
         const runtime = new GameRuntime();

@@ -94,6 +94,19 @@ describe('BridgeEncounterSnapshotSynchronizer', () => {
 
             [
                 BRIDGE_EVENT
+                    .PLAYER_SHIELD_UPDATED,
+
+                {
+                    remainingDurationMs:
+                        850,
+
+                    initialDurationMs:
+                        5000,
+                },
+            ],
+
+            [
+                BRIDGE_EVENT
                     .CAPTAIN_COMBAT_CONTEXT_UPDATED,
 
                 {
@@ -204,6 +217,19 @@ describe('BridgeEncounterSnapshotSynchronizer', () => {
                     },
                 ],
             ],
+            [
+                BRIDGE_EVENT
+                    .PLAYER_SHIELD_UPDATED,
+
+                {
+                    remainingDurationMs:
+                        850,
+
+                    initialDurationMs:
+                        5000,
+                },
+            ],
+
             [
                 BRIDGE_EVENT.LASER_THREATS_UPDATED,
                 [
@@ -318,6 +344,20 @@ function createEncounterEngine(): EncounterEngine {
                         'ready',
 
                     phaseElapsedMs: 0,
+                };
+            }),
+
+        getActiveShieldState:
+            vi.fn(() => {
+                return {
+                    sourceEmitterId:
+                        'shield_emitter_player_00',
+
+                    remainingDurationMs:
+                        850,
+
+                    initialDurationMs:
+                        5000,
                 };
             }),
 

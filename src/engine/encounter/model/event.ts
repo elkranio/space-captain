@@ -17,6 +17,7 @@ import {
     PLAYER_STICKY_MINE_OUTCOME,
 } from './combat';
 import type {
+    ActiveShieldState,
     LaserAttackState,
     MissileCombatProjectileState,
     PlayerSpamChannelOutcome,
@@ -41,6 +42,13 @@ export const ENCOUNTER_EVENT = {
     OFFICER_TASK_STARTED: 'officer_task_started',
     OFFICER_TASK_ENDED: 'officer_task_ended',
     PLAYER_DEFENSE_CAPACITOR_CHARGE_SPENT: 'player_defense_capacitor_charge_spent',
+
+    PLAYER_SHIELD_DEPLOYED:
+        'player_shield_deployed',
+
+    PLAYER_SHIELD_ENDED:
+        'player_shield_ended',
+
     PLAYER_SHIP_DRIVE_STATE_CHANGED: 'player_ship_drive_state_changed',
     PLAYER_SHIP_DRIVE_DISRUPTED: 'player_ship_drive_disrupted',
     PLAYER_SHIP_TARGETING_DETECTED: 'player_ship_targeting_detected',
@@ -95,6 +103,14 @@ export const OFFICER_TASK_OUTCOME = {
 } as const;
 
 export type OfficerTaskOutcome = (typeof OFFICER_TASK_OUTCOME)[keyof typeof OFFICER_TASK_OUTCOME];
+
+export const PLAYER_SHIELD_END_OUTCOME = {
+    EXPIRED: 'expired',
+    ABSORBED: 'absorbed',
+} as const;
+
+export type PlayerShieldEndOutcome =
+    (typeof PLAYER_SHIELD_END_OUTCOME)[keyof typeof PLAYER_SHIELD_END_OUTCOME];
 
 export const OFFICER_TASK_RESULT_KIND = {
     JUMP_POINT_CALCULATED: 'jump_point_calculated',
@@ -210,6 +226,27 @@ export type PlayerDefenseCapacitorChargeSpentEvent = {
 
     defenseCapacitor:
         DefenseCapacitorState;
+};
+
+export type PlayerShieldDeployedEvent = {
+    type:
+        typeof ENCOUNTER_EVENT
+            .PLAYER_SHIELD_DEPLOYED;
+
+    shield:
+        ActiveShieldState;
+};
+
+export type PlayerShieldEndedEvent = {
+    type:
+        typeof ENCOUNTER_EVENT
+            .PLAYER_SHIELD_ENDED;
+
+    shield:
+        ActiveShieldState;
+
+    outcome:
+        PlayerShieldEndOutcome;
 };
 
 
@@ -507,6 +544,8 @@ export type EncounterEvent =
     | OfficerTaskStartedEvent
     | OfficerTaskEndedEvent
     | PlayerDefenseCapacitorChargeSpentEvent
+    | PlayerShieldDeployedEvent
+    | PlayerShieldEndedEvent
     | PlayerShipDriveStateChangedEvent
     | PlayerShipDriveDisruptedEvent
     | PlayerShipTargetingDetectedEvent

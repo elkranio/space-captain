@@ -34,6 +34,7 @@ import PlayerWeaponRunner from './combat/weapons/PlayerWeaponRunner';
 import OfficerCommandExecutor from './commands/OfficerCommandExecutor';
 import type { AvailableOfficerCommand, ExecuteOfficerCommandInput, ExecuteOfficerCommandResult } from './model/command';
 import {
+    type ActiveShieldState,
     type CombatProjectileState,
     type LaserAttackState,
     type SpamChannelState,
@@ -148,6 +149,7 @@ export default class EncounterEngine {
         this.shieldEmitterRunner =
             new ShieldEmitterRunner(
                 encounterState,
+                this.emit,
             );
 
         this.combatRunner = new CombatRunner({
@@ -355,6 +357,12 @@ export default class EncounterEngine {
         ShieldEmitterState | undefined {
         return this.snapshotReader
             .getShieldEmitterState();
+    }
+
+    public getActiveShieldState():
+        ActiveShieldState | null {
+        return this.snapshotReader
+            .getActiveShieldState();
     }
 
     public getEnemyShipTelemetrySnapshots():
