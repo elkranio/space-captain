@@ -45,6 +45,9 @@ import type { OfficerAvailabilityStates } from './model/officer_availability';
 import { OFFICER_TASK_KIND, type OfficerTaskKind, type OfficerTaskState } from './model/officer_task';
 import OfficerTaskRunner from './officer_tasks/OfficerTaskRunner';
 import EncounterSnapshotReader from './snapshots/EncounterSnapshotReader';
+import type {
+    CombatPresentationSnapshot,
+} from './snapshots/combat_presentation_snapshot';
 import { createDetachedSnapshot } from './snapshots/create_detached_snapshot';
 import EncounterStateStore from './state/EncounterStateStore';
 
@@ -56,6 +59,12 @@ export type {
 } from './debug/get_enemy_debug_snapshots';
 export type { LaserThreatSnapshot } from './combat/queries/get_laser_threat_snapshots';
 export type { StickyMineSnapshot } from './combat/queries/get_sticky_mine_snapshots';
+export type {
+    CombatPresentationSnapshot,
+    DefenseCapacitorPresentationSnapshot,
+    EnemyShipPresentationSnapshot,
+    PlayerWeaponPresentationSnapshot,
+} from './snapshots/combat_presentation_snapshot';
 
 export type EncounterEngineOptions = {
     node: SpaceNodeState;
@@ -315,6 +324,12 @@ export default class EncounterEngine {
         }
 
         this.officerTaskRunner.cancel(task.id);
+    }
+
+    public getCombatPresentationSnapshot():
+        CombatPresentationSnapshot {
+        return this.snapshotReader
+            .getCombatPresentationSnapshot();
     }
 
     public getAvailableCommands(role: OfficerRole): AvailableOfficerCommand[] {

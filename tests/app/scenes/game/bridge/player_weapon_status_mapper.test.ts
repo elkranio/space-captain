@@ -15,6 +15,9 @@ import {
     type SpamProjectorState,
 } from '../../../../../src/engine/defs/ship_weapon';
 import {
+    createPlayerWeaponPresentationSnapshot,
+} from '../../../../../src/engine/encounter/snapshots/combat_presentation_snapshot';
+import {
     mapPlayerWeaponsToBridgeStatusPayload,
 } from '../../../../../src/app/scenes/game/bridge/controller/player_weapon_status/BridgePlayerWeaponStatusMapper';
 
@@ -68,7 +71,11 @@ describe(
 
                 expect(
                     mapPlayerWeaponsToBridgeStatusPayload(
-                        [projector],
+                        [
+                            createPlayerWeaponPresentationSnapshot(
+                                projector,
+                            ),
+                        ],
                     ),
                 ).toEqual({
                     spamProjector: {

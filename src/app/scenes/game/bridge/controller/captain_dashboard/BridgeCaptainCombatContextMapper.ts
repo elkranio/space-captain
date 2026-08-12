@@ -1,10 +1,7 @@
-import {
-    DEFENSE_CAPACITORS,
-} from '../../../../../../engine/content/catalogs/defense_capacitors';
 import { OFFICER_ROLE, type OfficerRole } from '../../../../../../engine/defs/officer';
 import type {
-    EnemyShipTelemetrySnapshot,
-} from '../../../../../../engine/encounter/EncounterEngine';
+    EnemyShipPresentationSnapshot,
+} from '../../../../../../engine/encounter/snapshots/combat_presentation_snapshot';
 import type {
     LaserThreatSnapshot,
 } from '../../../../../../engine/encounter/combat/queries/get_laser_threat_snapshots';
@@ -29,7 +26,7 @@ import type {
 
 type CaptainCombatContextMapperInput = {
     enemyShips:
-        EnemyShipTelemetrySnapshot[];
+        EnemyShipPresentationSnapshot[];
 
     incomingMissiles:
         CombatProjectileState[];
@@ -431,7 +428,7 @@ export function mapCaptainCombatContextToBridgePayload(
 
 function mapEnemyShip(
     enemyShips:
-        EnemyShipTelemetrySnapshot[],
+        EnemyShipPresentationSnapshot[],
 ): NonNullable<
     BridgeCaptainCombatContextUpdatedPayload[
         'enemyShip'
@@ -473,9 +470,9 @@ function mapEnemyShip(
 }
 
 function mapDefenseCapacitor(
-    state:
+    snapshot:
         NonNullable<
-            EnemyShipTelemetrySnapshot[
+            EnemyShipPresentationSnapshot[
                 'defenseCapacitor'
             ]
         >,
@@ -488,36 +485,21 @@ function mapDefenseCapacitor(
         'defenseCapacitor'
     ]
 > {
-    const definition =
-        DEFENSE_CAPACITORS[
-            state.defenseCapacitorId
-        ];
-
-    const rechargeProgress =
-        state.charges <
-        definition.capacity
-            ? Math.max(
-                  0,
-                  Math.min(
-                      1,
-                      state.rechargeElapsedMs /
-                          definition
-                              .rechargeDurationMs,
-                  ),
-              )
-            : undefined;
-
     return {
         current:
-            state.charges,
+            snapshot.state
+                .charges,
 
         max:
-            definition.capacity,
+            snapshot.capacity,
 
-        ...(rechargeProgress !==
+        ...(snapshot
+            .rechargeProgress !==
         undefined
             ? {
-                  rechargeProgress,
+                  rechargeProgress:
+                      snapshot
+                          .rechargeProgress,
               }
             : {}),
     };

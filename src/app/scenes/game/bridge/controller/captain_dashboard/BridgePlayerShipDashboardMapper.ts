@@ -1,9 +1,6 @@
-import {
-    DEFENSE_CAPACITORS,
-} from '../../../../../../engine/content/catalogs/defense_capacitors';
 import type {
-    DefenseCapacitorState,
-} from '../../../../../../engine/defs/defense_capacitor';
+    DefenseCapacitorPresentationSnapshot,
+} from '../../../../../../engine/encounter/snapshots/combat_presentation_snapshot';
 import { OFFICER_ROLE } from '../../../../../../engine/defs/officer';
 import type {
     PlayerHullState,
@@ -100,7 +97,7 @@ type PlayerShipDashboardMapperInput = {
             ShipDriveState;
 
         defenseCapacitor:
-            DefenseCapacitorState;
+            DefenseCapacitorPresentationSnapshot;
     };
 };
 
@@ -201,30 +198,8 @@ function mapStatus(
         'status'
     ]
 > {
-    const definition =
-        DEFENSE_CAPACITORS[
-            input
-                .defenseCapacitor
-                .defenseCapacitorId
-        ];
-
-    const rechargeProgress =
-        input.defenseCapacitor
-            .charges <
-        definition.capacity
-            ? Math.max(
-                  0,
-                  Math.min(
-                      1,
-
-                      input
-                          .defenseCapacitor
-                          .rechargeElapsedMs /
-                          definition
-                              .rechargeDurationMs,
-                  ),
-              )
-            : undefined;
+    const defenseCapacitor =
+        input.defenseCapacitor;
 
     return {
         hull: {
@@ -236,17 +211,20 @@ function mapStatus(
 
         defenseCapacitor: {
             current:
-                input
-                    .defenseCapacitor
-                    .charges,
+                defenseCapacitor
+                    .state.charges,
 
             max:
-                definition.capacity,
+                defenseCapacitor
+                    .capacity,
 
-            ...(rechargeProgress !==
+            ...(defenseCapacitor
+                .rechargeProgress !==
             undefined
                 ? {
-                      rechargeProgress,
+                      rechargeProgress:
+                          defenseCapacitor
+                              .rechargeProgress,
                   }
                 : {}),
         },

@@ -418,224 +418,253 @@ describe('BridgeEncounterSnapshotSynchronizer', () => {
 
 function createEncounterEngine(): EncounterEngine {
     return {
-        getDefenseCapacitorState:
+        getCombatPresentationSnapshot:
             vi.fn(() => {
                 return {
-                    id:
-                        'defense_capacitor_player_00',
-
-                    defenseCapacitorId:
-                        'defense_capacitor_basic_00',
-
-                    charges: 3,
-                    rechargeElapsedMs: 1200,
-                };
-            }),
-
-        getPlayerWeaponStates: vi.fn(() => {
-            return [];
-        }),
-
-        getShieldEmitterState:
-            vi.fn(() => {
-                return {
-                    id:
-                        'shield_emitter_player_00',
-
-                    shieldEmitterId:
-                        'shield_emitter_basic_00',
-
-                    status:
-                        'online',
-
-                    phase:
-                        'ready',
-
-                    phaseElapsedMs: 0,
-                };
-            }),
-
-        getActiveShieldState:
-            vi.fn(() => {
-                return {
-                    sourceEmitterId:
-                        'shield_emitter_player_00',
-
-                    remainingDurationMs:
-                        850,
-
-                    initialDurationMs:
-                        5000,
-                };
-            }),
-
-        getPlayerHullState:
-            vi.fn(() => {
-                return {
-                    hull: 3,
-                    maxHull: 3,
-                };
-            }),
-
-        getDriveState:
-            vi.fn(() => {
-                return {
-                    id:
-                        'drive_player_00',
-
-                    driveId:
-                        'drive_basic_00',
-
-                    status:
-                        'online',
-                };
-            }),
-
-        getAvailableCommands: vi.fn(() => {
-            return [];
-        }),
-
-        getOfficerAvailabilityStates: vi.fn(() => {
-            return {
-                science: 'available',
-                weapons: 'available',
-                engineer: 'available',
-                helm: 'available',
-            };
-        }),
-
-        getEnemyShipTelemetrySnapshots:
-            vi.fn(() => {
-                return [
-                    {
-                        actorId:
-                            'enemy_ship_00',
-
+                    player: {
                         hull: {
-                            current: 2,
-                            max: 4,
+                            hull: 3,
+                            maxHull: 3,
                         },
 
                         drive: {
+                            id:
+                                'drive_player_00',
+
+                            driveId:
+                                'drive_basic_00',
+
                             status:
                                 'online',
                         },
 
                         defenseCapacitor: {
+                            state: {
+                                id:
+                                    'defense_capacitor_player_00',
+
+                                defenseCapacitorId:
+                                    'defense_capacitor_basic_00',
+
+                                charges: 3,
+                                rechargeElapsedMs:
+                                    1200,
+                            },
+
+                            capacity: 4,
+
+                            rechargeProgress:
+                                0.05,
+                        },
+
+                        shieldEmitter: {
                             id:
-                                'enemy_def_00',
+                                'shield_emitter_player_00',
 
-                            defenseCapacitorId:
-                                'defense_capacitor_basic_00',
+                            shieldEmitterId:
+                                'shield_emitter_basic_00',
 
-                            charges: 1,
-                            rechargeElapsedMs:
-                                12000,
+                            status:
+                                'online',
+
+                            phase:
+                                'ready',
+
+                            phaseElapsedMs: 0,
                         },
 
                         activeShield: {
                             sourceEmitterId:
-                                'shield_emitter_00',
+                                'shield_emitter_player_00',
 
                             remainingDurationMs:
-                                900,
+                                850,
 
                             initialDurationMs:
                                 5000,
                         },
 
                         weapons: [],
+
+                        officerAvailability: {
+                            science:
+                                'available',
+
+                            weapons:
+                                'available',
+
+                            engineer:
+                                'available',
+
+                            helm:
+                                'available',
+                        },
                     },
-                ];
+
+                    enemyShips: [
+                        {
+                            actorId:
+                                'enemy_ship_00',
+
+                            hull: {
+                                current: 2,
+                                max: 4,
+                            },
+
+                            drive: {
+                                status:
+                                    'online',
+                            },
+
+                            defenseCapacitor: {
+                                state: {
+                                    id:
+                                        'enemy_def_00',
+
+                                    defenseCapacitorId:
+                                        'defense_capacitor_basic_00',
+
+                                    charges: 1,
+                                    rechargeElapsedMs:
+                                        12000,
+                                },
+
+                                capacity: 4,
+
+                                rechargeProgress:
+                                    0.5,
+                            },
+
+                            activeShield: {
+                                sourceEmitterId:
+                                    'shield_emitter_00',
+
+                                remainingDurationMs:
+                                    900,
+
+                                initialDurationMs:
+                                    5000,
+                            },
+
+                            weapons: [],
+                        },
+                    ],
+
+                    incomingMissiles: [
+                        {
+                            id:
+                                'incoming_1',
+
+                            designation:
+                                'M1',
+
+                            timeToImpactMs:
+                                800,
+
+                            initialTimeToImpactMs:
+                                1200,
+
+                            identification: {
+                                status:
+                                    'identified',
+
+                                spectralBand:
+                                    'red',
+                            },
+                        },
+                    ],
+
+                    outgoingMissiles: [
+                        {
+                            id:
+                                'outgoing_1',
+
+                            timeToImpactMs:
+                                600,
+
+                            initialTimeToImpactMs:
+                                1000,
+                        },
+                    ],
+
+                    outgoingStickyMines: [
+                        {
+                            id:
+                                'outgoing_mine_1',
+
+                            timeToDetonationMs:
+                                900,
+
+                            initialTimeToDetonationMs:
+                                1200,
+                        },
+                    ],
+
+                    stickyMineSnapshots: [
+                        {
+                            mine: {
+                                id:
+                                    'incoming_mine_1',
+
+                                timeToDetonationMs:
+                                    700,
+
+                                initialTimeToDetonationMs:
+                                    1000,
+                            },
+
+                            isBeingCleared:
+                                true,
+
+                            isNextClearTarget:
+                                false,
+                        },
+                    ],
+
+                    laserThreats: [
+                        {
+                            attack: {
+                                id:
+                                    'laser_attack_1',
+
+                                designation:
+                                    'L1',
+                            },
+
+                            timeToFireMs:
+                                500,
+
+                            initialTimeToFireMs:
+                                1000,
+                        },
+                    ],
+
+                    spamChannels: [
+                        {
+                            id:
+                                'spam_channel_1',
+
+                            sourceActorId:
+                                'enemy_ship_00',
+
+                            sourceWeaponId:
+                                'spam_projector_00',
+
+                            elapsedMs:
+                                1750,
+
+                            durationMs:
+                                5000,
+                        },
+                    ],
+
+                    commandsByRole: {
+                        science: [],
+                        helm: [],
+                        weapons: [],
+                        engineer: [],
+                    },
+                };
             }),
-
-        getIncomingMissileProjectiles: vi.fn(() => {
-            return [
-                {
-                    id: 'incoming_1',
-                    designation: 'M1',
-
-                    timeToImpactMs: 800,
-                    initialTimeToImpactMs: 1200,
-
-                    identification: {
-                        status: 'identified',
-                        spectralBand: 'red',
-                    },
-                },
-            ];
-        }),
-
-        getOutgoingMissileProjectiles: vi.fn(() => {
-            return [
-                {
-                    id: 'outgoing_1',
-                    timeToImpactMs: 600,
-                    initialTimeToImpactMs: 1000,
-                },
-            ];
-        }),
-
-        getOutgoingStickyMines: vi.fn(() => {
-            return [
-                {
-                    id: 'outgoing_mine_1',
-                    timeToDetonationMs: 900,
-                    initialTimeToDetonationMs: 1200,
-                },
-            ];
-        }),
-
-        getStickyMineSnapshots: vi.fn(() => {
-            return [
-                {
-                    mine: {
-                        id: 'incoming_mine_1',
-                        timeToDetonationMs: 700,
-                        initialTimeToDetonationMs: 1000,
-                    },
-                    isBeingCleared: true,
-                    isNextClearTarget: false,
-                },
-            ];
-        }),
-
-        getSpamChannels: vi.fn(() => {
-            return [
-                {
-                    id:
-                        'spam_channel_1',
-
-                    sourceActorId:
-                        'enemy_ship_00',
-
-                    sourceWeaponId:
-                        'spam_projector_00',
-
-                    elapsedMs:
-                        1750,
-
-                    durationMs:
-                        5000,
-                },
-            ];
-        }),
-
-        getLaserThreatSnapshots: vi.fn(() => {
-            return [
-                {
-                    attack: {
-                        id:
-                            'laser_attack_1',
-
-                        designation:
-                            'L1',
-                    },
-                    timeToFireMs: 500,
-                    initialTimeToFireMs: 1000,
-                },
-            ];
-        }),
-
     } as unknown as EncounterEngine;
 }

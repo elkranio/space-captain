@@ -21,6 +21,9 @@ import {
     type ShipWeaponState,
 } from '../../src/engine/defs/ship_weapon';
 import {
+    createPlayerWeaponPresentationSnapshot,
+} from '../../src/engine/encounter/snapshots/combat_presentation_snapshot';
+import {
     mapPlayerWeaponsToBridgeStatusPayload,
 } from '../../src/app/scenes/game/bridge/controller/player_weapon_status/BridgePlayerWeaponStatusMapper';
 
@@ -28,7 +31,9 @@ describe('Bridge player weapon status mapper', () => {
     it('maps ready laser and loaded missile launcher', () => {
         expect(
             mapPlayerWeaponsToBridgeStatusPayload(
-                createWeapons(),
+                presentWeapons(
+                    createWeapons(),
+                ),
             ),
         ).toEqual({
             laser: {
@@ -88,7 +93,9 @@ describe('Bridge player weapon status mapper', () => {
 
         expect(
             mapPlayerWeaponsToBridgeStatusPayload(
-                weapons,
+                presentWeapons(
+                    weapons,
+                ),
             ).stickyMineDispenser,
         ).toEqual({
             phase:
@@ -120,7 +127,9 @@ describe('Bridge player weapon status mapper', () => {
 
         expect(
             mapPlayerWeaponsToBridgeStatusPayload(
-                weapons,
+                presentWeapons(
+                    weapons,
+                ),
             ),
         ).toEqual({
             laser: {
@@ -211,7 +220,9 @@ describe('Bridge player weapon status mapper', () => {
 
         expect(
             mapPlayerWeaponsToBridgeStatusPayload(
-                weapons,
+                presentWeapons(
+                    weapons,
+                ),
             ),
         ).toEqual({
             laser: {
@@ -255,6 +266,15 @@ describe('Bridge player weapon status mapper', () => {
         });
     });
 });
+
+function presentWeapons(
+    weapons:
+        ShipWeaponState[],
+) {
+    return weapons.map(
+        createPlayerWeaponPresentationSnapshot,
+    );
+}
 
 function createWeapons():
     ShipWeaponState[] {

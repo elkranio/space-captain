@@ -1,21 +1,19 @@
 // src/app/scenes/game/bridge/controller/player_weapon_status/BridgePlayerWeaponStatusMapper.ts
 
 import {
-    SHIP_WEAPONS,
-    SHIP_WEAPON_TARGETING_DURATION_MS,
-} from '../../../../../../engine/content/catalogs/ship_weapons';
-import {
     SHIP_WEAPON_KIND,
-    SHIP_WEAPON_PHASE,
-    type ShipWeaponState,
 } from '../../../../../../engine/defs/ship_weapon';
+import type {
+    PlayerWeaponPresentationSnapshot,
+} from '../../../../../../engine/encounter/snapshots/combat_presentation_snapshot';
 import type {
     BridgePlayerWeaponStatusPayload,
     BridgePlayerWeaponsStatusUpdatedPayload,
 } from '../../events/bridge_event';
 
 export function mapPlayerWeaponsToBridgeStatusPayload(
-    weapons: ShipWeaponState[],
+    snapshots:
+        PlayerWeaponPresentationSnapshot[],
 ): BridgePlayerWeaponsStatusUpdatedPayload {
     let laser:
         BridgePlayerWeaponStatusPayload
@@ -36,9 +34,12 @@ export function mapPlayerWeaponsToBridgeStatusPayload(
             'spamProjector'
         ];
 
-    for (const weapon of weapons) {
+    for (const snapshot of snapshots) {
+        const weapon =
+            snapshot.state;
+
         switch (weapon.kind) {
-            case SHIP_WEAPON_KIND.LASER: {
+            case SHIP_WEAPON_KIND.LASER:
                 if (laser) {
                     throw new Error(
                         'Bridge weapon status supports ' +
@@ -48,14 +49,13 @@ export function mapPlayerWeaponsToBridgeStatusPayload(
 
                 laser =
                     mapWeaponStatus(
-                        weapon,
+                        snapshot,
                     );
 
                 break;
-            }
 
             case SHIP_WEAPON_KIND
-                .MISSILE_LAUNCHER: {
+                .MISSILE_LAUNCHER:
                 if (missileLauncher) {
                     throw new Error(
                         'Bridge weapon status supports ' +
@@ -63,26 +63,9 @@ export function mapPlayerWeaponsToBridgeStatusPayload(
                     );
                 }
 
-                const definition =
-                    SHIP_WEAPONS[
-                        weapon.weaponId
-                    ];
-
-                if (
-                    definition.kind !==
-                    SHIP_WEAPON_KIND
-                        .MISSILE_LAUNCHER
-                ) {
-                    throw new Error(
-                        'Player missile launcher ' +
-                            'definition mismatch: ' +
-                            weapon.id,
-                    );
-                }
-
                 missileLauncher = {
                     ...mapWeaponStatus(
-                        weapon,
+                        snapshot,
                     ),
 
                     ammo: {
@@ -90,16 +73,16 @@ export function mapPlayerWeaponsToBridgeStatusPayload(
                             weapon.ammoCount,
 
                         max:
-                            definition
-                                .ammoCapacity,
+                            requireAmmoCapacity(
+                                snapshot,
+                            ),
                     },
                 };
 
                 break;
-            }
 
             case SHIP_WEAPON_KIND
-                .STICKY_MINE_DISPENSER: {
+                .STICKY_MINE_DISPENSER:
                 if (stickyMineDispenser) {
                     throw new Error(
                         'Bridge weapon status supports ' +
@@ -107,26 +90,9 @@ export function mapPlayerWeaponsToBridgeStatusPayload(
                     );
                 }
 
-                const definition =
-                    SHIP_WEAPONS[
-                        weapon.weaponId
-                    ];
-
-                if (
-                    definition.kind !==
-                    SHIP_WEAPON_KIND
-                        .STICKY_MINE_DISPENSER
-                ) {
-                    throw new Error(
-                        'Player sticky mine dispenser ' +
-                            'definition mismatch: ' +
-                            weapon.id,
-                    );
-                }
-
                 stickyMineDispenser = {
                     ...mapWeaponStatus(
-                        weapon,
+                        snapshot,
                     ),
 
                     ammo: {
@@ -134,16 +100,16 @@ export function mapPlayerWeaponsToBridgeStatusPayload(
                             weapon.ammoCount,
 
                         max:
-                            definition
-                                .ammoCapacity,
+                            requireAmmoCapacity(
+                                snapshot,
+                            ),
                     },
                 };
 
                 break;
-            }
 
             case SHIP_WEAPON_KIND
-                .SPAM_PROJECTOR: {
+                .SPAM_PROJECTOR:
                 if (spamProjector) {
                     throw new Error(
                         'Bridge weapon status supports ' +
@@ -153,13 +119,9 @@ export function mapPlayerWeaponsToBridgeStatusPayload(
 
                 spamProjector =
                     mapWeaponStatus(
-                        weapon,
+                        snapshot,
                     );
 
-                break;
-            }
-
-            default:
                 break;
         }
     }
@@ -192,126 +154,51 @@ export function mapPlayerWeaponsToBridgeStatusPayload(
 }
 
 function mapWeaponStatus(
-    weapon: ShipWeaponState,
+    snapshot:
+        PlayerWeaponPresentationSnapshot,
 ): BridgePlayerWeaponStatusPayload {
+    const weapon =
+        snapshot.state;
+
     const phaseDurationMs =
-        getPhaseDurationMs(
-            weapon,
-        );
+        snapshot.phaseDurationMs;
 
     return {
         phase:
             weapon.phase,
 
-        ...(phaseDurationMs !== undefined
+        ...(phaseDurationMs !==
+        undefined
             ? {
                   initialPhaseMs:
                       phaseDurationMs,
 
                   remainingPhaseMs:
-                      getRemainingMs(
-                          phaseDurationMs,
-                          weapon.phaseElapsedMs,
+                      Math.max(
+                          0,
+
+                          phaseDurationMs -
+                              weapon
+                                  .phaseElapsedMs,
                       ),
               }
             : {}),
     };
 }
 
-function getPhaseDurationMs(
-    weapon: ShipWeaponState,
-): number | undefined {
-    const definition =
-        SHIP_WEAPONS[
-            weapon.weaponId
-        ];
-
-    switch (weapon.phase) {
-        case SHIP_WEAPON_PHASE.READY:
-            return undefined;
-
-        case SHIP_WEAPON_PHASE.TARGETING:
-            return SHIP_WEAPON_TARGETING_DURATION_MS;
-
-        case SHIP_WEAPON_PHASE.CHARGING:
-            if (
-                definition.kind !==
-                SHIP_WEAPON_KIND.LASER
-            ) {
-                throw new Error(
-                    'Only player laser can be ' +
-                        'in charging phase: ' +
-                        weapon.id,
-                );
-            }
-
-            return definition.chargeDurationMs;
-
-        case SHIP_WEAPON_PHASE.COOLDOWN:
-            return definition.cooldownDurationMs;
-
-        case SHIP_WEAPON_PHASE.CHANNELING:
-            if (
-                definition.kind !==
-                SHIP_WEAPON_KIND
-                    .SPAM_PROJECTOR
-            ) {
-                throw new Error(
-                    'Only player spam projector can be ' +
-                        'in channeling phase: ' +
-                        weapon.id,
-                );
-            }
-
-            return definition.channelDurationMs;
-
-        case SHIP_WEAPON_PHASE.DISPENSING: {
-            if (
-                definition.kind !==
-                    SHIP_WEAPON_KIND
-                        .STICKY_MINE_DISPENSER ||
-                weapon.kind !==
-                    SHIP_WEAPON_KIND
-                        .STICKY_MINE_DISPENSER
-            ) {
-                throw new Error(
-                    'Only player sticky mine dispenser can be ' +
-                        'in dispensing phase: ' +
-                        weapon.id,
-                );
-            }
-
-            // The first mine is emitted when targeting completes.
-            // DISPENSING then spans the remaining salvo intervals.
-            // current ammo + already dispensed count recovers the
-            // stable ammo-at-salvo-start value.
-            const plannedMineCount =
-                Math.min(
-                    definition.salvoSize,
-
-                    weapon.ammoCount +
-                        weapon
-                            .dispensedMineCount,
-                );
-
-            return Math.max(
-                0,
-
-                (plannedMineCount - 1) *
-                    definition
-                        .launchIntervalMs,
-            );
-        }
-    }
-}
-
-function getRemainingMs(
-    durationMs: number,
-    elapsedMs: number,
+function requireAmmoCapacity(
+    snapshot:
+        PlayerWeaponPresentationSnapshot,
 ): number {
-    return Math.max(
-        0,
-        durationMs -
-            elapsedMs,
+    const capacity =
+        snapshot.ammoCapacity;
+
+    if (capacity !== undefined) {
+        return capacity;
+    }
+
+    throw new Error(
+        'Player weapon presentation is missing ammo capacity: ' +
+            snapshot.state.id,
     );
 }

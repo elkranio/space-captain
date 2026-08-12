@@ -26,6 +26,9 @@ import {
     type AvailableOfficerCommand,
 } from '../../src/engine/encounter/model/command';
 import {
+    createDefenseCapacitorPresentationSnapshot,
+} from '../../src/engine/encounter/snapshots/combat_presentation_snapshot';
+import {
     mapCaptainCombatContextToBridgePayload,
 } from '../../src/app/scenes/game/bridge/controller/captain_dashboard/BridgeCaptainCombatContextMapper';
 
@@ -293,17 +296,18 @@ describe(
                                         'online',
                                 },
 
-                                defenseCapacitor: {
-                                    id:
-                                        'enemy_def_00',
+                                defenseCapacitor:
+                                    createDefenseCapacitorPresentationSnapshot({
+                                        id:
+                                            'enemy_def_00',
 
-                                    defenseCapacitorId:
-                                        'defense_capacitor_basic_00',
+                                        defenseCapacitorId:
+                                            'defense_capacitor_basic_00',
 
-                                    charges: 2,
-                                    rechargeElapsedMs:
-                                        6000,
-                                },
+                                        charges: 2,
+                                        rechargeElapsedMs:
+                                            6000,
+                                    }),
 
                                 weapons: [],
                             },

@@ -48,6 +48,10 @@ import type { OfficerTaskState } from '../model/officer_task';
 import type { EncounterState } from '../model/state';
 import { getOfficerAvailabilityStates } from '../officer_availability/queries/get_officer_availability_states';
 import { createDetachedSnapshot } from './create_detached_snapshot';
+import {
+    createCombatPresentationSnapshot,
+    type CombatPresentationSnapshot,
+} from './combat_presentation_snapshot';
 
 // App-facing read boundary for one EncounterState.
 //
@@ -55,6 +59,13 @@ import { createDetachedSnapshot } from './create_detached_snapshot';
 // current authoritative state and returns a recursively detached value.
 export default class EncounterSnapshotReader {
     constructor(private readonly state: EncounterState) {}
+
+    public getCombatPresentationSnapshot():
+        CombatPresentationSnapshot {
+        return this.read(
+            createCombatPresentationSnapshot,
+        );
+    }
 
     public getNavigationState(): PlayerSpaceNavigationState {
         return this.read((state) => state.navigation);

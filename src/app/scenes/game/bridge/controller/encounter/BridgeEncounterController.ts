@@ -106,9 +106,22 @@ export default class BridgeEncounterController {
         }
 
         this.encounterEngine.step(deltaMs);
-        this.snapshotSynchronizer?.syncPlayerShipDashboard();
+
+        const combatPresentation =
+            this.encounterEngine
+                .getCombatPresentationSnapshot();
+
+        this.snapshotSynchronizer
+            ?.syncPlayerShipDashboard(
+                combatPresentation,
+            );
+
         this.drainEncounterEvents();
-        this.snapshotSynchronizer?.syncCombatPresentation();
+
+        this.snapshotSynchronizer
+            ?.syncCombatPresentation(
+                combatPresentation,
+            );
 
         this.officerStationsController?.step(deltaMs);
     }
