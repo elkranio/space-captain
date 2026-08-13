@@ -92,6 +92,7 @@ export default class OfficerTaskRunner {
             purgeSpamChannel,
             clearStickyMine,
             this.emit,
+            this.random,
         );
 
         this.performanceResolver =

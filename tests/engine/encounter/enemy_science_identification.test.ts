@@ -411,7 +411,9 @@ function createBaseFixture(
 
             purgePlayerSpamChannel:
                 () => false,
-        });
+        
+            random: () => 0,
+});
 
     return {
         actor,

@@ -43,6 +43,9 @@ import {
 import type {
     EncounterState,
 } from '../../model/state';
+import type {
+    ResolvedMissileSignatureIntel,
+} from '../../model/missile_signature_intel';
 
 // Owns player hull, drive and combat-system mutations.
 export default class PlayerShipStore {
@@ -542,6 +545,8 @@ export default class PlayerShipStore {
 
     public identifyThreat(
         threatId: string,
+        identification:
+            ResolvedMissileSignatureIntel,
     ): ThreatIdentificationResult | undefined {
         const projectile =
             this.state.combat
@@ -557,6 +562,8 @@ export default class PlayerShipStore {
             return undefined;
         }
 
+        // CONFIRMED is terminal. A stale task completion must never
+        // downgrade or replace already confirmed knowledge.
         if (
             projectile.identification
                 .status ===
@@ -567,36 +574,34 @@ export default class PlayerShipStore {
                 kind:
                     COMBAT_THREAT_KIND.MISSILE,
 
-                status:
-                    MISSILE_SIGNATURE_INTEL_STATUS
-                        .CONFIRMED,
-
-                hypothesis:
-                    projectile.identification
-                        .hypothesis,
+                ...projectile
+                    .identification,
             };
         }
 
-        const hypothesis =
-            projectile.signature;
+        // System UI must never expose false confirmation.
+        if (
+            identification.status ===
+                MISSILE_SIGNATURE_INTEL_STATUS
+                    .CONFIRMED &&
+            identification.hypothesis !==
+                projectile.signature
+        ) {
+            throw new Error(
+                'Cannot confirm an incorrect missile signature: ' +
+                    threatId,
+            );
+        }
 
         projectile.identification = {
-            status:
-                MISSILE_SIGNATURE_INTEL_STATUS
-                    .CONFIRMED,
-
-            hypothesis,
+            ...identification,
         };
 
         return {
             kind:
                 COMBAT_THREAT_KIND.MISSILE,
 
-            status:
-                MISSILE_SIGNATURE_INTEL_STATUS
-                    .CONFIRMED,
-
-            hypothesis,
+            ...identification,
         };
     }
 

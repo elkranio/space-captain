@@ -46,6 +46,9 @@ import type {
 import type {
     EncounterState,
 } from '../model/state';
+import type {
+    ResolvedMissileSignatureIntel,
+} from '../model/missile_signature_intel';
 import EncounterActorStore, {
     type EnemyHullDamageResult,
     type SpawnShipActorInput,
@@ -406,10 +409,13 @@ export default class EncounterStateStore {
 
     public identifyThreat(
         threatId: string,
+        identification:
+            ResolvedMissileSignatureIntel,
     ): ThreatIdentificationResult | undefined {
         return this.playerShip
             .identifyThreat(
                 threatId,
+                identification,
             );
     }
 

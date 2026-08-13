@@ -15,6 +15,10 @@ import {
     type EncounterEvent,
 } from '../../../../../../../engine/encounter/model/event';
 import { OFFICER_TASK_KIND } from '../../../../../../../engine/encounter/model/officer_task';
+import {
+    MISSILE_SIGNATURE_ANALYSIS_CONFIDENCE,
+    type MissileSignatureAnalysisConfidence,
+} from '../../../../../../../engine/encounter/model/missile_signature_analysis';
 import type { GameRuntime } from '../../../../../../runtime/GameRuntime';
 import { SCENE_KEY } from '../../../../../scene_key';
 import {
@@ -253,6 +257,27 @@ export default class BridgeEncounterEngineEventHandler {
                     this.eventBus.emit(
                         BRIDGE_EVENT.ENCOUNTER_OBJECT_ADDED,
                         mapEncounterAnchorToBridgeObjectPayload(anchor),
+                    );
+                }
+
+                if (
+                    event.result?.kind ===
+                    OFFICER_TASK_RESULT_KIND
+                        .THREAT_IDENTIFIED
+                ) {
+                    this.eventBus.emit(
+                        BRIDGE_EVENT
+                            .OFFICER_BARK_REQUESTED,
+                        {
+                            role:
+                                event.task.role,
+
+                            text:
+                                getMissileSignatureAnalysisBark(
+                                    event.result
+                                        .analysisConfidence,
+                                ),
+                        },
                     );
                 }
 
@@ -745,4 +770,23 @@ export default class BridgeEncounterEngineEventHandler {
 
     // #endregion
 
+}
+
+function getMissileSignatureAnalysisBark(
+    confidence:
+        MissileSignatureAnalysisConfidence,
+): string {
+    switch (confidence) {
+        case MISSILE_SIGNATURE_ANALYSIS_CONFIDENCE
+            .CERTAIN:
+            return 'SIGNATURE CONFIRMED, CAPTAIN.';
+
+        case MISSILE_SIGNATURE_ANALYSIS_CONFIDENCE
+            .STRONG:
+            return 'I\'M PRETTY SURE ABOUT THE SIGNATURE, CAPTAIN.';
+
+        case MISSILE_SIGNATURE_ANALYSIS_CONFIDENCE
+            .WEAK:
+            return 'NOT SURE, CAPTAIN. THIS IS MY BEST GUESS.';
+    }
 }

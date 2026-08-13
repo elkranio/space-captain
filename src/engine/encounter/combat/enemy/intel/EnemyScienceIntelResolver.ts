@@ -1,11 +1,10 @@
-// src/engine/encounter/combat/EnemyScienceIntelResolver.ts
+// src/engine/encounter/combat/enemy/intel/EnemyScienceIntelResolver.ts
 
 import {
     CREW_TRAIT_ID,
 } from '../../../../defs/crew_trait';
-import {
-    MISSILE_SIGNATURE,
-    type MissileSignature,
+import type {
+    MissileSignature,
 } from '../../../../defs/missile';
 import {
     OFFICER_ROLE,
@@ -14,12 +13,13 @@ import type {
     ShipEncounterActorState,
 } from '../../../actors/ship/ship_encounter_actor';
 import {
+    MISSILE_SIGNATURE_ANALYSIS_PROFILE,
+    resolveMissileSignatureAnalysis,
+} from '../../intel/resolve_missile_signature_analysis';
+import {
     COMBAT_SOURCE_KIND,
     COMBAT_TARGET_KIND,
 } from '../../../model/combat';
-import {
-    MISSILE_SIGNATURE_INTEL_STATUS,
-} from '../../../model/missile_signature_intel';
 import {
     ENEMY_THREAT_KIND,
     ENEMY_THREAT_SOURCE_KIND,
@@ -30,17 +30,18 @@ import type {
     EncounterState,
 } from '../../../model/state';
 
-// Единственная граница между:
-// - objective combat truth;
-// - report, доступным enemy policy.
+// Single boundary between objective missile truth and enemy observer intel.
 //
-// Atom 02 preserves the current deterministic trait behavior:
-// HUNGOVER Science produces a plausible but wrong hypothesis.
-// The system marks it UNCERTAIN, never falsely CONFIRMED.
+// Enemy and player Science now share the same analysis fundamentals.
+// Crew state selects an analysis profile; it never directly fabricates
+// public correctness flags.
 export default class EnemyScienceIntelResolver {
     constructor(
         private readonly state:
             EncounterState,
+
+        private readonly random:
+            () => number,
     ) {}
 
     public resolve(
@@ -66,36 +67,51 @@ export default class EnemyScienceIntelResolver {
             );
         }
 
-        const truthfulReport =
+        const truth =
             this.resolveTruth(
                 actor,
                 observation,
             );
 
-        if (
-            !this.isScienceHungover(
-                actor,
-            )
-        ) {
-            return truthfulReport;
-        }
+        const analysis =
+            resolveMissileSignatureAnalysis({
+                truth,
 
-        return this.createFalseReport(
-            truthfulReport,
-        );
+                profile:
+                    this.isScienceHungover(
+                        actor,
+                    )
+                        ? MISSILE_SIGNATURE_ANALYSIS_PROFILE
+                              .IMPAIRED
+                        : MISSILE_SIGNATURE_ANALYSIS_PROFILE
+                              .STANDARD,
+
+                random:
+                    this.random,
+            });
+
+        return {
+            kind:
+                ENEMY_THREAT_KIND
+                    .MISSILE,
+
+            ...analysis
+                .identification,
+        };
     }
 
     private resolveTruth(
         actor: ShipEncounterActorState,
         observation:
             EnemyThreatObservationState,
-    ): EnemyThreatReport {
+    ): MissileSignature {
         switch (observation.kind) {
             case ENEMY_THREAT_KIND.MISSILE:
-                return this.resolveMissileTruth(
-                    actor,
-                    observation,
-                );
+                return this
+                    .resolveMissileTruth(
+                        actor,
+                        observation,
+                    );
 
             case ENEMY_THREAT_KIND.LASER:
                 throw new Error(
@@ -122,7 +138,7 @@ export default class EnemyScienceIntelResolver {
         actor: ShipEncounterActorState,
         observation:
             EnemyThreatObservationState,
-    ): EnemyThreatReport {
+    ): MissileSignature {
         const source =
             observation.source;
 
@@ -172,17 +188,7 @@ export default class EnemyScienceIntelResolver {
             );
         }
 
-        return {
-            kind:
-                ENEMY_THREAT_KIND.MISSILE,
-
-            status:
-                MISSILE_SIGNATURE_INTEL_STATUS
-                    .CONFIRMED,
-
-            hypothesis:
-                projectile.signature,
-        };
+        return projectile.signature;
     }
 
     private isScienceHungover(
@@ -200,43 +206,4 @@ export default class EnemyScienceIntelResolver {
             false
         );
     }
-
-    private createFalseReport(
-        truthfulReport:
-            EnemyThreatReport,
-    ): EnemyThreatReport {
-        return {
-            kind:
-                ENEMY_THREAT_KIND
-                    .MISSILE,
-
-            status:
-                MISSILE_SIGNATURE_INTEL_STATUS
-                    .UNCERTAIN,
-
-            hypothesis:
-                this.getWrongSignature(
-                    truthfulReport
-                        .hypothesis,
-                ),
-        };
-    }
-
-    private getWrongSignature(
-        truthfulSignature:
-            MissileSignature,
-    ): MissileSignature {
-        switch (truthfulSignature) {
-            case MISSILE_SIGNATURE.A:
-                return (
-                    MISSILE_SIGNATURE.B
-                );
-
-            case MISSILE_SIGNATURE.B:
-                return (
-                    MISSILE_SIGNATURE.A
-                );
-        }
-    }
-
 }

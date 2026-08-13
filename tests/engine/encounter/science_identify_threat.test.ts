@@ -26,6 +26,9 @@ import {
     OFFICER_TASK_OUTCOME,
     OFFICER_TASK_RESULT_KIND,
 } from '../../../src/engine/encounter/model/event';
+import {
+    MISSILE_SIGNATURE_ANALYSIS_CONFIDENCE,
+} from '../../../src/engine/encounter/model/missile_signature_analysis';
 import { OFFICER_TASK_KIND } from '../../../src/engine/encounter/model/officer_task';
 import ShipNodeActorFactory from '../../../src/engine/generation/space_node_actor/ShipNodeActorFactory';
 import { createSingleStationNodeFixture } from '../../fixtures/engine/space_node_fixtures';
@@ -36,28 +39,23 @@ import {
 describe('Science identify threat command', () => {
     it.each([
         {
-            label: 'RED',
+            label: 'SIGNATURE A',
 
             presetId: SHIP_NODE_ACTOR_PRESET_ID.ENEMY_GENERIC_00,
 
             expectedBand: MISSILE_SIGNATURE.A,
-
-            random: () => 0,
-        },
+},
         {
-            label: 'BLUE',
+            label: 'SIGNATURE B',
 
             presetId: SHIP_NODE_ACTOR_PRESET_ID.ENEMY_GENERIC_BLUE_00,
 
             expectedBand: MISSILE_SIGNATURE.B,
-
-            random: () => 1,
-        },
+},
     ])('identifies an unknown $label incoming missile threat', ({
             presetId,
             expectedBand,
-            random,
-        }) => {
+}) => {
         const { node, stationId } = createSingleStationNodeFixture();
 
         const nodeEnemy = ShipNodeActorFactory.create({
@@ -92,7 +90,7 @@ describe('Science identify threat command', () => {
 
             completeTimedTasksImmediately: true,
         
-            random,
+            random: () => 0,
         });
 
         const [loadedEvent] = engine.drainEvents();
@@ -108,6 +106,22 @@ describe('Science identify threat command', () => {
         engine.step(SHIP_WEAPON_TARGETING_DURATION_MS - 1);
 
         engine.drainEvents();
+
+        const projectile =
+            getMutableEncounterStateForTest(
+                engine,
+            ).combat.projectiles[0];
+
+        if (!projectile) {
+            throw new Error(
+                'Expected incoming missile projectile',
+            );
+        }
+
+        // Test controls hidden truth explicitly.
+        // Science quality uses its own deterministic RNG above.
+        projectile.signature =
+            expectedBand;
 
         const identifyCommand = engine.getAvailableCommands(OFFICER_ROLE.SCIENCE).find((command) => {
             return command.commandId === ENCOUNTER_OFFICER_COMMAND_ID.SCIENCE_IDENTIFY_THREAT;
@@ -206,6 +220,10 @@ describe('Science identify threat command', () => {
                     kind: OFFICER_TASK_RESULT_KIND.THREAT_IDENTIFIED,
 
                     threatId: 'projectile_1',
+
+                    analysisConfidence:
+                        MISSILE_SIGNATURE_ANALYSIS_CONFIDENCE
+                            .CERTAIN,
 
                     identification: {
                         kind: COMBAT_THREAT_KIND.MISSILE,

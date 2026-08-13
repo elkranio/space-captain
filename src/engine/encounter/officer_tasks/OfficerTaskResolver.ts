@@ -1,8 +1,17 @@
 // src/engine/encounter/officer_tasks/OfficerTaskResolver.ts
 
 import {
+    COMBAT_THREAT_KIND,
+    MISSILE_SIGNATURE_INTEL_STATUS,
     PLAYER_SPAM_CHANNEL_OUTCOME,
 } from '../model/combat';
+import {
+    MISSILE_SIGNATURE_ANALYSIS_CONFIDENCE,
+} from '../model/missile_signature_analysis';
+import {
+    MISSILE_SIGNATURE_ANALYSIS_PROFILE,
+    resolveMissileSignatureAnalysis,
+} from '../combat/intel/resolve_missile_signature_analysis';
 import {
     ENCOUNTER_EVENT,
     OFFICER_TASK_RESULT_KIND,
@@ -91,6 +100,7 @@ export default class OfficerTaskResolver {
         private readonly purgeSpamChannel: (channelId: string) => boolean,
         private readonly clearStickyMine: (mineId: string) => boolean,
         private readonly emit: (event: EncounterEvent) => void,
+        private readonly random: () => number,
     ) {}
 
     public resolve(task: OfficerTaskState): OfficerTaskResult | undefined {
@@ -260,18 +270,92 @@ export default class OfficerTaskResolver {
         };
     }
 
-    private resolveScienceIdentifyThreatTask(task: ScienceIdentifyThreatTaskState): OfficerTaskResult | undefined {
-        const identification = this.stateStore.identifyThreat(task.threatId);
+    private resolveScienceIdentifyThreatTask(
+        task:
+            ScienceIdentifyThreatTaskState,
+    ): OfficerTaskResult | undefined {
+        const projectile =
+            this.stateStore
+                .getState()
+                .combat
+                .projectiles
+                .find((candidate) => {
+                    return (
+                        candidate.id ===
+                        task.threatId
+                    );
+                });
+
+        if (!projectile) {
+            return undefined;
+        }
+
+        if (
+            projectile.identification
+                .status ===
+            MISSILE_SIGNATURE_INTEL_STATUS
+                .CONFIRMED
+        ) {
+            return {
+                kind:
+                    OFFICER_TASK_RESULT_KIND
+                        .THREAT_IDENTIFIED,
+
+                threatId:
+                    task.threatId,
+
+                identification: {
+                    kind:
+                        COMBAT_THREAT_KIND
+                            .MISSILE,
+
+                    ...projectile
+                        .identification,
+                },
+
+                analysisConfidence:
+                    MISSILE_SIGNATURE_ANALYSIS_CONFIDENCE
+                        .CERTAIN,
+            };
+        }
+
+        const analysis =
+            resolveMissileSignatureAnalysis({
+                truth:
+                    projectile.signature,
+
+                profile:
+                    MISSILE_SIGNATURE_ANALYSIS_PROFILE
+                        .STANDARD,
+
+                random:
+                    this.random,
+            });
+
+        const identification =
+            this.stateStore
+                .identifyThreat(
+                    task.threatId,
+                    analysis
+                        .identification,
+                );
 
         if (!identification) {
             return undefined;
         }
 
         return {
-            kind: OFFICER_TASK_RESULT_KIND.THREAT_IDENTIFIED,
+            kind:
+                OFFICER_TASK_RESULT_KIND
+                    .THREAT_IDENTIFIED,
 
-            threatId: task.threatId,
+            threatId:
+                task.threatId,
+
             identification,
+
+            analysisConfidence:
+                analysis.confidence,
         };
     }
 

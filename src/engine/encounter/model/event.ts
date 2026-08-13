@@ -25,6 +25,9 @@ import type {
     ThreatIdentificationResult,
 } from './combat';
 import type { OfficerTaskState } from './officer_task';
+import type {
+    MissileSignatureAnalysisConfidence,
+} from './missile_signature_analysis';
 import type { EncounterState } from './state';
 
 // События, которые EncounterEngine отдаёт наружу
@@ -126,6 +129,9 @@ export type OfficerTaskResult =
 
           threatId: string;
           identification: ThreatIdentificationResult;
+
+          analysisConfidence:
+              MissileSignatureAnalysisConfidence;
       }
     | {
           kind: typeof OFFICER_TASK_RESULT_KIND.DEFENSE_TURRET_FIRED;

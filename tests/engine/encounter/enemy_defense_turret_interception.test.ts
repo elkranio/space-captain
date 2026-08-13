@@ -396,7 +396,7 @@ describe('Enemy defense-turret interception', () => {
             MISSILE_ID.BASIC_01,
 
             // Blind fallback is BLUE and would hit.
-            () => 1,
+            () => 0.99,
         );
 
         enemy.crewTraitsByRole[

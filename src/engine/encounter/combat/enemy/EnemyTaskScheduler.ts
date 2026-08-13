@@ -147,6 +147,7 @@ export default class EnemyTaskScheduler {
         this.scienceIntelResolver =
             new EnemyScienceIntelResolver(
                 this.state,
+                random,
             );
 
         this.crewTaskRunner =
