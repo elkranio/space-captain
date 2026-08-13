@@ -26,22 +26,36 @@ import {
 import type {
     ShipEncounterActorState,
 } from '../../actors/ship/ship_encounter_actor';
-import type {
-    EncounterState,
-} from '../../model/state';
+import {
+    COMBAT_SOURCE_KIND,
+    COMBAT_TARGET_KIND,
+} from '../../model/combat';
 import {
     ENEMY_THREAT_KIND,
 } from '../../model/enemy_threat_observation';
 import {
     SHIP_CREW_TASK_KIND,
 } from '../../model/ship_crew_task';
-import {
-    getActivePlayerSpamChannels,
-} from '../queries/get_active_player_spam_channels';
-import {
-    getEnemyThreatDecisionSnapshots,
-    type EnemyThreatDecisionSnapshot,
+import type {
+    CrewProgressEffect,
+} from '../../crew_performance/get_active_crew_progress_effects';
+import type {
+    EnemyThreatDecisionSnapshot,
 } from '../queries/get_enemy_threat_decision_snapshots';
+
+export type EnemyDecisionContext = {
+    threats:
+        readonly EnemyThreatDecisionSnapshot[];
+
+    crewProgressEffects:
+        readonly CrewProgressEffect[];
+};
+
+const EMPTY_ENEMY_DECISION_CONTEXT:
+    EnemyDecisionContext = {
+        threats: [],
+        crewProgressEffects: [],
+    };
 
 export type EnemyWorkIntent =
     | {
@@ -138,9 +152,6 @@ export default class EnemyDecisionPolicy {
     constructor(
         private readonly random:
             () => number = Math.random,
-
-        private readonly state?:
-            EncounterState,
     ) {}
 
     public advance(
@@ -203,8 +214,9 @@ export default class EnemyDecisionPolicy {
 
     public selectMineClearing(
         actor: ShipEncounterActorState,
-        threatSnapshots?:
-            readonly EnemyThreatDecisionSnapshot[],
+        context:
+            EnemyDecisionContext =
+                EMPTY_ENEMY_DECISION_CONTEXT,
     ): Extract<
         EnemyWorkIntent,
         {
@@ -214,10 +226,7 @@ export default class EnemyDecisionPolicy {
         }
     > | undefined {
         const threats =
-            threatSnapshots ??
-            this.getThreatDecisionSnapshots(
-                actor,
-            );
+            context.threats;
 
         const claimedMineIds =
             new Set<string>();
@@ -311,14 +320,12 @@ export default class EnemyDecisionPolicy {
     public selectWork(
         actor: ShipEncounterActorState,
         role: OfficerRole,
-        threatSnapshots?:
-            readonly EnemyThreatDecisionSnapshot[],
+        context:
+            EnemyDecisionContext =
+                EMPTY_ENEMY_DECISION_CONTEXT,
     ): EnemyWorkIntent | undefined {
         const threats =
-            threatSnapshots ??
-            this.getThreatDecisionSnapshots(
-                actor,
-            );
+            context.threats;
 
         // Sticky-mine defense is scheduled before role work.
         // Engineer then reacts to a live resolved player laser.
@@ -339,6 +346,8 @@ export default class EnemyDecisionPolicy {
             this.selectSpamChannelId(
                 actor,
                 role,
+                context
+                    .crewProgressEffects,
             );
 
         if (spamChannelId) {
@@ -520,21 +529,26 @@ export default class EnemyDecisionPolicy {
     private selectSpamChannelId(
         actor: ShipEncounterActorState,
         role: OfficerRole,
+        effects:
+            readonly CrewProgressEffect[],
     ): string | undefined {
         if (
             role !==
-                OFFICER_ROLE.SCIENCE ||
-            !this.state
+                OFFICER_ROLE.SCIENCE
         ) {
             return undefined;
         }
 
-        return getActivePlayerSpamChannels(
-            this.state,
-        ).find((channel) => {
+        return effects.find((effect) => {
             return (
-                channel.targetActorId ===
-                actor.id
+                effect.source.kind ===
+                    COMBAT_SOURCE_KIND
+                        .PLAYER_SHIP &&
+                effect.target.kind ===
+                    COMBAT_TARGET_KIND
+                        .ACTOR &&
+                effect.target.actorId ===
+                    actor.id
             );
         })?.id;
     }
@@ -648,19 +662,6 @@ export default class EnemyDecisionPolicy {
         };
     }
 
-    private getThreatDecisionSnapshots(
-        actor:
-            ShipEncounterActorState,
-    ): EnemyThreatDecisionSnapshot[] {
-        if (!this.state) {
-            return [];
-        }
-
-        return getEnemyThreatDecisionSnapshots(
-            this.state,
-            actor,
-        );
-    }
 
     private selectWeapon(
         actor: ShipEncounterActorState,

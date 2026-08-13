@@ -51,16 +51,16 @@ import type {
 } from '../../model/state';
 import EnemyCrewTaskRunner from './EnemyCrewTaskRunner';
 import EnemyDecisionPolicy, {
+    type EnemyDecisionContext,
     type EnemyWorkIntent,
 } from './EnemyDecisionPolicy';
 import {
     getEnemyThreatDecisionSnapshots,
-    type EnemyThreatDecisionSnapshot,
 } from '../queries/get_enemy_threat_decision_snapshots';
 import EnemyScienceIntelResolver from './intel/EnemyScienceIntelResolver';
 import {
-    getActivePlayerSpamChannels,
-} from '../queries/get_active_player_spam_channels';
+    getActiveCrewProgressEffects,
+} from '../../crew_performance/get_active_crew_progress_effects';
 
 type EnemyTaskSchedulerOptions = {
     state: EncounterState;
@@ -136,7 +136,6 @@ export default class EnemyTaskScheduler {
         this.decisionPolicy =
             new EnemyDecisionPolicy(
                 random,
-                this.state,
             );
 
         this.scienceIntelResolver =
@@ -276,6 +275,11 @@ export default class EnemyTaskScheduler {
             return;
         }
 
+        const crewProgressEffects =
+            getActiveCrewProgressEffects(
+                this.state,
+            );
+
         for (const actor of this.state.actors) {
             if (
                 actor.team !==
@@ -295,15 +299,20 @@ export default class EnemyTaskScheduler {
                 continue;
             }
 
-            const threatDecisionSnapshots =
-                getEnemyThreatDecisionSnapshots(
-                    this.state,
-                    actor,
-                );
+            const decisionContext:
+                EnemyDecisionContext = {
+                    threats:
+                        getEnemyThreatDecisionSnapshots(
+                            this.state,
+                            actor,
+                        ),
+
+                    crewProgressEffects,
+                };
 
             this.scheduleMineClearing(
                 actor,
-                threatDecisionSnapshots,
+                decisionContext,
             );
 
             for (
@@ -313,7 +322,7 @@ export default class EnemyTaskScheduler {
                 this.scheduleRole(
                     actor,
                     role,
-                    threatDecisionSnapshots,
+                    decisionContext,
                 );
             }
         }
@@ -349,8 +358,8 @@ export default class EnemyTaskScheduler {
     private scheduleRole(
         actor: ShipEncounterActorState,
         role: OfficerRole,
-        threatSnapshots:
-            readonly EnemyThreatDecisionSnapshot[],
+        decisionContext:
+            EnemyDecisionContext,
     ): void {
         if (
             !this.hasCrewRole(
@@ -371,7 +380,7 @@ export default class EnemyTaskScheduler {
                 .selectWork(
                     actor,
                     role,
-                    threatSnapshots,
+                    decisionContext,
                 );
 
         if (!intent) {
@@ -519,15 +528,15 @@ export default class EnemyTaskScheduler {
 
     private scheduleMineClearing(
         actor: ShipEncounterActorState,
-        threatSnapshots:
-            readonly EnemyThreatDecisionSnapshot[],
+        decisionContext:
+            EnemyDecisionContext,
     ): void {
         while (true) {
             const intent =
                 this.decisionPolicy
                     .selectMineClearing(
                         actor,
-                        threatSnapshots,
+                        decisionContext,
                     );
 
             if (!intent) {
@@ -610,13 +619,19 @@ export default class EnemyTaskScheduler {
             >,
     ): void {
         const channel =
-            getActivePlayerSpamChannels(
+            getActiveCrewProgressEffects(
                 this.state,
-            ).find((candidate) => {
+            ).find((effect) => {
                 return (
-                    candidate.id ===
+                    effect.id ===
                         intent.channelId &&
-                    candidate.targetActorId ===
+                    effect.source.kind ===
+                        COMBAT_SOURCE_KIND
+                            .PLAYER_SHIP &&
+                    effect.target.kind ===
+                        COMBAT_TARGET_KIND
+                            .ACTOR &&
+                    effect.target.actorId ===
                         actor.id
                 );
             });

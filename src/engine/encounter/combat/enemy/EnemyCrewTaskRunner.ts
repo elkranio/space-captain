@@ -32,8 +32,8 @@ import type {
 } from '../../model/state';
 import CrewPerformanceResolver from '../../crew_performance/CrewPerformanceResolver';
 import {
-    getActivePlayerSpamChannels,
-} from '../queries/get_active_player_spam_channels';
+    getActiveCrewProgressEffects,
+} from '../../crew_performance/get_active_crew_progress_effects';
 
 type EnemyCrewTaskRunnerOptions = {
     state: EncounterState;
@@ -593,13 +593,19 @@ export default class EnemyCrewTaskRunner {
         advanceTimedTasks: boolean,
     ): void {
         const channel =
-            getActivePlayerSpamChannels(
+            getActiveCrewProgressEffects(
                 this.state,
-            ).find((candidate) => {
+            ).find((effect) => {
                 return (
-                    candidate.id ===
+                    effect.id ===
                         task.channelId &&
-                    candidate.targetActorId ===
+                    effect.source.kind ===
+                        COMBAT_SOURCE_KIND
+                            .PLAYER_SHIP &&
+                    effect.target.kind ===
+                        COMBAT_TARGET_KIND
+                            .ACTOR &&
+                    effect.target.actorId ===
                         actor.id
                 );
             });

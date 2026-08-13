@@ -20,13 +20,15 @@ import {
 } from '../../../src/engine/defs/ship_weapon';
 import EnemyDecisionPolicy from '../../../src/engine/encounter/combat/enemy/EnemyDecisionPolicy';
 import {
-    getActivePlayerSpamChannels,
-} from '../../../src/engine/encounter/combat/queries/get_active_player_spam_channels';
+    getActiveCrewProgressEffects,
+} from '../../../src/engine/encounter/crew_performance/get_active_crew_progress_effects';
 import {
     ENCOUNTER_OFFICER_COMMAND_ID,
     OFFICER_COMMAND_EXECUTION_STATUS,
 } from '../../../src/engine/encounter/model/command';
 import {
+    COMBAT_SOURCE_KIND,
+    COMBAT_TARGET_KIND,
     PLAYER_SPAM_CHANNEL_OUTCOME,
 } from '../../../src/engine/encounter/model/combat';
 import {
@@ -215,8 +217,8 @@ describe(
                 ).toBeUndefined();
 
                 expect(
-                    getActivePlayerSpamChannels(
-                        setup.state,
+                    getPlayerSpamEffects(
+                        setup,
                     ),
                 ).toEqual([]);
 
@@ -270,10 +272,17 @@ describe(
                 const intent =
                     new EnemyDecisionPolicy(
                         () => 0,
-                        setup.state,
                     ).selectWork(
                         setup.targetActor,
                         OFFICER_ROLE.SCIENCE,
+                        {
+                            threats: [],
+
+                            crewProgressEffects:
+                                getActiveCrewProgressEffects(
+                                    setup.state,
+                                ),
+                        },
                     );
 
                 expect(intent).toEqual({
@@ -336,14 +345,34 @@ describe(
                 });
 
                 expect(
-                    getActivePlayerSpamChannels(
-                        setup.state,
+                    getPlayerSpamEffects(
+                        setup,
                     ),
                 ).toHaveLength(1);
             },
         );
     },
 );
+
+function getPlayerSpamEffects(
+    setup:
+        AnchoredPlayerCombatTestSetup,
+) {
+    return getActiveCrewProgressEffects(
+        setup.state,
+    ).filter((effect) => {
+        return (
+            effect.source.kind ===
+                COMBAT_SOURCE_KIND
+                    .PLAYER_SHIP &&
+            effect.target.kind ===
+                COMBAT_TARGET_KIND
+                    .ACTOR &&
+            effect.target.actorId ===
+                setup.targetActor.id
+        );
+    });
+}
 
 function makeEnemyScienceOnly(
     setup:

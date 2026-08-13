@@ -39,8 +39,8 @@ import {
     spendDefenseCapacitorCharge,
 } from '../../../src/engine/encounter/combat/defense/spend_defense_capacitor_charge';
 import {
-    getActivePlayerSpamChannels,
-} from '../../../src/engine/encounter/combat/queries/get_active_player_spam_channels';
+    getActiveCrewProgressEffects,
+} from '../../../src/engine/encounter/crew_performance/get_active_crew_progress_effects';
 import {
     ENCOUNTER_OFFICER_COMMAND_ID,
     OFFICER_COMMAND_EXECUTION_STATUS,
@@ -585,18 +585,30 @@ function activatePlayerSpam(
     );
 
     expect(
-        getActivePlayerSpamChannels(
+        getActiveCrewProgressEffects(
             setup.state,
         ),
-    ).toEqual([
+    ).toContainEqual(
         expect.objectContaining({
-            targetActorId:
-                setup.targetActor.id,
+            source: {
+                kind:
+                    COMBAT_SOURCE_KIND
+                        .PLAYER_SHIP,
+            },
 
-            officerTaskProgressMultiplier:
+            target: {
+                kind:
+                    COMBAT_TARGET_KIND
+                        .ACTOR,
+
+                actorId:
+                    setup.targetActor.id,
+            },
+
+            progressMultiplier:
                 0.5,
         }),
-    ]);
+    );
 }
 
 function createEnemyMissileLauncher():
