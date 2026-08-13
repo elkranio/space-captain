@@ -25,8 +25,8 @@ import type {
     ShipWeaponState,
 } from '../../../defs/ship_weapon';
 import type {
-    ShieldEmitterState,
-} from '../../../defs/shield_emitter';
+    ShieldGeneratorState,
+} from '../../../defs/shield_generator';
 import type {
     ActiveShieldState,
 } from '../../model/combat';
@@ -68,8 +68,8 @@ export type ShipEncounterActorState =
         powerCore?:
             PowerCoreState;
 
-        shieldEmitter?:
-            ShieldEmitterState;
+        shieldGenerator?:
+            ShieldGeneratorState;
 
         activeShield?:
             ActiveShieldState;

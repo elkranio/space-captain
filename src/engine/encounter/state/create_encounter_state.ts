@@ -12,8 +12,8 @@ import type {
     ShipWeaponState,
 } from '../../defs/ship_weapon';
 import type {
-    ShieldEmitterState,
-} from '../../defs/shield_emitter';
+    ShieldGeneratorState,
+} from '../../defs/shield_generator';
 import { SPACE_ANCHOR_KIND, type SpaceAnchorState, type SpaceNodeState } from '../../defs/universe';
 import { ENCOUNTER_ANCHOR_KIND, type EncounterAnchorState } from '../anchors/encounter_anchor';
 import type { EncounterState } from '../model/state';
@@ -28,8 +28,8 @@ export type CreateEncounterStateInput = {
     powerCore?:
         PowerCoreState;
 
-    shieldEmitter?:
-        ShieldEmitterState;
+    shieldGenerator?:
+        ShieldGeneratorState;
 
     playerWeapons?: ShipWeaponState[];
 };
@@ -40,7 +40,7 @@ export function createEncounterState({
     playerHull,
     drive,
     powerCore,
-    shieldEmitter,
+    shieldGenerator,
     playerWeapons = [],
 }: CreateEncounterStateInput): EncounterState {
     validatePlayerHull(
@@ -85,10 +85,10 @@ export function createEncounterState({
                   }
                 : {}),
 
-            ...(shieldEmitter
+            ...(shieldGenerator
                 ? {
-                      shieldEmitter: {
-                          ...shieldEmitter,
+                      shieldGenerator: {
+                          ...shieldGenerator,
                       },
                   }
                 : {}),

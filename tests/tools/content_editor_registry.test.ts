@@ -8,7 +8,7 @@ import enemyBehaviorRulesData from '../../src/engine/content/data/enemy_behavior
 import missileData from '../../src/engine/content/data/missiles.json';
 import officerTaskData from '../../src/engine/content/data/officer_tasks.json';
 import pointDefenseData from '../../src/engine/content/data/point_defenses.json';
-import shieldEmitterData from '../../src/engine/content/data/shield_emitters.json';
+import shieldGeneratorData from '../../src/engine/content/data/shield_generators.json';
 import shipBehaviorData from '../../src/engine/content/data/ship_behaviors.json';
 import shipChassisData from '../../src/engine/content/data/ship_chassis.json';
 import shipDriveData from '../../src/engine/content/data/ship_drives.json';
@@ -101,13 +101,13 @@ describe(
                     {
                         id:
                             CONTENT_COLLECTION_ID
-                                .SHIELD_EMITTERS,
+                                .SHIELD_GENERATORS,
 
                         label:
-                            'Shield Emitters',
+                            'Shield Generators',
 
-                        canAdd: false,
-                        canDelete: false,
+                        canAdd: true,
+                        canDelete: true,
                     },
                     {
                         id:
@@ -215,8 +215,8 @@ describe(
                     ],
                     [
                         CONTENT_COLLECTION_ID
-                            .SHIELD_EMITTERS,
-                        shieldEmitterData,
+                            .SHIELD_GENERATORS,
+                        shieldGeneratorData,
                     ],
                     [
                         CONTENT_COLLECTION_ID

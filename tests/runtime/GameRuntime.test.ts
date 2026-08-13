@@ -27,10 +27,10 @@ import {
     SHIP_WEAPON_PHASE,
 } from '../../src/engine/defs/ship_weapon';
 import {
-    SHIELD_EMITTER_ID,
-    SHIELD_EMITTER_PHASE,
-    SHIELD_EMITTER_STATUS,
-} from '../../src/engine/defs/shield_emitter';
+    SHIELD_GENERATOR_ID,
+    SHIELD_GENERATOR_PHASE,
+    SHIELD_GENERATOR_STATUS,
+} from '../../src/engine/defs/shield_generator';
 
 describe('GameRuntime player ship hull', () => {
     it('creates a new run with full player ship state', () => {
@@ -63,20 +63,20 @@ describe('GameRuntime player ship hull', () => {
                 rechargeElapsedMs: 0,
             },
 
-            shieldEmitter: {
+            shieldGenerator: {
                 id:
-                    'shield_emitter_player_00',
+                    'shield_generator_player_00',
 
-                shieldEmitterId:
-                    SHIELD_EMITTER_ID
+                shieldGeneratorId:
+                    SHIELD_GENERATOR_ID
                         .BASIC_00,
 
                 status:
-                    SHIELD_EMITTER_STATUS
+                    SHIELD_GENERATOR_STATUS
                         .ONLINE,
 
                 phase:
-                    SHIELD_EMITTER_PHASE
+                    SHIELD_GENERATOR_PHASE
                         .READY,
 
                 phaseElapsedMs: 0,
@@ -213,20 +213,20 @@ describe('GameRuntime player ship hull', () => {
                 rechargeElapsedMs: 0,
             },
 
-            shieldEmitter: {
+            shieldGenerator: {
                 id:
-                    'shield_emitter_player_00',
+                    'shield_generator_player_00',
 
-                shieldEmitterId:
-                    SHIELD_EMITTER_ID
+                shieldGeneratorId:
+                    SHIELD_GENERATOR_ID
                         .BASIC_00,
 
                 status:
-                    SHIELD_EMITTER_STATUS
+                    SHIELD_GENERATOR_STATUS
                         .ONLINE,
 
                 phase:
-                    SHIELD_EMITTER_PHASE
+                    SHIELD_GENERATOR_PHASE
                         .READY,
 
                 phaseElapsedMs: 0,

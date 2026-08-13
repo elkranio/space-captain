@@ -256,9 +256,9 @@ export default class BridgeEncounterController {
                 run.player.ship
                     .powerCore,
 
-            shieldEmitter:
+            shieldGenerator:
                 run.player.ship
-                    .shieldEmitter,
+                    .shieldGenerator,
 
             weapons: run.player.ship.weapons,
 

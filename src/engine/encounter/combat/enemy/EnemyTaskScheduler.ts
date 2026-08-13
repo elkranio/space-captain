@@ -29,9 +29,9 @@ import {
     SHIP_WEAPON_PHASE,
 } from '../../../defs/ship_weapon';
 import {
-    SHIELD_EMITTER_PHASE,
-    SHIELD_EMITTER_STATUS,
-} from '../../../defs/shield_emitter';
+    SHIELD_GENERATOR_PHASE,
+    SHIELD_GENERATOR_STATUS,
+} from '../../../defs/shield_generator';
 import type {
     ShipEncounterActorState,
 } from '../../actors/ship/ship_encounter_actor';
@@ -481,7 +481,7 @@ export default class EnemyTaskScheduler {
                 });
 
         const emitter =
-            actor.shieldEmitter;
+            actor.shieldGenerator;
 
         const powerCore =
             actor.powerCore;
@@ -492,10 +492,10 @@ export default class EnemyTaskScheduler {
                 ENEMY_THREAT_KIND.LASER ||
             !emitter ||
             emitter.status !==
-                SHIELD_EMITTER_STATUS
+                SHIELD_GENERATOR_STATUS
                     .ONLINE ||
             emitter.phase !==
-                SHIELD_EMITTER_PHASE
+                SHIELD_GENERATOR_PHASE
                     .READY ||
             actor.activeShield ||
             !powerCore ||

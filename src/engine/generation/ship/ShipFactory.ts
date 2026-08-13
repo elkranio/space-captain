@@ -30,11 +30,11 @@ import {
     type ShipWeaponState,
 } from '../../defs/ship_weapon';
 import type {
-    ShieldEmitterState,
-} from '../../defs/shield_emitter';
+    ShieldGeneratorState,
+} from '../../defs/shield_generator';
 import PowerCoreFactory from '../ship_system/PowerCoreFactory';
 import ShipPointDefenseFactory from '../ship_system/ShipPointDefenseFactory';
-import ShieldEmitterFactory from '../ship_system/ShieldEmitterFactory';
+import ShieldGeneratorFactory from '../ship_system/ShieldGeneratorFactory';
 import LaserWeaponFactory from '../ship_weapon/LaserWeaponFactory';
 import MissileLauncherFactory from '../ship_weapon/MissileLauncherFactory';
 import SpamProjectorFactory from '../ship_weapon/SpamProjectorFactory';
@@ -57,8 +57,8 @@ export type CreatedShipState = {
     powerCore?:
         PowerCoreState;
 
-    shieldEmitter?:
-        ShieldEmitterState;
+    shieldGenerator?:
+        ShieldGeneratorState;
 
     weapons: ShipWeaponState[];
 };
@@ -131,19 +131,19 @@ export default class ShipFactory {
             ),
 
             ...(
-                preset.shieldEmitter
+                preset.shieldGenerator
                     ? {
-                          shieldEmitter:
-                              ShieldEmitterFactory.create({
+                          shieldGenerator:
+                              ShieldGeneratorFactory.create({
                                   id:
                                       preset
-                                          .shieldEmitter
+                                          .shieldGenerator
                                           .id,
 
-                                  shieldEmitterId:
+                                  shieldGeneratorId:
                                       preset
-                                          .shieldEmitter
-                                          .shieldEmitterId,
+                                          .shieldGenerator
+                                          .shieldGeneratorId,
                               }),
                       }
                     : {}

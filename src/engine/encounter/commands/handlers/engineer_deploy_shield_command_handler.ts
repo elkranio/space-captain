@@ -4,9 +4,9 @@ import {
     OFFICER_ROLE,
 } from '../../../defs/officer';
 import {
-    SHIELD_EMITTER_PHASE,
-    SHIELD_EMITTER_STATUS,
-} from '../../../defs/shield_emitter';
+    SHIELD_GENERATOR_PHASE,
+    SHIELD_GENERATOR_STATUS,
+} from '../../../defs/shield_generator';
 import {
     ENCOUNTER_OFFICER_COMMAND_ID,
     OFFICER_COMMAND_TARGET_KIND,
@@ -51,7 +51,7 @@ export const engineerDeployShieldCommandHandler = {
     getAvailableCommands(state) {
         const emitter =
             state.combat
-                .shieldEmitter;
+                .shieldGenerator;
 
         const powerCore =
             state.combat
@@ -60,10 +60,10 @@ export const engineerDeployShieldCommandHandler = {
         if (
             !emitter ||
             emitter.status !==
-                SHIELD_EMITTER_STATUS
+                SHIELD_GENERATOR_STATUS
                     .ONLINE ||
             emitter.phase !==
-                SHIELD_EMITTER_PHASE
+                SHIELD_GENERATOR_PHASE
                     .READY ||
             state.combat
                 .activeShield !==

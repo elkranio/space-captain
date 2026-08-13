@@ -27,10 +27,10 @@ import {
     SHIP_WEAPON_PHASE,
 } from '../../../src/engine/defs/ship_weapon';
 import {
-    SHIELD_EMITTER_ID,
-    SHIELD_EMITTER_PHASE,
-    SHIELD_EMITTER_STATUS,
-} from '../../../src/engine/defs/shield_emitter';
+    SHIELD_GENERATOR_ID,
+    SHIELD_GENERATOR_PHASE,
+    SHIELD_GENERATOR_STATUS,
+} from '../../../src/engine/defs/shield_generator';
 
 describe('createNewRunState', () => {
     it('creates the configured starting player ship', () => {
@@ -61,20 +61,20 @@ describe('createNewRunState', () => {
                 rechargeElapsedMs: 0,
             },
 
-            shieldEmitter: {
+            shieldGenerator: {
                 id:
-                    'shield_emitter_player_00',
+                    'shield_generator_player_00',
 
-                shieldEmitterId:
-                    SHIELD_EMITTER_ID
+                shieldGeneratorId:
+                    SHIELD_GENERATOR_ID
                         .BASIC_00,
 
                 status:
-                    SHIELD_EMITTER_STATUS
+                    SHIELD_GENERATOR_STATUS
                         .ONLINE,
 
                 phase:
-                    SHIELD_EMITTER_PHASE
+                    SHIELD_GENERATOR_PHASE
                         .READY,
 
                 phaseElapsedMs: 0,
@@ -191,35 +191,35 @@ describe('createNewRunState', () => {
         firstRun
             .player
             .ship
-            .shieldEmitter
+            .shieldGenerator
             .status =
-                SHIELD_EMITTER_STATUS
+                SHIELD_GENERATOR_STATUS
                     .BROKEN;
 
         firstRun
             .player
             .ship
-            .shieldEmitter
+            .shieldGenerator
             .phase =
-                SHIELD_EMITTER_PHASE
+                SHIELD_GENERATOR_PHASE
                     .COOLDOWN;
 
         firstRun
             .player
             .ship
-            .shieldEmitter
+            .shieldGenerator
             .phaseElapsedMs = 900;
 
         expect(
             firstRun
                 .player
                 .ship
-                .shieldEmitter,
+                .shieldGenerator,
         ).not.toBe(
             secondRun
                 .player
                 .ship
-                .shieldEmitter,
+                .shieldGenerator,
         );
 
         const firstWeapon =
@@ -274,20 +274,20 @@ describe('createNewRunState', () => {
                 rechargeElapsedMs: 0,
             },
 
-            shieldEmitter: {
+            shieldGenerator: {
                 id:
-                    'shield_emitter_player_00',
+                    'shield_generator_player_00',
 
-                shieldEmitterId:
-                    SHIELD_EMITTER_ID
+                shieldGeneratorId:
+                    SHIELD_GENERATOR_ID
                         .BASIC_00,
 
                 status:
-                    SHIELD_EMITTER_STATUS
+                    SHIELD_GENERATOR_STATUS
                         .ONLINE,
 
                 phase:
-                    SHIELD_EMITTER_PHASE
+                    SHIELD_GENERATOR_PHASE
                         .READY,
 
                 phaseElapsedMs: 0,

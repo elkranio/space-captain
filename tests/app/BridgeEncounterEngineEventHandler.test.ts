@@ -575,7 +575,7 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
 
                     shield: {
                         sourceEmitterId:
-                            'shield_emitter_player_00',
+                            'shield_generator_player_00',
 
                         remainingDurationMs:
                             5000,
@@ -592,7 +592,7 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
 
                     shield: {
                         sourceEmitterId:
-                            'shield_emitter_player_00',
+                            'shield_generator_player_00',
 
                         remainingDurationMs:
                             3200,

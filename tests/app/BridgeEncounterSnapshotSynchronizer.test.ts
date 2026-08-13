@@ -15,7 +15,7 @@ describe('BridgeEncounterSnapshotSynchronizer', () => {
         const setPlayerShipPowerCoreState =
             vi.fn();
 
-        const setPlayerShipShieldEmitterState =
+        const setPlayerShipShieldGeneratorState =
             vi.fn();
 
         const synchronizer = new BridgeEncounterSnapshotSynchronizer(
@@ -26,7 +26,7 @@ describe('BridgeEncounterSnapshotSynchronizer', () => {
             {
                 setPlayerShipWeaponStates,
                 setPlayerShipPowerCoreState,
-                setPlayerShipShieldEmitterState,
+                setPlayerShipShieldGeneratorState,
 
             } as unknown as GameRuntime,
         );
@@ -47,13 +47,13 @@ describe('BridgeEncounterSnapshotSynchronizer', () => {
         });
 
         expect(
-            setPlayerShipShieldEmitterState,
+            setPlayerShipShieldGeneratorState,
         ).toHaveBeenCalledWith({
             id:
-                'shield_emitter_player_00',
+                'shield_generator_player_00',
 
-            shieldEmitterId:
-                'shield_emitter_basic_00',
+            shieldGeneratorId:
+                'shield_generator_basic_00',
 
             status:
                 'online',
@@ -457,12 +457,12 @@ function createEncounterEngine(): EncounterEngine {
                                 0.05,
                         },
 
-                        shieldEmitter: {
+                        shieldGenerator: {
                             id:
-                                'shield_emitter_player_00',
+                                'shield_generator_player_00',
 
-                            shieldEmitterId:
-                                'shield_emitter_basic_00',
+                            shieldGeneratorId:
+                                'shield_generator_basic_00',
 
                             status:
                                 'online',
@@ -475,7 +475,7 @@ function createEncounterEngine(): EncounterEngine {
 
                         activeShield: {
                             sourceEmitterId:
-                                'shield_emitter_player_00',
+                                'shield_generator_player_00',
 
                             remainingDurationMs:
                                 850,
@@ -539,7 +539,7 @@ function createEncounterEngine(): EncounterEngine {
 
                             activeShield: {
                                 sourceEmitterId:
-                                    'shield_emitter_00',
+                                    'shield_generator_00',
 
                                 remainingDurationMs:
                                     900,

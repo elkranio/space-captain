@@ -1,15 +1,15 @@
 // src/engine/encounter/combat/defense/EnemyShieldRunner.ts
 
 import {
-    SHIELD_EMITTERS,
-} from '../../../content/catalogs/shield_emitters';
+    SHIELD_GENERATORS,
+} from '../../../content/catalogs/shield_generators';
 import {
     ENCOUNTER_TEAM,
 } from '../../../defs/encounter_team';
 import {
-    SHIELD_EMITTER_PHASE,
-    SHIELD_EMITTER_STATUS,
-} from '../../../defs/shield_emitter';
+    SHIELD_GENERATOR_PHASE,
+    SHIELD_GENERATOR_STATUS,
+} from '../../../defs/shield_generator';
 import type {
     ShipEncounterActorState,
 } from '../../actors/ship/ship_encounter_actor';
@@ -17,8 +17,8 @@ import type {
     EncounterState,
 } from '../../model/state';
 import {
-    advanceShieldEmitter,
-} from './ShieldEmitterRunner';
+    advanceShieldGenerator,
+} from './ShieldGeneratorRunner';
 
 // Whole-ship enemy shield lifecycle.
 //
@@ -52,9 +52,9 @@ export default class EnemyShieldRunner {
                 continue;
             }
 
-            if (actor.shieldEmitter) {
-                advanceShieldEmitter(
-                    actor.shieldEmitter,
+            if (actor.shieldGenerator) {
+                advanceShieldGenerator(
+                    actor.shieldGenerator,
                     deltaMs,
                 );
             }
@@ -88,16 +88,16 @@ export default class EnemyShieldRunner {
         actor: ShipEncounterActorState,
     ): void {
         const emitter =
-            actor.shieldEmitter;
+            actor.shieldGenerator;
 
         if (
             actor.team !==
                 ENCOUNTER_TEAM.ENEMY ||
             !emitter ||
             emitter.status !==
-                SHIELD_EMITTER_STATUS.ONLINE ||
+                SHIELD_GENERATOR_STATUS.ONLINE ||
             emitter.phase !==
-                SHIELD_EMITTER_PHASE.READY ||
+                SHIELD_GENERATOR_PHASE.READY ||
             actor.activeShield
         ) {
             throw new Error(
@@ -107,8 +107,8 @@ export default class EnemyShieldRunner {
         }
 
         const definition =
-            SHIELD_EMITTERS[
-                emitter.shieldEmitterId
+            SHIELD_GENERATORS[
+                emitter.shieldGeneratorId
             ];
 
         actor.activeShield = {
@@ -125,7 +125,7 @@ export default class EnemyShieldRunner {
         };
 
         emitter.phase =
-            SHIELD_EMITTER_PHASE.COOLDOWN;
+            SHIELD_GENERATOR_PHASE.COOLDOWN;
         emitter.phaseElapsedMs = 0;
     }
 }

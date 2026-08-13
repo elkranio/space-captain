@@ -81,9 +81,9 @@ export function createAnchoredPlayerCombatTestSetup(
                 run.player.ship
                     .powerCore,
 
-            shieldEmitter:
+            shieldGenerator:
                 run.player.ship
-                    .shieldEmitter,
+                    .shieldGenerator,
 
             weapons:
                 run.player.ship

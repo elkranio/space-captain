@@ -4,8 +4,8 @@ import {
     POWER_CORES,
 } from '../../engine/content/catalogs/power_cores';
 import {
-    SHIELD_EMITTERS,
-} from '../../engine/content/catalogs/shield_emitters';
+    SHIELD_GENERATORS,
+} from '../../engine/content/catalogs/shield_generators';
 import { createNewRunState } from '../../engine/content/new_game/create_new_run_state';
 import type {
     PowerCoreState,
@@ -19,9 +19,9 @@ import type { RunState } from '../../engine/defs/run';
 import type { ShipDriveState } from '../../engine/defs/ship_drive';
 import type { ShipWeaponState } from '../../engine/defs/ship_weapon';
 import {
-    SHIELD_EMITTER_PHASE,
-    type ShieldEmitterState,
-} from '../../engine/defs/shield_emitter';
+    SHIELD_GENERATOR_PHASE,
+    type ShieldGeneratorState,
+} from '../../engine/defs/shield_generator';
 import { SPACE_ANCHOR_KIND, type SpaceAnchorState } from '../../engine/defs/universe';
 import { getCurrentNode } from '../../engine/universe/queries/get_current_node';
 
@@ -157,14 +157,14 @@ export class GameRuntime {
             next.rechargeElapsedMs;
     }
 
-    public setPlayerShipShieldEmitterState(
-        next: ShieldEmitterState,
+    public setPlayerShipShieldGeneratorState(
+        next: ShieldGeneratorState,
     ): void {
         const current =
             this.currentRun
                 .player
                 .ship
-                .shieldEmitter;
+                .shieldGenerator;
 
         if (next.id !== current.id) {
             throw new Error(
@@ -176,21 +176,21 @@ export class GameRuntime {
         }
 
         if (
-            next.shieldEmitterId !==
-            current.shieldEmitterId
+            next.shieldGeneratorId !==
+            current.shieldGeneratorId
         ) {
             throw new Error(
                 'Player shield-emitter definition cannot change: ' +
-                    next.shieldEmitterId +
+                    next.shieldGeneratorId +
                     ' !== ' +
-                    current.shieldEmitterId,
+                    current.shieldGeneratorId,
             );
         }
 
         const definition =
-            SHIELD_EMITTERS[
+            SHIELD_GENERATORS[
                 current
-                    .shieldEmitterId
+                    .shieldGeneratorId
             ];
 
         if (
@@ -208,13 +208,13 @@ export class GameRuntime {
         }
 
         switch (next.phase) {
-            case SHIELD_EMITTER_PHASE.READY:
+            case SHIELD_GENERATOR_PHASE.READY:
                 if (
                     next.phaseElapsedMs !==
                     0
                 ) {
                     throw new Error(
-                        'Ready player shield emitter must have zero phase elapsed: ' +
+                        'Ready player shield generator must have zero phase elapsed: ' +
                             String(
                                 next.phaseElapsedMs,
                             ),
@@ -223,7 +223,7 @@ export class GameRuntime {
 
                 break;
 
-            case SHIELD_EMITTER_PHASE.COOLDOWN:
+            case SHIELD_GENERATOR_PHASE.COOLDOWN:
                 if (
                     next.phaseElapsedMs >=
                     definition

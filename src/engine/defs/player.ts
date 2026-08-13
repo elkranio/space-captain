@@ -7,8 +7,8 @@ import type { PlayerLocationState } from './player_location';
 import type { ShipDriveState } from './ship_drive';
 import type { ShipWeaponState } from './ship_weapon';
 import type {
-    ShieldEmitterState,
-} from './shield_emitter';
+    ShieldGeneratorState,
+} from './shield_generator';
 
 export type PlayerHullState = {
     hull: number;
@@ -28,8 +28,8 @@ export type PlayerShipState =
         powerCore:
             PowerCoreState;
 
-        shieldEmitter:
-            ShieldEmitterState;
+        shieldGenerator:
+            ShieldGeneratorState;
 
         weapons:
             ShipWeaponState[];

@@ -28,8 +28,8 @@ import type {
     ShipWeaponState,
 } from './ship_weapon';
 import type {
-    ShieldEmitterState,
-} from './shield_emitter';
+    ShieldGeneratorState,
+} from './shield_generator';
 import type {
     SpaceBackgroundId,
 } from './space_background';
@@ -92,8 +92,8 @@ export type ShipSpaceNodeActorState =
         powerCore?:
             PowerCoreState;
 
-        shieldEmitter?:
-            ShieldEmitterState;
+        shieldGenerator?:
+            ShieldGeneratorState;
 
         behavior: ShipBehaviorState;
 

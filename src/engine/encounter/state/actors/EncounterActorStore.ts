@@ -30,8 +30,8 @@ import type {
     ShipWeaponState,
 } from '../../../defs/ship_weapon';
 import type {
-    ShieldEmitterState,
-} from '../../../defs/shield_emitter';
+    ShieldGeneratorState,
+} from '../../../defs/shield_generator';
 import {
     ENCOUNTER_ACTOR_KIND,
     type EncounterActorState,
@@ -67,8 +67,8 @@ export type SpawnShipActorInput = {
     powerCore?:
         PowerCoreState;
 
-    shieldEmitter?:
-        ShieldEmitterState;
+    shieldGenerator?:
+        ShieldGeneratorState;
 
     behavior: ShipBehaviorState;
 
@@ -119,7 +119,7 @@ export default class EncounterActorStore {
         drive,
         pointDefense,
         powerCore,
-        shieldEmitter,
+        shieldGenerator,
         behavior,
         crewRoles,
         crewTraitsByRole = {},
@@ -206,10 +206,10 @@ export default class EncounterActorStore {
             ),
 
             ...(
-                shieldEmitter
+                shieldGenerator
                     ? {
-                          shieldEmitter: {
-                              ...shieldEmitter,
+                          shieldGenerator: {
+                              ...shieldGenerator,
                           },
                       }
                     : {}

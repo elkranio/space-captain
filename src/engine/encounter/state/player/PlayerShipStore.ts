@@ -19,12 +19,12 @@ import {
     type ShipDriveState,
 } from '../../../defs/ship_drive';
 import {
-    SHIELD_EMITTERS,
-} from '../../../content/catalogs/shield_emitters';
+    SHIELD_GENERATORS,
+} from '../../../content/catalogs/shield_generators';
 import {
-    SHIELD_EMITTER_PHASE,
-    SHIELD_EMITTER_STATUS,
-} from '../../../defs/shield_emitter';
+    SHIELD_GENERATOR_PHASE,
+    SHIELD_GENERATOR_STATUS,
+} from '../../../defs/shield_generator';
 import {
     SHIP_WEAPON_KIND,
     SHIP_WEAPON_PHASE,
@@ -600,7 +600,7 @@ export default class PlayerShipStore {
         ActiveShieldState {
         const emitter =
             this.state.combat
-                .shieldEmitter;
+                .shieldGenerator;
 
         if (!emitter) {
             throw new Error(
@@ -610,7 +610,7 @@ export default class PlayerShipStore {
 
         if (
             emitter.status !==
-            SHIELD_EMITTER_STATUS.ONLINE
+            SHIELD_GENERATOR_STATUS.ONLINE
         ) {
             throw new Error(
                 'Cannot deploy player shield from emitter status: ' +
@@ -620,7 +620,7 @@ export default class PlayerShipStore {
 
         if (
             emitter.phase !==
-            SHIELD_EMITTER_PHASE.READY
+            SHIELD_GENERATOR_PHASE.READY
         ) {
             throw new Error(
                 'Cannot deploy player shield from emitter phase: ' +
@@ -638,13 +638,13 @@ export default class PlayerShipStore {
         }
 
         const definition =
-            SHIELD_EMITTERS[
+            SHIELD_GENERATORS[
                 emitter
-                    .shieldEmitterId
+                    .shieldGeneratorId
             ];
 
         emitter.phase =
-            SHIELD_EMITTER_PHASE
+            SHIELD_GENERATOR_PHASE
                 .COOLDOWN;
 
         emitter.phaseElapsedMs = 0;

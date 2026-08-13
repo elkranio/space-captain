@@ -17,8 +17,8 @@ import type {
     ShipWeaponState,
 } from '../defs/ship_weapon';
 import type {
-    ShieldEmitterState,
-} from '../defs/shield_emitter';
+    ShieldGeneratorState,
+} from '../defs/shield_generator';
 import type { SpaceNodeState } from '../defs/universe';
 import CombatEngagementRunner from './combat/CombatEngagementRunner';
 import type {
@@ -26,7 +26,7 @@ import type {
 } from './debug/get_enemy_debug_snapshots';
 import CombatRunner from './combat/CombatRunner';
 import PowerCoreRunner from './combat/defense/PowerCoreRunner';
-import ShieldEmitterRunner from './combat/defense/ShieldEmitterRunner';
+import ShieldGeneratorRunner from './combat/defense/ShieldGeneratorRunner';
 import type { EnemyShipTelemetrySnapshot } from './combat/queries/get_enemy_ship_telemetry_snapshots';
 import PlayerWeaponRunner from './combat/weapons/PlayerWeaponRunner';
 import OfficerCommandExecutor from './commands/OfficerCommandExecutor';
@@ -72,8 +72,8 @@ export type EncounterEngineOptions = {
     powerCore?:
         PowerCoreState;
 
-    shieldEmitter?:
-        ShieldEmitterState;
+    shieldGenerator?:
+        ShieldGeneratorState;
 
     // Installed player weapons.
     // Empty loadout remains valid.
@@ -101,8 +101,8 @@ export default class EncounterEngine {
     private readonly powerCoreRunner:
         PowerCoreRunner;
 
-    private readonly shieldEmitterRunner:
-        ShieldEmitterRunner;
+    private readonly shieldGeneratorRunner:
+        ShieldGeneratorRunner;
 
     private readonly playerWeaponRunner:
         PlayerWeaponRunner;
@@ -117,7 +117,7 @@ export default class EncounterEngine {
         playerHull,
         drive,
         powerCore,
-        shieldEmitter,
+        shieldGenerator,
         weapons = [],
 
         completeTimedTasksImmediately = false,
@@ -133,7 +133,7 @@ export default class EncounterEngine {
                 drive,
 
                 powerCore,
-                shieldEmitter,
+                shieldGenerator,
 
                 playerWeapons:
                     weapons,
@@ -151,8 +151,8 @@ export default class EncounterEngine {
             );
 
 
-        this.shieldEmitterRunner =
-            new ShieldEmitterRunner(
+        this.shieldGeneratorRunner =
+            new ShieldGeneratorRunner(
                 encounterState,
                 this.emit,
             );
@@ -279,7 +279,7 @@ export default class EncounterEngine {
         this.powerCoreRunner
             .step(deltaMs);
 
-        this.shieldEmitterRunner
+        this.shieldGeneratorRunner
             .step(deltaMs);
 
         this.officerTaskRunner.step(deltaMs);
@@ -364,10 +364,10 @@ export default class EncounterEngine {
             .getPowerCoreState();
     }
 
-    public getShieldEmitterState():
-        ShieldEmitterState | undefined {
+    public getShieldGeneratorState():
+        ShieldGeneratorState | undefined {
         return this.snapshotReader
-            .getShieldEmitterState();
+            .getShieldGeneratorState();
     }
 
     public getActiveShieldState():

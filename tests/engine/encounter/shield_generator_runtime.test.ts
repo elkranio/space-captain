@@ -4,43 +4,43 @@ import {
     it,
 } from 'vitest';
 import {
-    SHIELD_EMITTER_ID,
-    SHIELD_EMITTER_PHASE,
-    SHIELD_EMITTER_STATUS,
-    type ShieldEmitterState,
-} from '../../../src/engine/defs/shield_emitter';
+    SHIELD_GENERATOR_ID,
+    SHIELD_GENERATOR_PHASE,
+    SHIELD_GENERATOR_STATUS,
+    type ShieldGeneratorState,
+} from '../../../src/engine/defs/shield_generator';
 import {
-    advanceShieldEmitter,
-} from '../../../src/engine/encounter/combat/defense/ShieldEmitterRunner';
+    advanceShieldGenerator,
+} from '../../../src/engine/encounter/combat/defense/ShieldGeneratorRunner';
 
 describe(
-    'ShieldEmitterRunner',
+    'ShieldGeneratorRunner',
     () => {
         it(
             'advances cooldown to READY at the installed emitter duration',
             () => {
                 const emitter:
-                    ShieldEmitterState = {
+                    ShieldGeneratorState = {
                         id:
-                            'shield_emitter_player_00',
+                            'shield_generator_player_00',
 
-                        shieldEmitterId:
-                            SHIELD_EMITTER_ID
+                        shieldGeneratorId:
+                            SHIELD_GENERATOR_ID
                                 .BASIC_00,
 
                         status:
-                            SHIELD_EMITTER_STATUS
+                            SHIELD_GENERATOR_STATUS
                                 .ONLINE,
 
                         phase:
-                            SHIELD_EMITTER_PHASE
+                            SHIELD_GENERATOR_PHASE
                                 .COOLDOWN,
 
                         phaseElapsedMs:
                             4200,
                     };
 
-                advanceShieldEmitter(
+                advanceShieldGenerator(
                     emitter,
                     799,
                 );
@@ -49,25 +49,25 @@ describe(
                     emitter,
                 ).toEqual({
                     id:
-                        'shield_emitter_player_00',
+                        'shield_generator_player_00',
 
-                    shieldEmitterId:
-                        SHIELD_EMITTER_ID
+                    shieldGeneratorId:
+                        SHIELD_GENERATOR_ID
                             .BASIC_00,
 
                     status:
-                        SHIELD_EMITTER_STATUS
+                        SHIELD_GENERATOR_STATUS
                             .ONLINE,
 
                     phase:
-                        SHIELD_EMITTER_PHASE
+                        SHIELD_GENERATOR_PHASE
                             .COOLDOWN,
 
                     phaseElapsedMs:
                         4999,
                 });
 
-                advanceShieldEmitter(
+                advanceShieldGenerator(
                     emitter,
                     1,
                 );
@@ -75,7 +75,7 @@ describe(
                 expect(
                     emitter.phase,
                 ).toBe(
-                    SHIELD_EMITTER_PHASE
+                    SHIELD_GENERATOR_PHASE
                         .READY,
                 );
 
@@ -89,27 +89,27 @@ describe(
             'does not advance cooldown while emitter is broken',
             () => {
                 const emitter:
-                    ShieldEmitterState = {
+                    ShieldGeneratorState = {
                         id:
-                            'shield_emitter_player_00',
+                            'shield_generator_player_00',
 
-                        shieldEmitterId:
-                            SHIELD_EMITTER_ID
+                        shieldGeneratorId:
+                            SHIELD_GENERATOR_ID
                                 .BASIC_00,
 
                         status:
-                            SHIELD_EMITTER_STATUS
+                            SHIELD_GENERATOR_STATUS
                                 .BROKEN,
 
                         phase:
-                            SHIELD_EMITTER_PHASE
+                            SHIELD_GENERATOR_PHASE
                                 .COOLDOWN,
 
                         phaseElapsedMs:
                             1200,
                     };
 
-                advanceShieldEmitter(
+                advanceShieldGenerator(
                     emitter,
                     9000,
                 );
@@ -117,7 +117,7 @@ describe(
                 expect(
                     emitter.phase,
                 ).toBe(
-                    SHIELD_EMITTER_PHASE
+                    SHIELD_GENERATOR_PHASE
                         .COOLDOWN,
                 );
 

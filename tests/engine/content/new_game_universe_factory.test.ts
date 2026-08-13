@@ -6,10 +6,10 @@ import { OFFICER_ROLE } from '../../../src/engine/defs/officer';
 import { PLAYER_LOCATION_KIND, PLAYER_SPACE_NAVIGATION_KIND } from '../../../src/engine/defs/player_location';
 import { SPACE_BACKGROUND_ID } from '../../../src/engine/defs/space_background';
 import {
-    SHIELD_EMITTER_ID,
-    SHIELD_EMITTER_PHASE,
-    SHIELD_EMITTER_STATUS,
-} from '../../../src/engine/defs/shield_emitter';
+    SHIELD_GENERATOR_ID,
+    SHIELD_GENERATOR_PHASE,
+    SHIELD_GENERATOR_STATUS,
+} from '../../../src/engine/defs/shield_generator';
 import { SPACE_ANCHOR_KIND, SPACE_NODE_ACTOR_KIND } from '../../../src/engine/defs/universe';
 
 describe('NewGameUniverseFactory', () => {
@@ -113,21 +113,21 @@ describe('NewGameUniverseFactory', () => {
         expect(enemy.weapons).toEqual([]);
 
         expect(
-            enemy.shieldEmitter,
+            enemy.shieldGenerator,
         ).toEqual({
             id:
-                'shield_emitter_00',
+                'shield_generator_00',
 
-            shieldEmitterId:
-                SHIELD_EMITTER_ID
+            shieldGeneratorId:
+                SHIELD_GENERATOR_ID
                     .BASIC_00,
 
             status:
-                SHIELD_EMITTER_STATUS
+                SHIELD_GENERATOR_STATUS
                     .ONLINE,
 
             phase:
-                SHIELD_EMITTER_PHASE
+                SHIELD_GENERATOR_PHASE
                     .READY,
 
             phaseElapsedMs: 0,
@@ -200,23 +200,23 @@ describe('NewGameUniverseFactory', () => {
         );
 
         expect(
-            firstEnemy.shieldEmitter,
+            firstEnemy.shieldGenerator,
         ).toBeDefined();
 
         expect(
-            secondEnemy.shieldEmitter,
+            secondEnemy.shieldGenerator,
         ).toBeDefined();
 
         expect(
-            firstEnemy.shieldEmitter,
+            firstEnemy.shieldGenerator,
         ).not.toBe(
-            secondEnemy.shieldEmitter,
+            secondEnemy.shieldGenerator,
         );
 
         expect(
-            firstEnemy.shieldEmitter,
+            firstEnemy.shieldGenerator,
         ).toEqual(
-            secondEnemy.shieldEmitter,
+            secondEnemy.shieldGenerator,
         );
 
         expect(first.playerLocations.arrivingAtStart).not.toBe(second.playerLocations.arrivingAtStart);

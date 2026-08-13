@@ -103,11 +103,11 @@ export default class ShipNodeActorFactory {
             ),
 
             ...(
-                ship.shieldEmitter
+                ship.shieldGenerator
                     ? {
-                          shieldEmitter: {
+                          shieldGenerator: {
                               ...ship
-                                  .shieldEmitter,
+                                  .shieldGenerator,
                           },
                       }
                     : {}

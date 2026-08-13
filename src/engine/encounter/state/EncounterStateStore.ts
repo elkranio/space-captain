@@ -142,8 +142,8 @@ export default class EncounterStateStore {
                 powerCore:
                     actor.powerCore,
 
-                shieldEmitter:
-                    actor.shieldEmitter,
+                shieldGenerator:
+                    actor.shieldGenerator,
 
                 behavior:
                     actor.behavior,

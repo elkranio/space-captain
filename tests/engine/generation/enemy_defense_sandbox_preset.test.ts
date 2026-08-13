@@ -17,10 +17,10 @@ import {
     POINT_DEFENSE_PHASE,
 } from '../../../src/engine/defs/point_defense';
 import {
-    SHIELD_EMITTER_ID,
-    SHIELD_EMITTER_PHASE,
-    SHIELD_EMITTER_STATUS,
-} from '../../../src/engine/defs/shield_emitter';
+    SHIELD_GENERATOR_ID,
+    SHIELD_GENERATOR_PHASE,
+    SHIELD_GENERATOR_STATUS,
+} from '../../../src/engine/defs/shield_generator';
 import ShipNodeActorFactory from '../../../src/engine/generation/space_node_actor/ShipNodeActorFactory';
 
 describe('Enemy defense sandbox preset', () => {
@@ -77,21 +77,21 @@ describe('Enemy defense sandbox preset', () => {
             });
 
             expect(
-                actor.shieldEmitter,
+                actor.shieldGenerator,
             ).toEqual({
                 id:
-                    'shield_emitter_00',
+                    'shield_generator_00',
 
-                shieldEmitterId:
-                    SHIELD_EMITTER_ID
+                shieldGeneratorId:
+                    SHIELD_GENERATOR_ID
                         .BASIC_00,
 
                 status:
-                    SHIELD_EMITTER_STATUS
+                    SHIELD_GENERATOR_STATUS
                         .ONLINE,
 
                 phase:
-                    SHIELD_EMITTER_PHASE
+                    SHIELD_GENERATOR_PHASE
                         .READY,
 
                 phaseElapsedMs: 0,

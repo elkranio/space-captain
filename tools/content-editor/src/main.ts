@@ -7,6 +7,7 @@ const SHIP_MODULE_COLLECTION_IDS =
     new Set<string>([
         'power_cores',
         'ship_drives',
+        'shield_generators',
     ]);
 
 type JsonSchema = {

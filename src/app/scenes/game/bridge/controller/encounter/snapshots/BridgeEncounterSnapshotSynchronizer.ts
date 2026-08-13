@@ -98,19 +98,19 @@ export default class BridgeEncounterSnapshotSynchronizer {
                     .state,
             );
 
-        const shieldEmitter =
+        const shieldGenerator =
             snapshot.player
-                .shieldEmitter;
+                .shieldGenerator;
 
-        if (!shieldEmitter) {
+        if (!shieldGenerator) {
             throw new Error(
-                'Bridge player ship requires a shield emitter',
+                'Bridge player ship requires a shield generator',
             );
         }
 
         this.gameRuntime
-            .setPlayerShipShieldEmitterState(
-                shieldEmitter,
+            .setPlayerShipShieldGeneratorState(
+                shieldGenerator,
             );
 
         this.gameRuntime

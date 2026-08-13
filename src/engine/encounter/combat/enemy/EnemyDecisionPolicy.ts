@@ -4,8 +4,8 @@ import {
     ENEMY_BEHAVIOR_RULES,
 } from '../../../content/catalogs/enemy_behavior_rules';
 import {
-    SHIELD_EMITTERS,
-} from '../../../content/catalogs/shield_emitters';
+    SHIELD_GENERATORS,
+} from '../../../content/catalogs/shield_generators';
 import {
     getTimedOfficerTaskDurationMs,
 } from '../../../content/catalogs/officer_tasks';
@@ -26,9 +26,9 @@ import {
     type ShipWeaponState,
 } from '../../../defs/ship_weapon';
 import {
-    SHIELD_EMITTER_PHASE,
-    SHIELD_EMITTER_STATUS,
-} from '../../../defs/shield_emitter';
+    SHIELD_GENERATOR_PHASE,
+    SHIELD_GENERATOR_STATUS,
+} from '../../../defs/shield_generator';
 import type {
     ShipEncounterActorState,
 } from '../../actors/ship/ship_encounter_actor';
@@ -438,7 +438,7 @@ export default class EnemyDecisionPolicy {
         }
 
         const emitter =
-            actor.shieldEmitter;
+            actor.shieldGenerator;
 
         const powerCore =
             actor.powerCore;
@@ -446,10 +446,10 @@ export default class EnemyDecisionPolicy {
         if (
             !emitter ||
             emitter.status !==
-                SHIELD_EMITTER_STATUS
+                SHIELD_GENERATOR_STATUS
                     .ONLINE ||
             emitter.phase !==
-                SHIELD_EMITTER_PHASE
+                SHIELD_GENERATOR_PHASE
                     .READY ||
             actor.activeShield ||
             !powerCore ||
@@ -483,8 +483,8 @@ export default class EnemyDecisionPolicy {
         }
 
         const emitterDefinition =
-            SHIELD_EMITTERS[
-                emitter.shieldEmitterId
+            SHIELD_GENERATORS[
+                emitter.shieldGeneratorId
             ];
 
         const deploymentDurationMs =

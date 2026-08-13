@@ -15,8 +15,8 @@ import {
     POINT_DEFENSE_TUNING_SCHEMA,
 } from '../../../src/engine/content/schemas/point_defenses';
 import {
-    SHIELD_EMITTER_TUNING_SCHEMA,
-} from '../../../src/engine/content/schemas/shield_emitters';
+    SHIELD_GENERATOR_TUNING_SCHEMA,
+} from '../../../src/engine/content/schemas/shield_generators';
 import {
     SHIP_BEHAVIOR_TUNING_SCHEMA,
 } from '../../../src/engine/content/schemas/ship_behaviors';
@@ -55,8 +55,8 @@ export const CONTENT_COLLECTION_ID = {
     POINT_DEFENSES:
         'point_defenses',
 
-    SHIELD_EMITTERS:
-        'shield_emitters',
+    SHIELD_GENERATORS:
+        'shield_generators',
 
     SHIP_BEHAVIORS:
         'ship_behaviors',
@@ -212,23 +212,23 @@ const CONTENT_COLLECTIONS:
         },
 
         [CONTENT_COLLECTION_ID
-            .SHIELD_EMITTERS]: {
+            .SHIELD_GENERATORS]: {
             id:
                 CONTENT_COLLECTION_ID
-                    .SHIELD_EMITTERS,
+                    .SHIELD_GENERATORS,
 
             label:
-                'Shield Emitters',
+                'Shield Generators',
 
             dataPath:
                 'src/engine/content/data/' +
-                'shield_emitters.json',
+                'shield_generators.json',
 
             schema:
-                SHIELD_EMITTER_TUNING_SCHEMA,
+                SHIELD_GENERATOR_TUNING_SCHEMA,
 
-            canAdd: false,
-            canDelete: false,
+            canAdd: true,
+            canDelete: true,
         },
 
         [CONTENT_COLLECTION_ID

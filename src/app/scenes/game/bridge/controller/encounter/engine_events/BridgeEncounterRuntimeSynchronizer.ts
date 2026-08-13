@@ -21,7 +21,7 @@ import type { GameRuntime } from '../../../../../../runtime/GameRuntime';
 // hull damage, drive/navigation changes, discovered anchors,
 // destroyed persistent actors.
 //
-// Defense powerCore, shield emitter и installed weapons
+// Defense powerCore, shield generator и installed weapons
 // синхронизируются одним CombatPresentationSnapshot.
 // Эти данные здесь повторно не записываются.
 export default class BridgeEncounterRuntimeSynchronizer {

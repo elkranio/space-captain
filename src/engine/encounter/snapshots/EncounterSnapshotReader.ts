@@ -11,8 +11,8 @@ import type {
     ShipWeaponState,
 } from '../../defs/ship_weapon';
 import type {
-    ShieldEmitterState,
-} from '../../defs/shield_emitter';
+    ShieldGeneratorState,
+} from '../../defs/shield_generator';
 import { getAvailableOfficerCommands } from '../commands/queries/get_available_officer_commands';
 import {
     getEnemyShipTelemetrySnapshots,
@@ -95,12 +95,12 @@ export default class EncounterSnapshotReader {
         );
     }
 
-    public getShieldEmitterState():
-        ShieldEmitterState | undefined {
+    public getShieldGeneratorState():
+        ShieldGeneratorState | undefined {
         return this.read(
             (state) =>
                 state.combat
-                    .shieldEmitter,
+                    .shieldGenerator,
         );
     }
 

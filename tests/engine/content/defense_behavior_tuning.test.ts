@@ -10,8 +10,8 @@ import {
     POINT_DEFENSES,
 } from '../../../src/engine/content/catalogs/point_defenses';
 import {
-    SHIELD_EMITTERS,
-} from '../../../src/engine/content/catalogs/shield_emitters';
+    SHIELD_GENERATORS,
+} from '../../../src/engine/content/catalogs/shield_generators';
 import {
     SHIP_BEHAVIOR_PRESETS,
 } from '../../../src/engine/content/presets/ship_behaviors';
@@ -22,8 +22,8 @@ import {
     POINT_DEFENSE_TUNING_SCHEMA,
 } from '../../../src/engine/content/schemas/point_defenses';
 import {
-    SHIELD_EMITTER_TUNING_SCHEMA,
-} from '../../../src/engine/content/schemas/shield_emitters';
+    SHIELD_GENERATOR_TUNING_SCHEMA,
+} from '../../../src/engine/content/schemas/shield_generators';
 import {
     SHIP_BEHAVIOR_TUNING_SCHEMA,
 } from '../../../src/engine/content/schemas/ship_behaviors';
@@ -34,8 +34,8 @@ import {
     POINT_DEFENSE_ID,
 } from '../../../src/engine/defs/point_defense';
 import {
-    SHIELD_EMITTER_ID,
-} from '../../../src/engine/defs/shield_emitter';
+    SHIELD_GENERATOR_ID,
+} from '../../../src/engine/defs/shield_generator';
 import {
     SHIP_BEHAVIOR_PRESET_ID,
 } from '../../../src/engine/defs/ship_behavior';
@@ -86,17 +86,17 @@ describe(
                 });
 
                 expect(
-                    SHIELD_EMITTERS[
-                        SHIELD_EMITTER_ID
+                    SHIELD_GENERATORS[
+                        SHIELD_GENERATOR_ID
                             .BASIC_00
                     ],
                 ).toEqual({
                     id:
-                        SHIELD_EMITTER_ID
+                        SHIELD_GENERATOR_ID
                             .BASIC_00,
 
                     name:
-                        'BASIC SHIELD EMITTER',
+                        'BASIC SHIELD GENERATOR',
 
                     shieldDurationMs:
                         5000,
@@ -159,11 +159,11 @@ describe(
                 ).toBe(false);
 
                 expect(
-                    SHIELD_EMITTER_TUNING_SCHEMA
+                    SHIELD_GENERATOR_TUNING_SCHEMA
                         .safeParse({
-                            shield_emitter_basic_00: {
+                            shield_generator_basic_00: {
                                 name:
-                                    'BASIC SHIELD EMITTER',
+                                    'BASIC SHIELD GENERATOR',
                                 shieldDurationMs:
                                     5000,
                                 cooldownDurationMs:

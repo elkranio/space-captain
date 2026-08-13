@@ -11,8 +11,8 @@ import type {
     ShipWeaponState,
 } from '../../defs/ship_weapon';
 import type {
-    ShieldEmitterState,
-} from '../../defs/shield_emitter';
+    ShieldGeneratorState,
+} from '../../defs/shield_generator';
 
 export const COMBAT_PROJECTILE_KIND = {
     MISSILE: 'missile',
@@ -166,7 +166,7 @@ export type LaserAttackState = {
 
 };
 
-// Temporary shield created by the installed Shield Emitter.
+// Temporary shield created by the installed Shield Generator.
 export type ActiveShieldState = {
     sourceEmitterId: string;
 
@@ -218,10 +218,10 @@ export type EncounterCombatState = {
     powerCore?:
         PowerCoreState;
 
-    // Mutable installed shield emitter
+    // Mutable installed shield generator
     // текущего player ship в encounter.
-    shieldEmitter?:
-        ShieldEmitterState;
+    shieldGenerator?:
+        ShieldGeneratorState;
 
     // Encounter-only temporary shield.
     activeShield:

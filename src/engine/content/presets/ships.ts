@@ -17,9 +17,9 @@ import {
     type PointDefenseId,
 } from '../../defs/point_defense';
 import {
-    SHIELD_EMITTER_ID,
-    type ShieldEmitterId,
-} from '../../defs/shield_emitter';
+    SHIELD_GENERATOR_ID,
+    type ShieldGeneratorId,
+} from '../../defs/shield_generator';
 import {
     SHIP_WEAPON_ID,
     SHIP_WEAPON_KIND,
@@ -132,11 +132,11 @@ export type ShipPreset = {
             PowerCoreId;
     };
 
-    shieldEmitter?: {
+    shieldGenerator?: {
         id: string;
 
-        shieldEmitterId:
-            ShieldEmitterId;
+        shieldGeneratorId:
+            ShieldGeneratorId;
     };
 
     weapons: ShipWeaponPreset[];
@@ -368,12 +368,12 @@ export const SHIP_PRESETS = {
                     .BASIC_00,
         },
 
-        shieldEmitter: {
+        shieldGenerator: {
             id:
-                'shield_emitter_00',
+                'shield_generator_00',
 
-            shieldEmitterId:
-                SHIELD_EMITTER_ID
+            shieldGeneratorId:
+                SHIELD_GENERATOR_ID
                     .BASIC_00,
         },
 

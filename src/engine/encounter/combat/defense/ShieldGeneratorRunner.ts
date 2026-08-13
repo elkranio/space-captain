@@ -1,13 +1,13 @@
-// src/engine/encounter/combat/defense/ShieldEmitterRunner.ts
+// src/engine/encounter/combat/defense/ShieldGeneratorRunner.ts
 
 import {
-    SHIELD_EMITTERS,
-} from '../../../content/catalogs/shield_emitters';
+    SHIELD_GENERATORS,
+} from '../../../content/catalogs/shield_generators';
 import {
-    SHIELD_EMITTER_PHASE,
-    SHIELD_EMITTER_STATUS,
-    type ShieldEmitterState,
-} from '../../../defs/shield_emitter';
+    SHIELD_GENERATOR_PHASE,
+    SHIELD_GENERATOR_STATUS,
+    type ShieldGeneratorState,
+} from '../../../defs/shield_generator';
 import type {
     ActiveShieldState,
 } from '../../model/combat';
@@ -24,7 +24,7 @@ import type {
 // - installed emitter cooldown;
 // - temporary active-shield lifetime;
 // - natural shield-expiry outbox event.
-export default class ShieldEmitterRunner {
+export default class ShieldGeneratorRunner {
     constructor(
         private readonly state:
             EncounterState,
@@ -48,10 +48,10 @@ export default class ShieldEmitterRunner {
 
         const emitter =
             this.state.combat
-                .shieldEmitter;
+                .shieldGenerator;
 
         if (emitter) {
-            advanceShieldEmitter(
+            advanceShieldGenerator(
                 emitter,
                 deltaMs,
             );
@@ -82,28 +82,28 @@ export default class ShieldEmitterRunner {
     }
 }
 
-export function advanceShieldEmitter(
+export function advanceShieldGenerator(
     emitter:
-        ShieldEmitterState,
+        ShieldGeneratorState,
     deltaMs: number,
 ): void {
     if (
         emitter.status ===
-        SHIELD_EMITTER_STATUS.BROKEN
+        SHIELD_GENERATOR_STATUS.BROKEN
     ) {
         return;
     }
 
     switch (emitter.phase) {
-        case SHIELD_EMITTER_PHASE.READY:
+        case SHIELD_GENERATOR_PHASE.READY:
             emitter.phaseElapsedMs = 0;
             return;
 
-        case SHIELD_EMITTER_PHASE.COOLDOWN: {
+        case SHIELD_GENERATOR_PHASE.COOLDOWN: {
             const definition =
-                SHIELD_EMITTERS[
+                SHIELD_GENERATORS[
                     emitter
-                        .shieldEmitterId
+                        .shieldGeneratorId
                 ];
 
             const elapsedMs =
@@ -116,7 +116,7 @@ export function advanceShieldEmitter(
                     .cooldownDurationMs
             ) {
                 emitter.phase =
-                    SHIELD_EMITTER_PHASE.READY;
+                    SHIELD_GENERATOR_PHASE.READY;
 
                 emitter.phaseElapsedMs = 0;
 

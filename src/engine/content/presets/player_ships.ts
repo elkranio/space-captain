@@ -12,9 +12,9 @@ import {
 import { SHIP_DRIVE_ID, type ShipDriveId } from '../../defs/ship_drive';
 import { SHIP_WEAPON_ID } from '../../defs/ship_weapon';
 import {
-    SHIELD_EMITTER_ID,
-    type ShieldEmitterId,
-} from '../../defs/shield_emitter';
+    SHIELD_GENERATOR_ID,
+    type ShieldGeneratorId,
+} from '../../defs/shield_generator';
 
 export const PLAYER_SHIP_PRESET_ID = {
     STARTER_00: 'starter_00',
@@ -79,11 +79,11 @@ export type PlayerShipPreset = {
             PowerCoreId;
     };
 
-    shieldEmitter: {
+    shieldGenerator: {
         id: string;
 
-        shieldEmitterId:
-            ShieldEmitterId;
+        shieldGeneratorId:
+            ShieldGeneratorId;
     };
 
     weapons: PlayerShipWeaponPreset[];
@@ -106,12 +106,12 @@ export const PLAYER_SHIP_PRESETS = {
                     .BASIC_00,
         },
 
-        shieldEmitter: {
+        shieldGenerator: {
             id:
-                'shield_emitter_player_00',
+                'shield_generator_player_00',
 
-            shieldEmitterId:
-                SHIELD_EMITTER_ID
+            shieldGeneratorId:
+                SHIELD_GENERATOR_ID
                     .BASIC_00,
         },
 

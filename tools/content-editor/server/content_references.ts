@@ -46,6 +46,18 @@ type PowerCoreDraftCollection =
         PowerCoreDraft
     >;
 
+type ShieldGeneratorDraft = {
+    name: string;
+    shieldDurationMs: number;
+    cooldownDurationMs: number;
+};
+
+type ShieldGeneratorDraftCollection =
+    Record<
+        string,
+        ShieldGeneratorDraft
+    >;
+
 export type ContentUsage = {
     collection: string;
     recordId: string;
@@ -102,6 +114,15 @@ export function getContentRecordDeleteInfo(
                     ),
             };
 
+        case CONTENT_COLLECTION_ID
+            .SHIELD_GENERATORS:
+            return {
+                usages:
+                    findShieldGeneratorUsages(
+                        recordId,
+                    ),
+            };
+
         default:
             return {
                 usages: [],
@@ -139,6 +160,15 @@ export async function validateContentCollectionReferences(
             validatePowerCoreReferences(
                 data as
                     PowerCoreDraftCollection,
+            );
+
+            return;
+
+        case CONTENT_COLLECTION_ID
+            .SHIELD_GENERATORS:
+            validateShieldGeneratorReferences(
+                data as
+                    ShieldGeneratorDraftCollection,
             );
 
             return;
@@ -278,6 +308,74 @@ function findPowerCoreUsages(
                         .powerCore
                         .powerCoreId ===
                     powerCoreId
+                );
+            })
+            .map((preset) => {
+                return {
+                    collection:
+                        'Player Ship Presets',
+
+                    recordId:
+                        preset.id,
+
+                    label:
+                        preset.id,
+                };
+            });
+
+    return [
+        ...shipPresetUsages,
+        ...playerPresetUsages,
+    ];
+}
+
+function findShieldGeneratorUsages(
+    shieldGeneratorId: string,
+): ContentUsage[] {
+    const shipPresetUsages =
+        Object.values(
+            SHIP_PRESETS,
+        )
+            .filter((preset) => {
+                if (
+                    !(
+                        'shieldGenerator' in
+                        preset
+                    )
+                ) {
+                    return false;
+                }
+
+                return (
+                    preset
+                        .shieldGenerator
+                        .shieldGeneratorId ===
+                    shieldGeneratorId
+                );
+            })
+            .map((preset) => {
+                return {
+                    collection:
+                        'Ship Presets',
+
+                    recordId:
+                        preset.id,
+
+                    label:
+                        preset.id,
+                };
+            });
+
+    const playerPresetUsages =
+        Object.values(
+            PLAYER_SHIP_PRESETS,
+        )
+            .filter((preset) => {
+                return (
+                    preset
+                        .shieldGenerator
+                        .shieldGeneratorId ===
+                    shieldGeneratorId
                 );
             })
             .map((preset) => {
@@ -476,6 +574,73 @@ function validatePowerCoreReferences(
             (
                 'Cannot remove power core "' +
                 powerCoreId +
+                '": it is used by player ship preset "' +
+                preset.id +
+                '".'
+            ),
+            409,
+        );
+    }
+}
+
+function validateShieldGeneratorReferences(
+    data: ShieldGeneratorDraftCollection,
+): void {
+    for (
+        const preset of
+        Object.values(
+            SHIP_PRESETS,
+        )
+    ) {
+        if (
+            !(
+                'shieldGenerator' in
+                preset
+            )
+        ) {
+            continue;
+        }
+
+        const shieldGeneratorId =
+            preset
+                .shieldGenerator
+                .shieldGeneratorId;
+
+        if (data[shieldGeneratorId]) {
+            continue;
+        }
+
+        throw new ContentReferenceError(
+            (
+                'Cannot remove shield generator "' +
+                shieldGeneratorId +
+                '": it is used by ship preset "' +
+                preset.id +
+                '".'
+            ),
+            409,
+        );
+    }
+
+    for (
+        const preset of
+        Object.values(
+            PLAYER_SHIP_PRESETS,
+        )
+    ) {
+        const shieldGeneratorId =
+            preset
+                .shieldGenerator
+                .shieldGeneratorId;
+
+        if (data[shieldGeneratorId]) {
+            continue;
+        }
+
+        throw new ContentReferenceError(
+            (
+                'Cannot remove shield generator "' +
+                shieldGeneratorId +
                 '": it is used by player ship preset "' +
                 preset.id +
                 '".'

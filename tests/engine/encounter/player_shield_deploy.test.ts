@@ -7,8 +7,8 @@ import {
     OFFICER_ROLE,
 } from '../../../src/engine/defs/officer';
 import {
-    SHIELD_EMITTER_PHASE,
-} from '../../../src/engine/defs/shield_emitter';
+    SHIELD_GENERATOR_PHASE,
+} from '../../../src/engine/defs/shield_generator';
 import {
     SHIP_WEAPON_ID,
     SHIP_WEAPON_KIND,
@@ -140,10 +140,10 @@ describe(
 
                 expect(
                     state.combat
-                        .shieldEmitter
+                        .shieldGenerator
                         ?.phase,
                 ).toBe(
-                    SHIELD_EMITTER_PHASE
+                    SHIELD_GENERATOR_PHASE
                         .READY,
                 );
 
@@ -211,7 +211,7 @@ describe(
 
                     shield: {
                         sourceEmitterId:
-                            'shield_emitter_player_00',
+                            'shield_generator_player_00',
 
                         remainingDurationMs:
                             5000,
@@ -226,7 +226,7 @@ describe(
                         .activeShield,
                 ).toEqual({
                     sourceEmitterId:
-                        'shield_emitter_player_00',
+                        'shield_generator_player_00',
 
                     remainingDurationMs:
                         5000,
@@ -237,10 +237,10 @@ describe(
 
                 expect(
                     state.combat
-                        .shieldEmitter
+                        .shieldGenerator
                         ?.phase,
                 ).toBe(
-                    SHIELD_EMITTER_PHASE
+                    SHIELD_GENERATOR_PHASE
                         .COOLDOWN,
                 );
 
@@ -274,7 +274,7 @@ describe(
 
                     shield: {
                         sourceEmitterId:
-                            'shield_emitter_player_00',
+                            'shield_generator_player_00',
 
                         remainingDurationMs:
                             0,
@@ -295,10 +295,10 @@ describe(
 
                 expect(
                     state.combat
-                        .shieldEmitter
+                        .shieldGenerator
                         ?.phase,
                 ).toBe(
-                    SHIELD_EMITTER_PHASE
+                    SHIELD_GENERATOR_PHASE
                         .READY,
                 );
             },
@@ -473,7 +473,7 @@ describe(
 
                     shield: {
                         sourceEmitterId:
-                            'shield_emitter_player_00',
+                            'shield_generator_player_00',
 
                         remainingDurationMs:
                             5000,

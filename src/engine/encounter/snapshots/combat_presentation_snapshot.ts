@@ -26,8 +26,8 @@ import {
     type ShipWeaponState,
 } from '../../defs/ship_weapon';
 import type {
-    ShieldEmitterState,
-} from '../../defs/shield_emitter';
+    ShieldGeneratorState,
+} from '../../defs/shield_generator';
 import {
     getAvailableOfficerCommands,
 } from '../commands/queries/get_available_officer_commands';
@@ -108,8 +108,8 @@ export type CombatPresentationSnapshot = {
         powerCore?:
             PowerCorePresentationSnapshot;
 
-        shieldEmitter?:
-            ShieldEmitterState;
+        shieldGenerator?:
+            ShieldGeneratorState;
 
         activeShield:
             ActiveShieldState | null;
@@ -183,11 +183,11 @@ export function createCombatPresentationSnapshot(
                 : {}),
 
             ...(state.combat
-                .shieldEmitter
+                .shieldGenerator
                 ? {
-                      shieldEmitter:
+                      shieldGenerator:
                           state.combat
-                              .shieldEmitter,
+                              .shieldGenerator,
                   }
                 : {}),
 
