@@ -1,7 +1,7 @@
 # Space Captain — Project Context
 
-Updated: 2026-08-12
-Reference HEAD before this docs atom: `fb170a1ea88d8feb49a5c5ff7655982e55edf7c6`
+Updated: 2026-08-13
+Reference HEAD before this docs atom: `79ec6e607b7f5e7c55077469594e7b4990b337ae`
 
 This is the primary handoff for a fresh chat. Treat code at the current GitHub `master` as source of truth and re-check HEAD before every coding atom.
 
@@ -25,6 +25,7 @@ Do not reconstruct current behavior from old chats when the repo can answer it.
 - core engine: `src/engine/...`
 - bridge app/controller/view: `src/app/scenes/game/bridge/...`
 - atlas key currently `atlas`
+- TypeScript `strict`, `noUnusedLocals` and `noUnusedParameters` are enabled
 - user runs typecheck/tests/runtime smoke and pushes commits
 
 ## Working style
@@ -33,10 +34,11 @@ Do not reconstruct current behavior from old chats when the repo can answer it.
 - Small coherent atoms.
 - Discuss architecture before broad changes.
 - Refactor only when it reduces cognitive load or removes real duplication/hops.
+- Prefer explicit boring code over clever generic abstractions.
 - Avoid speculative frameworks, generic registries and tiny classes “на будущее”.
 - Preserve engine/app boundary: engine owns gameplay truth; app maps snapshots/events to presentation.
 - GitHub access is read-only unless the user explicitly asks otherwise.
-- Before producing a patch, fetch fresh `master` HEAD and inspect the exact current files/callers/tests.
+- Before producing a patch, fetch fresh `master` HEAD and inspect exact current files/callers/tests.
 
 ## Patch delivery rules
 
@@ -48,17 +50,21 @@ These are mandatory.
 4. Guard tracked clean state before writing, unless the patch is explicitly a recovery atom for a known dirty state.
 5. Prefer exact/contextual replacements over heuristic broad transforms.
 6. Preserve source EOL style; Windows CRLF is common.
-7. Validate all planned transforms before the first write when practical.
-8. Finish with post-assertions and `git -c core.safecrlf=false diff --check`.
-9. A failed patcher should remain on disk for diagnosis.
-10. If a recovery patch replaces failed patchers, successful recovery should also remove known obsolete ancestor patchers.
+7. Validate planned transforms before the first write when practical.
+8. Normalize touched text files to exactly one newline at EOF before validation.
+9. Finish with post-assertions and `git -c core.safecrlf=false diff --check`.
+10. A failed patcher should remain on disk for diagnosis.
+11. If a recovery patch replaces failed patchers, successful recovery should also remove known obsolete ancestor patchers.
+12. Before deleting a compatibility helper/query, search **all** source + test consumers first.
 
 Known pitfalls:
 - `git grep` ignores untracked files.
 - `git status --porcelain` has a two-character status field.
 - callback return strings in `String.replace(regex, callback)` do not expand `$1`.
-- broad AST/list removal can swallow newlines or unrelated fixtures.
-- tests can be green while formatting is damaged; inspect diff shape too.
+- broad regex/list transforms can hit identical blocks in multiple methods.
+- regex replacements around TypeScript generic return types must preserve punctuation such as `Extract<`.
+- tests can be green while formatting is damaged; `diff --check` is part of completion.
+- self-delete only happens after all validation; a failed validation leaves patchers behind intentionally.
 
 ## Current gameplay / bridge state
 
@@ -69,11 +75,11 @@ The bridge has four active officer roles:
 - Helm
 - Engineer
 
-The captain dashboard is becoming the main command surface. The old officer context menu still exists as legacy coverage and should not be removed until the dashboard covers the needed commands.
+The captain dashboard is becoming the main command surface. The old officer context menu still exists as legacy coverage and should not be removed until the dashboard covers every required command path.
 
 ### Captain dashboard
 
-Left side is stable player-ship state:
+Left side is stable player-ship state/actions:
 
 - HULL
 - shared DEF capacitor
@@ -87,17 +93,19 @@ Right side is current combat context:
 
 - one enemy ship summary
 - enemy HULL + DEF
-- incoming missile threats
-- incoming laser threats
+- incoming missiles
+- incoming lasers
+- hostile sticky mines
+- hostile SPAM channels
 
-Dashboard buttons use real `AvailableOfficerCommand` values. Views must not reproduce engine availability rules.
+Dashboard buttons bind to real `AvailableOfficerCommand` values. Views must not reproduce engine availability rules.
 
-Current button presentation is intentionally role-neutral:
-- active: dark neutral blue + steel-blue border + white text
-- non-interactive/busy/engaged: one neutral disabled gray treatment
-- red/blue remain only where they encode beam choice
+Threat-row geometry is still a prototype, not a contract. Do not build a generic threat-row framework around the current shape.
 
-Threat-row geometry is a prototype, not a contract. Future final art may replace rows with much more compact tiles. Do not build a generic threat-layout framework around the current row shape.
+Shared dashboard visual semantics now live near the dashboard:
+- repeated row/icon/action/status colors are centralized
+- countdown formatting is centralized
+- geometry remains local to concrete views
 
 ### Defense / shield slice
 
@@ -113,9 +121,8 @@ Current player defense contract:
 - it also expires by TTL
 - current basic shield duration: 5000 ms
 - current emitter cooldown: 5000 ms
-- player shield visual exists, including final-second blink and absorbed-hit flash/fade
+- player and enemy shield views share presentation timing/alpha helpers but keep separate lifecycle/position/scale ownership
 - incoming laser event distinguishes `HIT` vs `ABSORBED`
-- beam endpoint uses hull impact point for HIT and shield impact point for ABSORBED
 
 Temporary whole-hull visual anchors live in `bridge_player_hull_combat_points.ts`. This is intentionally not a generic targeting registry.
 
@@ -125,67 +132,77 @@ Still missing:
 - minimal player Point Defense installation/status and repair flow
 - tuning
 
+## Combat read-model architecture
+
+`EncounterState` is the authoritative mutable truth.
+
+`CombatPresentationSnapshot` is a detached one-frame read model built from that truth. It currently includes:
+
+Player:
+- hull
+- drive
+- DEF presentation state
+- Shield Emitter
+- Active Shield
+- player weapons
+- officer availability
+- officer tasks
+
+Combat/context:
+- enemy ship presentation snapshots
+- incoming/outgoing missiles
+- outgoing sticky mines
+- sticky-mine snapshots
+- laser threats
+- SPAM channels
+- `commandsByRole`
+
+The snapshot is not cached and is not a second state.
+
+`BridgeEncounterController` captures one coherent combat snapshot after the engine step and reuses it across current presentation consumers. Officer stations no longer reconstruct a combat-frame view by separately walking tasks, availability, telemetry and commands.
+
+Persistent player ship presentation state that belongs in `GameRuntime` is synchronized from the frame snapshot, not from a duplicate DEF event stream.
+
+Travel/noninteractive presentation clearing explicitly clears stale combat context and enemy shields.
+
 ## Enemy behavior state
 
-Enemy behavior is split deliberately:
+Enemy behavior remains deliberately split:
 
 - `EnemyDecisionPolicy` chooses work
-- `EnemyTaskScheduler` validates/schedules work and starts physical weapon phases
-- `EnemyCrewTaskRunner` owns task lifecycle
-- combat weapon runners own weapon/projectile/mine physics/lifecycle
+- `EnemyTaskScheduler` assembles explicit decision context, validates/schedules work and starts physical phases
+- `EnemyCrewTaskRunner` owns crew-task lifecycle
+- combat weapon runners own physical weapon/projectile/mine lifecycle
 - threat observation / science intel are separate from objective truth
 
-Do not collapse these back into one enemy god object.
+`EnemyDecisionPolicy` no longer owns or optionally receives full `EncounterState`.
 
-## NEXT CHAT: enemy sticky mines on captain context
+Scheduler supplies a small `EnemyDecisionContext` containing:
+- `EnemyThreatDecisionSnapshot[]`
+- canonical `CrewProgressEffect[]`
 
-This is the next coding target.
+Threat decision snapshots expose only the physical facts policy needs. Hidden missile truth still stays behind the Science observation/intel boundary.
 
-Fresh repo findings at `fb170a1e...`:
+SPAM slowdown/purge decisions and lifecycle validation use canonical `getActiveCrewProgressEffects()`. The transitional `getActivePlayerSpamChannels()` adapter has been removed.
 
-- `GENERIC_STICKY_MINES_00` already exists.
-- `GENERIC_DEFENSE_SANDBOX_00` is still a laser-only sandbox enemy.
-- `EnemyDecisionPolicy` already treats a ready sticky-mine dispenser as a Weapons offensive weapon.
-- `EnemyTaskScheduler` already starts generic enemy weapon targeting.
-- `CombatStickyMineRunner` already owns both directions and already:
-  - advances enemy dispenser TARGETING → DISPENSING → COOLDOWN;
-  - creates each enemy mine as its own `StickyMineState`;
-  - targets `PLAYER_SHIP`;
-  - gives each mine its own fuse timer;
-  - emits attach/detonation events;
-  - damages player hull on detonation.
-- `getStickyMineSnapshots()` already returns player-attached hostile mines individually and includes clear-state flags.
-- `BridgeEncounterSnapshotSynchronizer` already feeds those snapshots to the existing bridge sticky-mine presentation.
-- `BridgeCaptainCombatContextMapper` currently transports only missiles + lasers. Captain context has no sticky-mine threat payload/view yet.
+Do not collapse this separation back into an enemy god object.
 
-Therefore the next atom should primarily be **sandbox + captain-dashboard transport/presentation**, not a new mine domain.
+## Refactor checkpoint — completed 2026-08-13
 
-Likely scope:
-1. switch the current defense sandbox enemy from laser to sticky-mine dispenser;
-2. transport current hostile mine snapshots into captain combat context;
-3. show each mine independently (1 runtime mine = 1 captain threat);
-4. reuse existing real clear-mine commands/availability rather than inventing UI rules;
-5. keep threat visuals simple/provisional.
+The broad cleanup pass is complete. Important completed items:
 
-Do not in this atom:
-- aggregate a salvo into one domain threat;
-- invent a generic threat registry;
-- redesign final threat tile/row geometry;
-- alter mine physics unless a real gap is found;
-- mix in spam/threat UI work.
+- unified `CombatPresentationSnapshot`
+- `EnemyThreatDecisionSnapshot` query for AI decisions
+- duplicate public combat presentation getters removed
+- officer stations moved onto the coherent combat snapshot
+- travel presentation reset fixed
+- dead DEF charge-spent event removed
+- strict unused TS checks enabled
+- dashboard visual tokens/countdown formatting deduplicated
+- player/enemy shield presentation math deduplicated
+- SPAM compatibility query removed; policy now consumes explicit decision context
 
-Before coding, re-fetch fresh HEAD and inspect:
-- `src/engine/content/presets/ships.ts`
-- `src/engine/content/presets/sticky_mine_dispensers.ts`
-- `src/engine/encounter/combat/weapons/sticky_mine/CombatStickyMineRunner.ts`
-- `src/engine/encounter/combat/enemy/EnemyDecisionPolicy.ts`
-- `src/engine/encounter/combat/enemy/EnemyTaskScheduler.ts`
-- `src/engine/encounter/combat/queries/get_sticky_mine_snapshots.ts`
-- `src/engine/encounter/commands/handlers/clear_sticky_mine_command_handler.ts`
-- `src/app/scenes/game/bridge/controller/captain_dashboard/BridgeCaptainCombatContextMapper.ts`
-- `src/app/scenes/game/bridge/controller/encounter/snapshots/BridgeEncounterSnapshotSynchronizer.ts`
-- captain combat-context event types and views
-- all mapper/synchronizer tests and callers before changing required inputs
+Do **not** continue refactoring just because files are long. Return to feature/gameplay work unless a concrete new ownership/duplication problem appears.
 
 ## Architecture conclusions already settled
 
@@ -193,8 +210,12 @@ Leave these alone unless evidence changes:
 
 - `BridgeController` is a healthy composition root.
 - `EncounterEngine` is a legitimate facade/composition root.
-- `bridge_event.ts` is long but cohesive declarative contract; do not split just for length.
+- `CombatRunner` is long but cohesive; do not split for line count.
+- `EncounterStateStore` is a facade over specialized stores, not a god-object bug by itself.
+- `bridge_event.ts` is a long but cohesive declarative contract.
 - `BridgeEncounterEngineEventHandler` is a transport/presentation boundary.
 - `BridgeEncounterRuntimeSynchronizer` is EncounterEngine → GameRuntime persistence.
 - `BridgeEncounterSnapshotSynchronizer` transports continuously changing read models.
 - `BridgePlayerWeaponStatusMapper` and `BridgePlayerShipDashboardMapper` have different responsibilities and should stay separate.
+- current hypothetical-state availability query is intentionally left simple.
+- specialized threat rows and weapon runners should remain specialized until real repeated behavior demands abstraction.

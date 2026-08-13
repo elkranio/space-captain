@@ -1,11 +1,11 @@
 # Space Captain — Gameplay Contracts
 
-Living gameplay invariants only. If code and this file disagree, inspect the current code and fix this document rather than coding from stale prose.
+Living gameplay invariants only. If code and this file disagree, inspect current code and fix this document rather than coding from stale prose.
 
 ## Encounter shape
 
 - One full enemy ship at a time.
-- Missiles, lasers, spam and sticky mines are weapons/threat objects produced by that ship, not additional command-capable enemies.
+- Missiles, lasers, SPAM and sticky mines are weapons/threat objects produced by that ship, not additional command-capable enemies.
 - Combat is telegraph → crew work/response → delivery/impact → cooldown, not bullet hell.
 - The player wins/loses through readable timing pressure and crew execution, not twitch aiming.
 
@@ -16,6 +16,7 @@ Living gameplay invariants only. If code and this file disagree, inspect the cur
 - Views never recreate gameplay availability rules.
 - Starting a command creates/owns an officer task in engine state.
 - Cancellation belongs to the active task, not to the UI surface that started it.
+- Busy-role behavior is represented through engine availability; presentation should not duplicate a separate busy-command rule.
 
 ## Shared Defense Capacitor
 
@@ -28,6 +29,8 @@ Current basic contract:
 - Point Defense and Shield Emitter draw from the same pool
 
 A defensive consumer commits energy when its work starts. Later cancellation/interruption does not refund committed energy.
+
+Persistent presentation state is synchronized from the encounter frame snapshot; there is no separate `PLAYER_DEFENSE_CAPACITOR_CHARGE_SPENT` event contract.
 
 Future missing contract:
 - capacitor can become BROKEN
@@ -57,7 +60,9 @@ Active Shield:
 - disappears on absorption
 - otherwise expires at TTL
 - final ~1 s blinks visually
-- absorption flashes the shield before it vanishes
+- absorption flashes/fades the shield before it vanishes
+
+Player/enemy shield presentation shares timing/alpha math only. Combat ownership and view lifecycle remain separate.
 
 Future:
 - breaking the emitter must immediately remove an active shield
@@ -80,7 +85,8 @@ Current direction:
 - Science can identify spectral band.
 - Weapons can respond through point-defense beam selection.
 - Unknown missile can still be acted on; UI does not invent certainty.
-- Dashboard currently renders incoming missiles independently.
+- Dashboard renders incoming missiles independently.
+- Enemy decision snapshots may resolve live missile timing/physical target, but must not bypass the Science epistemic boundary for hidden missile truth.
 
 ## Lasers
 
@@ -90,10 +96,11 @@ Current direction:
 - Engineer shield deployment is exposed as the current captain response.
 - Science slot is intentionally non-functional for laser targeting until a real targeting/intel contract exists.
 - Current whole-hull impact points are presentation anchors, not semantic damage nodes.
+- Dashboard renders active incoming laser threats independently.
 
 ## Sticky mines
 
-Sticky mines are already a two-direction combat system.
+Sticky mines are a two-direction combat system.
 
 Core invariant:
 - **each attached mine is an independent `StickyMineState` with its own fuse timer.**
@@ -103,24 +110,42 @@ Enemy → player:
 - enemy dispenser can target, dispense a salvo and cooldown;
 - each launched mine attaches to `PLAYER_SHIP`;
 - each mine can be cleared independently;
-- detonation damages player hull and may interrupt an officer task.
+- detonation damages player hull and may interrupt an officer task;
+- captain dashboard shows each attached hostile mine independently;
+- clear actions come from real engine command availability.
 
 Player → enemy:
 - player dispenser launches mines toward the enemy actor;
 - each mine attaches independently;
-- enemy AI can assign crew to clear player mines;
+- enemy AI can assign available crew roles to clear player mines;
 - uncleared detonation damages enemy hull.
 
-Captain dashboard does not yet show sticky mines in combat context. This is the immediate next slice.
+Do not aggregate a salvo into one domain threat for UI convenience.
 
-## Spam
+## SPAM
 
-- Spam is a channel/effect, not a projectile.
-- Science launches player spam.
-- Enemy Science can purge player spam.
-- Player Science can purge enemy spam.
+- SPAM is a channel/progress effect, not a projectile.
+- Science launches player SPAM.
+- Enemy Science can purge player SPAM.
+- Player Science can purge enemy SPAM.
 - Player `SCIENCE_FIRE_SPAM` is not manually cancellable once committed; damage interruption may still stop relevant task flow per engine contract.
-- Captain-context threat presentation for enemy spam is still future work.
+- Active crew-progress modifiers are exposed through canonical `getActiveCrewProgressEffects()`.
+- Player-specific `getActivePlayerSpamChannels()` compatibility query has been removed.
+- Captain dashboard shows active hostile SPAM channels independently with real Science purge actions.
+- Enemy decision policy receives relevant SPAM effects through explicit decision context rather than reading full encounter state.
+
+## Combat presentation snapshot
+
+`EncounterState` is the only authoritative mutable combat truth.
+
+`CombatPresentationSnapshot` is a detached frame read model, not a second state. It may aggregate:
+- player ship/system presentation
+- officer availability/tasks
+- enemy telemetry
+- threats
+- commands
+
+Presentation consumers should reuse one coherent frame rather than reconstructing the same frame through unrelated getters.
 
 ## Damage / interruption
 
@@ -134,9 +159,15 @@ Captain dashboard does not yet show sticky mines in combat context. This is the 
 Enemy crew is simulated, not a mirrored player bridge.
 
 - policy chooses work;
-- scheduler validates and starts work;
+- scheduler builds explicit decision context, validates and starts work;
 - crew-task runner owns timing/lifecycle;
 - weapon runners own physical phases;
 - science observation/report is separate from objective combat truth.
+
+Policy does not own `EncounterState`.
+
+`EnemyDecisionContext` currently contains:
+- enemy threat decision snapshots
+- crew-progress effects
 
 Keep this separation unless a concrete simplification is proven.

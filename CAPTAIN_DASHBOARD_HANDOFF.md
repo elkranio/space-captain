@@ -1,7 +1,7 @@
 # Space Captain — Captain Dashboard Handoff
 
-Updated: 2026-08-12
-Reference HEAD before this docs atom: `fb170a1ea88d8feb49a5c5ff7655982e55edf7c6`
+Updated: 2026-08-13
+Reference HEAD before this docs atom: `79ec6e607b7f5e7c55077469594e7b4990b337ae`
 
 This is the focused handoff for captain dashboard / combat-context work.
 
@@ -44,17 +44,21 @@ Implemented:
 - enemy DEF
 - incoming missile threats
 - incoming laser threats
+- hostile sticky-mine threats
+- hostile SPAM channels
 
-### Missile row behavior
+All threat/action payloads are mapped from the coherent combat presentation frame plus real engine command availability.
+
+### Missile row
 
 Current prototype provides:
 - timer
 - missile identity/unknown state
 - Science identify action where available
 - Weapons red/blue point-defense response where available
-- inline red/blue selector behavior for unknown missile flow
+- inline red/blue selector for unknown-missile flow
 
-### Laser row behavior
+### Laser row
 
 Current prototype provides:
 - timer
@@ -62,9 +66,27 @@ Current prototype provides:
 - disabled Science placeholder
 - Engineer deploy-shield action when the real command is available
 
+### Sticky-mine row
+
+Current prototype provides:
+- one row per attached hostile mine
+- independent fuse timer per runtime mine
+- current clear-state flags
+- real `CLEAR_STICKY_MINE` actions for any role that engine currently allows
+- no domain-level salvo aggregation
+
+### SPAM row
+
+Current prototype provides:
+- one row per active hostile SPAM channel
+- remaining channel duration
+- Science purge action when the real engine command is available
+
 ## Button visual semantics
 
 Captain action buttons intentionally do **not** use officer-role colors.
+
+Shared repeated dashboard semantics now live in `captain_dashboard_style.ts`.
 
 Active:
 - background `0x193147`
@@ -76,64 +98,78 @@ Non-interactive / officer busy / current work:
 - border `0x26394c`
 - text `0x536778`
 
-Red/blue are preserved only in the beam selector because they encode gameplay choice.
+Red/blue are preserved only where they encode beam choice.
+
+Do not move every local VFX color into the dashboard palette. Beam colors, progress visuals and other mechanic-specific presentation can remain local.
+
+## Countdown formatting
+
+Threat countdown labels share `formatCaptainDashboardCountdown()` from `captain_dashboard_format.ts`.
+
+Do not reintroduce separate missile/laser/mine/SPAM `formatTimer()` helpers.
 
 ## Threat geometry is provisional
 
 Do not treat the current repeated horizontal threat row as final UX architecture.
 
-Current rows were chosen to make mechanics readable during implementation. With real final art, threats may become much smaller, potentially compact tiles rather than rows.
+Current rows were chosen to make mechanics readable during implementation. With final art, threats may become much smaller, potentially compact tiles rather than rows.
 
 Therefore:
 - do not build a generic row framework;
-- do not solve final sizing now;
-- keep new mine presentation simple and structurally easy to replace;
-- keep domain/read-model identity independent of visual grouping.
+- do not solve final sizing during mechanic work;
+- keep domain/read-model identity independent of visual grouping;
+- keep concrete threat views specialized while their interactions differ.
 
-## Immediate next atom: enemy sticky mines
+## Snapshot / mapper boundary
 
-The mine domain already exists. The missing captain slice is presentation/transport.
+`CombatPresentationSnapshot` is the coherent one-frame source used by current bridge synchronization.
 
-Fresh repo facts at the reference HEAD:
-- sandbox enemy is still laser-only: `GENERIC_DEFENSE_SANDBOX_00`
-- a mine-only enemy preset already exists: `GENERIC_STICKY_MINES_00`
-- enemy policy can already choose sticky-mine dispenser as Weapons work
-- scheduler already starts weapon targeting
-- `CombatStickyMineRunner` already creates individual hostile mines, fuses and detonations
-- `getStickyMineSnapshots()` already returns hostile mines attached to player one-by-one
-- old bridge mine presentation already receives those snapshots
-- captain combat mapper currently accepts missiles + lasers only
+For captain context, the mapper receives:
+- enemy ship presentation snapshots
+- incoming missiles
+- laser threats
+- sticky-mine snapshots
+- SPAM channels
+- available commands for all four roles
 
-Target behavior:
-- current sandbox enemy attacks with sticky mines instead of laser
-- every attached mine appears independently in captain combat context
-- every displayed mine keeps its own engine-owned fuse timer
-- clear actions come from existing real engine command availability
-- no salvo aggregation in domain/read model
-- minimal placeholder row/tile is fine
+`BridgeCaptainCombatContextMapper` only binds existing engine-approved commands to threat affordances. It must not invent role availability or target legality.
 
-Do not combine this with:
-- spam captain threat UI
-- final threat-grid redesign
-- generic targeting registry
-- mine-physics rewrite
-- broad context-menu removal
+## Shield presentation
+
+Player/enemy shield views share only common alpha/timing math through `bridge_shield_presentation.ts`.
+
+Do not merge the two view classes:
+- player shield is one player-owned visual/lifecycle
+- enemy shields are actor-keyed visuals
+- scale/position/lifecycle differ
+
+## Context-menu transition
+
+The captain dashboard is the intended main command surface, but the old officer context menu still provides legacy command coverage.
+
+Do not remove it until dashboard + future navigation/engineering surfaces cover the required flows.
+
+Potential future bridge tabs:
+- combat
+- engineering
+- navigation
+
+These are design direction only, not a current implementation contract.
 
 ## Patch delivery rules
 
 Mandatory for every coding atom:
 
-1. **Deliver the patch script only inside a `.zip`.**
-2. **After successful work and validation, the script deletes its own `.mjs` file.**
-
-Also:
-- fetch fresh `master` HEAD first;
-- guard expected HEAD;
-- guard tracked clean state;
-- preserve CRLF;
-- validate exact/current code before transforms;
-- run `git -c core.safecrlf=false diff --check`;
-- failed patchers remain for diagnosis.
+1. Deliver patch scripts only inside `.zip`.
+2. On full successful validation, the script deletes its own `.mjs`.
+3. Fetch fresh `master` HEAD first.
+4. Guard expected HEAD.
+5. Guard clean tracked state unless explicitly repairing a known dirty atom.
+6. Preserve CRLF/EOL style.
+7. Normalize touched text files to exactly one newline at EOF.
+8. Search all callers/tests before deleting or widening shared APIs.
+9. Run `git -c core.safecrlf=false diff --check`.
+10. Failed patchers remain for diagnosis.
 
 ## Test discipline
 
