@@ -7,6 +7,10 @@ import {
     resolveAssetBucketPath,
     type AssetBucketDefinition,
 } from './asset_registry';
+import {
+    findAssetUsages,
+    type AssetUsage,
+} from './asset_usage';
 
 const MAX_PNG_BYTES =
     16 * 1024 * 1024;
@@ -41,6 +45,11 @@ export type AssetRecord = {
     frameKey: string;
     rawPath: string;
     previewUrl: string;
+};
+
+export type AssetDeleteInfo = {
+    isProtected: boolean;
+    usages: AssetUsage[];
 };
 
 export class AssetOperationError
@@ -314,6 +323,51 @@ export async function createAsset(
     }
 }
 
+export async function getAssetDeleteInfo(
+    repoRoot: string,
+    bucketId: string,
+    assetId: string,
+): Promise<AssetDeleteInfo> {
+    const bucket =
+        requireAssetBucket(
+            bucketId,
+        );
+
+    assertAssetId(assetId);
+
+    const manifest =
+        await readAssetManifest(
+            repoRoot,
+            bucket,
+        );
+
+    if (!manifest[assetId]) {
+        throw new AssetOperationError(
+            (
+                'Unknown asset: ' +
+                assetId
+            ),
+            404,
+        );
+    }
+
+    return {
+        isProtected:
+            bucket
+                .protectedAssetIds
+                .includes(
+                    assetId,
+                ),
+
+        usages:
+            await findAssetUsages(
+                repoRoot,
+                bucket.id,
+                assetId,
+            ),
+    };
+}
+
 export async function replaceAsset(
     repoRoot: string,
     bucketId: string,
@@ -371,6 +425,163 @@ export async function replaceAsset(
         absolutePath,
         pngData,
     );
+}
+
+export async function deleteAsset(
+    repoRoot: string,
+    bucketId: string,
+    assetId: string,
+): Promise<void> {
+    const bucket =
+        requireAssetBucket(
+            bucketId,
+        );
+
+    assertAssetId(assetId);
+
+    const manifest =
+        await readAssetManifest(
+            repoRoot,
+            bucket,
+        );
+
+    if (!manifest[assetId]) {
+        throw new AssetOperationError(
+            (
+                'Cannot delete unknown asset: ' +
+                assetId
+            ),
+            404,
+        );
+    }
+
+    const deleteInfo =
+        await getAssetDeleteInfo(
+            repoRoot,
+            bucket.id,
+            assetId,
+        );
+
+    if (deleteInfo.isProtected) {
+        throw new AssetOperationError(
+            (
+                'Cannot delete protected built-in asset: ' +
+                assetId
+            ),
+            409,
+        );
+    }
+
+    if (
+        deleteInfo.usages.length >
+        0
+    ) {
+        throw new AssetOperationError(
+            (
+                'Cannot delete asset "' +
+                assetId +
+                '": used by ' +
+                deleteInfo.usages.length +
+                ' configuration' +
+                (
+                    deleteInfo.usages.length === 1
+                        ? ''
+                        : 's'
+                ) +
+                '.'
+            ),
+            409,
+        );
+    }
+
+    const absolutePath =
+        getRawAbsolutePath(
+            repoRoot,
+            bucket,
+            assetId,
+        );
+
+    if (
+        !(
+            await fileExists(
+                absolutePath,
+            )
+        )
+    ) {
+        throw new AssetOperationError(
+            (
+                'Cannot delete missing raw PNG: ' +
+                assetId
+            ),
+            500,
+        );
+    }
+
+    const nextManifest = {
+        ...manifest,
+    };
+
+    delete nextManifest[
+        assetId
+    ];
+
+    const backupPath =
+        getSiblingTempPath(
+            absolutePath,
+            'delete-backup',
+        );
+
+    await fs.rename(
+        absolutePath,
+        backupPath,
+    );
+
+    let manifestUpdated =
+        false;
+
+    try {
+        await writeAssetManifest(
+            repoRoot,
+            bucket,
+            nextManifest,
+        );
+
+        manifestUpdated = true;
+
+        await fs.rm(
+            backupPath,
+            {
+                force: true,
+            },
+        );
+    } catch (error) {
+        if (manifestUpdated) {
+            await writeAssetManifest(
+                repoRoot,
+                bucket,
+                manifest,
+            ).catch(
+                () => undefined,
+            );
+        }
+
+        if (
+            await fileExists(
+                backupPath,
+            )
+        ) {
+            await fs
+                .rename(
+                    backupPath,
+                    absolutePath,
+                )
+                .catch(
+                    () => undefined,
+                );
+        }
+
+        throw error;
+    }
 }
 
 function requireAssetBucket(

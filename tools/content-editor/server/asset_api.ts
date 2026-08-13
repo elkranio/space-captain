@@ -6,12 +6,17 @@ import type {
     ServerResponse,
 } from 'node:http';
 import {
+    rebuildTextureAtlas,
+} from './asset_build';
+import {
     getAssetBucketDefinition,
     getAssetBucketSummaries,
 } from './asset_registry';
 import {
     AssetOperationError,
     createAsset,
+    deleteAsset,
+    getAssetDeleteInfo,
     getAssetPreviewPath,
     listAssetRecords,
     replaceAsset,
@@ -80,6 +85,61 @@ async function handleAssetRequestUnsafe(
         return;
     }
 
+    if (
+        request.method === 'POST' &&
+        url.pathname ===
+            '/__assets/rebuild-atlas'
+    ) {
+        const output =
+            await rebuildTextureAtlas(
+                repoRoot,
+            );
+
+        sendJson(
+            response,
+            200,
+            {
+                ok: true,
+                output,
+            },
+        );
+
+        return;
+    }
+
+    const deleteInfoMatch =
+        /^\/__assets\/([^/]+)\/([^/]+)\/delete-info$/
+            .exec(
+                url.pathname,
+            );
+
+    if (
+        request.method === 'GET' &&
+        deleteInfoMatch
+    ) {
+        const bucketId =
+            decodePart(
+                deleteInfoMatch[1],
+            );
+
+        const assetId =
+            decodePart(
+                deleteInfoMatch[2],
+            );
+
+        sendJson(
+            response,
+            200,
+            await getAssetDeleteInfo(
+                repoRoot,
+                bucketId,
+                assetId,
+            ),
+        );
+
+        return;
+    }
+
     const previewMatch =
         /^\/__assets\/([^/]+)\/([^/]+)\/preview$/
             .exec(
@@ -134,6 +194,45 @@ async function handleAssetRequestUnsafe(
             .exec(
                 url.pathname,
             );
+
+    if (
+        assetMatch &&
+        request.method === 'DELETE'
+    ) {
+        const bucketId =
+            decodePart(
+                assetMatch[1],
+            );
+
+        const assetId =
+            decodePart(
+                assetMatch[2],
+            );
+
+        requireAssetBucket(
+            bucketId,
+        );
+
+        await deleteAsset(
+            repoRoot,
+            bucketId,
+            assetId,
+        );
+
+        sendJson(
+            response,
+            200,
+            {
+                assets:
+                    await listAssetRecords(
+                        repoRoot,
+                        bucketId,
+                    ),
+            },
+        );
+
+        return;
+    }
 
     if (
         assetMatch &&

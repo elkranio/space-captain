@@ -14,7 +14,8 @@
 }
 
 .compact-button,
-.secondary-button {
+.secondary-button,
+.danger-button {
     border: 1px solid #a9b6c4;
     border-radius: 5px;
     color: #344354;
@@ -29,7 +30,8 @@
     text-transform: none;
 }
 
-.secondary-button {
+.secondary-button,
+.danger-button {
     padding: 8px 12px;
     font-size: 13px;
 }
@@ -37,6 +39,16 @@
 .compact-button:hover,
 .secondary-button:hover {
     background: #edf2f7;
+}
+
+.danger-button {
+    border-color: #caa0a0;
+    color: #973f3f;
+    background: #fffafa;
+}
+
+.danger-button:hover {
+    background: #f8eaea;
 }
 
 .asset-preview-shell {

@@ -17,6 +17,9 @@ export type AssetBucketDefinition = {
     rawDirectory: string;
     atlasPrefix: string;
     manifestPath: string;
+
+    protectedAssetIds:
+        readonly string[];
 };
 
 const ASSET_BUCKETS:
@@ -43,6 +46,13 @@ const ASSET_BUCKETS:
             manifestPath:
                 'src/app/manifests/' +
                 'ships/ship_sprites.json',
+
+            // Transitional protection while these ids
+            // are still part of compile-time SHIP_SPRITE_ID.
+            protectedAssetIds: [
+                'generic_00',
+                'unknown_00',
+            ],
         },
     };
 

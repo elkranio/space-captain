@@ -18,6 +18,17 @@ type AssetRecord = {
     previewUrl: string;
 };
 
+type AssetUsage = {
+    collection: string;
+    recordId: string;
+    label: string;
+};
+
+type AssetDeleteInfo = {
+    isProtected: boolean;
+    usages: AssetUsage[];
+};
+
 type AssetBucketPayload = {
     id: string;
     label: string;
@@ -53,6 +64,11 @@ const uploadButton =
         'upload-button',
     );
 
+const rebuildAtlasButton =
+    getButton(
+        'rebuild-atlas-button',
+    );
+
 const uploadInput =
     getFileInput(
         'upload-input',
@@ -81,6 +97,13 @@ uploadButton.addEventListener(
     () => {
         uploadInput.value = '';
         uploadInput.click();
+    },
+);
+
+rebuildAtlasButton.addEventListener(
+    'click',
+    () => {
+        void rebuildAtlas();
     },
 );
 
@@ -262,7 +285,7 @@ async function uploadNewAsset(
         );
 
         setStatus(
-            'Uploaded. Run npm run pack:tex before runtime.',
+            'Uploaded. Atlas needs rebuild.',
         );
     } catch (error) {
         showError(error);
@@ -306,10 +329,158 @@ async function replaceSelectedAsset(
         );
 
         setStatus(
-            'Replaced. Run npm run pack:tex before runtime.',
+            'Replaced. Atlas needs rebuild.',
         );
     } catch (error) {
         showError(error);
+    }
+}
+
+async function deleteSelectedAsset():
+    Promise<void> {
+    if (!bucket) {
+        return;
+    }
+
+    const asset =
+        getSelectedAsset();
+
+    if (!asset) {
+        return;
+    }
+
+    setStatus(
+        'Checking references…',
+    );
+
+    try {
+        const infoResponse =
+            await fetch(
+                getAssetUrl(
+                    bucket.id,
+                    asset.id,
+                ) +
+                '/delete-info',
+            );
+
+        if (!infoResponse.ok) {
+            throw new Error(
+                await readErrorMessage(
+                    infoResponse,
+                ),
+            );
+        }
+
+        const info =
+            await infoResponse.json() as
+                AssetDeleteInfo;
+
+        const blockers =
+            getDeleteBlockerMessage(
+                asset.id,
+                info,
+            );
+
+        if (blockers) {
+            window.alert(
+                blockers,
+            );
+
+            setStatus('Ready');
+
+            return;
+        }
+
+        const confirmed =
+            window.confirm(
+                (
+                    'Delete asset "' +
+                    asset.id +
+                    '"?\n\n' +
+                    'This removes the raw PNG and manifest entry.'
+                ),
+            );
+
+        if (!confirmed) {
+            setStatus('Ready');
+
+            return;
+        }
+
+        setStatus(
+            'Deleting ' +
+            asset.id +
+            '…',
+        );
+
+        const deleteResponse =
+            await fetch(
+                getAssetUrl(
+                    bucket.id,
+                    asset.id,
+                ),
+                {
+                    method:
+                        'DELETE',
+                },
+            );
+
+        if (!deleteResponse.ok) {
+            throw new Error(
+                await readErrorMessage(
+                    deleteResponse,
+                ),
+            );
+        }
+
+        previewVersion += 1;
+
+        await loadBucket(
+            bucket.id,
+        );
+
+        setStatus(
+            'Deleted. Atlas needs rebuild.',
+        );
+    } catch (error) {
+        showError(error);
+    }
+}
+
+async function rebuildAtlas():
+    Promise<void> {
+    uploadButton.disabled = true;
+    rebuildAtlasButton.disabled = true;
+
+    setStatus(
+        'Rebuilding atlas…',
+    );
+
+    try {
+        const response =
+            await fetch(
+                '/__assets/rebuild-atlas',
+                {
+                    method: 'POST',
+                },
+            );
+
+        if (!response.ok) {
+            throw new Error(
+                await readErrorMessage(
+                    response,
+                ),
+            );
+        }
+
+        setStatus(
+            'Atlas rebuilt.',
+        );
+    } catch (error) {
+        showError(error);
+    } finally {
+        uploadButton.disabled = false;
+        rebuildAtlasButton.disabled = false;
     }
 }
 
@@ -585,8 +756,30 @@ function renderInspector(): void {
         },
     );
 
-    actions.appendChild(
+    const deleteButton =
+        document.createElement(
+            'button',
+        );
+
+    deleteButton.type =
+        'button';
+
+    deleteButton.className =
+        'danger-button';
+
+    deleteButton.textContent =
+        'Delete Asset';
+
+    deleteButton.addEventListener(
+        'click',
+        () => {
+            void deleteSelectedAsset();
+        },
+    );
+
+    actions.append(
         replaceButton,
+        deleteButton,
     );
 
     const help =
@@ -600,8 +793,8 @@ function renderInspector(): void {
     help.textContent =
         (
             'Preview uses the raw PNG directly. ' +
-            'Run npm run pack:tex after upload or replace ' +
-            'before testing the asset in the game.'
+            'Upload, replace and delete mark the atlas as stale; ' +
+            'use Rebuild Atlas before testing in the game.'
         );
 
     inspector.append(
@@ -610,6 +803,64 @@ function renderInspector(): void {
         metadata,
         actions,
         help,
+    );
+}
+
+function getDeleteBlockerMessage(
+    assetId: string,
+    info: AssetDeleteInfo,
+): string | undefined {
+    const lines:
+        string[] = [];
+
+    if (info.isProtected) {
+        lines.push(
+            'Protected built-in sprite id.',
+        );
+    }
+
+    if (info.usages.length > 0) {
+        lines.push(
+            (
+                'Used by ' +
+                info.usages.length +
+                ' configuration' +
+                (
+                    info.usages.length === 1
+                        ? ''
+                        : 's'
+                ) +
+                ':'
+            ),
+        );
+
+        for (
+            const usage of
+            info.usages
+        ) {
+            lines.push(
+                (
+                    '- ' +
+                    usage.collection +
+                    ': ' +
+                    usage.label +
+                    ' [' +
+                    usage.recordId +
+                    ']'
+                ),
+            );
+        }
+    }
+
+    if (lines.length === 0) {
+        return undefined;
+    }
+
+    return (
+        'Cannot delete "' +
+        assetId +
+        '".\n\n' +
+        lines.join('\n')
     );
 }
 

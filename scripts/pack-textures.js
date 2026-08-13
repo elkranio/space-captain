@@ -40,4 +40,6 @@ try {
 } catch (err) {
     console.error('[p34t] Texture packing failed');
     console.error(err.message);
+
+    process.exitCode = 1;
 }
