@@ -150,7 +150,8 @@ h1 {
     background: #ffffff;
 }
 
-.panel-heading {
+.panel-heading,
+.records-heading {
     height: 46px;
     padding: 0 16px;
     display: flex;
@@ -162,6 +163,42 @@ h1 {
     font-weight: 700;
     letter-spacing: 0.12em;
     text-transform: uppercase;
+}
+
+.records-heading {
+    justify-content:
+        space-between;
+}
+
+.compact-button,
+.danger-button {
+    border: 1px solid #a9b6c4;
+    border-radius: 5px;
+    background: #ffffff;
+    cursor: pointer;
+}
+
+.compact-button {
+    padding: 5px 8px;
+    color: #344354;
+    font-size: 11px;
+    letter-spacing: normal;
+    text-transform: none;
+}
+
+.compact-button:hover {
+    background: #edf2f7;
+}
+
+.danger-button {
+    padding: 8px 12px;
+    border-color: #caa0a0;
+    color: #973f3f;
+    background: #fffafa;
+}
+
+.danger-button:hover {
+    background: #f8eaea;
 }
 
 .collection-button,
@@ -296,6 +333,61 @@ input[type="checkbox"] {
         Consolas,
         monospace;
     font-size: 11px;
+}
+
+.asset-reference-row {
+    min-height: 180px;
+}
+
+.asset-reference-control {
+    width: 100%;
+    display: grid;
+    grid-template-columns:
+        minmax(180px, 1fr)
+        170px;
+    align-items: center;
+    gap: 18px;
+}
+
+.content-asset-preview {
+    min-height: 150px;
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #d5dbe2;
+    border-radius: 5px;
+    color: #788697;
+    background:
+        linear-gradient(
+            45deg,
+            #eef1f4 25%,
+            transparent 25%
+        ),
+        linear-gradient(
+            -45deg,
+            #eef1f4 25%,
+            transparent 25%
+        ),
+        #ffffff;
+    background-size:
+        16px 16px;
+}
+
+.content-asset-preview-image {
+    max-width: 100%;
+    max-height: 150px;
+    image-rendering:
+        pixelated;
+}
+
+.inspector-actions {
+    width: min(674px, 100%);
+    margin-top: 28px;
+    padding-top: 18px;
+    display: flex;
+    justify-content: flex-end;
+    border-top: 1px solid #d9dfe6;
 }
 
 .empty-state {

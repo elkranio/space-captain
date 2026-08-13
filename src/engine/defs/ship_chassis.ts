@@ -1,22 +1,23 @@
 // src/engine/defs/ship_chassis.ts
 
-// Стабильные id типов кораблей из контентной базы.
-// Runtime-id конкретного корабля в энкаунтере
-// должен быть обычной строкой отдельно.
+// Удобные стабильные id встроенного контента.
+// Каталог при этом открыт для новых id из content editor.
 export const SHIP_CHASSIS_ID = {
     GENERIC_00: 'generic_00',
 } as const;
 
-export type ShipChassisId = (typeof SHIP_CHASSIS_ID)[keyof typeof SHIP_CHASSIS_ID];
+export type ShipChassisId =
+    string;
 
-// Стабильные id визуальных вариантов кораблей.
-// App-слой мапит эти id на конкретные atlas/frame.
+// Удобные стабильные id встроенных визуальных вариантов.
+// Новые sprite id создаются Asset Manager и остаются строками.
 export const SHIP_SPRITE_ID = {
     UNKNOWN_00: 'unknown_00',
     GENERIC_00: 'generic_00',
 } as const;
 
-export type ShipSpriteId = (typeof SHIP_SPRITE_ID)[keyof typeof SHIP_SPRITE_ID];
+export type ShipSpriteId =
+    string;
 
 // Неизменяемые физические свойства корпуса.
 // Установленные системы и оружие задаются ShipPreset.

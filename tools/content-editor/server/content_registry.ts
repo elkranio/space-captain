@@ -267,8 +267,8 @@ const CONTENT_COLLECTIONS:
             schema:
                 SHIP_CHASSIS_TUNING_SCHEMA,
 
-            canAdd: false,
-            canDelete: false,
+            canAdd: true,
+            canDelete: true,
         },
 
         [CONTENT_COLLECTION_ID

@@ -1,0 +1,252 @@
+import {
+    mkdtemp,
+    mkdir,
+    rm,
+    writeFile,
+} from 'node:fs/promises';
+import os from 'node:os';
+import path from 'node:path';
+import {
+    afterEach,
+    describe,
+    expect,
+    it,
+} from 'vitest';
+import {
+    CONTENT_COLLECTION_ID,
+} from '../../tools/content-editor/server/content_registry';
+import {
+    getContentRecordDeleteInfo,
+    validateContentCollectionReferences,
+} from '../../tools/content-editor/server/content_references';
+
+const tempRoots:
+    string[] = [];
+
+afterEach(
+    async () => {
+        await Promise.all(
+            tempRoots.splice(0)
+                .map(
+                    async (root) => {
+                        await rm(
+                            root,
+                            {
+                                recursive: true,
+                                force: true,
+                            },
+                        );
+                    },
+                ),
+        );
+    },
+);
+
+describe(
+    'Content editor chassis references',
+    () => {
+        it(
+            'accepts an additional chassis when its sprite exists',
+            async () => {
+                const root =
+                    await createTempRepo([
+                        'generic_00',
+                        'heavy_00',
+                    ]);
+
+                await expect(
+                    validateContentCollectionReferences(
+                        root,
+                        CONTENT_COLLECTION_ID
+                            .SHIP_CHASSIS,
+                        {
+                            generic_00: {
+                                name:
+                                    'Generic',
+
+                                spriteId:
+                                    'generic_00',
+
+                                maxHull: 3,
+                            },
+
+                            heavy_00: {
+                                name:
+                                    'Heavy',
+
+                                spriteId:
+                                    'heavy_00',
+
+                                maxHull: 5,
+                            },
+                        },
+                    ),
+                ).resolves.toBeUndefined();
+            },
+        );
+
+        it(
+            'rejects a chassis whose sprite is missing',
+            async () => {
+                const root =
+                    await createTempRepo([
+                        'generic_00',
+                    ]);
+
+                await expect(
+                    validateContentCollectionReferences(
+                        root,
+                        CONTENT_COLLECTION_ID
+                            .SHIP_CHASSIS,
+                        {
+                            generic_00: {
+                                name:
+                                    'Generic',
+
+                                spriteId:
+                                    'generic_00',
+
+                                maxHull: 3,
+                            },
+
+                            heavy_00: {
+                                name:
+                                    'Heavy',
+
+                                spriteId:
+                                    'heavy_00',
+
+                                maxHull: 5,
+                            },
+                        },
+                    ),
+                ).rejects.toThrow(
+                    'references missing sprite "heavy_00"',
+                );
+            },
+        );
+
+        it(
+            'reports ship presets that use the built-in chassis',
+            () => {
+                const info =
+                    getContentRecordDeleteInfo(
+                        CONTENT_COLLECTION_ID
+                            .SHIP_CHASSIS,
+                        'generic_00',
+                    );
+
+                expect(
+                    info.usages.length,
+                ).toBeGreaterThan(0);
+
+                expect(
+                    info.usages,
+                ).toEqual(
+                    expect.arrayContaining([
+                        expect.objectContaining({
+                            collection:
+                                'Ship Presets',
+
+                            recordId:
+                                'generic_laser_00',
+                        }),
+                    ]),
+                );
+            },
+        );
+
+        it(
+            'rejects removing a chassis still referenced by ship presets',
+            async () => {
+                const root =
+                    await createTempRepo([
+                        'generic_00',
+                        'heavy_00',
+                    ]);
+
+                await expect(
+                    validateContentCollectionReferences(
+                        root,
+                        CONTENT_COLLECTION_ID
+                            .SHIP_CHASSIS,
+                        {
+                            heavy_00: {
+                                name:
+                                    'Heavy',
+
+                                spriteId:
+                                    'heavy_00',
+
+                                maxHull: 5,
+                            },
+                        },
+                    ),
+                ).rejects.toThrow(
+                    'Cannot remove ship chassis "generic_00"',
+                );
+            },
+        );
+    },
+);
+
+async function createTempRepo(
+    spriteIds: string[],
+): Promise<string> {
+    const root =
+        await mkdtemp(
+            path.join(
+                os.tmpdir(),
+                'space-captain-chassis-',
+            ),
+        );
+
+    tempRoots.push(root);
+
+    const manifestDirectory =
+        path.join(
+            root,
+            'src/app/manifests/ships',
+        );
+
+    await mkdir(
+        manifestDirectory,
+        {
+            recursive: true,
+        },
+    );
+
+    const manifest =
+        Object.fromEntries(
+            spriteIds.map(
+                (spriteId) => {
+                    return [
+                        spriteId,
+                        {
+                            frameKey:
+                                'ships/chassis/' +
+                                spriteId,
+                        },
+                    ];
+                },
+            ),
+        );
+
+    await writeFile(
+        path.join(
+            manifestDirectory,
+            'ship_sprites.json',
+        ),
+        (
+            JSON.stringify(
+                manifest,
+                null,
+                4,
+            ) +
+            '\n'
+        ),
+        'utf8',
+    );
+
+    return root;
+}

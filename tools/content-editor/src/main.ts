@@ -1,5 +1,8 @@
 import './style.css';
 
+const CONTENT_ID_PATTERN =
+    /^[a-z][a-z0-9_]*$/;
+
 type JsonSchema = {
     type?: string;
     title?: string;
@@ -7,6 +10,13 @@ type JsonSchema = {
     unit?: string;
     enum?: Array<string | number>;
     properties?: Record<string, JsonSchema>;
+
+    additionalProperties?:
+        JsonSchema |
+        boolean;
+
+    'x-editor-asset-bucket'?:
+        string;
 };
 
 type ContentRecord =
@@ -35,6 +45,27 @@ type SaveResponse = {
     data: Record<string, ContentRecord>;
 };
 
+type ContentUsage = {
+    collection: string;
+    recordId: string;
+    label: string;
+};
+
+type DeleteInfoResponse = {
+    usages: ContentUsage[];
+};
+
+type AssetRecord = {
+    id: string;
+    previewUrl: string;
+};
+
+type AssetBucketPayload = {
+    id: string;
+    label: string;
+    assets: AssetRecord[];
+};
+
 type ErrorResponse = {
     error?: string;
     issues?: Array<{
@@ -55,6 +86,11 @@ const inspector =
 const saveButton =
     getButton('save-button');
 
+const addRecordButton =
+    getButton(
+        'add-record-button',
+    );
+
 const saveStatus =
     getElement('save-status');
 
@@ -67,6 +103,9 @@ let collection:
 let selectedRecordId:
     string | undefined;
 
+let persistedRecordIds =
+    new Set<string>();
+
 let dirty = false;
 
 void loadEditor();
@@ -75,6 +114,13 @@ saveButton.addEventListener(
     'click',
     () => {
         void saveCollection();
+    },
+);
+
+addRecordButton.addEventListener(
+    'click',
+    () => {
+        void addRecord();
     },
 );
 
@@ -147,10 +193,18 @@ async function loadCollection(
             await response.json() as
                 ContentCollectionPayload;
 
-        selectedRecordId =
+        const recordIds =
             Object.keys(
                 collection.data,
-            )[0];
+            );
+
+        selectedRecordId =
+            recordIds[0];
+
+        persistedRecordIds =
+            new Set(
+                recordIds,
+            );
 
         dirty = false;
 
@@ -204,6 +258,13 @@ async function saveCollection(): Promise<void> {
         collection.data =
             saved.data;
 
+        persistedRecordIds =
+            new Set(
+                Object.keys(
+                    saved.data,
+                ),
+            );
+
         dirty = false;
 
         render();
@@ -218,6 +279,227 @@ async function saveCollection(): Promise<void> {
     }
 }
 
+async function addRecord():
+    Promise<void> {
+    if (!collection) {
+        return;
+    }
+
+    const summary =
+        getCurrentCollectionSummary();
+
+    if (!summary?.canAdd) {
+        return;
+    }
+
+    const recordSchema =
+        getDynamicRecordSchema();
+
+    if (!recordSchema?.properties) {
+        setStatus(
+            'This collection does not expose a dynamic record schema.',
+            true,
+        );
+
+        return;
+    }
+
+    const enteredId =
+        window.prompt(
+            'New record ID',
+            'new_00',
+        );
+
+    if (enteredId === null) {
+        return;
+    }
+
+    const recordId =
+        enteredId.trim();
+
+    if (
+        !CONTENT_ID_PATTERN.test(
+            recordId,
+        )
+    ) {
+        window.alert(
+            (
+                'Record ID must start with a lowercase letter ' +
+                'and contain only lowercase letters, numbers and underscores.'
+            ),
+        );
+
+        return;
+    }
+
+    if (
+        collection.data[
+            recordId
+        ]
+    ) {
+        window.alert(
+            (
+                'Record "' +
+                recordId +
+                '" already exists.'
+            ),
+        );
+
+        return;
+    }
+
+    setStatus(
+        'Creating draft…',
+    );
+
+    try {
+        const record =
+            await createDefaultRecord(
+                recordId,
+                recordSchema,
+            );
+
+        collection.data[
+            recordId
+        ] = record;
+
+        selectedRecordId =
+            recordId;
+
+        dirty = true;
+
+        render();
+        setStatus(
+            'Unsaved changes',
+        );
+    } catch (error) {
+        setStatus(
+            getErrorMessage(error),
+            true,
+        );
+    }
+}
+
+async function deleteSelectedRecord():
+    Promise<void> {
+    if (
+        !collection ||
+        !selectedRecordId
+    ) {
+        return;
+    }
+
+    const summary =
+        getCurrentCollectionSummary();
+
+    if (!summary?.canDelete) {
+        return;
+    }
+
+    const recordId =
+        selectedRecordId;
+
+    if (
+        persistedRecordIds.has(
+            recordId,
+        )
+    ) {
+        setStatus(
+            'Checking references…',
+        );
+
+        try {
+            const response =
+                await fetch(
+                    (
+                        getCollectionUrl(
+                            collection.id,
+                        ) +
+                        '/' +
+                        encodeURIComponent(
+                            recordId,
+                        ) +
+                        '/delete-info'
+                    ),
+                );
+
+            if (!response.ok) {
+                throw new Error(
+                    await readErrorMessage(
+                        response,
+                    ),
+                );
+            }
+
+            const info =
+                await response.json() as
+                    DeleteInfoResponse;
+
+            if (
+                info.usages.length >
+                0
+            ) {
+                window.alert(
+                    createUsageBlockerMessage(
+                        recordId,
+                        info.usages,
+                    ),
+                );
+
+                setStatus('Ready');
+
+                return;
+            }
+        } catch (error) {
+            setStatus(
+                getErrorMessage(error),
+                true,
+            );
+
+            return;
+        }
+    }
+
+    const confirmed =
+        window.confirm(
+            (
+                'Delete record "' +
+                recordId +
+                '"?\n\n' +
+                'The change is applied when you press Save.'
+            ),
+        );
+
+    if (!confirmed) {
+        setStatus(
+            dirty
+                ? 'Unsaved changes'
+                : 'Saved',
+        );
+
+        return;
+    }
+
+    delete collection.data[
+        recordId
+    ];
+
+    const recordIds =
+        Object.keys(
+            collection.data,
+        );
+
+    selectedRecordId =
+        recordIds[0];
+
+    dirty = true;
+
+    render();
+    setStatus(
+        'Unsaved changes',
+    );
+}
+
 function render(): void {
     renderCollectionList();
 
@@ -230,6 +512,10 @@ function render(): void {
 
     saveButton.disabled =
         !dirty;
+
+    addRecordButton.hidden =
+        !getCurrentCollectionSummary()
+            ?.canAdd;
 }
 
 function renderCollectionList(): void {
@@ -324,11 +610,9 @@ function renderRecordList(): void {
         }
 
         const recordSchema =
-            collection
-                .schema
-                .properties?.[
-                    recordId
-                ];
+            getRecordSchema(
+                recordId,
+            );
 
         const label =
             getRecordLabel(
@@ -366,6 +650,11 @@ function renderInspector(): void {
         !collection ||
         !selectedRecordId
     ) {
+        inspector.innerHTML =
+            '<div class="empty-state">' +
+            'No records in this collection.' +
+            '</div>';
+
         return;
     }
 
@@ -375,11 +664,9 @@ function renderInspector(): void {
         ];
 
     const recordSchema =
-        collection
-            .schema
-            .properties?.[
-                selectedRecordId
-            ];
+        getRecordSchema(
+            selectedRecordId,
+        );
 
     if (
         !record ||
@@ -445,6 +732,48 @@ function renderInspector(): void {
             ),
         );
     }
+
+    if (
+        getCurrentCollectionSummary()
+            ?.canDelete
+    ) {
+        const actions =
+            document.createElement(
+                'div',
+            );
+
+        actions.className =
+            'inspector-actions';
+
+        const deleteButton =
+            document.createElement(
+                'button',
+            );
+
+        deleteButton.type =
+            'button';
+
+        deleteButton.className =
+            'danger-button';
+
+        deleteButton.textContent =
+            'Delete Record';
+
+        deleteButton.addEventListener(
+            'click',
+            () => {
+                void deleteSelectedRecord();
+            },
+        );
+
+        actions.appendChild(
+            deleteButton,
+        );
+
+        inspector.appendChild(
+            actions,
+        );
+    }
 }
 
 function createField(
@@ -453,6 +782,22 @@ function createField(
     schema: JsonSchema,
     value: unknown,
 ): HTMLElement {
+    if (
+        schema[
+            'x-editor-asset-bucket'
+        ]
+    ) {
+        return createAssetReferenceField(
+            recordId,
+            fieldName,
+            schema,
+            value,
+            schema[
+                'x-editor-asset-bucket'
+            ],
+        );
+    }
+
     const wrapper =
         document.createElement(
             'label',
@@ -667,6 +1012,391 @@ function createField(
     return wrapper;
 }
 
+function createAssetReferenceField(
+    recordId: string,
+    fieldName: string,
+    schema: JsonSchema,
+    value: unknown,
+    bucketId: string,
+): HTMLElement {
+    const wrapper =
+        document.createElement(
+            'div',
+        );
+
+    wrapper.className =
+        'field-row asset-reference-row';
+
+    const label =
+        document.createElement(
+            'span',
+        );
+
+    label.className =
+        'field-label';
+
+    label.textContent =
+        schema.title ??
+        fieldName;
+
+    const control =
+        document.createElement(
+            'div',
+        );
+
+    control.className =
+        'asset-reference-control';
+
+    const select =
+        document.createElement(
+            'select',
+        );
+
+    const loadingOption =
+        document.createElement(
+            'option',
+        );
+
+    loadingOption.textContent =
+        'Loading assets…';
+
+    select.appendChild(
+        loadingOption,
+    );
+
+    select.disabled = true;
+
+    const preview =
+        document.createElement(
+            'div',
+        );
+
+    preview.className =
+        'content-asset-preview';
+
+    control.append(
+        select,
+        preview,
+    );
+
+    wrapper.append(
+        label,
+        control,
+    );
+
+    void populateAssetReferenceField(
+        select,
+        preview,
+        bucketId,
+        typeof value === 'string'
+            ? value
+            : '',
+        (nextValue) => {
+            updateField(
+                recordId,
+                fieldName,
+                nextValue,
+            );
+        },
+    );
+
+    return wrapper;
+}
+
+async function populateAssetReferenceField(
+    select: HTMLSelectElement,
+    preview: HTMLElement,
+    bucketId: string,
+    currentValue: string,
+    onChange:
+        (value: string) => void,
+): Promise<void> {
+    try {
+        const bucket =
+            await loadAssetBucket(
+                bucketId,
+            );
+
+        select.replaceChildren();
+
+        if (
+            bucket.assets.length === 0
+        ) {
+            const option =
+                document.createElement(
+                    'option',
+                );
+
+            option.textContent =
+                'No assets available';
+
+            select.appendChild(
+                option,
+            );
+
+            select.disabled = true;
+            preview.textContent =
+                'Upload an asset first.';
+
+            return;
+        }
+
+        for (
+            const asset of
+            bucket.assets
+        ) {
+            const option =
+                document.createElement(
+                    'option',
+                );
+
+            option.value =
+                asset.id;
+
+            option.textContent =
+                asset.id;
+
+            select.appendChild(
+                option,
+            );
+        }
+
+        const selectedAsset =
+            bucket.assets.find(
+                (asset) => {
+                    return (
+                        asset.id ===
+                        currentValue
+                    );
+                },
+            );
+
+        if (!selectedAsset) {
+            const missing =
+                document.createElement(
+                    'option',
+                );
+
+            missing.value =
+                currentValue;
+
+            missing.textContent =
+                (
+                    currentValue +
+                    ' (missing)'
+                );
+
+            select.prepend(
+                missing,
+            );
+        }
+
+        select.value =
+            currentValue;
+
+        renderAssetPreview(
+            preview,
+            bucket.assets,
+            currentValue,
+        );
+
+        select.disabled = false;
+
+        select.addEventListener(
+            'change',
+            () => {
+                renderAssetPreview(
+                    preview,
+                    bucket.assets,
+                    select.value,
+                );
+
+                onChange(
+                    select.value,
+                );
+            },
+        );
+    } catch (error) {
+        select.replaceChildren();
+        select.disabled = true;
+
+        preview.textContent =
+            getErrorMessage(error);
+    }
+}
+
+function renderAssetPreview(
+    container: HTMLElement,
+    assets: AssetRecord[],
+    assetId: string,
+): void {
+    container.replaceChildren();
+
+    const asset =
+        assets.find(
+            (candidate) => {
+                return (
+                    candidate.id ===
+                    assetId
+                );
+            },
+        );
+
+    if (!asset) {
+        container.textContent =
+            'Sprite is missing.';
+
+        return;
+    }
+
+    const image =
+        document.createElement(
+            'img',
+        );
+
+    image.src =
+        asset.previewUrl;
+
+    image.alt =
+        asset.id;
+
+    image.className =
+        'content-asset-preview-image';
+
+    container.appendChild(
+        image,
+    );
+}
+
+async function createDefaultRecord(
+    recordId: string,
+    schema: JsonSchema,
+): Promise<ContentRecord> {
+    if (!schema.properties) {
+        throw new Error(
+            'Dynamic record schema has no properties.',
+        );
+    }
+
+    const record:
+        ContentRecord = {};
+
+    for (
+        const [
+            fieldName,
+            fieldSchema,
+        ] of Object.entries(
+            schema.properties,
+        )
+    ) {
+        record[fieldName] =
+            await createDefaultFieldValue(
+                recordId,
+                fieldName,
+                fieldSchema,
+            );
+    }
+
+    return record;
+}
+
+async function createDefaultFieldValue(
+    recordId: string,
+    fieldName: string,
+    schema: JsonSchema,
+): Promise<unknown> {
+    const assetBucket =
+        schema[
+            'x-editor-asset-bucket'
+        ];
+
+    if (assetBucket) {
+        const bucket =
+            await loadAssetBucket(
+                assetBucket,
+            );
+
+        const firstAsset =
+            bucket.assets[0];
+
+        if (!firstAsset) {
+            throw new Error(
+                (
+                    'Cannot create record: asset bucket "' +
+                    bucket.label +
+                    '" is empty.'
+                ),
+            );
+        }
+
+        return firstAsset.id;
+    }
+
+    if (
+        schema.enum &&
+        schema.enum.length > 0
+    ) {
+        return schema.enum[0];
+    }
+
+    if (schema.type === 'boolean') {
+        return false;
+    }
+
+    if (
+        schema.type === 'integer' ||
+        schema.type === 'number'
+    ) {
+        return (
+            typeof schema.minimum ===
+                'number'
+                ? schema.minimum
+                : 0
+        );
+    }
+
+    if (schema.type === 'string') {
+        return (
+            fieldName === 'name'
+                ? recordId
+                : ''
+        );
+    }
+
+    throw new Error(
+        (
+            'Cannot create default value for field "' +
+            fieldName +
+            '".'
+        ),
+    );
+}
+
+async function loadAssetBucket(
+    bucketId: string,
+): Promise<AssetBucketPayload> {
+    const response =
+        await fetch(
+            (
+                '/__assets/' +
+                encodeURIComponent(
+                    bucketId,
+                )
+            ),
+        );
+
+    if (!response.ok) {
+        throw new Error(
+            await readErrorMessage(
+                response,
+            ),
+        );
+    }
+
+    return response.json() as
+        Promise<AssetBucketPayload>;
+}
+
 function updateField(
     recordId: string,
     fieldName: string,
@@ -686,6 +1416,61 @@ function updateField(
     renderRecordList();
 
     saveButton.disabled = false;
+}
+
+function getRecordSchema(
+    recordId: string,
+): JsonSchema | undefined {
+    if (!collection) {
+        return undefined;
+    }
+
+    const explicit =
+        collection
+            .schema
+            .properties?.[
+                recordId
+            ];
+
+    if (explicit) {
+        return explicit;
+    }
+
+    return getDynamicRecordSchema();
+}
+
+function getDynamicRecordSchema():
+    JsonSchema | undefined {
+    if (!collection) {
+        return undefined;
+    }
+
+    const additional =
+        collection
+            .schema
+            .additionalProperties;
+
+    return (
+        typeof additional ===
+            'object'
+            ? additional
+            : undefined
+    );
+}
+
+function getCurrentCollectionSummary():
+    ContentCollectionSummary | undefined {
+    if (!collection) {
+        return undefined;
+    }
+
+    return collectionSummaries
+        .find((summary) => {
+            return (
+                summary.id ===
+                collection?.id
+            );
+        });
 }
 
 function getRecordLabel(
@@ -710,6 +1495,39 @@ function getRecordLabel(
     return (
         schema?.title ??
         recordId
+    );
+}
+
+function createUsageBlockerMessage(
+    recordId: string,
+    usages: ContentUsage[],
+): string {
+    return (
+        'Cannot delete "' +
+        recordId +
+        '".\n\n' +
+        'Used by ' +
+        usages.length +
+        ' configuration' +
+        (
+            usages.length === 1
+                ? ''
+                : 's'
+        ) +
+        ':\n' +
+        usages
+            .map((usage) => {
+                return (
+                    '- ' +
+                    usage.collection +
+                    ': ' +
+                    usage.label +
+                    ' [' +
+                    usage.recordId +
+                    ']'
+                );
+            })
+            .join('\n')
     );
 }
 

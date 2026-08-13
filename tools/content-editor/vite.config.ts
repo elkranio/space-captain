@@ -14,6 +14,11 @@ import {
     handleAssetRequest,
 } from './server/asset_api';
 import {
+    ContentReferenceError,
+    getContentRecordDeleteInfo,
+    validateContentCollectionReferences,
+} from './server/content_references';
+import {
     getContentCollectionDefinition,
     getContentCollectionJsonSchema,
     getContentCollectionSummaries,
@@ -164,6 +169,63 @@ async function handleContentRequest(
         return;
     }
 
+    const deleteInfoRoute =
+        getDeleteInfoRoute(
+            url.pathname,
+        );
+
+    if (
+        request.method === 'GET' &&
+        deleteInfoRoute
+    ) {
+        const definition =
+            getContentCollectionDefinition(
+                deleteInfoRoute
+                    .collectionId,
+            );
+
+        if (!definition) {
+            sendJson(
+                response,
+                404,
+                {
+                    error:
+                        'Unknown content collection: ' +
+                        deleteInfoRoute
+                            .collectionId,
+                },
+            );
+
+            return;
+        }
+
+        if (!definition.canDelete) {
+            sendJson(
+                response,
+                405,
+                {
+                    error:
+                        'Record deletion is not enabled for this collection.',
+                },
+            );
+
+            return;
+        }
+
+        sendJson(
+            response,
+            200,
+            getContentRecordDeleteInfo(
+                deleteInfoRoute
+                    .collectionId,
+                deleteInfoRoute
+                    .recordId,
+            ),
+        );
+
+        return;
+    }
+
     const collectionId =
         getCollectionId(
             url.pathname,
@@ -292,6 +354,32 @@ async function handleContentRequest(
             throw error;
         }
 
+        try {
+            await validateContentCollectionReferences(
+                repoRoot,
+                collectionId,
+                data,
+            );
+        } catch (error) {
+            if (
+                error instanceof
+                ContentReferenceError
+            ) {
+                sendJson(
+                    response,
+                    error.statusCode,
+                    {
+                        error:
+                            error.message,
+                    },
+                );
+
+                return;
+            }
+
+            throw error;
+        }
+
         await writeJsonAtomically(
             dataPath,
             data,
@@ -323,6 +411,36 @@ async function handleContentRequest(
     );
 }
 
+function getDeleteInfoRoute(
+    pathname: string,
+): {
+    collectionId: string;
+    recordId: string;
+} | undefined {
+    const match =
+        /^\/__content\/([^/]+)\/([^/]+)\/delete-info$/
+            .exec(pathname);
+
+    if (
+        !match?.[1] ||
+        !match[2]
+    ) {
+        return undefined;
+    }
+
+    return {
+        collectionId:
+            decodeURIComponent(
+                match[1],
+            ),
+
+        recordId:
+            decodeURIComponent(
+                match[2],
+            ),
+    };
+}
+
 function getCollectionId(
     pathname: string,
 ): string | undefined {
@@ -330,7 +448,11 @@ function getCollectionId(
         /^\/__content\/([^/]+)$/
             .exec(pathname);
 
-    return match?.[1];
+    return match?.[1]
+        ? decodeURIComponent(
+            match[1],
+        )
+        : undefined;
 }
 
 async function readJsonBody(

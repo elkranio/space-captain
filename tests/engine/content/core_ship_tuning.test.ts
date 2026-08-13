@@ -106,7 +106,7 @@ describe(
         );
 
         it(
-            'rejects invalid tuning values',
+            'accepts additional chassis ids with valid tuning shape',
             () => {
                 expect(
                     SHIP_CHASSIS_TUNING_SCHEMA
@@ -114,9 +114,58 @@ describe(
                             generic_00: {
                                 name:
                                     'Our test ship',
+
                                 spriteId:
-                                    'not_a_sprite',
+                                    'generic_00',
+
                                 maxHull: 3,
+                            },
+
+                            heavy_00: {
+                                name:
+                                    'Heavy Ship',
+
+                                spriteId:
+                                    'heavy_00',
+
+                                maxHull: 5,
+                            },
+                        })
+                        .success,
+                ).toBe(true);
+            },
+        );
+
+        it(
+            'rejects invalid tuning values',
+            () => {
+                expect(
+                    SHIP_CHASSIS_TUNING_SCHEMA
+                        .safeParse({
+                            'Bad ID': {
+                                name:
+                                    'Our test ship',
+
+                                spriteId:
+                                    'generic_00',
+
+                                maxHull: 3,
+                            },
+                        })
+                        .success,
+                ).toBe(false);
+
+                expect(
+                    SHIP_CHASSIS_TUNING_SCHEMA
+                        .safeParse({
+                            generic_00: {
+                                name:
+                                    'Our test ship',
+
+                                spriteId:
+                                    'generic_00',
+
+                                maxHull: 0,
                             },
                         })
                         .success,

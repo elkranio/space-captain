@@ -128,8 +128,8 @@ describe(
                         label:
                             'Ship Chassis',
 
-                        canAdd: false,
-                        canDelete: false,
+                        canAdd: true,
+                        canDelete: true,
                     },
                     {
                         id:
@@ -339,30 +339,28 @@ describe(
                         CONTENT_COLLECTION_ID
                             .SHIP_CHASSIS,
                     ) as {
-                        properties?: Record<
-                            string,
-                            {
-                                properties?: Record<
-                                    string,
-                                    {
-                                        enum?: unknown[];
-                                    }
-                                >;
-                            }
-                        >;
+                        additionalProperties?: {
+                            properties?: Record<
+                                string,
+                                {
+                                    ['x-editor-asset-bucket']?:
+                                        string;
+                                }
+                            >;
+                        };
                     };
 
                 expect(
                     chassisSchema
-                        .properties
-                        ?.generic_00
+                        .additionalProperties
                         ?.properties
                         ?.spriteId
-                        ?.enum,
-                ).toEqual([
-                    'unknown_00',
-                    'generic_00',
-                ]);
+                        ?.[
+                            'x-editor-asset-bucket'
+                        ],
+                ).toBe(
+                    'ship_chassis',
+                );
 
                 const behaviorRulesSchema =
                     getContentCollectionJsonSchema(

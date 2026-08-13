@@ -5,7 +5,6 @@ import {
     SHIP_CHASSIS_TUNING_SCHEMA,
 } from '../schemas/ship_chassis';
 import {
-    SHIP_CHASSIS_ID,
     type ShipChassisDefinition,
     type ShipChassisId,
 } from '../../defs/ship_chassis';
@@ -17,16 +16,27 @@ const SHIP_CHASSIS_TUNING =
 
 // Контентная база корпусов кораблей.
 // Конкретная комплектация задаётся ShipPreset.
-export const SHIP_CHASSIS = {
-    [SHIP_CHASSIS_ID.GENERIC_00]: {
-        id:
-            SHIP_CHASSIS_ID.GENERIC_00,
-
-        ...SHIP_CHASSIS_TUNING[
-            SHIP_CHASSIS_ID.GENERIC_00
-        ],
-    },
-} satisfies Record<
-    ShipChassisId,
-    ShipChassisDefinition
->;
+export const SHIP_CHASSIS =
+    Object.fromEntries(
+        Object.entries(
+            SHIP_CHASSIS_TUNING,
+        ).map(
+            (
+                [
+                    id,
+                    tuning,
+                ],
+            ) => {
+                return [
+                    id,
+                    {
+                        id,
+                        ...tuning,
+                    },
+                ];
+            },
+        ),
+    ) as Record<
+        ShipChassisId,
+        ShipChassisDefinition
+    >;
