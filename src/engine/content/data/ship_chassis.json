@@ -1,0 +1,7 @@
+{
+    "generic_00": {
+        "name": "Our test ship",
+        "spriteId": "generic_00",
+        "maxHull": 3
+    }
+}

@@ -3,6 +3,9 @@ import {
     DEFENSE_CAPACITOR_TUNING_SCHEMA,
 } from '../../../src/engine/content/schemas/defense_capacitors';
 import {
+    ENEMY_BEHAVIOR_RULES_SCHEMA,
+} from '../../../src/engine/content/schemas/enemy_behavior_rules';
+import {
     MISSILE_TUNING_SCHEMA,
 } from '../../../src/engine/content/schemas/missiles';
 import {
@@ -18,11 +21,20 @@ import {
     SHIP_BEHAVIOR_TUNING_SCHEMA,
 } from '../../../src/engine/content/schemas/ship_behaviors';
 import {
+    SHIP_CHASSIS_TUNING_SCHEMA,
+} from '../../../src/engine/content/schemas/ship_chassis';
+import {
+    SHIP_DRIVE_TUNING_SCHEMA,
+} from '../../../src/engine/content/schemas/ship_drives';
+import {
     SHIP_WEAPON_RULES_SCHEMA,
 } from '../../../src/engine/content/schemas/ship_weapon_rules';
 import {
     SHIP_WEAPON_TUNING_SCHEMA,
 } from '../../../src/engine/content/schemas/ship_weapons';
+import {
+    STICKY_MINE_TUNING_SCHEMA,
+} from '../../../src/engine/content/schemas/sticky_mines';
 
 export const CONTENT_COLLECTION_ID = {
     OFFICER_TASKS:
@@ -48,6 +60,18 @@ export const CONTENT_COLLECTION_ID = {
 
     SHIP_BEHAVIORS:
         'ship_behaviors',
+
+    SHIP_CHASSIS:
+        'ship_chassis',
+
+    SHIP_DRIVES:
+        'ship_drives',
+
+    STICKY_MINES:
+        'sticky_mines',
+
+    ENEMY_BEHAVIOR_RULES:
+        'enemy_behavior_rules',
 } as const;
 
 export type ContentCollectionId =
@@ -222,6 +246,86 @@ const CONTENT_COLLECTIONS:
 
             schema:
                 SHIP_BEHAVIOR_TUNING_SCHEMA,
+
+            canAdd: false,
+            canDelete: false,
+        },
+
+        [CONTENT_COLLECTION_ID
+            .SHIP_CHASSIS]: {
+            id:
+                CONTENT_COLLECTION_ID
+                    .SHIP_CHASSIS,
+
+            label:
+                'Ship Chassis',
+
+            dataPath:
+                'src/engine/content/data/' +
+                'ship_chassis.json',
+
+            schema:
+                SHIP_CHASSIS_TUNING_SCHEMA,
+
+            canAdd: false,
+            canDelete: false,
+        },
+
+        [CONTENT_COLLECTION_ID
+            .SHIP_DRIVES]: {
+            id:
+                CONTENT_COLLECTION_ID
+                    .SHIP_DRIVES,
+
+            label:
+                'Ship Drives',
+
+            dataPath:
+                'src/engine/content/data/' +
+                'ship_drives.json',
+
+            schema:
+                SHIP_DRIVE_TUNING_SCHEMA,
+
+            canAdd: false,
+            canDelete: false,
+        },
+
+        [CONTENT_COLLECTION_ID
+            .STICKY_MINES]: {
+            id:
+                CONTENT_COLLECTION_ID
+                    .STICKY_MINES,
+
+            label:
+                'Sticky Mines',
+
+            dataPath:
+                'src/engine/content/data/' +
+                'sticky_mines.json',
+
+            schema:
+                STICKY_MINE_TUNING_SCHEMA,
+
+            canAdd: false,
+            canDelete: false,
+        },
+
+        [CONTENT_COLLECTION_ID
+            .ENEMY_BEHAVIOR_RULES]: {
+            id:
+                CONTENT_COLLECTION_ID
+                    .ENEMY_BEHAVIOR_RULES,
+
+            label:
+                'Enemy Behavior Rules',
+
+            dataPath:
+                'src/engine/content/data/' +
+                'enemy_behavior_rules.json',
+
+            schema:
+                ENEMY_BEHAVIOR_RULES_SCHEMA,
 
             canAdd: false,
             canDelete: false,

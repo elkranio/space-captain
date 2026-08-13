@@ -1,6 +1,9 @@
 // src/engine/encounter/combat/EnemyDecisionPolicy.ts
 
 import {
+    ENEMY_BEHAVIOR_RULES,
+} from '../../../content/catalogs/enemy_behavior_rules';
+import {
     SHIELD_EMITTERS,
 } from '../../../content/catalogs/shield_emitters';
 import {
@@ -124,9 +127,6 @@ export type EnemyWorkIntent =
               typeof POINT_DEFENSE_BEAM_BAND.BLUE;
       };
 
-// Normal Engineer should finish with about one second of shield life
-// still reserved after the incoming player laser impact.
-const ENEMY_SHIELD_IMPACT_RESERVE_MS = 1000;
 
 const ENEMY_MINE_CLEAR_ROLE_PRIORITY = [
     OFFICER_ROLE.ENGINEER,
@@ -497,7 +497,9 @@ export default class EnemyDecisionPolicy {
             deploymentDurationMs +
             emitterDefinition
                 .shieldDurationMs -
-            ENEMY_SHIELD_IMPACT_RESERVE_MS;
+            ENEMY_BEHAVIOR_RULES
+                .shield_placement
+                .impactReserveMs;
 
         // Too early: wait until one shield lifetime can cover impact.
         if (
