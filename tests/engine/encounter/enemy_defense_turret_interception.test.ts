@@ -23,7 +23,6 @@ import {
     PLAYER_SPACE_NAVIGATION_KIND,
 } from '../../../src/engine/defs/player_location';
 import {
-    DEFENSE_TURRET_SIGNATURE,
     DEFENSE_TURRET_PHASE,
     DEFENSE_TURRET_SHOT_OUTCOME,
 } from '../../../src/engine/defs/defense_turret';
@@ -56,7 +55,7 @@ const LOAD_DURATION_MS = 3000;
 const COOLDOWN_DURATION_MS = 5000;
 
 describe('Enemy defense-turret interception', () => {
-    it('loads a blind matching band and intercepts the player missile', () => {
+    it('uses blind equipment chance and intercepts the player missile', () => {
         const {
             engine,
             enemy,
@@ -77,9 +76,6 @@ describe('Enemy defense-turret interception', () => {
         expect(enemy.defenseTurret).toMatchObject({
             phase:
                 DEFENSE_TURRET_PHASE.LOADING,
-
-            loadedSignature:
-                DEFENSE_TURRET_SIGNATURE.A,
 
             targetProjectileId:
                 projectile.id,
@@ -102,9 +98,6 @@ describe('Enemy defense-turret interception', () => {
 
             projectileId:
                 projectile.id,
-
-            signature:
-                DEFENSE_TURRET_SIGNATURE.A,
         });
 
         expect(
@@ -129,9 +122,6 @@ describe('Enemy defense-turret interception', () => {
             projectileId:
                 projectile.id,
 
-            signature:
-                DEFENSE_TURRET_SIGNATURE.A,
-
             loadDurationMs:
                 LOAD_DURATION_MS,
         });
@@ -146,7 +136,6 @@ describe('Enemy defense-turret interception', () => {
                 DEFENSE_TURRET_PHASE.COOLDOWN,
 
             phaseElapsedMs: 0,
-            loadedSignature: null,
             targetProjectileId: null,
         });
 
@@ -187,9 +176,6 @@ describe('Enemy defense-turret interception', () => {
             defenseTurretId:
                 'defense_turret_00',
 
-            signature:
-                DEFENSE_TURRET_SIGNATURE.A,
-
             outcome:
                 DEFENSE_TURRET_SHOT_OUTCOME.HIT,
 
@@ -226,7 +212,7 @@ describe('Enemy defense-turret interception', () => {
             projectile,
         } = createScenario(
             MISSILE_ID.BASIC_01,
-            () => 0,
+            () => 0.99,
         );
 
         // This case intentionally exercises blind PD without Science.
@@ -281,8 +267,6 @@ describe('Enemy defense-turret interception', () => {
                 );
             }),
         ).toMatchObject({
-            signature:
-                DEFENSE_TURRET_SIGNATURE.A,
 
             outcome:
                 DEFENSE_TURRET_SHOT_OUTCOME.MISS,
@@ -310,15 +294,15 @@ describe('Enemy defense-turret interception', () => {
         });
     });
 
-    it('uses a ready Science report instead of the blind fallback band', () => {
+    it('guarantees interception for a correct ready Science report', () => {
         const {
             engine,
             enemy,
             projectile,
         } = createScenario(
             MISSILE_ID.BASIC_01,
-            // Blind fallback is RED and would miss.
-            () => 0,
+            // Blind equipment roll would miss.
+            () => 0.99,
         );
 
         projectile.signature =
@@ -378,8 +362,6 @@ describe('Enemy defense-turret interception', () => {
             projectile: {
                 id: projectile.id,
             },
-
-            signature: 'signature_b',
             outcome: 'hit',
 
             remainingCharges: 3,
@@ -387,7 +369,7 @@ describe('Enemy defense-turret interception', () => {
     });
 
 
-    it('trusts a hungover Science report and misses a missile it could blindly hit', () => {
+    it('falls back to blind chance for a hungover wrong hypothesis and can miss', () => {
         const {
             engine,
             enemy,
@@ -395,7 +377,7 @@ describe('Enemy defense-turret interception', () => {
         } = createScenario(
             MISSILE_ID.BASIC_01,
 
-            // Blind fallback is BLUE and would hit.
+            // Blind equipment roll misses.
             () => 0.99,
         );
 
@@ -416,10 +398,6 @@ describe('Enemy defense-turret interception', () => {
                 phase:
                     DEFENSE_TURRET_PHASE
                         .LOADING,
-
-                loadedSignature:
-                    DEFENSE_TURRET_SIGNATURE
-                        .B,
 
                 targetProjectileId:
                     projectile.id,
@@ -477,9 +455,6 @@ describe('Enemy defense-turret interception', () => {
             projectile: {
                 id: projectile.id,
             },
-
-            signature:
-                DEFENSE_TURRET_SIGNATURE.A,
 
             outcome:
                 DEFENSE_TURRET_SHOT_OUTCOME.MISS,

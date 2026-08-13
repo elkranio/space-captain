@@ -120,21 +120,14 @@ describe(
                         availableWeaponsCommands: [
                             createThreatCommand(
                                 ENCOUNTER_OFFICER_COMMAND_ID
-                                    .WEAPONS_FIRE_SIGNATURE_A,
+                                    .WEAPONS_INTERCEPT_MISSILE,
 
                                 far.id,
                             ),
 
                             createThreatCommand(
                                 ENCOUNTER_OFFICER_COMMAND_ID
-                                    .WEAPONS_FIRE_SIGNATURE_B,
-
-                                near.id,
-                            ),
-
-                            createThreatCommand(
-                                ENCOUNTER_OFFICER_COMMAND_ID
-                                    .WEAPONS_FIRE_SIGNATURE_A,
+                                    .WEAPONS_INTERCEPT_MISSILE,
 
                                 near.id,
                             ),
@@ -169,33 +162,14 @@ describe(
                                     .A,
 
                             actions: {
-                                fireRedBeam: {
+                                interceptMissile: {
                                     role:
                                         OFFICER_ROLE
                                             .WEAPONS,
 
                                     commandId:
                                         ENCOUNTER_OFFICER_COMMAND_ID
-                                            .WEAPONS_FIRE_SIGNATURE_A,
-
-                                    target: {
-                                        kind:
-                                            OFFICER_COMMAND_TARGET_KIND
-                                                .THREAT,
-
-                                        threatId:
-                                            near.id,
-                                    },
-                                },
-
-                                fireBlueBeam: {
-                                    role:
-                                        OFFICER_ROLE
-                                            .WEAPONS,
-
-                                    commandId:
-                                        ENCOUNTER_OFFICER_COMMAND_ID
-                                            .WEAPONS_FIRE_SIGNATURE_B,
+                                            .WEAPONS_INTERCEPT_MISSILE,
 
                                     target: {
                                         kind:
@@ -242,14 +216,14 @@ describe(
                                     },
                                 },
 
-                                fireRedBeam: {
+                                interceptMissile: {
                                     role:
                                         OFFICER_ROLE
                                             .WEAPONS,
 
                                     commandId:
                                         ENCOUNTER_OFFICER_COMMAND_ID
-                                            .WEAPONS_FIRE_SIGNATURE_A,
+                                            .WEAPONS_INTERCEPT_MISSILE,
 
                                     target: {
                                         kind:
@@ -834,7 +808,7 @@ describe(
                 const duplicate =
                     createThreatCommand(
                         ENCOUNTER_OFFICER_COMMAND_ID
-                            .WEAPONS_FIRE_SIGNATURE_A,
+                            .WEAPONS_INTERCEPT_MISSILE,
 
                         missile.id,
                     );
@@ -878,7 +852,7 @@ describe(
                     });
                 }).toThrow(
                     'Captain combat context received multiple ' +
-                        'red defense-turret commands for threat ' +
+                        'defense-turret intercept commands for threat ' +
                         missile.id,
                 );
             },

@@ -171,7 +171,6 @@ export default class BridgeIncomingMissilesView {
             scene: this.scene,
             parent: this.root,
 
-            signature: payload.signature,
             outcome: payload.outcome,
 
             // Последняя реально отображённая позиция.

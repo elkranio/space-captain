@@ -14,7 +14,7 @@ import { BEACON_OBJECT_SPRITE_ID } from '../../src/engine/defs/beacon';
 import { MISSILE_ID } from '../../src/engine/defs/missile';
 import { OFFICER_ROLE } from '../../src/engine/defs/officer';
 import {
-    DEFENSE_TURRET_SIGNATURE,    DEFENSE_TURRET_SHOT_OUTCOME,
+    DEFENSE_TURRET_SHOT_OUTCOME,
 } from '../../src/engine/defs/defense_turret';
 import {
     COMBAT_PROJECTILE_KIND,
@@ -667,11 +667,9 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
                     kind: OFFICER_TASK_KIND.WEAPONS_DEFENSE_TURRET,
                     role: OFFICER_ROLE.WEAPONS,
 
-                    sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_SIGNATURE_A,
+                    sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_INTERCEPT_MISSILE,
 
                     threatId: 'projectile_test_00',
-
-                    defenseTurretSignature: DEFENSE_TURRET_SIGNATURE.A,
 
                     label: 'PD AIM',
                     showProgress: true,
@@ -689,8 +687,6 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
                     kind: OFFICER_TASK_RESULT_KIND.DEFENSE_TURRET_FIRED,
 
                     threatId: 'projectile_test_00',
-
-                    signature: DEFENSE_TURRET_SIGNATURE.A,
 
                     outcome: DEFENSE_TURRET_SHOT_OUTCOME.HIT,
                 },
@@ -715,8 +711,6 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
 
                 {
                     projectileId: 'projectile_test_00',
-
-                    signature: DEFENSE_TURRET_SIGNATURE.A,
 
                     outcome: DEFENSE_TURRET_SHOT_OUTCOME.HIT,
                 },

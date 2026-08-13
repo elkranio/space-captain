@@ -3,6 +3,9 @@
 import type {
     PowerCoreState,
 } from '../../defs/power_core';
+import type {
+    ShipDefenseTurretState,
+} from '../../defs/defense_turret';
 import type { MissileSignature, MissileId } from '../../defs/missile';
 import type {
     StickyMineId,
@@ -215,6 +218,10 @@ export type StickyMineState = {
 };
 
 export type EncounterCombatState = {
+    // Installed player point-defense system.
+    defenseTurret?:
+        ShipDefenseTurretState;
+
     // Shared defensive-energy installation.
     // Some test/minimal encounters may omit it.
     powerCore?:

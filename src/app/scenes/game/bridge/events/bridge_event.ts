@@ -8,7 +8,7 @@ import type {
     MissileId,
     MissileSignature,
 } from '../../../../../engine/defs/missile';
-import type { DefenseTurretSignature, DefenseTurretShotOutcome } from '../../../../../engine/defs/defense_turret';
+import type { DefenseTurretShotOutcome } from '../../../../../engine/defs/defense_turret';
 import type { ShipDriveStatus } from '../../../../../engine/defs/ship_drive';
 import type { ShipWeaponPhase } from '../../../../../engine/defs/ship_weapon';
 import type { EncounterOfficerCommandId, OfficerCommandTarget } from '../../../../../engine/encounter/model/command';
@@ -563,10 +563,7 @@ export type BridgeCaptainIncomingMissilePayload = {
         identifyThreat?:
             BridgeOfficerCommandSelectedPayload;
 
-        fireRedBeam?:
-            BridgeOfficerCommandSelectedPayload;
-
-        fireBlueBeam?:
+        interceptMissile?:
             BridgeOfficerCommandSelectedPayload;
     };
 };
@@ -842,7 +839,6 @@ export type BridgeOutgoingSpamChannelEndedPayload = {
 export type BridgeDefenseTurretFiredPayload = {
     projectileId: string;
 
-    signature: DefenseTurretSignature;
     outcome: DefenseTurretShotOutcome;
 };
 
@@ -850,7 +846,6 @@ export type BridgeEnemyDefenseTurretFiredPayload = {
     sourceActorId: string;
     projectileId: string;
 
-    signature: DefenseTurretSignature;
     outcome: DefenseTurretShotOutcome;
 };
 

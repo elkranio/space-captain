@@ -2,7 +2,6 @@
 
 import { describe, expect, it, vi } from 'vitest';
 import { OFFICER_ROLE } from '../../src/engine/defs/officer';
-import { DEFENSE_TURRET_SIGNATURE } from '../../src/engine/defs/defense_turret';
 import type EncounterEngine from '../../src/engine/encounter/EncounterEngine';
 import { ENCOUNTER_OFFICER_COMMAND_ID } from '../../src/engine/encounter/model/command';
 import {
@@ -312,11 +311,9 @@ function createOfficerTasks(): OfficerTaskState[] {
 
             role: OFFICER_ROLE.WEAPONS,
 
-            sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_SIGNATURE_A,
+            sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_INTERCEPT_MISSILE,
 
             threatId: 'projectile_1',
-
-            defenseTurretSignature: DEFENSE_TURRET_SIGNATURE.A,
 
             label: 'PD AIM',
             showProgress: true,

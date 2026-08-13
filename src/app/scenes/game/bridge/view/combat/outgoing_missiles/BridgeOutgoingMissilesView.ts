@@ -312,9 +312,6 @@ export default class BridgeOutgoingMissilesView {
                 parent:
                     this.root,
 
-                signature:
-                    payload.signature,
-
                 outcome:
                     payload.outcome,
 

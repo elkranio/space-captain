@@ -2,7 +2,6 @@
 
 import { ENCOUNTER_TEAM } from '../../../defs/encounter_team';
 import { OFFICER_ROLE } from '../../../defs/officer';
-import { DEFENSE_TURRET_SIGNATURE, type DefenseTurretSignature } from '../../../defs/defense_turret';
 import {
     COMBAT_PROJECTILE_KIND,
     COMBAT_SOURCE_KIND,
@@ -11,59 +10,46 @@ import {
 import {
     ENCOUNTER_OFFICER_COMMAND_ID,
     OFFICER_COMMAND_TARGET_KIND,
-    type WeaponsDefenseTurretCommandId,
     type OfficerCommandDef,
 } from '../../model/command';
 import type { OfficerCommandHandler } from '../../model/officer_command_handler';
 import { createWeaponsDefenseTurretTask } from '../../officer_tasks/create_officer_task_draft';
 import { requireThreatTargetId } from './command_handler_helpers';
 
-export const weaponsFireSignatureACommandHandler = createWeaponsDefenseTurretCommandHandler(
-    ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_SIGNATURE_A,
+export const weaponsInterceptMissileCommandHandler:
+    OfficerCommandHandler = {
+        commandId:
+            ENCOUNTER_OFFICER_COMMAND_ID
+                .WEAPONS_INTERCEPT_MISSILE,
 
-    'SIGNATURE A',
+        def: {
+            availableToRoles: [
+                OFFICER_ROLE.WEAPONS,
+            ],
 
-    DEFENSE_TURRET_SIGNATURE.A,
-);
+            label: 'INTERCEPT',
 
-export const weaponsFireSignatureBCommandHandler = createWeaponsDefenseTurretCommandHandler(
-    ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_SIGNATURE_B,
+            targeting: {
+                kind:
+                    OFFICER_COMMAND_TARGET_KIND
+                        .THREAT,
+            },
 
-    'SIGNATURE B',
-
-    DEFENSE_TURRET_SIGNATURE.B,
-);
-
-function createWeaponsDefenseTurretCommandHandler(
-    commandId: WeaponsDefenseTurretCommandId,
-    label: string,
-
-    defenseTurretSignature: DefenseTurretSignature,
-): OfficerCommandHandler {
-    const def = {
-        availableToRoles: [OFFICER_ROLE.WEAPONS],
-        label,
-
-        targeting: {
-            kind: OFFICER_COMMAND_TARGET_KIND.THREAT,
-        },
-
-        requiresOnlineDrive: false,
-
-
-        requiresIdleBridge: false,
-    } satisfies OfficerCommandDef;
-
-    return {
-        commandId,
-        def,
+            requiresOnlineDrive: false,
+            requiresIdleBridge: false,
+        } satisfies OfficerCommandDef,
 
         getAvailableCommands(state) {
+            const defenseTurret =
+                state.combat
+                    .defenseTurret;
+
             const powerCore =
                 state.combat
                     .powerCore;
 
             if (
+                !defenseTurret ||
                 !powerCore ||
                 powerCore.charges <= 0
             ) {
@@ -72,11 +58,19 @@ function createWeaponsDefenseTurretCommandHandler(
 
             return state.combat.projectiles
                 .filter((projectile) => {
-                    if (projectile.kind !== COMBAT_PROJECTILE_KIND.MISSILE) {
+                    if (
+                        projectile.kind !==
+                        COMBAT_PROJECTILE_KIND
+                            .MISSILE
+                    ) {
                         return false;
                     }
 
-                    if (projectile.target.kind !== COMBAT_TARGET_KIND.PLAYER_SHIP) {
+                    if (
+                        projectile.target.kind !==
+                        COMBAT_TARGET_KIND
+                            .PLAYER_SHIP
+                    ) {
                         return false;
                     }
 
@@ -88,44 +82,67 @@ function createWeaponsDefenseTurretCommandHandler(
                     }
 
                     const sourceActorId =
-                        projectile.source.actorId;
+                        projectile.source
+                            .actorId;
 
-                    const sourceActor = state.actors.find((actor) => {
-                        return (
-                            actor.id ===
-                            sourceActorId
+                    const sourceActor =
+                        state.actors.find(
+                            (actor) => {
+                                return (
+                                    actor.id ===
+                                    sourceActorId
+                                );
+                            },
                         );
-                    });
 
-                    return sourceActor?.team === ENCOUNTER_TEAM.ENEMY;
+                    return (
+                        sourceActor?.team ===
+                        ENCOUNTER_TEAM.ENEMY
+                    );
                 })
                 .sort((left, right) => {
-                    return left.timeToImpactMs - right.timeToImpactMs;
+                    return (
+                        left.timeToImpactMs -
+                        right.timeToImpactMs
+                    );
                 })
                 .map((projectile) => {
                     return {
-                        commandId,
+                        commandId:
+                            ENCOUNTER_OFFICER_COMMAND_ID
+                                .WEAPONS_INTERCEPT_MISSILE,
 
-                        label: def.label,
+                        label: 'INTERCEPT',
 
                         target: {
-                            kind: OFFICER_COMMAND_TARGET_KIND.THREAT,
+                            kind:
+                                OFFICER_COMMAND_TARGET_KIND
+                                    .THREAT,
 
-                            threatId: projectile.id,
+                            threatId:
+                                projectile.id,
                         },
 
-                        targetLabel: `MISSILE ` + projectile.designation,
+                        targetLabel:
+                            'MISSILE ' +
+                            projectile.designation,
                     };
                 });
         },
 
         execute(context, input) {
-            const threatId = requireThreatTargetId(input);
+            const threatId =
+                requireThreatTargetId(
+                    input,
+                );
 
             context.stateStore
                 .spendPowerCoreCharge();
 
-            context.startOfficerTask(createWeaponsDefenseTurretTask(commandId, threatId, defenseTurretSignature));
+            context.startOfficerTask(
+                createWeaponsDefenseTurretTask(
+                    threatId,
+                ),
+            );
         },
     };
-}

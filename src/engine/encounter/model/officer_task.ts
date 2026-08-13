@@ -10,10 +10,8 @@ export {
     type OfficerTaskCancellationPolicy,
     type OfficerTaskKind,
 } from '../../defs/officer_task';
-import type { DefenseTurretSignature } from '../../defs/defense_turret';
 import {
     ENCOUNTER_OFFICER_COMMAND_ID,
-    type WeaponsDefenseTurretCommandId,
 } from './command';
 
 type OfficerTaskDraftBase = {
@@ -76,10 +74,11 @@ type WeaponsDefenseTurretOfficerTaskDraft = OfficerTaskDraftBase & {
     kind: typeof OFFICER_TASK_KIND.WEAPONS_DEFENSE_TURRET;
     role: typeof OFFICER_ROLE.WEAPONS;
 
-    sourceCommandId: WeaponsDefenseTurretCommandId;
+    sourceCommandId:
+        typeof ENCOUNTER_OFFICER_COMMAND_ID
+            .WEAPONS_INTERCEPT_MISSILE;
 
     threatId: string;
-    defenseTurretSignature: DefenseTurretSignature;
 };
 
 type WeaponsFireMissileOfficerTaskDraft =

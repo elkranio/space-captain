@@ -1,7 +1,4 @@
 import {
-    MISSILE_SIGNATURE,
-} from '../../../../../../../../engine/defs/missile';
-import {
     FONT_COLOR,
     FONT_FAMILY,
     FONT_SIZE,
@@ -47,13 +44,7 @@ type MissileThreatRowCallbacks = {
                 BridgeOfficerCommandSelectedPayload,
         ) => void;
 
-    onDestroyUnknown:
-        (
-            missile:
-                BridgeCaptainIncomingMissilePayload,
-        ) => void;
-
-    onDestroyIdentified:
+    onIntercept:
         (
             command:
                 BridgeOfficerCommandSelectedPayload,
@@ -300,51 +291,33 @@ export default class BridgeCaptainMissileThreatRowView {
                 : 'UNKNOWN MISSILE',
         );
 
-        if (!signature) {
+        if (
+            !signature ||
+            missile.actions
+                .identifyThreat
+        ) {
             this.setScienceAction(
                 missile.actions
                     .identifyThreat,
             );
-
-            this.setWeaponsAction(
-                Boolean(
-                    missile.actions
-                        .fireRedBeam &&
-                        missile.actions
-                            .fireBlueBeam,
-                ),
-
-                () => {
-                    this.callbacks
-                        .onDestroyUnknown(
-                            missile,
-                        );
-                },
-            );
-
-            return;
+        } else {
+            this.hideScienceAction();
         }
 
-        this.hideScienceAction();
-
-        const destroyCommand =
-            signature ===
-            MISSILE_SIGNATURE.A
-                ? missile.actions
-                      .fireRedBeam
-                : missile.actions
-                      .fireBlueBeam;
+        const interceptCommand =
+            missile.actions
+                .interceptMissile;
 
         this.setWeaponsAction(
             Boolean(
-                destroyCommand,
+                interceptCommand,
             ),
 
-            destroyCommand
+            interceptCommand
                 ? () => {
                       this.callbacks
-                          .onDestroyIdentified(
-                              destroyCommand,
+                          .onIntercept(
+                              interceptCommand,
                           );
                   }
                 : undefined,

@@ -18,7 +18,6 @@ import {
 } from '../../defs/officer';
 import {
     DEFENSE_TURRET_PHASE,
-    type DefenseTurretSignature,
     type DefenseTurretPhase,
 } from '../../defs/defense_turret';
 import {
@@ -93,9 +92,6 @@ export type EnemyDebugPowerCoreSnapshot = {
 
 export type EnemyDebugDefenseTurretSnapshot = {
     phase: DefenseTurretPhase;
-
-    loadedSignature:
-        DefenseTurretSignature | null;
 
     targetLabel?: string;
 
@@ -356,10 +352,7 @@ function createCrewTaskSnapshot(
                     'INTERCEPT ' +
                     (projectile
                         ?.designation ??
-                        '?') +
-                    ' ' +
-                    task.signature
-                        .toUpperCase(),
+                        '?'),
 
                 ...(progress
                     ? {
@@ -590,9 +583,6 @@ function createDefenseTurretSnapshot(
     return {
         phase:
             defenseTurret.phase,
-
-        loadedSignature:
-            defenseTurret.loadedSignature,
 
         ...(defenseTurret
             .targetProjectileId

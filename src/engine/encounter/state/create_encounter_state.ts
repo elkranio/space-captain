@@ -4,6 +4,9 @@ import type {
     PowerCoreState,
 } from '../../defs/power_core';
 import type {
+    ShipDefenseTurretState,
+} from '../../defs/defense_turret';
+import type {
     PlayerHullState,
 } from '../../defs/player';
 import type { PlayerSpaceNavigationState } from '../../defs/player_location';
@@ -25,6 +28,9 @@ export type CreateEncounterStateInput = {
     playerHull: PlayerHullState;
     drive: ShipDriveState;
 
+    defenseTurret?:
+        ShipDefenseTurretState;
+
     powerCore?:
         PowerCoreState;
 
@@ -39,6 +45,7 @@ export function createEncounterState({
     navigation,
     playerHull,
     drive,
+    defenseTurret,
     powerCore,
     shieldGenerator,
     playerWeapons = [],
@@ -77,6 +84,14 @@ export function createEncounterState({
         actors: [],
 
         combat: {
+            ...(defenseTurret
+                ? {
+                      defenseTurret: {
+                          ...defenseTurret,
+                      },
+                  }
+                : {}),
+
             ...(powerCore
                 ? {
                       powerCore: {

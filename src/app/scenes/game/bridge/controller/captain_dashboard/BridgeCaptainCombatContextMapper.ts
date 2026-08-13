@@ -120,7 +120,7 @@ export function mapCaptainCombatContextToBridgePayload(
                                 'identify threat',
                         });
 
-                    const fireRedBeam =
+                    const interceptMissile =
                         findThreatCommand({
                             commands:
                                 input
@@ -128,7 +128,7 @@ export function mapCaptainCombatContextToBridgePayload(
 
                             commandId:
                                 ENCOUNTER_OFFICER_COMMAND_ID
-                                    .WEAPONS_FIRE_SIGNATURE_A,
+                                    .WEAPONS_INTERCEPT_MISSILE,
 
                             threatId:
                                 missile.id,
@@ -137,27 +137,7 @@ export function mapCaptainCombatContextToBridgePayload(
                                 OFFICER_ROLE.WEAPONS,
 
                             label:
-                                'red defense-turret',
-                        });
-
-                    const fireBlueBeam =
-                        findThreatCommand({
-                            commands:
-                                input
-                                    .availableWeaponsCommands,
-
-                            commandId:
-                                ENCOUNTER_OFFICER_COMMAND_ID
-                                    .WEAPONS_FIRE_SIGNATURE_B,
-
-                            threatId:
-                                missile.id,
-
-                            role:
-                                OFFICER_ROLE.WEAPONS,
-
-                            label:
-                                'blue defense-turret',
+                                'defense-turret intercept',
                         });
 
                     return {
@@ -191,15 +171,9 @@ export function mapCaptainCombatContextToBridgePayload(
                                   }
                                 : {}),
 
-                            ...(fireRedBeam
+                            ...(interceptMissile
                                 ? {
-                                      fireRedBeam,
-                                  }
-                                : {}),
-
-                            ...(fireBlueBeam
-                                ? {
-                                      fireBlueBeam,
+                                      interceptMissile,
                                   }
                                 : {}),
                         },

@@ -151,9 +151,6 @@ export default class BridgeEncounterEngineEventHandler {
                         projectileId:
                             event.projectile.id,
 
-                        signature:
-                            event.signature,
-
                         outcome:
                             event.outcome,
                     },
@@ -287,7 +284,6 @@ export default class BridgeEncounterEngineEventHandler {
                         {
                             projectileId: event.result.threatId,
 
-                            signature: event.result.signature,
                             outcome: event.result.outcome,
                         },
                     );

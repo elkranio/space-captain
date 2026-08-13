@@ -163,6 +163,8 @@ export default class CombatRunner {
 
                 emit: this.emit,
 
+                random,
+
                 interceptPlayerMissile:
                     (
                         projectileId,

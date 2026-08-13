@@ -274,9 +274,7 @@ describe(
                     ];
 
                 const intent =
-                    new EnemyDecisionPolicy(
-                        () => 0,
-                    ).selectWork(
+                    new EnemyDecisionPolicy().selectWork(
                         setup.targetActor,
                         OFFICER_ROLE.SCIENCE,
                         {

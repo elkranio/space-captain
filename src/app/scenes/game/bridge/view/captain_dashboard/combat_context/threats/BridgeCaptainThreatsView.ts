@@ -1,15 +1,4 @@
-import {
-    FONT_COLOR,
-    FONT_FAMILY,
-    FONT_SIZE,
-} from '../../../../../../../theme/font';
 import type BridgeScene from '../../../../BridgeScene';
-import {
-    CAPTAIN_DASHBOARD_STYLE,
-} from '../../captain_dashboard_style';
-import {
-    formatCaptainDashboardCountdown,
-} from '../../captain_dashboard_format';
 import {
     BRIDGE_EVENT,
     type BridgeCaptainIncomingLaserPayload,
@@ -26,46 +15,10 @@ import BridgeCaptainStickyMineThreatRowView from './BridgeCaptainStickyMineThrea
 
 const ROW_HEIGHT = 36;
 
-const SELECTOR = {
-    backgroundColor: 0x0e1620,
-    backgroundAlpha: 0.98,
-
-    borderColor: 0x31465b,
-
-    contextX: 14,
-    contextY: 14,
-
-    buttonWidth: 150,
-    buttonHeight: 42,
-    buttonGap: 16,
-
-    buttonY: 62,
-
-    closeSize: 34,
-    closeMargin: 8,
-
-    redBackgroundColor: 0x2d1818,
-    redBorderColor: 0xd86e61,
-
-    blueBackgroundColor: 0x182437,
-    blueBorderColor: 0x63a7d8,
-} as const;
-
-type BeamSelectorButton = {
-    background:
-        Phaser.GameObjects.Rectangle;
-
-    label:
-        Phaser.GameObjects.BitmapText;
-
-    handler?:
-        () => void;
-};
-
-// Captain threat list + inline missile defense-turret beam selector.
+// Captain threat list.
 //
-// Selector заменяет содержимое threat-area,
-// поэтому это не popup и не отдельное overlay window.
+// Missile WPN action now executes the single engine-resolved INTERCEPT command
+// directly. Signature choice no longer exists in presentation.
 //
 // Laser rows:
 // SCI пока disabled, ENG использует real DEPLOY SHIELD command.
@@ -75,21 +28,6 @@ export default class BridgeCaptainThreatsView {
 
     private readonly listRoot:
         Phaser.GameObjects.Container;
-
-    private readonly selectorRoot:
-        Phaser.GameObjects.Container;
-
-    private readonly selectorContextText:
-        Phaser.GameObjects.BitmapText;
-
-    private readonly redButton:
-        BeamSelectorButton;
-
-    private readonly blueButton:
-        BeamSelectorButton;
-
-    private readonly closeButton:
-        BeamSelectorButton;
 
     private readonly missileRowViews:
         BridgeCaptainMissileThreatRowView[] =
@@ -123,9 +61,6 @@ export default class BridgeCaptainThreatsView {
         BridgeCaptainSpamChannelPayload[] =
             [];
 
-    private selectedMissileId?:
-        string;
-
     constructor(
         private readonly scene:
             BridgeScene,
@@ -136,7 +71,7 @@ export default class BridgeCaptainThreatsView {
         private readonly width:
             number,
 
-        private readonly height:
+        _height:
             number,
     ) {
         this.root =
@@ -151,123 +86,9 @@ export default class BridgeCaptainThreatsView {
                 0,
             );
 
-        this.selectorRoot =
-            this.scene.add
-                .container(
-                    0,
-                    0,
-                )
-                .setVisible(false);
-
-        const selectorBackground =
-            this.scene.add
-                .rectangle(
-                    0,
-                    0,
-
-                    this.width,
-                    this.height,
-
-                    SELECTOR
-                        .backgroundColor,
-
-                    SELECTOR
-                        .backgroundAlpha,
-                )
-                .setOrigin(0, 0)
-                .setStrokeStyle(
-                    1,
-                    SELECTOR
-                        .borderColor,
-                );
-
-        this.selectorContextText =
-            this.scene.add
-                .bitmapText(
-                    SELECTOR.contextX,
-                    SELECTOR.contextY,
-
-                    FONT_FAMILY.VGA_8X14,
-                    '--.-s  UNKNOWN MISSILE',
-                    FONT_SIZE.PX_16,
-                )
-                .setOrigin(0, 0)
-                .setTint(
-                    FONT_COLOR.PRIMARY,
-                );
-
-        const totalBeamWidth =
-            SELECTOR.buttonWidth *
-                2 +
-            SELECTOR.buttonGap;
-
-        const firstBeamX =
-            (this.width -
-                totalBeamWidth) /
-            2;
-
-        this.redButton =
-            this.createSelectorButton(
-                firstBeamX,
-                SELECTOR.buttonY,
-                SELECTOR.buttonWidth,
-                SELECTOR.buttonHeight,
-                'RED',
-            );
-
-        this.blueButton =
-            this.createSelectorButton(
-                firstBeamX +
-                    SELECTOR.buttonWidth +
-                    SELECTOR.buttonGap,
-
-                SELECTOR.buttonY,
-
-                SELECTOR.buttonWidth,
-                SELECTOR.buttonHeight,
-                'BLUE',
-            );
-
-        this.closeButton =
-            this.createSelectorButton(
-                this.width -
-                    SELECTOR.closeMargin -
-                    SELECTOR.closeSize,
-
-                SELECTOR.closeMargin,
-
-                SELECTOR.closeSize,
-                SELECTOR.closeSize,
-                'X',
-            );
-
-        this.closeButton.handler =
-            () => {
-                this.closeBeamSelector();
-            };
-
-        this.applySelectorButtonState(
-            this.closeButton,
-            true,
-            FONT_COLOR.SECONDARY,
-            CAPTAIN_DASHBOARD_STYLE.row.iconBackgroundColor,
-        );
-
-        this.selectorRoot.add([
-            selectorBackground,
-            this.selectorContextText,
-            this.redButton.background,
-            this.redButton.label,
-            this.blueButton.background,
-            this.blueButton.label,
-            this.closeButton.background,
-            this.closeButton.label,
-        ]);
-
-        this.root.add([
+        this.root.add(
             this.listRoot,
-            this.selectorRoot,
-        ]);
+        );
     }
 
     public getRoot():
@@ -311,26 +132,10 @@ export default class BridgeCaptainThreatsView {
             spamChannels;
 
         this.reconcileRows();
-        this.reconcileBeamSelector();
     }
 
     public destroy(): void {
         this.clearRows();
-
-        this.destroySelectorButton(
-            this.redButton,
-        );
-
-        this.destroySelectorButton(
-            this.blueButton,
-        );
-
-        this.destroySelectorButton(
-            this.closeButton,
-        );
-
-        this.selectorRoot
-            .destroy(true);
 
         this.listRoot
             .destroy(false);
@@ -375,14 +180,7 @@ export default class BridgeCaptainThreatsView {
                                 );
                             },
 
-                        onDestroyUnknown:
-                            (missile) => {
-                                this.openBeamSelector(
-                                    missile,
-                                );
-                            },
-
-                        onDestroyIdentified:
+                        onIntercept:
                             (command) => {
                                 this.emitCommand(
                                     command,
@@ -659,137 +457,6 @@ export default class BridgeCaptainThreatsView {
         }
     }
 
-    private reconcileBeamSelector(): void {
-        if (!this.selectedMissileId) {
-            return;
-        }
-
-        const missile =
-            this.missiles.find(
-                (candidate) => {
-                    return (
-                        candidate.projectileId ===
-                        this.selectedMissileId
-                    );
-                },
-            );
-
-        if (!missile) {
-            this.closeBeamSelector();
-            return;
-        }
-
-        if (missile.signature) {
-            this.closeBeamSelector();
-            return;
-        }
-
-        this.updateBeamSelector(
-            missile,
-        );
-    }
-
-    private openBeamSelector(
-        missile:
-            BridgeCaptainIncomingMissilePayload,
-    ): void {
-        this.selectedMissileId =
-            missile.projectileId;
-
-        this.listRoot
-            .setVisible(false);
-
-        this.selectorRoot
-            .setVisible(true);
-
-        this.updateBeamSelector(
-            missile,
-        );
-    }
-
-    private closeBeamSelector(): void {
-        this.selectedMissileId =
-            undefined;
-
-        this.selectorRoot
-            .setVisible(false);
-
-        this.listRoot
-            .setVisible(true);
-
-        this.redButton.handler =
-            undefined;
-
-        this.blueButton.handler =
-            undefined;
-    }
-
-    private updateBeamSelector(
-        missile:
-            BridgeCaptainIncomingMissilePayload,
-    ): void {
-        this.selectorContextText
-            .setText(
-                formatCaptainDashboardCountdown(
-                    missile.timeToImpactMs,
-                ) +
-                    '  UNKNOWN MISSILE',
-            );
-
-        this.bindBeamCommand(
-            this.redButton,
-
-            missile.actions
-                .fireRedBeam,
-
-            SELECTOR.redBorderColor,
-            SELECTOR.redBackgroundColor,
-        );
-
-        this.bindBeamCommand(
-            this.blueButton,
-
-            missile.actions
-                .fireBlueBeam,
-
-            SELECTOR.blueBorderColor,
-            SELECTOR.blueBackgroundColor,
-        );
-    }
-
-    private bindBeamCommand(
-        button:
-            BeamSelectorButton,
-
-        command:
-            BridgeOfficerCommandSelectedPayload |
-            undefined,
-
-        activeBorderColor:
-            number,
-
-        activeBackgroundColor:
-            number,
-    ): void {
-        button.handler =
-            command
-                ? () => {
-                      this.emitCommand(
-                          command,
-                      );
-
-                      this.closeBeamSelector();
-                  }
-                : undefined;
-
-        this.applySelectorButtonState(
-            button,
-            Boolean(command),
-            activeBorderColor,
-            activeBackgroundColor,
-        );
-    }
-
     private emitCommand(
         command:
             BridgeOfficerCommandSelectedPayload,
@@ -800,135 +467,6 @@ export default class BridgeCaptainThreatsView {
 
             command,
         );
-    }
-
-    private createSelectorButton(
-        x: number,
-        y: number,
-        width: number,
-        height: number,
-        text: string,
-    ): BeamSelectorButton {
-        const button:
-            BeamSelectorButton = {
-                background:
-                    this.scene.add
-                        .rectangle(
-                            x,
-                            y,
-
-                            width,
-                            height,
-
-                            CAPTAIN_DASHBOARD_STYLE.action.disabledBackgroundColor,
-                            1,
-                        )
-                        .setOrigin(0, 0)
-                        .setStrokeStyle(
-                            1,
-                            CAPTAIN_DASHBOARD_STYLE.action.disabledBorderColor,
-                        ),
-
-                label:
-                    this.scene.add
-                        .bitmapText(
-                            x +
-                                width /
-                                    2,
-
-                            y +
-                                height /
-                                    2,
-
-                            FONT_FAMILY.VGA_8X14,
-                            text,
-                            FONT_SIZE.PX_16,
-                        )
-                        .setOrigin(
-                            0.5,
-                            0.5,
-                        )
-                        .setTint(
-                            CAPTAIN_DASHBOARD_STYLE.action.disabledTextColor,
-                        ),
-            };
-
-        button.background.on(
-            'pointerdown',
-            () => {
-                button.handler?.();
-            },
-        );
-
-        return button;
-    }
-
-    private applySelectorButtonState(
-        button:
-            BeamSelectorButton,
-
-        isActive: boolean,
-
-        activeBorderColor:
-            number,
-
-        activeBackgroundColor:
-            number,
-    ): void {
-        button.background
-            .disableInteractive();
-
-        if (!isActive) {
-            button.background
-                .setFillStyle(
-                    CAPTAIN_DASHBOARD_STYLE.action.disabledBackgroundColor,
-                    1,
-                )
-                .setStrokeStyle(
-                    1,
-                    CAPTAIN_DASHBOARD_STYLE.action.disabledBorderColor,
-                );
-
-            button.label.setTint(
-                CAPTAIN_DASHBOARD_STYLE.action.disabledTextColor,
-            );
-
-            return;
-        }
-
-        button.background
-            .setFillStyle(
-                activeBackgroundColor,
-                1,
-            )
-            .setStrokeStyle(
-                1,
-                activeBorderColor,
-            )
-            .setInteractive({
-                useHandCursor: true,
-            });
-
-        button.label.setTint(
-            activeBorderColor,
-        );
-    }
-
-    private destroySelectorButton(
-        button:
-            BeamSelectorButton,
-    ): void {
-        button.handler =
-            undefined;
-
-        button.background
-            .removeAllListeners();
-
-        button.background
-            .destroy();
-
-        button.label
-            .destroy();
     }
 
     private clearRows(): void {

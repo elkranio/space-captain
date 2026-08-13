@@ -21,7 +21,6 @@ import {
     OFFICER_ROLE,
 } from '../../../src/engine/defs/officer';
 import {
-    DEFENSE_TURRET_SIGNATURE,
     DEFENSE_TURRET_ID,
     DEFENSE_TURRET_PHASE,
 } from '../../../src/engine/defs/defense_turret';
@@ -159,10 +158,6 @@ describe(
 
                                     projectileId:
                                         projectile.id,
-
-                                    signature:
-                                        DEFENSE_TURRET_SIGNATURE
-                                            .B,
                                 },
                             },
 
@@ -226,10 +221,6 @@ describe(
 
                                 phaseElapsedMs:
                                     1000,
-
-                                loadedSignature:
-                                    DEFENSE_TURRET_SIGNATURE
-                                        .B,
 
                                 targetProjectileId:
                                     projectile.id,
@@ -301,7 +292,7 @@ describe(
                                             .INTERCEPT_MISSILE,
 
                                     label:
-                                        'INTERCEPT M1 SIGNATURE_B',
+                                        'INTERCEPT M1',
 
                                     progress: {
                                         elapsedMs:
@@ -348,10 +339,6 @@ describe(
                                 DEFENSE_TURRET_PHASE
                                     .LOADING,
 
-                            loadedSignature:
-                                DEFENSE_TURRET_SIGNATURE
-                                    .B,
-
                             targetLabel:
                                 'M1',
 
@@ -383,12 +370,10 @@ describe(
                                     9000,
 
                                 report:
-                                    DEFENSE_TURRET_SIGNATURE
-                                        .A,
+                                    MISSILE_SIGNATURE.A,
 
                                 truth:
-                                    DEFENSE_TURRET_SIGNATURE
-                                        .B,
+                                    MISSILE_SIGNATURE.B,
 
                                 mismatch: true,
                             },

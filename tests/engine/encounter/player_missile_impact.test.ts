@@ -255,10 +255,7 @@ describe('Player missile impact', () => {
                     return (
                         command.commandId ===
                             ENCOUNTER_OFFICER_COMMAND_ID
-                                .WEAPONS_FIRE_SIGNATURE_A ||
-                        command.commandId ===
-                            ENCOUNTER_OFFICER_COMMAND_ID
-                                .WEAPONS_FIRE_SIGNATURE_B
+                                .WEAPONS_INTERCEPT_MISSILE
                     );
                 }),
         ).toEqual([]);

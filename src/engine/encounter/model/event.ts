@@ -4,7 +4,7 @@ import type {
     PlayerHullDamageResult,
 } from '../../defs/player';
 import type { PlayerSpaceNavigationState } from '../../defs/player_location';
-import type { DefenseTurretSignature, DefenseTurretShotOutcome } from '../../defs/defense_turret';
+import type { DefenseTurretShotOutcome } from '../../defs/defense_turret';
 import type { ShipDriveState } from '../../defs/ship_drive';
 import type { EncounterAnchorState } from '../anchors/encounter_anchor';
 import type { JumpPointEncounterAnchorState } from '../anchors/jump_point/jump_point_encounter_anchor';
@@ -138,7 +138,6 @@ export type OfficerTaskResult =
 
           threatId: string;
 
-          signature: DefenseTurretSignature;
           outcome: DefenseTurretShotOutcome;
       }
     | {
@@ -354,7 +353,6 @@ export type EnemyDefenseTurretLoadingStartedEvent = {
 
     projectileId: string;
 
-    signature: DefenseTurretSignature;
     loadDurationMs: number;
 };
 
@@ -369,7 +367,6 @@ export type EnemyDefenseTurretFiredEvent = {
     projectile:
         MissileCombatProjectileState;
 
-    signature: DefenseTurretSignature;
     outcome: DefenseTurretShotOutcome;
 
     remainingCharges: number;

@@ -83,6 +83,9 @@ describe(
 
                     cooldownDurationMs:
                         5000,
+
+                    blindInterceptChance:
+                        0.4,
                 });
 
                 expect(

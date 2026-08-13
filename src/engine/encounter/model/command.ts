@@ -22,10 +22,8 @@ export const ENCOUNTER_OFFICER_COMMAND_ID = {
     ENGINEER_DEPLOY_SHIELD:
         'engineer_deploy_shield',
 
-    WEAPONS_FIRE_SIGNATURE_A:
-        'weapons_fire_signature_a',
-    WEAPONS_FIRE_SIGNATURE_B:
-        'weapons_fire_signature_b',
+    WEAPONS_INTERCEPT_MISSILE:
+        'weapons_intercept_missile',
 
     WEAPONS_FIRE_MISSILE:
         'weapons_fire_missile',
@@ -49,8 +47,8 @@ export type EncounterOfficerCommandId =
 
 
 export type WeaponsDefenseTurretCommandId =
-    | typeof ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_SIGNATURE_A
-    | typeof ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_SIGNATURE_B;
+    typeof ENCOUNTER_OFFICER_COMMAND_ID
+        .WEAPONS_INTERCEPT_MISSILE;
 
 // #region Command targets
 

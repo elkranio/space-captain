@@ -13,8 +13,7 @@ import { sciencePurgeSpamCommandHandler } from './handlers/science_purge_spam_co
 import { scienceFireSpamCommandHandler } from './handlers/science_fire_spam_command_handler';
 import { sciencePlotCourseCommandHandler } from './handlers/science_plot_course_command_handler';
 import {
-    weaponsFireSignatureBCommandHandler,
-    weaponsFireSignatureACommandHandler,
+    weaponsInterceptMissileCommandHandler,
 } from './handlers/weapons_defense_turret_command_handler';
 import {
     weaponsFireMissileCommandHandler,
@@ -44,9 +43,8 @@ const OFFICER_COMMAND_HANDLER_BY_ID = {
     [ENCOUNTER_OFFICER_COMMAND_ID.ENGINEER_DEPLOY_SHIELD]:
         engineerDeployShieldCommandHandler,
 
-    [ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_SIGNATURE_A]: weaponsFireSignatureACommandHandler,
-
-    [ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_SIGNATURE_B]: weaponsFireSignatureBCommandHandler,
+    [ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_INTERCEPT_MISSILE]:
+        weaponsInterceptMissileCommandHandler,
 
     [ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_MISSILE]:
         weaponsFireMissileCommandHandler,

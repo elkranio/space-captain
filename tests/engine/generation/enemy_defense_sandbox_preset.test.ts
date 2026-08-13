@@ -57,7 +57,6 @@ describe('Enemy defense sandbox preset', () => {
                             .READY,
                     phaseElapsedMs: 0,
 
-                    loadedSignature: null,
                     targetProjectileId:
                         null,
                 });

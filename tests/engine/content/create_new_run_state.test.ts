@@ -9,6 +9,10 @@ import {
     createNewRunState,
 } from '../../../src/engine/content/new_game/create_new_run_state';
 import {
+    DEFENSE_TURRET_ID,
+    DEFENSE_TURRET_PHASE,
+} from '../../../src/engine/defs/defense_turret';
+import {
     POWER_CORE_ID,
 } from '../../../src/engine/defs/power_core';
 import {
@@ -49,6 +53,24 @@ describe('createNewRunState', () => {
                 status:
                     SHIP_DRIVE_STATUS.ONLINE,
             },
+            defenseTurret: {
+                id:
+                    'defense_turret_player_00',
+
+                defenseTurretId:
+                    DEFENSE_TURRET_ID
+                        .BASIC_00,
+
+                phase:
+                    DEFENSE_TURRET_PHASE
+                        .READY,
+
+                phaseElapsedMs: 0,
+
+                targetProjectileId:
+                    null,
+            },
+
             powerCore: {
                 id:
                     'power_core_player_00',
@@ -176,6 +198,37 @@ describe('createNewRunState', () => {
 
         firstRun.player.ship.drive.status =
             SHIP_DRIVE_STATUS.DISABLED;
+
+        firstRun
+            .player
+            .ship
+            .defenseTurret
+            .phase =
+                DEFENSE_TURRET_PHASE
+                    .COOLDOWN;
+
+        expect(
+            firstRun
+                .player
+                .ship
+                .defenseTurret,
+        ).not.toBe(
+            secondRun
+                .player
+                .ship
+                .defenseTurret,
+        );
+
+        expect(
+            secondRun
+                .player
+                .ship
+                .defenseTurret
+                .phase,
+        ).toBe(
+            DEFENSE_TURRET_PHASE
+                .READY,
+        );
         firstRun
             .player
             .ship
@@ -262,6 +315,24 @@ describe('createNewRunState', () => {
                 status:
                     SHIP_DRIVE_STATUS.ONLINE,
             },
+            defenseTurret: {
+                id:
+                    'defense_turret_player_00',
+
+                defenseTurretId:
+                    DEFENSE_TURRET_ID
+                        .BASIC_00,
+
+                phase:
+                    DEFENSE_TURRET_PHASE
+                        .READY,
+
+                phaseElapsedMs: 0,
+
+                targetProjectileId:
+                    null,
+            },
+
             powerCore: {
                 id:
                     'power_core_player_00',

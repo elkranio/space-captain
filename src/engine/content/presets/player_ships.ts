@@ -9,6 +9,10 @@ import {
     POWER_CORE_ID,
     type PowerCoreId,
 } from '../../defs/power_core';
+import {
+    DEFENSE_TURRET_ID,
+    type DefenseTurretId,
+} from '../../defs/defense_turret';
 import { SHIP_DRIVE_ID, type ShipDriveId } from '../../defs/ship_drive';
 import { SHIP_WEAPON_ID } from '../../defs/ship_weapon';
 import {
@@ -72,6 +76,13 @@ export type PlayerShipPreset = {
 
     driveId: ShipDriveId;
 
+    defenseTurret: {
+        id: string;
+
+        defenseTurretId:
+            DefenseTurretId;
+    };
+
     powerCore: {
         id: string;
 
@@ -96,6 +107,15 @@ export const PLAYER_SHIP_PRESETS = {
         maxHull: 3,
 
         driveId: SHIP_DRIVE_ID.BASIC_00,
+
+        defenseTurret: {
+            id:
+                'defense_turret_player_00',
+
+            defenseTurretId:
+                DEFENSE_TURRET_ID
+                    .BASIC_00,
+        },
 
         powerCore: {
             id:

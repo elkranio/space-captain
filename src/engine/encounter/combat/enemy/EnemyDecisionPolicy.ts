@@ -17,7 +17,6 @@ import {
     type OfficerRole,
 } from '../../../defs/officer';
 import {
-    DEFENSE_TURRET_SIGNATURE,
     DEFENSE_TURRET_PHASE,
 } from '../../../defs/defense_turret';
 import {
@@ -121,10 +120,6 @@ export type EnemyWorkIntent =
 
           defenseTurretId: string;
           projectileId: string;
-
-          signature:
-              typeof DEFENSE_TURRET_SIGNATURE.A |
-              typeof DEFENSE_TURRET_SIGNATURE.B;
       };
 
 
@@ -152,10 +147,7 @@ const ENEMY_MINE_CLEAR_ROLE_PRIORITY = [
 // Позже здесь появятся состояние боя,
 // defensive priorities и разные behavior presets.
 export default class EnemyDecisionPolicy {
-    constructor(
-        private readonly random:
-            () => number = Math.random,
-    ) {}
+    constructor() {}
 
     public advance(
         actor: ShipEncounterActorState,
@@ -659,13 +651,6 @@ export default class EnemyDecisionPolicy {
             projectileId:
                 missileThreat
                     .projectileId,
-
-            // First behavior pass is intentionally blind.
-            // The physical runner never chooses or corrects this band.
-            signature:
-                this.random() < 0.5
-                    ? DEFENSE_TURRET_SIGNATURE.A
-                    : DEFENSE_TURRET_SIGNATURE.B,
         };
     }
 

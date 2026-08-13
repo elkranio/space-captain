@@ -3,6 +3,9 @@
 import type {
     PowerCoreState,
 } from '../defs/power_core';
+import type {
+    ShipDefenseTurretState,
+} from '../defs/defense_turret';
 import {
     ENCOUNTER_TEAM,
     type EncounterTeam,
@@ -69,6 +72,9 @@ export type EncounterEngineOptions = {
     playerHull: PlayerHullState;
     drive: ShipDriveState;
 
+    defenseTurret?:
+        ShipDefenseTurretState;
+
     powerCore?:
         PowerCoreState;
 
@@ -116,6 +122,7 @@ export default class EncounterEngine {
         navigation,
         playerHull,
         drive,
+        defenseTurret,
         powerCore,
         shieldGenerator,
         weapons = [],
@@ -132,6 +139,7 @@ export default class EncounterEngine {
                 playerHull,
                 drive,
 
+                defenseTurret,
                 powerCore,
                 shieldGenerator,
 

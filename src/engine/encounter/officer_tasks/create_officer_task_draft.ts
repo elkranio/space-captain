@@ -7,10 +7,8 @@ import {
     OFFICER_ROLE,
     type OfficerRole,
 } from '../../defs/officer';
-import type { DefenseTurretSignature } from '../../defs/defense_turret';
 import {
     ENCOUNTER_OFFICER_COMMAND_ID,
-    type WeaponsDefenseTurretCommandId,
 } from '../model/command';
 import {
     OFFICER_TASK_KIND,
@@ -150,11 +148,7 @@ export function createEngineerDeployShieldTask(): OfficerTaskDraft {
 }
 
 export function createWeaponsDefenseTurretTask(
-    sourceCommandId:
-        WeaponsDefenseTurretCommandId,
     threatId: string,
-    defenseTurretSignature:
-        DefenseTurretSignature,
 ): OfficerTaskDraft {
     const kind =
         OFFICER_TASK_KIND
@@ -164,10 +158,11 @@ export function createWeaponsDefenseTurretTask(
         kind,
         role: OFFICER_ROLE.WEAPONS,
 
-        sourceCommandId,
+        sourceCommandId:
+            ENCOUNTER_OFFICER_COMMAND_ID
+                .WEAPONS_INTERCEPT_MISSILE,
 
         threatId,
-        defenseTurretSignature,
 
         ...getOfficerTaskDraftTuning(
             kind,

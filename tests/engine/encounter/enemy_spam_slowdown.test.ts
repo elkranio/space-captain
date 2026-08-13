@@ -24,7 +24,6 @@ import {
     OFFICER_ROLE,
 } from '../../../src/engine/defs/officer';
 import {
-    DEFENSE_TURRET_SIGNATURE,
     DEFENSE_TURRET_PHASE,
 } from '../../../src/engine/defs/defense_turret';
 import {
@@ -380,9 +379,6 @@ describe(
                 defenseTurret.phaseElapsedMs =
                     0;
 
-                defenseTurret.loadedSignature =
-                    DEFENSE_TURRET_SIGNATURE
-                        .A;
 
                 defenseTurret.targetProjectileId =
                     projectileId;
@@ -441,10 +437,6 @@ describe(
                                 defenseTurret.id,
 
                             projectileId,
-
-                            signature:
-                                DEFENSE_TURRET_SIGNATURE
-                                    .A,
                         },
                     };
 

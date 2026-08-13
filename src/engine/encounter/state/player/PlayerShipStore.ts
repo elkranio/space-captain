@@ -8,7 +8,6 @@ import type {
 } from '../../../defs/player';
 import {
     DEFENSE_TURRET_SHOT_OUTCOME,
-    type DefenseTurretSignature,
     type DefenseTurretShotOutcome,
 } from '../../../defs/defense_turret';
 import {
@@ -18,6 +17,12 @@ import {
 import {
     SHIELD_GENERATORS,
 } from '../../../content/catalogs/shield_generators';
+import {
+    DEFENSE_TURRETS,
+} from '../../../content/catalogs/defense_turrets';
+import {
+    resolveMissileInterception,
+} from '../../combat/defense_turret/resolve_missile_interception';
 import {
     SHIELD_GENERATOR_PHASE,
     SHIELD_GENERATOR_STATUS,
@@ -719,47 +724,80 @@ export default class PlayerShipStore {
 
     public fireDefenseTurret(
         threatId: string,
-        signature:
-            DefenseTurretSignature,
+        random: () => number,
     ): DefenseTurretShotOutcome | undefined {
-        const threatIndex =
+        const projectile =
             this.state.combat
                 .projectiles
-                .findIndex((projectile) => {
+                .find((candidate) => {
                     return (
-                        projectile.id ===
+                        candidate.id ===
                         threatId
                     );
                 });
 
-        // Threat may resolve before
-        // the Weapons task completes.
+        // Threat may resolve before the Weapons task completes.
         // Charge was already spent at aim start.
-        if (threatIndex < 0) {
+        if (!projectile) {
             return undefined;
         }
 
-        const threat =
+        const defenseTurret =
             this.state.combat
-                .projectiles[
-                    threatIndex
-                ];
+                .defenseTurret;
+
+        if (!defenseTurret) {
+            throw new Error(
+                'Cannot fire player defense turret: installation missing',
+            );
+        }
+
+        const definition =
+            DEFENSE_TURRETS[
+                defenseTurret
+                    .defenseTurretId
+            ];
+
+        const hypothesis =
+            projectile.identification
+                .status ===
+            MISSILE_SIGNATURE_INTEL_STATUS
+                .UNKNOWN
+                ? undefined
+                : projectile.identification
+                      .hypothesis;
 
         const outcome =
-            threat.signature ===
-            signature
-                ? DEFENSE_TURRET_SHOT_OUTCOME.HIT
-                : DEFENSE_TURRET_SHOT_OUTCOME.MISS;
+            resolveMissileInterception({
+                truth:
+                    projectile.signature,
+
+                hypothesis,
+
+                blindInterceptChance:
+                    definition
+                        .blindInterceptChance,
+
+                random,
+            });
 
         if (
             outcome ===
             DEFENSE_TURRET_SHOT_OUTCOME.HIT
         ) {
-            this.state.combat
-                .projectiles.splice(
-                    threatIndex,
-                    1,
-                );
+            const projectileIndex =
+                this.state.combat
+                    .projectiles
+                    .indexOf(projectile);
+
+            if (projectileIndex >= 0) {
+                this.state.combat
+                    .projectiles
+                    .splice(
+                        projectileIndex,
+                        1,
+                    );
+            }
         }
 
         return outcome;

@@ -359,19 +359,28 @@ export default class OfficerTaskResolver {
         };
     }
 
-    private resolveWeaponsDefenseTurretTask(task: WeaponsDefenseTurretTaskState): OfficerTaskResult | undefined {
-        const outcome = this.stateStore.fireDefenseTurret(task.threatId, task.defenseTurretSignature);
+    private resolveWeaponsDefenseTurretTask(
+        task: WeaponsDefenseTurretTaskState,
+    ): OfficerTaskResult | undefined {
+        const outcome =
+            this.stateStore
+                .fireDefenseTurret(
+                    task.threatId,
+                    this.random,
+                );
 
         if (!outcome) {
             return undefined;
         }
 
         return {
-            kind: OFFICER_TASK_RESULT_KIND.DEFENSE_TURRET_FIRED,
+            kind:
+                OFFICER_TASK_RESULT_KIND
+                    .DEFENSE_TURRET_FIRED,
 
-            threatId: task.threatId,
+            threatId:
+                task.threatId,
 
-            signature: task.defenseTurretSignature,
             outcome,
         };
     }

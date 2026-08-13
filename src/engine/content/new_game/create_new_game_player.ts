@@ -15,6 +15,7 @@ import {
     type ShipWeaponState,
 } from '../../defs/ship_weapon';
 import PowerCoreFactory from '../../generation/ship_system/PowerCoreFactory';
+import ShipDefenseTurretFactory from '../../generation/ship_system/ShipDefenseTurretFactory';
 import ShieldGeneratorFactory from '../../generation/ship_system/ShieldGeneratorFactory';
 import LaserWeaponFactory from '../../generation/ship_weapon/LaserWeaponFactory';
 import MissileLauncherFactory from '../../generation/ship_weapon/MissileLauncherFactory';
@@ -65,6 +66,19 @@ function createPlayerShip(
             status:
                 SHIP_DRIVE_STATUS.ONLINE,
         },
+
+        defenseTurret:
+            ShipDefenseTurretFactory.create({
+                id:
+                    preset
+                        .defenseTurret
+                        .id,
+
+                defenseTurretId:
+                    preset
+                        .defenseTurret
+                        .defenseTurretId,
+            }),
 
         powerCore:
             PowerCoreFactory.create({

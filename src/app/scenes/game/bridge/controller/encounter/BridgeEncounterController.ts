@@ -252,6 +252,10 @@ export default class BridgeEncounterController {
 
             drive: run.player.ship.drive,
 
+            defenseTurret:
+                run.player.ship
+                    .defenseTurret,
+
             powerCore:
                 run.player.ship
                     .powerCore,

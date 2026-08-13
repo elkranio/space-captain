@@ -9,6 +9,10 @@ import {
     GameRuntime,
 } from '../../src/app/runtime/GameRuntime';
 import {
+    DEFENSE_TURRET_ID,
+    DEFENSE_TURRET_PHASE,
+} from '../../src/engine/defs/defense_turret';
+import {
     POWER_CORE_ID,
 } from '../../src/engine/defs/power_core';
 import {
@@ -51,6 +55,24 @@ describe('GameRuntime player ship hull', () => {
                 status:
                     SHIP_DRIVE_STATUS.ONLINE,
             },
+            defenseTurret: {
+                id:
+                    'defense_turret_player_00',
+
+                defenseTurretId:
+                    DEFENSE_TURRET_ID
+                        .BASIC_00,
+
+                phase:
+                    DEFENSE_TURRET_PHASE
+                        .READY,
+
+                phaseElapsedMs: 0,
+
+                targetProjectileId:
+                    null,
+            },
+
             powerCore: {
                 id:
                     'power_core_player_00',
@@ -201,6 +223,24 @@ describe('GameRuntime player ship hull', () => {
                 status:
                     SHIP_DRIVE_STATUS.ONLINE,
             },
+            defenseTurret: {
+                id:
+                    'defense_turret_player_00',
+
+                defenseTurretId:
+                    DEFENSE_TURRET_ID
+                        .BASIC_00,
+
+                phase:
+                    DEFENSE_TURRET_PHASE
+                        .READY,
+
+                phaseElapsedMs: 0,
+
+                targetProjectileId:
+                    null,
+            },
+
             powerCore: {
                 id:
                     'power_core_player_00',

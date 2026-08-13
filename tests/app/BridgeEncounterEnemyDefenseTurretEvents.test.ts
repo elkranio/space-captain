@@ -21,7 +21,6 @@ import {
     MISSILE_ID,
 } from '../../src/engine/defs/missile';
 import {
-    DEFENSE_TURRET_SIGNATURE,
     DEFENSE_TURRET_SHOT_OUTCOME,
 } from '../../src/engine/defs/defense_turret';
 import {
@@ -115,10 +114,6 @@ describe(
                         projectileId:
                             projectile.id,
 
-                        signature:
-                            DEFENSE_TURRET_SIGNATURE
-                                .A,
-
                         loadDurationMs: 3000,
                     },
 
@@ -136,10 +131,6 @@ describe(
                         projectile: {
                             ...projectile,
                         },
-
-                        signature:
-                            DEFENSE_TURRET_SIGNATURE
-                                .B,
 
                         outcome:
                             DEFENSE_TURRET_SHOT_OUTCOME
@@ -176,10 +167,6 @@ describe(
 
                             projectileId:
                                 projectile.id,
-
-                            signature:
-                                DEFENSE_TURRET_SIGNATURE
-                                    .B,
 
                             outcome:
                                 DEFENSE_TURRET_SHOT_OUTCOME

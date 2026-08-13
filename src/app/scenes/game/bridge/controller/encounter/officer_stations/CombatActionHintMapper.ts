@@ -22,12 +22,7 @@ const COMBAT_ACTION_HINT_BY_COMMAND_ID: Partial<
     },
 
 
-    [ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_SIGNATURE_A]: {
-        id: 'intercept_missile',
-        label: 'INTERCEPT MISSILE',
-        priority: 10,
-    },
-    [ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_SIGNATURE_B]: {
+    [ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_INTERCEPT_MISSILE]: {
         id: 'intercept_missile',
         label: 'INTERCEPT MISSILE',
         priority: 10,

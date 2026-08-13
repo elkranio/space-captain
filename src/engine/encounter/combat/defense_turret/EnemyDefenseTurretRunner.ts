@@ -1,4 +1,4 @@
-// src/engine/encounter/combat/EnemyDefenseTurretRunner.ts
+// src/engine/encounter/combat/defense_turret/EnemyDefenseTurretRunner.ts
 
 import {
     DEFENSE_TURRETS,
@@ -17,21 +17,26 @@ import {
     type MissileCombatProjectileState,
 } from '../../model/combat';
 import {
+    ENEMY_THREAT_KIND,
+    ENEMY_THREAT_SOURCE_KIND,
+} from '../../model/enemy_threat_observation';
+import {
     ENCOUNTER_EVENT,
     type EncounterEvent,
 } from '../../model/event';
 import type {
     EncounterState,
 } from '../../model/state';
-
 import {
-    resolveEnemyDefenseTurretSignature,
-} from './resolve_enemy_defense_turret_signature';
+    resolveMissileInterception,
+} from './resolve_missile_interception';
 
 type EnemyDefenseTurretRunnerOptions = {
     state: EncounterState;
 
     emit: (event: EncounterEvent) => void;
+
+    random: () => number;
 
     interceptPlayerMissile: (
         projectileId: string,
@@ -40,10 +45,8 @@ type EnemyDefenseTurretRunnerOptions = {
 };
 
 // Owns the physical lifecycle of one installed enemy defense-turret system.
-// Policy chooses target and commits a blind fallback band.
-// A ready Science report may deterministically override that fallback at shot
-// time. Defensive energy is committed by the scheduler when loading
-// starts; this runner resolves the band match and advances cooldown.
+// Policy chooses only the missile target. Science report and equipment tuning
+// are resolved here at shot time against objective projectile truth.
 export default class EnemyDefenseTurretRunner {
     constructor(
         private readonly options:
@@ -123,16 +126,10 @@ export default class EnemyDefenseTurretRunner {
             return;
         }
 
-        const fallbackSignature =
-            defenseTurret.loadedSignature;
-
         const powerCore =
             actor.powerCore;
 
-        if (
-            !fallbackSignature ||
-            !powerCore
-        ) {
+        if (!powerCore) {
             throw new Error(
                 'Enemy defense turret cannot fire: ' +
                     actor.id +
@@ -141,32 +138,48 @@ export default class EnemyDefenseTurretRunner {
             );
         }
 
-        const signature =
-            resolveEnemyDefenseTurretSignature({
-                observations:
-                    actor.threatObservations,
-        
-                projectileId:
-                    projectile.id,
-        
-                fallbackSignature,
-            });
+        const observation =
+            actor.threatObservations
+                .find((candidate) => {
+                    return (
+                        candidate.kind ===
+                            ENEMY_THREAT_KIND
+                                .MISSILE &&
+                        candidate.source.kind ===
+                            ENEMY_THREAT_SOURCE_KIND
+                                .COMBAT_PROJECTILE &&
+                        candidate.source.projectileId ===
+                            projectile.id
+                    );
+                });
+
+        const hypothesis =
+            observation?.report
+                ?.hypothesis;
 
         const outcome =
-            signature ===
-            projectile.signature
-                ? DEFENSE_TURRET_SHOT_OUTCOME.HIT
-                : DEFENSE_TURRET_SHOT_OUTCOME.MISS;
+            resolveMissileInterception({
+                truth:
+                    projectile.signature,
+
+                hypothesis,
+
+                blindInterceptChance:
+                    definition
+                        .blindInterceptChance,
+
+                random:
+                    this.options.random,
+            });
 
         defenseTurret.phase =
             DEFENSE_TURRET_PHASE.COOLDOWN;
         defenseTurret.phaseElapsedMs = 0;
-        defenseTurret.loadedSignature = null;
         defenseTurret.targetProjectileId = null;
 
-        // The shot event precedes missile resolution so presentation can aim
-        // at a still-existing projectile. CombatMissileRunner remains the only
-        // owner allowed to remove and resolve the projectile.
+        // Event precedes missile resolution so presentation can aim at
+        // a still-existing projectile. CombatMissileRunner remains the
+        // owner allowed to remove an intercepted outgoing projectile.
         this.options.emit({
             type:
                 ENCOUNTER_EVENT
@@ -177,8 +190,6 @@ export default class EnemyDefenseTurretRunner {
                 defenseTurret.id,
 
             projectile,
-
-            signature,
             outcome,
 
             remainingCharges:
@@ -258,7 +269,6 @@ export default class EnemyDefenseTurretRunner {
         defenseTurret.phase =
             DEFENSE_TURRET_PHASE.READY;
         defenseTurret.phaseElapsedMs = 0;
-        defenseTurret.loadedSignature = null;
         defenseTurret.targetProjectileId = null;
     }
 }
