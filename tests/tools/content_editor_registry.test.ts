@@ -325,14 +325,20 @@ describe(
                 expect(
                     missileSchema
                         .properties
-                        ?.red_00
-                        ?.properties
-                        ?.spectralBand
-                        ?.enum,
-                ).toEqual([
-                    'red',
-                    'blue',
-                ]);
+                        ?.basic_00
+                        ?.properties,
+                ).not.toHaveProperty(
+                    'signature',
+                );
+
+                expect(
+                    missileSchema
+                        .properties
+                        ?.basic_01
+                        ?.properties,
+                ).not.toHaveProperty(
+                    'signature',
+                );
 
                 const chassisSchema =
                     getContentCollectionJsonSchema(

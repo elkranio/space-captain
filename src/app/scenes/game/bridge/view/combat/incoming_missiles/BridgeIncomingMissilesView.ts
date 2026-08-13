@@ -144,7 +144,7 @@ export default class BridgeIncomingMissilesView {
                 throw new Error(`Incoming missile not found during update: ` + update.projectileId);
             }
 
-            missile.update(update.timeToImpactMs, update.spectralBand);
+            missile.update(update.timeToImpactMs, update.signature);
         }
     }
 
@@ -171,7 +171,7 @@ export default class BridgeIncomingMissilesView {
             scene: this.scene,
             parent: this.root,
 
-            beamBand: payload.beamBand,
+            signature: payload.signature,
             outcome: payload.outcome,
 
             // Последняя реально отображённая позиция.

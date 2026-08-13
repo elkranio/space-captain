@@ -7,7 +7,7 @@ import {
     SHIP_WEAPON_TARGETING_DURATION_MS,
 } from '../../../src/engine/content/catalogs/ship_weapons';
 import { SHIP_NODE_ACTOR_PRESET_ID } from '../../../src/engine/content/presets/ship_node_actors';
-import { MISSILE_SPECTRAL_BAND } from '../../../src/engine/defs/missile';
+import { MISSILE_SIGNATURE } from '../../../src/engine/defs/missile';
 import { OFFICER_ROLE } from '../../../src/engine/defs/officer';
 import { PLAYER_SPACE_NAVIGATION_KIND } from '../../../src/engine/defs/player_location';
 import { SHIP_WEAPON_KIND } from '../../../src/engine/defs/ship_weapon';
@@ -37,16 +37,24 @@ describe('Science identify threat command', () => {
 
             presetId: SHIP_NODE_ACTOR_PRESET_ID.ENEMY_GENERIC_00,
 
-            expectedBand: MISSILE_SPECTRAL_BAND.RED,
+            expectedBand: MISSILE_SIGNATURE.A,
+
+            random: () => 0,
         },
         {
             label: 'BLUE',
 
             presetId: SHIP_NODE_ACTOR_PRESET_ID.ENEMY_GENERIC_BLUE_00,
 
-            expectedBand: MISSILE_SPECTRAL_BAND.BLUE,
+            expectedBand: MISSILE_SIGNATURE.B,
+
+            random: () => 1,
         },
-    ])('identifies an unknown $label incoming missile threat', ({ presetId, expectedBand }) => {
+    ])('identifies an unknown $label incoming missile threat', ({
+            presetId,
+            expectedBand,
+            random,
+        }) => {
         const { node, stationId } = createSingleStationNodeFixture();
 
         const nodeEnemy = ShipNodeActorFactory.create({
@@ -80,6 +88,8 @@ describe('Science identify threat command', () => {
             },
 
             completeTimedTasksImmediately: true,
+        
+            random,
         });
 
         const [loadedEvent] = engine.drainEvents();
@@ -132,7 +142,7 @@ describe('Science identify threat command', () => {
         expect(engine.getCombatProjectiles()[0].identification).toEqual({
             status: THREAT_IDENTIFICATION_STATUS.IDENTIFIED,
 
-            spectralBand: expectedBand,
+            signature: expectedBand,
         });
 
         expect(
@@ -197,7 +207,7 @@ describe('Science identify threat command', () => {
                     identification: {
                         kind: COMBAT_THREAT_KIND.MISSILE,
 
-                        spectralBand: expectedBand,
+                        signature: expectedBand,
                     },
                 },
             },

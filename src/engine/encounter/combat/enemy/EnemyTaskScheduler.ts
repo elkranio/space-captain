@@ -791,8 +791,8 @@ export default class EnemyTaskScheduler {
         defenseTurret.phase =
             DEFENSE_TURRET_PHASE.LOADING;
         defenseTurret.phaseElapsedMs = 0;
-        defenseTurret.loadedBand =
-            intent.beamBand;
+        defenseTurret.loadedSignature =
+            intent.signature;
         defenseTurret.targetProjectileId =
             intent.projectileId;
 
@@ -813,8 +813,8 @@ export default class EnemyTaskScheduler {
             projectileId:
                 intent.projectileId,
 
-            beamBand:
-                intent.beamBand,
+            signature:
+                intent.signature,
 
             loadDurationMs:
                 definition.loadDurationMs,

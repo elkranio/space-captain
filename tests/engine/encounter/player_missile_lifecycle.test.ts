@@ -1,3 +1,6 @@
+import {
+    MISSILE_SIGNATURE,
+} from '../../../src/engine/defs/missile';
 // tests/engine/encounter/player_missile_lifecycle.test.ts
 
 import { createPlayerHullFixture } from '../../fixtures/engine/player_hull_fixtures';
@@ -146,13 +149,16 @@ describe('Player missile lifecycle', () => {
                         targetActorId,
                 },
 
-                identification: {
+                signature:
+                MISSILE_SIGNATURE.A,
+
+            identification: {
                     status:
                         THREAT_IDENTIFICATION_STATUS
                             .IDENTIFIED,
 
-                    spectralBand:
-                        missile.spectralBand,
+                    signature:
+                        'signature_a',
                 },
 
                 missileId,
@@ -442,6 +448,8 @@ function createMissileLifecycleSetup(
             run.player.ship.drive,
         weapons:
             run.player.ship.weapons,
+    
+        random: () => 0,
     });
 
     const [loadedEvent] =

@@ -679,7 +679,7 @@ export default class BridgeCaptainThreatsView {
             return;
         }
 
-        if (missile.spectralBand) {
+        if (missile.signature) {
             this.closeBeamSelector();
             return;
         }

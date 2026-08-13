@@ -214,8 +214,8 @@ describe('BridgeEncounterSnapshotSynchronizer', () => {
                             initialTimeToImpactMs:
                                 1200,
 
-                            spectralBand:
-                                'red',
+                            signature:
+                                'signature_a',
 
                             actions: {},
                         },
@@ -235,7 +235,7 @@ describe('BridgeEncounterSnapshotSynchronizer', () => {
                     {
                         projectileId: 'incoming_1',
                         timeToImpactMs: 800,
-                        spectralBand: 'red',
+                        signature: 'signature_a',
                     },
                 ],
             ],
@@ -404,8 +404,8 @@ describe('BridgeEncounterSnapshotSynchronizer', () => {
                             initialTimeToImpactMs:
                                 1200,
 
-                            spectralBand:
-                                'red',
+                            signature:
+                                'signature_a',
 
                             actions: {},
                         },
@@ -570,8 +570,8 @@ function createEncounterEngine(): EncounterEngine {
                                 status:
                                     'identified',
 
-                                spectralBand:
-                                    'red',
+                                signature:
+                                    'signature_a',
                             },
                         },
                     ],

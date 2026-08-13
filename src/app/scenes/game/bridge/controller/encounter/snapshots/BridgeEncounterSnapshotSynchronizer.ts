@@ -359,10 +359,10 @@ export default class BridgeEncounterSnapshotSynchronizer {
                         THREAT_IDENTIFICATION_STATUS
                             .IDENTIFIED
                             ? {
-                                  spectralBand:
+                                  signature:
                                       projectile
                                           .identification
-                                          .spectralBand,
+                                          .signature,
                               }
                             : {}),
                     };

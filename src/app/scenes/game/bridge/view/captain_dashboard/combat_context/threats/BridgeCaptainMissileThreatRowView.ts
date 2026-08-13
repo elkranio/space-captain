@@ -1,5 +1,5 @@
 import {
-    MISSILE_SPECTRAL_BAND,
+    MISSILE_SIGNATURE,
 } from '../../../../../../../../engine/defs/missile';
 import {
     FONT_COLOR,
@@ -289,18 +289,18 @@ export default class BridgeCaptainMissileThreatRowView {
             ),
         );
 
-        const spectralBand =
-            missile.spectralBand;
+        const signature =
+            missile.signature;
 
         this.threatLabel.setText(
-            spectralBand
-                ? spectralBand
+            signature
+                ? signature
                       .toUpperCase() +
                       ' MISSILE'
                 : 'UNKNOWN MISSILE',
         );
 
-        if (!spectralBand) {
+        if (!signature) {
             this.setScienceAction(
                 missile.actions
                     .identifyThreat,
@@ -328,8 +328,8 @@ export default class BridgeCaptainMissileThreatRowView {
         this.hideScienceAction();
 
         const destroyCommand =
-            spectralBand ===
-            MISSILE_SPECTRAL_BAND.RED
+            signature ===
+            MISSILE_SIGNATURE.A
                 ? missile.actions
                       .fireRedBeam
                 : missile.actions

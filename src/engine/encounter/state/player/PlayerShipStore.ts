@@ -1,8 +1,5 @@
 // src/engine/encounter/state/player/PlayerShipStore.ts
 
-import {
-    MISSILES,
-} from '../../../content/catalogs/missiles';
 import type {
     PowerCoreState,
 } from '../../../defs/power_core';
@@ -11,7 +8,7 @@ import type {
 } from '../../../defs/player';
 import {
     DEFENSE_TURRET_SHOT_OUTCOME,
-    type DefenseTurretBeamBand,
+    type DefenseTurretSignature,
     type DefenseTurretShotOutcome,
 } from '../../../defs/defense_turret';
 import {
@@ -567,29 +564,27 @@ export default class PlayerShipStore {
                     kind:
                         COMBAT_THREAT_KIND.MISSILE,
 
-                    spectralBand:
+                    signature:
                         projectile.identification
-                            .spectralBand,
+                            .signature,
                 };
             }
 
-            const spectralBand =
-                MISSILES[
-                    projectile.missileId
-                ].spectralBand;
+            const signature =
+                projectile.signature;
 
             projectile.identification = {
                 status:
                     THREAT_IDENTIFICATION_STATUS
                         .IDENTIFIED,
-                spectralBand,
+                signature,
             };
 
             return {
                 kind:
                     COMBAT_THREAT_KIND.MISSILE,
 
-                spectralBand,
+                signature,
             };
         }
 
@@ -710,8 +705,8 @@ export default class PlayerShipStore {
 
     public fireDefenseTurret(
         threatId: string,
-        beamBand:
-            DefenseTurretBeamBand,
+        signature:
+            DefenseTurretSignature,
     ): DefenseTurretShotOutcome | undefined {
         const threatIndex =
             this.state.combat
@@ -736,14 +731,9 @@ export default class PlayerShipStore {
                     threatIndex
                 ];
 
-        const missile =
-            MISSILES[
-                threat.missileId
-            ];
-
         const outcome =
-            missile.spectralBand ===
-            beamBand
+            threat.signature ===
+            signature
                 ? DEFENSE_TURRET_SHOT_OUTCOME.HIT
                 : DEFENSE_TURRET_SHOT_OUTCOME.MISS;
 

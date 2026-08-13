@@ -21,7 +21,7 @@ export const SHIP_NODE_ACTOR_PRESET_ID = {
     ENEMY_GENERIC_00: 'enemy_generic_00',
 
     ENEMY_GENERIC_BLUE_00:
-        'enemy_generic_blue_00',
+        'enemy_generic_basic_01',
 
     ENEMY_GENERIC_LASER_00:
         'enemy_generic_laser_00',

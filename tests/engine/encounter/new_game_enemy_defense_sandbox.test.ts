@@ -69,7 +69,7 @@ describe('New-game enemy defense sandbox', () => {
 
                 phaseElapsedMs: 0,
 
-                loadedBand: null,
+                loadedSignature: null,
                 targetProjectileId:
                     null,
             });

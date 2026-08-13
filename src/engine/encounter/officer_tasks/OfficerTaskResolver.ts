@@ -276,7 +276,7 @@ export default class OfficerTaskResolver {
     }
 
     private resolveWeaponsDefenseTurretTask(task: WeaponsDefenseTurretTaskState): OfficerTaskResult | undefined {
-        const outcome = this.stateStore.fireDefenseTurret(task.threatId, task.defenseTurretBeamBand);
+        const outcome = this.stateStore.fireDefenseTurret(task.threatId, task.defenseTurretSignature);
 
         if (!outcome) {
             return undefined;
@@ -287,7 +287,7 @@ export default class OfficerTaskResolver {
 
             threatId: task.threatId,
 
-            beamBand: task.defenseTurretBeamBand,
+            signature: task.defenseTurretSignature,
             outcome,
         };
     }

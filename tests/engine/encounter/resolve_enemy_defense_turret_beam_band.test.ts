@@ -1,4 +1,4 @@
-// tests/engine/encounter/resolve_enemy_defense_turret_beam_band.test.ts
+// tests/engine/encounter/resolve_enemy_defense_turret_signature.test.ts
 
 import {
     describe,
@@ -6,10 +6,10 @@ import {
     it,
 } from 'vitest';
 import {
-    MISSILE_SPECTRAL_BAND,
+    MISSILE_SIGNATURE,
 } from '../../../src/engine/defs/missile';
 import {
-    DEFENSE_TURRET_BEAM_BAND,
+    DEFENSE_TURRET_SIGNATURE,
 } from '../../../src/engine/defs/defense_turret';
 import {
     ENEMY_THREAT_KIND,
@@ -17,13 +17,13 @@ import {
     type EnemyThreatObservationState,
 } from '../../../src/engine/encounter/model/enemy_threat_observation';
 import {
-    resolveEnemyDefenseTurretBeamBand,
-} from '../../../src/engine/encounter/combat/defense_turret/resolve_enemy_defense_turret_beam_band';
+    resolveEnemyDefenseTurretSignature,
+} from '../../../src/engine/encounter/combat/defense_turret/resolve_enemy_defense_turret_signature';
 
 describe('Enemy defense-turret beam-band resolution', () => {
     it('keeps the committed blind fallback without a Science report', () => {
         expect(
-            resolveEnemyDefenseTurretBeamBand({
+            resolveEnemyDefenseTurretSignature({
                 observations: [
                     createMissileObservation(
                         'projectile_00',
@@ -33,12 +33,12 @@ describe('Enemy defense-turret beam-band resolution', () => {
                 projectileId:
                     'projectile_00',
 
-                fallbackBeamBand:
-                    DEFENSE_TURRET_BEAM_BAND
-                        .RED,
+                fallbackSignature:
+                    DEFENSE_TURRET_SIGNATURE
+                        .A,
             }),
         ).toBe(
-            DEFENSE_TURRET_BEAM_BAND.RED,
+            DEFENSE_TURRET_SIGNATURE.A,
         );
     });
 
@@ -52,12 +52,12 @@ describe('Enemy defense-turret beam-band resolution', () => {
             kind:
                 ENEMY_THREAT_KIND.MISSILE,
 
-            spectralBand:
-                MISSILE_SPECTRAL_BAND.BLUE,
+            signature:
+                MISSILE_SIGNATURE.B,
         };
 
         expect(
-            resolveEnemyDefenseTurretBeamBand({
+            resolveEnemyDefenseTurretSignature({
                 observations: [
                     observation,
                 ],
@@ -65,12 +65,12 @@ describe('Enemy defense-turret beam-band resolution', () => {
                 projectileId:
                     'projectile_00',
 
-                fallbackBeamBand:
-                    DEFENSE_TURRET_BEAM_BAND
-                        .RED,
+                fallbackSignature:
+                    DEFENSE_TURRET_SIGNATURE
+                        .A,
             }),
         ).toBe(
-            DEFENSE_TURRET_BEAM_BAND.BLUE,
+            DEFENSE_TURRET_SIGNATURE.B,
         );
     });
 
@@ -84,12 +84,12 @@ describe('Enemy defense-turret beam-band resolution', () => {
             kind:
                 ENEMY_THREAT_KIND.MISSILE,
 
-            spectralBand:
-                MISSILE_SPECTRAL_BAND.BLUE,
+            signature:
+                MISSILE_SIGNATURE.B,
         };
 
         expect(
-            resolveEnemyDefenseTurretBeamBand({
+            resolveEnemyDefenseTurretSignature({
                 observations: [
                     observation,
                 ],
@@ -97,12 +97,12 @@ describe('Enemy defense-turret beam-band resolution', () => {
                 projectileId:
                     'projectile_00',
 
-                fallbackBeamBand:
-                    DEFENSE_TURRET_BEAM_BAND
-                        .RED,
+                fallbackSignature:
+                    DEFENSE_TURRET_SIGNATURE
+                        .A,
             }),
         ).toBe(
-            DEFENSE_TURRET_BEAM_BAND.RED,
+            DEFENSE_TURRET_SIGNATURE.A,
         );
     });
 });

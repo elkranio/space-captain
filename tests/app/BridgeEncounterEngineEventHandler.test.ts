@@ -1,6 +1,10 @@
+import {
+    MISSILE_SIGNATURE,
+} from '../../src/engine/defs/missile';
 // tests/app/BridgeEncounterEngineEventHandler.test.ts
 
-import { describe, expect, it, vi } from 'vitest';
+import {
+    describe, expect, it, vi } from 'vitest';
 import { GameRuntime } from '../../src/app/runtime/GameRuntime';
 import BridgeEncounterEngineEventHandler from '../../src/app/scenes/game/bridge/controller/encounter/engine_events/BridgeEncounterEngineEventHandler';
 import { BRIDGE_EVENT } from '../../src/app/scenes/game/bridge/events/bridge_event';
@@ -10,7 +14,7 @@ import { BEACON_OBJECT_SPRITE_ID } from '../../src/engine/defs/beacon';
 import { MISSILE_ID } from '../../src/engine/defs/missile';
 import { OFFICER_ROLE } from '../../src/engine/defs/officer';
 import {
-    DEFENSE_TURRET_BEAM_BAND,    DEFENSE_TURRET_SHOT_OUTCOME,
+    DEFENSE_TURRET_SIGNATURE,    DEFENSE_TURRET_SHOT_OUTCOME,
 } from '../../src/engine/defs/defense_turret';
 import {
     COMBAT_PROJECTILE_KIND,
@@ -47,11 +51,14 @@ const launchedProjectile: MissileCombatProjectileState = {
         kind: COMBAT_TARGET_KIND.PLAYER_SHIP,
     },
 
-    identification: {
+    signature:
+                MISSILE_SIGNATURE.A,
+
+            identification: {
         status: THREAT_IDENTIFICATION_STATUS.UNKNOWN,
     },
 
-    missileId: MISSILE_ID.RED_00,
+    missileId: MISSILE_ID.BASIC_00,
 
     timeToImpactMs: 12000,
     initialTimeToImpactMs: 12000,
@@ -660,11 +667,11 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
                     kind: OFFICER_TASK_KIND.WEAPONS_DEFENSE_TURRET,
                     role: OFFICER_ROLE.WEAPONS,
 
-                    sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_RED_BEAM,
+                    sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_SIGNATURE_A,
 
                     threatId: 'projectile_test_00',
 
-                    defenseTurretBeamBand: DEFENSE_TURRET_BEAM_BAND.RED,
+                    defenseTurretSignature: DEFENSE_TURRET_SIGNATURE.A,
 
                     label: 'PD AIM',
                     showProgress: true,
@@ -683,7 +690,7 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
 
                     threatId: 'projectile_test_00',
 
-                    beamBand: DEFENSE_TURRET_BEAM_BAND.RED,
+                    signature: DEFENSE_TURRET_SIGNATURE.A,
 
                     outcome: DEFENSE_TURRET_SHOT_OUTCOME.HIT,
                 },
@@ -709,7 +716,7 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
                 {
                     projectileId: 'projectile_test_00',
 
-                    beamBand: DEFENSE_TURRET_BEAM_BAND.RED,
+                    signature: DEFENSE_TURRET_SIGNATURE.A,
 
                     outcome: DEFENSE_TURRET_SHOT_OUTCOME.HIT,
                 },

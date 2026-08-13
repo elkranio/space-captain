@@ -1,3 +1,6 @@
+import {
+    MISSILE_SIGNATURE,
+} from '../../src/engine/defs/missile';
 // tests/app/BridgeEncounterPlayerMissileEvents.test.ts
 
 import {
@@ -55,16 +58,19 @@ const projectile:
                 'ship_enemy_00',
         },
 
-        identification: {
+        signature:
+                MISSILE_SIGNATURE.A,
+
+            identification: {
             status:
                 THREAT_IDENTIFICATION_STATUS
                     .IDENTIFIED,
 
-            spectralBand: 'red',
+            signature: 'signature_a',
         },
 
         missileId:
-            MISSILE_ID.RED_00,
+            MISSILE_ID.BASIC_00,
 
         timeToImpactMs: 12000,
         initialTimeToImpactMs: 12000,
@@ -133,7 +139,7 @@ describe('Bridge player missile event mapping', () => {
                         'projectile_player_00',
 
                     missileId:
-                        MISSILE_ID.RED_00,
+                        MISSILE_ID.BASIC_00,
 
                     targetActorId:
                         'ship_enemy_00',

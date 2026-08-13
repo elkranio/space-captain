@@ -1,12 +1,17 @@
 // src/engine/defs/defense_turret.ts
 
-export const DEFENSE_TURRET_BEAM_BAND = {
-    RED: 'red',
-    BLUE: 'blue',
-} as const;
+import {
+    MISSILE_SIGNATURE,
+    type MissileSignature,
+} from './missile';
 
-export type DefenseTurretBeamBand =
-    (typeof DEFENSE_TURRET_BEAM_BAND)[keyof typeof DEFENSE_TURRET_BEAM_BAND];
+// Transitional targeting domain.
+// Atom 02 removes signature selection from the turret completely.
+export const DEFENSE_TURRET_SIGNATURE =
+    MISSILE_SIGNATURE;
+
+export type DefenseTurretSignature =
+    MissileSignature;
 
 export const DEFENSE_TURRET_SHOT_OUTCOME = {
     HIT: 'hit',
@@ -91,7 +96,7 @@ export function doesDefenseTurretPhaseAdvanceWithCrew(
 
 // Mutable state of one installed ship defense turret.
 //
-// loadedBand and targetProjectileId remain null outside an active load.
+// loadedSignature and targetProjectileId remain null outside an active load.
 // The runner owns those phase invariants.
 export type ShipDefenseTurretState = {
     // Runtime id конкретной установки.
@@ -104,6 +109,6 @@ export type ShipDefenseTurretState = {
     phase: DefenseTurretPhase;
     phaseElapsedMs: number;
 
-    loadedBand: DefenseTurretBeamBand | null;
+    loadedSignature: DefenseTurretSignature | null;
     targetProjectileId: string | null;
 };

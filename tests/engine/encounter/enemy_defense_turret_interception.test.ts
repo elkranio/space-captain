@@ -1,4 +1,7 @@
 import {
+    MISSILE_SIGNATURE,
+} from '../../../src/engine/defs/missile';
+import {
     CREW_TRAIT_ID,
 } from '../../../src/engine/defs/crew_trait';
 import {
@@ -20,7 +23,7 @@ import {
     PLAYER_SPACE_NAVIGATION_KIND,
 } from '../../../src/engine/defs/player_location';
 import {
-    DEFENSE_TURRET_BEAM_BAND,
+    DEFENSE_TURRET_SIGNATURE,
     DEFENSE_TURRET_PHASE,
     DEFENSE_TURRET_SHOT_OUTCOME,
 } from '../../../src/engine/defs/defense_turret';
@@ -59,7 +62,7 @@ describe('Enemy defense-turret interception', () => {
             enemy,
             projectile,
         } = createScenario(
-            MISSILE_ID.RED_00,
+            MISSILE_ID.BASIC_00,
             () => 0,
         );
 
@@ -75,8 +78,8 @@ describe('Enemy defense-turret interception', () => {
             phase:
                 DEFENSE_TURRET_PHASE.LOADING,
 
-            loadedBand:
-                DEFENSE_TURRET_BEAM_BAND.RED,
+            loadedSignature:
+                DEFENSE_TURRET_SIGNATURE.A,
 
             targetProjectileId:
                 projectile.id,
@@ -100,8 +103,8 @@ describe('Enemy defense-turret interception', () => {
             projectileId:
                 projectile.id,
 
-            beamBand:
-                DEFENSE_TURRET_BEAM_BAND.RED,
+            signature:
+                DEFENSE_TURRET_SIGNATURE.A,
         });
 
         expect(
@@ -126,8 +129,8 @@ describe('Enemy defense-turret interception', () => {
             projectileId:
                 projectile.id,
 
-            beamBand:
-                DEFENSE_TURRET_BEAM_BAND.RED,
+            signature:
+                DEFENSE_TURRET_SIGNATURE.A,
 
             loadDurationMs:
                 LOAD_DURATION_MS,
@@ -143,7 +146,7 @@ describe('Enemy defense-turret interception', () => {
                 DEFENSE_TURRET_PHASE.COOLDOWN,
 
             phaseElapsedMs: 0,
-            loadedBand: null,
+            loadedSignature: null,
             targetProjectileId: null,
         });
 
@@ -184,8 +187,8 @@ describe('Enemy defense-turret interception', () => {
             defenseTurretId:
                 'defense_turret_00',
 
-            beamBand:
-                DEFENSE_TURRET_BEAM_BAND.RED,
+            signature:
+                DEFENSE_TURRET_SIGNATURE.A,
 
             outcome:
                 DEFENSE_TURRET_SHOT_OUTCOME.HIT,
@@ -222,7 +225,7 @@ describe('Enemy defense-turret interception', () => {
             enemy,
             projectile,
         } = createScenario(
-            MISSILE_ID.BLUE_00,
+            MISSILE_ID.BASIC_01,
             () => 0,
         );
 
@@ -231,6 +234,9 @@ describe('Enemy defense-turret interception', () => {
             enemy.crewRoles.filter((role) => {
                 return role !== 'science';
             });
+
+        projectile.signature =
+            MISSILE_SIGNATURE.B;
 
         engine.step(0);
         engine.drainEvents();
@@ -275,8 +281,8 @@ describe('Enemy defense-turret interception', () => {
                 );
             }),
         ).toMatchObject({
-            beamBand:
-                DEFENSE_TURRET_BEAM_BAND.RED,
+            signature:
+                DEFENSE_TURRET_SIGNATURE.A,
 
             outcome:
                 DEFENSE_TURRET_SHOT_OUTCOME.MISS,
@@ -310,10 +316,13 @@ describe('Enemy defense-turret interception', () => {
             enemy,
             projectile,
         } = createScenario(
-            MISSILE_ID.BLUE_00,
+            MISSILE_ID.BASIC_01,
             // Blind fallback is RED and would miss.
             () => 0,
         );
+
+        projectile.signature =
+            MISSILE_SIGNATURE.B;
 
         engine.step(0);
 
@@ -341,7 +350,7 @@ describe('Enemy defense-turret interception', () => {
         // A later trait atom can therefore make this report wrong.
         observation.report = {
             kind: 'missile',
-            spectralBand: 'blue',
+            signature: 'signature_b',
         };
 
         engine.drainEvents();
@@ -368,7 +377,7 @@ describe('Enemy defense-turret interception', () => {
                 id: projectile.id,
             },
 
-            beamBand: 'blue',
+            signature: 'signature_b',
             outcome: 'hit',
 
             remainingCharges: 3,
@@ -382,7 +391,7 @@ describe('Enemy defense-turret interception', () => {
             enemy,
             projectile,
         } = createScenario(
-            MISSILE_ID.BLUE_00,
+            MISSILE_ID.BASIC_01,
 
             // Blind fallback is BLUE and would hit.
             () => 1,
@@ -394,6 +403,9 @@ describe('Enemy defense-turret interception', () => {
             CREW_TRAIT_ID.HUNGOVER,
         ];
 
+        projectile.signature =
+            MISSILE_SIGNATURE.B;
+
         engine.step(0);
         engine.drainEvents();
 
@@ -403,9 +415,9 @@ describe('Enemy defense-turret interception', () => {
                     DEFENSE_TURRET_PHASE
                         .LOADING,
 
-                loadedBand:
-                    DEFENSE_TURRET_BEAM_BAND
-                        .BLUE,
+                loadedSignature:
+                    DEFENSE_TURRET_SIGNATURE
+                        .B,
 
                 targetProjectileId:
                     projectile.id,
@@ -432,7 +444,7 @@ describe('Enemy defense-turret interception', () => {
                 kind: 'missile',
 
                 // Truth is BLUE. HUNGOVER Science reports RED.
-                spectralBand: 'red',
+                signature: 'signature_a',
             });
 
         expect(
@@ -461,8 +473,8 @@ describe('Enemy defense-turret interception', () => {
                 id: projectile.id,
             },
 
-            beamBand:
-                DEFENSE_TURRET_BEAM_BAND.RED,
+            signature:
+                DEFENSE_TURRET_SIGNATURE.A,
 
             outcome:
                 DEFENSE_TURRET_SHOT_OUTCOME.MISS,
@@ -475,8 +487,8 @@ describe('Enemy defense-turret interception', () => {
 
 function createScenario(
     missileId:
-        typeof MISSILE_ID.RED_00 |
-        typeof MISSILE_ID.BLUE_00,
+        typeof MISSILE_ID.BASIC_00 |
+        typeof MISSILE_ID.BASIC_01,
     random: () => number,
 ) {
     const generation =
@@ -556,13 +568,16 @@ function createScenario(
                 actorId: enemy.id,
             },
 
+            signature:
+                MISSILE_SIGNATURE.A,
+
             identification: {
                 status:
                     THREAT_IDENTIFICATION_STATUS
                         .IDENTIFIED,
 
-                spectralBand:
-                    missile.spectralBand,
+                signature:
+                    'signature_a',
             },
 
             missileId,

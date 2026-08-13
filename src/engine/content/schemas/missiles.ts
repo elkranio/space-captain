@@ -3,7 +3,6 @@
 import * as z from 'zod';
 import {
     MISSILE_ID,
-    MISSILE_SPECTRAL_BAND,
 } from '../../defs/missile';
 
 const MISSILE_NAME_SCHEMA =
@@ -12,14 +11,6 @@ const MISSILE_NAME_SCHEMA =
         .meta({
             title: 'Name',
         });
-
-const SPECTRAL_BAND_SCHEMA =
-    z.enum(
-        MISSILE_SPECTRAL_BAND,
-    ).meta({
-        title:
-            'Spectral band',
-    });
 
 const DAMAGE_SCHEMA =
     z.number()
@@ -43,13 +34,10 @@ const FLIGHT_DURATION_SCHEMA =
 
 export const MISSILE_TUNING_SCHEMA =
     z.strictObject({
-        [MISSILE_ID.RED_00]:
+        [MISSILE_ID.BASIC_00]:
             z.strictObject({
                 name:
                     MISSILE_NAME_SCHEMA,
-
-                spectralBand:
-                    SPECTRAL_BAND_SCHEMA,
 
                 damage:
                     DAMAGE_SCHEMA,
@@ -58,16 +46,13 @@ export const MISSILE_TUNING_SCHEMA =
                     FLIGHT_DURATION_SCHEMA,
             }).meta({
                 title:
-                    'Red-band Missile',
+                    'Basic Missile',
             }),
 
-        [MISSILE_ID.BLUE_00]:
+        [MISSILE_ID.BASIC_01]:
             z.strictObject({
                 name:
                     MISSILE_NAME_SCHEMA,
-
-                spectralBand:
-                    SPECTRAL_BAND_SCHEMA,
 
                 damage:
                     DAMAGE_SCHEMA,
@@ -76,7 +61,7 @@ export const MISSILE_TUNING_SCHEMA =
                     FLIGHT_DURATION_SCHEMA,
             }).meta({
                 title:
-                    'Blue-band Missile',
+                    'Basic Missile II',
             }),
     });
 

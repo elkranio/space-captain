@@ -148,6 +148,8 @@ export default class CombatRunner {
                 identities:
                     this.identities,
 
+                random,
+
                 emit:
                     this.emit,
 

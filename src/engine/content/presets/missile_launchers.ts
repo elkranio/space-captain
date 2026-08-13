@@ -28,7 +28,7 @@ export const MISSILE_LAUNCHER_PRESETS = {
 
         weaponId: basicLauncher.id,
 
-        loadedMissileId: MISSILE_ID.RED_00,
+        loadedMissileId: MISSILE_ID.BASIC_00,
 
         ammoCount: basicLauncher.ammoCapacity,
     },
@@ -37,7 +37,7 @@ export const MISSILE_LAUNCHER_PRESETS = {
 
         weaponId: basicLauncher.id,
 
-        loadedMissileId: MISSILE_ID.BLUE_00,
+        loadedMissileId: MISSILE_ID.BASIC_01,
         ammoCount: basicLauncher.ammoCapacity,
     },
 } satisfies Record<MissileLauncherPresetId, MissileLauncherPreset>;

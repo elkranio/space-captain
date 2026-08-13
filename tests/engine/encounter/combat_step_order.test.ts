@@ -1,3 +1,6 @@
+import {
+    MISSILE_SIGNATURE,
+} from '../../../src/engine/defs/missile';
 // tests/engine/encounter/combat_step_order.test.ts
 
 import {
@@ -38,7 +41,7 @@ describe('Combat step order', () => {
             createAnchoredPlayerCombatTestSetup();
 
         const missileId =
-            MISSILE_ID.RED_00;
+            MISSILE_ID.BASIC_00;
 
         const missile =
             MISSILES[missileId];
@@ -81,13 +84,16 @@ describe('Combat step order', () => {
                     targetActor.id,
             },
 
+            signature:
+                MISSILE_SIGNATURE.A,
+
             identification: {
                 status:
                     THREAT_IDENTIFICATION_STATUS
                         .IDENTIFIED,
 
-                spectralBand:
-                    missile.spectralBand,
+                signature:
+                    'signature_a',
             },
 
             missileId,

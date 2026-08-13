@@ -17,7 +17,7 @@ import {
 } from '../../../src/engine/defs/encounter_team';
 import {
     MISSILE_ID,
-    MISSILE_SPECTRAL_BAND,
+    MISSILE_SIGNATURE,
 } from '../../../src/engine/defs/missile';
 import {
     OFFICER_ROLE,
@@ -133,9 +133,9 @@ describe(
                         ENEMY_THREAT_KIND
                             .MISSILE,
 
-                    spectralBand:
-                        MISSILE_SPECTRAL_BAND
-                            .RED,
+                    signature:
+                        MISSILE_SIGNATURE
+                            .A,
                 });
             },
         );
@@ -229,6 +229,9 @@ function createMissileFixture(
                     fixture.actor.id,
             },
 
+            signature:
+                MISSILE_SIGNATURE.A,
+
             identification: {
                 status:
                     THREAT_IDENTIFICATION_STATUS
@@ -236,7 +239,7 @@ function createMissileFixture(
             },
 
             missileId:
-                MISSILE_ID.RED_00,
+                MISSILE_ID.BASIC_00,
 
             timeToImpactMs: 12000,
             initialTimeToImpactMs:

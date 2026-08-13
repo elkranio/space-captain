@@ -6,7 +6,11 @@ import {
     SHIP_WEAPON_TARGETING_DURATION_MS,
 } from '../../../../content/catalogs/ship_weapons';
 import { ENCOUNTER_TEAM } from '../../../../defs/encounter_team';
-import type { MissileId } from '../../../../defs/missile';
+import {
+    MISSILE_SIGNATURE,
+    type MissileId,
+    type MissileSignature,
+} from '../../../../defs/missile';
 import {
     SHIP_WEAPON_KIND,
     SHIP_WEAPON_PHASE,
@@ -39,6 +43,7 @@ export type PlayerMissileLaunchInput = {
 type CombatMissileRunnerOptions = {
     stateStore: EncounterStateStore;
     identities: CombatRuntimeIdentityFactory;
+    random: () => number;
     emit: (event: EncounterEvent) => void;
     destroyEnemyActor: (actorId: string) => void;
 };
@@ -56,6 +61,9 @@ export default class CombatMissileRunner {
     private readonly identities:
         CombatRuntimeIdentityFactory;
 
+    private readonly random:
+        () => number;
+
     private readonly emit:
         (event: EncounterEvent) => void;
 
@@ -68,11 +76,13 @@ export default class CombatMissileRunner {
     constructor({
         stateStore,
         identities,
+        random,
         emit,
         destroyEnemyActor,
     }: CombatMissileRunnerOptions) {
         this.stateStore = stateStore;
         this.identities = identities;
+        this.random = random;
         this.emit = emit;
         this.destroyEnemyActor =
             destroyEnemyActor;
@@ -173,6 +183,8 @@ export default class CombatMissileRunner {
         }
 
         const missile = MISSILES[missileId];
+        const signature =
+            this.createMissileSignature();
 
         launcher.ammoCount -= 1;
         launcher.phase =
@@ -210,6 +222,8 @@ export default class CombatMissileRunner {
                         COMBAT_TARGET_KIND
                             .PLAYER_SHIP,
                 },
+
+                signature,
 
                 identification: {
                     status:
@@ -483,6 +497,9 @@ export default class CombatMissileRunner {
         const missile =
             MISSILES[launch.missileId];
 
+        const signature =
+            this.createMissileSignature();
+
         const projectile:
             MissileCombatProjectileState = {
                 id:
@@ -516,13 +533,14 @@ export default class CombatMissileRunner {
                         launch.targetActorId,
                 },
 
+                signature,
+
                 identification: {
                     status:
                         THREAT_IDENTIFICATION_STATUS
                             .IDENTIFIED,
 
-                    spectralBand:
-                        missile.spectralBand,
+                    signature,
                 },
 
                 missileId:
@@ -546,6 +564,12 @@ export default class CombatMissileRunner {
 
             projectile,
         });
+    }
+    private createMissileSignature():
+        MissileSignature {
+        return this.random() < 0.5
+            ? MISSILE_SIGNATURE.A
+            : MISSILE_SIGNATURE.B;
     }
 
     private advanceIncomingMissile(

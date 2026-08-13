@@ -21,7 +21,6 @@ import {
 } from '../../../src/engine/content/schemas/ship_weapons';
 import {
     MISSILE_ID,
-    MISSILE_SPECTRAL_BAND,
 } from '../../../src/engine/defs/missile';
 import {
     SHIP_WEAPON_ID,
@@ -119,18 +118,14 @@ describe(
             () => {
                 expect(
                     MISSILES[
-                        MISSILE_ID.RED_00
+                        MISSILE_ID.BASIC_00
                     ],
                 ).toEqual({
                     id:
-                        MISSILE_ID.RED_00,
+                        MISSILE_ID.BASIC_00,
 
                     name:
-                        'RED-BAND MISSILE',
-
-                    spectralBand:
-                        MISSILE_SPECTRAL_BAND
-                            .RED,
+                        'BASIC MISSILE',
 
                     damage: 1,
 
@@ -140,12 +135,20 @@ describe(
 
                 expect(
                     MISSILES[
-                        MISSILE_ID.BLUE_00
-                    ].spectralBand,
-                ).toBe(
-                    MISSILE_SPECTRAL_BAND
-                        .BLUE,
-                );
+                        MISSILE_ID.BASIC_01
+                    ],
+                ).toEqual({
+                    id:
+                        MISSILE_ID.BASIC_01,
+
+                    name:
+                        'BASIC MISSILE II',
+
+                    damage: 1,
+
+                    flightDurationMs:
+                        12000,
+                });
             },
         );
 
@@ -213,20 +216,20 @@ describe(
                 expect(
                     MISSILE_TUNING_SCHEMA
                         .safeParse({
-                            red_00: {
+                            basic_00: {
                                 name:
-                                    'RED-BAND MISSILE',
-                                spectralBand:
+                                    'BASIC MISSILE',
+                                signature:
                                     'green',
                                 damage: 1,
                                 flightDurationMs:
                                     12000,
                             },
-                            blue_00: {
+                            basic_01: {
                                 name:
-                                    'BLUE-BAND MISSILE',
-                                spectralBand:
-                                    'blue',
+                                    'BASIC MISSILE II',
+                                signature:
+                                    'signature_b',
                                 damage: 1,
                                 flightDurationMs:
                                     12000,

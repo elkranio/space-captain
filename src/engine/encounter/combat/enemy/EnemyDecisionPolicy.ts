@@ -17,7 +17,7 @@ import {
     type OfficerRole,
 } from '../../../defs/officer';
 import {
-    DEFENSE_TURRET_BEAM_BAND,
+    DEFENSE_TURRET_SIGNATURE,
     DEFENSE_TURRET_PHASE,
 } from '../../../defs/defense_turret';
 import {
@@ -122,9 +122,9 @@ export type EnemyWorkIntent =
           defenseTurretId: string;
           projectileId: string;
 
-          beamBand:
-              typeof DEFENSE_TURRET_BEAM_BAND.RED |
-              typeof DEFENSE_TURRET_BEAM_BAND.BLUE;
+          signature:
+              typeof DEFENSE_TURRET_SIGNATURE.A |
+              typeof DEFENSE_TURRET_SIGNATURE.B;
       };
 
 
@@ -662,10 +662,10 @@ export default class EnemyDecisionPolicy {
 
             // First behavior pass is intentionally blind.
             // The physical runner never chooses or corrects this band.
-            beamBand:
+            signature:
                 this.random() < 0.5
-                    ? DEFENSE_TURRET_BEAM_BAND.RED
-                    : DEFENSE_TURRET_BEAM_BAND.BLUE,
+                    ? DEFENSE_TURRET_SIGNATURE.A
+                    : DEFENSE_TURRET_SIGNATURE.B,
         };
     }
 

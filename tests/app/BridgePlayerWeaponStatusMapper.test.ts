@@ -313,7 +313,7 @@ function createWeapons():
             phaseElapsedMs: 0,
 
             loadedMissileId:
-                MISSILE_ID.RED_00,
+                MISSILE_ID.BASIC_00,
 
             ammoCount: 5,
         },

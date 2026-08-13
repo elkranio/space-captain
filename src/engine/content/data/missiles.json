@@ -1,13 +1,11 @@
 {
-    "red_00": {
-        "name": "RED-BAND MISSILE",
-        "spectralBand": "red",
+    "basic_00": {
+        "name": "BASIC MISSILE",
         "damage": 1,
         "flightDurationMs": 12000
     },
-    "blue_00": {
-        "name": "BLUE-BAND MISSILE",
-        "spectralBand": "blue",
+    "basic_01": {
+        "name": "BASIC MISSILE II",
         "damage": 1,
         "flightDurationMs": 12000
     }

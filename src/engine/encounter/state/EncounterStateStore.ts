@@ -11,7 +11,7 @@ import type {
     PlayerSpaceNavigationState,
 } from '../../defs/player_location';
 import type {
-    DefenseTurretBeamBand,
+    DefenseTurretSignature,
     DefenseTurretShotOutcome,
 } from '../../defs/defense_turret';
 import type {
@@ -434,12 +434,12 @@ export default class EncounterStateStore {
 
     public fireDefenseTurret(
         threatId: string,
-        beamBand: DefenseTurretBeamBand,
+        signature: DefenseTurretSignature,
     ): DefenseTurretShotOutcome | undefined {
         return this.playerShip
             .fireDefenseTurret(
                 threatId,
-                beamBand,
+                signature,
             );
     }
 

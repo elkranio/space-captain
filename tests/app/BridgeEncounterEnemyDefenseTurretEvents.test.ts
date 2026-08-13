@@ -1,3 +1,6 @@
+import {
+    MISSILE_SIGNATURE,
+} from '../../src/engine/defs/missile';
 // tests/app/BridgeEncounterEnemyDefenseTurretEvents.test.ts
 
 import {
@@ -18,7 +21,7 @@ import {
     MISSILE_ID,
 } from '../../src/engine/defs/missile';
 import {
-    DEFENSE_TURRET_BEAM_BAND,
+    DEFENSE_TURRET_SIGNATURE,
     DEFENSE_TURRET_SHOT_OUTCOME,
 } from '../../src/engine/defs/defense_turret';
 import {
@@ -61,16 +64,19 @@ const projectile:
                 'ship_enemy_00',
         },
 
-        identification: {
+        signature:
+                MISSILE_SIGNATURE.A,
+
+            identification: {
             status:
                 THREAT_IDENTIFICATION_STATUS
                     .IDENTIFIED,
 
-            spectralBand: 'blue',
+            signature: 'signature_b',
         },
 
         missileId:
-            MISSILE_ID.BLUE_00,
+            MISSILE_ID.BASIC_01,
 
         timeToImpactMs: 9000,
         initialTimeToImpactMs: 12000,
@@ -109,9 +115,9 @@ describe(
                         projectileId:
                             projectile.id,
 
-                        beamBand:
-                            DEFENSE_TURRET_BEAM_BAND
-                                .RED,
+                        signature:
+                            DEFENSE_TURRET_SIGNATURE
+                                .A,
 
                         loadDurationMs: 3000,
                     },
@@ -131,9 +137,9 @@ describe(
                             ...projectile,
                         },
 
-                        beamBand:
-                            DEFENSE_TURRET_BEAM_BAND
-                                .BLUE,
+                        signature:
+                            DEFENSE_TURRET_SIGNATURE
+                                .B,
 
                         outcome:
                             DEFENSE_TURRET_SHOT_OUTCOME
@@ -171,9 +177,9 @@ describe(
                             projectileId:
                                 projectile.id,
 
-                            beamBand:
-                                DEFENSE_TURRET_BEAM_BAND
-                                    .BLUE,
+                            signature:
+                                DEFENSE_TURRET_SIGNATURE
+                                    .B,
 
                             outcome:
                                 DEFENSE_TURRET_SHOT_OUTCOME

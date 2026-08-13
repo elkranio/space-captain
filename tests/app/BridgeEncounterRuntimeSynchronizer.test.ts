@@ -1,3 +1,6 @@
+import {
+    MISSILE_SIGNATURE,
+} from '../../src/engine/defs/missile';
 // tests/app/BridgeEncounterRuntimeSynchronizer.test.ts
 
 import {
@@ -78,14 +81,17 @@ describe(
                                         .PLAYER_SHIP,
                             },
 
-                            identification: {
+                            signature:
+                MISSILE_SIGNATURE.A,
+
+            identification: {
                                 status:
                                     THREAT_IDENTIFICATION_STATUS
                                         .UNKNOWN,
                             },
 
                             missileId:
-                                MISSILE_ID.RED_00,
+                                MISSILE_ID.BASIC_00,
 
                             timeToImpactMs: 0,
                             initialTimeToImpactMs:

@@ -1,24 +1,26 @@
 // src/engine/defs/missile.ts
 
-export const MISSILE_SPECTRAL_BAND = {
-    RED: 'red',
-    BLUE: 'blue',
+// Hidden runtime property of one concrete missile projectile.
+// It is intentionally not part of MissileDefinition.
+export const MISSILE_SIGNATURE = {
+    A: 'signature_a',
+    B: 'signature_b',
 } as const;
 
-export type MissileSpectralBand = (typeof MISSILE_SPECTRAL_BAND)[keyof typeof MISSILE_SPECTRAL_BAND];
+export type MissileSignature =
+    (typeof MISSILE_SIGNATURE)[keyof typeof MISSILE_SIGNATURE];
 
 export const MISSILE_ID = {
-    RED_00: 'red_00',
-    BLUE_00: 'blue_00',
+    BASIC_00: 'basic_00',
+    BASIC_01: 'basic_01',
 } as const;
 
-export type MissileId = (typeof MISSILE_ID)[keyof typeof MISSILE_ID];
+export type MissileId =
+    (typeof MISSILE_ID)[keyof typeof MISSILE_ID];
 
 export type MissileDefinition = {
     id: MissileId;
     name: string;
-
-    spectralBand: MissileSpectralBand;
 
     damage: number;
     flightDurationMs: number;

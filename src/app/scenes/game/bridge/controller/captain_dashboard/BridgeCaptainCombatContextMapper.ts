@@ -128,7 +128,7 @@ export function mapCaptainCombatContextToBridgePayload(
 
                             commandId:
                                 ENCOUNTER_OFFICER_COMMAND_ID
-                                    .WEAPONS_FIRE_RED_BEAM,
+                                    .WEAPONS_FIRE_SIGNATURE_A,
 
                             threatId:
                                 missile.id,
@@ -148,7 +148,7 @@ export function mapCaptainCombatContextToBridgePayload(
 
                             commandId:
                                 ENCOUNTER_OFFICER_COMMAND_ID
-                                    .WEAPONS_FIRE_BLUE_BEAM,
+                                    .WEAPONS_FIRE_SIGNATURE_B,
 
                             threatId:
                                 missile.id,
@@ -179,10 +179,10 @@ export function mapCaptainCombatContextToBridgePayload(
                         THREAT_IDENTIFICATION_STATUS
                             .IDENTIFIED
                             ? {
-                                  spectralBand:
+                                  signature:
                                       missile
                                           .identification
-                                          .spectralBand,
+                                          .signature,
                               }
                             : {}),
 

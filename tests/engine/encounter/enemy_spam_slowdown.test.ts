@@ -1,3 +1,6 @@
+import {
+    MISSILE_SIGNATURE,
+} from '../../../src/engine/defs/missile';
 // tests/engine/encounter/enemy_spam_slowdown.test.ts
 
 import {
@@ -5,9 +8,6 @@ import {
     expect,
     it,
 } from 'vitest';
-import {
-    MISSILES,
-} from '../../../src/engine/content/catalogs/missiles';
 import {
     DEFENSE_TURRETS,
 } from '../../../src/engine/content/catalogs/defense_turrets';
@@ -24,7 +24,7 @@ import {
     OFFICER_ROLE,
 } from '../../../src/engine/defs/officer';
 import {
-    DEFENSE_TURRET_BEAM_BAND,
+    DEFENSE_TURRET_SIGNATURE,
     DEFENSE_TURRET_PHASE,
 } from '../../../src/engine/defs/defense_turret';
 import {
@@ -319,11 +319,6 @@ describe(
                 const projectileId =
                     'spam_slow_pd_missile';
 
-                const missile =
-                    MISSILES[
-                        MISSILE_ID.RED_00
-                    ];
-
                 setup.state.combat
                     .projectiles
                     .push({
@@ -356,18 +351,20 @@ describe(
                                     .id,
                         },
 
-                        identification: {
+                        signature:
+                MISSILE_SIGNATURE.A,
+
+            identification: {
                             status:
                                 THREAT_IDENTIFICATION_STATUS
                                     .IDENTIFIED,
 
-                            spectralBand:
-                                missile
-                                    .spectralBand,
+                            signature:
+                                MISSILE_SIGNATURE.A,
                         },
 
                         missileId:
-                            MISSILE_ID.RED_00,
+                            MISSILE_ID.BASIC_00,
 
                         timeToImpactMs:
                             60000,
@@ -383,9 +380,9 @@ describe(
                 defenseTurret.phaseElapsedMs =
                     0;
 
-                defenseTurret.loadedBand =
-                    DEFENSE_TURRET_BEAM_BAND
-                        .RED;
+                defenseTurret.loadedSignature =
+                    DEFENSE_TURRET_SIGNATURE
+                        .A;
 
                 defenseTurret.targetProjectileId =
                     projectileId;
@@ -445,9 +442,9 @@ describe(
 
                             projectileId,
 
-                            beamBand:
-                                DEFENSE_TURRET_BEAM_BAND
-                                    .RED,
+                            signature:
+                                DEFENSE_TURRET_SIGNATURE
+                                    .A,
                         },
                     };
 

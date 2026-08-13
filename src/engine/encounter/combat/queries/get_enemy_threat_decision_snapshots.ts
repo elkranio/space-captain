@@ -75,7 +75,7 @@ export type EnemyThreatDecisionSnapshot =
 // физические факты, которые реально нужны EnemyDecisionPolicy.
 //
 // Hidden missile truth сюда намеренно не попадает:
-// missileId / spectralBand остаются за EnemyScienceIntelResolver.
+// missileId / signature остаются за EnemyScienceIntelResolver.
 //
 // Исчезнувший source не является invariant error.
 // Между observer sync и decision pass старая enemy crew task

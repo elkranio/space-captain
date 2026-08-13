@@ -1,9 +1,9 @@
 // src/app/scenes/game/bridge/view/combat/defense_turret/BridgeDefenseTurretBeamView.ts
 
 import {
-    DEFENSE_TURRET_BEAM_BAND,
+    DEFENSE_TURRET_SIGNATURE,
     DEFENSE_TURRET_SHOT_OUTCOME,
-    type DefenseTurretBeamBand,
+    type DefenseTurretSignature,
     type DefenseTurretShotOutcome,
 } from '../../../../../../../engine/defs/defense_turret';
 import type BridgeScene from '../../../BridgeScene';
@@ -13,7 +13,7 @@ type BridgeDefenseTurretBeamViewOptions = {
     scene: BridgeScene;
     parent: Phaser.GameObjects.Container;
 
-    beamBand: DefenseTurretBeamBand;
+    signature: DefenseTurretSignature;
     outcome: DefenseTurretShotOutcome;
 
     // Player PD omits this and uses the existing bridge-edge source.
@@ -31,16 +31,16 @@ type DefenseTurretBeamPalette = {
 };
 
 const DEFENSE_TURRET_BEAM_PALETTE = {
-    [DEFENSE_TURRET_BEAM_BAND.RED]: {
+    [DEFENSE_TURRET_SIGNATURE.A]: {
         outer: 0xc9384f,
         inner: 0xff8290,
     },
 
-    [DEFENSE_TURRET_BEAM_BAND.BLUE]: {
+    [DEFENSE_TURRET_SIGNATURE.B]: {
         outer: 0x2f70c4,
         inner: 0x87ceff,
     },
-} satisfies Record<DefenseTurretBeamBand, DefenseTurretBeamPalette>;
+} satisfies Record<DefenseTurretSignature, DefenseTurretBeamPalette>;
 
 const DEFENSE_TURRET_BEAM_PRESENTATION = {
     outerThickness: 6,
@@ -83,7 +83,7 @@ export default class BridgeDefenseTurretBeamView {
 
     private readonly parent: Phaser.GameObjects.Container;
 
-    private readonly beamBand: DefenseTurretBeamBand;
+    private readonly signature: DefenseTurretSignature;
 
     private readonly sourcePosition?:
         Phaser.Math.Vector2;
@@ -102,7 +102,7 @@ export default class BridgeDefenseTurretBeamView {
         scene,
         parent,
 
-        beamBand,
+        signature,
         outcome,
 
         sourcePosition,
@@ -113,7 +113,7 @@ export default class BridgeDefenseTurretBeamView {
         this.scene = scene;
         this.parent = parent;
 
-        this.beamBand = beamBand;
+        this.signature = signature;
 
         this.sourcePosition =
             sourcePosition?.clone();
@@ -216,7 +216,7 @@ export default class BridgeDefenseTurretBeamView {
     private createBeam(targetPosition: Phaser.Math.Vector2): Phaser.GameObjects.Graphics {
         const startPosition = this.createStartPosition(targetPosition);
 
-        const palette = DEFENSE_TURRET_BEAM_PALETTE[this.beamBand];
+        const palette = DEFENSE_TURRET_BEAM_PALETTE[this.signature];
 
         const graphics = this.scene.add.graphics();
 

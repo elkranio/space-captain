@@ -6,9 +6,9 @@ import type { SpriteEntry } from '../../../../manifests/types';
 import type { SceneKey } from '../../../scene_key';
 import type {
     MissileId,
-    MissileSpectralBand,
+    MissileSignature,
 } from '../../../../../engine/defs/missile';
-import type { DefenseTurretBeamBand, DefenseTurretShotOutcome } from '../../../../../engine/defs/defense_turret';
+import type { DefenseTurretSignature, DefenseTurretShotOutcome } from '../../../../../engine/defs/defense_turret';
 import type { ShipDriveStatus } from '../../../../../engine/defs/ship_drive';
 import type { ShipWeaponPhase } from '../../../../../engine/defs/ship_weapon';
 import type { EncounterOfficerCommandId, OfficerCommandTarget } from '../../../../../engine/encounter/model/command';
@@ -556,8 +556,8 @@ export type BridgeCaptainIncomingMissilePayload = {
     timeToImpactMs: number;
     initialTimeToImpactMs: number;
 
-    spectralBand?:
-        MissileSpectralBand;
+    signature?:
+        MissileSignature;
 
     actions: {
         identifyThreat?:
@@ -764,7 +764,7 @@ export type BridgeIncomingMissileUpdatePayload = {
 
     timeToImpactMs: number;
 
-    spectralBand?: MissileSpectralBand;
+    signature?: MissileSignature;
 };
 
 // Актуальный snapshot всех входящих ракет.
@@ -842,7 +842,7 @@ export type BridgeOutgoingSpamChannelEndedPayload = {
 export type BridgeDefenseTurretFiredPayload = {
     projectileId: string;
 
-    beamBand: DefenseTurretBeamBand;
+    signature: DefenseTurretSignature;
     outcome: DefenseTurretShotOutcome;
 };
 
@@ -850,7 +850,7 @@ export type BridgeEnemyDefenseTurretFiredPayload = {
     sourceActorId: string;
     projectileId: string;
 
-    beamBand: DefenseTurretBeamBand;
+    signature: DefenseTurretSignature;
     outcome: DefenseTurretShotOutcome;
 };
 

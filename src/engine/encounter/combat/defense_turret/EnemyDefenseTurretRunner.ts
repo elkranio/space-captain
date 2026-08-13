@@ -1,9 +1,6 @@
 // src/engine/encounter/combat/EnemyDefenseTurretRunner.ts
 
 import {
-    MISSILES,
-} from '../../../content/catalogs/missiles';
-import {
     DEFENSE_TURRETS,
 } from '../../../content/catalogs/defense_turrets';
 import {
@@ -28,8 +25,8 @@ import type {
 } from '../../model/state';
 
 import {
-    resolveEnemyDefenseTurretBeamBand,
-} from './resolve_enemy_defense_turret_beam_band';
+    resolveEnemyDefenseTurretSignature,
+} from './resolve_enemy_defense_turret_signature';
 
 type EnemyDefenseTurretRunnerOptions = {
     state: EncounterState;
@@ -126,14 +123,14 @@ export default class EnemyDefenseTurretRunner {
             return;
         }
 
-        const fallbackBeamBand =
-            defenseTurret.loadedBand;
+        const fallbackSignature =
+            defenseTurret.loadedSignature;
 
         const powerCore =
             actor.powerCore;
 
         if (
-            !fallbackBeamBand ||
+            !fallbackSignature ||
             !powerCore
         ) {
             throw new Error(
@@ -144,30 +141,27 @@ export default class EnemyDefenseTurretRunner {
             );
         }
 
-        const beamBand =
-            resolveEnemyDefenseTurretBeamBand({
+        const signature =
+            resolveEnemyDefenseTurretSignature({
                 observations:
                     actor.threatObservations,
         
                 projectileId:
                     projectile.id,
         
-                fallbackBeamBand,
+                fallbackSignature,
             });
 
-        const missile =
-            MISSILES[projectile.missileId];
-
         const outcome =
-            beamBand ===
-            missile.spectralBand
+            signature ===
+            projectile.signature
                 ? DEFENSE_TURRET_SHOT_OUTCOME.HIT
                 : DEFENSE_TURRET_SHOT_OUTCOME.MISS;
 
         defenseTurret.phase =
             DEFENSE_TURRET_PHASE.COOLDOWN;
         defenseTurret.phaseElapsedMs = 0;
-        defenseTurret.loadedBand = null;
+        defenseTurret.loadedSignature = null;
         defenseTurret.targetProjectileId = null;
 
         // The shot event precedes missile resolution so presentation can aim
@@ -184,7 +178,7 @@ export default class EnemyDefenseTurretRunner {
 
             projectile,
 
-            beamBand,
+            signature,
             outcome,
 
             remainingCharges:
@@ -264,7 +258,7 @@ export default class EnemyDefenseTurretRunner {
         defenseTurret.phase =
             DEFENSE_TURRET_PHASE.READY;
         defenseTurret.phaseElapsedMs = 0;
-        defenseTurret.loadedBand = null;
+        defenseTurret.loadedSignature = null;
         defenseTurret.targetProjectileId = null;
     }
 }

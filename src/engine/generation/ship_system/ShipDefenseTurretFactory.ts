@@ -27,7 +27,7 @@ export default class ShipDefenseTurretFactory {
                 DEFENSE_TURRET_PHASE.READY,
             phaseElapsedMs: 0,
 
-            loadedBand: null,
+            loadedSignature: null,
             targetProjectileId: null,
         };
     }

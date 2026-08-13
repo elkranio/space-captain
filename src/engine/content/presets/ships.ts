@@ -35,10 +35,10 @@ import {
 
 export const SHIP_PRESET_ID = {
     GENERIC_MISSILE_RED_00:
-        'generic_missile_red_00',
+        'generic_missile_basic_00',
 
     GENERIC_MISSILE_BLUE_00:
-        'generic_missile_blue_00',
+        'generic_missile_basic_01',
 
     GENERIC_LASER_00:
         'generic_laser_00',

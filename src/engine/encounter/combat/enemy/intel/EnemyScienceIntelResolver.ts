@@ -1,14 +1,11 @@
 // src/engine/encounter/combat/EnemyScienceIntelResolver.ts
 
 import {
-    MISSILES,
-} from '../../../../content/catalogs/missiles';
-import {
     CREW_TRAIT_ID,
 } from '../../../../defs/crew_trait';
 import {
-    MISSILE_SPECTRAL_BAND,
-    type MissileSpectralBand,
+    MISSILE_SIGNATURE,
+    type MissileSignature,
 } from '../../../../defs/missile';
 import {
     OFFICER_ROLE,
@@ -176,10 +173,8 @@ export default class EnemyScienceIntelResolver {
             kind:
                 ENEMY_THREAT_KIND.MISSILE,
 
-            spectralBand:
-                MISSILES[
-                    projectile.missileId
-                ].spectralBand,
+            signature:
+                projectile.signature,
         };
     }
 
@@ -208,29 +203,27 @@ export default class EnemyScienceIntelResolver {
                 ENEMY_THREAT_KIND
                     .MISSILE,
 
-            spectralBand:
-                this.getWrongSpectralBand(
+            signature:
+                this.getWrongSignature(
                     truthfulReport
-                        .spectralBand,
+                        .signature,
                 ),
         };
     }
 
-    private getWrongSpectralBand(
-        truthfulBand:
-            MissileSpectralBand,
-    ): MissileSpectralBand {
-        switch (truthfulBand) {
-            case MISSILE_SPECTRAL_BAND.RED:
+    private getWrongSignature(
+        truthfulSignature:
+            MissileSignature,
+    ): MissileSignature {
+        switch (truthfulSignature) {
+            case MISSILE_SIGNATURE.A:
                 return (
-                    MISSILE_SPECTRAL_BAND
-                        .BLUE
+                    MISSILE_SIGNATURE.B
                 );
 
-            case MISSILE_SPECTRAL_BAND.BLUE:
+            case MISSILE_SIGNATURE.B:
                 return (
-                    MISSILE_SPECTRAL_BAND
-                        .RED
+                    MISSILE_SIGNATURE.A
                 );
         }
     }

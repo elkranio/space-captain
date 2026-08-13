@@ -1,7 +1,7 @@
 // src/engine/encounter/model/enemy_threat_observation.ts
 
 import type {
-    MissileSpectralBand,
+    MissileSignature,
 } from '../../defs/missile';
 
 export const ENEMY_THREAT_KIND = {
@@ -52,8 +52,8 @@ export type EnemyThreatReport = {
         typeof ENEMY_THREAT_KIND
             .MISSILE;
 
-    spectralBand:
-        MissileSpectralBand;
+    signature:
+        MissileSignature;
 };
 
 // Это только факт наблюдения enemy crew.

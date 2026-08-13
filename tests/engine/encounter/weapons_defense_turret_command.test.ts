@@ -14,7 +14,7 @@ import { SHIP_NODE_ACTOR_PRESET_ID } from '../../../src/engine/content/presets/s
 import { OFFICER_ROLE } from '../../../src/engine/defs/officer';
 import { PLAYER_SPACE_NAVIGATION_KIND } from '../../../src/engine/defs/player_location';
 import {
-    DEFENSE_TURRET_BEAM_BAND,
+    DEFENSE_TURRET_SIGNATURE,
     DEFENSE_TURRET_SHOT_OUTCOME,} from '../../../src/engine/defs/defense_turret';
 import { SHIP_WEAPON_KIND } from '../../../src/engine/defs/ship_weapon';
 import EncounterEngine from '../../../src/engine/encounter/EncounterEngine';
@@ -41,33 +41,38 @@ describe('Weapons defense turret command', () => {
 
             presetId: SHIP_NODE_ACTOR_PRESET_ID.ENEMY_GENERIC_00,
 
-            commandId: ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_RED_BEAM,
+            commandId: ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_SIGNATURE_A,
 
-            beamBand: DEFENSE_TURRET_BEAM_BAND.RED,
+            signature: DEFENSE_TURRET_SIGNATURE.A,
         },
         {
             missileLabel: 'BLUE',
 
             presetId: SHIP_NODE_ACTOR_PRESET_ID.ENEMY_GENERIC_BLUE_00,
 
-            commandId: ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_BLUE_BEAM,
+            commandId: ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_SIGNATURE_B,
 
-            beamBand: DEFENSE_TURRET_BEAM_BAND.BLUE,
+            signature: DEFENSE_TURRET_SIGNATURE.B,
         },
     ] as const)(
         'spends one charge immediately and destroys a $missileLabel missile when the beam band matches',
-        ({ presetId, commandId, beamBand }) => {
+        ({ presetId, commandId, signature }) => {
             const { engine, state } = createEngineWithIncomingMissile({
                 presetId,
             });
+
+            state.combat
+                .projectiles[0]
+                .signature =
+                signature;
 
             const commands = engine.getAvailableCommands(OFFICER_ROLE.WEAPONS);
 
             expect(commands).toEqual([
                 {
-                    commandId: ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_RED_BEAM,
+                    commandId: ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_SIGNATURE_A,
 
-                    label: 'RED BEAM',
+                    label: 'SIGNATURE A',
 
                     target: {
                         kind: OFFICER_COMMAND_TARGET_KIND.THREAT,
@@ -79,9 +84,9 @@ describe('Weapons defense turret command', () => {
                 },
 
                 {
-                    commandId: ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_BLUE_BEAM,
+                    commandId: ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_SIGNATURE_B,
 
-                    label: 'BLUE BEAM',
+                    label: 'SIGNATURE B',
 
                     target: {
                         kind: OFFICER_COMMAND_TARGET_KIND.THREAT,
@@ -122,7 +127,7 @@ describe('Weapons defense turret command', () => {
 
                         threatId: 'projectile_1',
 
-                        defenseTurretBeamBand: beamBand,
+                        defenseTurretSignature: signature,
 
                         label: 'PD AIM',
                         showProgress: true,
@@ -158,7 +163,7 @@ describe('Weapons defense turret command', () => {
 
                 threatId: 'projectile_1',
 
-                defenseTurretBeamBand: beamBand,
+                defenseTurretSignature: signature,
 
                 label: 'PD AIM',
                 showProgress: true,
@@ -196,7 +201,7 @@ describe('Weapons defense turret command', () => {
 
                         threatId: 'projectile_1',
 
-                        defenseTurretBeamBand: beamBand,
+                        defenseTurretSignature: signature,
 
                         label: 'PD AIM',
                         showProgress: true,
@@ -217,7 +222,7 @@ describe('Weapons defense turret command', () => {
 
                         threatId: 'projectile_1',
 
-                        beamBand,
+                        signature,
 
                         outcome: DEFENSE_TURRET_SHOT_OUTCOME.HIT,
                     },
@@ -244,9 +249,9 @@ describe('Weapons defense turret command', () => {
 
             presetId: SHIP_NODE_ACTOR_PRESET_ID.ENEMY_GENERIC_00,
 
-            commandId: ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_BLUE_BEAM,
+            commandId: ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_SIGNATURE_B,
 
-            beamBand: DEFENSE_TURRET_BEAM_BAND.BLUE,
+            signature: DEFENSE_TURRET_SIGNATURE.B,
         },
         {
             missileLabel: 'BLUE',
@@ -254,16 +259,24 @@ describe('Weapons defense turret command', () => {
 
             presetId: SHIP_NODE_ACTOR_PRESET_ID.ENEMY_GENERIC_BLUE_00,
 
-            commandId: ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_RED_BEAM,
+            commandId: ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_SIGNATURE_A,
 
-            beamBand: DEFENSE_TURRET_BEAM_BAND.RED,
+            signature: DEFENSE_TURRET_SIGNATURE.A,
         },
     ] as const)(
         'spends one charge and leaves a $missileLabel missile active after a $beamLabel beam miss',
-        ({ presetId, commandId, beamBand }) => {
+        ({ presetId, commandId, signature }) => {
             const { engine, state } = createEngineWithIncomingMissile({
                 presetId,
             });
+
+            state.combat
+                .projectiles[0]
+                .signature =
+                signature ===
+                DEFENSE_TURRET_SIGNATURE.A
+                    ? DEFENSE_TURRET_SIGNATURE.B
+                    : DEFENSE_TURRET_SIGNATURE.A;
 
             const beamCommand = getCommand(engine, commandId);
 
@@ -302,7 +315,7 @@ describe('Weapons defense turret command', () => {
 
                         threatId: 'projectile_1',
 
-                        defenseTurretBeamBand: beamBand,
+                        defenseTurretSignature: signature,
 
                         label: 'PD AIM',
                         showProgress: true,
@@ -323,7 +336,7 @@ describe('Weapons defense turret command', () => {
 
                         threatId: 'projectile_1',
 
-                        beamBand,
+                        signature,
 
                         outcome: DEFENSE_TURRET_SHOT_OUTCOME.MISS,
                     },
@@ -374,7 +387,7 @@ describe('Weapons defense turret command', () => {
         const redBeamCommand = getCommand(
             engine,
 
-            ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_RED_BEAM,
+            ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_SIGNATURE_A,
         );
 
         expect(
@@ -412,11 +425,11 @@ describe('Weapons defense turret command', () => {
 
                     role: OFFICER_ROLE.WEAPONS,
 
-                    sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_RED_BEAM,
+                    sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_SIGNATURE_A,
 
                     threatId: 'projectile_1',
 
-                    defenseTurretBeamBand: DEFENSE_TURRET_BEAM_BAND.RED,
+                    defenseTurretSignature: DEFENSE_TURRET_SIGNATURE.A,
 
                     label: 'PD AIM',
                     showProgress: true,
@@ -450,7 +463,7 @@ describe('Weapons defense turret command', () => {
         const redBeamCommand = getCommand(
             engine,
 
-            ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_RED_BEAM,
+            ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_SIGNATURE_A,
         );
 
         expect(

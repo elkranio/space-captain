@@ -2,7 +2,7 @@
 
 import { ENCOUNTER_TEAM } from '../../../defs/encounter_team';
 import { OFFICER_ROLE } from '../../../defs/officer';
-import { DEFENSE_TURRET_BEAM_BAND, type DefenseTurretBeamBand } from '../../../defs/defense_turret';
+import { DEFENSE_TURRET_SIGNATURE, type DefenseTurretSignature } from '../../../defs/defense_turret';
 import {
     COMBAT_PROJECTILE_KIND,
     COMBAT_SOURCE_KIND,
@@ -18,27 +18,27 @@ import type { OfficerCommandHandler } from '../../model/officer_command_handler'
 import { createWeaponsDefenseTurretTask } from '../../officer_tasks/create_officer_task_draft';
 import { requireThreatTargetId } from './command_handler_helpers';
 
-export const weaponsFireRedBeamCommandHandler = createWeaponsDefenseTurretCommandHandler(
-    ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_RED_BEAM,
+export const weaponsFireSignatureACommandHandler = createWeaponsDefenseTurretCommandHandler(
+    ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_SIGNATURE_A,
 
-    'RED BEAM',
+    'SIGNATURE A',
 
-    DEFENSE_TURRET_BEAM_BAND.RED,
+    DEFENSE_TURRET_SIGNATURE.A,
 );
 
-export const weaponsFireBlueBeamCommandHandler = createWeaponsDefenseTurretCommandHandler(
-    ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_BLUE_BEAM,
+export const weaponsFireSignatureBCommandHandler = createWeaponsDefenseTurretCommandHandler(
+    ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_SIGNATURE_B,
 
-    'BLUE BEAM',
+    'SIGNATURE B',
 
-    DEFENSE_TURRET_BEAM_BAND.BLUE,
+    DEFENSE_TURRET_SIGNATURE.B,
 );
 
 function createWeaponsDefenseTurretCommandHandler(
     commandId: WeaponsDefenseTurretCommandId,
     label: string,
 
-    defenseTurretBeamBand: DefenseTurretBeamBand,
+    defenseTurretSignature: DefenseTurretSignature,
 ): OfficerCommandHandler {
     const def = {
         availableToRoles: [OFFICER_ROLE.WEAPONS],
@@ -125,7 +125,7 @@ function createWeaponsDefenseTurretCommandHandler(
             context.stateStore
                 .spendPowerCoreCharge();
 
-            context.startOfficerTask(createWeaponsDefenseTurretTask(commandId, threatId, defenseTurretBeamBand));
+            context.startOfficerTask(createWeaponsDefenseTurretTask(commandId, threatId, defenseTurretSignature));
         },
     };
 }

@@ -5,7 +5,7 @@ import {
     type OfficerRole,
 } from '../../defs/officer';
 import type {
-    DefenseTurretBeamBand,
+    DefenseTurretSignature,
 } from '../../defs/defense_turret';
 
 export const SHIP_CREW_TASK_KIND = {
@@ -56,7 +56,7 @@ export type InterceptMissileShipCrewTaskState =
         defenseTurretId: string;
 
         projectileId: string;
-        beamBand: DefenseTurretBeamBand;
+        signature: DefenseTurretSignature;
     };
 
 export type ClearStickyMineShipCrewTaskState =

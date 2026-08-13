@@ -22,12 +22,12 @@ const COMBAT_ACTION_HINT_BY_COMMAND_ID: Partial<
     },
 
 
-    [ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_RED_BEAM]: {
+    [ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_SIGNATURE_A]: {
         id: 'intercept_missile',
         label: 'INTERCEPT MISSILE',
         priority: 10,
     },
-    [ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_BLUE_BEAM]: {
+    [ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_SIGNATURE_B]: {
         id: 'intercept_missile',
         label: 'INTERCEPT MISSILE',
         priority: 10,

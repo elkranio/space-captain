@@ -1,6 +1,10 @@
+import {
+    MISSILE_SIGNATURE,
+} from '../../../src/engine/defs/missile';
 // tests/engine/encounter/combat_runner.test.ts
 
-import { createPlayerHullFixture } from '../../fixtures/engine/player_hull_fixtures';
+import {
+    createPlayerHullFixture } from '../../fixtures/engine/player_hull_fixtures';
 import { createShipDriveFixture } from '../../fixtures/engine/ship_drive_fixtures';
 import { describe, expect, it } from 'vitest';
 import {
@@ -61,6 +65,8 @@ describe('CombatRunner', () => {
 
                 anchorId: stationId,
             },
+
+            random: () => 0,
         });
 
         const [loadedEvent] = engine.drainEvents();
@@ -123,11 +129,14 @@ describe('CombatRunner', () => {
                         kind: COMBAT_TARGET_KIND.PLAYER_SHIP,
                     },
 
-                    identification: {
+                    signature:
+                MISSILE_SIGNATURE.A,
+
+            identification: {
                         status: THREAT_IDENTIFICATION_STATUS.UNKNOWN,
                     },
 
-                    missileId: MISSILE_ID.RED_00,
+                    missileId: MISSILE_ID.BASIC_00,
 
                     timeToImpactMs: 12000,
                     initialTimeToImpactMs: 12000,
@@ -159,11 +168,14 @@ describe('CombatRunner', () => {
                 kind: COMBAT_TARGET_KIND.PLAYER_SHIP,
             },
 
+            signature:
+                MISSILE_SIGNATURE.A,
+
             identification: {
                 status: THREAT_IDENTIFICATION_STATUS.UNKNOWN,
             },
 
-            missileId: MISSILE_ID.RED_00,
+            missileId: MISSILE_ID.BASIC_00,
 
             timeToImpactMs: 12000,
             initialTimeToImpactMs: 12000,
@@ -202,11 +214,14 @@ describe('CombatRunner', () => {
                         kind: COMBAT_TARGET_KIND.PLAYER_SHIP,
                     },
 
-                    identification: {
+                    signature:
+                MISSILE_SIGNATURE.A,
+
+            identification: {
                         status: THREAT_IDENTIFICATION_STATUS.UNKNOWN,
                     },
 
-                    missileId: MISSILE_ID.RED_00,
+                    missileId: MISSILE_ID.BASIC_00,
 
                     timeToImpactMs: 0,
                     initialTimeToImpactMs: 12000,

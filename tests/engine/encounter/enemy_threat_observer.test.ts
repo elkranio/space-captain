@@ -1,6 +1,10 @@
+import {
+    MISSILE_SIGNATURE,
+} from '../../../src/engine/defs/missile';
 // tests/engine/encounter/enemy_threat_observer.test.ts
 
-import { createPlayerHullFixture } from '../../fixtures/engine/player_hull_fixtures';
+import {
+    createPlayerHullFixture } from '../../fixtures/engine/player_hull_fixtures';
 import {
     describe,
     expect,
@@ -200,7 +204,7 @@ describe(
 
                 expect(serialized)
                     .not.toContain(
-                        MISSILE_ID.RED_00,
+                        MISSILE_ID.BASIC_00,
                     );
 
                 expect(serialized)
@@ -361,14 +365,17 @@ function createObserverFixture() {
                 actor.id,
         },
 
-        identification: {
+        signature:
+                MISSILE_SIGNATURE.A,
+
+            identification: {
             status:
                 THREAT_IDENTIFICATION_STATUS
                     .UNKNOWN,
         },
 
         missileId:
-            MISSILE_ID.RED_00,
+            MISSILE_ID.BASIC_00,
 
         timeToImpactMs: 10000,
         initialTimeToImpactMs: 10000,

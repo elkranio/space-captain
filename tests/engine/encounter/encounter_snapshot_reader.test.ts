@@ -1,6 +1,10 @@
+import {
+    MISSILE_SIGNATURE,
+} from '../../../src/engine/defs/missile';
 // tests/engine/encounter/encounter_snapshot_reader.test.ts
 
-import { describe, expect, it } from 'vitest';
+import {
+    describe, expect, it } from 'vitest';
 import { SHIP_DRIVE_STATUS } from '../../../src/engine/defs/ship_drive';
 import EncounterEngine from '../../../src/engine/encounter/EncounterEngine';
 import {
@@ -43,10 +47,13 @@ describe('EncounterSnapshotReader', () => {
             target: {
                 kind: COMBAT_TARGET_KIND.PLAYER_SHIP,
             },
+            signature:
+                MISSILE_SIGNATURE.A,
+
             identification: {
                 status: THREAT_IDENTIFICATION_STATUS.UNKNOWN,
             },
-            missileId: MISSILE_ID.RED_00,
+            missileId: MISSILE_ID.BASIC_00,
             timeToImpactMs: 1000,
             initialTimeToImpactMs: 1000,
         });

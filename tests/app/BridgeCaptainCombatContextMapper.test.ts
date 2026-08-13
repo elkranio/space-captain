@@ -5,7 +5,7 @@ import {
 } from 'vitest';
 import {
     MISSILE_ID,
-    MISSILE_SPECTRAL_BAND,
+    MISSILE_SIGNATURE,
 } from '../../src/engine/defs/missile';
 import {
     OFFICER_ROLE,
@@ -57,9 +57,9 @@ describe(
                                 THREAT_IDENTIFICATION_STATUS
                                     .IDENTIFIED,
 
-                            spectralBand:
-                                MISSILE_SPECTRAL_BAND
-                                    .RED,
+                            signature:
+                                MISSILE_SIGNATURE
+                                    .A,
                         },
                     });
 
@@ -120,21 +120,21 @@ describe(
                         availableWeaponsCommands: [
                             createThreatCommand(
                                 ENCOUNTER_OFFICER_COMMAND_ID
-                                    .WEAPONS_FIRE_RED_BEAM,
+                                    .WEAPONS_FIRE_SIGNATURE_A,
 
                                 far.id,
                             ),
 
                             createThreatCommand(
                                 ENCOUNTER_OFFICER_COMMAND_ID
-                                    .WEAPONS_FIRE_BLUE_BEAM,
+                                    .WEAPONS_FIRE_SIGNATURE_B,
 
                                 near.id,
                             ),
 
                             createThreatCommand(
                                 ENCOUNTER_OFFICER_COMMAND_ID
-                                    .WEAPONS_FIRE_RED_BEAM,
+                                    .WEAPONS_FIRE_SIGNATURE_A,
 
                                 near.id,
                             ),
@@ -164,9 +164,9 @@ describe(
                             initialTimeToImpactMs:
                                 1200,
 
-                            spectralBand:
-                                MISSILE_SPECTRAL_BAND
-                                    .RED,
+                            signature:
+                                MISSILE_SIGNATURE
+                                    .A,
 
                             actions: {
                                 fireRedBeam: {
@@ -176,7 +176,7 @@ describe(
 
                                     commandId:
                                         ENCOUNTER_OFFICER_COMMAND_ID
-                                            .WEAPONS_FIRE_RED_BEAM,
+                                            .WEAPONS_FIRE_SIGNATURE_A,
 
                                     target: {
                                         kind:
@@ -195,7 +195,7 @@ describe(
 
                                     commandId:
                                         ENCOUNTER_OFFICER_COMMAND_ID
-                                            .WEAPONS_FIRE_BLUE_BEAM,
+                                            .WEAPONS_FIRE_SIGNATURE_B,
 
                                     target: {
                                         kind:
@@ -249,7 +249,7 @@ describe(
 
                                     commandId:
                                         ENCOUNTER_OFFICER_COMMAND_ID
-                                            .WEAPONS_FIRE_RED_BEAM,
+                                            .WEAPONS_FIRE_SIGNATURE_A,
 
                                     target: {
                                         kind:
@@ -834,7 +834,7 @@ describe(
                 const duplicate =
                     createThreatCommand(
                         ENCOUNTER_OFFICER_COMMAND_ID
-                            .WEAPONS_FIRE_RED_BEAM,
+                            .WEAPONS_FIRE_SIGNATURE_A,
 
                         missile.id,
                     );
@@ -933,10 +933,13 @@ function createMissile({
                     .PLAYER_SHIP,
         },
 
+        signature:
+            MISSILE_SIGNATURE.A,
+
         identification,
 
         missileId:
-            MISSILE_ID.RED_00,
+            MISSILE_ID.BASIC_00,
 
         timeToImpactMs,
         initialTimeToImpactMs,

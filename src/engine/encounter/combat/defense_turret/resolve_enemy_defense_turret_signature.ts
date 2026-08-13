@@ -1,7 +1,7 @@
-// src/engine/encounter/combat/resolve_enemy_defense_turret_beam_band.ts
+// src/engine/encounter/combat/resolve_enemy_defense_turret_signature.ts
 
 import type {
-    DefenseTurretBeamBand,
+    DefenseTurretSignature,
 } from '../../../defs/defense_turret';
 import {
     ENEMY_THREAT_KIND,
@@ -9,15 +9,15 @@ import {
     type EnemyThreatObservationState,
 } from '../../model/enemy_threat_observation';
 
-export type ResolveEnemyDefenseTurretBeamBandInput = {
+export type ResolveEnemyDefenseTurretSignatureInput = {
     observations:
         readonly EnemyThreatObservationState[];
 
     projectileId: string;
 
     // Random band committed when Weapons starts loading.
-    fallbackBeamBand:
-        DefenseTurretBeamBand;
+    fallbackSignature:
+        DefenseTurretSignature;
 };
 
 // Deterministic report-consumption boundary.
@@ -28,12 +28,12 @@ export type ResolveEnemyDefenseTurretBeamBandInput = {
 //
 // This intentionally makes a future incorrect-Science-report trait affect
 // defense turret without adding another special case to the physical runner.
-export function resolveEnemyDefenseTurretBeamBand({
+export function resolveEnemyDefenseTurretSignature({
     observations,
     projectileId,
-    fallbackBeamBand,
-}: ResolveEnemyDefenseTurretBeamBandInput):
-    DefenseTurretBeamBand {
+    fallbackSignature,
+}: ResolveEnemyDefenseTurretSignatureInput):
+    DefenseTurretSignature {
     const observation =
         observations.find((candidate) => {
             return (
@@ -52,8 +52,8 @@ export function resolveEnemyDefenseTurretBeamBand({
         observation.report?.kind !==
             ENEMY_THREAT_KIND.MISSILE
     ) {
-        return fallbackBeamBand;
+        return fallbackSignature;
     }
 
-    return observation.report.spectralBand;
+    return observation.report.signature;
 }

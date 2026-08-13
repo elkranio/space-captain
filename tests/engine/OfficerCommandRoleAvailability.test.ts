@@ -33,7 +33,7 @@ describe('Officer command role availability', () => {
         expect(
             getOfficerCommandHandler(
                 ENCOUNTER_OFFICER_COMMAND_ID
-                    .WEAPONS_FIRE_RED_BEAM,
+                    .WEAPONS_FIRE_SIGNATURE_A,
             ).def.availableToRoles,
         ).toEqual([
             OFFICER_ROLE.WEAPONS,

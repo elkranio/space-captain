@@ -13,8 +13,8 @@ describe('CombatActionHintMapper', () => {
 
         expect(
             mapper.map([
-                createCommand(ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_RED_BEAM),
-                createCommand(ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_BLUE_BEAM),
+                createCommand(ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_SIGNATURE_A),
+                createCommand(ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_SIGNATURE_B),
                 createCommand(ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_MISSILE),
                 createCommand(ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_LASER),
             ]),

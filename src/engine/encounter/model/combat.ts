@@ -3,7 +3,7 @@
 import type {
     PowerCoreState,
 } from '../../defs/power_core';
-import type { MissileSpectralBand, MissileId } from '../../defs/missile';
+import type { MissileSignature, MissileId } from '../../defs/missile';
 import type {
     StickyMineId,
 } from '../../defs/sticky_mine';
@@ -113,13 +113,13 @@ export type MissileThreatIdentification =
     | {
           status: typeof THREAT_IDENTIFICATION_STATUS.IDENTIFIED;
 
-          spectralBand: MissileSpectralBand;
+          signature: MissileSignature;
       };
 
 export type ThreatIdentificationResult = {
     kind: typeof COMBAT_THREAT_KIND.MISSILE;
 
-    spectralBand: MissileSpectralBand;
+    signature: MissileSignature;
 };
 
 export type MissileCombatProjectileState = {
@@ -135,6 +135,10 @@ export type MissileCombatProjectileState = {
     sourceWeaponId: string;
 
     target: CombatTarget;
+
+    // Objective hidden truth of this concrete projectile.
+    // missileId identifies ammo model and cannot reveal this value.
+    signature: MissileSignature;
 
     // Знание игрока о свойствах угрозы.
     // Объективный тип ракеты остаётся в missileId.

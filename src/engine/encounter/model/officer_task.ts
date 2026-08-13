@@ -10,7 +10,7 @@ export {
     type OfficerTaskCancellationPolicy,
     type OfficerTaskKind,
 } from '../../defs/officer_task';
-import type { DefenseTurretBeamBand } from '../../defs/defense_turret';
+import type { DefenseTurretSignature } from '../../defs/defense_turret';
 import {
     ENCOUNTER_OFFICER_COMMAND_ID,
     type WeaponsDefenseTurretCommandId,
@@ -79,7 +79,7 @@ type WeaponsDefenseTurretOfficerTaskDraft = OfficerTaskDraftBase & {
     sourceCommandId: WeaponsDefenseTurretCommandId;
 
     threatId: string;
-    defenseTurretBeamBand: DefenseTurretBeamBand;
+    defenseTurretSignature: DefenseTurretSignature;
 };
 
 type WeaponsFireMissileOfficerTaskDraft =

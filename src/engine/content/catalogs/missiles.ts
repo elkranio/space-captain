@@ -16,21 +16,21 @@ const MISSILE_TUNING =
     );
 
 export const MISSILES = {
-    [MISSILE_ID.RED_00]: {
+    [MISSILE_ID.BASIC_00]: {
         id:
-            MISSILE_ID.RED_00,
+            MISSILE_ID.BASIC_00,
 
         ...MISSILE_TUNING[
-            MISSILE_ID.RED_00
+            MISSILE_ID.BASIC_00
         ],
     },
 
-    [MISSILE_ID.BLUE_00]: {
+    [MISSILE_ID.BASIC_01]: {
         id:
-            MISSILE_ID.BLUE_00,
+            MISSILE_ID.BASIC_01,
 
         ...MISSILE_TUNING[
-            MISSILE_ID.BLUE_00
+            MISSILE_ID.BASIC_01
         ],
     },
 } satisfies Record<

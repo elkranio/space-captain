@@ -79,7 +79,7 @@ describe('GameRuntime player ship weapons', () => {
             phaseElapsedMs: 0,
 
             loadedMissileId:
-                MISSILE_ID.RED_00,
+                MISSILE_ID.BASIC_00,
 
             ammoCount:
                 definition.ammoCapacity,

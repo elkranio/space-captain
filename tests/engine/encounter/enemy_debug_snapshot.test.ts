@@ -1,3 +1,6 @@
+import {
+    MISSILE_SIGNATURE,
+} from '../../../src/engine/defs/missile';
 // tests/engine/encounter/enemy_debug_snapshot.test.ts
 
 import {
@@ -18,7 +21,7 @@ import {
     OFFICER_ROLE,
 } from '../../../src/engine/defs/officer';
 import {
-    DEFENSE_TURRET_BEAM_BAND,
+    DEFENSE_TURRET_SIGNATURE,
     DEFENSE_TURRET_ID,
     DEFENSE_TURRET_PHASE,
 } from '../../../src/engine/defs/defense_turret';
@@ -78,14 +81,17 @@ describe(
                                 'ship_enemy_00',
                         },
 
-                        identification: {
+                        signature:
+                            MISSILE_SIGNATURE.B,
+
+            identification: {
                             status:
                                 THREAT_IDENTIFICATION_STATUS
                                     .UNKNOWN,
                         },
 
                         missileId:
-                            MISSILE_ID.BLUE_00,
+                            MISSILE_ID.BASIC_01,
 
                         timeToImpactMs:
                             9000,
@@ -154,9 +160,9 @@ describe(
                                     projectileId:
                                         projectile.id,
 
-                                    beamBand:
-                                        DEFENSE_TURRET_BEAM_BAND
-                                            .BLUE,
+                                    signature:
+                                        DEFENSE_TURRET_SIGNATURE
+                                            .B,
                                 },
                             },
 
@@ -184,9 +190,9 @@ describe(
                                             ENEMY_THREAT_KIND
                                                 .MISSILE,
 
-                                        spectralBand:
-                                            DEFENSE_TURRET_BEAM_BAND
-                                                .RED,
+                                        signature:
+                                            DEFENSE_TURRET_SIGNATURE
+                                                .A,
                                     },
                                 },
                             ],
@@ -219,9 +225,9 @@ describe(
                                 phaseElapsedMs:
                                     1000,
 
-                                loadedBand:
-                                    DEFENSE_TURRET_BEAM_BAND
-                                        .BLUE,
+                                loadedSignature:
+                                    DEFENSE_TURRET_SIGNATURE
+                                        .B,
 
                                 targetProjectileId:
                                     projectile.id,
@@ -293,7 +299,7 @@ describe(
                                             .INTERCEPT_MISSILE,
 
                                     label:
-                                        'INTERCEPT M1 BLUE',
+                                        'INTERCEPT M1 SIGNATURE_B',
 
                                     progress: {
                                         elapsedMs:
@@ -340,9 +346,9 @@ describe(
                                 DEFENSE_TURRET_PHASE
                                     .LOADING,
 
-                            loadedBand:
-                                DEFENSE_TURRET_BEAM_BAND
-                                    .BLUE,
+                            loadedSignature:
+                                DEFENSE_TURRET_SIGNATURE
+                                    .B,
 
                             targetLabel:
                                 'M1',
@@ -375,12 +381,12 @@ describe(
                                     9000,
 
                                 report:
-                                    DEFENSE_TURRET_BEAM_BAND
-                                        .RED,
+                                    DEFENSE_TURRET_SIGNATURE
+                                        .A,
 
                                 truth:
-                                    DEFENSE_TURRET_BEAM_BAND
-                                        .BLUE,
+                                    DEFENSE_TURRET_SIGNATURE
+                                        .B,
 
                                 mismatch: true,
                             },

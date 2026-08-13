@@ -4,9 +4,6 @@ import {
     POWER_CORES,
 } from '../../content/catalogs/power_cores';
 import {
-    MISSILES,
-} from '../../content/catalogs/missiles';
-import {
     DEFENSE_TURRETS,
 } from '../../content/catalogs/defense_turrets';
 import {
@@ -21,7 +18,7 @@ import {
 } from '../../defs/officer';
 import {
     DEFENSE_TURRET_PHASE,
-    type DefenseTurretBeamBand,
+    type DefenseTurretSignature,
     type DefenseTurretPhase,
 } from '../../defs/defense_turret';
 import {
@@ -97,8 +94,8 @@ export type EnemyDebugPowerCoreSnapshot = {
 export type EnemyDebugDefenseTurretSnapshot = {
     phase: DefenseTurretPhase;
 
-    loadedBand:
-        DefenseTurretBeamBand | null;
+    loadedSignature:
+        DefenseTurretSignature | null;
 
     targetLabel?: string;
 
@@ -361,7 +358,7 @@ function createCrewTaskSnapshot(
                         ?.designation ??
                         '?') +
                     ' ' +
-                    task.beamBand
+                    task.signature
                         .toUpperCase(),
 
                 ...(progress
@@ -594,8 +591,8 @@ function createDefenseTurretSnapshot(
         phase:
             defenseTurret.phase,
 
-        loadedBand:
-            defenseTurret.loadedBand,
+        loadedSignature:
+            defenseTurret.loadedSignature,
 
         ...(defenseTurret
             .targetProjectileId
@@ -749,9 +746,7 @@ function createMissileThreatSnapshot(
 
     const truth =
         projectile
-            ? MISSILES[
-                  projectile.missileId
-              ].spectralBand
+            ? projectile.signature
             : undefined;
 
     const report =
@@ -759,7 +754,7 @@ function createMissileThreatSnapshot(
             ? observation.report.kind ===
               ENEMY_THREAT_KIND.MISSILE
                 ? observation.report
-                      .spectralBand
+                      .signature
                 : 'invalid'
             : undefined;
 
