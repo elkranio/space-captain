@@ -79,6 +79,34 @@ export type ContentCollectionId =
         keyof typeof CONTENT_COLLECTION_ID
     ];
 
+export const CONTENT_COLLECTION_GROUP = {
+    GENERAL:
+        'General',
+
+    SHIP_MODULES:
+        'Ship Modules',
+} as const;
+
+export type ContentCollectionGroup =
+    (typeof CONTENT_COLLECTION_GROUP)[
+        keyof typeof CONTENT_COLLECTION_GROUP
+    ];
+
+const SHIP_MODULE_COLLECTION_IDS =
+    new Set<ContentCollectionId>([
+        CONTENT_COLLECTION_ID
+            .POWER_CORES,
+
+        CONTENT_COLLECTION_ID
+            .SHIP_DRIVES,
+
+        CONTENT_COLLECTION_ID
+            .SHIELD_GENERATORS,
+
+        CONTENT_COLLECTION_ID
+            .DEFENSE_TURRETS,
+    ]);
+
 type ContentCollectionDefinition = {
     id: ContentCollectionId;
     label: string;
@@ -335,6 +363,7 @@ const CONTENT_COLLECTIONS:
 export type ContentCollectionSummary = {
     id: ContentCollectionId;
     label: string;
+    group: ContentCollectionGroup;
     canAdd: boolean;
     canDelete: boolean;
 };
@@ -347,6 +376,17 @@ export function getContentCollectionSummaries():
         return {
             id: collection.id,
             label: collection.label,
+
+            group:
+                SHIP_MODULE_COLLECTION_IDS
+                    .has(
+                        collection.id,
+                    )
+                    ? CONTENT_COLLECTION_GROUP
+                        .SHIP_MODULES
+                    : CONTENT_COLLECTION_GROUP
+                        .GENERAL,
+
             canAdd: collection.canAdd,
             canDelete:
                 collection.canDelete,

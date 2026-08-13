@@ -16,6 +16,7 @@ import shipWeaponRulesData from '../../src/engine/content/data/ship_weapon_rules
 import shipWeaponData from '../../src/engine/content/data/ship_weapons.json';
 import stickyMineData from '../../src/engine/content/data/sticky_mines.json';
 import {
+    CONTENT_COLLECTION_GROUP,
     CONTENT_COLLECTION_ID,
     getContentCollectionDefinition,
     getContentCollectionJsonSchema,
@@ -29,8 +30,23 @@ describe(
         it(
             'exposes only explicitly registered content collections',
             () => {
+                const summaries =
+                    getContentCollectionSummaries();
+
                 expect(
-                    getContentCollectionSummaries(),
+                    summaries.map(
+                        (summary) => {
+                            return {
+                                id: summary.id,
+                                label:
+                                    summary.label,
+                                canAdd:
+                                    summary.canAdd,
+                                canDelete:
+                                    summary.canDelete,
+                            };
+                        },
+                    ),
                 ).toEqual([
                     {
                         id:
@@ -164,6 +180,32 @@ describe(
                         canAdd: false,
                         canDelete: false,
                     },
+                ]);
+
+                expect(
+                    summaries
+                        .filter((summary) => {
+                            return (
+                                summary.group ===
+                                CONTENT_COLLECTION_GROUP
+                                    .SHIP_MODULES
+                            );
+                        })
+                        .map((summary) => {
+                            return summary.id;
+                        }),
+                ).toEqual([
+                    CONTENT_COLLECTION_ID
+                        .POWER_CORES,
+
+                    CONTENT_COLLECTION_ID
+                        .DEFENSE_TURRETS,
+
+                    CONTENT_COLLECTION_ID
+                        .SHIELD_GENERATORS,
+
+                    CONTENT_COLLECTION_ID
+                        .SHIP_DRIVES,
                 ]);
 
                 expect(

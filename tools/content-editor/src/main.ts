@@ -3,14 +3,6 @@ import './style.css';
 const CONTENT_ID_PATTERN =
     /^[a-z][a-z0-9_]*$/;
 
-const SHIP_MODULE_COLLECTION_IDS =
-    new Set<string>([
-        'power_cores',
-        'ship_drives',
-        'shield_generators',
-        'defense_turrets',
-    ]);
-
 type JsonSchema = {
     type?: string;
     title?: string;
@@ -33,6 +25,7 @@ type ContentRecord =
 type ContentCollectionSummary = {
     id: string;
     label: string;
+    group: string;
     canAdd: boolean;
     canDelete: boolean;
 };
@@ -529,31 +522,42 @@ function render(): void {
 function renderCollectionList(): void {
     collectionList.replaceChildren();
 
-    renderCollectionGroup(
-        'General',
-        collectionSummaries
-            .filter((summary) => {
-                return (
-                    !SHIP_MODULE_COLLECTION_IDS
-                        .has(
-                            summary.id,
-                        )
-                );
-            }),
-    );
+    const groups =
+        new Map<
+            string,
+            ContentCollectionSummary[]
+        >();
 
-    renderCollectionGroup(
-        'Ship Modules',
+    for (
+        const summary of
         collectionSummaries
-            .filter((summary) => {
-                return (
-                    SHIP_MODULE_COLLECTION_IDS
-                        .has(
-                            summary.id,
-                        )
-                );
-            }),
-    );
+    ) {
+        const summaries =
+            groups.get(
+                summary.group,
+            ) ?? [];
+
+        summaries.push(
+            summary,
+        );
+
+        groups.set(
+            summary.group,
+            summaries,
+        );
+    }
+
+    for (
+        const [
+            groupLabel,
+            summaries,
+        ] of groups
+    ) {
+        renderCollectionGroup(
+            groupLabel,
+            summaries,
+        );
+    }
 }
 
 function renderCollectionGroup(
