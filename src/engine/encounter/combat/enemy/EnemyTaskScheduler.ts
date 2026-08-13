@@ -53,6 +53,10 @@ import EnemyCrewTaskRunner from './EnemyCrewTaskRunner';
 import EnemyDecisionPolicy, {
     type EnemyWorkIntent,
 } from './EnemyDecisionPolicy';
+import {
+    getEnemyThreatDecisionSnapshots,
+    type EnemyThreatDecisionSnapshot,
+} from '../queries/get_enemy_threat_decision_snapshots';
 import EnemyScienceIntelResolver from './intel/EnemyScienceIntelResolver';
 import {
     getActivePlayerSpamChannels,
@@ -291,8 +295,15 @@ export default class EnemyTaskScheduler {
                 continue;
             }
 
+            const threatDecisionSnapshots =
+                getEnemyThreatDecisionSnapshots(
+                    this.state,
+                    actor,
+                );
+
             this.scheduleMineClearing(
                 actor,
+                threatDecisionSnapshots,
             );
 
             for (
@@ -302,6 +313,7 @@ export default class EnemyTaskScheduler {
                 this.scheduleRole(
                     actor,
                     role,
+                    threatDecisionSnapshots,
                 );
             }
         }
@@ -337,6 +349,8 @@ export default class EnemyTaskScheduler {
     private scheduleRole(
         actor: ShipEncounterActorState,
         role: OfficerRole,
+        threatSnapshots:
+            readonly EnemyThreatDecisionSnapshot[],
     ): void {
         if (
             !this.hasCrewRole(
@@ -357,6 +371,7 @@ export default class EnemyTaskScheduler {
                 .selectWork(
                     actor,
                     role,
+                    threatSnapshots,
                 );
 
         if (!intent) {
@@ -504,12 +519,15 @@ export default class EnemyTaskScheduler {
 
     private scheduleMineClearing(
         actor: ShipEncounterActorState,
+        threatSnapshots:
+            readonly EnemyThreatDecisionSnapshot[],
     ): void {
         while (true) {
             const intent =
                 this.decisionPolicy
                     .selectMineClearing(
                         actor,
+                        threatSnapshots,
                     );
 
             if (!intent) {

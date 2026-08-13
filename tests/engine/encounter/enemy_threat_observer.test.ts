@@ -31,6 +31,9 @@ import {
 } from '../../../src/engine/defs/sticky_mine';
 import EnemyThreatObserver from '../../../src/engine/encounter/combat/enemy/intel/EnemyThreatObserver';
 import {
+    getEnemyThreatDecisionSnapshots,
+} from '../../../src/engine/encounter/combat/queries/get_enemy_threat_decision_snapshots';
+import {
     ENCOUNTER_OFFICER_COMMAND_ID,
 } from '../../../src/engine/encounter/model/command';
 import {
@@ -133,6 +136,62 @@ describe(
                     },
                 ]);
 
+                expect(
+                    getEnemyThreatDecisionSnapshots(
+                        state,
+                        actor,
+                    ),
+                ).toEqual([
+                    {
+                        kind:
+                            ENEMY_THREAT_KIND
+                                .MISSILE,
+
+                        observationId:
+                            'missile:' +
+                            'player_missile_00',
+
+                        projectileId:
+                            'player_missile_00',
+
+                        timeToImpactMs:
+                            10000,
+                    },
+                    {
+                        kind:
+                            ENEMY_THREAT_KIND
+                                .LASER,
+
+                        observationId:
+                            'laser:' +
+                            'player_laser_task_00',
+
+                        officerTaskId:
+                            'player_laser_task_00',
+
+                        weaponId:
+                            'laser_player_00',
+
+                        remainingChargeMs:
+                            12000,
+                    },
+                    {
+                        kind:
+                            ENEMY_THREAT_KIND
+                                .STICKY_MINE,
+
+                        observationId:
+                            'sticky_mine:' +
+                            'player_mine_00',
+
+                        mineId:
+                            'player_mine_00',
+
+                        timeToDetonationMs:
+                            7000,
+                    },
+                ]);
+
                 const serialized =
                     JSON.stringify(
                         actor
@@ -177,6 +236,16 @@ describe(
                     .officerTasks[
                         OFFICER_ROLE.WEAPONS
                     ];
+
+                // Live sources may disappear after perception
+                // but before a later decision pass.
+                // Stale observations must simply resolve to no work.
+                expect(
+                    getEnemyThreatDecisionSnapshots(
+                        state,
+                        actor,
+                    ),
+                ).toEqual([]);
 
                 observer.synchronize();
 

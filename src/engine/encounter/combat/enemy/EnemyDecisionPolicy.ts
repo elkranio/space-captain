@@ -4,9 +4,6 @@ import {
     SHIELD_EMITTERS,
 } from '../../../content/catalogs/shield_emitters';
 import {
-    SHIP_WEAPONS,
-} from '../../../content/catalogs/ship_weapons';
-import {
     OFFICER_TASK_BASE_DURATION_MS,
 } from '../../../content/rules/officer_tasks';
 import {
@@ -29,19 +26,11 @@ import {
 import type {
     ShipEncounterActorState,
 } from '../../actors/ship/ship_encounter_actor';
-import {
-    COMBAT_SOURCE_KIND,
-    COMBAT_TARGET_KIND,
-} from '../../model/combat';
-import {
-    OFFICER_TASK_KIND,
-} from '../../model/officer_task';
 import type {
     EncounterState,
 } from '../../model/state';
 import {
     ENEMY_THREAT_KIND,
-    ENEMY_THREAT_SOURCE_KIND,
 } from '../../model/enemy_threat_observation';
 import {
     SHIP_CREW_TASK_KIND,
@@ -49,6 +38,10 @@ import {
 import {
     getActivePlayerSpamChannels,
 } from '../queries/get_active_player_spam_channels';
+import {
+    getEnemyThreatDecisionSnapshots,
+    type EnemyThreatDecisionSnapshot,
+} from '../queries/get_enemy_threat_decision_snapshots';
 
 export type EnemyWorkIntent =
     | {
@@ -210,6 +203,8 @@ export default class EnemyDecisionPolicy {
 
     public selectMineClearing(
         actor: ShipEncounterActorState,
+        threatSnapshots?:
+            readonly EnemyThreatDecisionSnapshot[],
     ): Extract<
         EnemyWorkIntent,
         {
@@ -218,12 +213,11 @@ export default class EnemyDecisionPolicy {
                     .CLEAR_STICKY_MINE;
         }
     > | undefined {
-        const state =
-            this.state;
-
-        if (!state) {
-            return undefined;
-        }
+        const threats =
+            threatSnapshots ??
+            this.getThreatDecisionSnapshots(
+                actor,
+            );
 
         const claimedMineIds =
             new Set<string>();
@@ -246,28 +240,23 @@ export default class EnemyDecisionPolicy {
         }
 
         let selectedMine:
-            (
-                typeof state.combat
-                    .stickyMines
-            )[number] |
+            Extract<
+                EnemyThreatDecisionSnapshot,
+                {
+                    kind:
+                        typeof ENEMY_THREAT_KIND
+                            .STICKY_MINE;
+                }
+            > |
             undefined;
 
-        for (
-            const mine of
-            state.combat
-                .stickyMines
-        ) {
+        for (const threat of threats) {
             if (
-                mine.source.kind !==
-                    COMBAT_SOURCE_KIND
-                        .PLAYER_SHIP ||
-                mine.target.kind !==
-                    COMBAT_TARGET_KIND
-                        .ACTOR ||
-                mine.target.actorId !==
-                    actor.id ||
+                threat.kind !==
+                    ENEMY_THREAT_KIND
+                        .STICKY_MINE ||
                 claimedMineIds.has(
-                    mine.id,
+                    threat.mineId,
                 )
             ) {
                 continue;
@@ -275,11 +264,13 @@ export default class EnemyDecisionPolicy {
 
             if (
                 !selectedMine ||
-                mine.timeToDetonationMs <
+                threat
+                    .timeToDetonationMs <
                     selectedMine
                         .timeToDetonationMs
             ) {
-                selectedMine = mine;
+                selectedMine =
+                    threat;
             }
         }
 
@@ -313,20 +304,29 @@ export default class EnemyDecisionPolicy {
             role,
 
             mineId:
-                selectedMine.id,
+                selectedMine.mineId,
         };
     }
 
     public selectWork(
         actor: ShipEncounterActorState,
         role: OfficerRole,
+        threatSnapshots?:
+            readonly EnemyThreatDecisionSnapshot[],
     ): EnemyWorkIntent | undefined {
+        const threats =
+            threatSnapshots ??
+            this.getThreatDecisionSnapshots(
+                actor,
+            );
+
         // Sticky-mine defense is scheduled before role work.
-        // Engineer then reacts to a real charging player laser.
+        // Engineer then reacts to a live resolved player laser.
         const shieldDeployment =
             this.selectShieldDeployment(
                 actor,
                 role,
+                threats,
             );
 
         if (shieldDeployment) {
@@ -378,6 +378,7 @@ export default class EnemyDecisionPolicy {
             this.selectPointDefenseInterception(
                 actor,
                 role,
+                threats,
             );
 
         if (interception) {
@@ -407,6 +408,8 @@ export default class EnemyDecisionPolicy {
     private selectShieldDeployment(
         actor: ShipEncounterActorState,
         role: OfficerRole,
+        threats:
+            readonly EnemyThreatDecisionSnapshot[],
     ): Extract<
         EnemyWorkIntent,
         {
@@ -422,9 +425,6 @@ export default class EnemyDecisionPolicy {
             return undefined;
         }
 
-        const state =
-            this.state;
-
         const emitter =
             actor.shieldEmitter;
 
@@ -432,7 +432,6 @@ export default class EnemyDecisionPolicy {
             actor.defenseCapacitor;
 
         if (
-            !state ||
             !emitter ||
             emitter.status !==
                 SHIELD_EMITTER_STATUS
@@ -447,101 +446,34 @@ export default class EnemyDecisionPolicy {
             return undefined;
         }
 
-        const observation =
-            actor
-                .threatObservations
-                .find((candidate) => {
+        const laserThreat =
+            threats.find(
+                (
+                    candidate,
+                ): candidate is Extract<
+                    EnemyThreatDecisionSnapshot,
+                    {
+                        kind:
+                            typeof ENEMY_THREAT_KIND
+                                .LASER;
+                    }
+                > => {
                     return (
                         candidate.kind ===
-                            ENEMY_THREAT_KIND
-                                .LASER &&
-                        candidate.source.kind ===
-                            ENEMY_THREAT_SOURCE_KIND
-                                .PLAYER_OFFICER_TASK
+                        ENEMY_THREAT_KIND
+                            .LASER
                     );
-                });
-
-        if (
-            !observation ||
-            observation.source.kind !==
-                ENEMY_THREAT_SOURCE_KIND
-                    .PLAYER_OFFICER_TASK
-        ) {
-            return undefined;
-        }
-
-        const playerTask =
-            state.officerTasks[
-                OFFICER_ROLE.WEAPONS
-            ];
-
-        if (
-            !playerTask ||
-            playerTask.id !==
-                observation.source
-                    .officerTaskId ||
-            playerTask.kind !==
-                OFFICER_TASK_KIND
-                    .WEAPONS_FIRE_LASER ||
-            playerTask.targetActorId !==
-                actor.id
-        ) {
-            return undefined;
-        }
-
-        const weapon =
-            state.combat
-                .playerWeapons
-                .find((candidate) => {
-                    return (
-                        candidate.id ===
-                        playerTask.weaponId
-                    );
-                });
-
-        if (
-            !weapon ||
-            weapon.kind !==
-                SHIP_WEAPON_KIND.LASER ||
-            weapon.phase !==
-                SHIP_WEAPON_PHASE
-                    .CHARGING
-        ) {
-            return undefined;
-        }
-
-        const weaponDefinition =
-            SHIP_WEAPONS[
-                weapon.weaponId
-            ];
-
-        if (
-            weaponDefinition.kind !==
-            SHIP_WEAPON_KIND.LASER
-        ) {
-            throw new Error(
-                'Player laser definition mismatch while ' +
-                    'scheduling enemy shield: ' +
-                    actor.id +
-                    '/' +
-                    weapon.id +
-                    '/' +
-                    weapon.weaponId,
+                },
             );
+
+        if (!laserThreat) {
+            return undefined;
         }
 
         const emitterDefinition =
             SHIELD_EMITTERS[
                 emitter.shieldEmitterId
             ];
-
-        const remainingLaserMs =
-            Math.max(
-                0,
-                weaponDefinition
-                    .chargeDurationMs -
-                    weapon.phaseElapsedMs,
-            );
 
         const deploymentDurationMs =
             OFFICER_TASK_BASE_DURATION_MS
@@ -555,7 +487,8 @@ export default class EnemyDecisionPolicy {
 
         // Too early: wait until one shield lifetime can cover impact.
         if (
-            remainingLaserMs >
+            laserThreat
+                .remainingChargeMs >
             deploymentWindowStartMs
         ) {
             return undefined;
@@ -563,7 +496,8 @@ export default class EnemyDecisionPolicy {
 
         // Too late: do not commit a charge to work that cannot finish.
         if (
-            remainingLaserMs <=
+            laserThreat
+                .remainingChargeMs <=
             deploymentDurationMs
         ) {
             return undefined;
@@ -578,7 +512,8 @@ export default class EnemyDecisionPolicy {
                 OFFICER_ROLE.ENGINEER,
 
             observationId:
-                observation.id,
+                laserThreat
+                    .observationId,
         };
     }
 
@@ -632,6 +567,8 @@ export default class EnemyDecisionPolicy {
     private selectPointDefenseInterception(
         actor: ShipEncounterActorState,
         role: OfficerRole,
+        threats:
+            readonly EnemyThreatDecisionSnapshot[],
     ): Extract<
         EnemyWorkIntent,
         {
@@ -663,26 +600,27 @@ export default class EnemyDecisionPolicy {
             return undefined;
         }
 
-        const observation =
-            actor
-                .threatObservations
-                .find((candidate) => {
+        const missileThreat =
+            threats.find(
+                (
+                    candidate,
+                ): candidate is Extract<
+                    EnemyThreatDecisionSnapshot,
+                    {
+                        kind:
+                            typeof ENEMY_THREAT_KIND
+                                .MISSILE;
+                    }
+                > => {
                     return (
                         candidate.kind ===
-                            ENEMY_THREAT_KIND
-                                .MISSILE &&
-                        candidate.source.kind ===
-                            ENEMY_THREAT_SOURCE_KIND
-                                .COMBAT_PROJECTILE
+                        ENEMY_THREAT_KIND
+                            .MISSILE
                     );
-                });
+                },
+            );
 
-        if (
-            !observation ||
-            observation.source.kind !==
-                ENEMY_THREAT_SOURCE_KIND
-                    .COMBAT_PROJECTILE
-        ) {
+        if (!missileThreat) {
             return undefined;
         }
 
@@ -698,8 +636,7 @@ export default class EnemyDecisionPolicy {
                 pointDefense.id,
 
             projectileId:
-                observation
-                    .source
+                missileThreat
                     .projectileId,
 
             // First behavior pass is intentionally blind.
@@ -709,6 +646,20 @@ export default class EnemyDecisionPolicy {
                     ? POINT_DEFENSE_BEAM_BAND.RED
                     : POINT_DEFENSE_BEAM_BAND.BLUE,
         };
+    }
+
+    private getThreatDecisionSnapshots(
+        actor:
+            ShipEncounterActorState,
+    ): EnemyThreatDecisionSnapshot[] {
+        if (!this.state) {
+            return [];
+        }
+
+        return getEnemyThreatDecisionSnapshots(
+            this.state,
+            actor,
+        );
     }
 
     private selectWeapon(
