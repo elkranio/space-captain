@@ -3,7 +3,6 @@ import {
     PLAYER_SPACE_NAVIGATION_KIND,
 } from '../../src/engine/defs/player_location';
 import type EncounterEngine from '../../src/engine/encounter/EncounterEngine';
-import type { GameRuntime } from '../../src/app/runtime/GameRuntime';
 import BridgeEncounterSnapshotSynchronizer from '../../src/app/scenes/game/bridge/controller/encounter/snapshots/BridgeEncounterSnapshotSynchronizer';
 import { BRIDGE_EVENT } from '../../src/app/scenes/game/bridge/events/bridge_event';
 import type BridgeEventBus from '../../src/app/scenes/game/bridge/events/BridgeEventBus';
@@ -13,61 +12,15 @@ describe('BridgeEncounterSnapshotSynchronizer', () => {
         const encounterEngine = createEncounterEngine();
 
         const emit = vi.fn();
-        const setPlayerShipWeaponStates =
-            vi.fn();
-        const setPlayerShipPowerCoreState =
-            vi.fn();
-
-        const setPlayerShipShieldGeneratorState =
-            vi.fn();
-
         const synchronizer = new BridgeEncounterSnapshotSynchronizer(
             encounterEngine,
             {
                 emit,
             } as unknown as BridgeEventBus,
-            {
-                setPlayerShipWeaponStates,
-                setPlayerShipPowerCoreState,
-                setPlayerShipShieldGeneratorState,
-
-            } as unknown as GameRuntime,
         );
 
         synchronizer.syncInitial();
 
-        expect(
-            setPlayerShipPowerCoreState,
-        ).toHaveBeenCalledWith({
-            id:
-                'power_core_player_00',
-
-            powerCoreId:
-                'power_core_basic_00',
-
-            charges: 3,
-            rechargeElapsedMs: 1200,
-        });
-
-        expect(
-            setPlayerShipShieldGeneratorState,
-        ).toHaveBeenCalledWith({
-            id:
-                'shield_generator_player_00',
-
-            shieldGeneratorId:
-                'shield_generator_basic_00',
-
-            status:
-                'online',
-
-            phase:
-                'ready',
-
-            phaseElapsedMs: 0,
-        });
-
-        expect(setPlayerShipWeaponStates).toHaveBeenCalledWith([]);
         expect(emit.mock.calls).toEqual([
             [
                 BRIDGE_EVENT.PLAYER_SHIP_DASHBOARD_UPDATED,

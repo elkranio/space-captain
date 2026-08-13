@@ -1,36 +1,94 @@
-// src/app/scenes/game/bridge/controller/encounter/engine_events/BridgeEncounterRuntimeSynchronizer.ts
-
 import type {
     PlayerHullDamageResult,
-} from '../../../../../../../engine/defs/player';
-import { SPACE_ANCHOR_KIND } from '../../../../../../../engine/defs/universe';
+} from '../../../../../../engine/defs/player';
+import { SPACE_ANCHOR_KIND } from '../../../../../../engine/defs/universe';
 import {
     COMBAT_SOURCE_KIND,
     COMBAT_TARGET_KIND,
     LASER_SHOT_OUTCOME,
-} from '../../../../../../../engine/encounter/model/combat';
+} from '../../../../../../engine/encounter/model/combat';
 import {
     ENCOUNTER_EVENT,
     OFFICER_TASK_RESULT_KIND,
     type EncounterEvent,
-} from '../../../../../../../engine/encounter/model/event';
-import type { GameRuntime } from '../../../../../../runtime/GameRuntime';
+} from '../../../../../../engine/encounter/model/event';
+import type {
+    EncounterPresentationSnapshot,
+} from '../../../../../../engine/encounter/snapshots/encounter_presentation_snapshot';
+import type {
+    GameRuntime,
+} from '../../../../../runtime/GameRuntime';
 
-// Event-driven transport для persistent mutations,
-// которые нельзя восстановить из текущего combat frame:
-// hull damage, drive/navigation changes, discovered anchors,
-// destroyed persistent actors.
+// Single owner of encounter -> persistent run write-back.
 //
-// Defense powerCore, shield generator и installed weapons
-// синхронизируются одним CombatPresentationSnapshot.
-// Эти данные здесь повторно не записываются.
-export default class BridgeEncounterRuntimeSynchronizer {
+// Snapshot-backed persistence covers continuously changing installed player
+// state and navigation. Event-backed persistence covers discrete outcomes
+// whose structural meaning should not be reconstructed from presentation.
+//
+// This class emits no bridge presentation events and owns no gameplay rules.
+export default class BridgeEncounterPersistenceSynchronizer {
     constructor(
         private readonly gameRuntime:
             GameRuntime,
     ) {}
 
-    public synchronize(
+    public syncSnapshot(
+        snapshot:
+            EncounterPresentationSnapshot,
+    ): void {
+        const powerCore =
+            snapshot.player
+                .powerCore;
+
+        if (!powerCore) {
+            throw new Error(
+                'Bridge player ship requires a power core',
+            );
+        }
+
+        const shieldGenerator =
+            snapshot.player
+                .shieldGenerator;
+
+        if (!shieldGenerator) {
+            throw new Error(
+                'Bridge player ship requires a shield generator',
+            );
+        }
+
+        this.gameRuntime
+            .setPlayerShipPowerCoreState(
+                powerCore.state,
+            );
+
+        this.gameRuntime
+            .setPlayerShipShieldGeneratorState(
+                shieldGenerator,
+            );
+
+        this.gameRuntime
+            .setPlayerShipWeaponStates(
+                snapshot.player
+                    .weapons
+                    .map(
+                        ({ state }) =>
+                            state,
+                    ),
+            );
+
+        this.gameRuntime
+            .setPlayerSpaceNavigation(
+                snapshot.navigation,
+            );
+
+        // Defense Turret is intentionally not copied from presentation here.
+        // Its current snapshot exposes equipment chance only, while mutable
+        // loading/target fields are encounter-operational. When persistent
+        // damage/repair state is added, give it an explicit persistence
+        // projection instead of leaking targetProjectileId into RunState.
+    }
+
+    public syncEvent(
         event: EncounterEvent,
     ): void {
         switch (event.type) {
@@ -59,7 +117,7 @@ export default class BridgeEncounterRuntimeSynchronizer {
 
             case ENCOUNTER_EVENT
                 .OFFICER_TASK_ENDED:
-                this.synchronizeOfficerTaskResult(
+                this.syncOfficerTaskResult(
                     event,
                 );
 
@@ -76,7 +134,7 @@ export default class BridgeEncounterRuntimeSynchronizer {
 
             case ENCOUNTER_EVENT
                 .MISSILE_IMPACTED_PLAYER_SHIP:
-                this.synchronizePlayerHull(
+                this.syncPlayerHull(
                     event,
                 );
 
@@ -88,7 +146,7 @@ export default class BridgeEncounterRuntimeSynchronizer {
                     event,
                 );
 
-                this.synchronizePlayerHull(
+                this.syncPlayerHull(
                     event,
                 );
 
@@ -99,7 +157,7 @@ export default class BridgeEncounterRuntimeSynchronizer {
                     event.outcome ===
                     LASER_SHOT_OUTCOME.HIT
                 ) {
-                    this.synchronizePlayerHull(
+                    this.syncPlayerHull(
                         event,
                     );
                 }
@@ -111,7 +169,7 @@ export default class BridgeEncounterRuntimeSynchronizer {
         }
     }
 
-    private synchronizeOfficerTaskResult(
+    private syncOfficerTaskResult(
         event: Extract<
             EncounterEvent,
             {
@@ -148,7 +206,7 @@ export default class BridgeEncounterRuntimeSynchronizer {
             });
     }
 
-    private synchronizePlayerHull(
+    private syncPlayerHull(
         result: PlayerHullDamageResult,
     ): void {
         this.gameRuntime

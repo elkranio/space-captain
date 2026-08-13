@@ -33,7 +33,7 @@ import {
     mapEncounterAnchorToBridgeObjectPayload,
 } from '../encounter_objects/BridgeEncounterObjectMapper';
 import BridgeEncounterLoadPresenter from './BridgeEncounterLoadPresenter';
-import BridgeEncounterRuntimeSynchronizer from './BridgeEncounterRuntimeSynchronizer';
+import BridgeEncounterPersistenceSynchronizer from '../BridgeEncounterPersistenceSynchronizer';
 
 type SetEncounterInteractive = (value: boolean) => void;
 
@@ -41,8 +41,8 @@ export default class BridgeEncounterEngineEventHandler {
     private readonly loadPresenter:
         BridgeEncounterLoadPresenter;
 
-    private readonly runtimeSynchronizer:
-        BridgeEncounterRuntimeSynchronizer;
+    private readonly persistenceSynchronizer:
+        BridgeEncounterPersistenceSynchronizer;
 
     constructor(
         private readonly eventBus: BridgeEventBus,
@@ -55,8 +55,8 @@ export default class BridgeEncounterEngineEventHandler {
                 this.setEncounterInteractive,
             );
 
-        this.runtimeSynchronizer =
-            new BridgeEncounterRuntimeSynchronizer(
+        this.persistenceSynchronizer =
+            new BridgeEncounterPersistenceSynchronizer(
                 gameRuntime,
             );
     }
@@ -71,8 +71,8 @@ export default class BridgeEncounterEngineEventHandler {
             EncounterPresentationSnapshot,
     ): void {
         for (const event of events) {
-            this.runtimeSynchronizer
-                .synchronize(event);
+            this.persistenceSynchronizer
+                .syncEvent(event);
 
             this.handleEvent(
                 event,

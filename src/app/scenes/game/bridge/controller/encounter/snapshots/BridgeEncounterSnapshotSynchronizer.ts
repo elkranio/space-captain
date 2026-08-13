@@ -3,7 +3,6 @@ import type EncounterEngine from '../../../../../../../engine/encounter/Encounte
 import type {
     EncounterPresentationSnapshot,
 } from '../../../../../../../engine/encounter/snapshots/encounter_presentation_snapshot';
-import type { GameRuntime } from '../../../../../../runtime/GameRuntime';
 import { BRIDGE_EVENT } from '../../../events/bridge_event';
 import type BridgeEventBus from '../../../events/BridgeEventBus';
 import { mapCaptainCombatContextToBridgePayload } from '../../captain_dashboard/BridgeCaptainCombatContextMapper';
@@ -13,8 +12,9 @@ import { mapPlayerWeaponsToBridgeStatusPayload } from '../../player_weapon_statu
 // App-side transport for continuously changing encounter read models.
 //
 // Один EncounterPresentationSnapshot представляет одну фотографию combat frame.
-// Engine остаётся единственным владельцем mutable state; synchronizer только
-// раскладывает уже detached read-model по GameRuntime / bridge events.
+// Engine остаётся единственным владельцем mutable encounter state; synchronizer
+// только переводит detached read-model в bridge presentation events.
+// Persistent RunState write-back живёт в BridgeEncounterPersistenceSynchronizer.
 //
 // Публичные no-arg методы сохранены для focused callers/tests.
 // Frame orchestration передаёт один и тот же snapshot в dashboard и combat
@@ -23,13 +23,13 @@ export default class BridgeEncounterSnapshotSynchronizer {
     constructor(
         private readonly encounterEngine: EncounterEngine,
         private readonly eventBus: BridgeEventBus,
-        private readonly gameRuntime: GameRuntime,
     ) {}
 
-    public syncInitial(): void {
-        const snapshot =
+    public syncInitial(
+        snapshot =
             this.encounterEngine
-                .getPresentationSnapshot();
+                .getPresentationSnapshot(),
+    ): void {
 
         this.syncPlayerShipDashboard(
             snapshot,
@@ -90,37 +90,6 @@ export default class BridgeEncounterSnapshotSynchronizer {
                 'Bridge player ship requires a power core',
             );
         }
-
-        this.gameRuntime
-            .setPlayerShipPowerCoreState(
-                powerCore
-                    .state,
-            );
-
-        const shieldGenerator =
-            snapshot.player
-                .shieldGenerator;
-
-        if (!shieldGenerator) {
-            throw new Error(
-                'Bridge player ship requires a shield generator',
-            );
-        }
-
-        this.gameRuntime
-            .setPlayerShipShieldGeneratorState(
-                shieldGenerator,
-            );
-
-        this.gameRuntime
-            .setPlayerShipWeaponStates(
-                snapshot.player
-                    .weapons
-                    .map(
-                        ({ state }) =>
-                            state,
-                    ),
-            );
 
         const weaponStatus =
             mapPlayerWeaponsToBridgeStatusPayload(

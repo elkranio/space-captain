@@ -33,6 +33,7 @@ import {
 } from '../../events/bridge_event';
 import type BridgeEventBus from '../../events/BridgeEventBus';
 import BridgeOfficerCommandMenuController from './command_menu/BridgeOfficerCommandMenuController';
+import BridgeEncounterPersistenceSynchronizer from './BridgeEncounterPersistenceSynchronizer';
 import BridgeEncounterEngineEventHandler from './engine_events/BridgeEncounterEngineEventHandler';
 import BridgeOfficerStationsController from './officer_stations/BridgeOfficerStationsController';
 import BridgeEncounterSnapshotSynchronizer from './snapshots/BridgeEncounterSnapshotSynchronizer';
@@ -60,11 +61,19 @@ export default class BridgeEncounterController {
 
     private readonly engineEventHandler: BridgeEncounterEngineEventHandler;
 
+    private readonly persistenceSynchronizer:
+        BridgeEncounterPersistenceSynchronizer;
+
     private isEncounterInteractive = false;
 
     // #endregion
 
     constructor(private readonly eventBus: BridgeEventBus) {
+        this.persistenceSynchronizer =
+            new BridgeEncounterPersistenceSynchronizer(
+                GAME_RUNTIME,
+            );
+
         this.engineEventHandler = new BridgeEncounterEngineEventHandler(
             this.eventBus,
 
@@ -113,6 +122,10 @@ export default class BridgeEncounterController {
         const presentationSnapshot =
             this.encounterEngine
                 .getPresentationSnapshot();
+
+        this.persistEncounterSnapshot(
+            presentationSnapshot,
+        );
 
         this.snapshotSynchronizer
             ?.syncPlayerShipDashboard(
@@ -275,7 +288,6 @@ export default class BridgeEncounterController {
         this.snapshotSynchronizer = new BridgeEncounterSnapshotSynchronizer(
             this.encounterEngine,
             this.eventBus,
-            GAME_RUNTIME,
         );
 
         this.officerCommandMenuController =
@@ -295,8 +307,18 @@ export default class BridgeEncounterController {
         );
 
         // Loaded presentation may synchronously restore/complete travel.
-        // Read current engine state again after those event side effects.
-        this.snapshotSynchronizer.syncInitial();
+        // Persist and present one fresh coherent frame after those side effects.
+        const initialPresentationSnapshot =
+            this.encounterEngine
+                .getPresentationSnapshot();
+
+        this.persistEncounterSnapshot(
+            initialPresentationSnapshot,
+        );
+
+        this.snapshotSynchronizer.syncInitial(
+            initialPresentationSnapshot,
+        );
 
         if (this.isEncounterInteractive) {
             this.engageHostileActors();
@@ -354,6 +376,10 @@ export default class BridgeEncounterController {
         const presentationSnapshot =
             this.encounterEngine
                 .getPresentationSnapshot();
+
+        this.persistEncounterSnapshot(
+            presentationSnapshot,
+        );
 
         this.snapshotSynchronizer
             ?.syncPlayerShipDashboard(
@@ -473,15 +499,15 @@ export default class BridgeEncounterController {
                 this.encounterEngine
                     .getPresentationSnapshot();
 
+            this.persistEncounterSnapshot(
+                presentationSnapshot,
+            );
+
             this.snapshotSynchronizer
                 ?.syncPlayerShipDashboard(
                     presentationSnapshot,
                 );
 
-            this.syncRuntimeNavigation(
-                presentationSnapshot
-                    .navigation,
-            );
             this.drainEncounterEvents();
 
             this.snapshotSynchronizer
@@ -602,9 +628,8 @@ export default class BridgeEncounterController {
             this.encounterEngine
                 .getPresentationSnapshot();
 
-        this.syncRuntimeNavigation(
-            presentationSnapshot
-                .navigation,
+        this.persistEncounterSnapshot(
+            presentationSnapshot,
 
             PLAYER_SPACE_NAVIGATION_KIND
                 .ANCHORED,
@@ -622,9 +647,8 @@ export default class BridgeEncounterController {
             this.encounterEngine
                 .getPresentationSnapshot();
 
-        this.syncRuntimeNavigation(
-            presentationSnapshot
-                .navigation,
+        this.persistEncounterSnapshot(
+            presentationSnapshot,
 
             PLAYER_SPACE_NAVIGATION_KIND
                 .ANCHORED,
@@ -635,29 +659,32 @@ export default class BridgeEncounterController {
 
     // #region Runtime synchronization
 
-    private syncRuntimeNavigation(
-        navigation:
-            PlayerSpaceNavigationState,
+    private persistEncounterSnapshot(
+        snapshot:
+            EncounterPresentationSnapshot,
 
-        expectedKind?:
+        expectedNavigationKind?:
             PlayerSpaceNavigationState[
                 'kind'
             ],
     ): void {
+        const navigation =
+            snapshot.navigation;
+
         if (
-            expectedKind !== undefined &&
+            expectedNavigationKind !== undefined &&
             navigation.kind !==
-                expectedKind
+                expectedNavigationKind
         ) {
             throw new Error(
-                `Expected engine navigation ${expectedKind}, ` +
+                `Expected engine navigation ${expectedNavigationKind}, ` +
                     `received ${navigation.kind}`,
             );
         }
 
-        GAME_RUNTIME
-            .setPlayerSpaceNavigation(
-                navigation,
+        this.persistenceSynchronizer
+            .syncSnapshot(
+                snapshot,
             );
     }
 

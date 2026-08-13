@@ -1,14 +1,15 @@
-// tests/app/BridgeEncounterRuntimeSynchronizer.test.ts
+// tests/app/BridgeEncounterPersistenceSynchronizer.test.ts
 
 import {
     describe,
     expect,
     it,
+    vi,
 } from 'vitest';
 import {
     GameRuntime,
 } from '../../src/app/runtime/GameRuntime';
-import BridgeEncounterRuntimeSynchronizer from '../../src/app/scenes/game/bridge/controller/encounter/engine_events/BridgeEncounterRuntimeSynchronizer';
+import BridgeEncounterPersistenceSynchronizer from '../../src/app/scenes/game/bridge/controller/encounter/BridgeEncounterPersistenceSynchronizer';
 import {
     MISSILE_ID,
 } from '../../src/engine/defs/missile';
@@ -31,10 +32,133 @@ import {
 import {
     ENCOUNTER_EVENT,
 } from '../../src/engine/encounter/model/event';
+import type {
+    EncounterPresentationSnapshot,
+} from '../../src/engine/encounter/snapshots/encounter_presentation_snapshot';
 
 describe(
-    'Bridge encounter runtime synchronizer',
+    'Bridge encounter persistence synchronizer',
     () => {
+        it(
+            'persists frame-backed ship systems and navigation',
+            () => {
+                const setPlayerShipPowerCoreState =
+                    vi.fn();
+
+                const setPlayerShipShieldGeneratorState =
+                    vi.fn();
+
+                const setPlayerShipWeaponStates =
+                    vi.fn();
+
+                const setPlayerSpaceNavigation =
+                    vi.fn();
+
+                const synchronizer =
+                    new BridgeEncounterPersistenceSynchronizer(
+                        {
+                            setPlayerShipPowerCoreState,
+                            setPlayerShipShieldGeneratorState,
+                            setPlayerShipWeaponStates,
+                            setPlayerSpaceNavigation,
+                        } as unknown as GameRuntime,
+                    );
+
+                synchronizer.syncSnapshot({
+                    navigation: {
+                        kind:
+                            PLAYER_SPACE_NAVIGATION_KIND
+                                .ANCHORED,
+
+                        anchorId:
+                            'anchor_safe_00',
+                    },
+
+                    player: {
+                        powerCore: {
+                            state: {
+                                id:
+                                    'power_core_player_00',
+
+                                powerCoreId:
+                                    'power_core_basic_00',
+
+                                charges: 3,
+                                rechargeElapsedMs:
+                                    1200,
+                            },
+
+                            capacity: 4,
+                        },
+
+                        shieldGenerator: {
+                            id:
+                                'shield_generator_player_00',
+
+                            shieldGeneratorId:
+                                'shield_generator_basic_00',
+
+                            status:
+                                'online',
+
+                            phase:
+                                'ready',
+
+                            phaseElapsedMs: 0,
+                        },
+
+                        weapons: [],
+                    },
+                } as unknown as EncounterPresentationSnapshot);
+
+                expect(
+                    setPlayerShipPowerCoreState,
+                ).toHaveBeenCalledWith({
+                    id:
+                        'power_core_player_00',
+
+                    powerCoreId:
+                        'power_core_basic_00',
+
+                    charges: 3,
+                    rechargeElapsedMs: 1200,
+                });
+
+                expect(
+                    setPlayerShipShieldGeneratorState,
+                ).toHaveBeenCalledWith({
+                    id:
+                        'shield_generator_player_00',
+
+                    shieldGeneratorId:
+                        'shield_generator_basic_00',
+
+                    status:
+                        'online',
+
+                    phase:
+                        'ready',
+
+                    phaseElapsedMs: 0,
+                });
+
+                expect(
+                    setPlayerShipWeaponStates,
+                ).toHaveBeenCalledWith([]);
+
+                expect(
+                    setPlayerSpaceNavigation,
+                ).toHaveBeenCalledWith({
+                    kind:
+                        PLAYER_SPACE_NAVIGATION_KIND
+                            .ANCHORED,
+
+                    anchorId:
+                        'anchor_safe_00',
+                });
+            },
+        );
+
         it(
             'persists event-driven player state',
             () => {
@@ -42,11 +166,11 @@ describe(
                     new GameRuntime();
 
                 const synchronizer =
-                    new BridgeEncounterRuntimeSynchronizer(
+                    new BridgeEncounterPersistenceSynchronizer(
                         runtime,
                     );
 
-                synchronizer.synchronize({
+                synchronizer.syncEvent({
                         type:
                             ENCOUNTER_EVENT
                                 .MISSILE_IMPACTED_PLAYER_SHIP,
@@ -95,7 +219,7 @@ describe(
                         .player.ship.hull,
                 ).toBe(2);
 
-                synchronizer.synchronize({
+                synchronizer.syncEvent({
                         type:
                             ENCOUNTER_EVENT
                                 .PLAYER_SHIP_DRIVE_DISRUPTED,
@@ -164,12 +288,12 @@ describe(
                     new GameRuntime();
 
                 const synchronizer =
-                    new BridgeEncounterRuntimeSynchronizer(
+                    new BridgeEncounterPersistenceSynchronizer(
                         runtime,
                     );
 
                 expect(() => {
-                    synchronizer.synchronize({
+                    synchronizer.syncEvent({
                         type:
                             ENCOUNTER_EVENT
                                 .STICKY_MINE_DETONATED,

@@ -204,17 +204,30 @@ Extend this query when a real new modifier needs the same semantics instead of c
 
 ## Bridge synchronization
 
-### `BridgeEncounterRuntimeSynchronizer`
+### `BridgeEncounterPersistenceSynchronizer`
 
-Discrete encounter outcomes -> persistent `GameRuntime` where persistence is required.
+Single code owner for encounter -> persistent `GameRuntime / RunState` write-back.
+
+Current snapshot-backed persistence:
+- player Power Core state
+- Shield Generator state
+- installed weapon state/ammo
+- player space navigation
+
+Current event-backed persistence:
+- hull damage
+- drive state/disruption
+- discovered jump-point anchors
+- destroyed persistent enemy actors
+
+Defense Turret combat phase/target is not copied through presentation. When persistent turret damage/repair state exists, add an explicit persistence projection instead of persisting encounter-only target ids.
 
 ### `BridgeEncounterSnapshotSynchronizer`
 
-Continuously changing frame -> bridge events/views/runtime presentation sync.
+Continuously changing frame -> bridge presentation events/views only.
 
 Current responsibilities include:
 - player ship dashboard
-- persistent player Power Core/Shield Generator/weapon presentation state
 - player/enemy shields
 - incoming/outgoing missiles
 - sticky mines

@@ -119,6 +119,11 @@ describe('Bridge officer task cancellation', () => {
                 return {};
             });
 
+        const syncPersistenceSnapshot =
+            vi.fn(() => {
+                lifecycle.push('persist');
+            });
+
         const syncPlayerShipDashboard =
             vi.fn(() => {
                 lifecycle.push('dashboard');
@@ -153,6 +158,10 @@ describe('Bridge officer task cancellation', () => {
                 encounterEngine:
                     EncounterEngine;
 
+                persistenceSynchronizer: {
+                    syncSnapshot(): void;
+                };
+
                 snapshotSynchronizer: {
                     syncPlayerShipDashboard():
                         void;
@@ -168,6 +177,11 @@ describe('Bridge officer task cancellation', () => {
             drainEvents,
             getPresentationSnapshot,
         } as unknown as EncounterEngine;
+
+        testable.persistenceSynchronizer = {
+            syncSnapshot:
+                syncPersistenceSnapshot,
+        };
 
         testable.snapshotSynchronizer = {
             syncPlayerShipDashboard,
@@ -224,6 +238,7 @@ describe('Bridge officer task cancellation', () => {
             'cancel',
             'drain',
             'snapshot',
+            'persist',
             'dashboard',
             'stations',
         ]);
