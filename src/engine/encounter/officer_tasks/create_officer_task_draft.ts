@@ -1,6 +1,8 @@
 // src/engine/encounter/officer_tasks/create_officer_task_draft.ts
 
-import { OFFICER_TASK_BASE_DURATION_MS } from '../../content/rules/officer_tasks';
+import {
+    getOfficerTaskDraftTuning,
+} from '../../content/catalogs/officer_tasks';
 import {
     OFFICER_ROLE,
     type OfficerRole,
@@ -10,53 +12,77 @@ import {
     ENCOUNTER_OFFICER_COMMAND_ID,
     type WeaponsPointDefenseCommandId,
 } from '../model/command';
-import { OFFICER_TASK_KIND, type OfficerTaskDraft } from '../model/officer_task';
+import {
+    OFFICER_TASK_KIND,
+    type OfficerTaskDraft,
+} from '../model/officer_task';
 
-export function createSciencePlotCourseTask(targetNodeId: string): OfficerTaskDraft {
+export function createSciencePlotCourseTask(
+    targetNodeId: string,
+): OfficerTaskDraft {
+    const kind =
+        OFFICER_TASK_KIND
+            .SCIENCE_PLOT_COURSE;
+
     return {
-        kind: OFFICER_TASK_KIND.SCIENCE_PLOT_COURSE,
+        kind,
         role: OFFICER_ROLE.SCIENCE,
 
-        sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.SCIENCE_PLOT_COURSE,
+        sourceCommandId:
+            ENCOUNTER_OFFICER_COMMAND_ID
+                .SCIENCE_PLOT_COURSE,
 
         targetNodeId,
 
-        label: 'PLOT COURSE',
-        showProgress: false,
-
-        durationMs: OFFICER_TASK_BASE_DURATION_MS.SCIENCE_PLOT_COURSE,
+        ...getOfficerTaskDraftTuning(
+            kind,
+        ),
     };
 }
 
-export function createScienceIdentifyThreatTask(threatId: string): OfficerTaskDraft {
+export function createScienceIdentifyThreatTask(
+    threatId: string,
+): OfficerTaskDraft {
+    const kind =
+        OFFICER_TASK_KIND
+            .SCIENCE_IDENTIFY_THREAT;
+
     return {
-        kind: OFFICER_TASK_KIND.SCIENCE_IDENTIFY_THREAT,
+        kind,
         role: OFFICER_ROLE.SCIENCE,
 
-        sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.SCIENCE_IDENTIFY_THREAT,
+        sourceCommandId:
+            ENCOUNTER_OFFICER_COMMAND_ID
+                .SCIENCE_IDENTIFY_THREAT,
 
         threatId,
 
-        label: 'IDENTIFY',
-        showProgress: true,
-
-        durationMs: OFFICER_TASK_BASE_DURATION_MS.SCIENCE_IDENTIFY_THREAT,
+        ...getOfficerTaskDraftTuning(
+            kind,
+        ),
     };
 }
 
-export function createSciencePurgeSpamTask(channelId: string): OfficerTaskDraft {
+export function createSciencePurgeSpamTask(
+    channelId: string,
+): OfficerTaskDraft {
+    const kind =
+        OFFICER_TASK_KIND
+            .SCIENCE_PURGE_SPAM;
+
     return {
-        kind: OFFICER_TASK_KIND.SCIENCE_PURGE_SPAM,
+        kind,
         role: OFFICER_ROLE.SCIENCE,
 
-        sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.SCIENCE_PURGE_SPAM,
+        sourceCommandId:
+            ENCOUNTER_OFFICER_COMMAND_ID
+                .SCIENCE_PURGE_SPAM,
 
         channelId,
 
-        label: 'PURGE SPAM',
-        showProgress: true,
-
-        durationMs: OFFICER_TASK_BASE_DURATION_MS.SCIENCE_PURGE_SPAM,
+        ...getOfficerTaskDraftTuning(
+            kind,
+        ),
     };
 }
 
@@ -64,11 +90,12 @@ export function createScienceFireSpamTask(
     weaponId: string,
     targetActorId: string,
 ): OfficerTaskDraft {
-    return {
-        kind:
-            OFFICER_TASK_KIND
-                .SCIENCE_FIRE_SPAM,
+    const kind =
+        OFFICER_TASK_KIND
+            .SCIENCE_FIRE_SPAM;
 
+    return {
+        kind,
         role: OFFICER_ROLE.SCIENCE,
 
         sourceCommandId:
@@ -78,63 +105,63 @@ export function createScienceFireSpamTask(
         weaponId,
         targetActorId,
 
-        label: 'SPAM PROJECT',
-        showProgress: false,
-
-        // PlayerSpamProjectorRunner releases Science
-        // when the channel expires or is cancelled.
-        durationMs: null,
+        ...getOfficerTaskDraftTuning(
+            kind,
+        ),
     };
 }
 
 export function createEngineerRepairDriveTask(): OfficerTaskDraft {
+    const kind =
+        OFFICER_TASK_KIND
+            .ENGINEER_REPAIR_DRIVE;
+
     return {
-        kind:
-            OFFICER_TASK_KIND.ENGINEER_REPAIR_DRIVE,
+        kind,
         role: OFFICER_ROLE.ENGINEER,
 
         sourceCommandId:
-            ENCOUNTER_OFFICER_COMMAND_ID.ENGINEER_REPAIR_DRIVE,
+            ENCOUNTER_OFFICER_COMMAND_ID
+                .ENGINEER_REPAIR_DRIVE,
 
-        label: 'REPAIR ENGINE',
-        showProgress: true,
-
-        durationMs:
-            OFFICER_TASK_BASE_DURATION_MS.ENGINEER_REPAIR_DRIVE,
+        ...getOfficerTaskDraftTuning(
+            kind,
+        ),
     };
 }
 
 export function createEngineerDeployShieldTask(): OfficerTaskDraft {
-    return {
-        kind:
-            OFFICER_TASK_KIND
-                .ENGINEER_DEPLOY_SHIELD,
+    const kind =
+        OFFICER_TASK_KIND
+            .ENGINEER_DEPLOY_SHIELD;
 
-        role:
-            OFFICER_ROLE.ENGINEER,
+    return {
+        kind,
+        role: OFFICER_ROLE.ENGINEER,
 
         sourceCommandId:
             ENCOUNTER_OFFICER_COMMAND_ID
                 .ENGINEER_DEPLOY_SHIELD,
 
-        label:
-            'DEPLOY SHIELD',
-
-        showProgress: true,
-
-        durationMs:
-            OFFICER_TASK_BASE_DURATION_MS
-                .ENGINEER_DEPLOY_SHIELD,
+        ...getOfficerTaskDraftTuning(
+            kind,
+        ),
     };
 }
 
 export function createWeaponsPointDefenseTask(
-    sourceCommandId: WeaponsPointDefenseCommandId,
+    sourceCommandId:
+        WeaponsPointDefenseCommandId,
     threatId: string,
-    pointDefenseBeamBand: PointDefenseBeamBand,
+    pointDefenseBeamBand:
+        PointDefenseBeamBand,
 ): OfficerTaskDraft {
+    const kind =
+        OFFICER_TASK_KIND
+            .WEAPONS_POINT_DEFENSE;
+
     return {
-        kind: OFFICER_TASK_KIND.WEAPONS_POINT_DEFENSE,
+        kind,
         role: OFFICER_ROLE.WEAPONS,
 
         sourceCommandId,
@@ -142,10 +169,9 @@ export function createWeaponsPointDefenseTask(
         threatId,
         pointDefenseBeamBand,
 
-        label: 'PD AIM',
-        showProgress: true,
-
-        durationMs: OFFICER_TASK_BASE_DURATION_MS.WEAPONS_POINT_DEFENSE_AIM,
+        ...getOfficerTaskDraftTuning(
+            kind,
+        ),
     };
 }
 
@@ -153,11 +179,12 @@ export function createWeaponsFireMissileTask(
     weaponId: string,
     targetActorId: string,
 ): OfficerTaskDraft {
-    return {
-        kind:
-            OFFICER_TASK_KIND
-                .WEAPONS_FIRE_MISSILE,
+    const kind =
+        OFFICER_TASK_KIND
+            .WEAPONS_FIRE_MISSILE;
 
+    return {
+        kind,
         role: OFFICER_ROLE.WEAPONS,
 
         sourceCommandId:
@@ -167,12 +194,9 @@ export function createWeaponsFireMissileTask(
         weaponId,
         targetActorId,
 
-        label: 'MISSILE AIM',
-        showProgress: false,
-
-        // Atom 2 завершит task через
-        // player weapon lifecycle.
-        durationMs: null,
+        ...getOfficerTaskDraftTuning(
+            kind,
+        ),
     };
 }
 
@@ -180,11 +204,12 @@ export function createWeaponsFireStickyMinesTask(
     weaponId: string,
     targetActorId: string,
 ): OfficerTaskDraft {
-    return {
-        kind:
-            OFFICER_TASK_KIND
-                .WEAPONS_FIRE_STICKY_MINES,
+    const kind =
+        OFFICER_TASK_KIND
+            .WEAPONS_FIRE_STICKY_MINES;
 
+    return {
+        kind,
         role: OFFICER_ROLE.WEAPONS,
 
         sourceCommandId:
@@ -194,12 +219,9 @@ export function createWeaponsFireStickyMinesTask(
         weaponId,
         targetActorId,
 
-        label: 'MINE SALVO',
-        showProgress: false,
-
-        // PlayerWeaponRunner завершает task
-        // после последней реально запущенной мины.
-        durationMs: null,
+        ...getOfficerTaskDraftTuning(
+            kind,
+        ),
     };
 }
 
@@ -207,11 +229,12 @@ export function createWeaponsFireLaserTask(
     weaponId: string,
     targetActorId: string,
 ): OfficerTaskDraft {
-    return {
-        kind:
-            OFFICER_TASK_KIND
-                .WEAPONS_FIRE_LASER,
+    const kind =
+        OFFICER_TASK_KIND
+            .WEAPONS_FIRE_LASER;
 
+    return {
+        kind,
         role: OFFICER_ROLE.WEAPONS,
 
         sourceCommandId:
@@ -221,12 +244,9 @@ export function createWeaponsFireLaserTask(
         weaponId,
         targetActorId,
 
-        label: 'LASER AIM',
-        showProgress: false,
-
-        // Завершится через player weapon
-        // lifecycle, а не обычный timer.
-        durationMs: null,
+        ...getOfficerTaskDraftTuning(
+            kind,
+        ),
     };
 }
 
@@ -234,72 +254,90 @@ export function createClearStickyMineTask(
     role: OfficerRole,
     mineId: string,
 ): OfficerTaskDraft {
+    const kind =
+        OFFICER_TASK_KIND
+            .CLEAR_STICKY_MINE;
+
     return {
-        kind:
-            OFFICER_TASK_KIND.CLEAR_STICKY_MINE,
+        kind,
         role,
 
         sourceCommandId:
-            ENCOUNTER_OFFICER_COMMAND_ID.CLEAR_STICKY_MINE,
+            ENCOUNTER_OFFICER_COMMAND_ID
+                .CLEAR_STICKY_MINE,
 
         mineId,
 
-        label: 'CLEAR MINE',
-        showProgress: true,
-
-        durationMs:
-            OFFICER_TASK_BASE_DURATION_MS.CLEAR_STICKY_MINE,
+        ...getOfficerTaskDraftTuning(
+            kind,
+        ),
     };
 }
 
-export function createHelmDockTask(targetAnchorId: string): OfficerTaskDraft {
+export function createHelmDockTask(
+    targetAnchorId: string,
+): OfficerTaskDraft {
+    const kind =
+        OFFICER_TASK_KIND.HELM_DOCK;
+
     return {
-        kind: OFFICER_TASK_KIND.HELM_DOCK,
+        kind,
         role: OFFICER_ROLE.HELM,
 
-        sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.HELM_DOCK,
+        sourceCommandId:
+            ENCOUNTER_OFFICER_COMMAND_ID
+                .HELM_DOCK,
 
         targetAnchorId,
 
-        label: 'DOCK',
-        showProgress: false,
-
-        // Завершается внешним docking visual flow.
-        durationMs: null,
+        ...getOfficerTaskDraftTuning(
+            kind,
+        ),
     };
 }
 
-export function createHelmFlyToTask(targetAnchorId: string): OfficerTaskDraft {
+export function createHelmFlyToTask(
+    targetAnchorId: string,
+): OfficerTaskDraft {
+    const kind =
+        OFFICER_TASK_KIND.HELM_FLY_TO;
+
     return {
-        kind: OFFICER_TASK_KIND.HELM_FLY_TO,
+        kind,
         role: OFFICER_ROLE.HELM,
 
-        sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.HELM_FLY_TO,
+        sourceCommandId:
+            ENCOUNTER_OFFICER_COMMAND_ID
+                .HELM_FLY_TO,
 
         targetAnchorId,
 
-        label: 'FLY TO',
-        showProgress: false,
-
-        // Завершается внешним travel visual flow.
-        durationMs: null,
+        ...getOfficerTaskDraftTuning(
+            kind,
+        ),
     };
 }
 
-export function createHelmJumpTask(targetAnchorId: string, targetNodeId: string): OfficerTaskDraft {
+export function createHelmJumpTask(
+    targetAnchorId: string,
+    targetNodeId: string,
+): OfficerTaskDraft {
+    const kind =
+        OFFICER_TASK_KIND.HELM_JUMP;
+
     return {
-        kind: OFFICER_TASK_KIND.HELM_JUMP,
+        kind,
         role: OFFICER_ROLE.HELM,
 
-        sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.HELM_JUMP,
+        sourceCommandId:
+            ENCOUNTER_OFFICER_COMMAND_ID
+                .HELM_JUMP,
 
         targetAnchorId,
         targetNodeId,
 
-        label: 'JUMP',
-        showProgress: false,
-
-        // Завершается внешним jump visual flow.
-        durationMs: null,
+        ...getOfficerTaskDraftTuning(
+            kind,
+        ),
     };
 }

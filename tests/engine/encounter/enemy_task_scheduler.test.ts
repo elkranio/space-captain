@@ -19,8 +19,11 @@ import {
     SHIP_NODE_ACTOR_PRESET_ID,
 } from '../../../src/engine/content/presets/ship_node_actors';
 import {
-    OFFICER_TASK_BASE_DURATION_MS,
-} from '../../../src/engine/content/rules/officer_tasks';
+    getTimedOfficerTaskDurationMs,
+} from '../../../src/engine/content/catalogs/officer_tasks';
+import {
+    OFFICER_TASK_KIND,
+} from '../../../src/engine/defs/officer_task';
 import {
     OFFICER_ROLE,
     type OfficerRole,
@@ -58,6 +61,12 @@ const OFFENSIVE_TASK_DELAY_MS =
         SHIP_BEHAVIOR_PRESET_ID
             .STANDARD_COMBAT_00
     ].offensiveTaskDelayMs;
+
+const SCIENCE_IDENTIFY_THREAT_DURATION_MS =
+    getTimedOfficerTaskDurationMs(
+        OFFICER_TASK_KIND
+            .SCIENCE_IDENTIFY_THREAT,
+    );
 
 describe('Enemy task scheduler', () => {
     it('starts one Weapons task and one Science task in parallel', () => {
@@ -206,8 +215,7 @@ describe('Enemy task scheduler', () => {
                 elapsedMs: 0,
 
                 durationMs:
-                    OFFICER_TASK_BASE_DURATION_MS
-                        .SCIENCE_IDENTIFY_THREAT,
+                    SCIENCE_IDENTIFY_THREAT_DURATION_MS,
             },
         });
 

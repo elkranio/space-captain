@@ -7,8 +7,11 @@ import {
     spendDefenseCapacitorCharge,
 } from '../defense/spend_defense_capacitor_charge';
 import {
-    OFFICER_TASK_BASE_DURATION_MS,
-} from '../../../content/rules/officer_tasks';
+    getTimedOfficerTaskDurationMs,
+} from '../../../content/catalogs/officer_tasks';
+import {
+    OFFICER_TASK_KIND,
+} from '../../../defs/officer_task';
 import {
     ENCOUNTER_TEAM,
 } from '../../../defs/encounter_team';
@@ -520,8 +523,10 @@ export default class EnemyTaskScheduler {
                 elapsedMs: 0,
 
                 durationMs:
-                    OFFICER_TASK_BASE_DURATION_MS
-                        .ENGINEER_DEPLOY_SHIELD,
+                    getTimedOfficerTaskDurationMs(
+                        OFFICER_TASK_KIND
+                            .ENGINEER_DEPLOY_SHIELD,
+                    ),
             },
         );
     }
@@ -600,8 +605,10 @@ export default class EnemyTaskScheduler {
                 elapsedMs: 0,
 
                 durationMs:
-                    OFFICER_TASK_BASE_DURATION_MS
-                        .CLEAR_STICKY_MINE,
+                    getTimedOfficerTaskDurationMs(
+                        OFFICER_TASK_KIND
+                            .CLEAR_STICKY_MINE,
+                    ),
             },
         );
     }
@@ -653,8 +660,10 @@ export default class EnemyTaskScheduler {
                 elapsedMs: 0,
 
                 durationMs:
-                    OFFICER_TASK_BASE_DURATION_MS
-                        .SCIENCE_PURGE_SPAM,
+                    getTimedOfficerTaskDurationMs(
+                        OFFICER_TASK_KIND
+                            .SCIENCE_PURGE_SPAM,
+                    ),
             },
         );
     }
@@ -702,8 +711,10 @@ export default class EnemyTaskScheduler {
                 elapsedMs: 0,
 
                 durationMs:
-                    OFFICER_TASK_BASE_DURATION_MS
-                        .SCIENCE_IDENTIFY_THREAT,
+                    getTimedOfficerTaskDurationMs(
+                        OFFICER_TASK_KIND
+                            .SCIENCE_IDENTIFY_THREAT,
+                    ),
             },
         );
     }

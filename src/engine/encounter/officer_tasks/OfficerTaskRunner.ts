@@ -8,6 +8,8 @@ import { PLAYER_SPACE_NAVIGATION_KIND } from '../../defs/player_location';
 import { ENCOUNTER_EVENT, OFFICER_TASK_OUTCOME, type EncounterEvent, type OfficerTaskResult } from '../model/event';
 import {
     getOfficerTaskCancellationPolicy,
+} from '../../content/catalogs/officer_tasks';
+import {
     OFFICER_TASK_KIND,
     type OfficerTaskDraft,
     type OfficerTaskState,

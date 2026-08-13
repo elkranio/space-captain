@@ -4,8 +4,11 @@ import {
     SHIELD_EMITTERS,
 } from '../../../content/catalogs/shield_emitters';
 import {
-    OFFICER_TASK_BASE_DURATION_MS,
-} from '../../../content/rules/officer_tasks';
+    getTimedOfficerTaskDurationMs,
+} from '../../../content/catalogs/officer_tasks';
+import {
+    OFFICER_TASK_KIND,
+} from '../../../defs/officer_task';
 import {
     OFFICER_ROLE,
     type OfficerRole,
@@ -485,8 +488,10 @@ export default class EnemyDecisionPolicy {
             ];
 
         const deploymentDurationMs =
-            OFFICER_TASK_BASE_DURATION_MS
-                .ENGINEER_DEPLOY_SHIELD;
+            getTimedOfficerTaskDurationMs(
+                OFFICER_TASK_KIND
+                    .ENGINEER_DEPLOY_SHIELD,
+            );
 
         const deploymentWindowStartMs =
             deploymentDurationMs +

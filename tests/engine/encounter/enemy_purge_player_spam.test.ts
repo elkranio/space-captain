@@ -9,8 +9,11 @@ import {
     SHIP_WEAPON_TARGETING_DURATION_MS,
 } from '../../../src/engine/content/catalogs/ship_weapons';
 import {
-    OFFICER_TASK_BASE_DURATION_MS,
-} from '../../../src/engine/content/rules/officer_tasks';
+    getTimedOfficerTaskDurationMs,
+} from '../../../src/engine/content/catalogs/officer_tasks';
+import {
+    OFFICER_TASK_KIND,
+} from '../../../src/engine/defs/officer_task';
 import {
     OFFICER_ROLE,
 } from '../../../src/engine/defs/officer';
@@ -46,6 +49,12 @@ import {
     getPlayerWeaponOrThrow,
     type AnchoredPlayerCombatTestSetup,
 } from './combat_test_support';
+
+const SCIENCE_PURGE_SPAM_DURATION_MS =
+    getTimedOfficerTaskDurationMs(
+        OFFICER_TASK_KIND
+            .SCIENCE_PURGE_SPAM,
+    );
 
 describe(
     'Enemy Science purge of player spam',
@@ -92,8 +101,7 @@ describe(
                     elapsedMs: 0,
 
                     durationMs:
-                        OFFICER_TASK_BASE_DURATION_MS
-                            .SCIENCE_PURGE_SPAM,
+                        SCIENCE_PURGE_SPAM_DURATION_MS,
                 });
 
                 const scienceDebug =
@@ -122,8 +130,7 @@ describe(
                         elapsedMs: 0,
 
                         durationMs:
-                            OFFICER_TASK_BASE_DURATION_MS
-                                .SCIENCE_PURGE_SPAM,
+                            SCIENCE_PURGE_SPAM_DURATION_MS,
                     },
                 });
 
@@ -134,8 +141,7 @@ describe(
                 ).toBe(0.5);
 
                 setup.engine.step(
-                    OFFICER_TASK_BASE_DURATION_MS
-                        .SCIENCE_PURGE_SPAM,
+                    SCIENCE_PURGE_SPAM_DURATION_MS,
                 );
 
                 expect(
@@ -150,8 +156,7 @@ describe(
                             .PURGE_SPAM,
 
                     elapsedMs:
-                        OFFICER_TASK_BASE_DURATION_MS
-                            .SCIENCE_PURGE_SPAM *
+                        SCIENCE_PURGE_SPAM_DURATION_MS *
                         0.5,
                 });
 
@@ -168,8 +173,7 @@ describe(
                 ).toBe(false);
 
                 setup.engine.step(
-                    OFFICER_TASK_BASE_DURATION_MS
-                        .SCIENCE_PURGE_SPAM,
+                    SCIENCE_PURGE_SPAM_DURATION_MS,
                 );
 
                 expect(
@@ -330,8 +334,7 @@ describe(
                     );
 
                 setup.engine.step(
-                    OFFICER_TASK_BASE_DURATION_MS
-                        .SCIENCE_PURGE_SPAM *
+                    SCIENCE_PURGE_SPAM_DURATION_MS *
                         2,
                 );
 

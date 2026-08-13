@@ -6,8 +6,11 @@ import {
     it,
 } from 'vitest';
 import {
-    OFFICER_TASK_BASE_DURATION_MS,
-} from '../../../src/engine/content/rules/officer_tasks';
+    getTimedOfficerTaskDurationMs,
+} from '../../../src/engine/content/catalogs/officer_tasks';
+import {
+    OFFICER_TASK_KIND,
+} from '../../../src/engine/defs/officer_task';
 import {
     OFFICER_ROLE,
 } from '../../../src/engine/defs/officer';
@@ -31,8 +34,10 @@ import {
 } from './combat_test_support';
 
 const CLEAR_DURATION_MS =
-    OFFICER_TASK_BASE_DURATION_MS
-        .CLEAR_STICKY_MINE;
+    getTimedOfficerTaskDurationMs(
+        OFFICER_TASK_KIND
+            .CLEAR_STICKY_MINE,
+    );
 
 describe(
     'Enemy sticky-mine clearing',

@@ -7,8 +7,8 @@ import {
     it,
 } from 'vitest';
 import {
-    OFFICER_TASK_BASE_DURATION_MS,
-} from '../../../src/engine/content/rules/officer_tasks';
+    getTimedOfficerTaskDurationMs,
+} from '../../../src/engine/content/catalogs/officer_tasks';
 import {
     CREW_TRAIT_ID,
 } from '../../../src/engine/defs/crew_trait';
@@ -62,6 +62,12 @@ import {
     createSingleStationNodeFixture,
 } from '../../fixtures/engine/space_node_fixtures';
 
+const SCIENCE_IDENTIFY_THREAT_DURATION_MS =
+    getTimedOfficerTaskDurationMs(
+        OFFICER_TASK_KIND
+            .SCIENCE_IDENTIFY_THREAT,
+    );
+
 describe(
     'Enemy Science identification',
     () => {
@@ -96,13 +102,11 @@ describe(
                     elapsedMs: 0,
 
                     durationMs:
-                        OFFICER_TASK_BASE_DURATION_MS
-                            .SCIENCE_IDENTIFY_THREAT,
+                        SCIENCE_IDENTIFY_THREAT_DURATION_MS,
                 });
 
                 scheduler.schedule(
-                    OFFICER_TASK_BASE_DURATION_MS
-                        .SCIENCE_IDENTIFY_THREAT -
+                    SCIENCE_IDENTIFY_THREAT_DURATION_MS -
                         1,
                 );
 

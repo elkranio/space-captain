@@ -19,7 +19,8 @@
     "license": "ISC",
     "dependencies": {
         "is-mobile": "^5.0.0",
-        "phaser": "^3.88.2"
+        "phaser": "^3.88.2",
+        "zod": "4.4.3"
     },
     "devDependencies": {
         "audiosprite-ffmpeg": "^0.8.1",
