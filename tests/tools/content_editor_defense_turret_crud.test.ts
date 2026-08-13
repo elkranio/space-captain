@@ -58,9 +58,10 @@ describe(
 
         it(
             'reports enemy and player preset usages for the built-in Defense Turret',
-            () => {
+            async () => {
                 const info =
-                    getContentRecordDeleteInfo(
+                    await getContentRecordDeleteInfo(
+                        process.cwd(),
                         CONTENT_COLLECTION_ID
                             .DEFENSE_TURRETS,
                         'defense_turret_basic_00',

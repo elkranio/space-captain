@@ -50,9 +50,10 @@ describe(
 
         it(
             'reports enemy and player preset usages for the built-in Power Core',
-            () => {
+            async () => {
                 const info =
-                    getContentRecordDeleteInfo(
+                    await getContentRecordDeleteInfo(
+                        process.cwd(),
                         CONTENT_COLLECTION_ID
                             .POWER_CORES,
                         'power_core_basic_00',

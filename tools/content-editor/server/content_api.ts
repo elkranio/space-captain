@@ -95,7 +95,8 @@ export async function handleContentRequest(
         sendJson(
             response,
             200,
-            getContentRecordDeleteInfo(
+            await getContentRecordDeleteInfo(
+                repoRoot,
                 deleteInfoRoute
                     .collectionId,
                 deleteInfoRoute

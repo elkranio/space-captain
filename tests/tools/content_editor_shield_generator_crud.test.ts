@@ -52,9 +52,10 @@ describe(
 
         it(
             'reports enemy and player preset usages for the built-in Shield Generator',
-            () => {
+            async () => {
                 const info =
-                    getContentRecordDeleteInfo(
+                    await getContentRecordDeleteInfo(
+                        process.cwd(),
                         CONTENT_COLLECTION_ID
                             .SHIELD_GENERATORS,
                         'shield_generator_basic_00',

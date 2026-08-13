@@ -92,24 +92,10 @@ export type ContentCollectionGroup =
         keyof typeof CONTENT_COLLECTION_GROUP
     ];
 
-const SHIP_MODULE_COLLECTION_IDS =
-    new Set<ContentCollectionId>([
-        CONTENT_COLLECTION_ID
-            .POWER_CORES,
-
-        CONTENT_COLLECTION_ID
-            .SHIP_DRIVES,
-
-        CONTENT_COLLECTION_ID
-            .SHIELD_GENERATORS,
-
-        CONTENT_COLLECTION_ID
-            .DEFENSE_TURRETS,
-    ]);
-
 type ContentCollectionDefinition = {
     id: ContentCollectionId;
     label: string;
+    group: ContentCollectionGroup;
     dataPath: string;
     schema: z.ZodType;
     canAdd: boolean;
@@ -128,6 +114,10 @@ const CONTENT_COLLECTIONS:
                     .OFFICER_TASKS,
 
             label: 'Officer Tasks',
+
+            group:
+                CONTENT_COLLECTION_GROUP
+                    .GENERAL,
 
             dataPath:
                 'src/engine/content/data/' +
@@ -149,6 +139,10 @@ const CONTENT_COLLECTIONS:
             label:
                 'Ship Weapon Rules',
 
+            group:
+                CONTENT_COLLECTION_GROUP
+                    .GENERAL,
+
             dataPath:
                 'src/engine/content/data/' +
                 'ship_weapon_rules.json',
@@ -169,6 +163,10 @@ const CONTENT_COLLECTIONS:
             label:
                 'Ship Weapons',
 
+            group:
+                CONTENT_COLLECTION_GROUP
+                    .GENERAL,
+
             dataPath:
                 'src/engine/content/data/' +
                 'ship_weapons.json',
@@ -187,6 +185,10 @@ const CONTENT_COLLECTIONS:
                     .MISSILES,
 
             label: 'Missiles',
+
+            group:
+                CONTENT_COLLECTION_GROUP
+                    .GENERAL,
 
             dataPath:
                 'src/engine/content/data/' +
@@ -208,6 +210,10 @@ const CONTENT_COLLECTIONS:
             label:
                 'Power Cores',
 
+            group:
+                CONTENT_COLLECTION_GROUP
+                    .SHIP_MODULES,
+
             dataPath:
                 'src/engine/content/data/' +
                 'power_cores.json',
@@ -227,6 +233,10 @@ const CONTENT_COLLECTIONS:
 
             label:
                 'Defense Turrets',
+
+            group:
+                CONTENT_COLLECTION_GROUP
+                    .SHIP_MODULES,
 
             dataPath:
                 'src/engine/content/data/' +
@@ -248,6 +258,10 @@ const CONTENT_COLLECTIONS:
             label:
                 'Shield Generators',
 
+            group:
+                CONTENT_COLLECTION_GROUP
+                    .SHIP_MODULES,
+
             dataPath:
                 'src/engine/content/data/' +
                 'shield_generators.json',
@@ -267,6 +281,10 @@ const CONTENT_COLLECTIONS:
 
             label:
                 'Ship Behaviors',
+
+            group:
+                CONTENT_COLLECTION_GROUP
+                    .GENERAL,
 
             dataPath:
                 'src/engine/content/data/' +
@@ -288,6 +306,10 @@ const CONTENT_COLLECTIONS:
             label:
                 'Ship Chassis',
 
+            group:
+                CONTENT_COLLECTION_GROUP
+                    .GENERAL,
+
             dataPath:
                 'src/engine/content/data/' +
                 'ship_chassis.json',
@@ -307,6 +329,10 @@ const CONTENT_COLLECTIONS:
 
             label:
                 'Drives',
+
+            group:
+                CONTENT_COLLECTION_GROUP
+                    .SHIP_MODULES,
 
             dataPath:
                 'src/engine/content/data/' +
@@ -328,6 +354,10 @@ const CONTENT_COLLECTIONS:
             label:
                 'Sticky Mines',
 
+            group:
+                CONTENT_COLLECTION_GROUP
+                    .GENERAL,
+
             dataPath:
                 'src/engine/content/data/' +
                 'sticky_mines.json',
@@ -347,6 +377,10 @@ const CONTENT_COLLECTIONS:
 
             label:
                 'Enemy Behavior Rules',
+
+            group:
+                CONTENT_COLLECTION_GROUP
+                    .GENERAL,
 
             dataPath:
                 'src/engine/content/data/' +
@@ -378,14 +412,7 @@ export function getContentCollectionSummaries():
             label: collection.label,
 
             group:
-                SHIP_MODULE_COLLECTION_IDS
-                    .has(
-                        collection.id,
-                    )
-                    ? CONTENT_COLLECTION_GROUP
-                        .SHIP_MODULES
-                    : CONTENT_COLLECTION_GROUP
-                        .GENERAL,
+                collection.group,
 
             canAdd: collection.canAdd,
             canDelete:

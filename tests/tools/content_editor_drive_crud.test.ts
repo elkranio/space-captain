@@ -16,9 +16,10 @@ describe(
     () => {
         it(
             'reports enemy and player preset usages for the built-in drive',
-            () => {
+            async () => {
                 const info =
-                    getContentRecordDeleteInfo(
+                    await getContentRecordDeleteInfo(
+                        process.cwd(),
                         CONTENT_COLLECTION_ID
                             .SHIP_DRIVES,
                         'basic_00',

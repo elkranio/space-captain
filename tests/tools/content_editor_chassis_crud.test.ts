@@ -128,9 +128,10 @@ describe(
 
         it(
             'reports ship presets that use the built-in chassis',
-            () => {
+            async () => {
                 const info =
-                    getContentRecordDeleteInfo(
+                    await getContentRecordDeleteInfo(
+                        process.cwd(),
                         CONTENT_COLLECTION_ID
                             .SHIP_CHASSIS,
                         'generic_00',

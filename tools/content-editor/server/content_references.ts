@@ -42,7 +42,11 @@ type ContentReferenceRule = {
     recordLabel: string;
 
     collectReferences:
-        () => ContentReference[];
+        (
+            repoRoot: string,
+        ) =>
+            ContentReference[] |
+            Promise<ContentReference[]>;
 
     validateDraft?: (
         repoRoot: string,
@@ -120,10 +124,11 @@ export class ContentReferenceError
     }
 }
 
-export function getContentRecordDeleteInfo(
+export async function getContentRecordDeleteInfo(
+    repoRoot: string,
     collectionId: string,
     recordId: string,
-): ContentRecordDeleteInfo {
+): Promise<ContentRecordDeleteInfo> {
     const rule =
         getContentReferenceRule(
             collectionId,
@@ -135,10 +140,15 @@ export function getContentRecordDeleteInfo(
         };
     }
 
+    const references =
+        await rule
+            .collectReferences(
+                repoRoot,
+            );
+
     return {
         usages:
-            rule
-                .collectReferences()
+            references
                 .filter((reference) => {
                     return (
                         reference.recordId ===
@@ -175,9 +185,15 @@ export async function validateContentCollectionReferences(
         );
     }
 
+    const references =
+        await rule
+            .collectReferences(
+                repoRoot,
+            );
+
     for (
         const reference of
-        rule.collectReferences()
+        references
     ) {
         if (
             Object.prototype
