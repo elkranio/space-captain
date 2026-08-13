@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    />
+    <title>Space Captain Content Editor</title>
+</head>
+<body>
+    <div class="app-shell">
+        <header class="topbar">
+            <div>
+                <div class="eyebrow">SPACE CAPTAIN</div>
+                <h1>Content Editor</h1>
+            </div>
+
+            <div class="topbar-actions">
+                <span
+                    id="save-status"
+                    class="save-status"
+                >
+                    Loading…
+                </span>
+
+                <button
+                    id="save-button"
+                    class="primary-button"
+                    type="button"
+                    disabled
+                >
+                    Save
+                </button>
+            </div>
+        </header>
+
+        <main class="workspace">
+            <aside class="collections-panel">
+                <div class="panel-heading">
+                    Collections
+                </div>
+
+                <button
+                    class="collection-button is-active"
+                    type="button"
+                >
+                    Officer Tasks
+                </button>
+            </aside>
+
+            <section class="records-panel">
+                <div class="panel-heading">
+                    Tasks
+                </div>
+
+                <div id="record-list"></div>
+            </section>
+
+            <section class="inspector-panel">
+                <div id="inspector">
+                    <div class="empty-state">
+                        Loading officer tasks…
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script
+        type="module"
+        src="/src/main.ts"
+    ></script>
+</body>
+</html>

@@ -12,7 +12,8 @@
         "preview": "vite preview",
         "deploy": "npm run build && node -r dotenv/config deploy/deploy.js",
         "typecheck": "tsc --noEmit",
-        "test": "vitest run --root ."
+        "test": "vitest run --root .",
+        "editor": "vite --config tools/content-editor/vite.config.ts"
     },
     "keywords": [],
     "author": "",
