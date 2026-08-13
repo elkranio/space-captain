@@ -285,6 +285,11 @@ export default class BridgePlayerShipStatusStripView {
                 status.hull.max,
         );
 
+        const blindInterceptChance =
+            status
+                .defenseTurret
+                ?.blindInterceptChance;
+
         this.defenseText.setText(
             'DEF ' +
                 status
@@ -293,7 +298,16 @@ export default class BridgePlayerShipStatusStripView {
                 '/' +
                 status
                     .powerCore
-                    .max,
+                    .max +
+                (blindInterceptChance !==
+                undefined
+                    ? '  PD ' +
+                      Math.round(
+                          blindInterceptChance *
+                              100,
+                      ) +
+                      '%'
+                    : ''),
         );
 
         this.engineText.setText(

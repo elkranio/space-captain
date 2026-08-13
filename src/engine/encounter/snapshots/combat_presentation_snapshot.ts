@@ -4,6 +4,9 @@ import {
     POWER_CORES,
 } from '../../content/catalogs/power_cores';
 import {
+    DEFENSE_TURRETS,
+} from '../../content/catalogs/defense_turrets';
+import {
     SHIP_WEAPONS,
     SHIP_WEAPON_TARGETING_DURATION_MS,
 } from '../../content/catalogs/ship_weapons';
@@ -50,7 +53,7 @@ import {
     COMBAT_SOURCE_KIND,
     COMBAT_TARGET_KIND,
     type ActiveShieldState,
-    type CombatProjectileState,
+    type MissileCombatProjectileState,
     type SpamChannelState,
     type StickyMineState,
 } from '../model/combat';
@@ -63,6 +66,9 @@ import type {
 import type {
     EncounterState,
 } from '../model/state';
+import type {
+    MissileSignatureIntelStatus,
+} from '../model/missile_signature_intel';
 import {
     getOfficerAvailabilityStates,
 } from '../officer_availability/queries/get_officer_availability_states';
@@ -97,6 +103,48 @@ export type EnemyShipPresentationSnapshot =
             PowerCorePresentationSnapshot;
     };
 
+export type MissilePresentationSnapshot = {
+    id: string;
+    designation: string;
+
+    kind:
+        MissileCombatProjectileState[
+            'kind'
+        ];
+
+    source:
+        MissileCombatProjectileState[
+            'source'
+        ];
+
+    sourceWeaponId: string;
+
+    target:
+        MissileCombatProjectileState[
+            'target'
+        ];
+
+    missileId:
+        MissileCombatProjectileState[
+            'missileId'
+        ];
+
+    timeToImpactMs: number;
+    initialTimeToImpactMs: number;
+
+    // Presentation receives observer state only.
+    // Objective runtime signature and concrete hypothesis stay in engine truth.
+    identificationStatus:
+        MissileSignatureIntelStatus;
+};
+
+export type PlayerDefenseTurretPresentationSnapshot = {
+    // Hard mechanical equipment probability.
+    // Presentation may format it, but never recompute it.
+    blindInterceptChance:
+        number;
+};
+
 export type CombatPresentationSnapshot = {
     player: {
         hull:
@@ -107,6 +155,9 @@ export type CombatPresentationSnapshot = {
 
         powerCore?:
             PowerCorePresentationSnapshot;
+
+        defenseTurret?:
+            PlayerDefenseTurretPresentationSnapshot;
 
         shieldGenerator?:
             ShieldGeneratorState;
@@ -128,10 +179,10 @@ export type CombatPresentationSnapshot = {
         EnemyShipPresentationSnapshot[];
 
     incomingMissiles:
-        CombatProjectileState[];
+        MissilePresentationSnapshot[];
 
     outgoingMissiles:
-        CombatProjectileState[];
+        MissilePresentationSnapshot[];
 
     outgoingStickyMines:
         StickyMineState[];
@@ -178,6 +229,18 @@ export function createCombatPresentationSnapshot(
                           createPowerCorePresentationSnapshot(
                               state.combat
                                   .powerCore,
+                          ),
+                  }
+                : {}),
+
+            ...(state.combat
+                .defenseTurret
+                ? {
+                      defenseTurret:
+                          createPlayerDefenseTurretPresentationSnapshot(
+                              state.combat
+                                  .defenseTurret
+                                  .defenseTurretId,
                           ),
                   }
                 : {}),
@@ -240,7 +303,10 @@ export function createCombatPresentationSnapshot(
                             COMBAT_TARGET_KIND
                                 .PLAYER_SHIP
                     );
-                }),
+                })
+                .map(
+                    createMissilePresentationSnapshot,
+                ),
 
         outgoingMissiles:
             state.combat
@@ -256,7 +322,10 @@ export function createCombatPresentationSnapshot(
                             COMBAT_TARGET_KIND
                                 .ACTOR
                     );
-                }),
+                })
+                .map(
+                    createMissilePresentationSnapshot,
+                ),
 
         outgoingStickyMines:
             state.combat
@@ -312,6 +381,67 @@ export function createCombatPresentationSnapshot(
                     OFFICER_ROLE.ENGINEER,
                 ),
         },
+    };
+}
+
+function createMissilePresentationSnapshot(
+    projectile:
+        MissileCombatProjectileState,
+): MissilePresentationSnapshot {
+    return {
+        id:
+            projectile.id,
+
+        designation:
+            projectile.designation,
+
+        kind:
+            projectile.kind,
+
+        source:
+            projectile.source,
+
+        sourceWeaponId:
+            projectile.sourceWeaponId,
+
+        target:
+            projectile.target,
+
+        missileId:
+            projectile.missileId,
+
+        timeToImpactMs:
+            projectile.timeToImpactMs,
+
+        initialTimeToImpactMs:
+            projectile.initialTimeToImpactMs,
+
+        identificationStatus:
+            projectile
+                .identification
+                .status,
+    };
+}
+
+function createPlayerDefenseTurretPresentationSnapshot(
+    defenseTurretId: string,
+): PlayerDefenseTurretPresentationSnapshot {
+    const definition =
+        DEFENSE_TURRETS[
+            defenseTurretId
+        ];
+
+    if (!definition) {
+        throw new Error(
+            'Defense Turret definition not found: ' +
+                defenseTurretId,
+        );
+    }
+
+    return {
+        blindInterceptChance:
+            definition
+                .blindInterceptChance,
     };
 }
 

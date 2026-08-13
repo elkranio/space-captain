@@ -1,6 +1,7 @@
 import { OFFICER_ROLE, type OfficerRole } from '../../../../../../engine/defs/officer';
 import type {
     EnemyShipPresentationSnapshot,
+    MissilePresentationSnapshot,
 } from '../../../../../../engine/encounter/snapshots/combat_presentation_snapshot';
 import type {
     LaserThreatSnapshot,
@@ -14,10 +15,8 @@ import {
     type AvailableOfficerCommand,
     type EncounterOfficerCommandId,
 } from '../../../../../../engine/encounter/model/command';
-import {
-    MISSILE_SIGNATURE_INTEL_STATUS,
-    type CombatProjectileState,
-    type SpamChannelState,
+import type {
+    SpamChannelState,
 } from '../../../../../../engine/encounter/model/combat';
 import type {
     BridgeCaptainCombatContextUpdatedPayload,
@@ -29,7 +28,7 @@ type CaptainCombatContextMapperInput = {
         EnemyShipPresentationSnapshot[];
 
     incomingMissiles:
-        CombatProjectileState[];
+        MissilePresentationSnapshot[];
 
     laserThreats:
         LaserThreatSnapshot[];
@@ -153,16 +152,9 @@ export function mapCaptainCombatContextToBridgePayload(
                         initialTimeToImpactMs:
                             missile.initialTimeToImpactMs,
 
-                        ...(missile
-                            .identification
-                            .status !== MISSILE_SIGNATURE_INTEL_STATUS.UNKNOWN
-                            ? {
-                                  signature:
-                                      missile
-                                          .identification
-                                          .hypothesis,
-                              }
-                            : {}),
+                        identificationStatus:
+                            missile
+                                .identificationStatus,
 
                         actions: {
                             ...(identifyThreat

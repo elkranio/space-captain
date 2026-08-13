@@ -1,6 +1,8 @@
 // src/app/scenes/game/bridge/view/combat/incoming_missiles/missile/BridgeIncomingMissileView.ts
 
-import type { MissileSignature } from '../../../../../../../../engine/defs/missile';
+import type {
+    MissileSignatureIntelStatus,
+} from '../../../../../../../../engine/encounter/model/missile_signature_intel';
 import { MISSILE_SPRITE_ID, MISSILE_SPRITES } from '../../../../../../../manifests/combat/missiles/missile_sprite';
 import { FONT_FAMILY, FONT_SIZE } from '../../../../../../../theme/font';
 import type BridgeScene from '../../../../BridgeScene';
@@ -48,7 +50,7 @@ const TARGETING_FRAME = {
 // - траекторией;
 // - targeting brackets;
 // - коротким designation;
-// - известной spectral band;
+// - player-visible Science knowledge state;
 // - countdown.
 //
 // Engine остаётся источником времени и знания.
@@ -134,7 +136,10 @@ export default class BridgeIncomingMissileView {
         this.update(initialTimeToImpactMs);
     }
 
-    public update(timeToImpactMs: number, signature?: MissileSignature): void {
+    public update(
+        timeToImpactMs: number,
+        identificationStatus?: MissileSignatureIntelStatus,
+    ): void {
         const progress = this.getQuantizedProgress(timeToImpactMs);
 
         const position = this.getQuadraticBezierPosition(progress);
@@ -149,7 +154,12 @@ export default class BridgeIncomingMissileView {
 
         this.drawTargetingFrame();
 
-        this.statusLabel.setText(this.formatStatusLabel(timeToImpactMs, signature));
+        this.statusLabel.setText(
+            this.formatStatusLabel(
+                timeToImpactMs,
+                identificationStatus,
+            ),
+        );
     }
 
     public getPosition(): Phaser.Math.Vector2 {
@@ -209,14 +219,26 @@ export default class BridgeIncomingMissileView {
         this.statusLabel.setPosition(0, bottom + TARGETING_FRAME.labelGap);
     }
 
-    private formatStatusLabel(timeToImpactMs: number, signature?: MissileSignature): string {
-        const parts = [this.designation];
+    private formatStatusLabel(
+        timeToImpactMs: number,
+        identificationStatus?: MissileSignatureIntelStatus,
+    ): string {
+        const parts = [
+            this.designation,
+        ];
 
-        if (signature) {
-            parts.push(signature.toUpperCase());
+        if (identificationStatus) {
+            parts.push(
+                identificationStatus
+                    .toUpperCase(),
+            );
         }
 
-        parts.push(this.formatTimeToImpact(timeToImpactMs));
+        parts.push(
+            this.formatTimeToImpact(
+                timeToImpactMs,
+            ),
+        );
 
         return parts.join(' ');
     }

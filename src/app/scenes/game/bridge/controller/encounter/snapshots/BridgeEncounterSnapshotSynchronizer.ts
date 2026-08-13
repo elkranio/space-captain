@@ -1,6 +1,5 @@
 import { OFFICER_ROLE } from '../../../../../../../engine/defs/officer';
 import type EncounterEngine from '../../../../../../../engine/encounter/EncounterEngine';
-import { MISSILE_SIGNATURE_INTEL_STATUS } from '../../../../../../../engine/encounter/model/combat';
 import type {
     CombatPresentationSnapshot,
 } from '../../../../../../../engine/encounter/snapshots/combat_presentation_snapshot';
@@ -175,6 +174,17 @@ export default class BridgeEncounterSnapshotSynchronizer {
                             .drive,
 
                     powerCore,
+
+                    ...(snapshot
+                        .player
+                        .defenseTurret
+                        ? {
+                              defenseTurret:
+                                  snapshot
+                                      .player
+                                      .defenseTurret,
+                          }
+                        : {}),
                 },
             }),
         );
@@ -353,16 +363,9 @@ export default class BridgeEncounterSnapshotSynchronizer {
                             projectile
                                 .timeToImpactMs,
 
-                        ...(projectile
-                            .identification
-                            .status !== MISSILE_SIGNATURE_INTEL_STATUS.UNKNOWN
-                            ? {
-                                  signature:
-                                      projectile
-                                          .identification
-                                          .hypothesis,
-                              }
-                            : {}),
+                        identificationStatus:
+                            projectile
+                                .identificationStatus,
                     };
                 }),
         );

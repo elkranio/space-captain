@@ -98,6 +98,11 @@ type PlayerShipDashboardMapperInput = {
 
         powerCore:
             PowerCorePresentationSnapshot;
+
+        defenseTurret?: {
+            blindInterceptChance:
+                number;
+        };
     };
 };
 
@@ -233,6 +238,17 @@ function mapStatus(
             status:
                 input.drive.status,
         },
+
+        ...(input.defenseTurret
+            ? {
+                  defenseTurret: {
+                      blindInterceptChance:
+                          input
+                              .defenseTurret
+                              .blindInterceptChance,
+                  },
+              }
+            : {}),
     };
 }
 

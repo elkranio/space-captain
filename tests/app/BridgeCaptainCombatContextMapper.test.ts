@@ -5,7 +5,6 @@ import {
 } from 'vitest';
 import {
     MISSILE_ID,
-    MISSILE_SIGNATURE,
 } from '../../src/engine/defs/missile';
 import {
     OFFICER_ROLE,
@@ -18,7 +17,6 @@ import {
     COMBAT_SOURCE_KIND,
     COMBAT_TARGET_KIND,
     MISSILE_SIGNATURE_INTEL_STATUS,
-    type CombatProjectileState,
 } from '../../src/engine/encounter/model/combat';
 import {
     ENCOUNTER_OFFICER_COMMAND_ID,
@@ -27,6 +25,7 @@ import {
 } from '../../src/engine/encounter/model/command';
 import {
     createPowerCorePresentationSnapshot,
+    type MissilePresentationSnapshot,
 } from '../../src/engine/encounter/snapshots/combat_presentation_snapshot';
 import {
     mapCaptainCombatContextToBridgePayload,
@@ -52,15 +51,9 @@ describe(
                         initialTimeToImpactMs:
                             1200,
 
-                        identification: {
-                            status:
-                                MISSILE_SIGNATURE_INTEL_STATUS
-                                    .CONFIRMED,
-
-                            hypothesis:
-                                MISSILE_SIGNATURE
-                                    .A,
-                        },
+                        identificationStatus:
+                            MISSILE_SIGNATURE_INTEL_STATUS
+                                .CONFIRMED,
                     });
 
                 const far =
@@ -77,11 +70,9 @@ describe(
                         initialTimeToImpactMs:
                             1400,
 
-                        identification: {
-                            status:
-                                MISSILE_SIGNATURE_INTEL_STATUS
-                                    .UNKNOWN,
-                        },
+                        identificationStatus:
+                            MISSILE_SIGNATURE_INTEL_STATUS
+                                .UNKNOWN,
                     });
 
                 expect(
@@ -157,9 +148,9 @@ describe(
                             initialTimeToImpactMs:
                                 1200,
 
-                            signature:
-                                MISSILE_SIGNATURE
-                                    .A,
+                            identificationStatus:
+                                MISSILE_SIGNATURE_INTEL_STATUS
+                                    .CONFIRMED,
 
                             actions: {
                                 interceptMissile: {
@@ -195,6 +186,10 @@ describe(
 
                             initialTimeToImpactMs:
                                 1400,
+
+                            identificationStatus:
+                                MISSILE_SIGNATURE_INTEL_STATUS
+                                    .UNKNOWN,
 
                             actions: {
                                 identifyThreat: {
@@ -798,11 +793,9 @@ describe(
                         initialTimeToImpactMs:
                             1200,
 
-                        identification: {
-                            status:
-                                MISSILE_SIGNATURE_INTEL_STATUS
-                                    .UNKNOWN,
-                        },
+                        identificationStatus:
+                            MISSILE_SIGNATURE_INTEL_STATUS
+                                .UNKNOWN,
                     });
 
                 const duplicate =
@@ -860,17 +853,12 @@ describe(
     },
 );
 
-type MissileIdentification =
-    CombatProjectileState[
-        'identification'
-    ];
-
 function createMissile({
     id,
     designation,
     timeToImpactMs,
     initialTimeToImpactMs,
-    identification,
+    identificationStatus,
 }: {
     id: string;
     designation: string;
@@ -878,9 +866,11 @@ function createMissile({
     timeToImpactMs: number;
     initialTimeToImpactMs: number;
 
-    identification:
-        MissileIdentification;
-}): CombatProjectileState {
+    identificationStatus:
+        MissilePresentationSnapshot[
+            'identificationStatus'
+        ];
+}): MissilePresentationSnapshot {
     return {
         id,
         designation,
@@ -907,16 +897,13 @@ function createMissile({
                     .PLAYER_SHIP,
         },
 
-        signature:
-            MISSILE_SIGNATURE.A,
-
-        identification,
-
         missileId:
             MISSILE_ID.BASIC_00,
 
         timeToImpactMs,
         initialTimeToImpactMs,
+
+        identificationStatus,
     };
 }
 

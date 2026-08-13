@@ -6,8 +6,10 @@ import type { SpriteEntry } from '../../../../manifests/types';
 import type { SceneKey } from '../../../scene_key';
 import type {
     MissileId,
-    MissileSignature,
 } from '../../../../../engine/defs/missile';
+import type {
+    MissileSignatureIntelStatus,
+} from '../../../../../engine/encounter/model/missile_signature_intel';
 import type { DefenseTurretShotOutcome } from '../../../../../engine/defs/defense_turret';
 import type { ShipDriveStatus } from '../../../../../engine/defs/ship_drive';
 import type { ShipWeaponPhase } from '../../../../../engine/defs/ship_weapon';
@@ -465,6 +467,11 @@ export type BridgePlayerShipDashboardUpdatedPayload = {
         drive: {
             status: ShipDriveStatus;
         };
+
+        defenseTurret?: {
+            blindInterceptChance:
+                number;
+        };
     };
 
     missileLauncher?: {
@@ -556,8 +563,8 @@ export type BridgeCaptainIncomingMissilePayload = {
     timeToImpactMs: number;
     initialTimeToImpactMs: number;
 
-    signature?:
-        MissileSignature;
+    identificationStatus:
+        MissileSignatureIntelStatus;
 
     actions: {
         identifyThreat?:
@@ -761,7 +768,8 @@ export type BridgeIncomingMissileUpdatePayload = {
 
     timeToImpactMs: number;
 
-    signature?: MissileSignature;
+    identificationStatus:
+        MissileSignatureIntelStatus;
 };
 
 // Актуальный snapshot всех входящих ракет.

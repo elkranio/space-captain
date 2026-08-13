@@ -214,8 +214,8 @@ describe('BridgeEncounterSnapshotSynchronizer', () => {
                             initialTimeToImpactMs:
                                 1200,
 
-                            signature:
-                                'signature_a',
+                            identificationStatus:
+                                'confirmed',
 
                             actions: {},
                         },
@@ -235,7 +235,8 @@ describe('BridgeEncounterSnapshotSynchronizer', () => {
                     {
                         projectileId: 'incoming_1',
                         timeToImpactMs: 800,
-                        signature: 'signature_a',
+                        identificationStatus:
+                            'confirmed',
                     },
                 ],
             ],
@@ -404,8 +405,8 @@ describe('BridgeEncounterSnapshotSynchronizer', () => {
                             initialTimeToImpactMs:
                                 1200,
 
-                            signature:
-                                'signature_a',
+                            identificationStatus:
+                                'confirmed',
 
                             actions: {},
                         },
@@ -560,19 +561,36 @@ function createEncounterEngine(): EncounterEngine {
                             designation:
                                 'M1',
 
+                            kind:
+                                'missile',
+
+                            source: {
+                                kind:
+                                    'actor',
+
+                                actorId:
+                                    'enemy_ship_00',
+                            },
+
+                            sourceWeaponId:
+                                'missile_launcher_enemy_00',
+
+                            target: {
+                                kind:
+                                    'player_ship',
+                            },
+
+                            missileId:
+                                'basic_00',
+
                             timeToImpactMs:
                                 800,
 
                             initialTimeToImpactMs:
                                 1200,
 
-                            identification: {
-                                status:
-                                    'identified',
-
-                                hypothesis:
-                                    'signature_a',
-                            },
+                            identificationStatus:
+                                'confirmed',
                         },
                     ],
 
@@ -581,11 +599,39 @@ function createEncounterEngine(): EncounterEngine {
                             id:
                                 'outgoing_1',
 
+                            designation:
+                                'M2',
+
+                            kind:
+                                'missile',
+
+                            source: {
+                                kind:
+                                    'player_ship',
+                            },
+
+                            sourceWeaponId:
+                                'missile_launcher_player_00',
+
+                            target: {
+                                kind:
+                                    'actor',
+
+                                actorId:
+                                    'enemy_ship_00',
+                            },
+
+                            missileId:
+                                'basic_00',
+
                             timeToImpactMs:
                                 600,
 
                             initialTimeToImpactMs:
                                 1000,
+
+                            identificationStatus:
+                                'confirmed',
                         },
                     ],
 

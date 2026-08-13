@@ -1,4 +1,7 @@
 import {
+    MISSILE_SIGNATURE_INTEL_STATUS,
+} from '../../../../../../../../engine/encounter/model/missile_signature_intel';
+import {
     FONT_COLOR,
     FONT_FAMILY,
     FONT_SIZE,
@@ -54,7 +57,8 @@ type MissileThreatRowCallbacks = {
 // Одна fixed-geometry missile threat row.
 //
 // SCI и WPN slots никогда не двигаются:
-// identified threat просто скрывает SCI slot,
+// CONFIRMED threat скрывает SCI slot;
+// UNKNOWN/UNCERTAIN могут предлагать повторный анализ.
 // но WPN остаётся на прежнем X.
 export default class BridgeCaptainMissileThreatRowView {
     private readonly root:
@@ -280,28 +284,27 @@ export default class BridgeCaptainMissileThreatRowView {
             ),
         );
 
-        const signature =
-            missile.signature;
-
         this.threatLabel.setText(
-            signature
-                ? signature
-                      .toUpperCase() +
-                      ' MISSILE'
-                : 'UNKNOWN MISSILE',
+            'MISSILE ' +
+                missile.designation +
+                '  ' +
+                missile
+                    .identificationStatus
+                    .toUpperCase(),
         );
 
         if (
-            !signature ||
-            missile.actions
-                .identifyThreat
+            missile
+                .identificationStatus ===
+            MISSILE_SIGNATURE_INTEL_STATUS
+                .CONFIRMED
         ) {
+            this.hideScienceAction();
+        } else {
             this.setScienceAction(
                 missile.actions
                     .identifyThreat,
             );
-        } else {
-            this.hideScienceAction();
         }
 
         const interceptCommand =
