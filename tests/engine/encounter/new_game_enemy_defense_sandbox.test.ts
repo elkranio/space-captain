@@ -305,7 +305,7 @@ describe('New-game enemy defense sandbox', () => {
             ).toBeUndefined();
 
             expect(
-                engine.getSpamChannels(),
+                engine.getCombatPresentationSnapshot().spamChannels,
             ).toEqual([]);
         },
     );

@@ -94,7 +94,7 @@ describe('Officer performance during hostile spam', () => {
         });
 
         expect(engine.getOfficerTasks()).toEqual([]);
-        expect(engine.getSpamChannels()).toEqual([]);
+        expect(engine.getCombatPresentationSnapshot().spamChannels).toEqual([]);
     });
 });
 

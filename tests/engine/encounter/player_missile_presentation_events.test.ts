@@ -120,12 +120,12 @@ describe('Player missile presentation events', () => {
 
         expect(
             engine
-                .getIncomingMissileProjectiles(),
+                .getCombatPresentationSnapshot().incomingMissiles,
         ).toEqual([]);
 
         expect(
             engine
-                .getOutgoingMissileProjectiles(),
+                .getCombatPresentationSnapshot().outgoingMissiles,
         ).toEqual([
             expect.objectContaining({
                 target: {
@@ -190,7 +190,7 @@ describe('Player missile presentation events', () => {
 
         expect(
             engine
-                .getOutgoingMissileProjectiles(),
+                .getCombatPresentationSnapshot().outgoingMissiles,
         ).toEqual([]);
     });
 

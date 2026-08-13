@@ -350,7 +350,7 @@ describe('Enemy point-defense interception', () => {
 
         expect(
             engine
-                .getOutgoingMissileProjectiles(),
+                .getCombatPresentationSnapshot().outgoingMissiles,
         ).toEqual([]);
 
         expect(
@@ -437,7 +437,7 @@ describe('Enemy point-defense interception', () => {
 
         expect(
             engine
-                .getOutgoingMissileProjectiles()
+                .getCombatPresentationSnapshot().outgoingMissiles
                 .some((candidate) => {
                     return (
                         candidate.id ===

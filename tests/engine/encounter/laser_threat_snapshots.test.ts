@@ -26,7 +26,7 @@ describe('EncounterEngine laser threat snapshots', () => {
         engine.step(SHIP_WEAPON_TARGETING_DURATION_MS);
         engine.drainEvents();
 
-        expect(engine.getLaserThreatSnapshots()).toEqual([
+        expect(engine.getCombatPresentationSnapshot().laserThreats).toEqual([
             {
                 attack: createExpectedAttack(),
 
@@ -38,7 +38,7 @@ describe('EncounterEngine laser threat snapshots', () => {
         engine.step(1234);
         engine.drainEvents();
 
-        expect(engine.getLaserThreatSnapshots()).toEqual([
+        expect(engine.getCombatPresentationSnapshot().laserThreats).toEqual([
             {
                 attack: createExpectedAttack(),
 

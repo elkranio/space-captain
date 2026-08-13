@@ -94,7 +94,7 @@ describe('Spam projector', () => {
         );
         expect(projector.phaseElapsedMs).toBe(0);
         expect(projector.activeChannelId).toBeNull();
-        expect(engine.getSpamChannels()).toEqual([]);
+        expect(engine.getCombatPresentationSnapshot().spamChannels).toEqual([]);
 
         engine.step(1);
 
@@ -127,7 +127,7 @@ describe('Spam projector', () => {
         expect(projector.phaseElapsedMs).toBe(
             SHIP_WEAPON_TARGETING_DURATION_MS - 1,
         );
-        expect(engine.getSpamChannels()).toEqual([]);
+        expect(engine.getCombatPresentationSnapshot().spamChannels).toEqual([]);
 
         const firstChannel = {
             id: 'spam_channel_1',
@@ -157,7 +157,7 @@ describe('Spam projector', () => {
         expect(projector.activeChannelId).toBe(
             firstChannel.id,
         );
-        expect(engine.getSpamChannels()).toEqual([
+        expect(engine.getCombatPresentationSnapshot().spamChannels).toEqual([
             firstChannel,
         ]);
 
@@ -171,7 +171,7 @@ describe('Spam projector', () => {
         expect(projector.phaseElapsedMs).toBe(
             definition.channelDurationMs - 1,
         );
-        expect(engine.getSpamChannels()).toEqual([
+        expect(engine.getCombatPresentationSnapshot().spamChannels).toEqual([
             {
                 ...firstChannel,
 
@@ -204,7 +204,7 @@ describe('Spam projector', () => {
         );
         expect(projector.phaseElapsedMs).toBe(0);
         expect(projector.activeChannelId).toBeNull();
-        expect(engine.getSpamChannels()).toEqual([]);
+        expect(engine.getCombatPresentationSnapshot().spamChannels).toEqual([]);
 
         engine.step(definition.cooldownDurationMs);
 
@@ -247,7 +247,7 @@ describe('Spam projector', () => {
         engine.step(7000);
 
         expect(engine.drainEvents()).toEqual([]);
-        expect(engine.getSpamChannels()).toEqual([
+        expect(engine.getCombatPresentationSnapshot().spamChannels).toEqual([
             {
                 ...secondChannel,
 
@@ -280,7 +280,7 @@ describe('Spam projector', () => {
         );
         expect(projector.phaseElapsedMs).toBe(0);
         expect(projector.activeChannelId).toBeNull();
-        expect(engine.getSpamChannels()).toEqual([]);
+        expect(engine.getCombatPresentationSnapshot().spamChannels).toEqual([]);
 
         expect(
             engine.purgeSpamChannel(secondChannel.id),

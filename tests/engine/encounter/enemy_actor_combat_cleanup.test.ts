@@ -49,7 +49,7 @@ describe('Enemy actor combat cleanup', () => {
 
         expect(
             engine
-                .getOutgoingMissileProjectiles(),
+                .getCombatPresentationSnapshot().outgoingMissiles,
         ).toHaveLength(1);
 
         executeWeaponsCommand(
@@ -63,7 +63,7 @@ describe('Enemy actor combat cleanup', () => {
         engine.step(1000);
 
         expect(
-            engine.getOutgoingStickyMines(),
+            engine.getCombatPresentationSnapshot().outgoingStickyMines,
         ).toHaveLength(3);
 
         const target =
@@ -111,11 +111,11 @@ describe('Enemy actor combat cleanup', () => {
 
         expect(
             engine
-                .getOutgoingMissileProjectiles(),
+                .getCombatPresentationSnapshot().outgoingMissiles,
         ).toEqual([]);
 
         expect(
-            engine.getOutgoingStickyMines(),
+            engine.getCombatPresentationSnapshot().outgoingStickyMines,
         ).toEqual([]);
 
         expect(
@@ -319,11 +319,11 @@ it('flushes a new sticky mine before an older missile destroys the target in the
 
     expect(
         engine
-            .getOutgoingMissileProjectiles(),
+            .getCombatPresentationSnapshot().outgoingMissiles,
     ).toEqual([]);
 
     expect(
-        engine.getOutgoingStickyMines(),
+        engine.getCombatPresentationSnapshot().outgoingStickyMines,
     ).toEqual([]);
 
     const events =
@@ -491,11 +491,11 @@ it('flushes a new missile before an older sticky mine destroys the target in the
 
     expect(
         engine
-            .getOutgoingMissileProjectiles(),
+            .getCombatPresentationSnapshot().outgoingMissiles,
     ).toEqual([]);
 
     expect(
-        engine.getOutgoingStickyMines(),
+        engine.getCombatPresentationSnapshot().outgoingStickyMines,
     ).toEqual([]);
 
     const events =

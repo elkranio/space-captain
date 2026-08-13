@@ -117,7 +117,7 @@ function flags(
     engine: EncounterEngine,
 ): Array<[string, boolean, boolean]> {
     return engine
-        .getStickyMineSnapshots()
+        .getCombatPresentationSnapshot().stickyMineSnapshots
         .map((snapshot) => {
             return [
                 snapshot.mine.id,

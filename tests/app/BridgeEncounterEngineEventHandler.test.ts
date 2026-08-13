@@ -449,7 +449,7 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
         ]);
     });
 
-    it('syncs shared defensive capacitor before point-defense activity starts', () => {
+    it('keeps defense-capacitor persistence out of combat event handling', () => {
         const runtime = new GameRuntime();
 
         const emit = vi.fn();
@@ -507,6 +507,9 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
             },
         ]);
 
+        // DEF persistence belongs to CombatPresentationSnapshot.
+        // This handler only forwards presentation/lifecycle events,
+        // so the synthetic spent-charge event must not mutate runtime.
         expect(
             runtime
                 .getCurrentRun()
@@ -514,7 +517,7 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
                 .ship
                 .defenseCapacitor,
         ).toMatchObject({
-            charges: 3,
+            charges: 4,
             rechargeElapsedMs: 0,
         });
         expect(emit.mock.calls).toEqual([

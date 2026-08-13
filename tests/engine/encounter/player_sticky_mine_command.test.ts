@@ -192,7 +192,7 @@ describe('Player sticky-mine command', () => {
         );
 
         expect(
-            engine.getOutgoingStickyMines(),
+            engine.getCombatPresentationSnapshot().outgoingStickyMines,
         ).toHaveLength(1);
         expect(dispenser.ammoCount).toBe(5);
         expect(
@@ -205,7 +205,7 @@ describe('Player sticky-mine command', () => {
         engine.step(1000);
 
         expect(
-            engine.getOutgoingStickyMines(),
+            engine.getCombatPresentationSnapshot().outgoingStickyMines,
         ).toHaveLength(2);
         expect(dispenser.ammoCount).toBe(4);
         expect(
@@ -218,7 +218,7 @@ describe('Player sticky-mine command', () => {
         engine.step(1000);
 
         expect(
-            engine.getOutgoingStickyMines()
+            engine.getCombatPresentationSnapshot().outgoingStickyMines
                 .map((mine) => {
                     return mine
                         .timeToDetonationMs;
@@ -246,21 +246,21 @@ describe('Player sticky-mine command', () => {
 
         expect(target.hull).toBe(2);
         expect(
-            engine.getOutgoingStickyMines(),
+            engine.getCombatPresentationSnapshot().outgoingStickyMines,
         ).toHaveLength(2);
 
         engine.step(1000);
 
         expect(target.hull).toBe(1);
         expect(
-            engine.getOutgoingStickyMines(),
+            engine.getCombatPresentationSnapshot().outgoingStickyMines,
         ).toHaveLength(1);
 
         engine.step(1000);
 
         expect(target.hull).toBe(0);
         expect(
-            engine.getOutgoingStickyMines(),
+            engine.getCombatPresentationSnapshot().outgoingStickyMines,
         ).toEqual([]);
 
         const resolutionEvents =
@@ -470,7 +470,7 @@ describe('Player sticky-mine command', () => {
         engine.step(2500);
 
         expect(
-            engine.getOutgoingStickyMines()
+            engine.getCombatPresentationSnapshot().outgoingStickyMines
                 .map((mine) => {
                     return mine
                         .timeToDetonationMs;
@@ -519,7 +519,7 @@ describe('Player sticky-mine command', () => {
         );
 
         expect(
-            engine.getOutgoingStickyMines(),
+            engine.getCombatPresentationSnapshot().outgoingStickyMines,
         ).toHaveLength(2);
         expect(
             engine.getOfficerTasks(),
@@ -553,7 +553,7 @@ describe('Player sticky-mine command', () => {
         ).toBe(0);
 
         expect(
-            engine.getOutgoingStickyMines(),
+            engine.getCombatPresentationSnapshot().outgoingStickyMines,
         ).toEqual([]);
         expect(
             engine.getOfficerTasks(),
@@ -581,7 +581,7 @@ describe('Player sticky-mine command', () => {
         engine.step(0);
 
         expect(
-            engine.getOutgoingStickyMines(),
+            engine.getCombatPresentationSnapshot().outgoingStickyMines,
         ).toEqual([]);
 
         expect(
@@ -642,7 +642,7 @@ describe('Player sticky-mine command', () => {
         ).toBe(1);
 
         expect(
-            engine.getOutgoingStickyMines(),
+            engine.getCombatPresentationSnapshot().outgoingStickyMines,
         ).toHaveLength(1);
         expect(
             engine.getOfficerTasks(),

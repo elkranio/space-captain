@@ -16,13 +16,14 @@ import {
 } from '../../../../../../../engine/encounter/model/event';
 import type { GameRuntime } from '../../../../../../runtime/GameRuntime';
 
-// Единственный event-driven transport
-// из EncounterEngine в persistent GameRuntime.
+// Event-driven transport для persistent mutations,
+// которые нельзя восстановить из текущего combat frame:
+// hull damage, drive/navigation changes, discovered anchors,
+// destroyed persistent actors.
 //
-// Presentation events, interactivity и scene flow
-// остаются в BridgeEncounterEngineEventHandler.
-// Snapshot-based weapon/navigation sync остаётся
-// явной ответственностью BridgeEncounterController.
+// Defense capacitor, shield emitter и installed weapons
+// синхронизируются одним CombatPresentationSnapshot.
+// Эти данные здесь повторно не записываются.
 export default class BridgeEncounterRuntimeSynchronizer {
     constructor(
         private readonly gameRuntime:
@@ -33,16 +34,6 @@ export default class BridgeEncounterRuntimeSynchronizer {
         event: EncounterEvent,
     ): void {
         switch (event.type) {
-            case ENCOUNTER_EVENT
-                .PLAYER_DEFENSE_CAPACITOR_CHARGE_SPENT:
-                this.gameRuntime
-                    .setPlayerShipDefenseCapacitorState(
-                        event.defenseCapacitor,
-                    );
-
-                return;
-
-
             case ENCOUNTER_EVENT
                 .PLAYER_SHIP_DRIVE_DISRUPTED:
                 this.gameRuntime

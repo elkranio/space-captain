@@ -184,7 +184,7 @@ describe('Science purge spam command', () => {
             SHIP_WEAPON_PHASE.COOLDOWN,
         );
         expect(projector.activeChannelId).toBeNull();
-        expect(engine.getSpamChannels()).toEqual([]);
+        expect(engine.getCombatPresentationSnapshot().spamChannels).toEqual([]);
         expect(engine.getOfficerTasks()).toEqual([]);
         expect(
             findPurgeCommand(engine),

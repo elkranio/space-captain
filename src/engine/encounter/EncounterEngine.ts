@@ -28,8 +28,6 @@ import CombatRunner from './combat/CombatRunner';
 import DefenseCapacitorRunner from './combat/defense/DefenseCapacitorRunner';
 import ShieldEmitterRunner from './combat/defense/ShieldEmitterRunner';
 import type { EnemyShipTelemetrySnapshot } from './combat/queries/get_enemy_ship_telemetry_snapshots';
-import type { LaserThreatSnapshot } from './combat/queries/get_laser_threat_snapshots';
-import type { StickyMineSnapshot } from './combat/queries/get_sticky_mine_snapshots';
 import PlayerWeaponRunner from './combat/weapons/PlayerWeaponRunner';
 import OfficerCommandExecutor from './commands/OfficerCommandExecutor';
 import type { AvailableOfficerCommand, ExecuteOfficerCommandInput, ExecuteOfficerCommandResult } from './model/command';
@@ -37,8 +35,6 @@ import {
     type ActiveShieldState,
     type CombatProjectileState,
     type LaserAttackState,
-    type SpamChannelState,
-    type StickyMineState,
 } from './model/combat';
 import { ENCOUNTER_EVENT, type EncounterEvent } from './model/event';
 import type { OfficerAvailabilityStates } from './model/officer_availability';
@@ -397,39 +393,12 @@ export default class EncounterEngine {
         return this.snapshotReader.getCombatProjectiles();
     }
 
-    public getIncomingMissileProjectiles():
-        CombatProjectileState[] {
-        return this.snapshotReader.getIncomingMissileProjectiles();
-    }
-
-    public getOutgoingMissileProjectiles():
-        CombatProjectileState[] {
-        return this.snapshotReader.getOutgoingMissileProjectiles();
-    }
-
-    public getOutgoingStickyMines():
-        StickyMineState[] {
-        return this.snapshotReader.getOutgoingStickyMines();
-    }
-
-    public getStickyMineSnapshots(): StickyMineSnapshot[] {
-        return this.snapshotReader.getStickyMineSnapshots();
-    }
-
     public getLaserAttacks(): LaserAttackState[] {
         return this.snapshotReader.getLaserAttacks();
     }
 
-    public getSpamChannels(): SpamChannelState[] {
-        return this.snapshotReader.getSpamChannels();
-    }
-
     public purgeSpamChannel(channelId: string): boolean {
         return this.combatRunner.purgeSpamChannel(channelId);
-    }
-
-    public getLaserThreatSnapshots(): LaserThreatSnapshot[] {
-        return this.snapshotReader.getLaserThreatSnapshots();
     }
 
     public drainEvents(): EncounterEvent[] {

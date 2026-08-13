@@ -1,6 +1,5 @@
 // src/engine/encounter/snapshots/EncounterSnapshotReader.ts
 
-import { SHIP_WEAPONS } from '../../content/catalogs/ship_weapons';
 import type {
     DefenseCapacitorState,
 } from '../../defs/defense_capacitor';
@@ -8,10 +7,8 @@ import type { OfficerRole } from '../../defs/officer';
 import type { PlayerHullState } from '../../defs/player';
 import type { PlayerSpaceNavigationState } from '../../defs/player_location';
 import type { ShipDriveState } from '../../defs/ship_drive';
-import {
-    SHIP_WEAPON_KIND,
-    SHIP_WEAPON_PHASE,
-    type ShipWeaponState,
+import type {
+    ShipWeaponState,
 } from '../../defs/ship_weapon';
 import type {
     ShieldEmitterState,
@@ -22,26 +19,14 @@ import {
     type EnemyShipTelemetrySnapshot,
 } from '../combat/queries/get_enemy_ship_telemetry_snapshots';
 import {
-    getLaserThreatSnapshots,
-    type LaserThreatSnapshot,
-} from '../combat/queries/get_laser_threat_snapshots';
-import {
-    getStickyMineSnapshots,
-    type StickyMineSnapshot,
-} from '../combat/queries/get_sticky_mine_snapshots';
-import {
     getEnemyDebugSnapshots,
     type EnemyDebugSnapshot,
 } from '../debug/get_enemy_debug_snapshots';
 import type { AvailableOfficerCommand } from '../model/command';
-import {
-    COMBAT_SOURCE_KIND,
-    COMBAT_TARGET_KIND,
-    type ActiveShieldState,
-    type CombatProjectileState,
-    type LaserAttackState,
-    type SpamChannelState,
-    type StickyMineState,
+import type {
+    ActiveShieldState,
+    CombatProjectileState,
+    LaserAttackState,
 } from '../model/combat';
 import type { OfficerAvailabilityStates } from '../model/officer_availability';
 import type { OfficerTaskState } from '../model/officer_task';
@@ -144,106 +129,11 @@ export default class EncounterSnapshotReader {
         return this.read((state) => state.combat.projectiles);
     }
 
-    public getIncomingMissileProjectiles(): CombatProjectileState[] {
-        return this.read((state) => {
-            return state.combat.projectiles.filter((projectile) => {
-                return (
-                    projectile.source.kind === COMBAT_SOURCE_KIND.ACTOR &&
-                    projectile.target.kind === COMBAT_TARGET_KIND.PLAYER_SHIP
-                );
-            });
-        });
-    }
-
-    public getOutgoingMissileProjectiles(): CombatProjectileState[] {
-        return this.read((state) => {
-            return state.combat.projectiles.filter((projectile) => {
-                return (
-                    projectile.source.kind === COMBAT_SOURCE_KIND.PLAYER_SHIP &&
-                    projectile.target.kind === COMBAT_TARGET_KIND.ACTOR
-                );
-            });
-        });
-    }
-
-    public getOutgoingStickyMines(): StickyMineState[] {
-        return this.read((state) => {
-            return state.combat.stickyMines.filter((mine) => {
-                return (
-                    mine.source.kind === COMBAT_SOURCE_KIND.PLAYER_SHIP &&
-                    mine.target.kind === COMBAT_TARGET_KIND.ACTOR
-                );
-            });
-        });
-    }
-
-    public getStickyMineSnapshots(): StickyMineSnapshot[] {
-        return this.read(getStickyMineSnapshots);
-    }
-
     public getLaserAttacks(): LaserAttackState[] {
         return this.read((state) => state.combat.laserAttacks);
-    }
-
-    public getSpamChannels(): SpamChannelState[] {
-        return this.read(selectSpamChannels);
-    }
-
-    public getLaserThreatSnapshots(): LaserThreatSnapshot[] {
-        return this.read(getLaserThreatSnapshots);
     }
 
     private read<T>(select: (state: EncounterState) => T): T {
         return createDetachedSnapshot(select(this.state));
     }
-}
-
-function selectSpamChannels(state: EncounterState): SpamChannelState[] {
-    const channels: SpamChannelState[] = [];
-
-    for (const actor of state.actors) {
-        if (actor.hull <= 0) {
-            continue;
-        }
-
-        for (const weapon of actor.weapons) {
-            if (
-                weapon.kind !== SHIP_WEAPON_KIND.SPAM_PROJECTOR ||
-                weapon.phase !== SHIP_WEAPON_PHASE.CHANNELING
-            ) {
-                continue;
-            }
-
-            const channelId = weapon.activeChannelId;
-
-            if (!channelId) {
-                throw new Error(
-                    `Spam projector channel id is missing: ` +
-                        `${actor.id}/${weapon.id}/${weapon.phase}`,
-                );
-            }
-
-            const definition = SHIP_WEAPONS[weapon.weaponId];
-
-            if (definition.kind !== SHIP_WEAPON_KIND.SPAM_PROJECTOR) {
-                throw new Error(
-                    `Spam projector definition mismatch: ` +
-                        `${actor.id}/${weapon.id}/${weapon.weaponId}`,
-                );
-            }
-
-            channels.push({
-                id: channelId,
-                sourceActorId: actor.id,
-                sourceWeaponId: weapon.id,
-                elapsedMs: Math.min(
-                    weapon.phaseElapsedMs,
-                    definition.channelDurationMs,
-                ),
-                durationMs: definition.channelDurationMs,
-            });
-        }
-    }
-
-    return channels;
 }
