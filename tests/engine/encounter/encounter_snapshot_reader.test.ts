@@ -5,7 +5,6 @@ import {
 
 import {
     describe, expect, it } from 'vitest';
-import { SHIP_DRIVE_STATUS } from '../../../src/engine/defs/ship_drive';
 import EncounterEngine from '../../../src/engine/encounter/EncounterEngine';
 import {
     COMBAT_PROJECTILE_KIND,
@@ -151,6 +150,24 @@ describe('EncounterSnapshotReader', () => {
         );
 
         expect(
+            snapshot.space.anchors,
+        ).toHaveLength(
+            state.anchors.length,
+        );
+
+        expect(
+            snapshot.space.anchors[0],
+        ).not.toBe(
+            state.anchors[0],
+        );
+
+        expect(
+            snapshot.space.anchors[0],
+        ).not.toHaveProperty(
+            'station.contact',
+        );
+
+        expect(
             snapshot.incomingMissiles,
         ).toHaveLength(1);
 
@@ -191,28 +208,45 @@ describe('EncounterSnapshotReader', () => {
         });
     });
 
-    it('detaches the complete encounter-loaded event from engine state', () => {
-        const { node, stationId } = createSingleStationNodeFixture();
-        const engine = new EncounterEngine({
-            node,
-            navigation: {
-                kind: PLAYER_SPACE_NAVIGATION_KIND.ANCHORED,
-                anchorId: stationId,
-            },
-            playerHull: createPlayerHullFixture(),
-            drive: createShipDriveFixture(),
+    it('keeps encounter-loaded event as a marker without engine state', () => {
+        const { node, stationId } =
+            createSingleStationNodeFixture();
+
+        const engine =
+            new EncounterEngine({
+                node,
+
+                navigation: {
+                    kind:
+                        PLAYER_SPACE_NAVIGATION_KIND
+                            .ANCHORED,
+
+                    anchorId:
+                        stationId,
+                },
+
+                playerHull:
+                    createPlayerHullFixture(),
+
+                drive:
+                    createShipDriveFixture(),
+            });
+
+        const [loadedEvent] =
+            engine.drainEvents();
+
+        expect(
+            loadedEvent,
+        ).toEqual({
+            type:
+                ENCOUNTER_EVENT
+                    .ENCOUNTER_LOADED,
         });
 
-        const [loadedEvent] = engine.drainEvents();
-
-        if (loadedEvent.type !== ENCOUNTER_EVENT.ENCOUNTER_LOADED) {
-            throw new Error('Expected encounter-loaded event');
-        }
-
-        loadedEvent.state.playerHull.hull = 0;
-        loadedEvent.state.drive.status = SHIP_DRIVE_STATUS.DISABLED;
-
-        expect(engine.getPlayerHullState().hull).toBeGreaterThan(0);
-        expect(engine.getDriveState().status).toBe(SHIP_DRIVE_STATUS.ONLINE);
+        expect(
+            loadedEvent,
+        ).not.toHaveProperty(
+            'state',
+        );
     });
 });

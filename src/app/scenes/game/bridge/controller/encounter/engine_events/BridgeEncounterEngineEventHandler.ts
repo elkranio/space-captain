@@ -15,6 +15,9 @@ import {
     type EncounterEvent,
 } from '../../../../../../../engine/encounter/model/event';
 import { OFFICER_TASK_KIND } from '../../../../../../../engine/encounter/model/officer_task';
+import type {
+    EncounterPresentationSnapshot,
+} from '../../../../../../../engine/encounter/snapshots/encounter_presentation_snapshot';
 import {
     MISSILE_SIGNATURE_ANALYSIS_CONFIDENCE,
     type MissileSignatureAnalysisConfidence,
@@ -60,13 +63,20 @@ export default class BridgeEncounterEngineEventHandler {
 
     // #region Public API
 
-    public handle(events: EncounterEvent[]): void {
+    public handle(
+        events:
+            EncounterEvent[],
+
+        presentationSnapshot?:
+            EncounterPresentationSnapshot,
+    ): void {
         for (const event of events) {
             this.runtimeSynchronizer
                 .synchronize(event);
 
             this.handleEvent(
                 event,
+                presentationSnapshot,
             );
         }
     }
@@ -130,7 +140,11 @@ export default class BridgeEncounterEngineEventHandler {
     // #region Event dispatch
 
     private handleEvent(
-        event: EncounterEvent,
+        event:
+            EncounterEvent,
+
+        presentationSnapshot?:
+            EncounterPresentationSnapshot,
     ): void {
         switch (event.type) {
             // Loading state will be exposed by the enemy debug panel.
@@ -159,7 +173,15 @@ export default class BridgeEncounterEngineEventHandler {
                 return;
 
             case ENCOUNTER_EVENT.ENCOUNTER_LOADED:
-                this.loadPresenter.present(event);
+                if (!presentationSnapshot) {
+                    throw new Error(
+                        'ENCOUNTER_LOADED requires presentation snapshot',
+                    );
+                }
+
+                this.loadPresenter.present(
+                    presentationSnapshot,
+                );
                 return;
 
             case ENCOUNTER_EVENT.TRAVEL_STARTED:

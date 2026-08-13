@@ -6,6 +6,9 @@ import {
     type PlayerSpaceNavigationState,
 } from '../../../../../../engine/defs/player_location';
 import EncounterEngine from '../../../../../../engine/encounter/EncounterEngine';
+import type {
+    EncounterPresentationSnapshot,
+} from '../../../../../../engine/encounter/snapshots/encounter_presentation_snapshot';
 import {
     ENCOUNTER_OFFICER_COMMAND_ID,
     OFFICER_COMMAND_EXECUTION_STATUS,
@@ -283,7 +286,16 @@ export default class BridgeEncounterController {
 
         this.officerStationsController = new BridgeOfficerStationsController(this.encounterEngine, this.eventBus);
 
-        this.drainEncounterEvents();
+        const loadPresentationSnapshot =
+            this.encounterEngine
+                .getPresentationSnapshot();
+
+        this.drainEncounterEvents(
+            loadPresentationSnapshot,
+        );
+
+        // Loaded presentation may synchronously restore/complete travel.
+        // Read current engine state again after those event side effects.
         this.snapshotSynchronizer.syncInitial();
 
         if (this.isEncounterInteractive) {
@@ -425,14 +437,22 @@ export default class BridgeEncounterController {
 
     // #region Engine events
 
-    private drainEncounterEvents(): void {
+    private drainEncounterEvents(
+        presentationSnapshot?:
+            EncounterPresentationSnapshot,
+    ): void {
         if (!this.encounterEngine) {
             return;
         }
 
-        const events = this.encounterEngine.drainEvents();
+        const events =
+            this.encounterEngine
+                .drainEvents();
 
-        this.engineEventHandler.handle(events);
+        this.engineEventHandler.handle(
+            events,
+            presentationSnapshot,
+        );
     }
 
     // #endregion

@@ -13,6 +13,9 @@ import {
 } from '../../../src/engine/defs/ship_weapon';
 import EncounterEngine from '../../../src/engine/encounter/EncounterEngine';
 import {
+    getMutableEncounterStateForTest,
+} from './get_mutable_encounter_state_for_test';
+import {
     ENCOUNTER_EVENT,
 } from '../../../src/engine/encounter/model/event';
 import LaserWeaponFactory from '../../../src/engine/generation/ship_weapon/LaserWeaponFactory';
@@ -76,8 +79,9 @@ describe('Player weapon encounter state', () => {
         }
 
         const encounterWeapons =
-            loadedEvent.state
-                .combat
+            getMutableEncounterStateForTest(
+                engine,
+            ).combat
                 .playerWeapons;
 
         expect(encounterWeapons).toEqual([

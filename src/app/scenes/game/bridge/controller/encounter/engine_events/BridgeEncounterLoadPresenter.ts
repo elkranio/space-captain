@@ -2,7 +2,9 @@
 
 import { OFFICER_ROLE } from '../../../../../../../engine/defs/officer';
 import { PLAYER_SPACE_NAVIGATION_KIND } from '../../../../../../../engine/defs/player_location';
-import type { EncounterLoadedEvent } from '../../../../../../../engine/encounter/model/event';
+import type {
+    EncounterPresentationSnapshot,
+} from '../../../../../../../engine/encounter/snapshots/encounter_presentation_snapshot';
 import { OFFICER_TASK_KIND } from '../../../../../../../engine/encounter/model/officer_task';
 import { DEBUG_SETTINGS } from '../../../../../../debug/debug_settings';
 import {
@@ -10,7 +12,9 @@ import {
     type BridgeEncounterObjectPayload,
 } from '../../../events/bridge_event';
 import type BridgeEventBus from '../../../events/BridgeEventBus';
-import { mapEncounterStateToBridgeObjectPayloads } from '../encounter_objects/BridgeEncounterObjectMapper';
+import {
+    mapEncounterSpaceToBridgeObjectPayloads,
+} from '../encounter_objects/BridgeEncounterObjectMapper';
 
 type SetEncounterInteractive = (value: boolean) => void;
 
@@ -24,12 +28,22 @@ export default class BridgeEncounterLoadPresenter {
         private readonly setEncounterInteractive: SetEncounterInteractive,
     ) {}
 
-    public present(event: EncounterLoadedEvent): void {
-        const objects = mapEncounterStateToBridgeObjectPayloads(event.state);
+    public present(
+        snapshot:
+            EncounterPresentationSnapshot,
+    ): void {
+        const objects =
+            mapEncounterSpaceToBridgeObjectPayloads(
+                snapshot.space,
+            );
 
-        this.eventBus.emit(BRIDGE_EVENT.ENCOUNTER_OBJECTS_LOADED, objects);
+        this.eventBus.emit(
+            BRIDGE_EVENT.ENCOUNTER_OBJECTS_LOADED,
+            objects,
+        );
 
-        const navigation = event.state.navigation;
+        const navigation =
+            snapshot.navigation;
         switch (navigation.kind) {
             case PLAYER_SPACE_NAVIGATION_KIND.ARRIVING:
                 this.presentArrivingNavigation(navigation.targetAnchorId, objects);
@@ -41,7 +55,10 @@ export default class BridgeEncounterLoadPresenter {
 
             case PLAYER_SPACE_NAVIGATION_KIND.TRAVELLING:
                 this.presentTravellingNavigation(
-                    this.findLoadedTravelTaskIdOrThrow(event, navigation.targetAnchorId),
+                    this.findLoadedTravelTaskIdOrThrow(
+                        snapshot,
+                        navigation.targetAnchorId,
+                    ),
 
                     navigation.fromAnchorId,
                     navigation.targetAnchorId,
@@ -129,10 +146,21 @@ export default class BridgeEncounterLoadPresenter {
     }
 
     private findLoadedTravelTaskIdOrThrow(
-        event: EncounterLoadedEvent,
-        targetAnchorId: string,
+        snapshot:
+            EncounterPresentationSnapshot,
+
+        targetAnchorId:
+            string,
     ): string {
-        const task = event.state.officerTasks[OFFICER_ROLE.HELM];
+        const task =
+            snapshot.player
+                .officerTasks
+                .find((candidate) => {
+                    return (
+                        candidate.role ===
+                        OFFICER_ROLE.HELM
+                    );
+                });
         if (!task) {
             throw new Error('TRAVELLING encounter requires active Helm task');
         }

@@ -72,6 +72,13 @@ describe('opening disruption pulse', () => {
             SHIP_DRIVE_STATUS.ONLINE,
         );
 
+        expect(
+            getMutableEncounterStateForTest(
+                engine,
+            ).actors[0]
+                .hasUsedOpeningDisruptionPulse,
+        ).toBe(false);
+
         engine.engageHostileActors();
 
         expect(engine.drainEvents()).toEqual([
@@ -98,11 +105,6 @@ describe('opening disruption pulse', () => {
         expect(engine.getDriveState().status).toBe(
             SHIP_DRIVE_STATUS.DISABLED,
         );
-
-        expect(
-            loadedEvent.state.actors[0]
-                .hasUsedOpeningDisruptionPulse,
-        ).toBe(false);
 
         expect(
             getMutableEncounterStateForTest(engine)

@@ -11,7 +11,7 @@ vi.mock('../../src/app/scenes/game/bridge/controller/encounter/encounter_objects
             };
         },
 
-        mapEncounterStateToBridgeObjectPayloads: () => {
+        mapEncounterSpaceToBridgeObjectPayloads: () => {
             return [];
         },
     };

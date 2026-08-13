@@ -28,8 +28,6 @@ import type { OfficerTaskState } from './officer_task';
 import type {
     MissileSignatureAnalysisConfidence,
 } from './missile_signature_analysis';
-import type { EncounterState } from './state';
-
 // События, которые EncounterEngine отдаёт наружу
 // через outbox.
 //
@@ -146,12 +144,13 @@ export type OfficerTaskResult =
           mineId: string;
       };
 
-// Полный snapshot encounter после создания
-// или пересборки состояния.
+// Encounter создан и готов к initial presentation read.
+// Сам state наружу не переносится: app читает безопасный
+// EncounterPresentationSnapshot через EncounterEngine.
 export type EncounterLoadedEvent = {
-    type: typeof ENCOUNTER_EVENT.ENCOUNTER_LOADED;
-
-    state: EncounterState;
+    type:
+        typeof ENCOUNTER_EVENT
+            .ENCOUNTER_LOADED;
 };
 
 // Начало локального перелёта

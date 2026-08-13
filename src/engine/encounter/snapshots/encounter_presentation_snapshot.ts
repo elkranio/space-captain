@@ -8,6 +8,10 @@ import {
     createCombatPresentationSnapshot,
     type CombatPresentationSnapshot,
 } from './combat_presentation_snapshot';
+import {
+    createEncounterSpacePresentationSnapshot,
+    type EncounterSpacePresentationSnapshot,
+} from './encounter_space_presentation_snapshot';
 
 // Safe app-facing read model for one encounter frame.
 //
@@ -20,6 +24,9 @@ export type EncounterPresentationSnapshot =
     CombatPresentationSnapshot & {
         navigation:
             PlayerSpaceNavigationState;
+
+        space:
+            EncounterSpacePresentationSnapshot;
     };
 
 export function createEncounterPresentationSnapshot(
@@ -29,6 +36,11 @@ export function createEncounterPresentationSnapshot(
     return {
         navigation:
             state.navigation,
+
+        space:
+            createEncounterSpacePresentationSnapshot(
+                state,
+            ),
 
         ...createCombatPresentationSnapshot(
             state,

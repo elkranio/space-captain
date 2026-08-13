@@ -36,6 +36,9 @@ import {
 } from '../../../src/engine/encounter/actors/encounter_actor';
 import EncounterEngine from '../../../src/engine/encounter/EncounterEngine';
 import {
+    getMutableEncounterStateForTest,
+} from './get_mutable_encounter_state_for_test';
+import {
     ENCOUNTER_EVENT,
 } from '../../../src/engine/encounter/model/event';
 import EncounterStateStore from '../../../src/engine/encounter/state/EncounterStateStore';
@@ -287,7 +290,7 @@ describe('encounter actors', () => {
         );
     });
 
-    it('copies persistent node ship state into the loaded encounter snapshot', () => {
+    it('copies persistent node ship state into encounter runtime state', () => {
         const {
             node,
             stationId,
@@ -340,91 +343,11 @@ describe('encounter actors', () => {
         const [event] =
             engine.drainEvents();
 
-        expect(event).toEqual(
-            expect.objectContaining({
-                type:
-                    ENCOUNTER_EVENT
-                        .ENCOUNTER_LOADED,
-
-                state:
-                    expect.objectContaining({
-                        actors: [
-                            {
-                                id:
-                                    nodeActor.id,
-
-                                kind:
-                                    ENCOUNTER_ACTOR_KIND
-                                        .SHIP,
-
-                                displayName:
-                                    SHIP_CHASSIS[
-                                        nodeActor
-                                            .chassisId
-                                    ].name,
-
-                                team:
-                                    nodeActor.team,
-                                anchorId:
-                                    nodeActor
-                                        .anchorId,
-                                chassisId:
-                                    nodeActor
-                                        .chassisId,
-
-                                hull:
-                                    nodeActor.hull,
-                                maxHull:
-                                    nodeActor
-                                        .maxHull,
-
-                                drive: {
-                                    ...nodeActor
-                                        .drive,
-                                },
-
-                                behavior: {
-                                    ...nodeActor
-                                        .behavior,
-                                },
-
-                                crewRoles: [
-                                    ...nodeActor
-                                        .crewRoles,
-                                ],
-
-                                crewTraitsByRole: {
-                                    [OFFICER_ROLE.SCIENCE]: [],
-                                    [OFFICER_ROLE.HELM]: [],
-                                    [OFFICER_ROLE.WEAPONS]: [],
-                                    [OFFICER_ROLE.ENGINEER]: [],
-                                },
-
-                                decision: {
-                                    nextWeaponIndexByRole:
-                                        {},
-
-                                    offensiveTaskDelayRemainingMsByRole:
-                                        {},
-                                },
-
-                                crewTasks: {},
-
-                                threatObservations: [],
-
-                                hasUsedOpeningDisruptionPulse:
-                                    false,
-
-                                weapons: [
-                                    {
-                                        ...nodeWeapon,
-                                    },
-                                ],
-                            },
-                        ],
-                    }),
-            }),
-        );
+        expect(event).toEqual({
+            type:
+                ENCOUNTER_EVENT
+                    .ENCOUNTER_LOADED,
+        });
 
         if (
             event.type !==
@@ -437,7 +360,51 @@ describe('encounter actors', () => {
         }
 
         const encounterActor =
-            event.state.actors[0];
+            getMutableEncounterStateForTest(
+                engine,
+            ).actors[0];
+
+        expect(encounterActor).toMatchObject({
+            id:
+                nodeActor.id,
+
+            kind:
+                ENCOUNTER_ACTOR_KIND
+                    .SHIP,
+
+            displayName:
+                SHIP_CHASSIS[
+                    nodeActor.chassisId
+                ].name,
+
+            team:
+                nodeActor.team,
+
+            anchorId:
+                nodeActor.anchorId,
+
+            chassisId:
+                nodeActor.chassisId,
+
+            hull:
+                nodeActor.hull,
+
+            maxHull:
+                nodeActor.maxHull,
+
+            drive:
+                nodeActor.drive,
+
+            behavior:
+                nodeActor.behavior,
+
+            crewRoles:
+                nodeActor.crewRoles,
+
+            weapons: [
+                nodeWeapon,
+            ],
+        });
 
         expect(encounterActor).not.toBe(
             nodeActor,

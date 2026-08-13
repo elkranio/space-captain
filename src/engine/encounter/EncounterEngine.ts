@@ -262,9 +262,9 @@ export default class EncounterEngine {
         });
 
         this.emit({
-            type: ENCOUNTER_EVENT.ENCOUNTER_LOADED,
-
-            state: encounterState,
+            type:
+                ENCOUNTER_EVENT
+                    .ENCOUNTER_LOADED,
         });
     }
 
