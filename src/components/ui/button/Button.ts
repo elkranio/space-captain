@@ -8,7 +8,6 @@ import { ButtonConfig, DEFAULT_BUTTON_CONFIG } from './buttonConfig';
 export default class Button extends Phaser.GameObjects.Container {
     private bg!: Phaser.GameObjects.Rectangle;
     private label!: Phaser.GameObjects.BitmapText;
-    private isEnabled: boolean = true;
 
     /**
      * Creates a new Button instance.
@@ -49,7 +48,7 @@ export default class Button extends Phaser.GameObjects.Container {
         const { font, size, text, color } = config.label;
         this.label = this.scene.add.bitmapText(0, 0, font, text, size);
         this.label.setOrigin(0.5);
-        this.label.setTint(config.label.color);
+        this.label.setTint(color);
         this.add(this.label);
     }
 
@@ -65,7 +64,6 @@ export default class Button extends Phaser.GameObjects.Container {
      * Disables the button, making it non-interactive and visually dimmed.
      */
     public disable(): void {
-        this.isEnabled = false;
         this.bg.disableInteractive();
         this.alpha = 0.5;
     }
@@ -74,7 +72,6 @@ export default class Button extends Phaser.GameObjects.Container {
      * Enables the button, restoring interactivity and full visibility.
      */
     public enable(): void {
-        this.isEnabled = true;
         this.bg.setInteractive({ useHandCursor: true });
         this.alpha = 1;
     }

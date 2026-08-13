@@ -28,7 +28,6 @@ import {
     POINT_DEFENSE_PHASE,
 } from '../../../src/engine/defs/point_defense';
 import {
-    SHIP_WEAPON_KIND,
     SHIP_WEAPON_PHASE,
     type MissileLauncherState,
 } from '../../../src/engine/defs/ship_weapon';
