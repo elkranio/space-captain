@@ -3,7 +3,7 @@
 import type BridgeScene from '../../../BridgeScene';
 import {
     BRIDGE_EVENT,
-    type BridgeEnemyPointDefenseFiredPayload,
+    type BridgeEnemyDefenseTurretFiredPayload,
     type BridgeOutgoingMissileAddedPayload,
     type BridgeOutgoingMissileRemovedPayload,
     type BridgeOutgoingMissilesUpdatedPayload,
@@ -12,7 +12,7 @@ import type BridgeEventBus from '../../../events/BridgeEventBus';
 import {
     getBridgePlayerWeaponSourcePosition,
 } from '../bridge_player_weapon_layout';
-import BridgePointDefenseBeamView from '../point_defense/BridgePointDefenseBeamView';
+import BridgeDefenseTurretBeamView from '../defense_turret/BridgeDefenseTurretBeamView';
 import {
     removeMissingCombatSnapshotEntries,
 } from '../remove_missing_combat_snapshot_entries';
@@ -27,8 +27,8 @@ type GetObjectPosition = (
 // Target position is captured at launch,
 // before a lethal impact can remove the actor.
 //
-// Enemy point-defense:
-// - ENEMY_POINT_DEFENSE_FIRED arrives while the missile still exists;
+// Enemy defense-turret:
+// - ENEMY_DEFENSE_TURRET_FIRED arrives while the missile still exists;
 // - the beam captures that last displayed missile position;
 // - a following OUTGOING_MISSILE_REMOVED event removes the sprite on HIT;
 // - MISS has no removal event, so the missile continues its flight.
@@ -42,9 +42,9 @@ export default class BridgeOutgoingMissilesView {
             BridgeOutgoingMissileView
         >();
 
-    private readonly pointDefenseEffects =
+    private readonly defenseTurretEffects =
         new Set<
-            BridgePointDefenseBeamView
+            BridgeDefenseTurretBeamView
         >();
 
     constructor(
@@ -93,9 +93,9 @@ export default class BridgeOutgoingMissilesView {
 
         this.eventBus.on(
             BRIDGE_EVENT
-                .ENEMY_POINT_DEFENSE_FIRED,
+                .ENEMY_DEFENSE_TURRET_FIRED,
 
-            this.handleEnemyPointDefenseFired,
+            this.handleEnemyDefenseTurretFired,
             this,
         );
     }
@@ -127,20 +127,20 @@ export default class BridgeOutgoingMissilesView {
 
         this.eventBus.off(
             BRIDGE_EVENT
-                .ENEMY_POINT_DEFENSE_FIRED,
+                .ENEMY_DEFENSE_TURRET_FIRED,
 
-            this.handleEnemyPointDefenseFired,
+            this.handleEnemyDefenseTurretFired,
             this,
         );
 
         for (
             const effect of
-            this.pointDefenseEffects
+            this.defenseTurretEffects
         ) {
             effect.destroy();
         }
 
-        this.pointDefenseEffects.clear();
+        this.defenseTurretEffects.clear();
 
         for (
             const missile of
@@ -276,9 +276,9 @@ export default class BridgeOutgoingMissilesView {
         );
     }
 
-    private handleEnemyPointDefenseFired(
+    private handleEnemyDefenseTurretFired(
         payload:
-            BridgeEnemyPointDefenseFiredPayload,
+            BridgeEnemyDefenseTurretFiredPayload,
     ): void {
         const missile =
             this.missiles.get(
@@ -287,7 +287,7 @@ export default class BridgeOutgoingMissilesView {
 
         if (!missile) {
             throw new Error(
-                'Enemy point-defense target not found: ' +
+                'Enemy defense-turret target not found: ' +
                     payload.projectileId,
             );
         }
@@ -299,13 +299,13 @@ export default class BridgeOutgoingMissilesView {
 
         if (!sourcePosition) {
             throw new Error(
-                'Enemy point-defense source object not found: ' +
+                'Enemy defense-turret source object not found: ' +
                     payload.sourceActorId,
             );
         }
 
         const effect =
-            new BridgePointDefenseBeamView({
+            new BridgeDefenseTurretBeamView({
                 scene:
                     this.scene,
 
@@ -327,14 +327,14 @@ export default class BridgeOutgoingMissilesView {
 
                 onComplete:
                     (completedEffect) => {
-                        this.pointDefenseEffects
+                        this.defenseTurretEffects
                             .delete(
                                 completedEffect,
                             );
                     },
             });
 
-        this.pointDefenseEffects.add(
+        this.defenseTurretEffects.add(
             effect,
         );
     }

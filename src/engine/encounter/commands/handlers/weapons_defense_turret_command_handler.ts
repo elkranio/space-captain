@@ -1,8 +1,8 @@
-// src/engine/encounter/commands/handlers/weapons_point_defense_command_handler.ts
+// src/engine/encounter/commands/handlers/weapons_defense_turret_command_handler.ts
 
 import { ENCOUNTER_TEAM } from '../../../defs/encounter_team';
 import { OFFICER_ROLE } from '../../../defs/officer';
-import { POINT_DEFENSE_BEAM_BAND, type PointDefenseBeamBand } from '../../../defs/point_defense';
+import { DEFENSE_TURRET_BEAM_BAND, type DefenseTurretBeamBand } from '../../../defs/defense_turret';
 import {
     COMBAT_PROJECTILE_KIND,
     COMBAT_SOURCE_KIND,
@@ -11,34 +11,34 @@ import {
 import {
     ENCOUNTER_OFFICER_COMMAND_ID,
     OFFICER_COMMAND_TARGET_KIND,
-    type WeaponsPointDefenseCommandId,
+    type WeaponsDefenseTurretCommandId,
     type OfficerCommandDef,
 } from '../../model/command';
 import type { OfficerCommandHandler } from '../../model/officer_command_handler';
-import { createWeaponsPointDefenseTask } from '../../officer_tasks/create_officer_task_draft';
+import { createWeaponsDefenseTurretTask } from '../../officer_tasks/create_officer_task_draft';
 import { requireThreatTargetId } from './command_handler_helpers';
 
-export const weaponsFireRedBeamCommandHandler = createWeaponsPointDefenseCommandHandler(
+export const weaponsFireRedBeamCommandHandler = createWeaponsDefenseTurretCommandHandler(
     ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_RED_BEAM,
 
     'RED BEAM',
 
-    POINT_DEFENSE_BEAM_BAND.RED,
+    DEFENSE_TURRET_BEAM_BAND.RED,
 );
 
-export const weaponsFireBlueBeamCommandHandler = createWeaponsPointDefenseCommandHandler(
+export const weaponsFireBlueBeamCommandHandler = createWeaponsDefenseTurretCommandHandler(
     ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_BLUE_BEAM,
 
     'BLUE BEAM',
 
-    POINT_DEFENSE_BEAM_BAND.BLUE,
+    DEFENSE_TURRET_BEAM_BAND.BLUE,
 );
 
-function createWeaponsPointDefenseCommandHandler(
-    commandId: WeaponsPointDefenseCommandId,
+function createWeaponsDefenseTurretCommandHandler(
+    commandId: WeaponsDefenseTurretCommandId,
     label: string,
 
-    pointDefenseBeamBand: PointDefenseBeamBand,
+    defenseTurretBeamBand: DefenseTurretBeamBand,
 ): OfficerCommandHandler {
     const def = {
         availableToRoles: [OFFICER_ROLE.WEAPONS],
@@ -125,7 +125,7 @@ function createWeaponsPointDefenseCommandHandler(
             context.stateStore
                 .spendPowerCoreCharge();
 
-            context.startOfficerTask(createWeaponsPointDefenseTask(commandId, threatId, pointDefenseBeamBand));
+            context.startOfficerTask(createWeaponsDefenseTurretTask(commandId, threatId, defenseTurretBeamBand));
         },
     };
 }

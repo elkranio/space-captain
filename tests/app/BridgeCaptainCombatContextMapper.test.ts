@@ -878,7 +878,7 @@ describe(
                     });
                 }).toThrow(
                     'Captain combat context received multiple ' +
-                        'red point-defense commands for threat ' +
+                        'red defense-turret commands for threat ' +
                         missile.id,
                 );
             },

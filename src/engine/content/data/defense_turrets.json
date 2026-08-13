@@ -1,6 +1,6 @@
 {
-    "point_defense_basic_00": {
-        "name": "BASIC POINT DEFENSE",
+    "defense_turret_basic_00": {
+        "name": "BASIC DEFENSE TURRET",
         "loadDurationMs": 3000,
         "cooldownDurationMs": 5000
     }

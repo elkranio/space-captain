@@ -17,9 +17,9 @@ import {
     type OfficerRole,
 } from '../../../defs/officer';
 import {
-    POINT_DEFENSE_BEAM_BAND,
-    POINT_DEFENSE_PHASE,
-} from '../../../defs/point_defense';
+    DEFENSE_TURRET_BEAM_BAND,
+    DEFENSE_TURRET_PHASE,
+} from '../../../defs/defense_turret';
 import {
     SHIP_WEAPON_KIND,
     SHIP_WEAPON_PHASE,
@@ -119,12 +119,12 @@ export type EnemyWorkIntent =
           role:
               typeof OFFICER_ROLE.WEAPONS;
 
-          pointDefenseId: string;
+          defenseTurretId: string;
           projectileId: string;
 
           beamBand:
-              typeof POINT_DEFENSE_BEAM_BAND.RED |
-              typeof POINT_DEFENSE_BEAM_BAND.BLUE;
+              typeof DEFENSE_TURRET_BEAM_BAND.RED |
+              typeof DEFENSE_TURRET_BEAM_BAND.BLUE;
       };
 
 
@@ -387,7 +387,7 @@ export default class EnemyDecisionPolicy {
         }
 
         const interception =
-            this.selectPointDefenseInterception(
+            this.selectDefenseTurretInterception(
                 actor,
                 role,
                 threats,
@@ -585,7 +585,7 @@ export default class EnemyDecisionPolicy {
             ?.id;
     }
 
-    private selectPointDefenseInterception(
+    private selectDefenseTurretInterception(
         actor: ShipEncounterActorState,
         role: OfficerRole,
         threats:
@@ -605,16 +605,16 @@ export default class EnemyDecisionPolicy {
             return undefined;
         }
 
-        const pointDefense =
-            actor.pointDefense;
+        const defenseTurret =
+            actor.defenseTurret;
 
         const powerCore =
             actor.powerCore;
 
         if (
-            !pointDefense ||
-            pointDefense.phase !==
-                POINT_DEFENSE_PHASE.READY ||
+            !defenseTurret ||
+            defenseTurret.phase !==
+                DEFENSE_TURRET_PHASE.READY ||
             !powerCore ||
             powerCore.charges <= 0
         ) {
@@ -653,8 +653,8 @@ export default class EnemyDecisionPolicy {
             role:
                 OFFICER_ROLE.WEAPONS,
 
-            pointDefenseId:
-                pointDefense.id,
+            defenseTurretId:
+                defenseTurret.id,
 
             projectileId:
                 missileThreat
@@ -664,8 +664,8 @@ export default class EnemyDecisionPolicy {
             // The physical runner never chooses or corrects this band.
             beamBand:
                 this.random() < 0.5
-                    ? POINT_DEFENSE_BEAM_BAND.RED
-                    : POINT_DEFENSE_BEAM_BAND.BLUE,
+                    ? DEFENSE_TURRET_BEAM_BAND.RED
+                    : DEFENSE_TURRET_BEAM_BAND.BLUE,
         };
     }
 

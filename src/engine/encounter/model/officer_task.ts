@@ -10,10 +10,10 @@ export {
     type OfficerTaskCancellationPolicy,
     type OfficerTaskKind,
 } from '../../defs/officer_task';
-import type { PointDefenseBeamBand } from '../../defs/point_defense';
+import type { DefenseTurretBeamBand } from '../../defs/defense_turret';
 import {
     ENCOUNTER_OFFICER_COMMAND_ID,
-    type WeaponsPointDefenseCommandId,
+    type WeaponsDefenseTurretCommandId,
 } from './command';
 
 type OfficerTaskDraftBase = {
@@ -72,14 +72,14 @@ type EngineerDeployShieldOfficerTaskDraft = OfficerTaskDraftBase & {
         typeof ENCOUNTER_OFFICER_COMMAND_ID.ENGINEER_DEPLOY_SHIELD;
 };
 
-type WeaponsPointDefenseOfficerTaskDraft = OfficerTaskDraftBase & {
-    kind: typeof OFFICER_TASK_KIND.WEAPONS_POINT_DEFENSE;
+type WeaponsDefenseTurretOfficerTaskDraft = OfficerTaskDraftBase & {
+    kind: typeof OFFICER_TASK_KIND.WEAPONS_DEFENSE_TURRET;
     role: typeof OFFICER_ROLE.WEAPONS;
 
-    sourceCommandId: WeaponsPointDefenseCommandId;
+    sourceCommandId: WeaponsDefenseTurretCommandId;
 
     threatId: string;
-    pointDefenseBeamBand: PointDefenseBeamBand;
+    defenseTurretBeamBand: DefenseTurretBeamBand;
 };
 
 type WeaponsFireMissileOfficerTaskDraft =
@@ -201,7 +201,7 @@ export type OfficerTaskDraft =
     | SciencePurgeSpamOfficerTaskDraft
     | EngineerRepairDriveOfficerTaskDraft
     | EngineerDeployShieldOfficerTaskDraft
-    | WeaponsPointDefenseOfficerTaskDraft
+    | WeaponsDefenseTurretOfficerTaskDraft
     | WeaponsFireMissileOfficerTaskDraft
     | WeaponsFireStickyMinesOfficerTaskDraft
     | WeaponsFireLaserOfficerTaskDraft

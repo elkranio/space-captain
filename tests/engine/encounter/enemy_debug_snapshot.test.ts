@@ -18,10 +18,10 @@ import {
     OFFICER_ROLE,
 } from '../../../src/engine/defs/officer';
 import {
-    POINT_DEFENSE_BEAM_BAND,
-    POINT_DEFENSE_ID,
-    POINT_DEFENSE_PHASE,
-} from '../../../src/engine/defs/point_defense';
+    DEFENSE_TURRET_BEAM_BAND,
+    DEFENSE_TURRET_ID,
+    DEFENSE_TURRET_PHASE,
+} from '../../../src/engine/defs/defense_turret';
 import {
     getEnemyDebugSnapshots,
 } from '../../../src/engine/encounter/debug/get_enemy_debug_snapshots';
@@ -148,14 +148,14 @@ describe(
                                         OFFICER_ROLE
                                             .WEAPONS,
 
-                                    pointDefenseId:
-                                        'point_defense_00',
+                                    defenseTurretId:
+                                        'defense_turret_00',
 
                                     projectileId:
                                         projectile.id,
 
                                     beamBand:
-                                        POINT_DEFENSE_BEAM_BAND
+                                        DEFENSE_TURRET_BEAM_BAND
                                             .BLUE,
                                 },
                             },
@@ -185,7 +185,7 @@ describe(
                                                 .MISSILE,
 
                                         spectralBand:
-                                            POINT_DEFENSE_BEAM_BAND
+                                            DEFENSE_TURRET_BEAM_BAND
                                                 .RED,
                                     },
                                 },
@@ -204,23 +204,23 @@ describe(
                                     12000,
                             },
 
-                            pointDefense: {
+                            defenseTurret: {
                                 id:
-                                    'point_defense_00',
+                                    'defense_turret_00',
 
-                                pointDefenseId:
-                                    POINT_DEFENSE_ID
+                                defenseTurretId:
+                                    DEFENSE_TURRET_ID
                                         .BASIC_00,
 
                                 phase:
-                                    POINT_DEFENSE_PHASE
+                                    DEFENSE_TURRET_PHASE
                                         .LOADING,
 
                                 phaseElapsedMs:
                                     1000,
 
                                 loadedBand:
-                                    POINT_DEFENSE_BEAM_BAND
+                                    DEFENSE_TURRET_BEAM_BAND
                                         .BLUE,
 
                                 targetProjectileId:
@@ -335,13 +335,13 @@ describe(
                             },
                         },
 
-                        pointDefense: {
+                        defenseTurret: {
                             phase:
-                                POINT_DEFENSE_PHASE
+                                DEFENSE_TURRET_PHASE
                                     .LOADING,
 
                             loadedBand:
-                                POINT_DEFENSE_BEAM_BAND
+                                DEFENSE_TURRET_BEAM_BAND
                                     .BLUE,
 
                             targetLabel:
@@ -375,11 +375,11 @@ describe(
                                     9000,
 
                                 report:
-                                    POINT_DEFENSE_BEAM_BAND
+                                    DEFENSE_TURRET_BEAM_BAND
                                         .RED,
 
                                 truth:
-                                    POINT_DEFENSE_BEAM_BAND
+                                    DEFENSE_TURRET_BEAM_BAND
                                         .BLUE,
 
                                 mismatch: true,

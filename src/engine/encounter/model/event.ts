@@ -4,7 +4,7 @@ import type {
     PlayerHullDamageResult,
 } from '../../defs/player';
 import type { PlayerSpaceNavigationState } from '../../defs/player_location';
-import type { PointDefenseBeamBand, PointDefenseShotOutcome } from '../../defs/point_defense';
+import type { DefenseTurretBeamBand, DefenseTurretShotOutcome } from '../../defs/defense_turret';
 import type { ShipDriveState } from '../../defs/ship_drive';
 import type { EncounterAnchorState } from '../anchors/encounter_anchor';
 import type { JumpPointEncounterAnchorState } from '../anchors/jump_point/jump_point_encounter_anchor';
@@ -62,11 +62,11 @@ export const ENCOUNTER_EVENT = {
     PLAYER_MISSILE_RESOLVED:
         'player_missile_resolved',
 
-    ENEMY_POINT_DEFENSE_LOADING_STARTED:
-        'enemy_point_defense_loading_started',
+    ENEMY_DEFENSE_TURRET_LOADING_STARTED:
+        'enemy_defense_turret_loading_started',
 
-    ENEMY_POINT_DEFENSE_FIRED:
-        'enemy_point_defense_fired',
+    ENEMY_DEFENSE_TURRET_FIRED:
+        'enemy_defense_turret_fired',
 
     PLAYER_STICKY_MINE_ATTACHED:
         'player_sticky_mine_attached',
@@ -112,7 +112,7 @@ export type PlayerShieldEndOutcome =
 export const OFFICER_TASK_RESULT_KIND = {
     JUMP_POINT_CALCULATED: 'jump_point_calculated',
     THREAT_IDENTIFIED: 'threat_identified',
-    POINT_DEFENSE_FIRED: 'point_defense_fired',
+    DEFENSE_TURRET_FIRED: 'defense_turret_fired',
     STICKY_MINE_CLEARED: 'sticky_mine_cleared',
 } as const;
 
@@ -128,12 +128,12 @@ export type OfficerTaskResult =
           identification: ThreatIdentificationResult;
       }
     | {
-          kind: typeof OFFICER_TASK_RESULT_KIND.POINT_DEFENSE_FIRED;
+          kind: typeof OFFICER_TASK_RESULT_KIND.DEFENSE_TURRET_FIRED;
 
           threatId: string;
 
-          beamBand: PointDefenseBeamBand;
-          outcome: PointDefenseShotOutcome;
+          beamBand: DefenseTurretBeamBand;
+          outcome: DefenseTurretShotOutcome;
       }
     | {
           kind: typeof OFFICER_TASK_RESULT_KIND.STICKY_MINE_CLEARED;
@@ -338,33 +338,33 @@ export type PlayerMissileResolvedEvent =
           remainingHull: number;
       };
 
-export type EnemyPointDefenseLoadingStartedEvent = {
+export type EnemyDefenseTurretLoadingStartedEvent = {
     type:
         typeof ENCOUNTER_EVENT
-            .ENEMY_POINT_DEFENSE_LOADING_STARTED;
+            .ENEMY_DEFENSE_TURRET_LOADING_STARTED;
 
     sourceActorId: string;
-    pointDefenseId: string;
+    defenseTurretId: string;
 
     projectileId: string;
 
-    beamBand: PointDefenseBeamBand;
+    beamBand: DefenseTurretBeamBand;
     loadDurationMs: number;
 };
 
-export type EnemyPointDefenseFiredEvent = {
+export type EnemyDefenseTurretFiredEvent = {
     type:
         typeof ENCOUNTER_EVENT
-            .ENEMY_POINT_DEFENSE_FIRED;
+            .ENEMY_DEFENSE_TURRET_FIRED;
 
     sourceActorId: string;
-    pointDefenseId: string;
+    defenseTurretId: string;
 
     projectile:
         MissileCombatProjectileState;
 
-    beamBand: PointDefenseBeamBand;
-    outcome: PointDefenseShotOutcome;
+    beamBand: DefenseTurretBeamBand;
+    outcome: DefenseTurretShotOutcome;
 
     remainingCharges: number;
 };
@@ -540,8 +540,8 @@ export type EncounterEvent =
     | PlayerLaserFiredEvent
     | PlayerMissileLaunchedEvent
     | PlayerMissileResolvedEvent
-    | EnemyPointDefenseLoadingStartedEvent
-    | EnemyPointDefenseFiredEvent
+    | EnemyDefenseTurretLoadingStartedEvent
+    | EnemyDefenseTurretFiredEvent
     | PlayerStickyMineAttachedEvent
     | PlayerStickyMineResolvedEvent
     | PlayerSpamChannelStartedEvent

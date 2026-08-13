@@ -1,15 +1,15 @@
-// src/engine/encounter/combat/resolve_enemy_point_defense_beam_band.ts
+// src/engine/encounter/combat/resolve_enemy_defense_turret_beam_band.ts
 
 import type {
-    PointDefenseBeamBand,
-} from '../../../defs/point_defense';
+    DefenseTurretBeamBand,
+} from '../../../defs/defense_turret';
 import {
     ENEMY_THREAT_KIND,
     ENEMY_THREAT_SOURCE_KIND,
     type EnemyThreatObservationState,
 } from '../../model/enemy_threat_observation';
 
-export type ResolveEnemyPointDefenseBeamBandInput = {
+export type ResolveEnemyDefenseTurretBeamBandInput = {
     observations:
         readonly EnemyThreatObservationState[];
 
@@ -17,7 +17,7 @@ export type ResolveEnemyPointDefenseBeamBandInput = {
 
     // Random band committed when Weapons starts loading.
     fallbackBeamBand:
-        PointDefenseBeamBand;
+        DefenseTurretBeamBand;
 };
 
 // Deterministic report-consumption boundary.
@@ -27,13 +27,13 @@ export type ResolveEnemyPointDefenseBeamBandInput = {
 // defense trusts that report. Without a report it keeps the blind fallback.
 //
 // This intentionally makes a future incorrect-Science-report trait affect
-// point defense without adding another special case to the physical runner.
-export function resolveEnemyPointDefenseBeamBand({
+// defense turret without adding another special case to the physical runner.
+export function resolveEnemyDefenseTurretBeamBand({
     observations,
     projectileId,
     fallbackBeamBand,
-}: ResolveEnemyPointDefenseBeamBandInput):
-    PointDefenseBeamBand {
+}: ResolveEnemyDefenseTurretBeamBandInput):
+    DefenseTurretBeamBand {
     const observation =
         observations.find((candidate) => {
             return (

@@ -132,14 +132,14 @@ export default class BridgeEncounterEngineEventHandler {
             // Loading state will be exposed by the enemy debug panel.
             // The combat view only needs the resolved physical shot.
             case ENCOUNTER_EVENT
-                .ENEMY_POINT_DEFENSE_LOADING_STARTED:
+                .ENEMY_DEFENSE_TURRET_LOADING_STARTED:
                 return;
 
             case ENCOUNTER_EVENT
-                .ENEMY_POINT_DEFENSE_FIRED:
+                .ENEMY_DEFENSE_TURRET_FIRED:
                 this.eventBus.emit(
                     BRIDGE_EVENT
-                        .ENEMY_POINT_DEFENSE_FIRED,
+                        .ENEMY_DEFENSE_TURRET_FIRED,
                     {
                         sourceActorId:
                             event.sourceActorId,
@@ -256,9 +256,9 @@ export default class BridgeEncounterEngineEventHandler {
                     );
                 }
 
-                if (event.result?.kind === OFFICER_TASK_RESULT_KIND.POINT_DEFENSE_FIRED) {
+                if (event.result?.kind === OFFICER_TASK_RESULT_KIND.DEFENSE_TURRET_FIRED) {
                     this.eventBus.emit(
-                        BRIDGE_EVENT.POINT_DEFENSE_FIRED,
+                        BRIDGE_EVENT.DEFENSE_TURRET_FIRED,
                         {
                             projectileId: event.result.threatId,
 

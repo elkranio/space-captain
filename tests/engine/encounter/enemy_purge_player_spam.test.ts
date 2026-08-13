@@ -318,7 +318,7 @@ describe(
                     [];
 
                 delete setup.targetActor
-                    .pointDefense;
+                    .defenseTurret;
 
                 const projector =
                     getPlayerWeaponOrThrow(
@@ -392,7 +392,7 @@ function makeEnemyScienceOnly(
         [];
 
     delete setup.targetActor
-        .pointDefense;
+        .defenseTurret;
 }
 
 function activatePlayerSpam(

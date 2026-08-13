@@ -60,7 +60,7 @@ describe(
                 ];
 
                 targetActor.weapons = [];
-                targetActor.pointDefense =
+                targetActor.defenseTurret =
                     undefined;
 
                 const initialHull =
@@ -271,7 +271,7 @@ describe(
                 ];
 
                 targetActor.weapons = [];
-                targetActor.pointDefense =
+                targetActor.defenseTurret =
                     undefined;
 
                 const initialHull =

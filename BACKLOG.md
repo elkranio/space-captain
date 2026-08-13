@@ -12,7 +12,7 @@ Do not resurrect the old “sticky mines → captain context” or “SPAM → c
 
 ## Near combat follow-ups
 
-- Finish player Point Defense as an installed/breakable system using shared DEF.
+- Finish player Defense Turret as an installed/breakable system using shared DEF.
 - Power Core BROKEN state:
   - charges reset to 0;
   - recharge progress resets;

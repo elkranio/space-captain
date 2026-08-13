@@ -62,7 +62,7 @@ type BeamSelectorButton = {
         () => void;
 };
 
-// Captain threat list + inline missile point-defense beam selector.
+// Captain threat list + inline missile defense-turret beam selector.
 //
 // Selector заменяет содержимое threat-area,
 // поэтому это не popup и не отдельное overlay window.

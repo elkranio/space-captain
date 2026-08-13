@@ -71,10 +71,10 @@ type ScienceIdentifyThreatTaskState = Extract<
 >;
 
 
-type WeaponsPointDefenseTaskState = Extract<
+type WeaponsDefenseTurretTaskState = Extract<
     OfficerTaskState,
     {
-        kind: typeof OFFICER_TASK_KIND.WEAPONS_POINT_DEFENSE;
+        kind: typeof OFFICER_TASK_KIND.WEAPONS_DEFENSE_TURRET;
     }
 >;
 
@@ -140,8 +140,8 @@ export default class OfficerTaskResolver {
                 return undefined;
             }
 
-            case OFFICER_TASK_KIND.WEAPONS_POINT_DEFENSE:
-                return this.resolveWeaponsPointDefenseTask(task);
+            case OFFICER_TASK_KIND.WEAPONS_DEFENSE_TURRET:
+                return this.resolveWeaponsDefenseTurretTask(task);
 
             // Player weapon lifecycle
             // завершит task снаружи.
@@ -275,19 +275,19 @@ export default class OfficerTaskResolver {
         };
     }
 
-    private resolveWeaponsPointDefenseTask(task: WeaponsPointDefenseTaskState): OfficerTaskResult | undefined {
-        const outcome = this.stateStore.firePointDefense(task.threatId, task.pointDefenseBeamBand);
+    private resolveWeaponsDefenseTurretTask(task: WeaponsDefenseTurretTaskState): OfficerTaskResult | undefined {
+        const outcome = this.stateStore.fireDefenseTurret(task.threatId, task.defenseTurretBeamBand);
 
         if (!outcome) {
             return undefined;
         }
 
         return {
-            kind: OFFICER_TASK_RESULT_KIND.POINT_DEFENSE_FIRED,
+            kind: OFFICER_TASK_RESULT_KIND.DEFENSE_TURRET_FIRED,
 
             threatId: task.threatId,
 
-            beamBand: task.pointDefenseBeamBand,
+            beamBand: task.defenseTurretBeamBand,
             outcome,
         };
     }

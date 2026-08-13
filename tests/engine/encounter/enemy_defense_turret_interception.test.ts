@@ -20,10 +20,10 @@ import {
     PLAYER_SPACE_NAVIGATION_KIND,
 } from '../../../src/engine/defs/player_location';
 import {
-    POINT_DEFENSE_BEAM_BAND,
-    POINT_DEFENSE_PHASE,
-    POINT_DEFENSE_SHOT_OUTCOME,
-} from '../../../src/engine/defs/point_defense';
+    DEFENSE_TURRET_BEAM_BAND,
+    DEFENSE_TURRET_PHASE,
+    DEFENSE_TURRET_SHOT_OUTCOME,
+} from '../../../src/engine/defs/defense_turret';
 import EncounterEngine from '../../../src/engine/encounter/EncounterEngine';
 import {
     COMBAT_PROJECTILE_KIND,
@@ -52,7 +52,7 @@ import {
 const LOAD_DURATION_MS = 3000;
 const COOLDOWN_DURATION_MS = 5000;
 
-describe('Enemy point-defense interception', () => {
+describe('Enemy defense-turret interception', () => {
     it('loads a blind matching band and intercepts the player missile', () => {
         const {
             engine,
@@ -71,12 +71,12 @@ describe('Enemy point-defense interception', () => {
 
         engine.step(0);
 
-        expect(enemy.pointDefense).toMatchObject({
+        expect(enemy.defenseTurret).toMatchObject({
             phase:
-                POINT_DEFENSE_PHASE.LOADING,
+                DEFENSE_TURRET_PHASE.LOADING,
 
             loadedBand:
-                POINT_DEFENSE_BEAM_BAND.RED,
+                DEFENSE_TURRET_BEAM_BAND.RED,
 
             targetProjectileId:
                 projectile.id,
@@ -94,14 +94,14 @@ describe('Enemy point-defense interception', () => {
             role:
                 OFFICER_ROLE.WEAPONS,
 
-            pointDefenseId:
-                'point_defense_00',
+            defenseTurretId:
+                'defense_turret_00',
 
             projectileId:
                 projectile.id,
 
             beamBand:
-                POINT_DEFENSE_BEAM_BAND.RED,
+                DEFENSE_TURRET_BEAM_BAND.RED,
         });
 
         expect(
@@ -111,23 +111,23 @@ describe('Enemy point-defense interception', () => {
                     return (
                         event.type ===
                         ENCOUNTER_EVENT
-                            .ENEMY_POINT_DEFENSE_LOADING_STARTED
+                            .ENEMY_DEFENSE_TURRET_LOADING_STARTED
                     );
                 }),
         ).toEqual({
             type:
                 ENCOUNTER_EVENT
-                    .ENEMY_POINT_DEFENSE_LOADING_STARTED,
+                    .ENEMY_DEFENSE_TURRET_LOADING_STARTED,
 
             sourceActorId: enemy.id,
-            pointDefenseId:
-                'point_defense_00',
+            defenseTurretId:
+                'defense_turret_00',
 
             projectileId:
                 projectile.id,
 
             beamBand:
-                POINT_DEFENSE_BEAM_BAND.RED,
+                DEFENSE_TURRET_BEAM_BAND.RED,
 
             loadDurationMs:
                 LOAD_DURATION_MS,
@@ -138,9 +138,9 @@ describe('Enemy point-defense interception', () => {
         const events =
             engine.drainEvents();
 
-        expect(enemy.pointDefense).toMatchObject({
+        expect(enemy.defenseTurret).toMatchObject({
             phase:
-                POINT_DEFENSE_PHASE.COOLDOWN,
+                DEFENSE_TURRET_PHASE.COOLDOWN,
 
             phaseElapsedMs: 0,
             loadedBand: null,
@@ -172,23 +172,23 @@ describe('Enemy point-defense interception', () => {
                 return (
                     event.type ===
                     ENCOUNTER_EVENT
-                        .ENEMY_POINT_DEFENSE_FIRED
+                        .ENEMY_DEFENSE_TURRET_FIRED
                 );
             }),
         ).toMatchObject({
             type:
                 ENCOUNTER_EVENT
-                    .ENEMY_POINT_DEFENSE_FIRED,
+                    .ENEMY_DEFENSE_TURRET_FIRED,
 
             sourceActorId: enemy.id,
-            pointDefenseId:
-                'point_defense_00',
+            defenseTurretId:
+                'defense_turret_00',
 
             beamBand:
-                POINT_DEFENSE_BEAM_BAND.RED,
+                DEFENSE_TURRET_BEAM_BAND.RED,
 
             outcome:
-                POINT_DEFENSE_SHOT_OUTCOME.HIT,
+                DEFENSE_TURRET_SHOT_OUTCOME.HIT,
 
             remainingCharges: 3,
         });
@@ -240,9 +240,9 @@ describe('Enemy point-defense interception', () => {
         const events =
             engine.drainEvents();
 
-        expect(enemy.pointDefense).toMatchObject({
+        expect(enemy.defenseTurret).toMatchObject({
             phase:
-                POINT_DEFENSE_PHASE.COOLDOWN,
+                DEFENSE_TURRET_PHASE.COOLDOWN,
         });
 
         expect(
@@ -271,15 +271,15 @@ describe('Enemy point-defense interception', () => {
                 return (
                     event.type ===
                     ENCOUNTER_EVENT
-                        .ENEMY_POINT_DEFENSE_FIRED
+                        .ENEMY_DEFENSE_TURRET_FIRED
                 );
             }),
         ).toMatchObject({
             beamBand:
-                POINT_DEFENSE_BEAM_BAND.RED,
+                DEFENSE_TURRET_BEAM_BAND.RED,
 
             outcome:
-                POINT_DEFENSE_SHOT_OUTCOME.MISS,
+                DEFENSE_TURRET_SHOT_OUTCOME.MISS,
 
             remainingCharges: 3,
         });
@@ -296,9 +296,9 @@ describe('Enemy point-defense interception', () => {
 
         engine.step(COOLDOWN_DURATION_MS);
 
-        expect(enemy.pointDefense).toMatchObject({
+        expect(enemy.defenseTurret).toMatchObject({
             phase:
-                POINT_DEFENSE_PHASE.READY,
+                DEFENSE_TURRET_PHASE.READY,
 
             phaseElapsedMs: 0,
         });
@@ -360,7 +360,7 @@ describe('Enemy point-defense interception', () => {
                     return (
                         event.type ===
                         ENCOUNTER_EVENT
-                            .ENEMY_POINT_DEFENSE_FIRED
+                            .ENEMY_DEFENSE_TURRET_FIRED
                     );
                 }),
         ).toMatchObject({
@@ -397,14 +397,14 @@ describe('Enemy point-defense interception', () => {
         engine.step(0);
         engine.drainEvents();
 
-        expect(enemy.pointDefense)
+        expect(enemy.defenseTurret)
             .toMatchObject({
                 phase:
-                    POINT_DEFENSE_PHASE
+                    DEFENSE_TURRET_PHASE
                         .LOADING,
 
                 loadedBand:
-                    POINT_DEFENSE_BEAM_BAND
+                    DEFENSE_TURRET_BEAM_BAND
                         .BLUE,
 
                 targetProjectileId:
@@ -453,7 +453,7 @@ describe('Enemy point-defense interception', () => {
                     return (
                         event.type ===
                         ENCOUNTER_EVENT
-                            .ENEMY_POINT_DEFENSE_FIRED
+                            .ENEMY_DEFENSE_TURRET_FIRED
                     );
                 }),
         ).toMatchObject({
@@ -462,10 +462,10 @@ describe('Enemy point-defense interception', () => {
             },
 
             beamBand:
-                POINT_DEFENSE_BEAM_BAND.RED,
+                DEFENSE_TURRET_BEAM_BAND.RED,
 
             outcome:
-                POINT_DEFENSE_SHOT_OUTCOME.MISS,
+                DEFENSE_TURRET_SHOT_OUTCOME.MISS,
 
             remainingCharges: 3,
         });
@@ -524,9 +524,9 @@ function createScenario(
 
     const enemy = state.actors[0];
 
-    if (!enemy?.pointDefense) {
+    if (!enemy?.defenseTurret) {
         throw new Error(
-            'Expected enemy point defense',
+            'Expected enemy defense turret',
         );
     }
 

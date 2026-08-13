@@ -10,10 +10,10 @@ import type {
     PlayerHullDamageResult,
 } from '../../../defs/player';
 import {
-    POINT_DEFENSE_SHOT_OUTCOME,
-    type PointDefenseBeamBand,
-    type PointDefenseShotOutcome,
-} from '../../../defs/point_defense';
+    DEFENSE_TURRET_SHOT_OUTCOME,
+    type DefenseTurretBeamBand,
+    type DefenseTurretShotOutcome,
+} from '../../../defs/defense_turret';
 import {
     SHIP_DRIVE_STATUS,
     type ShipDriveState,
@@ -708,11 +708,11 @@ export default class PlayerShipStore {
         );
     }
 
-    public firePointDefense(
+    public fireDefenseTurret(
         threatId: string,
         beamBand:
-            PointDefenseBeamBand,
-    ): PointDefenseShotOutcome | undefined {
+            DefenseTurretBeamBand,
+    ): DefenseTurretShotOutcome | undefined {
         const threatIndex =
             this.state.combat
                 .projectiles
@@ -744,12 +744,12 @@ export default class PlayerShipStore {
         const outcome =
             missile.spectralBand ===
             beamBand
-                ? POINT_DEFENSE_SHOT_OUTCOME.HIT
-                : POINT_DEFENSE_SHOT_OUTCOME.MISS;
+                ? DEFENSE_TURRET_SHOT_OUTCOME.HIT
+                : DEFENSE_TURRET_SHOT_OUTCOME.MISS;
 
         if (
             outcome ===
-            POINT_DEFENSE_SHOT_OUTCOME.HIT
+            DEFENSE_TURRET_SHOT_OUTCOME.HIT
         ) {
             this.state.combat
                 .projectiles.splice(

@@ -8,6 +8,7 @@ const SHIP_MODULE_COLLECTION_IDS =
         'power_cores',
         'ship_drives',
         'shield_generators',
+        'defense_turrets',
     ]);
 
 type JsonSchema = {

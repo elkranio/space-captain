@@ -225,7 +225,7 @@ describe('Player missile impact', () => {
         ).toEqual([]);
     });
 
-    it('does not expose a player missile to Science or point defense', () => {
+    it('does not expose a player missile to Science or defense turret', () => {
         const {
             engine,
         } = createMissileImpactSetup({

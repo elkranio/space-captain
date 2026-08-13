@@ -40,7 +40,7 @@
         "canBeInterruptedByDamage": true,
         "durationMs": 3000
     },
-    "weapons_point_defense": {
+    "weapons_defense_turret": {
         "label": "PD AIM",
         "showProgress": true,
         "canBeCancelledByPlayer": true,

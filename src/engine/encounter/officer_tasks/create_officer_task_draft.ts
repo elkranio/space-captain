@@ -7,10 +7,10 @@ import {
     OFFICER_ROLE,
     type OfficerRole,
 } from '../../defs/officer';
-import type { PointDefenseBeamBand } from '../../defs/point_defense';
+import type { DefenseTurretBeamBand } from '../../defs/defense_turret';
 import {
     ENCOUNTER_OFFICER_COMMAND_ID,
-    type WeaponsPointDefenseCommandId,
+    type WeaponsDefenseTurretCommandId,
 } from '../model/command';
 import {
     OFFICER_TASK_KIND,
@@ -149,16 +149,16 @@ export function createEngineerDeployShieldTask(): OfficerTaskDraft {
     };
 }
 
-export function createWeaponsPointDefenseTask(
+export function createWeaponsDefenseTurretTask(
     sourceCommandId:
-        WeaponsPointDefenseCommandId,
+        WeaponsDefenseTurretCommandId,
     threatId: string,
-    pointDefenseBeamBand:
-        PointDefenseBeamBand,
+    defenseTurretBeamBand:
+        DefenseTurretBeamBand,
 ): OfficerTaskDraft {
     const kind =
         OFFICER_TASK_KIND
-            .WEAPONS_POINT_DEFENSE;
+            .WEAPONS_DEFENSE_TURRET;
 
     return {
         kind,
@@ -167,7 +167,7 @@ export function createWeaponsPointDefenseTask(
         sourceCommandId,
 
         threatId,
-        pointDefenseBeamBand,
+        defenseTurretBeamBand,
 
         ...getOfficerTaskDraftTuning(
             kind,

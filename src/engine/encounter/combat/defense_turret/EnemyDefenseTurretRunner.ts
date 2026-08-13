@@ -1,16 +1,16 @@
-// src/engine/encounter/combat/EnemyPointDefenseRunner.ts
+// src/engine/encounter/combat/EnemyDefenseTurretRunner.ts
 
 import {
     MISSILES,
 } from '../../../content/catalogs/missiles';
 import {
-    POINT_DEFENSES,
-} from '../../../content/catalogs/point_defenses';
+    DEFENSE_TURRETS,
+} from '../../../content/catalogs/defense_turrets';
 import {
-    POINT_DEFENSE_PHASE,
-    POINT_DEFENSE_SHOT_OUTCOME,
-    type ShipPointDefenseState,
-} from '../../../defs/point_defense';
+    DEFENSE_TURRET_PHASE,
+    DEFENSE_TURRET_SHOT_OUTCOME,
+    type ShipDefenseTurretState,
+} from '../../../defs/defense_turret';
 import type {
     ShipEncounterActorState,
 } from '../../actors/ship/ship_encounter_actor';
@@ -28,10 +28,10 @@ import type {
 } from '../../model/state';
 
 import {
-    resolveEnemyPointDefenseBeamBand,
-} from './resolve_enemy_point_defense_beam_band';
+    resolveEnemyDefenseTurretBeamBand,
+} from './resolve_enemy_defense_turret_beam_band';
 
-type EnemyPointDefenseRunnerOptions = {
+type EnemyDefenseTurretRunnerOptions = {
     state: EncounterState;
 
     emit: (event: EncounterEvent) => void;
@@ -42,44 +42,44 @@ type EnemyPointDefenseRunnerOptions = {
     ) => MissileCombatProjectileState;
 };
 
-// Owns the physical lifecycle of one installed enemy point-defense system.
+// Owns the physical lifecycle of one installed enemy defense-turret system.
 // Policy chooses target and commits a blind fallback band.
 // A ready Science report may deterministically override that fallback at shot
 // time. Defensive energy is committed by the scheduler when loading
 // starts; this runner resolves the band match and advances cooldown.
-export default class EnemyPointDefenseRunner {
+export default class EnemyDefenseTurretRunner {
     constructor(
         private readonly options:
-            EnemyPointDefenseRunnerOptions,
+            EnemyDefenseTurretRunnerOptions,
     ) {}
 
     public advance(
         actor: ShipEncounterActorState,
-        pointDefense: ShipPointDefenseState,
+        defenseTurret: ShipDefenseTurretState,
         deltaMs: number,
     ): void {
         if (deltaMs < 0) {
             throw new Error(
-                'Enemy point-defense deltaMs cannot be negative: ' +
+                'Enemy defense-turret deltaMs cannot be negative: ' +
                     deltaMs,
             );
         }
 
-        switch (pointDefense.phase) {
-            case POINT_DEFENSE_PHASE.READY:
+        switch (defenseTurret.phase) {
+            case DEFENSE_TURRET_PHASE.READY:
                 return;
 
-            case POINT_DEFENSE_PHASE.LOADING:
+            case DEFENSE_TURRET_PHASE.LOADING:
                 this.advanceLoading(
                     actor,
-                    pointDefense,
+                    defenseTurret,
                     deltaMs,
                 );
                 return;
 
-            case POINT_DEFENSE_PHASE.COOLDOWN:
+            case DEFENSE_TURRET_PHASE.COOLDOWN:
                 this.advanceCooldown(
-                    pointDefense,
+                    defenseTurret,
                     deltaMs,
                 );
                 return;
@@ -88,46 +88,46 @@ export default class EnemyPointDefenseRunner {
 
     private advanceLoading(
         actor: ShipEncounterActorState,
-        pointDefense: ShipPointDefenseState,
+        defenseTurret: ShipDefenseTurretState,
         deltaMs: number,
     ): void {
         const projectile =
             this.findTargetProjectile(
                 actor,
-                pointDefense,
+                defenseTurret,
             );
 
         if (!projectile) {
             // Target vanished after commitment.
             // The shared defensive charge remains spent.
             this.resetToReady(
-                pointDefense,
+                defenseTurret,
             );
 
             return;
         }
 
         const definition =
-            POINT_DEFENSES[
-                pointDefense.pointDefenseId
+            DEFENSE_TURRETS[
+                defenseTurret.defenseTurretId
             ];
 
         const elapsedMs =
-            pointDefense.phaseElapsedMs +
+            defenseTurret.phaseElapsedMs +
             deltaMs;
 
         if (
             elapsedMs <
             definition.loadDurationMs
         ) {
-            pointDefense.phaseElapsedMs =
+            defenseTurret.phaseElapsedMs =
                 elapsedMs;
 
             return;
         }
 
         const fallbackBeamBand =
-            pointDefense.loadedBand;
+            defenseTurret.loadedBand;
 
         const powerCore =
             actor.powerCore;
@@ -137,15 +137,15 @@ export default class EnemyPointDefenseRunner {
             !powerCore
         ) {
             throw new Error(
-                'Enemy point defense cannot fire: ' +
+                'Enemy defense turret cannot fire: ' +
                     actor.id +
                     '/' +
-                    pointDefense.id,
+                    defenseTurret.id,
             );
         }
 
         const beamBand =
-            resolveEnemyPointDefenseBeamBand({
+            resolveEnemyDefenseTurretBeamBand({
                 observations:
                     actor.threatObservations,
         
@@ -161,14 +161,14 @@ export default class EnemyPointDefenseRunner {
         const outcome =
             beamBand ===
             missile.spectralBand
-                ? POINT_DEFENSE_SHOT_OUTCOME.HIT
-                : POINT_DEFENSE_SHOT_OUTCOME.MISS;
+                ? DEFENSE_TURRET_SHOT_OUTCOME.HIT
+                : DEFENSE_TURRET_SHOT_OUTCOME.MISS;
 
-        pointDefense.phase =
-            POINT_DEFENSE_PHASE.COOLDOWN;
-        pointDefense.phaseElapsedMs = 0;
-        pointDefense.loadedBand = null;
-        pointDefense.targetProjectileId = null;
+        defenseTurret.phase =
+            DEFENSE_TURRET_PHASE.COOLDOWN;
+        defenseTurret.phaseElapsedMs = 0;
+        defenseTurret.loadedBand = null;
+        defenseTurret.targetProjectileId = null;
 
         // The shot event precedes missile resolution so presentation can aim
         // at a still-existing projectile. CombatMissileRunner remains the only
@@ -176,11 +176,11 @@ export default class EnemyPointDefenseRunner {
         this.options.emit({
             type:
                 ENCOUNTER_EVENT
-                    .ENEMY_POINT_DEFENSE_FIRED,
+                    .ENEMY_DEFENSE_TURRET_FIRED,
 
             sourceActorId: actor.id,
-            pointDefenseId:
-                pointDefense.id,
+            defenseTurretId:
+                defenseTurret.id,
 
             projectile,
 
@@ -193,7 +193,7 @@ export default class EnemyPointDefenseRunner {
 
         if (
             outcome ===
-            POINT_DEFENSE_SHOT_OUTCOME.HIT
+            DEFENSE_TURRET_SHOT_OUTCOME.HIT
         ) {
             this.options
                 .interceptPlayerMissile(
@@ -204,35 +204,35 @@ export default class EnemyPointDefenseRunner {
     }
 
     private advanceCooldown(
-        pointDefense: ShipPointDefenseState,
+        defenseTurret: ShipDefenseTurretState,
         deltaMs: number,
     ): void {
         const definition =
-            POINT_DEFENSES[
-                pointDefense.pointDefenseId
+            DEFENSE_TURRETS[
+                defenseTurret.defenseTurretId
             ];
 
-        pointDefense.phaseElapsedMs +=
+        defenseTurret.phaseElapsedMs +=
             deltaMs;
 
         if (
-            pointDefense.phaseElapsedMs <
+            defenseTurret.phaseElapsedMs <
             definition.cooldownDurationMs
         ) {
             return;
         }
 
         this.resetToReady(
-            pointDefense,
+            defenseTurret,
         );
     }
 
     private findTargetProjectile(
         actor: ShipEncounterActorState,
-        pointDefense: ShipPointDefenseState,
+        defenseTurret: ShipDefenseTurretState,
     ): MissileCombatProjectileState | undefined {
         const projectileId =
-            pointDefense.targetProjectileId;
+            defenseTurret.targetProjectileId;
 
         if (!projectileId) {
             return undefined;
@@ -259,12 +259,12 @@ export default class EnemyPointDefenseRunner {
     }
 
     private resetToReady(
-        pointDefense: ShipPointDefenseState,
+        defenseTurret: ShipDefenseTurretState,
     ): void {
-        pointDefense.phase =
-            POINT_DEFENSE_PHASE.READY;
-        pointDefense.phaseElapsedMs = 0;
-        pointDefense.loadedBand = null;
-        pointDefense.targetProjectileId = null;
+        defenseTurret.phase =
+            DEFENSE_TURRET_PHASE.READY;
+        defenseTurret.phaseElapsedMs = 0;
+        defenseTurret.loadedBand = null;
+        defenseTurret.targetProjectileId = null;
     }
 }

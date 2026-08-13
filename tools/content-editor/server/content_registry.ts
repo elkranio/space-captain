@@ -12,8 +12,8 @@ import {
     OFFICER_TASK_TUNING_SCHEMA,
 } from '../../../src/engine/content/schemas/officer_task_tuning';
 import {
-    POINT_DEFENSE_TUNING_SCHEMA,
-} from '../../../src/engine/content/schemas/point_defenses';
+    DEFENSE_TURRET_TUNING_SCHEMA,
+} from '../../../src/engine/content/schemas/defense_turrets';
 import {
     SHIELD_GENERATOR_TUNING_SCHEMA,
 } from '../../../src/engine/content/schemas/shield_generators';
@@ -52,8 +52,8 @@ export const CONTENT_COLLECTION_ID = {
     POWER_CORES:
         'power_cores',
 
-    POINT_DEFENSES:
-        'point_defenses',
+    DEFENSE_TURRETS:
+        'defense_turrets',
 
     SHIELD_GENERATORS:
         'shield_generators',
@@ -192,23 +192,23 @@ const CONTENT_COLLECTIONS:
         },
 
         [CONTENT_COLLECTION_ID
-            .POINT_DEFENSES]: {
+            .DEFENSE_TURRETS]: {
             id:
                 CONTENT_COLLECTION_ID
-                    .POINT_DEFENSES,
+                    .DEFENSE_TURRETS,
 
             label:
-                'Point Defenses',
+                'Defense Turrets',
 
             dataPath:
                 'src/engine/content/data/' +
-                'point_defenses.json',
+                'defense_turrets.json',
 
             schema:
-                POINT_DEFENSE_TUNING_SCHEMA,
+                DEFENSE_TURRET_TUNING_SCHEMA,
 
-            canAdd: false,
-            canDelete: false,
+            canAdd: true,
+            canDelete: true,
         },
 
         [CONTENT_COLLECTION_ID

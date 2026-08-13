@@ -5,8 +5,8 @@ import {
     type OfficerRole,
 } from '../../defs/officer';
 import type {
-    PointDefenseBeamBand,
-} from '../../defs/point_defense';
+    DefenseTurretBeamBand,
+} from '../../defs/defense_turret';
 
 export const SHIP_CREW_TASK_KIND = {
     OPERATE_WEAPON: 'operate_weapon',
@@ -53,10 +53,10 @@ export type InterceptMissileShipCrewTaskState =
             typeof OFFICER_ROLE.WEAPONS;
 
         // Runtime id of the installed system.
-        pointDefenseId: string;
+        defenseTurretId: string;
 
         projectileId: string;
-        beamBand: PointDefenseBeamBand;
+        beamBand: DefenseTurretBeamBand;
     };
 
 export type ClearStickyMineShipCrewTaskState =

@@ -15,7 +15,7 @@ import { sciencePlotCourseCommandHandler } from './handlers/science_plot_course_
 import {
     weaponsFireBlueBeamCommandHandler,
     weaponsFireRedBeamCommandHandler,
-} from './handlers/weapons_point_defense_command_handler';
+} from './handlers/weapons_defense_turret_command_handler';
 import {
     weaponsFireMissileCommandHandler,
 } from './handlers/weapons_fire_missile_command_handler';

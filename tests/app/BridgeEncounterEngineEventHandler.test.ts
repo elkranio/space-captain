@@ -10,8 +10,8 @@ import { BEACON_OBJECT_SPRITE_ID } from '../../src/engine/defs/beacon';
 import { MISSILE_ID } from '../../src/engine/defs/missile';
 import { OFFICER_ROLE } from '../../src/engine/defs/officer';
 import {
-    POINT_DEFENSE_BEAM_BAND,    POINT_DEFENSE_SHOT_OUTCOME,
-} from '../../src/engine/defs/point_defense';
+    DEFENSE_TURRET_BEAM_BAND,    DEFENSE_TURRET_SHOT_OUTCOME,
+} from '../../src/engine/defs/defense_turret';
 import {
     COMBAT_PROJECTILE_KIND,
     COMBAT_SOURCE_KIND,
@@ -637,7 +637,7 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
         },
     );
 
-    it('maps a completed point-defense shot without spending defensive energy', () => {
+    it('maps a completed defense-turret shot without spending defensive energy', () => {
         const runtime = new GameRuntime();
 
         const emit = vi.fn();
@@ -657,14 +657,14 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
                 task: {
                     id: 'task_1',
 
-                    kind: OFFICER_TASK_KIND.WEAPONS_POINT_DEFENSE,
+                    kind: OFFICER_TASK_KIND.WEAPONS_DEFENSE_TURRET,
                     role: OFFICER_ROLE.WEAPONS,
 
                     sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_RED_BEAM,
 
                     threatId: 'projectile_test_00',
 
-                    pointDefenseBeamBand: POINT_DEFENSE_BEAM_BAND.RED,
+                    defenseTurretBeamBand: DEFENSE_TURRET_BEAM_BAND.RED,
 
                     label: 'PD AIM',
                     showProgress: true,
@@ -679,13 +679,13 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
                 outcome: OFFICER_TASK_OUTCOME.COMPLETED,
 
                 result: {
-                    kind: OFFICER_TASK_RESULT_KIND.POINT_DEFENSE_FIRED,
+                    kind: OFFICER_TASK_RESULT_KIND.DEFENSE_TURRET_FIRED,
 
                     threatId: 'projectile_test_00',
 
-                    beamBand: POINT_DEFENSE_BEAM_BAND.RED,
+                    beamBand: DEFENSE_TURRET_BEAM_BAND.RED,
 
-                    outcome: POINT_DEFENSE_SHOT_OUTCOME.HIT,
+                    outcome: DEFENSE_TURRET_SHOT_OUTCOME.HIT,
                 },
             },
         ]);
@@ -704,14 +704,14 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
         });
         expect(emit.mock.calls).toEqual([
             [
-                BRIDGE_EVENT.POINT_DEFENSE_FIRED,
+                BRIDGE_EVENT.DEFENSE_TURRET_FIRED,
 
                 {
                     projectileId: 'projectile_test_00',
 
-                    beamBand: POINT_DEFENSE_BEAM_BAND.RED,
+                    beamBand: DEFENSE_TURRET_BEAM_BAND.RED,
 
-                    outcome: POINT_DEFENSE_SHOT_OUTCOME.HIT,
+                    outcome: DEFENSE_TURRET_SHOT_OUTCOME.HIT,
                 },
             ],
 

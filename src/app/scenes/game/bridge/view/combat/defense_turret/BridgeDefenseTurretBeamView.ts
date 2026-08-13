@@ -1,20 +1,20 @@
-// src/app/scenes/game/bridge/view/combat/point_defense/BridgePointDefenseBeamView.ts
+// src/app/scenes/game/bridge/view/combat/defense_turret/BridgeDefenseTurretBeamView.ts
 
 import {
-    POINT_DEFENSE_BEAM_BAND,
-    POINT_DEFENSE_SHOT_OUTCOME,
-    type PointDefenseBeamBand,
-    type PointDefenseShotOutcome,
-} from '../../../../../../../engine/defs/point_defense';
+    DEFENSE_TURRET_BEAM_BAND,
+    DEFENSE_TURRET_SHOT_OUTCOME,
+    type DefenseTurretBeamBand,
+    type DefenseTurretShotOutcome,
+} from '../../../../../../../engine/defs/defense_turret';
 import type BridgeScene from '../../../BridgeScene';
 import { BRIDGE_VIEWSCREEN_RECT } from '../../bridge_viewscreen_layout';
 
-type BridgePointDefenseBeamViewOptions = {
+type BridgeDefenseTurretBeamViewOptions = {
     scene: BridgeScene;
     parent: Phaser.GameObjects.Container;
 
-    beamBand: PointDefenseBeamBand;
-    outcome: PointDefenseShotOutcome;
+    beamBand: DefenseTurretBeamBand;
+    outcome: DefenseTurretShotOutcome;
 
     // Player PD omits this and uses the existing bridge-edge source.
     // Enemy PD passes the firing actor position explicitly.
@@ -22,27 +22,27 @@ type BridgePointDefenseBeamViewOptions = {
 
     targetPosition: Phaser.Math.Vector2;
 
-    onComplete: (view: BridgePointDefenseBeamView) => void;
+    onComplete: (view: BridgeDefenseTurretBeamView) => void;
 };
 
-type PointDefenseBeamPalette = {
+type DefenseTurretBeamPalette = {
     outer: number;
     inner: number;
 };
 
-const POINT_DEFENSE_BEAM_PALETTE = {
-    [POINT_DEFENSE_BEAM_BAND.RED]: {
+const DEFENSE_TURRET_BEAM_PALETTE = {
+    [DEFENSE_TURRET_BEAM_BAND.RED]: {
         outer: 0xc9384f,
         inner: 0xff8290,
     },
 
-    [POINT_DEFENSE_BEAM_BAND.BLUE]: {
+    [DEFENSE_TURRET_BEAM_BAND.BLUE]: {
         outer: 0x2f70c4,
         inner: 0x87ceff,
     },
-} satisfies Record<PointDefenseBeamBand, PointDefenseBeamPalette>;
+} satisfies Record<DefenseTurretBeamBand, DefenseTurretBeamPalette>;
 
-const POINT_DEFENSE_BEAM_PRESENTATION = {
+const DEFENSE_TURRET_BEAM_PRESENTATION = {
     outerThickness: 6,
     innerThickness: 2,
 
@@ -61,7 +61,7 @@ const POINT_DEFENSE_BEAM_PRESENTATION = {
     startBottomOffset: 8,
 } as const;
 
-// Короткий presentation-effect одного point-defense выстрела.
+// Короткий presentation-effect одного defense-turret выстрела.
 //
 // Player и enemy PD используют один visual language.
 // Отличается только explicit/default source position.
@@ -78,19 +78,19 @@ const POINT_DEFENSE_BEAM_PRESENTATION = {
 // - три отдельных импульса;
 // - каждый получает новую endpoint возле ракеты;
 // - каждый быстро гаснет.
-export default class BridgePointDefenseBeamView {
+export default class BridgeDefenseTurretBeamView {
     private readonly scene: BridgeScene;
 
     private readonly parent: Phaser.GameObjects.Container;
 
-    private readonly beamBand: PointDefenseBeamBand;
+    private readonly beamBand: DefenseTurretBeamBand;
 
     private readonly sourcePosition?:
         Phaser.Math.Vector2;
 
     private readonly targetPosition: Phaser.Math.Vector2;
 
-    private readonly onComplete: (view: BridgePointDefenseBeamView) => void;
+    private readonly onComplete: (view: BridgeDefenseTurretBeamView) => void;
 
     private readonly activeBeams = new Set<Phaser.GameObjects.Graphics>();
 
@@ -109,7 +109,7 @@ export default class BridgePointDefenseBeamView {
         targetPosition,
 
         onComplete,
-    }: BridgePointDefenseBeamViewOptions) {
+    }: BridgeDefenseTurretBeamViewOptions) {
         this.scene = scene;
         this.parent = parent;
 
@@ -123,11 +123,11 @@ export default class BridgePointDefenseBeamView {
         this.onComplete = onComplete;
 
         switch (outcome) {
-            case POINT_DEFENSE_SHOT_OUTCOME.HIT:
+            case DEFENSE_TURRET_SHOT_OUTCOME.HIT:
                 this.playHit();
                 return;
 
-            case POINT_DEFENSE_SHOT_OUTCOME.MISS:
+            case DEFENSE_TURRET_SHOT_OUTCOME.MISS:
                 this.playMiss();
                 return;
 
@@ -164,9 +164,9 @@ export default class BridgePointDefenseBeamView {
 
             alpha: 0,
 
-            delay: POINT_DEFENSE_BEAM_PRESENTATION.hitHoldMs,
+            delay: DEFENSE_TURRET_BEAM_PRESENTATION.hitHoldMs,
 
-            duration: POINT_DEFENSE_BEAM_PRESENTATION.hitFadeMs,
+            duration: DEFENSE_TURRET_BEAM_PRESENTATION.hitFadeMs,
 
             ease: 'Linear',
 
@@ -178,9 +178,9 @@ export default class BridgePointDefenseBeamView {
     }
 
     private playMiss(): void {
-        for (let pulseIndex = 0; pulseIndex < POINT_DEFENSE_BEAM_PRESENTATION.missPulseCount; pulseIndex += 1) {
+        for (let pulseIndex = 0; pulseIndex < DEFENSE_TURRET_BEAM_PRESENTATION.missPulseCount; pulseIndex += 1) {
             const timerEvent = this.scene.time.delayedCall(
-                pulseIndex * POINT_DEFENSE_BEAM_PRESENTATION.missPulseIntervalMs,
+                pulseIndex * DEFENSE_TURRET_BEAM_PRESENTATION.missPulseIntervalMs,
 
                 () => {
                     if (this.isDestroyed) {
@@ -194,14 +194,14 @@ export default class BridgePointDefenseBeamView {
 
                         alpha: 0,
 
-                        duration: POINT_DEFENSE_BEAM_PRESENTATION.missPulseFadeMs,
+                        duration: DEFENSE_TURRET_BEAM_PRESENTATION.missPulseFadeMs,
 
                         ease: 'Linear',
 
                         onComplete: () => {
                             this.destroyBeam(beam);
 
-                            if (pulseIndex === POINT_DEFENSE_BEAM_PRESENTATION.missPulseCount - 1) {
+                            if (pulseIndex === DEFENSE_TURRET_BEAM_PRESENTATION.missPulseCount - 1) {
                                 this.complete();
                             }
                         },
@@ -216,7 +216,7 @@ export default class BridgePointDefenseBeamView {
     private createBeam(targetPosition: Phaser.Math.Vector2): Phaser.GameObjects.Graphics {
         const startPosition = this.createStartPosition(targetPosition);
 
-        const palette = POINT_DEFENSE_BEAM_PALETTE[this.beamBand];
+        const palette = DEFENSE_TURRET_BEAM_PALETTE[this.beamBand];
 
         const graphics = this.scene.add.graphics();
 
@@ -224,7 +224,7 @@ export default class BridgePointDefenseBeamView {
         // но поверх encounter objects.
         this.parent.addAt(graphics, 0);
 
-        graphics.lineStyle(POINT_DEFENSE_BEAM_PRESENTATION.outerThickness, palette.outer, 1);
+        graphics.lineStyle(DEFENSE_TURRET_BEAM_PRESENTATION.outerThickness, palette.outer, 1);
 
         graphics.lineBetween(
             Math.round(startPosition.x),
@@ -234,7 +234,7 @@ export default class BridgePointDefenseBeamView {
             Math.round(targetPosition.y),
         );
 
-        graphics.lineStyle(POINT_DEFENSE_BEAM_PRESENTATION.innerThickness, palette.inner, 1);
+        graphics.lineStyle(DEFENSE_TURRET_BEAM_PRESENTATION.innerThickness, palette.inner, 1);
 
         graphics.lineBetween(
             Math.round(startPosition.x),
@@ -262,36 +262,36 @@ export default class BridgePointDefenseBeamView {
             targetPosition.x < viewscreenCenterX
                 ? BRIDGE_VIEWSCREEN_RECT.x +
                   BRIDGE_VIEWSCREEN_RECT.width -
-                  POINT_DEFENSE_BEAM_PRESENTATION.viewscreenInset
-                : BRIDGE_VIEWSCREEN_RECT.x + POINT_DEFENSE_BEAM_PRESENTATION.viewscreenInset;
+                  DEFENSE_TURRET_BEAM_PRESENTATION.viewscreenInset
+                : BRIDGE_VIEWSCREEN_RECT.x + DEFENSE_TURRET_BEAM_PRESENTATION.viewscreenInset;
 
         return new Phaser.Math.Vector2(
             startX,
 
             BRIDGE_VIEWSCREEN_RECT.y +
                 BRIDGE_VIEWSCREEN_RECT.height +
-                POINT_DEFENSE_BEAM_PRESENTATION.startBottomOffset,
+                DEFENSE_TURRET_BEAM_PRESENTATION.startBottomOffset,
         );
     }
 
     private createMissTargetPosition(): Phaser.Math.Vector2 {
-        const left = BRIDGE_VIEWSCREEN_RECT.x + POINT_DEFENSE_BEAM_PRESENTATION.viewscreenInset;
+        const left = BRIDGE_VIEWSCREEN_RECT.x + DEFENSE_TURRET_BEAM_PRESENTATION.viewscreenInset;
 
         const right =
-            BRIDGE_VIEWSCREEN_RECT.x + BRIDGE_VIEWSCREEN_RECT.width - POINT_DEFENSE_BEAM_PRESENTATION.viewscreenInset;
+            BRIDGE_VIEWSCREEN_RECT.x + BRIDGE_VIEWSCREEN_RECT.width - DEFENSE_TURRET_BEAM_PRESENTATION.viewscreenInset;
 
-        const top = BRIDGE_VIEWSCREEN_RECT.y + POINT_DEFENSE_BEAM_PRESENTATION.viewscreenInset;
+        const top = BRIDGE_VIEWSCREEN_RECT.y + DEFENSE_TURRET_BEAM_PRESENTATION.viewscreenInset;
 
         const bottom =
-            BRIDGE_VIEWSCREEN_RECT.y + BRIDGE_VIEWSCREEN_RECT.height - POINT_DEFENSE_BEAM_PRESENTATION.viewscreenInset;
+            BRIDGE_VIEWSCREEN_RECT.y + BRIDGE_VIEWSCREEN_RECT.height - DEFENSE_TURRET_BEAM_PRESENTATION.viewscreenInset;
 
-        for (let attempt = 0; attempt < POINT_DEFENSE_BEAM_PRESENTATION.missCandidateAttempts; attempt += 1) {
+        for (let attempt = 0; attempt < DEFENSE_TURRET_BEAM_PRESENTATION.missCandidateAttempts; attempt += 1) {
             const angle = Phaser.Math.FloatBetween(0, Math.PI * 2);
 
             const distance = Phaser.Math.Between(
-                POINT_DEFENSE_BEAM_PRESENTATION.missOffsetMin,
+                DEFENSE_TURRET_BEAM_PRESENTATION.missOffsetMin,
 
-                POINT_DEFENSE_BEAM_PRESENTATION.missOffsetMax,
+                DEFENSE_TURRET_BEAM_PRESENTATION.missOffsetMax,
             );
 
             const candidate = new Phaser.Math.Vector2(
@@ -305,7 +305,7 @@ export default class BridgePointDefenseBeamView {
                 candidate.y - this.targetPosition.y,
             );
 
-            if (resolvedDistance >= POINT_DEFENSE_BEAM_PRESENTATION.missOffsetMin * 0.75) {
+            if (resolvedDistance >= DEFENSE_TURRET_BEAM_PRESENTATION.missOffsetMin * 0.75) {
                 return candidate;
             }
         }
@@ -316,12 +316,12 @@ export default class BridgePointDefenseBeamView {
 
         return new Phaser.Math.Vector2(
             Phaser.Math.Clamp(
-                this.targetPosition.x + horizontalDirection * POINT_DEFENSE_BEAM_PRESENTATION.missOffsetMin,
+                this.targetPosition.x + horizontalDirection * DEFENSE_TURRET_BEAM_PRESENTATION.missOffsetMin,
                 left,
                 right,
             ),
 
-            Phaser.Math.Clamp(this.targetPosition.y - POINT_DEFENSE_BEAM_PRESENTATION.missOffsetMin / 2, top, bottom),
+            Phaser.Math.Clamp(this.targetPosition.y - DEFENSE_TURRET_BEAM_PRESENTATION.missOffsetMin / 2, top, bottom),
         );
     }
 
@@ -346,6 +346,6 @@ export default class BridgePointDefenseBeamView {
     }
 
     private assertNever(value: never): never {
-        throw new Error(`Unhandled point-defense outcome: ${String(value)}`);
+        throw new Error(`Unhandled defense-turret outcome: ${String(value)}`);
     }
 }

@@ -26,7 +26,7 @@ Current basic contract:
 - capacity: 4 charges
 - sequential recharge
 - one charge recharge duration: 24 s
-- Point Defense and Shield Emitter draw from the same pool
+- Defense Turret and Shield Emitter draw from the same pool
 
 A defensive consumer commits energy when its work starts. Later cancellation/interruption does not refund committed energy.
 
@@ -68,22 +68,22 @@ Future:
 - breaking the emitter must immediately remove an active shield
 - exact timings remain balance values, not sacred constants
 
-## Point Defense
+## Defense Turret
 
-Point Defense is a separate installed defensive system.
+Defense Turret is a separate installed defensive system.
 
 Current direction:
 - no private charge pool
 - consumes shared DEF
 - red/blue beam band matters against missile spectral band
 - player installed-system broken/repair lifecycle is still incomplete
-- enemy Point Defense is already a live independent implementation; do not delete it while changing player PD
+- enemy Defense Turret is already a live independent implementation; do not delete it while changing player PD
 
 ## Missiles
 
 - Incoming enemy missile is its own combat projectile with its own impact timer.
 - Science can identify spectral band.
-- Weapons can respond through point-defense beam selection.
+- Weapons can respond through defense-turret beam selection.
 - Unknown missile can still be acted on; UI does not invent certainty.
 - Dashboard renders incoming missiles independently.
 - Enemy decision snapshots may resolve live missile timing/physical target, but must not bypass the Science epistemic boundary for hidden missile truth.

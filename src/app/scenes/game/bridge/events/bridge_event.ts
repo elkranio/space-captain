@@ -8,7 +8,7 @@ import type {
     MissileId,
     MissileSpectralBand,
 } from '../../../../../engine/defs/missile';
-import type { PointDefenseBeamBand, PointDefenseShotOutcome } from '../../../../../engine/defs/point_defense';
+import type { DefenseTurretBeamBand, DefenseTurretShotOutcome } from '../../../../../engine/defs/defense_turret';
 import type { ShipDriveStatus } from '../../../../../engine/defs/ship_drive';
 import type { ShipWeaponPhase } from '../../../../../engine/defs/ship_weapon';
 import type { EncounterOfficerCommandId, OfficerCommandTarget } from '../../../../../engine/encounter/model/command';
@@ -239,12 +239,12 @@ export const BRIDGE_EVENT = {
 
     // Point-defense player ship завершил наведение
     // и разрешил выстрел по входящей угрозе.
-    POINT_DEFENSE_FIRED: 'point_defense_fired',
+    DEFENSE_TURRET_FIRED: 'defense_turret_fired',
 
-    // Enemy point-defense разрешил выстрел
+    // Enemy defense-turret разрешил выстрел
     // по исходящей ракете игрока.
-    ENEMY_POINT_DEFENSE_FIRED:
-        'enemy_point_defense_fired',
+    ENEMY_DEFENSE_TURRET_FIRED:
+        'enemy_defense_turret_fired',
 
     // Вражеский laser начал видимую charging-фазу.
     LASER_THREAT_ADDED: 'laser_threat_added',
@@ -839,19 +839,19 @@ export type BridgeOutgoingSpamChannelEndedPayload = {
         PlayerSpamChannelOutcome;
 };
 
-export type BridgePointDefenseFiredPayload = {
+export type BridgeDefenseTurretFiredPayload = {
     projectileId: string;
 
-    beamBand: PointDefenseBeamBand;
-    outcome: PointDefenseShotOutcome;
+    beamBand: DefenseTurretBeamBand;
+    outcome: DefenseTurretShotOutcome;
 };
 
-export type BridgeEnemyPointDefenseFiredPayload = {
+export type BridgeEnemyDefenseTurretFiredPayload = {
     sourceActorId: string;
     projectileId: string;
 
-    beamBand: PointDefenseBeamBand;
-    outcome: PointDefenseShotOutcome;
+    beamBand: DefenseTurretBeamBand;
+    outcome: DefenseTurretShotOutcome;
 };
 
 export type BridgeLaserThreatAddedPayload = {
@@ -1094,10 +1094,10 @@ export type BridgeEventPayloadMap = {
     [BRIDGE_EVENT.OUTGOING_SPAM_CHANNEL_ENDED]:
         BridgeOutgoingSpamChannelEndedPayload;
 
-    [BRIDGE_EVENT.POINT_DEFENSE_FIRED]: BridgePointDefenseFiredPayload;
+    [BRIDGE_EVENT.DEFENSE_TURRET_FIRED]: BridgeDefenseTurretFiredPayload;
 
-    [BRIDGE_EVENT.ENEMY_POINT_DEFENSE_FIRED]:
-        BridgeEnemyPointDefenseFiredPayload;
+    [BRIDGE_EVENT.ENEMY_DEFENSE_TURRET_FIRED]:
+        BridgeEnemyDefenseTurretFiredPayload;
 
     [BRIDGE_EVENT.LASER_THREAT_ADDED]: BridgeLaserThreatAddedPayload;
 

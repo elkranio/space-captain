@@ -6,9 +6,9 @@ import {
     it,
 } from 'vitest';
 import {
-    doesPointDefensePhaseAdvanceWithCrew,
-    POINT_DEFENSE_PHASE,
-} from '../../../src/engine/defs/point_defense';
+    doesDefenseTurretPhaseAdvanceWithCrew,
+    DEFENSE_TURRET_PHASE,
+} from '../../../src/engine/defs/defense_turret';
 import {
     doesShipWeaponPhaseAdvanceWithCrew,
     SHIP_WEAPON_KIND,
@@ -122,25 +122,25 @@ describe(
         );
 
         it(
-            'classifies point-defense phases',
+            'classifies defense-turret phases',
             () => {
                 expect(
-                    doesPointDefensePhaseAdvanceWithCrew(
-                        POINT_DEFENSE_PHASE
+                    doesDefenseTurretPhaseAdvanceWithCrew(
+                        DEFENSE_TURRET_PHASE
                             .LOADING,
                     ),
                 ).toBe(true);
 
                 expect(
-                    doesPointDefensePhaseAdvanceWithCrew(
-                        POINT_DEFENSE_PHASE
+                    doesDefenseTurretPhaseAdvanceWithCrew(
+                        DEFENSE_TURRET_PHASE
                             .READY,
                     ),
                 ).toBe(false);
 
                 expect(
-                    doesPointDefensePhaseAdvanceWithCrew(
-                        POINT_DEFENSE_PHASE
+                    doesDefenseTurretPhaseAdvanceWithCrew(
+                        DEFENSE_TURRET_PHASE
                             .COOLDOWN,
                     ),
                 ).toBe(false);

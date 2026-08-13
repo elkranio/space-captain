@@ -7,8 +7,8 @@ import {
     MISSILES,
 } from '../../content/catalogs/missiles';
 import {
-    POINT_DEFENSES,
-} from '../../content/catalogs/point_defenses';
+    DEFENSE_TURRETS,
+} from '../../content/catalogs/defense_turrets';
 import {
     SHIP_WEAPONS,
 } from '../../content/catalogs/ship_weapons';
@@ -20,10 +20,10 @@ import {
     type OfficerRole,
 } from '../../defs/officer';
 import {
-    POINT_DEFENSE_PHASE,
-    type PointDefenseBeamBand,
-    type PointDefensePhase,
-} from '../../defs/point_defense';
+    DEFENSE_TURRET_PHASE,
+    type DefenseTurretBeamBand,
+    type DefenseTurretPhase,
+} from '../../defs/defense_turret';
 import {
     SHIP_WEAPON_KIND,
     SHIP_WEAPON_PHASE,
@@ -94,11 +94,11 @@ export type EnemyDebugPowerCoreSnapshot = {
         EnemyDebugProgressSnapshot;
 };
 
-export type EnemyDebugPointDefenseSnapshot = {
-    phase: PointDefensePhase;
+export type EnemyDebugDefenseTurretSnapshot = {
+    phase: DefenseTurretPhase;
 
     loadedBand:
-        PointDefenseBeamBand | null;
+        DefenseTurretBeamBand | null;
 
     targetLabel?: string;
 
@@ -135,8 +135,8 @@ export type EnemyDebugSnapshot = {
     powerCore?:
         EnemyDebugPowerCoreSnapshot;
 
-    pointDefense?:
-        EnemyDebugPointDefenseSnapshot;
+    defenseTurret?:
+        EnemyDebugDefenseTurretSnapshot;
 
     threats:
         EnemyDebugThreatSnapshot[];
@@ -223,10 +223,10 @@ function createEnemyDebugSnapshot(
               }
             : {}),
 
-        ...(actor.pointDefense
+        ...(actor.defenseTurret
             ? {
-                  pointDefense:
-                      createPointDefenseSnapshot(
+                  defenseTurret:
+                      createDefenseTurretSnapshot(
                           state,
                           actor,
                       ),
@@ -338,16 +338,16 @@ function createCrewTaskSnapshot(
                         );
                     });
 
-            const pointDefense =
-                actor.pointDefense;
+            const defenseTurret =
+                actor.defenseTurret;
 
             const progress =
-                pointDefense &&
-                pointDefense
+                defenseTurret &&
+                defenseTurret
                     .targetProjectileId ===
                     task.projectileId
-                    ? createPointDefenseProgress(
-                          pointDefense,
+                    ? createDefenseTurretProgress(
+                          defenseTurret,
                       )
                     : undefined;
 
@@ -557,47 +557,47 @@ function createPowerCoreSnapshot(
     };
 }
 
-function createPointDefenseSnapshot(
+function createDefenseTurretSnapshot(
     state: EncounterState,
     actor: ShipEncounterActorState,
-): EnemyDebugPointDefenseSnapshot {
-    const pointDefense =
-        actor.pointDefense;
+): EnemyDebugDefenseTurretSnapshot {
+    const defenseTurret =
+        actor.defenseTurret;
 
-    if (!pointDefense) {
+    if (!defenseTurret) {
         throw new Error(
-            'Enemy debug point defense is missing: ' +
+            'Enemy debug defense turret is missing: ' +
                 actor.id,
         );
     }
 
     const projectile =
-        pointDefense
+        defenseTurret
             .targetProjectileId
             ? state.combat
                   .projectiles
                   .find((candidate) => {
                       return (
                           candidate.id ===
-                          pointDefense
+                          defenseTurret
                               .targetProjectileId
                       );
                   })
             : undefined;
 
     const progress =
-        createPointDefenseProgress(
-            pointDefense,
+        createDefenseTurretProgress(
+            defenseTurret,
         );
 
     return {
         phase:
-            pointDefense.phase,
+            defenseTurret.phase,
 
         loadedBand:
-            pointDefense.loadedBand,
+            defenseTurret.loadedBand,
 
-        ...(pointDefense
+        ...(defenseTurret
             .targetProjectileId
             ? {
                   targetLabel:
@@ -615,26 +615,26 @@ function createPointDefenseSnapshot(
     };
 }
 
-function createPointDefenseProgress(
-    pointDefense:
+function createDefenseTurretProgress(
+    defenseTurret:
         NonNullable<
             ShipEncounterActorState[
-                'pointDefense'
+                'defenseTurret'
             ]
         >,
 ):
     EnemyDebugProgressSnapshot |
     undefined {
     const definition =
-        POINT_DEFENSES[
-            pointDefense.pointDefenseId
+        DEFENSE_TURRETS[
+            defenseTurret.defenseTurretId
         ];
 
-    switch (pointDefense.phase) {
-        case POINT_DEFENSE_PHASE.LOADING:
+    switch (defenseTurret.phase) {
+        case DEFENSE_TURRET_PHASE.LOADING:
             return {
                 elapsedMs:
-                    pointDefense
+                    defenseTurret
                         .phaseElapsedMs,
 
                 durationMs:
@@ -642,10 +642,10 @@ function createPointDefenseProgress(
                         .loadDurationMs,
             };
 
-        case POINT_DEFENSE_PHASE.COOLDOWN:
+        case DEFENSE_TURRET_PHASE.COOLDOWN:
             return {
                 elapsedMs:
-                    pointDefense
+                    defenseTurret
                         .phaseElapsedMs,
 
                 durationMs:
@@ -653,12 +653,12 @@ function createPointDefenseProgress(
                         .cooldownDurationMs,
             };
 
-        case POINT_DEFENSE_PHASE.READY:
+        case DEFENSE_TURRET_PHASE.READY:
             return undefined;
 
         default:
             return assertNever(
-                pointDefense.phase,
+                defenseTurret.phase,
             );
     }
 }

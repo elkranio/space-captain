@@ -1,4 +1,4 @@
-// tests/app/BridgeEncounterEnemyPointDefenseEvents.test.ts
+// tests/app/BridgeEncounterEnemyDefenseTurretEvents.test.ts
 
 import {
     describe,
@@ -18,9 +18,9 @@ import {
     MISSILE_ID,
 } from '../../src/engine/defs/missile';
 import {
-    POINT_DEFENSE_BEAM_BAND,
-    POINT_DEFENSE_SHOT_OUTCOME,
-} from '../../src/engine/defs/point_defense';
+    DEFENSE_TURRET_BEAM_BAND,
+    DEFENSE_TURRET_SHOT_OUTCOME,
+} from '../../src/engine/defs/defense_turret';
 import {
     COMBAT_PROJECTILE_KIND,
     COMBAT_SOURCE_KIND,
@@ -77,7 +77,7 @@ const projectile:
     };
 
 describe(
-    'Bridge enemy point-defense events',
+    'Bridge enemy defense-turret events',
     () => {
         it(
             'emits the shot before intercepted missile removal',
@@ -98,19 +98,19 @@ describe(
                     {
                         type:
                             ENCOUNTER_EVENT
-                                .ENEMY_POINT_DEFENSE_LOADING_STARTED,
+                                .ENEMY_DEFENSE_TURRET_LOADING_STARTED,
 
                         sourceActorId:
                             'ship_enemy_00',
 
-                        pointDefenseId:
-                            'point_defense_00',
+                        defenseTurretId:
+                            'defense_turret_00',
 
                         projectileId:
                             projectile.id,
 
                         beamBand:
-                            POINT_DEFENSE_BEAM_BAND
+                            DEFENSE_TURRET_BEAM_BAND
                                 .RED,
 
                         loadDurationMs: 3000,
@@ -119,24 +119,24 @@ describe(
                     {
                         type:
                             ENCOUNTER_EVENT
-                                .ENEMY_POINT_DEFENSE_FIRED,
+                                .ENEMY_DEFENSE_TURRET_FIRED,
 
                         sourceActorId:
                             'ship_enemy_00',
 
-                        pointDefenseId:
-                            'point_defense_00',
+                        defenseTurretId:
+                            'defense_turret_00',
 
                         projectile: {
                             ...projectile,
                         },
 
                         beamBand:
-                            POINT_DEFENSE_BEAM_BAND
+                            DEFENSE_TURRET_BEAM_BAND
                                 .BLUE,
 
                         outcome:
-                            POINT_DEFENSE_SHOT_OUTCOME
+                            DEFENSE_TURRET_SHOT_OUTCOME
                                 .HIT,
 
                         remainingCharges: 2,
@@ -162,7 +162,7 @@ describe(
                 ).toEqual([
                     [
                         BRIDGE_EVENT
-                            .ENEMY_POINT_DEFENSE_FIRED,
+                            .ENEMY_DEFENSE_TURRET_FIRED,
 
                         {
                             sourceActorId:
@@ -172,11 +172,11 @@ describe(
                                 projectile.id,
 
                             beamBand:
-                                POINT_DEFENSE_BEAM_BAND
+                                DEFENSE_TURRET_BEAM_BAND
                                     .BLUE,
 
                             outcome:
-                                POINT_DEFENSE_SHOT_OUTCOME
+                                DEFENSE_TURRET_SHOT_OUTCOME
                                     .HIT,
                         },
                     ],

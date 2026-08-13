@@ -16,8 +16,8 @@ import type {
     PowerCoreState,
 } from '../../defs/power_core';
 import type {
-    ShipPointDefenseState,
-} from '../../defs/point_defense';
+    ShipDefenseTurretState,
+} from '../../defs/defense_turret';
 import type {
     ShipChassisId,
 } from '../../defs/ship_chassis';
@@ -33,7 +33,7 @@ import type {
     ShieldGeneratorState,
 } from '../../defs/shield_generator';
 import PowerCoreFactory from '../ship_system/PowerCoreFactory';
-import ShipPointDefenseFactory from '../ship_system/ShipPointDefenseFactory';
+import ShipDefenseTurretFactory from '../ship_system/ShipDefenseTurretFactory';
 import ShieldGeneratorFactory from '../ship_system/ShieldGeneratorFactory';
 import LaserWeaponFactory from '../ship_weapon/LaserWeaponFactory';
 import MissileLauncherFactory from '../ship_weapon/MissileLauncherFactory';
@@ -52,7 +52,7 @@ export type CreatedShipState = {
 
     drive: ShipDriveState;
 
-    pointDefense?: ShipPointDefenseState;
+    defenseTurret?: ShipDefenseTurretState;
 
     powerCore?:
         PowerCoreState;
@@ -93,19 +93,19 @@ export default class ShipFactory {
             },
 
             ...(
-                preset.pointDefense
+                preset.defenseTurret
                     ? {
-                          pointDefense:
-                              ShipPointDefenseFactory.create({
+                          defenseTurret:
+                              ShipDefenseTurretFactory.create({
                                   id:
                                       preset
-                                          .pointDefense
+                                          .defenseTurret
                                           .id,
 
-                                  pointDefenseId:
+                                  defenseTurretId:
                                       preset
-                                          .pointDefense
-                                          .pointDefenseId,
+                                          .defenseTurret
+                                          .defenseTurretId,
                               }),
                       }
                     : {}

@@ -55,7 +55,7 @@ Current prototype provides:
 - timer
 - missile identity/unknown state
 - Science identify action where available
-- Weapons red/blue point-defense response where available
+- Weapons red/blue defense-turret response where available
 - inline red/blue selector for unknown-missile flow
 
 ### Laser row

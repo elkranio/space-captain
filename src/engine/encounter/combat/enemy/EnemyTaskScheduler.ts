@@ -1,8 +1,8 @@
 // src/engine/encounter/combat/EnemyTaskScheduler.ts
 
 import {
-    POINT_DEFENSES,
-} from '../../../content/catalogs/point_defenses';
+    DEFENSE_TURRETS,
+} from '../../../content/catalogs/defense_turrets';
 import {
     spendPowerCoreCharge,
 } from '../defense/spend_power_core_charge';
@@ -23,8 +23,8 @@ import {
     PLAYER_SPACE_NAVIGATION_KIND,
 } from '../../../defs/player_location';
 import {
-    POINT_DEFENSE_PHASE,
-} from '../../../defs/point_defense';
+    DEFENSE_TURRET_PHASE,
+} from '../../../defs/defense_turret';
 import {
     SHIP_WEAPON_PHASE,
 } from '../../../defs/ship_weapon';
@@ -448,7 +448,7 @@ export default class EnemyTaskScheduler {
 
             case SHIP_CREW_TASK_KIND
                 .INTERCEPT_MISSILE:
-                this.startPointDefenseInterception(
+                this.startDefenseTurretInterception(
                     actor,
                     intent,
                 );
@@ -719,7 +719,7 @@ export default class EnemyTaskScheduler {
         );
     }
 
-    private startPointDefenseInterception(
+    private startDefenseTurretInterception(
         actor: ShipEncounterActorState,
         intent:
             Extract<
@@ -731,8 +731,8 @@ export default class EnemyTaskScheduler {
                 }
             >,
     ): void {
-        const pointDefense =
-            actor.pointDefense;
+        const defenseTurret =
+            actor.defenseTurret;
 
         const powerCore =
             actor.powerCore;
@@ -749,11 +749,11 @@ export default class EnemyTaskScheduler {
                 });
 
         if (
-            !pointDefense ||
-            pointDefense.id !==
-                intent.pointDefenseId ||
-            pointDefense.phase !==
-                POINT_DEFENSE_PHASE.READY ||
+            !defenseTurret ||
+            defenseTurret.id !==
+                intent.defenseTurretId ||
+            defenseTurret.phase !==
+                DEFENSE_TURRET_PHASE.READY ||
             !powerCore ||
             powerCore.charges <= 0 ||
             !projectile ||
@@ -766,10 +766,10 @@ export default class EnemyTaskScheduler {
                 actor.id
         ) {
             throw new Error(
-                'Cannot start enemy point-defense work: ' +
+                'Cannot start enemy defense-turret work: ' +
                     actor.id +
                     '/' +
-                    intent.pointDefenseId +
+                    intent.defenseTurretId +
                     '/' +
                     intent.projectileId,
             );
@@ -788,27 +788,27 @@ export default class EnemyTaskScheduler {
             intent,
         );
 
-        pointDefense.phase =
-            POINT_DEFENSE_PHASE.LOADING;
-        pointDefense.phaseElapsedMs = 0;
-        pointDefense.loadedBand =
+        defenseTurret.phase =
+            DEFENSE_TURRET_PHASE.LOADING;
+        defenseTurret.phaseElapsedMs = 0;
+        defenseTurret.loadedBand =
             intent.beamBand;
-        pointDefense.targetProjectileId =
+        defenseTurret.targetProjectileId =
             intent.projectileId;
 
         const definition =
-            POINT_DEFENSES[
-                pointDefense.pointDefenseId
+            DEFENSE_TURRETS[
+                defenseTurret.defenseTurretId
             ];
 
         this.emit({
             type:
                 ENCOUNTER_EVENT
-                    .ENEMY_POINT_DEFENSE_LOADING_STARTED,
+                    .ENEMY_DEFENSE_TURRET_LOADING_STARTED,
 
             sourceActorId: actor.id,
-            pointDefenseId:
-                pointDefense.id,
+            defenseTurretId:
+                defenseTurret.id,
 
             projectileId:
                 intent.projectileId,

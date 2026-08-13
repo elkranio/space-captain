@@ -137,7 +137,7 @@ export function mapCaptainCombatContextToBridgePayload(
                                 OFFICER_ROLE.WEAPONS,
 
                             label:
-                                'red point-defense',
+                                'red defense-turret',
                         });
 
                     const fireBlueBeam =
@@ -157,7 +157,7 @@ export function mapCaptainCombatContextToBridgePayload(
                                 OFFICER_ROLE.WEAPONS,
 
                             label:
-                                'blue point-defense',
+                                'blue defense-turret',
                         });
 
                     return {

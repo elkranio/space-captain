@@ -13,9 +13,9 @@ import {
     OFFICER_ROLE,
 } from '../../../src/engine/defs/officer';
 import {
-    POINT_DEFENSE_ID,
-    POINT_DEFENSE_PHASE,
-} from '../../../src/engine/defs/point_defense';
+    DEFENSE_TURRET_ID,
+    DEFENSE_TURRET_PHASE,
+} from '../../../src/engine/defs/defense_turret';
 import {
     SHIELD_GENERATOR_ID,
     SHIELD_GENERATOR_PHASE,
@@ -43,17 +43,17 @@ describe('Enemy defense sandbox preset', () => {
             expect(actor.weapons)
                 .toEqual([]);
 
-            expect(actor.pointDefense)
+            expect(actor.defenseTurret)
                 .toEqual({
                     id:
-                        'point_defense_00',
+                        'defense_turret_00',
 
-                    pointDefenseId:
-                        POINT_DEFENSE_ID
+                    defenseTurretId:
+                        DEFENSE_TURRET_ID
                             .BASIC_00,
 
                     phase:
-                        POINT_DEFENSE_PHASE
+                        DEFENSE_TURRET_PHASE
                             .READY,
                     phaseElapsedMs: 0,
 

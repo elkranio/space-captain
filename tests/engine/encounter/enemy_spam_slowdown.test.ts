@@ -9,8 +9,8 @@ import {
     MISSILES,
 } from '../../../src/engine/content/catalogs/missiles';
 import {
-    POINT_DEFENSES,
-} from '../../../src/engine/content/catalogs/point_defenses';
+    DEFENSE_TURRETS,
+} from '../../../src/engine/content/catalogs/defense_turrets';
 import {
     MISSILE_LAUNCHER_PRESET_ID,
 } from '../../../src/engine/content/presets/missile_launchers';
@@ -24,9 +24,9 @@ import {
     OFFICER_ROLE,
 } from '../../../src/engine/defs/officer';
 import {
-    POINT_DEFENSE_BEAM_BAND,
-    POINT_DEFENSE_PHASE,
-} from '../../../src/engine/defs/point_defense';
+    DEFENSE_TURRET_BEAM_BAND,
+    DEFENSE_TURRET_PHASE,
+} from '../../../src/engine/defs/defense_turret';
 import {
     SHIP_WEAPON_PHASE,
     type MissileLauncherState,
@@ -293,18 +293,18 @@ describe(
         );
 
         it(
-            'halves enemy point-defense loading progress',
+            'halves enemy defense-turret loading progress',
             () => {
                 const setup =
                     createAnchoredPlayerCombatTestSetup();
 
-                const pointDefense =
+                const defenseTurret =
                     setup.targetActor
-                        .pointDefense;
+                        .defenseTurret;
 
-                if (!pointDefense) {
+                if (!defenseTurret) {
                     throw new Error(
-                        'Expected enemy point defense',
+                        'Expected enemy defense turret',
                     );
                 }
 
@@ -376,18 +376,18 @@ describe(
                             60000,
                     });
 
-                pointDefense.phase =
-                    POINT_DEFENSE_PHASE
+                defenseTurret.phase =
+                    DEFENSE_TURRET_PHASE
                         .LOADING;
 
-                pointDefense.phaseElapsedMs =
+                defenseTurret.phaseElapsedMs =
                     0;
 
-                pointDefense.loadedBand =
-                    POINT_DEFENSE_BEAM_BAND
+                defenseTurret.loadedBand =
+                    DEFENSE_TURRET_BEAM_BAND
                         .RED;
 
-                pointDefense.targetProjectileId =
+                defenseTurret.targetProjectileId =
                     projectileId;
 
                 const powerCore =
@@ -421,8 +421,8 @@ describe(
                 );
 
                 setup.targetActor
-                    .pointDefense =
-                        pointDefense;
+                    .defenseTurret =
+                        defenseTurret;
 
                 setup.targetActor
                     .crewRoles = [
@@ -440,21 +440,21 @@ describe(
                                 OFFICER_ROLE
                                     .WEAPONS,
 
-                            pointDefenseId:
-                                pointDefense.id,
+                            defenseTurretId:
+                                defenseTurret.id,
 
                             projectileId,
 
                             beamBand:
-                                POINT_DEFENSE_BEAM_BAND
+                                DEFENSE_TURRET_BEAM_BAND
                                     .RED,
                         },
                     };
 
                 const definition =
-                    POINT_DEFENSES[
-                        pointDefense
-                            .pointDefenseId
+                    DEFENSE_TURRETS[
+                        defenseTurret
+                            .defenseTurretId
                     ];
 
                 setup.engine.step(
@@ -463,14 +463,14 @@ describe(
                 );
 
                 expect(
-                    pointDefense.phase,
+                    defenseTurret.phase,
                 ).toBe(
-                    POINT_DEFENSE_PHASE
+                    DEFENSE_TURRET_PHASE
                         .LOADING,
                 );
 
                 expect(
-                    pointDefense.phaseElapsedMs,
+                    defenseTurret.phaseElapsedMs,
                 ).toBe(
                     definition
                         .loadDurationMs *
@@ -490,9 +490,9 @@ describe(
                 );
 
                 expect(
-                    pointDefense.phase,
+                    defenseTurret.phase,
                 ).toBe(
-                    POINT_DEFENSE_PHASE
+                    DEFENSE_TURRET_PHASE
                         .COOLDOWN,
                 );
 
@@ -521,7 +521,7 @@ function makeEnemyPassive(
         [];
 
     delete setup.targetActor
-        .pointDefense;
+        .defenseTurret;
 }
 
 function activatePlayerSpam(

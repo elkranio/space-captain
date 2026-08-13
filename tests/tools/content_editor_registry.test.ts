@@ -7,7 +7,7 @@ import powerCoreData from '../../src/engine/content/data/power_cores.json';
 import enemyBehaviorRulesData from '../../src/engine/content/data/enemy_behavior_rules.json';
 import missileData from '../../src/engine/content/data/missiles.json';
 import officerTaskData from '../../src/engine/content/data/officer_tasks.json';
-import pointDefenseData from '../../src/engine/content/data/point_defenses.json';
+import defenseTurretData from '../../src/engine/content/data/defense_turrets.json';
 import shieldGeneratorData from '../../src/engine/content/data/shield_generators.json';
 import shipBehaviorData from '../../src/engine/content/data/ship_behaviors.json';
 import shipChassisData from '../../src/engine/content/data/ship_chassis.json';
@@ -90,13 +90,13 @@ describe(
                     {
                         id:
                             CONTENT_COLLECTION_ID
-                                .POINT_DEFENSES,
+                                .DEFENSE_TURRETS,
 
                         label:
-                            'Point Defenses',
+                            'Defense Turrets',
 
-                        canAdd: false,
-                        canDelete: false,
+                        canAdd: true,
+                        canDelete: true,
                     },
                     {
                         id:
@@ -210,8 +210,8 @@ describe(
                     ],
                     [
                         CONTENT_COLLECTION_ID
-                            .POINT_DEFENSES,
-                        pointDefenseData,
+                            .DEFENSE_TURRETS,
+                        defenseTurretData,
                     ],
                     [
                         CONTENT_COLLECTION_ID

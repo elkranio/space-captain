@@ -84,10 +84,10 @@ export default class ShipNodeActorFactory {
             drive: ship.drive,
 
             ...(
-                ship.pointDefense
+                ship.defenseTurret
                     ? {
-                          pointDefense:
-                              ship.pointDefense,
+                          defenseTurret:
+                              ship.defenseTurret,
                       }
                     : {}
             ),

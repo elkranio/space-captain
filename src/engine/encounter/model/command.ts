@@ -48,7 +48,7 @@ export type EncounterOfficerCommandId =
     (typeof ENCOUNTER_OFFICER_COMMAND_ID)[keyof typeof ENCOUNTER_OFFICER_COMMAND_ID];
 
 
-export type WeaponsPointDefenseCommandId =
+export type WeaponsDefenseTurretCommandId =
     | typeof ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_RED_BEAM
     | typeof ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_BLUE_BEAM;
 

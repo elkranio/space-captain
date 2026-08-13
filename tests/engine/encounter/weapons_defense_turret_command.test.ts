@@ -1,4 +1,4 @@
-// tests/engine/encounter/weapons_point_defense_command.test.ts
+// tests/engine/encounter/weapons_defense_turret_command.test.ts
 
 import type {
     PowerCoreState,
@@ -14,8 +14,8 @@ import { SHIP_NODE_ACTOR_PRESET_ID } from '../../../src/engine/content/presets/s
 import { OFFICER_ROLE } from '../../../src/engine/defs/officer';
 import { PLAYER_SPACE_NAVIGATION_KIND } from '../../../src/engine/defs/player_location';
 import {
-    POINT_DEFENSE_BEAM_BAND,
-    POINT_DEFENSE_SHOT_OUTCOME,} from '../../../src/engine/defs/point_defense';
+    DEFENSE_TURRET_BEAM_BAND,
+    DEFENSE_TURRET_SHOT_OUTCOME,} from '../../../src/engine/defs/defense_turret';
 import { SHIP_WEAPON_KIND } from '../../../src/engine/defs/ship_weapon';
 import EncounterEngine from '../../../src/engine/encounter/EncounterEngine';
 import { getMutableEncounterStateForTest } from './get_mutable_encounter_state_for_test';
@@ -34,7 +34,7 @@ import { OFFICER_TASK_KIND } from '../../../src/engine/encounter/model/officer_t
 import ShipNodeActorFactory from '../../../src/engine/generation/space_node_actor/ShipNodeActorFactory';
 import { createSingleStationNodeFixture } from '../../fixtures/engine/space_node_fixtures';
 
-describe('Weapons point defense command', () => {
+describe('Weapons defense turret command', () => {
     it.each([
         {
             missileLabel: 'RED',
@@ -43,7 +43,7 @@ describe('Weapons point defense command', () => {
 
             commandId: ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_RED_BEAM,
 
-            beamBand: POINT_DEFENSE_BEAM_BAND.RED,
+            beamBand: DEFENSE_TURRET_BEAM_BAND.RED,
         },
         {
             missileLabel: 'BLUE',
@@ -52,7 +52,7 @@ describe('Weapons point defense command', () => {
 
             commandId: ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_BLUE_BEAM,
 
-            beamBand: POINT_DEFENSE_BEAM_BAND.BLUE,
+            beamBand: DEFENSE_TURRET_BEAM_BAND.BLUE,
         },
     ] as const)(
         'spends one charge immediately and destroys a $missileLabel missile when the beam band matches',
@@ -114,7 +114,7 @@ describe('Weapons point defense command', () => {
                     type: ENCOUNTER_EVENT.OFFICER_TASK_STARTED,
 
                     task: {
-                        kind: OFFICER_TASK_KIND.WEAPONS_POINT_DEFENSE,
+                        kind: OFFICER_TASK_KIND.WEAPONS_DEFENSE_TURRET,
 
                         role: OFFICER_ROLE.WEAPONS,
 
@@ -122,7 +122,7 @@ describe('Weapons point defense command', () => {
 
                         threatId: 'projectile_1',
 
-                        pointDefenseBeamBand: beamBand,
+                        defenseTurretBeamBand: beamBand,
 
                         label: 'PD AIM',
                         showProgress: true,
@@ -150,7 +150,7 @@ describe('Weapons point defense command', () => {
             expect(engine.drainEvents()).toEqual([]);
 
             expect(state.officerTasks[OFFICER_ROLE.WEAPONS]).toEqual({
-                kind: OFFICER_TASK_KIND.WEAPONS_POINT_DEFENSE,
+                kind: OFFICER_TASK_KIND.WEAPONS_DEFENSE_TURRET,
 
                 role: OFFICER_ROLE.WEAPONS,
 
@@ -158,7 +158,7 @@ describe('Weapons point defense command', () => {
 
                 threatId: 'projectile_1',
 
-                pointDefenseBeamBand: beamBand,
+                defenseTurretBeamBand: beamBand,
 
                 label: 'PD AIM',
                 showProgress: true,
@@ -188,7 +188,7 @@ describe('Weapons point defense command', () => {
                     type: ENCOUNTER_EVENT.OFFICER_TASK_ENDED,
 
                     task: {
-                        kind: OFFICER_TASK_KIND.WEAPONS_POINT_DEFENSE,
+                        kind: OFFICER_TASK_KIND.WEAPONS_DEFENSE_TURRET,
 
                         role: OFFICER_ROLE.WEAPONS,
 
@@ -196,7 +196,7 @@ describe('Weapons point defense command', () => {
 
                         threatId: 'projectile_1',
 
-                        pointDefenseBeamBand: beamBand,
+                        defenseTurretBeamBand: beamBand,
 
                         label: 'PD AIM',
                         showProgress: true,
@@ -213,13 +213,13 @@ describe('Weapons point defense command', () => {
                     outcome: OFFICER_TASK_OUTCOME.COMPLETED,
 
                     result: {
-                        kind: OFFICER_TASK_RESULT_KIND.POINT_DEFENSE_FIRED,
+                        kind: OFFICER_TASK_RESULT_KIND.DEFENSE_TURRET_FIRED,
 
                         threatId: 'projectile_1',
 
                         beamBand,
 
-                        outcome: POINT_DEFENSE_SHOT_OUTCOME.HIT,
+                        outcome: DEFENSE_TURRET_SHOT_OUTCOME.HIT,
                     },
                 },
             ]);
@@ -246,7 +246,7 @@ describe('Weapons point defense command', () => {
 
             commandId: ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_BLUE_BEAM,
 
-            beamBand: POINT_DEFENSE_BEAM_BAND.BLUE,
+            beamBand: DEFENSE_TURRET_BEAM_BAND.BLUE,
         },
         {
             missileLabel: 'BLUE',
@@ -256,7 +256,7 @@ describe('Weapons point defense command', () => {
 
             commandId: ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_RED_BEAM,
 
-            beamBand: POINT_DEFENSE_BEAM_BAND.RED,
+            beamBand: DEFENSE_TURRET_BEAM_BAND.RED,
         },
     ] as const)(
         'spends one charge and leaves a $missileLabel missile active after a $beamLabel beam miss',
@@ -294,7 +294,7 @@ describe('Weapons point defense command', () => {
                     type: ENCOUNTER_EVENT.OFFICER_TASK_ENDED,
 
                     task: {
-                        kind: OFFICER_TASK_KIND.WEAPONS_POINT_DEFENSE,
+                        kind: OFFICER_TASK_KIND.WEAPONS_DEFENSE_TURRET,
 
                         role: OFFICER_ROLE.WEAPONS,
 
@@ -302,7 +302,7 @@ describe('Weapons point defense command', () => {
 
                         threatId: 'projectile_1',
 
-                        pointDefenseBeamBand: beamBand,
+                        defenseTurretBeamBand: beamBand,
 
                         label: 'PD AIM',
                         showProgress: true,
@@ -319,13 +319,13 @@ describe('Weapons point defense command', () => {
                     outcome: OFFICER_TASK_OUTCOME.COMPLETED,
 
                     result: {
-                        kind: OFFICER_TASK_RESULT_KIND.POINT_DEFENSE_FIRED,
+                        kind: OFFICER_TASK_RESULT_KIND.DEFENSE_TURRET_FIRED,
 
                         threatId: 'projectile_1',
 
                         beamBand,
 
-                        outcome: POINT_DEFENSE_SHOT_OUTCOME.MISS,
+                        outcome: DEFENSE_TURRET_SHOT_OUTCOME.MISS,
                     },
                 },
             ]);
@@ -345,7 +345,7 @@ describe('Weapons point defense command', () => {
         },
     );
 
-    it('does not offer point-defense commands without shared defensive charges', () => {
+    it('does not offer defense-turret commands without shared defensive charges', () => {
         const { engine, state } = createEngineWithIncomingMissile({
             powerCore:
                 createPowerCoreFixture(
@@ -408,7 +408,7 @@ describe('Weapons point defense command', () => {
                 type: ENCOUNTER_EVENT.OFFICER_TASK_ENDED,
 
                 task: {
-                    kind: OFFICER_TASK_KIND.WEAPONS_POINT_DEFENSE,
+                    kind: OFFICER_TASK_KIND.WEAPONS_DEFENSE_TURRET,
 
                     role: OFFICER_ROLE.WEAPONS,
 
@@ -416,7 +416,7 @@ describe('Weapons point defense command', () => {
 
                     threatId: 'projectile_1',
 
-                    pointDefenseBeamBand: POINT_DEFENSE_BEAM_BAND.RED,
+                    defenseTurretBeamBand: DEFENSE_TURRET_BEAM_BAND.RED,
 
                     label: 'PD AIM',
                     showProgress: true,
@@ -444,7 +444,7 @@ describe('Weapons point defense command', () => {
         });
     });
 
-    it('does not refund the spent charge when point-defense aim is cancelled', () => {
+    it('does not refund the spent charge when defense-turret aim is cancelled', () => {
         const { engine, state } = createEngineWithIncomingMissile();
 
         const redBeamCommand = getCommand(
@@ -469,7 +469,7 @@ describe('Weapons point defense command', () => {
         const task = state.officerTasks[OFFICER_ROLE.WEAPONS];
 
         if (!task) {
-            throw new Error('Expected active point-defense task');
+            throw new Error('Expected active defense-turret task');
         }
 
         engine.cancelTask(task.id);

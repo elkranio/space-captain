@@ -2,7 +2,7 @@
 
 import { describe, expect, it, vi } from 'vitest';
 import { OFFICER_ROLE } from '../../src/engine/defs/officer';
-import { POINT_DEFENSE_BEAM_BAND } from '../../src/engine/defs/point_defense';
+import { DEFENSE_TURRET_BEAM_BAND } from '../../src/engine/defs/defense_turret';
 import type EncounterEngine from '../../src/engine/encounter/EncounterEngine';
 import { ENCOUNTER_OFFICER_COMMAND_ID } from '../../src/engine/encounter/model/command';
 import {
@@ -308,7 +308,7 @@ function createOfficerTasks(): OfficerTaskState[] {
         {
             id: 'task_weapons',
 
-            kind: OFFICER_TASK_KIND.WEAPONS_POINT_DEFENSE,
+            kind: OFFICER_TASK_KIND.WEAPONS_DEFENSE_TURRET,
 
             role: OFFICER_ROLE.WEAPONS,
 
@@ -316,7 +316,7 @@ function createOfficerTasks(): OfficerTaskState[] {
 
             threatId: 'projectile_1',
 
-            pointDefenseBeamBand: POINT_DEFENSE_BEAM_BAND.RED,
+            defenseTurretBeamBand: DEFENSE_TURRET_BEAM_BAND.RED,
 
             label: 'PD AIM',
             showProgress: true,

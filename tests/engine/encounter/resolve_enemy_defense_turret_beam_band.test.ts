@@ -1,4 +1,4 @@
-// tests/engine/encounter/resolve_enemy_point_defense_beam_band.test.ts
+// tests/engine/encounter/resolve_enemy_defense_turret_beam_band.test.ts
 
 import {
     describe,
@@ -9,21 +9,21 @@ import {
     MISSILE_SPECTRAL_BAND,
 } from '../../../src/engine/defs/missile';
 import {
-    POINT_DEFENSE_BEAM_BAND,
-} from '../../../src/engine/defs/point_defense';
+    DEFENSE_TURRET_BEAM_BAND,
+} from '../../../src/engine/defs/defense_turret';
 import {
     ENEMY_THREAT_KIND,
     ENEMY_THREAT_SOURCE_KIND,
     type EnemyThreatObservationState,
 } from '../../../src/engine/encounter/model/enemy_threat_observation';
 import {
-    resolveEnemyPointDefenseBeamBand,
-} from '../../../src/engine/encounter/combat/point_defense/resolve_enemy_point_defense_beam_band';
+    resolveEnemyDefenseTurretBeamBand,
+} from '../../../src/engine/encounter/combat/defense_turret/resolve_enemy_defense_turret_beam_band';
 
-describe('Enemy point-defense beam-band resolution', () => {
+describe('Enemy defense-turret beam-band resolution', () => {
     it('keeps the committed blind fallback without a Science report', () => {
         expect(
-            resolveEnemyPointDefenseBeamBand({
+            resolveEnemyDefenseTurretBeamBand({
                 observations: [
                     createMissileObservation(
                         'projectile_00',
@@ -34,11 +34,11 @@ describe('Enemy point-defense beam-band resolution', () => {
                     'projectile_00',
 
                 fallbackBeamBand:
-                    POINT_DEFENSE_BEAM_BAND
+                    DEFENSE_TURRET_BEAM_BAND
                         .RED,
             }),
         ).toBe(
-            POINT_DEFENSE_BEAM_BAND.RED,
+            DEFENSE_TURRET_BEAM_BAND.RED,
         );
     });
 
@@ -57,7 +57,7 @@ describe('Enemy point-defense beam-band resolution', () => {
         };
 
         expect(
-            resolveEnemyPointDefenseBeamBand({
+            resolveEnemyDefenseTurretBeamBand({
                 observations: [
                     observation,
                 ],
@@ -66,11 +66,11 @@ describe('Enemy point-defense beam-band resolution', () => {
                     'projectile_00',
 
                 fallbackBeamBand:
-                    POINT_DEFENSE_BEAM_BAND
+                    DEFENSE_TURRET_BEAM_BAND
                         .RED,
             }),
         ).toBe(
-            POINT_DEFENSE_BEAM_BAND.BLUE,
+            DEFENSE_TURRET_BEAM_BAND.BLUE,
         );
     });
 
@@ -89,7 +89,7 @@ describe('Enemy point-defense beam-band resolution', () => {
         };
 
         expect(
-            resolveEnemyPointDefenseBeamBand({
+            resolveEnemyDefenseTurretBeamBand({
                 observations: [
                     observation,
                 ],
@@ -98,11 +98,11 @@ describe('Enemy point-defense beam-band resolution', () => {
                     'projectile_00',
 
                 fallbackBeamBand:
-                    POINT_DEFENSE_BEAM_BAND
+                    DEFENSE_TURRET_BEAM_BAND
                         .RED,
             }),
         ).toBe(
-            POINT_DEFENSE_BEAM_BAND.RED,
+            DEFENSE_TURRET_BEAM_BAND.RED,
         );
     });
 });

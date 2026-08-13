@@ -1,8 +1,8 @@
 // src/engine/encounter/combat/CombatRunner.ts
 
 import {
-    doesPointDefensePhaseAdvanceWithCrew,
-} from '../../defs/point_defense';
+    doesDefenseTurretPhaseAdvanceWithCrew,
+} from '../../defs/defense_turret';
 import {
     doesShipWeaponPhaseAdvanceWithCrew,
     SHIP_WEAPON_KIND,
@@ -11,7 +11,7 @@ import type { EncounterEvent } from '../model/event';
 import type { EncounterState } from '../model/state';
 import EncounterStateStore from '../state/EncounterStateStore';
 import CombatLaserRunner from './weapons/laser/CombatLaserRunner';
-import EnemyPointDefenseRunner from './point_defense/EnemyPointDefenseRunner';
+import EnemyDefenseTurretRunner from './defense_turret/EnemyDefenseTurretRunner';
 import EnemyShieldRunner from './defense/EnemyShieldRunner';
 import CombatMissileRunner, {
     type PlayerMissileLaunchInput,
@@ -91,8 +91,8 @@ export default class CombatRunner {
     private readonly performanceResolver:
         CrewPerformanceResolver;
 
-    private readonly pointDefenseRunner:
-        EnemyPointDefenseRunner;
+    private readonly defenseTurretRunner:
+        EnemyDefenseTurretRunner;
 
     private readonly laserRunner:
         CombatLaserRunner;
@@ -155,8 +155,8 @@ export default class CombatRunner {
                     this.destroyEnemyActor,
             });
 
-        this.pointDefenseRunner =
-            new EnemyPointDefenseRunner({
+        this.defenseTurretRunner =
+            new EnemyDefenseTurretRunner({
                 state: this.state,
 
                 emit: this.emit,
@@ -412,19 +412,19 @@ export default class CombatRunner {
                         actor.id,
                     );
 
-            if (actor.pointDefense) {
-                const pointDefenseDeltaMs =
-                    doesPointDefensePhaseAdvanceWithCrew(
-                        actor.pointDefense.phase,
+            if (actor.defenseTurret) {
+                const defenseTurretDeltaMs =
+                    doesDefenseTurretPhaseAdvanceWithCrew(
+                        actor.defenseTurret.phase,
                     )
                         ? crewDeltaMs
                         : deltaMs;
 
-                this.pointDefenseRunner
+                this.defenseTurretRunner
                     .advance(
                         actor,
-                        actor.pointDefense,
-                        pointDefenseDeltaMs,
+                        actor.defenseTurret,
+                        defenseTurretDeltaMs,
                     );
             }
 

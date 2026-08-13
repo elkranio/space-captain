@@ -402,5 +402,5 @@ function makeTargetPassive(
     targetActor.crewTasks = {};
 
     targetActor.weapons = [];
-    delete targetActor.pointDefense;
+    delete targetActor.defenseTurret;
 }

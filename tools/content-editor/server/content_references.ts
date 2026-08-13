@@ -58,6 +58,18 @@ type ShieldGeneratorDraftCollection =
         ShieldGeneratorDraft
     >;
 
+type DefenseTurretDraft = {
+    name: string;
+    loadDurationMs: number;
+    cooldownDurationMs: number;
+};
+
+type DefenseTurretDraftCollection =
+    Record<
+        string,
+        DefenseTurretDraft
+    >;
+
 export type ContentUsage = {
     collection: string;
     recordId: string;
@@ -123,6 +135,15 @@ export function getContentRecordDeleteInfo(
                     ),
             };
 
+        case CONTENT_COLLECTION_ID
+            .DEFENSE_TURRETS:
+            return {
+                usages:
+                    findDefenseTurretUsages(
+                        recordId,
+                    ),
+            };
+
         default:
             return {
                 usages: [],
@@ -169,6 +190,15 @@ export async function validateContentCollectionReferences(
             validateShieldGeneratorReferences(
                 data as
                     ShieldGeneratorDraftCollection,
+            );
+
+            return;
+
+        case CONTENT_COLLECTION_ID
+            .DEFENSE_TURRETS:
+            validateDefenseTurretReferences(
+                data as
+                    DefenseTurretDraftCollection,
             );
 
             return;
@@ -395,6 +425,43 @@ function findShieldGeneratorUsages(
         ...shipPresetUsages,
         ...playerPresetUsages,
     ];
+}
+
+function findDefenseTurretUsages(
+    defenseTurretId: string,
+): ContentUsage[] {
+    return Object.values(
+        SHIP_PRESETS,
+    )
+        .filter((preset) => {
+            if (
+                !(
+                    'defenseTurret' in
+                    preset
+                )
+            ) {
+                return false;
+            }
+
+            return (
+                preset
+                    .defenseTurret
+                    .defenseTurretId ===
+                defenseTurretId
+            );
+        })
+        .map((preset) => {
+            return {
+                collection:
+                    'Ship Presets',
+
+                recordId:
+                    preset.id,
+
+                label:
+                    preset.id,
+            };
+        });
 }
 
 async function validateShipChassisReferences(
@@ -642,6 +709,46 @@ function validateShieldGeneratorReferences(
                 'Cannot remove shield generator "' +
                 shieldGeneratorId +
                 '": it is used by player ship preset "' +
+                preset.id +
+                '".'
+            ),
+            409,
+        );
+    }
+}
+
+function validateDefenseTurretReferences(
+    data: DefenseTurretDraftCollection,
+): void {
+    for (
+        const preset of
+        Object.values(
+            SHIP_PRESETS,
+        )
+    ) {
+        if (
+            !(
+                'defenseTurret' in
+                preset
+            )
+        ) {
+            continue;
+        }
+
+        const defenseTurretId =
+            preset
+                .defenseTurret
+                .defenseTurretId;
+
+        if (data[defenseTurretId]) {
+            continue;
+        }
+
+        throw new ContentReferenceError(
+            (
+                'Cannot remove defense turret "' +
+                defenseTurretId +
+                '": it is used by ship preset "' +
                 preset.id +
                 '".'
             ),

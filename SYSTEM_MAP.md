@@ -82,7 +82,7 @@ Important current runners:
 - laser
 - sticky mine
 - spam
-- enemy point defense
+- enemy defense turret
 - player weapon runners
 - power core
 - shield emitter
@@ -241,7 +241,7 @@ Existing views include:
 - SPAM
 - outgoing player weapons
 - enemy destruction
-- point-defense beam VFX
+- defense-turret beam VFX
 - captain dashboard combat context
 
 The old viewscreen combat VFX and the captain dashboard are separate presentation surfaces. Reuse engine snapshots; do not make one view read state from another.

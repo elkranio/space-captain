@@ -474,7 +474,7 @@ Expose tuning for:
 
 - power core;
 - shield emitter;
-- point defense as appropriate;
+- defense turret as appropriate;
 - ship/enemy behavior presets.
 
 This phase should directly support rapid enemy-AI/combat tuning.

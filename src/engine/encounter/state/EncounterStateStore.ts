@@ -11,9 +11,9 @@ import type {
     PlayerSpaceNavigationState,
 } from '../../defs/player_location';
 import type {
-    PointDefenseBeamBand,
-    PointDefenseShotOutcome,
-} from '../../defs/point_defense';
+    DefenseTurretBeamBand,
+    DefenseTurretShotOutcome,
+} from '../../defs/defense_turret';
 import type {
     ShipDriveState,
 } from '../../defs/ship_drive';
@@ -136,8 +136,8 @@ export default class EncounterStateStore {
 
                 drive: actor.drive,
 
-                pointDefense:
-                    actor.pointDefense,
+                defenseTurret:
+                    actor.defenseTurret,
 
                 powerCore:
                     actor.powerCore,
@@ -432,12 +432,12 @@ export default class EncounterStateStore {
             .spendPowerCoreCharge();
     }
 
-    public firePointDefense(
+    public fireDefenseTurret(
         threatId: string,
-        beamBand: PointDefenseBeamBand,
-    ): PointDefenseShotOutcome | undefined {
+        beamBand: DefenseTurretBeamBand,
+    ): DefenseTurretShotOutcome | undefined {
         return this.playerShip
-            .firePointDefense(
+            .fireDefenseTurret(
                 threatId,
                 beamBand,
             );

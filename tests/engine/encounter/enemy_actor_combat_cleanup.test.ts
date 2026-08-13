@@ -574,7 +574,7 @@ function createCombatCleanupTestSetup() {
 
     // This suite owns combat-object cleanup ordering.
     // Enemy PD would consume its synthetic killer missile first.
-    delete targetActor.pointDefense;
+    delete targetActor.defenseTurret;
 
     return {
         engine,

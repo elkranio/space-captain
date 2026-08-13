@@ -13,9 +13,9 @@ import {
     type ShipDriveId,
 } from '../../defs/ship_drive';
 import {
-    POINT_DEFENSE_ID,
-    type PointDefenseId,
-} from '../../defs/point_defense';
+    DEFENSE_TURRET_ID,
+    type DefenseTurretId,
+} from '../../defs/defense_turret';
 import {
     SHIELD_GENERATOR_ID,
     type ShieldGeneratorId,
@@ -119,10 +119,10 @@ export type ShipPreset = {
     };
 
     // Optional installed defensive system.
-    // Runtime state is created by ShipPointDefenseFactory.
-    pointDefense?: {
+    // Runtime state is created by ShipDefenseTurretFactory.
+    defenseTurret?: {
         id: string;
-        pointDefenseId: PointDefenseId;
+        defenseTurretId: DefenseTurretId;
     };
 
     powerCore?: {
@@ -353,10 +353,10 @@ export const SHIP_PRESETS = {
             driveId: SHIP_DRIVE_ID.BASIC_00,
         },
 
-        pointDefense: {
-            id: 'point_defense_00',
-            pointDefenseId:
-                POINT_DEFENSE_ID.BASIC_00,
+        defenseTurret: {
+            id: 'defense_turret_00',
+            defenseTurretId:
+                DEFENSE_TURRET_ID.BASIC_00,
         },
 
         powerCore: {

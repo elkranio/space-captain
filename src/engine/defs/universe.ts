@@ -13,8 +13,8 @@ import type {
     OfficerRole,
 } from './officer';
 import type {
-    ShipPointDefenseState,
-} from './point_defense';
+    ShipDefenseTurretState,
+} from './defense_turret';
 import type {
     ShipBehaviorState,
 } from './ship_behavior';
@@ -86,8 +86,8 @@ export type ShipSpaceNodeActorState =
 
         drive: ShipDriveState;
 
-        pointDefense?:
-            ShipPointDefenseState;
+        defenseTurret?:
+            ShipDefenseTurretState;
 
         powerCore?:
             PowerCoreState;

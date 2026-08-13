@@ -13,7 +13,7 @@ export const OFFICER_TASK_KIND = {
     ENGINEER_REPAIR_DRIVE: 'engineer_repair_drive',
     ENGINEER_DEPLOY_SHIELD: 'engineer_deploy_shield',
 
-    WEAPONS_POINT_DEFENSE: 'weapons_point_defense',
+    WEAPONS_DEFENSE_TURRET: 'weapons_defense_turret',
 
     WEAPONS_FIRE_MISSILE: 'weapons_fire_missile',
     WEAPONS_FIRE_STICKY_MINES: 'weapons_fire_sticky_mines',
@@ -59,7 +59,7 @@ export function doesOfficerTaskUseTimedCompletion(
         case OFFICER_TASK_KIND.SCIENCE_PURGE_SPAM:
         case OFFICER_TASK_KIND.ENGINEER_REPAIR_DRIVE:
         case OFFICER_TASK_KIND.ENGINEER_DEPLOY_SHIELD:
-        case OFFICER_TASK_KIND.WEAPONS_POINT_DEFENSE:
+        case OFFICER_TASK_KIND.WEAPONS_DEFENSE_TURRET:
         case OFFICER_TASK_KIND.CLEAR_STICKY_MINE:
             return true;
 

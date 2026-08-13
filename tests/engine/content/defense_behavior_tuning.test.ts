@@ -7,8 +7,8 @@ import {
     POWER_CORES,
 } from '../../../src/engine/content/catalogs/power_cores';
 import {
-    POINT_DEFENSES,
-} from '../../../src/engine/content/catalogs/point_defenses';
+    DEFENSE_TURRETS,
+} from '../../../src/engine/content/catalogs/defense_turrets';
 import {
     SHIELD_GENERATORS,
 } from '../../../src/engine/content/catalogs/shield_generators';
@@ -19,8 +19,8 @@ import {
     POWER_CORE_TUNING_SCHEMA,
 } from '../../../src/engine/content/schemas/power_cores';
 import {
-    POINT_DEFENSE_TUNING_SCHEMA,
-} from '../../../src/engine/content/schemas/point_defenses';
+    DEFENSE_TURRET_TUNING_SCHEMA,
+} from '../../../src/engine/content/schemas/defense_turrets';
 import {
     SHIELD_GENERATOR_TUNING_SCHEMA,
 } from '../../../src/engine/content/schemas/shield_generators';
@@ -31,8 +31,8 @@ import {
     POWER_CORE_ID,
 } from '../../../src/engine/defs/power_core';
 import {
-    POINT_DEFENSE_ID,
-} from '../../../src/engine/defs/point_defense';
+    DEFENSE_TURRET_ID,
+} from '../../../src/engine/defs/defense_turret';
 import {
     SHIELD_GENERATOR_ID,
 } from '../../../src/engine/defs/shield_generator';
@@ -66,17 +66,17 @@ describe(
                 });
 
                 expect(
-                    POINT_DEFENSES[
-                        POINT_DEFENSE_ID
+                    DEFENSE_TURRETS[
+                        DEFENSE_TURRET_ID
                             .BASIC_00
                     ],
                 ).toEqual({
                     id:
-                        POINT_DEFENSE_ID
+                        DEFENSE_TURRET_ID
                             .BASIC_00,
 
                     name:
-                        'BASIC POINT DEFENSE',
+                        'BASIC DEFENSE TURRET',
 
                     loadDurationMs:
                         3000,
@@ -144,11 +144,11 @@ describe(
                 ).toBe(false);
 
                 expect(
-                    POINT_DEFENSE_TUNING_SCHEMA
+                    DEFENSE_TURRET_TUNING_SCHEMA
                         .safeParse({
-                            point_defense_basic_00: {
+                            defense_turret_basic_00: {
                                 name:
-                                    'BASIC POINT DEFENSE',
+                                    'BASIC DEFENSE TURRET',
                                 loadDurationMs:
                                     -1,
                                 cooldownDurationMs:

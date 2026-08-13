@@ -4,8 +4,8 @@ import type {
     OfficerRole,
 } from '../../../defs/officer';
 import {
-    doesPointDefensePhaseRequireOperator,
-} from '../../../defs/point_defense';
+    doesDefenseTurretPhaseRequireOperator,
+} from '../../../defs/defense_turret';
 import {
     doesShipWeaponPhaseRequireOperator,
 } from '../../../defs/ship_weapon';
@@ -338,7 +338,7 @@ export default class EnemyCrewTaskRunner {
                 this.synchronizeInterceptMissile(
                     actor,
                     role,
-                    task.pointDefenseId,
+                    task.defenseTurretId,
                 );
 
                 return;
@@ -487,15 +487,15 @@ export default class EnemyCrewTaskRunner {
     private synchronizeInterceptMissile(
         actor: ShipEncounterActorState,
         role: OfficerRole,
-        pointDefenseId: string,
+        defenseTurretId: string,
     ): void {
-        const pointDefense =
-            actor.pointDefense;
+        const defenseTurret =
+            actor.defenseTurret;
 
         if (
-            !pointDefense ||
-            pointDefense.id !==
-                pointDefenseId
+            !defenseTurret ||
+            defenseTurret.id !==
+                defenseTurretId
         ) {
             this.cancel(
                 actor,
@@ -506,8 +506,8 @@ export default class EnemyCrewTaskRunner {
         }
 
         if (
-            doesPointDefensePhaseRequireOperator(
-                pointDefense.phase,
+            doesDefenseTurretPhaseRequireOperator(
+                defenseTurret.phase,
             )
         ) {
             return;
