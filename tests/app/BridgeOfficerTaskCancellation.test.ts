@@ -93,6 +93,16 @@ describe('Bridge officer task cancellation', () => {
                 return [];
             });
 
+        const getCombatPresentationSnapshot =
+            vi.fn(() => {
+                lifecycle.push('snapshot');
+
+                // Cancellation orchestration only forwards this
+                // coherent frame to its presentation consumers.
+                // The focused test does not need snapshot contents.
+                return {};
+            });
+
         const syncPlayerShipDashboard =
             vi.fn(() => {
                 lifecycle.push('dashboard');
@@ -140,6 +150,7 @@ describe('Bridge officer task cancellation', () => {
         testable.encounterEngine = {
             cancelTask,
             drainEvents,
+            getCombatPresentationSnapshot,
         } as unknown as EncounterEngine;
 
         testable.snapshotSynchronizer = {
@@ -196,6 +207,7 @@ describe('Bridge officer task cancellation', () => {
         ).toEqual([
             'cancel',
             'drain',
+            'snapshot',
             'dashboard',
             'stations',
         ]);

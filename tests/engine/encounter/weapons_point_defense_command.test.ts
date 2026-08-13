@@ -109,17 +109,6 @@ describe('Weapons point defense command', () => {
             expect(engine.getAvailableCommands(OFFICER_ROLE.WEAPONS)).toEqual([]);
 
             expect(engine.drainEvents()).toEqual([
-                {
-                    type:
-                        ENCOUNTER_EVENT
-                            .PLAYER_DEFENSE_CAPACITOR_CHARGE_SPENT,
-
-                    defenseCapacitor:
-                        createDefenseCapacitorFixture(
-                            3,
-                            0,
-                        ),
-                },
 
                 {
                     type: ENCOUNTER_EVENT.OFFICER_TASK_STARTED,

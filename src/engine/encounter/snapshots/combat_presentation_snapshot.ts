@@ -58,6 +58,9 @@ import type {
     OfficerAvailabilityStates,
 } from '../model/officer_availability';
 import type {
+    OfficerTaskState,
+} from '../model/officer_task';
+import type {
     EncounterState,
 } from '../model/state';
 import {
@@ -116,6 +119,9 @@ export type CombatPresentationSnapshot = {
 
         officerAvailability:
             OfficerAvailabilityStates;
+
+        officerTasks:
+            OfficerTaskState[];
     };
 
     enemyShips:
@@ -199,6 +205,17 @@ export function createCombatPresentationSnapshot(
             officerAvailability:
                 getOfficerAvailabilityStates(
                     state,
+                ),
+
+            officerTasks:
+                Object.values(
+                    state.officerTasks,
+                ).filter(
+                    (
+                        task,
+                    ): task is OfficerTaskState => {
+                        return task !== undefined;
+                    },
                 ),
         },
 

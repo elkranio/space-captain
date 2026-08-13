@@ -1,9 +1,6 @@
 // src/engine/encounter/model/event.ts
 
 import type {
-    DefenseCapacitorState,
-} from '../../defs/defense_capacitor';
-import type {
     PlayerHullDamageResult,
 } from '../../defs/player';
 import type { PlayerSpaceNavigationState } from '../../defs/player_location';
@@ -42,7 +39,6 @@ export const ENCOUNTER_EVENT = {
     DOCKING_STARTED: 'docking_started',
     OFFICER_TASK_STARTED: 'officer_task_started',
     OFFICER_TASK_ENDED: 'officer_task_ended',
-    PLAYER_DEFENSE_CAPACITOR_CHARGE_SPENT: 'player_defense_capacitor_charge_spent',
 
     PLAYER_SHIELD_DEPLOYED:
         'player_shield_deployed',
@@ -218,15 +214,6 @@ export type OfficerTaskEndedEvent = {
     outcome: OfficerTaskOutcome;
 
     result?: OfficerTaskResult;
-};
-
-export type PlayerDefenseCapacitorChargeSpentEvent = {
-    type:
-        typeof ENCOUNTER_EVENT
-            .PLAYER_DEFENSE_CAPACITOR_CHARGE_SPENT;
-
-    defenseCapacitor:
-        DefenseCapacitorState;
 };
 
 export type PlayerShieldDeployedEvent = {
@@ -544,7 +531,6 @@ export type EncounterEvent =
     | DockingStartedEvent
     | OfficerTaskStartedEvent
     | OfficerTaskEndedEvent
-    | PlayerDefenseCapacitorChargeSpentEvent
     | PlayerShieldDeployedEvent
     | PlayerShieldEndedEvent
     | PlayerShipDriveStateChangedEvent

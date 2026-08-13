@@ -123,7 +123,10 @@ export default class BridgeEncounterController {
                 combatPresentation,
             );
 
-        this.officerStationsController?.step(deltaMs);
+        this.officerStationsController?.step(
+            deltaMs,
+            combatPresentation,
+        );
     }
 
     // #endregion
@@ -331,8 +334,20 @@ export default class BridgeEncounterController {
         // cancelTask mutates engine state synchronously and queues
         // OFFICER_TASK_ENDED / task-specific presentation events.
         this.drainEncounterEvents();
-        this.snapshotSynchronizer?.syncPlayerShipDashboard();
-        this.officerStationsController?.sync();
+
+        const combatPresentation =
+            this.encounterEngine
+                .getCombatPresentationSnapshot();
+
+        this.snapshotSynchronizer
+            ?.syncPlayerShipDashboard(
+                combatPresentation,
+            );
+
+        this.officerStationsController
+            ?.sync(
+                combatPresentation,
+            );
     }
 
     // #endregion
@@ -430,11 +445,27 @@ export default class BridgeEncounterController {
         const result = this.encounterEngine.executeCommand(input);
 
         if (result.status === OFFICER_COMMAND_EXECUTION_STATUS.EXECUTED) {
-            this.snapshotSynchronizer?.syncPlayerShipDashboard();
+            const combatPresentation =
+                this.encounterEngine
+                    .getCombatPresentationSnapshot();
+
+            this.snapshotSynchronizer
+                ?.syncPlayerShipDashboard(
+                    combatPresentation,
+                );
+
             this.syncRuntimeNavigationFromEngine();
             this.drainEncounterEvents();
-            this.snapshotSynchronizer?.syncLaserThreats();
-            this.officerStationsController?.sync();
+
+            this.snapshotSynchronizer
+                ?.syncLaserThreats(
+                    combatPresentation,
+                );
+
+            this.officerStationsController
+                ?.sync(
+                    combatPresentation,
+                );
         }
 
         return result;

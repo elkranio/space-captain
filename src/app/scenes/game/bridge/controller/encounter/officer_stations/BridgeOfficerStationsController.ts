@@ -8,6 +8,9 @@ import {
     type OfficerAvailabilityStates,
 } from '../../../../../../../engine/encounter/model/officer_availability';
 import type { OfficerTaskState } from '../../../../../../../engine/encounter/model/officer_task';
+import type {
+    CombatPresentationSnapshot,
+} from '../../../../../../../engine/encounter/snapshots/combat_presentation_snapshot';
 import {
     BRIDGE_EVENT,
     type BridgeOfficerActivityProgressUpdatedPayload,
@@ -24,15 +27,12 @@ const OFFICER_STATION_ROLES = Object.values(OFFICER_ROLE);
 
 // Управляет presentation-состоянием всех officer stations.
 //
-// Station lights:
-// - периодически читает officer availability;
-// - переводит domain states в lamp states;
-// - эмитит полный snapshot.
+// Все данные одного refresh приходят из одного CombatPresentationSnapshot:
+// availability, active tasks, enemy presence и уже разрешённые команды.
+// Controller не пересобирает один UI-state несколькими engine reads.
 //
-// Task progress:
-// - каждый frame читает активные officer tasks;
-// - переводит elapsed/duration в progress 0..1;
-// - не показывает progress для task с showProgress=false.
+// Task progress обновляется каждый frame.
+// Station lamps/hints ограничены 200 ms polling interval.
 export default class BridgeOfficerStationsController {
     private elapsedMs = 0;
 
@@ -46,10 +46,18 @@ export default class BridgeOfficerStationsController {
 
     // #region Public API
 
-    public step(deltaMs: number): void {
+    public step(
+        deltaMs: number,
+        snapshot:
+            CombatPresentationSnapshot =
+                this.encounterEngine
+                    .getCombatPresentationSnapshot(),
+    ): void {
         // Progress должен двигаться плавно,
         // поэтому не привязан к 200 ms lamp polling.
-        this.syncActivityProgress();
+        this.syncActivityProgress(
+            snapshot,
+        );
 
         this.elapsedMs += deltaMs;
 
@@ -59,12 +67,24 @@ export default class BridgeOfficerStationsController {
 
         this.elapsedMs = 0;
 
-        this.syncStationStatus();
+        this.syncStationStatus(
+            snapshot,
+        );
     }
 
-    public sync(): void {
-        this.syncStationStatus();
-        this.syncActivityProgress();
+    public sync(
+        snapshot:
+            CombatPresentationSnapshot =
+                this.encounterEngine
+                    .getCombatPresentationSnapshot(),
+    ): void {
+        this.syncStationStatus(
+            snapshot,
+        );
+
+        this.syncActivityProgress(
+            snapshot,
+        );
     }
 
     public destroy(): void {
@@ -75,24 +95,38 @@ export default class BridgeOfficerStationsController {
 
     // #region Synchronization
 
-    private syncStationStatus(): void {
-        const availabilityStates = this.encounterEngine.getOfficerAvailabilityStates();
+    private syncStationStatus(
+        snapshot:
+            CombatPresentationSnapshot,
+    ): void {
+        const availabilityStates =
+            snapshot.player
+                .officerAvailability;
 
         this.eventBus.emit(
             BRIDGE_EVENT.OFFICER_STATION_INDICATORS_UPDATED,
 
-            this.createIndicatorStates(availabilityStates),
+            this.createIndicatorStates(
+                availabilityStates,
+            ),
         );
 
         this.eventBus.emit(
             BRIDGE_EVENT.OFFICER_COMBAT_HINTS_UPDATED,
 
-            this.createCombatHintStates(availabilityStates),
+            this.createCombatHintStates(
+                snapshot,
+                availabilityStates,
+            ),
         );
     }
 
     private createCombatHintStates(
-        availabilityStates: OfficerAvailabilityStates,
+        snapshot:
+            CombatPresentationSnapshot,
+
+        availabilityStates:
+            OfficerAvailabilityStates,
     ): BridgeOfficerCombatHintsUpdatedPayload {
         const hintStates = {} as BridgeOfficerCombatHintsUpdatedPayload;
 
@@ -100,11 +134,14 @@ export default class BridgeOfficerStationsController {
             hintStates[role] = [];
         }
 
-        const hasActiveEnemy = this.encounterEngine
-            .getEnemyShipTelemetrySnapshots()
-            .some((enemy) => {
-                return enemy.hull.current > 0;
-            });
+        const hasActiveEnemy =
+            snapshot.enemyShips
+                .some((enemy) => {
+                    return (
+                        enemy.hull.current >
+                        0
+                    );
+                });
 
         if (!hasActiveEnemy) {
             return hintStates;
@@ -115,21 +152,29 @@ export default class BridgeOfficerStationsController {
                 continue;
             }
 
-            hintStates[role] = this.combatActionHintMapper.map(
-                this.encounterEngine.getAvailableCommands(role),
-            );
+            hintStates[role] =
+                this.combatActionHintMapper
+                    .map(
+                        snapshot.commandsByRole[
+                            role
+                        ],
+                    );
         }
 
         return hintStates;
     }
 
-    private syncActivityProgress(): void {
-        const tasks = this.encounterEngine.getOfficerTasks();
-
+    private syncActivityProgress(
+        snapshot:
+            CombatPresentationSnapshot,
+    ): void {
         this.eventBus.emit(
             BRIDGE_EVENT.OFFICER_ACTIVITY_PROGRESS_UPDATED,
 
-            this.createActivityProgressStates(tasks),
+            this.createActivityProgressStates(
+                snapshot.player
+                    .officerTasks,
+            ),
         );
     }
 

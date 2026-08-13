@@ -12,9 +12,6 @@ import {
     OFFICER_COMMAND_TARGET_KIND,
     type OfficerCommandDef,
 } from '../../model/command';
-import {
-    ENCOUNTER_EVENT,
-} from '../../model/event';
 import type {
     OfficerCommandHandler,
 } from '../../model/officer_command_handler';
@@ -97,19 +94,8 @@ export const engineerDeployShieldCommandHandler = {
     execute(context) {
         // Resource is committed at task start.
         // Cancel/interruption does not refund it.
-        const defenseCapacitor =
-            context.stateStore
-                .spendDefenseCapacitorCharge();
-
-        context.emit({
-            type:
-                ENCOUNTER_EVENT
-                    .PLAYER_DEFENSE_CAPACITOR_CHARGE_SPENT,
-
-            defenseCapacitor: {
-                ...defenseCapacitor,
-            },
-        });
+        context.stateStore
+            .spendDefenseCapacitorCharge();
 
         context.startOfficerTask(
             createEngineerDeployShieldTask(),

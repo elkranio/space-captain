@@ -14,7 +14,6 @@ import {
     type WeaponsPointDefenseCommandId,
     type OfficerCommandDef,
 } from '../../model/command';
-import { ENCOUNTER_EVENT } from '../../model/event';
 import type { OfficerCommandHandler } from '../../model/officer_command_handler';
 import { createWeaponsPointDefenseTask } from '../../officer_tasks/create_officer_task_draft';
 import { requireThreatTargetId } from './command_handler_helpers';
@@ -123,19 +122,8 @@ function createWeaponsPointDefenseCommandHandler(
         execute(context, input) {
             const threatId = requireThreatTargetId(input);
 
-            const defenseCapacitor =
-                context.stateStore
-                    .spendDefenseCapacitorCharge();
-
-            context.emit({
-                type:
-                    ENCOUNTER_EVENT
-                        .PLAYER_DEFENSE_CAPACITOR_CHARGE_SPENT,
-
-                defenseCapacitor: {
-                    ...defenseCapacitor,
-                },
-            });
+            context.stateStore
+                .spendDefenseCapacitorCharge();
 
             context.startOfficerTask(createWeaponsPointDefenseTask(commandId, threatId, pointDefenseBeamBand));
         },

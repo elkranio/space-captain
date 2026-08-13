@@ -103,6 +103,22 @@ export default class BridgeEncounterEngineEventHandler {
             BRIDGE_EVENT.PLAYER_SHIELD_UPDATED,
             null,
         );
+
+        this.eventBus.emit(
+            BRIDGE_EVENT.ENEMY_SHIELDS_UPDATED,
+            [],
+        );
+
+        this.eventBus.emit(
+            BRIDGE_EVENT
+                .CAPTAIN_COMBAT_CONTEXT_UPDATED,
+            {
+                incomingMissiles: [],
+                incomingLasers: [],
+                incomingStickyMines: [],
+                activeSpamChannels: [],
+            },
+        );
     }
 
     // #endregion
@@ -176,10 +192,6 @@ export default class BridgeEncounterEngineEventHandler {
                     targetId: event.targetId,
                 });
                 return;
-
-            case ENCOUNTER_EVENT.PLAYER_DEFENSE_CAPACITOR_CHARGE_SPENT:
-                return;
-
 
             case ENCOUNTER_EVENT
                 .PLAYER_SHIELD_DEPLOYED:

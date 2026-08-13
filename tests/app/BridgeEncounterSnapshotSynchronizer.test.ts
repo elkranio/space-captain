@@ -486,6 +486,8 @@ function createEncounterEngine(): EncounterEngine {
 
                         weapons: [],
 
+                        officerTasks: [],
+
                         officerAvailability: {
                             science:
                                 'available',

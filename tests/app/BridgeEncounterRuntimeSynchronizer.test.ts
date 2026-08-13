@@ -165,59 +165,6 @@ describe(
         );
 
         it(
-            'leaves defense-capacitor persistence to the frame snapshot',
-            () => {
-                const runtime =
-                    new GameRuntime();
-
-                const synchronizer =
-                    new BridgeEncounterRuntimeSynchronizer(
-                        runtime,
-                    );
-
-                const capacitor =
-                    runtime
-                        .getCurrentRun()
-                        .player.ship
-                        .defenseCapacitor;
-
-                const initialCharges =
-                    capacitor.charges;
-
-                if (initialCharges <= 0) {
-                    throw new Error(
-                        'Expected charged player defense capacitor',
-                    );
-                }
-
-                synchronizer.synchronize({
-                    type:
-                        ENCOUNTER_EVENT
-                            .PLAYER_DEFENSE_CAPACITOR_CHARGE_SPENT,
-
-                    defenseCapacitor: {
-                        ...capacitor,
-
-                        charges:
-                            initialCharges - 1,
-
-                        rechargeElapsedMs: 0,
-                    },
-                });
-
-                expect(
-                    runtime
-                        .getCurrentRun()
-                        .player.ship
-                        .defenseCapacitor
-                        .charges,
-                ).toBe(
-                    initialCharges,
-                );
-            },
-        );
-
-        it(
             'rejects an invalid incoming mine before mutating persistent hull',
             () => {
                 const runtime =

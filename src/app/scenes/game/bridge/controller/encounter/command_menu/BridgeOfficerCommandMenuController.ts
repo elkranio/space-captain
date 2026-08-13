@@ -3,7 +3,6 @@
 import type { OfficerRole } from '../../../../../../../engine/defs/officer';
 import type EncounterEngine from '../../../../../../../engine/encounter/EncounterEngine';
 import type { AvailableOfficerCommand } from '../../../../../../../engine/encounter/model/command';
-import type { OfficerTaskState } from '../../../../../../../engine/encounter/model/officer_task';
 import {
     BRIDGE_EVENT,
     type BridgeOfficerCommandMenuGroupPayload,
@@ -19,28 +18,22 @@ export default class BridgeOfficerCommandMenuController {
     // #region Public API
 
     public open(role: OfficerRole): void {
-        const activeTask = this.findTaskByRole(role);
+        // Engine command availability already returns []
+        // for a role with an active officer task.
+        // Menu must not duplicate that domain rule.
+        const commands =
+            this.encounterEngine
+                .getAvailableCommands(
+                    role,
+                );
 
         this.eventBus.emit(BRIDGE_EVENT.OFFICER_COMMAND_MENU_UPDATED, {
             role,
 
-            // Busy officer tasks are presented directly on the station.
-            // Legacy context menu no longer owns task cancellation.
-            groups: activeTask
-                ? []
-                : this.createCommandGroups(
-                      this.encounterEngine.getAvailableCommands(role),
-                  ),
-        });
-    }
-
-    // #endregion
-
-    // #region Active task state
-
-    private findTaskByRole(role: OfficerRole): OfficerTaskState | undefined {
-        return this.encounterEngine.getOfficerTasks().find((task) => {
-            return task.role === role;
+            groups:
+                this.createCommandGroups(
+                    commands,
+                ),
         });
     }
 

@@ -193,6 +193,24 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
                     .PLAYER_SHIELD_UPDATED,
                 null,
             ],
+
+            [
+                BRIDGE_EVENT
+                    .ENEMY_SHIELDS_UPDATED,
+                [],
+            ],
+
+            [
+                BRIDGE_EVENT
+                    .CAPTAIN_COMBAT_CONTEXT_UPDATED,
+
+                {
+                    incomingMissiles: [],
+                    incomingLasers: [],
+                    incomingStickyMines: [],
+                    activeSpamChannels: [],
+                },
+            ],
         ]);
     });
 
@@ -448,97 +466,6 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
             ],
         ]);
     });
-
-    it('keeps defense-capacitor persistence out of combat event handling', () => {
-        const runtime = new GameRuntime();
-
-        const emit = vi.fn();
-
-        const setEncounterInteractive = vi.fn();
-
-        const eventBus = {
-            emit,
-        } as unknown as BridgeEventBus;
-
-        const handler = new BridgeEncounterEngineEventHandler(eventBus, setEncounterInteractive, runtime);
-
-        handler.handle([
-            {
-                type:
-                    ENCOUNTER_EVENT
-                        .PLAYER_DEFENSE_CAPACITOR_CHARGE_SPENT,
-
-                defenseCapacitor: {
-                    ...runtime
-                        .getCurrentRun()
-                        .player
-                        .ship
-                        .defenseCapacitor,
-
-                    charges: 3,
-                    rechargeElapsedMs: 0,
-                },
-            },
-
-            {
-                type: ENCOUNTER_EVENT.OFFICER_TASK_STARTED,
-
-                task: {
-                    id: 'task_1',
-
-                    kind: OFFICER_TASK_KIND.WEAPONS_POINT_DEFENSE,
-                    role: OFFICER_ROLE.WEAPONS,
-
-                    sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_RED_BEAM,
-
-                    threatId: 'projectile_test_00',
-
-                    pointDefenseBeamBand: POINT_DEFENSE_BEAM_BAND.RED,
-
-                    label: 'PD AIM',
-                    showProgress: true,
-
-                    durationMs: 3000,
-                    elapsedMs: 0,
-
-                    canBeCancelledByPlayer: true,
-                    canBeInterruptedByDamage: true,
-                },
-            },
-        ]);
-
-        // DEF persistence belongs to CombatPresentationSnapshot.
-        // This handler only forwards presentation/lifecycle events,
-        // so the synthetic spent-charge event must not mutate runtime.
-        expect(
-            runtime
-                .getCurrentRun()
-                .player
-                .ship
-                .defenseCapacitor,
-        ).toMatchObject({
-            charges: 4,
-            rechargeElapsedMs: 0,
-        });
-        expect(emit.mock.calls).toEqual([
-            [
-                BRIDGE_EVENT.OFFICER_ACTIVITY_STARTED,
-
-                {
-                    role: OFFICER_ROLE.WEAPONS,
-
-                    taskId: 'task_1',
-                    label: 'PD AIM',
-
-                    canBeCancelledByPlayer: true,
-                },
-            ],
-        ]);
-
-        expect(setEncounterInteractive).not.toHaveBeenCalled();
-    });
-
-
 
     it(
         'forwards absorbed laser outcome to beam presentation',
