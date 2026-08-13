@@ -178,7 +178,7 @@ const CONTENT_COLLECTIONS:
                     .POWER_CORES,
 
             label:
-                'Ship Modules / Power Cores',
+                'Power Cores',
 
             dataPath:
                 'src/engine/content/data/' +
@@ -278,7 +278,7 @@ const CONTENT_COLLECTIONS:
                     .SHIP_DRIVES,
 
             label:
-                'Ship Modules / Drives',
+                'Drives',
 
             dataPath:
                 'src/engine/content/data/' +

@@ -3,6 +3,12 @@ import './style.css';
 const CONTENT_ID_PATTERN =
     /^[a-z][a-z0-9_]*$/;
 
+const SHIP_MODULE_COLLECTION_IDS =
+    new Set<string>([
+        'power_cores',
+        'ship_drives',
+    ]);
+
 type JsonSchema = {
     type?: string;
     title?: string;
@@ -521,9 +527,60 @@ function render(): void {
 function renderCollectionList(): void {
     collectionList.replaceChildren();
 
+    renderCollectionGroup(
+        'General',
+        collectionSummaries
+            .filter((summary) => {
+                return (
+                    !SHIP_MODULE_COLLECTION_IDS
+                        .has(
+                            summary.id,
+                        )
+                );
+            }),
+    );
+
+    renderCollectionGroup(
+        'Ship Modules',
+        collectionSummaries
+            .filter((summary) => {
+                return (
+                    SHIP_MODULE_COLLECTION_IDS
+                        .has(
+                            summary.id,
+                        )
+                );
+            }),
+    );
+}
+
+function renderCollectionGroup(
+    label: string,
+    summaries:
+        ContentCollectionSummary[],
+): void {
+    if (summaries.length === 0) {
+        return;
+    }
+
+    const heading =
+        document.createElement(
+            'div',
+        );
+
+    heading.className =
+        'collection-group-heading';
+
+    heading.textContent =
+        label;
+
+    collectionList.appendChild(
+        heading,
+    );
+
     for (
         const summary of
-        collectionSummaries
+        summaries
     ) {
         const button =
             document.createElement(

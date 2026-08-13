@@ -82,7 +82,7 @@ describe(
                                 .POWER_CORES,
 
                         label:
-                            'Ship Modules / Power Cores',
+                            'Power Cores',
 
                         canAdd: true,
                         canDelete: true,
@@ -137,7 +137,7 @@ describe(
                                 .SHIP_DRIVES,
 
                         label:
-                            'Ship Modules / Drives',
+                            'Drives',
 
                         canAdd: true,
                         canDelete: true,
