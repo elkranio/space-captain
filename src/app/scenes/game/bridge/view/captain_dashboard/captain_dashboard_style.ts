@@ -1,0 +1,39 @@
+// Shared visual tokens for the captain dashboard.
+//
+// This is intentionally not a geometry/layout system.
+// Coordinates and sizes stay beside each concrete view while they are
+// still evolving. Only repeated visual semantics live here.
+export const CAPTAIN_DASHBOARD_STYLE = {
+    row: {
+        backgroundColor: 0x0e1620,
+        backgroundAlpha: 0.94,
+
+        borderColor: 0x26394c,
+        borderThickness: 1,
+
+        iconBackgroundColor: 0x152332,
+        iconBorderColor: 0x45627f,
+    },
+
+    action: {
+        activeBackgroundColor: 0x193147,
+        activeBorderColor: 0x7aa0c4,
+
+        disabledBackgroundColor: 0x101923,
+        disabledBorderColor: 0x26394c,
+        disabledTextColor: 0x536778,
+    },
+
+    statusCell: {
+        backgroundColor: 0x101923,
+        backgroundAlpha: 0.96,
+
+        borderColor: 0x31465b,
+        borderThickness: 1,
+    },
+
+    defenseRechargeBar: {
+        trackColor: 0x26384a,
+        fillColor: 0xb69a45,
+    },
+} as const;

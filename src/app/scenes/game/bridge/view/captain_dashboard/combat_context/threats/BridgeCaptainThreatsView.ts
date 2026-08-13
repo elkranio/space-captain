@@ -5,6 +5,12 @@ import {
 } from '../../../../../../../theme/font';
 import type BridgeScene from '../../../../BridgeScene';
 import {
+    CAPTAIN_DASHBOARD_STYLE,
+} from '../../captain_dashboard_style';
+import {
+    formatCaptainDashboardCountdown,
+} from '../../captain_dashboard_format';
+import {
     BRIDGE_EVENT,
     type BridgeCaptainIncomingLaserPayload,
     type BridgeCaptainIncomingMissilePayload,
@@ -37,10 +43,6 @@ const SELECTOR = {
 
     closeSize: 34,
     closeMargin: 8,
-
-    disabledBackgroundColor: 0x101923,
-    disabledBorderColor: 0x26394c,
-    disabledTextColor: 0x536778,
 
     redBackgroundColor: 0x2d1818,
     redBorderColor: 0xd86e61,
@@ -248,7 +250,7 @@ export default class BridgeCaptainThreatsView {
             this.closeButton,
             true,
             FONT_COLOR.SECONDARY,
-            0x152332,
+            CAPTAIN_DASHBOARD_STYLE.row.iconBackgroundColor,
         );
 
         this.selectorRoot.add([
@@ -728,7 +730,7 @@ export default class BridgeCaptainThreatsView {
     ): void {
         this.selectorContextText
             .setText(
-                formatTimer(
+                formatCaptainDashboardCountdown(
                     missile.timeToImpactMs,
                 ) +
                     '  UNKNOWN MISSILE',
@@ -818,15 +820,13 @@ export default class BridgeCaptainThreatsView {
                             width,
                             height,
 
-                            SELECTOR
-                                .disabledBackgroundColor,
+                            CAPTAIN_DASHBOARD_STYLE.action.disabledBackgroundColor,
                             1,
                         )
                         .setOrigin(0, 0)
                         .setStrokeStyle(
                             1,
-                            SELECTOR
-                                .disabledBorderColor,
+                            CAPTAIN_DASHBOARD_STYLE.action.disabledBorderColor,
                         ),
 
                 label:
@@ -849,8 +849,7 @@ export default class BridgeCaptainThreatsView {
                             0.5,
                         )
                         .setTint(
-                            SELECTOR
-                                .disabledTextColor,
+                            CAPTAIN_DASHBOARD_STYLE.action.disabledTextColor,
                         ),
             };
 
@@ -882,19 +881,16 @@ export default class BridgeCaptainThreatsView {
         if (!isActive) {
             button.background
                 .setFillStyle(
-                    SELECTOR
-                        .disabledBackgroundColor,
+                    CAPTAIN_DASHBOARD_STYLE.action.disabledBackgroundColor,
                     1,
                 )
                 .setStrokeStyle(
                     1,
-                    SELECTOR
-                        .disabledBorderColor,
+                    CAPTAIN_DASHBOARD_STYLE.action.disabledBorderColor,
                 );
 
             button.label.setTint(
-                SELECTOR
-                    .disabledTextColor,
+                CAPTAIN_DASHBOARD_STYLE.action.disabledTextColor,
             );
 
             return;
@@ -971,14 +967,3 @@ export default class BridgeCaptainThreatsView {
     }
 }
 
-function formatTimer(
-    timeToImpactMs: number,
-): string {
-    return (
-        Math.max(
-            0,
-            timeToImpactMs,
-        ) /
-        1000
-    ).toFixed(1) + 's';
-}

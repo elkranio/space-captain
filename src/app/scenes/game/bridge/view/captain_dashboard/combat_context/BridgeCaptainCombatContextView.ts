@@ -5,6 +5,9 @@ import {
 } from '../../../../../../theme/font';
 import type BridgeScene from '../../../BridgeScene';
 import {
+    CAPTAIN_DASHBOARD_STYLE,
+} from '../captain_dashboard_style';
+import {
     BRIDGE_EVENT,
     type BridgeCaptainCombatContextUpdatedPayload,
 } from '../../../events/bridge_event';
@@ -29,12 +32,6 @@ const STATUS_HEIGHT = 38;
 const THREATS_HEIGHT = 144;
 
 const STATUS_CELL = {
-    backgroundColor: 0x101923,
-    backgroundAlpha: 0.96,
-
-    borderColor: 0x31465b,
-    borderThickness: 1,
-
     textPaddingX: 10,
     textY: 8,
 } as const;
@@ -43,9 +40,6 @@ const DEF_BAR = {
     sidePadding: 10,
     bottomPadding: 6,
     height: 4,
-
-    trackColor: 0x26384a,
-    fillColor: 0xb69a45,
 } as const;
 
 // Правая contextual часть captain dashboard.
@@ -195,7 +189,7 @@ export default class BridgeCaptainCombatContextView {
                     this.defenseBarWidth,
                     DEF_BAR.height,
 
-                    DEF_BAR.trackColor,
+                    CAPTAIN_DASHBOARD_STYLE.defenseRechargeBar.trackColor,
                     1,
                 )
                 .setOrigin(0, 0)
@@ -213,7 +207,7 @@ export default class BridgeCaptainCombatContextView {
                     this.defenseBarWidth,
                     DEF_BAR.height,
 
-                    DEF_BAR.fillColor,
+                    CAPTAIN_DASHBOARD_STYLE.defenseRechargeBar.fillColor,
                     1,
                 )
                 .setOrigin(0, 0)
@@ -301,19 +295,15 @@ export default class BridgeCaptainCombatContextView {
                     width,
                     height,
 
-                    STATUS_CELL
-                        .backgroundColor,
+                    CAPTAIN_DASHBOARD_STYLE.statusCell.backgroundColor,
 
-                    STATUS_CELL
-                        .backgroundAlpha,
+                    CAPTAIN_DASHBOARD_STYLE.statusCell.backgroundAlpha,
                 )
                 .setOrigin(0, 0)
                 .setStrokeStyle(
-                    STATUS_CELL
-                        .borderThickness,
+                    CAPTAIN_DASHBOARD_STYLE.statusCell.borderThickness,
 
-                    STATUS_CELL
-                        .borderColor,
+                    CAPTAIN_DASHBOARD_STYLE.statusCell.borderColor,
                 );
 
         this.root.add(

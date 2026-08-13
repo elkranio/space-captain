@@ -4,6 +4,12 @@ import {
     FONT_SIZE,
 } from '../../../../../../../theme/font';
 import type BridgeScene from '../../../../BridgeScene';
+import {
+    CAPTAIN_DASHBOARD_STYLE,
+} from '../../captain_dashboard_style';
+import {
+    formatCaptainDashboardCountdown,
+} from '../../captain_dashboard_format';
 import type {
     BridgeCaptainSpamChannelPayload,
     BridgeOfficerCommandSelectedPayload,
@@ -11,12 +17,6 @@ import type {
 
 const ROW = {
     verticalGap: 1,
-
-    backgroundColor: 0x0e1620,
-    backgroundAlpha: 0.94,
-
-    borderColor: 0x26394c,
-    borderThickness: 1,
 
     timerX: 10,
     timerY: 9,
@@ -26,9 +26,6 @@ const ROW = {
     iconWidth: 42,
     iconHeight: 27,
 
-    iconBackgroundColor: 0x152332,
-    iconBorderColor: 0x45627f,
-
     labelX: 132,
     labelY: 9,
 
@@ -37,14 +34,6 @@ const ROW = {
     buttonMarginRight: 6,
     buttonY: 4,
 
-    disabledBackgroundColor: 0x101923,
-    disabledBorderColor: 0x26394c,
-    disabledTextColor: 0x536778,
-
-    actionActiveBackgroundColor:
-        0x193147,
-    actionActiveBorderColor:
-        0x7aa0c4,
 } as const;
 
 type SpamThreatRowCallbacks = {
@@ -108,13 +97,13 @@ export default class BridgeCaptainSpamThreatRowView {
                     width,
                     visibleHeight,
 
-                    ROW.backgroundColor,
-                    ROW.backgroundAlpha,
+                    CAPTAIN_DASHBOARD_STYLE.row.backgroundColor,
+                    CAPTAIN_DASHBOARD_STYLE.row.backgroundAlpha,
                 )
                 .setOrigin(0, 0)
                 .setStrokeStyle(
-                    ROW.borderThickness,
-                    ROW.borderColor,
+                    CAPTAIN_DASHBOARD_STYLE.row.borderThickness,
+                    CAPTAIN_DASHBOARD_STYLE.row.borderColor,
                 );
 
         this.timerText =
@@ -141,13 +130,13 @@ export default class BridgeCaptainSpamThreatRowView {
                     ROW.iconWidth,
                     ROW.iconHeight,
 
-                    ROW.iconBackgroundColor,
+                    CAPTAIN_DASHBOARD_STYLE.row.iconBackgroundColor,
                     1,
                 )
                 .setOrigin(0, 0)
                 .setStrokeStyle(
                     1,
-                    ROW.iconBorderColor,
+                    CAPTAIN_DASHBOARD_STYLE.row.iconBorderColor,
                 );
 
         const iconLabel =
@@ -202,13 +191,13 @@ export default class BridgeCaptainSpamThreatRowView {
                     ROW.buttonWidth,
                     ROW.buttonHeight,
 
-                    ROW.disabledBackgroundColor,
+                    CAPTAIN_DASHBOARD_STYLE.action.disabledBackgroundColor,
                     1,
                 )
                 .setOrigin(0, 0)
                 .setStrokeStyle(
                     1,
-                    ROW.disabledBorderColor,
+                    CAPTAIN_DASHBOARD_STYLE.action.disabledBorderColor,
                 );
 
         this.scienceLabel =
@@ -231,7 +220,7 @@ export default class BridgeCaptainSpamThreatRowView {
                     0.5,
                 )
                 .setTint(
-                    ROW.disabledTextColor,
+                    CAPTAIN_DASHBOARD_STYLE.action.disabledTextColor,
                 );
 
         this.scienceButton.on(
@@ -271,7 +260,7 @@ export default class BridgeCaptainSpamThreatRowView {
             BridgeCaptainSpamChannelPayload,
     ): void {
         this.timerText.setText(
-            formatTimer(
+            formatCaptainDashboardCountdown(
                 channel.remainingDurationMs,
             ),
         );
@@ -309,17 +298,17 @@ export default class BridgeCaptainSpamThreatRowView {
         if (!command) {
             this.scienceButton
                 .setFillStyle(
-                    ROW.disabledBackgroundColor,
+                    CAPTAIN_DASHBOARD_STYLE.action.disabledBackgroundColor,
                     1,
                 )
                 .setStrokeStyle(
                     1,
-                    ROW.disabledBorderColor,
+                    CAPTAIN_DASHBOARD_STYLE.action.disabledBorderColor,
                 );
 
             this.scienceLabel
                 .setTint(
-                    ROW.disabledTextColor,
+                    CAPTAIN_DASHBOARD_STYLE.action.disabledTextColor,
                 );
 
             return;
@@ -335,12 +324,12 @@ export default class BridgeCaptainSpamThreatRowView {
 
         this.scienceButton
             .setFillStyle(
-                ROW.actionActiveBackgroundColor,
+                CAPTAIN_DASHBOARD_STYLE.action.activeBackgroundColor,
                 1,
             )
             .setStrokeStyle(
                 1,
-                ROW.actionActiveBorderColor,
+                CAPTAIN_DASHBOARD_STYLE.action.activeBorderColor,
             )
             .setInteractive({
                 useHandCursor: true,
@@ -357,14 +346,3 @@ export default class BridgeCaptainSpamThreatRowView {
     }
 }
 
-function formatTimer(
-    remainingDurationMs: number,
-): string {
-    return (
-        Math.max(
-            0,
-            remainingDurationMs,
-        ) /
-        1000
-    ).toFixed(1) + 's';
-}

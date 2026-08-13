@@ -5,18 +5,15 @@ import {
 } from '../../../../../../../theme/font';
 import type BridgeScene from '../../../../BridgeScene';
 import {
+    CAPTAIN_DASHBOARD_STYLE,
+} from '../../captain_dashboard_style';
+import {
     BRIDGE_EVENT,
     type BridgePlayerShipDashboardUpdatedPayload,
 } from '../../../../events/bridge_event';
 import type BridgeEventBus from '../../../../events/BridgeEventBus';
 
 const CELL = {
-    backgroundColor: 0x101923,
-    backgroundAlpha: 0.96,
-
-    borderColor: 0x31465b,
-    borderThickness: 1,
-
     textPaddingX: 10,
     textY: 8,
 } as const;
@@ -25,9 +22,6 @@ const BAR = {
     sidePadding: 10,
     bottomPadding: 6,
     height: 4,
-
-    trackColor: 0x26384a,
-    fillColor: 0xb69a45,
 } as const;
 
 const WIDTH_RATIO = {
@@ -160,7 +154,7 @@ export default class BridgePlayerShipStatusStripView {
                     this.defenseBarWidth,
                     BAR.height,
 
-                    BAR.trackColor,
+                    CAPTAIN_DASHBOARD_STYLE.defenseRechargeBar.trackColor,
                     1,
                 )
                 .setOrigin(0, 0)
@@ -176,7 +170,7 @@ export default class BridgePlayerShipStatusStripView {
                     this.defenseBarWidth,
                     BAR.height,
 
-                    BAR.fillColor,
+                    CAPTAIN_DASHBOARD_STYLE.defenseRechargeBar.fillColor,
                     1,
                 )
                 .setOrigin(0, 0)
@@ -240,13 +234,13 @@ export default class BridgePlayerShipStatusStripView {
                     width,
                     height,
 
-                    CELL.backgroundColor,
-                    CELL.backgroundAlpha,
+                    CAPTAIN_DASHBOARD_STYLE.statusCell.backgroundColor,
+                    CAPTAIN_DASHBOARD_STYLE.statusCell.backgroundAlpha,
                 )
                 .setOrigin(0, 0)
                 .setStrokeStyle(
-                    CELL.borderThickness,
-                    CELL.borderColor,
+                    CAPTAIN_DASHBOARD_STYLE.statusCell.borderThickness,
+                    CAPTAIN_DASHBOARD_STYLE.statusCell.borderColor,
                 );
 
         this.root.add(

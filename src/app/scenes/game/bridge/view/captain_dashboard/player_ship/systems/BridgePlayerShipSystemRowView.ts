@@ -5,6 +5,9 @@ import {
 } from '../../../../../../../theme/font';
 import type BridgeScene from '../../../../BridgeScene';
 import {
+    CAPTAIN_DASHBOARD_STYLE,
+} from '../../captain_dashboard_style';
+import {
     BRIDGE_PLAYER_SYSTEM_ACTION_STATE,
     type BridgePlayerSystemActionState,
 } from '../../../../events/bridge_event';
@@ -18,18 +21,9 @@ export type BridgePlayerShipSystemRowLayout = {
 const ROW = {
     verticalGap: 1,
 
-    backgroundColor: 0x0e1620,
-    backgroundAlpha: 0.94,
-
-    borderColor: 0x26394c,
-    borderThickness: 1,
-
     iconX: 6,
     iconY: 4,
     iconSize: 28,
-
-    iconBackgroundColor: 0x152332,
-    iconBorderColor: 0x45627f,
 
     progressHeight: 3,
     progressBackgroundColor: 0x252a2f,
@@ -42,18 +36,6 @@ const ROW = {
     roleButtonHeight: 28,
     roleButtonMarginRight: 6,
     roleButtonY: 4,
-
-    actionActiveBackgroundColor:
-        0x193147,
-    actionActiveBorderColor:
-        0x7aa0c4,
-
-    actionDisabledBackgroundColor:
-        0x101923,
-    actionDisabledBorderColor:
-        0x26394c,
-    actionDisabledTextColor:
-        0x536778,
 
 } as const;
 
@@ -116,13 +98,13 @@ export default class BridgePlayerShipSystemRowView {
                     width,
                     visibleHeight,
 
-                    ROW.backgroundColor,
-                    ROW.backgroundAlpha,
+                    CAPTAIN_DASHBOARD_STYLE.row.backgroundColor,
+                    CAPTAIN_DASHBOARD_STYLE.row.backgroundAlpha,
                 )
                 .setOrigin(0, 0)
                 .setStrokeStyle(
-                    ROW.borderThickness,
-                    ROW.borderColor,
+                    CAPTAIN_DASHBOARD_STYLE.row.borderThickness,
+                    CAPTAIN_DASHBOARD_STYLE.row.borderColor,
                 );
 
         const iconBackground =
@@ -134,13 +116,13 @@ export default class BridgePlayerShipSystemRowView {
                     ROW.iconSize,
                     ROW.iconSize,
 
-                    ROW.iconBackgroundColor,
+                    CAPTAIN_DASHBOARD_STYLE.row.iconBackgroundColor,
                     1,
                 )
                 .setOrigin(0, 0)
                 .setStrokeStyle(
                     1,
-                    ROW.iconBorderColor,
+                    CAPTAIN_DASHBOARD_STYLE.row.iconBorderColor,
                 );
 
         const iconLabel =
@@ -227,13 +209,13 @@ export default class BridgePlayerShipSystemRowView {
                     ROW.roleButtonWidth,
                     ROW.roleButtonHeight,
 
-                    ROW.actionDisabledBackgroundColor,
+                    CAPTAIN_DASHBOARD_STYLE.action.disabledBackgroundColor,
                     1,
                 )
                 .setOrigin(0, 0)
                 .setStrokeStyle(
                     1,
-                    ROW.actionDisabledBorderColor,
+                    CAPTAIN_DASHBOARD_STYLE.action.disabledBorderColor,
                 );
 
         this.roleLabel =
@@ -396,12 +378,12 @@ export default class BridgePlayerShipSystemRowView {
                 .ACTIVE:
                 this.roleButton
                     .setFillStyle(
-                        ROW.actionActiveBackgroundColor,
+                        CAPTAIN_DASHBOARD_STYLE.action.activeBackgroundColor,
                         1,
                     )
                     .setStrokeStyle(
                         1,
-                        ROW.actionActiveBorderColor,
+                        CAPTAIN_DASHBOARD_STYLE.action.activeBorderColor,
                     )
                     .setInteractive({
                         useHandCursor: true,
@@ -422,17 +404,17 @@ export default class BridgePlayerShipSystemRowView {
                 .ENGAGED_CURRENT_WORK:
                 this.roleButton
                     .setFillStyle(
-                        ROW.actionDisabledBackgroundColor,
+                        CAPTAIN_DASHBOARD_STYLE.action.disabledBackgroundColor,
                         1,
                     )
                     .setStrokeStyle(
                         1,
-                        ROW.actionDisabledBorderColor,
+                        CAPTAIN_DASHBOARD_STYLE.action.disabledBorderColor,
                     );
 
                 this.roleLabel
                     .setTint(
-                        ROW.actionDisabledTextColor,
+                        CAPTAIN_DASHBOARD_STYLE.action.disabledTextColor,
                     );
 
                 return;
