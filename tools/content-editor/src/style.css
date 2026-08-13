@@ -8,8 +8,8 @@
         ui-sans-serif,
         system-ui,
         sans-serif;
-    color: #d8e0ea;
-    background: #10151d;
+    color: #26313d;
+    background: #eef1f4;
 }
 
 body {
@@ -19,8 +19,8 @@ body {
     background:
         linear-gradient(
             180deg,
-            #151c27 0,
-            #0d1219 100%
+            #f5f6f8 0,
+            #eceff3 100%
         );
 }
 
@@ -43,12 +43,12 @@ button {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    border-bottom: 1px solid #2b3747;
-    background: #131a24;
+    border-bottom: 1px solid #cfd6de;
+    background: #ffffff;
 }
 
 .eyebrow {
-    color: #77879b;
+    color: #718096;
     font-size: 11px;
     font-weight: 700;
     letter-spacing: 0.16em;
@@ -71,29 +71,29 @@ h1 {
 }
 
 .save-status {
-    color: #8695a7;
+    color: #687789;
     font-size: 13px;
 }
 
 .save-status.is-error {
-    color: #e58b8b;
+    color: #b84848;
 }
 
 .primary-button {
     min-width: 88px;
     padding: 9px 16px;
-    border: 1px solid #5d7590;
+    border: 1px solid #7f98b5;
     border-radius: 5px;
-    background: #2d4259;
+    background: #dce8f4;
     cursor: pointer;
 }
 
 .primary-button:hover:not(:disabled) {
-    background: #37516d;
+    background: #cedeed;
 }
 
 .primary-button:disabled {
-    opacity: 0.4;
+    opacity: 0.45;
     cursor: default;
 }
 
@@ -108,16 +108,17 @@ h1 {
 .collections-panel,
 .records-panel {
     border-right:
-        1px solid #273343;
-    background: #111821;
+        1px solid #d5dbe2;
+    background: #f8f9fb;
 }
 
 .records-panel {
-    background: #0f151d;
+    background: #f4f6f8;
 }
 
 .inspector-panel {
     padding: 30px 36px;
+    background: #ffffff;
 }
 
 .panel-heading {
@@ -126,8 +127,8 @@ h1 {
     display: flex;
     align-items: center;
     border-bottom:
-        1px solid #273343;
-    color: #728195;
+        1px solid #d5dbe2;
+    color: #758395;
     font-size: 11px;
     font-weight: 700;
     letter-spacing: 0.12em;
@@ -139,7 +140,7 @@ h1 {
     width: 100%;
     border: 0;
     border-bottom:
-        1px solid #1f2936;
+        1px solid #e1e5ea;
     background: transparent;
     text-align: left;
     cursor: pointer;
@@ -151,12 +152,12 @@ h1 {
 
 .collection-button.is-active,
 .record-button.is-active {
-    background: #1c2836;
+    background: #dfeaf5;
 }
 
 .collection-button:hover,
 .record-button:hover {
-    background: #192330;
+    background: #e8eef5;
 }
 
 .record-button {
@@ -169,14 +170,14 @@ h1 {
 }
 
 .record-label {
-    color: #d6dde7;
+    color: #2d3946;
     font-size: 13px;
     font-weight: 650;
 }
 
 .record-id {
     margin-top: 4px;
-    color: #68778a;
+    color: #788697;
     font-family:
         "Cascadia Code",
         Consolas,
@@ -188,7 +189,7 @@ h1 {
     margin-bottom: 28px;
     padding-bottom: 18px;
     border-bottom:
-        1px solid #2a3645;
+        1px solid #d9dfe6;
 }
 
 .inspector-heading h2 {
@@ -198,7 +199,7 @@ h1 {
 .inspector-heading code {
     display: block;
     margin-top: 7px;
-    color: #718094;
+    color: #748293;
     font-size: 12px;
 }
 
@@ -210,11 +211,11 @@ h1 {
     align-items: center;
     gap: 24px;
     border-bottom:
-        1px solid #202a36;
+        1px solid #e3e7ec;
 }
 
 .field-label {
-    color: #aeb9c7;
+    color: #4f5d6c;
     font-size: 13px;
 }
 
@@ -233,27 +234,31 @@ input[type="number"] {
     height: 34px;
     padding: 0 10px;
     border:
-        1px solid #39495d;
+        1px solid #b8c2cd;
     border-radius: 4px;
-    color: #e3e8ef;
-    background: #111923;
+    color: #24303c;
+    background: #ffffff;
     outline: none;
 }
 
 input[type="text"]:focus,
 input[type="number"]:focus {
-    border-color: #647f9d;
+    border-color: #6f8eaf;
+    box-shadow:
+        0 0 0 2px
+        rgba(111, 142, 175, 0.16);
 }
 
 input[type="checkbox"] {
     width: 18px;
     height: 18px;
     margin: 0;
+    accent-color: #6584a5;
 }
 
 .field-unit {
     width: 32px;
-    color: #718094;
+    color: #768495;
     font-family:
         "Cascadia Code",
         Consolas,
@@ -262,6 +267,6 @@ input[type="checkbox"] {
 }
 
 .empty-state {
-    color: #758498;
+    color: #778596;
     font-size: 14px;
 }
