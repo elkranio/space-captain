@@ -26,31 +26,31 @@ Current basic contract:
 - capacity: 4 charges
 - sequential recharge
 - one charge recharge duration: 24 s
-- Defense Turret and Shield Emitter draw from the same pool
+- Defense Turret and Shield Generator draw from the same pool
 
 A defensive consumer commits energy when its work starts. Later cancellation/interruption does not refund committed energy.
 
 Persistent presentation state is synchronized from the encounter frame snapshot; there is no separate `PLAYER_POWER_CORE_CHARGE_SPENT` event contract.
 
 Future missing contract:
-- powerCore can become BROKEN
+- Power Core can become BROKEN
 - when broken: charges → 0 and recharge progress → 0
 - no defensive consumer can draw energy while broken
 
-## Shield Emitter / Active Shield
+## Shield Generator / Active Shield
 
-Installed hardware: **Shield Emitter**.
+Installed hardware: **Shield Generator**.
 Temporary encounter object: **Active Shield**.
 
-Shield Emitter:
+Shield Generator:
 - persistent installed player system
 - ONLINE/BROKEN status
 - READY/COOLDOWN phase
 - no private charge pool
-- `ENGINEER_DEPLOY_SHIELD` requires a working/ready emitter, no existing Active Shield and available DEF charge
-- DEF charge is spent at task start
+- `ENGINEER_DEPLOY_SHIELD` requires a working/ready generator, no existing Active Shield and available Power Core charge
+- Power Core charge is spent at task start
 - current deploy task: 3000 ms
-- current basic emitter cooldown: 5000 ms
+- current basic generator cooldown: 5000 ms
 
 Active Shield:
 - encounter-local, not persistent ship state
@@ -65,28 +65,97 @@ Active Shield:
 Player/enemy shield presentation shares timing/alpha math only. Combat ownership and view lifecycle remain separate.
 
 Future:
-- breaking the emitter must immediately remove an active shield
+- breaking the Shield Generator must immediately remove an active shield
 - exact timings remain balance values, not sacred constants
 
 ## Defense Turret
 
-Defense Turret is a separate installed defensive system.
+Defense Turret is a separate installed defensive module.
 
-Current direction:
-- no private charge pool
-- consumes shared DEF
-- red/blue beam band matters against missile spectral band
+Current implementation:
+- no private charge/ammo pool
+- consumes shared Power Core
+- Weapons owns the loading/operation flow
+- has READY / LOADING / COOLDOWN physical phases
+- current code still uses red/blue beam bands against missile spectral bands
 - player installed-system broken/repair lifecycle is still incomplete
-- enemy Defense Turret is already a live independent implementation; do not delete it while changing player PD
+- enemy Defense Turret is live and must remain behaviorally equivalent where the shared missile contract applies
 
-## Missiles
+The red/blue band mechanic is **scheduled for immediate replacement** by the approved missile tracking design below.
 
-- Incoming enemy missile is its own combat projectile with its own impact timer.
-- Science can identify spectral band.
-- Weapons can respond through defense-turret beam selection.
-- Unknown missile can still be acted on; UI does not invent certainty.
-- Dashboard renders incoming missiles independently.
-- Enemy decision snapshots may resolve live missile timing/physical target, but must not bypass the Science epistemic boundary for hidden missile truth.
+## Missiles — current code vs approved next contract
+
+### Current code
+
+At reference HEAD `5f33f12374db9dfc5241e9bc300139e921e6a542`:
+
+- missile definitions are closed `RED_00` / `BLUE_00`
+- missile definition owns `spectralBand`
+- Defense Turret chooses a matching red/blue beam band
+- Science can expose missile band intel
+
+This is legacy behavior for the next refactor. Do not expand it.
+
+### Why it changes
+
+The model-level color/band contract has two design problems:
+
+1. identifying one missile effectively teaches the player how to handle every same-type missile in the launcher;
+2. Defense Turret no longer has finite private charges and instead uses regenerating Power Core energy, so guaranteed counterplay became too cheap for a weapon intended to be a serious, relatively expensive finite threat.
+
+### Approved target contract
+
+Each **launched missile instance** has its own hidden maneuver/signature pattern.
+
+The pattern is runtime projectile truth, not a permanent shared fact of the missile model.
+
+Science:
+- analyzes a specific incoming missile;
+- can acquire a tracking solution for that exact projectile;
+- does not globally reveal every missile of the same launcher/model.
+
+Defense Turret:
+- may fire at identified or unidentified missiles;
+- **identified/tracked missile → guaranteed intercept**;
+- **unidentified missile → blind intercept with a visible chance**;
+- a blind attempt is allowed; do not hard-disable the action merely because Science has not finished;
+- every committed turret attempt spends the normal Power Core cost whether it hits or misses;
+- normal turret load/cooldown/operator lifecycle still applies.
+
+Equipment progression:
+- better Defense Turrets improve blind-intercept reliability;
+- better missiles make blind interception harder as the run progresses;
+- Science remains the deterministic 100% answer, so equipment progression does not obsolete Science.
+
+Not locked yet:
+- exact probability formula;
+- exact field names (`blindInterceptChance`, missile penalty/evasion/etc.);
+- exact numerical progression;
+- probability floor/ceiling;
+- final fiction/UI wording for signature vs maneuver pattern vs tracking solution.
+
+Keep the first implementation mathematically boring. Avoid accuracy × tracking × evasion × sensor-quality formula soup unless future gameplay proves it necessary.
+
+### Presentation contract
+
+The player must understand whether an intercept is deterministic or risky.
+
+Target presentation direction:
+- tracked/identified missile clearly communicates guaranteed intercept;
+- unidentified missile action clearly communicates blind-intercept probability;
+- current red/blue color coding is temporary and should disappear from the final mechanic.
+
+Do not make UI infer probability independently. Engine/read model should provide the authoritative value/status needed for presentation.
+
+### Threat importance
+
+Missiles are intended to remain a serious threat:
+- finite resource for the firing ship;
+- relatively expensive/meaningful weapon rather than spam;
+- player can respond through Science + Defense Turret, blind turret risk, and later other defensive choices such as evade;
+- do not balance missile relevance only by inflating hull damage.
+
+The immediate implementation task is described in `MISSILE_REFACTOR_HANDOFF.md`.
 
 ## Lasers
 
@@ -130,7 +199,6 @@ Do not aggregate a salvo into one domain threat for UI convenience.
 - Player Science can purge enemy SPAM.
 - Player `SCIENCE_FIRE_SPAM` is not manually cancellable once committed; damage interruption may still stop relevant task flow per engine contract.
 - Active crew-progress modifiers are exposed through canonical `getActiveCrewProgressEffects()`.
-- Player-specific `getActivePlayerSpamChannels()` compatibility query has been removed.
 - Captain dashboard shows active hostile SPAM channels independently with real Science purge actions.
 - Enemy decision policy receives relevant SPAM effects through explicit decision context rather than reading full encounter state.
 
@@ -150,7 +218,7 @@ Presentation consumers should reuse one coherent frame rather than reconstructin
 ## Damage / interruption
 
 - Hull damage is engine-owned.
-- Weapon runners resolve physical outcomes; UI only presents them.
+- Weapon/defense runners resolve physical outcomes; UI only presents them.
 - Damage-interruptible officer tasks are interrupted by engine rules, not by view logic.
 - Do not infer a damage node/targeting system from current visual hit points.
 
@@ -161,7 +229,7 @@ Enemy crew is simulated, not a mirrored player bridge.
 - policy chooses work;
 - scheduler builds explicit decision context, validates and starts work;
 - crew-task runner owns timing/lifecycle;
-- weapon runners own physical phases;
+- weapon/defense runners own physical phases;
 - science observation/report is separate from objective combat truth.
 
 Policy does not own `EncounterState`.

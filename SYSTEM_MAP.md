@@ -15,8 +15,9 @@ Owns:
 - officer commands/tasks/availability
 - enemy behavior
 - combat actors/weapons/threats
-- power core
-- Shield Emitter / Active Shield
+- Power Core
+- Shield Generator / Active Shield
+- Defense Turret
 - snapshots/events
 
 No Phaser dependencies should leak into engine definitions.
@@ -44,7 +45,8 @@ Important children include:
 - officer task/command flow
 - `CombatRunner`
 - `PowerCoreRunner`
-- `ShieldEmitterRunner`
+- `ShieldGeneratorRunner`
+- Defense Turret runtime/runner flow
 - enemy task scheduler/crew logic
 
 Do not split `EncounterEngine` merely because it is central; split only if ownership becomes unclear.
@@ -58,8 +60,9 @@ Do not split `EncounterEngine` merely because it is central; split only if owner
 `CombatPresentationSnapshot` is a detached one-frame read model. It aggregates the combat presentation data that must agree within one frame:
 
 - player hull / drive
-- DEF presentation state
-- Shield Emitter / Active Shield
+- Power Core presentation state
+- Shield Generator / Active Shield
+- Defense Turret state where relevant
 - player weapons
 - officer availability / officer tasks
 - enemy ship telemetry/presentation
@@ -77,17 +80,54 @@ It is built on demand and is not cached as a second state.
 
 Physical combat lifecycle is divided by mechanic.
 
-Important current runners:
+Important current runners include:
 - missile
 - laser
 - sticky mine
-- spam
-- enemy defense turret
+- SPAM
+- Defense Turret
 - player weapon runners
-- power core
-- shield emitter
+- Power Core
+- Shield Generator
 
 Sticky mines are symmetrical at combat-state level: one runner owns both enemy→player and player→enemy attached mines.
+
+Do not unify specialized runners merely because they share phase/timing vocabulary.
+
+## Missile epistemic boundary
+
+The next gameplay refactor changes missile knowledge, not engine/app ownership.
+
+Target ownership:
+
+```text
+Missile definition
+    model tuning / economic-combat quality
+        ↓
+launched missile runtime state
+    unique hidden maneuver/signature pattern
+        ↓
+Science observation/intel
+    knowledge/tracking solution for this projectile
+        ↓
+Defense Turret resolution
+    deterministic tracked intercept OR blind probability
+        ↓
+presentation snapshot
+    authoritative tracked/blind state + chance
+        ↓
+dashboard/view
+```
+
+Rules:
+
+- objective runtime missile truth stays in engine combat state;
+- Science knowledge stays behind the existing observation/intel boundary;
+- the UI does not inspect hidden signature truth;
+- the UI does not calculate blind chance independently;
+- enemy decision snapshots must not leak hidden missile truth around Science.
+
+See `MISSILE_REFACTOR_HANDOFF.md`.
 
 ## Enemy behavior boundary
 
@@ -109,8 +149,6 @@ Builds one decision context per current enemy actor, asks policy for work, reval
 
 Advances enemy crew tasks, validates task targets and invokes completion callbacks.
 
-SPAM lifecycle validation reads canonical `getActiveCrewProgressEffects()`.
-
 ### `EnemyThreatDecisionSnapshot`
 
 Small physical decision read model used by policy.
@@ -129,8 +167,6 @@ This split is intentional. Avoid a new enemy god object.
 
 Canonical read model for active crew-progress modifiers, including SPAM in both directions.
 
-The old player-specific compatibility query `getActivePlayerSpamChannels()` no longer exists.
-
 New progress modifiers should normally extend the canonical effect query rather than create another player/enemy-specific adapter.
 
 ## Bridge synchronization
@@ -139,7 +175,7 @@ New progress modifiers should normally extend the canonical effect query rather 
 
 Discrete encounter outcomes → persistent `GameRuntime` where persistence is appropriate.
 
-DEF persistence is no longer driven by a duplicate `PLAYER_POWER_CORE_CHARGE_SPENT` event.
+Power Core persistence is not driven by a duplicate charge-spent event.
 
 ### `BridgeEncounterSnapshotSynchronizer`
 
@@ -166,7 +202,7 @@ Load/start presentation extracted from event handler; keep it separate.
 
 ## Officer stations
 
-`BridgeOfficerStationsController` now consumes the same combat presentation snapshot for:
+`BridgeOfficerStationsController` consumes the same combat presentation snapshot for:
 - officer tasks
 - availability
 - enemy telemetry
@@ -190,7 +226,7 @@ Builds stable player-ship dashboard rows/actions/status from real command availa
 
 Builds current enemy/threat context.
 
-Current inputs:
+Current inputs include:
 - enemy presentation snapshots
 - incoming missiles
 - laser threats
@@ -241,7 +277,7 @@ Existing views include:
 - SPAM
 - outgoing player weapons
 - enemy destruction
-- defense-turret beam VFX
+- Defense Turret beam VFX
 - captain dashboard combat context
 
 The old viewscreen combat VFX and the captain dashboard are separate presentation surfaces. Reuse engine snapshots; do not make one view read state from another.

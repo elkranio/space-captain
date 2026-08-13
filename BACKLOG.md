@@ -2,25 +2,81 @@
 
 Living backlog only. Completed historical phases belong in git history, not here.
 
+Updated: 2026-08-13
+Reference HEAD before this handoff: `5f33f12374db9dfc5241e9bc300139e921e6a542`
+
 ## Current selected work
 
-The 2026-08-13 refactor/legacy-cleanup pass is complete.
+### 1. Missile / Defense Turret gameplay refactor — NEXT
 
-No new gameplay atom is selected in this file. Use the active project conversation / user direction for the next large task.
+This is the first task in the next chat.
 
-Do not resurrect the old “sticky mines → captain context” or “SPAM → captain context” slices: both are implemented.
+Read `MISSILE_REFACTOR_HANDOFF.md`.
+
+Replace the current model-level red/blue missile-band counter contract with:
+
+- unique hidden runtime maneuver/signature per launched missile;
+- Science tracking solution for a specific projectile;
+- tracked missile → guaranteed Defense Turret intercept;
+- untracked missile → allowed blind intercept with visible probability;
+- Defense Turret progression improves blind intercept;
+- missile progression makes blind intercept harder;
+- normal Power Core cost is committed regardless of hit/miss.
+
+Exact formula/numbers/field names are still design work for the implementation atom. Keep the first formula simple.
+
+Important sequencing:
+- gameplay refactor first;
+- stable tests/runtime second;
+- **do not** migrate the old red/blue schema deeper into content tooling.
+
+### 2. Missile Launcher + Missiles content/editor migration
+
+Only after the gameplay refactor is green.
+
+Goal:
+- make the missile launcher and missile records real editor-friendly content;
+- add/clone/delete where appropriate;
+- dynamic IDs where CRUD requires it;
+- cross-reference validation;
+- preserve the newly refactored missile semantics instead of encoding the obsolete red/blue mechanic.
+
+Exact collection/schema split should be decided against the post-refactor code, not now.
+
+## Content tools near-term
+
+Current CRUD-ready:
+- Ship Chassis
+- Drives
+- Power Cores
+- Shield Generators
+- Defense Turrets
+
+Current `SHIP MODULES` submenu:
+- Power Cores
+- Drives
+- Shield Generators
+- Defense Turrets
+
+After launcher/missiles:
+- continue migrating only content that is actively blocking tuning;
+- do not convert every registry collection for completeness.
+
+See `CONTENT_TOOLS_HANDOFF.md`.
 
 ## Near combat follow-ups
 
-- Finish player Defense Turret as an installed/breakable system using shared DEF.
+After the current content-tool slice returns to gameplay work:
+
+- Finish player Defense Turret installed/breakable/repair flow if still incomplete.
 - Power Core BROKEN state:
   - charges reset to 0;
   - recharge progress resets;
   - no defensive consumer while broken.
-- Shield Emitter break mutation.
-- Active Shield disappears immediately if emitter breaks.
+- Shield Generator break mutation.
+- Active Shield disappears immediately if generator breaks.
 - Engineer repair commands for defensive installations.
-- Balance pass for shield task duration / shield TTL / emitter cooldown / DEF recharge.
+- Balance pass for shield task duration / shield TTL / generator cooldown / Power Core recharge.
 - Revisit enemy defensive shield behavior only after player-side contracts are stable.
 - Decide whether Science gets meaningful laser/node targeting; keep current SCI laser slot disabled until then.
 
@@ -33,8 +89,9 @@ Do not resurrect the old “sticky mines → captain context” or “SPAM → c
 - Replace placeholder threat/system icons with final art.
 - Retire officer context menu only after dashboard command coverage is complete.
 - Keep direct `[X]` task cancellation near officer activity for cancellable tasks.
-- Add a clear “leave/escape/navigation” bridge flow.
-- Consider bridge tabs such as combat / engineering / navigation only when actual navigation UX is specified.
+- Add a clear leave/escape/navigation flow.
+- Possible bridge tabs: Combat / Engineering / Navigation.
+- Auto-switch to Combat on combat start and Navigation after combat is a plausible direction, not yet an implementation task.
 - Keep dashboard visual semantics centralized, but do not introduce a giant ThemeManager or generic threat-row framework.
 
 ## Bridge / art
@@ -44,7 +101,7 @@ Do not resurrect the old “sticky mines → captain context” or “SPAM → c
 - VIP seat remains future scene/content hook.
 - Continue reducing arcade color noise in final dashboard art.
 
-## Combat / content
+## Combat / content later
 
 - More enemy loadouts after isolated weapon slices are proven.
 - Combat pacing pass when crew mistakes/traits are active; current timings are placeholders.
@@ -62,8 +119,8 @@ Do not resurrect the old “sticky mines → captain context” or “SPAM → c
 
 Do not schedule these unless a concrete problem appears:
 
-- aggregate snapshots currently detach some already-detached nested data again; data is small and this is not worth API complexity without profiling.
-- hypothetical-state logic in officer availability is ugly but currently simpler than adding a new query-mode abstraction.
+- aggregate snapshots currently detach some already-detached nested data again; data is small and this is not worth API complexity without profiling;
+- hypothetical-state logic in officer availability is ugly but currently simpler than adding a new query-mode abstraction;
 - long cohesive files such as `CombatRunner`, `EncounterEngine`, `EncounterStateStore` and declarative event unions are not refactor targets by line count.
 
 ## Refactor policy

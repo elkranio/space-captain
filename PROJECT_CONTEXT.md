@@ -1,7 +1,7 @@
 # Space Captain — Project Context
 
 Updated: 2026-08-13
-Reference HEAD before this docs atom: `79ec6e607b7f5e7c55077469594e7b4990b337ae`
+Reference HEAD before this docs handoff: `5f33f12374db9dfc5241e9bc300139e921e6a542`
 
 This is the primary handoff for a fresh chat. Treat code at the current GitHub `master` as source of truth and re-check HEAD before every coding atom.
 
@@ -10,9 +10,11 @@ This is the primary handoff for a fresh chat. Treat code at the current GitHub `
 1. `PROJECT_CONTEXT.md`
 2. `GAMEPLAY_CONTRACTS.md`
 3. `SYSTEM_MAP.md`
-4. `CAPTAIN_DASHBOARD_HANDOFF.md`
-5. `BACKLOG.md`
-6. `BRIDGE_ART_DIRECTION.md` only when visual/layout work is relevant
+4. `BACKLOG.md`
+5. `CONTENT_TOOLS_HANDOFF.md` for content/editor work
+6. `MISSILE_REFACTOR_HANDOFF.md` for the immediate next task
+7. `CAPTAIN_DASHBOARD_HANDOFF.md` when dashboard work is relevant
+8. `BRIDGE_ART_DIRECTION.md` only when visual/layout work is relevant
 
 Do not reconstruct current behavior from old chats when the repo can answer it.
 
@@ -56,15 +58,11 @@ These are mandatory.
 10. A failed patcher should remain on disk for diagnosis.
 11. If a recovery patch replaces failed patchers, successful recovery should also remove known obsolete ancestor patchers.
 12. Before deleting a compatibility helper/query, search **all** source + test consumers first.
-
-Known pitfalls:
-- `git grep` ignores untracked files.
-- `git status --porcelain` has a two-character status field.
-- callback return strings in `String.replace(regex, callback)` do not expand `$1`.
-- broad regex/list transforms can hit identical blocks in multiple methods.
-- regex replacements around TypeScript generic return types must preserve punctuation such as `Extract<`.
-- tests can be green while formatting is damaged; `diff --check` is part of completion.
-- self-delete only happens after all validation; a failed validation leaves patchers behind intentionally.
+13. For directory/file semantic renames, create target parent directories before `git mv`.
+14. Do not `.trim()` raw `git status --porcelain` before parsing; preserve the leading XY status field.
+15. `git grep` does not see newly created untracked files; filesystem-scan new files in post-validation.
+16. On Windows, route npm execution through `cmd.exe` / `ComSpec` rather than relying on direct `npm.cmd` spawn.
+17. Prefer changed-line whitespace validation / `diff --check`; do not fail on unrelated pre-existing whole-file whitespace.
 
 ## Current gameplay / bridge state
 
@@ -82,7 +80,7 @@ The captain dashboard is becoming the main command surface. The old officer cont
 Left side is stable player-ship state/actions:
 
 - HULL
-- shared DEF powerCore
+- shared Power Core / DEF
 - ENGINE
 - MISSILE
 - LASER
@@ -102,120 +100,140 @@ Dashboard buttons bind to real `AvailableOfficerCommand` values. Views must not 
 
 Threat-row geometry is still a prototype, not a contract. Do not build a generic threat-row framework around the current shape.
 
-Shared dashboard visual semantics now live near the dashboard:
-- repeated row/icon/action/status colors are centralized
-- countdown formatting is centralized
-- geometry remains local to concrete views
+Likely future bridge navigation direction:
+- left-side bridge tabs such as Combat / Engineering / Navigation;
+- auto-switch to Combat when combat starts;
+- switch to Navigation after combat;
+- eventual leave/flee action can live naturally in this navigation structure.
 
-### Defense / shield slice
+Do not implement this until its UX is actually selected.
 
-Current player defense contract:
+## Current defensive modules
 
-- one shared Power Core
-- Defense Turret and Shield Emitter consume its charges
-- Shield Emitter is a persistent installed system
-- Engineer `DEPLOY SHIELD` spends a DEF charge at task start
-- cancellation/interruption does not refund the charge
-- task completion creates encounter-local Active Shield
-- Active Shield absorbs one incoming laser hit, then disappears
-- it also expires by TTL
-- current basic shield duration: 5000 ms
-- current emitter cooldown: 5000 ms
-- player and enemy shield views share presentation timing/alpha helpers but keep separate lifecycle/position/scale ownership
-- incoming laser event distinguishes `HIT` vs `ABSORBED`
+Terminology is now settled:
 
-Temporary whole-hull visual anchors live in `bridge_player_hull_combat_points.ts`. This is intentionally not a generic targeting registry.
+- `Power Core`
+- `Ship Drive`
+- `Shield Generator`
+- `Defense Turret`
 
-Still missing:
-- Shield Emitter break mutation and immediate active-shield removal on break
-- Power Core broken status
-- minimal player Defense Turret installation/status and repair flow
-- tuning
+These appear under **SHIP MODULES** in the local content editor.
+
+### Shared Power Core
+
+- shared defensive energy budget
+- Defense Turret and Shield Generator consume it
+- no private non-regenerating PD ammo/charges
+- committed energy is not refunded by later cancellation/interruption
+- exact tuning remains content data
+
+### Shield Generator / Active Shield
+
+`Shield Generator` is installed hardware.
+`Active Shield` is the temporary encounter-local shield state/effect.
+
+The full semantic rename `Shield Emitter -> Shield Generator` is complete.
+
+### Defense Turret
+
+The full semantic rename `Point Defense -> Defense Turret` is complete.
+
+Current implementation still uses the old red/blue beam-band missile counter contract. **That contract is the immediate next gameplay refactor and should not be migrated into richer content CRUD before it is fixed.**
+
+## Immediate next task — missile / Defense Turret refactor
+
+Read `MISSILE_REFACTOR_HANDOFF.md`.
+
+Approved design direction:
+
+- remove missile model-level red/blue knowledge as the core counter mechanic;
+- every launched missile gets its own hidden runtime maneuver/signature pattern;
+- Science analyzes a **specific incoming missile** and produces a tracking solution for that projectile;
+- identified/tracked missile: Defense Turret intercept is guaranteed;
+- unidentified missile: firing is still allowed, but is a visible RNG risk;
+- Defense Turret quality improves blind-intercept chance;
+- missile quality reduces blind-intercept chance over the run;
+- exact probability formula, field names and numbers are **not locked yet**;
+- turret attempts still spend Power Core energy regardless of hit/miss;
+- Science remains the deterministic answer and should not become obsolete through equipment progression.
+
+Order of work:
+
+1. refactor missile / Science / Defense Turret gameplay contract first;
+2. get tests and runtime behavior stable;
+3. only then migrate **Missile Launcher + Missiles** into editor-ready CRUD/content data;
+4. continue content tooling after that.
+
+Do not start the content migration first: the current missile schema encodes the mechanic we are about to remove.
+
+## Content editor state
+
+The local editor is now real infrastructure, not a proposal.
+
+Current important facts:
+
+- Vite + vanilla TypeScript local tool
+- light theme
+- Zod runtime schemas
+- plain JSON editable content
+- whitelisted local server routes
+- generic schema-driven primitive form rendering
+- save validation
+- add/delete support by collection metadata
+- referenced-delete blocking
+- chassis sprite asset management / atlas rebuild tooling
+- editor changes normal tracked repo files
+
+CRUD-ready content currently includes:
+
+- Ship Chassis
+- Drives
+- Power Cores
+- Shield Generators
+- Defense Turrets
+
+`SHIP MODULES` sidebar currently contains:
+
+- Power Cores
+- Drives
+- Shield Generators
+- Defense Turrets
+
+Missiles and ship weapons already exist as editor-readable collections but are still closed/static and are **not** the next atom until the missile mechanic refactor is complete.
+
+See `CONTENT_TOOLS_HANDOFF.md`.
 
 ## Combat read-model architecture
 
-`EncounterState` is the authoritative mutable truth.
+`EncounterState` is authoritative mutable truth.
 
-`CombatPresentationSnapshot` is a detached one-frame read model built from that truth. It currently includes:
+`CombatPresentationSnapshot` is a detached one-frame read model built from that truth. It is not cached and is not a second state.
 
-Player:
-- hull
-- drive
-- DEF presentation state
-- Shield Emitter
-- Active Shield
-- player weapons
-- officer availability
-- officer tasks
-
-Combat/context:
-- enemy ship presentation snapshots
-- incoming/outgoing missiles
-- outgoing sticky mines
-- sticky-mine snapshots
-- laser threats
-- SPAM channels
-- `commandsByRole`
-
-The snapshot is not cached and is not a second state.
-
-`BridgeEncounterController` captures one coherent combat snapshot after the engine step and reuses it across current presentation consumers. Officer stations no longer reconstruct a combat-frame view by separately walking tasks, availability, telemetry and commands.
-
-Persistent player ship presentation state that belongs in `GameRuntime` is synchronized from the frame snapshot, not from a duplicate DEF event stream.
-
-Travel/noninteractive presentation clearing explicitly clears stale combat context and enemy shields.
-
-## Enemy behavior state
+`BridgeEncounterController` captures one coherent combat snapshot after the engine step and reuses it across current presentation consumers.
 
 Enemy behavior remains deliberately split:
 
 - `EnemyDecisionPolicy` chooses work
 - `EnemyTaskScheduler` assembles explicit decision context, validates/schedules work and starts physical phases
 - `EnemyCrewTaskRunner` owns crew-task lifecycle
-- combat weapon runners own physical weapon/projectile/mine lifecycle
+- combat weapon/defense runners own physical lifecycle
 - threat observation / science intel are separate from objective truth
-
-`EnemyDecisionPolicy` no longer owns or optionally receives full `EncounterState`.
-
-Scheduler supplies a small `EnemyDecisionContext` containing:
-- `EnemyThreatDecisionSnapshot[]`
-- canonical `CrewProgressEffect[]`
-
-Threat decision snapshots expose only the physical facts policy needs. Hidden missile truth still stays behind the Science observation/intel boundary.
-
-SPAM slowdown/purge decisions and lifecycle validation use canonical `getActiveCrewProgressEffects()`. The transitional `getActivePlayerSpamChannels()` adapter has been removed.
 
 Do not collapse this separation back into an enemy god object.
 
-## Refactor checkpoint — completed 2026-08-13
+## Refactor checkpoint
 
-The broad cleanup pass is complete. Important completed items:
+The broad cleanup pass completed on 2026-08-13.
 
-- unified `CombatPresentationSnapshot`
-- `EnemyThreatDecisionSnapshot` query for AI decisions
-- duplicate public combat presentation getters removed
-- officer stations moved onto the coherent combat snapshot
-- travel presentation reset fixed
-- dead DEF charge-spent event removed
-- strict unused TS checks enabled
-- dashboard visual tokens/countdown formatting deduplicated
-- player/enemy shield presentation math deduplicated
-- SPAM compatibility query removed; policy now consumes explicit decision context
+Do **not** resume broad refactoring because files are long. The missile task is a targeted gameplay contract refactor with a concrete design reason.
 
-Do **not** continue refactoring just because files are long. Return to feature/gameplay work unless a concrete new ownership/duplication problem appears.
+Settled non-problems:
 
-## Architecture conclusions already settled
-
-Leave these alone unless evidence changes:
-
-- `BridgeController` is a healthy composition root.
-- `EncounterEngine` is a legitimate facade/composition root.
-- `CombatRunner` is long but cohesive; do not split for line count.
-- `EncounterStateStore` is a facade over specialized stores, not a god-object bug by itself.
-- `bridge_event.ts` is a long but cohesive declarative contract.
-- `BridgeEncounterEngineEventHandler` is a transport/presentation boundary.
-- `BridgeEncounterRuntimeSynchronizer` is EncounterEngine → GameRuntime persistence.
-- `BridgeEncounterSnapshotSynchronizer` transports continuously changing read models.
-- `BridgePlayerWeaponStatusMapper` and `BridgePlayerShipDashboardMapper` have different responsibilities and should stay separate.
-- current hypothetical-state availability query is intentionally left simple.
-- specialized threat rows and weapon runners should remain specialized until real repeated behavior demands abstraction.
+- `BridgeController` as composition root
+- `EncounterEngine` as facade/composition root
+- long but cohesive `CombatRunner`
+- `EncounterStateStore` facade
+- long declarative event unions
+- specialized threat rows
+- specialized combat runners
+- separate captain/player-weapon mappers
