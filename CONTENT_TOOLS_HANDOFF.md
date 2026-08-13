@@ -1,141 +1,116 @@
 # Space Captain — Content Tools Handoff
 
 Updated: 2026-08-13
-Reference HEAD before this handoff: `5f33f12374db9dfc5241e9bc300139e921e6a542`
+Reference HEAD: `b06c3da83387b267ba7a92a3ad0024834382e903`
 
-This is the persistent handoff for the local content editor / content-data initiative.
+Persistent handoff for the local content editor / content-data initiative.
 
-Read before every content-tools atom:
+The immediate next task is **not** editor expansion. First run the cleanup described in `REFACTOR_HANDOFF.md`. After that, return here for Missile Launcher + Missiles migration.
+
+## Read before content-tool work
 
 1. `PROJECT_CONTEXT.md`
 2. `GAMEPLAY_CONTRACTS.md`
 3. `SYSTEM_MAP.md`
 4. `CONTENT_TOOLS_HANDOFF.md`
 5. focused schema/catalog/server/tests for the current collection
-6. `MISSILE_REFACTOR_HANDOFF.md` when touching missiles
+6. current post-refactor missile files when touching missiles
 
-Always re-check current GitHub `master` before preparing code changes.
-
----
+Always re-check current GitHub `master`.
 
 ## Purpose
 
 Space Captain is tuning-heavy.
 
-The local editor exists so balancing content does not require hunting through TypeScript engine code.
-
-Normal target workflow:
+Normal workflow:
 
 ```text
 npm run editor
-→ open collection
-→ edit / add / delete where allowed
-→ Save
-→ inspect git diff
-→ run tests / game
-→ repeat
+-> open collection
+-> edit / add / delete where allowed
+-> Save
+-> inspect git diff
+-> run checks/game
+-> repeat
 ```
 
-The tool reduces cognitive load. It is not a runtime feature and not a general game-engine editor.
+The tool reduces cognitive load. It is not runtime gameplay and not a general game-engine editor.
 
----
-
-## Current architecture — implemented
-
-The initiative is no longer hypothetical.
+## Current architecture
 
 ### Data / validation
 
-- plain JSON is canonical editable content;
-- Zod runtime schemas validate content;
-- game catalogs consume validated data;
-- editor consumes the same schemas/data;
-- no separate editor database;
-- no TypeScript AST rewriting;
-- no custom schema language.
-
-Current dependency:
-- `zod@4.4.3`
-
-Zod metadata / JSON schema is used to drive generic editor controls.
+- plain JSON canonical editable content
+- Zod runtime schemas
+- game catalogs consume validated data
+- editor consumes the same schema/data surfaces
+- no editor database
+- no TypeScript AST rewriting
+- no custom schema language
+- current Zod dependency: `zod@4.4.3`
 
 ### Editor
 
-- separate local Vite tool;
-- vanilla HTML/CSS/TypeScript;
-- no Phaser;
-- light theme by design;
-- schema-driven generic primitive inspector;
-- collection navigation;
-- record selection;
-- dirty/save flow;
-- validation/error display;
-- add/delete for collections that opt in.
+- separate local Vite tool
+- vanilla HTML/CSS/TypeScript
+- no Phaser
+- light theme
+- schema-driven primitive inspector
+- collection navigation
+- record selection
+- dirty/save flow
+- validation/error display
+- add/delete for opt-in collections
 
 ### Local write boundary
 
-The browser does not get arbitrary filesystem access.
+Browser does not get arbitrary filesystem access.
 
-The local server exposes whitelisted content operations. Saves validate before writing normal tracked JSON files.
+Local server exposes whitelisted content operations. Saves validate before writing tracked JSON.
 
-Referenced-delete checks are implemented for CRUD-enabled collections that are used by presets/content.
+Referenced-delete checks exist for CRUD-enabled referenced collections.
 
-### Chassis asset tooling
+### Chassis assets
 
-Ship Chassis has local asset-management support:
-- sprite asset handling;
-- atlas rebuild flow;
-- CRUD;
-- reference protection.
+Ship Chassis has justified collection-specific asset tooling:
+- sprite handling
+- atlas rebuild
+- CRUD
+- reference protection
 
-Do not generalize the asset system unless another collection actually needs the same behavior.
-
----
+Do not generalize asset tooling without another real asset-backed workflow.
 
 ## Content ownership rule
 
-Use this test:
-
-> Could a designer reasonably change this while balancing without changing how the mechanic fundamentally works?
-
-If yes → content/tuning.
+Designer-adjustable balance/config -> content.
 
 Examples:
-- names;
-- damage;
-- timings;
-- ammo/capacity;
-- cooldowns;
-- probabilities;
-- tuning penalties/bonuses;
-- behavior weights;
-- task cancellation/interruption flags.
+- names
+- damage
+- timings
+- ammo/capacity
+- cooldown
+- probabilities
+- behavior weights
+- task tuning flags
 
-Use this test:
-
-> Would changing this require a different algorithm/state transition/semantic rule?
-
-If yes → engine/domain code.
+Algorithm/state-transition/semantic rule -> code.
 
 Examples:
-- weapon kinds;
-- phase state machines;
-- who owns task completion;
-- command target semantics;
-- authoritative availability;
-- whether Science knowledge is required;
-- tracked = guaranteed vs blind = probabilistic;
-- runtime missile signature generation;
-- projectile lifecycle.
+- weapon kinds
+- phase machines
+- command target semantics
+- authoritative availability
+- Science intel semantics
+- correct-hypothesis = guaranteed intercept
+- runtime missile signature generation
+- projectile lifecycle
 
-The editor changes data, not game rules.
-
----
+Editor changes data, not game rules.
 
 ## Current collection registry
 
-At reference HEAD the registry contains:
-
+Registered collections include:
 - Officer Tasks
 - Ship Weapon Rules
 - Ship Weapons
@@ -151,7 +126,7 @@ At reference HEAD the registry contains:
 
 Not every registered collection is CRUD-ready.
 
-### Current CRUD-ready collections
+### CRUD-ready
 
 - Ship Chassis
 - Drives
@@ -159,251 +134,179 @@ Not every registered collection is CRUD-ready.
 - Shield Generators
 - Defense Turrets
 
-These use dynamic/open record maps where CRUD needs new IDs.
+CRUD-enabled record IDs should be open strings validated by schema where adding records requires new IDs. Built-in constants may remain convenience aliases.
 
-Stable built-in constants can remain convenience aliases, but the content type itself must not be closed when the editor can create records.
+### SHIP MODULES group
 
-### `SHIP MODULES` sidebar
-
-Current grouping:
-
-```text
-SHIP MODULES
 - Power Cores
 - Drives
 - Shield Generators
 - Defense Turrets
-```
 
-`Ship Chassis` remains separate from modules.
+Do not create a giant runtime `ShipModule` hierarchy merely because the editor groups them together.
 
-Terminology:
-- Chassis = hull/body
-- Ship Modules = installed hardware category
-- current module families = Drives, Power Cores, Shield Generators, Defense Turrets
+## Missile gameplay refactor — COMPLETE
 
-Do not introduce one giant runtime `ShipModule` hierarchy merely for editor grouping. Current domain catalogs can stay specialized.
+The old red/blue spectral-band gameplay contract is gone.
 
----
+Current runtime/domain rules:
+- each launched missile gets hidden per-projectile runtime signature truth;
+- Science intel is per projectile;
+- `UNKNOWN`, `UNCERTAIN`, `CONFIRMED`;
+- UNCERTAIN has a concrete hypothesis which may be correct/wrong;
+- CONFIRMED is guaranteed truthful;
+- correct concrete hypothesis -> guaranteed intercept;
+- wrong/no hypothesis -> installed Defense Turret `blindInterceptChance`;
+- current BASIC turret chance = 0.4;
+- blind MISS leaves missile alive;
+- Power Core cost is committed on attempt;
+- app presentation gets `identificationStatus`, not hidden signature/hypothesis.
 
-## Completed semantic cleanup relevant to tools
+Do not encode runtime signature in JSON.
 
-Full semantic renames are complete:
+## Current missile/content reality
 
-```text
-Defense Capacitor → Power Core
-Shield Emitter    → Shield Generator
-Point Defense     → Defense Turret
-```
+### Defense Turret
 
-Do not restore compatibility aliases for old names.
+Already content-backed/CRUD-ready.
 
-Current editor/data terminology should use the new names only.
+Editable tuning currently includes:
+- name
+- load duration
+- cooldown duration
+- `blindInterceptChance`
 
----
+Hard equipment chance is legitimate numeric content.
 
-## Immediate sequencing rule — missiles
+### Missiles
 
-**Do not make Missiles CRUD-ready yet.**
+Current definitions are neutral BASIC models; runtime signature is not model data.
 
-Current missile content still encodes the old gameplay contract:
+Current balance fields include:
+- name
+- damage
+- flight duration
 
-- closed red/blue missile IDs;
-- model-level `spectralBand`;
-- Defense Turret red/blue beam matching.
+There is **no implemented missile blind-intercept penalty/difficulty field yet**.
 
-That mechanic is about to be replaced.
+Do not invent one during editor migration unless gameplay design explicitly selects it.
 
-Read `MISSILE_REFACTOR_HANDOFF.md`.
+### Missile Launcher
 
-Required order:
+Launcher presets still exist in TypeScript and still contain historical names such as:
+- `BASIC_RED_FULL_00`
+- `BASIC_BLUE_FULL_00`
 
-```text
-1. gameplay refactor
-   missile instance signature / Science tracking / blind intercept
-        ↓
-2. tests + runtime stable
-        ↓
-3. Missile Launcher + Missiles editor migration
-```
+Those names are stale vocabulary only. They currently load neutral `MISSILE_ID.BASIC_00/BASIC_01`.
 
-Do not spend an atom making the obsolete red/blue schema more editable.
+The cleanup/refactor pass should audit this naming debt. The later editor migration should not preserve obsolete color semantics.
 
----
+## Next editor task after refactor
 
-## Post-refactor missile content direction
+**Missile Launcher + Missiles CRUD/content migration.**
 
-Only broad ownership is decided.
+Goals:
+- choose the smallest post-refactor data split;
+- move actual designer tuning to JSON/Zod;
+- add/clone/delete where useful;
+- dynamic/open IDs only where CRUD requires it;
+- cross-reference validation;
+- referenced-delete protection;
+- preserve runtime signature as runtime-only truth;
+- remove stale red/blue preset semantics/names if still present;
+- avoid generic “all weapons” abstraction unless data really demands it.
 
-### Runtime / code — NOT editor data
-
-The following belongs to runtime/domain code:
-
-- generation/storage of each launched missile's unique hidden maneuver/signature;
-- Science knowledge/tracking state for a specific projectile;
-- rule that tracked missile intercept is guaranteed;
-- rule that untracked missile intercept is probabilistic;
-- Power Core commit semantics;
-- turret/projectile state transitions;
-- exact authoritative calculation function.
-
-### Likely editable tuning
-
-After the mechanic is stable, content may expose values such as:
-
-Defense Turret:
-- blind-intercept quality/chance contribution;
-- load duration;
-- cooldown duration;
-- name.
+Potential tuning based on current code:
 
 Missile:
-- damage;
-- flight duration;
-- blind-intercept difficulty / maneuverability / countermeasure quality;
-- name;
-- later economic/rarity values when that system exists.
+- name
+- damage
+- flight duration
 
-Missile Launcher:
-- ammo capacity / initial loadout or analogous launcher tuning;
-- launch/salvo timing as appropriate to the actual post-refactor weapon model;
-- missile references/loadout where appropriate.
+Launcher:
+- weapon definition reference
+- loaded missile reference / loadout representation
+- ammo count/capacity semantics according to current model
 
-**Field names and exact formula are not locked.**
-Design them against the post-refactor code.
+Defense Turret already owns blind intercept chance.
 
-Do not encode per-launch random signature as content data. It is instance runtime truth.
-
----
+Do not add missile blind penalty merely because an old design note once proposed it.
 
 ## IDs / CRUD rule
 
-Long-term editor-created records must not require editing an exhaustive TypeScript ID union/object every time.
+Editor-created records must not require editing exhaustive TS ID unions every time.
 
 For CRUD-enabled collections:
+- record IDs are schema-validated strings;
+- built-in constants may remain aliases;
+- references must validate;
+- deleting referenced records is blocked with useful usage information;
+- ID rename remains forbidden until a concrete migration story exists.
 
-- data record IDs are strings validated by schema;
-- built-in ID constants may remain convenience references;
-- cross-content references must be validated;
-- deleting referenced records must be blocked with useful usage information;
-- stable ID editing/renaming should stay forbidden until there is a concrete migration story.
-
-Do not weaken all IDs globally. Open only the collections that need CRUD.
-
----
+Open only collections that need CRUD.
 
 ## Validation layers
 
 ### Schema validation
-
-Examples:
-- required fields;
-- primitive types;
-- integer/range constraints;
-- enums;
-- variant shape.
+- required fields
+- primitive types
+- integer/range constraints
+- enums/variant shape
 
 ### Reference validation
-
-Examples:
-- preset references existing chassis/module;
-- launcher references existing missile;
-- content record cannot be deleted while referenced.
+- preset/module/content references exist
+- referenced delete is blocked
 
 ### Game-specific invariant validation
-
 Only where schema/reference validation is insufficient.
 
-Do not duplicate normal engine runtime rules in editor validation.
-
----
+Do not duplicate normal runtime gameplay rules in editor validation.
 
 ## Generic editor philosophy
 
 Prefer boring generic controls.
 
-Add collection-specific UI only when the generic schema form cannot represent a real workflow.
+Collection-specific UI is justified only when a real workflow cannot be represented generically.
 
-Good examples of justified special tooling:
-- chassis sprite asset management;
-- atlas rebuild.
+Good current example:
+- chassis sprite/atlas tooling
 
 Bad reason:
-- “this collection would look prettier with a custom editor”.
+- “this collection would look prettier custom”
 
 No React/framework migration unless actual complexity proves it useful.
 
----
+## Refactor concerns before more editor migration
 
-## New Game direction — later
+Inspect, do not assume:
+- repeated CRUD add/delete/reference plumbing;
+- repeated schema/catalog/metadata declarations;
+- duplicated fixture/test builders;
+- collection-specific branches left over from incremental migrations;
+- local server routing/write whitelist complexity;
+- whether any generic helper currently increases rather than decreases cognitive load.
 
-Eventually the tool should support composition rather than only catalog editing:
+Do not turn this audit into a giant meta-framework.
 
-- officers default;
-- player chassis;
-- installed modules;
-- weapons/loadout;
-- later universe node/anchor/enemy ship setup.
+## Testing expectations for content migrations
 
-Do not build this before the catalogs it depends on are stable enough.
-
-The player/enemy runtime models do not need premature unification for the editor.
-
----
-
-## Testing / completion expectations
-
-Every content migration atom should normally prove:
-
-- current baseline data validates;
+Normally prove:
+- baseline data validates;
 - representative invalid data fails;
-- new records work if CRUD is enabled;
+- new records work if CRUD enabled;
 - referenced delete is blocked;
 - game/catalog consumes validated data;
-- baseline gameplay is preserved unless the atom explicitly changes gameplay;
 - editor loads/saves/reloads;
-- local write cannot escape the whitelist;
+- local write cannot escape whitelist;
 - `npm run typecheck`;
 - `npm test`;
-- editor Vite build;
-- `git -c core.safecrlf=false diff --check`;
-- runtime/editor smoke where relevant.
+- editor Vite build/runtime smoke where relevant;
+- `git -c core.safecrlf=false diff --check`.
 
----
+## Patch delivery
 
-## Patch discipline
+Global rule lives in `PROJECT_CONTEXT.md` and applies here without exception:
 
-Project patch rules remain mandatory.
+**Every temporary `.mjs` patch/recovery script must be delivered only inside a `.zip`; never provide the bare `.mjs`.**
 
-Especially:
-
-- zip-only patch delivery;
-- successful patcher self-delete;
-- fresh HEAD guard;
-- clean tracked state unless explicit recovery;
-- exact/contextual replacements;
-- preserve EOL;
-- one newline at EOF;
-- filesystem post-scan for newly created files;
-- create target directories before `git mv`;
-- safe `git status --porcelain` parsing;
-- Windows npm through `cmd.exe` / `ComSpec`;
-- failed patchers stay for diagnosis.
-
----
-
-## Immediate next tool task after missile gameplay refactor
-
-**Missile Launcher + Missiles CRUD/content migration.**
-
-At that point:
-
-1. inspect the freshly refactored missile/launcher definitions, catalogs, presets and references;
-2. decide the smallest clean data split;
-3. migrate the new tuning values, not the obsolete red/blue bands;
-4. add dynamic IDs only where add/delete actually requires them;
-5. add reference-protected delete;
-6. expose the collections cleanly in the editor;
-7. avoid a generic “all weapons” abstraction unless the actual data shape demands it.
-
-After that, resume editor expansion only on demand.
+Successful patchers self-delete; failed patchers remain for diagnosis.

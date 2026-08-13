@@ -1,143 +1,154 @@
 # Space Captain — Backlog
 
-Living backlog only. Completed historical phases belong in git history, not here.
+Living backlog only. Completed historical phases belong in git history, not in the active task list.
 
 Updated: 2026-08-13
-Reference HEAD before this handoff: `5f33f12374db9dfc5241e9bc300139e921e6a542`
+Reference HEAD: `b06c3da83387b267ba7a92a3ad0024834382e903`
 
 ## Current selected work
 
-### 1. Missile / Defense Turret gameplay refactor — NEXT
+### 1. Post-gameplay/content-editor refactor — NEXT
 
-This is the first task in the next chat.
+Read `REFACTOR_HANDOFF.md`.
 
-Read `MISSILE_REFACTOR_HANDOFF.md`.
+Reason:
+- a large missile/Science/Defense Turret contract changed;
+- player Defense Turret became a real installed persistent ship system;
+- combat presentation gained a safe missile read-model boundary;
+- multiple content collections were migrated to JSON/Zod/editor CRUD infrastructure;
+- many tests/fixtures changed.
 
-Replace the current model-level red/blue missile-band counter contract with:
+Goal:
+- lower cognitive load before more feature work;
+- find actual duplicated rules/context reconstruction/spaghetti/hostile signatures/stale semantic names;
+- simplify only where the current code demonstrates a real problem;
+- preserve gameplay and editor behavior.
 
-- unique hidden runtime maneuver/signature per launched missile;
-- Science tracking solution for a specific projectile;
-- tracked missile → guaranteed Defense Turret intercept;
-- untracked missile → allowed blind intercept with visible probability;
-- Defense Turret progression improves blind intercept;
-- missile progression makes blind intercept harder;
-- normal Power Core cost is committed regardless of hit/miss.
-
-Exact formula/numbers/field names are still design work for the implementation atom. Keep the first formula simple.
-
-Important sequencing:
-- gameplay refactor first;
-- stable tests/runtime second;
-- **do not** migrate the old red/blue schema deeper into content tooling.
+Do not refactor by file length.
 
 ### 2. Missile Launcher + Missiles content/editor migration
 
-Only after the gameplay refactor is green.
+After the cleanup pass is green.
 
 Goal:
-- make the missile launcher and missile records real editor-friendly content;
-- add/clone/delete where appropriate;
-- dynamic IDs where CRUD requires it;
-- cross-reference validation;
-- preserve the newly refactored missile semantics instead of encoding the obsolete red/blue mechanic.
+- make Missile Launcher + Missiles genuinely editor-friendly;
+- migrate post-refactor tuning, not old spectral/color semantics;
+- open IDs only where CRUD requires it;
+- reference validation + referenced-delete protection;
+- clean remaining historical RED/BLUE preset names as part of the migration if not already handled by refactor;
+- preserve per-launch hidden runtime signature as runtime truth, never JSON content.
 
-Exact collection/schema split should be decided against the post-refactor code, not now.
+Current implemented missile tuning:
+- missile name
+- damage
+- flight duration
+
+Current implemented Defense Turret blind tuning:
+- `blindInterceptChance`
+
+Do not invent a missile blind-intercept penalty during editor migration unless gameplay design explicitly selects it.
 
 ## Content tools near-term
 
-Current CRUD-ready:
+CRUD-ready:
 - Ship Chassis
 - Drives
 - Power Cores
 - Shield Generators
 - Defense Turrets
 
-Current `SHIP MODULES` submenu:
+Current SHIP MODULES:
 - Power Cores
 - Drives
 - Shield Generators
 - Defense Turrets
 
-After launcher/missiles:
-- continue migrating only content that is actively blocking tuning;
-- do not convert every registry collection for completeness.
-
-See `CONTENT_TOOLS_HANDOFF.md`.
+After Missile Launcher + Missiles:
+- continue converting only content that blocks real tuning/work;
+- do not migrate every registry collection for completeness.
 
 ## Near combat follow-ups
 
-After the current content-tool slice returns to gameplay work:
-
-- Finish player Defense Turret installed/breakable/repair flow if still incomplete.
+- Finish player Defense Turret installed/breakable/repair flow.
 - Power Core BROKEN state:
-  - charges reset to 0;
-  - recharge progress resets;
-  - no defensive consumer while broken.
+  - charges -> 0
+  - recharge progress -> 0
+  - no defensive consumer while broken
 - Shield Generator break mutation.
 - Active Shield disappears immediately if generator breaks.
 - Engineer repair commands for defensive installations.
-- Balance pass for shield task duration / shield TTL / generator cooldown / Power Core recharge.
-- Revisit enemy defensive shield behavior only after player-side contracts are stable.
-- Decide whether Science gets meaningful laser/node targeting; keep current SCI laser slot disabled until then.
+- Balance shield task duration / TTL / generator cooldown / Power Core recharge.
+- Revisit enemy shield behavior only after player-side contracts are stable.
+- Decide whether Science gets real laser/node targeting; keep current SCI laser slot disabled until then.
+- Decide if/when missile technology should reduce blind interception; current code has turret-side chance only.
+- Helm evade remains a future separate missile response and must not be coupled to hidden signature mechanics.
+
+## Missile semantic cleanup debt
+
+Mechanical color semantics are gone, but some identifiers still contain historical names such as:
+- `BASIC_RED_FULL_00`
+- `BASIC_BLUE_FULL_00`
+- generic RED/BLUE missile ship/node-actor aliases
+
+These are naming debt, not current gameplay. Remove/rename when doing so clearly reduces confusion and test noise.
+
+Internal `signature_a/signature_b` is hidden transitional truth. It is not automatically a refactor target unless a simpler representation preserves the current Science correctness mechanic.
 
 ## Captain dashboard / UX
 
-- Final threat presentation after real art exists:
-  - current repeated rows are provisional;
-  - rows may become compact tiles;
-  - optimize for heavy combat without “Boeing” density.
-- Replace placeholder threat/system icons with final art.
+- Final threat presentation after real art exists.
+- Current repeated rows are provisional.
+- Replace placeholder icons with final art.
 - Retire officer context menu only after dashboard command coverage is complete.
-- Keep direct `[X]` task cancellation near officer activity for cancellable tasks.
-- Add a clear leave/escape/navigation flow.
-- Possible bridge tabs: Combat / Engineering / Navigation.
-- Auto-switch to Combat on combat start and Navigation after combat is a plausible direction, not yet an implementation task.
-- Keep dashboard visual semantics centralized, but do not introduce a giant ThemeManager or generic threat-row framework.
+- Keep direct task cancellation near current officer activity.
+- Add clear leave/escape/navigation flow.
+- Possible tabs: Combat / Engineering / Navigation.
+- Auto-switch Combat on engagement and Navigation after combat remains plausible, not selected implementation.
+- Avoid Boeing-density and giant generic UI frameworks.
 
 ## Bridge / art
 
 - Final bridge asset production using `BRIDGE_ART_DIRECTION.md`.
-- Preserve 1280×720 composition and four visible officers.
+- Preserve 1280x720 composition and four visible officers.
 - VIP seat remains future scene/content hook.
-- Continue reducing arcade color noise in final dashboard art.
+- Continue reducing arcade color noise.
 
 ## Combat / content later
 
 - More enemy loadouts after isolated weapon slices are proven.
-- Combat pacing pass when crew mistakes/traits are active; current timings are placeholders.
-- Crew negative traits and hidden-risk pools.
-- Officer relationships / arguments / R&R recovery.
+- Combat pacing pass when crew mistakes/traits are active.
+- Crew negative traits/hidden-risk pools.
+- Officer relationships/arguments/R&R recovery.
 - Contracts/routes/cargo/VIP run structure.
 
 ## Audio
 
 - Short offline-generated officer acknowledgement/result/failure lines.
-- Keep voice as UI feedback, not constant chatter.
-- Batch-generate and post-process consistently; runtime TTS is not required.
+- Voice as UI feedback, not constant chatter.
+- Batch-generate and post-process consistently.
 
 ## Low-priority technical notes
 
-Do not schedule these unless a concrete problem appears:
-
-- aggregate snapshots currently detach some already-detached nested data again; data is small and this is not worth API complexity without profiling;
-- hypothetical-state logic in officer availability is ugly but currently simpler than adding a new query-mode abstraction;
-- long cohesive files such as `CombatRunner`, `EncounterEngine`, `EncounterStateStore` and declarative event unions are not refactor targets by line count.
+Do not schedule unless a concrete problem appears:
+- detached nested snapshot data may be detached more than once; current data size is tiny;
+- hypothetical-state logic in officer availability is ugly but currently simpler than a query-mode framework;
+- long cohesive `CombatRunner`, `EncounterEngine`, `EncounterStateStore`, declarative event unions are not refactor targets by line count.
 
 ## Refactor policy
 
-Do not schedule broad refactors by file length.
-
-Refactor only when one of these is concrete:
+Refactor only when at least one is concrete:
 - context travels too far;
 - ownership is unclear;
-- the same gameplay rule is duplicated;
-- signatures become cognitively hostile;
+- gameplay rule duplicated;
+- state reconstructed in multiple places;
 - callbacks form real spaghetti;
-- state is reconstructed in multiple places.
+- method/type signatures become cognitively hostile;
+- stale compatibility/semantic layers obscure current behavior;
+- editor schema/catalog/CRUD plumbing repeats without adding meaning.
 
-Known settled non-problems:
-- `EncounterEngine` as facade/composition root
-- `BridgeController` as composition root
+Known settled non-problems unless new evidence appears:
+- `EncounterEngine` facade/composition root
+- `BridgeController` composition root
 - long declarative `bridge_event.ts`
 - separate captain/player-weapon mappers
 - specialized threat-row views
