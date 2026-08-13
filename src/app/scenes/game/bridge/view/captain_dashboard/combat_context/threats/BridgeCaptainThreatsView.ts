@@ -966,4 +966,3 @@ export default class BridgeCaptainThreatsView {
         this.spamRowViews.length = 0;
     }
 }
-

@@ -11,16 +11,13 @@ import {
     type BridgePlayerLaserFiredPayload,
 } from '../../../events/bridge_event';
 import type BridgeEventBus from '../../../events/BridgeEventBus';
+import {
+    BRIDGE_SHIELD_PRESENTATION,
+    getBridgeShieldAbsorbFadeAlpha,
+    getBridgeShieldAlpha,
+} from '../bridge_shield_presentation';
 
-const SHIELD = {
-    baseAlpha: 0.55,
-    blinkDimAlpha: 0.12,
-
-    blinkWindowMs: 1000,
-    blinkIntervalMs: 125,
-
-    absorbFadeMs: 160,
-
+const ENEMY_SHIELD = {
     // First visual fit around the current enemy sprite.
     // Easy to retune without changing combat semantics.
     scale: 0.36,
@@ -149,7 +146,7 @@ export default class BridgeEnemyShieldView {
             visual.image
                 .setVisible(true)
                 .setAlpha(
-                    getShieldAlpha(
+                    getBridgeShieldAlpha(
                         snapshot
                             .remainingDurationMs,
                     ),
@@ -247,7 +244,7 @@ export default class BridgeEnemyShieldView {
 
             visual.image
                 .setAlpha(
-                    getShieldAlpha(
+                    getBridgeShieldAlpha(
                         snapshot
                             .remainingDurationMs,
                     ),
@@ -286,7 +283,7 @@ export default class BridgeEnemyShieldView {
     ): void {
         const elapsedMs =
             Math.min(
-                SHIELD.absorbFadeMs,
+                BRIDGE_SHIELD_PRESENTATION.absorbFadeMs,
                 (
                     visual
                         .absorbFadeElapsedMs ??
@@ -298,21 +295,17 @@ export default class BridgeEnemyShieldView {
         visual.absorbFadeElapsedMs =
             elapsedMs;
 
-        const progress =
-            Phaser.Math.Clamp(
-                elapsedMs /
-                    SHIELD.absorbFadeMs,
-
-                0,
-                1,
+        const alpha =
+            getBridgeShieldAbsorbFadeAlpha(
+                elapsedMs,
             );
 
         visual.image
             .setAlpha(
-                1 - progress,
+                alpha,
             );
 
-        if (progress < 1) {
+        if (alpha > 0) {
             return;
         }
 
@@ -349,10 +342,10 @@ export default class BridgeEnemyShieldView {
                     0.5,
                 )
                 .setScale(
-                    SHIELD.scale,
+                    ENEMY_SHIELD.scale,
                 )
                 .setAlpha(
-                    SHIELD.baseAlpha,
+                    BRIDGE_SHIELD_PRESENTATION.baseAlpha,
                 )
                 .setVisible(false);
 
@@ -395,30 +388,3 @@ export default class BridgeEnemyShieldView {
     }
 }
 
-function getShieldAlpha(
-    remainingMs: number,
-): number {
-    if (
-        remainingMs >
-        SHIELD.blinkWindowMs
-    ) {
-        return SHIELD.baseAlpha;
-    }
-
-    const elapsedBlinkMs =
-        SHIELD.blinkWindowMs -
-        Math.max(
-            0,
-            remainingMs,
-        );
-
-    const phase =
-        Math.floor(
-            elapsedBlinkMs /
-                SHIELD.blinkIntervalMs,
-        );
-
-    return phase % 2 === 0
-        ? SHIELD.baseAlpha
-        : SHIELD.blinkDimAlpha;
-}

@@ -14,16 +14,11 @@ import type BridgeEventBus from '../../../events/BridgeEventBus';
 import {
     BRIDGE_PLAYER_HULL_COMBAT_POINTS,
 } from '../bridge_player_hull_combat_points';
-
-const SHIELD = {
-    baseAlpha: 0.55,
-    blinkDimAlpha: 0.12,
-
-    blinkWindowMs: 1000,
-    blinkIntervalMs: 125,
-
-    absorbFadeMs: 160,
-} as const;
+import {
+    BRIDGE_SHIELD_PRESENTATION,
+    getBridgeShieldAbsorbFadeAlpha,
+    getBridgeShieldAlpha,
+} from '../bridge_shield_presentation';
 
 // Player hull shield presentation.
 //
@@ -66,7 +61,7 @@ export default class BridgePlayerShieldView {
                     1,
                 )
                 .setAlpha(
-                    SHIELD.baseAlpha,
+                    BRIDGE_SHIELD_PRESENTATION.baseAlpha,
                 )
                 .setVisible(
                     false,
@@ -204,26 +199,22 @@ export default class BridgePlayerShieldView {
 
         this.absorbFadeElapsedMs =
             Math.min(
-                SHIELD.absorbFadeMs,
+                BRIDGE_SHIELD_PRESENTATION.absorbFadeMs,
                 this.absorbFadeElapsedMs +
                     deltaMs,
             );
 
-        const progress =
-            Phaser.Math.Clamp(
-                this.absorbFadeElapsedMs /
-                    SHIELD.absorbFadeMs,
-
-                0,
-                1,
+        const alpha =
+            getBridgeShieldAbsorbFadeAlpha(
+                this.absorbFadeElapsedMs,
             );
 
         this.shield
             .setAlpha(
-                1 - progress,
+                alpha,
             );
 
-        if (progress < 1) {
+        if (alpha > 0) {
             return;
         }
 
@@ -235,7 +226,7 @@ export default class BridgePlayerShieldView {
         this.shield
             .setVisible(false)
             .setAlpha(
-                SHIELD.baseAlpha,
+                BRIDGE_SHIELD_PRESENTATION.baseAlpha,
             );
     }
 
@@ -253,7 +244,7 @@ export default class BridgePlayerShieldView {
         this.shield
             .setVisible(true)
             .setAlpha(
-                getShieldAlpha(
+                getBridgeShieldAlpha(
                     remainingMs,
                 ),
             );
@@ -281,32 +272,8 @@ export default class BridgePlayerShieldView {
         this.shield
             .setVisible(false)
             .setAlpha(
-                SHIELD.baseAlpha,
+                BRIDGE_SHIELD_PRESENTATION.baseAlpha,
             );
     }
 }
 
-function getShieldAlpha(
-    remainingMs: number,
-): number {
-    if (
-        remainingMs >
-        SHIELD.blinkWindowMs
-    ) {
-        return SHIELD.baseAlpha;
-    }
-
-    const elapsedBlinkMs =
-        SHIELD.blinkWindowMs -
-        remainingMs;
-
-    const phase =
-        Math.floor(
-            elapsedBlinkMs /
-                SHIELD.blinkIntervalMs,
-        );
-
-    return phase % 2 === 0
-        ? SHIELD.baseAlpha
-        : SHIELD.blinkDimAlpha;
-}

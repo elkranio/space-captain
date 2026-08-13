@@ -345,4 +345,3 @@ export default class BridgeCaptainSpamThreatRowView {
         this.scienceHandler?.();
     }
 }
-
