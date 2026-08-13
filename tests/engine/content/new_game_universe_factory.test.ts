@@ -3,6 +3,9 @@
 import { describe, expect, it } from 'vitest';
 import NewGameUniverseFactory from '../../../src/engine/content/new_game/NewGameUniverseFactory';
 import { OFFICER_ROLE } from '../../../src/engine/defs/officer';
+import {
+    MISSILE_ID,
+} from '../../../src/engine/defs/missile';
 import { PLAYER_LOCATION_KIND, PLAYER_SPACE_NAVIGATION_KIND } from '../../../src/engine/defs/player_location';
 import { SPACE_BACKGROUND_ID } from '../../../src/engine/defs/space_background';
 import {
@@ -10,6 +13,11 @@ import {
     SHIELD_GENERATOR_PHASE,
     SHIELD_GENERATOR_STATUS,
 } from '../../../src/engine/defs/shield_generator';
+import {
+    SHIP_WEAPON_ID,
+    SHIP_WEAPON_KIND,
+    SHIP_WEAPON_PHASE,
+} from '../../../src/engine/defs/ship_weapon';
 import { SPACE_ANCHOR_KIND, SPACE_NODE_ACTOR_KIND } from '../../../src/engine/defs/universe';
 
 describe('NewGameUniverseFactory', () => {
@@ -110,7 +118,31 @@ describe('NewGameUniverseFactory', () => {
         expect(enemy.kind).toBe(SPACE_NODE_ACTOR_KIND.SHIP);
         expect(enemy.anchorId).toBe(navigationBeaconAnchor.beacon.id);
 
-        expect(enemy.weapons).toEqual([]);
+        expect(enemy.weapons).toEqual([
+            {
+                id:
+                    'missile_launcher_00',
+
+                weaponId:
+                    SHIP_WEAPON_ID
+                        .MISSILE_LAUNCHER_00,
+
+                kind:
+                    SHIP_WEAPON_KIND
+                        .MISSILE_LAUNCHER,
+
+                loadedMissileId:
+                    MISSILE_ID.BASIC_00,
+
+                ammoCount: 5,
+
+                phase:
+                    SHIP_WEAPON_PHASE
+                        .READY,
+
+                phaseElapsedMs: 0,
+            },
+        ]);
 
         expect(
             enemy.shieldGenerator,
@@ -192,12 +224,50 @@ describe('NewGameUniverseFactory', () => {
 
         expect(firstEnemy.weapons).not.toBe(secondEnemy.weapons);
 
-        expect(firstEnemy.weapons).toHaveLength(0);
-        expect(secondEnemy.weapons).toHaveLength(0);
+        expect(firstEnemy.weapons).toHaveLength(1);
+        expect(secondEnemy.weapons).toHaveLength(1);
 
         expect(firstEnemy.weapons).toEqual(
             secondEnemy.weapons,
         );
+
+        const [firstLauncher] =
+            firstEnemy.weapons;
+
+        const [secondLauncher] =
+            secondEnemy.weapons;
+
+        expect(firstLauncher)
+            .toBeDefined();
+
+        expect(secondLauncher)
+            .toBeDefined();
+
+        expect(firstLauncher)
+            .not.toBe(
+                secondLauncher,
+            );
+
+        if (
+            !firstLauncher ||
+            !secondLauncher ||
+            firstLauncher.kind !==
+                SHIP_WEAPON_KIND
+                    .MISSILE_LAUNCHER ||
+            secondLauncher.kind !==
+                SHIP_WEAPON_KIND
+                    .MISSILE_LAUNCHER
+        ) {
+            throw new Error(
+                'Expected fresh enemy missile launchers',
+            );
+        }
+
+        firstLauncher.ammoCount = 0;
+
+        expect(
+            secondLauncher.ammoCount,
+        ).toBe(5);
 
         expect(
             firstEnemy.shieldGenerator,

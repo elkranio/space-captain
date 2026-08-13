@@ -377,8 +377,22 @@ export const SHIP_PRESETS = {
                     .BASIC_00,
         },
 
-        // Shield slice is deliberately defensive-only:
-        // hostile SPAM remains implemented, but is not mounted here.
-        weapons: [],
+        // Runtime smoke/combat sandbox keeps the defensive stack
+        // and mounts one normal missile launcher so both missile
+        // directions can be exercised in the real new-game encounter.
+        weapons: [
+            {
+                id:
+                    'missile_launcher_00',
+
+                kind:
+                    SHIP_WEAPON_KIND
+                        .MISSILE_LAUNCHER,
+
+                presetId:
+                    MISSILE_LAUNCHER_PRESET_ID
+                        .BASIC_RED_FULL_00,
+            },
+        ],
     },
 } satisfies Record<ShipPresetId, ShipPreset>;

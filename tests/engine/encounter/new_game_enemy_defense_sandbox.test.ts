@@ -19,6 +19,14 @@ import {
     SHIELD_GENERATOR_STATUS,
 } from '../../../src/engine/defs/shield_generator';
 import {
+    MISSILE_ID,
+} from '../../../src/engine/defs/missile';
+import {
+    SHIP_WEAPON_ID,
+    SHIP_WEAPON_KIND,
+    SHIP_WEAPON_PHASE,
+} from '../../../src/engine/defs/ship_weapon';
+import {
     describe,
     expect,
     it,
@@ -42,7 +50,7 @@ import {
 
 describe('New-game enemy defense sandbox', () => {
     it(
-        'wires a defensive runtime enemy without offensive weapons',
+        'wires the runtime defense sandbox with one missile launcher',
         () => {
             const {
                 targetActor,
@@ -51,7 +59,31 @@ describe('New-game enemy defense sandbox', () => {
 
             expect(
                 targetActor.weapons,
-            ).toEqual([]);
+            ).toEqual([
+                {
+                    id:
+                        'missile_launcher_00',
+
+                    weaponId:
+                        SHIP_WEAPON_ID
+                            .MISSILE_LAUNCHER_00,
+
+                    kind:
+                        SHIP_WEAPON_KIND
+                            .MISSILE_LAUNCHER,
+
+                    loadedMissileId:
+                        MISSILE_ID.BASIC_00,
+
+                    ammoCount: 5,
+
+                    phase:
+                        SHIP_WEAPON_PHASE
+                            .READY,
+
+                    phaseElapsedMs: 0,
+                },
+            ]);
 
             expect(
                 targetActor.defenseTurret,

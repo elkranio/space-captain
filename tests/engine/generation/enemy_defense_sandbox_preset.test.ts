@@ -21,11 +21,19 @@ import {
     SHIELD_GENERATOR_PHASE,
     SHIELD_GENERATOR_STATUS,
 } from '../../../src/engine/defs/shield_generator';
+import {
+    MISSILE_ID,
+} from '../../../src/engine/defs/missile';
+import {
+    SHIP_WEAPON_ID,
+    SHIP_WEAPON_KIND,
+    SHIP_WEAPON_PHASE,
+} from '../../../src/engine/defs/ship_weapon';
 import ShipNodeActorFactory from '../../../src/engine/generation/space_node_actor/ShipNodeActorFactory';
 
 describe('Enemy defense sandbox preset', () => {
     it(
-        'creates a fully crewed defensive enemy with whole-ship shield support',
+        'creates a fully crewed defense sandbox with one missile launcher',
         () => {
             const actor =
                 ShipNodeActorFactory.create({
@@ -41,7 +49,31 @@ describe('Enemy defense sandbox preset', () => {
                 });
 
             expect(actor.weapons)
-                .toEqual([]);
+                .toEqual([
+                    {
+                        id:
+                            'missile_launcher_00',
+
+                        weaponId:
+                            SHIP_WEAPON_ID
+                                .MISSILE_LAUNCHER_00,
+
+                        kind:
+                            SHIP_WEAPON_KIND
+                                .MISSILE_LAUNCHER,
+
+                        loadedMissileId:
+                            MISSILE_ID.BASIC_00,
+
+                        ammoCount: 5,
+
+                        phase:
+                            SHIP_WEAPON_PHASE
+                                .READY,
+
+                        phaseElapsedMs: 0,
+                    },
+                ]);
 
             expect(actor.defenseTurret)
                 .toEqual({
