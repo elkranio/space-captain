@@ -3,6 +3,9 @@
 import type { OfficerRole } from '../../../../../../../engine/defs/officer';
 import type EncounterEngine from '../../../../../../../engine/encounter/EncounterEngine';
 import type { AvailableOfficerCommand } from '../../../../../../../engine/encounter/model/command';
+import type {
+    EncounterPresentationSnapshot,
+} from '../../../../../../../engine/encounter/snapshots/encounter_presentation_snapshot';
 import {
     BRIDGE_EVENT,
     type BridgeOfficerCommandMenuGroupPayload,
@@ -17,15 +20,20 @@ export default class BridgeOfficerCommandMenuController {
 
     // #region Public API
 
-    public open(role: OfficerRole): void {
-        // Engine command availability already returns []
-        // for a role with an active officer task.
-        // Menu must not duplicate that domain rule.
+    public open(
+        role: OfficerRole,
+
+        snapshot:
+            EncounterPresentationSnapshot =
+                this.encounterEngine
+                    .getPresentationSnapshot(),
+    ): void {
+        // Snapshot command availability is already domain-resolved.
+        // Menu only groups presentation-safe commands for the selected role.
         const commands =
-            this.encounterEngine
-                .getAvailableCommands(
-                    role,
-                );
+            snapshot.commandsByRole[
+                role
+            ];
 
         this.eventBus.emit(BRIDGE_EVENT.OFFICER_COMMAND_MENU_UPDATED, {
             role,

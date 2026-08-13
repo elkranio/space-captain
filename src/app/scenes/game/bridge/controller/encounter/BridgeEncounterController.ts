@@ -458,7 +458,10 @@ export default class BridgeEncounterController {
                     presentationSnapshot,
                 );
 
-            this.syncRuntimeNavigationFromEngine();
+            this.syncRuntimeNavigation(
+                presentationSnapshot
+                    .navigation,
+            );
             this.drainEncounterEvents();
 
             this.snapshotSynchronizer
@@ -575,7 +578,17 @@ export default class BridgeEncounterController {
 
         this.encounterEngine.completeArrival();
 
-        this.syncRuntimeNavigationFromEngine(PLAYER_SPACE_NAVIGATION_KIND.ANCHORED);
+        const presentationSnapshot =
+            this.encounterEngine
+                .getPresentationSnapshot();
+
+        this.syncRuntimeNavigation(
+            presentationSnapshot
+                .navigation,
+
+            PLAYER_SPACE_NAVIGATION_KIND
+                .ANCHORED,
+        );
     }
 
     private completeEncounterTravel(taskId: string): void {
@@ -585,25 +598,47 @@ export default class BridgeEncounterController {
 
         this.encounterEngine.completeTravel(taskId);
 
-        this.syncRuntimeNavigationFromEngine(PLAYER_SPACE_NAVIGATION_KIND.ANCHORED);
+        const presentationSnapshot =
+            this.encounterEngine
+                .getPresentationSnapshot();
+
+        this.syncRuntimeNavigation(
+            presentationSnapshot
+                .navigation,
+
+            PLAYER_SPACE_NAVIGATION_KIND
+                .ANCHORED,
+        );
     }
 
     // #endregion
 
     // #region Runtime synchronization
 
-    private syncRuntimeNavigationFromEngine(expectedKind?: PlayerSpaceNavigationState['kind']): void {
-        if (!this.encounterEngine) {
-            return;
+    private syncRuntimeNavigation(
+        navigation:
+            PlayerSpaceNavigationState,
+
+        expectedKind?:
+            PlayerSpaceNavigationState[
+                'kind'
+            ],
+    ): void {
+        if (
+            expectedKind !== undefined &&
+            navigation.kind !==
+                expectedKind
+        ) {
+            throw new Error(
+                `Expected engine navigation ${expectedKind}, ` +
+                    `received ${navigation.kind}`,
+            );
         }
 
-        const navigation = this.encounterEngine.getNavigationState();
-
-        if (expectedKind !== undefined && navigation.kind !== expectedKind) {
-            throw new Error(`Expected engine navigation ${expectedKind}, ` + `received ${navigation.kind}`);
-        }
-
-        GAME_RUNTIME.setPlayerSpaceNavigation(navigation);
+        GAME_RUNTIME
+            .setPlayerSpaceNavigation(
+                navigation,
+            );
     }
 
     // #endregion

@@ -45,8 +45,24 @@ describe('Bridge officer task cancellation', () => {
                 ];
             }),
 
-            getAvailableCommands:
-                vi.fn(() => []),
+            getPresentationSnapshot:
+                vi.fn(() => {
+                    return {
+                        commandsByRole: {
+                            [OFFICER_ROLE.SCIENCE]:
+                                [],
+
+                            [OFFICER_ROLE.HELM]:
+                                [],
+
+                            [OFFICER_ROLE.WEAPONS]:
+                                [],
+
+                            [OFFICER_ROLE.ENGINEER]:
+                                [],
+                        },
+                    };
+                }),
         } as unknown as EncounterEngine;
 
         const emit = vi.fn();
