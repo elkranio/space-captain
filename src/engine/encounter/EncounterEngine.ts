@@ -50,7 +50,9 @@ import type {
 import type {
     EncounterPresentationSnapshot,
 } from './snapshots/encounter_presentation_snapshot';
-import { createDetachedSnapshot } from './snapshots/create_detached_snapshot';
+import {
+    createEncounterEventSnapshot,
+} from './snapshots/create_encounter_event_snapshot';
 import EncounterStateStore from './state/EncounterStateStore';
 
 export type {
@@ -506,7 +508,9 @@ export default class EncounterEngine {
 
     private emit = (event: EncounterEvent): void => {
         this.events.push(
-            createDetachedSnapshot(event),
+            createEncounterEventSnapshot(
+                event,
+            ),
         );
     };
 

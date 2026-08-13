@@ -1,6 +1,3 @@
-import {
-    MISSILE_SIGNATURE,
-} from '../../src/engine/defs/missile';
 // tests/app/BridgeEncounterRuntimeSynchronizer.test.ts
 
 import {
@@ -30,7 +27,6 @@ import {
     COMBAT_PROJECTILE_KIND,
     COMBAT_SOURCE_KIND,
     COMBAT_TARGET_KIND,
-    MISSILE_SIGNATURE_INTEL_STATUS,
 } from '../../src/engine/encounter/model/combat';
 import {
     ENCOUNTER_EVENT,
@@ -79,15 +75,6 @@ describe(
                                 kind:
                                     COMBAT_TARGET_KIND
                                         .PLAYER_SHIP,
-                            },
-
-                            signature:
-                MISSILE_SIGNATURE.A,
-
-            identification: {
-                                status:
-                                    MISSILE_SIGNATURE_INTEL_STATUS
-                                        .UNKNOWN,
                             },
 
                             missileId:

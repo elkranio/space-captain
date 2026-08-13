@@ -1,6 +1,3 @@
-import {
-    MISSILE_SIGNATURE,
-} from '../../src/engine/defs/missile';
 // tests/app/BridgeEncounterEngineEventHandler.test.ts
 
 import {
@@ -21,8 +18,6 @@ import {
     COMBAT_SOURCE_KIND,
     COMBAT_TARGET_KIND,
     LASER_SHOT_OUTCOME,
-    MISSILE_SIGNATURE_INTEL_STATUS,
-    type MissileCombatProjectileState,
 } from '../../src/engine/encounter/model/combat';
 import { ENCOUNTER_OFFICER_COMMAND_ID } from '../../src/engine/encounter/model/command';
 import { ENCOUNTER_ANCHOR_KIND } from '../../src/engine/encounter/anchors/encounter_anchor';
@@ -32,9 +27,12 @@ import {
     OFFICER_TASK_RESULT_KIND,
     PLAYER_SHIELD_END_OUTCOME,
 } from '../../src/engine/encounter/model/event';
+import type {
+    MissileEventProjectileSnapshot,
+} from '../../src/engine/encounter/model/missile_event_projectile';
 import { OFFICER_TASK_KIND } from '../../src/engine/encounter/model/officer_task';
 
-const launchedProjectile: MissileCombatProjectileState = {
+const launchedProjectile: MissileEventProjectileSnapshot = {
     id: 'projectile_test_00',
     designation: 'M1',
 
@@ -51,20 +49,13 @@ const launchedProjectile: MissileCombatProjectileState = {
         kind: COMBAT_TARGET_KIND.PLAYER_SHIP,
     },
 
-    signature:
-                MISSILE_SIGNATURE.A,
-
-            identification: {
-        status: MISSILE_SIGNATURE_INTEL_STATUS.UNKNOWN,
-    },
-
     missileId: MISSILE_ID.BASIC_00,
 
     timeToImpactMs: 12000,
     initialTimeToImpactMs: 12000,
 };
 
-const impactedProjectile: MissileCombatProjectileState = {
+const impactedProjectile: MissileEventProjectileSnapshot = {
     ...launchedProjectile,
 
     timeToImpactMs: 0,

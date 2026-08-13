@@ -129,13 +129,6 @@ describe('CombatRunner', () => {
                         kind: COMBAT_TARGET_KIND.PLAYER_SHIP,
                     },
 
-                    signature:
-                MISSILE_SIGNATURE.A,
-
-            identification: {
-                        status: MISSILE_SIGNATURE_INTEL_STATUS.UNKNOWN,
-                    },
-
                     missileId: MISSILE_ID.BASIC_00,
 
                     timeToImpactMs: 12000,
@@ -212,13 +205,6 @@ describe('CombatRunner', () => {
 
                     target: {
                         kind: COMBAT_TARGET_KIND.PLAYER_SHIP,
-                    },
-
-                    signature:
-                MISSILE_SIGNATURE.A,
-
-            identification: {
-                        status: MISSILE_SIGNATURE_INTEL_STATUS.UNKNOWN,
                     },
 
                     missileId: MISSILE_ID.BASIC_00,

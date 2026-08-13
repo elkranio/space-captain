@@ -1,6 +1,3 @@
-import {
-    MISSILE_SIGNATURE,
-} from '../../src/engine/defs/missile';
 // tests/app/BridgeEncounterEnemyDefenseTurretEvents.test.ts
 
 import {
@@ -28,15 +25,16 @@ import {
     COMBAT_SOURCE_KIND,
     COMBAT_TARGET_KIND,
     PLAYER_MISSILE_OUTCOME,
-    MISSILE_SIGNATURE_INTEL_STATUS,
-    type MissileCombatProjectileState,
 } from '../../src/engine/encounter/model/combat';
 import {
     ENCOUNTER_EVENT,
 } from '../../src/engine/encounter/model/event';
+import type {
+    MissileEventProjectileSnapshot,
+} from '../../src/engine/encounter/model/missile_event_projectile';
 
 const projectile:
-    MissileCombatProjectileState = {
+    MissileEventProjectileSnapshot = {
         id:
             'projectile_player_00',
 
@@ -61,17 +59,6 @@ const projectile:
 
             actorId:
                 'ship_enemy_00',
-        },
-
-        signature:
-                MISSILE_SIGNATURE.A,
-
-            identification: {
-            status:
-                MISSILE_SIGNATURE_INTEL_STATUS
-                    .CONFIRMED,
-
-            hypothesis: 'signature_b',
         },
 
         missileId:

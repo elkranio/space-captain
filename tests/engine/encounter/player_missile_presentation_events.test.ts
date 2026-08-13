@@ -115,6 +115,18 @@ describe('Player missile presentation events', () => {
             );
         }
 
+        expect(
+            launchEvent.projectile,
+        ).not.toHaveProperty(
+            'signature',
+        );
+
+        expect(
+            launchEvent.projectile,
+        ).not.toHaveProperty(
+            'identification',
+        );
+
         launchEvent.projectile.target.actorId =
             'mutated_event_target';
 

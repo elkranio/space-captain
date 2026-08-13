@@ -17,13 +17,15 @@ import type {
     ActiveShieldState,
     LaserAttackState,
     LaserShotOutcome,
-    MissileCombatProjectileState,
     PlayerSpamChannelOutcome,
     SpamChannelOutcome,
     SpamChannelState,
     StickyMineState,
     ThreatIdentificationResult,
 } from './combat';
+import type {
+    MissileEventProjectileSnapshot,
+} from './missile_event_projectile';
 import type { OfficerTaskState } from './officer_task';
 import type {
     MissileSignatureAnalysisConfidence,
@@ -298,7 +300,7 @@ export type PlayerMissileLaunchedEvent = {
             .PLAYER_MISSILE_LAUNCHED;
 
     projectile:
-        MissileCombatProjectileState;
+        MissileEventProjectileSnapshot;
 };
 
 export type PlayerMissileResolvedEvent =
@@ -308,7 +310,7 @@ export type PlayerMissileResolvedEvent =
                   .PLAYER_MISSILE_RESOLVED;
 
           projectile:
-              MissileCombatProjectileState;
+              MissileEventProjectileSnapshot;
 
           outcome:
               typeof PLAYER_MISSILE_OUTCOME
@@ -320,7 +322,7 @@ export type PlayerMissileResolvedEvent =
                   .PLAYER_MISSILE_RESOLVED;
 
           projectile:
-              MissileCombatProjectileState;
+              MissileEventProjectileSnapshot;
 
           outcome:
               typeof PLAYER_MISSILE_OUTCOME
@@ -332,7 +334,7 @@ export type PlayerMissileResolvedEvent =
                   .PLAYER_MISSILE_RESOLVED;
 
           projectile:
-              MissileCombatProjectileState;
+              MissileEventProjectileSnapshot;
 
           outcome:
               typeof PLAYER_MISSILE_OUTCOME
@@ -364,7 +366,7 @@ export type EnemyDefenseTurretFiredEvent = {
     defenseTurretId: string;
 
     projectile:
-        MissileCombatProjectileState;
+        MissileEventProjectileSnapshot;
 
     outcome: DefenseTurretShotOutcome;
 
@@ -452,7 +454,7 @@ export type EnemyShipDestroyedEvent = {
 export type MissileLaunchedEvent = {
     type: typeof ENCOUNTER_EVENT.MISSILE_LAUNCHED;
 
-    projectile: MissileCombatProjectileState;
+    projectile: MissileEventProjectileSnapshot;
 };
 
 export type MissileImpactedPlayerShipEvent =
@@ -462,7 +464,7 @@ export type MissileImpactedPlayerShipEvent =
                 .MISSILE_IMPACTED_PLAYER_SHIP;
 
         projectile:
-            MissileCombatProjectileState;
+            MissileEventProjectileSnapshot;
     };
 
 export type StickyMineAttachedEvent = {
