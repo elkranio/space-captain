@@ -1,15 +1,15 @@
 // src/engine/encounter/snapshots/combat_presentation_snapshot.ts
 
 import {
-    DEFENSE_CAPACITORS,
-} from '../../content/catalogs/defense_capacitors';
+    POWER_CORES,
+} from '../../content/catalogs/power_cores';
 import {
     SHIP_WEAPONS,
     SHIP_WEAPON_TARGETING_DURATION_MS,
 } from '../../content/catalogs/ship_weapons';
 import type {
-    DefenseCapacitorState,
-} from '../../defs/defense_capacitor';
+    PowerCoreState,
+} from '../../defs/power_core';
 import {
     OFFICER_ROLE,
     type OfficerRole,
@@ -67,9 +67,9 @@ import {
     getOfficerAvailabilityStates,
 } from '../officer_availability/queries/get_officer_availability_states';
 
-export type DefenseCapacitorPresentationSnapshot = {
+export type PowerCorePresentationSnapshot = {
     state:
-        DefenseCapacitorState;
+        PowerCoreState;
 
     capacity: number;
 
@@ -91,10 +91,10 @@ export type PlayerWeaponPresentationSnapshot = {
 export type EnemyShipPresentationSnapshot =
     Omit<
         EnemyShipTelemetrySnapshot,
-        'defenseCapacitor'
+        'powerCore'
     > & {
-        defenseCapacitor?:
-            DefenseCapacitorPresentationSnapshot;
+        powerCore?:
+            PowerCorePresentationSnapshot;
     };
 
 export type CombatPresentationSnapshot = {
@@ -105,8 +105,8 @@ export type CombatPresentationSnapshot = {
         drive:
             ShipDriveState;
 
-        defenseCapacitor?:
-            DefenseCapacitorPresentationSnapshot;
+        powerCore?:
+            PowerCorePresentationSnapshot;
 
         shieldEmitter?:
             ShieldEmitterState;
@@ -172,12 +172,12 @@ export function createCombatPresentationSnapshot(
                 state.drive,
 
             ...(state.combat
-                .defenseCapacitor
+                .powerCore
                 ? {
-                      defenseCapacitor:
-                          createDefenseCapacitorPresentationSnapshot(
+                      powerCore:
+                          createPowerCorePresentationSnapshot(
                               state.combat
-                                  .defenseCapacitor,
+                                  .powerCore,
                           ),
                   }
                 : {}),
@@ -315,13 +315,13 @@ export function createCombatPresentationSnapshot(
     };
 }
 
-export function createDefenseCapacitorPresentationSnapshot(
+export function createPowerCorePresentationSnapshot(
     state:
-        DefenseCapacitorState,
-): DefenseCapacitorPresentationSnapshot {
+        PowerCoreState,
+): PowerCorePresentationSnapshot {
     const definition =
-        DEFENSE_CAPACITORS[
-            state.defenseCapacitorId
+        POWER_CORES[
+            state.powerCoreId
         ];
 
     const rechargeProgress =
@@ -387,18 +387,18 @@ function createEnemyShipPresentationSnapshot(
         EnemyShipTelemetrySnapshot,
 ): EnemyShipPresentationSnapshot {
     const {
-        defenseCapacitor,
+        powerCore,
         ...rest
     } = enemy;
 
     return {
         ...rest,
 
-        ...(defenseCapacitor
+        ...(powerCore
             ? {
-                  defenseCapacitor:
-                      createDefenseCapacitorPresentationSnapshot(
-                          defenseCapacitor,
+                  powerCore:
+                      createPowerCorePresentationSnapshot(
+                          powerCore,
                       ),
               }
             : {}),

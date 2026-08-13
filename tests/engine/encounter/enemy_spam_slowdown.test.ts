@@ -36,8 +36,8 @@ import {
 } from '../../../src/engine/defs/sticky_mine';
 import MissileLauncherFactory from '../../../src/engine/generation/ship_weapon/MissileLauncherFactory';
 import {
-    spendDefenseCapacitorCharge,
-} from '../../../src/engine/encounter/combat/defense/spend_defense_capacitor_charge';
+    spendPowerCoreCharge,
+} from '../../../src/engine/encounter/combat/defense/spend_power_core_charge';
 import {
     getActiveCrewProgressEffects,
 } from '../../../src/engine/encounter/crew_performance/get_active_crew_progress_effects';
@@ -390,18 +390,18 @@ describe(
                 pointDefense.targetProjectileId =
                     projectileId;
 
-                const defenseCapacitor =
+                const powerCore =
                     setup.targetActor
-                        .defenseCapacitor;
+                        .powerCore;
 
-                if (!defenseCapacitor) {
+                if (!powerCore) {
                     throw new Error(
-                        'Expected enemy defense capacitor',
+                        'Expected enemy power core',
                     );
                 }
 
                 const chargesBefore =
-                    defenseCapacitor
+                    powerCore
                         .charges;
 
                 // Этот тест вручную ставит enemy PD
@@ -409,12 +409,12 @@ describe(
                 // В production scheduler списывает DEF
                 // именно при старте loading, поэтому
                 // повторяем тот же commit явно.
-                spendDefenseCapacitorCharge(
-                    defenseCapacitor,
+                spendPowerCoreCharge(
+                    powerCore,
                 );
 
                 expect(
-                    defenseCapacitor
+                    powerCore
                         .charges,
                 ).toBe(
                     chargesBefore - 1,
@@ -478,7 +478,7 @@ describe(
                 );
 
                 expect(
-                    defenseCapacitor
+                    powerCore
                         .charges,
                 ).toBe(
                     chargesBefore - 1,
@@ -497,7 +497,7 @@ describe(
                 );
 
                 expect(
-                    defenseCapacitor
+                    powerCore
                         .charges,
                 ).toBe(
                     chargesBefore - 1,

@@ -43,7 +43,7 @@ export type ShieldEmitterPhase =
 // ВАЖНО:
 // emitter не хранит собственные charges.
 // Любая будущая установка active shield
-// будет тратить общий Defense Capacitor.
+// будет тратить общий Power Core.
 export type ShieldEmitterState = {
     // Runtime id конкретной установки.
     id: string;

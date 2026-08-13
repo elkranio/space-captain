@@ -15,7 +15,7 @@ Owns:
 - officer commands/tasks/availability
 - enemy behavior
 - combat actors/weapons/threats
-- defense capacitor
+- power core
 - Shield Emitter / Active Shield
 - snapshots/events
 
@@ -43,7 +43,7 @@ Important children include:
 - state store / snapshot reader
 - officer task/command flow
 - `CombatRunner`
-- `DefenseCapacitorRunner`
+- `PowerCoreRunner`
 - `ShieldEmitterRunner`
 - enemy task scheduler/crew logic
 
@@ -84,7 +84,7 @@ Important current runners:
 - spam
 - enemy point defense
 - player weapon runners
-- defense capacitor
+- power core
 - shield emitter
 
 Sticky mines are symmetrical at combat-state level: one runner owns both enemy→player and player→enemy attached mines.
@@ -139,7 +139,7 @@ New progress modifiers should normally extend the canonical effect query rather 
 
 Discrete encounter outcomes → persistent `GameRuntime` where persistence is appropriate.
 
-DEF persistence is no longer driven by a duplicate `PLAYER_DEFENSE_CAPACITOR_CHARGE_SPENT` event.
+DEF persistence is no longer driven by a duplicate `PLAYER_POWER_CORE_CHARGE_SPENT` event.
 
 ### `BridgeEncounterSnapshotSynchronizer`
 

@@ -4,8 +4,8 @@ import {
     SHIP_WEAPON_TARGETING_DURATION_MS,
 } from '../../../src/engine/content/catalogs/ship_weapons';
 import {
-    DEFENSE_CAPACITOR_ID,
-} from '../../../src/engine/defs/defense_capacitor';
+    POWER_CORE_ID,
+} from '../../../src/engine/defs/power_core';
 import {
     OFFICER_ROLE,
 } from '../../../src/engine/defs/officer';
@@ -76,13 +76,13 @@ describe('New-game enemy defense sandbox', () => {
 
             expect(
                 targetActor
-                    .defenseCapacitor,
+                    .powerCore,
             ).toEqual({
                 id:
-                    'defense_capacitor_00',
+                    'power_core_00',
 
-                defenseCapacitorId:
-                    DEFENSE_CAPACITOR_ID
+                powerCoreId:
+                    POWER_CORE_ID
                         .BASIC_00,
 
                 charges: 4,
@@ -205,7 +205,7 @@ describe('New-game enemy defense sandbox', () => {
 
             expect(
                 targetActor
-                    .defenseCapacitor
+                    .powerCore
                     ?.charges,
             ).toBe(3);
 

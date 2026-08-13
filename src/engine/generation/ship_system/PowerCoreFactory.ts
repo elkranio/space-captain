@@ -1,37 +1,37 @@
-// src/engine/generation/ship_system/DefenseCapacitorFactory.ts
+// src/engine/generation/ship_system/PowerCoreFactory.ts
 
 import {
-    DEFENSE_CAPACITORS,
-} from '../../content/catalogs/defense_capacitors';
+    POWER_CORES,
+} from '../../content/catalogs/power_cores';
 import type {
-    DefenseCapacitorId,
-    DefenseCapacitorState,
-} from '../../defs/defense_capacitor';
+    PowerCoreId,
+    PowerCoreState,
+} from '../../defs/power_core';
 
-export type CreateDefenseCapacitorInput = {
+export type CreatePowerCoreInput = {
     // Runtime id конкретной установки.
     id: string;
 
-    defenseCapacitorId:
-        DefenseCapacitorId;
+    powerCoreId:
+        PowerCoreId;
 
     // Test/setup seams.
-    // По умолчанию capacitor создаётся полным.
+    // По умолчанию powerCore создаётся полным.
     charges?: number;
     rechargeElapsedMs?: number;
 };
 
-export default class DefenseCapacitorFactory {
+export default class PowerCoreFactory {
     public static create({
         id,
-        defenseCapacitorId,
+        powerCoreId,
         charges,
         rechargeElapsedMs = 0,
-    }: CreateDefenseCapacitorInput):
-        DefenseCapacitorState {
+    }: CreatePowerCoreInput):
+        PowerCoreState {
         const definition =
-            DEFENSE_CAPACITORS[
-                defenseCapacitorId
+            POWER_CORES[
+                powerCoreId
             ];
 
         const resolvedCharges =
@@ -47,7 +47,7 @@ export default class DefenseCapacitorFactory {
                 definition.capacity
         ) {
             throw new Error(
-                'Invalid defense capacitor charge count: ' +
+                'Invalid power core charge count: ' +
                     id +
                     '/' +
                     resolvedCharges +
@@ -66,7 +66,7 @@ export default class DefenseCapacitorFactory {
                     .rechargeDurationMs
         ) {
             throw new Error(
-                'Invalid defense capacitor recharge elapsed: ' +
+                'Invalid power core recharge elapsed: ' +
                     id +
                     '/' +
                     rechargeElapsedMs +
@@ -82,7 +82,7 @@ export default class DefenseCapacitorFactory {
             rechargeElapsedMs !== 0
         ) {
             throw new Error(
-                'Full defense capacitor must have zero recharge elapsed: ' +
+                'Full power core must have zero recharge elapsed: ' +
                     id +
                     '/' +
                     rechargeElapsedMs,
@@ -91,7 +91,7 @@ export default class DefenseCapacitorFactory {
 
         return {
             id,
-            defenseCapacitorId,
+            powerCoreId,
 
             charges:
                 resolvedCharges,

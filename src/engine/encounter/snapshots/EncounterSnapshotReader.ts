@@ -1,8 +1,8 @@
 // src/engine/encounter/snapshots/EncounterSnapshotReader.ts
 
 import type {
-    DefenseCapacitorState,
-} from '../../defs/defense_capacitor';
+    PowerCoreState,
+} from '../../defs/power_core';
 import type { OfficerRole } from '../../defs/officer';
 import type { PlayerHullState } from '../../defs/player';
 import type { PlayerSpaceNavigationState } from '../../defs/player_location';
@@ -86,12 +86,12 @@ export default class EncounterSnapshotReader {
         return this.read((state) => state.combat.playerWeapons);
     }
 
-    public getDefenseCapacitorState():
-        DefenseCapacitorState | undefined {
+    public getPowerCoreState():
+        PowerCoreState | undefined {
         return this.read(
             (state) =>
                 state.combat
-                    .defenseCapacitor,
+                    .powerCore,
         );
     }
 

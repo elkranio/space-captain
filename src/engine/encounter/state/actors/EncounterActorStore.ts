@@ -5,8 +5,8 @@ import type {
     CrewTraitsByRole,
 } from '../../../defs/crew_trait';
 import type {
-    DefenseCapacitorState,
-} from '../../../defs/defense_capacitor';
+    PowerCoreState,
+} from '../../../defs/power_core';
 import {
     ENCOUNTER_TEAM,
     type EncounterTeam,
@@ -64,8 +64,8 @@ export type SpawnShipActorInput = {
     pointDefense?:
         ShipPointDefenseState;
 
-    defenseCapacitor?:
-        DefenseCapacitorState;
+    powerCore?:
+        PowerCoreState;
 
     shieldEmitter?:
         ShieldEmitterState;
@@ -118,7 +118,7 @@ export default class EncounterActorStore {
         maxHull,
         drive,
         pointDefense,
-        defenseCapacitor,
+        powerCore,
         shieldEmitter,
         behavior,
         crewRoles,
@@ -196,10 +196,10 @@ export default class EncounterActorStore {
             ),
 
             ...(
-                defenseCapacitor
+                powerCore
                     ? {
-                          defenseCapacitor: {
-                              ...defenseCapacitor,
+                          powerCore: {
+                              ...powerCore,
                           },
                       }
                     : {}

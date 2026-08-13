@@ -1,8 +1,8 @@
 // src/engine/encounter/debug/get_enemy_debug_snapshots.ts
 
 import {
-    DEFENSE_CAPACITORS,
-} from '../../content/catalogs/defense_capacitors';
+    POWER_CORES,
+} from '../../content/catalogs/power_cores';
 import {
     MISSILES,
 } from '../../content/catalogs/missiles';
@@ -86,7 +86,7 @@ export type EnemyDebugRoleSnapshot = {
         EnemyDebugCrewTaskSnapshot;
 };
 
-export type EnemyDebugDefenseCapacitorSnapshot = {
+export type EnemyDebugPowerCoreSnapshot = {
     charges: number;
     capacity: number;
 
@@ -132,8 +132,8 @@ export type EnemyDebugSnapshot = {
     roles:
         EnemyDebugRoleSnapshot[];
 
-    defenseCapacitor?:
-        EnemyDebugDefenseCapacitorSnapshot;
+    powerCore?:
+        EnemyDebugPowerCoreSnapshot;
 
     pointDefense?:
         EnemyDebugPointDefenseSnapshot;
@@ -214,10 +214,10 @@ function createEnemyDebugSnapshot(
                     );
                 }),
 
-        ...(actor.defenseCapacitor
+        ...(actor.powerCore
             ? {
-                  defenseCapacitor:
-                      createDefenseCapacitorSnapshot(
+                  powerCore:
+                      createPowerCoreSnapshot(
                           actor,
                       ),
               }
@@ -514,38 +514,38 @@ function getWeaponTaskLabel(
     }
 }
 
-function createDefenseCapacitorSnapshot(
+function createPowerCoreSnapshot(
     actor: ShipEncounterActorState,
-): EnemyDebugDefenseCapacitorSnapshot {
-    const defenseCapacitor =
-        actor.defenseCapacitor;
+): EnemyDebugPowerCoreSnapshot {
+    const powerCore =
+        actor.powerCore;
 
-    if (!defenseCapacitor) {
+    if (!powerCore) {
         throw new Error(
-            'Enemy debug defense capacitor is missing: ' +
+            'Enemy debug power core is missing: ' +
                 actor.id,
         );
     }
 
     const definition =
-        DEFENSE_CAPACITORS[
-            defenseCapacitor
-                .defenseCapacitorId
+        POWER_CORES[
+            powerCore
+                .powerCoreId
         ];
 
     return {
         charges:
-            defenseCapacitor.charges,
+            powerCore.charges,
 
         capacity:
             definition.capacity,
 
-        ...(defenseCapacitor.charges <
+        ...(powerCore.charges <
                 definition.capacity
             ? {
                   rechargeProgress: {
                       elapsedMs:
-                          defenseCapacitor
+                          powerCore
                               .rechargeElapsedMs,
 
                       durationMs:

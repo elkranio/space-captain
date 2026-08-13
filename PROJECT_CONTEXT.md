@@ -82,7 +82,7 @@ The captain dashboard is becoming the main command surface. The old officer cont
 Left side is stable player-ship state/actions:
 
 - HULL
-- shared DEF capacitor
+- shared DEF powerCore
 - ENGINE
 - MISSILE
 - LASER
@@ -111,7 +111,7 @@ Shared dashboard visual semantics now live near the dashboard:
 
 Current player defense contract:
 
-- one shared Defense Capacitor
+- one shared Power Core
 - Point Defense and Shield Emitter consume its charges
 - Shield Emitter is a persistent installed system
 - Engineer `DEPLOY SHIELD` spends a DEF charge at task start
@@ -128,7 +128,7 @@ Temporary whole-hull visual anchors live in `bridge_player_hull_combat_points.ts
 
 Still missing:
 - Shield Emitter break mutation and immediate active-shield removal on break
-- Defense Capacitor broken status
+- Power Core broken status
 - minimal player Point Defense installation/status and repair flow
 - tuning
 

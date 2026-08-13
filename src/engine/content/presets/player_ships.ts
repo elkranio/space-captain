@@ -6,9 +6,9 @@ import {
     type StickyMineDispenserPresetId,
 } from './sticky_mine_dispensers';
 import {
-    DEFENSE_CAPACITOR_ID,
-    type DefenseCapacitorId,
-} from '../../defs/defense_capacitor';
+    POWER_CORE_ID,
+    type PowerCoreId,
+} from '../../defs/power_core';
 import { SHIP_DRIVE_ID, type ShipDriveId } from '../../defs/ship_drive';
 import { SHIP_WEAPON_ID } from '../../defs/ship_weapon';
 import {
@@ -72,11 +72,11 @@ export type PlayerShipPreset = {
 
     driveId: ShipDriveId;
 
-    defenseCapacitor: {
+    powerCore: {
         id: string;
 
-        defenseCapacitorId:
-            DefenseCapacitorId;
+        powerCoreId:
+            PowerCoreId;
     };
 
     shieldEmitter: {
@@ -97,12 +97,12 @@ export const PLAYER_SHIP_PRESETS = {
 
         driveId: SHIP_DRIVE_ID.BASIC_00,
 
-        defenseCapacitor: {
+        powerCore: {
             id:
-                'defense_capacitor_player_00',
+                'power_core_player_00',
 
-            defenseCapacitorId:
-                DEFENSE_CAPACITOR_ID
+            powerCoreId:
+                POWER_CORE_ID
                     .BASIC_00,
         },
 

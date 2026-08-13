@@ -453,7 +453,7 @@ export type BridgePlayerShipDashboardUpdatedPayload = {
             max: number;
         };
 
-        defenseCapacitor: {
+        powerCore: {
             current: number;
             max: number;
 
@@ -629,7 +629,7 @@ export type BridgeCaptainCombatContextUpdatedPayload = {
             max: number;
         };
 
-        defenseCapacitor?: {
+        powerCore?: {
             current: number;
             max: number;
 

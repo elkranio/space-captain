@@ -53,9 +53,9 @@ export const engineerDeployShieldCommandHandler = {
             state.combat
                 .shieldEmitter;
 
-        const capacitor =
+        const powerCore =
             state.combat
-                .defenseCapacitor;
+                .powerCore;
 
         if (
             !emitter ||
@@ -68,8 +68,8 @@ export const engineerDeployShieldCommandHandler = {
             state.combat
                 .activeShield !==
                 null ||
-            !capacitor ||
-            capacitor.charges <= 0
+            !powerCore ||
+            powerCore.charges <= 0
         ) {
             return [];
         }
@@ -95,7 +95,7 @@ export const engineerDeployShieldCommandHandler = {
         // Resource is committed at task start.
         // Cancel/interruption does not refund it.
         context.stateStore
-            .spendDefenseCapacitorCharge();
+            .spendPowerCoreCharge();
 
         context.startOfficerTask(
             createEngineerDeployShieldTask(),

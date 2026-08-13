@@ -1,15 +1,15 @@
 // src/app/runtime/GameRuntime.ts
 
 import {
-    DEFENSE_CAPACITORS,
-} from '../../engine/content/catalogs/defense_capacitors';
+    POWER_CORES,
+} from '../../engine/content/catalogs/power_cores';
 import {
     SHIELD_EMITTERS,
 } from '../../engine/content/catalogs/shield_emitters';
 import { createNewRunState } from '../../engine/content/new_game/create_new_run_state';
 import type {
-    DefenseCapacitorState,
-} from '../../engine/defs/defense_capacitor';
+    PowerCoreState,
+} from '../../engine/defs/power_core';
 import {
     PLAYER_LOCATION_KIND,
     PLAYER_SPACE_NAVIGATION_KIND,
@@ -68,18 +68,18 @@ export class GameRuntime {
         ship.hull = hull;
     }
 
-    public setPlayerShipDefenseCapacitorState(
-        next: DefenseCapacitorState,
+    public setPlayerShipPowerCoreState(
+        next: PowerCoreState,
     ): void {
         const current =
             this.currentRun
                 .player
                 .ship
-                .defenseCapacitor;
+                .powerCore;
 
         if (next.id !== current.id) {
             throw new Error(
-                'Player defense-capacitor runtime id cannot change: ' +
+                'Player defense-powerCore runtime id cannot change: ' +
                     next.id +
                     ' !== ' +
                     current.id,
@@ -87,21 +87,21 @@ export class GameRuntime {
         }
 
         if (
-            next.defenseCapacitorId !==
-            current.defenseCapacitorId
+            next.powerCoreId !==
+            current.powerCoreId
         ) {
             throw new Error(
-                'Player defense-capacitor definition cannot change: ' +
-                    next.defenseCapacitorId +
+                'Player defense-powerCore definition cannot change: ' +
+                    next.powerCoreId +
                     ' !== ' +
-                    current.defenseCapacitorId,
+                    current.powerCoreId,
             );
         }
 
         const definition =
-            DEFENSE_CAPACITORS[
+            POWER_CORES[
                 current
-                    .defenseCapacitorId
+                    .powerCoreId
             ];
 
         if (
@@ -113,7 +113,7 @@ export class GameRuntime {
                 definition.capacity
         ) {
             throw new Error(
-                'Player defense-capacitor charges must be an integer between ' +
+                'Player defense-powerCore charges must be an integer between ' +
                     '0 and ' +
                     definition.capacity +
                     ': ' +
@@ -131,7 +131,7 @@ export class GameRuntime {
                     .rechargeDurationMs
         ) {
             throw new Error(
-                'Player defense-capacitor recharge elapsed must be in [0, ' +
+                'Player defense-powerCore recharge elapsed must be in [0, ' +
                     definition
                         .rechargeDurationMs +
                     '): ' +
@@ -145,7 +145,7 @@ export class GameRuntime {
             next.rechargeElapsedMs !== 0
         ) {
             throw new Error(
-                'Full player defense capacitor must have zero recharge elapsed: ' +
+                'Full player power core must have zero recharge elapsed: ' +
                     next.rechargeElapsedMs,
             );
         }

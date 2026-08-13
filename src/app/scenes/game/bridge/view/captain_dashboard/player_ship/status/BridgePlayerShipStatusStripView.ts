@@ -33,7 +33,7 @@ const WIDTH_RATIO = {
 // Captain dashboard top strip.
 //
 // The old PD/SHD resource cells are deliberately gone:
-// both defensive actions now consume the one shared DEFENSE CAPACITOR.
+// both defensive actions now consume the one shared POWER CORE.
 // The DEF bar shows only progress toward the next sequential charge.
 export default class BridgePlayerShipStatusStripView {
     private readonly root:
@@ -288,11 +288,11 @@ export default class BridgePlayerShipStatusStripView {
         this.defenseText.setText(
             'DEF ' +
                 status
-                    .defenseCapacitor
+                    .powerCore
                     .current +
                 '/' +
                 status
-                    .defenseCapacitor
+                    .powerCore
                     .max,
         );
 
@@ -304,7 +304,7 @@ export default class BridgePlayerShipStatusStripView {
 
         const progress =
             status
-                .defenseCapacitor
+                .powerCore
                 .rechargeProgress;
 
         const isRecharging =

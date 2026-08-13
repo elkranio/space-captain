@@ -178,7 +178,7 @@ Examples:
 - missile flight duration;
 - SPAM progress multiplier;
 - shield duration/cooldown tuning;
-- defense capacitor capacity/recharge tuning;
+- power core capacity/recharge tuning;
 - enemy behavior delays/weights/priorities;
 - names/labels that belong to content records.
 
@@ -472,7 +472,7 @@ Prove:
 
 Expose tuning for:
 
-- defense capacitor;
+- power core;
 - shield emitter;
 - point defense as appropriate;
 - ship/enemy behavior presets.

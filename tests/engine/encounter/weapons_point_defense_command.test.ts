@@ -1,12 +1,12 @@
 // tests/engine/encounter/weapons_point_defense_command.test.ts
 
 import type {
-    DefenseCapacitorState,
-} from '../../../src/engine/defs/defense_capacitor';
+    PowerCoreState,
+} from '../../../src/engine/defs/power_core';
 import { createPlayerHullFixture } from '../../fixtures/engine/player_hull_fixtures';
 import {
-    createDefenseCapacitorFixture,
-} from '../../fixtures/engine/defense_capacitor_fixtures';
+    createPowerCoreFixture,
+} from '../../fixtures/engine/power_core_fixtures';
 import { createShipDriveFixture } from '../../fixtures/engine/ship_drive_fixtures';
 import { describe, expect, it } from 'vitest';
 import { SHIP_WEAPON_TARGETING_DURATION_MS } from '../../../src/engine/content/catalogs/ship_weapons';
@@ -140,7 +140,7 @@ describe('Weapons point defense command', () => {
 
             expect(
                 state.combat
-                    .defenseCapacitor,
+                    .powerCore,
             ).toMatchObject({
                 charges: 3,
             });
@@ -176,7 +176,7 @@ describe('Weapons point defense command', () => {
 
             expect(
                 state.combat
-                    .defenseCapacitor,
+                    .powerCore,
             ).toMatchObject({
                 charges: 3,
             });
@@ -226,7 +226,7 @@ describe('Weapons point defense command', () => {
 
             expect(
                 state.combat
-                    .defenseCapacitor,
+                    .powerCore,
             ).toMatchObject({
                 charges: 3,
             });
@@ -280,7 +280,7 @@ describe('Weapons point defense command', () => {
 
             expect(
                 state.combat
-                    .defenseCapacitor,
+                    .powerCore,
             ).toMatchObject({
                 charges: 3,
             });
@@ -332,7 +332,7 @@ describe('Weapons point defense command', () => {
 
             expect(
                 state.combat
-                    .defenseCapacitor,
+                    .powerCore,
             ).toMatchObject({
                 charges: 3,
             });
@@ -347,18 +347,18 @@ describe('Weapons point defense command', () => {
 
     it('does not offer point-defense commands without shared defensive charges', () => {
         const { engine, state } = createEngineWithIncomingMissile({
-            defenseCapacitor:
-                createDefenseCapacitorFixture(
+            powerCore:
+                createPowerCoreFixture(
                     0,
                 ),
         });
 
         // Scenario setup advances combat time before this assertion,
-        // so an empty rechargeable capacitor has already accumulated
+        // so an empty rechargeable powerCore has already accumulated
         // some recharge progress. Availability depends only on charges.
         expect(
             state.combat
-                .defenseCapacitor,
+                .powerCore,
         ).toMatchObject({
             charges: 0,
         });
@@ -392,7 +392,7 @@ describe('Weapons point defense command', () => {
 
         expect(
             state.combat
-                .defenseCapacitor,
+                .powerCore,
         ).toMatchObject({
             charges: 3,
         });
@@ -438,7 +438,7 @@ describe('Weapons point defense command', () => {
 
         expect(
             state.combat
-                .defenseCapacitor,
+                .powerCore,
         ).toMatchObject({
             charges: 3,
         });
@@ -488,7 +488,7 @@ describe('Weapons point defense command', () => {
 
         expect(
             state.combat
-                .defenseCapacitor,
+                .powerCore,
         ).toMatchObject({
             charges: 3,
         });
@@ -506,14 +506,14 @@ type IncomingMissileActorPresetId =
 type CreateEngineWithIncomingMissileOptions = {
     presetId?: IncomingMissileActorPresetId;
 
-    defenseCapacitor?:
-        DefenseCapacitorState;
+    powerCore?:
+        PowerCoreState;
 };
 
 function createEngineWithIncomingMissile({
     presetId = SHIP_NODE_ACTOR_PRESET_ID.ENEMY_GENERIC_00,
-    defenseCapacitor =
-        createDefenseCapacitorFixture(),
+    powerCore =
+        createPowerCoreFixture(),
 }: CreateEngineWithIncomingMissileOptions = {}) {
     const { node, stationId } = createSingleStationNodeFixture();
 
@@ -546,7 +546,7 @@ function createEngineWithIncomingMissile({
 
             anchorId: stationId,
         },
-        defenseCapacitor,
+        powerCore,
     });
 
     const [loadedEvent] = engine.drainEvents();

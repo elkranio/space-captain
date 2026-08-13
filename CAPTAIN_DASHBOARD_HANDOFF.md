@@ -27,7 +27,7 @@ The dashboard should feel like restrained early-1990s VGA / Sierra sci-fi:
 
 Implemented rows/status cover:
 - HULL
-- shared DEF capacitor
+- shared DEF powerCore
 - ENGINE
 - MISSILE
 - LASER

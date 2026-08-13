@@ -1,8 +1,8 @@
 // src/engine/encounter/model/combat.ts
 
 import type {
-    DefenseCapacitorState,
-} from '../../defs/defense_capacitor';
+    PowerCoreState,
+} from '../../defs/power_core';
 import type { MissileSpectralBand, MissileId } from '../../defs/missile';
 import type {
     StickyMineId,
@@ -215,8 +215,8 @@ export type StickyMineState = {
 export type EncounterCombatState = {
     // Shared defensive-energy installation.
     // Some test/minimal encounters may omit it.
-    defenseCapacitor?:
-        DefenseCapacitorState;
+    powerCore?:
+        PowerCoreState;
 
     // Mutable installed shield emitter
     // текущего player ship в encounter.

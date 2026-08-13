@@ -4,8 +4,8 @@ import type {
     CrewTraitsByRole,
 } from '../../../defs/crew_trait';
 import type {
-    DefenseCapacitorState,
-} from '../../../defs/defense_capacitor';
+    PowerCoreState,
+} from '../../../defs/power_core';
 import type {
     OfficerRole,
 } from '../../../defs/officer';
@@ -65,8 +65,8 @@ export type ShipEncounterActorState =
         pointDefense?:
             ShipPointDefenseState;
 
-        defenseCapacitor?:
-            DefenseCapacitorState;
+        powerCore?:
+            PowerCoreState;
 
         shieldEmitter?:
             ShieldEmitterState;

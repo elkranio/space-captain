@@ -7,8 +7,8 @@ import {
     SHIP_NODE_ACTOR_PRESET_ID,
 } from '../../../src/engine/content/presets/ship_node_actors';
 import {
-    DEFENSE_CAPACITOR_ID,
-} from '../../../src/engine/defs/defense_capacitor';
+    POWER_CORE_ID,
+} from '../../../src/engine/defs/power_core';
 import {
     OFFICER_ROLE,
 } from '../../../src/engine/defs/officer';
@@ -63,13 +63,13 @@ describe('Enemy defense sandbox preset', () => {
                 });
 
             expect(
-                actor.defenseCapacitor,
+                actor.powerCore,
             ).toEqual({
                 id:
-                    'defense_capacitor_00',
+                    'power_core_00',
 
-                defenseCapacitorId:
-                    DEFENSE_CAPACITOR_ID
+                powerCoreId:
+                    POWER_CORE_ID
                         .BASIC_00,
 
                 charges: 4,

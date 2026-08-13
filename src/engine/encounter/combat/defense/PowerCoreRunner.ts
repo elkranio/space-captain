@@ -1,11 +1,11 @@
-// src/engine/encounter/combat/defense/DefenseCapacitorRunner.ts
+// src/engine/encounter/combat/defense/PowerCoreRunner.ts
 
 import {
-    DEFENSE_CAPACITORS,
-} from '../../../content/catalogs/defense_capacitors';
+    POWER_CORES,
+} from '../../../content/catalogs/power_cores';
 import type {
-    DefenseCapacitorState,
-} from '../../../defs/defense_capacitor';
+    PowerCoreState,
+} from '../../../defs/power_core';
 import {
     ENCOUNTER_ACTOR_KIND,
 } from '../../actors/encounter_actor';
@@ -17,8 +17,8 @@ import type {
 //
 // Charges восстанавливаются последовательно:
 // 2/4 -> 3/4 -> 4/4.
-// При полном capacitor progress всегда сбрасывается в 0.
-export default class DefenseCapacitorRunner {
+// При полном powerCore progress всегда сбрасывается в 0.
+export default class PowerCoreRunner {
     constructor(
         private readonly state:
             EncounterState,
@@ -32,18 +32,18 @@ export default class DefenseCapacitorRunner {
             deltaMs < 0
         ) {
             throw new Error(
-                'Defense capacitor deltaMs must be non-negative: ' +
+                'Defense powerCore deltaMs must be non-negative: ' +
                     String(deltaMs),
             );
         }
 
-        const playerCapacitor =
+        const playerPowerCore =
             this.state.combat
-                .defenseCapacitor;
+                .powerCore;
 
-        if (playerCapacitor) {
-            advanceDefenseCapacitor(
-                playerCapacitor,
+        if (playerPowerCore) {
+            advancePowerCore(
+                playerPowerCore,
                 deltaMs,
             );
         }
@@ -59,62 +59,62 @@ export default class DefenseCapacitorRunner {
                 continue;
             }
 
-            if (!actor.defenseCapacitor) {
+            if (!actor.powerCore) {
                 continue;
             }
 
-            advanceDefenseCapacitor(
-                actor.defenseCapacitor,
+            advancePowerCore(
+                actor.powerCore,
                 deltaMs,
             );
         }
     }
 }
 
-export function advanceDefenseCapacitor(
-    capacitor:
-        DefenseCapacitorState,
+export function advancePowerCore(
+    powerCore:
+        PowerCoreState,
     deltaMs: number,
 ): void {
     const definition =
-        DEFENSE_CAPACITORS[
-            capacitor
-                .defenseCapacitorId
+        POWER_CORES[
+            powerCore
+                .powerCoreId
         ];
 
     if (
-        capacitor.charges >=
+        powerCore.charges >=
         definition.capacity
     ) {
-        capacitor.charges =
+        powerCore.charges =
             definition.capacity;
 
-        capacitor.rechargeElapsedMs =
+        powerCore.rechargeElapsedMs =
             0;
 
         return;
     }
 
     let elapsedMs =
-        capacitor.rechargeElapsedMs +
+        powerCore.rechargeElapsedMs +
         deltaMs;
 
     while (
-        capacitor.charges <
+        powerCore.charges <
             definition.capacity &&
         elapsedMs >=
             definition
                 .rechargeDurationMs
     ) {
-        capacitor.charges += 1;
+        powerCore.charges += 1;
 
         elapsedMs -=
             definition
                 .rechargeDurationMs;
     }
 
-    capacitor.rechargeElapsedMs =
-        capacitor.charges >=
+    powerCore.rechargeElapsedMs =
+        powerCore.charges >=
         definition.capacity
             ? 0
             : elapsedMs;

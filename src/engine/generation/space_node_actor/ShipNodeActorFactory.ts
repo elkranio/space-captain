@@ -93,11 +93,11 @@ export default class ShipNodeActorFactory {
             ),
 
             ...(
-                ship.defenseCapacitor
+                ship.powerCore
                     ? {
-                          defenseCapacitor:
+                          powerCore:
                               ship
-                                  .defenseCapacitor,
+                                  .powerCore,
                       }
                     : {}
             ),

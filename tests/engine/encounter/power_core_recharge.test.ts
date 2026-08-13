@@ -1,4 +1,4 @@
-// tests/engine/encounter/defense_capacitor_recharge.test.ts
+// tests/engine/encounter/power_core_recharge.test.ts
 
 import {
     describe,
@@ -6,20 +6,20 @@ import {
     it,
 } from 'vitest';
 import {
-    DEFENSE_CAPACITORS,
-} from '../../../src/engine/content/catalogs/defense_capacitors';
+    POWER_CORES,
+} from '../../../src/engine/content/catalogs/power_cores';
 import {
-    DEFENSE_CAPACITOR_ID,
-} from '../../../src/engine/defs/defense_capacitor';
+    POWER_CORE_ID,
+} from '../../../src/engine/defs/power_core';
 import {
-    spendDefenseCapacitorCharge,
-} from '../../../src/engine/encounter/combat/defense/spend_defense_capacitor_charge';
+    spendPowerCoreCharge,
+} from '../../../src/engine/encounter/combat/defense/spend_power_core_charge';
 import {
     createAnchoredPlayerCombatTestSetup,
 } from './combat_test_support';
 
 describe(
-    'Defense capacitor recharge',
+    'Defense powerCore recharge',
     () => {
         it(
             'spending a charge restarts recharge progress',
@@ -29,22 +29,22 @@ describe(
                 } =
                     createAnchoredPlayerCombatTestSetup();
 
-                const capacitor =
+                const powerCore =
                     state.combat
-                        .defenseCapacitor;
+                        .powerCore;
 
-                if (!capacitor) {
+                if (!powerCore) {
                     throw new Error(
-                        'Expected installed player defense capacitor',
+                        'Expected installed player power core',
                     );
                 }
 
-                capacitor.charges = 3;
-                capacitor.rechargeElapsedMs = 12000;
+                powerCore.charges = 3;
+                powerCore.rechargeElapsedMs = 12000;
 
                 expect(
-                    spendDefenseCapacitorCharge(
-                        capacitor,
+                    spendPowerCoreCharge(
+                        powerCore,
                     ),
                 ).toMatchObject({
                     charges: 2,
@@ -52,7 +52,7 @@ describe(
                 });
 
                 expect(
-                    capacitor,
+                    powerCore,
                 ).toMatchObject({
                     charges: 2,
                     rechargeElapsedMs: 0,
@@ -70,34 +70,34 @@ describe(
                 } =
                     createAnchoredPlayerCombatTestSetup();
 
-                const playerCapacitor =
+                const playerPowerCore =
                     state.combat
-                        .defenseCapacitor;
+                        .powerCore;
 
-                const enemyCapacitor =
+                const enemyPowerCore =
                     targetActor
-                        .defenseCapacitor;
+                        .powerCore;
 
                 if (
-                    !playerCapacitor ||
-                    !enemyCapacitor
+                    !playerPowerCore ||
+                    !enemyPowerCore
                 ) {
                     throw new Error(
-                        'Expected installed defense capacitors',
+                        'Expected installed power cores',
                     );
                 }
 
                 const definition =
-                    DEFENSE_CAPACITORS[
-                        DEFENSE_CAPACITOR_ID
+                    POWER_CORES[
+                        POWER_CORE_ID
                             .BASIC_00
                     ];
 
-                playerCapacitor.charges = 2;
-                playerCapacitor.rechargeElapsedMs = 0;
+                playerPowerCore.charges = 2;
+                playerPowerCore.rechargeElapsedMs = 0;
 
-                enemyCapacitor.charges = 1;
-                enemyCapacitor.rechargeElapsedMs = 0;
+                enemyPowerCore.charges = 1;
+                enemyPowerCore.rechargeElapsedMs = 0;
 
                 engine.step(
                     definition
@@ -106,7 +106,7 @@ describe(
                 );
 
                 expect(
-                    playerCapacitor,
+                    playerPowerCore,
                 ).toMatchObject({
                     charges: 2,
 
@@ -117,7 +117,7 @@ describe(
                 });
 
                 expect(
-                    enemyCapacitor,
+                    enemyPowerCore,
                 ).toMatchObject({
                     charges: 1,
 
@@ -130,14 +130,14 @@ describe(
                 engine.step(1);
 
                 expect(
-                    playerCapacitor,
+                    playerPowerCore,
                 ).toMatchObject({
                     charges: 3,
                     rechargeElapsedMs: 0,
                 });
 
                 expect(
-                    enemyCapacitor,
+                    enemyPowerCore,
                 ).toMatchObject({
                     charges: 2,
                     rechargeElapsedMs: 0,
@@ -151,7 +151,7 @@ describe(
                 );
 
                 expect(
-                    playerCapacitor,
+                    playerPowerCore,
                 ).toMatchObject({
                     charges:
                         definition.capacity,
@@ -160,7 +160,7 @@ describe(
                 });
 
                 expect(
-                    enemyCapacitor,
+                    enemyPowerCore,
                 ).toMatchObject({
                     charges:
                         definition.capacity,

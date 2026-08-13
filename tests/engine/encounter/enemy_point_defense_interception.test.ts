@@ -148,7 +148,7 @@ describe('Enemy point-defense interception', () => {
         });
 
         expect(
-            enemy.defenseCapacitor,
+            enemy.powerCore,
         ).toMatchObject({
             charges: 3,
             rechargeElapsedMs:
@@ -246,7 +246,7 @@ describe('Enemy point-defense interception', () => {
         });
 
         expect(
-            enemy.defenseCapacitor,
+            enemy.powerCore,
         ).toMatchObject({
             charges: 3,
             rechargeElapsedMs:

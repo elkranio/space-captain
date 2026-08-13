@@ -9,8 +9,8 @@ import {
     GameRuntime,
 } from '../../src/app/runtime/GameRuntime';
 import {
-    DEFENSE_CAPACITOR_ID,
-} from '../../src/engine/defs/defense_capacitor';
+    POWER_CORE_ID,
+} from '../../src/engine/defs/power_core';
 import {
     MISSILE_ID,
 } from '../../src/engine/defs/missile';
@@ -51,12 +51,12 @@ describe('GameRuntime player ship hull', () => {
                 status:
                     SHIP_DRIVE_STATUS.ONLINE,
             },
-            defenseCapacitor: {
+            powerCore: {
                 id:
-                    'defense_capacitor_player_00',
+                    'power_core_player_00',
 
-                defenseCapacitorId:
-                    DEFENSE_CAPACITOR_ID
+                powerCoreId:
+                    POWER_CORE_ID
                         .BASIC_00,
 
                 charges: 4,
@@ -201,12 +201,12 @@ describe('GameRuntime player ship hull', () => {
                 status:
                     SHIP_DRIVE_STATUS.ONLINE,
             },
-            defenseCapacitor: {
+            powerCore: {
                 id:
-                    'defense_capacitor_player_00',
+                    'power_core_player_00',
 
-                defenseCapacitorId:
-                    DEFENSE_CAPACITOR_ID
+                powerCoreId:
+                    POWER_CORE_ID
                         .BASIC_00,
 
                 charges: 4,
@@ -369,18 +369,18 @@ describe('GameRuntime player drive', () => {
     });
 });
 
-describe('GameRuntime player defense capacitor', () => {
-    it('updates persistent defense-capacitor runtime state', () => {
+describe('GameRuntime player power core', () => {
+    it('updates persistent defense-powerCore runtime state', () => {
         const runtime =
             new GameRuntime();
 
         runtime
-            .setPlayerShipDefenseCapacitorState({
+            .setPlayerShipPowerCoreState({
                 id:
-                    'defense_capacitor_player_00',
+                    'power_core_player_00',
 
-                defenseCapacitorId:
-                    DEFENSE_CAPACITOR_ID
+                powerCoreId:
+                    POWER_CORE_ID
                         .BASIC_00,
 
                 charges: 2,
@@ -392,13 +392,13 @@ describe('GameRuntime player defense capacitor', () => {
                 .getCurrentRun()
                 .player
                 .ship
-                .defenseCapacitor,
+                .powerCore,
         ).toEqual({
             id:
-                'defense_capacitor_player_00',
+                'power_core_player_00',
 
-            defenseCapacitorId:
-                DEFENSE_CAPACITOR_ID
+            powerCoreId:
+                POWER_CORE_ID
                     .BASIC_00,
 
             charges: 2,
@@ -406,59 +406,59 @@ describe('GameRuntime player defense capacitor', () => {
         });
     });
 
-    it('rejects invalid defense-capacitor runtime state', () => {
+    it('rejects invalid defense-powerCore runtime state', () => {
         const runtime =
             new GameRuntime();
 
         expect(() => {
             runtime
-                .setPlayerShipDefenseCapacitorState({
+                .setPlayerShipPowerCoreState({
                     id:
-                        'defense_capacitor_player_00',
+                        'power_core_player_00',
 
-                    defenseCapacitorId:
-                        DEFENSE_CAPACITOR_ID
+                    powerCoreId:
+                        POWER_CORE_ID
                             .BASIC_00,
 
                     charges: 5,
                     rechargeElapsedMs: 0,
                 });
         }).toThrow(
-            'Player defense-capacitor charges must be an integer between 0 and 4: 5',
+            'Player defense-powerCore charges must be an integer between 0 and 4: 5',
         );
 
         expect(() => {
             runtime
-                .setPlayerShipDefenseCapacitorState({
+                .setPlayerShipPowerCoreState({
                     id:
-                        'defense_capacitor_player_00',
+                        'power_core_player_00',
 
-                    defenseCapacitorId:
-                        DEFENSE_CAPACITOR_ID
+                    powerCoreId:
+                        POWER_CORE_ID
                             .BASIC_00,
 
                     charges: 3,
                     rechargeElapsedMs: 24000,
                 });
         }).toThrow(
-            'Player defense-capacitor recharge elapsed must be in [0, 24000): 24000',
+            'Player defense-powerCore recharge elapsed must be in [0, 24000): 24000',
         );
 
         expect(() => {
             runtime
-                .setPlayerShipDefenseCapacitorState({
+                .setPlayerShipPowerCoreState({
                     id:
-                        'defense_capacitor_player_00',
+                        'power_core_player_00',
 
-                    defenseCapacitorId:
-                        DEFENSE_CAPACITOR_ID
+                    powerCoreId:
+                        POWER_CORE_ID
                             .BASIC_00,
 
                     charges: 4,
                     rechargeElapsedMs: 1,
                 });
         }).toThrow(
-            'Full player defense capacitor must have zero recharge elapsed: 1',
+            'Full player power core must have zero recharge elapsed: 1',
         );
     });
 });

@@ -13,8 +13,8 @@ import {
 } from '../../content/presets/ships';
 import type { ShipPreset } from '../../content/presets/ships';
 import type {
-    DefenseCapacitorState,
-} from '../../defs/defense_capacitor';
+    PowerCoreState,
+} from '../../defs/power_core';
 import type {
     ShipPointDefenseState,
 } from '../../defs/point_defense';
@@ -32,7 +32,7 @@ import {
 import type {
     ShieldEmitterState,
 } from '../../defs/shield_emitter';
-import DefenseCapacitorFactory from '../ship_system/DefenseCapacitorFactory';
+import PowerCoreFactory from '../ship_system/PowerCoreFactory';
 import ShipPointDefenseFactory from '../ship_system/ShipPointDefenseFactory';
 import ShieldEmitterFactory from '../ship_system/ShieldEmitterFactory';
 import LaserWeaponFactory from '../ship_weapon/LaserWeaponFactory';
@@ -54,8 +54,8 @@ export type CreatedShipState = {
 
     pointDefense?: ShipPointDefenseState;
 
-    defenseCapacitor?:
-        DefenseCapacitorState;
+    powerCore?:
+        PowerCoreState;
 
     shieldEmitter?:
         ShieldEmitterState;
@@ -112,19 +112,19 @@ export default class ShipFactory {
             ),
 
             ...(
-                preset.defenseCapacitor
+                preset.powerCore
                     ? {
-                          defenseCapacitor:
-                              DefenseCapacitorFactory.create({
+                          powerCore:
+                              PowerCoreFactory.create({
                                   id:
                                       preset
-                                          .defenseCapacitor
+                                          .powerCore
                                           .id,
 
-                                  defenseCapacitorId:
+                                  powerCoreId:
                                       preset
-                                          .defenseCapacitor
-                                          .defenseCapacitorId,
+                                          .powerCore
+                                          .powerCoreId,
                               }),
                       }
                     : {}

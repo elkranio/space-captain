@@ -3,7 +3,7 @@ import {
     expect,
     it,
 } from 'vitest';
-import defenseCapacitorData from '../../src/engine/content/data/defense_capacitors.json';
+import powerCoreData from '../../src/engine/content/data/power_cores.json';
 import enemyBehaviorRulesData from '../../src/engine/content/data/enemy_behavior_rules.json';
 import missileData from '../../src/engine/content/data/missiles.json';
 import officerTaskData from '../../src/engine/content/data/officer_tasks.json';
@@ -79,13 +79,13 @@ describe(
                     {
                         id:
                             CONTENT_COLLECTION_ID
-                                .DEFENSE_CAPACITORS,
+                                .POWER_CORES,
 
                         label:
-                            'Defense Capacitors',
+                            'Ship Modules / Power Cores',
 
-                        canAdd: false,
-                        canDelete: false,
+                        canAdd: true,
+                        canDelete: true,
                     },
                     {
                         id:
@@ -205,8 +205,8 @@ describe(
                     ],
                     [
                         CONTENT_COLLECTION_ID
-                            .DEFENSE_CAPACITORS,
-                        defenseCapacitorData,
+                            .POWER_CORES,
+                        powerCoreData,
                     ],
                     [
                         CONTENT_COLLECTION_ID

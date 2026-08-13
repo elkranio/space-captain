@@ -252,9 +252,9 @@ export default class BridgeEncounterController {
 
             drive: run.player.ship.drive,
 
-            defenseCapacitor:
+            powerCore:
                 run.player.ship
-                    .defenseCapacitor,
+                    .powerCore,
 
             shieldEmitter:
                 run.player.ship

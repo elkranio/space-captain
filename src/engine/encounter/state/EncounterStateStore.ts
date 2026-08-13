@@ -1,8 +1,8 @@
 // src/engine/encounter/state/EncounterStateStore.ts
 
 import type {
-    DefenseCapacitorState,
-} from '../../defs/defense_capacitor';
+    PowerCoreState,
+} from '../../defs/power_core';
 import type { OfficerRole } from '../../defs/officer';
 import type {
     PlayerHullDamageResult,
@@ -139,8 +139,8 @@ export default class EncounterStateStore {
                 pointDefense:
                     actor.pointDefense,
 
-                defenseCapacitor:
-                    actor.defenseCapacitor,
+                powerCore:
+                    actor.powerCore,
 
                 shieldEmitter:
                     actor.shieldEmitter,
@@ -426,10 +426,10 @@ export default class EncounterStateStore {
             .consumeActiveShield();
     }
 
-    public spendDefenseCapacitorCharge():
-        DefenseCapacitorState {
+    public spendPowerCoreCharge():
+        PowerCoreState {
         return this.playerShip
-            .spendDefenseCapacitorCharge();
+            .spendPowerCoreCharge();
     }
 
     public firePointDefense(

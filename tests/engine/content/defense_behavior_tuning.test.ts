@@ -4,8 +4,8 @@ import {
     it,
 } from 'vitest';
 import {
-    DEFENSE_CAPACITORS,
-} from '../../../src/engine/content/catalogs/defense_capacitors';
+    POWER_CORES,
+} from '../../../src/engine/content/catalogs/power_cores';
 import {
     POINT_DEFENSES,
 } from '../../../src/engine/content/catalogs/point_defenses';
@@ -16,8 +16,8 @@ import {
     SHIP_BEHAVIOR_PRESETS,
 } from '../../../src/engine/content/presets/ship_behaviors';
 import {
-    DEFENSE_CAPACITOR_TUNING_SCHEMA,
-} from '../../../src/engine/content/schemas/defense_capacitors';
+    POWER_CORE_TUNING_SCHEMA,
+} from '../../../src/engine/content/schemas/power_cores';
 import {
     POINT_DEFENSE_TUNING_SCHEMA,
 } from '../../../src/engine/content/schemas/point_defenses';
@@ -28,8 +28,8 @@ import {
     SHIP_BEHAVIOR_TUNING_SCHEMA,
 } from '../../../src/engine/content/schemas/ship_behaviors';
 import {
-    DEFENSE_CAPACITOR_ID,
-} from '../../../src/engine/defs/defense_capacitor';
+    POWER_CORE_ID,
+} from '../../../src/engine/defs/power_core';
 import {
     POINT_DEFENSE_ID,
 } from '../../../src/engine/defs/point_defense';
@@ -47,17 +47,17 @@ describe(
             'preserves current defense definitions',
             () => {
                 expect(
-                    DEFENSE_CAPACITORS[
-                        DEFENSE_CAPACITOR_ID
+                    POWER_CORES[
+                        POWER_CORE_ID
                             .BASIC_00
                     ],
                 ).toEqual({
                     id:
-                        DEFENSE_CAPACITOR_ID
+                        POWER_CORE_ID
                             .BASIC_00,
 
                     name:
-                        'MK.I DEFENSE CAPACITOR',
+                        'MK.I POWER CORE',
 
                     capacity: 4,
 
@@ -130,11 +130,11 @@ describe(
             'rejects invalid defense tuning',
             () => {
                 expect(
-                    DEFENSE_CAPACITOR_TUNING_SCHEMA
+                    POWER_CORE_TUNING_SCHEMA
                         .safeParse({
-                            defense_capacitor_basic_00: {
+                            power_core_basic_00: {
                                 name:
-                                    'MK.I DEFENSE CAPACITOR',
+                                    'MK.I POWER CORE',
                                 capacity: 0,
                                 rechargeDurationMs:
                                     24000,

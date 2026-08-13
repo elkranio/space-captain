@@ -9,8 +9,8 @@ import {
     createNewRunState,
 } from '../../../src/engine/content/new_game/create_new_run_state';
 import {
-    DEFENSE_CAPACITOR_ID,
-} from '../../../src/engine/defs/defense_capacitor';
+    POWER_CORE_ID,
+} from '../../../src/engine/defs/power_core';
 import {
     MISSILE_ID,
 } from '../../../src/engine/defs/missile';
@@ -49,12 +49,12 @@ describe('createNewRunState', () => {
                 status:
                     SHIP_DRIVE_STATUS.ONLINE,
             },
-            defenseCapacitor: {
+            powerCore: {
                 id:
-                    'defense_capacitor_player_00',
+                    'power_core_player_00',
 
-                defenseCapacitorId:
-                    DEFENSE_CAPACITOR_ID
+                powerCoreId:
+                    POWER_CORE_ID
                         .BASIC_00,
 
                 charges: 4,
@@ -179,13 +179,13 @@ describe('createNewRunState', () => {
         firstRun
             .player
             .ship
-            .defenseCapacitor
+            .powerCore
             .charges = 1;
 
         firstRun
             .player
             .ship
-            .defenseCapacitor
+            .powerCore
             .rechargeElapsedMs = 12000;
 
         firstRun
@@ -262,12 +262,12 @@ describe('createNewRunState', () => {
                 status:
                     SHIP_DRIVE_STATUS.ONLINE,
             },
-            defenseCapacitor: {
+            powerCore: {
                 id:
-                    'defense_capacitor_player_00',
+                    'power_core_player_00',
 
-                defenseCapacitorId:
-                    DEFENSE_CAPACITOR_ID
+                powerCoreId:
+                    POWER_CORE_ID
                         .BASIC_00,
 
                 charges: 4,

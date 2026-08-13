@@ -1,7 +1,7 @@
 import * as z from 'zod';
 import {
-    DEFENSE_CAPACITOR_TUNING_SCHEMA,
-} from '../../../src/engine/content/schemas/defense_capacitors';
+    POWER_CORE_TUNING_SCHEMA,
+} from '../../../src/engine/content/schemas/power_cores';
 import {
     ENEMY_BEHAVIOR_RULES_SCHEMA,
 } from '../../../src/engine/content/schemas/enemy_behavior_rules';
@@ -49,8 +49,8 @@ export const CONTENT_COLLECTION_ID = {
     MISSILES:
         'missiles',
 
-    DEFENSE_CAPACITORS:
-        'defense_capacitors',
+    POWER_CORES:
+        'power_cores',
 
     POINT_DEFENSES:
         'point_defenses',
@@ -172,23 +172,23 @@ const CONTENT_COLLECTIONS:
         },
 
         [CONTENT_COLLECTION_ID
-            .DEFENSE_CAPACITORS]: {
+            .POWER_CORES]: {
             id:
                 CONTENT_COLLECTION_ID
-                    .DEFENSE_CAPACITORS,
+                    .POWER_CORES,
 
             label:
-                'Defense Capacitors',
+                'Ship Modules / Power Cores',
 
             dataPath:
                 'src/engine/content/data/' +
-                'defense_capacitors.json',
+                'power_cores.json',
 
             schema:
-                DEFENSE_CAPACITOR_TUNING_SCHEMA,
+                POWER_CORE_TUNING_SCHEMA,
 
-            canAdd: false,
-            canDelete: false,
+            canAdd: true,
+            canDelete: true,
         },
 
         [CONTENT_COLLECTION_ID

@@ -447,8 +447,8 @@ function mapEnemyShip(
         return undefined;
     }
 
-    const defenseCapacitor =
-        enemyShip.defenseCapacitor;
+    const powerCore =
+        enemyShip.powerCore;
 
     return {
         actorId:
@@ -458,22 +458,22 @@ function mapEnemyShip(
             ...enemyShip.hull,
         },
 
-        ...(defenseCapacitor
+        ...(powerCore
             ? {
-                  defenseCapacitor:
-                      mapDefenseCapacitor(
-                          defenseCapacitor,
+                  powerCore:
+                      mapPowerCore(
+                          powerCore,
                       ),
               }
             : {}),
     };
 }
 
-function mapDefenseCapacitor(
+function mapPowerCore(
     snapshot:
         NonNullable<
             EnemyShipPresentationSnapshot[
-                'defenseCapacitor'
+                'powerCore'
             ]
         >,
 ): NonNullable<
@@ -482,7 +482,7 @@ function mapDefenseCapacitor(
             'enemyShip'
         ]
     >[
-        'defenseCapacitor'
+        'powerCore'
     ]
 > {
     return {

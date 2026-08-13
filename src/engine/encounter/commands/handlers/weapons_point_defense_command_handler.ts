@@ -59,13 +59,13 @@ function createWeaponsPointDefenseCommandHandler(
         def,
 
         getAvailableCommands(state) {
-            const defenseCapacitor =
+            const powerCore =
                 state.combat
-                    .defenseCapacitor;
+                    .powerCore;
 
             if (
-                !defenseCapacitor ||
-                defenseCapacitor.charges <= 0
+                !powerCore ||
+                powerCore.charges <= 0
             ) {
                 return [];
             }
@@ -123,7 +123,7 @@ function createWeaponsPointDefenseCommandHandler(
             const threatId = requireThreatTargetId(input);
 
             context.stateStore
-                .spendDefenseCapacitorCharge();
+                .spendPowerCoreCharge();
 
             context.startOfficerTask(createWeaponsPointDefenseTask(commandId, threatId, pointDefenseBeamBand));
         },

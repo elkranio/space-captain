@@ -129,12 +129,12 @@ export default class EnemyPointDefenseRunner {
         const fallbackBeamBand =
             pointDefense.loadedBand;
 
-        const defenseCapacitor =
-            actor.defenseCapacitor;
+        const powerCore =
+            actor.powerCore;
 
         if (
             !fallbackBeamBand ||
-            !defenseCapacitor
+            !powerCore
         ) {
             throw new Error(
                 'Enemy point defense cannot fire: ' +
@@ -188,7 +188,7 @@ export default class EnemyPointDefenseRunner {
             outcome,
 
             remainingCharges:
-                defenseCapacitor.charges,
+                powerCore.charges,
         });
 
         if (

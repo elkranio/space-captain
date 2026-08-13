@@ -26,7 +26,7 @@ import {
     type AvailableOfficerCommand,
 } from '../../src/engine/encounter/model/command';
 import {
-    createDefenseCapacitorPresentationSnapshot,
+    createPowerCorePresentationSnapshot,
 } from '../../src/engine/encounter/snapshots/combat_presentation_snapshot';
 import {
     mapCaptainCombatContextToBridgePayload,
@@ -268,7 +268,7 @@ describe(
         );
 
         it(
-            'maps current enemy hull and defense capacitor',
+            'maps current enemy hull and power core',
             () => {
                 expect(
                     mapCaptainCombatContextToBridgePayload({
@@ -296,13 +296,13 @@ describe(
                                         'online',
                                 },
 
-                                defenseCapacitor:
-                                    createDefenseCapacitorPresentationSnapshot({
+                                powerCore:
+                                    createPowerCorePresentationSnapshot({
                                         id:
                                             'enemy_def_00',
 
-                                        defenseCapacitorId:
-                                            'defense_capacitor_basic_00',
+                                        powerCoreId:
+                                            'power_core_basic_00',
 
                                         charges: 2,
                                         rechargeElapsedMs:
@@ -347,7 +347,7 @@ describe(
                             max: 4,
                         },
 
-                        defenseCapacitor: {
+                        powerCore: {
                             current: 2,
                             max: 4,
 

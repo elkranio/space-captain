@@ -64,7 +64,7 @@ describe(
 
                 const beforeCharges =
                     state.combat
-                        .defenseCapacitor
+                        .powerCore
                         ?.charges;
 
                 if (
@@ -72,7 +72,7 @@ describe(
                     undefined
                 ) {
                     throw new Error(
-                        'Expected player DEF capacitor',
+                        'Expected player DEF powerCore',
                     );
                 }
 
@@ -93,7 +93,7 @@ describe(
 
                 expect(
                     state.combat
-                        .defenseCapacitor
+                        .powerCore
                         ?.charges,
                 ).toBe(
                     beforeCharges - 1,
@@ -127,7 +127,7 @@ describe(
 
                 expect(
                     state.combat
-                        .defenseCapacitor
+                        .powerCore
                         ?.charges,
                 ).toBe(
                     beforeCharges - 1,

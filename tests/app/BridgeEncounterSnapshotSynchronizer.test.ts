@@ -12,7 +12,7 @@ describe('BridgeEncounterSnapshotSynchronizer', () => {
         const emit = vi.fn();
         const setPlayerShipWeaponStates =
             vi.fn();
-        const setPlayerShipDefenseCapacitorState =
+        const setPlayerShipPowerCoreState =
             vi.fn();
 
         const setPlayerShipShieldEmitterState =
@@ -25,7 +25,7 @@ describe('BridgeEncounterSnapshotSynchronizer', () => {
             } as unknown as BridgeEventBus,
             {
                 setPlayerShipWeaponStates,
-                setPlayerShipDefenseCapacitorState,
+                setPlayerShipPowerCoreState,
                 setPlayerShipShieldEmitterState,
 
             } as unknown as GameRuntime,
@@ -34,13 +34,13 @@ describe('BridgeEncounterSnapshotSynchronizer', () => {
         synchronizer.syncInitial();
 
         expect(
-            setPlayerShipDefenseCapacitorState,
+            setPlayerShipPowerCoreState,
         ).toHaveBeenCalledWith({
             id:
-                'defense_capacitor_player_00',
+                'power_core_player_00',
 
-            defenseCapacitorId:
-                'defense_capacitor_basic_00',
+            powerCoreId:
+                'power_core_basic_00',
 
             charges: 3,
             rechargeElapsedMs: 1200,
@@ -76,7 +76,7 @@ describe('BridgeEncounterSnapshotSynchronizer', () => {
                             max: 3,
                         },
 
-                        defenseCapacitor: {
+                        powerCore: {
                             current: 3,
                             max: 4,
 
@@ -137,7 +137,7 @@ describe('BridgeEncounterSnapshotSynchronizer', () => {
                             max: 4,
                         },
 
-                        defenseCapacitor: {
+                        powerCore: {
                             current: 1,
                             max: 4,
 
@@ -327,7 +327,7 @@ describe('BridgeEncounterSnapshotSynchronizer', () => {
                             max: 4,
                         },
 
-                        defenseCapacitor: {
+                        powerCore: {
                             current: 1,
                             max: 4,
 
@@ -438,13 +438,13 @@ function createEncounterEngine(): EncounterEngine {
                                 'online',
                         },
 
-                        defenseCapacitor: {
+                        powerCore: {
                             state: {
                                 id:
-                                    'defense_capacitor_player_00',
+                                    'power_core_player_00',
 
-                                defenseCapacitorId:
-                                    'defense_capacitor_basic_00',
+                                powerCoreId:
+                                    'power_core_basic_00',
 
                                 charges: 3,
                                 rechargeElapsedMs:
@@ -518,13 +518,13 @@ function createEncounterEngine(): EncounterEngine {
                                     'online',
                             },
 
-                            defenseCapacitor: {
+                            powerCore: {
                                 state: {
                                     id:
                                         'enemy_def_00',
 
-                                    defenseCapacitorId:
-                                        'defense_capacitor_basic_00',
+                                    powerCoreId:
+                                        'power_core_basic_00',
 
                                     charges: 1,
                                     rechargeElapsedMs:

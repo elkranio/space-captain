@@ -1,8 +1,8 @@
 // src/engine/encounter/EncounterEngine.ts
 
 import type {
-    DefenseCapacitorState,
-} from '../defs/defense_capacitor';
+    PowerCoreState,
+} from '../defs/power_core';
 import {
     ENCOUNTER_TEAM,
     type EncounterTeam,
@@ -25,7 +25,7 @@ import type {
     EnemyDebugSnapshot,
 } from './debug/get_enemy_debug_snapshots';
 import CombatRunner from './combat/CombatRunner';
-import DefenseCapacitorRunner from './combat/defense/DefenseCapacitorRunner';
+import PowerCoreRunner from './combat/defense/PowerCoreRunner';
 import ShieldEmitterRunner from './combat/defense/ShieldEmitterRunner';
 import type { EnemyShipTelemetrySnapshot } from './combat/queries/get_enemy_ship_telemetry_snapshots';
 import PlayerWeaponRunner from './combat/weapons/PlayerWeaponRunner';
@@ -57,7 +57,7 @@ export type { LaserThreatSnapshot } from './combat/queries/get_laser_threat_snap
 export type { StickyMineSnapshot } from './combat/queries/get_sticky_mine_snapshots';
 export type {
     CombatPresentationSnapshot,
-    DefenseCapacitorPresentationSnapshot,
+    PowerCorePresentationSnapshot,
     EnemyShipPresentationSnapshot,
     PlayerWeaponPresentationSnapshot,
 } from './snapshots/combat_presentation_snapshot';
@@ -69,8 +69,8 @@ export type EncounterEngineOptions = {
     playerHull: PlayerHullState;
     drive: ShipDriveState;
 
-    defenseCapacitor?:
-        DefenseCapacitorState;
+    powerCore?:
+        PowerCoreState;
 
     shieldEmitter?:
         ShieldEmitterState;
@@ -98,8 +98,8 @@ export default class EncounterEngine {
 
     private readonly combatRunner: CombatRunner;
 
-    private readonly defenseCapacitorRunner:
-        DefenseCapacitorRunner;
+    private readonly powerCoreRunner:
+        PowerCoreRunner;
 
     private readonly shieldEmitterRunner:
         ShieldEmitterRunner;
@@ -116,7 +116,7 @@ export default class EncounterEngine {
         navigation,
         playerHull,
         drive,
-        defenseCapacitor,
+        powerCore,
         shieldEmitter,
         weapons = [],
 
@@ -132,7 +132,7 @@ export default class EncounterEngine {
                 playerHull,
                 drive,
 
-                defenseCapacitor,
+                powerCore,
                 shieldEmitter,
 
                 playerWeapons:
@@ -145,8 +145,8 @@ export default class EncounterEngine {
             encounterState,
         );
 
-        this.defenseCapacitorRunner =
-            new DefenseCapacitorRunner(
+        this.powerCoreRunner =
+            new PowerCoreRunner(
                 encounterState,
             );
 
@@ -276,7 +276,7 @@ export default class EncounterEngine {
     }
 
     public step(deltaMs: number): void {
-        this.defenseCapacitorRunner
+        this.powerCoreRunner
             .step(deltaMs);
 
         this.shieldEmitterRunner
@@ -358,10 +358,10 @@ export default class EncounterEngine {
         return this.snapshotReader.getPlayerWeaponStates();
     }
 
-    public getDefenseCapacitorState():
-        DefenseCapacitorState | undefined {
+    public getPowerCoreState():
+        PowerCoreState | undefined {
         return this.snapshotReader
-            .getDefenseCapacitorState();
+            .getPowerCoreState();
     }
 
     public getShieldEmitterState():

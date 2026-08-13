@@ -1,8 +1,8 @@
 // src/engine/encounter/state/create_encounter_state.ts
 
 import type {
-    DefenseCapacitorState,
-} from '../../defs/defense_capacitor';
+    PowerCoreState,
+} from '../../defs/power_core';
 import type {
     PlayerHullState,
 } from '../../defs/player';
@@ -25,8 +25,8 @@ export type CreateEncounterStateInput = {
     playerHull: PlayerHullState;
     drive: ShipDriveState;
 
-    defenseCapacitor?:
-        DefenseCapacitorState;
+    powerCore?:
+        PowerCoreState;
 
     shieldEmitter?:
         ShieldEmitterState;
@@ -39,7 +39,7 @@ export function createEncounterState({
     navigation,
     playerHull,
     drive,
-    defenseCapacitor,
+    powerCore,
     shieldEmitter,
     playerWeapons = [],
 }: CreateEncounterStateInput): EncounterState {
@@ -77,10 +77,10 @@ export function createEncounterState({
         actors: [],
 
         combat: {
-            ...(defenseCapacitor
+            ...(powerCore
                 ? {
-                      defenseCapacitor: {
-                          ...defenseCapacitor,
+                      powerCore: {
+                          ...powerCore,
                       },
                   }
                 : {}),

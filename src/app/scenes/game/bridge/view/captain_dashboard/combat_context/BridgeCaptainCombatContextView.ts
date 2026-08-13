@@ -380,7 +380,7 @@ export default class BridgeCaptainCombatContextView {
         );
 
         const defense =
-            enemyShip.defenseCapacitor;
+            enemyShip.powerCore;
 
         if (!defense) {
             this.defenseText.setText(

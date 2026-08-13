@@ -18,7 +18,7 @@ Living gameplay invariants only. If code and this file disagree, inspect current
 - Cancellation belongs to the active task, not to the UI surface that started it.
 - Busy-role behavior is represented through engine availability; presentation should not duplicate a separate busy-command rule.
 
-## Shared Defense Capacitor
+## Shared Power Core
 
 There is one shared player defensive energy store.
 
@@ -30,10 +30,10 @@ Current basic contract:
 
 A defensive consumer commits energy when its work starts. Later cancellation/interruption does not refund committed energy.
 
-Persistent presentation state is synchronized from the encounter frame snapshot; there is no separate `PLAYER_DEFENSE_CAPACITOR_CHARGE_SPENT` event contract.
+Persistent presentation state is synchronized from the encounter frame snapshot; there is no separate `PLAYER_POWER_CORE_CHARGE_SPENT` event contract.
 
 Future missing contract:
-- capacitor can become BROKEN
+- powerCore can become BROKEN
 - when broken: charges → 0 and recharge progress → 0
 - no defensive consumer can draw energy while broken
 

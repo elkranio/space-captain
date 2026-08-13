@@ -440,8 +440,8 @@ export default class EnemyDecisionPolicy {
         const emitter =
             actor.shieldEmitter;
 
-        const capacitor =
-            actor.defenseCapacitor;
+        const powerCore =
+            actor.powerCore;
 
         if (
             !emitter ||
@@ -452,8 +452,8 @@ export default class EnemyDecisionPolicy {
                 SHIELD_EMITTER_PHASE
                     .READY ||
             actor.activeShield ||
-            !capacitor ||
-            capacitor.charges <= 0
+            !powerCore ||
+            powerCore.charges <= 0
         ) {
             return undefined;
         }
@@ -608,15 +608,15 @@ export default class EnemyDecisionPolicy {
         const pointDefense =
             actor.pointDefense;
 
-        const defenseCapacitor =
-            actor.defenseCapacitor;
+        const powerCore =
+            actor.powerCore;
 
         if (
             !pointDefense ||
             pointDefense.phase !==
                 POINT_DEFENSE_PHASE.READY ||
-            !defenseCapacitor ||
-            defenseCapacitor.charges <= 0
+            !powerCore ||
+            powerCore.charges <= 0
         ) {
             return undefined;
         }

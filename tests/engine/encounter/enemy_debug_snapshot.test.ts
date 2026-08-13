@@ -6,8 +6,8 @@ import {
     it,
 } from 'vitest';
 import {
-    DEFENSE_CAPACITOR_ID,
-} from '../../../src/engine/defs/defense_capacitor';
+    POWER_CORE_ID,
+} from '../../../src/engine/defs/power_core';
 import {
     ENCOUNTER_TEAM,
 } from '../../../src/engine/defs/encounter_team';
@@ -191,12 +191,12 @@ describe(
                                 },
                             ],
 
-                            defenseCapacitor: {
+                            powerCore: {
                                 id:
-                                    'defense_capacitor_00',
+                                    'power_core_00',
 
-                                defenseCapacitorId:
-                                    DEFENSE_CAPACITOR_ID
+                                powerCoreId:
+                                    POWER_CORE_ID
                                         .BASIC_00,
 
                                 charges: 3,
@@ -322,7 +322,7 @@ describe(
                             },
                         ],
 
-                        defenseCapacitor: {
+                        powerCore: {
                             charges: 3,
                             capacity: 4,
 

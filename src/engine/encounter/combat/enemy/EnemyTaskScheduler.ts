@@ -4,8 +4,8 @@ import {
     POINT_DEFENSES,
 } from '../../../content/catalogs/point_defenses';
 import {
-    spendDefenseCapacitorCharge,
-} from '../defense/spend_defense_capacitor_charge';
+    spendPowerCoreCharge,
+} from '../defense/spend_power_core_charge';
 import {
     getTimedOfficerTaskDurationMs,
 } from '../../../content/catalogs/officer_tasks';
@@ -483,8 +483,8 @@ export default class EnemyTaskScheduler {
         const emitter =
             actor.shieldEmitter;
 
-        const capacitor =
-            actor.defenseCapacitor;
+        const powerCore =
+            actor.powerCore;
 
         if (
             !observation ||
@@ -498,8 +498,8 @@ export default class EnemyTaskScheduler {
                 SHIELD_EMITTER_PHASE
                     .READY ||
             actor.activeShield ||
-            !capacitor ||
-            capacitor.charges <= 0
+            !powerCore ||
+            powerCore.charges <= 0
         ) {
             throw new Error(
                 'Cannot start enemy shield deployment: ' +
@@ -511,8 +511,8 @@ export default class EnemyTaskScheduler {
 
         // Same economic rule as player defensive work:
         // charge is committed when Engineer starts.
-        spendDefenseCapacitorCharge(
-            capacitor,
+        spendPowerCoreCharge(
+            powerCore,
         );
 
         this.crewTaskRunner.start(
@@ -734,8 +734,8 @@ export default class EnemyTaskScheduler {
         const pointDefense =
             actor.pointDefense;
 
-        const defenseCapacitor =
-            actor.defenseCapacitor;
+        const powerCore =
+            actor.powerCore;
 
         const projectile =
             this.state
@@ -754,8 +754,8 @@ export default class EnemyTaskScheduler {
                 intent.pointDefenseId ||
             pointDefense.phase !==
                 POINT_DEFENSE_PHASE.READY ||
-            !defenseCapacitor ||
-            defenseCapacitor.charges <= 0 ||
+            !powerCore ||
+            powerCore.charges <= 0 ||
             !projectile ||
             projectile.source.kind !==
                 COMBAT_SOURCE_KIND
@@ -779,8 +779,8 @@ export default class EnemyTaskScheduler {
         // This mirrors the player rule and prevents
         // a later shield/PD consumer from double-claiming
         // the same shared charge.
-        spendDefenseCapacitorCharge(
-            defenseCapacitor,
+        spendPowerCoreCharge(
+            powerCore,
         );
 
         this.crewTaskRunner.start(

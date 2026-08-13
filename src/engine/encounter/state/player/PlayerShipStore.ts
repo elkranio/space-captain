@@ -4,8 +4,8 @@ import {
     MISSILES,
 } from '../../../content/catalogs/missiles';
 import type {
-    DefenseCapacitorState,
-} from '../../../defs/defense_capacitor';
+    PowerCoreState,
+} from '../../../defs/power_core';
 import type {
     PlayerHullDamageResult,
 } from '../../../defs/player';
@@ -35,8 +35,8 @@ import {
     type StickyMineDispenserState,
 } from '../../../defs/ship_weapon';
 import {
-    spendDefenseCapacitorCharge as spendInstalledDefenseCapacitorCharge,
-} from '../../combat/defense/spend_defense_capacitor_charge';
+    spendPowerCoreCharge as spendInstalledPowerCoreCharge,
+} from '../../combat/defense/spend_power_core_charge';
 import {
     COMBAT_THREAT_KIND,
     THREAT_IDENTIFICATION_STATUS,
@@ -691,20 +691,20 @@ export default class PlayerShipStore {
         };
     }
 
-    public spendDefenseCapacitorCharge():
-        DefenseCapacitorState {
-        const defenseCapacitor =
+    public spendPowerCoreCharge():
+        PowerCoreState {
+        const powerCore =
             this.state.combat
-                .defenseCapacitor;
+                .powerCore;
 
-        if (!defenseCapacitor) {
+        if (!powerCore) {
             throw new Error(
-                'Cannot spend defense-capacitor charge: installation missing',
+                'Cannot spend defense-powerCore charge: installation missing',
             );
         }
 
-        return spendInstalledDefenseCapacitorCharge(
-            defenseCapacitor,
+        return spendInstalledPowerCoreCharge(
+            powerCore,
         );
     }
 

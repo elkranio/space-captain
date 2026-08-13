@@ -82,19 +82,19 @@ export default class BridgeEncounterSnapshotSynchronizer {
             this.encounterEngine
                 .getCombatPresentationSnapshot(),
     ): void {
-        const defenseCapacitor =
+        const powerCore =
             snapshot.player
-                .defenseCapacitor;
+                .powerCore;
 
-        if (!defenseCapacitor) {
+        if (!powerCore) {
             throw new Error(
-                'Bridge player ship requires a defense capacitor',
+                'Bridge player ship requires a power core',
             );
         }
 
         this.gameRuntime
-            .setPlayerShipDefenseCapacitorState(
-                defenseCapacitor
+            .setPlayerShipPowerCoreState(
+                powerCore
                     .state,
             );
 
@@ -174,7 +174,7 @@ export default class BridgeEncounterSnapshotSynchronizer {
                         snapshot.player
                             .drive,
 
-                    defenseCapacitor,
+                    powerCore,
                 },
             }),
         );

@@ -1,8 +1,8 @@
 // src/engine/defs/player.ts
 
 import type {
-    DefenseCapacitorState,
-} from './defense_capacitor';
+    PowerCoreState,
+} from './power_core';
 import type { PlayerLocationState } from './player_location';
 import type { ShipDriveState } from './ship_drive';
 import type { ShipWeaponState } from './ship_weapon';
@@ -25,8 +25,8 @@ export type PlayerShipState =
     PlayerHullState & {
         drive: ShipDriveState;
 
-        defenseCapacitor:
-            DefenseCapacitorState;
+        powerCore:
+            PowerCoreState;
 
         shieldEmitter:
             ShieldEmitterState;

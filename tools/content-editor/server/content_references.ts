@@ -34,6 +34,18 @@ type ShipDriveDraftCollection =
         ShipDriveDraft
     >;
 
+type PowerCoreDraft = {
+    name: string;
+    capacity: number;
+    rechargeDurationMs: number;
+};
+
+type PowerCoreDraftCollection =
+    Record<
+        string,
+        PowerCoreDraft
+    >;
+
 export type ContentUsage = {
     collection: string;
     recordId: string;
@@ -81,6 +93,15 @@ export function getContentRecordDeleteInfo(
                     ),
             };
 
+        case CONTENT_COLLECTION_ID
+            .POWER_CORES:
+            return {
+                usages:
+                    findPowerCoreUsages(
+                        recordId,
+                    ),
+            };
+
         default:
             return {
                 usages: [],
@@ -109,6 +130,15 @@ export async function validateContentCollectionReferences(
             validateShipDriveReferences(
                 data as
                     ShipDriveDraftCollection,
+            );
+
+            return;
+
+        case CONTENT_COLLECTION_ID
+            .POWER_CORES:
+            validatePowerCoreReferences(
+                data as
+                    PowerCoreDraftCollection,
             );
 
             return;
@@ -180,6 +210,74 @@ function findShipDriveUsages(
                 return (
                     preset.driveId ===
                     driveId
+                );
+            })
+            .map((preset) => {
+                return {
+                    collection:
+                        'Player Ship Presets',
+
+                    recordId:
+                        preset.id,
+
+                    label:
+                        preset.id,
+                };
+            });
+
+    return [
+        ...shipPresetUsages,
+        ...playerPresetUsages,
+    ];
+}
+
+function findPowerCoreUsages(
+    powerCoreId: string,
+): ContentUsage[] {
+    const shipPresetUsages =
+        Object.values(
+            SHIP_PRESETS,
+        )
+            .filter((preset) => {
+                if (
+                    !(
+                        'powerCore' in
+                        preset
+                    )
+                ) {
+                    return false;
+                }
+
+                return (
+                    preset
+                        .powerCore
+                        .powerCoreId ===
+                    powerCoreId
+                );
+            })
+            .map((preset) => {
+                return {
+                    collection:
+                        'Ship Presets',
+
+                    recordId:
+                        preset.id,
+
+                    label:
+                        preset.id,
+                };
+            });
+
+    const playerPresetUsages =
+        Object.values(
+            PLAYER_SHIP_PRESETS,
+        )
+            .filter((preset) => {
+                return (
+                    preset
+                        .powerCore
+                        .powerCoreId ===
+                    powerCoreId
                 );
             })
             .map((preset) => {
@@ -311,6 +409,73 @@ function validateShipDriveReferences(
             (
                 'Cannot remove ship drive "' +
                 preset.driveId +
+                '": it is used by player ship preset "' +
+                preset.id +
+                '".'
+            ),
+            409,
+        );
+    }
+}
+
+function validatePowerCoreReferences(
+    data: PowerCoreDraftCollection,
+): void {
+    for (
+        const preset of
+        Object.values(
+            SHIP_PRESETS,
+        )
+    ) {
+        if (
+            !(
+                'powerCore' in
+                preset
+            )
+        ) {
+            continue;
+        }
+
+        const powerCoreId =
+            preset
+                .powerCore
+                .powerCoreId;
+
+        if (data[powerCoreId]) {
+            continue;
+        }
+
+        throw new ContentReferenceError(
+            (
+                'Cannot remove power core "' +
+                powerCoreId +
+                '": it is used by ship preset "' +
+                preset.id +
+                '".'
+            ),
+            409,
+        );
+    }
+
+    for (
+        const preset of
+        Object.values(
+            PLAYER_SHIP_PRESETS,
+        )
+    ) {
+        const powerCoreId =
+            preset
+                .powerCore
+                .powerCoreId;
+
+        if (data[powerCoreId]) {
+            continue;
+        }
+
+        throw new ContentReferenceError(
+            (
+                'Cannot remove power core "' +
+                powerCoreId +
                 '": it is used by player ship preset "' +
                 preset.id +
                 '".'

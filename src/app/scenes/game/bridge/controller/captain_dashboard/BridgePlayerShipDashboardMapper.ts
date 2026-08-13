@@ -1,5 +1,5 @@
 import type {
-    DefenseCapacitorPresentationSnapshot,
+    PowerCorePresentationSnapshot,
 } from '../../../../../../engine/encounter/snapshots/combat_presentation_snapshot';
 import { OFFICER_ROLE } from '../../../../../../engine/defs/officer';
 import type {
@@ -96,8 +96,8 @@ type PlayerShipDashboardMapperInput = {
         drive:
             ShipDriveState;
 
-        defenseCapacitor:
-            DefenseCapacitorPresentationSnapshot;
+        powerCore:
+            PowerCorePresentationSnapshot;
     };
 };
 
@@ -198,8 +198,8 @@ function mapStatus(
         'status'
     ]
 > {
-    const defenseCapacitor =
-        input.defenseCapacitor;
+    const powerCore =
+        input.powerCore;
 
     return {
         hull: {
@@ -209,21 +209,21 @@ function mapStatus(
                 input.hull.maxHull,
         },
 
-        defenseCapacitor: {
+        powerCore: {
             current:
-                defenseCapacitor
+                powerCore
                     .state.charges,
 
             max:
-                defenseCapacitor
+                powerCore
                     .capacity,
 
-            ...(defenseCapacitor
+            ...(powerCore
                 .rechargeProgress !==
             undefined
                 ? {
                       rechargeProgress:
-                          defenseCapacitor
+                          powerCore
                               .rechargeProgress,
                   }
                 : {}),

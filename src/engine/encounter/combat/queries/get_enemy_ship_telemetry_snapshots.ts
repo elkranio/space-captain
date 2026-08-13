@@ -1,8 +1,8 @@
 // src/engine/encounter/combat/queries/get_enemy_ship_telemetry_snapshots.ts
 
 import type {
-    DefenseCapacitorState,
-} from '../../../defs/defense_capacitor';
+    PowerCoreState,
+} from '../../../defs/power_core';
 import {
     ENCOUNTER_TEAM,
 } from '../../../defs/encounter_team';
@@ -43,8 +43,8 @@ export type EnemyShipTelemetrySnapshot = {
         status: ShipDriveStatus;
     };
 
-    defenseCapacitor?:
-        DefenseCapacitorState;
+    powerCore?:
+        PowerCoreState;
 
     activeShield?:
         ActiveShieldState;
@@ -85,10 +85,10 @@ export function getEnemyShipTelemetrySnapshots(
                     status: actor.drive.status,
                 },
 
-                ...(actor.defenseCapacitor
+                ...(actor.powerCore
                     ? {
-                          defenseCapacitor: {
-                              ...actor.defenseCapacitor,
+                          powerCore: {
+                              ...actor.powerCore,
                           },
                       }
                     : {}),

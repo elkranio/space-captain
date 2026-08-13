@@ -697,7 +697,7 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
                 .getCurrentRun()
                 .player
                 .ship
-                .defenseCapacitor,
+                .powerCore,
         ).toMatchObject({
             charges: 4,
             rechargeElapsedMs: 0,
