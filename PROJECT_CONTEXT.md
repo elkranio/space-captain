@@ -1,29 +1,27 @@
 # Space Captain — Project Context
 
-Updated: 2026-08-13
-Reference HEAD for this handoff: `b06c3da83387b267ba7a92a3ad0024834382e903`
+Updated: 2026-08-14
+Reference HEAD for this handoff: `65a983b7460b66bf85a2753844540c78bf8bbe45`
 
 This is the primary context for a fresh chat. Current GitHub `master` is always the source of truth. Re-read the repository before every coding atom; the reference HEAD above is only the handoff baseline.
 
 ## Immediate next task
 
-**Post-gameplay/content-editor refactor pass.**
+**Missile Launcher + Missiles content/editor migration.**
 
-Read `REFACTOR_HANDOFF.md` immediately after this file.
+The targeted post-gameplay refactor is complete and green. The encounter/app boundary now has one normal frame read via `EncounterPresentationSnapshot`, a safe encounter-space projection for load presentation, marker-only `ENCOUNTER_LOADED`, and sanitized missile event payloads. Do not reopen that boundary unless new code demonstrates a concrete problem.
 
-The missile / Science / Defense Turret gameplay refactor is complete, typecheck/tests are green, and runtime smoke has passed in both directions. Do not reopen missile design during the cleanup pass unless current code proves a real bug.
-
-After the refactor is green, the next feature/content task is the Missile Launcher + Missiles editor/content migration described in `CONTENT_TOOLS_HANDOFF.md`.
+Read `CONTENT_TOOLS_HANDOFF.md` for the queued content migration. If the user deliberately selects a different feature first, current `master` remains the source of truth.
 
 ## Read order
 
 1. `PROJECT_CONTEXT.md`
-2. `REFACTOR_HANDOFF.md` — immediate next task
-3. `GAMEPLAY_CONTRACTS.md`
-4. `SYSTEM_MAP.md`
-5. `BACKLOG.md`
-6. `CONTENT_TOOLS_HANDOFF.md` when editor/content work is relevant
-7. `CAPTAIN_DASHBOARD_HANDOFF.md` when dashboard work is relevant
+2. `GAMEPLAY_CONTRACTS.md`
+3. `SYSTEM_MAP.md`
+4. `BACKLOG.md`
+5. `CONTENT_TOOLS_HANDOFF.md` — queued next content task
+6. `CAPTAIN_DASHBOARD_HANDOFF.md` when dashboard work is relevant
+7. `REFACTOR_HANDOFF.md` only as the completed audit rationale/history
 8. `BRIDGE_ART_DIRECTION.md` only for visual/layout work
 
 Do not reconstruct current behavior from old chats when the repository can answer it.
@@ -225,13 +223,20 @@ Missiles and ship weapons are editor-readable but Missile Launcher + Missiles st
 
 `EncounterState` is authoritative mutable truth.
 
-`CombatPresentationSnapshot` is a detached one-frame read model, not a second state.
+`EncounterPresentationSnapshot` is the normal app-facing detached frame read. It composes:
+- navigation;
+- safe encounter-space presentation;
+- player/system/officer presentation;
+- enemy/threat presentation;
+- real command availability grouped by role.
 
-Missiles now have an explicit safe presentation boundary:
-- engine projectile truth may contain hidden signature/hypothesis;
-- `MissilePresentationSnapshot` does not;
-- app receives physical missile fields plus `identificationStatus`;
-- bridge payload/view layers do not import/use hidden missile truth.
+`CombatPresentationSnapshot` remains a focused child projection used by the aggregate builder and narrow engine/test reads. Focused getters on `EncounterEngine` are legitimate test/debug/domain seams, but normal bridge frame consumers should not reconstruct a UI frame through a sequence of unrelated getters.
+
+Current event rule:
+- snapshots answer **what is true now**;
+- events answer **what just happened**;
+- `ENCOUNTER_LOADED` is a marker, not an `EncounterState` transport;
+- missile events use `MissileEventProjectileSnapshot` and never expose objective signature or concrete observer hypothesis/identification internals.
 
 Enemy behavior remains split:
 - `EnemyDecisionPolicy` chooses work
@@ -244,9 +249,9 @@ Do not collapse this into an enemy god object.
 
 ## Refactor checkpoint
 
-A targeted cleanup pass is now intentionally scheduled because a large amount of gameplay and editor/content code changed in a short period.
+The targeted cleanup pass is complete and green. Do not continue refactoring merely to remove compatibility/focused query methods or reduce file length.
 
-This is **not** permission to refactor by line count.
+The completed pass specifically hardened the encounter presentation boundary and event outbox without changing gameplay behavior. Further cleanup should again require concrete evidence: duplicated rules, unclear ownership, context reconstruction, hostile signatures, or real callback spaghetti.
 
 Settled non-problems unless new evidence appears:
 - `BridgeController` as composition root

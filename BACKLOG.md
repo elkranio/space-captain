@@ -2,40 +2,21 @@
 
 Living backlog only. Completed historical phases belong in git history, not in the active task list.
 
-Updated: 2026-08-13
-Reference HEAD: `b06c3da83387b267ba7a92a3ad0024834382e903`
+Updated: 2026-08-14
+Reference HEAD: `65a983b7460b66bf85a2753844540c78bf8bbe45`
 
 ## Current selected work
 
-### 1. Post-gameplay/content-editor refactor — NEXT
+### 1. Missile Launcher + Missiles content/editor migration — NEXT
 
-Read `REFACTOR_HANDOFF.md`.
-
-Reason:
-- a large missile/Science/Defense Turret contract changed;
-- player Defense Turret became a real installed persistent ship system;
-- combat presentation gained a safe missile read-model boundary;
-- multiple content collections were migrated to JSON/Zod/editor CRUD infrastructure;
-- many tests/fixtures changed.
-
-Goal:
-- lower cognitive load before more feature work;
-- find actual duplicated rules/context reconstruction/spaghetti/hostile signatures/stale semantic names;
-- simplify only where the current code demonstrates a real problem;
-- preserve gameplay and editor behavior.
-
-Do not refactor by file length.
-
-### 2. Missile Launcher + Missiles content/editor migration
-
-After the cleanup pass is green.
+The targeted cleanup pass is complete and green.
 
 Goal:
 - make Missile Launcher + Missiles genuinely editor-friendly;
 - migrate post-refactor tuning, not old spectral/color semantics;
 - open IDs only where CRUD requires it;
 - reference validation + referenced-delete protection;
-- clean remaining historical RED/BLUE preset names as part of the migration if not already handled by refactor;
+- clean remaining historical RED/BLUE preset names as part of the migration if useful;
 - preserve per-launch hidden runtime signature as runtime truth, never JSON content.
 
 Current implemented missile tuning:

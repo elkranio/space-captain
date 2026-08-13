@@ -1,11 +1,11 @@
 # Space Captain — Content Tools Handoff
 
-Updated: 2026-08-13
-Reference HEAD: `b06c3da83387b267ba7a92a3ad0024834382e903`
+Updated: 2026-08-14
+Reference HEAD: `65a983b7460b66bf85a2753844540c78bf8bbe45`
 
 Persistent handoff for the local content editor / content-data initiative.
 
-The immediate next task is **not** editor expansion. First run the cleanup described in `REFACTOR_HANDOFF.md`. After that, return here for Missile Launcher + Missiles migration.
+The targeted cleanup described in `REFACTOR_HANDOFF.md` is complete and green. The queued next content task is **Missile Launcher + Missiles migration**.
 
 ## Read before content-tool work
 

@@ -1,11 +1,21 @@
 # Space Captain — Refactor Handoff
 
 Created: 2026-08-13
-Reference HEAD: `b06c3da83387b267ba7a92a3ad0024834382e903`
+Completed: 2026-08-14
+Reference completion HEAD: `65a983b7460b66bf85a2753844540c78bf8bbe45`
 
-**THIS IS THE IMMEDIATE NEXT TASK FOR THE NEXT CHAT.**
+**STATUS: COMPLETED / GREEN. THIS IS NO LONGER THE IMMEDIATE NEXT TASK.**
 
-The user intentionally scheduled this pass before further feature/editor work because a large amount of gameplay and content-tool code changed in a short period.
+This file is retained as the rationale and audit checklist for the completed post-gameplay/content-editor refactor. Do not restart a broad cleanup pass from this document alone.
+
+Completion highlights:
+- normal bridge frame reads now flow through `EncounterPresentationSnapshot`;
+- command-menu/navigation app reads were migrated to the aggregate snapshot;
+- initial encounter presentation uses a safe `EncounterSpacePresentationSnapshot`;
+- `ENCOUNTER_LOADED` is marker-only and no longer exposes `EncounterState`;
+- missile events cross a central sanitized outbox as `MissileEventProjectileSnapshot`;
+- objective missile signature and concrete observer hypothesis remain engine-only;
+- focused engine getters were intentionally retained where they remain useful as narrow test/debug/domain seams.
 
 # NON-NEGOTIABLE PATCH DELIVERY
 
@@ -23,7 +33,7 @@ Read the complete global rules in `PROJECT_CONTEXT.md`.
 
 ---
 
-## Why this refactor is scheduled
+## Why this refactor was scheduled
 
 Recent work changed several connected areas:
 

@@ -2,8 +2,8 @@
 
 Compact ownership map for fresh coding chats.
 
-Updated: 2026-08-13
-Reference HEAD: `b06c3da83387b267ba7a92a3ad0024834382e903`
+Updated: 2026-08-14
+Reference HEAD: `65a983b7460b66bf85a2753844540c78bf8bbe45`
 
 ## High-level layers
 
@@ -86,29 +86,30 @@ Important children include:
 
 Do not split `EncounterEngine` merely because it is central.
 
-## Combat presentation snapshot
+## Encounter presentation snapshot
 
-`src/engine/encounter/snapshots/combat_presentation_snapshot.ts`
+`src/engine/encounter/snapshots/encounter_presentation_snapshot.ts`
 
 `EncounterState` remains authoritative mutable truth.
 
-`CombatPresentationSnapshot` is a detached one-frame read model and is not cached as a second state.
+`EncounterPresentationSnapshot` is the normal detached app-facing frame root and is not cached as a second state. It composes specialized builders rather than becoming a god mapper.
 
-It aggregates frame-coherent data such as:
-- player hull/drive
-- Power Core presentation
-- Shield Generator / Active Shield
-- Defense Turret presentation values
-- player weapons
-- officer availability/tasks
-- enemy telemetry
-- missile presentation snapshots
-- sticky mines
-- laser threats
-- SPAM
-- commands by role
+Current composition includes:
+- navigation;
+- `EncounterSpacePresentationSnapshot` with safe anchor/actor geometry + visual IDs;
+- `CombatPresentationSnapshot` with player systems/officers/enemy telemetry/threats/SPAM/commands.
 
-`BridgeEncounterController`/snapshot consumers should reuse this coherent frame instead of reconstructing the same frame through unrelated getters.
+Normal bridge frame consumers should reuse this coherent frame instead of reconstructing the same frame through unrelated getters. Focused `EncounterEngine` reads remain valid for narrow engine tests/debug/domain queries; they are not the normal app frame assembly path.
+
+### Encounter event outbox
+
+`src/engine/encounter/snapshots/create_encounter_event_snapshot.ts` is the central detach/sanitize boundary before events leave `EncounterEngine`.
+
+Rules:
+- snapshots answer current truth; events answer discrete transitions;
+- `ENCOUNTER_LOADED` is a marker and does not carry `EncounterState`;
+- missile event payloads use `MissileEventProjectileSnapshot`;
+- the safe event projectile is an explicit allowlist and excludes objective `signature` and mutable observer `identification`.
 
 ## Missile epistemic boundary — CURRENT
 

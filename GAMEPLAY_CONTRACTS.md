@@ -2,8 +2,8 @@
 
 Living gameplay invariants only. If code and this file disagree, inspect current code and update/fix the mismatch instead of coding from stale prose.
 
-Updated: 2026-08-13
-Reference HEAD: `b06c3da83387b267ba7a92a3ad0024834382e903`
+Updated: 2026-08-14
+Reference HEAD: `65a983b7460b66bf85a2753844540c78bf8bbe45`
 
 ## Encounter shape
 
@@ -185,7 +185,7 @@ Do not document or implement missile-side penalty as existing behavior. Add it o
 
 ### Presentation boundary
 
-`CombatPresentationSnapshot` uses `MissilePresentationSnapshot` for app-facing missile data.
+`EncounterPresentationSnapshot` is the normal app-facing frame root. Its combat slice uses `MissilePresentationSnapshot` for continuously changing missile data.
 
 Presentation receives:
 - physical identifiers/timing/target/source data needed by UI;
@@ -194,6 +194,8 @@ Presentation receives:
 Presentation does **not** receive:
 - objective runtime signature;
 - concrete Science hypothesis.
+
+Discrete missile events use `MissileEventProjectileSnapshot`. It intentionally carries only physical event-presentation fields and does **not** carry objective `signature` or mutable observer `identification`. Event payloads are projected/detached at the `EncounterEngine` outbox boundary.
 
 Captain missile rows and viewscreen HUD show player-visible `UNKNOWN / UNCERTAIN / CONFIRMED` state, not A/B signature values.
 
@@ -253,24 +255,27 @@ Do not aggregate salvo state for UI convenience.
 - Dashboard shows hostile SPAM channels independently with real Science purge actions.
 - Enemy decision policy receives relevant SPAM effects through explicit decision context rather than reading full encounter state.
 
-## Combat presentation snapshot
+## Encounter presentation snapshot
 
-`EncounterState` is the only authoritative mutable combat truth.
+`EncounterState` is the only authoritative mutable encounter/combat truth.
 
-`CombatPresentationSnapshot` is a detached frame read model, not a second state.
+`EncounterPresentationSnapshot` is the detached app-facing frame root, not a second state. It composes safe navigation/space data with the focused `CombatPresentationSnapshot`.
 
 It may aggregate:
 - player ship/system presentation
 - officer availability/tasks
 - enemy telemetry
 - threats
-- commands
+- commands by role
+- safe encounter-space geometry/visual identifiers
 
-Presentation consumers should reuse one coherent frame.
+Normal presentation consumers should reuse one coherent frame rather than rebuild the same frame through unrelated getters. Focused getters may still exist for narrow engine/test/debug reads.
+
+Events remain separate because they represent discrete transitions rather than current frame truth. `ENCOUNTER_LOADED` is marker-only. Missile event payloads are explicitly sanitized before leaving `EncounterEngine`.
 
 Hidden-domain-data rule:
 - presentation may receive only player-visible/operational read-model data;
-- hidden missile signature/hypothesis must not leak through generic combat-state objects.
+- hidden missile signature/hypothesis must not leak through snapshots, load payloads, or missile events.
 
 ## Damage / interruption
 
