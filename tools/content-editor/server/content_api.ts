@@ -12,10 +12,12 @@ import {
     validateContentCollectionReferences,
 } from './content_references';
 import {
+    ContentCollectionMutationError,
     getContentCollectionDefinition,
     getContentCollectionJsonSchema,
     getContentCollectionSummaries,
     validateContentCollection,
+    validateContentCollectionMutation,
 } from './content_registry';
 
 const MAX_BODY_BYTES =
@@ -153,16 +155,10 @@ export async function handleContentRequest(
         );
 
     if (request.method === 'GET') {
-        const raw =
-            await fs.readFile(
-                dataPath,
-                'utf8',
-            );
-
         const data =
-            validateContentCollection(
+            await readContentCollection(
+                dataPath,
                 collectionId,
-                JSON.parse(raw),
             );
 
         sendJson(
@@ -226,6 +222,38 @@ export async function handleContentRequest(
                             'Content validation failed',
                         issues:
                             error.issues,
+                    },
+                );
+
+                return;
+            }
+
+            throw error;
+        }
+
+        const currentData =
+            await readContentCollection(
+                dataPath,
+                collectionId,
+            );
+
+        try {
+            validateContentCollectionMutation(
+                collectionId,
+                currentData,
+                data,
+            );
+        } catch (error) {
+            if (
+                error instanceof
+                ContentCollectionMutationError
+            ) {
+                sendJson(
+                    response,
+                    405,
+                    {
+                        error:
+                            error.message,
                     },
                 );
 
@@ -334,6 +362,22 @@ function getCollectionId(
             match[1],
         )
         : undefined;
+}
+
+async function readContentCollection(
+    dataPath: string,
+    collectionId: string,
+): Promise<unknown> {
+    const raw =
+        await fs.readFile(
+            dataPath,
+            'utf8',
+        );
+
+    return validateContentCollection(
+        collectionId,
+        JSON.parse(raw),
+    );
 }
 
 async function readJsonBody(

@@ -402,6 +402,18 @@ export type ContentCollectionSummary = {
     canDelete: boolean;
 };
 
+export class ContentCollectionMutationError
+    extends Error {
+    public constructor(
+        message: string,
+    ) {
+        super(message);
+
+        this.name =
+            'ContentCollectionMutationError';
+    }
+}
+
 export function getContentCollectionSummaries():
     ContentCollectionSummary[] {
     return Object.values(
@@ -439,6 +451,90 @@ export function getContentCollectionDefinition(
     ];
 }
 
+export function validateContentCollectionMutation(
+    id: string,
+    currentData: unknown,
+    nextData: unknown,
+): void {
+    const definition =
+        getContentCollectionDefinition(
+            id,
+        );
+
+    if (!definition) {
+        throw new Error(
+            'Unknown content collection: ' +
+            id,
+        );
+    }
+
+    const currentIds =
+        new Set(
+            getContentRecordIds(
+                currentData,
+                id,
+            ),
+        );
+
+    const nextIds =
+        new Set(
+            getContentRecordIds(
+                nextData,
+                id,
+            ),
+        );
+
+    if (!definition.canAdd) {
+        for (
+            const recordId of
+            nextIds
+        ) {
+            if (
+                currentIds.has(
+                    recordId,
+                )
+            ) {
+                continue;
+            }
+
+            throw new ContentCollectionMutationError(
+                (
+                    'Cannot add record "' +
+                    recordId +
+                    '" to content collection "' +
+                    definition.label +
+                    '": adding records is disabled.'
+                ),
+            );
+        }
+    }
+
+    if (!definition.canDelete) {
+        for (
+            const recordId of
+            currentIds
+        ) {
+            if (
+                nextIds.has(
+                    recordId,
+                )
+            ) {
+                continue;
+            }
+
+            throw new ContentCollectionMutationError(
+                (
+                    'Cannot delete record "' +
+                    recordId +
+                    '" from content collection "' +
+                    definition.label +
+                    '": deleting records is disabled.'
+                ),
+            );
+        }
+    }
+}
+
 export function validateContentCollection(
     id: string,
     input: unknown,
@@ -456,6 +552,29 @@ export function validateContentCollection(
     }
 
     return definition.schema.parse(
+        input,
+    );
+}
+
+function getContentRecordIds(
+    input: unknown,
+    collectionId: string,
+): string[] {
+    if (
+        typeof input !== 'object' ||
+        input === null ||
+        Array.isArray(input)
+    ) {
+        throw new Error(
+            (
+                'Content collection "' +
+                collectionId +
+                '" must contain an object.'
+            ),
+        );
+    }
+
+    return Object.keys(
         input,
     );
 }

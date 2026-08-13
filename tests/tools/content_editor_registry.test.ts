@@ -22,6 +22,7 @@ import {
     getContentCollectionJsonSchema,
     getContentCollectionSummaries,
     validateContentCollection,
+    validateContentCollectionMutation,
 } from '../../tools/content-editor/server/content_registry';
 
 describe(
@@ -302,6 +303,99 @@ describe(
                         data,
                     );
                 }
+            },
+        );
+
+        it(
+            'enforces add and delete capabilities at the collection mutation boundary',
+            () => {
+                const missileWithExtra = {
+                    ...missileData,
+
+                    experimental_00: {
+                        ...missileData
+                            .basic_00,
+                    },
+                };
+
+                expect(() => {
+                    validateContentCollectionMutation(
+                        CONTENT_COLLECTION_ID
+                            .MISSILES,
+                        missileData,
+                        missileWithExtra,
+                    );
+                }).toThrow(
+                    'adding records is disabled',
+                );
+
+                const missileWithoutBasic =
+                    {
+                        ...missileData,
+                    } as Record<
+                        string,
+                        unknown
+                    >;
+
+                delete missileWithoutBasic[
+                    'basic_00'
+                ];
+
+                expect(() => {
+                    validateContentCollectionMutation(
+                        CONTENT_COLLECTION_ID
+                            .MISSILES,
+                        missileData,
+                        missileWithoutBasic,
+                    );
+                }).toThrow(
+                    'deleting records is disabled',
+                );
+
+                const editablePowerCores = {
+                    ...powerCoreData,
+
+                    experimental_00: {
+                        name:
+                            'EXPERIMENTAL CORE',
+                    },
+                } as Record<
+                    string,
+                    unknown
+                >;
+
+                expect(() => {
+                    validateContentCollectionMutation(
+                        CONTENT_COLLECTION_ID
+                            .POWER_CORES,
+                        powerCoreData,
+                        editablePowerCores,
+                    );
+                }).not.toThrow();
+
+                const firstPowerCoreId =
+                    Object.keys(
+                        editablePowerCores,
+                    )[0];
+
+                if (!firstPowerCoreId) {
+                    throw new Error(
+                        'Power Core fixture is empty.',
+                    );
+                }
+
+                delete editablePowerCores[
+                    firstPowerCoreId
+                ];
+
+                expect(() => {
+                    validateContentCollectionMutation(
+                        CONTENT_COLLECTION_ID
+                            .POWER_CORES,
+                        powerCoreData,
+                        editablePowerCores,
+                    );
+                }).not.toThrow();
             },
         );
 
