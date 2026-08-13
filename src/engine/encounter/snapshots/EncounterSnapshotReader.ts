@@ -37,6 +37,10 @@ import {
     createCombatPresentationSnapshot,
     type CombatPresentationSnapshot,
 } from './combat_presentation_snapshot';
+import {
+    createEncounterPresentationSnapshot,
+    type EncounterPresentationSnapshot,
+} from './encounter_presentation_snapshot';
 
 // App-facing read boundary for one EncounterState.
 //
@@ -44,6 +48,13 @@ import {
 // current authoritative state and returns a recursively detached value.
 export default class EncounterSnapshotReader {
     constructor(private readonly state: EncounterState) {}
+
+    public getPresentationSnapshot():
+        EncounterPresentationSnapshot {
+        return this.read(
+            createEncounterPresentationSnapshot,
+        );
+    }
 
     public getCombatPresentationSnapshot():
         CombatPresentationSnapshot {

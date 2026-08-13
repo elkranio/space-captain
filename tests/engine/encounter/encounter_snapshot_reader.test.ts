@@ -84,6 +84,113 @@ describe('EncounterSnapshotReader', () => {
         });
     });
 
+    it('returns one detached safe encounter presentation frame', () => {
+        const { node, stationId } = createSingleStationNodeFixture();
+        const state = createEncounterState({
+            node,
+            navigation: {
+                kind: PLAYER_SPACE_NAVIGATION_KIND.ANCHORED,
+                anchorId: stationId,
+            },
+            playerHull: createPlayerHullFixture(),
+            drive: createShipDriveFixture(),
+        });
+
+        state.combat.projectiles.push({
+            id: 'projectile_presentation',
+            designation: 'M1',
+            kind: COMBAT_PROJECTILE_KIND.MISSILE,
+            source: {
+                kind: COMBAT_SOURCE_KIND.ACTOR,
+                actorId: 'enemy_test',
+            },
+            sourceWeaponId: 'launcher_test',
+            target: {
+                kind: COMBAT_TARGET_KIND.PLAYER_SHIP,
+            },
+            signature:
+                MISSILE_SIGNATURE.B,
+
+            identification: {
+                status:
+                    MISSILE_SIGNATURE_INTEL_STATUS.UNKNOWN,
+            },
+
+            missileId:
+                MISSILE_ID.BASIC_00,
+
+            timeToImpactMs: 1000,
+            initialTimeToImpactMs: 1000,
+        });
+
+        const reader =
+            new EncounterSnapshotReader(
+                state,
+            );
+
+        const snapshot =
+            reader
+                .getPresentationSnapshot();
+
+        expect(
+            snapshot.navigation,
+        ).toEqual(
+            state.navigation,
+        );
+
+        expect(
+            snapshot.navigation,
+        ).not.toBe(
+            state.navigation,
+        );
+
+        expect(
+            snapshot.player.hull,
+        ).not.toBe(
+            state.playerHull,
+        );
+
+        expect(
+            snapshot.incomingMissiles,
+        ).toHaveLength(1);
+
+        expect(
+            snapshot.incomingMissiles[0],
+        ).not.toHaveProperty(
+            'signature',
+        );
+
+        snapshot.player.hull.hull = 0;
+
+        expect(
+            state.playerHull.hull,
+        ).toBeGreaterThan(0);
+
+        if (
+            snapshot.navigation.kind !==
+            PLAYER_SPACE_NAVIGATION_KIND
+                .ANCHORED
+        ) {
+            throw new Error(
+                'Expected anchored presentation navigation',
+            );
+        }
+
+        snapshot.navigation.anchorId =
+            'mutated_snapshot_anchor';
+
+        expect(
+            state.navigation,
+        ).toEqual({
+            kind:
+                PLAYER_SPACE_NAVIGATION_KIND
+                    .ANCHORED,
+
+            anchorId:
+                stationId,
+        });
+    });
+
     it('detaches the complete encounter-loaded event from engine state', () => {
         const { node, stationId } = createSingleStationNodeFixture();
         const engine = new EncounterEngine({

@@ -12,9 +12,12 @@ import {
     OFFICER_TASK_KIND,
     type OfficerTaskState,
 } from '../../src/engine/encounter/model/officer_task';
+import {
+    PLAYER_SPACE_NAVIGATION_KIND,
+} from '../../src/engine/defs/player_location';
 import type {
-    CombatPresentationSnapshot,
-} from '../../src/engine/encounter/snapshots/combat_presentation_snapshot';
+    EncounterPresentationSnapshot,
+} from '../../src/engine/encounter/snapshots/encounter_presentation_snapshot';
 import BridgeOfficerStationsController from '../../src/app/scenes/game/bridge/controller/encounter/officer_stations/BridgeOfficerStationsController';
 import {
     BRIDGE_EVENT,
@@ -38,13 +41,13 @@ describe('BridgeOfficerStationsController', () => {
                 enemyShips: [],
             });
 
-        const getCombatPresentationSnapshot =
+        const getPresentationSnapshot =
             vi.fn(() => {
                 return snapshot;
             });
 
         const encounterEngine = {
-            getCombatPresentationSnapshot,
+            getPresentationSnapshot,
         } as unknown as EncounterEngine;
 
         const emit = vi.fn();
@@ -97,7 +100,7 @@ describe('BridgeOfficerStationsController', () => {
         ]);
 
         expect(
-            getCombatPresentationSnapshot,
+            getPresentationSnapshot,
         ).not.toHaveBeenCalled();
     });
 
@@ -160,13 +163,13 @@ describe('BridgeOfficerStationsController', () => {
                 },
             });
 
-        const getCombatPresentationSnapshot =
+        const getPresentationSnapshot =
             vi.fn(() => {
                 return snapshot;
             });
 
         const encounterEngine = {
-            getCombatPresentationSnapshot,
+            getPresentationSnapshot,
         } as unknown as EncounterEngine;
 
         const emit = vi.fn();
@@ -204,7 +207,7 @@ describe('BridgeOfficerStationsController', () => {
         ]);
 
         expect(
-            getCombatPresentationSnapshot,
+            getPresentationSnapshot,
         ).toHaveBeenCalledTimes(1);
     });
 });
@@ -225,7 +228,7 @@ type StationSnapshotOptions = {
         }>;
 
     commandsByRole?:
-        CombatPresentationSnapshot[
+        EncounterPresentationSnapshot[
             'commandsByRole'
         ];
 };
@@ -237,8 +240,17 @@ function createStationSnapshot({
     commandsByRole =
         createEmptyCommandsByRole(),
 }: StationSnapshotOptions):
-    CombatPresentationSnapshot {
+    EncounterPresentationSnapshot {
     return {
+        navigation: {
+            kind:
+                PLAYER_SPACE_NAVIGATION_KIND
+                    .ANCHORED,
+
+            anchorId:
+                'station_test',
+        },
+
         player: {
             officerAvailability:
                 availabilityStates,
@@ -249,11 +261,11 @@ function createStationSnapshot({
 
         enemyShips,
         commandsByRole,
-    } as unknown as CombatPresentationSnapshot;
+    } as unknown as EncounterPresentationSnapshot;
 }
 
 function createEmptyCommandsByRole():
-    CombatPresentationSnapshot[
+    EncounterPresentationSnapshot[
         'commandsByRole'
     ] {
     return {

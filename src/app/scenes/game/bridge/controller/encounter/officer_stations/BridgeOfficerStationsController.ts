@@ -9,8 +9,8 @@ import {
 } from '../../../../../../../engine/encounter/model/officer_availability';
 import type { OfficerTaskState } from '../../../../../../../engine/encounter/model/officer_task';
 import type {
-    CombatPresentationSnapshot,
-} from '../../../../../../../engine/encounter/snapshots/combat_presentation_snapshot';
+    EncounterPresentationSnapshot,
+} from '../../../../../../../engine/encounter/snapshots/encounter_presentation_snapshot';
 import {
     BRIDGE_EVENT,
     type BridgeOfficerActivityProgressUpdatedPayload,
@@ -27,7 +27,7 @@ const OFFICER_STATION_ROLES = Object.values(OFFICER_ROLE);
 
 // Управляет presentation-состоянием всех officer stations.
 //
-// Все данные одного refresh приходят из одного CombatPresentationSnapshot:
+// Все данные одного refresh приходят из одного EncounterPresentationSnapshot:
 // availability, active tasks, enemy presence и уже разрешённые команды.
 // Controller не пересобирает один UI-state несколькими engine reads.
 //
@@ -49,9 +49,9 @@ export default class BridgeOfficerStationsController {
     public step(
         deltaMs: number,
         snapshot:
-            CombatPresentationSnapshot =
+            EncounterPresentationSnapshot =
                 this.encounterEngine
-                    .getCombatPresentationSnapshot(),
+                    .getPresentationSnapshot(),
     ): void {
         // Progress должен двигаться плавно,
         // поэтому не привязан к 200 ms lamp polling.
@@ -74,9 +74,9 @@ export default class BridgeOfficerStationsController {
 
     public sync(
         snapshot:
-            CombatPresentationSnapshot =
+            EncounterPresentationSnapshot =
                 this.encounterEngine
-                    .getCombatPresentationSnapshot(),
+                    .getPresentationSnapshot(),
     ): void {
         this.syncStationStatus(
             snapshot,
@@ -97,7 +97,7 @@ export default class BridgeOfficerStationsController {
 
     private syncStationStatus(
         snapshot:
-            CombatPresentationSnapshot,
+            EncounterPresentationSnapshot,
     ): void {
         const availabilityStates =
             snapshot.player
@@ -123,7 +123,7 @@ export default class BridgeOfficerStationsController {
 
     private createCombatHintStates(
         snapshot:
-            CombatPresentationSnapshot,
+            EncounterPresentationSnapshot,
 
         availabilityStates:
             OfficerAvailabilityStates,
@@ -166,7 +166,7 @@ export default class BridgeOfficerStationsController {
 
     private syncActivityProgress(
         snapshot:
-            CombatPresentationSnapshot,
+            EncounterPresentationSnapshot,
     ): void {
         this.eventBus.emit(
             BRIDGE_EVENT.OFFICER_ACTIVITY_PROGRESS_UPDATED,

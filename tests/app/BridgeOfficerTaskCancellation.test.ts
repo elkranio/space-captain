@@ -93,7 +93,7 @@ describe('Bridge officer task cancellation', () => {
                 return [];
             });
 
-        const getCombatPresentationSnapshot =
+        const getPresentationSnapshot =
             vi.fn(() => {
                 lifecycle.push('snapshot');
 
@@ -150,7 +150,7 @@ describe('Bridge officer task cancellation', () => {
         testable.encounterEngine = {
             cancelTask,
             drainEvents,
-            getCombatPresentationSnapshot,
+            getPresentationSnapshot,
         } as unknown as EncounterEngine;
 
         testable.snapshotSynchronizer = {

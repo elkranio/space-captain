@@ -47,6 +47,9 @@ import EncounterSnapshotReader from './snapshots/EncounterSnapshotReader';
 import type {
     CombatPresentationSnapshot,
 } from './snapshots/combat_presentation_snapshot';
+import type {
+    EncounterPresentationSnapshot,
+} from './snapshots/encounter_presentation_snapshot';
 import { createDetachedSnapshot } from './snapshots/create_detached_snapshot';
 import EncounterStateStore from './state/EncounterStateStore';
 
@@ -64,6 +67,9 @@ export type {
     EnemyShipPresentationSnapshot,
     PlayerWeaponPresentationSnapshot,
 } from './snapshots/combat_presentation_snapshot';
+export type {
+    EncounterPresentationSnapshot,
+} from './snapshots/encounter_presentation_snapshot';
 
 export type EncounterEngineOptions = {
     node: SpaceNodeState;
@@ -328,6 +334,12 @@ export default class EncounterEngine {
         }
 
         this.officerTaskRunner.cancel(task.id);
+    }
+
+    public getPresentationSnapshot():
+        EncounterPresentationSnapshot {
+        return this.snapshotReader
+            .getPresentationSnapshot();
     }
 
     public getCombatPresentationSnapshot():

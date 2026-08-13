@@ -107,25 +107,25 @@ export default class BridgeEncounterController {
 
         this.encounterEngine.step(deltaMs);
 
-        const combatPresentation =
+        const presentationSnapshot =
             this.encounterEngine
-                .getCombatPresentationSnapshot();
+                .getPresentationSnapshot();
 
         this.snapshotSynchronizer
             ?.syncPlayerShipDashboard(
-                combatPresentation,
+                presentationSnapshot,
             );
 
         this.drainEncounterEvents();
 
         this.snapshotSynchronizer
             ?.syncCombatPresentation(
-                combatPresentation,
+                presentationSnapshot,
             );
 
         this.officerStationsController?.step(
             deltaMs,
-            combatPresentation,
+            presentationSnapshot,
         );
     }
 
@@ -339,18 +339,18 @@ export default class BridgeEncounterController {
         // OFFICER_TASK_ENDED / task-specific presentation events.
         this.drainEncounterEvents();
 
-        const combatPresentation =
+        const presentationSnapshot =
             this.encounterEngine
-                .getCombatPresentationSnapshot();
+                .getPresentationSnapshot();
 
         this.snapshotSynchronizer
             ?.syncPlayerShipDashboard(
-                combatPresentation,
+                presentationSnapshot,
             );
 
         this.officerStationsController
             ?.sync(
-                combatPresentation,
+                presentationSnapshot,
             );
     }
 
@@ -449,13 +449,13 @@ export default class BridgeEncounterController {
         const result = this.encounterEngine.executeCommand(input);
 
         if (result.status === OFFICER_COMMAND_EXECUTION_STATUS.EXECUTED) {
-            const combatPresentation =
+            const presentationSnapshot =
                 this.encounterEngine
-                    .getCombatPresentationSnapshot();
+                    .getPresentationSnapshot();
 
             this.snapshotSynchronizer
                 ?.syncPlayerShipDashboard(
-                    combatPresentation,
+                    presentationSnapshot,
                 );
 
             this.syncRuntimeNavigationFromEngine();
@@ -463,12 +463,12 @@ export default class BridgeEncounterController {
 
             this.snapshotSynchronizer
                 ?.syncLaserThreats(
-                    combatPresentation,
+                    presentationSnapshot,
                 );
 
             this.officerStationsController
                 ?.sync(
-                    combatPresentation,
+                    presentationSnapshot,
                 );
         }
 

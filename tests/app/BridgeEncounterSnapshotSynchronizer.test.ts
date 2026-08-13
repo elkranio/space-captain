@@ -1,4 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
+import {
+    PLAYER_SPACE_NAVIGATION_KIND,
+} from '../../src/engine/defs/player_location';
 import type EncounterEngine from '../../src/engine/encounter/EncounterEngine';
 import type { GameRuntime } from '../../src/app/runtime/GameRuntime';
 import BridgeEncounterSnapshotSynchronizer from '../../src/app/scenes/game/bridge/controller/encounter/snapshots/BridgeEncounterSnapshotSynchronizer';
@@ -419,9 +422,18 @@ describe('BridgeEncounterSnapshotSynchronizer', () => {
 
 function createEncounterEngine(): EncounterEngine {
     return {
-        getCombatPresentationSnapshot:
+        getPresentationSnapshot:
             vi.fn(() => {
                 return {
+                    navigation: {
+                        kind:
+                            PLAYER_SPACE_NAVIGATION_KIND
+                                .ANCHORED,
+
+                        anchorId:
+                            'station_test',
+                    },
+
                     player: {
                         hull: {
                             hull: 3,

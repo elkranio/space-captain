@@ -1,8 +1,8 @@
 import { OFFICER_ROLE } from '../../../../../../../engine/defs/officer';
 import type EncounterEngine from '../../../../../../../engine/encounter/EncounterEngine';
 import type {
-    CombatPresentationSnapshot,
-} from '../../../../../../../engine/encounter/snapshots/combat_presentation_snapshot';
+    EncounterPresentationSnapshot,
+} from '../../../../../../../engine/encounter/snapshots/encounter_presentation_snapshot';
 import type { GameRuntime } from '../../../../../../runtime/GameRuntime';
 import { BRIDGE_EVENT } from '../../../events/bridge_event';
 import type BridgeEventBus from '../../../events/BridgeEventBus';
@@ -12,7 +12,7 @@ import { mapPlayerWeaponsToBridgeStatusPayload } from '../../player_weapon_statu
 
 // App-side transport for continuously changing encounter read models.
 //
-// Один CombatPresentationSnapshot представляет одну фотографию combat frame.
+// Один EncounterPresentationSnapshot представляет одну фотографию combat frame.
 // Engine остаётся единственным владельцем mutable state; synchronizer только
 // раскладывает уже detached read-model по GameRuntime / bridge events.
 //
@@ -29,7 +29,7 @@ export default class BridgeEncounterSnapshotSynchronizer {
     public syncInitial(): void {
         const snapshot =
             this.encounterEngine
-                .getCombatPresentationSnapshot();
+                .getPresentationSnapshot();
 
         this.syncPlayerShipDashboard(
             snapshot,
@@ -48,7 +48,7 @@ export default class BridgeEncounterSnapshotSynchronizer {
     public syncCombatPresentation(
         snapshot =
             this.encounterEngine
-                .getCombatPresentationSnapshot(),
+                .getPresentationSnapshot(),
     ): void {
         this.syncIncomingMissiles(
             snapshot,
@@ -79,7 +79,7 @@ export default class BridgeEncounterSnapshotSynchronizer {
     public syncPlayerShipDashboard(
         snapshot =
             this.encounterEngine
-                .getCombatPresentationSnapshot(),
+                .getPresentationSnapshot(),
     ): void {
         const powerCore =
             snapshot.player
@@ -192,7 +192,7 @@ export default class BridgeEncounterSnapshotSynchronizer {
 
     private syncCaptainCombatContext(
         snapshot:
-            CombatPresentationSnapshot,
+            EncounterPresentationSnapshot,
     ): void {
         this.eventBus.emit(
             BRIDGE_EVENT
@@ -248,7 +248,7 @@ export default class BridgeEncounterSnapshotSynchronizer {
 
     private syncPlayerShield(
         snapshot:
-            CombatPresentationSnapshot,
+            EncounterPresentationSnapshot,
     ): void {
         const shield =
             snapshot.player
@@ -274,7 +274,7 @@ export default class BridgeEncounterSnapshotSynchronizer {
 
     private syncEnemyShields(
         snapshot:
-            CombatPresentationSnapshot,
+            EncounterPresentationSnapshot,
     ): void {
         const shields: Array<{
             actorId: string;
@@ -318,7 +318,7 @@ export default class BridgeEncounterSnapshotSynchronizer {
     public syncLaserThreats(
         snapshot =
             this.encounterEngine
-                .getCombatPresentationSnapshot(),
+                .getPresentationSnapshot(),
     ): void {
         this.eventBus.emit(
             BRIDGE_EVENT
@@ -346,7 +346,7 @@ export default class BridgeEncounterSnapshotSynchronizer {
 
     private syncIncomingMissiles(
         snapshot:
-            CombatPresentationSnapshot,
+            EncounterPresentationSnapshot,
     ): void {
         this.eventBus.emit(
             BRIDGE_EVENT
@@ -373,7 +373,7 @@ export default class BridgeEncounterSnapshotSynchronizer {
 
     private syncOutgoingMissiles(
         snapshot:
-            CombatPresentationSnapshot,
+            EncounterPresentationSnapshot,
     ): void {
         this.eventBus.emit(
             BRIDGE_EVENT
@@ -400,7 +400,7 @@ export default class BridgeEncounterSnapshotSynchronizer {
 
     private syncOutgoingStickyMines(
         snapshot:
-            CombatPresentationSnapshot,
+            EncounterPresentationSnapshot,
     ): void {
         this.eventBus.emit(
             BRIDGE_EVENT
@@ -427,7 +427,7 @@ export default class BridgeEncounterSnapshotSynchronizer {
 
     private syncStickyMines(
         snapshot:
-            CombatPresentationSnapshot,
+            EncounterPresentationSnapshot,
     ): void {
         this.eventBus.emit(
             BRIDGE_EVENT
