@@ -29,6 +29,9 @@ import {
 import { OFFICER_TASK_KIND } from '../../../src/engine/encounter/model/officer_task';
 import ShipNodeActorFactory from '../../../src/engine/generation/space_node_actor/ShipNodeActorFactory';
 import { createSingleStationNodeFixture } from '../../fixtures/engine/space_node_fixtures';
+import {
+    getMutableEncounterStateForTest,
+} from './get_mutable_encounter_state_for_test';
 
 describe('Science identify threat command', () => {
     it.each([
@@ -216,6 +219,118 @@ describe('Science identify threat command', () => {
                 },
             },
         ]);
+    });
+
+    it('offers IDENTIFY THREAT again for uncertain missile intel', () => {
+        const {
+            node,
+            stationId,
+        } = createSingleStationNodeFixture();
+
+        const nodeEnemy =
+            ShipNodeActorFactory.create({
+                id: 'ship_enemy_00',
+
+                presetId:
+                    SHIP_NODE_ACTOR_PRESET_ID
+                        .ENEMY_GENERIC_00,
+
+                anchorId:
+                    stationId,
+            });
+
+        const nodeLauncher =
+            nodeEnemy.weapons[0];
+
+        if (
+            nodeLauncher.kind !==
+            SHIP_WEAPON_KIND
+                .MISSILE_LAUNCHER
+        ) {
+            throw new Error(
+                'Expected enemy missile launcher',
+            );
+        }
+
+        nodeLauncher.ammoCount = 1;
+        node.actors.push(nodeEnemy);
+
+        const engine =
+            new EncounterEngine({
+                playerHull:
+                    createPlayerHullFixture(),
+
+                drive:
+                    createShipDriveFixture(),
+
+                node,
+
+                navigation: {
+                    kind:
+                        PLAYER_SPACE_NAVIGATION_KIND
+                            .ANCHORED,
+
+                    anchorId:
+                        stationId,
+                },
+
+                random:
+                    () => 0,
+            });
+
+        engine.drainEvents();
+
+        engine.step(1);
+        engine.drainEvents();
+
+        engine.step(
+            SHIP_WEAPON_TARGETING_DURATION_MS -
+                1,
+        );
+        engine.drainEvents();
+
+        const state =
+            getMutableEncounterStateForTest(
+                engine,
+            );
+
+        const projectile =
+            state.combat
+                .projectiles[0];
+
+        if (!projectile) {
+            throw new Error(
+                'Expected incoming missile projectile',
+            );
+        }
+
+        projectile.identification = {
+            status:
+                MISSILE_SIGNATURE_INTEL_STATUS
+                    .UNCERTAIN,
+
+            hypothesis:
+                MISSILE_SIGNATURE.B,
+        };
+
+        expect(
+            engine
+                .getAvailableCommands(
+                    OFFICER_ROLE.SCIENCE,
+                )
+                .find((command) => {
+                    return (
+                        command.commandId ===
+                            ENCOUNTER_OFFICER_COMMAND_ID
+                                .SCIENCE_IDENTIFY_THREAT &&
+                        command.target.kind ===
+                            OFFICER_COMMAND_TARGET_KIND
+                                .THREAT &&
+                        command.target.threatId ===
+                            projectile.id
+                    );
+                }),
+        ).toBeDefined();
     });
 
     it('does not offer IDENTIFY THREAT for a laser without identifiable intel', () => {
