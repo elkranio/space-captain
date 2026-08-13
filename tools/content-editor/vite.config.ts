@@ -11,6 +11,9 @@ import {
     type Plugin,
 } from 'vite';
 import {
+    handleAssetRequest,
+} from './server/asset_api';
+import {
     getContentCollectionDefinition,
     getContentCollectionJsonSchema,
     getContentCollectionSummaries,
@@ -34,6 +37,24 @@ export default defineConfig(() => {
     return {
         root: editorRoot,
 
+        build: {
+            rollupOptions: {
+                input: {
+                    content:
+                        path.join(
+                            editorRoot,
+                            'index.html',
+                        ),
+
+                    assets:
+                        path.join(
+                            editorRoot,
+                            'assets.html',
+                        ),
+                },
+            },
+        },
+
         plugins: [
             createContentApiPlugin(
                 repoRoot,
@@ -56,6 +77,32 @@ function createContentApiPlugin(
                     response,
                     next,
                 ) => {
+                    if (
+                        request.url
+                            ?.startsWith(
+                                '/__assets/',
+                            )
+                    ) {
+                        void handleAssetRequest(
+                            repoRoot,
+                            request,
+                            response,
+                        ).catch((error) => {
+                            sendJson(
+                                response,
+                                500,
+                                {
+                                    error:
+                                        getErrorMessage(
+                                            error,
+                                        ),
+                                },
+                            );
+                        });
+
+                        return;
+                    }
+
                     if (
                         !request.url
                             ?.startsWith(

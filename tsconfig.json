@@ -12,8 +12,20 @@
         "sourceMap": true,
         "skipLibCheck": true,
         "noEmit": true,
-        "types": ["vite/client"],
-        "lib": ["ESNext", "DOM"]
+        "types": [
+            "vite/client"
+        ],
+        "lib": [
+            "ESNext",
+            "DOM"
+        ]
     },
-    "include": ["src", "src/types", "tests"]
+    "include": [
+        "src",
+        "src/types",
+        "tests"
+    ],
+    "exclude": [
+        "tests/tools"
+    ]
 }

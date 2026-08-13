@@ -65,6 +65,34 @@ h1 {
     font-size: 22px;
 }
 
+.topbar-nav {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px;
+    border: 1px solid #d5dbe2;
+    border-radius: 6px;
+    background: #f4f6f8;
+}
+
+.topbar-link {
+    padding: 7px 12px;
+    border-radius: 4px;
+    color: #667688;
+    font-size: 13px;
+    font-weight: 650;
+    text-decoration: none;
+}
+
+.topbar-link:hover {
+    background: #e8eef5;
+}
+
+.topbar-link.is-active {
+    color: #2d3946;
+    background: #dfeaf5;
+}
+
 .topbar-actions {
     display: flex;
     align-items: center;

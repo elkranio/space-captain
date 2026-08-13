@@ -1,16 +1,52 @@
 // src/app/manifests/ships/ship_sprite.ts
 
-import { SHIP_SPRITE_ID, type ShipSpriteId } from '../../../engine/defs/ship_chassis';
-import { DEFAULT_ATLAS_KEY, type SpriteEntry } from '../types';
+import shipSpriteManifestData from './ship_sprites.json';
+import {
+    type ShipSpriteId,
+} from '../../../engine/defs/ship_chassis';
+import {
+    DEFAULT_ATLAS_KEY,
+    type SpriteEntry,
+} from '../types';
 
-export const SHIP_SPRITES = {
-    [SHIP_SPRITE_ID.UNKNOWN_00]: {
-        atlasKey: DEFAULT_ATLAS_KEY,
-        frameKey: 'ships/unknown_00',
-    },
+type ShipSpriteManifestEntry = {
+    frameKey: string;
+};
 
-    [SHIP_SPRITE_ID.GENERIC_00]: {
-        atlasKey: DEFAULT_ATLAS_KEY,
-        frameKey: 'ships/generic_ship_00',
-    },
-} satisfies Record<ShipSpriteId, SpriteEntry>;
+type ShipSpriteManifest =
+    Record<
+        string,
+        ShipSpriteManifestEntry
+    >;
+
+const SHIP_SPRITE_MANIFEST:
+    ShipSpriteManifest =
+        shipSpriteManifestData;
+
+export const SHIP_SPRITES =
+    Object.fromEntries(
+        Object.entries(
+            SHIP_SPRITE_MANIFEST,
+        ).map(
+            (
+                [
+                    spriteId,
+                    entry,
+                ],
+            ) => {
+                return [
+                    spriteId,
+                    {
+                        atlasKey:
+                            DEFAULT_ATLAS_KEY,
+
+                        frameKey:
+                            entry.frameKey,
+                    },
+                ];
+            },
+        ),
+    ) as Record<
+        ShipSpriteId,
+        SpriteEntry
+    >;

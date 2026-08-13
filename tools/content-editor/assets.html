@@ -6,7 +6,7 @@
         name="viewport"
         content="width=device-width, initial-scale=1.0"
     />
-    <title>Space Captain Content Editor</title>
+    <title>Space Captain Asset Manager</title>
 </head>
 <body>
     <div class="app-shell">
@@ -18,14 +18,14 @@
 
             <nav class="topbar-nav">
                 <a
-                    class="topbar-link is-active"
+                    class="topbar-link"
                     href="/"
                 >
                     Content
                 </a>
 
                 <a
-                    class="topbar-link"
+                    class="topbar-link is-active"
                     href="/assets.html"
                 >
                     Assets
@@ -34,53 +34,66 @@
 
             <div class="topbar-actions">
                 <span
-                    id="save-status"
+                    id="asset-status"
                     class="save-status"
                 >
                     Loading…
                 </span>
-
-                <button
-                    id="save-button"
-                    class="primary-button"
-                    type="button"
-                    disabled
-                >
-                    Save
-                </button>
             </div>
         </header>
 
         <main class="workspace">
             <aside class="collections-panel">
                 <div class="panel-heading">
-                    Collections
+                    Asset Types
                 </div>
 
-                <div id="collection-list"></div>
+                <div id="asset-bucket-list"></div>
             </aside>
 
             <section class="records-panel">
-                <div class="panel-heading">
-                    Records
+                <div class="asset-panel-heading">
+                    <span>Assets</span>
+
+                    <button
+                        id="upload-button"
+                        class="compact-button"
+                        type="button"
+                    >
+                        + Upload
+                    </button>
                 </div>
 
-                <div id="record-list"></div>
+                <div id="asset-list"></div>
             </section>
 
             <section class="inspector-panel">
-                <div id="inspector">
+                <div id="asset-inspector">
                     <div class="empty-state">
-                        Loading content…
+                        Loading assets…
                     </div>
                 </div>
             </section>
         </main>
     </div>
 
+    <input
+        id="upload-input"
+        class="hidden-file-input"
+        type="file"
+        accept="image/png,.png"
+    />
+
+    <input
+        id="replace-input"
+        class="hidden-file-input"
+        type="file"
+        accept="image/png,.png"
+    />
+
     <script
         type="module"
-        src="/src/main.ts"
+        src="/src/asset_manager.ts"
     ></script>
 </body>
 </html>
