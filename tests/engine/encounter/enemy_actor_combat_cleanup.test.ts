@@ -573,7 +573,7 @@ function createCombatCleanupTestSetup() {
     } = createAnchoredPlayerCombatTestSetup();
 
     // This suite owns combat-object cleanup ordering.
-    // Enemy PD would consume its synthetic killer missile first.
+    // Enemy Defense Turret would consume its synthetic killer missile first.
     delete targetActor.defenseTurret;
 
     return {

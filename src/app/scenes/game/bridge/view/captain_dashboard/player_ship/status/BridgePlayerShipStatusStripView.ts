@@ -32,7 +32,7 @@ const WIDTH_RATIO = {
 
 // Captain dashboard top strip.
 //
-// The old PD/SHD resource cells are deliberately gone:
+// The old separate turret/shield resource cells are deliberately gone:
 // both defensive actions now consume the one shared POWER CORE.
 // The DEF bar shows only progress toward the next sequential charge.
 export default class BridgePlayerShipStatusStripView {
@@ -301,7 +301,7 @@ export default class BridgePlayerShipStatusStripView {
                     .max +
                 (blindInterceptChance !==
                 undefined
-                    ? '  PD ' +
+                    ? '  TURRET ' +
                       Math.round(
                           blindInterceptChance *
                               100,

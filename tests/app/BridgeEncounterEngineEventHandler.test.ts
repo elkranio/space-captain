@@ -671,7 +671,7 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
 
                     threatId: 'projectile_test_00',
 
-                    label: 'PD AIM',
+                    label: 'TURRET AIM',
                     showProgress: true,
 
                     durationMs: 3000,
@@ -694,7 +694,7 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
         ]);
 
         // Completion only maps the shot result.
-        // Shared DEF was already committed when the PD task started.
+        // Shared DEF was already committed when the Defense Turret task started.
         expect(
             runtime
                 .getCurrentRun()

@@ -167,7 +167,7 @@ export default class BridgeIncomingMissilesView {
         const missile = this.missiles.get(payload.projectileId);
 
         if (!missile) {
-            throw new Error(`Point-defense target not found: ` + payload.projectileId);
+            throw new Error(`Defense Turret target not found: ` + payload.projectileId);
         }
 
         const effect = new BridgeDefenseTurretBeamView({

@@ -41,7 +41,7 @@
         "durationMs": 3000
     },
     "weapons_defense_turret": {
-        "label": "PD AIM",
+        "label": "TURRET AIM",
         "showProgress": true,
         "canBeCancelledByPlayer": true,
         "canBeInterruptedByDamage": true,

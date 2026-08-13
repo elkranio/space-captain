@@ -197,7 +197,7 @@ Presentation does **not** receive:
 
 Captain missile rows and viewscreen HUD show player-visible `UNKNOWN / UNCERTAIN / CONFIRMED` state, not A/B signature values.
 
-Hard equipment odds may be shown numerically (`PD 40%` for current BASIC turret). Science confidence remains qualitative.
+Hard equipment odds may be shown numerically (`TURRET 40%` for current BASIC turret). Science confidence remains qualitative.
 
 ### Runtime validation
 

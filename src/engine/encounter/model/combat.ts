@@ -218,7 +218,7 @@ export type StickyMineState = {
 };
 
 export type EncounterCombatState = {
-    // Installed player point-defense system.
+    // Installed player Defense Turret system.
     defenseTurret?:
         ShipDefenseTurretState;
 

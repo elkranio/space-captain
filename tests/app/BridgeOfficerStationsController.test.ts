@@ -315,7 +315,7 @@ function createOfficerTasks(): OfficerTaskState[] {
 
             threatId: 'projectile_1',
 
-            label: 'PD AIM',
+            label: 'TURRET AIM',
             showProgress: true,
 
             durationMs: 3000,

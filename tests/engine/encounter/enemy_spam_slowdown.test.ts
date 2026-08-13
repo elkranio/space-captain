@@ -397,7 +397,7 @@ describe(
                     powerCore
                         .charges;
 
-                // Этот тест вручную ставит enemy PD
+                // Этот тест вручную ставит enemy Defense Turret
                 // уже в LOADING, обходя scheduler.
                 // В production scheduler списывает DEF
                 // именно при старте loading, поэтому

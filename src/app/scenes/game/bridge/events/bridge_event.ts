@@ -239,7 +239,7 @@ export const BRIDGE_EVENT = {
     OUTGOING_SPAM_CHANNEL_ENDED:
         'outgoing_spam_channel_ended',
 
-    // Point-defense player ship завершил наведение
+    // Player Defense Turret завершила наведение
     // и разрешил выстрел по входящей угрозе.
     DEFENSE_TURRET_FIRED: 'defense_turret_fired',
 

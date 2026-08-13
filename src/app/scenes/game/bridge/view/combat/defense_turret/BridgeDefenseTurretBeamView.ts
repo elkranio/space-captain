@@ -13,8 +13,8 @@ type BridgeDefenseTurretBeamViewOptions = {
 
     outcome: DefenseTurretShotOutcome;
 
-    // Player PD omits this and uses the existing bridge-edge source.
-    // Enemy PD passes the firing actor position explicitly.
+    // Player Defense Turret omits this and uses the existing bridge-edge source.
+    // Enemy Defense Turret passes the firing actor position explicitly.
     sourcePosition?: Phaser.Math.Vector2;
 
     targetPosition: Phaser.Math.Vector2;
@@ -47,7 +47,7 @@ const DEFENSE_TURRET_BEAM_PRESENTATION = {
 } as const;
 
 // Short presentation effect of one defense-turret shot.
-// Player and enemy PD use the same neutral visual language.
+// Player and enemy Defense Turrets use the same neutral visual language.
 // HIT/MISS has already been resolved by the encounter engine.
 export default class BridgeDefenseTurretBeamView {
     private readonly scene: BridgeScene;

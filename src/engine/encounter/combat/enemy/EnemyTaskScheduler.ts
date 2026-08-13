@@ -781,7 +781,7 @@ export default class EnemyTaskScheduler {
 
         // Commit defensive energy when work starts.
         // This mirrors the player rule and prevents
-        // a later shield/PD consumer from double-claiming
+        // a later Shield Generator / Defense Turret consumer from double-claiming
         // the same shared charge.
         spendPowerCoreCharge(
             powerCore,

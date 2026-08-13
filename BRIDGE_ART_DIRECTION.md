@@ -73,7 +73,7 @@ Prefer:
 - restrained state changes;
 - clear damaged/busy/ready differences.
 
-Do not encode gameplay contracts such as separate “shield charges” vs “PD charges” in art docs. Current gameplay uses shared DEF; visual treatment can evolve independently.
+Do not encode gameplay contracts such as separate “shield charges” vs “Defense Turret charges” in art docs. Current gameplay uses shared DEF; visual treatment can evolve independently.
 
 ### Threats
 

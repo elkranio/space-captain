@@ -65,7 +65,7 @@ describe('Enemy defense-turret interception', () => {
             () => 0,
         );
 
-        // This case intentionally exercises blind PD without Science.
+        // This case intentionally exercises blind Defense Turret interception without Science.
         enemy.crewRoles =
             enemy.crewRoles.filter((role) => {
                 return role !== 'science';
@@ -215,7 +215,7 @@ describe('Enemy defense-turret interception', () => {
             () => 0.99,
         );
 
-        // This case intentionally exercises blind PD without Science.
+        // This case intentionally exercises blind Defense Turret interception without Science.
         enemy.crewRoles =
             enemy.crewRoles.filter((role) => {
                 return role !== 'science';

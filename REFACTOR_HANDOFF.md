@@ -36,7 +36,7 @@ Recent work changed several connected areas:
    - Shield Generator / Active Shield
    - Defense Turret as installed system
 3. enemy behavior
-   - defensive PD/shields/mine clearing/SPAM behavior
+   - defensive Defense Turret / shields / mine clearing / SPAM behavior
 4. missile contract
    - per-projectile hidden runtime signature
    - observer Science intel
@@ -47,7 +47,7 @@ Recent work changed several connected areas:
 5. captain dashboard/presentation
    - direct threat actions
    - missile UNKNOWN/UNCERTAIN/CONFIRMED status
-   - numeric `PD 40%`
+   - numeric `TURRET 40%`
 
 The code is green, but incremental atoms and recoveries often leave cognitive debt even when behavior is correct.
 

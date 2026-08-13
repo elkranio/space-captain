@@ -102,7 +102,7 @@ The captain dashboard is becoming the main command surface. The old officer cont
 Left/stable player side:
 - HULL
 - shared Power Core / DEF
-- Defense Turret blind chance (`PD 40%` for current BASIC hardware)
+- Defense Turret blind chance (`TURRET 40%` for current BASIC hardware)
 - ENGINE
 - MISSILE
 - LASER
