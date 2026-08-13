@@ -32,7 +32,7 @@ import {
     COMBAT_PROJECTILE_KIND,
     COMBAT_SOURCE_KIND,
     COMBAT_TARGET_KIND,
-    THREAT_IDENTIFICATION_STATUS,
+    MISSILE_SIGNATURE_INTEL_STATUS,
     type MissileCombatProjectileState,
 } from '../../../src/engine/encounter/model/combat';
 import {
@@ -86,7 +86,7 @@ describe(
 
             identification: {
                             status:
-                                THREAT_IDENTIFICATION_STATUS
+                                MISSILE_SIGNATURE_INTEL_STATUS
                                     .UNKNOWN,
                         },
 
@@ -190,9 +190,11 @@ describe(
                                             ENEMY_THREAT_KIND
                                                 .MISSILE,
 
-                                        signature:
-                                            DEFENSE_TURRET_SIGNATURE
-                                                .A,
+                                        status:
+                                            MISSILE_SIGNATURE_INTEL_STATUS.UNCERTAIN,
+
+                                        hypothesis:
+                                            MISSILE_SIGNATURE.A,
                                     },
                                 },
                             ],

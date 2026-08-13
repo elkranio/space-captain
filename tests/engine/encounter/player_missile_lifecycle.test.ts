@@ -43,7 +43,7 @@ import {
     COMBAT_PROJECTILE_KIND,
     COMBAT_SOURCE_KIND,
     COMBAT_TARGET_KIND,
-    THREAT_IDENTIFICATION_STATUS,
+    MISSILE_SIGNATURE_INTEL_STATUS,
 } from '../../../src/engine/encounter/model/combat';
 import {
     ENCOUNTER_EVENT,
@@ -154,10 +154,10 @@ describe('Player missile lifecycle', () => {
 
             identification: {
                     status:
-                        THREAT_IDENTIFICATION_STATUS
-                            .IDENTIFIED,
+                        MISSILE_SIGNATURE_INTEL_STATUS
+                            .CONFIRMED,
 
-                    signature:
+                    hypothesis:
                         'signature_a',
                 },
 

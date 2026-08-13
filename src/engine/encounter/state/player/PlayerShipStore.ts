@@ -36,7 +36,7 @@ import {
 } from '../../combat/defense/spend_power_core_charge';
 import {
     COMBAT_THREAT_KIND,
-    THREAT_IDENTIFICATION_STATUS,
+    MISSILE_SIGNATURE_INTEL_STATUS,
     type ActiveShieldState,
     type ThreatIdentificationResult,
 } from '../../model/combat';
@@ -553,42 +553,51 @@ export default class PlayerShipStore {
                     );
                 });
 
-        if (projectile) {
-            if (
-                projectile.identification
-                    .status ===
-                THREAT_IDENTIFICATION_STATUS
-                    .IDENTIFIED
-            ) {
-                return {
-                    kind:
-                        COMBAT_THREAT_KIND.MISSILE,
+        if (!projectile) {
+            return undefined;
+        }
 
-                    signature:
-                        projectile.identification
-                            .signature,
-                };
-            }
-
-            const signature =
-                projectile.signature;
-
-            projectile.identification = {
-                status:
-                    THREAT_IDENTIFICATION_STATUS
-                        .IDENTIFIED,
-                signature,
-            };
-
+        if (
+            projectile.identification
+                .status ===
+            MISSILE_SIGNATURE_INTEL_STATUS
+                .CONFIRMED
+        ) {
             return {
                 kind:
                     COMBAT_THREAT_KIND.MISSILE,
 
-                signature,
+                status:
+                    MISSILE_SIGNATURE_INTEL_STATUS
+                        .CONFIRMED,
+
+                hypothesis:
+                    projectile.identification
+                        .hypothesis,
             };
         }
 
-        return undefined;
+        const hypothesis =
+            projectile.signature;
+
+        projectile.identification = {
+            status:
+                MISSILE_SIGNATURE_INTEL_STATUS
+                    .CONFIRMED,
+
+            hypothesis,
+        };
+
+        return {
+            kind:
+                COMBAT_THREAT_KIND.MISSILE,
+
+            status:
+                MISSILE_SIGNATURE_INTEL_STATUS
+                    .CONFIRMED,
+
+            hypothesis,
+        };
     }
 
     public deployPlayerShield():

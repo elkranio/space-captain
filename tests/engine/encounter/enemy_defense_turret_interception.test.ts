@@ -33,7 +33,7 @@ import {
     COMBAT_SOURCE_KIND,
     COMBAT_TARGET_KIND,
     PLAYER_MISSILE_OUTCOME,
-    THREAT_IDENTIFICATION_STATUS,
+    MISSILE_SIGNATURE_INTEL_STATUS,
     type MissileCombatProjectileState,
 } from '../../../src/engine/encounter/model/combat';
 import {
@@ -349,8 +349,10 @@ describe('Enemy defense-turret interception', () => {
         // The resolver trusts the Science report rather than objective truth.
         // A later trait atom can therefore make this report wrong.
         observation.report = {
+            status: 'confirmed',
+
             kind: 'missile',
-            signature: 'signature_b',
+            hypothesis: 'signature_b',
         };
 
         engine.drainEvents();
@@ -444,7 +446,10 @@ describe('Enemy defense-turret interception', () => {
                 kind: 'missile',
 
                 // Truth is BLUE. HUNGOVER Science reports RED.
-                signature: 'signature_a',
+                status:
+                    MISSILE_SIGNATURE_INTEL_STATUS.UNCERTAIN,
+
+                hypothesis: 'signature_a',
             });
 
         expect(
@@ -573,10 +578,10 @@ function createScenario(
 
             identification: {
                 status:
-                    THREAT_IDENTIFICATION_STATUS
-                        .IDENTIFIED,
+                    MISSILE_SIGNATURE_INTEL_STATUS
+                        .CONFIRMED,
 
-                signature:
+                hypothesis:
                     'signature_a',
             },
 

@@ -754,7 +754,7 @@ function createMissileThreatSnapshot(
             ? observation.report.kind ===
               ENEMY_THREAT_KIND.MISSILE
                 ? observation.report
-                      .signature
+                      .hypothesis
                 : 'invalid'
             : undefined;
 

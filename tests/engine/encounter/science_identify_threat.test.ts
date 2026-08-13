@@ -19,7 +19,7 @@ import {
 } from '../../../src/engine/encounter/model/command';
 import {
     COMBAT_THREAT_KIND,
-    THREAT_IDENTIFICATION_STATUS,
+    MISSILE_SIGNATURE_INTEL_STATUS,
 } from '../../../src/engine/encounter/model/combat';
 import {
     ENCOUNTER_EVENT,
@@ -140,9 +140,9 @@ describe('Science identify threat command', () => {
         });
 
         expect(engine.getCombatProjectiles()[0].identification).toEqual({
-            status: THREAT_IDENTIFICATION_STATUS.IDENTIFIED,
+            status: MISSILE_SIGNATURE_INTEL_STATUS.CONFIRMED,
 
-            signature: expectedBand,
+            hypothesis: expectedBand,
         });
 
         expect(
@@ -207,7 +207,11 @@ describe('Science identify threat command', () => {
                     identification: {
                         kind: COMBAT_THREAT_KIND.MISSILE,
 
-                        signature: expectedBand,
+                        status:
+                            MISSILE_SIGNATURE_INTEL_STATUS
+                                .CONFIRMED,
+
+                        hypothesis: expectedBand,
                     },
                 },
             },

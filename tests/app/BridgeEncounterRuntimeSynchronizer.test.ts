@@ -30,7 +30,7 @@ import {
     COMBAT_PROJECTILE_KIND,
     COMBAT_SOURCE_KIND,
     COMBAT_TARGET_KIND,
-    THREAT_IDENTIFICATION_STATUS,
+    MISSILE_SIGNATURE_INTEL_STATUS,
 } from '../../src/engine/encounter/model/combat';
 import {
     ENCOUNTER_EVENT,
@@ -86,7 +86,7 @@ describe(
 
             identification: {
                                 status:
-                                    THREAT_IDENTIFICATION_STATUS
+                                    MISSILE_SIGNATURE_INTEL_STATUS
                                         .UNKNOWN,
                             },
 

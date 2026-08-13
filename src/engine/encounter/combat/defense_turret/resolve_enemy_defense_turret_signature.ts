@@ -15,7 +15,7 @@ export type ResolveEnemyDefenseTurretSignatureInput = {
 
     projectileId: string;
 
-    // Random band committed when Weapons starts loading.
+    // Random transitional signature committed when Weapons starts loading.
     fallbackSignature:
         DefenseTurretSignature;
 };
@@ -23,11 +23,11 @@ export type ResolveEnemyDefenseTurretSignatureInput = {
 // Deterministic report-consumption boundary.
 //
 // The physical runner does not inspect objective missile properties here.
-// If Science has reported a spectral band for the active projectile, point
-// defense trusts that report. Without a report it keeps the blind fallback.
+// If Science has a concrete hypothesis for the active projectile, point
+// defense trusts it whether the intel is UNCERTAIN or CONFIRMED.
+// Without a hypothesis it keeps the transitional blind fallback.
 //
-// This intentionally makes a future incorrect-Science-report trait affect
-// defense turret without adding another special case to the physical runner.
+// Final blindInterceptChance resolution is a later atom.
 export function resolveEnemyDefenseTurretSignature({
     observations,
     projectileId,
@@ -55,5 +55,5 @@ export function resolveEnemyDefenseTurretSignature({
         return fallbackSignature;
     }
 
-    return observation.report.signature;
+    return observation.report.hypothesis;
 }

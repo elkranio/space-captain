@@ -6,7 +6,7 @@ import {
     COMBAT_SOURCE_KIND,
     COMBAT_TARGET_KIND,
     COMBAT_THREAT_KIND,
-    THREAT_IDENTIFICATION_STATUS,
+    MISSILE_SIGNATURE_INTEL_STATUS,
 } from '../../model/combat';
 import {
     ENCOUNTER_OFFICER_COMMAND_ID,
@@ -50,7 +50,7 @@ export const scienceIdentifyThreatCommandHandler = {
     def: COMMAND_DEF,
 
     getAvailableCommands(state) {
-        return getUnknownEnemyThreats(state)
+        return getAnalyzableEnemyThreats(state)
             .sort((left, right) => {
                 return left.timeRemainingMs - right.timeRemainingMs;
             })
@@ -77,7 +77,7 @@ export const scienceIdentifyThreatCommandHandler = {
     },
 } satisfies OfficerCommandHandler;
 
-function getUnknownEnemyThreats(state: EncounterState): AvailableThreat[] {
+function getAnalyzableEnemyThreats(state: EncounterState): AvailableThreat[] {
     const threats: AvailableThreat[] = [];
 
     for (const projectile of state.combat.projectiles) {
@@ -85,7 +85,11 @@ function getUnknownEnemyThreats(state: EncounterState): AvailableThreat[] {
             continue;
         }
 
-        if (projectile.identification.status !== THREAT_IDENTIFICATION_STATUS.UNKNOWN) {
+        if (
+            projectile.identification.status ===
+            MISSILE_SIGNATURE_INTEL_STATUS
+                .CONFIRMED
+        ) {
             continue;
         }
 

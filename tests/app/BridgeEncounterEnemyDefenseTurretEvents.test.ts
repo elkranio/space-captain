@@ -29,7 +29,7 @@ import {
     COMBAT_SOURCE_KIND,
     COMBAT_TARGET_KIND,
     PLAYER_MISSILE_OUTCOME,
-    THREAT_IDENTIFICATION_STATUS,
+    MISSILE_SIGNATURE_INTEL_STATUS,
     type MissileCombatProjectileState,
 } from '../../src/engine/encounter/model/combat';
 import {
@@ -69,10 +69,10 @@ const projectile:
 
             identification: {
             status:
-                THREAT_IDENTIFICATION_STATUS
-                    .IDENTIFIED,
+                MISSILE_SIGNATURE_INTEL_STATUS
+                    .CONFIRMED,
 
-            signature: 'signature_b',
+            hypothesis: 'signature_b',
         },
 
         missileId:

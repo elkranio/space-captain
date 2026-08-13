@@ -14,6 +14,15 @@ import type {
     ShieldGeneratorState,
 } from '../../defs/shield_generator';
 
+import type {
+    MissileSignatureIntel,
+    ResolvedMissileSignatureIntel,
+} from './missile_signature_intel';
+
+export {
+    MISSILE_SIGNATURE_INTEL_STATUS,
+} from './missile_signature_intel';
+
 export const COMBAT_PROJECTILE_KIND = {
     MISSILE: 'missile',
 } as const;
@@ -101,26 +110,15 @@ export type CombatTarget =
           actorId: string;
       };
 
-export const THREAT_IDENTIFICATION_STATUS = {
-    UNKNOWN: 'unknown',
-    IDENTIFIED: 'identified',
-} as const;
-
 export type MissileThreatIdentification =
-    | {
-          status: typeof THREAT_IDENTIFICATION_STATUS.UNKNOWN;
-      }
-    | {
-          status: typeof THREAT_IDENTIFICATION_STATUS.IDENTIFIED;
+    MissileSignatureIntel;
 
-          signature: MissileSignature;
-      };
-
-export type ThreatIdentificationResult = {
-    kind: typeof COMBAT_THREAT_KIND.MISSILE;
-
-    signature: MissileSignature;
-};
+export type ThreatIdentificationResult =
+    ResolvedMissileSignatureIntel & {
+        kind:
+            typeof COMBAT_THREAT_KIND
+                .MISSILE;
+    };
 
 export type MissileCombatProjectileState = {
     id: string;
@@ -140,8 +138,8 @@ export type MissileCombatProjectileState = {
     // missileId identifies ammo model and cannot reveal this value.
     signature: MissileSignature;
 
-    // Знание игрока о свойствах угрозы.
-    // Объективный тип ракеты остаётся в missileId.
+    // Player-observer knowledge about this concrete projectile.
+    // Objective truth stays in signature; missileId remains only the ammo model.
     identification: MissileThreatIdentification;
 
     missileId: MissileId;

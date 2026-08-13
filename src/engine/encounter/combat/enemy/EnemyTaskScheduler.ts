@@ -43,6 +43,9 @@ import {
     ENEMY_THREAT_KIND,
 } from '../../model/enemy_threat_observation';
 import {
+    MISSILE_SIGNATURE_INTEL_STATUS,
+} from '../../model/missile_signature_intel';
+import {
     ENCOUNTER_EVENT,
     type EncounterEvent,
 } from '../../model/event';
@@ -692,7 +695,9 @@ export default class EnemyTaskScheduler {
 
         if (
             !observation ||
-            observation.report
+            observation.report?.status ===
+                MISSILE_SIGNATURE_INTEL_STATUS
+                    .CONFIRMED
         ) {
             throw new Error(
                 'Cannot start enemy threat ' +

@@ -570,7 +570,7 @@ function createEncounterEngine(): EncounterEngine {
                                 status:
                                     'identified',
 
-                                signature:
+                                hypothesis:
                                     'signature_a',
                             },
                         },

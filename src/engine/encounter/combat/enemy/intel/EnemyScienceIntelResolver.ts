@@ -18,6 +18,9 @@ import {
     COMBAT_TARGET_KIND,
 } from '../../../model/combat';
 import {
+    MISSILE_SIGNATURE_INTEL_STATUS,
+} from '../../../model/missile_signature_intel';
+import {
     ENEMY_THREAT_KIND,
     ENEMY_THREAT_SOURCE_KIND,
     type EnemyThreatObservationState,
@@ -31,9 +34,9 @@ import type {
 // - objective combat truth;
 // - report, доступным enemy policy.
 //
-// HUNGOVER Science всегда выдаёт
-// правдоподобный, но неверный вариант.
-// Сам report не знает, что он ложный.
+// Atom 02 preserves the current deterministic trait behavior:
+// HUNGOVER Science produces a plausible but wrong hypothesis.
+// The system marks it UNCERTAIN, never falsely CONFIRMED.
 export default class EnemyScienceIntelResolver {
     constructor(
         private readonly state:
@@ -173,7 +176,11 @@ export default class EnemyScienceIntelResolver {
             kind:
                 ENEMY_THREAT_KIND.MISSILE,
 
-            signature:
+            status:
+                MISSILE_SIGNATURE_INTEL_STATUS
+                    .CONFIRMED,
+
+            hypothesis:
                 projectile.signature,
         };
     }
@@ -203,10 +210,14 @@ export default class EnemyScienceIntelResolver {
                 ENEMY_THREAT_KIND
                     .MISSILE,
 
-            signature:
+            status:
+                MISSILE_SIGNATURE_INTEL_STATUS
+                    .UNCERTAIN,
+
+            hypothesis:
                 this.getWrongSignature(
                     truthfulReport
-                        .signature,
+                        .hypothesis,
                 ),
         };
     }

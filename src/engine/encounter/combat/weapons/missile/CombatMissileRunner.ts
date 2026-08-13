@@ -23,7 +23,7 @@ import {
     COMBAT_SOURCE_KIND,
     COMBAT_TARGET_KIND,
     PLAYER_MISSILE_OUTCOME,
-    THREAT_IDENTIFICATION_STATUS,
+    MISSILE_SIGNATURE_INTEL_STATUS,
     type MissileCombatProjectileState,
 } from '../../../model/combat';
 import {
@@ -227,7 +227,7 @@ export default class CombatMissileRunner {
 
                 identification: {
                     status:
-                        THREAT_IDENTIFICATION_STATUS
+                        MISSILE_SIGNATURE_INTEL_STATUS
                             .UNKNOWN,
                 },
 
@@ -537,10 +537,11 @@ export default class CombatMissileRunner {
 
                 identification: {
                     status:
-                        THREAT_IDENTIFICATION_STATUS
-                            .IDENTIFIED,
+                        MISSILE_SIGNATURE_INTEL_STATUS
+                            .CONFIRMED,
 
-                    signature,
+                    hypothesis:
+                        signature,
                 },
 
                 missileId:

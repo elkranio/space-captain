@@ -15,7 +15,7 @@ import {
     type EncounterOfficerCommandId,
 } from '../../../../../../engine/encounter/model/command';
 import {
-    THREAT_IDENTIFICATION_STATUS,
+    MISSILE_SIGNATURE_INTEL_STATUS,
     type CombatProjectileState,
     type SpamChannelState,
 } from '../../../../../../engine/encounter/model/combat';
@@ -175,14 +175,12 @@ export function mapCaptainCombatContextToBridgePayload(
 
                         ...(missile
                             .identification
-                            .status ===
-                        THREAT_IDENTIFICATION_STATUS
-                            .IDENTIFIED
+                            .status !== MISSILE_SIGNATURE_INTEL_STATUS.UNKNOWN
                             ? {
                                   signature:
                                       missile
                                           .identification
-                                          .signature,
+                                          .hypothesis,
                               }
                             : {}),
 

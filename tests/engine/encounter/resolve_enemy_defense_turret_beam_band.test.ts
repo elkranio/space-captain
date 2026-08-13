@@ -49,10 +49,12 @@ describe('Enemy defense-turret beam-band resolution', () => {
             );
 
         observation.report = {
+            status: 'confirmed',
+
             kind:
                 ENEMY_THREAT_KIND.MISSILE,
 
-            signature:
+            hypothesis:
                 MISSILE_SIGNATURE.B,
         };
 
@@ -81,10 +83,12 @@ describe('Enemy defense-turret beam-band resolution', () => {
             );
 
         observation.report = {
+            status: 'confirmed',
+
             kind:
                 ENEMY_THREAT_KIND.MISSILE,
 
-            signature:
+            hypothesis:
                 MISSILE_SIGNATURE.B,
         };
 

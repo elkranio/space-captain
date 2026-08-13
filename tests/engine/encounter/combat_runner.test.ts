@@ -25,7 +25,7 @@ import {
     COMBAT_SOURCE_KIND,
     COMBAT_TARGET_KIND,
     LASER_SHOT_OUTCOME,
-    THREAT_IDENTIFICATION_STATUS,
+    MISSILE_SIGNATURE_INTEL_STATUS,
 } from '../../../src/engine/encounter/model/combat';
 import { ENCOUNTER_EVENT } from '../../../src/engine/encounter/model/event';
 import ShipNodeActorFactory from '../../../src/engine/generation/space_node_actor/ShipNodeActorFactory';
@@ -133,7 +133,7 @@ describe('CombatRunner', () => {
                 MISSILE_SIGNATURE.A,
 
             identification: {
-                        status: THREAT_IDENTIFICATION_STATUS.UNKNOWN,
+                        status: MISSILE_SIGNATURE_INTEL_STATUS.UNKNOWN,
                     },
 
                     missileId: MISSILE_ID.BASIC_00,
@@ -172,7 +172,7 @@ describe('CombatRunner', () => {
                 MISSILE_SIGNATURE.A,
 
             identification: {
-                status: THREAT_IDENTIFICATION_STATUS.UNKNOWN,
+                status: MISSILE_SIGNATURE_INTEL_STATUS.UNKNOWN,
             },
 
             missileId: MISSILE_ID.BASIC_00,
@@ -218,7 +218,7 @@ describe('CombatRunner', () => {
                 MISSILE_SIGNATURE.A,
 
             identification: {
-                        status: THREAT_IDENTIFICATION_STATUS.UNKNOWN,
+                        status: MISSILE_SIGNATURE_INTEL_STATUS.UNKNOWN,
                     },
 
                     missileId: MISSILE_ID.BASIC_00,

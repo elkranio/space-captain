@@ -36,7 +36,7 @@ import {
     COMBAT_PROJECTILE_KIND,
     COMBAT_SOURCE_KIND,
     COMBAT_TARGET_KIND,
-    THREAT_IDENTIFICATION_STATUS,
+    MISSILE_SIGNATURE_INTEL_STATUS,
 } from '../../../src/engine/encounter/model/combat';
 import {
     ENEMY_THREAT_KIND,
@@ -133,7 +133,10 @@ describe(
                         ENEMY_THREAT_KIND
                             .MISSILE,
 
-                    signature:
+                    status:
+                        MISSILE_SIGNATURE_INTEL_STATUS.CONFIRMED,
+
+                    hypothesis:
                         MISSILE_SIGNATURE
                             .A,
                 });
@@ -234,7 +237,7 @@ function createMissileFixture(
 
             identification: {
                 status:
-                    THREAT_IDENTIFICATION_STATUS
+                    MISSILE_SIGNATURE_INTEL_STATUS
                         .UNKNOWN,
             },
 
