@@ -1,0 +1,26 @@
+{
+    "missile_launcher_00": {
+        "name": "MISSILE LAUNCHER",
+        "ammoCapacity": 5,
+        "cooldownDurationMs": 15000
+    },
+    "laser_00": {
+        "name": "LASER EMITTER",
+        "damage": 1,
+        "chargeDurationMs": 12000,
+        "cooldownDurationMs": 15000
+    },
+    "spam_projector_00": {
+        "name": "SPAM PROJECTOR",
+        "channelDurationMs": 20000,
+        "officerTaskProgressMultiplier": 0.5,
+        "cooldownDurationMs": 15000
+    },
+    "sticky_mine_dispenser_00": {
+        "name": "STICKY MINE DISPENSER",
+        "ammoCapacity": 6,
+        "salvoSize": 3,
+        "launchIntervalMs": 1000,
+        "cooldownDurationMs": 15000
+    }
+}

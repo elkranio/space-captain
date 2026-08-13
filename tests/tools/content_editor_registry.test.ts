@@ -3,7 +3,10 @@ import {
     expect,
     it,
 } from 'vitest';
+import missileData from '../../src/engine/content/data/missiles.json';
 import officerTaskData from '../../src/engine/content/data/officer_tasks.json';
+import shipWeaponRulesData from '../../src/engine/content/data/ship_weapon_rules.json';
+import shipWeaponData from '../../src/engine/content/data/ship_weapons.json';
 import {
     CONTENT_COLLECTION_ID,
     getContentCollectionDefinition,
@@ -16,7 +19,7 @@ describe(
     'Content editor registry',
     () => {
         it(
-            'exposes only the fixed Officer Tasks collection',
+            'exposes only explicitly registered content collections',
             () => {
                 expect(
                     getContentCollectionSummaries(),
@@ -32,6 +35,39 @@ describe(
                         canAdd: false,
                         canDelete: false,
                     },
+                    {
+                        id:
+                            CONTENT_COLLECTION_ID
+                                .SHIP_WEAPON_RULES,
+
+                        label:
+                            'Ship Weapon Rules',
+
+                        canAdd: false,
+                        canDelete: false,
+                    },
+                    {
+                        id:
+                            CONTENT_COLLECTION_ID
+                                .SHIP_WEAPONS,
+
+                        label:
+                            'Ship Weapons',
+
+                        canAdd: false,
+                        canDelete: false,
+                    },
+                    {
+                        id:
+                            CONTENT_COLLECTION_ID
+                                .MISSILES,
+
+                        label:
+                            'Missiles',
+
+                        canAdd: false,
+                        canDelete: false,
+                    },
                 ]);
 
                 expect(
@@ -43,7 +79,7 @@ describe(
         );
 
         it(
-            'validates current officer-task data through the shared runtime schema',
+            'validates current collection data through shared runtime schemas',
             () => {
                 expect(
                     validateContentCollection(
@@ -55,13 +91,46 @@ describe(
                 ).toEqual(
                     officerTaskData,
                 );
+
+                expect(
+                    validateContentCollection(
+                        CONTENT_COLLECTION_ID
+                            .SHIP_WEAPON_RULES,
+
+                        shipWeaponRulesData,
+                    ),
+                ).toEqual(
+                    shipWeaponRulesData,
+                );
+
+                expect(
+                    validateContentCollection(
+                        CONTENT_COLLECTION_ID
+                            .SHIP_WEAPONS,
+
+                        shipWeaponData,
+                    ),
+                ).toEqual(
+                    shipWeaponData,
+                );
+
+                expect(
+                    validateContentCollection(
+                        CONTENT_COLLECTION_ID
+                            .MISSILES,
+
+                        missileData,
+                    ),
+                ).toEqual(
+                    missileData,
+                );
             },
         );
 
         it(
-            'generates editor fields from the same schema',
+            'generates editor fields from the same schemas',
             () => {
-                const schema =
+                const officerSchema =
                     getContentCollectionJsonSchema(
                         CONTENT_COLLECTION_ID
                             .OFFICER_TASKS,
@@ -78,12 +147,12 @@ describe(
                     };
 
                 const timed =
-                    schema.properties
+                    officerSchema.properties
                         ?.science_identify_threat
                         ?.properties;
 
                 const external =
-                    schema.properties
+                    officerSchema.properties
                         ?.helm_fly_to
                         ?.properties;
 
@@ -98,6 +167,36 @@ describe(
                 ).not.toHaveProperty(
                     'durationMs',
                 );
+
+                const missileSchema =
+                    getContentCollectionJsonSchema(
+                        CONTENT_COLLECTION_ID
+                            .MISSILES,
+                    ) as {
+                        properties?: Record<
+                            string,
+                            {
+                                properties?: Record<
+                                    string,
+                                    {
+                                        enum?: unknown[];
+                                    }
+                                >;
+                            }
+                        >;
+                    };
+
+                expect(
+                    missileSchema
+                        .properties
+                        ?.red_00
+                        ?.properties
+                        ?.spectralBand
+                        ?.enum,
+                ).toEqual([
+                    'red',
+                    'blue',
+                ]);
             },
         );
     },

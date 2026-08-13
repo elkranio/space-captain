@@ -1,0 +1,14 @@
+{
+    "red_00": {
+        "name": "RED-BAND MISSILE",
+        "spectralBand": "red",
+        "damage": 1,
+        "flightDurationMs": 12000
+    },
+    "blue_00": {
+        "name": "BLUE-BAND MISSILE",
+        "spectralBand": "blue",
+        "damage": 1,
+        "flightDurationMs": 12000
+    }
+}

@@ -25,7 +25,8 @@ body {
 }
 
 button,
-input {
+input,
+select {
     font: inherit;
 }
 
@@ -225,12 +226,14 @@ h1 {
     gap: 9px;
 }
 
-.field-control input {
+.field-control input,
+.field-control select {
     width: 100%;
 }
 
 input[type="text"],
-input[type="number"] {
+input[type="number"],
+select {
     height: 34px;
     padding: 0 10px;
     border:
@@ -242,7 +245,8 @@ input[type="number"] {
 }
 
 input[type="text"]:focus,
-input[type="number"]:focus {
+input[type="number"]:focus,
+select:focus {
     border-color: #6f8eaf;
     box-shadow:
         0 0 0 2px

@@ -1,24 +1,39 @@
 // src/engine/content/catalogs/missiles.ts
 
-import { MISSILE_ID, MISSILE_SPECTRAL_BAND, type MissileDefinition, type MissileId } from '../../defs/missile';
+import missileTuningData from '../data/missiles.json';
+import {
+    MISSILE_TUNING_SCHEMA,
+} from '../schemas/missiles';
+import {
+    MISSILE_ID,
+    type MissileDefinition,
+    type MissileId,
+} from '../../defs/missile';
+
+const MISSILE_TUNING =
+    MISSILE_TUNING_SCHEMA.parse(
+        missileTuningData,
+    );
 
 export const MISSILES = {
     [MISSILE_ID.RED_00]: {
-        id: MISSILE_ID.RED_00,
-        name: 'RED-BAND MISSILE',
+        id:
+            MISSILE_ID.RED_00,
 
-        spectralBand: MISSILE_SPECTRAL_BAND.RED,
-
-        damage: 1,
-        flightDurationMs: 12000,
+        ...MISSILE_TUNING[
+            MISSILE_ID.RED_00
+        ],
     },
+
     [MISSILE_ID.BLUE_00]: {
-        id: MISSILE_ID.BLUE_00,
-        name: 'BLUE-BAND MISSILE',
+        id:
+            MISSILE_ID.BLUE_00,
 
-        spectralBand: MISSILE_SPECTRAL_BAND.BLUE,
-
-        damage: 1,
-        flightDurationMs: 12000,
+        ...MISSILE_TUNING[
+            MISSILE_ID.BLUE_00
+        ],
     },
-} satisfies Record<MissileId, MissileDefinition>;
+} satisfies Record<
+    MissileId,
+    MissileDefinition
+>;

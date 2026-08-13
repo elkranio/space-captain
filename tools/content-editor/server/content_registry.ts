@@ -1,11 +1,29 @@
 import * as z from 'zod';
 import {
+    MISSILE_TUNING_SCHEMA,
+} from '../../../src/engine/content/schemas/missiles';
+import {
     OFFICER_TASK_TUNING_SCHEMA,
 } from '../../../src/engine/content/schemas/officer_task_tuning';
+import {
+    SHIP_WEAPON_RULES_SCHEMA,
+} from '../../../src/engine/content/schemas/ship_weapon_rules';
+import {
+    SHIP_WEAPON_TUNING_SCHEMA,
+} from '../../../src/engine/content/schemas/ship_weapons';
 
 export const CONTENT_COLLECTION_ID = {
     OFFICER_TASKS:
         'officer_tasks',
+
+    SHIP_WEAPON_RULES:
+        'ship_weapon_rules',
+
+    SHIP_WEAPONS:
+        'ship_weapons',
+
+    MISSILES:
+        'missiles',
 } as const;
 
 export type ContentCollectionId =
@@ -41,6 +59,65 @@ const CONTENT_COLLECTIONS:
 
             schema:
                 OFFICER_TASK_TUNING_SCHEMA,
+
+            canAdd: false,
+            canDelete: false,
+        },
+
+        [CONTENT_COLLECTION_ID
+            .SHIP_WEAPON_RULES]: {
+            id:
+                CONTENT_COLLECTION_ID
+                    .SHIP_WEAPON_RULES,
+
+            label:
+                'Ship Weapon Rules',
+
+            dataPath:
+                'src/engine/content/data/' +
+                'ship_weapon_rules.json',
+
+            schema:
+                SHIP_WEAPON_RULES_SCHEMA,
+
+            canAdd: false,
+            canDelete: false,
+        },
+
+        [CONTENT_COLLECTION_ID
+            .SHIP_WEAPONS]: {
+            id:
+                CONTENT_COLLECTION_ID
+                    .SHIP_WEAPONS,
+
+            label:
+                'Ship Weapons',
+
+            dataPath:
+                'src/engine/content/data/' +
+                'ship_weapons.json',
+
+            schema:
+                SHIP_WEAPON_TUNING_SCHEMA,
+
+            canAdd: false,
+            canDelete: false,
+        },
+
+        [CONTENT_COLLECTION_ID
+            .MISSILES]: {
+            id:
+                CONTENT_COLLECTION_ID
+                    .MISSILES,
+
+            label: 'Missiles',
+
+            dataPath:
+                'src/engine/content/data/' +
+                'missiles.json',
+
+            schema:
+                MISSILE_TUNING_SCHEMA,
 
             canAdd: false,
             canDelete: false,
