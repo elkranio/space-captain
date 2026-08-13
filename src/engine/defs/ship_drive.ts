@@ -1,11 +1,13 @@
 // src/engine/defs/ship_drive.ts
 
+// Удобный стабильный id встроенного drive.
+// Каталог открыт для новых module ids из content editor.
 export const SHIP_DRIVE_ID = {
     BASIC_00: 'basic_00',
 } as const;
 
 export type ShipDriveId =
-    (typeof SHIP_DRIVE_ID)[keyof typeof SHIP_DRIVE_ID];
+    string;
 
 export const SHIP_DRIVE_STATUS = {
     ONLINE: 'online',

@@ -106,7 +106,7 @@ describe(
         );
 
         it(
-            'accepts additional chassis ids with valid tuning shape',
+            'accepts additional chassis and drive ids with valid tuning shape',
             () => {
                 expect(
                     SHIP_CHASSIS_TUNING_SCHEMA
@@ -129,6 +129,22 @@ describe(
                                     'heavy_00',
 
                                 maxHull: 5,
+                            },
+                        })
+                        .success,
+                ).toBe(true);
+
+                expect(
+                    SHIP_DRIVE_TUNING_SCHEMA
+                        .safeParse({
+                            basic_00: {
+                                name:
+                                    'BASIC DRIVE',
+                            },
+
+                            fast_00: {
+                                name:
+                                    'FAST DRIVE',
                             },
                         })
                         .success,
@@ -166,6 +182,17 @@ describe(
                                     'generic_00',
 
                                 maxHull: 0,
+                            },
+                        })
+                        .success,
+                ).toBe(false);
+
+                expect(
+                    SHIP_DRIVE_TUNING_SCHEMA
+                        .safeParse({
+                            'Bad ID': {
+                                name:
+                                    'BASIC DRIVE',
                             },
                         })
                         .success,

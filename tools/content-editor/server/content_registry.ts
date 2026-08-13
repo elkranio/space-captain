@@ -278,7 +278,7 @@ const CONTENT_COLLECTIONS:
                     .SHIP_DRIVES,
 
             label:
-                'Ship Drives',
+                'Ship Modules / Drives',
 
             dataPath:
                 'src/engine/content/data/' +
@@ -287,8 +287,8 @@ const CONTENT_COLLECTIONS:
             schema:
                 SHIP_DRIVE_TUNING_SCHEMA,
 
-            canAdd: false,
-            canDelete: false,
+            canAdd: true,
+            canDelete: true,
         },
 
         [CONTENT_COLLECTION_ID

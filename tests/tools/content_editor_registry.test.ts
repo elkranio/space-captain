@@ -137,10 +137,10 @@ describe(
                                 .SHIP_DRIVES,
 
                         label:
-                            'Ship Drives',
+                            'Ship Modules / Drives',
 
-                        canAdd: false,
-                        canDelete: false,
+                        canAdd: true,
+                        canDelete: true,
                     },
                     {
                         id:

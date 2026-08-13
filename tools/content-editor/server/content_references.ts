@@ -3,6 +3,9 @@ import {
 } from 'node:fs';
 import path from 'node:path';
 import {
+    PLAYER_SHIP_PRESETS,
+} from '../../../src/engine/content/presets/player_ships';
+import {
     SHIP_PRESETS,
 } from '../../../src/engine/content/presets/ships';
 import {
@@ -19,6 +22,16 @@ type ShipChassisDraftCollection =
     Record<
         string,
         ShipChassisDraft
+    >;
+
+type ShipDriveDraft = {
+    name: string;
+};
+
+type ShipDriveDraftCollection =
+    Record<
+        string,
+        ShipDriveDraft
     >;
 
 export type ContentUsage = {
@@ -59,6 +72,15 @@ export function getContentRecordDeleteInfo(
                     ),
             };
 
+        case CONTENT_COLLECTION_ID
+            .SHIP_DRIVES:
+            return {
+                usages:
+                    findShipDriveUsages(
+                        recordId,
+                    ),
+            };
+
         default:
             return {
                 usages: [],
@@ -78,6 +100,15 @@ export async function validateContentCollectionReferences(
                 repoRoot,
                 data as
                     ShipChassisDraftCollection,
+            );
+
+            return;
+
+        case CONTENT_COLLECTION_ID
+            .SHIP_DRIVES:
+            validateShipDriveReferences(
+                data as
+                    ShipDriveDraftCollection,
             );
 
             return;
@@ -111,6 +142,63 @@ function findShipChassisUsages(
                     preset.id,
             };
         });
+}
+
+function findShipDriveUsages(
+    driveId: string,
+): ContentUsage[] {
+    const shipPresetUsages =
+        Object.values(
+            SHIP_PRESETS,
+        )
+            .filter((preset) => {
+                return (
+                    preset
+                        .drive
+                        .driveId ===
+                    driveId
+                );
+            })
+            .map((preset) => {
+                return {
+                    collection:
+                        'Ship Presets',
+
+                    recordId:
+                        preset.id,
+
+                    label:
+                        preset.id,
+                };
+            });
+
+    const playerPresetUsages =
+        Object.values(
+            PLAYER_SHIP_PRESETS,
+        )
+            .filter((preset) => {
+                return (
+                    preset.driveId ===
+                    driveId
+                );
+            })
+            .map((preset) => {
+                return {
+                    collection:
+                        'Player Ship Presets',
+
+                    recordId:
+                        preset.id,
+
+                    label:
+                        preset.id,
+                };
+            });
+
+    return [
+        ...shipPresetUsages,
+        ...playerPresetUsages,
+    ];
 }
 
 async function validateShipChassisReferences(
@@ -167,6 +255,63 @@ async function validateShipChassisReferences(
                 'Cannot remove ship chassis "' +
                 preset.chassisId +
                 '": it is used by ship preset "' +
+                preset.id +
+                '".'
+            ),
+            409,
+        );
+    }
+}
+
+function validateShipDriveReferences(
+    data: ShipDriveDraftCollection,
+): void {
+    for (
+        const preset of
+        Object.values(
+            SHIP_PRESETS,
+        )
+    ) {
+        const driveId =
+            preset
+                .drive
+                .driveId;
+
+        if (data[driveId]) {
+            continue;
+        }
+
+        throw new ContentReferenceError(
+            (
+                'Cannot remove ship drive "' +
+                driveId +
+                '": it is used by ship preset "' +
+                preset.id +
+                '".'
+            ),
+            409,
+        );
+    }
+
+    for (
+        const preset of
+        Object.values(
+            PLAYER_SHIP_PRESETS,
+        )
+    ) {
+        if (
+            data[
+                preset.driveId
+            ]
+        ) {
+            continue;
+        }
+
+        throw new ContentReferenceError(
+            (
+                'Cannot remove ship drive "' +
+                preset.driveId +
+                '": it is used by player ship preset "' +
                 preset.id +
                 '".'
             ),
