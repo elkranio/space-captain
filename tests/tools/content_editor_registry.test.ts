@@ -3,8 +3,12 @@ import {
     expect,
     it,
 } from 'vitest';
+import defenseCapacitorData from '../../src/engine/content/data/defense_capacitors.json';
 import missileData from '../../src/engine/content/data/missiles.json';
 import officerTaskData from '../../src/engine/content/data/officer_tasks.json';
+import pointDefenseData from '../../src/engine/content/data/point_defenses.json';
+import shieldEmitterData from '../../src/engine/content/data/shield_emitters.json';
+import shipBehaviorData from '../../src/engine/content/data/ship_behaviors.json';
 import shipWeaponRulesData from '../../src/engine/content/data/ship_weapon_rules.json';
 import shipWeaponData from '../../src/engine/content/data/ship_weapons.json';
 import {
@@ -68,6 +72,50 @@ describe(
                         canAdd: false,
                         canDelete: false,
                     },
+                    {
+                        id:
+                            CONTENT_COLLECTION_ID
+                                .DEFENSE_CAPACITORS,
+
+                        label:
+                            'Defense Capacitors',
+
+                        canAdd: false,
+                        canDelete: false,
+                    },
+                    {
+                        id:
+                            CONTENT_COLLECTION_ID
+                                .POINT_DEFENSES,
+
+                        label:
+                            'Point Defenses',
+
+                        canAdd: false,
+                        canDelete: false,
+                    },
+                    {
+                        id:
+                            CONTENT_COLLECTION_ID
+                                .SHIELD_EMITTERS,
+
+                        label:
+                            'Shield Emitters',
+
+                        canAdd: false,
+                        canDelete: false,
+                    },
+                    {
+                        id:
+                            CONTENT_COLLECTION_ID
+                                .SHIP_BEHAVIORS,
+
+                        label:
+                            'Ship Behaviors',
+
+                        canAdd: false,
+                        canDelete: false,
+                    },
                 ]);
 
                 expect(
@@ -81,49 +129,69 @@ describe(
         it(
             'validates current collection data through shared runtime schemas',
             () => {
-                expect(
-                    validateContentCollection(
+                const cases: Array<
+                    [
+                        string,
+                        unknown,
+                    ]
+                > = [
+                    [
                         CONTENT_COLLECTION_ID
                             .OFFICER_TASKS,
-
                         officerTaskData,
-                    ),
-                ).toEqual(
-                    officerTaskData,
-                );
-
-                expect(
-                    validateContentCollection(
+                    ],
+                    [
                         CONTENT_COLLECTION_ID
                             .SHIP_WEAPON_RULES,
-
                         shipWeaponRulesData,
-                    ),
-                ).toEqual(
-                    shipWeaponRulesData,
-                );
-
-                expect(
-                    validateContentCollection(
+                    ],
+                    [
                         CONTENT_COLLECTION_ID
                             .SHIP_WEAPONS,
-
                         shipWeaponData,
-                    ),
-                ).toEqual(
-                    shipWeaponData,
-                );
-
-                expect(
-                    validateContentCollection(
+                    ],
+                    [
                         CONTENT_COLLECTION_ID
                             .MISSILES,
-
                         missileData,
-                    ),
-                ).toEqual(
-                    missileData,
-                );
+                    ],
+                    [
+                        CONTENT_COLLECTION_ID
+                            .DEFENSE_CAPACITORS,
+                        defenseCapacitorData,
+                    ],
+                    [
+                        CONTENT_COLLECTION_ID
+                            .POINT_DEFENSES,
+                        pointDefenseData,
+                    ],
+                    [
+                        CONTENT_COLLECTION_ID
+                            .SHIELD_EMITTERS,
+                        shieldEmitterData,
+                    ],
+                    [
+                        CONTENT_COLLECTION_ID
+                            .SHIP_BEHAVIORS,
+                        shipBehaviorData,
+                    ],
+                ];
+
+                for (
+                    const [
+                        collectionId,
+                        data,
+                    ] of cases
+                ) {
+                    expect(
+                        validateContentCollection(
+                            collectionId,
+                            data,
+                        ),
+                    ).toEqual(
+                        data,
+                    );
+                }
             },
         );
 
@@ -197,6 +265,31 @@ describe(
                     'red',
                     'blue',
                 ]);
+
+                const behaviorSchema =
+                    getContentCollectionJsonSchema(
+                        CONTENT_COLLECTION_ID
+                            .SHIP_BEHAVIORS,
+                    ) as {
+                        properties?: Record<
+                            string,
+                            {
+                                properties?: Record<
+                                    string,
+                                    unknown
+                                >;
+                            }
+                        >;
+                    };
+
+                expect(
+                    behaviorSchema
+                        .properties
+                        ?.standard_combat_00
+                        ?.properties,
+                ).toHaveProperty(
+                    'offensiveTaskDelayMs',
+                );
             },
         );
     },

@@ -1,10 +1,22 @@
 import * as z from 'zod';
 import {
+    DEFENSE_CAPACITOR_TUNING_SCHEMA,
+} from '../../../src/engine/content/schemas/defense_capacitors';
+import {
     MISSILE_TUNING_SCHEMA,
 } from '../../../src/engine/content/schemas/missiles';
 import {
     OFFICER_TASK_TUNING_SCHEMA,
 } from '../../../src/engine/content/schemas/officer_task_tuning';
+import {
+    POINT_DEFENSE_TUNING_SCHEMA,
+} from '../../../src/engine/content/schemas/point_defenses';
+import {
+    SHIELD_EMITTER_TUNING_SCHEMA,
+} from '../../../src/engine/content/schemas/shield_emitters';
+import {
+    SHIP_BEHAVIOR_TUNING_SCHEMA,
+} from '../../../src/engine/content/schemas/ship_behaviors';
 import {
     SHIP_WEAPON_RULES_SCHEMA,
 } from '../../../src/engine/content/schemas/ship_weapon_rules';
@@ -24,6 +36,18 @@ export const CONTENT_COLLECTION_ID = {
 
     MISSILES:
         'missiles',
+
+    DEFENSE_CAPACITORS:
+        'defense_capacitors',
+
+    POINT_DEFENSES:
+        'point_defenses',
+
+    SHIELD_EMITTERS:
+        'shield_emitters',
+
+    SHIP_BEHAVIORS:
+        'ship_behaviors',
 } as const;
 
 export type ContentCollectionId =
@@ -118,6 +142,86 @@ const CONTENT_COLLECTIONS:
 
             schema:
                 MISSILE_TUNING_SCHEMA,
+
+            canAdd: false,
+            canDelete: false,
+        },
+
+        [CONTENT_COLLECTION_ID
+            .DEFENSE_CAPACITORS]: {
+            id:
+                CONTENT_COLLECTION_ID
+                    .DEFENSE_CAPACITORS,
+
+            label:
+                'Defense Capacitors',
+
+            dataPath:
+                'src/engine/content/data/' +
+                'defense_capacitors.json',
+
+            schema:
+                DEFENSE_CAPACITOR_TUNING_SCHEMA,
+
+            canAdd: false,
+            canDelete: false,
+        },
+
+        [CONTENT_COLLECTION_ID
+            .POINT_DEFENSES]: {
+            id:
+                CONTENT_COLLECTION_ID
+                    .POINT_DEFENSES,
+
+            label:
+                'Point Defenses',
+
+            dataPath:
+                'src/engine/content/data/' +
+                'point_defenses.json',
+
+            schema:
+                POINT_DEFENSE_TUNING_SCHEMA,
+
+            canAdd: false,
+            canDelete: false,
+        },
+
+        [CONTENT_COLLECTION_ID
+            .SHIELD_EMITTERS]: {
+            id:
+                CONTENT_COLLECTION_ID
+                    .SHIELD_EMITTERS,
+
+            label:
+                'Shield Emitters',
+
+            dataPath:
+                'src/engine/content/data/' +
+                'shield_emitters.json',
+
+            schema:
+                SHIELD_EMITTER_TUNING_SCHEMA,
+
+            canAdd: false,
+            canDelete: false,
+        },
+
+        [CONTENT_COLLECTION_ID
+            .SHIP_BEHAVIORS]: {
+            id:
+                CONTENT_COLLECTION_ID
+                    .SHIP_BEHAVIORS,
+
+            label:
+                'Ship Behaviors',
+
+            dataPath:
+                'src/engine/content/data/' +
+                'ship_behaviors.json',
+
+            schema:
+                SHIP_BEHAVIOR_TUNING_SCHEMA,
 
             canAdd: false,
             canDelete: false,

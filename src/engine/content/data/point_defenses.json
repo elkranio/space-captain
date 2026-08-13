@@ -1,0 +1,7 @@
+{
+    "point_defense_basic_00": {
+        "name": "BASIC POINT DEFENSE",
+        "loadDurationMs": 3000,
+        "cooldownDurationMs": 5000
+    }
+}

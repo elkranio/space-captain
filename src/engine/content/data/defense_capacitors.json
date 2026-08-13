@@ -1,0 +1,7 @@
+{
+    "defense_capacitor_basic_00": {
+        "name": "MK.I DEFENSE CAPACITOR",
+        "capacity": 4,
+        "rechargeDurationMs": 24000
+    }
+}
