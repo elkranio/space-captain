@@ -57,7 +57,7 @@ describe(
         );
 
         it(
-            'reports ship preset usage for the built-in Defense Turret',
+            'reports enemy and player preset usages for the built-in Defense Turret',
             () => {
                 const info =
                     getContentRecordDeleteInfo(
@@ -68,15 +68,25 @@ describe(
 
                 expect(
                     info.usages,
-                ).toEqual([
-                    expect.objectContaining({
-                        collection:
-                            'Ship Presets',
+                ).toEqual(
+                    expect.arrayContaining([
+                        expect.objectContaining({
+                            collection:
+                                'Ship Presets',
 
-                        recordId:
-                            'generic_defense_sandbox_00',
-                    }),
-                ]);
+                            recordId:
+                                'generic_defense_sandbox_00',
+                        }),
+
+                        expect.objectContaining({
+                            collection:
+                                'Player Ship Presets',
+
+                            recordId:
+                                'starter_00',
+                        }),
+                    ]),
+                );
             },
         );
 

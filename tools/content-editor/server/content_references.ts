@@ -10,6 +10,7 @@ import {
 } from '../../../src/engine/content/presets/ships';
 import {
     CONTENT_COLLECTION_ID,
+    type ContentCollectionId,
 } from './content_registry';
 
 type ShipChassisDraft = {
@@ -18,57 +19,8 @@ type ShipChassisDraft = {
     maxHull: number;
 };
 
-type ShipChassisDraftCollection =
-    Record<
-        string,
-        ShipChassisDraft
-    >;
-
-type ShipDriveDraft = {
-    name: string;
-};
-
-type ShipDriveDraftCollection =
-    Record<
-        string,
-        ShipDriveDraft
-    >;
-
-type PowerCoreDraft = {
-    name: string;
-    capacity: number;
-    rechargeDurationMs: number;
-};
-
-type PowerCoreDraftCollection =
-    Record<
-        string,
-        PowerCoreDraft
-    >;
-
-type ShieldGeneratorDraft = {
-    name: string;
-    shieldDurationMs: number;
-    cooldownDurationMs: number;
-};
-
-type ShieldGeneratorDraftCollection =
-    Record<
-        string,
-        ShieldGeneratorDraft
-    >;
-
-type DefenseTurretDraft = {
-    name: string;
-    loadDurationMs: number;
-    cooldownDurationMs: number;
-};
-
-type DefenseTurretDraftCollection =
-    Record<
-        string,
-        DefenseTurretDraft
-    >;
+type ContentDraftCollection =
+    Record<string, unknown>;
 
 export type ContentUsage = {
     collection: string;
@@ -79,6 +31,80 @@ export type ContentUsage = {
 export type ContentRecordDeleteInfo = {
     usages: ContentUsage[];
 };
+
+type ContentReference = {
+    recordId: string;
+    usage: ContentUsage;
+    usageSubject: string;
+};
+
+type ContentReferenceRule = {
+    recordLabel: string;
+
+    collectReferences:
+        () => ContentReference[];
+
+    validateDraft?: (
+        repoRoot: string,
+        data: ContentDraftCollection,
+    ) => Promise<void>;
+};
+
+const CONTENT_REFERENCE_RULES:
+    Partial<
+        Record<
+            ContentCollectionId,
+            ContentReferenceRule
+        >
+    > = {
+        [CONTENT_COLLECTION_ID
+            .SHIP_CHASSIS]: {
+            recordLabel:
+                'ship chassis',
+
+            collectReferences:
+                collectShipChassisReferences,
+
+            validateDraft:
+                validateShipChassisDraft,
+        },
+
+        [CONTENT_COLLECTION_ID
+            .SHIP_DRIVES]: {
+            recordLabel:
+                'ship drive',
+
+            collectReferences:
+                collectShipDriveReferences,
+        },
+
+        [CONTENT_COLLECTION_ID
+            .POWER_CORES]: {
+            recordLabel:
+                'power core',
+
+            collectReferences:
+                collectPowerCoreReferences,
+        },
+
+        [CONTENT_COLLECTION_ID
+            .SHIELD_GENERATORS]: {
+            recordLabel:
+                'shield generator',
+
+            collectReferences:
+                collectShieldGeneratorReferences,
+        },
+
+        [CONTENT_COLLECTION_ID
+            .DEFENSE_TURRETS]: {
+            recordLabel:
+                'defense turret',
+
+            collectReferences:
+                collectDefenseTurretReferences,
+        },
+    };
 
 export class ContentReferenceError
     extends Error {
@@ -98,57 +124,31 @@ export function getContentRecordDeleteInfo(
     collectionId: string,
     recordId: string,
 ): ContentRecordDeleteInfo {
-    switch (collectionId) {
-        case CONTENT_COLLECTION_ID
-            .SHIP_CHASSIS:
-            return {
-                usages:
-                    findShipChassisUsages(
-                        recordId,
-                    ),
-            };
+    const rule =
+        getContentReferenceRule(
+            collectionId,
+        );
 
-        case CONTENT_COLLECTION_ID
-            .SHIP_DRIVES:
-            return {
-                usages:
-                    findShipDriveUsages(
-                        recordId,
-                    ),
-            };
-
-        case CONTENT_COLLECTION_ID
-            .POWER_CORES:
-            return {
-                usages:
-                    findPowerCoreUsages(
-                        recordId,
-                    ),
-            };
-
-        case CONTENT_COLLECTION_ID
-            .SHIELD_GENERATORS:
-            return {
-                usages:
-                    findShieldGeneratorUsages(
-                        recordId,
-                    ),
-            };
-
-        case CONTENT_COLLECTION_ID
-            .DEFENSE_TURRETS:
-            return {
-                usages:
-                    findDefenseTurretUsages(
-                        recordId,
-                    ),
-            };
-
-        default:
-            return {
-                usages: [],
-            };
+    if (!rule) {
+        return {
+            usages: [],
+        };
     }
+
+    return {
+        usages:
+            rule
+                .collectReferences()
+                .filter((reference) => {
+                    return (
+                        reference.recordId ===
+                        recordId
+                    );
+                })
+                .map((reference) => {
+                    return reference.usage;
+                }),
+    };
 }
 
 export async function validateContentCollectionReferences(
@@ -156,317 +156,310 @@ export async function validateContentCollectionReferences(
     collectionId: string,
     data: unknown,
 ): Promise<void> {
-    switch (collectionId) {
-        case CONTENT_COLLECTION_ID
-            .SHIP_CHASSIS:
-            await validateShipChassisReferences(
-                repoRoot,
-                data as
-                    ShipChassisDraftCollection,
-            );
+    const rule =
+        getContentReferenceRule(
+            collectionId,
+        );
 
-            return;
+    if (!rule) {
+        return;
+    }
 
-        case CONTENT_COLLECTION_ID
-            .SHIP_DRIVES:
-            validateShipDriveReferences(
-                data as
-                    ShipDriveDraftCollection,
-            );
+    const draft =
+        data as ContentDraftCollection;
 
-            return;
+    if (rule.validateDraft) {
+        await rule.validateDraft(
+            repoRoot,
+            draft,
+        );
+    }
 
-        case CONTENT_COLLECTION_ID
-            .POWER_CORES:
-            validatePowerCoreReferences(
-                data as
-                    PowerCoreDraftCollection,
-            );
+    for (
+        const reference of
+        rule.collectReferences()
+    ) {
+        if (
+            Object.prototype
+                .hasOwnProperty.call(
+                    draft,
+                    reference.recordId,
+                )
+        ) {
+            continue;
+        }
 
-            return;
-
-        case CONTENT_COLLECTION_ID
-            .SHIELD_GENERATORS:
-            validateShieldGeneratorReferences(
-                data as
-                    ShieldGeneratorDraftCollection,
-            );
-
-            return;
-
-        case CONTENT_COLLECTION_ID
-            .DEFENSE_TURRETS:
-            validateDefenseTurretReferences(
-                data as
-                    DefenseTurretDraftCollection,
-            );
-
-            return;
-
-        default:
-            return;
+        throw new ContentReferenceError(
+            (
+                'Cannot remove ' +
+                rule.recordLabel +
+                ' "' +
+                reference.recordId +
+                '": it is used by ' +
+                reference.usageSubject +
+                ' "' +
+                reference.usage.recordId +
+                '".'
+            ),
+            409,
+        );
     }
 }
 
-function findShipChassisUsages(
-    chassisId: string,
-): ContentUsage[] {
+function getContentReferenceRule(
+    collectionId: string,
+): ContentReferenceRule | undefined {
+    return CONTENT_REFERENCE_RULES[
+        collectionId as
+            ContentCollectionId
+    ];
+}
+
+function collectShipChassisReferences():
+    ContentReference[] {
     return Object.values(
         SHIP_PRESETS,
-    )
-        .filter((preset) => {
-            return (
-                preset.chassisId ===
-                chassisId
-            );
-        })
-        .map((preset) => {
-            return {
-                collection:
-                    'Ship Presets',
-
-                recordId:
-                    preset.id,
-
-                label:
-                    preset.id,
-            };
-        });
+    ).map((preset) => {
+        return createShipPresetReference(
+            preset.chassisId,
+            preset.id,
+        );
+    });
 }
 
-function findShipDriveUsages(
-    driveId: string,
-): ContentUsage[] {
-    const shipPresetUsages =
+function collectShipDriveReferences():
+    ContentReference[] {
+    const references:
+        ContentReference[] = [];
+
+    for (
+        const preset of
         Object.values(
             SHIP_PRESETS,
         )
-            .filter((preset) => {
-                return (
-                    preset
-                        .drive
-                        .driveId ===
-                    driveId
-                );
-            })
-            .map((preset) => {
-                return {
-                    collection:
-                        'Ship Presets',
+    ) {
+        references.push(
+            createShipPresetReference(
+                preset.drive.driveId,
+                preset.id,
+            ),
+        );
+    }
 
-                    recordId:
-                        preset.id,
-
-                    label:
-                        preset.id,
-                };
-            });
-
-    const playerPresetUsages =
+    for (
+        const preset of
         Object.values(
             PLAYER_SHIP_PRESETS,
         )
-            .filter((preset) => {
-                return (
-                    preset.driveId ===
-                    driveId
-                );
-            })
-            .map((preset) => {
-                return {
-                    collection:
-                        'Player Ship Presets',
+    ) {
+        references.push(
+            createPlayerShipPresetReference(
+                preset.driveId,
+                preset.id,
+            ),
+        );
+    }
 
-                    recordId:
-                        preset.id,
-
-                    label:
-                        preset.id,
-                };
-            });
-
-    return [
-        ...shipPresetUsages,
-        ...playerPresetUsages,
-    ];
+    return references;
 }
 
-function findPowerCoreUsages(
-    powerCoreId: string,
-): ContentUsage[] {
-    const shipPresetUsages =
+function collectPowerCoreReferences():
+    ContentReference[] {
+    const references:
+        ContentReference[] = [];
+
+    for (
+        const preset of
         Object.values(
             SHIP_PRESETS,
         )
-            .filter((preset) => {
-                if (
-                    !(
-                        'powerCore' in
-                        preset
-                    )
-                ) {
-                    return false;
-                }
+    ) {
+        if (
+            !(
+                'powerCore' in
+                preset
+            )
+        ) {
+            continue;
+        }
 
-                return (
-                    preset
-                        .powerCore
-                        .powerCoreId ===
-                    powerCoreId
-                );
-            })
-            .map((preset) => {
-                return {
-                    collection:
-                        'Ship Presets',
+        references.push(
+            createShipPresetReference(
+                preset
+                    .powerCore
+                    .powerCoreId,
+                preset.id,
+            ),
+        );
+    }
 
-                    recordId:
-                        preset.id,
-
-                    label:
-                        preset.id,
-                };
-            });
-
-    const playerPresetUsages =
+    for (
+        const preset of
         Object.values(
             PLAYER_SHIP_PRESETS,
         )
-            .filter((preset) => {
-                return (
-                    preset
-                        .powerCore
-                        .powerCoreId ===
-                    powerCoreId
-                );
-            })
-            .map((preset) => {
-                return {
-                    collection:
-                        'Player Ship Presets',
+    ) {
+        references.push(
+            createPlayerShipPresetReference(
+                preset
+                    .powerCore
+                    .powerCoreId,
+                preset.id,
+            ),
+        );
+    }
 
-                    recordId:
-                        preset.id,
-
-                    label:
-                        preset.id,
-                };
-            });
-
-    return [
-        ...shipPresetUsages,
-        ...playerPresetUsages,
-    ];
+    return references;
 }
 
-function findShieldGeneratorUsages(
-    shieldGeneratorId: string,
-): ContentUsage[] {
-    const shipPresetUsages =
+function collectShieldGeneratorReferences():
+    ContentReference[] {
+    const references:
+        ContentReference[] = [];
+
+    for (
+        const preset of
         Object.values(
             SHIP_PRESETS,
         )
-            .filter((preset) => {
-                if (
-                    !(
-                        'shieldGenerator' in
-                        preset
-                    )
-                ) {
-                    return false;
-                }
+    ) {
+        if (
+            !(
+                'shieldGenerator' in
+                preset
+            )
+        ) {
+            continue;
+        }
 
-                return (
-                    preset
-                        .shieldGenerator
-                        .shieldGeneratorId ===
-                    shieldGeneratorId
-                );
-            })
-            .map((preset) => {
-                return {
-                    collection:
-                        'Ship Presets',
+        references.push(
+            createShipPresetReference(
+                preset
+                    .shieldGenerator
+                    .shieldGeneratorId,
+                preset.id,
+            ),
+        );
+    }
 
-                    recordId:
-                        preset.id,
-
-                    label:
-                        preset.id,
-                };
-            });
-
-    const playerPresetUsages =
+    for (
+        const preset of
         Object.values(
             PLAYER_SHIP_PRESETS,
         )
-            .filter((preset) => {
-                return (
-                    preset
-                        .shieldGenerator
-                        .shieldGeneratorId ===
-                    shieldGeneratorId
-                );
-            })
-            .map((preset) => {
-                return {
-                    collection:
-                        'Player Ship Presets',
+    ) {
+        references.push(
+            createPlayerShipPresetReference(
+                preset
+                    .shieldGenerator
+                    .shieldGeneratorId,
+                preset.id,
+            ),
+        );
+    }
 
-                    recordId:
-                        preset.id,
-
-                    label:
-                        preset.id,
-                };
-            });
-
-    return [
-        ...shipPresetUsages,
-        ...playerPresetUsages,
-    ];
+    return references;
 }
 
-function findDefenseTurretUsages(
-    defenseTurretId: string,
-): ContentUsage[] {
-    return Object.values(
-        SHIP_PRESETS,
-    )
-        .filter((preset) => {
-            if (
-                !(
-                    'defenseTurret' in
-                    preset
-                )
-            ) {
-                return false;
-            }
+function collectDefenseTurretReferences():
+    ContentReference[] {
+    const references:
+        ContentReference[] = [];
 
-            return (
+    for (
+        const preset of
+        Object.values(
+            SHIP_PRESETS,
+        )
+    ) {
+        if (
+            !(
+                'defenseTurret' in
+                preset
+            )
+        ) {
+            continue;
+        }
+
+        references.push(
+            createShipPresetReference(
                 preset
                     .defenseTurret
-                    .defenseTurretId ===
-                defenseTurretId
-            );
-        })
-        .map((preset) => {
-            return {
-                collection:
-                    'Ship Presets',
+                    .defenseTurretId,
+                preset.id,
+            ),
+        );
+    }
 
-                recordId:
-                    preset.id,
+    for (
+        const preset of
+        Object.values(
+            PLAYER_SHIP_PRESETS,
+        )
+    ) {
+        references.push(
+            createPlayerShipPresetReference(
+                preset
+                    .defenseTurret
+                    .defenseTurretId,
+                preset.id,
+            ),
+        );
+    }
 
-                label:
-                    preset.id,
-            };
-        });
+    return references;
 }
 
-async function validateShipChassisReferences(
+function createShipPresetReference(
+    recordId: string,
+    presetId: string,
+): ContentReference {
+    return createPresetReference(
+        recordId,
+        presetId,
+        'Ship Presets',
+        'ship preset',
+    );
+}
+
+function createPlayerShipPresetReference(
+    recordId: string,
+    presetId: string,
+): ContentReference {
+    return createPresetReference(
+        recordId,
+        presetId,
+        'Player Ship Presets',
+        'player ship preset',
+    );
+}
+
+function createPresetReference(
+    recordId: string,
+    presetId: string,
+    collection: string,
+    usageSubject: string,
+): ContentReference {
+    return {
+        recordId,
+
+        usage: {
+            collection,
+
+            recordId:
+                presetId,
+
+            label:
+                presetId,
+        },
+
+        usageSubject,
+    };
+}
+
+async function validateShipChassisDraft(
     repoRoot: string,
-    data: ShipChassisDraftCollection,
+    data: ContentDraftCollection,
 ): Promise<void> {
     const spriteIds =
         await readShipChassisSpriteIds(
@@ -478,7 +471,10 @@ async function validateShipChassisReferences(
             chassisId,
             chassis,
         ] of Object.entries(
-            data,
+            data as Record<
+                string,
+                ShipChassisDraft
+            >,
         )
     ) {
         if (
@@ -497,263 +493,6 @@ async function validateShipChassisReferences(
                 400,
             );
         }
-    }
-
-    for (
-        const preset of
-        Object.values(
-            SHIP_PRESETS,
-        )
-    ) {
-        if (
-            data[
-                preset.chassisId
-            ]
-        ) {
-            continue;
-        }
-
-        throw new ContentReferenceError(
-            (
-                'Cannot remove ship chassis "' +
-                preset.chassisId +
-                '": it is used by ship preset "' +
-                preset.id +
-                '".'
-            ),
-            409,
-        );
-    }
-}
-
-function validateShipDriveReferences(
-    data: ShipDriveDraftCollection,
-): void {
-    for (
-        const preset of
-        Object.values(
-            SHIP_PRESETS,
-        )
-    ) {
-        const driveId =
-            preset
-                .drive
-                .driveId;
-
-        if (data[driveId]) {
-            continue;
-        }
-
-        throw new ContentReferenceError(
-            (
-                'Cannot remove ship drive "' +
-                driveId +
-                '": it is used by ship preset "' +
-                preset.id +
-                '".'
-            ),
-            409,
-        );
-    }
-
-    for (
-        const preset of
-        Object.values(
-            PLAYER_SHIP_PRESETS,
-        )
-    ) {
-        if (
-            data[
-                preset.driveId
-            ]
-        ) {
-            continue;
-        }
-
-        throw new ContentReferenceError(
-            (
-                'Cannot remove ship drive "' +
-                preset.driveId +
-                '": it is used by player ship preset "' +
-                preset.id +
-                '".'
-            ),
-            409,
-        );
-    }
-}
-
-function validatePowerCoreReferences(
-    data: PowerCoreDraftCollection,
-): void {
-    for (
-        const preset of
-        Object.values(
-            SHIP_PRESETS,
-        )
-    ) {
-        if (
-            !(
-                'powerCore' in
-                preset
-            )
-        ) {
-            continue;
-        }
-
-        const powerCoreId =
-            preset
-                .powerCore
-                .powerCoreId;
-
-        if (data[powerCoreId]) {
-            continue;
-        }
-
-        throw new ContentReferenceError(
-            (
-                'Cannot remove power core "' +
-                powerCoreId +
-                '": it is used by ship preset "' +
-                preset.id +
-                '".'
-            ),
-            409,
-        );
-    }
-
-    for (
-        const preset of
-        Object.values(
-            PLAYER_SHIP_PRESETS,
-        )
-    ) {
-        const powerCoreId =
-            preset
-                .powerCore
-                .powerCoreId;
-
-        if (data[powerCoreId]) {
-            continue;
-        }
-
-        throw new ContentReferenceError(
-            (
-                'Cannot remove power core "' +
-                powerCoreId +
-                '": it is used by player ship preset "' +
-                preset.id +
-                '".'
-            ),
-            409,
-        );
-    }
-}
-
-function validateShieldGeneratorReferences(
-    data: ShieldGeneratorDraftCollection,
-): void {
-    for (
-        const preset of
-        Object.values(
-            SHIP_PRESETS,
-        )
-    ) {
-        if (
-            !(
-                'shieldGenerator' in
-                preset
-            )
-        ) {
-            continue;
-        }
-
-        const shieldGeneratorId =
-            preset
-                .shieldGenerator
-                .shieldGeneratorId;
-
-        if (data[shieldGeneratorId]) {
-            continue;
-        }
-
-        throw new ContentReferenceError(
-            (
-                'Cannot remove shield generator "' +
-                shieldGeneratorId +
-                '": it is used by ship preset "' +
-                preset.id +
-                '".'
-            ),
-            409,
-        );
-    }
-
-    for (
-        const preset of
-        Object.values(
-            PLAYER_SHIP_PRESETS,
-        )
-    ) {
-        const shieldGeneratorId =
-            preset
-                .shieldGenerator
-                .shieldGeneratorId;
-
-        if (data[shieldGeneratorId]) {
-            continue;
-        }
-
-        throw new ContentReferenceError(
-            (
-                'Cannot remove shield generator "' +
-                shieldGeneratorId +
-                '": it is used by player ship preset "' +
-                preset.id +
-                '".'
-            ),
-            409,
-        );
-    }
-}
-
-function validateDefenseTurretReferences(
-    data: DefenseTurretDraftCollection,
-): void {
-    for (
-        const preset of
-        Object.values(
-            SHIP_PRESETS,
-        )
-    ) {
-        if (
-            !(
-                'defenseTurret' in
-                preset
-            )
-        ) {
-            continue;
-        }
-
-        const defenseTurretId =
-            preset
-                .defenseTurret
-                .defenseTurretId;
-
-        if (data[defenseTurretId]) {
-            continue;
-        }
-
-        throw new ContentReferenceError(
-            (
-                'Cannot remove defense turret "' +
-                defenseTurretId +
-                '": it is used by ship preset "' +
-                preset.id +
-                '".'
-            ),
-            409,
-        );
     }
 }
 
