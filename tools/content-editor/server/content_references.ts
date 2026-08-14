@@ -133,15 +133,15 @@ const CONTENT_REFERENCE_RULES:
         },
 
         [CONTENT_COLLECTION_ID
-            .LASER_EMITTERS]: {
+            .BEAM_CANNONS]: {
             recordLabel:
-                'laser emitter',
+                'beam cannon',
 
             collectReferences:
                 (repoRoot) => {
                     return collectShipWeaponReferences(
                         repoRoot,
-                        'laser_emitters.json',
+                        'beam_cannons.json',
                     );
                 },
 
@@ -149,7 +149,7 @@ const CONTENT_REFERENCE_RULES:
                 (repoRoot, data) => {
                     return validateShipWeaponDraft(
                         repoRoot,
-                        'laser_emitters.json',
+                        'beam_cannons.json',
                         data,
                     );
                 },
@@ -520,7 +520,7 @@ function collectDefenseTurretReferences():
 
 const SHIP_WEAPON_DATA_FILES = [
     'missile_launchers.json',
-    'laser_emitters.json',
+    'beam_cannons.json',
     'spam_projectors.json',
     'sticky_mine_dispensers.json',
 ] as const;

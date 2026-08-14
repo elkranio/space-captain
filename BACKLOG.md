@@ -60,7 +60,7 @@ After Missile Launcher + Missiles:
 - Engineer repair commands for defensive installations.
 - Balance shield task duration / TTL / generator cooldown / Power Core recharge.
 - Revisit enemy shield behavior only after player-side contracts are stable.
-- Decide whether Science gets real laser/node targeting; keep current SCI laser slot disabled until then.
+- Decide whether Science gets real beamCannon/node targeting; keep current SCI beamCannon slot disabled until then.
 - Decide if/when missile technology should reduce blind interception; current code has turret-side chance only.
 - Helm evade remains a future separate missile response and must not be coupled to hidden signature mechanics.
 

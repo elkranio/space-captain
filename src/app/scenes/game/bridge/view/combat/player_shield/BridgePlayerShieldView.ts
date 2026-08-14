@@ -22,7 +22,7 @@ import {
 
 // Player hull shield presentation.
 //
-// Сейчас player laser target semantics = whole hull,
+// Сейчас player beamCannon target semantics = whole hull,
 // поэтому используется только existing center shield sector.
 // side_left / side_right намеренно не участвуют до node targeting.
 export default class BridgePlayerShieldView {

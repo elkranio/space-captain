@@ -1,4 +1,4 @@
-// tests/engine/encounter/player_laser_command.test.ts
+// tests/engine/encounter/player_beam_cannon_command.test.ts
 
 import {
     describe,
@@ -25,7 +25,7 @@ import {
     getPlayerWeaponOrThrow,
 } from './combat_test_support';
 
-describe('Player laser command', () => {
+describe('Player beamCannon command', () => {
     it(
         'offers one current-enemy hull shot and starts a cancellable targeting task',
         () => {
@@ -39,7 +39,7 @@ describe('Player laser command', () => {
             const installedWeapon = {
                 ...getPlayerWeaponOrThrow(
                     state,
-                    SHIP_WEAPON_KIND.LASER,
+                    SHIP_WEAPON_KIND.BEAM_CANNON,
                 ),
             };
 
@@ -67,7 +67,7 @@ describe('Player laser command', () => {
                 ),
             };
 
-            const laserCommands =
+            const beamCannonCommands =
                 engine
                     .getAvailableCommands(
                         OFFICER_ROLE.WEAPONS,
@@ -76,12 +76,12 @@ describe('Player laser command', () => {
                         return (
                             command.commandId ===
                             ENCOUNTER_OFFICER_COMMAND_ID
-                                .WEAPONS_FIRE_LASER
+                                .WEAPONS_FIRE_BEAM_CANNON
                         );
                     });
 
             expect(
-                laserCommands.map((command) => {
+                beamCannonCommands.map((command) => {
                     return {
                         commandId:
                             command.commandId,
@@ -97,10 +97,10 @@ describe('Player laser command', () => {
                 {
                     commandId:
                         ENCOUNTER_OFFICER_COMMAND_ID
-                            .WEAPONS_FIRE_LASER,
+                            .WEAPONS_FIRE_BEAM_CANNON,
 
                     label:
-                        'FIRE LASER',
+                        'FIRE BEAM CANNON',
 
                     target: {
                         kind:
@@ -108,7 +108,7 @@ describe('Player laser command', () => {
                                 .ACTOR_WEAPON,
 
                         weaponId:
-                            'laser_player_00',
+                            'beam_cannon_player_00',
 
                         actorId:
                             targetActor.id,
@@ -123,7 +123,7 @@ describe('Player laser command', () => {
 
                     commandId:
                         ENCOUNTER_OFFICER_COMMAND_ID
-                            .WEAPONS_FIRE_LASER,
+                            .WEAPONS_FIRE_BEAM_CANNON,
 
                     target: {
                         kind:
@@ -131,7 +131,7 @@ describe('Player laser command', () => {
                                 .ACTOR_WEAPON,
 
                         weaponId:
-                            'laser_player_00',
+                            'beam_cannon_player_00',
 
                         actorId:
                             targetActor.id,
@@ -167,23 +167,23 @@ describe('Player laser command', () => {
             expect(task).toMatchObject({
                 kind:
                     OFFICER_TASK_KIND
-                        .WEAPONS_FIRE_LASER,
+                        .WEAPONS_FIRE_BEAM_CANNON,
 
                 role:
                     OFFICER_ROLE.WEAPONS,
 
                 sourceCommandId:
                     ENCOUNTER_OFFICER_COMMAND_ID
-                        .WEAPONS_FIRE_LASER,
+                        .WEAPONS_FIRE_BEAM_CANNON,
 
                 weaponId:
-                    'laser_player_00',
+                    'beam_cannon_player_00',
 
                 targetActorId:
                     targetActor.id,
 
                 label:
-                    'LASER AIM',
+                    'BEAM CANNON AIM',
                 showProgress: false,
 
                 durationMs: null,
@@ -202,7 +202,7 @@ describe('Player laser command', () => {
 
             if (!task) {
                 throw new Error(
-                    'Expected player laser task',
+                    'Expected player beamCannon task',
                 );
             }
 
@@ -229,7 +229,7 @@ describe('Player laser command', () => {
                         return (
                             command.commandId ===
                             ENCOUNTER_OFFICER_COMMAND_ID
-                                .WEAPONS_FIRE_LASER
+                                .WEAPONS_FIRE_BEAM_CANNON
                         );
                     }),
             ).toHaveLength(1);

@@ -26,7 +26,7 @@ import type { AvailableOfficerCommand } from '../model/command';
 import type {
     ActiveShieldState,
     CombatProjectileState,
-    LaserAttackState,
+    BeamCannonAttackState,
 } from '../model/combat';
 import type { OfficerAvailabilityStates } from '../model/officer_availability';
 import type { OfficerTaskState } from '../model/officer_task';
@@ -140,8 +140,8 @@ export default class EncounterSnapshotReader {
         return this.read((state) => state.combat.projectiles);
     }
 
-    public getLaserAttacks(): LaserAttackState[] {
-        return this.read((state) => state.combat.laserAttacks);
+    public getBeamCannonAttacks(): BeamCannonAttackState[] {
+        return this.read((state) => state.combat.beamCannonAttacks);
     }
 
     private read<T>(select: (state: EncounterState) => T): T {

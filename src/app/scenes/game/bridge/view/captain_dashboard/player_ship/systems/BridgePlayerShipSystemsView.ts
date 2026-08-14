@@ -18,7 +18,7 @@ const SYSTEM_ROWS:
         },
         {
             iconLabel: 'LAS',
-            label: 'LASER',
+            label: 'BEAM CANNON',
             roleLabel: 'WPN',
         },
         {
@@ -34,7 +34,7 @@ const SYSTEM_ROWS:
     ];
 
 const MISSILE_LAUNCHER_ROW_INDEX = 0;
-const LASER_ROW_INDEX = 1;
+const BEAM_CANNON_ROW_INDEX = 1;
 const STICKY_MINE_DISPENSER_ROW_INDEX = 2;
 const SPAM_PROJECTOR_ROW_INDEX = 3;
 
@@ -53,7 +53,7 @@ export default class BridgePlayerShipSystemsView {
     private missileLauncherView?:
         BridgePlayerShipSystemRowView;
 
-    private laserView?:
+    private beamCannonView?:
         BridgePlayerShipSystemRowView;
 
     private stickyMineDispenserView?:
@@ -114,9 +114,9 @@ export default class BridgePlayerShipSystemsView {
 
             if (
                 index ===
-                LASER_ROW_INDEX
+                BEAM_CANNON_ROW_INDEX
             ) {
-                this.laserView =
+                this.beamCannonView =
                     rowView;
             }
 
@@ -147,7 +147,7 @@ export default class BridgePlayerShipSystemsView {
 
         if (
             !this.missileLauncherView ||
-            !this.laserView ||
+            !this.beamCannonView ||
             !this.stickyMineDispenserView ||
             !this.spamProjectorView
         ) {
@@ -201,7 +201,7 @@ export default class BridgePlayerShipSystemsView {
         this.missileLauncherView =
             undefined;
 
-        this.laserView =
+        this.beamCannonView =
             undefined;
 
         this.stickyMineDispenserView =
@@ -221,8 +221,8 @@ export default class BridgePlayerShipSystemsView {
             payload.missileLauncher,
         );
 
-        this.updateLaser(
-            payload.laser,
+        this.updateBeamCannon(
+            payload.beamCannon,
         );
 
         this.updateStickyMineDispenser(
@@ -280,24 +280,24 @@ export default class BridgePlayerShipSystemsView {
         );
     }
 
-    private updateLaser(
-        laser:
+    private updateBeamCannon(
+        beamCannon:
             BridgePlayerShipDashboardUpdatedPayload[
-                'laser'
+                'beamCannon'
             ],
     ): void {
         const view =
-            this.laserView;
+            this.beamCannonView;
 
         if (!view) {
             return;
         }
 
         view.setSystemLabel(
-            'LASER',
+            'BEAM CANNON',
         );
 
-        if (!laser) {
+        if (!beamCannon) {
             view.setProgress(
                 undefined,
             );
@@ -311,12 +311,12 @@ export default class BridgePlayerShipSystemsView {
         }
 
         view.setProgress(
-            laser.cooldownProgress,
+            beamCannon.cooldownProgress,
         );
 
         this.applyAction(
             view,
-            laser.action,
+            beamCannon.action,
         );
     }
 

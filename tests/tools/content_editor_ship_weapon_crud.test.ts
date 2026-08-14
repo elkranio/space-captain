@@ -27,8 +27,8 @@ describe(
                     ],
                     [
                         CONTENT_COLLECTION_ID
-                            .LASER_EMITTERS,
-                        'laser_00',
+                            .BEAM_CANNONS,
+                        'beam_cannon_00',
                     ],
                     [
                         CONTENT_COLLECTION_ID
@@ -128,7 +128,7 @@ describe(
                         {
                             ...missileLauncherData,
 
-                            laser_00: {
+                            beam_cannon_00: {
                                 name:
                                     'NOT REALLY A LAUNCHER',
 
@@ -142,7 +142,7 @@ describe(
                         },
                     ),
                 ).rejects.toThrow(
-                    'Ship weapon id "laser_00" is already defined in another weapon family.',
+                    'Ship weapon id "beam_cannon_00" is already defined in another weapon family.',
                 );
             },
         );

@@ -11,7 +11,7 @@ import {
     SHIP_WEAPON_RULES_SCHEMA,
 } from '../../../src/engine/content/schemas/ship_weapon_rules';
 import {
-    LASER_EMITTER_TUNING_SCHEMA,
+    BEAM_CANNON_TUNING_SCHEMA,
     MISSILE_LAUNCHER_TUNING_SCHEMA,
     SPAM_PROJECTOR_TUNING_SCHEMA,
     STICKY_MINE_DISPENSER_TUNING_SCHEMA,
@@ -59,19 +59,19 @@ describe(
                 expect(
                     SHIP_WEAPONS[
                         SHIP_WEAPON_ID
-                            .LASER_00
+                            .BEAM_CANNON_00
                     ],
                 ).toMatchObject({
                     id:
                         SHIP_WEAPON_ID
-                            .LASER_00,
+                            .BEAM_CANNON_00,
 
                     kind:
                         SHIP_WEAPON_KIND
-                            .LASER,
+                            .BEAM_CANNON,
 
                     name:
-                        'LASER EMITTER',
+                        'BEAM CANNON',
 
                     damage: 1,
                     chargeDurationMs:
@@ -159,11 +159,11 @@ describe(
                 ).toBe(true);
 
                 expect(
-                    LASER_EMITTER_TUNING_SCHEMA
+                    BEAM_CANNON_TUNING_SCHEMA
                         .safeParse({
-                            fast_laser_00: {
+                            fast_beam_cannon_00: {
                                 name:
-                                    'FAST LASER',
+                                    'FAST BEAM_CANNON',
 
                                 damage: 1,
                                 chargeDurationMs:

@@ -40,10 +40,10 @@ type MissileLauncherDashboardPayload =
         ]
     >;
 
-type LaserDashboardPayload =
+type BeamCannonDashboardPayload =
     NonNullable<
         BridgePlayerShipDashboardUpdatedPayload[
-            'laser'
+            'beamCannon'
         ]
     >;
 
@@ -119,9 +119,9 @@ export function mapPlayerShipToBridgeDashboardPayload(
         input.weapons
             .missileLauncher;
 
-    const laser =
+    const beamCannon =
         input.weapons
-            .laser;
+            .beamCannon;
 
     const stickyMineDispenser =
         input.weapons
@@ -152,11 +152,11 @@ export function mapPlayerShipToBridgeDashboardPayload(
               }
             : {}),
 
-        ...(laser
+        ...(beamCannon
             ? {
-                  laser:
-                      mapLaser(
-                          laser,
+                  beamCannon:
+                      mapBeamCannon(
+                          beamCannon,
                           input.availableWeaponsCommands,
                           input.weaponsOfficerAvailability,
                       ),
@@ -287,18 +287,18 @@ function mapMissileLauncher(
     };
 }
 
-function mapLaser(
-    laser:
+function mapBeamCannon(
+    beamCannon:
         BridgePlayerWeaponStatusPayload,
     availableWeaponsCommands:
         AvailableOfficerCommand[],
     weaponsOfficerAvailability:
         OfficerAvailabilityState,
-): LaserDashboardPayload {
+): BeamCannonDashboardPayload {
     const cooldownProgress =
         getCooldownProgress(
-            laser,
-            'Laser',
+            beamCannon,
+            'BeamCannon',
         );
 
     return {
@@ -309,8 +309,8 @@ function mapLaser(
             : {}),
 
         action:
-            mapLaserAction(
-                laser,
+            mapBeamCannonAction(
+                beamCannon,
                 availableWeaponsCommands,
                 weaponsOfficerAvailability,
             ),
@@ -581,20 +581,20 @@ function mapSpamAction(
     };
 }
 
-function mapLaserAction(
-    laser:
+function mapBeamCannonAction(
+    beamCannon:
         BridgePlayerWeaponStatusPayload,
     availableWeaponsCommands:
         AvailableOfficerCommand[],
     weaponsOfficerAvailability:
         OfficerAvailabilityState,
-): LaserDashboardPayload[
+): BeamCannonDashboardPayload[
     'action'
 ] {
     if (
-        laser.phase ===
+        beamCannon.phase ===
             SHIP_WEAPON_PHASE.TARGETING ||
-        laser.phase ===
+        beamCannon.phase ===
             SHIP_WEAPON_PHASE.CHARGING
     ) {
         return {
@@ -605,7 +605,7 @@ function mapLaserAction(
     }
 
     if (
-        laser.phase !==
+        beamCannon.phase !==
         SHIP_WEAPON_PHASE.READY
     ) {
         return {
@@ -615,17 +615,17 @@ function mapLaserAction(
         };
     }
 
-    const laserCommand =
+    const beamCannonCommand =
         getSingleCommand(
             availableWeaponsCommands,
 
             ENCOUNTER_OFFICER_COMMAND_ID
-                .WEAPONS_FIRE_LASER,
+                .WEAPONS_FIRE_BEAM_CANNON,
 
-            'laser',
+            'beam_cannon',
         );
 
-    if (laserCommand) {
+    if (beamCannonCommand) {
         return {
             state:
                 BRIDGE_PLAYER_SYSTEM_ACTION_STATE
@@ -633,7 +633,7 @@ function mapLaserAction(
 
             command:
                 mapWeaponsCommand(
-                    laserCommand,
+                    beamCannonCommand,
                 ),
         };
     }

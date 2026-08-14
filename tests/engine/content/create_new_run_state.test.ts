@@ -98,14 +98,14 @@ describe('createNewRunState', () => {
 
             weapons: [
                 {
-                    id: 'laser_player_00',
+                    id: 'beam_cannon_player_00',
 
                     weaponId:
                         SHIP_WEAPON_ID
-                            .LASER_00,
+                            .BEAM_CANNON_00,
 
                     kind:
-                        SHIP_WEAPON_KIND.LASER,
+                        SHIP_WEAPON_KIND.BEAM_CANNON,
 
                     phase:
                         SHIP_WEAPON_PHASE.READY,
@@ -272,7 +272,7 @@ describe('createNewRunState', () => {
 
         if (!firstWeapon || !secondWeapon) {
             throw new Error(
-                'Expected installed player lasers',
+                'Expected installed player beamCannons',
             );
         }
 
@@ -355,14 +355,14 @@ describe('createNewRunState', () => {
 
             weapons: [
                 {
-                    id: 'laser_player_00',
+                    id: 'beam_cannon_player_00',
 
                     weaponId:
                         SHIP_WEAPON_ID
-                            .LASER_00,
+                            .BEAM_CANNON_00,
 
                     kind:
-                        SHIP_WEAPON_KIND.LASER,
+                        SHIP_WEAPON_KIND.BEAM_CANNON,
 
                     phase:
                         SHIP_WEAPON_PHASE.READY,

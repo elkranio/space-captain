@@ -6,12 +6,12 @@ import { ENCOUNTER_TEAM } from '../../../../defs/encounter_team';
 import {
     SHIP_WEAPON_KIND,
     SHIP_WEAPON_PHASE,
-    type LaserWeaponDefinition,
-    type LaserWeaponState,
+    type BeamCannonDefinition,
+    type BeamCannonState,
 } from '../../../../defs/ship_weapon';
 import {
-    LASER_SHOT_OUTCOME,
-    type LaserShotOutcome,
+    BEAM_CANNON_SHOT_OUTCOME,
+    type BeamCannonShotOutcome,
 } from '../../../model/combat';
 import {
     ENCOUNTER_EVENT,
@@ -23,24 +23,24 @@ import {
 } from '../../../model/officer_task';
 import type EncounterStateStore from '../../../state/EncounterStateStore';
 
-type WeaponsFireLaserTaskState = Extract<
+type WeaponsFireBeamCannonTaskState = Extract<
     OfficerTaskState,
     {
         kind:
             typeof OFFICER_TASK_KIND
-                .WEAPONS_FIRE_LASER;
+                .WEAPONS_FIRE_BEAM_CANNON;
     }
 >;
 
-type PlayerLaserImpact = {
+type PlayerBeamCannonImpact = {
     outcome:
-        LaserShotOutcome;
+        BeamCannonShotOutcome;
 
     damage: number;
     remainingHull: number;
 };
 
-type PlayerLaserRunnerOptions = {
+type PlayerBeamCannonRunnerOptions = {
     stateStore: EncounterStateStore;
     emit: (event: EncounterEvent) => void;
 
@@ -51,18 +51,18 @@ type PlayerLaserRunnerOptions = {
         (actorId: string) => void;
 };
 
-// Owns the active installed player laser lifecycle:
+// Owns the active installed player beamCannon lifecycle:
 // targeting -> charging -> whole-ship shield/hull impact -> cooldown.
 //
 // Node/sector targeting remains intentionally absent in this slice.
-export default class PlayerLaserRunner {
+export default class PlayerBeamCannonRunner {
     constructor(
         private readonly options:
-            PlayerLaserRunnerOptions,
+            PlayerBeamCannonRunnerOptions,
     ) {}
 
     public advanceTask(
-        task: WeaponsFireLaserTaskState,
+        task: WeaponsFireBeamCannonTaskState,
         deltaMs: number,
     ): void {
         if (!this.hasValidTarget(task)) {
@@ -71,20 +71,20 @@ export default class PlayerLaserRunner {
             return;
         }
 
-        const laser =
-            this.findTaskLaser(task);
+        const beamCannon =
+            this.findTaskBeamCannon(task);
 
-        if (!laser) {
+        if (!beamCannon) {
             // Missing weapon is handled by the shared
             // missing-target cleanup.
             return;
         }
 
-        switch (laser.phase) {
+        switch (beamCannon.phase) {
             case SHIP_WEAPON_PHASE.TARGETING:
                 this.advanceTargeting(
                     task,
-                    laser,
+                    beamCannon,
                     deltaMs,
                 );
                 return;
@@ -92,7 +92,7 @@ export default class PlayerLaserRunner {
             case SHIP_WEAPON_PHASE.CHARGING:
                 this.advanceCharging(
                     task,
-                    laser,
+                    beamCannon,
                     deltaMs,
                 );
                 return;
@@ -102,54 +102,54 @@ export default class PlayerLaserRunner {
             case SHIP_WEAPON_PHASE.DISPENSING:
             case SHIP_WEAPON_PHASE.COOLDOWN:
                 throw new Error(
-                    'Player laser task has invalid weapon phase: ' +
+                    'Player beamCannon task has invalid weapon phase: ' +
                         `${task.id}/` +
-                        `${laser.id}/` +
-                        `${laser.phase}`,
+                        `${beamCannon.id}/` +
+                        `${beamCannon.phase}`,
                 );
 
             default:
                 return assertNever(
-                    laser.phase,
+                    beamCannon.phase,
                 );
         }
     }
 
     private advanceTargeting(
-        task: WeaponsFireLaserTaskState,
-        laser: LaserWeaponState,
+        task: WeaponsFireBeamCannonTaskState,
+        beamCannon: BeamCannonState,
         deltaMs: number,
     ): void {
         const elapsedMs =
-            laser.phaseElapsedMs +
+            beamCannon.phaseElapsedMs +
             deltaMs;
 
         if (
             elapsedMs <
             SHIP_WEAPON_TARGETING_DURATION_MS
         ) {
-            laser.phaseElapsedMs =
+            beamCannon.phaseElapsedMs =
                 elapsedMs;
 
             return;
         }
 
         const definition =
-            this.getDefinition(laser);
+            this.getDefinition(beamCannon);
 
-        laser.phase =
+        beamCannon.phase =
             SHIP_WEAPON_PHASE.CHARGING;
 
         // Targeting overflow is not carried into charging.
-        laser.phaseElapsedMs = 0;
+        beamCannon.phaseElapsedMs = 0;
 
         this.options.emit({
             type:
                 ENCOUNTER_EVENT
-                    .PLAYER_LASER_CHARGING_STARTED,
+                    .PLAYER_BEAM_CANNON_CHARGING_STARTED,
 
             weaponId:
-                laser.id,
+                beamCannon.id,
 
             targetActorId:
                 task.targetActorId,
@@ -160,26 +160,26 @@ export default class PlayerLaserRunner {
     }
 
     private advanceCharging(
-        task: WeaponsFireLaserTaskState,
-        laser: LaserWeaponState,
+        task: WeaponsFireBeamCannonTaskState,
+        beamCannon: BeamCannonState,
         deltaMs: number,
     ): void {
         const definition =
-            this.getDefinition(laser);
+            this.getDefinition(beamCannon);
 
-        laser.phaseElapsedMs += deltaMs;
+        beamCannon.phaseElapsedMs += deltaMs;
 
         if (
-            laser.phaseElapsedMs <
+            beamCannon.phaseElapsedMs <
             definition.chargeDurationMs
         ) {
             return;
         }
 
-        laser.phase =
+        beamCannon.phase =
             SHIP_WEAPON_PHASE.COOLDOWN;
 
-        laser.phaseElapsedMs = 0;
+        beamCannon.phaseElapsedMs = 0;
 
         // Impact resolves before the event so same-frame telemetry
         // already observes the consumed shield or damaged hull.
@@ -192,10 +192,10 @@ export default class PlayerLaserRunner {
         this.options.emit({
             type:
                 ENCOUNTER_EVENT
-                    .PLAYER_LASER_FIRED,
+                    .PLAYER_BEAM_CANNON_FIRED,
 
             weaponId:
-                laser.id,
+                beamCannon.id,
 
             targetActorId:
                 task.targetActorId,
@@ -220,9 +220,9 @@ export default class PlayerLaserRunner {
     }
 
     private resolveImpact(
-        task: WeaponsFireLaserTaskState,
+        task: WeaponsFireBeamCannonTaskState,
         damage: number,
-    ): PlayerLaserImpact {
+    ): PlayerBeamCannonImpact {
         const target =
             this.options.stateStore
                 .findActorById(
@@ -235,7 +235,7 @@ export default class PlayerLaserRunner {
                 ENCOUNTER_TEAM.ENEMY
         ) {
             throw new Error(
-                'Player laser target disappeared before impact: ' +
+                'Player beamCannon target disappeared before impact: ' +
                     `${task.id}/` +
                     `${task.targetActorId}`,
             );
@@ -246,7 +246,7 @@ export default class PlayerLaserRunner {
 
             return {
                 outcome:
-                    LASER_SHOT_OUTCOME
+                    BEAM_CANNON_SHOT_OUTCOME
                         .ABSORBED,
 
                 damage: 0,
@@ -264,7 +264,7 @@ export default class PlayerLaserRunner {
 
         return {
             outcome:
-                LASER_SHOT_OUTCOME.HIT,
+                BEAM_CANNON_SHOT_OUTCOME.HIT,
 
             damage:
                 damageResult.appliedDamage,
@@ -274,9 +274,9 @@ export default class PlayerLaserRunner {
         };
     }
 
-    private findTaskLaser(
-        task: WeaponsFireLaserTaskState,
-    ): LaserWeaponState | undefined {
+    private findTaskBeamCannon(
+        task: WeaponsFireBeamCannonTaskState,
+    ): BeamCannonState | undefined {
         const weapon =
             this.options.stateStore
                 .findPlayerWeaponById(
@@ -289,10 +289,10 @@ export default class PlayerLaserRunner {
 
         if (
             weapon.kind !==
-            SHIP_WEAPON_KIND.LASER
+            SHIP_WEAPON_KIND.BEAM_CANNON
         ) {
             throw new Error(
-                'Player laser task references non-laser weapon: ' +
+                'Player beamCannon task references non-beamCannon weapon: ' +
                     `${task.id}/` +
                     `${weapon.id}/` +
                     `${weapon.kind}`,
@@ -303,7 +303,7 @@ export default class PlayerLaserRunner {
     }
 
     private hasValidTarget(
-        task: WeaponsFireLaserTaskState,
+        task: WeaponsFireBeamCannonTaskState,
     ): boolean {
         const actor =
             this.options.stateStore
@@ -318,21 +318,21 @@ export default class PlayerLaserRunner {
     }
 
     private getDefinition(
-        laser: LaserWeaponState,
-    ): LaserWeaponDefinition {
+        beamCannon: BeamCannonState,
+    ): BeamCannonDefinition {
         const definition =
             SHIP_WEAPONS[
-                laser.weaponId
+                beamCannon.weaponId
             ];
 
         if (
             definition.kind !==
-            SHIP_WEAPON_KIND.LASER
+            SHIP_WEAPON_KIND.BEAM_CANNON
         ) {
             throw new Error(
-                'Player laser kind does not match definition: ' +
-                    `${laser.id}/` +
-                    `${laser.weaponId}`,
+                'Player beamCannon kind does not match definition: ' +
+                    `${beamCannon.id}/` +
+                    `${beamCannon.weaponId}`,
             );
         }
 
@@ -344,6 +344,6 @@ function assertNever(
     value: never,
 ): never {
     throw new Error(
-        `Unhandled player laser phase: ${String(value)}`,
+        `Unhandled player beamCannon phase: ${String(value)}`,
     );
 }

@@ -6,7 +6,7 @@
 export default class CombatRuntimeIdentityFactory {
     private nextProjectileId = 1;
 
-    private nextLaserAttackId = 1;
+    private nextBeamCannonAttackId = 1;
 
     private nextSpamChannelId = 1;
 
@@ -22,10 +22,10 @@ export default class CombatRuntimeIdentityFactory {
         return id;
     }
 
-    public createLaserAttackId(): string {
-        const id = `laser_attack_${this.nextLaserAttackId}`;
+    public createBeamCannonAttackId(): string {
+        const id = `beam_cannon_attack_${this.nextBeamCannonAttackId}`;
 
-        this.nextLaserAttackId += 1;
+        this.nextBeamCannonAttackId += 1;
 
         return id;
     }

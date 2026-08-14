@@ -351,9 +351,9 @@ describe('Science identify threat command', () => {
         ).toBeDefined();
     });
 
-    it('does not offer IDENTIFY THREAT for a laser without identifiable intel', () => {
+    it('does not offer IDENTIFY THREAT for a beamCannon without identifiable intel', () => {
         const { engine } =
-            createLaserEngine();
+            createBeamCannonEngine();
 
         engine.step(
             SHIP_WEAPON_TARGETING_DURATION_MS,
@@ -378,13 +378,13 @@ describe('Science identify threat command', () => {
 
 });
 
-function createLaserEngine() {
+function createBeamCannonEngine() {
     const { node, stationId } = createSingleStationNodeFixture();
 
     const nodeEnemy = ShipNodeActorFactory.create({
         id: 'ship_enemy_00',
 
-        presetId: SHIP_NODE_ACTOR_PRESET_ID.ENEMY_GENERIC_LASER_00,
+        presetId: SHIP_NODE_ACTOR_PRESET_ID.ENEMY_GENERIC_BEAM_CANNON_00,
 
         anchorId: stationId,
     });

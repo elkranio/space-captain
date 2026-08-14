@@ -295,7 +295,7 @@ export default class EncounterActorStore {
         for (
             let index =
                 this.state.combat
-                    .laserAttacks
+                    .beamCannonAttacks
                     .length - 1;
 
             index >= 0;
@@ -304,7 +304,7 @@ export default class EncounterActorStore {
         ) {
             const attack =
                 this.state.combat
-                    .laserAttacks[
+                    .beamCannonAttacks[
                         index
                     ];
 
@@ -316,7 +316,7 @@ export default class EncounterActorStore {
             }
 
             this.state.combat
-                .laserAttacks.splice(
+                .beamCannonAttacks.splice(
                     index,
                     1,
                 );

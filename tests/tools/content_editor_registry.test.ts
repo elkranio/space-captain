@@ -13,7 +13,7 @@ import shipChassisData from '../../src/engine/content/data/ship_chassis.json';
 import shipDriveData from '../../src/engine/content/data/ship_drives.json';
 import shipWeaponRulesData from '../../src/engine/content/data/ship_weapon_rules.json';
 import missileLauncherData from '../../src/engine/content/data/missile_launchers.json';
-import laserEmitterData from '../../src/engine/content/data/laser_emitters.json';
+import beamCannonData from '../../src/engine/content/data/beam_cannons.json';
 import spamProjectorData from '../../src/engine/content/data/spam_projectors.json';
 import stickyMineDispenserData from '../../src/engine/content/data/sticky_mine_dispensers.json';
 import {
@@ -86,10 +86,10 @@ describe(
                     {
                         id:
                             CONTENT_COLLECTION_ID
-                                .LASER_EMITTERS,
+                                .BEAM_CANNONS,
 
                         label:
-                            'Laser Emitters',
+                            'Beam Cannons',
 
                         canAdd: true,
                         canDelete: true,
@@ -238,7 +238,7 @@ describe(
                         .MISSILE_LAUNCHERS,
 
                     CONTENT_COLLECTION_ID
-                        .LASER_EMITTERS,
+                        .BEAM_CANNONS,
 
                     CONTENT_COLLECTION_ID
                         .SPAM_PROJECTORS,
@@ -281,8 +281,8 @@ describe(
                     ],
                     [
                         CONTENT_COLLECTION_ID
-                            .LASER_EMITTERS,
-                        laserEmitterData,
+                            .BEAM_CANNONS,
+                        beamCannonData,
                     ],
                     [
                         CONTENT_COLLECTION_ID

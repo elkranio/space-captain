@@ -1,19 +1,19 @@
-// src/app/scenes/game/bridge/view/combat/player_laser/BridgePlayerLaserView.ts
+// src/app/scenes/game/bridge/view/combat/player_beam_cannon/BridgePlayerBeamCannonView.ts
 
 import type BridgeScene from '../../../BridgeScene';
 import {
     BRIDGE_EVENT,
-    type BridgePlayerLaserChargingClearedPayload,
-    type BridgePlayerLaserChargingStartedPayload,
-    type BridgePlayerLaserFiredPayload,
+    type BridgePlayerBeamCannonChargingClearedPayload,
+    type BridgePlayerBeamCannonChargingStartedPayload,
+    type BridgePlayerBeamCannonFiredPayload,
 } from '../../../events/bridge_event';
 import type BridgeEventBus from '../../../events/BridgeEventBus';
 import {
     getBridgePlayerWeaponSourcePosition,
 } from '../bridge_player_weapon_layout';
-import BridgeLaserBeamView from '../laser_beams/beam/BridgeLaserBeamView';
-import BridgeLaserChargeView from '../laser_charge/BridgeLaserChargeView';
-import BridgePlayerLaserImpactView from './impact/BridgePlayerLaserImpactView';
+import BridgeBeamCannonBeamView from '../beam_cannon_beams/beam/BridgeBeamCannonBeamView';
+import BridgeBeamCannonChargeView from '../beam_cannon_charge/BridgeBeamCannonChargeView';
+import BridgePlayerBeamCannonImpactView from './impact/BridgePlayerBeamCannonImpactView';
 
 type GetObjectPosition = (
     objectId: string,
@@ -21,10 +21,10 @@ type GetObjectPosition = (
 
 // Temporary player weapon presentation.
 //
-// Baseline player laser now fires at the visual center of the
+// Baseline player beamCannon now fires at the visual center of the
 // target actor. Node-specific impact positions return together
 // with the future targeting-node contract.
-export default class BridgePlayerLaserView {
+export default class BridgePlayerBeamCannonView {
     private readonly root:
         Phaser.GameObjects.Container;
 
@@ -32,13 +32,13 @@ export default class BridgePlayerLaserView {
         Phaser.GameObjects.Graphics;
 
     private readonly beams =
-        new Set<BridgeLaserBeamView>();
+        new Set<BridgeBeamCannonBeamView>();
 
     private readonly impacts =
-        new Set<BridgePlayerLaserImpactView>();
+        new Set<BridgePlayerBeamCannonImpactView>();
 
     private chargeView?:
-        BridgeLaserChargeView;
+        BridgeBeamCannonChargeView;
 
     private chargingWeaponId?:
         string;
@@ -72,7 +72,7 @@ export default class BridgePlayerLaserView {
 
         this.eventBus.on(
             BRIDGE_EVENT
-                .PLAYER_LASER_CHARGING_STARTED,
+                .PLAYER_BEAM_CANNON_CHARGING_STARTED,
 
             this.startCharging,
             this,
@@ -80,7 +80,7 @@ export default class BridgePlayerLaserView {
 
         this.eventBus.on(
             BRIDGE_EVENT
-                .PLAYER_LASER_CHARGING_CLEARED,
+                .PLAYER_BEAM_CANNON_CHARGING_CLEARED,
 
             this.clearCharging,
             this,
@@ -88,7 +88,7 @@ export default class BridgePlayerLaserView {
 
         this.eventBus.on(
             BRIDGE_EVENT
-                .PLAYER_LASER_FIRED,
+                .PLAYER_BEAM_CANNON_FIRED,
 
             this.fire,
             this,
@@ -98,7 +98,7 @@ export default class BridgePlayerLaserView {
     public destroy(): void {
         this.eventBus.off(
             BRIDGE_EVENT
-                .PLAYER_LASER_CHARGING_STARTED,
+                .PLAYER_BEAM_CANNON_CHARGING_STARTED,
 
             this.startCharging,
             this,
@@ -106,7 +106,7 @@ export default class BridgePlayerLaserView {
 
         this.eventBus.off(
             BRIDGE_EVENT
-                .PLAYER_LASER_CHARGING_CLEARED,
+                .PLAYER_BEAM_CANNON_CHARGING_CLEARED,
 
             this.clearCharging,
             this,
@@ -114,7 +114,7 @@ export default class BridgePlayerLaserView {
 
         this.eventBus.off(
             BRIDGE_EVENT
-                .PLAYER_LASER_FIRED,
+                .PLAYER_BEAM_CANNON_FIRED,
 
             this.fire,
             this,
@@ -147,7 +147,7 @@ export default class BridgePlayerLaserView {
 
     private startCharging(
         payload:
-            BridgePlayerLaserChargingStartedPayload,
+            BridgePlayerBeamCannonChargingStartedPayload,
     ): void {
         this.chargeView?.destroy();
 
@@ -155,7 +155,7 @@ export default class BridgePlayerLaserView {
             payload.weaponId;
 
         this.chargeView =
-            BridgeLaserChargeView.create({
+            BridgeBeamCannonChargeView.create({
                 scene:
                     this.scene,
 
@@ -169,7 +169,7 @@ export default class BridgePlayerLaserView {
 
     private clearCharging(
         payload:
-            BridgePlayerLaserChargingClearedPayload,
+            BridgePlayerBeamCannonChargingClearedPayload,
     ): void {
         if (
             this.chargingWeaponId !==
@@ -189,7 +189,7 @@ export default class BridgePlayerLaserView {
 
     private fire(
         payload:
-            BridgePlayerLaserFiredPayload,
+            BridgePlayerBeamCannonFiredPayload,
     ): void {
         this.clearCharging({
             weaponId:
@@ -203,7 +203,7 @@ export default class BridgePlayerLaserView {
 
         if (!targetOrigin) {
             throw new Error(
-                'Player laser target ' +
+                'Player beamCannon target ' +
                     'object not found: ' +
                     payload.targetActorId,
             );
@@ -224,7 +224,7 @@ export default class BridgePlayerLaserView {
             );
 
         const beam =
-            new BridgeLaserBeamView({
+            new BridgeBeamCannonBeamView({
                 scene:
                     this.scene,
 
@@ -248,7 +248,7 @@ export default class BridgePlayerLaserView {
         this.beams.add(beam);
 
         const impact =
-            new BridgePlayerLaserImpactView({
+            new BridgePlayerBeamCannonImpactView({
                 scene:
                     this.scene,
 

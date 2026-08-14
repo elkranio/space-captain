@@ -21,11 +21,11 @@ export const PLAYER_SHIP_PRESET_ID = {
 
 export type PlayerShipPresetId = (typeof PLAYER_SHIP_PRESET_ID)[keyof typeof PLAYER_SHIP_PRESET_ID];
 
-export type PlayerShipLaserPreset = {
+export type PlayerShipBeamCannonPreset = {
     // Runtime id установленного лазера.
     id: string;
 
-    weaponId: typeof SHIP_WEAPON_ID.LASER_00;
+    weaponId: typeof SHIP_WEAPON_ID.BEAM_CANNON_00;
 };
 
 export type PlayerShipMissileLauncherPreset = {
@@ -55,7 +55,7 @@ export type PlayerShipSpamProjectorPreset = {
 };
 
 export type PlayerShipWeaponPreset =
-    | PlayerShipLaserPreset
+    | PlayerShipBeamCannonPreset
     | PlayerShipMissileLauncherPreset
     | PlayerShipStickyMineDispenserPreset
     | PlayerShipSpamProjectorPreset;
@@ -128,9 +128,9 @@ export const PLAYER_SHIP_PRESETS = {
 
         weapons: [
             {
-                id: 'laser_player_00',
+                id: 'beam_cannon_player_00',
 
-                weaponId: SHIP_WEAPON_ID.LASER_00,
+                weaponId: SHIP_WEAPON_ID.BEAM_CANNON_00,
             },
 
             {

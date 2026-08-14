@@ -27,7 +27,7 @@ import {
     SHIP_WEAPON_RULES_SCHEMA,
 } from '../../../src/engine/content/schemas/ship_weapon_rules';
 import {
-    LASER_EMITTER_TUNING_SCHEMA,
+    BEAM_CANNON_TUNING_SCHEMA,
     MISSILE_LAUNCHER_TUNING_SCHEMA,
     SPAM_PROJECTOR_TUNING_SCHEMA,
     STICKY_MINE_DISPENSER_TUNING_SCHEMA,
@@ -43,8 +43,8 @@ export const CONTENT_COLLECTION_ID = {
     MISSILE_LAUNCHERS:
         'missile_launchers',
 
-    LASER_EMITTERS:
-        'laser_emitters',
+    BEAM_CANNONS:
+        'beam_cannons',
 
     SPAM_PROJECTORS:
         'spam_projectors',
@@ -182,13 +182,13 @@ const CONTENT_COLLECTIONS:
         },
 
         [CONTENT_COLLECTION_ID
-            .LASER_EMITTERS]: {
+            .BEAM_CANNONS]: {
             id:
                 CONTENT_COLLECTION_ID
-                    .LASER_EMITTERS,
+                    .BEAM_CANNONS,
 
             label:
-                'Laser Emitters',
+                'Beam Cannons',
 
             group:
                 CONTENT_COLLECTION_GROUP
@@ -196,10 +196,10 @@ const CONTENT_COLLECTIONS:
 
             dataPath:
                 'src/engine/content/data/' +
-                'laser_emitters.json',
+                'beam_cannons.json',
 
             schema:
-                LASER_EMITTER_TUNING_SCHEMA,
+                BEAM_CANNON_TUNING_SCHEMA,
 
             canAdd: true,
             canDelete: true,

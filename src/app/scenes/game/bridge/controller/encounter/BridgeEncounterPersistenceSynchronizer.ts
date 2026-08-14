@@ -5,7 +5,7 @@ import { SPACE_ANCHOR_KIND } from '../../../../../../engine/defs/universe';
 import {
     COMBAT_SOURCE_KIND,
     COMBAT_TARGET_KIND,
-    LASER_SHOT_OUTCOME,
+    BEAM_CANNON_SHOT_OUTCOME,
 } from '../../../../../../engine/encounter/model/combat';
 import {
     ENCOUNTER_EVENT,
@@ -152,10 +152,10 @@ export default class BridgeEncounterPersistenceSynchronizer {
 
                 return;
 
-            case ENCOUNTER_EVENT.LASER_FIRED:
+            case ENCOUNTER_EVENT.BEAM_CANNON_FIRED:
                 if (
                     event.outcome ===
-                    LASER_SHOT_OUTCOME.HIT
+                    BEAM_CANNON_SHOT_OUTCOME.HIT
                 ) {
                     this.syncPlayerHull(
                         event,

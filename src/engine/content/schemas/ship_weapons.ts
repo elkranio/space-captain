@@ -86,7 +86,7 @@ export const MISSILE_LAUNCHER_TUNING_SCHEMA =
             'Missile Launchers',
     });
 
-export const LASER_EMITTER_RECORD_SCHEMA =
+export const BEAM_CANNON_RECORD_SCHEMA =
     z.strictObject({
         name:
             WEAPON_NAME_SCHEMA,
@@ -110,16 +110,16 @@ export const LASER_EMITTER_RECORD_SCHEMA =
             COOLDOWN_DURATION_SCHEMA,
     }).meta({
         title:
-            'Laser Emitter',
+            'Beam Cannon',
     });
 
-export const LASER_EMITTER_TUNING_SCHEMA =
+export const BEAM_CANNON_TUNING_SCHEMA =
     z.record(
         CONTENT_ID_SCHEMA,
-        LASER_EMITTER_RECORD_SCHEMA,
+        BEAM_CANNON_RECORD_SCHEMA,
     ).meta({
         title:
-            'Laser Emitters',
+            'Beam Cannons',
     });
 
 export const SPAM_PROJECTOR_RECORD_SCHEMA =
@@ -228,9 +228,9 @@ export type MissileLauncherTuningData =
         typeof MISSILE_LAUNCHER_TUNING_SCHEMA
     >;
 
-export type LaserEmitterTuningData =
+export type BeamCannonTuningData =
     z.infer<
-        typeof LASER_EMITTER_TUNING_SCHEMA
+        typeof BEAM_CANNON_TUNING_SCHEMA
     >;
 
 export type SpamProjectorTuningData =

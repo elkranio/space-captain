@@ -1,13 +1,13 @@
-// src/app/scenes/game/bridge/view/combat/laser_threats/laser/BridgeLaserThreatView.ts
+// src/app/scenes/game/bridge/view/combat/beam_cannon_threats/beam_cannon/BridgeBeamCannonThreatView.ts
 
 import {
     FONT_FAMILY,
     FONT_SIZE,
 } from '../../../../../../../theme/font';
 import type BridgeScene from '../../../../BridgeScene';
-import BridgeLaserChargeView from '../../laser_charge/BridgeLaserChargeView';
+import BridgeBeamCannonChargeView from '../../beam_cannon_charge/BridgeBeamCannonChargeView';
 
-type BridgeLaserThreatViewOptions = {
+type BridgeBeamCannonThreatViewOptions = {
     scene: BridgeScene;
     parent: Phaser.GameObjects.Container;
 
@@ -29,14 +29,14 @@ const TARGETING_FRAME = {
     labelGap: 3,
 } as const;
 
-// Enemy laser HUD вокруг общего
-// laser charge leaf-view.
-export default class BridgeLaserThreatView {
+// Enemy beamCannon HUD вокруг общего
+// beamCannon charge leaf-view.
+export default class BridgeBeamCannonThreatView {
     private readonly root:
         Phaser.GameObjects.Container;
 
     private readonly chargeView:
-        BridgeLaserChargeView;
+        BridgeBeamCannonChargeView;
 
     private readonly targetingFrame:
         Phaser.GameObjects.Graphics;
@@ -56,7 +56,7 @@ export default class BridgeLaserThreatView {
         designation,
 
         weaponOrigin,
-    }: BridgeLaserThreatViewOptions) {
+    }: BridgeBeamCannonThreatViewOptions) {
         this.root = scene.add.container(
             Math.round(weaponOrigin.x),
             Math.round(weaponOrigin.y),
@@ -65,7 +65,7 @@ export default class BridgeLaserThreatView {
         parent.add(this.root);
 
         this.chargeView =
-            BridgeLaserChargeView.create({
+            BridgeBeamCannonChargeView.create({
                 scene,
                 parent:
                     this.root,
@@ -118,7 +118,7 @@ export default class BridgeLaserThreatView {
             initialTimeToFireMs <= 0
         ) {
             throw new Error(
-                'Laser threat initial ' +
+                'BeamCannon threat initial ' +
                     'time must be positive: ' +
                     initialTimeToFireMs,
             );
@@ -130,7 +130,7 @@ export default class BridgeLaserThreatView {
             )
         ) {
             throw new Error(
-                'Laser threat remaining ' +
+                'BeamCannon threat remaining ' +
                     'time must be finite: ' +
                     timeToFireMs,
             );

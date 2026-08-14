@@ -29,17 +29,17 @@ export const COMBAT_PROJECTILE_KIND = {
 
 export const COMBAT_THREAT_KIND = {
     MISSILE: 'missile',
-    LASER: 'laser',
+    BEAM_CANNON: 'beam_cannon',
 } as const;
 
 export type CombatThreatKind = (typeof COMBAT_THREAT_KIND)[keyof typeof COMBAT_THREAT_KIND];
 
-export const LASER_SHOT_OUTCOME = {
+export const BEAM_CANNON_SHOT_OUTCOME = {
     HIT: 'hit',
     ABSORBED: 'absorbed',
 } as const;
 
-export type LaserShotOutcome = (typeof LASER_SHOT_OUTCOME)[keyof typeof LASER_SHOT_OUTCOME];
+export type BeamCannonShotOutcome = (typeof BEAM_CANNON_SHOT_OUTCOME)[keyof typeof BEAM_CANNON_SHOT_OUTCOME];
 
 export const PLAYER_MISSILE_OUTCOME = {
     TARGET_LOST: 'target_lost',
@@ -153,8 +153,8 @@ export type MissileCombatProjectileState = {
 export type CombatProjectileState = MissileCombatProjectileState;
 
 // Существует только во время CHARGING.
-// Общая TARGETING-фаза ещё не создаёт видимую laser threat.
-export type LaserAttackState = {
+// Общая TARGETING-фаза ещё не создаёт видимую beamCannon threat.
+export type BeamCannonAttackState = {
     id: string;
 
     // Использует общую encounter-последовательность
@@ -238,7 +238,7 @@ export type EncounterCombatState = {
     playerWeapons: ShipWeaponState[];
 
     projectiles: CombatProjectileState[];
-    laserAttacks: LaserAttackState[];
+    beamCannonAttacks: BeamCannonAttackState[];
 
     stickyMines: StickyMineState[];
 };

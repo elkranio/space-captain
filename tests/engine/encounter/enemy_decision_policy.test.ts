@@ -84,12 +84,12 @@ describe('Enemy decision policy', () => {
             role:
                 OFFICER_ROLE.WEAPONS,
 
-            weaponId: 'laser_00',
+            weaponId: 'beam_cannon_00',
         });
 
         getWeapon(
             actor,
-            'laser_00',
+            'beam_cannon_00',
         ).phase =
             SHIP_WEAPON_PHASE.COOLDOWN;
 
@@ -153,12 +153,12 @@ describe('Enemy decision policy', () => {
             new EnemyDecisionPolicy();
 
         const missile = actor.weapons[0];
-        const laser = actor.weapons[1];
+        const beamCannon = actor.weapons[1];
         const mines = actor.weapons[2];
 
         if (
             !missile ||
-            !laser ||
+            !beamCannon ||
             !mines ||
             mines.kind !==
                 SHIP_WEAPON_KIND
@@ -171,7 +171,7 @@ describe('Enemy decision policy', () => {
 
         missile.phase =
             SHIP_WEAPON_PHASE.COOLDOWN;
-        laser.phase =
+        beamCannon.phase =
             SHIP_WEAPON_PHASE.COOLDOWN;
 
         mines.ammoCount = 0;

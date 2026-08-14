@@ -23,7 +23,7 @@ import {
     COMBAT_PROJECTILE_KIND,
     COMBAT_SOURCE_KIND,
     COMBAT_TARGET_KIND,
-    LASER_SHOT_OUTCOME,
+    BEAM_CANNON_SHOT_OUTCOME,
     MISSILE_SIGNATURE_INTEL_STATUS,
 } from '../../../src/engine/encounter/model/combat';
 import { ENCOUNTER_EVENT } from '../../../src/engine/encounter/model/event';
@@ -95,7 +95,7 @@ describe('CombatRunner', () => {
         }
 
         expect(state.combat.projectiles).toEqual([]);
-        expect(state.combat.laserAttacks).toEqual([]);
+        expect(state.combat.beamCannonAttacks).toEqual([]);
 
         expect(launcher.phase).toBe(SHIP_WEAPON_PHASE.READY);
 
@@ -257,13 +257,13 @@ describe('CombatRunner', () => {
         expect(launcher.phase).toBe(SHIP_WEAPON_PHASE.READY);
     });
 
-    it('runs an enemy laser through universal targeting, charging, fire and cooldown', () => {
+    it('runs an enemy beamCannon through universal targeting, charging, fire and cooldown', () => {
         const { node, stationId } = createSingleStationNodeFixture();
 
         const nodeEnemy = ShipNodeActorFactory.create({
             id: 'ship_enemy_00',
 
-            presetId: SHIP_NODE_ACTOR_PRESET_ID.ENEMY_GENERIC_LASER_00,
+            presetId: SHIP_NODE_ACTOR_PRESET_ID.ENEMY_GENERIC_BEAM_CANNON_00,
 
             anchorId: stationId,
         });
@@ -292,22 +292,22 @@ describe('CombatRunner', () => {
 
         const state = getMutableEncounterStateForTest(engine);
         const enemy = state.actors[0];
-        const laser = enemy.weapons[0];
+        const beamCannon = enemy.weapons[0];
 
-        if (laser.kind !== SHIP_WEAPON_KIND.LASER) {
-            throw new Error('Expected loaded enemy laser');
+        if (beamCannon.kind !== SHIP_WEAPON_KIND.BEAM_CANNON) {
+            throw new Error('Expected loaded enemy beamCannon');
         }
 
-        const laserDefinition = SHIP_WEAPONS[laser.weaponId];
+        const beamCannonDefinition = SHIP_WEAPONS[beamCannon.weaponId];
 
-        if (laserDefinition.kind !== SHIP_WEAPON_KIND.LASER) {
-            throw new Error('Expected laser weapon definition');
+        if (beamCannonDefinition.kind !== SHIP_WEAPON_KIND.BEAM_CANNON) {
+            throw new Error('Expected beamCannon weapon definition');
         }
 
         expect(state.combat.projectiles).toEqual([]);
-        expect(state.combat.laserAttacks).toEqual([]);
+        expect(state.combat.beamCannonAttacks).toEqual([]);
 
-        expect(laser.phase).toBe(SHIP_WEAPON_PHASE.READY);
+        expect(beamCannon.phase).toBe(SHIP_WEAPON_PHASE.READY);
 
         engine.step(1);
 
@@ -316,23 +316,23 @@ describe('CombatRunner', () => {
                 type: ENCOUNTER_EVENT.PLAYER_SHIP_TARGETING_DETECTED,
 
                 sourceActorId: enemy.id,
-                sourceWeaponId: laser.id,
+                sourceWeaponId: beamCannon.id,
             },
         ]);
 
-        expect(laser.phase).toBe(SHIP_WEAPON_PHASE.TARGETING);
-        expect(laser.phaseElapsedMs).toBe(1);
+        expect(beamCannon.phase).toBe(SHIP_WEAPON_PHASE.TARGETING);
+        expect(beamCannon.phaseElapsedMs).toBe(1);
 
         // Во время универсального targeting ещё нет
         // видимой L# charging threat.
-        expect(engine.getLaserAttacks()).toEqual([]);
+        expect(engine.getBeamCannonAttacks()).toEqual([]);
 
         const firstAttack = {
-            id: 'laser_attack_1',
+            id: 'beam_cannon_attack_1',
             designation: 'L1',
 
             sourceActorId: enemy.id,
-            sourceWeaponId: laser.id,
+            sourceWeaponId: beamCannon.id,
 
             target: {
                 kind: COMBAT_TARGET_KIND.PLAYER_SHIP,
@@ -340,63 +340,63 @@ describe('CombatRunner', () => {
 
         };
 
-        engine.step(SHIP_WEAPON_TARGETING_DURATION_MS - laser.phaseElapsedMs);
+        engine.step(SHIP_WEAPON_TARGETING_DURATION_MS - beamCannon.phaseElapsedMs);
 
         expect(engine.drainEvents()).toEqual([
             {
-                type: ENCOUNTER_EVENT.LASER_ATTACK_STARTED,
+                type: ENCOUNTER_EVENT.BEAM_CANNON_ATTACK_STARTED,
 
                 attack: firstAttack,
             },
         ]);
 
-        expect(laser.phase).toBe(SHIP_WEAPON_PHASE.CHARGING);
-        expect(laser.phaseElapsedMs).toBe(0);
+        expect(beamCannon.phase).toBe(SHIP_WEAPON_PHASE.CHARGING);
+        expect(beamCannon.phaseElapsedMs).toBe(0);
 
-        expect(engine.getLaserAttacks()).toEqual([firstAttack]);
+        expect(engine.getBeamCannonAttacks()).toEqual([firstAttack]);
 
-        engine.step(laserDefinition.chargeDurationMs - 1);
+        engine.step(beamCannonDefinition.chargeDurationMs - 1);
 
         expect(engine.drainEvents()).toEqual([]);
 
-        expect(laser.phase).toBe(SHIP_WEAPON_PHASE.CHARGING);
-        expect(laser.phaseElapsedMs).toBe(laserDefinition.chargeDurationMs - 1);
+        expect(beamCannon.phase).toBe(SHIP_WEAPON_PHASE.CHARGING);
+        expect(beamCannon.phaseElapsedMs).toBe(beamCannonDefinition.chargeDurationMs - 1);
 
-        expect(engine.getLaserAttacks()).toEqual([firstAttack]);
+        expect(engine.getBeamCannonAttacks()).toEqual([firstAttack]);
 
         engine.step(1);
 
         expect(engine.drainEvents()).toEqual([
             {
-                type: ENCOUNTER_EVENT.LASER_FIRED,
+                type: ENCOUNTER_EVENT.BEAM_CANNON_FIRED,
 
                 attack: firstAttack,
 
-                outcome: LASER_SHOT_OUTCOME.HIT,
-                appliedDamage: laserDefinition.damage,
+                outcome: BEAM_CANNON_SHOT_OUTCOME.HIT,
+                appliedDamage: beamCannonDefinition.damage,
                 remainingHull: 2,
                 destroyed: false,
             },
         ]);
 
-        expect(engine.getLaserAttacks()).toEqual([]);
+        expect(engine.getBeamCannonAttacks()).toEqual([]);
 
-        expect(laser.phase).toBe(SHIP_WEAPON_PHASE.COOLDOWN);
-        expect(laser.phaseElapsedMs).toBe(0);
+        expect(beamCannon.phase).toBe(SHIP_WEAPON_PHASE.COOLDOWN);
+        expect(beamCannon.phaseElapsedMs).toBe(0);
 
-        engine.step(laserDefinition.cooldownDurationMs - 1);
+        engine.step(beamCannonDefinition.cooldownDurationMs - 1);
 
         expect(engine.drainEvents()).toEqual([]);
 
-        expect(laser.phase).toBe(SHIP_WEAPON_PHASE.COOLDOWN);
-        expect(laser.phaseElapsedMs).toBe(laserDefinition.cooldownDurationMs - 1);
+        expect(beamCannon.phase).toBe(SHIP_WEAPON_PHASE.COOLDOWN);
+        expect(beamCannon.phaseElapsedMs).toBe(beamCannonDefinition.cooldownDurationMs - 1);
 
         engine.step(1);
 
         expect(engine.drainEvents()).toEqual([]);
 
-        expect(laser.phase).toBe(SHIP_WEAPON_PHASE.READY);
-        expect(laser.phaseElapsedMs).toBe(0);
+        expect(beamCannon.phase).toBe(SHIP_WEAPON_PHASE.READY);
+        expect(beamCannon.phaseElapsedMs).toBe(0);
 
         engine.step(1);
 
@@ -405,31 +405,31 @@ describe('CombatRunner', () => {
                 type: ENCOUNTER_EVENT.PLAYER_SHIP_TARGETING_DETECTED,
 
                 sourceActorId: enemy.id,
-                sourceWeaponId: laser.id,
+                sourceWeaponId: beamCannon.id,
             },
         ]);
 
-        expect(laser.phase).toBe(SHIP_WEAPON_PHASE.TARGETING);
-        expect(laser.phaseElapsedMs).toBe(1);
+        expect(beamCannon.phase).toBe(SHIP_WEAPON_PHASE.TARGETING);
+        expect(beamCannon.phaseElapsedMs).toBe(1);
 
-        expect(engine.getLaserAttacks()).toEqual([]);
+        expect(engine.getBeamCannonAttacks()).toEqual([]);
 
-        engine.step(SHIP_WEAPON_TARGETING_DURATION_MS - laser.phaseElapsedMs);
+        engine.step(SHIP_WEAPON_TARGETING_DURATION_MS - beamCannon.phaseElapsedMs);
 
         expect(engine.drainEvents()).toEqual([
             {
-                type: ENCOUNTER_EVENT.LASER_ATTACK_STARTED,
+                type: ENCOUNTER_EVENT.BEAM_CANNON_ATTACK_STARTED,
 
                 attack: {
                     ...firstAttack,
 
-                    id: 'laser_attack_2',
+                    id: 'beam_cannon_attack_2',
                     designation: 'L2',
                 },
             },
         ]);
 
-        expect(laser.phase).toBe(SHIP_WEAPON_PHASE.CHARGING);
-        expect(laser.phaseElapsedMs).toBe(0);
+        expect(beamCannon.phase).toBe(SHIP_WEAPON_PHASE.CHARGING);
+        expect(beamCannon.phaseElapsedMs).toBe(0);
     });
 });

@@ -6,7 +6,7 @@ import type {
 
 export const ENEMY_THREAT_KIND = {
     MISSILE: 'missile',
-    LASER: 'laser',
+    BEAM_CANNON: 'beam_cannon',
     STICKY_MINE: 'sticky_mine',
 } as const;
 

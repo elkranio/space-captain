@@ -30,7 +30,7 @@ Implemented rows/status cover:
 - shared DEF powerCore
 - ENGINE
 - MISSILE
-- LASER
+- BEAM_CANNON
 - MINES
 - SPAM
 
@@ -43,7 +43,7 @@ Implemented:
 - enemy HULL
 - enemy DEF
 - incoming missile threats
-- incoming laser threats
+- incoming beamCannon threats
 - hostile sticky-mine threats
 - hostile SPAM channels
 
@@ -58,11 +58,11 @@ Current prototype provides:
 - Weapons red/blue defense-turret response where available
 - inline red/blue selector for unknown-missile flow
 
-### Laser row
+### BeamCannon row
 
 Current prototype provides:
 - timer
-- laser threat
+- beamCannon threat
 - disabled Science placeholder
 - Engineer deploy-shield action when the real command is available
 
@@ -106,7 +106,7 @@ Do not move every local VFX color into the dashboard palette. Beam colors, progr
 
 Threat countdown labels share `formatCaptainDashboardCountdown()` from `captain_dashboard_format.ts`.
 
-Do not reintroduce separate missile/laser/mine/SPAM `formatTimer()` helpers.
+Do not reintroduce separate missile/beam_cannon/mine/SPAM `formatTimer()` helpers.
 
 ## Threat geometry is provisional
 
@@ -127,7 +127,7 @@ Therefore:
 For captain context, the mapper receives:
 - enemy ship presentation snapshots
 - incoming missiles
-- laser threats
+- beamCannon threats
 - sticky-mine snapshots
 - SPAM channels
 - available commands for all four roles

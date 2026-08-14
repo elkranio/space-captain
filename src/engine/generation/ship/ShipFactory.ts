@@ -35,7 +35,7 @@ import type {
 import PowerCoreFactory from '../ship_system/PowerCoreFactory';
 import ShipDefenseTurretFactory from '../ship_system/ShipDefenseTurretFactory';
 import ShieldGeneratorFactory from '../ship_system/ShieldGeneratorFactory';
-import LaserWeaponFactory from '../ship_weapon/LaserWeaponFactory';
+import BeamCannonFactory from '../ship_weapon/BeamCannonFactory';
 import MissileLauncherFactory from '../ship_weapon/MissileLauncherFactory';
 import SpamProjectorFactory from '../ship_weapon/SpamProjectorFactory';
 import StickyMineDispenserFactory from '../ship_weapon/StickyMineDispenserFactory';
@@ -170,8 +170,8 @@ export default class ShipFactory {
                     weaponId: preset.weaponId,
                 });
 
-            case SHIP_WEAPON_KIND.LASER:
-                return LaserWeaponFactory.create({
+            case SHIP_WEAPON_KIND.BEAM_CANNON:
+                return BeamCannonFactory.create({
                     id: preset.id,
 
                     weaponId: preset.weaponId,

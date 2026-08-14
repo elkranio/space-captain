@@ -17,7 +17,7 @@ import type {
     ShipDriveState,
 } from '../../defs/ship_drive';
 import type {
-    LaserWeaponState,
+    BeamCannonState,
     MissileLauncherState,
     ShipWeaponState,
     SpamProjectorState,
@@ -388,11 +388,11 @@ export default class EncounterStateStore {
             );
     }
 
-    public startPlayerLaserTargeting(
+    public startPlayerBeamCannonTargeting(
         weaponId: string,
-    ): LaserWeaponState {
+    ): BeamCannonState {
         return this.playerShip
-            .startPlayerLaserTargeting(
+            .startPlayerBeamCannonTargeting(
                 weaponId,
             );
     }

@@ -205,14 +205,14 @@ describe('ShipNodeActorFactory', () => {
         );
     });
 
-    it('creates a ship actor with a laser weapon', () => {
+    it('creates a ship actor with a beamCannon weapon', () => {
         const actor =
             ShipNodeActorFactory.create({
                 id: 'ship_enemy_00',
 
                 presetId:
                     SHIP_NODE_ACTOR_PRESET_ID
-                        .ENEMY_GENERIC_LASER_00,
+                        .ENEMY_GENERIC_BEAM_CANNON_00,
 
                 anchorId: 'station_00',
             });
@@ -254,13 +254,13 @@ describe('ShipNodeActorFactory', () => {
 
             weapons: [
                 {
-                    id: 'laser_00',
+                    id: 'beam_cannon_00',
 
                     weaponId:
-                        SHIP_WEAPON_ID.LASER_00,
+                        SHIP_WEAPON_ID.BEAM_CANNON_00,
 
                     kind:
-                        SHIP_WEAPON_KIND.LASER,
+                        SHIP_WEAPON_KIND.BEAM_CANNON,
 
                     phase:
                         SHIP_WEAPON_PHASE.READY,
@@ -298,8 +298,8 @@ describe('ShipNodeActorFactory', () => {
                         .MISSILE_LAUNCHER,
             },
             {
-                id: 'laser_00',
-                kind: SHIP_WEAPON_KIND.LASER,
+                id: 'beam_cannon_00',
+                kind: SHIP_WEAPON_KIND.BEAM_CANNON,
             },
             {
                 id:

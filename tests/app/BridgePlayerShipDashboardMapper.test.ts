@@ -226,15 +226,15 @@ describe(
         );
 
         it(
-            'activates the ready laser from the exact resolved engine command',
+            'activates the ready beamCannon from the exact resolved engine command',
             () => {
                 const command =
-                    createLaserCommand();
+                    createBeamCannonCommand();
 
                 expect(
                     mapPlayerShipToBridgeDashboardPayload({
                         weapons: {
-                            laser: {
+                            beamCannon: {
                                 phase:
                                     SHIP_WEAPON_PHASE
                                         .READY,
@@ -250,7 +250,7 @@ describe(
                                 .AVAILABLE,
                     }),
                 ).toEqual({
-                    laser: {
+                    beamCannon: {
                         action: {
                             state:
                                 BRIDGE_PLAYER_SYSTEM_ACTION_STATE
@@ -276,7 +276,7 @@ describe(
         );
 
         it(
-            'shows laser targeting and charging as current Weapons work',
+            'shows beamCannon targeting and charging as current Weapons work',
             () => {
                 for (
                     const phase of [
@@ -290,7 +290,7 @@ describe(
                     expect(
                         mapPlayerShipToBridgeDashboardPayload({
                             weapons: {
-                                laser: {
+                                beamCannon: {
                                     phase,
 
                                     initialPhaseMs:
@@ -309,7 +309,7 @@ describe(
                                     .BUSY,
                         }),
                     ).toEqual({
-                        laser: {
+                        beamCannon: {
                             action: {
                                 state:
                                     BRIDGE_PLAYER_SYSTEM_ACTION_STATE
@@ -322,12 +322,12 @@ describe(
         );
 
         it(
-            'maps laser cooldown to progress and releases the officer',
+            'maps beamCannon cooldown to progress and releases the officer',
             () => {
                 expect(
                     mapPlayerShipToBridgeDashboardPayload({
                         weapons: {
-                            laser: {
+                            beamCannon: {
                                 phase:
                                     SHIP_WEAPON_PHASE
                                         .COOLDOWN,
@@ -348,7 +348,7 @@ describe(
                                 .AVAILABLE,
                     }),
                 ).toEqual({
-                    laser: {
+                    beamCannon: {
                         cooldownProgress:
                             1 - 2500 / 10000,
 
@@ -363,12 +363,12 @@ describe(
         );
 
         it(
-            'shows a ready laser as officer-busy when Weapons is occupied elsewhere',
+            'shows a ready beamCannon as officer-busy when Weapons is occupied elsewhere',
             () => {
                 expect(
                     mapPlayerShipToBridgeDashboardPayload({
                         weapons: {
-                            laser: {
+                            beamCannon: {
                                 phase:
                                     SHIP_WEAPON_PHASE
                                         .READY,
@@ -383,7 +383,7 @@ describe(
                                 .BUSY,
                     }),
                 ).toEqual({
-                    laser: {
+                    beamCannon: {
                         action: {
                             state:
                                 BRIDGE_PLAYER_SYSTEM_ACTION_STATE
@@ -888,15 +888,15 @@ function createStickyMineCommand():
 }
 
 
-function createLaserCommand():
+function createBeamCannonCommand():
     AvailableOfficerCommand {
     return {
         commandId:
             ENCOUNTER_OFFICER_COMMAND_ID
-                .WEAPONS_FIRE_LASER,
+                .WEAPONS_FIRE_BEAM_CANNON,
 
         label:
-            'FIRE LASER',
+            'FIRE BEAM CANNON',
 
         target: {
             kind:
@@ -904,7 +904,7 @@ function createLaserCommand():
                     .ACTOR_WEAPON,
 
             weaponId:
-                'laser_player_00',
+                'beam_cannon_player_00',
 
             actorId:
                 'enemy_1',

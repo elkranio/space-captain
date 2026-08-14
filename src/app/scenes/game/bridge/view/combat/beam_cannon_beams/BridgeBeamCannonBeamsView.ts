@@ -1,30 +1,30 @@
-// src/app/scenes/game/bridge/view/combat/laser_beams/BridgeLaserBeamsView.ts
+// src/app/scenes/game/bridge/view/combat/beam_cannon_beams/BridgeBeamCannonBeamsView.ts
 
 import {
-    LASER_SHOT_OUTCOME,
+    BEAM_CANNON_SHOT_OUTCOME,
 } from '../../../../../../../engine/encounter/model/combat';
 import type BridgeScene from '../../../BridgeScene';
 import {
     BRIDGE_EVENT,
-    type BridgeLaserBeamFiredPayload,
+    type BridgeBeamCannonBeamFiredPayload,
 } from '../../../events/bridge_event';
 import type BridgeEventBus from '../../../events/BridgeEventBus';
 import {
     BRIDGE_PLAYER_HULL_COMBAT_POINTS,
 } from '../bridge_player_hull_combat_points';
-import BridgeLaserBeamView from './beam/BridgeLaserBeamView';
+import BridgeBeamCannonBeamView from './beam/BridgeBeamCannonBeamView';
 
 type GetObjectPosition = (objectId: string) => Phaser.Math.Vector2 | undefined;
 
-// Manager-view коротких enemy laser beam effects.
+// Manager-view коротких enemy beamCannon beam effects.
 //
 // source берётся из текущей presentation-позиции enemy actor.
 // Пока semantic impact target не введён, входящий beam визуально
 // приходит в центр нижней части viewscreen.
-export default class BridgeLaserBeamsView {
+export default class BridgeBeamCannonBeamsView {
     private readonly root: Phaser.GameObjects.Container;
 
-    private readonly beams = new Set<BridgeLaserBeamView>();
+    private readonly beams = new Set<BridgeBeamCannonBeamView>();
 
     constructor(
         private readonly scene: BridgeScene,
@@ -35,7 +35,7 @@ export default class BridgeLaserBeamsView {
         this.scene.layers.get('vfx').add(this.root);
 
         this.eventBus.on(
-            BRIDGE_EVENT.LASER_BEAM_FIRED,
+            BRIDGE_EVENT.BEAM_CANNON_BEAM_FIRED,
             this.fireBeam,
             this,
         );
@@ -43,7 +43,7 @@ export default class BridgeLaserBeamsView {
 
     public destroy(): void {
         this.eventBus.off(
-            BRIDGE_EVENT.LASER_BEAM_FIRED,
+            BRIDGE_EVENT.BEAM_CANNON_BEAM_FIRED,
             this.fireBeam,
             this,
         );
@@ -56,12 +56,12 @@ export default class BridgeLaserBeamsView {
         this.root.destroy(false);
     }
 
-    private fireBeam(payload: BridgeLaserBeamFiredPayload): void {
+    private fireBeam(payload: BridgeBeamCannonBeamFiredPayload): void {
         const sourcePosition = this.getObjectPosition(payload.sourceActorId);
 
         if (!sourcePosition) {
             throw new Error(
-                `Laser beam source object not found: ${payload.sourceActorId}`,
+                `BeamCannon beam source object not found: ${payload.sourceActorId}`,
             );
         }
 
@@ -70,7 +70,7 @@ export default class BridgeLaserBeamsView {
                 payload.outcome,
             );
 
-        const beam = new BridgeLaserBeamView({
+        const beam = new BridgeBeamCannonBeamView({
             scene: this.scene,
             parent: this.root,
 
@@ -88,10 +88,10 @@ export default class BridgeLaserBeamsView {
 
     private getTargetPosition(
         outcome:
-            BridgeLaserBeamFiredPayload['outcome'],
+            BridgeBeamCannonBeamFiredPayload['outcome'],
     ): Phaser.Math.Vector2 {
         const point =
-            getLaserTargetPoint(
+            getBeamCannonTargetPoint(
                 outcome,
             );
 
@@ -102,19 +102,19 @@ export default class BridgeLaserBeamsView {
     }
 }
 
-function getLaserTargetPoint(
+function getBeamCannonTargetPoint(
     outcome:
-        BridgeLaserBeamFiredPayload['outcome'],
+        BridgeBeamCannonBeamFiredPayload['outcome'],
 ): {
     readonly x: number;
     readonly y: number;
 } {
     switch (outcome) {
-        case LASER_SHOT_OUTCOME.HIT:
+        case BEAM_CANNON_SHOT_OUTCOME.HIT:
             return BRIDGE_PLAYER_HULL_COMBAT_POINTS
                 .hullImpactPoint;
 
-        case LASER_SHOT_OUTCOME.ABSORBED:
+        case BEAM_CANNON_SHOT_OUTCOME.ABSORBED:
             return BRIDGE_PLAYER_HULL_COMBAT_POINTS
                 .shieldImpactPoint;
 

@@ -1,33 +1,33 @@
-// src/engine/encounter/combat/queries/get_laser_threat_snapshots.ts
+// src/engine/encounter/combat/queries/get_beam_cannon_threat_snapshots.ts
 
 import { SHIP_WEAPONS } from '../../../content/catalogs/ship_weapons';
 import {
     SHIP_WEAPON_KIND,
     SHIP_WEAPON_PHASE,
 } from '../../../defs/ship_weapon';
-import type { LaserAttackState } from '../../model/combat';
+import type { BeamCannonAttackState } from '../../model/combat';
 import type { EncounterState } from '../../model/state';
 import { createDetachedSnapshot } from '../../snapshots/create_detached_snapshot';
 
-export type LaserThreatSnapshot = {
-    attack: LaserAttackState;
+export type BeamCannonThreatSnapshot = {
+    attack: BeamCannonAttackState;
 
     timeToFireMs: number;
     initialTimeToFireMs: number;
 };
 
-export function getLaserThreatSnapshots(
+export function getBeamCannonThreatSnapshots(
     state: EncounterState,
-): LaserThreatSnapshot[] {
+): BeamCannonThreatSnapshot[] {
     return createDetachedSnapshot(
-        state.combat.laserAttacks.map((attack) => {
+        state.combat.beamCannonAttacks.map((attack) => {
             const actor = state.actors.find((candidate) => {
                 return candidate.id === attack.sourceActorId;
             });
 
             if (!actor) {
                 throw new Error(
-                    `Laser threat source actor not found: ` +
+                    `BeamCannon threat source actor not found: ` +
                         `${attack.id}/${attack.sourceActorId}`,
                 );
             }
@@ -38,26 +38,26 @@ export function getLaserThreatSnapshots(
 
             if (!weapon) {
                 throw new Error(
-                    `Laser threat source weapon not found: ` +
+                    `BeamCannon threat source weapon not found: ` +
                         `${attack.id}/${attack.sourceWeaponId}`,
                 );
             }
 
             if (
-                weapon.kind !== SHIP_WEAPON_KIND.LASER ||
+                weapon.kind !== SHIP_WEAPON_KIND.BEAM_CANNON ||
                 weapon.phase !== SHIP_WEAPON_PHASE.CHARGING
             ) {
                 throw new Error(
-                    `Laser threat source weapon is not charging: ` +
+                    `BeamCannon threat source weapon is not charging: ` +
                         `${attack.id}/${weapon.id}/${weapon.kind}/${weapon.phase}`,
                 );
             }
 
             const definition = SHIP_WEAPONS[weapon.weaponId];
 
-            if (definition.kind !== SHIP_WEAPON_KIND.LASER) {
+            if (definition.kind !== SHIP_WEAPON_KIND.BEAM_CANNON) {
                 throw new Error(
-                    `Laser threat weapon definition mismatch: ` +
+                    `BeamCannon threat weapon definition mismatch: ` +
                         `${attack.id}/${weapon.id}/${weapon.weaponId}`,
                 );
             }

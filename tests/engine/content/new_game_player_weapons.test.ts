@@ -26,13 +26,13 @@ describe('New-game player weapons', () => {
             firstRun.player.ship.weapons,
         ).toEqual([
             {
-                id: 'laser_player_00',
+                id: 'beam_cannon_player_00',
 
                 weaponId:
-                    SHIP_WEAPON_ID.LASER_00,
+                    SHIP_WEAPON_ID.BEAM_CANNON_00,
 
                 kind:
-                    SHIP_WEAPON_KIND.LASER,
+                    SHIP_WEAPON_KIND.BEAM_CANNON,
 
                 phase:
                     SHIP_WEAPON_PHASE.READY,
@@ -110,10 +110,10 @@ describe('New-game player weapons', () => {
             secondRun.player.ship.weapons,
         );
 
-        const firstLaser =
+        const firstBeamCannon =
             firstRun.player.ship.weapons[0];
 
-        const secondLaser =
+        const secondBeamCannon =
             secondRun.player.ship.weapons[0];
 
         const firstLauncher =
@@ -135,8 +135,8 @@ describe('New-game player weapons', () => {
             secondRun.player.ship.weapons[3];
 
         if (
-            !firstLaser ||
-            !secondLaser ||
+            !firstBeamCannon ||
+            !secondBeamCannon ||
             !firstLauncher ||
             !secondLauncher ||
             !firstDispenser ||
@@ -167,8 +167,8 @@ describe('New-game player weapons', () => {
             );
         }
 
-        expect(firstLaser).not.toBe(
-            secondLaser,
+        expect(firstBeamCannon).not.toBe(
+            secondBeamCannon,
         );
 
         expect(firstLauncher).not.toBe(
@@ -183,10 +183,10 @@ describe('New-game player weapons', () => {
             secondProjector,
         );
 
-        firstLaser.phase =
+        firstBeamCannon.phase =
             SHIP_WEAPON_PHASE.COOLDOWN;
 
-        firstLaser.phaseElapsedMs = 500;
+        firstBeamCannon.phaseElapsedMs = 500;
 
         firstLauncher.ammoCount = 0;
 
@@ -202,12 +202,12 @@ describe('New-game player weapons', () => {
         firstProjector.activeChannelId =
             'player_spam:test';
 
-        expect(secondLaser.phase).toBe(
+        expect(secondBeamCannon.phase).toBe(
             SHIP_WEAPON_PHASE.READY,
         );
 
         expect(
-            secondLaser.phaseElapsedMs,
+            secondBeamCannon.phaseElapsedMs,
         ).toBe(0);
 
         expect(

@@ -39,9 +39,9 @@ import {
     type EnemyShipTelemetrySnapshot,
 } from '../combat/queries/get_enemy_ship_telemetry_snapshots';
 import {
-    getLaserThreatSnapshots,
-    type LaserThreatSnapshot,
-} from '../combat/queries/get_laser_threat_snapshots';
+    getBeamCannonThreatSnapshots,
+    type BeamCannonThreatSnapshot,
+} from '../combat/queries/get_beam_cannon_threat_snapshots';
 import {
     getStickyMineSnapshots,
     type StickyMineSnapshot,
@@ -185,8 +185,8 @@ export type CombatPresentationSnapshot = {
     stickyMineSnapshots:
         StickyMineSnapshot[];
 
-    laserThreats:
-        LaserThreatSnapshot[];
+    beamCannonThreats:
+        BeamCannonThreatSnapshot[];
 
     spamChannels:
         SpamChannelState[];
@@ -341,8 +341,8 @@ export function createCombatPresentationSnapshot(
                 state,
             ),
 
-        laserThreats:
-            getLaserThreatSnapshots(
+        beamCannonThreats:
+            getBeamCannonThreatSnapshots(
                 state,
             ),
 
@@ -571,7 +571,7 @@ function getWeaponAmmoCapacity(
             return definition
                 .ammoCapacity;
 
-        case SHIP_WEAPON_KIND.LASER:
+        case SHIP_WEAPON_KIND.BEAM_CANNON:
         case SHIP_WEAPON_KIND
             .SPAM_PROJECTOR:
             return undefined;
@@ -597,10 +597,10 @@ function getWeaponPhaseDurationMs(
         case SHIP_WEAPON_PHASE.CHARGING:
             if (
                 definition.kind !==
-                SHIP_WEAPON_KIND.LASER
+                SHIP_WEAPON_KIND.BEAM_CANNON
             ) {
                 throw new Error(
-                    'Only player laser can be ' +
+                    'Only player beamCannon can be ' +
                         'in charging phase: ' +
                         weapon.id,
                 );

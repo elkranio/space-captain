@@ -22,7 +22,7 @@ import {
 } from '../../src/app/scenes/game/bridge/controller/player_weapon_status/BridgePlayerWeaponStatusMapper';
 
 describe('Bridge player weapon status mapper', () => {
-    it('maps ready laser and loaded missile launcher', () => {
+    it('maps ready beamCannon and loaded missile launcher', () => {
         expect(
             mapPlayerWeaponsToBridgeStatusPayload(
                 presentWeapons(
@@ -30,7 +30,7 @@ describe('Bridge player weapon status mapper', () => {
                 ),
             ),
         ).toEqual({
-            laser: {
+            beamCannon: {
                 phase:
                     SHIP_WEAPON_PHASE.READY,
             },
@@ -126,7 +126,7 @@ describe('Bridge player weapon status mapper', () => {
                 ),
             ),
         ).toEqual({
-            laser: {
+            beamCannon: {
                 phase:
                     SHIP_WEAPON_PHASE
                         .TARGETING,
@@ -177,20 +177,20 @@ describe('Bridge player weapon status mapper', () => {
         });
     });
 
-    it('maps laser charge and launcher cooldown independently', () => {
+    it('maps beamCannon charge and launcher cooldown independently', () => {
         const weapons =
             createWeapons();
 
-        const laser =
+        const beamCannon =
             weapons[0];
 
         const missileLauncher =
             weapons[1];
 
-        laser.phase =
+        beamCannon.phase =
             SHIP_WEAPON_PHASE.CHARGING;
 
-        laser.phaseElapsedMs =
+        beamCannon.phaseElapsedMs =
             2500;
 
         missileLauncher.phase =
@@ -219,7 +219,7 @@ describe('Bridge player weapon status mapper', () => {
                 ),
             ),
         ).toEqual({
-            laser: {
+            beamCannon: {
                 phase:
                     SHIP_WEAPON_PHASE
                         .CHARGING,
@@ -275,13 +275,13 @@ function createWeapons():
     return [
         {
             id:
-                'laser_player_00',
+                'beam_cannon_player_00',
 
             kind:
-                SHIP_WEAPON_KIND.LASER,
+                SHIP_WEAPON_KIND.BEAM_CANNON,
 
             weaponId:
-                SHIP_WEAPON_ID.LASER_00,
+                SHIP_WEAPON_ID.BEAM_CANNON_00,
 
             phase:
                 SHIP_WEAPON_PHASE.READY,

@@ -12,7 +12,7 @@ import {
 } from '../../../src/engine/defs/player_location';
 import {
     SHIP_WEAPON_KIND,
-    type LaserWeaponState,
+    type BeamCannonState,
     type MissileLauncherState,
     type SpamProjectorState,
     type StickyMineDispenserState,
@@ -134,8 +134,8 @@ export function createAnchoredPlayerCombatTestSetup(
 
 export function getPlayerWeaponOrThrow(
     state: EncounterState,
-    kind: typeof SHIP_WEAPON_KIND.LASER,
-): LaserWeaponState;
+    kind: typeof SHIP_WEAPON_KIND.BEAM_CANNON,
+): BeamCannonState;
 
 export function getPlayerWeaponOrThrow(
     state: EncounterState,
@@ -161,7 +161,7 @@ export function getPlayerWeaponOrThrow(
 export function getPlayerWeaponOrThrow(
     state: EncounterState,
     kind:
-        | typeof SHIP_WEAPON_KIND.LASER
+        | typeof SHIP_WEAPON_KIND.BEAM_CANNON
         | typeof SHIP_WEAPON_KIND
               .MISSILE_LAUNCHER
         | typeof SHIP_WEAPON_KIND
@@ -169,7 +169,7 @@ export function getPlayerWeaponOrThrow(
         | typeof SHIP_WEAPON_KIND
               .SPAM_PROJECTOR,
 ):
-    | LaserWeaponState
+    | BeamCannonState
     | MissileLauncherState
     | StickyMineDispenserState
     | SpamProjectorState {
@@ -191,7 +191,7 @@ export function getPlayerWeaponOrThrow(
     }
 
     switch (weapon.kind) {
-        case SHIP_WEAPON_KIND.LASER:
+        case SHIP_WEAPON_KIND.BEAM_CANNON:
         case SHIP_WEAPON_KIND
             .MISSILE_LAUNCHER:
         case SHIP_WEAPON_KIND

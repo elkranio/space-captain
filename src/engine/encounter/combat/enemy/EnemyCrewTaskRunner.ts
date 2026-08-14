@@ -402,7 +402,7 @@ export default class EnemyCrewTaskRunner {
         if (
             !observation ||
             observation.kind !==
-                ENEMY_THREAT_KIND.LASER
+                ENEMY_THREAT_KIND.BEAM_CANNON
         ) {
             // Charge was committed on task start and is not refunded.
             this.cancel(

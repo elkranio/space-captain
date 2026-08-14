@@ -298,7 +298,7 @@ describe('Enemy task scheduler', () => {
                         .PLAYER_SHIP_TARGETING_DETECTED,
 
                 sourceActorId: actor.id,
-                sourceWeaponId: 'laser_00',
+                sourceWeaponId: 'beam_cannon_00',
             },
         ]);
 
@@ -313,7 +313,7 @@ describe('Enemy task scheduler', () => {
 
             role: OFFICER_ROLE.WEAPONS,
 
-            weaponId: 'laser_00',
+            weaponId: 'beam_cannon_00',
         });
 
         expect(

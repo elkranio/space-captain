@@ -15,7 +15,7 @@ export function mapPlayerWeaponsToBridgeStatusPayload(
     snapshots:
         PlayerWeaponPresentationSnapshot[],
 ): BridgePlayerWeaponsStatusUpdatedPayload {
-    let laser:
+    let beamCannon:
         BridgePlayerWeaponStatusPayload
         | undefined;
 
@@ -39,15 +39,15 @@ export function mapPlayerWeaponsToBridgeStatusPayload(
             snapshot.state;
 
         switch (weapon.kind) {
-            case SHIP_WEAPON_KIND.LASER:
-                if (laser) {
+            case SHIP_WEAPON_KIND.BEAM_CANNON:
+                if (beamCannon) {
                     throw new Error(
                         'Bridge weapon status supports ' +
-                            'one player laser',
+                            'one player beamCannon',
                     );
                 }
 
-                laser =
+                beamCannon =
                     mapWeaponStatus(
                         snapshot,
                     );
@@ -127,9 +127,9 @@ export function mapPlayerWeaponsToBridgeStatusPayload(
     }
 
     return {
-        ...(laser
+        ...(beamCannon
             ? {
-                  laser,
+                  beamCannon,
               }
             : {}),
 

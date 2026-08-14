@@ -134,7 +134,7 @@ const ENEMY_MINE_CLEAR_ROLE_PRIORITY = [
 //
 // - выбирает одну работу для конкретной роли;
 // - Science сначала идентифицирует
-//   замеченную missile/laser threat;
+//   замеченную missile/beamCannon threat;
 // - иначе для роли идёт round-robin
 //   по её оружию в порядке loadout;
 // - недоступное оружие пропускается;
@@ -323,7 +323,7 @@ export default class EnemyDecisionPolicy {
             context.threats;
 
         // Sticky-mine defense is scheduled before role work.
-        // Engineer then reacts to a live resolved player laser.
+        // Engineer then reacts to a live resolved player beamCannon.
         const shieldDeployment =
             this.selectShieldDeployment(
                 actor,
@@ -450,7 +450,7 @@ export default class EnemyDecisionPolicy {
             return undefined;
         }
 
-        const laserThreat =
+        const beamCannonThreat =
             threats.find(
                 (
                     candidate,
@@ -459,18 +459,18 @@ export default class EnemyDecisionPolicy {
                     {
                         kind:
                             typeof ENEMY_THREAT_KIND
-                                .LASER;
+                                .BEAM_CANNON;
                     }
                 > => {
                     return (
                         candidate.kind ===
                         ENEMY_THREAT_KIND
-                            .LASER
+                            .BEAM_CANNON
                     );
                 },
             );
 
-        if (!laserThreat) {
+        if (!beamCannonThreat) {
             return undefined;
         }
 
@@ -495,7 +495,7 @@ export default class EnemyDecisionPolicy {
 
         // Too early: wait until one shield lifetime can cover impact.
         if (
-            laserThreat
+            beamCannonThreat
                 .remainingChargeMs >
             deploymentWindowStartMs
         ) {
@@ -504,7 +504,7 @@ export default class EnemyDecisionPolicy {
 
         // Too late: do not commit a charge to work that cannot finish.
         if (
-            laserThreat
+            beamCannonThreat
                 .remainingChargeMs <=
             deploymentDurationMs
         ) {
@@ -520,7 +520,7 @@ export default class EnemyDecisionPolicy {
                 OFFICER_ROLE.ENGINEER,
 
             observationId:
-                laserThreat
+                beamCannonThreat
                     .observationId,
         };
     }
@@ -742,7 +742,7 @@ export default class EnemyDecisionPolicy {
             case SHIP_WEAPON_KIND.MISSILE_LAUNCHER:
                 return weapon.ammoCount > 0;
 
-            case SHIP_WEAPON_KIND.LASER:
+            case SHIP_WEAPON_KIND.BEAM_CANNON:
                 return true;
 
             case SHIP_WEAPON_KIND.SPAM_PROJECTOR:

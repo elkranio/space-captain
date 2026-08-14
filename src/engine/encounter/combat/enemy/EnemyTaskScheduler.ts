@@ -491,7 +491,7 @@ export default class EnemyTaskScheduler {
         if (
             !observation ||
             observation.kind !==
-                ENEMY_THREAT_KIND.LASER ||
+                ENEMY_THREAT_KIND.BEAM_CANNON ||
             !emitter ||
             emitter.status !==
                 SHIELD_GENERATOR_STATUS

@@ -54,7 +54,7 @@ const COMBAT_ACTION_HINT_BY_COMMAND_ID: Partial<
         label: 'ATTACK ENEMY',
         priority: 50,
     },
-    [ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_LASER]: {
+    [ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_BEAM_CANNON]: {
         id: 'attack_enemy',
         label: 'ATTACK ENEMY',
         priority: 50,

@@ -113,9 +113,9 @@ export default class EnemyScienceIntelResolver {
                         observation,
                     );
 
-            case ENEMY_THREAT_KIND.LASER:
+            case ENEMY_THREAT_KIND.BEAM_CANNON:
                 throw new Error(
-                    'Player laser does not expose Science intel ' +
+                    'Player beamCannon does not expose Science intel ' +
                         'in the current combat model: ' +
                         actor.id +
                         '/' +

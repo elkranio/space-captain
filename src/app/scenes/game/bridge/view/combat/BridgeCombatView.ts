@@ -7,12 +7,12 @@ import BridgeVfxView from '../vfx/BridgeVfxView';
 import BridgeEnemyShipDestructionView from './enemy_destruction/BridgeEnemyShipDestructionView';
 import BridgeEnemyShieldView from './enemy_shield/BridgeEnemyShieldView';
 import BridgeIncomingMissilesView from './incoming_missiles/BridgeIncomingMissilesView';
-import BridgeLaserBeamsView from './laser_beams/BridgeLaserBeamsView';
-import BridgeLaserThreatsView from './laser_threats/BridgeLaserThreatsView';
+import BridgeBeamCannonBeamsView from './beam_cannon_beams/BridgeBeamCannonBeamsView';
+import BridgeBeamCannonThreatsView from './beam_cannon_threats/BridgeBeamCannonThreatsView';
 import BridgeOutgoingMissilesView from './outgoing_missiles/BridgeOutgoingMissilesView';
 import BridgeOutgoingSpamView from './outgoing_spam/BridgeOutgoingSpamView';
 import BridgeOutgoingStickyMinesView from './outgoing_sticky_mines/BridgeOutgoingStickyMinesView';
-import BridgePlayerLaserView from './player_laser/BridgePlayerLaserView';
+import BridgePlayerBeamCannonView from './player_beam_cannon/BridgePlayerBeamCannonView';
 import BridgePlayerShieldView from './player_shield/BridgePlayerShieldView';
 import BridgeSpamView from './spam/BridgeSpamView';
 import BridgeStickyMinesView from './sticky_mines/BridgeStickyMinesView';
@@ -35,14 +35,14 @@ export default class BridgeCombatView {
     private outgoingSpamView?:
         BridgeOutgoingSpamView;
 
-    private laserThreatsView?: BridgeLaserThreatsView;
+    private beamCannonThreatsView?: BridgeBeamCannonThreatsView;
 
-    private laserBeamsView?: BridgeLaserBeamsView;
+    private beamCannonBeamsView?: BridgeBeamCannonBeamsView;
 
     private enemyShieldView?:
         BridgeEnemyShieldView;
 
-    private playerLaserView?: BridgePlayerLaserView;
+    private playerBeamCannonView?: BridgePlayerBeamCannonView;
 
     private playerShieldView?:
         BridgePlayerShieldView;
@@ -108,7 +108,7 @@ export default class BridgeCombatView {
                 },
             );
 
-        this.laserThreatsView = new BridgeLaserThreatsView(
+        this.beamCannonThreatsView = new BridgeBeamCannonThreatsView(
             this.scene,
             this.eventBus,
 
@@ -117,7 +117,7 @@ export default class BridgeCombatView {
             },
         );
 
-        this.laserBeamsView = new BridgeLaserBeamsView(
+        this.beamCannonBeamsView = new BridgeBeamCannonBeamsView(
             this.scene,
             this.eventBus,
 
@@ -139,7 +139,7 @@ export default class BridgeCombatView {
                 },
             );
 
-        this.playerLaserView = new BridgePlayerLaserView(
+        this.playerBeamCannonView = new BridgePlayerBeamCannonView(
             this.scene,
             this.eventBus,
 
@@ -191,10 +191,10 @@ export default class BridgeCombatView {
         this.enemyShipDestructionView
             ?.destroy();
         this.playerShieldView?.destroy();
-        this.playerLaserView?.destroy();
+        this.playerBeamCannonView?.destroy();
         this.enemyShieldView?.destroy();
-        this.laserBeamsView?.destroy();
-        this.laserThreatsView?.destroy();
+        this.beamCannonBeamsView?.destroy();
+        this.beamCannonThreatsView?.destroy();
         this.outgoingStickyMinesView
             ?.destroy();
         this.outgoingSpamView?.destroy();
@@ -207,10 +207,10 @@ export default class BridgeCombatView {
         this.enemyShipDestructionView =
             undefined;
         this.playerShieldView = undefined;
-        this.playerLaserView = undefined;
+        this.playerBeamCannonView = undefined;
         this.enemyShieldView = undefined;
-        this.laserBeamsView = undefined;
-        this.laserThreatsView = undefined;
+        this.beamCannonBeamsView = undefined;
+        this.beamCannonThreatsView = undefined;
         this.outgoingStickyMinesView =
             undefined;
         this.outgoingSpamView = undefined;
@@ -241,7 +241,7 @@ export default class BridgeCombatView {
                 offsetX,
             );
 
-        this.laserThreatsView
+        this.beamCannonThreatsView
             ?.setCameraTurnOffsetX(
                 offsetX,
             );

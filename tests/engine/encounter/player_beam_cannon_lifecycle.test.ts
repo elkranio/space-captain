@@ -1,4 +1,4 @@
-// tests/engine/encounter/player_laser_lifecycle.test.ts
+// tests/engine/encounter/player_beam_cannon_lifecycle.test.ts
 
 import { createPlayerHullFixture } from '../../fixtures/engine/player_hull_fixtures';
 import {
@@ -32,14 +32,14 @@ import {
     OFFICER_COMMAND_TARGET_KIND,
 } from '../../../src/engine/encounter/model/command';
 import {
-    LASER_SHOT_OUTCOME,
+    BEAM_CANNON_SHOT_OUTCOME,
 } from '../../../src/engine/encounter/model/combat';
 import {
     ENCOUNTER_EVENT,
     OFFICER_TASK_OUTCOME,
 } from '../../../src/engine/encounter/model/event';
 
-describe('Player laser lifecycle', () => {
+describe('Player beamCannon lifecycle', () => {
     it('targets, charges, fires, releases Weapons and cools down', () => {
         const run =
             createNewRunState();
@@ -109,7 +109,7 @@ describe('Player laser lifecycle', () => {
 
             commandId:
                 ENCOUNTER_OFFICER_COMMAND_ID
-                    .WEAPONS_FIRE_LASER,
+                    .WEAPONS_FIRE_BEAM_CANNON,
 
             target: {
                 kind:
@@ -117,7 +117,7 @@ describe('Player laser lifecycle', () => {
                         .ACTOR_WEAPON,
 
                 weaponId:
-                    'laser_player_00',
+                    'beam_cannon_player_00',
 
                 actorId: enemy.id,
             },
@@ -148,7 +148,7 @@ describe('Player laser lifecycle', () => {
                     return (
                         event.type ===
                         ENCOUNTER_EVENT
-                            .PLAYER_LASER_CHARGING_STARTED
+                            .PLAYER_BEAM_CANNON_CHARGING_STARTED
                     );
                 }),
         ).toBe(false);
@@ -169,27 +169,27 @@ describe('Player laser lifecycle', () => {
         ).toContainEqual({
             type:
                 ENCOUNTER_EVENT
-                    .PLAYER_LASER_CHARGING_STARTED,
+                    .PLAYER_BEAM_CANNON_CHARGING_STARTED,
 
             weaponId:
-                'laser_player_00',
+                'beam_cannon_player_00',
 
             targetActorId:
                 enemy.id,
 
             chargeDurationMs:
                 SHIP_WEAPONS[
-                    SHIP_WEAPON_ID.LASER_00
+                    SHIP_WEAPON_ID.BEAM_CANNON_00
                 ].chargeDurationMs,
         });
 
-        const laserDefinition =
+        const beamCannonDefinition =
             SHIP_WEAPONS[
-                SHIP_WEAPON_ID.LASER_00
+                SHIP_WEAPON_ID.BEAM_CANNON_00
             ];
 
         engine.step(
-            laserDefinition
+            beamCannonDefinition
                 .chargeDurationMs - 1,
         );
 
@@ -200,7 +200,7 @@ describe('Player laser lifecycle', () => {
                 SHIP_WEAPON_PHASE.CHARGING,
 
             phaseElapsedMs:
-                laserDefinition
+                beamCannonDefinition
                     .chargeDurationMs - 1,
         });
 
@@ -227,16 +227,16 @@ describe('Player laser lifecycle', () => {
         expect(fireEvents).toContainEqual({
             type:
                 ENCOUNTER_EVENT
-                    .PLAYER_LASER_FIRED,
+                    .PLAYER_BEAM_CANNON_FIRED,
 
             weaponId:
-                'laser_player_00',
+                'beam_cannon_player_00',
 
             targetActorId:
                 enemy.id,
 
             outcome:
-                LASER_SHOT_OUTCOME.HIT,
+                BEAM_CANNON_SHOT_OUTCOME.HIT,
 
             damage: 1,
 
@@ -257,7 +257,7 @@ describe('Player laser lifecycle', () => {
         );
 
         engine.step(
-            laserDefinition
+            beamCannonDefinition
                 .cooldownDurationMs - 1,
         );
 
@@ -268,7 +268,7 @@ describe('Player laser lifecycle', () => {
                 SHIP_WEAPON_PHASE.COOLDOWN,
 
             phaseElapsedMs:
-                laserDefinition
+                beamCannonDefinition
                     .cooldownDurationMs - 1,
         });
 
@@ -292,7 +292,7 @@ describe('Player laser lifecycle', () => {
                     return (
                         command.commandId ===
                         ENCOUNTER_OFFICER_COMMAND_ID
-                            .WEAPONS_FIRE_LASER
+                            .WEAPONS_FIRE_BEAM_CANNON
                     );
                 }),
         ).toHaveLength(1);

@@ -17,7 +17,7 @@ export const OFFICER_TASK_KIND = {
 
     WEAPONS_FIRE_MISSILE: 'weapons_fire_missile',
     WEAPONS_FIRE_STICKY_MINES: 'weapons_fire_sticky_mines',
-    WEAPONS_FIRE_LASER: 'weapons_fire_laser',
+    WEAPONS_FIRE_BEAM_CANNON: 'weapons_fire_beam_cannon',
 
     CLEAR_STICKY_MINE: 'clear_sticky_mine',
 
@@ -66,7 +66,7 @@ export function doesOfficerTaskUseTimedCompletion(
         case OFFICER_TASK_KIND.SCIENCE_FIRE_SPAM:
         case OFFICER_TASK_KIND.WEAPONS_FIRE_MISSILE:
         case OFFICER_TASK_KIND.WEAPONS_FIRE_STICKY_MINES:
-        case OFFICER_TASK_KIND.WEAPONS_FIRE_LASER:
+        case OFFICER_TASK_KIND.WEAPONS_FIRE_BEAM_CANNON:
         case OFFICER_TASK_KIND.HELM_DOCK:
         case OFFICER_TASK_KIND.HELM_FLY_TO:
         case OFFICER_TASK_KIND.HELM_JUMP:

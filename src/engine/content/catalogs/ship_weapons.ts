@@ -1,7 +1,7 @@
 // src/engine/content/catalogs/ship_weapons.ts
 
 import missileLauncherTuningData from '../data/missile_launchers.json';
-import laserEmitterTuningData from '../data/laser_emitters.json';
+import beamCannonTuningData from '../data/beam_cannons.json';
 import spamProjectorTuningData from '../data/spam_projectors.json';
 import stickyMineDispenserTuningData from '../data/sticky_mine_dispensers.json';
 import shipWeaponRulesData from '../data/ship_weapon_rules.json';
@@ -9,7 +9,7 @@ import {
     SHIP_WEAPON_RULES_SCHEMA,
 } from '../schemas/ship_weapon_rules';
 import {
-    LASER_EMITTER_TUNING_SCHEMA,
+    BEAM_CANNON_TUNING_SCHEMA,
     MISSILE_LAUNCHER_TUNING_SCHEMA,
     SPAM_PROJECTOR_TUNING_SCHEMA,
     STICKY_MINE_DISPENSER_TUNING_SCHEMA,
@@ -17,7 +17,7 @@ import {
 import {
     SHIP_WEAPON_ID,
     SHIP_WEAPON_KIND,
-    type LaserWeaponDefinition,
+    type BeamCannonDefinition,
     type MissileLauncherDefinition,
     type ShipWeaponDefinition,
     type ShipWeaponId,
@@ -35,9 +35,9 @@ const MISSILE_LAUNCHER_TUNING =
         missileLauncherTuningData,
     );
 
-const LASER_EMITTER_TUNING =
-    LASER_EMITTER_TUNING_SCHEMA.parse(
-        laserEmitterTuningData,
+const BEAM_CANNON_TUNING =
+    BEAM_CANNON_TUNING_SCHEMA.parse(
+        beamCannonTuningData,
     );
 
 const SPAM_PROJECTOR_TUNING =
@@ -77,20 +77,20 @@ const MISSILE_LAUNCHERS =
         },
     );
 
-const LASER_EMITTERS =
+const BEAM_CANNONS =
     Object.entries(
-        LASER_EMITTER_TUNING,
+        BEAM_CANNON_TUNING,
     ).map(
         (
             [
                 id,
                 tuning,
             ],
-        ): LaserWeaponDefinition => {
+        ): BeamCannonDefinition => {
             return {
                 id,
                 kind:
-                    SHIP_WEAPON_KIND.LASER,
+                    SHIP_WEAPON_KIND.BEAM_CANNON,
                 ...tuning,
             };
         },
@@ -139,7 +139,7 @@ const STICKY_MINE_DISPENSERS =
 const ALL_SHIP_WEAPON_DEFINITIONS:
     ShipWeaponDefinition[] = [
         ...MISSILE_LAUNCHERS,
-        ...LASER_EMITTERS,
+        ...BEAM_CANNONS,
         ...SPAM_PROJECTORS,
         ...STICKY_MINE_DISPENSERS,
     ];
@@ -153,8 +153,8 @@ type ShipWeaponCatalog =
             .MISSILE_LAUNCHER_00]:
             MissileLauncherDefinition;
 
-        [SHIP_WEAPON_ID.LASER_00]:
-            LaserWeaponDefinition;
+        [SHIP_WEAPON_ID.BEAM_CANNON_00]:
+            BeamCannonDefinition;
 
         [SHIP_WEAPON_ID
             .SPAM_PROJECTOR_00]:

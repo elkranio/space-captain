@@ -150,7 +150,7 @@ describe(
                                 'Ship Presets',
 
                             recordId:
-                                'generic_laser_00',
+                                'generic_beam_cannon_00',
                         }),
                     ]),
                 );

@@ -6,7 +6,7 @@ import type {
 import {
     COMBAT_SOURCE_KIND,
     COMBAT_TARGET_KIND,
-    LASER_SHOT_OUTCOME,
+    BEAM_CANNON_SHOT_OUTCOME,
 } from '../../../../../../../engine/encounter/model/combat';
 import {
     ENCOUNTER_EVENT,
@@ -109,7 +109,7 @@ export default class BridgeEncounterEngineEventHandler {
         );
 
         this.eventBus.emit(
-            BRIDGE_EVENT.LASER_THREATS_UPDATED,
+            BRIDGE_EVENT.BEAM_CANNON_THREATS_UPDATED,
             [],
         );
 
@@ -128,7 +128,7 @@ export default class BridgeEncounterEngineEventHandler {
                 .CAPTAIN_COMBAT_CONTEXT_UPDATED,
             {
                 incomingMissiles: [],
-                incomingLasers: [],
+                incomingBeamCannons: [],
                 incomingStickyMines: [],
                 activeSpamChannels: [],
             },
@@ -330,13 +330,13 @@ export default class BridgeEncounterEngineEventHandler {
 
                 if (
                     event.task.kind ===
-                        OFFICER_TASK_KIND.WEAPONS_FIRE_LASER &&
+                        OFFICER_TASK_KIND.WEAPONS_FIRE_BEAM_CANNON &&
                     event.outcome ===
                         OFFICER_TASK_OUTCOME.CANCELLED
                 ) {
                     this.eventBus.emit(
                         BRIDGE_EVENT
-                            .PLAYER_LASER_CHARGING_CLEARED,
+                            .PLAYER_BEAM_CANNON_CHARGING_CLEARED,
                         {
                             weaponId:
                                 event.task.weaponId,
@@ -393,10 +393,10 @@ export default class BridgeEncounterEngineEventHandler {
                 );
                 return;
 
-            case ENCOUNTER_EVENT.PLAYER_LASER_CHARGING_STARTED:
+            case ENCOUNTER_EVENT.PLAYER_BEAM_CANNON_CHARGING_STARTED:
                 this.eventBus.emit(
                     BRIDGE_EVENT
-                        .PLAYER_LASER_CHARGING_STARTED,
+                        .PLAYER_BEAM_CANNON_CHARGING_STARTED,
                     {
                         weaponId:
                             event.weaponId,
@@ -407,10 +407,10 @@ export default class BridgeEncounterEngineEventHandler {
                 );
                 return;
 
-            case ENCOUNTER_EVENT.PLAYER_LASER_FIRED:
+            case ENCOUNTER_EVENT.PLAYER_BEAM_CANNON_FIRED:
                 this.eventBus.emit(
                     BRIDGE_EVENT
-                        .PLAYER_LASER_CHARGING_CLEARED,
+                        .PLAYER_BEAM_CANNON_CHARGING_CLEARED,
                     {
                         weaponId:
                             event.weaponId,
@@ -419,7 +419,7 @@ export default class BridgeEncounterEngineEventHandler {
 
                 this.eventBus.emit(
                     BRIDGE_EVENT
-                        .PLAYER_LASER_FIRED,
+                        .PLAYER_BEAM_CANNON_FIRED,
                     {
                         weaponId:
                             event.weaponId,
@@ -672,10 +672,10 @@ export default class BridgeEncounterEngineEventHandler {
                 });
                 return;
 
-            case ENCOUNTER_EVENT.LASER_ATTACK_STARTED:
+            case ENCOUNTER_EVENT.BEAM_CANNON_ATTACK_STARTED:
                 this.eventBus.emit(BRIDGE_EVENT.MISSILE_TARGETING_WARNING_CLEARED);
 
-                this.eventBus.emit(BRIDGE_EVENT.LASER_THREAT_ADDED, {
+                this.eventBus.emit(BRIDGE_EVENT.BEAM_CANNON_THREAT_ADDED, {
                     attackId: event.attack.id,
 
                     designation: event.attack.designation,
@@ -735,12 +735,12 @@ export default class BridgeEncounterEngineEventHandler {
                 );
                 return;
 
-            case ENCOUNTER_EVENT.LASER_FIRED:
-                this.eventBus.emit(BRIDGE_EVENT.LASER_THREAT_REMOVED, {
+            case ENCOUNTER_EVENT.BEAM_CANNON_FIRED:
+                this.eventBus.emit(BRIDGE_EVENT.BEAM_CANNON_THREAT_REMOVED, {
                     attackId: event.attack.id,
                 });
 
-                this.eventBus.emit(BRIDGE_EVENT.LASER_BEAM_FIRED, {
+                this.eventBus.emit(BRIDGE_EVENT.BEAM_CANNON_BEAM_FIRED, {
                     sourceActorId: event.attack.sourceActorId,
 
                     outcome:
@@ -749,7 +749,7 @@ export default class BridgeEncounterEngineEventHandler {
 
                 if (
                     event.outcome ===
-                    LASER_SHOT_OUTCOME.HIT
+                    BEAM_CANNON_SHOT_OUTCOME.HIT
                 ) {
                     this.handlePlayerShipDamaged(
                         event,

@@ -87,7 +87,7 @@ describe(
                             near,
                         ],
 
-                        laserThreats:
+                        beamCannonThreats:
                             [],
 
                         availableScienceCommands: [
@@ -125,7 +125,7 @@ describe(
                     incomingStickyMines:
                         [],
 
-                    incomingLasers:
+                    incomingBeamCannons:
                         [],
 
                     incomingMissiles: [
@@ -279,7 +279,7 @@ describe(
                         incomingMissiles:
                             [],
 
-                        laserThreats:
+                        beamCannonThreats:
                             [],
 
                         availableScienceCommands:
@@ -298,7 +298,7 @@ describe(
                     incomingStickyMines:
                         [],
 
-                    incomingLasers:
+                    incomingBeamCannons:
                         [],
 
                     enemyShip: {
@@ -327,7 +327,7 @@ describe(
 
 
         it(
-            'maps the resolved untargeted Engineer shield command onto laser rows',
+            'maps the resolved untargeted Engineer shield command onto beamCannon rows',
             () => {
                 const deployShield:
                     AvailableOfficerCommand = {
@@ -359,11 +359,11 @@ describe(
                         enemyShips: [],
                         incomingMissiles: [],
 
-                        laserThreats: [
+                        beamCannonThreats: [
                             {
                                 attack: {
                                     id:
-                                        'laser_attack_1',
+                                        'beam_cannon_attack_1',
 
                                     designation:
                                         'L1',
@@ -372,7 +372,7 @@ describe(
                                         'enemy_ship_00',
 
                                     sourceWeaponId:
-                                        'laser_enemy_00',
+                                        'beam_cannon_enemy_00',
 
                                     target: {
                                         kind:
@@ -408,10 +408,10 @@ describe(
 
                     incomingMissiles: [],
 
-                    incomingLasers: [
+                    incomingBeamCannons: [
                         {
                             attackId:
-                                'laser_attack_1',
+                                'beam_cannon_attack_1',
 
                             designation:
                                 'L1',
@@ -468,7 +468,7 @@ describe(
                     mapCaptainCombatContextToBridgePayload({
                         enemyShips: [],
                         incomingMissiles: [],
-                        laserThreats: [],
+                        beamCannonThreats: [],
 
                         spamChannels:
                             [],
@@ -686,7 +686,7 @@ describe(
                     mapCaptainCombatContextToBridgePayload({
                         enemyShips: [],
                         incomingMissiles: [],
-                        laserThreats: [],
+                        beamCannonThreats: [],
                         stickyMineSnapshots: [],
 
                         spamChannels: [
@@ -811,7 +811,7 @@ describe(
                             missile,
                         ],
 
-                        laserThreats:
+                        beamCannonThreats:
                             [],
 
                         availableScienceCommands:

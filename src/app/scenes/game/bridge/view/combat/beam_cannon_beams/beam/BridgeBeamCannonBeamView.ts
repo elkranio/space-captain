@@ -1,8 +1,8 @@
-// src/app/scenes/game/bridge/view/combat/laser_beams/beam/BridgeLaserBeamView.ts
+// src/app/scenes/game/bridge/view/combat/beam_cannon_beams/beam/BridgeBeamCannonBeamView.ts
 
 import type BridgeScene from '../../../../BridgeScene';
 
-type BridgeLaserBeamViewOptions = {
+type BridgeBeamCannonBeamViewOptions = {
     scene: BridgeScene;
     parent: Phaser.GameObjects.Container;
 
@@ -20,7 +20,7 @@ type BridgeLaserBeamViewOptions = {
     onComplete: () => void;
 };
 
-const LASER_BEAM = {
+const BEAM_CANNON_BEAM = {
     extendDurationMs: 80,
     holdDurationMs: 100,
     fadeDurationMs: 120,
@@ -39,12 +39,12 @@ const LASER_BEAM = {
     coreNearHalfWidth: 1.5,
 } as const;
 
-// Один короткий laser shot.
+// Один короткий beamCannon shot.
 //
 // Beam подходит и enemy, и player:
 // sourceNear определяет, какой конец
 // перспективно расположен ближе камеры.
-export default class BridgeLaserBeamView {
+export default class BridgeBeamCannonBeamView {
     private readonly graphics:
         Phaser.GameObjects.Graphics;
 
@@ -69,7 +69,7 @@ export default class BridgeLaserBeamView {
         sourceNear = false,
 
         onComplete,
-    }: BridgeLaserBeamViewOptions) {
+    }: BridgeBeamCannonBeamViewOptions) {
         this.scene = scene;
 
         this.sourcePosition =
@@ -134,11 +134,11 @@ export default class BridgeLaserBeamView {
         this.elapsedMs += deltaMs;
 
         const totalDurationMs =
-            LASER_BEAM
+            BEAM_CANNON_BEAM
                 .extendDurationMs +
-            LASER_BEAM
+            BEAM_CANNON_BEAM
                 .holdDurationMs +
-            LASER_BEAM
+            BEAM_CANNON_BEAM
                 .fadeDurationMs;
 
         if (
@@ -160,7 +160,7 @@ export default class BridgeLaserBeamView {
         const extensionProgress =
             Phaser.Math.Clamp(
                 this.elapsedMs /
-                    LASER_BEAM
+                    BEAM_CANNON_BEAM
                         .extendDurationMs,
 
                 0,
@@ -190,13 +190,13 @@ export default class BridgeLaserBeamView {
         this.drawBeamLayer(
             currentTarget,
 
-            LASER_BEAM
+            BEAM_CANNON_BEAM
                 .outlineFarHalfWidth,
 
-            LASER_BEAM
+            BEAM_CANNON_BEAM
                 .outlineNearHalfWidth,
 
-            LASER_BEAM
+            BEAM_CANNON_BEAM
                 .outlineColor,
 
             alpha,
@@ -206,13 +206,13 @@ export default class BridgeLaserBeamView {
         this.drawBeamLayer(
             currentTarget,
 
-            LASER_BEAM
+            BEAM_CANNON_BEAM
                 .bodyFarHalfWidth,
 
-            LASER_BEAM
+            BEAM_CANNON_BEAM
                 .bodyNearHalfWidth,
 
-            LASER_BEAM.bodyColor,
+            BEAM_CANNON_BEAM.bodyColor,
 
             alpha,
             easedProgress,
@@ -221,13 +221,13 @@ export default class BridgeLaserBeamView {
         this.drawBeamLayer(
             currentTarget,
 
-            LASER_BEAM
+            BEAM_CANNON_BEAM
                 .coreFarHalfWidth,
 
-            LASER_BEAM
+            BEAM_CANNON_BEAM
                 .coreNearHalfWidth,
 
-            LASER_BEAM.coreColor,
+            BEAM_CANNON_BEAM.coreColor,
 
             alpha,
             easedProgress,
@@ -336,9 +336,9 @@ export default class BridgeLaserBeamView {
 
     private getAlpha(): number {
         const fadeStartMs =
-            LASER_BEAM
+            BEAM_CANNON_BEAM
                 .extendDurationMs +
-            LASER_BEAM
+            BEAM_CANNON_BEAM
                 .holdDurationMs;
 
         if (
@@ -352,7 +352,7 @@ export default class BridgeLaserBeamView {
             1 -
                 (this.elapsedMs -
                     fadeStartMs) /
-                    LASER_BEAM
+                    BEAM_CANNON_BEAM
                         .fadeDurationMs,
 
             0,

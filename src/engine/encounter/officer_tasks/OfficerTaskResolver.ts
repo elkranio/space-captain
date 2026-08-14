@@ -28,7 +28,7 @@ type ResettablePlayerWeaponTaskState = Extract<
             | typeof OFFICER_TASK_KIND
                   .WEAPONS_FIRE_MISSILE
             | typeof OFFICER_TASK_KIND
-                  .WEAPONS_FIRE_LASER;
+                  .WEAPONS_FIRE_BEAM_CANNON;
     }
 >;
 
@@ -158,7 +158,7 @@ export default class OfficerTaskResolver {
             case OFFICER_TASK_KIND.WEAPONS_FIRE_MISSILE:
             case OFFICER_TASK_KIND
                 .WEAPONS_FIRE_STICKY_MINES:
-            case OFFICER_TASK_KIND.WEAPONS_FIRE_LASER:
+            case OFFICER_TASK_KIND.WEAPONS_FIRE_BEAM_CANNON:
             case OFFICER_TASK_KIND.SCIENCE_FIRE_SPAM:
                 return undefined;
 
@@ -196,7 +196,7 @@ export default class OfficerTaskResolver {
             case OFFICER_TASK_KIND
                 .WEAPONS_FIRE_MISSILE:
             case OFFICER_TASK_KIND
-                .WEAPONS_FIRE_LASER:
+                .WEAPONS_FIRE_BEAM_CANNON:
                 this.cancelResettablePlayerWeaponTask(
                     task,
                 );

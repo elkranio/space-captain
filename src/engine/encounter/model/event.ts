@@ -9,14 +9,14 @@ import type { ShipDriveState } from '../../defs/ship_drive';
 import type { EncounterAnchorState } from '../anchors/encounter_anchor';
 import type { JumpPointEncounterAnchorState } from '../anchors/jump_point/jump_point_encounter_anchor';
 import {
-    LASER_SHOT_OUTCOME,
+    BEAM_CANNON_SHOT_OUTCOME,
     PLAYER_MISSILE_OUTCOME,
     PLAYER_STICKY_MINE_OUTCOME,
 } from './combat';
 import type {
     ActiveShieldState,
-    LaserAttackState,
-    LaserShotOutcome,
+    BeamCannonAttackState,
+    BeamCannonShotOutcome,
     PlayerSpamChannelOutcome,
     SpamChannelOutcome,
     SpamChannelState,
@@ -53,11 +53,11 @@ export const ENCOUNTER_EVENT = {
     PLAYER_SHIP_DRIVE_DISRUPTED: 'player_ship_drive_disrupted',
     PLAYER_SHIP_TARGETING_DETECTED: 'player_ship_targeting_detected',
 
-    PLAYER_LASER_CHARGING_STARTED:
-        'player_laser_charging_started',
+    PLAYER_BEAM_CANNON_CHARGING_STARTED:
+        'player_beam_cannon_charging_started',
 
-    PLAYER_LASER_FIRED:
-        'player_laser_fired',
+    PLAYER_BEAM_CANNON_FIRED:
+        'player_beam_cannon_fired',
 
     PLAYER_MISSILE_LAUNCHED:
         'player_missile_launched',
@@ -88,8 +88,8 @@ export const ENCOUNTER_EVENT = {
 
     MISSILE_LAUNCHED: 'missile_launched',
     MISSILE_IMPACTED_PLAYER_SHIP: 'missile_impacted_player_ship',
-    LASER_ATTACK_STARTED: 'laser_attack_started',
-    LASER_FIRED: 'laser_fired',
+    BEAM_CANNON_ATTACK_STARTED: 'beam_cannon_attack_started',
+    BEAM_CANNON_FIRED: 'beam_cannon_fired',
     SPAM_CHANNEL_STARTED: 'spam_channel_started',
     SPAM_CHANNEL_ENDED: 'spam_channel_ended',
     STICKY_MINE_ATTACHED: 'sticky_mine_attached',
@@ -268,9 +268,9 @@ export type PlayerShipTargetingDetectedEvent = {
     sourceWeaponId: string;
 };
 
-export type PlayerLaserChargingStartedEvent = {
+export type PlayerBeamCannonChargingStartedEvent = {
     type:
-        typeof ENCOUNTER_EVENT.PLAYER_LASER_CHARGING_STARTED;
+        typeof ENCOUNTER_EVENT.PLAYER_BEAM_CANNON_CHARGING_STARTED;
 
     weaponId: string;
 
@@ -279,16 +279,16 @@ export type PlayerLaserChargingStartedEvent = {
     chargeDurationMs: number;
 };
 
-export type PlayerLaserFiredEvent = {
+export type PlayerBeamCannonFiredEvent = {
     type:
-        typeof ENCOUNTER_EVENT.PLAYER_LASER_FIRED;
+        typeof ENCOUNTER_EVENT.PLAYER_BEAM_CANNON_FIRED;
 
     weaponId: string;
 
     targetActorId: string;
 
     outcome:
-        LaserShotOutcome;
+        BeamCannonShotOutcome;
 
     damage: number;
     remainingHull: number;
@@ -482,35 +482,35 @@ export type StickyMineDetonatedEvent =
         mine: StickyMineState;
     };
 
-export type LaserAttackStartedEvent = {
-    type: typeof ENCOUNTER_EVENT.LASER_ATTACK_STARTED;
+export type BeamCannonAttackStartedEvent = {
+    type: typeof ENCOUNTER_EVENT.BEAM_CANNON_ATTACK_STARTED;
 
-    attack: LaserAttackState;
+    attack: BeamCannonAttackState;
 };
 
-export type LaserFiredEvent =
+export type BeamCannonFiredEvent =
     | (PlayerHullDamageResult & {
           type:
               typeof ENCOUNTER_EVENT
-                  .LASER_FIRED;
+                  .BEAM_CANNON_FIRED;
 
           attack:
-              LaserAttackState;
+              BeamCannonAttackState;
 
           outcome:
-              typeof LASER_SHOT_OUTCOME
+              typeof BEAM_CANNON_SHOT_OUTCOME
                   .HIT;
       })
     | {
           type:
               typeof ENCOUNTER_EVENT
-                  .LASER_FIRED;
+                  .BEAM_CANNON_FIRED;
 
           attack:
-              LaserAttackState;
+              BeamCannonAttackState;
 
           outcome:
-              typeof LASER_SHOT_OUTCOME
+              typeof BEAM_CANNON_SHOT_OUTCOME
                   .ABSORBED;
       };
 
@@ -540,8 +540,8 @@ export type EncounterEvent =
     | PlayerShipDriveStateChangedEvent
     | PlayerShipDriveDisruptedEvent
     | PlayerShipTargetingDetectedEvent
-    | PlayerLaserChargingStartedEvent
-    | PlayerLaserFiredEvent
+    | PlayerBeamCannonChargingStartedEvent
+    | PlayerBeamCannonFiredEvent
     | PlayerMissileLaunchedEvent
     | PlayerMissileResolvedEvent
     | EnemyDefenseTurretLoadingStartedEvent
@@ -555,7 +555,7 @@ export type EncounterEvent =
     | MissileImpactedPlayerShipEvent
     | StickyMineAttachedEvent
     | StickyMineDetonatedEvent
-    | LaserAttackStartedEvent
-    | LaserFiredEvent
+    | BeamCannonAttackStartedEvent
+    | BeamCannonFiredEvent
     | SpamChannelStartedEvent
     | SpamChannelEndedEvent;

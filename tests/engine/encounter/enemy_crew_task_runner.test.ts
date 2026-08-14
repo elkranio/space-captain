@@ -23,7 +23,7 @@ import {
     SHIP_WEAPON_ID,
     SHIP_WEAPON_KIND,
     SHIP_WEAPON_PHASE,
-    type LaserWeaponState,
+    type BeamCannonState,
 } from '../../../src/engine/defs/ship_weapon';
 import EnemyCrewTaskRunner from '../../../src/engine/encounter/combat/enemy/EnemyCrewTaskRunner';
 import {
@@ -273,7 +273,7 @@ function startWeaponsTask(
             typeof createRunnerFixture
         >['actor'],
     runner: EnemyCrewTaskRunner,
-    weapon: LaserWeaponState,
+    weapon: BeamCannonState,
 ): void {
     runner.start(
         actor,
@@ -313,14 +313,14 @@ function createRunnerFixture() {
     const store =
         new EncounterStateStore(state);
 
-    const weapon: LaserWeaponState = {
-        id: 'laser_enemy_00',
+    const weapon: BeamCannonState = {
+        id: 'beam_cannon_enemy_00',
 
         weaponId:
-            SHIP_WEAPON_ID.LASER_00,
+            SHIP_WEAPON_ID.BEAM_CANNON_00,
 
         kind:
-            SHIP_WEAPON_KIND.LASER,
+            SHIP_WEAPON_KIND.BEAM_CANNON,
 
         phase:
             SHIP_WEAPON_PHASE
@@ -368,10 +368,10 @@ function createRunnerFixture() {
     if (
         !actorWeapon ||
         actorWeapon.kind !==
-            SHIP_WEAPON_KIND.LASER
+            SHIP_WEAPON_KIND.BEAM_CANNON
     ) {
         throw new Error(
-            'Expected runtime laser weapon',
+            'Expected runtime beamCannon weapon',
         );
     }
 

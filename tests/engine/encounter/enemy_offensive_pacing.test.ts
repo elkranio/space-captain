@@ -111,7 +111,7 @@ describe('Enemy offensive pacing', () => {
 
             role: OFFICER_ROLE.WEAPONS,
 
-            weaponId: 'laser_00',
+            weaponId: 'beam_cannon_00',
         });
     });
 });

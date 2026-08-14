@@ -1,4 +1,4 @@
-// tests/engine/encounter/laser_task_interruption.test.ts
+// tests/engine/encounter/beam_cannon_task_interruption.test.ts
 
 import { createPlayerHullFixture } from '../../fixtures/engine/player_hull_fixtures';
 import { createShipDriveFixture } from '../../fixtures/engine/ship_drive_fixtures';
@@ -18,7 +18,7 @@ import {
 } from '../../../src/engine/encounter/model/command';
 import {
     COMBAT_TARGET_KIND,
-    LASER_SHOT_OUTCOME,
+    BEAM_CANNON_SHOT_OUTCOME,
 } from '../../../src/engine/encounter/model/combat';
 import {
     ENCOUNTER_EVENT,
@@ -31,16 +31,16 @@ import {
 import ShipNodeActorFactory from '../../../src/engine/generation/space_node_actor/ShipNodeActorFactory';
 import { createSingleStationNodeFixture } from '../../fixtures/engine/space_node_fixtures';
 
-describe('Laser hit officer task interruption', () => {
+describe('BeamCannon hit officer task interruption', () => {
     it('uses encounter RNG to cancel one of several active tasks after a hit', () => {
-        const { engine, state, laserChargeDurationMs } = createLaserEngine([
+        const { engine, state, beamCannonChargeDurationMs } = createBeamCannonEngine([
             // Two active tasks: select index 1.
             0.75,
         ]);
 
-        startLaserCharging(engine);
+        startBeamCannonCharging(engine);
 
-        engine.step(laserChargeDurationMs - 1);
+        engine.step(beamCannonChargeDurationMs - 1);
         engine.drainEvents();
 
         const scienceTask = createScienceTask();
@@ -54,11 +54,11 @@ describe('Laser hit officer task interruption', () => {
 
         expect(engine.drainEvents()).toEqual([
             {
-                type: ENCOUNTER_EVENT.LASER_FIRED,
+                type: ENCOUNTER_EVENT.BEAM_CANNON_FIRED,
 
                 attack: createExpectedAttack(),
 
-                outcome: LASER_SHOT_OUTCOME.HIT,
+                outcome: BEAM_CANNON_SHOT_OUTCOME.HIT,
                 appliedDamage: 1,
                 remainingHull: 2,
                 destroyed: false,
@@ -87,13 +87,13 @@ describe('Laser hit officer task interruption', () => {
     });
 });
 
-function createLaserEngine(randomValues: number[]) {
+function createBeamCannonEngine(randomValues: number[]) {
     const { node, stationId } = createSingleStationNodeFixture();
 
     const enemy = ShipNodeActorFactory.create({
         id: 'ship_enemy_00',
 
-        presetId: SHIP_NODE_ACTOR_PRESET_ID.ENEMY_GENERIC_LASER_00,
+        presetId: SHIP_NODE_ACTOR_PRESET_ID.ENEMY_GENERIC_BEAM_CANNON_00,
 
         anchorId: stationId,
     });
@@ -133,27 +133,27 @@ function createLaserEngine(randomValues: number[]) {
     }
 
     const state = getMutableEncounterStateForTest(engine);
-    const laser = state.actors[0].weapons[0];
+    const beamCannon = state.actors[0].weapons[0];
 
-    if (laser.kind !== SHIP_WEAPON_KIND.LASER) {
-        throw new Error('Expected loaded enemy laser');
+    if (beamCannon.kind !== SHIP_WEAPON_KIND.BEAM_CANNON) {
+        throw new Error('Expected loaded enemy beamCannon');
     }
 
-    const definition = SHIP_WEAPONS[laser.weaponId];
+    const definition = SHIP_WEAPONS[beamCannon.weaponId];
 
-    if (definition.kind !== SHIP_WEAPON_KIND.LASER) {
-        throw new Error('Expected laser definition');
+    if (definition.kind !== SHIP_WEAPON_KIND.BEAM_CANNON) {
+        throw new Error('Expected beamCannon definition');
     }
 
     return {
         engine,
         state,
 
-        laserChargeDurationMs: definition.chargeDurationMs,
+        beamCannonChargeDurationMs: definition.chargeDurationMs,
     };
 }
 
-function startLaserCharging(engine: EncounterEngine): void {
+function startBeamCannonCharging(engine: EncounterEngine): void {
     engine.step(SHIP_WEAPON_TARGETING_DURATION_MS);
 
     expect(engine.drainEvents()).toEqual([
@@ -161,11 +161,11 @@ function startLaserCharging(engine: EncounterEngine): void {
             type: ENCOUNTER_EVENT.PLAYER_SHIP_TARGETING_DETECTED,
 
             sourceActorId: 'ship_enemy_00',
-            sourceWeaponId: 'laser_00',
+            sourceWeaponId: 'beam_cannon_00',
         },
 
         {
-            type: ENCOUNTER_EVENT.LASER_ATTACK_STARTED,
+            type: ENCOUNTER_EVENT.BEAM_CANNON_ATTACK_STARTED,
 
             attack: createExpectedAttack(),
         },
@@ -214,11 +214,11 @@ function createEngineerTask(): OfficerTaskState {
 
 function createExpectedAttack() {
     return {
-        id: 'laser_attack_1',
+        id: 'beam_cannon_attack_1',
         designation: 'L1',
 
         sourceActorId: 'ship_enemy_00',
-        sourceWeaponId: 'laser_00',
+        sourceWeaponId: 'beam_cannon_00',
 
         target: {
             kind: COMBAT_TARGET_KIND.PLAYER_SHIP,

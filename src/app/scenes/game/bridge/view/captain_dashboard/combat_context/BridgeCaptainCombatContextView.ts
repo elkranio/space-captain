@@ -47,7 +47,7 @@ const DEF_BAR = {
 // Пока она намеренно знает только:
 // - HULL/DEF текущего enemy ship;
 // - incoming missile rows;
-// - incoming laser rows;
+// - incoming beamCannon rows;
 // - attached sticky-mine rows;
 // - active hostile spam-channel rows.
 //
@@ -342,7 +342,7 @@ export default class BridgeCaptainCombatContextView {
         this.threatsView
             .update(
                 payload.incomingMissiles,
-                payload.incomingLasers,
+                payload.incomingBeamCannons,
                 payload.incomingStickyMines,
                 payload.activeSpamChannels,
             );

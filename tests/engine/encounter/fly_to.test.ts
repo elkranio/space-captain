@@ -193,7 +193,7 @@ describe('FLY_TO', () => {
         });
     });
 
-    it('clears a charging laser when the player leaves its combat zone', () => {
+    it('clears a charging beamCannon when the player leaves its combat zone', () => {
         const {
             node,
             stationId,
@@ -206,7 +206,7 @@ describe('FLY_TO', () => {
 
                 presetId:
                     SHIP_NODE_ACTOR_PRESET_ID
-                        .ENEMY_GENERIC_LASER_00,
+                        .ENEMY_GENERIC_BEAM_CANNON_00,
 
                 anchorId: stationId,
             }),
@@ -243,28 +243,28 @@ describe('FLY_TO', () => {
 
         const enemy =
             state.actors[0];
-        const laser = enemy?.weapons[0];
+        const beamCannon = enemy?.weapons[0];
 
         if (
             !enemy ||
-            !laser ||
-            laser.kind !==
-                SHIP_WEAPON_KIND.LASER
+            !beamCannon ||
+            beamCannon.kind !==
+                SHIP_WEAPON_KIND.BEAM_CANNON
         ) {
             throw new Error(
-                'Expected loaded enemy laser',
+                'Expected loaded enemy beamCannon',
             );
         }
 
-        const laserDefinition =
-            SHIP_WEAPONS[laser.weaponId];
+        const beamCannonDefinition =
+            SHIP_WEAPONS[beamCannon.weaponId];
 
         if (
-            laserDefinition.kind !==
-            SHIP_WEAPON_KIND.LASER
+            beamCannonDefinition.kind !==
+            SHIP_WEAPON_KIND.BEAM_CANNON
         ) {
             throw new Error(
-                'Expected laser definition',
+                'Expected beamCannon definition',
             );
         }
 
@@ -276,10 +276,10 @@ describe('FLY_TO', () => {
         );
         engine.drainEvents();
 
-        expect(laser.phase).toBe(
+        expect(beamCannon.phase).toBe(
             SHIP_WEAPON_PHASE.CHARGING,
         );
-        expect(engine.getLaserAttacks()).toHaveLength(1);
+        expect(engine.getBeamCannonAttacks()).toHaveLength(1);
 
         const executionResult = engine.executeCommand({
             role: OFFICER_ROLE.HELM,
@@ -303,9 +303,9 @@ describe('FLY_TO', () => {
                     .EXECUTED,
         });
 
-        expect(engine.getLaserAttacks()).toEqual([]);
+        expect(engine.getBeamCannonAttacks()).toEqual([]);
 
-        expect(laser).toMatchObject({
+        expect(beamCannon).toMatchObject({
             phase: SHIP_WEAPON_PHASE.READY,
             phaseElapsedMs: 0,
         });
@@ -337,7 +337,7 @@ describe('FLY_TO', () => {
         engine.drainEvents();
 
         engine.step(
-            laserDefinition.chargeDurationMs,
+            beamCannonDefinition.chargeDurationMs,
         );
 
         expect(engine.drainEvents()).toEqual([]);

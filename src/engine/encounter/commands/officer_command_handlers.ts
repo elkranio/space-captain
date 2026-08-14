@@ -22,8 +22,8 @@ import {
     weaponsFireStickyMinesCommandHandler,
 } from './handlers/weapons_fire_sticky_mines_command_handler';
 import {
-    weaponsFireLaserCommandHandler,
-} from './handlers/weapons_fire_laser_command_handler';
+    weaponsFireBeamCannonCommandHandler,
+} from './handlers/weapons_fire_beam_cannon_command_handler';
 
 const OFFICER_COMMAND_HANDLER_BY_ID = {
     [ENCOUNTER_OFFICER_COMMAND_ID.CLEAR_STICKY_MINE]: clearStickyMineCommandHandler,
@@ -52,8 +52,8 @@ const OFFICER_COMMAND_HANDLER_BY_ID = {
     [ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_STICKY_MINES]:
         weaponsFireStickyMinesCommandHandler,
 
-    [ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_LASER]:
-        weaponsFireLaserCommandHandler,
+    [ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_BEAM_CANNON]:
+        weaponsFireBeamCannonCommandHandler,
 
     [ENCOUNTER_OFFICER_COMMAND_ID.HELM_DOCK]: helmDockCommandHandler,
 

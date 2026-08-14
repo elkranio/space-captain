@@ -1,14 +1,14 @@
 import type BridgeScene from '../../../../BridgeScene';
 import {
     BRIDGE_EVENT,
-    type BridgeCaptainIncomingLaserPayload,
+    type BridgeCaptainIncomingBeamCannonPayload,
     type BridgeCaptainIncomingMissilePayload,
     type BridgeCaptainSpamChannelPayload,
     type BridgeCaptainStickyMinePayload,
     type BridgeOfficerCommandSelectedPayload,
 } from '../../../../events/bridge_event';
 import type BridgeEventBus from '../../../../events/BridgeEventBus';
-import BridgeCaptainLaserThreatRowView from './BridgeCaptainLaserThreatRowView';
+import BridgeCaptainBeamCannonThreatRowView from './BridgeCaptainBeamCannonThreatRowView';
 import BridgeCaptainMissileThreatRowView from './BridgeCaptainMissileThreatRowView';
 import BridgeCaptainSpamThreatRowView from './BridgeCaptainSpamThreatRowView';
 import BridgeCaptainStickyMineThreatRowView from './BridgeCaptainStickyMineThreatRowView';
@@ -20,7 +20,7 @@ const ROW_HEIGHT = 36;
 // Missile WPN action now executes the single engine-resolved INTERCEPT command
 // directly. Signature choice no longer exists in presentation.
 //
-// Laser rows:
+// BeamCannon rows:
 // SCI пока disabled, ENG использует real DEPLOY SHIELD command.
 export default class BridgeCaptainThreatsView {
     private readonly root:
@@ -33,8 +33,8 @@ export default class BridgeCaptainThreatsView {
         BridgeCaptainMissileThreatRowView[] =
             [];
 
-    private readonly laserRowViews:
-        BridgeCaptainLaserThreatRowView[] =
+    private readonly beamCannonRowViews:
+        BridgeCaptainBeamCannonThreatRowView[] =
             [];
 
     private readonly stickyMineRowViews:
@@ -49,8 +49,8 @@ export default class BridgeCaptainThreatsView {
         BridgeCaptainIncomingMissilePayload[] =
             [];
 
-    private lasers:
-        BridgeCaptainIncomingLaserPayload[] =
+    private beamCannons:
+        BridgeCaptainIncomingBeamCannonPayload[] =
             [];
 
     private stickyMines:
@@ -110,8 +110,8 @@ export default class BridgeCaptainThreatsView {
         missiles:
             BridgeCaptainIncomingMissilePayload[],
 
-        lasers:
-            BridgeCaptainIncomingLaserPayload[],
+        beamCannons:
+            BridgeCaptainIncomingBeamCannonPayload[],
 
         stickyMines:
             BridgeCaptainStickyMinePayload[],
@@ -122,8 +122,8 @@ export default class BridgeCaptainThreatsView {
         this.missiles =
             missiles;
 
-        this.lasers =
-            lasers;
+        this.beamCannons =
+            beamCannons;
 
         this.stickyMines =
             stickyMines;
@@ -146,7 +146,7 @@ export default class BridgeCaptainThreatsView {
 
     private reconcileRows(): void {
         this.reconcileMissileRows();
-        this.reconcileLaserRows();
+        this.reconcileBeamCannonRows();
         this.reconcileStickyMineRows();
         this.reconcileSpamRows();
     }
@@ -229,23 +229,23 @@ export default class BridgeCaptainThreatsView {
         }
     }
 
-    private reconcileLaserRows(): void {
+    private reconcileBeamCannonRows(): void {
         while (
-            this.laserRowViews.length >
-            this.lasers.length
+            this.beamCannonRowViews.length >
+            this.beamCannons.length
         ) {
             const rowView =
-                this.laserRowViews.pop();
+                this.beamCannonRowViews.pop();
 
             rowView?.destroy();
         }
 
         while (
-            this.laserRowViews.length <
-            this.lasers.length
+            this.beamCannonRowViews.length <
+            this.beamCannons.length
         ) {
             const rowView =
-                new BridgeCaptainLaserThreatRowView(
+                new BridgeCaptainBeamCannonThreatRowView(
                     this.scene,
                     this.width,
                     ROW_HEIGHT,
@@ -260,7 +260,7 @@ export default class BridgeCaptainThreatsView {
                     },
                 );
 
-            this.laserRowViews.push(
+            this.beamCannonRowViews.push(
                 rowView,
             );
 
@@ -269,23 +269,23 @@ export default class BridgeCaptainThreatsView {
             );
         }
 
-        const firstLaserRow =
+        const firstBeamCannonRow =
             this.missiles.length;
 
         for (
             let index = 0;
             index <
-            this.lasers.length;
+            this.beamCannons.length;
             index += 1
         ) {
-            const laser =
-                this.lasers[index];
+            const beamCannon =
+                this.beamCannons[index];
 
             const rowView =
-                this.laserRowViews[index];
+                this.beamCannonRowViews[index];
 
             if (
-                !laser ||
+                !beamCannon ||
                 !rowView
             ) {
                 continue;
@@ -293,13 +293,13 @@ export default class BridgeCaptainThreatsView {
 
             rowView.setPosition(
                 0,
-                (firstLaserRow +
+                (firstBeamCannonRow +
                     index) *
                     ROW_HEIGHT,
             );
 
             rowView.update(
-                laser,
+                beamCannon,
             );
         }
     }
@@ -346,7 +346,7 @@ export default class BridgeCaptainThreatsView {
 
         const firstStickyMineRow =
             this.missiles.length +
-            this.lasers.length;
+            this.beamCannons.length;
 
         for (
             let index = 0;
@@ -422,7 +422,7 @@ export default class BridgeCaptainThreatsView {
 
         const firstSpamRow =
             this.missiles.length +
-            this.lasers.length +
+            this.beamCannons.length +
             this.stickyMines.length;
 
         for (
@@ -479,7 +479,7 @@ export default class BridgeCaptainThreatsView {
 
         for (
             const rowView
-            of this.laserRowViews
+            of this.beamCannonRowViews
         ) {
             rowView.destroy();
         }
@@ -499,7 +499,7 @@ export default class BridgeCaptainThreatsView {
         }
 
         this.missileRowViews.length = 0;
-        this.laserRowViews.length = 0;
+        this.beamCannonRowViews.length = 0;
         this.stickyMineRowViews.length = 0;
         this.spamRowViews.length = 0;
     }

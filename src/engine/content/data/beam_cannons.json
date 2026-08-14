@@ -1,6 +1,6 @@
 {
-    "laser_00": {
-        "name": "LASER EMITTER",
+    "beam_cannon_00": {
+        "name": "BEAM CANNON",
         "damage": 1,
         "chargeDurationMs": 12000,
         "cooldownDurationMs": 15000

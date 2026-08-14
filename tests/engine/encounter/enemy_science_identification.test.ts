@@ -143,12 +143,12 @@ describe(
         );
 
         it(
-            'does not spend Science time on player laser without identifiable intel',
+            'does not spend Science time on player beamCannon without identifiable intel',
             () => {
                 const {
                     actor,
                     scheduler,
-                } = createLaserFixture();
+                } = createBeamCannonFixture();
 
                 scheduler.schedule(0);
 
@@ -271,7 +271,7 @@ function createMissileFixture(
     return fixture;
 }
 
-function createLaserFixture() {
+function createBeamCannonFixture() {
     const fixture =
         createBaseFixture(true);
 
@@ -279,20 +279,20 @@ function createLaserFixture() {
         OFFICER_ROLE.WEAPONS
     ] = {
         id:
-            'player_laser_task_00',
+            'player_beam_cannon_task_00',
 
         kind:
             OFFICER_TASK_KIND
-                .WEAPONS_FIRE_LASER,
+                .WEAPONS_FIRE_BEAM_CANNON,
 
         role:
             OFFICER_ROLE.WEAPONS,
 
         sourceCommandId:
             ENCOUNTER_OFFICER_COMMAND_ID
-                .WEAPONS_FIRE_LASER,
+                .WEAPONS_FIRE_BEAM_CANNON,
 
-        label: 'LASER AIM',
+        label: 'BEAM CANNON AIM',
         showProgress: false,
 
         durationMs: null,
@@ -302,7 +302,7 @@ function createLaserFixture() {
         canBeInterruptedByDamage: true,
 
         weaponId:
-            'laser_player_00',
+            'beam_cannon_player_00',
 
         targetActorId:
             fixture.actor.id,
@@ -313,11 +313,11 @@ function createLaserFixture() {
         .threatObservations
         .push({
             id:
-                'laser:' +
-                'player_laser_task_00',
+                'beamCannon:' +
+                'player_beam_cannon_task_00',
 
             kind:
-                ENEMY_THREAT_KIND.LASER,
+                ENEMY_THREAT_KIND.BEAM_CANNON,
 
             source: {
                 kind:
@@ -325,7 +325,7 @@ function createLaserFixture() {
                         .PLAYER_OFFICER_TASK,
 
                 officerTaskId:
-                    'player_laser_task_00',
+                    'player_beam_cannon_task_00',
             },
         });
 

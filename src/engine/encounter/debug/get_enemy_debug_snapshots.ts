@@ -469,18 +469,18 @@ function getWeaponTaskLabel(
                 ? 'AIM MISSILE'
                 : 'OPERATE MISSILE';
 
-        case SHIP_WEAPON_KIND.LASER:
+        case SHIP_WEAPON_KIND.BEAM_CANNON:
             switch (weapon.phase) {
                 case SHIP_WEAPON_PHASE
                     .TARGETING:
-                    return 'AIM LASER';
+                    return 'AIM BEAM_CANNON';
 
                 case SHIP_WEAPON_PHASE
                     .CHARGING:
-                    return 'CHARGE LASER';
+                    return 'CHARGE BEAM_CANNON';
 
                 default:
-                    return 'OPERATE LASER';
+                    return 'OPERATE BEAM_CANNON';
             }
 
         case SHIP_WEAPON_KIND
@@ -655,7 +655,7 @@ function createThreatSnapshots(
     actor: ShipEncounterActorState,
 ): EnemyDebugThreatSnapshot[] {
     const counters = {
-        laser: 0,
+        beamCannon: 0,
         mine: 0,
     };
 
@@ -671,14 +671,14 @@ function createThreatSnapshots(
                         observation,
                     );
 
-                case ENEMY_THREAT_KIND.LASER:
-                    counters.laser += 1;
+                case ENEMY_THREAT_KIND.BEAM_CANNON:
+                    counters.beamCannon += 1;
 
-                    return createLaserThreatSnapshot(
+                    return createBeamCannonThreatSnapshot(
                         state,
                         actor,
                         observation,
-                        counters.laser,
+                        counters.beamCannon,
                     );
 
                 case ENEMY_THREAT_KIND
@@ -794,7 +794,7 @@ function createMissileThreatSnapshot(
     };
 }
 
-function createLaserThreatSnapshot(
+function createBeamCannonThreatSnapshot(
     state: EncounterState,
     actor: ShipEncounterActorState,
     observation:
@@ -823,22 +823,22 @@ function createLaserThreatSnapshot(
                   })
             : undefined;
 
-    const laserTask =
+    const beamCannonTask =
         task?.kind ===
             OFFICER_TASK_KIND
-                .WEAPONS_FIRE_LASER &&
+                .WEAPONS_FIRE_BEAM_CANNON &&
         task.targetActorId === actor.id
             ? task
             : undefined;
 
     const weapon =
-        laserTask
+        beamCannonTask
             ? state.combat
                   .playerWeapons
                   .find((candidate) => {
                       return (
                           candidate.id ===
-                          laserTask.weaponId
+                          beamCannonTask.weaponId
                       );
                   })
             : undefined;
@@ -852,22 +852,22 @@ function createLaserThreatSnapshot(
 
     const isActive =
         Boolean(
-            laserTask &&
+            beamCannonTask &&
             weapon?.kind ===
-                SHIP_WEAPON_KIND.LASER &&
+                SHIP_WEAPON_KIND.BEAM_CANNON &&
             weapon.phase ===
                 SHIP_WEAPON_PHASE
                     .CHARGING &&
             definition?.kind ===
-                SHIP_WEAPON_KIND.LASER,
+                SHIP_WEAPON_KIND.BEAM_CANNON,
         );
 
     const remainingMs =
         isActive &&
         weapon?.kind ===
-            SHIP_WEAPON_KIND.LASER &&
+            SHIP_WEAPON_KIND.BEAM_CANNON &&
         definition?.kind ===
-            SHIP_WEAPON_KIND.LASER
+            SHIP_WEAPON_KIND.BEAM_CANNON
             ? Math.max(
                   0,
                   definition
@@ -898,7 +898,7 @@ function createLaserThreatSnapshot(
               }
             : {}),
 
-        // Directional player-laser truth/report was retired.
+        // Directional player-beamCannon truth/report was retired.
         // The observation remains useful as a physical charging telegraph.
         mismatch: false,
     };

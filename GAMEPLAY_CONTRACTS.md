@@ -8,7 +8,7 @@ Reference HEAD: `65a983b7460b66bf85a2753844540c78bf8bbe45`
 ## Encounter shape
 
 - One full enemy ship at a time.
-- Missiles, lasers, SPAM and sticky mines are weapons/threat objects produced by that ship, not additional command-capable enemies.
+- Missiles, beamCannons, SPAM and sticky mines are weapons/threat objects produced by that ship, not additional command-capable enemies.
 - Combat is telegraph -> crew work/response -> delivery/impact -> cooldown, not bullet hell.
 - The player wins/loses through readable timing pressure and crew execution, not twitch aiming.
 
@@ -59,7 +59,7 @@ Active Shield:
 - encounter-local
 - current BASIC lifetime: 5000 ms
 - covers the whole hull for now
-- absorbs exactly one incoming laser hit
+- absorbs exactly one incoming beamCannon hit
 - disappears on absorption
 - otherwise expires at TTL
 - final ~1 s blinks visually
@@ -212,15 +212,15 @@ The finished slice was validated with:
 - observed later retry HIT;
 - new-game defense sandbox mounting one normal missile launcher for bidirectional smoke.
 
-## Lasers
+## BeamCannons
 
-- Enemy laser attack is a timed telegraphed threat.
+- Enemy beamCannon attack is a timed telegraphed threat.
 - Without Active Shield, firing resolves as HIT and damages hull.
 - With Active Shield, firing resolves as ABSORBED; hull is unchanged and shield is consumed.
 - Engineer shield deployment is the current captain response.
-- Science slot is intentionally non-functional for laser targeting until a real targeting/intel contract exists.
+- Science slot is intentionally non-functional for beamCannon targeting until a real targeting/intel contract exists.
 - Current whole-hull impact points are presentation anchors, not semantic damage nodes.
-- Dashboard renders active incoming laser threats independently.
+- Dashboard renders active incoming beamCannon threats independently.
 
 ## Sticky mines
 

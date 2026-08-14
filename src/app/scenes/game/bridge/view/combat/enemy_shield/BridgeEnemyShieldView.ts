@@ -8,7 +8,7 @@ import {
     BRIDGE_EVENT,
     type BridgeEnemyShieldPayload,
     type BridgeEnemyShieldsUpdatedPayload,
-    type BridgePlayerLaserFiredPayload,
+    type BridgePlayerBeamCannonFiredPayload,
 } from '../../../events/bridge_event';
 import type BridgeEventBus from '../../../events/BridgeEventBus';
 import {
@@ -70,9 +70,9 @@ export default class BridgeEnemyShieldView {
 
         this.eventBus.on(
             BRIDGE_EVENT
-                .PLAYER_LASER_FIRED,
+                .PLAYER_BEAM_CANNON_FIRED,
 
-            this.handlePlayerLaserFired,
+            this.handlePlayerBeamCannonFired,
             this,
         );
 
@@ -100,9 +100,9 @@ export default class BridgeEnemyShieldView {
 
         this.eventBus.off(
             BRIDGE_EVENT
-                .PLAYER_LASER_FIRED,
+                .PLAYER_BEAM_CANNON_FIRED,
 
-            this.handlePlayerLaserFired,
+            this.handlePlayerBeamCannonFired,
             this,
         );
 
@@ -182,9 +182,9 @@ export default class BridgeEnemyShieldView {
         }
     }
 
-    private handlePlayerLaserFired(
+    private handlePlayerBeamCannonFired(
         payload:
-            BridgePlayerLaserFiredPayload,
+            BridgePlayerBeamCannonFiredPayload,
     ): void {
         if (
             payload.outcome !==

@@ -1,8 +1,8 @@
-// src/app/scenes/game/bridge/view/combat/player_laser/impact/BridgePlayerLaserImpactView.ts
+// src/app/scenes/game/bridge/view/combat/player_beam_cannon/impact/BridgePlayerBeamCannonImpactView.ts
 
 import type BridgeScene from '../../../../BridgeScene';
 
-type BridgePlayerLaserImpactViewOptions = {
+type BridgePlayerBeamCannonImpactViewOptions = {
     scene: BridgeScene;
     parent: Phaser.GameObjects.Container;
 
@@ -29,7 +29,7 @@ const IMPACT = {
 // Короткий pixel impact:
 // cyan square-wave для shield,
 // orange sparks для hull.
-export default class BridgePlayerLaserImpactView {
+export default class BridgePlayerBeamCannonImpactView {
     private readonly graphics:
         Phaser.GameObjects.Graphics;
 
@@ -46,7 +46,7 @@ export default class BridgePlayerLaserImpactView {
         blocked,
 
         onComplete,
-    }: BridgePlayerLaserImpactViewOptions) {
+    }: BridgePlayerBeamCannonImpactViewOptions) {
         this.scene = scene;
 
         this.blocked = blocked;

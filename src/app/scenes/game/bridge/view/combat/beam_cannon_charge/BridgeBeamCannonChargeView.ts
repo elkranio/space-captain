@@ -1,15 +1,15 @@
-// src/app/scenes/game/bridge/view/combat/laser_charge/BridgeLaserChargeView.ts
+// src/app/scenes/game/bridge/view/combat/beam_cannon_charge/BridgeBeamCannonChargeView.ts
 
 import type BridgeScene from '../../../BridgeScene';
 
-type BridgeLaserChargeViewOptions = {
+type BridgeBeamCannonChargeViewOptions = {
     scene: BridgeScene;
     parent: Phaser.GameObjects.Container;
 
     position?: Phaser.Math.Vector2;
 };
 
-type LaserChargeParticleState = {
+type BeamCannonChargeParticleState = {
     angle: number;
     radiusScale: number;
 
@@ -19,7 +19,7 @@ type LaserChargeParticleState = {
     snapDurationMs: number;
 };
 
-const LASER_CHARGE = {
+const BEAM_CANNON_CHARGE = {
     color: 0x43d9ff,
     hotColor: 0xd7f9ff,
     outlineColor: 0x07182a,
@@ -58,16 +58,16 @@ const LASER_CHARGE = {
     coreFlashMaxSize: 12,
 } as const;
 
-// Общий leaf-view laser charge.
+// Общий leaf-view beamCannon charge.
 //
-// Enemy и player laser используют один и тот же
+// Enemy и player beamCannon используют один и тот же
 // particle lifecycle и один visual language.
-export default class BridgeLaserChargeView {
+export default class BridgeBeamCannonChargeView {
     private readonly graphics:
         Phaser.GameObjects.Graphics;
 
     private readonly particleStates:
-        LaserChargeParticleState[];
+        BeamCannonChargeParticleState[];
 
     private coreFlashElapsedMs =
         Number.POSITIVE_INFINITY;
@@ -104,9 +104,9 @@ export default class BridgeLaserChargeView {
         scene,
         parent,
         position,
-    }: BridgeLaserChargeViewOptions):
-        BridgeLaserChargeView {
-        return new BridgeLaserChargeView(
+    }: BridgeBeamCannonChargeViewOptions):
+        BridgeBeamCannonChargeView {
+        return new BridgeBeamCannonChargeView(
             scene,
             parent,
             position,
@@ -141,11 +141,11 @@ export default class BridgeLaserChargeView {
     }
 
     private createParticleStates():
-        LaserChargeParticleState[] {
+        BeamCannonChargeParticleState[] {
         return Array.from(
             {
                 length:
-                    LASER_CHARGE.particleCount,
+                    BEAM_CANNON_CHARGE.particleCount,
             },
 
             (_unused, index) => {
@@ -157,7 +157,7 @@ export default class BridgeLaserChargeView {
                 state.elapsedMs =
                     -Phaser.Math.Between(
                         0,
-                        LASER_CHARGE
+                        BEAM_CANNON_CHARGE
                             .initialStaggerMaxMs,
                     );
 
@@ -168,10 +168,10 @@ export default class BridgeLaserChargeView {
 
     private createParticleState(
         index: number,
-    ): LaserChargeParticleState {
+    ): BeamCannonChargeParticleState {
         const sectorAngle =
             (index /
-                LASER_CHARGE.particleCount) *
+                BEAM_CANNON_CHARGE.particleCount) *
             Math.PI *
             2;
 
@@ -196,19 +196,19 @@ export default class BridgeLaserChargeView {
 
             holdDurationMs:
                 Phaser.Math.Between(
-                    LASER_CHARGE
+                    BEAM_CANNON_CHARGE
                         .holdDurationMinMs,
 
-                    LASER_CHARGE
+                    BEAM_CANNON_CHARGE
                         .holdDurationMaxMs,
                 ),
 
             snapDurationMs:
                 Phaser.Math.Between(
-                    LASER_CHARGE
+                    BEAM_CANNON_CHARGE
                         .snapDurationMinMs,
 
-                    LASER_CHARGE
+                    BEAM_CANNON_CHARGE
                         .snapDurationMaxMs,
                 ),
         };
@@ -228,7 +228,7 @@ export default class BridgeLaserChargeView {
 
             if (!state) {
                 throw new Error(
-                    'Laser charge particle ' +
+                    'BeamCannon charge particle ' +
                         'state not found: ' +
                         index,
                 );
@@ -262,7 +262,7 @@ export default class BridgeLaserChargeView {
     }
 
     private resetParticleState(
-        state: LaserChargeParticleState,
+        state: BeamCannonChargeParticleState,
         index: number,
         overflowMs: number,
     ): void {
@@ -281,10 +281,10 @@ export default class BridgeLaserChargeView {
 
         const respawnDelayMs =
             Phaser.Math.Between(
-                LASER_CHARGE
+                BEAM_CANNON_CHARGE
                     .respawnDelayMinMs,
 
-                LASER_CHARGE
+                BEAM_CANNON_CHARGE
                     .respawnDelayMaxMs,
             );
 
@@ -297,8 +297,8 @@ export default class BridgeLaserChargeView {
         this.graphics.clear();
 
         this.drawSquareCore(
-            LASER_CHARGE.idleCoreSize,
-            LASER_CHARGE.hotColor,
+            BEAM_CANNON_CHARGE.idleCoreSize,
+            BEAM_CANNON_CHARGE.hotColor,
             0.9,
         );
 
@@ -346,7 +346,7 @@ export default class BridgeLaserChargeView {
     }
 
     private drawParticleHold(
-        state: LaserChargeParticleState,
+        state: BeamCannonChargeParticleState,
         index: number,
     ): void {
         const start =
@@ -356,7 +356,7 @@ export default class BridgeLaserChargeView {
 
         const holdFrame = Math.floor(
             state.elapsedMs /
-                LASER_CHARGE
+                BEAM_CANNON_CHARGE
                     .holdFrameDurationMs,
         );
 
@@ -399,7 +399,7 @@ export default class BridgeLaserChargeView {
     }
 
     private drawParticleSnap(
-        state: LaserChargeParticleState,
+        state: BeamCannonChargeParticleState,
         index: number,
         snapProgress: number,
     ): void {
@@ -440,10 +440,10 @@ export default class BridgeLaserChargeView {
 
         const trailLength =
             Phaser.Math.Linear(
-                LASER_CHARGE
+                BEAM_CANNON_CHARGE
                     .minTrailLength,
 
-                LASER_CHARGE
+                BEAM_CANNON_CHARGE
                     .maxTrailLength,
 
                 easedProgress,
@@ -479,16 +479,16 @@ export default class BridgeLaserChargeView {
     }
 
     private getParticleStartPosition(
-        state: LaserChargeParticleState,
+        state: BeamCannonChargeParticleState,
     ): Phaser.Math.Vector2 {
         return new Phaser.Math.Vector2(
             Math.cos(state.angle) *
-                LASER_CHARGE
+                BEAM_CANNON_CHARGE
                     .maxRadiusX *
                 state.radiusScale,
 
             Math.sin(state.angle) *
-                LASER_CHARGE
+                BEAM_CANNON_CHARGE
                     .maxRadiusY *
                 state.radiusScale,
         );
@@ -498,8 +498,8 @@ export default class BridgeLaserChargeView {
         index: number,
     ): number {
         return index % 3 === 0
-            ? LASER_CHARGE.hotColor
-            : LASER_CHARGE.color;
+            ? BEAM_CANNON_CHARGE.hotColor
+            : BEAM_CANNON_CHARGE.color;
     }
 
     private drawParticleTrail(
@@ -547,10 +547,10 @@ export default class BridgeLaserChargeView {
             );
 
         this.graphics.lineStyle(
-            LASER_CHARGE
+            BEAM_CANNON_CHARGE
                 .trailOutlineThickness,
 
-            LASER_CHARGE
+            BEAM_CANNON_CHARGE
                 .outlineColor,
 
             Math.min(
@@ -567,7 +567,7 @@ export default class BridgeLaserChargeView {
         );
 
         this.graphics.lineStyle(
-            LASER_CHARGE
+            BEAM_CANNON_CHARGE
                 .trailThickness,
 
             color,
@@ -582,10 +582,10 @@ export default class BridgeLaserChargeView {
         );
 
         this.graphics.lineStyle(
-            LASER_CHARGE
+            BEAM_CANNON_CHARGE
                 .hotTrailThickness,
 
-            LASER_CHARGE.hotColor,
+            BEAM_CANNON_CHARGE.hotColor,
 
             Math.min(
                 1,
@@ -609,7 +609,7 @@ export default class BridgeLaserChargeView {
         alpha: number,
     ): void {
         this.graphics.fillStyle(
-            LASER_CHARGE
+            BEAM_CANNON_CHARGE
                 .outlineColor,
 
             Math.min(
@@ -621,22 +621,22 @@ export default class BridgeLaserChargeView {
         this.graphics.fillRect(
             x -
                 Math.floor(
-                    LASER_CHARGE
+                    BEAM_CANNON_CHARGE
                         .particleOutlineSize /
                         2,
                 ),
 
             y -
                 Math.floor(
-                    LASER_CHARGE
+                    BEAM_CANNON_CHARGE
                         .particleOutlineSize /
                         2,
                 ),
 
-            LASER_CHARGE
+            BEAM_CANNON_CHARGE
                 .particleOutlineSize,
 
-            LASER_CHARGE
+            BEAM_CANNON_CHARGE
                 .particleOutlineSize,
         );
 
@@ -648,22 +648,22 @@ export default class BridgeLaserChargeView {
         this.graphics.fillRect(
             x -
                 Math.floor(
-                    LASER_CHARGE
+                    BEAM_CANNON_CHARGE
                         .particleSize /
                         2,
                 ),
 
             y -
                 Math.floor(
-                    LASER_CHARGE
+                    BEAM_CANNON_CHARGE
                         .particleSize /
                         2,
                 ),
 
-            LASER_CHARGE
+            BEAM_CANNON_CHARGE
                 .particleSize,
 
-            LASER_CHARGE
+            BEAM_CANNON_CHARGE
                 .particleSize,
         );
     }
@@ -671,7 +671,7 @@ export default class BridgeLaserChargeView {
     private drawCoreFlash(): void {
         if (
             this.coreFlashElapsedMs >=
-            LASER_CHARGE
+            BEAM_CANNON_CHARGE
                 .coreFlashDurationMs
         ) {
             return;
@@ -680,7 +680,7 @@ export default class BridgeLaserChargeView {
         const progress =
             Phaser.Math.Clamp(
                 this.coreFlashElapsedMs /
-                    LASER_CHARGE
+                    BEAM_CANNON_CHARGE
                         .coreFlashDurationMs,
 
                 0,
@@ -692,10 +692,10 @@ export default class BridgeLaserChargeView {
 
         const size = Math.round(
             Phaser.Math.Linear(
-                LASER_CHARGE
+                BEAM_CANNON_CHARGE
                     .coreFlashMinSize,
 
-                LASER_CHARGE
+                BEAM_CANNON_CHARGE
                     .coreFlashMaxSize,
 
                 progress,
@@ -713,7 +713,7 @@ export default class BridgeLaserChargeView {
 
         this.drawSquareCore(
             size,
-            LASER_CHARGE.color,
+            BEAM_CANNON_CHARGE.color,
             alpha,
         );
 
@@ -723,7 +723,7 @@ export default class BridgeLaserChargeView {
         const crossThickness = 2;
 
         this.graphics.fillStyle(
-            LASER_CHARGE.hotColor,
+            BEAM_CANNON_CHARGE.hotColor,
             alpha,
         );
 
@@ -763,7 +763,7 @@ export default class BridgeLaserChargeView {
             size + 4;
 
         this.graphics.fillStyle(
-            LASER_CHARGE
+            BEAM_CANNON_CHARGE
                 .outlineColor,
 
             Math.min(

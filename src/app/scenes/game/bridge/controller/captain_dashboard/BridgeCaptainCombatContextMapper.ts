@@ -4,8 +4,8 @@ import type {
     MissilePresentationSnapshot,
 } from '../../../../../../engine/encounter/snapshots/combat_presentation_snapshot';
 import type {
-    LaserThreatSnapshot,
-} from '../../../../../../engine/encounter/combat/queries/get_laser_threat_snapshots';
+    BeamCannonThreatSnapshot,
+} from '../../../../../../engine/encounter/combat/queries/get_beam_cannon_threat_snapshots';
 import type {
     StickyMineSnapshot,
 } from '../../../../../../engine/encounter/combat/queries/get_sticky_mine_snapshots';
@@ -30,8 +30,8 @@ type CaptainCombatContextMapperInput = {
     incomingMissiles:
         MissilePresentationSnapshot[];
 
-    laserThreats:
-        LaserThreatSnapshot[];
+    beamCannonThreats:
+        BeamCannonThreatSnapshot[];
 
     stickyMineSnapshots:
         StickyMineSnapshot[];
@@ -354,8 +354,8 @@ export function mapCaptainCombatContextToBridgePayload(
                     };
                 }),
 
-        incomingLasers:
-            [...input.laserThreats]
+        incomingBeamCannons:
+            [...input.beamCannonThreats]
                 .sort((left, right) => {
                     return (
                         left.timeToFireMs -

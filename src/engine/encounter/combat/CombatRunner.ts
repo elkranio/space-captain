@@ -10,7 +10,7 @@ import {
 import type { EncounterEvent } from '../model/event';
 import type { EncounterState } from '../model/state';
 import EncounterStateStore from '../state/EncounterStateStore';
-import CombatLaserRunner from './weapons/laser/CombatLaserRunner';
+import CombatBeamCannonRunner from './weapons/beam_cannon/CombatBeamCannonRunner';
 import EnemyDefenseTurretRunner from './defense_turret/EnemyDefenseTurretRunner';
 import EnemyShieldRunner from './defense/EnemyShieldRunner';
 import CombatMissileRunner, {
@@ -94,8 +94,8 @@ export default class CombatRunner {
     private readonly defenseTurretRunner:
         EnemyDefenseTurretRunner;
 
-    private readonly laserRunner:
-        CombatLaserRunner;
+    private readonly beamCannonRunner:
+        CombatBeamCannonRunner;
 
     private readonly stickyMineRunner:
         CombatStickyMineRunner;
@@ -179,8 +179,8 @@ export default class CombatRunner {
                     },
             });
 
-        this.laserRunner =
-            new CombatLaserRunner({
+        this.beamCannonRunner =
+            new CombatBeamCannonRunner({
                 stateStore:
                     this.stateStore,
 
@@ -452,9 +452,9 @@ export default class CombatRunner {
                             );
                         break;
 
-                    case SHIP_WEAPON_KIND.LASER:
-                        this.laserRunner
-                            .advanceEnemyLaser(
+                    case SHIP_WEAPON_KIND.BEAM_CANNON:
+                        this.beamCannonRunner
+                            .advanceEnemyBeamCannon(
                                 actor,
                                 weapon,
                                 weaponDeltaMs,

@@ -33,7 +33,7 @@ Keep it visually clean.
 May show:
 - one enemy ship;
 - space;
-- missiles/mines/laser/spam VFX;
+- missiles/mines/beam_cannon/spam VFX;
 - shield/impact VFX;
 - small temporary targeting indicators.
 

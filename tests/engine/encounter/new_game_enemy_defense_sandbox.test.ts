@@ -33,7 +33,7 @@ import {
     OFFICER_COMMAND_EXECUTION_STATUS,
 } from '../../../src/engine/encounter/model/command';
 import {
-    LASER_SHOT_OUTCOME,
+    BEAM_CANNON_SHOT_OUTCOME,
 } from '../../../src/engine/encounter/model/combat';
 import {
     ENCOUNTER_EVENT,
@@ -141,7 +141,7 @@ describe('New-game enemy defense sandbox', () => {
     );
 
     it(
-        'times one whole-ship shield to absorb the incoming player laser',
+        'times one whole-ship shield to absorb the incoming player beamCannon',
         () => {
             const {
                 engine,
@@ -152,7 +152,7 @@ describe('New-game enemy defense sandbox', () => {
             const initialHull =
                 targetActor.hull;
 
-            const laserCommand =
+            const beamCannonCommand =
                 engine
                     .getAvailableCommands(
                         OFFICER_ROLE.WEAPONS,
@@ -161,13 +161,13 @@ describe('New-game enemy defense sandbox', () => {
                         return (
                             command.commandId ===
                             ENCOUNTER_OFFICER_COMMAND_ID
-                                .WEAPONS_FIRE_LASER
+                                .WEAPONS_FIRE_BEAM_CANNON
                         );
                     });
 
-            if (!laserCommand) {
+            if (!beamCannonCommand) {
                 throw new Error(
-                    'Expected player laser command',
+                    'Expected player beamCannon command',
                 );
             }
 
@@ -177,10 +177,10 @@ describe('New-game enemy defense sandbox', () => {
                         OFFICER_ROLE.WEAPONS,
 
                     commandId:
-                        laserCommand.commandId,
+                        beamCannonCommand.commandId,
 
                     target:
-                        laserCommand.target,
+                        beamCannonCommand.target,
                 }),
             ).toEqual({
                 status:
@@ -284,7 +284,7 @@ describe('New-game enemy defense sandbox', () => {
 
             engine.drainEvents();
 
-            // Player laser resolves before enemy shield time advances
+            // Player beamCannon resolves before enemy shield time advances
             // for this last millisecond, so the field is still active.
             engine.step(1);
 
@@ -295,7 +295,7 @@ describe('New-game enemy defense sandbox', () => {
                         return (
                             event.type ===
                             ENCOUNTER_EVENT
-                                .PLAYER_LASER_FIRED
+                                .PLAYER_BEAM_CANNON_FIRED
                         );
                     });
 
@@ -303,17 +303,17 @@ describe('New-game enemy defense sandbox', () => {
                 !firedEvent ||
                 firedEvent.type !==
                     ENCOUNTER_EVENT
-                        .PLAYER_LASER_FIRED
+                        .PLAYER_BEAM_CANNON_FIRED
             ) {
                 throw new Error(
-                    'Expected player laser fired event',
+                    'Expected player beamCannon fired event',
                 );
             }
 
             expect(
                 firedEvent.outcome,
             ).toBe(
-                LASER_SHOT_OUTCOME
+                BEAM_CANNON_SHOT_OUTCOME
                     .ABSORBED,
             );
 

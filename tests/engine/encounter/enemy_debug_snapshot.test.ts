@@ -233,7 +233,7 @@ describe(
                             projectile,
                         ],
 
-                        laserAttacks: [],
+                        beamCannonAttacks: [],
                         stickyMines: [],
                         playerWeapons: [],
                     },

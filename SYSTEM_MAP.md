@@ -160,7 +160,7 @@ Physical combat lifecycle stays mechanic-specific.
 
 Important runners include:
 - missile
-- laser
+- beamCannon
 - sticky mine
 - SPAM
 - Defense Turret
@@ -231,7 +231,7 @@ Current responsibilities include:
 - player/enemy shields
 - incoming/outgoing missiles
 - sticky mines
-- laser threats
+- beamCannon threats
 - SPAM
 - captain combat context
 

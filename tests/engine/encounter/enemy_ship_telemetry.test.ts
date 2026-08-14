@@ -118,10 +118,10 @@ describe('Enemy ship telemetry', () => {
                         SHIP_WEAPON_PHASE.READY,
                 },
                 {
-                    id: 'laser_00',
+                    id: 'beam_cannon_00',
 
                     kind:
-                        SHIP_WEAPON_KIND.LASER,
+                        SHIP_WEAPON_KIND.BEAM_CANNON,
 
                     phase:
                         SHIP_WEAPON_PHASE.READY,
@@ -185,7 +185,7 @@ describe('Enemy ship telemetry', () => {
                     SHIP_WEAPON_PHASE.TARGETING,
             },
             {
-                id: 'laser_00',
+                id: 'beam_cannon_00',
                 phase:
                     SHIP_WEAPON_PHASE.READY,
             },

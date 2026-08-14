@@ -16,7 +16,7 @@ import {
     COMBAT_PROJECTILE_KIND,
     COMBAT_SOURCE_KIND,
     COMBAT_TARGET_KIND,
-    LASER_SHOT_OUTCOME,
+    BEAM_CANNON_SHOT_OUTCOME,
 } from '../../src/engine/encounter/model/combat';
 import { ENCOUNTER_OFFICER_COMMAND_ID } from '../../src/engine/encounter/model/command';
 import { ENCOUNTER_ANCHOR_KIND } from '../../src/engine/encounter/anchors/encounter_anchor';
@@ -180,7 +180,7 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
             ],
 
             [
-                BRIDGE_EVENT.LASER_THREATS_UPDATED,
+                BRIDGE_EVENT.BEAM_CANNON_THREATS_UPDATED,
                 [],
             ],
 
@@ -202,7 +202,7 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
 
                 {
                     incomingMissiles: [],
-                    incomingLasers: [],
+                    incomingBeamCannons: [],
                     incomingStickyMines: [],
                     activeSpamChannels: [],
                 },
@@ -464,7 +464,7 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
     });
 
     it(
-        'forwards absorbed laser outcome to beam presentation',
+        'forwards absorbed beamCannon outcome to beam presentation',
         () => {
             const runtime =
                 new GameRuntime();
@@ -486,11 +486,11 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
                 {
                     type:
                         ENCOUNTER_EVENT
-                            .LASER_FIRED,
+                            .BEAM_CANNON_FIRED,
 
                     attack: {
                         id:
-                            'laser_attack_absorbed_00',
+                            'beam_cannon_attack_absorbed_00',
 
                         designation:
                             'L1',
@@ -499,7 +499,7 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
                             'ship_enemy_00',
 
                         sourceWeaponId:
-                            'laser_enemy_00',
+                            'beam_cannon_enemy_00',
 
                         target: {
                             kind:
@@ -509,7 +509,7 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
                     },
 
                     outcome:
-                        LASER_SHOT_OUTCOME
+                        BEAM_CANNON_SHOT_OUTCOME
                             .ABSORBED,
                 },
             ]);
@@ -519,24 +519,24 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
             ).toEqual([
                 [
                     BRIDGE_EVENT
-                        .LASER_THREAT_REMOVED,
+                        .BEAM_CANNON_THREAT_REMOVED,
 
                     {
                         attackId:
-                            'laser_attack_absorbed_00',
+                            'beam_cannon_attack_absorbed_00',
                     },
                 ],
 
                 [
                     BRIDGE_EVENT
-                        .LASER_BEAM_FIRED,
+                        .BEAM_CANNON_BEAM_FIRED,
 
                     {
                         sourceActorId:
                             'ship_enemy_00',
 
                         outcome:
-                            LASER_SHOT_OUTCOME
+                            BEAM_CANNON_SHOT_OUTCOME
                                 .ABSORBED,
                     },
                 ],

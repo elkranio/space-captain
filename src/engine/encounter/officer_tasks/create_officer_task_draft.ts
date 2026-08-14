@@ -220,13 +220,13 @@ export function createWeaponsFireStickyMinesTask(
     };
 }
 
-export function createWeaponsFireLaserTask(
+export function createWeaponsFireBeamCannonTask(
     weaponId: string,
     targetActorId: string,
 ): OfficerTaskDraft {
     const kind =
         OFFICER_TASK_KIND
-            .WEAPONS_FIRE_LASER;
+            .WEAPONS_FIRE_BEAM_CANNON;
 
     return {
         kind,
@@ -234,7 +234,7 @@ export function createWeaponsFireLaserTask(
 
         sourceCommandId:
             ENCOUNTER_OFFICER_COMMAND_ID
-                .WEAPONS_FIRE_LASER,
+                .WEAPONS_FIRE_BEAM_CANNON,
 
         weaponId,
         targetActorId,

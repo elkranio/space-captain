@@ -39,10 +39,10 @@ export type EnemyMissileThreatDecisionSnapshot = {
     timeToImpactMs: number;
 };
 
-export type EnemyLaserThreatDecisionSnapshot = {
+export type EnemyBeamCannonThreatDecisionSnapshot = {
     kind:
         typeof ENEMY_THREAT_KIND
-            .LASER;
+            .BEAM_CANNON;
 
     observationId: string;
 
@@ -64,7 +64,7 @@ export type EnemyStickyMineThreatDecisionSnapshot = {
 
 export type EnemyThreatDecisionSnapshot =
     | EnemyMissileThreatDecisionSnapshot
-    | EnemyLaserThreatDecisionSnapshot
+    | EnemyBeamCannonThreatDecisionSnapshot
     | EnemyStickyMineThreatDecisionSnapshot;
 
 // Read-only decision context для одной enemy ship.
@@ -128,8 +128,8 @@ function resolveObservation(
                 observation,
             );
 
-        case ENEMY_THREAT_KIND.LASER:
-            return resolveLaser(
+        case ENEMY_THREAT_KIND.BEAM_CANNON:
+            return resolveBeamCannon(
                 state,
                 actor,
                 observation,
@@ -221,14 +221,14 @@ function resolveMissile(
     };
 }
 
-function resolveLaser(
+function resolveBeamCannon(
     state:
         EncounterState,
     actor:
         ShipEncounterActorState,
     observation:
         EnemyThreatObservationState,
-): EnemyLaserThreatDecisionSnapshot | undefined {
+): EnemyBeamCannonThreatDecisionSnapshot | undefined {
     const source =
         observation.source;
 
@@ -238,7 +238,7 @@ function resolveLaser(
             .PLAYER_OFFICER_TASK
     ) {
         throw new Error(
-            'Enemy laser observation has invalid source: ' +
+            'Enemy beamCannon observation has invalid source: ' +
                 actor.id +
                 '/' +
                 observation.id +
@@ -259,7 +259,7 @@ function resolveLaser(
                 .officerTaskId ||
         playerTask.kind !==
             OFFICER_TASK_KIND
-                .WEAPONS_FIRE_LASER ||
+                .WEAPONS_FIRE_BEAM_CANNON ||
         playerTask.targetActorId !==
             actor.id
     ) {
@@ -279,7 +279,7 @@ function resolveLaser(
     if (
         !weapon ||
         weapon.kind !==
-            SHIP_WEAPON_KIND.LASER ||
+            SHIP_WEAPON_KIND.BEAM_CANNON ||
         weapon.phase !==
             SHIP_WEAPON_PHASE
                 .CHARGING
@@ -294,10 +294,10 @@ function resolveLaser(
 
     if (
         definition.kind !==
-        SHIP_WEAPON_KIND.LASER
+        SHIP_WEAPON_KIND.BEAM_CANNON
     ) {
         throw new Error(
-            'Player laser definition mismatch while resolving enemy decision: ' +
+            'Player beamCannon definition mismatch while resolving enemy decision: ' +
                 actor.id +
                 '/' +
                 weapon.id +
@@ -308,7 +308,7 @@ function resolveLaser(
 
     return {
         kind:
-            ENEMY_THREAT_KIND.LASER,
+            ENEMY_THREAT_KIND.BEAM_CANNON,
 
         observationId:
             observation.id,

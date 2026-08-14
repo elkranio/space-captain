@@ -1,4 +1,4 @@
-// tests/engine/encounter/player_laser_damage.test.ts
+// tests/engine/encounter/player_beam_cannon_damage.test.ts
 
 import {
     describe,
@@ -20,7 +20,7 @@ import {
     OFFICER_COMMAND_TARGET_KIND,
 } from '../../../src/engine/encounter/model/command';
 import {
-    LASER_SHOT_OUTCOME,
+    BEAM_CANNON_SHOT_OUTCOME,
 } from '../../../src/engine/encounter/model/combat';
 import {
     ENCOUNTER_EVENT,
@@ -29,9 +29,9 @@ import {
     createAnchoredPlayerCombatTestSetup,
 } from './combat_test_support';
 
-describe('Player laser damage', () => {
+describe('Player beamCannon damage', () => {
     it(
-        'resolves the baseline laser shot directly against enemy hull',
+        'resolves the baseline beamCannon shot directly against enemy hull',
         () => {
             const {
                 engine,
@@ -53,7 +53,7 @@ describe('Player laser damage', () => {
 
                     commandId:
                         ENCOUNTER_OFFICER_COMMAND_ID
-                            .WEAPONS_FIRE_LASER,
+                            .WEAPONS_FIRE_BEAM_CANNON,
 
                     target: {
                         kind:
@@ -61,7 +61,7 @@ describe('Player laser damage', () => {
                                 .ACTOR_WEAPON,
 
                         weaponId:
-                            'laser_player_00',
+                            'beam_cannon_player_00',
 
                         actorId:
                             targetActor.id,
@@ -81,7 +81,7 @@ describe('Player laser damage', () => {
 
             engine.step(
                 SHIP_WEAPONS[
-                    SHIP_WEAPON_ID.LASER_00
+                    SHIP_WEAPON_ID.BEAM_CANNON_00
                 ].chargeDurationMs,
             );
 
@@ -91,16 +91,16 @@ describe('Player laser damage', () => {
                 expect.objectContaining({
                     type:
                         ENCOUNTER_EVENT
-                            .PLAYER_LASER_FIRED,
+                            .PLAYER_BEAM_CANNON_FIRED,
 
                     weaponId:
-                        'laser_player_00',
+                        'beam_cannon_player_00',
 
                     targetActorId:
                         targetActor.id,
 
                     outcome:
-                        LASER_SHOT_OUTCOME.HIT,
+                        BEAM_CANNON_SHOT_OUTCOME.HIT,
 
                     damage: 1,
 

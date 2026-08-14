@@ -11,7 +11,7 @@ import {
     formatCaptainDashboardCountdown,
 } from '../../captain_dashboard_format';
 import type {
-    BridgeCaptainIncomingLaserPayload,
+    BridgeCaptainIncomingBeamCannonPayload,
 } from '../../../../events/bridge_event';
 
 const ROW = {
@@ -36,7 +36,7 @@ const ROW = {
 
 } as const;
 
-type LaserThreatRowCallbacks = {
+type BeamCannonThreatRowCallbacks = {
     onDeployShield:
         (
             command:
@@ -45,13 +45,13 @@ type LaserThreatRowCallbacks = {
         ) => void;
 };
 
-// Первый captain-dashboard laser row.
+// Первый captain-dashboard beamCannon row.
 //
 // SCI slot пока намеренно disabled:
-// laser ещё не нацелен на конкретные ship nodes.
+// beamCannon ещё не нацелен на конкретные ship nodes.
 // Второй action slot принадлежит ENG и поднимает shield
 // через обычный resolved officer-command flow.
-export default class BridgeCaptainLaserThreatRowView {
+export default class BridgeCaptainBeamCannonThreatRowView {
     private readonly root:
         Phaser.GameObjects.Container;
 
@@ -75,7 +75,7 @@ export default class BridgeCaptainLaserThreatRowView {
         height: number,
 
         private readonly callbacks:
-            LaserThreatRowCallbacks,
+            BeamCannonThreatRowCallbacks,
     ) {
         this.root =
             this.scene.add.container(
@@ -171,7 +171,7 @@ export default class BridgeCaptainLaserThreatRowView {
                     ROW.labelY,
 
                     FONT_FAMILY.VGA_8X14,
-                    'LASER ATTACK',
+                    'BEAM_CANNON ATTACK',
                     FONT_SIZE.PX_16,
                 )
                 .setOrigin(0, 0)
@@ -242,17 +242,17 @@ export default class BridgeCaptainLaserThreatRowView {
     }
 
     public update(
-        laser:
-            BridgeCaptainIncomingLaserPayload,
+        beamCannon:
+            BridgeCaptainIncomingBeamCannonPayload,
     ): void {
         this.timerText.setText(
             formatCaptainDashboardCountdown(
-                laser.timeToFireMs,
+                beamCannon.timeToFireMs,
             ),
         );
 
         this.setEngineerAction(
-            laser.actions
+            beamCannon.actions
                 .deployShield,
         );
     }

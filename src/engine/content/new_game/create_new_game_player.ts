@@ -17,7 +17,7 @@ import {
 import PowerCoreFactory from '../../generation/ship_system/PowerCoreFactory';
 import ShipDefenseTurretFactory from '../../generation/ship_system/ShipDefenseTurretFactory';
 import ShieldGeneratorFactory from '../../generation/ship_system/ShieldGeneratorFactory';
-import LaserWeaponFactory from '../../generation/ship_weapon/LaserWeaponFactory';
+import BeamCannonFactory from '../../generation/ship_weapon/BeamCannonFactory';
 import MissileLauncherFactory from '../../generation/ship_weapon/MissileLauncherFactory';
 import SpamProjectorFactory from '../../generation/ship_weapon/SpamProjectorFactory';
 import StickyMineDispenserFactory from '../../generation/ship_weapon/StickyMineDispenserFactory';
@@ -117,8 +117,8 @@ function createPlayerWeapon(
     weapon: PlayerShipWeaponPreset,
 ): ShipWeaponState {
     switch (weapon.weaponId) {
-        case SHIP_WEAPON_ID.LASER_00:
-            return LaserWeaponFactory.create({
+        case SHIP_WEAPON_ID.BEAM_CANNON_00:
+            return BeamCannonFactory.create({
                 id: weapon.id,
 
                 weaponId:

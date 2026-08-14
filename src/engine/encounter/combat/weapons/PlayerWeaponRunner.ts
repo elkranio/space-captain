@@ -14,7 +14,7 @@ import {
 } from '../../model/officer_task';
 import CrewPerformanceResolver from '../../crew_performance/CrewPerformanceResolver';
 import type EncounterStateStore from '../../state/EncounterStateStore';
-import PlayerLaserRunner from './laser/PlayerLaserRunner';
+import PlayerBeamCannonRunner from './beam_cannon/PlayerBeamCannonRunner';
 import PlayerMissileLauncherRunner from './missile/PlayerMissileLauncherRunner';
 import PlayerSpamProjectorRunner from './spam/PlayerSpamProjectorRunner';
 import PlayerStickyMineDispenserRunner from './sticky_mine/PlayerStickyMineDispenserRunner';
@@ -60,8 +60,8 @@ export default class PlayerWeaponRunner {
     private readonly stickyMineDispenserRunner:
         PlayerStickyMineDispenserRunner;
 
-    private readonly laserRunner:
-        PlayerLaserRunner;
+    private readonly beamCannonRunner:
+        PlayerBeamCannonRunner;
 
     private readonly spamProjectorRunner:
         PlayerSpamProjectorRunner;
@@ -116,8 +116,8 @@ export default class PlayerWeaponRunner {
                     options.completeOfficerTask,
             });
 
-        this.laserRunner =
-            new PlayerLaserRunner({
+        this.beamCannonRunner =
+            new PlayerBeamCannonRunner({
                 stateStore:
                     this.stateStore,
                 emit:
@@ -195,8 +195,8 @@ export default class PlayerWeaponRunner {
                 return;
 
             case OFFICER_TASK_KIND
-                .WEAPONS_FIRE_LASER:
-                this.laserRunner.advanceTask(
+                .WEAPONS_FIRE_BEAM_CANNON:
+                this.beamCannonRunner.advanceTask(
                     task,
                     crewDeltaMs,
                 );

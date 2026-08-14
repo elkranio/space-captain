@@ -54,10 +54,10 @@ describe('Officer task tuning content', () => {
         expect(
             getOfficerTaskDraftTuning(
                 OFFICER_TASK_KIND
-                    .WEAPONS_FIRE_LASER,
+                    .WEAPONS_FIRE_BEAM_CANNON,
             ),
         ).toEqual({
-            label: 'LASER AIM',
+            label: 'BEAM CANNON AIM',
             showProgress: false,
             durationMs: null,
         });

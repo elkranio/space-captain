@@ -59,8 +59,8 @@
         "canBeCancelledByPlayer": false,
         "canBeInterruptedByDamage": true
     },
-    "weapons_fire_laser": {
-        "label": "LASER AIM",
+    "weapons_fire_beam_cannon": {
+        "label": "BEAM CANNON AIM",
         "showProgress": false,
         "canBeCancelledByPlayer": true,
         "canBeInterruptedByDamage": true

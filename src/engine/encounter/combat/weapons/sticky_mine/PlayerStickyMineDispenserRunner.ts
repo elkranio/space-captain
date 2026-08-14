@@ -122,7 +122,7 @@ export default class PlayerStickyMineDispenserRunner {
         dispenser.phase =
             SHIP_WEAPON_PHASE.COOLDOWN;
 
-        // As with player missile/laser, overflow is not
+        // As with player missile/beamCannon, overflow is not
         // carried into the new phase.
         dispenser.phaseElapsedMs = 0;
 

@@ -511,7 +511,7 @@ export default class BridgeEncounterController {
             this.drainEncounterEvents();
 
             this.snapshotSynchronizer
-                ?.syncLaserThreats(
+                ?.syncBeamCannonThreats(
                     presentationSnapshot,
                 );
 

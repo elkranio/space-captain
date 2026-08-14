@@ -18,7 +18,7 @@ import {
 import {
     ENCOUNTER_EVENT,
 } from '../../../src/engine/encounter/model/event';
-import LaserWeaponFactory from '../../../src/engine/generation/ship_weapon/LaserWeaponFactory';
+import BeamCannonFactory from '../../../src/engine/generation/ship_weapon/BeamCannonFactory';
 import {
     PLAYER_SPACE_NAVIGATION_KIND,
 } from '../../../src/engine/defs/player_location';
@@ -37,11 +37,11 @@ describe('Player weapon encounter state', () => {
         } = createSingleStationNodeFixture();
 
         const installedWeapon =
-            LaserWeaponFactory.create({
-                id: 'laser_player_test',
+            BeamCannonFactory.create({
+                id: 'beam_cannon_player_test',
 
                 weaponId:
-                    SHIP_WEAPON_ID.LASER_00,
+                    SHIP_WEAPON_ID.BEAM_CANNON_00,
             });
 
         const installedWeapons = [
@@ -86,13 +86,13 @@ describe('Player weapon encounter state', () => {
 
         expect(encounterWeapons).toEqual([
             {
-                id: 'laser_player_test',
+                id: 'beam_cannon_player_test',
 
                 weaponId:
-                    SHIP_WEAPON_ID.LASER_00,
+                    SHIP_WEAPON_ID.BEAM_CANNON_00,
 
                 kind:
-                    SHIP_WEAPON_KIND.LASER,
+                    SHIP_WEAPON_KIND.BEAM_CANNON,
 
                 phase:
                     SHIP_WEAPON_PHASE.READY,
@@ -160,13 +160,13 @@ describe('Player weapon encounter state', () => {
             engine.getPlayerWeaponStates(),
         ).toEqual([
             {
-                id: 'laser_player_test',
+                id: 'beam_cannon_player_test',
 
                 weaponId:
-                    SHIP_WEAPON_ID.LASER_00,
+                    SHIP_WEAPON_ID.BEAM_CANNON_00,
 
                 kind:
-                    SHIP_WEAPON_KIND.LASER,
+                    SHIP_WEAPON_KIND.BEAM_CANNON,
 
                 phase:
                     SHIP_WEAPON_PHASE.READY,

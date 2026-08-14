@@ -14,7 +14,7 @@ describe(
     'BridgeCaptainCombatContextMapper',
     () => {
         it(
-            'projects active laser threats into captain context',
+            'projects active beamCannon threats into captain context',
             () => {
                 expect(
                     mapCaptainCombatContextToBridgePayload({
@@ -22,11 +22,11 @@ describe(
 
                         incomingMissiles: [],
 
-                        laserThreats: [
+                        beamCannonThreats: [
                             {
                                 attack: {
                                     id:
-                                        'laser_attack_00',
+                                        'beam_cannon_attack_00',
 
                                     designation:
                                         'L1',
@@ -35,7 +35,7 @@ describe(
                                         'ship_enemy_00',
 
                                     sourceWeaponId:
-                                        'laser_00',
+                                        'beam_cannon_00',
 
                                     target: {
                                         kind:
@@ -78,10 +78,10 @@ describe(
 
                     incomingStickyMines: [],
 
-                    incomingLasers: [
+                    incomingBeamCannons: [
                         {
                             attackId:
-                                'laser_attack_00',
+                                'beam_cannon_attack_00',
 
                             designation:
                                 'L1',

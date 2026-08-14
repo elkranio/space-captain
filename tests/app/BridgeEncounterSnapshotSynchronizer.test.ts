@@ -117,10 +117,10 @@ describe('BridgeEncounterSnapshotSynchronizer', () => {
                         },
                     ],
 
-                    incomingLasers: [
+                    incomingBeamCannons: [
                         {
                             attackId:
-                                'laser_attack_1',
+                                'beam_cannon_attack_1',
 
                             designation:
                                 'L1',
@@ -260,10 +260,10 @@ describe('BridgeEncounterSnapshotSynchronizer', () => {
             ],
 
             [
-                BRIDGE_EVENT.LASER_THREATS_UPDATED,
+                BRIDGE_EVENT.BEAM_CANNON_THREATS_UPDATED,
                 [
                     {
-                        attackId: 'laser_attack_1',
+                        attackId: 'beam_cannon_attack_1',
                         timeToFireMs: 500,
                         initialTimeToFireMs: 1000,
                     },
@@ -308,10 +308,10 @@ describe('BridgeEncounterSnapshotSynchronizer', () => {
                         },
                     ],
 
-                    incomingLasers: [
+                    incomingBeamCannons: [
                         {
                             attackId:
-                                'laser_attack_1',
+                                'beam_cannon_attack_1',
 
                             designation:
                                 'L1',
@@ -630,11 +630,11 @@ function createEncounterEngine(): EncounterEngine {
                         },
                     ],
 
-                    laserThreats: [
+                    beamCannonThreats: [
                         {
                             attack: {
                                 id:
-                                    'laser_attack_1',
+                                    'beam_cannon_attack_1',
 
                                 designation:
                                     'L1',

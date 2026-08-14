@@ -3,7 +3,7 @@
 
 export const SHIP_WEAPON_KIND = {
     MISSILE_LAUNCHER: 'missile_launcher',
-    LASER: 'laser',
+    BEAM_CANNON: 'beam_cannon',
     SPAM_PROJECTOR: 'spam_projector',
     STICKY_MINE_DISPENSER: 'sticky_mine_dispenser',
 } as const;
@@ -12,7 +12,7 @@ export type ShipWeaponKind = (typeof SHIP_WEAPON_KIND)[keyof typeof SHIP_WEAPON_
 
 export const SHIP_WEAPON_ID = {
     MISSILE_LAUNCHER_00: 'missile_launcher_00',
-    LASER_00: 'laser_00',
+    BEAM_CANNON_00: 'beam_cannon_00',
     SPAM_PROJECTOR_00: 'spam_projector_00',
     STICKY_MINE_DISPENSER_00: 'sticky_mine_dispenser_00',
 } as const;
@@ -82,7 +82,7 @@ export function doesShipWeaponPhaseAdvanceWithCrew(
                 SHIP_WEAPON_PHASE.TARGETING
             );
 
-        case SHIP_WEAPON_KIND.LASER:
+        case SHIP_WEAPON_KIND.BEAM_CANNON:
             return (
                 phase ===
                     SHIP_WEAPON_PHASE
@@ -140,8 +140,8 @@ export type MissileLauncherDefinition = ShipWeaponDefinitionBase & {
     ammoCapacity: number;
 };
 
-export type LaserWeaponDefinition = ShipWeaponDefinitionBase & {
-    kind: typeof SHIP_WEAPON_KIND.LASER;
+export type BeamCannonDefinition = ShipWeaponDefinitionBase & {
+    kind: typeof SHIP_WEAPON_KIND.BEAM_CANNON;
 
     damage: number;
 
@@ -172,7 +172,7 @@ export type StickyMineDispenserDefinition =
 
 export type ShipWeaponDefinition =
     | MissileLauncherDefinition
-    | LaserWeaponDefinition
+    | BeamCannonDefinition
     | SpamProjectorDefinition
     | StickyMineDispenserDefinition;
 
@@ -194,8 +194,8 @@ export type MissileLauncherState = ShipWeaponBaseState & {
     ammoCount: number;
 };
 
-export type LaserWeaponState = ShipWeaponBaseState & {
-    kind: typeof SHIP_WEAPON_KIND.LASER;
+export type BeamCannonState = ShipWeaponBaseState & {
+    kind: typeof SHIP_WEAPON_KIND.BEAM_CANNON;
 };
 
 export type SpamProjectorState = ShipWeaponBaseState & {
@@ -218,6 +218,6 @@ export type StickyMineDispenserState =
 
 export type ShipWeaponState =
     | MissileLauncherState
-    | LaserWeaponState
+    | BeamCannonState
     | SpamProjectorState
     | StickyMineDispenserState;

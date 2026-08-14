@@ -115,16 +115,16 @@ type WeaponsFireStickyMinesOfficerTaskDraft =
         targetActorId: string;
     };
 
-type WeaponsFireLaserOfficerTaskDraft =
+type WeaponsFireBeamCannonOfficerTaskDraft =
     OfficerTaskDraftBase & {
         kind:
-            typeof OFFICER_TASK_KIND.WEAPONS_FIRE_LASER;
+            typeof OFFICER_TASK_KIND.WEAPONS_FIRE_BEAM_CANNON;
 
         role:
             typeof OFFICER_ROLE.WEAPONS;
 
         sourceCommandId:
-            typeof ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_LASER;
+            typeof ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_BEAM_CANNON;
 
         weaponId: string;
         targetActorId: string;
@@ -203,7 +203,7 @@ export type OfficerTaskDraft =
     | WeaponsDefenseTurretOfficerTaskDraft
     | WeaponsFireMissileOfficerTaskDraft
     | WeaponsFireStickyMinesOfficerTaskDraft
-    | WeaponsFireLaserOfficerTaskDraft
+    | WeaponsFireBeamCannonOfficerTaskDraft
     | ScienceFireSpamOfficerTaskDraft
     | ClearStickyMineOfficerTaskDraft
     | HelmDockOfficerTaskDraft

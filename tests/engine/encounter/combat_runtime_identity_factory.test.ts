@@ -17,8 +17,8 @@ describe('Combat runtime identities', () => {
         ).toBe('projectile_1');
 
         expect(
-            identities.createLaserAttackId(),
-        ).toBe('laser_attack_1');
+            identities.createBeamCannonAttackId(),
+        ).toBe('beam_cannon_attack_1');
 
         expect(
             identities.createProjectileId(),

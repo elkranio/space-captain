@@ -29,8 +29,8 @@ export const SHIP_PRESET_ID = {
     GENERIC_MISSILE_00:
         'generic_missile_00',
 
-    GENERIC_LASER_00:
-        'generic_laser_00',
+    GENERIC_BEAM_CANNON_00:
+        'generic_beam_cannon_00',
 
     GENERIC_SPAM_00:
         'generic_spam_00',
@@ -59,13 +59,13 @@ type MissileLauncherShipWeaponPreset = {
             .MISSILE_LAUNCHER_00;
 };
 
-type LaserShipWeaponPreset = {
+type BeamCannonShipWeaponPreset = {
     // Runtime id установленного оружия внутри корабля.
     id: string;
 
-    kind: typeof SHIP_WEAPON_KIND.LASER;
+    kind: typeof SHIP_WEAPON_KIND.BEAM_CANNON;
 
-    weaponId: typeof SHIP_WEAPON_ID.LASER_00;
+    weaponId: typeof SHIP_WEAPON_ID.BEAM_CANNON_00;
 };
 
 type SpamProjectorShipWeaponPreset = {
@@ -94,7 +94,7 @@ type StickyMineDispenserShipWeaponPreset = {
 
 export type ShipWeaponPreset =
     | MissileLauncherShipWeaponPreset
-    | LaserShipWeaponPreset
+    | BeamCannonShipWeaponPreset
     | SpamProjectorShipWeaponPreset
     | StickyMineDispenserShipWeaponPreset;
 
@@ -163,10 +163,10 @@ export const SHIP_PRESETS = {
         ],
     },
 
-    [SHIP_PRESET_ID.GENERIC_LASER_00]: {
+    [SHIP_PRESET_ID.GENERIC_BEAM_CANNON_00]: {
         id:
             SHIP_PRESET_ID
-                .GENERIC_LASER_00,
+                .GENERIC_BEAM_CANNON_00,
 
         chassisId:
             SHIP_CHASSIS_ID.GENERIC_00,
@@ -178,12 +178,12 @@ export const SHIP_PRESETS = {
 
         weapons: [
             {
-                id: 'laser_00',
+                id: 'beam_cannon_00',
 
-                kind: SHIP_WEAPON_KIND.LASER,
+                kind: SHIP_WEAPON_KIND.BEAM_CANNON,
 
                 weaponId:
-                    SHIP_WEAPON_ID.LASER_00,
+                    SHIP_WEAPON_ID.BEAM_CANNON_00,
             },
         ],
     },
@@ -270,12 +270,12 @@ export const SHIP_PRESETS = {
                     SHIP_WEAPON_ID.MISSILE_LAUNCHER_00,
             },
             {
-                id: 'laser_00',
+                id: 'beam_cannon_00',
 
-                kind: SHIP_WEAPON_KIND.LASER,
+                kind: SHIP_WEAPON_KIND.BEAM_CANNON,
 
                 weaponId:
-                    SHIP_WEAPON_ID.LASER_00,
+                    SHIP_WEAPON_ID.BEAM_CANNON_00,
             },
             {
                 id:

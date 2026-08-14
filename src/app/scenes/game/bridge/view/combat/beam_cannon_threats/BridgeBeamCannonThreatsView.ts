@@ -1,32 +1,32 @@
-// src/app/scenes/game/bridge/view/combat/laser_threats/BridgeLaserThreatsView.ts
+// src/app/scenes/game/bridge/view/combat/beam_cannon_threats/BridgeBeamCannonThreatsView.ts
 
 import type BridgeScene from '../../../BridgeScene';
 import {
     BRIDGE_EVENT,
     type BridgeEnemyShipDestructionPayload,
-    type BridgeLaserThreatAddedPayload,
-    type BridgeLaserThreatRemovedPayload,
-    type BridgeLaserThreatsUpdatedPayload,
+    type BridgeBeamCannonThreatAddedPayload,
+    type BridgeBeamCannonThreatRemovedPayload,
+    type BridgeBeamCannonThreatsUpdatedPayload,
 } from '../../../events/bridge_event';
 import type BridgeEventBus from '../../../events/BridgeEventBus';
 import {
     removeMissingCombatSnapshotEntries,
 } from '../remove_missing_combat_snapshot_entries';
-import BridgeLaserThreatView from './laser/BridgeLaserThreatView';
+import BridgeBeamCannonThreatView from './beam_cannon/BridgeBeamCannonThreatView';
 
 type GetObjectPosition = (
     objectId: string,
 ) => Phaser.Math.Vector2 | undefined;
 
-// Manager-view активных laser charging threats.
-export default class BridgeLaserThreatsView {
+// Manager-view активных beamCannon charging threats.
+export default class BridgeBeamCannonThreatsView {
     private readonly root:
         Phaser.GameObjects.Container;
 
     private readonly threats =
         new Map<
             string,
-            BridgeLaserThreatView
+            BridgeBeamCannonThreatView
         >();
 
     constructor(
@@ -51,7 +51,7 @@ export default class BridgeLaserThreatsView {
 
         this.eventBus.on(
             BRIDGE_EVENT
-                .LASER_THREAT_ADDED,
+                .BEAM_CANNON_THREAT_ADDED,
 
             this.addThreat,
             this,
@@ -59,7 +59,7 @@ export default class BridgeLaserThreatsView {
 
         this.eventBus.on(
             BRIDGE_EVENT
-                .LASER_THREAT_REMOVED,
+                .BEAM_CANNON_THREAT_REMOVED,
 
             this.removeThreat,
             this,
@@ -67,7 +67,7 @@ export default class BridgeLaserThreatsView {
 
         this.eventBus.on(
             BRIDGE_EVENT
-                .LASER_THREATS_UPDATED,
+                .BEAM_CANNON_THREATS_UPDATED,
 
             this.updateThreats,
             this,
@@ -85,7 +85,7 @@ export default class BridgeLaserThreatsView {
     public destroy(): void {
         this.eventBus.off(
             BRIDGE_EVENT
-                .LASER_THREAT_ADDED,
+                .BEAM_CANNON_THREAT_ADDED,
 
             this.addThreat,
             this,
@@ -93,7 +93,7 @@ export default class BridgeLaserThreatsView {
 
         this.eventBus.off(
             BRIDGE_EVENT
-                .LASER_THREAT_REMOVED,
+                .BEAM_CANNON_THREAT_REMOVED,
 
             this.removeThreat,
             this,
@@ -101,7 +101,7 @@ export default class BridgeLaserThreatsView {
 
         this.eventBus.off(
             BRIDGE_EVENT
-                .LASER_THREATS_UPDATED,
+                .BEAM_CANNON_THREATS_UPDATED,
 
             this.updateThreats,
             this,
@@ -129,7 +129,7 @@ export default class BridgeLaserThreatsView {
 
     private addThreat(
         payload:
-            BridgeLaserThreatAddedPayload,
+            BridgeBeamCannonThreatAddedPayload,
     ): void {
         if (
             this.threats.has(
@@ -137,7 +137,7 @@ export default class BridgeLaserThreatsView {
             )
         ) {
             throw new Error(
-                'Laser threat already ' +
+                'BeamCannon threat already ' +
                     'exists: ' +
                     payload.attackId,
             );
@@ -150,14 +150,14 @@ export default class BridgeLaserThreatsView {
 
         if (!weaponOrigin) {
             throw new Error(
-                'Laser threat source ' +
+                'BeamCannon threat source ' +
                     'object not found: ' +
                     payload.sourceActorId,
             );
         }
 
         const threat =
-            new BridgeLaserThreatView({
+            new BridgeBeamCannonThreatView({
                 scene:
                     this.scene,
 
@@ -178,7 +178,7 @@ export default class BridgeLaserThreatsView {
 
     private removeThreat(
         payload:
-            BridgeLaserThreatRemovedPayload,
+            BridgeBeamCannonThreatRemovedPayload,
     ): void {
         const threat =
             this.threats.get(
@@ -187,7 +187,7 @@ export default class BridgeLaserThreatsView {
 
         if (!threat) {
             throw new Error(
-                'Laser threat not found: ' +
+                'BeamCannon threat not found: ' +
                     payload.attackId,
             );
         }
@@ -201,7 +201,7 @@ export default class BridgeLaserThreatsView {
 
     private updateThreats(
         payload:
-            BridgeLaserThreatsUpdatedPayload,
+            BridgeBeamCannonThreatsUpdatedPayload,
     ): void {
         removeMissingCombatSnapshotEntries(
             this.threats,
@@ -228,7 +228,7 @@ export default class BridgeLaserThreatsView {
 
             if (!threat) {
                 throw new Error(
-                    'Laser threat update ' +
+                    'BeamCannon threat update ' +
                         'target not found: ' +
                         update.attackId,
                 );

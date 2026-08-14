@@ -41,7 +41,7 @@ describe(
 
                 expect(
                     doesShipWeaponPhaseAdvanceWithCrew(
-                        SHIP_WEAPON_KIND.LASER,
+                        SHIP_WEAPON_KIND.BEAM_CANNON,
                         SHIP_WEAPON_PHASE
                             .TARGETING,
                     ),
@@ -49,7 +49,7 @@ describe(
 
                 expect(
                     doesShipWeaponPhaseAdvanceWithCrew(
-                        SHIP_WEAPON_KIND.LASER,
+                        SHIP_WEAPON_KIND.BEAM_CANNON,
                         SHIP_WEAPON_PHASE
                             .CHARGING,
                     ),
@@ -57,7 +57,7 @@ describe(
 
                 expect(
                     doesShipWeaponPhaseAdvanceWithCrew(
-                        SHIP_WEAPON_KIND.LASER,
+                        SHIP_WEAPON_KIND.BEAM_CANNON,
                         SHIP_WEAPON_PHASE
                             .COOLDOWN,
                     ),

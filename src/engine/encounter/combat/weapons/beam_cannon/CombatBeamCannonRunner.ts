@@ -4,14 +4,14 @@ import {
 } from '../../../../content/catalogs/ship_weapons';
 import {
     SHIP_WEAPON_PHASE,
-    type LaserWeaponDefinition,
-    type LaserWeaponState,
+    type BeamCannonDefinition,
+    type BeamCannonState,
 } from '../../../../defs/ship_weapon';
 import type { ShipEncounterActorState } from '../../../actors/ship/ship_encounter_actor';
 import {
     COMBAT_TARGET_KIND,
-    LASER_SHOT_OUTCOME,
-    type LaserAttackState,
+    BEAM_CANNON_SHOT_OUTCOME,
+    type BeamCannonAttackState,
 } from '../../../model/combat';
 import {
     ENCOUNTER_EVENT,
@@ -22,16 +22,16 @@ import type { EncounterState } from '../../../model/state';
 import EncounterStateStore from '../../../state/EncounterStateStore';
 import CombatRuntimeIdentityFactory from '../../CombatRuntimeIdentityFactory';
 
-type CombatLaserRunnerOptions = {
+type CombatBeamCannonRunnerOptions = {
     stateStore: EncounterStateStore;
     identities: CombatRuntimeIdentityFactory;
     emit: (event: EncounterEvent) => void;
     interruptRandomOfficerTask: () => void;
 };
 
-// Owns the complete incoming-laser lifecycle: enemy targeting, charging,
+// Owns the complete incoming-beamCannon lifecycle: enemy targeting, charging,
 // threat state, hull resolution, cooldown and damage interruption.
-export default class CombatLaserRunner {
+export default class CombatBeamCannonRunner {
     private readonly stateStore:
         EncounterStateStore;
 
@@ -51,7 +51,7 @@ export default class CombatLaserRunner {
         identities,
         emit,
         interruptRandomOfficerTask,
-    }: CombatLaserRunnerOptions) {
+    }: CombatBeamCannonRunnerOptions) {
         this.stateStore = stateStore;
         this.identities = identities;
         this.emit = emit;
@@ -63,19 +63,19 @@ export default class CombatLaserRunner {
                 .getState();
     }
 
-    public advanceEnemyLaser(
+    public advanceEnemyBeamCannon(
         actor: ShipEncounterActorState,
-        laser: LaserWeaponState,
+        beamCannon: BeamCannonState,
         deltaMs: number,
     ): void {
-        switch (laser.phase) {
+        switch (beamCannon.phase) {
             case SHIP_WEAPON_PHASE.READY:
                 return;
 
             case SHIP_WEAPON_PHASE.TARGETING:
                 this.advanceTargeting(
                     actor,
-                    laser,
+                    beamCannon,
                     deltaMs,
                 );
                 return;
@@ -83,69 +83,69 @@ export default class CombatLaserRunner {
             case SHIP_WEAPON_PHASE.CHARGING:
                 this.advanceCharging(
                     actor,
-                    laser,
+                    beamCannon,
                     deltaMs,
                 );
                 return;
 
             case SHIP_WEAPON_PHASE.COOLDOWN:
                 this.advanceCooldown(
-                    laser,
+                    beamCannon,
                     deltaMs,
                 );
                 return;
 
             case SHIP_WEAPON_PHASE.CHANNELING:
                 throw new Error(
-                    `Laser cannot enter channeling phase: ` +
-                        `${actor.id}/${laser.id}`,
+                    `BeamCannon cannot enter channeling phase: ` +
+                        `${actor.id}/${beamCannon.id}`,
                 );
 
             case SHIP_WEAPON_PHASE.DISPENSING:
                 throw new Error(
-                    `Laser cannot enter dispensing phase: ` +
-                        `${actor.id}/${laser.id}`,
+                    `BeamCannon cannot enter dispensing phase: ` +
+                        `${actor.id}/${beamCannon.id}`,
                 );
         }
     }
 
     private advanceTargeting(
         actor: ShipEncounterActorState,
-        laser: LaserWeaponState,
+        beamCannon: BeamCannonState,
         deltaMs: number,
     ): void {
         const elapsedMs =
-            laser.phaseElapsedMs + deltaMs;
+            beamCannon.phaseElapsedMs + deltaMs;
 
         if (
             elapsedMs <
             SHIP_WEAPON_TARGETING_DURATION_MS
         ) {
-            laser.phaseElapsedMs = elapsedMs;
+            beamCannon.phaseElapsedMs = elapsedMs;
             return;
         }
 
-        laser.phaseElapsedMs =
+        beamCannon.phaseElapsedMs =
             SHIP_WEAPON_TARGETING_DURATION_MS;
 
-        this.startCharging(actor, laser);
+        this.startCharging(actor, beamCannon);
     }
 
     private startCharging(
         actor: ShipEncounterActorState,
-        laser: LaserWeaponState,
+        beamCannon: BeamCannonState,
     ): void {
         const attack =
-            this.createAttack(actor, laser);
+            this.createAttack(actor, beamCannon);
 
-        laser.phase =
+        beamCannon.phase =
             SHIP_WEAPON_PHASE.CHARGING;
-        laser.phaseElapsedMs = 0;
+        beamCannon.phaseElapsedMs = 0;
 
         this.emit({
             type:
                 ENCOUNTER_EVENT
-                    .LASER_ATTACK_STARTED,
+                    .BEAM_CANNON_ATTACK_STARTED,
 
             attack,
         });
@@ -153,72 +153,72 @@ export default class CombatLaserRunner {
 
     private advanceCharging(
         actor: ShipEncounterActorState,
-        laser: LaserWeaponState,
+        beamCannon: BeamCannonState,
         deltaMs: number,
     ): void {
         const definition =
-            this.getDefinition(laser);
+            this.getDefinition(beamCannon);
 
-        laser.phaseElapsedMs += deltaMs;
+        beamCannon.phaseElapsedMs += deltaMs;
 
         if (
-            laser.phaseElapsedMs <
+            beamCannon.phaseElapsedMs <
             definition.chargeDurationMs
         ) {
             return;
         }
 
-        this.fire(actor, laser, definition);
+        this.fire(actor, beamCannon, definition);
     }
 
     private advanceCooldown(
-        laser: LaserWeaponState,
+        beamCannon: BeamCannonState,
         deltaMs: number,
     ): void {
         const definition =
-            this.getDefinition(laser);
+            this.getDefinition(beamCannon);
 
-        laser.phaseElapsedMs += deltaMs;
+        beamCannon.phaseElapsedMs += deltaMs;
 
         if (
-            laser.phaseElapsedMs <
+            beamCannon.phaseElapsedMs <
             definition.cooldownDurationMs
         ) {
             return;
         }
 
-        laser.phase =
+        beamCannon.phase =
             SHIP_WEAPON_PHASE.READY;
-        laser.phaseElapsedMs = 0;
+        beamCannon.phaseElapsedMs = 0;
     }
 
     private createAttack(
         actor: ShipEncounterActorState,
-        laser: LaserWeaponState,
-    ): LaserAttackState {
+        beamCannon: BeamCannonState,
+    ): BeamCannonAttackState {
         const existingAttack =
             this.state.combat
-                .laserAttacks
+                .beamCannonAttacks
                 .find((attack) => {
                     return (
                         attack.sourceActorId ===
                             actor.id &&
                         attack.sourceWeaponId ===
-                            laser.id
+                            beamCannon.id
                     );
                 });
 
         if (existingAttack) {
             throw new Error(
-                `Laser weapon already has active attack: ` +
-                    `${actor.id}/${laser.id}/${existingAttack.id}`,
+                `BeamCannon weapon already has active attack: ` +
+                    `${actor.id}/${beamCannon.id}/${existingAttack.id}`,
             );
         }
 
-        const attack: LaserAttackState = {
+        const attack: BeamCannonAttackState = {
             id:
                 this.identities
-                    .createLaserAttackId(),
+                    .createBeamCannonAttackId(),
 
             designation:
                 this.identities
@@ -227,7 +227,7 @@ export default class CombatLaserRunner {
                     ),
 
             sourceActorId: actor.id,
-            sourceWeaponId: laser.id,
+            sourceWeaponId: beamCannon.id,
 
             target: {
                 kind:
@@ -238,7 +238,7 @@ export default class CombatLaserRunner {
         };
 
         this.state.combat
-            .laserAttacks
+            .beamCannonAttacks
             .push(attack);
 
         return attack;
@@ -246,46 +246,46 @@ export default class CombatLaserRunner {
 
     private fire(
         actor: ShipEncounterActorState,
-        laser: LaserWeaponState,
-        definition: LaserWeaponDefinition,
+        beamCannon: BeamCannonState,
+        definition: BeamCannonDefinition,
     ): void {
         const attackIndex =
             this.state.combat
-                .laserAttacks
+                .beamCannonAttacks
                 .findIndex((attack) => {
                     return (
                         attack.sourceActorId ===
                             actor.id &&
                         attack.sourceWeaponId ===
-                            laser.id
+                            beamCannon.id
                     );
                 });
 
         if (attackIndex < 0) {
             throw new Error(
-                `Cannot fire laser without active attack: ` +
-                    `${actor.id}/${laser.id}`,
+                `Cannot fire beamCannon without active attack: ` +
+                    `${actor.id}/${beamCannon.id}`,
             );
         }
 
         const attack =
             this.state.combat
-                .laserAttacks[attackIndex];
+                .beamCannonAttacks[attackIndex];
 
         if (!attack) {
             throw new Error(
-                `Laser attack disappeared before fire: ` +
-                    `${actor.id}/${laser.id}`,
+                `BeamCannon attack disappeared before fire: ` +
+                    `${actor.id}/${beamCannon.id}`,
             );
         }
 
         this.state.combat
-            .laserAttacks
+            .beamCannonAttacks
             .splice(attackIndex, 1);
 
-        laser.phase =
+        beamCannon.phase =
             SHIP_WEAPON_PHASE.COOLDOWN;
-        laser.phaseElapsedMs = 0;
+        beamCannon.phaseElapsedMs = 0;
 
 
         const absorbedByShield =
@@ -296,12 +296,12 @@ export default class CombatLaserRunner {
             this.emit({
                 type:
                     ENCOUNTER_EVENT
-                        .LASER_FIRED,
+                        .BEAM_CANNON_FIRED,
 
                 attack,
 
                 outcome:
-                    LASER_SHOT_OUTCOME
+                    BEAM_CANNON_SHOT_OUTCOME
                         .ABSORBED,
             });
 
@@ -330,12 +330,12 @@ export default class CombatLaserRunner {
         this.emit({
             type:
                 ENCOUNTER_EVENT
-                    .LASER_FIRED,
+                    .BEAM_CANNON_FIRED,
 
             attack,
 
             outcome:
-                LASER_SHOT_OUTCOME.HIT,
+                BEAM_CANNON_SHOT_OUTCOME.HIT,
 
             ...damageResult,
         });
@@ -344,18 +344,18 @@ export default class CombatLaserRunner {
     }
 
     private getDefinition(
-        laser: LaserWeaponState,
-    ): LaserWeaponDefinition {
+        beamCannon: BeamCannonState,
+    ): BeamCannonDefinition {
         const definition =
-            SHIP_WEAPONS[laser.weaponId];
+            SHIP_WEAPONS[beamCannon.weaponId];
 
         if (
             definition.kind !==
-            laser.kind
+            beamCannon.kind
         ) {
             throw new Error(
-                `Laser weapon kind does not match definition: ` +
-                    `${laser.id}/${laser.weaponId}`,
+                `BeamCannon weapon kind does not match definition: ` +
+                    `${beamCannon.id}/${beamCannon.weaponId}`,
             );
         }
 

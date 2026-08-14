@@ -1,4 +1,4 @@
-// tests/app/BridgeEncounterLaserResolution.test.ts
+// tests/app/BridgeEncounterBeamCannonResolution.test.ts
 
 import { describe, expect, it, vi } from 'vitest';
 import { GameRuntime } from '../../src/app/runtime/GameRuntime';
@@ -7,18 +7,18 @@ import { BRIDGE_EVENT } from '../../src/app/scenes/game/bridge/events/bridge_eve
 import type BridgeEventBus from '../../src/app/scenes/game/bridge/events/BridgeEventBus';
 import {
     COMBAT_TARGET_KIND,
-    LASER_SHOT_OUTCOME,
-    type LaserAttackState,
+    BEAM_CANNON_SHOT_OUTCOME,
+    type BeamCannonAttackState,
 } from '../../src/engine/encounter/model/combat';
 import { ENCOUNTER_EVENT } from '../../src/engine/encounter/model/event';
 
-describe('BridgeEncounterEngineEventHandler laser resolution', () => {
-    it('clears the common warning and adds a laser threat when charging starts', () => {
+describe('BridgeEncounterEngineEventHandler beamCannon resolution', () => {
+    it('clears the common warning and adds a beamCannon threat when charging starts', () => {
         const { handler, emit } = createHandler();
 
         handler.handle([
             {
-                type: ENCOUNTER_EVENT.LASER_ATTACK_STARTED,
+                type: ENCOUNTER_EVENT.BEAM_CANNON_ATTACK_STARTED,
 
                 attack: createAttack(),
             },
@@ -30,10 +30,10 @@ describe('BridgeEncounterEngineEventHandler laser resolution', () => {
             ],
 
             [
-                BRIDGE_EVENT.LASER_THREAT_ADDED,
+                BRIDGE_EVENT.BEAM_CANNON_THREAT_ADDED,
 
                 {
-                    attackId: 'laser_attack_1',
+                    attackId: 'beam_cannon_attack_1',
 
                     designation: 'L1',
 
@@ -48,11 +48,11 @@ describe('BridgeEncounterEngineEventHandler laser resolution', () => {
 
         handler.handle([
             {
-                type: ENCOUNTER_EVENT.LASER_FIRED,
+                type: ENCOUNTER_EVENT.BEAM_CANNON_FIRED,
 
                 attack: createAttack(),
 
-                outcome: LASER_SHOT_OUTCOME.HIT,
+                outcome: BEAM_CANNON_SHOT_OUTCOME.HIT,
                 appliedDamage: 1,
                 remainingHull: 2,
                 destroyed: false,
@@ -63,21 +63,21 @@ describe('BridgeEncounterEngineEventHandler laser resolution', () => {
 
         expect(emit.mock.calls).toEqual([
             [
-                BRIDGE_EVENT.LASER_THREAT_REMOVED,
+                BRIDGE_EVENT.BEAM_CANNON_THREAT_REMOVED,
 
                 {
-                    attackId: 'laser_attack_1',
+                    attackId: 'beam_cannon_attack_1',
                 },
             ],
 
             [
-                BRIDGE_EVENT.LASER_BEAM_FIRED,
+                BRIDGE_EVENT.BEAM_CANNON_BEAM_FIRED,
 
                 {
                     sourceActorId: 'ship_enemy_00',
 
                     outcome:
-                        LASER_SHOT_OUTCOME.HIT,
+                        BEAM_CANNON_SHOT_OUTCOME.HIT,
                 },
             ],
 
@@ -110,13 +110,13 @@ function createHandler() {
     };
 }
 
-function createAttack(): LaserAttackState {
+function createAttack(): BeamCannonAttackState {
     return {
-        id: 'laser_attack_1',
+        id: 'beam_cannon_attack_1',
         designation: 'L1',
 
         sourceActorId: 'ship_enemy_00',
-        sourceWeaponId: 'laser_00',
+        sourceWeaponId: 'beam_cannon_00',
 
         target: {
             kind: COMBAT_TARGET_KIND.PLAYER_SHIP,

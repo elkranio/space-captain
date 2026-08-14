@@ -103,7 +103,7 @@ Left/stable player side:
 - Defense Turret blind chance (`TURRET 40%` for current BASIC hardware)
 - ENGINE
 - MISSILE
-- LASER
+- BEAM_CANNON
 - MINES
 - SPAM
 
@@ -111,7 +111,7 @@ Right/current combat context:
 - one enemy summary
 - enemy HULL + DEF
 - incoming missiles
-- incoming lasers
+- incoming beamCannons
 - hostile sticky mines
 - hostile SPAM
 

@@ -31,8 +31,8 @@ export const ENCOUNTER_OFFICER_COMMAND_ID = {
     WEAPONS_FIRE_STICKY_MINES:
         'weapons_fire_sticky_mines',
 
-    WEAPONS_FIRE_LASER:
-        'weapons_fire_laser',
+    WEAPONS_FIRE_BEAM_CANNON:
+        'weapons_fire_beam_cannon',
 
     HELM_DOCK: 'helm_dock',
     HELM_FLY_TO: 'helm_fly_to',

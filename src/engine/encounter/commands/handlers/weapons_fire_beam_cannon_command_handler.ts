@@ -1,4 +1,4 @@
-// src/engine/encounter/commands/handlers/weapons_fire_laser_command_handler.ts
+// src/engine/encounter/commands/handlers/weapons_fire_beam_cannon_command_handler.ts
 
 import {
     OFFICER_ROLE,
@@ -6,7 +6,7 @@ import {
 import {
     SHIP_WEAPON_KIND,
     SHIP_WEAPON_PHASE,
-    type LaserWeaponState,
+    type BeamCannonState,
     type ShipWeaponState,
 } from '../../../defs/ship_weapon';
 import {
@@ -21,7 +21,7 @@ import {
     findCurrentEnemyShip,
 } from '../queries/find_current_enemy_ship';
 import {
-    createWeaponsFireLaserTask,
+    createWeaponsFireBeamCannonTask,
 } from '../../officer_tasks/create_officer_task_draft';
 
 const def = {
@@ -29,7 +29,7 @@ const def = {
         OFFICER_ROLE.WEAPONS,
     ],
 
-    label: 'FIRE LASER',
+    label: 'FIRE BEAM CANNON',
 
     targeting: {
         kind:
@@ -41,11 +41,11 @@ const def = {
     requiresIdleBridge: false,
 } satisfies OfficerCommandDef;
 
-export const weaponsFireLaserCommandHandler:
+export const weaponsFireBeamCannonCommandHandler:
     OfficerCommandHandler = {
         commandId:
             ENCOUNTER_OFFICER_COMMAND_ID
-                .WEAPONS_FIRE_LASER,
+                .WEAPONS_FIRE_BEAM_CANNON,
 
         def,
 
@@ -59,12 +59,12 @@ export const weaponsFireLaserCommandHandler:
 
             return state.combat
                 .playerWeapons
-                .filter(isReadyLaser)
+                .filter(isReadyBeamCannon)
                 .map((weapon) => {
                     return {
                         commandId:
                             ENCOUNTER_OFFICER_COMMAND_ID
-                                .WEAPONS_FIRE_LASER,
+                                .WEAPONS_FIRE_BEAM_CANNON,
 
                         label:
                             def.label,
@@ -95,18 +95,18 @@ export const weaponsFireLaserCommandHandler:
                     .ACTOR_WEAPON
             ) {
                 throw new Error(
-                    'FIRE LASER requires ' +
+                    'FIRE BEAM CANNON requires ' +
                         'an actor weapon target',
                 );
             }
 
             context.stateStore
-                .startPlayerLaserTargeting(
+                .startPlayerBeamCannonTargeting(
                     input.target.weaponId,
                 );
 
             context.startOfficerTask(
-                createWeaponsFireLaserTask(
+                createWeaponsFireBeamCannonTask(
                     input.target.weaponId,
                     input.target.actorId,
                 ),
@@ -114,12 +114,12 @@ export const weaponsFireLaserCommandHandler:
         },
     };
 
-function isReadyLaser(
+function isReadyBeamCannon(
     weapon: ShipWeaponState,
-): weapon is LaserWeaponState {
+): weapon is BeamCannonState {
     return (
         weapon.kind ===
-            SHIP_WEAPON_KIND.LASER &&
+            SHIP_WEAPON_KIND.BEAM_CANNON &&
         weapon.phase ===
             SHIP_WEAPON_PHASE.READY
     );

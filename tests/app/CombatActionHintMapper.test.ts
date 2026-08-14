@@ -15,7 +15,7 @@ describe('CombatActionHintMapper', () => {
             mapper.map([
                 createCommand(ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_INTERCEPT_MISSILE),
                 createCommand(ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_MISSILE),
-                createCommand(ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_LASER),
+                createCommand(ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_BEAM_CANNON),
             ]),
         ).toEqual(['INTERCEPT MISSILE', 'ATTACK ENEMY']);
     });

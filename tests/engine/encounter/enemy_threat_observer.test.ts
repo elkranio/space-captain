@@ -98,12 +98,12 @@ describe(
                     },
                     {
                         id:
-                            'laser:' +
-                            'player_laser_task_00',
+                            'beamCannon:' +
+                            'player_beam_cannon_task_00',
 
                         kind:
                             ENEMY_THREAT_KIND
-                                .LASER,
+                                .BEAM_CANNON,
 
                         source: {
                             kind:
@@ -111,7 +111,7 @@ describe(
                                     .PLAYER_OFFICER_TASK,
 
                             officerTaskId:
-                                'player_laser_task_00',
+                                'player_beam_cannon_task_00',
                         },
                     },
                     {
@@ -158,17 +158,17 @@ describe(
                     {
                         kind:
                             ENEMY_THREAT_KIND
-                                .LASER,
+                                .BEAM_CANNON,
 
                         observationId:
-                            'laser:' +
-                            'player_laser_task_00',
+                            'beamCannon:' +
+                            'player_beam_cannon_task_00',
 
                         officerTaskId:
-                            'player_laser_task_00',
+                            'player_beam_cannon_task_00',
 
                         weaponId:
-                            'laser_player_00',
+                            'beam_cannon_player_00',
 
                         remainingChargeMs:
                             12000,
@@ -244,15 +244,15 @@ function createObserverFixture() {
         stationId,
     } = createSingleStationNodeFixture();
 
-    const playerLaser = {
+    const playerBeamCannon = {
         id:
-            'laser_player_00',
+            'beam_cannon_player_00',
 
         weaponId:
-            SHIP_WEAPON_ID.LASER_00,
+            SHIP_WEAPON_ID.BEAM_CANNON_00,
 
         kind:
-            SHIP_WEAPON_KIND.LASER,
+            SHIP_WEAPON_KIND.BEAM_CANNON,
 
         phase:
             SHIP_WEAPON_PHASE
@@ -274,7 +274,7 @@ function createObserverFixture() {
 
         drive: createShipDriveFixture(),
         playerWeapons: [
-            playerLaser,
+            playerBeamCannon,
         ],
     });
 
@@ -390,20 +390,20 @@ function createObserverFixture() {
         OFFICER_ROLE.WEAPONS
     ] = {
         id:
-            'player_laser_task_00',
+            'player_beam_cannon_task_00',
 
         kind:
             OFFICER_TASK_KIND
-                .WEAPONS_FIRE_LASER,
+                .WEAPONS_FIRE_BEAM_CANNON,
 
         role:
             OFFICER_ROLE.WEAPONS,
 
         sourceCommandId:
             ENCOUNTER_OFFICER_COMMAND_ID
-                .WEAPONS_FIRE_LASER,
+                .WEAPONS_FIRE_BEAM_CANNON,
 
-        label: 'LASER AIM',
+        label: 'BEAM CANNON AIM',
         showProgress: true,
 
         durationMs: null,
@@ -413,7 +413,7 @@ function createObserverFixture() {
         canBeInterruptedByDamage: true,
 
         weaponId:
-            playerLaser.id,
+            playerBeamCannon.id,
 
         targetActorId:
             actor.id,

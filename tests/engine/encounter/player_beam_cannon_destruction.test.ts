@@ -1,4 +1,4 @@
-// tests/engine/encounter/player_laser_destruction.test.ts
+// tests/engine/encounter/player_beam_cannon_destruction.test.ts
 
 import { createPlayerHullFixture } from '../../fixtures/engine/player_hull_fixtures';
 import {
@@ -31,13 +31,13 @@ import {
     OFFICER_COMMAND_TARGET_KIND,
 } from '../../../src/engine/encounter/model/command';
 import {
-    LASER_SHOT_OUTCOME,
+    BEAM_CANNON_SHOT_OUTCOME,
 } from '../../../src/engine/encounter/model/combat';
 import {
     ENCOUNTER_EVENT,
 } from '../../../src/engine/encounter/model/event';
 
-describe('Player laser enemy destruction', () => {
+describe('Player beamCannon enemy destruction', () => {
     it('destroys the enemy once and removes it from player targeting', () => {
         const {
             engine,
@@ -53,7 +53,7 @@ describe('Player laser enemy destruction', () => {
 
             commandId:
                 ENCOUNTER_OFFICER_COMMAND_ID
-                    .WEAPONS_FIRE_LASER,
+                    .WEAPONS_FIRE_BEAM_CANNON,
 
             target: {
                 kind:
@@ -61,7 +61,7 @@ describe('Player laser enemy destruction', () => {
                         .ACTOR_WEAPON,
 
                 weaponId:
-                    'laser_player_00',
+                    'beam_cannon_player_00',
 
                 actorId:
                     enemyId,
@@ -78,7 +78,7 @@ describe('Player laser enemy destruction', () => {
 
         engine.step(
             SHIP_WEAPONS[
-                SHIP_WEAPON_ID.LASER_00
+                SHIP_WEAPON_ID.BEAM_CANNON_00
             ].chargeDurationMs,
         );
 
@@ -88,16 +88,16 @@ describe('Player laser enemy destruction', () => {
         expect(events).toContainEqual({
             type:
                 ENCOUNTER_EVENT
-                    .PLAYER_LASER_FIRED,
+                    .PLAYER_BEAM_CANNON_FIRED,
 
             weaponId:
-                'laser_player_00',
+                'beam_cannon_player_00',
 
             targetActorId:
                 enemyId,
 
             outcome:
-                LASER_SHOT_OUTCOME.HIT,
+                BEAM_CANNON_SHOT_OUTCOME.HIT,
 
             damage: 1,
             remainingHull: 0,
@@ -118,7 +118,7 @@ describe('Player laser enemy destruction', () => {
         ).toEqual([]);
 
         expect(
-            engine.getLaserAttacks(),
+            engine.getBeamCannonAttacks(),
         ).toEqual([]);
 
         expect(
@@ -130,7 +130,7 @@ describe('Player laser enemy destruction', () => {
                     return (
                         command.commandId ===
                         ENCOUNTER_OFFICER_COMMAND_ID
-                            .WEAPONS_FIRE_LASER
+                            .WEAPONS_FIRE_BEAM_CANNON
                     );
                 }),
         ).toEqual([]);
@@ -173,7 +173,7 @@ describe('Player laser enemy destruction', () => {
                                 .MISSILE_LAUNCHED ||
                         event.type ===
                             ENCOUNTER_EVENT
-                                .LASER_ATTACK_STARTED ||
+                                .BEAM_CANNON_ATTACK_STARTED ||
                         event.type ===
                             ENCOUNTER_EVENT
                                 .SPAM_CHANNEL_STARTED ||

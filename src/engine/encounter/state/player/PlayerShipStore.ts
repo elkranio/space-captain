@@ -30,7 +30,7 @@ import {
 import {
     SHIP_WEAPON_KIND,
     SHIP_WEAPON_PHASE,
-    type LaserWeaponState,
+    type BeamCannonState,
     type MissileLauncherState,
     type ShipWeaponState,
     type SpamProjectorState,
@@ -473,9 +473,9 @@ export default class PlayerShipStore {
         }
     }
 
-    public startPlayerLaserTargeting(
+    public startPlayerBeamCannonTargeting(
         weaponId: string,
-    ): LaserWeaponState {
+    ): BeamCannonState {
         const weapon =
             this.findPlayerWeaponById(
                 weaponId,
@@ -490,10 +490,10 @@ export default class PlayerShipStore {
 
         if (
             weapon.kind !==
-            SHIP_WEAPON_KIND.LASER
+            SHIP_WEAPON_KIND.BEAM_CANNON
         ) {
             throw new Error(
-                'Player weapon is not a laser: ' +
+                'Player weapon is not a beamCannon: ' +
                     weaponId +
                     '/' +
                     weapon.kind,
@@ -505,7 +505,7 @@ export default class PlayerShipStore {
             SHIP_WEAPON_PHASE.READY
         ) {
             throw new Error(
-                'Player laser is not ready: ' +
+                'Player beamCannon is not ready: ' +
                     weaponId +
                     '/' +
                     weapon.phase,

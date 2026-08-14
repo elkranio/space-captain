@@ -12,7 +12,7 @@ import type { ShipDriveStatus } from '../../../../../engine/defs/ship_drive';
 import type { ShipWeaponPhase } from '../../../../../engine/defs/ship_weapon';
 import type { EncounterOfficerCommandId, OfficerCommandTarget } from '../../../../../engine/encounter/model/command';
 import type {
-    LaserShotOutcome,
+    BeamCannonShotOutcome,
     PlayerMissileOutcome,
     PlayerSpamChannelOutcome,
     PlayerStickyMineOutcome,
@@ -245,19 +245,19 @@ export const BRIDGE_EVENT = {
     ENEMY_DEFENSE_TURRET_FIRED:
         'enemy_defense_turret_fired',
 
-    // Вражеский laser начал видимую charging-фазу.
-    LASER_THREAT_ADDED: 'laser_threat_added',
+    // Вражеский beamCannon начал видимую charging-фазу.
+    BEAM_CANNON_THREAT_ADDED: 'beam_cannon_threat_added',
 
-    // Laser charging threat завершилась выстрелом.
-    LASER_THREAT_REMOVED: 'laser_threat_removed',
+    // BeamCannon charging threat завершилась выстрелом.
+    BEAM_CANNON_THREAT_REMOVED: 'beam_cannon_threat_removed',
 
     // Актуальный временной и identification snapshot
-    // всех активных laser charging threats.
-    LASER_THREATS_UPDATED: 'laser_threats_updated',
+    // всех активных beamCannon charging threats.
+    BEAM_CANNON_THREATS_UPDATED: 'beam_cannon_threats_updated',
 
-    // Вражеский laser разрешил выстрел,
+    // Вражеский beamCannon разрешил выстрел,
     // который bridge view показывает коротким beam VFX.
-    LASER_BEAM_FIRED: 'laser_beam_fired',
+    BEAM_CANNON_BEAM_FIRED: 'beam_cannon_beam_fired',
 
     PLAYER_SHIELD_DEPLOYED:
         'player_shield_deployed',
@@ -271,14 +271,14 @@ export const BRIDGE_EVENT = {
     ENEMY_SHIELDS_UPDATED:
         'enemy_shields_updated',
 
-    PLAYER_LASER_CHARGING_STARTED:
-        'player_laser_charging_started',
+    PLAYER_BEAM_CANNON_CHARGING_STARTED:
+        'player_beam_cannon_charging_started',
 
-    PLAYER_LASER_CHARGING_CLEARED:
-        'player_laser_charging_cleared',
+    PLAYER_BEAM_CANNON_CHARGING_CLEARED:
+        'player_beam_cannon_charging_cleared',
 
-    PLAYER_LASER_FIRED:
-        'player_laser_fired',
+    PLAYER_BEAM_CANNON_FIRED:
+        'player_beam_cannon_fired',
 
     ENEMY_SHIP_DESTRUCTION_STARTED:
         'enemy_ship_destruction_started',
@@ -410,7 +410,7 @@ export type BridgePlayerWeaponStatusPayload = {
 };
 
 export type BridgePlayerWeaponsStatusUpdatedPayload = {
-    laser?: BridgePlayerWeaponStatusPayload;
+    beamCannon?: BridgePlayerWeaponStatusPayload;
 
     missileLauncher?:
         BridgePlayerWeaponStatusPayload & {
@@ -492,7 +492,7 @@ export type BridgePlayerShipDashboardUpdatedPayload = {
         };
     };
 
-    laser?: {
+    beamCannon?: {
         // 0..1 elapsed cooldown.
         // Targeting/charging показываются через ENGAGED state,
         // без отдельного progress bar в dashboard.
@@ -572,7 +572,7 @@ export type BridgeCaptainIncomingMissilePayload = {
     };
 };
 
-export type BridgeCaptainIncomingLaserPayload = {
+export type BridgeCaptainIncomingBeamCannonPayload = {
     attackId: string;
     designation: string;
 
@@ -641,8 +641,8 @@ export type BridgeCaptainCombatContextUpdatedPayload = {
     incomingMissiles:
         BridgeCaptainIncomingMissilePayload[];
 
-    incomingLasers:
-        BridgeCaptainIncomingLaserPayload[];
+    incomingBeamCannons:
+        BridgeCaptainIncomingBeamCannonPayload[];
 
     incomingStickyMines:
         BridgeCaptainStickyMinePayload[];
@@ -853,7 +853,7 @@ export type BridgeEnemyDefenseTurretFiredPayload = {
     outcome: DefenseTurretShotOutcome;
 };
 
-export type BridgeLaserThreatAddedPayload = {
+export type BridgeBeamCannonThreatAddedPayload = {
     attackId: string;
 
     designation: string;
@@ -861,24 +861,24 @@ export type BridgeLaserThreatAddedPayload = {
     sourceActorId: string;
 };
 
-export type BridgeLaserThreatRemovedPayload = {
+export type BridgeBeamCannonThreatRemovedPayload = {
     attackId: string;
 };
 
-export type BridgeLaserThreatUpdatePayload = {
+export type BridgeBeamCannonThreatUpdatePayload = {
     attackId: string;
 
     timeToFireMs: number;
     initialTimeToFireMs: number;
 };
 
-export type BridgeLaserThreatsUpdatedPayload = BridgeLaserThreatUpdatePayload[];
+export type BridgeBeamCannonThreatsUpdatedPayload = BridgeBeamCannonThreatUpdatePayload[];
 
-export type BridgeLaserBeamFiredPayload = {
+export type BridgeBeamCannonBeamFiredPayload = {
     sourceActorId: string;
 
     outcome:
-        LaserShotOutcome;
+        BeamCannonShotOutcome;
 };
 
 export type BridgePlayerShieldSnapshotPayload = {
@@ -905,22 +905,22 @@ export type BridgeEnemyShieldPayload = {
 export type BridgeEnemyShieldsUpdatedPayload =
     BridgeEnemyShieldPayload[];
 
-export type BridgePlayerLaserChargingStartedPayload = {
+export type BridgePlayerBeamCannonChargingStartedPayload = {
     weaponId: string;
 
     targetActorId: string;
 };
 
-export type BridgePlayerLaserChargingClearedPayload = {
+export type BridgePlayerBeamCannonChargingClearedPayload = {
     weaponId: string;
 };
 
-export type BridgePlayerLaserFiredPayload = {
+export type BridgePlayerBeamCannonFiredPayload = {
     weaponId: string;
 
     targetActorId: string;
 
-    outcome: LaserShotOutcome;
+    outcome: BeamCannonShotOutcome;
 };
 
 export type BridgeEnemyShipDestructionPayload = {
@@ -1098,13 +1098,13 @@ export type BridgeEventPayloadMap = {
     [BRIDGE_EVENT.ENEMY_DEFENSE_TURRET_FIRED]:
         BridgeEnemyDefenseTurretFiredPayload;
 
-    [BRIDGE_EVENT.LASER_THREAT_ADDED]: BridgeLaserThreatAddedPayload;
+    [BRIDGE_EVENT.BEAM_CANNON_THREAT_ADDED]: BridgeBeamCannonThreatAddedPayload;
 
-    [BRIDGE_EVENT.LASER_THREAT_REMOVED]: BridgeLaserThreatRemovedPayload;
+    [BRIDGE_EVENT.BEAM_CANNON_THREAT_REMOVED]: BridgeBeamCannonThreatRemovedPayload;
 
-    [BRIDGE_EVENT.LASER_THREATS_UPDATED]: BridgeLaserThreatsUpdatedPayload;
+    [BRIDGE_EVENT.BEAM_CANNON_THREATS_UPDATED]: BridgeBeamCannonThreatsUpdatedPayload;
 
-    [BRIDGE_EVENT.LASER_BEAM_FIRED]: BridgeLaserBeamFiredPayload;
+    [BRIDGE_EVENT.BEAM_CANNON_BEAM_FIRED]: BridgeBeamCannonBeamFiredPayload;
 
     [BRIDGE_EVENT.PLAYER_SHIELD_DEPLOYED]:
         BridgePlayerShieldSnapshotPayload;
@@ -1118,14 +1118,14 @@ export type BridgeEventPayloadMap = {
     [BRIDGE_EVENT.ENEMY_SHIELDS_UPDATED]:
         BridgeEnemyShieldsUpdatedPayload;
 
-    [BRIDGE_EVENT.PLAYER_LASER_CHARGING_STARTED]:
-        BridgePlayerLaserChargingStartedPayload;
+    [BRIDGE_EVENT.PLAYER_BEAM_CANNON_CHARGING_STARTED]:
+        BridgePlayerBeamCannonChargingStartedPayload;
 
-    [BRIDGE_EVENT.PLAYER_LASER_CHARGING_CLEARED]:
-        BridgePlayerLaserChargingClearedPayload;
+    [BRIDGE_EVENT.PLAYER_BEAM_CANNON_CHARGING_CLEARED]:
+        BridgePlayerBeamCannonChargingClearedPayload;
 
-    [BRIDGE_EVENT.PLAYER_LASER_FIRED]:
-        BridgePlayerLaserFiredPayload;
+    [BRIDGE_EVENT.PLAYER_BEAM_CANNON_FIRED]:
+        BridgePlayerBeamCannonFiredPayload;
 
     [BRIDGE_EVENT.ENEMY_SHIP_DESTRUCTION_STARTED]:
         BridgeEnemyShipDestructionPayload;

@@ -68,7 +68,7 @@ export default class BridgeEncounterSnapshotSynchronizer {
         this.syncEnemyShields(
             snapshot,
         );
-        this.syncLaserThreats(
+        this.syncBeamCannonThreats(
             snapshot,
         );
         this.syncCaptainCombatContext(
@@ -174,8 +174,8 @@ export default class BridgeEncounterSnapshotSynchronizer {
                 incomingMissiles:
                     snapshot.incomingMissiles,
 
-                laserThreats:
-                    snapshot.laserThreats,
+                beamCannonThreats:
+                    snapshot.beamCannonThreats,
 
                 stickyMineSnapshots:
                     snapshot
@@ -284,29 +284,29 @@ export default class BridgeEncounterSnapshotSynchronizer {
         );
     }
 
-    public syncLaserThreats(
+    public syncBeamCannonThreats(
         snapshot =
             this.encounterEngine
                 .getPresentationSnapshot(),
     ): void {
         this.eventBus.emit(
             BRIDGE_EVENT
-                .LASER_THREATS_UPDATED,
+                .BEAM_CANNON_THREATS_UPDATED,
 
             snapshot
-                .laserThreats
-                .map((laserThreat) => {
+                .beamCannonThreats
+                .map((beamCannonThreat) => {
                     return {
                         attackId:
-                            laserThreat
+                            beamCannonThreat
                                 .attack.id,
 
                         timeToFireMs:
-                            laserThreat
+                            beamCannonThreat
                                 .timeToFireMs,
 
                         initialTimeToFireMs:
-                            laserThreat
+                            beamCannonThreat
                                 .initialTimeToFireMs,
                     };
                 }),

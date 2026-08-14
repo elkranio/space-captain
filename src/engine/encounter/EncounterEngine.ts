@@ -37,7 +37,7 @@ import type { AvailableOfficerCommand, ExecuteOfficerCommandInput, ExecuteOffice
 import {
     type ActiveShieldState,
     type CombatProjectileState,
-    type LaserAttackState,
+    type BeamCannonAttackState,
 } from './model/combat';
 import { ENCOUNTER_EVENT, type EncounterEvent } from './model/event';
 import type { OfficerAvailabilityStates } from './model/officer_availability';
@@ -61,7 +61,7 @@ export type {
 export type {
     EnemyDebugSnapshot,
 } from './debug/get_enemy_debug_snapshots';
-export type { LaserThreatSnapshot } from './combat/queries/get_laser_threat_snapshots';
+export type { BeamCannonThreatSnapshot } from './combat/queries/get_beam_cannon_threat_snapshots';
 export type { StickyMineSnapshot } from './combat/queries/get_sticky_mine_snapshots';
 export type {
     CombatPresentationSnapshot,
@@ -415,8 +415,8 @@ export default class EncounterEngine {
         return this.snapshotReader.getCombatProjectiles();
     }
 
-    public getLaserAttacks(): LaserAttackState[] {
-        return this.snapshotReader.getLaserAttacks();
+    public getBeamCannonAttacks(): BeamCannonAttackState[] {
+        return this.snapshotReader.getBeamCannonAttacks();
     }
 
     public purgeSpamChannel(channelId: string): boolean {

@@ -1,4 +1,4 @@
-// tests/engine/encounter/laser_threat_snapshots.test.ts
+// tests/engine/encounter/beam_cannon_threat_snapshots.test.ts
 
 import { createPlayerHullFixture } from '../../fixtures/engine/player_hull_fixtures';
 import { createShipDriveFixture } from '../../fixtures/engine/ship_drive_fixtures';
@@ -19,14 +19,14 @@ import { ENCOUNTER_EVENT } from '../../../src/engine/encounter/model/event';
 import ShipNodeActorFactory from '../../../src/engine/generation/space_node_actor/ShipNodeActorFactory';
 import { createSingleStationNodeFixture } from '../../fixtures/engine/space_node_fixtures';
 
-describe('EncounterEngine laser threat snapshots', () => {
+describe('EncounterEngine beamCannon threat snapshots', () => {
     it('derives countdown from the charging weapon', () => {
-        const { engine, chargeDurationMs } = createLaserEngine();
+        const { engine, chargeDurationMs } = createBeamCannonEngine();
 
         engine.step(SHIP_WEAPON_TARGETING_DURATION_MS);
         engine.drainEvents();
 
-        expect(engine.getCombatPresentationSnapshot().laserThreats).toEqual([
+        expect(engine.getCombatPresentationSnapshot().beamCannonThreats).toEqual([
             {
                 attack: createExpectedAttack(),
 
@@ -38,7 +38,7 @@ describe('EncounterEngine laser threat snapshots', () => {
         engine.step(1234);
         engine.drainEvents();
 
-        expect(engine.getCombatPresentationSnapshot().laserThreats).toEqual([
+        expect(engine.getCombatPresentationSnapshot().beamCannonThreats).toEqual([
             {
                 attack: createExpectedAttack(),
 
@@ -50,13 +50,13 @@ describe('EncounterEngine laser threat snapshots', () => {
     });
 });
 
-function createLaserEngine() {
+function createBeamCannonEngine() {
     const { node, stationId } = createSingleStationNodeFixture();
 
     const enemy = ShipNodeActorFactory.create({
         id: 'ship_enemy_00',
 
-        presetId: SHIP_NODE_ACTOR_PRESET_ID.ENEMY_GENERIC_LASER_00,
+        presetId: SHIP_NODE_ACTOR_PRESET_ID.ENEMY_GENERIC_BEAM_CANNON_00,
 
         anchorId: stationId,
     });
@@ -87,18 +87,18 @@ function createLaserEngine() {
         );
     }
 
-    const laser = getMutableEncounterStateForTest(engine)
+    const beamCannon = getMutableEncounterStateForTest(engine)
         .actors[0]
         .weapons[0];
 
-    if (laser.kind !== SHIP_WEAPON_KIND.LASER) {
-        throw new Error('Expected loaded enemy laser');
+    if (beamCannon.kind !== SHIP_WEAPON_KIND.BEAM_CANNON) {
+        throw new Error('Expected loaded enemy beamCannon');
     }
 
-    const definition = SHIP_WEAPONS[laser.weaponId];
+    const definition = SHIP_WEAPONS[beamCannon.weaponId];
 
-    if (definition.kind !== SHIP_WEAPON_KIND.LASER) {
-        throw new Error('Expected laser definition');
+    if (definition.kind !== SHIP_WEAPON_KIND.BEAM_CANNON) {
+        throw new Error('Expected beamCannon definition');
     }
 
     return {
@@ -110,11 +110,11 @@ function createLaserEngine() {
 
 function createExpectedAttack() {
     return {
-        id: 'laser_attack_1',
+        id: 'beam_cannon_attack_1',
         designation: 'L1',
 
         sourceActorId: 'ship_enemy_00',
-        sourceWeaponId: 'laser_00',
+        sourceWeaponId: 'beam_cannon_00',
 
         target: {
             kind: COMBAT_TARGET_KIND.PLAYER_SHIP,

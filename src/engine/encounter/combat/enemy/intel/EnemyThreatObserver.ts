@@ -110,7 +110,7 @@ export default class EnemyThreatObserver {
             ...this.collectMissiles(
                 actorId,
             ),
-            ...this.collectChargingLaser(
+            ...this.collectChargingBeamCannon(
                 actorId,
             ),
             ...this.collectStickyMines(
@@ -167,7 +167,7 @@ export default class EnemyThreatObserver {
         return observations;
     }
 
-    private collectChargingLaser(
+    private collectChargingBeamCannon(
         actorId: string,
     ): EnemyThreatObservationState[] {
         const task =
@@ -180,7 +180,7 @@ export default class EnemyThreatObserver {
             !task ||
             task.kind !==
                 OFFICER_TASK_KIND
-                    .WEAPONS_FIRE_LASER ||
+                    .WEAPONS_FIRE_BEAM_CANNON ||
             task.targetActorId !== actorId
         ) {
             return [];
@@ -208,11 +208,11 @@ export default class EnemyThreatObserver {
         return [
             {
                 id:
-                    'laser:' +
+                    'beamCannon:' +
                     task.id,
 
                 kind:
-                    ENEMY_THREAT_KIND.LASER,
+                    ENEMY_THREAT_KIND.BEAM_CANNON,
 
                 source: {
                     kind:

@@ -13,7 +13,7 @@ import {
     SHIP_WEAPON_ID,
     SHIP_WEAPON_KIND,
     SHIP_WEAPON_PHASE,
-    type LaserWeaponState,
+    type BeamCannonState,
 } from '../../../src/engine/defs/ship_weapon';
 import {
     SHIP_WEAPONS,
@@ -28,7 +28,7 @@ import {
     PLAYER_SHIELD_END_OUTCOME,
 } from '../../../src/engine/encounter/model/event';
 import {
-    LASER_SHOT_OUTCOME,
+    BEAM_CANNON_SHOT_OUTCOME,
 } from '../../../src/engine/encounter/model/combat';
 import {
     createAnchoredPlayerCombatTestSetup,
@@ -305,7 +305,7 @@ describe(
         );
 
         it(
-            'absorbs one incoming laser without hull damage',
+            'absorbs one incoming beamCannon without hull damage',
             () => {
                 const {
                     engine,
@@ -332,18 +332,18 @@ describe(
                 engine.step(3000);
                 engine.drainEvents();
 
-                const laser:
-                    LaserWeaponState = {
+                const beamCannon:
+                    BeamCannonState = {
                         id:
-                            'shield_test_laser_00',
+                            'shield_test_beam_cannon_00',
 
                         weaponId:
                             SHIP_WEAPON_ID
-                                .LASER_00,
+                                .BEAM_CANNON_00,
 
                         kind:
                             SHIP_WEAPON_KIND
-                                .LASER,
+                                .BEAM_CANNON,
 
                         phase:
                             SHIP_WEAPON_PHASE
@@ -353,49 +353,49 @@ describe(
                     };
 
                 targetActor.weapons.push(
-                    laser,
+                    beamCannon,
                 );
 
                 const definition =
                     SHIP_WEAPONS[
-                        laser.weaponId
+                        beamCannon.weaponId
                     ];
 
                 if (
                     definition.kind !==
-                    SHIP_WEAPON_KIND.LASER
+                    SHIP_WEAPON_KIND.BEAM_CANNON
                 ) {
                     throw new Error(
-                        'Expected laser definition',
+                        'Expected beamCannon definition',
                     );
                 }
 
-                laser.phase =
+                beamCannon.phase =
                     SHIP_WEAPON_PHASE
                         .CHARGING;
 
-                laser.phaseElapsedMs =
+                beamCannon.phaseElapsedMs =
                     definition
                         .chargeDurationMs;
 
                 state.combat
-                    .laserAttacks =
+                    .beamCannonAttacks =
                         state.combat
-                            .laserAttacks
+                            .beamCannonAttacks
                             .filter((attack) => {
                                 return !(
                                     attack.sourceActorId ===
                                         targetActor.id &&
                                     attack.sourceWeaponId ===
-                                        laser.id
+                                        beamCannon.id
                                 );
                             });
 
                 state.combat
-                    .laserAttacks
+                    .beamCannonAttacks
                     .push({
                         id:
-                            'shield_test_laser',
+                            'shield_test_beam_cannon',
 
                         designation:
                             'L99',
@@ -404,7 +404,7 @@ describe(
                             targetActor.id,
 
                         sourceWeaponId:
-                            laser.id,
+                            beamCannon.id,
 
                         target: {
                             kind:
@@ -437,9 +437,9 @@ describe(
                         return (
                             event.type ===
                                 ENCOUNTER_EVENT
-                                    .LASER_FIRED &&
+                                    .BEAM_CANNON_FIRED &&
                             event.attack.id ===
-                                'shield_test_laser'
+                                'shield_test_beam_cannon'
                         );
                     });
 
@@ -457,10 +457,10 @@ describe(
                 ).toMatchObject({
                     type:
                         ENCOUNTER_EVENT
-                            .LASER_FIRED,
+                            .BEAM_CANNON_FIRED,
 
                     outcome:
-                        LASER_SHOT_OUTCOME
+                        BEAM_CANNON_SHOT_OUTCOME
                             .ABSORBED,
                 });
 

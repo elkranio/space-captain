@@ -23,7 +23,7 @@ import {
 // Whole-ship enemy shield lifecycle.
 //
 // No sectors or hit nodes yet: one active field protects the actor
-// from one player laser and otherwise expires by duration.
+// from one player beamCannon and otherwise expires by duration.
 export default class EnemyShieldRunner {
     constructor(
         private readonly state:

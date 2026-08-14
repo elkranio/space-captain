@@ -220,7 +220,7 @@ describe('Player missile lifecycle', () => {
                     return (
                         command.commandId ===
                         ENCOUNTER_OFFICER_COMMAND_ID
-                            .WEAPONS_FIRE_LASER
+                            .WEAPONS_FIRE_BEAM_CANNON
                     );
                 },
             ),

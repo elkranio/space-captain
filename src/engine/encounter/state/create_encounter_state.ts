@@ -120,7 +120,7 @@ export function createEncounterState({
                 ),
 
             projectiles: [],
-            laserAttacks: [],
+            beamCannonAttacks: [],
             stickyMines: [],
         },
     };

@@ -269,7 +269,7 @@ export default class EncounterNavigationStore {
             this.state.combat;
 
         combat.projectiles.length = 0;
-        combat.laserAttacks.length = 0;
+        combat.beamCannonAttacks.length = 0;
         combat.stickyMines.length = 0;
 
         const actors =
