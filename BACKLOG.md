@@ -3,50 +3,53 @@
 Living backlog only. Completed historical phases belong in git history, not in the active task list.
 
 Updated: 2026-08-14
-Reference HEAD: `65a983b7460b66bf85a2753844540c78bf8bbe45`
+Reference HEAD: `31445cf2b634f017a91e1035c29633c5f1e5c003`
 
 ## Current selected work
 
-### 1. Missile Launcher + Missiles content/editor migration — NEXT
+There is **no hard-selected coding atom** at this handoff.
 
-The targeted cleanup pass is complete and green.
+The previous selected content sequence is complete:
+- separate Missile content entity removed;
+- separate Sticky Mine content entity removed;
+- physical projectile/mine tuning moved to their launchers/dispensers;
+- Ship Weapons split into four CRUD editor families;
+- heavy Laser renamed to Beam Cannon project-wide.
 
-Goal:
-- make Missile Launcher + Missiles genuinely editor-friendly;
-- migrate post-refactor tuning, not old spectral/color semantics;
-- open IDs only where CRUD requires it;
-- reference validation + referenced-delete protection;
-- clean remaining historical RED/BLUE preset names as part of the migration if useful;
-- preserve per-launch hidden runtime signature as runtime truth, never JSON content.
+### Suggested first step next chat
 
-Current implemented missile tuning:
-- missile name
-- damage
-- flight duration
+Continue the content-editor/content-data line from the current clean baseline:
 
-Current implemented Defense Turret blind tuning:
-- `blindInterceptChance`
+1. fetch fresh `master`;
+2. smoke `npm run editor`;
+3. verify the real `Ship Weapons` group:
+   - Missile Launchers
+   - Beam Cannons
+   - Spam Projectors
+   - Sticky Mine Dispensers
+4. verify add/save/delete/reference-block behavior in UI;
+5. choose one concrete next content/editor slice with the user.
 
-Do not invent a missile blind-intercept penalty during editor migration unless gameplay design explicitly selects it.
+Do not migrate collections merely for completeness.
 
-## Content tools near-term
+## Content tools current state
 
-CRUD-ready:
+CRUD-ready ship modules:
 - Ship Chassis
 - Drives
 - Power Cores
 - Shield Generators
 - Defense Turrets
 
-Current SHIP MODULES:
-- Power Cores
-- Drives
-- Shield Generators
-- Defense Turrets
+CRUD-ready ship weapons:
+- Missile Launchers
+- Beam Cannons
+- Spam Projectors
+- Sticky Mine Dispensers
 
-After Missile Launcher + Missiles:
-- continue converting only content that blocks real tuning/work;
-- do not migrate every registry collection for completeness.
+There are no separate `Missiles` or `Sticky Mines` collections.
+
+Weapon IDs are open editor strings, globally unique across weapon families, with referenced-delete protection against player/enemy ship presets.
 
 ## Near combat follow-ups
 
@@ -60,20 +63,34 @@ After Missile Launcher + Missiles:
 - Engineer repair commands for defensive installations.
 - Balance shield task duration / TTL / generator cooldown / Power Core recharge.
 - Revisit enemy shield behavior only after player-side contracts are stable.
-- Decide whether Science gets real beamCannon/node targeting; keep current SCI beamCannon slot disabled until then.
 - Decide if/when missile technology should reduce blind interception; current code has turret-side chance only.
 - Helm evade remains a future separate missile response and must not be coupled to hidden signature mechanics.
 
-## Missile semantic cleanup debt
+## Beam Cannon future design
 
-Mechanical color semantics are gone, but some identifiers still contain historical names such as:
-- `BASIC_RED_FULL_00`
-- `BASIC_BLUE_FULL_00`
-- generic RED/BLUE missile ship/node-actor aliases
+Current Beam Cannon is the slow/heavy energy weapon.
 
-These are naming debt, not current gameplay. Remove/rename when doing so clearly reduces confusion and test noise.
+Likely future direction, not implemented:
+- precision “sniper” role;
+- can target HULL or concrete ship nodes;
+- HULL remains always targetable;
+- Science may unlock/identify targetable systems;
+- node hit disables/breaks the node;
+- vulnerable-node hit may also cause bonus hull damage;
+- exact Science intel/vulnerability contract still needs deliberate design.
 
-Internal `signature_a/signature_b` is hidden transitional truth. It is not automatically a refactor target unless a simpler representation preserves the current Science correctness mechanic.
+Do not implement node targeting from visual impact anchors; define a real semantic target contract first.
+
+## Future starter weapon
+
+Design possibility only:
+- fast;
+- weak initially;
+- reliable “old faithful”;
+- no ammo or very cheap energy economy;
+- likely named **Pulse Laser** if/when selected.
+
+This is intentionally separate from Beam Cannon. Do not rename Beam Cannon back to Laser to make room for it.
 
 ## Captain dashboard / UX
 

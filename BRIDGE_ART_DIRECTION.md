@@ -2,6 +2,9 @@
 
 Visual reference only. Gameplay truth lives in `GAMEPLAY_CONTRACTS.md`; implementation state lives in `PROJECT_CONTEXT.md`.
 
+Updated: 2026-08-14
+Reference HEAD: `31445cf2b634f017a91e1035c29633c5f1e5c003`
+
 ## Core fantasy
 
 The player sits in the captain’s chair of a small, slightly worn working starship.
@@ -33,7 +36,7 @@ Keep it visually clean.
 May show:
 - one enemy ship;
 - space;
-- missiles/mines/beam_cannon/spam VFX;
+- missiles/mines/Beam Cannon/SPAM VFX;
 - shield/impact VFX;
 - small temporary targeting indicators.
 
@@ -112,6 +115,14 @@ Officer stations still need:
 - direct cancellation affordance for cancellable current work.
 
 The old officer context menu is legacy coverage, not a final visual requirement.
+
+## Weapon visual terminology
+
+Current heavy precision energy weapon: **Beam Cannon**.
+
+Do not label its current VFX/system row as Laser.
+
+A future fast/weak starter laser is a separate design possibility and should get its own visual language if implemented.
 
 ## Style
 

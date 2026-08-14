@@ -1,11 +1,11 @@
 # Space Captain — Content Tools Handoff
 
 Updated: 2026-08-14
-Reference HEAD: `65a983b7460b66bf85a2753844540c78bf8bbe45`
+Reference HEAD: `31445cf2b634f017a91e1035c29633c5f1e5c003`
 
 Persistent handoff for the local content editor / content-data initiative.
 
-The targeted cleanup described in `REFACTOR_HANDOFF.md` is complete and green. The queued next content task is **Missile Launcher + Missiles migration**.
+The earlier Missile/Sticky Mine content simplifications and Ship Weapons editor split are complete and green. There is no queued “Missile Launcher + Missiles migration” anymore.
 
 ## Read before content-tool work
 
@@ -14,7 +14,6 @@ The targeted cleanup described in `REFACTOR_HANDOFF.md` is complete and green. T
 3. `SYSTEM_MAP.md`
 4. `CONTENT_TOOLS_HANDOFF.md`
 5. focused schema/catalog/server/tests for the current collection
-6. current post-refactor missile files when touching missiles
 
 Always re-check current GitHub `master`.
 
@@ -46,7 +45,6 @@ The tool reduces cognitive load. It is not runtime gameplay and not a general ga
 - editor consumes the same schema/data surfaces
 - no editor database
 - no TypeScript AST rewriting
-- no custom schema language
 - current Zod dependency: `zod@4.4.3`
 
 ### Editor
@@ -56,7 +54,7 @@ The tool reduces cognitive load. It is not runtime gameplay and not a general ga
 - no Phaser
 - light theme
 - schema-driven primitive inspector
-- collection navigation
+- grouped collection navigation
 - record selection
 - dirty/save flow
 - validation/error display
@@ -102,7 +100,6 @@ Examples:
 - command target semantics
 - authoritative availability
 - Science intel semantics
-- correct-hypothesis = guaranteed intercept
 - runtime missile signature generation
 - projectile lifecycle
 
@@ -110,127 +107,104 @@ Editor changes data, not game rules.
 
 ## Current collection registry
 
-Registered collections include:
+### General
+
+Registered non-CRUD or mixed general collections include:
 - Officer Tasks
 - Ship Weapon Rules
-- Ship Weapons
-- Missiles
-- Power Cores
-- Defense Turrets
-- Shield Generators
 - Ship Behaviors
-- Ship Chassis
-- Drives
-- Sticky Mines
 - Enemy Behavior Rules
-
-Not every registered collection is CRUD-ready.
-
-### CRUD-ready
-
 - Ship Chassis
-- Drives
+
+### Ship Modules
+
+CRUD-ready:
 - Power Cores
-- Shield Generators
 - Defense Turrets
-
-CRUD-enabled record IDs should be open strings validated by schema where adding records requires new IDs. Built-in constants may remain convenience aliases.
-
-### SHIP MODULES group
-
-- Power Cores
+- Shield Generators
 - Drives
-- Shield Generators
-- Defense Turrets
 
-Do not create a giant runtime `ShipModule` hierarchy merely because the editor groups them together.
+### Ship Weapons
 
-## Missile gameplay refactor — COMPLETE
+CRUD-ready:
+- Missile Launchers
+- Beam Cannons
+- Spam Projectors
+- Sticky Mine Dispensers
 
-The old red/blue spectral-band gameplay contract is gone.
+`Ship Weapons` is an editor navigation group only. Do not create a giant runtime `ShipWeapon` class hierarchy merely because the editor groups these records.
 
-Current runtime/domain rules:
-- each launched missile gets hidden per-projectile runtime signature truth;
-- Science intel is per projectile;
-- `UNKNOWN`, `UNCERTAIN`, `CONFIRMED`;
-- UNCERTAIN has a concrete hypothesis which may be correct/wrong;
-- CONFIRMED is guaranteed truthful;
-- correct concrete hypothesis -> guaranteed intercept;
-- wrong/no hypothesis -> installed Defense Turret `blindInterceptChance`;
-- current BASIC turret chance = 0.4;
-- blind MISS leaves missile alive;
-- Power Core cost is committed on attempt;
-- app presentation gets `identificationStatus`, not hidden signature/hypothesis.
+## Weapon content architecture — CURRENT
 
-Do not encode runtime signature in JSON.
+Physical content is split by concrete weapon family:
 
-## Current missile/content reality
+```text
+missile_launchers.json
+beam_cannons.json
+spam_projectors.json
+sticky_mine_dispensers.json
+        ↓
+family Zod schemas
+        ↓
+unified runtime SHIP_WEAPONS catalog
+```
 
-### Defense Turret
+Runtime consumers still use one `SHIP_WEAPONS` catalog.
 
-Already content-backed/CRUD-ready.
-
-Editable tuning currently includes:
-- name
-- load duration
-- cooldown duration
-- `blindInterceptChance`
-
-Hard equipment chance is legitimate numeric content.
-
-### Missiles
-
-Current definitions are neutral BASIC models; runtime signature is not model data.
-
-Current balance fields include:
-- name
-- damage
-- flight duration
-
-There is **no implemented missile blind-intercept penalty/difficulty field yet**.
-
-Do not invent one during editor migration unless gameplay design explicitly selects it.
+Rules:
+- `ShipWeaponId` is an open string so editor-created records do not require editing an exhaustive ID union;
+- builtin `SHIP_WEAPON_ID.*` constants remain stable aliases;
+- builtin IDs retain concrete catalog typing;
+- IDs must be unique across all four weapon families;
+- deleting a weapon used by enemy/player ship presets is blocked with usage information.
 
 ### Missile Launcher
 
-Launcher presets still exist in TypeScript and still contain historical names such as:
-- `BASIC_RED_FULL_00`
-- `BASIC_BLUE_FULL_00`
-
-Those names are stale vocabulary only. They currently load neutral `MISSILE_ID.BASIC_00/BASIC_01`.
-
-The cleanup/refactor pass should audit this naming debt. The later editor migration should not preserve obsolete color semantics.
-
-## Next editor task after refactor
-
-**Missile Launcher + Missiles CRUD/content migration.**
-
-Goals:
-- choose the smallest post-refactor data split;
-- move actual designer tuning to JSON/Zod;
-- add/clone/delete where useful;
-- dynamic/open IDs only where CRUD requires it;
-- cross-reference validation;
-- referenced-delete protection;
-- preserve runtime signature as runtime-only truth;
-- remove stale red/blue preset semantics/names if still present;
-- avoid generic “all weapons” abstraction unless data really demands it.
-
-Potential tuning based on current code:
-
-Missile:
+Current editable tuning:
 - name
 - damage
 - flight duration
+- ammo capacity
+- cooldown duration
 
-Launcher:
-- weapon definition reference
-- loaded missile reference / loadout representation
-- ammo count/capacity semantics according to current model
+There is no separate Missile content collection.
 
-Defense Turret already owns blind intercept chance.
+Each launched missile copies required physical tuning from the launcher definition and gets independent hidden runtime signature truth.
 
-Do not add missile blind penalty merely because an old design note once proposed it.
+Do not recreate a separate Missile model merely to mirror old structure. Add separate ammo content only if future gameplay has genuinely selectable missile/ammo types.
+
+### Beam Cannon
+
+Current editable tuning:
+- name
+- damage
+- charge duration
+- cooldown duration
+
+The current heavy precision weapon was renamed from Laser to Beam Cannon. `Laser` is not a compatibility alias.
+
+### Spam Projector
+
+Current editable tuning:
+- name
+- channel duration
+- officer task progress multiplier
+- cooldown duration
+
+### Sticky Mine Dispenser
+
+Current editable tuning:
+- name
+- damage
+- fuse duration
+- ammo capacity
+- salvo size
+- launch interval
+- cooldown duration
+
+There is no separate Sticky Mine content collection.
+
+Runtime attached mines are autonomous after physical values are copied from the dispenser at launch/attach time.
 
 ## IDs / CRUD rule
 
@@ -243,7 +217,9 @@ For CRUD-enabled collections:
 - deleting referenced records is blocked with useful usage information;
 - ID rename remains forbidden until a concrete migration story exists.
 
-Open only collections that need CRUD.
+For Ship Weapons specifically:
+- IDs are globally unique across weapon families;
+- duplicate cross-family IDs are rejected before they can silently collide in the merged runtime catalog.
 
 ## Validation layers
 
@@ -256,8 +232,10 @@ Open only collections that need CRUD.
 ### Reference validation
 - preset/module/content references exist
 - referenced delete is blocked
+- Ship Weapon cross-family ID collisions are blocked
 
 ### Game-specific invariant validation
+
 Only where schema/reference validation is insufficient.
 
 Do not duplicate normal runtime gameplay rules in editor validation.
@@ -276,17 +254,25 @@ Bad reason:
 
 No React/framework migration unless actual complexity proves it useful.
 
-## Refactor concerns before more editor migration
+## Next content/editor task
 
-Inspect, do not assume:
-- repeated CRUD add/delete/reference plumbing;
-- repeated schema/catalog/metadata declarations;
-- duplicated fixture/test builders;
-- collection-specific branches left over from incremental migrations;
-- local server routing/write whitelist complexity;
-- whether any generic helper currently increases rather than decreases cognitive load.
+No concrete next collection is selected in this handoff.
 
-Do not turn this audit into a giant meta-framework.
+Recommended fresh-chat sequence:
+1. fetch current `master`;
+2. launch/smoke `npm run editor`;
+3. verify `Ship Weapons` grouping and CRUD behavior in the real UI;
+4. inspect current friction;
+5. choose one concrete next content/editor slice with the user.
+
+Do not migrate every remaining registry collection merely for completeness.
+
+Potential future content work should be driven by gameplay needs:
+- new ship/weapon variants;
+- enemy/loadout tuning;
+- behavior tuning;
+- future starter weapon if design is selected;
+- remaining modules only when they need real designer iteration.
 
 ## Testing expectations for content migrations
 
@@ -295,6 +281,7 @@ Normally prove:
 - representative invalid data fails;
 - new records work if CRUD enabled;
 - referenced delete is blocked;
+- cross-family weapon IDs cannot collide;
 - game/catalog consumes validated data;
 - editor loads/saves/reloads;
 - local write cannot escape whitelist;

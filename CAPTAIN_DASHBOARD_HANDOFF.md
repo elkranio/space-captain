@@ -1,7 +1,7 @@
 # Space Captain — Captain Dashboard Handoff
 
-Updated: 2026-08-13
-Reference HEAD before this docs atom: `79ec6e607b7f5e7c55077469594e7b4990b337ae`
+Updated: 2026-08-14
+Reference HEAD: `31445cf2b634f017a91e1035c29633c5f1e5c003`
 
 This is the focused handoff for captain dashboard / combat-context work.
 
@@ -27,10 +27,10 @@ The dashboard should feel like restrained early-1990s VGA / Sierra sci-fi:
 
 Implemented rows/status cover:
 - HULL
-- shared DEF powerCore
+- shared DEF / Power Core
 - ENGINE
 - MISSILE
-- BEAM_CANNON
+- BEAM CANNON
 - MINES
 - SPAM
 
@@ -43,37 +43,40 @@ Implemented:
 - enemy HULL
 - enemy DEF
 - incoming missile threats
-- incoming beamCannon threats
+- incoming Beam Cannon threats
 - hostile sticky-mine threats
 - hostile SPAM channels
 
-All threat/action payloads are mapped from the coherent combat presentation frame plus real engine command availability.
+All threat/action payloads are mapped from safe presentation data plus real engine command availability.
 
 ### Missile row
 
 Current prototype provides:
 - timer
-- missile identity/unknown state
-- Science identify action where available
-- Weapons red/blue defense-turret response where available
-- inline red/blue selector for unknown-missile flow
+- `UNKNOWN / UNCERTAIN / CONFIRMED` player-visible identification state
+- Science identify/re-analyze action where engine allows it
+- one Weapons Defense Turret intercept action
+- hard turret blind chance displayed numerically where useful
 
-### BeamCannon row
+The old red/blue missile selector/beam-band mechanic is gone. Do not reintroduce it in dashboard code or docs.
+
+### Beam Cannon row
 
 Current prototype provides:
 - timer
-- beamCannon threat
-- disabled Science placeholder
+- Beam Cannon threat
+- disabled Science placeholder until a real targeting/intel contract exists
 - Engineer deploy-shield action when the real command is available
 
 ### Sticky-mine row
 
 Current prototype provides:
-- one row per attached hostile mine
-- independent fuse timer per runtime mine
-- current clear-state flags
-- real `CLEAR_STICKY_MINE` actions for any role that engine currently allows
+- one row per attached hostile runtime mine
+- independent fuse timer
+- real `CLEAR_STICKY_MINE` actions for roles engine currently allows
 - no domain-level salvo aggregation
+
+Runtime `mineId` here is concrete runtime mine identity, not removed content identity.
 
 ### SPAM row
 
@@ -86,7 +89,7 @@ Current prototype provides:
 
 Captain action buttons intentionally do **not** use officer-role colors.
 
-Shared repeated dashboard semantics now live in `captain_dashboard_style.ts`.
+Shared repeated dashboard semantics live in `captain_dashboard_style.ts`.
 
 Active:
 - background `0x193147`
@@ -98,41 +101,57 @@ Non-interactive / officer busy / current work:
 - border `0x26394c`
 - text `0x536778`
 
-Red/blue are preserved only where they encode beam choice.
+Do not encode obsolete missile red/blue semantics into UI colors.
 
-Do not move every local VFX color into the dashboard palette. Beam colors, progress visuals and other mechanic-specific presentation can remain local.
+Do not move every local VFX color into the dashboard palette. Beam/projectile/shield/progress visuals may remain mechanic-specific.
 
 ## Countdown formatting
 
 Threat countdown labels share `formatCaptainDashboardCountdown()` from `captain_dashboard_format.ts`.
 
-Do not reintroduce separate missile/beam_cannon/mine/SPAM `formatTimer()` helpers.
+Do not reintroduce separate missile/Beam Cannon/mine/SPAM timer helpers.
 
 ## Threat geometry is provisional
 
 Do not treat the current repeated horizontal threat row as final UX architecture.
 
-Current rows were chosen to make mechanics readable during implementation. With final art, threats may become much smaller, potentially compact tiles rather than rows.
+Current rows were chosen to make mechanics readable during implementation. With final art, threats may become:
+- much smaller;
+- compact tiles;
+- icon + timer + one/two compact action affordances;
+- grouped visually without aggregating gameplay identity.
 
 Therefore:
 - do not build a generic row framework;
 - do not solve final sizing during mechanic work;
 - keep domain/read-model identity independent of visual grouping;
-- keep concrete threat views specialized while their interactions differ.
+- keep concrete threat views specialized while interactions differ.
 
 ## Snapshot / mapper boundary
 
-`CombatPresentationSnapshot` is the coherent one-frame source used by current bridge synchronization.
+`EncounterPresentationSnapshot` is the normal app-facing coherent frame root. Focused combat presentation data remains a child projection.
 
-For captain context, the mapper receives:
+Captain context ultimately consumes:
 - enemy ship presentation snapshots
 - incoming missiles
-- beamCannon threats
+- Beam Cannon threats
 - sticky-mine snapshots
 - SPAM channels
-- available commands for all four roles
+- real available commands
 
 `BridgeCaptainCombatContextMapper` only binds existing engine-approved commands to threat affordances. It must not invent role availability or target legality.
+
+## Beam Cannon naming
+
+The current heavy energy weapon is **Beam Cannon** everywhere.
+
+Use:
+- prose/UI: `Beam Cannon`
+- domain enum: `BEAM_CANNON`
+- content ID/path family: `beam_cannon...`
+- app payload property where camelCase is required: `beamCannon`
+
+Do not use old Laser names as aliases.
 
 ## Shield presentation
 
@@ -147,14 +166,14 @@ Do not merge the two view classes:
 
 The captain dashboard is the intended main command surface, but the old officer context menu still provides legacy command coverage.
 
-Do not remove it until dashboard + future navigation/engineering surfaces cover the required flows.
+Do not remove it until dashboard + future navigation/engineering surfaces cover required flows.
 
 Potential future bridge tabs:
 - combat
 - engineering
 - navigation
 
-These are design direction only, not a current implementation contract.
+These are design direction only, not current implementation contract.
 
 ## Patch delivery rules
 
@@ -170,6 +189,8 @@ Mandatory for every coding atom:
 8. Search all callers/tests before deleting or widening shared APIs.
 9. Run `git -c core.safecrlf=false diff --check`.
 10. Failed patchers remain for diagnosis.
+
+During broad semantic renames, distinguish files that actually exist on disk from stale old paths still listed by the unstaged Git index.
 
 ## Test discipline
 

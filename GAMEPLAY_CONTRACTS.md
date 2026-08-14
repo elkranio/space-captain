@@ -3,12 +3,12 @@
 Living gameplay invariants only. If code and this file disagree, inspect current code and update/fix the mismatch instead of coding from stale prose.
 
 Updated: 2026-08-14
-Reference HEAD: `65a983b7460b66bf85a2753844540c78bf8bbe45`
+Reference HEAD: `31445cf2b634f017a91e1035c29633c5f1e5c003`
 
 ## Encounter shape
 
 - One full enemy ship at a time.
-- Missiles, beamCannons, SPAM and sticky mines are weapons/threat objects produced by that ship, not additional command-capable enemies.
+- Missiles, Beam Cannon attacks, SPAM and sticky mines are weapons/threats produced by that ship, not additional command-capable enemies.
 - Combat is telegraph -> crew work/response -> delivery/impact -> cooldown, not bullet hell.
 - The player wins/loses through readable timing pressure and crew execution, not twitch aiming.
 
@@ -59,7 +59,7 @@ Active Shield:
 - encounter-local
 - current BASIC lifetime: 5000 ms
 - covers the whole hull for now
-- absorbs exactly one incoming beamCannon hit
+- absorbs exactly one incoming Beam Cannon hit
 - disappears on absorption
 - otherwise expires at TTL
 - final ~1 s blinks visually
@@ -90,16 +90,31 @@ A committed attempt costs Power Core regardless of HIT/MISS. A MISS leaves the m
 
 ## Missiles
 
+### Physical content ownership
+
+There is no separate Missile content entity.
+
+Missile Launcher content owns:
+- name
+- damage
+- flight duration
+- ammo capacity
+- cooldown duration
+
+At launch, the projectile copies the physical values needed for its autonomous lifecycle. The projectile does not need a later content lookup.
+
+Create a separate ammo/missile content layer only if future gameplay introduces genuinely selectable missile/ammo types.
+
 ### Objective truth
 
 Every launched missile projectile has its own hidden runtime signature.
 
 Invariants:
 - runtime signature is projectile-instance truth;
-- it is not part of `MissileDefinition`;
-- identical missile models may have different runtime signatures;
-- `missileId` must not reveal or reconstruct the runtime signature;
-- current `signature_a` / `signature_b` values are hidden transitional implementation truth, not player-facing colors/frequencies.
+- it is not launcher/model content;
+- identical launchers may produce projectiles with different runtime signatures;
+- projectile/content IDs must not reveal or reconstruct the runtime signature;
+- current `signature_a` / `signature_b` values are hidden implementation truth, not player-facing colors/frequencies.
 
 ### Observer Science intel
 
@@ -123,7 +138,7 @@ Public states:
 
 There is no public `INCORRECT` state and no public correctness flag.
 
-Intel is per projectile. Learning missile A does not identify missile B even when they use the same missile model.
+Intel is per projectile.
 
 ### Science analysis
 
@@ -167,66 +182,66 @@ Important consequence:
 - `UNCERTAIN` + wrong -> blind chance
 - `UNKNOWN` -> blind chance
 
-The resolver does not care whether a correct hypothesis is labeled CONFIRMED or UNCERTAIN; it compares concrete hypothesis to objective truth.
-
 Blind RNG is deterministic/injected and validated in `[0, 1)`. UI/store code must not call `Math.random()` to resolve interception.
-
-### Current progression state
-
-Implemented today:
-- Defense Turret owns `blindInterceptChance`;
-- BASIC = 40%.
-
-Not implemented yet:
-- missile-side blind-intercept penalty/difficulty;
-- a formula combining turret quality and missile quality.
-
-Do not document or implement missile-side penalty as existing behavior. Add it only when the design is deliberately selected.
 
 ### Presentation boundary
 
-`EncounterPresentationSnapshot` is the normal app-facing frame root. Its combat slice uses `MissilePresentationSnapshot` for continuously changing missile data.
+`EncounterPresentationSnapshot` is the normal app-facing frame root.
 
 Presentation receives:
 - physical identifiers/timing/target/source data needed by UI;
-- `identificationStatus`.
+- player-visible identification status.
 
 Presentation does **not** receive:
 - objective runtime signature;
 - concrete Science hypothesis.
 
-Discrete missile events use `MissileEventProjectileSnapshot`. It intentionally carries only physical event-presentation fields and does **not** carry objective `signature` or mutable observer `identification`. Event payloads are projected/detached at the `EncounterEngine` outbox boundary.
+Discrete missile events use a detached/sanitized projectile snapshot and do not leak hidden truth.
 
-Captain missile rows and viewscreen HUD show player-visible `UNKNOWN / UNCERTAIN / CONFIRMED` state, not A/B signature values.
+Captain missile rows and viewscreen HUD show player-visible `UNKNOWN / UNCERTAIN / CONFIRMED` state.
 
-Hard equipment odds may be shown numerically (`TURRET 40%` for current BASIC turret). Science confidence remains qualitative.
+Hard equipment odds may be shown numerically (`TURRET 40%`). Science confidence remains qualitative.
 
-### Runtime validation
+## Beam Cannon
 
-The finished slice was validated with:
-- full TypeScript checks;
-- full test suite;
-- runtime player -> enemy missile interception;
-- runtime enemy -> player missile interception;
-- observed blind MISS leaving the projectile alive;
-- observed later retry HIT;
-- new-game defense sandbox mounting one normal missile launcher for bidirectional smoke.
+The current heavy precision energy weapon is **Beam Cannon**. The old `Laser` term is retired for this weapon.
 
-## BeamCannons
+Current contract:
+- long charge;
+- no ammo economy;
+- enemy Beam Cannon attack is a timed telegraphed threat;
+- without Active Shield, firing resolves as HIT and damages hull;
+- with Active Shield, firing resolves as ABSORBED; hull is unchanged and shield is consumed;
+- Engineer shield deployment is the current captain response;
+- Science slot is intentionally non-functional until a real node-targeting/intel contract exists;
+- current whole-hull impact points are presentation anchors, not semantic damage nodes;
+- dashboard renders active incoming Beam Cannon threats independently.
 
-- Enemy beamCannon attack is a timed telegraphed threat.
-- Without Active Shield, firing resolves as HIT and damages hull.
-- With Active Shield, firing resolves as ABSORBED; hull is unchanged and shield is consumed.
-- Engineer shield deployment is the current captain response.
-- Science slot is intentionally non-functional for beamCannon targeting until a real targeting/intel contract exists.
-- Current whole-hull impact points are presentation anchors, not semantic damage nodes.
-- Dashboard renders active incoming beamCannon threats independently.
+Future design direction, not implemented contract:
+- Beam Cannon may become the slow precision/node-targeting weapon;
+- a separate fast/weak starter laser may exist later.
 
 ## Sticky mines
 
-Core invariant:
-- every attached mine is an independent `StickyMineState` with its own fuse;
-- salvo is a weapon firing pattern, not one aggregate domain threat.
+### Physical content ownership
+
+There is no separate Sticky Mine content entity.
+
+Sticky Mine Dispenser content owns:
+- damage
+- fuse duration
+- ammo capacity
+- salvo size
+- launch interval
+- cooldown duration
+
+At launch/attach, runtime mine state receives its physical values and becomes autonomous.
+
+### Runtime identity
+
+Every attached mine is an independent `StickyMineState` with its own runtime ID and fuse.
+
+The runtime `mineId: string` used by CLEAR MINE tasks/results refers to a concrete attached runtime mine. It is not the removed content mine ID.
 
 Enemy -> player:
 - enemy dispenser targets/dispenses/cools down;
@@ -259,7 +274,7 @@ Do not aggregate salvo state for UI convenience.
 
 `EncounterState` is the only authoritative mutable encounter/combat truth.
 
-`EncounterPresentationSnapshot` is the detached app-facing frame root, not a second state. It composes safe navigation/space data with the focused `CombatPresentationSnapshot`.
+`EncounterPresentationSnapshot` is the detached app-facing frame root, not a second state. It composes safe navigation/space data with focused combat presentation data.
 
 It may aggregate:
 - player ship/system presentation
@@ -269,9 +284,9 @@ It may aggregate:
 - commands by role
 - safe encounter-space geometry/visual identifiers
 
-Normal presentation consumers should reuse one coherent frame rather than rebuild the same frame through unrelated getters. Focused getters may still exist for narrow engine/test/debug reads.
+Normal presentation consumers should reuse one coherent frame rather than rebuild the same frame through unrelated getters.
 
-Events remain separate because they represent discrete transitions rather than current frame truth. `ENCOUNTER_LOADED` is marker-only. Missile event payloads are explicitly sanitized before leaving `EncounterEngine`.
+Events remain separate because they represent discrete transitions rather than current frame truth. `ENCOUNTER_LOADED` is marker-only.
 
 Hidden-domain-data rule:
 - presentation may receive only player-visible/operational read-model data;

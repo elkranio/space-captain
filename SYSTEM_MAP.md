@@ -3,7 +3,7 @@
 Compact ownership map for fresh coding chats.
 
 Updated: 2026-08-14
-Reference HEAD: `65a983b7460b66bf85a2753844540c78bf8bbe45`
+Reference HEAD: `31445cf2b634f017a91e1035c29633c5f1e5c003`
 
 ## High-level layers
 
@@ -45,11 +45,12 @@ App must not recreate gameplay rules or read hidden missile truth.
 Local design/content tooling.
 
 Owns:
-- collection navigation
+- collection navigation/grouping
 - schema-driven editing UI
 - dirty/save/delete/add flows
 - whitelisted local server operations
-- collection-specific tooling only where justified (currently chassis assets/atlas flow)
+- referenced-delete validation
+- collection-specific tooling only where justified
 
 It edits normal tracked content files; it is not runtime gameplay infrastructure.
 
@@ -70,6 +71,44 @@ same JSON + schema metadata
 ```
 
 Do not create a second editor database or duplicate gameplay rules in editor validation.
+
+## Ship Weapon content architecture
+
+Current editor/runtime split:
+
+```text
+missile_launchers.json
+beam_cannons.json
+spam_projectors.json
+sticky_mine_dispensers.json
+        ↓
+family schemas
+        ↓
+src/engine/content/catalogs/ship_weapons.ts
+        ↓
+unified SHIP_WEAPONS
+```
+
+Key rules:
+- editor groups all four under `Ship Weapons`;
+- each family has independent CRUD/schema shape;
+- `ShipWeaponId = string` allows editor-created IDs;
+- stable builtin `SHIP_WEAPON_ID.*` constants remain convenience aliases;
+- builtin catalog keys retain concrete definition typing;
+- cross-family duplicate IDs are rejected;
+- referenced delete is blocked against player/enemy ship presets.
+
+Do not infer a runtime inheritance hierarchy from editor grouping.
+
+## Missile / Sticky Mine physical ownership
+
+There are no separate Missile or Sticky Mine content entities.
+
+Missile Launcher owns missile projectile physical tuning. Launched projectiles copy values needed for autonomous flight.
+
+Sticky Mine Dispenser owns mine physical tuning. Attached runtime mines copy values and become autonomous.
+
+Runtime mine IDs used by clear tasks remain concrete runtime object identity.
 
 ## Encounter composition
 
@@ -96,10 +135,10 @@ Do not split `EncounterEngine` merely because it is central.
 
 Current composition includes:
 - navigation;
-- `EncounterSpacePresentationSnapshot` with safe anchor/actor geometry + visual IDs;
-- `CombatPresentationSnapshot` with player systems/officers/enemy telemetry/threats/SPAM/commands.
+- safe encounter-space geometry/visual IDs;
+- combat presentation with player systems/officers/enemy telemetry/threats/SPAM/commands.
 
-Normal bridge frame consumers should reuse this coherent frame instead of reconstructing the same frame through unrelated getters. Focused `EncounterEngine` reads remain valid for narrow engine tests/debug/domain queries; they are not the normal app frame assembly path.
+Normal bridge frame consumers should reuse this coherent frame instead of reconstructing the same frame through unrelated getters.
 
 ### Encounter event outbox
 
@@ -108,19 +147,20 @@ Normal bridge frame consumers should reuse this coherent frame instead of recons
 Rules:
 - snapshots answer current truth; events answer discrete transitions;
 - `ENCOUNTER_LOADED` is a marker and does not carry `EncounterState`;
-- missile event payloads use `MissileEventProjectileSnapshot`;
-- the safe event projectile is an explicit allowlist and excludes objective `signature` and mutable observer `identification`.
+- missile event payloads are explicitly sanitized;
+- objective missile signature and mutable observer internals remain engine-only.
 
 ## Missile epistemic boundary — CURRENT
 
 Objective flow:
 
 ```text
-MissileDefinition
-    model tuning only
-        ↓
-MissileCombatProjectileState
-    hidden per-projectile runtime signature
+Missile Launcher definition
+    physical tuning only
+        ↓ launch
+Missile projectile state
+    autonomous physical values
+    + hidden per-projectile runtime signature
         ↓
 Science analysis / observer intel
     UNKNOWN | UNCERTAIN(hypothesis) | CONFIRMED(hypothesis)
@@ -129,8 +169,8 @@ resolveMissileInterception
     compare concrete hypothesis to hidden truth
     else blind equipment roll
         ↓
-MissilePresentationSnapshot
-    physical UI fields + identificationStatus only
+safe presentation
+    physical UI fields + identification status only
         ↓
 bridge payloads / dashboard / viewscreen
 ```
@@ -138,21 +178,11 @@ bridge payloads / dashboard / viewscreen
 Rules:
 - projectile objective `signature` stays engine-only;
 - observer concrete hypothesis stays engine-only;
-- app receives `identificationStatus`, not signature/hypothesis;
+- app receives identification status, not signature/hypothesis;
 - correct hypothesis guarantees intercept even when state is UNCERTAIN;
 - wrong/no hypothesis uses Defense Turret `blindInterceptChance`;
 - current BASIC chance = 0.4;
 - UI formats the authoritative chance but does not calculate it.
-
-Relevant current files:
-- `src/engine/defs/missile.ts`
-- `src/engine/encounter/model/missile_signature_intel.ts`
-- `src/engine/encounter/combat/intel/resolve_missile_signature_analysis.ts`
-- `src/engine/encounter/combat/defense_turret/resolve_missile_interception.ts`
-- `src/engine/encounter/snapshots/combat_presentation_snapshot.ts`
-- bridge captain/snapshot/view mappers
-
-Historical RED/BLUE preset names remain semantic debt in content/preset identifiers only; there is no player-facing spectral-band mechanic.
 
 ## Combat runner ownership
 
@@ -160,7 +190,7 @@ Physical combat lifecycle stays mechanic-specific.
 
 Important runners include:
 - missile
-- beamCannon
+- Beam Cannon
 - sticky mine
 - SPAM
 - Defense Turret
@@ -171,6 +201,18 @@ Important runners include:
 Sticky mines are symmetrical at combat-state level: one runner owns both directions.
 
 Do not unify specialized runners solely because they share timing vocabulary.
+
+## Beam Cannon terminology
+
+Current heavy energy weapon:
+- domain kind: `BEAM_CANNON`
+- content ID: `beam_cannon_00`
+- editor collection: `Beam Cannons`
+- runtime/app terminology: Beam Cannon
+
+The old Laser naming was removed rather than kept as a compatibility alias.
+
+Future starter laser, if selected, is a separate weapon archetype.
 
 ## Enemy behavior boundary
 
@@ -220,7 +262,7 @@ Current event-backed persistence:
 - discovered jump-point anchors
 - destroyed persistent enemy actors
 
-Defense Turret combat phase/target is not copied through presentation. When persistent turret damage/repair state exists, add an explicit persistence projection instead of persisting encounter-only target ids.
+Defense Turret combat phase/target is not copied through presentation. When persistent turret damage/repair state exists, add an explicit persistence projection instead of persisting encounter-only target IDs.
 
 ### `BridgeEncounterSnapshotSynchronizer`
 
@@ -231,7 +273,7 @@ Current responsibilities include:
 - player/enemy shields
 - incoming/outgoing missiles
 - sticky mines
-- beamCannon threats
+- Beam Cannon threats
 - SPAM
 - captain combat context
 
@@ -285,14 +327,13 @@ Centralizes visual impact anchors only.
 
 It is not a semantic damage-node registry.
 
-## Local content editor seams to audit during refactor
+## Local content editor seams
 
-Do not assume these are broken; inspect before changing:
+Current important seams:
+- schema -> JSON -> runtime catalog;
+- collection registry metadata;
+- reference/delete validation;
+- Ship Weapon cross-family ID uniqueness;
+- chassis-specific asset handling.
 
-- repeated CRUD/reference-validation plumbing across migrated collections;
-- schema -> catalog -> editor metadata duplication;
-- repeated test fixture construction around CRUD-ready modules;
-- collection-specific branches that can now be simplified without creating a giant generic framework;
-- stale missile RED/BLUE preset naming before the next content migration.
-
-See `REFACTOR_HANDOFF.md`.
+Do not build a universal content framework unless another real workflow proves the need.
