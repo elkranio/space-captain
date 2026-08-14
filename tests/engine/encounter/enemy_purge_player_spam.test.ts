@@ -23,6 +23,9 @@ import {
 } from '../../../src/engine/defs/ship_weapon';
 import EnemyDecisionPolicy from '../../../src/engine/encounter/combat/enemy/EnemyDecisionPolicy';
 import {
+    getEnemyCaptainDecisionSnapshot,
+} from '../../../src/engine/encounter/combat/queries/get_enemy_captain_decision_snapshot';
+import {
     getActiveCrewProgressEffects,
 } from '../../../src/engine/encounter/crew_performance/get_active_crew_progress_effects';
 import {
@@ -275,15 +278,10 @@ describe(
 
                 const intent =
                     new EnemyDecisionPolicy().selectWork(
-                        setup.targetActor,
-                        {
-                            threats: [],
-
-                            crewProgressEffects:
-                                getActiveCrewProgressEffects(
-                                    setup.state,
-                                ),
-                        },
+                        getEnemyCaptainDecisionSnapshot(
+                            setup.state,
+                            setup.targetActor,
+                        ),
                     );
 
                 expect(intent).toEqual({

@@ -22,19 +22,11 @@ import {
 import {
     SHIP_WEAPON_KIND,
     SHIP_WEAPON_PHASE,
-    type ShipWeaponState,
 } from '../../../defs/ship_weapon';
 import {
     SHIELD_GENERATOR_PHASE,
     SHIELD_GENERATOR_STATUS,
 } from '../../../defs/shield_generator';
-import type {
-    ShipEncounterActorState,
-} from '../../actors/ship/ship_encounter_actor';
-import {
-    COMBAT_SOURCE_KIND,
-    COMBAT_TARGET_KIND,
-} from '../../model/combat';
 import {
     ENEMY_THREAT_KIND,
 } from '../../model/enemy_threat_observation';
@@ -42,25 +34,12 @@ import {
     SHIP_CREW_TASK_KIND,
 } from '../../model/ship_crew_task';
 import type {
-    CrewProgressEffect,
-} from '../../crew_performance/get_active_crew_progress_effects';
+    EnemyCaptainDecisionSnapshot,
+    EnemyCaptainWeaponSnapshot,
+} from '../queries/get_enemy_captain_decision_snapshot';
 import type {
     EnemyThreatDecisionSnapshot,
 } from '../queries/get_enemy_threat_decision_snapshots';
-
-export type EnemyDecisionContext = {
-    threats:
-        readonly EnemyThreatDecisionSnapshot[];
-
-    crewProgressEffects:
-        readonly CrewProgressEffect[];
-};
-
-const EMPTY_ENEMY_DECISION_CONTEXT:
-    EnemyDecisionContext = {
-        threats: [],
-        crewProgressEffects: [],
-    };
 
 export type EnemyWorkIntent =
     | {
@@ -134,55 +113,47 @@ const ENEMY_OFFENSIVE_ROLE_PRIORITY = [
     OFFICER_ROLE.SCIENCE,
 ] as const;
 
-// One captain decision asks one global question:
-// "what single order should I issue now?"
+// Pure captain policy:
+// detached decision snapshot -> at most one intent.
 //
 // This slice intentionally keeps priority simple.
 // Defensive/utility work beats offense.
+//
 // Aggression, threat-timing error and one-step
 // defensive opportunity-cost evaluation come later.
 //
-// The policy is stateless and never mutates actor state.
 // EnemyWorkExecutor re-validates the selected intent
-// against authoritative state before starting work.
+// against authoritative mutable state before starting work.
 export default class EnemyDecisionPolicy {
     public selectWork(
-        actor: ShipEncounterActorState,
-        context:
-            EnemyDecisionContext =
-                EMPTY_ENEMY_DECISION_CONTEXT,
+        snapshot:
+            EnemyCaptainDecisionSnapshot,
     ): EnemyWorkIntent | undefined {
         return (
             this.selectMineClearing(
-                actor,
-                context.threats,
+                snapshot,
             ) ??
             this.selectShieldDeployment(
-                actor,
-                context.threats,
+                snapshot,
             ) ??
             this.selectSpamPurging(
-                actor,
-                context
-                    .crewProgressEffects,
+                snapshot,
             ) ??
             this.selectDefenseTurretInterception(
-                actor,
-                context.threats,
+                snapshot,
             ) ??
             this.selectThreatIdentification(
-                actor,
+                snapshot,
             ) ??
             this.selectWeaponOperation(
-                actor,
+                snapshot,
             )
         );
     }
 
     private selectMineClearing(
-        actor: ShipEncounterActorState,
-        threats:
-            readonly EnemyThreatDecisionSnapshot[],
+        snapshot:
+            EnemyCaptainDecisionSnapshot,
     ): Extract<
         EnemyWorkIntent,
         {
@@ -192,24 +163,10 @@ export default class EnemyDecisionPolicy {
         }
     > | undefined {
         const claimedMineIds =
-            new Set<string>();
-
-        for (
-            const task of
-            Object.values(
-                actor.crewTasks,
-            )
-        ) {
-            if (
-                task?.kind ===
-                SHIP_CREW_TASK_KIND
-                    .CLEAR_STICKY_MINE
-            ) {
-                claimedMineIds.add(
-                    task.mineId,
-                );
-            }
-        }
+            new Set(
+                snapshot
+                    .claimedStickyMineIds,
+            );
 
         let selectedMine:
             Extract<
@@ -224,7 +181,7 @@ export default class EnemyDecisionPolicy {
 
         for (
             const threat of
-            threats
+            snapshot.threats
         ) {
             if (
                 threat.kind !==
@@ -258,7 +215,7 @@ export default class EnemyDecisionPolicy {
                 .find((candidate) => {
                     return this
                         .isRoleAvailable(
-                            actor,
+                            snapshot,
                             candidate,
                         );
                 });
@@ -280,9 +237,8 @@ export default class EnemyDecisionPolicy {
     }
 
     private selectShieldDeployment(
-        actor: ShipEncounterActorState,
-        threats:
-            readonly EnemyThreatDecisionSnapshot[],
+        snapshot:
+            EnemyCaptainDecisionSnapshot,
     ): Extract<
         EnemyWorkIntent,
         {
@@ -293,7 +249,7 @@ export default class EnemyDecisionPolicy {
     > | undefined {
         if (
             !this.isRoleAvailable(
-                actor,
+                snapshot,
                 OFFICER_ROLE.ENGINEER,
             )
         ) {
@@ -301,10 +257,8 @@ export default class EnemyDecisionPolicy {
         }
 
         const emitter =
-            actor.shieldGenerator;
-
-        const powerCore =
-            actor.powerCore;
+            snapshot
+                .shieldGenerator;
 
         if (
             !emitter ||
@@ -314,15 +268,14 @@ export default class EnemyDecisionPolicy {
             emitter.phase !==
                 SHIELD_GENERATOR_PHASE
                     .READY ||
-            actor.activeShield ||
-            !powerCore ||
-            powerCore.charges <= 0
+            snapshot.hasActiveShield ||
+            snapshot.powerCoreCharges <= 0
         ) {
             return undefined;
         }
 
         const beamCannonThreat =
-            threats.find(
+            snapshot.threats.find(
                 (
                     candidate,
                 ): candidate is Extract<
@@ -396,9 +349,8 @@ export default class EnemyDecisionPolicy {
     }
 
     private selectSpamPurging(
-        actor: ShipEncounterActorState,
-        effects:
-            readonly CrewProgressEffect[],
+        snapshot:
+            EnemyCaptainDecisionSnapshot,
     ): Extract<
         EnemyWorkIntent,
         {
@@ -409,7 +361,7 @@ export default class EnemyDecisionPolicy {
     > | undefined {
         if (
             !this.isRoleAvailable(
-                actor,
+                snapshot,
                 OFFICER_ROLE.SCIENCE,
             )
         ) {
@@ -417,18 +369,10 @@ export default class EnemyDecisionPolicy {
         }
 
         const channelId =
-            effects.find((effect) => {
-                return (
-                    effect.source.kind ===
-                        COMBAT_SOURCE_KIND
-                            .PLAYER_SHIP &&
-                    effect.target.kind ===
-                        COMBAT_TARGET_KIND
-                            .ACTOR &&
-                    effect.target.actorId ===
-                        actor.id
-                );
-            })?.id;
+            snapshot
+                .incomingSpamChannelIds[
+                    0
+                ];
 
         if (!channelId) {
             return undefined;
@@ -447,9 +391,8 @@ export default class EnemyDecisionPolicy {
     }
 
     private selectDefenseTurretInterception(
-        actor: ShipEncounterActorState,
-        threats:
-            readonly EnemyThreatDecisionSnapshot[],
+        snapshot:
+            EnemyCaptainDecisionSnapshot,
     ): Extract<
         EnemyWorkIntent,
         {
@@ -460,7 +403,7 @@ export default class EnemyDecisionPolicy {
     > | undefined {
         if (
             !this.isRoleAvailable(
-                actor,
+                snapshot,
                 OFFICER_ROLE.WEAPONS,
             )
         ) {
@@ -468,24 +411,20 @@ export default class EnemyDecisionPolicy {
         }
 
         const defenseTurret =
-            actor.defenseTurret;
-
-        const powerCore =
-            actor.powerCore;
+            snapshot.defenseTurret;
 
         if (
             !defenseTurret ||
             defenseTurret.phase !==
                 DEFENSE_TURRET_PHASE
                     .READY ||
-            !powerCore ||
-            powerCore.charges <= 0
+            snapshot.powerCoreCharges <= 0
         ) {
             return undefined;
         }
 
         const missileThreat =
-            threats.find(
+            snapshot.threats.find(
                 (
                     candidate,
                 ): candidate is Extract<
@@ -526,7 +465,8 @@ export default class EnemyDecisionPolicy {
     }
 
     private selectThreatIdentification(
-        actor: ShipEncounterActorState,
+        snapshot:
+            EnemyCaptainDecisionSnapshot,
     ): Extract<
         EnemyWorkIntent,
         {
@@ -537,7 +477,7 @@ export default class EnemyDecisionPolicy {
     > | undefined {
         if (
             !this.isRoleAvailable(
-                actor,
+                snapshot,
                 OFFICER_ROLE.SCIENCE,
             )
         ) {
@@ -545,18 +485,10 @@ export default class EnemyDecisionPolicy {
         }
 
         const observationId =
-            actor
-                .threatObservations
-                .find((observation) => {
-                    return (
-                        observation.report ===
-                            undefined &&
-                        observation.kind ===
-                            ENEMY_THREAT_KIND
-                                .MISSILE
-                    );
-                })
-                ?.id;
+            snapshot
+                .unresolvedMissileObservationIds[
+                    0
+                ];
 
         if (!observationId) {
             return undefined;
@@ -575,7 +507,8 @@ export default class EnemyDecisionPolicy {
     }
 
     private selectWeaponOperation(
-        actor: ShipEncounterActorState,
+        snapshot:
+            EnemyCaptainDecisionSnapshot,
     ): Extract<
         EnemyWorkIntent,
         {
@@ -590,7 +523,7 @@ export default class EnemyDecisionPolicy {
         ) {
             if (
                 !this.isRoleAvailable(
-                    actor,
+                    snapshot,
                     role,
                 )
             ) {
@@ -599,7 +532,7 @@ export default class EnemyDecisionPolicy {
 
             const weapon =
                 this.selectWeapon(
-                    actor,
+                    snapshot,
                     role,
                 );
 
@@ -622,10 +555,13 @@ export default class EnemyDecisionPolicy {
     }
 
     private selectWeapon(
-        actor: ShipEncounterActorState,
+        snapshot:
+            EnemyCaptainDecisionSnapshot,
         role: OfficerRole,
-    ): ShipWeaponState | undefined {
-        return actor.weapons.find(
+    ):
+        EnemyCaptainWeaponSnapshot |
+        undefined {
+        return snapshot.weapons.find(
             (weapon) => {
                 return (
                     this.getWeaponRole(
@@ -640,20 +576,20 @@ export default class EnemyDecisionPolicy {
     }
 
     private isRoleAvailable(
-        actor: ShipEncounterActorState,
+        snapshot:
+            EnemyCaptainDecisionSnapshot,
         role: OfficerRole,
     ): boolean {
-        return (
-            actor.crewRoles.includes(
+        return snapshot
+            .availableRoles
+            .includes(
                 role,
-            ) &&
-            actor.crewTasks[role] ===
-                undefined
-        );
+            );
     }
 
     private getWeaponRole(
-        weapon: ShipWeaponState,
+        weapon:
+            EnemyCaptainWeaponSnapshot,
     ): OfficerRole {
         if (
             weapon.kind ===
@@ -667,7 +603,8 @@ export default class EnemyDecisionPolicy {
     }
 
     private canOperateWeapon(
-        weapon: ShipWeaponState,
+        weapon:
+            EnemyCaptainWeaponSnapshot,
     ): boolean {
         if (
             weapon.phase !==
@@ -680,8 +617,11 @@ export default class EnemyDecisionPolicy {
             case SHIP_WEAPON_KIND
                 .MISSILE_LAUNCHER:
                 return (
-                    weapon.ammoCount >
-                    0
+                    (
+                        weapon
+                            .ammoCount ??
+                        0
+                    ) > 0
                 );
 
             case SHIP_WEAPON_KIND
@@ -699,8 +639,11 @@ export default class EnemyDecisionPolicy {
             case SHIP_WEAPON_KIND
                 .STICKY_MINE_DISPENSER:
                 return (
-                    weapon.ammoCount >
-                    0
+                    (
+                        weapon
+                            .ammoCount ??
+                        0
+                    ) > 0
                 );
         }
     }

@@ -9,9 +9,6 @@ import {
 import type {
     ShipEncounterActorState,
 } from '../../actors/ship/ship_encounter_actor';
-import {
-    getActiveCrewProgressEffects,
-} from '../../crew_performance/get_active_crew_progress_effects';
 import type {
     EncounterEvent,
 } from '../../model/event';
@@ -19,12 +16,10 @@ import type {
     EncounterState,
 } from '../../model/state';
 import {
-    getEnemyThreatDecisionSnapshots,
-} from '../queries/get_enemy_threat_decision_snapshots';
+    getEnemyCaptainDecisionSnapshot,
+} from '../queries/get_enemy_captain_decision_snapshot';
 import EnemyCrewTaskRunner from './EnemyCrewTaskRunner';
-import EnemyDecisionPolicy, {
-    type EnemyDecisionContext,
-} from './EnemyDecisionPolicy';
+import EnemyDecisionPolicy from './EnemyDecisionPolicy';
 import EnemyScienceIntelResolver from './intel/EnemyScienceIntelResolver';
 import EnemyThreatObserver from './intel/EnemyThreatObserver';
 import EnemyWorkExecutor from './EnemyWorkExecutor';
@@ -60,6 +55,7 @@ type EnemyBehaviorRunnerOptions = {
 // - threat perception synchronization;
 // - enemy crew-task progress;
 // - captain decision cadence;
+// - captain decision snapshot construction;
 // - one-intent decision orchestration;
 // - intent execution wiring.
 //
@@ -247,11 +243,6 @@ export default class EnemyBehaviorRunner {
             return;
         }
 
-        const crewProgressEffects =
-            getActiveCrewProgressEffects(
-                this.state,
-            );
-
         for (
             const actor of
             this.state.actors
@@ -275,22 +266,16 @@ export default class EnemyBehaviorRunner {
                 continue;
             }
 
-            const decisionContext:
-                EnemyDecisionContext = {
-                    threats:
-                        getEnemyThreatDecisionSnapshots(
-                            this.state,
-                            actor,
-                        ),
-
-                    crewProgressEffects,
-                };
+            const snapshot =
+                getEnemyCaptainDecisionSnapshot(
+                    this.state,
+                    actor,
+                );
 
             const intent =
                 this.decisionPolicy
                     .selectWork(
-                        actor,
-                        decisionContext,
+                        snapshot,
                     );
 
             if (!intent) {
