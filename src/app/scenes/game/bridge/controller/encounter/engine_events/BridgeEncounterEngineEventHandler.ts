@@ -617,8 +617,6 @@ export default class BridgeEncounterEngineEventHandler {
                 return;
 
             case ENCOUNTER_EVENT.ENEMY_SHIP_DESTROYED:
-                this.setEncounterInteractive(false);
-
                 this.eventBus.emit(
                     BRIDGE_EVENT
                         .MISSILE_TARGETING_WARNING_CLEARED,

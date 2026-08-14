@@ -277,6 +277,10 @@ describe(
                 const runtime =
                     new GameRuntime();
 
+                const initialHull =
+                    runtime.getCurrentRun()
+                        .player.ship.hull;
+
                 const synchronizer =
                     new BridgeEncounterPersistenceSynchronizer(
                         runtime,
@@ -328,7 +332,7 @@ describe(
                 expect(
                     runtime.getCurrentRun()
                         .player.ship.hull,
-                ).toBe(3);
+                ).toBe(initialHull);
             },
         );
     },

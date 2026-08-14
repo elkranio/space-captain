@@ -22,7 +22,7 @@ import {
 } from '../../src/engine/universe/queries/get_current_node';
 
 describe('Bridge enemy destruction flow', () => {
-    it('removes the persistent actor and starts local destruction presentation without END', () => {
+    it('removes the persistent actor and starts local destruction presentation without pausing encounter or END', () => {
         const runtime =
             new GameRuntime();
 
@@ -82,11 +82,7 @@ describe('Bridge enemy destruction flow', () => {
 
         expect(
             setEncounterInteractive,
-        ).toHaveBeenCalledTimes(1);
-
-        expect(
-            setEncounterInteractive,
-        ).toHaveBeenCalledWith(false);
+        ).not.toHaveBeenCalled();
 
         expect(
             emit.mock.calls,

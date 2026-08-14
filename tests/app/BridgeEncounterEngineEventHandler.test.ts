@@ -213,6 +213,10 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
     it('maps targeting and missile launch to bridge presentation events', () => {
         const runtime = new GameRuntime();
 
+        const initialHull =
+            runtime.getCurrentRun()
+                .player.ship.hull;
+
         const emit = vi.fn();
 
         const setEncounterInteractive = vi.fn();
@@ -241,7 +245,10 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
             },
         ]);
 
-        expect(runtime.getCurrentRun().player.ship.hull).toBe(3);
+        expect(
+            runtime.getCurrentRun()
+                .player.ship.hull,
+        ).toBe(initialHull);
 
         expect(emit.mock.calls).toEqual([
             [BRIDGE_EVENT.MISSILE_TARGETING_WARNING_STARTED],
