@@ -99,6 +99,40 @@ export type EnemyWorkIntent =
           projectileId: string;
       };
 
+type EnemyOffenseIntent =
+    Extract<
+        EnemyWorkIntent,
+        {
+            kind:
+                typeof SHIP_CREW_TASK_KIND
+                    .OPERATE_WEAPON;
+        }
+    >;
+
+type EnemyDefenseIntent =
+    Exclude<
+        EnemyWorkIntent,
+        EnemyOffenseIntent
+    >;
+
+type EnemyOffenseCandidate = {
+    intent: EnemyOffenseIntent;
+
+    operatorBusyDurationMs:
+        number;
+};
+
+type EnemyDefenseCandidate = {
+    intent: EnemyDefenseIntent;
+
+    actionDurationMs: number;
+
+    // Undefined means there is no hard impact deadline.
+    // Same-role offense still blocks such work.
+    estimatedDeadlineMs?:
+        number;
+};
+
 const ENEMY_MINE_CLEAR_ROLE_PRIORITY = [
     OFFICER_ROLE.ENGINEER,
     OFFICER_ROLE.SCIENCE,
@@ -111,23 +145,75 @@ const ENEMY_OFFENSIVE_ROLE_PRIORITY = [
     OFFICER_ROLE.SCIENCE,
 ] as const;
 
-// Pure captain policy:
-// perceived detached snapshot -> at most one intent.
+// One-step enemy captain policy.
 //
-// Defensive/utility work still beats offense in this slice.
-// All timing feasibility uses the captain's estimated clocks,
-// never objective threat time.
+// It finds one best defense and one best offense.
+// If offense does not endanger the known defense,
+// captain attacks without randomness.
 //
-// Aggression and one-step defensive opportunity-cost
-// evaluation come later.
+// If offense would make the defense unavailable,
+// aggression 0..100 becomes the chance to accept that risk.
 //
-// EnemyWorkExecutor re-validates the selected intent
+// No long future tree is simulated:
+// only the next captain decision opportunity and
+// the selected weapon's operator occupancy are considered.
+//
+// EnemyWorkExecutor still re-validates the selected intent
 // against authoritative mutable state before starting work.
 export default class EnemyDecisionPolicy {
+    private readonly random:
+        () => number;
+
+    constructor(
+        random: () => number =
+            Math.random,
+    ) {
+        this.random = random;
+    }
+
     public selectWork(
         snapshot:
             EnemyCaptainDecisionSnapshot,
     ): EnemyWorkIntent | undefined {
+        const defense =
+            this.selectDefense(
+                snapshot,
+            );
+
+        const offense =
+            this.selectWeaponOperation(
+                snapshot,
+            );
+
+        if (!defense) {
+            return offense?.intent;
+        }
+
+        if (!offense) {
+            return defense.intent;
+        }
+
+        if (
+            !this.doesOffenseRiskDefense(
+                snapshot,
+                offense,
+                defense,
+            )
+        ) {
+            return offense.intent;
+        }
+
+        return this.shouldTakeAggressionRisk(
+            snapshot.aggression,
+        )
+            ? offense.intent
+            : defense.intent;
+    }
+
+    private selectDefense(
+        snapshot:
+            EnemyCaptainDecisionSnapshot,
+    ): EnemyDefenseCandidate | undefined {
         return (
             this.selectMineClearing(
                 snapshot,
@@ -143,9 +229,6 @@ export default class EnemyDecisionPolicy {
             ) ??
             this.selectThreatIdentification(
                 snapshot,
-            ) ??
-            this.selectWeaponOperation(
-                snapshot,
             )
         );
     }
@@ -153,14 +236,7 @@ export default class EnemyDecisionPolicy {
     private selectMineClearing(
         snapshot:
             EnemyCaptainDecisionSnapshot,
-    ): Extract<
-        EnemyWorkIntent,
-        {
-            kind:
-                typeof SHIP_CREW_TASK_KIND
-                    .CLEAR_STICKY_MINE;
-        }
-    > | undefined {
+    ): EnemyDefenseCandidate | undefined {
         const clearDurationMs =
             getTimedOfficerTaskDurationMs(
                 OFFICER_TASK_KIND
@@ -235,28 +311,30 @@ export default class EnemyDecisionPolicy {
         }
 
         return {
-            kind:
-                SHIP_CREW_TASK_KIND
-                    .CLEAR_STICKY_MINE,
+            intent: {
+                kind:
+                    SHIP_CREW_TASK_KIND
+                        .CLEAR_STICKY_MINE,
 
-            role,
+                role,
 
-            mineId:
-                selectedMine.mineId,
+                mineId:
+                    selectedMine.mineId,
+            },
+
+            actionDurationMs:
+                clearDurationMs,
+
+            estimatedDeadlineMs:
+                selectedMine
+                    .estimatedTimeToDetonationMs,
         };
     }
 
     private selectShieldDeployment(
         snapshot:
             EnemyCaptainDecisionSnapshot,
-    ): Extract<
-        EnemyWorkIntent,
-        {
-            kind:
-                typeof SHIP_CREW_TASK_KIND
-                    .DEPLOY_SHIELD;
-        }
-    > | undefined {
+    ): EnemyDefenseCandidate | undefined {
         if (
             !this.isRoleAvailable(
                 snapshot,
@@ -349,30 +427,31 @@ export default class EnemyDecisionPolicy {
         }
 
         return {
-            kind:
-                SHIP_CREW_TASK_KIND
-                    .DEPLOY_SHIELD,
+            intent: {
+                kind:
+                    SHIP_CREW_TASK_KIND
+                        .DEPLOY_SHIELD,
 
-            role:
-                OFFICER_ROLE.ENGINEER,
+                role:
+                    OFFICER_ROLE.ENGINEER,
 
-            observationId:
-                beamCannonThreat
-                    .observationId,
+                observationId:
+                    beamCannonThreat
+                        .observationId,
+            },
+
+            actionDurationMs:
+                deploymentDurationMs,
+
+            estimatedDeadlineMs:
+                estimatedRemainingMs,
         };
     }
 
     private selectSpamPurging(
         snapshot:
             EnemyCaptainDecisionSnapshot,
-    ): Extract<
-        EnemyWorkIntent,
-        {
-            kind:
-                typeof SHIP_CREW_TASK_KIND
-                    .PURGE_SPAM;
-        }
-    > | undefined {
+    ): EnemyDefenseCandidate | undefined {
         if (
             !this.isRoleAvailable(
                 snapshot,
@@ -393,28 +472,29 @@ export default class EnemyDecisionPolicy {
         }
 
         return {
-            kind:
-                SHIP_CREW_TASK_KIND
-                    .PURGE_SPAM,
+            intent: {
+                kind:
+                    SHIP_CREW_TASK_KIND
+                        .PURGE_SPAM,
 
-            role:
-                OFFICER_ROLE.SCIENCE,
+                role:
+                    OFFICER_ROLE.SCIENCE,
 
-            channelId,
+                channelId,
+            },
+
+            actionDurationMs:
+                getTimedOfficerTaskDurationMs(
+                    OFFICER_TASK_KIND
+                        .SCIENCE_PURGE_SPAM,
+                ),
         };
     }
 
     private selectDefenseTurretInterception(
         snapshot:
             EnemyCaptainDecisionSnapshot,
-    ): Extract<
-        EnemyWorkIntent,
-        {
-            kind:
-                typeof SHIP_CREW_TASK_KIND
-                    .INTERCEPT_MISSILE;
-        }
-    > | undefined {
+    ): EnemyDefenseCandidate | undefined {
         if (
             !this.isRoleAvailable(
                 snapshot,
@@ -483,33 +563,36 @@ export default class EnemyDecisionPolicy {
         }
 
         return {
-            kind:
-                SHIP_CREW_TASK_KIND
-                    .INTERCEPT_MISSILE,
+            intent: {
+                kind:
+                    SHIP_CREW_TASK_KIND
+                        .INTERCEPT_MISSILE,
 
-            role:
-                OFFICER_ROLE.WEAPONS,
+                role:
+                    OFFICER_ROLE.WEAPONS,
 
-            defenseTurretId:
-                defenseTurret.id,
+                defenseTurretId:
+                    defenseTurret.id,
 
-            projectileId:
+                projectileId:
+                    selectedMissile
+                        .projectileId,
+            },
+
+            actionDurationMs:
+                defenseTurret
+                    .loadDurationMs,
+
+            estimatedDeadlineMs:
                 selectedMissile
-                    .projectileId,
+                    .estimatedTimeToImpactMs,
         };
     }
 
     private selectThreatIdentification(
         snapshot:
             EnemyCaptainDecisionSnapshot,
-    ): Extract<
-        EnemyWorkIntent,
-        {
-            kind:
-                typeof SHIP_CREW_TASK_KIND
-                    .IDENTIFY_THREAT;
-        }
-    > | undefined {
+    ): EnemyDefenseCandidate | undefined {
         if (
             !this.isRoleAvailable(
                 snapshot,
@@ -529,29 +612,51 @@ export default class EnemyDecisionPolicy {
             return undefined;
         }
 
+        const missileThreat =
+            snapshot.threats.find(
+                (threat) => {
+                    return (
+                        threat.kind ===
+                            ENEMY_THREAT_KIND
+                                .MISSILE &&
+                        threat.observationId ===
+                            observationId
+                    );
+                },
+            );
+
         return {
-            kind:
-                SHIP_CREW_TASK_KIND
-                    .IDENTIFY_THREAT,
+            intent: {
+                kind:
+                    SHIP_CREW_TASK_KIND
+                        .IDENTIFY_THREAT,
 
-            role:
-                OFFICER_ROLE.SCIENCE,
+                role:
+                    OFFICER_ROLE.SCIENCE,
 
-            observationId,
+                observationId,
+            },
+
+            actionDurationMs:
+                getTimedOfficerTaskDurationMs(
+                    OFFICER_TASK_KIND
+                        .SCIENCE_IDENTIFY_THREAT,
+                ),
+
+            estimatedDeadlineMs:
+                missileThreat?.kind ===
+                    ENEMY_THREAT_KIND
+                        .MISSILE
+                    ? missileThreat
+                          .estimatedTimeToImpactMs
+                    : undefined,
         };
     }
 
     private selectWeaponOperation(
         snapshot:
             EnemyCaptainDecisionSnapshot,
-    ): Extract<
-        EnemyWorkIntent,
-        {
-            kind:
-                typeof SHIP_CREW_TASK_KIND
-                    .OPERATE_WEAPON;
-        }
-    > | undefined {
+    ): EnemyOffenseCandidate | undefined {
         for (
             const role of
             ENEMY_OFFENSIVE_ROLE_PRIORITY
@@ -576,17 +681,87 @@ export default class EnemyDecisionPolicy {
             }
 
             return {
-                kind:
-                    SHIP_CREW_TASK_KIND
-                        .OPERATE_WEAPON,
+                intent: {
+                    kind:
+                        SHIP_CREW_TASK_KIND
+                            .OPERATE_WEAPON,
 
-                role,
-                weaponId:
-                    weapon.id,
+                    role,
+                    weaponId:
+                        weapon.id,
+                },
+
+                operatorBusyDurationMs:
+                    weapon
+                        .operatorBusyDurationMs,
             };
         }
 
         return undefined;
+    }
+
+    private doesOffenseRiskDefense(
+        snapshot:
+            EnemyCaptainDecisionSnapshot,
+        offense:
+            EnemyOffenseCandidate,
+        defense:
+            EnemyDefenseCandidate,
+    ): boolean {
+        const sameRole =
+            offense.intent.role ===
+            defense.intent.role;
+
+        if (
+            defense
+                .estimatedDeadlineMs ===
+            undefined
+        ) {
+            return sameRole;
+        }
+
+        const roleWaitMs =
+            sameRole
+                ? offense
+                      .operatorBusyDurationMs
+                : 0;
+
+        const earliestDefenseStartMs =
+            Math.max(
+                snapshot
+                    .nextDecisionInMs,
+                roleWaitMs,
+            );
+
+        const estimatedRemainingAfterWaitMs =
+            defense
+                .estimatedDeadlineMs -
+            earliestDefenseStartMs;
+
+        return (
+            !this.hasEnoughEstimatedTime(
+                estimatedRemainingAfterWaitMs,
+                defense
+                    .actionDurationMs,
+            )
+        );
+    }
+
+    private shouldTakeAggressionRisk(
+        aggression: number,
+    ): boolean {
+        if (aggression <= 0) {
+            return false;
+        }
+
+        if (aggression >= 100) {
+            return true;
+        }
+
+        return (
+            this.random() * 100 <
+            aggression
+        );
     }
 
     private selectWeapon(

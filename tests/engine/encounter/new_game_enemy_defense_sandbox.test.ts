@@ -152,6 +152,10 @@ describe('New-game enemy defense sandbox', () => {
             targetActor.behavior
                 .threatTimingWiggleMs = 0;
 
+            // This test owns shield timing,
+            // not captain attack-vs-defense strategy.
+            targetActor.weapons = [];
+
             const initialHull =
                 targetActor.hull;
 

@@ -3,6 +3,10 @@
 import {
     DEFENSE_TURRETS,
 } from '../../../content/catalogs/defense_turrets';
+import {
+    SHIP_WEAPONS,
+    SHIP_WEAPON_TARGETING_DURATION_MS,
+} from '../../../content/catalogs/ship_weapons';
 import type {
     OfficerRole,
 } from '../../../defs/officer';
@@ -48,6 +52,13 @@ export type EnemyCaptainWeaponSnapshot = {
 
     phase:
         ShipWeaponState['phase'];
+
+    // Nominal world-time occupancy of the weapon operator
+    // from READY until the weapon stops requiring that role.
+    //
+    // Crew-performance slowdown remains execution imperfection;
+    // captain policy only plans one step with nominal timings.
+    operatorBusyDurationMs: number;
 
     ammoCount?: number;
 
@@ -95,6 +106,11 @@ export type EnemyCaptainDecisionSnapshot = {
     actorId: string;
 
     aggression: number;
+
+    // Exact cadence already rolled by EnemyBehaviorRunner.
+    // If captain chooses offense now, this is the earliest
+    // possible next decision opportunity.
+    nextDecisionInMs: number;
 
     availableRoles:
         readonly OfficerRole[];
@@ -237,6 +253,10 @@ export function getEnemyCaptainDecisionSnapshot(
         aggression:
             actor.behavior
                 .aggression,
+
+        nextDecisionInMs:
+            actor.decision
+                .decisionTickRemainingMs,
 
         availableRoles,
 
@@ -406,6 +426,11 @@ function applyTimingError(
 function createWeaponSnapshot(
     weapon: ShipWeaponState,
 ): EnemyCaptainWeaponSnapshot {
+    const operatorBusyDurationMs =
+        getWeaponOperatorBusyDurationMs(
+            weapon,
+        );
+
     switch (weapon.kind) {
         case SHIP_WEAPON_KIND
             .MISSILE_LAUNCHER:
@@ -420,6 +445,8 @@ function createWeaponSnapshot(
 
                 phase:
                     weapon.phase,
+
+                operatorBusyDurationMs,
 
                 ammoCount:
                     weapon.ammoCount,
@@ -437,6 +464,8 @@ function createWeaponSnapshot(
                 phase:
                     weapon.phase,
 
+                operatorBusyDurationMs,
+
                 activeChannelId:
                     weapon
                         .activeChannelId,
@@ -453,6 +482,111 @@ function createWeaponSnapshot(
 
                 phase:
                     weapon.phase,
+
+                operatorBusyDurationMs,
             };
+    }
+}
+
+function getWeaponOperatorBusyDurationMs(
+    weapon: ShipWeaponState,
+): number {
+    const definition =
+        SHIP_WEAPONS[
+            weapon.weaponId
+        ];
+
+    if (
+        !definition ||
+        definition.kind !==
+            weapon.kind
+    ) {
+        throw new Error(
+            'Captain weapon definition mismatch: ' +
+                weapon.id +
+                '/' +
+                weapon.weaponId +
+                '/' +
+                weapon.kind,
+        );
+    }
+
+    switch (weapon.kind) {
+        case SHIP_WEAPON_KIND
+            .MISSILE_LAUNCHER:
+            return (
+                SHIP_WEAPON_TARGETING_DURATION_MS
+            );
+
+        case SHIP_WEAPON_KIND
+            .BEAM_CANNON:
+            if (
+                definition.kind !==
+                SHIP_WEAPON_KIND
+                    .BEAM_CANNON
+            ) {
+                throw new Error(
+                    'Beam cannon definition mismatch: ' +
+                        weapon.weaponId,
+                );
+            }
+
+            return (
+                SHIP_WEAPON_TARGETING_DURATION_MS +
+                definition
+                    .chargeDurationMs
+            );
+
+        case SHIP_WEAPON_KIND
+            .SPAM_PROJECTOR:
+            if (
+                definition.kind !==
+                SHIP_WEAPON_KIND
+                    .SPAM_PROJECTOR
+            ) {
+                throw new Error(
+                    'Spam projector definition mismatch: ' +
+                        weapon.weaponId,
+                );
+            }
+
+            return (
+                SHIP_WEAPON_TARGETING_DURATION_MS +
+                definition
+                    .channelDurationMs
+            );
+
+        case SHIP_WEAPON_KIND
+            .STICKY_MINE_DISPENSER: {
+            if (
+                definition.kind !==
+                SHIP_WEAPON_KIND
+                    .STICKY_MINE_DISPENSER
+            ) {
+                throw new Error(
+                    'Sticky mine definition mismatch: ' +
+                        weapon.weaponId,
+                );
+            }
+
+            const launchCount =
+                Math.min(
+                    weapon.ammoCount,
+                    definition.salvoSize,
+                );
+
+            const dispensingDurationMs =
+                Math.max(
+                    0,
+                    launchCount - 1,
+                ) *
+                definition
+                    .launchIntervalMs;
+
+            return (
+                SHIP_WEAPON_TARGETING_DURATION_MS +
+                dispensingDurationMs
+            );
+        }
     }
 }

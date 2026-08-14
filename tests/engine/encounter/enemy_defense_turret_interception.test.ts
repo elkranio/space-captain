@@ -531,6 +531,10 @@ function createScenario(
         );
     }
 
+    // This suite owns Defense Turret physics,
+    // not captain attack-vs-defense strategy.
+    enemy.weapons = [];
+
     const projectile:
         MissileCombatProjectileState = {
             id: 'projectile_player_00',

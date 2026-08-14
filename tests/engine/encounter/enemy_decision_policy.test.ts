@@ -47,17 +47,11 @@ describe(
                     policy.selectWork(
                         snapshot,
                     ),
-                ).toEqual({
-                    kind:
-                        SHIP_CREW_TASK_KIND
-                            .OPERATE_WEAPON,
-
-                    role:
-                        OFFICER_ROLE.WEAPONS,
-
-                    weaponId:
+                ).toEqual(
+                    weaponIntent(
                         'missile_launcher_00',
-                });
+                    ),
+                );
 
                 snapshot.weapons = [
                     {
@@ -77,17 +71,11 @@ describe(
                     policy.selectWork(
                         snapshot,
                     ),
-                ).toEqual({
-                    kind:
-                        SHIP_CREW_TASK_KIND
-                            .OPERATE_WEAPON,
-
-                    role:
-                        OFFICER_ROLE.WEAPONS,
-
-                    weaponId:
+                ).toEqual(
+                    weaponIntent(
                         'beam_cannon_00',
-                });
+                    ),
+                );
 
                 snapshot.weapons = [
                     snapshot.weapons[0],
@@ -109,17 +97,11 @@ describe(
                     policy.selectWork(
                         snapshot,
                     ),
-                ).toEqual({
-                    kind:
-                        SHIP_CREW_TASK_KIND
-                            .OPERATE_WEAPON,
-
-                    role:
-                        OFFICER_ROLE.WEAPONS,
-
-                    weaponId:
+                ).toEqual(
+                    weaponIntent(
                         'sticky_mine_dispenser_00',
-                });
+                    ),
+                );
             },
         );
 
@@ -146,6 +128,9 @@ describe(
                             SHIP_WEAPON_PHASE
                                 .COOLDOWN,
 
+                        operatorBusyDurationMs:
+                            3000,
+
                         ammoCount: 5,
                     },
 
@@ -160,6 +145,9 @@ describe(
                         phase:
                             SHIP_WEAPON_PHASE
                                 .COOLDOWN,
+
+                        operatorBusyDurationMs:
+                            15000,
                     },
 
                     {
@@ -173,6 +161,9 @@ describe(
                         phase:
                             SHIP_WEAPON_PHASE
                                 .READY,
+
+                        operatorBusyDurationMs:
+                            5000,
 
                         ammoCount: 0,
                     },
@@ -228,49 +219,20 @@ describe(
 
                 snapshot.weapons = [];
 
-                snapshot.defenseTurret = {
-                    id:
-                        'defense_turret_00',
-
-                    phase:
-                        DEFENSE_TURRET_PHASE
-                            .READY,
-
-                    loadDurationMs: 3000,
-                };
-
-                snapshot.powerCoreCharges = 4;
+                installReadyTurret(
+                    snapshot,
+                );
 
                 snapshot.threats = [
-                    {
-                        kind:
-                            ENEMY_THREAT_KIND
-                                .MISSILE,
+                    missileThreat(
+                        'too_late',
+                        2500,
+                    ),
 
-                        observationId:
-                            'missile:too_late',
-
-                        projectileId:
-                            'too_late',
-
-                        estimatedTimeToImpactMs:
-                            2500,
-                    },
-
-                    {
-                        kind:
-                            ENEMY_THREAT_KIND
-                                .MISSILE,
-
-                        observationId:
-                            'missile:reachable',
-
-                        projectileId:
-                            'reachable',
-
-                        estimatedTimeToImpactMs:
-                            6000,
-                    },
+                    missileThreat(
+                        'reachable',
+                        6000,
+                    ),
                 ];
 
                 expect(
@@ -278,20 +240,11 @@ describe(
                         .selectWork(
                             snapshot,
                         ),
-                ).toEqual({
-                    kind:
-                        SHIP_CREW_TASK_KIND
-                            .INTERCEPT_MISSILE,
-
-                    role:
-                        OFFICER_ROLE.WEAPONS,
-
-                    defenseTurretId:
-                        'defense_turret_00',
-
-                    projectileId:
+                ).toEqual(
+                    turretIntent(
                         'reachable',
-                });
+                    ),
+                );
             },
         );
 
@@ -345,40 +298,14 @@ describe(
 
                 snapshot.weapons = [];
 
-                snapshot.powerCoreCharges = 4;
-
-                snapshot.shieldGenerator = {
-                    shieldGeneratorId:
-                        SHIELD_GENERATOR_ID
-                            .BASIC_00,
-
-                    status:
-                        SHIELD_GENERATOR_STATUS
-                            .ONLINE,
-
-                    phase:
-                        SHIELD_GENERATOR_PHASE
-                            .READY,
-                };
+                installReadyShield(
+                    snapshot,
+                );
 
                 snapshot.threats = [
-                    {
-                        kind:
-                            ENEMY_THREAT_KIND
-                                .BEAM_CANNON,
-
-                        observationId:
-                            'beam:00',
-
-                        officerTaskId:
-                            'task_00',
-
-                        weaponId:
-                            'player_beam_00',
-
-                        estimatedRemainingChargeMs:
-                            2500,
-                    },
+                    beamThreat(
+                        2500,
+                    ),
                 ];
 
                 expect(
@@ -389,23 +316,9 @@ describe(
                 ).toBeUndefined();
 
                 snapshot.threats = [
-                    {
-                        kind:
-                            ENEMY_THREAT_KIND
-                                .BEAM_CANNON,
-
-                        observationId:
-                            'beam:00',
-
-                        officerTaskId:
-                            'task_00',
-
-                        weaponId:
-                            'player_beam_00',
-
-                        estimatedRemainingChargeMs:
-                            7000,
-                    },
+                    beamThreat(
+                        7000,
+                    ),
                 ];
 
                 expect(
@@ -413,25 +326,19 @@ describe(
                         .selectWork(
                             snapshot,
                         ),
-                ).toEqual({
-                    kind:
-                        SHIP_CREW_TASK_KIND
-                            .DEPLOY_SHIELD,
-
-                    role:
-                        OFFICER_ROLE.ENGINEER,
-
-                    observationId:
-                        'beam:00',
-                });
+                ).toEqual(
+                    shieldIntent(),
+                );
             },
         );
 
         it(
-            'uses idle Science to identify an unresolved missile when interception is unavailable',
+            'uses idle Science to identify an unresolved missile when offense is absent',
             () => {
                 const snapshot =
                     createSnapshot();
+
+                snapshot.weapons = [];
 
                 snapshot
                     .unresolvedMissileObservationIds = [
@@ -456,8 +363,342 @@ describe(
                 });
             },
         );
+
+        it(
+            'attacks without aggression RNG when the same-role defense remains reachable afterwards',
+            () => {
+                const snapshot =
+                    createSnapshot();
+
+                snapshot.availableRoles = [
+                    OFFICER_ROLE.WEAPONS,
+                ];
+
+                snapshot.weapons = [
+                    snapshot.weapons[0],
+                ];
+
+                installReadyTurret(
+                    snapshot,
+                );
+
+                snapshot.threats = [
+                    missileThreat(
+                        'far',
+                        12000,
+                    ),
+                ];
+
+                const policy =
+                    new EnemyDecisionPolicy(
+                        () => {
+                            throw new Error(
+                                'Aggression RNG must not be used for a safe attack',
+                            );
+                        },
+                    );
+
+                expect(
+                    policy.selectWork(
+                        snapshot,
+                    ),
+                ).toEqual(
+                    weaponIntent(
+                        'missile_launcher_00',
+                    ),
+                );
+            },
+        );
+
+        it(
+            'treats the next captain tick itself as cross-block even when defense uses another role',
+            () => {
+                const snapshot =
+                    createSnapshot();
+
+                snapshot.aggression = 0;
+
+                snapshot.availableRoles = [
+                    OFFICER_ROLE.WEAPONS,
+                    OFFICER_ROLE.ENGINEER,
+                ];
+
+                snapshot.weapons = [
+                    snapshot.weapons[0],
+                ];
+
+                installReadyShield(
+                    snapshot,
+                );
+
+                snapshot.nextDecisionInMs =
+                    1000;
+
+                snapshot.threats = [
+                    beamThreat(
+                        3500,
+                    ),
+                ];
+
+                expect(
+                    new EnemyDecisionPolicy()
+                        .selectWork(
+                            snapshot,
+                        ),
+                ).toEqual(
+                    shieldIntent(),
+                );
+            },
+        );
+
+        it(
+            'uses aggression only when offense would close a known defense window',
+            () => {
+                const cautious =
+                    createTurretConflictSnapshot();
+
+                cautious.aggression = 50;
+
+                expect(
+                    new EnemyDecisionPolicy(
+                        () => 0.5,
+                    ).selectWork(
+                        cautious,
+                    ),
+                ).toEqual(
+                    turretIntent(
+                        'urgent',
+                    ),
+                );
+
+                const aggressive =
+                    createTurretConflictSnapshot();
+
+                aggressive.aggression = 50;
+
+                expect(
+                    new EnemyDecisionPolicy(
+                        () => 0.49,
+                    ).selectWork(
+                        aggressive,
+                    ),
+                ).toEqual(
+                    weaponIntent(
+                        'missile_launcher_00',
+                    ),
+                );
+            },
+        );
+
+        it(
+            'makes aggression endpoints deterministic without consuming RNG',
+            () => {
+                const cautious =
+                    createTurretConflictSnapshot();
+
+                cautious.aggression = 0;
+
+                const noRandom =
+                    () => {
+                        throw new Error(
+                            'Endpoint aggression must not consume RNG',
+                        );
+                    };
+
+                expect(
+                    new EnemyDecisionPolicy(
+                        noRandom,
+                    ).selectWork(
+                        cautious,
+                    ),
+                ).toEqual(
+                    turretIntent(
+                        'urgent',
+                    ),
+                );
+
+                const reckless =
+                    createTurretConflictSnapshot();
+
+                reckless.aggression = 100;
+
+                expect(
+                    new EnemyDecisionPolicy(
+                        noRandom,
+                    ).selectWork(
+                        reckless,
+                    ),
+                ).toEqual(
+                    weaponIntent(
+                        'missile_launcher_00',
+                    ),
+                );
+            },
+        );
     },
 );
+
+function createTurretConflictSnapshot():
+    EnemyCaptainDecisionSnapshot {
+    const snapshot =
+        createSnapshot();
+
+    snapshot.availableRoles = [
+        OFFICER_ROLE.WEAPONS,
+    ];
+
+    snapshot.weapons = [
+        snapshot.weapons[0],
+    ];
+
+    installReadyTurret(
+        snapshot,
+    );
+
+    snapshot.nextDecisionInMs =
+        1000;
+
+    snapshot.threats = [
+        missileThreat(
+            'urgent',
+            5500,
+        ),
+    ];
+
+    return snapshot;
+}
+
+function installReadyTurret(
+    snapshot:
+        EnemyCaptainDecisionSnapshot,
+): void {
+    snapshot.defenseTurret = {
+        id:
+            'defense_turret_00',
+
+        phase:
+            DEFENSE_TURRET_PHASE
+                .READY,
+
+        loadDurationMs: 3000,
+    };
+
+    snapshot.powerCoreCharges = 4;
+}
+
+function installReadyShield(
+    snapshot:
+        EnemyCaptainDecisionSnapshot,
+): void {
+    snapshot.powerCoreCharges = 4;
+
+    snapshot.shieldGenerator = {
+        shieldGeneratorId:
+            SHIELD_GENERATOR_ID
+                .BASIC_00,
+
+        status:
+            SHIELD_GENERATOR_STATUS
+                .ONLINE,
+
+        phase:
+            SHIELD_GENERATOR_PHASE
+                .READY,
+    };
+}
+
+function missileThreat(
+    projectileId: string,
+    estimatedTimeToImpactMs:
+        number,
+): EnemyCaptainDecisionSnapshot[
+    'threats'
+][number] {
+    return {
+        kind:
+            ENEMY_THREAT_KIND
+                .MISSILE,
+
+        observationId:
+            'missile:' +
+            projectileId,
+
+        projectileId,
+
+        estimatedTimeToImpactMs,
+    };
+}
+
+function beamThreat(
+    estimatedRemainingChargeMs:
+        number,
+): EnemyCaptainDecisionSnapshot[
+    'threats'
+][number] {
+    return {
+        kind:
+            ENEMY_THREAT_KIND
+                .BEAM_CANNON,
+
+        observationId:
+            'beam:00',
+
+        officerTaskId:
+            'task_00',
+
+        weaponId:
+            'player_beam_00',
+
+        estimatedRemainingChargeMs,
+    };
+}
+
+function weaponIntent(
+    weaponId: string,
+) {
+    return {
+        kind:
+            SHIP_CREW_TASK_KIND
+                .OPERATE_WEAPON,
+
+        role:
+            OFFICER_ROLE.WEAPONS,
+
+        weaponId,
+    };
+}
+
+function turretIntent(
+    projectileId: string,
+) {
+    return {
+        kind:
+            SHIP_CREW_TASK_KIND
+                .INTERCEPT_MISSILE,
+
+        role:
+            OFFICER_ROLE.WEAPONS,
+
+        defenseTurretId:
+            'defense_turret_00',
+
+        projectileId,
+    };
+}
+
+function shieldIntent() {
+    return {
+        kind:
+            SHIP_CREW_TASK_KIND
+                .DEPLOY_SHIELD,
+
+        role:
+            OFFICER_ROLE.ENGINEER,
+
+        observationId:
+            'beam:00',
+    };
+}
 
 function createSnapshot():
     EnemyCaptainDecisionSnapshot {
@@ -466,6 +707,8 @@ function createSnapshot():
             'ship_enemy_combat_00',
 
         aggression: 50,
+
+        nextDecisionInMs: 1000,
 
         availableRoles: [
             OFFICER_ROLE.WEAPONS,
@@ -492,6 +735,9 @@ function createSnapshot():
                     SHIP_WEAPON_PHASE
                         .READY,
 
+                operatorBusyDurationMs:
+                    3000,
+
                 ammoCount: 5,
             },
 
@@ -506,6 +752,9 @@ function createSnapshot():
                 phase:
                     SHIP_WEAPON_PHASE
                         .READY,
+
+                operatorBusyDurationMs:
+                    15000,
             },
 
             {
@@ -519,6 +768,9 @@ function createSnapshot():
                 phase:
                     SHIP_WEAPON_PHASE
                         .READY,
+
+                operatorBusyDurationMs:
+                    5000,
 
                 ammoCount: 5,
             },
@@ -534,6 +786,9 @@ function createSnapshot():
                 phase:
                     SHIP_WEAPON_PHASE
                         .READY,
+
+                operatorBusyDurationMs:
+                    23000,
 
                 activeChannelId:
                     null,

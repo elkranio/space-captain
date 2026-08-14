@@ -99,7 +99,9 @@ export default class EnemyBehaviorRunner {
         this.random = random;
 
         this.decisionPolicy =
-            new EnemyDecisionPolicy();
+            new EnemyDecisionPolicy(
+                random,
+            );
 
         this.scienceIntelResolver =
             new EnemyScienceIntelResolver(
