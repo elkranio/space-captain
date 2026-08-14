@@ -21,6 +21,9 @@ type JsonSchema = {
 
     'x-editor-asset-bucket'?:
         string;
+
+    'x-editor-content-reference'?:
+        string[];
 };
 
 type ContentRecord =
@@ -110,6 +113,12 @@ let selectedRecordId:
 
 let persistedRecordIds =
     new Set<string>();
+
+const contentReferenceCollectionCache =
+    new Map<
+        string,
+        Promise<ContentCollectionPayload>
+    >();
 
 let dirty = false;
 
@@ -271,6 +280,11 @@ async function saveCollection(): Promise<void> {
             );
 
         dirty = false;
+
+        // Another content collection may have gained,
+        // lost or renamed a referenced record.
+        contentReferenceCollectionCache
+            .clear();
 
         render();
         setStatus('Saved');
@@ -849,6 +863,24 @@ function createField(
     schema: JsonSchema,
     value: unknown,
 ): HTMLElement {
+    const contentReferences =
+        schema[
+            'x-editor-content-reference'
+        ];
+
+    if (
+        contentReferences &&
+        contentReferences.length > 0
+    ) {
+        return createContentReferenceField(
+            recordId,
+            fieldName,
+            schema,
+            value,
+            contentReferences,
+        );
+    }
+
     if (
         schema[
             'x-editor-asset-bucket'
@@ -1116,6 +1148,416 @@ function createField(
     wrapper.appendChild(control);
 
     return wrapper;
+}
+
+function createContentReferenceField(
+    recordId: string,
+    fieldName: string,
+    schema: JsonSchema,
+    value: unknown,
+    sourceCollectionIds: string[],
+): HTMLElement {
+    const wrapper =
+        document.createElement(
+            'label',
+        );
+
+    wrapper.className =
+        'field-row';
+
+    const label =
+        document.createElement(
+            'span',
+        );
+
+    label.className =
+        'field-label';
+
+    const labelTitle =
+        document.createElement(
+            'span',
+        );
+
+    labelTitle.className =
+        'field-label-title';
+
+    labelTitle.textContent =
+        schema.title ??
+        fieldName;
+
+    label.appendChild(
+        labelTitle,
+    );
+
+    if (schema.description) {
+        const description =
+            document.createElement(
+                'span',
+            );
+
+        description.className =
+            'field-description';
+
+        description.textContent =
+            schema.description;
+
+        label.appendChild(
+            description,
+        );
+    }
+
+    const control =
+        document.createElement(
+            'div',
+        );
+
+    control.className =
+        'field-control';
+
+    const select =
+        document.createElement(
+            'select',
+        );
+
+    const loadingOption =
+        document.createElement(
+            'option',
+        );
+
+    loadingOption.textContent =
+        'Loading content…';
+
+    select.appendChild(
+        loadingOption,
+    );
+
+    select.disabled = true;
+
+    control.appendChild(
+        select,
+    );
+
+    wrapper.append(
+        label,
+        control,
+    );
+
+    const nullable =
+        isNullableStringSchema(
+            schema,
+        );
+
+    const currentValue =
+        typeof value === 'string'
+            ? value
+            : null;
+
+    void populateContentReferenceField(
+        select,
+        sourceCollectionIds,
+        currentValue,
+        nullable,
+        (nextValue) => {
+            updateField(
+                recordId,
+                fieldName,
+                nextValue,
+            );
+        },
+    );
+
+    return wrapper;
+}
+
+async function populateContentReferenceField(
+    select: HTMLSelectElement,
+    sourceCollectionIds: string[],
+    currentValue: string | null,
+    nullable: boolean,
+    onChange:
+        (
+            value:
+                string | null,
+        ) => void,
+): Promise<void> {
+    try {
+        const sources =
+            await Promise.all(
+                sourceCollectionIds
+                    .map(
+                        loadContentReferenceCollection,
+                    ),
+            );
+
+        select.replaceChildren();
+
+        if (nullable) {
+            const none =
+                document.createElement(
+                    'option',
+                );
+
+            none.value = '';
+            none.textContent =
+                '— None —';
+
+            select.appendChild(
+                none,
+            );
+        }
+
+        let optionCount = 0;
+        let currentFound =
+            currentValue === null;
+
+        for (
+            const source of
+            sources
+        ) {
+            const entries =
+                Object.entries(
+                    source.data,
+                );
+
+            if (entries.length === 0) {
+                continue;
+            }
+
+            const parent:
+                HTMLSelectElement |
+                HTMLOptGroupElement =
+                sources.length > 1
+                    ? document.createElement(
+                        'optgroup',
+                    )
+                    : select;
+
+            if (
+                parent instanceof
+                HTMLOptGroupElement
+            ) {
+                parent.label =
+                    source.label;
+            }
+
+            for (
+                const [
+                    referenceId,
+                    record,
+                ] of entries
+            ) {
+                const option =
+                    document.createElement(
+                        'option',
+                    );
+
+                option.value =
+                    referenceId;
+
+                option.textContent =
+                    getContentReferenceOptionLabel(
+                        referenceId,
+                        record,
+                    );
+
+                parent.appendChild(
+                    option,
+                );
+
+                optionCount += 1;
+
+                if (
+                    referenceId ===
+                    currentValue
+                ) {
+                    currentFound =
+                        true;
+                }
+            }
+
+            if (
+                parent instanceof
+                HTMLOptGroupElement
+            ) {
+                select.appendChild(
+                    parent,
+                );
+            }
+        }
+
+        if (
+            currentValue !== null &&
+            !currentFound
+        ) {
+            const missing =
+                document.createElement(
+                    'option',
+                );
+
+            missing.value =
+                currentValue;
+
+            missing.textContent =
+                (
+                    currentValue +
+                    ' (missing)'
+                );
+
+            select.prepend(
+                missing,
+            );
+        }
+
+        if (
+            optionCount === 0 &&
+            !nullable &&
+            currentValue === null
+        ) {
+            const empty =
+                document.createElement(
+                    'option',
+                );
+
+            empty.textContent =
+                'No records available';
+
+            select.appendChild(
+                empty,
+            );
+
+            select.disabled = true;
+
+            return;
+        }
+
+        select.value =
+            currentValue ?? '';
+
+        select.disabled = false;
+
+        select.addEventListener(
+            'change',
+            () => {
+                onChange(
+                    (
+                        nullable &&
+                        select.value === ''
+                    )
+                        ? null
+                        : select.value,
+                );
+            },
+        );
+    } catch (error) {
+        select.replaceChildren();
+
+        const failed =
+            document.createElement(
+                'option',
+            );
+
+        failed.textContent =
+            'Failed to load: ' +
+            getErrorMessage(error);
+
+        select.appendChild(
+            failed,
+        );
+
+        select.disabled = true;
+    }
+}
+
+function loadContentReferenceCollection(
+    collectionId: string,
+): Promise<ContentCollectionPayload> {
+    if (
+        collection?.id ===
+        collectionId
+    ) {
+        return Promise.resolve(
+            collection,
+        );
+    }
+
+    const cached =
+        contentReferenceCollectionCache
+            .get(
+                collectionId,
+            );
+
+    if (cached) {
+        return cached;
+    }
+
+    const request =
+        fetch(
+            getCollectionUrl(
+                collectionId,
+            ),
+        )
+            .then(
+                async (response) => {
+                    if (!response.ok) {
+                        throw new Error(
+                            await readErrorMessage(
+                                response,
+                            ),
+                        );
+                    }
+
+                    return (
+                        await response.json() as
+                            ContentCollectionPayload
+                    );
+                },
+            )
+            .catch((error) => {
+                contentReferenceCollectionCache
+                    .delete(
+                        collectionId,
+                    );
+
+                throw error;
+            });
+
+    contentReferenceCollectionCache
+        .set(
+            collectionId,
+            request,
+        );
+
+    return request;
+}
+
+function getContentReferenceOptionLabel(
+    referenceId: string,
+    record: ContentRecord,
+): string {
+    const label =
+        typeof record.name ===
+            'string'
+            ? record.name
+            : (
+                typeof record.label ===
+                    'string'
+                    ? record.label
+                    : undefined
+            );
+
+    if (
+        !label ||
+        label === referenceId
+    ) {
+        return referenceId;
+    }
+
+    return (
+        label +
+        ' [' +
+        referenceId +
+        ']'
+    );
 }
 
 function createAssetReferenceField(
@@ -1411,6 +1853,54 @@ async function createDefaultFieldValue(
     fieldName: string,
     schema: JsonSchema,
 ): Promise<unknown> {
+    const contentReferences =
+        schema[
+            'x-editor-content-reference'
+        ];
+
+    if (
+        contentReferences &&
+        contentReferences.length > 0
+    ) {
+        if (
+            isNullableStringSchema(
+                schema,
+            )
+        ) {
+            return null;
+        }
+
+        const sources =
+            await Promise.all(
+                contentReferences
+                    .map(
+                        loadContentReferenceCollection,
+                    ),
+            );
+
+        for (
+            const source of
+            sources
+        ) {
+            const firstId =
+                Object.keys(
+                    source.data,
+                )[0];
+
+            if (firstId) {
+                return firstId;
+            }
+        }
+
+        throw new Error(
+            (
+                'Cannot create record: content reference for field "' +
+                fieldName +
+                '" has no available records.'
+            ),
+        );
+    }
+
     const assetBucket =
         schema[
             'x-editor-asset-bucket'
