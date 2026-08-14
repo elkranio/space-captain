@@ -1,202 +1,298 @@
 # Space Captain — Captain Dashboard Handoff
 
-Updated: 2026-08-14
-Reference HEAD: `31445cf2b634f017a91e1035c29633c5f1e5c003`
+Updated: 2026-08-15
+Reference HEAD: `e7fb792e430d6745ae50c7d7ddb84513fe5bc918`
 
 This is the focused handoff for captain dashboard / combat-context work.
 
-## Design direction
+## Current goal
 
-The lower captain console is split conceptually:
+The next visual pass is not final art.
 
-- **OUR SHIP** — stable player state/actions
-- **CURRENT CONTEXT** — enemy + current threats/actions
+Goal:
+- make combat presentation representative enough to judge gameplay;
+- reduce “Boeing cockpit / programmer dashboard” cognitive load;
+- preserve fast access to real officer commands;
+- let multiple simultaneous threats read as pressure rather than spreadsheet clutter.
 
-The dashboard should feel like restrained early-1990s VGA / Sierra sci-fi:
-- dark navy / blue-black
-- steel-blue framing
-- muted accents
-- chunky readable pixels
-- low clutter
-- not glossy
-- not a modern flat HUD
-- not a Boeing cockpit
-- not a colorful arcade toy
+The lower captain console remains conceptually:
 
-## Current left side
+- **OUR SHIP** — stable player systems/actions
+- **CURRENT CONTEXT** — enemy + active threats/actions
 
-Implemented rows/status cover:
+## Current implementation
+
+Left/stable player side currently covers:
 - HULL
 - shared DEF / Power Core
 - ENGINE
-- MISSILE
-- BEAM CANNON
-- MINES
-- SPAM
+- installed weapons
+- current commands/status
 
-The UI binds to real engine commands. Do not implement availability rules in the view.
+Duplicate same-kind installed weapons are supported and keyed by concrete runtime weapon ID.
 
-## Current right side
+Right/current context currently covers:
+- enemy summary;
+- enemy HULL / defenses;
+- incoming missiles;
+- Beam Cannon attacks;
+- sticky mines;
+- SPAM.
 
-Implemented:
-- enemy summary
-- enemy HULL
-- enemy DEF
-- incoming missile threats
-- incoming Beam Cannon threats
-- hostile sticky-mine threats
-- hostile SPAM channels
+All action payloads must continue to bind real engine-approved `AvailableOfficerCommand` values.
 
-All threat/action payloads are mapped from safe presentation data plus real engine command availability.
+Views must not recreate availability.
 
-### Missile row
+## Compact threat object — SELECTED VISUAL DIRECTION
 
-Current prototype provides:
-- timer
-- `UNKNOWN / UNCERTAIN / CONFIRMED` player-visible identification state
-- Science identify/re-analyze action where engine allows it
-- one Weapons Defense Turret intercept action
-- hard turret blind chance displayed numerically where useful
+The old long horizontal threat rows are implementation scaffolding.
 
-The old red/blue missile selector/beam-band mechanic is gone. Do not reintroduce it in dashboard code or docs.
+The current POC established a better direction:
 
-### Beam Cannon row
+> one concrete threat = one compact fixed-footprint tactical object.
 
-Current prototype provides:
-- timer
-- Beam Cannon threat
-- disabled Science placeholder until a real targeting/intel contract exists
-- Engineer deploy-shield action when the real command is available
+Primary benefit:
+- fast eye recognition;
+- 4 threats can fit comfortably in one row;
+- 5 can remain viable in a high-pressure state;
+- frees substantial dashboard space for enemy/system context;
+- number of simultaneous threats becomes visually obvious without reading a table.
 
-### Sticky-mine row
+Do not aggregate runtime threat identity just to pack the UI.
 
-Current prototype provides:
-- one row per attached hostile runtime mine
-- independent fuse timer
-- real `CLEAR_STICKY_MINE` actions for roles engine currently allows
-- no domain-level salvo aggregation
+### Core geometry
 
-Runtime `mineId` here is concrete runtime mine identity, not removed content identity.
+Each threat object should keep a stable reading order:
 
-### SPAM row
+Top:
+- square icon cell;
+- countdown/time-to-resolution beside it.
 
-Current prototype provides:
-- one row per active hostile SPAM channel
-- remaining channel duration
-- Science purge action when the real engine command is available
+Intel line:
+- dedicated readable signature/target code strip;
+- do not compress this into a tiny decorative line.
 
-## Button visual semantics
+Actions:
+- one/two compact stable buttons.
 
-Captain action buttons intentionally do **not** use officer-role colors.
+The generated POC where the intel strip became too thin is a warning: the intel code is key gameplay information and must remain visually strong.
 
-Shared repeated dashboard semantics live in `captain_dashboard_style.ts`.
+### Missile states
 
-Active:
-- background `0x193147`
-- border `0x7aa0c4`
-- white text
+Unknown:
+- icon + `12.6s`;
+- `?????` in red;
+- `TRACK [S]`;
+- `HIT [W]`.
 
-Non-interactive / officer busy / current work:
-- background `0x101923`
-- border `0x26394c`
-- text `0x536778`
+Partial/uncertain:
+- icon + `12.6s`;
+- e.g. `ABC??` in yellow;
+- `TRACK [S]`;
+- `HIT [W]`.
 
-Do not encode obsolete missile red/blue semantics into UI colors.
+Confirmed:
+- icon + `12.6s`;
+- e.g. `ABCDE` in green;
+- Science action disappears;
+- `HIT [W]` remains in a stable place.
 
-Do not move every local VFX color into the dashboard palette. Beam/projectile/shield/progress visuals may remain mechanic-specific.
+### Science action naming
 
-## Countdown formatting
+Keep the action name stable:
 
-Threat countdown labels share `formatCaptainDashboardCountdown()` from `captain_dashboard_format.ts`.
+`TRACK [S]`
 
-Do not reintroduce separate missile/Beam Cannon/mine/SPAM timer helpers.
+Do not switch the button to `CONFIRM [S]`.
 
-## Threat geometry is provisional
+Rationale:
+- same intent/interaction surface;
+- changing the label adds state-reading friction;
+- the intel code itself communicates progress.
 
-Do not treat the current repeated horizontal threat row as final UX architecture.
+### Intel color grammar
 
-Current rows were chosen to make mechanics readable during implementation. With final art, threats may become:
-- much smaller;
-- compact tiles;
-- icon + timer + one/two compact action affordances;
-- grouped visually without aggregating gameplay identity.
+- red = no useful intel;
+- yellow = partial/uncertain;
+- green = confirmed.
 
-Therefore:
-- do not build a generic row framework;
-- do not solve final sizing during mechanic work;
-- keep domain/read-model identity independent of visual grouping;
-- keep concrete threat views specialized while interactions differ.
+The number of remaining `?` may later communicate confidence/intel depth if a perk/mechanic deliberately exposes that granularity.
+
+Do not add confidence bars/percentages unless gameplay proves them necessary.
+
+### Player-facing signature strings
+
+Future-friendly visual idea:
+- short 4–5 character signature codes;
+- randomized/generated codes can give screenshots/runs personality;
+- funny accidental codes are welcome;
+- they must remain player-facing intel and must never expose hidden objective signature truth improperly.
+
+### Beam Cannon in the same language
+
+Beam should use the same threat-object grammar.
+
+Example:
+- unknown: `????`;
+- partial: `PW??`;
+- confirmed: `PWR`, `HULL`, `WPNS`, `SHLD`.
+
+Top:
+- Beam threat icon;
+- charge countdown.
+
+Actions:
+- `TRACK [S]` while additional Science intel is actually available;
+- `SHLD [E]` or the real Engineer response in a stable action slot.
+
+This requires a real future Beam target/intel domain contract. Current code does not yet have semantic target nodes.
+
+Do not fake target codes from VFX impact anchors.
+
+## Threat-object architecture rule
+
+Shared visual geometry does **not** automatically justify a generic gameplay/view framework.
+
+Keep:
+- concrete threat runtime identity;
+- specialized mappers/views where interactions differ;
+- engine command truth.
+
+A small shared presentation helper/component may be justified later if the actual final views repeat meaningful layout code, but do not pre-build it around mockup geometry.
+
+## Weapon-start telegraphs
+
+Selected next mechanic cleanup affects the dashboard:
+
+Current generic behavior:
+- enemy work emits `PLAYER_SHIP_TARGETING_DETECTED`;
+- app starts a generic warning;
+- later real weapon event clears it and adds the concrete threat.
+
+Selected direction:
+- Missile: telegraph begins with real lock/targeting;
+- Beam: telegraph begins with CHARGING;
+- SPAM: telegraph begins with CHANNELING;
+- Mines: telegraph begins with DISPENSING/launch;
+- remove the extra generic pre-warning layer.
+
+The dashboard should display real threats/actions, not clairvoyant “something will happen soon” state.
+
+## Current visual style target
+
+Strong early-1990s VGA / Sierra / Space Quest spirit:
+- dark navy / blue-black;
+- steel-blue framing;
+- chunky readable pixels;
+- restrained 256-color feel;
+- physical slightly worn ship hardware;
+- practical more than decorative;
+- lightly comedic where appropriate.
+
+Avoid:
+- glossy modern HUD;
+- flat web UI;
+- military-simulator density;
+- Excel rows;
+- oversized mobile-style cards;
+- carnival color noise.
+
+## Upcoming full gameplay-fidelity pass
+
+After weapon targeting cleanup + Single Mine experiment:
+
+1. redraw/recompose the whole dashboard;
+2. update OUR SHIP panel;
+3. update CURRENT CONTEXT panel around compact threat objects;
+4. improve bridge art so crew visibly sit in a small ship bridge, not an open hangar-like room;
+5. redraw missile sprites;
+6. add restrained combat juice:
+   - hit screen shake;
+   - short screen/console flash;
+   - readable impacts;
+   - enemy death already has presentation animation.
+
+Do not chase final pixel art perfection. This pass exists to support gameplay evaluation.
 
 ## Snapshot / mapper boundary
 
-`EncounterPresentationSnapshot` is the normal app-facing coherent frame root. Focused combat presentation data remains a child projection.
+`EncounterPresentationSnapshot` remains the app-facing coherent frame root.
 
-Captain context ultimately consumes:
-- enemy ship presentation snapshots
-- incoming missiles
-- Beam Cannon threats
-- sticky-mine snapshots
-- SPAM channels
-- real available commands
+Captain context consumes:
+- safe enemy ship presentation;
+- threats;
+- player-visible intel;
+- real available commands.
 
-`BridgeCaptainCombatContextMapper` only binds existing engine-approved commands to threat affordances. It must not invent role availability or target legality.
+`BridgeCaptainCombatContextMapper` may bind commands to visual affordances but must not invent:
+- role availability;
+- target legality;
+- hidden signature;
+- fake Beam node truth.
 
-## Beam Cannon naming
+## Duplicate weapons
 
-The current heavy energy weapon is **Beam Cannon** everywhere.
+Player dashboard/presentation must support multiple installed weapons of the same kind.
 
-Use:
-- prose/UI: `Beam Cannon`
-- domain enum: `BEAM_CANNON`
-- content ID/path family: `beam_cannon...`
-- app payload property where camelCase is required: `beamCannon`
+Identity is concrete runtime weapon ID, not weapon kind.
 
-Do not use old Laser names as aliases.
+Do not reintroduce singleton assumptions such as “one Missile Launcher row”.
 
-## Shield presentation
+## Orphan missiles
 
-Player/enemy shield views share only common alpha/timing math through `bridge_shield_presentation.ts`.
+Incoming missile UI must continue to work after source enemy actor destruction.
 
-Do not merge the two view classes:
-- player shield is one player-owned visual/lifecycle
-- enemy shields are actor-keyed visuals
-- scale/position/lifecycle differ
+Do not disable `TRACK` / `HIT` merely because the original actor no longer exists.
+
+The projectile is the current physical threat.
+
+## Enemy destruction
+
+Enemy destruction animation must not freeze threat countdowns or simulation.
+
+The bridge view may animate destruction independently, but:
+- no `isEncounterInteractive` lock owned by enemy death;
+- no delayed completion event that force-unlocks unrelated interaction state.
 
 ## Context-menu transition
 
-The captain dashboard is the intended main command surface, but the old officer context menu still provides legacy command coverage.
+Captain dashboard is the intended main command surface.
 
-Do not remove it until dashboard + future navigation/engineering surfaces cover required flows.
+The old officer context menu remains legacy coverage until dashboard + future Navigation/Engineering surfaces cover required flows.
 
-Potential future bridge tabs:
-- combat
-- engineering
-- navigation
+Potential future tabs:
+- Combat;
+- Engineering;
+- Navigation.
 
-These are design direction only, not current implementation contract.
+Do not implement tabs solely to compensate for the current oversized threat rows; compact threats may remove much of that pressure.
 
-## Patch delivery rules
+# NON-NEGOTIABLE PATCH DELIVERY
 
-Mandatory for every coding atom:
+1. Temporary `.mjs` patchers are delivered **only inside ZIP files**.
+2. Never additionally attach the bare `.mjs`.
+3. Fetch fresh `master` before preparing each atom.
+4. Normal atom guards exact HEAD + clean tracked state.
+5. Recovery atom guards the known dirty state/untouched targets explicitly.
+6. Preserve EOL and one newline at EOF.
+7. Run post-assertions + `git -c core.safecrlf=false diff --check`.
+8. Failed patcher remains on disk.
+9. Successful patcher deletes:
+   - itself;
+   - every explicitly named obsolete ancestor patcher from the same failed/recovery lineage.
+10. Never use broad `.mjs` cleanup globs. Exact temporary names only. Never delete real project tooling such as `vite.config.mjs`.
 
-1. Deliver patch scripts only inside `.zip`.
-2. On full successful validation, the script deletes its own `.mjs`.
-3. Fetch fresh `master` HEAD first.
-4. Guard expected HEAD.
-5. Guard clean tracked state unless explicitly repairing a known dirty atom.
-6. Preserve CRLF/EOL style.
-7. Normalize touched text files to exactly one newline at EOF.
-8. Search all callers/tests before deleting or widening shared APIs.
-9. Run `git -c core.safecrlf=false diff --check`.
-10. Failed patchers remain for diagnosis.
-
-During broad semantic renames, distinguish files that actually exist on disk from stale old paths still listed by the unstaged Git index.
+Example lineage:
+- `atom_14.mjs` fails -> remains;
+- `atom_14_v2.mjs` fails -> both remain;
+- `atom_14_v3.mjs` succeeds -> deletes `atom_14.mjs`, `atom_14_v2.mjs`, and itself after post-guards.
 
 ## Test discipline
 
-When changing captain mapper inputs/payloads:
-- search all callers first;
+When changing combat-context presentation:
+- search all mapper/view/controller callers first;
 - search all tests first;
-- do not assume there is only one mapper test;
-- update typed and `unknown as` fixtures too;
-- prefer tests that prove mapping uses real commands instead of synthetic UI availability.
+- update typed and `unknown as` fixtures;
+- prefer tests proving real command binding;
+- do not hardcode Debug Start tuning when it is irrelevant to the tested contract;
+- add regression tests for source-independent threats and presentation/simulation boundaries when touched.

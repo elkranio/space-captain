@@ -1,36 +1,71 @@
 # Space Captain — Project Context
 
-Updated: 2026-08-14
-Reference HEAD for this handoff: `31445cf2b634f017a91e1035c29633c5f1e5c003`
+Updated: 2026-08-15
+Reference HEAD for this handoff: `e7fb792e430d6745ae50c7d7ddb84513fe5bc918`
 
 This is the primary context for a fresh chat. Current GitHub `master` is always the source of truth. Re-read the repository before every coding atom; the reference HEAD above is only the handoff baseline.
 
-## Immediate next task
+## Immediate next work
 
-There is **no hard-selected coding atom** at this handoff.
+The project is now moving from infrastructure/content work into **combat iteration**.
 
-The large cleanup/content sequence is complete and green:
+Selected sequence for the next chat:
 
-- encounter/app presentation boundary cleanup is complete;
-- Missile Launcher owns missile physical tuning; there is no separate Missile content entity;
-- Sticky Mine Dispenser owns mine physical tuning; there is no separate Sticky Mine content entity;
-- Ship Weapons content is split into four real CRUD editor families;
-- the former heavy Laser weapon was fully renamed to **Beam Cannon** across domain/content/editor/runtime/app/tests.
+1. **Fix weapon targeting semantics**
+   - current code incorrectly applies the same generic 3000 ms `TARGETING` phase to every weapon family;
+   - targeting should remain only where it is the actual weapon mechanic;
+   - Missile Launcher keeps a real targeting/lock phase;
+   - Beam Cannon should begin directly in CHARGING;
+   - SPAM should begin directly in CHANNELING;
+   - Sticky Mine Dispenser should begin directly in DISPENSING;
+   - remove the generic telepathic “something is about to happen” warning contract and let real weapon-start events provide telegraphing.
 
-The next chat should start by reading fresh `master`, then continue the content-editor/content-data line from this clean baseline. A sensible first step is to runtime-smoke the current editor grouping/CRUD and choose the next concrete content/editor slice with the user. Do not recreate already-finished Missile/Sticky Mine migrations.
+2. **Add a Single Mine test weapon**
+   - do not replace the current salvo dispenser;
+   - add a second content definition in the same Sticky Mine Dispenser family;
+   - intended experiment: `salvoSize = 1` with short enough timing/cooldown to let the player deliberately fire repeated single mines;
+   - keep current salvo weapon available so both mechanics can be compared directly in Debug Start.
 
-If the user deliberately selects gameplay work instead, current `master` remains the source of truth.
+3. **Gameplay-fidelity visual pass**
+   - not final art;
+   - redesign both dashboard panels around the real combat loop;
+   - move the bridge visually closer to a small Space Quest-era ship bridge and away from the current “hangar” feeling;
+   - replace ugly placeholder missiles;
+   - add basic combat juice such as impact screen shake / short flash;
+   - adopt compact threat objects instead of long Excel-like threat rows.
 
-## Read order
+The goal is to get to a combat build that is visually representative enough to judge **fun**, not to finish art.
+
+## Latest completed fixes
+
+Current `master` is green after these fixes:
+
+- duplicate same-kind player weapons are supported by the app/dashboard presentation path;
+- Debug Start can currently install four Missile Launchers on the player ship;
+- incoming enemy missiles remain actionable/analyzable after their source enemy actor is destroyed;
+- enemy destruction presentation no longer pauses the authoritative encounter simulation for the 600 ms explosion;
+- the enemy destruction completion event no longer owns `isEncounterInteractive`;
+- starter-hull tests no longer assume a magic hull value of `3`; they assert preservation of the actual initial runtime value instead;
+- temporary accidental recovery patcher committed during the last sequence was removed again.
+
+Important physical-threat contract:
+
+> Once an actor-launched missile exists and targets `PLAYER_SHIP`, it remains an actionable physical threat independently of the source actor lifecycle.
+
+Important presentation/simulation contract:
+
+> Enemy destruction animation is presentation only. It must not pause `EncounterEngine.step()`, projectiles, tasks, recharge, or other encounter simulation.
+
+## Read order for a fresh chat
 
 1. `PROJECT_CONTEXT.md`
 2. `GAMEPLAY_CONTRACTS.md`
 3. `SYSTEM_MAP.md`
 4. `BACKLOG.md`
-5. `CONTENT_TOOLS_HANDOFF.md` for content/editor work
-6. `CAPTAIN_DASHBOARD_HANDOFF.md` for dashboard/combat-context work
-7. `REFACTOR_HANDOFF.md` only as completed audit rationale/history
-8. `BRIDGE_ART_DIRECTION.md` only for visual/layout work
+5. `CAPTAIN_DASHBOARD_HANDOFF.md` for current combat UI work
+6. `BRIDGE_ART_DIRECTION.md` for the upcoming gameplay-fidelity visual pass
+7. `CONTENT_TOOLS_HANDOFF.md` only when returning to editor/content infrastructure
+8. `REFACTOR_HANDOFF.md` only as completed audit rationale/history
 
 Do not reconstruct current behavior from old chats when the repository can answer it.
 
@@ -44,13 +79,14 @@ Do not reconstruct current behavior from old chats when the repository can answe
 - bridge app/controller/view: `src/app/scenes/game/bridge/...`
 - local content editor: `tools/content-editor/...`
 - atlas key currently `atlas`
+- bitmap font: `pixel_operator`
 - TypeScript `strict`, `noUnusedLocals`, `noUnusedParameters`
 - normal validation: `npm run typecheck` then `npm test`
 - user performs runtime smoke and pushes commits
 
 ## Working style
 
-- Russian, short/direct, practical.
+- Russian replies, short/direct/practical.
 - Small coherent atoms.
 - Discuss architecture before broad changes.
 - Refactor only when it reduces cognitive load, removes real duplication/hops, clarifies ownership, or fixes a demonstrated problem.
@@ -69,10 +105,20 @@ These rules apply to every coding chat and every task.
 3. This includes tiny one-line recoveries.
 4. The user downloads the ZIP, extracts the `.mjs`, and runs it locally.
 5. Do not additionally attach the bare `.mjs`.
-6. A successful temporary patch script must delete its own `.mjs` file after writes and post-guards.
-7. A failed script must remain on disk for diagnosis.
-8. Successful recovery may narrowly remove obsolete temporary ancestor patchers.
-9. `vite.config.mjs` and other real project tooling are not temporary patch scripts and must never be removed by cleanup.
+6. A failed temporary patcher must remain on disk for diagnosis.
+7. A fully successful temporary patcher must clean up its patcher lineage:
+   - delete **itself**;
+   - delete every explicit obsolete ancestor patcher from the same atom/recovery chain if one exists;
+   - first-attempt success therefore deletes only itself;
+   - if `v1` failed and `v2` succeeds, `v2` deletes both `v1` and itself;
+   - if several recovery attempts exist, the final successful script deletes all explicitly listed ancestors plus itself.
+8. Ancestor cleanup must be **narrow and explicit**:
+   - exact known temporary filenames only;
+   - no broad `*.mjs` glob deletion;
+   - only paths inside the repo/root patcher location;
+   - never delete real project tooling.
+9. `vite.config.mjs` and other real project `.mjs` files are not temporary patch scripts and must never be removed.
+10. Self/ancestor cleanup happens only after all writes and post-guards have succeeded. If validation fails, keep the current script and its ancestors for diagnosis.
 
 If a task-specific handoff conflicts with this section, this section wins.
 
@@ -81,53 +127,60 @@ If a task-specific handoff conflicts with this section, this section wins.
 - Fetch fresh `master` and inspect exact files/callers/tests before preparing a patch.
 - Guard the exact expected HEAD for a normal atom prepared against a known clean commit.
 - Guard tracked clean state before writes, except explicit recovery atoms for known dirty state.
+- Recovery patchers must guard the exact expected dirty/untouched targets rather than pretending the worktree is clean.
 - Prefer structural/contextual anchors over brittle whitespace-only replacement.
-- Validate planned transforms before the first write when practical.
+- If an anchor is not unique, scope the transform structurally (for example to a named test/function) before writing.
+- Validate all planned transforms before the first write when practical.
 - Preserve file EOL style; Windows CRLF is common.
 - Leave exactly one newline at EOF in touched text files.
 - Finish with post-assertions and `git -c core.safecrlf=false diff --check`.
 - Before deleting a helper/query/type, search all source + test consumers.
 - `git grep` does not see untracked files; filesystem-scan newly created/renamed files when necessary.
-- During mass renames, remember that the unstaged Git index still lists old tracked paths. A filesystem postflight must distinguish old index paths from files that actually still exist.
+- During mass renames, remember that the unstaged Git index may still list old tracked paths. Distinguish old index paths from files that physically still exist.
 - Avoid broad substring import removal: exact old import paths and word-boundary symbol guards are safer.
 - Do not delete AST/expression nodes merely because nested text contains a legacy token.
 - Do not `.trim()` raw `git status --porcelain` before parsing its leading XY status field.
 - On Windows, invoke npm through `cmd.exe` / `ComSpec` from patchers when patchers run npm.
 
-## Current gameplay / bridge state
+## Core combat design target
 
-The bridge has four active officer roles:
+The combat game is slow tactical pressure, not bullet hell.
 
-- Science
-- Weapons
-- Helm
-- Engineer
+Desired emotional mix:
+- enough time to understand and decide;
+- enough overlap/resource/crew pressure to create stress;
+- visible consequences;
+- no single obvious procedural response to every situation.
 
-The captain dashboard is becoming the main command surface. The old officer context menu remains legacy coverage and should not be removed until dashboard/navigation/engineering command coverage is complete.
+Stress should come from conflicts such as:
+- Weapons is committed to an attack while an incoming threat appears;
+- Science is occupied when uncertain intel matters;
+- shared Power Core cannot satisfy every defense;
+- player may consciously accept one hit to keep offensive tempo;
+- enemy defense/repair competes with its offense.
 
-### Captain dashboard
+The immediate design test is deliberately small:
 
-Left/stable player side:
-- HULL
-- shared Power Core / DEF
-- Defense Turret blind chance (`TURRET 40%` for current BASIC hardware)
-- ENGINE
-- MISSILE
-- BEAM CANNON
-- MINES
-- SPAM
+> Make one combat encounter that the player wants to play again immediately.
 
-Right/current combat context:
-- one enemy summary
-- enemy HULL + DEF
-- incoming missiles
-- incoming Beam Cannon threats
-- hostile sticky mines
-- hostile SPAM
+Do not optimize late-run balance or “broken roguelite builds” before the base fight is fun.
 
-Dashboard actions bind real `AvailableOfficerCommand` values. Views must not recreate engine availability.
+## Current Debug Start baseline
 
-Threat-row geometry is still provisional. Do not create a generic threat-row framework merely around the current layout.
+Current `debug_start.json` at the handoff HEAD:
+
+Player:
+- maxHull: 30
+- BASIC drive/core/shield/turret
+- 4 × `missile_launcher_00`
+
+Enemy:
+- `generic_00` chassis
+- BASIC drive/core/shield/turret
+- 1 × `missile_launcher_00`
+- other weapon slots empty
+
+Debug Start is editable content and tests should not hardcode mutable values that are irrelevant to the contract under test.
 
 ## Defensive modules
 
@@ -137,168 +190,184 @@ Settled terms:
 - `Shield Generator`
 - `Defense Turret`
 
-Current editor `Ship Modules` group:
-- Power Cores
-- Drives
-- Shield Generators
-- Defense Turrets
-
 ### Shared Power Core
 
-- shared defensive energy budget
-- Defense Turret and Shield Generator consume it
-- no private Defense Turret charge/ammo pool
-- committed energy is not refunded after later cancellation/interruption
-- exact tuning is content data
+- one defensive energy budget;
+- Defense Turret and Shield Generator consume it;
+- no private Defense Turret charge/ammo pool;
+- committed energy is not refunded after later cancellation/interruption;
+- exact tuning is content data.
 
 ### Shield Generator / Active Shield
 
-- Shield Generator = installed persistent hardware
-- Active Shield = encounter-local temporary effect
-- current Active Shield absorbs one Beam Cannon hit or expires
+- Shield Generator = installed persistent hardware;
+- Active Shield = encounter-local temporary effect;
+- current Active Shield absorbs one Beam Cannon hit or expires;
+- break/repair work remains incomplete.
 
 ### Defense Turret
 
-- separate installed system
-- one missile `INTERCEPT` flow
-- current BASIC `blindInterceptChance = 0.4`
-- player and enemy interception share the same resolver
-- player installed broken/repair lifecycle remains future work
+- separate installed system;
+- one missile intercept flow;
+- current BASIC blind chance = 0.4;
+- player and enemy interception share the same resolver;
+- player installed break/repair lifecycle remains future work.
 
-## Missile gameplay/content — CURRENT
+## Weapon lifecycle design — current code vs selected next design
 
-The old red/blue spectral-band mechanic and separate Missile content entity are gone.
+### Current implementation
 
-Current contract:
-- Missile Launcher definition owns physical projectile tuning:
-  - name
-  - damage
-  - `flightDurationMs`
-  - `ammoCapacity`
-  - `cooldownDurationMs`
-- each launched projectile copies physical values needed for its autonomous flight;
-- each concrete missile projectile also owns hidden runtime `signature` truth;
-- observer intel is separate from projectile truth;
-- public intel states are `UNKNOWN`, `UNCERTAIN`, `CONFIRMED`;
-- correct hypothesis -> guaranteed Defense Turret HIT;
-- wrong hypothesis or no hypothesis -> equipment blind-intercept chance;
-- blind MISS leaves the missile alive/in flight;
-- presentation receives player-visible identification state, never objective signature.
+There is one shared `SHIP_WEAPON_TARGETING_DURATION_MS`, sourced from:
 
-There is no separate Missiles JSON/schema/catalog/preset layer to recreate unless future selectable ammo types actually need one.
+`ship_weapon_rules.json -> enemy_targeting.durationMs = 3000`
 
-## Sticky Mine gameplay/content — CURRENT
+Despite the name, current player and enemy weapon runners both use it.
 
-The separate Sticky Mine content entity is also gone.
+Current generic phase model includes:
+- READY
+- TARGETING
+- CHARGING
+- CHANNELING
+- DISPENSING
+- COOLDOWN
 
-Sticky Mine Dispenser definition owns:
+The current generic enemy warning path starts at weapon work start through `PLAYER_SHIP_TARGETING_DETECTED`, then real weapon events later replace/clear it.
+
+### Selected next semantic model
+
+Do **not** delete `TARGETING` globally.
+
+Use phases because they mean something for the concrete weapon:
+
+- Missile Launcher:
+  - READY -> TARGETING/LOCKING -> LAUNCH -> COOLDOWN
+  - Weapons must minimally participate before launch;
+  - targeting/locking itself is a real observable telegraph.
+
+- Beam Cannon:
+  - READY -> CHARGING -> FIRE -> COOLDOWN
+  - no generic pre-targeting;
+  - charging is the commitment/channel and the telegraph;
+  - Weapons remains occupied while the weapon phase requires an operator.
+
+- SPAM:
+  - READY -> CHANNELING -> COOLDOWN
+  - no generic pre-targeting;
+  - the channel beginning is the visible attack start.
+
+- Sticky Mine Dispenser:
+  - READY -> DISPENSING -> COOLDOWN
+  - no generic pre-targeting;
+  - current salvo behavior can remain as one dispensing operation;
+  - Single Mine experiment will reuse the same family with `salvoSize = 1`.
+
+Reaction time should come from each weapon’s real lifecycle/tuning, not from an artificial universal +3 s pre-warning.
+
+## Missile gameplay/content
+
+There is no standalone Missile content entity.
+
+Missile Launcher owns physical projectile tuning:
 - name
 - damage
-- `fuseDurationMs`
-- `ammoCapacity`
-- `salvoSize`
-- `launchIntervalMs`
-- `cooldownDurationMs`
+- flight duration
+- ammo capacity
+- cooldown duration
 
-At launch/attach, runtime mine state receives physical values and becomes autonomous. Runtime `mineId` used by CLEAR MINE tasks/results is still valid runtime object identity and must not be confused with the removed content mine ID.
+Every concrete projectile owns hidden runtime signature truth. Observer Science knowledge is separate:
+- UNKNOWN
+- UNCERTAIN
+- CONFIRMED
 
-## Beam Cannon — CURRENT
+Interception:
+- correct concrete hypothesis -> guaranteed HIT;
+- wrong/no hypothesis -> Defense Turret blind chance;
+- blind MISS leaves missile alive.
 
-The former heavy `Laser` weapon is now **Beam Cannon** everywhere in current project terminology.
+A source actor may die while its missile remains active. The projectile remains an independent physical threat until resolved.
 
-Current role:
-- slow charge;
-- energy weapon;
-- no ammunition economy;
-- current enemy attack is a telegraphed threat;
-- Active Shield is the current defensive response;
-- future node-targeting / Science targeting contract is not implemented yet.
+## Sticky Mine gameplay/content
 
-Do not reintroduce `Laser` as an alias for the current Beam Cannon. A future fast/weak starter laser is a separate design possibility, not current content.
+There is no standalone Sticky Mine content entity.
+
+Sticky Mine Dispenser owns:
+- damage
+- fuse duration
+- ammo capacity
+- salvo size
+- launch interval
+- cooldown duration
+
+Every attached mine is independent runtime state.
+
+Selected experiment:
+- keep existing salvo dispenser;
+- add a second Single Mine content definition in the same weapon family;
+- compare one-command salvo vs repeated deliberate single-mine commands before choosing/removing either behavior.
+
+Do not create a new weapon kind/runner only to test `salvoSize = 1`.
+
+## Beam Cannon
+
+Current heavy precision energy weapon is **Beam Cannon**.
+
+Design intent:
+- effectively free in ammo/resource terms;
+- its primary price is operator commitment/time;
+- long offensive commitment is intentional until combat testing proves it merely frustrating;
+- future semantic targeting can include HULL / hardpoints / officers/systems;
+- this makes the “free” shot strategically expensive through occupied Weapons time.
+
+Do not knee-jerk convert it into a missile-like “quick aim then autonomous charge” before real combat testing.
 
 ## Content editor state
 
-The local editor is real infrastructure:
+Current editor infrastructure is real and green.
 
-- Vite + vanilla TypeScript
-- light theme
-- Zod runtime schemas
-- plain JSON canonical editable content
-- whitelisted local server write boundary
-- generic schema-driven primitive controls
-- dirty/save flow
-- add/delete via collection metadata
-- referenced-delete blocking
-- chassis sprite asset management + atlas rebuild
-- editor writes normal tracked repo content
+Important completed pieces:
+- Ship Modules CRUD;
+- four Ship Weapons CRUD families;
+- Officer Tasks split by role/shared;
+- Enemy Behavior content;
+- Debug Start player/enemy loadout editing;
+- generic content-reference dropdowns;
+- weapon-slot references across all weapon families;
+- open string weapon IDs with cross-family uniqueness/reference validation.
 
-CRUD-ready now:
-
-Ship modules:
-- Ship Chassis
-- Drives
-- Power Cores
-- Shield Generators
-- Defense Turrets
-
-Ship weapons:
-- Missile Launchers
-- Beam Cannons
-- Spam Projectors
-- Sticky Mine Dispensers
-
-`Ship Weapons` is an editor group, not a runtime hierarchy. Runtime still exposes one unified `SHIP_WEAPONS` catalog.
-
-Weapon record IDs are open strings for editor-created records; stable builtin `SHIP_WEAPON_ID.*` constants remain convenience aliases. Weapon IDs must be unique across weapon families, and deleting a weapon still referenced by player/enemy ship presets is blocked.
-
-There are no separate `Missiles` or `Sticky Mines` editor collections.
+This work is not the current priority. Return only when combat iteration requires content/tool support.
 
 ## Combat read-model architecture
 
 `EncounterState` is authoritative mutable truth.
 
-`EncounterPresentationSnapshot` is the normal app-facing detached frame read. It composes:
-- navigation;
-- safe encounter-space presentation;
-- player/system/officer presentation;
-- enemy/threat presentation;
-- real command availability grouped by role.
+`EncounterPresentationSnapshot` is the normal detached app-facing frame root.
 
-`CombatPresentationSnapshot` remains a focused child projection used by the aggregate builder and narrow engine/test reads.
+Events represent discrete transitions; snapshots represent current truth.
 
-Current event rule:
-- snapshots answer **what is true now**;
-- events answer **what just happened**;
-- `ENCOUNTER_LOADED` is a marker, not an `EncounterState` transport;
-- missile event payloads are sanitized and do not expose hidden objective signature.
+Enemy behavior flow is intentionally separated:
+- decision snapshot / perceived facts;
+- `EnemyDecisionPolicy`;
+- `EnemyWorkExecutor`;
+- `EnemyCrewTaskRunner`;
+- specialized physical combat runners;
+- `EnemyThreatObserver` / Science intel boundary.
 
-Enemy behavior remains split:
-- `EnemyDecisionPolicy` chooses work
-- `EnemyTaskScheduler` builds explicit decision context and starts work
-- `EnemyCrewTaskRunner` owns crew task lifecycle
-- specialized combat runners own physical lifecycle
-- Science observation/intel is separate from objective truth
+Do not collapse enemy behavior into a god object.
 
-Do not collapse this into an enemy god object.
+Physical weapon runners are shared where appropriate between player/enemy. Do not move all combat physics into enemy AI.
+
+There is no global authoritative `combatEnded` / `combatActive` engine flag. Do not add one merely because an enemy actor disappears.
 
 ## Refactor checkpoint
 
-The targeted cleanup pass plus the subsequent weapon-content simplifications are complete and green. Do not continue refactoring merely to reduce file length or remove focused seams.
+The broad refactor pass is historical/completed.
 
-Further cleanup should again require concrete evidence:
-- duplicated rules;
+Only refactor when concrete evidence appears:
+- duplicated gameplay rule;
 - unclear ownership;
 - context reconstruction;
-- hostile signatures;
-- real callback spaghetti;
-- stale semantic layers that actively obscure current behavior.
+- callback spaghetti;
+- hostile method/type signatures;
+- stale semantic layer that actively obscures current behavior.
 
-Settled non-problems unless new evidence appears:
-- `BridgeController` as composition root
-- `EncounterEngine` as facade/composition root
-- long but cohesive `CombatRunner`
-- `EncounterStateStore` facade
-- long declarative event unions
-- specialized threat rows
-- specialized combat runners
-- separate captain/player-weapon mappers
+The current universal weapon targeting layer is a valid cleanup target because it now obscures weapon-specific semantics.

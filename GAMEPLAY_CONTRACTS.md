@@ -1,16 +1,36 @@
 # Space Captain — Gameplay Contracts
 
-Living gameplay invariants only. If code and this file disagree, inspect current code and update/fix the mismatch instead of coding from stale prose.
+Living gameplay invariants and explicitly selected near-term design contracts. If code and this file disagree, inspect current code first. Sections marked **SELECTED / NOT IMPLEMENTED** describe the next intended change and must not be mistaken for current runtime behavior.
 
-Updated: 2026-08-14
-Reference HEAD: `31445cf2b634f017a91e1035c29633c5f1e5c003`
+Updated: 2026-08-15
+Reference HEAD: `e7fb792e430d6745ae50c7d7ddb84513fe5bc918`
 
 ## Encounter shape
 
 - One full enemy ship at a time.
-- Missiles, Beam Cannon attacks, SPAM and sticky mines are weapons/threats produced by that ship, not additional command-capable enemies.
-- Combat is telegraph -> crew work/response -> delivery/impact -> cooldown, not bullet hell.
-- The player wins/loses through readable timing pressure and crew execution, not twitch aiming.
+- Missiles, Beam Cannon attacks, SPAM and sticky mines are threats produced by ships, not additional command-capable enemies.
+- Combat is readable timing pressure + crew commitment + resource conflict, not bullet hell.
+- The player should normally have time to understand a threat; difficulty comes from overlapping demands and opportunity cost rather than twitch reaction.
+- Physical threats may outlive their source actor.
+
+### Source-independent physical threat invariant
+
+Once an actor-launched missile exists and targets `PLAYER_SHIP`:
+- it remains in simulation if the source actor is destroyed;
+- it remains analyzable when Science commands are otherwise available;
+- it remains interceptable when Weapons/Defense Turret commands are otherwise available;
+- source-actor existence is not required to resolve it.
+
+## Encounter simulation vs presentation
+
+Presentation effects must not stop authoritative simulation unless a real gameplay contract explicitly requires a pause.
+
+Current enemy-destruction contract:
+- enemy actor destruction may start a local explosion/destruction view;
+- the 600 ms destruction animation runs in presentation time;
+- `EncounterEngine.step()` continues;
+- missiles, mines, tasks, Power Core recharge and other encounter systems continue;
+- destruction completion does not own/unlock `isEncounterInteractive`.
 
 ## Officer command truth
 
@@ -21,72 +41,179 @@ Reference HEAD: `31445cf2b634f017a91e1035c29633c5f1e5c003`
 - Cancellation belongs to the active task, not to the UI surface that started it.
 - Busy-role behavior comes from engine availability; presentation does not maintain a second busy-command ruleset.
 
+## Combat pacing principle
+
+The desired pressure model is:
+- telegraph through the weapon’s real physical/crew phase;
+- player decides;
+- crew/system work executes;
+- attack delivers/resolves;
+- weapon/system cooldown follows.
+
+Avoid a universal extra telegraph phase that exists only to gift reaction time.
+
+If a threat needs more response time, tune its real phase:
+- longer missile lock/flight;
+- longer Beam Cannon charge;
+- slower SPAM buildup/channel pressure;
+- mine dispensing/fuse timing.
+
+## Weapon phase semantics — CURRENT IMPLEMENTATION
+
+Current code has one shared content value:
+
+`ship_weapon_rules.json -> enemy_targeting.durationMs = 3000`
+
+It is exported as `SHIP_WEAPON_TARGETING_DURATION_MS`.
+
+Despite the content name, it is currently used by both player and enemy weapon runners and acts as a generic pre-phase for multiple weapon families.
+
+This is known stale semantics and is selected for cleanup.
+
+## Weapon phase semantics — SELECTED / NOT IMPLEMENTED
+
+`TARGETING` should remain only when actual target acquisition is part of that weapon.
+
+### Missile Launcher
+
+Intended lifecycle:
+
+```text
+READY
+  -> TARGETING / LOCKING
+  -> LAUNCH
+  -> COOLDOWN
+  -> READY
+```
+
+Rules:
+- a missile should not be a free instantaneous launch;
+- Weapons must perform a short real lock/targeting commitment;
+- the beginning of lock is itself an observable attack telegraph;
+- after launch, the projectile is autonomous and Weapons is free when the task contract allows.
+
+If naming cleanup is worthwhile, `LOCKING` is a clearer conceptual term than generic `TARGETING`, but do not rename broadly unless it genuinely improves the concrete code.
+
+### Beam Cannon
+
+Intended lifecycle:
+
+```text
+READY
+  -> CHARGING
+  -> FIRE
+  -> COOLDOWN
+  -> READY
+```
+
+Rules:
+- no generic pre-targeting;
+- charging is the actual offensive commitment and telegraph;
+- Beam Cannon has no ammo economy;
+- occupied Weapons time is a major part of its cost;
+- do not convert it to “quick aim, autonomous charge” before combat testing proves the commitment unfun.
+
+### SPAM
+
+Intended lifecycle:
+
+```text
+READY
+  -> CHANNELING
+  -> COOLDOWN
+  -> READY
+```
+
+Rules:
+- no generic pre-targeting;
+- the channel itself is the attack and telegraph;
+- Science remains occupied according to the real channel/operator contract.
+
+### Sticky Mine Dispenser
+
+Intended lifecycle:
+
+```text
+READY
+  -> DISPENSING
+  -> COOLDOWN
+  -> READY
+```
+
+Rules:
+- no generic pre-targeting;
+- dispensing is the attack start/telegraph;
+- existing salvo mechanics remain valid while the single-mine experiment is evaluated.
+
+### Telegraph rule
+
+Remove the generic “the UI telepathically knows some attack will happen soon” layer.
+
+Telegraph begins when a real observable weapon action begins:
+- missile: lock/targeting starts;
+- Beam Cannon: charging starts;
+- SPAM: channel starts;
+- mines: dispensing/launch begins.
+
 ## Shared Power Core
 
 There is one shared player defensive energy store.
 
-Current basic contract:
-- capacity: 4 charges
-- sequential recharge
-- one charge recharge duration: 24 s
-- Defense Turret and Shield Generator draw from the same pool
+Current BASIC contract:
+- capacity: 4 charges;
+- sequential recharge;
+- one charge recharge duration: 24 s;
+- Defense Turret and Shield Generator draw from the same pool.
 
 A defensive consumer commits energy when its work starts. Later cancellation/interruption does not refund committed energy.
 
-Persistent presentation state is synchronized from encounter snapshots; there is no duplicate charge-spent event contract.
-
 Future missing contract:
-- Power Core can become BROKEN
-- on break: charges -> 0 and recharge progress -> 0
-- defensive consumers cannot draw energy while broken
+- Power Core can become BROKEN;
+- on break: charges -> 0 and recharge progress -> 0;
+- defensive consumers cannot draw energy while broken.
 
 ## Shield Generator / Active Shield
 
 Installed hardware: **Shield Generator**.
 Temporary encounter object: **Active Shield**.
 
-Shield Generator:
-- persistent installed player/enemy system
-- ONLINE/BROKEN status
-- READY/COOLDOWN phase
-- no private charge pool
-- player `ENGINEER_DEPLOY_SHIELD` requires working/ready generator, no existing Active Shield, available Power Core charge
-- Power Core charge is committed at task start
-- current deploy task: 3000 ms
-- current BASIC generator cooldown: 5000 ms
+Current BASIC Shield Generator:
+- persistent installed player/enemy system;
+- ONLINE/BROKEN status vocabulary exists;
+- READY/COOLDOWN phase;
+- no private charge pool;
+- player `ENGINEER_DEPLOY_SHIELD` requires working/ready generator, no existing Active Shield and available Power Core charge;
+- Power Core charge is committed at task start;
+- current deploy task: 3000 ms;
+- current BASIC generator cooldown: 5000 ms.
 
-Active Shield:
-- encounter-local
-- current BASIC lifetime: 5000 ms
-- covers the whole hull for now
-- absorbs exactly one incoming Beam Cannon hit
-- disappears on absorption
-- otherwise expires at TTL
-- final ~1 s blinks visually
-- absorption flashes/fades before removal
-
-Player/enemy shield presentation shares timing/alpha math only. Combat ownership and view lifecycle remain separate.
+Current Active Shield:
+- encounter-local;
+- BASIC lifetime: 5000 ms;
+- covers the whole hull for now;
+- absorbs exactly one incoming Beam Cannon hit;
+- disappears on absorption;
+- otherwise expires at TTL.
 
 Future:
-- breaking Shield Generator should immediately remove an active shield
-- exact timings remain balance values
+- breaking Shield Generator should immediately remove an active shield;
+- exact timings are balance values.
 
 ## Defense Turret
 
 Defense Turret is a separate installed defensive module.
 
 Current contract:
-- no private charge/ammo pool
-- consumes shared Power Core
-- Weapons owns player loading/operation flow
-- READY / LOADING / COOLDOWN physical phases
-- one missile intercept action; no beam-band/color selection
-- current BASIC `blindInterceptChance = 0.4`
-- hard blind-intercept chance is equipment data and may be displayed numerically
-- player and enemy missile interception use the same pure resolution rule
-- player installed-system broken/repair lifecycle is still incomplete
-
-A committed attempt costs Power Core regardless of HIT/MISS. A MISS leaves the missile alive.
+- no private charge/ammo pool;
+- consumes shared Power Core;
+- Weapons owns player loading/operation flow;
+- READY / LOADING / COOLDOWN phases;
+- one missile intercept action;
+- current BASIC `blindInterceptChance = 0.4`;
+- player and enemy missile interception use the same pure resolution rule;
+- a committed attempt costs Power Core regardless of HIT/MISS;
+- MISS leaves the missile alive;
+- player installed-system break/repair lifecycle is incomplete.
 
 ## Missiles
 
@@ -95,13 +222,13 @@ A committed attempt costs Power Core regardless of HIT/MISS. A MISS leaves the m
 There is no separate Missile content entity.
 
 Missile Launcher content owns:
-- name
-- damage
-- flight duration
-- ammo capacity
-- cooldown duration
+- name;
+- damage;
+- flight duration;
+- ammo capacity;
+- cooldown duration.
 
-At launch, the projectile copies the physical values needed for its autonomous lifecycle. The projectile does not need a later content lookup.
+At launch, the projectile copies the physical values needed for its autonomous lifecycle.
 
 Create a separate ammo/missile content layer only if future gameplay introduces genuinely selectable missile/ammo types.
 
@@ -113,8 +240,7 @@ Invariants:
 - runtime signature is projectile-instance truth;
 - it is not launcher/model content;
 - identical launchers may produce projectiles with different runtime signatures;
-- projectile/content IDs must not reveal or reconstruct the runtime signature;
-- current `signature_a` / `signature_b` values are hidden implementation truth, not player-facing colors/frequencies.
+- projectile/content IDs must not reveal or reconstruct the runtime signature.
 
 ### Observer Science intel
 
@@ -123,26 +249,24 @@ Observer knowledge is separate from projectile truth.
 Public states:
 
 `UNKNOWN`
-- no concrete hypothesis exists.
+- no concrete hypothesis.
 
 `UNCERTAIN`
-- a concrete hypothesis exists;
-- it is operationally usable;
-- it may objectively be correct or wrong;
-- it may be analyzed again while engine command availability permits.
+- concrete hypothesis exists;
+- operationally usable;
+- may objectively be correct or wrong;
+- can be analyzed again while command availability permits.
 
 `CONFIRMED`
-- a concrete hypothesis exists;
-- engine invariant: it matches objective projectile truth;
+- concrete hypothesis exists;
+- invariant: it matches objective projectile truth;
 - terminal for that projectile.
 
-There is no public `INCORRECT` state and no public correctness flag.
-
-Intel is per projectile.
+There is no public `INCORRECT` state/correctness flag.
 
 ### Science analysis
 
-Current analysis profiles:
+Current profiles:
 - `STANDARD`
 - `IMPAIRED`
 
@@ -152,21 +276,16 @@ Current confidence families:
 - `WEAK`
 
 Rules:
-- `CERTAIN` produces truthful `CONFIRMED`;
-- `STRONG` / `WEAK` produce `UNCERTAIN`;
-- UNCERTAIN hypothesis can be correct or wrong;
-- one analysis outcome drives both hypothesis reliability and bark/confidence family;
-- Science confidence is qualitative player information, not a displayed numeric percent.
+- `CERTAIN` -> truthful `CONFIRMED`;
+- `STRONG` / `WEAK` -> `UNCERTAIN`;
+- uncertain hypothesis may be correct or wrong;
+- confidence is qualitative information, not a displayed numeric percent.
 
 Current hidden tuning:
-- STANDARD: 45% CERTAIN, 40% STRONG, 15% WEAK; overall hypothesis correctness ~84.5%;
-- IMPAIRED: 10% CERTAIN, 45% STRONG, 45% WEAK; overall hypothesis correctness ~55%.
-
-Those percentages are hidden tuning, not UI odds.
+- STANDARD: 45% CERTAIN, 40% STRONG, 15% WEAK;
+- IMPAIRED: 10% CERTAIN, 45% STRONG, 45% WEAK.
 
 ### Defense Turret resolution
-
-Authoritative rule:
 
 ```text
 concrete hypothesis matches projectile truth
@@ -176,88 +295,95 @@ no hypothesis OR wrong hypothesis
     -> blind roll using installed Defense Turret blindInterceptChance
 ```
 
-Important consequence:
-- `CONFIRMED` + correct -> guaranteed
-- `UNCERTAIN` + correct -> guaranteed
-- `UNCERTAIN` + wrong -> blind chance
-- `UNKNOWN` -> blind chance
+Therefore:
+- CONFIRMED + correct -> guaranteed;
+- UNCERTAIN + correct -> guaranteed;
+- UNCERTAIN + wrong -> blind;
+- UNKNOWN -> blind.
 
-Blind RNG is deterministic/injected and validated in `[0, 1)`. UI/store code must not call `Math.random()` to resolve interception.
+## Missile intel presentation direction — SELECTED / NOT IMPLEMENTED
 
-### Presentation boundary
+The compact threat-object concept should not expose internal signature truth directly, but it may present a player-facing short code derived from allowed observer intel.
 
-`EncounterPresentationSnapshot` is the normal app-facing frame root.
+Desired visual language:
+- no intel: `?????` in red;
+- partial/uncertain: e.g. `ABC??` in yellow;
+- confirmed: e.g. `ABCDE` in green.
 
-Presentation receives:
-- physical identifiers/timing/target/source data needed by UI;
-- player-visible identification status.
+Potential future extension:
+- number of remaining `?` can represent degree of partial confidence/intel when a perk or mechanic deliberately exposes that granularity;
+- player-facing signature strings can be short randomized 4–5 character codes for personality/screenshots, provided they remain presentation/intel and never leak objective hidden truth.
 
-Presentation does **not** receive:
-- objective runtime signature;
-- concrete Science hypothesis.
-
-Discrete missile events use a detached/sanitized projectile snapshot and do not leak hidden truth.
-
-Captain missile rows and viewscreen HUD show player-visible `UNKNOWN / UNCERTAIN / CONFIRMED` state.
-
-Hard equipment odds may be shown numerically (`TURRET 40%`). Science confidence remains qualitative.
+Science action label remains stable (`TRACK`) while more analysis is possible. Do not create `TRACK -> CONFIRM` label churn unless testing proves it clearer.
 
 ## Beam Cannon
 
-The current heavy precision energy weapon is **Beam Cannon**. The old `Laser` term is retired for this weapon.
+Current heavy precision energy weapon is **Beam Cannon**. Old Laser naming is retired for this weapon.
 
-Current contract:
+Current combat contract:
 - long charge;
 - no ammo economy;
-- enemy Beam Cannon attack is a timed telegraphed threat;
-- without Active Shield, firing resolves as HIT and damages hull;
-- with Active Shield, firing resolves as ABSORBED; hull is unchanged and shield is consumed;
-- Engineer shield deployment is the current captain response;
-- Science slot is intentionally non-functional until a real node-targeting/intel contract exists;
-- current whole-hull impact points are presentation anchors, not semantic damage nodes;
-- dashboard renders active incoming Beam Cannon threats independently.
+- without Active Shield, firing damages hull;
+- with Active Shield, firing is absorbed and shield is consumed;
+- Engineer shield deployment is the current defensive response;
+- current whole-hull impact points are presentation anchors, not semantic damage nodes.
 
-Future design direction, not implemented contract:
-- Beam Cannon may become the slow precision/node-targeting weapon;
-- a separate fast/weak starter laser may exist later.
+Design direction:
+- Beam Cannon may become the free/slow precision weapon;
+- future shots may target HULL or concrete hardpoints/systems/officers;
+- disabling enemy hardpoints can occupy enemy Engineer through repair;
+- the main cost of a free Beam Cannon shot is Weapons commitment/time.
+
+### Beam intel presentation direction — SELECTED / NOT IMPLEMENTED
+
+The same compact intel code language should work for Beam Cannon threats.
+
+Possible confirmed target codes:
+- `HULL`
+- `WPNS`
+- `PWR`
+- `SHLD`
+- other stable 4–5 character system codes.
+
+Unknown/partial forms use the same red/yellow/green + `?` grammar.
+
+Do not implement semantic node targeting from current VFX anchor positions. Define actual target state first.
 
 ## Sticky mines
-
-### Physical content ownership
 
 There is no separate Sticky Mine content entity.
 
 Sticky Mine Dispenser content owns:
-- damage
-- fuse duration
-- ammo capacity
-- salvo size
-- launch interval
-- cooldown duration
+- damage;
+- fuse duration;
+- ammo capacity;
+- salvo size;
+- launch interval;
+- cooldown duration.
 
-At launch/attach, runtime mine state receives its physical values and becomes autonomous.
-
-### Runtime identity
-
-Every attached mine is an independent `StickyMineState` with its own runtime ID and fuse.
-
-The runtime `mineId: string` used by CLEAR MINE tasks/results refers to a concrete attached runtime mine. It is not the removed content mine ID.
+Every attached mine is an independent runtime `StickyMineState`.
 
 Enemy -> player:
-- enemy dispenser targets/dispenses/cools down;
-- each mine attaches to PLAYER_SHIP;
+- each mine attaches independently;
 - each can be cleared independently;
-- detonation damages hull and may interrupt officer work;
-- dashboard shows each hostile mine independently;
-- clear actions come from real engine availability.
+- detonation damages hull and may interrupt work;
+- dashboard shows each hostile mine independently.
 
 Player -> enemy:
-- player dispenser launches mines toward enemy actor;
 - each mine attaches independently;
-- enemy AI can assign available roles to clear mines;
+- enemy AI may assign available roles to clear it;
 - uncleared detonation damages enemy hull.
 
-Do not aggregate salvo state for UI convenience.
+Do not aggregate attached mine identity for UI convenience.
+
+### Single Mine experiment — SELECTED / NOT IMPLEMENTED
+
+Keep the current salvo dispenser and add a second content definition in the same weapon family:
+- `salvoSize = 1`;
+- short enough operation/cooldown to permit deliberate repeated single shots;
+- compare against salvo behavior in real combat.
+
+Do not add a new weapon kind/runner unless the experiment proves the mechanic genuinely diverges beyond content tuning.
 
 ## SPAM
 
@@ -265,50 +391,28 @@ Do not aggregate salvo state for UI convenience.
 - Science launches player SPAM.
 - Enemy Science can purge player SPAM.
 - Player Science can purge enemy SPAM.
-- Player `SCIENCE_FIRE_SPAM` is not manually cancellable once committed; damage interruption may still stop relevant work.
 - Active crew-progress modifiers are exposed through canonical `getActiveCrewProgressEffects()`.
-- Dashboard shows hostile SPAM channels independently with real Science purge actions.
 - Enemy decision policy receives relevant SPAM effects through explicit decision context rather than reading full encounter state.
-
-## Encounter presentation snapshot
-
-`EncounterState` is the only authoritative mutable encounter/combat truth.
-
-`EncounterPresentationSnapshot` is the detached app-facing frame root, not a second state. It composes safe navigation/space data with focused combat presentation data.
-
-It may aggregate:
-- player ship/system presentation
-- officer availability/tasks
-- enemy telemetry
-- threats
-- commands by role
-- safe encounter-space geometry/visual identifiers
-
-Normal presentation consumers should reuse one coherent frame rather than rebuild the same frame through unrelated getters.
-
-Events remain separate because they represent discrete transitions rather than current frame truth. `ENCOUNTER_LOADED` is marker-only.
-
-Hidden-domain-data rule:
-- presentation may receive only player-visible/operational read-model data;
-- hidden missile signature/hypothesis must not leak through snapshots, load payloads, or missile events.
 
 ## Damage / interruption
 
 - Hull damage is engine-owned.
 - Weapon/defense runners resolve physical outcomes; UI only presents them.
 - Damage-interruptible officer tasks are interrupted by engine rules, not view logic.
-- Do not infer a damage-node/targeting system from visual impact anchors.
+- Do not infer semantic damage nodes from visual impact anchors.
 
 ## Enemy crew architecture
 
 Enemy crew is simulated, not a mirrored player bridge.
 
-- policy chooses work;
-- scheduler builds explicit decision context, validates and starts work;
-- crew-task runner owns timing/lifecycle;
-- weapon/defense runners own physical phases;
-- Science observation/report is separate from objective combat truth.
+Current ownership:
+- decision snapshot/perceived facts provide the policy boundary;
+- `EnemyDecisionPolicy` chooses work;
+- `EnemyWorkExecutor` authoritatively revalidates and starts concrete work;
+- `EnemyCrewTaskRunner` owns crew task lifecycle;
+- specialized combat runners own physical weapon/defense lifecycle;
+- `EnemyThreatObserver` / Science observation stays separate from objective truth.
 
-Policy does not own `EncounterState`.
+Policy does not own full `EncounterState`.
 
 Keep this separation unless a concrete simplification is proven.
