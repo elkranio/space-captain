@@ -1,6 +1,6 @@
 {
     "player": {
-        "maxHull": 3,
+        "maxHull": 30,
         "driveId": "basic_00",
         "powerCoreId": "power_core_basic_00",
         "shieldGeneratorId": "shield_generator_basic_00",

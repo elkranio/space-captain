@@ -239,7 +239,7 @@ describe('Science identify threat command', () => {
         ]);
     });
 
-    it('offers IDENTIFY THREAT again for uncertain missile intel', () => {
+    it('offers IDENTIFY THREAT for uncertain missile intel after the source actor is gone', () => {
         const {
             node,
             stationId,
@@ -330,6 +330,9 @@ describe('Science identify threat command', () => {
             hypothesis:
                 MISSILE_SIGNATURE.B,
         };
+
+        // Mirrors enemy destruction while the missile is still inbound.
+        state.actors.length = 0;
 
         expect(
             engine

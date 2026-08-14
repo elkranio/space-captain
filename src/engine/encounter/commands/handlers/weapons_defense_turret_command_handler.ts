@@ -1,6 +1,5 @@
 // src/engine/encounter/commands/handlers/weapons_defense_turret_command_handler.ts
 
-import { ENCOUNTER_TEAM } from '../../../defs/encounter_team';
 import { OFFICER_ROLE } from '../../../defs/officer';
 import {
     COMBAT_PROJECTILE_KIND,
@@ -81,24 +80,9 @@ export const weaponsInterceptMissileCommandHandler:
                         return false;
                     }
 
-                    const sourceActorId =
-                        projectile.source
-                            .actorId;
-
-                    const sourceActor =
-                        state.actors.find(
-                            (actor) => {
-                                return (
-                                    actor.id ===
-                                    sourceActorId
-                                );
-                            },
-                        );
-
-                    return (
-                        sourceActor?.team ===
-                        ENCOUNTER_TEAM.ENEMY
-                    );
+                    // Once launched, an incoming actor missile remains
+                    // actionable even if its source actor is destroyed.
+                    return true;
                 })
                 .sort((left, right) => {
                     return (

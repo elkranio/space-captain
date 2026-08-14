@@ -98,6 +98,57 @@ describe(
         );
 
         it(
+            'keeps INTERCEPT available after the missile source actor is gone',
+            () => {
+                const {
+                    engine,
+                    state,
+                } =
+                    createEngineWithIncomingMissile();
+
+                const projectile =
+                    state.combat
+                        .projectiles[0];
+
+                if (!projectile) {
+                    throw new Error(
+                        'Expected incoming missile',
+                    );
+                }
+
+                // Mirrors enemy destruction: the already-launched
+                // projectile survives after its source actor is removed.
+                state.actors.length = 0;
+
+                expect(
+                    engine.getAvailableCommands(
+                        OFFICER_ROLE.WEAPONS,
+                    ),
+                ).toContainEqual({
+                    commandId:
+                        ENCOUNTER_OFFICER_COMMAND_ID
+                            .WEAPONS_INTERCEPT_MISSILE,
+
+                    label:
+                        'INTERCEPT',
+
+                    target: {
+                        kind:
+                            OFFICER_COMMAND_TARGET_KIND
+                                .THREAT,
+
+                        threatId:
+                            projectile.id,
+                    },
+
+                    targetLabel:
+                        'MISSILE ' +
+                        projectile.designation,
+                });
+            },
+        );
+
+        it(
             'guarantees interception for a correct concrete Science hypothesis',
             () => {
                 const {

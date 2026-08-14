@@ -1,6 +1,5 @@
 // src/engine/encounter/commands/handlers/science_identify_threat_command_handler.ts
 
-import { ENCOUNTER_TEAM } from '../../../defs/encounter_team';
 import { OFFICER_ROLE } from '../../../defs/officer';
 import {
     COMBAT_SOURCE_KIND,
@@ -95,14 +94,13 @@ function getAnalyzableEnemyThreats(state: EncounterState): AvailableThreat[] {
 
         if (
             projectile.source.kind !==
-                COMBAT_SOURCE_KIND.ACTOR ||
-            !isEnemyThreatSource(
-                state,
-                projectile.source.actorId,
-            )
+                COMBAT_SOURCE_KIND.ACTOR
         ) {
             continue;
         }
+
+        // A launched incoming missile remains an analyzable threat
+        // independently of the source actor lifecycle.
 
         threats.push({
             kind: COMBAT_THREAT_KIND.MISSILE,
@@ -117,13 +115,6 @@ function getAnalyzableEnemyThreats(state: EncounterState): AvailableThreat[] {
     return threats;
 }
 
-function isEnemyThreatSource(state: EncounterState, sourceActorId: string): boolean {
-    const sourceActor = state.actors.find((actor) => {
-        return actor.id === sourceActorId;
-    });
-
-    return sourceActor?.team === ENCOUNTER_TEAM.ENEMY;
-}
 
 function getThreatLabel(
     threat: AvailableThreat,
