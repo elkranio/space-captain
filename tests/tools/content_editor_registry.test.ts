@@ -5,7 +5,6 @@ import {
 } from 'vitest';
 import powerCoreData from '../../src/engine/content/data/power_cores.json';
 import enemyBehaviorRulesData from '../../src/engine/content/data/enemy_behavior_rules.json';
-import missileData from '../../src/engine/content/data/missiles.json';
 import officerTaskData from '../../src/engine/content/data/officer_tasks.json';
 import defenseTurretData from '../../src/engine/content/data/defense_turrets.json';
 import shieldGeneratorData from '../../src/engine/content/data/shield_generators.json';
@@ -78,17 +77,6 @@ describe(
 
                         label:
                             'Ship Weapons',
-
-                        canAdd: false,
-                        canDelete: false,
-                    },
-                    {
-                        id:
-                            CONTENT_COLLECTION_ID
-                                .MISSILES,
-
-                        label:
-                            'Missiles',
 
                         canAdd: false,
                         canDelete: false,
@@ -243,11 +231,6 @@ describe(
                     ],
                     [
                         CONTENT_COLLECTION_ID
-                            .MISSILES,
-                        missileData,
-                    ],
-                    [
-                        CONTENT_COLLECTION_ID
                             .POWER_CORES,
                         powerCoreData,
                     ],
@@ -309,49 +292,6 @@ describe(
         it(
             'enforces add and delete capabilities at the collection mutation boundary',
             () => {
-                const missileWithExtra = {
-                    ...missileData,
-
-                    experimental_00: {
-                        ...missileData
-                            .basic_00,
-                    },
-                };
-
-                expect(() => {
-                    validateContentCollectionMutation(
-                        CONTENT_COLLECTION_ID
-                            .MISSILES,
-                        missileData,
-                        missileWithExtra,
-                    );
-                }).toThrow(
-                    'adding records is disabled',
-                );
-
-                const missileWithoutBasic =
-                    {
-                        ...missileData,
-                    } as Record<
-                        string,
-                        unknown
-                    >;
-
-                delete missileWithoutBasic[
-                    'basic_00'
-                ];
-
-                expect(() => {
-                    validateContentCollectionMutation(
-                        CONTENT_COLLECTION_ID
-                            .MISSILES,
-                        missileData,
-                        missileWithoutBasic,
-                    );
-                }).toThrow(
-                    'deleting records is disabled',
-                );
-
                 const editablePowerCores = {
                     ...powerCoreData,
 
@@ -438,42 +378,6 @@ describe(
                     external,
                 ).not.toHaveProperty(
                     'durationMs',
-                );
-
-                const missileSchema =
-                    getContentCollectionJsonSchema(
-                        CONTENT_COLLECTION_ID
-                            .MISSILES,
-                    ) as {
-                        properties?: Record<
-                            string,
-                            {
-                                properties?: Record<
-                                    string,
-                                    {
-                                        enum?: unknown[];
-                                    }
-                                >;
-                            }
-                        >;
-                    };
-
-                expect(
-                    missileSchema
-                        .properties
-                        ?.basic_00
-                        ?.properties,
-                ).not.toHaveProperty(
-                    'signature',
-                );
-
-                expect(
-                    missileSchema
-                        .properties
-                        ?.basic_01
-                        ?.properties,
-                ).not.toHaveProperty(
-                    'signature',
                 );
 
                 const chassisSchema =

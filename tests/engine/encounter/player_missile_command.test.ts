@@ -308,21 +308,12 @@ describe('Player missile command', () => {
         ]);
     });
 
-    it('hides FIRE MISSILE without a ready loaded launcher or live enemy', () => {
+    it('hides FIRE MISSILE without a ready armed launcher or live enemy', () => {
         const {
             engine,
             launcher,
             targetActorId,
         } = createMissileTestSetup();
-
-        const loadedMissileId =
-            launcher.loadedMissileId;
-
-        if (!loadedMissileId) {
-            throw new Error(
-                'Expected loaded player missile',
-            );
-        }
 
         launcher.phase =
             SHIP_WEAPON_PHASE.COOLDOWN;
@@ -344,14 +335,10 @@ describe('Player missile command', () => {
         ).toEqual([]);
 
         launcher.ammoCount = 1;
-        launcher.loadedMissileId = null;
 
         expect(
             getMissileCommands(engine),
-        ).toEqual([]);
-
-        launcher.loadedMissileId =
-            loadedMissileId;
+        ).toHaveLength(1);
 
         engine.setActorTeam(
             targetActorId,

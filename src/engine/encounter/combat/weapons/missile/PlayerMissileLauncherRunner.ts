@@ -2,7 +2,6 @@ import {
     SHIP_WEAPON_TARGETING_DURATION_MS,
 } from '../../../../content/catalogs/ship_weapons';
 import { ENCOUNTER_TEAM } from '../../../../defs/encounter_team';
-import type { MissileId } from '../../../../defs/missile';
 import {
     SHIP_WEAPON_KIND,
     SHIP_WEAPON_PHASE,
@@ -28,7 +27,6 @@ type PlayerMissileLauncherRunnerOptions = {
     queuePlayerMissileLaunch: (
         input: {
             sourceWeaponId: string;
-            missileId: MissileId;
             targetActorId: string;
         },
     ) => void;
@@ -102,11 +100,7 @@ export default class PlayerMissileLauncherRunner {
             return;
         }
 
-        const missileId =
-            launcher.loadedMissileId;
-
         if (
-            !missileId ||
             launcher.ammoCount <= 0
         ) {
             throw new Error(
@@ -129,7 +123,6 @@ export default class PlayerMissileLauncherRunner {
         this.options.queuePlayerMissileLaunch({
             sourceWeaponId:
                 launcher.id,
-            missileId,
             targetActorId:
                 task.targetActorId,
         });

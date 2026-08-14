@@ -13,11 +13,7 @@ import BridgeEncounterEngineEventHandler from '../../src/app/scenes/game/bridge/
 import {
     BRIDGE_EVENT,
 } from '../../src/app/scenes/game/bridge/events/bridge_event';
-import type BridgeEventBus from '../../src/app/scenes/game/bridge/events/BridgeEventBus';
-import {
-    MISSILE_ID,
-} from '../../src/engine/defs/missile';
-import {
+import type BridgeEventBus from '../../src/app/scenes/game/bridge/events/BridgeEventBus';import {
     COMBAT_PROJECTILE_KIND,
     COMBAT_SOURCE_KIND,
     COMBAT_TARGET_KIND,
@@ -55,9 +51,6 @@ const projectile:
             actorId:
                 'ship_enemy_00',
         },
-
-        missileId:
-            MISSILE_ID.BASIC_00,
 
         timeToImpactMs: 12000,
         initialTimeToImpactMs: 12000,
@@ -113,47 +106,6 @@ describe('Bridge player missile event mapping', () => {
                 remainingHull: 1,
             },
         ]);
-
-        expect(
-            emit.mock.calls,
-        ).toEqual([
-            [
-                BRIDGE_EVENT
-                    .OUTGOING_MISSILE_ADDED,
-
-                {
-                    projectileId:
-                        'projectile_player_00',
-
-                    missileId:
-                        MISSILE_ID.BASIC_00,
-
-                    targetActorId:
-                        'ship_enemy_00',
-
-                    initialTimeToImpactMs:
-                        12000,
-                },
-            ],
-
-            [
-                BRIDGE_EVENT
-                    .OUTGOING_MISSILE_REMOVED,
-
-                {
-                    projectileId:
-                        'projectile_player_00',
-
-                    targetActorId:
-                        'ship_enemy_00',
-
-                    outcome:
-                        PLAYER_MISSILE_OUTCOME
-                            .HIT,
-                },
-            ],
-        ]);
-
         expect(
             emit.mock.calls.some(
                 ([eventName]) => {

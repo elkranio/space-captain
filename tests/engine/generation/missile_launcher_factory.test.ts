@@ -2,13 +2,11 @@
 
 import { describe, expect, it } from 'vitest';
 import { SHIP_WEAPONS } from '../../../src/engine/content/catalogs/ship_weapons';
-import { MISSILE_LAUNCHER_PRESET_ID } from '../../../src/engine/content/presets/missile_launchers';
-import { MISSILE_ID } from '../../../src/engine/defs/missile';
 import { SHIP_WEAPON_ID, SHIP_WEAPON_KIND, SHIP_WEAPON_PHASE } from '../../../src/engine/defs/ship_weapon';
 import MissileLauncherFactory from '../../../src/engine/generation/ship_weapon/MissileLauncherFactory';
 
 describe('MissileLauncherFactory', () => {
-    it('creates fresh basic red launcher state from content', () => {
+    it('creates fresh launcher state directly from weapon content', () => {
         const definition = SHIP_WEAPONS[SHIP_WEAPON_ID.MISSILE_LAUNCHER_00];
 
         // Отдельно фиксируем текущий content balance,
@@ -21,6 +19,10 @@ describe('MissileLauncherFactory', () => {
 
             kind: SHIP_WEAPON_KIND.MISSILE_LAUNCHER,
 
+            damage: 1,
+
+            flightDurationMs: 12000,
+
             ammoCapacity: 5,
 
             cooldownDurationMs: 15000,
@@ -29,13 +31,13 @@ describe('MissileLauncherFactory', () => {
         const first = MissileLauncherFactory.create({
             id: 'launcher_test_00',
 
-            presetId: MISSILE_LAUNCHER_PRESET_ID.BASIC_RED_FULL_00,
+            weaponId: SHIP_WEAPON_ID.MISSILE_LAUNCHER_00,
         });
 
         const second = MissileLauncherFactory.create({
             id: 'launcher_test_01',
 
-            presetId: MISSILE_LAUNCHER_PRESET_ID.BASIC_RED_FULL_00,
+            weaponId: SHIP_WEAPON_ID.MISSILE_LAUNCHER_00,
         });
 
         expect(first).toEqual({
@@ -44,8 +46,6 @@ describe('MissileLauncherFactory', () => {
             weaponId: SHIP_WEAPON_ID.MISSILE_LAUNCHER_00,
 
             kind: SHIP_WEAPON_KIND.MISSILE_LAUNCHER,
-
-            loadedMissileId: MISSILE_ID.BASIC_00,
 
             ammoCount: 5,
 
@@ -66,7 +66,7 @@ describe('MissileLauncherFactory', () => {
         const launcher = MissileLauncherFactory.create({
             id: 'launcher_test_00',
 
-            presetId: MISSILE_LAUNCHER_PRESET_ID.BASIC_RED_FULL_00,
+            weaponId: SHIP_WEAPON_ID.MISSILE_LAUNCHER_00,
 
             ammoCount: 1,
         });
@@ -77,7 +77,7 @@ describe('MissileLauncherFactory', () => {
             MissileLauncherFactory.create({
                 id: 'launcher_invalid',
 
-                presetId: MISSILE_LAUNCHER_PRESET_ID.BASIC_RED_FULL_00,
+                weaponId: SHIP_WEAPON_ID.MISSILE_LAUNCHER_00,
 
                 ammoCount: 6,
             });

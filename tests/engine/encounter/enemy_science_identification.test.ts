@@ -16,7 +16,6 @@ import {
     ENCOUNTER_TEAM,
 } from '../../../src/engine/defs/encounter_team';
 import {
-    MISSILE_ID,
     MISSILE_SIGNATURE,
 } from '../../../src/engine/defs/missile';
 import {
@@ -241,8 +240,7 @@ function createMissileFixture(
                         .UNKNOWN,
             },
 
-            missileId:
-                MISSILE_ID.BASIC_00,
+            damage: 1,
 
             timeToImpactMs: 12000,
             initialTimeToImpactMs:
@@ -411,7 +409,7 @@ function createBaseFixture(
 
             purgePlayerSpamChannel:
                 () => false,
-        
+
             random: () => 0,
 });
 

@@ -19,7 +19,6 @@ import { createPlayerHullFixture } from '../../fixtures/engine/player_hull_fixtu
 import { createShipDriveFixture } from '../../fixtures/engine/ship_drive_fixtures';
 import { createSingleStationNodeFixture } from '../../fixtures/engine/space_node_fixtures';
 import { PLAYER_SPACE_NAVIGATION_KIND } from '../../../src/engine/defs/player_location';
-import { MISSILE_ID } from '../../../src/engine/defs/missile';
 
 describe('EncounterSnapshotReader', () => {
     it('recursively detaches nested public read models', () => {
@@ -52,7 +51,7 @@ describe('EncounterSnapshotReader', () => {
             identification: {
                 status: MISSILE_SIGNATURE_INTEL_STATUS.UNKNOWN,
             },
-            missileId: MISSILE_ID.BASIC_00,
+            damage: 1,
             timeToImpactMs: 1000,
             initialTimeToImpactMs: 1000,
         });
@@ -115,8 +114,7 @@ describe('EncounterSnapshotReader', () => {
                     MISSILE_SIGNATURE_INTEL_STATUS.UNKNOWN,
             },
 
-            missileId:
-                MISSILE_ID.BASIC_00,
+            damage: 1,
 
             timeToImpactMs: 1000,
             initialTimeToImpactMs: 1000,

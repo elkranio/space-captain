@@ -16,9 +16,6 @@ import {
     POWER_CORE_ID,
 } from '../../src/engine/defs/power_core';
 import {
-    MISSILE_ID,
-} from '../../src/engine/defs/missile';
-import {
     STICKY_MINE_ID,
 } from '../../src/engine/defs/sticky_mine';
 import {
@@ -133,8 +130,7 @@ describe('GameRuntime player ship hull', () => {
                         SHIP_WEAPON_KIND
                             .MISSILE_LAUNCHER,
 
-                    loadedMissileId:
-                        MISSILE_ID.BASIC_00,
+
 
                     ammoCount: 5,
 
@@ -301,8 +297,7 @@ describe('GameRuntime player ship hull', () => {
                         SHIP_WEAPON_KIND
                             .MISSILE_LAUNCHER,
 
-                    loadedMissileId:
-                        MISSILE_ID.BASIC_00,
+
 
                     ammoCount: 5,
 

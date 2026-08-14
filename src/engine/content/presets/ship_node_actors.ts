@@ -63,7 +63,7 @@ export const SHIP_NODE_ACTOR_PRESETS = {
 
         shipPresetId:
             SHIP_PRESET_ID
-                .GENERIC_MISSILE_RED_00,
+                .GENERIC_MISSILE_00,
 
         crewPresetId:
             SHIP_CREW_PRESET_ID.STANDARD_00,
@@ -82,7 +82,7 @@ export const SHIP_NODE_ACTOR_PRESETS = {
 
         shipPresetId:
             SHIP_PRESET_ID
-                .GENERIC_MISSILE_BLUE_00,
+                .GENERIC_MISSILE_00,
 
         crewPresetId:
             SHIP_CREW_PRESET_ID.STANDARD_00,

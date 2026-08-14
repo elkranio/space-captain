@@ -15,9 +15,6 @@ import {
 } from '../../src/app/scenes/game/bridge/events/bridge_event';
 import type BridgeEventBus from '../../src/app/scenes/game/bridge/events/BridgeEventBus';
 import {
-    MISSILE_ID,
-} from '../../src/engine/defs/missile';
-import {
     DEFENSE_TURRET_SHOT_OUTCOME,
 } from '../../src/engine/defs/defense_turret';
 import {
@@ -61,8 +58,6 @@ const projectile:
                 'ship_enemy_00',
         },
 
-        missileId:
-            MISSILE_ID.BASIC_01,
 
         timeToImpactMs: 9000,
         initialTimeToImpactMs: 12000,

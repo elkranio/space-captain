@@ -4,15 +4,9 @@ import {
     it,
 } from 'vitest';
 import {
-    MISSILES,
-} from '../../../src/engine/content/catalogs/missiles';
-import {
     SHIP_WEAPONS,
     SHIP_WEAPON_TARGETING_DURATION_MS,
 } from '../../../src/engine/content/catalogs/ship_weapons';
-import {
-    MISSILE_TUNING_SCHEMA,
-} from '../../../src/engine/content/schemas/missiles';
 import {
     SHIP_WEAPON_RULES_SCHEMA,
 } from '../../../src/engine/content/schemas/ship_weapon_rules';
@@ -20,15 +14,12 @@ import {
     SHIP_WEAPON_TUNING_SCHEMA,
 } from '../../../src/engine/content/schemas/ship_weapons';
 import {
-    MISSILE_ID,
-} from '../../../src/engine/defs/missile';
-import {
     SHIP_WEAPON_ID,
     SHIP_WEAPON_KIND,
 } from '../../../src/engine/defs/ship_weapon';
 
 describe(
-    'Weapon and missile content tuning',
+    'Weapon content tuning',
     () => {
         it(
             'preserves current runtime weapon definitions',
@@ -53,6 +44,11 @@ describe(
 
                     name:
                         'MISSILE LAUNCHER',
+
+                    damage: 1,
+
+                    flightDurationMs:
+                        12000,
 
                     ammoCapacity: 5,
 
@@ -108,52 +104,14 @@ describe(
 
                     ammoCapacity: 6,
                     salvoSize: 3,
-                    launchIntervalMs: 1000,
+                    launchIntervalMs:
+                        1000,
                 });
             },
         );
 
         it(
-            'preserves current runtime missile definitions',
-            () => {
-                expect(
-                    MISSILES[
-                        MISSILE_ID.BASIC_00
-                    ],
-                ).toEqual({
-                    id:
-                        MISSILE_ID.BASIC_00,
-
-                    name:
-                        'BASIC MISSILE',
-
-                    damage: 1,
-
-                    flightDurationMs:
-                        12000,
-                });
-
-                expect(
-                    MISSILES[
-                        MISSILE_ID.BASIC_01
-                    ],
-                ).toEqual({
-                    id:
-                        MISSILE_ID.BASIC_01,
-
-                    name:
-                        'BASIC MISSILE II',
-
-                    damage: 1,
-
-                    flightDurationMs:
-                        12000,
-                });
-            },
-        );
-
-        it(
-            'rejects structurally invalid weapon tuning',
+            'validates missile physical tuning on the launcher definition',
             () => {
                 expect(
                     SHIP_WEAPON_RULES_SCHEMA
@@ -171,68 +129,58 @@ describe(
                             missile_launcher_00: {
                                 name:
                                     'MISSILE LAUNCHER',
+
+                                damage: -1,
+
+                                flightDurationMs:
+                                    12000,
+
                                 ammoCapacity: 5,
+
                                 cooldownDurationMs:
                                     15000,
                             },
+
                             laser_00: {
                                 name:
                                     'LASER EMITTER',
+
                                 damage: 1,
+
                                 chargeDurationMs:
                                     12000,
+
                                 cooldownDurationMs:
                                     15000,
                             },
+
                             spam_projector_00: {
                                 name:
                                     'SPAM PROJECTOR',
+
                                 channelDurationMs:
                                     20000,
+
                                 officerTaskProgressMultiplier:
-                                    0,
+                                    0.5,
+
                                 cooldownDurationMs:
                                     15000,
                             },
+
                             sticky_mine_dispenser_00: {
                                 name:
                                     'STICKY MINE DISPENSER',
+
                                 ammoCapacity: 6,
+
                                 salvoSize: 3,
+
                                 launchIntervalMs:
                                     1000,
+
                                 cooldownDurationMs:
                                     15000,
-                            },
-                        })
-                        .success,
-                ).toBe(false);
-            },
-        );
-
-        it(
-            'rejects unknown missile bands',
-            () => {
-                expect(
-                    MISSILE_TUNING_SCHEMA
-                        .safeParse({
-                            basic_00: {
-                                name:
-                                    'BASIC MISSILE',
-                                signature:
-                                    'green',
-                                damage: 1,
-                                flightDurationMs:
-                                    12000,
-                            },
-                            basic_01: {
-                                name:
-                                    'BASIC MISSILE II',
-                                signature:
-                                    'signature_b',
-                                damage: 1,
-                                flightDurationMs:
-                                    12000,
                             },
                         })
                         .success,

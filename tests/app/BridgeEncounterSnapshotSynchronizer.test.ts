@@ -545,8 +545,6 @@ function createEncounterEngine(): EncounterEngine {
                                     'player_ship',
                             },
 
-                            missileId:
-                                'basic_00',
 
                             timeToImpactMs:
                                 800,
@@ -586,8 +584,6 @@ function createEncounterEngine(): EncounterEngine {
                                     'enemy_ship_00',
                             },
 
-                            missileId:
-                                'basic_00',
 
                             timeToImpactMs:
                                 600,

@@ -1,6 +1,5 @@
 // src/engine/content/presets/player_ships.ts
 
-import { MISSILE_LAUNCHER_PRESET_ID, type MissileLauncherPresetId } from './missile_launchers';
 import {
     STICKY_MINE_DISPENSER_PRESET_ID,
     type StickyMineDispenserPresetId,
@@ -38,8 +37,6 @@ export type PlayerShipMissileLauncherPreset = {
     id: string;
 
     weaponId: typeof SHIP_WEAPON_ID.MISSILE_LAUNCHER_00;
-
-    presetId: MissileLauncherPresetId;
 };
 
 export type PlayerShipStickyMineDispenserPreset = {
@@ -146,8 +143,6 @@ export const PLAYER_SHIP_PRESETS = {
                 id: 'missile_launcher_player_00',
 
                 weaponId: SHIP_WEAPON_ID.MISSILE_LAUNCHER_00,
-
-                presetId: MISSILE_LAUNCHER_PRESET_ID.BASIC_RED_FULL_00,
             },
 
             {

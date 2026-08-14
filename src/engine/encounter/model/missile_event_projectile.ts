@@ -1,6 +1,3 @@
-import type {
-    MissileId,
-} from '../../defs/missile';
 import {
     COMBAT_PROJECTILE_KIND,
     type CombatSource,
@@ -9,9 +6,9 @@ import {
 
 // Presentation-safe projectile payload for encounter events.
 //
-// The mutable combat projectile owns hidden objective signature truth and
-// observer identification state. Events only expose the physical information
-// required to present the discrete missile transition.
+// The mutable combat projectile owns hidden objective signature truth,
+// observer identification state and its physical damage snapshot. Events expose
+// only the information required to present the discrete missile transition.
 export type MissileEventProjectileSnapshot = {
     id: string;
     designation: string;
@@ -28,9 +25,6 @@ export type MissileEventProjectileSnapshot = {
 
     target:
         CombatTarget;
-
-    missileId:
-        MissileId;
 
     timeToImpactMs:
         number;
@@ -65,9 +59,6 @@ export function createMissileEventProjectileSnapshot(
         target: {
             ...projectile.target,
         },
-
-        missileId:
-            projectile.missileId,
 
         timeToImpactMs:
             projectile.timeToImpactMs,

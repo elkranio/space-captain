@@ -8,7 +8,6 @@ import { BRIDGE_EVENT } from '../../src/app/scenes/game/bridge/events/bridge_eve
 import type BridgeEventBus from '../../src/app/scenes/game/bridge/events/BridgeEventBus';
 import { SCENE_KEY } from '../../src/app/scenes/scene_key';
 import { BEACON_OBJECT_SPRITE_ID } from '../../src/engine/defs/beacon';
-import { MISSILE_ID } from '../../src/engine/defs/missile';
 import { OFFICER_ROLE } from '../../src/engine/defs/officer';
 import {
     DEFENSE_TURRET_SHOT_OUTCOME,
@@ -49,7 +48,6 @@ const launchedProjectile: MissileEventProjectileSnapshot = {
         kind: COMBAT_TARGET_KIND.PLAYER_SHIP,
     },
 
-    missileId: MISSILE_ID.BASIC_00,
 
     timeToImpactMs: 12000,
     initialTimeToImpactMs: 12000,

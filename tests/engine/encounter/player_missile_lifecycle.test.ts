@@ -10,9 +10,6 @@ import {
     it,
 } from 'vitest';
 import {
-    MISSILES,
-} from '../../../src/engine/content/catalogs/missiles';
-import {
     SHIP_WEAPONS,
     SHIP_WEAPON_TARGETING_DURATION_MS,
 } from '../../../src/engine/content/catalogs/ship_weapons';
@@ -58,12 +55,18 @@ describe('Player missile lifecycle', () => {
             targetActorId,
         } = createMissileLifecycleSetup();
 
-        const missileId =
-            launcher.loadedMissileId;
+        const launcherDefinition =
+            SHIP_WEAPONS[
+                launcher.weaponId
+            ];
 
-        if (!missileId) {
+        if (
+            launcherDefinition.kind !==
+            SHIP_WEAPON_KIND
+                .MISSILE_LAUNCHER
+        ) {
             throw new Error(
-                'Expected loaded player missile',
+                'Expected missile launcher definition',
             );
         }
 
@@ -118,9 +121,6 @@ describe('Player missile lifecycle', () => {
             engine.getOfficerTasks(),
         ).toEqual([]);
 
-        const missile =
-            MISSILES[missileId];
-
         expect(
             engine.getCombatProjectiles(),
         ).toEqual([
@@ -161,13 +161,14 @@ describe('Player missile lifecycle', () => {
                         'signature_a',
                 },
 
-                missileId,
+                damage:
+                    launcherDefinition.damage,
 
                 timeToImpactMs:
-                    missile.flightDurationMs,
+                    launcherDefinition.flightDurationMs,
 
                 initialTimeToImpactMs:
-                    missile.flightDurationMs,
+                    launcherDefinition.flightDurationMs,
             },
         ]);
 
@@ -238,7 +239,7 @@ describe('Player missile lifecycle', () => {
             engine.getCombatProjectiles()[0]
                 ?.timeToImpactMs,
         ).toBe(
-            missile.flightDurationMs -
+            launcherDefinition.flightDurationMs -
                 1000,
         );
     });
@@ -448,7 +449,7 @@ function createMissileLifecycleSetup(
             run.player.ship.drive,
         weapons:
             run.player.ship.weapons,
-    
+
         random: () => 0,
     });
 

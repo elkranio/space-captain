@@ -1,7 +1,8 @@
 // src/engine/defs/missile.ts
 
 // Hidden runtime property of one concrete missile projectile.
-// It is intentionally not part of MissileDefinition.
+// Every launched projectile receives a fresh signature; launcher content never
+// identifies future missiles.
 export const MISSILE_SIGNATURE = {
     A: 'signature_a',
     B: 'signature_b',
@@ -9,19 +10,3 @@ export const MISSILE_SIGNATURE = {
 
 export type MissileSignature =
     (typeof MISSILE_SIGNATURE)[keyof typeof MISSILE_SIGNATURE];
-
-export const MISSILE_ID = {
-    BASIC_00: 'basic_00',
-    BASIC_01: 'basic_01',
-} as const;
-
-export type MissileId =
-    (typeof MISSILE_ID)[keyof typeof MISSILE_ID];
-
-export type MissileDefinition = {
-    id: MissileId;
-    name: string;
-
-    damage: number;
-    flightDurationMs: number;
-};

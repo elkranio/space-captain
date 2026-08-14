@@ -14,9 +14,6 @@ import {
     ENCOUNTER_TEAM,
 } from '../../../src/engine/defs/encounter_team';
 import {
-    MISSILE_ID,
-} from '../../../src/engine/defs/missile';
-import {
     OFFICER_ROLE,
 } from '../../../src/engine/defs/officer';
 import {
@@ -204,11 +201,6 @@ describe(
 
                 expect(serialized)
                     .not.toContain(
-                        MISSILE_ID.BASIC_00,
-                    );
-
-                expect(serialized)
-                    .not.toContain(
                         STICKY_MINE_ID
                             .BASIC_00,
                     );
@@ -374,8 +366,7 @@ function createObserverFixture() {
                     .UNKNOWN,
         },
 
-        missileId:
-            MISSILE_ID.BASIC_00,
+        damage: 1,
 
         timeToImpactMs: 10000,
         initialTimeToImpactMs: 10000,

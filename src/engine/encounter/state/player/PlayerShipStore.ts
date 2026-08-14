@@ -200,8 +200,6 @@ export default class PlayerShipStore {
         }
 
         if (
-            weapon.loadedMissileId ===
-                null ||
             weapon.ammoCount <= 0
         ) {
             throw new Error(

@@ -19,9 +19,6 @@ import {
     SHIELD_GENERATOR_STATUS,
 } from '../../../src/engine/defs/shield_generator';
 import {
-    MISSILE_ID,
-} from '../../../src/engine/defs/missile';
-import {
     SHIP_WEAPON_ID,
     SHIP_WEAPON_KIND,
     SHIP_WEAPON_PHASE,
@@ -72,8 +69,7 @@ describe('New-game enemy defense sandbox', () => {
                         SHIP_WEAPON_KIND
                             .MISSILE_LAUNCHER,
 
-                    loadedMissileId:
-                        MISSILE_ID.BASIC_00,
+
 
                     ammoCount: 5,
 

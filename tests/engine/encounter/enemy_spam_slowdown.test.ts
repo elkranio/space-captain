@@ -12,14 +12,8 @@ import {
     DEFENSE_TURRETS,
 } from '../../../src/engine/content/catalogs/defense_turrets';
 import {
-    MISSILE_LAUNCHER_PRESET_ID,
-} from '../../../src/engine/content/presets/missile_launchers';
-import {
     SHIP_WEAPON_TARGETING_DURATION_MS,
 } from '../../../src/engine/content/catalogs/ship_weapons';
-import {
-    MISSILE_ID,
-} from '../../../src/engine/defs/missile';
 import {
     OFFICER_ROLE,
 } from '../../../src/engine/defs/officer';
@@ -27,6 +21,7 @@ import {
     DEFENSE_TURRET_PHASE,
 } from '../../../src/engine/defs/defense_turret';
 import {
+    SHIP_WEAPON_ID,
     SHIP_WEAPON_PHASE,
     type MissileLauncherState,
 } from '../../../src/engine/defs/ship_weapon';
@@ -362,8 +357,7 @@ describe(
                                 MISSILE_SIGNATURE.A,
                         },
 
-                        missileId:
-                            MISSILE_ID.BASIC_00,
+                        damage: 1,
 
                         timeToImpactMs:
                             60000,
@@ -606,8 +600,8 @@ function createEnemyMissileLauncher():
         id:
             'spam_slow_enemy_missile_launcher',
 
-        presetId:
-            MISSILE_LAUNCHER_PRESET_ID
-                .BASIC_RED_FULL_00,
+        weaponId:
+            SHIP_WEAPON_ID
+                .MISSILE_LAUNCHER_00,
     });
 }

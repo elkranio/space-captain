@@ -7,9 +7,7 @@ import {
     it,
 } from 'vitest';
 import {
-    MISSILES,
-} from '../../../src/engine/content/catalogs/missiles';
-import {
+    SHIP_WEAPONS,
     SHIP_WEAPON_TARGETING_DURATION_MS,
 } from '../../../src/engine/content/catalogs/ship_weapons';
 import {
@@ -18,9 +16,6 @@ import {
 import {
     ENCOUNTER_TEAM,
 } from '../../../src/engine/defs/encounter_team';
-import type {
-    MissileId,
-} from '../../../src/engine/defs/missile';
 import {
     OFFICER_ROLE,
 } from '../../../src/engine/defs/officer';
@@ -47,19 +42,16 @@ describe('Player missile impact', () => {
     it('advances flight and damages hull on impact', () => {
         const {
             engine,
-            missileId,
+            damage,
+            flightDurationMs,
             targetActorId,
             initialHull,
         } = createMissileImpactSetup({
             enemyHull: 2,
         });
 
-        const missile =
-            MISSILES[missileId];
-
         engine.step(
-            missile.flightDurationMs -
-                1,
+            flightDurationMs - 1,
         );
 
         expect(
@@ -94,8 +86,7 @@ describe('Player missile impact', () => {
         ).toMatchObject({
             hull: {
                 current:
-                    initialHull -
-                    missile.damage,
+                    initialHull - damage,
             },
         });
 
@@ -107,7 +98,8 @@ describe('Player missile impact', () => {
     it('damages hull when the full flight duration elapses', () => {
         const {
             engine,
-            missileId,
+            damage,
+            flightDurationMs,
             targetActorId,
             initialHull,
         } = createMissileImpactSetup({
@@ -115,8 +107,7 @@ describe('Player missile impact', () => {
         });
 
         engine.step(
-            MISSILES[missileId]
-                .flightDurationMs,
+            flightDurationMs,
         );
 
         expect(
@@ -131,9 +122,7 @@ describe('Player missile impact', () => {
         ).toMatchObject({
             hull: {
                 current:
-                    initialHull -
-                    MISSILES[missileId]
-                        .damage,
+                    initialHull - damage,
             },
         });
 
@@ -145,15 +134,14 @@ describe('Player missile impact', () => {
     it('uses one shared enemy destruction flow and emits it once', () => {
         const {
             engine,
-            missileId,
+            flightDurationMs,
             targetActorId,
         } = createMissileImpactSetup({
             enemyHull: 1,
         });
 
         engine.step(
-            MISSILES[missileId]
-                .flightDurationMs,
+            flightDurationMs,
         );
 
         expect(
@@ -267,7 +255,8 @@ function createMissileImpactSetup({
 }: MissileImpactSetupOptions): {
     engine: EncounterEngine;
 
-    missileId: MissileId;
+    damage: number;
+    flightDurationMs: number;
     targetActorId: string;
 
     initialHull: number;
@@ -276,14 +265,12 @@ function createMissileImpactSetup({
         createNewRunState();
 
     const startNode =
-        run.universe.nodes.find(
-            (node) => {
-                return (
-                    node.id ===
-                    'node_start'
-                );
-            },
-        );
+        run.universe.nodes.find((node) => {
+            return (
+                node.id ===
+                'node_start'
+            );
+        });
 
     if (!startNode) {
         throw new Error(
@@ -292,14 +279,12 @@ function createMissileImpactSetup({
     }
 
     const enemy =
-        startNode.actors.find(
-            (actor) => {
-                return (
-                    actor.team ===
-                    ENCOUNTER_TEAM.ENEMY
-                );
-            },
-        );
+        startNode.actors.find((actor) => {
+            return (
+                actor.team ===
+                ENCOUNTER_TEAM.ENEMY
+            );
+        });
 
     if (!enemy) {
         throw new Error(
@@ -335,15 +320,27 @@ function createMissileImpactSetup({
         launcher.kind !==
             SHIP_WEAPON_KIND
                 .MISSILE_LAUNCHER ||
-        !launcher.loadedMissileId
+        launcher.ammoCount <= 0
     ) {
         throw new Error(
-            'Expected loaded player missile launcher',
+            'Expected armed player missile launcher',
         );
     }
 
-    const missileId =
-        launcher.loadedMissileId;
+    const definition =
+        SHIP_WEAPONS[
+            launcher.weaponId
+        ];
+
+    if (
+        definition.kind !==
+        SHIP_WEAPON_KIND
+            .MISSILE_LAUNCHER
+    ) {
+        throw new Error(
+            'Expected missile launcher definition',
+        );
+    }
 
     const engine = new EncounterEngine({
         playerHull: createPlayerHullFixture(),
@@ -403,7 +400,12 @@ function createMissileImpactSetup({
     return {
         engine,
 
-        missileId,
+        damage:
+            definition.damage,
+
+        flightDurationMs:
+            definition.flightDurationMs,
+
         targetActorId:
             enemy.id,
 

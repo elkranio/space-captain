@@ -134,7 +134,6 @@ function isReadyMissileLauncher(
                 .MISSILE_LAUNCHER &&
         weapon.phase ===
             SHIP_WEAPON_PHASE.READY &&
-        weapon.loadedMissileId !== null &&
         weapon.ammoCount > 0
     );
 }

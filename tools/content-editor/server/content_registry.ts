@@ -6,9 +6,6 @@ import {
     ENEMY_BEHAVIOR_RULES_SCHEMA,
 } from '../../../src/engine/content/schemas/enemy_behavior_rules';
 import {
-    MISSILE_TUNING_SCHEMA,
-} from '../../../src/engine/content/schemas/missiles';
-import {
     OFFICER_TASK_TUNING_SCHEMA,
 } from '../../../src/engine/content/schemas/officer_task_tuning';
 import {
@@ -45,9 +42,6 @@ export const CONTENT_COLLECTION_ID = {
 
     SHIP_WEAPONS:
         'ship_weapons',
-
-    MISSILES:
-        'missiles',
 
     POWER_CORES:
         'power_cores',
@@ -173,29 +167,6 @@ const CONTENT_COLLECTIONS:
 
             schema:
                 SHIP_WEAPON_TUNING_SCHEMA,
-
-            canAdd: false,
-            canDelete: false,
-        },
-
-        [CONTENT_COLLECTION_ID
-            .MISSILES]: {
-            id:
-                CONTENT_COLLECTION_ID
-                    .MISSILES,
-
-            label: 'Missiles',
-
-            group:
-                CONTENT_COLLECTION_GROUP
-                    .GENERAL,
-
-            dataPath:
-                'src/engine/content/data/' +
-                'missiles.json',
-
-            schema:
-                MISSILE_TUNING_SCHEMA,
 
             canAdd: false,
             canDelete: false,

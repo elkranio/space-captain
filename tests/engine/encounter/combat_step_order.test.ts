@@ -8,12 +8,6 @@ import {
     expect,
     it,
 } from 'vitest';
-import {
-    MISSILES,
-} from '../../../src/engine/content/catalogs/missiles';
-import {
-    MISSILE_ID,
-} from '../../../src/engine/defs/missile';
 import CombatRunner from '../../../src/engine/encounter/combat/CombatRunner';
 import {
     COMBAT_PROJECTILE_KIND,
@@ -40,19 +34,17 @@ describe('Combat step order', () => {
         } =
             createAnchoredPlayerCombatTestSetup();
 
-        const missileId =
-            MISSILE_ID.BASIC_00;
-
-        const missile =
-            MISSILES[missileId];
+        const missileDamage = 1;
+        const missileFlightDurationMs =
+            12000;
 
         targetActor.hull =
-            missile.damage;
+            missileDamage;
 
         targetActor.maxHull =
             Math.max(
                 targetActor.maxHull,
-                missile.damage,
+                missileDamage,
             );
 
         targetActor.crewRoles = [];
@@ -96,7 +88,7 @@ describe('Combat step order', () => {
                     'signature_a',
             },
 
-            missileId,
+            damage: 1,
 
             timeToImpactMs: 1,
             initialTimeToImpactMs: 1,
@@ -145,9 +137,9 @@ describe('Combat step order', () => {
 
         runner.queuePlayerMissileLaunch({
             sourceWeaponId:
-                'player_launcher_new',
+                'missile_launcher_player_00',
 
-            missileId,
+
 
             targetActorId:
                 targetActor.id,
@@ -203,7 +195,7 @@ describe('Combat step order', () => {
                         .TARGET_LOST,
 
                 timeToImpactMs:
-                    missile.flightDurationMs,
+                    missileFlightDurationMs,
             },
         ]);
 

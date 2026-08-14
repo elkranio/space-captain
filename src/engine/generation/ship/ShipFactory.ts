@@ -167,7 +167,7 @@ export default class ShipFactory {
                 return MissileLauncherFactory.create({
                     id: preset.id,
 
-                    presetId: preset.presetId,
+                    weaponId: preset.weaponId,
                 });
 
             case SHIP_WEAPON_KIND.LASER:

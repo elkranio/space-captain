@@ -7,9 +7,7 @@ import {
     it,
 } from 'vitest';
 import {
-    MISSILES,
-} from '../../../src/engine/content/catalogs/missiles';
-import {
+    SHIP_WEAPONS,
     SHIP_WEAPON_TARGETING_DURATION_MS,
 } from '../../../src/engine/content/catalogs/ship_weapons';
 import {
@@ -45,7 +43,6 @@ describe('Player missile presentation events', () => {
     it('emits an explicit launch event and separates outgoing snapshots', () => {
         const {
             engine,
-            missileId,
             targetActorId,
         } = createSetup({
             enemyHull: 2,
@@ -67,8 +64,6 @@ describe('Player missile presentation events', () => {
             projectile:
                 expect.objectContaining({
                     id: 'projectile_1',
-
-                    missileId,
 
                     source: {
                         kind:
@@ -220,8 +215,7 @@ describe('Player missile presentation events', () => {
         hit.engine.drainEvents();
 
         hit.engine.step(
-            MISSILES[hit.missileId]
-                .flightDurationMs,
+            hit.flightDurationMs,
         );
 
         expect(
@@ -241,18 +235,16 @@ describe('Player missile presentation events', () => {
                 PLAYER_MISSILE_OUTCOME.HIT,
 
             damage:
-                MISSILES[hit.missileId]
-                    .damage,
+                hit.damage,
 
             remainingHull:
-                2 -
-                MISSILES[hit.missileId]
-                    .damage,
+                2 - hit.damage,
         });
     });
 });
 
-function createSetup({    enemyHull,
+function createSetup({
+    enemyHull,
 }: {
     enemyHull: number;
 }) {
@@ -260,14 +252,12 @@ function createSetup({    enemyHull,
         createNewRunState();
 
     const startNode =
-        run.universe.nodes.find(
-            (node) => {
-                return (
-                    node.id ===
-                    'node_start'
-                );
-            },
-        );
+        run.universe.nodes.find((node) => {
+            return (
+                node.id ===
+                'node_start'
+            );
+        });
 
     if (!startNode) {
         throw new Error(
@@ -276,14 +266,12 @@ function createSetup({    enemyHull,
     }
 
     const enemy =
-        startNode.actors.find(
-            (actor) => {
-                return (
-                    actor.team ===
+        startNode.actors.find((actor) => {
+            return (
+                actor.team ===
                     ENCOUNTER_TEAM.ENEMY
-                );
-            },
-        );
+            );
+        });
 
     if (!enemy) {
         throw new Error(
@@ -317,10 +305,25 @@ function createSetup({    enemyHull,
         launcher.kind !==
             SHIP_WEAPON_KIND
                 .MISSILE_LAUNCHER ||
-        !launcher.loadedMissileId
+        launcher.ammoCount <= 0
     ) {
         throw new Error(
-            'Expected loaded player launcher',
+            'Expected armed player launcher',
+        );
+    }
+
+    const definition =
+        SHIP_WEAPONS[
+            launcher.weaponId
+        ];
+
+    if (
+        definition.kind !==
+        SHIP_WEAPON_KIND
+            .MISSILE_LAUNCHER
+    ) {
+        throw new Error(
+            'Expected missile launcher definition',
         );
     }
 
@@ -352,8 +355,11 @@ function createSetup({    enemyHull,
     return {
         engine,
 
-        missileId:
-            launcher.loadedMissileId,
+        damage:
+            definition.damage,
+
+        flightDurationMs:
+            definition.flightDurationMs,
 
         targetActorId:
             enemy.id,

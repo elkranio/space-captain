@@ -9,13 +9,7 @@ import {
     expect,
     it,
 } from 'vitest';
-import {
-    MISSILES,
-} from '../../../src/engine/content/catalogs/missiles';
 import NewGameUniverseFactory from '../../../src/engine/content/new_game/NewGameUniverseFactory';
-import {
-    MISSILE_ID,
-} from '../../../src/engine/defs/missile';
 import {
     OFFICER_ROLE,
 } from '../../../src/engine/defs/officer';
@@ -53,6 +47,7 @@ import {
 
 const LOAD_DURATION_MS = 3000;
 const COOLDOWN_DURATION_MS = 5000;
+const MISSILE_FLIGHT_DURATION_MS = 12000;
 
 describe('Enemy defense-turret interception', () => {
     it('uses blind equipment chance and intercepts the player missile', () => {
@@ -61,7 +56,6 @@ describe('Enemy defense-turret interception', () => {
             enemy,
             projectile,
         } = createScenario(
-            MISSILE_ID.BASIC_00,
             () => 0,
         );
 
@@ -211,7 +205,6 @@ describe('Enemy defense-turret interception', () => {
             enemy,
             projectile,
         } = createScenario(
-            MISSILE_ID.BASIC_01,
             () => 0.99,
         );
 
@@ -300,7 +293,6 @@ describe('Enemy defense-turret interception', () => {
             enemy,
             projectile,
         } = createScenario(
-            MISSILE_ID.BASIC_01,
             // Blind equipment roll would miss.
             () => 0.99,
         );
@@ -375,7 +367,6 @@ describe('Enemy defense-turret interception', () => {
             enemy,
             projectile,
         } = createScenario(
-            MISSILE_ID.BASIC_01,
 
             // Blind equipment roll misses.
             () => 0.99,
@@ -466,9 +457,6 @@ describe('Enemy defense-turret interception', () => {
 });
 
 function createScenario(
-    missileId:
-        typeof MISSILE_ID.BASIC_00 |
-        typeof MISSILE_ID.BASIC_01,
     random: () => number,
 ) {
     const generation =
@@ -522,9 +510,6 @@ function createScenario(
         );
     }
 
-    const missile =
-        MISSILES[missileId];
-
     const projectile:
         MissileCombatProjectileState = {
             id: 'projectile_player_00',
@@ -560,13 +545,13 @@ function createScenario(
                     'signature_a',
             },
 
-            missileId,
+            damage: 1,
 
             timeToImpactMs:
-                missile.flightDurationMs,
+                MISSILE_FLIGHT_DURATION_MS,
 
             initialTimeToImpactMs:
-                missile.flightDurationMs,
+                MISSILE_FLIGHT_DURATION_MS,
         };
 
     state.combat.projectiles.push(

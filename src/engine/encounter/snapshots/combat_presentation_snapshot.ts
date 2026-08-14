@@ -124,11 +124,6 @@ export type MissilePresentationSnapshot = {
             'target'
         ];
 
-    missileId:
-        MissileCombatProjectileState[
-            'missileId'
-        ];
-
     timeToImpactMs: number;
     initialTimeToImpactMs: number;
 
@@ -406,9 +401,6 @@ function createMissilePresentationSnapshot(
 
         target:
             projectile.target,
-
-        missileId:
-            projectile.missileId,
 
         timeToImpactMs:
             projectile.timeToImpactMs,

@@ -3,9 +3,6 @@
 import { describe, expect, it } from 'vitest';
 import NewGameUniverseFactory from '../../../src/engine/content/new_game/NewGameUniverseFactory';
 import { OFFICER_ROLE } from '../../../src/engine/defs/officer';
-import {
-    MISSILE_ID,
-} from '../../../src/engine/defs/missile';
 import { PLAYER_LOCATION_KIND, PLAYER_SPACE_NAVIGATION_KIND } from '../../../src/engine/defs/player_location';
 import { SPACE_BACKGROUND_ID } from '../../../src/engine/defs/space_background';
 import {
@@ -130,9 +127,6 @@ describe('NewGameUniverseFactory', () => {
                 kind:
                     SHIP_WEAPON_KIND
                         .MISSILE_LAUNCHER,
-
-                loadedMissileId:
-                    MISSILE_ID.BASIC_00,
 
                 ammoCount: 5,
 

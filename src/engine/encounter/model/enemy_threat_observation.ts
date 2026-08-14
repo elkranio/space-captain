@@ -56,7 +56,7 @@ export type EnemyThreatReport =
 
 // Это только факт наблюдения enemy crew.
 //
-// Объективные missileId, mineId,
+// Объективные projectile/mine state,
 // damage и timers здесь намеренно
 // не хранятся. Истина остаётся
 // в соответствующем combat object/task.

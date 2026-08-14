@@ -740,10 +740,7 @@ export default class EnemyDecisionPolicy {
 
         switch (weapon.kind) {
             case SHIP_WEAPON_KIND.MISSILE_LAUNCHER:
-                return (
-                    weapon.loadedMissileId !== null &&
-                    weapon.ammoCount > 0
-                );
+                return weapon.ammoCount > 0;
 
             case SHIP_WEAPON_KIND.LASER:
                 return true;

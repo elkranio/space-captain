@@ -1,6 +1,5 @@
 // src/engine/defs/ship_weapon.ts
 
-import type { MissileId } from './missile';
 import type {
     StickyMineId,
 } from './sticky_mine';
@@ -135,6 +134,9 @@ export type ShipWeaponDefinitionBase = {
 export type MissileLauncherDefinition = ShipWeaponDefinitionBase & {
     kind: typeof SHIP_WEAPON_KIND.MISSILE_LAUNCHER;
 
+    damage: number;
+    flightDurationMs: number;
+
     ammoCapacity: number;
 };
 
@@ -185,8 +187,6 @@ export type ShipWeaponBaseState = {
 
 export type MissileLauncherState = ShipWeaponBaseState & {
     kind: typeof SHIP_WEAPON_KIND.MISSILE_LAUNCHER;
-
-    loadedMissileId: MissileId | null;
 
     ammoCount: number;
 };

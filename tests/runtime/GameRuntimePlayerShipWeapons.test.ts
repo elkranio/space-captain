@@ -12,9 +12,6 @@ import {
     SHIP_WEAPONS,
 } from '../../src/engine/content/catalogs/ship_weapons';
 import {
-    MISSILE_ID,
-} from '../../src/engine/defs/missile';
-import {
     SHIP_WEAPON_ID,
     SHIP_WEAPON_KIND,
     SHIP_WEAPON_PHASE,
@@ -78,8 +75,7 @@ describe('GameRuntime player ship weapons', () => {
 
             phaseElapsedMs: 0,
 
-            loadedMissileId:
-                MISSILE_ID.BASIC_00,
+
 
             ammoCount:
                 definition.ammoCapacity,

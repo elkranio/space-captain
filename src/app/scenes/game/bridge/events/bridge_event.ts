@@ -5,9 +5,6 @@ import type { Vec3 } from '../../../../../engine/defs/vector';
 import type { SpriteEntry } from '../../../../manifests/types';
 import type { SceneKey } from '../../../scene_key';
 import type {
-    MissileId,
-} from '../../../../../engine/defs/missile';
-import type {
     MissileSignatureIntelStatus,
 } from '../../../../../engine/encounter/model/missile_signature_intel';
 import type { DefenseTurretShotOutcome } from '../../../../../engine/defs/defense_turret';
@@ -778,7 +775,6 @@ export type BridgeIncomingMissilesUpdatedPayload = BridgeIncomingMissileUpdatePa
 export type BridgeOutgoingMissileAddedPayload = {
     projectileId: string;
 
-    missileId: MissileId;
 
     targetActorId: string;
 

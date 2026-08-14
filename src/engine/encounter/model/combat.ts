@@ -6,7 +6,7 @@ import type {
 import type {
     ShipDefenseTurretState,
 } from '../../defs/defense_turret';
-import type { MissileSignature, MissileId } from '../../defs/missile';
+import type { MissileSignature } from '../../defs/missile';
 import type {
     StickyMineId,
 } from '../../defs/sticky_mine';
@@ -138,14 +138,16 @@ export type MissileCombatProjectileState = {
     target: CombatTarget;
 
     // Objective hidden truth of this concrete projectile.
-    // missileId identifies ammo model and cannot reveal this value.
+    // Every launch receives a fresh signature independent of launcher model.
     signature: MissileSignature;
 
     // Player-observer knowledge about this concrete projectile.
-    // Objective truth stays in signature; missileId remains only the ammo model.
+    // Objective truth stays in signature.
     identification: MissileThreatIdentification;
 
-    missileId: MissileId;
+    // Physical snapshot copied from launcher content at launch.
+    // An in-flight projectile never re-reads weapon tuning.
+    damage: number;
 
     timeToImpactMs: number;
     initialTimeToImpactMs: number;

@@ -9,11 +9,7 @@ import {
 import {
     GameRuntime,
 } from '../../src/app/runtime/GameRuntime';
-import BridgeEncounterPersistenceSynchronizer from '../../src/app/scenes/game/bridge/controller/encounter/BridgeEncounterPersistenceSynchronizer';
-import {
-    MISSILE_ID,
-} from '../../src/engine/defs/missile';
-import {
+import BridgeEncounterPersistenceSynchronizer from '../../src/app/scenes/game/bridge/controller/encounter/BridgeEncounterPersistenceSynchronizer';import {
     PLAYER_LOCATION_KIND,
     PLAYER_SPACE_NAVIGATION_KIND,
 } from '../../src/engine/defs/player_location';
@@ -200,9 +196,6 @@ describe(
                                     COMBAT_TARGET_KIND
                                         .PLAYER_SHIP,
                             },
-
-                            missileId:
-                                MISSILE_ID.BASIC_00,
 
                             timeToImpactMs: 0,
                             initialTimeToImpactMs:

@@ -12,7 +12,6 @@ import {
     SHIP_WEAPON_TARGETING_DURATION_MS,
 } from '../../../src/engine/content/catalogs/ship_weapons';
 import { SHIP_NODE_ACTOR_PRESET_ID } from '../../../src/engine/content/presets/ship_node_actors';
-import { MISSILE_ID } from '../../../src/engine/defs/missile';
 import { PLAYER_SPACE_NAVIGATION_KIND } from '../../../src/engine/defs/player_location';
 import {
     SHIP_WEAPON_KIND,
@@ -86,6 +85,15 @@ describe('CombatRunner', () => {
 
         const loadedLauncherDefinition = SHIP_WEAPONS[launcher.weaponId];
 
+        if (
+            loadedLauncherDefinition.kind !==
+            SHIP_WEAPON_KIND.MISSILE_LAUNCHER
+        ) {
+            throw new Error(
+                'Expected missile launcher definition',
+            );
+        }
+
         expect(state.combat.projectiles).toEqual([]);
         expect(state.combat.laserAttacks).toEqual([]);
 
@@ -129,8 +137,6 @@ describe('CombatRunner', () => {
                         kind: COMBAT_TARGET_KIND.PLAYER_SHIP,
                     },
 
-                    missileId: MISSILE_ID.BASIC_00,
-
                     timeToImpactMs: 12000,
                     initialTimeToImpactMs: 12000,
                 },
@@ -168,7 +174,8 @@ describe('CombatRunner', () => {
                 status: MISSILE_SIGNATURE_INTEL_STATUS.UNKNOWN,
             },
 
-            missileId: MISSILE_ID.BASIC_00,
+            damage:
+                loadedLauncherDefinition.damage,
 
             timeToImpactMs: 12000,
             initialTimeToImpactMs: 12000,
@@ -206,8 +213,6 @@ describe('CombatRunner', () => {
                     target: {
                         kind: COMBAT_TARGET_KIND.PLAYER_SHIP,
                     },
-
-                    missileId: MISSILE_ID.BASIC_00,
 
                     timeToImpactMs: 0,
                     initialTimeToImpactMs: 12000,

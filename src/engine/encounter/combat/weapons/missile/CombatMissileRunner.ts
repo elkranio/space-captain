@@ -1,6 +1,5 @@
 // src/engine/encounter/combat/CombatMissileRunner.ts
 
-import { MISSILES } from '../../../../content/catalogs/missiles';
 import {
     SHIP_WEAPONS,
     SHIP_WEAPON_TARGETING_DURATION_MS,
@@ -8,7 +7,6 @@ import {
 import { ENCOUNTER_TEAM } from '../../../../defs/encounter_team';
 import {
     MISSILE_SIGNATURE,
-    type MissileId,
     type MissileSignature,
 } from '../../../../defs/missile';
 import {
@@ -36,7 +34,6 @@ import CombatRuntimeIdentityFactory from '../../CombatRuntimeIdentityFactory';
 
 export type PlayerMissileLaunchInput = {
     sourceWeaponId: string;
-    missileId: MissileId;
     targetActorId: string;
 };
 
@@ -169,11 +166,7 @@ export default class CombatMissileRunner {
         actor: ShipEncounterActorState,
         launcher: MissileLauncherState,
     ): void {
-        const missileId =
-            launcher.loadedMissileId;
-
         if (
-            !missileId ||
             launcher.ammoCount <= 0
         ) {
             throw new Error(
@@ -182,7 +175,11 @@ export default class CombatMissileRunner {
             );
         }
 
-        const missile = MISSILES[missileId];
+        const definition =
+            this.getLauncherDefinition(
+                launcher,
+            );
+
         const signature =
             this.createMissileSignature();
 
@@ -231,13 +228,14 @@ export default class CombatMissileRunner {
                             .UNKNOWN,
                 },
 
-                missileId,
+                damage:
+                    definition.damage,
 
                 timeToImpactMs:
-                    missile.flightDurationMs,
+                    definition.flightDurationMs,
 
                 initialTimeToImpactMs:
-                    missile.flightDurationMs,
+                    definition.flightDurationMs,
             };
 
         this.state.combat
@@ -494,8 +492,28 @@ export default class CombatMissileRunner {
             );
         }
 
-        const missile =
-            MISSILES[launch.missileId];
+        const launcher =
+            this.stateStore
+                .findPlayerWeaponById(
+                    launch.sourceWeaponId,
+                );
+
+        if (
+            !launcher ||
+            launcher.kind !==
+                SHIP_WEAPON_KIND
+                    .MISSILE_LAUNCHER
+        ) {
+            throw new Error(
+                'Cannot create player missile from launcher: ' +
+                    launch.sourceWeaponId,
+            );
+        }
+
+        const definition =
+            this.getLauncherDefinition(
+                launcher,
+            );
 
         const signature =
             this.createMissileSignature();
@@ -544,14 +562,14 @@ export default class CombatMissileRunner {
                         signature,
                 },
 
-                missileId:
-                    launch.missileId,
+                damage:
+                    definition.damage,
 
                 timeToImpactMs:
-                    missile.flightDurationMs,
+                    definition.flightDurationMs,
 
                 initialTimeToImpactMs:
-                    missile.flightDurationMs,
+                    definition.flightDurationMs,
             };
 
         this.state.combat
@@ -720,9 +738,6 @@ export default class CombatMissileRunner {
             );
         }
 
-        const missile =
-            MISSILES[projectile.missileId];
-
         projectile.timeToImpactMs = 0;
 
         this.state.combat
@@ -732,7 +747,7 @@ export default class CombatMissileRunner {
         const damageResult =
             this.stateStore
                 .damagePlayerHull(
-                    missile.damage,
+                    projectile.damage,
                 );
 
         this.emit({
@@ -753,9 +768,6 @@ export default class CombatMissileRunner {
         target:
             ShipEncounterActorState,
     ): void {
-        const missile =
-            MISSILES[projectile.missileId];
-
         projectile.timeToImpactMs = 0;
 
         this.state.combat
@@ -766,7 +778,7 @@ export default class CombatMissileRunner {
             this.stateStore
                 .damageEnemyActorHull(
                     target.id,
-                    missile.damage,
+                    projectile.damage,
                 );
 
         this.emit({

@@ -1,7 +1,6 @@
 // src/engine/encounter/combat/PlayerWeaponRunner.ts
 
 import { SHIP_WEAPONS } from '../../../content/catalogs/ship_weapons';
-import type { MissileId } from '../../../defs/missile';
 import { OFFICER_ROLE } from '../../../defs/officer';
 import {
     SHIP_WEAPON_KIND,
@@ -36,7 +35,6 @@ type PlayerWeaponRunnerOptions = {
     queuePlayerMissileLaunch: (
         input: {
             sourceWeaponId: string;
-            missileId: MissileId;
             targetActorId: string;
         },
     ) => void;

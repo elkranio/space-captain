@@ -459,9 +459,6 @@ export default class BridgeEncounterEngineEventHandler {
                         projectileId:
                             event.projectile.id,
 
-                        missileId:
-                            event.projectile.missileId,
-
                         targetActorId:
                             event.projectile
                                 .target.actorId,

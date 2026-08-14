@@ -9,9 +9,6 @@ import {
     SHIP_WEAPON_TARGETING_DURATION_MS,
 } from '../../src/engine/content/catalogs/ship_weapons';
 import {
-    MISSILE_ID,
-} from '../../src/engine/defs/missile';
-import {
     STICKY_MINE_ID,
 } from '../../src/engine/defs/sticky_mine';
 import {
@@ -312,8 +309,6 @@ function createWeapons():
 
             phaseElapsedMs: 0,
 
-            loadedMissileId:
-                MISSILE_ID.BASIC_00,
 
             ammoCount: 5,
         },

@@ -130,8 +130,8 @@ function createPlayerWeapon(
             return MissileLauncherFactory.create({
                 id: weapon.id,
 
-                presetId:
-                    weapon.presetId,
+                weaponId:
+                    weapon.weaponId,
             });
 
         case SHIP_WEAPON_ID

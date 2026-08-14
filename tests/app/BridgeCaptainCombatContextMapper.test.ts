@@ -4,9 +4,6 @@ import {
     it,
 } from 'vitest';
 import {
-    MISSILE_ID,
-} from '../../src/engine/defs/missile';
-import {
     OFFICER_ROLE,
 } from '../../src/engine/defs/officer';
 import {
@@ -897,8 +894,6 @@ function createMissile({
                     .PLAYER_SHIP,
         },
 
-        missileId:
-            MISSILE_ID.BASIC_00,
 
         timeToImpactMs,
         initialTimeToImpactMs,

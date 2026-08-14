@@ -15,9 +15,6 @@ import {
     ENCOUNTER_TEAM,
 } from '../../../src/engine/defs/encounter_team';
 import {
-    MISSILE_ID,
-} from '../../../src/engine/defs/missile';
-import {
     OFFICER_ROLE,
 } from '../../../src/engine/defs/officer';
 import {
@@ -89,8 +86,7 @@ describe(
                                     .UNKNOWN,
                         },
 
-                        missileId:
-                            MISSILE_ID.BASIC_01,
+                        damage: 1,
 
                         timeToImpactMs:
                             9000,

@@ -25,20 +25,13 @@ import {
     SHIP_WEAPON_KIND,
 } from '../../defs/ship_weapon';
 import {
-    MISSILE_LAUNCHER_PRESET_ID,
-    type MissileLauncherPresetId,
-} from './missile_launchers';
-import {
     STICKY_MINE_DISPENSER_PRESET_ID,
     type StickyMineDispenserPresetId,
 } from './sticky_mine_dispensers';
 
 export const SHIP_PRESET_ID = {
-    GENERIC_MISSILE_RED_00:
-        'generic_missile_basic_00',
-
-    GENERIC_MISSILE_BLUE_00:
-        'generic_missile_basic_01',
+    GENERIC_MISSILE_00:
+        'generic_missile_00',
 
     GENERIC_LASER_00:
         'generic_laser_00',
@@ -65,7 +58,9 @@ type MissileLauncherShipWeaponPreset = {
     kind:
         typeof SHIP_WEAPON_KIND.MISSILE_LAUNCHER;
 
-    presetId: MissileLauncherPresetId;
+    weaponId:
+        typeof SHIP_WEAPON_ID
+            .MISSILE_LAUNCHER_00;
 };
 
 type LaserShipWeaponPreset = {
@@ -143,10 +138,10 @@ export type ShipPreset = {
 };
 
 export const SHIP_PRESETS = {
-    [SHIP_PRESET_ID.GENERIC_MISSILE_RED_00]: {
+    [SHIP_PRESET_ID.GENERIC_MISSILE_00]: {
         id:
             SHIP_PRESET_ID
-                .GENERIC_MISSILE_RED_00,
+                .GENERIC_MISSILE_00,
 
         chassisId:
             SHIP_CHASSIS_ID.GENERIC_00,
@@ -164,37 +159,9 @@ export const SHIP_PRESETS = {
                     SHIP_WEAPON_KIND
                         .MISSILE_LAUNCHER,
 
-                presetId:
-                    MISSILE_LAUNCHER_PRESET_ID
-                        .BASIC_RED_FULL_00,
-            },
-        ],
-    },
-
-    [SHIP_PRESET_ID.GENERIC_MISSILE_BLUE_00]: {
-        id:
-            SHIP_PRESET_ID
-                .GENERIC_MISSILE_BLUE_00,
-
-        chassisId:
-            SHIP_CHASSIS_ID.GENERIC_00,
-
-        drive: {
-            id: 'drive_00',
-            driveId: SHIP_DRIVE_ID.BASIC_00,
-        },
-
-        weapons: [
-            {
-                id: 'missile_launcher_00',
-
-                kind:
-                    SHIP_WEAPON_KIND
-                        .MISSILE_LAUNCHER,
-
-                presetId:
-                    MISSILE_LAUNCHER_PRESET_ID
-                        .BASIC_BLUE_FULL_00,
+                weaponId:
+                    SHIP_WEAPON_ID
+                        .MISSILE_LAUNCHER_00,
             },
         ],
     },
@@ -302,9 +269,8 @@ export const SHIP_PRESETS = {
                     SHIP_WEAPON_KIND
                         .MISSILE_LAUNCHER,
 
-                presetId:
-                    MISSILE_LAUNCHER_PRESET_ID
-                        .BASIC_RED_FULL_00,
+                weaponId:
+                    SHIP_WEAPON_ID.MISSILE_LAUNCHER_00,
             },
             {
                 id: 'laser_00',
@@ -389,9 +355,8 @@ export const SHIP_PRESETS = {
                     SHIP_WEAPON_KIND
                         .MISSILE_LAUNCHER,
 
-                presetId:
-                    MISSILE_LAUNCHER_PRESET_ID
-                        .BASIC_RED_FULL_00,
+                weaponId:
+                    SHIP_WEAPON_ID.MISSILE_LAUNCHER_00,
             },
         ],
     },

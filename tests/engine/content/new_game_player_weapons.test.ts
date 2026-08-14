@@ -9,9 +9,6 @@ import {
     createNewRunState,
 } from '../../../src/engine/content/new_game/create_new_run_state';
 import {
-    MISSILE_ID,
-} from '../../../src/engine/defs/missile';
-import {
     STICKY_MINE_ID,
 } from '../../../src/engine/defs/sticky_mine';
 import {
@@ -57,9 +54,6 @@ describe('New-game player weapons', () => {
                 kind:
                     SHIP_WEAPON_KIND
                         .MISSILE_LAUNCHER,
-
-                loadedMissileId:
-                    MISSILE_ID.BASIC_00,
 
                 ammoCount: 5,
 

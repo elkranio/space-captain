@@ -12,9 +12,6 @@ import {
     ENCOUNTER_TEAM,
 } from '../../../src/engine/defs/encounter_team';
 import {
-    MISSILE_ID,
-} from '../../../src/engine/defs/missile';
-import {
     OFFICER_ROLE,
 } from '../../../src/engine/defs/officer';
 import {
@@ -112,8 +109,7 @@ describe('ShipNodeActorFactory', () => {
                         SHIP_WEAPON_KIND
                             .MISSILE_LAUNCHER,
 
-                    loadedMissileId:
-                        MISSILE_ID.BASIC_00,
+
 
                     ammoCount: 5,
 
