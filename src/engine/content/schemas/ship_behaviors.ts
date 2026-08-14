@@ -75,20 +75,6 @@ export const SHIP_BEHAVIOR_TUNING_SCHEMA =
                                 'Higher values mean more aggressive decisions.',
                         }),
 
-                offensiveTaskDelayMs:
-                    z.number()
-                        .int()
-                        .nonnegative()
-                        .meta({
-                            title:
-                                'Offensive task delay',
-
-                            description:
-                                'Per-role pause after that role completes an offensive task ' +
-                                'before it may start another attack.',
-
-                            ...DURATION_META,
-                        }),
             }).meta({
                 title:
                     'Standard Combat',

@@ -142,13 +142,6 @@ describe('encounter actors', () => {
                 [OFFICER_ROLE.WEAPONS]: [],
             },
 
-            decision: {
-                nextWeaponIndexByRole: {},
-
-                offensiveTaskDelayRemainingMsByRole:
-                    {},
-            },
-
             crewTasks: {},
 
             threatObservations: [],
@@ -465,7 +458,7 @@ describe('encounter actors', () => {
             SHIP_DRIVE_STATUS.DISABLED;
 
         encounterActor.behavior
-            .offensiveTaskDelayMs = 0;
+            .aggression = 0;
 
         encounterActor.crewRoles.length = 0;
 
@@ -483,8 +476,8 @@ describe('encounter actors', () => {
 
         expect(
             nodeActor.behavior
-                .offensiveTaskDelayMs,
-        ).toBe(2000);
+                .aggression,
+        ).toBe(50);
 
         expect(
             nodeActor.crewRoles.length,

@@ -38,12 +38,6 @@ import {
 type EnemyCrewTaskRunnerOptions = {
     state: EncounterState;
 
-    onOffensiveTaskCompleted: (
-        actor: ShipEncounterActorState,
-        role: OfficerRole,
-    ) => void;
-
-
     onShieldDeploymentCompleted?: (
         actor: ShipEncounterActorState,
     ) => void;
@@ -67,26 +61,19 @@ type EnemyCrewTaskRunnerOptions = {
 // Владеет lifecycle задач абстрактного
 // экипажа NPC-кораблей.
 //
-// Policy и scheduler выбирают работу.
+// EnemyBehaviorRunner выбирает и запускает работу.
 // Этот runner:
 // - занимает одну конкретную роль;
 // - не допускает параллельные задачи одной роли;
 // - двигает timed tasks;
 // - отменяет задачи при смерти actor,
 //   исчезновении роли или цели;
-// - завершает задачу по её физическому lifecycle;
-// - сообщает о natural completion владельцу policy.
+// - завершает задачу по её физическому lifecycle.
 export default class EnemyCrewTaskRunner {
     private readonly state: EncounterState;
 
     private readonly performanceResolver:
         CrewPerformanceResolver;
-
-    private readonly onOffensiveTaskCompleted:
-        EnemyCrewTaskRunnerOptions[
-            'onOffensiveTaskCompleted'
-        ];
-
 
     private readonly onShieldDeploymentCompleted:
         (
@@ -111,7 +98,6 @@ export default class EnemyCrewTaskRunner {
 
     constructor({
         state,
-        onOffensiveTaskCompleted,
         onShieldDeploymentCompleted,
         onStickyMineClearingCompleted,
         onSpamPurgingCompleted,
@@ -123,9 +109,6 @@ export default class EnemyCrewTaskRunner {
             new CrewPerformanceResolver(
                 this.state,
             );
-
-        this.onOffensiveTaskCompleted =
-            onOffensiveTaskCompleted;
 
         this.onShieldDeploymentCompleted =
             onShieldDeploymentCompleted ??
@@ -478,10 +461,6 @@ export default class EnemyCrewTaskRunner {
             role,
         );
 
-        this.onOffensiveTaskCompleted(
-            actor,
-            role,
-        );
     }
 
     private synchronizeInterceptMissile(

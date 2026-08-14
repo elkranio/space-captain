@@ -14,14 +14,12 @@ export type ShipBehaviorPresetId =
 // которые входят в persistent/runtime snapshot.
 //
 // Здесь живёт профиль конкретного behavior preset:
-// cadence решений, допустимая неточность оценки,
-// склонность к агрессии и pacing атак.
+// cadence решений, допустимая неточность оценки
+// и склонность к агрессии.
 //
 // Общие правила enemy AI живут отдельно
 // в enemy_behavior_rules.
 //
-// Mutable память принятых решений живёт отдельно
-// в ShipDecisionState.
 export type ShipBehaviorState = {
     decisionTickDurationMs: number;
     decisionTickWiggleMs: number;
@@ -29,6 +27,4 @@ export type ShipBehaviorState = {
 
     // Designer-facing шкала 0..100.
     aggression: number;
-
-    offensiveTaskDelayMs: number;
 };

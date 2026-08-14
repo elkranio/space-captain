@@ -687,12 +687,15 @@ describe(
                 );
 
                 expect(
-                    captainFields
-                        ?.offensiveTaskDelayMs
-                        ?.description,
-                ).toContain(
-                    'Per-role pause',
-                );
+                    Object.keys(
+                        captainFields ?? {},
+                    ),
+                ).toEqual([
+                    'decisionTickDurationMs',
+                    'decisionTickWiggleMs',
+                    'threatTimingWiggleMs',
+                    'aggression',
+                ]);
 
                 const behaviorRulesSchema =
                     getContentCollectionJsonSchema(

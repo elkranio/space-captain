@@ -133,9 +133,6 @@ describe(
                         500,
 
                     aggression: 50,
-
-                    offensiveTaskDelayMs:
-                        2000,
                 });
             },
         );
@@ -206,9 +203,6 @@ describe(
                                     500,
 
                                 aggression: 101,
-
-                                offensiveTaskDelayMs:
-                                    2000,
                             },
                         })
                         .success,

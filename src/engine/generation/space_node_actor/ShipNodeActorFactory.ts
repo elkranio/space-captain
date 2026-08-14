@@ -129,9 +129,6 @@ export default class ShipNodeActorFactory {
                 aggression:
                     behavior.aggression,
 
-                offensiveTaskDelayMs:
-                    behavior
-                        .offensiveTaskDelayMs,
             },
 
             crewRoles: [

@@ -88,7 +88,6 @@ describe('ShipNodeActorFactory', () => {
                 decisionTickWiggleMs: 250,
                 threatTimingWiggleMs: 500,
                 aggression: 50,
-                offensiveTaskDelayMs: 2000,
             },
 
             crewRoles:
@@ -180,7 +179,7 @@ describe('ShipNodeActorFactory', () => {
             SHIP_DRIVE_STATUS.DISABLED;
 
         first.behavior
-            .offensiveTaskDelayMs = 0;
+            .aggression = 0;
 
         first.crewRoles.length = 0;
 
@@ -196,8 +195,8 @@ describe('ShipNodeActorFactory', () => {
 
         expect(
             second.behavior
-                .offensiveTaskDelayMs,
-        ).toBe(2000);
+                .aggression,
+        ).toBe(50);
 
         expect(second.crewRoles).toEqual(
             STANDARD_CREW_ROLES,
@@ -247,7 +246,6 @@ describe('ShipNodeActorFactory', () => {
                 decisionTickWiggleMs: 250,
                 threatTimingWiggleMs: 500,
                 aggression: 50,
-                offensiveTaskDelayMs: 2000,
             },
 
             crewRoles:

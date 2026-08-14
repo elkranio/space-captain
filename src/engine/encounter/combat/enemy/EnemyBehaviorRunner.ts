@@ -121,15 +121,6 @@ export default class EnemyBehaviorRunner {
             new EnemyCrewTaskRunner({
                 state: this.state,
 
-                onOffensiveTaskCompleted:
-                    (actor, role) => {
-                        this.decisionPolicy
-                            .onOffensiveTaskCompleted(
-                                actor,
-                                role,
-                            );
-                    },
-
                 onShieldDeploymentCompleted:
                     (actor) => {
                         if (!deployEnemyShield) {
@@ -247,8 +238,6 @@ export default class EnemyBehaviorRunner {
         this.crewTaskRunner
             .advance(deltaMs);
 
-        this.advanceDecisions(deltaMs);
-
         const navigation =
             this.state.navigation;
 
@@ -316,28 +305,6 @@ export default class EnemyBehaviorRunner {
     public synchronizeTasks(): void {
         this.crewTaskRunner
             .synchronize();
-    }
-
-    private advanceDecisions(
-        deltaMs: number,
-    ): void {
-        for (const actor of this.state.actors) {
-            if (
-                actor.team !==
-                ENCOUNTER_TEAM.ENEMY
-            ) {
-                continue;
-            }
-
-            if (actor.hull <= 0) {
-                continue;
-            }
-
-            this.decisionPolicy.advance(
-                actor,
-                deltaMs,
-            );
-        }
     }
 
     private scheduleRole(

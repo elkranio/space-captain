@@ -11,7 +11,6 @@ import {
 } from '../../../src/engine/defs/encounter_team';
 import {
     OFFICER_ROLE,
-    type OfficerRole,
 } from '../../../src/engine/defs/officer';
 import {
     PLAYER_SPACE_NAVIGATION_KIND,
@@ -140,11 +139,10 @@ describe(
         );
 
         it(
-            'completes an offensive task only after the weapon leaves its active phase',
+            'completes weapon work after the weapon leaves its active phase',
             () => {
                 const {
                     actor,
-                    completedRoles,
                     runner,
                     weapon,
                 } = createRunnerFixture();
@@ -173,8 +171,6 @@ describe(
                     ],
                 ).toBeDefined();
 
-                expect(completedRoles)
-                    .toEqual([]);
 
                 weapon.phase =
                     SHIP_WEAPON_PHASE
@@ -185,26 +181,17 @@ describe(
                 expect(actor.crewTasks)
                     .toEqual({});
 
-                expect(completedRoles)
-                    .toEqual([
-                        OFFICER_ROLE.WEAPONS,
-                    ]);
 
                 runner.synchronize();
 
-                expect(completedRoles)
-                    .toEqual([
-                        OFFICER_ROLE.WEAPONS,
-                    ]);
             },
         );
 
         it(
-            'cancels invalid tasks without reporting offensive completion',
+            'cancels invalid weapon tasks',
             () => {
                 const {
                     actor,
-                    completedRoles,
                     runner,
                     weapon,
                 } = createRunnerFixture();
@@ -222,8 +209,6 @@ describe(
                 expect(actor.crewTasks)
                     .toEqual({});
 
-                expect(completedRoles)
-                    .toEqual([]);
 
                 actor.weapons.push(weapon);
 
@@ -240,8 +225,6 @@ describe(
                 expect(actor.crewTasks)
                     .toEqual({});
 
-                expect(completedRoles)
-                    .toEqual([]);
 
                 actor.crewRoles.push(
                     OFFICER_ROLE.WEAPONS,
@@ -260,8 +243,6 @@ describe(
                 expect(actor.crewTasks)
                     .toEqual({});
 
-                expect(completedRoles)
-                    .toEqual([]);
             },
         );
     },
@@ -379,19 +360,9 @@ function createRunnerFixture() {
         weapon,
     );
 
-    const completedRoles:
-        OfficerRole[] = [];
-
     const runner =
         new EnemyCrewTaskRunner({
             state,
-
-            onOffensiveTaskCompleted:
-                (_actor, role) => {
-                    completedRoles.push(
-                        role,
-                    );
-                },
 
             onStickyMineClearingCompleted:
                 () => {},
@@ -405,7 +376,6 @@ function createRunnerFixture() {
 
     return {
         actor,
-        completedRoles,
         runner,
         weapon: actorWeapon,
     };

@@ -28,7 +28,5 @@ export function createShipBehaviorFixture(): ShipBehaviorState {
         aggression:
             preset.aggression,
 
-        offensiveTaskDelayMs:
-            preset.offensiveTaskDelayMs,
     };
 }

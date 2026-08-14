@@ -130,83 +130,18 @@ const ENEMY_MINE_CLEAR_ROLE_PRIORITY = [
     OFFICER_ROLE.WEAPONS,
 ] as const;
 
-// Пока policy намеренно простая:
+// Transitional stateless policy.
 //
-// - выбирает одну работу для конкретной роли;
-// - Science сначала идентифицирует
-//   замеченную missile/beamCannon threat;
-// - иначе для роли идёт round-robin
-//   по её оружию в порядке loadout;
-// - недоступное оружие пропускается;
-// - завершённая offensive task запускает
-//   отдельную паузу только для этой роли.
+// EnemyBehaviorRunner всё ещё спрашивает работу
+// отдельно для конкретной свободной роли.
+// Mutable per-role pacing/round-robin state уже удалён:
+// defense остаётся выше offense,
+// а weapon work берёт первое доступное оружие
+// этой роли в порядке loadout.
 //
-// Scheduler исполняет выбранный intent
-// и не содержит собственных priorities.
-//
-// Позже здесь появятся состояние боя,
-// defensive priorities и разные behavior presets.
+// Следующий behavior-срез заменит per-role loop
+// одним captain decision tick и максимум одним intent.
 export default class EnemyDecisionPolicy {
-    constructor() {}
-
-    public advance(
-        actor: ShipEncounterActorState,
-        deltaMs: number,
-    ): void {
-        const delays =
-            actor.decision
-                .offensiveTaskDelayRemainingMsByRole;
-
-        const roles =
-            Object.keys(delays) as OfficerRole[];
-
-        for (const role of roles) {
-            const remainingMs =
-                delays[role];
-
-            if (remainingMs === undefined) {
-                continue;
-            }
-
-            const nextRemainingMs =
-                Math.max(
-                    0,
-                    remainingMs - deltaMs,
-                );
-
-            if (nextRemainingMs === 0) {
-                delete delays[role];
-                continue;
-            }
-
-            delays[role] =
-                nextRemainingMs;
-        }
-    }
-
-    public onOffensiveTaskCompleted(
-        actor: ShipEncounterActorState,
-        role: OfficerRole,
-    ): void {
-        const delayMs =
-            actor.behavior
-                .offensiveTaskDelayMs;
-
-        if (delayMs <= 0) {
-            delete actor.decision
-                .offensiveTaskDelayRemainingMsByRole[
-                    role
-                ];
-
-            return;
-        }
-
-        actor.decision
-            .offensiveTaskDelayRemainingMsByRole[
-                role
-            ] = delayMs;
-    }
-
     public selectMineClearing(
         actor: ShipEncounterActorState,
         context:
@@ -659,60 +594,15 @@ export default class EnemyDecisionPolicy {
         actor: ShipEncounterActorState,
         role: OfficerRole,
     ): ShipWeaponState | undefined {
-        if (
-            (
-                actor.decision
-                    .offensiveTaskDelayRemainingMsByRole[
-                        role
-                    ] ?? 0
-            ) > 0
-        ) {
-            return undefined;
-        }
-
-        const weapons =
-            actor.weapons.filter((weapon) => {
-                return (
-                    this.getWeaponRole(weapon) ===
-                    role
-                );
-            });
-
-        if (weapons.length === 0) {
-            return undefined;
-        }
-
-        const startIndex =
-            actor.decision
-                .nextWeaponIndexByRole[role] ??
-            0;
-
-        for (
-            let offset = 0;
-            offset < weapons.length;
-            offset += 1
-        ) {
-            const index =
-                (startIndex + offset) %
-                weapons.length;
-
-            const weapon = weapons[index];
-
-            if (
-                !weapon ||
-                !this.canOperateWeapon(weapon)
-            ) {
-                continue;
-            }
-
-            actor.decision
-                .nextWeaponIndexByRole[role] =
-                (index + 1) % weapons.length;
-
-            return weapon;
-        }
-
-        return undefined;
+        return actor.weapons.find((weapon) => {
+            return (
+                this.getWeaponRole(weapon) ===
+                    role &&
+                this.canOperateWeapon(
+                    weapon,
+                )
+            );
+        });
     }
 
     private getWeaponRole(
