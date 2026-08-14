@@ -4,10 +4,6 @@ import {
     ENCOUNTER_TEAM,
 } from '../../../defs/encounter_team';
 import {
-    OFFICER_ROLE,
-    type OfficerRole,
-} from '../../../defs/officer';
-import {
     PLAYER_SPACE_NAVIGATION_KIND,
 } from '../../../defs/player_location';
 import type {
@@ -55,12 +51,6 @@ type EnemyBehaviorRunnerOptions = {
     random?: () => number;
 };
 
-const ENEMY_WORK_ROLES = [
-    OFFICER_ROLE.WEAPONS,
-    OFFICER_ROLE.SCIENCE,
-    OFFICER_ROLE.ENGINEER,
-] as const;
-
 // Root runtime owner of enemy combat behavior.
 //
 // CombatRunner gives this root one behavior step after
@@ -69,12 +59,16 @@ const ENEMY_WORK_ROLES = [
 // This runner owns:
 // - threat perception synchronization;
 // - enemy crew-task progress;
-// - enemy decision orchestration;
+// - captain decision cadence;
+// - one-intent decision orchestration;
 // - intent execution wiring.
 //
 // Physical weapon/turret/shield lifecycles remain CombatRunner-owned.
-// The per-role policy loop below is legacy and will be replaced by
-// captain cadence + one-intent decision flow in the next behavior slice.
+//
+// Hard contract:
+// one enemy captain can start at most ONE new order
+// during one captain decision tick.
+// Large engine delta never catches up by issuing several orders.
 export default class EnemyBehaviorRunner {
     private readonly state: EncounterState;
 
@@ -93,6 +87,9 @@ export default class EnemyBehaviorRunner {
     private readonly workExecutor:
         EnemyWorkExecutor;
 
+    private readonly random:
+        () => number;
+
     constructor({
         state,
         emit,
@@ -102,6 +99,7 @@ export default class EnemyBehaviorRunner {
         random = Math.random,
     }: EnemyBehaviorRunnerOptions) {
         this.state = state;
+        this.random = random;
 
         this.decisionPolicy =
             new EnemyDecisionPolicy();
@@ -254,21 +252,25 @@ export default class EnemyBehaviorRunner {
                 this.state,
             );
 
-        for (const actor of this.state.actors) {
+        for (
+            const actor of
+            this.state.actors
+        ) {
             if (
                 actor.team !==
-                ENCOUNTER_TEAM.ENEMY
+                ENCOUNTER_TEAM.ENEMY ||
+                actor.hull <= 0 ||
+                actor.anchorId !==
+                    navigation.anchorId
             ) {
                 continue;
             }
 
-            if (actor.hull <= 0) {
-                continue;
-            }
-
             if (
-                actor.anchorId !==
-                navigation.anchorId
+                !this.advanceDecisionTick(
+                    actor,
+                    deltaMs,
+                )
             ) {
                 continue;
             }
@@ -284,82 +286,15 @@ export default class EnemyBehaviorRunner {
                     crewProgressEffects,
                 };
 
-            this.scheduleMineClearing(
-                actor,
-                decisionContext,
-            );
-
-            for (
-                const role of
-                ENEMY_WORK_ROLES
-            ) {
-                this.scheduleRole(
-                    actor,
-                    role,
-                    decisionContext,
-                );
-            }
-        }
-    }
-
-    public synchronizeTasks(): void {
-        this.crewTaskRunner
-            .synchronize();
-    }
-
-    private scheduleRole(
-        actor: ShipEncounterActorState,
-        role: OfficerRole,
-        decisionContext:
-            EnemyDecisionContext,
-    ): void {
-        if (
-            !this.hasCrewRole(
-                actor,
-                role,
-            ) ||
-            this.crewTaskRunner
-                .isRoleBusy(
-                    actor,
-                    role,
-                )
-        ) {
-            return;
-        }
-
-        const intent =
-            this.decisionPolicy
-                .selectWork(
-                    actor,
-                    role,
-                    decisionContext,
-                );
-
-        if (!intent) {
-            return;
-        }
-
-        this.workExecutor.start(
-            actor,
-            intent,
-        );
-    }
-
-    private scheduleMineClearing(
-        actor: ShipEncounterActorState,
-        decisionContext:
-            EnemyDecisionContext,
-    ): void {
-        while (true) {
             const intent =
                 this.decisionPolicy
-                    .selectMineClearing(
+                    .selectWork(
                         actor,
                         decisionContext,
                     );
 
             if (!intent) {
-                return;
+                continue;
             }
 
             this.workExecutor.start(
@@ -369,10 +304,68 @@ export default class EnemyBehaviorRunner {
         }
     }
 
-    private hasCrewRole(
+    public synchronizeTasks(): void {
+        this.crewTaskRunner
+            .synchronize();
+    }
+
+    private advanceDecisionTick(
         actor: ShipEncounterActorState,
-        role: OfficerRole,
+        deltaMs: number,
     ): boolean {
-        return actor.crewRoles.includes(role);
+        actor.decision
+            .decisionTickRemainingMs =
+            Math.max(
+                0,
+                actor.decision
+                    .decisionTickRemainingMs -
+                    deltaMs,
+            );
+
+        if (
+            actor.decision
+                .decisionTickRemainingMs >
+            0
+        ) {
+            return false;
+        }
+
+        // Overshoot is intentionally discarded:
+        // one engine step can consume at most one captain tick.
+        actor.decision
+            .decisionTickRemainingMs =
+            this.rollNextDecisionTickMs(
+                actor,
+            );
+
+        return true;
+    }
+
+    private rollNextDecisionTickMs(
+        actor: ShipEncounterActorState,
+    ): number {
+        const baseMs =
+            actor.behavior
+                .decisionTickDurationMs;
+
+        const wiggleMs =
+            actor.behavior
+                .decisionTickWiggleMs;
+
+        if (wiggleMs === 0) {
+            return baseMs;
+        }
+
+        const centeredRandom =
+            this.random() * 2 - 1;
+
+        return Math.max(
+            0,
+            Math.round(
+                baseMs +
+                    centeredRandom *
+                        wiggleMs,
+            ),
+        );
     }
 }

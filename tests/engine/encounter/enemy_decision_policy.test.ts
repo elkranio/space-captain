@@ -15,6 +15,13 @@ import {
     OFFICER_ROLE,
 } from '../../../src/engine/defs/officer';
 import {
+    DEFENSE_TURRET_ID,
+    DEFENSE_TURRET_PHASE,
+} from '../../../src/engine/defs/defense_turret';
+import {
+    POWER_CORE_ID,
+} from '../../../src/engine/defs/power_core';
+import {
     PLAYER_SPACE_NAVIGATION_KIND,
 } from '../../../src/engine/defs/player_location';
 import {
@@ -48,7 +55,7 @@ describe(
     'Enemy decision policy',
     () => {
         it(
-            'selects the first available weapon in loadout order',
+            'selects the first available Weapons attack in loadout order',
             () => {
                 const actor =
                     createEnemyCombatActor();
@@ -59,7 +66,6 @@ describe(
                 expect(
                     policy.selectWork(
                         actor,
-                        OFFICER_ROLE.WEAPONS,
                     ),
                 ).toEqual({
                     kind:
@@ -83,7 +89,6 @@ describe(
                 expect(
                     policy.selectWork(
                         actor,
-                        OFFICER_ROLE.WEAPONS,
                     ),
                 ).toEqual({
                     kind:
@@ -107,7 +112,6 @@ describe(
                 expect(
                     policy.selectWork(
                         actor,
-                        OFFICER_ROLE.WEAPONS,
                     ),
                 ).toEqual({
                     kind:
@@ -124,13 +128,14 @@ describe(
         );
 
         it(
-            'does not select an empty sticky-mine dispenser',
+            'does not invent Weapons work when every Weapons tool is unavailable',
             () => {
                 const actor =
                     createEnemyCombatActor();
 
-                const policy =
-                    new EnemyDecisionPolicy();
+                actor.crewRoles = [
+                    OFFICER_ROLE.WEAPONS,
+                ];
 
                 const missile =
                     actor.weapons[0];
@@ -165,28 +170,29 @@ describe(
                 mines.ammoCount = 0;
 
                 expect(
-                    policy.selectWork(
-                        actor,
-                        OFFICER_ROLE.WEAPONS,
-                    ),
+                    new EnemyDecisionPolicy()
+                        .selectWork(
+                            actor,
+                        ),
                 ).toBeUndefined();
             },
         );
 
         it(
-            'selects Science weapon work independently from Weapons availability',
+            'falls through to Science offense when Weapons is unavailable',
             () => {
                 const actor =
                     createEnemyCombatActor();
 
-                const policy =
-                    new EnemyDecisionPolicy();
+                actor.crewRoles = [
+                    OFFICER_ROLE.SCIENCE,
+                ];
 
                 expect(
-                    policy.selectWork(
-                        actor,
-                        OFFICER_ROLE.SCIENCE,
-                    ),
+                    new EnemyDecisionPolicy()
+                        .selectWork(
+                            actor,
+                        ),
                 ).toEqual({
                     kind:
                         SHIP_CREW_TASK_KIND
@@ -202,13 +208,95 @@ describe(
         );
 
         it(
-            'prioritizes unresolved threat identification over Science weapon work',
+            'prioritizes an available missile interception over offense',
             () => {
                 const actor =
                     createEnemyCombatActor();
 
-                const policy =
-                    new EnemyDecisionPolicy();
+                actor.defenseTurret = {
+                    id:
+                        'defense_turret_00',
+
+                    defenseTurretId:
+                        DEFENSE_TURRET_ID
+                            .BASIC_00,
+
+                    phase:
+                        DEFENSE_TURRET_PHASE
+                            .READY,
+
+                    phaseElapsedMs: 0,
+
+                    targetProjectileId:
+                        null,
+                };
+
+                actor.powerCore = {
+                    id:
+                        'power_core_00',
+
+                    powerCoreId:
+                        POWER_CORE_ID
+                            .BASIC_00,
+
+                    charges: 4,
+
+                    rechargeElapsedMs: 0,
+                };
+
+                const observationId =
+                    'missile:projectile_00';
+
+                expect(
+                    new EnemyDecisionPolicy()
+                        .selectWork(
+                            actor,
+                            {
+                                threats: [
+                                    {
+                                        kind:
+                                            ENEMY_THREAT_KIND
+                                                .MISSILE,
+
+                                        observationId,
+
+                                        projectileId:
+                                            'projectile_00',
+
+                                        timeToImpactMs:
+                                            10000,
+                                    },
+                                ],
+
+                                crewProgressEffects:
+                                    [],
+                            },
+                        ),
+                ).toEqual({
+                    kind:
+                        SHIP_CREW_TASK_KIND
+                            .INTERCEPT_MISSILE,
+
+                    role:
+                        OFFICER_ROLE.WEAPONS,
+
+                    defenseTurretId:
+                        'defense_turret_00',
+
+                    projectileId:
+                        'projectile_00',
+                });
+            },
+        );
+
+        it(
+            'uses idle Science to identify an unresolved missile when no interception is available',
+            () => {
+                const actor =
+                    createEnemyCombatActor();
+
+                delete actor
+                    .defenseTurret;
 
                 actor
                     .threatObservations
@@ -231,10 +319,10 @@ describe(
                     });
 
                 expect(
-                    policy.selectWork(
-                        actor,
-                        OFFICER_ROLE.SCIENCE,
-                    ),
+                    new EnemyDecisionPolicy()
+                        .selectWork(
+                            actor,
+                        ),
                 ).toEqual({
                     kind:
                         SHIP_CREW_TASK_KIND
@@ -245,27 +333,6 @@ describe(
 
                     observationId:
                         'missile:projectile_00',
-                });
-
-                actor
-                    .threatObservations
-                    .length = 0;
-
-                expect(
-                    policy.selectWork(
-                        actor,
-                        OFFICER_ROLE.SCIENCE,
-                    ),
-                ).toEqual({
-                    kind:
-                        SHIP_CREW_TASK_KIND
-                            .OPERATE_WEAPON,
-
-                    role:
-                        OFFICER_ROLE.SCIENCE,
-
-                    weaponId:
-                        'spam_projector_00',
                 });
             },
         );
@@ -280,12 +347,14 @@ function getWeapon(
     weaponId: string,
 ) {
     const weapon =
-        actor.weapons.find((candidate) => {
-            return (
-                candidate.id ===
-                weaponId
-            );
-        });
+        actor.weapons.find(
+            (candidate) => {
+                return (
+                    candidate.id ===
+                    weaponId
+                );
+            },
+        );
 
     if (!weapon) {
         throw new Error(

@@ -5,6 +5,9 @@ import {
     CREW_TRAIT_ID,
 } from '../../../src/engine/defs/crew_trait';
 import {
+    getTimedOfficerTaskDurationMs,
+} from '../../../src/engine/content/catalogs/officer_tasks';
+import {
     describe,
     expect,
     it,
@@ -33,6 +36,9 @@ import {
     ENCOUNTER_EVENT,
 } from '../../../src/engine/encounter/model/event';
 import {
+    OFFICER_TASK_KIND,
+} from '../../../src/engine/encounter/model/officer_task';
+import {
     SHIP_CREW_TASK_KIND,
 } from '../../../src/engine/encounter/model/ship_crew_task';
 import {
@@ -48,6 +54,12 @@ import {
 const LOAD_DURATION_MS = 3000;
 const COOLDOWN_DURATION_MS = 5000;
 const MISSILE_FLIGHT_DURATION_MS = 12000;
+
+const SCIENCE_IDENTIFY_THREAT_DURATION_MS =
+    getTimedOfficerTaskDurationMs(
+        OFFICER_TASK_KIND
+            .SCIENCE_IDENTIFY_THREAT,
+    );
 
 describe('Enemy defense-turret interception', () => {
     it('uses blind equipment chance and intercepts the player missile', () => {
@@ -409,6 +421,15 @@ describe('Enemy defense-turret interception', () => {
                             projectile.id
                     );
                 });
+
+        expect(
+            observation?.report,
+        ).toBeUndefined();
+
+        engine.step(
+            SCIENCE_IDENTIFY_THREAT_DURATION_MS *
+                2,
+        );
 
         expect(observation?.report)
             .toEqual({

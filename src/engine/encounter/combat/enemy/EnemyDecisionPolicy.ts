@@ -1,4 +1,4 @@
-// src/engine/encounter/combat/EnemyDecisionPolicy.ts
+// src/engine/encounter/combat/enemy/EnemyDecisionPolicy.ts
 
 import {
     ENEMY_BEHAVIOR_RULES,
@@ -122,7 +122,6 @@ export type EnemyWorkIntent =
           projectileId: string;
       };
 
-
 const ENEMY_MINE_CLEAR_ROLE_PRIORITY = [
     OFFICER_ROLE.ENGINEER,
     OFFICER_ROLE.SCIENCE,
@@ -130,23 +129,60 @@ const ENEMY_MINE_CLEAR_ROLE_PRIORITY = [
     OFFICER_ROLE.WEAPONS,
 ] as const;
 
-// Transitional stateless policy.
+const ENEMY_OFFENSIVE_ROLE_PRIORITY = [
+    OFFICER_ROLE.WEAPONS,
+    OFFICER_ROLE.SCIENCE,
+] as const;
+
+// One captain decision asks one global question:
+// "what single order should I issue now?"
 //
-// EnemyBehaviorRunner всё ещё спрашивает работу
-// отдельно для конкретной свободной роли.
-// Mutable per-role pacing/round-robin state уже удалён:
-// defense остаётся выше offense,
-// а weapon work берёт первое доступное оружие
-// этой роли в порядке loadout.
+// This slice intentionally keeps priority simple.
+// Defensive/utility work beats offense.
+// Aggression, threat-timing error and one-step
+// defensive opportunity-cost evaluation come later.
 //
-// Следующий behavior-срез заменит per-role loop
-// одним captain decision tick и максимум одним intent.
+// The policy is stateless and never mutates actor state.
+// EnemyWorkExecutor re-validates the selected intent
+// against authoritative state before starting work.
 export default class EnemyDecisionPolicy {
-    public selectMineClearing(
+    public selectWork(
         actor: ShipEncounterActorState,
         context:
             EnemyDecisionContext =
                 EMPTY_ENEMY_DECISION_CONTEXT,
+    ): EnemyWorkIntent | undefined {
+        return (
+            this.selectMineClearing(
+                actor,
+                context.threats,
+            ) ??
+            this.selectShieldDeployment(
+                actor,
+                context.threats,
+            ) ??
+            this.selectSpamPurging(
+                actor,
+                context
+                    .crewProgressEffects,
+            ) ??
+            this.selectDefenseTurretInterception(
+                actor,
+                context.threats,
+            ) ??
+            this.selectThreatIdentification(
+                actor,
+            ) ??
+            this.selectWeaponOperation(
+                actor,
+            )
+        );
+    }
+
+    private selectMineClearing(
+        actor: ShipEncounterActorState,
+        threats:
+            readonly EnemyThreatDecisionSnapshot[],
     ): Extract<
         EnemyWorkIntent,
         {
@@ -155,9 +191,6 @@ export default class EnemyDecisionPolicy {
                     .CLEAR_STICKY_MINE;
         }
     > | undefined {
-        const threats =
-            context.threats;
-
         const claimedMineIds =
             new Set<string>();
 
@@ -189,7 +222,10 @@ export default class EnemyDecisionPolicy {
             > |
             undefined;
 
-        for (const threat of threats) {
+        for (
+            const threat of
+            threats
+        ) {
             if (
                 threat.kind !==
                     ENEMY_THREAT_KIND
@@ -220,15 +256,11 @@ export default class EnemyDecisionPolicy {
         const role =
             ENEMY_MINE_CLEAR_ROLE_PRIORITY
                 .find((candidate) => {
-                    return (
-                        actor.crewRoles
-                            .includes(
-                                candidate,
-                            ) &&
-                        actor.crewTasks[
-                            candidate
-                        ] === undefined
-                    );
+                    return this
+                        .isRoleAvailable(
+                            actor,
+                            candidate,
+                        );
                 });
 
         if (!role) {
@@ -247,106 +279,8 @@ export default class EnemyDecisionPolicy {
         };
     }
 
-    public selectWork(
-        actor: ShipEncounterActorState,
-        role: OfficerRole,
-        context:
-            EnemyDecisionContext =
-                EMPTY_ENEMY_DECISION_CONTEXT,
-    ): EnemyWorkIntent | undefined {
-        const threats =
-            context.threats;
-
-        // Sticky-mine defense is scheduled before role work.
-        // Engineer then reacts to a live resolved player beamCannon.
-        const shieldDeployment =
-            this.selectShieldDeployment(
-                actor,
-                role,
-                threats,
-            );
-
-        if (shieldDeployment) {
-            return shieldDeployment;
-        }
-
-        // For idle Science, active hostile spam outranks
-        // identification and offensive projector operation.
-        const spamChannelId =
-            this.selectSpamChannelId(
-                actor,
-                role,
-                context
-                    .crewProgressEffects,
-            );
-
-        if (spamChannelId) {
-            return {
-                kind:
-                    SHIP_CREW_TASK_KIND
-                        .PURGE_SPAM,
-
-                role:
-                    OFFICER_ROLE.SCIENCE,
-
-                channelId:
-                    spamChannelId,
-            };
-        }
-
-        const observationId =
-            this.selectThreatObservationId(
-                actor,
-                role,
-            );
-
-        if (observationId) {
-            return {
-                kind:
-                    SHIP_CREW_TASK_KIND
-                        .IDENTIFY_THREAT,
-
-                role:
-                    OFFICER_ROLE.SCIENCE,
-
-                observationId,
-            };
-        }
-
-        const interception =
-            this.selectDefenseTurretInterception(
-                actor,
-                role,
-                threats,
-            );
-
-        if (interception) {
-            return interception;
-        }
-
-        const weapon =
-            this.selectWeapon(
-                actor,
-                role,
-            );
-
-        if (!weapon) {
-            return undefined;
-        }
-
-        return {
-            kind:
-                SHIP_CREW_TASK_KIND
-                    .OPERATE_WEAPON,
-
-            role,
-            weaponId: weapon.id,
-        };
-    }
-
     private selectShieldDeployment(
         actor: ShipEncounterActorState,
-        role: OfficerRole,
         threats:
             readonly EnemyThreatDecisionSnapshot[],
     ): Extract<
@@ -358,8 +292,10 @@ export default class EnemyDecisionPolicy {
         }
     > | undefined {
         if (
-            role !==
-                OFFICER_ROLE.ENGINEER
+            !this.isRoleAvailable(
+                actor,
+                OFFICER_ROLE.ENGINEER,
+            )
         ) {
             return undefined;
         }
@@ -411,7 +347,8 @@ export default class EnemyDecisionPolicy {
 
         const emitterDefinition =
             SHIELD_GENERATORS[
-                emitter.shieldGeneratorId
+                emitter
+                    .shieldGeneratorId
             ];
 
         const deploymentDurationMs =
@@ -428,7 +365,6 @@ export default class EnemyDecisionPolicy {
                 .shield_placement
                 .impactReserveMs;
 
-        // Too early: wait until one shield lifetime can cover impact.
         if (
             beamCannonThreat
                 .remainingChargeMs >
@@ -437,7 +373,6 @@ export default class EnemyDecisionPolicy {
             return undefined;
         }
 
-        // Too late: do not commit a charge to work that cannot finish.
         if (
             beamCannonThreat
                 .remainingChargeMs <=
@@ -460,61 +395,59 @@ export default class EnemyDecisionPolicy {
         };
     }
 
-    private selectSpamChannelId(
+    private selectSpamPurging(
         actor: ShipEncounterActorState,
-        role: OfficerRole,
         effects:
             readonly CrewProgressEffect[],
-    ): string | undefined {
+    ): Extract<
+        EnemyWorkIntent,
+        {
+            kind:
+                typeof SHIP_CREW_TASK_KIND
+                    .PURGE_SPAM;
+        }
+    > | undefined {
         if (
-            role !==
-                OFFICER_ROLE.SCIENCE
+            !this.isRoleAvailable(
+                actor,
+                OFFICER_ROLE.SCIENCE,
+            )
         ) {
             return undefined;
         }
 
-        return effects.find((effect) => {
-            return (
-                effect.source.kind ===
-                    COMBAT_SOURCE_KIND
-                        .PLAYER_SHIP &&
-                effect.target.kind ===
-                    COMBAT_TARGET_KIND
-                        .ACTOR &&
-                effect.target.actorId ===
-                    actor.id
-            );
-        })?.id;
-    }
-
-    private selectThreatObservationId(
-        actor: ShipEncounterActorState,
-        role: OfficerRole,
-    ): string | undefined {
-        if (
-            role !==
-            OFFICER_ROLE.SCIENCE
-        ) {
-            return undefined;
-        }
-
-        return actor
-            .threatObservations
-            .find((observation) => {
+        const channelId =
+            effects.find((effect) => {
                 return (
-                    observation.report ===
-                        undefined &&
-                    observation.kind ===
-                        ENEMY_THREAT_KIND
-                            .MISSILE
+                    effect.source.kind ===
+                        COMBAT_SOURCE_KIND
+                            .PLAYER_SHIP &&
+                    effect.target.kind ===
+                        COMBAT_TARGET_KIND
+                            .ACTOR &&
+                    effect.target.actorId ===
+                        actor.id
                 );
-            })
-            ?.id;
+            })?.id;
+
+        if (!channelId) {
+            return undefined;
+        }
+
+        return {
+            kind:
+                SHIP_CREW_TASK_KIND
+                    .PURGE_SPAM,
+
+            role:
+                OFFICER_ROLE.SCIENCE,
+
+            channelId,
+        };
     }
 
     private selectDefenseTurretInterception(
         actor: ShipEncounterActorState,
-        role: OfficerRole,
         threats:
             readonly EnemyThreatDecisionSnapshot[],
     ): Extract<
@@ -526,8 +459,10 @@ export default class EnemyDecisionPolicy {
         }
     > | undefined {
         if (
-            role !==
-            OFFICER_ROLE.WEAPONS
+            !this.isRoleAvailable(
+                actor,
+                OFFICER_ROLE.WEAPONS,
+            )
         ) {
             return undefined;
         }
@@ -541,7 +476,8 @@ export default class EnemyDecisionPolicy {
         if (
             !defenseTurret ||
             defenseTurret.phase !==
-                DEFENSE_TURRET_PHASE.READY ||
+                DEFENSE_TURRET_PHASE
+                    .READY ||
             !powerCore ||
             powerCore.charges <= 0
         ) {
@@ -589,20 +525,131 @@ export default class EnemyDecisionPolicy {
         };
     }
 
+    private selectThreatIdentification(
+        actor: ShipEncounterActorState,
+    ): Extract<
+        EnemyWorkIntent,
+        {
+            kind:
+                typeof SHIP_CREW_TASK_KIND
+                    .IDENTIFY_THREAT;
+        }
+    > | undefined {
+        if (
+            !this.isRoleAvailable(
+                actor,
+                OFFICER_ROLE.SCIENCE,
+            )
+        ) {
+            return undefined;
+        }
+
+        const observationId =
+            actor
+                .threatObservations
+                .find((observation) => {
+                    return (
+                        observation.report ===
+                            undefined &&
+                        observation.kind ===
+                            ENEMY_THREAT_KIND
+                                .MISSILE
+                    );
+                })
+                ?.id;
+
+        if (!observationId) {
+            return undefined;
+        }
+
+        return {
+            kind:
+                SHIP_CREW_TASK_KIND
+                    .IDENTIFY_THREAT,
+
+            role:
+                OFFICER_ROLE.SCIENCE,
+
+            observationId,
+        };
+    }
+
+    private selectWeaponOperation(
+        actor: ShipEncounterActorState,
+    ): Extract<
+        EnemyWorkIntent,
+        {
+            kind:
+                typeof SHIP_CREW_TASK_KIND
+                    .OPERATE_WEAPON;
+        }
+    > | undefined {
+        for (
+            const role of
+            ENEMY_OFFENSIVE_ROLE_PRIORITY
+        ) {
+            if (
+                !this.isRoleAvailable(
+                    actor,
+                    role,
+                )
+            ) {
+                continue;
+            }
+
+            const weapon =
+                this.selectWeapon(
+                    actor,
+                    role,
+                );
+
+            if (!weapon) {
+                continue;
+            }
+
+            return {
+                kind:
+                    SHIP_CREW_TASK_KIND
+                        .OPERATE_WEAPON,
+
+                role,
+                weaponId:
+                    weapon.id,
+            };
+        }
+
+        return undefined;
+    }
 
     private selectWeapon(
         actor: ShipEncounterActorState,
         role: OfficerRole,
     ): ShipWeaponState | undefined {
-        return actor.weapons.find((weapon) => {
-            return (
-                this.getWeaponRole(weapon) ===
-                    role &&
-                this.canOperateWeapon(
-                    weapon,
-                )
-            );
-        });
+        return actor.weapons.find(
+            (weapon) => {
+                return (
+                    this.getWeaponRole(
+                        weapon,
+                    ) === role &&
+                    this.canOperateWeapon(
+                        weapon,
+                    )
+                );
+            },
+        );
+    }
+
+    private isRoleAvailable(
+        actor: ShipEncounterActorState,
+        role: OfficerRole,
+    ): boolean {
+        return (
+            actor.crewRoles.includes(
+                role,
+            ) &&
+            actor.crewTasks[role] ===
+                undefined
+        );
     }
 
     private getWeaponRole(
@@ -610,7 +657,8 @@ export default class EnemyDecisionPolicy {
     ): OfficerRole {
         if (
             weapon.kind ===
-            SHIP_WEAPON_KIND.SPAM_PROJECTOR
+            SHIP_WEAPON_KIND
+                .SPAM_PROJECTOR
         ) {
             return OFFICER_ROLE.SCIENCE;
         }
@@ -629,19 +677,31 @@ export default class EnemyDecisionPolicy {
         }
 
         switch (weapon.kind) {
-            case SHIP_WEAPON_KIND.MISSILE_LAUNCHER:
-                return weapon.ammoCount > 0;
-
-            case SHIP_WEAPON_KIND.BEAM_CANNON:
-                return true;
-
-            case SHIP_WEAPON_KIND.SPAM_PROJECTOR:
+            case SHIP_WEAPON_KIND
+                .MISSILE_LAUNCHER:
                 return (
-                    weapon.activeChannelId === null
+                    weapon.ammoCount >
+                    0
                 );
 
-            case SHIP_WEAPON_KIND.STICKY_MINE_DISPENSER:
-                return weapon.ammoCount > 0;
+            case SHIP_WEAPON_KIND
+                .BEAM_CANNON:
+                return true;
+
+            case SHIP_WEAPON_KIND
+                .SPAM_PROJECTOR:
+                return (
+                    weapon
+                        .activeChannelId ===
+                    null
+                );
+
+            case SHIP_WEAPON_KIND
+                .STICKY_MINE_DISPENSER:
+                return (
+                    weapon.ammoCount >
+                    0
+                );
         }
     }
 }

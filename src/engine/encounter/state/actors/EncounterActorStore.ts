@@ -226,6 +226,10 @@ export default class EncounterActorStore {
             crewTraitsByRole:
                 copiedCrewTraitsByRole,
 
+            decision: {
+                decisionTickRemainingMs: 0,
+            },
+
             crewTasks: {},
 
             threatObservations: [],

@@ -276,7 +276,6 @@ describe(
                 const intent =
                     new EnemyDecisionPolicy().selectWork(
                         setup.targetActor,
-                        OFFICER_ROLE.SCIENCE,
                         {
                             threats: [],
 

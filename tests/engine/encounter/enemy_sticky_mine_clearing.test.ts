@@ -40,14 +40,17 @@ describe(
     'Enemy sticky-mine clearing',
     () => {
         it(
-            'assigns earliest mines by role priority without double-booking',
+            'assigns at most one new mine-clearing order per captain tick',
             () => {
                 const {
                     engine,
                     state,
                     targetActor,
                 } =
-                    createAnchoredPlayerCombatTestSetup();
+                    createAnchoredPlayerCombatTestSetup({
+                        random:
+                            () => 0.5,
+                    });
 
                 targetActor.crewRoles = [
                     OFFICER_ROLE.WEAPONS,
@@ -114,6 +117,17 @@ describe(
                     targetActor.crewTasks[
                         OFFICER_ROLE.SCIENCE
                     ],
+                ).toBeUndefined();
+
+                engine.step(
+                    targetActor.behavior
+                        .decisionTickDurationMs,
+                );
+
+                expect(
+                    targetActor.crewTasks[
+                        OFFICER_ROLE.SCIENCE
+                    ],
                 ).toEqual({
                     kind:
                         SHIP_CREW_TASK_KIND
@@ -172,10 +186,14 @@ describe(
                         'CLEAN mine_fast',
 
                     targetRemainingMs:
-                        7000,
+                        7000 -
+                        targetActor.behavior
+                            .decisionTickDurationMs,
 
                     progress: {
-                        elapsedMs: 0,
+                        elapsedMs:
+                            targetActor.behavior
+                                .decisionTickDurationMs,
 
                         durationMs:
                             CLEAR_DURATION_MS,

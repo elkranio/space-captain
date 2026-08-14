@@ -398,6 +398,9 @@ describe('CombatRunner', () => {
         expect(beamCannon.phase).toBe(SHIP_WEAPON_PHASE.READY);
         expect(beamCannon.phaseElapsedMs).toBe(0);
 
+        enemy.decision
+            .decisionTickRemainingMs = 0;
+
         engine.step(1);
 
         expect(engine.drainEvents()).toEqual([

@@ -38,6 +38,9 @@ describe('BeamCannon hit officer task interruption', () => {
             0.75,
         ]);
 
+        state.actors[0].behavior
+            .decisionTickWiggleMs = 0;
+
         startBeamCannonCharging(engine);
 
         engine.step(beamCannonChargeDurationMs - 1);

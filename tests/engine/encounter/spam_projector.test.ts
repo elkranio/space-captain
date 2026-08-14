@@ -217,6 +217,9 @@ describe('Spam projector', () => {
 
         // Second cycle reaches CHANNELING directly
         // after targeting and is stopped early by purge.
+        enemy.decision
+            .decisionTickRemainingMs = 0;
+
         engine.step(1);
         engine.drainEvents();
 

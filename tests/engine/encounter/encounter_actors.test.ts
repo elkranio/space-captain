@@ -142,6 +142,10 @@ describe('encounter actors', () => {
                 [OFFICER_ROLE.WEAPONS]: [],
             },
 
+            decision: {
+                decisionTickRemainingMs: 0,
+            },
+
             crewTasks: {},
 
             threatObservations: [],
