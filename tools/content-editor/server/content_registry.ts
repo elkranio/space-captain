@@ -1,5 +1,8 @@
 import * as z from 'zod';
 import {
+    DEBUG_START_SCHEMA,
+} from '../../../src/engine/content/schemas/debug_start';
+import {
     POWER_CORE_TUNING_SCHEMA,
 } from '../../../src/engine/content/schemas/power_cores';
 import {
@@ -38,6 +41,9 @@ import {
 } from '../../../src/engine/content/schemas/ship_weapons';
 
 export const CONTENT_COLLECTION_ID = {
+    DEBUG_START:
+        'debug_start',
+
     OFFICER_TASKS_SCIENCE:
         'officer_tasks_science',
 
@@ -96,6 +102,9 @@ export type ContentCollectionId =
     ];
 
 export const CONTENT_COLLECTION_GROUP = {
+    DEBUG_START:
+        'Debug Start',
+
     GENERAL:
         'General',
 
@@ -132,6 +141,30 @@ const CONTENT_COLLECTIONS:
         ContentCollectionId,
         ContentCollectionDefinition
     > = {
+        [CONTENT_COLLECTION_ID
+            .DEBUG_START]: {
+            id:
+                CONTENT_COLLECTION_ID
+                    .DEBUG_START,
+
+            label:
+                'Ships',
+
+            group:
+                CONTENT_COLLECTION_GROUP
+                    .DEBUG_START,
+
+            dataPath:
+                'src/engine/content/data/' +
+                'debug_start.json',
+
+            schema:
+                DEBUG_START_SCHEMA,
+
+            canAdd: false,
+            canDelete: false,
+        },
+
         [CONTENT_COLLECTION_ID
             .OFFICER_TASKS_SCIENCE]: {
             id:

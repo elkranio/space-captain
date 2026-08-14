@@ -49,7 +49,7 @@ describe(
         );
 
         it(
-            'reports enemy and player preset usages for the built-in Power Core',
+            'reports persistent ship preset usages for the built-in Power Core',
             async () => {
                 const info =
                     await getContentRecordDeleteInfo(
@@ -71,13 +71,6 @@ describe(
                                 'generic_defense_sandbox_00',
                         }),
 
-                        expect.objectContaining({
-                            collection:
-                                'Player Ship Presets',
-
-                            recordId:
-                                'starter_00',
-                        }),
                     ]),
                 );
             },
@@ -88,7 +81,7 @@ describe(
             async () => {
                 await expect(
                     validateContentCollectionReferences(
-                        'unused-for-power-core-validation',
+                        process.cwd(),
                         CONTENT_COLLECTION_ID
                             .POWER_CORES,
                         {
@@ -122,7 +115,7 @@ describe(
             async () => {
                 await expect(
                     validateContentCollectionReferences(
-                        'unused-for-power-core-validation',
+                        process.cwd(),
                         CONTENT_COLLECTION_ID
                             .POWER_CORES,
                         {

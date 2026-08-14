@@ -15,7 +15,7 @@ describe(
     'Content editor ship drive CRUD',
     () => {
         it(
-            'reports enemy and player preset usages for the built-in drive',
+            'reports persistent ship preset usages for the built-in drive',
             async () => {
                 const info =
                     await getContentRecordDeleteInfo(
@@ -37,13 +37,6 @@ describe(
                                 'generic_beam_cannon_00',
                         }),
 
-                        expect.objectContaining({
-                            collection:
-                                'Player Ship Presets',
-
-                            recordId:
-                                'starter_00',
-                        }),
                     ]),
                 );
 
@@ -58,7 +51,7 @@ describe(
             async () => {
                 await expect(
                     validateContentCollectionReferences(
-                        'unused-for-drive-validation',
+                        process.cwd(),
                         CONTENT_COLLECTION_ID
                             .SHIP_DRIVES,
                         {
@@ -82,7 +75,7 @@ describe(
             async () => {
                 await expect(
                     validateContentCollectionReferences(
-                        'unused-for-drive-validation',
+                        process.cwd(),
                         CONTENT_COLLECTION_ID
                             .SHIP_DRIVES,
                         {

@@ -4,12 +4,15 @@ const CONTENT_ID_PATTERN =
     /^[a-z][a-z0-9_]*$/;
 
 type JsonSchema = {
-    type?: string;
+    type?:
+        string |
+        string[];
     title?: string;
     description?: string;
     minimum?: number;
     unit?: string;
     enum?: Array<string | number>;
+    anyOf?: JsonSchema[];
     properties?: Record<string, JsonSchema>;
 
     additionalProperties?:
@@ -1066,6 +1069,11 @@ function createField(
     } else {
         input.type = 'text';
 
+        const nullableString =
+            isNullableStringSchema(
+                schema,
+            );
+
         input.value =
             typeof value === 'string'
                 ? value
@@ -1077,7 +1085,12 @@ function createField(
                 updateField(
                     recordId,
                     fieldName,
-                    input.value,
+                    (
+                        nullableString &&
+                        input.value === ''
+                    )
+                        ? null
+                        : input.value,
                 );
             },
         );
@@ -1548,6 +1561,47 @@ function getDynamicRecordSchema():
             'object'
             ? additional
             : undefined
+    );
+}
+
+function isNullableStringSchema(
+    schema: JsonSchema,
+): boolean {
+    if (
+        Array.isArray(
+            schema.type,
+        )
+    ) {
+        return (
+            schema.type.includes(
+                'string',
+            ) &&
+            schema.type.includes(
+                'null',
+            )
+        );
+    }
+
+    const variants =
+        schema.anyOf ?? [];
+
+    return (
+        variants.some(
+            (variant) => {
+                return (
+                    variant.type ===
+                    'string'
+                );
+            },
+        ) &&
+        variants.some(
+            (variant) => {
+                return (
+                    variant.type ===
+                    'null'
+                );
+            },
+        )
     );
 }
 

@@ -57,7 +57,7 @@ describe(
         );
 
         it(
-            'reports enemy and player preset usages for the built-in Defense Turret',
+            'reports persistent ship preset usages for the built-in Defense Turret',
             async () => {
                 const info =
                     await getContentRecordDeleteInfo(
@@ -79,13 +79,6 @@ describe(
                                 'generic_defense_sandbox_00',
                         }),
 
-                        expect.objectContaining({
-                            collection:
-                                'Player Ship Presets',
-
-                            recordId:
-                                'starter_00',
-                        }),
                     ]),
                 );
             },
@@ -96,7 +89,7 @@ describe(
             async () => {
                 await expect(
                     validateContentCollectionReferences(
-                        'unused-for-defense-turret-validation',
+                        process.cwd(),
                         CONTENT_COLLECTION_ID
                             .DEFENSE_TURRETS,
                         {
@@ -138,7 +131,7 @@ describe(
             async () => {
                 await expect(
                     validateContentCollectionReferences(
-                        'unused-for-defense-turret-validation',
+                        process.cwd(),
                         CONTENT_COLLECTION_ID
                             .DEFENSE_TURRETS,
                         {

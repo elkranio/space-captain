@@ -6,6 +6,7 @@ import {
 } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
+import debugStartData from '../../src/engine/content/data/debug_start.json';
 import {
     afterEach,
     describe,
@@ -241,6 +242,35 @@ async function createTempRepo(
         (
             JSON.stringify(
                 manifest,
+                null,
+                4,
+            ) +
+            '\n'
+        ),
+        'utf8',
+    );
+
+    const contentDataDirectory =
+        path.join(
+            root,
+            'src/engine/content/data',
+        );
+
+    await mkdir(
+        contentDataDirectory,
+        {
+            recursive: true,
+        },
+    );
+
+    await writeFile(
+        path.join(
+            contentDataDirectory,
+            'debug_start.json',
+        ),
+        (
+            JSON.stringify(
+                debugStartData,
                 null,
                 4,
             ) +

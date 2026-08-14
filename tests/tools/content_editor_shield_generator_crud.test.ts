@@ -51,7 +51,7 @@ describe(
         );
 
         it(
-            'reports enemy and player preset usages for the built-in Shield Generator',
+            'reports persistent ship preset usages for the built-in Shield Generator',
             async () => {
                 const info =
                     await getContentRecordDeleteInfo(
@@ -73,13 +73,6 @@ describe(
                                 'generic_defense_sandbox_00',
                         }),
 
-                        expect.objectContaining({
-                            collection:
-                                'Player Ship Presets',
-
-                            recordId:
-                                'starter_00',
-                        }),
                     ]),
                 );
             },
@@ -90,7 +83,7 @@ describe(
             async () => {
                 await expect(
                     validateContentCollectionReferences(
-                        'unused-for-shield-generator-validation',
+                        process.cwd(),
                         CONTENT_COLLECTION_ID
                             .SHIELD_GENERATORS,
                         {
@@ -126,7 +119,7 @@ describe(
             async () => {
                 await expect(
                     validateContentCollectionReferences(
-                        'unused-for-shield-generator-validation',
+                        process.cwd(),
                         CONTENT_COLLECTION_ID
                             .SHIELD_GENERATORS,
                         {

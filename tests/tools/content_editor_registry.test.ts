@@ -3,6 +3,7 @@ import {
     expect,
     it,
 } from 'vitest';
+import debugStartData from '../../src/engine/content/data/debug_start.json';
 import powerCoreData from '../../src/engine/content/data/power_cores.json';
 import enemyBehaviorRulesData from '../../src/engine/content/data/enemy_behavior_rules.json';
 import scienceOfficerTaskData from '../../src/engine/content/data/officer_tasks_science.json';
@@ -54,6 +55,17 @@ describe(
                         },
                     ),
                 ).toEqual([
+                    {
+                        id:
+                            CONTENT_COLLECTION_ID
+                                .DEBUG_START,
+
+                        label:
+                            'Ships',
+
+                        canAdd: false,
+                        canDelete: false,
+                    },
                     {
                         id:
                             CONTENT_COLLECTION_ID
@@ -249,6 +261,23 @@ describe(
                             return (
                                 summary.group ===
                                 CONTENT_COLLECTION_GROUP
+                                    .DEBUG_START
+                            );
+                        })
+                        .map((summary) => {
+                            return summary.id;
+                        }),
+                ).toEqual([
+                    CONTENT_COLLECTION_ID
+                        .DEBUG_START,
+                ]);
+
+                expect(
+                    summaries
+                        .filter((summary) => {
+                            return (
+                                summary.group ===
+                                CONTENT_COLLECTION_GROUP
                                     .OFFICER_TASKS
                             );
                         })
@@ -364,6 +393,11 @@ describe(
                         unknown,
                     ]
                 > = [
+                    [
+                        CONTENT_COLLECTION_ID
+                            .DEBUG_START,
+                        debugStartData,
+                    ],
                     [
                         CONTENT_COLLECTION_ID
                             .OFFICER_TASKS_SCIENCE,
@@ -522,6 +556,90 @@ describe(
         it(
             'generates editor fields from the same schemas',
             () => {
+                const debugStartSchema =
+                    getContentCollectionJsonSchema(
+                        CONTENT_COLLECTION_ID
+                            .DEBUG_START,
+                    ) as {
+                        properties?: Record<
+                            string,
+                            {
+                                title?: string;
+                                properties?: Record<
+                                    string,
+                                    {
+                                        type?:
+                                            string |
+                                            string[];
+
+                                        anyOf?: Array<{
+                                            type?: string;
+                                        }>;
+                                    }
+                                >;
+                            }
+                        >;
+                    };
+
+                expect(
+                    Object.keys(
+                        debugStartSchema
+                            .properties ?? {},
+                    ),
+                ).toEqual([
+                    'player',
+                    'enemy',
+                ]);
+
+                expect(
+                    debugStartSchema
+                        .properties
+                        ?.player
+                        ?.title,
+                ).toBe(
+                    'Player Ship',
+                );
+
+                expect(
+                    debugStartSchema
+                        .properties
+                        ?.enemy
+                        ?.title,
+                ).toBe(
+                    'Enemy Ship',
+                );
+
+                const optionalWeaponSchema =
+                    debugStartSchema
+                        .properties
+                        ?.enemy
+                        ?.properties
+                        ?.weaponSlot2Id;
+
+                const optionalWeaponTypes =
+                    Array.isArray(
+                        optionalWeaponSchema
+                            ?.type,
+                    )
+                        ? optionalWeaponSchema
+                            .type
+                        : optionalWeaponSchema
+                            ?.anyOf
+                            ?.map(
+                                (variant) => {
+                                    return variant.type;
+                                },
+                            );
+
+                expect(
+                    optionalWeaponTypes,
+                ).toEqual(
+                    expect.arrayContaining([
+                        'string',
+                        'null',
+                    ]),
+                );
+
                 const scienceOfficerSchema =
                     getContentCollectionJsonSchema(
                         CONTENT_COLLECTION_ID
