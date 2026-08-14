@@ -18,7 +18,9 @@ import {
     SPACE_NODE_ACTOR_KIND,
     type ShipSpaceNodeActorState,
 } from '../../defs/universe';
-import ShipFactory from '../ship/ShipFactory';
+import ShipFactory, {
+    type CreatedShipState,
+} from '../ship/ShipFactory';
 
 export type CreateShipNodeActorInput = {
     // Runtime id конкретного корабля внутри ноды.
@@ -27,6 +29,10 @@ export type CreateShipNodeActorInput = {
     presetId: ShipNodeActorPresetId;
 
     anchorId: string;
+
+    // Dev/scenario callers may provide already assembled physical hardware.
+    // Team, crew and behavior still come from the actor preset.
+    ship?: CreatedShipState;
 };
 
 // Собирает свежий persistent state корабля,
@@ -36,13 +42,17 @@ export default class ShipNodeActorFactory {
         id,
         presetId,
         anchorId,
+        ship: providedShip,
     }: CreateShipNodeActorInput): ShipSpaceNodeActorState {
         const actorPreset =
             SHIP_NODE_ACTOR_PRESETS[presetId];
 
-        const ship = ShipFactory.create({
-            presetId: actorPreset.shipPresetId,
-        });
+        const ship =
+            providedShip ??
+            ShipFactory.create({
+                presetId:
+                    actorPreset.shipPresetId,
+            });
 
         const crew: ShipCrewPreset =
             SHIP_CREW_PRESETS[
@@ -96,8 +106,7 @@ export default class ShipNodeActorFactory {
                 ship.powerCore
                     ? {
                           powerCore:
-                              ship
-                                  .powerCore,
+                              ship.powerCore,
                       }
                     : {}
             ),
@@ -128,7 +137,6 @@ export default class ShipNodeActorFactory {
 
                 aggression:
                     behavior.aggression,
-
             },
 
             crewRoles: [

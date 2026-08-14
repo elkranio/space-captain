@@ -13,6 +13,9 @@ import { SPACE_ANCHOR_KIND, type SpaceNodeState, type UniverseState } from '../.
 import { SHIP_NODE_ACTOR_PRESET_ID } from '../presets/ship_node_actors';
 import ShipNodeActorFactory from '../../generation/space_node_actor/ShipNodeActorFactory';
 import StationGenerator from '../../generation/station/StationGenerator';
+import {
+    createDebugStartEnemyShip,
+} from './debug_start_ship_factory';
 
 export type NewGamePlayerLocations = {
     arrivingAtStart: PlayerSpaceLocationState;
@@ -73,6 +76,9 @@ export default class NewGameUniverseFactory {
 
                 anchorId:
                     navigationBeacon.id,
+
+                ship:
+                    createDebugStartEnemyShip(),
             });
 
         const startNode: SpaceNodeState = {
@@ -126,8 +132,8 @@ export default class NewGameUniverseFactory {
             ],
 
             actors: [
-            enemyShip,
-        ],
+                enemyShip,
+            ],
         };
 
         const stationNode: SpaceNodeState = {

@@ -6,32 +6,24 @@ import {
     type OfficerDefinition,
     type OfficerRole,
 } from '../../defs/officer';
-import {
-    PLAYER_SHIP_PRESET_ID,
-    type PlayerShipPresetId,
-} from '../presets/player_ships';
 import type { NewGamePlayerLocations } from './NewGameUniverseFactory';
 
 type NewGameConfig = {
     player: {
         locationId: keyof NewGamePlayerLocations;
-        shipPresetId: PlayerShipPresetId;
     };
 
     officers: Record<OfficerRole, OfficerDefinition>;
 };
 
-// Единственная точка выбора стартовых условий run.
+// Единственная точка выбора стартовой позиции и экипажа run.
 //
+// Стартовое железо player/enemy живёт отдельно в debug_start.json.
 // Геометрия nodes, anchors и actors остаётся внутри
-// NewGameUniverseFactory: это связный universe scenario,
-// а не набор независимых runtime-настроек.
+// NewGameUniverseFactory: это связный universe scenario.
 export const NEW_GAME_CONFIG = {
     player: {
         locationId: 'arrivingAtStart',
-
-        shipPresetId:
-            PLAYER_SHIP_PRESET_ID.STARTER_00,
     },
 
     officers: {

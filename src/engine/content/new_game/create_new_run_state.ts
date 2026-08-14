@@ -19,10 +19,10 @@ export function createNewRunState(): RunState {
     return {
         universe: world.universe,
 
-        player: createNewGamePlayer(
-            playerLocation,
-            NEW_GAME_CONFIG.player.shipPresetId,
-        ),
+        player:
+            createNewGamePlayer(
+                playerLocation,
+            ),
 
         officers: createNewGameOfficers(),
     };
