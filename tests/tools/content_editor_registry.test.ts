@@ -12,7 +12,10 @@ import shipBehaviorData from '../../src/engine/content/data/ship_behaviors.json'
 import shipChassisData from '../../src/engine/content/data/ship_chassis.json';
 import shipDriveData from '../../src/engine/content/data/ship_drives.json';
 import shipWeaponRulesData from '../../src/engine/content/data/ship_weapon_rules.json';
-import shipWeaponData from '../../src/engine/content/data/ship_weapons.json';
+import missileLauncherData from '../../src/engine/content/data/missile_launchers.json';
+import laserEmitterData from '../../src/engine/content/data/laser_emitters.json';
+import spamProjectorData from '../../src/engine/content/data/spam_projectors.json';
+import stickyMineDispenserData from '../../src/engine/content/data/sticky_mine_dispensers.json';
 import {
     CONTENT_COLLECTION_GROUP,
     CONTENT_COLLECTION_ID,
@@ -72,13 +75,46 @@ describe(
                     {
                         id:
                             CONTENT_COLLECTION_ID
-                                .SHIP_WEAPONS,
+                                .MISSILE_LAUNCHERS,
 
                         label:
-                            'Ship Weapons',
+                            'Missile Launchers',
 
-                        canAdd: false,
-                        canDelete: false,
+                        canAdd: true,
+                        canDelete: true,
+                    },
+                    {
+                        id:
+                            CONTENT_COLLECTION_ID
+                                .LASER_EMITTERS,
+
+                        label:
+                            'Laser Emitters',
+
+                        canAdd: true,
+                        canDelete: true,
+                    },
+                    {
+                        id:
+                            CONTENT_COLLECTION_ID
+                                .SPAM_PROJECTORS,
+
+                        label:
+                            'Spam Projectors',
+
+                        canAdd: true,
+                        canDelete: true,
+                    },
+                    {
+                        id:
+                            CONTENT_COLLECTION_ID
+                                .STICKY_MINE_DISPENSERS,
+
+                        label:
+                            'Sticky Mine Dispensers',
+
+                        canAdd: true,
+                        canDelete: true,
                     },
                     {
                         id:
@@ -186,6 +222,32 @@ describe(
                 ]);
 
                 expect(
+                    summaries
+                        .filter((summary) => {
+                            return (
+                                summary.group ===
+                                CONTENT_COLLECTION_GROUP
+                                    .SHIP_WEAPONS
+                            );
+                        })
+                        .map((summary) => {
+                            return summary.id;
+                        }),
+                ).toEqual([
+                    CONTENT_COLLECTION_ID
+                        .MISSILE_LAUNCHERS,
+
+                    CONTENT_COLLECTION_ID
+                        .LASER_EMITTERS,
+
+                    CONTENT_COLLECTION_ID
+                        .SPAM_PROJECTORS,
+
+                    CONTENT_COLLECTION_ID
+                        .STICKY_MINE_DISPENSERS,
+                ]);
+
+                expect(
                     getContentCollectionDefinition(
                         'not_a_collection',
                     ),
@@ -214,8 +276,23 @@ describe(
                     ],
                     [
                         CONTENT_COLLECTION_ID
-                            .SHIP_WEAPONS,
-                        shipWeaponData,
+                            .MISSILE_LAUNCHERS,
+                        missileLauncherData,
+                    ],
+                    [
+                        CONTENT_COLLECTION_ID
+                            .LASER_EMITTERS,
+                        laserEmitterData,
+                    ],
+                    [
+                        CONTENT_COLLECTION_ID
+                            .SPAM_PROJECTORS,
+                        spamProjectorData,
+                    ],
+                    [
+                        CONTENT_COLLECTION_ID
+                            .STICKY_MINE_DISPENSERS,
+                        stickyMineDispenserData,
                     ],
                     [
                         CONTENT_COLLECTION_ID

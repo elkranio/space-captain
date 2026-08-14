@@ -1,0 +1,9 @@
+{
+    "missile_launcher_00": {
+        "name": "MISSILE LAUNCHER",
+        "damage": 1,
+        "flightDurationMs": 12000,
+        "ammoCapacity": 5,
+        "cooldownDurationMs": 15000
+    }
+}

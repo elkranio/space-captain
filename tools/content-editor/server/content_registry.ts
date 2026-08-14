@@ -27,7 +27,10 @@ import {
     SHIP_WEAPON_RULES_SCHEMA,
 } from '../../../src/engine/content/schemas/ship_weapon_rules';
 import {
-    SHIP_WEAPON_TUNING_SCHEMA,
+    LASER_EMITTER_TUNING_SCHEMA,
+    MISSILE_LAUNCHER_TUNING_SCHEMA,
+    SPAM_PROJECTOR_TUNING_SCHEMA,
+    STICKY_MINE_DISPENSER_TUNING_SCHEMA,
 } from '../../../src/engine/content/schemas/ship_weapons';
 
 export const CONTENT_COLLECTION_ID = {
@@ -37,8 +40,17 @@ export const CONTENT_COLLECTION_ID = {
     SHIP_WEAPON_RULES:
         'ship_weapon_rules',
 
-    SHIP_WEAPONS:
-        'ship_weapons',
+    MISSILE_LAUNCHERS:
+        'missile_launchers',
+
+    LASER_EMITTERS:
+        'laser_emitters',
+
+    SPAM_PROJECTORS:
+        'spam_projectors',
+
+    STICKY_MINE_DISPENSERS:
+        'sticky_mine_dispensers',
 
     POWER_CORES:
         'power_cores',
@@ -73,6 +85,9 @@ export const CONTENT_COLLECTION_GROUP = {
 
     SHIP_MODULES:
         'Ship Modules',
+
+    SHIP_WEAPONS:
+        'Ship Weapons',
 } as const;
 
 export type ContentCollectionGroup =
@@ -143,27 +158,99 @@ const CONTENT_COLLECTIONS:
         },
 
         [CONTENT_COLLECTION_ID
-            .SHIP_WEAPONS]: {
+            .MISSILE_LAUNCHERS]: {
             id:
                 CONTENT_COLLECTION_ID
-                    .SHIP_WEAPONS,
+                    .MISSILE_LAUNCHERS,
 
             label:
-                'Ship Weapons',
+                'Missile Launchers',
 
             group:
                 CONTENT_COLLECTION_GROUP
-                    .GENERAL,
+                    .SHIP_WEAPONS,
 
             dataPath:
                 'src/engine/content/data/' +
-                'ship_weapons.json',
+                'missile_launchers.json',
 
             schema:
-                SHIP_WEAPON_TUNING_SCHEMA,
+                MISSILE_LAUNCHER_TUNING_SCHEMA,
 
-            canAdd: false,
-            canDelete: false,
+            canAdd: true,
+            canDelete: true,
+        },
+
+        [CONTENT_COLLECTION_ID
+            .LASER_EMITTERS]: {
+            id:
+                CONTENT_COLLECTION_ID
+                    .LASER_EMITTERS,
+
+            label:
+                'Laser Emitters',
+
+            group:
+                CONTENT_COLLECTION_GROUP
+                    .SHIP_WEAPONS,
+
+            dataPath:
+                'src/engine/content/data/' +
+                'laser_emitters.json',
+
+            schema:
+                LASER_EMITTER_TUNING_SCHEMA,
+
+            canAdd: true,
+            canDelete: true,
+        },
+
+        [CONTENT_COLLECTION_ID
+            .SPAM_PROJECTORS]: {
+            id:
+                CONTENT_COLLECTION_ID
+                    .SPAM_PROJECTORS,
+
+            label:
+                'Spam Projectors',
+
+            group:
+                CONTENT_COLLECTION_GROUP
+                    .SHIP_WEAPONS,
+
+            dataPath:
+                'src/engine/content/data/' +
+                'spam_projectors.json',
+
+            schema:
+                SPAM_PROJECTOR_TUNING_SCHEMA,
+
+            canAdd: true,
+            canDelete: true,
+        },
+
+        [CONTENT_COLLECTION_ID
+            .STICKY_MINE_DISPENSERS]: {
+            id:
+                CONTENT_COLLECTION_ID
+                    .STICKY_MINE_DISPENSERS,
+
+            label:
+                'Sticky Mine Dispensers',
+
+            group:
+                CONTENT_COLLECTION_GROUP
+                    .SHIP_WEAPONS,
+
+            dataPath:
+                'src/engine/content/data/' +
+                'sticky_mine_dispensers.json',
+
+            schema:
+                STICKY_MINE_DISPENSER_TUNING_SCHEMA,
+
+            canAdd: true,
+            canDelete: true,
         },
 
         [CONTENT_COLLECTION_ID

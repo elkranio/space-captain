@@ -17,7 +17,10 @@ export const SHIP_WEAPON_ID = {
     STICKY_MINE_DISPENSER_00: 'sticky_mine_dispenser_00',
 } as const;
 
-export type ShipWeaponId = (typeof SHIP_WEAPON_ID)[keyof typeof SHIP_WEAPON_ID];
+// Builtin ids remain convenient stable constants.
+ // The catalog is open for new weapon ids created by the content editor.
+export type ShipWeaponId =
+    string;
 
 export const SHIP_WEAPON_PHASE = {
     READY: 'ready',

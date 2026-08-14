@@ -11,7 +11,10 @@ import {
     SHIP_WEAPON_RULES_SCHEMA,
 } from '../../../src/engine/content/schemas/ship_weapon_rules';
 import {
-    SHIP_WEAPON_TUNING_SCHEMA,
+    LASER_EMITTER_TUNING_SCHEMA,
+    MISSILE_LAUNCHER_TUNING_SCHEMA,
+    SPAM_PROJECTOR_TUNING_SCHEMA,
+    STICKY_MINE_DISPENSER_TUNING_SCHEMA,
 } from '../../../src/engine/content/schemas/ship_weapons';
 import {
     SHIP_WEAPON_ID,
@@ -22,7 +25,7 @@ describe(
     'Weapon content tuning',
     () => {
         it(
-            'preserves current runtime weapon definitions',
+            'preserves current runtime weapon definitions across split catalogs',
             () => {
                 expect(
                     SHIP_WEAPON_TARGETING_DURATION_MS,
@@ -46,12 +49,9 @@ describe(
                         'MISSILE LAUNCHER',
 
                     damage: 1,
-
                     flightDurationMs:
                         12000,
-
                     ammoCapacity: 5,
-
                     cooldownDurationMs:
                         15000,
                 });
@@ -62,15 +62,20 @@ describe(
                             .LASER_00
                     ],
                 ).toMatchObject({
+                    id:
+                        SHIP_WEAPON_ID
+                            .LASER_00,
+
                     kind:
                         SHIP_WEAPON_KIND
                             .LASER,
 
-                    damage: 1,
+                    name:
+                        'LASER EMITTER',
 
+                    damage: 1,
                     chargeDurationMs:
                         12000,
-
                     cooldownDurationMs:
                         15000,
                 });
@@ -81,15 +86,25 @@ describe(
                             .SPAM_PROJECTOR_00
                     ],
                 ).toMatchObject({
+                    id:
+                        SHIP_WEAPON_ID
+                            .SPAM_PROJECTOR_00,
+
                     kind:
                         SHIP_WEAPON_KIND
                             .SPAM_PROJECTOR,
+
+                    name:
+                        'SPAM PROJECTOR',
 
                     channelDurationMs:
                         20000,
 
                     officerTaskProgressMultiplier:
                         0.5,
+
+                    cooldownDurationMs:
+                        15000,
                 });
 
                 expect(
@@ -98,25 +113,113 @@ describe(
                             .STICKY_MINE_DISPENSER_00
                     ],
                 ).toMatchObject({
+                    id:
+                        SHIP_WEAPON_ID
+                            .STICKY_MINE_DISPENSER_00,
+
                     kind:
                         SHIP_WEAPON_KIND
                             .STICKY_MINE_DISPENSER,
 
-                    damage: 1,
+                    name:
+                        'STICKY MINE DISPENSER',
 
+                    damage: 1,
                     fuseDurationMs:
                         7500,
-
                     ammoCapacity: 6,
                     salvoSize: 3,
                     launchIntervalMs:
                         1000,
+                    cooldownDurationMs:
+                        15000,
                 });
             },
         );
 
         it(
-            'validates missile physical tuning on the launcher definition',
+            'accepts new weapon ids inside their concrete family schema',
+            () => {
+                expect(
+                    MISSILE_LAUNCHER_TUNING_SCHEMA
+                        .safeParse({
+                            heavy_launcher_00: {
+                                name:
+                                    'HEAVY LAUNCHER',
+
+                                damage: 2,
+                                flightDurationMs:
+                                    14000,
+                                ammoCapacity: 3,
+                                cooldownDurationMs:
+                                    18000,
+                            },
+                        })
+                        .success,
+                ).toBe(true);
+
+                expect(
+                    LASER_EMITTER_TUNING_SCHEMA
+                        .safeParse({
+                            fast_laser_00: {
+                                name:
+                                    'FAST LASER',
+
+                                damage: 1,
+                                chargeDurationMs:
+                                    8000,
+                                cooldownDurationMs:
+                                    12000,
+                            },
+                        })
+                        .success,
+                ).toBe(true);
+
+                expect(
+                    SPAM_PROJECTOR_TUNING_SCHEMA
+                        .safeParse({
+                            spam_projector_01: {
+                                name:
+                                    'SPAM PROJECTOR II',
+
+                                channelDurationMs:
+                                    24000,
+
+                                officerTaskProgressMultiplier:
+                                    0.4,
+
+                                cooldownDurationMs:
+                                    18000,
+                            },
+                        })
+                        .success,
+                ).toBe(true);
+
+                expect(
+                    STICKY_MINE_DISPENSER_TUNING_SCHEMA
+                        .safeParse({
+                            mine_dispenser_01: {
+                                name:
+                                    'MINE DISPENSER II',
+
+                                damage: 2,
+                                fuseDurationMs:
+                                    9000,
+                                ammoCapacity: 4,
+                                salvoSize: 2,
+                                launchIntervalMs:
+                                    1500,
+                                cooldownDurationMs:
+                                    17000,
+                            },
+                        })
+                        .success,
+                ).toBe(true);
+            },
+        );
+
+        it(
+            'rejects invalid family tuning and shared targeting rules',
             () => {
                 expect(
                     SHIP_WEAPON_RULES_SCHEMA
@@ -129,66 +232,37 @@ describe(
                 ).toBe(false);
 
                 expect(
-                    SHIP_WEAPON_TUNING_SCHEMA
+                    MISSILE_LAUNCHER_TUNING_SCHEMA
                         .safeParse({
-                            missile_launcher_00: {
+                            bad_launcher_00: {
                                 name:
-                                    'MISSILE LAUNCHER',
+                                    'BAD LAUNCHER',
 
                                 damage: -1,
-
                                 flightDurationMs:
                                     12000,
-
                                 ammoCapacity: 5,
-
                                 cooldownDurationMs:
                                     15000,
                             },
+                        })
+                        .success,
+                ).toBe(false);
 
-                            laser_00: {
+                expect(
+                    STICKY_MINE_DISPENSER_TUNING_SCHEMA
+                        .safeParse({
+                            bad_dispenser_00: {
                                 name:
-                                    'LASER EMITTER',
+                                    'BAD DISPENSER',
 
                                 damage: 1,
-
-                                chargeDurationMs:
-                                    12000,
-
-                                cooldownDurationMs:
-                                    15000,
-                            },
-
-                            spam_projector_00: {
-                                name:
-                                    'SPAM PROJECTOR',
-
-                                channelDurationMs:
-                                    20000,
-
-                                officerTaskProgressMultiplier:
-                                    0.5,
-
-                                cooldownDurationMs:
-                                    15000,
-                            },
-
-                            sticky_mine_dispenser_00: {
-                                name:
-                                    'STICKY MINE DISPENSER',
-
-                                damage: 1,
-
                                 fuseDurationMs:
                                     7500,
-
                                 ammoCapacity: 6,
-
-                                salvoSize: 3,
-
+                                salvoSize: 0,
                                 launchIntervalMs:
                                     1000,
-
                                 cooldownDurationMs:
                                     15000,
                             },

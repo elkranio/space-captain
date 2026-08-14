@@ -108,6 +108,98 @@ const CONTENT_REFERENCE_RULES:
             collectReferences:
                 collectDefenseTurretReferences,
         },
+
+        [CONTENT_COLLECTION_ID
+            .MISSILE_LAUNCHERS]: {
+            recordLabel:
+                'missile launcher',
+
+            collectReferences:
+                (repoRoot) => {
+                    return collectShipWeaponReferences(
+                        repoRoot,
+                        'missile_launchers.json',
+                    );
+                },
+
+            validateDraft:
+                (repoRoot, data) => {
+                    return validateShipWeaponDraft(
+                        repoRoot,
+                        'missile_launchers.json',
+                        data,
+                    );
+                },
+        },
+
+        [CONTENT_COLLECTION_ID
+            .LASER_EMITTERS]: {
+            recordLabel:
+                'laser emitter',
+
+            collectReferences:
+                (repoRoot) => {
+                    return collectShipWeaponReferences(
+                        repoRoot,
+                        'laser_emitters.json',
+                    );
+                },
+
+            validateDraft:
+                (repoRoot, data) => {
+                    return validateShipWeaponDraft(
+                        repoRoot,
+                        'laser_emitters.json',
+                        data,
+                    );
+                },
+        },
+
+        [CONTENT_COLLECTION_ID
+            .SPAM_PROJECTORS]: {
+            recordLabel:
+                'spam projector',
+
+            collectReferences:
+                (repoRoot) => {
+                    return collectShipWeaponReferences(
+                        repoRoot,
+                        'spam_projectors.json',
+                    );
+                },
+
+            validateDraft:
+                (repoRoot, data) => {
+                    return validateShipWeaponDraft(
+                        repoRoot,
+                        'spam_projectors.json',
+                        data,
+                    );
+                },
+        },
+
+        [CONTENT_COLLECTION_ID
+            .STICKY_MINE_DISPENSERS]: {
+            recordLabel:
+                'sticky mine dispenser',
+
+            collectReferences:
+                (repoRoot) => {
+                    return collectShipWeaponReferences(
+                        repoRoot,
+                        'sticky_mine_dispensers.json',
+                    );
+                },
+
+            validateDraft:
+                (repoRoot, data) => {
+                    return validateShipWeaponDraft(
+                        repoRoot,
+                        'sticky_mine_dispensers.json',
+                        data,
+                    );
+                },
+        },
     };
 
 export class ContentReferenceError
@@ -424,6 +516,185 @@ function collectDefenseTurretReferences():
     }
 
     return references;
+}
+
+const SHIP_WEAPON_DATA_FILES = [
+    'missile_launchers.json',
+    'laser_emitters.json',
+    'spam_projectors.json',
+    'sticky_mine_dispensers.json',
+] as const;
+
+async function collectShipWeaponReferences(
+    repoRoot: string,
+    dataFileName:
+        (typeof SHIP_WEAPON_DATA_FILES)[number],
+): Promise<ContentReference[]> {
+    const currentIds =
+        await readContentRecordIds(
+            repoRoot,
+            dataFileName,
+        );
+
+    const references:
+        ContentReference[] = [];
+
+    for (
+        const preset of
+        Object.values(
+            SHIP_PRESETS,
+        )
+    ) {
+        for (
+            const weapon of
+            preset.weapons
+        ) {
+            if (
+                !currentIds.has(
+                    weapon.weaponId,
+                )
+            ) {
+                continue;
+            }
+
+            references.push(
+                createShipPresetReference(
+                    weapon.weaponId,
+                    preset.id,
+                ),
+            );
+        }
+    }
+
+    for (
+        const preset of
+        Object.values(
+            PLAYER_SHIP_PRESETS,
+        )
+    ) {
+        for (
+            const weapon of
+            preset.weapons
+        ) {
+            if (
+                !currentIds.has(
+                    weapon.weaponId,
+                )
+            ) {
+                continue;
+            }
+
+            references.push(
+                createPlayerShipPresetReference(
+                    weapon.weaponId,
+                    preset.id,
+                ),
+            );
+        }
+    }
+
+    return references;
+}
+
+async function validateShipWeaponDraft(
+    repoRoot: string,
+    currentDataFileName:
+        (typeof SHIP_WEAPON_DATA_FILES)[number],
+    data: ContentDraftCollection,
+): Promise<void> {
+    const draftIds =
+        new Set(
+            Object.keys(
+                data,
+            ),
+        );
+
+    for (
+        const dataFileName of
+        SHIP_WEAPON_DATA_FILES
+    ) {
+        if (
+            dataFileName ===
+            currentDataFileName
+        ) {
+            continue;
+        }
+
+        const otherIds =
+            await readContentRecordIds(
+                repoRoot,
+                dataFileName,
+            );
+
+        for (
+            const recordId of
+            draftIds
+        ) {
+            if (
+                !otherIds.has(
+                    recordId,
+                )
+            ) {
+                continue;
+            }
+
+            throw new ContentReferenceError(
+                (
+                    'Ship weapon id "' +
+                    recordId +
+                    '" is already defined in another weapon family.'
+                ),
+                400,
+            );
+        }
+    }
+}
+
+async function readContentRecordIds(
+    repoRoot: string,
+    dataFileName: string,
+): Promise<Set<string>> {
+    const dataPath =
+        path.join(
+            repoRoot,
+            'src',
+            'engine',
+            'content',
+            'data',
+            dataFileName,
+        );
+
+    const parsed =
+        JSON.parse(
+            await fs.readFile(
+                dataPath,
+                'utf8',
+            ),
+        ) as unknown;
+
+    if (
+        typeof parsed !==
+            'object' ||
+        parsed === null ||
+        Array.isArray(
+            parsed,
+        )
+    ) {
+        throw new ContentReferenceError(
+            (
+                'Content data file "' +
+                dataFileName +
+                '" must contain an object.'
+            ),
+            500,
+        );
+    }
+
+    return new Set(
+        Object.keys(
+            parsed,
+        ),
+    );
 }
 
 function createShipPresetReference(

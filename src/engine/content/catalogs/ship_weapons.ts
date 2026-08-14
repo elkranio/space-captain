@@ -1,18 +1,28 @@
 // src/engine/content/catalogs/ship_weapons.ts
 
+import missileLauncherTuningData from '../data/missile_launchers.json';
+import laserEmitterTuningData from '../data/laser_emitters.json';
+import spamProjectorTuningData from '../data/spam_projectors.json';
+import stickyMineDispenserTuningData from '../data/sticky_mine_dispensers.json';
 import shipWeaponRulesData from '../data/ship_weapon_rules.json';
-import shipWeaponTuningData from '../data/ship_weapons.json';
 import {
     SHIP_WEAPON_RULES_SCHEMA,
 } from '../schemas/ship_weapon_rules';
 import {
-    SHIP_WEAPON_TUNING_SCHEMA,
+    LASER_EMITTER_TUNING_SCHEMA,
+    MISSILE_LAUNCHER_TUNING_SCHEMA,
+    SPAM_PROJECTOR_TUNING_SCHEMA,
+    STICKY_MINE_DISPENSER_TUNING_SCHEMA,
 } from '../schemas/ship_weapons';
 import {
     SHIP_WEAPON_ID,
     SHIP_WEAPON_KIND,
+    type LaserWeaponDefinition,
+    type MissileLauncherDefinition,
     type ShipWeaponDefinition,
     type ShipWeaponId,
+    type SpamProjectorDefinition,
+    type StickyMineDispenserDefinition,
 } from '../../defs/ship_weapon';
 
 const SHIP_WEAPON_RULES =
@@ -20,9 +30,24 @@ const SHIP_WEAPON_RULES =
         shipWeaponRulesData,
     );
 
-const SHIP_WEAPON_TUNING =
-    SHIP_WEAPON_TUNING_SCHEMA.parse(
-        shipWeaponTuningData,
+const MISSILE_LAUNCHER_TUNING =
+    MISSILE_LAUNCHER_TUNING_SCHEMA.parse(
+        missileLauncherTuningData,
+    );
+
+const LASER_EMITTER_TUNING =
+    LASER_EMITTER_TUNING_SCHEMA.parse(
+        laserEmitterTuningData,
+    );
+
+const SPAM_PROJECTOR_TUNING =
+    SPAM_PROJECTOR_TUNING_SCHEMA.parse(
+        spamProjectorTuningData,
+    );
+
+const STICKY_MINE_DISPENSER_TUNING =
+    STICKY_MINE_DISPENSER_TUNING_SCHEMA.parse(
+        stickyMineDispenserTuningData,
     );
 
 // Любое enemy weapon сначала проходит одинаковый targeting.
@@ -32,68 +57,143 @@ export const SHIP_WEAPON_TARGETING_DURATION_MS =
         .enemy_targeting
         .durationMs;
 
-export const SHIP_WEAPONS = {
-    [SHIP_WEAPON_ID
-        .MISSILE_LAUNCHER_00]: {
-        id:
-            SHIP_WEAPON_ID
-                .MISSILE_LAUNCHER_00,
+const MISSILE_LAUNCHERS =
+    Object.entries(
+        MISSILE_LAUNCHER_TUNING,
+    ).map(
+        (
+            [
+                id,
+                tuning,
+            ],
+        ): MissileLauncherDefinition => {
+            return {
+                id,
+                kind:
+                    SHIP_WEAPON_KIND
+                        .MISSILE_LAUNCHER,
+                ...tuning,
+            };
+        },
+    );
 
-        kind:
-            SHIP_WEAPON_KIND
-                .MISSILE_LAUNCHER,
+const LASER_EMITTERS =
+    Object.entries(
+        LASER_EMITTER_TUNING,
+    ).map(
+        (
+            [
+                id,
+                tuning,
+            ],
+        ): LaserWeaponDefinition => {
+            return {
+                id,
+                kind:
+                    SHIP_WEAPON_KIND.LASER,
+                ...tuning,
+            };
+        },
+    );
 
-        ...SHIP_WEAPON_TUNING[
-            SHIP_WEAPON_ID
-                .MISSILE_LAUNCHER_00
-        ],
-    },
+const SPAM_PROJECTORS =
+    Object.entries(
+        SPAM_PROJECTOR_TUNING,
+    ).map(
+        (
+            [
+                id,
+                tuning,
+            ],
+        ): SpamProjectorDefinition => {
+            return {
+                id,
+                kind:
+                    SHIP_WEAPON_KIND
+                        .SPAM_PROJECTOR,
+                ...tuning,
+            };
+        },
+    );
 
-    [SHIP_WEAPON_ID.LASER_00]: {
-        id:
-            SHIP_WEAPON_ID
-                .LASER_00,
+const STICKY_MINE_DISPENSERS =
+    Object.entries(
+        STICKY_MINE_DISPENSER_TUNING,
+    ).map(
+        (
+            [
+                id,
+                tuning,
+            ],
+        ): StickyMineDispenserDefinition => {
+            return {
+                id,
+                kind:
+                    SHIP_WEAPON_KIND
+                        .STICKY_MINE_DISPENSER,
+                ...tuning,
+            };
+        },
+    );
 
-        kind:
-            SHIP_WEAPON_KIND.LASER,
+const ALL_SHIP_WEAPON_DEFINITIONS:
+    ShipWeaponDefinition[] = [
+        ...MISSILE_LAUNCHERS,
+        ...LASER_EMITTERS,
+        ...SPAM_PROJECTORS,
+        ...STICKY_MINE_DISPENSERS,
+    ];
 
-        ...SHIP_WEAPON_TUNING[
-            SHIP_WEAPON_ID.LASER_00
-        ],
-    },
+type ShipWeaponCatalog =
+    Record<
+        ShipWeaponId,
+        ShipWeaponDefinition
+    > & {
+        [SHIP_WEAPON_ID
+            .MISSILE_LAUNCHER_00]:
+            MissileLauncherDefinition;
 
-    [SHIP_WEAPON_ID
-        .SPAM_PROJECTOR_00]: {
-        id:
-            SHIP_WEAPON_ID
-                .SPAM_PROJECTOR_00,
+        [SHIP_WEAPON_ID.LASER_00]:
+            LaserWeaponDefinition;
 
-        kind:
-            SHIP_WEAPON_KIND
-                .SPAM_PROJECTOR,
+        [SHIP_WEAPON_ID
+            .SPAM_PROJECTOR_00]:
+            SpamProjectorDefinition;
 
-        ...SHIP_WEAPON_TUNING[
-            SHIP_WEAPON_ID
-                .SPAM_PROJECTOR_00
-        ],
-    },
+        [SHIP_WEAPON_ID
+            .STICKY_MINE_DISPENSER_00]:
+            StickyMineDispenserDefinition;
+    };
 
-    [SHIP_WEAPON_ID
-        .STICKY_MINE_DISPENSER_00]: {
-        id:
-            SHIP_WEAPON_ID
-                .STICKY_MINE_DISPENSER_00,
+const shipWeapons:
+    Record<
+        ShipWeaponId,
+        ShipWeaponDefinition
+    > = {};
 
-        kind:
-            SHIP_WEAPON_KIND
-                .STICKY_MINE_DISPENSER,
+for (
+    const definition of
+    ALL_SHIP_WEAPON_DEFINITIONS
+) {
+    if (
+        Object.prototype
+            .hasOwnProperty.call(
+                shipWeapons,
+                definition.id,
+            )
+    ) {
+        throw new Error(
+            'Duplicate ship weapon content id: ' +
+                definition.id,
+        );
+    }
 
-        ...SHIP_WEAPON_TUNING[
-            SHIP_WEAPON_ID
-                .STICKY_MINE_DISPENSER_00
-        ],
-    },
-} satisfies Record<
-    ShipWeaponId,
-    ShipWeaponDefinition
->;
+    shipWeapons[
+        definition.id
+    ] = definition;
+}
+
+// Open string ids stay available for editor-created content,
+// while stable builtin ids retain their concrete definition types.
+export const SHIP_WEAPONS =
+    shipWeapons as ShipWeaponCatalog;

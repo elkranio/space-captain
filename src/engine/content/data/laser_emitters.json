@@ -1,0 +1,8 @@
+{
+    "laser_00": {
+        "name": "LASER EMITTER",
+        "damage": 1,
+        "chargeDurationMs": 12000,
+        "cooldownDurationMs": 15000
+    }
+}
