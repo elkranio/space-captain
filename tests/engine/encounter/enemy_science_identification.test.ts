@@ -27,7 +27,7 @@ import {
 import {
     SHIP_CHASSIS_ID,
 } from '../../../src/engine/defs/ship_chassis';
-import EnemyTaskScheduler from '../../../src/engine/encounter/combat/enemy/EnemyTaskScheduler';
+import EnemyBehaviorRunner from '../../../src/engine/encounter/combat/enemy/EnemyBehaviorRunner';
 import {
     ENCOUNTER_OFFICER_COMMAND_ID,
 } from '../../../src/engine/encounter/model/command';
@@ -75,12 +75,12 @@ describe(
             () => {
                 const {
                     actor,
-                    scheduler,
+                    behaviorRunner,
                 } = createMissileFixture(
                     false,
                 );
 
-                scheduler.schedule(0);
+                behaviorRunner.step(0);
 
                 expect(
                     actor.crewTasks[
@@ -104,7 +104,7 @@ describe(
                         SCIENCE_IDENTIFY_THREAT_DURATION_MS,
                 });
 
-                scheduler.schedule(
+                behaviorRunner.step(
                     SCIENCE_IDENTIFY_THREAT_DURATION_MS -
                         1,
                 );
@@ -115,7 +115,7 @@ describe(
                         ?.report,
                 ).toBeUndefined();
 
-                scheduler.schedule(1);
+                behaviorRunner.step(1);
 
                 expect(
                     actor.crewTasks[
@@ -147,10 +147,10 @@ describe(
             () => {
                 const {
                     actor,
-                    scheduler,
+                    behaviorRunner,
                 } = createBeamCannonFixture();
 
-                scheduler.schedule(0);
+                behaviorRunner.step(0);
 
                 expect(
                     actor.crewTasks[
@@ -171,18 +171,20 @@ describe(
             () => {
                 const {
                     actor,
-                    scheduler,
+                    behaviorRunner,
+                    state,
                 } = createMissileFixture(
                     false,
                 );
 
-                scheduler.schedule(0);
+                behaviorRunner.step(0);
 
-                actor
-                    .threatObservations
+                state
+                    .combat
+                    .projectiles
                     .length = 0;
 
-                scheduler.schedule(1000);
+                behaviorRunner.step(1000);
 
                 expect(actor.crewTasks)
                     .toEqual({});
@@ -398,8 +400,8 @@ function createBaseFixture(
             weapons: [],
         });
 
-    const scheduler =
-        new EnemyTaskScheduler({
+    const behaviorRunner =
+        new EnemyBehaviorRunner({
             state,
 
             emit: () => {},
@@ -415,7 +417,7 @@ function createBaseFixture(
 
     return {
         actor,
-        scheduler,
+        behaviorRunner,
         state,
     };
 }

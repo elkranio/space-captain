@@ -1,4 +1,4 @@
-// src/engine/encounter/combat/EnemyTaskScheduler.ts
+// src/engine/encounter/combat/enemy/EnemyBehaviorRunner.ts
 
 import {
     ENCOUNTER_TEAM,
@@ -30,9 +30,10 @@ import EnemyDecisionPolicy, {
     type EnemyDecisionContext,
 } from './EnemyDecisionPolicy';
 import EnemyScienceIntelResolver from './intel/EnemyScienceIntelResolver';
+import EnemyThreatObserver from './intel/EnemyThreatObserver';
 import EnemyWorkExecutor from './EnemyWorkExecutor';
 
-type EnemyTaskSchedulerOptions = {
+type EnemyBehaviorRunnerOptions = {
     state: EncounterState;
 
     emit: (event: EncounterEvent) => void;
@@ -60,22 +61,21 @@ const ENEMY_WORK_ROLES = [
     OFFICER_ROLE.ENGINEER,
 ] as const;
 
-// Transitional enemy work-selection loop.
+// Root runtime owner of enemy combat behavior.
 //
-// Пока сохраняет старое gameplay:
-// - двигает crew tasks и legacy policy timers;
-// - собирает decision context;
-// - спрашивает старую per-role policy;
-// - передаёт выбранный intent в EnemyWorkExecutor.
+// CombatRunner gives this root one behavior step after
+// authoritative player combat objects have resolved.
 //
-// Physical validation/start здесь больше не живёт.
-// Этот scheduler будет удалён следующим cleanup-срезом,
-// когда EnemyBehaviorRunner заменит старый per-role loop.
+// This runner owns:
+// - threat perception synchronization;
+// - enemy crew-task progress;
+// - enemy decision orchestration;
+// - intent execution wiring.
 //
-// Lifecycle crew tasks живёт в EnemyCrewTaskRunner.
-// Objective truth → report boundary живёт
-// в EnemyScienceIntelResolver.
-export default class EnemyTaskScheduler {
+// Physical weapon/turret/shield lifecycles remain CombatRunner-owned.
+// The per-role policy loop below is legacy and will be replaced by
+// captain cadence + one-intent decision flow in the next behavior slice.
+export default class EnemyBehaviorRunner {
     private readonly state: EncounterState;
 
     private readonly decisionPolicy:
@@ -83,6 +83,9 @@ export default class EnemyTaskScheduler {
 
     private readonly scienceIntelResolver:
         EnemyScienceIntelResolver;
+
+    private readonly threatObserver:
+        EnemyThreatObserver;
 
     private readonly crewTaskRunner:
         EnemyCrewTaskRunner;
@@ -97,7 +100,7 @@ export default class EnemyTaskScheduler {
         purgePlayerSpamChannel,
         deployEnemyShield,
         random = Math.random,
-    }: EnemyTaskSchedulerOptions) {
+    }: EnemyBehaviorRunnerOptions) {
         this.state = state;
 
         this.decisionPolicy =
@@ -107,6 +110,11 @@ export default class EnemyTaskScheduler {
             new EnemyScienceIntelResolver(
                 this.state,
                 random,
+            );
+
+        this.threatObserver =
+            new EnemyThreatObserver(
+                this.state,
             );
 
         this.crewTaskRunner =
@@ -232,7 +240,10 @@ export default class EnemyTaskScheduler {
             });
     }
 
-    public schedule(deltaMs: number): void {
+    public step(deltaMs: number): void {
+        this.threatObserver
+            .synchronize();
+
         this.crewTaskRunner
             .advance(deltaMs);
 

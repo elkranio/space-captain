@@ -22,8 +22,7 @@ import CombatSpamRunner from './weapons/spam/CombatSpamRunner';
 import CombatStickyMineRunner, {
     type PlayerStickyMineAttachInput,
 } from './weapons/sticky_mine/CombatStickyMineRunner';
-import EnemyTaskScheduler from './enemy/EnemyTaskScheduler';
-import EnemyThreatObserver from './enemy/intel/EnemyThreatObserver';
+import EnemyBehaviorRunner from './enemy/EnemyBehaviorRunner';
 
 type CombatStepExistingObjectIds = {
     projectileIds: string[];
@@ -50,7 +49,7 @@ type CombatRunnerOptions = {
 
 // Владеет боевым циклом encounter:
 //
-// - исполняет решения enemy task scheduler;
+// - делегирует enemy behavior одному root runner;
 // - фиксирует порядок combat phases;
 // - оркестрирует concrete weapon-family runners;
 // - делегирует каждый weapon lifecycle его concrete runner-у;
@@ -73,11 +72,8 @@ export default class CombatRunner {
             'destroyEnemyActor'
         ];
 
-    private readonly enemyTaskScheduler:
-        EnemyTaskScheduler;
-
-    private readonly enemyThreatObserver:
-        EnemyThreatObserver;
+    private readonly enemyBehaviorRunner:
+        EnemyBehaviorRunner;
 
     private readonly enemyShieldRunner:
         EnemyShieldRunner;
@@ -224,8 +220,8 @@ export default class CombatRunner {
                     this.emit,
             });
 
-        this.enemyTaskScheduler =
-            new EnemyTaskScheduler({
+        this.enemyBehaviorRunner =
+            new EnemyBehaviorRunner({
                 state: this.state,
                 emit: this.emit,
 
@@ -255,10 +251,6 @@ export default class CombatRunner {
                 random,
             });
 
-        this.enemyThreatObserver =
-            new EnemyThreatObserver(
-                this.state,
-            );
     }
 
     public step(deltaMs: number): void {
@@ -271,15 +263,13 @@ export default class CombatRunner {
             this.captureExistingCombatObjectIds();
 
         this.integratePendingPlayerCombatObjects();
-        this.perceivePlayerThreats();
 
         this.resolveExistingCombatObjects(
             existingCombatObjectIds,
             deltaMs,
         );
 
-        this.perceivePlayerThreats();
-        this.decideEnemyWork(deltaMs);
+        this.advanceEnemyBehavior(deltaMs);
         this.advanceEnemyCombatSystems(deltaMs);
         this.finalizeEnemyCrewTasks();
     }
@@ -314,11 +304,6 @@ export default class CombatRunner {
             .integratePendingPlayerAttachments();
     }
 
-    private perceivePlayerThreats(): void {
-        this.enemyThreatObserver
-            .synchronize();
-    }
-
     private resolveExistingCombatObjects(
         existingIds:
             CombatStepExistingObjectIds,
@@ -337,19 +322,16 @@ export default class CombatRunner {
         );
     }
 
-    private decideEnemyWork(
+    private advanceEnemyBehavior(
         deltaMs: number,
     ): void {
-        // Scheduler сначала двигает текущие crew tasks
-        // и policy timers, затем выбирает и запускает
-        // новую работу доступных ролей.
-        this.enemyTaskScheduler
-            .schedule(deltaMs);
+        this.enemyBehaviorRunner
+            .step(deltaMs);
     }
 
     private finalizeEnemyCrewTasks(): void {
         // Weapon advancement мог освободить оператора.
-        this.enemyTaskScheduler
+        this.enemyBehaviorRunner
             .synchronizeTasks();
     }
 
@@ -359,7 +341,7 @@ export default class CombatRunner {
                 .purgeChannel(channelId);
 
         if (purged) {
-            this.enemyTaskScheduler
+            this.enemyBehaviorRunner
                 .synchronizeTasks();
         }
 
