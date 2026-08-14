@@ -6,6 +6,7 @@ const CONTENT_ID_PATTERN =
 type JsonSchema = {
     type?: string;
     title?: string;
+    description?: string;
     minimum?: number;
     unit?: string;
     enum?: Array<string | number>;
@@ -877,9 +878,38 @@ function createField(
     label.className =
         'field-label';
 
-    label.textContent =
+    const labelTitle =
+        document.createElement(
+            'span',
+        );
+
+    labelTitle.className =
+        'field-label-title';
+
+    labelTitle.textContent =
         schema.title ??
         fieldName;
+
+    label.appendChild(
+        labelTitle,
+    );
+
+    if (schema.description) {
+        const description =
+            document.createElement(
+                'span',
+            );
+
+        description.className =
+            'field-description';
+
+        description.textContent =
+            schema.description;
+
+        label.appendChild(
+            description,
+        );
+    }
 
     wrapper.appendChild(label);
 

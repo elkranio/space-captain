@@ -283,6 +283,7 @@ h1 {
 
 .field-row {
     min-height: 52px;
+    padding: 8px 0;
     display: grid;
     grid-template-columns:
         230px minmax(220px, 420px);
@@ -295,6 +296,18 @@ h1 {
 .field-label {
     color: #4f5d6c;
     font-size: 13px;
+}
+
+.field-label-title,
+.field-description {
+    display: block;
+}
+
+.field-description {
+    margin-top: 4px;
+    color: #8793a1;
+    font-size: 11px;
+    line-height: 1.35;
 }
 
 .field-control {

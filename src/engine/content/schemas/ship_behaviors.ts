@@ -23,6 +23,11 @@ export const SHIP_BEHAVIOR_TUNING_SCHEMA =
                         .meta({
                             title:
                                 'Captain decision tick',
+
+                            description:
+                                'Base interval between captain decision attempts. ' +
+                                'The next interval also uses Decision tick wiggle.',
+
                             ...DURATION_META,
                         }),
 
@@ -33,6 +38,11 @@ export const SHIP_BEHAVIOR_TUNING_SCHEMA =
                         .meta({
                             title:
                                 'Decision tick wiggle',
+
+                            description:
+                                'Random +/- offset applied once when scheduling ' +
+                                'the next captain decision tick, preventing a fixed rhythm.',
+
                             ...DURATION_META,
                         }),
 
@@ -43,6 +53,11 @@ export const SHIP_BEHAVIOR_TUNING_SCHEMA =
                         .meta({
                             title:
                                 'Threat timing wiggle',
+
+                            description:
+                                'Random +/- timing error used when the captain estimates ' +
+                                'whether a known threat can still be mitigated in time.',
+
                             ...DURATION_META,
                         }),
 
@@ -54,6 +69,10 @@ export const SHIP_BEHAVIOR_TUNING_SCHEMA =
                         .meta({
                             title:
                                 'Aggression',
+
+                            description:
+                                '0-100 tendency to prefer offense and accept defensive risk. ' +
+                                'Higher values mean more aggressive decisions.',
                         }),
 
                 offensiveTaskDelayMs:
@@ -63,6 +82,11 @@ export const SHIP_BEHAVIOR_TUNING_SCHEMA =
                         .meta({
                             title:
                                 'Offensive task delay',
+
+                            description:
+                                'Per-role pause after that role completes an offensive task ' +
+                                'before it may start another attack.',
+
                             ...DURATION_META,
                         }),
             }).meta({

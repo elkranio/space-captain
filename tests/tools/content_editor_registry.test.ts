@@ -616,7 +616,9 @@ describe(
                             {
                                 properties?: Record<
                                     string,
-                                    unknown
+                                    {
+                                        description?: string;
+                                    }
                                 >;
                             }
                         >;
@@ -650,6 +652,46 @@ describe(
                     captainFields,
                 ).toHaveProperty(
                     'aggression',
+                );
+
+                expect(
+                    captainFields
+                        ?.decisionTickDurationMs
+                        ?.description,
+                ).toContain(
+                    'interval between captain decision attempts',
+                );
+
+                expect(
+                    captainFields
+                        ?.decisionTickWiggleMs
+                        ?.description,
+                ).toContain(
+                    'preventing a fixed rhythm',
+                );
+
+                expect(
+                    captainFields
+                        ?.threatTimingWiggleMs
+                        ?.description,
+                ).toContain(
+                    'mitigated in time',
+                );
+
+                expect(
+                    captainFields
+                        ?.aggression
+                        ?.description,
+                ).toContain(
+                    '0-100 tendency',
+                );
+
+                expect(
+                    captainFields
+                        ?.offensiveTaskDelayMs
+                        ?.description,
+                ).toContain(
+                    'Per-role pause',
                 );
 
                 const behaviorRulesSchema =
