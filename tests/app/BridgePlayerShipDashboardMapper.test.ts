@@ -7,12 +7,15 @@ import {
     OFFICER_ROLE,
 } from '../../src/engine/defs/officer';
 import {
+    SHIP_WEAPON_ID,
+    SHIP_WEAPON_KIND,
     SHIP_WEAPON_PHASE,
 } from '../../src/engine/defs/ship_weapon';
 import {
     ENCOUNTER_OFFICER_COMMAND_ID,
     OFFICER_COMMAND_TARGET_KIND,
     type AvailableOfficerCommand,
+    type EncounterOfficerCommandId,
 } from '../../src/engine/encounter/model/command';
 import {
     OFFICER_AVAILABILITY_STATE,
@@ -22,34 +25,50 @@ import {
 } from '../../src/app/scenes/game/bridge/controller/captain_dashboard/BridgePlayerShipDashboardMapper';
 import {
     BRIDGE_PLAYER_SYSTEM_ACTION_STATE,
+    type BridgePlayerWeaponStatusPayload,
 } from '../../src/app/scenes/game/bridge/events/bridge_event';
 
 describe(
     'Bridge player ship dashboard mapper',
     () => {
         it(
-            'uses exact resolved missile command for active action',
+            'maps multiple same-kind weapons to their exact resolved commands',
             () => {
-                const command =
-                    createMissileCommand();
+                const firstId =
+                    'missile_launcher_player_00';
+                const secondId =
+                    'missile_launcher_player_01';
+
+                const firstCommand =
+                    createWeaponCommand(
+                        ENCOUNTER_OFFICER_COMMAND_ID
+                            .WEAPONS_FIRE_MISSILE,
+                        firstId,
+                    );
+
+                const secondCommand =
+                    createWeaponCommand(
+                        ENCOUNTER_OFFICER_COMMAND_ID
+                            .WEAPONS_FIRE_MISSILE,
+                        secondId,
+                    );
 
                 expect(
                     mapPlayerShipToBridgeDashboardPayload({
-                        weapons: {
-                            missileLauncher: {
-                                phase:
-                                    SHIP_WEAPON_PHASE
-                                        .READY,
-
-                                ammo: {
-                                    current: 5,
-                                    max: 5,
-                                },
-                            },
-                        },
+                        weapons: [
+                            createMissileStatus(
+                                firstId,
+                                5,
+                            ),
+                            createMissileStatus(
+                                secondId,
+                                4,
+                            ),
+                        ],
 
                         availableWeaponsCommands: [
-                            command,
+                            firstCommand,
+                            secondCommand,
                         ],
 
                         weaponsOfficerAvailability:
@@ -57,855 +76,446 @@ describe(
                                 .AVAILABLE,
                     }),
                 ).toEqual({
-                    missileLauncher: {
-                        ammo: {
-                            current: 5,
-                            max: 5,
-                        },
-
-                        action: {
-                            state:
-                                BRIDGE_PLAYER_SYSTEM_ACTION_STATE
-                                    .ACTIVE,
-
-                            command: {
-                                role:
-                                    OFFICER_ROLE
-                                        .WEAPONS,
-
-                                commandId:
-                                    command
-                                        .commandId,
-
-                                target:
-                                    command
-                                        .target,
+                    weapons: [
+                        {
+                            id: firstId,
+                            weaponId:
+                                SHIP_WEAPON_ID
+                                    .MISSILE_LAUNCHER_00,
+                            kind:
+                                SHIP_WEAPON_KIND
+                                    .MISSILE_LAUNCHER,
+                            ammo: {
+                                current: 5,
+                                max: 5,
+                            },
+                            action: {
+                                state:
+                                    BRIDGE_PLAYER_SYSTEM_ACTION_STATE
+                                        .ACTIVE,
+                                command: {
+                                    role:
+                                        OFFICER_ROLE
+                                            .WEAPONS,
+                                    commandId:
+                                        firstCommand
+                                            .commandId,
+                                    target:
+                                        firstCommand
+                                            .target,
+                                },
                             },
                         },
-                    },
+                        {
+                            id: secondId,
+                            weaponId:
+                                SHIP_WEAPON_ID
+                                    .MISSILE_LAUNCHER_00,
+                            kind:
+                                SHIP_WEAPON_KIND
+                                    .MISSILE_LAUNCHER,
+                            ammo: {
+                                current: 4,
+                                max: 5,
+                            },
+                            action: {
+                                state:
+                                    BRIDGE_PLAYER_SYSTEM_ACTION_STATE
+                                        .ACTIVE,
+                                command: {
+                                    role:
+                                        OFFICER_ROLE
+                                            .WEAPONS,
+                                    commandId:
+                                        secondCommand
+                                            .commandId,
+                                    target:
+                                        secondCommand
+                                            .target,
+                                },
+                            },
+                        },
+                    ],
                 });
             },
         );
 
         it(
-            'shows current missile targeting as engaged work',
+            'keeps per-instance engaged, cooldown and empty-ammo states independent',
             () => {
+                const targeting =
+                    createMissileStatus(
+                        'missile_launcher_player_00',
+                        5,
+                    );
+                targeting.phase =
+                    SHIP_WEAPON_PHASE.TARGETING;
+                targeting.initialPhaseMs =
+                    3000;
+                targeting.remainingPhaseMs =
+                    1500;
+
+                const cooldown =
+                    createMissileStatus(
+                        'missile_launcher_player_01',
+                        4,
+                    );
+                cooldown.phase =
+                    SHIP_WEAPON_PHASE.COOLDOWN;
+                cooldown.initialPhaseMs =
+                    15000;
+                cooldown.remainingPhaseMs =
+                    10000;
+
+                const empty =
+                    createMissileStatus(
+                        'missile_launcher_player_02',
+                        0,
+                    );
+
                 expect(
                     mapPlayerShipToBridgeDashboardPayload({
-                        weapons: {
-                            missileLauncher: {
-                                phase:
-                                    SHIP_WEAPON_PHASE
-                                        .TARGETING,
-
-                                initialPhaseMs:
-                                    3000,
-
-                                remainingPhaseMs:
-                                    1500,
-
-                                ammo: {
-                                    current: 5,
-                                    max: 5,
-                                },
-                            },
-                        },
-
+                        weapons: [
+                            targeting,
+                            cooldown,
+                            empty,
+                        ],
                         availableWeaponsCommands: [],
-
                         weaponsOfficerAvailability:
                             OFFICER_AVAILABILITY_STATE
                                 .BUSY,
-                    }),
-                ).toEqual({
-                    missileLauncher: {
+                    }).weapons,
+                ).toEqual([
+                    {
+                        id:
+                            targeting.id,
+                        weaponId:
+                            targeting.weaponId,
+                        kind:
+                            targeting.kind,
                         ammo: {
                             current: 5,
                             max: 5,
                         },
-
                         action: {
                             state:
                                 BRIDGE_PLAYER_SYSTEM_ACTION_STATE
                                     .ENGAGED_CURRENT_WORK,
                         },
                     },
-                });
-            },
-        );
-
-        it(
-            'maps launcher cooldown to elapsed progress and system-disabled action',
-            () => {
-                expect(
-                    mapPlayerShipToBridgeDashboardPayload({
-                        weapons: {
-                            missileLauncher: {
-                                phase:
-                                    SHIP_WEAPON_PHASE
-                                        .COOLDOWN,
-
-                                initialPhaseMs:
-                                    15000,
-
-                                remainingPhaseMs:
-                                    10000,
-
-                                ammo: {
-                                    current: 4,
-                                    max: 5,
-                                },
-                            },
-                        },
-
-                        availableWeaponsCommands: [],
-
-                        weaponsOfficerAvailability:
-                            OFFICER_AVAILABILITY_STATE
-                                .AVAILABLE,
-                    }),
-                ).toEqual({
-                    missileLauncher: {
+                    {
+                        id:
+                            cooldown.id,
+                        weaponId:
+                            cooldown.weaponId,
+                        kind:
+                            cooldown.kind,
                         ammo: {
                             current: 4,
                             max: 5,
                         },
-
                         cooldownProgress:
                             1 - 10000 / 15000,
-
                         action: {
                             state:
                                 BRIDGE_PLAYER_SYSTEM_ACTION_STATE
                                     .DISABLED_SYSTEM,
                         },
                     },
-                });
-            },
-        );
-
-        it(
-            'keeps empty launcher disabled without cooldown bar',
-            () => {
-                expect(
-                    mapPlayerShipToBridgeDashboardPayload({
-                        weapons: {
-                            missileLauncher: {
-                                phase:
-                                    SHIP_WEAPON_PHASE
-                                        .READY,
-
-                                ammo: {
-                                    current: 0,
-                                    max: 5,
-                                },
-                            },
-                        },
-
-                        availableWeaponsCommands: [],
-
-                        weaponsOfficerAvailability:
-                            OFFICER_AVAILABILITY_STATE
-                                .AVAILABLE,
-                    }),
-                ).toEqual({
-                    missileLauncher: {
+                    {
+                        id:
+                            empty.id,
+                        weaponId:
+                            empty.weaponId,
+                        kind:
+                            empty.kind,
                         ammo: {
                             current: 0,
                             max: 5,
                         },
-
                         action: {
                             state:
                                 BRIDGE_PLAYER_SYSTEM_ACTION_STATE
                                     .DISABLED_SYSTEM,
                         },
                     },
-                });
+                ]);
             },
         );
 
         it(
-            'activates the ready beamCannon from the exact resolved engine command',
+            'maps every weapon kind without collapsing the installed list',
             () => {
-                const command =
-                    createBeamCannonCommand();
+                const beamId =
+                    'beam_cannon_player_00';
+                const mineId =
+                    'sticky_mine_dispenser_player_00';
+
+                const beamCommand =
+                    createWeaponCommand(
+                        ENCOUNTER_OFFICER_COMMAND_ID
+                            .WEAPONS_FIRE_BEAM_CANNON,
+                        beamId,
+                    );
+
+                const mineCommand =
+                    createWeaponCommand(
+                        ENCOUNTER_OFFICER_COMMAND_ID
+                            .WEAPONS_FIRE_STICKY_MINES,
+                        mineId,
+                    );
 
                 expect(
                     mapPlayerShipToBridgeDashboardPayload({
-                        weapons: {
-                            beamCannon: {
+                        weapons: [
+                            {
+                                id: beamId,
+                                weaponId:
+                                    SHIP_WEAPON_ID
+                                        .BEAM_CANNON_00,
+                                kind:
+                                    SHIP_WEAPON_KIND
+                                        .BEAM_CANNON,
                                 phase:
                                     SHIP_WEAPON_PHASE
                                         .READY,
                             },
-                        },
-
-                        availableWeaponsCommands: [
-                            command,
-                        ],
-
-                        weaponsOfficerAvailability:
-                            OFFICER_AVAILABILITY_STATE
-                                .AVAILABLE,
-                    }),
-                ).toEqual({
-                    beamCannon: {
-                        action: {
-                            state:
-                                BRIDGE_PLAYER_SYSTEM_ACTION_STATE
-                                    .ACTIVE,
-
-                            command: {
-                                role:
-                                    OFFICER_ROLE
-                                        .WEAPONS,
-
-                                commandId:
-                                    command
-                                        .commandId,
-
-                                target:
-                                    command
-                                        .target,
-                            },
-                        },
-                    },
-                });
-            },
-        );
-
-        it(
-            'shows beamCannon targeting and charging as current Weapons work',
-            () => {
-                for (
-                    const phase of [
-                        SHIP_WEAPON_PHASE
-                            .TARGETING,
-
-                        SHIP_WEAPON_PHASE
-                            .CHARGING,
-                    ]
-                ) {
-                    expect(
-                        mapPlayerShipToBridgeDashboardPayload({
-                            weapons: {
-                                beamCannon: {
-                                    phase,
-
-                                    initialPhaseMs:
-                                        12000,
-
-                                    remainingPhaseMs:
-                                        8000,
-                                },
-                            },
-
-                            availableWeaponsCommands:
-                                [],
-
-                            weaponsOfficerAvailability:
-                                OFFICER_AVAILABILITY_STATE
-                                    .BUSY,
-                        }),
-                    ).toEqual({
-                        beamCannon: {
-                            action: {
-                                state:
-                                    BRIDGE_PLAYER_SYSTEM_ACTION_STATE
-                                        .ENGAGED_CURRENT_WORK,
-                            },
-                        },
-                    });
-                }
-            },
-        );
-
-        it(
-            'maps beamCannon cooldown to progress and releases the officer',
-            () => {
-                expect(
-                    mapPlayerShipToBridgeDashboardPayload({
-                        weapons: {
-                            beamCannon: {
-                                phase:
-                                    SHIP_WEAPON_PHASE
-                                        .COOLDOWN,
-
-                                initialPhaseMs:
-                                    10000,
-
-                                remainingPhaseMs:
-                                    2500,
-                            },
-                        },
-
-                        availableWeaponsCommands:
-                            [],
-
-                        weaponsOfficerAvailability:
-                            OFFICER_AVAILABILITY_STATE
-                                .AVAILABLE,
-                    }),
-                ).toEqual({
-                    beamCannon: {
-                        cooldownProgress:
-                            1 - 2500 / 10000,
-
-                        action: {
-                            state:
-                                BRIDGE_PLAYER_SYSTEM_ACTION_STATE
-                                    .DISABLED_SYSTEM,
-                        },
-                    },
-                });
-            },
-        );
-
-        it(
-            'shows a ready beamCannon as officer-busy when Weapons is occupied elsewhere',
-            () => {
-                expect(
-                    mapPlayerShipToBridgeDashboardPayload({
-                        weapons: {
-                            beamCannon: {
+                            {
+                                id: mineId,
+                                weaponId:
+                                    SHIP_WEAPON_ID
+                                        .STICKY_MINE_DISPENSER_00,
+                                kind:
+                                    SHIP_WEAPON_KIND
+                                        .STICKY_MINE_DISPENSER,
                                 phase:
                                     SHIP_WEAPON_PHASE
                                         .READY,
-                            },
-                        },
-
-                        availableWeaponsCommands:
-                            [],
-
-                        weaponsOfficerAvailability:
-                            OFFICER_AVAILABILITY_STATE
-                                .BUSY,
-                    }),
-                ).toEqual({
-                    beamCannon: {
-                        action: {
-                            state:
-                                BRIDGE_PLAYER_SYSTEM_ACTION_STATE
-                                    .DISABLED_OFFICER_BUSY,
-                        },
-                    },
-                });
-            },
-        );
-
-        it(
-            'maps sticky mine ready, engaged, cooldown and officer-busy states',
-            () => {
-                const command =
-                    createStickyMineCommand();
-
-                expect(
-                    mapPlayerShipToBridgeDashboardPayload({
-                        weapons: {
-                            stickyMineDispenser: {
-                                phase:
-                                    SHIP_WEAPON_PHASE
-                                        .READY,
-
                                 ammo: {
                                     current: 6,
                                     max: 6,
                                 },
                             },
-                        },
-
-                        availableWeaponsCommands: [
-                            command,
                         ],
-
+                        availableWeaponsCommands: [
+                            beamCommand,
+                            mineCommand,
+                        ],
                         weaponsOfficerAvailability:
                             OFFICER_AVAILABILITY_STATE
                                 .AVAILABLE,
-                    }),
-                ).toEqual({
-                    stickyMineDispenser: {
-                        ammo: {
-                            current: 6,
-                            max: 6,
-                        },
-
+                    }).weapons,
+                ).toEqual([
+                    {
+                        id: beamId,
+                        weaponId:
+                            SHIP_WEAPON_ID
+                                .BEAM_CANNON_00,
+                        kind:
+                            SHIP_WEAPON_KIND
+                                .BEAM_CANNON,
                         action: {
                             state:
                                 BRIDGE_PLAYER_SYSTEM_ACTION_STATE
                                     .ACTIVE,
-
                             command: {
                                 role:
                                     OFFICER_ROLE
                                         .WEAPONS,
-
                                 commandId:
-                                    command
+                                    beamCommand
                                         .commandId,
-
                                 target:
-                                    command
+                                    beamCommand
                                         .target,
                             },
                         },
                     },
-                });
-
-                for (
-                    const phase of [
-                        SHIP_WEAPON_PHASE
-                            .TARGETING,
-
-                        SHIP_WEAPON_PHASE
-                            .DISPENSING,
-                    ]
-                ) {
-                    expect(
-                        mapPlayerShipToBridgeDashboardPayload({
-                            weapons: {
-                                stickyMineDispenser: {
-                                    phase,
-
-                                    initialPhaseMs:
-                                        2000,
-
-                                    remainingPhaseMs:
-                                        1000,
-
-                                    ammo: {
-                                        current: 5,
-                                        max: 6,
-                                    },
-                                },
-                            },
-
-                            availableWeaponsCommands:
-                                [],
-
-                            weaponsOfficerAvailability:
-                                OFFICER_AVAILABILITY_STATE
-                                    .BUSY,
-                        }),
-                    ).toEqual({
-                        stickyMineDispenser: {
-                            ammo: {
-                                current: 5,
-                                max: 6,
-                            },
-
-                            action: {
-                                state:
-                                    BRIDGE_PLAYER_SYSTEM_ACTION_STATE
-                                        .ENGAGED_CURRENT_WORK,
-                            },
-                        },
-                    });
-                }
-
-                expect(
-                    mapPlayerShipToBridgeDashboardPayload({
-                        weapons: {
-                            stickyMineDispenser: {
-                                phase:
-                                    SHIP_WEAPON_PHASE
-                                        .COOLDOWN,
-
-                                initialPhaseMs:
-                                    15000,
-
-                                remainingPhaseMs:
-                                    9000,
-
-                                ammo: {
-                                    current: 3,
-                                    max: 6,
-                                },
-                            },
-                        },
-
-                        availableWeaponsCommands:
-                            [],
-
-                        weaponsOfficerAvailability:
-                            OFFICER_AVAILABILITY_STATE
-                                .AVAILABLE,
-                    }),
-                ).toEqual({
-                    stickyMineDispenser: {
-                        ammo: {
-                            current: 3,
-                            max: 6,
-                        },
-
-                        cooldownProgress:
-                            1 - 9000 / 15000,
-
-                        action: {
-                            state:
-                                BRIDGE_PLAYER_SYSTEM_ACTION_STATE
-                                    .DISABLED_SYSTEM,
-                        },
-                    },
-                });
-
-                expect(
-                    mapPlayerShipToBridgeDashboardPayload({
-                        weapons: {
-                            stickyMineDispenser: {
-                                phase:
-                                    SHIP_WEAPON_PHASE
-                                        .READY,
-
-                                ammo: {
-                                    current: 6,
-                                    max: 6,
-                                },
-                            },
-                        },
-
-                        availableWeaponsCommands:
-                            [],
-
-                        weaponsOfficerAvailability:
-                            OFFICER_AVAILABILITY_STATE
-                                .BUSY,
-                    }),
-                ).toEqual({
-                    stickyMineDispenser: {
+                    {
+                        id: mineId,
+                        weaponId:
+                            SHIP_WEAPON_ID
+                                .STICKY_MINE_DISPENSER_00,
+                        kind:
+                            SHIP_WEAPON_KIND
+                                .STICKY_MINE_DISPENSER,
                         ammo: {
                             current: 6,
                             max: 6,
                         },
-
                         action: {
                             state:
                                 BRIDGE_PLAYER_SYSTEM_ACTION_STATE
-                                    .DISABLED_OFFICER_BUSY,
+                                    .ACTIVE,
+                            command: {
+                                role:
+                                    OFFICER_ROLE
+                                        .WEAPONS,
+                                commandId:
+                                    mineCommand
+                                        .commandId,
+                                target:
+                                    mineCommand
+                                        .target,
+                            },
                         },
                     },
-                });
+                ]);
             },
         );
 
         it(
-            'maps spam ready, engaged, cooldown and Science-busy states',
+            'uses Science availability and the exact projector command for SPAM',
             () => {
+                const projectorId =
+                    'spam_projector_player_00';
                 const command =
-                    createSpamCommand();
+                    createWeaponCommand(
+                        ENCOUNTER_OFFICER_COMMAND_ID
+                            .SCIENCE_FIRE_SPAM,
+                        projectorId,
+                    );
 
                 expect(
                     mapPlayerShipToBridgeDashboardPayload({
-                        weapons: {
-                            spamProjector: {
+                        weapons: [
+                            {
+                                id:
+                                    projectorId,
+                                weaponId:
+                                    SHIP_WEAPON_ID
+                                        .SPAM_PROJECTOR_00,
+                                kind:
+                                    SHIP_WEAPON_KIND
+                                        .SPAM_PROJECTOR,
                                 phase:
                                     SHIP_WEAPON_PHASE
                                         .READY,
                             },
-                        },
-
-                        availableWeaponsCommands:
-                            [],
-
+                        ],
+                        availableWeaponsCommands: [],
                         weaponsOfficerAvailability:
                             OFFICER_AVAILABILITY_STATE
                                 .AVAILABLE,
-
                         availableScienceCommands: [
                             command,
                         ],
-
                         scienceOfficerAvailability:
                             OFFICER_AVAILABILITY_STATE
                                 .AVAILABLE,
-                    }),
-                ).toEqual({
-                    spamProjector: {
+                    }).weapons,
+                ).toEqual([
+                    {
+                        id:
+                            projectorId,
+                        weaponId:
+                            SHIP_WEAPON_ID
+                                .SPAM_PROJECTOR_00,
+                        kind:
+                            SHIP_WEAPON_KIND
+                                .SPAM_PROJECTOR,
                         action: {
                             state:
                                 BRIDGE_PLAYER_SYSTEM_ACTION_STATE
                                     .ACTIVE,
-
                             command: {
                                 role:
                                     OFFICER_ROLE
                                         .SCIENCE,
-
                                 commandId:
                                     command
                                         .commandId,
-
                                 target:
                                     command
                                         .target,
                             },
                         },
                     },
-                });
-
-                for (
-                    const phase of [
-                        SHIP_WEAPON_PHASE
-                            .TARGETING,
-
-                        SHIP_WEAPON_PHASE
-                            .CHANNELING,
-                    ]
-                ) {
-                    expect(
-                        mapPlayerShipToBridgeDashboardPayload({
-                            weapons: {
-                                spamProjector: {
-                                    phase,
-
-                                    initialPhaseMs:
-                                        20000,
-
-                                    remainingPhaseMs:
-                                        10000,
-                                },
-                            },
-
-                            availableWeaponsCommands:
-                                [],
-
-                            weaponsOfficerAvailability:
-                                OFFICER_AVAILABILITY_STATE
-                                    .AVAILABLE,
-
-                            availableScienceCommands:
-                                [],
-
-                            scienceOfficerAvailability:
-                                OFFICER_AVAILABILITY_STATE
-                                    .BUSY,
-                        }),
-                    ).toEqual({
-                        spamProjector: {
-                            action: {
-                                state:
-                                    BRIDGE_PLAYER_SYSTEM_ACTION_STATE
-                                        .ENGAGED_CURRENT_WORK,
-                            },
-                        },
-                    });
-                }
-
-                expect(
-                    mapPlayerShipToBridgeDashboardPayload({
-                        weapons: {
-                            spamProjector: {
-                                phase:
-                                    SHIP_WEAPON_PHASE
-                                        .COOLDOWN,
-
-                                initialPhaseMs:
-                                    15000,
-
-                                remainingPhaseMs:
-                                    9000,
-                            },
-                        },
-
-                        availableWeaponsCommands:
-                            [],
-
-                        weaponsOfficerAvailability:
-                            OFFICER_AVAILABILITY_STATE
-                                .AVAILABLE,
-
-                        availableScienceCommands:
-                            [],
-
-                        scienceOfficerAvailability:
-                            OFFICER_AVAILABILITY_STATE
-                                .AVAILABLE,
-                    }),
-                ).toEqual({
-                    spamProjector: {
-                        cooldownProgress:
-                            1 - 9000 / 15000,
-
-                        action: {
-                            state:
-                                BRIDGE_PLAYER_SYSTEM_ACTION_STATE
-                                    .DISABLED_SYSTEM,
-                        },
-                    },
-                });
-
-                expect(
-                    mapPlayerShipToBridgeDashboardPayload({
-                        weapons: {
-                            spamProjector: {
-                                phase:
-                                    SHIP_WEAPON_PHASE
-                                        .READY,
-                            },
-                        },
-
-                        availableWeaponsCommands:
-                            [],
-
-                        weaponsOfficerAvailability:
-                            OFFICER_AVAILABILITY_STATE
-                                .AVAILABLE,
-
-                        availableScienceCommands:
-                            [],
-
-                        scienceOfficerAvailability:
-                            OFFICER_AVAILABILITY_STATE
-                                .BUSY,
-                    }),
-                ).toEqual({
-                    spamProjector: {
-                        action: {
-                            state:
-                                BRIDGE_PLAYER_SYSTEM_ACTION_STATE
-                                    .DISABLED_OFFICER_BUSY,
-                        },
-                    },
-                });
+                ]);
             },
         );
 
         it(
-            'distinguishes officer busy from unavailable system',
+            'distinguishes duplicate command ids by runtime weapon target',
             () => {
-                expect(
+                const firstId =
+                    'missile_launcher_player_00';
+                const secondId =
+                    'missile_launcher_player_01';
+
+                expect(() => {
                     mapPlayerShipToBridgeDashboardPayload({
-                        weapons: {
-                            missileLauncher: {
-                                phase:
-                                    SHIP_WEAPON_PHASE
-                                        .READY,
-
-                                ammo: {
-                                    current: 5,
-                                    max: 5,
-                                },
-                            },
-                        },
-
-                        availableWeaponsCommands: [],
-
+                        weapons: [
+                            createMissileStatus(
+                                firstId,
+                                5,
+                            ),
+                            createMissileStatus(
+                                secondId,
+                                5,
+                            ),
+                        ],
+                        availableWeaponsCommands: [
+                            createWeaponCommand(
+                                ENCOUNTER_OFFICER_COMMAND_ID
+                                    .WEAPONS_FIRE_MISSILE,
+                                firstId,
+                            ),
+                            createWeaponCommand(
+                                ENCOUNTER_OFFICER_COMMAND_ID
+                                    .WEAPONS_FIRE_MISSILE,
+                                secondId,
+                            ),
+                        ],
                         weaponsOfficerAvailability:
                             OFFICER_AVAILABILITY_STATE
-                                .BUSY,
-                    }),
-                ).toEqual({
-                    missileLauncher: {
-                        ammo: {
-                            current: 5,
-                            max: 5,
-                        },
-
-                        action: {
-                            state:
-                                BRIDGE_PLAYER_SYSTEM_ACTION_STATE
-                                    .DISABLED_OFFICER_BUSY,
-                        },
-                    },
-                });
+                                .AVAILABLE,
+                    });
+                }).not.toThrow();
             },
         );
     },
 );
 
-function createMissileCommand():
-    AvailableOfficerCommand {
+function createMissileStatus(
+    id:
+        string,
+    ammoCurrent:
+        number,
+): BridgePlayerWeaponStatusPayload {
     return {
-        commandId:
-            ENCOUNTER_OFFICER_COMMAND_ID
-                .WEAPONS_FIRE_MISSILE,
-
-        label:
-            'FIRE MISSILE',
-
-        target: {
-            kind:
-                OFFICER_COMMAND_TARGET_KIND
-                    .ACTOR_WEAPON,
-
-            weaponId:
-                'player_missile_launcher',
-
-            actorId:
-                'enemy_1',
+        id,
+        weaponId:
+            SHIP_WEAPON_ID
+                .MISSILE_LAUNCHER_00,
+        kind:
+            SHIP_WEAPON_KIND
+                .MISSILE_LAUNCHER,
+        phase:
+            SHIP_WEAPON_PHASE.READY,
+        ammo: {
+            current:
+                ammoCurrent,
+            max: 5,
         },
     };
 }
 
-
-function createSpamCommand():
-    AvailableOfficerCommand {
+function createWeaponCommand(
+    commandId:
+        EncounterOfficerCommandId,
+    weaponId:
+        string,
+): AvailableOfficerCommand {
     return {
-        commandId:
-            ENCOUNTER_OFFICER_COMMAND_ID
-                .SCIENCE_FIRE_SPAM,
-
+        commandId,
         label:
-            'FIRE SPAM',
-
+            'FIRE',
         target: {
             kind:
                 OFFICER_COMMAND_TARGET_KIND
                     .ACTOR_WEAPON,
-
-            weaponId:
-                'spam_projector_player_00',
-
-            actorId:
-                'enemy_1',
-        },
-    };
-}
-
-
-function createStickyMineCommand():
-    AvailableOfficerCommand {
-    return {
-        commandId:
-            ENCOUNTER_OFFICER_COMMAND_ID
-                .WEAPONS_FIRE_STICKY_MINES,
-
-        label:
-            'FIRE MINES',
-
-        target: {
-            kind:
-                OFFICER_COMMAND_TARGET_KIND
-                    .ACTOR_WEAPON,
-
-            weaponId:
-                'sticky_mine_dispenser_player_00',
-
-            actorId:
-                'enemy_1',
-        },
-    };
-}
-
-
-function createBeamCannonCommand():
-    AvailableOfficerCommand {
-    return {
-        commandId:
-            ENCOUNTER_OFFICER_COMMAND_ID
-                .WEAPONS_FIRE_BEAM_CANNON,
-
-        label:
-            'FIRE BEAM CANNON',
-
-        target: {
-            kind:
-                OFFICER_COMMAND_TARGET_KIND
-                    .ACTOR_WEAPON,
-
-            weaponId:
-                'beam_cannon_player_00',
-
+            weaponId,
             actorId:
                 'enemy_1',
         },

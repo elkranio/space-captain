@@ -9,9 +9,8 @@ import {
     GameRuntime,
 } from '../../src/app/runtime/GameRuntime';
 import {
-    DEFENSE_TURRET_ID,
-    DEFENSE_TURRET_PHASE,
-} from '../../src/engine/defs/defense_turret';
+    DEBUG_START,
+} from '../../src/engine/content/catalogs/debug_start';
 import {
     POWER_CORE_ID,
 } from '../../src/engine/defs/power_core';
@@ -19,352 +18,147 @@ import {
     SHIP_DRIVE_ID,
     SHIP_DRIVE_STATUS,
 } from '../../src/engine/defs/ship_drive';
-import {
-    SHIP_WEAPON_ID,
-    SHIP_WEAPON_KIND,
-    SHIP_WEAPON_PHASE,
-} from '../../src/engine/defs/ship_weapon';
-import {
-    SHIELD_GENERATOR_ID,
-    SHIELD_GENERATOR_PHASE,
-    SHIELD_GENERATOR_STATUS,
-} from '../../src/engine/defs/shield_generator';
 
 describe('GameRuntime player ship hull', () => {
-    it('creates a new run with full player ship state', () => {
-        const runtime = new GameRuntime();
+    it('creates a new run from current Debug Start hardware', () => {
+        const runtime =
+            new GameRuntime();
+
+        const ship =
+            runtime
+                .getCurrentRun()
+                .player
+                .ship;
+
+        expect(ship.hull).toBe(
+            DEBUG_START.player
+                .maxHull,
+        );
+
+        expect(ship.maxHull).toBe(
+            DEBUG_START.player
+                .maxHull,
+        );
 
         expect(
-            runtime.getCurrentRun().player.ship,
-        ).toEqual({
-            hull: 3,
-            maxHull: 3,
+            ship.drive.driveId,
+        ).toBe(
+            DEBUG_START.player
+                .driveId,
+        );
 
-            drive: {
-                id: 'drive_player_00',
+        expect(
+            ship.powerCore.powerCoreId,
+        ).toBe(
+            DEBUG_START.player
+                .powerCoreId,
+        );
 
-                driveId:
-                    SHIP_DRIVE_ID.BASIC_00,
+        expect(
+            ship.shieldGenerator
+                .shieldGeneratorId,
+        ).toBe(
+            DEBUG_START.player
+                .shieldGeneratorId,
+        );
 
-                status:
-                    SHIP_DRIVE_STATUS.ONLINE,
-            },
-            defenseTurret: {
-                id:
-                    'defense_turret_player_00',
+        expect(
+            ship.defenseTurret
+                .defenseTurretId,
+        ).toBe(
+            DEBUG_START.player
+                .defenseTurretId,
+        );
 
-                defenseTurretId:
-                    DEFENSE_TURRET_ID
-                        .BASIC_00,
+        expect(
+            ship.weapons.map(
+                (weapon) =>
+                    weapon.weaponId,
+            ),
+        ).toEqual([
+            DEBUG_START.player
+                .weaponSlot1Id,
+            DEBUG_START.player
+                .weaponSlot2Id,
+            DEBUG_START.player
+                .weaponSlot3Id,
+            DEBUG_START.player
+                .weaponSlot4Id,
+        ]);
 
-                phase:
-                    DEFENSE_TURRET_PHASE
-                        .READY,
-
-                phaseElapsedMs: 0,
-
-                targetProjectileId:
-                    null,
-            },
-
-            powerCore: {
-                id:
-                    'power_core_player_00',
-
-                powerCoreId:
-                    POWER_CORE_ID
-                        .BASIC_00,
-
-                charges: 4,
-                rechargeElapsedMs: 0,
-            },
-
-            shieldGenerator: {
-                id:
-                    'shield_generator_player_00',
-
-                shieldGeneratorId:
-                    SHIELD_GENERATOR_ID
-                        .BASIC_00,
-
-                status:
-                    SHIELD_GENERATOR_STATUS
-                        .ONLINE,
-
-                phase:
-                    SHIELD_GENERATOR_PHASE
-                        .READY,
-
-                phaseElapsedMs: 0,
-            },
-
-            weapons: [
-                {
-                    id: 'beam_cannon_player_00',
-
-                    weaponId:
-                        SHIP_WEAPON_ID
-                            .BEAM_CANNON_00,
-
-                    kind:
-                        SHIP_WEAPON_KIND.BEAM_CANNON,
-
-                    phase:
-                        SHIP_WEAPON_PHASE.READY,
-
-                    phaseElapsedMs: 0,
-                },
-
-                {
-                    id:
-                        'missile_launcher_player_00',
-
-                    weaponId:
-                        SHIP_WEAPON_ID
-                            .MISSILE_LAUNCHER_00,
-
-                    kind:
-                        SHIP_WEAPON_KIND
-                            .MISSILE_LAUNCHER,
-
-
-
-                    ammoCount: 5,
-
-                    phase:
-                        SHIP_WEAPON_PHASE.READY,
-
-                    phaseElapsedMs: 0,
-                },
-
-                {
-                    id:
-                        'sticky_mine_dispenser_player_00',
-
-                    weaponId:
-                        SHIP_WEAPON_ID
-                            .STICKY_MINE_DISPENSER_00,
-
-                    kind:
-                        SHIP_WEAPON_KIND
-                            .STICKY_MINE_DISPENSER,
-
-
-                    ammoCount: 6,
-
-                    phase:
-                        SHIP_WEAPON_PHASE.READY,
-
-                    phaseElapsedMs: 0,
-
-                    dispensedMineCount: 0,
-                },
-
-                {
-                    id:
-                        'spam_projector_player_00',
-
-                    weaponId:
-                        SHIP_WEAPON_ID
-                            .SPAM_PROJECTOR_00,
-
-                    kind:
-                        SHIP_WEAPON_KIND
-                            .SPAM_PROJECTOR,
-
-                    phase:
-                        SHIP_WEAPON_PHASE.READY,
-
-                    phaseElapsedMs: 0,
-
-                    activeChannelId: null,
-                },
-            ],
-        });
+        expect(
+            new Set(
+                ship.weapons.map(
+                    (weapon) =>
+                        weapon.id,
+                ),
+            ).size,
+        ).toBe(
+            ship.weapons.length,
+        );
     });
 
-    it('persists an exact player hull snapshot', () => {
-        const runtime = new GameRuntime();
+    it('persists an exact player hull snapshot without replacing ship hardware', () => {
+        const runtime =
+            new GameRuntime();
+
+        const ship =
+            runtime
+                .getCurrentRun()
+                .player
+                .ship;
+
+        const weapons =
+            ship.weapons;
 
         runtime.setPlayerShipHull(
             2,
         );
 
-        expect(
-            runtime.getCurrentRun()
-                .player.ship.hull,
-        ).toBe(2);
+        expect(ship.hull).toBe(2);
 
         runtime.setPlayerShipHull(
             0,
         );
 
-        expect(
-            runtime.getCurrentRun().player.ship,
-        ).toEqual({
-            hull: 0,
-            maxHull: 3,
-
-            drive: {
-                id: 'drive_player_00',
-
-                driveId:
-                    SHIP_DRIVE_ID.BASIC_00,
-
-                status:
-                    SHIP_DRIVE_STATUS.ONLINE,
-            },
-            defenseTurret: {
-                id:
-                    'defense_turret_player_00',
-
-                defenseTurretId:
-                    DEFENSE_TURRET_ID
-                        .BASIC_00,
-
-                phase:
-                    DEFENSE_TURRET_PHASE
-                        .READY,
-
-                phaseElapsedMs: 0,
-
-                targetProjectileId:
-                    null,
-            },
-
-            powerCore: {
-                id:
-                    'power_core_player_00',
-
-                powerCoreId:
-                    POWER_CORE_ID
-                        .BASIC_00,
-
-                charges: 4,
-                rechargeElapsedMs: 0,
-            },
-
-            shieldGenerator: {
-                id:
-                    'shield_generator_player_00',
-
-                shieldGeneratorId:
-                    SHIELD_GENERATOR_ID
-                        .BASIC_00,
-
-                status:
-                    SHIELD_GENERATOR_STATUS
-                        .ONLINE,
-
-                phase:
-                    SHIELD_GENERATOR_PHASE
-                        .READY,
-
-                phaseElapsedMs: 0,
-            },
-
-            weapons: [
-                {
-                    id: 'beam_cannon_player_00',
-
-                    weaponId:
-                        SHIP_WEAPON_ID
-                            .BEAM_CANNON_00,
-
-                    kind:
-                        SHIP_WEAPON_KIND.BEAM_CANNON,
-
-                    phase:
-                        SHIP_WEAPON_PHASE.READY,
-
-                    phaseElapsedMs: 0,
-                },
-
-                {
-                    id:
-                        'missile_launcher_player_00',
-
-                    weaponId:
-                        SHIP_WEAPON_ID
-                            .MISSILE_LAUNCHER_00,
-
-                    kind:
-                        SHIP_WEAPON_KIND
-                            .MISSILE_LAUNCHER,
-
-
-
-                    ammoCount: 5,
-
-                    phase:
-                        SHIP_WEAPON_PHASE.READY,
-
-                    phaseElapsedMs: 0,
-                },
-
-                {
-                    id:
-                        'sticky_mine_dispenser_player_00',
-
-                    weaponId:
-                        SHIP_WEAPON_ID
-                            .STICKY_MINE_DISPENSER_00,
-
-                    kind:
-                        SHIP_WEAPON_KIND
-                            .STICKY_MINE_DISPENSER,
-
-
-                    ammoCount: 6,
-
-                    phase:
-                        SHIP_WEAPON_PHASE.READY,
-
-                    phaseElapsedMs: 0,
-
-                    dispensedMineCount: 0,
-                },
-
-                {
-                    id:
-                        'spam_projector_player_00',
-
-                    weaponId:
-                        SHIP_WEAPON_ID
-                            .SPAM_PROJECTOR_00,
-
-                    kind:
-                        SHIP_WEAPON_KIND
-                            .SPAM_PROJECTOR,
-
-                    phase:
-                        SHIP_WEAPON_PHASE.READY,
-
-                    phaseElapsedMs: 0,
-
-                    activeChannelId: null,
-                },
-            ],
-        });
+        expect(ship.hull).toBe(0);
+        expect(ship.weapons).toBe(
+            weapons,
+        );
     });
 
     it('rejects a player hull snapshot outside its installed maximum', () => {
-        const runtime = new GameRuntime();
+        const runtime =
+            new GameRuntime();
+
+        const maxHull =
+            runtime
+                .getCurrentRun()
+                .player
+                .ship
+                .maxHull;
 
         expect(() => {
             runtime.setPlayerShipHull(
                 -1,
             );
         }).toThrow(
-            'Player ship hull must be in [0, maxHull]: -1/3',
+            'Player ship hull must be in [0, maxHull]: -1/' +
+                maxHull,
         );
+
+        const aboveMax =
+            maxHull + 1;
 
         expect(() => {
             runtime.setPlayerShipHull(
-                4,
+                aboveMax,
             );
         }).toThrow(
-            'Player ship hull must be in [0, maxHull]: 4/3',
+            'Player ship hull must be in [0, maxHull]: ' +
+                aboveMax +
+                '/' +
+                maxHull,
         );
     });
 });

@@ -9,7 +9,10 @@ import type {
 } from '../../../../../engine/encounter/model/missile_signature_intel';
 import type { DefenseTurretShotOutcome } from '../../../../../engine/defs/defense_turret';
 import type { ShipDriveStatus } from '../../../../../engine/defs/ship_drive';
-import type { ShipWeaponPhase } from '../../../../../engine/defs/ship_weapon';
+import type {
+    ShipWeaponKind,
+    ShipWeaponPhase,
+} from '../../../../../engine/defs/ship_weapon';
 import type { EncounterOfficerCommandId, OfficerCommandTarget } from '../../../../../engine/encounter/model/command';
 import type {
     BeamCannonShotOutcome,
@@ -400,37 +403,28 @@ export type BridgeOfficerActivityProgressUpdatedPayload = Record<OfficerRole, nu
 // #region Player ship status
 
 export type BridgePlayerWeaponStatusPayload = {
+    // Runtime installation identity. This is what resolved actor-weapon
+    // commands target; kind is presentation metadata, not identity.
+    id: string;
+    weaponId: string;
+
+    kind: ShipWeaponKind;
     phase: ShipWeaponPhase;
 
-    // Полная длительность текущей timed phase.
-    // Отсутствует для READY.
+    // Full duration of the current timed phase.
+    // Absent for READY.
     initialPhaseMs?: number;
-
     remainingPhaseMs?: number;
+
+    // Present only for ammo-backed weapons.
+    ammo?: {
+        current: number;
+        max: number;
+    };
 };
 
-export type BridgePlayerWeaponsStatusUpdatedPayload = {
-    beamCannon?: BridgePlayerWeaponStatusPayload;
-
-    missileLauncher?:
-        BridgePlayerWeaponStatusPayload & {
-            ammo: {
-                current: number;
-                max: number;
-            };
-        };
-
-    stickyMineDispenser?:
-        BridgePlayerWeaponStatusPayload & {
-            ammo: {
-                current: number;
-                max: number;
-            };
-        };
-
-    spamProjector?:
-        BridgePlayerWeaponStatusPayload;
-};
+export type BridgePlayerWeaponsStatusUpdatedPayload =
+    BridgePlayerWeaponStatusPayload[];
 
 export const BRIDGE_PLAYER_SYSTEM_ACTION_STATE = {
     ACTIVE: 'active',
@@ -443,6 +437,32 @@ export const BRIDGE_PLAYER_SYSTEM_ACTION_STATE = {
 
 export type BridgePlayerSystemActionState =
     (typeof BRIDGE_PLAYER_SYSTEM_ACTION_STATE)[keyof typeof BRIDGE_PLAYER_SYSTEM_ACTION_STATE];
+
+export type BridgePlayerWeaponDashboardPayload = {
+    id: string;
+    weaponId: string;
+
+    kind: ShipWeaponKind;
+
+    ammo?: {
+        current: number;
+        max: number;
+    };
+
+    // 0..1 elapsed cooldown.
+    // Undefined means the cooldown bar is not shown.
+    cooldownProgress?: number;
+
+    action: {
+        state:
+            BridgePlayerSystemActionState;
+
+        // Exact engine-resolved command for this installed weapon.
+        // Present only for ACTIVE state.
+        command?:
+            BridgeOfficerCommandSelectedPayload;
+    };
+};
 
 export type BridgePlayerShipDashboardUpdatedPayload = {
     // Stable top strip owned by the captain dashboard itself.
@@ -471,82 +491,11 @@ export type BridgePlayerShipDashboardUpdatedPayload = {
         };
     };
 
-    missileLauncher?: {
-        ammo: {
-            current: number;
-            max: number;
-        };
-
-        // 0..1 elapsed cooldown.
-        // undefined означает, что cooldown bar не показывается.
-        cooldownProgress?: number;
-
-        action: {
-            state:
-                BridgePlayerSystemActionState;
-
-            // Exact engine-resolved command.
-            // Присутствует только у ACTIVE state.
-            command?:
-                BridgeOfficerCommandSelectedPayload;
-        };
-    };
-
-    beamCannon?: {
-        // 0..1 elapsed cooldown.
-        // Targeting/charging показываются через ENGAGED state,
-        // без отдельного progress bar в dashboard.
-        cooldownProgress?: number;
-
-        action: {
-            state:
-                BridgePlayerSystemActionState;
-
-            // Exact engine-resolved command.
-            // Присутствует только у ACTIVE state.
-            command?:
-                BridgeOfficerCommandSelectedPayload;
-        };
-    };
-
-    stickyMineDispenser?: {
-        ammo: {
-            current: number;
-            max: number;
-        };
-
-        // 0..1 elapsed cooldown.
-        // Targeting/dispensing are current Weapons work,
-        // so their progress is intentionally not shown here.
-        cooldownProgress?: number;
-
-        action: {
-            state:
-                BridgePlayerSystemActionState;
-
-            // Exact engine-resolved command.
-            // Присутствует только у ACTIVE state.
-            command?:
-                BridgeOfficerCommandSelectedPayload;
-        };
-    };
-
-    spamProjector?: {
-        // 0..1 elapsed cooldown.
-        // Targeting/channeling are current Science work,
-        // so their progress is intentionally not shown here.
-        cooldownProgress?: number;
-
-        action: {
-            state:
-                BridgePlayerSystemActionState;
-
-            // Exact engine-resolved command.
-            // Присутствует только у ACTIVE state.
-            command?:
-                BridgeOfficerCommandSelectedPayload;
-        };
-    };
+    // One row per installed weapon. Runtime id keeps duplicate kinds distinct.
+    // Optional so focused status-only presentation callers can omit the list;
+    // systems view treats omission as an empty full snapshot.
+    weapons?:
+        BridgePlayerWeaponDashboardPayload[];
 };
 
 // #endregion

@@ -46,6 +46,9 @@ import {
     ENCOUNTER_EVENT,
     OFFICER_TASK_OUTCOME,
 } from '../../../src/engine/encounter/model/event';
+import {
+    createCanonicalPlayerCombatWeapons,
+} from './combat_test_support';
 
 describe('Player missile lifecycle', () => {
     it('launches after aiming, spends one missile and releases Weapons', () => {
@@ -404,8 +407,11 @@ function createMissileLifecycleSetup(
     enemy.crewRoles = [];
     enemy.weapons = [];
 
+    const playerWeapons =
+        createCanonicalPlayerCombatWeapons();
+
     const installedLauncher =
-        run.player.ship.weapons.find(
+        playerWeapons.find(
             (weapon) => {
                 return (
                     weapon.kind ===
@@ -448,7 +454,7 @@ function createMissileLifecycleSetup(
         drive:
             run.player.ship.drive,
         weapons:
-            run.player.ship.weapons,
+            playerWeapons,
 
         random: () => 0,
     });

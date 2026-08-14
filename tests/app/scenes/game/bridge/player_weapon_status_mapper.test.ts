@@ -77,8 +77,19 @@ describe(
                             ),
                         ],
                     ),
-                ).toEqual({
-                    spamProjector: {
+                ).toEqual([
+                    {
+                        id:
+                            'player_spam_status_test',
+
+                        weaponId:
+                            SHIP_WEAPON_ID
+                                .SPAM_PROJECTOR_00,
+
+                        kind:
+                            SHIP_WEAPON_KIND
+                                .SPAM_PROJECTOR,
+
                         phase:
                             SHIP_WEAPON_PHASE
                                 .CHANNELING,
@@ -92,7 +103,7 @@ describe(
                                 .channelDurationMs -
                             elapsedMs,
                     },
-                });
+                ]);
             },
         );
     },

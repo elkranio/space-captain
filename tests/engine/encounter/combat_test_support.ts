@@ -2,8 +2,20 @@
 
 import { createPlayerHullFixture } from '../../fixtures/engine/player_hull_fixtures';
 import {
-    createNewRunState,
-} from '../../../src/engine/content/new_game/create_new_run_state';
+    createShipDriveFixture,
+} from '../../fixtures/engine/ship_drive_fixtures';
+import {
+    createStationAndBeaconNodeFixture,
+} from '../../fixtures/engine/space_node_fixtures';
+import {
+    SHIP_NODE_ACTOR_PRESET_ID,
+} from '../../../src/engine/content/presets/ship_node_actors';
+import {
+    POWER_CORE_ID,
+} from '../../../src/engine/defs/power_core';
+import {
+    SHIELD_GENERATOR_ID,
+} from '../../../src/engine/defs/shield_generator';
 import {
     ENCOUNTER_TEAM,
 } from '../../../src/engine/defs/encounter_team';
@@ -11,13 +23,22 @@ import {
     PLAYER_SPACE_NAVIGATION_KIND,
 } from '../../../src/engine/defs/player_location';
 import {
+    SHIP_WEAPON_ID,
     SHIP_WEAPON_KIND,
     type BeamCannonState,
     type MissileLauncherState,
+    type ShipWeaponState,
     type SpamProjectorState,
     type StickyMineDispenserState,
 } from '../../../src/engine/defs/ship_weapon';
 import EncounterEngine from '../../../src/engine/encounter/EncounterEngine';
+import PowerCoreFactory from '../../../src/engine/generation/ship_system/PowerCoreFactory';
+import ShieldGeneratorFactory from '../../../src/engine/generation/ship_system/ShieldGeneratorFactory';
+import ShipNodeActorFactory from '../../../src/engine/generation/space_node_actor/ShipNodeActorFactory';
+import BeamCannonFactory from '../../../src/engine/generation/ship_weapon/BeamCannonFactory';
+import MissileLauncherFactory from '../../../src/engine/generation/ship_weapon/MissileLauncherFactory';
+import SpamProjectorFactory from '../../../src/engine/generation/ship_weapon/SpamProjectorFactory';
+import StickyMineDispenserFactory from '../../../src/engine/generation/ship_weapon/StickyMineDispenserFactory';
 import { getMutableEncounterStateForTest } from './get_mutable_encounter_state_for_test';
 import type {
     ShipEncounterActorState,
@@ -44,26 +65,32 @@ export function createAnchoredPlayerCombatTestSetup(
         AnchoredPlayerCombatTestSetupOptions = {},
 ):
     AnchoredPlayerCombatTestSetup {
-    const run =
-        createNewRunState();
+    const {
+        node,
+        beaconId,
+    } =
+        createStationAndBeaconNodeFixture();
 
-    const startNode =
-        run.universe.nodes.find((node) => {
-            return node.id === 'node_start';
-        });
+    node.actors.push(
+        ShipNodeActorFactory.create({
+            id:
+                'ship_generic_00',
 
-    if (!startNode) {
-        throw new Error(
-            'Expected new-game start node',
-        );
-    }
+            presetId:
+                SHIP_NODE_ACTOR_PRESET_ID
+                    .ENEMY_DEFENSE_SANDBOX_00,
+
+            anchorId:
+                beaconId,
+        }),
+    );
 
     const engine =
         new EncounterEngine({
-            playerHull: createPlayerHullFixture(),
+            playerHull:
+                createPlayerHullFixture(),
 
-            node:
-                startNode,
+            node,
 
             navigation: {
                 kind:
@@ -71,23 +98,34 @@ export function createAnchoredPlayerCombatTestSetup(
                         .ANCHORED,
 
                 anchorId:
-                    startNode
-                        .arrivalAnchorId,
+                    beaconId,
             },
 
             drive:
-                run.player.ship.drive,
+                createShipDriveFixture(),
+
             powerCore:
-                run.player.ship
-                    .powerCore,
+                PowerCoreFactory.create({
+                    id:
+                        'power_core_player_00',
+
+                    powerCoreId:
+                        POWER_CORE_ID
+                            .BASIC_00,
+                }),
 
             shieldGenerator:
-                run.player.ship
-                    .shieldGenerator,
+                ShieldGeneratorFactory.create({
+                    id:
+                        'shield_generator_player_00',
+
+                    shieldGeneratorId:
+                        SHIELD_GENERATOR_ID
+                            .BASIC_00,
+                }),
 
             weapons:
-                run.player.ship
-                    .weapons,
+                createCanonicalPlayerCombatWeapons(),
 
             random:
                 options.random,
@@ -130,6 +168,47 @@ export function createAnchoredPlayerCombatTestSetup(
 
         targetActor,
     };
+}
+
+export function createCanonicalPlayerCombatWeapons():
+    ShipWeaponState[] {
+    return [
+        BeamCannonFactory.create({
+            id:
+                'beam_cannon_player_00',
+
+            weaponId:
+                SHIP_WEAPON_ID
+                    .BEAM_CANNON_00,
+        }),
+
+        MissileLauncherFactory.create({
+            id:
+                'missile_launcher_player_00',
+
+            weaponId:
+                SHIP_WEAPON_ID
+                    .MISSILE_LAUNCHER_00,
+        }),
+
+        StickyMineDispenserFactory.create({
+            id:
+                'sticky_mine_dispenser_player_00',
+
+            weaponId:
+                SHIP_WEAPON_ID
+                    .STICKY_MINE_DISPENSER_00,
+        }),
+
+        SpamProjectorFactory.create({
+            id:
+                'spam_projector_player_00',
+
+            weaponId:
+                SHIP_WEAPON_ID
+                    .SPAM_PROJECTOR_00,
+        }),
+    ];
 }
 
 export function getPlayerWeaponOrThrow(

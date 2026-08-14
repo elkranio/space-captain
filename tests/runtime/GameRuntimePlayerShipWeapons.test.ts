@@ -9,77 +9,64 @@ import {
     GameRuntime,
 } from '../../src/app/runtime/GameRuntime';
 import {
-    SHIP_WEAPONS,
-} from '../../src/engine/content/catalogs/ship_weapons';
+    DEBUG_START,
+} from '../../src/engine/content/catalogs/debug_start';
 import {
     SHIP_WEAPON_ID,
-    SHIP_WEAPON_KIND,
     SHIP_WEAPON_PHASE,
 } from '../../src/engine/defs/ship_weapon';
 
 describe('GameRuntime player ship weapons', () => {
-    it('creates a fully loaded starter missile launcher', () => {
+    it('creates the configured Debug Start weapon slots with unique runtime ids', () => {
         const runtime =
             new GameRuntime();
 
-        const launcher =
+        const weapons =
             runtime
                 .getCurrentRun()
                 .player
                 .ship
-                .weapons
-                .find((weapon) => {
-                    return (
-                        weapon.kind ===
-                        SHIP_WEAPON_KIND
-                            .MISSILE_LAUNCHER
-                    );
-                });
+                .weapons;
 
-        if (
-            !launcher ||
-            launcher.kind !==
-                SHIP_WEAPON_KIND
-                    .MISSILE_LAUNCHER
+        expect(
+            weapons.map(
+                (weapon) =>
+                    weapon.weaponId,
+            ),
+        ).toEqual([
+            DEBUG_START.player
+                .weaponSlot1Id,
+            DEBUG_START.player
+                .weaponSlot2Id,
+            DEBUG_START.player
+                .weaponSlot3Id,
+            DEBUG_START.player
+                .weaponSlot4Id,
+        ]);
+
+        expect(
+            new Set(
+                weapons.map(
+                    (weapon) =>
+                        weapon.id,
+                ),
+            ).size,
+        ).toBe(
+            weapons.length,
+        );
+
+        for (
+            const weapon of
+            weapons
         ) {
-            throw new Error(
-                'Expected starter missile launcher',
-            );
+            expect(weapon).toMatchObject({
+                phase:
+                    SHIP_WEAPON_PHASE
+                        .READY,
+
+                phaseElapsedMs: 0,
+            });
         }
-
-        const definition =
-            SHIP_WEAPONS[
-                launcher.weaponId
-            ];
-
-        if (
-            definition.kind !==
-            SHIP_WEAPON_KIND
-                .MISSILE_LAUNCHER
-        ) {
-            throw new Error(
-                'Expected missile launcher definition',
-            );
-        }
-
-        expect(launcher).toMatchObject({
-            id:
-                'missile_launcher_player_00',
-
-            weaponId:
-                SHIP_WEAPON_ID
-                    .MISSILE_LAUNCHER_00,
-
-            phase:
-                SHIP_WEAPON_PHASE.READY,
-
-            phaseElapsedMs: 0,
-
-
-
-            ammoCount:
-                definition.ammoCapacity,
-        });
     });
 
     it('persists a detached mutable weapon-state snapshot', () => {
@@ -199,8 +186,13 @@ describe('GameRuntime player ship weapons', () => {
                                 ...candidate,
 
                                 weaponId:
+                                    weapon.weaponId ===
                                     SHIP_WEAPON_ID
-                                        .MISSILE_LAUNCHER_00,
+                                        .MISSILE_LAUNCHER_00
+                                        ? SHIP_WEAPON_ID
+                                              .BEAM_CANNON_00
+                                        : SHIP_WEAPON_ID
+                                              .MISSILE_LAUNCHER_00,
                             };
                         },
                     ),

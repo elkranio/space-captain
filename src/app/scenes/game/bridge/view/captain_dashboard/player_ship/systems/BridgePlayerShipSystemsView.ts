@@ -1,160 +1,45 @@
+import {
+    SHIP_WEAPON_KIND,
+    type ShipWeaponKind,
+} from '../../../../../../../../engine/defs/ship_weapon';
 import type BridgeScene from '../../../../BridgeScene';
 import {
     BRIDGE_EVENT,
-    BRIDGE_PLAYER_SYSTEM_ACTION_STATE,
     type BridgePlayerShipDashboardUpdatedPayload,
+    type BridgePlayerWeaponDashboardPayload,
 } from '../../../../events/bridge_event';
 import type BridgeEventBus from '../../../../events/BridgeEventBus';
 import BridgePlayerShipSystemRowView, {
     type BridgePlayerShipSystemRowLayout,
 } from './BridgePlayerShipSystemRowView';
 
-const SYSTEM_ROWS:
-    BridgePlayerShipSystemRowLayout[] = [
-        {
-            iconLabel: 'MSL',
-            label: 'MISSILE --/--',
-            roleLabel: 'WPN',
-        },
-        {
-            iconLabel: 'LAS',
-            label: 'BEAM CANNON',
-            roleLabel: 'WPN',
-        },
-        {
-            iconLabel: 'MIN',
-            label: 'MINES --/--',
-            roleLabel: 'WPN',
-        },
-        {
-            iconLabel: 'EW',
-            label: 'SPAM',
-            roleLabel: 'SCI',
-        },
-    ];
-
-const MISSILE_LAUNCHER_ROW_INDEX = 0;
-const BEAM_CANNON_ROW_INDEX = 1;
-const STICKY_MINE_DISPENSER_ROW_INDEX = 2;
-const SPAM_PROJECTOR_ROW_INDEX = 3;
-
-// Список player ship systems.
-//
-// Каждая реальная строка получает уже разрешённый app-side state.
-// View не пересчитывает domain availability:
-// ACTIVE callback только эмитит существующий OFFICER_COMMAND_SELECTED.
+// Installed player weapons are a runtime list, not one singleton per kind.
+// Rows are rebuilt only when installation identity/order changes; normal frame
+// updates reuse the existing Phaser objects.
 export default class BridgePlayerShipSystemsView {
     private readonly root:
         Phaser.GameObjects.Container;
 
-    private readonly rowViews:
-        BridgePlayerShipSystemRowView[] = [];
+    private readonly rowViews =
+        new Map<
+            string,
+            BridgePlayerShipSystemRowView
+        >();
 
-    private missileLauncherView?:
-        BridgePlayerShipSystemRowView;
-
-    private beamCannonView?:
-        BridgePlayerShipSystemRowView;
-
-    private stickyMineDispenserView?:
-        BridgePlayerShipSystemRowView;
-
-    private spamProjectorView?:
-        BridgePlayerShipSystemRowView;
+    private rowOrder:
+        string[] = [];
 
     constructor(
         private readonly scene: BridgeScene,
         private readonly eventBus: BridgeEventBus,
-        width: number,
-        height: number,
+        private readonly width: number,
+        private readonly height: number,
     ) {
         this.root =
             this.scene.add.container(
                 0,
                 0,
             );
-
-        const rowHeight =
-            height /
-            SYSTEM_ROWS.length;
-
-        for (
-            let index = 0;
-            index < SYSTEM_ROWS.length;
-            index += 1
-        ) {
-            const row =
-                SYSTEM_ROWS[index];
-
-            if (!row) {
-                continue;
-            }
-
-            const rowView =
-                new BridgePlayerShipSystemRowView(
-                    this.scene,
-                    width,
-                    rowHeight,
-                    row,
-                );
-
-            rowView.setPosition(
-                0,
-                rowHeight *
-                    index,
-            );
-
-            if (
-                index ===
-                MISSILE_LAUNCHER_ROW_INDEX
-            ) {
-                this.missileLauncherView =
-                    rowView;
-            }
-
-            if (
-                index ===
-                BEAM_CANNON_ROW_INDEX
-            ) {
-                this.beamCannonView =
-                    rowView;
-            }
-
-            if (
-                index ===
-                STICKY_MINE_DISPENSER_ROW_INDEX
-            ) {
-                this.stickyMineDispenserView =
-                    rowView;
-            }
-
-            if (
-                index ===
-                SPAM_PROJECTOR_ROW_INDEX
-            ) {
-                this.spamProjectorView =
-                    rowView;
-            }
-
-            this.rowViews.push(
-                rowView,
-            );
-
-            this.root.add(
-                rowView.getRoot(),
-            );
-        }
-
-        if (
-            !this.missileLauncherView ||
-            !this.beamCannonView ||
-            !this.stickyMineDispenserView ||
-            !this.spamProjectorView
-        ) {
-            throw new Error(
-                'Captain dashboard weapon rows were not created',
-            );
-        }
 
         this.eventBus.on(
             BRIDGE_EVENT
@@ -189,27 +74,7 @@ export default class BridgePlayerShipSystemsView {
             this,
         );
 
-        for (
-            const rowView
-            of this.rowViews
-        ) {
-            rowView.destroy();
-        }
-
-        this.rowViews.length = 0;
-
-        this.missileLauncherView =
-            undefined;
-
-        this.beamCannonView =
-            undefined;
-
-        this.stickyMineDispenserView =
-            undefined;
-
-        this.spamProjectorView =
-            undefined;
-
+        this.destroyRows();
         this.root.destroy(false);
     }
 
@@ -217,214 +82,181 @@ export default class BridgePlayerShipSystemsView {
         payload:
             BridgePlayerShipDashboardUpdatedPayload,
     ): void {
-        this.updateMissileLauncher(
-            payload.missileLauncher,
+        const weapons =
+            payload.weapons ?? [];
+
+        this.reconcileRows(
+            weapons,
         );
 
-        this.updateBeamCannon(
-            payload.beamCannon,
-        );
+        for (const weapon of weapons) {
+            const view =
+                this.rowViews.get(
+                    weapon.id,
+                );
 
-        this.updateStickyMineDispenser(
-            payload.stickyMineDispenser,
-        );
+            if (!view) {
+                throw new Error(
+                    'Captain dashboard weapon row is missing after reconciliation: ' +
+                        weapon.id,
+                );
+            }
 
-        this.updateSpamProjector(
-            payload.spamProjector,
-        );
+            this.updateWeapon(
+                view,
+                weapon,
+            );
+        }
     }
 
-    private updateMissileLauncher(
-        launcher:
-            BridgePlayerShipDashboardUpdatedPayload[
-                'missileLauncher'
-            ],
+    private reconcileRows(
+        weapons:
+            BridgePlayerWeaponDashboardPayload[],
     ): void {
-        const view =
-            this.missileLauncherView;
+        const nextOrder =
+            weapons.map(
+                (weapon) =>
+                    weapon.id,
+            );
 
-        if (!view) {
+        if (
+            isSameOrder(
+                this.rowOrder,
+                nextOrder,
+            )
+        ) {
             return;
         }
 
-        if (!launcher) {
-            view.setSystemLabel(
-                'MISSILE --/--',
-            );
+        assertUniqueWeaponIds(
+            weapons,
+        );
 
-            view.setProgress(
-                undefined,
-            );
+        this.destroyRows();
 
-            view.setAction(
-                BRIDGE_PLAYER_SYSTEM_ACTION_STATE
-                    .DISABLED_SYSTEM,
-            );
-
+        if (weapons.length === 0) {
             return;
         }
 
-        view.setSystemLabel(
-            'MISSILE ' +
-                `${launcher.ammo.current}/` +
-                `${launcher.ammo.max}`,
-        );
+        const rowHeight =
+            this.height /
+            weapons.length;
 
-        view.setProgress(
-            launcher.cooldownProgress,
-        );
+        for (
+            let index = 0;
+            index < weapons.length;
+            index += 1
+        ) {
+            const weapon =
+                weapons[index];
 
-        this.applyAction(
-            view,
-            launcher.action,
-        );
+            if (!weapon) {
+                continue;
+            }
+
+            const rowView =
+                new BridgePlayerShipSystemRowView(
+                    this.scene,
+                    this.width,
+                    rowHeight,
+                    getWeaponRowLayout(
+                        weapon.kind,
+                    ),
+                );
+
+            rowView.setPosition(
+                0,
+                rowHeight * index,
+            );
+
+            this.rowViews.set(
+                weapon.id,
+                rowView,
+            );
+
+            this.rowOrder.push(
+                weapon.id,
+            );
+
+            this.root.add(
+                rowView.getRoot(),
+            );
+        }
     }
 
-    private updateBeamCannon(
-        beamCannon:
-            BridgePlayerShipDashboardUpdatedPayload[
-                'beamCannon'
-            ],
-    ): void {
-        const view =
-            this.beamCannonView;
-
-        if (!view) {
-            return;
-        }
-
-        view.setSystemLabel(
-            'BEAM CANNON',
-        );
-
-        if (!beamCannon) {
-            view.setProgress(
-                undefined,
-            );
-
-            view.setAction(
-                BRIDGE_PLAYER_SYSTEM_ACTION_STATE
-                    .DISABLED_SYSTEM,
-            );
-
-            return;
-        }
-
-        view.setProgress(
-            beamCannon.cooldownProgress,
-        );
-
-        this.applyAction(
-            view,
-            beamCannon.action,
-        );
-    }
-
-    private updateStickyMineDispenser(
-        dispenser:
-            BridgePlayerShipDashboardUpdatedPayload[
-                'stickyMineDispenser'
-            ],
-    ): void {
-        const view =
-            this.stickyMineDispenserView;
-
-        if (!view) {
-            return;
-        }
-
-        if (!dispenser) {
-            view.setSystemLabel(
-                'MINES --/--',
-            );
-
-            view.setProgress(
-                undefined,
-            );
-
-            view.setAction(
-                BRIDGE_PLAYER_SYSTEM_ACTION_STATE
-                    .DISABLED_SYSTEM,
-            );
-
-            return;
-        }
-
-        view.setSystemLabel(
-            'MINES ' +
-                dispenser.ammo.current +
-                '/' +
-                dispenser.ammo.max,
-        );
-
-        view.setProgress(
-            dispenser.cooldownProgress,
-        );
-
-        this.applyAction(
-            view,
-            dispenser.action,
-        );
-    }
-
-    private updateSpamProjector(
-        projector:
-            BridgePlayerShipDashboardUpdatedPayload[
-                'spamProjector'
-            ],
-    ): void {
-        const view =
-            this.spamProjectorView;
-
-        if (!view) {
-            return;
-        }
-
-        view.setSystemLabel(
-            'SPAM',
-        );
-
-        if (!projector) {
-            view.setProgress(
-                undefined,
-            );
-
-            view.setAction(
-                BRIDGE_PLAYER_SYSTEM_ACTION_STATE
-                    .DISABLED_SYSTEM,
-            );
-
-            return;
-        }
-
-        view.setProgress(
-            projector.cooldownProgress,
-        );
-
-        this.applyAction(
-            view,
-            projector.action,
-        );
-    }
-
-    private applyAction(
+    private updateWeapon(
         view:
             BridgePlayerShipSystemRowView,
-
-        action:
-            NonNullable<
-                BridgePlayerShipDashboardUpdatedPayload[
-                    'missileLauncher'
-                ]
-            >[
-                'action'
-            ],
+        weapon:
+            BridgePlayerWeaponDashboardPayload,
     ): void {
+        switch (weapon.kind) {
+            case SHIP_WEAPON_KIND
+                .MISSILE_LAUNCHER: {
+                const ammo =
+                    requireAmmo(
+                        weapon,
+                    );
+
+                view.setSystemLabel(
+                    'MISSILE ' +
+                        ammo.current +
+                        '/' +
+                        ammo.max,
+                );
+
+                break;
+            }
+
+            case SHIP_WEAPON_KIND.BEAM_CANNON:
+                view.setSystemLabel(
+                    'BEAM CANNON',
+                );
+
+                break;
+
+            case SHIP_WEAPON_KIND
+                .STICKY_MINE_DISPENSER: {
+                const ammo =
+                    requireAmmo(
+                        weapon,
+                    );
+
+                view.setSystemLabel(
+                    'MINES ' +
+                        ammo.current +
+                        '/' +
+                        ammo.max,
+                );
+
+                break;
+            }
+
+            case SHIP_WEAPON_KIND.SPAM_PROJECTOR:
+                view.setSystemLabel(
+                    'SPAM',
+                );
+
+                break;
+
+            default: {
+                const exhaustiveKind:
+                    never =
+                    weapon.kind;
+
+                return exhaustiveKind;
+            }
+        }
+
+        view.setProgress(
+            weapon.cooldownProgress,
+        );
+
         const command =
-            action.command;
+            weapon.action.command;
 
         view.setAction(
-            action.state,
+            weapon.action.state,
 
             command
                 ? () => {
@@ -438,4 +270,126 @@ export default class BridgePlayerShipSystemsView {
                 : undefined,
         );
     }
+
+    private destroyRows(): void {
+        for (
+            const view of
+            this.rowViews.values()
+        ) {
+            view.destroy();
+        }
+
+        this.rowViews.clear();
+        this.rowOrder = [];
+    }
+}
+
+function getWeaponRowLayout(
+    kind:
+        ShipWeaponKind,
+): BridgePlayerShipSystemRowLayout {
+    switch (kind) {
+        case SHIP_WEAPON_KIND
+            .MISSILE_LAUNCHER:
+            return {
+                iconLabel: 'MSL',
+                label: 'MISSILE --/--',
+                roleLabel: 'WPN',
+            };
+
+        case SHIP_WEAPON_KIND.BEAM_CANNON:
+            return {
+                iconLabel: 'LAS',
+                label: 'BEAM CANNON',
+                roleLabel: 'WPN',
+            };
+
+        case SHIP_WEAPON_KIND
+            .STICKY_MINE_DISPENSER:
+            return {
+                iconLabel: 'MIN',
+                label: 'MINES --/--',
+                roleLabel: 'WPN',
+            };
+
+        case SHIP_WEAPON_KIND.SPAM_PROJECTOR:
+            return {
+                iconLabel: 'EW',
+                label: 'SPAM',
+                roleLabel: 'SCI',
+            };
+
+        default: {
+            const exhaustiveKind:
+                never =
+                kind;
+
+            return exhaustiveKind;
+        }
+    }
+}
+
+function requireAmmo(
+    weapon:
+        BridgePlayerWeaponDashboardPayload,
+): NonNullable<
+    BridgePlayerWeaponDashboardPayload[
+        'ammo'
+    ]
+> {
+    if (weapon.ammo) {
+        return weapon.ammo;
+    }
+
+    throw new Error(
+        'Captain dashboard ammo-backed weapon row is missing ammo: ' +
+            weapon.id,
+    );
+}
+
+function assertUniqueWeaponIds(
+    weapons:
+        BridgePlayerWeaponDashboardPayload[],
+): void {
+    const ids =
+        new Set<string>();
+
+    for (const weapon of weapons) {
+        if (ids.has(weapon.id)) {
+            throw new Error(
+                'Captain dashboard received duplicate weapon runtime id: ' +
+                    weapon.id,
+            );
+        }
+
+        ids.add(
+            weapon.id,
+        );
+    }
+}
+
+function isSameOrder(
+    current:
+        readonly string[],
+    next:
+        readonly string[],
+): boolean {
+    if (current.length !== next.length) {
+        return false;
+    }
+
+    for (
+        let index = 0;
+        index < current.length;
+        index += 1
+    ) {
+        if (
+            current[index] !==
+            next[index]
+        ) {
+            return false;
+        }
+    }
+
+    return true;
 }

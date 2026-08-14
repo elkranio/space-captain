@@ -35,6 +35,9 @@ import {
     BEAM_CANNON_SHOT_OUTCOME,
 } from '../../../src/engine/encounter/model/combat';
 import {
+    createCanonicalPlayerCombatWeapons,
+} from './combat_test_support';
+import {
     ENCOUNTER_EVENT,
     OFFICER_TASK_OUTCOME,
 } from '../../../src/engine/encounter/model/event';
@@ -98,7 +101,7 @@ describe('Player beamCannon lifecycle', () => {
             drive:
                 run.player.ship.drive,
             weapons:
-                run.player.ship.weapons,
+                createCanonicalPlayerCombatWeapons(),
         });
 
         engine.drainEvents();

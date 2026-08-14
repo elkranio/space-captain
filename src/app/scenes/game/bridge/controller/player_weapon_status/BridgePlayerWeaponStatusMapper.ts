@@ -11,146 +11,16 @@ import type {
     BridgePlayerWeaponsStatusUpdatedPayload,
 } from '../../events/bridge_event';
 
+// Preserve installed-weapon identity all the way into bridge presentation.
+// Multiple weapons of the same kind are normal; no kind-level collapsing lives
+// on this boundary.
 export function mapPlayerWeaponsToBridgeStatusPayload(
     snapshots:
         PlayerWeaponPresentationSnapshot[],
 ): BridgePlayerWeaponsStatusUpdatedPayload {
-    let beamCannon:
-        BridgePlayerWeaponStatusPayload
-        | undefined;
-
-    let missileLauncher:
-        BridgePlayerWeaponsStatusUpdatedPayload[
-            'missileLauncher'
-        ];
-
-    let stickyMineDispenser:
-        BridgePlayerWeaponsStatusUpdatedPayload[
-            'stickyMineDispenser'
-        ];
-
-    let spamProjector:
-        BridgePlayerWeaponsStatusUpdatedPayload[
-            'spamProjector'
-        ];
-
-    for (const snapshot of snapshots) {
-        const weapon =
-            snapshot.state;
-
-        switch (weapon.kind) {
-            case SHIP_WEAPON_KIND.BEAM_CANNON:
-                if (beamCannon) {
-                    throw new Error(
-                        'Bridge weapon status supports ' +
-                            'one player beamCannon',
-                    );
-                }
-
-                beamCannon =
-                    mapWeaponStatus(
-                        snapshot,
-                    );
-
-                break;
-
-            case SHIP_WEAPON_KIND
-                .MISSILE_LAUNCHER:
-                if (missileLauncher) {
-                    throw new Error(
-                        'Bridge weapon status supports ' +
-                            'one player missile launcher',
-                    );
-                }
-
-                missileLauncher = {
-                    ...mapWeaponStatus(
-                        snapshot,
-                    ),
-
-                    ammo: {
-                        current:
-                            weapon.ammoCount,
-
-                        max:
-                            requireAmmoCapacity(
-                                snapshot,
-                            ),
-                    },
-                };
-
-                break;
-
-            case SHIP_WEAPON_KIND
-                .STICKY_MINE_DISPENSER:
-                if (stickyMineDispenser) {
-                    throw new Error(
-                        'Bridge weapon status supports ' +
-                            'one player sticky mine dispenser',
-                    );
-                }
-
-                stickyMineDispenser = {
-                    ...mapWeaponStatus(
-                        snapshot,
-                    ),
-
-                    ammo: {
-                        current:
-                            weapon.ammoCount,
-
-                        max:
-                            requireAmmoCapacity(
-                                snapshot,
-                            ),
-                    },
-                };
-
-                break;
-
-            case SHIP_WEAPON_KIND
-                .SPAM_PROJECTOR:
-                if (spamProjector) {
-                    throw new Error(
-                        'Bridge weapon status supports ' +
-                            'one player spam projector',
-                    );
-                }
-
-                spamProjector =
-                    mapWeaponStatus(
-                        snapshot,
-                    );
-
-                break;
-        }
-    }
-
-    return {
-        ...(beamCannon
-            ? {
-                  beamCannon,
-              }
-            : {}),
-
-        ...(missileLauncher
-            ? {
-                  missileLauncher,
-              }
-            : {}),
-
-        ...(stickyMineDispenser
-            ? {
-                  stickyMineDispenser,
-              }
-            : {}),
-
-        ...(spamProjector
-            ? {
-                  spamProjector,
-              }
-            : {}),
-    };
+    return snapshots.map(
+        mapWeaponStatus,
+    );
 }
 
 function mapWeaponStatus(
@@ -160,29 +30,83 @@ function mapWeaponStatus(
     const weapon =
         snapshot.state;
 
-    const phaseDurationMs =
-        snapshot.phaseDurationMs;
+    const base = {
+        id:
+            weapon.id,
 
-    return {
+        weaponId:
+            weapon.weaponId,
+
+        kind:
+            weapon.kind,
+
         phase:
             weapon.phase,
 
-        ...(phaseDurationMs !==
-        undefined
-            ? {
-                  initialPhaseMs:
-                      phaseDurationMs,
+        ...mapPhaseTiming(
+            snapshot,
+        ),
+    };
 
-                  remainingPhaseMs:
-                      Math.max(
-                          0,
+    switch (weapon.kind) {
+        case SHIP_WEAPON_KIND.BEAM_CANNON:
+        case SHIP_WEAPON_KIND.SPAM_PROJECTOR:
+            return base;
 
-                          phaseDurationMs -
-                              weapon
-                                  .phaseElapsedMs,
-                      ),
-              }
-            : {}),
+        case SHIP_WEAPON_KIND
+            .MISSILE_LAUNCHER:
+        case SHIP_WEAPON_KIND
+            .STICKY_MINE_DISPENSER:
+            return {
+                ...base,
+
+                ammo: {
+                    current:
+                        weapon.ammoCount,
+
+                    max:
+                        requireAmmoCapacity(
+                            snapshot,
+                        ),
+                },
+            };
+
+        default: {
+            const exhaustiveWeapon:
+                never =
+                weapon;
+
+            return exhaustiveWeapon;
+        }
+    }
+}
+
+function mapPhaseTiming(
+    snapshot:
+        PlayerWeaponPresentationSnapshot,
+): Pick<
+    BridgePlayerWeaponStatusPayload,
+    'initialPhaseMs' | 'remainingPhaseMs'
+> {
+    const phaseDurationMs =
+        snapshot.phaseDurationMs;
+
+    if (phaseDurationMs === undefined) {
+        return {};
+    }
+
+    return {
+        initialPhaseMs:
+            phaseDurationMs,
+
+        remainingPhaseMs:
+            Math.max(
+                0,
+
+                phaseDurationMs -
+                    snapshot.state
+                        .phaseElapsedMs,
+            ),
     };
 }
 

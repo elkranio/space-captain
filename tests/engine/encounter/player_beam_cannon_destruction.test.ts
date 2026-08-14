@@ -36,6 +36,9 @@ import {
 import {
     ENCOUNTER_EVENT,
 } from '../../../src/engine/encounter/model/event';
+import {
+    createCanonicalPlayerCombatWeapons,
+} from './combat_test_support';
 
 describe('Player beamCannon enemy destruction', () => {
     it('destroys the enemy once and removes it from player targeting', () => {
@@ -253,7 +256,7 @@ function createCombatFixture({
         drive:
             run.player.ship.drive,
         weapons:
-            run.player.ship.weapons,
+            createCanonicalPlayerCombatWeapons(),
     });
 
     engine.drainEvents();

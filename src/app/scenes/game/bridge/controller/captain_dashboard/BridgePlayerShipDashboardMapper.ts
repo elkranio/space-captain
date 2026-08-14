@@ -1,7 +1,10 @@
 import type {
     PowerCorePresentationSnapshot,
 } from '../../../../../../engine/encounter/snapshots/combat_presentation_snapshot';
-import { OFFICER_ROLE } from '../../../../../../engine/defs/officer';
+import {
+    OFFICER_ROLE,
+    type OfficerRole,
+} from '../../../../../../engine/defs/officer';
 import type {
     PlayerHullState,
 } from '../../../../../../engine/defs/player';
@@ -9,7 +12,9 @@ import type {
     ShipDriveState,
 } from '../../../../../../engine/defs/ship_drive';
 import {
+    SHIP_WEAPON_KIND,
     SHIP_WEAPON_PHASE,
+    type ShipWeaponKind,
 } from '../../../../../../engine/defs/ship_weapon';
 import {
     OFFICER_AVAILABILITY_STATE,
@@ -17,56 +22,17 @@ import {
 } from '../../../../../../engine/encounter/model/officer_availability';
 import {
     ENCOUNTER_OFFICER_COMMAND_ID,
+    OFFICER_COMMAND_TARGET_KIND,
     type AvailableOfficerCommand,
+    type EncounterOfficerCommandId,
 } from '../../../../../../engine/encounter/model/command';
 import {
     BRIDGE_PLAYER_SYSTEM_ACTION_STATE,
     type BridgePlayerShipDashboardUpdatedPayload,
+    type BridgePlayerWeaponDashboardPayload,
     type BridgePlayerWeaponStatusPayload,
     type BridgePlayerWeaponsStatusUpdatedPayload,
 } from '../../events/bridge_event';
-
-type MissileLauncherStatus =
-    NonNullable<
-        BridgePlayerWeaponsStatusUpdatedPayload[
-            'missileLauncher'
-        ]
-    >;
-
-type MissileLauncherDashboardPayload =
-    NonNullable<
-        BridgePlayerShipDashboardUpdatedPayload[
-            'missileLauncher'
-        ]
-    >;
-
-type BeamCannonDashboardPayload =
-    NonNullable<
-        BridgePlayerShipDashboardUpdatedPayload[
-            'beamCannon'
-        ]
-    >;
-
-type StickyMineDispenserStatus =
-    NonNullable<
-        BridgePlayerWeaponsStatusUpdatedPayload[
-            'stickyMineDispenser'
-        ]
-    >;
-
-type StickyMineDispenserDashboardPayload =
-    NonNullable<
-        BridgePlayerShipDashboardUpdatedPayload[
-            'stickyMineDispenser'
-        ]
-    >;
-
-type SpamProjectorDashboardPayload =
-    NonNullable<
-        BridgePlayerShipDashboardUpdatedPayload[
-            'spamProjector'
-        ]
-    >;
 
 type PlayerShipDashboardMapperInput = {
     weapons:
@@ -78,17 +44,15 @@ type PlayerShipDashboardMapperInput = {
     weaponsOfficerAvailability:
         OfficerAvailabilityState;
 
-    // Science context is only required when the SPAM row exists.
-    // Keeping it optional avoids forcing unrelated weapon-row tests
-    // to construct another role context.
+    // Science context is only required when at least one SPAM projector exists.
     availableScienceCommands?:
         AvailableOfficerCommand[];
 
     scienceOfficerAvailability?:
         OfficerAvailabilityState;
 
-    // Optional so focused mapper tests can exercise individual
-    // system rows without constructing unrelated ship status.
+    // Optional so focused mapper tests can exercise weapon rows without
+    // constructing unrelated ship status.
     playerStatus?: {
         hull:
             PlayerHullState;
@@ -108,28 +72,21 @@ type PlayerShipDashboardMapperInput = {
 
 // App-side projection detached encounter snapshots → captain dashboard.
 //
-// Здесь разрешается только presentation state.
-// Domain availability не пересчитывается:
-// active command приходит напрямую из getAvailableCommands(WEAPONS).
+// One output row corresponds to one installed runtime weapon. Duplicate kinds
+// stay distinct by runtime id, and ACTIVE actions reuse the exact engine-resolved
+// actor-weapon command for that same id.
 export function mapPlayerShipToBridgeDashboardPayload(
     input:
         PlayerShipDashboardMapperInput,
 ): BridgePlayerShipDashboardUpdatedPayload {
-    const launcher =
-        input.weapons
-            .missileLauncher;
-
-    const beamCannon =
-        input.weapons
-            .beamCannon;
-
-    const stickyMineDispenser =
-        input.weapons
-            .stickyMineDispenser;
-
-    const spamProjector =
-        input.weapons
-            .spamProjector;
+    const weapons =
+        input.weapons.map(
+            (weapon) =>
+                mapWeapon(
+                    weapon,
+                    input,
+                ),
+        );
 
     return {
         ...(input.playerStatus
@@ -141,51 +98,9 @@ export function mapPlayerShipToBridgeDashboardPayload(
               }
             : {}),
 
-        ...(launcher
+        ...(weapons.length > 0
             ? {
-                  missileLauncher:
-                      mapMissileLauncher(
-                          launcher,
-                          input.availableWeaponsCommands,
-                          input.weaponsOfficerAvailability,
-                      ),
-              }
-            : {}),
-
-        ...(beamCannon
-            ? {
-                  beamCannon:
-                      mapBeamCannon(
-                          beamCannon,
-                          input.availableWeaponsCommands,
-                          input.weaponsOfficerAvailability,
-                      ),
-              }
-            : {}),
-
-        ...(stickyMineDispenser
-            ? {
-                  stickyMineDispenser:
-                      mapStickyMineDispenser(
-                          stickyMineDispenser,
-                          input.availableWeaponsCommands,
-                          input.weaponsOfficerAvailability,
-                      ),
-              }
-            : {}),
-
-        ...(spamProjector
-            ? {
-                  spamProjector:
-                      mapSpamProjector(
-                          spamProjector,
-                          getRequiredScienceCommands(
-                              input,
-                          ),
-                          getRequiredScienceAvailability(
-                              input,
-                          ),
-                      ),
+                  weapons,
               }
             : {}),
     };
@@ -252,149 +167,103 @@ function mapStatus(
     };
 }
 
-function mapMissileLauncher(
-    launcher:
-        MissileLauncherStatus,
-    availableWeaponsCommands:
-        AvailableOfficerCommand[],
-    weaponsOfficerAvailability:
-        OfficerAvailabilityState,
-): MissileLauncherDashboardPayload {
-    const cooldownProgress =
-        getCooldownProgress(
-            launcher,
-            'Missile launcher',
-        );
-
-    return {
-        ammo: {
-            ...launcher.ammo,
-        },
-
-        ...(cooldownProgress !== undefined &&
-        launcher.ammo.current > 0
-            ? {
-                  cooldownProgress,
-              }
-            : {}),
-
-        action:
-            mapMissileAction(
-                launcher,
-                availableWeaponsCommands,
-                weaponsOfficerAvailability,
-            ),
-    };
-}
-
-function mapBeamCannon(
-    beamCannon:
+function mapWeapon(
+    weapon:
         BridgePlayerWeaponStatusPayload,
-    availableWeaponsCommands:
-        AvailableOfficerCommand[],
-    weaponsOfficerAvailability:
-        OfficerAvailabilityState,
-): BeamCannonDashboardPayload {
+    input:
+        PlayerShipDashboardMapperInput,
+): BridgePlayerWeaponDashboardPayload {
     const cooldownProgress =
         getCooldownProgress(
-            beamCannon,
-            'BeamCannon',
+            weapon,
         );
 
-    return {
-        ...(cooldownProgress !== undefined
-            ? {
-                  cooldownProgress,
-              }
-            : {}),
-
-        action:
-            mapBeamCannonAction(
-                beamCannon,
-                availableWeaponsCommands,
-                weaponsOfficerAvailability,
-            ),
-    };
-}
-
-function mapStickyMineDispenser(
-    dispenser:
-        StickyMineDispenserStatus,
-    availableWeaponsCommands:
-        AvailableOfficerCommand[],
-    weaponsOfficerAvailability:
-        OfficerAvailabilityState,
-): StickyMineDispenserDashboardPayload {
-    const cooldownProgress =
-        getCooldownProgress(
-            dispenser,
-            'Sticky mine dispenser',
+    const action =
+        mapWeaponAction(
+            weapon,
+            input,
         );
 
-    return {
-        ammo: {
-            ...dispenser.ammo,
-        },
+    switch (weapon.kind) {
+        case SHIP_WEAPON_KIND
+            .MISSILE_LAUNCHER:
+        case SHIP_WEAPON_KIND
+            .STICKY_MINE_DISPENSER: {
+            const ammo =
+                requireAmmo(
+                    weapon,
+                );
 
-        ...(cooldownProgress !== undefined &&
-        dispenser.ammo.current > 0
-            ? {
-                  cooldownProgress,
-              }
-            : {}),
+            return {
+                id:
+                    weapon.id,
 
-        action:
-            mapStickyMineAction(
-                dispenser,
-                availableWeaponsCommands,
-                weaponsOfficerAvailability,
-            ),
-    };
+                weaponId:
+                    weapon.weaponId,
+
+                kind:
+                    weapon.kind,
+
+                ammo: {
+                    ...ammo,
+                },
+
+                ...(cooldownProgress !==
+                    undefined &&
+                ammo.current > 0
+                    ? {
+                          cooldownProgress,
+                      }
+                    : {}),
+
+                action,
+            };
+        }
+
+        case SHIP_WEAPON_KIND.BEAM_CANNON:
+        case SHIP_WEAPON_KIND.SPAM_PROJECTOR:
+            return {
+                id:
+                    weapon.id,
+
+                weaponId:
+                    weapon.weaponId,
+
+                kind:
+                    weapon.kind,
+
+                ...(cooldownProgress !== undefined
+                    ? {
+                          cooldownProgress,
+                      }
+                    : {}),
+
+                action,
+            };
+
+        default: {
+            const exhaustiveKind:
+                never =
+                weapon.kind;
+
+            return exhaustiveKind;
+        }
+    }
 }
 
-function mapSpamProjector(
-    projector:
+function mapWeaponAction(
+    weapon:
         BridgePlayerWeaponStatusPayload,
-    availableScienceCommands:
-        AvailableOfficerCommand[],
-    scienceOfficerAvailability:
-        OfficerAvailabilityState,
-): SpamProjectorDashboardPayload {
-    const cooldownProgress =
-        getCooldownProgress(
-            projector,
-            'Spam projector',
-        );
-
-    return {
-        ...(cooldownProgress !== undefined
-            ? {
-                  cooldownProgress,
-              }
-            : {}),
-
-        action:
-            mapSpamAction(
-                projector,
-                availableScienceCommands,
-                scienceOfficerAvailability,
-            ),
-    };
-}
-
-function mapMissileAction(
-    launcher:
-        MissileLauncherStatus,
-    availableWeaponsCommands:
-        AvailableOfficerCommand[],
-    weaponsOfficerAvailability:
-        OfficerAvailabilityState,
-): MissileLauncherDashboardPayload[
+    input:
+        PlayerShipDashboardMapperInput,
+): BridgePlayerWeaponDashboardPayload[
     'action'
 ] {
     if (
-        launcher.phase ===
-        SHIP_WEAPON_PHASE.TARGETING
+        isCurrentWorkPhase(
+            weapon.kind,
+            weapon.phase,
+        )
     ) {
         return {
             state:
@@ -404,9 +273,9 @@ function mapMissileAction(
     }
 
     if (
-        launcher.phase !==
-            SHIP_WEAPON_PHASE.READY ||
-        launcher.ammo.current <= 0
+        !isReadyForAction(
+            weapon,
+        )
     ) {
         return {
             state:
@@ -415,77 +284,24 @@ function mapMissileAction(
         };
     }
 
-    const missileCommand =
-        getSingleCommand(
-            availableWeaponsCommands,
-
-            ENCOUNTER_OFFICER_COMMAND_ID
-                .WEAPONS_FIRE_MISSILE,
-
-            'missile',
+    const role =
+        getOperatingRole(
+            weapon.kind,
         );
-
-    if (missileCommand) {
-        return {
-            state:
-                BRIDGE_PLAYER_SYSTEM_ACTION_STATE
-                    .ACTIVE,
-
-            command:
-                mapWeaponsCommand(
-                    missileCommand,
-                ),
-        };
-    }
-
-    return mapReadyButUnavailableAction(
-        weaponsOfficerAvailability,
-    );
-}
-
-function mapStickyMineAction(
-    dispenser:
-        StickyMineDispenserStatus,
-    availableWeaponsCommands:
-        AvailableOfficerCommand[],
-    weaponsOfficerAvailability:
-        OfficerAvailabilityState,
-): StickyMineDispenserDashboardPayload[
-    'action'
-] {
-    if (
-        dispenser.phase ===
-            SHIP_WEAPON_PHASE.TARGETING ||
-        dispenser.phase ===
-            SHIP_WEAPON_PHASE.DISPENSING
-    ) {
-        return {
-            state:
-                BRIDGE_PLAYER_SYSTEM_ACTION_STATE
-                    .ENGAGED_CURRENT_WORK,
-        };
-    }
-
-    if (
-        dispenser.phase !==
-            SHIP_WEAPON_PHASE.READY ||
-        dispenser.ammo.current <= 0
-    ) {
-        return {
-            state:
-                BRIDGE_PLAYER_SYSTEM_ACTION_STATE
-                    .DISABLED_SYSTEM,
-        };
-    }
 
     const command =
-        getSingleCommand(
-            availableWeaponsCommands,
+        getResolvedWeaponCommand(
+            role === OFFICER_ROLE.SCIENCE
+                ? getRequiredScienceCommands(
+                      input,
+                  )
+                : input.availableWeaponsCommands,
 
-            ENCOUNTER_OFFICER_COMMAND_ID
-                .WEAPONS_FIRE_STICKY_MINES,
+            getFireCommandId(
+                weapon.kind,
+            ),
 
-            'sticky mines',
+            weapon.id,
         );
 
     if (command) {
@@ -494,77 +310,27 @@ function mapStickyMineAction(
                 BRIDGE_PLAYER_SYSTEM_ACTION_STATE
                     .ACTIVE,
 
-            command:
-                mapWeaponsCommand(
-                    command,
-                ),
+            command: {
+                role,
+
+                commandId:
+                    command.commandId,
+
+                target:
+                    command.target,
+            },
         };
     }
 
-    return mapReadyButUnavailableAction(
-        weaponsOfficerAvailability,
-    );
-}
-
-function mapSpamAction(
-    projector:
-        BridgePlayerWeaponStatusPayload,
-    availableScienceCommands:
-        AvailableOfficerCommand[],
-    scienceOfficerAvailability:
-        OfficerAvailabilityState,
-): SpamProjectorDashboardPayload[
-    'action'
-] {
-    if (
-        projector.phase ===
-            SHIP_WEAPON_PHASE.TARGETING ||
-        projector.phase ===
-            SHIP_WEAPON_PHASE.CHANNELING
-    ) {
-        return {
-            state:
-                BRIDGE_PLAYER_SYSTEM_ACTION_STATE
-                    .ENGAGED_CURRENT_WORK,
-        };
-    }
+    const availability =
+        role === OFFICER_ROLE.SCIENCE
+            ? getRequiredScienceAvailability(
+                  input,
+              )
+            : input.weaponsOfficerAvailability;
 
     if (
-        projector.phase !==
-        SHIP_WEAPON_PHASE.READY
-    ) {
-        return {
-            state:
-                BRIDGE_PLAYER_SYSTEM_ACTION_STATE
-                    .DISABLED_SYSTEM,
-        };
-    }
-
-    const command =
-        getSingleCommand(
-            availableScienceCommands,
-
-            ENCOUNTER_OFFICER_COMMAND_ID
-                .SCIENCE_FIRE_SPAM,
-
-            'spam',
-        );
-
-    if (command) {
-        return {
-            state:
-                BRIDGE_PLAYER_SYSTEM_ACTION_STATE
-                    .ACTIVE,
-
-            command:
-                mapScienceCommand(
-                    command,
-                ),
-        };
-    }
-
-    if (
-        scienceOfficerAvailability ===
+        availability ===
         OFFICER_AVAILABILITY_STATE.BUSY
     ) {
         return {
@@ -581,137 +347,203 @@ function mapSpamAction(
     };
 }
 
-function mapBeamCannonAction(
-    beamCannon:
-        BridgePlayerWeaponStatusPayload,
-    availableWeaponsCommands:
-        AvailableOfficerCommand[],
-    weaponsOfficerAvailability:
-        OfficerAvailabilityState,
-): BeamCannonDashboardPayload[
-    'action'
-] {
-    if (
-        beamCannon.phase ===
-            SHIP_WEAPON_PHASE.TARGETING ||
-        beamCannon.phase ===
-            SHIP_WEAPON_PHASE.CHARGING
-    ) {
-        return {
-            state:
-                BRIDGE_PLAYER_SYSTEM_ACTION_STATE
-                    .ENGAGED_CURRENT_WORK,
-        };
-    }
+function isCurrentWorkPhase(
+    kind:
+        ShipWeaponKind,
+    phase:
+        BridgePlayerWeaponStatusPayload[
+            'phase'
+        ],
+): boolean {
+    switch (kind) {
+        case SHIP_WEAPON_KIND
+            .MISSILE_LAUNCHER:
+            return (
+                phase ===
+                SHIP_WEAPON_PHASE.TARGETING
+            );
 
+        case SHIP_WEAPON_KIND.BEAM_CANNON:
+            return (
+                phase ===
+                    SHIP_WEAPON_PHASE.TARGETING ||
+                phase ===
+                    SHIP_WEAPON_PHASE.CHARGING
+            );
+
+        case SHIP_WEAPON_KIND
+            .STICKY_MINE_DISPENSER:
+            return (
+                phase ===
+                    SHIP_WEAPON_PHASE.TARGETING ||
+                phase ===
+                    SHIP_WEAPON_PHASE.DISPENSING
+            );
+
+        case SHIP_WEAPON_KIND.SPAM_PROJECTOR:
+            return (
+                phase ===
+                    SHIP_WEAPON_PHASE.TARGETING ||
+                phase ===
+                    SHIP_WEAPON_PHASE.CHANNELING
+            );
+
+        default: {
+            const exhaustiveKind:
+                never =
+                kind;
+
+            return exhaustiveKind;
+        }
+    }
+}
+
+function isReadyForAction(
+    weapon:
+        BridgePlayerWeaponStatusPayload,
+): boolean {
     if (
-        beamCannon.phase !==
+        weapon.phase !==
         SHIP_WEAPON_PHASE.READY
     ) {
-        return {
-            state:
-                BRIDGE_PLAYER_SYSTEM_ACTION_STATE
-                    .DISABLED_SYSTEM,
-        };
+        return false;
     }
 
-    const beamCannonCommand =
-        getSingleCommand(
-            availableWeaponsCommands,
+    switch (weapon.kind) {
+        case SHIP_WEAPON_KIND
+            .MISSILE_LAUNCHER:
+        case SHIP_WEAPON_KIND
+            .STICKY_MINE_DISPENSER:
+            return (
+                requireAmmo(
+                    weapon,
+                ).current > 0
+            );
 
-            ENCOUNTER_OFFICER_COMMAND_ID
-                .WEAPONS_FIRE_BEAM_CANNON,
+        case SHIP_WEAPON_KIND.BEAM_CANNON:
+        case SHIP_WEAPON_KIND.SPAM_PROJECTOR:
+            return true;
 
-            'beam_cannon',
+        default: {
+            const exhaustiveKind:
+                never =
+                weapon.kind;
+
+            return exhaustiveKind;
+        }
+    }
+}
+
+function getOperatingRole(
+    kind:
+        ShipWeaponKind,
+): OfficerRole {
+    switch (kind) {
+        case SHIP_WEAPON_KIND.SPAM_PROJECTOR:
+            return OFFICER_ROLE.SCIENCE;
+
+        case SHIP_WEAPON_KIND
+            .MISSILE_LAUNCHER:
+        case SHIP_WEAPON_KIND.BEAM_CANNON:
+        case SHIP_WEAPON_KIND
+            .STICKY_MINE_DISPENSER:
+            return OFFICER_ROLE.WEAPONS;
+
+        default: {
+            const exhaustiveKind:
+                never =
+                kind;
+
+            return exhaustiveKind;
+        }
+    }
+}
+
+function getFireCommandId(
+    kind:
+        ShipWeaponKind,
+): EncounterOfficerCommandId {
+    switch (kind) {
+        case SHIP_WEAPON_KIND
+            .MISSILE_LAUNCHER:
+            return ENCOUNTER_OFFICER_COMMAND_ID
+                .WEAPONS_FIRE_MISSILE;
+
+        case SHIP_WEAPON_KIND.BEAM_CANNON:
+            return ENCOUNTER_OFFICER_COMMAND_ID
+                .WEAPONS_FIRE_BEAM_CANNON;
+
+        case SHIP_WEAPON_KIND
+            .STICKY_MINE_DISPENSER:
+            return ENCOUNTER_OFFICER_COMMAND_ID
+                .WEAPONS_FIRE_STICKY_MINES;
+
+        case SHIP_WEAPON_KIND.SPAM_PROJECTOR:
+            return ENCOUNTER_OFFICER_COMMAND_ID
+                .SCIENCE_FIRE_SPAM;
+
+        default: {
+            const exhaustiveKind:
+                never =
+                kind;
+
+            return exhaustiveKind;
+        }
+    }
+}
+
+function getResolvedWeaponCommand(
+    commands:
+        AvailableOfficerCommand[],
+    commandId:
+        EncounterOfficerCommandId,
+    weaponId:
+        string,
+): AvailableOfficerCommand | undefined {
+    const matchingCommands =
+        commands.filter(
+            (command) => {
+                return (
+                    command.commandId ===
+                        commandId &&
+                    command.target.kind ===
+                        OFFICER_COMMAND_TARGET_KIND
+                            .ACTOR_WEAPON &&
+                    command.target.weaponId ===
+                        weaponId
+                );
+            },
         );
 
-    if (beamCannonCommand) {
-        return {
-            state:
-                BRIDGE_PLAYER_SYSTEM_ACTION_STATE
-                    .ACTIVE,
-
-            command:
-                mapWeaponsCommand(
-                    beamCannonCommand,
-                ),
-        };
-    }
-
-    return mapReadyButUnavailableAction(
-        weaponsOfficerAvailability,
-    );
-}
-
-function mapReadyButUnavailableAction(
-    weaponsOfficerAvailability:
-        OfficerAvailabilityState,
-):
-    MissileLauncherDashboardPayload[
-        'action'
-    ] {
     if (
-        weaponsOfficerAvailability ===
-        OFFICER_AVAILABILITY_STATE.BUSY
+        matchingCommands.length > 1
     ) {
-        return {
-            state:
-                BRIDGE_PLAYER_SYSTEM_ACTION_STATE
-                    .DISABLED_OFFICER_BUSY,
-        };
+        throw new Error(
+            'Captain dashboard weapon row received multiple ' +
+                'resolved commands for runtime weapon: ' +
+                weaponId,
+        );
     }
 
-    return {
-        state:
-            BRIDGE_PLAYER_SYSTEM_ACTION_STATE
-                .DISABLED_SYSTEM,
-    };
+    return matchingCommands[0];
 }
 
-function mapWeaponsCommand(
-    command:
-        AvailableOfficerCommand,
-):
-    NonNullable<
-        MissileLauncherDashboardPayload[
-            'action'
-        ][
-            'command'
-        ]
-    > {
-    return {
-        role:
-            OFFICER_ROLE.WEAPONS,
+function requireAmmo(
+    weapon:
+        BridgePlayerWeaponStatusPayload,
+): NonNullable<
+    BridgePlayerWeaponStatusPayload[
+        'ammo'
+    ]
+> {
+    if (weapon.ammo) {
+        return weapon.ammo;
+    }
 
-        commandId:
-            command.commandId,
-
-        target:
-            command.target,
-    };
-}
-
-function mapScienceCommand(
-    command:
-        AvailableOfficerCommand,
-):
-    NonNullable<
-        SpamProjectorDashboardPayload[
-            'action'
-        ][
-            'command'
-        ]
-    > {
-    return {
-        role:
-            OFFICER_ROLE.SCIENCE,
-
-        commandId:
-            command.commandId,
-
-        target:
-            command.target,
-    };
+    throw new Error(
+        'Captain dashboard ammo-backed weapon is missing ammo: ' +
+            weapon.id,
+    );
 }
 
 function getRequiredScienceCommands(
@@ -719,10 +551,9 @@ function getRequiredScienceCommands(
         PlayerShipDashboardMapperInput,
 ): AvailableOfficerCommand[] {
     const commands =
-        input
-            .availableScienceCommands;
+        input.availableScienceCommands;
 
-    if (!commands) {
+    if (commands === undefined) {
         throw new Error(
             'Captain dashboard SPAM row requires Science commands',
         );
@@ -736,10 +567,9 @@ function getRequiredScienceAvailability(
         PlayerShipDashboardMapperInput,
 ): OfficerAvailabilityState {
     const availability =
-        input
-            .scienceOfficerAvailability;
+        input.scienceOfficerAvailability;
 
-    if (!availability) {
+    if (availability === undefined) {
         throw new Error(
             'Captain dashboard SPAM row requires Science availability',
         );
@@ -748,47 +578,9 @@ function getRequiredScienceAvailability(
     return availability;
 }
 
-function getSingleCommand(
-    commands:
-        AvailableOfficerCommand[],
-
-    commandId:
-        AvailableOfficerCommand[
-            'commandId'
-        ],
-
-    label:
-        string,
-): AvailableOfficerCommand | undefined {
-    const matchingCommands =
-        commands.filter(
-            (command) => {
-                return (
-                    command.commandId ===
-                    commandId
-                );
-            },
-        );
-
-    if (
-        matchingCommands.length > 1
-    ) {
-        throw new Error(
-            'Captain dashboard ' +
-                label +
-                ' row received multiple ' +
-                'resolved commands',
-        );
-    }
-
-    return matchingCommands[0];
-}
-
 function getCooldownProgress(
     weapon:
         BridgePlayerWeaponStatusPayload,
-    label:
-        string,
 ): number | undefined {
     if (
         weapon.phase !==
@@ -809,9 +601,8 @@ function getCooldownProgress(
         initialPhaseMs <= 0
     ) {
         throw new Error(
-            label +
-                ' cooldown dashboard snapshot ' +
-                'requires valid phase timing',
+            'Captain dashboard weapon cooldown requires valid phase timing: ' +
+                weapon.id,
         );
     }
 

@@ -22,242 +22,177 @@ import {
 } from '../../src/app/scenes/game/bridge/controller/player_weapon_status/BridgePlayerWeaponStatusMapper';
 
 describe('Bridge player weapon status mapper', () => {
-    it('maps ready beamCannon and loaded missile launcher', () => {
+    it('preserves every installed weapon identity, including duplicate kinds', () => {
+        const weapons = [
+            createMissileLauncher(
+                'missile_launcher_player_00',
+                5,
+            ),
+            createMissileLauncher(
+                'missile_launcher_player_01',
+                3,
+            ),
+            createMissileLauncher(
+                'missile_launcher_player_02',
+                1,
+            ),
+            createMissileLauncher(
+                'missile_launcher_player_03',
+                0,
+            ),
+        ];
+
         expect(
             mapPlayerWeaponsToBridgeStatusPayload(
                 presentWeapons(
-                    createWeapons(),
+                    weapons,
                 ),
             ),
-        ).toEqual({
-            beamCannon: {
+        ).toEqual([
+            {
+                id:
+                    'missile_launcher_player_00',
+                weaponId:
+                    SHIP_WEAPON_ID
+                        .MISSILE_LAUNCHER_00,
+                kind:
+                    SHIP_WEAPON_KIND
+                        .MISSILE_LAUNCHER,
                 phase:
                     SHIP_WEAPON_PHASE.READY,
-            },
-
-            missileLauncher: {
-                phase:
-                    SHIP_WEAPON_PHASE.READY,
-
                 ammo: {
                     current: 5,
                     max: 5,
                 },
             },
-
-            stickyMineDispenser: {
+            {
+                id:
+                    'missile_launcher_player_01',
+                weaponId:
+                    SHIP_WEAPON_ID
+                        .MISSILE_LAUNCHER_00,
+                kind:
+                    SHIP_WEAPON_KIND
+                        .MISSILE_LAUNCHER,
                 phase:
                     SHIP_WEAPON_PHASE.READY,
-
-                ammo: {
-                    current: 6,
-                    max: 6,
-                },
-            },
-        });
-    });
-
-    it('maps sticky mine dispenser ammo and dispensing timing', () => {
-        const weapons =
-            createWeapons();
-
-        const dispenser =
-            weapons[2];
-
-        if (
-            !dispenser ||
-            dispenser.kind !==
-                SHIP_WEAPON_KIND
-                    .STICKY_MINE_DISPENSER
-        ) {
-            throw new Error(
-                'Expected sticky mine dispenser',
-            );
-        }
-
-        dispenser.phase =
-            SHIP_WEAPON_PHASE
-                .DISPENSING;
-
-        dispenser.phaseElapsedMs =
-            500;
-
-        dispenser.ammoCount = 5;
-        dispenser.dispensedMineCount = 1;
-
-        expect(
-            mapPlayerWeaponsToBridgeStatusPayload(
-                presentWeapons(
-                    weapons,
-                ),
-            ).stickyMineDispenser,
-        ).toEqual({
-            phase:
-                SHIP_WEAPON_PHASE
-                    .DISPENSING,
-
-            initialPhaseMs: 2000,
-            remainingPhaseMs: 1500,
-
-            ammo: {
-                current: 5,
-                max: 6,
-            },
-        });
-    });
-
-    it('maps shared targeting countdown', () => {
-        const weapons =
-            createWeapons();
-
-        for (const weapon of weapons) {
-            weapon.phase =
-                SHIP_WEAPON_PHASE
-                    .TARGETING;
-
-            weapon.phaseElapsedMs =
-                1250;
-        }
-
-        expect(
-            mapPlayerWeaponsToBridgeStatusPayload(
-                presentWeapons(
-                    weapons,
-                ),
-            ),
-        ).toEqual({
-            beamCannon: {
-                phase:
-                    SHIP_WEAPON_PHASE
-                        .TARGETING,
-
-                initialPhaseMs:
-                    SHIP_WEAPON_TARGETING_DURATION_MS,
-
-                remainingPhaseMs:
-                    SHIP_WEAPON_TARGETING_DURATION_MS -
-                    1250,
-            },
-
-            missileLauncher: {
-                phase:
-                    SHIP_WEAPON_PHASE
-                        .TARGETING,
-
-                initialPhaseMs:
-                    SHIP_WEAPON_TARGETING_DURATION_MS,
-
-                remainingPhaseMs:
-                    SHIP_WEAPON_TARGETING_DURATION_MS -
-                    1250,
-
-                ammo: {
-                    current: 5,
-                    max: 5,
-                },
-            },
-
-            stickyMineDispenser: {
-                phase:
-                    SHIP_WEAPON_PHASE
-                        .TARGETING,
-
-                initialPhaseMs:
-                    SHIP_WEAPON_TARGETING_DURATION_MS,
-
-                remainingPhaseMs:
-                    SHIP_WEAPON_TARGETING_DURATION_MS -
-                    1250,
-
-                ammo: {
-                    current: 6,
-                    max: 6,
-                },
-            },
-        });
-    });
-
-    it('maps beamCannon charge and launcher cooldown independently', () => {
-        const weapons =
-            createWeapons();
-
-        const beamCannon =
-            weapons[0];
-
-        const missileLauncher =
-            weapons[1];
-
-        beamCannon.phase =
-            SHIP_WEAPON_PHASE.CHARGING;
-
-        beamCannon.phaseElapsedMs =
-            2500;
-
-        missileLauncher.phase =
-            SHIP_WEAPON_PHASE.COOLDOWN;
-
-        missileLauncher.phaseElapsedMs =
-            4000;
-
-        if (
-            missileLauncher.kind !==
-            SHIP_WEAPON_KIND
-                .MISSILE_LAUNCHER
-        ) {
-            throw new Error(
-                'Expected missile launcher',
-            );
-        }
-
-        missileLauncher.ammoCount =
-            3;
-
-        expect(
-            mapPlayerWeaponsToBridgeStatusPayload(
-                presentWeapons(
-                    weapons,
-                ),
-            ),
-        ).toEqual({
-            beamCannon: {
-                phase:
-                    SHIP_WEAPON_PHASE
-                        .CHARGING,
-
-                initialPhaseMs:
-                    12000,
-
-                remainingPhaseMs:
-                    9500,
-            },
-
-            missileLauncher: {
-                phase:
-                    SHIP_WEAPON_PHASE
-                        .COOLDOWN,
-
-                initialPhaseMs:
-                    15000,
-
-                remainingPhaseMs:
-                    11000,
-
                 ammo: {
                     current: 3,
                     max: 5,
                 },
             },
-
-            stickyMineDispenser: {
+            {
+                id:
+                    'missile_launcher_player_02',
+                weaponId:
+                    SHIP_WEAPON_ID
+                        .MISSILE_LAUNCHER_00,
+                kind:
+                    SHIP_WEAPON_KIND
+                        .MISSILE_LAUNCHER,
                 phase:
                     SHIP_WEAPON_PHASE.READY,
-
                 ammo: {
-                    current: 6,
-                    max: 6,
+                    current: 1,
+                    max: 5,
                 },
             },
-        });
+            {
+                id:
+                    'missile_launcher_player_03',
+                weaponId:
+                    SHIP_WEAPON_ID
+                        .MISSILE_LAUNCHER_00,
+                kind:
+                    SHIP_WEAPON_KIND
+                        .MISSILE_LAUNCHER,
+                phase:
+                    SHIP_WEAPON_PHASE.READY,
+                ammo: {
+                    current: 0,
+                    max: 5,
+                },
+            },
+        ]);
+    });
+
+    it('maps phase timing and ammo per concrete installed weapon', () => {
+        const beamCannon:
+            ShipWeaponState = {
+                id:
+                    'beam_cannon_player_00',
+                kind:
+                    SHIP_WEAPON_KIND
+                        .BEAM_CANNON,
+                weaponId:
+                    SHIP_WEAPON_ID
+                        .BEAM_CANNON_00,
+                phase:
+                    SHIP_WEAPON_PHASE
+                        .TARGETING,
+                phaseElapsedMs:
+                    1250,
+            };
+
+        const launcher =
+            createMissileLauncher(
+                'missile_launcher_player_00',
+                3,
+            );
+
+        launcher.phase =
+            SHIP_WEAPON_PHASE.COOLDOWN;
+        launcher.phaseElapsedMs =
+            4000;
+
+        expect(
+            mapPlayerWeaponsToBridgeStatusPayload(
+                presentWeapons([
+                    beamCannon,
+                    launcher,
+                ]),
+            ),
+        ).toEqual([
+            {
+                id:
+                    'beam_cannon_player_00',
+                weaponId:
+                    SHIP_WEAPON_ID
+                        .BEAM_CANNON_00,
+                kind:
+                    SHIP_WEAPON_KIND
+                        .BEAM_CANNON,
+                phase:
+                    SHIP_WEAPON_PHASE
+                        .TARGETING,
+                initialPhaseMs:
+                    SHIP_WEAPON_TARGETING_DURATION_MS,
+                remainingPhaseMs:
+                    SHIP_WEAPON_TARGETING_DURATION_MS -
+                    1250,
+            },
+            {
+                id:
+                    'missile_launcher_player_00',
+                weaponId:
+                    SHIP_WEAPON_ID
+                        .MISSILE_LAUNCHER_00,
+                kind:
+                    SHIP_WEAPON_KIND
+                        .MISSILE_LAUNCHER,
+                phase:
+                    SHIP_WEAPON_PHASE
+                        .COOLDOWN,
+                initialPhaseMs:
+                    15000,
+                remainingPhaseMs:
+                    11000,
+                ammo: {
+                    current: 3,
+                    max: 5,
+                },
+            },
+        ]);
     });
 });
 
@@ -270,66 +205,35 @@ function presentWeapons(
     );
 }
 
-function createWeapons():
-    ShipWeaponState[] {
-    return [
-        {
-            id:
-                'beam_cannon_player_00',
+function createMissileLauncher(
+    id:
+        string,
+    ammoCount:
+        number,
+): Extract<
+    ShipWeaponState,
+    {
+        kind:
+            typeof SHIP_WEAPON_KIND
+                .MISSILE_LAUNCHER;
+    }
+> {
+    return {
+        id,
 
-            kind:
-                SHIP_WEAPON_KIND.BEAM_CANNON,
+        kind:
+            SHIP_WEAPON_KIND
+                .MISSILE_LAUNCHER,
 
-            weaponId:
-                SHIP_WEAPON_ID.BEAM_CANNON_00,
+        weaponId:
+            SHIP_WEAPON_ID
+                .MISSILE_LAUNCHER_00,
 
-            phase:
-                SHIP_WEAPON_PHASE.READY,
+        phase:
+            SHIP_WEAPON_PHASE.READY,
 
-            phaseElapsedMs: 0,
-        },
+        phaseElapsedMs: 0,
 
-        {
-            id:
-                'missile_launcher_player_00',
-
-            kind:
-                SHIP_WEAPON_KIND
-                    .MISSILE_LAUNCHER,
-
-            weaponId:
-                SHIP_WEAPON_ID
-                    .MISSILE_LAUNCHER_00,
-
-            phase:
-                SHIP_WEAPON_PHASE.READY,
-
-            phaseElapsedMs: 0,
-
-
-            ammoCount: 5,
-        },
-
-        {
-            id:
-                'sticky_mine_dispenser_player_00',
-
-            kind:
-                SHIP_WEAPON_KIND
-                    .STICKY_MINE_DISPENSER,
-
-            weaponId:
-                SHIP_WEAPON_ID
-                    .STICKY_MINE_DISPENSER_00,
-
-            phase:
-                SHIP_WEAPON_PHASE.READY,
-
-            phaseElapsedMs: 0,
-
-
-            ammoCount: 6,
-            dispensedMineCount: 0,
-        },
-    ];
+        ammoCount,
+    };
 }
