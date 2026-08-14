@@ -142,6 +142,26 @@ export const SHIP_WEAPON_TUNING_SCHEMA =
                 name:
                     WEAPON_NAME_SCHEMA,
 
+                damage:
+                    z.number()
+                        .int()
+                        .nonnegative()
+                        .meta({
+                            title: 'Damage',
+                        }),
+
+                fuseDurationMs:
+                    z.number()
+                        .int()
+                        .nonnegative()
+                        .meta({
+                            title:
+                                'Fuse duration',
+                            unit: 'ms',
+                            'x-editor-control':
+                                'duration',
+                        }),
+
                 ammoCapacity:
                     AMMO_CAPACITY_SCHEMA,
 

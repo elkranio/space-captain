@@ -24,10 +24,6 @@ import {
     SHIP_WEAPON_ID,
     SHIP_WEAPON_KIND,
 } from '../../defs/ship_weapon';
-import {
-    STICKY_MINE_DISPENSER_PRESET_ID,
-    type StickyMineDispenserPresetId,
-} from './sticky_mine_dispensers';
 
 export const SHIP_PRESET_ID = {
     GENERIC_MISSILE_00:
@@ -91,8 +87,9 @@ type StickyMineDispenserShipWeaponPreset = {
         typeof SHIP_WEAPON_KIND
             .STICKY_MINE_DISPENSER;
 
-    presetId:
-        StickyMineDispenserPresetId;
+    weaponId:
+        typeof SHIP_WEAPON_ID
+            .STICKY_MINE_DISPENSER_00;
 };
 
 export type ShipWeaponPreset =
@@ -241,9 +238,9 @@ export const SHIP_PRESETS = {
                     SHIP_WEAPON_KIND
                         .STICKY_MINE_DISPENSER,
 
-                presetId:
-                    STICKY_MINE_DISPENSER_PRESET_ID
-                        .BASIC_FULL_00,
+                weaponId:
+                    SHIP_WEAPON_ID
+                        .STICKY_MINE_DISPENSER_00,
             },
         ],
     },
@@ -288,9 +285,9 @@ export const SHIP_PRESETS = {
                     SHIP_WEAPON_KIND
                         .STICKY_MINE_DISPENSER,
 
-                presetId:
-                    STICKY_MINE_DISPENSER_PRESET_ID
-                        .BASIC_FULL_00,
+                weaponId:
+                    SHIP_WEAPON_ID
+                        .STICKY_MINE_DISPENSER_00,
             },
             {
                 id: 'spam_projector_00',

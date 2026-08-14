@@ -751,10 +751,7 @@ export default class EnemyDecisionPolicy {
                 );
 
             case SHIP_WEAPON_KIND.STICKY_MINE_DISPENSER:
-                return (
-                    weapon.loadedMineId !== null &&
-                    weapon.ammoCount > 0
-                );
+                return weapon.ammoCount > 0;
         }
     }
 }

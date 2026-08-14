@@ -19,9 +19,6 @@ import {
     OFFICER_ROLE,
 } from '../../src/engine/defs/officer';
 import {
-    STICKY_MINE_ID,
-} from '../../src/engine/defs/sticky_mine';
-import {
     COMBAT_SOURCE_KIND,
     COMBAT_TARGET_KIND,
 } from '../../src/engine/encounter/model/combat';
@@ -161,8 +158,6 @@ function createMine(
     return {
         id,
 
-        mineId:
-            STICKY_MINE_ID.BASIC_00,
 
         source: {
             kind:

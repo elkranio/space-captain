@@ -8,7 +8,6 @@ import {
     type ShipWeaponDefinition,
     type ShipWeaponState,
 } from '../../../defs/ship_weapon';
-import type { StickyMineId } from '../../../defs/sticky_mine';
 import type { EncounterEvent } from '../../model/event';
 import {
     OFFICER_TASK_KIND,
@@ -26,7 +25,8 @@ type PlayerWeaponRunnerOptions = {
     queuePlayerStickyMineAttach: (
         input: {
             sourceWeaponId: string;
-            mineId: StickyMineId;
+            damage: number;
+            fuseDurationMs: number;
             targetActorId: string;
             ageMs: number;
         },

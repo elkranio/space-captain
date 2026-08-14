@@ -16,9 +16,6 @@ import {
     POWER_CORE_ID,
 } from '../../../src/engine/defs/power_core';
 import {
-    STICKY_MINE_ID,
-} from '../../../src/engine/defs/sticky_mine';
-import {
     SHIP_DRIVE_ID,
     SHIP_DRIVE_STATUS,
 } from '../../../src/engine/defs/ship_drive';
@@ -148,8 +145,6 @@ describe('createNewRunState', () => {
                         SHIP_WEAPON_KIND
                             .STICKY_MINE_DISPENSER,
 
-                    loadedMineId:
-                        STICKY_MINE_ID.BASIC_00,
 
                     ammoCount: 6,
 
@@ -407,8 +402,6 @@ describe('createNewRunState', () => {
                         SHIP_WEAPON_KIND
                             .STICKY_MINE_DISPENSER,
 
-                    loadedMineId:
-                        STICKY_MINE_ID.BASIC_00,
 
                     ammoCount: 6,
 

@@ -15,9 +15,6 @@ import {
     OFFICER_ROLE,
 } from '../../../src/engine/defs/officer';
 import {
-    STICKY_MINE_ID,
-} from '../../../src/engine/defs/sticky_mine';
-import {
     COMBAT_SOURCE_KIND,
     COMBAT_TARGET_KIND,
     PLAYER_STICKY_MINE_OUTCOME,
@@ -373,8 +370,6 @@ function addPlayerMine({
         .push({
             id,
 
-            mineId:
-                STICKY_MINE_ID.BASIC_00,
 
             source: {
                 kind:

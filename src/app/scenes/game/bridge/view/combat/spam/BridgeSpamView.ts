@@ -348,7 +348,7 @@ export default class BridgeSpamView {
             return;
         }
 
-        this.flickerElapsedMs %= 
+        this.flickerElapsedMs %=
             BRIDGE_SPAM_PRESENTATION.flickerFrameMs;
 
         this.root.setAlpha(

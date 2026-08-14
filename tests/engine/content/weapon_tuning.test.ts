@@ -102,6 +102,11 @@ describe(
                         SHIP_WEAPON_KIND
                             .STICKY_MINE_DISPENSER,
 
+                    damage: 1,
+
+                    fuseDurationMs:
+                        7500,
+
                     ammoCapacity: 6,
                     salvoSize: 3,
                     launchIntervalMs:
@@ -171,6 +176,11 @@ describe(
                             sticky_mine_dispenser_00: {
                                 name:
                                     'STICKY MINE DISPENSER',
+
+                                damage: 1,
+
+                                fuseDurationMs:
+                                    7500,
 
                                 ammoCapacity: 6,
 

@@ -7,9 +7,6 @@ import {
     OFFICER_ROLE,
 } from '../../src/engine/defs/officer';
 import {
-    STICKY_MINE_ID,
-} from '../../src/engine/defs/sticky_mine';
-import {
     COMBAT_PROJECTILE_KIND,
     COMBAT_SOURCE_KIND,
     COMBAT_TARGET_KIND,
@@ -482,9 +479,6 @@ describe(
                                     id:
                                         'mine_later',
 
-                                    mineId:
-                                        STICKY_MINE_ID
-                                            .BASIC_00,
 
                                     source: {
                                         kind:
@@ -525,9 +519,6 @@ describe(
                                     id:
                                         'mine_next',
 
-                                    mineId:
-                                        STICKY_MINE_ID
-                                            .BASIC_00,
 
                                     source: {
                                         kind:

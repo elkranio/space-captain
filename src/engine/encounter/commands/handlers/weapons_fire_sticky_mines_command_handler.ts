@@ -134,7 +134,6 @@ function isReadyStickyMineDispenser(
                 .STICKY_MINE_DISPENSER &&
         weapon.phase ===
             SHIP_WEAPON_PHASE.READY &&
-        weapon.loadedMineId !== null &&
         weapon.ammoCount > 0
     );
 }

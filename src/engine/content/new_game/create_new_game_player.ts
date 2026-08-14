@@ -148,8 +148,8 @@ function createPlayerWeapon(
             return StickyMineDispenserFactory.create({
                 id: weapon.id,
 
-                presetId:
-                    weapon.presetId,
+                weaponId:
+                    weapon.weaponId,
             });
 
         default:

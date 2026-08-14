@@ -15,9 +15,6 @@ import {
 } from '../../src/app/scenes/game/bridge/events/bridge_event';
 import type BridgeEventBus from '../../src/app/scenes/game/bridge/events/BridgeEventBus';
 import {
-    STICKY_MINE_ID,
-} from '../../src/engine/defs/sticky_mine';
-import {
     COMBAT_SOURCE_KIND,
     COMBAT_TARGET_KIND,
     PLAYER_STICKY_MINE_OUTCOME,
@@ -30,8 +27,6 @@ import {
 const mine: StickyMineState = {
     id: 'sticky_mine_player_00',
 
-    mineId:
-        STICKY_MINE_ID.BASIC_00,
 
     source: {
         kind:

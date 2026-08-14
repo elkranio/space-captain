@@ -10,9 +10,6 @@ import {
 import type BridgeEventBus from '../../src/app/scenes/game/bridge/events/BridgeEventBus';
 import { SCENE_KEY } from '../../src/app/scenes/scene_key';
 import {
-    STICKY_MINE_ID,
-} from '../../src/engine/defs/sticky_mine';
-import {
     COMBAT_SOURCE_KIND,
     COMBAT_TARGET_KIND,
     type StickyMineState,
@@ -194,8 +191,6 @@ function createMine(
     return {
         id,
 
-        mineId:
-            STICKY_MINE_ID.BASIC_00,
 
         source: {
             kind:

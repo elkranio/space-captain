@@ -1,10 +1,8 @@
-import { STICKY_MINES } from '../../../../content/catalogs/sticky_mines';
 import {
     SHIP_WEAPONS,
     SHIP_WEAPON_TARGETING_DURATION_MS,
 } from '../../../../content/catalogs/ship_weapons';
 import { ENCOUNTER_TEAM } from '../../../../defs/encounter_team';
-import type { StickyMineId } from '../../../../defs/sticky_mine';
 import {
     SHIP_WEAPON_KIND,
     SHIP_WEAPON_PHASE,
@@ -28,7 +26,8 @@ import CombatRuntimeIdentityFactory from '../../CombatRuntimeIdentityFactory';
 
 export type PlayerStickyMineAttachInput = {
     sourceWeaponId: string;
-    mineId: StickyMineId;
+    damage: number;
+    fuseDurationMs: number;
     targetActorId: string;
     ageMs: number;
 };
@@ -381,15 +380,10 @@ export default class CombatStickyMineRunner {
             );
         }
 
-        const definition =
-            STICKY_MINES[input.mineId];
-
         const mine: StickyMineState = {
             id:
                 this.identities
                     .createStickyMineId(),
-
-            mineId: input.mineId,
 
             source: {
                 kind:
@@ -411,14 +405,14 @@ export default class CombatStickyMineRunner {
             timeToDetonationMs:
                 Math.max(
                     0,
-                    definition.fuseDurationMs -
+                    input.fuseDurationMs -
                         input.ageMs,
                 ),
 
             initialTimeToDetonationMs:
-                definition.fuseDurationMs,
+                input.fuseDurationMs,
 
-            damage: definition.damage,
+            damage: input.damage,
         };
 
         this.state.combat
@@ -582,11 +576,7 @@ export default class CombatStickyMineRunner {
             );
         }
 
-        const mineId =
-            dispenser.loadedMineId;
-
         if (
-            !mineId ||
             dispenser.ammoCount <= 0
         ) {
             throw new Error(
@@ -595,15 +585,10 @@ export default class CombatStickyMineRunner {
             );
         }
 
-        const mineDefinition =
-            STICKY_MINES[mineId];
-
         const mine: StickyMineState = {
             id:
                 this.identities
                     .createStickyMineId(),
-
-            mineId,
 
             source: {
                 kind:
@@ -623,14 +608,14 @@ export default class CombatStickyMineRunner {
             timeToDetonationMs:
                 Math.max(
                     0,
-                    mineDefinition.fuseDurationMs -
+                    definition.fuseDurationMs -
                         ageMs,
                 ),
 
             initialTimeToDetonationMs:
-                mineDefinition.fuseDurationMs,
+                definition.fuseDurationMs,
 
-            damage: mineDefinition.damage,
+            damage: definition.damage,
         };
 
         dispenser.ammoCount -= 1;

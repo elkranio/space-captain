@@ -27,9 +27,6 @@ import {
     type OfficerTaskState,
 } from '../../../src/engine/encounter/model/officer_task';
 import {
-    STICKY_MINE_ID,
-} from '../../../src/engine/defs/sticky_mine';
-import {
     COMBAT_SOURCE_KIND,
     COMBAT_TARGET_KIND,
     type StickyMineState,
@@ -390,8 +387,6 @@ function createMine(
     return {
         id,
 
-        mineId:
-            STICKY_MINE_ID.BASIC_00,
 
         source: {
             kind:

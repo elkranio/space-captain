@@ -9,9 +9,6 @@ import {
     SHIP_NODE_ACTOR_PRESET_ID,
 } from '../../src/engine/content/presets/ship_node_actors';
 import {
-    STICKY_MINE_ID,
-} from '../../src/engine/defs/sticky_mine';
-import {
     SHIP_WEAPON_ID,
     SHIP_WEAPON_KIND,
     SHIP_WEAPON_PHASE,
@@ -44,8 +41,6 @@ describe('Sticky-mine enemy preset', () => {
                     SHIP_WEAPON_KIND
                         .STICKY_MINE_DISPENSER,
 
-                loadedMineId:
-                    STICKY_MINE_ID.BASIC_00,
 
                 ammoCount: 6,
 

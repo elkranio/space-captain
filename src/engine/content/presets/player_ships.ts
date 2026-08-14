@@ -1,10 +1,6 @@
 // src/engine/content/presets/player_ships.ts
 
 import {
-    STICKY_MINE_DISPENSER_PRESET_ID,
-    type StickyMineDispenserPresetId,
-} from './sticky_mine_dispensers';
-import {
     POWER_CORE_ID,
     type PowerCoreId,
 } from '../../defs/power_core';
@@ -47,8 +43,6 @@ export type PlayerShipStickyMineDispenserPreset = {
         typeof SHIP_WEAPON_ID
             .STICKY_MINE_DISPENSER_00;
 
-    presetId:
-        StickyMineDispenserPresetId;
 };
 
 export type PlayerShipSpamProjectorPreset = {
@@ -153,9 +147,6 @@ export const PLAYER_SHIP_PRESETS = {
                     SHIP_WEAPON_ID
                         .STICKY_MINE_DISPENSER_00,
 
-                presetId:
-                    STICKY_MINE_DISPENSER_PRESET_ID
-                        .BASIC_FULL_00,
             },
 
             {

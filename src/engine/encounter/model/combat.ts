@@ -8,9 +8,6 @@ import type {
 } from '../../defs/defense_turret';
 import type { MissileSignature } from '../../defs/missile';
 import type {
-    StickyMineId,
-} from '../../defs/sticky_mine';
-import type {
     ShipWeaponState,
 } from '../../defs/ship_weapon';
 import type {
@@ -205,8 +202,6 @@ export type SpamChannelState = {
 // от последующих content-изменений.
 export type StickyMineState = {
     id: string;
-
-    mineId: StickyMineId;
 
     source: CombatSource;
     sourceWeaponId: string;

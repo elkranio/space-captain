@@ -29,9 +29,6 @@ import {
 import {
     SHIP_WEAPON_TUNING_SCHEMA,
 } from '../../../src/engine/content/schemas/ship_weapons';
-import {
-    STICKY_MINE_TUNING_SCHEMA,
-} from '../../../src/engine/content/schemas/sticky_mines';
 
 export const CONTENT_COLLECTION_ID = {
     OFFICER_TASKS:
@@ -60,9 +57,6 @@ export const CONTENT_COLLECTION_ID = {
 
     SHIP_DRIVES:
         'ship_drives',
-
-    STICKY_MINES:
-        'sticky_mines',
 
     ENEMY_BEHAVIOR_RULES:
         'enemy_behavior_rules',
@@ -314,30 +308,6 @@ const CONTENT_COLLECTIONS:
 
             canAdd: true,
             canDelete: true,
-        },
-
-        [CONTENT_COLLECTION_ID
-            .STICKY_MINES]: {
-            id:
-                CONTENT_COLLECTION_ID
-                    .STICKY_MINES,
-
-            label:
-                'Sticky Mines',
-
-            group:
-                CONTENT_COLLECTION_GROUP
-                    .GENERAL,
-
-            dataPath:
-                'src/engine/content/data/' +
-                'sticky_mines.json',
-
-            schema:
-                STICKY_MINE_TUNING_SCHEMA,
-
-            canAdd: false,
-            canDelete: false,
         },
 
         [CONTENT_COLLECTION_ID

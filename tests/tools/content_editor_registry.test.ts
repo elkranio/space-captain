@@ -13,7 +13,6 @@ import shipChassisData from '../../src/engine/content/data/ship_chassis.json';
 import shipDriveData from '../../src/engine/content/data/ship_drives.json';
 import shipWeaponRulesData from '../../src/engine/content/data/ship_weapon_rules.json';
 import shipWeaponData from '../../src/engine/content/data/ship_weapons.json';
-import stickyMineData from '../../src/engine/content/data/sticky_mines.json';
 import {
     CONTENT_COLLECTION_GROUP,
     CONTENT_COLLECTION_ID,
@@ -150,17 +149,6 @@ describe(
                     {
                         id:
                             CONTENT_COLLECTION_ID
-                                .STICKY_MINES,
-
-                        label:
-                            'Sticky Mines',
-
-                        canAdd: false,
-                        canDelete: false,
-                    },
-                    {
-                        id:
-                            CONTENT_COLLECTION_ID
                                 .ENEMY_BEHAVIOR_RULES,
 
                         label:
@@ -258,11 +246,6 @@ describe(
                         CONTENT_COLLECTION_ID
                             .SHIP_DRIVES,
                         shipDriveData,
-                    ],
-                    [
-                        CONTENT_COLLECTION_ID
-                            .STICKY_MINES,
-                        stickyMineData,
                     ],
                     [
                         CONTENT_COLLECTION_ID

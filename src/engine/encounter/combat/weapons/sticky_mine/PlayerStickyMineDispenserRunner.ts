@@ -1,6 +1,5 @@
 import { SHIP_WEAPONS } from '../../../../content/catalogs/ship_weapons';
 import { ENCOUNTER_TEAM } from '../../../../defs/encounter_team';
-import type { StickyMineId } from '../../../../defs/sticky_mine';
 import {
     SHIP_WEAPON_KIND,
     SHIP_WEAPON_PHASE,
@@ -27,7 +26,8 @@ type PlayerStickyMineDispenserRunnerOptions = {
     queuePlayerStickyMineAttach: (
         input: {
             sourceWeaponId: string;
-            mineId: StickyMineId;
+            damage: number;
+            fuseDurationMs: number;
             targetActorId: string;
             ageMs: number;
         },
@@ -149,11 +149,7 @@ export default class PlayerStickyMineDispenserRunner {
             );
         }
 
-        const mineId =
-            dispenser.loadedMineId;
-
         if (
-            !mineId ||
             dispenser.ammoCount <= 0
         ) {
             throw new Error(
@@ -167,7 +163,13 @@ export default class PlayerStickyMineDispenserRunner {
         this.options.queuePlayerStickyMineAttach({
             sourceWeaponId:
                 dispenser.id,
-            mineId,
+
+            damage:
+                definition.damage,
+
+            fuseDurationMs:
+                definition.fuseDurationMs,
+
             targetActorId:
                 task.targetActorId,
             ageMs,

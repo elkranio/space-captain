@@ -1,8 +1,5 @@
 // src/engine/defs/ship_weapon.ts
 
-import type {
-    StickyMineId,
-} from './sticky_mine';
 
 export const SHIP_WEAPON_KIND = {
     MISSILE_LAUNCHER: 'missile_launcher',
@@ -161,6 +158,9 @@ export type StickyMineDispenserDefinition =
         kind:
             typeof SHIP_WEAPON_KIND.STICKY_MINE_DISPENSER;
 
+        damage: number;
+        fuseDurationMs: number;
+
         ammoCapacity: number;
 
         salvoSize: number;
@@ -205,8 +205,6 @@ export type StickyMineDispenserState =
     ShipWeaponBaseState & {
         kind:
             typeof SHIP_WEAPON_KIND.STICKY_MINE_DISPENSER;
-
-        loadedMineId: StickyMineId | null;
 
         ammoCount: number;
 

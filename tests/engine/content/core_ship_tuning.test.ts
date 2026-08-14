@@ -13,9 +13,6 @@ import {
     SHIP_DRIVES,
 } from '../../../src/engine/content/catalogs/ship_drives';
 import {
-    STICKY_MINES,
-} from '../../../src/engine/content/catalogs/sticky_mines';
-import {
     ENEMY_BEHAVIOR_RULES_SCHEMA,
 } from '../../../src/engine/content/schemas/enemy_behavior_rules';
 import {
@@ -25,24 +22,18 @@ import {
     SHIP_DRIVE_TUNING_SCHEMA,
 } from '../../../src/engine/content/schemas/ship_drives';
 import {
-    STICKY_MINE_TUNING_SCHEMA,
-} from '../../../src/engine/content/schemas/sticky_mines';
-import {
     SHIP_CHASSIS_ID,
     SHIP_SPRITE_ID,
 } from '../../../src/engine/defs/ship_chassis';
 import {
     SHIP_DRIVE_ID,
 } from '../../../src/engine/defs/ship_drive';
-import {
-    STICKY_MINE_ID,
-} from '../../../src/engine/defs/sticky_mine';
 
 describe(
     'Core ship content tuning',
     () => {
         it(
-            'preserves current chassis, drive, mine and behavior-rule values',
+            'preserves current chassis, drive and behavior-rule values',
             () => {
                 expect(
                     SHIP_CHASSIS[
@@ -76,25 +67,6 @@ describe(
 
                     name:
                         'BASIC DRIVE',
-                });
-
-                expect(
-                    STICKY_MINES[
-                        STICKY_MINE_ID
-                            .BASIC_00
-                    ],
-                ).toEqual({
-                    id:
-                        STICKY_MINE_ID
-                            .BASIC_00,
-
-                    name:
-                        'STICKY MINE',
-
-                    fuseDurationMs:
-                        7500,
-
-                    damage: 1,
                 });
 
                 expect(
@@ -203,20 +175,6 @@ describe(
                         .safeParse({
                             basic_00: {
                                 name: '',
-                            },
-                        })
-                        .success,
-                ).toBe(false);
-
-                expect(
-                    STICKY_MINE_TUNING_SCHEMA
-                        .safeParse({
-                            basic_00: {
-                                name:
-                                    'STICKY MINE',
-                                fuseDurationMs:
-                                    -1,
-                                damage: 1,
                             },
                         })
                         .success,

@@ -27,9 +27,6 @@ import {
     SHIP_WEAPON_KIND,
     SHIP_WEAPON_PHASE,
 } from '../../../src/engine/defs/ship_weapon';
-import {
-    STICKY_MINE_ID,
-} from '../../../src/engine/defs/sticky_mine';
 import EnemyThreatObserver from '../../../src/engine/encounter/combat/enemy/intel/EnemyThreatObserver';
 import {
     getEnemyThreatDecisionSnapshots,
@@ -192,18 +189,6 @@ describe(
                             7000,
                     },
                 ]);
-
-                const serialized =
-                    JSON.stringify(
-                        actor
-                            .threatObservations,
-                    );
-
-                expect(serialized)
-                    .not.toContain(
-                        STICKY_MINE_ID
-                            .BASIC_00,
-                    );
 
                 const firstObservation =
                     actor
@@ -376,8 +361,6 @@ function createObserverFixture() {
         id:
             'player_mine_00',
 
-        mineId:
-            STICKY_MINE_ID.BASIC_00,
 
         source: {
             kind:

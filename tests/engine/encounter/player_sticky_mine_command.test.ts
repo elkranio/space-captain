@@ -12,9 +12,6 @@ import {
     OFFICER_ROLE,
 } from '../../../src/engine/defs/officer';
 import {
-    STICKY_MINE_ID,
-} from '../../../src/engine/defs/sticky_mine';
-import {
     SHIP_WEAPON_KIND,
     SHIP_WEAPON_PHASE,
     type StickyMineDispenserState,
@@ -58,7 +55,7 @@ describe('Player sticky-mine command', () => {
         } = createStickyMineTestSetup();
 
         target.hull = 3;
-        
+
 
         const [command] =
             getStickyMineCommands(
@@ -763,8 +760,6 @@ function createIncomingInterruptMine(
         id:
             'incoming_interrupt_mine',
 
-        mineId:
-            STICKY_MINE_ID.BASIC_00,
 
         source: {
             kind:

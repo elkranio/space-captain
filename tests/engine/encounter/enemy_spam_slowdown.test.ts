@@ -25,9 +25,6 @@ import {
     SHIP_WEAPON_PHASE,
     type MissileLauncherState,
 } from '../../../src/engine/defs/ship_weapon';
-import {
-    STICKY_MINE_ID,
-} from '../../../src/engine/defs/sticky_mine';
 import MissileLauncherFactory from '../../../src/engine/generation/ship_weapon/MissileLauncherFactory';
 import {
     spendPowerCoreCharge,
@@ -105,9 +102,6 @@ describe(
                         id:
                             'spam_slow_mine',
 
-                        mineId:
-                            STICKY_MINE_ID
-                                .BASIC_00,
 
                         source: {
                             kind:

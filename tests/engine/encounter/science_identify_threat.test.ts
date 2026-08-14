@@ -89,7 +89,7 @@ describe('Science identify threat command', () => {
             },
 
             completeTimedTasksImmediately: true,
-        
+
             random: () => 0,
         });
 
