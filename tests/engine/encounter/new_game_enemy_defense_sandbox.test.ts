@@ -149,6 +149,9 @@ describe('New-game enemy defense sandbox', () => {
             } =
                 createAnchoredPlayerCombatTestSetup();
 
+            targetActor.behavior
+                .threatTimingWiggleMs = 0;
+
             const initialHull =
                 targetActor.hull;
 

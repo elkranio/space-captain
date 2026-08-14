@@ -15,6 +15,11 @@ import {
     SHIP_WEAPON_KIND,
     SHIP_WEAPON_PHASE,
 } from '../../../src/engine/defs/ship_weapon';
+import {
+    SHIELD_GENERATOR_ID,
+    SHIELD_GENERATOR_PHASE,
+    SHIELD_GENERATOR_STATUS,
+} from '../../../src/engine/defs/shield_generator';
 import EnemyDecisionPolicy from '../../../src/engine/encounter/combat/enemy/EnemyDecisionPolicy';
 import type {
     EnemyCaptainDecisionSnapshot,
@@ -212,10 +217,16 @@ describe(
         );
 
         it(
-            'prioritizes an available missile interception over offense',
+            'intercepts the earliest missile that still looks reachable',
             () => {
                 const snapshot =
                     createSnapshot();
+
+                snapshot.availableRoles = [
+                    OFFICER_ROLE.WEAPONS,
+                ];
+
+                snapshot.weapons = [];
 
                 snapshot.defenseTurret = {
                     id:
@@ -224,6 +235,8 @@ describe(
                     phase:
                         DEFENSE_TURRET_PHASE
                             .READY,
+
+                    loadDurationMs: 3000,
                 };
 
                 snapshot.powerCoreCharges = 4;
@@ -235,13 +248,28 @@ describe(
                                 .MISSILE,
 
                         observationId:
-                            'missile:projectile_00',
+                            'missile:too_late',
 
                         projectileId:
-                            'projectile_00',
+                            'too_late',
 
-                        timeToImpactMs:
-                            10000,
+                        estimatedTimeToImpactMs:
+                            2500,
+                    },
+
+                    {
+                        kind:
+                            ENEMY_THREAT_KIND
+                                .MISSILE,
+
+                        observationId:
+                            'missile:reachable',
+
+                        projectileId:
+                            'reachable',
+
+                        estimatedTimeToImpactMs:
+                            6000,
                     },
                 ];
 
@@ -262,7 +290,139 @@ describe(
                         'defense_turret_00',
 
                     projectileId:
-                        'projectile_00',
+                        'reachable',
+                });
+            },
+        );
+
+        it(
+            'does not knowingly start a mine clear that cannot finish in time',
+            () => {
+                const snapshot =
+                    createSnapshot();
+
+                snapshot.availableRoles = [
+                    OFFICER_ROLE.HELM,
+                ];
+
+                snapshot.weapons = [];
+
+                snapshot.threats = [
+                    {
+                        kind:
+                            ENEMY_THREAT_KIND
+                                .STICKY_MINE,
+
+                        observationId:
+                            'sticky_mine:late',
+
+                        mineId:
+                            'late',
+
+                        estimatedTimeToDetonationMs:
+                            2500,
+                    },
+                ];
+
+                expect(
+                    new EnemyDecisionPolicy()
+                        .selectWork(
+                            snapshot,
+                        ),
+                ).toBeUndefined();
+            },
+        );
+
+        it(
+            'uses estimated beam timing for the shield deployment window',
+            () => {
+                const snapshot =
+                    createSnapshot();
+
+                snapshot.availableRoles = [
+                    OFFICER_ROLE.ENGINEER,
+                ];
+
+                snapshot.weapons = [];
+
+                snapshot.powerCoreCharges = 4;
+
+                snapshot.shieldGenerator = {
+                    shieldGeneratorId:
+                        SHIELD_GENERATOR_ID
+                            .BASIC_00,
+
+                    status:
+                        SHIELD_GENERATOR_STATUS
+                            .ONLINE,
+
+                    phase:
+                        SHIELD_GENERATOR_PHASE
+                            .READY,
+                };
+
+                snapshot.threats = [
+                    {
+                        kind:
+                            ENEMY_THREAT_KIND
+                                .BEAM_CANNON,
+
+                        observationId:
+                            'beam:00',
+
+                        officerTaskId:
+                            'task_00',
+
+                        weaponId:
+                            'player_beam_00',
+
+                        estimatedRemainingChargeMs:
+                            2500,
+                    },
+                ];
+
+                expect(
+                    new EnemyDecisionPolicy()
+                        .selectWork(
+                            snapshot,
+                        ),
+                ).toBeUndefined();
+
+                snapshot.threats = [
+                    {
+                        kind:
+                            ENEMY_THREAT_KIND
+                                .BEAM_CANNON,
+
+                        observationId:
+                            'beam:00',
+
+                        officerTaskId:
+                            'task_00',
+
+                        weaponId:
+                            'player_beam_00',
+
+                        estimatedRemainingChargeMs:
+                            7000,
+                    },
+                ];
+
+                expect(
+                    new EnemyDecisionPolicy()
+                        .selectWork(
+                            snapshot,
+                        ),
+                ).toEqual({
+                    kind:
+                        SHIP_CREW_TASK_KIND
+                            .DEPLOY_SHIELD,
+
+                    role:
+                        OFFICER_ROLE.ENGINEER,
+
+                    observationId:
+                        'beam:00',
                 });
             },
         );
@@ -306,7 +466,6 @@ function createSnapshot():
             'ship_enemy_combat_00',
 
         aggression: 50,
-        threatTimingWiggleMs: 500,
 
         availableRoles: [
             OFFICER_ROLE.WEAPONS,

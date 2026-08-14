@@ -35,11 +35,9 @@ import {
 } from '../../model/ship_crew_task';
 import type {
     EnemyCaptainDecisionSnapshot,
+    EnemyCaptainThreatSnapshot,
     EnemyCaptainWeaponSnapshot,
 } from '../queries/get_enemy_captain_decision_snapshot';
-import type {
-    EnemyThreatDecisionSnapshot,
-} from '../queries/get_enemy_threat_decision_snapshots';
 
 export type EnemyWorkIntent =
     | {
@@ -114,13 +112,14 @@ const ENEMY_OFFENSIVE_ROLE_PRIORITY = [
 ] as const;
 
 // Pure captain policy:
-// detached decision snapshot -> at most one intent.
+// perceived detached snapshot -> at most one intent.
 //
-// This slice intentionally keeps priority simple.
-// Defensive/utility work beats offense.
+// Defensive/utility work still beats offense in this slice.
+// All timing feasibility uses the captain's estimated clocks,
+// never objective threat time.
 //
-// Aggression, threat-timing error and one-step
-// defensive opportunity-cost evaluation come later.
+// Aggression and one-step defensive opportunity-cost
+// evaluation come later.
 //
 // EnemyWorkExecutor re-validates the selected intent
 // against authoritative mutable state before starting work.
@@ -162,6 +161,12 @@ export default class EnemyDecisionPolicy {
                     .CLEAR_STICKY_MINE;
         }
     > | undefined {
+        const clearDurationMs =
+            getTimedOfficerTaskDurationMs(
+                OFFICER_TASK_KIND
+                    .CLEAR_STICKY_MINE,
+            );
+
         const claimedMineIds =
             new Set(
                 snapshot
@@ -170,7 +175,7 @@ export default class EnemyDecisionPolicy {
 
         let selectedMine:
             Extract<
-                EnemyThreatDecisionSnapshot,
+                EnemyCaptainThreatSnapshot,
                 {
                     kind:
                         typeof ENEMY_THREAT_KIND
@@ -189,6 +194,11 @@ export default class EnemyDecisionPolicy {
                         .STICKY_MINE ||
                 claimedMineIds.has(
                     threat.mineId,
+                ) ||
+                !this.hasEnoughEstimatedTime(
+                    threat
+                        .estimatedTimeToDetonationMs,
+                    clearDurationMs,
                 )
             ) {
                 continue;
@@ -197,9 +207,9 @@ export default class EnemyDecisionPolicy {
             if (
                 !selectedMine ||
                 threat
-                    .timeToDetonationMs <
+                    .estimatedTimeToDetonationMs <
                     selectedMine
-                        .timeToDetonationMs
+                        .estimatedTimeToDetonationMs
             ) {
                 selectedMine =
                     threat;
@@ -279,7 +289,7 @@ export default class EnemyDecisionPolicy {
                 (
                     candidate,
                 ): candidate is Extract<
-                    EnemyThreatDecisionSnapshot,
+                    EnemyCaptainThreatSnapshot,
                     {
                         kind:
                             typeof ENEMY_THREAT_KIND
@@ -318,18 +328,22 @@ export default class EnemyDecisionPolicy {
                 .shield_placement
                 .impactReserveMs;
 
-        if (
+        const estimatedRemainingMs =
             beamCannonThreat
-                .remainingChargeMs >
+                .estimatedRemainingChargeMs;
+
+        if (
+            estimatedRemainingMs >
             deploymentWindowStartMs
         ) {
             return undefined;
         }
 
         if (
-            beamCannonThreat
-                .remainingChargeMs <=
-            deploymentDurationMs
+            !this.hasEnoughEstimatedTime(
+                estimatedRemainingMs,
+                deploymentDurationMs,
+            )
         ) {
             return undefined;
         }
@@ -423,27 +437,48 @@ export default class EnemyDecisionPolicy {
             return undefined;
         }
 
-        const missileThreat =
-            snapshot.threats.find(
-                (
-                    candidate,
-                ): candidate is Extract<
-                    EnemyThreatDecisionSnapshot,
-                    {
-                        kind:
-                            typeof ENEMY_THREAT_KIND
-                                .MISSILE;
-                    }
-                > => {
-                    return (
-                        candidate.kind ===
-                        ENEMY_THREAT_KIND
-                            .MISSILE
-                    );
-                },
-            );
+        let selectedMissile:
+            Extract<
+                EnemyCaptainThreatSnapshot,
+                {
+                    kind:
+                        typeof ENEMY_THREAT_KIND
+                            .MISSILE;
+                }
+            > |
+            undefined;
 
-        if (!missileThreat) {
+        for (
+            const threat of
+            snapshot.threats
+        ) {
+            if (
+                threat.kind !==
+                    ENEMY_THREAT_KIND
+                        .MISSILE ||
+                !this.hasEnoughEstimatedTime(
+                    threat
+                        .estimatedTimeToImpactMs,
+                    defenseTurret
+                        .loadDurationMs,
+                )
+            ) {
+                continue;
+            }
+
+            if (
+                !selectedMissile ||
+                threat
+                    .estimatedTimeToImpactMs <
+                    selectedMissile
+                        .estimatedTimeToImpactMs
+            ) {
+                selectedMissile =
+                    threat;
+            }
+        }
+
+        if (!selectedMissile) {
             return undefined;
         }
 
@@ -459,7 +494,7 @@ export default class EnemyDecisionPolicy {
                 defenseTurret.id,
 
             projectileId:
-                missileThreat
+                selectedMissile
                     .projectileId,
         };
     }
@@ -646,5 +681,15 @@ export default class EnemyDecisionPolicy {
                     ) > 0
                 );
         }
+    }
+
+    private hasEnoughEstimatedTime(
+        estimatedRemainingMs: number,
+        actionDurationMs: number,
+    ): boolean {
+        return (
+            estimatedRemainingMs >
+            actionDurationMs
+        );
     }
 }

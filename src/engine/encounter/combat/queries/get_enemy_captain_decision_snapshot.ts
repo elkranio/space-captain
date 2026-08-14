@@ -1,5 +1,8 @@
 // src/engine/encounter/combat/queries/get_enemy_captain_decision_snapshot.ts
 
+import {
+    DEFENSE_TURRETS,
+} from '../../../content/catalogs/defense_turrets';
 import type {
     OfficerRole,
 } from '../../../defs/officer';
@@ -52,12 +55,46 @@ export type EnemyCaptainWeaponSnapshot = {
         string | null;
 };
 
+export type EnemyCaptainThreatSnapshot =
+    | {
+          kind:
+              typeof ENEMY_THREAT_KIND
+                  .MISSILE;
+
+          observationId: string;
+          projectileId: string;
+
+          estimatedTimeToImpactMs:
+              number;
+      }
+    | {
+          kind:
+              typeof ENEMY_THREAT_KIND
+                  .BEAM_CANNON;
+
+          observationId: string;
+          officerTaskId: string;
+          weaponId: string;
+
+          estimatedRemainingChargeMs:
+              number;
+      }
+    | {
+          kind:
+              typeof ENEMY_THREAT_KIND
+                  .STICKY_MINE;
+
+          observationId: string;
+          mineId: string;
+
+          estimatedTimeToDetonationMs:
+              number;
+      };
+
 export type EnemyCaptainDecisionSnapshot = {
     actorId: string;
 
-    // Captain-owned tuning. Not objective threat truth.
     aggression: number;
-    threatTimingWiggleMs: number;
 
     availableRoles:
         readonly OfficerRole[];
@@ -78,6 +115,8 @@ export type EnemyCaptainDecisionSnapshot = {
             ShipDefenseTurretState[
                 'phase'
             ];
+
+        loadDurationMs: number;
     };
 
     powerCoreCharges: number;
@@ -102,7 +141,7 @@ export type EnemyCaptainDecisionSnapshot = {
     hasActiveShield: boolean;
 
     threats:
-        readonly EnemyThreatDecisionSnapshot[];
+        readonly EnemyCaptainThreatSnapshot[];
 
     incomingSpamChannelIds:
         readonly string[];
@@ -110,16 +149,18 @@ export type EnemyCaptainDecisionSnapshot = {
 
 // Internal read model for one enemy captain decision.
 //
-// This is the only mutable-state -> policy boundary.
-// The policy receives detached facts and cannot reach
-// EncounterState or ShipEncounterActorState.
+// This is the mutable-state -> policy boundary.
+// Policy sees detached perceived facts, not authoritative state.
 //
-// Threats are resolved only from crew observations plus
-// permitted physical timing. Hidden missile signature truth
-// never enters this snapshot.
+// A single symmetric threatTimingErrorMs is rolled once
+// for the captain decision and applied to every threat clock.
+// Therefore policy never receives the objective remaining time.
+//
+// Hidden missile signature truth also never enters this snapshot.
 export function getEnemyCaptainDecisionSnapshot(
     state: EncounterState,
     actor: ShipEncounterActorState,
+    threatTimingErrorMs = 0,
 ): EnemyCaptainDecisionSnapshot {
     const availableRoles =
         actor.crewRoles.filter(
@@ -197,10 +238,6 @@ export function getEnemyCaptainDecisionSnapshot(
             actor.behavior
                 .aggression,
 
-        threatTimingWiggleMs:
-            actor.behavior
-                .threatTimingWiggleMs,
-
         availableRoles,
 
         claimedStickyMineIds,
@@ -214,17 +251,9 @@ export function getEnemyCaptainDecisionSnapshot(
 
         defenseTurret:
             actor.defenseTurret
-                ? {
-                      id:
-                          actor
-                              .defenseTurret
-                              .id,
-
-                      phase:
-                          actor
-                              .defenseTurret
-                              .phase,
-                  }
+                ? createDefenseTurretSnapshot(
+                      actor.defenseTurret,
+                  )
                 : undefined,
 
         powerCoreCharges:
@@ -259,10 +288,119 @@ export function getEnemyCaptainDecisionSnapshot(
             getEnemyThreatDecisionSnapshots(
                 state,
                 actor,
-            ),
+            ).map((threat) => {
+                return createCaptainThreatSnapshot(
+                    threat,
+                    threatTimingErrorMs,
+                );
+            }),
 
         incomingSpamChannelIds,
     };
+}
+
+function createDefenseTurretSnapshot(
+    defenseTurret:
+        ShipDefenseTurretState,
+): NonNullable<
+    EnemyCaptainDecisionSnapshot[
+        'defenseTurret'
+    ]
+> {
+    return {
+        id:
+            defenseTurret.id,
+
+        phase:
+            defenseTurret.phase,
+
+        loadDurationMs:
+            DEFENSE_TURRETS[
+                defenseTurret
+                    .defenseTurretId
+            ].loadDurationMs,
+    };
+}
+
+function createCaptainThreatSnapshot(
+    threat: EnemyThreatDecisionSnapshot,
+    threatTimingErrorMs: number,
+): EnemyCaptainThreatSnapshot {
+    switch (threat.kind) {
+        case ENEMY_THREAT_KIND
+            .MISSILE:
+            return {
+                kind:
+                    threat.kind,
+
+                observationId:
+                    threat.observationId,
+
+                projectileId:
+                    threat.projectileId,
+
+                estimatedTimeToImpactMs:
+                    applyTimingError(
+                        threat
+                            .timeToImpactMs,
+                        threatTimingErrorMs,
+                    ),
+            };
+
+        case ENEMY_THREAT_KIND
+            .BEAM_CANNON:
+            return {
+                kind:
+                    threat.kind,
+
+                observationId:
+                    threat.observationId,
+
+                officerTaskId:
+                    threat.officerTaskId,
+
+                weaponId:
+                    threat.weaponId,
+
+                estimatedRemainingChargeMs:
+                    applyTimingError(
+                        threat
+                            .remainingChargeMs,
+                        threatTimingErrorMs,
+                    ),
+            };
+
+        case ENEMY_THREAT_KIND
+            .STICKY_MINE:
+            return {
+                kind:
+                    threat.kind,
+
+                observationId:
+                    threat.observationId,
+
+                mineId:
+                    threat.mineId,
+
+                estimatedTimeToDetonationMs:
+                    applyTimingError(
+                        threat
+                            .timeToDetonationMs,
+                        threatTimingErrorMs,
+                    ),
+            };
+    }
+}
+
+function applyTimingError(
+    actualRemainingMs: number,
+    threatTimingErrorMs: number,
+): number {
+    return Math.max(
+        0,
+        actualRemainingMs +
+            threatTimingErrorMs,
+    );
 }
 
 function createWeaponSnapshot(

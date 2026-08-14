@@ -55,6 +55,7 @@ type EnemyBehaviorRunnerOptions = {
 // - threat perception synchronization;
 // - enemy crew-task progress;
 // - captain decision cadence;
+// - one timing-estimate error per captain decision;
 // - captain decision snapshot construction;
 // - one-intent decision orchestration;
 // - intent execution wiring.
@@ -266,10 +267,16 @@ export default class EnemyBehaviorRunner {
                 continue;
             }
 
+            const threatTimingErrorMs =
+                this.rollThreatTimingErrorMs(
+                    actor,
+                );
+
             const snapshot =
                 getEnemyCaptainDecisionSnapshot(
                     this.state,
                     actor,
+                    threatTimingErrorMs,
                 );
 
             const intent =
@@ -351,6 +358,33 @@ export default class EnemyBehaviorRunner {
                     centeredRandom *
                         wiggleMs,
             ),
+        );
+    }
+
+    private rollThreatTimingErrorMs(
+        actor: ShipEncounterActorState,
+    ): number {
+        if (
+            actor
+                .threatObservations
+                .length === 0
+        ) {
+            return 0;
+        }
+
+        const wiggleMs =
+            actor.behavior
+                .threatTimingWiggleMs;
+
+        if (wiggleMs === 0) {
+            return 0;
+        }
+
+        return Math.round(
+            (
+                this.random() * 2 -
+                1
+            ) * wiggleMs,
         );
     }
 }

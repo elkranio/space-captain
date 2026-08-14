@@ -271,7 +271,7 @@ describe(
         );
 
         it(
-            'falls back to Helm and loses a too-late clearing race',
+            'does not knowingly start a too-late clearing race',
             () => {
                 const {
                     engine,
@@ -279,6 +279,12 @@ describe(
                     targetActor,
                 } =
                     createAnchoredPlayerCombatTestSetup();
+
+                targetActor.behavior
+                    .decisionTickWiggleMs = 0;
+
+                targetActor.behavior
+                    .threatTimingWiggleMs = 0;
 
                 targetActor.crewRoles = [
                     OFFICER_ROLE.HELM,
@@ -312,14 +318,7 @@ describe(
                     targetActor.crewTasks[
                         OFFICER_ROLE.HELM
                     ],
-                ).toMatchObject({
-                    kind:
-                        SHIP_CREW_TASK_KIND
-                            .CLEAR_STICKY_MINE,
-
-                    mineId:
-                        'mine_too_late',
-                });
+                ).toBeUndefined();
 
                 expect(
                     targetActor.crewTasks[
