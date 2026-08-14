@@ -1,5 +1,3 @@
-// src/engine/content/schemas/officer_task_tuning.ts
-
 import * as z from 'zod';
 import {
     OFFICER_TASK_KIND,
@@ -65,11 +63,94 @@ const OFFICER_TASK_TUNING_SHAPE =
         | typeof OFFICER_TASK_LIFECYCLE_TUNING_ENTRY_SCHEMA
     >;
 
-// Top-level strict object:
-// - каждый domain task kind обязан иметь tuning record;
-// - лишний/неизвестный task kind не принимается;
-// - external-lifecycle tasks физически не имеют durationMs
-//   в своей schema.
+export const SCIENCE_OFFICER_TASK_TUNING_SCHEMA =
+    z.strictObject({
+        [OFFICER_TASK_KIND.SCIENCE_PLOT_COURSE]:
+            OFFICER_TASK_TUNING_SHAPE[
+                OFFICER_TASK_KIND.SCIENCE_PLOT_COURSE
+            ],
+
+        [OFFICER_TASK_KIND.SCIENCE_IDENTIFY_THREAT]:
+            OFFICER_TASK_TUNING_SHAPE[
+                OFFICER_TASK_KIND.SCIENCE_IDENTIFY_THREAT
+            ],
+
+        [OFFICER_TASK_KIND.SCIENCE_PURGE_SPAM]:
+            OFFICER_TASK_TUNING_SHAPE[
+                OFFICER_TASK_KIND.SCIENCE_PURGE_SPAM
+            ],
+
+        [OFFICER_TASK_KIND.SCIENCE_FIRE_SPAM]:
+            OFFICER_TASK_TUNING_SHAPE[
+                OFFICER_TASK_KIND.SCIENCE_FIRE_SPAM
+            ],
+    });
+
+export const WEAPONS_OFFICER_TASK_TUNING_SCHEMA =
+    z.strictObject({
+        [OFFICER_TASK_KIND.WEAPONS_DEFENSE_TURRET]:
+            OFFICER_TASK_TUNING_SHAPE[
+                OFFICER_TASK_KIND.WEAPONS_DEFENSE_TURRET
+            ],
+
+        [OFFICER_TASK_KIND.WEAPONS_FIRE_MISSILE]:
+            OFFICER_TASK_TUNING_SHAPE[
+                OFFICER_TASK_KIND.WEAPONS_FIRE_MISSILE
+            ],
+
+        [OFFICER_TASK_KIND.WEAPONS_FIRE_STICKY_MINES]:
+            OFFICER_TASK_TUNING_SHAPE[
+                OFFICER_TASK_KIND.WEAPONS_FIRE_STICKY_MINES
+            ],
+
+        [OFFICER_TASK_KIND.WEAPONS_FIRE_BEAM_CANNON]:
+            OFFICER_TASK_TUNING_SHAPE[
+                OFFICER_TASK_KIND.WEAPONS_FIRE_BEAM_CANNON
+            ],
+    });
+
+export const HELM_OFFICER_TASK_TUNING_SCHEMA =
+    z.strictObject({
+        [OFFICER_TASK_KIND.HELM_DOCK]:
+            OFFICER_TASK_TUNING_SHAPE[
+                OFFICER_TASK_KIND.HELM_DOCK
+            ],
+
+        [OFFICER_TASK_KIND.HELM_FLY_TO]:
+            OFFICER_TASK_TUNING_SHAPE[
+                OFFICER_TASK_KIND.HELM_FLY_TO
+            ],
+
+        [OFFICER_TASK_KIND.HELM_JUMP]:
+            OFFICER_TASK_TUNING_SHAPE[
+                OFFICER_TASK_KIND.HELM_JUMP
+            ],
+    });
+
+export const ENGINEER_OFFICER_TASK_TUNING_SCHEMA =
+    z.strictObject({
+        [OFFICER_TASK_KIND.ENGINEER_REPAIR_DRIVE]:
+            OFFICER_TASK_TUNING_SHAPE[
+                OFFICER_TASK_KIND.ENGINEER_REPAIR_DRIVE
+            ],
+
+        [OFFICER_TASK_KIND.ENGINEER_DEPLOY_SHIELD]:
+            OFFICER_TASK_TUNING_SHAPE[
+                OFFICER_TASK_KIND.ENGINEER_DEPLOY_SHIELD
+            ],
+    });
+
+export const SHARED_OFFICER_TASK_TUNING_SCHEMA =
+    z.strictObject({
+        [OFFICER_TASK_KIND.CLEAR_STICKY_MINE]:
+            OFFICER_TASK_TUNING_SHAPE[
+                OFFICER_TASK_KIND.CLEAR_STICKY_MINE
+            ],
+    });
+
+// Runtime still receives one complete tuning map.
+// This final strict schema proves that the physical role split did not
+// drop a domain task or add an unknown one.
 export const OFFICER_TASK_TUNING_SCHEMA =
     z.strictObject(
         OFFICER_TASK_TUNING_SHAPE,

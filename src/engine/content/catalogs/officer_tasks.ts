@@ -1,8 +1,17 @@
 // src/engine/content/catalogs/officer_tasks.ts
 
-import officerTaskTuningData from '../data/officer_tasks.json';
+import scienceOfficerTaskTuningData from '../data/officer_tasks_science.json';
+import weaponsOfficerTaskTuningData from '../data/officer_tasks_weapons.json';
+import helmOfficerTaskTuningData from '../data/officer_tasks_helm.json';
+import engineerOfficerTaskTuningData from '../data/officer_tasks_engineer.json';
+import sharedOfficerTaskTuningData from '../data/officer_tasks_shared.json';
 import {
+    ENGINEER_OFFICER_TASK_TUNING_SCHEMA,
+    HELM_OFFICER_TASK_TUNING_SCHEMA,
     OFFICER_TASK_TUNING_SCHEMA,
+    SCIENCE_OFFICER_TASK_TUNING_SCHEMA,
+    SHARED_OFFICER_TASK_TUNING_SCHEMA,
+    WEAPONS_OFFICER_TASK_TUNING_SCHEMA,
     type OfficerTaskTuningData,
 } from '../schemas/officer_task_tuning';
 import {
@@ -11,10 +20,39 @@ import {
     type OfficerTaskKind,
 } from '../../defs/officer_task';
 
-export const OFFICER_TASK_TUNING: Readonly<OfficerTaskTuningData> =
-    OFFICER_TASK_TUNING_SCHEMA.parse(
-        officerTaskTuningData,
+const SCIENCE_OFFICER_TASK_TUNING =
+    SCIENCE_OFFICER_TASK_TUNING_SCHEMA.parse(
+        scienceOfficerTaskTuningData,
     );
+
+const WEAPONS_OFFICER_TASK_TUNING =
+    WEAPONS_OFFICER_TASK_TUNING_SCHEMA.parse(
+        weaponsOfficerTaskTuningData,
+    );
+
+const HELM_OFFICER_TASK_TUNING =
+    HELM_OFFICER_TASK_TUNING_SCHEMA.parse(
+        helmOfficerTaskTuningData,
+    );
+
+const ENGINEER_OFFICER_TASK_TUNING =
+    ENGINEER_OFFICER_TASK_TUNING_SCHEMA.parse(
+        engineerOfficerTaskTuningData,
+    );
+
+const SHARED_OFFICER_TASK_TUNING =
+    SHARED_OFFICER_TASK_TUNING_SCHEMA.parse(
+        sharedOfficerTaskTuningData,
+    );
+
+export const OFFICER_TASK_TUNING: Readonly<OfficerTaskTuningData> =
+    OFFICER_TASK_TUNING_SCHEMA.parse({
+        ...SCIENCE_OFFICER_TASK_TUNING,
+        ...WEAPONS_OFFICER_TASK_TUNING,
+        ...HELM_OFFICER_TASK_TUNING,
+        ...ENGINEER_OFFICER_TASK_TUNING,
+        ...SHARED_OFFICER_TASK_TUNING,
+    });
 
 export type OfficerTaskDraftTuning = {
     label: string;

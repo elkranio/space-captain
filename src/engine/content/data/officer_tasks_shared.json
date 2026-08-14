@@ -1,0 +1,9 @@
+{
+    "clear_sticky_mine": {
+        "label": "CLEAR MINE",
+        "showProgress": true,
+        "canBeCancelledByPlayer": true,
+        "canBeInterruptedByDamage": true,
+        "durationMs": 3000
+    }
+}

@@ -5,7 +5,11 @@ import {
 } from 'vitest';
 import powerCoreData from '../../src/engine/content/data/power_cores.json';
 import enemyBehaviorRulesData from '../../src/engine/content/data/enemy_behavior_rules.json';
-import officerTaskData from '../../src/engine/content/data/officer_tasks.json';
+import scienceOfficerTaskData from '../../src/engine/content/data/officer_tasks_science.json';
+import weaponsOfficerTaskData from '../../src/engine/content/data/officer_tasks_weapons.json';
+import helmOfficerTaskData from '../../src/engine/content/data/officer_tasks_helm.json';
+import engineerOfficerTaskData from '../../src/engine/content/data/officer_tasks_engineer.json';
+import sharedOfficerTaskData from '../../src/engine/content/data/officer_tasks_shared.json';
 import defenseTurretData from '../../src/engine/content/data/defense_turrets.json';
 import shieldGeneratorData from '../../src/engine/content/data/shield_generators.json';
 import shipBehaviorData from '../../src/engine/content/data/ship_behaviors.json';
@@ -53,10 +57,54 @@ describe(
                     {
                         id:
                             CONTENT_COLLECTION_ID
-                                .OFFICER_TASKS,
+                                .OFFICER_TASKS_SCIENCE,
 
                         label:
-                            'Officer Tasks',
+                            'Science',
+
+                        canAdd: false,
+                        canDelete: false,
+                    },
+                    {
+                        id:
+                            CONTENT_COLLECTION_ID
+                                .OFFICER_TASKS_WEAPONS,
+
+                        label:
+                            'Weapons',
+
+                        canAdd: false,
+                        canDelete: false,
+                    },
+                    {
+                        id:
+                            CONTENT_COLLECTION_ID
+                                .OFFICER_TASKS_HELM,
+
+                        label:
+                            'Helm',
+
+                        canAdd: false,
+                        canDelete: false,
+                    },
+                    {
+                        id:
+                            CONTENT_COLLECTION_ID
+                                .OFFICER_TASKS_ENGINEER,
+
+                        label:
+                            'Engineer',
+
+                        canAdd: false,
+                        canDelete: false,
+                    },
+                    {
+                        id:
+                            CONTENT_COLLECTION_ID
+                                .OFFICER_TASKS_SHARED,
+
+                        label:
+                            'Shared',
 
                         canAdd: false,
                         canDelete: false,
@@ -201,6 +249,35 @@ describe(
                             return (
                                 summary.group ===
                                 CONTENT_COLLECTION_GROUP
+                                    .OFFICER_TASKS
+                            );
+                        })
+                        .map((summary) => {
+                            return summary.id;
+                        }),
+                ).toEqual([
+                    CONTENT_COLLECTION_ID
+                        .OFFICER_TASKS_SCIENCE,
+
+                    CONTENT_COLLECTION_ID
+                        .OFFICER_TASKS_WEAPONS,
+
+                    CONTENT_COLLECTION_ID
+                        .OFFICER_TASKS_HELM,
+
+                    CONTENT_COLLECTION_ID
+                        .OFFICER_TASKS_ENGINEER,
+
+                    CONTENT_COLLECTION_ID
+                        .OFFICER_TASKS_SHARED,
+                ]);
+
+                expect(
+                    summaries
+                        .filter((summary) => {
+                            return (
+                                summary.group ===
+                                CONTENT_COLLECTION_GROUP
                                     .SHIP_MODULES
                             );
                         })
@@ -266,8 +343,28 @@ describe(
                 > = [
                     [
                         CONTENT_COLLECTION_ID
-                            .OFFICER_TASKS,
-                        officerTaskData,
+                            .OFFICER_TASKS_SCIENCE,
+                        scienceOfficerTaskData,
+                    ],
+                    [
+                        CONTENT_COLLECTION_ID
+                            .OFFICER_TASKS_WEAPONS,
+                        weaponsOfficerTaskData,
+                    ],
+                    [
+                        CONTENT_COLLECTION_ID
+                            .OFFICER_TASKS_HELM,
+                        helmOfficerTaskData,
+                    ],
+                    [
+                        CONTENT_COLLECTION_ID
+                            .OFFICER_TASKS_ENGINEER,
+                        engineerOfficerTaskData,
+                    ],
+                    [
+                        CONTENT_COLLECTION_ID
+                            .OFFICER_TASKS_SHARED,
+                        sharedOfficerTaskData,
                     ],
                     [
                         CONTENT_COLLECTION_ID
@@ -402,10 +499,26 @@ describe(
         it(
             'generates editor fields from the same schemas',
             () => {
-                const officerSchema =
+                const scienceOfficerSchema =
                     getContentCollectionJsonSchema(
                         CONTENT_COLLECTION_ID
-                            .OFFICER_TASKS,
+                            .OFFICER_TASKS_SCIENCE,
+                    ) as {
+                        properties?: Record<
+                            string,
+                            {
+                                properties?: Record<
+                                    string,
+                                    unknown
+                                >;
+                            }
+                        >;
+                    };
+
+                const helmOfficerSchema =
+                    getContentCollectionJsonSchema(
+                        CONTENT_COLLECTION_ID
+                            .OFFICER_TASKS_HELM,
                     ) as {
                         properties?: Record<
                             string,
@@ -419,12 +532,14 @@ describe(
                     };
 
                 const timed =
-                    officerSchema.properties
+                    scienceOfficerSchema
+                        .properties
                         ?.science_identify_threat
                         ?.properties;
 
                 const external =
-                    officerSchema.properties
+                    helmOfficerSchema
+                        .properties
                         ?.helm_fly_to
                         ?.properties;
 

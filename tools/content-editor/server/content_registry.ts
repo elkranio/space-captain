@@ -6,7 +6,11 @@ import {
     ENEMY_BEHAVIOR_RULES_SCHEMA,
 } from '../../../src/engine/content/schemas/enemy_behavior_rules';
 import {
-    OFFICER_TASK_TUNING_SCHEMA,
+    ENGINEER_OFFICER_TASK_TUNING_SCHEMA,
+    HELM_OFFICER_TASK_TUNING_SCHEMA,
+    SCIENCE_OFFICER_TASK_TUNING_SCHEMA,
+    SHARED_OFFICER_TASK_TUNING_SCHEMA,
+    WEAPONS_OFFICER_TASK_TUNING_SCHEMA,
 } from '../../../src/engine/content/schemas/officer_task_tuning';
 import {
     DEFENSE_TURRET_TUNING_SCHEMA,
@@ -34,8 +38,20 @@ import {
 } from '../../../src/engine/content/schemas/ship_weapons';
 
 export const CONTENT_COLLECTION_ID = {
-    OFFICER_TASKS:
-        'officer_tasks',
+    OFFICER_TASKS_SCIENCE:
+        'officer_tasks_science',
+
+    OFFICER_TASKS_WEAPONS:
+        'officer_tasks_weapons',
+
+    OFFICER_TASKS_HELM:
+        'officer_tasks_helm',
+
+    OFFICER_TASKS_ENGINEER:
+        'officer_tasks_engineer',
+
+    OFFICER_TASKS_SHARED:
+        'officer_tasks_shared',
 
     SHIP_WEAPON_RULES:
         'ship_weapon_rules',
@@ -83,6 +99,9 @@ export const CONTENT_COLLECTION_GROUP = {
     GENERAL:
         'General',
 
+    OFFICER_TASKS:
+        'Officer Tasks',
+
     SHIP_MODULES:
         'Ship Modules',
 
@@ -111,23 +130,115 @@ const CONTENT_COLLECTIONS:
         ContentCollectionDefinition
     > = {
         [CONTENT_COLLECTION_ID
-            .OFFICER_TASKS]: {
+            .OFFICER_TASKS_SCIENCE]: {
             id:
                 CONTENT_COLLECTION_ID
-                    .OFFICER_TASKS,
+                    .OFFICER_TASKS_SCIENCE,
 
-            label: 'Officer Tasks',
+            label: 'Science',
 
             group:
                 CONTENT_COLLECTION_GROUP
-                    .GENERAL,
+                    .OFFICER_TASKS,
 
             dataPath:
                 'src/engine/content/data/' +
-                'officer_tasks.json',
+                'officer_tasks_science.json',
 
             schema:
-                OFFICER_TASK_TUNING_SCHEMA,
+                SCIENCE_OFFICER_TASK_TUNING_SCHEMA,
+
+            canAdd: false,
+            canDelete: false,
+        },
+
+        [CONTENT_COLLECTION_ID
+            .OFFICER_TASKS_WEAPONS]: {
+            id:
+                CONTENT_COLLECTION_ID
+                    .OFFICER_TASKS_WEAPONS,
+
+            label: 'Weapons',
+
+            group:
+                CONTENT_COLLECTION_GROUP
+                    .OFFICER_TASKS,
+
+            dataPath:
+                'src/engine/content/data/' +
+                'officer_tasks_weapons.json',
+
+            schema:
+                WEAPONS_OFFICER_TASK_TUNING_SCHEMA,
+
+            canAdd: false,
+            canDelete: false,
+        },
+
+        [CONTENT_COLLECTION_ID
+            .OFFICER_TASKS_HELM]: {
+            id:
+                CONTENT_COLLECTION_ID
+                    .OFFICER_TASKS_HELM,
+
+            label: 'Helm',
+
+            group:
+                CONTENT_COLLECTION_GROUP
+                    .OFFICER_TASKS,
+
+            dataPath:
+                'src/engine/content/data/' +
+                'officer_tasks_helm.json',
+
+            schema:
+                HELM_OFFICER_TASK_TUNING_SCHEMA,
+
+            canAdd: false,
+            canDelete: false,
+        },
+
+        [CONTENT_COLLECTION_ID
+            .OFFICER_TASKS_ENGINEER]: {
+            id:
+                CONTENT_COLLECTION_ID
+                    .OFFICER_TASKS_ENGINEER,
+
+            label: 'Engineer',
+
+            group:
+                CONTENT_COLLECTION_GROUP
+                    .OFFICER_TASKS,
+
+            dataPath:
+                'src/engine/content/data/' +
+                'officer_tasks_engineer.json',
+
+            schema:
+                ENGINEER_OFFICER_TASK_TUNING_SCHEMA,
+
+            canAdd: false,
+            canDelete: false,
+        },
+
+        [CONTENT_COLLECTION_ID
+            .OFFICER_TASKS_SHARED]: {
+            id:
+                CONTENT_COLLECTION_ID
+                    .OFFICER_TASKS_SHARED,
+
+            label: 'Shared',
+
+            group:
+                CONTENT_COLLECTION_GROUP
+                    .OFFICER_TASKS,
+
+            dataPath:
+                'src/engine/content/data/' +
+                'officer_tasks_shared.json',
+
+            schema:
+                SHARED_OFFICER_TASK_TUNING_SCHEMA,
 
             canAdd: false,
             canDelete: false,
