@@ -114,6 +114,21 @@ export default class ShipNodeActorFactory {
             ),
 
             behavior: {
+                decisionTickDurationMs:
+                    behavior
+                        .decisionTickDurationMs,
+
+                decisionTickWiggleMs:
+                    behavior
+                        .decisionTickWiggleMs,
+
+                threatTimingWiggleMs:
+                    behavior
+                        .threatTimingWiggleMs,
+
+                aggression:
+                    behavior.aggression,
+
                 offensiveTaskDelayMs:
                     behavior
                         .offensiveTaskDelayMs,

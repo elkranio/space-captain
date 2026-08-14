@@ -16,6 +16,18 @@ export function createShipBehaviorFixture(): ShipBehaviorState {
         ];
 
     return {
+        decisionTickDurationMs:
+            preset.decisionTickDurationMs,
+
+        decisionTickWiggleMs:
+            preset.decisionTickWiggleMs,
+
+        threatTimingWiggleMs:
+            preset.threatTimingWiggleMs,
+
+        aggression:
+            preset.aggression,
+
         offensiveTaskDelayMs:
             preset.offensiveTaskDelayMs,
     };

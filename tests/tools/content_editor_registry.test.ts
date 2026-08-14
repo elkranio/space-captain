@@ -203,7 +203,7 @@ describe(
                                 .SHIP_BEHAVIORS,
 
                         label:
-                            'Ship Behaviors',
+                            'Captain Presets',
 
                         canAdd: false,
                         canDelete: false,
@@ -236,7 +236,7 @@ describe(
                                 .ENEMY_BEHAVIOR_RULES,
 
                         label:
-                            'Enemy Behavior Rules',
+                            'General Rules',
 
                         canAdd: false,
                         canDelete: false,
@@ -278,6 +278,26 @@ describe(
                             return (
                                 summary.group ===
                                 CONTENT_COLLECTION_GROUP
+                                    .ENEMY_BEHAVIOR
+                            );
+                        })
+                        .map((summary) => {
+                            return summary.id;
+                        }),
+                ).toEqual([
+                    CONTENT_COLLECTION_ID
+                        .SHIP_BEHAVIORS,
+
+                    CONTENT_COLLECTION_ID
+                        .ENEMY_BEHAVIOR_RULES,
+                ]);
+
+                expect(
+                    summaries
+                        .filter((summary) => {
+                            return (
+                                summary.group ===
+                                CONTENT_COLLECTION_GROUP
                                     .SHIP_MODULES
                             );
                         })
@@ -311,6 +331,9 @@ describe(
                             return summary.id;
                         }),
                 ).toEqual([
+                    CONTENT_COLLECTION_ID
+                        .SHIP_WEAPON_RULES,
+
                     CONTENT_COLLECTION_ID
                         .MISSILE_LAUNCHERS,
 
@@ -581,6 +604,52 @@ describe(
                         ],
                 ).toBe(
                     'ship_chassis',
+                );
+
+                const captainPresetSchema =
+                    getContentCollectionJsonSchema(
+                        CONTENT_COLLECTION_ID
+                            .SHIP_BEHAVIORS,
+                    ) as {
+                        properties?: Record<
+                            string,
+                            {
+                                properties?: Record<
+                                    string,
+                                    unknown
+                                >;
+                            }
+                        >;
+                    };
+
+                const captainFields =
+                    captainPresetSchema
+                        .properties
+                        ?.standard_combat_00
+                        ?.properties;
+
+                expect(
+                    captainFields,
+                ).toHaveProperty(
+                    'decisionTickDurationMs',
+                );
+
+                expect(
+                    captainFields,
+                ).toHaveProperty(
+                    'decisionTickWiggleMs',
+                );
+
+                expect(
+                    captainFields,
+                ).toHaveProperty(
+                    'threatTimingWiggleMs',
+                );
+
+                expect(
+                    captainFields,
+                ).toHaveProperty(
+                    'aggression',
                 );
 
                 const behaviorRulesSchema =

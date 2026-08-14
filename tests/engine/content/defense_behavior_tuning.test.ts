@@ -123,6 +123,17 @@ describe(
                         SHIP_BEHAVIOR_PRESET_ID
                             .STANDARD_COMBAT_00,
 
+                    decisionTickDurationMs:
+                        1000,
+
+                    decisionTickWiggleMs:
+                        250,
+
+                    threatTimingWiggleMs:
+                        500,
+
+                    aggression: 50,
+
                     offensiveTaskDelayMs:
                         2000,
                 });
@@ -185,8 +196,19 @@ describe(
                     SHIP_BEHAVIOR_TUNING_SCHEMA
                         .safeParse({
                             standard_combat_00: {
+                                decisionTickDurationMs:
+                                    1000,
+
+                                decisionTickWiggleMs:
+                                    250,
+
+                                threatTimingWiggleMs:
+                                    500,
+
+                                aggression: 101,
+
                                 offensiveTaskDelayMs:
-                                    -1,
+                                    2000,
                             },
                         })
                         .success,

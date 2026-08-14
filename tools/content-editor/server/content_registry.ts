@@ -102,6 +102,9 @@ export const CONTENT_COLLECTION_GROUP = {
     OFFICER_TASKS:
         'Officer Tasks',
 
+    ENEMY_BEHAVIOR:
+        'Enemy Behavior',
+
     SHIP_MODULES:
         'Ship Modules',
 
@@ -255,7 +258,7 @@ const CONTENT_COLLECTIONS:
 
             group:
                 CONTENT_COLLECTION_GROUP
-                    .GENERAL,
+                    .SHIP_WEAPONS,
 
             dataPath:
                 'src/engine/content/data/' +
@@ -443,11 +446,11 @@ const CONTENT_COLLECTIONS:
                     .SHIP_BEHAVIORS,
 
             label:
-                'Ship Behaviors',
+                'Captain Presets',
 
             group:
                 CONTENT_COLLECTION_GROUP
-                    .GENERAL,
+                    .ENEMY_BEHAVIOR,
 
             dataPath:
                 'src/engine/content/data/' +
@@ -515,11 +518,11 @@ const CONTENT_COLLECTIONS:
                     .ENEMY_BEHAVIOR_RULES,
 
             label:
-                'Enemy Behavior Rules',
+                'General Rules',
 
             group:
                 CONTENT_COLLECTION_GROUP
-                    .GENERAL,
+                    .ENEMY_BEHAVIOR,
 
             dataPath:
                 'src/engine/content/data/' +

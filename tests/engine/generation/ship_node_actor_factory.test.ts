@@ -84,6 +84,10 @@ describe('ShipNodeActorFactory', () => {
             },
 
             behavior: {
+                decisionTickDurationMs: 1000,
+                decisionTickWiggleMs: 250,
+                threatTimingWiggleMs: 500,
+                aggression: 50,
                 offensiveTaskDelayMs: 2000,
             },
 
@@ -239,6 +243,10 @@ describe('ShipNodeActorFactory', () => {
             },
 
             behavior: {
+                decisionTickDurationMs: 1000,
+                decisionTickWiggleMs: 250,
+                threatTimingWiggleMs: 500,
+                aggression: 50,
                 offensiveTaskDelayMs: 2000,
             },
 
