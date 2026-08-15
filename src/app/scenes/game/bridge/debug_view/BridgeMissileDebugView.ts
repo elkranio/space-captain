@@ -155,15 +155,39 @@ export default class BridgeMissileDebugView {
     private pushTrailPoint(
         point: BridgeMissileDebugPoint,
     ): void {
+        const trailConfig =
+            BRIDGE_MISSILE_DEBUG_CONFIG
+                .trail;
+
+        const previousPoint =
+            this.trailPoints[
+                this.trailPoints.length - 1
+            ];
+
+        if (previousPoint) {
+            const distance =
+                Phaser.Math.Distance.Between(
+                    previousPoint.x,
+                    previousPoint.y,
+                    point.x,
+                    point.y,
+                );
+
+            if (
+                distance <
+                trailConfig.minParticleSpacingPx
+            ) {
+                return;
+            }
+        }
+
         this.trailPoints.push({
             x: point.x,
             y: point.y,
         });
 
         const maxCount =
-            BRIDGE_MISSILE_DEBUG_CONFIG
-                .trail
-                .maxParticleCount;
+            trailConfig.maxParticleCount;
 
         while (
             this.trailPoints.length >

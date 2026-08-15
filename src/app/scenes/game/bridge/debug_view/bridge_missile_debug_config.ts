@@ -50,15 +50,17 @@ export const BRIDGE_MISSILE_DEBUG_CONFIG = {
 
     trail: {
         hotColor: 0xffd36a,
-        coolColor: 0xd34a27,
+        coolColor: 0xff5b33,
 
-        minParticleCount: 3,
+        minParticleCount: 5,
         maxParticleCount: 34,
+
+        minParticleSpacingPx: 2,
 
         minParticleSize: 1,
         maxParticleSize: 5,
 
-        minAlpha: 0.10,
+        minAlpha: 0.32,
         maxAlpha: 0.78,
     },
 
