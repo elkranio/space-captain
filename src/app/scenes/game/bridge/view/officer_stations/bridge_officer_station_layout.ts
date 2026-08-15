@@ -42,8 +42,8 @@ export const BRIDGE_OFFICER_STATION_LAYOUT = {
         role: OFFICER_ROLE.SCIENCE,
 
         position: {
-            x: 304,
-            y: 417,
+            x: 303,
+            y: 416,
         },
 
         seatedOfficerSpriteId:
@@ -53,14 +53,14 @@ export const BRIDGE_OFFICER_STATION_LAYOUT = {
         hitArea: OFFICER_HIT_AREA,
 
         barkPosition: {
-            x: 268,
-            y: 274,
+            x: 267,
+            y: 273,
             side: 'left',
         },
 
         contextMenuPosition: {
-            x: 116,
-            y: 292,
+            x: 115,
+            y: 291,
         },
     },
 
@@ -68,8 +68,8 @@ export const BRIDGE_OFFICER_STATION_LAYOUT = {
         role: OFFICER_ROLE.HELM,
 
         position: {
-            x: 524,
-            y: 417,
+            x: 523,
+            y: 416,
         },
 
         seatedOfficerSpriteId:
@@ -79,14 +79,14 @@ export const BRIDGE_OFFICER_STATION_LAYOUT = {
         hitArea: OFFICER_HIT_AREA,
 
         barkPosition: {
-            x: 488,
-            y: 274,
+            x: 487,
+            y: 273,
             side: 'left',
         },
 
         contextMenuPosition: {
-            x: 336,
-            y: 292,
+            x: 335,
+            y: 291,
         },
     },
 
@@ -94,8 +94,8 @@ export const BRIDGE_OFFICER_STATION_LAYOUT = {
         role: OFFICER_ROLE.WEAPONS,
 
         position: {
-            x: 766,
-            y: 417,
+            x: 765,
+            y: 416,
         },
 
         seatedOfficerSpriteId:
@@ -105,14 +105,14 @@ export const BRIDGE_OFFICER_STATION_LAYOUT = {
         hitArea: OFFICER_HIT_AREA,
 
         barkPosition: {
-            x: 627,
-            y: 274,
+            x: 626,
+            y: 273,
             side: 'right',
         },
 
         contextMenuPosition: {
-            x: 578,
-            y: 292,
+            x: 577,
+            y: 291,
         },
     },
 
@@ -120,8 +120,8 @@ export const BRIDGE_OFFICER_STATION_LAYOUT = {
         role: OFFICER_ROLE.ENGINEER,
 
         position: {
-            x: 977,
-            y: 417,
+            x: 976,
+            y: 416,
         },
 
         seatedOfficerSpriteId:
@@ -131,14 +131,14 @@ export const BRIDGE_OFFICER_STATION_LAYOUT = {
         hitArea: OFFICER_HIT_AREA,
 
         barkPosition: {
-            x: 838,
-            y: 274,
+            x: 837,
+            y: 273,
             side: 'right',
         },
 
         contextMenuPosition: {
-            x: 789,
-            y: 292,
+            x: 788,
+            y: 291,
         },
     },
 } as const satisfies Record<
