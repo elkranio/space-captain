@@ -34,8 +34,8 @@ export type BridgeOfficerStationLayoutEntry = {
 };
 
 const OFFICER_HIT_AREA = {
-    width: 160,
-    height: 170,
+    width: 115,
+    height: 153,
 } as const;
 
 export const BRIDGE_OFFICER_STATION_LAYOUT = {
