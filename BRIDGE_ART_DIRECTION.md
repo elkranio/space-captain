@@ -1,66 +1,157 @@
 # Space Captain — Bridge Art Direction
 
-Visual reference only. Gameplay truth lives in `GAMEPLAY_CONTRACTS.md`; implementation state lives in `PROJECT_CONTEXT.md`.
+Living visual direction for the bridge.
 
 Updated: 2026-08-15
-Reference HEAD: `e7fb792e430d6745ae50c7d7ddb84513fe5bc918`
+Reference HEAD: `449524c811cd14b8ec933f74565cb6c8241bfdd0`
+
+Gameplay truth lives in `GAMEPLAY_CONTRACTS.md`.
+Immediate implementation work lives in `BRIDGE_REBUILD_HANDOFF.md`.
+
+## Status
+
+A new bridge visual baseline was selected during the 2026-08-15 art pass.
+
+Stop searching for a new room composition before implementing this one.
+
+It is not final pixel-artist production, but it is representative enough to code against and judge combat honestly.
 
 ## Core fantasy
 
-The player sits in the captain’s chair of a small, slightly worn, low-status working starship.
+The player sits in the captain's chair of a small, slightly worn, low-status working starship.
 
 The bridge should feel:
 - physical and lived-in;
-- clearly inside a ship, not a giant hangar;
+- clearly inside a ship, not a hangar;
 - functional but somewhat cheap;
 - Space Quest / Sierra-era in spirit;
-- comedic through details, not through visual chaos;
+- lightly comedic through details, not chaos;
 - readable as a game screen first.
 
-## Camera / composition
+## Current accepted composition
 
 - fixed first-person captain viewpoint;
-- captain body/back not shown;
-- captain table occupies lower foreground;
-- large viewscreen remains upper visual focus;
-- four officers remain visible:
-  - Science;
-  - Weapons;
-  - Helm;
-  - Engineer;
-- current left-to-right officer order may remain Science -> Weapons -> Helm -> Engineer;
-- VIP seat remains a future hook if it does not interfere with composition.
+- captain avatar/back not shown;
+- large forward viewscreen dominates the upper scene;
+- four officer stations in one row;
+- left-to-right: Science -> Weapons -> Helm -> Engineer;
+- broad lower foreground reserved for captain dashboard;
+- compact wall/ceiling framing;
+- stations integrated into the room rather than floating desks.
 
-The next art pass should make the room feel more enclosed/ship-like:
-- stronger ceiling/wall/console framing;
-- clearer sense that stations belong to one compact bridge;
-- less open empty “hangar” space.
+## Current background asset treatment
+
+The selected production candidate was cleaned manually in Photoshop.
+
+Expected asset properties:
+- viewscreen opening is transparent;
+- station monitors are blank/dark;
+- station role labels are removed;
+- consoles/stations are painted into the background itself.
+
+Do not add a separate old station-base sprite on top of this background.
 
 ## Viewscreen
 
-Keep it visually clean.
+Keep the space area visually clean.
 
 May show:
 - one enemy ship;
-- missiles/mines/Beam Cannon/SPAM VFX;
+- missiles/mines;
+- Beam/SPAM VFX;
 - shields/impacts;
-- small short-lived targeting/attack indicators.
+- short-lived attack indicators.
 
 Avoid:
-- permanent giant health bars;
-- modern HUD overlays;
-- tiny telemetry labels floating in space;
-- duplicating captain-table information.
+- permanent giant bars;
+- persistent projectile labels like M1/L2;
+- floating countdown labels;
+- modern HUD telemetry duplicated over space.
 
-Persistent combat information belongs on the captain dashboard.
+Persistent combat information belongs on the captain dashboard/threat UI.
 
-## Captain table
+### Enemy ship staging
+
+Current preferred combat composition:
+- enemy higher in the viewscreen and offset to one side;
+- show nose/front plus underside rather than flat head-on symmetry;
+- large enough to carry visual character, not so large that it feels one meter from the player.
+
+### Projectile staging
+
+Future missile pass:
+- outgoing projectiles travel away from player on an upward/diagonal depth vector toward enemy;
+- incoming enemy projectiles mirror that vector toward player;
+- strong perspective/scale change should sell speed;
+- avoid slow floating side-view missile motion.
+
+## Officer sprite contract
+
+Officers are real characters in the bridge scene, not portrait cards.
+
+Current production approach:
+- whole precomposed transparent sprite;
+- includes chair + body + head;
+- runtime does not need separate chair/head layers;
+- art production may swap heads on the common body/chair template.
+
+Per visible officer:
+- `idle`;
+- `look_left`;
+- `look_right`.
+
+Four roles:
+- Science;
+- Weapons;
+- Helm;
+- Engineer.
+
+Goal set = 12 seated sprites.
+
+Some minor style mismatch/recoloring is acceptable until later polish if the states read correctly at game scale.
+
+### Role color
+
+Color coding is useful but should remain restrained.
+
+Science currently uses blue/cyan direction.
+
+Other role recolors can be finalized in the authored full sprites.
+
+No role insignia is required on the body; labels/identity can live elsewhere if needed.
+
+## Station monitors
+
+For the new bridge rebuild monitors are deliberately blank dark surfaces.
+
+Remove old runtime:
+- command/combat hint text;
+- task labels/progress on the station monitor;
+- fake keyboard/touch-deck typing pulses.
+
+Later, monitors may receive decorative readable role animations:
+- targeting;
+- tracking;
+- Beam charging;
+- repair diagnostics;
+- navigation;
+- other non-authoritative flavor.
+
+Monitor animation must not become a second gameplay truth source.
+
+## Station availability lamps
+
+Old mirrored ready/busy/blocked side lamps are removed for now.
+
+If availability needs a future bridge-local visual, redesign it against the new art rather than preserving the old rectangles.
+
+## Captain dashboard
 
 Structural direction remains:
-- left = **OUR SHIP**
-- right = **CURRENT CONTEXT**
+- left = OUR SHIP;
+- right = CURRENT CONTEXT.
 
-The dashboard should read as physical retro ship hardware, but clarity beats fake realism.
+Dashboard should read as physical retro ship hardware while remaining clear.
 
 Avoid:
 - Boeing/NASA density;
@@ -68,142 +159,47 @@ Avoid:
 - flat web panels;
 - spreadsheet rows;
 - giant cards;
-- excessive saturated role colors.
+- carnival role colors.
 
-## Compact threat objects — selected direction
+## Compact threat objects
 
-Long horizontal threat rows are implementation scaffolding and should be replaced in the upcoming gameplay-fidelity pass.
+Selected direction remains:
+- one concrete threat = one compact fixed-footprint object;
+- icon + countdown;
+- strong intel/signature strip;
+- one/two stable action slots;
+- roughly 4 comfortable across, 5 viable under pressure.
 
-Selected visual shape:
-- compact fixed-footprint tile;
-- square icon + countdown at top;
-- dedicated readable intel/signature strip;
-- one/two compact action buttons;
-- roughly four comfortably across the combat panel;
-- five still viable under high threat pressure.
+Do not aggregate away runtime threat identity.
 
-This is important because compact threats free dashboard space and make “how many problems exist right now” readable instantly.
-
-### Intel grammar
-
-Missile example:
-- `?????` red = unknown;
-- `ABC??` yellow = partial/uncertain;
-- `ABCDE` green = confirmed.
-
-Beam example:
-- `????`;
-- `PW??`;
-- `PWR` / `HULL` / `WPNS`.
-
-Keep the intel strip visually strong. Do not shrink it into a thin decorative separator.
-
-### Buttons
-
-Keep stable action names/locations where possible.
-
-Examples:
-- Science: `TRACK [S]`;
-- missile Weapons response: `HIT [W]`;
-- Beam Engineer response: `SHLD [E]`.
-
-Do not rename `TRACK` to `CONFIRM` just because intel advanced; the code/color communicates state.
-
-### Signature personality
-
-Short generated 4–5 character player-facing codes are visually desirable:
-- compact;
-- memorable;
-- can create funny screenshot/stream moments naturally.
-
-They must remain readable and consistent with the actual intel contract.
-
-## Our Ship panel
-
-Upcoming pass should also simplify/readability-test the left panel.
-
-Prefer:
-- compact system rows/objects;
-- stable action locations;
-- weapon/system icon;
-- short name/status/ammo;
-- compact role/action button.
-
-Avoid expanding each system into a decorative card.
-
-## Combat juice — upcoming gameplay-fidelity pass
-
-Add enough feedback to judge feel:
-- short screen shake when player takes a meaningful hit;
-- short restrained screen/console flash;
-- more convincing missile sprite;
-- readable outgoing/incoming projectile motion;
-- Beam hit feedback;
-- enemy hit/death feedback.
-
-Do not turn the screen into constant shaking/flashing. Juice should mark meaningful impact, not obscure decision-making.
-
-## Officers
-
-Officers are real characters in the room, not portrait cards.
-
-Desired life:
-- stable silhouettes;
-- subtle console/hand activity;
-- occasional head turns;
-- short barks;
-- stronger reaction only for important events.
-
-Avoid constant animation that competes with threat reading.
-
-## Interaction direction
-
-Captain dashboard is becoming the main command surface.
-
-Officer stations still need:
-- available/busy/block state;
-- activity indicator;
-- cancellation affordance for cancellable current work.
-
-Old officer context menu is legacy coverage, not final visual direction.
-
-## Weapon visual terminology
-
-Current heavy precision energy weapon is **Beam Cannon**.
-
-Do not label it Laser.
-
-Future fast/weak Pulse Laser, if selected, is a separate archetype.
-
-## Style
+## Pixel/style target
 
 Target:
-- authentic early-1990s VGA adventure-game spirit;
-- Sierra / Space Quest mood without copying;
-- 256-color feel;
+- early-1990s VGA adventure-game spirit;
+- Sierra / Space Quest mood without literal copying;
 - chunky readable pixel clusters;
-- dark navy / blue-black base;
-- steel-blue framing;
-- muted accents;
-- selective dithering;
-- slightly worn service-ship materials;
-- a little character/cheapness rather than sterile military prestige.
+- low/medium detail density;
+- broad lighting planes;
+- blue-gray/lavender-gray structural masses;
+- selective saturated accents;
+- hand-authored retro-tech shapes;
+- practical and slightly weird rather than sterile hard-surface perfection.
 
-Tone:
-- practical;
-- readable;
-- lightly comedic;
-- not slick;
-- not toy-like.
+Avoid:
+- modern hyper-detailed indie pixel art;
+- tiny greeble noise;
+- grimdark realism;
+- glossy military simulator;
+- giant empty hangar composition.
 
 ## Production rule
 
-The next visual pass is **gameplay fidelity**, not final production art.
+The current bridge asset is good enough to implement.
 
-Temporary/generative art is allowed to become much closer to the intended game so combat can be evaluated honestly.
+Do not restart the art search because of:
+- tiny style mismatches;
+- imperfect frame depth;
+- small palette inconsistencies;
+- two unfinished recolors.
 
-Do not let temporary geometry harden into domain architecture:
-- presentation may change;
-- runtime threat identity/gameplay contracts should not be distorted to fit old mockups.
-
-Final pixel-artist production comes after combat/layout direction survives playtesting.
+Fix those only when runtime evidence says they matter.

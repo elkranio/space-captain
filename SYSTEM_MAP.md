@@ -3,7 +3,7 @@
 Compact ownership map for fresh coding chats.
 
 Updated: 2026-08-15
-Reference HEAD: `e7fb792e430d6745ae50c7d7ddb84513fe5bc918`
+Reference HEAD: `449524c811cd14b8ec933f74565cb6c8241bfdd0`
 
 ## High-level layers
 
@@ -12,7 +12,7 @@ Reference HEAD: `e7fb792e430d6745ae50c7d7ddb84513fe5bc918`
 Gameplay/domain/runtime truth.
 
 Owns:
-- universe/run state;
+- run/universe state;
 - encounter state;
 - navigation;
 - officer commands/tasks/availability;
@@ -24,18 +24,19 @@ Owns:
 - hidden missile truth + observer intel;
 - snapshots/events.
 
-No Phaser dependencies should leak into engine definitions.
+No Phaser types belong in engine definitions.
 
 ### `src/app/...`
 
-Application/presentation layer.
+Application/presentation.
 
 Owns:
 - scenes/controllers;
 - bridge event bus;
-- mapping safe engine snapshots/events to view payloads;
+- mapping safe engine snapshots/events to presentation payloads;
 - captain dashboard;
 - Phaser views/VFX;
+- bridge officer visual state;
 - persistent `GameRuntime` synchronization.
 
 App must not recreate gameplay rules or read hidden missile truth.
@@ -45,32 +46,30 @@ App must not recreate gameplay rules or read hidden missile truth.
 Local design/content tooling.
 
 Owns:
-- collection navigation/grouping;
-- schema-driven editing UI;
-- dirty/save/delete/add flows;
-- whitelisted local server operations;
-- referenced-delete validation;
-- asset/reference controls where justified.
+- content collection navigation/editing;
+- schema-driven controls;
+- whitelisted local writes;
+- reference/delete validation;
+- justified asset tooling.
 
-It edits normal tracked content files; it is not runtime gameplay infrastructure.
+It is not runtime gameplay infrastructure.
 
-## Content data flow
+## Content flow
 
 ```text
 plain JSON content
-    -> Zod schema validation
+    -> Zod validation
     -> typed/catalog projection
     -> engine/factories
 
 same JSON + schema metadata
     -> local content editor
-    -> validated whitelisted save
-    -> tracked repo files
+    -> validated tracked save
 ```
 
-Do not create a second editor database or duplicate gameplay rules in editor validation.
+No second editor database.
 
-## Ship Weapon content architecture
+## Ship Weapon content
 
 ```text
 missile_launchers.json
@@ -86,30 +85,23 @@ unified SHIP_WEAPONS
 ```
 
 Rules:
-- editor groups all four under `Ship Weapons`;
-- each family has independent CRUD/schema shape;
-- `ShipWeaponId = string` allows editor-created IDs;
-- stable builtin `SHIP_WEAPON_ID.*` constants remain convenience aliases;
+- four concrete editor families;
+- one unified runtime catalog;
+- IDs are open strings for editor-created records;
+- built-in constants remain stable aliases;
 - cross-family duplicate IDs are rejected;
-- referenced delete is blocked where real references exist;
-- editor grouping does not imply a runtime inheritance hierarchy.
+- no standalone Missile or Sticky Mine content entity;
+- no shared Ship Weapon Rules collection.
 
-There are no standalone Missile or Sticky Mine content entities.
+Missile Launcher owns `targetingDurationMs`.
 
 ## Debug Start
 
-`debug_start.json` is the canonical editable development loadout.
+`debug_start.json` is mutable development content.
 
-Current handoff baseline:
-- player maxHull 30;
-- player BASIC drive/core/shield/turret;
-- player weapon slots = 4 × Missile Launcher;
-- enemy BASIC ship/defense;
-- enemy weapon slot 1 = Missile Launcher, remaining slots empty.
+Do not freeze its current loadout into living architecture docs or unrelated tests.
 
-Runtime install IDs are concrete per installed instance, so duplicate same-kind/player weapon definitions are supported.
-
-Tests should derive mutable Debug Start values when the contract under test is not specifically about that value.
+When a task depends on the actual current Debug Start, read the file.
 
 ## Encounter composition
 
@@ -117,53 +109,16 @@ Tests should derive mutable Debug Start values when the contract under test is n
 
 `EncounterState` is authoritative mutable encounter truth.
 
-Important responsibilities/components include:
-- state store/snapshot readers;
-- officer task/command flow;
-- `CombatRunner`;
-- Power Core lifecycle;
-- Shield Generator / Active Shield;
-- Defense Turret;
-- enemy behavior/crew;
-- event outbox.
-
-Do not split `EncounterEngine` merely because it is central.
-
-## Encounter presentation snapshot
-
-`EncounterPresentationSnapshot` is the normal detached app-facing frame root and is not a second state.
-
-It composes:
-- navigation;
-- safe encounter-space geometry/visual IDs;
-- player systems/officers;
-- enemy telemetry;
-- threats;
-- real command availability.
-
-Normal bridge frame consumers should reuse one coherent snapshot instead of reconstructing the same frame through unrelated getters.
+`EncounterPresentationSnapshot` is the normal detached app-facing coherent frame root.
 
 Events answer **what just happened**.
 Snapshots answer **what is true now**.
 
-Hidden missile truth must not leak through either boundary.
-
-## CombatRunner ownership and step order
+## CombatRunner
 
 `CombatRunner` owns top-level combat orchestration and delegates concrete mechanics.
 
-Important current ordering:
-1. advance existing shields/system timing as defined;
-2. capture IDs for combat objects that existed before the step;
-3. integrate pending player combat objects;
-4. resolve/advance previously existing projectiles/mines;
-5. advance enemy behavior;
-6. advance enemy combat systems;
-7. synchronize/finalize enemy crew tasks.
-
-This ordering intentionally prevents newly created combat objects from automatically consuming the same step’s entire `deltaMs`.
-
-Physical lifecycle stays mechanic-specific:
+Physical lifecycle remains mechanic-specific:
 - Missile runner;
 - Beam Cannon runner;
 - Sticky Mine runner;
@@ -172,11 +127,11 @@ Physical lifecycle stays mechanic-specific:
 - player weapon runners;
 - Power Core / Shield Generator runners.
 
-Do not unify runners solely because they share phase/timing vocabulary.
+Do not unify runners merely because they share timing vocabulary.
 
-## Weapon phase vocabulary
+## Weapon phases — CURRENT
 
-`SHIP_WEAPON_PHASE` currently contains:
+Shared vocabulary:
 - READY
 - TARGETING
 - CHARGING
@@ -184,32 +139,24 @@ Do not unify runners solely because they share phase/timing vocabulary.
 - DISPENSING
 - COOLDOWN
 
-This is a shared vocabulary, not a requirement that every weapon traverse every phase.
+Concrete use:
+- Missile -> TARGETING;
+- Beam -> CHARGING;
+- SPAM -> CHANNELING;
+- Mine -> DISPENSING.
 
-Known stale current behavior:
-- one global `SHIP_WEAPON_TARGETING_DURATION_MS` is used too broadly;
-- it comes from `ship_weapon_rules.json -> enemy_targeting.durationMs`;
-- both player and enemy runners currently consume it.
+There is no universal shared 3000 ms targeting pre-phase.
 
-Selected cleanup:
-- Missile uses TARGETING/LOCKING;
-- Beam skips TARGETING and starts CHARGING;
-- SPAM skips TARGETING and starts CHANNELING;
-- Mines skip TARGETING and start DISPENSING;
-- warning/telegraph comes from real weapon-start phases.
+Missile targeting duration comes from the Missile Launcher definition.
 
-Do not solve this by setting the global duration to zero and leaving a dead semantic phase everywhere.
-
-## Enemy behavior boundary — CURRENT
-
-The current enemy behavior path is:
+## Enemy behavior boundary
 
 ```text
 EncounterState + actor
     ↓
 getEnemyCaptainDecisionSnapshot(...)
     ↓
-detached/perceived decision facts
+detached/perceived facts
     ↓
 EnemyDecisionPolicy
     ↓
@@ -224,156 +171,148 @@ EnemyCrewTaskRunner + specialized physical runners
 
 ### `EnemyDecisionPolicy`
 
-Chooses WHAT work to attempt from detached decision context.
-
-It does not own full mutable `EncounterState`.
+Chooses what to attempt from detached decision context.
 
 ### `EnemyWorkExecutor`
 
-Physical command boundary.
+Authoritative physical command boundary.
 
 Owns:
-- authoritative revalidation;
+- revalidation;
 - resource commitment;
-- starting concrete crew/system work;
-- starting the physical weapon phase appropriate to the command.
-
-Do not reintroduce the old `EnemyTaskScheduler` name into docs/code. Current implementation uses `EnemyWorkExecutor`.
+- crew/system work start;
+- concrete weapon phase start;
+- `ENEMY_ATTACK_STARTED` emission after offensive work successfully starts.
 
 ### `EnemyCrewTaskRunner`
 
-Owns lifecycle/occupancy of enemy crew tasks and synchronizes them with the physical system phase.
+Owns enemy crew occupancy/lifecycle.
 
-### `EnemyThreatObserver`
+### Threat observer / Science boundary
 
-Owns the perception boundary between objective combat truth and what enemy Science/captain can know.
+Owns perceived intel vs objective truth.
 
-Do not bypass this boundary for convenience.
+Do not bypass it for AI convenience.
 
 ## Missile epistemic boundary
 
 ```text
-Missile Launcher physical definition
+Missile Launcher definition
     ↓ launch
-Missile projectile
-    physical snapshot + hidden runtime signature
+Projectile physical state + hidden signature
     ↓
 observer / Science intel
-    UNKNOWN | UNCERTAIN | CONFIRMED
+UNKNOWN | UNCERTAIN | CONFIRMED
     ↓
 interception resolver
-    correct hypothesis => guaranteed
-    wrong/no hypothesis => blind turret chance
     ↓
 safe presentation
 ```
 
-Rules:
-- objective projectile signature stays engine-only;
-- concrete internal hypothesis stays engine-only;
-- app gets only allowed player-visible intel;
-- current BASIC blind intercept chance = 0.4.
+Objective signature stays engine-only.
 
-### Orphan projectile ownership
+## Orphan physical threats
 
-Do not reconstruct missile hostility/actionability by looking up the current source actor.
+Do not reconstruct hostility/actionability by looking up the current source actor.
 
-Once a missile exists and targets `PLAYER_SHIP`, it remains a valid physical threat after source actor destruction.
+Once a hostile projectile exists and targets the player, source destruction does not erase it.
 
-## Enemy destruction / simulation ownership
+## Enemy destruction
 
-Enemy death has two independent concerns:
+Engine/domain:
+- actor is destroyed/removed;
+- surviving threats continue;
+- simulation continues.
 
-### Engine/domain
-- actor is destroyed/removed as defined;
-- surviving physical threats continue;
-- encounter simulation continues.
+App/presentation:
+- may run local destruction animation;
+- must not pause engine simulation;
+- must not own unrelated interaction locks.
 
-### App/presentation
-- local destruction/explosion view may run for ~600 ms;
-- the visual completion event may clean up presentation;
-- it must not pause `EncounterEngine.step()`;
-- it must not own `isEncounterInteractive = true/false`.
+## Bridge root composition
 
-Do not create a global combat pause/end state to solve a presentation animation problem.
+Current `BridgeView` composes:
+- `BridgeSpaceView`;
+- `BridgeCombatView`;
+- `BridgeInteriorView`;
+- attack warning view;
+- officer station view;
+- captain dashboard;
+- officer barks;
+- legacy officer context menu.
 
-## Bridge synchronization
+The next bridge rebuild changes presentation composition only.
 
-### `BridgeEncounterPersistenceSynchronizer`
+### Current old station presentation
 
-Single owner for encounter -> persistent `GameRuntime / RunState` write-back.
+`BridgeOfficerStationView` currently composes:
+- separate station image;
+- monitor hints;
+- task/activity monitor UI;
+- side availability indicators;
+- seated officer image;
+- hit area.
 
-Snapshot-backed persistence includes current persistent ship/system/loadout/navigation state where defined.
+The new background already contains the station consoles.
 
-Event-backed persistence includes discrete mutations such as hull damage/destroyed persistent enemy actor where defined.
+Selected rebuild direction:
+- use new full bridge background;
+- render only the new whole seated officer sprite per role on top;
+- remove the separate old station image;
+- remove monitor hints;
+- remove station task/progress monitor presentation;
+- remove fake input pulses;
+- remove side lamps;
+- keep invisible officer hit areas/context-menu coverage for now.
 
-### `BridgeEncounterSnapshotSynchronizer`
+See `BRIDGE_REBUILD_HANDOFF.md`.
 
-Continuously changing frame -> bridge presentation events/views.
+## Bridge asset pipeline
 
-Responsibilities include:
-- player ship dashboard;
-- player/enemy shields;
-- incoming/outgoing missiles;
-- sticky mines;
-- Beam Cannon threats;
-- SPAM;
-- captain context.
+Raw authored images:
+`assets/raw/images/...`
 
-### `BridgeEncounterEngineEventHandler`
+Packed/live atlas:
+`assets/live/images/atlas-0.png`
+`assets/live/images/atlas.json`
 
-Consumes discrete encounter events and maps them to bridge presentation/VFX events.
+After raw sprite changes:
+`npm run pack:tex`
 
-Important:
-- it must not make presentation animation own engine simulation;
-- generic targeting-warning ownership is selected for cleanup alongside weapon-specific targeting semantics.
+Current bridge raw areas:
+- `assets/raw/images/bridge/interior/`
+- `assets/raw/images/bridge/officers/`
+- `assets/raw/images/bridge/space/`
+- legacy `assets/raw/images/bridge/station/`
+- bridge UI/VFX subfolders.
+
+Do not delete legacy bridge assets until the new runtime composition is verified.
 
 ## Captain dashboard mapping
 
-### `BridgePlayerWeaponStatusMapper`
+Keep separate responsibilities:
+- player weapon status mapper;
+- player ship dashboard mapper;
+- captain combat-context mapper.
 
-Normalizes concrete installed player weapon state/timing/ammo/catalog information.
+Duplicate same-kind weapons are keyed by concrete installed runtime weapon ID.
 
-Duplicate same-kind weapons are separate rows/objects keyed by runtime installed weapon ID.
+Threat identity remains concrete; compact UI must not aggregate away runtime identity.
 
-### `BridgePlayerShipDashboardMapper`
+## Persistence
 
-Builds stable OUR SHIP status/actions from engine-derived state and real commands.
+Encounter -> persistent run write-back has one owner.
 
-### `BridgeCaptainCombatContextMapper`
+Presentation snapshots/events are not a second persistent state.
 
-Builds enemy/threat context from safe presentation snapshots plus real command availability.
+## Refactor policy
 
-Do not merge these mappers merely because one screen consumes them.
+Refactor only when concrete evidence exists:
+- duplicated rule;
+- unclear ownership;
+- context reconstruction;
+- callback spaghetti;
+- hostile signatures;
+- stale semantic layer actively obscuring behavior.
 
-## Threat presentation architecture
-
-Current long horizontal threat rows are implementation scaffolding, not domain architecture.
-
-Selected visual direction is a compact fixed-footprint threat object:
-- one object per concrete threat;
-- icon + countdown;
-- compact intel code;
-- stable action slots;
-- supports roughly 4–5 objects in one horizontal row;
-- visual grouping must not aggregate or erase runtime threat identity.
-
-Keep specialized threat views/mappers while interactions differ. Do not build a generic threat framework prematurely merely because the tiles share geometry.
-
-## Crew progress effects
-
-`getActiveCrewProgressEffects()` is the canonical read model for active crew-progress modifiers including SPAM.
-
-Extend it only when a real new modifier needs the same semantics.
-
-## Local content editor seams
-
-Current useful seams:
-- JSON + Zod -> runtime catalog;
-- collection registry metadata;
-- cross-content references/delete validation;
-- generic content reference dropdown metadata;
-- asset buckets;
-- family-specific CRUD.
-
-Do not return to generic editor architecture work unless a concrete combat/content workflow requires it.
+File length alone is not evidence.

@@ -1,12 +1,8 @@
 // src/app/scenes/game/bridge/controller/encounter/encounter_objects/BridgeEncounterObjectMapper.ts
 
 import { SHIP_CHASSIS } from '../../../../../../../engine/content/catalogs/ship_chassis';
-import {
-    ENCOUNTER_ACTOR_KIND,
-} from '../../../../../../../engine/encounter/actors/encounter_actor';
-import {
-    ENCOUNTER_ANCHOR_KIND,
-} from '../../../../../../../engine/encounter/anchors/encounter_anchor';
+import { ENCOUNTER_ACTOR_KIND } from '../../../../../../../engine/encounter/actors/encounter_actor';
+import { ENCOUNTER_ANCHOR_KIND } from '../../../../../../../engine/encounter/anchors/encounter_anchor';
 import type {
     EncounterSpaceActorPresentationSnapshot,
     EncounterSpaceAnchorPresentationSnapshot,
@@ -20,15 +16,14 @@ import { STATION_OBJECT_SPRITES } from '../../../../../../manifests/stations/sta
 import type { BridgeEncounterObjectPayload } from '../../../events/bridge_event';
 
 const SHIP_ACTOR_POSITION_OFFSET = {
-    x: 0.65,
-    y: -0.2,
+    x: 0.95,
+    y: -0.35,
 } as const;
 
 const SHIP_ACTOR_PERSPECTIVE_DEPTH = 0.75;
 
 export function mapEncounterSpaceToBridgeObjectPayloads(
-    snapshot:
-        EncounterSpacePresentationSnapshot,
+    snapshot: EncounterSpacePresentationSnapshot,
 ): BridgeEncounterObjectPayload[] {
     return [
         ...snapshot.anchors.map((anchor) => {
@@ -36,17 +31,13 @@ export function mapEncounterSpaceToBridgeObjectPayloads(
         }),
 
         ...snapshot.actors.map((actor) => {
-            return mapEncounterActorToBridgeObjectPayload(
-                actor,
-                snapshot,
-            );
+            return mapEncounterActorToBridgeObjectPayload(actor, snapshot);
         }),
     ];
 }
 
 export function mapEncounterAnchorToBridgeObjectPayload(
-    anchor:
-        EncounterSpaceAnchorPresentationSnapshot,
+    anchor: EncounterSpaceAnchorPresentationSnapshot,
 ): BridgeEncounterObjectPayload {
     switch (anchor.kind) {
         case ENCOUNTER_ANCHOR_KIND.STATION:
@@ -115,11 +106,9 @@ export function mapEncounterAnchorToBridgeObjectPayload(
 }
 
 function mapEncounterActorToBridgeObjectPayload(
-    actor:
-        EncounterSpaceActorPresentationSnapshot,
+    actor: EncounterSpaceActorPresentationSnapshot,
 
-    snapshot:
-        EncounterSpacePresentationSnapshot,
+    snapshot: EncounterSpacePresentationSnapshot,
 ): BridgeEncounterObjectPayload {
     const anchor = snapshot.anchors.find((candidate) => {
         return candidate.id === actor.anchorId;

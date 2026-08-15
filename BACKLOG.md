@@ -3,251 +3,166 @@
 Living backlog only. Completed historical phases belong in git history, not in the active task list.
 
 Updated: 2026-08-15
-Reference HEAD: `e7fb792e430d6745ae50c7d7ddb84513fe5bc918`
+Reference HEAD: `449524c811cd14b8ec933f74565cb6c8241bfdd0`
 
 ## Current selected work
 
-### 1. Weapon-specific targeting semantics — NEXT
-
-Current problem:
-- universal 3000 ms targeting is a stale layer;
-- the same `SHIP_WEAPON_TARGETING_DURATION_MS` currently affects player/enemy weapons across families;
-- generic enemy warning announces an attack before the weapon’s real observable action begins.
-
-Selected target:
-- Missile Launcher keeps real TARGETING/LOCKING;
-- Beam Cannon starts directly in CHARGING;
-- SPAM starts directly in CHANNELING;
-- Sticky Mine Dispenser starts directly in DISPENSING;
-- warning/telegraph starts with the real weapon phase;
-- remove obsolete generic “something is coming” warning ownership;
-- preserve operator occupancy/crew-performance rules according to the concrete phase.
-
-Do not fake this by setting targeting duration to zero and retaining a meaningless phase.
-
-Before patch:
-- fresh-fetch `master`;
-- search player + enemy runners;
-- search `SHIP_WEAPON_TARGETING_DURATION_MS`;
-- search `PLAYER_SHIP_TARGETING_DETECTED`;
-- search bridge warning start/clear events/views;
-- inspect tests that explicitly step through 3000 ms targeting.
-
-### 2. Single Mine content experiment
-
-After targeting cleanup:
-
-- keep current salvo Sticky Mine Dispenser;
-- add a second `Single Mine` / `Single Mine Dispenser` content record in the same family;
-- baseline experiment: `salvoSize = 1`;
-- tune operation/cooldown so repeated single commands are practical but not spam-click mandatory;
-- put both variants into an easy Debug Start comparison loadout;
-- do not create a new weapon kind/runner unless actual mechanic divergence demands it.
-
-Question to answer by play:
-- one command -> salvo pressure;
-- versus repeated short deliberate one-mine commits.
-
-### 3. Gameplay-fidelity visual pass
-
-After the two mechanic atoms above, spend the planned weekend on a representative combat presentation.
-
-This is **not final art production**.
-
-Targets:
-- redesign full captain dashboard;
-- redesign OUR SHIP panel;
-- redesign CURRENT CONTEXT / enemy panel;
-- replace current long threat rows with compact threat objects;
-- bring bridge closer to Space Quest / small starship bridge and away from current hangar feeling;
-- redraw placeholder missile sprites;
-- add basic hit juice:
-  - short screen shake;
-  - short impact flash/blink;
-  - restrained readable VFX;
-- improve enemy/player impact feedback enough to judge combat feel.
+### 1. Bridge rebuild — NEXT
 
 Goal:
-> stop judging fun through synthetic programmer UI.
+- replace the old hangar-like runtime bridge composition with the new accepted background;
+- place the new whole seated officer sprites correctly;
+- remove old station presentation that no longer belongs to the art;
+- get one clean runtime screenshot and stop.
 
-Do not spend the pass polishing final pixel art details that AI cannot reliably finish.
+Focused handoff:
+`BRIDGE_REBUILD_HANDOFF.md`
 
-## Compact threat object — selected visual direction
+Remove for now:
+- separate old station sprite layer;
+- monitor combat/command hints;
+- station task label/progress/cancel monitor overlay;
+- fake typing/touch-deck pulses;
+- ready/busy/blocked side lamps.
 
-One concrete threat = one compact fixed-footprint object.
+Keep:
+- real engine officer tasks/availability;
+- officer hit areas / legacy context menu coverage unless proven unnecessary;
+- barks;
+- captain dashboard;
+- space/combat/viewscreen pipeline;
+- generic enemy attack warning.
 
-Desired structure:
-- top: square threat icon + countdown;
-- second/intel line: short code;
-- action area: stable compact buttons.
+Do not wire head-turn behavior in the same first atom.
 
-Missile intel example:
-- unknown: `?????` red;
-- uncertain: `ABC??` yellow;
-- confirmed: `ABCDE` green.
+### 2. Officer look-state wiring
 
-Science:
-- keep button label stable as `TRACK [S]` while more analysis is available;
-- remove Science action once intel is terminal/confirmed;
-- do not rename `TRACK` to `CONFIRM` merely because state advanced.
+After static bridge assembly:
+- support `idle`, `look_left`, `look_right` authored seated sprites;
+- use head turns for barks/conversation readability;
+- keep body movement minimal;
+- presentation state only; do not leak into engine combat truth.
 
-Missile response:
-- `HIT [W]` stable action slot.
+### 3. Captain dashboard gameplay-fidelity pass
 
-Beam uses the same visual grammar:
-- unknown target: `????`;
-- partial: `PW??`;
-- confirmed: e.g. `PWR`, `HULL`, `WPNS`;
-- Engineer response: e.g. `SHLD [E]`.
+Then continue:
+- OUR SHIP cleanup;
+- CURRENT CONTEXT cleanup;
+- compact threat objects instead of long rows;
+- stable real command binding;
+- reduce Boeing/Excel feeling.
 
-Desired density:
-- about 4 threats comfortably across the combat context;
-- 5 should remain viable in a high-pressure case;
-- one/two rows only when encounter pressure genuinely demands it.
+### 4. Viewscreen projectile / combat-juice pass
 
-Important:
-- the latest generated POC proved the concept;
-- its middle intel strip became too visually weak in one pass;
-- preserve a clearly readable signature/intel band in the next mockups;
-- tiles should feel Space Quest/Sierra VGA, not modern military HUD.
+- remove persistent labels/timers from projectiles in the viewscreen;
+- improve enemy ship staging if needed after new bridge is live;
+- redesign outgoing/incoming missile sprites;
+- use strong depth vectors/perspective so missiles feel fast;
+- restrained hit flash/shake;
+- readable Beam/SPAM/mine impacts.
 
-Potential future:
-- 4–5 character generated signature codes;
-- degree of revealed characters can expose confidence/intel depth if a perk/mechanic deliberately supports it;
-- funny emergent strings are welcome but must not compromise readability.
+### 5. Mine pressure experiment
 
-## Combat fun pass — after representative UI exists
+Current manual impression:
+- firing a single mine is mechanically satisfying;
+- clearing mines is probably too permissive/easy.
 
-Do not immediately build progression.
+Next experiment:
+- allow mine clearing only through Engineer;
+- replay both single-mine and salvo pressure;
+- decide from feel, not theory.
 
-Play the same small combat repeatedly and look for real symptoms:
+Do not create a new mine weapon kind just for `salvoSize = 1`.
+
+### 6. Enemy captain behavior
+
+After representative combat presentation exists, return to the captain decision layer.
+
+Desired baseline:
+- configurable captain tick;
+- attack vs defense decision;
+- aggression 0–100;
+- imperfect timing/perception;
+- anti-streak/fairness if random choice produces nonsense;
+- cross-blocking of crew roles matters;
+- enemy mistakes may be surfaced through short barks so the player understands what happened.
+
+Fun beats optimal tactical chess.
+
+## Combat fun pass
+
+Play one small encounter repeatedly and look for:
 - obvious procedural response chains;
-- too much dead time;
-- too many simultaneous demands;
-- Weapons commitment feeling strategic vs merely annoying;
-- Science always being an automatic first click;
-- no reason to intentionally accept damage;
-- player spending all attention on one panel;
-- insufficient offensive/defensive conflict.
+- dead time;
+- excessive simultaneous demands;
+- Weapons commitment being strategic vs merely annoying;
+- Science always being automatic first click;
+- no reason to accept damage;
+- player staring at one panel only;
+- insufficient offense/defense conflict.
 
-The first real success criterion:
-> one battle is good enough that the player wants to restart it immediately.
+Success criterion:
 
-Only then broaden run balance/build variety.
+> One battle is good enough that the player wants to restart it immediately.
 
 ## Near combat systems
 
-After the immediate combat-feel sequence:
+After the immediate visual/fun sequence:
 - player Defense Turret break/repair;
-- Power Core BROKEN:
-  - charges -> 0;
-  - recharge progress -> 0;
-  - consumers unavailable while broken;
+- Power Core BROKEN behavior;
 - Shield Generator break mutation;
-- Active Shield disappears when generator breaks;
+- Active Shield removal on generator break;
 - Engineer repair commands for defensive installations;
-- Beam Cannon semantic node targeting:
-  - HULL;
-  - WPNS;
-  - PWR;
-  - SHLD;
-  - other real systems only after domain target state exists;
-- Beam hit can break/disable hardpoints and occupy enemy Engineer;
-- officer disruption/targeting if still desired after system targeting works;
+- Beam Cannon semantic target nodes only after real domain target state exists;
 - enemy repair behavior.
 
-Do not implement semantic nodes from visual impact coordinates.
+## Dashboard / navigation later
 
-## Beam Cannon tuning questions
+Potential surfaces:
+- Combat;
+- Engineering;
+- Navigation.
 
-Current design hypothesis:
-- no ammo/resource economy;
-- powerful utility/precision;
-- cost = long Weapons commitment.
+Possible auto-switch:
+- Combat on engagement;
+- Navigation after combat.
 
-Test before changing:
-- does long Weapons occupation create good “finish shot vs answer threat” pressure?
-- or does it simply remove offensive agency for too long?
-
-First tuning lever:
-- charge duration/operator release/cancellation cost.
-
-Do not first convert Beam Cannon into an autonomous post-aim weapon.
-
-## Missile follow-ups
-
-- decide final name/semantics of Missile `TARGETING` vs `LOCKING`;
-- tune minimal Weapons commitment;
-- tune flight duration against Science + Defense Turret response time;
-- future Helm evade remains separate and must not couple to hidden signature;
-- decide later whether equipment/technology modifies blind intercept chance.
-
-## Dashboard / UX later
-
-- retire old officer context menu only after dashboard/navigation/engineering surfaces cover commands;
-- keep direct task cancellation near officer activity;
-- clear leave/escape flow;
-- possible tabs:
-  - Combat;
-  - Engineering;
-  - Navigation;
-- possible auto-switch:
-  - Combat on engagement;
-  - Navigation after combat.
-
-Do not implement tabs solely to compensate for the current oversized threat rows; compact threats may remove much of that pressure.
+Do not build tabs merely to compensate for bad current layout.
 
 ## Bridge / art later
 
-- final bridge asset production only after gameplay/layout stabilizes;
-- preserve 1280×720;
-- four visible officers:
-  - Science;
-  - Weapons;
-  - Helm;
-  - Engineer;
-- VIP seat remains future hook;
-- reduce arcade color noise;
-- retain lived-in low-status service-ship / Space Quest feel.
+Current bridge background + officer sprite set is a strong production baseline, not final sacred art.
+
+Later polish only after runtime/playtest evidence:
+- role color consistency;
+- small sprite cleanup;
+- richer monitor decorative animations;
+- officer head turns/barks;
+- VIP seat if composition permits;
+- captain dashboard physical art.
+
+Do not spend another day polishing pixels that do not change gameplay readability.
 
 ## Content/editor state
 
-Completed and not current priority:
-- Ship Modules CRUD;
-- four Ship Weapons CRUD families;
-- Officer Tasks split;
-- Enemy Behavior content;
-- Debug Start;
-- generic content references.
+Content tooling is complete enough for current gameplay iteration.
 
-Return to content tooling when a combat experiment actually needs it.
+Return only when a concrete tuning/content workflow needs it.
 
 ## Audio
 
-Later gameplay-fidelity win:
+Later:
 - short weapon/impact/alert sounds;
-- officer acknowledgements/result/failure barks;
+- officer acknowledgement/result/failure barks;
 - voice as UI feedback, not constant chatter.
-
-## Low-priority technical notes
-
-Do not schedule unless a concrete problem appears:
-- long cohesive `CombatRunner`, `EncounterEngine`, `EncounterStateStore` are not refactor targets by line count;
-- declarative event unions are not a problem;
-- specialized threat views are not a problem;
-- duplicate snapshot detachment at current data sizes is not a priority.
 
 ## Refactor policy
 
-Refactor only when at least one is concrete:
+Only refactor when a demonstrated problem exists:
 - context travels too far;
-- ownership is unclear;
-- gameplay rule is duplicated;
-- state is reconstructed in multiple places;
-- callbacks form real spaghetti;
-- method/type signatures become cognitively hostile;
-- stale semantic layers obscure current behavior;
-- editor plumbing repeats without meaning.
-
-Current valid cleanup target:
-- universal weapon targeting semantics, because the shared pre-phase no longer represents the actual weapon mechanics.
+- ownership unclear;
+- duplicated gameplay rule;
+- repeated state reconstruction;
+- real callback spaghetti;
+- cognitively hostile signatures;
+- stale semantic layer obscuring current behavior.

@@ -1,11 +1,11 @@
 # Space Captain — Content Tools Handoff
 
-Updated: 2026-08-14
-Reference HEAD: `31445cf2b634f017a91e1035c29633c5f1e5c003`
+Updated: 2026-08-15
+Reference HEAD: `449524c811cd14b8ec933f74565cb6c8241bfdd0`
 
-Persistent handoff for the local content editor / content-data initiative.
+Persistent handoff for the local content editor/content-data initiative.
 
-The earlier Missile/Sticky Mine content simplifications and Ship Weapons editor split are complete and green. There is no queued “Missile Launcher + Missiles migration” anymore.
+This is not the current priority. Return here only when combat iteration needs a concrete content/tool workflow.
 
 ## Read before content-tool work
 
@@ -13,7 +13,7 @@ The earlier Missile/Sticky Mine content simplifications and Ship Weapons editor 
 2. `GAMEPLAY_CONTRACTS.md`
 3. `SYSTEM_MAP.md`
 4. `CONTENT_TOOLS_HANDOFF.md`
-5. focused schema/catalog/server/tests for the current collection
+5. focused schema/catalog/server/tests
 
 Always re-check current GitHub `master`.
 
@@ -25,118 +25,104 @@ Normal workflow:
 
 ```text
 npm run editor
--> open collection
--> edit / add / delete where allowed
+-> edit content
 -> Save
 -> inspect git diff
 -> run checks/game
 -> repeat
 ```
 
-The tool reduces cognitive load. It is not runtime gameplay and not a general game-engine editor.
+The editor reduces cognitive load. It is not runtime gameplay and not a general game-engine editor.
 
-## Current architecture
+## Architecture
 
 ### Data / validation
 
-- plain JSON canonical editable content
-- Zod runtime schemas
-- game catalogs consume validated data
-- editor consumes the same schema/data surfaces
-- no editor database
-- no TypeScript AST rewriting
-- current Zod dependency: `zod@4.4.3`
+- plain JSON canonical editable content;
+- Zod runtime schemas;
+- game catalogs consume validated data;
+- editor consumes the same schema/data surfaces;
+- no editor database;
+- no TypeScript AST rewriting.
 
 ### Editor
 
-- separate local Vite tool
-- vanilla HTML/CSS/TypeScript
-- no Phaser
-- light theme
-- schema-driven primitive inspector
-- grouped collection navigation
-- record selection
-- dirty/save flow
-- validation/error display
-- add/delete for opt-in collections
+- separate local Vite tool;
+- vanilla HTML/CSS/TypeScript;
+- no Phaser;
+- schema-driven primitive inspector;
+- grouped collection navigation;
+- dirty/save flow;
+- validation/error display;
+- add/delete for opt-in collections.
 
 ### Local write boundary
 
-Browser does not get arbitrary filesystem access.
+Browser does not receive arbitrary filesystem access.
 
-Local server exposes whitelisted content operations. Saves validate before writing tracked JSON.
+Local server exposes whitelisted operations and validates tracked JSON before save.
 
-Referenced-delete checks exist for CRUD-enabled referenced collections.
-
-### Chassis assets
-
-Ship Chassis has justified collection-specific asset tooling:
-- sprite handling
-- atlas rebuild
-- CRUD
-- reference protection
-
-Do not generalize asset tooling without another real asset-backed workflow.
+Referenced-delete checks exist where required.
 
 ## Content ownership rule
 
 Designer-adjustable balance/config -> content.
 
 Examples:
-- names
-- damage
-- timings
-- ammo/capacity
-- cooldown
-- probabilities
-- behavior weights
-- task tuning flags
+- names;
+- damage;
+- timings;
+- ammo/capacity;
+- cooldown;
+- probabilities;
+- behavior weights;
+- task tuning flags.
 
 Algorithm/state-transition/semantic rule -> code.
 
 Examples:
-- weapon kinds
-- phase machines
-- command target semantics
-- authoritative availability
-- Science intel semantics
-- runtime missile signature generation
-- projectile lifecycle
+- weapon kinds;
+- phase machines;
+- command target semantics;
+- authoritative availability;
+- Science intel semantics;
+- runtime signature generation;
+- projectile lifecycle.
 
-Editor changes data, not game rules.
+## Current collection shape
 
-## Current collection registry
+### General / mixed
 
-### General
+Includes content such as:
+- Officer Tasks;
+- Ship Behaviors;
+- Enemy Behavior Rules;
+- Ship Chassis;
+- Debug Start / presets as currently registered.
 
-Registered non-CRUD or mixed general collections include:
-- Officer Tasks
-- Ship Weapon Rules
-- Ship Behaviors
-- Enemy Behavior Rules
-- Ship Chassis
+There is **no Ship Weapon Rules collection** anymore.
 
 ### Ship Modules
 
 CRUD-ready:
-- Power Cores
-- Defense Turrets
-- Shield Generators
-- Drives
+- Power Cores;
+- Defense Turrets;
+- Shield Generators;
+- Drives.
 
 ### Ship Weapons
 
 CRUD-ready:
-- Missile Launchers
-- Beam Cannons
-- Spam Projectors
-- Sticky Mine Dispensers
+- Missile Launchers;
+- Beam Cannons;
+- Spam Projectors;
+- Sticky Mine Dispensers.
 
-`Ship Weapons` is an editor navigation group only. Do not create a giant runtime `ShipWeapon` class hierarchy merely because the editor groups these records.
+`Ship Weapons` is editor navigation grouping only.
 
-## Weapon content architecture — CURRENT
+Do not create a giant runtime hierarchy because the editor groups them.
 
-Physical content is split by concrete weapon family:
+## Weapon content architecture
 
 ```text
 missile_launchers.json
@@ -149,151 +135,123 @@ family Zod schemas
 unified runtime SHIP_WEAPONS catalog
 ```
 
-Runtime consumers still use one `SHIP_WEAPONS` catalog.
-
 Rules:
-- `ShipWeaponId` is an open string so editor-created records do not require editing an exhaustive ID union;
-- builtin `SHIP_WEAPON_ID.*` constants remain stable aliases;
-- builtin IDs retain concrete catalog typing;
-- IDs must be unique across all four weapon families;
-- deleting a weapon used by enemy/player ship presets is blocked with usage information.
+- runtime uses one merged `SHIP_WEAPONS`;
+- `ShipWeaponId` is an open string for editor-created records;
+- built-in constants remain stable aliases;
+- IDs must be unique across weapon families;
+- referenced delete is blocked where real references exist.
 
 ### Missile Launcher
 
-Current editable tuning:
-- name
-- damage
-- flight duration
-- ammo capacity
-- cooldown duration
+Editable tuning includes:
+- name;
+- damage;
+- **targeting duration**;
+- flight duration;
+- ammo capacity;
+- cooldown duration.
 
 There is no separate Missile content collection.
 
-Each launched missile copies required physical tuning from the launcher definition and gets independent hidden runtime signature truth.
-
-Do not recreate a separate Missile model merely to mirror old structure. Add separate ammo content only if future gameplay has genuinely selectable missile/ammo types.
-
 ### Beam Cannon
 
-Current editable tuning:
-- name
-- damage
-- charge duration
-- cooldown duration
+Editable tuning:
+- name;
+- damage;
+- charge duration;
+- cooldown duration.
 
-The current heavy precision weapon was renamed from Laser to Beam Cannon. `Laser` is not a compatibility alias.
+### SPAM Projector
 
-### Spam Projector
-
-Current editable tuning:
-- name
-- channel duration
-- officer task progress multiplier
-- cooldown duration
+Editable tuning:
+- name;
+- channel duration;
+- officer task progress multiplier;
+- cooldown duration.
 
 ### Sticky Mine Dispenser
 
-Current editable tuning:
-- name
-- damage
-- fuse duration
-- ammo capacity
-- salvo size
-- launch interval
-- cooldown duration
+Editable tuning:
+- name;
+- damage;
+- fuse duration;
+- ammo capacity;
+- salvo size;
+- launch interval;
+- cooldown duration.
 
 There is no separate Sticky Mine content collection.
 
-Runtime attached mines are autonomous after physical values are copied from the dispenser at launch/attach time.
+A single-mine experiment should remain another dispenser content record unless mechanics genuinely diverge.
 
 ## IDs / CRUD rule
-
-Editor-created records must not require editing exhaustive TS ID unions every time.
 
 For CRUD-enabled collections:
 - record IDs are schema-validated strings;
 - built-in constants may remain aliases;
-- references must validate;
-- deleting referenced records is blocked with useful usage information;
+- references validate;
+- referenced delete is blocked with usage info;
 - ID rename remains forbidden until a concrete migration story exists.
 
-For Ship Weapons specifically:
-- IDs are globally unique across weapon families;
-- duplicate cross-family IDs are rejected before they can silently collide in the merged runtime catalog.
+Ship Weapon IDs must remain globally unique across all weapon families.
 
 ## Validation layers
 
 ### Schema validation
-- required fields
-- primitive types
-- integer/range constraints
-- enums/variant shape
+- required fields;
+- primitive types;
+- ranges;
+- enums/variant shape.
 
 ### Reference validation
-- preset/module/content references exist
-- referenced delete is blocked
-- Ship Weapon cross-family ID collisions are blocked
+- references exist;
+- referenced delete is blocked;
+- cross-family weapon ID collisions are blocked.
 
 ### Game-specific invariant validation
-
 Only where schema/reference validation is insufficient.
 
-Do not duplicate normal runtime gameplay rules in editor validation.
+Do not duplicate normal runtime rules in editor validation.
 
 ## Generic editor philosophy
 
 Prefer boring generic controls.
 
-Collection-specific UI is justified only when a real workflow cannot be represented generically.
+Collection-specific UI is justified only by a real workflow.
 
-Good current example:
-- chassis sprite/atlas tooling
+Current good example:
+- chassis sprite/atlas tooling.
 
-Bad reason:
-- “this collection would look prettier custom”
-
-No React/framework migration unless actual complexity proves it useful.
+No framework migration unless actual complexity proves it useful.
 
 ## Next content/editor task
 
-No concrete next collection is selected in this handoff.
+No concrete editor task is selected.
 
-Recommended fresh-chat sequence:
+When returning:
 1. fetch current `master`;
-2. launch/smoke `npm run editor`;
-3. verify `Ship Weapons` grouping and CRUD behavior in the real UI;
-4. inspect current friction;
-5. choose one concrete next content/editor slice with the user.
+2. smoke `npm run editor`;
+3. inspect current friction;
+4. select one gameplay-driven slice.
 
-Do not migrate every remaining registry collection merely for completeness.
+Do not migrate collections merely for completeness.
 
-Potential future content work should be driven by gameplay needs:
-- new ship/weapon variants;
-- enemy/loadout tuning;
-- behavior tuning;
-- future starter weapon if design is selected;
-- remaining modules only when they need real designer iteration.
-
-## Testing expectations for content migrations
+## Testing expectations
 
 Normally prove:
 - baseline data validates;
 - representative invalid data fails;
-- new records work if CRUD enabled;
-- referenced delete is blocked;
-- cross-family weapon IDs cannot collide;
+- CRUD works where enabled;
+- references/delete protection work;
+- cross-family IDs cannot collide;
 - game/catalog consumes validated data;
-- editor loads/saves/reloads;
+- editor save/reload works;
 - local write cannot escape whitelist;
 - `npm run typecheck`;
 - `npm test`;
-- editor Vite build/runtime smoke where relevant;
-- `git -c core.safecrlf=false diff --check`.
+- editor build/runtime smoke when relevant.
 
 ## Patch delivery
 
-Global rule lives in `PROJECT_CONTEXT.md` and applies here without exception:
-
-**Every temporary `.mjs` patch/recovery script must be delivered only inside a `.zip`; never provide the bare `.mjs`.**
-
-Successful patchers self-delete; failed patchers remain for diagnosis.
+Global ZIP-only temporary patcher rule from `PROJECT_CONTEXT.md` applies here without exception.
