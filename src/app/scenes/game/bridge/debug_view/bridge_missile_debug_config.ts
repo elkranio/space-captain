@@ -37,11 +37,10 @@ export const BRIDGE_MISSILE_DEBUG_CONFIG = {
 
         terminalScaleStartPathProgress: 0.62,
 
-        perspectiveStartTimeProgress: 0.55,
-
+        // Authored sprite points upward at angle 0.
+        // Phaser tangent angle uses +X as zero, so +90 aligns
+        // the missile nose with the screen-space path tangent.
         forwardAngleOffsetDeg: 90,
-        terminalTiltXDeg: 70,
-        terminalBankYDeg: 10,
 
         gridWidth: 8,
         gridHeight: 8,
