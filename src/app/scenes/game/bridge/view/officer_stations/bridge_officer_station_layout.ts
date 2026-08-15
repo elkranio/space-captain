@@ -1,3 +1,4 @@
+// src/app/scenes/game/bridge/view/officer_stations/bridge_officer_station_layout.ts
 import { OFFICER_ROLE, type OfficerRole } from '../../../../../../engine/defs/officer';
 import {
     BRIDGE_SEATED_OFFICER_SPRITE_ID,
@@ -42,25 +43,23 @@ export const BRIDGE_OFFICER_STATION_LAYOUT = {
         role: OFFICER_ROLE.SCIENCE,
 
         position: {
-            x: 303,
-            y: 416,
+            x: 285,
+            y: 480,
         },
 
-        seatedOfficerSpriteId:
-            BRIDGE_SEATED_OFFICER_SPRITE_ID
-                .SCIENCE_SEATED_01_IDLE,
+        seatedOfficerSpriteId: BRIDGE_SEATED_OFFICER_SPRITE_ID.SCIENCE_SEATED_01_IDLE,
         flipX: false,
         hitArea: OFFICER_HIT_AREA,
 
         barkPosition: {
             x: 267,
-            y: 273,
+            y: 355,
             side: 'left',
         },
 
         contextMenuPosition: {
             x: 115,
-            y: 291,
+            y: 373,
         },
     },
 
@@ -68,25 +67,23 @@ export const BRIDGE_OFFICER_STATION_LAYOUT = {
         role: OFFICER_ROLE.HELM,
 
         position: {
-            x: 523,
-            y: 416,
+            x: 508,
+            y: 480,
         },
 
-        seatedOfficerSpriteId:
-            BRIDGE_SEATED_OFFICER_SPRITE_ID
-                .HELM_SEATED_01_IDLE,
+        seatedOfficerSpriteId: BRIDGE_SEATED_OFFICER_SPRITE_ID.HELM_SEATED_01_IDLE,
         flipX: false,
         hitArea: OFFICER_HIT_AREA,
 
         barkPosition: {
             x: 487,
-            y: 273,
+            y: 355,
             side: 'left',
         },
 
         contextMenuPosition: {
             x: 335,
-            y: 291,
+            y: 373,
         },
     },
 
@@ -94,25 +91,23 @@ export const BRIDGE_OFFICER_STATION_LAYOUT = {
         role: OFFICER_ROLE.WEAPONS,
 
         position: {
-            x: 765,
-            y: 416,
+            x: 778,
+            y: 480,
         },
 
-        seatedOfficerSpriteId:
-            BRIDGE_SEATED_OFFICER_SPRITE_ID
-                .WEAPONS_SEATED_01_IDLE,
+        seatedOfficerSpriteId: BRIDGE_SEATED_OFFICER_SPRITE_ID.WEAPONS_SEATED_01_IDLE,
         flipX: true,
         hitArea: OFFICER_HIT_AREA,
 
         barkPosition: {
             x: 626,
-            y: 273,
+            y: 355,
             side: 'right',
         },
 
         contextMenuPosition: {
             x: 577,
-            y: 291,
+            y: 373,
         },
     },
 
@@ -120,28 +115,23 @@ export const BRIDGE_OFFICER_STATION_LAYOUT = {
         role: OFFICER_ROLE.ENGINEER,
 
         position: {
-            x: 976,
-            y: 416,
+            x: 992,
+            y: 480,
         },
 
-        seatedOfficerSpriteId:
-            BRIDGE_SEATED_OFFICER_SPRITE_ID
-                .ENGINEER_SEATED_01_IDLE,
+        seatedOfficerSpriteId: BRIDGE_SEATED_OFFICER_SPRITE_ID.ENGINEER_SEATED_01_IDLE,
         flipX: true,
         hitArea: OFFICER_HIT_AREA,
 
         barkPosition: {
             x: 837,
-            y: 273,
+            y: 355,
             side: 'right',
         },
 
         contextMenuPosition: {
             x: 788,
-            y: 291,
+            y: 373,
         },
     },
-} as const satisfies Record<
-    OfficerRole,
-    BridgeOfficerStationLayoutEntry
->;
+} as const satisfies Record<OfficerRole, BridgeOfficerStationLayoutEntry>;
