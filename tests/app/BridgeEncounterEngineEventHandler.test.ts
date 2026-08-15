@@ -709,14 +709,6 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
                     outcome: DEFENSE_TURRET_SHOT_OUTCOME.HIT,
                 },
             ],
-
-            [
-                BRIDGE_EVENT.OFFICER_ACTIVITY_CLEARED,
-
-                {
-                    role: OFFICER_ROLE.WEAPONS,
-                },
-            ],
         ]);
 
         expect(setEncounterInteractive).not.toHaveBeenCalled();

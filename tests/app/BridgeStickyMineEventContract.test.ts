@@ -121,16 +121,6 @@ describe('Bridge sticky-mine event contract', () => {
 
             [
                 BRIDGE_EVENT
-                    .OFFICER_ACTIVITY_CLEARED,
-
-                {
-                    role:
-                        OFFICER_ROLE.SCIENCE,
-                },
-            ],
-
-            [
-                BRIDGE_EVENT
                     .STICKY_MINE_REMOVED,
 
                 {

@@ -127,9 +127,5 @@ describe('Bridge encounter jump-point sync', () => {
             id: 'jump_point_node_station',
             anchorObjectId: 'jump_point_node_station',
         });
-
-        expect(emit).toHaveBeenCalledWith(BRIDGE_EVENT.OFFICER_ACTIVITY_CLEARED, {
-            role: OFFICER_ROLE.SCIENCE,
-        });
     });
 });

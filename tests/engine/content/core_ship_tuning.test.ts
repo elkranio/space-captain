@@ -23,7 +23,6 @@ import {
 } from '../../../src/engine/content/schemas/ship_drives';
 import {
     SHIP_CHASSIS_ID,
-    SHIP_SPRITE_ID,
 } from '../../../src/engine/defs/ship_chassis';
 import {
     SHIP_DRIVE_ID,
@@ -49,8 +48,7 @@ describe(
                         'Our test ship',
 
                     spriteId:
-                        SHIP_SPRITE_ID
-                            .GENERIC_00,
+                        'new_perspective_00',
 
                     maxHull: 3,
                 });

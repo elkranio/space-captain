@@ -13,9 +13,19 @@ export default class BridgeInteriorView {
         this.root = this.scene.add.container(0, 0);
         this.scene.layers.get('bridge').add(this.root);
 
-        const interior = BRIDGE_INTERIOR_SPRITES[BRIDGE_INTERIOR_ID.GENERIC];
+        const interior =
+            BRIDGE_INTERIOR_SPRITES[
+                BRIDGE_INTERIOR_ID.GENERIC_01
+            ];
 
-        this.interiorImage = this.scene.add.image(0, 0, interior.atlasKey, interior.frameKey).setOrigin(0, 0);
+        this.interiorImage = this.scene.add
+            .image(
+                0,
+                0,
+                interior.atlasKey,
+                interior.frameKey,
+            )
+            .setOrigin(0, 0);
 
         this.root.add(this.interiorImage);
     }

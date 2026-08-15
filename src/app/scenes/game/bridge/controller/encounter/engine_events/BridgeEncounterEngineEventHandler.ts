@@ -257,18 +257,6 @@ export default class BridgeEncounterEngineEventHandler {
             case ENCOUNTER_EVENT.PLAYER_SHIP_DRIVE_STATE_CHANGED:
                 return;
 
-            case ENCOUNTER_EVENT.OFFICER_TASK_STARTED:
-                this.eventBus.emit(BRIDGE_EVENT.OFFICER_ACTIVITY_STARTED, {
-                    role: event.task.role,
-
-                    taskId: event.task.id,
-                    label: event.task.label,
-
-                    canBeCancelledByPlayer:
-                        event.task.canBeCancelledByPlayer,
-                });
-                return;
-
             case ENCOUNTER_EVENT.OFFICER_TASK_ENDED:
                 if (event.result?.kind === OFFICER_TASK_RESULT_KIND.JUMP_POINT_CALCULATED) {
                     const anchor = event.result.anchor;
@@ -343,10 +331,6 @@ export default class BridgeEncounterEngineEventHandler {
                         },
                     );
                 }
-
-                this.eventBus.emit(BRIDGE_EVENT.OFFICER_ACTIVITY_CLEARED, {
-                    role: event.task.role,
-                });
 
                 return;
 

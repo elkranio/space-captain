@@ -34,7 +34,6 @@ import type BridgeEventBus from '../../events/BridgeEventBus';
 import BridgeOfficerCommandMenuController from './command_menu/BridgeOfficerCommandMenuController';
 import BridgeEncounterPersistenceSynchronizer from './BridgeEncounterPersistenceSynchronizer';
 import BridgeEncounterEngineEventHandler from './engine_events/BridgeEncounterEngineEventHandler';
-import BridgeOfficerStationsController from './officer_stations/BridgeOfficerStationsController';
 import BridgeEncounterSnapshotSynchronizer from './snapshots/BridgeEncounterSnapshotSynchronizer';
 
 // App-controller для bridge encounter flow.
@@ -53,8 +52,6 @@ export default class BridgeEncounterController {
     private encounterEngine?: EncounterEngine;
 
     private officerCommandMenuController?: BridgeOfficerCommandMenuController;
-
-    private officerStationsController?: BridgeOfficerStationsController;
 
     private snapshotSynchronizer?: BridgeEncounterSnapshotSynchronizer;
 
@@ -94,9 +91,7 @@ export default class BridgeEncounterController {
     public destroy(): void {
         this.unregisterBridgeEventHandlers();
 
-        this.officerStationsController?.destroy();
         this.officerCommandMenuController = undefined;
-        this.officerStationsController = undefined;
         this.snapshotSynchronizer = undefined;
         this.encounterEngine = undefined;
 
@@ -138,10 +133,6 @@ export default class BridgeEncounterController {
                 presentationSnapshot,
             );
 
-        this.officerStationsController?.step(
-            deltaMs,
-            presentationSnapshot,
-        );
     }
 
     // #endregion
@@ -281,8 +272,6 @@ export default class BridgeEncounterController {
                 this.eventBus,
             );
 
-        this.officerStationsController = new BridgeOfficerStationsController(this.encounterEngine, this.eventBus);
-
         const loadPresentationSnapshot =
             this.encounterEngine
                 .getPresentationSnapshot();
@@ -307,7 +296,6 @@ export default class BridgeEncounterController {
 
         if (this.isEncounterInteractive) {
             this.engageHostileActors();
-            this.officerStationsController.sync();
         }
     }
 
@@ -370,11 +358,6 @@ export default class BridgeEncounterController {
             ?.syncPlayerShipDashboard(
                 presentationSnapshot,
             );
-
-        this.officerStationsController
-            ?.sync(
-                presentationSnapshot,
-            );
     }
 
     // #endregion
@@ -387,7 +370,6 @@ export default class BridgeEncounterController {
         this.isEncounterInteractive = true;
 
         this.engageHostileActors();
-        this.officerStationsController?.sync();
     }
 
     private handleEncounterTravelFlightStarted(): void {
@@ -401,7 +383,6 @@ export default class BridgeEncounterController {
         this.isEncounterInteractive = true;
 
         this.drainEncounterEvents();
-        this.officerStationsController?.sync();
     }
 
     private handleEncounterJumpCompleted(payload: BridgeEncounterJumpPayload): void {
@@ -487,11 +468,6 @@ export default class BridgeEncounterController {
 
             this.snapshotSynchronizer
                 ?.syncBeamCannonThreats(
-                    presentationSnapshot,
-                );
-
-            this.officerStationsController
-                ?.sync(
                     presentationSnapshot,
                 );
         }

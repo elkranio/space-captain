@@ -13,6 +13,7 @@ export type BridgeOfficerStationLayoutEntry = {
     };
 
     seatedOfficerSpriteId: BridgeSeatedOfficerSpriteId;
+    flipX: boolean;
 
     hitArea: {
         width: number;
@@ -31,9 +32,9 @@ export type BridgeOfficerStationLayoutEntry = {
     };
 };
 
-const STATION_HIT_AREA = {
-    width: 242,
-    height: 180,
+const OFFICER_HIT_AREA = {
+    width: 160,
+    height: 170,
 } as const;
 
 export const BRIDGE_OFFICER_STATION_LAYOUT = {
@@ -41,45 +42,25 @@ export const BRIDGE_OFFICER_STATION_LAYOUT = {
         role: OFFICER_ROLE.SCIENCE,
 
         position: {
-            x: 235,
-            y: 443,
+            x: 304,
+            y: 417,
         },
 
-        seatedOfficerSpriteId: BRIDGE_SEATED_OFFICER_SPRITE_ID.SCIENCE_SEATED_00,
-        hitArea: STATION_HIT_AREA,
+        seatedOfficerSpriteId:
+            BRIDGE_SEATED_OFFICER_SPRITE_ID
+                .SCIENCE_SEATED_01_IDLE,
+        flipX: false,
+        hitArea: OFFICER_HIT_AREA,
 
         barkPosition: {
-            x: 199,
-            y: 300,
-            side: 'left',
-        },
-
-        contextMenuPosition: {
-            x: 32,
-            y: 318,
-        },
-    },
-
-    [OFFICER_ROLE.WEAPONS]: {
-        role: OFFICER_ROLE.WEAPONS,
-
-        position: {
-            x: 504,
-            y: 399,
-        },
-
-        seatedOfficerSpriteId: BRIDGE_SEATED_OFFICER_SPRITE_ID.WEAPONS_SEATED_00,
-        hitArea: STATION_HIT_AREA,
-
-        barkPosition: {
-            x: 468,
-            y: 256,
-            side: 'left',
-        },
-
-        contextMenuPosition: {
-            x: 316,
+            x: 268,
             y: 274,
+            side: 'left',
+        },
+
+        contextMenuPosition: {
+            x: 116,
+            y: 292,
         },
     },
 
@@ -87,22 +68,51 @@ export const BRIDGE_OFFICER_STATION_LAYOUT = {
         role: OFFICER_ROLE.HELM,
 
         position: {
-            x: 774,
-            y: 399,
+            x: 524,
+            y: 417,
         },
 
-        seatedOfficerSpriteId: BRIDGE_SEATED_OFFICER_SPRITE_ID.HELM_SEATED_00,
-        hitArea: STATION_HIT_AREA,
+        seatedOfficerSpriteId:
+            BRIDGE_SEATED_OFFICER_SPRITE_ID
+                .HELM_SEATED_01_IDLE,
+        flipX: false,
+        hitArea: OFFICER_HIT_AREA,
 
         barkPosition: {
-            x: 635,
-            y: 256,
+            x: 488,
+            y: 274,
+            side: 'left',
+        },
+
+        contextMenuPosition: {
+            x: 336,
+            y: 292,
+        },
+    },
+
+    [OFFICER_ROLE.WEAPONS]: {
+        role: OFFICER_ROLE.WEAPONS,
+
+        position: {
+            x: 766,
+            y: 417,
+        },
+
+        seatedOfficerSpriteId:
+            BRIDGE_SEATED_OFFICER_SPRITE_ID
+                .WEAPONS_SEATED_01_IDLE,
+        flipX: true,
+        hitArea: OFFICER_HIT_AREA,
+
+        barkPosition: {
+            x: 627,
+            y: 274,
             side: 'right',
         },
 
         contextMenuPosition: {
-            x: 588,
-            y: 274,
+            x: 578,
+            y: 292,
         },
     },
 
@@ -110,22 +120,28 @@ export const BRIDGE_OFFICER_STATION_LAYOUT = {
         role: OFFICER_ROLE.ENGINEER,
 
         position: {
-            x: 1043,
-            y: 443,
+            x: 977,
+            y: 417,
         },
 
-        seatedOfficerSpriteId: BRIDGE_SEATED_OFFICER_SPRITE_ID.ENGINEER_SEATED_00,
-        hitArea: STATION_HIT_AREA,
+        seatedOfficerSpriteId:
+            BRIDGE_SEATED_OFFICER_SPRITE_ID
+                .ENGINEER_SEATED_01_IDLE,
+        flipX: true,
+        hitArea: OFFICER_HIT_AREA,
 
         barkPosition: {
-            x: 904,
-            y: 300,
+            x: 838,
+            y: 274,
             side: 'right',
         },
 
         contextMenuPosition: {
-            x: 872,
-            y: 318,
+            x: 789,
+            y: 292,
         },
     },
-} as const satisfies Record<OfficerRole, BridgeOfficerStationLayoutEntry>;
+} as const satisfies Record<
+    OfficerRole,
+    BridgeOfficerStationLayoutEntry
+>;

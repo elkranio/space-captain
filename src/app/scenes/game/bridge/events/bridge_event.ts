@@ -60,8 +60,9 @@ export const BRIDGE_EVENT = {
     // Encounter controller передаст её в engine.
     OFFICER_COMMAND_SELECTED: 'officer_command_selected',
 
-    // Игрок выбрал ручную отмену
-    // текущей cancellable officer task.
+    // Direct input отмены cancellable runtime officer task.
+    // Текущий bridge art пока не рисует cancel affordance,
+    // но orchestration contract остаётся живым.
     OFFICER_TASK_CANCEL_SELECTED: 'officer_task_cancel_selected',
 
     // Encounter controller отдаёт view
@@ -72,28 +73,6 @@ export const BRIDGE_EVENT = {
     // короткий officer bark bubble.
     OFFICER_BARK_REQUESTED: 'officer_bark_requested',
 
-    // Controller отдаёт crew view
-    // актуальные состояния station lights.
-    OFFICER_STATION_INDICATORS_UPDATED: 'officer_station_indicators_updated',
-
-    // Полный snapshot контекстных combat hints
-    // на свободных officer station monitors.
-    OFFICER_COMBAT_HINTS_UPDATED: 'officer_combat_hints_updated',
-
-    // Офицер начал runtime task.
-    // Crew view показывает activity label.
-    OFFICER_ACTIVITY_STARTED: 'officer_activity_started',
-
-    // Runtime task офицера завершён или очищен.
-    // Crew view убирает activity label.
-    OFFICER_ACTIVITY_CLEARED: 'officer_activity_cleared',
-
-    // Полный snapshot отображаемого progress
-    // officer tasks.
-    //
-    // Значение 0..1 означает заполнение бара.
-    // null означает, что для роли бар не показывается.
-    OFFICER_ACTIVITY_PROGRESS_UPDATED: 'officer_activity_progress_updated',
 
     // #endregion
 
@@ -335,8 +314,7 @@ export type BridgeOfficerCommandMenuItemPayload = {
     target: OfficerCommandTarget;
 };
 
-// Direct input от cancel affordance текущей station activity.
-// Runtime task id полностью определяет отменяемую task.
+// Direct input отмены конкретной cancellable runtime task.
 export type BridgeOfficerTaskCancelSelectedPayload = {
     taskId: string;
 };
@@ -364,39 +342,6 @@ export type BridgeOfficerBarkRequestedPayload = {
     text: string;
 };
 
-// View-state лампы officer station.
-export type BridgeOfficerStationIndicatorState = 'off' | 'ready' | 'busy' | 'blocked';
-
-// Snapshot ламп всех officer stations.
-export type BridgeOfficerStationIndicatorsUpdatedPayload = Record<OfficerRole, BridgeOfficerStationIndicatorState>;
-
-// Максимум две уже приоритизированные строки на роль.
-// Пустой массив явно очищает monitor hints.
-export type BridgeOfficerCombatHintsUpdatedPayload = Record<OfficerRole, string[]>;
-
-// Офицер начал activity/task.
-// taskId связывает station presentation с конкретной runtime task.
-// View может показать direct cancel affordance только для cancellable task.
-export type BridgeOfficerActivityStartedPayload = {
-    role: OfficerRole;
-
-    taskId: string;
-    label: string;
-
-    canBeCancelledByPlayer: boolean;
-};
-
-// Activity/task офицера очищен.
-export type BridgeOfficerActivityClearedPayload = {
-    role: OfficerRole;
-};
-
-// Полный snapshot progress всех officer stations.
-//
-// null:
-// - task отсутствует;
-// - либо task не должна показывать progress.
-export type BridgeOfficerActivityProgressUpdatedPayload = Record<OfficerRole, number | null>;
 
 // #endregion
 
@@ -950,16 +895,6 @@ export type BridgeEventPayloadMap = {
     [BRIDGE_EVENT.OFFICER_COMMAND_MENU_UPDATED]: BridgeOfficerCommandMenuUpdatedPayload;
 
     [BRIDGE_EVENT.OFFICER_BARK_REQUESTED]: BridgeOfficerBarkRequestedPayload;
-
-    [BRIDGE_EVENT.OFFICER_STATION_INDICATORS_UPDATED]: BridgeOfficerStationIndicatorsUpdatedPayload;
-
-    [BRIDGE_EVENT.OFFICER_COMBAT_HINTS_UPDATED]: BridgeOfficerCombatHintsUpdatedPayload;
-
-    [BRIDGE_EVENT.OFFICER_ACTIVITY_STARTED]: BridgeOfficerActivityStartedPayload;
-
-    [BRIDGE_EVENT.OFFICER_ACTIVITY_CLEARED]: BridgeOfficerActivityClearedPayload;
-
-    [BRIDGE_EVENT.OFFICER_ACTIVITY_PROGRESS_UPDATED]: BridgeOfficerActivityProgressUpdatedPayload;
 
     // Player ship status
 

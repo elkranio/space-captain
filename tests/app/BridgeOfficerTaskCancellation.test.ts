@@ -95,7 +95,7 @@ describe('Bridge officer task cancellation', () => {
         );
     });
 
-    it('routes direct station cancel input through encounter orchestration', () => {
+    it('routes direct officer task cancel input through encounter orchestration', () => {
         const lifecycle: string[] = [];
 
         const cancelTask =
@@ -127,11 +127,6 @@ describe('Bridge officer task cancellation', () => {
         const syncPlayerShipDashboard =
             vi.fn(() => {
                 lifecycle.push('dashboard');
-            });
-
-        const syncStations =
-            vi.fn(() => {
-                lifecycle.push('stations');
             });
 
         const on = vi.fn();
@@ -167,9 +162,6 @@ describe('Bridge officer task cancellation', () => {
                         void;
                 };
 
-                officerStationsController: {
-                    sync(): void;
-                };
             };
 
         testable.encounterEngine = {
@@ -185,10 +177,6 @@ describe('Bridge officer task cancellation', () => {
 
         testable.snapshotSynchronizer = {
             syncPlayerShipDashboard,
-        };
-
-        testable.officerStationsController = {
-            sync: syncStations,
         };
 
         testable.isEncounterInteractive = true;
@@ -240,7 +228,6 @@ describe('Bridge officer task cancellation', () => {
             'snapshot',
             'persist',
             'dashboard',
-            'stations',
         ]);
     });
 });
