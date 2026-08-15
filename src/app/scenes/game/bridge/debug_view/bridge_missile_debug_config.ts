@@ -4,9 +4,6 @@ export type BridgeMissileDebugPoint = {
 };
 
 export const BRIDGE_MISSILE_DEBUG_CONFIG = {
-    textureKey: 'atlas',
-    frameKey: 'combat/missiles/generic_test_00',
-
     durationMs: 12_000,
 
     start: {
@@ -31,27 +28,18 @@ export const BRIDGE_MISSILE_DEBUG_CONFIG = {
         },
     },
 
-    missile: {
-        initialDisplayWidth: 18,
-        maxScaleMultiplier: 7.5,
+    gizmo: {
+        initialScale: 0.72,
+        maxScaleMultiplier: 3.4,
 
-        terminalScaleStartPathProgress: 0.62,
+        approachStateStartTimeProgress: 0.62,
+        terminalStateStartTimeProgress: 0.90,
 
-        // Authored sprite points upward at angle 0.
-        // Phaser tangent angle uses +X as zero, so +90 aligns
-        // the missile nose with the screen-space path tangent.
-        forwardAngleOffsetDeg: 90,
-
-        gridWidth: 8,
-        gridHeight: 8,
-    },
-
-    trail: {
-        color: 0xff6a2c,
-        maxPoints: 22,
-        minWidth: 1,
-        maxWidth: 4,
-        maxAlpha: 0.52,
+        bodyColor: 0xd8dde3,
+        bodyDarkColor: 0x747b83,
+        noseColor: 0xf4f7fa,
+        engineColor: 0xd52a24,
+        outlineColor: 0x10151b,
     },
 
     impact: {
