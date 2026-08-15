@@ -37,9 +37,11 @@ export const BRIDGE_MISSILE_DEBUG_CONFIG = {
 
         terminalScaleStartPathProgress: 0.62,
 
-        forwardAngleOffsetDeg: 180,
-        terminalYawDeg: 82,
-        terminalPitchDeg: -6,
+        perspectiveStartTimeProgress: 0.55,
+
+        forwardAngleOffsetDeg: 90,
+        terminalTiltXDeg: 70,
+        terminalBankYDeg: 10,
 
         gridWidth: 8,
         gridHeight: 8,

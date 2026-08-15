@@ -150,18 +150,39 @@ export default class BridgeMissileDebugView {
                 Math.atan2(tangent.y, tangent.x),
             );
 
+        const perspectiveStart =
+            BRIDGE_MISSILE_DEBUG_CONFIG
+                .missile
+                .perspectiveStartTimeProgress;
+
+        const perspectiveProgress = Phaser.Math.Clamp(
+            (timeProgress - perspectiveStart) /
+                (1 - perspectiveStart),
+            0,
+            1,
+        );
+
+        const perspectiveEase =
+            perspectiveProgress *
+            perspectiveProgress *
+            (3 - 2 * perspectiveProgress);
+
         this.missile.angleX =
             Phaser.Math.Linear(
                 0,
-                BRIDGE_MISSILE_DEBUG_CONFIG.missile.terminalPitchDeg,
-                terminalEase,
+                BRIDGE_MISSILE_DEBUG_CONFIG
+                    .missile
+                    .terminalTiltXDeg,
+                perspectiveEase,
             );
 
         this.missile.angleY =
             Phaser.Math.Linear(
                 0,
-                BRIDGE_MISSILE_DEBUG_CONFIG.missile.terminalYawDeg,
-                terminalEase,
+                BRIDGE_MISSILE_DEBUG_CONFIG
+                    .missile
+                    .terminalBankYDeg,
+                perspectiveEase,
             );
 
         this.missile.angleZ =
