@@ -1,6 +1,6 @@
 // src/app/scenes/game/bridge/events/bridge_event.ts
 
-import type { OfficerDefinition, OfficerRole } from '../../../../../engine/defs/officer';
+import type { OfficerRole } from '../../../../../engine/defs/officer';
 import type { Vec3 } from '../../../../../engine/defs/vector';
 import type { SpriteEntry } from '../../../../manifests/types';
 import type { SceneKey } from '../../../scene_key';
@@ -42,11 +42,6 @@ import type {
 export const BRIDGE_EVENT = {
     // #region Crew and officer commands
 
-    // Initial snapshot экипажа для bridge UI.
-    // Эмитит BridgeController после чтения GAME_RUNTIME.
-    // Слушает crew view.
-    CREW_LOADED: 'crew_loaded',
-
     // Игрок кликнул по officer station.
     // View не определяет доступные команды,
     // а просит encounter controller открыть меню.
@@ -59,11 +54,6 @@ export const BRIDGE_EVENT = {
     // Игрок выбрал команду в officer context menu.
     // Encounter controller передаст её в engine.
     OFFICER_COMMAND_SELECTED: 'officer_command_selected',
-
-    // Direct input отмены cancellable runtime officer task.
-    // Текущий bridge art пока не рисует cancel affordance,
-    // но orchestration contract остаётся живым.
-    OFFICER_TASK_CANCEL_SELECTED: 'officer_task_cancel_selected',
 
     // Encounter controller отдаёт view
     // актуальный snapshot меню команд офицера.
@@ -281,9 +271,6 @@ export const BRIDGE_EVENT = {
 
 // #region Crew and officer commands
 
-// Payload initial crew snapshot.
-export type BridgeCrewLoadedPayload = Record<OfficerRole, OfficerDefinition>;
-
 // Payload input-события OFFICER_STATION_CLICKED.
 export type BridgeOfficerStationClickedPayload = {
     role: OfficerRole;
@@ -312,11 +299,6 @@ export type BridgeOfficerCommandMenuItemPayload = {
     label: string;
 
     target: OfficerCommandTarget;
-};
-
-// Direct input отмены конкретной cancellable runtime task.
-export type BridgeOfficerTaskCancelSelectedPayload = {
-    taskId: string;
 };
 
 // Группа пунктов меню.
@@ -882,15 +864,11 @@ export type BridgeEventPayloadMap = {
 
     // Crew and officer commands
 
-    [BRIDGE_EVENT.CREW_LOADED]: BridgeCrewLoadedPayload;
-
     [BRIDGE_EVENT.OFFICER_STATION_CLICKED]: BridgeOfficerStationClickedPayload;
 
     [BRIDGE_EVENT.OFFICER_COMMAND_MENU_REFRESH_REQUESTED]: BridgeOfficerCommandMenuRefreshRequestedPayload;
 
     [BRIDGE_EVENT.OFFICER_COMMAND_SELECTED]: BridgeOfficerCommandSelectedPayload;
-
-    [BRIDGE_EVENT.OFFICER_TASK_CANCEL_SELECTED]: BridgeOfficerTaskCancelSelectedPayload;
 
     [BRIDGE_EVENT.OFFICER_COMMAND_MENU_UPDATED]: BridgeOfficerCommandMenuUpdatedPayload;
 

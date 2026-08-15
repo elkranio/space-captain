@@ -1,6 +1,5 @@
 // src/app/scenes/game/bridge/controller/BridgeController.ts
 
-import { GAME_RUNTIME } from '../../../../runtime/GameRuntime';
 import { SCENE_RUNTIME } from '../../../../runtime/SceneRuntime';
 import type BridgeScene from '../BridgeScene';
 import BridgeEventBus from '../events/BridgeEventBus';
@@ -38,8 +37,6 @@ export default class BridgeController {
 
         this.view.prepare();
 
-        this.loadState();
-
         this.encounterController = new BridgeEncounterController(this.eventBus);
 
         this.encounterController.prepare();
@@ -63,22 +60,6 @@ export default class BridgeController {
 
     public step(deltaMs: number): void {
         this.encounterController?.step(deltaMs);
-    }
-
-    // #endregion
-
-    // #region Loading
-
-    // Загружает bridge-level snapshots
-    // из runtime и отдаёт их view
-    // через scene-local event bus.
-    private loadState(): void {
-        const run = GAME_RUNTIME.getCurrentRun();
-
-        this.eventBus.emit(
-            BRIDGE_EVENT.CREW_LOADED,
-            run.officers,
-        );
     }
 
     // #endregion
