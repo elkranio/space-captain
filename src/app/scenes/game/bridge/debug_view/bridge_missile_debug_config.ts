@@ -28,18 +28,38 @@ export const BRIDGE_MISSILE_DEBUG_CONFIG = {
         },
     },
 
-    gizmo: {
-        initialScale: 0.72,
-        maxScaleMultiplier: 3.4,
+    motion: {
+        terminalStartTimeProgress: 0.90,
+        terminalStartPathProgress: 0.62,
 
-        approachStateStartTimeProgress: 0.62,
-        terminalStateStartTimeProgress: 0.90,
+        // Keeps non-zero velocity from the first frame and
+        // accelerates continuously through the cruise phase.
+        cruiseLinearWeight: 0.35,
 
-        bodyColor: 0xd8dde3,
-        bodyDarkColor: 0x747b83,
-        noseColor: 0xf4f7fa,
-        engineColor: 0xd52a24,
-        outlineColor: 0x10151b,
+        // Chosen to keep velocity continuous at the transition,
+        // then the cubic term produces the hard terminal rush.
+        terminalLinearWeight: 0.30,
+    },
+
+    missile: {
+        color: 0xf7fbff,
+
+        minPixelSize: 2,
+        maxPixelSize: 10,
+    },
+
+    trail: {
+        hotColor: 0xffd36a,
+        coolColor: 0xd34a27,
+
+        minParticleCount: 3,
+        maxParticleCount: 34,
+
+        minParticleSize: 1,
+        maxParticleSize: 5,
+
+        minAlpha: 0.10,
+        maxAlpha: 0.78,
     },
 
     impact: {

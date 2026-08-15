@@ -8,17 +8,12 @@ type FlightState = {
     timeProgress: number;
 };
 
-type MissileVisualState =
-    | 'far'
-    | 'approach'
-    | 'terminal';
-
 export default class BridgeMissileDebugView {
-    private missileRoot?: Phaser.GameObjects.Container;
-    private missileGraphics?: Phaser.GameObjects.Graphics;
+    private graphics?: Phaser.GameObjects.Graphics;
     private flightTween?: Phaser.Tweens.Tween;
 
-    private visualState?: MissileVisualState;
+    private readonly trailPoints:
+        BridgeMissileDebugPoint[] = [];
 
     constructor(private readonly scene: BridgeScene) {
         this.scene.input.keyboard?.on(
@@ -41,26 +36,12 @@ export default class BridgeMissileDebugView {
     private launch(): void {
         this.clearFlight();
 
-        const config = BRIDGE_MISSILE_DEBUG_CONFIG;
-
-        this.missileRoot = this.scene.add.container(
-            config.start.x,
-            config.start.y,
-        );
+        this.graphics =
+            this.scene.add.graphics();
 
         this.scene.layers
             .get('vfx')
-            .add(this.missileRoot);
-
-        this.missileGraphics =
-            this.scene.add.graphics();
-
-        this.missileRoot.add(
-            this.missileGraphics,
-        );
-
-        this.visualState = undefined;
-        this.setVisualState('far');
+            .add(this.graphics);
 
         const flightState: FlightState = {
             timeProgress: 0,
@@ -68,28 +49,31 @@ export default class BridgeMissileDebugView {
 
         this.updateFlight(0);
 
-        this.flightTween = this.scene.tweens.add({
-            targets: flightState,
-            timeProgress: 1,
-            duration: config.durationMs,
-            ease: 'Linear',
+        this.flightTween =
+            this.scene.tweens.add({
+                targets: flightState,
+                timeProgress: 1,
+                duration:
+                    BRIDGE_MISSILE_DEBUG_CONFIG
+                        .durationMs,
+                ease: 'Linear',
 
-            onUpdate: () => {
-                this.updateFlight(
-                    flightState.timeProgress,
-                );
-            },
+                onUpdate: () => {
+                    this.updateFlight(
+                        flightState.timeProgress,
+                    );
+                },
 
-            onComplete: () => {
-                this.completeFlight();
-            },
-        });
+                onComplete: () => {
+                    this.completeFlight();
+                },
+            });
     }
 
     private updateFlight(
         timeProgress: number,
     ): void {
-        if (!this.missileRoot) {
+        if (!this.graphics) {
             return;
         }
 
@@ -110,393 +94,211 @@ export default class BridgeMissileDebugView {
                 pathProgress,
             );
 
-        const tangent =
-            this.getBezierTangent(
-                pathProgress,
-            );
-
-        this.missileRoot.setPosition(
-            point.x,
-            point.y,
+        this.pushTrailPoint(point);
+        this.renderFlight(
+            point,
+            pathProgress,
         );
-
-        // The Phaser gizmo is authored with its nose pointing
-        // toward local +X. Therefore its rotation is exactly
-        // the path tangent. No sprite-forward offset, no Rex
-        // mesh rotation, no perspective math.
-        this.missileRoot.rotation =
-            Math.atan2(
-                tangent.y,
-                tangent.x,
-            );
-
-        const visualState =
-            this.getVisualState(
-                clampedTimeProgress,
-            );
-
-        this.setVisualState(
-            visualState,
-        );
-
-        const scaleProgress =
-            clampedTimeProgress *
-            clampedTimeProgress *
-            clampedTimeProgress;
-
-        const scaleMultiplier =
-            Phaser.Math.Linear(
-                1,
-                BRIDGE_MISSILE_DEBUG_CONFIG
-                    .gizmo
-                    .maxScaleMultiplier,
-                scaleProgress,
-            );
-
-        this.missileRoot.setScale(
-            BRIDGE_MISSILE_DEBUG_CONFIG
-                .gizmo
-                .initialScale *
-            scaleMultiplier,
-        );
-    }
-
-    private getVisualState(
-        timeProgress: number,
-    ): MissileVisualState {
-        const config =
-            BRIDGE_MISSILE_DEBUG_CONFIG
-                .gizmo;
-
-        if (
-            timeProgress >=
-            config.terminalStateStartTimeProgress
-        ) {
-            return 'terminal';
-        }
-
-        if (
-            timeProgress >=
-            config.approachStateStartTimeProgress
-        ) {
-            return 'approach';
-        }
-
-        return 'far';
-    }
-
-    private setVisualState(
-        state: MissileVisualState,
-    ): void {
-        if (
-            this.visualState === state ||
-            !this.missileGraphics
-        ) {
-            return;
-        }
-
-        this.visualState = state;
-
-        switch (state) {
-            case 'far':
-                this.drawFarState();
-                return;
-
-            case 'approach':
-                this.drawApproachState();
-                return;
-
-            case 'terminal':
-                this.drawTerminalState();
-                return;
-        }
-    }
-
-    private drawFarState(): void {
-        const graphics =
-            this.prepareMissileGraphics();
-
-        const colors =
-            BRIDGE_MISSILE_DEBUG_CONFIG
-                .gizmo;
-
-        // Engine: always behind, local -X.
-        graphics.fillStyle(
-            colors.engineColor,
-            1,
-        );
-
-        graphics.fillRect(
-            -18,
-            -5,
-            7,
-            10,
-        );
-
-        // Body.
-        graphics.fillStyle(
-            colors.bodyColor,
-            1,
-        );
-
-        graphics.fillRect(
-            -11,
-            -5,
-            21,
-            10,
-        );
-
-        // Nose: always forward, local +X.
-        graphics.fillStyle(
-            colors.noseColor,
-            1,
-        );
-
-        graphics.fillTriangle(
-            10,
-            -7,
-            10,
-            7,
-            21,
-            0,
-        );
-
-        graphics.lineStyle(
-            2,
-            colors.outlineColor,
-            1,
-        );
-
-        graphics.strokeRect(
-            -18,
-            -5,
-            28,
-            10,
-        );
-
-        graphics.lineBetween(
-            10,
-            -7,
-            21,
-            0,
-        );
-
-        graphics.lineBetween(
-            21,
-            0,
-            10,
-            7,
-        );
-    }
-
-    private drawApproachState(): void {
-        const graphics =
-            this.prepareMissileGraphics();
-
-        const colors =
-            BRIDGE_MISSILE_DEBUG_CONFIG
-                .gizmo;
-
-        // Slightly foreshortened authored state.
-        graphics.fillStyle(
-            colors.engineColor,
-            1,
-        );
-
-        graphics.fillRect(
-            -14,
-            -6,
-            6,
-            12,
-        );
-
-        graphics.fillStyle(
-            colors.bodyDarkColor,
-            1,
-        );
-
-        graphics.fillRect(
-            -8,
-            -7,
-            15,
-            14,
-        );
-
-        graphics.fillStyle(
-            colors.bodyColor,
-            1,
-        );
-
-        graphics.fillRect(
-            -6,
-            -5,
-            13,
-            10,
-        );
-
-        graphics.fillStyle(
-            colors.noseColor,
-            1,
-        );
-
-        graphics.fillTriangle(
-            7,
-            -9,
-            7,
-            9,
-            19,
-            0,
-        );
-
-        graphics.lineStyle(
-            2,
-            colors.outlineColor,
-            1,
-        );
-
-        graphics.lineBetween(
-            7,
-            -9,
-            19,
-            0,
-        );
-
-        graphics.lineBetween(
-            19,
-            0,
-            7,
-            9,
-        );
-    }
-
-    private drawTerminalState(): void {
-        const graphics =
-            this.prepareMissileGraphics();
-
-        const colors =
-            BRIDGE_MISSILE_DEBUG_CONFIG
-                .gizmo;
-
-        // Fake authored near-camera state:
-        // shorter body, much wider white nose.
-        graphics.fillStyle(
-            colors.engineColor,
-            1,
-        );
-
-        graphics.fillRect(
-            -9,
-            -5,
-            5,
-            10,
-        );
-
-        graphics.fillStyle(
-            colors.bodyDarkColor,
-            1,
-        );
-
-        graphics.fillRect(
-            -4,
-            -9,
-            8,
-            18,
-        );
-
-        graphics.fillStyle(
-            colors.noseColor,
-            1,
-        );
-
-        graphics.fillTriangle(
-            2,
-            -13,
-            2,
-            13,
-            16,
-            0,
-        );
-
-        graphics.lineStyle(
-            2,
-            colors.outlineColor,
-            1,
-        );
-
-        graphics.lineBetween(
-            2,
-            -13,
-            16,
-            0,
-        );
-
-        graphics.lineBetween(
-            16,
-            0,
-            2,
-            13,
-        );
-    }
-
-    private prepareMissileGraphics():
-        Phaser.GameObjects.Graphics {
-        if (!this.missileGraphics) {
-            throw new Error(
-                'Missile debug graphics are not initialized',
-            );
-        }
-
-        this.missileGraphics.clear();
-
-        return this.missileGraphics;
     }
 
     private mapTimeToPathProgress(
         timeProgress: number,
     ): number {
-        if (timeProgress < 0.08) {
+        const motion =
+            BRIDGE_MISSILE_DEBUG_CONFIG
+                .motion;
+
+        if (
+            timeProgress <
+            motion.terminalStartTimeProgress
+        ) {
             const local =
-                timeProgress / 0.08;
+                timeProgress /
+                motion.terminalStartTimeProgress;
 
-            return Phaser.Math.Linear(
-                0,
-                0.09,
-                this.easeOutCubic(local),
-            );
-        }
+            const acceleratedCruise =
+                motion.cruiseLinearWeight *
+                    local +
+                (1 -
+                    motion.cruiseLinearWeight) *
+                    local *
+                    local;
 
-        if (timeProgress < 0.72) {
-            const local =
-                (timeProgress - 0.08) /
-                0.64;
-
-            return Phaser.Math.Linear(
-                0.09,
-                0.28,
-                this.easeInOutSine(local),
-            );
-        }
-
-        if (timeProgress < 0.94) {
-            const local =
-                (timeProgress - 0.72) /
-                0.22;
-
-            return Phaser.Math.Linear(
-                0.28,
-                0.63,
-                local * local,
+            return (
+                motion.terminalStartPathProgress *
+                acceleratedCruise
             );
         }
 
         const local =
-            (timeProgress - 0.94) /
-            0.06;
+            (timeProgress -
+                motion.terminalStartTimeProgress) /
+            (1 -
+                motion.terminalStartTimeProgress);
+
+        const terminalRush =
+            motion.terminalLinearWeight *
+                local +
+            (1 -
+                motion.terminalLinearWeight) *
+                local *
+                local *
+                local;
 
         return Phaser.Math.Linear(
-            0.63,
+            motion.terminalStartPathProgress,
             1,
-            local * local * local,
+            terminalRush,
+        );
+    }
+
+    private pushTrailPoint(
+        point: BridgeMissileDebugPoint,
+    ): void {
+        this.trailPoints.push({
+            x: point.x,
+            y: point.y,
+        });
+
+        const maxCount =
+            BRIDGE_MISSILE_DEBUG_CONFIG
+                .trail
+                .maxParticleCount;
+
+        while (
+            this.trailPoints.length >
+            maxCount
+        ) {
+            this.trailPoints.shift();
+        }
+    }
+
+    private renderFlight(
+        missilePoint: BridgeMissileDebugPoint,
+        pathProgress: number,
+    ): void {
+        if (!this.graphics) {
+            return;
+        }
+
+        const graphics = this.graphics;
+        const trailConfig =
+            BRIDGE_MISSILE_DEBUG_CONFIG.trail;
+        const missileConfig =
+            BRIDGE_MISSILE_DEBUG_CONFIG.missile;
+
+        graphics.clear();
+
+        const depth =
+            pathProgress * pathProgress;
+
+        const particleCount =
+            Math.round(
+                Phaser.Math.Linear(
+                    trailConfig.minParticleCount,
+                    trailConfig.maxParticleCount,
+                    depth,
+                ),
+            );
+
+        const visibleStartIndex =
+            Math.max(
+                0,
+                this.trailPoints.length -
+                    particleCount,
+            );
+
+        const visiblePoints =
+            this.trailPoints.slice(
+                visibleStartIndex,
+            );
+
+        for (
+            let index = 0;
+            index < visiblePoints.length;
+            index += 1
+        ) {
+            const point =
+                visiblePoints[index];
+
+            const ageProgress =
+                visiblePoints.length <= 1
+                    ? 1
+                    : index /
+                      (visiblePoints.length - 1);
+
+            const particleSize =
+                Phaser.Math.Linear(
+                    trailConfig.minParticleSize,
+                    trailConfig.maxParticleSize,
+                    depth * ageProgress,
+                );
+
+            const alpha =
+                Phaser.Math.Linear(
+                    trailConfig.minAlpha,
+                    trailConfig.maxAlpha,
+                    depth * ageProgress,
+                );
+
+            const color =
+                ageProgress > 0.66
+                    ? trailConfig.hotColor
+                    : trailConfig.coolColor;
+
+            graphics.fillStyle(
+                color,
+                alpha,
+            );
+
+            graphics.fillRect(
+                Math.round(
+                    point.x -
+                        particleSize / 2,
+                ),
+                Math.round(
+                    point.y -
+                        particleSize / 2,
+                ),
+                Math.max(
+                    1,
+                    Math.round(particleSize),
+                ),
+                Math.max(
+                    1,
+                    Math.round(particleSize),
+                ),
+            );
+        }
+
+        const missileSize =
+            Math.max(
+                1,
+                Math.round(
+                    Phaser.Math.Linear(
+                        missileConfig.minPixelSize,
+                        missileConfig.maxPixelSize,
+                        depth,
+                    ),
+                ),
+            );
+
+        graphics.fillStyle(
+            missileConfig.color,
+            1,
+        );
+
+        graphics.fillRect(
+            Math.round(
+                missilePoint.x -
+                    missileSize / 2,
+            ),
+            Math.round(
+                missilePoint.y -
+                    missileSize / 2,
+            ),
+            missileSize,
+            missileSize,
         );
     }
 
@@ -514,9 +316,12 @@ export default class BridgeMissileDebugView {
         const end =
             config.curve.end;
 
-        const inverse = 1 - progress;
+        const inverse =
+            1 - progress;
+
         const inverseSquared =
             inverse * inverse;
+
         const progressSquared =
             progress * progress;
 
@@ -555,53 +360,6 @@ export default class BridgeMissileDebugView {
         };
     }
 
-    private getBezierTangent(
-        progress: number,
-    ): BridgeMissileDebugPoint {
-        const config =
-            BRIDGE_MISSILE_DEBUG_CONFIG;
-
-        const start = config.start;
-        const control1 =
-            config.curve.control1;
-        const control2 =
-            config.curve.control2;
-        const end =
-            config.curve.end;
-
-        const inverse = 1 - progress;
-
-        return {
-            x:
-                3 *
-                    inverse *
-                    inverse *
-                    (control1.x - start.x) +
-                6 *
-                    inverse *
-                    progress *
-                    (control2.x - control1.x) +
-                3 *
-                    progress *
-                    progress *
-                    (end.x - control2.x),
-
-            y:
-                3 *
-                    inverse *
-                    inverse *
-                    (control1.y - start.y) +
-                6 *
-                    inverse *
-                    progress *
-                    (control2.y - control1.y) +
-                3 *
-                    progress *
-                    progress *
-                    (end.y - control2.y),
-        };
-    }
-
     private completeFlight(): void {
         const config =
             BRIDGE_MISSILE_DEBUG_CONFIG
@@ -609,10 +367,10 @@ export default class BridgeMissileDebugView {
 
         this.flightTween = undefined;
 
-        this.missileRoot?.destroy();
-        this.missileRoot = undefined;
-        this.missileGraphics = undefined;
-        this.visualState = undefined;
+        this.graphics?.destroy();
+        this.graphics = undefined;
+
+        this.trailPoints.length = 0;
 
         const flash =
             this.scene.add.circle(
@@ -650,32 +408,9 @@ export default class BridgeMissileDebugView {
         this.flightTween?.stop();
         this.flightTween = undefined;
 
-        this.missileRoot?.destroy();
-        this.missileRoot = undefined;
-        this.missileGraphics = undefined;
-        this.visualState = undefined;
-    }
+        this.graphics?.destroy();
+        this.graphics = undefined;
 
-    private easeOutCubic(
-        value: number,
-    ): number {
-        const inverse = 1 - value;
-
-        return (
-            1 -
-            inverse *
-                inverse *
-                inverse
-        );
-    }
-
-    private easeInOutSine(
-        value: number,
-    ): number {
-        return -(
-            Math.cos(
-                Math.PI * value,
-            ) - 1
-        ) / 2;
+        this.trailPoints.length = 0;
     }
 }
