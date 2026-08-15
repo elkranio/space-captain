@@ -11,20 +11,95 @@ export const BRIDGE_MISSILE_DEBUG_CONFIG = {
         y: 160,
     },
 
-    curve: {
-        control1: {
-            x: 720,
-            y: 135,
+    trajectories: {
+        // 1: upper-left exit.
+        '1': {
+            control1: {
+                x: 720,
+                y: 130,
+            },
+
+            control2: {
+                x: 460,
+                y: 105,
+            },
+
+            end: {
+                x: 205,
+                y: 70,
+            },
         },
 
-        control2: {
-            x: 520,
-            y: 155,
+        // 2: lower-left exit.
+        '2': {
+            control1: {
+                x: 715,
+                y: 145,
+            },
+
+            control2: {
+                x: 430,
+                y: 225,
+            },
+
+            end: {
+                x: 190,
+                y: 350,
+            },
         },
 
-        end: {
-            x: 515,
-            y: 455,
+        // 3: current baseline trajectory, unchanged.
+        '3': {
+            control1: {
+                x: 720,
+                y: 135,
+            },
+
+            control2: {
+                x: 520,
+                y: 155,
+            },
+
+            end: {
+                x: 515,
+                y: 455,
+            },
+        },
+
+        // 4: lower-right hook.
+        '4': {
+            control1: {
+                x: 715,
+                y: 135,
+            },
+
+            control2: {
+                x: 900,
+                y: 280,
+            },
+
+            end: {
+                x: 1090,
+                y: 365,
+            },
+        },
+
+        // 5: upper-right hook.
+        '5': {
+            control1: {
+                x: 715,
+                y: 125,
+            },
+
+            control2: {
+                x: 930,
+                y: 105,
+            },
+
+            end: {
+                x: 1085,
+                y: 70,
+            },
         },
     },
 
@@ -65,8 +140,6 @@ export const BRIDGE_MISSILE_DEBUG_CONFIG = {
     },
 
     impact: {
-        flashX: 515,
-        flashY: 350,
         flashColor: 0xffd88a,
         flashRadius: 12,
         flashScale: 5,
