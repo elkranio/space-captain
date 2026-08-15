@@ -120,8 +120,14 @@ export default class BridgeMissileDebugView {
 
         this.missile.setPosition(point.x, point.y);
 
+        const terminalScaleStart =
+            BRIDGE_MISSILE_DEBUG_CONFIG
+                .missile
+                .terminalScaleStartPathProgress;
+
         const terminalProgress = Phaser.Math.Clamp(
-            (pathProgress - 0.42) / 0.58,
+            (pathProgress - terminalScaleStart) /
+                (1 - terminalScaleStart),
             0,
             1,
         );
@@ -159,7 +165,10 @@ export default class BridgeMissileDebugView {
             );
 
         this.missile.angleZ =
-            tangentAngleDeg;
+            tangentAngleDeg +
+            BRIDGE_MISSILE_DEBUG_CONFIG
+                .missile
+                .forwardAngleOffsetDeg;
 
         this.pushTrailPoint(point);
         this.renderTrail();

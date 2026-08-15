@@ -32,11 +32,14 @@ export const BRIDGE_MISSILE_DEBUG_CONFIG = {
     },
 
     missile: {
-        initialDisplayWidth: 34,
+        initialDisplayWidth: 18,
         maxScaleMultiplier: 7.5,
 
-        terminalYawDeg: 68,
-        terminalPitchDeg: -10,
+        terminalScaleStartPathProgress: 0.62,
+
+        forwardAngleOffsetDeg: 180,
+        terminalYawDeg: 82,
+        terminalPitchDeg: -6,
 
         gridWidth: 8,
         gridHeight: 8,
