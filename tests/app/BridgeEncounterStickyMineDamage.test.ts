@@ -19,7 +19,7 @@ import {
 } from '../../src/engine/encounter/model/event';
 
 describe('Bridge sticky-mine damage', () => {
-    it('clears targeting warning and destroys the starter ship after three detonations', () => {
+    it('adds mines and destroys the starter ship after three detonations', () => {
         const runtime = new GameRuntime();
 
         const emit = vi.fn();
@@ -114,11 +114,6 @@ describe('Bridge sticky-mine damage', () => {
         ).toHaveBeenCalledWith(false);
 
         expect(emit.mock.calls).toEqual([
-            [
-                BRIDGE_EVENT
-                    .MISSILE_TARGETING_WARNING_CLEARED,
-            ],
-
             [
                 BRIDGE_EVENT
                     .STICKY_MINE_ADDED,

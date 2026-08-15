@@ -3,7 +3,6 @@
 import { createPlayerHullFixture } from '../../fixtures/engine/player_hull_fixtures';
 import { createShipDriveFixture } from '../../fixtures/engine/ship_drive_fixtures';
 import { describe, expect, it } from 'vitest';
-import { SHIP_WEAPON_TARGETING_DURATION_MS } from '../../../src/engine/content/catalogs/ship_weapons';
 import { SHIP_NODE_ACTOR_PRESET_ID } from '../../../src/engine/content/presets/ship_node_actors';
 import { OFFICER_ROLE } from '../../../src/engine/defs/officer';
 import { PLAYER_SPACE_NAVIGATION_KIND } from '../../../src/engine/defs/player_location';
@@ -84,7 +83,7 @@ describe('Science purge spam command', () => {
         ).toBeUndefined();
 
         engine.step(
-            SHIP_WEAPON_TARGETING_DURATION_MS,
+            0,
         );
 
         const [
@@ -93,7 +92,7 @@ describe('Science purge spam command', () => {
         ] = engine.drainEvents();
 
         expect(targetingEvent.type).toBe(
-            ENCOUNTER_EVENT.PLAYER_SHIP_TARGETING_DETECTED,
+            ENCOUNTER_EVENT.ENEMY_ATTACK_STARTED,
         );
 
         if (

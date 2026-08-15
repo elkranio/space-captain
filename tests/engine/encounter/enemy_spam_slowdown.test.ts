@@ -2,6 +2,7 @@ import {
     MISSILE_SIGNATURE,
 } from '../../../src/engine/defs/missile';
 // tests/engine/encounter/enemy_spam_slowdown.test.ts
+import { getTestMissileTargetingDurationMs } from './combat_test_support';
 
 import {
     describe,
@@ -12,7 +13,6 @@ import {
     DEFENSE_TURRETS,
 } from '../../../src/engine/content/catalogs/defense_turrets';
 import {
-    SHIP_WEAPON_TARGETING_DURATION_MS,
 } from '../../../src/engine/content/catalogs/ship_weapons';
 import {
     OFFICER_ROLE,
@@ -227,7 +227,7 @@ describe(
                     ];
 
                 setup.engine.step(
-                    SHIP_WEAPON_TARGETING_DURATION_MS,
+                    getTestMissileTargetingDurationMs(),
                 );
 
                 expect(
@@ -240,7 +240,7 @@ describe(
                 expect(
                     launcher.phaseElapsedMs,
                 ).toBe(
-                    SHIP_WEAPON_TARGETING_DURATION_MS *
+                    getTestMissileTargetingDurationMs() *
                         0.5,
                 );
 
@@ -250,7 +250,7 @@ describe(
                 ).toEqual([]);
 
                 setup.engine.step(
-                    SHIP_WEAPON_TARGETING_DURATION_MS,
+                    getTestMissileTargetingDurationMs(),
                 );
 
                 expect(
@@ -543,9 +543,7 @@ function activatePlayerSpam(
 
     setup.engine.drainEvents();
 
-    setup.engine.step(
-        SHIP_WEAPON_TARGETING_DURATION_MS,
-    );
+    setup.engine.step(0);
 
     expect(
         setup.engine

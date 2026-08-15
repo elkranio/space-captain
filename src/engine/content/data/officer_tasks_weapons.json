@@ -19,7 +19,7 @@
         "canBeInterruptedByDamage": true
     },
     "weapons_fire_beam_cannon": {
-        "label": "BEAM CANNON AIM",
+        "label": "BEAM CANNON CHARGE",
         "showProgress": false,
         "canBeCancelledByPlayer": true,
         "canBeInterruptedByDamage": true

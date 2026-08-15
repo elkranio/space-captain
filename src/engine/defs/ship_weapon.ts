@@ -85,29 +85,18 @@ export function doesShipWeaponPhaseAdvanceWithCrew(
         case SHIP_WEAPON_KIND.BEAM_CANNON:
             return (
                 phase ===
-                    SHIP_WEAPON_PHASE
-                        .TARGETING ||
-                phase ===
-                    SHIP_WEAPON_PHASE
-                        .CHARGING
+                SHIP_WEAPON_PHASE.CHARGING
             );
 
         case SHIP_WEAPON_KIND
             .SPAM_PROJECTOR:
-            return (
-                phase ===
-                SHIP_WEAPON_PHASE.TARGETING
-            );
+            return false;
 
         case SHIP_WEAPON_KIND
             .STICKY_MINE_DISPENSER:
             return (
                 phase ===
-                    SHIP_WEAPON_PHASE
-                        .TARGETING ||
-                phase ===
-                    SHIP_WEAPON_PHASE
-                        .DISPENSING
+                SHIP_WEAPON_PHASE.DISPENSING
             );
 
         default: {
@@ -135,6 +124,7 @@ export type MissileLauncherDefinition = ShipWeaponDefinitionBase & {
     kind: typeof SHIP_WEAPON_KIND.MISSILE_LAUNCHER;
 
     damage: number;
+    targetingDurationMs: number;
     flightDurationMs: number;
 
     ammoCapacity: number;

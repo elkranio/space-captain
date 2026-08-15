@@ -5,7 +5,6 @@ import { createShipDriveFixture } from '../../fixtures/engine/ship_drive_fixture
 import { describe, expect, it } from 'vitest';
 import {
     SHIP_WEAPONS,
-    SHIP_WEAPON_TARGETING_DURATION_MS,
 } from '../../../src/engine/content/catalogs/ship_weapons';
 import { SHIP_NODE_ACTOR_PRESET_ID } from '../../../src/engine/content/presets/ship_node_actors';
 import { PLAYER_SPACE_NAVIGATION_KIND } from '../../../src/engine/defs/player_location';
@@ -96,39 +95,6 @@ describe('Spam projector', () => {
         expect(projector.activeChannelId).toBeNull();
         expect(engine.getCombatPresentationSnapshot().spamChannels).toEqual([]);
 
-        engine.step(1);
-
-        expect(engine.drainEvents()).toEqual([
-            {
-                type:
-                    ENCOUNTER_EVENT.PLAYER_SHIP_TARGETING_DETECTED,
-
-                sourceActorId: enemy.id,
-                sourceWeaponId: projector.id,
-            },
-        ]);
-
-        expect(projector.phase).toBe(
-            SHIP_WEAPON_PHASE.TARGETING,
-        );
-        expect(projector.phaseElapsedMs).toBe(1);
-
-        engine.step(
-            SHIP_WEAPON_TARGETING_DURATION_MS -
-                projector.phaseElapsedMs -
-                1,
-        );
-
-        expect(engine.drainEvents()).toEqual([]);
-
-        expect(projector.phase).toBe(
-            SHIP_WEAPON_PHASE.TARGETING,
-        );
-        expect(projector.phaseElapsedMs).toBe(
-            SHIP_WEAPON_TARGETING_DURATION_MS - 1,
-        );
-        expect(engine.getCombatPresentationSnapshot().spamChannels).toEqual([]);
-
         const firstChannel = {
             id: 'spam_channel_1',
 
@@ -144,6 +110,13 @@ describe('Spam projector', () => {
         expect(engine.drainEvents()).toEqual([
             {
                 type:
+                    ENCOUNTER_EVENT.ENEMY_ATTACK_STARTED,
+
+                sourceActorId: enemy.id,
+                sourceWeaponId: projector.id,
+            },
+            {
+                type:
                     ENCOUNTER_EVENT.SPAM_CHANNEL_STARTED,
 
                 channel: firstChannel,
@@ -153,15 +126,18 @@ describe('Spam projector', () => {
         expect(projector.phase).toBe(
             SHIP_WEAPON_PHASE.CHANNELING,
         );
-        expect(projector.phaseElapsedMs).toBe(0);
+        expect(projector.phaseElapsedMs).toBe(1);
         expect(projector.activeChannelId).toBe(
             firstChannel.id,
         );
         expect(engine.getCombatPresentationSnapshot().spamChannels).toEqual([
-            firstChannel,
+            {
+                ...firstChannel,
+                elapsedMs: 1,
+            },
         ]);
 
-        engine.step(definition.channelDurationMs - 1);
+        engine.step(definition.channelDurationMs - 2);
 
         expect(engine.drainEvents()).toEqual([]);
 
@@ -215,13 +191,10 @@ describe('Spam projector', () => {
         );
         expect(projector.phaseElapsedMs).toBe(0);
 
-        // Second cycle reaches CHANNELING directly
-        // after targeting and is stopped early by purge.
+        // Second cycle starts CHANNELING directly
+        // and is stopped early by purge.
         enemy.decision
             .decisionTickRemainingMs = 0;
-
-        engine.step(1);
-        engine.drainEvents();
 
         const secondChannel = {
             ...firstChannel,
@@ -229,12 +202,16 @@ describe('Spam projector', () => {
             id: 'spam_channel_2',
         };
 
-        engine.step(
-            SHIP_WEAPON_TARGETING_DURATION_MS -
-                projector.phaseElapsedMs,
-        );
+        engine.step(1);
 
         expect(engine.drainEvents()).toEqual([
+            {
+                type:
+                    ENCOUNTER_EVENT.ENEMY_ATTACK_STARTED,
+
+                sourceActorId: enemy.id,
+                sourceWeaponId: projector.id,
+            },
             {
                 type:
                     ENCOUNTER_EVENT.SPAM_CHANNEL_STARTED,
@@ -247,7 +224,7 @@ describe('Spam projector', () => {
             SHIP_WEAPON_PHASE.CHANNELING,
         );
 
-        engine.step(7000);
+        engine.step(6999);
 
         expect(engine.drainEvents()).toEqual([]);
         expect(engine.getCombatPresentationSnapshot().spamChannels).toEqual([

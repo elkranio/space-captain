@@ -5,7 +5,6 @@ import { createShipDriveFixture } from '../../fixtures/engine/ship_drive_fixture
 import { describe, expect, it } from 'vitest';
 import {
     SHIP_WEAPONS,
-    SHIP_WEAPON_TARGETING_DURATION_MS,
 } from '../../../src/engine/content/catalogs/ship_weapons';
 import { SHIP_NODE_ACTOR_PRESET_ID } from '../../../src/engine/content/presets/ship_node_actors';
 import { OFFICER_ROLE } from '../../../src/engine/defs/officer';
@@ -271,9 +270,7 @@ describe('FLY_TO', () => {
         engine.step(1);
         engine.drainEvents();
 
-        engine.step(
-            SHIP_WEAPON_TARGETING_DURATION_MS - 1,
-        );
+        engine.step(0);
         engine.drainEvents();
 
         expect(beamCannon.phase).toBe(

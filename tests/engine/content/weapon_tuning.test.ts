@@ -5,11 +5,7 @@ import {
 } from 'vitest';
 import {
     SHIP_WEAPONS,
-    SHIP_WEAPON_TARGETING_DURATION_MS,
 } from '../../../src/engine/content/catalogs/ship_weapons';
-import {
-    SHIP_WEAPON_RULES_SCHEMA,
-} from '../../../src/engine/content/schemas/ship_weapon_rules';
 import {
     BEAM_CANNON_TUNING_SCHEMA,
     MISSILE_LAUNCHER_TUNING_SCHEMA,
@@ -28,10 +24,6 @@ describe(
             'preserves current runtime weapon definitions across split catalogs',
             () => {
                 expect(
-                    SHIP_WEAPON_TARGETING_DURATION_MS,
-                ).toBe(3000);
-
-                expect(
                     SHIP_WEAPONS[
                         SHIP_WEAPON_ID
                             .MISSILE_LAUNCHER_00
@@ -49,6 +41,8 @@ describe(
                         'MISSILE LAUNCHER',
 
                     damage: 1,
+                    targetingDurationMs:
+                        3000,
                     flightDurationMs:
                         12000,
                     ammoCapacity: 5,
@@ -148,6 +142,8 @@ describe(
                                     'HEAVY LAUNCHER',
 
                                 damage: 2,
+                                targetingDurationMs:
+                                    3500,
                                 flightDurationMs:
                                     14000,
                                 ammoCapacity: 3,
@@ -219,18 +215,8 @@ describe(
         );
 
         it(
-            'rejects invalid family tuning and shared targeting rules',
+            'rejects invalid family tuning',
             () => {
-                expect(
-                    SHIP_WEAPON_RULES_SCHEMA
-                        .safeParse({
-                            enemy_targeting: {
-                                durationMs: -1,
-                            },
-                        })
-                        .success,
-                ).toBe(false);
-
                 expect(
                     MISSILE_LAUNCHER_TUNING_SCHEMA
                         .safeParse({
@@ -239,6 +225,8 @@ describe(
                                     'BAD LAUNCHER',
 
                                 damage: -1,
+                                targetingDurationMs:
+                                    3000,
                                 flightDurationMs:
                                     12000,
                                 ammoCapacity: 5,

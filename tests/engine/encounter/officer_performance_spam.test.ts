@@ -3,7 +3,6 @@
 import { createPlayerHullFixture } from '../../fixtures/engine/player_hull_fixtures';
 import { createShipDriveFixture } from '../../fixtures/engine/ship_drive_fixtures';
 import { describe, expect, it } from 'vitest';
-import { SHIP_WEAPON_TARGETING_DURATION_MS } from '../../../src/engine/content/catalogs/ship_weapons';
 import { SHIP_NODE_ACTOR_PRESET_ID } from '../../../src/engine/content/presets/ship_node_actors';
 import { OFFICER_ROLE } from '../../../src/engine/defs/officer';
 import { PLAYER_SPACE_NAVIGATION_KIND } from '../../../src/engine/defs/player_location';
@@ -130,7 +129,7 @@ function createActiveSpamEncounter() {
         .actors[0]
         .weapons[0];
 
-    engine.step(SHIP_WEAPON_TARGETING_DURATION_MS);
+    engine.step(0);
 
     const channelStartedEvent = engine
         .drainEvents()

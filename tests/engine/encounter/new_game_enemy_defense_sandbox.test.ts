@@ -1,9 +1,6 @@
 // tests/engine/encounter/new_game_enemy_defense_sandbox.test.ts
 
 import {
-    SHIP_WEAPON_TARGETING_DURATION_MS,
-} from '../../../src/engine/content/catalogs/ship_weapons';
-import {
     POWER_CORE_ID,
 } from '../../../src/engine/defs/power_core';
 import {
@@ -200,7 +197,7 @@ describe('New-game enemy defense sandbox', () => {
             // Player targeting completes; enemy now observes CHARGING
             // but correctly waits because a 5s field would expire too early.
             engine.step(
-                SHIP_WEAPON_TARGETING_DURATION_MS,
+                0,
             );
 
             engine.drainEvents();

@@ -2,6 +2,7 @@
     "missile_launcher_00": {
         "name": "MISSILE LAUNCHER",
         "damage": 1,
+        "targetingDurationMs": 3000,
         "flightDurationMs": 12000,
         "ammoCapacity": 5,
         "cooldownDurationMs": 15000

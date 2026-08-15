@@ -31,9 +31,6 @@ import {
     SHIP_DRIVE_TUNING_SCHEMA,
 } from '../../../src/engine/content/schemas/ship_drives';
 import {
-    SHIP_WEAPON_RULES_SCHEMA,
-} from '../../../src/engine/content/schemas/ship_weapon_rules';
-import {
     BEAM_CANNON_TUNING_SCHEMA,
     MISSILE_LAUNCHER_TUNING_SCHEMA,
     SPAM_PROJECTOR_TUNING_SCHEMA,
@@ -58,9 +55,6 @@ export const CONTENT_COLLECTION_ID = {
 
     OFFICER_TASKS_SHARED:
         'officer_tasks_shared',
-
-    SHIP_WEAPON_RULES:
-        'ship_weapon_rules',
 
     MISSILE_LAUNCHERS:
         'missile_launchers',
@@ -275,30 +269,6 @@ const CONTENT_COLLECTIONS:
 
             schema:
                 SHARED_OFFICER_TASK_TUNING_SCHEMA,
-
-            canAdd: false,
-            canDelete: false,
-        },
-
-        [CONTENT_COLLECTION_ID
-            .SHIP_WEAPON_RULES]: {
-            id:
-                CONTENT_COLLECTION_ID
-                    .SHIP_WEAPON_RULES,
-
-            label:
-                'Ship Weapon Rules',
-
-            group:
-                CONTENT_COLLECTION_GROUP
-                    .SHIP_WEAPONS,
-
-            dataPath:
-                'src/engine/content/data/' +
-                'ship_weapon_rules.json',
-
-            schema:
-                SHIP_WEAPON_RULES_SCHEMA,
 
             canAdd: false,
             canDelete: false,

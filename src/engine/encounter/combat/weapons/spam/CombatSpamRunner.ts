@@ -1,6 +1,5 @@
 import {
     SHIP_WEAPONS,
-    SHIP_WEAPON_TARGETING_DURATION_MS,
 } from '../../../../content/catalogs/ship_weapons';
 import {
     SHIP_WEAPON_KIND,
@@ -28,7 +27,7 @@ type CombatSpamRunnerOptions = {
     emit: (event: EncounterEvent) => void;
 };
 
-// Owns the complete hostile-spam lifecycle: enemy targeting, channel start,
+// Owns the complete hostile-spam lifecycle: channel start,
 // active-channel timing, expiry, purge and cooldown.
 export default class CombatSpamRunner {
     private readonly state: EncounterState;
@@ -61,14 +60,16 @@ export default class CombatSpamRunner {
                 return;
 
             case SHIP_WEAPON_PHASE.TARGETING:
-                this.advanceTargeting(
-                    actor,
-                    projector,
-                    deltaMs,
+                throw new Error(
+                    `Spam projector cannot enter targeting phase: ` +
+                        `${actor.id}/${projector.id}`,
                 );
-                return;
 
             case SHIP_WEAPON_PHASE.CHANNELING:
+                this.ensureChannelStarted(
+                    actor,
+                    projector,
+                );
                 this.advanceChanneling(
                     actor,
                     projector,
@@ -137,42 +138,17 @@ export default class CombatSpamRunner {
         return false;
     }
 
-    private advanceTargeting(
+    private ensureChannelStarted(
         actor: ShipEncounterActorState,
         projector: SpamProjectorState,
-        deltaMs: number,
     ): void {
-        const elapsedMs =
-            projector.phaseElapsedMs + deltaMs;
-
         if (
-            elapsedMs <
-            SHIP_WEAPON_TARGETING_DURATION_MS
+            projector.activeChannelId !==
+            null
         ) {
-            projector.phaseElapsedMs = elapsedMs;
             return;
         }
 
-        projector.phaseElapsedMs =
-            SHIP_WEAPON_TARGETING_DURATION_MS;
-
-        this.startChannel(actor, projector);
-    }
-
-    private startChannel(
-        actor: ShipEncounterActorState,
-        projector: SpamProjectorState,
-    ): void {
-        if (projector.activeChannelId !== null) {
-            throw new Error(
-                `Spam projector already has active channel: ` +
-                    `${actor.id}/${projector.id}/${projector.activeChannelId}`,
-            );
-        }
-
-        projector.phase =
-            SHIP_WEAPON_PHASE.CHANNELING;
-        projector.phaseElapsedMs = 0;
         projector.activeChannelId =
             this.identities
                 .createSpamChannelId();

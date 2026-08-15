@@ -1,6 +1,9 @@
 // src/engine/encounter/commands/handlers/weapons_fire_beam_cannon_command_handler.ts
 
 import {
+    SHIP_WEAPONS,
+} from '../../../content/catalogs/ship_weapons';
+import {
     OFFICER_ROLE,
 } from '../../../defs/officer';
 import {
@@ -14,6 +17,9 @@ import {
     OFFICER_COMMAND_TARGET_KIND,
     type OfficerCommandDef,
 } from '../../model/command';
+import {
+    ENCOUNTER_EVENT,
+} from '../../model/event';
 import type {
     OfficerCommandHandler,
 } from '../../model/officer_command_handler';
@@ -100,10 +106,43 @@ export const weaponsFireBeamCannonCommandHandler:
                 );
             }
 
-            context.stateStore
-                .startPlayerBeamCannonTargeting(
-                    input.target.weaponId,
+            const beamCannon =
+                context.stateStore
+                    .startPlayerBeamCannonCharging(
+                        input.target.weaponId,
+                    );
+
+            const definition =
+                SHIP_WEAPONS[
+                    beamCannon.weaponId
+                ];
+
+            if (
+                definition.kind !==
+                SHIP_WEAPON_KIND.BEAM_CANNON
+            ) {
+                throw new Error(
+                    'Player beamCannon kind does not match definition: ' +
+                        beamCannon.id +
+                        '/' +
+                        beamCannon.weaponId,
                 );
+            }
+
+            context.emit({
+                type:
+                    ENCOUNTER_EVENT
+                        .PLAYER_BEAM_CANNON_CHARGING_STARTED,
+
+                weaponId:
+                    beamCannon.id,
+
+                targetActorId:
+                    input.target.actorId,
+
+                chargeDurationMs:
+                    definition.chargeDurationMs,
+            });
 
             context.startOfficerTask(
                 createWeaponsFireBeamCannonTask(

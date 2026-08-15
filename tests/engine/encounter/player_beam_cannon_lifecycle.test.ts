@@ -8,7 +8,6 @@ import {
 } from 'vitest';
 import {
     SHIP_WEAPONS,
-    SHIP_WEAPON_TARGETING_DURATION_MS,
 } from '../../../src/engine/content/catalogs/ship_weapons';
 import {
     createNewRunState,
@@ -43,7 +42,7 @@ import {
 } from '../../../src/engine/encounter/model/event';
 
 describe('Player beamCannon lifecycle', () => {
-    it('targets, charges, fires, releases Weapons and cools down', () => {
+    it('charges, fires, releases Weapons and cools down', () => {
         const run =
             createNewRunState();
 
@@ -125,38 +124,6 @@ describe('Player beamCannon lifecycle', () => {
                 actorId: enemy.id,
             },
         });
-
-        engine.drainEvents();
-
-        engine.step(
-            SHIP_WEAPON_TARGETING_DURATION_MS -
-                1,
-        );
-
-        expect(
-            engine.getPlayerWeaponStates()[0],
-        ).toMatchObject({
-            phase:
-                SHIP_WEAPON_PHASE.TARGETING,
-
-            phaseElapsedMs:
-                SHIP_WEAPON_TARGETING_DURATION_MS -
-                1,
-        });
-
-        expect(
-            engine
-                .drainEvents()
-                .some((event) => {
-                    return (
-                        event.type ===
-                        ENCOUNTER_EVENT
-                            .PLAYER_BEAM_CANNON_CHARGING_STARTED
-                    );
-                }),
-        ).toBe(false);
-
-        engine.step(1);
 
         expect(
             engine.getPlayerWeaponStates()[0],

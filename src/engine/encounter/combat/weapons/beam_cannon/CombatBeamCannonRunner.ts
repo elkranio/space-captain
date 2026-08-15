@@ -1,6 +1,5 @@
 import {
     SHIP_WEAPONS,
-    SHIP_WEAPON_TARGETING_DURATION_MS,
 } from '../../../../content/catalogs/ship_weapons';
 import {
     SHIP_WEAPON_PHASE,
@@ -29,7 +28,7 @@ type CombatBeamCannonRunnerOptions = {
     interruptRandomOfficerTask: () => void;
 };
 
-// Owns the complete incoming-beamCannon lifecycle: enemy targeting, charging,
+// Owns the complete incoming-beamCannon lifecycle: charging,
 // threat state, hull resolution, cooldown and damage interruption.
 export default class CombatBeamCannonRunner {
     private readonly stateStore:
@@ -73,14 +72,16 @@ export default class CombatBeamCannonRunner {
                 return;
 
             case SHIP_WEAPON_PHASE.TARGETING:
-                this.advanceTargeting(
-                    actor,
-                    beamCannon,
-                    deltaMs,
+                throw new Error(
+                    `BeamCannon cannot enter targeting phase: ` +
+                        `${actor.id}/${beamCannon.id}`,
                 );
-                return;
 
             case SHIP_WEAPON_PHASE.CHARGING:
+                this.ensureAttackStarted(
+                    actor,
+                    beamCannon,
+                );
                 this.advanceCharging(
                     actor,
                     beamCannon,
@@ -109,38 +110,28 @@ export default class CombatBeamCannonRunner {
         }
     }
 
-    private advanceTargeting(
+    private ensureAttackStarted(
         actor: ShipEncounterActorState,
         beamCannon: BeamCannonState,
-        deltaMs: number,
     ): void {
-        const elapsedMs =
-            beamCannon.phaseElapsedMs + deltaMs;
+        const existingAttack =
+            this.state.combat
+                .beamCannonAttacks
+                .some((attack) => {
+                    return (
+                        attack.sourceActorId ===
+                            actor.id &&
+                        attack.sourceWeaponId ===
+                            beamCannon.id
+                    );
+                });
 
-        if (
-            elapsedMs <
-            SHIP_WEAPON_TARGETING_DURATION_MS
-        ) {
-            beamCannon.phaseElapsedMs = elapsedMs;
+        if (existingAttack) {
             return;
         }
 
-        beamCannon.phaseElapsedMs =
-            SHIP_WEAPON_TARGETING_DURATION_MS;
-
-        this.startCharging(actor, beamCannon);
-    }
-
-    private startCharging(
-        actor: ShipEncounterActorState,
-        beamCannon: BeamCannonState,
-    ): void {
         const attack =
             this.createAttack(actor, beamCannon);
-
-        beamCannon.phase =
-            SHIP_WEAPON_PHASE.CHARGING;
-        beamCannon.phaseElapsedMs = 0;
 
         this.emit({
             type:

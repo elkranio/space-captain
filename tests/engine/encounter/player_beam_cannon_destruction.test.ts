@@ -8,7 +8,6 @@ import {
 } from 'vitest';
 import {
     SHIP_WEAPONS,
-    SHIP_WEAPON_TARGETING_DURATION_MS,
 } from '../../../src/engine/content/catalogs/ship_weapons';
 import {
     createNewRunState,
@@ -74,7 +73,7 @@ describe('Player beamCannon enemy destruction', () => {
         engine.drainEvents();
 
         engine.step(
-            SHIP_WEAPON_TARGETING_DURATION_MS,
+            0,
         );
 
         engine.drainEvents();
@@ -170,7 +169,7 @@ describe('Player beamCannon enemy destruction', () => {
                     return (
                         event.type ===
                             ENCOUNTER_EVENT
-                                .PLAYER_SHIP_TARGETING_DETECTED ||
+                                .ENEMY_ATTACK_STARTED ||
                         event.type ===
                             ENCOUNTER_EVENT
                                 .MISSILE_LAUNCHED ||

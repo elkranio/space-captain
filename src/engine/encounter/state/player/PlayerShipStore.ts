@@ -338,7 +338,7 @@ export default class PlayerShipStore {
         };
     }
 
-    public startPlayerSpamTargeting(
+    public startPlayerSpamChanneling(
         weaponId: string,
     ): SpamProjectorState {
         const weapon =
@@ -392,7 +392,7 @@ export default class PlayerShipStore {
         }
 
         weapon.phase =
-            SHIP_WEAPON_PHASE.TARGETING;
+            SHIP_WEAPON_PHASE.CHANNELING;
 
         weapon.phaseElapsedMs = 0;
 
@@ -427,53 +427,36 @@ export default class PlayerShipStore {
             );
         }
 
-        switch (weapon.phase) {
-            case SHIP_WEAPON_PHASE.TARGETING:
-                weapon.phase =
-                    SHIP_WEAPON_PHASE.READY;
-
-                weapon.phaseElapsedMs = 0;
-                weapon.activeChannelId =
-                    null;
-
-                return undefined;
-
-            case SHIP_WEAPON_PHASE.CHANNELING: {
-                const channelId =
-                    weapon.activeChannelId;
-
-                if (!channelId) {
-                    throw new Error(
-                        'Player spam channel id ' +
-                            'is missing during cancellation: ' +
-                            weaponId,
-                    );
-                }
-
-                weapon.activeChannelId =
-                    null;
-
-                weapon.phase =
-                    SHIP_WEAPON_PHASE
-                        .COOLDOWN;
-
-                weapon.phaseElapsedMs = 0;
-
-                return channelId;
-            }
-
-            default:
-                throw new Error(
-                    'Cannot cancel player spam ' +
-                        'projection from phase: ' +
-                        weaponId +
-                        '/' +
-                        weapon.phase,
-                );
+        if (
+            weapon.phase !==
+            SHIP_WEAPON_PHASE.CHANNELING
+        ) {
+            throw new Error(
+                'Cannot cancel player spam ' +
+                    'projection from phase: ' +
+                    weaponId +
+                    '/' +
+                    weapon.phase,
+            );
         }
+
+        const channelId =
+            weapon.activeChannelId;
+
+        weapon.activeChannelId =
+            null;
+
+        weapon.phase =
+            channelId
+                ? SHIP_WEAPON_PHASE.COOLDOWN
+                : SHIP_WEAPON_PHASE.READY;
+
+        weapon.phaseElapsedMs = 0;
+
+        return channelId ?? undefined;
     }
 
-    public startPlayerBeamCannonTargeting(
+    public startPlayerBeamCannonCharging(
         weaponId: string,
     ): BeamCannonState {
         const weapon =
@@ -513,7 +496,7 @@ export default class PlayerShipStore {
         }
 
         weapon.phase =
-            SHIP_WEAPON_PHASE.TARGETING;
+            SHIP_WEAPON_PHASE.CHARGING;
 
         weapon.phaseElapsedMs = 0;
 

@@ -7,7 +7,6 @@ import {
 } from 'vitest';
 import {
     SHIP_WEAPONS,
-    SHIP_WEAPON_TARGETING_DURATION_MS,
 } from '../../../src/engine/content/catalogs/ship_weapons';
 import {
     OFFICER_ROLE,
@@ -55,7 +54,7 @@ describe(
     'Player spam projector',
     () => {
         it(
-            'targets an enemy, projects for the full duration and enters cooldown',
+            'projects immediately for the full duration and enters cooldown',
             () => {
                 const {
                     engine,
@@ -138,7 +137,7 @@ describe(
                 expect(projector).toMatchObject({
                     phase:
                         SHIP_WEAPON_PHASE
-                            .TARGETING,
+                            .CHANNELING,
 
                     phaseElapsedMs: 0,
 
@@ -182,16 +181,7 @@ describe(
 
                 engine.drainEvents();
 
-                engine.step(
-                    SHIP_WEAPON_TARGETING_DURATION_MS -
-                        1,
-                );
-
-                expect(
-                    engine.drainEvents(),
-                ).toEqual([]);
-
-                engine.step(1);
+                engine.step(0);
 
                 const startEvents =
                     engine.drainEvents();
@@ -336,9 +326,7 @@ describe(
 
                 engine.drainEvents();
 
-                engine.step(
-                    SHIP_WEAPON_TARGETING_DURATION_MS,
-                );
+                engine.step(0);
 
                 engine.drainEvents();
 

@@ -1,4 +1,5 @@
 // tests/app/BridgePlayerWeaponStatusMapper.test.ts
+import { SHIP_WEAPONS } from '../../src/engine/content/catalogs/ship_weapons';
 
 import {
     describe,
@@ -6,7 +7,6 @@ import {
     it,
 } from 'vitest';
 import {
-    SHIP_WEAPON_TARGETING_DURATION_MS,
 } from '../../src/engine/content/catalogs/ship_weapons';
 import {
     SHIP_WEAPON_ID,
@@ -129,7 +129,7 @@ describe('Bridge player weapon status mapper', () => {
                         .BEAM_CANNON_00,
                 phase:
                     SHIP_WEAPON_PHASE
-                        .TARGETING,
+                        .CHARGING,
                 phaseElapsedMs:
                     1250,
             };
@@ -164,11 +164,17 @@ describe('Bridge player weapon status mapper', () => {
                         .BEAM_CANNON,
                 phase:
                     SHIP_WEAPON_PHASE
-                        .TARGETING,
+                        .CHARGING,
                 initialPhaseMs:
-                    SHIP_WEAPON_TARGETING_DURATION_MS,
+                    SHIP_WEAPONS[
+                        SHIP_WEAPON_ID
+                            .BEAM_CANNON_00
+                    ].chargeDurationMs,
                 remainingPhaseMs:
-                    SHIP_WEAPON_TARGETING_DURATION_MS -
+                    SHIP_WEAPONS[
+                        SHIP_WEAPON_ID
+                            .BEAM_CANNON_00
+                    ].chargeDurationMs -
                     1250,
             },
             {

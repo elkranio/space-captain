@@ -187,11 +187,11 @@ export const BRIDGE_EVENT = {
 
     // Вражеская missile launcher
     // начала фазу подготовки/наведения.
-    MISSILE_TARGETING_WARNING_STARTED: 'missile_targeting_warning_started',
+    ENEMY_ATTACK_WARNING_TRIGGERED: 'enemy_attack_warning_triggered',
 
     // Фаза подготовки/наведения завершилась
     // или была отменена.
-    MISSILE_TARGETING_WARNING_CLEARED: 'missile_targeting_warning_cleared',
+    ENEMY_ATTACK_WARNING_CLEARED: 'enemy_attack_warning_cleared',
 
     // В encounter появилась новая
     // входящая вражеская ракета.
@@ -1008,9 +1008,9 @@ export type BridgeEventPayloadMap = {
 
     [BRIDGE_EVENT.PLAYER_SHIP_DRIVE_DISRUPTED]: undefined;
 
-    [BRIDGE_EVENT.MISSILE_TARGETING_WARNING_STARTED]: undefined;
+    [BRIDGE_EVENT.ENEMY_ATTACK_WARNING_TRIGGERED]: undefined;
 
-    [BRIDGE_EVENT.MISSILE_TARGETING_WARNING_CLEARED]: undefined;
+    [BRIDGE_EVENT.ENEMY_ATTACK_WARNING_CLEARED]: undefined;
 
     [BRIDGE_EVENT.INCOMING_MISSILE_ADDED]: BridgeIncomingMissileAddedPayload;
 

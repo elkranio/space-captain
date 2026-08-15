@@ -5,7 +5,6 @@ import { createShipDriveFixture } from '../../fixtures/engine/ship_drive_fixture
 import { describe, expect, it } from 'vitest';
 import {
     SHIP_WEAPONS,
-    SHIP_WEAPON_TARGETING_DURATION_MS,
 } from '../../../src/engine/content/catalogs/ship_weapons';
 import { SHIP_NODE_ACTOR_PRESET_ID } from '../../../src/engine/content/presets/ship_node_actors';
 import { PLAYER_SPACE_NAVIGATION_KIND } from '../../../src/engine/defs/player_location';
@@ -23,7 +22,7 @@ describe('EncounterEngine beamCannon threat snapshots', () => {
     it('derives countdown from the charging weapon', () => {
         const { engine, chargeDurationMs } = createBeamCannonEngine();
 
-        engine.step(SHIP_WEAPON_TARGETING_DURATION_MS);
+        engine.step(0);
         engine.drainEvents();
 
         expect(engine.getCombatPresentationSnapshot().beamCannonThreats).toEqual([

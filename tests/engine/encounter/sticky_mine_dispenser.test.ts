@@ -3,7 +3,6 @@
 import { createPlayerHullFixture } from '../../fixtures/engine/player_hull_fixtures';
 import { describe, expect, it } from 'vitest';
 import {
-    SHIP_WEAPON_TARGETING_DURATION_MS,
 } from '../../../src/engine/content/catalogs/ship_weapons';
 import {
     SHIP_NODE_ACTOR_PRESET_ID,
@@ -43,14 +42,14 @@ describe('Sticky mine dispenser', () => {
         } = createStickyMineEngine();
 
         engine.step(
-            SHIP_WEAPON_TARGETING_DURATION_MS,
+            0,
         );
 
         expect(engine.drainEvents()).toEqual([
             {
                 type:
                     ENCOUNTER_EVENT
-                        .PLAYER_SHIP_TARGETING_DETECTED,
+                        .ENEMY_ATTACK_STARTED,
 
                 sourceActorId: 'ship_enemy_00',
                 sourceWeaponId:
@@ -155,7 +154,7 @@ describe('Sticky mine dispenser', () => {
         });
 
         engine.step(
-            SHIP_WEAPON_TARGETING_DURATION_MS,
+            0,
         );
         engine.drainEvents();
 
@@ -217,7 +216,7 @@ describe('Sticky mine dispenser', () => {
         } = createStickyMineEngine();
 
         engine.step(
-            SHIP_WEAPON_TARGETING_DURATION_MS,
+            0,
         );
         engine.drainEvents();
 

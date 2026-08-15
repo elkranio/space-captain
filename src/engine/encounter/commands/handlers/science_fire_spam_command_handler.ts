@@ -101,7 +101,7 @@ export const scienceFireSpamCommandHandler:
             }
 
             context.stateStore
-                .startPlayerSpamTargeting(
+                .startPlayerSpamChanneling(
                     input.target.weaponId,
                 );
 

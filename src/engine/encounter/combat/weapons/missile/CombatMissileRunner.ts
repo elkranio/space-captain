@@ -2,7 +2,6 @@
 
 import {
     SHIP_WEAPONS,
-    SHIP_WEAPON_TARGETING_DURATION_MS,
 } from '../../../../content/catalogs/ship_weapons';
 import { ENCOUNTER_TEAM } from '../../../../defs/encounter_team';
 import {
@@ -407,14 +406,14 @@ export default class CombatMissileRunner {
 
         if (
             elapsedMs <
-            SHIP_WEAPON_TARGETING_DURATION_MS
+            this.getLauncherDefinition(launcher).targetingDurationMs
         ) {
             launcher.phaseElapsedMs = elapsedMs;
             return;
         }
 
         launcher.phaseElapsedMs =
-            SHIP_WEAPON_TARGETING_DURATION_MS;
+            this.getLauncherDefinition(launcher).targetingDurationMs;
 
         this.launchEnemyMissile(
             actor,

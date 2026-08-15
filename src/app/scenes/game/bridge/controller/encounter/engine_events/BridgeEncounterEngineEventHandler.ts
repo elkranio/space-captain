@@ -84,7 +84,7 @@ export default class BridgeEncounterEngineEventHandler {
     public clearCombatPresentation(): void {
         this.eventBus.emit(
             BRIDGE_EVENT
-                .MISSILE_TARGETING_WARNING_CLEARED,
+                .ENEMY_ATTACK_WARNING_CLEARED,
         );
 
         this.eventBus.emit(
@@ -350,8 +350,8 @@ export default class BridgeEncounterEngineEventHandler {
 
                 return;
 
-            case ENCOUNTER_EVENT.PLAYER_SHIP_TARGETING_DETECTED:
-                this.eventBus.emit(BRIDGE_EVENT.MISSILE_TARGETING_WARNING_STARTED);
+            case ENCOUNTER_EVENT.ENEMY_ATTACK_STARTED:
+                this.eventBus.emit(BRIDGE_EVENT.ENEMY_ATTACK_WARNING_TRIGGERED);
                 return;
 
             case ENCOUNTER_EVENT.STICKY_MINE_ATTACHED:
@@ -372,11 +372,6 @@ export default class BridgeEncounterEngineEventHandler {
                             event.mine.target.kind,
                     );
                 }
-
-                this.eventBus.emit(
-                    BRIDGE_EVENT
-                        .MISSILE_TARGETING_WARNING_CLEARED,
-                );
 
                 this.eventBus.emit(
                     BRIDGE_EVENT.STICKY_MINE_ADDED,
@@ -619,7 +614,7 @@ export default class BridgeEncounterEngineEventHandler {
             case ENCOUNTER_EVENT.ENEMY_SHIP_DESTROYED:
                 this.eventBus.emit(
                     BRIDGE_EVENT
-                        .MISSILE_TARGETING_WARNING_CLEARED,
+                        .ENEMY_ATTACK_WARNING_CLEARED,
                 );
 
                 // View фиксирует position
@@ -656,8 +651,6 @@ export default class BridgeEncounterEngineEventHandler {
                     );
                 }
 
-                this.eventBus.emit(BRIDGE_EVENT.MISSILE_TARGETING_WARNING_CLEARED);
-
                 this.eventBus.emit(BRIDGE_EVENT.INCOMING_MISSILE_ADDED, {
                     projectileId: event.projectile.id,
 
@@ -671,8 +664,6 @@ export default class BridgeEncounterEngineEventHandler {
                 return;
 
             case ENCOUNTER_EVENT.BEAM_CANNON_ATTACK_STARTED:
-                this.eventBus.emit(BRIDGE_EVENT.MISSILE_TARGETING_WARNING_CLEARED);
-
                 this.eventBus.emit(BRIDGE_EVENT.BEAM_CANNON_THREAT_ADDED, {
                     attackId: event.attack.id,
 
@@ -684,10 +675,6 @@ export default class BridgeEncounterEngineEventHandler {
 
 
             case ENCOUNTER_EVENT.SPAM_CHANNEL_STARTED:
-                this.eventBus.emit(
-                    BRIDGE_EVENT.MISSILE_TARGETING_WARNING_CLEARED,
-                );
-
                 this.eventBus.emit(
                     BRIDGE_EVENT.SPAM_CHANNEL_STARTED,
                     {

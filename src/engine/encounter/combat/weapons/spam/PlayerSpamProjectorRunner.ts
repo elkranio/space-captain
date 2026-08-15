@@ -2,7 +2,6 @@
 
 import {
     SHIP_WEAPONS,
-    SHIP_WEAPON_TARGETING_DURATION_MS,
 } from '../../../../content/catalogs/ship_weapons';
 import {
     ENCOUNTER_TEAM,
@@ -50,9 +49,9 @@ type PlayerSpamProjectorRunnerOptions = {
 
 // Owns the player spam-projector lifecycle.
 //
-// Targeting is officer-driven and therefore uses the player officer
-// performance multiplier. Once the channel exists, its twenty-second
-// physical lifetime advances in real encounter time.
+// The projection starts directly in CHANNELING.
+// Its physical lifetime advances in real encounter time while Science
+// remains occupied for the active operation.
 //
 // Active channels are exposed through the unified crew-progress effect
 // query. CrewPerformanceResolver applies the content-defined slowdown to the
@@ -149,7 +148,6 @@ export default class PlayerSpamProjectorRunner {
 
     public advanceTask(
         task: ScienceFireSpamTaskState,
-        crewDeltaMs: number,
         worldDeltaMs: number,
     ): void {
         if (!this.hasValidTarget(task)) {
@@ -165,61 +163,43 @@ export default class PlayerSpamProjectorRunner {
             return;
         }
 
-        switch (projector.phase) {
-            case SHIP_WEAPON_PHASE.TARGETING:
-                this.advanceTargeting(
-                    task,
-                    projector,
-                    crewDeltaMs,
-                );
-
-                return;
-
-            case SHIP_WEAPON_PHASE.CHANNELING:
-                this.advanceChanneling(
-                    task,
-                    projector,
-                    worldDeltaMs,
-                );
-
-                return;
-
-            default:
-                throw new Error(
-                    'Player spam task has invalid ' +
-                        'weapon phase: ' +
-                        task.id +
-                        '/' +
-                        projector.id +
-                        '/' +
-                        projector.phase,
-                );
+        if (
+            projector.phase !==
+            SHIP_WEAPON_PHASE.CHANNELING
+        ) {
+            throw new Error(
+                'Player spam task has invalid ' +
+                    'weapon phase: ' +
+                    task.id +
+                    '/' +
+                    projector.id +
+                    '/' +
+                    projector.phase,
+            );
         }
+
+        this.ensureChannelStarted(
+            task,
+            projector,
+        );
+
+        this.advanceChanneling(
+            task,
+            projector,
+            worldDeltaMs,
+        );
     }
 
-    private advanceTargeting(
+    private ensureChannelStarted(
         task: ScienceFireSpamTaskState,
         projector: SpamProjectorState,
-        deltaMs: number,
     ): void {
-        const elapsedMs =
-            projector.phaseElapsedMs +
-            deltaMs;
-
         if (
-            elapsedMs <
-            SHIP_WEAPON_TARGETING_DURATION_MS
+            projector.activeChannelId !==
+            null
         ) {
-            projector.phaseElapsedMs =
-                elapsedMs;
-
             return;
         }
-
-        projector.phase =
-            SHIP_WEAPON_PHASE.CHANNELING;
-
-        projector.phaseElapsedMs = 0;
 
         projector.activeChannelId =
             'player_spam:' +

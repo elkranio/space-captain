@@ -1,6 +1,5 @@
 import {
     SHIP_WEAPONS,
-    SHIP_WEAPON_TARGETING_DURATION_MS,
 } from '../../../../content/catalogs/ship_weapons';
 import { ENCOUNTER_TEAM } from '../../../../defs/encounter_team';
 import {
@@ -202,14 +201,16 @@ export default class CombatStickyMineRunner {
                 return;
 
             case SHIP_WEAPON_PHASE.TARGETING:
-                this.advanceTargeting(
-                    actor,
-                    dispenser,
-                    deltaMs,
+                throw new Error(
+                    `Sticky-mine dispenser cannot enter targeting phase: ` +
+                        `${actor.id}/${dispenser.id}`,
                 );
-                return;
 
             case SHIP_WEAPON_PHASE.DISPENSING:
+                this.ensureDispensingStarted(
+                    actor,
+                    dispenser,
+                );
                 this.advanceDispensing(
                     actor,
                     dispenser,
@@ -428,57 +429,21 @@ export default class CombatStickyMineRunner {
         });
     }
 
-    private advanceTargeting(
+    private ensureDispensingStarted(
         actor: ShipEncounterActorState,
         dispenser: StickyMineDispenserState,
-        deltaMs: number,
     ): void {
-        const elapsedMs =
-            dispenser.phaseElapsedMs +
-            deltaMs;
-
         if (
-            elapsedMs <
-            SHIP_WEAPON_TARGETING_DURATION_MS
+            dispenser.dispensedMineCount >
+            0
         ) {
-            dispenser.phaseElapsedMs = elapsedMs;
             return;
         }
-
-        const overflowMs =
-            elapsedMs -
-            SHIP_WEAPON_TARGETING_DURATION_MS;
-
-        dispenser.phaseElapsedMs =
-            SHIP_WEAPON_TARGETING_DURATION_MS;
-
-        this.startDispensing(
-            actor,
-            dispenser,
-            overflowMs,
-        );
-    }
-
-    private startDispensing(
-        actor: ShipEncounterActorState,
-        dispenser: StickyMineDispenserState,
-        targetingOverflowMs: number,
-    ): void {
-        dispenser.phase =
-            SHIP_WEAPON_PHASE.DISPENSING;
-        dispenser.phaseElapsedMs = 0;
-        dispenser.dispensedMineCount = 0;
 
         this.attachEnemyMine(
             actor,
             dispenser,
-            targetingOverflowMs,
-        );
-
-        this.advanceDispensing(
-            actor,
-            dispenser,
-            targetingOverflowMs,
+            0,
         );
     }
 

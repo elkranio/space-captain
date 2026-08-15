@@ -51,7 +51,7 @@ export const ENCOUNTER_EVENT = {
 
     PLAYER_SHIP_DRIVE_STATE_CHANGED: 'player_ship_drive_state_changed',
     PLAYER_SHIP_DRIVE_DISRUPTED: 'player_ship_drive_disrupted',
-    PLAYER_SHIP_TARGETING_DETECTED: 'player_ship_targeting_detected',
+    ENEMY_ATTACK_STARTED: 'enemy_attack_started',
 
     PLAYER_BEAM_CANNON_CHARGING_STARTED:
         'player_beam_cannon_charging_started',
@@ -261,8 +261,8 @@ export type PlayerShipDriveDisruptedEvent = {
     navigation: PlayerSpaceNavigationState;
 };
 
-export type PlayerShipTargetingDetectedEvent = {
-    type: typeof ENCOUNTER_EVENT.PLAYER_SHIP_TARGETING_DETECTED;
+export type EnemyAttackStartedEvent = {
+    type: typeof ENCOUNTER_EVENT.ENEMY_ATTACK_STARTED;
 
     sourceActorId: string;
     sourceWeaponId: string;
@@ -539,7 +539,7 @@ export type EncounterEvent =
     | PlayerShieldEndedEvent
     | PlayerShipDriveStateChangedEvent
     | PlayerShipDriveDisruptedEvent
-    | PlayerShipTargetingDetectedEvent
+    | EnemyAttackStartedEvent
     | PlayerBeamCannonChargingStartedEvent
     | PlayerBeamCannonFiredEvent
     | PlayerMissileLaunchedEvent

@@ -13,7 +13,7 @@ import {
 import { ENCOUNTER_EVENT } from '../../src/engine/encounter/model/event';
 
 describe('BridgeEncounterEngineEventHandler beamCannon resolution', () => {
-    it('clears the common warning and adds a beamCannon threat when charging starts', () => {
+    it('adds a beamCannon threat when charging starts', () => {
         const { handler, emit } = createHandler();
 
         handler.handle([
@@ -25,10 +25,6 @@ describe('BridgeEncounterEngineEventHandler beamCannon resolution', () => {
         ]);
 
         expect(emit.mock.calls).toEqual([
-            [
-                BRIDGE_EVENT.MISSILE_TARGETING_WARNING_CLEARED,
-            ],
-
             [
                 BRIDGE_EVENT.BEAM_CANNON_THREAT_ADDED,
 

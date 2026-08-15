@@ -96,11 +96,6 @@ describe('Bridge sticky-mine event contract', () => {
         expect(emit.mock.calls).toEqual([
             [
                 BRIDGE_EVENT
-                    .MISSILE_TARGETING_WARNING_CLEARED,
-            ],
-
-            [
-                BRIDGE_EVENT
                     .STICKY_MINE_ADDED,
 
                 {

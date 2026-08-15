@@ -89,7 +89,7 @@ describe('Bridge enemy destruction flow', () => {
         ).toEqual([
             [
                 BRIDGE_EVENT
-                    .MISSILE_TARGETING_WARNING_CLEARED,
+                    .ENEMY_ATTACK_WARNING_CLEARED,
             ],
 
             [

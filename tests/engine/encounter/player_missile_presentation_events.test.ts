@@ -1,4 +1,5 @@
 // tests/engine/encounter/player_missile_presentation_events.test.ts
+import { getTestMissileTargetingDurationMs } from './combat_test_support';
 
 import { createPlayerHullFixture } from '../../fixtures/engine/player_hull_fixtures';
 import {
@@ -8,7 +9,6 @@ import {
 } from 'vitest';
 import {
     SHIP_WEAPONS,
-    SHIP_WEAPON_TARGETING_DURATION_MS,
 } from '../../../src/engine/content/catalogs/ship_weapons';
 import {
     createNewRunState,
@@ -406,6 +406,6 @@ function launchMissile(
     });
 
     engine.step(
-        SHIP_WEAPON_TARGETING_DURATION_MS,
+        getTestMissileTargetingDurationMs(),
     );
 }

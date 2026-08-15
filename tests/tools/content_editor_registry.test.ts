@@ -16,7 +16,6 @@ import shieldGeneratorData from '../../src/engine/content/data/shield_generators
 import shipBehaviorData from '../../src/engine/content/data/ship_behaviors.json';
 import shipChassisData from '../../src/engine/content/data/ship_chassis.json';
 import shipDriveData from '../../src/engine/content/data/ship_drives.json';
-import shipWeaponRulesData from '../../src/engine/content/data/ship_weapon_rules.json';
 import missileLauncherData from '../../src/engine/content/data/missile_launchers.json';
 import beamCannonData from '../../src/engine/content/data/beam_cannons.json';
 import spamProjectorData from '../../src/engine/content/data/spam_projectors.json';
@@ -117,17 +116,6 @@ describe(
 
                         label:
                             'Shared',
-
-                        canAdd: false,
-                        canDelete: false,
-                    },
-                    {
-                        id:
-                            CONTENT_COLLECTION_ID
-                                .SHIP_WEAPON_RULES,
-
-                        label:
-                            'Ship Weapon Rules',
 
                         canAdd: false,
                         canDelete: false,
@@ -361,9 +349,6 @@ describe(
                         }),
                 ).toEqual([
                     CONTENT_COLLECTION_ID
-                        .SHIP_WEAPON_RULES,
-
-                    CONTENT_COLLECTION_ID
                         .MISSILE_LAUNCHERS,
 
                     CONTENT_COLLECTION_ID
@@ -422,11 +407,6 @@ describe(
                         CONTENT_COLLECTION_ID
                             .OFFICER_TASKS_SHARED,
                         sharedOfficerTaskData,
-                    ],
-                    [
-                        CONTENT_COLLECTION_ID
-                            .SHIP_WEAPON_RULES,
-                        shipWeaponRulesData,
                     ],
                     [
                         CONTENT_COLLECTION_ID

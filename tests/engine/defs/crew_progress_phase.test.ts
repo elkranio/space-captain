@@ -45,7 +45,7 @@ describe(
                         SHIP_WEAPON_PHASE
                             .TARGETING,
                     ),
-                ).toBe(true);
+                ).toBe(false);
 
                 expect(
                     doesShipWeaponPhaseAdvanceWithCrew(
@@ -70,7 +70,7 @@ describe(
                         SHIP_WEAPON_PHASE
                             .TARGETING,
                     ),
-                ).toBe(true);
+                ).toBe(false);
 
                 expect(
                     doesShipWeaponPhaseAdvanceWithCrew(
@@ -97,7 +97,7 @@ describe(
                         SHIP_WEAPON_PHASE
                             .TARGETING,
                     ),
-                ).toBe(true);
+                ).toBe(false);
 
                 // Channeling still occupies Science, but its physical
                 // lifetime advances in raw encounter time.

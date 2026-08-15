@@ -1,4 +1,5 @@
 // tests/engine/encounter/enemy_actor_combat_cleanup.test.ts
+import { getTestMissileTargetingDurationMs } from './combat_test_support';
 
 import {
     describe,
@@ -6,7 +7,6 @@ import {
     it,
 } from 'vitest';
 import {
-    SHIP_WEAPON_TARGETING_DURATION_MS,
 } from '../../../src/engine/content/catalogs/ship_weapons';
 import {
     OFFICER_ROLE,
@@ -44,7 +44,7 @@ describe('Enemy actor combat cleanup', () => {
         );
 
         engine.step(
-            SHIP_WEAPON_TARGETING_DURATION_MS,
+            getTestMissileTargetingDurationMs(),
         );
 
         expect(
@@ -231,7 +231,7 @@ it('flushes a new sticky mine before an older missile destroys the target in the
     );
 
     engine.step(
-        SHIP_WEAPON_TARGETING_DURATION_MS,
+        getTestMissileTargetingDurationMs(),
     );
 
     const killerMissile =
@@ -486,7 +486,7 @@ it('flushes a new missile before an older sticky mine destroys the target in the
     engine.drainEvents();
 
     engine.step(
-        SHIP_WEAPON_TARGETING_DURATION_MS,
+        getTestMissileTargetingDurationMs(),
     );
 
     expect(

@@ -4,10 +4,6 @@ import missileLauncherTuningData from '../data/missile_launchers.json';
 import beamCannonTuningData from '../data/beam_cannons.json';
 import spamProjectorTuningData from '../data/spam_projectors.json';
 import stickyMineDispenserTuningData from '../data/sticky_mine_dispensers.json';
-import shipWeaponRulesData from '../data/ship_weapon_rules.json';
-import {
-    SHIP_WEAPON_RULES_SCHEMA,
-} from '../schemas/ship_weapon_rules';
 import {
     BEAM_CANNON_TUNING_SCHEMA,
     MISSILE_LAUNCHER_TUNING_SCHEMA,
@@ -24,11 +20,6 @@ import {
     type SpamProjectorDefinition,
     type StickyMineDispenserDefinition,
 } from '../../defs/ship_weapon';
-
-const SHIP_WEAPON_RULES =
-    SHIP_WEAPON_RULES_SCHEMA.parse(
-        shipWeaponRulesData,
-    );
 
 const MISSILE_LAUNCHER_TUNING =
     MISSILE_LAUNCHER_TUNING_SCHEMA.parse(
@@ -49,13 +40,6 @@ const STICKY_MINE_DISPENSER_TUNING =
     STICKY_MINE_DISPENSER_TUNING_SCHEMA.parse(
         stickyMineDispenserTuningData,
     );
-
-// Любое enemy weapon сначала проходит одинаковый targeting.
-// Это не даёт определить тип атаки по длительности warning lamp.
-export const SHIP_WEAPON_TARGETING_DURATION_MS =
-    SHIP_WEAPON_RULES
-        .enemy_targeting
-        .durationMs;
 
 const MISSILE_LAUNCHERS =
     Object.entries(

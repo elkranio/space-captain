@@ -1,5 +1,5 @@
 import {
-    SHIP_WEAPON_TARGETING_DURATION_MS,
+    SHIP_WEAPONS,
 } from '../../../../content/catalogs/ship_weapons';
 import { ENCOUNTER_TEAM } from '../../../../defs/encounter_team';
 import {
@@ -86,13 +86,30 @@ export default class PlayerMissileLauncherRunner {
         launcher: MissileLauncherState,
         deltaMs: number,
     ): void {
+        const definition =
+            SHIP_WEAPONS[
+                launcher.weaponId
+            ];
+
+        if (
+            definition.kind !==
+            SHIP_WEAPON_KIND.MISSILE_LAUNCHER
+        ) {
+            throw new Error(
+                'Player missile launcher kind does not match definition: ' +
+                    launcher.id +
+                    '/' +
+                    launcher.weaponId,
+            );
+        }
+
         const elapsedMs =
             launcher.phaseElapsedMs +
             deltaMs;
 
         if (
             elapsedMs <
-            SHIP_WEAPON_TARGETING_DURATION_MS
+            definition.targetingDurationMs
         ) {
             launcher.phaseElapsedMs =
                 elapsedMs;

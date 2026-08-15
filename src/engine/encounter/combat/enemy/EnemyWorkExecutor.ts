@@ -13,6 +13,7 @@ import {
     OFFICER_TASK_KIND,
 } from '../../../defs/officer_task';
 import {
+    SHIP_WEAPON_KIND,
     SHIP_WEAPON_PHASE,
 } from '../../../defs/ship_weapon';
 import {
@@ -525,14 +526,50 @@ export default class EnemyWorkExecutor {
             intent,
         );
 
-        weapon.phase =
-            SHIP_WEAPON_PHASE.TARGETING;
+        switch (weapon.kind) {
+            case SHIP_WEAPON_KIND
+                .MISSILE_LAUNCHER:
+                weapon.phase =
+                    SHIP_WEAPON_PHASE.TARGETING;
+                break;
+
+            case SHIP_WEAPON_KIND
+                .BEAM_CANNON:
+                weapon.phase =
+                    SHIP_WEAPON_PHASE.CHARGING;
+                break;
+
+            case SHIP_WEAPON_KIND
+                .SPAM_PROJECTOR:
+                weapon.phase =
+                    SHIP_WEAPON_PHASE.CHANNELING;
+                weapon.activeChannelId = null;
+                break;
+
+            case SHIP_WEAPON_KIND
+                .STICKY_MINE_DISPENSER:
+                weapon.phase =
+                    SHIP_WEAPON_PHASE.DISPENSING;
+                weapon.dispensedMineCount = 0;
+                break;
+
+            default: {
+                const exhaustiveWeapon:
+                    never = weapon;
+
+                throw new Error(
+                    'Unhandled enemy weapon kind: ' +
+                        String(exhaustiveWeapon),
+                );
+            }
+        }
+
         weapon.phaseElapsedMs = 0;
 
         this.emit({
             type:
                 ENCOUNTER_EVENT
-                    .PLAYER_SHIP_TARGETING_DETECTED,
+                    .ENEMY_ATTACK_STARTED,
 
             sourceActorId: actor.id,
             sourceWeaponId: weapon.id,

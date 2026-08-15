@@ -23,6 +23,8 @@ describe('MissileLauncherFactory', () => {
 
             flightDurationMs: 12000,
 
+            targetingDurationMs: 3000,
+
             ammoCapacity: 5,
 
             cooldownDurationMs: 15000,

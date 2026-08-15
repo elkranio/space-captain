@@ -16,9 +16,10 @@ const TARGETING_WARNING_LAMP = {
     dimAlpha: 0.15,
 
     blinkDurationMs: 220,
+    blinkRepeatCount: 5,
 } as const;
 
-// Временный bridge indicator ракетного наведения.
+// Временный bridge indicator начала вражеской атаки.
 //
 // Пока используется Phaser rectangle.
 // Позже его можно заменить на sprite,
@@ -51,15 +52,15 @@ export default class BridgeTargetingWarningView {
         // но перекрывается barks и UI-окнами.
         this.scene.layers.get('bridge').add(this.lamp);
 
-        this.eventBus.on(BRIDGE_EVENT.MISSILE_TARGETING_WARNING_STARTED, this.start, this);
+        this.eventBus.on(BRIDGE_EVENT.ENEMY_ATTACK_WARNING_TRIGGERED, this.start, this);
 
-        this.eventBus.on(BRIDGE_EVENT.MISSILE_TARGETING_WARNING_CLEARED, this.clear, this);
+        this.eventBus.on(BRIDGE_EVENT.ENEMY_ATTACK_WARNING_CLEARED, this.clear, this);
     }
 
     public destroy(): void {
-        this.eventBus.off(BRIDGE_EVENT.MISSILE_TARGETING_WARNING_STARTED, this.start, this);
+        this.eventBus.off(BRIDGE_EVENT.ENEMY_ATTACK_WARNING_TRIGGERED, this.start, this);
 
-        this.eventBus.off(BRIDGE_EVENT.MISSILE_TARGETING_WARNING_CLEARED, this.clear, this);
+        this.eventBus.off(BRIDGE_EVENT.ENEMY_ATTACK_WARNING_CLEARED, this.clear, this);
 
         this.stopBlinkTween();
 
@@ -80,7 +81,18 @@ export default class BridgeTargetingWarningView {
             ease: 'Linear',
 
             yoyo: true,
-            repeat: -1,
+            repeat:
+                TARGETING_WARNING_LAMP
+                    .blinkRepeatCount,
+
+            onComplete: () => {
+                this.blinkTween =
+                    undefined;
+
+                this.lamp
+                    .setVisible(false)
+                    .setAlpha(0);
+            },
         });
     }
 

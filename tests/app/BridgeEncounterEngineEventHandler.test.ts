@@ -155,7 +155,7 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
         expect(emit.mock.calls).toEqual([
             [
                 BRIDGE_EVENT
-                    .MISSILE_TARGETING_WARNING_CLEARED,
+                    .ENEMY_ATTACK_WARNING_CLEARED,
             ],
 
             [
@@ -210,7 +210,7 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
         ]);
     });
 
-    it('maps targeting and missile launch to bridge presentation events', () => {
+    it('maps enemy attack start and missile launch to bridge presentation events', () => {
         const runtime = new GameRuntime();
 
         const initialHull =
@@ -229,7 +229,7 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
 
         handler.handle([
             {
-                type: ENCOUNTER_EVENT.PLAYER_SHIP_TARGETING_DETECTED,
+                type: ENCOUNTER_EVENT.ENEMY_ATTACK_STARTED,
 
                 sourceActorId: 'ship_enemy_00',
 
@@ -251,9 +251,7 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
         ).toBe(initialHull);
 
         expect(emit.mock.calls).toEqual([
-            [BRIDGE_EVENT.MISSILE_TARGETING_WARNING_STARTED],
-
-            [BRIDGE_EVENT.MISSILE_TARGETING_WARNING_CLEARED],
+            [BRIDGE_EVENT.ENEMY_ATTACK_WARNING_TRIGGERED],
 
             [
                 BRIDGE_EVENT.INCOMING_MISSILE_ADDED,

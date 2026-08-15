@@ -6,7 +6,6 @@ import {
     it,
 } from 'vitest';
 import {
-    SHIP_WEAPON_TARGETING_DURATION_MS,
 } from '../../../src/engine/content/catalogs/ship_weapons';
 import {
     getTimedOfficerTaskDurationMs,
@@ -433,7 +432,7 @@ function activatePlayerSpam(
     setup.engine.drainEvents();
 
     setup.engine.step(
-        SHIP_WEAPON_TARGETING_DURATION_MS,
+        0,
     );
 
     const started =

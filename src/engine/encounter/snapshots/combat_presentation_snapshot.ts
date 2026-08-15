@@ -8,7 +8,6 @@ import {
 } from '../../content/catalogs/defense_turrets';
 import {
     SHIP_WEAPONS,
-    SHIP_WEAPON_TARGETING_DURATION_MS,
 } from '../../content/catalogs/ship_weapons';
 import type {
     PowerCoreState,
@@ -592,7 +591,23 @@ function getWeaponPhaseDurationMs(
             return undefined;
 
         case SHIP_WEAPON_PHASE.TARGETING:
-            return SHIP_WEAPON_TARGETING_DURATION_MS;
+            if (
+                definition.kind !==
+                    SHIP_WEAPON_KIND
+                        .MISSILE_LAUNCHER ||
+                weapon.kind !==
+                    SHIP_WEAPON_KIND
+                        .MISSILE_LAUNCHER
+            ) {
+                throw new Error(
+                    'Only player missile launcher can be ' +
+                        'in targeting phase: ' +
+                        weapon.id,
+                );
+            }
+
+            return definition
+                .targetingDurationMs;
 
         case SHIP_WEAPON_PHASE.CHARGING:
             if (
@@ -645,8 +660,8 @@ function getWeaponPhaseDurationMs(
                 );
             }
 
-            // Первая мина выходит при завершении TARGETING.
-            // DISPENSING покрывает только интервалы
+            // Первая мина выходит в начале DISPENSING.
+            // Duration покрывает только интервалы
             // между оставшимися минами salvo.
             const plannedMineCount =
                 Math.min(

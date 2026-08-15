@@ -1,5 +1,4 @@
 import {
-    SHIP_WEAPON_TARGETING_DURATION_MS,
     SHIP_WEAPONS,
 } from '../../../../content/catalogs/ship_weapons';
 import { ENCOUNTER_TEAM } from '../../../../defs/encounter_team';
@@ -52,7 +51,7 @@ type PlayerBeamCannonRunnerOptions = {
 };
 
 // Owns the active installed player beamCannon lifecycle:
-// targeting -> charging -> whole-ship shield/hull impact -> cooldown.
+// charging -> whole-ship shield/hull impact -> cooldown.
 //
 // Node/sector targeting remains intentionally absent in this slice.
 export default class PlayerBeamCannonRunner {
@@ -80,83 +79,25 @@ export default class PlayerBeamCannonRunner {
             return;
         }
 
-        switch (beamCannon.phase) {
-            case SHIP_WEAPON_PHASE.TARGETING:
-                this.advanceTargeting(
-                    task,
-                    beamCannon,
-                    deltaMs,
-                );
-                return;
-
-            case SHIP_WEAPON_PHASE.CHARGING:
-                this.advanceCharging(
-                    task,
-                    beamCannon,
-                    deltaMs,
-                );
-                return;
-
-            case SHIP_WEAPON_PHASE.READY:
-            case SHIP_WEAPON_PHASE.CHANNELING:
-            case SHIP_WEAPON_PHASE.DISPENSING:
-            case SHIP_WEAPON_PHASE.COOLDOWN:
-                throw new Error(
-                    'Player beamCannon task has invalid weapon phase: ' +
-                        `${task.id}/` +
-                        `${beamCannon.id}/` +
-                        `${beamCannon.phase}`,
-                );
-
-            default:
-                return assertNever(
-                    beamCannon.phase,
-                );
-        }
-    }
-
-    private advanceTargeting(
-        task: WeaponsFireBeamCannonTaskState,
-        beamCannon: BeamCannonState,
-        deltaMs: number,
-    ): void {
-        const elapsedMs =
-            beamCannon.phaseElapsedMs +
-            deltaMs;
-
         if (
-            elapsedMs <
-            SHIP_WEAPON_TARGETING_DURATION_MS
+            beamCannon.phase !==
+            SHIP_WEAPON_PHASE.CHARGING
         ) {
-            beamCannon.phaseElapsedMs =
-                elapsedMs;
-
-            return;
+            throw new Error(
+                'Player beamCannon task has invalid weapon phase: ' +
+                    task.id +
+                    '/' +
+                    beamCannon.id +
+                    '/' +
+                    beamCannon.phase,
+            );
         }
 
-        const definition =
-            this.getDefinition(beamCannon);
-
-        beamCannon.phase =
-            SHIP_WEAPON_PHASE.CHARGING;
-
-        // Targeting overflow is not carried into charging.
-        beamCannon.phaseElapsedMs = 0;
-
-        this.options.emit({
-            type:
-                ENCOUNTER_EVENT
-                    .PLAYER_BEAM_CANNON_CHARGING_STARTED,
-
-            weaponId:
-                beamCannon.id,
-
-            targetActorId:
-                task.targetActorId,
-
-            chargeDurationMs:
-                definition.chargeDurationMs,
-        });
+        this.advanceCharging(
+            task,
+            beamCannon,
+            deltaMs,
+        );
     }
 
     private advanceCharging(
@@ -338,12 +279,4 @@ export default class PlayerBeamCannonRunner {
 
         return definition;
     }
-}
-
-function assertNever(
-    value: never,
-): never {
-    throw new Error(
-        `Unhandled player beamCannon phase: ${String(value)}`,
-    );
 }

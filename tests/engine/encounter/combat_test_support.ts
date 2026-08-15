@@ -8,6 +8,9 @@ import {
     createStationAndBeaconNodeFixture,
 } from '../../fixtures/engine/space_node_fixtures';
 import {
+    SHIP_WEAPONS,
+} from '../../../src/engine/content/catalogs/ship_weapons';
+import {
     SHIP_NODE_ACTOR_PRESET_ID,
 } from '../../../src/engine/content/presets/ship_node_actors';
 import {
@@ -49,6 +52,13 @@ import {
 import type {
     EncounterState,
 } from '../../../src/engine/encounter/model/state';
+
+export function getTestMissileTargetingDurationMs(): number {
+    return SHIP_WEAPONS[
+        SHIP_WEAPON_ID
+            .MISSILE_LAUNCHER_00
+    ].targetingDurationMs;
+}
 
 export type AnchoredPlayerCombatTestSetup = {
     engine: EncounterEngine;

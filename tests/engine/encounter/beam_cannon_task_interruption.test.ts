@@ -5,7 +5,6 @@ import { createShipDriveFixture } from '../../fixtures/engine/ship_drive_fixture
 import { describe, expect, it } from 'vitest';
 import {
     SHIP_WEAPONS,
-    SHIP_WEAPON_TARGETING_DURATION_MS,
 } from '../../../src/engine/content/catalogs/ship_weapons';
 import { SHIP_NODE_ACTOR_PRESET_ID } from '../../../src/engine/content/presets/ship_node_actors';
 import { OFFICER_ROLE } from '../../../src/engine/defs/officer';
@@ -157,11 +156,11 @@ function createBeamCannonEngine(randomValues: number[]) {
 }
 
 function startBeamCannonCharging(engine: EncounterEngine): void {
-    engine.step(SHIP_WEAPON_TARGETING_DURATION_MS);
+    engine.step(0);
 
     expect(engine.drainEvents()).toEqual([
         {
-            type: ENCOUNTER_EVENT.PLAYER_SHIP_TARGETING_DETECTED,
+            type: ENCOUNTER_EVENT.ENEMY_ATTACK_STARTED,
 
             sourceActorId: 'ship_enemy_00',
             sourceWeaponId: 'beam_cannon_00',

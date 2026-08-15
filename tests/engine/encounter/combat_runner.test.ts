@@ -2,6 +2,7 @@ import {
     MISSILE_SIGNATURE,
 } from '../../../src/engine/defs/missile';
 // tests/engine/encounter/combat_runner.test.ts
+import { getTestMissileTargetingDurationMs } from './combat_test_support';
 
 import {
     createPlayerHullFixture } from '../../fixtures/engine/player_hull_fixtures';
@@ -9,7 +10,6 @@ import { createShipDriveFixture } from '../../fixtures/engine/ship_drive_fixture
 import { describe, expect, it } from 'vitest';
 import {
     SHIP_WEAPONS,
-    SHIP_WEAPON_TARGETING_DURATION_MS,
 } from '../../../src/engine/content/catalogs/ship_weapons';
 import { SHIP_NODE_ACTOR_PRESET_ID } from '../../../src/engine/content/presets/ship_node_actors';
 import { PLAYER_SPACE_NAVIGATION_KIND } from '../../../src/engine/defs/player_location';
@@ -103,7 +103,7 @@ describe('CombatRunner', () => {
 
         expect(engine.drainEvents()).toEqual([
             {
-                type: ENCOUNTER_EVENT.PLAYER_SHIP_TARGETING_DETECTED,
+                type: ENCOUNTER_EVENT.ENEMY_ATTACK_STARTED,
 
                 sourceActorId: enemy.id,
                 sourceWeaponId: launcher.id,
@@ -114,7 +114,7 @@ describe('CombatRunner', () => {
 
         expect(launcher.phaseElapsedMs).toBe(1);
 
-        engine.step(SHIP_WEAPON_TARGETING_DURATION_MS - launcher.phaseElapsedMs);
+        engine.step(getTestMissileTargetingDurationMs() - launcher.phaseElapsedMs);
 
         expect(engine.drainEvents()).toEqual([
             {
@@ -257,7 +257,7 @@ describe('CombatRunner', () => {
         expect(launcher.phase).toBe(SHIP_WEAPON_PHASE.READY);
     });
 
-    it('runs an enemy beamCannon through universal targeting, charging, fire and cooldown', () => {
+    it('runs an enemy beamCannon directly through charging, fire and cooldown', () => {
         const { node, stationId } = createSingleStationNodeFixture();
 
         const nodeEnemy = ShipNodeActorFactory.create({
@@ -287,7 +287,10 @@ describe('CombatRunner', () => {
         const [loadedEvent] = engine.drainEvents();
 
         if (loadedEvent.type !== ENCOUNTER_EVENT.ENCOUNTER_LOADED) {
-            throw new Error(`Expected encounter loaded event, received: ` + `${loadedEvent.type}`);
+            throw new Error(
+                `Expected encounter loaded event, received: ` +
+                    `${loadedEvent.type}`,
+            );
         }
 
         const state = getMutableEncounterStateForTest(engine);
@@ -304,29 +307,6 @@ describe('CombatRunner', () => {
             throw new Error('Expected beamCannon weapon definition');
         }
 
-        expect(state.combat.projectiles).toEqual([]);
-        expect(state.combat.beamCannonAttacks).toEqual([]);
-
-        expect(beamCannon.phase).toBe(SHIP_WEAPON_PHASE.READY);
-
-        engine.step(1);
-
-        expect(engine.drainEvents()).toEqual([
-            {
-                type: ENCOUNTER_EVENT.PLAYER_SHIP_TARGETING_DETECTED,
-
-                sourceActorId: enemy.id,
-                sourceWeaponId: beamCannon.id,
-            },
-        ]);
-
-        expect(beamCannon.phase).toBe(SHIP_WEAPON_PHASE.TARGETING);
-        expect(beamCannon.phaseElapsedMs).toBe(1);
-
-        // Во время универсального targeting ещё нет
-        // видимой L# charging threat.
-        expect(engine.getBeamCannonAttacks()).toEqual([]);
-
         const firstAttack = {
             id: 'beam_cannon_attack_1',
             designation: 'L1',
@@ -340,9 +320,17 @@ describe('CombatRunner', () => {
 
         };
 
-        engine.step(SHIP_WEAPON_TARGETING_DURATION_MS - beamCannon.phaseElapsedMs);
+        expect(beamCannon.phase).toBe(SHIP_WEAPON_PHASE.READY);
+
+        engine.step(1);
 
         expect(engine.drainEvents()).toEqual([
+            {
+                type: ENCOUNTER_EVENT.ENEMY_ATTACK_STARTED,
+
+                sourceActorId: enemy.id,
+                sourceWeaponId: beamCannon.id,
+            },
             {
                 type: ENCOUNTER_EVENT.BEAM_CANNON_ATTACK_STARTED,
 
@@ -351,20 +339,10 @@ describe('CombatRunner', () => {
         ]);
 
         expect(beamCannon.phase).toBe(SHIP_WEAPON_PHASE.CHARGING);
-        expect(beamCannon.phaseElapsedMs).toBe(0);
-
+        expect(beamCannon.phaseElapsedMs).toBe(1);
         expect(engine.getBeamCannonAttacks()).toEqual([firstAttack]);
 
         engine.step(beamCannonDefinition.chargeDurationMs - 1);
-
-        expect(engine.drainEvents()).toEqual([]);
-
-        expect(beamCannon.phase).toBe(SHIP_WEAPON_PHASE.CHARGING);
-        expect(beamCannon.phaseElapsedMs).toBe(beamCannonDefinition.chargeDurationMs - 1);
-
-        expect(engine.getBeamCannonAttacks()).toEqual([firstAttack]);
-
-        engine.step(1);
 
         expect(engine.drainEvents()).toEqual([
             {
@@ -380,21 +358,12 @@ describe('CombatRunner', () => {
         ]);
 
         expect(engine.getBeamCannonAttacks()).toEqual([]);
-
         expect(beamCannon.phase).toBe(SHIP_WEAPON_PHASE.COOLDOWN);
         expect(beamCannon.phaseElapsedMs).toBe(0);
 
-        engine.step(beamCannonDefinition.cooldownDurationMs - 1);
+        engine.step(beamCannonDefinition.cooldownDurationMs);
 
         expect(engine.drainEvents()).toEqual([]);
-
-        expect(beamCannon.phase).toBe(SHIP_WEAPON_PHASE.COOLDOWN);
-        expect(beamCannon.phaseElapsedMs).toBe(beamCannonDefinition.cooldownDurationMs - 1);
-
-        engine.step(1);
-
-        expect(engine.drainEvents()).toEqual([]);
-
         expect(beamCannon.phase).toBe(SHIP_WEAPON_PHASE.READY);
         expect(beamCannon.phaseElapsedMs).toBe(0);
 
@@ -405,21 +374,11 @@ describe('CombatRunner', () => {
 
         expect(engine.drainEvents()).toEqual([
             {
-                type: ENCOUNTER_EVENT.PLAYER_SHIP_TARGETING_DETECTED,
+                type: ENCOUNTER_EVENT.ENEMY_ATTACK_STARTED,
 
                 sourceActorId: enemy.id,
                 sourceWeaponId: beamCannon.id,
             },
-        ]);
-
-        expect(beamCannon.phase).toBe(SHIP_WEAPON_PHASE.TARGETING);
-        expect(beamCannon.phaseElapsedMs).toBe(1);
-
-        expect(engine.getBeamCannonAttacks()).toEqual([]);
-
-        engine.step(SHIP_WEAPON_TARGETING_DURATION_MS - beamCannon.phaseElapsedMs);
-
-        expect(engine.drainEvents()).toEqual([
             {
                 type: ENCOUNTER_EVENT.BEAM_CANNON_ATTACK_STARTED,
 
@@ -433,6 +392,6 @@ describe('CombatRunner', () => {
         ]);
 
         expect(beamCannon.phase).toBe(SHIP_WEAPON_PHASE.CHARGING);
-        expect(beamCannon.phaseElapsedMs).toBe(0);
+        expect(beamCannon.phaseElapsedMs).toBe(1);
     });
 });

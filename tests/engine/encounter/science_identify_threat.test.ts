@@ -1,10 +1,10 @@
 // tests/engine/encounter/science_identify_threat.test.ts
+import { getTestMissileTargetingDurationMs } from './combat_test_support';
 
 import { createPlayerHullFixture } from '../../fixtures/engine/player_hull_fixtures';
 import { createShipDriveFixture } from '../../fixtures/engine/ship_drive_fixtures';
 import { describe, expect, it } from 'vitest';
 import {
-    SHIP_WEAPON_TARGETING_DURATION_MS,
 } from '../../../src/engine/content/catalogs/ship_weapons';
 import { SHIP_NODE_ACTOR_PRESET_ID } from '../../../src/engine/content/presets/ship_node_actors';
 import { MISSILE_SIGNATURE } from '../../../src/engine/defs/missile';
@@ -103,7 +103,7 @@ describe('Science identify threat command', () => {
 
         engine.drainEvents();
 
-        engine.step(SHIP_WEAPON_TARGETING_DURATION_MS - 1);
+        engine.step(getTestMissileTargetingDurationMs() - 1);
 
         engine.drainEvents();
 
@@ -302,7 +302,7 @@ describe('Science identify threat command', () => {
         engine.drainEvents();
 
         engine.step(
-            SHIP_WEAPON_TARGETING_DURATION_MS -
+            getTestMissileTargetingDurationMs() -
                 1,
         );
         engine.drainEvents();
@@ -358,9 +358,7 @@ describe('Science identify threat command', () => {
         const { engine } =
             createBeamCannonEngine();
 
-        engine.step(
-            SHIP_WEAPON_TARGETING_DURATION_MS,
-        );
+        engine.step(0);
 
         engine.drainEvents();
 

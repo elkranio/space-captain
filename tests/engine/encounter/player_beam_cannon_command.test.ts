@@ -27,7 +27,7 @@ import {
 
 describe('Player beamCannon command', () => {
     it(
-        'offers one current-enemy hull shot and starts a cancellable targeting task',
+        'offers one current-enemy hull shot and starts a cancellable charging task',
         () => {
             const {
                 engine,
@@ -151,7 +151,7 @@ describe('Player beamCannon command', () => {
 
                     phase:
                         SHIP_WEAPON_PHASE
-                            .TARGETING,
+                            .CHARGING,
 
                     phaseElapsedMs: 0,
                 },
@@ -183,7 +183,7 @@ describe('Player beamCannon command', () => {
                     targetActor.id,
 
                 label:
-                    'BEAM CANNON AIM',
+                    'BEAM CANNON CHARGE',
                 showProgress: false,
 
                 durationMs: null,

@@ -4,7 +4,6 @@ import {
     it,
 } from 'vitest';
 import {
-    SHIP_WEAPON_TARGETING_DURATION_MS,
 } from '../../../src/engine/content/catalogs/ship_weapons';
 import {
     SHIP_NODE_ACTOR_PRESET_ID,
@@ -55,6 +54,7 @@ import {
 import {
     getMutableEncounterStateForTest,
 } from './get_mutable_encounter_state_for_test';
+import { getTestMissileTargetingDurationMs } from './combat_test_support';
 
 const AIM_DURATION_MS = 3000;
 
@@ -419,7 +419,7 @@ function createEngineWithIncomingMissile({
     engine.drainEvents();
 
     engine.step(
-        SHIP_WEAPON_TARGETING_DURATION_MS -
+        getTestMissileTargetingDurationMs() -
             1,
     );
 

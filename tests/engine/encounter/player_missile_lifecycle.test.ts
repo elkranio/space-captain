@@ -2,6 +2,7 @@ import {
     MISSILE_SIGNATURE,
 } from '../../../src/engine/defs/missile';
 // tests/engine/encounter/player_missile_lifecycle.test.ts
+import { getTestMissileTargetingDurationMs } from './combat_test_support';
 
 import { createPlayerHullFixture } from '../../fixtures/engine/player_hull_fixtures';
 import {
@@ -11,7 +12,6 @@ import {
 } from 'vitest';
 import {
     SHIP_WEAPONS,
-    SHIP_WEAPON_TARGETING_DURATION_MS,
 } from '../../../src/engine/content/catalogs/ship_weapons';
 import {
     createNewRunState,
@@ -84,7 +84,7 @@ describe('Player missile lifecycle', () => {
         engine.drainEvents();
 
         engine.step(
-            SHIP_WEAPON_TARGETING_DURATION_MS -
+            getTestMissileTargetingDurationMs() -
                 1,
         );
 
@@ -93,7 +93,7 @@ describe('Player missile lifecycle', () => {
                 SHIP_WEAPON_PHASE.TARGETING,
 
             phaseElapsedMs:
-                SHIP_WEAPON_TARGETING_DURATION_MS -
+                getTestMissileTargetingDurationMs() -
                 1,
 
             ammoCount:
@@ -262,7 +262,7 @@ describe('Player missile lifecycle', () => {
         engine.drainEvents();
 
         engine.step(
-            SHIP_WEAPON_TARGETING_DURATION_MS +
+            getTestMissileTargetingDurationMs() +
                 100000,
         );
 

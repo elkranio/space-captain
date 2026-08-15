@@ -6,7 +6,7 @@
         "shieldGeneratorId": "shield_generator_basic_00",
         "defenseTurretId": "defense_turret_basic_00",
         "weaponSlot1Id": "missile_launcher_00",
-        "weaponSlot2Id": "missile_launcher_00",
+        "weaponSlot2Id": "beam_cannon_00",
         "weaponSlot3Id": "missile_launcher_00",
         "weaponSlot4Id": "missile_launcher_00"
     },

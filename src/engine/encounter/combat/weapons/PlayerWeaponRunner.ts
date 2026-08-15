@@ -161,7 +161,6 @@ export default class PlayerWeaponRunner {
             this.spamProjectorRunner
                 .advanceTask(
                     scienceTask,
-                    crewDeltaMs,
                     deltaMs,
                 );
         }

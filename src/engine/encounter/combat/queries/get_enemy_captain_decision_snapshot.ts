@@ -5,7 +5,6 @@ import {
 } from '../../../content/catalogs/defense_turrets';
 import {
     SHIP_WEAPONS,
-    SHIP_WEAPON_TARGETING_DURATION_MS,
 } from '../../../content/catalogs/ship_weapons';
 import type {
     OfficerRole,
@@ -514,9 +513,19 @@ function getWeaponOperatorBusyDurationMs(
     switch (weapon.kind) {
         case SHIP_WEAPON_KIND
             .MISSILE_LAUNCHER:
-            return (
-                SHIP_WEAPON_TARGETING_DURATION_MS
-            );
+            if (
+                definition.kind !==
+                SHIP_WEAPON_KIND
+                    .MISSILE_LAUNCHER
+            ) {
+                throw new Error(
+                    'Missile launcher definition mismatch: ' +
+                        weapon.weaponId,
+                );
+            }
+
+            return definition
+                .targetingDurationMs;
 
         case SHIP_WEAPON_KIND
             .BEAM_CANNON:
@@ -531,11 +540,8 @@ function getWeaponOperatorBusyDurationMs(
                 );
             }
 
-            return (
-                SHIP_WEAPON_TARGETING_DURATION_MS +
-                definition
-                    .chargeDurationMs
-            );
+            return definition
+                .chargeDurationMs;
 
         case SHIP_WEAPON_KIND
             .SPAM_PROJECTOR:
@@ -550,11 +556,8 @@ function getWeaponOperatorBusyDurationMs(
                 );
             }
 
-            return (
-                SHIP_WEAPON_TARGETING_DURATION_MS +
-                definition
-                    .channelDurationMs
-            );
+            return definition
+                .channelDurationMs;
 
         case SHIP_WEAPON_KIND
             .STICKY_MINE_DISPENSER: {
@@ -583,10 +586,7 @@ function getWeaponOperatorBusyDurationMs(
                 definition
                     .launchIntervalMs;
 
-            return (
-                SHIP_WEAPON_TARGETING_DURATION_MS +
-                dispensingDurationMs
-            );
+            return dispensingDurationMs;
         }
     }
 }

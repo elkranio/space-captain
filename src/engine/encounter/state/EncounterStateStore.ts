@@ -370,11 +370,11 @@ export default class EncounterStateStore {
             );
     }
 
-    public startPlayerSpamTargeting(
+    public startPlayerSpamChanneling(
         weaponId: string,
     ): SpamProjectorState {
         return this.playerShip
-            .startPlayerSpamTargeting(
+            .startPlayerSpamChanneling(
                 weaponId,
             );
     }
@@ -388,11 +388,11 @@ export default class EncounterStateStore {
             );
     }
 
-    public startPlayerBeamCannonTargeting(
+    public startPlayerBeamCannonCharging(
         weaponId: string,
     ): BeamCannonState {
         return this.playerShip
-            .startPlayerBeamCannonTargeting(
+            .startPlayerBeamCannonCharging(
                 weaponId,
             );
     }

@@ -57,7 +57,7 @@ describe('Officer task tuning content', () => {
                     .WEAPONS_FIRE_BEAM_CANNON,
             ),
         ).toEqual({
-            label: 'BEAM CANNON AIM',
+            label: 'BEAM CANNON CHARGE',
             showProgress: false,
             durationMs: null,
         });
