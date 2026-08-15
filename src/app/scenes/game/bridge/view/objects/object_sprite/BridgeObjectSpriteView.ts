@@ -11,7 +11,12 @@ import { getBridgeViewscreenPoint } from '../../bridge_viewscreen_layout';
 // и metadata для псевдо-3D animation sequences.
 export default class BridgeObjectSpriteView {
     private readonly root: Phaser.GameObjects.Container;
+    private readonly visualRoot: Phaser.GameObjects.Container;
     private readonly objectImage: Phaser.GameObjects.Image;
+
+    private idleDriftXTween?: Phaser.Tweens.Tween;
+    private idleDriftYTween?: Phaser.Tweens.Tween;
+    private idleDriftEnabled = false;
 
     private anchorObjectId = '';
 
@@ -33,11 +38,15 @@ export default class BridgeObjectSpriteView {
         this.root = this.scene.add.container(0, 0);
         parent.add(this.root);
 
+        this.visualRoot = this.scene.add.container(0, 0);
+
+        this.root.add(this.visualRoot);
+
         this.objectImage = this.scene.add
             .image(0, 0, payload.sprite.atlasKey, payload.sprite.frameKey)
             .setOrigin(0.5, 0.5);
 
-        this.root.add(this.objectImage);
+        this.visualRoot.add(this.objectImage);
 
         this.update(payload);
     }
@@ -57,6 +66,8 @@ export default class BridgeObjectSpriteView {
 
         this.restoreNormalPosition();
         this.objectImage.setTexture(payload.sprite.atlasKey, payload.sprite.frameKey);
+
+        this.syncIdleDrift(payload.sprite.frameKey);
     }
 
     public prepareForArrival(): void {
@@ -100,11 +111,11 @@ export default class BridgeObjectSpriteView {
     }
 
     public getX(): number {
-        return this.root.x;
+        return this.root.x + this.visualRoot.x;
     }
 
     public getY(): number {
-        return this.root.y;
+        return this.root.y + this.visualRoot.y;
     }
 
     public getScale(): number {
@@ -120,7 +131,63 @@ export default class BridgeObjectSpriteView {
     }
 
     public destroy(): void {
+        this.stopIdleDrift();
         this.root.destroy(true);
+    }
+
+    private syncIdleDrift(frameKey: string): void {
+        const shouldDrift = frameKey.startsWith('ships/chassis/');
+
+        if (shouldDrift === this.idleDriftEnabled) {
+            return;
+        }
+
+        if (!shouldDrift) {
+            this.stopIdleDrift();
+            return;
+        }
+
+        this.idleDriftEnabled = true;
+
+        this.idleDriftXTween = this.scene.tweens.add({
+            targets: this.visualRoot,
+
+            x: {
+                from: -2,
+                to: 2,
+            },
+
+            duration: 13_600,
+            ease: 'Sine.InOut',
+            yoyo: true,
+            repeat: -1,
+        });
+
+        this.idleDriftYTween = this.scene.tweens.add({
+            targets: this.visualRoot,
+
+            y: {
+                from: 1.5,
+                to: -1.5,
+            },
+
+            duration: 10_400,
+            ease: 'Sine.InOut',
+            yoyo: true,
+            repeat: -1,
+        });
+    }
+
+    private stopIdleDrift(): void {
+        this.idleDriftXTween?.stop();
+        this.idleDriftXTween = undefined;
+
+        this.idleDriftYTween?.stop();
+        this.idleDriftYTween = undefined;
+
+        this.idleDriftEnabled = false;
+
+        this.visualRoot.setPosition(0, 0);
     }
 
     private restoreNormalPosition(): void {
