@@ -10,7 +10,6 @@ import {
     type BridgeDefenseTurretFiredPayload,
 } from '../../../events/bridge_event';
 import type BridgeEventBus from '../../../events/BridgeEventBus';
-import { BRIDGE_VIEWSCREEN_RECT } from '../../bridge_viewscreen_layout';
 import BridgeDefenseTurretBeamView from '../defense_turret/BridgeDefenseTurretBeamView';
 import {
     removeMissingCombatSnapshotEntries,
@@ -18,16 +17,6 @@ import {
 import BridgeIncomingMissileView from './missile/BridgeIncomingMissileView';
 
 type GetObjectPosition = (objectId: string) => Phaser.Math.Vector2 | undefined;
-
-const INCOMING_MISSILE_IMPACT_AREA = {
-    // Центральная зона по X.
-    insetX: 257,
-
-    // Нижняя часть viewscreen,
-    // но sprite, brackets и HUD label остаются внутри окна.
-    topOffset: 185,
-    bottomInset: 52,
-} as const;
 
 // Manager-view летящих в игрока ракет.
 //
@@ -107,13 +96,13 @@ export default class BridgeIncomingMissilesView {
             scene: this.scene,
             parent: this.root,
 
-            designation: payload.designation,
+            projectileId:
+                payload.projectileId,
 
             startPosition,
 
-            targetPosition: this.createImpactPosition(),
-
-            initialTimeToImpactMs: payload.initialTimeToImpactMs,
+            initialTimeToImpactMs:
+                payload.initialTimeToImpactMs,
         });
 
         this.missiles.set(payload.projectileId, missile);
@@ -146,7 +135,6 @@ export default class BridgeIncomingMissilesView {
 
             missile.update(
                 update.timeToImpactMs,
-                update.identificationStatus,
             );
         }
     }
@@ -201,22 +189,6 @@ export default class BridgeIncomingMissilesView {
             default:
                 return this.assertNever(payload.outcome);
         }
-    }
-
-    private createImpactPosition(): Phaser.Math.Vector2 {
-        return new Phaser.Math.Vector2(
-            Phaser.Math.Between(
-                BRIDGE_VIEWSCREEN_RECT.x + INCOMING_MISSILE_IMPACT_AREA.insetX,
-
-                BRIDGE_VIEWSCREEN_RECT.x + BRIDGE_VIEWSCREEN_RECT.width - INCOMING_MISSILE_IMPACT_AREA.insetX,
-            ),
-
-            Phaser.Math.Between(
-                BRIDGE_VIEWSCREEN_RECT.y + INCOMING_MISSILE_IMPACT_AREA.topOffset,
-
-                BRIDGE_VIEWSCREEN_RECT.y + BRIDGE_VIEWSCREEN_RECT.height - INCOMING_MISSILE_IMPACT_AREA.bottomInset,
-            ),
-        );
     }
 
     private assertNever(value: never): never {

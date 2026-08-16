@@ -1,300 +1,606 @@
 // src/app/scenes/game/bridge/view/combat/incoming_missiles/missile/BridgeIncomingMissileView.ts
 
-import type {
-    MissileSignatureIntelStatus,
-} from '../../../../../../../../engine/encounter/model/missile_signature_intel';
-import { MISSILE_SPRITE_ID, MISSILE_SPRITES } from '../../../../../../../manifests/combat/missiles/missile_sprite';
-import { FONT_FAMILY, FONT_SIZE } from '../../../../../../../theme/font';
 import type BridgeScene from '../../../../BridgeScene';
+import {
+    BRIDGE_INCOMING_MISSILE_PRESENTATION,
+    type BridgeIncomingMissilePoint,
+} from './bridge_incoming_missile_presentation';
 
 type BridgeIncomingMissileViewOptions = {
     scene: BridgeScene;
     parent: Phaser.GameObjects.Container;
 
-    designation: string;
+    projectileId: string;
 
     startPosition: Phaser.Math.Vector2;
-    targetPosition: Phaser.Math.Vector2;
 
     initialTimeToImpactMs: number;
 };
 
-const MISSILE_PRESENTATION = {
-    minScale: 0.12,
-    maxScale: 1,
-
-    framesPerSecond: 12,
-
-    controlDriftX: 60,
-    controlDriftY: 30,
-} as const;
-
-const TARGETING_FRAME = {
-    color: 0xea9e3e,
-
-    padding: 5,
-
-    minHalfWidth: 30,
-    minHalfHeight: 18,
-
-    cornerLength: 8,
-    thickness: 2,
-
-    labelGap: 3,
-} as const;
-
-// Leaf-view одной ракеты.
+// Leaf-view одной входящей ракеты.
 //
-// Владеет:
-// - sprite;
-// - траекторией;
-// - targeting brackets;
-// - коротким designation;
-// - player-visible Science knowledge state;
-// - countdown.
+// Engine остаётся единственным источником времени.
+// View при создании один раз выбирает visual trajectory
+// и небольшой immutable waypoint jitter.
 //
-// Engine остаётся источником времени и знания.
-// View только отображает полученный snapshot.
+// Каждый update переводит engine time в normalized progress,
+// затем в visual path progress. Поэтому одинаковая траектория
+// сохраняет тот же speed profile при любой длительности полёта.
 export default class BridgeIncomingMissileView {
-    private readonly root: Phaser.GameObjects.Container;
+    private readonly graphics:
+        Phaser.GameObjects.Graphics;
 
-    private readonly image: Phaser.GameObjects.Image;
+    private readonly initialTimeToImpactMs:
+        number;
 
-    private readonly targetingFrame: Phaser.GameObjects.Graphics;
+    private readonly trajectoryPoints:
+        BridgeIncomingMissilePoint[];
 
-    private readonly statusLabel: Phaser.GameObjects.BitmapText;
+    private readonly trailPoints:
+        BridgeIncomingMissilePoint[] = [];
 
-    private readonly designation: string;
-
-    private readonly startPosition: Phaser.Math.Vector2;
-
-    private readonly controlPosition: Phaser.Math.Vector2;
-
-    private readonly targetPosition: Phaser.Math.Vector2;
-
-    private readonly initialTimeToImpactMs: number;
+    private readonly currentPosition =
+        new Phaser.Math.Vector2();
 
     constructor({
         scene,
         parent,
 
-        designation,
+        projectileId,
 
         startPosition,
-        targetPosition,
 
         initialTimeToImpactMs,
     }: BridgeIncomingMissileViewOptions) {
-        this.designation = designation;
+        if (initialTimeToImpactMs <= 0) {
+            throw new Error(
+                'Incoming missile initial time must be positive: ' +
+                    projectileId,
+            );
+        }
 
-        this.startPosition = startPosition.clone();
-        this.targetPosition = targetPosition.clone();
+        this.initialTimeToImpactMs =
+            initialTimeToImpactMs;
 
-        this.controlPosition = this.createControlPosition(this.startPosition, this.targetPosition);
+        this.trajectoryPoints =
+            this.createTrajectoryPoints(
+                startPosition,
+            );
 
-        this.initialTimeToImpactMs = initialTimeToImpactMs;
+        this.currentPosition.copy(
+            startPosition,
+        );
 
-        this.root = scene.add.container(this.startPosition.x, this.startPosition.y);
+        this.graphics =
+            scene.add.graphics();
 
-        parent.add(this.root);
+        parent.add(this.graphics);
 
-        const sprite =
-            MISSILE_SPRITES[
-                MISSILE_SPRITE_ID
-                    .GENERIC_INCOMING_00
-            ];
-
-        this.image = scene.add
-            .image(
-                0,
-                0,
-
-                sprite.atlasKey,
-                sprite.frameKey,
-            )
-            .setScale(MISSILE_PRESENTATION.minScale)
-            .setFlipX(this.targetPosition.x < this.startPosition.x);
-
-        this.targetingFrame = scene.add.graphics();
-
-        this.statusLabel = scene.add
-            .bitmapText(
-                0,
-                0,
-
-                FONT_FAMILY.VGA_8X14,
-                '',
-                FONT_SIZE.PX_16,
-            )
-            .setOrigin(0.5, 0)
-            .setTint(TARGETING_FRAME.color);
-
-        this.root.add(this.image);
-        this.root.add(this.targetingFrame);
-        this.root.add(this.statusLabel);
-
-        this.update(initialTimeToImpactMs);
+        this.update(
+            initialTimeToImpactMs,
+        );
     }
 
     public update(
         timeToImpactMs: number,
-        identificationStatus?: MissileSignatureIntelStatus,
     ): void {
-        const progress = this.getQuantizedProgress(timeToImpactMs);
-
-        const position = this.getQuadraticBezierPosition(progress);
-
-        const scaleProgress = progress * progress;
-
-        const scale = Phaser.Math.Linear(MISSILE_PRESENTATION.minScale, MISSILE_PRESENTATION.maxScale, scaleProgress);
-
-        this.root.setPosition(Math.round(position.x), Math.round(position.y));
-
-        this.image.setScale(scale);
-
-        this.drawTargetingFrame();
-
-        this.statusLabel.setText(
-            this.formatStatusLabel(
+        const timeProgress =
+            this.getTimeProgress(
                 timeToImpactMs,
-                identificationStatus,
-            ),
+            );
+
+        const pathProgress =
+            this.mapTimeToPathProgress(
+                timeProgress,
+            );
+
+        const point =
+            this.getTrajectoryPoint(
+                pathProgress,
+            );
+
+        this.currentPosition.set(
+            point.x,
+            point.y,
+        );
+
+        this.pushTrailPoint(
+            point,
+        );
+
+        this.render(
+            point,
+            pathProgress,
         );
     }
 
-    public getPosition(): Phaser.Math.Vector2 {
-        return new Phaser.Math.Vector2(this.root.x, this.root.y);
+    public getPosition():
+        Phaser.Math.Vector2 {
+        return this.currentPosition.clone();
     }
 
     public destroy(): void {
-        this.root.destroy(true);
+        this.trailPoints.length = 0;
+        this.graphics.destroy();
     }
 
-    private drawTargetingFrame(): void {
-        const halfWidth = Math.max(
-            TARGETING_FRAME.minHalfWidth,
-
-            Math.ceil(Math.abs(this.image.displayWidth) / 2) + TARGETING_FRAME.padding,
-        );
-
-        const halfHeight = Math.max(
-            TARGETING_FRAME.minHalfHeight,
-
-            Math.ceil(Math.abs(this.image.displayHeight) / 2) + TARGETING_FRAME.padding,
-        );
-
-        const left = -halfWidth;
-        const right = halfWidth;
-
-        const top = -halfHeight;
-        const bottom = halfHeight;
-
-        const length = TARGETING_FRAME.cornerLength;
-        const thickness = TARGETING_FRAME.thickness;
-
-        this.targetingFrame.clear();
-
-        this.targetingFrame.fillStyle(TARGETING_FRAME.color, 1);
-
-        // Top-left.
-        this.targetingFrame.fillRect(left, top, length, thickness);
-
-        this.targetingFrame.fillRect(left, top, thickness, length);
-
-        // Top-right.
-        this.targetingFrame.fillRect(right - length, top, length, thickness);
-
-        this.targetingFrame.fillRect(right - thickness, top, thickness, length);
-
-        // Bottom-left.
-        this.targetingFrame.fillRect(left, bottom - thickness, length, thickness);
-
-        this.targetingFrame.fillRect(left, bottom - length, thickness, length);
-
-        // Bottom-right.
-        this.targetingFrame.fillRect(right - length, bottom - thickness, length, thickness);
-
-        this.targetingFrame.fillRect(right - thickness, bottom - length, thickness, length);
-
-        this.statusLabel.setPosition(0, bottom + TARGETING_FRAME.labelGap);
-    }
-
-    private formatStatusLabel(
+    private getTimeProgress(
         timeToImpactMs: number,
-        identificationStatus?: MissileSignatureIntelStatus,
-    ): string {
-        const parts = [
-            this.designation,
-        ];
+    ): number {
+        const clampedRemainingMs =
+            Phaser.Math.Clamp(
+                timeToImpactMs,
+                0,
+                this.initialTimeToImpactMs,
+            );
 
-        if (identificationStatus) {
-            parts.push(
-                identificationStatus
-                    .toUpperCase(),
+        return (
+            1 -
+            clampedRemainingMs /
+                this.initialTimeToImpactMs
+        );
+    }
+
+    private mapTimeToPathProgress(
+        timeProgress: number,
+    ): number {
+        const motion =
+            BRIDGE_INCOMING_MISSILE_PRESENTATION
+                .motion;
+
+        if (
+            timeProgress <
+            motion.terminalStartTimeProgress
+        ) {
+            const local =
+                timeProgress /
+                motion.terminalStartTimeProgress;
+
+            const acceleratedCruise =
+                motion.cruiseLinearWeight *
+                    local +
+                (1 -
+                    motion.cruiseLinearWeight) *
+                    local *
+                    local *
+                    local;
+
+            return (
+                motion.terminalStartPathProgress *
+                acceleratedCruise
             );
         }
 
-        parts.push(
-            this.formatTimeToImpact(
-                timeToImpactMs,
+        const local =
+            (
+                timeProgress -
+                motion.terminalStartTimeProgress
+            ) /
+            (
+                1 -
+                motion.terminalStartTimeProgress
+            );
+
+        const terminalRush =
+            motion.terminalLinearWeight *
+                local +
+            (1 -
+                motion.terminalLinearWeight) *
+                local *
+                local *
+                local;
+
+        return Phaser.Math.Linear(
+            motion.terminalStartPathProgress,
+            1,
+            terminalRush,
+        );
+    }
+
+    private createTrajectoryPoints(
+        startPosition:
+            Phaser.Math.Vector2,
+    ): BridgeIncomingMissilePoint[] {
+        const presentation =
+            BRIDGE_INCOMING_MISSILE_PRESENTATION;
+
+        const preset =
+            presentation.trajectories[
+                Phaser.Math.Between(
+                    0,
+                    presentation
+                        .trajectories
+                        .length - 1,
+                )
+            ];
+
+        const points:
+            BridgeIncomingMissilePoint[] = [
+                {
+                    x: startPosition.x,
+                    y: startPosition.y,
+                },
+            ];
+
+        for (
+            let index = 0;
+            index < preset.points.length;
+            index += 1
+        ) {
+            const point =
+                preset.points[index];
+
+            const jitterPx =
+                index === 0
+                    ? presentation.jitter
+                        .firstWaypointPx
+                    : presentation.jitter
+                        .waypointPx;
+
+            points.push(
+                this.createJitteredPoint(
+                    point,
+                    jitterPx,
+                ),
+            );
+        }
+
+        points.push(
+            this.createJitteredPoint(
+                preset.end,
+                presentation.jitter.endPx,
             ),
         );
 
-        return parts.join(' ');
+        return points;
     }
 
-    private formatTimeToImpact(timeToImpactMs: number): string {
-        const remainingTenths = Math.max(0, Math.ceil(timeToImpactMs / 100));
+    private createJitteredPoint(
+        point: BridgeIncomingMissilePoint,
+        jitterPx: number,
+    ): BridgeIncomingMissilePoint {
+        return {
+            x:
+                point.x +
+                Phaser.Math.Between(
+                    -jitterPx,
+                    jitterPx,
+                ),
 
-        const seconds = Math.floor(remainingTenths / 10);
-
-        const tenth = remainingTenths % 10;
-
-        return String(seconds).padStart(2, '0') + ':' + String(tenth);
+            y:
+                point.y +
+                Phaser.Math.Between(
+                    -jitterPx,
+                    jitterPx,
+                ),
+        };
     }
 
-    private getQuantizedProgress(timeToImpactMs: number): number {
-        const elapsedMs = this.initialTimeToImpactMs - timeToImpactMs;
+    private pushTrailPoint(
+        point: BridgeIncomingMissilePoint,
+    ): void {
+        const trailConfig =
+            BRIDGE_INCOMING_MISSILE_PRESENTATION
+                .trail;
 
-        const frameDurationMs = 1000 / MISSILE_PRESENTATION.framesPerSecond;
+        const previousPoint =
+            this.trailPoints[
+                this.trailPoints.length - 1
+            ];
 
-        const quantizedElapsedMs = Math.floor(elapsedMs / frameDurationMs) * frameDurationMs;
+        if (previousPoint) {
+            const distance =
+                Phaser.Math.Distance.Between(
+                    previousPoint.x,
+                    previousPoint.y,
+                    point.x,
+                    point.y,
+                );
 
-        return Phaser.Math.Clamp(
-            quantizedElapsedMs / this.initialTimeToImpactMs,
+            if (
+                distance <
+                trailConfig
+                    .minParticleSpacingPx
+            ) {
+                return;
+            }
+        }
 
-            0,
+        this.trailPoints.push({
+            x: point.x,
+            y: point.y,
+        });
+
+        while (
+            this.trailPoints.length >
+            trailConfig.maxParticleCount
+        ) {
+            this.trailPoints.shift();
+        }
+    }
+
+    private render(
+        missilePoint:
+            BridgeIncomingMissilePoint,
+
+        pathProgress: number,
+    ): void {
+        const graphics =
+            this.graphics;
+
+        const presentation =
+            BRIDGE_INCOMING_MISSILE_PRESENTATION;
+
+        const trailConfig =
+            presentation.trail;
+
+        const missileConfig =
+            presentation.missile;
+
+        graphics.clear();
+
+        const depth =
+            pathProgress *
+            pathProgress;
+
+        const particleCount =
+            Math.round(
+                Phaser.Math.Linear(
+                    trailConfig
+                        .minParticleCount,
+                    trailConfig
+                        .maxParticleCount,
+                    depth,
+                ),
+            );
+
+        const visibleStartIndex =
+            Math.max(
+                0,
+                this.trailPoints.length -
+                    particleCount,
+            );
+
+        const visiblePoints =
+            this.trailPoints.slice(
+                visibleStartIndex,
+            );
+
+        for (
+            let index = 0;
+            index < visiblePoints.length;
+            index += 1
+        ) {
+            const point =
+                visiblePoints[index];
+
+            const ageProgress =
+                visiblePoints.length <= 1
+                    ? 1
+                    : index /
+                        (
+                            visiblePoints.length -
+                            1
+                        );
+
+            const particleSize =
+                Phaser.Math.Linear(
+                    trailConfig
+                        .minParticleSize,
+                    trailConfig
+                        .maxParticleSize,
+                    depth *
+                        ageProgress,
+                );
+
+            const alpha =
+                Phaser.Math.Linear(
+                    trailConfig.minAlpha,
+                    trailConfig.maxAlpha,
+                    depth *
+                        ageProgress,
+                );
+
+            const color =
+                ageProgress > 0.66
+                    ? trailConfig.hotColor
+                    : trailConfig.coolColor;
+
+            const roundedSize =
+                Math.max(
+                    1,
+                    Math.round(
+                        particleSize,
+                    ),
+                );
+
+            graphics.fillStyle(
+                color,
+                alpha,
+            );
+
+            graphics.fillRect(
+                Math.round(
+                    point.x -
+                        particleSize / 2,
+                ),
+                Math.round(
+                    point.y -
+                        particleSize / 2,
+                ),
+                roundedSize,
+                roundedSize,
+            );
+        }
+
+        const missileSize =
+            Math.max(
+                1,
+                Math.round(
+                    Phaser.Math.Linear(
+                        missileConfig
+                            .minPixelSize,
+                        missileConfig
+                            .maxPixelSize,
+                        depth,
+                    ),
+                ),
+            );
+
+        const hotSize =
+            missileSize +
+            missileConfig.hotPaddingPx;
+
+        graphics.fillStyle(
+            missileConfig.hotColor,
+            missileConfig.hotAlpha,
+        );
+
+        graphics.fillRect(
+            Math.round(
+                missilePoint.x -
+                    hotSize / 2,
+            ),
+            Math.round(
+                missilePoint.y -
+                    hotSize / 2,
+            ),
+            hotSize,
+            hotSize,
+        );
+
+        graphics.fillStyle(
+            missileConfig.coreColor,
             1,
+        );
+
+        graphics.fillRect(
+            Math.round(
+                missilePoint.x -
+                    missileSize / 2,
+            ),
+            Math.round(
+                missilePoint.y -
+                    missileSize / 2,
+            ),
+            missileSize,
+            missileSize,
         );
     }
 
-    private createControlPosition(start: Phaser.Math.Vector2, target: Phaser.Math.Vector2): Phaser.Math.Vector2 {
-        const midpoint = start.clone().lerp(target, 0.5);
+    private getTrajectoryPoint(
+        progress: number,
+    ): BridgeIncomingMissilePoint {
+        const points =
+            this.trajectoryPoints;
 
-        midpoint.x += Phaser.Math.Between(-MISSILE_PRESENTATION.controlDriftX, MISSILE_PRESENTATION.controlDriftX);
+        const segmentCount =
+            points.length - 1;
 
-        midpoint.y += Phaser.Math.Between(-MISSILE_PRESENTATION.controlDriftY, MISSILE_PRESENTATION.controlDriftY);
+        const scaledProgress =
+            Phaser.Math.Clamp(
+                progress,
+                0,
+                1,
+            ) *
+            segmentCount;
 
-        return midpoint;
+        const segmentIndex =
+            Math.min(
+                segmentCount - 1,
+                Math.floor(
+                    scaledProgress,
+                ),
+            );
+
+        const localProgress =
+            scaledProgress -
+            segmentIndex;
+
+        const point0 =
+            points[
+                Math.max(
+                    0,
+                    segmentIndex - 1,
+                )
+            ];
+
+        const point1 =
+            points[segmentIndex];
+
+        const point2 =
+            points[
+                Math.min(
+                    points.length - 1,
+                    segmentIndex + 1,
+                )
+            ];
+
+        const point3 =
+            points[
+                Math.min(
+                    points.length - 1,
+                    segmentIndex + 2,
+                )
+            ];
+
+        return {
+            x: this.catmullRom(
+                point0.x,
+                point1.x,
+                point2.x,
+                point3.x,
+                localProgress,
+            ),
+
+            y: this.catmullRom(
+                point0.y,
+                point1.y,
+                point2.y,
+                point3.y,
+                localProgress,
+            ),
+        };
     }
 
-    private getQuadraticBezierPosition(progress: number): Phaser.Math.Vector2 {
-        const inverseProgress = 1 - progress;
+    private catmullRom(
+        point0: number,
+        point1: number,
+        point2: number,
+        point3: number,
+        progress: number,
+    ): number {
+        const progressSquared =
+            progress * progress;
 
-        const startWeight = inverseProgress * inverseProgress;
+        const progressCubed =
+            progressSquared *
+            progress;
 
-        const controlWeight = 2 * inverseProgress * progress;
-
-        const targetWeight = progress * progress;
-
-        return new Phaser.Math.Vector2(
-            startWeight * this.startPosition.x +
-                controlWeight * this.controlPosition.x +
-                targetWeight * this.targetPosition.x,
-
-            startWeight * this.startPosition.y +
-                controlWeight * this.controlPosition.y +
-                targetWeight * this.targetPosition.y,
+        return (
+            0.5 *
+            (
+                2 * point1 +
+                (
+                    -point0 +
+                    point2
+                ) *
+                    progress +
+                (
+                    2 * point0 -
+                    5 * point1 +
+                    4 * point2 -
+                    point3
+                ) *
+                    progressSquared +
+                (
+                    -point0 +
+                    3 * point1 -
+                    3 * point2 +
+                    point3
+                ) *
+                    progressCubed
+            )
         );
     }
 }
