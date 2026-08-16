@@ -1,6 +1,5 @@
 // src/engine/encounter/model/officer_command_handler.ts
 
-import type { OfficerRole } from '../../defs/officer';
 import type EncounterStateStore from '../state/EncounterStateStore';
 import type {
     AvailableOfficerCommand,
@@ -26,7 +25,6 @@ export type OfficerCommandHandler = {
 
     getAvailableCommands(
         state: EncounterState,
-        role: OfficerRole,
     ): AvailableOfficerCommand[];
 
     execute(context: OfficerCommandExecutionContext, input: ExecuteOfficerCommandInput): void;

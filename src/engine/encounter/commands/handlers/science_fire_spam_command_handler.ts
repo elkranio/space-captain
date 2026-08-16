@@ -28,9 +28,7 @@ import {
 } from '../queries/find_current_enemy_ship';
 
 const def = {
-    availableToRoles: [
-        OFFICER_ROLE.SCIENCE,
-    ],
+    role: OFFICER_ROLE.SCIENCE,
 
     label: 'FIRE SPAM',
 

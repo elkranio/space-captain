@@ -67,9 +67,8 @@ export default class OfficerCommandExecutor {
 
     private isCommandAvailable(handler: OfficerCommandHandler, input: ExecuteOfficerCommandInput): boolean {
         if (
-            !handler.def.availableToRoles.includes(
-                input.role,
-            )
+            handler.def.role !==
+            input.role
         ) {
             return false;
         }

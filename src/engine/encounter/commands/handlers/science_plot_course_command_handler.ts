@@ -10,7 +10,7 @@ import { createUntargetedCommand, requireSpaceNodeTargetId } from './command_han
 const COMMAND_ID = ENCOUNTER_OFFICER_COMMAND_ID.SCIENCE_PLOT_COURSE;
 
 const COMMAND_DEF = {
-    availableToRoles: [OFFICER_ROLE.SCIENCE],
+    role: OFFICER_ROLE.SCIENCE,
     label: 'PLOT COURSE',
 
     targeting: {

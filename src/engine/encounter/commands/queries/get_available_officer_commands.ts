@@ -20,7 +20,7 @@ export function getAvailableOfficerCommands(state: EncounterState, role: Officer
 
     for (const handler of OFFICER_COMMAND_HANDLERS) {
         if (
-            !handler.def.availableToRoles.includes(role)
+            handler.def.role !== role
         ) {
             continue;
         }
@@ -36,7 +36,6 @@ export function getAvailableOfficerCommands(state: EncounterState, role: Officer
         commands.push(
             ...handler.getAvailableCommands(
                 state,
-                role,
             ),
         );
     }

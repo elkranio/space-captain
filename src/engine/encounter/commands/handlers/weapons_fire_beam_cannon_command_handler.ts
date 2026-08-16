@@ -31,9 +31,7 @@ import {
 } from '../../officer_tasks/create_officer_task_draft';
 
 const def = {
-    availableToRoles: [
-        OFFICER_ROLE.WEAPONS,
-    ],
+    role: OFFICER_ROLE.WEAPONS,
 
     label: 'FIRE BEAM CANNON',
 

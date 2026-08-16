@@ -34,6 +34,7 @@ Enemy destruction:
 
 ## Officer command truth
 
+- Every command definition belongs to exactly one officer role.
 - Engine decides command availability.
 - App/controller maps real `AvailableOfficerCommand` values to UI.
 - Views never recreate legality/availability.

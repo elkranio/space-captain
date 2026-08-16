@@ -22,9 +22,7 @@ export const weaponsInterceptMissileCommandHandler:
                 .WEAPONS_INTERCEPT_MISSILE,
 
         def: {
-            availableToRoles: [
-                OFFICER_ROLE.WEAPONS,
-            ],
+            role: OFFICER_ROLE.WEAPONS,
 
             label: 'INTERCEPT',
 

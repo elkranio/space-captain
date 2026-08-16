@@ -149,8 +149,7 @@ export type OfficerCommandTargeting =
       };
 
 export type OfficerCommandDef = {
-    availableToRoles:
-        readonly OfficerRole[];
+    role: OfficerRole;
 
     label: string;
 

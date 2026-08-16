@@ -16,7 +16,7 @@ import { createAnchorTargetedCommand, requireAnchorTargetId } from './command_ha
 const COMMAND_ID = ENCOUNTER_OFFICER_COMMAND_ID.HELM_FLY_TO;
 
 const COMMAND_DEF = {
-    availableToRoles: [OFFICER_ROLE.HELM],
+    role: OFFICER_ROLE.HELM,
     label: 'FLY TO',
 
     targeting: {

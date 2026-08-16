@@ -23,9 +23,7 @@ const COMMAND_ID =
         .CLEAR_STICKY_MINE;
 
 const COMMAND_DEF = {
-    availableToRoles: [
-        OFFICER_ROLE.ENGINEER,
-    ],
+    role: OFFICER_ROLE.ENGINEER,
 
     label: 'CLEAR MINE',
 

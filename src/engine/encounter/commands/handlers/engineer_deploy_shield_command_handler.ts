@@ -24,9 +24,7 @@ const COMMAND_ID =
         .ENGINEER_DEPLOY_SHIELD;
 
 const COMMAND_DEF = {
-    availableToRoles: [
-        OFFICER_ROLE.ENGINEER,
-    ],
+    role: OFFICER_ROLE.ENGINEER,
 
     label:
         'DEPLOY SHIELD',

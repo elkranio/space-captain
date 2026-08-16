@@ -16,7 +16,7 @@ import { createAnchorTargetedCommand, getJumpPointTarget, isCurrentAnchor } from
 const COMMAND_ID = ENCOUNTER_OFFICER_COMMAND_ID.HELM_JUMP;
 
 const COMMAND_DEF = {
-    availableToRoles: [OFFICER_ROLE.HELM],
+    role: OFFICER_ROLE.HELM,
     label: 'JUMP',
 
     targeting: {
