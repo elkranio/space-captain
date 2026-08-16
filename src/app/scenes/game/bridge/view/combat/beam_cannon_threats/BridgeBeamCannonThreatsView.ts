@@ -164,9 +164,6 @@ export default class BridgeBeamCannonThreatsView {
                 parent:
                     this.root,
 
-                designation:
-                    payload.designation,
-
                 weaponOrigin,
             });
 
@@ -221,25 +218,17 @@ export default class BridgeBeamCannonThreatsView {
         }
 
         for (const update of payload) {
-            const threat =
-                this.threats.get(
+            if (
+                !this.threats.has(
                     update.attackId,
-                );
-
-            if (!threat) {
+                )
+            ) {
                 throw new Error(
                     'BeamCannon threat update ' +
                         'target not found: ' +
                         update.attackId,
                 );
             }
-
-            threat.update(
-                update.timeToFireMs,
-
-                update
-                    .initialTimeToFireMs,
-            );
         }
     }
 

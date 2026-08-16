@@ -4,6 +4,7 @@ import {
     BEAM_CANNON_SHOT_OUTCOME,
 } from '../../../../../../../engine/encounter/model/combat';
 import type BridgeScene from '../../../BridgeScene';
+import { SCREEN_SHAKE } from '../../../../../../theme/screen_shake';
 import {
     BRIDGE_EVENT,
     type BridgeBeamCannonBeamFiredPayload,
@@ -69,6 +70,19 @@ export default class BridgeBeamCannonBeamsView {
             this.getTargetPosition(
                 payload.outcome,
             );
+
+        if (
+            payload.outcome ===
+            BEAM_CANNON_SHOT_OUTCOME.HIT
+        ) {
+            const shake =
+                SCREEN_SHAKE.MEDIUM;
+
+            this.scene.cameras.main.shake(
+                shake.durationMs,
+                shake.intensity,
+            );
+        }
 
         const beam = new BridgeBeamCannonBeamView({
             scene: this.scene,
