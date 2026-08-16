@@ -10,7 +10,6 @@ import scienceOfficerTaskData from '../../src/engine/content/data/officer_tasks_
 import weaponsOfficerTaskData from '../../src/engine/content/data/officer_tasks_weapons.json';
 import helmOfficerTaskData from '../../src/engine/content/data/officer_tasks_helm.json';
 import engineerOfficerTaskData from '../../src/engine/content/data/officer_tasks_engineer.json';
-import sharedOfficerTaskData from '../../src/engine/content/data/officer_tasks_shared.json';
 import defenseTurretData from '../../src/engine/content/data/defense_turrets.json';
 import shieldGeneratorData from '../../src/engine/content/data/shield_generators.json';
 import shipBehaviorData from '../../src/engine/content/data/ship_behaviors.json';
@@ -105,17 +104,6 @@ describe(
 
                         label:
                             'Engineer',
-
-                        canAdd: false,
-                        canDelete: false,
-                    },
-                    {
-                        id:
-                            CONTENT_COLLECTION_ID
-                                .OFFICER_TASKS_SHARED,
-
-                        label:
-                            'Shared',
 
                         canAdd: false,
                         canDelete: false,
@@ -284,9 +272,6 @@ describe(
 
                     CONTENT_COLLECTION_ID
                         .OFFICER_TASKS_ENGINEER,
-
-                    CONTENT_COLLECTION_ID
-                        .OFFICER_TASKS_SHARED,
                 ]);
 
                 expect(
@@ -402,11 +387,6 @@ describe(
                         CONTENT_COLLECTION_ID
                             .OFFICER_TASKS_ENGINEER,
                         engineerOfficerTaskData,
-                    ],
-                    [
-                        CONTENT_COLLECTION_ID
-                            .OFFICER_TASKS_SHARED,
-                        sharedOfficerTaskData,
                     ],
                     [
                         CONTENT_COLLECTION_ID

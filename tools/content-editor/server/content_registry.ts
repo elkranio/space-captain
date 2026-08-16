@@ -12,7 +12,6 @@ import {
     ENGINEER_OFFICER_TASK_TUNING_SCHEMA,
     HELM_OFFICER_TASK_TUNING_SCHEMA,
     SCIENCE_OFFICER_TASK_TUNING_SCHEMA,
-    SHARED_OFFICER_TASK_TUNING_SCHEMA,
     WEAPONS_OFFICER_TASK_TUNING_SCHEMA,
 } from '../../../src/engine/content/schemas/officer_task_tuning';
 import {
@@ -52,9 +51,6 @@ export const CONTENT_COLLECTION_ID = {
 
     OFFICER_TASKS_ENGINEER:
         'officer_tasks_engineer',
-
-    OFFICER_TASKS_SHARED:
-        'officer_tasks_shared',
 
     MISSILE_LAUNCHERS:
         'missile_launchers',
@@ -246,29 +242,6 @@ const CONTENT_COLLECTIONS:
 
             schema:
                 ENGINEER_OFFICER_TASK_TUNING_SCHEMA,
-
-            canAdd: false,
-            canDelete: false,
-        },
-
-        [CONTENT_COLLECTION_ID
-            .OFFICER_TASKS_SHARED]: {
-            id:
-                CONTENT_COLLECTION_ID
-                    .OFFICER_TASKS_SHARED,
-
-            label: 'Shared',
-
-            group:
-                CONTENT_COLLECTION_GROUP
-                    .OFFICER_TASKS,
-
-            dataPath:
-                'src/engine/content/data/' +
-                'officer_tasks_shared.json',
-
-            schema:
-                SHARED_OFFICER_TASK_TUNING_SCHEMA,
 
             canAdd: false,
             canDelete: false,
