@@ -25,11 +25,14 @@ type BridgeDefenseTurretBeamViewOptions = {
 const DEFENSE_TURRET_BEAM_PALETTE = {
     outer: 0x4f84a8,
     inner: 0xb8e6ff,
+
+    particleHot: 0xffd36a,
+    particleCool: 0xf7fbff,
 } as const;
 
 const DEFENSE_TURRET_BEAM_PRESENTATION = {
-    outerThickness: 6,
-    innerThickness: 2,
+    outerThickness: 3,
+    innerThickness: 1,
 
     hitHoldMs: 80,
     hitFadeMs: 220,
@@ -44,6 +47,15 @@ const DEFENSE_TURRET_BEAM_PRESENTATION = {
 
     viewscreenInset: 12,
     startBottomOffset: 8,
+
+    hitParticleCount: 8,
+    hitParticleDistanceMin: 14,
+    hitParticleDistanceMax: 30,
+    hitParticleSizeMin: 1,
+    hitParticleSizeMax: 3,
+    hitParticleDurationMinMs: 160,
+    hitParticleDurationMaxMs: 240,
+    hitParticleAngleJitter: 0.22,
 } as const;
 
 // Short presentation effect of one defense-turret shot.
@@ -65,6 +77,9 @@ export default class BridgeDefenseTurretBeamView {
 
     private readonly activeBeams =
         new Set<Phaser.GameObjects.Graphics>();
+
+    private readonly activeHitParticles =
+        new Set<Phaser.GameObjects.Rectangle>();
 
     private readonly timerEvents:
         Phaser.Time.TimerEvent[] = [];
@@ -130,6 +145,17 @@ export default class BridgeDefenseTurretBeamView {
         }
 
         this.activeBeams.clear();
+
+        for (
+            const particle
+            of [...this.activeHitParticles]
+        ) {
+            this.destroyHitParticle(
+                particle,
+            );
+        }
+
+        this.activeHitParticles.clear();
     }
 
     private playHit(): void {
@@ -137,6 +163,8 @@ export default class BridgeDefenseTurretBeamView {
             this.createBeam(
                 this.targetPosition,
             );
+
+        this.createHitParticles();
 
         this.scene.tweens.add({
             targets: beam,
@@ -299,6 +327,125 @@ export default class BridgeDefenseTurretBeamView {
         );
 
         return graphics;
+    }
+
+    private createHitParticles(): void {
+        const presentation =
+            DEFENSE_TURRET_BEAM_PRESENTATION;
+
+        const angleStep =
+            Math.PI * 2 /
+            presentation.hitParticleCount;
+
+        for (
+            let particleIndex = 0;
+            particleIndex <
+            presentation.hitParticleCount;
+            particleIndex += 1
+        ) {
+            const angle =
+                angleStep *
+                    particleIndex +
+                Phaser.Math.FloatBetween(
+                    -presentation
+                        .hitParticleAngleJitter,
+                    presentation
+                        .hitParticleAngleJitter,
+                );
+
+            const distance =
+                Phaser.Math.Between(
+                    presentation
+                        .hitParticleDistanceMin,
+                    presentation
+                        .hitParticleDistanceMax,
+                );
+
+            const size =
+                Phaser.Math.Between(
+                    presentation
+                        .hitParticleSizeMin,
+                    presentation
+                        .hitParticleSizeMax,
+                );
+
+            const color =
+                particleIndex % 2 === 0
+                    ? DEFENSE_TURRET_BEAM_PALETTE
+                        .particleHot
+                    : DEFENSE_TURRET_BEAM_PALETTE
+                        .particleCool;
+
+            const particle =
+                this.scene.add.rectangle(
+                    this.targetPosition.x,
+                    this.targetPosition.y,
+                    size,
+                    size,
+                    color,
+                    1,
+                );
+
+            this.parent.add(
+                particle,
+            );
+
+            this.activeHitParticles.add(
+                particle,
+            );
+
+            this.scene.tweens.add({
+                targets: particle,
+
+                x:
+                    this.targetPosition.x +
+                    Math.cos(angle) *
+                        distance,
+
+                y:
+                    this.targetPosition.y +
+                    Math.sin(angle) *
+                        distance,
+
+                alpha: 0,
+                scale: 0.5,
+
+                duration:
+                    Phaser.Math.Between(
+                        presentation
+                            .hitParticleDurationMinMs,
+                        presentation
+                            .hitParticleDurationMaxMs,
+                    ),
+
+                ease: 'Quad.Out',
+
+                onComplete: () => {
+                    this.destroyHitParticle(
+                        particle,
+                    );
+                },
+            });
+        }
+    }
+
+    private destroyHitParticle(
+        particle:
+            Phaser.GameObjects.Rectangle,
+    ): void {
+        if (
+            !this.activeHitParticles
+                .delete(particle)
+        ) {
+            return;
+        }
+
+        this.scene.tweens
+            .killTweensOf(
+                particle,
+            );
+
+        particle.destroy();
     }
 
     private createStartPosition(

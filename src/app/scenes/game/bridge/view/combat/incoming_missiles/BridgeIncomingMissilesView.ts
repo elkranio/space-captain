@@ -10,6 +10,7 @@ import {
     type BridgeDefenseTurretFiredPayload,
 } from '../../../events/bridge_event';
 import type BridgeEventBus from '../../../events/BridgeEventBus';
+import { SCREEN_SHAKE } from '../../../../../../theme/screen_shake';
 import BridgeDefenseTurretBeamView from '../defense_turret/BridgeDefenseTurretBeamView';
 import {
     removeMissingCombatSnapshotEntries,
@@ -23,8 +24,8 @@ type GetObjectPosition = (objectId: string) => Phaser.Math.Vector2 | undefined;
 // Отвечает только за:
 // - bridge events;
 // - поиск source position;
-// - выбор случайной impact point;
 // - lifecycle missile views;
+// - feedback реального missile impact;
 // - lifecycle defense-turret effects.
 export default class BridgeIncomingMissilesView {
     private readonly root: Phaser.GameObjects.Container;
@@ -48,7 +49,11 @@ export default class BridgeIncomingMissilesView {
 
         this.eventBus.on(BRIDGE_EVENT.INCOMING_MISSILES_UPDATED, this.updateMissiles, this);
 
-        this.eventBus.on(BRIDGE_EVENT.INCOMING_MISSILE_REMOVED, this.removeMissile, this);
+        this.eventBus.on(
+            BRIDGE_EVENT.INCOMING_MISSILE_REMOVED,
+            this.handleMissileImpact,
+            this,
+        );
 
         this.eventBus.on(BRIDGE_EVENT.DEFENSE_TURRET_FIRED, this.handleDefenseTurretFired, this);
     }
@@ -58,7 +63,11 @@ export default class BridgeIncomingMissilesView {
 
         this.eventBus.off(BRIDGE_EVENT.INCOMING_MISSILES_UPDATED, this.updateMissiles, this);
 
-        this.eventBus.off(BRIDGE_EVENT.INCOMING_MISSILE_REMOVED, this.removeMissile, this);
+        this.eventBus.off(
+            BRIDGE_EVENT.INCOMING_MISSILE_REMOVED,
+            this.handleMissileImpact,
+            this,
+        );
 
         this.eventBus.off(BRIDGE_EVENT.DEFENSE_TURRET_FIRED, this.handleDefenseTurretFired, this);
 
@@ -139,16 +148,43 @@ export default class BridgeIncomingMissilesView {
         }
     }
 
-    private removeMissile(payload: BridgeIncomingMissileRemovedPayload): void {
-        const missile = this.missiles.get(payload.projectileId);
+    private handleMissileImpact(
+        payload:
+            BridgeIncomingMissileRemovedPayload,
+    ): void {
+        this.removeMissileView(
+            payload.projectileId,
+        );
+
+        const shake =
+            SCREEN_SHAKE.MEDIUM;
+
+        this.scene.cameras.main.shake(
+            shake.durationMs,
+            shake.intensity,
+        );
+    }
+
+    private removeMissileView(
+        projectileId: string,
+    ): void {
+        const missile =
+            this.missiles.get(
+                projectileId,
+            );
 
         if (!missile) {
-            throw new Error(`Incoming missile not found: ` + payload.projectileId);
+            throw new Error(
+                'Incoming missile not found: ' +
+                    projectileId,
+            );
         }
 
         missile.destroy();
 
-        this.missiles.delete(payload.projectileId);
+        this.missiles.delete(
+            projectileId,
+        );
     }
 
     private handleDefenseTurretFired(payload: BridgeDefenseTurretFiredPayload): void {
@@ -177,9 +213,9 @@ export default class BridgeIncomingMissilesView {
 
         switch (payload.outcome) {
             case DEFENSE_TURRET_SHOT_OUTCOME.HIT:
-                this.removeMissile({
-                    projectileId: payload.projectileId,
-                });
+                this.removeMissileView(
+                    payload.projectileId,
+                );
 
                 return;
 
