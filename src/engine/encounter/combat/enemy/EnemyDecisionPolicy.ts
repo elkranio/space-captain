@@ -83,7 +83,8 @@ export type EnemyWorkIntent =
               typeof SHIP_CREW_TASK_KIND
                   .CLEAR_STICKY_MINE;
 
-          role: OfficerRole;
+          role:
+              typeof OFFICER_ROLE.ENGINEER;
 
           mineId: string;
       }
@@ -132,13 +133,6 @@ type EnemyDefenseCandidate = {
     estimatedDeadlineMs?:
         number;
 };
-
-const ENEMY_MINE_CLEAR_ROLE_PRIORITY = [
-    OFFICER_ROLE.ENGINEER,
-    OFFICER_ROLE.SCIENCE,
-    OFFICER_ROLE.HELM,
-    OFFICER_ROLE.WEAPONS,
-] as const;
 
 const ENEMY_OFFENSIVE_ROLE_PRIORITY = [
     OFFICER_ROLE.WEAPONS,
@@ -237,6 +231,15 @@ export default class EnemyDecisionPolicy {
         snapshot:
             EnemyCaptainDecisionSnapshot,
     ): EnemyDefenseCandidate | undefined {
+        if (
+            !this.isRoleAvailable(
+                snapshot,
+                OFFICER_ROLE.ENGINEER,
+            )
+        ) {
+            return undefined;
+        }
+
         const clearDurationMs =
             getTimedOfficerTaskDurationMs(
                 OFFICER_TASK_KIND
@@ -296,27 +299,14 @@ export default class EnemyDecisionPolicy {
             return undefined;
         }
 
-        const role =
-            ENEMY_MINE_CLEAR_ROLE_PRIORITY
-                .find((candidate) => {
-                    return this
-                        .isRoleAvailable(
-                            snapshot,
-                            candidate,
-                        );
-                });
-
-        if (!role) {
-            return undefined;
-        }
-
         return {
             intent: {
                 kind:
                     SHIP_CREW_TASK_KIND
                         .CLEAR_STICKY_MINE,
 
-                role,
+                role:
+                    OFFICER_ROLE.ENGINEER,
 
                 mineId:
                     selectedMine.mineId,

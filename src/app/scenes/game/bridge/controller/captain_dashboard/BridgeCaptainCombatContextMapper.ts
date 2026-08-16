@@ -184,63 +184,6 @@ export function mapCaptainCombatContextToBridgePayload(
                     const canClear =
                         snapshot.isNextClearTarget;
 
-                    const scienceClear =
-                        canClear
-                            ? findUntargetedCommand({
-                                  commands:
-                                      input
-                                          .availableScienceCommands,
-
-                                  commandId:
-                                      ENCOUNTER_OFFICER_COMMAND_ID
-                                          .CLEAR_STICKY_MINE,
-
-                                  role:
-                                      OFFICER_ROLE.SCIENCE,
-
-                                  label:
-                                      'Science clear mine',
-                              })
-                            : undefined;
-
-                    const helmClear =
-                        canClear
-                            ? findUntargetedCommand({
-                                  commands:
-                                      input
-                                          .availableHelmCommands,
-
-                                  commandId:
-                                      ENCOUNTER_OFFICER_COMMAND_ID
-                                          .CLEAR_STICKY_MINE,
-
-                                  role:
-                                      OFFICER_ROLE.HELM,
-
-                                  label:
-                                      'Helm clear mine',
-                              })
-                            : undefined;
-
-                    const weaponsClear =
-                        canClear
-                            ? findUntargetedCommand({
-                                  commands:
-                                      input
-                                          .availableWeaponsCommands,
-
-                                  commandId:
-                                      ENCOUNTER_OFFICER_COMMAND_ID
-                                          .CLEAR_STICKY_MINE,
-
-                                  role:
-                                      OFFICER_ROLE.WEAPONS,
-
-                                  label:
-                                      'Weapons clear mine',
-                              })
-                            : undefined;
-
                     const engineerClear =
                         canClear
                             ? findUntargetedCommand({
@@ -279,24 +222,6 @@ export function mapCaptainCombatContextToBridgePayload(
                             snapshot.isNextClearTarget,
 
                         actions: {
-                            ...(scienceClear
-                                ? {
-                                      scienceClear,
-                                  }
-                                : {}),
-
-                            ...(helmClear
-                                ? {
-                                      helmClear,
-                                  }
-                                : {}),
-
-                            ...(weaponsClear
-                                ? {
-                                      weaponsClear,
-                                  }
-                                : {}),
-
                             ...(engineerClear
                                 ? {
                                       engineerClear,

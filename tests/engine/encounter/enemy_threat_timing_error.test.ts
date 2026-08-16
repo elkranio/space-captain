@@ -74,7 +74,7 @@ describe(
 
                 expect(
                     actor.crewTasks[
-                        OFFICER_ROLE.HELM
+                        OFFICER_ROLE.ENGINEER
                     ],
                 ).toMatchObject({
                     kind:
@@ -119,7 +119,7 @@ describe(
 
                 expect(
                     actor.crewTasks[
-                        OFFICER_ROLE.HELM
+                        OFFICER_ROLE.ENGINEER
                     ],
                 ).toBeUndefined();
             },
@@ -184,7 +184,7 @@ function createFixture(
     }
 
     actor.crewRoles = [
-        OFFICER_ROLE.HELM,
+        OFFICER_ROLE.ENGINEER,
     ];
 
     actor.crewTasks = {};

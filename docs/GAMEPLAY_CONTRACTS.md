@@ -260,10 +260,10 @@ Current design question remains open:
 - one-command salvo pressure;
 - versus repeated deliberate one-mine commits.
 
-Likely follow-up experiment:
-- restrict mine clearing to Engineer only and re-evaluate mine pressure.
-
-Do not assume the exact local experiment content is already canonical on GitHub; inspect current files first.
+Current mine-clearing contract:
+- player CLEAR MINE is Engineer-only;
+- enemy sticky-mine clearing is Engineer-only;
+- a busy, missing or otherwise unavailable Engineer does not fall back to Science, Helm or Weapons.
 
 ## SPAM
 

@@ -255,7 +255,7 @@ describe(
                     createSnapshot();
 
                 snapshot.availableRoles = [
-                    OFFICER_ROLE.HELM,
+                    OFFICER_ROLE.ENGINEER,
                 ];
 
                 snapshot.weapons = [];
@@ -274,6 +274,46 @@ describe(
 
                         estimatedTimeToDetonationMs:
                             2500,
+                    },
+                ];
+
+                expect(
+                    new EnemyDecisionPolicy()
+                        .selectWork(
+                            snapshot,
+                        ),
+                ).toBeUndefined();
+            },
+        );
+
+        it(
+            'does not fall back to another role when Engineer cannot clear a mine',
+            () => {
+                const snapshot =
+                    createSnapshot();
+
+                snapshot.availableRoles = [
+                    OFFICER_ROLE.SCIENCE,
+                    OFFICER_ROLE.HELM,
+                    OFFICER_ROLE.WEAPONS,
+                ];
+
+                snapshot.weapons = [];
+
+                snapshot.threats = [
+                    {
+                        kind:
+                            ENEMY_THREAT_KIND
+                                .STICKY_MINE,
+
+                        observationId:
+                            'sticky_mine:clearable',
+
+                        mineId:
+                            'clearable',
+
+                        estimatedTimeToDetonationMs:
+                            7000,
                     },
                 ];
 

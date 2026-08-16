@@ -446,7 +446,7 @@ describe(
         );
 
         it(
-            'maps attached mines nearest-first and exposes clear actions only on the engine-selected next target',
+            'maps attached mines nearest-first and exposes only the Engineer clear action on the next target',
             () => {
                 const clearMine:
                     AvailableOfficerCommand = {
@@ -592,51 +592,6 @@ describe(
                             true,
 
                         actions: {
-                            scienceClear: {
-                                role:
-                                    OFFICER_ROLE.SCIENCE,
-
-                                commandId:
-                                    ENCOUNTER_OFFICER_COMMAND_ID
-                                        .CLEAR_STICKY_MINE,
-
-                                target: {
-                                    kind:
-                                        OFFICER_COMMAND_TARGET_KIND
-                                            .NONE,
-                                },
-                            },
-
-                            helmClear: {
-                                role:
-                                    OFFICER_ROLE.HELM,
-
-                                commandId:
-                                    ENCOUNTER_OFFICER_COMMAND_ID
-                                        .CLEAR_STICKY_MINE,
-
-                                target: {
-                                    kind:
-                                        OFFICER_COMMAND_TARGET_KIND
-                                            .NONE,
-                                },
-                            },
-
-                            weaponsClear: {
-                                role:
-                                    OFFICER_ROLE.WEAPONS,
-
-                                commandId:
-                                    ENCOUNTER_OFFICER_COMMAND_ID
-                                        .CLEAR_STICKY_MINE,
-
-                                target: {
-                                    kind:
-                                        OFFICER_COMMAND_TARGET_KIND
-                                            .NONE,
-                                },
-                            },
-
                             engineerClear: {
                                 role:
                                     OFFICER_ROLE.ENGINEER,

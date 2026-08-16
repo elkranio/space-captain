@@ -471,15 +471,6 @@ export type BridgeCaptainStickyMinePayload = {
     isNextClearTarget: boolean;
 
     actions: {
-        scienceClear?:
-            BridgeOfficerCommandSelectedPayload;
-
-        helmClear?:
-            BridgeOfficerCommandSelectedPayload;
-
-        weaponsClear?:
-            BridgeOfficerCommandSelectedPayload;
-
         engineerClear?:
             BridgeOfficerCommandSelectedPayload;
     };

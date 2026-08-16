@@ -49,18 +49,6 @@ type MineActionSlot = {
 
 const ACTION_SLOTS = [
     {
-        key: 'scienceClear',
-        label: 'SCI',
-    },
-    {
-        key: 'helmClear',
-        label: 'HELM',
-    },
-    {
-        key: 'weaponsClear',
-        label: 'WPN',
-    },
-    {
         key: 'engineerClear',
         label: 'ENG',
     },
@@ -89,8 +77,8 @@ type StickyMineThreatRowCallbacks = {
 
 // Temporary captain-dashboard mine row.
 //
-// Four fixed role slots reflect the real CLEAR MINE command,
-// but only the engine-selected isNextClearTarget row can expose actions.
+// CLEAR MINE is Engineer-only.
+// Only the engine-selected isNextClearTarget row can expose the ENG action.
 // This intentionally stays mine-specific while threat geometry is provisional.
 export default class BridgeCaptainStickyMineThreatRowView {
     private readonly root:

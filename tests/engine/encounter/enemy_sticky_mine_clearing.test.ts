@@ -40,7 +40,7 @@ describe(
     'Enemy sticky-mine clearing',
     () => {
         it(
-            'assigns at most one new mine-clearing order per captain tick',
+            'keeps mine clearing Engineer-only while another mine waits',
             () => {
                 const {
                     engine,
@@ -96,7 +96,7 @@ describe(
                     targetActor.crewTasks[
                         OFFICER_ROLE.ENGINEER
                     ],
-                ).toEqual({
+                ).toMatchObject({
                     kind:
                         SHIP_CREW_TASK_KIND
                             .CLEAR_STICKY_MINE,
@@ -106,18 +106,7 @@ describe(
 
                     mineId:
                         'mine_fast',
-
-                    elapsedMs: 0,
-
-                    durationMs:
-                        CLEAR_DURATION_MS,
                 });
-
-                expect(
-                    targetActor.crewTasks[
-                        OFFICER_ROLE.SCIENCE
-                    ],
-                ).toBeUndefined();
 
                 engine.step(
                     targetActor.behavior
@@ -128,22 +117,7 @@ describe(
                     targetActor.crewTasks[
                         OFFICER_ROLE.SCIENCE
                     ],
-                ).toEqual({
-                    kind:
-                        SHIP_CREW_TASK_KIND
-                            .CLEAR_STICKY_MINE,
-
-                    role:
-                        OFFICER_ROLE.SCIENCE,
-
-                    mineId:
-                        'mine_slow',
-
-                    elapsedMs: 0,
-
-                    durationMs:
-                        CLEAR_DURATION_MS,
-                });
+                ).toBeUndefined();
 
                 expect(
                     targetActor.crewTasks[
@@ -157,47 +131,13 @@ describe(
                     ],
                 ).toBeUndefined();
 
-                const debug =
-                    engine
-                        .getEnemyDebugSnapshots()[0];
-
-                if (!debug) {
-                    throw new Error(
-                        'Expected enemy debug snapshot',
-                    );
-                }
-
                 expect(
-                    debug.roles.find(
-                        (role) => {
-                            return (
-                                role.role ===
-                                OFFICER_ROLE
-                                    .ENGINEER
-                            );
-                        },
-                    )?.task,
+                    targetActor.crewTasks[
+                        OFFICER_ROLE.ENGINEER
+                    ],
                 ).toMatchObject({
-                    kind:
-                        SHIP_CREW_TASK_KIND
-                            .CLEAR_STICKY_MINE,
-
-                    label:
-                        'CLEAN mine_fast',
-
-                    targetRemainingMs:
-                        7000 -
-                        targetActor.behavior
-                            .decisionTickDurationMs,
-
-                    progress: {
-                        elapsedMs:
-                            targetActor.behavior
-                                .decisionTickDurationMs,
-
-                        durationMs:
-                            CLEAR_DURATION_MS,
-                    },
+                    mineId:
+                        'mine_fast',
                 });
 
                 engine.drainEvents();
@@ -207,19 +147,20 @@ describe(
                 );
 
                 expect(
-                    state.combat
-                        .stickyMines,
-                ).toEqual([]);
-
-                expect(
                     targetActor.crewTasks[
-                        OFFICER_ROLE.ENGINEER
+                        OFFICER_ROLE.SCIENCE
                     ],
                 ).toBeUndefined();
 
                 expect(
                     targetActor.crewTasks[
-                        OFFICER_ROLE.SCIENCE
+                        OFFICER_ROLE.HELM
+                    ],
+                ).toBeUndefined();
+
+                expect(
+                    targetActor.crewTasks[
+                        OFFICER_ROLE.WEAPONS
                     ],
                 ).toBeUndefined();
 
@@ -234,38 +175,23 @@ describe(
                             return (
                                 event.type ===
                                 ENCOUNTER_EVENT
-                                    .PLAYER_STICKY_MINE_RESOLVED
+                                    .PLAYER_STICKY_MINE_RESOLVED &&
+                                event.outcome ===
+                                PLAYER_STICKY_MINE_OUTCOME
+                                    .CLEARED
                             );
                         });
 
                 expect(
                     clearedEvents,
-                ).toEqual(
-                    expect.arrayContaining([
-                        expect.objectContaining({
-                            outcome:
-                                PLAYER_STICKY_MINE_OUTCOME
-                                    .CLEARED,
-
-                            mine:
-                                expect.objectContaining({
-                                    id:
-                                        'mine_fast',
-                                }),
-                        }),
-
-                        expect.objectContaining({
-                            outcome:
-                                PLAYER_STICKY_MINE_OUTCOME
-                                    .CLEARED,
-
-                            mine:
-                                expect.objectContaining({
-                                    id:
-                                        'mine_slow',
-                                }),
-                        }),
-                    ]),
+                ).toContainEqual(
+                    expect.objectContaining({
+                        mine:
+                            expect.objectContaining({
+                                id:
+                                    'mine_fast',
+                            }),
+                    }),
                 );
             },
         );
@@ -287,8 +213,7 @@ describe(
                     .threatTimingWiggleMs = 0;
 
                 targetActor.crewRoles = [
-                    OFFICER_ROLE.HELM,
-                    OFFICER_ROLE.WEAPONS,
+                    OFFICER_ROLE.ENGINEER,
                 ];
 
                 targetActor.weapons = [];
@@ -323,6 +248,12 @@ describe(
                 expect(
                     targetActor.crewTasks[
                         OFFICER_ROLE.WEAPONS
+                    ],
+                ).toBeUndefined();
+
+                expect(
+                    targetActor.crewTasks[
+                        OFFICER_ROLE.ENGINEER
                     ],
                 ).toBeUndefined();
 

@@ -61,6 +61,9 @@ export type ClearStickyMineShipCrewTaskState =
             typeof SHIP_CREW_TASK_KIND
                 .CLEAR_STICKY_MINE;
 
+        role:
+            typeof OFFICER_ROLE.ENGINEER;
+
         mineId: string;
 
         elapsedMs: number;

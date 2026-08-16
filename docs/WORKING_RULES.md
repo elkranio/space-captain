@@ -93,8 +93,9 @@ When a failed/obsolete patcher is replaced:
 ## Validation
 
 Temporary Node patchers must invoke package-manager commands in a
-platform-aware way. On Windows, use `npm.cmd` (or an equivalent shell
-invocation that resolves `.cmd` files); do not call bare `npm` through
+platform-aware way. On Windows, `.cmd` launchers such as `npm.cmd` must
+run through a shell (`shell: true` or an explicit `cmd.exe` invocation);
+do not call bare `npm`, and do not call `npm.cmd` directly through
 `execFileSync` / `spawnSync` with `shell: false`.
 For a TypeScript/gameplay atom, the normal atom-level automated floor is:
 
