@@ -63,7 +63,7 @@ describe('Sticky mine snapshots', () => {
 
         expect(
             engine.executeCommand({
-                role: OFFICER_ROLE.SCIENCE,
+                role: OFFICER_ROLE.ENGINEER,
 
                 commandId:
                     ENCOUNTER_OFFICER_COMMAND_ID

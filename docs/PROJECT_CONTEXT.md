@@ -67,38 +67,23 @@ Runtime smoke is still required after visual/gameplay work.
 
 Do not run `npm audit fix` as part of unrelated work.
 
-## Temporary patch workflow
+## Working rules
 
-Assistant-generated temporary patchers are disposable local tools.
+Permanent collaboration, patch-delivery, cleanup, validation, and handoff rules
+live in [`WORKING_RULES.md`](./WORKING_RULES.md).
 
-- Deliver every temporary `.mjs` only inside a `.zip`.
-- Use an exact expected HEAD guard whenever possible.
-- Failed patchers stay on disk for diagnosis.
-- Successful patchers self-delete only after all writes, post-guards, and
-  validation succeed.
-- Recovery patchers must accept the exact known dirty state after a partial
-  apply; do not require a rollback unless genuinely necessary.
-- Preserve source EOL and exactly one EOF newline.
-- Cleanup must target exact known filenames only.
-- Finish with `git -c core.safecrlf=false diff --check`.
-- The user runs and verifies patches locally, then pushes green commits.
+Keep process rules there instead of duplicating them in this file or
+`../CURRENT_HANDOFF.md`.
 
-## Documentation read rule
+## Documentation map
 
-For every fresh chat / coding session:
-
-1. Read the root `../CURRENT_HANDOFF.md`.
-2. Read **every Markdown document in `docs/`** before coding or making new
-   project-design decisions.
-3. Re-fetch current `master` after the docs are loaded.
-
-Useful orientation inside this folder:
-- `PROJECT_CONTEXT.md` — durable project/workflow rules;
-- `GAMEPLAY_CONTRACTS.md` — gameplay/domain invariants;
-- `SYSTEM_MAP.md` — ownership/architecture map;
-- `BACKLOG.md` — active deferred work;
-- `BRIDGE_ART_DIRECTION.md` — bridge visual direction;
+- `WORKING_RULES.md` — canonical collaboration/patch workflow.
+- `GAMEPLAY_CONTRACTS.md` — gameplay/domain invariants.
+- `SYSTEM_MAP.md` — ownership/architecture map.
+- `BACKLOG.md` — active deferred work.
+- `BRIDGE_ART_DIRECTION.md` — bridge visual direction.
 - `THREAT_PANEL.md` — compact threat-tile and urgency-timeline design.
+- `../CURRENT_HANDOFF.md` — transient implementation state and next atom.
 
-The root `../CURRENT_HANDOFF.md` is the single transient handoff. Do not create
-a new one-off handoff for every subsystem unless there is a strong reason.
+Session startup/read order and handoff workflow are defined only in
+`WORKING_RULES.md`.

@@ -25,6 +25,7 @@ import { getMutableEncounterStateForTest } from './get_mutable_encounter_state_f
 import {
     ENCOUNTER_OFFICER_COMMAND_ID,
     OFFICER_COMMAND_EXECUTION_STATUS,
+    OFFICER_COMMAND_REJECTION_REASON,
     OFFICER_COMMAND_TARGET_KIND,
 } from '../../../src/engine/encounter/model/command';
 import {
@@ -48,12 +49,14 @@ import {
     createSingleStationNodeFixture,
 } from '../../fixtures/engine/space_node_fixtures';
 
-const ALL_ROLES = Object.values(
-    OFFICER_ROLE,
-);
+const NON_ENGINEER_ROLES = [
+    OFFICER_ROLE.SCIENCE,
+    OFFICER_ROLE.HELM,
+    OFFICER_ROLE.WEAPONS,
+] satisfies OfficerRole[];
 
 describe('CLEAR MINE command', () => {
-    it('is available to every role and reserves mines by nearest fuse', () => {
+    it('is available only to Engineer and reserves the nearest incoming mine', () => {
         const {
             engine,
             state,
@@ -71,74 +74,77 @@ describe('CLEAR MINE command', () => {
             createMine('mine_middle', 7000),
         );
 
-        for (const role of ALL_ROLES) {
-            expect(
-                getClearMineCommand(
-                    engine,
-                    role,
-                ),
-            ).toEqual({
-                commandId:
-                    ENCOUNTER_OFFICER_COMMAND_ID
-                        .CLEAR_STICKY_MINE,
-
-                label: 'CLEAR MINE',
-
-                target: {
-                    kind:
-                        OFFICER_COMMAND_TARGET_KIND
-                            .NONE,
-                },
-
-                targetLabel: 'STICKY MINES',
-            });
-        }
-
-        executeClearMine(
-            engine,
-            OFFICER_ROLE.SCIENCE,
-        );
-        executeClearMine(
-            engine,
-            OFFICER_ROLE.HELM,
-        );
-        executeClearMine(
-            engine,
-            OFFICER_ROLE.WEAPONS,
-        );
-
-        const tasks = engine.getOfficerTasks();
-
-        expect(
-            findTaskMineId(
-                tasks,
-                OFFICER_ROLE.SCIENCE,
-            ),
-        ).toBe('mine_urgent');
-
-        expect(
-            findTaskMineId(
-                tasks,
-                OFFICER_ROLE.HELM,
-            ),
-        ).toBe('mine_middle');
-
-        expect(
-            findTaskMineId(
-                tasks,
-                OFFICER_ROLE.WEAPONS,
-            ),
-        ).toBe('mine_slow');
-
         expect(
             getClearMineCommand(
                 engine,
                 OFFICER_ROLE.ENGINEER,
             ),
-        ).toBeUndefined();
+        ).toEqual({
+            commandId:
+                ENCOUNTER_OFFICER_COMMAND_ID
+                    .CLEAR_STICKY_MINE,
+
+            label: 'CLEAR MINE',
+
+            target: {
+                kind:
+                    OFFICER_COMMAND_TARGET_KIND
+                        .NONE,
+            },
+
+            targetLabel: 'STICKY MINES',
+        });
+
+        for (
+            const role of
+                NON_ENGINEER_ROLES
+        ) {
+            expect(
+                getClearMineCommand(
+                    engine,
+                    role,
+                ),
+            ).toBeUndefined();
+
+            expect(
+                engine.executeCommand({
+                    role,
+
+                    commandId:
+                        ENCOUNTER_OFFICER_COMMAND_ID
+                            .CLEAR_STICKY_MINE,
+
+                    target: {
+                        kind:
+                            OFFICER_COMMAND_TARGET_KIND
+                                .NONE,
+                    },
+                }),
+            ).toEqual({
+                status:
+                    OFFICER_COMMAND_EXECUTION_STATUS
+                        .REJECTED,
+
+                reason:
+                    OFFICER_COMMAND_REJECTION_REASON
+                        .NOT_AVAILABLE,
+            });
+        }
+
+        executeClearMine(
+            engine,
+            OFFICER_ROLE.ENGINEER,
+        );
+
+        expect(
+            findTaskMineId(
+                engine.getOfficerTasks(),
+                OFFICER_ROLE.ENGINEER,
+            ),
+        ).toBe('mine_urgent');
     });
 
-    it('clears reserved mines when the timed tasks complete', () => {
+    it('clears the reserved mine when the Engineer task completes', () => {
         const {
             engine,
             state,
@@ -151,11 +157,7 @@ describe('CLEAR MINE command', () => {
 
         executeClearMine(
             engine,
-            OFFICER_ROLE.SCIENCE,
-        );
-        executeClearMine(
-            engine,
-            OFFICER_ROLE.HELM,
+            OFFICER_ROLE.ENGINEER,
         );
 
         engine.drainEvents();
@@ -164,7 +166,9 @@ describe('CLEAR MINE command', () => {
 
         expect(
             state.combat.stickyMines,
-        ).toEqual([]);
+        ).toEqual([
+            createMine('mine_second', 4000),
+        ]);
 
         expect(
             engine.getOfficerTasks(),
@@ -185,59 +189,14 @@ describe('CLEAR MINE command', () => {
                         OFFICER_TASK_KIND
                             .CLEAR_STICKY_MINE,
 
-                    role: OFFICER_ROLE.SCIENCE,
-
-                    sourceCommandId:
-                        ENCOUNTER_OFFICER_COMMAND_ID
-                            .CLEAR_STICKY_MINE,
-
-                    mineId: 'mine_urgent',
-
-                    label: 'CLEAR MINE',
-                    showProgress: true,
-
-                    durationMs: 3000,
-                    elapsedMs: 3000,
-
-                    canBeCancelledByPlayer:
-                        true,
-                    canBeInterruptedByDamage:
-                        true,
-                },
-
-                outcome:
-                    OFFICER_TASK_OUTCOME
-                        .COMPLETED,
-
-                result: {
-                    kind:
-                        OFFICER_TASK_RESULT_KIND
-                            .STICKY_MINE_CLEARED,
-
-                    mineId: 'mine_urgent',
-                },
-            },
-
-            {
-                type:
-                    ENCOUNTER_EVENT
-                        .OFFICER_TASK_ENDED,
-
-                task: {
-                    id: 'task_2',
-
-                    kind:
-                        OFFICER_TASK_KIND
-                            .CLEAR_STICKY_MINE,
-
                     role:
-                        OFFICER_ROLE.HELM,
+                        OFFICER_ROLE.ENGINEER,
 
                     sourceCommandId:
                         ENCOUNTER_OFFICER_COMMAND_ID
                             .CLEAR_STICKY_MINE,
 
-                    mineId: 'mine_second',
+                    mineId: 'mine_urgent',
 
                     label: 'CLEAR MINE',
                     showProgress: true,
@@ -260,10 +219,17 @@ describe('CLEAR MINE command', () => {
                         OFFICER_TASK_RESULT_KIND
                             .STICKY_MINE_CLEARED,
 
-                    mineId: 'mine_second',
+                    mineId: 'mine_urgent',
                 },
             },
         ]);
+
+        expect(
+            getClearMineCommand(
+                engine,
+                OFFICER_ROLE.ENGINEER,
+            ),
+        ).toBeDefined();
     });
 
     it('cancels a sweep when its mine detonates and does not retarget', () => {
@@ -279,7 +245,7 @@ describe('CLEAR MINE command', () => {
 
         executeClearMine(
             engine,
-            OFFICER_ROLE.HELM,
+            OFFICER_ROLE.ENGINEER,
         );
 
         engine.drainEvents();
@@ -316,7 +282,7 @@ describe('CLEAR MINE command', () => {
                         OFFICER_TASK_KIND
                             .CLEAR_STICKY_MINE,
 
-                    role: OFFICER_ROLE.HELM,
+                    role: OFFICER_ROLE.ENGINEER,
 
                     sourceCommandId:
                         ENCOUNTER_OFFICER_COMMAND_ID
@@ -355,7 +321,7 @@ describe('CLEAR MINE command', () => {
         expect(
             getClearMineCommand(
                 engine,
-                OFFICER_ROLE.HELM,
+                OFFICER_ROLE.ENGINEER,
             ),
         ).toBeDefined();
     });
@@ -394,7 +360,7 @@ describe('CLEAR MINE command', () => {
 
         executeClearMine(
             engine,
-            OFFICER_ROLE.WEAPONS,
+            OFFICER_ROLE.ENGINEER,
         );
 
         engine.drainEvents();

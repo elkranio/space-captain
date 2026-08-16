@@ -24,9 +24,6 @@ const COMMAND_ID =
 
 const COMMAND_DEF = {
     availableToRoles: [
-        OFFICER_ROLE.SCIENCE,
-        OFFICER_ROLE.HELM,
-        OFFICER_ROLE.WEAPONS,
         OFFICER_ROLE.ENGINEER,
     ],
 
