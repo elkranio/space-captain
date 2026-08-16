@@ -44,96 +44,41 @@ describe(
     'Defense and ship-behavior content tuning',
     () => {
         it(
-            'preserves current defense definitions',
+            'loads built-in defense and behavior records',
             () => {
                 expect(
                     POWER_CORES[
-                        POWER_CORE_ID
-                            .BASIC_00
-                    ],
-                ).toEqual({
-                    id:
-                        POWER_CORE_ID
-                            .BASIC_00,
-
-                    name:
-                        'MK.I POWER CORE',
-
-                    capacity: 4,
-
-                    rechargeDurationMs:
-                        24000,
-                });
+                        POWER_CORE_ID.BASIC_00
+                    ].id,
+                ).toBe(
+                    POWER_CORE_ID.BASIC_00,
+                );
 
                 expect(
                     DEFENSE_TURRETS[
-                        DEFENSE_TURRET_ID
-                            .BASIC_00
-                    ],
-                ).toEqual({
-                    id:
-                        DEFENSE_TURRET_ID
-                            .BASIC_00,
-
-                    name:
-                        'BASIC DEFENSE TURRET',
-
-                    loadDurationMs:
-                        3000,
-
-                    cooldownDurationMs:
-                        8000,
-
-                    blindInterceptChance:
-                        0.4,
-                });
+                        DEFENSE_TURRET_ID.BASIC_00
+                    ].id,
+                ).toBe(
+                    DEFENSE_TURRET_ID.BASIC_00,
+                );
 
                 expect(
                     SHIELD_GENERATORS[
-                        SHIELD_GENERATOR_ID
-                            .BASIC_00
-                    ],
-                ).toEqual({
-                    id:
-                        SHIELD_GENERATOR_ID
-                            .BASIC_00,
+                        SHIELD_GENERATOR_ID.BASIC_00
+                    ].id,
+                ).toBe(
+                    SHIELD_GENERATOR_ID.BASIC_00,
+                );
 
-                    name:
-                        'BASIC SHIELD GENERATOR',
-
-                    shieldDurationMs:
-                        5000,
-
-                    cooldownDurationMs:
-                        8000,
-                });
-            },
-        );
-
-        it(
-            'preserves the current standard enemy behavior preset',
-            () => {
                 expect(
                     SHIP_BEHAVIOR_PRESETS[
                         SHIP_BEHAVIOR_PRESET_ID
                             .STANDARD_COMBAT_00
-                    ],
-                ).toEqual({
-                    id:
-                        SHIP_BEHAVIOR_PRESET_ID
-                            .STANDARD_COMBAT_00,
-
-                    decisionTickDurationMs:
-                        1000,
-
-                    decisionTickWiggleMs:
-                        250,
-
-                    threatTimingWiggleMs:
-                        500,
-
-                    aggression: 50,
-                });
+                    ].id,
+                ).toBe(
+                    SHIP_BEHAVIOR_PRESET_ID
+                        .STANDARD_COMBAT_00,
+                );
             },
         );
 

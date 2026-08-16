@@ -7,6 +7,13 @@ import {
     OFFICER_ROLE,
 } from '../../../src/engine/defs/officer';
 import {
+    SHIELD_GENERATORS,
+} from '../../../src/engine/content/catalogs/shield_generators';
+import {
+    getTimedOfficerTaskDurationMs,
+} from '../../../src/engine/content/catalogs/officer_tasks';
+import {
+    SHIELD_GENERATOR_ID,
     SHIELD_GENERATOR_PHASE,
 } from '../../../src/engine/defs/shield_generator';
 import {
@@ -28,11 +35,24 @@ import {
     PLAYER_SHIELD_END_OUTCOME,
 } from '../../../src/engine/encounter/model/event';
 import {
+    OFFICER_TASK_KIND,
+} from '../../../src/engine/encounter/model/officer_task';
+import {
     BEAM_CANNON_SHOT_OUTCOME,
 } from '../../../src/engine/encounter/model/combat';
 import {
     createAnchoredPlayerCombatTestSetup,
 } from './combat_test_support';
+
+const DEPLOY_DURATION_MS =
+    getTimedOfficerTaskDurationMs(
+        OFFICER_TASK_KIND
+            .ENGINEER_DEPLOY_SHIELD,
+    );
+const SHIELD_DEFINITION =
+    SHIELD_GENERATORS[
+        SHIELD_GENERATOR_ID.BASIC_00
+    ];
 
 describe(
     'player shield deploy',
@@ -189,7 +209,9 @@ describe(
                     },
                 });
 
-                engine.step(3000);
+                engine.step(
+                    DEPLOY_DURATION_MS,
+                );
 
                 const deployedEvent =
                     engine
@@ -214,10 +236,10 @@ describe(
                             'shield_generator_player_00',
 
                         remainingDurationMs:
-                            5000,
+                            SHIELD_DEFINITION.shieldDurationMs,
 
                         initialDurationMs:
-                            5000,
+                            SHIELD_DEFINITION.shieldDurationMs,
                     },
                 });
 
@@ -229,10 +251,10 @@ describe(
                         'shield_generator_player_00',
 
                     remainingDurationMs:
-                        5000,
+                        SHIELD_DEFINITION.shieldDurationMs,
 
                     initialDurationMs:
-                        5000,
+                        SHIELD_DEFINITION.shieldDurationMs,
                 });
 
                 expect(
@@ -244,7 +266,10 @@ describe(
                         .COOLDOWN,
                 );
 
-                engine.step(4999);
+                engine.step(
+                    SHIELD_DEFINITION
+                        .shieldDurationMs - 1,
+                );
 
                 expect(
                     state.combat
@@ -280,7 +305,7 @@ describe(
                             0,
 
                         initialDurationMs:
-                            5000,
+                            SHIELD_DEFINITION.shieldDurationMs,
                     },
 
                     outcome:
@@ -329,7 +354,9 @@ describe(
                     },
                 });
 
-                engine.step(3000);
+                engine.step(
+                    DEPLOY_DURATION_MS,
+                );
                 engine.drainEvents();
 
                 const beamCannon:
@@ -477,10 +504,10 @@ describe(
                             'shield_generator_player_00',
 
                         remainingDurationMs:
-                            5000,
+                            SHIELD_DEFINITION.shieldDurationMs,
 
                         initialDurationMs:
-                            5000,
+                            SHIELD_DEFINITION.shieldDurationMs,
                     },
 
                     outcome:

@@ -7,8 +7,6 @@ import {
     it,
 } from 'vitest';
 import {
-} from '../../src/engine/content/catalogs/ship_weapons';
-import {
     SHIP_WEAPON_ID,
     SHIP_WEAPON_KIND,
     SHIP_WEAPON_PHASE,
@@ -20,6 +18,21 @@ import {
 import {
     mapPlayerWeaponsToBridgeStatusPayload,
 } from '../../src/app/scenes/game/bridge/controller/player_weapon_status/BridgePlayerWeaponStatusMapper';
+
+const MISSILE_DEFINITION =
+    SHIP_WEAPONS[
+        SHIP_WEAPON_ID
+            .MISSILE_LAUNCHER_00
+    ];
+
+if (
+    MISSILE_DEFINITION.kind !==
+    SHIP_WEAPON_KIND.MISSILE_LAUNCHER
+) {
+    throw new Error(
+        'Expected Missile Launcher definition',
+    );
+}
 
 describe('Bridge player weapon status mapper', () => {
     it('preserves every installed weapon identity, including duplicate kinds', () => {
@@ -62,7 +75,9 @@ describe('Bridge player weapon status mapper', () => {
                     SHIP_WEAPON_PHASE.READY,
                 ammo: {
                     current: 5,
-                    max: 5,
+                    max:
+                        MISSILE_DEFINITION
+                            .ammoCapacity,
                 },
             },
             {
@@ -78,7 +93,9 @@ describe('Bridge player weapon status mapper', () => {
                     SHIP_WEAPON_PHASE.READY,
                 ammo: {
                     current: 3,
-                    max: 5,
+                    max:
+                        MISSILE_DEFINITION
+                            .ammoCapacity,
                 },
             },
             {
@@ -94,7 +111,9 @@ describe('Bridge player weapon status mapper', () => {
                     SHIP_WEAPON_PHASE.READY,
                 ammo: {
                     current: 1,
-                    max: 5,
+                    max:
+                        MISSILE_DEFINITION
+                            .ammoCapacity,
                 },
             },
             {
@@ -110,7 +129,9 @@ describe('Bridge player weapon status mapper', () => {
                     SHIP_WEAPON_PHASE.READY,
                 ammo: {
                     current: 0,
-                    max: 5,
+                    max:
+                        MISSILE_DEFINITION
+                            .ammoCapacity,
                 },
             },
         ]);
@@ -214,16 +235,24 @@ describe('Bridge player weapon status mapper', () => {
                     SHIP_WEAPON_PHASE
                         .COOLDOWN,
                 initialPhaseMs:
-                    15000,
+                    MISSILE_DEFINITION
+                        .cooldownDurationMs,
                 remainingPhaseMs:
-                    11000,
+                    MISSILE_DEFINITION
+                        .cooldownDurationMs -
+                    4000,
                 initialCooldownMs:
-                    15000,
+                    MISSILE_DEFINITION
+                        .cooldownDurationMs,
                 remainingCooldownMs:
-                    11000,
+                    MISSILE_DEFINITION
+                        .cooldownDurationMs -
+                    4000,
                 ammo: {
                     current: 3,
-                    max: 5,
+                    max:
+                        MISSILE_DEFINITION
+                            .ammoCapacity,
                 },
             },
         ]);

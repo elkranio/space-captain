@@ -4,6 +4,9 @@ import {
     it,
 } from 'vitest';
 import {
+    SHIELD_GENERATORS,
+} from '../../../src/engine/content/catalogs/shield_generators';
+import {
     SHIELD_GENERATOR_ID,
     SHIELD_GENERATOR_PHASE,
     SHIELD_GENERATOR_STATUS,
@@ -12,6 +15,12 @@ import {
 import {
     advanceShieldGenerator,
 } from '../../../src/engine/encounter/combat/defense/ShieldGeneratorRunner';
+
+const COOLDOWN_DURATION_MS =
+    SHIELD_GENERATORS[
+        SHIELD_GENERATOR_ID.BASIC_00
+    ].cooldownDurationMs;
+const FINAL_COOLDOWN_SLICE_MS = 800;
 
 describe(
     'ShieldGeneratorRunner',
@@ -37,12 +46,13 @@ describe(
                                 .COOLDOWN,
 
                         phaseElapsedMs:
-                            7200,
+                            COOLDOWN_DURATION_MS -
+                            FINAL_COOLDOWN_SLICE_MS,
                     };
 
                 advanceShieldGenerator(
                     emitter,
-                    799,
+                    FINAL_COOLDOWN_SLICE_MS - 1,
                 );
 
                 expect(
@@ -64,7 +74,7 @@ describe(
                             .COOLDOWN,
 
                     phaseElapsedMs:
-                        7999,
+                        COOLDOWN_DURATION_MS - 1,
                 });
 
                 advanceShieldGenerator(

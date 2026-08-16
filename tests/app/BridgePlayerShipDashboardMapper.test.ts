@@ -222,7 +222,10 @@ describe(
                             max: 5,
                         },
                         cooldownProgress:
-                            1 - 10000 / 15000,
+                            expect.closeTo(
+                                1 - 10000 / 15000,
+                                10,
+                            ),
                         action: {
                             state:
                                 BRIDGE_PLAYER_SYSTEM_ACTION_STATE

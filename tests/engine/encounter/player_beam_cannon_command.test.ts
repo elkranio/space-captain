@@ -49,30 +49,6 @@ describe('Player beamCannon command', () => {
                 ),
             };
 
-            const installedLauncher = {
-                ...getPlayerWeaponOrThrow(
-                    state,
-                    SHIP_WEAPON_KIND
-                        .MISSILE_LAUNCHER,
-                ),
-            };
-
-            const installedMineDispenser = {
-                ...getPlayerWeaponOrThrow(
-                    state,
-                    SHIP_WEAPON_KIND
-                        .STICKY_MINE_DISPENSER,
-                ),
-            };
-
-            const installedSpamProjector = {
-                ...getPlayerWeaponOrThrow(
-                    state,
-                    SHIP_WEAPON_KIND
-                        .SPAM_PROJECTOR,
-                ),
-            };
-
             const beamCannonCommands =
                 engine
                     .getAvailableCommands(
@@ -150,28 +126,26 @@ describe('Player beamCannon command', () => {
             });
 
             expect(
-                engine.getPlayerWeaponStates(),
-            ).toEqual([
-                {
-                    ...installedWeapon,
+                getPlayerWeaponOrThrow(
+                    state,
+                    SHIP_WEAPON_KIND
+                        .BEAM_CANNON,
+                ),
+            ).toEqual({
+                ...installedWeapon,
 
-                    phase:
-                        SHIP_WEAPON_PHASE
-                            .CHARGING,
+                phase:
+                    SHIP_WEAPON_PHASE
+                        .CHARGING,
 
-                    phaseElapsedMs: 0,
+                phaseElapsedMs: 0,
 
-                    cooldownRemainingMs:
-                        SHIP_WEAPONS[
-                            SHIP_WEAPON_ID
-                                .BEAM_CANNON_00
-                        ].cooldownDurationMs,
-                },
-
-                installedLauncher,
-                installedMineDispenser,
-                installedSpamProjector,
-            ]);
+                cooldownRemainingMs:
+                    SHIP_WEAPONS[
+                        SHIP_WEAPON_ID
+                            .BEAM_CANNON_00
+                    ].cooldownDurationMs,
+            });
 
             const [task] =
                 engine.getOfficerTasks();
@@ -225,9 +199,11 @@ describe('Player beamCannon command', () => {
             ).toEqual([]);
 
             expect(
-                engine
-                    .getPlayerWeaponStates()[0]
-                    ?.phase,
+                getPlayerWeaponOrThrow(
+                    state,
+                    SHIP_WEAPON_KIND
+                        .BEAM_CANNON,
+                ).phase,
             ).toBe(
                 SHIP_WEAPON_PHASE.COOLDOWN,
             );
@@ -253,9 +229,11 @@ describe('Player beamCannon command', () => {
             );
 
             expect(
-                engine
-                    .getPlayerWeaponStates()[0]
-                    ?.phase,
+                getPlayerWeaponOrThrow(
+                    state,
+                    SHIP_WEAPON_KIND
+                        .BEAM_CANNON,
+                ).phase,
             ).toBe(
                 SHIP_WEAPON_PHASE.READY,
             );

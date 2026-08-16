@@ -1,6 +1,9 @@
 // tests/engine/encounter/science_purge_spam.test.ts
 
 import { createPlayerHullFixture } from '../../fixtures/engine/player_hull_fixtures';
+import {
+    getTimedOfficerTaskDurationMs,
+} from '../../../src/engine/content/catalogs/officer_tasks';
 import { createShipDriveFixture } from '../../fixtures/engine/ship_drive_fixtures';
 import { describe, expect, it } from 'vitest';
 import { SHIP_NODE_ACTOR_PRESET_ID } from '../../../src/engine/content/presets/ship_node_actors';
@@ -25,6 +28,12 @@ import {
 import { OFFICER_TASK_KIND } from '../../../src/engine/encounter/model/officer_task';
 import ShipNodeActorFactory from '../../../src/engine/generation/space_node_actor/ShipNodeActorFactory';
 import { createSingleStationNodeFixture } from '../../fixtures/engine/space_node_fixtures';
+
+const PURGE_DURATION_MS =
+    getTimedOfficerTaskDurationMs(
+        OFFICER_TASK_KIND
+            .SCIENCE_PURGE_SPAM,
+    );
 
 describe('Science purge spam command', () => {
     it('purges an active hostile spam channel', () => {
@@ -159,7 +168,8 @@ describe('Science purge spam command', () => {
                 showProgress: true,
                 canBeCancelledByPlayer: true,
                 canBeInterruptedByDamage: true,
-                durationMs: 5000,
+                durationMs:
+                    PURGE_DURATION_MS,
             },
         });
 

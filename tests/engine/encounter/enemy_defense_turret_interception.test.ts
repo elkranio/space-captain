@@ -47,14 +47,25 @@ import {
     createPlayerHullFixture,
 } from '../../fixtures/engine/player_hull_fixtures';
 import {
+    DEFENSE_TURRETS,
+} from '../../../src/engine/content/catalogs/defense_turrets';
+import {
     createShipDriveFixture,
 } from '../../fixtures/engine/ship_drive_fixtures';
 import {
     getMutableEncounterStateForTest,
 } from './get_mutable_encounter_state_for_test';
 
-const LOAD_DURATION_MS = 3000;
-const COOLDOWN_DURATION_MS = 8000;
+const DEFENSE_TURRET_DEFINITION =
+    DEFENSE_TURRETS[
+        DEFENSE_TURRET_ID.BASIC_00
+    ];
+const LOAD_DURATION_MS =
+    DEFENSE_TURRET_DEFINITION
+        .loadDurationMs;
+const COOLDOWN_DURATION_MS =
+    DEFENSE_TURRET_DEFINITION
+        .cooldownDurationMs;
 const MISSILE_FLIGHT_DURATION_MS = 12000;
 
 const SCIENCE_IDENTIFY_THREAT_DURATION_MS =

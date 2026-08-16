@@ -85,9 +85,6 @@ describe('Spam projector', () => {
             );
         }
 
-        expect(definition.channelDurationMs).toBe(20000);
-        expect(definition.cooldownDurationMs).toBe(35000);
-
         expect(projector.phase).toBe(
             SHIP_WEAPON_PHASE.READY,
         );

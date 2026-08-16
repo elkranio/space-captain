@@ -4,7 +4,11 @@ import {
     it,
 } from 'vitest';
 import {
-} from '../../../src/engine/content/catalogs/ship_weapons';
+    DEFENSE_TURRETS,
+} from '../../../src/engine/content/catalogs/defense_turrets';
+import {
+    getTimedOfficerTaskDurationMs,
+} from '../../../src/engine/content/catalogs/officer_tasks';
 import {
     SHIP_NODE_ACTOR_PRESET_ID,
 } from '../../../src/engine/content/presets/ship_node_actors';
@@ -38,6 +42,9 @@ import {
     ENCOUNTER_EVENT,
     OFFICER_TASK_RESULT_KIND,
 } from '../../../src/engine/encounter/model/event';
+import {
+    OFFICER_TASK_KIND,
+} from '../../../src/engine/encounter/model/officer_task';
 import ShipDefenseTurretFactory from '../../../src/engine/generation/ship_system/ShipDefenseTurretFactory';
 import ShipNodeActorFactory from '../../../src/engine/generation/space_node_actor/ShipNodeActorFactory';
 import {
@@ -57,7 +64,15 @@ import {
 } from './get_mutable_encounter_state_for_test';
 import { getTestMissileTargetingDurationMs } from './combat_test_support';
 
-const AIM_DURATION_MS = 3000;
+const AIM_DURATION_MS =
+    getTimedOfficerTaskDurationMs(
+        OFFICER_TASK_KIND
+            .WEAPONS_DEFENSE_TURRET,
+    );
+const COOLDOWN_DURATION_MS =
+    DEFENSE_TURRETS[
+        DEFENSE_TURRET_ID.BASIC_00
+    ].cooldownDurationMs;
 
 describe(
     'Weapons defense turret command',
@@ -197,7 +212,8 @@ describe(
                         DEFENSE_TURRET_PHASE.COOLDOWN,
 
                     phaseElapsedMs: 0,
-                    cooldownRemainingMs: 8000,
+                    cooldownRemainingMs:
+                        COOLDOWN_DURATION_MS,
                 });
 
                 engine.drainEvents();
@@ -297,10 +313,15 @@ describe(
 
                     phaseElapsedMs:
                         AIM_DURATION_MS,
-                    cooldownRemainingMs: 5000,
+                    cooldownRemainingMs:
+                        COOLDOWN_DURATION_MS -
+                        AIM_DURATION_MS,
                 });
 
-                engine.step(5000);
+                engine.step(
+                    COOLDOWN_DURATION_MS -
+                        AIM_DURATION_MS,
+                );
 
                 expect(
                     engine.getAvailableCommands(
@@ -366,7 +387,9 @@ describe(
 
                     phaseElapsedMs:
                         AIM_DURATION_MS,
-                    cooldownRemainingMs: 5000,
+                    cooldownRemainingMs:
+                        COOLDOWN_DURATION_MS -
+                        AIM_DURATION_MS,
                 });
             },
         );

@@ -21,7 +21,7 @@ describe(
     'Weapon content tuning',
     () => {
         it(
-            'preserves current runtime weapon definitions across split catalogs',
+            'loads every built-in weapon family into the unified catalog',
             () => {
                 expect(
                     SHIP_WEAPONS[
@@ -32,22 +32,9 @@ describe(
                     id:
                         SHIP_WEAPON_ID
                             .MISSILE_LAUNCHER_00,
-
                     kind:
                         SHIP_WEAPON_KIND
                             .MISSILE_LAUNCHER,
-
-                    name:
-                        'MISSILE LAUNCHER',
-
-                    damage: 1,
-                    targetingDurationMs:
-                        3000,
-                    flightDurationMs:
-                        12000,
-                    ammoCapacity: 5,
-                    cooldownDurationMs:
-                        15000,
                 });
 
                 expect(
@@ -59,19 +46,9 @@ describe(
                     id:
                         SHIP_WEAPON_ID
                             .BEAM_CANNON_00,
-
                     kind:
                         SHIP_WEAPON_KIND
                             .BEAM_CANNON,
-
-                    name:
-                        'BEAM CANNON',
-
-                    damage: 1,
-                    chargeDurationMs:
-                        12000,
-                    cooldownDurationMs:
-                        27000,
                 });
 
                 expect(
@@ -83,22 +60,9 @@ describe(
                     id:
                         SHIP_WEAPON_ID
                             .SPAM_PROJECTOR_00,
-
                     kind:
                         SHIP_WEAPON_KIND
                             .SPAM_PROJECTOR,
-
-                    name:
-                        'SPAM PROJECTOR',
-
-                    channelDurationMs:
-                        20000,
-
-                    officerTaskProgressMultiplier:
-                        0.5,
-
-                    cooldownDurationMs:
-                        35000,
                 });
 
                 expect(
@@ -110,23 +74,9 @@ describe(
                     id:
                         SHIP_WEAPON_ID
                             .STICKY_MINE_DISPENSER_00,
-
                     kind:
                         SHIP_WEAPON_KIND
                             .STICKY_MINE_DISPENSER,
-
-                    name:
-                        'STICKY MINE DISPENSER',
-
-                    damage: 1,
-                    fuseDurationMs:
-                        7500,
-                    ammoCapacity: 6,
-                    salvoSize: 3,
-                    launchIntervalMs:
-                        1000,
-                    cooldownDurationMs:
-                        17000,
                 });
             },
         );

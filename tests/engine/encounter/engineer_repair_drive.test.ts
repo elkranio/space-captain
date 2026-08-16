@@ -1,6 +1,9 @@
 // tests/engine/encounter/engineer_repair_drive.test.ts
 
 import { createPlayerHullFixture } from '../../fixtures/engine/player_hull_fixtures';
+import {
+    getTimedOfficerTaskDurationMs,
+} from '../../../src/engine/content/catalogs/officer_tasks';
 import { describe, expect, it } from 'vitest';
 import { OFFICER_ROLE } from '../../../src/engine/defs/officer';
 import {
@@ -27,8 +30,18 @@ import {
 import { createShipDriveFixture } from '../../fixtures/engine/ship_drive_fixtures';
 import { createStationAndBeaconNodeFixture } from '../../fixtures/engine/space_node_fixtures';
 
+const REPAIR_DURATION_MS =
+    getTimedOfficerTaskDurationMs(
+        OFFICER_TASK_KIND
+            .ENGINEER_REPAIR_DRIVE,
+    );
+const PARTIAL_REPAIR_MS =
+    Math.floor(
+        REPAIR_DURATION_MS / 2,
+    );
+
 describe('Engineer repair drive command', () => {
-    it('blocks drive-dependent Helm commands and restores the drive after twelve seconds', () => {
+    it('blocks drive-dependent Helm commands and restores the drive after the configured repair duration', () => {
         const {
             node,
             stationId,
@@ -156,14 +169,14 @@ describe('Engineer repair drive command', () => {
             label: 'REPAIR ENGINE',
             showProgress: true,
 
-            durationMs: 12000,
+            durationMs: REPAIR_DURATION_MS,
             elapsedMs: 0,
 
             canBeCancelledByPlayer: true,
             canBeInterruptedByDamage: true,
         });
 
-        engine.step(11999);
+        engine.step(REPAIR_DURATION_MS - 1);
 
         expect(engine.drainEvents()).toEqual([]);
 
@@ -201,8 +214,8 @@ describe('Engineer repair drive command', () => {
                 kind:
                     OFFICER_TASK_KIND.ENGINEER_REPAIR_DRIVE,
 
-                elapsedMs: 12000,
-                durationMs: 12000,
+                elapsedMs: REPAIR_DURATION_MS,
+                durationMs: REPAIR_DURATION_MS,
             },
 
             outcome:
@@ -272,7 +285,7 @@ describe('Engineer repair drive command', () => {
         const firstTaskId =
             startRepair(engine);
 
-        engine.step(6000);
+        engine.step(PARTIAL_REPAIR_MS);
 
         expect(engine.getOfficerTasks()).toEqual([
             expect.objectContaining({
@@ -281,8 +294,8 @@ describe('Engineer repair drive command', () => {
                 kind:
                     OFFICER_TASK_KIND.ENGINEER_REPAIR_DRIVE,
 
-                elapsedMs: 6000,
-                durationMs: 12000,
+                elapsedMs: PARTIAL_REPAIR_MS,
+                durationMs: REPAIR_DURATION_MS,
             }),
         ]);
 
@@ -295,7 +308,7 @@ describe('Engineer repair drive command', () => {
 
                 task: expect.objectContaining({
                     id: firstTaskId,
-                    elapsedMs: 6000,
+                    elapsedMs: PARTIAL_REPAIR_MS,
                 }),
 
                 outcome:
@@ -308,7 +321,7 @@ describe('Engineer repair drive command', () => {
 
         expect(secondTaskId).not.toBe(firstTaskId);
 
-        engine.step(6000);
+        engine.step(PARTIAL_REPAIR_MS);
 
         expect(engine.getDriveState().status).toBe(
             SHIP_DRIVE_STATUS.DISABLED,
@@ -318,8 +331,8 @@ describe('Engineer repair drive command', () => {
             expect.objectContaining({
                 id: secondTaskId,
 
-                elapsedMs: 6000,
-                durationMs: 12000,
+                elapsedMs: PARTIAL_REPAIR_MS,
+                durationMs: REPAIR_DURATION_MS,
             }),
         ]);
 

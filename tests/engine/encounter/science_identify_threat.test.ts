@@ -1,5 +1,8 @@
 // tests/engine/encounter/science_identify_threat.test.ts
 import { getTestMissileTargetingDurationMs } from './combat_test_support';
+import {
+    getTimedOfficerTaskDurationMs,
+} from '../../../src/engine/content/catalogs/officer_tasks';
 
 import { createPlayerHullFixture } from '../../fixtures/engine/player_hull_fixtures';
 import { createShipDriveFixture } from '../../fixtures/engine/ship_drive_fixtures';
@@ -35,6 +38,12 @@ import { createSingleStationNodeFixture } from '../../fixtures/engine/space_node
 import {
     getMutableEncounterStateForTest,
 } from './get_mutable_encounter_state_for_test';
+
+const IDENTIFY_DURATION_MS =
+    getTimedOfficerTaskDurationMs(
+        OFFICER_TASK_KIND
+            .SCIENCE_IDENTIFY_THREAT,
+    );
 
 describe('Science identify threat command', () => {
     it.each([
@@ -185,7 +194,8 @@ describe('Science identify threat command', () => {
                     canBeCancelledByPlayer: true,
                     canBeInterruptedByDamage: true,
 
-                    durationMs: 3000,
+                    durationMs:
+                        IDENTIFY_DURATION_MS,
 
                     id: 'task_1',
                     elapsedMs: 0,
@@ -208,7 +218,8 @@ describe('Science identify threat command', () => {
                     canBeCancelledByPlayer: true,
                     canBeInterruptedByDamage: true,
 
-                    durationMs: 3000,
+                    durationMs:
+                        IDENTIFY_DURATION_MS,
 
                     id: 'task_1',
                     elapsedMs: 0,
