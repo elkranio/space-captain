@@ -20,10 +20,12 @@ import {
     PLAYER_SPACE_NAVIGATION_KIND,
 } from '../../../src/engine/defs/player_location';
 import {
+    DEFENSE_TURRET_ID,
     DEFENSE_TURRET_PHASE,
     DEFENSE_TURRET_SHOT_OUTCOME,
 } from '../../../src/engine/defs/defense_turret';
 import EncounterEngine from '../../../src/engine/encounter/EncounterEngine';
+import ShipDefenseTurretFactory from '../../../src/engine/generation/ship_system/ShipDefenseTurretFactory';
 import {
     COMBAT_PROJECTILE_KIND,
     COMBAT_SOURCE_KIND,
@@ -525,11 +527,23 @@ function createScenario(
 
     const enemy = state.actors[0];
 
-    if (!enemy?.defenseTurret) {
+    if (!enemy) {
         throw new Error(
-            'Expected enemy defense turret',
+            'Expected enemy actor',
         );
     }
+
+    // This suite owns Defense Turret physics.
+    // Do not couple it to the mutable debug/sandbox loadout.
+    enemy.defenseTurret =
+        ShipDefenseTurretFactory.create({
+            id:
+                'defense_turret_00',
+
+            defenseTurretId:
+                DEFENSE_TURRET_ID
+                    .BASIC_00,
+        });
 
     // This suite owns Defense Turret physics,
     // not captain attack-vs-defense strategy.

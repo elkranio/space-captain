@@ -1,5 +1,8 @@
 // src/app/scenes/game/bridge/view/combat/outgoing_missiles/BridgeOutgoingMissilesView.ts
 
+import {
+    PLAYER_MISSILE_OUTCOME,
+} from '../../../../../../../engine/encounter/model/combat';
 import type BridgeScene from '../../../BridgeScene';
 import {
     BRIDGE_EVENT,
@@ -16,6 +19,7 @@ import BridgeDefenseTurretBeamView from '../defense_turret/BridgeDefenseTurretBe
 import {
     removeMissingCombatSnapshotEntries,
 } from '../remove_missing_combat_snapshot_entries';
+import BridgeOutgoingMissileImpactView from './impact/BridgeOutgoingMissileImpactView';
 import BridgeOutgoingMissileView from './missile/BridgeOutgoingMissileView';
 
 type GetObjectPosition = (
@@ -45,6 +49,11 @@ export default class BridgeOutgoingMissilesView {
     private readonly defenseTurretEffects =
         new Set<
             BridgeDefenseTurretBeamView
+        >();
+
+    private readonly impactEffects =
+        new Set<
+            BridgeOutgoingMissileImpactView
         >();
 
     constructor(
@@ -141,6 +150,15 @@ export default class BridgeOutgoingMissilesView {
         }
 
         this.defenseTurretEffects.clear();
+
+        for (
+            const effect of
+            this.impactEffects
+        ) {
+            effect.destroy();
+        }
+
+        this.impactEffects.clear();
 
         for (
             const missile of
@@ -272,10 +290,44 @@ export default class BridgeOutgoingMissilesView {
             );
         }
 
+        const lastPosition =
+            missile.getPosition();
+
         missile.destroy();
 
         this.missiles.delete(
             payload.projectileId,
+        );
+
+        if (
+            payload.outcome !==
+            PLAYER_MISSILE_OUTCOME.HIT
+        ) {
+            return;
+        }
+
+        const impact =
+            new BridgeOutgoingMissileImpactView({
+                scene:
+                    this.scene,
+
+                parent:
+                    this.root,
+
+                position:
+                    lastPosition,
+
+                onComplete:
+                    (completedImpact) => {
+                        this.impactEffects
+                            .delete(
+                                completedImpact,
+                            );
+                    },
+            });
+
+        this.impactEffects.add(
+            impact,
         );
     }
 
