@@ -197,6 +197,9 @@ export default class BridgeOutgoingMissilesView {
                 parent:
                     this.root,
 
+                projectileId:
+                    payload.projectileId,
+
                 startPosition:
                     getBridgePlayerWeaponSourcePosition(),
 
