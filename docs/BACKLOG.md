@@ -3,43 +3,124 @@
 Last refreshed: 2026-08-16.
 
 This is an active backlog, not a history log.
-Completed implementation notes belong in the root
-`../CURRENT_HANDOFF.md` only when they are needed to continue current work.
+Completed implementation notes belong in the root `../CURRENT_HANDOFF.md` only
+when they are needed to continue current work.
+
+The canonical near-term combat feature order lives in
+`COMBAT_PLAYTEST_ROADMAP.md`.
 
 ## P0 — next gameplay atom
 
-### Engineer-only sticky mine clearing
+### Helm Evade V0
 
-- Make `CLEAR STICKY MINE` Engineer-only in engine command
-  availability/validation.
-- Preserve current clear duration, mine timing, damage, and outcome.
-- Tests:
-  - ENG allowed;
-  - SCI rejected;
-  - HELM rejected;
-  - WPN rejected.
-- Remove the obsolete `Shared` role/tab/surface from the content editor.
-- Do not combine with Evade, escape, or shield changes.
+Implement the contract in `HELM_EVADE.md`.
 
-## P1 — combat roles / escape
+Keep the atom narrow:
 
-### Helm Evade
+- Helm-only command/lifecycle.
+- Operational drive required in V0.
+- Drive/content owns warmup, active duration, cooldown and Power cost.
+- Power and full cooldown commit at command start.
+- Cooldown advances independently in raw encounter/world time.
+- Cancellation/interruption ends protection without refunding committed cost.
+- Deterministic impact-time evasion for missile/Beam/new mine attachment.
+- SPAM and already attached mines remain unaffected.
+- Evade check precedes shield absorption.
+- Other officers remain unaffected.
+- Authoritative engine/read-model state; no presentation-owned legality.
+- Do not add Helm's second combat command.
+- Do not combine with escape.
 
-Give Helm a real combat responsibility through an Evade mechanic.
-Define mechanics in a separate design/implementation atom after mine ownership
-is fixed.
+Enemy Evade should ultimately share the same gameplay mechanic. Avoid a broad
+enemy-policy rewrite while establishing the V0 mechanic.
 
-### Escape flow
+## P1 — combat readability / build-space roadmap
 
-Target dependency:
+After Evade, follow `COMBAT_PLAYTEST_ROADMAP.md`:
+
+1. enemy dashboard redesign;
+2. player dashboard functional redesign;
+3. Science enemy scan;
+4. Beam Cannon semantic node targeting;
+5. shared combat-effect model;
+6. starter/basic gun experiment;
+7. weapon hit-effects pass;
+8. EMP experiment;
+9. second Helm combat command.
+
+Do not duplicate the detailed contracts here.
+
+## P1 — code-health cleanup
+
+### Simplify player-weapon dashboard transport
+
+Current path:
+
+```text
+PlayerWeaponPresentationSnapshot
+    -> BridgePlayerWeaponStatusMapper
+    -> BridgePlayerWeaponStatusPayload
+    -> BridgePlayerShipDashboardMapper
+```
+
+The independent-cooldown presentation bug showed that this intermediate
+transport can preserve stale phase semantics.
+
+Revisit after Evade and before/while redesigning the player/enemy dashboards.
+
+Preferred direction:
+- let the final dashboard mapper consume the nearest authoritative safe snapshot
+  possible;
+- remove an intermediate payload/mapper if it has no independent consumer;
+- do not replace it with a generic mapping framework.
+
+### Combat event handler watch point
+
+`BridgeEncounterEngineEventHandler` is large but still linear.
+
+Split only when upcoming Evade/scan/status work creates a clear cohesive
+sub-handler such as combat VFX events. Do not create one class per event.
+
+### PlayerShipStore watch point
+
+Keep current ownership unless concrete duplication/ambiguity appears.
+
+Small private helpers for repeated weapon lookup/validation are acceptable if
+they remain boring and obvious. Do not split the store solely because it is
+large.
+
+## P2 — test hygiene follow-up
+
+### Sticky-mine timing suites
+
+Sticky-mine tests still mix:
+- content tuning;
+- salvo sequencing;
+- fuse timing;
+- large-step/catch-up semantics.
+
+Do a dedicated cleanup later.
+
+Goal:
+- derive balance values from definitions where they are not the contract;
+- preserve strict sequencing/fuse/catch-up assertions;
+- do not weaken the tests merely to reduce maintenance.
+
+Keep exhaustive command-role coverage strict.
+
+## P2 — escape flow
+
+Current target dependency:
 
 1. drive/engine operational;
 2. Engineer repairs it first when damaged;
 3. Helm initiates escape;
-4. all other officers must be free for escape to complete/start as ultimately
-   decided during implementation.
+4. other-officer availability requirement remains to be finalized during the
+   escape implementation.
 
-Keep the exact command/task contract explicit and tested.
+Do not fold escape into Evade.
+
+## P2 — combat presentation polish
 
 ### Outgoing missile polish
 
@@ -50,12 +131,12 @@ Current pass is usable. Revisit only after higher-value gameplay work:
 - scale falloff;
 - trail density/decay.
 
-## P2 — combat presentation polish
+### Incoming/outgoing missile cleanup
 
 - Consider short trail decay when a missile is intercepted instead of
   disappearing instantly.
-- If combat readability needs it, test a very short final missile
-  point-of-no-return / commit presentation rather than making the whole terminal
+- If readability needs it, test a very short final missile
+  point-of-no-return/commit presentation rather than making the whole terminal
   phase un-interceptable.
 - Continue using shared screen-shake presets instead of ad-hoc values.
 

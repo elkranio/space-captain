@@ -2,223 +2,189 @@
 
 Date: 2026-08-16  
 Baseline master at handoff creation:
-`928235b2993b6cf8d322a3543cac14047f6bd925`
+`a08f6daef8a13ab608ef10666d77f31d5f5a42d4`
 
 Always re-fetch `master` before creating the next patch; this SHA is a
 historical checkpoint, not a permanent guard.
 
-## Where we are
+## Current state
 
-The current bridge rebuild and the main combat presentation pass are working
-and pushed. The next atom is gameplay, not another bridge redesign.
+The bridge rebuild and current combat presentation are working and pushed.
 
-### Bridge baseline
+The repository is green after the 2026-08-16 combat cleanup pass:
 
-- First-person captain view; no captain avatar.
-- Compact 1990s Sierra / Space Quest VGA bridge.
-- Officer order: SCI -> HELM -> WPN -> ENG.
-- Large polygonal forward viewscreen.
-- Lower captain dashboard.
-- Bridge background owns the stations and blank monitors.
-- Officer sprites are authored separately; WPN/ENG are flipped as needed.
-- Engineer recolor is complete.
-- Do not move the manually tuned officer roots unless explicitly requested:
-  - SCI: (285, 480)
-  - HELM: (508, 480)
-  - WPN: (778, 480)
-  - ENG: (992, 480)
-  - hitboxes: 115x153
-- Viewscreen opening: x=182, y=59, w=919, h=308.
-- Safe viewscreen content area: x=254, y=82, w=772, h=270.
-- Layering:
-  space/combat -> transparent bridge background -> officers ->
-  dashboard/barks/menus.
-- The open context menu still intentionally polls command availability at
-  roughly 200 ms. Do not refactor this merely because it is polling.
+- `CLEAR STICKY MINE` is Engineer-only for player and enemy behavior.
+- The obsolete Shared officer-task editor surface/content was removed.
+- Every officer command definition belongs to exactly one scalar `role`.
+- The combat playtest roadmap is documented in
+  `docs/COMBAT_PLAYTEST_ROADMAP.md`.
+- The Helm Evade gameplay contract is documented in `docs/HELM_EVADE.md`.
+- Weapon/defense cooldowns now use commitment semantics:
+  cooldown begins at the concrete commitment edge and may overlap active work.
+- Cooldown recovery advances in raw encounter/world time.
+- Cancellation/interruption after commitment does not refund/reset cooldown.
+- Player weapon dashboard cooldown presentation now reads the independent
+  cooldown clock, so Beam/SPAM/etc. can show recovery while their action phase
+  is still active.
+- A test-hygiene pass removed several accidental dependencies on current balance
+  numbers, whole canonical loadouts, exact floating-point equality and unrelated
+  full-state shapes.
+- Typecheck, focused tests, full test suite and runtime smoke were green before
+  this handoff refresh.
 
-## Combat presentation already green
+## NEXT ATOM — Helm Evade V0
 
-### Enemy idle drift
+`docs/HELM_EVADE.md` is the canonical design contract.
 
-Enemy ship presentation has a child visual root and a subtle no-rotation drift.
-Only ship chassis visuals drift. Position getters include the visual offset.
+Do not redesign Evade from memory. Read that document and implement the smallest
+authoritative V0 that satisfies it.
 
-Current feel:
-- X: -2 -> 2 over 13.6 s, Sine.InOut, yoyo/repeat.
-- Y: 1.5 -> -1.5 over 10.4 s, Sine.InOut, yoyo/repeat.
+Core contract:
 
-### Incoming missiles
+1. `EVADE` belongs to Helm.
+2. Base Evade requires an operational main drive.
+3. Power Core cost is spent at command start.
+4. Full Evade cooldown starts at command start.
+5. Helm owns a real task/lifecycle with:
+   - WARMUP;
+   - EVADING;
+   - remaining COOLDOWN/recovery;
+   - READY.
+6. Warmup, active duration, cooldown and Power cost are drive/content-driven.
+7. Cooldown advances in raw encounter/world time and survives cancellation or
+   interruption.
+8. Player cancellation is allowed; committed Power/cooldown are not refunded.
+9. Evade is deterministic. No dodge percentage in V0.
+10. Evasion is checked when a physical hit/attachment resolves, not when an
+    attack starts.
+11. Evadable in V0:
+    - incoming missiles;
+    - Beam Cannon hits;
+    - incoming sticky-mine attachment.
+12. Not evadable:
+    - SPAM;
+    - sticky mines already attached to the hull.
+13. The ship remains targetable while Evading.
+14. Only Helm is occupied. Do not slow/block Science, Weapons or Engineer.
+15. Beam resolution order:
+    `EVADING -> MISS`, otherwise `Active Shield -> ABSORBED`, otherwise `HIT`.
+    An Evade miss must not consume an existing shield.
+16. Engine/read-model truth owns Evade legality/state. Presentation must not
+    recreate timing or coverage rules.
 
-Incoming missiles are Phaser Graphics presentation, not literal rocket sprites.
+Enemy Evade must ultimately use the same gameplay mechanic rather than an
+AI-only dodge rule. Keep the first implementation narrow and do not invent a
+large enemy-policy redesign while establishing the shared authoritative
+mechanic.
 
-They support:
-- multiple simultaneous missiles;
-- engine-time synchronization;
-- guided Catmull-Rom paths;
-- immutable trajectory/jitter choice at creation;
-- distance communicated by glyph/trail size;
-- smooth cruise acceleration;
-- hard terminal rush;
-- point-defense integration.
+Do not add Helm's second combat command in this atom.
+Do not combine Evade with escape flow.
 
-Current motion constants:
+## Cooldown semantics Evade must reuse
 
-```ts
-motion: {
-    terminalStartTimeProgress: 0.90,
-    terminalStartPathProgress: 0.62,
-    cruiseLinearWeight: 0.42,
-    terminalLinearWeight: 0.392,
-}
+Do not create a second cooldown model for Evade.
+
+Current commitment edges:
+
+- Beam Cannon: charge start.
+- Missile Launcher: physical missile launch after targeting.
+- SPAM Projector: channel start.
+- Sticky Mine Dispenser: first physical mine launch.
+- Shield Generator: Power spend / Engineer deployment start.
+- Defense Turret: Power spend / Weapons loading start.
+
+The recent migration introduced independent recovery clocks because action
+phase and cooldown are no longer the same concept. Evade should follow that
+established rule.
+
+## Code-health notes for the Evade implementation
+
+### Avoid new runner callback chains
+
+The current encounter composition already has several runner-to-runner
+callbacks.
+
+Do not implement Evade resolution by adding a new callback maze such as
+combat runner -> Helm runner -> another runner.
+
+Physical hit resolvers should be able to ask authoritative encounter/player
+state whether the ship is currently Evading.
+
+### Player weapon dashboard transport
+
+A concrete cleanup candidate was identified:
+
+```text
+PlayerWeaponPresentationSnapshot
+    -> BridgePlayerWeaponStatusMapper
+    -> BridgePlayerWeaponStatusPayload
+    -> BridgePlayerShipDashboardMapper
 ```
 
-A possible odd first segment from the absolute incoming waypoint presets is
-known, but runtime currently looks acceptable. Do not proactively rewrite it.
+The cooldown-presentation bug exposed that this intermediate semantic layer can
+go stale when engine timing changes.
 
-### Screen shake / point defense
+Do not refactor it before Evade. Revisit it after Evade and before/while doing
+the player/enemy dashboard redesign. Prefer deleting a transport step over
+adding another abstraction if the intermediate payload has no independent
+consumer.
 
-Shared screen-shake presets live in `src/app/theme/screen_shake.ts`.
+### Other watch points
 
-```ts
-LIGHT:  { durationMs: 80,  intensity: 0.002 }
-MEDIUM: { durationMs: 120, intensity: 0.004 }
-HEAVY:  { durationMs: 220, intensity: 0.008 }
-```
+- `BridgeEncounterEngineEventHandler` is large but still linear/readable.
+  Split only if upcoming Evade/scan/status work gives it genuinely separate
+  reasons to change.
+- `PlayerShipStore` is large but its ownership is still coherent. Do not split
+  it merely because of file size.
+- Do not unify weapon/turret cooldown helpers into a generic framework just
+  because their mechanics resemble each other.
 
-- Incoming missile hull impact: MEDIUM shake.
-- Point-defense interception: no shake.
-- PD is hitscan.
-- PD beam thickness: outer 3 px / inner 1 px.
-- PD HIT: brief pixel-particle burst.
-- PD MISS: three near-miss beams, no particles.
+## Test notes
 
-### Outgoing missiles
+The test-hygiene pass intentionally changed the test policy:
 
-The current outgoing missile visual pass is accepted for now, with minor polish
-deferred.
+- content/catalog tests should verify loading/schema/catalog invariants rather
+  than mirror every current balance number;
+- behavior/lifecycle tests should derive timing from real definitions/tuning
+  when the exact number is not the contract being tested;
+- command tests should select the command/state relevant to the behavior instead
+  of asserting unrelated full lists;
+- derived floating-point values should use tolerant comparison;
+- exhaustive command-role coverage remains intentionally strict.
 
-- Phaser Graphics missile + exhaust trail.
-- Five relative trajectory personalities:
-  wide-left, shallow-left, direct S, low-right, high-right hook.
-- Waypoints are relative to the start->target line.
-- Endpoint is exact.
-- Immutable waypoint jitter: about +/-6 px.
-- Near player: large, bright, dense.
-- Near enemy: small, sparse.
-- Current depth mapping:
-  `1 - sqrt(pathProgress)`.
-- Engine time currently maps directly to path progress.
-- Enemy point defense still uses the missile's current rendered position.
+When `HELM_EVADE` is added, the exhaustive command-role test should fail until
+Evade is explicitly mapped to Helm. That failure is useful.
 
-On a real player-missile HIT, a separate impact view emits a short warm radial
-Phaser-circle flash at the last missile position:
-radius 10, scale 4.5, alpha 0.85 -> 0, 160 ms, Quad.Out.
-INTERCEPTED and TARGET_LOST do not get that impact flash.
+Sticky-mine lifecycle tests still contain some intertwined tuning + sequencing
+expectations. Do not clean them opportunistically during Evade. Give them a
+separate test-hygiene atom later so salvo/fuse/catch-up behavior is not weakened
+by accident.
 
-The enemy-defense interception tests were made self-contained and no longer
-depend on the debug-start enemy having a defense turret equipped.
+## After Evade
 
-### Enemy beam cannon
+Near-term combat order remains canonical in
+`docs/COMBAT_PLAYTEST_ROADMAP.md`:
 
-The viewscreen presentation was cleaned up.
+1. Helm Evade.
+2. Enemy dashboard redesign.
+3. Player dashboard functional redesign.
+4. Science enemy scan.
+5. Beam Cannon semantic node targeting.
+6. Shared combat-effect model.
+7. Starter/basic gun experiment.
+8. Weapon hit-effects pass.
+9. EMP experiment.
+10. Second Helm combat command.
 
-- The threat view now shows only the physical charge effect at the enemy weapon.
-- Removed designation text, countdown/timer, targeting frame, and BitmapText
-  from the viewscreen.
-- Threat snapshots still maintain lifecycle, but no longer drive a visual
-  countdown.
-- Beam HIT on the player hull: MEDIUM screen shake.
-- ABSORBED keeps the existing shield impact behavior.
-- Do not change shield behavior in the next atom.
+Do not pull later roadmap systems into the Evade atom.
 
-## NEXT ATOM — Engineer-only sticky mine clearing
+## Startup for the next chat
 
-Design decision:
+Follow `docs/WORKING_RULES.md`:
 
-`CLEAR STICKY MINE` should be an Engineer responsibility, not a Shared
-officer action.
+1. Read this handoff.
+2. Read every Markdown document in `docs/`.
+3. Re-fetch current `master`.
+4. Inspect the actual source/tests touched by Evade before patching.
 
-Why:
-- universal clearing made mines too disposable and reduced them to noise;
-- the old Shared design partly existed to occupy Comms and Helm;
-- Comms is gone;
-- Helm will receive its own combat responsibility through Evade;
-- trying to rescue universal mine clearing through timing/balance would preserve
-  the wrong gameplay structure.
-
-Keep the atom narrow:
-
-1. Enforce Engineer-only mine clearing in engine command
-   availability/validation, not only in presentation.
-2. Engineer can start the existing clear-mine task.
-3. SCI / HELM / WPN cannot start it.
-4. Do not change clear duration, detonation timing, mine outcome, or damage.
-5. Update/add focused tests for allowed Engineer and rejected other roles.
-6. Remove the `Shared` role/tab/surface from the content editor if it only
-   exists for the old shared command model.
-7. Do not add Evade in this atom.
-8. Do not implement escape flow in this atom.
-9. Do not touch shields.
-
-Known starting points to re-fetch on the new HEAD:
-
-- `src/engine/encounter/commands/handlers/clear_sticky_mine_command_handler.ts`
-- `tests/engine/encounter/clear_sticky_mine_command.test.ts`
-
-Do not assume these are the only affected files; search current master before
-patching.
-
-## Gameplay direction immediately after that
-
-### Helm: Evade
-
-Helm currently needs a proper combat responsibility. Add an Evade mechanic
-after Engineer-only mines are stable rather than keeping Shared mine clearing
-as filler.
-
-Exact Evade behavior is not locked yet; design it as its own atom.
-
-### Escape chain
-
-Current intended dependency:
-
-1. The engine/drive must be operational; Engineer repairs it when necessary.
-2. Helm performs the escape action.
-3. Escape should require all other officers to be free.
-
-Do not fold this into the mine atom.
-
-## Deferred polish / cleanup
-
-Not blocking current gameplay work:
-
-- minor outgoing-missile trajectory/scale/trail tuning;
-- possible trail decay after interception;
-- final missile commit/point-of-no-return presentation if needed;
-- remove disposable bridge debug renderer and its scene hook;
-- remove temporary `phaser3-rex-plugins` dependency with debug cleanup;
-- search and remove old missile sprite/raw/manifest assets only after proving
-  they are no longer referenced.
-
-Prefer Phaser pixel/shape VFX over generating more bespoke missile artwork when
-simple geometry communicates the mechanic better.
-
-## Working rule for every new chat
-
-This rule is permanent for handoff maintenance:
-
-1. Read this root `CURRENT_HANDOFF.md`.
-2. **Read every Markdown document in `docs/` before coding or making new
-   design decisions.**
-3. Treat `docs/` as durable project/design truth and this handoff as the
-   transient current-state pointer.
-4. Re-fetch current `master` after reading the docs; never use the historical
-   baseline SHA above as a new patch guard.
-
-The current threat-tile / urgency-timeline design is documented in
-`docs/THREAT_PANEL.md`, with the latest composition reference stored in
-`docs/images/threat_tile_reference.png`.
-
-After the docs are read and current `master` is fetched, search the actual
-mine/editor implementation and make the Engineer-only mine atom from current
-code rather than from this handoff's remembered paths.
+The historical SHA above is context only.
