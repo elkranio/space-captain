@@ -80,7 +80,7 @@ export default class BridgeMissileDebugView {
 
         const pathProgress = this.mapTimeToPathProgress(clampedTimeProgress);
 
-        const point = this.getBezierPoint(pathProgress);
+        const point = this.getTrajectoryPoint(pathProgress);
 
         this.pushTrailPoint(point);
         this.renderFlight(point, pathProgress);
@@ -182,45 +182,165 @@ export default class BridgeMissileDebugView {
             Math.round(Phaser.Math.Linear(missileConfig.minPixelSize, missileConfig.maxPixelSize, depth)),
         );
 
-        graphics.fillStyle(missileConfig.color, 1);
+        const hotSize =
+            missileSize +
+            missileConfig.hotPaddingPx;
+
+        graphics.fillStyle(
+            missileConfig.hotColor,
+            missileConfig.hotAlpha,
+        );
 
         graphics.fillRect(
-            Math.round(missilePoint.x - missileSize / 2),
-            Math.round(missilePoint.y - missileSize / 2),
+            Math.round(
+                missilePoint.x -
+                    hotSize / 2,
+            ),
+            Math.round(
+                missilePoint.y -
+                    hotSize / 2,
+            ),
+            hotSize,
+            hotSize,
+        );
+
+        graphics.fillStyle(
+            missileConfig.coreColor,
+            1,
+        );
+
+        graphics.fillRect(
+            Math.round(
+                missilePoint.x -
+                    missileSize / 2,
+            ),
+            Math.round(
+                missilePoint.y -
+                    missileSize / 2,
+            ),
             missileSize,
             missileSize,
         );
     }
 
-    private getBezierPoint(progress: number): BridgeMissileDebugPoint {
-        const config = BRIDGE_MISSILE_DEBUG_CONFIG;
+    private getTrajectoryPoint(
+        progress: number,
+    ): BridgeMissileDebugPoint {
+        const config =
+            BRIDGE_MISSILE_DEBUG_CONFIG;
 
-        const trajectory = this.getActiveTrajectory();
+        const trajectory =
+            this.getActiveTrajectory();
 
-        const start = config.start;
-        const control1 = trajectory.control1;
-        const control2 = trajectory.control2;
-        const end = trajectory.end;
+        const points = [
+            config.start,
+            ...trajectory.points,
+            trajectory.end,
+        ];
 
-        const inverse = 1 - progress;
+        const segmentCount =
+            points.length - 1;
 
-        const inverseSquared = inverse * inverse;
+        const scaledProgress =
+            Phaser.Math.Clamp(
+                progress,
+                0,
+                1,
+            ) * segmentCount;
 
-        const progressSquared = progress * progress;
+        const segmentIndex =
+            Math.min(
+                segmentCount - 1,
+                Math.floor(
+                    scaledProgress,
+                ),
+            );
+
+        const localProgress =
+            scaledProgress -
+            segmentIndex;
+
+        const point0 =
+            points[
+                Math.max(
+                    0,
+                    segmentIndex - 1,
+                )
+            ];
+
+        const point1 =
+            points[segmentIndex];
+
+        const point2 =
+            points[
+                Math.min(
+                    points.length - 1,
+                    segmentIndex + 1,
+                )
+            ];
+
+        const point3 =
+            points[
+                Math.min(
+                    points.length - 1,
+                    segmentIndex + 2,
+                )
+            ];
 
         return {
-            x:
-                inverseSquared * inverse * start.x +
-                3 * inverseSquared * progress * control1.x +
-                3 * inverse * progressSquared * control2.x +
-                progressSquared * progress * end.x,
+            x: this.catmullRom(
+                point0.x,
+                point1.x,
+                point2.x,
+                point3.x,
+                localProgress,
+            ),
 
-            y:
-                inverseSquared * inverse * start.y +
-                3 * inverseSquared * progress * control1.y +
-                3 * inverse * progressSquared * control2.y +
-                progressSquared * progress * end.y,
+            y: this.catmullRom(
+                point0.y,
+                point1.y,
+                point2.y,
+                point3.y,
+                localProgress,
+            ),
         };
+    }
+
+    private catmullRom(
+        point0: number,
+        point1: number,
+        point2: number,
+        point3: number,
+        progress: number,
+    ): number {
+        const progressSquared =
+            progress * progress;
+
+        const progressCubed =
+            progressSquared * progress;
+
+        return (
+            0.5 *
+            (
+                2 * point1 +
+                (-point0 + point2) *
+                    progress +
+                (
+                    2 * point0 -
+                    5 * point1 +
+                    4 * point2 -
+                    point3
+                ) *
+                    progressSquared +
+                (
+                    -point0 +
+                    3 * point1 -
+                    3 * point2 +
+                    point3
+                ) *
+                    progressCubed
+            )
+        );
     }
 
     private getActiveTrajectory() {

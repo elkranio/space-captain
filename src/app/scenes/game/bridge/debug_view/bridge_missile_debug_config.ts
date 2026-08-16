@@ -12,17 +12,15 @@ export const BRIDGE_MISSILE_DEBUG_CONFIG = {
     },
 
     trajectories: {
-        // 1: upper-left exit.
+        // 1: launch left, long upper cruise, then exit upper-left.
         '1': {
-            control1: {
-                x: 720,
-                y: 130,
-            },
-
-            control2: {
-                x: 460,
-                y: 105,
-            },
+            points: [
+                { x: 720, y: 145 },
+                { x: 640, y: 130 },
+                { x: 550, y: 120 },
+                { x: 450, y: 118 },
+                { x: 340, y: 105 },
+            ],
 
             end: {
                 x: 205,
@@ -30,17 +28,16 @@ export const BRIDGE_MISSILE_DEBUG_CONFIG = {
             },
         },
 
-        // 2: lower-left exit.
+        // 2: broad left sweep, then dive toward lower-left.
         '2': {
-            control1: {
-                x: 715,
-                y: 145,
-            },
-
-            control2: {
-                x: 430,
-                y: 225,
-            },
+            points: [
+                { x: 720, y: 158 },
+                { x: 640, y: 175 },
+                { x: 550, y: 205 },
+                { x: 455, y: 245 },
+                { x: 355, y: 290 },
+                { x: 265, y: 330 },
+            ],
 
             end: {
                 x: 190,
@@ -48,17 +45,15 @@ export const BRIDGE_MISSILE_DEBUG_CONFIG = {
             },
         },
 
-        // 3: current baseline trajectory, unchanged.
+        // 3: baseline downward approach, now shaped by explicit waypoints.
         '3': {
-            control1: {
-                x: 720,
-                y: 135,
-            },
-
-            control2: {
-                x: 520,
-                y: 155,
-            },
+            points: [
+                { x: 720, y: 153 },
+                { x: 650, y: 175 },
+                { x: 590, y: 225 },
+                { x: 550, y: 300 },
+                { x: 525, y: 380 },
+            ],
 
             end: {
                 x: 515,
@@ -66,17 +61,16 @@ export const BRIDGE_MISSILE_DEBUG_CONFIG = {
             },
         },
 
-        // 4: lower-right hook.
+        // 4: detach left/down, hook under the ship, then sweep lower-right.
         '4': {
-            control1: {
-                x: 715,
-                y: 135,
-            },
-
-            control2: {
-                x: 900,
-                y: 280,
-            },
+            points: [
+                { x: 720, y: 150 },
+                { x: 690, y: 205 },
+                { x: 745, y: 245 },
+                { x: 830, y: 270 },
+                { x: 925, y: 300 },
+                { x: 1015, y: 335 },
+            ],
 
             end: {
                 x: 1090,
@@ -84,17 +78,16 @@ export const BRIDGE_MISSILE_DEBUG_CONFIG = {
             },
         },
 
-        // 5: upper-right hook.
+        // 5: detach left/down, hook under the ship, then climb upper-right.
         '5': {
-            control1: {
-                x: 715,
-                y: 125,
-            },
-
-            control2: {
-                x: 930,
-                y: 105,
-            },
+            points: [
+                { x: 720, y: 150 },
+                { x: 690, y: 205 },
+                { x: 750, y: 235 },
+                { x: 835, y: 215 },
+                { x: 920, y: 175 },
+                { x: 1005, y: 120 },
+            ],
 
             end: {
                 x: 1085,
@@ -117,7 +110,10 @@ export const BRIDGE_MISSILE_DEBUG_CONFIG = {
     },
 
     missile: {
-        color: 0xf7fbff,
+        coreColor: 0xf7fbff,
+        hotColor: 0xffcf63,
+        hotAlpha: 0.58,
+        hotPaddingPx: 2,
 
         minPixelSize: 2,
         maxPixelSize: 10,
