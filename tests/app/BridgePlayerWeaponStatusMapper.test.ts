@@ -189,6 +189,17 @@ describe('Bridge player weapon status mapper', () => {
                             .BEAM_CANNON_00
                     ].chargeDurationMs -
                     1250,
+                initialCooldownMs:
+                    SHIP_WEAPONS[
+                        SHIP_WEAPON_ID
+                            .BEAM_CANNON_00
+                    ].cooldownDurationMs,
+                remainingCooldownMs:
+                    SHIP_WEAPONS[
+                        SHIP_WEAPON_ID
+                            .BEAM_CANNON_00
+                    ].cooldownDurationMs -
+                    1250,
             },
             {
                 id:
@@ -205,6 +216,10 @@ describe('Bridge player weapon status mapper', () => {
                 initialPhaseMs:
                     15000,
                 remainingPhaseMs:
+                    11000,
+                initialCooldownMs:
+                    15000,
+                remainingCooldownMs:
                     11000,
                 ammo: {
                     current: 3,

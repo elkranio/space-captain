@@ -89,6 +89,11 @@ export type PlayerWeaponPresentationSnapshot = {
     phaseDurationMs?:
         number;
 
+    // Independent recovery clock. It may be active while
+    // the weapon still owns CHARGING / CHANNELING / DISPENSING.
+    cooldownDurationMs:
+        number;
+
     ammoCapacity?:
         number;
 };
@@ -473,6 +478,18 @@ export function createPlayerWeaponPresentationSnapshot(
     weapon:
         ShipWeaponState,
 ): PlayerWeaponPresentationSnapshot {
+    const definition =
+        SHIP_WEAPONS[
+            weapon.weaponId
+        ];
+
+    if (!definition) {
+        throw new Error(
+            'Player weapon definition not found: ' +
+                weapon.weaponId,
+        );
+    }
+
     const phaseDurationMs =
         getWeaponPhaseDurationMs(
             weapon,
@@ -486,6 +503,10 @@ export function createPlayerWeaponPresentationSnapshot(
     return {
         state:
             weapon,
+
+        cooldownDurationMs:
+            definition
+                .cooldownDurationMs,
 
         ...(phaseDurationMs !==
         undefined

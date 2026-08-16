@@ -4,6 +4,9 @@ import {
     it,
 } from 'vitest';
 import {
+    SHIP_WEAPONS,
+} from '../../src/engine/content/catalogs/ship_weapons';
+import {
     OFFICER_ROLE,
 } from '../../src/engine/defs/officer';
 import {
@@ -166,6 +169,10 @@ describe(
                     15000;
                 cooldown.remainingPhaseMs =
                     10000;
+                cooldown.initialCooldownMs =
+                    15000;
+                cooldown.remainingCooldownMs =
+                    10000;
 
                 const empty =
                     createMissileStatus(
@@ -237,6 +244,92 @@ describe(
                             state:
                                 BRIDGE_PLAYER_SYSTEM_ACTION_STATE
                                     .DISABLED_SYSTEM,
+                        },
+                    },
+                ]);
+            },
+        );
+
+        it(
+            'shows committed Beam cooldown while the Beam is still charging',
+            () => {
+                const definition =
+                    SHIP_WEAPONS[
+                        SHIP_WEAPON_ID
+                            .BEAM_CANNON_00
+                    ];
+
+                if (
+                    definition.kind !==
+                    SHIP_WEAPON_KIND
+                        .BEAM_CANNON
+                ) {
+                    throw new Error(
+                        'Expected Beam Cannon definition',
+                    );
+                }
+
+                const elapsedMs = 3000;
+                const beamId =
+                    'beam_cannon_player_00';
+
+                expect(
+                    mapPlayerShipToBridgeDashboardPayload({
+                        weapons: [
+                            {
+                                id:
+                                    beamId,
+                                weaponId:
+                                    SHIP_WEAPON_ID
+                                        .BEAM_CANNON_00,
+                                kind:
+                                    SHIP_WEAPON_KIND
+                                        .BEAM_CANNON,
+                                phase:
+                                    SHIP_WEAPON_PHASE
+                                        .CHARGING,
+                                initialPhaseMs:
+                                    definition
+                                        .chargeDurationMs,
+                                remainingPhaseMs:
+                                    definition
+                                        .chargeDurationMs -
+                                    elapsedMs,
+                                initialCooldownMs:
+                                    definition
+                                        .cooldownDurationMs,
+                                remainingCooldownMs:
+                                    definition
+                                        .cooldownDurationMs -
+                                    elapsedMs,
+                            },
+                        ],
+                        availableWeaponsCommands: [],
+                        weaponsOfficerAvailability:
+                            OFFICER_AVAILABILITY_STATE
+                                .BUSY,
+                    }).weapons,
+                ).toEqual([
+                    {
+                        id:
+                            beamId,
+                        weaponId:
+                            SHIP_WEAPON_ID
+                                .BEAM_CANNON_00,
+                        kind:
+                            SHIP_WEAPON_KIND
+                                .BEAM_CANNON,
+                        cooldownProgress:
+                            1 -
+                            (definition
+                                .cooldownDurationMs -
+                                elapsedMs) /
+                                definition
+                                    .cooldownDurationMs,
+                        action: {
+                            state:
+                                BRIDGE_PLAYER_SYSTEM_ACTION_STATE
+                                    .ENGAGED_CURRENT_WORK,
                         },
                     },
                 ]);

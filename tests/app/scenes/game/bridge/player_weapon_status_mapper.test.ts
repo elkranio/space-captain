@@ -107,6 +107,15 @@ describe(
                             definition
                                 .channelDurationMs -
                             elapsedMs,
+
+                        initialCooldownMs:
+                            definition
+                                .cooldownDurationMs,
+
+                        remainingCooldownMs:
+                            definition
+                                .cooldownDurationMs -
+                            elapsedMs,
                     },
                 ]);
             },

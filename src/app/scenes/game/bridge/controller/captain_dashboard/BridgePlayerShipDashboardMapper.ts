@@ -582,26 +582,29 @@ function getCooldownProgress(
     weapon:
         BridgePlayerWeaponStatusPayload,
 ): number | undefined {
+    const initialCooldownMs =
+        weapon.initialCooldownMs;
+
+    const remainingCooldownMs =
+        weapon.remainingCooldownMs;
+
     if (
-        weapon.phase !==
-        SHIP_WEAPON_PHASE.COOLDOWN
+        initialCooldownMs === undefined &&
+        remainingCooldownMs === undefined
     ) {
         return undefined;
     }
 
-    const initialPhaseMs =
-        weapon.initialPhaseMs;
-
-    const remainingPhaseMs =
-        weapon.remainingPhaseMs;
-
     if (
-        initialPhaseMs === undefined ||
-        remainingPhaseMs === undefined ||
-        initialPhaseMs <= 0
+        initialCooldownMs === undefined ||
+        remainingCooldownMs === undefined ||
+        initialCooldownMs <= 0 ||
+        remainingCooldownMs < 0 ||
+        remainingCooldownMs >
+            initialCooldownMs
     ) {
         throw new Error(
-            'Captain dashboard weapon cooldown requires valid phase timing: ' +
+            'Captain dashboard weapon cooldown requires valid independent timing: ' +
                 weapon.id,
         );
     }
@@ -612,8 +615,8 @@ function getCooldownProgress(
             1,
 
             1 -
-                remainingPhaseMs /
-                    initialPhaseMs,
+                remainingCooldownMs /
+                    initialCooldownMs,
         ),
     );
 }

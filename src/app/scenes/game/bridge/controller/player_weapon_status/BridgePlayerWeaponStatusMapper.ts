@@ -46,6 +46,10 @@ function mapWeaponStatus(
         ...mapPhaseTiming(
             snapshot,
         ),
+
+        ...mapCooldownTiming(
+            snapshot,
+        ),
     };
 
     switch (weapon.kind) {
@@ -107,6 +111,41 @@ function mapPhaseTiming(
                     snapshot.state
                         .phaseElapsedMs,
             ),
+    };
+}
+
+function mapCooldownTiming(
+    snapshot:
+        PlayerWeaponPresentationSnapshot,
+): Pick<
+    BridgePlayerWeaponStatusPayload,
+    'initialCooldownMs' | 'remainingCooldownMs'
+> {
+    const remainingCooldownMs =
+        snapshot.state
+            .cooldownRemainingMs;
+
+    if (remainingCooldownMs <= 0) {
+        return {};
+    }
+
+    const initialCooldownMs =
+        snapshot.cooldownDurationMs;
+
+    if (
+        initialCooldownMs <= 0 ||
+        remainingCooldownMs >
+            initialCooldownMs
+    ) {
+        throw new Error(
+            'Player weapon presentation has invalid cooldown timing: ' +
+                snapshot.state.id,
+        );
+    }
+
+    return {
+        initialCooldownMs,
+        remainingCooldownMs,
     };
 }
 
