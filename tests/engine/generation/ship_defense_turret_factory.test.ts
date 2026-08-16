@@ -36,6 +36,7 @@ describe('ShipDefenseTurretFactory', () => {
             phase:
                 DEFENSE_TURRET_PHASE.READY,
             phaseElapsedMs: 0,
+            cooldownRemainingMs: 0,
 
             targetProjectileId: null,
         });

@@ -397,11 +397,11 @@ export default class EncounterStateStore {
             );
     }
 
-    public resetPlayerWeapon(
+    public finishCancelledPlayerWeapon(
         weaponId: string,
     ): ShipWeaponState | undefined {
         return this.playerShip
-            .resetPlayerWeapon(
+            .finishCancelledPlayerWeapon(
                 weaponId,
             );
     }
@@ -418,6 +418,18 @@ export default class EncounterStateStore {
             );
     }
 
+
+    public startPlayerShieldGeneratorCooldown():
+        void {
+        this.playerShip
+            .startPlayerShieldGeneratorCooldown();
+    }
+
+    public startPlayerDefenseTurretCooldown():
+        void {
+        this.playerShip
+            .startPlayerDefenseTurretCooldown();
+    }
 
     public deployPlayerShield():
         ActiveShieldState {

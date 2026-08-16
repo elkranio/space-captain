@@ -9,6 +9,9 @@ import {
     type MissileSignature,
 } from '../../../../defs/missile';
 import {
+    advanceShipWeaponCooldown,
+    commitShipWeaponCooldown,
+    finishShipWeaponAction,
     SHIP_WEAPON_KIND,
     SHIP_WEAPON_PHASE,
     type MissileLauncherDefinition,
@@ -121,7 +124,19 @@ export default class CombatMissileRunner {
         actor: ShipEncounterActorState,
         launcher: MissileLauncherState,
         deltaMs: number,
+        worldDeltaMs: number,
     ): void {
+        const definition =
+            this.getLauncherDefinition(
+                launcher,
+            );
+
+        advanceShipWeaponCooldown(
+            launcher,
+            definition.cooldownDurationMs,
+            worldDeltaMs,
+        );
+
         switch (launcher.phase) {
             case SHIP_WEAPON_PHASE.READY:
                 return;
@@ -135,10 +150,6 @@ export default class CombatMissileRunner {
                 return;
 
             case SHIP_WEAPON_PHASE.COOLDOWN:
-                this.advanceCooldown(
-                    launcher,
-                    deltaMs,
-                );
                 return;
 
             case SHIP_WEAPON_PHASE.CHARGING:
@@ -183,9 +194,17 @@ export default class CombatMissileRunner {
             this.createMissileSignature();
 
         launcher.ammoCount -= 1;
-        launcher.phase =
-            SHIP_WEAPON_PHASE.COOLDOWN;
-        launcher.phaseElapsedMs = 0;
+
+        // Missile commitment happens at physical launch, after targeting.
+        commitShipWeaponCooldown(
+            launcher,
+            definition.cooldownDurationMs,
+        );
+
+        finishShipWeaponAction(
+            launcher,
+            definition.cooldownDurationMs,
+        );
 
         const projectile:
             MissileCombatProjectileState = {
@@ -419,29 +438,6 @@ export default class CombatMissileRunner {
             actor,
             launcher,
         );
-    }
-
-    private advanceCooldown(
-        launcher: MissileLauncherState,
-        deltaMs: number,
-    ): void {
-        const definition =
-            this.getLauncherDefinition(
-                launcher,
-            );
-
-        launcher.phaseElapsedMs += deltaMs;
-
-        if (
-            launcher.phaseElapsedMs <
-            definition.cooldownDurationMs
-        ) {
-            return;
-        }
-
-        launcher.phase =
-            SHIP_WEAPON_PHASE.READY;
-        launcher.phaseElapsedMs = 0;
     }
 
     private getLauncherDefinition(

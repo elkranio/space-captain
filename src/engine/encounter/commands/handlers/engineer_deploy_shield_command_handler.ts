@@ -95,6 +95,9 @@ export const engineerDeployShieldCommandHandler = {
         context.stateStore
             .spendPowerCoreCharge();
 
+        context.stateStore
+            .startPlayerShieldGeneratorCooldown();
+
         context.startOfficerTask(
             createEngineerDeployShieldTask(),
         );

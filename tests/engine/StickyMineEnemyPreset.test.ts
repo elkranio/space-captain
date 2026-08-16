@@ -47,6 +47,7 @@ describe('Sticky-mine enemy preset', () => {
                 phase:
                     SHIP_WEAPON_PHASE.READY,
                 phaseElapsedMs: 0,
+                cooldownRemainingMs: 0,
 
                 dispensedMineCount: 0,
             },

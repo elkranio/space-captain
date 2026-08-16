@@ -141,6 +141,10 @@ describe(
 
                     phaseElapsedMs: 0,
 
+                    cooldownRemainingMs:
+                        SPAM_DEFINITION
+                            .cooldownDurationMs,
+
                     activeChannelId:
                         null,
                 });
@@ -260,7 +264,15 @@ describe(
                         SHIP_WEAPON_PHASE
                             .COOLDOWN,
 
-                    phaseElapsedMs: 0,
+                    phaseElapsedMs:
+                        SPAM_DEFINITION
+                            .channelDurationMs,
+
+                    cooldownRemainingMs:
+                        SPAM_DEFINITION
+                            .cooldownDurationMs -
+                        SPAM_DEFINITION
+                            .channelDurationMs,
 
                     activeChannelId:
                         null,

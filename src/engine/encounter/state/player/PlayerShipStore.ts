@@ -7,9 +7,14 @@ import type {
     PlayerHullDamageResult,
 } from '../../../defs/player';
 import {
+    commitDefenseTurretCooldown,
+    DEFENSE_TURRET_PHASE,
     DEFENSE_TURRET_SHOT_OUTCOME,
     type DefenseTurretShotOutcome,
 } from '../../../defs/defense_turret';
+import {
+    SHIP_WEAPONS,
+} from '../../../content/catalogs/ship_weapons';
 import {
     SHIP_DRIVE_STATUS,
     type ShipDriveState,
@@ -28,6 +33,8 @@ import {
     SHIELD_GENERATOR_STATUS,
 } from '../../../defs/shield_generator';
 import {
+    commitShipWeaponCooldown,
+    finishShipWeaponAction,
     SHIP_WEAPON_KIND,
     SHIP_WEAPON_PHASE,
     type BeamCannonState,
@@ -319,19 +326,28 @@ export default class PlayerShipStore {
             );
         }
 
-        weapon.phase =
-            weapon.dispensedMineCount > 0
-                ? SHIP_WEAPON_PHASE.COOLDOWN
-                : SHIP_WEAPON_PHASE.READY;
-
-        weapon.phaseElapsedMs = 0;
+        const definition =
+            SHIP_WEAPONS[
+                weapon.weaponId
+            ];
 
         if (
-            weapon.phase ===
-            SHIP_WEAPON_PHASE.READY
+            definition.kind !==
+            SHIP_WEAPON_KIND
+                .STICKY_MINE_DISPENSER
         ) {
-            weapon.dispensedMineCount = 0;
+            throw new Error(
+                'Player sticky-mine dispenser definition mismatch: ' +
+                    weapon.id +
+                    '/' +
+                    weapon.weaponId,
+            );
         }
+
+        finishShipWeaponAction(
+            weapon,
+            definition.cooldownDurationMs,
+        );
 
         return {
             ...weapon,
@@ -391,10 +407,33 @@ export default class PlayerShipStore {
             );
         }
 
+        const definition =
+            SHIP_WEAPONS[
+                weapon.weaponId
+            ];
+
+        if (
+            definition.kind !==
+            SHIP_WEAPON_KIND
+                .SPAM_PROJECTOR
+        ) {
+            throw new Error(
+                'Player spam projector definition mismatch: ' +
+                    weapon.id +
+                    '/' +
+                    weapon.weaponId,
+            );
+        }
+
         weapon.phase =
             SHIP_WEAPON_PHASE.CHANNELING;
 
         weapon.phaseElapsedMs = 0;
+
+        commitShipWeaponCooldown(
+            weapon,
+            definition.cooldownDurationMs,
+        );
 
         return {
             ...weapon,
@@ -446,12 +485,28 @@ export default class PlayerShipStore {
         weapon.activeChannelId =
             null;
 
-        weapon.phase =
-            channelId
-                ? SHIP_WEAPON_PHASE.COOLDOWN
-                : SHIP_WEAPON_PHASE.READY;
+        const definition =
+            SHIP_WEAPONS[
+                weapon.weaponId
+            ];
 
-        weapon.phaseElapsedMs = 0;
+        if (
+            definition.kind !==
+            SHIP_WEAPON_KIND
+                .SPAM_PROJECTOR
+        ) {
+            throw new Error(
+                'Player spam projector definition mismatch: ' +
+                    weapon.id +
+                    '/' +
+                    weapon.weaponId,
+            );
+        }
+
+        finishShipWeaponAction(
+            weapon,
+            definition.cooldownDurationMs,
+        );
 
         return channelId ?? undefined;
     }
@@ -495,17 +550,39 @@ export default class PlayerShipStore {
             );
         }
 
+        const definition =
+            SHIP_WEAPONS[
+                weapon.weaponId
+            ];
+
+        if (
+            definition.kind !==
+            SHIP_WEAPON_KIND.BEAM_CANNON
+        ) {
+            throw new Error(
+                'Player beamCannon definition mismatch: ' +
+                    weapon.id +
+                    '/' +
+                    weapon.weaponId,
+            );
+        }
+
         weapon.phase =
             SHIP_WEAPON_PHASE.CHARGING;
 
         weapon.phaseElapsedMs = 0;
+
+        commitShipWeaponCooldown(
+            weapon,
+            definition.cooldownDurationMs,
+        );
 
         return {
             ...weapon,
         };
     }
 
-    public resetPlayerWeapon(
+    public finishCancelledPlayerWeapon(
         weaponId: string,
     ): ShipWeaponState | undefined {
         const weapon =
@@ -517,10 +594,27 @@ export default class PlayerShipStore {
             return undefined;
         }
 
-        weapon.phase =
-            SHIP_WEAPON_PHASE.READY;
+        const definition =
+            SHIP_WEAPONS[
+                weapon.weaponId
+            ];
 
-        weapon.phaseElapsedMs = 0;
+        if (
+            definition.kind !==
+            weapon.kind
+        ) {
+            throw new Error(
+                'Cancelled player weapon definition mismatch: ' +
+                    weapon.id +
+                    '/' +
+                    weapon.weaponId,
+            );
+        }
+
+        finishShipWeaponAction(
+            weapon,
+            definition.cooldownDurationMs,
+        );
 
         return {
             ...weapon,
@@ -589,6 +683,76 @@ export default class PlayerShipStore {
         };
     }
 
+    public startPlayerShieldGeneratorCooldown():
+        void {
+        const emitter =
+            this.state.combat
+                .shieldGenerator;
+
+        if (!emitter) {
+            throw new Error(
+                'Cannot start player shield cooldown: emitter missing',
+            );
+        }
+
+        if (
+            emitter.status !==
+            SHIELD_GENERATOR_STATUS.ONLINE ||
+            emitter.phase !==
+            SHIELD_GENERATOR_PHASE.READY
+        ) {
+            throw new Error(
+                'Cannot start player shield cooldown from emitter state: ' +
+                    emitter.status +
+                    '/' +
+                    emitter.phase,
+            );
+        }
+
+        emitter.phase =
+            SHIELD_GENERATOR_PHASE.COOLDOWN;
+        emitter.phaseElapsedMs = 0;
+    }
+
+    public startPlayerDefenseTurretCooldown():
+        void {
+        const defenseTurret =
+            this.state.combat
+                .defenseTurret;
+
+        if (!defenseTurret) {
+            throw new Error(
+                'Cannot start player Defense Turret cooldown: installation missing',
+            );
+        }
+
+        if (
+            defenseTurret.phase !==
+            DEFENSE_TURRET_PHASE.READY
+        ) {
+            throw new Error(
+                'Cannot start player Defense Turret cooldown from phase: ' +
+                    defenseTurret.phase,
+            );
+        }
+
+        const definition =
+            DEFENSE_TURRETS[
+                defenseTurret
+                    .defenseTurretId
+            ];
+
+        commitDefenseTurretCooldown(
+            defenseTurret,
+            definition.cooldownDurationMs,
+        );
+
+        defenseTurret.phase =
+            DEFENSE_TURRET_PHASE.COOLDOWN;
+        defenseTurret.phaseElapsedMs = 0;
+        defenseTurret.targetProjectileId = null;
+    }
+
     public deployPlayerShield():
         ActiveShieldState {
         const emitter =
@@ -612,16 +776,6 @@ export default class PlayerShipStore {
         }
 
         if (
-            emitter.phase !==
-            SHIELD_GENERATOR_PHASE.READY
-        ) {
-            throw new Error(
-                'Cannot deploy player shield from emitter phase: ' +
-                    emitter.phase,
-            );
-        }
-
-        if (
             this.state.combat
                 .activeShield
         ) {
@@ -635,12 +789,6 @@ export default class PlayerShipStore {
                 emitter
                     .shieldGeneratorId
             ];
-
-        emitter.phase =
-            SHIELD_GENERATOR_PHASE
-                .COOLDOWN;
-
-        emitter.phaseElapsedMs = 0;
 
         const shield:
             ActiveShieldState = {

@@ -37,7 +37,7 @@ describe(
                                 .COOLDOWN,
 
                         phaseElapsedMs:
-                            4200,
+                            7200,
                     };
 
                 advanceShieldGenerator(
@@ -64,7 +64,7 @@ describe(
                             .COOLDOWN,
 
                     phaseElapsedMs:
-                        4999,
+                        7999,
                 });
 
                 advanceShieldGenerator(

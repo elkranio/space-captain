@@ -144,7 +144,7 @@ describe(
                         ?.phase,
                 ).toBe(
                     SHIELD_GENERATOR_PHASE
-                        .READY,
+                        .COOLDOWN,
                 );
 
                 const events =
@@ -350,6 +350,7 @@ describe(
                                 .READY,
 
                         phaseElapsedMs: 0,
+                        cooldownRemainingMs: 0,
                     };
 
                 targetActor.weapons.push(

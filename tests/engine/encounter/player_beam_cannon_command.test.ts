@@ -9,6 +9,12 @@ import {
     OFFICER_ROLE,
 } from '../../../src/engine/defs/officer';
 import {
+    SHIP_WEAPONS,
+} from '../../../src/engine/content/catalogs/ship_weapons';
+import {
+    SHIP_WEAPON_ID,
+} from '../../../src/engine/defs/ship_weapon';
+import {
     SHIP_WEAPON_KIND,
     SHIP_WEAPON_PHASE,
 } from '../../../src/engine/defs/ship_weapon';
@@ -154,6 +160,12 @@ describe('Player beamCannon command', () => {
                             .CHARGING,
 
                     phaseElapsedMs: 0,
+
+                    cooldownRemainingMs:
+                        SHIP_WEAPONS[
+                            SHIP_WEAPON_ID
+                                .BEAM_CANNON_00
+                        ].cooldownDurationMs,
                 },
 
                 installedLauncher,
@@ -217,7 +229,7 @@ describe('Player beamCannon command', () => {
                     .getPlayerWeaponStates()[0]
                     ?.phase,
             ).toBe(
-                SHIP_WEAPON_PHASE.READY,
+                SHIP_WEAPON_PHASE.COOLDOWN,
             );
 
             expect(
@@ -232,7 +244,21 @@ describe('Player beamCannon command', () => {
                                 .WEAPONS_FIRE_BEAM_CANNON
                         );
                     }),
-            ).toHaveLength(1);
+            ).toHaveLength(0);
+
+            engine.step(
+                SHIP_WEAPONS[
+                    SHIP_WEAPON_ID.BEAM_CANNON_00
+                ].cooldownDurationMs,
+            );
+
+            expect(
+                engine
+                    .getPlayerWeaponStates()[0]
+                    ?.phase,
+            ).toBe(
+                SHIP_WEAPON_PHASE.READY,
+            );
         },
     );
 });

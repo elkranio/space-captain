@@ -10,6 +10,7 @@ import {
 } from '../../../src/engine/content/presets/ship_node_actors';
 import {
     DEFENSE_TURRET_ID,
+    DEFENSE_TURRET_PHASE,
     DEFENSE_TURRET_SHOT_OUTCOME,
 } from '../../../src/engine/defs/defense_turret';
 import {
@@ -189,6 +190,16 @@ describe(
                     charges: 3,
                 });
 
+                expect(
+                    state.combat.defenseTurret,
+                ).toMatchObject({
+                    phase:
+                        DEFENSE_TURRET_PHASE.COOLDOWN,
+
+                    phaseElapsedMs: 0,
+                    cooldownRemainingMs: 8000,
+                });
+
                 engine.drainEvents();
                 engine.step(
                     AIM_DURATION_MS,
@@ -276,6 +287,25 @@ describe(
                     engine.getAvailableCommands(
                         OFFICER_ROLE.WEAPONS,
                     ),
+                ).toEqual([]);
+
+                expect(
+                    state.combat.defenseTurret,
+                ).toMatchObject({
+                    phase:
+                        DEFENSE_TURRET_PHASE.COOLDOWN,
+
+                    phaseElapsedMs:
+                        AIM_DURATION_MS,
+                    cooldownRemainingMs: 5000,
+                });
+
+                engine.step(5000);
+
+                expect(
+                    engine.getAvailableCommands(
+                        OFFICER_ROLE.WEAPONS,
+                    ),
                 ).toHaveLength(1);
             },
         );
@@ -326,6 +356,17 @@ describe(
                     state.combat.powerCore,
                 ).toMatchObject({
                     charges: 3,
+                });
+
+                expect(
+                    state.combat.defenseTurret,
+                ).toMatchObject({
+                    phase:
+                        DEFENSE_TURRET_PHASE.COOLDOWN,
+
+                    phaseElapsedMs:
+                        AIM_DURATION_MS,
+                    cooldownRemainingMs: 5000,
                 });
             },
         );

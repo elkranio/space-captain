@@ -2,6 +2,8 @@ import {
     SHIP_WEAPONS,
 } from '../../../../content/catalogs/ship_weapons';
 import {
+    advanceShipWeaponCooldown,
+    finishShipWeaponAction,
     SHIP_WEAPON_KIND,
     SHIP_WEAPON_PHASE,
     type SpamProjectorDefinition,
@@ -54,7 +56,19 @@ export default class CombatSpamRunner {
         actor: ShipEncounterActorState,
         projector: SpamProjectorState,
         deltaMs: number,
+        worldDeltaMs: number,
     ): void {
+        const definition =
+            this.getDefinition(
+                projector,
+            );
+
+        advanceShipWeaponCooldown(
+            projector,
+            definition.cooldownDurationMs,
+            worldDeltaMs,
+        );
+
         switch (projector.phase) {
             case SHIP_WEAPON_PHASE.READY:
                 return;
@@ -78,10 +92,6 @@ export default class CombatSpamRunner {
                 return;
 
             case SHIP_WEAPON_PHASE.COOLDOWN:
-                this.advanceCooldown(
-                    projector,
-                    deltaMs,
-                );
                 return;
 
             case SHIP_WEAPON_PHASE.CHARGING:
@@ -196,36 +206,22 @@ export default class CombatSpamRunner {
         );
     }
 
-    private advanceCooldown(
-        projector: SpamProjectorState,
-        deltaMs: number,
-    ): void {
-        const definition =
-            this.getDefinition(projector);
-
-        projector.phaseElapsedMs += deltaMs;
-
-        if (
-            projector.phaseElapsedMs <
-            definition.cooldownDurationMs
-        ) {
-            return;
-        }
-
-        projector.phase =
-            SHIP_WEAPON_PHASE.READY;
-        projector.phaseElapsedMs = 0;
-    }
-
     private endChannel(
         projector: SpamProjectorState,
         channel: SpamChannelState,
         outcome: SpamChannelOutcome,
     ): void {
         projector.activeChannelId = null;
-        projector.phase =
-            SHIP_WEAPON_PHASE.COOLDOWN;
-        projector.phaseElapsedMs = 0;
+
+        const definition =
+            this.getDefinition(
+                projector,
+            );
+
+        finishShipWeaponAction(
+            projector,
+            definition.cooldownDurationMs,
+        );
 
         this.emit({
             type:

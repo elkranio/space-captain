@@ -176,6 +176,10 @@ export type ShipWeaponBaseState = {
 
     phase: ShipWeaponPhase;
     phaseElapsedMs: number;
+
+    // Independent world-time recovery clock.
+    // It may run while an active action phase still owns phaseElapsedMs.
+    cooldownRemainingMs: number;
 };
 
 export type MissileLauncherState = ShipWeaponBaseState & {
@@ -211,3 +215,146 @@ export type ShipWeaponState =
     | BeamCannonState
     | SpamProjectorState
     | StickyMineDispenserState;
+
+
+// Cooldown is committed at the concrete action commitment point and then
+// advances in raw encounter/world time, independently from crew-time action
+// progress. The visible COOLDOWN phase begins only after the active action ends.
+export function commitShipWeaponCooldown(
+    weapon: ShipWeaponState,
+    cooldownDurationMs: number,
+): void {
+    validateCooldownDuration(
+        cooldownDurationMs,
+    );
+
+    if (weapon.cooldownRemainingMs > 0) {
+        throw new Error(
+            'Ship weapon cooldown is already committed: ' +
+                weapon.id +
+                '/' +
+                String(
+                    weapon.cooldownRemainingMs,
+                ),
+        );
+    }
+
+    weapon.cooldownRemainingMs =
+        cooldownDurationMs;
+}
+
+export function advanceShipWeaponCooldown(
+    weapon: ShipWeaponState,
+    cooldownDurationMs: number,
+    deltaMs: number,
+): void {
+    validateCooldownDuration(
+        cooldownDurationMs,
+    );
+
+    if (
+        !Number.isFinite(deltaMs) ||
+        deltaMs < 0
+    ) {
+        throw new Error(
+            'Ship weapon cooldown delta must be non-negative: ' +
+                weapon.id +
+                '/' +
+                String(deltaMs),
+        );
+    }
+
+    weapon.cooldownRemainingMs =
+        Math.max(
+            0,
+            weapon.cooldownRemainingMs -
+                deltaMs,
+        );
+
+    if (
+        weapon.phase !==
+        SHIP_WEAPON_PHASE.COOLDOWN
+    ) {
+        return;
+    }
+
+    if (
+        weapon.cooldownRemainingMs === 0
+    ) {
+        setShipWeaponReady(
+            weapon,
+        );
+        return;
+    }
+
+    weapon.phaseElapsedMs =
+        Math.max(
+            0,
+            cooldownDurationMs -
+                weapon.cooldownRemainingMs,
+        );
+}
+
+export function finishShipWeaponAction(
+    weapon: ShipWeaponState,
+    cooldownDurationMs: number,
+): void {
+    validateCooldownDuration(
+        cooldownDurationMs,
+    );
+
+    if (
+        weapon.cooldownRemainingMs > 0
+    ) {
+        weapon.phase =
+            SHIP_WEAPON_PHASE.COOLDOWN;
+
+        weapon.phaseElapsedMs =
+            Math.max(
+                0,
+                cooldownDurationMs -
+                    weapon.cooldownRemainingMs,
+            );
+
+        return;
+    }
+
+    setShipWeaponReady(
+        weapon,
+    );
+}
+
+function setShipWeaponReady(
+    weapon: ShipWeaponState,
+): void {
+    weapon.phase =
+        SHIP_WEAPON_PHASE.READY;
+    weapon.phaseElapsedMs = 0;
+    weapon.cooldownRemainingMs = 0;
+
+    if (
+        weapon.kind ===
+        SHIP_WEAPON_KIND
+            .STICKY_MINE_DISPENSER
+    ) {
+        weapon.dispensedMineCount = 0;
+    }
+}
+
+function validateCooldownDuration(
+    cooldownDurationMs: number,
+): void {
+    if (
+        !Number.isFinite(
+            cooldownDurationMs,
+        ) ||
+        cooldownDurationMs < 0
+    ) {
+        throw new Error(
+            'Ship weapon cooldown duration must be non-negative: ' +
+                String(
+                    cooldownDurationMs,
+                ),
+        );
+    }
+}

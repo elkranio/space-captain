@@ -132,6 +132,13 @@ describe('Bridge player weapon status mapper', () => {
                         .CHARGING,
                 phaseElapsedMs:
                     1250,
+
+                cooldownRemainingMs:
+                    SHIP_WEAPONS[
+                        SHIP_WEAPON_ID
+                            .BEAM_CANNON_00
+                    ].cooldownDurationMs -
+                    1250,
             };
 
         const launcher =
@@ -143,6 +150,12 @@ describe('Bridge player weapon status mapper', () => {
         launcher.phase =
             SHIP_WEAPON_PHASE.COOLDOWN;
         launcher.phaseElapsedMs =
+            4000;
+        launcher.cooldownRemainingMs =
+            SHIP_WEAPONS[
+                SHIP_WEAPON_ID
+                    .MISSILE_LAUNCHER_00
+            ].cooldownDurationMs -
             4000;
 
         expect(
@@ -239,6 +252,7 @@ function createMissileLauncher(
             SHIP_WEAPON_PHASE.READY,
 
         phaseElapsedMs: 0,
+        cooldownRemainingMs: 0,
 
         ammoCount,
     };

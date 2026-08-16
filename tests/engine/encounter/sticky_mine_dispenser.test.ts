@@ -107,7 +107,8 @@ describe('Sticky mine dispenser', () => {
         expect(dispenser.phase).toBe(
             SHIP_WEAPON_PHASE.COOLDOWN,
         );
-        expect(dispenser.phaseElapsedMs).toBe(500);
+        expect(dispenser.phaseElapsedMs).toBe(2500);
+        expect(dispenser.cooldownRemainingMs).toBe(14500);
 
         expect(
             dispenser.dispensedMineCount,
@@ -181,14 +182,15 @@ describe('Sticky mine dispenser', () => {
         expect(dispenser.phase).toBe(
             SHIP_WEAPON_PHASE.COOLDOWN,
         );
-        expect(dispenser.phaseElapsedMs).toBe(0);
+        expect(dispenser.phaseElapsedMs).toBe(1000);
+        expect(dispenser.cooldownRemainingMs).toBe(16000);
 
         expect(dispenser.ammoCount).toBe(0);
         expect(
             dispenser.dispensedMineCount,
         ).toBe(2);
 
-        engine.step(15000);
+        engine.step(16000);
         engine.drainEvents();
 
         expect(dispenser.phase).toBe(

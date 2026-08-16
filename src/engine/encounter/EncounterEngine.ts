@@ -30,6 +30,7 @@ import type {
 import CombatRunner from './combat/CombatRunner';
 import PowerCoreRunner from './combat/defense/PowerCoreRunner';
 import ShieldGeneratorRunner from './combat/defense/ShieldGeneratorRunner';
+import PlayerDefenseTurretRunner from './combat/defense_turret/PlayerDefenseTurretRunner';
 import type { EnemyShipTelemetrySnapshot } from './combat/queries/get_enemy_ship_telemetry_snapshots';
 import PlayerWeaponRunner from './combat/weapons/PlayerWeaponRunner';
 import OfficerCommandExecutor from './commands/OfficerCommandExecutor';
@@ -118,6 +119,9 @@ export default class EncounterEngine {
     private readonly shieldGeneratorRunner:
         ShieldGeneratorRunner;
 
+    private readonly playerDefenseTurretRunner:
+        PlayerDefenseTurretRunner;
+
     private readonly playerWeaponRunner:
         PlayerWeaponRunner;
 
@@ -171,6 +175,11 @@ export default class EncounterEngine {
             new ShieldGeneratorRunner(
                 encounterState,
                 this.emit,
+            );
+
+        this.playerDefenseTurretRunner =
+            new PlayerDefenseTurretRunner(
+                encounterState,
             );
 
         this.combatRunner = new CombatRunner({
@@ -296,6 +305,9 @@ export default class EncounterEngine {
             .step(deltaMs);
 
         this.shieldGeneratorRunner
+            .step(deltaMs);
+
+        this.playerDefenseTurretRunner
             .step(deltaMs);
 
         this.officerTaskRunner.step(deltaMs);

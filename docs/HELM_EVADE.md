@@ -62,8 +62,9 @@ This follows the desired general combat rule that committed actions pay their
 resource/cooldown cost when the action begins rather than only after a successful
 outcome.
 
-Existing weapons should later be reviewed and migrated to the same commitment
-semantics where their current cooldown lifecycle differs.
+Combat weapons and defensive systems use the same commitment semantics: each
+cooldown starts at its concrete commitment edge and continues through later
+cancellation/interruption. Evade should reuse that established rule.
 
 ## Drive dependency
 

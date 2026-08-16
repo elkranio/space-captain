@@ -10,6 +10,7 @@ import {
     OFFICER_ROLE,
 } from '../../../../defs/officer';
 import {
+    finishShipWeaponAction,
     SHIP_WEAPON_KIND,
     SHIP_WEAPON_PHASE,
     type SpamProjectorDefinition,
@@ -262,10 +263,10 @@ export default class PlayerSpamProjectorRunner {
         projector.activeChannelId =
             null;
 
-        projector.phase =
-            SHIP_WEAPON_PHASE.COOLDOWN;
-
-        projector.phaseElapsedMs = 0;
+        finishShipWeaponAction(
+            projector,
+            definition.cooldownDurationMs,
+        );
 
         this.options.emit({
             type:

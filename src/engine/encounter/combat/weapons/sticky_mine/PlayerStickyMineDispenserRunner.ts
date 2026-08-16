@@ -1,6 +1,8 @@
 import { SHIP_WEAPONS } from '../../../../content/catalogs/ship_weapons';
 import { ENCOUNTER_TEAM } from '../../../../defs/encounter_team';
 import {
+    commitShipWeaponCooldown,
+    finishShipWeaponAction,
     SHIP_WEAPON_KIND,
     SHIP_WEAPON_PHASE,
     type StickyMineDispenserDefinition,
@@ -119,12 +121,10 @@ export default class PlayerStickyMineDispenserRunner {
             return;
         }
 
-        dispenser.phase =
-            SHIP_WEAPON_PHASE.COOLDOWN;
-
-        // As with player missile/beamCannon, overflow is not
-        // carried into the new phase.
-        dispenser.phaseElapsedMs = 0;
+        finishShipWeaponAction(
+            dispenser,
+            definition.cooldownDurationMs,
+        );
 
         this.options.completeOfficerTask(
             task.id,
@@ -157,6 +157,16 @@ export default class PlayerStickyMineDispenserRunner {
                     `${task.id}/` +
                     `${dispenser.id}/` +
                     `${dispenser.ammoCount}`,
+            );
+        }
+
+        if (
+            dispenser.dispensedMineCount === 0
+        ) {
+            // No targeting/prep phase: the first physical mine is the commit edge.
+            commitShipWeaponCooldown(
+                dispenser,
+                definition.cooldownDurationMs,
             );
         }
 

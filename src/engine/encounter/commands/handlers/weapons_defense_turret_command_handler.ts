@@ -2,6 +2,9 @@
 
 import { OFFICER_ROLE } from '../../../defs/officer';
 import {
+    DEFENSE_TURRET_PHASE,
+} from '../../../defs/defense_turret';
+import {
     COMBAT_PROJECTILE_KIND,
     COMBAT_SOURCE_KIND,
     COMBAT_TARGET_KIND,
@@ -47,6 +50,8 @@ export const weaponsInterceptMissileCommandHandler:
 
             if (
                 !defenseTurret ||
+                defenseTurret.phase !==
+                    DEFENSE_TURRET_PHASE.READY ||
                 !powerCore ||
                 powerCore.charges <= 0
             ) {
@@ -120,6 +125,9 @@ export const weaponsInterceptMissileCommandHandler:
 
             context.stateStore
                 .spendPowerCoreCharge();
+
+            context.stateStore
+                .startPlayerDefenseTurretCooldown();
 
             context.startOfficerTask(
                 createWeaponsDefenseTurretTask(

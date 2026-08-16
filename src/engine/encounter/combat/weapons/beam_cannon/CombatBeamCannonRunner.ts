@@ -2,6 +2,8 @@ import {
     SHIP_WEAPONS,
 } from '../../../../content/catalogs/ship_weapons';
 import {
+    advanceShipWeaponCooldown,
+    finishShipWeaponAction,
     SHIP_WEAPON_PHASE,
     type BeamCannonDefinition,
     type BeamCannonState,
@@ -66,7 +68,19 @@ export default class CombatBeamCannonRunner {
         actor: ShipEncounterActorState,
         beamCannon: BeamCannonState,
         deltaMs: number,
+        worldDeltaMs: number,
     ): void {
+        const definition =
+            this.getDefinition(
+                beamCannon,
+            );
+
+        advanceShipWeaponCooldown(
+            beamCannon,
+            definition.cooldownDurationMs,
+            worldDeltaMs,
+        );
+
         switch (beamCannon.phase) {
             case SHIP_WEAPON_PHASE.READY:
                 return;
@@ -90,10 +104,6 @@ export default class CombatBeamCannonRunner {
                 return;
 
             case SHIP_WEAPON_PHASE.COOLDOWN:
-                this.advanceCooldown(
-                    beamCannon,
-                    deltaMs,
-                );
                 return;
 
             case SHIP_WEAPON_PHASE.CHANNELING:
@@ -160,27 +170,6 @@ export default class CombatBeamCannonRunner {
         }
 
         this.fire(actor, beamCannon, definition);
-    }
-
-    private advanceCooldown(
-        beamCannon: BeamCannonState,
-        deltaMs: number,
-    ): void {
-        const definition =
-            this.getDefinition(beamCannon);
-
-        beamCannon.phaseElapsedMs += deltaMs;
-
-        if (
-            beamCannon.phaseElapsedMs <
-            definition.cooldownDurationMs
-        ) {
-            return;
-        }
-
-        beamCannon.phase =
-            SHIP_WEAPON_PHASE.READY;
-        beamCannon.phaseElapsedMs = 0;
     }
 
     private createAttack(
@@ -274,9 +263,10 @@ export default class CombatBeamCannonRunner {
             .beamCannonAttacks
             .splice(attackIndex, 1);
 
-        beamCannon.phase =
-            SHIP_WEAPON_PHASE.COOLDOWN;
-        beamCannon.phaseElapsedMs = 0;
+        finishShipWeaponAction(
+            beamCannon,
+            definition.cooldownDurationMs,
+        );
 
 
         const absorbedByShield =

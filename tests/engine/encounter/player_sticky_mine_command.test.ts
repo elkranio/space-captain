@@ -196,6 +196,9 @@ describe('Player sticky-mine command', () => {
             dispenser.dispensedMineCount,
         ).toBe(1);
         expect(
+            dispenser.cooldownRemainingMs,
+        ).toBe(17000);
+        expect(
             engine.getOfficerTasks(),
         ).toHaveLength(1);
 

@@ -3,6 +3,9 @@ import {
 } from '../../../../content/catalogs/ship_weapons';
 import { ENCOUNTER_TEAM } from '../../../../defs/encounter_team';
 import {
+    advanceShipWeaponCooldown,
+    commitShipWeaponCooldown,
+    finishShipWeaponAction,
     SHIP_WEAPON_KIND,
     SHIP_WEAPON_PHASE,
     type StickyMineDispenserDefinition,
@@ -195,7 +198,19 @@ export default class CombatStickyMineRunner {
         actor: ShipEncounterActorState,
         dispenser: StickyMineDispenserState,
         deltaMs: number,
+        worldDeltaMs: number,
     ): void {
+        const definition =
+            this.getDispenserDefinition(
+                dispenser,
+            );
+
+        advanceShipWeaponCooldown(
+            dispenser,
+            definition.cooldownDurationMs,
+            worldDeltaMs,
+        );
+
         switch (dispenser.phase) {
             case SHIP_WEAPON_PHASE.READY:
                 return;
@@ -219,10 +234,6 @@ export default class CombatStickyMineRunner {
                 return;
 
             case SHIP_WEAPON_PHASE.COOLDOWN:
-                this.advanceCooldown(
-                    dispenser,
-                    deltaMs,
-                );
                 return;
 
             case SHIP_WEAPON_PHASE.CHARGING:
@@ -484,41 +495,10 @@ export default class CombatStickyMineRunner {
             return;
         }
 
-        const cooldownElapsedMs =
-            dispenser.phaseElapsedMs;
-
-        dispenser.phase =
-            SHIP_WEAPON_PHASE.COOLDOWN;
-        dispenser.phaseElapsedMs = 0;
-
-        this.advanceCooldown(
+        finishShipWeaponAction(
             dispenser,
-            cooldownElapsedMs,
+            definition.cooldownDurationMs,
         );
-    }
-
-    private advanceCooldown(
-        dispenser: StickyMineDispenserState,
-        deltaMs: number,
-    ): void {
-        const definition =
-            this.getDispenserDefinition(
-                dispenser,
-            );
-
-        dispenser.phaseElapsedMs += deltaMs;
-
-        if (
-            dispenser.phaseElapsedMs <
-            definition.cooldownDurationMs
-        ) {
-            return;
-        }
-
-        dispenser.phase =
-            SHIP_WEAPON_PHASE.READY;
-        dispenser.phaseElapsedMs = 0;
-        dispenser.dispensedMineCount = 0;
     }
 
     private attachEnemyMine(
@@ -547,6 +527,16 @@ export default class CombatStickyMineRunner {
             throw new Error(
                 `Cannot launch sticky mine from empty dispenser: ` +
                     `${actor.id}/${dispenser.id}`,
+            );
+        }
+
+        if (
+            dispenser.dispensedMineCount === 0
+        ) {
+            // First physical attachment is the mine-dispenser commitment edge.
+            commitShipWeaponCooldown(
+                dispenser,
+                definition.cooldownDurationMs,
             );
         }
 

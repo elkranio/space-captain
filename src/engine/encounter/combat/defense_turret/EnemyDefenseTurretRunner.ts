@@ -4,6 +4,8 @@ import {
     DEFENSE_TURRETS,
 } from '../../../content/catalogs/defense_turrets';
 import {
+    advanceDefenseTurretCooldown,
+    finishDefenseTurretAction,
     DEFENSE_TURRET_PHASE,
     DEFENSE_TURRET_SHOT_OUTCOME,
     type ShipDefenseTurretState,
@@ -57,6 +59,7 @@ export default class EnemyDefenseTurretRunner {
         actor: ShipEncounterActorState,
         defenseTurret: ShipDefenseTurretState,
         deltaMs: number,
+        worldDeltaMs: number,
     ): void {
         if (deltaMs < 0) {
             throw new Error(
@@ -64,6 +67,17 @@ export default class EnemyDefenseTurretRunner {
                     deltaMs,
             );
         }
+
+        const definition =
+            DEFENSE_TURRETS[
+                defenseTurret.defenseTurretId
+            ];
+
+        advanceDefenseTurretCooldown(
+            defenseTurret,
+            definition.cooldownDurationMs,
+            worldDeltaMs,
+        );
 
         switch (defenseTurret.phase) {
             case DEFENSE_TURRET_PHASE.READY:
@@ -78,10 +92,6 @@ export default class EnemyDefenseTurretRunner {
                 return;
 
             case DEFENSE_TURRET_PHASE.COOLDOWN:
-                this.advanceCooldown(
-                    defenseTurret,
-                    deltaMs,
-                );
                 return;
         }
     }
@@ -100,8 +110,14 @@ export default class EnemyDefenseTurretRunner {
         if (!projectile) {
             // Target vanished after commitment.
             // The shared defensive charge remains spent.
-            this.resetToReady(
+            const definition =
+                DEFENSE_TURRETS[
+                    defenseTurret.defenseTurretId
+                ];
+
+            finishDefenseTurretAction(
                 defenseTurret,
+                definition.cooldownDurationMs,
             );
 
             return;
@@ -172,10 +188,10 @@ export default class EnemyDefenseTurretRunner {
                     this.options.random,
             });
 
-        defenseTurret.phase =
-            DEFENSE_TURRET_PHASE.COOLDOWN;
-        defenseTurret.phaseElapsedMs = 0;
-        defenseTurret.targetProjectileId = null;
+        finishDefenseTurretAction(
+            defenseTurret,
+            definition.cooldownDurationMs,
+        );
 
         // Event precedes missile resolution so presentation can aim at
         // a still-existing projectile. CombatMissileRunner remains the
@@ -206,30 +222,6 @@ export default class EnemyDefenseTurretRunner {
                     actor.id,
                 );
         }
-    }
-
-    private advanceCooldown(
-        defenseTurret: ShipDefenseTurretState,
-        deltaMs: number,
-    ): void {
-        const definition =
-            DEFENSE_TURRETS[
-                defenseTurret.defenseTurretId
-            ];
-
-        defenseTurret.phaseElapsedMs +=
-            deltaMs;
-
-        if (
-            defenseTurret.phaseElapsedMs <
-            definition.cooldownDurationMs
-        ) {
-            return;
-        }
-
-        this.resetToReady(
-            defenseTurret,
-        );
     }
 
     private findTargetProjectile(
@@ -263,12 +255,4 @@ export default class EnemyDefenseTurretRunner {
             });
     }
 
-    private resetToReady(
-        defenseTurret: ShipDefenseTurretState,
-    ): void {
-        defenseTurret.phase =
-            DEFENSE_TURRET_PHASE.READY;
-        defenseTurret.phaseElapsedMs = 0;
-        defenseTurret.targetProjectileId = null;
-    }
 }

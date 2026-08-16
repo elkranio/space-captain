@@ -4,17 +4,23 @@ import {
     DEFENSE_TURRETS,
 } from '../../../content/catalogs/defense_turrets';
 import {
+    SHIP_WEAPONS,
+} from '../../../content/catalogs/ship_weapons';
+import {
     getTimedOfficerTaskDurationMs,
 } from '../../../content/catalogs/officer_tasks';
 import {
+    commitDefenseTurretCooldown,
     DEFENSE_TURRET_PHASE,
 } from '../../../defs/defense_turret';
 import {
     OFFICER_TASK_KIND,
 } from '../../../defs/officer_task';
 import {
+    commitShipWeaponCooldown,
     SHIP_WEAPON_KIND,
     SHIP_WEAPON_PHASE,
+    type ShipWeaponState,
 } from '../../../defs/ship_weapon';
 import {
     SHIELD_GENERATOR_PHASE,
@@ -206,6 +212,10 @@ export default class EnemyWorkExecutor {
         spendPowerCoreCharge(
             powerCore,
         );
+
+        emitter.phase =
+            SHIELD_GENERATOR_PHASE.COOLDOWN;
+        emitter.phaseElapsedMs = 0;
 
         this.crewTaskRunner.start(
             actor,
@@ -458,16 +468,21 @@ export default class EnemyWorkExecutor {
             intent,
         );
 
+        const definition =
+            DEFENSE_TURRETS[
+                defenseTurret.defenseTurretId
+            ];
+
+        commitDefenseTurretCooldown(
+            defenseTurret,
+            definition.cooldownDurationMs,
+        );
+
         defenseTurret.phase =
             DEFENSE_TURRET_PHASE.LOADING;
         defenseTurret.phaseElapsedMs = 0;
         defenseTurret.targetProjectileId =
             intent.projectileId;
-
-        const definition =
-            DEFENSE_TURRETS[
-                defenseTurret.defenseTurretId
-            ];
 
         this.emit({
             type:
@@ -535,12 +550,18 @@ export default class EnemyWorkExecutor {
 
             case SHIP_WEAPON_KIND
                 .BEAM_CANNON:
+                this.commitWeaponCooldown(
+                    weapon,
+                );
                 weapon.phase =
                     SHIP_WEAPON_PHASE.CHARGING;
                 break;
 
             case SHIP_WEAPON_KIND
                 .SPAM_PROJECTOR:
+                this.commitWeaponCooldown(
+                    weapon,
+                );
                 weapon.phase =
                     SHIP_WEAPON_PHASE.CHANNELING;
                 weapon.activeChannelId = null;
@@ -574,5 +595,31 @@ export default class EnemyWorkExecutor {
             sourceActorId: actor.id,
             sourceWeaponId: weapon.id,
         });
+    }
+
+    private commitWeaponCooldown(
+        weapon: ShipWeaponState,
+    ): void {
+        const definition =
+            SHIP_WEAPONS[
+                weapon.weaponId
+            ];
+
+        if (
+            definition.kind !==
+            weapon.kind
+        ) {
+            throw new Error(
+                'Enemy weapon definition mismatch: ' +
+                    weapon.id +
+                    '/' +
+                    weapon.weaponId,
+            );
+        }
+
+        commitShipWeaponCooldown(
+            weapon,
+            definition.cooldownDurationMs,
+        );
     }
 }

@@ -45,7 +45,7 @@ describe(
                     ammoCapacity: 6,
                     salvoSize: 3,
                     launchIntervalMs: 1000,
-                    cooldownDurationMs: 15000,
+                    cooldownDurationMs: 17000,
                 });
 
                 const first =
@@ -88,6 +88,7 @@ describe(
                         SHIP_WEAPON_PHASE.READY,
 
                     phaseElapsedMs: 0,
+                    cooldownRemainingMs: 0,
 
                     dispensedMineCount: 0,
                 });

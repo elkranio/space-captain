@@ -82,7 +82,7 @@ describe(
                         3000,
 
                     cooldownDurationMs:
-                        5000,
+                        8000,
 
                     blindInterceptChance:
                         0.4,
@@ -105,7 +105,7 @@ describe(
                         5000,
 
                     cooldownDurationMs:
-                        5000,
+                        8000,
                 });
             },
         );

@@ -98,5 +98,151 @@ export type ShipDefenseTurretState = {
     phase: DefenseTurretPhase;
     phaseElapsedMs: number;
 
+    // Independent world-time recovery clock. Enemy LOADING may overlap it.
+    cooldownRemainingMs: number;
+
     targetProjectileId: string | null;
 };
+
+
+export function commitDefenseTurretCooldown(
+    defenseTurret: ShipDefenseTurretState,
+    cooldownDurationMs: number,
+): void {
+    validateDefenseTurretCooldownDuration(
+        cooldownDurationMs,
+    );
+
+    if (
+        defenseTurret.cooldownRemainingMs > 0
+    ) {
+        throw new Error(
+            'Defense Turret cooldown is already committed: ' +
+                defenseTurret.id +
+                '/' +
+                String(
+                    defenseTurret
+                        .cooldownRemainingMs,
+                ),
+        );
+    }
+
+    defenseTurret.cooldownRemainingMs =
+        cooldownDurationMs;
+}
+
+export function advanceDefenseTurretCooldown(
+    defenseTurret: ShipDefenseTurretState,
+    cooldownDurationMs: number,
+    deltaMs: number,
+): void {
+    validateDefenseTurretCooldownDuration(
+        cooldownDurationMs,
+    );
+
+    if (
+        !Number.isFinite(deltaMs) ||
+        deltaMs < 0
+    ) {
+        throw new Error(
+            'Defense Turret cooldown delta must be non-negative: ' +
+                defenseTurret.id +
+                '/' +
+                String(deltaMs),
+        );
+    }
+
+    defenseTurret.cooldownRemainingMs =
+        Math.max(
+            0,
+            defenseTurret
+                .cooldownRemainingMs -
+                deltaMs,
+        );
+
+    if (
+        defenseTurret.phase !==
+        DEFENSE_TURRET_PHASE.COOLDOWN
+    ) {
+        return;
+    }
+
+    if (
+        defenseTurret.cooldownRemainingMs ===
+        0
+    ) {
+        setDefenseTurretReady(
+            defenseTurret,
+        );
+        return;
+    }
+
+    defenseTurret.phaseElapsedMs =
+        Math.max(
+            0,
+            cooldownDurationMs -
+                defenseTurret
+                    .cooldownRemainingMs,
+        );
+}
+
+export function finishDefenseTurretAction(
+    defenseTurret: ShipDefenseTurretState,
+    cooldownDurationMs: number,
+): void {
+    validateDefenseTurretCooldownDuration(
+        cooldownDurationMs,
+    );
+
+    defenseTurret.targetProjectileId =
+        null;
+
+    if (
+        defenseTurret.cooldownRemainingMs > 0
+    ) {
+        defenseTurret.phase =
+            DEFENSE_TURRET_PHASE.COOLDOWN;
+
+        defenseTurret.phaseElapsedMs =
+            Math.max(
+                0,
+                cooldownDurationMs -
+                    defenseTurret
+                        .cooldownRemainingMs,
+            );
+
+        return;
+    }
+
+    setDefenseTurretReady(
+        defenseTurret,
+    );
+}
+
+function setDefenseTurretReady(
+    defenseTurret: ShipDefenseTurretState,
+): void {
+    defenseTurret.phase =
+        DEFENSE_TURRET_PHASE.READY;
+    defenseTurret.phaseElapsedMs = 0;
+    defenseTurret.cooldownRemainingMs = 0;
+    defenseTurret.targetProjectileId = null;
+}
+
+function validateDefenseTurretCooldownDuration(
+    cooldownDurationMs: number,
+): void {
+    if (
+        !Number.isFinite(
+            cooldownDurationMs,
+        ) ||
+        cooldownDurationMs < 0
+    ) {
+        throw new Error(
+            'Defense Turret cooldown duration must be non-negative: ' +
+                String(
+                    cooldownDurationMs,
+                ),
+        );
+    }
+}

@@ -3,6 +3,8 @@ import {
 } from '../../../../content/catalogs/ship_weapons';
 import { ENCOUNTER_TEAM } from '../../../../defs/encounter_team';
 import {
+    commitShipWeaponCooldown,
+    finishShipWeaponAction,
     SHIP_WEAPON_KIND,
     SHIP_WEAPON_PHASE,
     type MissileLauncherState,
@@ -130,12 +132,17 @@ export default class PlayerMissileLauncherRunner {
         }
 
         launcher.ammoCount -= 1;
-        launcher.phase =
-            SHIP_WEAPON_PHASE.COOLDOWN;
 
-        // Targeting overflow does not advance
-        // cooldown or the new projectile.
-        launcher.phaseElapsedMs = 0;
+        // Missile commitment happens at physical launch, not at targeting start.
+        commitShipWeaponCooldown(
+            launcher,
+            definition.cooldownDurationMs,
+        );
+
+        finishShipWeaponAction(
+            launcher,
+            definition.cooldownDurationMs,
+        );
 
         this.options.queuePlayerMissileLaunch({
             sourceWeaponId:

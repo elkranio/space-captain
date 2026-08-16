@@ -54,6 +54,28 @@ If a threat needs more response time, tune:
 
 Do not add a universal fake pre-warning phase.
 
+### Cooldown commitment
+
+Cooldown is committed at the concrete action commitment edge rather than after a successful outcome.
+
+Rules:
+- committed cooldown advances in raw encounter/world time;
+- cooldown may overlap an active crew/action phase;
+- cancellation/interruption after commitment does not reset or refund cooldown;
+- cancellation before commitment remains free;
+- once the active action ends, visible `COOLDOWN` represents only the recovery time that is still left;
+- if recovery already finished while the action was active, the system returns directly to `READY` when that action ends.
+
+Current commitment edges:
+- Beam Cannon: charge start;
+- Missile Launcher: physical missile launch, after targeting;
+- SPAM Projector: channel start;
+- Sticky Mine Dispenser: first physical mine launch;
+- Shield Generator: Power spend / Engineer deployment start;
+- Defense Turret: Power spend / Weapons loading start.
+
+Nominal cooldown tuning includes the overlapped base action time where needed so baseline reuse cadence stays close to the previous post-action values.
+
 ## Weapon phase semantics — CURRENT
 
 Shared phase vocabulary may contain:

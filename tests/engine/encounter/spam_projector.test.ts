@@ -86,7 +86,7 @@ describe('Spam projector', () => {
         }
 
         expect(definition.channelDurationMs).toBe(20000);
-        expect(definition.cooldownDurationMs).toBe(15000);
+        expect(definition.cooldownDurationMs).toBe(35000);
 
         expect(projector.phase).toBe(
             SHIP_WEAPON_PHASE.READY,
@@ -178,11 +178,20 @@ describe('Spam projector', () => {
         expect(projector.phase).toBe(
             SHIP_WEAPON_PHASE.COOLDOWN,
         );
-        expect(projector.phaseElapsedMs).toBe(0);
+        expect(projector.phaseElapsedMs).toBe(
+            definition.channelDurationMs,
+        );
+        expect(projector.cooldownRemainingMs).toBe(
+            definition.cooldownDurationMs -
+                definition.channelDurationMs,
+        );
         expect(projector.activeChannelId).toBeNull();
         expect(engine.getCombatPresentationSnapshot().spamChannels).toEqual([]);
 
-        engine.step(definition.cooldownDurationMs);
+        engine.step(
+            definition.cooldownDurationMs -
+                definition.channelDurationMs,
+        );
 
         expect(engine.drainEvents()).toEqual([]);
 
@@ -258,7 +267,10 @@ describe('Spam projector', () => {
         expect(projector.phase).toBe(
             SHIP_WEAPON_PHASE.COOLDOWN,
         );
-        expect(projector.phaseElapsedMs).toBe(0);
+        expect(projector.phaseElapsedMs).toBe(7000);
+        expect(projector.cooldownRemainingMs).toBe(
+            definition.cooldownDurationMs - 7000,
+        );
         expect(projector.activeChannelId).toBeNull();
         expect(engine.getCombatPresentationSnapshot().spamChannels).toEqual([]);
 
@@ -267,7 +279,9 @@ describe('Spam projector', () => {
         ).toBe(false);
         expect(engine.drainEvents()).toEqual([]);
 
-        engine.step(definition.cooldownDurationMs);
+        engine.step(
+            definition.cooldownDurationMs - 7000,
+        );
 
         expect(engine.drainEvents()).toEqual([]);
         expect(projector.phase).toBe(

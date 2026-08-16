@@ -19,8 +19,8 @@ export type ShieldGeneratorDefinition = {
     // active shield.
     shieldDurationMs: number;
 
-    // После успешной установки shield
-    // generator нельзя использовать до окончания cooldown.
+    // Recovery starts when deployment work commits Power,
+    // so it overlaps the Engineer deployment task.
     cooldownDurationMs: number;
 };
 

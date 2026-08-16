@@ -52,7 +52,7 @@ describe(
                         1000,
 
                     cooldownDurationMs:
-                        15000,
+                        17000,
                 });
             },
         );
@@ -80,6 +80,7 @@ describe(
                                 .READY,
 
                         phaseElapsedMs: 0,
+                        cooldownRemainingMs: 0,
 
                         dispensedMineCount:
                             0,

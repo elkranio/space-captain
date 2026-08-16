@@ -98,6 +98,7 @@ describe('Player weapon encounter state', () => {
                     SHIP_WEAPON_PHASE.READY,
 
                 phaseElapsedMs: 0,
+                cooldownRemainingMs: 0,
             },
         ]);
 
@@ -172,6 +173,7 @@ describe('Player weapon encounter state', () => {
                     SHIP_WEAPON_PHASE.READY,
 
                 phaseElapsedMs: 0,
+                cooldownRemainingMs: 0,
             },
         ]);
     });

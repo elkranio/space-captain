@@ -3,6 +3,6 @@
         "name": "SPAM PROJECTOR",
         "channelDurationMs": 20000,
         "officerTaskProgressMultiplier": 0.5,
-        "cooldownDurationMs": 15000
+        "cooldownDurationMs": 35000
     }
 }

@@ -2,6 +2,6 @@
     "shield_generator_basic_00": {
         "name": "BASIC SHIELD GENERATOR",
         "shieldDurationMs": 5000,
-        "cooldownDurationMs": 5000
+        "cooldownDurationMs": 8000
     }
 }

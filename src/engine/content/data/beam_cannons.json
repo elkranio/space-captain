@@ -3,6 +3,6 @@
         "name": "BEAM CANNON",
         "damage": 1,
         "chargeDurationMs": 12000,
-        "cooldownDurationMs": 15000
+        "cooldownDurationMs": 27000
     }
 }

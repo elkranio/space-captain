@@ -71,7 +71,7 @@ describe(
                     chargeDurationMs:
                         12000,
                     cooldownDurationMs:
-                        15000,
+                        27000,
                 });
 
                 expect(
@@ -98,7 +98,7 @@ describe(
                         0.5,
 
                     cooldownDurationMs:
-                        15000,
+                        35000,
                 });
 
                 expect(
@@ -126,7 +126,7 @@ describe(
                     launchIntervalMs:
                         1000,
                     cooldownDurationMs:
-                        15000,
+                        17000,
                 });
             },
         );

@@ -6,6 +6,7 @@ import {
     it,
 } from 'vitest';
 import {
+    SHIP_WEAPONS,
 } from '../../../src/engine/content/catalogs/ship_weapons';
 import {
     getTimedOfficerTaskDurationMs,
@@ -17,6 +18,7 @@ import {
     OFFICER_ROLE,
 } from '../../../src/engine/defs/officer';
 import {
+    SHIP_WEAPON_ID,
     SHIP_WEAPON_KIND,
     SHIP_WEAPON_PHASE,
 } from '../../../src/engine/defs/ship_weapon';
@@ -57,6 +59,12 @@ const SCIENCE_PURGE_SPAM_DURATION_MS =
         OFFICER_TASK_KIND
             .SCIENCE_PURGE_SPAM,
     );
+
+const SPAM_DEFINITION =
+    SHIP_WEAPONS[
+        SHIP_WEAPON_ID
+            .SPAM_PROJECTOR_00
+    ];
 
 describe(
     'Enemy Science purge of player spam',
@@ -203,7 +211,15 @@ describe(
                         SHIP_WEAPON_PHASE
                             .COOLDOWN,
 
-                    phaseElapsedMs: 0,
+                    phaseElapsedMs:
+                        SCIENCE_PURGE_SPAM_DURATION_MS *
+                        2,
+
+                    cooldownRemainingMs:
+                        SPAM_DEFINITION
+                            .cooldownDurationMs -
+                        SCIENCE_PURGE_SPAM_DURATION_MS *
+                        2,
 
                     activeChannelId:
                         null,

@@ -67,6 +67,7 @@ export default class MissileLauncherFactory {
             phase:
                 SHIP_WEAPON_PHASE.READY,
             phaseElapsedMs: 0,
+            cooldownRemainingMs: 0,
         };
     }
 }

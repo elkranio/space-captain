@@ -132,6 +132,11 @@ describe('Player beamCannon lifecycle', () => {
                 SHIP_WEAPON_PHASE.CHARGING,
 
             phaseElapsedMs: 0,
+
+            cooldownRemainingMs:
+                SHIP_WEAPONS[
+                    SHIP_WEAPON_ID.BEAM_CANNON_00
+                ].cooldownDurationMs,
         });
 
         expect(
@@ -184,7 +189,15 @@ describe('Player beamCannon lifecycle', () => {
             phase:
                 SHIP_WEAPON_PHASE.COOLDOWN,
 
-            phaseElapsedMs: 0,
+            phaseElapsedMs:
+                beamCannonDefinition
+                    .chargeDurationMs,
+
+            cooldownRemainingMs:
+                beamCannonDefinition
+                    .cooldownDurationMs -
+                beamCannonDefinition
+                    .chargeDurationMs,
         });
 
         expect(
@@ -226,9 +239,14 @@ describe('Player beamCannon lifecycle', () => {
             }),
         );
 
-        engine.step(
+        const remainingCooldownMs =
             beamCannonDefinition
-                .cooldownDurationMs - 1,
+                .cooldownDurationMs -
+            beamCannonDefinition
+                .chargeDurationMs;
+
+        engine.step(
+            remainingCooldownMs - 1,
         );
 
         expect(
@@ -240,6 +258,8 @@ describe('Player beamCannon lifecycle', () => {
             phaseElapsedMs:
                 beamCannonDefinition
                     .cooldownDurationMs - 1,
+
+            cooldownRemainingMs: 1,
         });
 
         engine.step(1);

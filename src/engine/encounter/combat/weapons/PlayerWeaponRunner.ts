@@ -3,8 +3,7 @@
 import { SHIP_WEAPONS } from '../../../content/catalogs/ship_weapons';
 import { OFFICER_ROLE } from '../../../defs/officer';
 import {
-    SHIP_WEAPON_KIND,
-    SHIP_WEAPON_PHASE,
+    advanceShipWeaponCooldown,
     type ShipWeaponDefinition,
     type ShipWeaponState,
 } from '../../../defs/ship_weapon';
@@ -216,38 +215,16 @@ export default class PlayerWeaponRunner {
                 .playerWeapons;
 
         for (const weapon of weapons) {
-            if (
-                weapon.phase !==
-                SHIP_WEAPON_PHASE.COOLDOWN
-            ) {
-                continue;
-            }
-
             const definition =
                 this.getWeaponDefinition(
                     weapon,
                 );
 
-            weapon.phaseElapsedMs += deltaMs;
-
-            if (
-                weapon.phaseElapsedMs <
-                definition.cooldownDurationMs
-            ) {
-                continue;
-            }
-
-            weapon.phase =
-                SHIP_WEAPON_PHASE.READY;
-            weapon.phaseElapsedMs = 0;
-
-            if (
-                weapon.kind ===
-                SHIP_WEAPON_KIND
-                    .STICKY_MINE_DISPENSER
-            ) {
-                weapon.dispensedMineCount = 0;
-            }
+            advanceShipWeaponCooldown(
+                weapon,
+                definition.cooldownDurationMs,
+                deltaMs,
+            );
         }
     }
 

@@ -3,6 +3,7 @@ import {
 } from '../../../../content/catalogs/ship_weapons';
 import { ENCOUNTER_TEAM } from '../../../../defs/encounter_team';
 import {
+    finishShipWeaponAction,
     SHIP_WEAPON_KIND,
     SHIP_WEAPON_PHASE,
     type BeamCannonDefinition,
@@ -117,10 +118,10 @@ export default class PlayerBeamCannonRunner {
             return;
         }
 
-        beamCannon.phase =
-            SHIP_WEAPON_PHASE.COOLDOWN;
-
-        beamCannon.phaseElapsedMs = 0;
+        finishShipWeaponAction(
+            beamCannon,
+            definition.cooldownDurationMs,
+        );
 
         // Impact resolves before the event so same-frame telemetry
         // already observes the consumed shield or damaged hull.

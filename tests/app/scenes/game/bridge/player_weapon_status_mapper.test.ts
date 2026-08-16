@@ -65,6 +65,11 @@ describe(
                         phaseElapsedMs:
                             elapsedMs,
 
+                        cooldownRemainingMs:
+                            definition
+                                .cooldownDurationMs -
+                            elapsedMs,
+
                         activeChannelId:
                             'player_spam:test',
                     };

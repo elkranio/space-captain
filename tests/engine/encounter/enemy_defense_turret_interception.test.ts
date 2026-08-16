@@ -54,7 +54,7 @@ import {
 } from './get_mutable_encounter_state_for_test';
 
 const LOAD_DURATION_MS = 3000;
-const COOLDOWN_DURATION_MS = 5000;
+const COOLDOWN_DURATION_MS = 8000;
 const MISSILE_FLIGHT_DURATION_MS = 12000;
 
 const SCIENCE_IDENTIFY_THREAT_DURATION_MS =
@@ -143,7 +143,11 @@ describe('Enemy defense-turret interception', () => {
             phase:
                 DEFENSE_TURRET_PHASE.COOLDOWN,
 
-            phaseElapsedMs: 0,
+            phaseElapsedMs:
+                LOAD_DURATION_MS,
+            cooldownRemainingMs:
+                COOLDOWN_DURATION_MS -
+                LOAD_DURATION_MS,
             targetProjectileId: null,
         });
 
@@ -291,7 +295,10 @@ describe('Enemy defense-turret interception', () => {
             }),
         ).toBe(false);
 
-        engine.step(COOLDOWN_DURATION_MS);
+        engine.step(
+            COOLDOWN_DURATION_MS -
+                LOAD_DURATION_MS,
+        );
 
         expect(enemy.defenseTurret).toMatchObject({
             phase:

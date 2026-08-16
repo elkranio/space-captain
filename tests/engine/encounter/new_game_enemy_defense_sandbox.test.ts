@@ -75,6 +75,7 @@ describe('New-game enemy defense sandbox', () => {
                             .READY,
 
                     phaseElapsedMs: 0,
+                    cooldownRemainingMs: 0,
                 },
             ]);
 
@@ -93,6 +94,7 @@ describe('New-game enemy defense sandbox', () => {
                         .READY,
 
                 phaseElapsedMs: 0,
+                cooldownRemainingMs: 0,
 
                 targetProjectileId:
                     null,

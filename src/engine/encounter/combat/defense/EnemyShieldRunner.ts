@@ -7,7 +7,6 @@ import {
     ENCOUNTER_TEAM,
 } from '../../../defs/encounter_team';
 import {
-    SHIELD_GENERATOR_PHASE,
     SHIELD_GENERATOR_STATUS,
 } from '../../../defs/shield_generator';
 import type {
@@ -96,8 +95,6 @@ export default class EnemyShieldRunner {
             !emitter ||
             emitter.status !==
                 SHIELD_GENERATOR_STATUS.ONLINE ||
-            emitter.phase !==
-                SHIELD_GENERATOR_PHASE.READY ||
             actor.activeShield
         ) {
             throw new Error(
@@ -124,8 +121,5 @@ export default class EnemyShieldRunner {
                     .shieldDurationMs,
         };
 
-        emitter.phase =
-            SHIELD_GENERATOR_PHASE.COOLDOWN;
-        emitter.phaseElapsedMs = 0;
     }
 }

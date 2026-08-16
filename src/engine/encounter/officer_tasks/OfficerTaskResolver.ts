@@ -21,7 +21,7 @@ import {
 import { OFFICER_TASK_KIND, type OfficerTaskState } from '../model/officer_task';
 import EncounterStateStore from '../state/EncounterStateStore';
 
-type ResettablePlayerWeaponTaskState = Extract<
+type CancellablePlayerWeaponTaskState = Extract<
     OfficerTaskState,
     {
         kind:
@@ -240,9 +240,9 @@ export default class OfficerTaskResolver {
     }
 
     private cancelResettablePlayerWeaponTask(
-        task: ResettablePlayerWeaponTaskState,
+        task: CancellablePlayerWeaponTaskState,
     ): void {
-        this.stateStore.resetPlayerWeapon(
+        this.stateStore.finishCancelledPlayerWeapon(
             task.weaponId,
         );
     }

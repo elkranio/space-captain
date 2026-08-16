@@ -18,6 +18,7 @@ import {
     OFFICER_ROLE,
 } from '../../../src/engine/defs/officer';
 import {
+    commitDefenseTurretCooldown,
     DEFENSE_TURRET_PHASE,
 } from '../../../src/engine/defs/defense_turret';
 import {
@@ -434,6 +435,14 @@ describe(
                             .defenseTurretId
                     ];
 
+                // This fixture bypasses EnemyWorkExecutor,
+                // so reproduce the production commitment edge explicitly.
+                commitDefenseTurretCooldown(
+                    defenseTurret,
+                    definition
+                        .cooldownDurationMs,
+                );
+
                 setup.engine.step(
                     definition
                         .loadDurationMs,
@@ -471,6 +480,17 @@ describe(
                 ).toBe(
                     DEFENSE_TURRET_PHASE
                         .COOLDOWN,
+                );
+
+                expect(
+                    defenseTurret
+                        .cooldownRemainingMs,
+                ).toBe(
+                    definition
+                        .cooldownDurationMs -
+                    definition
+                        .loadDurationMs *
+                        2,
                 );
 
                 expect(

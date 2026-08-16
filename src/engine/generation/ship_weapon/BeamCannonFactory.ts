@@ -31,6 +31,7 @@ export default class BeamCannonFactory {
 
             phase: SHIP_WEAPON_PHASE.READY,
             phaseElapsedMs: 0,
+            cooldownRemainingMs: 0,
         };
     }
 }

@@ -308,6 +308,7 @@ function createRunnerFixture() {
                 .TARGETING,
 
         phaseElapsedMs: 0,
+        cooldownRemainingMs: 0,
     };
 
     const actor =

@@ -411,6 +411,7 @@ export default class CombatRunner {
                         actor,
                         actor.defenseTurret,
                         defenseTurretDeltaMs,
+                        deltaMs,
                     );
             }
 
@@ -431,6 +432,7 @@ export default class CombatRunner {
                                 actor,
                                 weapon,
                                 weaponDeltaMs,
+                                deltaMs,
                             );
                         break;
 
@@ -440,6 +442,7 @@ export default class CombatRunner {
                                 actor,
                                 weapon,
                                 weaponDeltaMs,
+                                deltaMs,
                             );
                         break;
 
@@ -450,6 +453,7 @@ export default class CombatRunner {
                                 actor,
                                 weapon,
                                 weaponDeltaMs,
+                                deltaMs,
                             );
                         break;
 
@@ -460,6 +464,7 @@ export default class CombatRunner {
                                 actor,
                                 weapon,
                                 weaponDeltaMs,
+                                deltaMs,
                             );
                         break;
                 }

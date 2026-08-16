@@ -68,6 +68,7 @@ describe('Enemy defense sandbox preset', () => {
                                 .READY,
 
                         phaseElapsedMs: 0,
+                        cooldownRemainingMs: 0,
                     },
                 ]);
 
@@ -84,6 +85,7 @@ describe('Enemy defense sandbox preset', () => {
                         DEFENSE_TURRET_PHASE
                             .READY,
                     phaseElapsedMs: 0,
+                    cooldownRemainingMs: 0,
 
                     targetProjectileId:
                         null,

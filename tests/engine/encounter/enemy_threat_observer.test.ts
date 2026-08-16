@@ -4,6 +4,10 @@ import {
 // tests/engine/encounter/enemy_threat_observer.test.ts
 
 import {
+    SHIP_WEAPONS,
+} from '../../../src/engine/content/catalogs/ship_weapons';
+
+import {
     createPlayerHullFixture } from '../../fixtures/engine/player_hull_fixtures';
 import {
     describe,
@@ -259,6 +263,11 @@ function createObserverFixture() {
                 .CHARGING,
 
         phaseElapsedMs: 0,
+        cooldownRemainingMs:
+            SHIP_WEAPONS[
+                SHIP_WEAPON_ID
+                    .BEAM_CANNON_00
+            ].cooldownDurationMs,
     } as const;
 
     const state = createEncounterState({

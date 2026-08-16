@@ -359,13 +359,23 @@ describe('CombatRunner', () => {
 
         expect(engine.getBeamCannonAttacks()).toEqual([]);
         expect(beamCannon.phase).toBe(SHIP_WEAPON_PHASE.COOLDOWN);
-        expect(beamCannon.phaseElapsedMs).toBe(0);
+        expect(beamCannon.phaseElapsedMs).toBe(
+            beamCannonDefinition.chargeDurationMs,
+        );
+        expect(beamCannon.cooldownRemainingMs).toBe(
+            beamCannonDefinition.cooldownDurationMs -
+                beamCannonDefinition.chargeDurationMs,
+        );
 
-        engine.step(beamCannonDefinition.cooldownDurationMs);
+        engine.step(
+            beamCannonDefinition.cooldownDurationMs -
+                beamCannonDefinition.chargeDurationMs,
+        );
 
         expect(engine.drainEvents()).toEqual([]);
         expect(beamCannon.phase).toBe(SHIP_WEAPON_PHASE.READY);
         expect(beamCannon.phaseElapsedMs).toBe(0);
+        expect(beamCannon.cooldownRemainingMs).toBe(0);
 
         enemy.decision
             .decisionTickRemainingMs = 0;
