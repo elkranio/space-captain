@@ -5,7 +5,7 @@ import { BRIDGE_EVENT } from '../../../events/bridge_event';
 import type BridgeEventBus from '../../../events/BridgeEventBus';
 
 const TARGETING_WARNING_LAMP = {
-    y: 114,
+    y: 55,
 
     width: 30,
     height: 8,
@@ -81,17 +81,12 @@ export default class BridgeTargetingWarningView {
             ease: 'Linear',
 
             yoyo: true,
-            repeat:
-                TARGETING_WARNING_LAMP
-                    .blinkRepeatCount,
+            repeat: TARGETING_WARNING_LAMP.blinkRepeatCount,
 
             onComplete: () => {
-                this.blinkTween =
-                    undefined;
+                this.blinkTween = undefined;
 
-                this.lamp
-                    .setVisible(false)
-                    .setAlpha(0);
+                this.lamp.setVisible(false).setAlpha(0);
             },
         });
     }
