@@ -1,168 +1,96 @@
 # Space Captain — Backlog
 
-Living backlog only. Completed historical phases belong in git history, not in the active task list.
+Last refreshed: 2026-08-16.
 
-Updated: 2026-08-15
-Reference HEAD: `449524c811cd14b8ec933f74565cb6c8241bfdd0`
+This is an active backlog, not a history log.
+Completed implementation notes belong in `CURRENT_HANDOFF.md` only when they
+are needed to continue current work.
 
-## Current selected work
+## P0 — next gameplay atom
 
-### 1. Bridge rebuild — NEXT
+### Engineer-only sticky mine clearing
 
-Goal:
-- replace the old hangar-like runtime bridge composition with the new accepted background;
-- place the new whole seated officer sprites correctly;
-- remove old station presentation that no longer belongs to the art;
-- get one clean runtime screenshot and stop.
+- Make `CLEAR STICKY MINE` Engineer-only in engine command
+  availability/validation.
+- Preserve current clear duration, mine timing, damage, and outcome.
+- Tests:
+  - ENG allowed;
+  - SCI rejected;
+  - HELM rejected;
+  - WPN rejected.
+- Remove the obsolete `Shared` role/tab/surface from the content editor.
+- Do not combine with Evade, escape, or shield changes.
 
-Focused handoff:
-`BRIDGE_REBUILD_HANDOFF.md`
+## P1 — combat roles / escape
 
-Remove for now:
-- separate old station sprite layer;
-- monitor combat/command hints;
-- station task label/progress/cancel monitor overlay;
-- fake typing/touch-deck pulses;
-- ready/busy/blocked side lamps.
+### Helm Evade
 
-Keep:
-- real engine officer tasks/availability;
-- officer hit areas / legacy context menu coverage unless proven unnecessary;
-- barks;
-- captain dashboard;
-- space/combat/viewscreen pipeline;
-- generic enemy attack warning.
+Give Helm a real combat responsibility through an Evade mechanic.
+Define mechanics in a separate design/implementation atom after mine ownership
+is fixed.
 
-Do not wire head-turn behavior in the same first atom.
+### Escape flow
 
-### 2. Officer look-state wiring
+Target dependency:
 
-After static bridge assembly:
-- support `idle`, `look_left`, `look_right` authored seated sprites;
-- use head turns for barks/conversation readability;
-- keep body movement minimal;
-- presentation state only; do not leak into engine combat truth.
+1. drive/engine operational;
+2. Engineer repairs it first when damaged;
+3. Helm initiates escape;
+4. all other officers must be free for escape to complete/start as ultimately
+   decided during implementation.
 
-### 3. Captain dashboard gameplay-fidelity pass
+Keep the exact command/task contract explicit and tested.
 
-Then continue:
-- OUR SHIP cleanup;
-- CURRENT CONTEXT cleanup;
-- compact threat objects instead of long rows;
-- stable real command binding;
-- reduce Boeing/Excel feeling.
+### Outgoing missile polish
 
-### 4. Viewscreen projectile / combat-juice pass
+Current pass is usable. Revisit only after higher-value gameplay work:
 
-- remove persistent labels/timers from projectiles in the viewscreen;
-- improve enemy ship staging if needed after new bridge is live;
-- redesign outgoing/incoming missile sprites;
-- use strong depth vectors/perspective so missiles feel fast;
-- restrained hit flash/shake;
-- readable Beam/SPAM/mine impacts.
+- trajectory extremes / clipping;
+- launch feel;
+- scale falloff;
+- trail density/decay.
 
-### 5. Mine pressure experiment
+## P2 — combat presentation polish
 
-Current manual impression:
-- firing a single mine is mechanically satisfying;
-- clearing mines is probably too permissive/easy.
+- Consider short trail decay when a missile is intercepted instead of
+  disappearing instantly.
+- If combat readability needs it, test a very short final missile
+  point-of-no-return / commit presentation rather than making the whole terminal
+  phase un-interceptable.
+- Continue using shared screen-shake presets instead of ad-hoc values.
 
-Next experiment:
-- allow mine clearing only through Engineer;
-- replay both single-mine and salvo pressure;
-- decide from feel, not theory.
+## P2 — cleanup
 
-Do not create a new mine weapon kind just for `salvoSize = 1`.
+### Disposable bridge debug layer
 
-### 6. Enemy captain behavior
+After the current combat-debug workflow is no longer needed:
 
-After representative combat presentation exists, return to the captain decision layer.
+- remove `src/app/scenes/game/bridge/debug_view/**`;
+- remove the BridgeScene debug hook;
+- remove `phaser3-rex-plugins` if no real runtime use remains;
+- validate package-lock after uninstall.
 
-Desired baseline:
-- configurable captain tick;
-- attack vs defense decision;
-- aggression 0–100;
-- imperfect timing/perception;
-- anti-streak/fairness if random choice produces nonsense;
-- cross-blocking of crew roles matters;
-- enemy mistakes may be surfaced through short barks so the player understands what happened.
+Do this as a dedicated cleanup atom.
 
-Fun beats optimal tactical chess.
+### Legacy missile assets
 
-## Combat fun pass
+After both incoming/outgoing Graphics-based missile presentations are proven:
 
-Play one small encounter repeatedly and look for:
-- obvious procedural response chains;
-- dead time;
-- excessive simultaneous demands;
-- Weapons commitment being strategic vs merely annoying;
-- Science always being automatic first click;
-- no reason to accept damage;
-- player staring at one panel only;
-- insufficient offense/defense conflict.
+- search all manifest/runtime references;
+- remove only confirmed-unused old missile sprite/raw assets;
+- repack textures;
+- validate runtime.
 
-Success criterion:
+Do not delete assets from memory/assumption alone.
 
-> One battle is good enough that the player wants to restart it immediately.
+## Ongoing code-health rule
 
-## Near combat systems
+Every few feature atoms, do a focused cognitive-load pass:
 
-After the immediate visual/fun sequence:
-- player Defense Turret break/repair;
-- Power Core BROKEN behavior;
-- Shield Generator break mutation;
-- Active Shield removal on generator break;
-- Engineer repair commands for defensive installations;
-- Beam Cannon semantic target nodes only after real domain target state exists;
-- enemy repair behavior.
+- identify god objects / callback mazes;
+- flatten needless context hopping;
+- centralize genuinely shared startup/config data;
+- simplify signatures that became difficult to read;
+- prefer boring explicit code over clever abstractions.
 
-## Dashboard / navigation later
-
-Potential surfaces:
-- Combat;
-- Engineering;
-- Navigation.
-
-Possible auto-switch:
-- Combat on engagement;
-- Navigation after combat.
-
-Do not build tabs merely to compensate for bad current layout.
-
-## Bridge / art later
-
-Current bridge background + officer sprite set is a strong production baseline, not final sacred art.
-
-Later polish only after runtime/playtest evidence:
-- role color consistency;
-- small sprite cleanup;
-- richer monitor decorative animations;
-- officer head turns/barks;
-- VIP seat if composition permits;
-- captain dashboard physical art.
-
-Do not spend another day polishing pixels that do not change gameplay readability.
-
-## Content/editor state
-
-Content tooling is complete enough for current gameplay iteration.
-
-Return only when a concrete tuning/content workflow needs it.
-
-## Audio
-
-Later:
-- short weapon/impact/alert sounds;
-- officer acknowledgement/result/failure barks;
-- voice as UI feedback, not constant chatter.
-
-## Refactor policy
-
-Only refactor when a demonstrated problem exists:
-- context travels too far;
-- ownership unclear;
-- duplicated gameplay rule;
-- repeated state reconstruction;
-- real callback spaghetti;
-- cognitively hostile signatures;
-- stale semantic layer obscuring current behavior.
+Do not refactor stable code merely to make architecture look more sophisticated.
