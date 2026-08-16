@@ -93,7 +93,11 @@ export default class BridgeMissileDebugView {
             const local = timeProgress / motion.terminalStartTimeProgress;
 
             const acceleratedCruise =
-                motion.cruiseLinearWeight * local + (1 - motion.cruiseLinearWeight) * local * local;
+                motion.cruiseLinearWeight * local +
+                (1 - motion.cruiseLinearWeight) *
+                    local *
+                    local *
+                    local;
 
             return motion.terminalStartPathProgress * acceleratedCruise;
         }

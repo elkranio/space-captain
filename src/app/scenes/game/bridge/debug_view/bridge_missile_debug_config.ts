@@ -100,13 +100,14 @@ export const BRIDGE_MISSILE_DEBUG_CONFIG = {
         terminalStartTimeProgress: 0.90,
         terminalStartPathProgress: 0.62,
 
-        // Keeps non-zero velocity from the first frame and
-        // accelerates continuously through the cruise phase.
-        cruiseLinearWeight: 0.35,
+        // Cubic cruise keeps a non-zero launch velocity,
+        // holds the first half back, then accelerates harder
+        // through the final third before terminal.
+        cruiseLinearWeight: 0.42,
 
-        // Chosen to keep velocity continuous at the transition,
-        // then the cubic term produces the hard terminal rush.
-        terminalLinearWeight: 0.30,
+        // Matched to the cubic cruise derivative so there is
+        // no visible speed drop when terminal rush begins.
+        terminalLinearWeight: 0.392,
     },
 
     missile: {
