@@ -2,8 +2,8 @@
 
 Compact ownership map for fresh coding chats.
 
-Updated: 2026-08-15
-Reference HEAD: `449524c811cd14b8ec933f74565cb6c8241bfdd0`
+Updated: 2026-08-16
+Reference HEAD: `928235b2993b6cf8d322a3543cac14047f6bd925`
 
 ## High-level layers
 
@@ -241,31 +241,20 @@ Current `BridgeView` composes:
 - officer barks;
 - legacy officer context menu.
 
-The next bridge rebuild changes presentation composition only.
+The bridge rebuild is now the current presentation baseline.
 
-### Current old station presentation
+### Current station presentation
 
-`BridgeOfficerStationView` currently composes:
-- separate station image;
-- monitor hints;
-- task/activity monitor UI;
-- side availability indicators;
-- seated officer image;
-- hit area.
+- the authored bridge background owns the station consoles;
+- each visible officer uses a whole seated sprite layered above the background;
+- station monitors are intentionally blank/dark for now;
+- old separate station-base sprites, monitor hints, fake input pulses, task
+  monitor UI, and side availability lamps are not part of the new visual
+  baseline;
+- invisible officer hit areas/context-menu coverage remain where needed.
 
-The new background already contains the station consoles.
-
-Selected rebuild direction:
-- use new full bridge background;
-- render only the new whole seated officer sprite per role on top;
-- remove the separate old station image;
-- remove monitor hints;
-- remove station task/progress monitor presentation;
-- remove fake input pulses;
-- remove side lamps;
-- keep invisible officer hit areas/context-menu coverage for now.
-
-See `BRIDGE_REBUILD_HANDOFF.md`.
+See the root `../CURRENT_HANDOFF.md` for current implementation status and
+`BRIDGE_ART_DIRECTION.md` for durable visual direction.
 
 ## Bridge asset pipeline
 

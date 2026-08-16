@@ -3,8 +3,8 @@
 Last refreshed: 2026-08-16.
 
 This file is intentionally short and durable.
-Current implementation status and the next working atom live in
-`CURRENT_HANDOFF.md`.
+Current implementation status and the next working atom live in the
+root `../CURRENT_HANDOFF.md`.
 
 ## Product
 
@@ -83,16 +83,22 @@ Assistant-generated temporary patchers are disposable local tools.
 - Finish with `git -c core.safecrlf=false diff --check`.
 - The user runs and verifies patches locally, then pushes green commits.
 
-## Documentation read order
+## Documentation read rule
 
-For a fresh chat / coding session:
+For every fresh chat / coding session:
 
-1. `PROJECT_CONTEXT.md`
-2. `CURRENT_HANDOFF.md`
-3. `GAMEPLAY_CONTRACTS.md`
-4. `SYSTEM_MAP.md`
-5. `BACKLOG.md`
-6. `BRIDGE_ART_DIRECTION.md` when doing bridge/visual work
+1. Read the root `../CURRENT_HANDOFF.md`.
+2. Read **every Markdown document in `docs/`** before coding or making new
+   project-design decisions.
+3. Re-fetch current `master` after the docs are loaded.
 
-`CURRENT_HANDOFF.md` is the single transient handoff. Do not create a new
-one-off handoff for every subsystem unless there is a strong reason.
+Useful orientation inside this folder:
+- `PROJECT_CONTEXT.md` — durable project/workflow rules;
+- `GAMEPLAY_CONTRACTS.md` — gameplay/domain invariants;
+- `SYSTEM_MAP.md` — ownership/architecture map;
+- `BACKLOG.md` — active deferred work;
+- `BRIDGE_ART_DIRECTION.md` — bridge visual direction;
+- `THREAT_PANEL.md` — compact threat-tile and urgency-timeline design.
+
+The root `../CURRENT_HANDOFF.md` is the single transient handoff. Do not create
+a new one-off handoff for every subsystem unless there is a strong reason.

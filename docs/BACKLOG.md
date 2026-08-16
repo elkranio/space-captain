@@ -3,8 +3,8 @@
 Last refreshed: 2026-08-16.
 
 This is an active backlog, not a history log.
-Completed implementation notes belong in `CURRENT_HANDOFF.md` only when they
-are needed to continue current work.
+Completed implementation notes belong in the root
+`../CURRENT_HANDOFF.md` only when they are needed to continue current work.
 
 ## P0 — next gameplay atom
 

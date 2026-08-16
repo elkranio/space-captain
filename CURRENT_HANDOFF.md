@@ -2,7 +2,7 @@
 
 Date: 2026-08-16  
 Baseline master at handoff creation:
-`5792902039677680ea38bd6fb33d18ba705f2b55`
+`928235b2993b6cf8d322a3543cac14047f6bd925`
 
 Always re-fetch `master` before creating the next patch; this SHA is a
 historical checkpoint, not a permanent guard.
@@ -203,12 +203,22 @@ Not blocking current gameplay work:
 Prefer Phaser pixel/shape VFX over generating more bespoke missile artwork when
 simple geometry communicates the mechanic better.
 
-## Working rule for the next chat
+## Working rule for every new chat
 
-Read:
-`PROJECT_CONTEXT.md` -> this file -> `GAMEPLAY_CONTRACTS.md` ->
-`SYSTEM_MAP.md` -> `BACKLOG.md`.
+This rule is permanent for handoff maintenance:
 
-Then fetch current `master`, search the actual mine/editor implementation,
-and make the Engineer-only mine atom from current code rather than from this
-handoff's remembered paths.
+1. Read this root `CURRENT_HANDOFF.md`.
+2. **Read every Markdown document in `docs/` before coding or making new
+   design decisions.**
+3. Treat `docs/` as durable project/design truth and this handoff as the
+   transient current-state pointer.
+4. Re-fetch current `master` after reading the docs; never use the historical
+   baseline SHA above as a new patch guard.
+
+The current threat-tile / urgency-timeline design is documented in
+`docs/THREAT_PANEL.md`, with the latest composition reference stored in
+`docs/images/threat_tile_reference.png`.
+
+After the docs are read and current `master` is fetched, search the actual
+mine/editor implementation and make the Engineer-only mine atom from current
+code rather than from this handoff's remembered paths.

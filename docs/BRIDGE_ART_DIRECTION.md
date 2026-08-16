@@ -2,11 +2,11 @@
 
 Living visual direction for the bridge.
 
-Updated: 2026-08-15
-Reference HEAD: `449524c811cd14b8ec933f74565cb6c8241bfdd0`
+Updated: 2026-08-16
+Reference HEAD: `928235b2993b6cf8d322a3543cac14047f6bd925`
 
 Gameplay truth lives in `GAMEPLAY_CONTRACTS.md`.
-Immediate implementation work lives in `BRIDGE_REBUILD_HANDOFF.md`.
+Immediate implementation work lives in the root `../CURRENT_HANDOFF.md`.
 
 ## Status
 
@@ -34,7 +34,7 @@ The bridge should feel:
 - captain avatar/back not shown;
 - large forward viewscreen dominates the upper scene;
 - four officer stations in one row;
-- left-to-right: Science -> Weapons -> Helm -> Engineer;
+- left-to-right: Science -> Helm -> Weapons -> Engineer;
 - broad lower foreground reserved for captain dashboard;
 - compact wall/ceiling framing;
 - stations integrated into the room rather than floating desks.
@@ -165,10 +165,14 @@ Avoid:
 
 Selected direction remains:
 - one concrete threat = one compact fixed-footprint object;
-- icon + countdown;
-- strong intel/signature strip;
-- one/two stable action slots;
-- roughly 4 comfortable across, 5 viable under pressure.
+- icon + identity/intel + secondary numeric countdown;
+- urgency timeline based on real response windows;
+- one/two stable contextual action slots;
+- roughly 4 comfortable across, 5 viable under pressure;
+- target footprint roughly 4:3 rather than a wide spreadsheet row.
+
+Detailed current interaction/layout direction lives in
+`THREAT_PANEL.md`.
 
 Do not aggregate away runtime threat identity.
 
