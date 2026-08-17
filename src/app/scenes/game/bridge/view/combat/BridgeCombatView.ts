@@ -108,6 +108,13 @@ export default class BridgeCombatView {
                             objectId,
                         );
                 },
+
+                (objectId) => {
+                    return this.spaceView
+                        .getObjectVisualBounds(
+                            objectId,
+                        );
+                },
             );
 
         this.outgoingSpamView =

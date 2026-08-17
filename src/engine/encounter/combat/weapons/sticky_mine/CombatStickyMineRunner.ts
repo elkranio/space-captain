@@ -395,10 +395,35 @@ export default class CombatStickyMineRunner {
             );
         }
 
+        const mineId =
+            this.identities
+                .createStickyMineId();
+
+        if (
+            isShipEvading(
+                target.evade,
+            )
+        ) {
+            this.emit({
+                type:
+                    ENCOUNTER_EVENT
+                        .PLAYER_STICKY_MINE_MISSED,
+
+                mineId,
+
+                sourceWeaponId:
+                    input.sourceWeaponId,
+
+                targetActorId:
+                    input.targetActorId,
+            });
+
+            return;
+        }
+
         const mine: StickyMineState = {
             id:
-                this.identities
-                    .createStickyMineId(),
+                mineId,
 
             source: {
                 kind:

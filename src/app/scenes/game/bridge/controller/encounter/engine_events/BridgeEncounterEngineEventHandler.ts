@@ -499,6 +499,21 @@ export default class BridgeEncounterEngineEventHandler {
                 return;
 
             case ENCOUNTER_EVENT
+                .PLAYER_STICKY_MINE_MISSED:
+                this.eventBus.emit(
+                    BRIDGE_EVENT
+                        .OUTGOING_STICKY_MINE_MISSED,
+                    {
+                        mineId:
+                            event.mineId,
+
+                        targetActorId:
+                            event.targetActorId,
+                    },
+                );
+                return;
+
+            case ENCOUNTER_EVENT
                 .PLAYER_STICKY_MINE_ATTACHED:
                 if (
                     event.mine.source.kind !==

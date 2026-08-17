@@ -74,6 +74,9 @@ export const ENCOUNTER_EVENT = {
     PLAYER_STICKY_MINE_ATTACHED:
         'player_sticky_mine_attached',
 
+    PLAYER_STICKY_MINE_MISSED:
+        'player_sticky_mine_missed',
+
     PLAYER_STICKY_MINE_RESOLVED:
         'player_sticky_mine_resolved',
 
@@ -395,6 +398,17 @@ export type PlayerStickyMineAttachedEvent = {
     mine: StickyMineState;
 };
 
+export type PlayerStickyMineMissedEvent = {
+    type:
+        typeof ENCOUNTER_EVENT
+            .PLAYER_STICKY_MINE_MISSED;
+
+    mineId: string;
+
+    sourceWeaponId: string;
+    targetActorId: string;
+};
+
 export type PlayerStickyMineResolvedEvent =
     | {
           type:
@@ -582,6 +596,7 @@ export type EncounterEvent =
     | EnemyDefenseTurretLoadingStartedEvent
     | EnemyDefenseTurretFiredEvent
     | PlayerStickyMineAttachedEvent
+    | PlayerStickyMineMissedEvent
     | PlayerStickyMineResolvedEvent
     | PlayerSpamChannelStartedEvent
     | PlayerSpamChannelEndedEvent

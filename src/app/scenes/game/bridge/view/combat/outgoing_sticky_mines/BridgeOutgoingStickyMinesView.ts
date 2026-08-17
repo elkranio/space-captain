@@ -7,6 +7,7 @@ import type BridgeScene from '../../../BridgeScene';
 import {
     BRIDGE_EVENT,
     type BridgeOutgoingStickyMineAddedPayload,
+    type BridgeOutgoingStickyMineMissedPayload,
     type BridgeOutgoingStickyMineRemovedPayload,
     type BridgeOutgoingStickyMinesUpdatedPayload,
 } from '../../../events/bridge_event';
@@ -17,11 +18,16 @@ import {
 import {
     removeMissingCombatSnapshotEntries,
 } from '../remove_missing_combat_snapshot_entries';
+import BridgeOutgoingStickyMineMissView from './miss/BridgeOutgoingStickyMineMissView';
 import BridgeOutgoingStickyMineView from './mine/BridgeOutgoingStickyMineView';
 
 type GetObjectPosition = (
     objectId: string,
 ) => Phaser.Math.Vector2 | undefined;
+
+type GetObjectVisualBounds = (
+    objectId: string,
+) => Phaser.Geom.Rectangle | undefined;
 
 type OutgoingStickyMineEntry = {
     targetActorId: string;
@@ -78,6 +84,11 @@ export default class BridgeOutgoingStickyMinesView {
             OutgoingStickyMineEntry
         >();
 
+    private readonly missEffects =
+        new Set<
+            BridgeOutgoingStickyMineMissView
+        >();
+
     private readonly occupiedSlotIndexesByTarget =
         new Map<
             string,
@@ -93,6 +104,9 @@ export default class BridgeOutgoingStickyMinesView {
 
         private readonly getObjectPosition:
             GetObjectPosition,
+
+        private readonly getObjectVisualBounds:
+            GetObjectVisualBounds,
     ) {
         this.root =
             this.scene.add.container(
@@ -109,6 +123,14 @@ export default class BridgeOutgoingStickyMinesView {
                 .OUTGOING_STICKY_MINE_ADDED,
 
             this.addMine,
+            this,
+        );
+
+        this.eventBus.on(
+            BRIDGE_EVENT
+                .OUTGOING_STICKY_MINE_MISSED,
+
+            this.handleMineMissed,
             this,
         );
 
@@ -141,6 +163,14 @@ export default class BridgeOutgoingStickyMinesView {
 
         this.eventBus.off(
             BRIDGE_EVENT
+                .OUTGOING_STICKY_MINE_MISSED,
+
+            this.handleMineMissed,
+            this,
+        );
+
+        this.eventBus.off(
+            BRIDGE_EVENT
                 .OUTGOING_STICKY_MINES_UPDATED,
 
             this.updateMines,
@@ -154,6 +184,15 @@ export default class BridgeOutgoingStickyMinesView {
             this.removeMine,
             this,
         );
+
+        for (
+            const effect of
+            this.missEffects
+        ) {
+            effect.destroy();
+        }
+
+        this.missEffects.clear();
 
         for (
             const entry of
@@ -175,6 +214,66 @@ export default class BridgeOutgoingStickyMinesView {
     ): void {
         this.root.x = Math.round(
             offsetX,
+        );
+    }
+
+    private handleMineMissed(
+        payload:
+            BridgeOutgoingStickyMineMissedPayload,
+    ): void {
+        const targetBasePosition =
+            this.getObjectPosition(
+                payload.targetActorId,
+            );
+
+        if (!targetBasePosition) {
+            throw new Error(
+                'Outgoing sticky-mine MISS target object not found: ' +
+                    payload.targetActorId,
+            );
+        }
+
+        const targetVisualBounds =
+            this.getObjectVisualBounds(
+                payload.targetActorId,
+            );
+
+        if (!targetVisualBounds) {
+            throw new Error(
+                'Outgoing sticky-mine MISS target visual bounds not found: ' +
+                    payload.targetActorId,
+            );
+        }
+
+        const effect =
+            new BridgeOutgoingStickyMineMissView({
+                scene:
+                    this.scene,
+
+                parent:
+                    this.root,
+
+                mineId:
+                    payload.mineId,
+
+                startPosition:
+                    getBridgePlayerWeaponSourcePosition(),
+
+                targetBasePosition,
+
+                targetVisualBounds,
+
+                onComplete:
+                    (completedEffect) => {
+                        this.missEffects
+                            .delete(
+                                completedEffect,
+                            );
+                    },
+            });
+
+        this.missEffects.add(
+            effect,
         );
     }
 

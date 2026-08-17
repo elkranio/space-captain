@@ -5,7 +5,7 @@
         "powerCoreId": "power_core_basic_00",
         "shieldGeneratorId": "shield_generator_basic_00",
         "defenseTurretId": "defense_turret_basic_00",
-        "weaponSlot1Id": "sticky_mine_dispenser_00",
+        "weaponSlot1Id": "sticky_mine_solo",
         "weaponSlot2Id": "fast_beam",
         "weaponSlot3Id": "spam_projector_00",
         "weaponSlot4Id": "ml_full_auto"

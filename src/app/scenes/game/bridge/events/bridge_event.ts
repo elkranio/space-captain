@@ -209,6 +209,9 @@ export const BRIDGE_EVENT = {
     OUTGOING_STICKY_MINE_ADDED:
         'outgoing_sticky_mine_added',
 
+    OUTGOING_STICKY_MINE_MISSED:
+        'outgoing_sticky_mine_missed',
+
     OUTGOING_STICKY_MINES_UPDATED:
         'outgoing_sticky_mines_updated',
 
@@ -723,6 +726,12 @@ export type BridgeOutgoingStickyMineAddedPayload = {
     initialTimeToDetonationMs: number;
 };
 
+export type BridgeOutgoingStickyMineMissedPayload = {
+    mineId: string;
+
+    targetActorId: string;
+};
+
 export type BridgeOutgoingStickyMineUpdatePayload = {
     mineId: string;
 
@@ -996,6 +1005,9 @@ export type BridgeEventPayloadMap = {
 
     [BRIDGE_EVENT.OUTGOING_STICKY_MINE_ADDED]:
         BridgeOutgoingStickyMineAddedPayload;
+
+    [BRIDGE_EVENT.OUTGOING_STICKY_MINE_MISSED]:
+        BridgeOutgoingStickyMineMissedPayload;
 
     [BRIDGE_EVENT.OUTGOING_STICKY_MINES_UPDATED]:
         BridgeOutgoingStickyMinesUpdatedPayload;
