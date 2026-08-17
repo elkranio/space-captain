@@ -14,14 +14,25 @@ import {
     BRIDGE_PLAYER_HULL_COMBAT_POINTS,
 } from '../bridge_player_hull_combat_points';
 import BridgeBeamCannonBeamView from './beam/BridgeBeamCannonBeamView';
+import {
+    BRIDGE_BEAM_CANNON_MISS_ANCHORS,
+    BRIDGE_BEAM_CANNON_TARGET_ANCHOR,
+    getBridgeBeamCannonTargetPoint,
+    type BridgeBeamCannonTargetAnchor,
+} from './bridge_beam_cannon_target_anchors';
 
 type GetObjectPosition = (objectId: string) => Phaser.Math.Vector2 | undefined;
 
 // Manager-view коротких enemy beamCannon beam effects.
 //
 // source берётся из текущей presentation-позиции enemy actor.
-// Пока semantic impact target не введён, входящий beam визуально
-// приходит в центр нижней части viewscreen.
+//
+// This is deliberately only a presentation anchor layer. Semantic ship-node
+// targeting remains engine/domain work for later:
+// - current hull HIT -> HULL_BOTTOM;
+// - current Evade MISS -> one of four diagonal miss anchors;
+// - ABSORBED keeps the existing shield impact point until shield targeting is
+//   redesigned against the same anchor language.
 export default class BridgeBeamCannonBeamsView {
     private readonly root: Phaser.GameObjects.Container;
 
@@ -125,12 +136,19 @@ function getBeamCannonTargetPoint(
 } {
     switch (outcome) {
         case BEAM_CANNON_SHOT_OUTCOME.HIT:
-            return BRIDGE_PLAYER_HULL_COMBAT_POINTS
-                .hullImpactPoint;
+            return getBridgeBeamCannonTargetPoint(
+                BRIDGE_BEAM_CANNON_TARGET_ANCHOR
+                    .HULL_BOTTOM,
+            );
 
         case BEAM_CANNON_SHOT_OUTCOME.ABSORBED:
             return BRIDGE_PLAYER_HULL_COMBAT_POINTS
                 .shieldImpactPoint;
+
+        case BEAM_CANNON_SHOT_OUTCOME.MISS:
+            return getBridgeBeamCannonTargetPoint(
+                getRandomMissAnchor(),
+            );
 
         default: {
             const exhaustiveOutcome:
@@ -140,4 +158,22 @@ function getBeamCannonTargetPoint(
             return exhaustiveOutcome;
         }
     }
+}
+
+function getRandomMissAnchor():
+    BridgeBeamCannonTargetAnchor {
+    const index =
+        Math.floor(
+            Math.random() *
+                BRIDGE_BEAM_CANNON_MISS_ANCHORS
+                    .length,
+        );
+
+    return (
+        BRIDGE_BEAM_CANNON_MISS_ANCHORS[
+            index
+        ] ??
+        BRIDGE_BEAM_CANNON_TARGET_ANCHOR
+            .MISS_TOP_LEFT
+    );
 }

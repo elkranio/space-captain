@@ -8,6 +8,9 @@ import {
     type BeamCannonDefinition,
     type BeamCannonState,
 } from '../../../../defs/ship_weapon';
+import {
+    isShipEvading,
+} from '../../../../defs/ship_evade';
 import type { ShipEncounterActorState } from '../../../actors/ship/ship_encounter_actor';
 import {
     COMBAT_TARGET_KIND,
@@ -268,6 +271,33 @@ export default class CombatBeamCannonRunner {
             definition.cooldownDurationMs,
         );
 
+        // Physical resolution order is intentional:
+        //
+        // EVADING -> MISS
+        // otherwise Active Shield -> ABSORBED
+        // otherwise -> HIT
+        //
+        // A Beam that misses because of Evade never reaches the shield,
+        // so an already active shield remains available for a later attack.
+        if (
+            isShipEvading(
+                this.state.evade,
+            )
+        ) {
+            this.emit({
+                type:
+                    ENCOUNTER_EVENT
+                        .BEAM_CANNON_FIRED,
+
+                attack,
+
+                outcome:
+                    BEAM_CANNON_SHOT_OUTCOME
+                        .MISS,
+            });
+
+            return;
+        }
 
         const absorbedByShield =
             this.stateStore

@@ -37,6 +37,7 @@ export type CombatThreatKind = (typeof COMBAT_THREAT_KIND)[keyof typeof COMBAT_T
 export const BEAM_CANNON_SHOT_OUTCOME = {
     HIT: 'hit',
     ABSORBED: 'absorbed',
+    MISS: 'miss',
 } as const;
 
 export type BeamCannonShotOutcome = (typeof BEAM_CANNON_SHOT_OUTCOME)[keyof typeof BEAM_CANNON_SHOT_OUTCOME];

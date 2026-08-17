@@ -81,6 +81,77 @@ describe('BridgeEncounterEngineEventHandler beamCannon resolution', () => {
 
         expect(setEncounterInteractive).not.toHaveBeenCalled();
     });
+
+    it('removes the threat and emits a miss beam without changing persistent hull', () => {
+        const {
+            handler,
+            runtime,
+            emit,
+            setEncounterInteractive,
+        } = createHandler();
+
+        const hullBefore =
+            runtime
+                .getCurrentRun()
+                .player
+                .ship
+                .hull;
+
+        handler.handle([
+            {
+                type:
+                    ENCOUNTER_EVENT
+                        .BEAM_CANNON_FIRED,
+
+                attack:
+                    createAttack(),
+
+                outcome:
+                    BEAM_CANNON_SHOT_OUTCOME
+                        .MISS,
+            },
+        ]);
+
+        expect(
+            runtime
+                .getCurrentRun()
+                .player
+                .ship
+                .hull,
+        ).toBe(
+            hullBefore,
+        );
+
+        expect(emit.mock.calls).toEqual([
+            [
+                BRIDGE_EVENT
+                    .BEAM_CANNON_THREAT_REMOVED,
+
+                {
+                    attackId:
+                        'beam_cannon_attack_1',
+                },
+            ],
+
+            [
+                BRIDGE_EVENT
+                    .BEAM_CANNON_BEAM_FIRED,
+
+                {
+                    sourceActorId:
+                        'ship_enemy_00',
+
+                    outcome:
+                        BEAM_CANNON_SHOT_OUTCOME
+                            .MISS,
+                },
+            ],
+        ]);
+
+        expect(
+            setEncounterInteractive,
+        ).not.toHaveBeenCalled();
+    });
 });
 
 function createHandler() {

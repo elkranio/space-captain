@@ -512,6 +512,18 @@ export type BeamCannonFiredEvent =
           outcome:
               typeof BEAM_CANNON_SHOT_OUTCOME
                   .ABSORBED;
+      }
+    | {
+          type:
+              typeof ENCOUNTER_EVENT
+                  .BEAM_CANNON_FIRED;
+
+          attack:
+              BeamCannonAttackState;
+
+          outcome:
+              typeof BEAM_CANNON_SHOT_OUTCOME
+                  .MISS;
       };
 
 

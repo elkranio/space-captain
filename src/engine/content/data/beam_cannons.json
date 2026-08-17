@@ -4,5 +4,11 @@
         "damage": 1,
         "chargeDurationMs": 12000,
         "cooldownDurationMs": 27000
+    },
+    "fast_beam": {
+        "name": "FAST_BEAM_CANNON",
+        "damage": 1,
+        "chargeDurationMs": 2000,
+        "cooldownDurationMs": 2000
     }
 }
