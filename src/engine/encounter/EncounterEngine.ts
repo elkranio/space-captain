@@ -16,6 +16,10 @@ import type {
 } from '../defs/player';
 import type { PlayerSpaceNavigationState } from '../defs/player_location';
 import type { ShipDriveState } from '../defs/ship_drive';
+import {
+    SHIP_EVADE_PHASE,
+    type ShipEvadeState,
+} from '../defs/ship_evade';
 import type {
     ShipWeaponState,
 } from '../defs/ship_weapon';
@@ -312,6 +316,14 @@ export default class EncounterEngine {
 
         this.officerTaskRunner.step(deltaMs);
         this.playerWeaponRunner.step(deltaMs);
+
+        // Evade uses raw encounter/world time and is advanced before
+        // physical combat resolution so impact-time queries see the
+        // authoritative phase for this step.
+        this.stepPlayerEvade(
+            deltaMs,
+        );
+
         this.combatRunner.step(deltaMs);
 
         this.officerTaskRunner.cancelTasksWithMissingTargets();
@@ -372,6 +384,11 @@ export default class EncounterEngine {
 
     public getDriveState(): ShipDriveState {
         return this.snapshotReader.getDriveState();
+    }
+
+    public getEvadeState(): ShipEvadeState {
+        return this.snapshotReader
+            .getEvadeState();
     }
 
     public getPlayerHullState():
@@ -441,6 +458,58 @@ export default class EncounterEngine {
         this.events.length = 0;
 
         return events;
+    }
+
+    // #endregion
+
+    // #region Player Evade lifecycle
+
+    private stepPlayerEvade(
+        deltaMs: number,
+    ): void {
+        const evadeTask =
+            this.stateStore
+                .getOfficerTasks()
+                .find((task) => {
+                    return (
+                        task.kind ===
+                        OFFICER_TASK_KIND
+                            .HELM_EVADE
+                    );
+                });
+
+        this.stateStore
+            .advancePlayerEvade(
+                deltaMs,
+            );
+
+        if (!evadeTask) {
+            return;
+        }
+
+        const phase =
+            this.stateStore
+                .getState()
+                .evade
+                .phase;
+
+        if (
+            phase ===
+                SHIP_EVADE_PHASE
+                    .WARMUP ||
+            phase ===
+                SHIP_EVADE_PHASE
+                    .EVADING
+        ) {
+            return;
+        }
+
+        // The maneuver owns the Helm task only through WARMUP + EVADING.
+        // Recovery continues independently after Helm is released.
+        this.officerTaskRunner
+            .complete(
+                evadeTask.id,
+            );
     }
 
     // #endregion

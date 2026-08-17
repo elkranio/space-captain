@@ -257,8 +257,121 @@ describe(
                 ).toBe(false);
             },
         );
+
+        it(
+            'stops Evade through the shared online-drive cancellation path',
+            () => {
+                const {
+                    store,
+                    runner,
+                    executor,
+                } =
+                    createHarness(4);
+
+                executeEvade(
+                    executor,
+                );
+
+                const committedCooldown =
+                    store.getState()
+                        .evade
+                        .cooldownRemainingMs;
+
+                store.disablePlayerDrive();
+
+                runner
+                    .cancelTasksRequiringOnlineDrive();
+
+                expect(
+                    store.getOfficerTask(
+                        OFFICER_ROLE.HELM,
+                    ),
+                ).toBeUndefined();
+
+                expect(
+                    store.getState()
+                        .evade,
+                ).toMatchObject({
+                    phase:
+                        SHIP_EVADE_PHASE
+                            .COOLDOWN,
+
+                    cooldownRemainingMs:
+                        committedCooldown,
+                });
+            },
+        );
+
+        it(
+            'stops Evade when the Helm task is interrupted by damage',
+            () => {
+                const {
+                    store,
+                    runner,
+                    executor,
+                } =
+                    createHarness(4);
+
+                executeEvade(
+                    executor,
+                );
+
+                const committedCooldown =
+                    store.getState()
+                        .evade
+                        .cooldownRemainingMs;
+
+                runner
+                    .interruptRandomTaskByDamage();
+
+                expect(
+                    store.getOfficerTask(
+                        OFFICER_ROLE.HELM,
+                    ),
+                ).toBeUndefined();
+
+                expect(
+                    store.getState()
+                        .evade,
+                ).toMatchObject({
+                    phase:
+                        SHIP_EVADE_PHASE
+                            .COOLDOWN,
+
+                    cooldownRemainingMs:
+                        committedCooldown,
+                });
+            },
+        );
     },
 );
+
+function executeEvade(
+    executor: OfficerCommandExecutor,
+): void {
+    const result =
+        executor.execute({
+            role:
+                OFFICER_ROLE.HELM,
+
+            commandId:
+                ENCOUNTER_OFFICER_COMMAND_ID
+                    .HELM_EVADE,
+
+            target: {
+                kind:
+                    OFFICER_COMMAND_TARGET_KIND
+                        .NONE,
+            },
+        });
+
+    expect(
+        result.status,
+    ).toBe(
+        OFFICER_COMMAND_EXECUTION_STATUS
+            .EXECUTED,
+    );
+}
 
 function createHarness(
     charges: number,
