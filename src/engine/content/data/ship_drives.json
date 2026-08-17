@@ -1,5 +1,9 @@
 {
     "basic_00": {
-        "name": "BASIC DRIVE"
+        "name": "BASIC DRIVE",
+        "evadeWarmupMs": 1000,
+        "evadeDurationMs": 3000,
+        "evadeCooldownMs": 20000,
+        "evadePowerCost": 2
     }
 }

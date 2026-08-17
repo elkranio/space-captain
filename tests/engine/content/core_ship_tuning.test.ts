@@ -53,12 +53,15 @@ describe(
                     maxHull: 3,
                 });
 
-                expect(
+                const basicDrive =
                     SHIP_DRIVES[
                         SHIP_DRIVE_ID
                             .BASIC_00
-                    ],
-                ).toEqual({
+                    ];
+
+                expect(
+                    basicDrive,
+                ).toMatchObject({
                     id:
                         SHIP_DRIVE_ID
                             .BASIC_00,
@@ -66,6 +69,26 @@ describe(
                     name:
                         'BASIC DRIVE',
                 });
+
+                expect(
+                    basicDrive
+                        .evadeWarmupMs,
+                ).toBeGreaterThanOrEqual(0);
+
+                expect(
+                    basicDrive
+                        .evadeDurationMs,
+                ).toBeGreaterThan(0);
+
+                expect(
+                    basicDrive
+                        .evadeCooldownMs,
+                ).toBeGreaterThanOrEqual(0);
+
+                expect(
+                    basicDrive
+                        .evadePowerCost,
+                ).toBeGreaterThan(0);
 
                 expect(
                     ENEMY_BEHAVIOR_RULES
@@ -110,11 +133,35 @@ describe(
                             basic_00: {
                                 name:
                                     'BASIC DRIVE',
+
+                                evadeWarmupMs:
+                                    1000,
+
+                                evadeDurationMs:
+                                    3000,
+
+                                evadeCooldownMs:
+                                    20000,
+
+                                evadePowerCost:
+                                    2,
                             },
 
                             fast_00: {
                                 name:
                                     'FAST DRIVE',
+
+                                evadeWarmupMs:
+                                    500,
+
+                                evadeDurationMs:
+                                    2500,
+
+                                evadeCooldownMs:
+                                    15000,
+
+                                evadePowerCost:
+                                    1,
                             },
                         })
                         .success,
@@ -163,6 +210,18 @@ describe(
                             'Bad ID': {
                                 name:
                                     'BASIC DRIVE',
+
+                                evadeWarmupMs:
+                                    1000,
+
+                                evadeDurationMs:
+                                    3000,
+
+                                evadeCooldownMs:
+                                    20000,
+
+                                evadePowerCost:
+                                    2,
                             },
                         })
                         .success,
@@ -173,6 +232,41 @@ describe(
                         .safeParse({
                             basic_00: {
                                 name: '',
+
+                                evadeWarmupMs:
+                                    1000,
+
+                                evadeDurationMs:
+                                    3000,
+
+                                evadeCooldownMs:
+                                    20000,
+
+                                evadePowerCost:
+                                    2,
+                            },
+                        })
+                        .success,
+                ).toBe(false);
+
+                expect(
+                    SHIP_DRIVE_TUNING_SCHEMA
+                        .safeParse({
+                            basic_00: {
+                                name:
+                                    'BASIC DRIVE',
+
+                                evadeWarmupMs:
+                                    -1,
+
+                                evadeDurationMs:
+                                    3000,
+
+                                evadeCooldownMs:
+                                    20000,
+
+                                evadePowerCost:
+                                    2,
                             },
                         })
                         .success,

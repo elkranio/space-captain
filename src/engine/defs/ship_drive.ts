@@ -20,6 +20,11 @@ export type ShipDriveStatus =
 export type ShipDriveDefinition = {
     id: ShipDriveId;
     name: string;
+
+    evadeWarmupMs: number;
+    evadeDurationMs: number;
+    evadeCooldownMs: number;
+    evadePowerCost: number;
 };
 
 export type ShipDriveState = {
