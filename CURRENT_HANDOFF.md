@@ -32,53 +32,37 @@ The repository is green after the 2026-08-16 combat cleanup pass:
 - Typecheck, focused tests, full test suite and runtime smoke were green before
   this handoff refresh.
 
-## NEXT ATOM — Helm Evade V0
+## Current combat position — Evade implemented, two blockers open
 
-`docs/HELM_EVADE.md` is the canonical design contract.
+Helm Evade V0 is now implemented end-to-end far beyond the old "next atom"
+state that this handoff previously described.
 
-Do not redesign Evade from memory. Read that document and implement the smallest
-authoritative V0 that satisfies it.
+Implemented behavior includes:
+- shared authoritative player/enemy Evade lifecycle;
+- drive/content-driven warmup, duration, cooldown and Power cost;
+- player Helm command/task integration;
+- player and enemy production presentation;
+- incoming enemy missile / Beam / new sticky-mine attachment misses while the
+  player is actively EVADING;
+- outgoing player Beam / missile / sticky-mine misses while the enemy is
+  actively EVADING;
+- SPAM remains explicitly non-evadable.
 
-Core contract:
+Before moving deeper into dashboard/scan roadmap work, resolve the two current
+combat correctness blockers recorded in `docs/KNOWN_COMBAT_BUGS.md`:
 
-1. `EVADE` belongs to Helm.
-2. Base Evade requires an operational main drive.
-3. Power Core cost is spent at command start.
-4. Full Evade cooldown starts at command start.
-5. Helm owns a real task/lifecycle with:
-   - WARMUP;
-   - EVADING;
-   - remaining COOLDOWN/recovery;
-   - READY.
-6. Warmup, active duration, cooldown and Power cost are drive/content-driven.
-7. Cooldown advances in raw encounter/world time and survives cancellation or
-   interruption.
-8. Player cancellation is allowed; committed Power/cooldown are not refunded.
-9. Evade is deterministic. No dodge percentage in V0.
-10. Evasion is checked when a physical hit/attachment resolves, not when an
-    attack starts.
-11. Evadable in V0:
-    - incoming missiles;
-    - Beam Cannon hits;
-    - incoming sticky-mine attachment.
-12. Not evadable:
-    - SPAM;
-    - sticky mines already attached to the hull.
-13. The ship remains targetable while Evading.
-14. Only Helm is occupied. Do not slow/block Science, Weapons or Engineer.
-15. Beam resolution order:
-    `EVADING -> MISS`, otherwise `Active Shield -> ABSORBED`, otherwise `HIT`.
-    An Evade miss must not consume an existing shield.
-16. Engine/read-model truth owns Evade legality/state. Presentation must not
-    recreate timing or coverage rules.
+1. SPAM currently reaches an unhandled bridge/app event path and can fail at
+   runtime.
+2. Enemy Evade can activate in runtime while its enable/debug flag is disabled.
 
-Enemy Evade must ultimately use the same gameplay mechanic rather than an
-AI-only dodge rule. Keep the first implementation narrow and do not invent a
-large enemy-policy redesign while establishing the shared authoritative
-mechanic.
+Treat both as correctness fixes, not presentation redesign atoms. In particular:
+- do not change SPAM's non-evadable gameplay contract while fixing its event
+  transport;
+- do not hide the enemy-Evade bug in presentation; trace the authoritative
+  enable flag through policy/intent/execution and add regression coverage.
 
-Do not add Helm's second combat command in this atom.
-Do not combine Evade with escape flow.
+The previously discussed SPAM projection visual redesign is separate from the
+SPAM runtime bug.
 
 ## Cooldown semantics Evade must reuse
 

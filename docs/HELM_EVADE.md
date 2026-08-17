@@ -309,6 +309,17 @@ coverage/availability information should come from engine/read-model truth.
 The enemy uses the same gameplay mechanic rather than a separate AI-only dodge
 rule.
 
+### Known implementation blocker
+
+Current runtime observation: enemy Evade can activate even while its
+enable/debug flag is disabled. That behavior violates this contract and is
+tracked in `KNOWN_COMBAT_BUGS.md`.
+
+The fix must restore authoritative gating in the config/policy/intent/execution
+path. Presentation must not suppress or fake the state as a workaround. When the
+flag is disabled, the enemy must not start an Evade task/state transition at
+all.
+
 When the enemy is Evading, the player must be able to see this state before
 attacks resolve so misses do not feel arbitrary.
 

@@ -295,6 +295,13 @@ export default class EncounterEngine {
     public tryStartActorEvade(
         actorId: string,
     ): boolean {
+        console.trace(
+            '[enemy-evade-debug] tryStartActorEvade',
+            {
+                actorId,
+            },
+        );
+
         return this.stateStore
             .tryStartActorEvade(
                 actorId,

@@ -9,30 +9,27 @@ when they are needed to continue current work.
 The canonical near-term combat feature order lives in
 `COMBAT_PLAYTEST_ROADMAP.md`.
 
-## P0 — next gameplay atom
+## P0 — combat correctness blockers
 
-### Helm Evade V0
+The current blocking bugs are tracked in `KNOWN_COMBAT_BUGS.md`.
 
-Implement the contract in `HELM_EVADE.md`.
+Fix them before treating Helm Evade as a trustworthy completed playtest feature:
 
-Keep the atom narrow:
+1. **SPAM runtime event failure**
+   - reproduce the exact failing SPAM event path;
+   - add the missing explicit engine -> app/bridge handling;
+   - add focused regression coverage;
+   - keep SPAM non-evadable and keep the visual redesign separate.
 
-- Helm-only command/lifecycle.
-- Operational drive required in V0.
-- Drive/content owns warmup, active duration, cooldown and Power cost.
-- Power and full cooldown commit at command start.
-- Cooldown advances independently in raw encounter/world time.
-- Cancellation/interruption ends protection without refunding committed cost.
-- Deterministic impact-time evasion for missile/Beam/new mine attachment.
-- SPAM and already attached mines remain unaffected.
-- Evade check precedes shield absorption.
-- Other officers remain unaffected.
-- Authoritative engine/read-model state; no presentation-owned legality.
-- Do not add Helm's second combat command.
-- Do not combine with escape.
+2. **Enemy Evade ignores disabled enable/debug state**
+   - trace the flag from config/debug content through enemy policy/intent and
+     authoritative execution;
+   - disabled must mean the enemy cannot start Evade at all;
+   - add regression tests for disabled and enabled states;
+   - do not patch around it in the view.
 
-Enemy Evade should ultimately share the same gameplay mechanic. Avoid a broad
-enemy-policy rewrite while establishing the V0 mechanic.
+Helm Evade V0 itself is otherwise implemented end-to-end for player/enemy
+lifecycle and current missile/Beam/sticky-mine physical miss interactions.
 
 ## P1 — combat readability / build-space roadmap
 

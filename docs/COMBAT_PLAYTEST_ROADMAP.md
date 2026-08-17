@@ -89,11 +89,17 @@ build × crew condition × enemy matchup × player decisions
 
 ### 1. Helm Evade
 
-Give Helm an actual combat responsibility.
+**Implementation status:** functionally implemented end-to-end, but not yet
+considered a clean playtest-complete step because a current correctness bug can
+allow enemy Evade to activate while its enable/debug flag is disabled. See
+`KNOWN_COMBAT_BUGS.md`.
 
-The first implementation should be narrow and testable. Its main purpose is to
-put Helm-time into the same combat resource economy as Science, Weapons and
-Engineer.
+The implemented mechanic gives Helm an actual combat responsibility and puts
+Helm-time into the same combat resource economy as Science, Weapons and
+Engineer. Player and enemy use the same authoritative lifecycle, and the current
+miss interactions cover missile, Beam and new sticky-mine attachment resolution.
+
+SPAM remains non-evadable by contract.
 
 Do not invent Helm's second combat command at the same time.
 
@@ -238,6 +244,10 @@ canonical yet.
 ## Gate A — Combat becomes readable
 
 Covers steps 1–5.
+
+Before using Gate A playtests as evidence, also clear the active combat
+correctness blockers in `KNOWN_COMBAT_BUGS.md`, including the SPAM runtime
+event failure.
 
 Before leaving this gate, the player should be able to quickly answer:
 - what is happening to us?
