@@ -263,8 +263,8 @@ export default class BridgePlayerBeamCannonView {
                 ),
             );
 
-        const beamTargetPosition =
-            this.getBeamTargetPosition(
+        const beamGeometry =
+            this.getBeamGeometry(
                 payload,
                 sourcePosition,
                 targetPosition,
@@ -287,7 +287,12 @@ export default class BridgePlayerBeamCannonView {
                 sourcePosition,
 
                 targetPosition:
-                    beamTargetPosition,
+                    beamGeometry
+                        .targetPosition,
+
+                perspectiveTargetPosition:
+                    beamGeometry
+                        .perspectiveTargetPosition,
 
                 sourceNear: true,
 
@@ -341,7 +346,7 @@ export default class BridgePlayerBeamCannonView {
         this.impacts.add(impact);
     }
 
-    private getBeamTargetPosition(
+    private getBeamGeometry(
         payload:
             BridgePlayerBeamCannonFiredPayload,
 
@@ -350,13 +355,25 @@ export default class BridgePlayerBeamCannonView {
 
         canonicalTargetPosition:
             Phaser.Math.Vector2,
-    ): Phaser.Math.Vector2 {
+    ): {
+        targetPosition:
+            Phaser.Math.Vector2;
+
+        perspectiveTargetPosition:
+            Phaser.Math.Vector2;
+    } {
         if (
             payload.outcome !==
             BEAM_CANNON_SHOT_OUTCOME
                 .MISS
         ) {
-            return canonicalTargetPosition;
+            return {
+                targetPosition:
+                    canonicalTargetPosition,
+
+                perspectiveTargetPosition:
+                    canonicalTargetPosition,
+            };
         }
 
         const visualBounds =
@@ -401,10 +418,21 @@ export default class BridgePlayerBeamCannonView {
                     this.scene.scale.height,
             });
 
-        return new Phaser.Math.Vector2(
-            missTarget.x,
-            missTarget.y,
-        );
+        return {
+            targetPosition:
+                new Phaser.Math.Vector2(
+                    missTarget.x,
+                    missTarget.y,
+                ),
+
+            perspectiveTargetPosition:
+                new Phaser.Math.Vector2(
+                    missTarget
+                        .perspectiveX,
+                    missTarget
+                        .perspectiveY,
+                ),
+        };
     }
 
     private getBeamParent(

@@ -94,6 +94,22 @@ describe(
                 );
 
                 expect(
+                    result
+                        .perspectiveX,
+                ).toBeCloseTo(
+                    1001 - 48,
+                    6,
+                );
+
+                expect(
+                    result
+                        .perspectiveY,
+                ).toBeCloseTo(
+                    280,
+                    6,
+                );
+
+                expect(
                     isPlayerBeamCannonMissLeft(
                         987,
                         1001,
@@ -168,6 +184,22 @@ describe(
                     xAtShipCenter,
                 ).toBeCloseTo(
                     973 + 48,
+                    6,
+                );
+
+                expect(
+                    result
+                        .perspectiveX,
+                ).toBeCloseTo(
+                    973 + 48,
+                    6,
+                );
+
+                expect(
+                    result
+                        .perspectiveY,
+                ).toBeCloseTo(
+                    280,
                     6,
                 );
 

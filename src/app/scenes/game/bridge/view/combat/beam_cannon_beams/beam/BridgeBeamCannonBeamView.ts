@@ -12,6 +12,11 @@ type BridgeBeamCannonBeamViewOptions = {
     targetPosition:
         Phaser.Math.Vector2;
 
+    // Optional point where perspective taper should reach its far width.
+    // The beam may continue beyond this point (for example an Evade fly-by).
+    perspectiveTargetPosition?:
+        Phaser.Math.Vector2;
+
     // true:
     // player source находится ближе камеры,
     // поэтому beam шире у source.
@@ -54,6 +59,9 @@ export default class BridgeBeamCannonBeamView {
     private readonly targetPosition:
         Phaser.Math.Vector2;
 
+    private readonly perspectiveDistance:
+        number;
+
     private elapsedMs = 0;
 
     private completed = false;
@@ -65,6 +73,7 @@ export default class BridgeBeamCannonBeamView {
 
         sourcePosition,
         targetPosition,
+        perspectiveTargetPosition,
 
         sourceNear = false,
 
@@ -77,6 +86,20 @@ export default class BridgeBeamCannonBeamView {
 
         this.targetPosition =
             targetPosition.clone();
+
+        const perspectiveTarget =
+            (
+                perspectiveTargetPosition ??
+                targetPosition
+            )
+                .clone();
+
+        this.perspectiveDistance =
+            perspectiveTarget
+                .subtract(
+                    this.sourcePosition,
+                )
+                .length();
 
         this.sourceNear =
             sourceNear;
@@ -200,7 +223,6 @@ export default class BridgeBeamCannonBeamView {
                 .outlineColor,
 
             alpha,
-            easedProgress,
         );
 
         this.drawBeamLayer(
@@ -215,7 +237,6 @@ export default class BridgeBeamCannonBeamView {
             BEAM_CANNON_BEAM.bodyColor,
 
             alpha,
-            easedProgress,
         );
 
         this.drawBeamLayer(
@@ -230,7 +251,6 @@ export default class BridgeBeamCannonBeamView {
             BEAM_CANNON_BEAM.coreColor,
 
             alpha,
-            easedProgress,
         );
     }
 
@@ -243,8 +263,6 @@ export default class BridgeBeamCannonBeamView {
 
         color: number,
         alpha: number,
-
-        extensionProgress: number,
     ): void {
         const direction =
             currentTarget
@@ -253,8 +271,12 @@ export default class BridgeBeamCannonBeamView {
                     this.sourcePosition,
                 );
 
+        const currentLength =
+            direction.length();
+
         if (
-            direction.lengthSq() <= 0
+            currentLength <=
+            Number.EPSILON
         ) {
             return;
         }
@@ -277,11 +299,25 @@ export default class BridgeBeamCannonBeamView {
                 ? farHalfWidth
                 : nearHalfWidth;
 
-        const targetHalfWidth =
+        const safePerspectiveDistance =
+            Math.max(
+                Number.EPSILON,
+                this.perspectiveDistance,
+            );
+
+        const taperProgress =
+            Phaser.Math.Clamp(
+                currentLength /
+                    safePerspectiveDistance,
+                0,
+                1,
+            );
+
+        const currentHalfWidth =
             Phaser.Math.Linear(
                 sourceHalfWidth,
                 finalTargetHalfWidth,
-                extensionProgress,
+                taperProgress,
             );
 
         const sourceOffset =
@@ -291,11 +327,11 @@ export default class BridgeBeamCannonBeamView {
                     sourceHalfWidth,
                 );
 
-        const targetOffset =
+        const currentOffset =
             perpendicular
                 .clone()
                 .scale(
-                    targetHalfWidth,
+                    currentHalfWidth,
                 );
 
         this.graphics.fillStyle(
@@ -303,6 +339,64 @@ export default class BridgeBeamCannonBeamView {
             alpha,
         );
 
+        if (
+            currentLength <=
+            safePerspectiveDistance
+        ) {
+            this.graphics.fillPoints(
+                [
+                    this.sourcePosition
+                        .clone()
+                        .add(
+                            sourceOffset,
+                        ),
+
+                    currentTarget
+                        .clone()
+                        .add(
+                            currentOffset,
+                        ),
+
+                    currentTarget
+                        .clone()
+                        .subtract(
+                            currentOffset,
+                        ),
+
+                    this.sourcePosition
+                        .clone()
+                        .subtract(
+                            sourceOffset,
+                        ),
+                ],
+
+                true,
+            );
+
+            return;
+        }
+
+        const taperEnd =
+            this.sourcePosition
+                .clone()
+                .add(
+                    direction
+                        .clone()
+                        .scale(
+                            safePerspectiveDistance,
+                        ),
+                );
+
+        const finalOffset =
+            perpendicular
+                .clone()
+                .scale(
+                    finalTargetHalfWidth,
+                );
+
+        // Past the perspective point the beam keeps its far width while the
+        // visual line continues. This is what makes a long Evade fly-by look
+        // tapered near the ship instead of only narrowing somewhere off-screen.
         this.graphics.fillPoints(
             [
                 this.sourcePosition
@@ -311,16 +405,28 @@ export default class BridgeBeamCannonBeamView {
                         sourceOffset,
                     ),
 
+                taperEnd
+                    .clone()
+                    .add(
+                        finalOffset,
+                    ),
+
                 currentTarget
                     .clone()
                     .add(
-                        targetOffset,
+                        finalOffset,
                     ),
 
                 currentTarget
                     .clone()
                     .subtract(
-                        targetOffset,
+                        finalOffset,
+                    ),
+
+                taperEnd
+                    .clone()
+                    .subtract(
+                        finalOffset,
                     ),
 
                 this.sourcePosition

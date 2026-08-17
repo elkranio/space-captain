@@ -17,6 +17,9 @@ export type PlayerBeamCannonMissTargetOptions = {
 export type PlayerBeamCannonMissTarget = {
     x: number;
     y: number;
+
+    perspectiveX: number;
+    perspectiveY: number;
 };
 
 const VIEWPORT_EXTENSION_FACTOR = 2;
@@ -137,5 +140,11 @@ export function getPlayerBeamCannonMissTarget({
             sourceY +
             directionY *
                 scale,
+
+        perspectiveX:
+            passX,
+
+        perspectiveY:
+            passY,
     };
 }
