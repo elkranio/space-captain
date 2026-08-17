@@ -121,6 +121,13 @@ export default class BridgeCombatView {
             new BridgeOutgoingSpamView(
                 this.scene,
                 this.eventBus,
+
+                (objectId) => {
+                    return this.spaceView
+                        .getObjectVisualBounds(
+                            objectId,
+                        );
+                },
             );
 
         this.beamCannonThreatsView = new BridgeBeamCannonThreatsView(

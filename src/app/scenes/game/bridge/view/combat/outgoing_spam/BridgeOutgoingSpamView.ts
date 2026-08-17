@@ -36,10 +36,9 @@ const OUTGOING_SPAM_VFX = {
     tintFrameMs: 135,
     flickerFrameMs: 95,
 
-    // Aim roughly toward the hostile ship, but keep the cone short and low
-    // enough that it reads like a local projection instead of "flashlight up".
-    endOffsetX: 92,
-    endOffsetY: -36,
+    // Short local projection. We aim toward the hostile ship's presented
+    // visual bounds center, but stop far short of it.
+    lengthPx: 72,
 
     outerSourceHalfWidth: 2,
     outerEndHalfWidth: 28,
@@ -53,6 +52,10 @@ const OUTGOING_SPAM_VFX = {
     sourceGlowRadius: 4.5,
     sourceCoreRadius: 1.5,
 } as const;
+
+type GetObjectVisualBounds = (
+    objectId: string,
+) => Phaser.Geom.Rectangle | undefined;
 
 type ProjectionPoint = {
     x: number;
@@ -88,6 +91,9 @@ export default class BridgeOutgoingSpamView {
 
         private readonly eventBus:
             BridgeEventBus,
+
+        private readonly getObjectVisualBounds:
+            GetObjectVisualBounds,
     ) {
         this.root =
             this.scene.add.container(
@@ -315,6 +321,7 @@ export default class BridgeOutgoingSpamView {
         ) {
             this.drawProjection(
                 source,
+                channel.targetActorId,
                 channel.phaseOffsetMs,
             );
         }
@@ -323,6 +330,9 @@ export default class BridgeOutgoingSpamView {
     private drawProjection(
         source:
             Phaser.Math.Vector2,
+
+        targetActorId:
+            string,
 
         phaseOffsetMs:
             number,
@@ -396,17 +406,66 @@ export default class BridgeOutgoingSpamView {
                     2,
             );
 
+        const targetVisualBounds =
+            this.getObjectVisualBounds(
+                targetActorId,
+            );
+
+        if (!targetVisualBounds) {
+            return;
+        }
+
+        const targetCenter:
+            ProjectionPoint = {
+                x:
+                    targetVisualBounds.centerX,
+
+                y:
+                    targetVisualBounds.centerY,
+            };
+
+        const fullDx =
+            targetCenter.x -
+            source.x;
+
+        const fullDy =
+            targetCenter.y -
+            source.y;
+
+        const fullDistance =
+            Math.hypot(
+                fullDx,
+                fullDy,
+            );
+
+        if (
+            fullDistance <
+            1
+        ) {
+            return;
+        }
+
+        const directionX =
+            fullDx /
+            fullDistance;
+
+        const directionY =
+            fullDy /
+            fullDistance;
+
         const end:
             ProjectionPoint = {
                 x:
                     source.x +
-                    OUTGOING_SPAM_VFX
-                        .endOffsetX,
+                    directionX *
+                        OUTGOING_SPAM_VFX
+                            .lengthPx,
 
                 y:
                     source.y +
-                    OUTGOING_SPAM_VFX
-                        .endOffsetY,
+                    directionY *
+                        OUTGOING_SPAM_VFX
+                            .lengthPx,
             };
 
         const dx =
