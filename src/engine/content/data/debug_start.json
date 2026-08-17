@@ -6,7 +6,7 @@
         "shieldGeneratorId": "shield_generator_basic_00",
         "defenseTurretId": "defense_turret_basic_00",
         "weaponSlot1Id": "sticky_mine_dispenser_00",
-        "weaponSlot2Id": "beam_cannon_00",
+        "weaponSlot2Id": "fast_beam",
         "weaponSlot3Id": "spam_projector_00",
         "weaponSlot4Id": "missile_launcher_00"
     },

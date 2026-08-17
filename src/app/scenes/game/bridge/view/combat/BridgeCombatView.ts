@@ -176,7 +176,17 @@ export default class BridgeCombatView {
             this.eventBus,
 
             (objectId) => {
-                return this.spaceView.getObjectPosition(objectId);
+                return this.spaceView
+                    .getObjectPosition(
+                        objectId,
+                    );
+            },
+
+            (objectId) => {
+                return this.spaceView
+                    .getObjectVisualBounds(
+                        objectId,
+                    );
             },
         );
 

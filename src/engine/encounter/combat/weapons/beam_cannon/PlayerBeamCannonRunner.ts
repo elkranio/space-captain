@@ -3,6 +3,9 @@ import {
 } from '../../../../content/catalogs/ship_weapons';
 import { ENCOUNTER_TEAM } from '../../../../defs/encounter_team';
 import {
+    isShipEvading,
+} from '../../../../defs/ship_evade';
+import {
     finishShipWeaponAction,
     SHIP_WEAPON_KIND,
     SHIP_WEAPON_PHASE,
@@ -52,7 +55,7 @@ type PlayerBeamCannonRunnerOptions = {
 };
 
 // Owns the active installed player beamCannon lifecycle:
-// charging -> whole-ship shield/hull impact -> cooldown.
+// charging -> enemy Evade/shield/hull resolution -> cooldown.
 //
 // Node/sector targeting remains intentionally absent in this slice.
 export default class PlayerBeamCannonRunner {
@@ -181,6 +184,29 @@ export default class PlayerBeamCannonRunner {
                     `${task.id}/` +
                     `${task.targetActorId}`,
             );
+        }
+
+        // Physical resolution order mirrors the player defensive contract:
+        //
+        // EVADING -> MISS
+        // otherwise active shield -> ABSORBED
+        // otherwise -> HIT
+        //
+        // A Beam that misses because of Evade never reaches the shield.
+        if (
+            isShipEvading(
+                target.evade,
+            )
+        ) {
+            return {
+                outcome:
+                    BEAM_CANNON_SHOT_OUTCOME
+                        .MISS,
+
+                damage: 0,
+                remainingHull:
+                    target.hull,
+            };
         }
 
         if (target.activeShield) {

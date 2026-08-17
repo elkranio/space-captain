@@ -1,5 +1,8 @@
 // src/app/scenes/game/bridge/view/combat/player_beam_cannon/BridgePlayerBeamCannonView.ts
 
+import {
+    BEAM_CANNON_SHOT_OUTCOME,
+} from '../../../../../../../engine/encounter/model/combat';
 import type BridgeScene from '../../../BridgeScene';
 import {
     BRIDGE_EVENT,
@@ -14,10 +17,17 @@ import {
 import BridgeBeamCannonBeamView from '../beam_cannon_beams/beam/BridgeBeamCannonBeamView';
 import BridgeBeamCannonChargeView from '../beam_cannon_charge/BridgeBeamCannonChargeView';
 import BridgePlayerBeamCannonImpactView from './impact/BridgePlayerBeamCannonImpactView';
+import {
+    shouldRenderPlayerBeamMissBehindTarget,
+} from './bridge_player_beam_cannon_miss_depth';
 
 type GetObjectPosition = (
     objectId: string,
 ) => Phaser.Math.Vector2 | undefined;
+
+type GetObjectVisualBounds = (
+    objectId: string,
+) => Phaser.Geom.Rectangle | undefined;
 
 // Temporary player weapon presentation.
 //
@@ -25,7 +35,14 @@ type GetObjectPosition = (
 // target actor. Node-specific impact positions return together
 // with the future targeting-node contract.
 export default class BridgePlayerBeamCannonView {
+    // Normal Beam VFX stay above encounter objects.
     private readonly root:
+        Phaser.GameObjects.Container;
+
+    // A left-side Evade miss must visually pass behind the enemy ship.
+    // This sibling sits behind the shared encounter-object root while remaining
+    // above the space-background layer.
+    private readonly behindObjectsRoot:
         Phaser.GameObjects.Container;
 
     private readonly mount:
@@ -52,7 +69,28 @@ export default class BridgePlayerBeamCannonView {
 
         private readonly getObjectPosition:
             GetObjectPosition,
+
+        private readonly getObjectVisualBounds:
+            GetObjectVisualBounds,
     ) {
+        this.behindObjectsRoot =
+            this.scene.add.container(
+                0,
+                0,
+            );
+
+        this.scene.layers
+            .get('objects')
+            .add(
+                this.behindObjectsRoot,
+            );
+
+        this.scene.layers
+            .sendToBack(
+                'objects',
+                this.behindObjectsRoot,
+            );
+
         this.root =
             this.scene.add.container(
                 0,
@@ -135,6 +173,9 @@ export default class BridgePlayerBeamCannonView {
 
         this.beams.clear();
         this.impacts.clear();
+
+        this.behindObjectsRoot
+            .destroy(true);
 
         this.root.destroy(true);
 
@@ -223,13 +264,19 @@ export default class BridgePlayerBeamCannonView {
                 ),
             );
 
+        const beamParent =
+            this.getBeamParent(
+                payload,
+                targetPosition,
+            );
+
         const beam =
             new BridgeBeamCannonBeamView({
                 scene:
                     this.scene,
 
                 parent:
-                    this.root,
+                    beamParent,
 
                 sourcePosition,
                 targetPosition,
@@ -247,6 +294,16 @@ export default class BridgePlayerBeamCannonView {
 
         this.beams.add(beam);
 
+        // Evade miss is intentionally only the canonical Beam line passing
+        // beside the presentation-shifted enemy. There is no contact VFX.
+        if (
+            payload.outcome ===
+            BEAM_CANNON_SHOT_OUTCOME
+                .MISS
+        ) {
+            return;
+        }
+
         const impact =
             new BridgePlayerBeamCannonImpactView({
                 scene:
@@ -260,7 +317,8 @@ export default class BridgePlayerBeamCannonView {
 
                 blocked:
                     payload.outcome ===
-                    'absorbed',
+                    BEAM_CANNON_SHOT_OUTCOME
+                        .ABSORBED,
 
                 onComplete: () => {
                     impact.destroy();
@@ -272,6 +330,41 @@ export default class BridgePlayerBeamCannonView {
             });
 
         this.impacts.add(impact);
+    }
+
+    private getBeamParent(
+        payload:
+            BridgePlayerBeamCannonFiredPayload,
+
+        targetPosition:
+            Phaser.Math.Vector2,
+    ): Phaser.GameObjects.Container {
+        if (
+            payload.outcome !==
+            BEAM_CANNON_SHOT_OUTCOME
+                .MISS
+        ) {
+            return this.root;
+        }
+
+        const visualBounds =
+            this.getObjectVisualBounds(
+                payload.targetActorId,
+            );
+
+        if (!visualBounds) {
+            throw new Error(
+                'Player beamCannon miss target visual bounds not found: ' +
+                    payload.targetActorId,
+            );
+        }
+
+        return shouldRenderPlayerBeamMissBehindTarget(
+            targetPosition.x,
+            visualBounds.centerX,
+        )
+            ? this.behindObjectsRoot
+            : this.root;
     }
 
     private drawMount(): void {
