@@ -292,6 +292,15 @@ export default class EncounterEngine {
             .engageCurrentHostileActors();
     }
 
+    public tryStartActorEvade(
+        actorId: string,
+    ): boolean {
+        return this.stateStore
+            .tryStartActorEvade(
+                actorId,
+            );
+    }
+
     public setActorTeam(
         actorId: string,
         team: EncounterTeam,

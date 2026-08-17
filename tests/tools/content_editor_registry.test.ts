@@ -3,6 +3,7 @@ import {
     expect,
     it,
 } from 'vitest';
+import enemyDebugBehaviorsData from '../../src/app/debug/data/enemy_debug_behaviors.json';
 import debugStartData from '../../src/engine/content/data/debug_start.json';
 import powerCoreData from '../../src/engine/content/data/power_cores.json';
 import enemyBehaviorRulesData from '../../src/engine/content/data/enemy_behavior_rules.json';
@@ -60,6 +61,17 @@ describe(
 
                         label:
                             'Ships',
+
+                        canAdd: false,
+                        canDelete: false,
+                    },
+                    {
+                        id:
+                            CONTENT_COLLECTION_ID
+                                .ENEMY_DEBUG_BEHAVIORS,
+
+                        label:
+                            'Enemy Behaviors',
 
                         canAdd: false,
                         canDelete: false,
@@ -246,6 +258,9 @@ describe(
                 ).toEqual([
                     CONTENT_COLLECTION_ID
                         .DEBUG_START,
+
+                    CONTENT_COLLECTION_ID
+                        .ENEMY_DEBUG_BEHAVIORS,
                 ]);
 
                 expect(
@@ -367,6 +382,11 @@ describe(
                         CONTENT_COLLECTION_ID
                             .DEBUG_START,
                         debugStartData,
+                    ],
+                    [
+                        CONTENT_COLLECTION_ID
+                            .ENEMY_DEBUG_BEHAVIORS,
+                        enemyDebugBehaviorsData,
                     ],
                     [
                         CONTENT_COLLECTION_ID
@@ -598,6 +618,33 @@ describe(
                         'string',
                         'null',
                     ]),
+                );
+
+                const enemyDebugBehaviorSchema =
+                    getContentCollectionJsonSchema(
+                        CONTENT_COLLECTION_ID
+                            .ENEMY_DEBUG_BEHAVIORS,
+                    ) as {
+                        properties?: {
+                            enemy?: {
+                                properties?: {
+                                    evadeAtCombatStart?: {
+                                        type?: string;
+                                    };
+                                };
+                            };
+                        };
+                    };
+
+                expect(
+                    enemyDebugBehaviorSchema
+                        .properties
+                        ?.enemy
+                        ?.properties
+                        ?.evadeAtCombatStart
+                        ?.type,
+                ).toBe(
+                    'boolean',
                 );
 
                 const scienceOfficerSchema =

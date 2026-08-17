@@ -17,6 +17,9 @@ import {
     type ExecuteOfficerCommandInput,
     type ExecuteOfficerCommandResult,
 } from '../../../../../../engine/encounter/model/command';
+import {
+    applyEnemyCombatStartDebugBehaviors,
+} from '../../../../../debug/apply_enemy_combat_start_debug_behaviors';
 import { DEBUG_SETTINGS } from '../../../../../debug/debug_settings';
 import { GAME_RUNTIME } from '../../../../../runtime/GameRuntime';
 import { SCENE_KEY } from '../../../../scene_key';
@@ -61,6 +64,9 @@ export default class BridgeEncounterController {
 
     private isEncounterInteractive = false;
 
+    private hasAppliedEnemyCombatStartDebugBehaviors =
+        false;
+
     // #endregion
 
     constructor(private readonly eventBus: BridgeEventBus) {
@@ -95,6 +101,9 @@ export default class BridgeEncounterController {
         this.encounterEngine = undefined;
 
         this.isEncounterInteractive = false;
+
+        this.hasAppliedEnemyCombatStartDebugBehaviors =
+            false;
     }
 
     // #endregion
@@ -525,6 +534,19 @@ export default class BridgeEncounterController {
         }
 
         this.encounterEngine.engageHostileActors();
+
+        if (
+            !this
+                .hasAppliedEnemyCombatStartDebugBehaviors
+        ) {
+            applyEnemyCombatStartDebugBehaviors(
+                this.encounterEngine,
+            );
+
+            this.hasAppliedEnemyCombatStartDebugBehaviors =
+                true;
+        }
+
         this.drainEncounterEvents();
     }
 

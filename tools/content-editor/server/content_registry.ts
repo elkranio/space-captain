@@ -1,5 +1,8 @@
 import * as z from 'zod';
 import {
+    ENEMY_DEBUG_BEHAVIORS_SCHEMA,
+} from '../../../src/app/debug/enemy_debug_behaviors_schema';
+import {
     DEBUG_START_SCHEMA,
 } from '../../../src/engine/content/schemas/debug_start';
 import {
@@ -39,6 +42,9 @@ import {
 export const CONTENT_COLLECTION_ID = {
     DEBUG_START:
         'debug_start',
+
+    ENEMY_DEBUG_BEHAVIORS:
+        'enemy_debug_behaviors',
 
     OFFICER_TASKS_SCIENCE:
         'officer_tasks_science',
@@ -150,6 +156,30 @@ const CONTENT_COLLECTIONS:
 
             schema:
                 DEBUG_START_SCHEMA,
+
+            canAdd: false,
+            canDelete: false,
+        },
+
+        [CONTENT_COLLECTION_ID
+            .ENEMY_DEBUG_BEHAVIORS]: {
+            id:
+                CONTENT_COLLECTION_ID
+                    .ENEMY_DEBUG_BEHAVIORS,
+
+            label:
+                'Enemy Behaviors',
+
+            group:
+                CONTENT_COLLECTION_GROUP
+                    .DEBUG_START,
+
+            dataPath:
+                'src/app/debug/data/' +
+                'enemy_debug_behaviors.json',
+
+            schema:
+                ENEMY_DEBUG_BEHAVIORS_SCHEMA,
 
             canAdd: false,
             canDelete: false,
