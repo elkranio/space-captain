@@ -8,7 +8,7 @@
         "weaponSlot1Id": "sticky_mine_dispenser_00",
         "weaponSlot2Id": "fast_beam",
         "weaponSlot3Id": "spam_projector_00",
-        "weaponSlot4Id": "missile_launcher_00"
+        "weaponSlot4Id": "ml_full_auto"
     },
     "enemy": {
         "chassisId": "generic_00",

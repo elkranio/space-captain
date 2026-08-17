@@ -26,6 +26,10 @@ type GetObjectPosition = (
     objectId: string,
 ) => Phaser.Math.Vector2 | undefined;
 
+type GetObjectVisualBounds = (
+    objectId: string,
+) => Phaser.Geom.Rectangle | undefined;
+
 // Manager-view for player missiles.
 //
 // Target position is captured at launch,
@@ -70,6 +74,9 @@ export default class BridgeOutgoingMissilesView {
 
         private readonly getObjectPosition:
             GetObjectPosition,
+
+        private readonly getObjectVisualBounds:
+            GetObjectVisualBounds,
     ) {
         this.root =
             this.scene.add.container(
@@ -316,11 +323,27 @@ export default class BridgeOutgoingMissilesView {
             PLAYER_MISSILE_OUTCOME
                 .MISS
         ) {
+            const targetVisualBounds =
+                this.getObjectVisualBounds(
+                    payload.targetActorId,
+                );
+
+            if (!targetVisualBounds) {
+                missile.destroy();
+
+                throw new Error(
+                    'Outgoing missile MISS target visual bounds not found: ' +
+                        payload.targetActorId,
+                );
+            }
+
             this.missEffects.add(
                 missile,
             );
 
-            missile.startMissExit(
+            missile.startMissFade(
+                targetVisualBounds,
+
                 () => {
                     missile.destroy();
 

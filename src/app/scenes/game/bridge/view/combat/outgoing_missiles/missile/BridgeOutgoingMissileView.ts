@@ -48,19 +48,31 @@ export default class BridgeOutgoingMissileView {
     private readonly trajectoryPoints:
         BridgeOutgoingMissilePoint[];
 
-    private readonly missExitPoint:
+    private readonly missDirection:
         BridgeOutgoingMissilePoint;
 
-    private missExitElapsedMs =
+    private missFadeElapsedMs =
         0;
 
-    private missExitOnComplete?:
+    private missFadeOnComplete?:
         () => void;
 
     private readonly trailPoints:
         BridgeOutgoingMissileTrailPoint[] = [];
 
+    private readonly previousPosition =
+        new Phaser.Math.Vector2();
+
     private readonly currentPosition =
+        new Phaser.Math.Vector2();
+
+    private readonly missPreviousPosition =
+        new Phaser.Math.Vector2();
+
+    private readonly missStartPosition =
+        new Phaser.Math.Vector2();
+
+    private readonly missFadePoint =
         new Phaser.Math.Vector2();
 
     constructor({
@@ -96,8 +108,12 @@ export default class BridgeOutgoingMissileView {
         this.trajectoryPoints =
             trajectory.points;
 
-        this.missExitPoint =
-            trajectory.missExitPoint;
+        this.missDirection =
+            trajectory.missDirection;
+
+        this.previousPosition.copy(
+            startPosition,
+        );
 
         this.currentPosition.copy(
             startPosition,
@@ -126,6 +142,10 @@ export default class BridgeOutgoingMissileView {
                 pathProgress,
             );
 
+        this.previousPosition.copy(
+            this.currentPosition,
+        );
+
         this.currentPosition.set(
             point.x,
             point.y,
@@ -147,63 +167,52 @@ export default class BridgeOutgoingMissileView {
         return this.currentPosition.clone();
     }
 
-    public startMissExit(
+    public startMissFade(
+        targetVisualBounds:
+            Phaser.Geom.Rectangle,
+
         onComplete:
             () => void,
     ): void {
         if (
-            this.missExitOnComplete
+            this.missFadeOnComplete
         ) {
             throw new Error(
-                'Outgoing missile miss exit already active',
+                'Outgoing missile miss fade already active',
             );
         }
 
-        const targetPoint =
-            this.trajectoryPoints[
-                this.trajectoryPoints
-                    .length - 1
-            ];
-
-        if (!targetPoint) {
-            throw new Error(
-                'Outgoing missile trajectory has no target point',
-            );
-        }
-
-        // Engine has already resolved and removed the projectile.
-        // Snap presentation to the exact physical impact point before
-        // drawing the very short authored fly-by.
-        this.currentPosition.set(
-            targetPoint.x,
-            targetPoint.y,
+        // Do not snap to the authoritative target point.
+        // The MISS presentation continues from the exact last rendered sample.
+        this.missPreviousPosition.copy(
+            this.previousPosition,
         );
 
-        this.pushTrailPoint(
-            targetPoint,
-            1,
+        this.missStartPosition.copy(
+            this.currentPosition,
         );
 
-        this.render(
-            targetPoint,
-            1,
+        this.missFadePoint.copy(
+            this.createMissFadePoint(
+                targetVisualBounds,
+            ),
         );
 
-        this.missExitElapsedMs =
+        this.missFadeElapsedMs =
             0;
 
-        this.missExitOnComplete =
+        this.missFadeOnComplete =
             onComplete;
 
         this.scene.events.on(
             Phaser.Scenes.Events.UPDATE,
-            this.handleMissExitUpdate,
+            this.handleMissFadeUpdate,
             this,
         );
     }
 
     public destroy(): void {
-        this.stopMissExit();
+        this.stopMissFade();
 
         this.trailPoints.length = 0;
         this.graphics.destroy();
@@ -236,7 +245,7 @@ export default class BridgeOutgoingMissileView {
         points:
             BridgeOutgoingMissilePoint[];
 
-        missExitPoint:
+        missDirection:
             BridgeOutgoingMissilePoint;
     } {
         const presentation =
@@ -281,18 +290,16 @@ export default class BridgeOutgoingMissileView {
         return {
             points,
 
-            missExitPoint: {
+            missDirection: {
                 x:
-                    targetPosition.x +
                     preset
-                        .missExitPoint
-                        .offsetX,
+                        .missDirection
+                        .x,
 
                 y:
-                    targetPosition.y +
                     preset
-                        .missExitPoint
-                        .offsetY,
+                        .missDirection
+                        .y,
             },
         };
     }
@@ -339,39 +346,116 @@ export default class BridgeOutgoingMissileView {
         };
     }
 
-    private handleMissExitUpdate(
+    private createMissFadePoint(
+        targetVisualBounds:
+            Phaser.Geom.Rectangle,
+    ): Phaser.Math.Vector2 {
+        const config =
+            BRIDGE_OUTGOING_MISSILE_PRESENTATION
+                .miss;
+
+        const direction =
+            new Phaser.Math.Vector2(
+                this.missDirection.x,
+                this.missDirection.y,
+            );
+
+        if (
+            direction.lengthSq() <=
+            Number.EPSILON
+        ) {
+            throw new Error(
+                'Outgoing missile miss direction must be non-zero',
+            );
+        }
+
+        direction.normalize();
+
+        const halfWidth =
+            targetVisualBounds.width /
+                2 +
+            config.clearancePx;
+
+        const halfHeight =
+            targetVisualBounds.height /
+                2 +
+            config.clearancePx;
+
+        const distanceToVerticalEdge =
+            Math.abs(
+                direction.x,
+            ) >
+            Number.EPSILON
+                ? halfWidth /
+                    Math.abs(
+                        direction.x,
+                    )
+                : Number.POSITIVE_INFINITY;
+
+        const distanceToHorizontalEdge =
+            Math.abs(
+                direction.y,
+            ) >
+            Number.EPSILON
+                ? halfHeight /
+                    Math.abs(
+                        direction.y,
+                    )
+                : Number.POSITIVE_INFINITY;
+
+        const expandedEdgeDistance =
+            Math.min(
+                distanceToVerticalEdge,
+                distanceToHorizontalEdge,
+            );
+
+        const currentFromCenter =
+            new Phaser.Math.Vector2(
+                this.currentPosition.x -
+                    targetVisualBounds
+                        .centerX,
+
+                this.currentPosition.y -
+                    targetVisualBounds
+                        .centerY,
+            );
+
+        const currentProjection =
+            currentFromCenter.dot(
+                direction,
+            );
+
+        const fadeDistance =
+            Math.max(
+                expandedEdgeDistance,
+                currentProjection +
+                    config
+                        .minimumContinuationPx,
+            );
+
+        return new Phaser.Math.Vector2(
+            targetVisualBounds.centerX +
+                direction.x *
+                    fadeDistance,
+
+            targetVisualBounds.centerY +
+                direction.y *
+                    fadeDistance,
+        );
+    }
+
+    private handleMissFadeUpdate(
         _time: number,
         deltaMs: number,
     ): void {
         const onComplete =
-            this.missExitOnComplete;
+            this.missFadeOnComplete;
 
         if (!onComplete) {
             return;
         }
 
-        const targetPoint =
-            this.trajectoryPoints[
-                this.trajectoryPoints
-                    .length - 1
-            ];
-
-        const previousPoint =
-            this.trajectoryPoints[
-                this.trajectoryPoints
-                    .length - 2
-            ];
-
-        if (
-            !targetPoint ||
-            !previousPoint
-        ) {
-            throw new Error(
-                'Outgoing missile trajectory has no miss-exit source segment',
-            );
-        }
-
-        this.missExitElapsedMs +=
+        this.missFadeElapsedMs +=
             Math.max(
                 0,
                 deltaMs,
@@ -379,35 +463,48 @@ export default class BridgeOutgoingMissileView {
 
         const progress =
             Phaser.Math.Clamp(
-                this.missExitElapsedMs /
+                this.missFadeElapsedMs /
                     BRIDGE_OUTGOING_MISSILE_PRESENTATION
                         .miss
-                        .exitDurationMs,
+                        .fadeDurationMs,
                 0,
                 1,
             );
 
-        // Treat the authored missExitPoint as the genuine next route point.
-        // The previous waypoint participates in the spline, so the missile
-        // bends out of its existing approach instead of teleporting onto a
-        // new straight post-impact vector.
+        // A virtual fourth control point continues past the visible fade point.
+        // The missile therefore keeps a real outgoing tangent instead of
+        // visibly stopping or kinking at the point where it disappears.
+        const continuationX =
+            this.missFadePoint.x +
+            (
+                this.missFadePoint.x -
+                this.missStartPosition.x
+            );
+
+        const continuationY =
+            this.missFadePoint.y +
+            (
+                this.missFadePoint.y -
+                this.missStartPosition.y
+            );
+
         const point:
             BridgeOutgoingMissilePoint = {
                 x:
                     this.catmullRom(
-                        previousPoint.x,
-                        targetPoint.x,
-                        this.missExitPoint.x,
-                        this.missExitPoint.x,
+                        this.missPreviousPosition.x,
+                        this.missStartPosition.x,
+                        this.missFadePoint.x,
+                        continuationX,
                         progress,
                     ),
 
                 y:
                     this.catmullRom(
-                        previousPoint.y,
-                        targetPoint.y,
-                        this.missExitPoint.y,
-                        this.missExitPoint.y,
+                        this.missPreviousPosition.y,
+                        this.missStartPosition.y,
+                        this.missFadePoint.y,
+                        continuationY,
                         progress,
                     ),
             };
@@ -425,6 +522,7 @@ export default class BridgeOutgoingMissileView {
         this.render(
             point,
             1,
+            1 - progress,
         );
 
         if (
@@ -434,21 +532,21 @@ export default class BridgeOutgoingMissileView {
             return;
         }
 
-        this.stopMissExit();
+        this.stopMissFade();
         onComplete();
     }
 
-    private stopMissExit(): void {
+    private stopMissFade(): void {
         this.scene.events.off(
             Phaser.Scenes.Events.UPDATE,
-            this.handleMissExitUpdate,
+            this.handleMissFadeUpdate,
             this,
         );
 
-        this.missExitElapsedMs =
+        this.missFadeElapsedMs =
             0;
 
-        this.missExitOnComplete =
+        this.missFadeOnComplete =
             undefined;
     }
 
@@ -502,6 +600,8 @@ export default class BridgeOutgoingMissileView {
             BridgeOutgoingMissilePoint,
 
         pathProgress: number,
+
+        fadeScale = 1,
     ): void {
         const graphics =
             this.graphics;
@@ -516,6 +616,13 @@ export default class BridgeOutgoingMissileView {
             presentation.trail;
 
         graphics.clear();
+
+        if (
+            fadeScale <=
+            0
+        ) {
+            return;
+        }
 
         const reverseDepth =
             this.getReverseDepth(
@@ -578,14 +685,16 @@ export default class BridgeOutgoingMissileView {
                     trailConfig
                         .startParticleSize,
                     visualWeight,
-                );
+                ) *
+                fadeScale;
 
             const alpha =
                 Phaser.Math.Linear(
                     trailConfig.targetAlpha,
                     trailConfig.startAlpha,
                     visualWeight,
-                );
+                ) *
+                fadeScale;
 
             const color =
                 ageProgress > 0.66
@@ -594,11 +703,18 @@ export default class BridgeOutgoingMissileView {
 
             const roundedSize =
                 Math.max(
-                    1,
+                    0,
                     Math.round(
                         particleSize,
                     ),
                 );
+
+            if (
+                roundedSize <=
+                0
+            ) {
+                continue;
+            }
 
             graphics.fillStyle(
                 color,
@@ -621,7 +737,7 @@ export default class BridgeOutgoingMissileView {
 
         const missileSize =
             Math.max(
-                1,
+                0,
                 Math.round(
                     Phaser.Math.Linear(
                         missileConfig
@@ -629,17 +745,35 @@ export default class BridgeOutgoingMissileView {
                         missileConfig
                             .startPixelSize,
                         reverseDepth,
-                    ),
+                    ) *
+                        fadeScale,
                 ),
             );
 
+        if (
+            missileSize <=
+            0
+        ) {
+            return;
+        }
+
         const hotSize =
-            missileSize +
-            missileConfig.hotPaddingPx;
+            Math.max(
+                missileSize,
+                Math.round(
+                    (
+                        missileSize +
+                        missileConfig
+                            .hotPaddingPx
+                    ) *
+                        fadeScale,
+                ),
+            );
 
         graphics.fillStyle(
             missileConfig.hotColor,
-            missileConfig.hotAlpha,
+            missileConfig.hotAlpha *
+                fadeScale,
         );
 
         graphics.fillRect(
@@ -657,7 +791,7 @@ export default class BridgeOutgoingMissileView {
 
         graphics.fillStyle(
             missileConfig.coreColor,
-            1,
+            fadeScale,
         );
 
         graphics.fillRect(

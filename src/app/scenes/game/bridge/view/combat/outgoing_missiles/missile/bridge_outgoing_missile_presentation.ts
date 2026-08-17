@@ -44,9 +44,9 @@ export const BRIDGE_OUTGOING_MISSILE_PRESENTATION = {
                 },
             ],
 
-            missExitPoint: {
-                offsetX: 1400,
-                offsetY: -220,
+            missDirection: {
+                x: 1,
+                y: -0.16,
             },
         },
 
@@ -75,9 +75,9 @@ export const BRIDGE_OUTGOING_MISSILE_PRESENTATION = {
                 },
             ],
 
-            missExitPoint: {
-                offsetX: 1400,
-                offsetY: -390,
+            missDirection: {
+                x: 1,
+                y: -0.28,
             },
         },
 
@@ -106,9 +106,9 @@ export const BRIDGE_OUTGOING_MISSILE_PRESENTATION = {
                 },
             ],
 
-            missExitPoint: {
-                offsetX: 900,
-                offsetY: -1400,
+            missDirection: {
+                x: 0.65,
+                y: -1,
             },
         },
 
@@ -137,9 +137,9 @@ export const BRIDGE_OUTGOING_MISSILE_PRESENTATION = {
                 },
             ],
 
-            missExitPoint: {
-                offsetX: -1400,
-                offsetY: -800,
+            missDirection: {
+                x: -1,
+                y: -0.55,
             },
         },
 
@@ -173,17 +173,23 @@ export const BRIDGE_OUTGOING_MISSILE_PRESENTATION = {
                 },
             ],
 
-            missExitPoint: {
-                offsetX: -1400,
-                offsetY: 140,
+            missDirection: {
+                x: -1,
+                y: 0.10,
             },
         },
     ],
 
     miss: {
-        // Short presentation-only continuation after the authoritative MISS.
-        // Long enough to read as a fly-by instead of disappearing at target.
-        exitDurationMs: 260,
+        // Presentation-only depth fade after the authoritative MISS.
+        // The visible destination is only slightly outside the target sprite;
+        // the missile then disappears by shrinking/fading into the distance.
+        fadeDurationMs: 700,
+        clearancePx: 18,
+
+        // Guarantees some forward continuation even if the last rendered
+        // missile sample is already outside the expanded target bounds.
+        minimumContinuationPx: 24,
     },
 
     jitter: {
