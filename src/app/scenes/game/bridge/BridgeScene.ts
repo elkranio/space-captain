@@ -4,7 +4,7 @@ import BaseScene from '../../BaseScene';
 import LayerManager from '../../../../system/LayerManager';
 import { SCENE_KEY } from '../../scene_key';
 import BridgeController from './controller/BridgeController';
-import BridgeMissileDebugView from './debug_view/BridgeMissileDebugView';
+import BridgeEvadeDebugView from './debug_view/evade/BridgeEvadeDebugView';
 
 const layers = ['space', 'objects', 'vfx', 'projection', 'ui_blocker', 'bridge', 'barks', 'ui'] as const;
 type LayerKeys = (typeof layers)[number];
@@ -28,11 +28,15 @@ export default class BridgeScene extends BaseScene<LayerKeys> {
         this.controller = new BridgeController(this);
         this.controller.prepare();
 
-        const missileDebugView =
-            new BridgeMissileDebugView(this);
+        // Temporary visual sandbox.
+        //
+        // BridgeMissileDebugView intentionally remains in debug_view,
+        // but is not mounted while E is used for Evade motion iteration.
+        const evadeDebugView =
+            new BridgeEvadeDebugView(this);
 
         this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
-            missileDebugView.destroy();
+            evadeDebugView.destroy();
 
             this.controller?.destroy();
             this.controller = undefined;
