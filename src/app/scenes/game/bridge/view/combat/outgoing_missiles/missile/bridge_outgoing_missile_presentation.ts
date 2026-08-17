@@ -190,7 +190,7 @@ export const BRIDGE_OUTGOING_MISSILE_PRESENTATION = {
         // the sampled-curve exit from target bounds + clearance.
         guidePastClearancePx: 120,
 
-        passByMaxSpeedMultiplier: 1.20,
+        passByMaxSpeedMultiplier: 1.87,
         passByMaxSizeMultiplier: 1.35,
 
         // Arc-length approximation for the authored Catmull continuation.

@@ -982,12 +982,26 @@ export default class BridgeOutgoingMissileView {
                 1,
             );
 
+        // Accelerate hardest immediately after the MISS, then taper toward
+        // the configured maximum. Starts at exactly 1.00x, so there is no
+        // discontinuous speed jump at the authoritative resolution point.
+        const accelerationProgress =
+            1 -
+            (
+                1 -
+                previousProgress
+            ) *
+                (
+                    1 -
+                    previousProgress
+                );
+
         const speedMultiplier =
             Phaser.Math.Linear(
                 1,
                 missConfig
                     .passByMaxSpeedMultiplier,
-                previousProgress,
+                accelerationProgress,
             );
 
         const frameDistancePx =
