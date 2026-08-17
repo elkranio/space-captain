@@ -73,6 +73,9 @@ export default class BridgeOutgoingMissileView {
     private missCurveLengthPx =
         0;
 
+    private missFadeStartDistancePx =
+        0;
+
     private readonly missCurveSamples:
         BridgeOutgoingMissileMissCurveSample[] = [];
 
@@ -257,7 +260,9 @@ export default class BridgeOutgoingMissileView {
         this.missFlightSpeedPxPerMs =
             this.getMissFlightSpeedPxPerMs();
 
-        this.buildMissCurveSamples();
+        this.buildMissCurveSamples(
+            targetVisualBounds,
+        );
 
         this.missTravelledDistancePx =
             0;
@@ -489,10 +494,10 @@ export default class BridgeOutgoingMissileView {
         const fadeDistance =
             Math.max(
                 expandedEdgeDistance,
-                currentProjection +
-                    config
-                        .minimumDepthTravelPx,
-            );
+                currentProjection,
+            ) +
+            config
+                .minimumDepthTravelPx;
 
         return new Phaser.Math.Vector2(
             targetVisualBounds.centerX +
@@ -561,7 +566,10 @@ export default class BridgeOutgoingMissileView {
         return fallbackSpeedPxPerMs;
     }
 
-    private buildMissCurveSamples(): void {
+    private buildMissCurveSamples(
+        targetVisualBounds:
+            Phaser.Geom.Rectangle,
+    ): void {
         const config =
             BRIDGE_OUTGOING_MISSILE_PRESENTATION
                 .miss;
@@ -664,6 +672,183 @@ export default class BridgeOutgoingMissileView {
                 'Outgoing missile MISS curve has no length',
             );
         }
+
+        this.missFadeStartDistancePx =
+            this.findMissFadeStartDistancePx(
+                targetVisualBounds,
+            );
+    }
+
+    private findMissFadeStartDistancePx(
+        targetVisualBounds:
+            Phaser.Geom.Rectangle,
+    ): number {
+        const clearancePx =
+            BRIDGE_OUTGOING_MISSILE_PRESENTATION
+                .miss
+                .clearancePx;
+
+        const left =
+            targetVisualBounds.left -
+            clearancePx;
+
+        const right =
+            targetVisualBounds.right +
+            clearancePx;
+
+        const top =
+            targetVisualBounds.top -
+            clearancePx;
+
+        const bottom =
+            targetVisualBounds.bottom +
+            clearancePx;
+
+        const isInsideExpandedBounds = (
+            point:
+                BridgeOutgoingMissilePoint,
+        ): boolean => {
+            return (
+                point.x >=
+                    left &&
+                point.x <=
+                    right &&
+                point.y >=
+                    top &&
+                point.y <=
+                    bottom
+            );
+        };
+
+        const firstSample =
+            this.missCurveSamples[0];
+
+        if (!firstSample) {
+            throw new Error(
+                'Outgoing missile MISS curve has no first sample',
+            );
+        }
+
+        // If the authoritative MISS presentation already starts fully clear
+        // of the ship silhouette, depth fade may begin immediately.
+        if (
+            !isInsideExpandedBounds(
+                firstSample.point,
+            )
+        ) {
+            return 0;
+        }
+
+        for (
+            let index = 1;
+            index <
+                this.missCurveSamples
+                    .length;
+            index += 1
+        ) {
+            const previousSample =
+                this.missCurveSamples[
+                    index - 1
+                ];
+
+            const currentSample =
+                this.missCurveSamples[
+                    index
+                ];
+
+            if (
+                isInsideExpandedBounds(
+                    currentSample.point,
+                )
+            ) {
+                continue;
+            }
+
+            // Movement itself interpolates between these same arc-length
+            // samples, so a short binary search gives the matching visual exit
+            // point instead of approximating from authored direction alone.
+            let insideDistancePx =
+                previousSample.distancePx;
+
+            let outsideDistancePx =
+                currentSample.distancePx;
+
+            for (
+                let iteration = 0;
+                iteration < 8;
+                iteration += 1
+            ) {
+                const middleDistancePx =
+                    (
+                        insideDistancePx +
+                        outsideDistancePx
+                    ) /
+                    2;
+
+                const segmentLengthPx =
+                    currentSample
+                        .distancePx -
+                    previousSample
+                        .distancePx;
+
+                const segmentProgress =
+                    segmentLengthPx >
+                    Number.EPSILON
+                        ? (
+                              middleDistancePx -
+                              previousSample
+                                  .distancePx
+                          ) /
+                          segmentLengthPx
+                        : 0;
+
+                const middlePoint:
+                    BridgeOutgoingMissilePoint = {
+                        x:
+                            Phaser.Math.Linear(
+                                previousSample
+                                    .point
+                                    .x,
+                                currentSample
+                                    .point
+                                    .x,
+                                segmentProgress,
+                            ),
+
+                        y:
+                            Phaser.Math.Linear(
+                                previousSample
+                                    .point
+                                    .y,
+                                currentSample
+                                    .point
+                                    .y,
+                                segmentProgress,
+                            ),
+                    };
+
+                if (
+                    isInsideExpandedBounds(
+                        middlePoint,
+                    )
+                ) {
+                    insideDistancePx =
+                        middleDistancePx;
+                } else {
+                    outsideDistancePx =
+                        middleDistancePx;
+                }
+            }
+
+            return outsideDistancePx;
+        }
+
+        // createMissFadePoint() guarantees an endpoint beyond the expanded
+        // bounds, so reaching this branch would mean the sampled path violated
+        // that presentation invariant.
+        throw new Error(
+            'Outgoing missile MISS curve never clears target visual bounds',
+        );
     }
 
     private getMissCurvePointAtDistance(
@@ -789,9 +974,23 @@ export default class BridgeOutgoingMissileView {
                     frameDistancePx,
             );
 
-        const progress =
-            this.missTravelledDistancePx /
-            this.missCurveLengthPx;
+        const fadeDistancePx =
+            this.missCurveLengthPx -
+            this.missFadeStartDistancePx;
+
+        const fadeProgress =
+            this.missTravelledDistancePx <=
+                this.missFadeStartDistancePx
+                ? 0
+                : Phaser.Math.Clamp(
+                      (
+                          this.missTravelledDistancePx -
+                          this.missFadeStartDistancePx
+                      ) /
+                          fadeDistancePx,
+                      0,
+                      1,
+                  );
 
         const point =
             this.getMissCurvePointAtDistance(
@@ -811,7 +1010,7 @@ export default class BridgeOutgoingMissileView {
         this.render(
             point,
             1,
-            1 - progress,
+            1 - fadeProgress,
         );
 
         if (
@@ -839,6 +1038,9 @@ export default class BridgeOutgoingMissileView {
             0;
 
         this.missCurveLengthPx =
+            0;
+
+        this.missFadeStartDistancePx =
             0;
 
         this.missCurveSamples.length =

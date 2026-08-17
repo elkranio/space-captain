@@ -186,8 +186,8 @@ export const BRIDGE_OUTGOING_MISSILE_PRESENTATION = {
         // screen-space speed and therefore takes as long as it naturally needs.
         clearancePx: 18,
 
-        // Keep enough post-MISS travel for the depth fade to read clearly.
-        // The actual endpoint may be farther away when target bounds require it.
+        // Once the missile has fully cleared target bounds + clearance,
+        // keep this much additional travel for the depth fade itself.
         minimumDepthTravelPx: 120,
 
         // Arc-length approximation for the authored Catmull continuation.
