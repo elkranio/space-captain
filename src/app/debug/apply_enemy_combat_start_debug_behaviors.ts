@@ -14,12 +14,6 @@ export function applyEnemyCombatStartDebugBehaviors(
     encounterEngine:
         EncounterEngine,
 ): void {
-    console.log(
-        '[enemy-evade-debug] evadeAtCombatStart',
-        ENEMY_DEBUG_BEHAVIORS
-            .evadeAtCombatStart,
-    );
-
     if (
         !ENEMY_DEBUG_BEHAVIORS
             .evadeAtCombatStart
