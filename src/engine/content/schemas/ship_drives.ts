@@ -25,16 +25,53 @@ export const SHIP_DRIVE_RECORD_SCHEMA =
                 }),
 
         evadeWarmupMs:
-            NON_NEGATIVE_INTEGER_SCHEMA,
+            NON_NEGATIVE_INTEGER_SCHEMA
+                .meta({
+                    title:
+                        'Evade Warmup',
+
+                    description:
+                        'Delay before the ship enters the active Evading window.',
+
+                    unit: 'ms',
+                }),
 
         evadeDurationMs:
-            POSITIVE_INTEGER_SCHEMA,
+            POSITIVE_INTEGER_SCHEMA
+                .meta({
+                    title:
+                        'Evade Duration',
+
+                    description:
+                        'Length of the active Evading window.',
+
+                    unit: 'ms',
+                }),
 
         evadeCooldownMs:
-            NON_NEGATIVE_INTEGER_SCHEMA,
+            NON_NEGATIVE_INTEGER_SCHEMA
+                .meta({
+                    title:
+                        'Evade Cooldown',
+
+                    description:
+                        'Full recovery time committed when Evade starts.',
+
+                    unit: 'ms',
+                }),
 
         evadePowerCost:
-            POSITIVE_INTEGER_SCHEMA,
+            POSITIVE_INTEGER_SCHEMA
+                .meta({
+                    title:
+                        'Evade Power Cost',
+
+                    description:
+                        'Power Core charges spent immediately when Evade starts.',
+
+                    unit:
+                        'charges',
+                }),
     }).meta({
         title:
             'Ship Drive',
