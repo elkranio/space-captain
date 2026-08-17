@@ -73,13 +73,13 @@ export default class BridgeOutgoingMissileView {
     private missCurveLengthPx =
         0;
 
-    private missFadeStartDistancePx =
+    private missExitDistancePx =
         0;
 
     private readonly missCurveSamples:
         BridgeOutgoingMissileMissCurveSample[] = [];
 
-    private missFadeOnComplete?:
+    private missPassByOnComplete?:
         () => void;
 
     private readonly trailPoints:
@@ -97,7 +97,7 @@ export default class BridgeOutgoingMissileView {
     private readonly missStartPosition =
         new Phaser.Math.Vector2();
 
-    private readonly missFadePoint =
+    private readonly missGuidePoint =
         new Phaser.Math.Vector2();
 
     constructor({
@@ -226,7 +226,7 @@ export default class BridgeOutgoingMissileView {
         return this.currentPosition.clone();
     }
 
-    public startMissFade(
+    public startMissPassBy(
         targetVisualBounds:
             Phaser.Geom.Rectangle,
 
@@ -234,15 +234,15 @@ export default class BridgeOutgoingMissileView {
             () => void,
     ): void {
         if (
-            this.missFadeOnComplete
+            this.missPassByOnComplete
         ) {
             throw new Error(
-                'Outgoing missile miss fade already active',
+                'Outgoing missile MISS pass-by already active',
             );
         }
 
-        // Do not snap to the authoritative target point.
-        // The MISS presentation continues from the exact last rendered sample.
+        // The engine has already resolved MISS and removed the projectile.
+        // Presentation continues from the exact last rendered sample.
         this.missPreviousPosition.copy(
             this.previousPosition,
         );
@@ -251,8 +251,8 @@ export default class BridgeOutgoingMissileView {
             this.currentPosition,
         );
 
-        this.missFadePoint.copy(
-            this.createMissFadePoint(
+        this.missGuidePoint.copy(
+            this.createMissGuidePoint(
                 targetVisualBounds,
             ),
         );
@@ -267,18 +267,18 @@ export default class BridgeOutgoingMissileView {
         this.missTravelledDistancePx =
             0;
 
-        this.missFadeOnComplete =
+        this.missPassByOnComplete =
             onComplete;
 
         this.scene.events.on(
             Phaser.Scenes.Events.UPDATE,
-            this.handleMissFadeUpdate,
+            this.handleMissPassByUpdate,
             this,
         );
     }
 
     public destroy(): void {
-        this.stopMissFade();
+        this.stopMissPassBy();
 
         this.trailPoints.length = 0;
         this.graphics.destroy();
@@ -412,7 +412,7 @@ export default class BridgeOutgoingMissileView {
         };
     }
 
-    private createMissFadePoint(
+    private createMissGuidePoint(
         targetVisualBounds:
             Phaser.Geom.Rectangle,
     ): Phaser.Math.Vector2 {
@@ -491,22 +491,22 @@ export default class BridgeOutgoingMissileView {
                 direction,
             );
 
-        const fadeDistance =
+        const guideDistance =
             Math.max(
                 expandedEdgeDistance,
                 currentProjection,
             ) +
             config
-                .minimumDepthTravelPx;
+                .guidePastClearancePx;
 
         return new Phaser.Math.Vector2(
             targetVisualBounds.centerX +
                 direction.x *
-                    fadeDistance,
+                    guideDistance,
 
             targetVisualBounds.centerY +
                 direction.y *
-                    fadeDistance,
+                    guideDistance,
         );
     }
 
@@ -576,16 +576,16 @@ export default class BridgeOutgoingMissileView {
 
         const continuationPoint = {
             x:
-                this.missFadePoint.x +
+                this.missGuidePoint.x +
                 (
-                    this.missFadePoint.x -
+                    this.missGuidePoint.x -
                     this.missStartPosition.x
                 ),
 
             y:
-                this.missFadePoint.y +
+                this.missGuidePoint.y +
                 (
-                    this.missFadePoint.y -
+                    this.missGuidePoint.y -
                     this.missStartPosition.y
                 ),
         };
@@ -630,7 +630,7 @@ export default class BridgeOutgoingMissileView {
                         this.catmullRom(
                             this.missPreviousPosition.x,
                             this.missStartPosition.x,
-                            this.missFadePoint.x,
+                            this.missGuidePoint.x,
                             continuationPoint.x,
                             progress,
                         ),
@@ -639,7 +639,7 @@ export default class BridgeOutgoingMissileView {
                         this.catmullRom(
                             this.missPreviousPosition.y,
                             this.missStartPosition.y,
-                            this.missFadePoint.y,
+                            this.missGuidePoint.y,
                             continuationPoint.y,
                             progress,
                         ),
@@ -673,13 +673,13 @@ export default class BridgeOutgoingMissileView {
             );
         }
 
-        this.missFadeStartDistancePx =
-            this.findMissFadeStartDistancePx(
+        this.missExitDistancePx =
+            this.findMissExitDistancePx(
                 targetVisualBounds,
             );
     }
 
-    private findMissFadeStartDistancePx(
+    private findMissExitDistancePx(
         targetVisualBounds:
             Phaser.Geom.Rectangle,
     ): number {
@@ -730,7 +730,7 @@ export default class BridgeOutgoingMissileView {
         }
 
         // If the authoritative MISS presentation already starts fully clear
-        // of the ship silhouette, depth fade may begin immediately.
+        // of the ship silhouette, pass-by can resolve immediately.
         if (
             !isInsideExpandedBounds(
                 firstSample.point,
@@ -843,7 +843,7 @@ export default class BridgeOutgoingMissileView {
             return outsideDistancePx;
         }
 
-        // createMissFadePoint() guarantees an endpoint beyond the expanded
+        // createMissGuidePoint() guarantees an endpoint beyond the expanded
         // bounds, so reaching this branch would mean the sampled path violated
         // that presentation invariant.
         throw new Error(
@@ -949,19 +949,50 @@ export default class BridgeOutgoingMissileView {
         };
     }
 
-    private handleMissFadeUpdate(
+    private handleMissPassByUpdate(
         _time: number,
         deltaMs: number,
     ): void {
         const onComplete =
-            this.missFadeOnComplete;
+            this.missPassByOnComplete;
 
         if (!onComplete) {
             return;
         }
 
+        if (
+            this.missExitDistancePx <=
+            Number.EPSILON
+        ) {
+            this.stopMissPassBy();
+            onComplete();
+
+            return;
+        }
+
+        const missConfig =
+            BRIDGE_OUTGOING_MISSILE_PRESENTATION
+                .miss;
+
+        const previousProgress =
+            Phaser.Math.Clamp(
+                this.missTravelledDistancePx /
+                    this.missExitDistancePx,
+                0,
+                1,
+            );
+
+        const speedMultiplier =
+            Phaser.Math.Linear(
+                1,
+                missConfig
+                    .passByMaxSpeedMultiplier,
+                previousProgress,
+            );
+
         const frameDistancePx =
             this.missFlightSpeedPxPerMs *
+            speedMultiplier *
             Math.max(
                 0,
                 deltaMs,
@@ -969,28 +1000,18 @@ export default class BridgeOutgoingMissileView {
 
         this.missTravelledDistancePx =
             Math.min(
-                this.missCurveLengthPx,
+                this.missExitDistancePx,
                 this.missTravelledDistancePx +
                     frameDistancePx,
             );
 
-        const fadeDistancePx =
-            this.missCurveLengthPx -
-            this.missFadeStartDistancePx;
-
-        const fadeProgress =
-            this.missTravelledDistancePx <=
-                this.missFadeStartDistancePx
-                ? 0
-                : Phaser.Math.Clamp(
-                      (
-                          this.missTravelledDistancePx -
-                          this.missFadeStartDistancePx
-                      ) /
-                          fadeDistancePx,
-                      0,
-                      1,
-                  );
+        const passByProgress =
+            Phaser.Math.Clamp(
+                this.missTravelledDistancePx /
+                    this.missExitDistancePx,
+                0,
+                1,
+            );
 
         const point =
             this.getMissCurvePointAtDistance(
@@ -1010,24 +1031,29 @@ export default class BridgeOutgoingMissileView {
         this.render(
             point,
             1,
-            1 - fadeProgress,
+            Phaser.Math.Linear(
+                1,
+                missConfig
+                    .passByMaxSizeMultiplier,
+                passByProgress,
+            ),
         );
 
         if (
             this.missTravelledDistancePx <
-            this.missCurveLengthPx
+            this.missExitDistancePx
         ) {
             return;
         }
 
-        this.stopMissFade();
+        this.stopMissPassBy();
         onComplete();
     }
 
-    private stopMissFade(): void {
+    private stopMissPassBy(): void {
         this.scene.events.off(
             Phaser.Scenes.Events.UPDATE,
-            this.handleMissFadeUpdate,
+            this.handleMissPassByUpdate,
             this,
         );
 
@@ -1040,13 +1066,13 @@ export default class BridgeOutgoingMissileView {
         this.missCurveLengthPx =
             0;
 
-        this.missFadeStartDistancePx =
+        this.missExitDistancePx =
             0;
 
         this.missCurveSamples.length =
             0;
 
-        this.missFadeOnComplete =
+        this.missPassByOnComplete =
             undefined;
     }
 
@@ -1101,7 +1127,7 @@ export default class BridgeOutgoingMissileView {
 
         pathProgress: number,
 
-        fadeScale = 1,
+        sizeScale = 1,
     ): void {
         const graphics =
             this.graphics;
@@ -1116,13 +1142,6 @@ export default class BridgeOutgoingMissileView {
             presentation.trail;
 
         graphics.clear();
-
-        if (
-            fadeScale <=
-            0
-        ) {
-            return;
-        }
 
         const reverseDepth =
             this.getReverseDepth(
@@ -1186,15 +1205,14 @@ export default class BridgeOutgoingMissileView {
                         .startParticleSize,
                     visualWeight,
                 ) *
-                fadeScale;
+                sizeScale;
 
             const alpha =
                 Phaser.Math.Linear(
                     trailConfig.targetAlpha,
                     trailConfig.startAlpha,
                     visualWeight,
-                ) *
-                fadeScale;
+                );
 
             const color =
                 ageProgress > 0.66
@@ -1203,18 +1221,11 @@ export default class BridgeOutgoingMissileView {
 
             const roundedSize =
                 Math.max(
-                    0,
+                    1,
                     Math.round(
                         particleSize,
                     ),
                 );
-
-            if (
-                roundedSize <=
-                0
-            ) {
-                continue;
-            }
 
             graphics.fillStyle(
                 color,
@@ -1235,45 +1246,40 @@ export default class BridgeOutgoingMissileView {
             );
         }
 
-        const missileSize =
-            Math.max(
-                0,
-                Math.round(
-                    Phaser.Math.Linear(
-                        missileConfig
-                            .targetPixelSize,
-                        missileConfig
-                            .startPixelSize,
-                        reverseDepth,
-                    ) *
-                        fadeScale,
-                ),
+        const baseMissileSize =
+            Phaser.Math.Linear(
+                missileConfig
+                    .targetPixelSize,
+                missileConfig
+                    .startPixelSize,
+                reverseDepth,
             );
 
-        if (
-            missileSize <=
-            0
-        ) {
-            return;
-        }
+        const missileSize =
+            Math.max(
+                1,
+                Math.round(
+                    baseMissileSize *
+                        sizeScale,
+                ),
+            );
 
         const hotSize =
             Math.max(
                 missileSize,
                 Math.round(
                     (
-                        missileSize +
+                        baseMissileSize +
                         missileConfig
                             .hotPaddingPx
                     ) *
-                        fadeScale,
+                        sizeScale,
                 ),
             );
 
         graphics.fillStyle(
             missileConfig.hotColor,
-            missileConfig.hotAlpha *
-                fadeScale,
+            missileConfig.hotAlpha,
         );
 
         graphics.fillRect(
@@ -1291,7 +1297,7 @@ export default class BridgeOutgoingMissileView {
 
         graphics.fillStyle(
             missileConfig.coreColor,
-            fadeScale,
+            1,
         );
 
         graphics.fillRect(

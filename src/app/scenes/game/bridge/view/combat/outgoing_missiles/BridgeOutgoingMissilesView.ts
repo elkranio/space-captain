@@ -21,6 +21,7 @@ import {
 } from '../remove_missing_combat_snapshot_entries';
 import BridgeOutgoingMissileImpactView from './impact/BridgeOutgoingMissileImpactView';
 import BridgeOutgoingMissileView from './missile/BridgeOutgoingMissileView';
+import BridgeOutgoingMissileSelfDestructView from './self_destruct/BridgeOutgoingMissileSelfDestructView';
 
 type GetObjectPosition = (
     objectId: string,
@@ -63,6 +64,11 @@ export default class BridgeOutgoingMissilesView {
     private readonly impactEffects =
         new Set<
             BridgeOutgoingMissileImpactView
+        >();
+
+    private readonly selfDestructEffects =
+        new Set<
+            BridgeOutgoingMissileSelfDestructView
         >();
 
     constructor(
@@ -171,6 +177,15 @@ export default class BridgeOutgoingMissilesView {
         }
 
         this.impactEffects.clear();
+
+        for (
+            const effect of
+            this.selfDestructEffects
+        ) {
+            effect.destroy();
+        }
+
+        this.selfDestructEffects.clear();
 
         for (
             const missile of
@@ -341,16 +356,43 @@ export default class BridgeOutgoingMissilesView {
                 missile,
             );
 
-            missile.startMissFade(
+            missile.startMissPassBy(
                 targetVisualBounds,
 
                 () => {
+                    const selfDestructPosition =
+                        missile.getPosition();
+
                     missile.destroy();
 
                     this.missEffects
                         .delete(
                             missile,
                         );
+
+                    const selfDestruct =
+                        new BridgeOutgoingMissileSelfDestructView({
+                            scene:
+                                this.scene,
+
+                            parent:
+                                this.root,
+
+                            position:
+                                selfDestructPosition,
+
+                            onComplete:
+                                (completedSelfDestruct) => {
+                                    this.selfDestructEffects
+                                        .delete(
+                                            completedSelfDestruct,
+                                        );
+                                },
+                        });
+
+                    this.selfDestructEffects.add(
+                        selfDestruct,
+                    );
                 },
             );
 

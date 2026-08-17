@@ -182,13 +182,16 @@ export const BRIDGE_OUTGOING_MISSILE_PRESENTATION = {
 
     miss: {
         // Presentation-only continuation after the authoritative MISS.
-        // No fixed duration: the missile inherits its real terminal
-        // screen-space speed and therefore takes as long as it naturally needs.
+        // The missile keeps its terminal screen speed and peels away from
+        // the target with only a restrained acceleration / apparent approach.
         clearancePx: 18,
 
-        // Once the missile has fully cleared target bounds + clearance,
-        // keep this much additional travel for the depth fade itself.
-        minimumDepthTravelPx: 120,
+        // Invisible guide point only. The visible missile self-destructs at
+        // the sampled-curve exit from target bounds + clearance.
+        guidePastClearancePx: 120,
+
+        passByMaxSpeedMultiplier: 1.20,
+        passByMaxSizeMultiplier: 1.35,
 
         // Arc-length approximation for the authored Catmull continuation.
         curveSampleCount: 32,
