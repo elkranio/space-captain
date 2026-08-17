@@ -24,6 +24,7 @@ export const OFFICER_TASK_KIND = {
     HELM_DOCK: 'helm_dock',
     HELM_FLY_TO: 'helm_fly_to',
     HELM_JUMP: 'helm_jump',
+    HELM_EVADE: 'helm_evade',
 } as const;
 
 export type OfficerTaskKind =
@@ -70,6 +71,7 @@ export function doesOfficerTaskUseTimedCompletion(
         case OFFICER_TASK_KIND.HELM_DOCK:
         case OFFICER_TASK_KIND.HELM_FLY_TO:
         case OFFICER_TASK_KIND.HELM_JUMP:
+        case OFFICER_TASK_KIND.HELM_EVADE:
             return false;
 
         default: {

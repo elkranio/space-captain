@@ -16,5 +16,11 @@
         "showProgress": false,
         "canBeCancelledByPlayer": true,
         "canBeInterruptedByDamage": true
+    },
+    "helm_evade": {
+        "label": "EVADE",
+        "showProgress": false,
+        "canBeCancelledByPlayer": true,
+        "canBeInterruptedByDamage": true
     }
 }

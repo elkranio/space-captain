@@ -6,6 +6,7 @@ import { clearStickyMineCommandHandler } from './handlers/clear_sticky_mine_comm
 import { engineerRepairDriveCommandHandler } from './handlers/engineer_repair_drive_command_handler';
 import { engineerDeployShieldCommandHandler } from './handlers/engineer_deploy_shield_command_handler';
 import { helmDockCommandHandler } from './handlers/helm_dock_command_handler';
+import { helmEvadeCommandHandler } from './handlers/helm_evade_command_handler';
 import { helmFlyToCommandHandler } from './handlers/helm_fly_to_command_handler';
 import { helmJumpCommandHandler } from './handlers/helm_jump_command_handler';
 import { scienceIdentifyThreatCommandHandler } from './handlers/science_identify_threat_command_handler';
@@ -60,6 +61,8 @@ const OFFICER_COMMAND_HANDLER_BY_ID = {
     [ENCOUNTER_OFFICER_COMMAND_ID.HELM_FLY_TO]: helmFlyToCommandHandler,
 
     [ENCOUNTER_OFFICER_COMMAND_ID.HELM_JUMP]: helmJumpCommandHandler,
+
+    [ENCOUNTER_OFFICER_COMMAND_ID.HELM_EVADE]: helmEvadeCommandHandler,
 } satisfies Record<EncounterOfficerCommandId, OfficerCommandHandler>;
 
 export const OFFICER_COMMAND_HANDLERS: readonly OfficerCommandHandler[] = Object.values(OFFICER_COMMAND_HANDLER_BY_ID);

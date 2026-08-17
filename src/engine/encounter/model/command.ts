@@ -37,6 +37,7 @@ export const ENCOUNTER_OFFICER_COMMAND_ID = {
     HELM_DOCK: 'helm_dock',
     HELM_FLY_TO: 'helm_fly_to',
     HELM_JUMP: 'helm_jump',
+    HELM_EVADE: 'helm_evade',
 
     CLEAR_STICKY_MINE:
         'clear_sticky_mine',

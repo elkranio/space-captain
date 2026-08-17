@@ -336,3 +336,22 @@ export function createHelmJumpTask(
         ),
     };
 }
+
+export function createHelmEvadeTask():
+    OfficerTaskDraft {
+    const kind =
+        OFFICER_TASK_KIND.HELM_EVADE;
+
+    return {
+        kind,
+        role: OFFICER_ROLE.HELM,
+
+        sourceCommandId:
+            ENCOUNTER_OFFICER_COMMAND_ID
+                .HELM_EVADE,
+
+        ...getOfficerTaskDraftTuning(
+            kind,
+        ),
+    };
+}

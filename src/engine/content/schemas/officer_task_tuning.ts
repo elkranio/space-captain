@@ -125,6 +125,11 @@ export const HELM_OFFICER_TASK_TUNING_SCHEMA =
             OFFICER_TASK_TUNING_SHAPE[
                 OFFICER_TASK_KIND.HELM_JUMP
             ],
+
+        [OFFICER_TASK_KIND.HELM_EVADE]:
+            OFFICER_TASK_TUNING_SHAPE[
+                OFFICER_TASK_KIND.HELM_EVADE
+            ],
     });
 
 export const ENGINEER_OFFICER_TASK_TUNING_SCHEMA =

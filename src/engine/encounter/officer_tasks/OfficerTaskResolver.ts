@@ -167,6 +167,7 @@ export default class OfficerTaskResolver {
 
             case OFFICER_TASK_KIND.HELM_DOCK:
             case OFFICER_TASK_KIND.HELM_JUMP:
+            case OFFICER_TASK_KIND.HELM_EVADE:
                 return undefined;
 
             default:
@@ -200,6 +201,12 @@ export default class OfficerTaskResolver {
                 this.cancelResettablePlayerWeaponTask(
                     task,
                 );
+                return;
+
+            case OFFICER_TASK_KIND
+                .HELM_EVADE:
+                this.stateStore
+                    .stopPlayerEvade();
                 return;
 
             default:

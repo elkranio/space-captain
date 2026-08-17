@@ -73,6 +73,10 @@ const EXPECTED_ROLE_BY_COMMAND = {
     [ENCOUNTER_OFFICER_COMMAND_ID
         .HELM_JUMP]:
         OFFICER_ROLE.HELM,
+
+    [ENCOUNTER_OFFICER_COMMAND_ID
+        .HELM_EVADE]:
+        OFFICER_ROLE.HELM,
 } satisfies Record<
     EncounterOfficerCommandId,
     OfficerRole

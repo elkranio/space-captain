@@ -186,6 +186,13 @@ type HelmJumpOfficerTaskDraft = OfficerTaskDraftBase & {
     targetNodeId: string;
 };
 
+type HelmEvadeOfficerTaskDraft = OfficerTaskDraftBase & {
+    kind: typeof OFFICER_TASK_KIND.HELM_EVADE;
+    role: typeof OFFICER_ROLE.HELM;
+
+    sourceCommandId: typeof ENCOUNTER_OFFICER_COMMAND_ID.HELM_EVADE;
+};
+
 // Описание task до её запуска.
 //
 // Factory определяет содержание работы,
@@ -208,7 +215,8 @@ export type OfficerTaskDraft =
     | ClearStickyMineOfficerTaskDraft
     | HelmDockOfficerTaskDraft
     | HelmFlyToOfficerTaskDraft
-    | HelmJumpOfficerTaskDraft;
+    | HelmJumpOfficerTaskDraft
+    | HelmEvadeOfficerTaskDraft;
 
 // Активная runtime task.
 //
