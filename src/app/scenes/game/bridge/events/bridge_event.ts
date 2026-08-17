@@ -9,6 +9,7 @@ import type {
 } from '../../../../../engine/encounter/model/missile_signature_intel';
 import type { DefenseTurretShotOutcome } from '../../../../../engine/defs/defense_turret';
 import type { ShipDriveStatus } from '../../../../../engine/defs/ship_drive';
+import type { ShipEvadePhase } from '../../../../../engine/defs/ship_evade';
 import type {
     ShipWeaponKind,
     ShipWeaponPhase,
@@ -153,6 +154,10 @@ export const BRIDGE_EVENT = {
     // Opening disruption pulse отключил
     // main drive player ship.
     PLAYER_SHIP_DRIVE_DISRUPTED: 'player_ship_drive_disrupted',
+
+    // Authoritative player Evade phase snapshot.
+    PLAYER_EVADE_UPDATED:
+        'player_evade_updated',
 
     // Вражеская missile launcher
     // начала фазу подготовки/наведения.
@@ -620,6 +625,14 @@ export type BridgeSceneTransitionRequestedPayload = {
 
 // #region Combat presentation
 
+export type BridgePlayerEvadeUpdatedPayload = {
+    phase:
+        ShipEvadePhase;
+
+    phaseElapsedMs:
+        number;
+};
+
 // Новая входящая ракета.
 export type BridgeIncomingMissileAddedPayload = {
     projectileId: string;
@@ -921,6 +934,9 @@ export type BridgeEventPayloadMap = {
     // Combat presentation
 
     [BRIDGE_EVENT.PLAYER_SHIP_DRIVE_DISRUPTED]: undefined;
+
+    [BRIDGE_EVENT.PLAYER_EVADE_UPDATED]:
+        BridgePlayerEvadeUpdatedPayload;
 
     [BRIDGE_EVENT.ENEMY_ATTACK_WARNING_TRIGGERED]: undefined;
 

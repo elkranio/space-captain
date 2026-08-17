@@ -1,16 +1,16 @@
-// src/app/scenes/game/bridge/debug_view/evade/bridge_evade_debug_config.ts
-// Temporary visual-only Evade sandbox tuning.
+// Player Evade presentation-only tuning.
 //
-// Nothing here belongs to engine truth. The goal is to find a readable
-// first-person motion language before wiring presentation to ShipEvadeState.
-export const BRIDGE_EVADE_DEBUG_CONFIG = {
-    warmupDurationMs: 1000,
-    evadeDurationMs: 3000,
-    returnDurationMs: 160,
+// Engine/content owns warmup, active duration, cooldown and Power cost.
+// These values only tune how authoritative WARMUP / EVADING phases look.
+export const BRIDGE_PLAYER_EVADE_PRESENTATION = {
+    returnFadeMs: 160,
 
-    // Tiny horizontal-only camera vibration.
-    // Phaser shake intensity is normalized against camera dimensions.
     shake: {
+        // Short pulses avoid owning/resetting Phaser's shared camera shake
+        // effect for the whole maneuver. Impact shakes may temporarily win.
+        pulseIntervalMs: 90,
+        pulseDurationMs: 70,
+
         warmupIntensityX: 0.0005,
         evadeIntensityX: 0.0007,
     },
@@ -21,12 +21,8 @@ export const BRIDGE_EVADE_DEBUG_CONFIG = {
         fadeInMs: 120,
         evadeAlpha: 0.9,
 
-        // Constant lateral flow sells the maneuver while the actual world
-        // remains nominal. Direction is chosen once per activation.
         baseSpeedPxPerSecond: 180,
 
-        // Small modulation keeps a three-second activation from looking like
-        // a conveyor belt / low-speed warp effect.
         speedPulseAmplitude: 0.12,
         speedPulseHz: 1.35,
 

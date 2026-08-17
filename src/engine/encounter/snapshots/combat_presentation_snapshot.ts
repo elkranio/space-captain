@@ -22,6 +22,9 @@ import type {
 import type {
     ShipDriveState,
 } from '../../defs/ship_drive';
+import type {
+    ShipEvadeState,
+} from '../../defs/ship_evade';
 import {
     SHIP_WEAPON_KIND,
     SHIP_WEAPON_PHASE,
@@ -152,6 +155,9 @@ export type CombatPresentationSnapshot = {
         drive:
             ShipDriveState;
 
+        evade:
+            ShipEvadeState;
+
         powerCore?:
             PowerCorePresentationSnapshot;
 
@@ -220,6 +226,9 @@ export function createCombatPresentationSnapshot(
 
             drive:
                 state.drive,
+
+            evade:
+                state.evade,
 
             ...(state.combat
                 .powerCore

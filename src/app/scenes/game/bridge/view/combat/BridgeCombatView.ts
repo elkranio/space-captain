@@ -13,6 +13,7 @@ import BridgeOutgoingMissilesView from './outgoing_missiles/BridgeOutgoingMissil
 import BridgeOutgoingSpamView from './outgoing_spam/BridgeOutgoingSpamView';
 import BridgeOutgoingStickyMinesView from './outgoing_sticky_mines/BridgeOutgoingStickyMinesView';
 import BridgePlayerBeamCannonView from './player_beam_cannon/BridgePlayerBeamCannonView';
+import BridgePlayerEvadeView from './player_evade/BridgePlayerEvadeView';
 import BridgePlayerShieldView from './player_shield/BridgePlayerShieldView';
 import BridgeSpamView from './spam/BridgeSpamView';
 import BridgeStickyMinesView from './sticky_mines/BridgeStickyMinesView';
@@ -46,6 +47,9 @@ export default class BridgeCombatView {
 
     private playerShieldView?:
         BridgePlayerShieldView;
+
+    private playerEvadeView?:
+        BridgePlayerEvadeView;
 
     private spamView?: BridgeSpamView;
 
@@ -182,9 +186,18 @@ export default class BridgeCombatView {
                 return this.spaceView.getObjectPosition(objectId);
             },
         );
+
+        // Created last so near-camera Evade dust remains above physical
+        // world/combat VFX while still staying below projection/bridge/UI.
+        this.playerEvadeView =
+            new BridgePlayerEvadeView(
+                this.scene,
+                this.eventBus,
+            );
     }
 
     public destroy(): void {
+        this.playerEvadeView?.destroy();
         this.stickyMinesView?.destroy();
         this.spamView?.destroy();
         this.vfxView?.destroy();
@@ -201,6 +214,7 @@ export default class BridgeCombatView {
         this.outgoingMissilesView?.destroy();
         this.incomingMissilesView?.destroy();
 
+        this.playerEvadeView = undefined;
         this.stickyMinesView = undefined;
         this.spamView = undefined;
         this.vfxView = undefined;

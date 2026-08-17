@@ -183,6 +183,18 @@ describe('BridgeEncounterSnapshotSynchronizer', () => {
                     ],
                 },
             ],
+            [
+                BRIDGE_EVENT
+                    .PLAYER_EVADE_UPDATED,
+
+                {
+                    phase:
+                        'warmup',
+
+                    phaseElapsedMs:
+                        250,
+                },
+            ],
         ]);
 
         emit.mockClear();
@@ -374,6 +386,18 @@ describe('BridgeEncounterSnapshotSynchronizer', () => {
                     ],
                 },
             ],
+            [
+                BRIDGE_EVENT
+                    .PLAYER_EVADE_UPDATED,
+
+                {
+                    phase:
+                        'warmup',
+
+                    phaseElapsedMs:
+                        250,
+                },
+            ],
         ]);
     });
 });
@@ -407,6 +431,17 @@ function createEncounterEngine(): EncounterEngine {
 
                             status:
                                 'online',
+                        },
+
+                        evade: {
+                            phase:
+                                'warmup',
+
+                            phaseElapsedMs:
+                                250,
+
+                            cooldownRemainingMs:
+                                9750,
                         },
 
                         powerCore: {

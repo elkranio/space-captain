@@ -148,6 +148,18 @@ describe('EncounterSnapshotReader', () => {
         );
 
         expect(
+            snapshot.player.evade,
+        ).toEqual(
+            state.evade,
+        );
+
+        expect(
+            snapshot.player.evade,
+        ).not.toBe(
+            state.evade,
+        );
+
+        expect(
             snapshot.space.anchors,
         ).toHaveLength(
             state.anchors.length,

@@ -43,6 +43,9 @@ export default class BridgeEncounterSnapshotSynchronizer {
         this.syncCaptainCombatContext(
             snapshot,
         );
+        this.syncPlayerEvade(
+            snapshot,
+        );
     }
 
     public syncCombatPresentation(
@@ -72,6 +75,9 @@ export default class BridgeEncounterSnapshotSynchronizer {
             snapshot,
         );
         this.syncCaptainCombatContext(
+            snapshot,
+        );
+        this.syncPlayerEvade(
             snapshot,
         );
     }
@@ -213,6 +219,28 @@ export default class BridgeEncounterSnapshotSynchronizer {
                                 .ENGINEER
                         ],
             }),
+        );
+    }
+
+    private syncPlayerEvade(
+        snapshot:
+            EncounterPresentationSnapshot,
+    ): void {
+        const evade =
+            snapshot.player
+                .evade;
+
+        this.eventBus.emit(
+            BRIDGE_EVENT
+                .PLAYER_EVADE_UPDATED,
+
+            {
+                phase:
+                    evade.phase,
+
+                phaseElapsedMs:
+                    evade.phaseElapsedMs,
+            },
         );
     }
 
