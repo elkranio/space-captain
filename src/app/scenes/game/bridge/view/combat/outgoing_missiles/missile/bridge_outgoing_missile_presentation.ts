@@ -43,6 +43,11 @@ export const BRIDGE_OUTGOING_MISSILE_PRESENTATION = {
                     offsetY: -15,
                 },
             ],
+
+            missExitPoint: {
+                offsetX: 1400,
+                offsetY: -220,
+            },
         },
 
         // Shallower left approach.
@@ -69,6 +74,11 @@ export const BRIDGE_OUTGOING_MISSILE_PRESENTATION = {
                     offsetY: -10,
                 },
             ],
+
+            missExitPoint: {
+                offsetX: 1400,
+                offsetY: -390,
+            },
         },
 
         // Direct S-shaped approach.
@@ -95,6 +105,11 @@ export const BRIDGE_OUTGOING_MISSILE_PRESENTATION = {
                     offsetY: -5,
                 },
             ],
+
+            missExitPoint: {
+                offsetX: 900,
+                offsetY: -1400,
+            },
         },
 
         // Low-right sweep.
@@ -121,6 +136,11 @@ export const BRIDGE_OUTGOING_MISSILE_PRESENTATION = {
                     offsetY: -15,
                 },
             ],
+
+            missExitPoint: {
+                offsetX: -1400,
+                offsetY: -800,
+            },
         },
 
         // High-right hook.
@@ -152,8 +172,17 @@ export const BRIDGE_OUTGOING_MISSILE_PRESENTATION = {
                     offsetY: -20,
                 },
             ],
+
+            missExitPoint: {
+                offsetX: -1400,
+                offsetY: 140,
+            },
         },
     ],
+
+    miss: {
+        exitDurationMs: 160,
+    },
 
     jitter: {
         waypointPx: 6,

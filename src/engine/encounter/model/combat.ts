@@ -45,6 +45,7 @@ export type BeamCannonShotOutcome = (typeof BEAM_CANNON_SHOT_OUTCOME)[keyof type
 export const PLAYER_MISSILE_OUTCOME = {
     TARGET_LOST: 'target_lost',
     INTERCEPTED: 'intercepted',
+    MISS: 'miss',
     HIT: 'hit',
 } as const;
 

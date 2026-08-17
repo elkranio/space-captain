@@ -46,6 +46,11 @@ export default class BridgeOutgoingMissilesView {
             BridgeOutgoingMissileView
         >();
 
+    private readonly missEffects =
+        new Set<
+            BridgeOutgoingMissileView
+        >();
+
     private readonly defenseTurretEffects =
         new Set<
             BridgeDefenseTurretBeamView
@@ -159,6 +164,15 @@ export default class BridgeOutgoingMissilesView {
         }
 
         this.impactEffects.clear();
+
+        for (
+            const missile of
+            this.missEffects
+        ) {
+            missile.destroy();
+        }
+
+        this.missEffects.clear();
 
         for (
             const missile of
@@ -293,11 +307,34 @@ export default class BridgeOutgoingMissilesView {
         const lastPosition =
             missile.getPosition();
 
-        missile.destroy();
-
         this.missiles.delete(
             payload.projectileId,
         );
+
+        if (
+            payload.outcome ===
+            PLAYER_MISSILE_OUTCOME
+                .MISS
+        ) {
+            this.missEffects.add(
+                missile,
+            );
+
+            missile.startMissExit(
+                () => {
+                    missile.destroy();
+
+                    this.missEffects
+                        .delete(
+                            missile,
+                        );
+                },
+            );
+
+            return;
+        }
+
+        missile.destroy();
 
         if (
             payload.outcome !==

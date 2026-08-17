@@ -28,6 +28,9 @@ import {
     SHIP_DRIVE_STATUS,
 } from '../../../src/engine/defs/ship_drive';
 import {
+    SHIP_EVADE_PHASE,
+} from '../../../src/engine/defs/ship_evade';
+import {
     SHIP_WEAPON_KIND,
     SHIP_WEAPON_PHASE,
 } from '../../../src/engine/defs/ship_weapon';
@@ -128,6 +131,14 @@ describe('encounter actors', () => {
 
             drive: {
                 ...drive,
+            },
+
+            evade: {
+                phase:
+                    SHIP_EVADE_PHASE.READY,
+
+                phaseElapsedMs: 0,
+                cooldownRemainingMs: 0,
             },
 
             behavior: {

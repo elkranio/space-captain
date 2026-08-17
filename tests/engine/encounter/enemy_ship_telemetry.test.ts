@@ -7,6 +7,9 @@ import {
     it,
 } from 'vitest';
 import {
+    SHIP_DRIVES,
+} from '../../../src/engine/content/catalogs/ship_drives';
+import {
     SHIP_NODE_ACTOR_PRESET_ID,
 } from '../../../src/engine/content/presets/ship_node_actors';
 import {
@@ -18,6 +21,9 @@ import {
 import {
     SHIP_DRIVE_STATUS,
 } from '../../../src/engine/defs/ship_drive';
+import {
+    SHIP_EVADE_PHASE,
+} from '../../../src/engine/defs/ship_evade';
 import {
     SHIP_WEAPON_KIND,
     SHIP_WEAPON_PHASE,
@@ -105,6 +111,21 @@ describe('Enemy ship telemetry', () => {
                     SHIP_DRIVE_STATUS.ONLINE,
             },
 
+            evade: {
+                phase:
+                    SHIP_EVADE_PHASE.READY,
+
+                phaseElapsedMs: 0,
+                cooldownRemainingMs: 0,
+            },
+
+            evadeDurationMs:
+                SHIP_DRIVES[
+                    enemyShip.drive
+                        .driveId
+                ]
+                    .evadeDurationMs,
+
             weapons: [
                 {
                     id:
@@ -159,12 +180,31 @@ describe('Enemy ship telemetry', () => {
         initial.hull.current = 0;
         initial.weapons.length = 0;
 
+        initial.evade.phase =
+            SHIP_EVADE_PHASE.COOLDOWN;
+
+        initial.evade.phaseElapsedMs =
+            123;
+
+        initial.evade.cooldownRemainingMs =
+            456;
+
         const [fresh] =
             engine
                 .getEnemyShipTelemetrySnapshots();
 
         expect(fresh?.hull.current).toBe(3);
         expect(fresh?.weapons).toHaveLength(4);
+
+        expect(
+            fresh?.evade,
+        ).toEqual({
+            phase:
+                SHIP_EVADE_PHASE.READY,
+
+            phaseElapsedMs: 0,
+            cooldownRemainingMs: 0,
+        });
 
         engine.step(0);
 

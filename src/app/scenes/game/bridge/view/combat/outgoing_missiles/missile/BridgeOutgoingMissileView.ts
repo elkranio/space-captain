@@ -36,6 +36,9 @@ type BridgeOutgoingMissileViewOptions = {
 // the exhaust naturally stays behind the missile
 // through every turn without a separate facing model.
 export default class BridgeOutgoingMissileView {
+    private readonly scene:
+        BridgeScene;
+
     private readonly graphics:
         Phaser.GameObjects.Graphics;
 
@@ -44,6 +47,15 @@ export default class BridgeOutgoingMissileView {
 
     private readonly trajectoryPoints:
         BridgeOutgoingMissilePoint[];
+
+    private readonly missExitPoint:
+        BridgeOutgoingMissilePoint;
+
+    private missExitElapsedMs =
+        0;
+
+    private missExitOnComplete?:
+        () => void;
 
     private readonly trailPoints:
         BridgeOutgoingMissileTrailPoint[] = [];
@@ -69,14 +81,23 @@ export default class BridgeOutgoingMissileView {
             );
         }
 
+        this.scene =
+            scene;
+
         this.initialTimeToImpactMs =
             initialTimeToImpactMs;
 
-        this.trajectoryPoints =
-            this.createTrajectoryPoints(
+        const trajectory =
+            this.createTrajectory(
                 startPosition,
                 targetPosition,
             );
+
+        this.trajectoryPoints =
+            trajectory.points;
+
+        this.missExitPoint =
+            trajectory.missExitPoint;
 
         this.currentPosition.copy(
             startPosition,
@@ -126,7 +147,64 @@ export default class BridgeOutgoingMissileView {
         return this.currentPosition.clone();
     }
 
+    public startMissExit(
+        onComplete:
+            () => void,
+    ): void {
+        if (
+            this.missExitOnComplete
+        ) {
+            throw new Error(
+                'Outgoing missile miss exit already active',
+            );
+        }
+
+        const targetPoint =
+            this.trajectoryPoints[
+                this.trajectoryPoints
+                    .length - 1
+            ];
+
+        if (!targetPoint) {
+            throw new Error(
+                'Outgoing missile trajectory has no target point',
+            );
+        }
+
+        // Engine has already resolved and removed the projectile.
+        // Snap presentation to the exact physical impact point before
+        // drawing the very short authored fly-by.
+        this.currentPosition.set(
+            targetPoint.x,
+            targetPoint.y,
+        );
+
+        this.pushTrailPoint(
+            targetPoint,
+            1,
+        );
+
+        this.render(
+            targetPoint,
+            1,
+        );
+
+        this.missExitElapsedMs =
+            0;
+
+        this.missExitOnComplete =
+            onComplete;
+
+        this.scene.events.on(
+            Phaser.Scenes.Events.UPDATE,
+            this.handleMissExitUpdate,
+            this,
+        );
+    }
+
     public destroy(): void {
+        this.stopMissExit();
+
         this.trailPoints.length = 0;
         this.graphics.destroy();
     }
@@ -148,13 +226,19 @@ export default class BridgeOutgoingMissileView {
         );
     }
 
-    private createTrajectoryPoints(
+    private createTrajectory(
         startPosition:
             Phaser.Math.Vector2,
 
         targetPosition:
             Phaser.Math.Vector2,
-    ): BridgeOutgoingMissilePoint[] {
+    ): {
+        points:
+            BridgeOutgoingMissilePoint[];
+
+        missExitPoint:
+            BridgeOutgoingMissilePoint;
+    } {
         const presentation =
             BRIDGE_OUTGOING_MISSILE_PRESENTATION;
 
@@ -194,7 +278,23 @@ export default class BridgeOutgoingMissileView {
             y: targetPosition.y,
         });
 
-        return points;
+        return {
+            points,
+
+            missExitPoint: {
+                x:
+                    targetPosition.x +
+                    preset
+                        .missExitPoint
+                        .offsetX,
+
+                y:
+                    targetPosition.y +
+                    preset
+                        .missExitPoint
+                        .offsetY,
+            },
+        };
     }
 
     private createWaypointPoint(
@@ -237,6 +337,109 @@ export default class BridgeOutgoingMissileView {
                     jitter,
                 ),
         };
+    }
+
+    private handleMissExitUpdate(
+        _time: number,
+        deltaMs: number,
+    ): void {
+        const onComplete =
+            this.missExitOnComplete;
+
+        if (!onComplete) {
+            return;
+        }
+
+        const targetPoint =
+            this.trajectoryPoints[
+                this.trajectoryPoints
+                    .length - 1
+            ];
+
+        if (!targetPoint) {
+            throw new Error(
+                'Outgoing missile trajectory has no target point',
+            );
+        }
+
+        this.missExitElapsedMs +=
+            Math.max(
+                0,
+                deltaMs,
+            );
+
+        const progress =
+            Phaser.Math.Clamp(
+                this.missExitElapsedMs /
+                    BRIDGE_OUTGOING_MISSILE_PRESENTATION
+                        .miss
+                        .exitDurationMs,
+                0,
+                1,
+            );
+
+        const easedProgress =
+            1 -
+            Math.pow(
+                1 - progress,
+                3,
+            );
+
+        const point:
+            BridgeOutgoingMissilePoint = {
+                x:
+                    Phaser.Math.Linear(
+                        targetPoint.x,
+                        this.missExitPoint.x,
+                        easedProgress,
+                    ),
+
+                y:
+                    Phaser.Math.Linear(
+                        targetPoint.y,
+                        this.missExitPoint.y,
+                        easedProgress,
+                    ),
+            };
+
+        this.currentPosition.set(
+            point.x,
+            point.y,
+        );
+
+        this.pushTrailPoint(
+            point,
+            1,
+        );
+
+        this.render(
+            point,
+            1,
+        );
+
+        if (
+            progress <
+            1
+        ) {
+            return;
+        }
+
+        this.stopMissExit();
+        onComplete();
+    }
+
+    private stopMissExit(): void {
+        this.scene.events.off(
+            Phaser.Scenes.Events.UPDATE,
+            this.handleMissExitUpdate,
+            this,
+        );
+
+        this.missExitElapsedMs =
+            0;
+
+        this.missExitOnComplete =
+            undefined;
     }
 
     private pushTrailPoint(

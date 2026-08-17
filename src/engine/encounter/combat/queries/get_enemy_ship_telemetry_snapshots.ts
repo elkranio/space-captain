@@ -97,8 +97,9 @@ export function getEnemyShipTelemetrySnapshots(
                     status: actor.drive.status,
                 },
 
-                evade:
-                    actor.evade,
+                evade: {
+                    ...actor.evade,
+                },
 
                 evadeDurationMs:
                     SHIP_DRIVES[

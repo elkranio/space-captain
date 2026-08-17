@@ -787,6 +787,29 @@ export default class CombatMissileRunner {
             .projectiles
             .splice(index, 1);
 
+        // Evade resolves at the physical impact edge.
+        // The projectile has completed its authoritative flight and is removed,
+        // but an actively evading target takes no hull damage.
+        if (
+            isShipEvading(
+                target.evade,
+            )
+        ) {
+            this.emit({
+                type:
+                    ENCOUNTER_EVENT
+                        .PLAYER_MISSILE_RESOLVED,
+
+                projectile,
+
+                outcome:
+                    PLAYER_MISSILE_OUTCOME
+                        .MISS,
+            });
+
+            return;
+        }
+
         const damageResult =
             this.stateStore
                 .damageEnemyActorHull(

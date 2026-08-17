@@ -340,6 +340,18 @@ export type PlayerMissileResolvedEvent =
 
           outcome:
               typeof PLAYER_MISSILE_OUTCOME
+                  .MISS;
+      }
+    | {
+          type:
+              typeof ENCOUNTER_EVENT
+                  .PLAYER_MISSILE_RESOLVED;
+
+          projectile:
+              MissileEventProjectileSnapshot;
+
+          outcome:
+              typeof PLAYER_MISSILE_OUTCOME
                   .HIT;
 
           damage: number;
