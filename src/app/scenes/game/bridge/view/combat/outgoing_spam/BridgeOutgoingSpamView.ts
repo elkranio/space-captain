@@ -36,10 +36,10 @@ const OUTGOING_SPAM_VFX = {
     tintFrameMs: 135,
     flickerFrameMs: 95,
 
-    // Short projector-like shaft. It deliberately does not reach or track
-    // the target actor: SPAM is a projected channel/effect, not a Beam hit.
-    lengthPx: 108,
-    endOffsetX: -24,
+    // Aim roughly toward the hostile ship, but keep the cone short and low
+    // enough that it reads like a local projection instead of "flashlight up".
+    endOffsetX: 92,
+    endOffsetY: -36,
 
     outerSourceHalfWidth: 2,
     outerEndHalfWidth: 28,
@@ -404,9 +404,9 @@ export default class BridgeOutgoingSpamView {
                         .endOffsetX,
 
                 y:
-                    source.y -
+                    source.y +
                     OUTGOING_SPAM_VFX
-                        .lengthPx,
+                        .endOffsetY,
             };
 
         const dx =
