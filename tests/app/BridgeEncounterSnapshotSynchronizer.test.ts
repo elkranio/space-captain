@@ -44,6 +44,11 @@ describe('BridgeEncounterSnapshotSynchronizer', () => {
                             status:
                                 'online',
                         },
+
+                        evadeAction: {
+                            state:
+                                'disabled_system',
+                        },
                     },
                 },
             ],

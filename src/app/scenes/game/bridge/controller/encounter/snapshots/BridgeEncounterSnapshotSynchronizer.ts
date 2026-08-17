@@ -121,6 +121,18 @@ export default class BridgeEncounterSnapshotSynchronizer {
                         OFFICER_ROLE.WEAPONS
                     ],
 
+                availableHelmCommands:
+                    snapshot
+                        .commandsByRole[
+                            OFFICER_ROLE
+                                .HELM
+                        ],
+
+                helmOfficerAvailability:
+                    officerAvailability[
+                        OFFICER_ROLE.HELM
+                    ],
+
                 availableScienceCommands:
                     snapshot
                         .commandsByRole[
@@ -143,17 +155,6 @@ export default class BridgeEncounterSnapshotSynchronizer {
                             .drive,
 
                     powerCore,
-
-                    ...(snapshot
-                        .player
-                        .defenseTurret
-                        ? {
-                              defenseTurret:
-                                  snapshot
-                                      .player
-                                      .defenseTurret,
-                          }
-                        : {}),
                 },
             }),
         );

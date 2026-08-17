@@ -44,6 +44,14 @@ type PlayerShipDashboardMapperInput = {
     weaponsOfficerAvailability:
         OfficerAvailabilityState;
 
+    // Helm context is only required when the stable player status strip
+    // is requested.
+    availableHelmCommands?:
+        AvailableOfficerCommand[];
+
+    helmOfficerAvailability?:
+        OfficerAvailabilityState;
+
     // Science context is only required when at least one SPAM projector exists.
     availableScienceCommands?:
         AvailableOfficerCommand[];
@@ -63,10 +71,6 @@ type PlayerShipDashboardMapperInput = {
         powerCore:
             PowerCorePresentationSnapshot;
 
-        defenseTurret?: {
-            blindInterceptChance:
-                number;
-        };
     };
 };
 
@@ -94,6 +98,7 @@ export function mapPlayerShipToBridgeDashboardPayload(
                   status:
                       mapStatus(
                           input.playerStatus,
+                          input,
                       ),
               }
             : {}),
@@ -113,6 +118,9 @@ function mapStatus(
                 'playerStatus'
             ]
         >,
+
+    dashboardInput:
+        PlayerShipDashboardMapperInput,
 ): NonNullable<
     BridgePlayerShipDashboardUpdatedPayload[
         'status'
@@ -154,17 +162,123 @@ function mapStatus(
                 input.drive.status,
         },
 
-        ...(input.defenseTurret
-            ? {
-                  defenseTurret: {
-                      blindInterceptChance:
-                          input
-                              .defenseTurret
-                              .blindInterceptChance,
-                  },
-              }
-            : {}),
+        evadeAction:
+            mapEvadeAction(
+                dashboardInput,
+            ),
     };
+}
+
+function mapEvadeAction(
+    input:
+        PlayerShipDashboardMapperInput,
+): NonNullable<
+    BridgePlayerShipDashboardUpdatedPayload[
+        'status'
+    ]
+>['evadeAction'] {
+    const commands =
+        getRequiredHelmCommands(
+            input,
+        );
+
+    const matchingCommands =
+        commands.filter(
+            (command) => {
+                return (
+                    command.commandId ===
+                        ENCOUNTER_OFFICER_COMMAND_ID
+                            .HELM_EVADE &&
+                    command.target.kind ===
+                        OFFICER_COMMAND_TARGET_KIND
+                            .NONE
+                );
+            },
+        );
+
+    if (
+        matchingCommands.length > 1
+    ) {
+        throw new Error(
+            'Captain dashboard received multiple HELM_EVADE commands',
+        );
+    }
+
+    const command =
+        matchingCommands[0];
+
+    if (command) {
+        return {
+            state:
+                BRIDGE_PLAYER_SYSTEM_ACTION_STATE
+                    .ACTIVE,
+
+            command: {
+                role:
+                    OFFICER_ROLE.HELM,
+
+                commandId:
+                    command.commandId,
+
+                target:
+                    command.target,
+            },
+        };
+    }
+
+    if (
+        getRequiredHelmAvailability(
+            input,
+        ) ===
+        OFFICER_AVAILABILITY_STATE.BUSY
+    ) {
+        return {
+            state:
+                BRIDGE_PLAYER_SYSTEM_ACTION_STATE
+                    .DISABLED_OFFICER_BUSY,
+        };
+    }
+
+    return {
+        state:
+            BRIDGE_PLAYER_SYSTEM_ACTION_STATE
+                .DISABLED_SYSTEM,
+    };
+}
+
+function getRequiredHelmCommands(
+    input:
+        PlayerShipDashboardMapperInput,
+): AvailableOfficerCommand[] {
+    const commands =
+        input.availableHelmCommands;
+
+    if (commands === undefined) {
+        throw new Error(
+            'Captain dashboard status requires Helm commands',
+        );
+    }
+
+    return commands;
+}
+
+function getRequiredHelmAvailability(
+    input:
+        PlayerShipDashboardMapperInput,
+): OfficerAvailabilityState {
+    const availability =
+        input.helmOfficerAvailability;
+
+    if (
+        availability ===
+        undefined
+    ) {
+        throw new Error(
+            'Captain dashboard status requires Helm availability',
+        );
+    }
+
+    return availability;
 }
 
 function mapWeapon(

@@ -417,9 +417,14 @@ export type BridgePlayerShipDashboardUpdatedPayload = {
             status: ShipDriveStatus;
         };
 
-        defenseTurret?: {
-            blindInterceptChance:
-                number;
+        evadeAction: {
+            state:
+                BridgePlayerSystemActionState;
+
+            // Exact engine-resolved HELM_EVADE command.
+            // Present only while the action is ACTIVE.
+            command?:
+                BridgeOfficerCommandSelectedPayload;
         };
     };
 

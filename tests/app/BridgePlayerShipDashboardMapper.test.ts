@@ -532,6 +532,113 @@ describe(
         );
 
         it(
+            'maps the stable ship status and exact HELM_EVADE command',
+            () => {
+                const evadeCommand:
+                    AvailableOfficerCommand = {
+                        commandId:
+                            ENCOUNTER_OFFICER_COMMAND_ID
+                                .HELM_EVADE,
+
+                        label:
+                            'EVADE',
+
+                        target: {
+                            kind:
+                                OFFICER_COMMAND_TARGET_KIND
+                                    .NONE,
+                        },
+                    };
+
+                expect(
+                    mapPlayerShipToBridgeDashboardPayload({
+                        weapons: [],
+                        availableWeaponsCommands: [],
+                        weaponsOfficerAvailability:
+                            OFFICER_AVAILABILITY_STATE
+                                .AVAILABLE,
+
+                        availableHelmCommands: [
+                            evadeCommand,
+                        ],
+
+                        helmOfficerAvailability:
+                            OFFICER_AVAILABILITY_STATE
+                                .AVAILABLE,
+
+                        playerStatus: {
+                            hull: {
+                                hull: 27,
+                                maxHull: 30,
+                            },
+
+                            drive: {
+                                id:
+                                    'drive_player_00',
+
+                                driveId:
+                                    'drive_basic_00',
+
+                                status:
+                                    'online',
+                            },
+
+                            powerCore: {
+                                state: {
+                                    id:
+                                        'power_core_player_00',
+
+                                    powerCoreId:
+                                        'power_core_basic_00',
+
+                                    charges: 4,
+
+                                    rechargeElapsedMs:
+                                        0,
+                                },
+
+                                capacity: 4,
+                            },
+                        },
+                    }).status,
+                ).toEqual({
+                    hull: {
+                        current: 27,
+                        max: 30,
+                    },
+
+                    powerCore: {
+                        current: 4,
+                        max: 4,
+                    },
+
+                    drive: {
+                        status:
+                            'online',
+                    },
+
+                    evadeAction: {
+                        state:
+                            BRIDGE_PLAYER_SYSTEM_ACTION_STATE
+                                .ACTIVE,
+
+                        command: {
+                            role:
+                                OFFICER_ROLE.HELM,
+
+                            commandId:
+                                ENCOUNTER_OFFICER_COMMAND_ID
+                                    .HELM_EVADE,
+
+                            target:
+                                evadeCommand.target,
+                        },
+                    },
+                });
+            },
+        );
+
+        it(
             'distinguishes duplicate command ids by runtime weapon target',
             () => {
                 const firstId =
