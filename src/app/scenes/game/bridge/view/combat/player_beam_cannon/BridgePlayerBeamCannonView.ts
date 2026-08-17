@@ -19,7 +19,9 @@ import BridgeBeamCannonChargeView from '../beam_cannon_charge/BridgeBeamCannonCh
 import BridgePlayerBeamCannonImpactView from './impact/BridgePlayerBeamCannonImpactView';
 import {
     getPlayerBeamCannonMissTarget,
-    isPlayerBeamCannonMissLeft,
+    getRandomPlayerBeamCannonMissSide,
+    PLAYER_BEAM_CANNON_MISS_SIDE,
+    type PlayerBeamCannonMissSide,
 } from './bridge_player_beam_cannon_miss_target';
 
 type GetObjectPosition = (
@@ -263,17 +265,25 @@ export default class BridgePlayerBeamCannonView {
                 ),
             );
 
+        const missSide =
+            payload.outcome ===
+                BEAM_CANNON_SHOT_OUTCOME
+                    .MISS
+                ? getRandomPlayerBeamCannonMissSide()
+                : undefined;
+
         const beamGeometry =
             this.getBeamGeometry(
                 payload,
                 sourcePosition,
                 targetPosition,
+                missSide,
             );
 
         const beamParent =
             this.getBeamParent(
                 payload,
-                targetPosition,
+                missSide,
             );
 
         const beam =
@@ -355,6 +365,9 @@ export default class BridgePlayerBeamCannonView {
 
         canonicalTargetPosition:
             Phaser.Math.Vector2,
+
+        missSide:
+            PlayerBeamCannonMissSide | undefined,
     ): {
         targetPosition:
             Phaser.Math.Vector2;
@@ -374,6 +387,12 @@ export default class BridgePlayerBeamCannonView {
                 perspectiveTargetPosition:
                     canonicalTargetPosition,
             };
+        }
+
+        if (!missSide) {
+            throw new Error(
+                'Player beamCannon MISS requires a presentation side',
+            );
         }
 
         const visualBounds =
@@ -396,8 +415,7 @@ export default class BridgePlayerBeamCannonView {
                 sourceY:
                     sourcePosition.y,
 
-                canonicalTargetX:
-                    canonicalTargetPosition.x,
+                missSide,
 
                 presentedTargetLeft:
                     visualBounds.left,
@@ -439,8 +457,8 @@ export default class BridgePlayerBeamCannonView {
         payload:
             BridgePlayerBeamCannonFiredPayload,
 
-        canonicalTargetPosition:
-            Phaser.Math.Vector2,
+        missSide:
+            PlayerBeamCannonMissSide | undefined,
     ): Phaser.GameObjects.Container {
         if (
             payload.outcome !==
@@ -450,21 +468,16 @@ export default class BridgePlayerBeamCannonView {
             return this.root;
         }
 
-        const visualBounds =
-            this.getObjectVisualBounds(
-                payload.targetActorId,
-            );
-
-        if (!visualBounds) {
+        if (!missSide) {
             throw new Error(
-                'Player beamCannon miss target visual bounds not found: ' +
-                    payload.targetActorId,
+                'Player beamCannon MISS requires a presentation side',
             );
         }
 
-        return isPlayerBeamCannonMissLeft(
-            canonicalTargetPosition.x,
-            visualBounds.centerX,
+        return (
+            missSide ===
+            PLAYER_BEAM_CANNON_MISS_SIDE
+                .LEFT
         )
             ? this.behindObjectsRoot
             : this.root;

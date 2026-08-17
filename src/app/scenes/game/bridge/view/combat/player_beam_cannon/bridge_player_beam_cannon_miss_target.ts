@@ -2,8 +2,8 @@ export type PlayerBeamCannonMissTargetOptions = {
     sourceX: number;
     sourceY: number;
 
-    // Engine/presentation object position before the Evade render offset.
-    canonicalTargetX: number;
+    missSide:
+        PlayerBeamCannonMissSide;
 
     presentedTargetLeft: number;
     presentedTargetRight: number;
@@ -22,6 +22,17 @@ export type PlayerBeamCannonMissTarget = {
     perspectiveY: number;
 };
 
+export const PLAYER_BEAM_CANNON_MISS_SIDE = {
+    LEFT:
+        'left',
+
+    RIGHT:
+        'right',
+} as const;
+
+export type PlayerBeamCannonMissSide =
+    (typeof PLAYER_BEAM_CANNON_MISS_SIDE)[keyof typeof PLAYER_BEAM_CANNON_MISS_SIDE];
+
 const VIEWPORT_EXTENSION_FACTOR = 2;
 
 // Keep the Evade miss visually close to where Weapons actually aimed.
@@ -29,16 +40,19 @@ const VIEWPORT_EXTENSION_FACTOR = 2;
 // presented ship bounds for unusually small sprites.
 const MISS_LANE_CENTER_OFFSET_PX = 48;
 
-export function isPlayerBeamCannonMissLeft(
-    canonicalTargetX: number,
-    presentedTargetCenterX: number,
-): boolean {
-    // Presented ship moved right -> canonical aim is now on its left.
-    // Equality keeps the first barely-visible Evade frame deterministic.
+export function getRandomPlayerBeamCannonMissSide(
+    random:
+        () => number =
+            Math.random,
+): PlayerBeamCannonMissSide {
     return (
-        canonicalTargetX <=
-        presentedTargetCenterX
-    );
+        random() <
+        0.5
+    )
+        ? PLAYER_BEAM_CANNON_MISS_SIDE
+              .LEFT
+        : PLAYER_BEAM_CANNON_MISS_SIDE
+              .RIGHT;
 }
 
 // Builds a presentation-only Beam fly-by for an Evade MISS.
@@ -50,7 +64,7 @@ export function getPlayerBeamCannonMissTarget({
     sourceX,
     sourceY,
 
-    canonicalTargetX,
+    missSide,
 
     presentedTargetLeft,
     presentedTargetRight,
@@ -61,12 +75,6 @@ export function getPlayerBeamCannonMissTarget({
     viewportHeight,
 }: PlayerBeamCannonMissTargetOptions):
     PlayerBeamCannonMissTarget {
-    const missLeft =
-        isPlayerBeamCannonMissLeft(
-            canonicalTargetX,
-            presentedTargetCenterX,
-        );
-
     const halfPresentedWidth =
         Math.max(
             0,
@@ -86,7 +94,9 @@ export function getPlayerBeamCannonMissTarget({
     const passX =
         presentedTargetCenterX +
         (
-            missLeft
+            missSide ===
+                PLAYER_BEAM_CANNON_MISS_SIDE
+                    .LEFT
                 ? -centerOffsetX
                 : centerOffsetX
         );
