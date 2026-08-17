@@ -9,6 +9,9 @@ import {
     type MissileSignature,
 } from '../../../../defs/missile';
 import {
+    isShipEvading,
+} from '../../../../defs/ship_evade';
+import {
     advanceShipWeaponCooldown,
     commitShipWeaponCooldown,
     finishShipWeaponAction,
@@ -738,6 +741,21 @@ export default class CombatMissileRunner {
         this.state.combat
             .projectiles
             .splice(index, 1);
+
+        // Evade resolves at the physical impact edge.
+        //
+        // The projectile is still fully committed and completes its flight,
+        // but an actively evading player ship takes no hit. We deliberately
+        // do not emit MISSILE_IMPACTED_PLAYER_SHIP here: bridge presentation
+        // reconciles the missing projectile from the next full snapshot, so
+        // a miss disappears without hit shake / hit feedback.
+        if (
+            isShipEvading(
+                this.state.evade,
+            )
+        ) {
+            return;
+        }
 
         const damageResult =
             this.stateStore
