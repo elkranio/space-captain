@@ -121,13 +121,6 @@ export default class BridgeCombatView {
             new BridgeOutgoingSpamView(
                 this.scene,
                 this.eventBus,
-
-                (objectId) => {
-                    return this.spaceView
-                        .getObjectPosition(
-                            objectId,
-                        );
-                },
             );
 
         this.beamCannonThreatsView = new BridgeBeamCannonThreatsView(

@@ -11,15 +11,6 @@ import type BridgeEventBus from '../../../events/BridgeEventBus';
 import {
     getBridgePlayerWeaponSourcePosition,
 } from '../bridge_player_weapon_layout';
-import {
-    createTaperedBeamPolygon,
-    type BeamPoint,
-    type TaperedBeamPolygon,
-} from './bridge_outgoing_spam_geometry';
-
-type GetObjectPosition = (
-    objectId: string,
-) => Phaser.Math.Vector2 | undefined;
 
 type OutgoingSpamChannelEntry = {
     targetActorId: string;
@@ -30,32 +21,52 @@ const OUTGOING_SPAM_PALETTE = [
     0x53e9ff,
     0xff4cd8,
     0xa4ff4d,
+    0xffdf61,
+] as const;
+
+const OUTGOING_SPAM_FLICKER = [
+    1,
+    0.72,
+    0.91,
+    0.64,
+    0.84,
 ] as const;
 
 const OUTGOING_SPAM_VFX = {
-    tintFrameMs: 120,
+    tintFrameMs: 135,
+    flickerFrameMs: 95,
+
+    // Short projector-like shaft. It deliberately does not reach or track
+    // the target actor: SPAM is a projected channel/effect, not a Beam hit.
+    lengthPx: 108,
+    endOffsetX: -24,
 
     outerSourceHalfWidth: 2,
-    outerTargetHalfWidth: 8,
+    outerEndHalfWidth: 28,
 
     coreSourceHalfWidth: 0.75,
-    coreTargetHalfWidth: 2.75,
+    coreEndHalfWidth: 14,
 
     breathPeriodMs: 520,
-    breathAmplitude: 1.25,
+    breathAmplitudePx: 1.4,
 
-    impactRadius: 5,
-    impactBreathAmplitude: 1.5,
+    sourceGlowRadius: 4.5,
+    sourceCoreRadius: 1.5,
 } as const;
 
-// Procedural outgoing player spam beam.
+type ProjectionPoint = {
+    x: number;
+    y: number;
+};
+
+// Procedural outgoing player SPAM projector.
 //
-// The narrow source and restrained target flare preserve the feeling
-// of distance between ships. Tint changes in discrete VGA-like steps,
-// while width and target interference breathe continuously.
+// Unlike a physical Beam, the visible signal exists only near the player:
+// a short translucent projection cone leaves the ship, changes color in
+// discrete VGA-like steps and softly flickers/fades into space.
 //
-// The hostile popup projection remains owned by BridgeSpamView.
-// This view represents only player -> enemy channels.
+// Target actor identity is retained only so destruction can clear a channel.
+// Enemy position / Evade presentation is intentionally irrelevant to geometry.
 export default class BridgeOutgoingSpamView {
     private readonly root:
         Phaser.GameObjects.Container;
@@ -77,9 +88,6 @@ export default class BridgeOutgoingSpamView {
 
         private readonly eventBus:
             BridgeEventBus,
-
-        private readonly getObjectPosition:
-            GetObjectPosition,
     ) {
         this.root =
             this.scene.add.container(
@@ -280,7 +288,10 @@ export default class BridgeOutgoingSpamView {
         }
 
         this.elapsedMs +=
-            deltaMs;
+            Math.max(
+                0,
+                deltaMs,
+            );
 
         this.redraw();
     }
@@ -302,40 +313,20 @@ export default class BridgeOutgoingSpamView {
             const channel of
             this.channels.values()
         ) {
-            const target =
-                this.getObjectPosition(
-                    channel.targetActorId,
-                );
-
-            if (!target) {
-                continue;
-            }
-
-            this.drawChannel(
+            this.drawProjection(
                 source,
-                target,
                 channel.phaseOffsetMs,
             );
         }
     }
 
-    private drawChannel(
-        source: Phaser.Math.Vector2,
-        target: Phaser.Math.Vector2,
-        phaseOffsetMs: number,
-    ): void {
-        if (
-            Phaser.Math.Distance.Between(
-                source.x,
-                source.y,
-                target.x,
-                target.y,
-            ) <
-            1
-        ) {
-            return;
-        }
+    private drawProjection(
+        source:
+            Phaser.Math.Vector2,
 
+        phaseOffsetMs:
+            number,
+    ): void {
         const animationMs =
             this.elapsedMs +
             phaseOffsetMs;
@@ -343,8 +334,8 @@ export default class BridgeOutgoingSpamView {
         const tintIndex =
             Math.floor(
                 animationMs /
-                OUTGOING_SPAM_VFX
-                    .tintFrameMs,
+                    OUTGOING_SPAM_VFX
+                        .tintFrameMs,
             ) %
             OUTGOING_SPAM_PALETTE
                 .length;
@@ -366,11 +357,33 @@ export default class BridgeOutgoingSpamView {
 
         if (
             tint === undefined ||
-            secondaryTint === undefined
+            secondaryTint ===
+                undefined
         ) {
             throw new Error(
-                'Outgoing spam tint ' +
-                    'palette is empty',
+                'Outgoing spam tint palette is empty',
+            );
+        }
+
+        const flickerIndex =
+            Math.floor(
+                animationMs /
+                    OUTGOING_SPAM_VFX
+                        .flickerFrameMs,
+            ) %
+            OUTGOING_SPAM_FLICKER
+                .length;
+
+        const flicker =
+            OUTGOING_SPAM_FLICKER[
+                flickerIndex
+            ];
+
+        if (
+            flicker === undefined
+        ) {
+            throw new Error(
+                'Outgoing spam flicker table is empty',
             );
         }
 
@@ -383,113 +396,292 @@ export default class BridgeOutgoingSpamView {
                     2,
             );
 
-        const targetExpansion =
-            breath *
+        const end:
+            ProjectionPoint = {
+                x:
+                    source.x +
+                    OUTGOING_SPAM_VFX
+                        .endOffsetX,
+
+                y:
+                    source.y -
+                    OUTGOING_SPAM_VFX
+                        .lengthPx,
+            };
+
+        const dx =
+            end.x -
+            source.x;
+
+        const dy =
+            end.y -
+            source.y;
+
+        const distance =
+            Math.hypot(
+                dx,
+                dy,
+            );
+
+        if (
+            distance <
+            1
+        ) {
+            return;
+        }
+
+        const normalX =
+            -dy /
+            distance;
+
+        const normalY =
+            dx /
+            distance;
+
+        const outerEndHalfWidth =
             OUTGOING_SPAM_VFX
-                .breathAmplitude;
+                .outerEndHalfWidth +
+            breath *
+                OUTGOING_SPAM_VFX
+                    .breathAmplitudePx;
 
-        const sourcePoint:
-            BeamPoint = {
-                x: source.x,
-                y: source.y,
-            };
+        const coreEndHalfWidth =
+            OUTGOING_SPAM_VFX
+                .coreEndHalfWidth +
+            breath *
+                OUTGOING_SPAM_VFX
+                    .breathAmplitudePx *
+                0.45;
 
-        const targetPoint:
-            BeamPoint = {
-                x: target.x,
-                y: target.y,
-            };
+        // Three translucent sections fake the soft falloff of a projector
+        // without introducing textures/gradients into this temporary VFX.
+        this.drawConeBand({
+            source,
+            end,
+            normalX,
+            normalY,
 
-        const outer =
-            createTaperedBeamPolygon(
-                sourcePoint,
-                targetPoint,
+            startT: 0,
+            endT: 0.44,
 
+            sourceHalfWidth:
                 OUTGOING_SPAM_VFX
                     .outerSourceHalfWidth,
 
+            endHalfWidth:
+                outerEndHalfWidth,
+
+            tint:
+                secondaryTint,
+
+            alpha:
+                0.22 *
+                flicker,
+        });
+
+        this.drawConeBand({
+            source,
+            end,
+            normalX,
+            normalY,
+
+            startT: 0.44,
+            endT: 0.74,
+
+            sourceHalfWidth:
                 OUTGOING_SPAM_VFX
-                    .outerTargetHalfWidth +
-                    targetExpansion,
-            );
+                    .outerSourceHalfWidth,
 
-        const core =
-            createTaperedBeamPolygon(
-                sourcePoint,
-                targetPoint,
+            endHalfWidth:
+                outerEndHalfWidth,
 
+            tint:
+                secondaryTint,
+
+            alpha:
+                0.14 *
+                flicker,
+        });
+
+        this.drawConeBand({
+            source,
+            end,
+            normalX,
+            normalY,
+
+            startT: 0.74,
+            endT: 1,
+
+            sourceHalfWidth:
+                OUTGOING_SPAM_VFX
+                    .outerSourceHalfWidth,
+
+            endHalfWidth:
+                outerEndHalfWidth,
+
+            tint:
+                secondaryTint,
+
+            alpha:
+                0.065 *
+                flicker,
+        });
+
+        this.drawConeBand({
+            source,
+            end,
+            normalX,
+            normalY,
+
+            startT: 0,
+            endT: 0.46,
+
+            sourceHalfWidth:
                 OUTGOING_SPAM_VFX
                     .coreSourceHalfWidth,
 
-                OUTGOING_SPAM_VFX
-                    .coreTargetHalfWidth +
-                    targetExpansion *
-                        0.35,
-            );
+            endHalfWidth:
+                coreEndHalfWidth,
 
-        this.fillPolygon(
-            outer,
-            secondaryTint,
-            0.13,
-        );
-
-        this.fillPolygon(
-            core,
             tint,
-            0.58,
-        );
 
+            alpha:
+                0.52 *
+                flicker,
+        });
+
+        this.drawConeBand({
+            source,
+            end,
+            normalX,
+            normalY,
+
+            startT: 0.46,
+            endT: 0.76,
+
+            sourceHalfWidth:
+                OUTGOING_SPAM_VFX
+                    .coreSourceHalfWidth,
+
+            endHalfWidth:
+                coreEndHalfWidth,
+
+            tint,
+
+            alpha:
+                0.31 *
+                flicker,
+        });
+
+        this.drawConeBand({
+            source,
+            end,
+            normalX,
+            normalY,
+
+            startT: 0.76,
+            endT: 1,
+
+            sourceHalfWidth:
+                OUTGOING_SPAM_VFX
+                    .coreSourceHalfWidth,
+
+            endHalfWidth:
+                coreEndHalfWidth,
+
+            tint,
+
+            alpha:
+                0.11 *
+                flicker,
+        });
+
+        // Tiny source glow reads as the projector lens/emitter.
         this.graphics
-            .lineStyle(
-                1,
+            .fillStyle(
                 secondaryTint,
-                0.32,
+                0.28 *
+                    flicker,
             )
-            .strokeCircle(
-                target.x,
-                target.y,
+            .fillCircle(
+                source.x,
+                source.y,
 
                 OUTGOING_SPAM_VFX
-                    .impactRadius +
-                    breath *
-                    OUTGOING_SPAM_VFX
-                        .impactBreathAmplitude,
+                    .sourceGlowRadius,
             );
 
         this.graphics
             .fillStyle(
                 tint,
-                0.68,
-            )
-            .fillCircle(
-                target.x,
-                target.y,
-                2,
-            );
-
-        this.graphics
-            .fillStyle(
-                secondaryTint,
-                0.4,
+                0.9,
             )
             .fillCircle(
                 source.x,
                 source.y,
-                1.5,
+
+                OUTGOING_SPAM_VFX
+                    .sourceCoreRadius,
             );
     }
 
-    private fillPolygon(
-        polygon:
-            TaperedBeamPolygon,
+    private drawConeBand({
+        source,
+        end,
+        normalX,
+        normalY,
+        startT,
+        endT,
+        sourceHalfWidth,
+        endHalfWidth,
+        tint,
+        alpha,
+    }: {
+        source:
+            ProjectionPoint;
 
-        tint: number,
-        alpha: number,
-    ): void {
-        const [
-            first,
-            ...rest
-        ] = polygon;
+        end:
+            ProjectionPoint;
+
+        normalX: number;
+        normalY: number;
+
+        startT: number;
+        endT: number;
+
+        sourceHalfWidth: number;
+        endHalfWidth: number;
+
+        tint: number;
+        alpha: number;
+    }): void {
+        const startCenter =
+            this.lerpPoint(
+                source,
+                end,
+                startT,
+            );
+
+        const endCenter =
+            this.lerpPoint(
+                source,
+                end,
+                endT,
+            );
+
+        const startWidth =
+            Phaser.Math.Linear(
+                sourceHalfWidth,
+                endHalfWidth,
+                startT,
+            );
+
+        const endWidth =
+            Phaser.Math.Linear(
+                sourceHalfWidth,
+                endHalfWidth,
+                endT,
+            );
 
         this.graphics
             .fillStyle(
@@ -498,19 +690,69 @@ export default class BridgeOutgoingSpamView {
             )
             .beginPath()
             .moveTo(
-                first.x,
-                first.y,
-            );
+                startCenter.x +
+                    normalX *
+                        startWidth,
 
-        for (const point of rest) {
-            this.graphics.lineTo(
-                point.x,
-                point.y,
-            );
-        }
+                startCenter.y +
+                    normalY *
+                        startWidth,
+            )
+            .lineTo(
+                endCenter.x +
+                    normalX *
+                        endWidth,
 
-        this.graphics
+                endCenter.y +
+                    normalY *
+                        endWidth,
+            )
+            .lineTo(
+                endCenter.x -
+                    normalX *
+                        endWidth,
+
+                endCenter.y -
+                    normalY *
+                        endWidth,
+            )
+            .lineTo(
+                startCenter.x -
+                    normalX *
+                        startWidth,
+
+                startCenter.y -
+                    normalY *
+                        startWidth,
+            )
             .closePath()
             .fillPath();
+    }
+
+    private lerpPoint(
+        start:
+            ProjectionPoint,
+
+        end:
+            ProjectionPoint,
+
+        progress:
+            number,
+    ): ProjectionPoint {
+        return {
+            x:
+                Phaser.Math.Linear(
+                    start.x,
+                    end.x,
+                    progress,
+                ),
+
+            y:
+                Phaser.Math.Linear(
+                    start.y,
+                    end.y,
+                    progress,
+                ),
+        };
     }
 }
