@@ -5,6 +5,7 @@ import LayerManager from '../../../../system/LayerManager';
 import { SCENE_KEY } from '../../scene_key';
 import BridgeController from './controller/BridgeController';
 import BridgeEvadeDebugView from './debug_view/evade/BridgeEvadeDebugView';
+import BridgeEnemyEvadeDebugView from './debug_view/enemy_evade/BridgeEnemyEvadeDebugView';
 
 const layers = ['space', 'objects', 'vfx', 'projection', 'ui_blocker', 'bridge', 'barks', 'ui'] as const;
 type LayerKeys = (typeof layers)[number];
@@ -35,7 +36,11 @@ export default class BridgeScene extends BaseScene<LayerKeys> {
         const evadeDebugView =
             new BridgeEvadeDebugView(this);
 
+        const enemyEvadeDebugView =
+            new BridgeEnemyEvadeDebugView(this);
+
         this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+            enemyEvadeDebugView.destroy();
             evadeDebugView.destroy();
 
             this.controller?.destroy();
