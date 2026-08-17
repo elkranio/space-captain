@@ -6,6 +6,9 @@ import type {
 import type { PlayerSpaceNavigationState } from '../../defs/player_location';
 import type { SpaceBackgroundId } from '../../defs/space_background';
 import type { ShipDriveState } from '../../defs/ship_drive';
+import type {
+    ShipEvadeState,
+} from '../../defs/ship_evade';
 import type { EncounterActorState } from '../actors/encounter_actor';
 import type { EncounterAnchorState } from '../anchors/encounter_anchor';
 import type { OfficerTaskStates } from './officer_task';
@@ -21,6 +24,10 @@ export type EncounterState = {
     navigation: PlayerSpaceNavigationState;
 
     drive: ShipDriveState;
+
+    // Transient maneuver state belongs to the encounter,
+    // not to the persistent installed drive snapshot.
+    evade: ShipEvadeState;
 
     combat: EncounterCombatState;
 

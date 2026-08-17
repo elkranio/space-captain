@@ -231,6 +231,25 @@ export default class EncounterStateStore {
             .repairPlayerDrive();
     }
 
+    public startPlayerEvade(): void {
+        this.playerShip
+            .startPlayerEvade();
+    }
+
+    public advancePlayerEvade(
+        deltaMs: number,
+    ): void {
+        this.playerShip
+            .advancePlayerEvade(
+                deltaMs,
+            );
+    }
+
+    public stopPlayerEvade(): boolean {
+        return this.playerShip
+            .stopPlayerEvade();
+    }
+
     // #endregion
 
     // #region Actors

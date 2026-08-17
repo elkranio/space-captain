@@ -16,9 +16,17 @@ import {
     SHIP_WEAPONS,
 } from '../../../content/catalogs/ship_weapons';
 import {
+    SHIP_DRIVES,
+} from '../../../content/catalogs/ship_drives';
+import {
     SHIP_DRIVE_STATUS,
     type ShipDriveState,
 } from '../../../defs/ship_drive';
+import {
+    advanceShipEvade,
+    startShipEvade,
+    stopShipEvade,
+} from '../../../defs/ship_evade';
 import {
     SHIELD_GENERATORS,
 } from '../../../content/catalogs/shield_generators';
@@ -151,6 +159,51 @@ export default class PlayerShipStore {
         return {
             ...drive,
         };
+    }
+
+    public startPlayerEvade(): void {
+        const drive =
+            this.state.drive;
+
+        if (
+            drive.status !==
+            SHIP_DRIVE_STATUS.ONLINE
+        ) {
+            throw new Error(
+                'Cannot start player Evade with drive status: ' +
+                    drive.status,
+            );
+        }
+
+        startShipEvade(
+            this.state.evade,
+            SHIP_DRIVES[
+                drive.driveId
+            ],
+        );
+    }
+
+    public advancePlayerEvade(
+        deltaMs: number,
+    ): void {
+        advanceShipEvade(
+            this.state.evade,
+            SHIP_DRIVES[
+                this.state.drive
+                    .driveId
+            ],
+            deltaMs,
+        );
+    }
+
+    public stopPlayerEvade(): boolean {
+        return stopShipEvade(
+            this.state.evade,
+            SHIP_DRIVES[
+                this.state.drive
+                    .driveId
+            ],
+        );
     }
 
     public findPlayerWeaponById(

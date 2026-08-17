@@ -8,6 +8,9 @@ import type { PlayerHullState } from '../../defs/player';
 import type { PlayerSpaceNavigationState } from '../../defs/player_location';
 import type { ShipDriveState } from '../../defs/ship_drive';
 import type {
+    ShipEvadeState,
+} from '../../defs/ship_evade';
+import type {
     ShipWeaponState,
 } from '../../defs/ship_weapon';
 import type {
@@ -69,6 +72,13 @@ export default class EncounterSnapshotReader {
 
     public getDriveState(): ShipDriveState {
         return this.read((state) => state.drive);
+    }
+
+    public getEvadeState(): ShipEvadeState {
+        return this.read(
+            (state) =>
+                state.evade,
+        );
     }
 
     public getPlayerHullState(): PlayerHullState {

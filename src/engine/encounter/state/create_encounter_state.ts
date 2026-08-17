@@ -11,6 +11,9 @@ import type {
 } from '../../defs/player';
 import type { PlayerSpaceNavigationState } from '../../defs/player_location';
 import type { ShipDriveState } from '../../defs/ship_drive';
+import {
+    createReadyShipEvadeState,
+} from '../../defs/ship_evade';
 import type {
     ShipWeaponState,
 } from '../../defs/ship_weapon';
@@ -70,6 +73,9 @@ export function createEncounterState({
         drive: {
             ...drive,
         },
+
+        evade:
+            createReadyShipEvadeState(),
 
         officerTasks: {},
 
