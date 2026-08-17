@@ -265,8 +265,6 @@ export default class EncounterEngine {
         this.combatEngagementRunner =
             new CombatEngagementRunner(
                 this.stateStore,
-                this.officerTaskRunner,
-                this.emit,
             );
 
         this.officerCommandExecutor = new OfficerCommandExecutor({
