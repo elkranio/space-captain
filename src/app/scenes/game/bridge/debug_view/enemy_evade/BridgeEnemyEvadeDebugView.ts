@@ -8,8 +8,7 @@ import {
 type DebugEnemyEvadePhase =
     | 'idle'
     | 'warmup'
-    | 'evading'
-    | 'returning';
+    | 'evading';
 
 type EnemyShipTarget = {
     image:
@@ -31,6 +30,8 @@ type ThrusterParticle = {
 
     lengthPx: number;
     color: number;
+
+    strength: number;
 };
 
 const SHIP_FRAME_PREFIX =
@@ -39,18 +40,21 @@ const SHIP_FRAME_PREFIX =
 // Disposable enemy Evade visual sandbox.
 //
 // R:
-// - idle -> WARMUP -> EVADING -> RETURN;
-// - WARMUP/EVADING -> interrupt -> RETURN.
+// - idle -> WARMUP -> EVADING -> idle;
+// - WARMUP/EVADING -> immediate interrupt -> idle.
 //
-// The real encounter object position is never changed.
-// During POST_UPDATE only the chassis object root gets a visual X offset.
-// PRE_UPDATE restores it before normal bridge presentation runs.
+// The encounter object itself never moves.
 //
-// Thruster exhaust is drawn in VFX space:
-// - low-rate prefire during warmup;
-// - strong burst while the ship accelerates sideways;
-// - sustained smaller output during active Evade;
-// - opposite-side braking plume during return/interruption.
+// We keep one accumulated visual X offset and apply it only during POST_UPDATE.
+// PRE_UPDATE restores the real object position before normal bridge logic runs.
+//
+// Each activation alternates direction:
+// - first activation chooses randomly;
+// - every later activation uses the opposite side.
+//
+// There is deliberately no "return to center" phase.
+// A completed/aborted maneuver simply leaves the ship where its lateral thrust
+// managed to push it visually.
 export default class BridgeEnemyEvadeDebugView {
     private phase:
         DebugEnemyEvadePhase =
@@ -62,8 +66,12 @@ export default class BridgeEnemyEvadeDebugView {
         -1 | 1 =
         1;
 
-    private offsetX = 0;
-    private returnStartOffsetX = 0;
+    private hasChosenDirection =
+        false;
+
+    private accumulatedOffsetX = 0;
+
+    private activeStartOffsetX = 0;
 
     private spawnAccumulator = 0;
 
@@ -171,14 +179,7 @@ export default class BridgeEnemyEvadeDebugView {
             return;
         }
 
-        if (
-            this.phase ===
-            'returning'
-        ) {
-            return;
-        }
-
-        this.startReturn();
+        this.stopCycle();
     }
 
     private handleSceneUpdate(
@@ -198,7 +199,7 @@ export default class BridgeEnemyEvadeDebugView {
             if (
                 !this.findEnemyShipTarget()
             ) {
-                this.resetCycle();
+                this.stopCycle();
             } else {
                 this.advancePhase(
                     safeDeltaMs,
@@ -226,55 +227,52 @@ export default class BridgeEnemyEvadeDebugView {
     }
 
     private startCycle(): void {
+        this.chooseNextDirection();
+
         this.phase =
             'warmup';
 
         this.phaseElapsedMs =
             0;
 
+        this.activeStartOffsetX =
+            this.accumulatedOffsetX;
+
+        this.spawnAccumulator =
+            0;
+    }
+
+    private chooseNextDirection():
+        void {
+        if (
+            !this.hasChosenDirection
+        ) {
+            this.evadeDirection =
+                Math.random() < 0.5
+                    ? -1
+                    : 1;
+
+            this.hasChosenDirection =
+                true;
+
+            return;
+        }
+
         this.evadeDirection =
-            Math.random() < 0.5
-                ? -1
-                : 1;
-
-        this.offsetX =
-            0;
-
-        this.returnStartOffsetX =
-            0;
-
-        this.spawnAccumulator =
-            0;
+            (
+                -this.evadeDirection
+            ) as -1 | 1;
     }
 
-    private startReturn(): void {
-        this.phase =
-            'returning';
-
-        this.phaseElapsedMs =
-            0;
-
-        this.returnStartOffsetX =
-            this.offsetX;
-
-        this.spawnAccumulator =
-            0;
-    }
-
-    private resetCycle(): void {
-        this.restoreRenderedShip();
-
+    private stopCycle(): void {
         this.phase =
             'idle';
 
         this.phaseElapsedMs =
             0;
 
-        this.offsetX =
-            0;
-
-        this.returnStartOffsetX =
-            0;
+        this.activeStartOffsetX =
+            this.accumulatedOffsetX;
 
         this.spawnAccumulator =
             0;
@@ -313,7 +311,7 @@ export default class BridgeEnemyEvadeDebugView {
             remainingMs -=
                 consumedMs;
 
-            this.updateOffset();
+            this.updateAccumulatedOffset();
 
             if (
                 this.phaseElapsedMs <
@@ -337,10 +335,6 @@ export default class BridgeEnemyEvadeDebugView {
                 return BRIDGE_ENEMY_EVADE_DEBUG_CONFIG
                     .evadeDurationMs;
 
-            case 'returning':
-                return BRIDGE_ENEMY_EVADE_DEBUG_CONFIG
-                    .returnDurationMs;
-
             case 'idle':
                 return 0;
 
@@ -354,75 +348,47 @@ export default class BridgeEnemyEvadeDebugView {
         }
     }
 
-    private updateOffset(): void {
-        switch (this.phase) {
-            case 'warmup':
-                this.offsetX =
-                    0;
-
-                return;
-
-            case 'evading': {
-                const entryDurationMs =
-                    BRIDGE_ENEMY_EVADE_DEBUG_CONFIG
-                        .movement
-                        .entryDurationMs;
-
-                const progress =
-                    entryDurationMs <= 0
-                        ? 1
-                        : Phaser.Math.Clamp(
-                              this.phaseElapsedMs /
-                                  entryDurationMs,
-                              0,
-                              1,
-                          );
-
-                this.offsetX =
-                    this.evadeDirection *
-                    BRIDGE_ENEMY_EVADE_DEBUG_CONFIG
-                        .movement
-                        .maxOffsetPx *
-                    smoothStep(
-                        progress,
-                    );
-
-                return;
-            }
-
-            case 'returning': {
-                const progress =
-                    Phaser.Math.Clamp(
-                        this.phaseElapsedMs /
-                            BRIDGE_ENEMY_EVADE_DEBUG_CONFIG
-                                .returnDurationMs,
-                        0,
-                        1,
-                    );
-
-                this.offsetX =
-                    Phaser.Math.Linear(
-                        this.returnStartOffsetX,
-                        0,
-                        smoothStep(
-                            progress,
-                        ),
-                    );
-
-                return;
-            }
-
-            case 'idle':
-                return;
-
-            default: {
-                const exhaustivePhase:
-                    never =
-                    this.phase;
-
-                return exhaustivePhase;
-            }
+    private updateAccumulatedOffset():
+        void {
+        if (
+            this.phase !==
+            'evading'
+        ) {
+            return;
         }
+
+        const progress =
+            Phaser.Math.Clamp(
+                this.phaseElapsedMs /
+                    BRIDGE_ENEMY_EVADE_DEBUG_CONFIG
+                        .evadeDurationMs,
+                0,
+                1,
+            );
+
+        const movement =
+            BRIDGE_ENEMY_EVADE_DEBUG_CONFIG
+                .movement;
+
+        // Small eased drift: the thruster sells most of the maneuver,
+        // the chassis itself only accumulates a subtle lateral displacement.
+        const targetOffset =
+            this.activeStartOffsetX +
+            this.evadeDirection *
+                movement
+                    .distancePerFullEvadePx *
+                smoothStep(
+                    progress,
+                );
+
+        this.accumulatedOffsetX =
+            Phaser.Math.Clamp(
+                targetOffset,
+                -movement
+                    .maxAccumulatedOffsetPx,
+                movement
+                    .maxAccumulatedOffsetPx,
+            );
     }
 
     private completeCurrentPhase():
@@ -435,8 +401,8 @@ export default class BridgeEnemyEvadeDebugView {
                 this.phaseElapsedMs =
                     0;
 
-                this.offsetX =
-                    0;
+                this.activeStartOffsetX =
+                    this.accumulatedOffsetX;
 
                 this.spawnAccumulator =
                     0;
@@ -444,11 +410,7 @@ export default class BridgeEnemyEvadeDebugView {
                 return;
 
             case 'evading':
-                this.startReturn();
-                return;
-
-            case 'returning':
-                this.resetCycle();
+                this.stopCycle();
                 return;
 
             case 'idle':
@@ -474,19 +436,25 @@ export default class BridgeEnemyEvadeDebugView {
             return;
         }
 
-        const spawnRate =
-            this.getCurrentSpawnRate();
+        const strength =
+            this.getThrusterStrength();
 
         if (
-            spawnRate <= 0
+            strength <= 0
         ) {
             return;
         }
 
+        const config =
+            BRIDGE_ENEMY_EVADE_DEBUG_CONFIG
+                .thrusters;
+
         this.spawnAccumulator +=
             deltaMs /
             1000 *
-            spawnRate;
+            config
+                .activeSpawnPerSecond *
+            strength;
 
         while (
             this.spawnAccumulator >=
@@ -497,11 +465,12 @@ export default class BridgeEnemyEvadeDebugView {
 
             this.spawnParticlePair(
                 target,
+                strength,
             );
         }
     }
 
-    private getCurrentSpawnRate():
+    private getThrusterStrength():
         number {
         const config =
             BRIDGE_ENEMY_EVADE_DEBUG_CONFIG
@@ -510,22 +479,11 @@ export default class BridgeEnemyEvadeDebugView {
         switch (this.phase) {
             case 'warmup':
                 return config
-                    .warmupSpawnPerSecond;
+                    .warmupStrength;
 
             case 'evading':
-                return (
-                    this.phaseElapsedMs <=
-                    config
-                        .activeBurstDurationMs
-                )
-                    ? config
-                          .burstSpawnPerSecond
-                    : config
-                          .sustainSpawnPerSecond;
-
-            case 'returning':
                 return config
-                    .returnSpawnPerSecond;
+                    .activeStrength;
 
             case 'idle':
                 return 0;
@@ -542,20 +500,20 @@ export default class BridgeEnemyEvadeDebugView {
 
     private spawnParticlePair(
         target: EnemyShipTarget,
+        strength: number,
     ): void {
         const bounds =
             target.image
                 .getBounds();
 
-        const movementDirection =
-            this.getThrusterMovementDirection();
-
+        // To move right, fire the left-side maneuvering thruster.
+        // To move left, fire the right-side thruster.
         const emitterX =
-            movementDirection > 0
+            this.evadeDirection > 0
                 ? bounds.left +
-                  this.offsetX
+                  this.accumulatedOffsetX
                 : bounds.right +
-                  this.offsetX;
+                  this.accumulatedOffsetX;
 
         const verticalOffset =
             bounds.height *
@@ -567,36 +525,21 @@ export default class BridgeEnemyEvadeDebugView {
             emitterX,
             bounds.centerY -
                 verticalOffset,
-            movementDirection,
+            strength,
         );
 
         this.spawnParticle(
             emitterX,
             bounds.centerY +
                 verticalOffset,
-            movementDirection,
+            strength,
         );
-    }
-
-    private getThrusterMovementDirection():
-        -1 | 1 {
-        if (
-            this.phase ===
-            'returning'
-        ) {
-            return (
-                -this.evadeDirection
-            ) as -1 | 1;
-        }
-
-        return this.evadeDirection;
     }
 
     private spawnParticle(
         emitterX: number,
         emitterY: number,
-        movementDirection:
-            -1 | 1,
+        strength: number,
     ): void {
         const config =
             BRIDGE_ENEMY_EVADE_DEBUG_CONFIG
@@ -608,6 +551,11 @@ export default class BridgeEnemyEvadeDebugView {
                     .minSpeedPxPerSecond,
                 config
                     .maxSpeedPxPerSecond,
+            ) *
+            Phaser.Math.Linear(
+                0.65,
+                1,
+                strength,
             );
 
         const maxLifeMs =
@@ -639,15 +587,15 @@ export default class BridgeEnemyEvadeDebugView {
                     config.yJitterPx,
                 ),
 
-            // Exhaust travels opposite to the lateral ship impulse.
+            // Exhaust travels opposite to the selected lateral maneuver.
             velocityX:
-                -movementDirection *
+                -this.evadeDirection *
                 speed,
 
             velocityY:
                 Phaser.Math.FloatBetween(
-                    -18,
-                    18,
+                    -15,
+                    15,
                 ),
 
             lifeMs:
@@ -656,12 +604,23 @@ export default class BridgeEnemyEvadeDebugView {
             maxLifeMs,
 
             lengthPx:
-                Phaser.Math.Between(
-                    config.minLengthPx,
-                    config.maxLengthPx,
+                Math.max(
+                    1,
+                    Math.round(
+                        Phaser.Math.Between(
+                            config.minLengthPx,
+                            config.maxLengthPx,
+                        ) *
+                        Phaser.Math.Linear(
+                            0.55,
+                            1,
+                            strength,
+                        ),
+                    ),
                 ),
 
             color,
+            strength,
         });
     }
 
@@ -727,6 +686,11 @@ export default class BridgeEnemyEvadeDebugView {
             const alpha =
                 smoothStep(
                     lifeProgress,
+                ) *
+                Phaser.Math.Linear(
+                    0.55,
+                    1,
+                    particle.strength,
                 );
 
             this.graphics
@@ -765,7 +729,7 @@ export default class BridgeEnemyEvadeDebugView {
         this.restoreRenderedShip();
 
         if (
-            this.offsetX ===
+            this.accumulatedOffsetX ===
             0
         ) {
             return;
@@ -785,7 +749,7 @@ export default class BridgeEnemyEvadeDebugView {
             target.objectRoot.x;
 
         target.objectRoot.x +=
-            this.offsetX;
+            this.accumulatedOffsetX;
     }
 
     private restoreRenderedShip():

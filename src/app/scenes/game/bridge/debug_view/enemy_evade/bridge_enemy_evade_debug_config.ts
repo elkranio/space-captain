@@ -1,34 +1,40 @@
 // Disposable enemy Evade visual sandbox.
 //
 // R starts the cycle. R during WARMUP/EVADING simulates interruption.
+//
+// Visual language:
+// - warmup = maneuver thruster at ~1/3 strength, no ship movement;
+// - evade = same thruster at full strength + small accumulated X drift;
+// - end/interruption = thruster immediately stops, ship keeps its new visual X;
+// - next activation always uses the opposite direction.
 export const BRIDGE_ENEMY_EVADE_DEBUG_CONFIG = {
     warmupDurationMs: 1000,
     evadeDurationMs: 3000,
-    returnDurationMs: 260,
 
     movement: {
-        maxOffsetPx: 28,
-        entryDurationMs: 620,
+        distancePerFullEvadePx: 14,
+
+        // Presentation safety only. Repeated interrupted debug cycles must not
+        // walk the target out of the viewscreen forever.
+        maxAccumulatedOffsetPx: 36,
     },
 
     thrusters: {
-        warmupSpawnPerSecond: 14,
-        burstSpawnPerSecond: 95,
-        sustainSpawnPerSecond: 30,
-        returnSpawnPerSecond: 70,
+        warmupStrength: 1 / 3,
+        activeStrength: 1,
 
-        activeBurstDurationMs: 720,
+        activeSpawnPerSecond: 72,
 
-        minSpeedPxPerSecond: 85,
-        maxSpeedPxPerSecond: 155,
+        minSpeedPxPerSecond: 80,
+        maxSpeedPxPerSecond: 145,
 
         minLifeMs: 150,
-        maxLifeMs: 310,
+        maxLifeMs: 300,
 
         minLengthPx: 2,
         maxLengthPx: 7,
 
-        yJitterPx: 5,
+        yJitterPx: 4,
 
         emitterVerticalOffsetRatio: 0.16,
 
