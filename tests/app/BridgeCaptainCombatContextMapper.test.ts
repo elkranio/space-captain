@@ -259,6 +259,20 @@ describe(
                                         'online',
                                 },
 
+                                evade: {
+                                    phase:
+                                        'ready',
+
+                                    phaseElapsedMs:
+                                        0,
+
+                                    cooldownRemainingMs:
+                                        0,
+                                },
+
+                                evadeDurationMs:
+                                    30000,
+
                                 powerCore:
                                     createPowerCorePresentationSnapshot({
                                         id:

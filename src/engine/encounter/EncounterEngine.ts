@@ -313,6 +313,15 @@ export default class EncounterEngine {
             .step(deltaMs);
 
         this.officerTaskRunner.step(deltaMs);
+
+        // Enemy Evade uses the same raw encounter/world clock as player Evade.
+        // Advance it before player weapon physical resolution so the upcoming
+        // player->enemy miss resolvers see the authoritative impact-time phase.
+        this.stateStore
+            .advanceActorEvades(
+                deltaMs,
+            );
+
         this.playerWeaponRunner.step(deltaMs);
 
         // Evade uses raw encounter/world time and is advanced before

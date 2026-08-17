@@ -22,6 +22,9 @@ import type {
     ShipDriveState,
 } from '../../../defs/ship_drive';
 import type {
+    ShipEvadeState,
+} from '../../../defs/ship_evade';
+import type {
     ShipWeaponState,
 } from '../../../defs/ship_weapon';
 import type {
@@ -61,6 +64,9 @@ export type ShipEncounterActorState =
         maxHull: number;
 
         drive: ShipDriveState;
+
+        // Encounter-local maneuver state shared by player/enemy ship logic.
+        evade: ShipEvadeState;
 
         defenseTurret?:
             ShipDefenseTurretState;

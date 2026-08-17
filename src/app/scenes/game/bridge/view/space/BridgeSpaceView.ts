@@ -36,6 +36,26 @@ export default class BridgeSpaceView {
         return this.objectsView.getObjectPosition(objectId);
     }
 
+    public getObjectVisualBounds(
+        objectId: string,
+    ): Phaser.Geom.Rectangle | undefined {
+        return this.objectsView
+            .getObjectVisualBounds(
+                objectId,
+            );
+    }
+
+    public setObjectPresentationOffsetX(
+        objectId: string,
+        offsetX: number,
+    ): boolean {
+        return this.objectsView
+            .setObjectPresentationOffsetX(
+                objectId,
+                offsetX,
+            );
+    }
+
     public destroy(): void {
         this.objectsView.destroy();
         this.backgroundView.destroy();

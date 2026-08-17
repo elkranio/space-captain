@@ -40,6 +40,9 @@ export default class BridgeEncounterSnapshotSynchronizer {
         this.syncEnemyShields(
             snapshot,
         );
+        this.syncEnemyEvades(
+            snapshot,
+        );
         this.syncCaptainCombatContext(
             snapshot,
         );
@@ -69,6 +72,9 @@ export default class BridgeEncounterSnapshotSynchronizer {
             snapshot,
         );
         this.syncEnemyShields(
+            snapshot,
+        );
+        this.syncEnemyEvades(
             snapshot,
         );
         this.syncBeamCannonThreats(
@@ -219,6 +225,36 @@ export default class BridgeEncounterSnapshotSynchronizer {
                                 .ENGINEER
                         ],
             }),
+        );
+    }
+
+    private syncEnemyEvades(
+        snapshot:
+            EncounterPresentationSnapshot,
+    ): void {
+        this.eventBus.emit(
+            BRIDGE_EVENT
+                .ENEMY_EVADES_UPDATED,
+
+            snapshot.enemyShips
+                .map((enemy) => {
+                    return {
+                        actorId:
+                            enemy.actorId,
+
+                        phase:
+                            enemy.evade
+                                .phase,
+
+                        phaseElapsedMs:
+                            enemy.evade
+                                .phaseElapsedMs,
+
+                        evadeDurationMs:
+                            enemy
+                                .evadeDurationMs,
+                    };
+                }),
         );
     }
 

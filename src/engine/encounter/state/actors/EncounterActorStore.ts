@@ -1,6 +1,9 @@
 // src/engine/encounter/state/actors/EncounterActorStore.ts
 
 import { SHIP_CHASSIS } from '../../../content/catalogs/ship_chassis';
+import {
+    SHIP_DRIVES,
+} from '../../../content/catalogs/ship_drives';
 import type {
     CrewTraitsByRole,
 } from '../../../defs/crew_trait';
@@ -23,9 +26,16 @@ import type {
 import type {
     ShipChassisId,
 } from '../../../defs/ship_chassis';
-import type {
-    ShipDriveState,
+import {
+    SHIP_DRIVE_STATUS,
+    type ShipDriveState,
 } from '../../../defs/ship_drive';
+import {
+    advanceShipEvade,
+    createReadyShipEvadeState,
+    SHIP_EVADE_PHASE,
+    startShipEvade,
+} from '../../../defs/ship_evade';
 import type {
     ShipWeaponState,
 } from '../../../defs/ship_weapon';
@@ -185,6 +195,9 @@ export default class EncounterActorStore {
                 ...drive,
             },
 
+            evade:
+                createReadyShipEvadeState(),
+
             ...(
                 defenseTurret
                     ? {
@@ -340,6 +353,61 @@ export default class EncounterActorStore {
         actor.team = team;
 
         return actor;
+    }
+
+    public tryStartActorEvade(
+        actorId: string,
+    ): boolean {
+        const actor =
+            this.findActorById(
+                actorId,
+            );
+
+        if (!actor) {
+            throw new Error(
+                'Encounter actor not found: ' +
+                    actorId,
+            );
+        }
+
+        if (
+            actor.drive.status !==
+                SHIP_DRIVE_STATUS
+                    .ONLINE ||
+            actor.evade.phase !==
+                SHIP_EVADE_PHASE
+                    .READY
+        ) {
+            return false;
+        }
+
+        startShipEvade(
+            actor.evade,
+            SHIP_DRIVES[
+                actor.drive
+                    .driveId
+            ],
+        );
+
+        return true;
+    }
+
+    public advanceActorEvades(
+        deltaMs: number,
+    ): void {
+        for (
+            const actor of
+            this.state.actors
+        ) {
+            advanceShipEvade(
+                actor.evade,
+                SHIP_DRIVES[
+                    actor.drive
+                        .driveId
+                ],
+                deltaMs,
+            );
+        }
     }
 
     public damageEnemyActorHull(

@@ -284,6 +284,24 @@ export default class EncounterStateStore {
             );
     }
 
+    public tryStartActorEvade(
+        actorId: string,
+    ): boolean {
+        return this.actors
+            .tryStartActorEvade(
+                actorId,
+            );
+    }
+
+    public advanceActorEvades(
+        deltaMs: number,
+    ): void {
+        this.actors
+            .advanceActorEvades(
+                deltaMs,
+            );
+    }
+
     public damageEnemyActorHull(
         actorId: string,
         damage: number,

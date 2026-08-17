@@ -11,6 +11,12 @@ import { getBridgeViewscreenPoint } from '../../bridge_viewscreen_layout';
 // и metadata для псевдо-3D animation sequences.
 export default class BridgeObjectSpriteView {
     private readonly root: Phaser.GameObjects.Container;
+
+    // Render-only combat displacement. Canonical object queries intentionally
+    // ignore this container so Evade does not move encounter truth.
+    private readonly presentationRoot:
+        Phaser.GameObjects.Container;
+
     private readonly visualRoot: Phaser.GameObjects.Container;
     private readonly objectImage: Phaser.GameObjects.Image;
 
@@ -38,9 +44,21 @@ export default class BridgeObjectSpriteView {
         this.root = this.scene.add.container(0, 0);
         parent.add(this.root);
 
+        this.presentationRoot =
+            this.scene.add.container(
+                0,
+                0,
+            );
+
+        this.root.add(
+            this.presentationRoot,
+        );
+
         this.visualRoot = this.scene.add.container(0, 0);
 
-        this.root.add(this.visualRoot);
+        this.presentationRoot.add(
+            this.visualRoot,
+        );
 
         this.objectImage = this.scene.add
             .image(0, 0, payload.sprite.atlasKey, payload.sprite.frameKey)
@@ -120,6 +138,19 @@ export default class BridgeObjectSpriteView {
 
     public getScale(): number {
         return this.root.scaleX;
+    }
+
+    public getVisualBounds():
+        Phaser.Geom.Rectangle {
+        return this.objectImage
+            .getBounds();
+    }
+
+    public setPresentationOffsetX(
+        offsetX: number,
+    ): void {
+        this.presentationRoot.x =
+            offsetX;
     }
 
     public setPosition(x: number, y: number): void {

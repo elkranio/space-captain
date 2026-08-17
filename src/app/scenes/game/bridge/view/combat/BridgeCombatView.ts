@@ -5,6 +5,7 @@ import type BridgeEventBus from '../../events/BridgeEventBus';
 import type BridgeSpaceView from '../space/BridgeSpaceView';
 import BridgeVfxView from '../vfx/BridgeVfxView';
 import BridgeEnemyShipDestructionView from './enemy_destruction/BridgeEnemyShipDestructionView';
+import BridgeEnemyEvadeView from './enemy_evade/BridgeEnemyEvadeView';
 import BridgeEnemyShieldView from './enemy_shield/BridgeEnemyShieldView';
 import BridgeIncomingMissilesView from './incoming_missiles/BridgeIncomingMissilesView';
 import BridgeBeamCannonBeamsView from './beam_cannon_beams/BridgeBeamCannonBeamsView';
@@ -42,6 +43,9 @@ export default class BridgeCombatView {
 
     private enemyShieldView?:
         BridgeEnemyShieldView;
+
+    private enemyEvadeView?:
+        BridgeEnemyEvadeView;
 
     private playerBeamCannonView?: BridgePlayerBeamCannonView;
 
@@ -143,6 +147,30 @@ export default class BridgeCombatView {
                 },
             );
 
+        this.enemyEvadeView =
+            new BridgeEnemyEvadeView(
+                this.scene,
+                this.eventBus,
+
+                (objectId) => {
+                    return this.spaceView
+                        .getObjectVisualBounds(
+                            objectId,
+                        );
+                },
+
+                (
+                    objectId,
+                    offsetX,
+                ) => {
+                    return this.spaceView
+                        .setObjectPresentationOffsetX(
+                            objectId,
+                            offsetX,
+                        );
+                },
+            );
+
         this.playerBeamCannonView = new BridgePlayerBeamCannonView(
             this.scene,
             this.eventBus,
@@ -205,6 +233,7 @@ export default class BridgeCombatView {
             ?.destroy();
         this.playerShieldView?.destroy();
         this.playerBeamCannonView?.destroy();
+        this.enemyEvadeView?.destroy();
         this.enemyShieldView?.destroy();
         this.beamCannonBeamsView?.destroy();
         this.beamCannonThreatsView?.destroy();
@@ -222,6 +251,7 @@ export default class BridgeCombatView {
             undefined;
         this.playerShieldView = undefined;
         this.playerBeamCannonView = undefined;
+        this.enemyEvadeView = undefined;
         this.enemyShieldView = undefined;
         this.beamCannonBeamsView = undefined;
         this.beamCannonThreatsView = undefined;

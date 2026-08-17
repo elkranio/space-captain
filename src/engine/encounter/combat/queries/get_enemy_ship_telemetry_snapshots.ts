@@ -4,6 +4,9 @@ import type {
     PowerCoreState,
 } from '../../../defs/power_core';
 import {
+    SHIP_DRIVES,
+} from '../../../content/catalogs/ship_drives';
+import {
     ENCOUNTER_TEAM,
 } from '../../../defs/encounter_team';
 import {
@@ -13,6 +16,9 @@ import {
 import type {
     ShipDriveStatus,
 } from '../../../defs/ship_drive';
+import type {
+    ShipEvadeState,
+} from '../../../defs/ship_evade';
 import type {
     ShipWeaponKind,
     ShipWeaponPhase,
@@ -42,6 +48,12 @@ export type EnemyShipTelemetrySnapshot = {
     drive: {
         status: ShipDriveStatus;
     };
+
+    evade:
+        ShipEvadeState;
+
+    evadeDurationMs:
+        number;
 
     powerCore?:
         PowerCoreState;
@@ -84,6 +96,16 @@ export function getEnemyShipTelemetrySnapshots(
                 drive: {
                     status: actor.drive.status,
                 },
+
+                evade:
+                    actor.evade,
+
+                evadeDurationMs:
+                    SHIP_DRIVES[
+                        actor.drive
+                            .driveId
+                    ]
+                        .evadeDurationMs,
 
                 ...(actor.powerCore
                     ? {

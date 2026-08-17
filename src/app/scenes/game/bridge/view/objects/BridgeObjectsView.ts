@@ -101,6 +101,36 @@ export default class BridgeObjectsView {
         return new Phaser.Math.Vector2(view.getX(), view.getY());
     }
 
+    public getObjectVisualBounds(
+        objectId: string,
+    ): Phaser.Geom.Rectangle | undefined {
+        return this.objectViews
+            .get(
+                objectId,
+            )
+            ?.getVisualBounds();
+    }
+
+    public setObjectPresentationOffsetX(
+        objectId: string,
+        offsetX: number,
+    ): boolean {
+        const view =
+            this.objectViews.get(
+                objectId,
+            );
+
+        if (!view) {
+            return false;
+        }
+
+        view.setPresentationOffsetX(
+            offsetX,
+        );
+
+        return true;
+    }
+
     // Полный snapshot объектов текущей ноды.
     // Отсутствующие объекты действительно удаляются.
     private prepareObjects(objects: BridgeEncounterObjectPayload[]): void {

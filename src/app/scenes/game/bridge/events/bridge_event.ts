@@ -159,6 +159,10 @@ export const BRIDGE_EVENT = {
     PLAYER_EVADE_UPDATED:
         'player_evade_updated',
 
+    // Authoritative Evade snapshots for enemy ships at the current anchor.
+    ENEMY_EVADES_UPDATED:
+        'enemy_evades_updated',
+
     // Вражеская missile launcher
     // начала фазу подготовки/наведения.
     ENEMY_ATTACK_WARNING_TRIGGERED: 'enemy_attack_warning_triggered',
@@ -637,6 +641,24 @@ export type BridgePlayerEvadeUpdatedPayload = {
         number;
 };
 
+export type BridgeEnemyEvadePayload = {
+    actorId: string;
+
+    phase:
+        ShipEvadePhase;
+
+    phaseElapsedMs:
+        number;
+
+    // Read-model timing used only to map authoritative active progress to the
+    // accepted render drift. The view never imports drive tuning itself.
+    evadeDurationMs:
+        number;
+};
+
+export type BridgeEnemyEvadesUpdatedPayload =
+    BridgeEnemyEvadePayload[];
+
 // Новая входящая ракета.
 export type BridgeIncomingMissileAddedPayload = {
     projectileId: string;
@@ -949,6 +971,9 @@ export type BridgeEventPayloadMap = {
 
     [BRIDGE_EVENT.PLAYER_EVADE_UPDATED]:
         BridgePlayerEvadeUpdatedPayload;
+
+    [BRIDGE_EVENT.ENEMY_EVADES_UPDATED]:
+        BridgeEnemyEvadesUpdatedPayload;
 
     [BRIDGE_EVENT.ENEMY_ATTACK_WARNING_TRIGGERED]: undefined;
 

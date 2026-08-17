@@ -86,6 +86,27 @@ describe('BridgeEncounterSnapshotSynchronizer', () => {
 
             [
                 BRIDGE_EVENT
+                    .ENEMY_EVADES_UPDATED,
+
+                [
+                    {
+                        actorId:
+                            'enemy_ship_00',
+
+                        phase:
+                            'evading',
+
+                        phaseElapsedMs:
+                            5000,
+
+                        evadeDurationMs:
+                            30000,
+                    },
+                ],
+            ],
+
+            [
+                BRIDGE_EVENT
                     .CAPTAIN_COMBAT_CONTEXT_UPDATED,
 
                 {
@@ -272,6 +293,27 @@ describe('BridgeEncounterSnapshotSynchronizer', () => {
 
                         initialDurationMs:
                             5000,
+                    },
+                ],
+            ],
+
+            [
+                BRIDGE_EVENT
+                    .ENEMY_EVADES_UPDATED,
+
+                [
+                    {
+                        actorId:
+                            'enemy_ship_00',
+
+                        phase:
+                            'evading',
+
+                        phaseElapsedMs:
+                            5000,
+
+                        evadeDurationMs:
+                            30000,
                     },
                 ],
             ],
@@ -523,6 +565,20 @@ function createEncounterEngine(): EncounterEngine {
                                 status:
                                     'online',
                             },
+
+                            evade: {
+                                phase:
+                                    'evading',
+
+                                phaseElapsedMs:
+                                    5000,
+
+                                cooldownRemainingMs:
+                                    0,
+                            },
+
+                            evadeDurationMs:
+                                30000,
 
                             powerCore: {
                                 state: {
