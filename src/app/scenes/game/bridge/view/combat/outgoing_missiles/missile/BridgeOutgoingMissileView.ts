@@ -8,6 +8,13 @@ import {
     type BridgeOutgoingMissileWaypoint,
 } from './bridge_outgoing_missile_presentation';
 
+type BridgeOutgoingMissileMissCurveSample = {
+    point:
+        BridgeOutgoingMissilePoint;
+
+    distancePx: number;
+};
+
 type BridgeOutgoingMissileViewOptions = {
     scene: BridgeScene;
 
@@ -51,8 +58,23 @@ export default class BridgeOutgoingMissileView {
     private readonly missDirection:
         BridgeOutgoingMissilePoint;
 
-    private missFadeElapsedMs =
+    private previousTimeToImpactMs?:
+        number;
+
+    private lastFlightSpeedPxPerMs =
         0;
+
+    private missFlightSpeedPxPerMs =
+        0;
+
+    private missTravelledDistancePx =
+        0;
+
+    private missCurveLengthPx =
+        0;
+
+    private readonly missCurveSamples:
+        BridgeOutgoingMissileMissCurveSample[] = [];
 
     private missFadeOnComplete?:
         () => void;
@@ -142,6 +164,9 @@ export default class BridgeOutgoingMissileView {
                 pathProgress,
             );
 
+        const previousTimeToImpactMs =
+            this.previousTimeToImpactMs;
+
         this.previousPosition.copy(
             this.currentPosition,
         );
@@ -150,6 +175,37 @@ export default class BridgeOutgoingMissileView {
             point.x,
             point.y,
         );
+
+        if (
+            previousTimeToImpactMs !==
+            undefined
+        ) {
+            const flightDeltaMs =
+                previousTimeToImpactMs -
+                timeToImpactMs;
+
+            const flightDistancePx =
+                Phaser.Math.Distance.Between(
+                    this.previousPosition.x,
+                    this.previousPosition.y,
+                    this.currentPosition.x,
+                    this.currentPosition.y,
+                );
+
+            if (
+                flightDeltaMs >
+                    0 &&
+                flightDistancePx >
+                    Number.EPSILON
+            ) {
+                this.lastFlightSpeedPxPerMs =
+                    flightDistancePx /
+                    flightDeltaMs;
+            }
+        }
+
+        this.previousTimeToImpactMs =
+            timeToImpactMs;
 
         this.pushTrailPoint(
             point,
@@ -198,7 +254,12 @@ export default class BridgeOutgoingMissileView {
             ),
         );
 
-        this.missFadeElapsedMs =
+        this.missFlightSpeedPxPerMs =
+            this.getMissFlightSpeedPxPerMs();
+
+        this.buildMissCurveSamples();
+
+        this.missTravelledDistancePx =
             0;
 
         this.missFadeOnComplete =
@@ -430,7 +491,7 @@ export default class BridgeOutgoingMissileView {
                 expandedEdgeDistance,
                 currentProjection +
                     config
-                        .minimumContinuationPx,
+                        .minimumDepthTravelPx,
             );
 
         return new Phaser.Math.Vector2(
@@ -444,6 +505,265 @@ export default class BridgeOutgoingMissileView {
         );
     }
 
+    private getMissFlightSpeedPxPerMs():
+        number {
+        if (
+            this.lastFlightSpeedPxPerMs >
+            Number.EPSILON
+        ) {
+            return this.lastFlightSpeedPxPerMs;
+        }
+
+        // Runtime normally has several authoritative samples before impact.
+        // Keep a deterministic fallback for coarse-step/debug cases where
+        // presentation only saw the launch state before the MISS event.
+        const sampleStartProgress =
+            0.95;
+
+        const sampleStart =
+            this.getTrajectoryPoint(
+                sampleStartProgress,
+            );
+
+        const sampleEnd =
+            this.getTrajectoryPoint(
+                1,
+            );
+
+        const sampleDistancePx =
+            Phaser.Math.Distance.Between(
+                sampleStart.x,
+                sampleStart.y,
+                sampleEnd.x,
+                sampleEnd.y,
+            );
+
+        const sampleDurationMs =
+            this.initialTimeToImpactMs *
+            (
+                1 -
+                sampleStartProgress
+            );
+
+        const fallbackSpeedPxPerMs =
+            sampleDistancePx /
+            sampleDurationMs;
+
+        if (
+            fallbackSpeedPxPerMs <=
+            Number.EPSILON
+        ) {
+            throw new Error(
+                'Outgoing missile MISS could not resolve terminal screen speed',
+            );
+        }
+
+        return fallbackSpeedPxPerMs;
+    }
+
+    private buildMissCurveSamples(): void {
+        const config =
+            BRIDGE_OUTGOING_MISSILE_PRESENTATION
+                .miss;
+
+        const continuationPoint = {
+            x:
+                this.missFadePoint.x +
+                (
+                    this.missFadePoint.x -
+                    this.missStartPosition.x
+                ),
+
+            y:
+                this.missFadePoint.y +
+                (
+                    this.missFadePoint.y -
+                    this.missStartPosition.y
+                ),
+        };
+
+        this.missCurveSamples.length =
+            0;
+
+        this.missCurveLengthPx =
+            0;
+
+        let previousPoint: BridgeOutgoingMissilePoint = {
+            x:
+                this.missStartPosition.x,
+
+            y:
+                this.missStartPosition.y,
+        };
+
+        this.missCurveSamples.push({
+            point:
+                previousPoint,
+
+            distancePx:
+                0,
+        });
+
+        for (
+            let index = 1;
+            index <=
+                config
+                    .curveSampleCount;
+            index += 1
+        ) {
+            const progress =
+                index /
+                config
+                    .curveSampleCount;
+
+            const point:
+                BridgeOutgoingMissilePoint = {
+                    x:
+                        this.catmullRom(
+                            this.missPreviousPosition.x,
+                            this.missStartPosition.x,
+                            this.missFadePoint.x,
+                            continuationPoint.x,
+                            progress,
+                        ),
+
+                    y:
+                        this.catmullRom(
+                            this.missPreviousPosition.y,
+                            this.missStartPosition.y,
+                            this.missFadePoint.y,
+                            continuationPoint.y,
+                            progress,
+                        ),
+                };
+
+            this.missCurveLengthPx +=
+                Phaser.Math.Distance.Between(
+                    previousPoint.x,
+                    previousPoint.y,
+                    point.x,
+                    point.y,
+                );
+
+            this.missCurveSamples.push({
+                point,
+
+                distancePx:
+                    this.missCurveLengthPx,
+            });
+
+            previousPoint =
+                point;
+        }
+
+        if (
+            this.missCurveLengthPx <=
+            Number.EPSILON
+        ) {
+            throw new Error(
+                'Outgoing missile MISS curve has no length',
+            );
+        }
+    }
+
+    private getMissCurvePointAtDistance(
+        distancePx: number,
+    ): BridgeOutgoingMissilePoint {
+        const clampedDistancePx =
+            Phaser.Math.Clamp(
+                distancePx,
+                0,
+                this.missCurveLengthPx,
+            );
+
+        for (
+            let index = 1;
+            index <
+                this.missCurveSamples
+                    .length;
+            index += 1
+        ) {
+            const currentSample =
+                this.missCurveSamples[
+                    index
+                ];
+
+            const previousSample =
+                this.missCurveSamples[
+                    index - 1
+                ];
+
+            if (
+                clampedDistancePx >
+                currentSample
+                    .distancePx
+            ) {
+                continue;
+            }
+
+            const segmentLengthPx =
+                currentSample
+                    .distancePx -
+                previousSample
+                    .distancePx;
+
+            const segmentProgress =
+                segmentLengthPx >
+                Number.EPSILON
+                    ? (
+                          clampedDistancePx -
+                          previousSample
+                              .distancePx
+                      ) /
+                      segmentLengthPx
+                    : 0;
+
+            return {
+                x:
+                    Phaser.Math.Linear(
+                        previousSample
+                            .point
+                            .x,
+                        currentSample
+                            .point
+                            .x,
+                        segmentProgress,
+                    ),
+
+                y:
+                    Phaser.Math.Linear(
+                        previousSample
+                            .point
+                            .y,
+                        currentSample
+                            .point
+                            .y,
+                        segmentProgress,
+                    ),
+            };
+        }
+
+        const lastSample =
+            this.missCurveSamples[
+                this.missCurveSamples
+                    .length - 1
+            ];
+
+        if (!lastSample) {
+            throw new Error(
+                'Outgoing missile MISS curve has no samples',
+            );
+        }
+
+        return {
+            x:
+                lastSample.point.x,
+
+            y:
+                lastSample.point.y,
+        };
+    }
+
     private handleMissFadeUpdate(
         _time: number,
         deltaMs: number,
@@ -455,59 +775,28 @@ export default class BridgeOutgoingMissileView {
             return;
         }
 
-        this.missFadeElapsedMs +=
+        const frameDistancePx =
+            this.missFlightSpeedPxPerMs *
             Math.max(
                 0,
                 deltaMs,
             );
 
+        this.missTravelledDistancePx =
+            Math.min(
+                this.missCurveLengthPx,
+                this.missTravelledDistancePx +
+                    frameDistancePx,
+            );
+
         const progress =
-            Phaser.Math.Clamp(
-                this.missFadeElapsedMs /
-                    BRIDGE_OUTGOING_MISSILE_PRESENTATION
-                        .miss
-                        .fadeDurationMs,
-                0,
-                1,
+            this.missTravelledDistancePx /
+            this.missCurveLengthPx;
+
+        const point =
+            this.getMissCurvePointAtDistance(
+                this.missTravelledDistancePx,
             );
-
-        // A virtual fourth control point continues past the visible fade point.
-        // The missile therefore keeps a real outgoing tangent instead of
-        // visibly stopping or kinking at the point where it disappears.
-        const continuationX =
-            this.missFadePoint.x +
-            (
-                this.missFadePoint.x -
-                this.missStartPosition.x
-            );
-
-        const continuationY =
-            this.missFadePoint.y +
-            (
-                this.missFadePoint.y -
-                this.missStartPosition.y
-            );
-
-        const point:
-            BridgeOutgoingMissilePoint = {
-                x:
-                    this.catmullRom(
-                        this.missPreviousPosition.x,
-                        this.missStartPosition.x,
-                        this.missFadePoint.x,
-                        continuationX,
-                        progress,
-                    ),
-
-                y:
-                    this.catmullRom(
-                        this.missPreviousPosition.y,
-                        this.missStartPosition.y,
-                        this.missFadePoint.y,
-                        continuationY,
-                        progress,
-                    ),
-            };
 
         this.currentPosition.set(
             point.x,
@@ -526,8 +815,8 @@ export default class BridgeOutgoingMissileView {
         );
 
         if (
-            progress <
-            1
+            this.missTravelledDistancePx <
+            this.missCurveLengthPx
         ) {
             return;
         }
@@ -543,7 +832,16 @@ export default class BridgeOutgoingMissileView {
             this,
         );
 
-        this.missFadeElapsedMs =
+        this.missFlightSpeedPxPerMs =
+            0;
+
+        this.missTravelledDistancePx =
+            0;
+
+        this.missCurveLengthPx =
+            0;
+
+        this.missCurveSamples.length =
             0;
 
         this.missFadeOnComplete =

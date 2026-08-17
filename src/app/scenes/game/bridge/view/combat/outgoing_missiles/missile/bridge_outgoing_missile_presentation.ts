@@ -181,15 +181,17 @@ export const BRIDGE_OUTGOING_MISSILE_PRESENTATION = {
     ],
 
     miss: {
-        // Presentation-only depth fade after the authoritative MISS.
-        // The visible destination is only slightly outside the target sprite;
-        // the missile then disappears by shrinking/fading into the distance.
-        fadeDurationMs: 700,
+        // Presentation-only continuation after the authoritative MISS.
+        // No fixed duration: the missile inherits its real terminal
+        // screen-space speed and therefore takes as long as it naturally needs.
         clearancePx: 18,
 
-        // Guarantees some forward continuation even if the last rendered
-        // missile sample is already outside the expanded target bounds.
-        minimumContinuationPx: 24,
+        // Keep enough post-MISS travel for the depth fade to read clearly.
+        // The actual endpoint may be farther away when target bounds require it.
+        minimumDepthTravelPx: 120,
+
+        // Arc-length approximation for the authored Catmull continuation.
+        curveSampleCount: 32,
     },
 
     jitter: {
