@@ -36,7 +36,7 @@ describe(
     'player Beam Cannon Evade miss target',
     () => {
         it(
-            'passes through the left bound lane of an enemy that Evaded right and exits the viewport',
+            'passes through a left lane closer to ship center when the enemy Evaded right and exits the viewport',
             () => {
                 const result =
                     getPlayerBeamCannonMissTarget({
@@ -89,7 +89,7 @@ describe(
                 expect(
                     xAtShipCenter,
                 ).toBeCloseTo(
-                    900,
+                    1001 - 48,
                     6,
                 );
 
@@ -114,7 +114,7 @@ describe(
         );
 
         it(
-            'passes through the right bound lane of an enemy that Evaded left and exits the viewport',
+            'passes through a right lane closer to ship center when the enemy Evaded left and exits the viewport',
             () => {
                 const result =
                     getPlayerBeamCannonMissTarget({
@@ -167,7 +167,7 @@ describe(
                 expect(
                     xAtShipCenter,
                 ).toBeCloseTo(
-                    1026,
+                    973 + 48,
                     6,
                 );
 

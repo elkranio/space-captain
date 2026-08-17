@@ -21,6 +21,11 @@ export type PlayerBeamCannonMissTarget = {
 
 const VIEWPORT_EXTENSION_FACTOR = 2;
 
+// Keep the Evade miss visually close to where Weapons actually aimed.
+// Current presentation target is center +/- this amount, clamped to the
+// presented ship bounds for unusually small sprites.
+const MISS_LANE_CENTER_OFFSET_PX = 48;
+
 export function isPlayerBeamCannonMissLeft(
     canonicalTargetX: number,
     presentedTargetCenterX: number,
@@ -36,8 +41,8 @@ export function isPlayerBeamCannonMissLeft(
 // Builds a presentation-only Beam fly-by for an Evade MISS.
 //
 // Keep the shot close enough to the target that it still reads as a real aim:
-// the line passes through the presented ship's left/right bounds lane, then
-// continues far beyond the viewport instead of terminating near the target.
+// the line passes through a stable left/right lane offset from ship center,
+// then continues far beyond the viewport instead of terminating near target.
 export function getPlayerBeamCannonMissTarget({
     sourceX,
     sourceY,
@@ -59,10 +64,29 @@ export function getPlayerBeamCannonMissTarget({
             presentedTargetCenterX,
         );
 
+    const halfPresentedWidth =
+        Math.max(
+            0,
+            (
+                presentedTargetRight -
+                presentedTargetLeft
+            ) /
+                2,
+        );
+
+    const centerOffsetX =
+        Math.min(
+            MISS_LANE_CENTER_OFFSET_PX,
+            halfPresentedWidth,
+        );
+
     const passX =
-        missLeft
-            ? presentedTargetLeft
-            : presentedTargetRight;
+        presentedTargetCenterX +
+        (
+            missLeft
+                ? -centerOffsetX
+                : centerOffsetX
+        );
 
     const passY =
         presentedTargetCenterY;
