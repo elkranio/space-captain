@@ -4,6 +4,7 @@ import type BridgeScene from '../../../BridgeScene';
 import {
     BRIDGE_EVENT,
     type BridgeStickyMineAddedPayload,
+    type BridgeStickyMineMissedPlayerShipPayload,
     type BridgeStickyMineRemovedPayload,
     type BridgeStickyMinesUpdatedPayload,
 } from '../../../events/bridge_event';
@@ -15,6 +16,7 @@ import {
     removeMissingCombatSnapshotEntries,
 } from '../remove_missing_combat_snapshot_entries';
 import BridgeStickyMineView from './mine/BridgeStickyMineView';
+import BridgeStickyMineMissView from './mine/BridgeStickyMineMissView';
 
 type GetObjectPosition = (
     objectId: string,
@@ -72,6 +74,9 @@ export default class BridgeStickyMinesView {
     private readonly occupiedSlotIndexes =
         new Set<number>();
 
+    private readonly missedMines =
+        new Set<BridgeStickyMineMissView>();
+
     constructor(
         private readonly scene: BridgeScene,
         private readonly eventBus: BridgeEventBus,
@@ -90,6 +95,13 @@ export default class BridgeStickyMinesView {
         this.eventBus.on(
             BRIDGE_EVENT.STICKY_MINE_ADDED,
             this.addMine,
+            this,
+        );
+
+        this.eventBus.on(
+            BRIDGE_EVENT
+                .STICKY_MINE_MISSED_PLAYER_SHIP,
+            this.playMiss,
             this,
         );
 
@@ -114,6 +126,13 @@ export default class BridgeStickyMinesView {
         );
 
         this.eventBus.off(
+            BRIDGE_EVENT
+                .STICKY_MINE_MISSED_PLAYER_SHIP,
+            this.playMiss,
+            this,
+        );
+
+        this.eventBus.off(
             BRIDGE_EVENT.STICKY_MINES_UPDATED,
             this.updateMines,
             this,
@@ -131,10 +150,59 @@ export default class BridgeStickyMinesView {
             entry.view.destroy();
         }
 
+        for (
+            const missedMine of
+            this.missedMines
+        ) {
+            missedMine.destroy();
+        }
+
         this.mines.clear();
         this.occupiedSlotIndexes.clear();
+        this.missedMines.clear();
 
         this.root.destroy(false);
+    }
+
+    private playMiss(
+        payload:
+            BridgeStickyMineMissedPlayerShipPayload,
+    ): void {
+        const sourcePosition =
+            this.getObjectPosition(
+                payload.sourceActorId,
+            );
+
+        if (!sourcePosition) {
+            throw new Error(
+                'Sticky-mine miss source object not found: ' +
+                    payload.sourceActorId,
+            );
+        }
+
+        const view =
+            new BridgeStickyMineMissView({
+                scene:
+                    this.scene,
+
+                parent:
+                    this.root,
+
+                startPosition:
+                    sourcePosition,
+
+                onComplete: () => {
+                    view.destroy();
+
+                    this.missedMines.delete(
+                        view,
+                    );
+                },
+            });
+
+        this.missedMines.add(
+            view,
+        );
     }
 
     private addMine(

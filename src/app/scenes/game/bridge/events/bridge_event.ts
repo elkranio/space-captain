@@ -176,6 +176,10 @@ export const BRIDGE_EVENT = {
     INCOMING_MISSILE_REMOVED: 'incoming_missile_removed',
 
     STICKY_MINE_ADDED: 'sticky_mine_added',
+
+    STICKY_MINE_MISSED_PLAYER_SHIP:
+        'sticky_mine_missed_player_ship',
+
     STICKY_MINES_UPDATED: 'sticky_mines_updated',
     STICKY_MINE_REMOVED: 'sticky_mine_removed',
 
@@ -852,6 +856,10 @@ export type BridgeStickyMineAddedPayload = {
     initialTimeToDetonationMs: number;
 };
 
+export type BridgeStickyMineMissedPlayerShipPayload = {
+    sourceActorId: string;
+};
+
 export type BridgeStickyMineSnapshotPayload = {
     mineId: string;
 
@@ -873,6 +881,10 @@ export type BridgeStickyMineRemovedPayload = {
 
 export type BridgeEventPayloadMap = {
     [BRIDGE_EVENT.STICKY_MINE_ADDED]: BridgeStickyMineAddedPayload;
+
+    [BRIDGE_EVENT.STICKY_MINE_MISSED_PLAYER_SHIP]:
+        BridgeStickyMineMissedPlayerShipPayload;
+
     [BRIDGE_EVENT.STICKY_MINES_UPDATED]: BridgeStickyMinesUpdatedPayload;
     [BRIDGE_EVENT.STICKY_MINE_REMOVED]: BridgeStickyMineRemovedPayload;
 

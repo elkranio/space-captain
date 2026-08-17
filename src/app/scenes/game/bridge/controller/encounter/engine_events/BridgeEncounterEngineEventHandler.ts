@@ -372,6 +372,19 @@ export default class BridgeEncounterEngineEventHandler {
                 );
                 return;
 
+            case ENCOUNTER_EVENT
+                .STICKY_MINE_MISSED_PLAYER_SHIP:
+                this.eventBus.emit(
+                    BRIDGE_EVENT
+                        .STICKY_MINE_MISSED_PLAYER_SHIP,
+
+                    {
+                        sourceActorId:
+                            event.sourceActorId,
+                    },
+                );
+                return;
+
             case ENCOUNTER_EVENT.PLAYER_BEAM_CANNON_CHARGING_STARTED:
                 this.eventBus.emit(
                     BRIDGE_EVENT

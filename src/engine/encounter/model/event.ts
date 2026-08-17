@@ -93,6 +93,8 @@ export const ENCOUNTER_EVENT = {
     SPAM_CHANNEL_STARTED: 'spam_channel_started',
     SPAM_CHANNEL_ENDED: 'spam_channel_ended',
     STICKY_MINE_ATTACHED: 'sticky_mine_attached',
+    STICKY_MINE_MISSED_PLAYER_SHIP:
+        'sticky_mine_missed_player_ship',
     STICKY_MINE_DETONATED: 'sticky_mine_detonated',
 } as const;
 
@@ -473,6 +475,15 @@ export type StickyMineAttachedEvent = {
     mine: StickyMineState;
 };
 
+export type StickyMineMissedPlayerShipEvent = {
+    type:
+        typeof ENCOUNTER_EVENT
+            .STICKY_MINE_MISSED_PLAYER_SHIP;
+
+    sourceActorId: string;
+    sourceWeaponId: string;
+};
+
 export type StickyMineDetonatedEvent =
     PlayerHullDamageResult & {
         type:
@@ -566,6 +577,7 @@ export type EncounterEvent =
     | MissileLaunchedEvent
     | MissileImpactedPlayerShipEvent
     | StickyMineAttachedEvent
+    | StickyMineMissedPlayerShipEvent
     | StickyMineDetonatedEvent
     | BeamCannonAttackStartedEvent
     | BeamCannonFiredEvent

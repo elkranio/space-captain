@@ -11,6 +11,9 @@ import {
     type StickyMineDispenserDefinition,
     type StickyMineDispenserState,
 } from '../../../../defs/ship_weapon';
+import {
+    isShipEvading,
+} from '../../../../defs/ship_evade';
 import type { ShipEncounterActorState } from '../../../actors/ship/ship_encounter_actor';
 import {
     COMBAT_SOURCE_KIND,
@@ -540,6 +543,31 @@ export default class CombatStickyMineRunner {
             );
         }
 
+        // Ammo/salvo/cooldown commitment happens even when the incoming mine
+        // fails to attach because the player is already actively EVADING.
+        dispenser.ammoCount -= 1;
+        dispenser.dispensedMineCount += 1;
+
+        if (
+            isShipEvading(
+                this.state.evade,
+            )
+        ) {
+            this.emit({
+                type:
+                    ENCOUNTER_EVENT
+                        .STICKY_MINE_MISSED_PLAYER_SHIP,
+
+                sourceActorId:
+                    actor.id,
+
+                sourceWeaponId:
+                    dispenser.id,
+            });
+
+            return;
+        }
+
         const mine: StickyMineState = {
             id:
                 this.identities
@@ -572,9 +600,6 @@ export default class CombatStickyMineRunner {
 
             damage: definition.damage,
         };
-
-        dispenser.ammoCount -= 1;
-        dispenser.dispensedMineCount += 1;
 
         this.state.combat
             .stickyMines
