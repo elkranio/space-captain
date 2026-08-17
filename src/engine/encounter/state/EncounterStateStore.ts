@@ -468,6 +468,15 @@ export default class EncounterStateStore {
             .spendPowerCoreCharge();
     }
 
+    public spendPowerCoreCharges(
+        count: number,
+    ): PowerCoreState {
+        return this.playerShip
+            .spendPowerCoreCharges(
+                count,
+            );
+    }
+
     public fireDefenseTurret(
         threatId: string,
         random: () => number,

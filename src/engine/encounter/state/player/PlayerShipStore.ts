@@ -53,6 +53,7 @@ import {
 } from '../../../defs/ship_weapon';
 import {
     spendPowerCoreCharge as spendInstalledPowerCoreCharge,
+    spendPowerCoreCharges as spendInstalledPowerCoreCharges,
 } from '../../combat/defense/spend_power_core_charge';
 import {
     COMBAT_THREAT_KIND,
@@ -888,6 +889,28 @@ export default class PlayerShipStore {
     public spendPowerCoreCharge():
         PowerCoreState {
         const powerCore =
+            this.requirePlayerPowerCore();
+
+        return spendInstalledPowerCoreCharge(
+            powerCore,
+        );
+    }
+
+    public spendPowerCoreCharges(
+        count: number,
+    ): PowerCoreState {
+        const powerCore =
+            this.requirePlayerPowerCore();
+
+        return spendInstalledPowerCoreCharges(
+            powerCore,
+            count,
+        );
+    }
+
+    private requirePlayerPowerCore():
+        PowerCoreState {
+        const powerCore =
             this.state.combat
                 .powerCore;
 
@@ -897,9 +920,7 @@ export default class PlayerShipStore {
             );
         }
 
-        return spendInstalledPowerCoreCharge(
-            powerCore,
-        );
+        return powerCore;
     }
 
     public fireDefenseTurret(
