@@ -14,22 +14,6 @@ type DebugEvadePhase =
     | 'evading'
     | 'returning';
 
-type DebugEvadePose = {
-    offsetX: number;
-};
-
-type TransformableWorldObject =
-    Phaser.GameObjects.GameObject & {
-        x: number;
-    };
-
-type RenderTransformSnapshot = {
-    object:
-        TransformableWorldObject;
-
-    x: number;
-};
-
 type DustParticle = {
     x: number;
     y: number;
@@ -40,11 +24,6 @@ type DustParticle = {
     alphaScale: number;
 };
 
-const WORLD_LAYER_KEYS = [
-    'objects',
-    'vfx',
-] as const;
-
 const DUST_MARGIN_X = 18;
 const DUST_MARGIN_Y = 12;
 
@@ -54,13 +33,11 @@ const DUST_MARGIN_Y = 12;
 // - from idle: WARMUP -> EVADING -> RETURN;
 // - during WARMUP / EVADING: interrupt -> RETURN.
 //
-// V2 deliberately removes roll. The distant space background stays fixed,
-// world objects make only a tiny lateral jink, and parallax dust sells the
-// stronger apparent maneuver.
-//
-// World transforms remain render-only: POST_UPDATE offsets the top-level
-// objects, PRE_UPDATE restores their exact nominal positions before normal
-// bridge/gameplay presentation runs again.
+// V3:
+// - WARMUP = tiny horizontal camera vibration;
+// - EVADING = slightly stronger vibration + one-direction parallax dust;
+// - physical world presentation itself stays in its nominal position;
+// - RETURN only fades dust; there is no accumulated world offset to restore.
 export default class BridgeEvadeDebugView {
     private phase:
         DebugEvadePhase =
@@ -68,33 +45,20 @@ export default class BridgeEvadeDebugView {
 
     private phaseElapsedMs = 0;
 
-    private pose:
-        DebugEvadePose = {
-            offsetX: 0,
-        };
-
-    private previousPoseOffsetX = 0;
-
-    private returnStartPose:
-        DebugEvadePose = {
-            offsetX: 0,
-        };
-
     private returnStartDustAlpha = 0;
 
     private dustAlpha = 0;
 
-    private dustMotionX = 0;
+    // Selected once per activation and kept stable for the full maneuver.
+    private dustDirection:
+        -1 | 1 =
+        1;
 
     private readonly dustGraphics:
         Phaser.GameObjects.Graphics;
 
     private readonly dustParticles:
         DustParticle[] = [];
-
-    private readonly renderedSnapshots:
-        RenderTransformSnapshot[] =
-        [];
 
     constructor(
         private readonly scene:
@@ -122,22 +86,10 @@ export default class BridgeEvadeDebugView {
             this.handleSceneUpdate,
             this,
         );
-
-        this.scene.events.on(
-            Phaser.Scenes.Events.POST_UPDATE,
-            this.handlePostUpdate,
-            this,
-        );
-
-        this.scene.events.on(
-            Phaser.Scenes.Events.PRE_UPDATE,
-            this.handlePreUpdate,
-            this,
-        );
     }
 
     public destroy(): void {
-        this.restoreRenderedWorld();
+        this.stopOwnedShake();
 
         this.scene.input.keyboard?.off(
             'keydown-E',
@@ -148,18 +100,6 @@ export default class BridgeEvadeDebugView {
         this.scene.events.off(
             Phaser.Scenes.Events.UPDATE,
             this.handleSceneUpdate,
-            this,
-        );
-
-        this.scene.events.off(
-            Phaser.Scenes.Events.POST_UPDATE,
-            this.handlePostUpdate,
-            this,
-        );
-
-        this.scene.events.off(
-            Phaser.Scenes.Events.PRE_UPDATE,
-            this.handlePreUpdate,
             this,
         );
 
@@ -209,24 +149,13 @@ export default class BridgeEvadeDebugView {
                 deltaMs,
             );
 
-        this.previousPoseOffsetX =
-            this.pose.offsetX;
-
-        this.advanceMotion(
+        this.advancePhase(
             safeDeltaMs,
         );
 
         this.updateDust(
             safeDeltaMs,
         );
-    }
-
-    private handlePreUpdate(): void {
-        this.restoreRenderedWorld();
-    }
-
-    private handlePostUpdate(): void {
-        this.applyRenderedWorldOffset();
     }
 
     private startCycle(): void {
@@ -236,38 +165,44 @@ export default class BridgeEvadeDebugView {
         this.phaseElapsedMs =
             0;
 
-        this.pose = {
-            offsetX: 0,
-        };
-
-        this.previousPoseOffsetX =
-            0;
-
         this.dustAlpha =
             0;
 
-        this.dustMotionX =
+        this.returnStartDustAlpha =
             0;
 
+        this.dustDirection =
+            Math.random() < 0.5
+                ? -1
+                : 1;
+
         this.randomizeDustPositions();
+        this.clearDust();
+
+        this.startHorizontalShake(
+            BRIDGE_EVADE_DEBUG_CONFIG
+                .warmupDurationMs,
+
+            BRIDGE_EVADE_DEBUG_CONFIG
+                .shake
+                .warmupIntensityX,
+        );
     }
 
     private startReturn(): void {
+        this.stopOwnedShake();
+
         this.phase =
             'returning';
 
         this.phaseElapsedMs =
             0;
 
-        this.returnStartPose = {
-            ...this.pose,
-        };
-
         this.returnStartDustAlpha =
             this.dustAlpha;
     }
 
-    private advanceMotion(
+    private advancePhase(
         deltaMs: number,
     ): void {
         let remainingMs =
@@ -300,7 +235,7 @@ export default class BridgeEvadeDebugView {
             remainingMs -=
                 consumedMs;
 
-            this.updatePoseForCurrentPhase();
+            this.updatePhasePresentation();
 
             if (
                 this.phaseElapsedMs <
@@ -341,89 +276,72 @@ export default class BridgeEvadeDebugView {
         }
     }
 
-    private updatePoseForCurrentPhase():
+    private updatePhasePresentation():
         void {
-        const durationMs =
-            this.getPhaseDurationMs();
-
-        const progress =
-            durationMs <= 0
-                ? 1
-                : Phaser.Math.Clamp(
-                      this.phaseElapsedMs /
-                          durationMs,
-                      0,
-                      1,
-                  );
-
         switch (this.phase) {
-            case 'warmup': {
-                const eased =
-                    smoothStep(
-                        progress,
-                    );
+            case 'warmup':
+                this.dustAlpha =
+                    0;
+                return;
 
-                this.pose = {
-                    offsetX:
-                        Phaser.Math.Linear(
-                            0,
+            case 'evading': {
+                const config =
+                    BRIDGE_EVADE_DEBUG_CONFIG
+                        .dust;
 
-                            BRIDGE_EVADE_DEBUG_CONFIG
-                                .warmupOffsetX,
+                const fadeInProgress =
+                    config.fadeInMs <= 0
+                        ? 1
+                        : Phaser.Math.Clamp(
+                              this.phaseElapsedMs /
+                                  config.fadeInMs,
+                              0,
+                              1,
+                          );
 
-                            eased,
-                        ),
-                };
+                const alphaPulse =
+                    1 -
+                    config.alphaPulseAmplitude +
+                    config.alphaPulseAmplitude *
+                        (
+                            0.5 +
+                            0.5 *
+                                Math.sin(
+                                    this.phaseElapsedMs /
+                                        1000 *
+                                        Math.PI *
+                                        2 *
+                                        config.alphaPulseHz,
+                                )
+                        );
 
                 this.dustAlpha =
-                    Phaser.Math.Linear(
-                        0,
-
-                        BRIDGE_EVADE_DEBUG_CONFIG
-                            .dust
-                            .warmupAlpha,
-
-                        eased,
-                    );
+                    config.evadeAlpha *
+                    smoothStep(
+                        fadeInProgress,
+                    ) *
+                    alphaPulse;
 
                 return;
             }
 
-            case 'evading':
-                this.pose =
-                    getEvadePose(
-                        progress,
-                    );
-
-                this.dustAlpha =
-                    BRIDGE_EVADE_DEBUG_CONFIG
-                        .dust
-                        .evadeAlpha;
-
-                return;
-
             case 'returning': {
-                const eased =
-                    easeOutCubic(
-                        progress,
+                const progress =
+                    Phaser.Math.Clamp(
+                        this.phaseElapsedMs /
+                            BRIDGE_EVADE_DEBUG_CONFIG
+                                .returnDurationMs,
+                        0,
+                        1,
                     );
-
-                this.pose = {
-                    offsetX:
-                        Phaser.Math.Linear(
-                            this.returnStartPose
-                                .offsetX,
-
-                            0,
-                            eased,
-                        ),
-                };
 
                 this.dustAlpha =
                     Phaser.Math.Linear(
                         this.returnStartDustAlpha,
                         0,
-                        eased,
+                        easeOutCubic(
+                            progress,
+                        ),
                     );
 
                 return;
@@ -452,15 +370,17 @@ export default class BridgeEvadeDebugView {
                 this.phaseElapsedMs =
                     0;
 
-                this.pose =
-                    getEvadePose(
-                        0,
-                    );
-
                 this.dustAlpha =
+                    0;
+
+                this.startHorizontalShake(
                     BRIDGE_EVADE_DEBUG_CONFIG
-                        .dust
-                        .evadeAlpha;
+                        .evadeDurationMs,
+
+                    BRIDGE_EVADE_DEBUG_CONFIG
+                        .shake
+                        .evadeIntensityX,
+                );
 
                 return;
 
@@ -475,17 +395,7 @@ export default class BridgeEvadeDebugView {
                 this.phaseElapsedMs =
                     0;
 
-                this.pose = {
-                    offsetX: 0,
-                };
-
-                this.previousPoseOffsetX =
-                    0;
-
                 this.dustAlpha =
-                    0;
-
-                this.dustMotionX =
                     0;
 
                 this.clearDust();
@@ -503,6 +413,29 @@ export default class BridgeEvadeDebugView {
                 return exhaustivePhase;
             }
         }
+    }
+
+    private startHorizontalShake(
+        durationMs: number,
+        intensityX: number,
+    ): void {
+        this.scene.cameras.main
+            .shake(
+                durationMs,
+
+                new Phaser.Math.Vector2(
+                    intensityX,
+                    0,
+                ),
+
+                true,
+            );
+    }
+
+    private stopOwnedShake(): void {
+        this.scene.cameras.main
+            .shakeEffect
+            .reset();
     }
 
     private createDustParticles():
@@ -579,35 +512,47 @@ export default class BridgeEvadeDebugView {
     private updateDust(
         deltaMs: number,
     ): void {
-        const poseDeltaX =
-            this.pose.offsetX -
-            this.previousPoseOffsetX;
+        if (
+            this.phase ===
+                'warmup' ||
+            this.phase ===
+                'idle'
+        ) {
+            this.clearDust();
+            return;
+        }
 
-        const frameScale =
-            deltaMs > 0
-                ? Math.min(
-                      2,
-                      deltaMs /
-                          (1000 / 60),
-                  )
+        const config =
+            BRIDGE_EVADE_DEBUG_CONFIG
+                .dust;
+
+        const elapsedSeconds =
+            this.phase ===
+                'evading'
+                ? this.phaseElapsedMs /
+                  1000
                 : 0;
 
-        // Tiny physical jink -> intentionally amplified apparent near-camera
-        // dust movement. Opposite direction sells ship motion.
-        this.dustMotionX =
-            -poseDeltaX *
-            BRIDGE_EVADE_DEBUG_CONFIG
-                .dust
-                .motionGain;
+        const speedPulse =
+            1 +
+            config.speedPulseAmplitude *
+                Math.sin(
+                    elapsedSeconds *
+                        Math.PI *
+                        2 *
+                        config.speedPulseHz,
+                );
+
+        const deltaSeconds =
+            deltaMs /
+            1000;
 
         for (
             const particle
             of this.dustParticles
         ) {
             const band =
-                BRIDGE_EVADE_DEBUG_CONFIG
-                    .dust
-                    .bands[
+                config.bands[
                     particle.bandIndex
                 ];
 
@@ -616,19 +561,20 @@ export default class BridgeEvadeDebugView {
             }
 
             particle.x +=
-                this.dustMotionX *
+                this.dustDirection *
+                config.baseSpeedPxPerSecond *
+                speedPulse *
                 band.speedMultiplier *
-                Math.max(
-                    0.6,
-                    frameScale,
-                );
+                deltaSeconds;
 
             this.wrapDustParticle(
                 particle,
             );
         }
 
-        this.renderDust();
+        this.renderDust(
+            speedPulse,
+        );
     }
 
     private wrapDustParticle(
@@ -682,7 +628,9 @@ export default class BridgeEvadeDebugView {
             );
     }
 
-    private renderDust(): void {
+    private renderDust(
+        speedPulse: number,
+    ): void {
         this.dustGraphics.clear();
 
         if (
@@ -691,26 +639,16 @@ export default class BridgeEvadeDebugView {
             return;
         }
 
-        const absMotion =
-            Math.abs(
-                this.dustMotionX,
-            );
-
-        const direction =
-            this.dustMotionX === 0
-                ? 1
-                : Math.sign(
-                      this.dustMotionX,
-                  );
+        const config =
+            BRIDGE_EVADE_DEBUG_CONFIG
+                .dust;
 
         for (
             const particle
             of this.dustParticles
         ) {
             const band =
-                BRIDGE_EVADE_DEBUG_CONFIG
-                    .dust
-                    .bands[
+                config.bands[
                     particle.bandIndex
                 ];
 
@@ -718,21 +656,32 @@ export default class BridgeEvadeDebugView {
                 continue;
             }
 
-            const motionLength =
-                absMotion *
-                band.speedMultiplier *
-                1.4;
+            const lengthProgress =
+                Phaser.Math.Clamp(
+                    (
+                        speedPulse -
+                        (
+                            1 -
+                            config
+                                .speedPulseAmplitude
+                        )
+                    ) /
+                        Math.max(
+                            0.0001,
+
+                            config
+                                .speedPulseAmplitude *
+                                2,
+                        ),
+                    0,
+                    1,
+                );
 
             const lengthPx =
-                Math.max(
+                Phaser.Math.Linear(
                     band.minLengthPx,
-
-                    Math.min(
-                        band.maxLengthPx,
-
-                        band.minLengthPx +
-                            motionLength,
-                    ),
+                    band.maxLengthPx,
+                    lengthProgress,
                 ) *
                 particle.lengthScale;
 
@@ -747,10 +696,7 @@ export default class BridgeEvadeDebugView {
 
             this.dustGraphics
                 .fillStyle(
-                    BRIDGE_EVADE_DEBUG_CONFIG
-                        .dust
-                        .color,
-
+                    config.color,
                     alpha,
                 );
 
@@ -763,7 +709,8 @@ export default class BridgeEvadeDebugView {
                 );
 
             const x =
-                direction > 0
+                this.dustDirection >
+                    0
                     ? particle.x -
                       width
                     : particle.x;
@@ -788,174 +735,6 @@ export default class BridgeEvadeDebugView {
     private clearDust(): void {
         this.dustGraphics.clear();
     }
-
-    private applyRenderedWorldOffset():
-        void {
-        this.restoreRenderedWorld();
-
-        if (
-            this.pose.offsetX ===
-            0
-        ) {
-            return;
-        }
-
-        for (
-            const layerKey
-            of WORLD_LAYER_KEYS
-        ) {
-            const objects =
-                this.scene.layers
-                    .get(
-                        layerKey,
-                    )
-                    .getChildren();
-
-            for (
-                const object
-                of objects
-            ) {
-                if (
-                    object ===
-                    this.dustGraphics ||
-                    !isTransformableWorldObject(
-                        object,
-                    )
-                ) {
-                    continue;
-                }
-
-                this.renderedSnapshots
-                    .push({
-                        object,
-                        x:
-                            object.x,
-                    });
-
-                object.x +=
-                    this.pose.offsetX;
-            }
-        }
-    }
-
-    private restoreRenderedWorld():
-        void {
-        for (
-            const snapshot
-            of this.renderedSnapshots
-        ) {
-            snapshot.object.x =
-                snapshot.x;
-        }
-
-        this.renderedSnapshots.length =
-            0;
-    }
-}
-
-function getEvadePose(
-    progress: number,
-): DebugEvadePose {
-    const keyframes =
-        BRIDGE_EVADE_DEBUG_CONFIG
-            .evadeKeyframes;
-
-    const clampedProgress =
-        Phaser.Math.Clamp(
-            progress,
-            0,
-            1,
-        );
-
-    for (
-        let index = 1;
-        index < keyframes.length;
-        index += 1
-    ) {
-        const next =
-            keyframes[index];
-
-        const previous =
-            keyframes[
-                index - 1
-            ];
-
-        if (
-            !next ||
-            !previous
-        ) {
-            continue;
-        }
-
-        if (
-            clampedProgress >
-            next.progress
-        ) {
-            continue;
-        }
-
-        const span =
-            next.progress -
-            previous.progress;
-
-        const localProgress =
-            span <= 0
-                ? 1
-                : (
-                      clampedProgress -
-                      previous.progress
-                  ) /
-                  span;
-
-        const eased =
-            smoothStep(
-                Phaser.Math.Clamp(
-                    localProgress,
-                    0,
-                    1,
-                ),
-            );
-
-        return {
-            offsetX:
-                Phaser.Math.Linear(
-                    previous
-                        .offsetX,
-
-                    next
-                        .offsetX,
-
-                    eased,
-                ),
-        };
-    }
-
-    const last =
-        keyframes[
-            keyframes.length -
-                1
-        ];
-
-    return {
-        offsetX:
-            last?.offsetX ??
-            0,
-    };
-}
-
-function isTransformableWorldObject(
-    object:
-        Phaser.GameObjects.GameObject,
-): object is TransformableWorldObject {
-    const candidate =
-        object as unknown as {
-            x?: unknown;
-        };
-
-    return (
-        typeof candidate.x ===
-            'number'
-    );
 }
 
 function smoothStep(
