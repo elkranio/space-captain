@@ -356,9 +356,18 @@ export default class BridgeOutgoingMissileView {
                     .length - 1
             ];
 
-        if (!targetPoint) {
+        const previousPoint =
+            this.trajectoryPoints[
+                this.trajectoryPoints
+                    .length - 2
+            ];
+
+        if (
+            !targetPoint ||
+            !previousPoint
+        ) {
             throw new Error(
-                'Outgoing missile trajectory has no target point',
+                'Outgoing missile trajectory has no miss-exit source segment',
             );
         }
 
@@ -378,27 +387,28 @@ export default class BridgeOutgoingMissileView {
                 1,
             );
 
-        const easedProgress =
-            1 -
-            Math.pow(
-                1 - progress,
-                3,
-            );
-
+        // Treat the authored missExitPoint as the genuine next route point.
+        // The previous waypoint participates in the spline, so the missile
+        // bends out of its existing approach instead of teleporting onto a
+        // new straight post-impact vector.
         const point:
             BridgeOutgoingMissilePoint = {
                 x:
-                    Phaser.Math.Linear(
+                    this.catmullRom(
+                        previousPoint.x,
                         targetPoint.x,
                         this.missExitPoint.x,
-                        easedProgress,
+                        this.missExitPoint.x,
+                        progress,
                     ),
 
                 y:
-                    Phaser.Math.Linear(
+                    this.catmullRom(
+                        previousPoint.y,
                         targetPoint.y,
                         this.missExitPoint.y,
-                        easedProgress,
+                        this.missExitPoint.y,
+                        progress,
                     ),
             };
 

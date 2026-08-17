@@ -181,7 +181,9 @@ export const BRIDGE_OUTGOING_MISSILE_PRESENTATION = {
     ],
 
     miss: {
-        exitDurationMs: 160,
+        // Short presentation-only continuation after the authoritative MISS.
+        // Long enough to read as a fly-by instead of disappearing at target.
+        exitDurationMs: 260,
     },
 
     jitter: {
