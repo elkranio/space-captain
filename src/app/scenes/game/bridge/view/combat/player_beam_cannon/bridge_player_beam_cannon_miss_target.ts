@@ -19,17 +19,25 @@ export type PlayerBeamCannonMissTarget = {
     y: number;
 };
 
-const MIN_SIDE_CLEARANCE_PX = 48;
-const WIDTH_CLEARANCE_FACTOR = 0.25;
 const VIEWPORT_EXTENSION_FACTOR = 2;
+
+export function isPlayerBeamCannonMissLeft(
+    canonicalTargetX: number,
+    presentedTargetCenterX: number,
+): boolean {
+    // Presented ship moved right -> canonical aim is now on its left.
+    // Equality keeps the first barely-visible Evade frame deterministic.
+    return (
+        canonicalTargetX <=
+        presentedTargetCenterX
+    );
+}
 
 // Builds a presentation-only Beam fly-by for an Evade MISS.
 //
-// Enemy Evade shifts only the rendered ship, while the canonical object
-// position stays where the shot was aimed. We use that relative X shift only
-// to choose the miss side, then force the Beam through a point clearly outside
-// the presented ship bounds. The line continues far beyond that pass point so
-// the Beam visibly exits the viewport instead of terminating near the target.
+// Keep the shot close enough to the target that it still reads as a real aim:
+// the line passes through the presented ship's left/right bounds lane, then
+// continues far beyond the viewport instead of terminating near the target.
 export function getPlayerBeamCannonMissTarget({
     sourceX,
     sourceY,
@@ -45,32 +53,16 @@ export function getPlayerBeamCannonMissTarget({
     viewportHeight,
 }: PlayerBeamCannonMissTargetOptions):
     PlayerBeamCannonMissTarget {
-    const targetWidth =
-        Math.max(
-            0,
-            presentedTargetRight -
-                presentedTargetLeft,
-        );
-
-    const sideClearance =
-        Math.max(
-            MIN_SIDE_CLEARANCE_PX,
-            targetWidth *
-                WIDTH_CLEARANCE_FACTOR,
-        );
-
-    // Presented ship moved right -> canonical aim is on its left -> miss left.
-    // Equality is deterministic for the first Evade frame before visible drift.
     const missLeft =
-        canonicalTargetX <=
-        presentedTargetCenterX;
+        isPlayerBeamCannonMissLeft(
+            canonicalTargetX,
+            presentedTargetCenterX,
+        );
 
     const passX =
         missLeft
-            ? presentedTargetLeft -
-                sideClearance
-            : presentedTargetRight +
-                sideClearance;
+            ? presentedTargetLeft
+            : presentedTargetRight;
 
     const passY =
         presentedTargetCenterY;

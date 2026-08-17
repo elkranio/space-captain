@@ -5,6 +5,7 @@ import {
 } from 'vitest';
 import {
     getPlayerBeamCannonMissTarget,
+    isPlayerBeamCannonMissLeft,
 } from '../../src/app/scenes/game/bridge/view/combat/player_beam_cannon/bridge_player_beam_cannon_miss_target';
 
 function getLineXAtY({
@@ -35,7 +36,7 @@ describe(
     'player Beam Cannon Evade miss target',
     () => {
         it(
-            'passes clearly left of an enemy that Evaded right and exits the viewport',
+            'passes through the left bound lane of an enemy that Evaded right and exits the viewport',
             () => {
                 const result =
                     getPlayerBeamCannonMissTarget({
@@ -87,8 +88,18 @@ describe(
 
                 expect(
                     xAtShipCenter,
-                ).toBeLessThan(
-                    900 - 47,
+                ).toBeCloseTo(
+                    900,
+                    6,
+                );
+
+                expect(
+                    isPlayerBeamCannonMissLeft(
+                        987,
+                        1001,
+                    ),
+                ).toBe(
+                    true,
                 );
 
                 expect(
@@ -103,7 +114,7 @@ describe(
         );
 
         it(
-            'passes clearly right of an enemy that Evaded left and exits the viewport',
+            'passes through the right bound lane of an enemy that Evaded left and exits the viewport',
             () => {
                 const result =
                     getPlayerBeamCannonMissTarget({
@@ -155,8 +166,18 @@ describe(
 
                 expect(
                     xAtShipCenter,
-                ).toBeGreaterThan(
-                    1026 + 47,
+                ).toBeCloseTo(
+                    1026,
+                    6,
+                );
+
+                expect(
+                    isPlayerBeamCannonMissLeft(
+                        987,
+                        973,
+                    ),
+                ).toBe(
+                    false,
                 );
 
                 expect(
