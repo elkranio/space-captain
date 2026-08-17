@@ -11,7 +11,7 @@ export const BRIDGE_EVADE_DEBUG_CONFIG = {
     // Tiny horizontal-only camera vibration.
     // Phaser shake intensity is normalized against camera dimensions.
     shake: {
-        warmupIntensityX: 0.0004,
+        warmupIntensityX: 0.0005,
         evadeIntensityX: 0.0007,
     },
 
