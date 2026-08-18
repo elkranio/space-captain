@@ -20,7 +20,6 @@ const PANEL = {
 } as const;
 
 const STATUS_HEIGHT = 38;
-const THREATS_HEIGHT = 144;
 
 const STATUS_CELL = {
     textPaddingX: 10,
@@ -145,7 +144,6 @@ export default class BridgeCaptainCombatContextView {
             this.eventBus,
 
             innerWidth,
-            THREATS_HEIGHT,
         );
 
         this.threatsView.setPosition(

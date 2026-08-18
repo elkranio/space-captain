@@ -39,8 +39,6 @@ export default class BridgeCaptainThreatsView {
         private readonly eventBus: BridgeEventBus,
 
         private readonly width: number,
-
-        _height: number,
     ) {
         this.root = this.scene.add.container(0, 0);
     }
