@@ -1,8 +1,16 @@
-import type { PowerCorePresentationSnapshot } from "../../../../../../engine/encounter/snapshots/combat_presentation_snapshot";
+import type {
+    PlayerWeaponPresentationSnapshot,
+    PowerCorePresentationSnapshot,
+} from "../../../../../../engine/encounter/snapshots/combat_presentation_snapshot";
 import { OFFICER_ROLE, type OfficerRole } from "../../../../../../engine/defs/officer";
 import type { PlayerHullState } from "../../../../../../engine/defs/player";
 import type { ShipDriveState } from "../../../../../../engine/defs/ship_drive";
-import { SHIP_WEAPON_KIND, SHIP_WEAPON_PHASE, type ShipWeaponKind } from "../../../../../../engine/defs/ship_weapon";
+import {
+    SHIP_WEAPON_KIND,
+    SHIP_WEAPON_PHASE,
+    type ShipWeaponKind,
+    type ShipWeaponPhase,
+} from "../../../../../../engine/defs/ship_weapon";
 import {
     OFFICER_AVAILABILITY_STATE,
     type OfficerAvailabilityState,
@@ -17,12 +25,10 @@ import {
     BRIDGE_PLAYER_SYSTEM_ACTION_STATE,
     type BridgePlayerShipDashboardUpdatedPayload,
     type BridgePlayerWeaponDashboardPayload,
-    type BridgePlayerWeaponStatusPayload,
-    type BridgePlayerWeaponsStatusUpdatedPayload,
 } from "../../events/bridge_event";
 
 type PlayerShipDashboardMapperInput = {
-    weapons: BridgePlayerWeaponsStatusUpdatedPayload;
+    weapons: PlayerWeaponPresentationSnapshot[];
 
     availableWeaponsCommands: AvailableOfficerCommand[];
 
@@ -172,17 +178,19 @@ function getRequiredHelmAvailability(input: PlayerShipDashboardMapperInput): Off
 }
 
 function mapWeapon(
-    weapon: BridgePlayerWeaponStatusPayload,
+    snapshot: PlayerWeaponPresentationSnapshot,
     input: PlayerShipDashboardMapperInput,
 ): BridgePlayerWeaponDashboardPayload {
-    const cooldownProgress = getCooldownProgress(weapon);
+    const weapon = snapshot.state;
 
-    const action = mapWeaponAction(weapon, input);
+    const cooldownProgress = getCooldownProgress(snapshot);
+
+    const action = mapWeaponAction(snapshot, input);
 
     switch (weapon.kind) {
         case SHIP_WEAPON_KIND.MISSILE_LAUNCHER:
         case SHIP_WEAPON_KIND.STICKY_MINE_DISPENSER: {
-            const ammo = requireAmmo(weapon);
+            const ammo = requireAmmo(snapshot);
 
             return {
                 id: weapon.id,
@@ -224,24 +232,26 @@ function mapWeapon(
             };
 
         default: {
-            const exhaustiveKind: never = weapon.kind;
+            const exhaustiveWeapon: never = weapon;
 
-            return exhaustiveKind;
+            return exhaustiveWeapon;
         }
     }
 }
 
 function mapWeaponAction(
-    weapon: BridgePlayerWeaponStatusPayload,
+    snapshot: PlayerWeaponPresentationSnapshot,
     input: PlayerShipDashboardMapperInput,
 ): BridgePlayerWeaponDashboardPayload["action"] {
+    const weapon = snapshot.state;
+
     if (isCurrentWorkPhase(weapon.kind, weapon.phase)) {
         return {
             state: BRIDGE_PLAYER_SYSTEM_ACTION_STATE.ENGAGED_CURRENT_WORK,
         };
     }
 
-    if (!isReadyForAction(weapon)) {
+    if (!isReadyForAction(snapshot)) {
         return {
             state: BRIDGE_PLAYER_SYSTEM_ACTION_STATE.DISABLED_SYSTEM,
         };
@@ -285,7 +295,7 @@ function mapWeaponAction(
     };
 }
 
-function isCurrentWorkPhase(kind: ShipWeaponKind, phase: BridgePlayerWeaponStatusPayload["phase"]): boolean {
+function isCurrentWorkPhase(kind: ShipWeaponKind, phase: ShipWeaponPhase): boolean {
     switch (kind) {
         case SHIP_WEAPON_KIND.MISSILE_LAUNCHER:
             return phase === SHIP_WEAPON_PHASE.TARGETING;
@@ -307,7 +317,9 @@ function isCurrentWorkPhase(kind: ShipWeaponKind, phase: BridgePlayerWeaponStatu
     }
 }
 
-function isReadyForAction(weapon: BridgePlayerWeaponStatusPayload): boolean {
+function isReadyForAction(snapshot: PlayerWeaponPresentationSnapshot): boolean {
+    const weapon = snapshot.state;
+
     if (weapon.phase !== SHIP_WEAPON_PHASE.READY) {
         return false;
     }
@@ -315,16 +327,16 @@ function isReadyForAction(weapon: BridgePlayerWeaponStatusPayload): boolean {
     switch (weapon.kind) {
         case SHIP_WEAPON_KIND.MISSILE_LAUNCHER:
         case SHIP_WEAPON_KIND.STICKY_MINE_DISPENSER:
-            return requireAmmo(weapon).current > 0;
+            return requireAmmo(snapshot).current > 0;
 
         case SHIP_WEAPON_KIND.BEAM_CANNON:
         case SHIP_WEAPON_KIND.SPAM_PROJECTOR:
             return true;
 
         default: {
-            const exhaustiveKind: never = weapon.kind;
+            const exhaustiveWeapon: never = weapon;
 
-            return exhaustiveKind;
+            return exhaustiveWeapon;
         }
     }
 }
@@ -391,12 +403,26 @@ function getResolvedWeaponCommand(
     return matchingCommands[0];
 }
 
-function requireAmmo(weapon: BridgePlayerWeaponStatusPayload): NonNullable<BridgePlayerWeaponStatusPayload["ammo"]> {
-    if (weapon.ammo) {
-        return weapon.ammo;
+function requireAmmo(snapshot: PlayerWeaponPresentationSnapshot): { current: number; max: number } {
+    const weapon = snapshot.state;
+
+    if (
+        weapon.kind !== SHIP_WEAPON_KIND.MISSILE_LAUNCHER &&
+        weapon.kind !== SHIP_WEAPON_KIND.STICKY_MINE_DISPENSER
+    ) {
+        throw new Error("Captain dashboard weapon is not ammo-backed: " + weapon.id);
     }
 
-    throw new Error("Captain dashboard ammo-backed weapon is missing ammo: " + weapon.id);
+    const max = snapshot.ammoCapacity;
+
+    if (max === undefined) {
+        throw new Error("Player weapon presentation is missing ammo capacity: " + weapon.id);
+    }
+
+    return {
+        current: weapon.ammoCount,
+        max,
+    };
 }
 
 function getRequiredScienceCommands(input: PlayerShipDashboardMapperInput): AvailableOfficerCommand[] {
@@ -419,23 +445,17 @@ function getRequiredScienceAvailability(input: PlayerShipDashboardMapperInput): 
     return availability;
 }
 
-function getCooldownProgress(weapon: BridgePlayerWeaponStatusPayload): number | undefined {
-    const initialCooldownMs = weapon.initialCooldownMs;
+function getCooldownProgress(snapshot: PlayerWeaponPresentationSnapshot): number | undefined {
+    const remainingCooldownMs = snapshot.state.cooldownRemainingMs;
 
-    const remainingCooldownMs = weapon.remainingCooldownMs;
-
-    if (initialCooldownMs === undefined && remainingCooldownMs === undefined) {
+    if (remainingCooldownMs <= 0) {
         return undefined;
     }
 
-    if (
-        initialCooldownMs === undefined ||
-        remainingCooldownMs === undefined ||
-        initialCooldownMs <= 0 ||
-        remainingCooldownMs < 0 ||
-        remainingCooldownMs > initialCooldownMs
-    ) {
-        throw new Error("Captain dashboard weapon cooldown requires valid independent timing: " + weapon.id);
+    const initialCooldownMs = snapshot.cooldownDurationMs;
+
+    if (initialCooldownMs <= 0 || remainingCooldownMs > initialCooldownMs) {
+        throw new Error("Player weapon presentation has invalid cooldown timing: " + snapshot.state.id);
     }
 
     return Math.max(

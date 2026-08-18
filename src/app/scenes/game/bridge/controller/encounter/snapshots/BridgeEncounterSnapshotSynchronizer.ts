@@ -5,7 +5,6 @@ import { BRIDGE_EVENT } from "../../../events/bridge_event";
 import type BridgeEventBus from "../../../events/BridgeEventBus";
 import { mapCaptainCombatContextToBridgePayload } from "../../captain_dashboard/BridgeCaptainCombatContextMapper";
 import { mapPlayerShipToBridgeDashboardPayload } from "../../captain_dashboard/BridgePlayerShipDashboardMapper";
-import { mapPlayerWeaponsToBridgeStatusPayload } from "../../player_weapon_status/BridgePlayerWeaponStatusMapper";
 
 // App-side transport for continuously changing encounter read models.
 //
@@ -52,15 +51,13 @@ export default class BridgeEncounterSnapshotSynchronizer {
             throw new Error("Bridge player ship requires a power core");
         }
 
-        const weaponStatus = mapPlayerWeaponsToBridgeStatusPayload(snapshot.player.weapons);
-
         const officerAvailability = snapshot.player.officerAvailability;
 
         this.eventBus.emit(
             BRIDGE_EVENT.PLAYER_SHIP_DASHBOARD_UPDATED,
 
             mapPlayerShipToBridgeDashboardPayload({
-                weapons: weaponStatus,
+                weapons: snapshot.player.weapons,
 
                 availableWeaponsCommands: snapshot.commandsByRole[OFFICER_ROLE.WEAPONS],
 

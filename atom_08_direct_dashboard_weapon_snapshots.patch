@@ -1,0 +1,558 @@
+diff --git a/src/app/scenes/game/bridge/controller/captain_dashboard/BridgePlayerShipDashboardMapper.ts b/src/app/scenes/game/bridge/controller/captain_dashboard/BridgePlayerShipDashboardMapper.ts
+--- a/src/app/scenes/game/bridge/controller/captain_dashboard/BridgePlayerShipDashboardMapper.ts
++++ b/src/app/scenes/game/bridge/controller/captain_dashboard/BridgePlayerShipDashboardMapper.ts
+@@ -1,8 +1,16 @@
+-import type { PowerCorePresentationSnapshot } from "../../../../../../engine/encounter/snapshots/combat_presentation_snapshot";
++import type {
++    PlayerWeaponPresentationSnapshot,
++    PowerCorePresentationSnapshot,
++} from "../../../../../../engine/encounter/snapshots/combat_presentation_snapshot";
+ import { OFFICER_ROLE, type OfficerRole } from "../../../../../../engine/defs/officer";
+ import type { PlayerHullState } from "../../../../../../engine/defs/player";
+ import type { ShipDriveState } from "../../../../../../engine/defs/ship_drive";
+-import { SHIP_WEAPON_KIND, SHIP_WEAPON_PHASE, type ShipWeaponKind } from "../../../../../../engine/defs/ship_weapon";
++import {
++    SHIP_WEAPON_KIND,
++    SHIP_WEAPON_PHASE,
++    type ShipWeaponKind,
++    type ShipWeaponPhase,
++} from "../../../../../../engine/defs/ship_weapon";
+ import {
+     OFFICER_AVAILABILITY_STATE,
+     type OfficerAvailabilityState,
+@@ -17,12 +25,10 @@
+     BRIDGE_PLAYER_SYSTEM_ACTION_STATE,
+     type BridgePlayerShipDashboardUpdatedPayload,
+     type BridgePlayerWeaponDashboardPayload,
+-    type BridgePlayerWeaponStatusPayload,
+-    type BridgePlayerWeaponsStatusUpdatedPayload,
+ } from "../../events/bridge_event";
+ 
+ type PlayerShipDashboardMapperInput = {
+-    weapons: BridgePlayerWeaponsStatusUpdatedPayload;
++    weapons: PlayerWeaponPresentationSnapshot[];
+ 
+     availableWeaponsCommands: AvailableOfficerCommand[];
+ 
+@@ -172,17 +178,19 @@
+ }
+ 
+ function mapWeapon(
+-    weapon: BridgePlayerWeaponStatusPayload,
++    snapshot: PlayerWeaponPresentationSnapshot,
+     input: PlayerShipDashboardMapperInput,
+ ): BridgePlayerWeaponDashboardPayload {
+-    const cooldownProgress = getCooldownProgress(weapon);
+-
+-    const action = mapWeaponAction(weapon, input);
++    const weapon = snapshot.state;
++
++    const cooldownProgress = getCooldownProgress(snapshot);
++
++    const action = mapWeaponAction(snapshot, input);
+ 
+     switch (weapon.kind) {
+         case SHIP_WEAPON_KIND.MISSILE_LAUNCHER:
+         case SHIP_WEAPON_KIND.STICKY_MINE_DISPENSER: {
+-            const ammo = requireAmmo(weapon);
++            const ammo = requireAmmo(snapshot);
+ 
+             return {
+                 id: weapon.id,
+@@ -224,24 +232,26 @@
+             };
+ 
+         default: {
+-            const exhaustiveKind: never = weapon.kind;
+-
+-            return exhaustiveKind;
++            const exhaustiveWeapon: never = weapon;
++
++            return exhaustiveWeapon;
+         }
+     }
+ }
+ 
+ function mapWeaponAction(
+-    weapon: BridgePlayerWeaponStatusPayload,
++    snapshot: PlayerWeaponPresentationSnapshot,
+     input: PlayerShipDashboardMapperInput,
+ ): BridgePlayerWeaponDashboardPayload["action"] {
++    const weapon = snapshot.state;
++
+     if (isCurrentWorkPhase(weapon.kind, weapon.phase)) {
+         return {
+             state: BRIDGE_PLAYER_SYSTEM_ACTION_STATE.ENGAGED_CURRENT_WORK,
+         };
+     }
+ 
+-    if (!isReadyForAction(weapon)) {
++    if (!isReadyForAction(snapshot)) {
+         return {
+             state: BRIDGE_PLAYER_SYSTEM_ACTION_STATE.DISABLED_SYSTEM,
+         };
+@@ -284,7 +294,7 @@
+     };
+ }
+ 
+-function isCurrentWorkPhase(kind: ShipWeaponKind, phase: BridgePlayerWeaponStatusPayload["phase"]): boolean {
++function isCurrentWorkPhase(kind: ShipWeaponKind, phase: ShipWeaponPhase): boolean {
+     switch (kind) {
+         case SHIP_WEAPON_KIND.MISSILE_LAUNCHER:
+             return phase === SHIP_WEAPON_PHASE.TARGETING;
+@@ -306,7 +316,9 @@
+     }
+ }
+ 
+-function isReadyForAction(weapon: BridgePlayerWeaponStatusPayload): boolean {
++function isReadyForAction(snapshot: PlayerWeaponPresentationSnapshot): boolean {
++    const weapon = snapshot.state;
++
+     if (weapon.phase !== SHIP_WEAPON_PHASE.READY) {
+         return false;
+     }
+@@ -314,16 +326,16 @@
+     switch (weapon.kind) {
+         case SHIP_WEAPON_KIND.MISSILE_LAUNCHER:
+         case SHIP_WEAPON_KIND.STICKY_MINE_DISPENSER:
+-            return requireAmmo(weapon).current > 0;
++            return requireAmmo(snapshot).current > 0;
+ 
+         case SHIP_WEAPON_KIND.BEAM_CANNON:
+         case SHIP_WEAPON_KIND.SPAM_PROJECTOR:
+             return true;
+ 
+         default: {
+-            const exhaustiveKind: never = weapon.kind;
+-
+-            return exhaustiveKind;
++            const exhaustiveWeapon: never = weapon;
++
++            return exhaustiveWeapon;
+         }
+     }
+ }
+@@ -389,12 +401,26 @@
+     return matchingCommands[0];
+ }
+ 
+-function requireAmmo(weapon: BridgePlayerWeaponStatusPayload): NonNullable<BridgePlayerWeaponStatusPayload["ammo"]> {
+-    if (weapon.ammo) {
+-        return weapon.ammo;
+-    }
+-
+-    throw new Error("Captain dashboard ammo-backed weapon is missing ammo: " + weapon.id);
++function requireAmmo(snapshot: PlayerWeaponPresentationSnapshot): { current: number; max: number } {
++    const weapon = snapshot.state;
++
++    if (
++        weapon.kind !== SHIP_WEAPON_KIND.MISSILE_LAUNCHER &&
++        weapon.kind !== SHIP_WEAPON_KIND.STICKY_MINE_DISPENSER
++    ) {
++        throw new Error("Captain dashboard weapon is not ammo-backed: " + weapon.id);
++    }
++
++    const max = snapshot.ammoCapacity;
++
++    if (max === undefined) {
++        throw new Error("Player weapon presentation is missing ammo capacity: " + weapon.id);
++    }
++
++    return {
++        current: weapon.ammoCount,
++        max,
++    };
+ }
+ 
+ function getRequiredScienceCommands(input: PlayerShipDashboardMapperInput): AvailableOfficerCommand[] {
+@@ -417,23 +443,17 @@
+     return availability;
+ }
+ 
+-function getCooldownProgress(weapon: BridgePlayerWeaponStatusPayload): number | undefined {
+-    const initialCooldownMs = weapon.initialCooldownMs;
+-
+-    const remainingCooldownMs = weapon.remainingCooldownMs;
+-
+-    if (initialCooldownMs === undefined && remainingCooldownMs === undefined) {
++function getCooldownProgress(snapshot: PlayerWeaponPresentationSnapshot): number | undefined {
++    const remainingCooldownMs = snapshot.state.cooldownRemainingMs;
++
++    if (remainingCooldownMs <= 0) {
+         return undefined;
+     }
+ 
+-    if (
+-        initialCooldownMs === undefined ||
+-        remainingCooldownMs === undefined ||
+-        initialCooldownMs <= 0 ||
+-        remainingCooldownMs < 0 ||
+-        remainingCooldownMs > initialCooldownMs
+-    ) {
+-        throw new Error("Captain dashboard weapon cooldown requires valid independent timing: " + weapon.id);
++    const initialCooldownMs = snapshot.cooldownDurationMs;
++
++    if (initialCooldownMs <= 0 || remainingCooldownMs > initialCooldownMs) {
++        throw new Error("Player weapon presentation has invalid cooldown timing: " + snapshot.state.id);
+     }
+ 
+     return Math.max(
+diff --git a/src/app/scenes/game/bridge/controller/encounter/snapshots/BridgeEncounterSnapshotSynchronizer.ts b/src/app/scenes/game/bridge/controller/encounter/snapshots/BridgeEncounterSnapshotSynchronizer.ts
+--- a/src/app/scenes/game/bridge/controller/encounter/snapshots/BridgeEncounterSnapshotSynchronizer.ts
++++ b/src/app/scenes/game/bridge/controller/encounter/snapshots/BridgeEncounterSnapshotSynchronizer.ts
+@@ -5,7 +5,6 @@
+ import type BridgeEventBus from "../../../events/BridgeEventBus";
+ import { mapCaptainCombatContextToBridgePayload } from "../../captain_dashboard/BridgeCaptainCombatContextMapper";
+ import { mapPlayerShipToBridgeDashboardPayload } from "../../captain_dashboard/BridgePlayerShipDashboardMapper";
+-import { mapPlayerWeaponsToBridgeStatusPayload } from "../../player_weapon_status/BridgePlayerWeaponStatusMapper";
+ 
+ // App-side transport for continuously changing encounter read models.
+ //
+@@ -52,15 +51,13 @@
+             throw new Error("Bridge player ship requires a power core");
+         }
+ 
+-        const weaponStatus = mapPlayerWeaponsToBridgeStatusPayload(snapshot.player.weapons);
+-
+         const officerAvailability = snapshot.player.officerAvailability;
+ 
+         this.eventBus.emit(
+             BRIDGE_EVENT.PLAYER_SHIP_DASHBOARD_UPDATED,
+ 
+             mapPlayerShipToBridgeDashboardPayload({
+-                weapons: weaponStatus,
++                weapons: snapshot.player.weapons,
+ 
+                 availableWeaponsCommands: snapshot.commandsByRole[OFFICER_ROLE.WEAPONS],
+ 
+diff --git a/tests/app/BridgePlayerShipDashboardMapper.test.ts b/tests/app/BridgePlayerShipDashboardMapper.test.ts
+--- a/tests/app/BridgePlayerShipDashboardMapper.test.ts
++++ b/tests/app/BridgePlayerShipDashboardMapper.test.ts
+@@ -24,11 +24,13 @@
+     OFFICER_AVAILABILITY_STATE,
+ } from '../../src/engine/encounter/model/officer_availability';
+ import {
++    createPlayerWeaponPresentationSnapshot,
++} from '../../src/engine/encounter/snapshots/combat_presentation_snapshot';
++import {
+     mapPlayerShipToBridgeDashboardPayload,
+ } from '../../src/app/scenes/game/bridge/controller/captain_dashboard/BridgePlayerShipDashboardMapper';
+ import {
+     BRIDGE_PLAYER_SYSTEM_ACTION_STATE,
+-    type BridgePlayerWeaponStatusPayload,
+ } from '../../src/app/scenes/game/bridge/events/bridge_event';
+ 
+ describe(
+@@ -59,11 +61,11 @@
+                 expect(
+                     mapPlayerShipToBridgeDashboardPayload({
+                         weapons: [
+-                            createMissileStatus(
++                            createMissileSnapshot(
+                                 firstId,
+                                 5,
+                             ),
+-                            createMissileStatus(
++                            createMissileSnapshot(
+                                 secondId,
+                                 4,
+                             ),
+@@ -147,26 +149,24 @@
+             'keeps per-instance engaged, cooldown and empty-ammo states independent',
+             () => {
+                 const targeting =
+-                    createMissileStatus(
++                    createMissileSnapshot(
+                         'missile_launcher_player_00',
+                         5,
+                     );
+-                targeting.phase =
++                targeting.state.phase =
+                     SHIP_WEAPON_PHASE.TARGETING;
+                 const cooldown =
+-                    createMissileStatus(
++                    createMissileSnapshot(
+                         'missile_launcher_player_01',
+                         4,
+                     );
+-                cooldown.phase =
++                cooldown.state.phase =
+                     SHIP_WEAPON_PHASE.COOLDOWN;
+-                cooldown.initialCooldownMs =
+-                    15000;
+-                cooldown.remainingCooldownMs =
++                cooldown.state.cooldownRemainingMs =
+                     10000;
+ 
+                 const empty =
+-                    createMissileStatus(
++                    createMissileSnapshot(
+                         'missile_launcher_player_02',
+                         0,
+                     );
+@@ -186,11 +186,11 @@
+                 ).toEqual([
+                     {
+                         id:
+-                            targeting.id,
++                            targeting.state.id,
+                         weaponId:
+-                            targeting.weaponId,
++                            targeting.state.weaponId,
+                         kind:
+-                            targeting.kind,
++                            targeting.state.kind,
+                         ammo: {
+                             current: 5,
+                             max: 5,
+@@ -203,11 +203,11 @@
+                     },
+                     {
+                         id:
+-                            cooldown.id,
++                            cooldown.state.id,
+                         weaponId:
+-                            cooldown.weaponId,
++                            cooldown.state.weaponId,
+                         kind:
+-                            cooldown.kind,
++                            cooldown.state.kind,
+                         ammo: {
+                             current: 4,
+                             max: 5,
+@@ -225,11 +225,11 @@
+                     },
+                     {
+                         id:
+-                            empty.id,
++                            empty.state.id,
+                         weaponId:
+-                            empty.weaponId,
++                            empty.state.weaponId,
+                         kind:
+-                            empty.kind,
++                            empty.state.kind,
+                         ammo: {
+                             current: 0,
+                             max: 5,
+@@ -267,29 +267,23 @@
+                 const beamId =
+                     'beam_cannon_player_00';
+ 
++                const beam =
++                    createBeamSnapshot(
++                        beamId,
++                    );
++                beam.state.phase =
++                    SHIP_WEAPON_PHASE.CHARGING;
++                beam.state.phaseElapsedMs =
++                    elapsedMs;
++                beam.state.cooldownRemainingMs =
++                    definition
++                        .cooldownDurationMs -
++                    elapsedMs;
++
+                 expect(
+                     mapPlayerShipToBridgeDashboardPayload({
+                         weapons: [
+-                            {
+-                                id:
+-                                    beamId,
+-                                weaponId:
+-                                    SHIP_WEAPON_ID
+-                                        .BEAM_CANNON_00,
+-                                kind:
+-                                    SHIP_WEAPON_KIND
+-                                        .BEAM_CANNON,
+-                                phase:
+-                                    SHIP_WEAPON_PHASE
+-                                        .CHARGING,
+-                                initialCooldownMs:
+-                                    definition
+-                                        .cooldownDurationMs,
+-                                remainingCooldownMs:
+-                                    definition
+-                                        .cooldownDurationMs -
+-                                    elapsedMs,
+-                            },
++                            beam,
+                         ],
+                         availableWeaponsCommands: [],
+                         weaponsOfficerAvailability:
+@@ -348,34 +342,13 @@
+                 expect(
+                     mapPlayerShipToBridgeDashboardPayload({
+                         weapons: [
+-                            {
+-                                id: beamId,
+-                                weaponId:
+-                                    SHIP_WEAPON_ID
+-                                        .BEAM_CANNON_00,
+-                                kind:
+-                                    SHIP_WEAPON_KIND
+-                                        .BEAM_CANNON,
+-                                phase:
+-                                    SHIP_WEAPON_PHASE
+-                                        .READY,
+-                            },
+-                            {
+-                                id: mineId,
+-                                weaponId:
+-                                    SHIP_WEAPON_ID
+-                                        .STICKY_MINE_DISPENSER_00,
+-                                kind:
+-                                    SHIP_WEAPON_KIND
+-                                        .STICKY_MINE_DISPENSER,
+-                                phase:
+-                                    SHIP_WEAPON_PHASE
+-                                        .READY,
+-                                ammo: {
+-                                    current: 6,
+-                                    max: 6,
+-                                },
+-                            },
++                            createBeamSnapshot(
++                                beamId,
++                            ),
++                            createStickyMineSnapshot(
++                                mineId,
++                                6,
++                            ),
+                         ],
+                         availableWeaponsCommands: [
+                             beamCommand,
+@@ -459,19 +432,9 @@
+                 expect(
+                     mapPlayerShipToBridgeDashboardPayload({
+                         weapons: [
+-                            {
+-                                id:
+-                                    projectorId,
+-                                weaponId:
+-                                    SHIP_WEAPON_ID
+-                                        .SPAM_PROJECTOR_00,
+-                                kind:
+-                                    SHIP_WEAPON_KIND
+-                                        .SPAM_PROJECTOR,
+-                                phase:
+-                                    SHIP_WEAPON_PHASE
+-                                        .READY,
+-                            },
++                            createSpamSnapshot(
++                                projectorId,
++                            ),
+                         ],
+                         availableWeaponsCommands: [],
+                         weaponsOfficerAvailability:
+@@ -633,11 +596,11 @@
+                 expect(() => {
+                     mapPlayerShipToBridgeDashboardPayload({
+                         weapons: [
+-                            createMissileStatus(
++                            createMissileSnapshot(
+                                 firstId,
+                                 5,
+                             ),
+-                            createMissileStatus(
++                            createMissileSnapshot(
+                                 secondId,
+                                 5,
+                             ),
+@@ -664,13 +627,13 @@
+     },
+ );
+ 
+-function createMissileStatus(
++function createMissileSnapshot(
+     id:
+         string,
+     ammoCurrent:
+         number,
+-): BridgePlayerWeaponStatusPayload {
+-    return {
++) {
++    return createPlayerWeaponPresentationSnapshot({
+         id,
+         weaponId:
+             SHIP_WEAPON_ID
+@@ -680,12 +643,74 @@
+                 .MISSILE_LAUNCHER,
+         phase:
+             SHIP_WEAPON_PHASE.READY,
+-        ammo: {
+-            current:
+-                ammoCurrent,
+-            max: 5,
+-        },
+-    };
++        phaseElapsedMs: 0,
++        cooldownRemainingMs: 0,
++        ammoCount:
++            ammoCurrent,
++    });
++}
++
++function createBeamSnapshot(
++    id:
++        string,
++) {
++    return createPlayerWeaponPresentationSnapshot({
++        id,
++        weaponId:
++            SHIP_WEAPON_ID
++                .BEAM_CANNON_00,
++        kind:
++            SHIP_WEAPON_KIND
++                .BEAM_CANNON,
++        phase:
++            SHIP_WEAPON_PHASE.READY,
++        phaseElapsedMs: 0,
++        cooldownRemainingMs: 0,
++    });
++}
++
++function createStickyMineSnapshot(
++    id:
++        string,
++    ammoCurrent:
++        number,
++) {
++    return createPlayerWeaponPresentationSnapshot({
++        id,
++        weaponId:
++            SHIP_WEAPON_ID
++                .STICKY_MINE_DISPENSER_00,
++        kind:
++            SHIP_WEAPON_KIND
++                .STICKY_MINE_DISPENSER,
++        phase:
++            SHIP_WEAPON_PHASE.READY,
++        phaseElapsedMs: 0,
++        cooldownRemainingMs: 0,
++        ammoCount:
++            ammoCurrent,
++        dispensedMineCount: 0,
++    });
++}
++
++function createSpamSnapshot(
++    id:
++        string,
++) {
++    return createPlayerWeaponPresentationSnapshot({
++        id,
++        weaponId:
++            SHIP_WEAPON_ID
++                .SPAM_PROJECTOR_00,
++        kind:
++            SHIP_WEAPON_KIND
++                .SPAM_PROJECTOR,
++        phase:
++            SHIP_WEAPON_PHASE.READY,
++        phaseElapsedMs: 0,
++        cooldownRemainingMs: 0,
++        activeChannelId: null,
++    });
+ }
+ 
+ function createWeaponCommand(
