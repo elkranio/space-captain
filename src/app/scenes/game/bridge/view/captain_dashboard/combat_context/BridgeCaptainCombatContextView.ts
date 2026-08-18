@@ -47,8 +47,6 @@ const DEF_BAR = {
 export default class BridgeCaptainCombatContextView {
     private readonly root: Phaser.GameObjects.Container;
 
-    private readonly background: Phaser.GameObjects.Rectangle;
-
     private readonly hullText: Phaser.GameObjects.BitmapText;
 
     private readonly defenseText: Phaser.GameObjects.BitmapText;
@@ -56,8 +54,6 @@ export default class BridgeCaptainCombatContextView {
     private readonly defenseTrack: Phaser.GameObjects.Rectangle;
 
     private readonly defenseFill: Phaser.GameObjects.Rectangle;
-
-    private readonly defenseBarWidth: number;
 
     private readonly threatsView: BridgeCaptainThreatsView;
 
@@ -68,7 +64,7 @@ export default class BridgeCaptainCombatContextView {
     ) {
         this.root = this.scene.add.container(0, 0);
 
-        this.background = this.scene.add
+        const background = this.scene.add
             .rectangle(
                 0,
                 0,
@@ -110,7 +106,7 @@ export default class BridgeCaptainCombatContextView {
             "DEF --/--",
         );
 
-        this.defenseBarWidth = Math.max(1, cellWidth - DEF_BAR.sidePadding * 2);
+        const defenseBarWidth = Math.max(1, cellWidth - DEF_BAR.sidePadding * 2);
 
         const defenseBarY = PANEL.padding + STATUS_HEIGHT - DEF_BAR.bottomPadding - DEF_BAR.height;
 
@@ -120,7 +116,7 @@ export default class BridgeCaptainCombatContextView {
 
                 defenseBarY,
 
-                this.defenseBarWidth,
+                defenseBarWidth,
                 DEF_BAR.height,
 
                 CAPTAIN_DASHBOARD_STYLE.defenseRechargeBar.trackColor,
@@ -135,7 +131,7 @@ export default class BridgeCaptainCombatContextView {
 
                 defenseBarY,
 
-                this.defenseBarWidth,
+                defenseBarWidth,
                 DEF_BAR.height,
 
                 CAPTAIN_DASHBOARD_STYLE.defenseRechargeBar.fillColor,
@@ -159,7 +155,7 @@ export default class BridgeCaptainCombatContextView {
         );
 
         this.root.add([
-            this.background,
+            background,
             this.hullText,
             this.defenseText,
             this.defenseTrack,
