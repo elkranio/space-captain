@@ -1,24 +1,20 @@
 // src/app/scenes/game/bridge/controller/encounter/command_menu/BridgeOfficerCommandMenuController.ts
 
 import type { OfficerRole } from "../../../../../../../engine/defs/officer";
-import type EncounterEngine from "../../../../../../../engine/encounter/EncounterEngine";
 import type { AvailableOfficerCommand } from "../../../../../../../engine/encounter/model/command";
 import type { EncounterPresentationSnapshot } from "../../../../../../../engine/encounter/snapshots/encounter_presentation_snapshot";
 import { BRIDGE_EVENT, type BridgeOfficerCommandMenuGroupPayload } from "../../../events/bridge_event";
 import type BridgeEventBus from "../../../events/BridgeEventBus";
 
 export default class BridgeOfficerCommandMenuController {
-    constructor(
-        private readonly encounterEngine: EncounterEngine,
-        private readonly eventBus: BridgeEventBus,
-    ) {}
+    constructor(private readonly eventBus: BridgeEventBus) {}
 
     // #region Public API
 
     public open(
         role: OfficerRole,
 
-        snapshot: EncounterPresentationSnapshot = this.encounterEngine.getPresentationSnapshot(),
+        snapshot: EncounterPresentationSnapshot,
     ): void {
         // Snapshot command availability is already domain-resolved.
         // Menu only groups presentation-safe commands for the selected role.

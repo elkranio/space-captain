@@ -82,7 +82,7 @@ export default class BridgeEncounterController {
 
         this.snapshotSynchronizer = new BridgeEncounterSnapshotSynchronizer(this.eventBus);
 
-        this.officerCommandMenuController = new BridgeOfficerCommandMenuController(this.encounterEngine, this.eventBus);
+        this.officerCommandMenuController = new BridgeOfficerCommandMenuController(this.eventBus);
 
         this.presentInitialEncounterState();
     }
@@ -244,7 +244,7 @@ export default class BridgeEncounterController {
             return;
         }
 
-        this.officerCommandMenuController.open(payload.role);
+        this.officerCommandMenuController.open(payload.role, this.encounterEngine.getPresentationSnapshot());
     }
 
     private handleOfficerCommandMenuRefreshRequested(payload: BridgeOfficerCommandMenuRefreshRequestedPayload): void {
@@ -252,7 +252,7 @@ export default class BridgeEncounterController {
             return;
         }
 
-        this.officerCommandMenuController.open(payload.role);
+        this.officerCommandMenuController.open(payload.role, this.encounterEngine.getPresentationSnapshot());
     }
 
     private handleOfficerCommandSelected(payload: BridgeOfficerCommandSelectedPayload): void {
