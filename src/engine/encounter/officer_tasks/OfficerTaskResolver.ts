@@ -162,6 +162,10 @@ export default class OfficerTaskResolver {
                 this.cancelResettablePlayerWeaponTask(task);
                 return;
 
+            case OFFICER_TASK_KIND.HELM_FLY_TO:
+                this.stateStore.abortTravel(task.targetAnchorId);
+                return;
+
             case OFFICER_TASK_KIND.HELM_EVADE:
                 this.stateStore.stopPlayerEvade();
                 return;

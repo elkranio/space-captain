@@ -190,10 +190,6 @@ export default class OfficerTaskRunner {
         });
 
         for (const task of tasks) {
-            if (task.kind === OFFICER_TASK_KIND.HELM_FLY_TO) {
-                this.stateStore.abortTravel(task.targetAnchorId);
-            }
-
             this.cancel(task.id);
         }
     }
