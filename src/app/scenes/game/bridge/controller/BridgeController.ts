@@ -20,17 +20,15 @@ export default class BridgeController {
 
     private readonly eventBus = new BridgeEventBus();
 
-    private view?: BridgeView;
+    private readonly view: BridgeView;
 
-    private encounterController?: BridgeEncounterController;
+    private readonly encounterController: BridgeEncounterController;
 
     // #endregion
 
     // #region Lifecycle
 
-    constructor(private readonly scene: BridgeScene) {}
-
-    public prepare(): void {
+    constructor(private readonly scene: BridgeScene) {
         this.registerBridgeEventHandlers();
 
         this.view = new BridgeView(this.scene, this.eventBus);
@@ -43,11 +41,9 @@ export default class BridgeController {
     public destroy(): void {
         this.unregisterBridgeEventHandlers();
 
-        this.encounterController?.destroy();
-        this.encounterController = undefined;
+        this.encounterController.destroy();
 
-        this.view?.destroy();
-        this.view = undefined;
+        this.view.destroy();
 
         this.eventBus.destroy();
     }
@@ -57,7 +53,7 @@ export default class BridgeController {
     // #region Scene update
 
     public step(deltaMs: number): void {
-        this.encounterController?.step(deltaMs);
+        this.encounterController.step(deltaMs);
     }
 
     // #endregion

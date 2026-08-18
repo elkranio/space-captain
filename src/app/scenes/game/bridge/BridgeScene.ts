@@ -25,7 +25,6 @@ export default class BridgeScene extends BaseScene<LayerKeys> {
 
     protected start(): void {
         this.controller = new BridgeController(this);
-        this.controller.prepare();
 
         this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
             this.controller?.destroy();
