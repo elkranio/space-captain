@@ -25,8 +25,6 @@ const ROW_HEIGHT = 36;
 export default class BridgeCaptainThreatsView {
     private readonly root: Phaser.GameObjects.Container;
 
-    private readonly listRoot: Phaser.GameObjects.Container;
-
     private readonly missileRowViews: BridgeCaptainMissileThreatRowView[] = [];
 
     private readonly beamCannonRowViews: BridgeCaptainBeamCannonThreatRowView[] = [];
@@ -45,10 +43,6 @@ export default class BridgeCaptainThreatsView {
         _height: number,
     ) {
         this.root = this.scene.add.container(0, 0);
-
-        this.listRoot = this.scene.add.container(0, 0);
-
-        this.root.add(this.listRoot);
     }
 
     public getRoot(): Phaser.GameObjects.Container {
@@ -80,8 +74,6 @@ export default class BridgeCaptainThreatsView {
     public destroy(): void {
         this.clearRows();
 
-        this.listRoot.destroy(false);
-
         this.root.destroy(false);
     }
 
@@ -111,7 +103,7 @@ export default class BridgeCaptainThreatsView {
 
             this.missileRowViews.push(rowView);
 
-            this.listRoot.add(rowView.getRoot());
+            this.root.add(rowView.getRoot());
         }
 
         for (let index = 0; index < missiles.length; index += 1) {
@@ -155,7 +147,7 @@ export default class BridgeCaptainThreatsView {
 
             this.beamCannonRowViews.push(rowView);
 
-            this.listRoot.add(rowView.getRoot());
+            this.root.add(rowView.getRoot());
         }
 
         for (let index = 0; index < beamCannons.length; index += 1) {
@@ -199,7 +191,7 @@ export default class BridgeCaptainThreatsView {
 
             this.stickyMineRowViews.push(rowView);
 
-            this.listRoot.add(rowView.getRoot());
+            this.root.add(rowView.getRoot());
         }
 
         for (let index = 0; index < stickyMines.length; index += 1) {
@@ -243,7 +235,7 @@ export default class BridgeCaptainThreatsView {
 
             this.spamRowViews.push(rowView);
 
-            this.listRoot.add(rowView.getRoot());
+            this.root.add(rowView.getRoot());
         }
 
         for (let index = 0; index < spamChannels.length; index += 1) {
