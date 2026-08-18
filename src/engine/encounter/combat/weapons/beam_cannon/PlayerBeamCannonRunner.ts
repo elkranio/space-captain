@@ -12,6 +12,7 @@ import { BEAM_CANNON_SHOT_OUTCOME, type BeamCannonShotOutcome } from "../../../m
 import { ENCOUNTER_EVENT, type EncounterEvent } from "../../../model/event";
 import { OFFICER_TASK_KIND, type OfficerTaskState } from "../../../model/officer_task";
 import type EncounterStateStore from "../../../state/EncounterStateStore";
+import type OfficerTaskRunner from "../../../officer_tasks/OfficerTaskRunner";
 
 type WeaponsFireBeamCannonTaskState = Extract<
     OfficerTaskState,
@@ -31,7 +32,7 @@ type PlayerBeamCannonRunnerOptions = {
     stateStore: EncounterStateStore;
     emit: (event: EncounterEvent) => void;
 
-    completeOfficerTask: (taskId: string) => void;
+    officerTaskRunner: Pick<OfficerTaskRunner, "complete">;
 
     destroyEnemyActor: (actorId: string) => void;
 };
@@ -99,7 +100,7 @@ export default class PlayerBeamCannonRunner {
 
         // Weapons is released immediately after firing.
         // Cooldown does not occupy the officer.
-        this.options.completeOfficerTask(task.id);
+        this.options.officerTaskRunner.complete(task.id);
 
         if (impact.damage > 0 && impact.remainingHull === 0) {
             this.options.destroyEnemyActor(task.targetActorId);

@@ -7,6 +7,8 @@ import type { EncounterEvent } from "../../model/event";
 import { OFFICER_TASK_KIND } from "../../model/officer_task";
 import { getPlayerCrewProgressMultiplier } from "../../crew_performance/get_crew_progress_multiplier";
 import type EncounterStateStore from "../../state/EncounterStateStore";
+import type OfficerTaskRunner from "../../officer_tasks/OfficerTaskRunner";
+import type CombatRunner from "../CombatRunner";
 import PlayerBeamCannonRunner from "./beam_cannon/PlayerBeamCannonRunner";
 import PlayerMissileLauncherRunner from "./missile/PlayerMissileLauncherRunner";
 import PlayerSpamProjectorRunner from "./spam/PlayerSpamProjectorRunner";
@@ -15,21 +17,13 @@ import PlayerStickyMineDispenserRunner from "./sticky_mine/PlayerStickyMineDispe
 type PlayerWeaponRunnerOptions = {
     stateStore: EncounterStateStore;
 
-    queuePlayerStickyMineAttach: (input: {
-        sourceWeaponId: string;
-        damage: number;
-        fuseDurationMs: number;
-        targetActorId: string;
-        ageMs: number;
-    }) => void;
-
-    queuePlayerMissileLaunch: (input: { sourceWeaponId: string; targetActorId: string }) => void;
+    combatRunner: Pick<CombatRunner, "queuePlayerStickyMineAttach" | "queuePlayerMissileLaunch">;
+    officerTaskRunner: Pick<OfficerTaskRunner, "complete">;
 
     destroyEnemyActor: (actorId: string) => void;
 
     emit: (event: EncounterEvent) => void;
 
-    completeOfficerTask: (taskId: string) => void;
 };
 
 // Owns the shared player-weapon cooldown phase and dispatches each active
@@ -48,33 +42,32 @@ export default class PlayerWeaponRunner {
 
     private readonly stateStore: EncounterStateStore;
 
-    constructor({ stateStore, ...options }: PlayerWeaponRunnerOptions) {
+    constructor({ stateStore, combatRunner, officerTaskRunner, ...options }: PlayerWeaponRunnerOptions) {
         this.stateStore = stateStore;
 
         this.missileLauncherRunner = new PlayerMissileLauncherRunner({
             stateStore: this.stateStore,
-            queuePlayerMissileLaunch: options.queuePlayerMissileLaunch,
-            completeOfficerTask: options.completeOfficerTask,
+            combatRunner,
+            officerTaskRunner,
         });
 
         this.stickyMineDispenserRunner = new PlayerStickyMineDispenserRunner({
             stateStore: this.stateStore,
-            queuePlayerStickyMineAttach: options.queuePlayerStickyMineAttach,
-            completeOfficerTask: options.completeOfficerTask,
+            combatRunner,
+            officerTaskRunner,
         });
 
         this.spamProjectorRunner = new PlayerSpamProjectorRunner({
             stateStore: this.stateStore,
 
             emit: options.emit,
-
-            completeOfficerTask: options.completeOfficerTask,
+            officerTaskRunner,
         });
 
         this.beamCannonRunner = new PlayerBeamCannonRunner({
             stateStore: this.stateStore,
             emit: options.emit,
-            completeOfficerTask: options.completeOfficerTask,
+            officerTaskRunner,
             destroyEnemyActor: options.destroyEnemyActor,
         });
     }

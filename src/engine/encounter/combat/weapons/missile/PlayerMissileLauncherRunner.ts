@@ -9,6 +9,8 @@ import {
 } from "../../../../defs/ship_weapon";
 import { OFFICER_TASK_KIND, type OfficerTaskState } from "../../../model/officer_task";
 import type EncounterStateStore from "../../../state/EncounterStateStore";
+import type OfficerTaskRunner from "../../../officer_tasks/OfficerTaskRunner";
+import type CombatRunner from "../../CombatRunner";
 
 type WeaponsFireMissileTaskState = Extract<
     OfficerTaskState,
@@ -19,9 +21,8 @@ type WeaponsFireMissileTaskState = Extract<
 
 type PlayerMissileLauncherRunnerOptions = {
     stateStore: EncounterStateStore;
-    queuePlayerMissileLaunch: (input: { sourceWeaponId: string; targetActorId: string }) => void;
-
-    completeOfficerTask: (taskId: string) => void;
+    combatRunner: Pick<CombatRunner, "queuePlayerMissileLaunch">;
+    officerTaskRunner: Pick<OfficerTaskRunner, "complete">;
 };
 
 // Owns the active installed player missile-launcher lifecycle:
@@ -90,14 +91,14 @@ export default class PlayerMissileLauncherRunner {
 
         finishShipWeaponAction(launcher, definition.cooldownDurationMs);
 
-        this.options.queuePlayerMissileLaunch({
+        this.options.combatRunner.queuePlayerMissileLaunch({
             sourceWeaponId: launcher.id,
             targetActorId: task.targetActorId,
         });
 
         // Weapons is released immediately after launch.
         // Cooldown and projectile do not occupy the officer.
-        this.options.completeOfficerTask(task.id);
+        this.options.officerTaskRunner.complete(task.id);
     }
 
     private findTaskLauncher(task: WeaponsFireMissileTaskState): MissileLauncherState | undefined {

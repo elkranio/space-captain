@@ -14,6 +14,7 @@ import { PLAYER_SPAM_CHANNEL_OUTCOME } from "../../../model/combat";
 import { ENCOUNTER_EVENT, type EncounterEvent } from "../../../model/event";
 import { OFFICER_TASK_KIND, type OfficerTaskState } from "../../../model/officer_task";
 import type EncounterStateStore from "../../../state/EncounterStateStore";
+import type OfficerTaskRunner from "../../../officer_tasks/OfficerTaskRunner";
 
 type ScienceFireSpamTaskState = Extract<
     OfficerTaskState,
@@ -27,7 +28,7 @@ type PlayerSpamProjectorRunnerOptions = {
 
     emit: (event: EncounterEvent) => void;
 
-    completeOfficerTask: (taskId: string) => void;
+    officerTaskRunner: Pick<OfficerTaskRunner, "complete">;
 };
 
 // Owns the player spam-projector lifecycle.
@@ -81,7 +82,7 @@ export default class PlayerSpamProjectorRunner {
             outcome: PLAYER_SPAM_CHANNEL_OUTCOME.PURGED,
         });
 
-        this.options.completeOfficerTask(task.id);
+        this.options.officerTaskRunner.complete(task.id);
 
         return true;
     }
@@ -169,7 +170,7 @@ export default class PlayerSpamProjectorRunner {
             outcome: PLAYER_SPAM_CHANNEL_OUTCOME.EXPIRED,
         });
 
-        this.options.completeOfficerTask(task.id);
+        this.options.officerTaskRunner.complete(task.id);
     }
 
     private findTaskProjector(task: ScienceFireSpamTaskState): SpamProjectorState | undefined {

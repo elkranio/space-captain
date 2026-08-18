@@ -10,6 +10,8 @@ import {
 } from "../../../../defs/ship_weapon";
 import { OFFICER_TASK_KIND, type OfficerTaskState } from "../../../model/officer_task";
 import type EncounterStateStore from "../../../state/EncounterStateStore";
+import type OfficerTaskRunner from "../../../officer_tasks/OfficerTaskRunner";
+import type CombatRunner from "../../CombatRunner";
 
 type WeaponsFireStickyMinesTaskState = Extract<
     OfficerTaskState,
@@ -20,15 +22,8 @@ type WeaponsFireStickyMinesTaskState = Extract<
 
 type PlayerStickyMineDispenserRunnerOptions = {
     stateStore: EncounterStateStore;
-    queuePlayerStickyMineAttach: (input: {
-        sourceWeaponId: string;
-        damage: number;
-        fuseDurationMs: number;
-        targetActorId: string;
-        ageMs: number;
-    }) => void;
-
-    completeOfficerTask: (taskId: string) => void;
+    combatRunner: Pick<CombatRunner, "queuePlayerStickyMineAttach">;
+    officerTaskRunner: Pick<OfficerTaskRunner, "complete">;
 };
 
 // Owns the active installed player sticky-mine dispenser lifecycle:
@@ -83,7 +78,7 @@ export default class PlayerStickyMineDispenserRunner {
 
         finishShipWeaponAction(dispenser, definition.cooldownDurationMs);
 
-        this.options.completeOfficerTask(task.id);
+        this.options.officerTaskRunner.complete(task.id);
     }
 
     private launchMine(
@@ -115,7 +110,7 @@ export default class PlayerStickyMineDispenserRunner {
             commitShipWeaponCooldown(dispenser, definition.cooldownDurationMs);
         }
 
-        this.options.queuePlayerStickyMineAttach({
+        this.options.combatRunner.queuePlayerStickyMineAttach({
             sourceWeaponId: dispenser.id,
 
             damage: definition.damage,

@@ -155,20 +155,11 @@ export default class EncounterEngine {
 
         this.playerWeaponRunner = new PlayerWeaponRunner({
             stateStore: this.stateStore,
-
-            queuePlayerStickyMineAttach: (input) => {
-                this.combatRunner.queuePlayerStickyMineAttach(input);
-            },
-
-            queuePlayerMissileLaunch: (input) => {
-                this.combatRunner.queuePlayerMissileLaunch(input);
-            },
+            combatRunner: this.combatRunner,
+            officerTaskRunner: this.officerTaskRunner,
 
             destroyEnemyActor: this.destroyEnemyActor,
-
             emit: this.emit,
-
-            completeOfficerTask: this.officerTaskRunner.complete,
         });
 
         this.combatEngagementRunner = new CombatEngagementRunner(this.stateStore, this.officerTaskRunner, this.emit);
