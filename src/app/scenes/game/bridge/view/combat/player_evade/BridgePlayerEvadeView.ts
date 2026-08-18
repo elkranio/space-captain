@@ -41,9 +41,7 @@ export default class BridgePlayerEvadeView {
 
     private dustDirection: -1 | 1 = 1;
 
-    private returnFadeActive = false;
-
-    private returnFadeElapsedMs = 0;
+    private returnFadeElapsedMs?: number;
 
     private returnStartDustAlpha = 0;
 
@@ -126,9 +124,7 @@ export default class BridgePlayerEvadeView {
     private beginManeuverPresentation(): void {
         this.dustDirection = Math.random() < 0.5 ? -1 : 1;
 
-        this.returnFadeActive = false;
-
-        this.returnFadeElapsedMs = 0;
+        this.returnFadeElapsedMs = undefined;
 
         this.returnStartDustAlpha = 0;
 
@@ -137,21 +133,17 @@ export default class BridgePlayerEvadeView {
     }
 
     private beginDustReturnFade(startAlpha: number): void {
-        this.returnFadeActive = startAlpha > 0;
-
-        this.returnFadeElapsedMs = 0;
+        this.returnFadeElapsedMs = startAlpha > 0 ? 0 : undefined;
 
         this.returnStartDustAlpha = Math.max(0, startAlpha);
 
-        if (!this.returnFadeActive) {
+        if (this.returnFadeElapsedMs === undefined) {
             this.clearDust();
         }
     }
 
     private stopDustImmediately(): void {
-        this.returnFadeActive = false;
-
-        this.returnFadeElapsedMs = 0;
+        this.returnFadeElapsedMs = undefined;
 
         this.returnStartDustAlpha = 0;
 
@@ -201,8 +193,10 @@ export default class BridgePlayerEvadeView {
             return;
         }
 
-        if (this.returnFadeActive) {
-            this.updateDustReturnFade(deltaMs);
+        const returnFadeElapsedMs = this.returnFadeElapsedMs;
+
+        if (returnFadeElapsedMs !== undefined) {
+            this.updateDustReturnFade(deltaMs, returnFadeElapsedMs);
 
             return;
         }
@@ -210,12 +204,14 @@ export default class BridgePlayerEvadeView {
         this.clearDust();
     }
 
-    private updateDustReturnFade(deltaMs: number): void {
+    private updateDustReturnFade(deltaMs: number, returnFadeElapsedMs: number): void {
         const durationMs = BRIDGE_PLAYER_EVADE_PRESENTATION.returnFadeMs;
 
-        this.returnFadeElapsedMs = Math.min(durationMs, this.returnFadeElapsedMs + deltaMs);
+        const elapsedMs = Math.min(durationMs, returnFadeElapsedMs + deltaMs);
 
-        const progress = durationMs <= 0 ? 1 : Phaser.Math.Clamp(this.returnFadeElapsedMs / durationMs, 0, 1);
+        this.returnFadeElapsedMs = elapsedMs;
+
+        const progress = durationMs <= 0 ? 1 : Phaser.Math.Clamp(elapsedMs / durationMs, 0, 1);
 
         const alpha = Phaser.Math.Linear(this.returnStartDustAlpha, 0, easeOutCubic(progress));
 
@@ -227,9 +223,7 @@ export default class BridgePlayerEvadeView {
             return;
         }
 
-        this.returnFadeActive = false;
-
-        this.returnFadeElapsedMs = 0;
+        this.returnFadeElapsedMs = undefined;
 
         this.returnStartDustAlpha = 0;
 
