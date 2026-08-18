@@ -147,13 +147,7 @@ export default class EncounterEngine {
             stateStore: this.stateStore,
             emit: this.emit,
 
-            purgeSpamChannel: (channelId) => {
-                return this.combatRunner.purgeSpamChannel(channelId);
-            },
-
-            clearStickyMine: (mineId) => {
-                return this.combatRunner.clearStickyMine(mineId);
-            },
+            combatRunner: this.combatRunner,
 
             random,
             completeTimedTasksImmediately,

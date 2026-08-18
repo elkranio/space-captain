@@ -6,6 +6,7 @@ import {
     MISSILE_SIGNATURE_ANALYSIS_PROFILE,
     resolveMissileSignatureAnalysis,
 } from "../combat/intel/resolve_missile_signature_analysis";
+import type CombatRunner from "../combat/CombatRunner";
 import { ENCOUNTER_EVENT, OFFICER_TASK_RESULT_KIND, type EncounterEvent, type OfficerTaskResult } from "../model/event";
 import { OFFICER_TASK_KIND, type OfficerTaskState } from "../model/officer_task";
 import EncounterStateStore from "../state/EncounterStateStore";
@@ -76,8 +77,7 @@ type WeaponsDefenseTurretTaskState = Extract<
 export default class OfficerTaskEffects {
     constructor(
         private readonly stateStore: EncounterStateStore,
-        private readonly purgeSpamChannel: (channelId: string) => boolean,
-        private readonly clearStickyMine: (mineId: string) => boolean,
+        private readonly combatRunner: Pick<CombatRunner, "purgeSpamChannel" | "clearStickyMine">,
         private readonly emit: (event: EncounterEvent) => void,
         private readonly random: () => number,
     ) {}
@@ -95,7 +95,7 @@ export default class OfficerTaskEffects {
                 return this.resolveScienceIdentifyThreatTask(task);
 
             case OFFICER_TASK_KIND.SCIENCE_PURGE_SPAM:
-                this.purgeSpamChannel(task.channelId);
+                this.combatRunner.purgeSpamChannel(task.channelId);
                 return undefined;
 
             case OFFICER_TASK_KIND.ENGINEER_REPAIR_DRIVE: {
@@ -284,7 +284,7 @@ export default class OfficerTaskEffects {
     }
 
     private resolveClearStickyMineTask(task: ClearStickyMineTaskState): OfficerTaskResult | undefined {
-        if (!this.clearStickyMine(task.mineId)) {
+        if (!this.combatRunner.clearStickyMine(task.mineId)) {
             return undefined;
         }
 

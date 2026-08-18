@@ -10,6 +10,7 @@ import { OFFICER_TASK_KIND, type OfficerTaskDraft, type OfficerTaskState } from 
 import { getActiveCrewProgressEffects } from "../crew_performance/get_active_crew_progress_effects";
 import { getOfficerCommandDef } from "../commands/officer_command_handlers";
 import { getPlayerCrewProgressMultiplier } from "../crew_performance/get_crew_progress_multiplier";
+import type CombatRunner from "../combat/CombatRunner";
 import EncounterStateStore from "../state/EncounterStateStore";
 import { createHelmFlyToTask } from "./create_officer_task_draft";
 import OfficerTaskEffects from "./OfficerTaskEffects";
@@ -18,8 +19,7 @@ type OfficerTaskRunnerOptions = {
     stateStore: EncounterStateStore;
     emit: (event: EncounterEvent) => void;
 
-    purgeSpamChannel: (channelId: string) => boolean;
-    clearStickyMine: (mineId: string) => boolean;
+    combatRunner: Pick<CombatRunner, "purgeSpamChannel" | "clearStickyMine">;
 
     random: () => number;
 
@@ -62,8 +62,7 @@ export default class OfficerTaskRunner {
         stateStore,
         emit,
 
-        purgeSpamChannel,
-        clearStickyMine,
+        combatRunner,
 
         random,
         completeTimedTasksImmediately = false,
@@ -75,8 +74,7 @@ export default class OfficerTaskRunner {
 
         this.taskEffects = new OfficerTaskEffects(
             this.stateStore,
-            purgeSpamChannel,
-            clearStickyMine,
+            combatRunner,
             this.emit,
             this.random,
         );

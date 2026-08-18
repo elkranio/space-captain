@@ -430,11 +430,13 @@ function createHarness(
 
             emit,
 
-            purgeSpamChannel:
-                () => false,
+            combatRunner: {
+                purgeSpamChannel:
+                    () => false,
 
-            clearStickyMine:
-                () => false,
+                clearStickyMine:
+                    () => false,
+            },
 
             random:
                 () => 0,
