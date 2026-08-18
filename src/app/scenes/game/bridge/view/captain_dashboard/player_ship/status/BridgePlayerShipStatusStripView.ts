@@ -5,6 +5,7 @@ import { CAPTAIN_DASHBOARD_STYLE } from "../../captain_dashboard_style";
 import {
     BRIDGE_EVENT,
     BRIDGE_PLAYER_SYSTEM_ACTION_STATE,
+    type BridgeOfficerCommandSelectedPayload,
     type BridgePlayerShipDashboardUpdatedPayload,
     type BridgePlayerSystemActionState,
 } from "../../../../events/bridge_event";
@@ -57,9 +58,7 @@ export default class BridgePlayerShipStatusStripView {
 
     private readonly powerFill: Phaser.GameObjects.Rectangle;
 
-    private readonly powerBarWidth: number;
-
-    private evadeActionHandler?: () => void;
+    private evadeCommand?: BridgeOfficerCommandSelectedPayload;
 
     constructor(
         private readonly scene: BridgeScene,
@@ -123,7 +122,7 @@ export default class BridgePlayerShipStatusStripView {
 
         this.evadeButton.on("pointerdown", this.handleEvadePointerDown, this);
 
-        this.powerBarWidth = Math.max(1, powerWidth - BAR.sidePadding * 2);
+        const powerBarWidth = Math.max(1, powerWidth - BAR.sidePadding * 2);
 
         const barY = height - BAR.bottomPadding - BAR.height;
 
@@ -132,7 +131,7 @@ export default class BridgePlayerShipStatusStripView {
                 powerX + BAR.sidePadding,
                 barY,
 
-                this.powerBarWidth,
+                powerBarWidth,
                 BAR.height,
 
                 CAPTAIN_DASHBOARD_STYLE.defenseRechargeBar.trackColor,
@@ -146,7 +145,7 @@ export default class BridgePlayerShipStatusStripView {
                 powerX + BAR.sidePadding,
                 barY,
 
-                this.powerBarWidth,
+                powerBarWidth,
                 BAR.height,
 
                 CAPTAIN_DASHBOARD_STYLE.defenseRechargeBar.fillColor,
@@ -193,7 +192,7 @@ export default class BridgePlayerShipStatusStripView {
 
         this.evadeButton.off("pointerdown", this.handleEvadePointerDown, this);
 
-        this.evadeActionHandler = undefined;
+        this.evadeCommand = undefined;
 
         this.root.destroy(true);
     }
@@ -266,28 +265,23 @@ export default class BridgePlayerShipStatusStripView {
     private setEvadeAction(
         state: BridgePlayerSystemActionState,
 
-        command: NonNullable<BridgePlayerShipDashboardUpdatedPayload["status"]>["evadeAction"]["command"],
+        command: BridgeOfficerCommandSelectedPayload | undefined,
     ): void {
         if (state === BRIDGE_PLAYER_SYSTEM_ACTION_STATE.ACTIVE && !command) {
             throw new Error("Active EVADE dashboard action requires command");
         }
 
-        this.evadeActionHandler =
-            state === BRIDGE_PLAYER_SYSTEM_ACTION_STATE.ACTIVE && command
-                ? () => {
-                      this.eventBus.emit(
-                          BRIDGE_EVENT.OFFICER_COMMAND_SELECTED,
-
-                          command,
-                      );
-                  }
-                : undefined;
+        this.evadeCommand = state === BRIDGE_PLAYER_SYSTEM_ACTION_STATE.ACTIVE ? command : undefined;
 
         this.applyEvadeActionVisualState(state);
     }
 
     private handleEvadePointerDown(): void {
-        this.evadeActionHandler?.();
+        if (!this.evadeCommand) {
+            return;
+        }
+
+        this.eventBus.emit(BRIDGE_EVENT.OFFICER_COMMAND_SELECTED, this.evadeCommand);
     }
 
     private applyEvadeActionVisualState(state: BridgePlayerSystemActionState): void {
