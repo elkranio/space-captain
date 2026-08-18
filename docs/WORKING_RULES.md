@@ -1,9 +1,9 @@
 # Space Captain — Working Rules
 
-Last refreshed: 2026-08-16.
+Last refreshed: 2026-08-18.
 
-This file is the canonical source of truth for collaboration, patch delivery,
-temporary-script cleanup, validation, and handoff workflow.
+This file is the canonical source of truth for coding style, collaboration,
+patch delivery, temporary-script cleanup, validation, and handoff workflow.
 
 Permanent process rules belong here. Other project documents should link here
 instead of keeping their own copies of the same workflow.
@@ -35,14 +35,95 @@ A commit SHA recorded in a handoff is historical context unless the task
 explicitly pins work to that SHA. Do not patch from memory or from a stale
 handoff snapshot when current `master` is available.
 
+## Code rules
+
+Default decision: **choose the simplest implementation that satisfies the
+current concrete requirement.**
+
+### Formatting
+
+- Write TypeScript for a practical `printWidth = 120`.
+- Do not wrap short property chains, enum access, arguments, or expressions
+  merely to make code more vertical.
+- Split an expression when named intermediate steps make the logic easier to
+  understand, not because of an imaginary narrow-column limit.
+- Prefer early returns over deep nesting.
+
+### Simplicity
+
+- Prefer dumb, explicit, locally understandable code over clever or indirect
+  code.
+- Ordinary `if`, `switch`, early-return logic and a small amount of obvious
+  repetition are preferred over generic dispatch/framework machinery when the
+  machinery does not solve a concrete problem.
+- Do not build architecture for hypothetical future weapons, mechanics,
+  plug-ins, games, or content. Add an abstraction only after a real requirement
+  makes it useful.
+- Delete obsolete layers/compatibility paths before inventing replacements.
+
+### Types
+
+- Do not create a type merely because TypeScript allows it.
+- Meaningless primitive aliases such as `type SomethingId = string` or
+  `type FooId = number` are not allowed. Use the primitive directly.
+- Avoid alias chains and wrapper types that add no semantics.
+- Keep types that encode real structure or protection: discriminated unions,
+  meaningful state/payload shapes, narrowed variants, result objects and types
+  that prevent real invalid states.
+
+### Ownership and boundaries
+
+- One gameplay fact has one authoritative owner and one clear mutation path.
+- Controllers, snapshots and views must not keep a second mutable copy of
+  gameplay truth.
+- Engine owns gameplay rules. App/controller code may adapt safe engine truth
+  for presentation. Views present it and do not decide hit/miss, command
+  legality, cooldowns, officer availability or other gameplay outcomes.
+- Keep Phaser/app types out of `src/engine/**`.
+- Events represent one-time facts; snapshots/queries represent current state.
+  Do not create competing event and snapshot truth without a concrete reason.
+
+### Dependencies and abstractions
+
+- Keep dependencies local and explicit. Do not pass broad context bags when a
+  small set of direct dependencies is clearer.
+- A helper, class, resolver, manager or service must pay rent: it should remove
+  real repeated complexity, own a real contract, or create a useful boundary.
+  Do not add a layer that merely renames/forwards one obvious call.
+- Split files/classes by responsibility, not by line count. A large coherent
+  file is preferable to several tiny files that make one behavior harder to
+  trace.
+- Do not genericize similar weapon/turret/Evade lifecycles merely for symmetry.
+
+### Comments and tests
+
+- Comments explain non-obvious **why**, invariants or boundary decisions. Do not
+  keep commented-out old implementations or historical narration in normal
+  project code; git is the history.
+- Framework/p34t code is not cleanup territory unless current development
+  requires touching it.
+- Tests protect behavior/contracts, not incidental internal implementation
+  shape.
+- Balance/tuning values should come from content definitions in tests unless the
+  exact numeric value is itself the contract.
+
+### Refactor threshold
+
+Refactor stable code only when there is concrete evidence such as:
+- duplicated truth or mutation paths;
+- unclear ownership;
+- callback/context plumbing that makes behavior hard to trace;
+- hostile signatures;
+- stale compatibility layers;
+- repeated bugs caused by the current structure.
+
+`This could be prettier` and `this file is large` are not sufficient reasons.
+
 ## Scope and implementation
 
 - Keep one working atom narrow.
 - Do not silently fold neighboring or deferred systems into the atom.
 - Prefer the smallest change that preserves existing contracts.
-- Do not add architecture solely to support a tiny permission or behavior
-  change when the existing ownership point already enforces it.
-- Prefer code that is easy to re-enter after a break over clever abstraction.
 - If the current repository state contradicts the handoff, investigate the
   current state instead of forcing the handoff assumption.
 
