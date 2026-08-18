@@ -3,10 +3,11 @@
 import { ENCOUNTER_TEAM } from "../../defs/encounter_team";
 import { OFFICER_ROLE } from "../../defs/officer";
 import { PLAYER_SPACE_NAVIGATION_KIND } from "../../defs/player_location";
+import { COMBAT_TARGET_KIND } from "../model/combat";
 import { ENCOUNTER_EVENT, OFFICER_TASK_OUTCOME, type EncounterEvent, type OfficerTaskResult } from "../model/event";
 import { getOfficerTaskCancellationPolicy } from "../../content/catalogs/officer_tasks";
 import { OFFICER_TASK_KIND, type OfficerTaskDraft, type OfficerTaskState } from "../model/officer_task";
-import { getActiveEnemySpamChannels } from "../combat/queries/get_active_enemy_spam_channels";
+import { getActiveCrewProgressEffects } from "../crew_performance/get_active_crew_progress_effects";
 import { getOfficerCommandDef } from "../commands/officer_command_handlers";
 import { getPlayerCrewProgressMultiplier } from "../crew_performance/get_crew_progress_multiplier";
 import EncounterStateStore from "../state/EncounterStateStore";
@@ -193,7 +194,11 @@ export default class OfficerTaskRunner {
     public cancelTasksWithMissingTargets(): void {
         const state = this.stateStore.getState();
 
-        const activeSpamChannelIds = new Set(getActiveEnemySpamChannels(state).map((channel) => channel.id));
+        const activeSpamChannelIds = new Set(
+            getActiveCrewProgressEffects(state)
+                .filter((effect) => effect.target.kind === COMBAT_TARGET_KIND.PLAYER_SHIP)
+                .map((effect) => effect.id),
+        );
 
         const activeStickyMineIds = new Set(state.combat.stickyMines.map((mine) => mine.id));
 

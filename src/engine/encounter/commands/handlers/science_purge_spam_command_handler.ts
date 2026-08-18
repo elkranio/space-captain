@@ -1,7 +1,8 @@
 // src/engine/encounter/commands/handlers/science_purge_spam_command_handler.ts
 
 import { OFFICER_ROLE } from "../../../defs/officer";
-import { getActiveEnemySpamChannels } from "../../combat/queries/get_active_enemy_spam_channels";
+import { getActiveCrewProgressEffects } from "../../crew_performance/get_active_crew_progress_effects";
+import { COMBAT_TARGET_KIND } from "../../model/combat";
 import { ENCOUNTER_OFFICER_COMMAND_ID, OFFICER_COMMAND_TARGET_KIND, type OfficerCommandDef } from "../../model/command";
 import type { OfficerCommandHandler } from "../../model/officer_command_handler";
 import { createSciencePurgeSpamTask } from "../../officer_tasks/create_officer_task_draft";
@@ -27,19 +28,21 @@ export const sciencePurgeSpamCommandHandler = {
     def: COMMAND_DEF,
 
     getAvailableCommands(state) {
-        return getActiveEnemySpamChannels(state).map((channel) => {
+        return getActiveCrewProgressEffects(state)
+            .filter((effect) => effect.target.kind === COMBAT_TARGET_KIND.PLAYER_SHIP)
+            .map((effect) => {
             return {
                 commandId: COMMAND_ID,
                 label: COMMAND_DEF.label,
 
                 target: {
                     kind: OFFICER_COMMAND_TARGET_KIND.THREAT,
-                    threatId: channel.id,
+                    threatId: effect.id,
                 },
 
                 targetLabel: "SPAM CHANNEL",
-            };
-        });
+                };
+            });
     },
 
     execute(context, input) {
