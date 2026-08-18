@@ -21,7 +21,7 @@ import { getActiveCrewProgressEffects } from "../../crew_performance/get_active_
 type EnemyCrewTaskRunnerOptions = {
     state: EncounterState;
 
-    onShieldDeploymentCompleted?: (actor: ShipEncounterActorState) => void;
+    onShieldDeploymentCompleted: (actor: ShipEncounterActorState) => void;
 
     onStickyMineClearingCompleted: (actor: ShipEncounterActorState, mineId: string) => void;
 
@@ -56,11 +56,7 @@ export default class EnemyCrewTaskRunner {
     }: EnemyCrewTaskRunnerOptions) {
         this.state = state;
 
-        this.onShieldDeploymentCompleted =
-            onShieldDeploymentCompleted ??
-            (() => {
-                throw new Error("Enemy shield deployment callback is missing");
-            });
+        this.onShieldDeploymentCompleted = onShieldDeploymentCompleted;
 
         this.onStickyMineClearingCompleted = onStickyMineClearingCompleted;
 

@@ -206,6 +206,9 @@ function createFixture(
             clearPlayerStickyMine:
                 () => false,
 
+            deployEnemyShield:
+                () => {},
+
             random,
         });
 

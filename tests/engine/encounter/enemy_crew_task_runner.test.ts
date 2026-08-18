@@ -365,6 +365,9 @@ function createRunnerFixture() {
         new EnemyCrewTaskRunner({
             state,
 
+            onShieldDeploymentCompleted:
+                () => {},
+
             onStickyMineClearingCompleted:
                 () => {},
 

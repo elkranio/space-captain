@@ -410,6 +410,9 @@ function createBaseFixture(
             clearPlayerStickyMine:
                 () => false,
 
+            deployEnemyShield:
+                () => {},
+
             random: () => 0,
 });
 

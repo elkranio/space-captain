@@ -19,7 +19,7 @@ type EnemyBehaviorRunnerOptions = {
 
     clearPlayerStickyMine: (mineId: string, targetActorId: string) => boolean;
 
-    deployEnemyShield?: (actor: ShipEncounterActorState) => void;
+    deployEnemyShield: (actor: ShipEncounterActorState) => void;
 
     random?: () => number;
 };
@@ -78,13 +78,7 @@ export default class EnemyBehaviorRunner {
         this.crewTaskRunner = new EnemyCrewTaskRunner({
             state: this.state,
 
-            onShieldDeploymentCompleted: (actor) => {
-                if (!deployEnemyShield) {
-                    throw new Error("Enemy shield deployment callback is missing");
-                }
-
-                deployEnemyShield(actor);
-            },
+            onShieldDeploymentCompleted: deployEnemyShield,
 
             onStickyMineClearingCompleted: (actor, mineId) => {
                 const cleared = clearPlayerStickyMine(mineId, actor.id);
