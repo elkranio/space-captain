@@ -5,8 +5,9 @@ import { PLAYER_SPACE_NAVIGATION_KIND } from "../../../defs/player_location";
 import type { ShipEncounterActorState } from "../../actors/ship/ship_encounter_actor";
 import type { EncounterEvent } from "../../model/event";
 import type { EncounterState } from "../../model/state";
+import { SHIP_CREW_TASK_KIND } from "../../model/ship_crew_task";
 import { getEnemyCaptainDecisionSnapshot } from "../queries/get_enemy_captain_decision_snapshot";
-import EnemyCrewTaskRunner from "./EnemyCrewTaskRunner";
+import EnemyCrewTaskRunner, { type EnemyCrewTaskCompletion } from "./EnemyCrewTaskRunner";
 import EnemyDecisionPolicy from "./EnemyDecisionPolicy";
 import EnemyScienceIntelResolver from "./intel/EnemyScienceIntelResolver";
 import EnemyThreatObserver from "./intel/EnemyThreatObserver";
@@ -47,6 +48,10 @@ type EnemyBehaviorRunnerOptions = {
 export default class EnemyBehaviorRunner {
     private readonly state: EncounterState;
 
+    private readonly clearPlayerStickyMine: EnemyBehaviorRunnerOptions["clearPlayerStickyMine"];
+
+    private readonly deployEnemyShield: EnemyBehaviorRunnerOptions["deployEnemyShield"];
+
     private readonly decisionPolicy: EnemyDecisionPolicy;
 
     private readonly scienceIntelResolver: EnemyScienceIntelResolver;
@@ -67,6 +72,8 @@ export default class EnemyBehaviorRunner {
         random = Math.random,
     }: EnemyBehaviorRunnerOptions) {
         this.state = state;
+        this.clearPlayerStickyMine = clearPlayerStickyMine;
+        this.deployEnemyShield = deployEnemyShield;
         this.random = random;
 
         this.decisionPolicy = new EnemyDecisionPolicy(random);
@@ -77,43 +84,6 @@ export default class EnemyBehaviorRunner {
 
         this.crewTaskRunner = new EnemyCrewTaskRunner({
             state: this.state,
-
-            onShieldDeploymentCompleted: deployEnemyShield,
-
-            onStickyMineClearingCompleted: (actor, mineId) => {
-                const cleared = clearPlayerStickyMine(mineId, actor.id);
-
-                if (!cleared) {
-                    throw new Error(
-                        "Enemy sticky mine " +
-                            "disappeared before " +
-                            "clearing completion: " +
-                            actor.id +
-                            "/" +
-                            mineId,
-                    );
-                }
-            },
-
-            onThreatIdentificationCompleted: (actor, observationId) => {
-                const observation = actor.threatObservations.find((candidate) => {
-                    return candidate.id === observationId;
-                });
-
-                if (!observation) {
-                    throw new Error(
-                        "Enemy threat " +
-                            "observation " +
-                            "disappeared before " +
-                            "report: " +
-                            actor.id +
-                            "/" +
-                            observationId,
-                    );
-                }
-
-                observation.report = this.scienceIntelResolver.resolve(actor, observationId);
-            },
         });
 
         this.workExecutor = new EnemyWorkExecutor({
@@ -126,20 +96,11 @@ export default class EnemyBehaviorRunner {
     public step(deltaMs: number, purgePlayerSpamChannel: (channelId: string, targetActorId: string) => boolean): void {
         this.threatObserver.synchronize();
 
-        this.crewTaskRunner.advance(deltaMs, (actor, channelId) => {
-            const purged = purgePlayerSpamChannel(channelId, actor.id);
+        const crewTaskCompletions = this.crewTaskRunner.advance(deltaMs);
 
-            if (!purged) {
-                throw new Error(
-                    "Player spam channel " +
-                        "disappeared before " +
-                        "enemy purge completion: " +
-                        actor.id +
-                        "/" +
-                        channelId,
-                );
-            }
-        });
+        for (const completion of crewTaskCompletions) {
+            this.handleCrewTaskCompletion(completion, purgePlayerSpamChannel);
+        }
 
         const navigation = this.state.navigation;
 
@@ -172,6 +133,74 @@ export default class EnemyBehaviorRunner {
 
     public synchronizeTasks(): void {
         this.crewTaskRunner.synchronize();
+    }
+
+    private handleCrewTaskCompletion(
+        completion: EnemyCrewTaskCompletion,
+        purgePlayerSpamChannel: (channelId: string, targetActorId: string) => boolean,
+    ): void {
+        const { actor, task } = completion;
+
+        switch (task.kind) {
+            case SHIP_CREW_TASK_KIND.DEPLOY_SHIELD:
+                this.deployEnemyShield(actor);
+                return;
+
+            case SHIP_CREW_TASK_KIND.CLEAR_STICKY_MINE: {
+                const cleared = this.clearPlayerStickyMine(task.mineId, actor.id);
+
+                if (!cleared) {
+                    throw new Error(
+                        "Enemy sticky mine " +
+                            "disappeared before " +
+                            "clearing completion: " +
+                            actor.id +
+                            "/" +
+                            task.mineId,
+                    );
+                }
+
+                return;
+            }
+
+            case SHIP_CREW_TASK_KIND.IDENTIFY_THREAT: {
+                const observation = actor.threatObservations.find((candidate) => {
+                    return candidate.id === task.observationId;
+                });
+
+                if (!observation) {
+                    throw new Error(
+                        "Enemy threat " +
+                            "observation " +
+                            "disappeared before " +
+                            "report: " +
+                            actor.id +
+                            "/" +
+                            task.observationId,
+                    );
+                }
+
+                observation.report = this.scienceIntelResolver.resolve(actor, task.observationId);
+                return;
+            }
+
+            case SHIP_CREW_TASK_KIND.PURGE_SPAM: {
+                const purged = purgePlayerSpamChannel(task.channelId, actor.id);
+
+                if (!purged) {
+                    throw new Error(
+                        "Player spam channel " +
+                            "disappeared before " +
+                            "enemy purge completion: " +
+                            actor.id +
+                            "/" +
+                            task.channelId,
+                    );
+                }
+
+                return;
+            }
+        }
     }
 
     private advanceDecisionTick(actor: ShipEncounterActorState, deltaMs: number): boolean {

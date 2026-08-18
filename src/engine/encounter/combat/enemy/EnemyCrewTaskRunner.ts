@@ -20,12 +20,17 @@ import { getActiveCrewProgressEffects } from "../../crew_performance/get_active_
 
 type EnemyCrewTaskRunnerOptions = {
     state: EncounterState;
+};
 
-    onShieldDeploymentCompleted: (actor: ShipEncounterActorState) => void;
+type CompletedEnemyCrewTaskState =
+    | DeployShieldShipCrewTaskState
+    | ClearStickyMineShipCrewTaskState
+    | IdentifyThreatShipCrewTaskState
+    | PurgeSpamShipCrewTaskState;
 
-    onStickyMineClearingCompleted: (actor: ShipEncounterActorState, mineId: string) => void;
-
-    onThreatIdentificationCompleted: (actor: ShipEncounterActorState, observationId: string) => void;
+export type EnemyCrewTaskCompletion = {
+    actor: ShipEncounterActorState;
+    task: CompletedEnemyCrewTaskState;
 };
 
 // Владеет lifecycle задач абстрактного
@@ -42,25 +47,8 @@ type EnemyCrewTaskRunnerOptions = {
 export default class EnemyCrewTaskRunner {
     private readonly state: EncounterState;
 
-    private readonly onShieldDeploymentCompleted: (actor: ShipEncounterActorState) => void;
-
-    private readonly onStickyMineClearingCompleted: EnemyCrewTaskRunnerOptions["onStickyMineClearingCompleted"];
-
-    private readonly onThreatIdentificationCompleted: EnemyCrewTaskRunnerOptions["onThreatIdentificationCompleted"];
-
-    constructor({
-        state,
-        onShieldDeploymentCompleted,
-        onStickyMineClearingCompleted,
-        onThreatIdentificationCompleted,
-    }: EnemyCrewTaskRunnerOptions) {
+    constructor({ state }: EnemyCrewTaskRunnerOptions) {
         this.state = state;
-
-        this.onShieldDeploymentCompleted = onShieldDeploymentCompleted;
-
-        this.onStickyMineClearingCompleted = onStickyMineClearingCompleted;
-
-        this.onThreatIdentificationCompleted = onThreatIdentificationCompleted;
     }
 
     public isRoleBusy(actor: ShipEncounterActorState, role: OfficerRole): boolean {
@@ -97,13 +85,12 @@ export default class EnemyCrewTaskRunner {
         return task;
     }
 
-    public advance(
-        deltaMs: number,
-        onSpamPurgingCompleted: (actor: ShipEncounterActorState, channelId: string) => void,
-    ): void {
+    public advance(deltaMs: number): EnemyCrewTaskCompletion[] {
         if (deltaMs < 0) {
             throw new Error("Enemy crew task deltaMs " + "cannot be negative: " + deltaMs);
         }
+
+        const completions: EnemyCrewTaskCompletion[] = [];
 
         for (const actor of this.state.actors) {
             if (actor.hull <= 0) {
@@ -111,8 +98,10 @@ export default class EnemyCrewTaskRunner {
                 continue;
             }
 
-            this.advanceActorTasks(actor, deltaMs, onSpamPurgingCompleted);
+            completions.push(...this.advanceActorTasks(actor, deltaMs));
         }
+
+        return completions;
     }
 
     public synchronize(): void {
@@ -126,13 +115,10 @@ export default class EnemyCrewTaskRunner {
         }
     }
 
-    private advanceActorTasks(
-        actor: ShipEncounterActorState,
-        deltaMs: number,
-        onSpamPurgingCompleted: (actor: ShipEncounterActorState, channelId: string) => void,
-    ): void {
+    private advanceActorTasks(actor: ShipEncounterActorState, deltaMs: number): EnemyCrewTaskCompletion[] {
         const progressDeltaMs = deltaMs * getActorCrewProgressMultiplier(this.state, actor.id);
         const taskRoles = Object.keys(actor.crewTasks) as OfficerRole[];
+        const completions: EnemyCrewTaskCompletion[] = [];
 
         for (const role of taskRoles) {
             const task = actor.crewTasks[role];
@@ -156,8 +142,14 @@ export default class EnemyCrewTaskRunner {
                 continue;
             }
 
-            this.advanceTimedTask(actor, role, task, progressDeltaMs, onSpamPurgingCompleted);
+            const completedTask = this.advanceTimedTask(actor, role, task, progressDeltaMs);
+
+            if (completedTask) {
+                completions.push({ actor, task: completedTask });
+            }
         }
+
+        return completions;
     }
 
     private synchronizeActorTasks(actor: ShipEncounterActorState): void {
@@ -216,28 +208,23 @@ export default class EnemyCrewTaskRunner {
         role: OfficerRole,
         task: ShipCrewTaskState,
         deltaMs: number,
-        onSpamPurgingCompleted: (actor: ShipEncounterActorState, channelId: string) => void,
-    ): void {
+    ): CompletedEnemyCrewTaskState | undefined {
         switch (task.kind) {
             case SHIP_CREW_TASK_KIND.DEPLOY_SHIELD:
-                this.advanceDeployShield(actor, role, task, deltaMs);
-                return;
+                return this.advanceDeployShield(actor, role, task, deltaMs);
 
             case SHIP_CREW_TASK_KIND.CLEAR_STICKY_MINE:
-                this.advanceClearStickyMine(actor, role, task, deltaMs);
-                return;
+                return this.advanceClearStickyMine(actor, role, task, deltaMs);
 
             case SHIP_CREW_TASK_KIND.IDENTIFY_THREAT:
-                this.advanceIdentifyThreat(actor, role, task, deltaMs);
-                return;
+                return this.advanceIdentifyThreat(actor, role, task, deltaMs);
 
             case SHIP_CREW_TASK_KIND.PURGE_SPAM:
-                this.advancePurgeSpam(actor, role, task, deltaMs, onSpamPurgingCompleted);
-                return;
+                return this.advancePurgeSpam(actor, role, task, deltaMs);
 
             case SHIP_CREW_TASK_KIND.OPERATE_WEAPON:
             case SHIP_CREW_TASK_KIND.INTERCEPT_MISSILE:
-                return;
+                return undefined;
         }
     }
 
@@ -261,15 +248,15 @@ export default class EnemyCrewTaskRunner {
         role: OfficerRole,
         task: DeployShieldShipCrewTaskState,
         deltaMs: number,
-    ): void {
+    ): DeployShieldShipCrewTaskState | undefined {
         task.elapsedMs = Math.min(task.durationMs, task.elapsedMs + deltaMs);
 
         if (task.elapsedMs < task.durationMs) {
-            return;
+            return undefined;
         }
 
-        this.onShieldDeploymentCompleted(actor);
         this.complete(actor, role);
+        return task;
     }
 
     private synchronizeOperateWeapon(actor: ShipEncounterActorState, role: OfficerRole, weaponId: string): void {
@@ -332,15 +319,15 @@ export default class EnemyCrewTaskRunner {
         role: OfficerRole,
         task: ClearStickyMineShipCrewTaskState,
         deltaMs: number,
-    ): void {
+    ): ClearStickyMineShipCrewTaskState | undefined {
         task.elapsedMs = Math.min(task.durationMs, task.elapsedMs + deltaMs);
 
         if (task.elapsedMs < task.durationMs) {
-            return;
+            return undefined;
         }
 
-        this.onStickyMineClearingCompleted(actor, task.mineId);
         this.complete(actor, role);
+        return task;
     }
 
     private synchronizePurgeSpam(
@@ -367,16 +354,15 @@ export default class EnemyCrewTaskRunner {
         role: OfficerRole,
         task: PurgeSpamShipCrewTaskState,
         deltaMs: number,
-        onSpamPurgingCompleted: (actor: ShipEncounterActorState, channelId: string) => void,
-    ): void {
+    ): PurgeSpamShipCrewTaskState | undefined {
         task.elapsedMs = Math.min(task.durationMs, task.elapsedMs + deltaMs);
 
         if (task.elapsedMs < task.durationMs) {
-            return;
+            return undefined;
         }
 
-        onSpamPurgingCompleted(actor, task.channelId);
         this.complete(actor, role);
+        return task;
     }
 
     private synchronizeIdentifyThreat(
@@ -398,15 +384,15 @@ export default class EnemyCrewTaskRunner {
         role: OfficerRole,
         task: IdentifyThreatShipCrewTaskState,
         deltaMs: number,
-    ): void {
+    ): IdentifyThreatShipCrewTaskState | undefined {
         task.elapsedMs = Math.min(task.durationMs, task.elapsedMs + deltaMs);
 
         if (task.elapsedMs < task.durationMs) {
-            return;
+            return undefined;
         }
 
-        this.onThreatIdentificationCompleted(actor, task.observationId);
         this.complete(actor, role);
+        return task;
     }
 
     private complete(actor: ShipEncounterActorState, role: OfficerRole): ShipCrewTaskState {

@@ -364,15 +364,6 @@ function createRunnerFixture() {
     const runner =
         new EnemyCrewTaskRunner({
             state,
-
-            onShieldDeploymentCompleted:
-                () => {},
-
-            onStickyMineClearingCompleted:
-                () => {},
-
-            onThreatIdentificationCompleted:
-                () => {},
         });
 
     return {
