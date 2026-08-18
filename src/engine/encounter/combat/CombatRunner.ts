@@ -27,8 +27,6 @@ type CombatRunnerOptions = {
 
     random: () => number;
 
-    purgePlayerSpamChannel: (channelId: string, targetActorId: string) => boolean;
-
     destroyEnemyActor: (actorId: string) => void;
 };
 
@@ -75,7 +73,6 @@ export default class CombatRunner {
 
         random,
 
-        purgePlayerSpamChannel,
         destroyEnemyActor,
     }: CombatRunnerOptions) {
         this.stateStore = stateStore;
@@ -150,8 +147,6 @@ export default class CombatRunner {
                 return this.stickyMineRunner.clearPlayerMineFromActor(mineId, targetActorId);
             },
 
-            purgePlayerSpamChannel,
-
             deployEnemyShield: (actor) => {
                 this.enemyShieldRunner.deploy(actor);
             },
@@ -160,7 +155,11 @@ export default class CombatRunner {
         });
     }
 
-    public step(deltaMs: number, interruptRandomOfficerTask: () => void): void {
+    public step(
+        deltaMs: number,
+        interruptRandomOfficerTask: () => void,
+        purgePlayerSpamChannel: (channelId: string, targetActorId: string) => boolean,
+    ): void {
         // Existing shield/emitter time advances before new enemy work.
         // A field deployed later in this step starts at full duration.
         this.enemyShieldRunner.step(deltaMs);
@@ -171,7 +170,7 @@ export default class CombatRunner {
 
         this.resolveExistingCombatObjects(existingCombatObjectIds, deltaMs, interruptRandomOfficerTask);
 
-        this.advanceEnemyBehavior(deltaMs);
+        this.advanceEnemyBehavior(deltaMs, purgePlayerSpamChannel);
         this.advanceEnemyCombatSystems(deltaMs, interruptRandomOfficerTask);
         this.finalizeEnemyCrewTasks();
     }
@@ -212,8 +211,11 @@ export default class CombatRunner {
         );
     }
 
-    private advanceEnemyBehavior(deltaMs: number): void {
-        this.enemyBehaviorRunner.step(deltaMs);
+    private advanceEnemyBehavior(
+        deltaMs: number,
+        purgePlayerSpamChannel: (channelId: string, targetActorId: string) => boolean,
+    ): void {
+        this.enemyBehaviorRunner.step(deltaMs, purgePlayerSpamChannel);
     }
 
     private finalizeEnemyCrewTasks(): void {

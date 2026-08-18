@@ -66,7 +66,7 @@ describe(
                     2500,
                 );
 
-                runner.step(0);
+                runner.step(0, () => false);
 
                 expect(
                     randomCalls,
@@ -115,7 +115,7 @@ describe(
                     2500,
                 );
 
-                runner.step(0);
+                runner.step(0, () => false);
 
                 expect(
                     actor.crewTasks[
@@ -204,9 +204,6 @@ function createFixture(
                 () => {},
 
             clearPlayerStickyMine:
-                () => false,
-
-            purgePlayerSpamChannel:
                 () => false,
 
             random,

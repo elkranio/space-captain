@@ -115,9 +115,6 @@ describe('Combat step order', () => {
 
                 random: () => 0,
 
-                purgePlayerSpamChannel:
-                    () => false,
-
                 destroyEnemyActor:
                     (actorId) => {
                         runner
@@ -142,7 +139,7 @@ describe('Combat step order', () => {
                 targetActor.id,
         });
 
-        runner.step(1, () => {});
+        runner.step(1, () => {}, () => false);
 
         const resolvedEvents =
             events.filter(

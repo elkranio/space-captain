@@ -49,7 +49,7 @@ describe(
                         .decisionTickRemainingMs,
                 ).toBe(0);
 
-                runner.step(0);
+                runner.step(0, () => false);
 
                 expect(
                     actor.crewTasks[
@@ -75,7 +75,7 @@ describe(
                         .decisionTickRemainingMs,
                 ).toBe(1000);
 
-                runner.step(999);
+                runner.step(999, () => false);
 
                 expect(
                     actor.crewTasks[
@@ -88,7 +88,7 @@ describe(
                         .decisionTickRemainingMs,
                 ).toBe(1);
 
-                runner.step(1);
+                runner.step(1, () => false);
 
                 expect(
                     actor.crewTasks[
@@ -121,7 +121,7 @@ describe(
                         () => 0.5,
                     );
 
-                runner.step(10000);
+                runner.step(10000, () => false);
 
                 expect(
                     Object.values(
@@ -159,7 +159,7 @@ describe(
                         () => 0,
                     );
 
-                runner.step(0);
+                runner.step(0, () => false);
 
                 expect(
                     actor.decision
@@ -234,9 +234,6 @@ function createFixture(
                 () => {},
 
             clearPlayerStickyMine:
-                () => false,
-
-            purgePlayerSpamChannel:
                 () => false,
 
             random,

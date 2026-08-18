@@ -25,8 +25,6 @@ type EnemyCrewTaskRunnerOptions = {
 
     onStickyMineClearingCompleted: (actor: ShipEncounterActorState, mineId: string) => void;
 
-    onSpamPurgingCompleted: (actor: ShipEncounterActorState, channelId: string) => void;
-
     onThreatIdentificationCompleted: (actor: ShipEncounterActorState, observationId: string) => void;
 };
 
@@ -50,15 +48,12 @@ export default class EnemyCrewTaskRunner {
 
     private readonly onStickyMineClearingCompleted: EnemyCrewTaskRunnerOptions["onStickyMineClearingCompleted"];
 
-    private readonly onSpamPurgingCompleted: EnemyCrewTaskRunnerOptions["onSpamPurgingCompleted"];
-
     private readonly onThreatIdentificationCompleted: EnemyCrewTaskRunnerOptions["onThreatIdentificationCompleted"];
 
     constructor({
         state,
         onShieldDeploymentCompleted,
         onStickyMineClearingCompleted,
-        onSpamPurgingCompleted,
         onThreatIdentificationCompleted,
     }: EnemyCrewTaskRunnerOptions) {
         this.state = state;
@@ -72,8 +67,6 @@ export default class EnemyCrewTaskRunner {
             });
 
         this.onStickyMineClearingCompleted = onStickyMineClearingCompleted;
-
-        this.onSpamPurgingCompleted = onSpamPurgingCompleted;
 
         this.onThreatIdentificationCompleted = onThreatIdentificationCompleted;
     }
@@ -112,19 +105,28 @@ export default class EnemyCrewTaskRunner {
         return task;
     }
 
-    public advance(deltaMs: number): void {
+    public advance(
+        deltaMs: number,
+        onSpamPurgingCompleted: (actor: ShipEncounterActorState, channelId: string) => void,
+    ): void {
         if (deltaMs < 0) {
             throw new Error("Enemy crew task deltaMs " + "cannot be negative: " + deltaMs);
         }
 
-        this.processTasks(deltaMs, true);
+        this.processTasks(deltaMs, true, onSpamPurgingCompleted);
     }
 
     public synchronize(): void {
-        this.processTasks(0, false);
+        this.processTasks(0, false, () => {
+            throw new Error("Enemy spam purge cannot complete during task synchronization");
+        });
     }
 
-    private processTasks(deltaMs: number, advanceTimedTasks: boolean): void {
+    private processTasks(
+        deltaMs: number,
+        advanceTimedTasks: boolean,
+        onSpamPurgingCompleted: (actor: ShipEncounterActorState, channelId: string) => void,
+    ): void {
         for (const actor of this.state.actors) {
             if (actor.hull <= 0) {
                 this.cancelAll(actor);
@@ -154,7 +156,14 @@ export default class EnemyCrewTaskRunner {
                     continue;
                 }
 
-                this.processTask(actor, role, task, progressDeltaMs, advanceTimedTasks);
+                this.processTask(
+                    actor,
+                    role,
+                    task,
+                    progressDeltaMs,
+                    advanceTimedTasks,
+                    onSpamPurgingCompleted,
+                );
             }
         }
     }
@@ -165,6 +174,7 @@ export default class EnemyCrewTaskRunner {
         task: ShipCrewTaskState,
         deltaMs: number,
         advanceTimedTasks: boolean,
+        onSpamPurgingCompleted: (actor: ShipEncounterActorState, channelId: string) => void,
     ): void {
         switch (task.kind) {
             case SHIP_CREW_TASK_KIND.DEPLOY_SHIELD:
@@ -193,7 +203,14 @@ export default class EnemyCrewTaskRunner {
                 return;
 
             case SHIP_CREW_TASK_KIND.PURGE_SPAM:
-                this.processPurgeSpam(actor, role, task, deltaMs, advanceTimedTasks);
+                this.processPurgeSpam(
+                    actor,
+                    role,
+                    task,
+                    deltaMs,
+                    advanceTimedTasks,
+                    onSpamPurgingCompleted,
+                );
 
                 return;
         }
@@ -317,6 +334,7 @@ export default class EnemyCrewTaskRunner {
         task: PurgeSpamShipCrewTaskState,
         deltaMs: number,
         advanceTimedTasks: boolean,
+        onSpamPurgingCompleted: (actor: ShipEncounterActorState, channelId: string) => void,
     ): void {
         const channel = getActiveCrewProgressEffects(this.state).find((effect) => {
             return (
@@ -347,7 +365,7 @@ export default class EnemyCrewTaskRunner {
             return;
         }
 
-        this.onSpamPurgingCompleted(actor, task.channelId);
+        onSpamPurgingCompleted(actor, task.channelId);
 
         this.complete(actor, role);
     }

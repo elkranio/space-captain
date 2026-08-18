@@ -80,7 +80,7 @@ describe(
                     false,
                 );
 
-                behaviorRunner.step(0);
+                behaviorRunner.step(0, () => false);
 
                 expect(
                     actor.crewTasks[
@@ -107,6 +107,7 @@ describe(
                 behaviorRunner.step(
                     SCIENCE_IDENTIFY_THREAT_DURATION_MS -
                         1,
+                    () => false,
                 );
 
                 expect(
@@ -115,7 +116,7 @@ describe(
                         ?.report,
                 ).toBeUndefined();
 
-                behaviorRunner.step(1);
+                behaviorRunner.step(1, () => false);
 
                 expect(
                     actor.crewTasks[
@@ -150,7 +151,7 @@ describe(
                     behaviorRunner,
                 } = createBeamCannonFixture();
 
-                behaviorRunner.step(0);
+                behaviorRunner.step(0, () => false);
 
                 expect(
                     actor.crewTasks[
@@ -177,14 +178,14 @@ describe(
                     false,
                 );
 
-                behaviorRunner.step(0);
+                behaviorRunner.step(0, () => false);
 
                 state
                     .combat
                     .projectiles
                     .length = 0;
 
-                behaviorRunner.step(1000);
+                behaviorRunner.step(1000, () => false);
 
                 expect(actor.crewTasks)
                     .toEqual({});
@@ -407,9 +408,6 @@ function createBaseFixture(
             emit: () => {},
 
             clearPlayerStickyMine:
-                () => false,
-
-            purgePlayerSpamChannel:
                 () => false,
 
             random: () => 0,

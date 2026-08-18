@@ -19,8 +19,6 @@ type EnemyBehaviorRunnerOptions = {
 
     clearPlayerStickyMine: (mineId: string, targetActorId: string) => boolean;
 
-    purgePlayerSpamChannel: (channelId: string, targetActorId: string) => boolean;
-
     deployEnemyShield?: (actor: ShipEncounterActorState) => void;
 
     random?: () => number;
@@ -65,7 +63,6 @@ export default class EnemyBehaviorRunner {
         state,
         emit,
         clearPlayerStickyMine,
-        purgePlayerSpamChannel,
         deployEnemyShield,
         random = Math.random,
     }: EnemyBehaviorRunnerOptions) {
@@ -104,21 +101,6 @@ export default class EnemyBehaviorRunner {
                 }
             },
 
-            onSpamPurgingCompleted: (actor, channelId) => {
-                const purged = purgePlayerSpamChannel(channelId, actor.id);
-
-                if (!purged) {
-                    throw new Error(
-                        "Player spam channel " +
-                            "disappeared before " +
-                            "enemy purge completion: " +
-                            actor.id +
-                            "/" +
-                            channelId,
-                    );
-                }
-            },
-
             onThreatIdentificationCompleted: (actor, observationId) => {
                 const observation = actor.threatObservations.find((candidate) => {
                     return candidate.id === observationId;
@@ -147,10 +129,26 @@ export default class EnemyBehaviorRunner {
         });
     }
 
-    public step(deltaMs: number): void {
+    public step(
+        deltaMs: number,
+        purgePlayerSpamChannel: (channelId: string, targetActorId: string) => boolean,
+    ): void {
         this.threatObserver.synchronize();
 
-        this.crewTaskRunner.advance(deltaMs);
+        this.crewTaskRunner.advance(deltaMs, (actor, channelId) => {
+            const purged = purgePlayerSpamChannel(channelId, actor.id);
+
+            if (!purged) {
+                throw new Error(
+                    "Player spam channel " +
+                        "disappeared before " +
+                        "enemy purge completion: " +
+                        actor.id +
+                        "/" +
+                        channelId,
+                );
+            }
+        });
 
         const navigation = this.state.navigation;
 
