@@ -13,6 +13,7 @@ import { COMBAT_SOURCE_KIND, COMBAT_TARGET_KIND, type MissileCombatProjectileSta
 import { ENEMY_THREAT_KIND, ENEMY_THREAT_SOURCE_KIND } from "../../model/enemy_threat_observation";
 import { ENCOUNTER_EVENT, type EncounterEvent } from "../../model/event";
 import type { EncounterState } from "../../model/state";
+import type CombatMissileRunner from "../weapons/missile/CombatMissileRunner";
 import { resolveMissileInterception } from "./resolve_missile_interception";
 
 type EnemyDefenseTurretRunnerOptions = {
@@ -22,7 +23,7 @@ type EnemyDefenseTurretRunnerOptions = {
 
     random: () => number;
 
-    interceptPlayerMissile: (projectileId: string, targetActorId: string) => MissileCombatProjectileState;
+    missileRunner: Pick<CombatMissileRunner, "interceptPlayerMissile">;
 };
 
 // Owns the physical lifecycle of one installed enemy defense-turret system.
@@ -129,7 +130,7 @@ export default class EnemyDefenseTurretRunner {
         });
 
         if (outcome === DEFENSE_TURRET_SHOT_OUTCOME.HIT) {
-            this.options.interceptPlayerMissile(projectile.id, actor.id);
+            this.options.missileRunner.interceptPlayerMissile(projectile.id, actor.id);
         }
     }
 

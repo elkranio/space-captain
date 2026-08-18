@@ -96,9 +96,7 @@ export default class CombatRunner {
 
             random,
 
-            interceptPlayerMissile: (projectileId, targetActorId) => {
-                return this.missileRunner.interceptPlayerMissile(projectileId, targetActorId);
-            },
+            missileRunner: this.missileRunner,
         });
 
         this.beamCannonRunner = new CombatBeamCannonRunner({
