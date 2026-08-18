@@ -17,7 +17,6 @@ instead of keeping their own copies of the same workflow.
 - `GAMEPLAY_CONTRACTS.md` — gameplay/domain invariants.
 - `SYSTEM_MAP.md` — ownership and architecture map.
 - `BACKLOG.md` — planned and deferred work.
-- `AI_ASSISTED_ENGINE_SIMPLIFICATION.md` — temporary active engineering audit/handoff; delete or merge it when the slice closes.
 - Art/UI documents — domain-specific visual contracts, not workflow rules.
 
 When a permanent workflow rule changes, update this file rather than copying
@@ -150,49 +149,53 @@ Refactor stable code only when there is concrete evidence such as:
 - If the current repository state contradicts the handoff, investigate the
   current state instead of forcing the handoff assumption.
 
-## Temporary patch delivery
+## Patch delivery
 
-Assistant-generated patchers are disposable local tools.
+For ordinary tracked text/source changes, prefer a standard unified Git patch.
 
-- Prefer guarded `.mjs` patch scripts over large manual patch instructions.
+- Re-fetch current `master` and inspect the exact current source before preparing
+  the patch.
+- Generate the patch with Git from the actual source state. Do not hand-author
+  hunk headers, line counts or approximate surrounding context.
+- Before delivery, validate the generated patch with `git apply --check` against
+  an exact clean copy of the expected source state whenever practical.
+- The normal user flow is:
+
+```bash
+git apply --check <name>.patch
+git apply <name>.patch
+```
+
+- If `git apply --check` fails, inspect the exact reported file/hunk and current
+  repository state. Do not switch to a bespoke installer merely to dodge a bad
+  patch.
+- Keep patches narrow and inspectable. The patch file itself is sufficient; it
+  does not need a ZIP wrapper.
+
+Use a guarded `.mjs` patcher only when the change genuinely needs executable
+migration logic, for example:
+- several intentionally supported source variants;
+- computed/generated content;
+- non-trivial transformation logic;
+- atomic multi-step filesystem work that a plain patch cannot express clearly.
+
+When `.mjs` is justified:
+
 - **Every delivered `.mjs` must be packaged inside a `.zip`. Never provide a
   raw downloadable `.mjs` artifact.**
-- The user runs patch scripts from the repository root.
-- Use an exact expected HEAD guard whenever the atom was prepared against a
-  known clean HEAD.
-- Guard every touched source state. Unknown state must fail loudly instead of
-  guessing.
-- Before writing anything, preflight **all** files touched by the patch and
-  compute their complete target contents.
-- A patch may accept an exact known partial/dirty state left by a predecessor,
-  but only when that state is understood intentionally.
-- When practical, rerunning a patch on its exact target state should be safe.
-- Preserve the existing source EOL style and exactly one EOF newline.
-- Prefer atomic per-file replacement after successful preflight.
-- Do not use broad search-and-replace when a narrower guarded transformation
-  is available.
+- The user runs it from the repository root.
+- Use an exact expected HEAD guard when the atom was prepared against a known
+  clean HEAD.
+- Guard every touched source state and preflight all writes before changing any
+  file.
+- Preserve existing EOL style and exactly one EOF newline.
+- Prefer atomic per-file replacement.
+- Unknown source state must fail loudly instead of guessing.
 
-If a patch fails, leave the failing script on disk for diagnosis. Do not hide
-the failure by deleting evidence or guessing a rollback.
-
-## Replacement patchers and cleanup
-
-When a failed/obsolete patcher is replaced:
-
-- The newest working replacement carries an explicit list of its **known
-  predecessor `.mjs` filenames**.
-- Only after the replacement has applied successfully and its automated
-  validation has passed, it deletes those known predecessor scripts if they
-  still exist.
-- Cleanup must use exact filenames. **Never delete `*.mjs` by wildcard** and
-  never delete unrelated project scripts.
-- Do not delete predecessor ZIP archives as part of script cleanup.
-- A successful temporary patcher may self-delete after successful writes,
-  post-guards, and automated validation.
-- Cleanup errors are reported separately and must not make a successful source
-  patch look like it failed.
-- A future recovery patcher should accept the exact known dirty state left by
-  a partial predecessor whenever that state can be recognized safely.
+If a temporary patcher fails, leave it on disk for diagnosis. Replacement
+patchers may clean up only explicitly named predecessor `.mjs` files after the
+replacement has applied and validated successfully. Never wildcard-delete
+project scripts.
 
 ## Validation
 
@@ -227,7 +230,7 @@ npm run pack:tex
 
 Do not run `npm audit fix` as part of unrelated work.
 
-After the script succeeds:
+After the patch or script succeeds:
 
 - inspect `git diff`;
 - perform any required runtime smoke;

@@ -107,6 +107,65 @@ mechanics. Physical lifecycles remain mechanic-specific; do not force weapon,
 turret, shield or Evade timing into a generic framework merely because they have
 similar phases.
 
+## Encounter cross-system communication
+
+After the 2026-08-18 cognitive-load/callback simplification, the normal
+synchronous dependency graph should remain close to:
+
+```text
+OfficerTaskRunner --------------------> CombatRunner
+
+PlayerWeaponRunner -------------------> CombatRunner
+       |
+       +------------------------------> OfficerTaskRunner
+
+EnemyDefenseTurretRunner ------------> CombatMissileRunner
+
+EnemyBehaviorRunner
+       |
+       +--> EnemyCrewTaskRunner
+              |
+              +--> returns timed completions to its parent
+```
+
+Use direct narrow owner references for stable synchronous operations. Do not
+replace them with one callback per method merely to avoid an import.
+
+The two genuine reverse ownership edges cross one explicit synchronous
+`EncounterInternalEffect` boundary at `EncounterEngine`:
+
+```text
+combat producer
+    -> INTERRUPT_RANDOM_PLAYER_OFFICER_TASK
+    -> EncounterEngine
+    -> OfficerTaskRunner
+
+enemy SPAM purge completion
+    -> PURGE_PLAYER_SPAM_CHANNEL
+    -> EncounterEngine
+    -> PlayerWeaponRunner
+```
+
+This boundary is not the public `EncounterEvent` outbox and is not a queued bus.
+Effects are applied immediately because same-step ordering is gameplay-relevant.
+
+Important ordering contracts:
+
+- `EncounterEngine.step()` keeps officer-task progress before player weapon work,
+  and player weapon work before `CombatRunner`.
+- `CombatRunner` snapshots IDs of already-existing combat objects before
+  integrating pending player missiles/mines; newly launched objects exist in the
+  step but do not consume that step's `deltaMs`.
+- enemy crew completion consequences are applied before the same actor's next
+  captain decision snapshot;
+- enemy destruction is synchronous and may remove the actor plus player combat
+  objects targeting it before later same-step resolution;
+- current Beam/Sticky-Mine damage interruption paths may interrupt a player
+  officer task; incoming missile damage does not currently share that effect.
+
+Local composition callbacks are allowed when they are honest and easy to trace.
+Do not optimize for zero callbacks.
+
 ## Enemy behavior boundary
 
 ```text
