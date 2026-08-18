@@ -8,7 +8,7 @@ import { getOfficerTaskCancellationPolicy } from "../../content/catalogs/officer
 import { OFFICER_TASK_KIND, type OfficerTaskDraft, type OfficerTaskState } from "../model/officer_task";
 import { getActiveEnemySpamChannels } from "../combat/queries/get_active_enemy_spam_channels";
 import { getOfficerCommandDef } from "../commands/officer_command_handlers";
-import CrewPerformanceResolver from "../crew_performance/CrewPerformanceResolver";
+import { getPlayerCrewProgressMultiplier } from "../crew_performance/get_crew_progress_multiplier";
 import EncounterStateStore from "../state/EncounterStateStore";
 import { createHelmFlyToTask } from "./create_officer_task_draft";
 import OfficerTaskEffects from "./OfficerTaskEffects";
@@ -55,8 +55,6 @@ export default class OfficerTaskRunner {
 
     private readonly taskEffects: OfficerTaskEffects;
 
-    private readonly performanceResolver: CrewPerformanceResolver;
-
     private nextTaskId = 1;
 
     constructor({
@@ -81,8 +79,6 @@ export default class OfficerTaskRunner {
             this.emit,
             this.random,
         );
-
-        this.performanceResolver = new CrewPerformanceResolver(this.stateStore.getState());
 
         this.restoreMissingNavigationTask();
     }
@@ -171,7 +167,7 @@ export default class OfficerTaskRunner {
     }
 
     public step(deltaMs: number): void {
-        const progressDeltaMs = deltaMs * this.performanceResolver.getPlayerProgressMultiplier();
+        const progressDeltaMs = deltaMs * getPlayerCrewProgressMultiplier(this.stateStore.getState());
 
         for (const task of this.stateStore.getOfficerTasks()) {
             if (task.durationMs === null) {

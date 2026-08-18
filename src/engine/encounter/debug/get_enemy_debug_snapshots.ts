@@ -18,7 +18,7 @@ import {
 import { OFFICER_TASK_KIND } from "../model/officer_task";
 import type { EncounterState } from "../model/state";
 import { SHIP_CREW_TASK_KIND, type ShipCrewTaskState } from "../model/ship_crew_task";
-import CrewPerformanceResolver from "../crew_performance/CrewPerformanceResolver";
+import { getActorCrewProgressMultiplier } from "../crew_performance/get_crew_progress_multiplier";
 
 const ENEMY_DEBUG_ROLE_ORDER = [
     OFFICER_ROLE.SCIENCE,
@@ -110,7 +110,7 @@ export function getEnemyDebugSnapshots(state: EncounterState): EnemyDebugSnapsho
 }
 
 function createEnemyDebugSnapshot(state: EncounterState, actor: ShipEncounterActorState): EnemyDebugSnapshot {
-    const crewProgressMultiplier = new CrewPerformanceResolver(state).getActorProgressMultiplier(actor.id);
+    const crewProgressMultiplier = getActorCrewProgressMultiplier(state, actor.id);
 
     const threats = createThreatSnapshots(state, actor);
 

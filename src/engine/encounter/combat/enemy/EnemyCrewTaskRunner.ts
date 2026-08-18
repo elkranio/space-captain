@@ -15,7 +15,7 @@ import {
 } from "../../model/ship_crew_task";
 import { ENEMY_THREAT_KIND } from "../../model/enemy_threat_observation";
 import type { EncounterState } from "../../model/state";
-import CrewPerformanceResolver from "../../crew_performance/CrewPerformanceResolver";
+import { getActorCrewProgressMultiplier } from "../../crew_performance/get_crew_progress_multiplier";
 import { getActiveCrewProgressEffects } from "../../crew_performance/get_active_crew_progress_effects";
 
 type EnemyCrewTaskRunnerOptions = {
@@ -42,8 +42,6 @@ type EnemyCrewTaskRunnerOptions = {
 export default class EnemyCrewTaskRunner {
     private readonly state: EncounterState;
 
-    private readonly performanceResolver: CrewPerformanceResolver;
-
     private readonly onShieldDeploymentCompleted: (actor: ShipEncounterActorState) => void;
 
     private readonly onStickyMineClearingCompleted: EnemyCrewTaskRunnerOptions["onStickyMineClearingCompleted"];
@@ -57,8 +55,6 @@ export default class EnemyCrewTaskRunner {
         onThreatIdentificationCompleted,
     }: EnemyCrewTaskRunnerOptions) {
         this.state = state;
-
-        this.performanceResolver = new CrewPerformanceResolver(this.state);
 
         this.onShieldDeploymentCompleted =
             onShieldDeploymentCompleted ??
@@ -139,7 +135,7 @@ export default class EnemyCrewTaskRunner {
         deltaMs: number,
         onSpamPurgingCompleted: (actor: ShipEncounterActorState, channelId: string) => void,
     ): void {
-        const progressDeltaMs = deltaMs * this.performanceResolver.getActorProgressMultiplier(actor.id);
+        const progressDeltaMs = deltaMs * getActorCrewProgressMultiplier(this.state, actor.id);
         const taskRoles = Object.keys(actor.crewTasks) as OfficerRole[];
 
         for (const role of taskRoles) {

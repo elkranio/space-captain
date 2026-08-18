@@ -10,7 +10,7 @@ import EnemyDefenseTurretRunner from "./defense_turret/EnemyDefenseTurretRunner"
 import EnemyShieldRunner from "./defense/EnemyShieldRunner";
 import CombatMissileRunner, { type PlayerMissileLaunchInput } from "./weapons/missile/CombatMissileRunner";
 import CombatRuntimeIdentityFactory from "./CombatRuntimeIdentityFactory";
-import CrewPerformanceResolver from "../crew_performance/CrewPerformanceResolver";
+import { getActorCrewProgressMultiplier } from "../crew_performance/get_crew_progress_multiplier";
 import CombatSpamRunner from "./weapons/spam/CombatSpamRunner";
 import CombatStickyMineRunner, { type PlayerStickyMineAttachInput } from "./weapons/sticky_mine/CombatStickyMineRunner";
 import EnemyBehaviorRunner from "./enemy/EnemyBehaviorRunner";
@@ -51,8 +51,6 @@ export default class CombatRunner {
 
     private readonly missileRunner: CombatMissileRunner;
 
-    private readonly performanceResolver: CrewPerformanceResolver;
-
     private readonly defenseTurretRunner: EnemyDefenseTurretRunner;
 
     private readonly beamCannonRunner: CombatBeamCannonRunner;
@@ -72,8 +70,6 @@ export default class CombatRunner {
         this.state = stateStore.getState();
 
         this.identities = new CombatRuntimeIdentityFactory();
-
-        this.performanceResolver = new CrewPerformanceResolver(this.state);
 
         this.enemyShieldRunner = new EnemyShieldRunner(this.state);
 
@@ -247,7 +243,7 @@ export default class CombatRunner {
                 continue;
             }
 
-            const crewDeltaMs = deltaMs * this.performanceResolver.getActorProgressMultiplier(actor.id);
+            const crewDeltaMs = deltaMs * getActorCrewProgressMultiplier(this.state, actor.id);
 
             if (actor.defenseTurret) {
                 const defenseTurretDeltaMs = doesDefenseTurretPhaseAdvanceWithCrew(actor.defenseTurret.phase)

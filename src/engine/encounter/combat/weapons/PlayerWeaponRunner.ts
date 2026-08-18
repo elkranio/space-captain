@@ -5,7 +5,7 @@ import { OFFICER_ROLE } from "../../../defs/officer";
 import { advanceShipWeaponCooldown, type ShipWeaponDefinition, type ShipWeaponState } from "../../../defs/ship_weapon";
 import type { EncounterEvent } from "../../model/event";
 import { OFFICER_TASK_KIND } from "../../model/officer_task";
-import CrewPerformanceResolver from "../../crew_performance/CrewPerformanceResolver";
+import { getPlayerCrewProgressMultiplier } from "../../crew_performance/get_crew_progress_multiplier";
 import type EncounterStateStore from "../../state/EncounterStateStore";
 import PlayerBeamCannonRunner from "./beam_cannon/PlayerBeamCannonRunner";
 import PlayerMissileLauncherRunner from "./missile/PlayerMissileLauncherRunner";
@@ -48,12 +48,8 @@ export default class PlayerWeaponRunner {
 
     private readonly stateStore: EncounterStateStore;
 
-    private readonly performanceResolver: CrewPerformanceResolver;
-
     constructor({ stateStore, ...options }: PlayerWeaponRunnerOptions) {
         this.stateStore = stateStore;
-
-        this.performanceResolver = new CrewPerformanceResolver(this.stateStore.getState());
 
         this.missileLauncherRunner = new PlayerMissileLauncherRunner({
             stateStore: this.stateStore,
@@ -90,7 +86,7 @@ export default class PlayerWeaponRunner {
     public step(deltaMs: number): void {
         this.advanceCooldowns(deltaMs);
 
-        const crewDeltaMs = deltaMs * this.performanceResolver.getPlayerProgressMultiplier();
+        const crewDeltaMs = deltaMs * getPlayerCrewProgressMultiplier(this.stateStore.getState());
 
         const scienceTask = this.stateStore.getOfficerTask(OFFICER_ROLE.SCIENCE);
 
