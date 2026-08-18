@@ -1,6 +1,6 @@
 // src/app/runtime/SceneRuntime.ts
 
-import type { SceneKey } from '../scenes/scene_key';
+import type { SceneKey } from "../scenes/scene_key";
 
 // Технический runtime для управления Phaser scenes.
 //

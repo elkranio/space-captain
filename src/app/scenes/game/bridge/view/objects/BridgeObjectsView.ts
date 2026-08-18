@@ -1,14 +1,14 @@
 // src/app/scenes/game/bridge/view/objects/BridgeObjectsView.ts
 
-import type BridgeScene from '../../BridgeScene';
+import type BridgeScene from "../../BridgeScene";
 import {
     BRIDGE_EVENT,
     type BridgeEncounterObjectPayload,
     type BridgeEncounterObjectRemovedPayload,
-} from '../../events/bridge_event';
-import type BridgeEventBus from '../../events/BridgeEventBus';
-import BridgeObjectsAnimationSequencer from './animation/BridgeObjectsAnimationSequencer';
-import BridgeObjectSpriteView from './object_sprite/BridgeObjectSpriteView';
+} from "../../events/bridge_event";
+import type BridgeEventBus from "../../events/BridgeEventBus";
+import BridgeObjectsAnimationSequencer from "./animation/BridgeObjectsAnimationSequencer";
+import BridgeObjectSpriteView from "./object_sprite/BridgeObjectSpriteView";
 
 // View encounter objects на bridge viewscreen.
 //
@@ -26,24 +26,18 @@ export default class BridgeObjectsView {
         private readonly scene: BridgeScene,
         private readonly eventBus: BridgeEventBus,
 
-        private readonly applyCameraTurn: (
-            yawDeltaDegrees: number,
-            transientWorldOffsetX: number,
-        ) => void,
+        private readonly applyCameraTurn: (yawDeltaDegrees: number, transientWorldOffsetX: number) => void,
     ) {
         this.root = this.scene.add.container(0, 0);
 
-        this.scene.layers.get('objects').add(this.root);
+        this.scene.layers.get("objects").add(this.root);
 
         this.animationSequencer = new BridgeObjectsAnimationSequencer({
             scene: this.scene,
             eventBus: this.eventBus,
 
             applyCameraTurn: (yawDeltaDegrees, transientWorldOffsetX) => {
-                this.applyCameraTurn(
-                    yawDeltaDegrees,
-                    transientWorldOffsetX,
-                );
+                this.applyCameraTurn(yawDeltaDegrees, transientWorldOffsetX);
             },
 
             getObjectView: (objectId) => {
@@ -64,11 +58,7 @@ export default class BridgeObjectsView {
         this.eventBus.on(BRIDGE_EVENT.ENCOUNTER_OBJECTS_LOADED, this.prepareObjects, this);
         this.eventBus.on(BRIDGE_EVENT.ENCOUNTER_OBJECTS_UPDATED, this.syncObjects, this);
         this.eventBus.on(BRIDGE_EVENT.ENCOUNTER_OBJECT_ADDED, this.addObject, this);
-        this.eventBus.on(
-            BRIDGE_EVENT.ENCOUNTER_OBJECT_REMOVED,
-            this.removeObject,
-            this,
-        );
+        this.eventBus.on(BRIDGE_EVENT.ENCOUNTER_OBJECT_REMOVED, this.removeObject, this);
     }
 
     public destroy(): void {
@@ -77,11 +67,7 @@ export default class BridgeObjectsView {
         this.eventBus.off(BRIDGE_EVENT.ENCOUNTER_OBJECTS_LOADED, this.prepareObjects, this);
         this.eventBus.off(BRIDGE_EVENT.ENCOUNTER_OBJECTS_UPDATED, this.syncObjects, this);
         this.eventBus.off(BRIDGE_EVENT.ENCOUNTER_OBJECT_ADDED, this.addObject, this);
-        this.eventBus.off(
-            BRIDGE_EVENT.ENCOUNTER_OBJECT_REMOVED,
-            this.removeObject,
-            this,
-        );
+        this.eventBus.off(BRIDGE_EVENT.ENCOUNTER_OBJECT_REMOVED, this.removeObject, this);
 
         for (const view of this.objectViews.values()) {
             view.destroy();
@@ -101,32 +87,18 @@ export default class BridgeObjectsView {
         return new Phaser.Math.Vector2(view.getX(), view.getY());
     }
 
-    public getObjectVisualBounds(
-        objectId: string,
-    ): Phaser.Geom.Rectangle | undefined {
-        return this.objectViews
-            .get(
-                objectId,
-            )
-            ?.getVisualBounds();
+    public getObjectVisualBounds(objectId: string): Phaser.Geom.Rectangle | undefined {
+        return this.objectViews.get(objectId)?.getVisualBounds();
     }
 
-    public setObjectPresentationOffsetX(
-        objectId: string,
-        offsetX: number,
-    ): boolean {
-        const view =
-            this.objectViews.get(
-                objectId,
-            );
+    public setObjectPresentationOffsetX(objectId: string, offsetX: number): boolean {
+        const view = this.objectViews.get(objectId);
 
         if (!view) {
             return false;
         }
 
-        view.setPresentationOffsetX(
-            offsetX,
-        );
+        view.setPresentationOffsetX(offsetX);
 
         return true;
     }
@@ -158,27 +130,16 @@ export default class BridgeObjectsView {
         view.prepareForArrival();
     }
 
-    private removeObject(
-        payload:
-            BridgeEncounterObjectRemovedPayload,
-    ): void {
-        const view =
-            this.objectViews.get(
-                payload.objectId,
-            );
+    private removeObject(payload: BridgeEncounterObjectRemovedPayload): void {
+        const view = this.objectViews.get(payload.objectId);
 
         if (!view) {
-            throw new Error(
-                'Bridge object view not found: ' +
-                    payload.objectId,
-            );
+            throw new Error("Bridge object view not found: " + payload.objectId);
         }
 
         view.destroy();
 
-        this.objectViews.delete(
-            payload.objectId,
-        );
+        this.objectViews.delete(payload.objectId);
     }
 
     // Presentation update показывает переданный набор,

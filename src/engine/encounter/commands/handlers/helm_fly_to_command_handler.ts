@@ -1,23 +1,23 @@
 // src/engine/encounter/commands/handlers/helm_fly_to_command_handler.ts
 
-import { OFFICER_ROLE } from '../../../defs/officer';
-import { PLAYER_SPACE_NAVIGATION_KIND } from '../../../defs/player_location';
-import { createHelmFlyToTask } from '../../officer_tasks/create_officer_task_draft';
+import { OFFICER_ROLE } from "../../../defs/officer";
+import { PLAYER_SPACE_NAVIGATION_KIND } from "../../../defs/player_location";
+import { createHelmFlyToTask } from "../../officer_tasks/create_officer_task_draft";
 import {
     ENCOUNTER_ANCHOR_TARGET_SCOPE,
     ENCOUNTER_OFFICER_COMMAND_ID,
     OFFICER_COMMAND_TARGET_KIND,
     type OfficerCommandDef,
-} from '../../model/command';
-import { ENCOUNTER_EVENT } from '../../model/event';
-import type { OfficerCommandHandler } from '../../model/officer_command_handler';
-import { createAnchorTargetedCommand, requireAnchorTargetId } from './command_handler_helpers';
+} from "../../model/command";
+import { ENCOUNTER_EVENT } from "../../model/event";
+import type { OfficerCommandHandler } from "../../model/officer_command_handler";
+import { createAnchorTargetedCommand, requireAnchorTargetId } from "./command_handler_helpers";
 
 const COMMAND_ID = ENCOUNTER_OFFICER_COMMAND_ID.HELM_FLY_TO;
 
 const COMMAND_DEF = {
     role: OFFICER_ROLE.HELM,
-    label: 'FLY TO',
+    label: "FLY TO",
 
     targeting: {
         kind: OFFICER_COMMAND_TARGET_KIND.ANCHOR,
@@ -25,7 +25,6 @@ const COMMAND_DEF = {
     },
 
     requiresOnlineDrive: true,
-
 
     requiresIdleBridge: true,
 } satisfies OfficerCommandDef;

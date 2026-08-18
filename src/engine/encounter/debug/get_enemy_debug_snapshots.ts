@@ -1,54 +1,24 @@
 // src/engine/encounter/debug/get_enemy_debug_snapshots.ts
 
-import {
-    POWER_CORES,
-} from '../../content/catalogs/power_cores';
-import {
-    DEFENSE_TURRETS,
-} from '../../content/catalogs/defense_turrets';
-import {
-    SHIP_WEAPONS,
-} from '../../content/catalogs/ship_weapons';
-import {
-    ENCOUNTER_TEAM,
-} from '../../defs/encounter_team';
-import {
-    OFFICER_ROLE,
-    type OfficerRole,
-} from '../../defs/officer';
-import {
-    DEFENSE_TURRET_PHASE,
-    type DefenseTurretPhase,
-} from '../../defs/defense_turret';
-import {
-    SHIP_WEAPON_KIND,
-    SHIP_WEAPON_PHASE,
-    type ShipWeaponState,
-} from '../../defs/ship_weapon';
-import type {
-    ShipEncounterActorState,
-} from '../actors/ship/ship_encounter_actor';
-import {
-    COMBAT_SOURCE_KIND,
-    COMBAT_TARGET_KIND,
-} from '../model/combat';
+import { POWER_CORES } from "../../content/catalogs/power_cores";
+import { DEFENSE_TURRETS } from "../../content/catalogs/defense_turrets";
+import { SHIP_WEAPONS } from "../../content/catalogs/ship_weapons";
+import { ENCOUNTER_TEAM } from "../../defs/encounter_team";
+import { OFFICER_ROLE, type OfficerRole } from "../../defs/officer";
+import { DEFENSE_TURRET_PHASE, type DefenseTurretPhase } from "../../defs/defense_turret";
+import { SHIP_WEAPON_KIND, SHIP_WEAPON_PHASE, type ShipWeaponState } from "../../defs/ship_weapon";
+import type { ShipEncounterActorState } from "../actors/ship/ship_encounter_actor";
+import { COMBAT_SOURCE_KIND, COMBAT_TARGET_KIND } from "../model/combat";
 import {
     ENEMY_THREAT_KIND,
     ENEMY_THREAT_SOURCE_KIND,
     type EnemyThreatKind,
     type EnemyThreatObservationState,
-} from '../model/enemy_threat_observation';
-import {
-    OFFICER_TASK_KIND,
-} from '../model/officer_task';
-import type {
-    EncounterState,
-} from '../model/state';
-import {
-    SHIP_CREW_TASK_KIND,
-    type ShipCrewTaskState,
-} from '../model/ship_crew_task';
-import CrewPerformanceResolver from '../crew_performance/CrewPerformanceResolver';
+} from "../model/enemy_threat_observation";
+import { OFFICER_TASK_KIND } from "../model/officer_task";
+import type { EncounterState } from "../model/state";
+import { SHIP_CREW_TASK_KIND, type ShipCrewTaskState } from "../model/ship_crew_task";
+import CrewPerformanceResolver from "../crew_performance/CrewPerformanceResolver";
 
 const ENEMY_DEBUG_ROLE_ORDER = [
     OFFICER_ROLE.SCIENCE,
@@ -63,13 +33,11 @@ export type EnemyDebugProgressSnapshot = {
 };
 
 export type EnemyDebugCrewTaskSnapshot = {
-    kind:
-        ShipCrewTaskState['kind'];
+    kind: ShipCrewTaskState["kind"];
 
     label: string;
 
-    progress?:
-        EnemyDebugProgressSnapshot;
+    progress?: EnemyDebugProgressSnapshot;
 
     targetRemainingMs?: number;
 };
@@ -78,16 +46,14 @@ export type EnemyDebugRoleSnapshot = {
     role: OfficerRole;
     present: boolean;
 
-    task?:
-        EnemyDebugCrewTaskSnapshot;
+    task?: EnemyDebugCrewTaskSnapshot;
 };
 
 export type EnemyDebugPowerCoreSnapshot = {
     charges: number;
     capacity: number;
 
-    rechargeProgress?:
-        EnemyDebugProgressSnapshot;
+    rechargeProgress?: EnemyDebugProgressSnapshot;
 };
 
 export type EnemyDebugDefenseTurretSnapshot = {
@@ -95,8 +61,7 @@ export type EnemyDebugDefenseTurretSnapshot = {
 
     targetLabel?: string;
 
-    progress?:
-        EnemyDebugProgressSnapshot;
+    progress?: EnemyDebugProgressSnapshot;
 };
 
 export type EnemyDebugThreatSnapshot = {
@@ -105,9 +70,7 @@ export type EnemyDebugThreatSnapshot = {
     label: string;
     kind: EnemyThreatKind;
 
-    status:
-        'active' |
-        'stale';
+    status: "active" | "stale";
 
     remainingMs?: number;
 
@@ -122,17 +85,13 @@ export type EnemyDebugSnapshot = {
 
     crewProgressMultiplier?: number;
 
-    roles:
-        EnemyDebugRoleSnapshot[];
+    roles: EnemyDebugRoleSnapshot[];
 
-    powerCore?:
-        EnemyDebugPowerCoreSnapshot;
+    powerCore?: EnemyDebugPowerCoreSnapshot;
 
-    defenseTurret?:
-        EnemyDebugDefenseTurretSnapshot;
+    defenseTurret?: EnemyDebugDefenseTurretSnapshot;
 
-    threats:
-        EnemyDebugThreatSnapshot[];
+    threats: EnemyDebugThreatSnapshot[];
 };
 
 // Dev-only detached read model.
@@ -140,55 +99,29 @@ export type EnemyDebugSnapshot = {
 // Separates what enemy Science reported from objective combat truth.
 // App receives it only through EncounterSnapshotReader, so mutable
 // EncounterState never leaks into bridge presentation.
-export function getEnemyDebugSnapshots(
-    state: EncounterState,
-): EnemyDebugSnapshot[] {
+export function getEnemyDebugSnapshots(state: EncounterState): EnemyDebugSnapshot[] {
     return state.actors
         .filter((actor) => {
-            return (
-                actor.team ===
-                    ENCOUNTER_TEAM.ENEMY &&
-                actor.hull > 0
-            );
+            return actor.team === ENCOUNTER_TEAM.ENEMY && actor.hull > 0;
         })
         .map((actor) => {
-            return createEnemyDebugSnapshot(
-                state,
-                actor,
-            );
+            return createEnemyDebugSnapshot(state, actor);
         });
 }
 
-function createEnemyDebugSnapshot(
-    state: EncounterState,
-    actor: ShipEncounterActorState,
-): EnemyDebugSnapshot {
-    const crewProgressMultiplier =
-        new CrewPerformanceResolver(
-            state,
-        ).getActorProgressMultiplier(
-            actor.id,
-        );
+function createEnemyDebugSnapshot(state: EncounterState, actor: ShipEncounterActorState): EnemyDebugSnapshot {
+    const crewProgressMultiplier = new CrewPerformanceResolver(state).getActorProgressMultiplier(actor.id);
 
-    const threats =
-        createThreatSnapshots(
-            state,
-            actor,
-        );
+    const threats = createThreatSnapshots(state, actor);
 
-    const threatByObservationId =
-        new Map(
-            threats.map((threat) => {
-                return [
-                    threat.id,
-                    threat,
-                ] as const;
-            }),
-        );
+    const threatByObservationId = new Map(
+        threats.map((threat) => {
+            return [threat.id, threat] as const;
+        }),
+    );
 
     return {
-        actorId:
-            actor.id,
+        actorId: actor.id,
 
         ...(crewProgressMultiplier < 1
             ? {
@@ -196,33 +129,19 @@ function createEnemyDebugSnapshot(
               }
             : {}),
 
-        roles:
-            ENEMY_DEBUG_ROLE_ORDER
-                .map((role) => {
-                    return createRoleSnapshot(
-                        state,
-                        actor,
-                        role,
-                        threatByObservationId,
-                    );
-                }),
+        roles: ENEMY_DEBUG_ROLE_ORDER.map((role) => {
+            return createRoleSnapshot(state, actor, role, threatByObservationId);
+        }),
 
         ...(actor.powerCore
             ? {
-                  powerCore:
-                      createPowerCoreSnapshot(
-                          actor,
-                      ),
+                  powerCore: createPowerCoreSnapshot(actor),
               }
             : {}),
 
         ...(actor.defenseTurret
             ? {
-                  defenseTurret:
-                      createDefenseTurretSnapshot(
-                          state,
-                          actor,
-                      ),
+                  defenseTurret: createDefenseTurretSnapshot(state, actor),
               }
             : {}),
 
@@ -234,32 +153,18 @@ function createRoleSnapshot(
     state: EncounterState,
     actor: ShipEncounterActorState,
     role: OfficerRole,
-    threatByObservationId:
-        ReadonlyMap<
-            string,
-            EnemyDebugThreatSnapshot
-        >,
+    threatByObservationId: ReadonlyMap<string, EnemyDebugThreatSnapshot>,
 ): EnemyDebugRoleSnapshot {
-    const task =
-        actor.crewTasks[role];
+    const task = actor.crewTasks[role];
 
     return {
         role,
 
-        present:
-            actor.crewRoles.includes(
-                role,
-            ),
+        present: actor.crewRoles.includes(role),
 
         ...(task
             ? {
-                  task:
-                      createCrewTaskSnapshot(
-                          state,
-                          actor,
-                          task,
-                          threatByObservationId,
-                      ),
+                  task: createCrewTaskSnapshot(state, actor, task, threatByObservationId),
               }
             : {}),
     };
@@ -269,90 +174,54 @@ function createCrewTaskSnapshot(
     state: EncounterState,
     actor: ShipEncounterActorState,
     task: ShipCrewTaskState,
-    threatByObservationId:
-        ReadonlyMap<
-            string,
-            EnemyDebugThreatSnapshot
-        >,
+    threatByObservationId: ReadonlyMap<string, EnemyDebugThreatSnapshot>,
 ): EnemyDebugCrewTaskSnapshot {
     switch (task.kind) {
-        case SHIP_CREW_TASK_KIND
-            .PURGE_SPAM:
+        case SHIP_CREW_TASK_KIND.PURGE_SPAM:
             return {
-                kind:
-                    task.kind,
+                kind: task.kind,
 
-                label:
-                    'PURGE SPAM',
+                label: "PURGE SPAM",
 
                 progress: {
-                    elapsedMs:
-                        task.elapsedMs,
+                    elapsedMs: task.elapsedMs,
 
-                    durationMs:
-                        task.durationMs,
+                    durationMs: task.durationMs,
                 },
             };
 
-        case SHIP_CREW_TASK_KIND
-            .IDENTIFY_THREAT: {
-            const target =
-                threatByObservationId.get(
-                    task.observationId,
-                );
+        case SHIP_CREW_TASK_KIND.IDENTIFY_THREAT: {
+            const target = threatByObservationId.get(task.observationId);
 
             return {
-                kind:
-                    task.kind,
+                kind: task.kind,
 
-                label:
-                    'IDENTIFY ' +
-                    (target?.label ?? '?'),
+                label: "IDENTIFY " + (target?.label ?? "?"),
 
                 progress: {
-                    elapsedMs:
-                        task.elapsedMs,
+                    elapsedMs: task.elapsedMs,
 
-                    durationMs:
-                        task.durationMs,
+                    durationMs: task.durationMs,
                 },
             };
         }
 
-        case SHIP_CREW_TASK_KIND
-            .INTERCEPT_MISSILE: {
-            const projectile =
-                state.combat
-                    .projectiles
-                    .find((candidate) => {
-                        return (
-                            candidate.id ===
-                            task.projectileId
-                        );
-                    });
+        case SHIP_CREW_TASK_KIND.INTERCEPT_MISSILE: {
+            const projectile = state.combat.projectiles.find((candidate) => {
+                return candidate.id === task.projectileId;
+            });
 
-            const defenseTurret =
-                actor.defenseTurret;
+            const defenseTurret = actor.defenseTurret;
 
             const progress =
-                defenseTurret &&
-                defenseTurret
-                    .targetProjectileId ===
-                    task.projectileId
-                    ? createDefenseTurretProgress(
-                          defenseTurret,
-                      )
+                defenseTurret && defenseTurret.targetProjectileId === task.projectileId
+                    ? createDefenseTurretProgress(defenseTurret)
                     : undefined;
 
             return {
-                kind:
-                    task.kind,
+                kind: task.kind,
 
-                label:
-                    'INTERCEPT ' +
-                    (projectile
-                        ?.designation ??
-                        '?'),
+                label: "INTERCEPT " + (projectile?.designation ?? "?"),
 
                 ...(progress
                     ? {
@@ -362,93 +231,57 @@ function createCrewTaskSnapshot(
             };
         }
 
-
-        case SHIP_CREW_TASK_KIND
-            .CLEAR_STICKY_MINE: {
-            const mine =
-                state.combat
-                    .stickyMines
-                    .find((candidate) => {
-                        return (
-                            candidate.id ===
-                                task.mineId &&
-                            candidate.source.kind ===
-                                COMBAT_SOURCE_KIND
-                                    .PLAYER_SHIP &&
-                            candidate.target.kind ===
-                                COMBAT_TARGET_KIND
-                                    .ACTOR &&
-                            candidate.target.actorId ===
-                                actor.id
-                        );
-                    });
+        case SHIP_CREW_TASK_KIND.CLEAR_STICKY_MINE: {
+            const mine = state.combat.stickyMines.find((candidate) => {
+                return (
+                    candidate.id === task.mineId &&
+                    candidate.source.kind === COMBAT_SOURCE_KIND.PLAYER_SHIP &&
+                    candidate.target.kind === COMBAT_TARGET_KIND.ACTOR &&
+                    candidate.target.actorId === actor.id
+                );
+            });
 
             return {
-                kind:
-                    task.kind,
+                kind: task.kind,
 
-                label:
-                    'CLEAN ' +
-                    task.mineId,
+                label: "CLEAN " + task.mineId,
 
                 progress: {
-                    elapsedMs:
-                        task.elapsedMs,
+                    elapsedMs: task.elapsedMs,
 
-                    durationMs:
-                        task.durationMs,
+                    durationMs: task.durationMs,
                 },
 
                 ...(mine
                     ? {
-                          targetRemainingMs:
-                              mine
-                                  .timeToDetonationMs,
+                          targetRemainingMs: mine.timeToDetonationMs,
                       }
                     : {}),
             };
         }
 
-        case SHIP_CREW_TASK_KIND
-            .DEPLOY_SHIELD:
+        case SHIP_CREW_TASK_KIND.DEPLOY_SHIELD:
             return {
-                kind:
-                    task.kind,
+                kind: task.kind,
 
-                label:
-                    'DEPLOY SHIELD',
+                label: "DEPLOY SHIELD",
 
                 progress: {
-                    elapsedMs:
-                        task.elapsedMs,
+                    elapsedMs: task.elapsedMs,
 
-                    durationMs:
-                        task.durationMs,
+                    durationMs: task.durationMs,
                 },
             };
 
-        case SHIP_CREW_TASK_KIND
-            .OPERATE_WEAPON: {
-            const weapon =
-                actor.weapons.find(
-                    (candidate) => {
-                        return (
-                            candidate.id ===
-                            task.weaponId
-                        );
-                    },
-                );
+        case SHIP_CREW_TASK_KIND.OPERATE_WEAPON: {
+            const weapon = actor.weapons.find((candidate) => {
+                return candidate.id === task.weaponId;
+            });
 
             return {
-                kind:
-                    task.kind,
+                kind: task.kind,
 
-                label:
-                    weapon
-                        ? getWeaponTaskLabel(
-                              weapon,
-                          )
-                        : 'OPERATE MISSING !',
+                label: weapon ? getWeaponTaskLabel(weapon) : "OPERATE MISSING !",
             };
         }
 
@@ -457,90 +290,54 @@ function createCrewTaskSnapshot(
     }
 }
 
-function getWeaponTaskLabel(
-    weapon: ShipWeaponState,
-): string {
+function getWeaponTaskLabel(weapon: ShipWeaponState): string {
     switch (weapon.kind) {
-        case SHIP_WEAPON_KIND
-            .MISSILE_LAUNCHER:
-            return weapon.phase ===
-                SHIP_WEAPON_PHASE
-                    .TARGETING
-                ? 'AIM MISSILE'
-                : 'OPERATE MISSILE';
+        case SHIP_WEAPON_KIND.MISSILE_LAUNCHER:
+            return weapon.phase === SHIP_WEAPON_PHASE.TARGETING ? "AIM MISSILE" : "OPERATE MISSILE";
 
         case SHIP_WEAPON_KIND.BEAM_CANNON:
             switch (weapon.phase) {
-                case SHIP_WEAPON_PHASE
-                    .TARGETING:
-                    return 'AIM BEAM_CANNON';
+                case SHIP_WEAPON_PHASE.TARGETING:
+                    return "AIM BEAM_CANNON";
 
-                case SHIP_WEAPON_PHASE
-                    .CHARGING:
-                    return 'CHARGE BEAM_CANNON';
+                case SHIP_WEAPON_PHASE.CHARGING:
+                    return "CHARGE BEAM_CANNON";
 
                 default:
-                    return 'OPERATE BEAM_CANNON';
+                    return "OPERATE BEAM_CANNON";
             }
 
-        case SHIP_WEAPON_KIND
-            .STICKY_MINE_DISPENSER:
-            return weapon.phase ===
-                SHIP_WEAPON_PHASE
-                    .DISPENSING
-                ? 'DISPENSE MINES'
-                : 'OPERATE MINES';
+        case SHIP_WEAPON_KIND.STICKY_MINE_DISPENSER:
+            return weapon.phase === SHIP_WEAPON_PHASE.DISPENSING ? "DISPENSE MINES" : "OPERATE MINES";
 
-        case SHIP_WEAPON_KIND
-            .SPAM_PROJECTOR:
-            return weapon.phase ===
-                SHIP_WEAPON_PHASE
-                    .CHANNELING
-                ? 'PROJECT SPAM'
-                : 'OPERATE SPAM';
+        case SHIP_WEAPON_KIND.SPAM_PROJECTOR:
+            return weapon.phase === SHIP_WEAPON_PHASE.CHANNELING ? "PROJECT SPAM" : "OPERATE SPAM";
 
         default:
             return assertNever(weapon);
     }
 }
 
-function createPowerCoreSnapshot(
-    actor: ShipEncounterActorState,
-): EnemyDebugPowerCoreSnapshot {
-    const powerCore =
-        actor.powerCore;
+function createPowerCoreSnapshot(actor: ShipEncounterActorState): EnemyDebugPowerCoreSnapshot {
+    const powerCore = actor.powerCore;
 
     if (!powerCore) {
-        throw new Error(
-            'Enemy debug power core is missing: ' +
-                actor.id,
-        );
+        throw new Error("Enemy debug power core is missing: " + actor.id);
     }
 
-    const definition =
-        POWER_CORES[
-            powerCore
-                .powerCoreId
-        ];
+    const definition = POWER_CORES[powerCore.powerCoreId];
 
     return {
-        charges:
-            powerCore.charges,
+        charges: powerCore.charges,
 
-        capacity:
-            definition.capacity,
+        capacity: definition.capacity,
 
-        ...(powerCore.charges <
-                definition.capacity
+        ...(powerCore.charges < definition.capacity
             ? {
                   rechargeProgress: {
-                      elapsedMs:
-                          powerCore
-                              .rechargeElapsedMs,
+                      elapsedMs: powerCore.rechargeElapsedMs,
 
-                      durationMs:
-                          definition
-                              .rechargeDurationMs,
+                      durationMs: definition.rechargeDurationMs,
                   },
               }
             : {}),
@@ -551,46 +348,26 @@ function createDefenseTurretSnapshot(
     state: EncounterState,
     actor: ShipEncounterActorState,
 ): EnemyDebugDefenseTurretSnapshot {
-    const defenseTurret =
-        actor.defenseTurret;
+    const defenseTurret = actor.defenseTurret;
 
     if (!defenseTurret) {
-        throw new Error(
-            'Enemy debug defense turret is missing: ' +
-                actor.id,
-        );
+        throw new Error("Enemy debug defense turret is missing: " + actor.id);
     }
 
-    const projectile =
-        defenseTurret
-            .targetProjectileId
-            ? state.combat
-                  .projectiles
-                  .find((candidate) => {
-                      return (
-                          candidate.id ===
-                          defenseTurret
-                              .targetProjectileId
-                      );
-                  })
-            : undefined;
+    const projectile = defenseTurret.targetProjectileId
+        ? state.combat.projectiles.find((candidate) => {
+              return candidate.id === defenseTurret.targetProjectileId;
+          })
+        : undefined;
 
-    const progress =
-        createDefenseTurretProgress(
-            defenseTurret,
-        );
+    const progress = createDefenseTurretProgress(defenseTurret);
 
     return {
-        phase:
-            defenseTurret.phase,
+        phase: defenseTurret.phase,
 
-        ...(defenseTurret
-            .targetProjectileId
+        ...(defenseTurret.targetProjectileId
             ? {
-                  targetLabel:
-                      projectile
-                          ?.designation ??
-                      '?',
+                  targetLabel: projectile?.designation ?? "?",
               }
             : {}),
 
@@ -603,173 +380,101 @@ function createDefenseTurretSnapshot(
 }
 
 function createDefenseTurretProgress(
-    defenseTurret:
-        NonNullable<
-            ShipEncounterActorState[
-                'defenseTurret'
-            ]
-        >,
-):
-    EnemyDebugProgressSnapshot |
-    undefined {
-    const definition =
-        DEFENSE_TURRETS[
-            defenseTurret.defenseTurretId
-        ];
+    defenseTurret: NonNullable<ShipEncounterActorState["defenseTurret"]>,
+): EnemyDebugProgressSnapshot | undefined {
+    const definition = DEFENSE_TURRETS[defenseTurret.defenseTurretId];
 
     switch (defenseTurret.phase) {
         case DEFENSE_TURRET_PHASE.LOADING:
             return {
-                elapsedMs:
-                    defenseTurret
-                        .phaseElapsedMs,
+                elapsedMs: defenseTurret.phaseElapsedMs,
 
-                durationMs:
-                    definition
-                        .loadDurationMs,
+                durationMs: definition.loadDurationMs,
             };
 
         case DEFENSE_TURRET_PHASE.COOLDOWN:
             return {
-                elapsedMs:
-                    defenseTurret
-                        .phaseElapsedMs,
+                elapsedMs: defenseTurret.phaseElapsedMs,
 
-                durationMs:
-                    definition
-                        .cooldownDurationMs,
+                durationMs: definition.cooldownDurationMs,
             };
 
         case DEFENSE_TURRET_PHASE.READY:
             return undefined;
 
         default:
-            return assertNever(
-                defenseTurret.phase,
-            );
+            return assertNever(defenseTurret.phase);
     }
 }
 
-function createThreatSnapshots(
-    state: EncounterState,
-    actor: ShipEncounterActorState,
-): EnemyDebugThreatSnapshot[] {
+function createThreatSnapshots(state: EncounterState, actor: ShipEncounterActorState): EnemyDebugThreatSnapshot[] {
     const counters = {
         beamCannon: 0,
         mine: 0,
     };
 
-    return actor
-        .threatObservations
-        .map((observation) => {
-            switch (observation.kind) {
-                case ENEMY_THREAT_KIND
-                    .MISSILE:
-                    return createMissileThreatSnapshot(
-                        state,
-                        actor,
-                        observation,
-                    );
+    return actor.threatObservations.map((observation) => {
+        switch (observation.kind) {
+            case ENEMY_THREAT_KIND.MISSILE:
+                return createMissileThreatSnapshot(state, actor, observation);
 
-                case ENEMY_THREAT_KIND.BEAM_CANNON:
-                    counters.beamCannon += 1;
+            case ENEMY_THREAT_KIND.BEAM_CANNON:
+                counters.beamCannon += 1;
 
-                    return createBeamCannonThreatSnapshot(
-                        state,
-                        actor,
-                        observation,
-                        counters.beamCannon,
-                    );
+                return createBeamCannonThreatSnapshot(state, actor, observation, counters.beamCannon);
 
-                case ENEMY_THREAT_KIND
-                    .STICKY_MINE:
-                    counters.mine += 1;
+            case ENEMY_THREAT_KIND.STICKY_MINE:
+                counters.mine += 1;
 
-                    return createMineThreatSnapshot(
-                        state,
-                        actor,
-                        observation,
-                        counters.mine,
-                    );
+                return createMineThreatSnapshot(state, actor, observation, counters.mine);
 
-                default:
-                    return assertNever(
-                        observation.kind,
-                    );
-            }
-        });
+            default:
+                return assertNever(observation.kind);
+        }
+    });
 }
 
 function createMissileThreatSnapshot(
     state: EncounterState,
     actor: ShipEncounterActorState,
-    observation:
-        EnemyThreatObservationState,
+    observation: EnemyThreatObservationState,
 ): EnemyDebugThreatSnapshot {
     const projectileId =
-        observation.source.kind ===
-            ENEMY_THREAT_SOURCE_KIND
-                .COMBAT_PROJECTILE
-            ? observation.source
-                  .projectileId
+        observation.source.kind === ENEMY_THREAT_SOURCE_KIND.COMBAT_PROJECTILE
+            ? observation.source.projectileId
             : undefined;
 
-    const projectile =
-        projectileId
-            ? state.combat
-                  .projectiles
-                  .find((candidate) => {
-                      return (
-                          candidate.id ===
-                              projectileId &&
-                          candidate.source.kind ===
-                              COMBAT_SOURCE_KIND
-                                  .PLAYER_SHIP &&
-                          candidate.target.kind ===
-                              COMBAT_TARGET_KIND
-                                  .ACTOR &&
-                          candidate.target.actorId ===
-                              actor.id
-                      );
-                  })
-            : undefined;
+    const projectile = projectileId
+        ? state.combat.projectiles.find((candidate) => {
+              return (
+                  candidate.id === projectileId &&
+                  candidate.source.kind === COMBAT_SOURCE_KIND.PLAYER_SHIP &&
+                  candidate.target.kind === COMBAT_TARGET_KIND.ACTOR &&
+                  candidate.target.actorId === actor.id
+              );
+          })
+        : undefined;
 
-    const truth =
-        projectile
-            ? projectile.signature
-            : undefined;
+    const truth = projectile ? projectile.signature : undefined;
 
-    const report =
-        observation.report
-            ? observation.report.kind ===
-              ENEMY_THREAT_KIND.MISSILE
-                ? observation.report
-                      .hypothesis
-                : 'invalid'
-            : undefined;
+    const report = observation.report
+        ? observation.report.kind === ENEMY_THREAT_KIND.MISSILE
+            ? observation.report.hypothesis
+            : "invalid"
+        : undefined;
 
     return {
-        id:
-            observation.id,
+        id: observation.id,
 
-        label:
-            projectile
-                ?.designation ??
-            'M?',
+        label: projectile?.designation ?? "M?",
 
-        kind:
-            observation.kind,
+        kind: observation.kind,
 
-        status:
-            projectile
-                ? 'active'
-                : 'stale',
+        status: projectile ? "active" : "stale",
 
         ...(projectile
             ? {
-                  remainingMs:
-                      projectile
-                          .timeToImpactMs,
+                  remainingMs: projectile.timeToImpactMs,
               }
             : {}),
 
@@ -785,112 +490,58 @@ function createMissileThreatSnapshot(
               }
             : {}),
 
-        mismatch:
-            Boolean(
-                report &&
-                truth &&
-                report !== truth,
-            ),
+        mismatch: Boolean(report && truth && report !== truth),
     };
 }
 
 function createBeamCannonThreatSnapshot(
     state: EncounterState,
     actor: ShipEncounterActorState,
-    observation:
-        EnemyThreatObservationState,
+    observation: EnemyThreatObservationState,
     index: number,
 ): EnemyDebugThreatSnapshot {
     const taskId =
-        observation.source.kind ===
-            ENEMY_THREAT_SOURCE_KIND
-                .PLAYER_OFFICER_TASK
-            ? observation.source
-                  .officerTaskId
+        observation.source.kind === ENEMY_THREAT_SOURCE_KIND.PLAYER_OFFICER_TASK
+            ? observation.source.officerTaskId
             : undefined;
 
-    const task =
-        taskId
-            ? Object
-                  .values(
-                      state.officerTasks,
-                  )
-                  .find((candidate) => {
-                      return (
-                          candidate?.id ===
-                          taskId
-                      );
-                  })
-            : undefined;
+    const task = taskId
+        ? Object.values(state.officerTasks).find((candidate) => {
+              return candidate?.id === taskId;
+          })
+        : undefined;
 
     const beamCannonTask =
-        task?.kind ===
-            OFFICER_TASK_KIND
-                .WEAPONS_FIRE_BEAM_CANNON &&
-        task.targetActorId === actor.id
-            ? task
-            : undefined;
+        task?.kind === OFFICER_TASK_KIND.WEAPONS_FIRE_BEAM_CANNON && task.targetActorId === actor.id ? task : undefined;
 
-    const weapon =
-        beamCannonTask
-            ? state.combat
-                  .playerWeapons
-                  .find((candidate) => {
-                      return (
-                          candidate.id ===
-                          beamCannonTask.weaponId
-                      );
-                  })
-            : undefined;
+    const weapon = beamCannonTask
+        ? state.combat.playerWeapons.find((candidate) => {
+              return candidate.id === beamCannonTask.weaponId;
+          })
+        : undefined;
 
-    const definition =
-        weapon
-            ? SHIP_WEAPONS[
-                  weapon.weaponId
-              ]
-            : undefined;
+    const definition = weapon ? SHIP_WEAPONS[weapon.weaponId] : undefined;
 
-    const isActive =
-        Boolean(
-            beamCannonTask &&
-            weapon?.kind ===
-                SHIP_WEAPON_KIND.BEAM_CANNON &&
-            weapon.phase ===
-                SHIP_WEAPON_PHASE
-                    .CHARGING &&
-            definition?.kind ===
-                SHIP_WEAPON_KIND.BEAM_CANNON,
-        );
+    const isActive = Boolean(
+        beamCannonTask &&
+        weapon?.kind === SHIP_WEAPON_KIND.BEAM_CANNON &&
+        weapon.phase === SHIP_WEAPON_PHASE.CHARGING &&
+        definition?.kind === SHIP_WEAPON_KIND.BEAM_CANNON,
+    );
 
     const remainingMs =
-        isActive &&
-        weapon?.kind ===
-            SHIP_WEAPON_KIND.BEAM_CANNON &&
-        definition?.kind ===
-            SHIP_WEAPON_KIND.BEAM_CANNON
-            ? Math.max(
-                  0,
-                  definition
-                      .chargeDurationMs -
-                      weapon
-                          .phaseElapsedMs,
-              )
+        isActive && weapon?.kind === SHIP_WEAPON_KIND.BEAM_CANNON && definition?.kind === SHIP_WEAPON_KIND.BEAM_CANNON
+            ? Math.max(0, definition.chargeDurationMs - weapon.phaseElapsedMs)
             : undefined;
 
     return {
-        id:
-            observation.id,
+        id: observation.id,
 
-        label:
-            'L' + index,
+        label: "L" + index,
 
-        kind:
-            observation.kind,
+        kind: observation.kind,
 
-        status:
-            isActive
-                ? 'active'
-                : 'stale',
+        status: isActive ? "active" : "stale",
 
         ...(remainingMs !== undefined
             ? {
@@ -907,58 +558,35 @@ function createBeamCannonThreatSnapshot(
 function createMineThreatSnapshot(
     state: EncounterState,
     actor: ShipEncounterActorState,
-    observation:
-        EnemyThreatObservationState,
+    observation: EnemyThreatObservationState,
     index: number,
 ): EnemyDebugThreatSnapshot {
     const mineId =
-        observation.source.kind ===
-            ENEMY_THREAT_SOURCE_KIND
-                .STICKY_MINE
-            ? observation.source
-                  .stickyMineId
-            : undefined;
+        observation.source.kind === ENEMY_THREAT_SOURCE_KIND.STICKY_MINE ? observation.source.stickyMineId : undefined;
 
-    const mine =
-        mineId
-            ? state.combat
-                  .stickyMines
-                  .find((candidate) => {
-                      return (
-                          candidate.id ===
-                              mineId &&
-                          candidate.source.kind ===
-                              COMBAT_SOURCE_KIND
-                                  .PLAYER_SHIP &&
-                          candidate.target.kind ===
-                              COMBAT_TARGET_KIND
-                                  .ACTOR &&
-                          candidate.target.actorId ===
-                              actor.id
-                      );
-                  })
-            : undefined;
+    const mine = mineId
+        ? state.combat.stickyMines.find((candidate) => {
+              return (
+                  candidate.id === mineId &&
+                  candidate.source.kind === COMBAT_SOURCE_KIND.PLAYER_SHIP &&
+                  candidate.target.kind === COMBAT_TARGET_KIND.ACTOR &&
+                  candidate.target.actorId === actor.id
+              );
+          })
+        : undefined;
 
     return {
-        id:
-            observation.id,
+        id: observation.id,
 
-        label:
-            'N' + index,
+        label: "N" + index,
 
-        kind:
-            observation.kind,
+        kind: observation.kind,
 
-        status:
-            mine
-                ? 'active'
-                : 'stale',
+        status: mine ? "active" : "stale",
 
         ...(mine
             ? {
-                  remainingMs:
-                      mine
-                          .timeToDetonationMs,
+                  remainingMs: mine.timeToDetonationMs,
               }
             : {}),
 
@@ -966,11 +594,6 @@ function createMineThreatSnapshot(
     };
 }
 
-function assertNever(
-    value: never,
-): never {
-    throw new Error(
-        'Unhandled enemy debug value: ' +
-            String(value),
-    );
+function assertNever(value: never): never {
+    throw new Error("Unhandled enemy debug value: " + String(value));
 }

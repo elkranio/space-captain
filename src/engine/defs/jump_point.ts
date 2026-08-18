@@ -1,7 +1,7 @@
 // src/engine/defs/jump_point.ts
 
 export const JUMP_POINT_OBJECT_SPRITE_ID = {
-    JUMP_POINT_00: 'jump_point_00',
+    JUMP_POINT_00: "jump_point_00",
 } as const;
 
 export type JumpPointObjectSpriteId = (typeof JUMP_POINT_OBJECT_SPRITE_ID)[keyof typeof JUMP_POINT_OBJECT_SPRITE_ID];

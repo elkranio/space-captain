@@ -1,25 +1,17 @@
 // src/engine/encounter/officer_tasks/OfficerTaskRunner.ts
 
-import {
-    ENCOUNTER_TEAM,
-} from '../../defs/encounter_team';
-import { OFFICER_ROLE } from '../../defs/officer';
-import { PLAYER_SPACE_NAVIGATION_KIND } from '../../defs/player_location';
-import { ENCOUNTER_EVENT, OFFICER_TASK_OUTCOME, type EncounterEvent, type OfficerTaskResult } from '../model/event';
-import {
-    getOfficerTaskCancellationPolicy,
-} from '../../content/catalogs/officer_tasks';
-import {
-    OFFICER_TASK_KIND,
-    type OfficerTaskDraft,
-    type OfficerTaskState,
-} from '../model/officer_task';
-import { getActiveEnemySpamChannels } from '../combat/queries/get_active_enemy_spam_channels';
-import { getOfficerCommandDef } from '../commands/officer_command_handlers';
-import CrewPerformanceResolver from '../crew_performance/CrewPerformanceResolver';
-import EncounterStateStore from '../state/EncounterStateStore';
-import { createHelmFlyToTask } from './create_officer_task_draft';
-import OfficerTaskResolver from './OfficerTaskResolver';
+import { ENCOUNTER_TEAM } from "../../defs/encounter_team";
+import { OFFICER_ROLE } from "../../defs/officer";
+import { PLAYER_SPACE_NAVIGATION_KIND } from "../../defs/player_location";
+import { ENCOUNTER_EVENT, OFFICER_TASK_OUTCOME, type EncounterEvent, type OfficerTaskResult } from "../model/event";
+import { getOfficerTaskCancellationPolicy } from "../../content/catalogs/officer_tasks";
+import { OFFICER_TASK_KIND, type OfficerTaskDraft, type OfficerTaskState } from "../model/officer_task";
+import { getActiveEnemySpamChannels } from "../combat/queries/get_active_enemy_spam_channels";
+import { getOfficerCommandDef } from "../commands/officer_command_handlers";
+import CrewPerformanceResolver from "../crew_performance/CrewPerformanceResolver";
+import EncounterStateStore from "../state/EncounterStateStore";
+import { createHelmFlyToTask } from "./create_officer_task_draft";
+import OfficerTaskResolver from "./OfficerTaskResolver";
 
 type OfficerTaskRunnerOptions = {
     stateStore: EncounterStateStore;
@@ -33,21 +25,16 @@ type OfficerTaskRunnerOptions = {
     completeTimedTasksImmediately?: boolean;
 };
 
-type PlayerWeaponTargetTaskState =
-    Extract<
-        OfficerTaskState,
-        {
-            kind:
-                | typeof OFFICER_TASK_KIND
-                      .WEAPONS_FIRE_MISSILE
-                | typeof OFFICER_TASK_KIND
-                      .WEAPONS_FIRE_STICKY_MINES
-                | typeof OFFICER_TASK_KIND
-                      .WEAPONS_FIRE_BEAM_CANNON
-                | typeof OFFICER_TASK_KIND
-                      .SCIENCE_FIRE_SPAM;
-        }
-    >;
+type PlayerWeaponTargetTaskState = Extract<
+    OfficerTaskState,
+    {
+        kind:
+            | typeof OFFICER_TASK_KIND.WEAPONS_FIRE_MISSILE
+            | typeof OFFICER_TASK_KIND.WEAPONS_FIRE_STICKY_MINES
+            | typeof OFFICER_TASK_KIND.WEAPONS_FIRE_BEAM_CANNON
+            | typeof OFFICER_TASK_KIND.SCIENCE_FIRE_SPAM;
+    }
+>;
 
 // Управляет lifecycle officer tasks:
 //
@@ -95,10 +82,7 @@ export default class OfficerTaskRunner {
             this.random,
         );
 
-        this.performanceResolver =
-            new CrewPerformanceResolver(
-                this.stateStore.getState(),
-            );
+        this.performanceResolver = new CrewPerformanceResolver(this.stateStore.getState());
 
         this.restoreMissingNavigationTask();
     }
@@ -146,18 +130,13 @@ export default class OfficerTaskRunner {
 
         this.taskResolver.cancel(task);
 
-        this.finishTask(
-            task,
-            OFFICER_TASK_OUTCOME.CANCELLED,
-        );
+        this.finishTask(task, OFFICER_TASK_OUTCOME.CANCELLED);
     };
 
     public interruptRandomTaskByDamage(): void {
-        const interruptibleTasks = this.stateStore
-            .getOfficerTasks()
-            .filter((task) => {
-                return task.canBeInterruptedByDamage;
-            });
+        const interruptibleTasks = this.stateStore.getOfficerTasks().filter((task) => {
+            return task.canBeInterruptedByDamage;
+        });
 
         if (interruptibleTasks.length === 0) {
             return;
@@ -167,9 +146,7 @@ export default class OfficerTaskRunner {
             const [task] = interruptibleTasks;
 
             if (!task) {
-                throw new Error(
-                    'Cannot interrupt missing officer task',
-                );
+                throw new Error("Cannot interrupt missing officer task");
             }
 
             this.cancel(task.id);
@@ -178,69 +155,43 @@ export default class OfficerTaskRunner {
 
         const randomValue = this.random();
 
-        if (
-            !Number.isFinite(randomValue) ||
-            randomValue < 0 ||
-            randomValue >= 1
-        ) {
-            throw new Error(
-                `Encounter random source must return a value in [0, 1): ${randomValue}`,
-            );
+        if (!Number.isFinite(randomValue) || randomValue < 0 || randomValue >= 1) {
+            throw new Error(`Encounter random source must return a value in [0, 1): ${randomValue}`);
         }
 
-        const taskIndex = Math.floor(
-            randomValue * interruptibleTasks.length,
-        );
+        const taskIndex = Math.floor(randomValue * interruptibleTasks.length);
 
         const task = interruptibleTasks[taskIndex];
 
         if (!task) {
-            throw new Error(
-                `Cannot select random officer task: ` +
-                    `${taskIndex}/${interruptibleTasks.length}`,
-            );
+            throw new Error(`Cannot select random officer task: ` + `${taskIndex}/${interruptibleTasks.length}`);
         }
 
         this.cancel(task.id);
     }
 
     public step(deltaMs: number): void {
-        const progressDeltaMs =
-            deltaMs *
-            this.performanceResolver
-                .getPlayerProgressMultiplier();
+        const progressDeltaMs = deltaMs * this.performanceResolver.getPlayerProgressMultiplier();
 
         for (const task of this.stateStore.getOfficerTasks()) {
             if (task.durationMs === null) {
                 continue;
             }
 
-            this.stateStore.advanceOfficerTask(
-                task.id,
-                progressDeltaMs,
-            );
+            this.stateStore.advanceOfficerTask(task.id, progressDeltaMs);
         }
 
         this.completeFinishedTasks();
     }
 
     public cancelTasksRequiringOnlineDrive(): void {
-        const tasks = this.stateStore
-            .getOfficerTasks()
-            .filter((task) => {
-                return getOfficerCommandDef(
-                    task.sourceCommandId,
-                ).requiresOnlineDrive;
-            });
+        const tasks = this.stateStore.getOfficerTasks().filter((task) => {
+            return getOfficerCommandDef(task.sourceCommandId).requiresOnlineDrive;
+        });
 
         for (const task of tasks) {
-            if (
-                task.kind ===
-                OFFICER_TASK_KIND.HELM_FLY_TO
-            ) {
-                this.stateStore.abortTravel(
-                    task.targetAnchorId,
-                );
+            if (task.kind === OFFICER_TASK_KIND.HELM_FLY_TO) {
+                this.stateStore.abortTravel(task.targetAnchorId);
             }
 
             this.cancel(task.id);
@@ -250,57 +201,29 @@ export default class OfficerTaskRunner {
     public cancelTasksWithMissingTargets(): void {
         const state = this.stateStore.getState();
 
-        const activeSpamChannelIds = new Set(
-            getActiveEnemySpamChannels(state).map((channel) => channel.id),
-        );
+        const activeSpamChannelIds = new Set(getActiveEnemySpamChannels(state).map((channel) => channel.id));
 
-        const activeStickyMineIds = new Set(
-            state.combat.stickyMines.map((mine) => mine.id),
-        );
+        const activeStickyMineIds = new Set(state.combat.stickyMines.map((mine) => mine.id));
 
         const invalidTaskIds = this.stateStore
             .getOfficerTasks()
             .filter((task) => {
-                if (
-                    task.kind ===
-                    OFFICER_TASK_KIND.SCIENCE_PURGE_SPAM
-                ) {
+                if (task.kind === OFFICER_TASK_KIND.SCIENCE_PURGE_SPAM) {
                     return !activeSpamChannelIds.has(task.channelId);
                 }
 
-                if (
-                    task.kind ===
-                    OFFICER_TASK_KIND.CLEAR_STICKY_MINE
-                ) {
+                if (task.kind === OFFICER_TASK_KIND.CLEAR_STICKY_MINE) {
                     return !activeStickyMineIds.has(task.mineId);
                 }
 
-                if (
-                    isPlayerWeaponTargetTask(
-                        task,
-                    )
-                ) {
-                    const targetActor =
-                        state.actors.find(
-                            (actor) => {
-                                return (
-                                    actor.id ===
-                                    task.targetActorId
-                                );
-                            },
-                        );
+                if (isPlayerWeaponTargetTask(task)) {
+                    const targetActor = state.actors.find((actor) => {
+                        return actor.id === task.targetActorId;
+                    });
 
-                    const weapon =
-                        this.stateStore
-                            .findPlayerWeaponById(
-                                task.weaponId,
-                            );
+                    const weapon = this.stateStore.findPlayerWeaponById(task.weaponId);
 
-                    return (
-                        targetActor?.team !==
-                            ENCOUNTER_TEAM.ENEMY ||
-                        !weapon
-                    );
+                    return targetActor?.team !== ENCOUNTER_TEAM.ENEMY || !weapon;
                 }
 
                 return false;
@@ -393,21 +316,15 @@ export default class OfficerTaskRunner {
     // #endregion
 }
 
-function isPlayerWeaponTargetTask(
-    task: OfficerTaskState,
-): task is PlayerWeaponTargetTaskState {
+function isPlayerWeaponTargetTask(task: OfficerTaskState): task is PlayerWeaponTargetTaskState {
     switch (task.kind) {
-        case OFFICER_TASK_KIND
-            .WEAPONS_FIRE_MISSILE:
+        case OFFICER_TASK_KIND.WEAPONS_FIRE_MISSILE:
 
-        case OFFICER_TASK_KIND
-            .WEAPONS_FIRE_STICKY_MINES:
+        case OFFICER_TASK_KIND.WEAPONS_FIRE_STICKY_MINES:
 
-        case OFFICER_TASK_KIND
-            .WEAPONS_FIRE_BEAM_CANNON:
+        case OFFICER_TASK_KIND.WEAPONS_FIRE_BEAM_CANNON:
 
-        case OFFICER_TASK_KIND
-            .SCIENCE_FIRE_SPAM:
+        case OFFICER_TASK_KIND.SCIENCE_FIRE_SPAM:
             return true;
 
         default:

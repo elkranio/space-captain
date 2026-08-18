@@ -18,5 +18,5 @@ declare global {
     }
 
     /** Type used to distinguish SFX and music audio categories. */
-    type AudioType = 'sfx' | 'music';
+    type AudioType = "sfx" | "music";
 }

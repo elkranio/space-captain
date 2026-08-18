@@ -1,6 +1,6 @@
 // src/config/gameConfig.ts
 // import 'phaser/plugins/spine/dist/SpinePlugin'; // old version
-import 'phaser/plugins/spine4.1/dist/SpinePlugin';
+import "phaser/plugins/spine4.1/dist/SpinePlugin";
 
 const spinePlugin = window.SpinePlugin;
 
@@ -12,7 +12,7 @@ const gameConfig: Phaser.Types.Core.GameConfig = {
     height: 720,
 
     // DOM container for possible UI integration
-    parent: 'game-container',
+    parent: "game-container",
 
     // Canvas rendering details
     pixelArt: true,
@@ -32,15 +32,15 @@ const gameConfig: Phaser.Types.Core.GameConfig = {
     plugins: {
         scene: [
             {
-                key: 'SpinePlugin',
+                key: "SpinePlugin",
                 plugin: spinePlugin,
-                mapping: 'spine',
+                mapping: "spine",
             },
         ],
     },
 
     // Canvas background color
-    backgroundColor: '#f9f6ef',
+    backgroundColor: "#f9f6ef",
 
     // Physics config
     // physics: {

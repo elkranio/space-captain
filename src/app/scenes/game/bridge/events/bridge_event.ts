@@ -1,30 +1,23 @@
 // src/app/scenes/game/bridge/events/bridge_event.ts
 
-import type { OfficerRole } from '../../../../../engine/defs/officer';
-import type { Vec3 } from '../../../../../engine/defs/vector';
-import type { SpriteEntry } from '../../../../manifests/types';
-import type { SceneKey } from '../../../scene_key';
-import type {
-    MissileSignatureIntelStatus,
-} from '../../../../../engine/encounter/model/missile_signature_intel';
-import type { DefenseTurretShotOutcome } from '../../../../../engine/defs/defense_turret';
-import type { ShipDriveStatus } from '../../../../../engine/defs/ship_drive';
-import type { ShipEvadePhase } from '../../../../../engine/defs/ship_evade';
-import type {
-    ShipWeaponKind,
-    ShipWeaponPhase,
-} from '../../../../../engine/defs/ship_weapon';
-import type { EncounterOfficerCommandId, OfficerCommandTarget } from '../../../../../engine/encounter/model/command';
+import type { OfficerRole } from "../../../../../engine/defs/officer";
+import type { Vec3 } from "../../../../../engine/defs/vector";
+import type { SpriteEntry } from "../../../../manifests/types";
+import type { SceneKey } from "../../../scene_key";
+import type { MissileSignatureIntelStatus } from "../../../../../engine/encounter/model/missile_signature_intel";
+import type { DefenseTurretShotOutcome } from "../../../../../engine/defs/defense_turret";
+import type { ShipDriveStatus } from "../../../../../engine/defs/ship_drive";
+import type { ShipEvadePhase } from "../../../../../engine/defs/ship_evade";
+import type { ShipWeaponKind, ShipWeaponPhase } from "../../../../../engine/defs/ship_weapon";
+import type { EncounterOfficerCommandId, OfficerCommandTarget } from "../../../../../engine/encounter/model/command";
 import type {
     BeamCannonShotOutcome,
     PlayerMissileOutcome,
     PlayerSpamChannelOutcome,
     PlayerStickyMineOutcome,
     SpamChannelOutcome,
-} from '../../../../../engine/encounter/model/combat';
-import type {
-    PlayerShieldEndOutcome,
-} from '../../../../../engine/encounter/model/event';
+} from "../../../../../engine/encounter/model/combat";
+import type { PlayerShieldEndOutcome } from "../../../../../engine/encounter/model/event";
 
 // Scene-local события bridge scene.
 //
@@ -46,24 +39,23 @@ export const BRIDGE_EVENT = {
     // Игрок кликнул по officer station.
     // View не определяет доступные команды,
     // а просит encounter controller открыть меню.
-    OFFICER_STATION_CLICKED: 'officer_station_clicked',
+    OFFICER_STATION_CLICKED: "officer_station_clicked",
 
     // Открытое officer menu просит encounter controller
     // заново получить доступные команды текущей роли.
-    OFFICER_COMMAND_MENU_REFRESH_REQUESTED: 'officer_command_menu_refresh_requested',
+    OFFICER_COMMAND_MENU_REFRESH_REQUESTED: "officer_command_menu_refresh_requested",
 
     // Игрок выбрал команду в officer context menu.
     // Encounter controller передаст её в engine.
-    OFFICER_COMMAND_SELECTED: 'officer_command_selected',
+    OFFICER_COMMAND_SELECTED: "officer_command_selected",
 
     // Encounter controller отдаёт view
     // актуальный snapshot меню команд офицера.
-    OFFICER_COMMAND_MENU_UPDATED: 'officer_command_menu_updated',
+    OFFICER_COMMAND_MENU_UPDATED: "officer_command_menu_updated",
 
     // Controller просит показать
     // короткий officer bark bubble.
-    OFFICER_BARK_REQUESTED: 'officer_bark_requested',
-
+    OFFICER_BARK_REQUESTED: "officer_bark_requested",
 
     // #endregion
 
@@ -71,61 +63,58 @@ export const BRIDGE_EVENT = {
 
     // View-ready captain dashboard snapshot
     // стабильной player-ship части.
-    PLAYER_SHIP_DASHBOARD_UPDATED:
-        'player_ship_dashboard_updated',
+    PLAYER_SHIP_DASHBOARD_UPDATED: "player_ship_dashboard_updated",
 
     // View-ready contextual combat snapshot
     // для правой части captain dashboard.
-    CAPTAIN_COMBAT_CONTEXT_UPDATED:
-        'captain_combat_context_updated',
+    CAPTAIN_COMBAT_CONTEXT_UPDATED: "captain_combat_context_updated",
 
     // #endregion
 
     // #region Encounter objects and navigation
 
     // Первый snapshot encounter objects.
-    ENCOUNTER_OBJECTS_LOADED: 'encounter_objects_loaded',
+    ENCOUNTER_OBJECTS_LOADED: "encounter_objects_loaded",
 
     // Новый encounter object подготовлен во view,
     // но не становится текущей presentation-группой.
-    ENCOUNTER_OBJECT_ADDED: 'encounter_object_added',
+    ENCOUNTER_OBJECT_ADDED: "encounter_object_added",
 
     // Encounter object permanently removed
     // from both runtime and presentation.
-    ENCOUNTER_OBJECT_REMOVED:
-        'encounter_object_removed',
+    ENCOUNTER_OBJECT_REMOVED: "encounter_object_removed",
 
     // Обновление presentation
     // уже известных encounter objects.
-    ENCOUNTER_OBJECTS_UPDATED: 'encounter_objects_updated',
+    ENCOUNTER_OBJECTS_UPDATED: "encounter_objects_updated",
 
     // Начало arrival animation
     // на bridge viewscreen.
-    ENCOUNTER_ARRIVAL_STARTED: 'encounter_arrival_started',
+    ENCOUNTER_ARRIVAL_STARTED: "encounter_arrival_started",
 
     // Arrival animation завершилась.
     // View сообщает об этом controller-у.
-    ENCOUNTER_ARRIVAL_COMPLETED: 'encounter_arrival_completed',
+    ENCOUNTER_ARRIVAL_COMPLETED: "encounter_arrival_completed",
 
     // Начало визуального перелёта
     // между encounter objects.
-    ENCOUNTER_TRAVEL_STARTED: 'encounter_travel_started',
+    ENCOUNTER_TRAVEL_STARTED: "encounter_travel_started",
 
     // Началась поступательная фаза визуального перелёта.
     // При yaw-перелёте эмитится после завершения поворота.
     // При forward travel — сразу.
-    ENCOUNTER_TRAVEL_FLIGHT_STARTED: 'encounter_travel_flight_started',
+    ENCOUNTER_TRAVEL_FLIGHT_STARTED: "encounter_travel_flight_started",
 
     // Визуальный перелёт завершился.
     // View сообщает об этом controller-у.
-    ENCOUNTER_TRAVEL_COMPLETED: 'encounter_travel_completed',
+    ENCOUNTER_TRAVEL_COMPLETED: "encounter_travel_completed",
 
     // Начался visual flow межнодового прыжка.
-    ENCOUNTER_JUMP_STARTED: 'encounter_jump_started',
+    ENCOUNTER_JUMP_STARTED: "encounter_jump_started",
 
     // Visual flow межнодового прыжка завершён.
     // View возвращает controller-у исходный jump payload.
-    ENCOUNTER_JUMP_COMPLETED: 'encounter_jump_completed',
+    ENCOUNTER_JUMP_COMPLETED: "encounter_jump_completed",
 
     // #endregion
 
@@ -133,11 +122,11 @@ export const BRIDGE_EVENT = {
 
     // Encounter engine разрешил
     // начать визуальный docking flow.
-    DOCKING_STARTED: 'docking_started',
+    DOCKING_STARTED: "docking_started",
 
     // Визуальная docking animation завершилась.
     // View сообщает об этом controller-у.
-    DOCKING_ANIMATION_COMPLETED: 'docking_animation_completed',
+    DOCKING_ANIMATION_COMPLETED: "docking_animation_completed",
 
     // #endregion
 
@@ -145,7 +134,7 @@ export const BRIDGE_EVENT = {
 
     // Запрос перехода
     // в другую Phaser scene.
-    SCENE_TRANSITION_REQUESTED: 'scene_transition_requested',
+    SCENE_TRANSITION_REQUESTED: "scene_transition_requested",
 
     // #endregion
 
@@ -153,134 +142,112 @@ export const BRIDGE_EVENT = {
 
     // Opening disruption pulse отключил
     // main drive player ship.
-    PLAYER_SHIP_DRIVE_DISRUPTED: 'player_ship_drive_disrupted',
+    PLAYER_SHIP_DRIVE_DISRUPTED: "player_ship_drive_disrupted",
 
     // Authoritative player Evade phase snapshot.
-    PLAYER_EVADE_UPDATED:
-        'player_evade_updated',
+    PLAYER_EVADE_UPDATED: "player_evade_updated",
 
     // Authoritative Evade snapshots for enemy ships at the current anchor.
-    ENEMY_EVADES_UPDATED:
-        'enemy_evades_updated',
+    ENEMY_EVADES_UPDATED: "enemy_evades_updated",
 
     // Вражеская missile launcher
     // начала фазу подготовки/наведения.
-    ENEMY_ATTACK_WARNING_TRIGGERED: 'enemy_attack_warning_triggered',
+    ENEMY_ATTACK_WARNING_TRIGGERED: "enemy_attack_warning_triggered",
 
     // Фаза подготовки/наведения завершилась
     // или была отменена.
-    ENEMY_ATTACK_WARNING_CLEARED: 'enemy_attack_warning_cleared',
+    ENEMY_ATTACK_WARNING_CLEARED: "enemy_attack_warning_cleared",
 
     // В encounter появилась новая
     // входящая вражеская ракета.
-    INCOMING_MISSILE_ADDED: 'incoming_missile_added',
+    INCOMING_MISSILE_ADDED: "incoming_missile_added",
 
     // Входящая ракета удалена
     // после impact или другого завершения.
-    INCOMING_MISSILE_REMOVED: 'incoming_missile_removed',
+    INCOMING_MISSILE_REMOVED: "incoming_missile_removed",
 
-    STICKY_MINE_ADDED: 'sticky_mine_added',
+    STICKY_MINE_ADDED: "sticky_mine_added",
 
-    STICKY_MINE_MISSED_PLAYER_SHIP:
-        'sticky_mine_missed_player_ship',
+    STICKY_MINE_MISSED_PLAYER_SHIP: "sticky_mine_missed_player_ship",
 
-    STICKY_MINES_UPDATED: 'sticky_mines_updated',
-    STICKY_MINE_REMOVED: 'sticky_mine_removed',
+    STICKY_MINES_UPDATED: "sticky_mines_updated",
+    STICKY_MINE_REMOVED: "sticky_mine_removed",
 
     // Актуальный временной snapshot
     // всех входящих ракет.
-    INCOMING_MISSILES_UPDATED: 'incoming_missiles_updated',
+    INCOMING_MISSILES_UPDATED: "incoming_missiles_updated",
 
     // Player ship запустил ракету
     // в actor encounter-цель.
-    OUTGOING_MISSILE_ADDED:
-        'outgoing_missile_added',
+    OUTGOING_MISSILE_ADDED: "outgoing_missile_added",
 
     // Актуальный временной snapshot
     // всех ракет игрока в полёте.
-    OUTGOING_MISSILES_UPDATED:
-        'outgoing_missiles_updated',
+    OUTGOING_MISSILES_UPDATED: "outgoing_missiles_updated",
 
     // Ракета игрока завершила lifecycle:
     // target lost, interception или hull hit.
-    OUTGOING_MISSILE_REMOVED:
-        'outgoing_missile_removed',
+    OUTGOING_MISSILE_REMOVED: "outgoing_missile_removed",
 
-    OUTGOING_STICKY_MINE_ADDED:
-        'outgoing_sticky_mine_added',
+    OUTGOING_STICKY_MINE_ADDED: "outgoing_sticky_mine_added",
 
-    OUTGOING_STICKY_MINE_MISSED:
-        'outgoing_sticky_mine_missed',
+    OUTGOING_STICKY_MINE_MISSED: "outgoing_sticky_mine_missed",
 
-    OUTGOING_STICKY_MINES_UPDATED:
-        'outgoing_sticky_mines_updated',
+    OUTGOING_STICKY_MINES_UPDATED: "outgoing_sticky_mines_updated",
 
-    OUTGOING_STICKY_MINE_REMOVED:
-        'outgoing_sticky_mine_removed',
+    OUTGOING_STICKY_MINE_REMOVED: "outgoing_sticky_mine_removed",
 
-    OUTGOING_SPAM_CHANNEL_STARTED:
-        'outgoing_spam_channel_started',
+    OUTGOING_SPAM_CHANNEL_STARTED: "outgoing_spam_channel_started",
 
-    OUTGOING_SPAM_CHANNEL_ENDED:
-        'outgoing_spam_channel_ended',
+    OUTGOING_SPAM_CHANNEL_ENDED: "outgoing_spam_channel_ended",
 
     // Player Defense Turret завершила наведение
     // и разрешил выстрел по входящей угрозе.
-    DEFENSE_TURRET_FIRED: 'defense_turret_fired',
+    DEFENSE_TURRET_FIRED: "defense_turret_fired",
 
     // Enemy defense-turret разрешил выстрел
     // по исходящей ракете игрока.
-    ENEMY_DEFENSE_TURRET_FIRED:
-        'enemy_defense_turret_fired',
+    ENEMY_DEFENSE_TURRET_FIRED: "enemy_defense_turret_fired",
 
     // Вражеский beamCannon начал видимую charging-фазу.
-    BEAM_CANNON_THREAT_ADDED: 'beam_cannon_threat_added',
+    BEAM_CANNON_THREAT_ADDED: "beam_cannon_threat_added",
 
     // BeamCannon charging threat завершилась выстрелом.
-    BEAM_CANNON_THREAT_REMOVED: 'beam_cannon_threat_removed',
+    BEAM_CANNON_THREAT_REMOVED: "beam_cannon_threat_removed",
 
     // Актуальный временной и identification snapshot
     // всех активных beamCannon charging threats.
-    BEAM_CANNON_THREATS_UPDATED: 'beam_cannon_threats_updated',
+    BEAM_CANNON_THREATS_UPDATED: "beam_cannon_threats_updated",
 
     // Вражеский beamCannon разрешил выстрел,
     // который bridge view показывает коротким beam VFX.
-    BEAM_CANNON_BEAM_FIRED: 'beam_cannon_beam_fired',
+    BEAM_CANNON_BEAM_FIRED: "beam_cannon_beam_fired",
 
-    PLAYER_SHIELD_DEPLOYED:
-        'player_shield_deployed',
+    PLAYER_SHIELD_DEPLOYED: "player_shield_deployed",
 
-    PLAYER_SHIELD_UPDATED:
-        'player_shield_updated',
+    PLAYER_SHIELD_UPDATED: "player_shield_updated",
 
-    PLAYER_SHIELD_ENDED:
-        'player_shield_ended',
+    PLAYER_SHIELD_ENDED: "player_shield_ended",
 
-    ENEMY_SHIELDS_UPDATED:
-        'enemy_shields_updated',
+    ENEMY_SHIELDS_UPDATED: "enemy_shields_updated",
 
-    PLAYER_BEAM_CANNON_CHARGING_STARTED:
-        'player_beam_cannon_charging_started',
+    PLAYER_BEAM_CANNON_CHARGING_STARTED: "player_beam_cannon_charging_started",
 
-    PLAYER_BEAM_CANNON_CHARGING_CLEARED:
-        'player_beam_cannon_charging_cleared',
+    PLAYER_BEAM_CANNON_CHARGING_CLEARED: "player_beam_cannon_charging_cleared",
 
-    PLAYER_BEAM_CANNON_FIRED:
-        'player_beam_cannon_fired',
+    PLAYER_BEAM_CANNON_FIRED: "player_beam_cannon_fired",
 
-    ENEMY_SHIP_DESTRUCTION_STARTED:
-        'enemy_ship_destruction_started',
+    ENEMY_SHIP_DESTRUCTION_STARTED: "enemy_ship_destruction_started",
 
-    ENEMY_SHIP_DESTRUCTION_COMPLETED:
-        'enemy_ship_destruction_completed',
+    ENEMY_SHIP_DESTRUCTION_COMPLETED: "enemy_ship_destruction_completed",
 
     // Hostile spam channel начал
     // проецировать popup-помехи на viewscreen.
-    SPAM_CHANNEL_STARTED: 'spam_channel_started',
+    SPAM_CHANNEL_STARTED: "spam_channel_started",
 
     // Hostile spam channel завершился
     // естественно или был очищен игроком.
-    SPAM_CHANNEL_ENDED: 'spam_channel_ended',
+    SPAM_CHANNEL_ENDED: "spam_channel_ended",
 
     // #endregion
 } as const;
@@ -308,7 +275,7 @@ export type BridgeOfficerCommandSelectedPayload = {
 // Один пункт legacy officer context menu.
 // Пока menu существует, он показывает только engine-команды.
 export type BridgeOfficerCommandMenuItemPayload = {
-    kind: 'command';
+    kind: "command";
 
     commandId: EncounterOfficerCommandId;
 
@@ -340,7 +307,6 @@ export type BridgeOfficerBarkRequestedPayload = {
     text: string;
 };
 
-
 // #endregion
 
 // #region Player ship status
@@ -371,16 +337,13 @@ export type BridgePlayerWeaponStatusPayload = {
     };
 };
 
-export type BridgePlayerWeaponsStatusUpdatedPayload =
-    BridgePlayerWeaponStatusPayload[];
+export type BridgePlayerWeaponsStatusUpdatedPayload = BridgePlayerWeaponStatusPayload[];
 
 export const BRIDGE_PLAYER_SYSTEM_ACTION_STATE = {
-    ACTIVE: 'active',
-    DISABLED_SYSTEM: 'disabled_system',
-    DISABLED_OFFICER_BUSY:
-        'disabled_officer_busy',
-    ENGAGED_CURRENT_WORK:
-        'engaged_current_work',
+    ACTIVE: "active",
+    DISABLED_SYSTEM: "disabled_system",
+    DISABLED_OFFICER_BUSY: "disabled_officer_busy",
+    ENGAGED_CURRENT_WORK: "engaged_current_work",
 } as const;
 
 export type BridgePlayerSystemActionState =
@@ -402,13 +365,11 @@ export type BridgePlayerWeaponDashboardPayload = {
     cooldownProgress?: number;
 
     action: {
-        state:
-            BridgePlayerSystemActionState;
+        state: BridgePlayerSystemActionState;
 
         // Exact engine-resolved command for this installed weapon.
         // Present only for ACTIVE state.
-        command?:
-            BridgeOfficerCommandSelectedPayload;
+        command?: BridgeOfficerCommandSelectedPayload;
     };
 };
 
@@ -434,21 +395,18 @@ export type BridgePlayerShipDashboardUpdatedPayload = {
         };
 
         evadeAction: {
-            state:
-                BridgePlayerSystemActionState;
+            state: BridgePlayerSystemActionState;
 
             // Exact engine-resolved HELM_EVADE command.
             // Present only while the action is ACTIVE.
-            command?:
-                BridgeOfficerCommandSelectedPayload;
+            command?: BridgeOfficerCommandSelectedPayload;
         };
     };
 
     // One row per installed weapon. Runtime id keeps duplicate kinds distinct.
     // Optional so focused status-only presentation callers can omit the list;
     // systems view treats omission as an empty full snapshot.
-    weapons?:
-        BridgePlayerWeaponDashboardPayload[];
+    weapons?: BridgePlayerWeaponDashboardPayload[];
 };
 
 // #endregion
@@ -462,15 +420,12 @@ export type BridgeCaptainIncomingMissilePayload = {
     timeToImpactMs: number;
     initialTimeToImpactMs: number;
 
-    identificationStatus:
-        MissileSignatureIntelStatus;
+    identificationStatus: MissileSignatureIntelStatus;
 
     actions: {
-        identifyThreat?:
-            BridgeOfficerCommandSelectedPayload;
+        identifyThreat?: BridgeOfficerCommandSelectedPayload;
 
-        interceptMissile?:
-            BridgeOfficerCommandSelectedPayload;
+        interceptMissile?: BridgeOfficerCommandSelectedPayload;
     };
 };
 
@@ -482,8 +437,7 @@ export type BridgeCaptainIncomingBeamCannonPayload = {
     initialTimeToFireMs: number;
 
     actions: {
-        deployShield?:
-            BridgeOfficerCommandSelectedPayload;
+        deployShield?: BridgeOfficerCommandSelectedPayload;
     };
 };
 
@@ -497,8 +451,7 @@ export type BridgeCaptainStickyMinePayload = {
     isNextClearTarget: boolean;
 
     actions: {
-        engineerClear?:
-            BridgeOfficerCommandSelectedPayload;
+        engineerClear?: BridgeOfficerCommandSelectedPayload;
     };
 };
 
@@ -509,8 +462,7 @@ export type BridgeCaptainSpamChannelPayload = {
     initialDurationMs: number;
 
     actions: {
-        purgeSpam?:
-            BridgeOfficerCommandSelectedPayload;
+        purgeSpam?: BridgeOfficerCommandSelectedPayload;
     };
 };
 
@@ -531,17 +483,13 @@ export type BridgeCaptainCombatContextUpdatedPayload = {
         };
     };
 
-    incomingMissiles:
-        BridgeCaptainIncomingMissilePayload[];
+    incomingMissiles: BridgeCaptainIncomingMissilePayload[];
 
-    incomingBeamCannons:
-        BridgeCaptainIncomingBeamCannonPayload[];
+    incomingBeamCannons: BridgeCaptainIncomingBeamCannonPayload[];
 
-    incomingStickyMines:
-        BridgeCaptainStickyMinePayload[];
+    incomingStickyMines: BridgeCaptainStickyMinePayload[];
 
-    activeSpamChannels:
-        BridgeCaptainSpamChannelPayload[];
+    activeSpamChannels: BridgeCaptainSpamChannelPayload[];
 };
 
 // #endregion
@@ -637,30 +585,24 @@ export type BridgeSceneTransitionRequestedPayload = {
 // #region Combat presentation
 
 export type BridgePlayerEvadeUpdatedPayload = {
-    phase:
-        ShipEvadePhase;
+    phase: ShipEvadePhase;
 
-    phaseElapsedMs:
-        number;
+    phaseElapsedMs: number;
 };
 
 export type BridgeEnemyEvadePayload = {
     actorId: string;
 
-    phase:
-        ShipEvadePhase;
+    phase: ShipEvadePhase;
 
-    phaseElapsedMs:
-        number;
+    phaseElapsedMs: number;
 
     // Read-model timing used only to map authoritative active progress to the
     // accepted render drift. The view never imports drive tuning itself.
-    evadeDurationMs:
-        number;
+    evadeDurationMs: number;
 };
 
-export type BridgeEnemyEvadesUpdatedPayload =
-    BridgeEnemyEvadePayload[];
+export type BridgeEnemyEvadesUpdatedPayload = BridgeEnemyEvadePayload[];
 
 // Новая входящая ракета.
 export type BridgeIncomingMissileAddedPayload = {
@@ -684,8 +626,7 @@ export type BridgeIncomingMissileUpdatePayload = {
 
     timeToImpactMs: number;
 
-    identificationStatus:
-        MissileSignatureIntelStatus;
+    identificationStatus: MissileSignatureIntelStatus;
 };
 
 // Актуальный snapshot всех входящих ракет.
@@ -693,7 +634,6 @@ export type BridgeIncomingMissilesUpdatedPayload = BridgeIncomingMissileUpdatePa
 
 export type BridgeOutgoingMissileAddedPayload = {
     projectileId: string;
-
 
     targetActorId: string;
 
@@ -707,8 +647,7 @@ export type BridgeOutgoingMissileUpdatePayload = {
     initialTimeToImpactMs: number;
 };
 
-export type BridgeOutgoingMissilesUpdatedPayload =
-    BridgeOutgoingMissileUpdatePayload[];
+export type BridgeOutgoingMissilesUpdatedPayload = BridgeOutgoingMissileUpdatePayload[];
 
 export type BridgeOutgoingMissileRemovedPayload = {
     projectileId: string;
@@ -739,8 +678,7 @@ export type BridgeOutgoingStickyMineUpdatePayload = {
     initialTimeToDetonationMs: number;
 };
 
-export type BridgeOutgoingStickyMinesUpdatedPayload =
-    BridgeOutgoingStickyMineUpdatePayload[];
+export type BridgeOutgoingStickyMinesUpdatedPayload = BridgeOutgoingStickyMineUpdatePayload[];
 
 export type BridgeOutgoingStickyMineRemovedPayload = {
     mineId: string;
@@ -761,8 +699,7 @@ export type BridgeOutgoingSpamChannelEndedPayload = {
 
     targetActorId: string;
 
-    outcome:
-        PlayerSpamChannelOutcome;
+    outcome: PlayerSpamChannelOutcome;
 };
 
 export type BridgeDefenseTurretFiredPayload = {
@@ -802,8 +739,7 @@ export type BridgeBeamCannonThreatsUpdatedPayload = BridgeBeamCannonThreatUpdate
 export type BridgeBeamCannonBeamFiredPayload = {
     sourceActorId: string;
 
-    outcome:
-        BeamCannonShotOutcome;
+    outcome: BeamCannonShotOutcome;
 };
 
 export type BridgePlayerShieldSnapshotPayload = {
@@ -811,13 +747,10 @@ export type BridgePlayerShieldSnapshotPayload = {
     initialDurationMs: number;
 };
 
-export type BridgePlayerShieldUpdatedPayload =
-    BridgePlayerShieldSnapshotPayload |
-    null;
+export type BridgePlayerShieldUpdatedPayload = BridgePlayerShieldSnapshotPayload | null;
 
 export type BridgePlayerShieldEndedPayload = {
-    outcome:
-        PlayerShieldEndOutcome;
+    outcome: PlayerShieldEndOutcome;
 };
 
 export type BridgeEnemyShieldPayload = {
@@ -827,8 +760,7 @@ export type BridgeEnemyShieldPayload = {
     initialDurationMs: number;
 };
 
-export type BridgeEnemyShieldsUpdatedPayload =
-    BridgeEnemyShieldPayload[];
+export type BridgeEnemyShieldsUpdatedPayload = BridgeEnemyShieldPayload[];
 
 export type BridgePlayerBeamCannonChargingStartedPayload = {
     weaponId: string;
@@ -872,8 +804,8 @@ export type BridgeSpamChannelEndedPayload = {
 // что событие несёт только сам факт.
 
 export const BRIDGE_STICKY_MINE_REMOVAL_OUTCOME = {
-    CLEARED: 'cleared',
-    DETONATED: 'detonated',
+    CLEARED: "cleared",
+    DETONATED: "detonated",
 } as const;
 
 export type BridgeStickyMineRemovalOutcome =
@@ -901,8 +833,7 @@ export type BridgeStickyMineSnapshotPayload = {
     isNextClearTarget: boolean;
 };
 
-export type BridgeStickyMinesUpdatedPayload =
-    BridgeStickyMineSnapshotPayload[];
+export type BridgeStickyMinesUpdatedPayload = BridgeStickyMineSnapshotPayload[];
 
 export type BridgeStickyMineRemovedPayload = {
     mineId: string;
@@ -913,8 +844,7 @@ export type BridgeStickyMineRemovedPayload = {
 export type BridgeEventPayloadMap = {
     [BRIDGE_EVENT.STICKY_MINE_ADDED]: BridgeStickyMineAddedPayload;
 
-    [BRIDGE_EVENT.STICKY_MINE_MISSED_PLAYER_SHIP]:
-        BridgeStickyMineMissedPlayerShipPayload;
+    [BRIDGE_EVENT.STICKY_MINE_MISSED_PLAYER_SHIP]: BridgeStickyMineMissedPlayerShipPayload;
 
     [BRIDGE_EVENT.STICKY_MINES_UPDATED]: BridgeStickyMinesUpdatedPayload;
     [BRIDGE_EVENT.STICKY_MINE_REMOVED]: BridgeStickyMineRemovedPayload;
@@ -933,11 +863,9 @@ export type BridgeEventPayloadMap = {
 
     // Player ship status
 
-    [BRIDGE_EVENT.PLAYER_SHIP_DASHBOARD_UPDATED]:
-        BridgePlayerShipDashboardUpdatedPayload;
+    [BRIDGE_EVENT.PLAYER_SHIP_DASHBOARD_UPDATED]: BridgePlayerShipDashboardUpdatedPayload;
 
-    [BRIDGE_EVENT.CAPTAIN_COMBAT_CONTEXT_UPDATED]:
-        BridgeCaptainCombatContextUpdatedPayload;
+    [BRIDGE_EVENT.CAPTAIN_COMBAT_CONTEXT_UPDATED]: BridgeCaptainCombatContextUpdatedPayload;
 
     // Encounter objects and navigation
 
@@ -945,8 +873,7 @@ export type BridgeEventPayloadMap = {
 
     [BRIDGE_EVENT.ENCOUNTER_OBJECT_ADDED]: BridgeEncounterObjectPayload;
 
-    [BRIDGE_EVENT.ENCOUNTER_OBJECT_REMOVED]:
-        BridgeEncounterObjectRemovedPayload;
+    [BRIDGE_EVENT.ENCOUNTER_OBJECT_REMOVED]: BridgeEncounterObjectRemovedPayload;
 
     [BRIDGE_EVENT.ENCOUNTER_OBJECTS_UPDATED]: BridgeEncounterObjectPayload[];
 
@@ -978,11 +905,9 @@ export type BridgeEventPayloadMap = {
 
     [BRIDGE_EVENT.PLAYER_SHIP_DRIVE_DISRUPTED]: undefined;
 
-    [BRIDGE_EVENT.PLAYER_EVADE_UPDATED]:
-        BridgePlayerEvadeUpdatedPayload;
+    [BRIDGE_EVENT.PLAYER_EVADE_UPDATED]: BridgePlayerEvadeUpdatedPayload;
 
-    [BRIDGE_EVENT.ENEMY_EVADES_UPDATED]:
-        BridgeEnemyEvadesUpdatedPayload;
+    [BRIDGE_EVENT.ENEMY_EVADES_UPDATED]: BridgeEnemyEvadesUpdatedPayload;
 
     [BRIDGE_EVENT.ENEMY_ATTACK_WARNING_TRIGGERED]: undefined;
 
@@ -994,37 +919,27 @@ export type BridgeEventPayloadMap = {
 
     [BRIDGE_EVENT.INCOMING_MISSILES_UPDATED]: BridgeIncomingMissilesUpdatedPayload;
 
-    [BRIDGE_EVENT.OUTGOING_MISSILE_ADDED]:
-        BridgeOutgoingMissileAddedPayload;
+    [BRIDGE_EVENT.OUTGOING_MISSILE_ADDED]: BridgeOutgoingMissileAddedPayload;
 
-    [BRIDGE_EVENT.OUTGOING_MISSILES_UPDATED]:
-        BridgeOutgoingMissilesUpdatedPayload;
+    [BRIDGE_EVENT.OUTGOING_MISSILES_UPDATED]: BridgeOutgoingMissilesUpdatedPayload;
 
-    [BRIDGE_EVENT.OUTGOING_MISSILE_REMOVED]:
-        BridgeOutgoingMissileRemovedPayload;
+    [BRIDGE_EVENT.OUTGOING_MISSILE_REMOVED]: BridgeOutgoingMissileRemovedPayload;
 
-    [BRIDGE_EVENT.OUTGOING_STICKY_MINE_ADDED]:
-        BridgeOutgoingStickyMineAddedPayload;
+    [BRIDGE_EVENT.OUTGOING_STICKY_MINE_ADDED]: BridgeOutgoingStickyMineAddedPayload;
 
-    [BRIDGE_EVENT.OUTGOING_STICKY_MINE_MISSED]:
-        BridgeOutgoingStickyMineMissedPayload;
+    [BRIDGE_EVENT.OUTGOING_STICKY_MINE_MISSED]: BridgeOutgoingStickyMineMissedPayload;
 
-    [BRIDGE_EVENT.OUTGOING_STICKY_MINES_UPDATED]:
-        BridgeOutgoingStickyMinesUpdatedPayload;
+    [BRIDGE_EVENT.OUTGOING_STICKY_MINES_UPDATED]: BridgeOutgoingStickyMinesUpdatedPayload;
 
-    [BRIDGE_EVENT.OUTGOING_STICKY_MINE_REMOVED]:
-        BridgeOutgoingStickyMineRemovedPayload;
+    [BRIDGE_EVENT.OUTGOING_STICKY_MINE_REMOVED]: BridgeOutgoingStickyMineRemovedPayload;
 
-    [BRIDGE_EVENT.OUTGOING_SPAM_CHANNEL_STARTED]:
-        BridgeOutgoingSpamChannelStartedPayload;
+    [BRIDGE_EVENT.OUTGOING_SPAM_CHANNEL_STARTED]: BridgeOutgoingSpamChannelStartedPayload;
 
-    [BRIDGE_EVENT.OUTGOING_SPAM_CHANNEL_ENDED]:
-        BridgeOutgoingSpamChannelEndedPayload;
+    [BRIDGE_EVENT.OUTGOING_SPAM_CHANNEL_ENDED]: BridgeOutgoingSpamChannelEndedPayload;
 
     [BRIDGE_EVENT.DEFENSE_TURRET_FIRED]: BridgeDefenseTurretFiredPayload;
 
-    [BRIDGE_EVENT.ENEMY_DEFENSE_TURRET_FIRED]:
-        BridgeEnemyDefenseTurretFiredPayload;
+    [BRIDGE_EVENT.ENEMY_DEFENSE_TURRET_FIRED]: BridgeEnemyDefenseTurretFiredPayload;
 
     [BRIDGE_EVENT.BEAM_CANNON_THREAT_ADDED]: BridgeBeamCannonThreatAddedPayload;
 
@@ -1034,32 +949,23 @@ export type BridgeEventPayloadMap = {
 
     [BRIDGE_EVENT.BEAM_CANNON_BEAM_FIRED]: BridgeBeamCannonBeamFiredPayload;
 
-    [BRIDGE_EVENT.PLAYER_SHIELD_DEPLOYED]:
-        BridgePlayerShieldSnapshotPayload;
+    [BRIDGE_EVENT.PLAYER_SHIELD_DEPLOYED]: BridgePlayerShieldSnapshotPayload;
 
-    [BRIDGE_EVENT.PLAYER_SHIELD_UPDATED]:
-        BridgePlayerShieldUpdatedPayload;
+    [BRIDGE_EVENT.PLAYER_SHIELD_UPDATED]: BridgePlayerShieldUpdatedPayload;
 
-    [BRIDGE_EVENT.PLAYER_SHIELD_ENDED]:
-        BridgePlayerShieldEndedPayload;
+    [BRIDGE_EVENT.PLAYER_SHIELD_ENDED]: BridgePlayerShieldEndedPayload;
 
-    [BRIDGE_EVENT.ENEMY_SHIELDS_UPDATED]:
-        BridgeEnemyShieldsUpdatedPayload;
+    [BRIDGE_EVENT.ENEMY_SHIELDS_UPDATED]: BridgeEnemyShieldsUpdatedPayload;
 
-    [BRIDGE_EVENT.PLAYER_BEAM_CANNON_CHARGING_STARTED]:
-        BridgePlayerBeamCannonChargingStartedPayload;
+    [BRIDGE_EVENT.PLAYER_BEAM_CANNON_CHARGING_STARTED]: BridgePlayerBeamCannonChargingStartedPayload;
 
-    [BRIDGE_EVENT.PLAYER_BEAM_CANNON_CHARGING_CLEARED]:
-        BridgePlayerBeamCannonChargingClearedPayload;
+    [BRIDGE_EVENT.PLAYER_BEAM_CANNON_CHARGING_CLEARED]: BridgePlayerBeamCannonChargingClearedPayload;
 
-    [BRIDGE_EVENT.PLAYER_BEAM_CANNON_FIRED]:
-        BridgePlayerBeamCannonFiredPayload;
+    [BRIDGE_EVENT.PLAYER_BEAM_CANNON_FIRED]: BridgePlayerBeamCannonFiredPayload;
 
-    [BRIDGE_EVENT.ENEMY_SHIP_DESTRUCTION_STARTED]:
-        BridgeEnemyShipDestructionPayload;
+    [BRIDGE_EVENT.ENEMY_SHIP_DESTRUCTION_STARTED]: BridgeEnemyShipDestructionPayload;
 
-    [BRIDGE_EVENT.ENEMY_SHIP_DESTRUCTION_COMPLETED]:
-        BridgeEnemyShipDestructionPayload;
+    [BRIDGE_EVENT.ENEMY_SHIP_DESTRUCTION_COMPLETED]: BridgeEnemyShipDestructionPayload;
 
     [BRIDGE_EVENT.SPAM_CHANNEL_STARTED]: BridgeSpamChannelStartedPayload;
 

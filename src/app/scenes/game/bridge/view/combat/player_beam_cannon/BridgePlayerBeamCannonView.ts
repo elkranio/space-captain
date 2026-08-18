@@ -1,36 +1,28 @@
 // src/app/scenes/game/bridge/view/combat/player_beam_cannon/BridgePlayerBeamCannonView.ts
 
-import {
-    BEAM_CANNON_SHOT_OUTCOME,
-} from '../../../../../../../engine/encounter/model/combat';
-import type BridgeScene from '../../../BridgeScene';
+import { BEAM_CANNON_SHOT_OUTCOME } from "../../../../../../../engine/encounter/model/combat";
+import type BridgeScene from "../../../BridgeScene";
 import {
     BRIDGE_EVENT,
     type BridgePlayerBeamCannonChargingClearedPayload,
     type BridgePlayerBeamCannonChargingStartedPayload,
     type BridgePlayerBeamCannonFiredPayload,
-} from '../../../events/bridge_event';
-import type BridgeEventBus from '../../../events/BridgeEventBus';
-import {
-    getBridgePlayerWeaponSourcePosition,
-} from '../bridge_player_weapon_layout';
-import BridgeBeamCannonBeamView from '../beam_cannon_beams/beam/BridgeBeamCannonBeamView';
-import BridgeBeamCannonChargeView from '../beam_cannon_charge/BridgeBeamCannonChargeView';
-import BridgePlayerBeamCannonImpactView from './impact/BridgePlayerBeamCannonImpactView';
+} from "../../../events/bridge_event";
+import type BridgeEventBus from "../../../events/BridgeEventBus";
+import { getBridgePlayerWeaponSourcePosition } from "../bridge_player_weapon_layout";
+import BridgeBeamCannonBeamView from "../beam_cannon_beams/beam/BridgeBeamCannonBeamView";
+import BridgeBeamCannonChargeView from "../beam_cannon_charge/BridgeBeamCannonChargeView";
+import BridgePlayerBeamCannonImpactView from "./impact/BridgePlayerBeamCannonImpactView";
 import {
     getPlayerBeamCannonMissTarget,
     getRandomPlayerBeamCannonMissSide,
     PLAYER_BEAM_CANNON_MISS_SIDE,
     type PlayerBeamCannonMissSide,
-} from './bridge_player_beam_cannon_miss_target';
+} from "./bridge_player_beam_cannon_miss_target";
 
-type GetObjectPosition = (
-    objectId: string,
-) => Phaser.Math.Vector2 | undefined;
+type GetObjectPosition = (objectId: string) => Phaser.Math.Vector2 | undefined;
 
-type GetObjectVisualBounds = (
-    objectId: string,
-) => Phaser.Geom.Rectangle | undefined;
+type GetObjectVisualBounds = (objectId: string) => Phaser.Geom.Rectangle | undefined;
 
 // Temporary player weapon presentation.
 //
@@ -39,95 +31,62 @@ type GetObjectVisualBounds = (
 // with the future targeting-node contract.
 export default class BridgePlayerBeamCannonView {
     // Normal/right-side Beam VFX are above encounter objects.
-    private readonly root:
-        Phaser.GameObjects.Container;
+    private readonly root: Phaser.GameObjects.Container;
 
     // Left-side Evade miss passes under/behind the enemy sprite.
-    private readonly behindObjectsRoot:
-        Phaser.GameObjects.Container;
+    private readonly behindObjectsRoot: Phaser.GameObjects.Container;
 
-    private readonly mount:
-        Phaser.GameObjects.Graphics;
+    private readonly mount: Phaser.GameObjects.Graphics;
 
-    private readonly beams =
-        new Set<BridgeBeamCannonBeamView>();
+    private readonly beams = new Set<BridgeBeamCannonBeamView>();
 
-    private readonly impacts =
-        new Set<BridgePlayerBeamCannonImpactView>();
+    private readonly impacts = new Set<BridgePlayerBeamCannonImpactView>();
 
-    private chargeView?:
-        BridgeBeamCannonChargeView;
+    private chargeView?: BridgeBeamCannonChargeView;
 
-    private chargingWeaponId?:
-        string;
+    private chargingWeaponId?: string;
 
     constructor(
-        private readonly scene:
-            BridgeScene,
+        private readonly scene: BridgeScene,
 
-        private readonly eventBus:
-            BridgeEventBus,
+        private readonly eventBus: BridgeEventBus,
 
-        private readonly getObjectPosition:
-            GetObjectPosition,
+        private readonly getObjectPosition: GetObjectPosition,
 
-        private readonly getObjectVisualBounds:
-            GetObjectVisualBounds,
+        private readonly getObjectVisualBounds: GetObjectVisualBounds,
     ) {
-        this.behindObjectsRoot =
-            this.scene.add.container(
-                0,
-                0,
-            );
+        this.behindObjectsRoot = this.scene.add.container(0, 0);
 
-        this.scene.layers
-            .get('objects')
-            .add(
-                this.behindObjectsRoot,
-            );
+        this.scene.layers.get("objects").add(this.behindObjectsRoot);
 
-        this.scene.layers
-            .sendToBack(
-                'objects',
-                this.behindObjectsRoot,
-            );
+        this.scene.layers.sendToBack("objects", this.behindObjectsRoot);
 
-        this.root =
-            this.scene.add.container(
-                0,
-                0,
-            );
+        this.root = this.scene.add.container(0, 0);
 
-        this.scene.layers
-            .get('vfx')
-            .add(this.root);
+        this.scene.layers.get("vfx").add(this.root);
 
-        this.mount =
-            this.scene.add.graphics();
+        this.mount = this.scene.add.graphics();
 
         this.root.add(this.mount);
 
         this.drawMount();
 
         this.eventBus.on(
-            BRIDGE_EVENT
-                .PLAYER_BEAM_CANNON_CHARGING_STARTED,
+            BRIDGE_EVENT.PLAYER_BEAM_CANNON_CHARGING_STARTED,
 
             this.startCharging,
             this,
         );
 
         this.eventBus.on(
-            BRIDGE_EVENT
-                .PLAYER_BEAM_CANNON_CHARGING_CLEARED,
+            BRIDGE_EVENT.PLAYER_BEAM_CANNON_CHARGING_CLEARED,
 
             this.clearCharging,
             this,
         );
 
         this.eventBus.on(
-            BRIDGE_EVENT
-                .PLAYER_BEAM_CANNON_FIRED,
+            BRIDGE_EVENT.PLAYER_BEAM_CANNON_FIRED,
 
             this.fire,
             this,
@@ -136,24 +95,21 @@ export default class BridgePlayerBeamCannonView {
 
     public destroy(): void {
         this.eventBus.off(
-            BRIDGE_EVENT
-                .PLAYER_BEAM_CANNON_CHARGING_STARTED,
+            BRIDGE_EVENT.PLAYER_BEAM_CANNON_CHARGING_STARTED,
 
             this.startCharging,
             this,
         );
 
         this.eventBus.off(
-            BRIDGE_EVENT
-                .PLAYER_BEAM_CANNON_CHARGING_CLEARED,
+            BRIDGE_EVENT.PLAYER_BEAM_CANNON_CHARGING_CLEARED,
 
             this.clearCharging,
             this,
         );
 
         this.eventBus.off(
-            BRIDGE_EVENT
-                .PLAYER_BEAM_CANNON_FIRED,
+            BRIDGE_EVENT.PLAYER_BEAM_CANNON_FIRED,
 
             this.fire,
             this,
@@ -165,384 +121,222 @@ export default class BridgePlayerBeamCannonView {
             beam.destroy();
         }
 
-        for (
-            const impact of
-            this.impacts
-        ) {
+        for (const impact of this.impacts) {
             impact.destroy();
         }
 
         this.beams.clear();
         this.impacts.clear();
 
-        this.behindObjectsRoot
-            .destroy(true);
+        this.behindObjectsRoot.destroy(true);
 
         this.root.destroy(true);
 
-        this.chargeView =
-            undefined;
+        this.chargeView = undefined;
 
-        this.chargingWeaponId =
-            undefined;
+        this.chargingWeaponId = undefined;
     }
 
-    private startCharging(
-        payload:
-            BridgePlayerBeamCannonChargingStartedPayload,
-    ): void {
+    private startCharging(payload: BridgePlayerBeamCannonChargingStartedPayload): void {
         this.chargeView?.destroy();
 
-        this.chargingWeaponId =
-            payload.weaponId;
+        this.chargingWeaponId = payload.weaponId;
 
-        this.chargeView =
-            BridgeBeamCannonChargeView.create({
-                scene:
-                    this.scene,
+        this.chargeView = BridgeBeamCannonChargeView.create({
+            scene: this.scene,
 
-                parent:
-                    this.root,
+            parent: this.root,
 
-                position:
-                    this.getSourcePosition(),
-            });
+            position: this.getSourcePosition(),
+        });
     }
 
-    private clearCharging(
-        payload:
-            BridgePlayerBeamCannonChargingClearedPayload,
-    ): void {
-        if (
-            this.chargingWeaponId !==
-            payload.weaponId
-        ) {
+    private clearCharging(payload: BridgePlayerBeamCannonChargingClearedPayload): void {
+        if (this.chargingWeaponId !== payload.weaponId) {
             return;
         }
 
         this.chargeView?.destroy();
 
-        this.chargeView =
-            undefined;
+        this.chargeView = undefined;
 
-        this.chargingWeaponId =
-            undefined;
+        this.chargingWeaponId = undefined;
     }
 
-    private fire(
-        payload:
-            BridgePlayerBeamCannonFiredPayload,
-    ): void {
+    private fire(payload: BridgePlayerBeamCannonFiredPayload): void {
         this.clearCharging({
-            weaponId:
-                payload.weaponId,
+            weaponId: payload.weaponId,
         });
 
-        const targetOrigin =
-            this.getObjectPosition(
-                payload.targetActorId,
-            );
+        const targetOrigin = this.getObjectPosition(payload.targetActorId);
 
         if (!targetOrigin) {
-            throw new Error(
-                'Player beamCannon target ' +
-                    'object not found: ' +
-                    payload.targetActorId,
-            );
+            throw new Error("Player beamCannon target " + "object not found: " + payload.targetActorId);
         }
 
-        const sourcePosition =
-            this.getSourcePosition();
+        const sourcePosition = this.getSourcePosition();
 
-        const targetPosition =
-            new Phaser.Math.Vector2(
-                Math.round(
-                    targetOrigin.x,
-                ),
+        const targetPosition = new Phaser.Math.Vector2(
+            Math.round(targetOrigin.x),
 
-                Math.round(
-                    targetOrigin.y,
-                ),
-            );
+            Math.round(targetOrigin.y),
+        );
 
         const missSide =
-            payload.outcome ===
-                BEAM_CANNON_SHOT_OUTCOME
-                    .MISS
-                ? getRandomPlayerBeamCannonMissSide()
-                : undefined;
+            payload.outcome === BEAM_CANNON_SHOT_OUTCOME.MISS ? getRandomPlayerBeamCannonMissSide() : undefined;
 
-        const beamGeometry =
-            this.getBeamGeometry(
-                payload,
-                sourcePosition,
-                targetPosition,
-                missSide,
-            );
+        const beamGeometry = this.getBeamGeometry(payload, sourcePosition, targetPosition, missSide);
 
-        const beamParent =
-            this.getBeamParent(
-                payload,
-                missSide,
-            );
+        const beamParent = this.getBeamParent(payload, missSide);
 
-        const beam =
-            new BridgeBeamCannonBeamView({
-                scene:
-                    this.scene,
+        const beam = new BridgeBeamCannonBeamView({
+            scene: this.scene,
 
-                parent:
-                    beamParent,
+            parent: beamParent,
 
-                sourcePosition,
+            sourcePosition,
 
-                targetPosition:
-                    beamGeometry
-                        .targetPosition,
+            targetPosition: beamGeometry.targetPosition,
 
-                perspectiveTargetPosition:
-                    beamGeometry
-                        .perspectiveTargetPosition,
+            perspectiveTargetPosition: beamGeometry.perspectiveTargetPosition,
 
-                sourceNear: true,
+            sourceNear: true,
 
-                onComplete: () => {
-                    beam.destroy();
+            onComplete: () => {
+                beam.destroy();
 
-                    this.beams.delete(
-                        beam,
-                    );
-                },
-            });
+                this.beams.delete(beam);
+            },
+        });
 
         this.beams.add(beam);
 
         // Evade miss runs through the left/right bound lane and continues
         // beyond the viewport. Left miss is behind the enemy sprite, right
         // miss is above it. There is no contact VFX.
-        if (
-            payload.outcome ===
-            BEAM_CANNON_SHOT_OUTCOME
-                .MISS
-        ) {
+        if (payload.outcome === BEAM_CANNON_SHOT_OUTCOME.MISS) {
             return;
         }
 
-        const impact =
-            new BridgePlayerBeamCannonImpactView({
-                scene:
-                    this.scene,
+        const impact = new BridgePlayerBeamCannonImpactView({
+            scene: this.scene,
 
-                parent:
-                    this.root,
+            parent: this.root,
 
-                position:
-                    targetPosition,
+            position: targetPosition,
 
-                blocked:
-                    payload.outcome ===
-                    BEAM_CANNON_SHOT_OUTCOME
-                        .ABSORBED,
+            blocked: payload.outcome === BEAM_CANNON_SHOT_OUTCOME.ABSORBED,
 
-                onComplete: () => {
-                    impact.destroy();
+            onComplete: () => {
+                impact.destroy();
 
-                    this.impacts.delete(
-                        impact,
-                    );
-                },
-            });
+                this.impacts.delete(impact);
+            },
+        });
 
         this.impacts.add(impact);
     }
 
     private getBeamGeometry(
-        payload:
-            BridgePlayerBeamCannonFiredPayload,
+        payload: BridgePlayerBeamCannonFiredPayload,
 
-        sourcePosition:
-            Phaser.Math.Vector2,
+        sourcePosition: Phaser.Math.Vector2,
 
-        canonicalTargetPosition:
-            Phaser.Math.Vector2,
+        canonicalTargetPosition: Phaser.Math.Vector2,
 
-        missSide:
-            PlayerBeamCannonMissSide | undefined,
+        missSide: PlayerBeamCannonMissSide | undefined,
     ): {
-        targetPosition:
-            Phaser.Math.Vector2;
+        targetPosition: Phaser.Math.Vector2;
 
-        perspectiveTargetPosition:
-            Phaser.Math.Vector2;
+        perspectiveTargetPosition: Phaser.Math.Vector2;
     } {
-        if (
-            payload.outcome !==
-            BEAM_CANNON_SHOT_OUTCOME
-                .MISS
-        ) {
+        if (payload.outcome !== BEAM_CANNON_SHOT_OUTCOME.MISS) {
             return {
-                targetPosition:
-                    canonicalTargetPosition,
+                targetPosition: canonicalTargetPosition,
 
-                perspectiveTargetPosition:
-                    canonicalTargetPosition,
+                perspectiveTargetPosition: canonicalTargetPosition,
             };
         }
 
         if (!missSide) {
-            throw new Error(
-                'Player beamCannon MISS requires a presentation side',
-            );
+            throw new Error("Player beamCannon MISS requires a presentation side");
         }
 
-        const visualBounds =
-            this.getObjectVisualBounds(
-                payload.targetActorId,
-            );
+        const visualBounds = this.getObjectVisualBounds(payload.targetActorId);
 
         if (!visualBounds) {
-            throw new Error(
-                'Player beamCannon miss target visual bounds not found: ' +
-                    payload.targetActorId,
-            );
+            throw new Error("Player beamCannon miss target visual bounds not found: " + payload.targetActorId);
         }
 
-        const missTarget =
-            getPlayerBeamCannonMissTarget({
-                sourceX:
-                    sourcePosition.x,
+        const missTarget = getPlayerBeamCannonMissTarget({
+            sourceX: sourcePosition.x,
 
-                sourceY:
-                    sourcePosition.y,
+            sourceY: sourcePosition.y,
 
-                missSide,
+            missSide,
 
-                presentedTargetLeft:
-                    visualBounds.left,
+            presentedTargetLeft: visualBounds.left,
 
-                presentedTargetRight:
-                    visualBounds.right,
+            presentedTargetRight: visualBounds.right,
 
-                presentedTargetCenterX:
-                    visualBounds.centerX,
+            presentedTargetCenterX: visualBounds.centerX,
 
-                presentedTargetCenterY:
-                    visualBounds.centerY,
+            presentedTargetCenterY: visualBounds.centerY,
 
-                viewportWidth:
-                    this.scene.scale.width,
+            viewportWidth: this.scene.scale.width,
 
-                viewportHeight:
-                    this.scene.scale.height,
-            });
+            viewportHeight: this.scene.scale.height,
+        });
 
         return {
-            targetPosition:
-                new Phaser.Math.Vector2(
-                    missTarget.x,
-                    missTarget.y,
-                ),
+            targetPosition: new Phaser.Math.Vector2(missTarget.x, missTarget.y),
 
-            perspectiveTargetPosition:
-                new Phaser.Math.Vector2(
-                    missTarget
-                        .perspectiveX,
-                    missTarget
-                        .perspectiveY,
-                ),
+            perspectiveTargetPosition: new Phaser.Math.Vector2(missTarget.perspectiveX, missTarget.perspectiveY),
         };
     }
 
     private getBeamParent(
-        payload:
-            BridgePlayerBeamCannonFiredPayload,
+        payload: BridgePlayerBeamCannonFiredPayload,
 
-        missSide:
-            PlayerBeamCannonMissSide | undefined,
+        missSide: PlayerBeamCannonMissSide | undefined,
     ): Phaser.GameObjects.Container {
-        if (
-            payload.outcome !==
-            BEAM_CANNON_SHOT_OUTCOME
-                .MISS
-        ) {
+        if (payload.outcome !== BEAM_CANNON_SHOT_OUTCOME.MISS) {
             return this.root;
         }
 
         if (!missSide) {
-            throw new Error(
-                'Player beamCannon MISS requires a presentation side',
-            );
+            throw new Error("Player beamCannon MISS requires a presentation side");
         }
 
-        return (
-            missSide ===
-            PLAYER_BEAM_CANNON_MISS_SIDE
-                .LEFT
-        )
-            ? this.behindObjectsRoot
-            : this.root;
+        return missSide === PLAYER_BEAM_CANNON_MISS_SIDE.LEFT ? this.behindObjectsRoot : this.root;
     }
 
     private drawMount(): void {
-        const source =
-            this.getSourcePosition();
+        const source = this.getSourcePosition();
 
         this.mount.clear();
 
         // Outline/base.
-        this.mount.fillStyle(
-            0x07182a,
-            1,
-        );
+        this.mount.fillStyle(0x07182a, 1);
 
-        this.mount.fillRect(
-            source.x - 14,
-            source.y + 2,
-            28,
-            16,
-        );
+        this.mount.fillRect(source.x - 14, source.y + 2, 28, 16);
 
         // Temporary metal body.
-        this.mount.fillStyle(
-            0x58677a,
-            1,
-        );
+        this.mount.fillStyle(0x58677a, 1);
 
-        this.mount.fillRect(
-            source.x - 11,
-            source.y + 5,
-            22,
-            11,
-        );
+        this.mount.fillRect(source.x - 11, source.y + 5, 22, 11);
 
         // Barrel/muzzle support.
-        this.mount.fillStyle(
-            0x8fb5d6,
-            1,
-        );
+        this.mount.fillStyle(0x8fb5d6, 1);
 
-        this.mount.fillRect(
-            source.x - 3,
-            source.y - 5,
-            6,
-            12,
-        );
+        this.mount.fillRect(source.x - 3, source.y - 5, 6, 12);
 
-        this.mount.fillStyle(
-            0xd7f9ff,
-            1,
-        );
+        this.mount.fillStyle(0xd7f9ff, 1);
 
-        this.mount.fillRect(
-            source.x - 1,
-            source.y - 2,
-            2,
-            4,
-        );
+        this.mount.fillRect(source.x - 1, source.y - 2, 2, 4);
     }
 
-    private getSourcePosition():
-        Phaser.Math.Vector2 {
+    private getSourcePosition(): Phaser.Math.Vector2 {
         return getBridgePlayerWeaponSourcePosition();
     }
 }

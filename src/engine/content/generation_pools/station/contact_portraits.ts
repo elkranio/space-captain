@@ -1,7 +1,7 @@
 // src/engine/content/generation_pools/station/contact_portraits.ts
 
-import { CHARACTER_PORTRAIT_ID, type CharacterPortraitId } from '../../../defs/character';
-import { SPECIES_ID, type SpeciesId } from '../../../defs/species';
+import { CHARACTER_PORTRAIT_ID, type CharacterPortraitId } from "../../../defs/character";
+import { SPECIES_ID, type SpeciesId } from "../../../defs/species";
 
 // Пулы портретов операторов связи для сгенерированных станций.
 // Вид станции выбирает набор портретов, но конкретный контакт выбирается случайно.

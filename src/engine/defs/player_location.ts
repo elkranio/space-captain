@@ -1,14 +1,14 @@
 // src/engine/defs/player_location.ts
 
 export const PLAYER_LOCATION_KIND = {
-    SPACE: 'space',
-    STATION: 'station',
+    SPACE: "space",
+    STATION: "station",
 } as const;
 
 export const PLAYER_SPACE_NAVIGATION_KIND = {
-    ARRIVING: 'arriving',
-    ANCHORED: 'anchored',
-    TRAVELLING: 'travelling',
+    ARRIVING: "arriving",
+    ANCHORED: "anchored",
+    TRAVELLING: "travelling",
 } as const;
 
 export type PlayerSpaceArrivingNavigationState = {
@@ -28,9 +28,7 @@ export type PlayerSpaceTravellingNavigationState = {
 };
 
 export type PlayerSpaceNavigationState =
-    | PlayerSpaceArrivingNavigationState
-    | PlayerSpaceAnchoredNavigationState
-    | PlayerSpaceTravellingNavigationState;
+    PlayerSpaceArrivingNavigationState | PlayerSpaceAnchoredNavigationState | PlayerSpaceTravellingNavigationState;
 
 export type PlayerSpaceLocationState = {
     kind: typeof PLAYER_LOCATION_KIND.SPACE;

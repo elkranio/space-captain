@@ -1,25 +1,18 @@
 // src/app/scenes/game/bridge/view/combat/beam_cannon_beams/BridgeBeamCannonBeamsView.ts
 
-import {
-    BEAM_CANNON_SHOT_OUTCOME,
-} from '../../../../../../../engine/encounter/model/combat';
-import type BridgeScene from '../../../BridgeScene';
-import { SCREEN_SHAKE } from '../../../../../../theme/screen_shake';
-import {
-    BRIDGE_EVENT,
-    type BridgeBeamCannonBeamFiredPayload,
-} from '../../../events/bridge_event';
-import type BridgeEventBus from '../../../events/BridgeEventBus';
-import {
-    BRIDGE_PLAYER_HULL_COMBAT_POINTS,
-} from '../bridge_player_hull_combat_points';
-import BridgeBeamCannonBeamView from './beam/BridgeBeamCannonBeamView';
+import { BEAM_CANNON_SHOT_OUTCOME } from "../../../../../../../engine/encounter/model/combat";
+import type BridgeScene from "../../../BridgeScene";
+import { SCREEN_SHAKE } from "../../../../../../theme/screen_shake";
+import { BRIDGE_EVENT, type BridgeBeamCannonBeamFiredPayload } from "../../../events/bridge_event";
+import type BridgeEventBus from "../../../events/BridgeEventBus";
+import { BRIDGE_PLAYER_HULL_COMBAT_POINTS } from "../bridge_player_hull_combat_points";
+import BridgeBeamCannonBeamView from "./beam/BridgeBeamCannonBeamView";
 import {
     BRIDGE_BEAM_CANNON_MISS_ANCHORS,
     BRIDGE_BEAM_CANNON_TARGET_ANCHOR,
     getBridgeBeamCannonTargetPoint,
     type BridgeBeamCannonTargetAnchor,
-} from './bridge_beam_cannon_target_anchors';
+} from "./bridge_beam_cannon_target_anchors";
 
 type GetObjectPosition = (objectId: string) => Phaser.Math.Vector2 | undefined;
 
@@ -44,21 +37,13 @@ export default class BridgeBeamCannonBeamsView {
         private readonly getObjectPosition: GetObjectPosition,
     ) {
         this.root = this.scene.add.container(0, 0);
-        this.scene.layers.get('vfx').add(this.root);
+        this.scene.layers.get("vfx").add(this.root);
 
-        this.eventBus.on(
-            BRIDGE_EVENT.BEAM_CANNON_BEAM_FIRED,
-            this.fireBeam,
-            this,
-        );
+        this.eventBus.on(BRIDGE_EVENT.BEAM_CANNON_BEAM_FIRED, this.fireBeam, this);
     }
 
     public destroy(): void {
-        this.eventBus.off(
-            BRIDGE_EVENT.BEAM_CANNON_BEAM_FIRED,
-            this.fireBeam,
-            this,
-        );
+        this.eventBus.off(BRIDGE_EVENT.BEAM_CANNON_BEAM_FIRED, this.fireBeam, this);
 
         for (const beam of this.beams) {
             beam.destroy();
@@ -72,27 +57,15 @@ export default class BridgeBeamCannonBeamsView {
         const sourcePosition = this.getObjectPosition(payload.sourceActorId);
 
         if (!sourcePosition) {
-            throw new Error(
-                `BeamCannon beam source object not found: ${payload.sourceActorId}`,
-            );
+            throw new Error(`BeamCannon beam source object not found: ${payload.sourceActorId}`);
         }
 
-        const targetPosition =
-            this.getTargetPosition(
-                payload.outcome,
-            );
+        const targetPosition = this.getTargetPosition(payload.outcome);
 
-        if (
-            payload.outcome ===
-            BEAM_CANNON_SHOT_OUTCOME.HIT
-        ) {
-            const shake =
-                SCREEN_SHAKE.MEDIUM;
+        if (payload.outcome === BEAM_CANNON_SHOT_OUTCOME.HIT) {
+            const shake = SCREEN_SHAKE.MEDIUM;
 
-            this.scene.cameras.main.shake(
-                shake.durationMs,
-                shake.intensity,
-            );
+            this.scene.cameras.main.shake(shake.durationMs, shake.intensity);
         }
 
         const beam = new BridgeBeamCannonBeamView({
@@ -111,69 +84,37 @@ export default class BridgeBeamCannonBeamsView {
         this.beams.add(beam);
     }
 
-    private getTargetPosition(
-        outcome:
-            BridgeBeamCannonBeamFiredPayload['outcome'],
-    ): Phaser.Math.Vector2 {
-        const point =
-            getBeamCannonTargetPoint(
-                outcome,
-            );
+    private getTargetPosition(outcome: BridgeBeamCannonBeamFiredPayload["outcome"]): Phaser.Math.Vector2 {
+        const point = getBeamCannonTargetPoint(outcome);
 
-        return new Phaser.Math.Vector2(
-            point.x,
-            point.y,
-        );
+        return new Phaser.Math.Vector2(point.x, point.y);
     }
 }
 
-function getBeamCannonTargetPoint(
-    outcome:
-        BridgeBeamCannonBeamFiredPayload['outcome'],
-): {
+function getBeamCannonTargetPoint(outcome: BridgeBeamCannonBeamFiredPayload["outcome"]): {
     readonly x: number;
     readonly y: number;
 } {
     switch (outcome) {
         case BEAM_CANNON_SHOT_OUTCOME.HIT:
-            return getBridgeBeamCannonTargetPoint(
-                BRIDGE_BEAM_CANNON_TARGET_ANCHOR
-                    .HULL_BOTTOM,
-            );
+            return getBridgeBeamCannonTargetPoint(BRIDGE_BEAM_CANNON_TARGET_ANCHOR.HULL_BOTTOM);
 
         case BEAM_CANNON_SHOT_OUTCOME.ABSORBED:
-            return BRIDGE_PLAYER_HULL_COMBAT_POINTS
-                .shieldImpactPoint;
+            return BRIDGE_PLAYER_HULL_COMBAT_POINTS.shieldImpactPoint;
 
         case BEAM_CANNON_SHOT_OUTCOME.MISS:
-            return getBridgeBeamCannonTargetPoint(
-                getRandomMissAnchor(),
-            );
+            return getBridgeBeamCannonTargetPoint(getRandomMissAnchor());
 
         default: {
-            const exhaustiveOutcome:
-                never =
-                    outcome;
+            const exhaustiveOutcome: never = outcome;
 
             return exhaustiveOutcome;
         }
     }
 }
 
-function getRandomMissAnchor():
-    BridgeBeamCannonTargetAnchor {
-    const index =
-        Math.floor(
-            Math.random() *
-                BRIDGE_BEAM_CANNON_MISS_ANCHORS
-                    .length,
-        );
+function getRandomMissAnchor(): BridgeBeamCannonTargetAnchor {
+    const index = Math.floor(Math.random() * BRIDGE_BEAM_CANNON_MISS_ANCHORS.length);
 
-    return (
-        BRIDGE_BEAM_CANNON_MISS_ANCHORS[
-            index
-        ] ??
-        BRIDGE_BEAM_CANNON_TARGET_ANCHOR
-            .MISS_TOP_LEFT
-    );
+    return BRIDGE_BEAM_CANNON_MISS_ANCHORS[index] ?? BRIDGE_BEAM_CANNON_TARGET_ANCHOR.MISS_TOP_LEFT;
 }

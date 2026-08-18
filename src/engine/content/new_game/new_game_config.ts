@@ -1,12 +1,7 @@
 // src/engine/content/new_game/new_game_config.ts
 
-import {
-    OFFICER_PORTRAIT_ID,
-    OFFICER_ROLE,
-    type OfficerDefinition,
-    type OfficerRole,
-} from '../../defs/officer';
-import type { NewGamePlayerLocations } from './NewGameUniverseFactory';
+import { OFFICER_PORTRAIT_ID, OFFICER_ROLE, type OfficerDefinition, type OfficerRole } from "../../defs/officer";
+import type { NewGamePlayerLocations } from "./NewGameUniverseFactory";
 
 type NewGameConfig = {
     player: {
@@ -23,48 +18,41 @@ type NewGameConfig = {
 // NewGameUniverseFactory: это связный universe scenario.
 export const NEW_GAME_CONFIG = {
     player: {
-        locationId: 'arrivingAtStart',
+        locationId: "arrivingAtStart",
     },
 
     officers: {
         [OFFICER_ROLE.SCIENCE]: {
             role: OFFICER_ROLE.SCIENCE,
-            name: 'Dr. Zella Quark',
+            name: "Dr. Zella Quark",
 
-            portraitId:
-                OFFICER_PORTRAIT_ID.SCIENCE_ALIEN_00,
+            portraitId: OFFICER_PORTRAIT_ID.SCIENCE_ALIEN_00,
         },
 
         [OFFICER_ROLE.HELM]: {
             role: OFFICER_ROLE.HELM,
-            name: 'Dash Nulligan',
+            name: "Dash Nulligan",
 
-            portraitId:
-                OFFICER_PORTRAIT_ID.HELM_HUMAN_00,
+            portraitId: OFFICER_PORTRAIT_ID.HELM_HUMAN_00,
         },
 
         [OFFICER_ROLE.WEAPONS]: {
             role: OFFICER_ROLE.WEAPONS,
-            name: 'Buck Varnish',
+            name: "Buck Varnish",
 
-            portraitId:
-                OFFICER_PORTRAIT_ID.WEAPONS_ALIEN_00,
+            portraitId: OFFICER_PORTRAIT_ID.WEAPONS_ALIEN_00,
         },
 
         [OFFICER_ROLE.ENGINEER]: {
             role: OFFICER_ROLE.ENGINEER,
-            name: 'Mira Wrenchly',
+            name: "Mira Wrenchly",
 
-            portraitId:
-                OFFICER_PORTRAIT_ID.ENGINEER_HUMAN_00,
+            portraitId: OFFICER_PORTRAIT_ID.ENGINEER_HUMAN_00,
         },
     },
 } as const satisfies NewGameConfig;
 
-export function createNewGameOfficers(): Record<
-    OfficerRole,
-    OfficerDefinition
-> {
+export function createNewGameOfficers(): Record<OfficerRole, OfficerDefinition> {
     const officers = NEW_GAME_CONFIG.officers;
 
     return {

@@ -4,11 +4,9 @@ import {
     PLAYER_LOCATION_KIND,
     PLAYER_SPACE_NAVIGATION_KIND,
     type PlayerSpaceNavigationState,
-} from '../../../../../../engine/defs/player_location';
-import EncounterEngine from '../../../../../../engine/encounter/EncounterEngine';
-import type {
-    EncounterPresentationSnapshot,
-} from '../../../../../../engine/encounter/snapshots/encounter_presentation_snapshot';
+} from "../../../../../../engine/defs/player_location";
+import EncounterEngine from "../../../../../../engine/encounter/EncounterEngine";
+import type { EncounterPresentationSnapshot } from "../../../../../../engine/encounter/snapshots/encounter_presentation_snapshot";
 import {
     ENCOUNTER_OFFICER_COMMAND_ID,
     OFFICER_COMMAND_EXECUTION_STATUS,
@@ -16,13 +14,11 @@ import {
     OFFICER_COMMAND_TARGET_KIND,
     type ExecuteOfficerCommandInput,
     type ExecuteOfficerCommandResult,
-} from '../../../../../../engine/encounter/model/command';
-import {
-    applyEnemyCombatStartDebugBehaviors,
-} from '../../../../../debug/apply_enemy_combat_start_debug_behaviors';
-import { DEBUG_SETTINGS } from '../../../../../debug/debug_settings';
-import { GAME_RUNTIME } from '../../../../../runtime/GameRuntime';
-import { SCENE_KEY } from '../../../../scene_key';
+} from "../../../../../../engine/encounter/model/command";
+import { applyEnemyCombatStartDebugBehaviors } from "../../../../../debug/apply_enemy_combat_start_debug_behaviors";
+import { DEBUG_SETTINGS } from "../../../../../debug/debug_settings";
+import { GAME_RUNTIME } from "../../../../../runtime/GameRuntime";
+import { SCENE_KEY } from "../../../../scene_key";
 import {
     BRIDGE_EVENT,
     type BridgeDockingCompletedPayload,
@@ -31,12 +27,12 @@ import {
     type BridgeOfficerCommandMenuRefreshRequestedPayload,
     type BridgeOfficerCommandSelectedPayload,
     type BridgeOfficerStationClickedPayload,
-} from '../../events/bridge_event';
-import type BridgeEventBus from '../../events/BridgeEventBus';
-import BridgeOfficerCommandMenuController from './command_menu/BridgeOfficerCommandMenuController';
-import BridgeEncounterPersistenceSynchronizer from './BridgeEncounterPersistenceSynchronizer';
-import BridgeEncounterEngineEventHandler from './engine_events/BridgeEncounterEngineEventHandler';
-import BridgeEncounterSnapshotSynchronizer from './snapshots/BridgeEncounterSnapshotSynchronizer';
+} from "../../events/bridge_event";
+import type BridgeEventBus from "../../events/BridgeEventBus";
+import BridgeOfficerCommandMenuController from "./command_menu/BridgeOfficerCommandMenuController";
+import BridgeEncounterPersistenceSynchronizer from "./BridgeEncounterPersistenceSynchronizer";
+import BridgeEncounterEngineEventHandler from "./engine_events/BridgeEncounterEngineEventHandler";
+import BridgeEncounterSnapshotSynchronizer from "./snapshots/BridgeEncounterSnapshotSynchronizer";
 
 // App-controller для bridge encounter flow.
 //
@@ -59,21 +55,16 @@ export default class BridgeEncounterController {
 
     private readonly engineEventHandler: BridgeEncounterEngineEventHandler;
 
-    private readonly persistenceSynchronizer:
-        BridgeEncounterPersistenceSynchronizer;
+    private readonly persistenceSynchronizer: BridgeEncounterPersistenceSynchronizer;
 
     private isEncounterInteractive = false;
 
-    private hasAppliedEnemyCombatStartDebugBehaviors =
-        false;
+    private hasAppliedEnemyCombatStartDebugBehaviors = false;
 
     // #endregion
 
     constructor(private readonly eventBus: BridgeEventBus) {
-        this.persistenceSynchronizer =
-            new BridgeEncounterPersistenceSynchronizer(
-                GAME_RUNTIME,
-            );
+        this.persistenceSynchronizer = new BridgeEncounterPersistenceSynchronizer(GAME_RUNTIME);
 
         this.engineEventHandler = new BridgeEncounterEngineEventHandler(
             this.eventBus,
@@ -102,8 +93,7 @@ export default class BridgeEncounterController {
 
         this.isEncounterInteractive = false;
 
-        this.hasAppliedEnemyCombatStartDebugBehaviors =
-            false;
+        this.hasAppliedEnemyCombatStartDebugBehaviors = false;
     }
 
     // #endregion
@@ -121,26 +111,15 @@ export default class BridgeEncounterController {
 
         this.encounterEngine.step(deltaMs);
 
-        const presentationSnapshot =
-            this.encounterEngine
-                .getPresentationSnapshot();
+        const presentationSnapshot = this.encounterEngine.getPresentationSnapshot();
 
-        this.persistEncounterSnapshot(
-            presentationSnapshot,
-        );
+        this.persistEncounterSnapshot(presentationSnapshot);
 
-        this.snapshotSynchronizer
-            ?.syncPlayerShipDashboard(
-                presentationSnapshot,
-            );
+        this.snapshotSynchronizer?.syncPlayerShipDashboard(presentationSnapshot);
 
         this.drainEncounterEvents();
 
-        this.snapshotSynchronizer
-            ?.syncCombatPresentation(
-                presentationSnapshot,
-            );
-
+        this.snapshotSynchronizer?.syncCombatPresentation(presentationSnapshot);
     }
 
     // #endregion
@@ -161,8 +140,7 @@ export default class BridgeEncounterController {
         this.eventBus.on(BRIDGE_EVENT.ENCOUNTER_ARRIVAL_COMPLETED, this.handleEncounterArrivalCompleted, this);
 
         this.eventBus.on(
-            BRIDGE_EVENT
-                .ENCOUNTER_TRAVEL_FLIGHT_STARTED,
+            BRIDGE_EVENT.ENCOUNTER_TRAVEL_FLIGHT_STARTED,
 
             this.handleEncounterTravelFlightStarted,
             this,
@@ -173,7 +151,6 @@ export default class BridgeEncounterController {
         this.eventBus.on(BRIDGE_EVENT.ENCOUNTER_JUMP_COMPLETED, this.handleEncounterJumpCompleted, this);
 
         this.eventBus.on(BRIDGE_EVENT.DOCKING_ANIMATION_COMPLETED, this.handleDockingAnimationCompleted, this);
-
     }
 
     private unregisterBridgeEventHandlers(): void {
@@ -190,8 +167,7 @@ export default class BridgeEncounterController {
         this.eventBus.off(BRIDGE_EVENT.ENCOUNTER_ARRIVAL_COMPLETED, this.handleEncounterArrivalCompleted, this);
 
         this.eventBus.off(
-            BRIDGE_EVENT
-                .ENCOUNTER_TRAVEL_FLIGHT_STARTED,
+            BRIDGE_EVENT.ENCOUNTER_TRAVEL_FLIGHT_STARTED,
 
             this.handleEncounterTravelFlightStarted,
             this,
@@ -202,7 +178,6 @@ export default class BridgeEncounterController {
         this.eventBus.off(BRIDGE_EVENT.ENCOUNTER_JUMP_COMPLETED, this.handleEncounterJumpCompleted, this);
 
         this.eventBus.off(BRIDGE_EVENT.DOCKING_ANIMATION_COMPLETED, this.handleDockingAnimationCompleted, this);
-
     }
 
     // #endregion
@@ -230,65 +205,39 @@ export default class BridgeEncounterController {
             navigation: location.navigation,
 
             playerHull: {
-                hull:
-                    run.player.ship.hull,
+                hull: run.player.ship.hull,
 
-                maxHull:
-                    run.player.ship
-                        .maxHull,
+                maxHull: run.player.ship.maxHull,
             },
 
             drive: run.player.ship.drive,
 
-            defenseTurret:
-                run.player.ship
-                    .defenseTurret,
+            defenseTurret: run.player.ship.defenseTurret,
 
-            powerCore:
-                run.player.ship
-                    .powerCore,
+            powerCore: run.player.ship.powerCore,
 
-            shieldGenerator:
-                run.player.ship
-                    .shieldGenerator,
+            shieldGenerator: run.player.ship.shieldGenerator,
 
             weapons: run.player.ship.weapons,
 
             completeTimedTasksImmediately: DEBUG_SETTINGS.bridge.officerTasks.completeTimedTasksImmediately,
         });
 
-        this.snapshotSynchronizer = new BridgeEncounterSnapshotSynchronizer(
-            this.encounterEngine,
-            this.eventBus,
-        );
+        this.snapshotSynchronizer = new BridgeEncounterSnapshotSynchronizer(this.encounterEngine, this.eventBus);
 
-        this.officerCommandMenuController =
-            new BridgeOfficerCommandMenuController(
-                this.encounterEngine,
-                this.eventBus,
-            );
+        this.officerCommandMenuController = new BridgeOfficerCommandMenuController(this.encounterEngine, this.eventBus);
 
-        const loadPresentationSnapshot =
-            this.encounterEngine
-                .getPresentationSnapshot();
+        const loadPresentationSnapshot = this.encounterEngine.getPresentationSnapshot();
 
-        this.drainEncounterEvents(
-            loadPresentationSnapshot,
-        );
+        this.drainEncounterEvents(loadPresentationSnapshot);
 
         // Loaded presentation may synchronously restore/complete travel.
         // Persist and present one fresh coherent frame after those side effects.
-        const initialPresentationSnapshot =
-            this.encounterEngine
-                .getPresentationSnapshot();
+        const initialPresentationSnapshot = this.encounterEngine.getPresentationSnapshot();
 
-        this.persistEncounterSnapshot(
-            initialPresentationSnapshot,
-        );
+        this.persistEncounterSnapshot(initialPresentationSnapshot);
 
-        this.snapshotSynchronizer.syncInitial(
-            initialPresentationSnapshot,
-        );
+        this.snapshotSynchronizer.syncInitial(initialPresentationSnapshot);
 
         if (this.isEncounterInteractive) {
             this.engageHostileActors();
@@ -342,8 +291,7 @@ export default class BridgeEncounterController {
     }
 
     private handleEncounterTravelFlightStarted(): void {
-        this.engineEventHandler
-            .clearCombatPresentation();
+        this.engineEventHandler.clearCombatPresentation();
     }
 
     private handleEncounterTravelCompleted(payload: BridgeEncounterTravelCompletedPayload): void {
@@ -388,22 +336,14 @@ export default class BridgeEncounterController {
 
     // #region Engine events
 
-    private drainEncounterEvents(
-        presentationSnapshot?:
-            EncounterPresentationSnapshot,
-    ): void {
+    private drainEncounterEvents(presentationSnapshot?: EncounterPresentationSnapshot): void {
         if (!this.encounterEngine) {
             return;
         }
 
-        const events =
-            this.encounterEngine
-                .drainEvents();
+        const events = this.encounterEngine.drainEvents();
 
-        this.engineEventHandler.handle(
-            events,
-            presentationSnapshot,
-        );
+        this.engineEventHandler.handle(events, presentationSnapshot);
     }
 
     // #endregion
@@ -420,25 +360,15 @@ export default class BridgeEncounterController {
         const result = this.encounterEngine.executeCommand(input);
 
         if (result.status === OFFICER_COMMAND_EXECUTION_STATUS.EXECUTED) {
-            const presentationSnapshot =
-                this.encounterEngine
-                    .getPresentationSnapshot();
+            const presentationSnapshot = this.encounterEngine.getPresentationSnapshot();
 
-            this.persistEncounterSnapshot(
-                presentationSnapshot,
-            );
+            this.persistEncounterSnapshot(presentationSnapshot);
 
-            this.snapshotSynchronizer
-                ?.syncPlayerShipDashboard(
-                    presentationSnapshot,
-                );
+            this.snapshotSynchronizer?.syncPlayerShipDashboard(presentationSnapshot);
 
             this.drainEncounterEvents();
 
-            this.snapshotSynchronizer
-                ?.syncBeamCannonThreats(
-                    presentationSnapshot,
-                );
+            this.snapshotSynchronizer?.syncBeamCannonThreats(presentationSnapshot);
         }
 
         return result;
@@ -498,7 +428,7 @@ export default class BridgeEncounterController {
                             .map((role) => {
                                 return role.toUpperCase();
                             })
-                            .join(', ');
+                            .join(", ");
 
                         this.eventBus.emit(BRIDGE_EVENT.OFFICER_BARK_REQUESTED, {
                             role: payload.role,
@@ -535,16 +465,10 @@ export default class BridgeEncounterController {
 
         this.encounterEngine.engageHostileActors();
 
-        if (
-            !this
-                .hasAppliedEnemyCombatStartDebugBehaviors
-        ) {
-            applyEnemyCombatStartDebugBehaviors(
-                this.encounterEngine,
-            );
+        if (!this.hasAppliedEnemyCombatStartDebugBehaviors) {
+            applyEnemyCombatStartDebugBehaviors(this.encounterEngine);
 
-            this.hasAppliedEnemyCombatStartDebugBehaviors =
-                true;
+            this.hasAppliedEnemyCombatStartDebugBehaviors = true;
         }
 
         this.drainEncounterEvents();
@@ -557,15 +481,12 @@ export default class BridgeEncounterController {
 
         this.encounterEngine.completeArrival();
 
-        const presentationSnapshot =
-            this.encounterEngine
-                .getPresentationSnapshot();
+        const presentationSnapshot = this.encounterEngine.getPresentationSnapshot();
 
         this.persistEncounterSnapshot(
             presentationSnapshot,
 
-            PLAYER_SPACE_NAVIGATION_KIND
-                .ANCHORED,
+            PLAYER_SPACE_NAVIGATION_KIND.ANCHORED,
         );
     }
 
@@ -576,15 +497,12 @@ export default class BridgeEncounterController {
 
         this.encounterEngine.completeTravel(taskId);
 
-        const presentationSnapshot =
-            this.encounterEngine
-                .getPresentationSnapshot();
+        const presentationSnapshot = this.encounterEngine.getPresentationSnapshot();
 
         this.persistEncounterSnapshot(
             presentationSnapshot,
 
-            PLAYER_SPACE_NAVIGATION_KIND
-                .ANCHORED,
+            PLAYER_SPACE_NAVIGATION_KIND.ANCHORED,
         );
     }
 
@@ -593,32 +511,17 @@ export default class BridgeEncounterController {
     // #region Runtime synchronization
 
     private persistEncounterSnapshot(
-        snapshot:
-            EncounterPresentationSnapshot,
+        snapshot: EncounterPresentationSnapshot,
 
-        expectedNavigationKind?:
-            PlayerSpaceNavigationState[
-                'kind'
-            ],
+        expectedNavigationKind?: PlayerSpaceNavigationState["kind"],
     ): void {
-        const navigation =
-            snapshot.navigation;
+        const navigation = snapshot.navigation;
 
-        if (
-            expectedNavigationKind !== undefined &&
-            navigation.kind !==
-                expectedNavigationKind
-        ) {
-            throw new Error(
-                `Expected engine navigation ${expectedNavigationKind}, ` +
-                    `received ${navigation.kind}`,
-            );
+        if (expectedNavigationKind !== undefined && navigation.kind !== expectedNavigationKind) {
+            throw new Error(`Expected engine navigation ${expectedNavigationKind}, ` + `received ${navigation.kind}`);
         }
 
-        this.persistenceSynchronizer
-            .syncSnapshot(
-                snapshot,
-            );
+        this.persistenceSynchronizer.syncSnapshot(snapshot);
     }
 
     // #endregion

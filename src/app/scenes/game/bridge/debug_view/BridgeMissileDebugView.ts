@@ -1,12 +1,12 @@
 // src/app/scenes/game/bridge/debug_view/BridgeMissileDebugView.ts
-import type BridgeScene from '../BridgeScene';
-import { BRIDGE_MISSILE_DEBUG_CONFIG, type BridgeMissileDebugPoint } from './bridge_missile_debug_config';
+import type BridgeScene from "../BridgeScene";
+import { BRIDGE_MISSILE_DEBUG_CONFIG, type BridgeMissileDebugPoint } from "./bridge_missile_debug_config";
 
 type FlightState = {
     timeProgress: number;
 };
 
-type MissileTrajectoryId = '1' | '2' | '3' | '4' | '5';
+type MissileTrajectoryId = "1" | "2" | "3" | "4" | "5";
 
 export default class BridgeMissileDebugView {
     private graphics?: Phaser.GameObjects.Graphics;
@@ -17,22 +17,22 @@ export default class BridgeMissileDebugView {
     private readonly trailPoints: BridgeMissileDebugPoint[] = [];
 
     constructor(private readonly scene: BridgeScene) {
-        this.scene.input.keyboard?.on('keydown', this.handleKeyDown, this);
+        this.scene.input.keyboard?.on("keydown", this.handleKeyDown, this);
     }
 
     public destroy(): void {
-        this.scene.input.keyboard?.off('keydown', this.handleKeyDown, this);
+        this.scene.input.keyboard?.off("keydown", this.handleKeyDown, this);
 
         this.clearFlight();
     }
 
     private handleKeyDown(event: KeyboardEvent): void {
         switch (event.key) {
-            case '1':
-            case '2':
-            case '3':
-            case '4':
-            case '5':
+            case "1":
+            case "2":
+            case "3":
+            case "4":
+            case "5":
                 this.launch(event.key);
                 return;
 
@@ -47,7 +47,7 @@ export default class BridgeMissileDebugView {
 
         this.graphics = this.scene.add.graphics();
 
-        this.scene.layers.get('vfx').add(this.graphics);
+        this.scene.layers.get("vfx").add(this.graphics);
 
         const flightState: FlightState = {
             timeProgress: 0,
@@ -59,7 +59,7 @@ export default class BridgeMissileDebugView {
             targets: flightState,
             timeProgress: 1,
             duration: BRIDGE_MISSILE_DEBUG_CONFIG.durationMs,
-            ease: 'Linear',
+            ease: "Linear",
 
             onUpdate: () => {
                 this.updateFlight(flightState.timeProgress);
@@ -93,11 +93,7 @@ export default class BridgeMissileDebugView {
             const local = timeProgress / motion.terminalStartTimeProgress;
 
             const acceleratedCruise =
-                motion.cruiseLinearWeight * local +
-                (1 - motion.cruiseLinearWeight) *
-                    local *
-                    local *
-                    local;
+                motion.cruiseLinearWeight * local + (1 - motion.cruiseLinearWeight) * local * local * local;
 
             return motion.terminalStartPathProgress * acceleratedCruise;
         }
@@ -186,170 +182,74 @@ export default class BridgeMissileDebugView {
             Math.round(Phaser.Math.Linear(missileConfig.minPixelSize, missileConfig.maxPixelSize, depth)),
         );
 
-        const hotSize =
-            missileSize +
-            missileConfig.hotPaddingPx;
+        const hotSize = missileSize + missileConfig.hotPaddingPx;
 
-        graphics.fillStyle(
-            missileConfig.hotColor,
-            missileConfig.hotAlpha,
-        );
+        graphics.fillStyle(missileConfig.hotColor, missileConfig.hotAlpha);
 
         graphics.fillRect(
-            Math.round(
-                missilePoint.x -
-                    hotSize / 2,
-            ),
-            Math.round(
-                missilePoint.y -
-                    hotSize / 2,
-            ),
+            Math.round(missilePoint.x - hotSize / 2),
+            Math.round(missilePoint.y - hotSize / 2),
             hotSize,
             hotSize,
         );
 
-        graphics.fillStyle(
-            missileConfig.coreColor,
-            1,
-        );
+        graphics.fillStyle(missileConfig.coreColor, 1);
 
         graphics.fillRect(
-            Math.round(
-                missilePoint.x -
-                    missileSize / 2,
-            ),
-            Math.round(
-                missilePoint.y -
-                    missileSize / 2,
-            ),
+            Math.round(missilePoint.x - missileSize / 2),
+            Math.round(missilePoint.y - missileSize / 2),
             missileSize,
             missileSize,
         );
     }
 
-    private getTrajectoryPoint(
-        progress: number,
-    ): BridgeMissileDebugPoint {
-        const config =
-            BRIDGE_MISSILE_DEBUG_CONFIG;
+    private getTrajectoryPoint(progress: number): BridgeMissileDebugPoint {
+        const config = BRIDGE_MISSILE_DEBUG_CONFIG;
 
-        const trajectory =
-            this.getActiveTrajectory();
+        const trajectory = this.getActiveTrajectory();
 
-        const points = [
-            config.start,
-            ...trajectory.points,
-            trajectory.end,
-        ];
+        const points = [config.start, ...trajectory.points, trajectory.end];
 
-        const segmentCount =
-            points.length - 1;
+        const segmentCount = points.length - 1;
 
-        const scaledProgress =
-            Phaser.Math.Clamp(
-                progress,
-                0,
-                1,
-            ) * segmentCount;
+        const scaledProgress = Phaser.Math.Clamp(progress, 0, 1) * segmentCount;
 
-        const segmentIndex =
-            Math.min(
-                segmentCount - 1,
-                Math.floor(
-                    scaledProgress,
-                ),
-            );
+        const segmentIndex = Math.min(segmentCount - 1, Math.floor(scaledProgress));
 
-        const localProgress =
-            scaledProgress -
-            segmentIndex;
+        const localProgress = scaledProgress - segmentIndex;
 
-        const point0 =
-            points[
-                Math.max(
-                    0,
-                    segmentIndex - 1,
-                )
-            ];
+        const point0 = points[Math.max(0, segmentIndex - 1)];
 
-        const point1 =
-            points[segmentIndex];
+        const point1 = points[segmentIndex];
 
-        const point2 =
-            points[
-                Math.min(
-                    points.length - 1,
-                    segmentIndex + 1,
-                )
-            ];
+        const point2 = points[Math.min(points.length - 1, segmentIndex + 1)];
 
-        const point3 =
-            points[
-                Math.min(
-                    points.length - 1,
-                    segmentIndex + 2,
-                )
-            ];
+        const point3 = points[Math.min(points.length - 1, segmentIndex + 2)];
 
         return {
-            x: this.catmullRom(
-                point0.x,
-                point1.x,
-                point2.x,
-                point3.x,
-                localProgress,
-            ),
+            x: this.catmullRom(point0.x, point1.x, point2.x, point3.x, localProgress),
 
-            y: this.catmullRom(
-                point0.y,
-                point1.y,
-                point2.y,
-                point3.y,
-                localProgress,
-            ),
+            y: this.catmullRom(point0.y, point1.y, point2.y, point3.y, localProgress),
         };
     }
 
-    private catmullRom(
-        point0: number,
-        point1: number,
-        point2: number,
-        point3: number,
-        progress: number,
-    ): number {
-        const progressSquared =
-            progress * progress;
+    private catmullRom(point0: number, point1: number, point2: number, point3: number, progress: number): number {
+        const progressSquared = progress * progress;
 
-        const progressCubed =
-            progressSquared * progress;
+        const progressCubed = progressSquared * progress;
 
         return (
             0.5 *
-            (
-                2 * point1 +
-                (-point0 + point2) *
-                    progress +
-                (
-                    2 * point0 -
-                    5 * point1 +
-                    4 * point2 -
-                    point3
-                ) *
-                    progressSquared +
-                (
-                    -point0 +
-                    3 * point1 -
-                    3 * point2 +
-                    point3
-                ) *
-                    progressCubed
-            )
+            (2 * point1 +
+                (-point0 + point2) * progress +
+                (2 * point0 - 5 * point1 + 4 * point2 - point3) * progressSquared +
+                (-point0 + 3 * point1 - 3 * point2 + point3) * progressCubed)
         );
     }
 
     private getActiveTrajectory() {
         if (!this.activeTrajectoryId) {
-            throw new Error('Missile debug trajectory is not selected');
+            throw new Error("Missile debug trajectory is not selected");
         }
 
         return BRIDGE_MISSILE_DEBUG_CONFIG.trajectories[this.activeTrajectoryId];
@@ -375,14 +275,14 @@ export default class BridgeMissileDebugView {
             0.85,
         );
 
-        this.scene.layers.get('vfx').add(flash);
+        this.scene.layers.get("vfx").add(flash);
 
         this.scene.tweens.add({
             targets: flash,
             scale: config.flashScale,
             alpha: 0,
             duration: config.flashDurationMs,
-            ease: 'Quad.Out',
+            ease: "Quad.Out",
 
             onComplete: () => {
                 flash.destroy();

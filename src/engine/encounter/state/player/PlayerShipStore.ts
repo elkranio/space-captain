@@ -1,45 +1,21 @@
 // src/engine/encounter/state/player/PlayerShipStore.ts
 
-import type {
-    PowerCoreState,
-} from '../../../defs/power_core';
-import type {
-    PlayerHullDamageResult,
-} from '../../../defs/player';
+import type { PowerCoreState } from "../../../defs/power_core";
+import type { PlayerHullDamageResult } from "../../../defs/player";
 import {
     commitDefenseTurretCooldown,
     DEFENSE_TURRET_PHASE,
     DEFENSE_TURRET_SHOT_OUTCOME,
     type DefenseTurretShotOutcome,
-} from '../../../defs/defense_turret';
-import {
-    SHIP_WEAPONS,
-} from '../../../content/catalogs/ship_weapons';
-import {
-    SHIP_DRIVES,
-} from '../../../content/catalogs/ship_drives';
-import {
-    SHIP_DRIVE_STATUS,
-    type ShipDriveState,
-} from '../../../defs/ship_drive';
-import {
-    advanceShipEvade,
-    startShipEvade,
-    stopShipEvade,
-} from '../../../defs/ship_evade';
-import {
-    SHIELD_GENERATORS,
-} from '../../../content/catalogs/shield_generators';
-import {
-    DEFENSE_TURRETS,
-} from '../../../content/catalogs/defense_turrets';
-import {
-    resolveMissileInterception,
-} from '../../combat/defense_turret/resolve_missile_interception';
-import {
-    SHIELD_GENERATOR_PHASE,
-    SHIELD_GENERATOR_STATUS,
-} from '../../../defs/shield_generator';
+} from "../../../defs/defense_turret";
+import { SHIP_WEAPONS } from "../../../content/catalogs/ship_weapons";
+import { SHIP_DRIVES } from "../../../content/catalogs/ship_drives";
+import { SHIP_DRIVE_STATUS, type ShipDriveState } from "../../../defs/ship_drive";
+import { advanceShipEvade, startShipEvade, stopShipEvade } from "../../../defs/ship_evade";
+import { SHIELD_GENERATORS } from "../../../content/catalogs/shield_generators";
+import { DEFENSE_TURRETS } from "../../../content/catalogs/defense_turrets";
+import { resolveMissileInterception } from "../../combat/defense_turret/resolve_missile_interception";
+import { SHIELD_GENERATOR_PHASE, SHIELD_GENERATOR_STATUS } from "../../../defs/shield_generator";
 import {
     commitShipWeaponCooldown,
     finishShipWeaponAction,
@@ -50,112 +26,68 @@ import {
     type ShipWeaponState,
     type SpamProjectorState,
     type StickyMineDispenserState,
-} from '../../../defs/ship_weapon';
+} from "../../../defs/ship_weapon";
 import {
     spendPowerCoreCharge as spendInstalledPowerCoreCharge,
     spendPowerCoreCharges as spendInstalledPowerCoreCharges,
-} from '../../combat/defense/spend_power_core_charge';
+} from "../../combat/defense/spend_power_core_charge";
 import {
     COMBAT_THREAT_KIND,
     MISSILE_SIGNATURE_INTEL_STATUS,
     type ActiveShieldState,
     type ThreatIdentificationResult,
-} from '../../model/combat';
-import type {
-    EncounterState,
-} from '../../model/state';
-import type {
-    ResolvedMissileSignatureIntel,
-} from '../../model/missile_signature_intel';
+} from "../../model/combat";
+import type { EncounterState } from "../../model/state";
+import type { ResolvedMissileSignatureIntel } from "../../model/missile_signature_intel";
 
 // Owns player hull, drive and combat-system mutations.
 export default class PlayerShipStore {
-    constructor(
-        private readonly state: EncounterState,
-    ) {}
+    constructor(private readonly state: EncounterState) {}
 
-    public damagePlayerHull(
-        damage: number,
-    ): PlayerHullDamageResult {
-        if (
-            !Number.isFinite(damage) ||
-            damage < 0
-        ) {
-            throw new Error(
-                'Invalid player hull damage: ' +
-                    String(damage),
-            );
+    public damagePlayerHull(damage: number): PlayerHullDamageResult {
+        if (!Number.isFinite(damage) || damage < 0) {
+            throw new Error("Invalid player hull damage: " + String(damage));
         }
 
-        const playerHull =
-            this.state.playerHull;
+        const playerHull = this.state.playerHull;
 
-        const appliedDamage =
-            Math.min(
-                damage,
-                playerHull.hull,
-            );
+        const appliedDamage = Math.min(damage, playerHull.hull);
 
-        const wasAlive =
-            playerHull.hull > 0;
+        const wasAlive = playerHull.hull > 0;
 
-        playerHull.hull =
-            Math.max(
-                0,
-                playerHull.hull -
-                    appliedDamage,
-            );
+        playerHull.hull = Math.max(0, playerHull.hull - appliedDamage);
 
         return {
             appliedDamage,
 
-            remainingHull:
-                playerHull.hull,
+            remainingHull: playerHull.hull,
 
-            destroyed:
-                wasAlive &&
-                appliedDamage > 0 &&
-                playerHull.hull === 0,
+            destroyed: wasAlive && appliedDamage > 0 && playerHull.hull === 0,
         };
     }
 
-    public disablePlayerDrive():
-        ShipDriveState | undefined {
-        const drive =
-            this.state.drive;
+    public disablePlayerDrive(): ShipDriveState | undefined {
+        const drive = this.state.drive;
 
-        if (
-            drive.status ===
-            SHIP_DRIVE_STATUS.DISABLED
-        ) {
+        if (drive.status === SHIP_DRIVE_STATUS.DISABLED) {
             return undefined;
         }
 
-        drive.status =
-            SHIP_DRIVE_STATUS.DISABLED;
+        drive.status = SHIP_DRIVE_STATUS.DISABLED;
 
         return {
             ...drive,
         };
     }
 
-    public repairPlayerDrive():
-        ShipDriveState {
-        const drive =
-            this.state.drive;
+    public repairPlayerDrive(): ShipDriveState {
+        const drive = this.state.drive;
 
-        if (
-            drive.status !==
-            SHIP_DRIVE_STATUS.DISABLED
-        ) {
-            throw new Error(
-                'Cannot repair player drive from status: ' +
-                    drive.status,
-            );
+        if (drive.status !== SHIP_DRIVE_STATUS.DISABLED) {
+            throw new Error("Cannot repair player drive from status: " + drive.status);
         }
 
-        drive.status =
-            SHIP_DRIVE_STATUS.ONLINE;
+        drive.status = SHIP_DRIVE_STATUS.ONLINE;
 
         return {
             ...drive,
@@ -163,116 +95,49 @@ export default class PlayerShipStore {
     }
 
     public startPlayerEvade(): void {
-        const drive =
-            this.state.drive;
+        const drive = this.state.drive;
 
-        if (
-            drive.status !==
-            SHIP_DRIVE_STATUS.ONLINE
-        ) {
-            throw new Error(
-                'Cannot start player Evade with drive status: ' +
-                    drive.status,
-            );
+        if (drive.status !== SHIP_DRIVE_STATUS.ONLINE) {
+            throw new Error("Cannot start player Evade with drive status: " + drive.status);
         }
 
-        startShipEvade(
-            this.state.evade,
-            SHIP_DRIVES[
-                drive.driveId
-            ],
-        );
+        startShipEvade(this.state.evade, SHIP_DRIVES[drive.driveId]);
     }
 
-    public advancePlayerEvade(
-        deltaMs: number,
-    ): void {
-        advanceShipEvade(
-            this.state.evade,
-            SHIP_DRIVES[
-                this.state.drive
-                    .driveId
-            ],
-            deltaMs,
-        );
+    public advancePlayerEvade(deltaMs: number): void {
+        advanceShipEvade(this.state.evade, SHIP_DRIVES[this.state.drive.driveId], deltaMs);
     }
 
     public stopPlayerEvade(): boolean {
-        return stopShipEvade(
-            this.state.evade,
-            SHIP_DRIVES[
-                this.state.drive
-                    .driveId
-            ],
-        );
+        return stopShipEvade(this.state.evade, SHIP_DRIVES[this.state.drive.driveId]);
     }
 
-    public findPlayerWeaponById(
-        weaponId: string,
-    ): ShipWeaponState | undefined {
-        return this.state.combat
-            .playerWeapons
-            .find((weapon) => {
-                return (
-                    weapon.id ===
-                    weaponId
-                );
-            });
+    public findPlayerWeaponById(weaponId: string): ShipWeaponState | undefined {
+        return this.state.combat.playerWeapons.find((weapon) => {
+            return weapon.id === weaponId;
+        });
     }
 
-    public startPlayerMissileTargeting(
-        weaponId: string,
-    ): MissileLauncherState {
-        const weapon =
-            this.findPlayerWeaponById(
-                weaponId,
-            );
+    public startPlayerMissileTargeting(weaponId: string): MissileLauncherState {
+        const weapon = this.findPlayerWeaponById(weaponId);
 
         if (!weapon) {
-            throw new Error(
-                'Player weapon not found: ' +
-                    weaponId,
-            );
+            throw new Error("Player weapon not found: " + weaponId);
         }
 
-        if (
-            weapon.kind !==
-            SHIP_WEAPON_KIND
-                .MISSILE_LAUNCHER
-        ) {
-            throw new Error(
-                'Player weapon is not a missile launcher: ' +
-                    weaponId +
-                    '/' +
-                    weapon.kind,
-            );
+        if (weapon.kind !== SHIP_WEAPON_KIND.MISSILE_LAUNCHER) {
+            throw new Error("Player weapon is not a missile launcher: " + weaponId + "/" + weapon.kind);
         }
 
-        if (
-            weapon.phase !==
-            SHIP_WEAPON_PHASE.READY
-        ) {
-            throw new Error(
-                'Player missile launcher is not ready: ' +
-                    weaponId +
-                    '/' +
-                    weapon.phase,
-            );
+        if (weapon.phase !== SHIP_WEAPON_PHASE.READY) {
+            throw new Error("Player missile launcher is not ready: " + weaponId + "/" + weapon.phase);
         }
 
-        if (
-            weapon.ammoCount <= 0
-        ) {
-            throw new Error(
-                'Player missile launcher is empty: ' +
-                    weaponId +
-                    '/' +
-                    weapon.ammoCount,
-            );
+        if (weapon.ammoCount <= 0) {
+            throw new Error("Player missile launcher is empty: " + weaponId + "/" + weapon.ammoCount);
         }
 
-        weapon.phase =
-            SHIP_WEAPON_PHASE.TARGETING;
+        weapon.phase = SHIP_WEAPON_PHASE.TARGETING;
 
         weapon.phaseElapsedMs = 0;
 
@@ -281,59 +146,26 @@ export default class PlayerShipStore {
         };
     }
 
-    public startPlayerStickyMineDispensing(
-        weaponId: string,
-    ): StickyMineDispenserState {
-        const weapon =
-            this.findPlayerWeaponById(
-                weaponId,
-            );
+    public startPlayerStickyMineDispensing(weaponId: string): StickyMineDispenserState {
+        const weapon = this.findPlayerWeaponById(weaponId);
 
         if (!weapon) {
-            throw new Error(
-                'Player weapon not found: ' +
-                    weaponId,
-            );
+            throw new Error("Player weapon not found: " + weaponId);
         }
 
-        if (
-            weapon.kind !==
-            SHIP_WEAPON_KIND
-                .STICKY_MINE_DISPENSER
-        ) {
-            throw new Error(
-                'Player weapon is not a sticky-mine dispenser: ' +
-                    weaponId +
-                    '/' +
-                    weapon.kind,
-            );
+        if (weapon.kind !== SHIP_WEAPON_KIND.STICKY_MINE_DISPENSER) {
+            throw new Error("Player weapon is not a sticky-mine dispenser: " + weaponId + "/" + weapon.kind);
         }
 
-        if (
-            weapon.phase !==
-            SHIP_WEAPON_PHASE.READY
-        ) {
-            throw new Error(
-                'Player sticky-mine dispenser is not ready: ' +
-                    weaponId +
-                    '/' +
-                    weapon.phase,
-            );
+        if (weapon.phase !== SHIP_WEAPON_PHASE.READY) {
+            throw new Error("Player sticky-mine dispenser is not ready: " + weaponId + "/" + weapon.phase);
         }
 
-        if (
-            weapon.ammoCount <= 0
-        ) {
-            throw new Error(
-                'Player sticky-mine dispenser is empty: ' +
-                    weaponId +
-                    '/' +
-                    weapon.ammoCount,
-            );
+        if (weapon.ammoCount <= 0) {
+            throw new Error("Player sticky-mine dispenser is empty: " + weaponId + "/" + weapon.ammoCount);
         }
 
-        weapon.phase =
-            SHIP_WEAPON_PHASE.DISPENSING;
+        weapon.phase = SHIP_WEAPON_PHASE.DISPENSING;
 
         weapon.phaseElapsedMs = 0;
         weapon.dispensedMineCount = 0;
@@ -343,332 +175,152 @@ export default class PlayerShipStore {
         };
     }
 
-    public cancelPlayerStickyMineDispensing(
-        weaponId: string,
-    ): StickyMineDispenserState | undefined {
-        const weapon =
-            this.findPlayerWeaponById(
-                weaponId,
-            );
+    public cancelPlayerStickyMineDispensing(weaponId: string): StickyMineDispenserState | undefined {
+        const weapon = this.findPlayerWeaponById(weaponId);
 
         if (!weapon) {
             return undefined;
         }
 
-        if (
-            weapon.kind !==
-            SHIP_WEAPON_KIND
-                .STICKY_MINE_DISPENSER
-        ) {
-            throw new Error(
-                'Player sticky-mine task references non-dispenser weapon: ' +
-                    weaponId +
-                    '/' +
-                    weapon.kind,
-            );
+        if (weapon.kind !== SHIP_WEAPON_KIND.STICKY_MINE_DISPENSER) {
+            throw new Error("Player sticky-mine task references non-dispenser weapon: " + weaponId + "/" + weapon.kind);
         }
 
-        if (
-            weapon.phase !==
-            SHIP_WEAPON_PHASE.DISPENSING
-        ) {
-            throw new Error(
-                'Cannot cancel player sticky-mine salvo from phase: ' +
-                    weaponId +
-                    '/' +
-                    weapon.phase,
-            );
+        if (weapon.phase !== SHIP_WEAPON_PHASE.DISPENSING) {
+            throw new Error("Cannot cancel player sticky-mine salvo from phase: " + weaponId + "/" + weapon.phase);
         }
 
-        const definition =
-            SHIP_WEAPONS[
-                weapon.weaponId
-            ];
+        const definition = SHIP_WEAPONS[weapon.weaponId];
 
-        if (
-            definition.kind !==
-            SHIP_WEAPON_KIND
-                .STICKY_MINE_DISPENSER
-        ) {
-            throw new Error(
-                'Player sticky-mine dispenser definition mismatch: ' +
-                    weapon.id +
-                    '/' +
-                    weapon.weaponId,
-            );
+        if (definition.kind !== SHIP_WEAPON_KIND.STICKY_MINE_DISPENSER) {
+            throw new Error("Player sticky-mine dispenser definition mismatch: " + weapon.id + "/" + weapon.weaponId);
         }
 
-        finishShipWeaponAction(
-            weapon,
-            definition.cooldownDurationMs,
-        );
+        finishShipWeaponAction(weapon, definition.cooldownDurationMs);
 
         return {
             ...weapon,
         };
     }
 
-    public startPlayerSpamChanneling(
-        weaponId: string,
-    ): SpamProjectorState {
-        const weapon =
-            this.findPlayerWeaponById(
-                weaponId,
-            );
+    public startPlayerSpamChanneling(weaponId: string): SpamProjectorState {
+        const weapon = this.findPlayerWeaponById(weaponId);
 
         if (!weapon) {
-            throw new Error(
-                'Player weapon not found: ' +
-                    weaponId,
-            );
+            throw new Error("Player weapon not found: " + weaponId);
         }
 
-        if (
-            weapon.kind !==
-            SHIP_WEAPON_KIND
-                .SPAM_PROJECTOR
-        ) {
-            throw new Error(
-                'Player weapon is not a spam projector: ' +
-                    weaponId +
-                    '/' +
-                    weapon.kind,
-            );
+        if (weapon.kind !== SHIP_WEAPON_KIND.SPAM_PROJECTOR) {
+            throw new Error("Player weapon is not a spam projector: " + weaponId + "/" + weapon.kind);
         }
 
-        if (
-            weapon.phase !==
-            SHIP_WEAPON_PHASE.READY
-        ) {
-            throw new Error(
-                'Player spam projector is not ready: ' +
-                    weaponId +
-                    '/' +
-                    weapon.phase,
-            );
+        if (weapon.phase !== SHIP_WEAPON_PHASE.READY) {
+            throw new Error("Player spam projector is not ready: " + weaponId + "/" + weapon.phase);
         }
 
-        if (
-            weapon.activeChannelId !==
-            null
-        ) {
+        if (weapon.activeChannelId !== null) {
             throw new Error(
-                'Ready player spam projector ' +
-                    'still has an active channel: ' +
+                "Ready player spam projector " +
+                    "still has an active channel: " +
                     weaponId +
-                    '/' +
+                    "/" +
                     weapon.activeChannelId,
             );
         }
 
-        const definition =
-            SHIP_WEAPONS[
-                weapon.weaponId
-            ];
+        const definition = SHIP_WEAPONS[weapon.weaponId];
 
-        if (
-            definition.kind !==
-            SHIP_WEAPON_KIND
-                .SPAM_PROJECTOR
-        ) {
-            throw new Error(
-                'Player spam projector definition mismatch: ' +
-                    weapon.id +
-                    '/' +
-                    weapon.weaponId,
-            );
+        if (definition.kind !== SHIP_WEAPON_KIND.SPAM_PROJECTOR) {
+            throw new Error("Player spam projector definition mismatch: " + weapon.id + "/" + weapon.weaponId);
         }
 
-        weapon.phase =
-            SHIP_WEAPON_PHASE.CHANNELING;
+        weapon.phase = SHIP_WEAPON_PHASE.CHANNELING;
 
         weapon.phaseElapsedMs = 0;
 
-        commitShipWeaponCooldown(
-            weapon,
-            definition.cooldownDurationMs,
-        );
+        commitShipWeaponCooldown(weapon, definition.cooldownDurationMs);
 
         return {
             ...weapon,
         };
     }
 
-    public cancelPlayerSpamProjection(
-        weaponId: string,
-    ): string | undefined {
-        const weapon =
-            this.findPlayerWeaponById(
-                weaponId,
-            );
+    public cancelPlayerSpamProjection(weaponId: string): string | undefined {
+        const weapon = this.findPlayerWeaponById(weaponId);
 
         if (!weapon) {
             return undefined;
         }
 
-        if (
-            weapon.kind !==
-            SHIP_WEAPON_KIND
-                .SPAM_PROJECTOR
-        ) {
-            throw new Error(
-                'Player spam task references ' +
-                    'non-projector weapon: ' +
-                    weaponId +
-                    '/' +
-                    weapon.kind,
-            );
+        if (weapon.kind !== SHIP_WEAPON_KIND.SPAM_PROJECTOR) {
+            throw new Error("Player spam task references " + "non-projector weapon: " + weaponId + "/" + weapon.kind);
         }
 
-        if (
-            weapon.phase !==
-            SHIP_WEAPON_PHASE.CHANNELING
-        ) {
-            throw new Error(
-                'Cannot cancel player spam ' +
-                    'projection from phase: ' +
-                    weaponId +
-                    '/' +
-                    weapon.phase,
-            );
+        if (weapon.phase !== SHIP_WEAPON_PHASE.CHANNELING) {
+            throw new Error("Cannot cancel player spam " + "projection from phase: " + weaponId + "/" + weapon.phase);
         }
 
-        const channelId =
-            weapon.activeChannelId;
+        const channelId = weapon.activeChannelId;
 
-        weapon.activeChannelId =
-            null;
+        weapon.activeChannelId = null;
 
-        const definition =
-            SHIP_WEAPONS[
-                weapon.weaponId
-            ];
+        const definition = SHIP_WEAPONS[weapon.weaponId];
 
-        if (
-            definition.kind !==
-            SHIP_WEAPON_KIND
-                .SPAM_PROJECTOR
-        ) {
-            throw new Error(
-                'Player spam projector definition mismatch: ' +
-                    weapon.id +
-                    '/' +
-                    weapon.weaponId,
-            );
+        if (definition.kind !== SHIP_WEAPON_KIND.SPAM_PROJECTOR) {
+            throw new Error("Player spam projector definition mismatch: " + weapon.id + "/" + weapon.weaponId);
         }
 
-        finishShipWeaponAction(
-            weapon,
-            definition.cooldownDurationMs,
-        );
+        finishShipWeaponAction(weapon, definition.cooldownDurationMs);
 
         return channelId ?? undefined;
     }
 
-    public startPlayerBeamCannonCharging(
-        weaponId: string,
-    ): BeamCannonState {
-        const weapon =
-            this.findPlayerWeaponById(
-                weaponId,
-            );
+    public startPlayerBeamCannonCharging(weaponId: string): BeamCannonState {
+        const weapon = this.findPlayerWeaponById(weaponId);
 
         if (!weapon) {
-            throw new Error(
-                'Player weapon not found: ' +
-                    weaponId,
-            );
+            throw new Error("Player weapon not found: " + weaponId);
         }
 
-        if (
-            weapon.kind !==
-            SHIP_WEAPON_KIND.BEAM_CANNON
-        ) {
-            throw new Error(
-                'Player weapon is not a beamCannon: ' +
-                    weaponId +
-                    '/' +
-                    weapon.kind,
-            );
+        if (weapon.kind !== SHIP_WEAPON_KIND.BEAM_CANNON) {
+            throw new Error("Player weapon is not a beamCannon: " + weaponId + "/" + weapon.kind);
         }
 
-        if (
-            weapon.phase !==
-            SHIP_WEAPON_PHASE.READY
-        ) {
-            throw new Error(
-                'Player beamCannon is not ready: ' +
-                    weaponId +
-                    '/' +
-                    weapon.phase,
-            );
+        if (weapon.phase !== SHIP_WEAPON_PHASE.READY) {
+            throw new Error("Player beamCannon is not ready: " + weaponId + "/" + weapon.phase);
         }
 
-        const definition =
-            SHIP_WEAPONS[
-                weapon.weaponId
-            ];
+        const definition = SHIP_WEAPONS[weapon.weaponId];
 
-        if (
-            definition.kind !==
-            SHIP_WEAPON_KIND.BEAM_CANNON
-        ) {
-            throw new Error(
-                'Player beamCannon definition mismatch: ' +
-                    weapon.id +
-                    '/' +
-                    weapon.weaponId,
-            );
+        if (definition.kind !== SHIP_WEAPON_KIND.BEAM_CANNON) {
+            throw new Error("Player beamCannon definition mismatch: " + weapon.id + "/" + weapon.weaponId);
         }
 
-        weapon.phase =
-            SHIP_WEAPON_PHASE.CHARGING;
+        weapon.phase = SHIP_WEAPON_PHASE.CHARGING;
 
         weapon.phaseElapsedMs = 0;
 
-        commitShipWeaponCooldown(
-            weapon,
-            definition.cooldownDurationMs,
-        );
+        commitShipWeaponCooldown(weapon, definition.cooldownDurationMs);
 
         return {
             ...weapon,
         };
     }
 
-    public finishCancelledPlayerWeapon(
-        weaponId: string,
-    ): ShipWeaponState | undefined {
-        const weapon =
-            this.findPlayerWeaponById(
-                weaponId,
-            );
+    public finishCancelledPlayerWeapon(weaponId: string): ShipWeaponState | undefined {
+        const weapon = this.findPlayerWeaponById(weaponId);
 
         if (!weapon) {
             return undefined;
         }
 
-        const definition =
-            SHIP_WEAPONS[
-                weapon.weaponId
-            ];
+        const definition = SHIP_WEAPONS[weapon.weaponId];
 
-        if (
-            definition.kind !==
-            weapon.kind
-        ) {
-            throw new Error(
-                'Cancelled player weapon definition mismatch: ' +
-                    weapon.id +
-                    '/' +
-                    weapon.weaponId,
-            );
+        if (definition.kind !== weapon.kind) {
+            throw new Error("Cancelled player weapon definition mismatch: " + weapon.id + "/" + weapon.weaponId);
         }
 
-        finishShipWeaponAction(
-            weapon,
-            definition.cooldownDurationMs,
-        );
+        finishShipWeaponAction(weapon, definition.cooldownDurationMs);
 
         return {
             ...weapon,
@@ -677,18 +329,11 @@ export default class PlayerShipStore {
 
     public identifyThreat(
         threatId: string,
-        identification:
-            ResolvedMissileSignatureIntel,
+        identification: ResolvedMissileSignatureIntel,
     ): ThreatIdentificationResult | undefined {
-        const projectile =
-            this.state.combat
-                .projectiles
-                .find((candidate) => {
-                    return (
-                        candidate.id ===
-                        threatId
-                    );
-                });
+        const projectile = this.state.combat.projectiles.find((candidate) => {
+            return candidate.id === threatId;
+        });
 
         if (!projectile) {
             return undefined;
@@ -696,33 +341,20 @@ export default class PlayerShipStore {
 
         // CONFIRMED is terminal. A stale task completion must never
         // downgrade or replace already confirmed knowledge.
-        if (
-            projectile.identification
-                .status ===
-            MISSILE_SIGNATURE_INTEL_STATUS
-                .CONFIRMED
-        ) {
+        if (projectile.identification.status === MISSILE_SIGNATURE_INTEL_STATUS.CONFIRMED) {
             return {
-                kind:
-                    COMBAT_THREAT_KIND.MISSILE,
+                kind: COMBAT_THREAT_KIND.MISSILE,
 
-                ...projectile
-                    .identification,
+                ...projectile.identification,
             };
         }
 
         // System UI must never expose false confirmation.
         if (
-            identification.status ===
-                MISSILE_SIGNATURE_INTEL_STATUS
-                    .CONFIRMED &&
-            identification.hypothesis !==
-                projectile.signature
+            identification.status === MISSILE_SIGNATURE_INTEL_STATUS.CONFIRMED &&
+            identification.hypothesis !== projectile.signature
         ) {
-            throw new Error(
-                'Cannot confirm an incorrect missile signature: ' +
-                    threatId,
-            );
+            throw new Error("Cannot confirm an incorrect missile signature: " + threatId);
         }
 
         projectile.identification = {
@@ -730,212 +362,121 @@ export default class PlayerShipStore {
         };
 
         return {
-            kind:
-                COMBAT_THREAT_KIND.MISSILE,
+            kind: COMBAT_THREAT_KIND.MISSILE,
 
             ...identification,
         };
     }
 
-    public startPlayerShieldGeneratorCooldown():
-        void {
-        const emitter =
-            this.state.combat
-                .shieldGenerator;
+    public startPlayerShieldGeneratorCooldown(): void {
+        const emitter = this.state.combat.shieldGenerator;
 
         if (!emitter) {
+            throw new Error("Cannot start player shield cooldown: emitter missing");
+        }
+
+        if (emitter.status !== SHIELD_GENERATOR_STATUS.ONLINE || emitter.phase !== SHIELD_GENERATOR_PHASE.READY) {
             throw new Error(
-                'Cannot start player shield cooldown: emitter missing',
+                "Cannot start player shield cooldown from emitter state: " + emitter.status + "/" + emitter.phase,
             );
         }
 
-        if (
-            emitter.status !==
-            SHIELD_GENERATOR_STATUS.ONLINE ||
-            emitter.phase !==
-            SHIELD_GENERATOR_PHASE.READY
-        ) {
-            throw new Error(
-                'Cannot start player shield cooldown from emitter state: ' +
-                    emitter.status +
-                    '/' +
-                    emitter.phase,
-            );
-        }
-
-        emitter.phase =
-            SHIELD_GENERATOR_PHASE.COOLDOWN;
+        emitter.phase = SHIELD_GENERATOR_PHASE.COOLDOWN;
         emitter.phaseElapsedMs = 0;
     }
 
-    public startPlayerDefenseTurretCooldown():
-        void {
-        const defenseTurret =
-            this.state.combat
-                .defenseTurret;
+    public startPlayerDefenseTurretCooldown(): void {
+        const defenseTurret = this.state.combat.defenseTurret;
 
         if (!defenseTurret) {
-            throw new Error(
-                'Cannot start player Defense Turret cooldown: installation missing',
-            );
+            throw new Error("Cannot start player Defense Turret cooldown: installation missing");
         }
 
-        if (
-            defenseTurret.phase !==
-            DEFENSE_TURRET_PHASE.READY
-        ) {
-            throw new Error(
-                'Cannot start player Defense Turret cooldown from phase: ' +
-                    defenseTurret.phase,
-            );
+        if (defenseTurret.phase !== DEFENSE_TURRET_PHASE.READY) {
+            throw new Error("Cannot start player Defense Turret cooldown from phase: " + defenseTurret.phase);
         }
 
-        const definition =
-            DEFENSE_TURRETS[
-                defenseTurret
-                    .defenseTurretId
-            ];
+        const definition = DEFENSE_TURRETS[defenseTurret.defenseTurretId];
 
-        commitDefenseTurretCooldown(
-            defenseTurret,
-            definition.cooldownDurationMs,
-        );
+        commitDefenseTurretCooldown(defenseTurret, definition.cooldownDurationMs);
 
-        defenseTurret.phase =
-            DEFENSE_TURRET_PHASE.COOLDOWN;
+        defenseTurret.phase = DEFENSE_TURRET_PHASE.COOLDOWN;
         defenseTurret.phaseElapsedMs = 0;
         defenseTurret.targetProjectileId = null;
     }
 
-    public deployPlayerShield():
-        ActiveShieldState {
-        const emitter =
-            this.state.combat
-                .shieldGenerator;
+    public deployPlayerShield(): ActiveShieldState {
+        const emitter = this.state.combat.shieldGenerator;
 
         if (!emitter) {
-            throw new Error(
-                'Cannot deploy player shield: emitter missing',
-            );
+            throw new Error("Cannot deploy player shield: emitter missing");
         }
 
-        if (
-            emitter.status !==
-            SHIELD_GENERATOR_STATUS.ONLINE
-        ) {
-            throw new Error(
-                'Cannot deploy player shield from emitter status: ' +
-                    emitter.status,
-            );
+        if (emitter.status !== SHIELD_GENERATOR_STATUS.ONLINE) {
+            throw new Error("Cannot deploy player shield from emitter status: " + emitter.status);
         }
 
-        if (
-            this.state.combat
-                .activeShield
-        ) {
-            throw new Error(
-                'Cannot deploy player shield while another shield is active',
-            );
+        if (this.state.combat.activeShield) {
+            throw new Error("Cannot deploy player shield while another shield is active");
         }
 
-        const definition =
-            SHIELD_GENERATORS[
-                emitter
-                    .shieldGeneratorId
-            ];
+        const definition = SHIELD_GENERATORS[emitter.shieldGeneratorId];
 
-        const shield:
-            ActiveShieldState = {
-                sourceEmitterId:
-                    emitter.id,
+        const shield: ActiveShieldState = {
+            sourceEmitterId: emitter.id,
 
-                remainingDurationMs:
-                    definition
-                        .shieldDurationMs,
+            remainingDurationMs: definition.shieldDurationMs,
 
-                initialDurationMs:
-                    definition
-                        .shieldDurationMs,
-            };
+            initialDurationMs: definition.shieldDurationMs,
+        };
 
-        this.state.combat
-            .activeShield =
-                shield;
+        this.state.combat.activeShield = shield;
 
         return {
             ...shield,
         };
     }
 
-    public consumeActiveShield():
-        ActiveShieldState | undefined {
-        const shield =
-            this.state.combat
-                .activeShield;
+    public consumeActiveShield(): ActiveShieldState | undefined {
+        const shield = this.state.combat.activeShield;
 
         if (!shield) {
             return undefined;
         }
 
-        this.state.combat
-            .activeShield =
-                null;
+        this.state.combat.activeShield = null;
 
         return {
             ...shield,
         };
     }
 
-    public spendPowerCoreCharge():
-        PowerCoreState {
-        const powerCore =
-            this.requirePlayerPowerCore();
+    public spendPowerCoreCharge(): PowerCoreState {
+        const powerCore = this.requirePlayerPowerCore();
 
-        return spendInstalledPowerCoreCharge(
-            powerCore,
-        );
+        return spendInstalledPowerCoreCharge(powerCore);
     }
 
-    public spendPowerCoreCharges(
-        count: number,
-    ): PowerCoreState {
-        const powerCore =
-            this.requirePlayerPowerCore();
+    public spendPowerCoreCharges(count: number): PowerCoreState {
+        const powerCore = this.requirePlayerPowerCore();
 
-        return spendInstalledPowerCoreCharges(
-            powerCore,
-            count,
-        );
+        return spendInstalledPowerCoreCharges(powerCore, count);
     }
 
-    private requirePlayerPowerCore():
-        PowerCoreState {
-        const powerCore =
-            this.state.combat
-                .powerCore;
+    private requirePlayerPowerCore(): PowerCoreState {
+        const powerCore = this.state.combat.powerCore;
 
         if (!powerCore) {
-            throw new Error(
-                'Cannot spend defense-powerCore charge: installation missing',
-            );
+            throw new Error("Cannot spend defense-powerCore charge: installation missing");
         }
 
         return powerCore;
     }
 
-    public fireDefenseTurret(
-        threatId: string,
-        random: () => number,
-    ): DefenseTurretShotOutcome | undefined {
-        const projectile =
-            this.state.combat
-                .projectiles
-                .find((candidate) => {
-                    return (
-                        candidate.id ===
-                        threatId
-                    );
-                });
+    public fireDefenseTurret(threatId: string, random: () => number): DefenseTurretShotOutcome | undefined {
+        const projectile = this.state.combat.projectiles.find((candidate) => {
+            return candidate.id === threatId;
+        });
 
         // Threat may resolve before the Weapons task completes.
         // Charge was already spent at aim start.
@@ -943,61 +484,34 @@ export default class PlayerShipStore {
             return undefined;
         }
 
-        const defenseTurret =
-            this.state.combat
-                .defenseTurret;
+        const defenseTurret = this.state.combat.defenseTurret;
 
         if (!defenseTurret) {
-            throw new Error(
-                'Cannot fire player defense turret: installation missing',
-            );
+            throw new Error("Cannot fire player defense turret: installation missing");
         }
 
-        const definition =
-            DEFENSE_TURRETS[
-                defenseTurret
-                    .defenseTurretId
-            ];
+        const definition = DEFENSE_TURRETS[defenseTurret.defenseTurretId];
 
         const hypothesis =
-            projectile.identification
-                .status ===
-            MISSILE_SIGNATURE_INTEL_STATUS
-                .UNKNOWN
+            projectile.identification.status === MISSILE_SIGNATURE_INTEL_STATUS.UNKNOWN
                 ? undefined
-                : projectile.identification
-                      .hypothesis;
+                : projectile.identification.hypothesis;
 
-        const outcome =
-            resolveMissileInterception({
-                truth:
-                    projectile.signature,
+        const outcome = resolveMissileInterception({
+            truth: projectile.signature,
 
-                hypothesis,
+            hypothesis,
 
-                blindInterceptChance:
-                    definition
-                        .blindInterceptChance,
+            blindInterceptChance: definition.blindInterceptChance,
 
-                random,
-            });
+            random,
+        });
 
-        if (
-            outcome ===
-            DEFENSE_TURRET_SHOT_OUTCOME.HIT
-        ) {
-            const projectileIndex =
-                this.state.combat
-                    .projectiles
-                    .indexOf(projectile);
+        if (outcome === DEFENSE_TURRET_SHOT_OUTCOME.HIT) {
+            const projectileIndex = this.state.combat.projectiles.indexOf(projectile);
 
             if (projectileIndex >= 0) {
-                this.state.combat
-                    .projectiles
-                    .splice(
-                        projectileIndex,
-                        1,
-                    );
+                this.state.combat.projectiles.splice(projectileIndex, 1);
             }
         }
 

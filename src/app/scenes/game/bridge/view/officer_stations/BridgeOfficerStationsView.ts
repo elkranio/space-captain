@@ -1,7 +1,7 @@
-import type BridgeScene from '../../BridgeScene';
-import type BridgeEventBus from '../../events/BridgeEventBus';
-import { BRIDGE_OFFICER_STATION_LAYOUT } from './bridge_officer_station_layout';
-import BridgeOfficerStationView from './station/BridgeOfficerStationView';
+import type BridgeScene from "../../BridgeScene";
+import type BridgeEventBus from "../../events/BridgeEventBus";
+import { BRIDGE_OFFICER_STATION_LAYOUT } from "./bridge_officer_station_layout";
+import BridgeOfficerStationView from "./station/BridgeOfficerStationView";
 
 // Root view for the four bridge officers.
 // Station consoles themselves are authored into the bridge background.
@@ -15,7 +15,7 @@ export default class BridgeOfficerStationsView {
         private readonly eventBus: BridgeEventBus,
     ) {
         this.root = this.scene.add.container(0, 0);
-        this.scene.layers.get('bridge').add(this.root);
+        this.scene.layers.get("bridge").add(this.root);
 
         this.createStationViews();
     }
@@ -31,12 +31,7 @@ export default class BridgeOfficerStationsView {
 
     private createStationViews(): void {
         for (const layout of Object.values(BRIDGE_OFFICER_STATION_LAYOUT)) {
-            const stationView = new BridgeOfficerStationView(
-                this.scene,
-                this.root,
-                layout,
-                this.eventBus,
-            );
+            const stationView = new BridgeOfficerStationView(this.scene, this.root, layout, this.eventBus);
 
             this.stationViews.push(stationView);
         }

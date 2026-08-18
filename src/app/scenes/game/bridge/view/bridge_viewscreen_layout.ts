@@ -18,17 +18,9 @@ export const BRIDGE_VIEWSCREEN_CONTENT_RECT = {
     height: 270,
 } as const;
 
-export function getBridgeViewscreenPoint(
-    position: Phaser.Math.Vector2,
-): Phaser.Math.Vector2 {
+export function getBridgeViewscreenPoint(position: Phaser.Math.Vector2): Phaser.Math.Vector2 {
     return new Phaser.Math.Vector2(
-        BRIDGE_VIEWSCREEN_CONTENT_RECT.x +
-            (position.x + 1) *
-                0.5 *
-                BRIDGE_VIEWSCREEN_CONTENT_RECT.width,
-        BRIDGE_VIEWSCREEN_CONTENT_RECT.y +
-            (position.y + 1) *
-                0.5 *
-                BRIDGE_VIEWSCREEN_CONTENT_RECT.height,
+        BRIDGE_VIEWSCREEN_CONTENT_RECT.x + (position.x + 1) * 0.5 * BRIDGE_VIEWSCREEN_CONTENT_RECT.width,
+        BRIDGE_VIEWSCREEN_CONTENT_RECT.y + (position.y + 1) * 0.5 * BRIDGE_VIEWSCREEN_CONTENT_RECT.height,
     );
 }

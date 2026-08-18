@@ -1,82 +1,48 @@
 // src/engine/encounter/EncounterEngine.ts
 
-import type {
-    PowerCoreState,
-} from '../defs/power_core';
-import type {
-    ShipDefenseTurretState,
-} from '../defs/defense_turret';
-import {
-    ENCOUNTER_TEAM,
-    type EncounterTeam,
-} from '../defs/encounter_team';
-import type { OfficerRole } from '../defs/officer';
-import type {
-    PlayerHullState,
-} from '../defs/player';
-import type { PlayerSpaceNavigationState } from '../defs/player_location';
-import type { ShipDriveState } from '../defs/ship_drive';
-import {
-    SHIP_EVADE_PHASE,
-    type ShipEvadeState,
-} from '../defs/ship_evade';
-import type {
-    ShipWeaponState,
-} from '../defs/ship_weapon';
-import type {
-    ShieldGeneratorState,
-} from '../defs/shield_generator';
-import type { SpaceNodeState } from '../defs/universe';
-import CombatEngagementRunner from './combat/CombatEngagementRunner';
-import type {
-    EnemyDebugSnapshot,
-} from './debug/get_enemy_debug_snapshots';
-import CombatRunner from './combat/CombatRunner';
-import PowerCoreRunner from './combat/defense/PowerCoreRunner';
-import ShieldGeneratorRunner from './combat/defense/ShieldGeneratorRunner';
-import PlayerDefenseTurretRunner from './combat/defense_turret/PlayerDefenseTurretRunner';
-import type { EnemyShipTelemetrySnapshot } from './combat/queries/get_enemy_ship_telemetry_snapshots';
-import PlayerWeaponRunner from './combat/weapons/PlayerWeaponRunner';
-import OfficerCommandExecutor from './commands/OfficerCommandExecutor';
-import type { AvailableOfficerCommand, ExecuteOfficerCommandInput, ExecuteOfficerCommandResult } from './model/command';
-import {
-    type ActiveShieldState,
-    type CombatProjectileState,
-    type BeamCannonAttackState,
-} from './model/combat';
-import { ENCOUNTER_EVENT, type EncounterEvent } from './model/event';
-import type { OfficerAvailabilityStates } from './model/officer_availability';
-import { OFFICER_TASK_KIND, type OfficerTaskKind, type OfficerTaskState } from './model/officer_task';
-import OfficerTaskRunner from './officer_tasks/OfficerTaskRunner';
-import EncounterSnapshotReader from './snapshots/EncounterSnapshotReader';
-import type {
-    CombatPresentationSnapshot,
-} from './snapshots/combat_presentation_snapshot';
-import type {
-    EncounterPresentationSnapshot,
-} from './snapshots/encounter_presentation_snapshot';
-import {
-    createEncounterEventSnapshot,
-} from './snapshots/create_encounter_event_snapshot';
-import EncounterStateStore from './state/EncounterStateStore';
+import type { PowerCoreState } from "../defs/power_core";
+import type { ShipDefenseTurretState } from "../defs/defense_turret";
+import { ENCOUNTER_TEAM, type EncounterTeam } from "../defs/encounter_team";
+import type { OfficerRole } from "../defs/officer";
+import type { PlayerHullState } from "../defs/player";
+import type { PlayerSpaceNavigationState } from "../defs/player_location";
+import type { ShipDriveState } from "../defs/ship_drive";
+import { SHIP_EVADE_PHASE, type ShipEvadeState } from "../defs/ship_evade";
+import type { ShipWeaponState } from "../defs/ship_weapon";
+import type { ShieldGeneratorState } from "../defs/shield_generator";
+import type { SpaceNodeState } from "../defs/universe";
+import CombatEngagementRunner from "./combat/CombatEngagementRunner";
+import type { EnemyDebugSnapshot } from "./debug/get_enemy_debug_snapshots";
+import CombatRunner from "./combat/CombatRunner";
+import PowerCoreRunner from "./combat/defense/PowerCoreRunner";
+import ShieldGeneratorRunner from "./combat/defense/ShieldGeneratorRunner";
+import PlayerDefenseTurretRunner from "./combat/defense_turret/PlayerDefenseTurretRunner";
+import type { EnemyShipTelemetrySnapshot } from "./combat/queries/get_enemy_ship_telemetry_snapshots";
+import PlayerWeaponRunner from "./combat/weapons/PlayerWeaponRunner";
+import OfficerCommandExecutor from "./commands/OfficerCommandExecutor";
+import type { AvailableOfficerCommand, ExecuteOfficerCommandInput, ExecuteOfficerCommandResult } from "./model/command";
+import { type ActiveShieldState, type CombatProjectileState, type BeamCannonAttackState } from "./model/combat";
+import { ENCOUNTER_EVENT, type EncounterEvent } from "./model/event";
+import type { OfficerAvailabilityStates } from "./model/officer_availability";
+import { OFFICER_TASK_KIND, type OfficerTaskKind, type OfficerTaskState } from "./model/officer_task";
+import OfficerTaskRunner from "./officer_tasks/OfficerTaskRunner";
+import EncounterSnapshotReader from "./snapshots/EncounterSnapshotReader";
+import type { CombatPresentationSnapshot } from "./snapshots/combat_presentation_snapshot";
+import type { EncounterPresentationSnapshot } from "./snapshots/encounter_presentation_snapshot";
+import { createEncounterEventSnapshot } from "./snapshots/create_encounter_event_snapshot";
+import EncounterStateStore from "./state/EncounterStateStore";
 
-export type {
-    EnemyShipTelemetrySnapshot,
-} from './combat/queries/get_enemy_ship_telemetry_snapshots';
-export type {
-    EnemyDebugSnapshot,
-} from './debug/get_enemy_debug_snapshots';
-export type { BeamCannonThreatSnapshot } from './combat/queries/get_beam_cannon_threat_snapshots';
-export type { StickyMineSnapshot } from './combat/queries/get_sticky_mine_snapshots';
+export type { EnemyShipTelemetrySnapshot } from "./combat/queries/get_enemy_ship_telemetry_snapshots";
+export type { EnemyDebugSnapshot } from "./debug/get_enemy_debug_snapshots";
+export type { BeamCannonThreatSnapshot } from "./combat/queries/get_beam_cannon_threat_snapshots";
+export type { StickyMineSnapshot } from "./combat/queries/get_sticky_mine_snapshots";
 export type {
     CombatPresentationSnapshot,
     PowerCorePresentationSnapshot,
     EnemyShipPresentationSnapshot,
     PlayerWeaponPresentationSnapshot,
-} from './snapshots/combat_presentation_snapshot';
-export type {
-    EncounterPresentationSnapshot,
-} from './snapshots/encounter_presentation_snapshot';
+} from "./snapshots/combat_presentation_snapshot";
+export type { EncounterPresentationSnapshot } from "./snapshots/encounter_presentation_snapshot";
 
 export type EncounterEngineOptions = {
     node: SpaceNodeState;
@@ -85,14 +51,11 @@ export type EncounterEngineOptions = {
     playerHull: PlayerHullState;
     drive: ShipDriveState;
 
-    defenseTurret?:
-        ShipDefenseTurretState;
+    defenseTurret?: ShipDefenseTurretState;
 
-    powerCore?:
-        PowerCoreState;
+    powerCore?: PowerCoreState;
 
-    shieldGenerator?:
-        ShieldGeneratorState;
+    shieldGenerator?: ShieldGeneratorState;
 
     // Installed player weapons.
     // Empty loadout remains valid.
@@ -117,21 +80,15 @@ export default class EncounterEngine {
 
     private readonly combatRunner: CombatRunner;
 
-    private readonly powerCoreRunner:
-        PowerCoreRunner;
+    private readonly powerCoreRunner: PowerCoreRunner;
 
-    private readonly shieldGeneratorRunner:
-        ShieldGeneratorRunner;
+    private readonly shieldGeneratorRunner: ShieldGeneratorRunner;
 
-    private readonly playerDefenseTurretRunner:
-        PlayerDefenseTurretRunner;
+    private readonly playerDefenseTurretRunner: PlayerDefenseTurretRunner;
 
-    private readonly playerWeaponRunner:
-        PlayerWeaponRunner;
+    private readonly playerWeaponRunner: PlayerWeaponRunner;
 
-    private readonly combatEngagementRunner:
-        CombatEngagementRunner;
-
+    private readonly combatEngagementRunner: CombatEngagementRunner;
 
     constructor({
         node,
@@ -147,48 +104,32 @@ export default class EncounterEngine {
 
         random = Math.random,
     }: EncounterEngineOptions) {
-        this.stateStore =
-            EncounterStateStore.fromSpaceNode({
-                node,
-                navigation,
+        this.stateStore = EncounterStateStore.fromSpaceNode({
+            node,
+            navigation,
 
-                playerHull,
-                drive,
+            playerHull,
+            drive,
 
-                defenseTurret,
-                powerCore,
-                shieldGenerator,
+            defenseTurret,
+            powerCore,
+            shieldGenerator,
 
-                playerWeapons:
-                    weapons,
-            });
+            playerWeapons: weapons,
+        });
 
         const encounterState = this.stateStore.getState();
 
-        this.snapshotReader = new EncounterSnapshotReader(
-            encounterState,
-        );
+        this.snapshotReader = new EncounterSnapshotReader(encounterState);
 
-        this.powerCoreRunner =
-            new PowerCoreRunner(
-                encounterState,
-            );
+        this.powerCoreRunner = new PowerCoreRunner(encounterState);
 
+        this.shieldGeneratorRunner = new ShieldGeneratorRunner(encounterState, this.emit);
 
-        this.shieldGeneratorRunner =
-            new ShieldGeneratorRunner(
-                encounterState,
-                this.emit,
-            );
-
-        this.playerDefenseTurretRunner =
-            new PlayerDefenseTurretRunner(
-                encounterState,
-            );
+        this.playerDefenseTurretRunner = new PlayerDefenseTurretRunner(encounterState);
 
         this.combatRunner = new CombatRunner({
-            stateStore:
-                this.stateStore,
+            stateStore: this.stateStore,
 
             emit: this.emit,
 
@@ -198,21 +139,11 @@ export default class EncounterEngine {
                 this.officerTaskRunner.interruptRandomTaskByDamage();
             },
 
-            purgePlayerSpamChannel:
-                (
-                    channelId,
-                    targetActorId,
-                ) => {
-                    return this
-                        .playerWeaponRunner
-                        .purgeSpamChannel(
-                            channelId,
-                            targetActorId,
-                        );
-                },
+            purgePlayerSpamChannel: (channelId, targetActorId) => {
+                return this.playerWeaponRunner.purgeSpamChannel(channelId, targetActorId);
+            },
 
-            destroyEnemyActor:
-                this.destroyEnemyActor,
+            destroyEnemyActor: this.destroyEnemyActor,
         });
 
         this.officerTaskRunner = new OfficerTaskRunner({
@@ -231,41 +162,25 @@ export default class EncounterEngine {
             completeTimedTasksImmediately,
         });
 
-        this.playerWeaponRunner =
-            new PlayerWeaponRunner({
-                stateStore:
-                    this.stateStore,
+        this.playerWeaponRunner = new PlayerWeaponRunner({
+            stateStore: this.stateStore,
 
-                queuePlayerStickyMineAttach:
-                    (input) => {
-                        this.combatRunner
-                            .queuePlayerStickyMineAttach(
-                                input,
-                            );
-                    },
+            queuePlayerStickyMineAttach: (input) => {
+                this.combatRunner.queuePlayerStickyMineAttach(input);
+            },
 
-                queuePlayerMissileLaunch:
-                    (input) => {
-                        this.combatRunner
-                            .queuePlayerMissileLaunch(
-                                input,
-                            );
-                    },
+            queuePlayerMissileLaunch: (input) => {
+                this.combatRunner.queuePlayerMissileLaunch(input);
+            },
 
-                destroyEnemyActor:
-                    this.destroyEnemyActor,
+            destroyEnemyActor: this.destroyEnemyActor,
 
-                emit: this.emit,
+            emit: this.emit,
 
-                completeOfficerTask:
-                    this.officerTaskRunner
-                        .complete,
-            });
+            completeOfficerTask: this.officerTaskRunner.complete,
+        });
 
-        this.combatEngagementRunner =
-            new CombatEngagementRunner(
-                this.stateStore,
-            );
+        this.combatEngagementRunner = new CombatEngagementRunner(this.stateStore);
 
         this.officerCommandExecutor = new OfficerCommandExecutor({
             stateStore: this.stateStore,
@@ -275,9 +190,7 @@ export default class EncounterEngine {
         });
 
         this.emit({
-            type:
-                ENCOUNTER_EVENT
-                    .ENCOUNTER_LOADED,
+            type: ENCOUNTER_EVENT.ENCOUNTER_LOADED,
         });
     }
 
@@ -288,57 +201,37 @@ export default class EncounterEngine {
     }
 
     public engageHostileActors(): void {
-        this.combatEngagementRunner
-            .engageCurrentHostileActors();
+        this.combatEngagementRunner.engageCurrentHostileActors();
     }
 
-    public tryStartActorEvade(
-        actorId: string,
-    ): boolean {
-        return this.stateStore
-            .tryStartActorEvade(
-                actorId,
-            );
+    public tryStartActorEvade(actorId: string): boolean {
+        return this.stateStore.tryStartActorEvade(actorId);
     }
 
-    public setActorTeam(
-        actorId: string,
-        team: EncounterTeam,
-    ): void {
-        this.combatEngagementRunner.setActorTeam(
-            actorId,
-            team,
-        );
+    public setActorTeam(actorId: string, team: EncounterTeam): void {
+        this.combatEngagementRunner.setActorTeam(actorId, team);
     }
 
     public step(deltaMs: number): void {
-        this.powerCoreRunner
-            .step(deltaMs);
+        this.powerCoreRunner.step(deltaMs);
 
-        this.shieldGeneratorRunner
-            .step(deltaMs);
+        this.shieldGeneratorRunner.step(deltaMs);
 
-        this.playerDefenseTurretRunner
-            .step(deltaMs);
+        this.playerDefenseTurretRunner.step(deltaMs);
 
         this.officerTaskRunner.step(deltaMs);
 
         // Enemy Evade uses the same raw encounter/world clock as player Evade.
         // Advance it before player weapon physical resolution so the upcoming
         // player->enemy miss resolvers see the authoritative impact-time phase.
-        this.stateStore
-            .advanceActorEvades(
-                deltaMs,
-            );
+        this.stateStore.advanceActorEvades(deltaMs);
 
         this.playerWeaponRunner.step(deltaMs);
 
         // Evade uses raw encounter/world time and is advanced before
         // physical combat resolution so impact-time queries see the
         // authoritative phase for this step.
-        this.stepPlayerEvade(
-            deltaMs,
-        );
+        this.stepPlayerEvade(deltaMs);
 
         this.combatRunner.step(deltaMs);
 
@@ -369,25 +262,18 @@ export default class EncounterEngine {
         }
 
         if (!task.canBeCancelledByPlayer) {
-            throw new Error(
-                `Officer task cannot be cancelled by player: ` +
-                    `${task.id}/${task.kind}`,
-            );
+            throw new Error(`Officer task cannot be cancelled by player: ` + `${task.id}/${task.kind}`);
         }
 
         this.officerTaskRunner.cancel(task.id);
     }
 
-    public getPresentationSnapshot():
-        EncounterPresentationSnapshot {
-        return this.snapshotReader
-            .getPresentationSnapshot();
+    public getPresentationSnapshot(): EncounterPresentationSnapshot {
+        return this.snapshotReader.getPresentationSnapshot();
     }
 
-    public getCombatPresentationSnapshot():
-        CombatPresentationSnapshot {
-        return this.snapshotReader
-            .getCombatPresentationSnapshot();
+    public getCombatPresentationSnapshot(): CombatPresentationSnapshot {
+        return this.snapshotReader.getCombatPresentationSnapshot();
     }
 
     public getAvailableCommands(role: OfficerRole): AvailableOfficerCommand[] {
@@ -403,12 +289,10 @@ export default class EncounterEngine {
     }
 
     public getEvadeState(): ShipEvadeState {
-        return this.snapshotReader
-            .getEvadeState();
+        return this.snapshotReader.getEvadeState();
     }
 
-    public getPlayerHullState():
-        PlayerHullState {
+    public getPlayerHullState(): PlayerHullState {
         return this.snapshotReader.getPlayerHullState();
     }
 
@@ -420,43 +304,31 @@ export default class EncounterEngine {
         return this.snapshotReader.getOfficerTasks();
     }
 
-    public getPlayerWeaponStates():
-        ShipWeaponState[] {
+    public getPlayerWeaponStates(): ShipWeaponState[] {
         return this.snapshotReader.getPlayerWeaponStates();
     }
 
-    public getPowerCoreState():
-        PowerCoreState | undefined {
-        return this.snapshotReader
-            .getPowerCoreState();
+    public getPowerCoreState(): PowerCoreState | undefined {
+        return this.snapshotReader.getPowerCoreState();
     }
 
-    public getShieldGeneratorState():
-        ShieldGeneratorState | undefined {
-        return this.snapshotReader
-            .getShieldGeneratorState();
+    public getShieldGeneratorState(): ShieldGeneratorState | undefined {
+        return this.snapshotReader.getShieldGeneratorState();
     }
 
-    public getActiveShieldState():
-        ActiveShieldState | null {
-        return this.snapshotReader
-            .getActiveShieldState();
+    public getActiveShieldState(): ActiveShieldState | null {
+        return this.snapshotReader.getActiveShieldState();
     }
 
-    public getEnemyShipTelemetrySnapshots():
-        EnemyShipTelemetrySnapshot[] {
+    public getEnemyShipTelemetrySnapshots(): EnemyShipTelemetrySnapshot[] {
         return this.snapshotReader.getEnemyShipTelemetrySnapshots();
     }
 
-
-    public getEnemyDebugSnapshots():
-        EnemyDebugSnapshot[] {
-        return this.snapshotReader
-            .getEnemyDebugSnapshots();
+    public getEnemyDebugSnapshots(): EnemyDebugSnapshot[] {
+        return this.snapshotReader.getEnemyDebugSnapshots();
     }
 
-    public getCombatProjectiles():
-        CombatProjectileState[] {
+    public getCombatProjectiles(): CombatProjectileState[] {
         return this.snapshotReader.getCombatProjectiles();
     }
 
@@ -480,52 +352,26 @@ export default class EncounterEngine {
 
     // #region Player Evade lifecycle
 
-    private stepPlayerEvade(
-        deltaMs: number,
-    ): void {
-        const evadeTask =
-            this.stateStore
-                .getOfficerTasks()
-                .find((task) => {
-                    return (
-                        task.kind ===
-                        OFFICER_TASK_KIND
-                            .HELM_EVADE
-                    );
-                });
+    private stepPlayerEvade(deltaMs: number): void {
+        const evadeTask = this.stateStore.getOfficerTasks().find((task) => {
+            return task.kind === OFFICER_TASK_KIND.HELM_EVADE;
+        });
 
-        this.stateStore
-            .advancePlayerEvade(
-                deltaMs,
-            );
+        this.stateStore.advancePlayerEvade(deltaMs);
 
         if (!evadeTask) {
             return;
         }
 
-        const phase =
-            this.stateStore
-                .getState()
-                .evade
-                .phase;
+        const phase = this.stateStore.getState().evade.phase;
 
-        if (
-            phase ===
-                SHIP_EVADE_PHASE
-                    .WARMUP ||
-            phase ===
-                SHIP_EVADE_PHASE
-                    .EVADING
-        ) {
+        if (phase === SHIP_EVADE_PHASE.WARMUP || phase === SHIP_EVADE_PHASE.EVADING) {
             return;
         }
 
         // The maneuver owns the Helm task only through WARMUP + EVADING.
         // Recovery continues independently after Helm is released.
-        this.officerTaskRunner
-            .complete(
-                evadeTask.id,
-            );
+        this.officerTaskRunner.complete(evadeTask.id);
     }
 
     // #endregion
@@ -552,13 +398,8 @@ export default class EncounterEngine {
 
     // #region Enemy destruction
 
-    private destroyEnemyActor = (
-        actorId: string,
-    ): void => {
-        const actor =
-            this.stateStore.findActorById(
-                actorId,
-            );
+    private destroyEnemyActor = (actorId: string): void => {
+        const actor = this.stateStore.findActorById(actorId);
 
         // Multiple impacts in one step must not
         // produce duplicate destruction events.
@@ -566,36 +407,20 @@ export default class EncounterEngine {
             return;
         }
 
-        if (
-            actor.team !==
-                ENCOUNTER_TEAM.ENEMY ||
-            actor.hull > 0
-        ) {
+        if (actor.team !== ENCOUNTER_TEAM.ENEMY || actor.hull > 0) {
             throw new Error(
-                'Cannot destroy a live or ' +
-                    'non-enemy actor: ' +
-                    `${actor.id}/` +
-                    `${actor.team}/` +
-                    `${actor.hull}`,
+                "Cannot destroy a live or " + "non-enemy actor: " + `${actor.id}/` + `${actor.team}/` + `${actor.hull}`,
             );
         }
 
-        this.combatRunner
-            .removePlayerCombatObjectsTargetingActor(
-                actor.id,
-            );
+        this.combatRunner.removePlayerCombatObjectsTargetingActor(actor.id);
 
-        this.stateStore.removeActor(
-            actor.id,
-        );
+        this.stateStore.removeActor(actor.id);
 
         this.emit({
-            type:
-                ENCOUNTER_EVENT
-                    .ENEMY_SHIP_DESTROYED,
+            type: ENCOUNTER_EVENT.ENEMY_SHIP_DESTROYED,
 
-            actorId:
-                actor.id,
+            actorId: actor.id,
         });
     };
 
@@ -604,11 +429,7 @@ export default class EncounterEngine {
     // #region Event outbox
 
     private emit = (event: EncounterEvent): void => {
-        this.events.push(
-            createEncounterEventSnapshot(
-                event,
-            ),
-        );
+        this.events.push(createEncounterEventSnapshot(event));
     };
 
     // #endregion

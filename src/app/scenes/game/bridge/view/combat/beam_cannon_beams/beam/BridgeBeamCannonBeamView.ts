@@ -1,21 +1,18 @@
 // src/app/scenes/game/bridge/view/combat/beam_cannon_beams/beam/BridgeBeamCannonBeamView.ts
 
-import type BridgeScene from '../../../../BridgeScene';
+import type BridgeScene from "../../../../BridgeScene";
 
 type BridgeBeamCannonBeamViewOptions = {
     scene: BridgeScene;
     parent: Phaser.GameObjects.Container;
 
-    sourcePosition:
-        Phaser.Math.Vector2;
+    sourcePosition: Phaser.Math.Vector2;
 
-    targetPosition:
-        Phaser.Math.Vector2;
+    targetPosition: Phaser.Math.Vector2;
 
     // Optional point where perspective taper should reach its far width.
     // The beam may continue beyond this point (for example an Evade fly-by).
-    perspectiveTargetPosition?:
-        Phaser.Math.Vector2;
+    perspectiveTargetPosition?: Phaser.Math.Vector2;
 
     // true:
     // player source находится ближе камеры,
@@ -50,17 +47,13 @@ const BEAM_CANNON_BEAM = {
 // sourceNear определяет, какой конец
 // перспективно расположен ближе камеры.
 export default class BridgeBeamCannonBeamView {
-    private readonly graphics:
-        Phaser.GameObjects.Graphics;
+    private readonly graphics: Phaser.GameObjects.Graphics;
 
-    private readonly sourcePosition:
-        Phaser.Math.Vector2;
+    private readonly sourcePosition: Phaser.Math.Vector2;
 
-    private readonly targetPosition:
-        Phaser.Math.Vector2;
+    private readonly targetPosition: Phaser.Math.Vector2;
 
-    private readonly perspectiveDistance:
-        number;
+    private readonly perspectiveDistance: number;
 
     private elapsedMs = 0;
 
@@ -81,54 +74,32 @@ export default class BridgeBeamCannonBeamView {
     }: BridgeBeamCannonBeamViewOptions) {
         this.scene = scene;
 
-        this.sourcePosition =
-            sourcePosition.clone();
+        this.sourcePosition = sourcePosition.clone();
 
-        this.targetPosition =
-            targetPosition.clone();
+        this.targetPosition = targetPosition.clone();
 
-        const perspectiveTarget =
-            (
-                perspectiveTargetPosition ??
-                targetPosition
-            )
-                .clone();
+        const perspectiveTarget = (perspectiveTargetPosition ?? targetPosition).clone();
 
-        this.perspectiveDistance =
-            perspectiveTarget
-                .subtract(
-                    this.sourcePosition,
-                )
-                .length();
+        this.perspectiveDistance = perspectiveTarget.subtract(this.sourcePosition).length();
 
-        this.sourceNear =
-            sourceNear;
+        this.sourceNear = sourceNear;
 
-        this.onComplete =
-            onComplete;
+        this.onComplete = onComplete;
 
-        this.graphics =
-            scene.add.graphics();
+        this.graphics = scene.add.graphics();
 
         parent.add(this.graphics);
 
         this.draw();
 
-        this.scene.events.on(
-            Phaser.Scenes.Events.UPDATE,
-            this.handleSceneUpdate,
-            this,
-        );
+        this.scene.events.on(Phaser.Scenes.Events.UPDATE, this.handleSceneUpdate, this);
     }
 
-    private readonly scene:
-        BridgeScene;
+    private readonly scene: BridgeScene;
 
-    private readonly sourceNear:
-        boolean;
+    private readonly sourceNear: boolean;
 
-    private readonly onComplete:
-        () => void;
+    private readonly onComplete: () => void;
 
     public destroy(): void {
         if (this.destroyed) {
@@ -137,19 +108,12 @@ export default class BridgeBeamCannonBeamView {
 
         this.destroyed = true;
 
-        this.scene.events.off(
-            Phaser.Scenes.Events.UPDATE,
-            this.handleSceneUpdate,
-            this,
-        );
+        this.scene.events.off(Phaser.Scenes.Events.UPDATE, this.handleSceneUpdate, this);
 
         this.graphics.destroy();
     }
 
-    private handleSceneUpdate(
-        _time: number,
-        deltaMs: number,
-    ): void {
+    private handleSceneUpdate(_time: number, deltaMs: number): void {
         if (this.completed) {
             return;
         }
@@ -157,17 +121,9 @@ export default class BridgeBeamCannonBeamView {
         this.elapsedMs += deltaMs;
 
         const totalDurationMs =
-            BEAM_CANNON_BEAM
-                .extendDurationMs +
-            BEAM_CANNON_BEAM
-                .holdDurationMs +
-            BEAM_CANNON_BEAM
-                .fadeDurationMs;
+            BEAM_CANNON_BEAM.extendDurationMs + BEAM_CANNON_BEAM.holdDurationMs + BEAM_CANNON_BEAM.fadeDurationMs;
 
-        if (
-            this.elapsedMs >=
-            totalDurationMs
-        ) {
+        if (this.elapsedMs >= totalDurationMs) {
             this.completed = true;
             this.onComplete();
 
@@ -180,47 +136,33 @@ export default class BridgeBeamCannonBeamView {
     private draw(): void {
         this.graphics.clear();
 
-        const extensionProgress =
-            Phaser.Math.Clamp(
-                this.elapsedMs /
-                    BEAM_CANNON_BEAM
-                        .extendDurationMs,
+        const extensionProgress = Phaser.Math.Clamp(
+            this.elapsedMs / BEAM_CANNON_BEAM.extendDurationMs,
 
-                0,
-                1,
-            );
+            0,
+            1,
+        );
 
         const easedProgress =
             1 -
             Math.pow(
-                1 -
-                    extensionProgress,
+                1 - extensionProgress,
 
                 3,
             );
 
-        const currentTarget =
-            this.sourcePosition
-                .clone()
-                .lerp(
-                    this.targetPosition,
-                    easedProgress,
-                );
+        const currentTarget = this.sourcePosition.clone().lerp(this.targetPosition, easedProgress);
 
-        const alpha =
-            this.getAlpha();
+        const alpha = this.getAlpha();
 
         this.drawBeamLayer(
             currentTarget,
 
-            BEAM_CANNON_BEAM
-                .outlineFarHalfWidth,
+            BEAM_CANNON_BEAM.outlineFarHalfWidth,
 
-            BEAM_CANNON_BEAM
-                .outlineNearHalfWidth,
+            BEAM_CANNON_BEAM.outlineNearHalfWidth,
 
-            BEAM_CANNON_BEAM
-                .outlineColor,
+            BEAM_CANNON_BEAM.outlineColor,
 
             alpha,
         );
@@ -228,11 +170,9 @@ export default class BridgeBeamCannonBeamView {
         this.drawBeamLayer(
             currentTarget,
 
-            BEAM_CANNON_BEAM
-                .bodyFarHalfWidth,
+            BEAM_CANNON_BEAM.bodyFarHalfWidth,
 
-            BEAM_CANNON_BEAM
-                .bodyNearHalfWidth,
+            BEAM_CANNON_BEAM.bodyNearHalfWidth,
 
             BEAM_CANNON_BEAM.bodyColor,
 
@@ -242,11 +182,9 @@ export default class BridgeBeamCannonBeamView {
         this.drawBeamLayer(
             currentTarget,
 
-            BEAM_CANNON_BEAM
-                .coreFarHalfWidth,
+            BEAM_CANNON_BEAM.coreFarHalfWidth,
 
-            BEAM_CANNON_BEAM
-                .coreNearHalfWidth,
+            BEAM_CANNON_BEAM.coreNearHalfWidth,
 
             BEAM_CANNON_BEAM.coreColor,
 
@@ -255,8 +193,7 @@ export default class BridgeBeamCannonBeamView {
     }
 
     private drawBeamLayer(
-        currentTarget:
-            Phaser.Math.Vector2,
+        currentTarget: Phaser.Math.Vector2,
 
         farHalfWidth: number,
         nearHalfWidth: number,
@@ -264,110 +201,44 @@ export default class BridgeBeamCannonBeamView {
         color: number,
         alpha: number,
     ): void {
-        const direction =
-            currentTarget
-                .clone()
-                .subtract(
-                    this.sourcePosition,
-                );
+        const direction = currentTarget.clone().subtract(this.sourcePosition);
 
-        const currentLength =
-            direction.length();
+        const currentLength = direction.length();
 
-        if (
-            currentLength <=
-            Number.EPSILON
-        ) {
+        if (currentLength <= Number.EPSILON) {
             return;
         }
 
         direction.normalize();
 
-        const perpendicular =
-            new Phaser.Math.Vector2(
-                -direction.y,
-                direction.x,
-            );
+        const perpendicular = new Phaser.Math.Vector2(-direction.y, direction.x);
 
-        const sourceHalfWidth =
-            this.sourceNear
-                ? nearHalfWidth
-                : farHalfWidth;
+        const sourceHalfWidth = this.sourceNear ? nearHalfWidth : farHalfWidth;
 
-        const finalTargetHalfWidth =
-            this.sourceNear
-                ? farHalfWidth
-                : nearHalfWidth;
+        const finalTargetHalfWidth = this.sourceNear ? farHalfWidth : nearHalfWidth;
 
-        const safePerspectiveDistance =
-            Math.max(
-                Number.EPSILON,
-                this.perspectiveDistance,
-            );
+        const safePerspectiveDistance = Math.max(Number.EPSILON, this.perspectiveDistance);
 
-        const taperProgress =
-            Phaser.Math.Clamp(
-                currentLength /
-                    safePerspectiveDistance,
-                0,
-                1,
-            );
+        const taperProgress = Phaser.Math.Clamp(currentLength / safePerspectiveDistance, 0, 1);
 
-        const currentHalfWidth =
-            Phaser.Math.Linear(
-                sourceHalfWidth,
-                finalTargetHalfWidth,
-                taperProgress,
-            );
+        const currentHalfWidth = Phaser.Math.Linear(sourceHalfWidth, finalTargetHalfWidth, taperProgress);
 
-        const sourceOffset =
-            perpendicular
-                .clone()
-                .scale(
-                    sourceHalfWidth,
-                );
+        const sourceOffset = perpendicular.clone().scale(sourceHalfWidth);
 
-        const currentOffset =
-            perpendicular
-                .clone()
-                .scale(
-                    currentHalfWidth,
-                );
+        const currentOffset = perpendicular.clone().scale(currentHalfWidth);
 
-        this.graphics.fillStyle(
-            color,
-            alpha,
-        );
+        this.graphics.fillStyle(color, alpha);
 
-        if (
-            currentLength <=
-            safePerspectiveDistance
-        ) {
+        if (currentLength <= safePerspectiveDistance) {
             this.graphics.fillPoints(
                 [
-                    this.sourcePosition
-                        .clone()
-                        .add(
-                            sourceOffset,
-                        ),
+                    this.sourcePosition.clone().add(sourceOffset),
 
-                    currentTarget
-                        .clone()
-                        .add(
-                            currentOffset,
-                        ),
+                    currentTarget.clone().add(currentOffset),
 
-                    currentTarget
-                        .clone()
-                        .subtract(
-                            currentOffset,
-                        ),
+                    currentTarget.clone().subtract(currentOffset),
 
-                    this.sourcePosition
-                        .clone()
-                        .subtract(
-                            sourceOffset,
-                        ),
+                    this.sourcePosition.clone().subtract(sourceOffset),
                 ],
 
                 true,
@@ -376,64 +247,26 @@ export default class BridgeBeamCannonBeamView {
             return;
         }
 
-        const taperEnd =
-            this.sourcePosition
-                .clone()
-                .add(
-                    direction
-                        .clone()
-                        .scale(
-                            safePerspectiveDistance,
-                        ),
-                );
+        const taperEnd = this.sourcePosition.clone().add(direction.clone().scale(safePerspectiveDistance));
 
-        const finalOffset =
-            perpendicular
-                .clone()
-                .scale(
-                    finalTargetHalfWidth,
-                );
+        const finalOffset = perpendicular.clone().scale(finalTargetHalfWidth);
 
         // Past the perspective point the beam keeps its far width while the
         // visual line continues. This is what makes a long Evade fly-by look
         // tapered near the ship instead of only narrowing somewhere off-screen.
         this.graphics.fillPoints(
             [
-                this.sourcePosition
-                    .clone()
-                    .add(
-                        sourceOffset,
-                    ),
+                this.sourcePosition.clone().add(sourceOffset),
 
-                taperEnd
-                    .clone()
-                    .add(
-                        finalOffset,
-                    ),
+                taperEnd.clone().add(finalOffset),
 
-                currentTarget
-                    .clone()
-                    .add(
-                        finalOffset,
-                    ),
+                currentTarget.clone().add(finalOffset),
 
-                currentTarget
-                    .clone()
-                    .subtract(
-                        finalOffset,
-                    ),
+                currentTarget.clone().subtract(finalOffset),
 
-                taperEnd
-                    .clone()
-                    .subtract(
-                        finalOffset,
-                    ),
+                taperEnd.clone().subtract(finalOffset),
 
-                this.sourcePosition
-                    .clone()
-                    .subtract(
-                        sourceOffset,
-                    ),
+                this.sourcePosition.clone().subtract(sourceOffset),
             ],
 
             true,
@@ -441,25 +274,14 @@ export default class BridgeBeamCannonBeamView {
     }
 
     private getAlpha(): number {
-        const fadeStartMs =
-            BEAM_CANNON_BEAM
-                .extendDurationMs +
-            BEAM_CANNON_BEAM
-                .holdDurationMs;
+        const fadeStartMs = BEAM_CANNON_BEAM.extendDurationMs + BEAM_CANNON_BEAM.holdDurationMs;
 
-        if (
-            this.elapsedMs <=
-            fadeStartMs
-        ) {
+        if (this.elapsedMs <= fadeStartMs) {
             return 1;
         }
 
         return Phaser.Math.Clamp(
-            1 -
-                (this.elapsedMs -
-                    fadeStartMs) /
-                    BEAM_CANNON_BEAM
-                        .fadeDurationMs,
+            1 - (this.elapsedMs - fadeStartMs) / BEAM_CANNON_BEAM.fadeDurationMs,
 
             0,
             1,

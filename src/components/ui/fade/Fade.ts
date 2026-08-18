@@ -1,4 +1,4 @@
-import { DEFAULT_FADE_CONFIG, FadeConfig } from './fadeConfig';
+import { DEFAULT_FADE_CONFIG, FadeConfig } from "./fadeConfig";
 
 /**
  * A full-screen fade overlay that animates in and out using alpha tweens.

@@ -1,21 +1,10 @@
 // src/engine/encounter/combat/EnemyCrewTaskRunner.ts
 
-import type {
-    OfficerRole,
-} from '../../../defs/officer';
-import {
-    doesDefenseTurretPhaseRequireOperator,
-} from '../../../defs/defense_turret';
-import {
-    doesShipWeaponPhaseRequireOperator,
-} from '../../../defs/ship_weapon';
-import type {
-    ShipEncounterActorState,
-} from '../../actors/ship/ship_encounter_actor';
-import {
-    COMBAT_SOURCE_KIND,
-    COMBAT_TARGET_KIND,
-} from '../../model/combat';
+import type { OfficerRole } from "../../../defs/officer";
+import { doesDefenseTurretPhaseRequireOperator } from "../../../defs/defense_turret";
+import { doesShipWeaponPhaseRequireOperator } from "../../../defs/ship_weapon";
+import type { ShipEncounterActorState } from "../../actors/ship/ship_encounter_actor";
+import { COMBAT_SOURCE_KIND, COMBAT_TARGET_KIND } from "../../model/combat";
 import {
     SHIP_CREW_TASK_KIND,
     type ClearStickyMineShipCrewTaskState,
@@ -23,39 +12,22 @@ import {
     type IdentifyThreatShipCrewTaskState,
     type PurgeSpamShipCrewTaskState,
     type ShipCrewTaskState,
-} from '../../model/ship_crew_task';
-import {
-    ENEMY_THREAT_KIND,
-} from '../../model/enemy_threat_observation';
-import type {
-    EncounterState,
-} from '../../model/state';
-import CrewPerformanceResolver from '../../crew_performance/CrewPerformanceResolver';
-import {
-    getActiveCrewProgressEffects,
-} from '../../crew_performance/get_active_crew_progress_effects';
+} from "../../model/ship_crew_task";
+import { ENEMY_THREAT_KIND } from "../../model/enemy_threat_observation";
+import type { EncounterState } from "../../model/state";
+import CrewPerformanceResolver from "../../crew_performance/CrewPerformanceResolver";
+import { getActiveCrewProgressEffects } from "../../crew_performance/get_active_crew_progress_effects";
 
 type EnemyCrewTaskRunnerOptions = {
     state: EncounterState;
 
-    onShieldDeploymentCompleted?: (
-        actor: ShipEncounterActorState,
-    ) => void;
+    onShieldDeploymentCompleted?: (actor: ShipEncounterActorState) => void;
 
-    onStickyMineClearingCompleted: (
-        actor: ShipEncounterActorState,
-        mineId: string,
-    ) => void;
+    onStickyMineClearingCompleted: (actor: ShipEncounterActorState, mineId: string) => void;
 
-    onSpamPurgingCompleted: (
-        actor: ShipEncounterActorState,
-        channelId: string,
-    ) => void;
+    onSpamPurgingCompleted: (actor: ShipEncounterActorState, channelId: string) => void;
 
-    onThreatIdentificationCompleted: (
-        actor: ShipEncounterActorState,
-        observationId: string,
-    ) => void;
+    onThreatIdentificationCompleted: (actor: ShipEncounterActorState, observationId: string) => void;
 };
 
 // Владеет lifecycle задач абстрактного
@@ -72,29 +44,15 @@ type EnemyCrewTaskRunnerOptions = {
 export default class EnemyCrewTaskRunner {
     private readonly state: EncounterState;
 
-    private readonly performanceResolver:
-        CrewPerformanceResolver;
+    private readonly performanceResolver: CrewPerformanceResolver;
 
-    private readonly onShieldDeploymentCompleted:
-        (
-            actor:
-                ShipEncounterActorState,
-        ) => void;
+    private readonly onShieldDeploymentCompleted: (actor: ShipEncounterActorState) => void;
 
-    private readonly onStickyMineClearingCompleted:
-        EnemyCrewTaskRunnerOptions[
-            'onStickyMineClearingCompleted'
-        ];
+    private readonly onStickyMineClearingCompleted: EnemyCrewTaskRunnerOptions["onStickyMineClearingCompleted"];
 
-    private readonly onSpamPurgingCompleted:
-        EnemyCrewTaskRunnerOptions[
-            'onSpamPurgingCompleted'
-        ];
+    private readonly onSpamPurgingCompleted: EnemyCrewTaskRunnerOptions["onSpamPurgingCompleted"];
 
-    private readonly onThreatIdentificationCompleted:
-        EnemyCrewTaskRunnerOptions[
-            'onThreatIdentificationCompleted'
-        ];
+    private readonly onThreatIdentificationCompleted: EnemyCrewTaskRunnerOptions["onThreatIdentificationCompleted"];
 
     constructor({
         state,
@@ -105,86 +63,45 @@ export default class EnemyCrewTaskRunner {
     }: EnemyCrewTaskRunnerOptions) {
         this.state = state;
 
-        this.performanceResolver =
-            new CrewPerformanceResolver(
-                this.state,
-            );
+        this.performanceResolver = new CrewPerformanceResolver(this.state);
 
         this.onShieldDeploymentCompleted =
             onShieldDeploymentCompleted ??
             (() => {
-                throw new Error(
-                    'Enemy shield deployment callback is missing',
-                );
+                throw new Error("Enemy shield deployment callback is missing");
             });
 
-        this.onStickyMineClearingCompleted =
-            onStickyMineClearingCompleted;
+        this.onStickyMineClearingCompleted = onStickyMineClearingCompleted;
 
-        this.onSpamPurgingCompleted =
-            onSpamPurgingCompleted;
+        this.onSpamPurgingCompleted = onSpamPurgingCompleted;
 
-        this.onThreatIdentificationCompleted =
-            onThreatIdentificationCompleted;
+        this.onThreatIdentificationCompleted = onThreatIdentificationCompleted;
     }
 
-    public isRoleBusy(
-        actor: ShipEncounterActorState,
-        role: OfficerRole,
-    ): boolean {
-        return (
-            actor.crewTasks[role] !==
-            undefined
-        );
+    public isRoleBusy(actor: ShipEncounterActorState, role: OfficerRole): boolean {
+        return actor.crewTasks[role] !== undefined;
     }
 
-    public start(
-        actor: ShipEncounterActorState,
-        task: ShipCrewTaskState,
-    ): ShipCrewTaskState {
-        if (
-            !actor.crewRoles.includes(
-                task.role,
-            )
-        ) {
-            throw new Error(
-                'Ship crew role is missing: ' +
-                    actor.id +
-                    '/' +
-                    task.role,
-            );
+    public start(actor: ShipEncounterActorState, task: ShipCrewTaskState): ShipCrewTaskState {
+        if (!actor.crewRoles.includes(task.role)) {
+            throw new Error("Ship crew role is missing: " + actor.id + "/" + task.role);
         }
 
-        if (
-            this.isRoleBusy(
-                actor,
-                task.role,
-            )
-        ) {
-            throw new Error(
-                'Ship crew role already busy: ' +
-                    actor.id +
-                    '/' +
-                    task.role,
-            );
+        if (this.isRoleBusy(actor, task.role)) {
+            throw new Error("Ship crew role already busy: " + actor.id + "/" + task.role);
         }
 
         const storedTask: ShipCrewTaskState = {
             ...task,
         };
 
-        actor.crewTasks[task.role] =
-            storedTask;
+        actor.crewTasks[task.role] = storedTask;
 
         return storedTask;
     }
 
-    public cancel(
-        actor: ShipEncounterActorState,
-        role: OfficerRole,
-    ): ShipCrewTaskState | undefined {
-        const task =
-            actor.crewTasks[role];
+    public cancel(actor: ShipEncounterActorState, role: OfficerRole): ShipCrewTaskState | undefined {
+        const task = actor.crewTasks[role];
 
         if (!task) {
             return undefined;
@@ -195,93 +112,49 @@ export default class EnemyCrewTaskRunner {
         return task;
     }
 
-    public advance(
-        deltaMs: number,
-    ): void {
+    public advance(deltaMs: number): void {
         if (deltaMs < 0) {
-            throw new Error(
-                'Enemy crew task deltaMs ' +
-                    'cannot be negative: ' +
-                    deltaMs,
-            );
+            throw new Error("Enemy crew task deltaMs " + "cannot be negative: " + deltaMs);
         }
 
-        this.processTasks(
-            deltaMs,
-            true,
-        );
+        this.processTasks(deltaMs, true);
     }
 
     public synchronize(): void {
-        this.processTasks(
-            0,
-            false,
-        );
+        this.processTasks(0, false);
     }
 
-    private processTasks(
-        deltaMs: number,
-        advanceTimedTasks: boolean,
-    ): void {
+    private processTasks(deltaMs: number, advanceTimedTasks: boolean): void {
         for (const actor of this.state.actors) {
             if (actor.hull <= 0) {
                 this.cancelAll(actor);
                 continue;
             }
 
-            const progressDeltaMs =
-                advanceTimedTasks
-                    ? deltaMs *
-                      this.performanceResolver
-                          .getActorProgressMultiplier(
-                              actor.id,
-                          )
-                    : deltaMs;
+            const progressDeltaMs = advanceTimedTasks
+                ? deltaMs * this.performanceResolver.getActorProgressMultiplier(actor.id)
+                : deltaMs;
 
-            const taskRoles =
-                Object.keys(
-                    actor.crewTasks,
-                ) as OfficerRole[];
+            const taskRoles = Object.keys(actor.crewTasks) as OfficerRole[];
 
             for (const role of taskRoles) {
-                const task =
-                    actor.crewTasks[role];
+                const task = actor.crewTasks[role];
 
                 if (!task) {
                     continue;
                 }
 
                 if (task.role !== role) {
-                    throw new Error(
-                        'Ship crew task role mismatch: ' +
-                            actor.id +
-                            '/' +
-                            role +
-                            '/' +
-                            task.role,
-                    );
+                    throw new Error("Ship crew task role mismatch: " + actor.id + "/" + role + "/" + task.role);
                 }
 
-                if (
-                    !actor.crewRoles.includes(
-                        role,
-                    )
-                ) {
-                    this.cancel(
-                        actor,
-                        role,
-                    );
+                if (!actor.crewRoles.includes(role)) {
+                    this.cancel(actor, role);
 
                     continue;
                 }
 
-                this.processTask(
-                    actor,
-                    role,
-                    task,
-                    progressDeltaMs,
-                    advanceTimedTasks,
-                );
+                this.processTask(actor, role, task, progressDeltaMs, advanceTimedTasks);
             }
         }
     }
@@ -294,71 +167,33 @@ export default class EnemyCrewTaskRunner {
         advanceTimedTasks: boolean,
     ): void {
         switch (task.kind) {
-            case SHIP_CREW_TASK_KIND
-                .DEPLOY_SHIELD:
-                this.processDeployShield(
-                    actor,
-                    role,
-                    task,
-                    deltaMs,
-                    advanceTimedTasks,
-                );
+            case SHIP_CREW_TASK_KIND.DEPLOY_SHIELD:
+                this.processDeployShield(actor, role, task, deltaMs, advanceTimedTasks);
 
                 return;
 
-            case SHIP_CREW_TASK_KIND
-                .OPERATE_WEAPON:
-                this.synchronizeOperateWeapon(
-                    actor,
-                    role,
-                    task.weaponId,
-                );
+            case SHIP_CREW_TASK_KIND.OPERATE_WEAPON:
+                this.synchronizeOperateWeapon(actor, role, task.weaponId);
 
                 return;
 
-            case SHIP_CREW_TASK_KIND
-                .INTERCEPT_MISSILE:
-                this.synchronizeInterceptMissile(
-                    actor,
-                    role,
-                    task.defenseTurretId,
-                );
+            case SHIP_CREW_TASK_KIND.INTERCEPT_MISSILE:
+                this.synchronizeInterceptMissile(actor, role, task.defenseTurretId);
 
                 return;
 
-            case SHIP_CREW_TASK_KIND
-                .CLEAR_STICKY_MINE:
-                this.processClearStickyMine(
-                    actor,
-                    role,
-                    task,
-                    deltaMs,
-                    advanceTimedTasks,
-                );
+            case SHIP_CREW_TASK_KIND.CLEAR_STICKY_MINE:
+                this.processClearStickyMine(actor, role, task, deltaMs, advanceTimedTasks);
 
                 return;
 
-            case SHIP_CREW_TASK_KIND
-                .IDENTIFY_THREAT:
-                this.processIdentifyThreat(
-                    actor,
-                    role,
-                    task,
-                    deltaMs,
-                    advanceTimedTasks,
-                );
+            case SHIP_CREW_TASK_KIND.IDENTIFY_THREAT:
+                this.processIdentifyThreat(actor, role, task, deltaMs, advanceTimedTasks);
 
                 return;
 
-            case SHIP_CREW_TASK_KIND
-                .PURGE_SPAM:
-                this.processPurgeSpam(
-                    actor,
-                    role,
-                    task,
-                    deltaMs,
-                    advanceTimedTasks,
-                );
+            case SHIP_CREW_TASK_KIND.PURGE_SPAM:
+                this.processPurgeSpam(actor, role, task, deltaMs, advanceTimedTasks);
 
                 return;
         }
@@ -367,31 +202,17 @@ export default class EnemyCrewTaskRunner {
     private processDeployShield(
         actor: ShipEncounterActorState,
         role: OfficerRole,
-        task:
-            DeployShieldShipCrewTaskState,
+        task: DeployShieldShipCrewTaskState,
         deltaMs: number,
         advanceTimedTasks: boolean,
     ): void {
-        const observation =
-            actor
-                .threatObservations
-                .find((candidate) => {
-                    return (
-                        candidate.id ===
-                        task.observationId
-                    );
-                });
+        const observation = actor.threatObservations.find((candidate) => {
+            return candidate.id === task.observationId;
+        });
 
-        if (
-            !observation ||
-            observation.kind !==
-                ENEMY_THREAT_KIND.BEAM_CANNON
-        ) {
+        if (!observation || observation.kind !== ENEMY_THREAT_KIND.BEAM_CANNON) {
             // Charge was committed on task start and is not refunded.
-            this.cancel(
-                actor,
-                role,
-            );
+            this.cancel(actor, role);
 
             return;
         }
@@ -400,67 +221,33 @@ export default class EnemyCrewTaskRunner {
             return;
         }
 
-        task.elapsedMs =
-            Math.min(
-                task.durationMs,
-                task.elapsedMs +
-                    deltaMs,
-            );
+        task.elapsedMs = Math.min(task.durationMs, task.elapsedMs + deltaMs);
 
-        if (
-            task.elapsedMs <
-            task.durationMs
-        ) {
+        if (task.elapsedMs < task.durationMs) {
             return;
         }
 
-        this.onShieldDeploymentCompleted(
-            actor,
-        );
+        this.onShieldDeploymentCompleted(actor);
 
-        this.complete(
-            actor,
-            role,
-        );
+        this.complete(actor, role);
     }
 
-    private synchronizeOperateWeapon(
-        actor: ShipEncounterActorState,
-        role: OfficerRole,
-        weaponId: string,
-    ): void {
-        const weapon =
-            actor.weapons.find(
-                (candidate) => {
-                    return (
-                        candidate.id ===
-                        weaponId
-                    );
-                },
-            );
+    private synchronizeOperateWeapon(actor: ShipEncounterActorState, role: OfficerRole, weaponId: string): void {
+        const weapon = actor.weapons.find((candidate) => {
+            return candidate.id === weaponId;
+        });
 
         if (!weapon) {
-            this.cancel(
-                actor,
-                role,
-            );
+            this.cancel(actor, role);
 
             return;
         }
 
-        if (
-            doesShipWeaponPhaseRequireOperator(
-                weapon.phase,
-            )
-        ) {
+        if (doesShipWeaponPhaseRequireOperator(weapon.phase)) {
             return;
         }
 
-        this.complete(
-            actor,
-            role,
-        );
-
+        this.complete(actor, role);
     }
 
     private synchronizeInterceptMissile(
@@ -468,67 +255,39 @@ export default class EnemyCrewTaskRunner {
         role: OfficerRole,
         defenseTurretId: string,
     ): void {
-        const defenseTurret =
-            actor.defenseTurret;
+        const defenseTurret = actor.defenseTurret;
 
-        if (
-            !defenseTurret ||
-            defenseTurret.id !==
-                defenseTurretId
-        ) {
-            this.cancel(
-                actor,
-                role,
-            );
+        if (!defenseTurret || defenseTurret.id !== defenseTurretId) {
+            this.cancel(actor, role);
 
             return;
         }
 
-        if (
-            doesDefenseTurretPhaseRequireOperator(
-                defenseTurret.phase,
-            )
-        ) {
+        if (doesDefenseTurretPhaseRequireOperator(defenseTurret.phase)) {
             return;
         }
 
-        this.complete(
-            actor,
-            role,
-        );
+        this.complete(actor, role);
     }
 
     private processClearStickyMine(
         actor: ShipEncounterActorState,
         role: OfficerRole,
-        task:
-            ClearStickyMineShipCrewTaskState,
+        task: ClearStickyMineShipCrewTaskState,
         deltaMs: number,
         advanceTimedTasks: boolean,
     ): void {
-        const mine =
-            this.state.combat
-                .stickyMines
-                .find((candidate) => {
-                    return (
-                        candidate.id ===
-                            task.mineId &&
-                        candidate.source.kind ===
-                            COMBAT_SOURCE_KIND
-                                .PLAYER_SHIP &&
-                        candidate.target.kind ===
-                            COMBAT_TARGET_KIND
-                                .ACTOR &&
-                        candidate.target.actorId ===
-                            actor.id
-                    );
-                });
+        const mine = this.state.combat.stickyMines.find((candidate) => {
+            return (
+                candidate.id === task.mineId &&
+                candidate.source.kind === COMBAT_SOURCE_KIND.PLAYER_SHIP &&
+                candidate.target.kind === COMBAT_TARGET_KIND.ACTOR &&
+                candidate.target.actorId === actor.id
+            );
+        });
 
         if (!mine) {
-            this.cancel(
-                actor,
-                role,
-            );
+            this.cancel(actor, role);
 
             return;
         }
@@ -537,63 +296,39 @@ export default class EnemyCrewTaskRunner {
             return;
         }
 
-        task.elapsedMs =
-            Math.min(
-                task.durationMs,
+        task.elapsedMs = Math.min(
+            task.durationMs,
 
-                task.elapsedMs +
-                    deltaMs,
-            );
+            task.elapsedMs + deltaMs,
+        );
 
-        if (
-            task.elapsedMs <
-            task.durationMs
-        ) {
+        if (task.elapsedMs < task.durationMs) {
             return;
         }
 
-        this.onStickyMineClearingCompleted(
-            actor,
-            task.mineId,
-        );
+        this.onStickyMineClearingCompleted(actor, task.mineId);
 
-        this.complete(
-            actor,
-            role,
-        );
+        this.complete(actor, role);
     }
 
     private processPurgeSpam(
         actor: ShipEncounterActorState,
         role: OfficerRole,
-        task:
-            PurgeSpamShipCrewTaskState,
+        task: PurgeSpamShipCrewTaskState,
         deltaMs: number,
         advanceTimedTasks: boolean,
     ): void {
-        const channel =
-            getActiveCrewProgressEffects(
-                this.state,
-            ).find((effect) => {
-                return (
-                    effect.id ===
-                        task.channelId &&
-                    effect.source.kind ===
-                        COMBAT_SOURCE_KIND
-                            .PLAYER_SHIP &&
-                    effect.target.kind ===
-                        COMBAT_TARGET_KIND
-                            .ACTOR &&
-                    effect.target.actorId ===
-                        actor.id
-                );
-            });
+        const channel = getActiveCrewProgressEffects(this.state).find((effect) => {
+            return (
+                effect.id === task.channelId &&
+                effect.source.kind === COMBAT_SOURCE_KIND.PLAYER_SHIP &&
+                effect.target.kind === COMBAT_TARGET_KIND.ACTOR &&
+                effect.target.actorId === actor.id
+            );
+        });
 
         if (!channel) {
-            this.cancel(
-                actor,
-                role,
-            );
+            this.cancel(actor, role);
 
             return;
         }
@@ -602,58 +337,34 @@ export default class EnemyCrewTaskRunner {
             return;
         }
 
-        task.elapsedMs =
-            Math.min(
-                task.durationMs,
+        task.elapsedMs = Math.min(
+            task.durationMs,
 
-                task.elapsedMs +
-                    deltaMs,
-            );
+            task.elapsedMs + deltaMs,
+        );
 
-        if (
-            task.elapsedMs <
-            task.durationMs
-        ) {
+        if (task.elapsedMs < task.durationMs) {
             return;
         }
 
-        this.onSpamPurgingCompleted(
-            actor,
-            task.channelId,
-        );
+        this.onSpamPurgingCompleted(actor, task.channelId);
 
-        this.complete(
-            actor,
-            role,
-        );
+        this.complete(actor, role);
     }
 
     private processIdentifyThreat(
         actor: ShipEncounterActorState,
         role: OfficerRole,
-        task:
-            IdentifyThreatShipCrewTaskState,
+        task: IdentifyThreatShipCrewTaskState,
         deltaMs: number,
         advanceTimedTasks: boolean,
     ): void {
-        const observation =
-            actor
-                .threatObservations
-                .find((candidate) => {
-                    return (
-                        candidate.id ===
-                        task.observationId
-                    );
-                });
+        const observation = actor.threatObservations.find((candidate) => {
+            return candidate.id === task.observationId;
+        });
 
-        if (
-            !observation ||
-            observation.report
-        ) {
-            this.cancel(
-                actor,
-                role,
-            );
+        if (!observation || observation.report) {
+            this.cancel(actor, role);
 
             return;
         }
@@ -662,68 +373,32 @@ export default class EnemyCrewTaskRunner {
             return;
         }
 
-        task.elapsedMs =
-            Math.min(
-                task.durationMs,
-                task.elapsedMs +
-                    deltaMs,
-            );
+        task.elapsedMs = Math.min(task.durationMs, task.elapsedMs + deltaMs);
 
-        if (
-            task.elapsedMs <
-            task.durationMs
-        ) {
+        if (task.elapsedMs < task.durationMs) {
             return;
         }
 
-        this.onThreatIdentificationCompleted(
-            actor,
-            task.observationId,
-        );
+        this.onThreatIdentificationCompleted(actor, task.observationId);
 
-        this.complete(
-            actor,
-            role,
-        );
+        this.complete(actor, role);
     }
 
-    private complete(
-        actor: ShipEncounterActorState,
-        role: OfficerRole,
-    ): ShipCrewTaskState {
-        const task =
-            this.cancel(
-                actor,
-                role,
-            );
+    private complete(actor: ShipEncounterActorState, role: OfficerRole): ShipCrewTaskState {
+        const task = this.cancel(actor, role);
 
         if (!task) {
-            throw new Error(
-                'Ship crew task disappeared ' +
-                    'before completion: ' +
-                    actor.id +
-                    '/' +
-                    role,
-            );
+            throw new Error("Ship crew task disappeared " + "before completion: " + actor.id + "/" + role);
         }
 
         return task;
     }
 
-    private cancelAll(
-        actor: ShipEncounterActorState,
-    ): void {
-        const taskRoles =
-            Object.keys(
-                actor.crewTasks,
-            ) as OfficerRole[];
+    private cancelAll(actor: ShipEncounterActorState): void {
+        const taskRoles = Object.keys(actor.crewTasks) as OfficerRole[];
 
         for (const role of taskRoles) {
-            this.cancel(
-                actor,
-                role,
-            );
+            this.cancel(actor, role);
         }
     }
-
 }

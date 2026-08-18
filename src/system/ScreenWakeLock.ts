@@ -1,4 +1,4 @@
-import isMobile from 'is-mobile';
+import isMobile from "is-mobile";
 
 /**
  * A static manager for the Screen Wake Lock API.
@@ -14,7 +14,7 @@ export default class ScreenWakeLock {
      * @returns {boolean} True if supported and appropriate for use.
      */
     public static isSupported(): boolean {
-        return isMobile() && 'wakeLock' in navigator;
+        return isMobile() && "wakeLock" in navigator;
     }
 
     /**
@@ -25,16 +25,16 @@ export default class ScreenWakeLock {
         if (!this.isSupported()) return;
 
         try {
-            this.wakeLock = await navigator.wakeLock.request('screen');
+            this.wakeLock = await navigator.wakeLock.request("screen");
 
-            this.wakeLock.addEventListener('release', () => {
-                console.log('[WakeLock] Released. Reacquiring...');
+            this.wakeLock.addEventListener("release", () => {
+                console.log("[WakeLock] Released. Reacquiring...");
                 this.lock().catch(() => {});
             });
 
-            console.log('[WakeLock] Acquired');
+            console.log("[WakeLock] Acquired");
         } catch (err) {
-            console.warn('[WakeLock] Failed to acquire:', err);
+            console.warn("[WakeLock] Failed to acquire:", err);
         }
     }
 
@@ -46,9 +46,9 @@ export default class ScreenWakeLock {
             try {
                 await this.wakeLock.release();
                 this.wakeLock = null;
-                console.log('[WakeLock] Released manually');
+                console.log("[WakeLock] Released manually");
             } catch (err) {
-                console.warn('[WakeLock] Failed to release:', err);
+                console.warn("[WakeLock] Failed to release:", err);
             }
         }
     }

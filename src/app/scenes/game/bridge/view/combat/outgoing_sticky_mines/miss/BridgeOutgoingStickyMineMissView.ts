@@ -1,33 +1,22 @@
 // src/app/scenes/game/bridge/view/combat/outgoing_sticky_mines/miss/BridgeOutgoingStickyMineMissView.ts
 
-import {
-    MINE_SPRITE_ID,
-    MINE_SPRITES,
-} from '../../../../../../../manifests/combat/mines/mine_sprite';
-import type BridgeScene from '../../../../BridgeScene';
+import { MINE_SPRITE_ID, MINE_SPRITES } from "../../../../../../../manifests/combat/mines/mine_sprite";
+import type BridgeScene from "../../../../BridgeScene";
 
 type BridgeOutgoingStickyMineMissViewOptions = {
     scene: BridgeScene;
 
-    parent:
-        Phaser.GameObjects.Container;
+    parent: Phaser.GameObjects.Container;
 
     mineId: string;
 
-    startPosition:
-        Phaser.Math.Vector2;
+    startPosition: Phaser.Math.Vector2;
 
-    targetBasePosition:
-        Phaser.Math.Vector2;
+    targetBasePosition: Phaser.Math.Vector2;
 
-    targetVisualBounds:
-        Phaser.Geom.Rectangle;
+    targetVisualBounds: Phaser.Geom.Rectangle;
 
-    onComplete:
-        (
-            view:
-                BridgeOutgoingStickyMineMissView,
-        ) => void;
+    onComplete: (view: BridgeOutgoingStickyMineMissView) => void;
 };
 
 const OUTGOING_STICKY_MINE_MISS_PRESENTATION = {
@@ -57,7 +46,7 @@ const OUTGOING_STICKY_MINE_MISS_PRESENTATION = {
             },
             {
                 x: -0.75,
-                y: 0.70,
+                y: 0.7,
             },
             {
                 x: -0.15,
@@ -68,15 +57,15 @@ const OUTGOING_STICKY_MINE_MISS_PRESENTATION = {
                 y: 0.95,
             },
             {
-                x: 0.70,
-                y: -0.70,
+                x: 0.7,
+                y: -0.7,
             },
             {
                 x: 1.0,
                 y: 0.15,
             },
             {
-                x: 0.80,
+                x: 0.8,
                 y: 0.65,
             },
         ],
@@ -93,33 +82,23 @@ const OUTGOING_STICKY_MINE_MISS_PRESENTATION = {
 //
 // No attached mine/fuse is ever presented.
 export default class BridgeOutgoingStickyMineMissView {
-    private readonly root:
-        Phaser.GameObjects.Container;
+    private readonly root: Phaser.GameObjects.Container;
 
-    private readonly image:
-        Phaser.GameObjects.Image;
+    private readonly image: Phaser.GameObjects.Image;
 
-    private readonly burst:
-        Phaser.GameObjects.Graphics;
+    private readonly burst: Phaser.GameObjects.Graphics;
 
-    private readonly startPosition:
-        Phaser.Math.Vector2;
+    private readonly startPosition: Phaser.Math.Vector2;
 
-    private readonly controlPosition:
-        Phaser.Math.Vector2;
+    private readonly controlPosition: Phaser.Math.Vector2;
 
-    private readonly endPosition:
-        Phaser.Math.Vector2;
+    private readonly endPosition: Phaser.Math.Vector2;
 
-    private elapsedMs =
-        0;
+    private elapsedMs = 0;
 
-    private phase:
-        'flight' | 'self_destruct' =
-            'flight';
+    private phase: "flight" | "self_destruct" = "flight";
 
-    private isDestroyed =
-        false;
+    private isDestroyed = false;
 
     constructor({
         scene,
@@ -130,133 +109,67 @@ export default class BridgeOutgoingStickyMineMissView {
         targetVisualBounds,
         onComplete,
     }: BridgeOutgoingStickyMineMissViewOptions) {
-        this.scene =
-            scene;
+        this.scene = scene;
 
-        this.onComplete =
-            onComplete;
+        this.onComplete = onComplete;
 
-        this.startPosition =
-            startPosition.clone();
+        this.startPosition = startPosition.clone();
 
-        const missSide =
-            this.getMissSide(
-                mineId,
-                targetBasePosition,
-                targetVisualBounds,
-            );
+        const missSide = this.getMissSide(mineId, targetBasePosition, targetVisualBounds);
 
-        this.endPosition =
-            this.createEndPosition(
-                targetVisualBounds,
-                missSide,
-            );
+        this.endPosition = this.createEndPosition(targetVisualBounds, missSide);
 
-        this.controlPosition =
-            this.createControlPosition(
-                this.startPosition,
-                this.endPosition,
-                missSide,
-            );
+        this.controlPosition = this.createControlPosition(this.startPosition, this.endPosition, missSide);
 
-        this.root =
-            scene.add.container(
-                this.startPosition.x,
-                this.startPosition.y,
-            );
+        this.root = scene.add.container(this.startPosition.x, this.startPosition.y);
 
-        parent.add(
-            this.root,
-        );
+        parent.add(this.root);
 
-        const sprite =
-            MINE_SPRITES[
-                MINE_SPRITE_ID
-                    .STICKY_00
-            ];
+        const sprite = MINE_SPRITES[MINE_SPRITE_ID.STICKY_00];
 
-        this.image =
-            scene.add
-                .image(
-                    0,
-                    0,
+        this.image = scene.add
+            .image(
+                0,
+                0,
 
-                    sprite.atlasKey,
-                    sprite.frameKey,
-                )
-                .setScale(
-                    OUTGOING_STICKY_MINE_MISS_PRESENTATION
-                        .startScale,
-                );
+                sprite.atlasKey,
+                sprite.frameKey,
+            )
+            .setScale(OUTGOING_STICKY_MINE_MISS_PRESENTATION.startScale);
 
-        this.burst =
-            scene.add.graphics();
+        this.burst = scene.add.graphics();
 
-        this.root.add(
-            this.image,
-        );
+        this.root.add(this.image);
 
-        this.root.add(
-            this.burst,
-        );
+        this.root.add(this.burst);
 
-        scene.events.on(
-            Phaser.Scenes.Events.UPDATE,
-            this.handleUpdate,
-            this,
-        );
+        scene.events.on(Phaser.Scenes.Events.UPDATE, this.handleUpdate, this);
     }
 
-    private readonly scene:
-        BridgeScene;
+    private readonly scene: BridgeScene;
 
-    private readonly onComplete:
-        (
-            view:
-                BridgeOutgoingStickyMineMissView,
-        ) => void;
+    private readonly onComplete: (view: BridgeOutgoingStickyMineMissView) => void;
 
     public destroy(): void {
-        if (
-            this.isDestroyed
-        ) {
+        if (this.isDestroyed) {
             return;
         }
 
-        this.isDestroyed =
-            true;
+        this.isDestroyed = true;
 
-        this.scene.events.off(
-            Phaser.Scenes.Events.UPDATE,
-            this.handleUpdate,
-            this,
-        );
+        this.scene.events.off(Phaser.Scenes.Events.UPDATE, this.handleUpdate, this);
 
-        this.root.destroy(
-            true,
-        );
+        this.root.destroy(true);
     }
 
-    private handleUpdate(
-        _time: number,
-        deltaMs: number,
-    ): void {
-        if (
-            this.isDestroyed
-        ) {
+    private handleUpdate(_time: number, deltaMs: number): void {
+        if (this.isDestroyed) {
             return;
         }
 
-        this.elapsedMs +=
-            Math.max(
-                0,
-                deltaMs,
-            );
+        this.elapsedMs += Math.max(0, deltaMs);
 
-        if (
-            this.phase ===
-            'flight'
-        ) {
+        if (this.phase === "flight") {
             this.updateFlight();
 
             return;
@@ -266,347 +179,150 @@ export default class BridgeOutgoingStickyMineMissView {
     }
 
     private updateFlight(): void {
-        const config =
-            OUTGOING_STICKY_MINE_MISS_PRESENTATION;
+        const config = OUTGOING_STICKY_MINE_MISS_PRESENTATION;
 
-        const progress =
-            Phaser.Math.Clamp(
-                this.elapsedMs /
-                    config.flightDurationMs,
-                0,
-                1,
-            );
+        const progress = Phaser.Math.Clamp(this.elapsedMs / config.flightDurationMs, 0, 1);
 
         // Match the normal sticky-mine flight's Quad.In character:
         // most of the speed arrives near the target, so the mine does not
         // linger over the enemy silhouette before reaching the 8px exit.
-        const motionProgress =
-            progress *
-            progress;
+        const motionProgress = progress * progress;
 
-        const inverseProgress =
-            1 -
-            motionProgress;
+        const inverseProgress = 1 - motionProgress;
 
         this.root.setPosition(
-            inverseProgress *
-                inverseProgress *
-                this.startPosition.x +
-                2 *
-                    inverseProgress *
-                    motionProgress *
-                    this.controlPosition.x +
-                motionProgress *
-                    motionProgress *
-                    this.endPosition.x,
+            inverseProgress * inverseProgress * this.startPosition.x +
+                2 * inverseProgress * motionProgress * this.controlPosition.x +
+                motionProgress * motionProgress * this.endPosition.x,
 
-            inverseProgress *
-                inverseProgress *
-                this.startPosition.y +
-                2 *
-                    inverseProgress *
-                    motionProgress *
-                    this.controlPosition.y +
-                motionProgress *
-                    motionProgress *
-                    this.endPosition.y,
+            inverseProgress * inverseProgress * this.startPosition.y +
+                2 * inverseProgress * motionProgress * this.controlPosition.y +
+                motionProgress * motionProgress * this.endPosition.y,
         );
 
-        const scale =
-            Phaser.Math.Linear(
-                config.startScale,
-                config.endScale,
-                motionProgress,
-            );
+        const scale = Phaser.Math.Linear(config.startScale, config.endScale, motionProgress);
 
-        this.image.setScale(
-            scale,
-        );
+        this.image.setScale(scale);
 
-        if (
-            progress <
-            1
-        ) {
+        if (progress < 1) {
             return;
         }
 
-        this.phase =
-            'self_destruct';
+        this.phase = "self_destruct";
 
-        this.elapsedMs =
-            0;
+        this.elapsedMs = 0;
 
-        this.image.setVisible(
-            false,
-        );
+        this.image.setVisible(false);
 
-        this.renderSelfDestruct(
-            0,
-        );
+        this.renderSelfDestruct(0);
     }
 
     private updateSelfDestruct(): void {
-        const config =
-            OUTGOING_STICKY_MINE_MISS_PRESENTATION
-                .selfDestruct;
+        const config = OUTGOING_STICKY_MINE_MISS_PRESENTATION.selfDestruct;
 
-        const progress =
-            Phaser.Math.Clamp(
-                this.elapsedMs /
-                    config.durationMs,
-                0,
-                1,
-            );
+        const progress = Phaser.Math.Clamp(this.elapsedMs / config.durationMs, 0, 1);
 
-        this.renderSelfDestruct(
-            progress,
-        );
+        this.renderSelfDestruct(progress);
 
-        if (
-            progress <
-            1
-        ) {
+        if (progress < 1) {
             return;
         }
 
         this.destroy();
 
-        this.onComplete(
-            this,
-        );
+        this.onComplete(this);
     }
 
     private getMissSide(
         mineId: string,
 
-        targetBasePosition:
-            Phaser.Math.Vector2,
+        targetBasePosition: Phaser.Math.Vector2,
 
-        targetVisualBounds:
-            Phaser.Geom.Rectangle,
+        targetVisualBounds: Phaser.Geom.Rectangle,
     ): -1 | 1 {
-        const presentationOffsetX =
-            targetVisualBounds.centerX -
-            targetBasePosition.x;
+        const presentationOffsetX = targetVisualBounds.centerX - targetBasePosition.x;
 
-        if (
-            Math.abs(
-                presentationOffsetX,
-            ) >
-            1
-        ) {
-            return presentationOffsetX >
-                0
-                ? -1
-                : 1;
+        if (Math.abs(presentationOffsetX) > 1) {
+            return presentationOffsetX > 0 ? -1 : 1;
         }
 
-        let hash =
-            0;
+        let hash = 0;
 
-        for (
-            let index = 0;
-            index <
-                mineId.length;
-            index += 1
-        ) {
-            hash +=
-                mineId.charCodeAt(
-                    index,
-                );
+        for (let index = 0; index < mineId.length; index += 1) {
+            hash += mineId.charCodeAt(index);
         }
 
-        return hash % 2 ===
-            0
-            ? -1
-            : 1;
+        return hash % 2 === 0 ? -1 : 1;
     }
 
     private createEndPosition(
-        targetVisualBounds:
-            Phaser.Geom.Rectangle,
+        targetVisualBounds: Phaser.Geom.Rectangle,
 
-        missSide:
-            -1 | 1,
+        missSide: -1 | 1,
     ): Phaser.Math.Vector2 {
-        const clearancePx =
-            OUTGOING_STICKY_MINE_MISS_PRESENTATION
-                .clearancePx;
+        const clearancePx = OUTGOING_STICKY_MINE_MISS_PRESENTATION.clearancePx;
 
         return new Phaser.Math.Vector2(
-            missSide <
-                0
-                ? targetVisualBounds.left -
-                    clearancePx
-                : targetVisualBounds.right +
-                    clearancePx,
+            missSide < 0 ? targetVisualBounds.left - clearancePx : targetVisualBounds.right + clearancePx,
 
             targetVisualBounds.centerY,
         );
     }
 
     private createControlPosition(
-        startPosition:
-            Phaser.Math.Vector2,
+        startPosition: Phaser.Math.Vector2,
 
-        endPosition:
-            Phaser.Math.Vector2,
+        endPosition: Phaser.Math.Vector2,
 
-        missSide:
-            -1 | 1,
+        missSide: -1 | 1,
     ): Phaser.Math.Vector2 {
         return new Phaser.Math.Vector2(
-            Phaser.Math.Linear(
-                startPosition.x,
-                endPosition.x,
-                0.72,
-            ) +
-                missSide *
-                    OUTGOING_STICKY_MINE_MISS_PRESENTATION
-                        .bendPx,
+            Phaser.Math.Linear(startPosition.x, endPosition.x, 0.72) +
+                missSide * OUTGOING_STICKY_MINE_MISS_PRESENTATION.bendPx,
 
-            Phaser.Math.Linear(
-                startPosition.y,
-                endPosition.y,
-                0.72,
-            ),
+            Phaser.Math.Linear(startPosition.y, endPosition.y, 0.72),
         );
     }
 
-    private renderSelfDestruct(
-        progress: number,
-    ): void {
-        const config =
-            OUTGOING_STICKY_MINE_MISS_PRESENTATION
-                .selfDestruct;
+    private renderSelfDestruct(progress: number): void {
+        const config = OUTGOING_STICKY_MINE_MISS_PRESENTATION.selfDestruct;
 
-        const graphics =
-            this.burst;
+        const graphics = this.burst;
 
         graphics.clear();
 
-        const fragmentProgress =
-            1 -
-            Math.pow(
-                1 - progress,
-                2,
-            );
+        const fragmentProgress = 1 - Math.pow(1 - progress, 2);
 
-        const fragmentAlpha =
-            1 -
-            progress;
+        const fragmentAlpha = 1 - progress;
 
-        const coreProgress =
-            Phaser.Math.Clamp(
-                (
-                    progress *
-                    config.durationMs
-                ) /
-                    config.coreDurationMs,
-                0,
-                1,
-            );
+        const coreProgress = Phaser.Math.Clamp((progress * config.durationMs) / config.coreDurationMs, 0, 1);
 
-        const coreSize =
-            Math.max(
-                0,
-                Math.round(
-                    Phaser.Math.Linear(
-                        config.coreSizePx,
-                        0,
-                        coreProgress,
-                    ),
-                ),
-            );
+        const coreSize = Math.max(0, Math.round(Phaser.Math.Linear(config.coreSizePx, 0, coreProgress)));
 
-        if (
-            coreSize >
-            0
-        ) {
-            graphics.fillStyle(
-                config.hotColor,
-                1 - coreProgress,
-            );
+        if (coreSize > 0) {
+            graphics.fillStyle(config.hotColor, 1 - coreProgress);
 
-            graphics.fillRect(
-                Math.round(
-                    -coreSize / 2,
-                ),
-                Math.round(
-                    -coreSize / 2,
-                ),
-                coreSize,
-                coreSize,
-            );
+            graphics.fillRect(Math.round(-coreSize / 2), Math.round(-coreSize / 2), coreSize, coreSize);
         }
 
-        const fragmentSize =
-            Math.max(
-                1,
-                Math.round(
-                    Phaser.Math.Linear(
-                        config.fragmentSizePx,
-                        1,
-                        progress,
-                    ),
-                ),
-            );
+        const fragmentSize = Math.max(1, Math.round(Phaser.Math.Linear(config.fragmentSizePx, 1, progress)));
 
-        for (
-            let index = 0;
-            index <
-                config.fragments.length;
-            index += 1
-        ) {
-            const fragment =
-                config.fragments[
-                    index
-                ];
+        for (let index = 0; index < config.fragments.length; index += 1) {
+            const fragment = config.fragments[index];
 
-            const directionLength =
-                Math.hypot(
-                    fragment.x,
-                    fragment.y,
-                );
+            const directionLength = Math.hypot(fragment.x, fragment.y);
 
-            if (
-                directionLength <=
-                Number.EPSILON
-            ) {
+            if (directionLength <= Number.EPSILON) {
                 continue;
             }
 
-            const travelPx =
-                config.fragmentTravelPx *
-                fragmentProgress;
+            const travelPx = config.fragmentTravelPx * fragmentProgress;
 
-            graphics.fillStyle(
-                index % 2 ===
-                    0
-                    ? config.hotColor
-                    : config.coolColor,
-                fragmentAlpha,
-            );
+            graphics.fillStyle(index % 2 === 0 ? config.hotColor : config.coolColor, fragmentAlpha);
 
             graphics.fillRect(
-                Math.round(
-                    (
-                        fragment.x /
-                        directionLength
-                    ) *
-                        travelPx -
-                        fragmentSize /
-                            2,
-                ),
-                Math.round(
-                    (
-                        fragment.y /
-                        directionLength
-                    ) *
-                        travelPx -
-                        fragmentSize /
-                            2,
-                ),
+                Math.round((fragment.x / directionLength) * travelPx - fragmentSize / 2),
+                Math.round((fragment.y / directionLength) * travelPx - fragmentSize / 2),
                 fragmentSize,
                 fragmentSize,
             );

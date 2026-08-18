@@ -1,6 +1,6 @@
 // src/engine/encounter/commands/OfficerCommandExecutor.ts
 
-import { OFFICER_ROLE, type OfficerRole } from '../../defs/officer';
+import { OFFICER_ROLE, type OfficerRole } from "../../defs/officer";
 import {
     OFFICER_COMMAND_EXECUTION_STATUS,
     OFFICER_COMMAND_REJECTION_REASON,
@@ -9,11 +9,11 @@ import {
     type ExecuteOfficerCommandResult,
     type OfficerCommandTarget,
     ENCOUNTER_OFFICER_COMMAND_ID,
-} from '../model/command';
-import type { OfficerCommandExecutionContext, OfficerCommandHandler } from '../model/officer_command_handler';
-import EncounterStateStore from '../state/EncounterStateStore';
-import { getOfficerCommandHandler } from './officer_command_handlers';
-import { getAvailableOfficerCommands } from './queries/get_available_officer_commands';
+} from "../model/command";
+import type { OfficerCommandExecutionContext, OfficerCommandHandler } from "../model/officer_command_handler";
+import EncounterStateStore from "../state/EncounterStateStore";
+import { getOfficerCommandHandler } from "./officer_command_handlers";
+import { getAvailableOfficerCommands } from "./queries/get_available_officer_commands";
 
 type OfficerCommandExecutorOptions = OfficerCommandExecutionContext;
 
@@ -66,10 +66,7 @@ export default class OfficerCommandExecutor {
     // #region Command validation
 
     private isCommandAvailable(handler: OfficerCommandHandler, input: ExecuteOfficerCommandInput): boolean {
-        if (
-            handler.def.role !==
-            input.role
-        ) {
+        if (handler.def.role !== input.role) {
             return false;
         }
 
@@ -125,12 +122,9 @@ export default class OfficerCommandExecutor {
 
             case OFFICER_COMMAND_TARGET_KIND.ACTOR_WEAPON:
                 return (
-                    inputTarget.kind ===
-                        OFFICER_COMMAND_TARGET_KIND.ACTOR_WEAPON &&
-                    availableTarget.weaponId ===
-                        inputTarget.weaponId &&
-                    availableTarget.actorId ===
-                        inputTarget.actorId
+                    inputTarget.kind === OFFICER_COMMAND_TARGET_KIND.ACTOR_WEAPON &&
+                    availableTarget.weaponId === inputTarget.weaponId &&
+                    availableTarget.actorId === inputTarget.actorId
                 );
 
             case OFFICER_COMMAND_TARGET_KIND.THREAT:

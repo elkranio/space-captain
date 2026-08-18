@@ -1,26 +1,23 @@
 // src/app/scenes/game/bridge/view/combat/spam/BridgeSpamView.ts
 
-import {
-    SPAM_CHANNEL_OUTCOME,
-    type SpamChannelOutcome,
-} from '../../../../../../../engine/encounter/model/combat';
-import { SPAM_POPUP_SPRITES } from '../../../../../../manifests/bridge/combat_spam';
-import type { SpriteEntry } from '../../../../../../manifests/types';
-import type BridgeScene from '../../../BridgeScene';
+import { SPAM_CHANNEL_OUTCOME, type SpamChannelOutcome } from "../../../../../../../engine/encounter/model/combat";
+import { SPAM_POPUP_SPRITES } from "../../../../../../manifests/bridge/combat_spam";
+import type { SpriteEntry } from "../../../../../../manifests/types";
+import type BridgeScene from "../../../BridgeScene";
 import {
     BRIDGE_EVENT,
     type BridgeSpamChannelEndedPayload,
     type BridgeSpamChannelStartedPayload,
-} from '../../../events/bridge_event';
-import type BridgeEventBus from '../../../events/BridgeEventBus';
+} from "../../../events/bridge_event";
+import type BridgeEventBus from "../../../events/BridgeEventBus";
 import {
     BRIDGE_SPAM_LAYOUT_SLOTS,
     BRIDGE_SPAM_PRESENTATION,
     createSpamPopupPosition,
     takeRandomBagItem,
     type BridgeSpamLayoutSlot,
-} from './bridge_spam_layout';
-import BridgeSpamPopupView from './popup/BridgeSpamPopupView';
+} from "./bridge_spam_layout";
+import BridgeSpamPopupView from "./popup/BridgeSpamPopupView";
 
 // Root-view hostile spam projection.
 //
@@ -55,83 +52,53 @@ export default class BridgeSpamView {
         private readonly scene: BridgeScene,
         private readonly eventBus: BridgeEventBus,
     ) {
-        this.root = this.scene.add
-            .container(0, 0)
-            .setAlpha(BRIDGE_SPAM_PRESENTATION.baseAlpha);
+        this.root = this.scene.add.container(0, 0).setAlpha(BRIDGE_SPAM_PRESENTATION.baseAlpha);
 
         // Самый верхний слой внутри viewscreen:
         // поверх space/combat VFX, под bridge interior и UI.
-        this.scene.layers.get('projection').add(this.root);
+        this.scene.layers.get("projection").add(this.root);
+
+        this.eventBus.on(BRIDGE_EVENT.SPAM_CHANNEL_STARTED, this.handleSpamChannelStarted, this);
+
+        this.eventBus.on(BRIDGE_EVENT.SPAM_CHANNEL_ENDED, this.handleSpamChannelEnded, this);
 
         this.eventBus.on(
-            BRIDGE_EVENT.SPAM_CHANNEL_STARTED,
-            this.handleSpamChannelStarted,
-            this,
-        );
-
-        this.eventBus.on(
-            BRIDGE_EVENT.SPAM_CHANNEL_ENDED,
-            this.handleSpamChannelEnded,
-            this,
-        );
-
-        this.eventBus.on(
-            BRIDGE_EVENT
-                .ENEMY_SHIP_DESTRUCTION_STARTED,
+            BRIDGE_EVENT.ENEMY_SHIP_DESTRUCTION_STARTED,
 
             this.clearImmediately,
             this,
         );
 
         this.eventBus.on(
-            BRIDGE_EVENT
-                .ENCOUNTER_TRAVEL_FLIGHT_STARTED,
+            BRIDGE_EVENT.ENCOUNTER_TRAVEL_FLIGHT_STARTED,
 
             this.clearImmediately,
             this,
         );
 
-        this.scene.events.on(
-            Phaser.Scenes.Events.UPDATE,
-            this.handleSceneUpdate,
-            this,
-        );
+        this.scene.events.on(Phaser.Scenes.Events.UPDATE, this.handleSceneUpdate, this);
     }
 
     public destroy(): void {
-        this.eventBus.off(
-            BRIDGE_EVENT.SPAM_CHANNEL_STARTED,
-            this.handleSpamChannelStarted,
-            this,
-        );
+        this.eventBus.off(BRIDGE_EVENT.SPAM_CHANNEL_STARTED, this.handleSpamChannelStarted, this);
+
+        this.eventBus.off(BRIDGE_EVENT.SPAM_CHANNEL_ENDED, this.handleSpamChannelEnded, this);
 
         this.eventBus.off(
-            BRIDGE_EVENT.SPAM_CHANNEL_ENDED,
-            this.handleSpamChannelEnded,
-            this,
-        );
-
-        this.eventBus.off(
-            BRIDGE_EVENT
-                .ENEMY_SHIP_DESTRUCTION_STARTED,
+            BRIDGE_EVENT.ENEMY_SHIP_DESTRUCTION_STARTED,
 
             this.clearImmediately,
             this,
         );
 
         this.eventBus.off(
-            BRIDGE_EVENT
-                .ENCOUNTER_TRAVEL_FLIGHT_STARTED,
+            BRIDGE_EVENT.ENCOUNTER_TRAVEL_FLIGHT_STARTED,
 
             this.clearImmediately,
             this,
         );
 
-        this.scene.events.off(
-            Phaser.Scenes.Events.UPDATE,
-            this.handleSceneUpdate,
-            this,
-        );
+        this.scene.events.off(Phaser.Scenes.Events.UPDATE, this.handleSceneUpdate, this);
 
         this.closeSequenceId += 1;
 
@@ -147,13 +114,9 @@ export default class BridgeSpamView {
         this.root.destroy(false);
     }
 
-    private handleSpamChannelStarted(
-        payload: BridgeSpamChannelStartedPayload,
-    ): void {
+    private handleSpamChannelStarted(payload: BridgeSpamChannelStartedPayload): void {
         if (this.activeChannelIds.has(payload.channelId)) {
-            throw new Error(
-                `Spam channel already displayed: ${payload.channelId}`,
-            );
+            throw new Error(`Spam channel already displayed: ${payload.channelId}`);
         }
 
         const wasInactive = this.activeChannelIds.size === 0;
@@ -174,13 +137,9 @@ export default class BridgeSpamView {
         this.spawnPopup();
     }
 
-    private handleSpamChannelEnded(
-        payload: BridgeSpamChannelEndedPayload,
-    ): void {
+    private handleSpamChannelEnded(payload: BridgeSpamChannelEndedPayload): void {
         if (!this.activeChannelIds.delete(payload.channelId)) {
-            throw new Error(
-                `Displayed spam channel not found: ${payload.channelId}`,
-            );
+            throw new Error(`Displayed spam channel not found: ${payload.channelId}`);
         }
 
         if (this.activeChannelIds.size > 0) {
@@ -202,20 +161,14 @@ export default class BridgeSpamView {
 
         this.visiblePopups.length = 0;
 
-        for (
-            const popup of
-            this.popupViews
-        ) {
+        for (const popup of this.popupViews) {
             popup.destroy();
         }
 
         this.popupViews.clear();
     }
 
-    private handleSceneUpdate(
-        _time: number,
-        deltaMs: number,
-    ): void {
+    private handleSceneUpdate(_time: number, deltaMs: number): void {
         this.updateProjectionFlicker(deltaMs);
 
         if (this.activeChannelIds.size === 0) {
@@ -236,28 +189,19 @@ export default class BridgeSpamView {
     }
 
     private spawnPopup(): void {
-        if (
-            this.visiblePopups.length >=
-            BRIDGE_SPAM_PRESENTATION.maxVisible
-        ) {
+        if (this.visiblePopups.length >= BRIDGE_SPAM_PRESENTATION.maxVisible) {
             const oldestPopup = this.visiblePopups[0];
 
             if (!oldestPopup) {
-                throw new Error('Oldest spam popup was not found');
+                throw new Error("Oldest spam popup was not found");
             }
 
             this.closePopup(oldestPopup);
         }
 
-        const sprite = takeRandomBagItem(
-            SPAM_POPUP_SPRITES,
-            this.spriteBag,
-        );
+        const sprite = takeRandomBagItem(SPAM_POPUP_SPRITES, this.spriteBag);
 
-        const slot = takeRandomBagItem(
-            BRIDGE_SPAM_LAYOUT_SLOTS,
-            this.layoutSlotBag,
-        );
+        const slot = takeRandomBagItem(BRIDGE_SPAM_LAYOUT_SLOTS, this.layoutSlotBag);
 
         const popup = new BridgeSpamPopupView({
             scene: this.scene,
@@ -273,13 +217,9 @@ export default class BridgeSpamView {
         popup.show();
     }
 
-    private closeAllPopups(
-        outcome: SpamChannelOutcome,
-    ): void {
+    private closeAllPopups(outcome: SpamChannelOutcome): void {
         const popups =
-            outcome === SPAM_CHANNEL_OUTCOME.PURGED
-                ? [...this.visiblePopups].reverse()
-                : [...this.visiblePopups];
+            outcome === SPAM_CHANNEL_OUTCOME.PURGED ? [...this.visiblePopups].reverse() : [...this.visiblePopups];
 
         const staggerMs =
             outcome === SPAM_CHANNEL_OUTCOME.PURGED
@@ -310,9 +250,7 @@ export default class BridgeSpamView {
         });
     }
 
-    private closePopup(
-        popup: BridgeSpamPopupView,
-    ): void {
+    private closePopup(popup: BridgeSpamPopupView): void {
         const index = this.visiblePopups.indexOf(popup);
 
         if (index < 0) {
@@ -326,30 +264,22 @@ export default class BridgeSpamView {
         });
     }
 
-    private updateProjectionFlicker(
-        deltaMs: number,
-    ): void {
+    private updateProjectionFlicker(deltaMs: number): void {
         if (this.popupViews.size === 0) {
             this.flickerElapsedMs = 0;
 
-            this.root.setAlpha(
-                BRIDGE_SPAM_PRESENTATION.baseAlpha,
-            );
+            this.root.setAlpha(BRIDGE_SPAM_PRESENTATION.baseAlpha);
 
             return;
         }
 
         this.flickerElapsedMs += deltaMs;
 
-        if (
-            this.flickerElapsedMs <
-            BRIDGE_SPAM_PRESENTATION.flickerFrameMs
-        ) {
+        if (this.flickerElapsedMs < BRIDGE_SPAM_PRESENTATION.flickerFrameMs) {
             return;
         }
 
-        this.flickerElapsedMs %=
-            BRIDGE_SPAM_PRESENTATION.flickerFrameMs;
+        this.flickerElapsedMs %= BRIDGE_SPAM_PRESENTATION.flickerFrameMs;
 
         this.root.setAlpha(
             Phaser.Math.Clamp(
@@ -365,9 +295,6 @@ export default class BridgeSpamView {
     }
 
     private createSpawnDelayMs(): number {
-        return Phaser.Math.Between(
-            BRIDGE_SPAM_PRESENTATION.spawnDelayMinMs,
-            BRIDGE_SPAM_PRESENTATION.spawnDelayMaxMs,
-        );
+        return Phaser.Math.Between(BRIDGE_SPAM_PRESENTATION.spawnDelayMinMs, BRIDGE_SPAM_PRESENTATION.spawnDelayMaxMs);
     }
 }

@@ -1,4 +1,4 @@
-import P34TOptions from '../config/p34t.options';
+import P34TOptions from "../config/p34t.options";
 
 export default class StoreManager {
     private static getKey(key: string): string {
@@ -31,7 +31,7 @@ export default class StoreManager {
      * Save any primitive or JSON-serializable value.
      */
     static setItem(key: string, value: string | number | boolean | object): void {
-        const stored = typeof value === 'object' ? JSON.stringify(value) : String(value);
+        const stored = typeof value === "object" ? JSON.stringify(value) : String(value);
         localStorage.setItem(this.getKey(key), stored);
     }
 
@@ -49,8 +49,8 @@ export default class StoreManager {
         }
 
         // Convert string to correct type
-        if (typeof defaultValue === 'number') return parseFloat(item) as T;
-        if (typeof defaultValue === 'boolean') return (item === 'true') as T;
+        if (typeof defaultValue === "number") return parseFloat(item) as T;
+        if (typeof defaultValue === "boolean") return (item === "true") as T;
         return item as T;
     }
 

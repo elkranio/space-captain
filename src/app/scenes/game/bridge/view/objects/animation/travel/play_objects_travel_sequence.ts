@@ -1,10 +1,10 @@
 // src/app/scenes/game/bridge/view/objects/animation/travel/play_objects_travel_sequence.ts
 
-import { BRIDGE_EVENT, type BridgeEncounterTravelStartedPayload } from '../../../../events/bridge_event';
-import { BRIDGE_VIEWSCREEN_RECT } from '../../../bridge_viewscreen_layout';
-import type BridgeObjectSpriteView from '../../object_sprite/BridgeObjectSpriteView';
-import type { BridgeObjectsAnimationContext } from '../bridge_objects_animation_context';
-import { playSteppedAnimation } from '../play_stepped_animation';
+import { BRIDGE_EVENT, type BridgeEncounterTravelStartedPayload } from "../../../../events/bridge_event";
+import { BRIDGE_VIEWSCREEN_RECT } from "../../../bridge_viewscreen_layout";
+import type BridgeObjectSpriteView from "../../object_sprite/BridgeObjectSpriteView";
+import type { BridgeObjectsAnimationContext } from "../bridge_objects_animation_context";
+import { playSteppedAnimation } from "../play_stepped_animation";
 
 const TRAVEL_FRAMES_PER_SECOND = 12;
 
@@ -196,10 +196,7 @@ function playTurnPhase(
 
             const yawStepDegrees = yawDeltaDegrees * progressDelta;
 
-            context.applyCameraTurn(
-                yawStepDegrees,
-                turnDirectionX * turnDistance * progress,
-            );
+            context.applyCameraTurn(yawStepDegrees, turnDirectionX * turnDistance * progress);
 
             animatedYawDegrees = normalizeYawDegrees(animatedYawDegrees + yawStepDegrees);
 
@@ -293,10 +290,7 @@ function playForwardDeparturePhase(
                 motion.view.prepareForArrival();
             }
 
-            context.eventBus.emit(
-                BRIDGE_EVENT
-                    .ENCOUNTER_TRAVEL_FLIGHT_STARTED,
-            );
+            context.eventBus.emit(BRIDGE_EVENT.ENCOUNTER_TRAVEL_FLIGHT_STARTED);
 
             const targetMotions = createTargetTravelMotions(targetViews, 0, 0);
 

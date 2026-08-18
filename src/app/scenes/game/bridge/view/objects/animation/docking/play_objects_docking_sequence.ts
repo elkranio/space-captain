@@ -1,9 +1,9 @@
 // src/app/scenes/game/bridge/view/objects/animation/docking/play_objects_docking_sequence.ts
 
-import { BRIDGE_EVENT, type BridgeDockingStartedPayload } from '../../../../events/bridge_event';
-import { BRIDGE_VIEWSCREEN_RECT } from '../../../bridge_viewscreen_layout';
-import type BridgeObjectSpriteView from '../../object_sprite/BridgeObjectSpriteView';
-import type { BridgeObjectsAnimationContext } from '../bridge_objects_animation_context';
+import { BRIDGE_EVENT, type BridgeDockingStartedPayload } from "../../../../events/bridge_event";
+import { BRIDGE_VIEWSCREEN_RECT } from "../../../bridge_viewscreen_layout";
+import type BridgeObjectSpriteView from "../../object_sprite/BridgeObjectSpriteView";
+import type { BridgeObjectsAnimationContext } from "../bridge_objects_animation_context";
 
 const DOCKING_TARGET_SCALE = 8;
 const DOCKING_STEP_DELAY_MS = 120;
@@ -26,7 +26,7 @@ export function playObjectsDockingSequence(
     const targetView = context.getObjectView(payload.targetId);
 
     if (!targetView) {
-        console.warn('Cannot start docking animation. Target object not found:', payload);
+        console.warn("Cannot start docking animation. Target object not found:", payload);
 
         completeDockingAnimation(payload.taskId, context);
         return;

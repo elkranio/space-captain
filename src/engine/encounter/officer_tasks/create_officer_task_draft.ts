@@ -1,357 +1,230 @@
 // src/engine/encounter/officer_tasks/create_officer_task_draft.ts
 
-import {
-    getOfficerTaskDraftTuning,
-} from '../../content/catalogs/officer_tasks';
-import {
-    OFFICER_ROLE,
-    type OfficerRole,
-} from '../../defs/officer';
-import {
-    ENCOUNTER_OFFICER_COMMAND_ID,
-} from '../model/command';
-import {
-    OFFICER_TASK_KIND,
-    type OfficerTaskDraft,
-} from '../model/officer_task';
+import { getOfficerTaskDraftTuning } from "../../content/catalogs/officer_tasks";
+import { OFFICER_ROLE, type OfficerRole } from "../../defs/officer";
+import { ENCOUNTER_OFFICER_COMMAND_ID } from "../model/command";
+import { OFFICER_TASK_KIND, type OfficerTaskDraft } from "../model/officer_task";
 
-export function createSciencePlotCourseTask(
-    targetNodeId: string,
-): OfficerTaskDraft {
-    const kind =
-        OFFICER_TASK_KIND
-            .SCIENCE_PLOT_COURSE;
+export function createSciencePlotCourseTask(targetNodeId: string): OfficerTaskDraft {
+    const kind = OFFICER_TASK_KIND.SCIENCE_PLOT_COURSE;
 
     return {
         kind,
         role: OFFICER_ROLE.SCIENCE,
 
-        sourceCommandId:
-            ENCOUNTER_OFFICER_COMMAND_ID
-                .SCIENCE_PLOT_COURSE,
+        sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.SCIENCE_PLOT_COURSE,
 
         targetNodeId,
 
-        ...getOfficerTaskDraftTuning(
-            kind,
-        ),
+        ...getOfficerTaskDraftTuning(kind),
     };
 }
 
-export function createScienceIdentifyThreatTask(
-    threatId: string,
-): OfficerTaskDraft {
-    const kind =
-        OFFICER_TASK_KIND
-            .SCIENCE_IDENTIFY_THREAT;
+export function createScienceIdentifyThreatTask(threatId: string): OfficerTaskDraft {
+    const kind = OFFICER_TASK_KIND.SCIENCE_IDENTIFY_THREAT;
 
     return {
         kind,
         role: OFFICER_ROLE.SCIENCE,
 
-        sourceCommandId:
-            ENCOUNTER_OFFICER_COMMAND_ID
-                .SCIENCE_IDENTIFY_THREAT,
+        sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.SCIENCE_IDENTIFY_THREAT,
 
         threatId,
 
-        ...getOfficerTaskDraftTuning(
-            kind,
-        ),
+        ...getOfficerTaskDraftTuning(kind),
     };
 }
 
-export function createSciencePurgeSpamTask(
-    channelId: string,
-): OfficerTaskDraft {
-    const kind =
-        OFFICER_TASK_KIND
-            .SCIENCE_PURGE_SPAM;
+export function createSciencePurgeSpamTask(channelId: string): OfficerTaskDraft {
+    const kind = OFFICER_TASK_KIND.SCIENCE_PURGE_SPAM;
 
     return {
         kind,
         role: OFFICER_ROLE.SCIENCE,
 
-        sourceCommandId:
-            ENCOUNTER_OFFICER_COMMAND_ID
-                .SCIENCE_PURGE_SPAM,
+        sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.SCIENCE_PURGE_SPAM,
 
         channelId,
 
-        ...getOfficerTaskDraftTuning(
-            kind,
-        ),
+        ...getOfficerTaskDraftTuning(kind),
     };
 }
 
-export function createScienceFireSpamTask(
-    weaponId: string,
-    targetActorId: string,
-): OfficerTaskDraft {
-    const kind =
-        OFFICER_TASK_KIND
-            .SCIENCE_FIRE_SPAM;
+export function createScienceFireSpamTask(weaponId: string, targetActorId: string): OfficerTaskDraft {
+    const kind = OFFICER_TASK_KIND.SCIENCE_FIRE_SPAM;
 
     return {
         kind,
         role: OFFICER_ROLE.SCIENCE,
 
-        sourceCommandId:
-            ENCOUNTER_OFFICER_COMMAND_ID
-                .SCIENCE_FIRE_SPAM,
+        sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.SCIENCE_FIRE_SPAM,
 
         weaponId,
         targetActorId,
 
-        ...getOfficerTaskDraftTuning(
-            kind,
-        ),
+        ...getOfficerTaskDraftTuning(kind),
     };
 }
 
 export function createEngineerRepairDriveTask(): OfficerTaskDraft {
-    const kind =
-        OFFICER_TASK_KIND
-            .ENGINEER_REPAIR_DRIVE;
+    const kind = OFFICER_TASK_KIND.ENGINEER_REPAIR_DRIVE;
 
     return {
         kind,
         role: OFFICER_ROLE.ENGINEER,
 
-        sourceCommandId:
-            ENCOUNTER_OFFICER_COMMAND_ID
-                .ENGINEER_REPAIR_DRIVE,
+        sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.ENGINEER_REPAIR_DRIVE,
 
-        ...getOfficerTaskDraftTuning(
-            kind,
-        ),
+        ...getOfficerTaskDraftTuning(kind),
     };
 }
 
 export function createEngineerDeployShieldTask(): OfficerTaskDraft {
-    const kind =
-        OFFICER_TASK_KIND
-            .ENGINEER_DEPLOY_SHIELD;
+    const kind = OFFICER_TASK_KIND.ENGINEER_DEPLOY_SHIELD;
 
     return {
         kind,
         role: OFFICER_ROLE.ENGINEER,
 
-        sourceCommandId:
-            ENCOUNTER_OFFICER_COMMAND_ID
-                .ENGINEER_DEPLOY_SHIELD,
+        sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.ENGINEER_DEPLOY_SHIELD,
 
-        ...getOfficerTaskDraftTuning(
-            kind,
-        ),
+        ...getOfficerTaskDraftTuning(kind),
     };
 }
 
-export function createWeaponsDefenseTurretTask(
-    threatId: string,
-): OfficerTaskDraft {
-    const kind =
-        OFFICER_TASK_KIND
-            .WEAPONS_DEFENSE_TURRET;
+export function createWeaponsDefenseTurretTask(threatId: string): OfficerTaskDraft {
+    const kind = OFFICER_TASK_KIND.WEAPONS_DEFENSE_TURRET;
 
     return {
         kind,
         role: OFFICER_ROLE.WEAPONS,
 
-        sourceCommandId:
-            ENCOUNTER_OFFICER_COMMAND_ID
-                .WEAPONS_INTERCEPT_MISSILE,
+        sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_INTERCEPT_MISSILE,
 
         threatId,
 
-        ...getOfficerTaskDraftTuning(
-            kind,
-        ),
+        ...getOfficerTaskDraftTuning(kind),
     };
 }
 
-export function createWeaponsFireMissileTask(
-    weaponId: string,
-    targetActorId: string,
-): OfficerTaskDraft {
-    const kind =
-        OFFICER_TASK_KIND
-            .WEAPONS_FIRE_MISSILE;
+export function createWeaponsFireMissileTask(weaponId: string, targetActorId: string): OfficerTaskDraft {
+    const kind = OFFICER_TASK_KIND.WEAPONS_FIRE_MISSILE;
 
     return {
         kind,
         role: OFFICER_ROLE.WEAPONS,
 
-        sourceCommandId:
-            ENCOUNTER_OFFICER_COMMAND_ID
-                .WEAPONS_FIRE_MISSILE,
+        sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_MISSILE,
 
         weaponId,
         targetActorId,
 
-        ...getOfficerTaskDraftTuning(
-            kind,
-        ),
+        ...getOfficerTaskDraftTuning(kind),
     };
 }
 
-export function createWeaponsFireStickyMinesTask(
-    weaponId: string,
-    targetActorId: string,
-): OfficerTaskDraft {
-    const kind =
-        OFFICER_TASK_KIND
-            .WEAPONS_FIRE_STICKY_MINES;
+export function createWeaponsFireStickyMinesTask(weaponId: string, targetActorId: string): OfficerTaskDraft {
+    const kind = OFFICER_TASK_KIND.WEAPONS_FIRE_STICKY_MINES;
 
     return {
         kind,
         role: OFFICER_ROLE.WEAPONS,
 
-        sourceCommandId:
-            ENCOUNTER_OFFICER_COMMAND_ID
-                .WEAPONS_FIRE_STICKY_MINES,
+        sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_STICKY_MINES,
 
         weaponId,
         targetActorId,
 
-        ...getOfficerTaskDraftTuning(
-            kind,
-        ),
+        ...getOfficerTaskDraftTuning(kind),
     };
 }
 
-export function createWeaponsFireBeamCannonTask(
-    weaponId: string,
-    targetActorId: string,
-): OfficerTaskDraft {
-    const kind =
-        OFFICER_TASK_KIND
-            .WEAPONS_FIRE_BEAM_CANNON;
+export function createWeaponsFireBeamCannonTask(weaponId: string, targetActorId: string): OfficerTaskDraft {
+    const kind = OFFICER_TASK_KIND.WEAPONS_FIRE_BEAM_CANNON;
 
     return {
         kind,
         role: OFFICER_ROLE.WEAPONS,
 
-        sourceCommandId:
-            ENCOUNTER_OFFICER_COMMAND_ID
-                .WEAPONS_FIRE_BEAM_CANNON,
+        sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_BEAM_CANNON,
 
         weaponId,
         targetActorId,
 
-        ...getOfficerTaskDraftTuning(
-            kind,
-        ),
+        ...getOfficerTaskDraftTuning(kind),
     };
 }
 
-export function createClearStickyMineTask(
-    role: OfficerRole,
-    mineId: string,
-): OfficerTaskDraft {
-    const kind =
-        OFFICER_TASK_KIND
-            .CLEAR_STICKY_MINE;
+export function createClearStickyMineTask(role: OfficerRole, mineId: string): OfficerTaskDraft {
+    const kind = OFFICER_TASK_KIND.CLEAR_STICKY_MINE;
 
     return {
         kind,
         role,
 
-        sourceCommandId:
-            ENCOUNTER_OFFICER_COMMAND_ID
-                .CLEAR_STICKY_MINE,
+        sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.CLEAR_STICKY_MINE,
 
         mineId,
 
-        ...getOfficerTaskDraftTuning(
-            kind,
-        ),
+        ...getOfficerTaskDraftTuning(kind),
     };
 }
 
-export function createHelmDockTask(
-    targetAnchorId: string,
-): OfficerTaskDraft {
-    const kind =
-        OFFICER_TASK_KIND.HELM_DOCK;
+export function createHelmDockTask(targetAnchorId: string): OfficerTaskDraft {
+    const kind = OFFICER_TASK_KIND.HELM_DOCK;
 
     return {
         kind,
         role: OFFICER_ROLE.HELM,
 
-        sourceCommandId:
-            ENCOUNTER_OFFICER_COMMAND_ID
-                .HELM_DOCK,
+        sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.HELM_DOCK,
 
         targetAnchorId,
 
-        ...getOfficerTaskDraftTuning(
-            kind,
-        ),
+        ...getOfficerTaskDraftTuning(kind),
     };
 }
 
-export function createHelmFlyToTask(
-    targetAnchorId: string,
-): OfficerTaskDraft {
-    const kind =
-        OFFICER_TASK_KIND.HELM_FLY_TO;
+export function createHelmFlyToTask(targetAnchorId: string): OfficerTaskDraft {
+    const kind = OFFICER_TASK_KIND.HELM_FLY_TO;
 
     return {
         kind,
         role: OFFICER_ROLE.HELM,
 
-        sourceCommandId:
-            ENCOUNTER_OFFICER_COMMAND_ID
-                .HELM_FLY_TO,
+        sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.HELM_FLY_TO,
 
         targetAnchorId,
 
-        ...getOfficerTaskDraftTuning(
-            kind,
-        ),
+        ...getOfficerTaskDraftTuning(kind),
     };
 }
 
-export function createHelmJumpTask(
-    targetAnchorId: string,
-    targetNodeId: string,
-): OfficerTaskDraft {
-    const kind =
-        OFFICER_TASK_KIND.HELM_JUMP;
+export function createHelmJumpTask(targetAnchorId: string, targetNodeId: string): OfficerTaskDraft {
+    const kind = OFFICER_TASK_KIND.HELM_JUMP;
 
     return {
         kind,
         role: OFFICER_ROLE.HELM,
 
-        sourceCommandId:
-            ENCOUNTER_OFFICER_COMMAND_ID
-                .HELM_JUMP,
+        sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.HELM_JUMP,
 
         targetAnchorId,
         targetNodeId,
 
-        ...getOfficerTaskDraftTuning(
-            kind,
-        ),
+        ...getOfficerTaskDraftTuning(kind),
     };
 }
 
-export function createHelmEvadeTask():
-    OfficerTaskDraft {
-    const kind =
-        OFFICER_TASK_KIND.HELM_EVADE;
+export function createHelmEvadeTask(): OfficerTaskDraft {
+    const kind = OFFICER_TASK_KIND.HELM_EVADE;
 
     return {
         kind,
         role: OFFICER_ROLE.HELM,
 
-        sourceCommandId:
-            ENCOUNTER_OFFICER_COMMAND_ID
-                .HELM_EVADE,
+        sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.HELM_EVADE,
 
-        ...getOfficerTaskDraftTuning(
-            kind,
-        ),
+        ...getOfficerTaskDraftTuning(kind),
     };
 }

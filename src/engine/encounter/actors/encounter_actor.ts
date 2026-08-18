@@ -1,10 +1,10 @@
 // src/engine/encounter/actors/encounter_actor.ts
 
-import type { EncounterTeam } from '../../defs/encounter_team';
-import type { ShipEncounterActorState } from './ship/ship_encounter_actor';
+import type { EncounterTeam } from "../../defs/encounter_team";
+import type { ShipEncounterActorState } from "./ship/ship_encounter_actor";
 
 export const ENCOUNTER_ACTOR_KIND = {
-    SHIP: 'ship',
+    SHIP: "ship",
 } as const;
 
 // Общая runtime-часть эфемерного участника encounter.

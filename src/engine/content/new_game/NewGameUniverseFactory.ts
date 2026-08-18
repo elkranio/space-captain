@@ -1,21 +1,19 @@
 // src/engine/content/new_game/NewGameUniverseFactory.ts
 
-import { ASTEROID_OBJECT_SPRITE_ID, type AsteroidState } from '../../defs/asteroid';
-import { BEACON_OBJECT_SPRITE_ID, type NavigationBeaconState } from '../../defs/beacon';
+import { ASTEROID_OBJECT_SPRITE_ID, type AsteroidState } from "../../defs/asteroid";
+import { BEACON_OBJECT_SPRITE_ID, type NavigationBeaconState } from "../../defs/beacon";
 import {
     PLAYER_LOCATION_KIND,
     PLAYER_SPACE_NAVIGATION_KIND,
     type PlayerSpaceLocationState,
-} from '../../defs/player_location';
-import { SPACE_BACKGROUND_ID } from '../../defs/space_background';
-import { SPECIES_ID } from '../../defs/species';
-import { SPACE_ANCHOR_KIND, type SpaceNodeState, type UniverseState } from '../../defs/universe';
-import { SHIP_NODE_ACTOR_PRESET_ID } from '../presets/ship_node_actors';
-import ShipNodeActorFactory from '../../generation/space_node_actor/ShipNodeActorFactory';
-import StationGenerator from '../../generation/station/StationGenerator';
-import {
-    createDebugStartEnemyShip,
-} from './debug_start_ship_factory';
+} from "../../defs/player_location";
+import { SPACE_BACKGROUND_ID } from "../../defs/space_background";
+import { SPECIES_ID } from "../../defs/species";
+import { SPACE_ANCHOR_KIND, type SpaceNodeState, type UniverseState } from "../../defs/universe";
+import { SHIP_NODE_ACTOR_PRESET_ID } from "../presets/ship_node_actors";
+import ShipNodeActorFactory from "../../generation/space_node_actor/ShipNodeActorFactory";
+import StationGenerator from "../../generation/station/StationGenerator";
+import { createDebugStartEnemyShip } from "./debug_start_ship_factory";
 
 export type NewGamePlayerLocations = {
     arrivingAtStart: PlayerSpaceLocationState;
@@ -29,13 +27,13 @@ export type NewGameUniverseGeneration = {
 };
 
 const NEW_GAME_ID = {
-    START_NODE: 'node_start',
-    STATION_NODE: 'node_station',
+    START_NODE: "node_start",
+    STATION_NODE: "node_station",
 
-    NAVIGATION_BEACON: 'beacon_start',
-    ASTEROID: 'asteroid_start',
+    NAVIGATION_BEACON: "beacon_start",
+    ASTEROID: "asteroid_start",
 
-    ENEMY_SHIP: 'ship_generic_00',
+    ENEMY_SHIP: "ship_generic_00",
 } as const;
 
 // Собирает согласованную стартовую вселенную.
@@ -53,7 +51,7 @@ export default class NewGameUniverseFactory {
         const navigationBeacon: NavigationBeaconState = {
             id: NEW_GAME_ID.NAVIGATION_BEACON,
 
-            name: 'NAVIGATION BEACON',
+            name: "NAVIGATION BEACON",
 
             objectSpriteId: BEACON_OBJECT_SPRITE_ID.NAVIGATION_BEACON_00,
         };
@@ -61,25 +59,20 @@ export default class NewGameUniverseFactory {
         const asteroid: AsteroidState = {
             id: NEW_GAME_ID.ASTEROID,
 
-            name: 'ASTEROID',
+            name: "ASTEROID",
 
             objectSpriteId: ASTEROID_OBJECT_SPRITE_ID.ASTEROID_00,
         };
 
-        const enemyShip =
-            ShipNodeActorFactory.create({
-                id: NEW_GAME_ID.ENEMY_SHIP,
+        const enemyShip = ShipNodeActorFactory.create({
+            id: NEW_GAME_ID.ENEMY_SHIP,
 
-                presetId:
-                    SHIP_NODE_ACTOR_PRESET_ID
-                        .ENEMY_DEFENSE_SANDBOX_00,
+            presetId: SHIP_NODE_ACTOR_PRESET_ID.ENEMY_DEFENSE_SANDBOX_00,
 
-                anchorId:
-                    navigationBeacon.id,
+            anchorId: navigationBeacon.id,
 
-                ship:
-                    createDebugStartEnemyShip(),
-            });
+            ship: createDebugStartEnemyShip(),
+        });
 
         const startNode: SpaceNodeState = {
             id: NEW_GAME_ID.START_NODE,
@@ -131,9 +124,7 @@ export default class NewGameUniverseFactory {
                 },
             ],
 
-            actors: [
-                enemyShip,
-            ],
+            actors: [enemyShip],
         };
 
         const stationNode: SpaceNodeState = {

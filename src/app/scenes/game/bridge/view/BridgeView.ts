@@ -1,15 +1,15 @@
 // src/app/scenes/game/bridge/view/BridgeView.ts
 
-import type BridgeScene from '../BridgeScene';
-import type BridgeEventBus from '../events/BridgeEventBus';
-import BridgeOfficerBarksView from './barks/BridgeOfficerBarksView';
-import BridgeCaptainDashboardView from './captain_dashboard/BridgeCaptainDashboardView';
-import BridgeCombatView from './combat/BridgeCombatView';
-import BridgeTargetingWarningView from './indicators/targeting_warning/BridgeTargetingWarningView';
-import BridgeInteriorView from './interior/BridgeInteriorView';
-import BridgeOfficerStationsView from './officer_stations/BridgeOfficerStationsView';
-import BridgeSpaceView from './space/BridgeSpaceView';
-import BridgeOfficerContextMenuView from './ui/officer_context_menu/BridgeOfficerContextMenuView';
+import type BridgeScene from "../BridgeScene";
+import type BridgeEventBus from "../events/BridgeEventBus";
+import BridgeOfficerBarksView from "./barks/BridgeOfficerBarksView";
+import BridgeCaptainDashboardView from "./captain_dashboard/BridgeCaptainDashboardView";
+import BridgeCombatView from "./combat/BridgeCombatView";
+import BridgeTargetingWarningView from "./indicators/targeting_warning/BridgeTargetingWarningView";
+import BridgeInteriorView from "./interior/BridgeInteriorView";
+import BridgeOfficerStationsView from "./officer_stations/BridgeOfficerStationsView";
+import BridgeSpaceView from "./space/BridgeSpaceView";
+import BridgeOfficerContextMenuView from "./ui/officer_context_menu/BridgeOfficerContextMenuView";
 
 // Root view bridge scene.
 // Собирает верхнеуровневые визуальные модули
@@ -29,8 +29,7 @@ export default class BridgeView {
 
     private officerBarksView?: BridgeOfficerBarksView;
 
-    private officerContextMenuView?:
-        BridgeOfficerContextMenuView;
+    private officerContextMenuView?: BridgeOfficerContextMenuView;
 
     constructor(
         private readonly scene: BridgeScene,
@@ -43,20 +42,13 @@ export default class BridgeView {
             this.eventBus,
 
             (offsetX) => {
-                this.combatView
-                    ?.setCameraTurnOffsetX(
-                        offsetX,
-                    );
+                this.combatView?.setCameraTurnOffsetX(offsetX);
             },
         );
 
         this.spaceView = spaceView;
 
-        this.combatView = new BridgeCombatView(
-            this.scene,
-            this.eventBus,
-            spaceView,
-        );
+        this.combatView = new BridgeCombatView(this.scene, this.eventBus, spaceView);
 
         this.combatView.prepare();
 
@@ -66,20 +58,13 @@ export default class BridgeView {
 
         this.officerStationsView = new BridgeOfficerStationsView(this.scene, this.eventBus);
 
-        this.captainDashboardView = new BridgeCaptainDashboardView(
-            this.scene,
-            this.eventBus,
-        );
+        this.captainDashboardView = new BridgeCaptainDashboardView(this.scene, this.eventBus);
 
         this.officerBarksView = new BridgeOfficerBarksView(this.scene, this.eventBus);
 
         // Officer station clicks still use the command-menu flow.
         // The context menu belongs directly to the active BridgeView lifecycle.
-        this.officerContextMenuView =
-            new BridgeOfficerContextMenuView(
-                this.scene,
-                this.eventBus,
-            );
+        this.officerContextMenuView = new BridgeOfficerContextMenuView(this.scene, this.eventBus);
     }
 
     public destroy(): void {

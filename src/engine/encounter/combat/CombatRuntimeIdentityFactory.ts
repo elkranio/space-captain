@@ -46,11 +46,8 @@ export default class CombatRuntimeIdentityFactory {
         return id;
     }
 
-    public createThreatDesignation(
-        prefix: 'M' | 'L',
-    ): string {
-        const designation =
-            `${prefix}${this.nextThreatDesignationNumber}`;
+    public createThreatDesignation(prefix: "M" | "L"): string {
+        const designation = `${prefix}${this.nextThreatDesignationNumber}`;
 
         this.nextThreatDesignationNumber += 1;
 

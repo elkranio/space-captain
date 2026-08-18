@@ -1,12 +1,12 @@
 // src/engine/generation/station/StationGenerator.ts
 
-import { STATION_CONTACT_PORTRAIT_POOLS_BY_SPECIES } from '../../content/generation_pools/station/contact_portraits';
-import { STATION_NAME_POOLS_BY_SPECIES } from '../../content/generation_pools/station/names';
-import { STATION_OBJECT_SPRITE_POOLS_BY_SPECIES } from '../../content/generation_pools/station/object_sprites';
-import type { CharacterPortraitId } from '../../defs/character';
-import type { SpeciesId } from '../../defs/species';
-import type { StationObjectSpriteId, StationState } from '../../defs/station';
-import { randomFrom } from '../utils/random_from';
+import { STATION_CONTACT_PORTRAIT_POOLS_BY_SPECIES } from "../../content/generation_pools/station/contact_portraits";
+import { STATION_NAME_POOLS_BY_SPECIES } from "../../content/generation_pools/station/names";
+import { STATION_OBJECT_SPRITE_POOLS_BY_SPECIES } from "../../content/generation_pools/station/object_sprites";
+import type { CharacterPortraitId } from "../../defs/character";
+import type { SpeciesId } from "../../defs/species";
+import type { StationObjectSpriteId, StationState } from "../../defs/station";
+import { randomFrom } from "../utils/random_from";
 
 // Генерирует runtime-состояние станции из species-based content pools.
 // Генератор выбирает имя, внешний спрайт и контактное лицо станции.
@@ -18,7 +18,7 @@ export default class StationGenerator {
             originSpecies,
             objectSpriteId: this.generateObjectSpriteId(originSpecies),
             contact: {
-                name: 'PORT CONTROL',
+                name: "PORT CONTROL",
                 portraitId: this.generateContactPortraitId(originSpecies),
             },
         };

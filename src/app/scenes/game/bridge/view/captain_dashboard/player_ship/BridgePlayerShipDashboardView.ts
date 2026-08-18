@@ -1,7 +1,7 @@
-import type BridgeScene from '../../../BridgeScene';
-import type BridgeEventBus from '../../../events/BridgeEventBus';
-import BridgePlayerShipStatusStripView from './status/BridgePlayerShipStatusStripView';
-import BridgePlayerShipSystemsView from './systems/BridgePlayerShipSystemsView';
+import type BridgeScene from "../../../BridgeScene";
+import type BridgeEventBus from "../../../events/BridgeEventBus";
+import BridgePlayerShipStatusStripView from "./status/BridgePlayerShipStatusStripView";
+import BridgePlayerShipSystemsView from "./systems/BridgePlayerShipSystemsView";
 
 const PANEL = {
     width: 416,
@@ -27,99 +27,62 @@ const SYSTEMS_HEIGHT = 144;
 // Runtime presentation конкретных систем живёт ниже,
 // в focused system views.
 export default class BridgePlayerShipDashboardView {
-    private readonly root:
-        Phaser.GameObjects.Container;
+    private readonly root: Phaser.GameObjects.Container;
 
-    private readonly background:
-        Phaser.GameObjects.Rectangle;
+    private readonly background: Phaser.GameObjects.Rectangle;
 
-    private readonly statusStripView:
-        BridgePlayerShipStatusStripView;
+    private readonly statusStripView: BridgePlayerShipStatusStripView;
 
-    private readonly systemsView:
-        BridgePlayerShipSystemsView;
+    private readonly systemsView: BridgePlayerShipSystemsView;
 
     constructor(
         private readonly scene: BridgeScene,
         private readonly eventBus: BridgeEventBus,
     ) {
-        this.root =
-            this.scene.add.container(
+        this.root = this.scene.add.container(0, 0);
+
+        this.background = this.scene.add
+            .rectangle(
                 0,
                 0,
-            );
 
-        this.background =
-            this.scene.add
-                .rectangle(
-                    0,
-                    0,
+                PANEL.width,
+                PANEL.height,
 
-                    PANEL.width,
-                    PANEL.height,
+                PANEL.backgroundColor,
+                PANEL.backgroundAlpha,
+            )
+            .setOrigin(0, 0)
+            .setStrokeStyle(PANEL.borderThickness, PANEL.borderColor);
 
-                    PANEL.backgroundColor,
-                    PANEL.backgroundAlpha,
-                )
-                .setOrigin(0, 0)
-                .setStrokeStyle(
-                    PANEL.borderThickness,
-                    PANEL.borderColor,
-                );
+        const innerWidth = PANEL.width - PANEL.padding * 2;
 
-        const innerWidth =
-            PANEL.width -
-            PANEL.padding * 2;
-
-        this.statusStripView =
-            new BridgePlayerShipStatusStripView(
-                this.scene,
-                this.eventBus,
-                innerWidth,
-                STATUS_HEIGHT,
-            );
-
-        this.statusStripView.setPosition(
-            PANEL.padding,
-            PANEL.padding,
+        this.statusStripView = new BridgePlayerShipStatusStripView(
+            this.scene,
+            this.eventBus,
+            innerWidth,
+            STATUS_HEIGHT,
         );
 
-        this.systemsView =
-            new BridgePlayerShipSystemsView(
-                this.scene,
-                this.eventBus,
-                innerWidth,
-                SYSTEMS_HEIGHT,
-            );
+        this.statusStripView.setPosition(PANEL.padding, PANEL.padding);
+
+        this.systemsView = new BridgePlayerShipSystemsView(this.scene, this.eventBus, innerWidth, SYSTEMS_HEIGHT);
 
         this.systemsView.setPosition(
             PANEL.padding,
 
-            PANEL.padding +
-                STATUS_HEIGHT +
-                PANEL.sectionGap,
+            PANEL.padding + STATUS_HEIGHT + PANEL.sectionGap,
         );
 
-        this.root.add([
-            this.background,
-            this.statusStripView.getRoot(),
-            this.systemsView.getRoot(),
-        ]);
+        this.root.add([this.background, this.statusStripView.getRoot(), this.systemsView.getRoot()]);
     }
 
-    public getRoot():
-        Phaser.GameObjects.Container {
+    public getRoot(): Phaser.GameObjects.Container {
         return this.root;
     }
 
-    public setPosition(
-        x: number,
-        y: number,
-    ): void {
-        this.root.setPosition(
-            x,
-            y,
-        );
+    public setPosition(x: number, y: number): void {
+        this.root.setPosition(x, y);
     }
 
     public destroy(): void {

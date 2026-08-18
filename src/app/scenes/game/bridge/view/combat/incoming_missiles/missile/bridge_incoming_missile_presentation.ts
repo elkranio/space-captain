@@ -91,7 +91,7 @@ export const BRIDGE_INCOMING_MISSILE_PRESENTATION = {
     },
 
     motion: {
-        terminalStartTimeProgress: 0.90,
+        terminalStartTimeProgress: 0.9,
         terminalStartPathProgress: 0.62,
 
         cruiseLinearWeight: 0.42,

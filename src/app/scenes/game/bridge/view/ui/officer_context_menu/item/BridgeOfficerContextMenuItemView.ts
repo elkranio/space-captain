@@ -3,12 +3,12 @@
 import {
     OFFICER_CONTEXT_MENU_SPRITE_ID,
     OFFICER_CONTEXT_MENU_SPRITES,
-} from '../../../../../../../manifests/bridge/officer_context_menu';
-import { FONT_COLOR, FONT_FAMILY, FONT_SIZE } from '../../../../../../../theme/font';
-import type BridgeScene from '../../../../BridgeScene';
-import type { BridgeOfficerCommandMenuItemPayload } from '../../../../events/bridge_event';
-import { UI_EVENT } from '../../ui_event';
-import { OFFICER_CONTEXT_MENU_LAYOUT } from '../bridge_officer_context_menu_layout';
+} from "../../../../../../../manifests/bridge/officer_context_menu";
+import { FONT_COLOR, FONT_FAMILY, FONT_SIZE } from "../../../../../../../theme/font";
+import type BridgeScene from "../../../../BridgeScene";
+import type { BridgeOfficerCommandMenuItemPayload } from "../../../../events/bridge_event";
+import { UI_EVENT } from "../../ui_event";
+import { OFFICER_CONTEXT_MENU_LAYOUT } from "../bridge_officer_context_menu_layout";
 
 // Leaf/composite-view одной command row в officer context menu.
 // Владеет row background, hover state, label и локальным click input.

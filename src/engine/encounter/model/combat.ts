@@ -1,105 +1,84 @@
 // src/engine/encounter/model/combat.ts
 
-import type {
-    PowerCoreState,
-} from '../../defs/power_core';
-import type {
-    ShipDefenseTurretState,
-} from '../../defs/defense_turret';
-import type { MissileSignature } from '../../defs/missile';
-import type {
-    ShipWeaponState,
-} from '../../defs/ship_weapon';
-import type {
-    ShieldGeneratorState,
-} from '../../defs/shield_generator';
+import type { PowerCoreState } from "../../defs/power_core";
+import type { ShipDefenseTurretState } from "../../defs/defense_turret";
+import type { MissileSignature } from "../../defs/missile";
+import type { ShipWeaponState } from "../../defs/ship_weapon";
+import type { ShieldGeneratorState } from "../../defs/shield_generator";
 
-import type {
-    MissileSignatureIntel,
-    ResolvedMissileSignatureIntel,
-} from './missile_signature_intel';
+import type { MissileSignatureIntel, ResolvedMissileSignatureIntel } from "./missile_signature_intel";
 
-export {
-    MISSILE_SIGNATURE_INTEL_STATUS,
-} from './missile_signature_intel';
+export { MISSILE_SIGNATURE_INTEL_STATUS } from "./missile_signature_intel";
 
 export const COMBAT_PROJECTILE_KIND = {
-    MISSILE: 'missile',
+    MISSILE: "missile",
 } as const;
 
 export const COMBAT_THREAT_KIND = {
-    MISSILE: 'missile',
-    BEAM_CANNON: 'beam_cannon',
+    MISSILE: "missile",
+    BEAM_CANNON: "beam_cannon",
 } as const;
 
 export type CombatThreatKind = (typeof COMBAT_THREAT_KIND)[keyof typeof COMBAT_THREAT_KIND];
 
 export const BEAM_CANNON_SHOT_OUTCOME = {
-    HIT: 'hit',
-    ABSORBED: 'absorbed',
-    MISS: 'miss',
+    HIT: "hit",
+    ABSORBED: "absorbed",
+    MISS: "miss",
 } as const;
 
 export type BeamCannonShotOutcome = (typeof BEAM_CANNON_SHOT_OUTCOME)[keyof typeof BEAM_CANNON_SHOT_OUTCOME];
 
 export const PLAYER_MISSILE_OUTCOME = {
-    TARGET_LOST: 'target_lost',
-    INTERCEPTED: 'intercepted',
-    MISS: 'miss',
-    HIT: 'hit',
+    TARGET_LOST: "target_lost",
+    INTERCEPTED: "intercepted",
+    MISS: "miss",
+    HIT: "hit",
 } as const;
 
-export type PlayerMissileOutcome =
-    (typeof PLAYER_MISSILE_OUTCOME)[keyof typeof PLAYER_MISSILE_OUTCOME];
+export type PlayerMissileOutcome = (typeof PLAYER_MISSILE_OUTCOME)[keyof typeof PLAYER_MISSILE_OUTCOME];
 
 export const PLAYER_STICKY_MINE_OUTCOME = {
-    TARGET_LOST: 'target_lost',
-    CLEARED: 'cleared',
-    DETONATED: 'detonated',
+    TARGET_LOST: "target_lost",
+    CLEARED: "cleared",
+    DETONATED: "detonated",
 } as const;
 
-export type PlayerStickyMineOutcome =
-    (typeof PLAYER_STICKY_MINE_OUTCOME)[keyof typeof PLAYER_STICKY_MINE_OUTCOME];
+export type PlayerStickyMineOutcome = (typeof PLAYER_STICKY_MINE_OUTCOME)[keyof typeof PLAYER_STICKY_MINE_OUTCOME];
 
 export const PLAYER_SPAM_CHANNEL_OUTCOME = {
-    EXPIRED: 'expired',
-    CANCELLED: 'cancelled',
-    PURGED: 'purged',
+    EXPIRED: "expired",
+    CANCELLED: "cancelled",
+    PURGED: "purged",
 } as const;
 
-export type PlayerSpamChannelOutcome =
-    (typeof PLAYER_SPAM_CHANNEL_OUTCOME)[keyof typeof PLAYER_SPAM_CHANNEL_OUTCOME];
+export type PlayerSpamChannelOutcome = (typeof PLAYER_SPAM_CHANNEL_OUTCOME)[keyof typeof PLAYER_SPAM_CHANNEL_OUTCOME];
 
 export const SPAM_CHANNEL_OUTCOME = {
-    EXPIRED: 'expired',
-    PURGED: 'purged',
+    EXPIRED: "expired",
+    PURGED: "purged",
 } as const;
 
-export type SpamChannelOutcome =
-    (typeof SPAM_CHANNEL_OUTCOME)[keyof typeof SPAM_CHANNEL_OUTCOME];
+export type SpamChannelOutcome = (typeof SPAM_CHANNEL_OUTCOME)[keyof typeof SPAM_CHANNEL_OUTCOME];
 
 export const COMBAT_SOURCE_KIND = {
-    PLAYER_SHIP: 'player_ship',
-    ACTOR: 'actor',
+    PLAYER_SHIP: "player_ship",
+    ACTOR: "actor",
 } as const;
 
 export type CombatSource =
     | {
-          kind:
-              typeof COMBAT_SOURCE_KIND
-                  .PLAYER_SHIP;
+          kind: typeof COMBAT_SOURCE_KIND.PLAYER_SHIP;
       }
     | {
-          kind:
-              typeof COMBAT_SOURCE_KIND
-                  .ACTOR;
+          kind: typeof COMBAT_SOURCE_KIND.ACTOR;
 
           actorId: string;
       };
 
 export const COMBAT_TARGET_KIND = {
-    PLAYER_SHIP: 'player_ship',
-    ACTOR: 'actor',
+    PLAYER_SHIP: "player_ship",
+    ACTOR: "actor",
 } as const;
 
 export type CombatTarget =
@@ -112,15 +91,11 @@ export type CombatTarget =
           actorId: string;
       };
 
-export type MissileThreatIdentification =
-    MissileSignatureIntel;
+export type MissileThreatIdentification = MissileSignatureIntel;
 
-export type ThreatIdentificationResult =
-    ResolvedMissileSignatureIntel & {
-        kind:
-            typeof COMBAT_THREAT_KIND
-                .MISSILE;
-    };
+export type ThreatIdentificationResult = ResolvedMissileSignatureIntel & {
+    kind: typeof COMBAT_THREAT_KIND.MISSILE;
+};
 
 export type MissileCombatProjectileState = {
     id: string;
@@ -169,7 +144,6 @@ export type BeamCannonAttackState = {
     target: {
         kind: typeof COMBAT_TARGET_KIND.PLAYER_SHIP;
     };
-
 };
 
 // Temporary shield created by the installed Shield Generator.
@@ -190,7 +164,6 @@ export type SpamChannelState = {
     elapsedMs: number;
     durationMs: number;
 };
-
 
 // После прикрепления мина живёт независимо
 // от дальнейшего состояния dispenser.
@@ -218,22 +191,18 @@ export type StickyMineState = {
 
 export type EncounterCombatState = {
     // Installed player Defense Turret system.
-    defenseTurret?:
-        ShipDefenseTurretState;
+    defenseTurret?: ShipDefenseTurretState;
 
     // Shared defensive-energy installation.
     // Some test/minimal encounters may omit it.
-    powerCore?:
-        PowerCoreState;
+    powerCore?: PowerCoreState;
 
     // Mutable installed shield generator
     // текущего player ship в encounter.
-    shieldGenerator?:
-        ShieldGeneratorState;
+    shieldGenerator?: ShieldGeneratorState;
 
     // Encounter-only temporary shield.
-    activeShield:
-        ActiveShieldState | null;
+    activeShield: ActiveShieldState | null;
 
     // Mutable installed weapons
     // текущего player ship в encounter.

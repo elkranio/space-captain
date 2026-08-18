@@ -30,10 +30,6 @@ export const BRIDGE_ENEMY_EVADE_PRESENTATION = {
 
         emitterVerticalOffsetRatio: 0.16,
 
-        colors: [
-            0xffffff,
-            0xffd37a,
-            0xff923d,
-        ],
+        colors: [0xffffff, 0xffd37a, 0xff923d],
     },
 } as const;

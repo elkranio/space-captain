@@ -1,7 +1,7 @@
 // src/engine/universe/queries/get_current_node.ts
 
-import type { RunState } from '../../defs/run';
-import type { SpaceNodeState } from '../../defs/universe';
+import type { RunState } from "../../defs/run";
+import type { SpaceNodeState } from "../../defs/universe";
 
 // Возвращает node, в которой сейчас находится игрок.
 //

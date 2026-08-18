@@ -1,10 +1,10 @@
 // src/app/manifests/beacons/beacon_sprite.ts
-import { BEACON_OBJECT_SPRITE_ID, type BeaconObjectSpriteId } from '../../../engine/defs/beacon';
-import { DEFAULT_ATLAS_KEY, type SpriteEntry } from '../types';
+import { BEACON_OBJECT_SPRITE_ID, type BeaconObjectSpriteId } from "../../../engine/defs/beacon";
+import { DEFAULT_ATLAS_KEY, type SpriteEntry } from "../types";
 
 export const BEACON_OBJECT_SPRITES = {
     [BEACON_OBJECT_SPRITE_ID.NAVIGATION_BEACON_00]: {
         atlasKey: DEFAULT_ATLAS_KEY,
-        frameKey: 'beacons/navigation_beacon_00',
+        frameKey: "beacons/navigation_beacon_00",
     },
 } satisfies Record<BeaconObjectSpriteId, SpriteEntry>;

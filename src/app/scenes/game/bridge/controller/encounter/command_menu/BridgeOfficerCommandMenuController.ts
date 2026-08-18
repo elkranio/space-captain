@@ -1,16 +1,11 @@
 // src/app/scenes/game/bridge/controller/encounter/command_menu/BridgeOfficerCommandMenuController.ts
 
-import type { OfficerRole } from '../../../../../../../engine/defs/officer';
-import type EncounterEngine from '../../../../../../../engine/encounter/EncounterEngine';
-import type { AvailableOfficerCommand } from '../../../../../../../engine/encounter/model/command';
-import type {
-    EncounterPresentationSnapshot,
-} from '../../../../../../../engine/encounter/snapshots/encounter_presentation_snapshot';
-import {
-    BRIDGE_EVENT,
-    type BridgeOfficerCommandMenuGroupPayload,
-} from '../../../events/bridge_event';
-import type BridgeEventBus from '../../../events/BridgeEventBus';
+import type { OfficerRole } from "../../../../../../../engine/defs/officer";
+import type EncounterEngine from "../../../../../../../engine/encounter/EncounterEngine";
+import type { AvailableOfficerCommand } from "../../../../../../../engine/encounter/model/command";
+import type { EncounterPresentationSnapshot } from "../../../../../../../engine/encounter/snapshots/encounter_presentation_snapshot";
+import { BRIDGE_EVENT, type BridgeOfficerCommandMenuGroupPayload } from "../../../events/bridge_event";
+import type BridgeEventBus from "../../../events/BridgeEventBus";
 
 export default class BridgeOfficerCommandMenuController {
     constructor(
@@ -23,25 +18,16 @@ export default class BridgeOfficerCommandMenuController {
     public open(
         role: OfficerRole,
 
-        snapshot:
-            EncounterPresentationSnapshot =
-                this.encounterEngine
-                    .getPresentationSnapshot(),
+        snapshot: EncounterPresentationSnapshot = this.encounterEngine.getPresentationSnapshot(),
     ): void {
         // Snapshot command availability is already domain-resolved.
         // Menu only groups presentation-safe commands for the selected role.
-        const commands =
-            snapshot.commandsByRole[
-                role
-            ];
+        const commands = snapshot.commandsByRole[role];
 
         this.eventBus.emit(BRIDGE_EVENT.OFFICER_COMMAND_MENU_UPDATED, {
             role,
 
-            groups:
-                this.createCommandGroups(
-                    commands,
-                ),
+            groups: this.createCommandGroups(commands),
         });
     }
 
@@ -49,19 +35,14 @@ export default class BridgeOfficerCommandMenuController {
 
     // #region Command group creation
 
-    private createCommandGroups(
-        commands: AvailableOfficerCommand[],
-    ): BridgeOfficerCommandMenuGroupPayload[] {
+    private createCommandGroups(commands: AvailableOfficerCommand[]): BridgeOfficerCommandMenuGroupPayload[] {
         const groups: BridgeOfficerCommandMenuGroupPayload[] = [];
 
         for (const command of commands) {
-            const group = this.getOrCreateGroup(
-                groups,
-                command.targetLabel ?? 'GENERAL',
-            );
+            const group = this.getOrCreateGroup(groups, command.targetLabel ?? "GENERAL");
 
             group.items.push({
-                kind: 'command',
+                kind: "command",
 
                 commandId: command.commandId,
                 label: command.label,

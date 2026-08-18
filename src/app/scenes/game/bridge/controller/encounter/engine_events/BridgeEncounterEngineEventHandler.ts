@@ -1,138 +1,85 @@
 // src/app/scenes/game/bridge/controller/encounter/engine_events/BridgeEncounterEngineEventHandler.ts
 
-import type {
-    PlayerHullDamageResult,
-} from '../../../../../../../engine/defs/player';
+import type { PlayerHullDamageResult } from "../../../../../../../engine/defs/player";
 import {
     COMBAT_SOURCE_KIND,
     COMBAT_TARGET_KIND,
     BEAM_CANNON_SHOT_OUTCOME,
-} from '../../../../../../../engine/encounter/model/combat';
+} from "../../../../../../../engine/encounter/model/combat";
 import {
     ENCOUNTER_EVENT,
     OFFICER_TASK_OUTCOME,
     OFFICER_TASK_RESULT_KIND,
     type EncounterEvent,
-} from '../../../../../../../engine/encounter/model/event';
-import { OFFICER_TASK_KIND } from '../../../../../../../engine/encounter/model/officer_task';
-import type {
-    EncounterPresentationSnapshot,
-} from '../../../../../../../engine/encounter/snapshots/encounter_presentation_snapshot';
+} from "../../../../../../../engine/encounter/model/event";
+import { OFFICER_TASK_KIND } from "../../../../../../../engine/encounter/model/officer_task";
+import type { EncounterPresentationSnapshot } from "../../../../../../../engine/encounter/snapshots/encounter_presentation_snapshot";
 import {
     MISSILE_SIGNATURE_ANALYSIS_CONFIDENCE,
     type MissileSignatureAnalysisConfidence,
-} from '../../../../../../../engine/encounter/model/missile_signature_analysis';
-import type { GameRuntime } from '../../../../../../runtime/GameRuntime';
-import { SCENE_KEY } from '../../../../../scene_key';
-import {
-    BRIDGE_EVENT,
-    BRIDGE_STICKY_MINE_REMOVAL_OUTCOME,
-} from '../../../events/bridge_event';
-import type BridgeEventBus from '../../../events/BridgeEventBus';
-import {
-    mapEncounterAnchorToBridgeObjectPayload,
-} from '../encounter_objects/BridgeEncounterObjectMapper';
-import BridgeEncounterLoadPresenter from './BridgeEncounterLoadPresenter';
-import BridgeEncounterPersistenceSynchronizer from '../BridgeEncounterPersistenceSynchronizer';
+} from "../../../../../../../engine/encounter/model/missile_signature_analysis";
+import type { GameRuntime } from "../../../../../../runtime/GameRuntime";
+import { SCENE_KEY } from "../../../../../scene_key";
+import { BRIDGE_EVENT, BRIDGE_STICKY_MINE_REMOVAL_OUTCOME } from "../../../events/bridge_event";
+import type BridgeEventBus from "../../../events/BridgeEventBus";
+import { mapEncounterAnchorToBridgeObjectPayload } from "../encounter_objects/BridgeEncounterObjectMapper";
+import BridgeEncounterLoadPresenter from "./BridgeEncounterLoadPresenter";
+import BridgeEncounterPersistenceSynchronizer from "../BridgeEncounterPersistenceSynchronizer";
 
 type SetEncounterInteractive = (value: boolean) => void;
 
 export default class BridgeEncounterEngineEventHandler {
-    private readonly loadPresenter:
-        BridgeEncounterLoadPresenter;
+    private readonly loadPresenter: BridgeEncounterLoadPresenter;
 
-    private readonly persistenceSynchronizer:
-        BridgeEncounterPersistenceSynchronizer;
+    private readonly persistenceSynchronizer: BridgeEncounterPersistenceSynchronizer;
 
     constructor(
         private readonly eventBus: BridgeEventBus,
         private readonly setEncounterInteractive: SetEncounterInteractive,
         gameRuntime: GameRuntime,
     ) {
-        this.loadPresenter =
-            new BridgeEncounterLoadPresenter(
-                this.eventBus,
-                this.setEncounterInteractive,
-            );
+        this.loadPresenter = new BridgeEncounterLoadPresenter(this.eventBus, this.setEncounterInteractive);
 
-        this.persistenceSynchronizer =
-            new BridgeEncounterPersistenceSynchronizer(
-                gameRuntime,
-            );
+        this.persistenceSynchronizer = new BridgeEncounterPersistenceSynchronizer(gameRuntime);
     }
 
     // #region Public API
 
     public handle(
-        events:
-            EncounterEvent[],
+        events: EncounterEvent[],
 
-        presentationSnapshot?:
-            EncounterPresentationSnapshot,
+        presentationSnapshot?: EncounterPresentationSnapshot,
     ): void {
         for (const event of events) {
-            this.persistenceSynchronizer
-                .syncEvent(event);
+            this.persistenceSynchronizer.syncEvent(event);
 
-            this.handleEvent(
-                event,
-                presentationSnapshot,
-            );
+            this.handleEvent(event, presentationSnapshot);
         }
     }
 
     public clearCombatPresentation(): void {
-        this.eventBus.emit(
-            BRIDGE_EVENT
-                .ENEMY_ATTACK_WARNING_CLEARED,
-        );
+        this.eventBus.emit(BRIDGE_EVENT.ENEMY_ATTACK_WARNING_CLEARED);
 
-        this.eventBus.emit(
-            BRIDGE_EVENT.INCOMING_MISSILES_UPDATED,
-            [],
-        );
+        this.eventBus.emit(BRIDGE_EVENT.INCOMING_MISSILES_UPDATED, []);
 
-        this.eventBus.emit(
-            BRIDGE_EVENT.OUTGOING_MISSILES_UPDATED,
-            [],
-        );
+        this.eventBus.emit(BRIDGE_EVENT.OUTGOING_MISSILES_UPDATED, []);
 
-        this.eventBus.emit(
-            BRIDGE_EVENT
-                .OUTGOING_STICKY_MINES_UPDATED,
-            [],
-        );
+        this.eventBus.emit(BRIDGE_EVENT.OUTGOING_STICKY_MINES_UPDATED, []);
 
-        this.eventBus.emit(
-            BRIDGE_EVENT.STICKY_MINES_UPDATED,
-            [],
-        );
+        this.eventBus.emit(BRIDGE_EVENT.STICKY_MINES_UPDATED, []);
 
-        this.eventBus.emit(
-            BRIDGE_EVENT.BEAM_CANNON_THREATS_UPDATED,
-            [],
-        );
+        this.eventBus.emit(BRIDGE_EVENT.BEAM_CANNON_THREATS_UPDATED, []);
 
-        this.eventBus.emit(
-            BRIDGE_EVENT.PLAYER_SHIELD_UPDATED,
-            null,
-        );
+        this.eventBus.emit(BRIDGE_EVENT.PLAYER_SHIELD_UPDATED, null);
 
-        this.eventBus.emit(
-            BRIDGE_EVENT.ENEMY_SHIELDS_UPDATED,
-            [],
-        );
+        this.eventBus.emit(BRIDGE_EVENT.ENEMY_SHIELDS_UPDATED, []);
 
-        this.eventBus.emit(
-            BRIDGE_EVENT
-                .CAPTAIN_COMBAT_CONTEXT_UPDATED,
-            {
-                incomingMissiles: [],
-                incomingBeamCannons: [],
-                incomingStickyMines: [],
-                activeSpamChannels: [],
-            },
-        );
+        this.eventBus.emit(BRIDGE_EVENT.CAPTAIN_COMBAT_CONTEXT_UPDATED, {
+            incomingMissiles: [],
+            incomingBeamCannons: [],
+            incomingStickyMines: [],
+            activeSpamChannels: [],
+        });
     }
 
     // #endregion
@@ -140,48 +87,33 @@ export default class BridgeEncounterEngineEventHandler {
     // #region Event dispatch
 
     private handleEvent(
-        event:
-            EncounterEvent,
+        event: EncounterEvent,
 
-        presentationSnapshot?:
-            EncounterPresentationSnapshot,
+        presentationSnapshot?: EncounterPresentationSnapshot,
     ): void {
         switch (event.type) {
             // Loading state will be exposed by the enemy debug panel.
             // The combat view only needs the resolved physical shot.
-            case ENCOUNTER_EVENT
-                .ENEMY_DEFENSE_TURRET_LOADING_STARTED:
+            case ENCOUNTER_EVENT.ENEMY_DEFENSE_TURRET_LOADING_STARTED:
                 return;
 
-            case ENCOUNTER_EVENT
-                .ENEMY_DEFENSE_TURRET_FIRED:
-                this.eventBus.emit(
-                    BRIDGE_EVENT
-                        .ENEMY_DEFENSE_TURRET_FIRED,
-                    {
-                        sourceActorId:
-                            event.sourceActorId,
+            case ENCOUNTER_EVENT.ENEMY_DEFENSE_TURRET_FIRED:
+                this.eventBus.emit(BRIDGE_EVENT.ENEMY_DEFENSE_TURRET_FIRED, {
+                    sourceActorId: event.sourceActorId,
 
-                        projectileId:
-                            event.projectile.id,
+                    projectileId: event.projectile.id,
 
-                        outcome:
-                            event.outcome,
-                    },
-                );
+                    outcome: event.outcome,
+                });
 
                 return;
 
             case ENCOUNTER_EVENT.ENCOUNTER_LOADED:
                 if (!presentationSnapshot) {
-                    throw new Error(
-                        'ENCOUNTER_LOADED requires presentation snapshot',
-                    );
+                    throw new Error("ENCOUNTER_LOADED requires presentation snapshot");
                 }
 
-                this.loadPresenter.present(
-                    presentationSnapshot,
-                );
+                this.loadPresenter.present(presentationSnapshot);
                 return;
 
             case ENCOUNTER_EVENT.TRAVEL_STARTED:
@@ -216,41 +148,24 @@ export default class BridgeEncounterEngineEventHandler {
                 });
                 return;
 
-            case ENCOUNTER_EVENT
-                .PLAYER_SHIELD_DEPLOYED:
-                this.eventBus.emit(
-                    BRIDGE_EVENT
-                        .PLAYER_SHIELD_DEPLOYED,
-                    {
-                        remainingDurationMs:
-                            event.shield
-                                .remainingDurationMs,
+            case ENCOUNTER_EVENT.PLAYER_SHIELD_DEPLOYED:
+                this.eventBus.emit(BRIDGE_EVENT.PLAYER_SHIELD_DEPLOYED, {
+                    remainingDurationMs: event.shield.remainingDurationMs,
 
-                        initialDurationMs:
-                            event.shield
-                                .initialDurationMs,
-                    },
-                );
+                    initialDurationMs: event.shield.initialDurationMs,
+                });
 
                 return;
 
-            case ENCOUNTER_EVENT
-                .PLAYER_SHIELD_ENDED:
-                this.eventBus.emit(
-                    BRIDGE_EVENT
-                        .PLAYER_SHIELD_ENDED,
-                    {
-                        outcome:
-                            event.outcome,
-                    },
-                );
+            case ENCOUNTER_EVENT.PLAYER_SHIELD_ENDED:
+                this.eventBus.emit(BRIDGE_EVENT.PLAYER_SHIELD_ENDED, {
+                    outcome: event.outcome,
+                });
 
                 return;
 
             case ENCOUNTER_EVENT.PLAYER_SHIP_DRIVE_DISRUPTED:
-                this.eventBus.emit(
-                    BRIDGE_EVENT.PLAYER_SHIP_DRIVE_DISRUPTED,
-                );
+                this.eventBus.emit(BRIDGE_EVENT.PLAYER_SHIP_DRIVE_DISRUPTED);
 
                 return;
 
@@ -270,69 +185,37 @@ export default class BridgeEncounterEngineEventHandler {
                     );
                 }
 
-                if (
-                    event.result?.kind ===
-                    OFFICER_TASK_RESULT_KIND
-                        .THREAT_IDENTIFIED
-                ) {
-                    this.eventBus.emit(
-                        BRIDGE_EVENT
-                            .OFFICER_BARK_REQUESTED,
-                        {
-                            role:
-                                event.task.role,
+                if (event.result?.kind === OFFICER_TASK_RESULT_KIND.THREAT_IDENTIFIED) {
+                    this.eventBus.emit(BRIDGE_EVENT.OFFICER_BARK_REQUESTED, {
+                        role: event.task.role,
 
-                            text:
-                                getMissileSignatureAnalysisBark(
-                                    event.result
-                                        .analysisConfidence,
-                                ),
-                        },
-                    );
+                        text: getMissileSignatureAnalysisBark(event.result.analysisConfidence),
+                    });
                 }
 
                 if (event.result?.kind === OFFICER_TASK_RESULT_KIND.DEFENSE_TURRET_FIRED) {
-                    this.eventBus.emit(
-                        BRIDGE_EVENT.DEFENSE_TURRET_FIRED,
-                        {
-                            projectileId: event.result.threatId,
+                    this.eventBus.emit(BRIDGE_EVENT.DEFENSE_TURRET_FIRED, {
+                        projectileId: event.result.threatId,
 
-                            outcome: event.result.outcome,
-                        },
-                    );
+                        outcome: event.result.outcome,
+                    });
                 }
 
+                if (event.result?.kind === OFFICER_TASK_RESULT_KIND.STICKY_MINE_CLEARED) {
+                    this.eventBus.emit(BRIDGE_EVENT.STICKY_MINE_REMOVED, {
+                        mineId: event.result.mineId,
 
-                if (
-                    event.result?.kind ===
-                    OFFICER_TASK_RESULT_KIND.STICKY_MINE_CLEARED
-                ) {
-                    this.eventBus.emit(
-                        BRIDGE_EVENT.STICKY_MINE_REMOVED,
-                        {
-                            mineId:
-                                event.result.mineId,
-
-                            outcome:
-                                BRIDGE_STICKY_MINE_REMOVAL_OUTCOME.CLEARED,
-                        },
-                    );
+                        outcome: BRIDGE_STICKY_MINE_REMOVAL_OUTCOME.CLEARED,
+                    });
                 }
 
                 if (
-                    event.task.kind ===
-                        OFFICER_TASK_KIND.WEAPONS_FIRE_BEAM_CANNON &&
-                    event.outcome ===
-                        OFFICER_TASK_OUTCOME.CANCELLED
+                    event.task.kind === OFFICER_TASK_KIND.WEAPONS_FIRE_BEAM_CANNON &&
+                    event.outcome === OFFICER_TASK_OUTCOME.CANCELLED
                 ) {
-                    this.eventBus.emit(
-                        BRIDGE_EVENT
-                            .PLAYER_BEAM_CANNON_CHARGING_CLEARED,
-                        {
-                            weaponId:
-                                event.task.weaponId,
-                        },
-                    );
+                    this.eventBus.emit(BRIDGE_EVENT.PLAYER_BEAM_CANNON_CHARGING_CLEARED, {
+                        weaponId: event.task.weaponId,
+                    });
                 }
 
                 return;
@@ -343,325 +226,209 @@ export default class BridgeEncounterEngineEventHandler {
 
             case ENCOUNTER_EVENT.STICKY_MINE_ATTACHED:
                 if (
-                    event.mine.source.kind !==
-                        COMBAT_SOURCE_KIND.ACTOR ||
-                    event.mine.target.kind !==
-                        COMBAT_TARGET_KIND
-                            .PLAYER_SHIP
+                    event.mine.source.kind !== COMBAT_SOURCE_KIND.ACTOR ||
+                    event.mine.target.kind !== COMBAT_TARGET_KIND.PLAYER_SHIP
                 ) {
                     throw new Error(
-                        'Incoming sticky mine has invalid ' +
-                            'source or target: ' +
+                        "Incoming sticky mine has invalid " +
+                            "source or target: " +
                             event.mine.id +
-                            '/' +
+                            "/" +
                             event.mine.source.kind +
-                            '/' +
+                            "/" +
                             event.mine.target.kind,
                     );
                 }
 
-                this.eventBus.emit(
-                    BRIDGE_EVENT.STICKY_MINE_ADDED,
-                    {
-                        mineId: event.mine.id,
+                this.eventBus.emit(BRIDGE_EVENT.STICKY_MINE_ADDED, {
+                    mineId: event.mine.id,
 
-                        sourceActorId:
-                            event.mine.source
-                                .actorId,
+                    sourceActorId: event.mine.source.actorId,
 
-                        initialTimeToDetonationMs:
-                            event.mine.initialTimeToDetonationMs,
-                    },
-                );
+                    initialTimeToDetonationMs: event.mine.initialTimeToDetonationMs,
+                });
                 return;
 
-            case ENCOUNTER_EVENT
-                .STICKY_MINE_MISSED_PLAYER_SHIP:
+            case ENCOUNTER_EVENT.STICKY_MINE_MISSED_PLAYER_SHIP:
                 this.eventBus.emit(
-                    BRIDGE_EVENT
-                        .STICKY_MINE_MISSED_PLAYER_SHIP,
+                    BRIDGE_EVENT.STICKY_MINE_MISSED_PLAYER_SHIP,
 
                     {
-                        sourceActorId:
-                            event.sourceActorId,
+                        sourceActorId: event.sourceActorId,
                     },
                 );
                 return;
 
             case ENCOUNTER_EVENT.PLAYER_BEAM_CANNON_CHARGING_STARTED:
-                this.eventBus.emit(
-                    BRIDGE_EVENT
-                        .PLAYER_BEAM_CANNON_CHARGING_STARTED,
-                    {
-                        weaponId:
-                            event.weaponId,
+                this.eventBus.emit(BRIDGE_EVENT.PLAYER_BEAM_CANNON_CHARGING_STARTED, {
+                    weaponId: event.weaponId,
 
-                        targetActorId:
-                            event.targetActorId,
-                    },
-                );
+                    targetActorId: event.targetActorId,
+                });
                 return;
 
             case ENCOUNTER_EVENT.PLAYER_BEAM_CANNON_FIRED:
-                this.eventBus.emit(
-                    BRIDGE_EVENT
-                        .PLAYER_BEAM_CANNON_CHARGING_CLEARED,
-                    {
-                        weaponId:
-                            event.weaponId,
-                    },
-                );
+                this.eventBus.emit(BRIDGE_EVENT.PLAYER_BEAM_CANNON_CHARGING_CLEARED, {
+                    weaponId: event.weaponId,
+                });
 
-                this.eventBus.emit(
-                    BRIDGE_EVENT
-                        .PLAYER_BEAM_CANNON_FIRED,
-                    {
-                        weaponId:
-                            event.weaponId,
+                this.eventBus.emit(BRIDGE_EVENT.PLAYER_BEAM_CANNON_FIRED, {
+                    weaponId: event.weaponId,
 
-                        targetActorId:
-                            event.targetActorId,
+                    targetActorId: event.targetActorId,
 
-                        outcome:
-                            event.outcome,
-                    },
-                );
+                    outcome: event.outcome,
+                });
                 return;
 
             case ENCOUNTER_EVENT.PLAYER_MISSILE_LAUNCHED:
                 if (
-                    event.projectile.source.kind !==
-                        COMBAT_SOURCE_KIND
-                            .PLAYER_SHIP ||
-                    event.projectile.target.kind !==
-                        COMBAT_TARGET_KIND.ACTOR
+                    event.projectile.source.kind !== COMBAT_SOURCE_KIND.PLAYER_SHIP ||
+                    event.projectile.target.kind !== COMBAT_TARGET_KIND.ACTOR
                 ) {
                     throw new Error(
-                        'Outgoing missile has invalid ' +
-                            'source or target: ' +
+                        "Outgoing missile has invalid " +
+                            "source or target: " +
                             event.projectile.id +
-                            '/' +
+                            "/" +
                             event.projectile.source.kind +
-                            '/' +
+                            "/" +
                             event.projectile.target.kind,
                     );
                 }
 
-                this.eventBus.emit(
-                    BRIDGE_EVENT
-                        .OUTGOING_MISSILE_ADDED,
-                    {
-                        projectileId:
-                            event.projectile.id,
+                this.eventBus.emit(BRIDGE_EVENT.OUTGOING_MISSILE_ADDED, {
+                    projectileId: event.projectile.id,
 
-                        targetActorId:
-                            event.projectile
-                                .target.actorId,
+                    targetActorId: event.projectile.target.actorId,
 
-                        initialTimeToImpactMs:
-                            event.projectile
-                                .initialTimeToImpactMs,
-                    },
-                );
+                    initialTimeToImpactMs: event.projectile.initialTimeToImpactMs,
+                });
                 return;
 
             case ENCOUNTER_EVENT.PLAYER_MISSILE_RESOLVED:
                 if (
-                    event.projectile.source.kind !==
-                        COMBAT_SOURCE_KIND
-                            .PLAYER_SHIP ||
-                    event.projectile.target.kind !==
-                        COMBAT_TARGET_KIND.ACTOR
+                    event.projectile.source.kind !== COMBAT_SOURCE_KIND.PLAYER_SHIP ||
+                    event.projectile.target.kind !== COMBAT_TARGET_KIND.ACTOR
                 ) {
                     throw new Error(
-                        'Resolved outgoing missile has ' +
-                            'invalid source or target: ' +
+                        "Resolved outgoing missile has " +
+                            "invalid source or target: " +
                             event.projectile.id +
-                            '/' +
+                            "/" +
                             event.projectile.source.kind +
-                            '/' +
+                            "/" +
                             event.projectile.target.kind,
                     );
                 }
 
-                this.eventBus.emit(
-                    BRIDGE_EVENT
-                        .OUTGOING_MISSILE_REMOVED,
-                    {
-                        projectileId:
-                            event.projectile.id,
+                this.eventBus.emit(BRIDGE_EVENT.OUTGOING_MISSILE_REMOVED, {
+                    projectileId: event.projectile.id,
 
-                        targetActorId:
-                            event.projectile
-                                .target.actorId,
+                    targetActorId: event.projectile.target.actorId,
 
-                        outcome:
-                            event.outcome,
-                    },
-                );
+                    outcome: event.outcome,
+                });
                 return;
 
-            case ENCOUNTER_EVENT
-                .PLAYER_STICKY_MINE_MISSED:
-                this.eventBus.emit(
-                    BRIDGE_EVENT
-                        .OUTGOING_STICKY_MINE_MISSED,
-                    {
-                        mineId:
-                            event.mineId,
+            case ENCOUNTER_EVENT.PLAYER_STICKY_MINE_MISSED:
+                this.eventBus.emit(BRIDGE_EVENT.OUTGOING_STICKY_MINE_MISSED, {
+                    mineId: event.mineId,
 
-                        targetActorId:
-                            event.targetActorId,
-                    },
-                );
+                    targetActorId: event.targetActorId,
+                });
                 return;
 
-            case ENCOUNTER_EVENT
-                .PLAYER_STICKY_MINE_ATTACHED:
+            case ENCOUNTER_EVENT.PLAYER_STICKY_MINE_ATTACHED:
                 if (
-                    event.mine.source.kind !==
-                        COMBAT_SOURCE_KIND
-                            .PLAYER_SHIP ||
-                    event.mine.target.kind !==
-                        COMBAT_TARGET_KIND.ACTOR
+                    event.mine.source.kind !== COMBAT_SOURCE_KIND.PLAYER_SHIP ||
+                    event.mine.target.kind !== COMBAT_TARGET_KIND.ACTOR
                 ) {
                     throw new Error(
-                        'Outgoing sticky mine has invalid ' +
-                            'source or target: ' +
+                        "Outgoing sticky mine has invalid " +
+                            "source or target: " +
                             event.mine.id +
-                            '/' +
+                            "/" +
                             event.mine.source.kind +
-                            '/' +
+                            "/" +
                             event.mine.target.kind,
                     );
                 }
 
-                this.eventBus.emit(
-                    BRIDGE_EVENT
-                        .OUTGOING_STICKY_MINE_ADDED,
-                    {
-                        mineId:
-                            event.mine.id,
+                this.eventBus.emit(BRIDGE_EVENT.OUTGOING_STICKY_MINE_ADDED, {
+                    mineId: event.mine.id,
 
-                        targetActorId:
-                            event.mine.target
-                                .actorId,
+                    targetActorId: event.mine.target.actorId,
 
-                        initialTimeToDetonationMs:
-                            event.mine
-                                .initialTimeToDetonationMs,
-                    },
-                );
+                    initialTimeToDetonationMs: event.mine.initialTimeToDetonationMs,
+                });
                 return;
 
-            case ENCOUNTER_EVENT
-                .PLAYER_STICKY_MINE_RESOLVED:
+            case ENCOUNTER_EVENT.PLAYER_STICKY_MINE_RESOLVED:
                 if (
-                    event.mine.source.kind !==
-                        COMBAT_SOURCE_KIND
-                            .PLAYER_SHIP ||
-                    event.mine.target.kind !==
-                        COMBAT_TARGET_KIND.ACTOR
+                    event.mine.source.kind !== COMBAT_SOURCE_KIND.PLAYER_SHIP ||
+                    event.mine.target.kind !== COMBAT_TARGET_KIND.ACTOR
                 ) {
                     throw new Error(
-                        'Resolved outgoing sticky mine has ' +
-                            'invalid source or target: ' +
+                        "Resolved outgoing sticky mine has " +
+                            "invalid source or target: " +
                             event.mine.id +
-                            '/' +
+                            "/" +
                             event.mine.source.kind +
-                            '/' +
+                            "/" +
                             event.mine.target.kind,
                     );
                 }
 
-                this.eventBus.emit(
-                    BRIDGE_EVENT
-                        .OUTGOING_STICKY_MINE_REMOVED,
-                    {
-                        mineId:
-                            event.mine.id,
+                this.eventBus.emit(BRIDGE_EVENT.OUTGOING_STICKY_MINE_REMOVED, {
+                    mineId: event.mine.id,
 
-                        targetActorId:
-                            event.mine.target
-                                .actorId,
+                    targetActorId: event.mine.target.actorId,
 
-                        outcome:
-                            event.outcome,
-                    },
-                );
+                    outcome: event.outcome,
+                });
                 return;
 
-            case ENCOUNTER_EVENT
-                .PLAYER_SPAM_CHANNEL_STARTED:
-                this.eventBus.emit(
-                    BRIDGE_EVENT
-                        .OUTGOING_SPAM_CHANNEL_STARTED,
-                    {
-                        channelId:
-                            event.channelId,
+            case ENCOUNTER_EVENT.PLAYER_SPAM_CHANNEL_STARTED:
+                this.eventBus.emit(BRIDGE_EVENT.OUTGOING_SPAM_CHANNEL_STARTED, {
+                    channelId: event.channelId,
 
-                        targetActorId:
-                            event.targetActorId,
-                    },
-                );
+                    targetActorId: event.targetActorId,
+                });
 
                 return;
 
-            case ENCOUNTER_EVENT
-                .PLAYER_SPAM_CHANNEL_ENDED:
-                this.eventBus.emit(
-                    BRIDGE_EVENT
-                        .OUTGOING_SPAM_CHANNEL_ENDED,
-                    {
-                        channelId:
-                            event.channelId,
+            case ENCOUNTER_EVENT.PLAYER_SPAM_CHANNEL_ENDED:
+                this.eventBus.emit(BRIDGE_EVENT.OUTGOING_SPAM_CHANNEL_ENDED, {
+                    channelId: event.channelId,
 
-                        targetActorId:
-                            event.targetActorId,
+                    targetActorId: event.targetActorId,
 
-                        outcome:
-                            event.outcome,
-                    },
-                );
+                    outcome: event.outcome,
+                });
 
                 return;
 
             case ENCOUNTER_EVENT.ENEMY_SHIP_DESTROYED:
-                this.eventBus.emit(
-                    BRIDGE_EVENT
-                        .ENEMY_ATTACK_WARNING_CLEARED,
-                );
+                this.eventBus.emit(BRIDGE_EVENT.ENEMY_ATTACK_WARNING_CLEARED);
 
                 // View фиксирует position
                 // до удаления object sprite.
-                this.eventBus.emit(
-                    BRIDGE_EVENT
-                        .ENEMY_SHIP_DESTRUCTION_STARTED,
-                    {
-                        actorId:
-                            event.actorId,
-                    },
-                );
+                this.eventBus.emit(BRIDGE_EVENT.ENEMY_SHIP_DESTRUCTION_STARTED, {
+                    actorId: event.actorId,
+                });
 
-                this.eventBus.emit(
-                    BRIDGE_EVENT
-                        .ENCOUNTER_OBJECT_REMOVED,
-                    {
-                        objectId:
-                            event.actorId,
-                    },
-                );
+                this.eventBus.emit(BRIDGE_EVENT.ENCOUNTER_OBJECT_REMOVED, {
+                    objectId: event.actorId,
+                });
                 return;
 
             case ENCOUNTER_EVENT.MISSILE_LAUNCHED:
-                if (
-                    event.projectile.source.kind !==
-                    COMBAT_SOURCE_KIND.ACTOR
-                ) {
+                if (event.projectile.source.kind !== COMBAT_SOURCE_KIND.ACTOR) {
                     throw new Error(
-                        'Incoming missile source must be an actor: ' +
+                        "Incoming missile source must be an actor: " +
                             event.projectile.id +
-                            '/' +
+                            "/" +
                             event.projectile.source.kind,
                     );
                 }
@@ -671,8 +438,7 @@ export default class BridgeEncounterEngineEventHandler {
 
                     designation: event.projectile.designation,
 
-                    sourceActorId:
-                        event.projectile.source.actorId,
+                    sourceActorId: event.projectile.source.actorId,
 
                     initialTimeToImpactMs: event.projectile.initialTimeToImpactMs,
                 });
@@ -688,25 +454,18 @@ export default class BridgeEncounterEngineEventHandler {
                 });
                 return;
 
-
             case ENCOUNTER_EVENT.SPAM_CHANNEL_STARTED:
-                this.eventBus.emit(
-                    BRIDGE_EVENT.SPAM_CHANNEL_STARTED,
-                    {
-                        channelId: event.channel.id,
-                    },
-                );
+                this.eventBus.emit(BRIDGE_EVENT.SPAM_CHANNEL_STARTED, {
+                    channelId: event.channel.id,
+                });
                 return;
 
             case ENCOUNTER_EVENT.SPAM_CHANNEL_ENDED:
-                this.eventBus.emit(
-                    BRIDGE_EVENT.SPAM_CHANNEL_ENDED,
-                    {
-                        channelId: event.channel.id,
+                this.eventBus.emit(BRIDGE_EVENT.SPAM_CHANNEL_ENDED, {
+                    channelId: event.channel.id,
 
-                        outcome: event.outcome,
-                    },
-                );
+                    outcome: event.outcome,
+                });
                 return;
 
             case ENCOUNTER_EVENT.MISSILE_IMPACTED_PLAYER_SHIP:
@@ -714,25 +473,17 @@ export default class BridgeEncounterEngineEventHandler {
                     projectileId: event.projectile.id,
                 });
 
-                this.handlePlayerShipDamaged(
-                    event,
-                );
+                this.handlePlayerShipDamaged(event);
                 return;
 
             case ENCOUNTER_EVENT.STICKY_MINE_DETONATED:
-                this.eventBus.emit(
-                    BRIDGE_EVENT.STICKY_MINE_REMOVED,
-                    {
-                        mineId: event.mine.id,
+                this.eventBus.emit(BRIDGE_EVENT.STICKY_MINE_REMOVED, {
+                    mineId: event.mine.id,
 
-                        outcome:
-                            BRIDGE_STICKY_MINE_REMOVAL_OUTCOME.DETONATED,
-                    },
-                );
+                    outcome: BRIDGE_STICKY_MINE_REMOVAL_OUTCOME.DETONATED,
+                });
 
-                this.handlePlayerShipDamaged(
-                    event,
-                );
+                this.handlePlayerShipDamaged(event);
                 return;
 
             case ENCOUNTER_EVENT.BEAM_CANNON_FIRED:
@@ -743,17 +494,11 @@ export default class BridgeEncounterEngineEventHandler {
                 this.eventBus.emit(BRIDGE_EVENT.BEAM_CANNON_BEAM_FIRED, {
                     sourceActorId: event.attack.sourceActorId,
 
-                    outcome:
-                        event.outcome,
+                    outcome: event.outcome,
                 });
 
-                if (
-                    event.outcome ===
-                    BEAM_CANNON_SHOT_OUTCOME.HIT
-                ) {
-                    this.handlePlayerShipDamaged(
-                        event,
-                    );
+                if (event.outcome === BEAM_CANNON_SHOT_OUTCOME.HIT) {
+                    this.handlePlayerShipDamaged(event);
                 }
 
                 return;
@@ -766,42 +511,30 @@ export default class BridgeEncounterEngineEventHandler {
 
     // #region Combat
 
-    private handlePlayerShipDamaged(
-        result: PlayerHullDamageResult,
-    ): void {
+    private handlePlayerShipDamaged(result: PlayerHullDamageResult): void {
         if (!result.destroyed) {
             return;
         }
 
         this.setEncounterInteractive(false);
 
-        this.eventBus.emit(
-            BRIDGE_EVENT.SCENE_TRANSITION_REQUESTED,
-            {
-                sceneKey: SCENE_KEY.END,
-            },
-        );
+        this.eventBus.emit(BRIDGE_EVENT.SCENE_TRANSITION_REQUESTED, {
+            sceneKey: SCENE_KEY.END,
+        });
     }
 
     // #endregion
-
 }
 
-function getMissileSignatureAnalysisBark(
-    confidence:
-        MissileSignatureAnalysisConfidence,
-): string {
+function getMissileSignatureAnalysisBark(confidence: MissileSignatureAnalysisConfidence): string {
     switch (confidence) {
-        case MISSILE_SIGNATURE_ANALYSIS_CONFIDENCE
-            .CERTAIN:
-            return 'SIGNATURE CONFIRMED, CAPTAIN.';
+        case MISSILE_SIGNATURE_ANALYSIS_CONFIDENCE.CERTAIN:
+            return "SIGNATURE CONFIRMED, CAPTAIN.";
 
-        case MISSILE_SIGNATURE_ANALYSIS_CONFIDENCE
-            .STRONG:
-            return 'I\'M PRETTY SURE ABOUT THE SIGNATURE, CAPTAIN.';
+        case MISSILE_SIGNATURE_ANALYSIS_CONFIDENCE.STRONG:
+            return "I'M PRETTY SURE ABOUT THE SIGNATURE, CAPTAIN.";
 
-        case MISSILE_SIGNATURE_ANALYSIS_CONFIDENCE
-            .WEAK:
-            return 'NOT SURE, CAPTAIN. THIS IS MY BEST GUESS.';
+        case MISSILE_SIGNATURE_ANALYSIS_CONFIDENCE.WEAK:
+            return "NOT SURE, CAPTAIN. THIS IS MY BEST GUESS.";
     }
 }

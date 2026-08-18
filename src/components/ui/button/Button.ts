@@ -1,5 +1,5 @@
-import Phaser from 'phaser';
-import { ButtonConfig, DEFAULT_BUTTON_CONFIG } from './buttonConfig';
+import Phaser from "phaser";
+import { ButtonConfig, DEFAULT_BUTTON_CONFIG } from "./buttonConfig";
 
 /**
  * A simple UI button composed of a background rectangle and bitmap text label.
@@ -37,7 +37,7 @@ export default class Button extends Phaser.GameObjects.Container {
         this.bg.setInteractive({ useHandCursor: true });
         this.add(this.bg);
 
-        this.bg.on('pointerdown', () => this.emit('click', this));
+        this.bg.on("pointerdown", () => this.emit("click", this));
     }
 
     /**

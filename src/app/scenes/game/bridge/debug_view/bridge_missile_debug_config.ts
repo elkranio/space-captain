@@ -13,7 +13,7 @@ export const BRIDGE_MISSILE_DEBUG_CONFIG = {
 
     trajectories: {
         // 1: launch left, long upper cruise, then exit upper-left.
-        '1': {
+        "1": {
             points: [
                 { x: 720, y: 145 },
                 { x: 640, y: 130 },
@@ -29,7 +29,7 @@ export const BRIDGE_MISSILE_DEBUG_CONFIG = {
         },
 
         // 2: broad left sweep, then dive toward lower-left.
-        '2': {
+        "2": {
             points: [
                 { x: 720, y: 158 },
                 { x: 640, y: 175 },
@@ -46,7 +46,7 @@ export const BRIDGE_MISSILE_DEBUG_CONFIG = {
         },
 
         // 3: baseline downward approach, now shaped by explicit waypoints.
-        '3': {
+        "3": {
             points: [
                 { x: 720, y: 153 },
                 { x: 650, y: 175 },
@@ -62,7 +62,7 @@ export const BRIDGE_MISSILE_DEBUG_CONFIG = {
         },
 
         // 4: detach left/down, hook under the ship, then sweep lower-right.
-        '4': {
+        "4": {
             points: [
                 { x: 720, y: 150 },
                 { x: 690, y: 205 },
@@ -79,7 +79,7 @@ export const BRIDGE_MISSILE_DEBUG_CONFIG = {
         },
 
         // 5: detach left/down, hook under the ship, then climb upper-right.
-        '5': {
+        "5": {
             points: [
                 { x: 720, y: 150 },
                 { x: 690, y: 205 },
@@ -97,7 +97,7 @@ export const BRIDGE_MISSILE_DEBUG_CONFIG = {
     },
 
     motion: {
-        terminalStartTimeProgress: 0.90,
+        terminalStartTimeProgress: 0.9,
         terminalStartPathProgress: 0.62,
 
         // Cubic cruise keeps a non-zero launch velocity,

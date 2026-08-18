@@ -1,119 +1,87 @@
 // src/engine/encounter/model/ship_crew_task.ts
 
-import {
-    OFFICER_ROLE,
-    type OfficerRole,
-} from '../../defs/officer';
+import { OFFICER_ROLE, type OfficerRole } from "../../defs/officer";
 
 export const SHIP_CREW_TASK_KIND = {
-    OPERATE_WEAPON: 'operate_weapon',
+    OPERATE_WEAPON: "operate_weapon",
 
-    INTERCEPT_MISSILE:
-        'intercept_missile',
+    INTERCEPT_MISSILE: "intercept_missile",
 
-    CLEAR_STICKY_MINE:
-        'clear_sticky_mine',
+    CLEAR_STICKY_MINE: "clear_sticky_mine",
 
-    IDENTIFY_THREAT:
-        'identify_threat',
+    IDENTIFY_THREAT: "identify_threat",
 
-    PURGE_SPAM:
-        'purge_spam',
+    PURGE_SPAM: "purge_spam",
 
-    DEPLOY_SHIELD:
-        'deploy_shield',
+    DEPLOY_SHIELD: "deploy_shield",
 } as const;
 
-export type ShipCrewTaskKind =
-    (typeof SHIP_CREW_TASK_KIND)[keyof typeof SHIP_CREW_TASK_KIND];
+export type ShipCrewTaskKind = (typeof SHIP_CREW_TASK_KIND)[keyof typeof SHIP_CREW_TASK_KIND];
 
 export type ShipCrewTaskBaseState = {
     role: OfficerRole;
 };
 
-export type OperateWeaponShipCrewTaskState =
-    ShipCrewTaskBaseState & {
-        kind:
-            typeof SHIP_CREW_TASK_KIND
-                .OPERATE_WEAPON;
+export type OperateWeaponShipCrewTaskState = ShipCrewTaskBaseState & {
+    kind: typeof SHIP_CREW_TASK_KIND.OPERATE_WEAPON;
 
-        weaponId: string;
-    };
+    weaponId: string;
+};
 
-export type InterceptMissileShipCrewTaskState =
-    ShipCrewTaskBaseState & {
-        kind:
-            typeof SHIP_CREW_TASK_KIND
-                .INTERCEPT_MISSILE;
+export type InterceptMissileShipCrewTaskState = ShipCrewTaskBaseState & {
+    kind: typeof SHIP_CREW_TASK_KIND.INTERCEPT_MISSILE;
 
-        role:
-            typeof OFFICER_ROLE.WEAPONS;
+    role: typeof OFFICER_ROLE.WEAPONS;
 
-        // Runtime id of the installed system.
-        defenseTurretId: string;
+    // Runtime id of the installed system.
+    defenseTurretId: string;
 
-        projectileId: string;
-    };
+    projectileId: string;
+};
 
-export type ClearStickyMineShipCrewTaskState =
-    ShipCrewTaskBaseState & {
-        kind:
-            typeof SHIP_CREW_TASK_KIND
-                .CLEAR_STICKY_MINE;
+export type ClearStickyMineShipCrewTaskState = ShipCrewTaskBaseState & {
+    kind: typeof SHIP_CREW_TASK_KIND.CLEAR_STICKY_MINE;
 
-        role:
-            typeof OFFICER_ROLE.ENGINEER;
+    role: typeof OFFICER_ROLE.ENGINEER;
 
-        mineId: string;
+    mineId: string;
 
-        elapsedMs: number;
-        durationMs: number;
-    };
+    elapsedMs: number;
+    durationMs: number;
+};
 
-export type IdentifyThreatShipCrewTaskState =
-    ShipCrewTaskBaseState & {
-        kind:
-            typeof SHIP_CREW_TASK_KIND
-                .IDENTIFY_THREAT;
+export type IdentifyThreatShipCrewTaskState = ShipCrewTaskBaseState & {
+    kind: typeof SHIP_CREW_TASK_KIND.IDENTIFY_THREAT;
 
-        role:
-            typeof OFFICER_ROLE.SCIENCE;
+    role: typeof OFFICER_ROLE.SCIENCE;
 
-        observationId: string;
+    observationId: string;
 
-        elapsedMs: number;
-        durationMs: number;
-    };
+    elapsedMs: number;
+    durationMs: number;
+};
 
-export type PurgeSpamShipCrewTaskState =
-    ShipCrewTaskBaseState & {
-        kind:
-            typeof SHIP_CREW_TASK_KIND
-                .PURGE_SPAM;
+export type PurgeSpamShipCrewTaskState = ShipCrewTaskBaseState & {
+    kind: typeof SHIP_CREW_TASK_KIND.PURGE_SPAM;
 
-        role:
-            typeof OFFICER_ROLE.SCIENCE;
+    role: typeof OFFICER_ROLE.SCIENCE;
 
-        channelId: string;
+    channelId: string;
 
-        elapsedMs: number;
-        durationMs: number;
-    };
+    elapsedMs: number;
+    durationMs: number;
+};
 
-export type DeployShieldShipCrewTaskState =
-    ShipCrewTaskBaseState & {
-        kind:
-            typeof SHIP_CREW_TASK_KIND
-                .DEPLOY_SHIELD;
+export type DeployShieldShipCrewTaskState = ShipCrewTaskBaseState & {
+    kind: typeof SHIP_CREW_TASK_KIND.DEPLOY_SHIELD;
 
-        role:
-            typeof OFFICER_ROLE.ENGINEER;
+    role: typeof OFFICER_ROLE.ENGINEER;
 
-        observationId: string;
+    observationId: string;
 
-        elapsedMs: number;
-        durationMs: number;
-    };
+    elapsedMs: number;
+    durationMs: number;
+};
 
 export type ShipCrewTaskState =
     | OperateWeaponShipCrewTaskState
@@ -123,10 +91,4 @@ export type ShipCrewTaskState =
     | PurgeSpamShipCrewTaskState
     | DeployShieldShipCrewTaskState;
 
-export type ShipCrewTaskStates =
-    Partial<
-        Record<
-            OfficerRole,
-            ShipCrewTaskState
-        >
-    >;
+export type ShipCrewTaskStates = Partial<Record<OfficerRole, ShipCrewTaskState>>;

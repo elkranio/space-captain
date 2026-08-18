@@ -1,5 +1,5 @@
-import isMobile from 'is-mobile';
-import P34TOptions from '../config/p34t.options';
+import isMobile from "is-mobile";
+import P34TOptions from "../config/p34t.options";
 
 export default function applyResponsiveScaling(config: Phaser.Types.Core.GameConfig): void {
     const { mobile, desktop } = P34TOptions.responsive;

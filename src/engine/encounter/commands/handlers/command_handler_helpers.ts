@@ -1,17 +1,17 @@
 // src/engine/encounter/commands/handlers/command_handler_helpers.ts
 
-import { PLAYER_SPACE_NAVIGATION_KIND } from '../../../defs/player_location';
+import { PLAYER_SPACE_NAVIGATION_KIND } from "../../../defs/player_location";
 import {
     OFFICER_COMMAND_TARGET_KIND,
     type AvailableOfficerCommand,
     type EncounterOfficerCommandId,
     type ExecuteOfficerCommandInput,
-} from '../../model/command';
-import type { OfficerCommandExecutionContext } from '../../model/officer_command_handler';
-import type { EncounterState } from '../../model/state';
-import { ENCOUNTER_ANCHOR_KIND, type EncounterAnchorState } from '../../anchors/encounter_anchor';
-import type { JumpPointEncounterAnchorState } from '../../anchors/jump_point/jump_point_encounter_anchor';
-import type { StationEncounterAnchorState } from '../../anchors/station/station_encounter_anchor';
+} from "../../model/command";
+import type { OfficerCommandExecutionContext } from "../../model/officer_command_handler";
+import type { EncounterState } from "../../model/state";
+import { ENCOUNTER_ANCHOR_KIND, type EncounterAnchorState } from "../../anchors/encounter_anchor";
+import type { JumpPointEncounterAnchorState } from "../../anchors/jump_point/jump_point_encounter_anchor";
+import type { StationEncounterAnchorState } from "../../anchors/station/station_encounter_anchor";
 
 export function createUntargetedCommand(commandId: EncounterOfficerCommandId, label: string): AvailableOfficerCommand {
     return {

@@ -1,26 +1,20 @@
 // src/app/scenes/game/bridge/view/combat/sticky_mines/BridgeStickyMinesView.ts
 
-import type BridgeScene from '../../../BridgeScene';
+import type BridgeScene from "../../../BridgeScene";
 import {
     BRIDGE_EVENT,
     type BridgeStickyMineAddedPayload,
     type BridgeStickyMineMissedPlayerShipPayload,
     type BridgeStickyMineRemovedPayload,
     type BridgeStickyMinesUpdatedPayload,
-} from '../../../events/bridge_event';
-import type BridgeEventBus from '../../../events/BridgeEventBus';
-import {
-    BRIDGE_VIEWSCREEN_RECT,
-} from '../../bridge_viewscreen_layout';
-import {
-    removeMissingCombatSnapshotEntries,
-} from '../remove_missing_combat_snapshot_entries';
-import BridgeStickyMineView from './mine/BridgeStickyMineView';
-import BridgeStickyMineMissView from './mine/BridgeStickyMineMissView';
+} from "../../../events/bridge_event";
+import type BridgeEventBus from "../../../events/BridgeEventBus";
+import { BRIDGE_VIEWSCREEN_RECT } from "../../bridge_viewscreen_layout";
+import { removeMissingCombatSnapshotEntries } from "../remove_missing_combat_snapshot_entries";
+import BridgeStickyMineView from "./mine/BridgeStickyMineView";
+import BridgeStickyMineMissView from "./mine/BridgeStickyMineMissView";
 
-type GetObjectPosition = (
-    objectId: string,
-) => Phaser.Math.Vector2 | undefined;
+type GetObjectPosition = (objectId: string) => Phaser.Math.Vector2 | undefined;
 
 type StickyMineEntry = {
     slotIndex: number;
@@ -65,95 +59,48 @@ const STICKY_MINE_SLOT_OFFSETS = [
 // - стабильные display slots;
 // - lifecycle дочерних views.
 export default class BridgeStickyMinesView {
-    private readonly root:
-        Phaser.GameObjects.Container;
+    private readonly root: Phaser.GameObjects.Container;
 
-    private readonly mines =
-        new Map<string, StickyMineEntry>();
+    private readonly mines = new Map<string, StickyMineEntry>();
 
-    private readonly occupiedSlotIndexes =
-        new Set<number>();
+    private readonly occupiedSlotIndexes = new Set<number>();
 
-    private readonly missedMines =
-        new Set<BridgeStickyMineMissView>();
+    private readonly missedMines = new Set<BridgeStickyMineMissView>();
 
     constructor(
         private readonly scene: BridgeScene,
         private readonly eventBus: BridgeEventBus,
-        private readonly getObjectPosition:
-            GetObjectPosition,
+        private readonly getObjectPosition: GetObjectPosition,
     ) {
-        this.root =
-            this.scene.add.container(0, 0);
+        this.root = this.scene.add.container(0, 0);
 
         // Поверх encounter objects,
         // но под bridge interior и UI.
-        this.scene.layers
-            .get('vfx')
-            .add(this.root);
+        this.scene.layers.get("vfx").add(this.root);
 
-        this.eventBus.on(
-            BRIDGE_EVENT.STICKY_MINE_ADDED,
-            this.addMine,
-            this,
-        );
+        this.eventBus.on(BRIDGE_EVENT.STICKY_MINE_ADDED, this.addMine, this);
 
-        this.eventBus.on(
-            BRIDGE_EVENT
-                .STICKY_MINE_MISSED_PLAYER_SHIP,
-            this.playMiss,
-            this,
-        );
+        this.eventBus.on(BRIDGE_EVENT.STICKY_MINE_MISSED_PLAYER_SHIP, this.playMiss, this);
 
-        this.eventBus.on(
-            BRIDGE_EVENT.STICKY_MINES_UPDATED,
-            this.updateMines,
-            this,
-        );
+        this.eventBus.on(BRIDGE_EVENT.STICKY_MINES_UPDATED, this.updateMines, this);
 
-        this.eventBus.on(
-            BRIDGE_EVENT.STICKY_MINE_REMOVED,
-            this.removeMine,
-            this,
-        );
+        this.eventBus.on(BRIDGE_EVENT.STICKY_MINE_REMOVED, this.removeMine, this);
     }
 
     public destroy(): void {
-        this.eventBus.off(
-            BRIDGE_EVENT.STICKY_MINE_ADDED,
-            this.addMine,
-            this,
-        );
+        this.eventBus.off(BRIDGE_EVENT.STICKY_MINE_ADDED, this.addMine, this);
 
-        this.eventBus.off(
-            BRIDGE_EVENT
-                .STICKY_MINE_MISSED_PLAYER_SHIP,
-            this.playMiss,
-            this,
-        );
+        this.eventBus.off(BRIDGE_EVENT.STICKY_MINE_MISSED_PLAYER_SHIP, this.playMiss, this);
 
-        this.eventBus.off(
-            BRIDGE_EVENT.STICKY_MINES_UPDATED,
-            this.updateMines,
-            this,
-        );
+        this.eventBus.off(BRIDGE_EVENT.STICKY_MINES_UPDATED, this.updateMines, this);
 
-        this.eventBus.off(
-            BRIDGE_EVENT.STICKY_MINE_REMOVED,
-            this.removeMine,
-            this,
-        );
+        this.eventBus.off(BRIDGE_EVENT.STICKY_MINE_REMOVED, this.removeMine, this);
 
-        for (
-            const entry of this.mines.values()
-        ) {
+        for (const entry of this.mines.values()) {
             entry.view.destroy();
         }
 
-        for (
-            const missedMine of
-            this.missedMines
-        ) {
+        for (const missedMine of this.missedMines) {
             missedMine.destroy();
         }
 
@@ -164,220 +111,125 @@ export default class BridgeStickyMinesView {
         this.root.destroy(false);
     }
 
-    private playMiss(
-        payload:
-            BridgeStickyMineMissedPlayerShipPayload,
-    ): void {
-        const sourcePosition =
-            this.getObjectPosition(
-                payload.sourceActorId,
-            );
+    private playMiss(payload: BridgeStickyMineMissedPlayerShipPayload): void {
+        const sourcePosition = this.getObjectPosition(payload.sourceActorId);
 
         if (!sourcePosition) {
-            throw new Error(
-                'Sticky-mine miss source object not found: ' +
-                    payload.sourceActorId,
-            );
+            throw new Error("Sticky-mine miss source object not found: " + payload.sourceActorId);
         }
 
-        const view =
-            new BridgeStickyMineMissView({
-                scene:
-                    this.scene,
+        const view = new BridgeStickyMineMissView({
+            scene: this.scene,
 
-                parent:
-                    this.root,
+            parent: this.root,
 
-                startPosition:
-                    sourcePosition,
+            startPosition: sourcePosition,
 
-                onComplete: () => {
-                    view.destroy();
+            onComplete: () => {
+                view.destroy();
 
-                    this.missedMines.delete(
-                        view,
-                    );
-                },
-            });
+                this.missedMines.delete(view);
+            },
+        });
 
-        this.missedMines.add(
-            view,
-        );
+        this.missedMines.add(view);
     }
 
-    private addMine(
-        payload: BridgeStickyMineAddedPayload,
-    ): void {
-        if (
-            this.mines.has(payload.mineId)
-        ) {
-            throw new Error(
-                `Sticky mine already exists: ` +
-                    payload.mineId,
-            );
+    private addMine(payload: BridgeStickyMineAddedPayload): void {
+        if (this.mines.has(payload.mineId)) {
+            throw new Error(`Sticky mine already exists: ` + payload.mineId);
         }
 
-        const slotIndex =
-            this.findFreeSlotIndex();
+        const slotIndex = this.findFreeSlotIndex();
 
         if (slotIndex < 0) {
-            throw new Error(
-                `No free sticky-mine display slot: ` +
-                    payload.mineId,
-            );
+            throw new Error(`No free sticky-mine display slot: ` + payload.mineId);
         }
 
-        const sourcePosition =
-            this.getObjectPosition(
-                payload.sourceActorId,
-            );
+        const sourcePosition = this.getObjectPosition(payload.sourceActorId);
 
         if (!sourcePosition) {
-            throw new Error(
-                `Sticky-mine source object not found: ` +
-                    payload.sourceActorId,
-            );
+            throw new Error(`Sticky-mine source object not found: ` + payload.sourceActorId);
         }
 
-        const slot =
-            STICKY_MINE_SLOT_OFFSETS[
-                slotIndex
-            ];
+        const slot = STICKY_MINE_SLOT_OFFSETS[slotIndex];
 
-        const targetPosition =
-            new Phaser.Math.Vector2(
-                BRIDGE_VIEWSCREEN_RECT.x +
-                    slot.x,
+        const targetPosition = new Phaser.Math.Vector2(
+            BRIDGE_VIEWSCREEN_RECT.x + slot.x,
 
-                BRIDGE_VIEWSCREEN_RECT.y +
-                    slot.y,
-            );
-
-        const view =
-            new BridgeStickyMineView({
-                scene: this.scene,
-                parent: this.root,
-
-                startPosition:
-                    sourcePosition,
-
-                targetPosition,
-
-                initialTimeToDetonationMs:
-                    payload
-                        .initialTimeToDetonationMs,
-            });
-
-        this.mines.set(
-            payload.mineId,
-            {
-                slotIndex,
-                view,
-            },
+            BRIDGE_VIEWSCREEN_RECT.y + slot.y,
         );
 
-        this.occupiedSlotIndexes.add(
+        const view = new BridgeStickyMineView({
+            scene: this.scene,
+            parent: this.root,
+
+            startPosition: sourcePosition,
+
+            targetPosition,
+
+            initialTimeToDetonationMs: payload.initialTimeToDetonationMs,
+        });
+
+        this.mines.set(payload.mineId, {
             slotIndex,
-        );
+            view,
+        });
+
+        this.occupiedSlotIndexes.add(slotIndex);
     }
 
-    private updateMines(
-        updates:
-            BridgeStickyMinesUpdatedPayload,
-    ): void {
+    private updateMines(updates: BridgeStickyMinesUpdatedPayload): void {
         removeMissingCombatSnapshotEntries(
             this.mines,
             updates.map((update) => {
                 return update.mineId;
             }),
             (mineId, entry) => {
-                this.destroyEntry(
-                    mineId,
-                    entry,
-                );
+                this.destroyEntry(mineId, entry);
             },
         );
 
         for (const update of updates) {
-            const entry =
-                this.mines.get(
-                    update.mineId,
-                );
+            const entry = this.mines.get(update.mineId);
 
             if (!entry) {
-                throw new Error(
-                    `Sticky mine not found during update: ` +
-                        update.mineId,
-                );
+                throw new Error(`Sticky mine not found during update: ` + update.mineId);
             }
 
             entry.view.update({
-                timeToDetonationMs:
-                    update
-                        .remainingTimeToDetonationMs,
+                timeToDetonationMs: update.remainingTimeToDetonationMs,
 
-                isBeingCleared:
-                    update.isBeingCleared,
+                isBeingCleared: update.isBeingCleared,
 
-                isNextClearTarget:
-                    update.isNextClearTarget,
+                isNextClearTarget: update.isNextClearTarget,
             });
         }
     }
 
-    private removeMine(
-        payload:
-            BridgeStickyMineRemovedPayload,
-    ): void {
-        const entry =
-            this.mines.get(
-                payload.mineId,
-            );
+    private removeMine(payload: BridgeStickyMineRemovedPayload): void {
+        const entry = this.mines.get(payload.mineId);
 
         if (!entry) {
-            throw new Error(
-                `Sticky mine not found: ` +
-                    payload.mineId,
-            );
+            throw new Error(`Sticky mine not found: ` + payload.mineId);
         }
 
-        entry.view.playRemovalEffect(
-            payload.outcome,
-        );
+        entry.view.playRemovalEffect(payload.outcome);
 
-        this.destroyEntry(
-            payload.mineId,
-            entry,
-        );
+        this.destroyEntry(payload.mineId, entry);
     }
 
-    private destroyEntry(
-        mineId: string,
-        entry: StickyMineEntry,
-    ): void {
+    private destroyEntry(mineId: string, entry: StickyMineEntry): void {
         entry.view.destroy();
 
-        this.mines.delete(
-            mineId,
-        );
+        this.mines.delete(mineId);
 
-        this.occupiedSlotIndexes.delete(
-            entry.slotIndex,
-        );
+        this.occupiedSlotIndexes.delete(entry.slotIndex);
     }
 
     private findFreeSlotIndex(): number {
-        for (
-            let slotIndex = 0;
-            slotIndex <
-            STICKY_MINE_SLOT_OFFSETS.length;
-            slotIndex += 1
-        ) {
-            if (
-                !this.occupiedSlotIndexes.has(
-                    slotIndex,
-                )
-            ) {
+        for (let slotIndex = 0; slotIndex < STICKY_MINE_SLOT_OFFSETS.length; slotIndex += 1) {
+            if (!this.occupiedSlotIndexes.has(slotIndex)) {
                 return slotIndex;
             }
         }

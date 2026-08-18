@@ -1,11 +1,11 @@
 // src/app/scenes/game/bridge/controller/BridgeController.ts
 
-import { SCENE_RUNTIME } from '../../../../runtime/SceneRuntime';
-import type BridgeScene from '../BridgeScene';
-import BridgeEventBus from '../events/BridgeEventBus';
-import { BRIDGE_EVENT, type BridgeSceneTransitionRequestedPayload } from '../events/bridge_event';
-import BridgeView from '../view/BridgeView';
-import BridgeEncounterController from './encounter/BridgeEncounterController';
+import { SCENE_RUNTIME } from "../../../../runtime/SceneRuntime";
+import type BridgeScene from "../BridgeScene";
+import BridgeEventBus from "../events/BridgeEventBus";
+import { BRIDGE_EVENT, type BridgeSceneTransitionRequestedPayload } from "../events/bridge_event";
+import BridgeView from "../view/BridgeView";
+import BridgeEncounterController from "./encounter/BridgeEncounterController";
 
 // Root-controller bridge scene.
 //
@@ -87,10 +87,7 @@ export default class BridgeController {
     // Выполняет scene transition,
     // запрошенный bridge-level flow.
     private handleSceneTransitionRequested(payload: BridgeSceneTransitionRequestedPayload): void {
-        SCENE_RUNTIME.startGameScene(
-            this.scene,
-            payload.sceneKey,
-        );
+        SCENE_RUNTIME.startGameScene(this.scene, payload.sceneKey);
     }
 
     // #endregion

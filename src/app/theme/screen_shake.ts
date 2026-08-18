@@ -18,7 +18,4 @@ export const SCREEN_SHAKE = {
         durationMs: 220,
         intensity: 0.008,
     },
-} as const satisfies Record<
-    'LIGHT' | 'MEDIUM' | 'HEAVY',
-    ScreenShakePreset
->;
+} as const satisfies Record<"LIGHT" | "MEDIUM" | "HEAVY", ScreenShakePreset>;

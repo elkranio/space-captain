@@ -1,23 +1,23 @@
 // src/engine/encounter/commands/handlers/helm_jump_command_handler.ts
 
-import { OFFICER_ROLE } from '../../../defs/officer';
+import { OFFICER_ROLE } from "../../../defs/officer";
 import {
     ENCOUNTER_ANCHOR_TARGET_SCOPE,
     ENCOUNTER_OFFICER_COMMAND_ID,
     OFFICER_COMMAND_TARGET_KIND,
     type OfficerCommandDef,
-} from '../../model/command';
-import { ENCOUNTER_EVENT } from '../../model/event';
-import type { OfficerCommandHandler } from '../../model/officer_command_handler';
-import { ENCOUNTER_ANCHOR_KIND } from '../../anchors/encounter_anchor';
-import { createHelmJumpTask } from '../../officer_tasks/create_officer_task_draft';
-import { createAnchorTargetedCommand, getJumpPointTarget, isCurrentAnchor } from './command_handler_helpers';
+} from "../../model/command";
+import { ENCOUNTER_EVENT } from "../../model/event";
+import type { OfficerCommandHandler } from "../../model/officer_command_handler";
+import { ENCOUNTER_ANCHOR_KIND } from "../../anchors/encounter_anchor";
+import { createHelmJumpTask } from "../../officer_tasks/create_officer_task_draft";
+import { createAnchorTargetedCommand, getJumpPointTarget, isCurrentAnchor } from "./command_handler_helpers";
 
 const COMMAND_ID = ENCOUNTER_OFFICER_COMMAND_ID.HELM_JUMP;
 
 const COMMAND_DEF = {
     role: OFFICER_ROLE.HELM,
-    label: 'JUMP',
+    label: "JUMP",
 
     targeting: {
         kind: OFFICER_COMMAND_TARGET_KIND.ANCHOR,
@@ -25,7 +25,6 @@ const COMMAND_DEF = {
     },
 
     requiresOnlineDrive: true,
-
 
     requiresIdleBridge: true,
 } satisfies OfficerCommandDef;

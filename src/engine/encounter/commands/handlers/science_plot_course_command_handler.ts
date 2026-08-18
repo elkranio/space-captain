@@ -1,24 +1,23 @@
 // src/engine/encounter/commands/handlers/science_plot_course_command_handler.ts
 
-import { OFFICER_ROLE } from '../../../defs/officer';
-import { ENCOUNTER_OFFICER_COMMAND_ID, OFFICER_COMMAND_TARGET_KIND, type OfficerCommandDef } from '../../model/command';
-import type { OfficerCommandHandler } from '../../model/officer_command_handler';
-import { ENCOUNTER_ANCHOR_KIND } from '../../anchors/encounter_anchor';
-import { createSciencePlotCourseTask } from '../../officer_tasks/create_officer_task_draft';
-import { createUntargetedCommand, requireSpaceNodeTargetId } from './command_handler_helpers';
+import { OFFICER_ROLE } from "../../../defs/officer";
+import { ENCOUNTER_OFFICER_COMMAND_ID, OFFICER_COMMAND_TARGET_KIND, type OfficerCommandDef } from "../../model/command";
+import type { OfficerCommandHandler } from "../../model/officer_command_handler";
+import { ENCOUNTER_ANCHOR_KIND } from "../../anchors/encounter_anchor";
+import { createSciencePlotCourseTask } from "../../officer_tasks/create_officer_task_draft";
+import { createUntargetedCommand, requireSpaceNodeTargetId } from "./command_handler_helpers";
 
 const COMMAND_ID = ENCOUNTER_OFFICER_COMMAND_ID.SCIENCE_PLOT_COURSE;
 
 const COMMAND_DEF = {
     role: OFFICER_ROLE.SCIENCE,
-    label: 'PLOT COURSE',
+    label: "PLOT COURSE",
 
     targeting: {
         kind: OFFICER_COMMAND_TARGET_KIND.SPACE_NODE,
     },
 
     requiresOnlineDrive: false,
-
 
     requiresIdleBridge: false,
 } satisfies OfficerCommandDef;

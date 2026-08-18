@@ -1,34 +1,32 @@
 // src/engine/defs/ship_weapon.ts
 
-
 export const SHIP_WEAPON_KIND = {
-    MISSILE_LAUNCHER: 'missile_launcher',
-    BEAM_CANNON: 'beam_cannon',
-    SPAM_PROJECTOR: 'spam_projector',
-    STICKY_MINE_DISPENSER: 'sticky_mine_dispenser',
+    MISSILE_LAUNCHER: "missile_launcher",
+    BEAM_CANNON: "beam_cannon",
+    SPAM_PROJECTOR: "spam_projector",
+    STICKY_MINE_DISPENSER: "sticky_mine_dispenser",
 } as const;
 
 export type ShipWeaponKind = (typeof SHIP_WEAPON_KIND)[keyof typeof SHIP_WEAPON_KIND];
 
 export const SHIP_WEAPON_ID = {
-    MISSILE_LAUNCHER_00: 'missile_launcher_00',
-    BEAM_CANNON_00: 'beam_cannon_00',
-    SPAM_PROJECTOR_00: 'spam_projector_00',
-    STICKY_MINE_DISPENSER_00: 'sticky_mine_dispenser_00',
+    MISSILE_LAUNCHER_00: "missile_launcher_00",
+    BEAM_CANNON_00: "beam_cannon_00",
+    SPAM_PROJECTOR_00: "spam_projector_00",
+    STICKY_MINE_DISPENSER_00: "sticky_mine_dispenser_00",
 } as const;
 
 // Builtin ids remain convenient stable constants.
- // The catalog is open for new weapon ids created by the content editor.
-export type ShipWeaponId =
-    string;
+// The catalog is open for new weapon ids created by the content editor.
+export type ShipWeaponId = string;
 
 export const SHIP_WEAPON_PHASE = {
-    READY: 'ready',
-    TARGETING: 'targeting',
-    CHARGING: 'charging',
-    CHANNELING: 'channeling',
-    DISPENSING: 'dispensing',
-    COOLDOWN: 'cooldown',
+    READY: "ready",
+    TARGETING: "targeting",
+    CHARGING: "charging",
+    CHANNELING: "channeling",
+    DISPENSING: "dispensing",
+    COOLDOWN: "cooldown",
 } as const;
 
 export type ShipWeaponPhase = (typeof SHIP_WEAPON_PHASE)[keyof typeof SHIP_WEAPON_PHASE];
@@ -41,9 +39,7 @@ export type ShipWeaponPhase = (typeof SHIP_WEAPON_PHASE)[keyof typeof SHIP_WEAPO
 //
 // Cooldown and ready do not require a crew/officer.
 // Any new phase must be classified explicitly here.
-export function doesShipWeaponPhaseRequireOperator(
-    phase: ShipWeaponPhase,
-): boolean {
+export function doesShipWeaponPhaseRequireOperator(phase: ShipWeaponPhase): boolean {
     switch (phase) {
         case SHIP_WEAPON_PHASE.TARGETING:
         case SHIP_WEAPON_PHASE.CHARGING:
@@ -56,8 +52,7 @@ export function doesShipWeaponPhaseRequireOperator(
             return false;
 
         default: {
-            const exhaustivePhase: never =
-                phase;
+            const exhaustivePhase: never = phase;
 
             return exhaustivePhase;
         }
@@ -70,38 +65,22 @@ export function doesShipWeaponPhaseRequireOperator(
 // false -> advance with raw encounter/world time.
 //
 // This is intentionally separate from operator occupancy.
-export function doesShipWeaponPhaseAdvanceWithCrew(
-    kind: ShipWeaponKind,
-    phase: ShipWeaponPhase,
-): boolean {
+export function doesShipWeaponPhaseAdvanceWithCrew(kind: ShipWeaponKind, phase: ShipWeaponPhase): boolean {
     switch (kind) {
-        case SHIP_WEAPON_KIND
-            .MISSILE_LAUNCHER:
-            return (
-                phase ===
-                SHIP_WEAPON_PHASE.TARGETING
-            );
+        case SHIP_WEAPON_KIND.MISSILE_LAUNCHER:
+            return phase === SHIP_WEAPON_PHASE.TARGETING;
 
         case SHIP_WEAPON_KIND.BEAM_CANNON:
-            return (
-                phase ===
-                SHIP_WEAPON_PHASE.CHARGING
-            );
+            return phase === SHIP_WEAPON_PHASE.CHARGING;
 
-        case SHIP_WEAPON_KIND
-            .SPAM_PROJECTOR:
+        case SHIP_WEAPON_KIND.SPAM_PROJECTOR:
             return false;
 
-        case SHIP_WEAPON_KIND
-            .STICKY_MINE_DISPENSER:
-            return (
-                phase ===
-                SHIP_WEAPON_PHASE.DISPENSING
-            );
+        case SHIP_WEAPON_KIND.STICKY_MINE_DISPENSER:
+            return phase === SHIP_WEAPON_PHASE.DISPENSING;
 
         default: {
-            const exhaustiveKind: never =
-                kind;
+            const exhaustiveKind: never = kind;
 
             return exhaustiveKind;
         }
@@ -146,25 +125,20 @@ export type SpamProjectorDefinition = ShipWeaponDefinitionBase & {
     officerTaskProgressMultiplier: number;
 };
 
-export type StickyMineDispenserDefinition =
-    ShipWeaponDefinitionBase & {
-        kind:
-            typeof SHIP_WEAPON_KIND.STICKY_MINE_DISPENSER;
+export type StickyMineDispenserDefinition = ShipWeaponDefinitionBase & {
+    kind: typeof SHIP_WEAPON_KIND.STICKY_MINE_DISPENSER;
 
-        damage: number;
-        fuseDurationMs: number;
+    damage: number;
+    fuseDurationMs: number;
 
-        ammoCapacity: number;
+    ammoCapacity: number;
 
-        salvoSize: number;
-        launchIntervalMs: number;
-    };
+    salvoSize: number;
+    launchIntervalMs: number;
+};
 
 export type ShipWeaponDefinition =
-    | MissileLauncherDefinition
-    | BeamCannonDefinition
-    | SpamProjectorDefinition
-    | StickyMineDispenserDefinition;
+    MissileLauncherDefinition | BeamCannonDefinition | SpamProjectorDefinition | StickyMineDispenserDefinition;
 
 // Mutable state конкретного установленного оружия.
 export type ShipWeaponBaseState = {
@@ -198,163 +172,80 @@ export type SpamProjectorState = ShipWeaponBaseState & {
     activeChannelId: string | null;
 };
 
-export type StickyMineDispenserState =
-    ShipWeaponBaseState & {
-        kind:
-            typeof SHIP_WEAPON_KIND.STICKY_MINE_DISPENSER;
+export type StickyMineDispenserState = ShipWeaponBaseState & {
+    kind: typeof SHIP_WEAPON_KIND.STICKY_MINE_DISPENSER;
 
-        ammoCount: number;
+    ammoCount: number;
 
-        // Количество мин, реально запущенных
-        // в текущем salvo.
-        dispensedMineCount: number;
-    };
+    // Количество мин, реально запущенных
+    // в текущем salvo.
+    dispensedMineCount: number;
+};
 
-export type ShipWeaponState =
-    | MissileLauncherState
-    | BeamCannonState
-    | SpamProjectorState
-    | StickyMineDispenserState;
-
+export type ShipWeaponState = MissileLauncherState | BeamCannonState | SpamProjectorState | StickyMineDispenserState;
 
 // Cooldown is committed at the concrete action commitment point and then
 // advances in raw encounter/world time, independently from crew-time action
 // progress. The visible COOLDOWN phase begins only after the active action ends.
-export function commitShipWeaponCooldown(
-    weapon: ShipWeaponState,
-    cooldownDurationMs: number,
-): void {
-    validateCooldownDuration(
-        cooldownDurationMs,
-    );
+export function commitShipWeaponCooldown(weapon: ShipWeaponState, cooldownDurationMs: number): void {
+    validateCooldownDuration(cooldownDurationMs);
 
     if (weapon.cooldownRemainingMs > 0) {
         throw new Error(
-            'Ship weapon cooldown is already committed: ' +
-                weapon.id +
-                '/' +
-                String(
-                    weapon.cooldownRemainingMs,
-                ),
+            "Ship weapon cooldown is already committed: " + weapon.id + "/" + String(weapon.cooldownRemainingMs),
         );
     }
 
-    weapon.cooldownRemainingMs =
-        cooldownDurationMs;
+    weapon.cooldownRemainingMs = cooldownDurationMs;
 }
 
-export function advanceShipWeaponCooldown(
-    weapon: ShipWeaponState,
-    cooldownDurationMs: number,
-    deltaMs: number,
-): void {
-    validateCooldownDuration(
-        cooldownDurationMs,
-    );
+export function advanceShipWeaponCooldown(weapon: ShipWeaponState, cooldownDurationMs: number, deltaMs: number): void {
+    validateCooldownDuration(cooldownDurationMs);
 
-    if (
-        !Number.isFinite(deltaMs) ||
-        deltaMs < 0
-    ) {
-        throw new Error(
-            'Ship weapon cooldown delta must be non-negative: ' +
-                weapon.id +
-                '/' +
-                String(deltaMs),
-        );
+    if (!Number.isFinite(deltaMs) || deltaMs < 0) {
+        throw new Error("Ship weapon cooldown delta must be non-negative: " + weapon.id + "/" + String(deltaMs));
     }
 
-    weapon.cooldownRemainingMs =
-        Math.max(
-            0,
-            weapon.cooldownRemainingMs -
-                deltaMs,
-        );
+    weapon.cooldownRemainingMs = Math.max(0, weapon.cooldownRemainingMs - deltaMs);
 
-    if (
-        weapon.phase !==
-        SHIP_WEAPON_PHASE.COOLDOWN
-    ) {
+    if (weapon.phase !== SHIP_WEAPON_PHASE.COOLDOWN) {
         return;
     }
 
-    if (
-        weapon.cooldownRemainingMs === 0
-    ) {
-        setShipWeaponReady(
-            weapon,
-        );
+    if (weapon.cooldownRemainingMs === 0) {
+        setShipWeaponReady(weapon);
         return;
     }
 
-    weapon.phaseElapsedMs =
-        Math.max(
-            0,
-            cooldownDurationMs -
-                weapon.cooldownRemainingMs,
-        );
+    weapon.phaseElapsedMs = Math.max(0, cooldownDurationMs - weapon.cooldownRemainingMs);
 }
 
-export function finishShipWeaponAction(
-    weapon: ShipWeaponState,
-    cooldownDurationMs: number,
-): void {
-    validateCooldownDuration(
-        cooldownDurationMs,
-    );
+export function finishShipWeaponAction(weapon: ShipWeaponState, cooldownDurationMs: number): void {
+    validateCooldownDuration(cooldownDurationMs);
 
-    if (
-        weapon.cooldownRemainingMs > 0
-    ) {
-        weapon.phase =
-            SHIP_WEAPON_PHASE.COOLDOWN;
+    if (weapon.cooldownRemainingMs > 0) {
+        weapon.phase = SHIP_WEAPON_PHASE.COOLDOWN;
 
-        weapon.phaseElapsedMs =
-            Math.max(
-                0,
-                cooldownDurationMs -
-                    weapon.cooldownRemainingMs,
-            );
+        weapon.phaseElapsedMs = Math.max(0, cooldownDurationMs - weapon.cooldownRemainingMs);
 
         return;
     }
 
-    setShipWeaponReady(
-        weapon,
-    );
+    setShipWeaponReady(weapon);
 }
 
-function setShipWeaponReady(
-    weapon: ShipWeaponState,
-): void {
-    weapon.phase =
-        SHIP_WEAPON_PHASE.READY;
+function setShipWeaponReady(weapon: ShipWeaponState): void {
+    weapon.phase = SHIP_WEAPON_PHASE.READY;
     weapon.phaseElapsedMs = 0;
     weapon.cooldownRemainingMs = 0;
 
-    if (
-        weapon.kind ===
-        SHIP_WEAPON_KIND
-            .STICKY_MINE_DISPENSER
-    ) {
+    if (weapon.kind === SHIP_WEAPON_KIND.STICKY_MINE_DISPENSER) {
         weapon.dispensedMineCount = 0;
     }
 }
 
-function validateCooldownDuration(
-    cooldownDurationMs: number,
-): void {
-    if (
-        !Number.isFinite(
-            cooldownDurationMs,
-        ) ||
-        cooldownDurationMs < 0
-    ) {
-        throw new Error(
-            'Ship weapon cooldown duration must be non-negative: ' +
-                String(
-                    cooldownDurationMs,
-                ),
-        );
+function validateCooldownDuration(cooldownDurationMs: number): void {
+    if (!Number.isFinite(cooldownDurationMs) || cooldownDurationMs < 0) {
+        throw new Error("Ship weapon cooldown duration must be non-negative: " + String(cooldownDurationMs));
     }
 }

@@ -1,13 +1,10 @@
 // src/engine/encounter/combat/queries/get_beam_cannon_threat_snapshots.ts
 
-import { SHIP_WEAPONS } from '../../../content/catalogs/ship_weapons';
-import {
-    SHIP_WEAPON_KIND,
-    SHIP_WEAPON_PHASE,
-} from '../../../defs/ship_weapon';
-import type { BeamCannonAttackState } from '../../model/combat';
-import type { EncounterState } from '../../model/state';
-import { createDetachedSnapshot } from '../../snapshots/create_detached_snapshot';
+import { SHIP_WEAPONS } from "../../../content/catalogs/ship_weapons";
+import { SHIP_WEAPON_KIND, SHIP_WEAPON_PHASE } from "../../../defs/ship_weapon";
+import type { BeamCannonAttackState } from "../../model/combat";
+import type { EncounterState } from "../../model/state";
+import { createDetachedSnapshot } from "../../snapshots/create_detached_snapshot";
 
 export type BeamCannonThreatSnapshot = {
     attack: BeamCannonAttackState;
@@ -16,9 +13,7 @@ export type BeamCannonThreatSnapshot = {
     initialTimeToFireMs: number;
 };
 
-export function getBeamCannonThreatSnapshots(
-    state: EncounterState,
-): BeamCannonThreatSnapshot[] {
+export function getBeamCannonThreatSnapshots(state: EncounterState): BeamCannonThreatSnapshot[] {
     return createDetachedSnapshot(
         state.combat.beamCannonAttacks.map((attack) => {
             const actor = state.actors.find((candidate) => {
@@ -26,10 +21,7 @@ export function getBeamCannonThreatSnapshots(
             });
 
             if (!actor) {
-                throw new Error(
-                    `BeamCannon threat source actor not found: ` +
-                        `${attack.id}/${attack.sourceActorId}`,
-                );
+                throw new Error(`BeamCannon threat source actor not found: ` + `${attack.id}/${attack.sourceActorId}`);
             }
 
             const weapon = actor.weapons.find((candidate) => {
@@ -38,15 +30,11 @@ export function getBeamCannonThreatSnapshots(
 
             if (!weapon) {
                 throw new Error(
-                    `BeamCannon threat source weapon not found: ` +
-                        `${attack.id}/${attack.sourceWeaponId}`,
+                    `BeamCannon threat source weapon not found: ` + `${attack.id}/${attack.sourceWeaponId}`,
                 );
             }
 
-            if (
-                weapon.kind !== SHIP_WEAPON_KIND.BEAM_CANNON ||
-                weapon.phase !== SHIP_WEAPON_PHASE.CHARGING
-            ) {
+            if (weapon.kind !== SHIP_WEAPON_KIND.BEAM_CANNON || weapon.phase !== SHIP_WEAPON_PHASE.CHARGING) {
                 throw new Error(
                     `BeamCannon threat source weapon is not charging: ` +
                         `${attack.id}/${weapon.id}/${weapon.kind}/${weapon.phase}`,
@@ -57,22 +45,16 @@ export function getBeamCannonThreatSnapshots(
 
             if (definition.kind !== SHIP_WEAPON_KIND.BEAM_CANNON) {
                 throw new Error(
-                    `BeamCannon threat weapon definition mismatch: ` +
-                        `${attack.id}/${weapon.id}/${weapon.weaponId}`,
+                    `BeamCannon threat weapon definition mismatch: ` + `${attack.id}/${weapon.id}/${weapon.weaponId}`,
                 );
             }
 
             return {
                 attack,
 
-                timeToFireMs: Math.max(
-                    0,
-                    definition.chargeDurationMs -
-                        weapon.phaseElapsedMs,
-                ),
+                timeToFireMs: Math.max(0, definition.chargeDurationMs - weapon.phaseElapsedMs),
 
-                initialTimeToFireMs:
-                    definition.chargeDurationMs,
+                initialTimeToFireMs: definition.chargeDurationMs,
             };
         }),
     );

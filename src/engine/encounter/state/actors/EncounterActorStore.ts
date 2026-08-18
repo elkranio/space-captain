@@ -1,57 +1,26 @@
 // src/engine/encounter/state/actors/EncounterActorStore.ts
 
-import { SHIP_CHASSIS } from '../../../content/catalogs/ship_chassis';
-import {
-    SHIP_DRIVES,
-} from '../../../content/catalogs/ship_drives';
-import type {
-    CrewTraitsByRole,
-} from '../../../defs/crew_trait';
-import type {
-    PowerCoreState,
-} from '../../../defs/power_core';
-import {
-    ENCOUNTER_TEAM,
-    type EncounterTeam,
-} from '../../../defs/encounter_team';
-import type {
-    OfficerRole,
-} from '../../../defs/officer';
-import type {
-    ShipDefenseTurretState,
-} from '../../../defs/defense_turret';
-import type {
-    ShipBehaviorState,
-} from '../../../defs/ship_behavior';
-import type {
-    ShipChassisId,
-} from '../../../defs/ship_chassis';
-import {
-    SHIP_DRIVE_STATUS,
-    type ShipDriveState,
-} from '../../../defs/ship_drive';
+import { SHIP_CHASSIS } from "../../../content/catalogs/ship_chassis";
+import { SHIP_DRIVES } from "../../../content/catalogs/ship_drives";
+import type { CrewTraitsByRole } from "../../../defs/crew_trait";
+import type { PowerCoreState } from "../../../defs/power_core";
+import { ENCOUNTER_TEAM, type EncounterTeam } from "../../../defs/encounter_team";
+import type { OfficerRole } from "../../../defs/officer";
+import type { ShipDefenseTurretState } from "../../../defs/defense_turret";
+import type { ShipBehaviorState } from "../../../defs/ship_behavior";
+import type { ShipChassisId } from "../../../defs/ship_chassis";
+import { SHIP_DRIVE_STATUS, type ShipDriveState } from "../../../defs/ship_drive";
 import {
     advanceShipEvade,
     createReadyShipEvadeState,
     SHIP_EVADE_PHASE,
     startShipEvade,
-} from '../../../defs/ship_evade';
-import type {
-    ShipWeaponState,
-} from '../../../defs/ship_weapon';
-import type {
-    ShieldGeneratorState,
-} from '../../../defs/shield_generator';
-import {
-    ENCOUNTER_ACTOR_KIND,
-    type EncounterActorState,
-} from '../../actors/encounter_actor';
-import type {
-    ShipEncounterActorState,
-} from '../../actors/ship/ship_encounter_actor';
-import type {
-    EncounterState,
-} from '../../model/state';
+} from "../../../defs/ship_evade";
+import type { ShipWeaponState } from "../../../defs/ship_weapon";
+import type { ShieldGeneratorState } from "../../../defs/shield_generator";
+import { ENCOUNTER_ACTOR_KIND, type EncounterActorState } from "../../actors/encounter_actor";
+import type { ShipEncounterActorState } from "../../actors/ship/ship_encounter_actor";
+import type { EncounterState } from "../../model/state";
 
 export type EnemyHullDamageResult = {
     appliedDamage: number;
@@ -71,52 +40,38 @@ export type SpawnShipActorInput = {
 
     drive: ShipDriveState;
 
-    defenseTurret?:
-        ShipDefenseTurretState;
+    defenseTurret?: ShipDefenseTurretState;
 
-    powerCore?:
-        PowerCoreState;
+    powerCore?: PowerCoreState;
 
-    shieldGenerator?:
-        ShieldGeneratorState;
+    shieldGenerator?: ShieldGeneratorState;
 
     behavior: ShipBehaviorState;
 
     crewRoles: OfficerRole[];
-    crewTraitsByRole?:
-        CrewTraitsByRole;
+    crewTraitsByRole?: CrewTraitsByRole;
 
     weapons: ShipWeaponState[];
 };
 
 // Owns encounter actor lookup and mutation rules.
 export default class EncounterActorStore {
-    constructor(
-        private readonly state: EncounterState,
-    ) {}
+    constructor(private readonly state: EncounterState) {}
 
-    public findActorById(
-        actorId: string | undefined,
-    ): EncounterActorState | undefined {
+    public findActorById(actorId: string | undefined): EncounterActorState | undefined {
         if (!actorId) {
             return undefined;
         }
 
-        return this.state.actors
-            .find((actor) => {
-                return actor.id ===
-                    actorId;
-            });
+        return this.state.actors.find((actor) => {
+            return actor.id === actorId;
+        });
     }
 
-    public getActorsAtAnchor(
-        anchorId: string,
-    ): EncounterActorState[] {
-        return this.state.actors
-            .filter((actor) => {
-                return actor.anchorId ===
-                    anchorId;
-            });
+    public getActorsAtAnchor(anchorId: string): EncounterActorState[] {
+        return this.state.actors.filter((actor) => {
+            return actor.anchorId === anchorId;
+        });
     }
 
     public spawnShipActor({
@@ -134,53 +89,30 @@ export default class EncounterActorStore {
         crewRoles,
         crewTraitsByRole = {},
         weapons,
-    }: SpawnShipActorInput):
-        ShipEncounterActorState {
+    }: SpawnShipActorInput): ShipEncounterActorState {
         if (
-            !this.state.anchors
-                .some((anchor) => {
-                    return anchor.id ===
-                        anchorId;
-                })
+            !this.state.anchors.some((anchor) => {
+                return anchor.id === anchorId;
+            })
         ) {
-            throw new Error(
-                `Cannot spawn ship actor: ` +
-                    `anchor not found: ${anchorId}`,
-            );
+            throw new Error(`Cannot spawn ship actor: ` + `anchor not found: ${anchorId}`);
         }
 
-        if (
-            this.findActorById(
-                actorId,
-            )
-        ) {
-            throw new Error(
-                `Encounter actor already exists: ${actorId}`,
-            );
+        if (this.findActorById(actorId)) {
+            throw new Error(`Encounter actor already exists: ${actorId}`);
         }
 
-        const ship =
-            SHIP_CHASSIS[chassisId];
+        const ship = SHIP_CHASSIS[chassisId];
 
-        const copiedCrewTraitsByRole:
-            CrewTraitsByRole = {};
+        const copiedCrewTraitsByRole: CrewTraitsByRole = {};
 
         for (const role of crewRoles) {
-            copiedCrewTraitsByRole[role] = [
-                ...(
-                    crewTraitsByRole[
-                        role
-                    ] ??
-                    []
-                ),
-            ];
+            copiedCrewTraitsByRole[role] = [...(crewTraitsByRole[role] ?? [])];
         }
 
-        const actor:
-            ShipEncounterActorState = {
+        const actor: ShipEncounterActorState = {
             id: actorId,
-            kind:
-                ENCOUNTER_ACTOR_KIND.SHIP,
+            kind: ENCOUNTER_ACTOR_KIND.SHIP,
             displayName: ship.name,
 
             team,
@@ -195,49 +127,39 @@ export default class EncounterActorStore {
                 ...drive,
             },
 
-            evade:
-                createReadyShipEvadeState(),
+            evade: createReadyShipEvadeState(),
 
-            ...(
-                defenseTurret
-                    ? {
-                          defenseTurret: {
-                              ...defenseTurret,
-                          },
-                      }
-                    : {}
-            ),
+            ...(defenseTurret
+                ? {
+                      defenseTurret: {
+                          ...defenseTurret,
+                      },
+                  }
+                : {}),
 
-            ...(
-                powerCore
-                    ? {
-                          powerCore: {
-                              ...powerCore,
-                          },
-                      }
-                    : {}
-            ),
+            ...(powerCore
+                ? {
+                      powerCore: {
+                          ...powerCore,
+                      },
+                  }
+                : {}),
 
-            ...(
-                shieldGenerator
-                    ? {
-                          shieldGenerator: {
-                              ...shieldGenerator,
-                          },
-                      }
-                    : {}
-            ),
+            ...(shieldGenerator
+                ? {
+                      shieldGenerator: {
+                          ...shieldGenerator,
+                      },
+                  }
+                : {}),
 
             behavior: {
                 ...behavior,
             },
 
-            crewRoles: [
-                ...crewRoles,
-            ],
+            crewRoles: [...crewRoles],
 
-            crewTraitsByRole:
-                copiedCrewTraitsByRole,
+            crewTraitsByRole: copiedCrewTraitsByRole,
 
             decision: {
                 decisionTickRemainingMs: 0,
@@ -247,107 +169,55 @@ export default class EncounterActorStore {
 
             threatObservations: [],
 
-            hasUsedOpeningDisruptionPulse:
-                false,
+            hasUsedOpeningDisruptionPulse: false,
 
-            weapons:
-                weapons.map((weapon) => {
-                    return {
-                        ...weapon,
-                    };
-                }),
+            weapons: weapons.map((weapon) => {
+                return {
+                    ...weapon,
+                };
+            }),
         };
 
-        this.state.actors.push(
-            actor,
-        );
+        this.state.actors.push(actor);
 
         return actor;
     }
 
-    public removeActor(
-        actorId: string,
-    ): EncounterActorState {
-        const actorIndex =
-            this.state.actors
-                .findIndex((actor) => {
-                    return (
-                        actor.id ===
-                        actorId
-                    );
-                });
+    public removeActor(actorId: string): EncounterActorState {
+        const actorIndex = this.state.actors.findIndex((actor) => {
+            return actor.id === actorId;
+        });
 
         if (actorIndex < 0) {
-            throw new Error(
-                'Encounter actor not found: ' +
-                    actorId,
-            );
+            throw new Error("Encounter actor not found: " + actorId);
         }
 
-        const actor =
-            this.state.actors[
-                actorIndex
-            ];
+        const actor = this.state.actors[actorIndex];
 
         if (!actor) {
-            throw new Error(
-                'Encounter actor disappeared ' +
-                    'before removal: ' +
-                    actorId,
-            );
+            throw new Error("Encounter actor disappeared " + "before removal: " + actorId);
         }
 
-        this.state.actors.splice(
-            actorIndex,
-            1,
-        );
+        this.state.actors.splice(actorIndex, 1);
 
-        for (
-            let index =
-                this.state.combat
-                    .beamCannonAttacks
-                    .length - 1;
+        for (let index = this.state.combat.beamCannonAttacks.length - 1; index >= 0; index -= 1) {
+            const attack = this.state.combat.beamCannonAttacks[index];
 
-            index >= 0;
-
-            index -= 1
-        ) {
-            const attack =
-                this.state.combat
-                    .beamCannonAttacks[
-                        index
-                    ];
-
-            if (
-                attack?.sourceActorId !==
-                actorId
-            ) {
+            if (attack?.sourceActorId !== actorId) {
                 continue;
             }
 
-            this.state.combat
-                .beamCannonAttacks.splice(
-                    index,
-                    1,
-                );
+            this.state.combat.beamCannonAttacks.splice(index, 1);
         }
 
         return actor;
     }
 
-    public setActorTeam(
-        actorId: string,
-        team: EncounterTeam,
-    ): ShipEncounterActorState {
-        const actor =
-            this.findActorById(
-                actorId,
-            );
+    public setActorTeam(actorId: string, team: EncounterTeam): ShipEncounterActorState {
+        const actor = this.findActorById(actorId);
 
         if (!actor) {
-            throw new Error(
-                `Encounter actor not found: ${actorId}`,
-            );
+            throw new Error(`Encounter actor not found: ${actorId}`);
         }
 
         actor.team = team;
@@ -355,152 +225,72 @@ export default class EncounterActorStore {
         return actor;
     }
 
-    public tryStartActorEvade(
-        actorId: string,
-    ): boolean {
-        const actor =
-            this.findActorById(
-                actorId,
-            );
+    public tryStartActorEvade(actorId: string): boolean {
+        const actor = this.findActorById(actorId);
 
         if (!actor) {
-            throw new Error(
-                'Encounter actor not found: ' +
-                    actorId,
-            );
+            throw new Error("Encounter actor not found: " + actorId);
         }
 
-        if (
-            actor.drive.status !==
-                SHIP_DRIVE_STATUS
-                    .ONLINE ||
-            actor.evade.phase !==
-                SHIP_EVADE_PHASE
-                    .READY
-        ) {
+        if (actor.drive.status !== SHIP_DRIVE_STATUS.ONLINE || actor.evade.phase !== SHIP_EVADE_PHASE.READY) {
             return false;
         }
 
-        startShipEvade(
-            actor.evade,
-            SHIP_DRIVES[
-                actor.drive
-                    .driveId
-            ],
-        );
+        startShipEvade(actor.evade, SHIP_DRIVES[actor.drive.driveId]);
 
         return true;
     }
 
-    public advanceActorEvades(
-        deltaMs: number,
-    ): void {
-        for (
-            const actor of
-            this.state.actors
-        ) {
-            advanceShipEvade(
-                actor.evade,
-                SHIP_DRIVES[
-                    actor.drive
-                        .driveId
-                ],
-                deltaMs,
-            );
+    public advanceActorEvades(deltaMs: number): void {
+        for (const actor of this.state.actors) {
+            advanceShipEvade(actor.evade, SHIP_DRIVES[actor.drive.driveId], deltaMs);
         }
     }
 
-    public damageEnemyActorHull(
-        actorId: string,
-        damage: number,
-    ): EnemyHullDamageResult {
-        if (
-            !Number.isFinite(damage) ||
-            damage < 0
-        ) {
-            throw new Error(
-                'Invalid enemy hull damage: ' +
-                    String(damage),
-            );
+    public damageEnemyActorHull(actorId: string, damage: number): EnemyHullDamageResult {
+        if (!Number.isFinite(damage) || damage < 0) {
+            throw new Error("Invalid enemy hull damage: " + String(damage));
         }
 
-        const actor =
-            this.findActorById(
-                actorId,
-            );
+        const actor = this.findActorById(actorId);
 
         if (!actor) {
-            throw new Error(
-                'Enemy actor not found for hull damage: ' +
-                    actorId,
-            );
+            throw new Error("Enemy actor not found for hull damage: " + actorId);
         }
 
-        if (
-            actor.team !==
-            ENCOUNTER_TEAM.ENEMY
-        ) {
-            throw new Error(
-                'Cannot damage non-enemy actor hull: ' +
-                    actorId +
-                    '/' +
-                    actor.team,
-            );
+        if (actor.team !== ENCOUNTER_TEAM.ENEMY) {
+            throw new Error("Cannot damage non-enemy actor hull: " + actorId + "/" + actor.team);
         }
 
         if (actor.hull <= 0) {
-            throw new Error(
-                'Cannot damage destroyed enemy actor hull: ' +
-                    actorId,
-            );
+            throw new Error("Cannot damage destroyed enemy actor hull: " + actorId);
         }
 
-        const appliedDamage =
-            Math.min(
-                damage,
-                actor.hull,
-            );
+        const appliedDamage = Math.min(damage, actor.hull);
 
-        actor.hull = Math.max(
-            0,
-            actor.hull -
-                appliedDamage,
-        );
+        actor.hull = Math.max(0, actor.hull - appliedDamage);
 
         return {
             appliedDamage,
 
-            remainingHull:
-                actor.hull,
+            remainingHull: actor.hull,
 
-            destroyed:
-                appliedDamage > 0 &&
-                actor.hull === 0,
+            destroyed: appliedDamage > 0 && actor.hull === 0,
         };
     }
 
-    public consumeOpeningDisruptionPulse(
-        actorId: string,
-    ): ShipEncounterActorState | undefined {
-        const actor =
-            this.findActorById(
-                actorId,
-            );
+    public consumeOpeningDisruptionPulse(actorId: string): ShipEncounterActorState | undefined {
+        const actor = this.findActorById(actorId);
 
         if (!actor) {
-            throw new Error(
-                `Encounter actor not found: ${actorId}`,
-            );
+            throw new Error(`Encounter actor not found: ${actorId}`);
         }
 
-        if (
-            actor.hasUsedOpeningDisruptionPulse
-        ) {
+        if (actor.hasUsedOpeningDisruptionPulse) {
             return undefined;
         }
 
-        actor.hasUsedOpeningDisruptionPulse =
-            true;
+        actor.hasUsedOpeningDisruptionPulse = true;
 
         return actor;
     }

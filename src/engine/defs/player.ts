@@ -1,17 +1,11 @@
 // src/engine/defs/player.ts
 
-import type {
-    PowerCoreState,
-} from './power_core';
-import type {
-    ShipDefenseTurretState,
-} from './defense_turret';
-import type { PlayerLocationState } from './player_location';
-import type { ShipDriveState } from './ship_drive';
-import type { ShipWeaponState } from './ship_weapon';
-import type {
-    ShieldGeneratorState,
-} from './shield_generator';
+import type { PowerCoreState } from "./power_core";
+import type { ShipDefenseTurretState } from "./defense_turret";
+import type { PlayerLocationState } from "./player_location";
+import type { ShipDriveState } from "./ship_drive";
+import type { ShipWeaponState } from "./ship_weapon";
+import type { ShieldGeneratorState } from "./shield_generator";
 
 export type PlayerHullState = {
     hull: number;
@@ -24,22 +18,17 @@ export type PlayerHullDamageResult = {
     destroyed: boolean;
 };
 
-export type PlayerShipState =
-    PlayerHullState & {
-        drive: ShipDriveState;
+export type PlayerShipState = PlayerHullState & {
+    drive: ShipDriveState;
 
-        defenseTurret:
-            ShipDefenseTurretState;
+    defenseTurret: ShipDefenseTurretState;
 
-        powerCore:
-            PowerCoreState;
+    powerCore: PowerCoreState;
 
-        shieldGenerator:
-            ShieldGeneratorState;
+    shieldGenerator: ShieldGeneratorState;
 
-        weapons:
-            ShipWeaponState[];
-    };
+    weapons: ShipWeaponState[];
+};
 
 export type PlayerState = {
     ship: PlayerShipState;

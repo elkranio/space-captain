@@ -22,11 +22,10 @@ export const DEBUG_SETTINGS: DebugSettings = {
         encounter: {
             skipArrival: false,
             skipDockingAnimation: false,
-
         },
         officerCommands: {
             showCommandBark: true,
-            commandBarkText: 'AYE, CAPTAIN.',
+            commandBarkText: "AYE, CAPTAIN.",
         },
         officerTasks: {
             completeTimedTasksImmediately: false,

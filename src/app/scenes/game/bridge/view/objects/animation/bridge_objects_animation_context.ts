@@ -1,8 +1,8 @@
 // src/app/scenes/game/bridge/view/objects/animation/bridge_objects_animation_context.ts
 
-import type BridgeScene from '../../../BridgeScene';
-import type BridgeEventBus from '../../../events/BridgeEventBus';
-import type BridgeObjectSpriteView from '../object_sprite/BridgeObjectSpriteView';
+import type BridgeScene from "../../../BridgeScene";
+import type BridgeEventBus from "../../../events/BridgeEventBus";
+import type BridgeObjectSpriteView from "../object_sprite/BridgeObjectSpriteView";
 
 // Общий context для view-level animation sequences.
 //
@@ -16,10 +16,7 @@ export type BridgeObjectsAnimationContext = {
     scene: BridgeScene;
     eventBus: BridgeEventBus;
 
-    applyCameraTurn: (
-        yawDeltaDegrees: number,
-        transientWorldOffsetX: number,
-    ) => void;
+    applyCameraTurn: (yawDeltaDegrees: number, transientWorldOffsetX: number) => void;
 
     getCameraYawDegrees: () => number | undefined;
 

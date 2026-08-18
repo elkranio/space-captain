@@ -4,11 +4,11 @@ import {
     SPEECH_BUBBLE_SPRITE_ID,
     SPEECH_BUBBLE_SPRITES,
     type SpeechBubbleSpriteId,
-} from '../../../../../../manifests/ui/speech_bubble';
-import { FONT_COLOR, FONT_FAMILY, FONT_SIZE } from '../../../../../../theme/font';
-import type BridgeScene from '../../../BridgeScene';
-import { UI_EVENT } from '../../ui/ui_event';
-import { BRIDGE_OFFICER_BARK_LAYOUT, OFFICER_BARK_SIDE, type OfficerBarkSide } from '../bridge_officer_bark_layout';
+} from "../../../../../../manifests/ui/speech_bubble";
+import { FONT_COLOR, FONT_FAMILY, FONT_SIZE } from "../../../../../../theme/font";
+import type BridgeScene from "../../../BridgeScene";
+import { UI_EVENT } from "../../ui/ui_event";
+import { BRIDGE_OFFICER_BARK_LAYOUT, OFFICER_BARK_SIDE, type OfficerBarkSide } from "../bridge_officer_bark_layout";
 
 const TILE_SIZE = 8;
 const CORNER_SIZE = 16;
@@ -35,7 +35,7 @@ export default class BridgeOfficerBarkBubbleView {
                 BRIDGE_OFFICER_BARK_LAYOUT.text.x,
                 BRIDGE_OFFICER_BARK_LAYOUT.text.y,
                 FONT_FAMILY.VGA_8X14,
-                '',
+                "",
                 FONT_SIZE.PX_16,
             )
             .setOrigin(0, 0)

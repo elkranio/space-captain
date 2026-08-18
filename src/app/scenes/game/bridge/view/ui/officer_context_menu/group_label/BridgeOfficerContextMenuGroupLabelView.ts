@@ -1,8 +1,8 @@
 // src/app/scenes/game/bridge/view/ui/officer_context_menu/group_label/BridgeOfficerContextMenuGroupLabelView.ts
 
-import { FONT_COLOR, FONT_FAMILY, FONT_SIZE } from '../../../../../../../theme/font';
-import type BridgeScene from '../../../../BridgeScene';
-import { OFFICER_CONTEXT_MENU_LAYOUT } from '../bridge_officer_context_menu_layout';
+import { FONT_COLOR, FONT_FAMILY, FONT_SIZE } from "../../../../../../../theme/font";
+import type BridgeScene from "../../../../BridgeScene";
+import { OFFICER_CONTEXT_MENU_LAYOUT } from "../bridge_officer_context_menu_layout";
 
 // Leaf-view label-а группы команд в officer context menu.
 export default class BridgeOfficerContextMenuGroupLabelView {

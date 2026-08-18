@@ -1,8 +1,8 @@
 // src/app/scenes/game/end/EndScene.ts
 
-import BaseScene from '../../BaseScene';
-import LayerManager from '../../../../system/LayerManager';
-import { SCENE_KEY } from '../../scene_key';
+import BaseScene from "../../BaseScene";
+import LayerManager from "../../../../system/LayerManager";
+import { SCENE_KEY } from "../../scene_key";
 
 const layers = [] as const;
 type LayerKeys = (typeof layers)[number];

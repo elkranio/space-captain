@@ -1,19 +1,12 @@
 // src/app/scenes/game/bridge/view/combat/sticky_mines/mine/BridgeStickyMineView.ts
 
-import {
-    MINE_SPRITE_ID,
-    MINE_SPRITES,
-} from '../../../../../../../manifests/combat/mines/mine_sprite';
-import {
-    FONT_COLOR,
-    FONT_FAMILY,
-    FONT_SIZE,
-} from '../../../../../../../theme/font';
-import type BridgeScene from '../../../../BridgeScene';
+import { MINE_SPRITE_ID, MINE_SPRITES } from "../../../../../../../manifests/combat/mines/mine_sprite";
+import { FONT_COLOR, FONT_FAMILY, FONT_SIZE } from "../../../../../../../theme/font";
+import type BridgeScene from "../../../../BridgeScene";
 import {
     BRIDGE_STICKY_MINE_REMOVAL_OUTCOME,
     type BridgeStickyMineRemovalOutcome,
-} from '../../../../events/bridge_event';
+} from "../../../../events/bridge_event";
 
 type BridgeStickyMineViewOptions = {
     scene: BridgeScene;
@@ -32,8 +25,7 @@ type BridgeStickyMineUpdate = {
     isNextClearTarget: boolean;
 };
 
-const STICKY_MINE_CRITICAL_FUSE_MS =
-    2000;
+const STICKY_MINE_CRITICAL_FUSE_MS = 2000;
 
 const MINE_FRAME = {
     padding: 5,
@@ -73,25 +65,19 @@ const ATTACH_ANIMATION = {
 // Engine остаётся источником fuse и selection state.
 // View только отображает snapshot.
 export default class BridgeStickyMineView {
-    private readonly root:
-        Phaser.GameObjects.Container;
+    private readonly root: Phaser.GameObjects.Container;
 
-    private readonly image:
-        Phaser.GameObjects.Image;
+    private readonly image: Phaser.GameObjects.Image;
 
-    private readonly frame:
-        Phaser.GameObjects.Graphics;
+    private readonly frame: Phaser.GameObjects.Graphics;
 
-    private readonly clearingMark:
-        Phaser.GameObjects.Graphics;
+    private readonly clearingMark: Phaser.GameObjects.Graphics;
 
-    private readonly fuseLabel:
-        Phaser.GameObjects.BitmapText;
+    private readonly fuseLabel: Phaser.GameObjects.BitmapText;
 
     private readonly scene: BridgeScene;
 
-    private readonly parent:
-        Phaser.GameObjects.Container;
+    private readonly parent: Phaser.GameObjects.Container;
 
     constructor({
         scene,
@@ -105,25 +91,13 @@ export default class BridgeStickyMineView {
         this.scene = scene;
         this.parent = parent;
 
-        this.root =
-            scene.add.container(
-                startPosition.x,
-                startPosition.y,
-            );
+        this.root = scene.add.container(startPosition.x, startPosition.y);
 
-        this.root
-            .setScale(
-                ATTACH_ANIMATION
-                    .startScale,
-            )
-            .setAlpha(0.75);
+        this.root.setScale(ATTACH_ANIMATION.startScale).setAlpha(0.75);
 
         parent.add(this.root);
 
-        const sprite =
-            MINE_SPRITES[
-                MINE_SPRITE_ID.STICKY_00
-            ];
+        const sprite = MINE_SPRITES[MINE_SPRITE_ID.STICKY_00];
 
         this.image = scene.add.image(
             0,
@@ -133,11 +107,9 @@ export default class BridgeStickyMineView {
             sprite.frameKey,
         );
 
-        this.frame =
-            scene.add.graphics();
+        this.frame = scene.add.graphics();
 
-        this.clearingMark =
-            scene.add.graphics();
+        this.clearingMark = scene.add.graphics();
 
         this.fuseLabel = scene.add
             .bitmapText(
@@ -145,7 +117,7 @@ export default class BridgeStickyMineView {
                 0,
 
                 FONT_FAMILY.VGA_8X14,
-                '',
+                "",
                 FONT_SIZE.PX_16,
             )
             .setOrigin(0.5, 0);
@@ -158,16 +130,13 @@ export default class BridgeStickyMineView {
         this.drawClearingMark();
 
         this.update({
-            timeToDetonationMs:
-                initialTimeToDetonationMs,
+            timeToDetonationMs: initialTimeToDetonationMs,
 
             isBeingCleared: false,
             isNextClearTarget: false,
         });
 
-        this.playAttachAnimation(
-            targetPosition,
-        );
+        this.playAttachAnimation(targetPosition);
     }
 
     public update({
@@ -176,106 +145,66 @@ export default class BridgeStickyMineView {
         isBeingCleared,
         isNextClearTarget,
     }: BridgeStickyMineUpdate): void {
-        const isCritical =
-            timeToDetonationMs <=
-            STICKY_MINE_CRITICAL_FUSE_MS;
+        const isCritical = timeToDetonationMs <= STICKY_MINE_CRITICAL_FUSE_MS;
 
-        const color =
-            this.getPresentationColor({
-                isCritical,
-                isNextClearTarget,
-            });
+        const color = this.getPresentationColor({
+            isCritical,
+            isNextClearTarget,
+        });
 
-        const alpha =
-            this.getPresentationAlpha({
-                isCritical,
-                isNextClearTarget,
-            });
+        const alpha = this.getPresentationAlpha({
+            isCritical,
+            isNextClearTarget,
+        });
 
         this.drawFrame(color);
 
         this.frame.setAlpha(alpha);
 
-        this.clearingMark
-            .setVisible(isBeingCleared)
-            .setAlpha(
-                isBeingCleared
-                    ? this.getClearingMarkAlpha()
-                    : 0,
-            );
+        this.clearingMark.setVisible(isBeingCleared).setAlpha(isBeingCleared ? this.getClearingMarkAlpha() : 0);
 
-        this.fuseLabel
-            .setText(
-                this.formatTimeToDetonation(
-                    timeToDetonationMs,
-                ),
-            )
-            .setTint(color)
-            .setAlpha(alpha);
+        this.fuseLabel.setText(this.formatTimeToDetonation(timeToDetonationMs)).setTint(color).setAlpha(alpha);
 
-        this.image.setAlpha(
-            isCritical &&
-                alpha < 0.6
-                ? 0.72
-                : 1,
-        );
+        this.image.setAlpha(isCritical && alpha < 0.6 ? 0.72 : 1);
     }
 
-    public playRemovalEffect(
-        outcome:
-            BridgeStickyMineRemovalOutcome,
-    ): void {
+    public playRemovalEffect(outcome: BridgeStickyMineRemovalOutcome): void {
         switch (outcome) {
-            case BRIDGE_STICKY_MINE_REMOVAL_OUTCOME
-                .CLEARED:
+            case BRIDGE_STICKY_MINE_REMOVAL_OUTCOME.CLEARED:
                 this.playClearEffect();
                 return;
 
-            case BRIDGE_STICKY_MINE_REMOVAL_OUTCOME
-                .DETONATED:
+            case BRIDGE_STICKY_MINE_REMOVAL_OUTCOME.DETONATED:
                 this.playDetonationEffect();
                 return;
 
             default:
-                return this.assertNever(
-                    outcome,
-                );
+                return this.assertNever(outcome);
         }
     }
 
     public destroy(): void {
-        this.scene.tweens.killTweensOf(
-            this.root,
-        );
+        this.scene.tweens.killTweensOf(this.root);
 
         this.root.destroy(true);
     }
 
-    private playAttachAnimation(
-        targetPosition:
-            Phaser.Math.Vector2,
-    ): void {
+    private playAttachAnimation(targetPosition: Phaser.Math.Vector2): void {
         this.scene.tweens.add({
             targets: this.root,
 
             x: targetPosition.x,
             y: targetPosition.y,
 
-            scaleX:
-                ATTACH_ANIMATION
-                    .impactScale,
+            scaleX: ATTACH_ANIMATION.impactScale,
 
-            scaleY:
-                ATTACH_ANIMATION
-                    .impactScale,
+            scaleY: ATTACH_ANIMATION.impactScale,
 
             alpha: 1,
 
-            duration:
-                ATTACH_ANIMATION
-                    .flightDurationMs,
+            duration: ATTACH_ANIMATION.flightDurationMs,
 
-            ease: 'Quad.In',
+            ease: "Quad.In",
 
             onComplete: () => {
                 this.scene.tweens.add({
@@ -284,37 +213,25 @@ export default class BridgeStickyMineView {
                     scaleX: 1,
                     scaleY: 1,
 
-                    duration:
-                        ATTACH_ANIMATION
-                            .settleDurationMs,
+                    duration: ATTACH_ANIMATION.settleDurationMs,
 
-                    ease: 'Quad.Out',
+                    ease: "Quad.Out",
                 });
             },
         });
     }
 
     private playClearEffect(): void {
-        const effect =
-            this.scene.add.graphics({
-                x: this.root.x,
-                y: this.root.y,
-            });
+        const effect = this.scene.add.graphics({
+            x: this.root.x,
+            y: this.root.y,
+        });
 
         this.parent.add(effect);
 
-        effect.lineStyle(
-            3,
-            FONT_COLOR.PRIMARY,
-            1,
-        );
+        effect.lineStyle(3, FONT_COLOR.PRIMARY, 1);
 
-        effect.lineBetween(
-            -48,
-            0,
-            48,
-            0,
-        );
+        effect.lineBetween(-48, 0, 48, 0);
 
         effect.setScale(0, 1);
 
@@ -324,7 +241,7 @@ export default class BridgeStickyMineView {
             scaleX: 1,
 
             duration: 100,
-            ease: 'Quad.Out',
+            ease: "Quad.Out",
 
             onComplete: () => {
                 this.scene.tweens.add({
@@ -334,7 +251,7 @@ export default class BridgeStickyMineView {
                     alpha: 0,
 
                     duration: 140,
-                    ease: 'Quad.In',
+                    ease: "Quad.In",
 
                     onComplete: () => {
                         effect.destroy();
@@ -345,36 +262,20 @@ export default class BridgeStickyMineView {
     }
 
     private playDetonationEffect(): void {
-        const effect =
-            this.scene.add.graphics({
-                x: this.root.x,
-                y: this.root.y,
-            });
+        const effect = this.scene.add.graphics({
+            x: this.root.x,
+            y: this.root.y,
+        });
 
         this.parent.add(effect);
 
-        effect.fillStyle(
-            FONT_COLOR.DANGER,
-            0.85,
-        );
+        effect.fillStyle(FONT_COLOR.DANGER, 0.85);
 
-        effect.fillCircle(
-            0,
-            0,
-            12,
-        );
+        effect.fillCircle(0, 0, 12);
 
-        effect.lineStyle(
-            2,
-            FONT_COLOR.WHITE,
-            1,
-        );
+        effect.lineStyle(2, FONT_COLOR.WHITE, 1);
 
-        effect.strokeCircle(
-            0,
-            0,
-            9,
-        );
+        effect.strokeCircle(0, 0, 9);
 
         effect.setScale(0.5);
 
@@ -387,7 +288,7 @@ export default class BridgeStickyMineView {
             alpha: 0,
 
             duration: 220,
-            ease: 'Quad.Out',
+            ease: "Quad.Out",
 
             onComplete: () => {
                 effect.destroy();
@@ -395,176 +296,79 @@ export default class BridgeStickyMineView {
         });
     }
 
-    private drawFrame(
-        color: number,
-    ): void {
+    private drawFrame(color: number): void {
         const halfWidth = Math.max(
             MINE_FRAME.minHalfWidth,
 
-            Math.ceil(
-                Math.abs(
-                    this.image.displayWidth,
-                ) / 2,
-            ) + MINE_FRAME.padding,
+            Math.ceil(Math.abs(this.image.displayWidth) / 2) + MINE_FRAME.padding,
         );
 
         const halfHeight = Math.max(
             MINE_FRAME.minHalfHeight,
 
-            Math.ceil(
-                Math.abs(
-                    this.image.displayHeight,
-                ) / 2,
-            ) + MINE_FRAME.padding,
+            Math.ceil(Math.abs(this.image.displayHeight) / 2) + MINE_FRAME.padding,
         );
 
         this.frame.clear();
 
-        this.frame.fillStyle(
-            color,
-            1,
-        );
+        this.frame.fillStyle(color, 1);
 
-        this.drawCornerFrame(
-            halfWidth,
-            halfHeight,
-        );
+        this.drawCornerFrame(halfWidth, halfHeight);
 
-        this.fuseLabel.setPosition(
-            0,
-            halfHeight +
-                MINE_FRAME.labelGap,
-        );
+        this.fuseLabel.setPosition(0, halfHeight + MINE_FRAME.labelGap);
     }
 
-    private drawCornerFrame(
-        halfWidth: number,
-        halfHeight: number,
-    ): void {
+    private drawCornerFrame(halfWidth: number, halfHeight: number): void {
         const left = -halfWidth;
         const right = halfWidth;
 
         const top = -halfHeight;
         const bottom = halfHeight;
 
-        const length =
-            MINE_FRAME.cornerLength;
+        const length = MINE_FRAME.cornerLength;
 
-        const thickness =
-            MINE_FRAME.thickness;
+        const thickness = MINE_FRAME.thickness;
 
-        this.frame.fillRect(
-            left,
-            top,
-            length,
-            thickness,
-        );
+        this.frame.fillRect(left, top, length, thickness);
 
-        this.frame.fillRect(
-            left,
-            top,
-            thickness,
-            length,
-        );
+        this.frame.fillRect(left, top, thickness, length);
 
-        this.frame.fillRect(
-            right - length,
-            top,
-            length,
-            thickness,
-        );
+        this.frame.fillRect(right - length, top, length, thickness);
 
-        this.frame.fillRect(
-            right - thickness,
-            top,
-            thickness,
-            length,
-        );
+        this.frame.fillRect(right - thickness, top, thickness, length);
 
-        this.frame.fillRect(
-            left,
-            bottom - thickness,
-            length,
-            thickness,
-        );
+        this.frame.fillRect(left, bottom - thickness, length, thickness);
 
-        this.frame.fillRect(
-            left,
-            bottom - length,
-            thickness,
-            length,
-        );
+        this.frame.fillRect(left, bottom - length, thickness, length);
 
-        this.frame.fillRect(
-            right - length,
-            bottom - thickness,
-            length,
-            thickness,
-        );
+        this.frame.fillRect(right - length, bottom - thickness, length, thickness);
 
-        this.frame.fillRect(
-            right - thickness,
-            bottom - length,
-            thickness,
-            length,
-        );
+        this.frame.fillRect(right - thickness, bottom - length, thickness, length);
     }
 
     private drawClearingMark(): void {
         this.clearingMark.clear();
 
-        this.clearingMark.fillStyle(
-            MINE_CLEARING_MARK.shadowColor,
-            1,
-        );
+        this.clearingMark.fillStyle(MINE_CLEARING_MARK.shadowColor, 1);
 
-        this.drawPixelCross(
-            MINE_CLEARING_MARK
-                .shadowBlockSize,
-        );
+        this.drawPixelCross(MINE_CLEARING_MARK.shadowBlockSize);
 
-        this.clearingMark.fillStyle(
-            MINE_CLEARING_MARK.color,
-            1,
-        );
+        this.clearingMark.fillStyle(MINE_CLEARING_MARK.color, 1);
 
-        this.drawPixelCross(
-            MINE_CLEARING_MARK.blockSize,
-        );
+        this.drawPixelCross(MINE_CLEARING_MARK.blockSize);
     }
 
-    private drawPixelCross(
-        blockSize: number,
-    ): void {
-        const halfBlock =
-            blockSize / 2;
+    private drawPixelCross(blockSize: number): void {
+        const halfBlock = blockSize / 2;
 
         for (
-            let offset =
-                -MINE_CLEARING_MARK
-                    .halfSize;
-
-            offset <=
-            MINE_CLEARING_MARK
-                .halfSize;
-
-            offset +=
-                MINE_CLEARING_MARK
-                    .blockSize
+            let offset = -MINE_CLEARING_MARK.halfSize;
+            offset <= MINE_CLEARING_MARK.halfSize;
+            offset += MINE_CLEARING_MARK.blockSize
         ) {
-            this.clearingMark.fillRect(
-                offset - halfBlock,
-                offset - halfBlock,
-                blockSize,
-                blockSize,
-            );
+            this.clearingMark.fillRect(offset - halfBlock, offset - halfBlock, blockSize, blockSize);
 
-            this.clearingMark.fillRect(
-                offset - halfBlock,
-                -offset - halfBlock,
-                blockSize,
-                blockSize,
-            );
+            this.clearingMark.fillRect(offset - halfBlock, -offset - halfBlock, blockSize, blockSize);
         }
     }
 
@@ -594,86 +398,33 @@ export default class BridgeStickyMineView {
         isNextClearTarget: boolean;
     }): number {
         if (isCritical) {
-            return (
-                Math.floor(
-                    this.scene.time.now /
-                        120,
-                ) %
-                    2 ===
-                0
-                    ? 1
-                    : 0.35
-            );
+            return Math.floor(this.scene.time.now / 120) % 2 === 0 ? 1 : 0.35;
         }
 
         if (isNextClearTarget) {
-            return (
-                0.65 +
-                0.35 *
-                    (
-                        Math.sin(
-                            this.scene.time
-                                .now /
-                                130,
-                        ) +
-                        1
-                    ) /
-                    2
-            );
+            return 0.65 + (0.35 * (Math.sin(this.scene.time.now / 130) + 1)) / 2;
         }
 
         return 1;
     }
 
     private getClearingMarkAlpha(): number {
-        return (
-            Math.floor(
-                this.scene.time.now /
-                    MINE_CLEARING_MARK
-                        .blinkIntervalMs,
-            ) %
-                2 ===
-            0
-                ? 1
-                : MINE_CLEARING_MARK
-                      .dimAlpha
-        );
+        return Math.floor(this.scene.time.now / MINE_CLEARING_MARK.blinkIntervalMs) % 2 === 0
+            ? 1
+            : MINE_CLEARING_MARK.dimAlpha;
     }
 
-    private formatTimeToDetonation(
-        timeToDetonationMs: number,
-    ): string {
-        const remainingTenths =
-            Math.max(
-                0,
-                Math.ceil(
-                    timeToDetonationMs /
-                        100,
-                ),
-            );
+    private formatTimeToDetonation(timeToDetonationMs: number): string {
+        const remainingTenths = Math.max(0, Math.ceil(timeToDetonationMs / 100));
 
-        const seconds =
-            Math.floor(
-                remainingTenths / 10,
-            );
+        const seconds = Math.floor(remainingTenths / 10);
 
-        const tenth =
-            remainingTenths % 10;
+        const tenth = remainingTenths % 10;
 
-        return (
-            String(seconds)
-                .padStart(2, '0') +
-            ':' +
-            String(tenth)
-        );
+        return String(seconds).padStart(2, "0") + ":" + String(tenth);
     }
 
-    private assertNever(
-        value: never,
-    ): never {
-        throw new Error(
-            `Unhandled sticky-mine removal outcome: ` +
-                String(value),
-        );
+    private assertNever(value: never): never {
+        throw new Error(`Unhandled sticky-mine removal outcome: ` + String(value));
     }
 }

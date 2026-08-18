@@ -1,8 +1,8 @@
 // src/app/scenes/game/bridge/view/indicators/targeting_warning/BridgeTargetingWarningView.ts
 
-import type BridgeScene from '../../../BridgeScene';
-import { BRIDGE_EVENT } from '../../../events/bridge_event';
-import type BridgeEventBus from '../../../events/BridgeEventBus';
+import type BridgeScene from "../../../BridgeScene";
+import { BRIDGE_EVENT } from "../../../events/bridge_event";
+import type BridgeEventBus from "../../../events/BridgeEventBus";
 
 const TARGETING_WARNING_LAMP = {
     y: 55,
@@ -50,7 +50,7 @@ export default class BridgeTargetingWarningView {
         // Индикатор является частью оборудования мостика:
         // он виден поверх interior,
         // но перекрывается barks и UI-окнами.
-        this.scene.layers.get('bridge').add(this.lamp);
+        this.scene.layers.get("bridge").add(this.lamp);
 
         this.eventBus.on(BRIDGE_EVENT.ENEMY_ATTACK_WARNING_TRIGGERED, this.start, this);
 
@@ -78,7 +78,7 @@ export default class BridgeTargetingWarningView {
             alpha: TARGETING_WARNING_LAMP.dimAlpha,
 
             duration: TARGETING_WARNING_LAMP.blinkDurationMs,
-            ease: 'Linear',
+            ease: "Linear",
 
             yoyo: true,
             repeat: TARGETING_WARNING_LAMP.blinkRepeatCount,

@@ -1,14 +1,14 @@
 // src/app/scenes/game/bridge/view/ui/officer_context_menu/content/BridgeOfficerContextMenuContentView.ts
 
-import type BridgeScene from '../../../../BridgeScene';
+import type BridgeScene from "../../../../BridgeScene";
 import type {
     BridgeOfficerCommandMenuGroupPayload,
     BridgeOfficerCommandMenuItemPayload,
-} from '../../../../events/bridge_event';
-import { UI_EVENT } from '../../ui_event';
-import { OFFICER_CONTEXT_MENU_LAYOUT } from '../bridge_officer_context_menu_layout';
-import BridgeOfficerContextMenuGroupLabelView from '../group_label/BridgeOfficerContextMenuGroupLabelView';
-import BridgeOfficerContextMenuItemView from '../item/BridgeOfficerContextMenuItemView';
+} from "../../../../events/bridge_event";
+import { UI_EVENT } from "../../ui_event";
+import { OFFICER_CONTEXT_MENU_LAYOUT } from "../bridge_officer_context_menu_layout";
+import BridgeOfficerContextMenuGroupLabelView from "../group_label/BridgeOfficerContextMenuGroupLabelView";
+import BridgeOfficerContextMenuItemView from "../item/BridgeOfficerContextMenuItemView";
 
 // Content-view officer context menu.
 // Владеет group labels, item views и layout-ом списка команд.

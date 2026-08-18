@@ -1,21 +1,21 @@
 // src/app/scenes/game/bridge/view/ui/officer_context_menu/BridgeOfficerContextMenuView.ts
 
-import type { OfficerRole } from '../../../../../../../engine/defs/officer';
-import type BridgeScene from '../../../BridgeScene';
+import type { OfficerRole } from "../../../../../../../engine/defs/officer";
+import type BridgeScene from "../../../BridgeScene";
 import {
     BRIDGE_EVENT,
     type BridgeOfficerCommandMenuItemPayload,
     type BridgeOfficerCommandMenuUpdatedPayload,
-} from '../../../events/bridge_event';
-import type BridgeEventBus from '../../../events/BridgeEventBus';
-import { UI_EVENT } from '../ui_event';
-import { OFFICER_CONTEXT_MENU_POSITION_BY_ROLE } from './bridge_officer_context_menu_layout';
-import BridgeOfficerContextMenuContentView from './content/BridgeOfficerContextMenuContentView';
+} from "../../../events/bridge_event";
+import type BridgeEventBus from "../../../events/BridgeEventBus";
+import { UI_EVENT } from "../ui_event";
+import { OFFICER_CONTEXT_MENU_POSITION_BY_ROLE } from "./bridge_officer_context_menu_layout";
+import BridgeOfficerContextMenuContentView from "./content/BridgeOfficerContextMenuContentView";
 import {
     getOfficerContextMenuItemCount,
     getOfficerContextMenuMinHeight,
-} from './height/get_officer_context_menu_min_height';
-import BridgeOfficerContextMenuPanelView from './panel/BridgeOfficerContextMenuPanelView';
+} from "./height/get_officer_context_menu_min_height";
+import BridgeOfficerContextMenuPanelView from "./panel/BridgeOfficerContextMenuPanelView";
 
 const REFRESH_INTERVAL_MS = 200;
 
@@ -41,52 +41,29 @@ export default class BridgeOfficerContextMenuView {
         this.outsideClickCatcher = this.createOutsideClickCatcher();
         this.root = this.scene.add.container(0, 0).setVisible(false);
 
-        this.scene.layers.get('ui_blocker').add(this.outsideClickCatcher);
-        this.scene.layers.get('ui').add(this.root);
+        this.scene.layers.get("ui_blocker").add(this.outsideClickCatcher);
+        this.scene.layers.get("ui").add(this.root);
 
-        this.outsideClickCatcher.on(
-            Phaser.Input.Events.POINTER_DOWN,
-            this.handleOutsidePointerDown,
-            this,
-        );
+        this.outsideClickCatcher.on(Phaser.Input.Events.POINTER_DOWN, this.handleOutsidePointerDown, this);
 
         this.panelView = new BridgeOfficerContextMenuPanelView(this.scene);
         this.contentView = new BridgeOfficerContextMenuContentView(this.scene);
 
-        this.contentView
-            .getRoot()
-            .on(UI_EVENT.CLICK, this.handleItemSelected, this);
+        this.contentView.getRoot().on(UI_EVENT.CLICK, this.handleItemSelected, this);
 
-        this.root.add([
-            this.panelView.getRoot(),
-            this.contentView.getRoot(),
-        ]);
+        this.root.add([this.panelView.getRoot(), this.contentView.getRoot()]);
 
-        this.eventBus.on(
-            BRIDGE_EVENT.OFFICER_COMMAND_MENU_UPDATED,
-            this.handleOfficerCommandMenuUpdated,
-            this,
-        );
+        this.eventBus.on(BRIDGE_EVENT.OFFICER_COMMAND_MENU_UPDATED, this.handleOfficerCommandMenuUpdated, this);
     }
 
     public destroy(): void {
         this.stopRefreshPolling();
 
-        this.eventBus.off(
-            BRIDGE_EVENT.OFFICER_COMMAND_MENU_UPDATED,
-            this.handleOfficerCommandMenuUpdated,
-            this,
-        );
+        this.eventBus.off(BRIDGE_EVENT.OFFICER_COMMAND_MENU_UPDATED, this.handleOfficerCommandMenuUpdated, this);
 
-        this.outsideClickCatcher.off(
-            Phaser.Input.Events.POINTER_DOWN,
-            this.handleOutsidePointerDown,
-            this,
-        );
+        this.outsideClickCatcher.off(Phaser.Input.Events.POINTER_DOWN, this.handleOutsidePointerDown, this);
 
-        this.contentView
-            .getRoot()
-            .off(UI_EVENT.CLICK, this.handleItemSelected, this);
+        this.contentView.getRoot().off(UI_EVENT.CLICK, this.handleItemSelected, this);
 
         this.contentView.destroy();
         this.panelView.destroy();
@@ -95,9 +72,7 @@ export default class BridgeOfficerContextMenuView {
         this.root.destroy(false);
     }
 
-    private handleOfficerCommandMenuUpdated(
-        menu: BridgeOfficerCommandMenuUpdatedPayload,
-    ): void {
+    private handleOfficerCommandMenuUpdated(menu: BridgeOfficerCommandMenuUpdatedPayload): void {
         const snapshot = JSON.stringify(menu);
 
         if (snapshot === this.latestMenuSnapshot) {
@@ -125,9 +100,7 @@ export default class BridgeOfficerContextMenuView {
         this.closeMenu();
     }
 
-    private handleItemSelected(
-        item: BridgeOfficerCommandMenuItemPayload,
-    ): void {
+    private handleItemSelected(item: BridgeOfficerCommandMenuItemPayload): void {
         if (!this.currentRole) {
             return;
         }
@@ -136,17 +109,14 @@ export default class BridgeOfficerContextMenuView {
 
         this.closeMenu();
 
-        this.eventBus.emit(
-            BRIDGE_EVENT.OFFICER_COMMAND_SELECTED,
-            {
-                role,
-                commandId: item.commandId,
+        this.eventBus.emit(BRIDGE_EVENT.OFFICER_COMMAND_SELECTED, {
+            role,
+            commandId: item.commandId,
 
-                target: {
-                    ...item.target,
-                },
+            target: {
+                ...item.target,
             },
-        );
+        });
     }
 
     private positionMenu(role: OfficerRole): void {
@@ -155,13 +125,8 @@ export default class BridgeOfficerContextMenuView {
         this.root.setPosition(position.x, position.y);
     }
 
-    private renderPanel(
-        menu: BridgeOfficerCommandMenuUpdatedPayload,
-    ): void {
-        this.panelView.render(
-            menu.role.toUpperCase(),
-            getOfficerContextMenuMinHeight(menu),
-        );
+    private renderPanel(menu: BridgeOfficerCommandMenuUpdatedPayload): void {
+        this.panelView.render(menu.role.toUpperCase(), getOfficerContextMenuMinHeight(menu));
     }
 
     private openMenu(): void {
@@ -205,12 +170,9 @@ export default class BridgeOfficerContextMenuView {
             return;
         }
 
-        this.eventBus.emit(
-            BRIDGE_EVENT.OFFICER_COMMAND_MENU_REFRESH_REQUESTED,
-            {
-                role: this.currentRole,
-            },
-        );
+        this.eventBus.emit(BRIDGE_EVENT.OFFICER_COMMAND_MENU_REFRESH_REQUESTED, {
+            role: this.currentRole,
+        });
     }
 
     private createOutsideClickCatcher(): Phaser.GameObjects.Rectangle {

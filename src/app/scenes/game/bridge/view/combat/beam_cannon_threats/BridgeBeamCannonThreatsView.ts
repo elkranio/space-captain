@@ -1,81 +1,59 @@
 // src/app/scenes/game/bridge/view/combat/beam_cannon_threats/BridgeBeamCannonThreatsView.ts
 
-import type BridgeScene from '../../../BridgeScene';
+import type BridgeScene from "../../../BridgeScene";
 import {
     BRIDGE_EVENT,
     type BridgeEnemyShipDestructionPayload,
     type BridgeBeamCannonThreatAddedPayload,
     type BridgeBeamCannonThreatRemovedPayload,
     type BridgeBeamCannonThreatsUpdatedPayload,
-} from '../../../events/bridge_event';
-import type BridgeEventBus from '../../../events/BridgeEventBus';
-import {
-    removeMissingCombatSnapshotEntries,
-} from '../remove_missing_combat_snapshot_entries';
-import BridgeBeamCannonThreatView from './beam_cannon/BridgeBeamCannonThreatView';
+} from "../../../events/bridge_event";
+import type BridgeEventBus from "../../../events/BridgeEventBus";
+import { removeMissingCombatSnapshotEntries } from "../remove_missing_combat_snapshot_entries";
+import BridgeBeamCannonThreatView from "./beam_cannon/BridgeBeamCannonThreatView";
 
-type GetObjectPosition = (
-    objectId: string,
-) => Phaser.Math.Vector2 | undefined;
+type GetObjectPosition = (objectId: string) => Phaser.Math.Vector2 | undefined;
 
 // Manager-view активных beamCannon charging threats.
 export default class BridgeBeamCannonThreatsView {
-    private readonly root:
-        Phaser.GameObjects.Container;
+    private readonly root: Phaser.GameObjects.Container;
 
-    private readonly threats =
-        new Map<
-            string,
-            BridgeBeamCannonThreatView
-        >();
+    private readonly threats = new Map<string, BridgeBeamCannonThreatView>();
 
     constructor(
-        private readonly scene:
-            BridgeScene,
+        private readonly scene: BridgeScene,
 
-        private readonly eventBus:
-            BridgeEventBus,
+        private readonly eventBus: BridgeEventBus,
 
-        private readonly getObjectPosition:
-            GetObjectPosition,
+        private readonly getObjectPosition: GetObjectPosition,
     ) {
-        this.root =
-            this.scene.add.container(
-                0,
-                0,
-            );
+        this.root = this.scene.add.container(0, 0);
 
-        this.scene.layers
-            .get('vfx')
-            .add(this.root);
+        this.scene.layers.get("vfx").add(this.root);
 
         this.eventBus.on(
-            BRIDGE_EVENT
-                .BEAM_CANNON_THREAT_ADDED,
+            BRIDGE_EVENT.BEAM_CANNON_THREAT_ADDED,
 
             this.addThreat,
             this,
         );
 
         this.eventBus.on(
-            BRIDGE_EVENT
-                .BEAM_CANNON_THREAT_REMOVED,
+            BRIDGE_EVENT.BEAM_CANNON_THREAT_REMOVED,
 
             this.removeThreat,
             this,
         );
 
         this.eventBus.on(
-            BRIDGE_EVENT
-                .BEAM_CANNON_THREATS_UPDATED,
+            BRIDGE_EVENT.BEAM_CANNON_THREATS_UPDATED,
 
             this.updateThreats,
             this,
         );
 
         this.eventBus.on(
-            BRIDGE_EVENT
-                .ENEMY_SHIP_DESTRUCTION_STARTED,
+            BRIDGE_EVENT.ENEMY_SHIP_DESTRUCTION_STARTED,
 
             this.handleEnemyShipDestruction,
             this,
@@ -84,32 +62,28 @@ export default class BridgeBeamCannonThreatsView {
 
     public destroy(): void {
         this.eventBus.off(
-            BRIDGE_EVENT
-                .BEAM_CANNON_THREAT_ADDED,
+            BRIDGE_EVENT.BEAM_CANNON_THREAT_ADDED,
 
             this.addThreat,
             this,
         );
 
         this.eventBus.off(
-            BRIDGE_EVENT
-                .BEAM_CANNON_THREAT_REMOVED,
+            BRIDGE_EVENT.BEAM_CANNON_THREAT_REMOVED,
 
             this.removeThreat,
             this,
         );
 
         this.eventBus.off(
-            BRIDGE_EVENT
-                .BEAM_CANNON_THREATS_UPDATED,
+            BRIDGE_EVENT.BEAM_CANNON_THREATS_UPDATED,
 
             this.updateThreats,
             this,
         );
 
         this.eventBus.off(
-            BRIDGE_EVENT
-                .ENEMY_SHIP_DESTRUCTION_STARTED,
+            BRIDGE_EVENT.ENEMY_SHIP_DESTRUCTION_STARTED,
 
             this.handleEnemyShipDestruction,
             this,
@@ -119,87 +93,45 @@ export default class BridgeBeamCannonThreatsView {
         this.root.destroy(false);
     }
 
-    public setCameraTurnOffsetX(
-        offsetX: number,
-    ): void {
-        this.root.x = Math.round(
-            offsetX,
-        );
+    public setCameraTurnOffsetX(offsetX: number): void {
+        this.root.x = Math.round(offsetX);
     }
 
-    private addThreat(
-        payload:
-            BridgeBeamCannonThreatAddedPayload,
-    ): void {
-        if (
-            this.threats.has(
-                payload.attackId,
-            )
-        ) {
-            throw new Error(
-                'BeamCannon threat already ' +
-                    'exists: ' +
-                    payload.attackId,
-            );
+    private addThreat(payload: BridgeBeamCannonThreatAddedPayload): void {
+        if (this.threats.has(payload.attackId)) {
+            throw new Error("BeamCannon threat already " + "exists: " + payload.attackId);
         }
 
-        const weaponOrigin =
-            this.getObjectPosition(
-                payload.sourceActorId,
-            );
+        const weaponOrigin = this.getObjectPosition(payload.sourceActorId);
 
         if (!weaponOrigin) {
-            throw new Error(
-                'BeamCannon threat source ' +
-                    'object not found: ' +
-                    payload.sourceActorId,
-            );
+            throw new Error("BeamCannon threat source " + "object not found: " + payload.sourceActorId);
         }
 
-        const threat =
-            new BridgeBeamCannonThreatView({
-                scene:
-                    this.scene,
+        const threat = new BridgeBeamCannonThreatView({
+            scene: this.scene,
 
-                parent:
-                    this.root,
+            parent: this.root,
 
-                weaponOrigin,
-            });
+            weaponOrigin,
+        });
 
-        this.threats.set(
-            payload.attackId,
-            threat,
-        );
+        this.threats.set(payload.attackId, threat);
     }
 
-    private removeThreat(
-        payload:
-            BridgeBeamCannonThreatRemovedPayload,
-    ): void {
-        const threat =
-            this.threats.get(
-                payload.attackId,
-            );
+    private removeThreat(payload: BridgeBeamCannonThreatRemovedPayload): void {
+        const threat = this.threats.get(payload.attackId);
 
         if (!threat) {
-            throw new Error(
-                'BeamCannon threat not found: ' +
-                    payload.attackId,
-            );
+            throw new Error("BeamCannon threat not found: " + payload.attackId);
         }
 
         threat.destroy();
 
-        this.threats.delete(
-            payload.attackId,
-        );
+        this.threats.delete(payload.attackId);
     }
 
-    private updateThreats(
-        payload:
-            BridgeBeamCannonThreatsUpdatedPayload,
-    ): void {
+    private updateThreats(payload: BridgeBeamCannonThreatsUpdatedPayload): void {
         removeMissingCombatSnapshotEntries(
             this.threats,
             payload.map((update) => {
@@ -207,9 +139,7 @@ export default class BridgeBeamCannonThreatsView {
             }),
             (attackId, threat) => {
                 threat.destroy();
-                this.threats.delete(
-                    attackId,
-                );
+                this.threats.delete(attackId);
             },
         );
 
@@ -218,34 +148,20 @@ export default class BridgeBeamCannonThreatsView {
         }
 
         for (const update of payload) {
-            if (
-                !this.threats.has(
-                    update.attackId,
-                )
-            ) {
-                throw new Error(
-                    'BeamCannon threat update ' +
-                        'target not found: ' +
-                        update.attackId,
-                );
+            if (!this.threats.has(update.attackId)) {
+                throw new Error("BeamCannon threat update " + "target not found: " + update.attackId);
             }
         }
     }
 
-    private handleEnemyShipDestruction(
-        _payload:
-            BridgeEnemyShipDestructionPayload,
-    ): void {
+    private handleEnemyShipDestruction(_payload: BridgeEnemyShipDestructionPayload): void {
         // В текущем combat slice
         // существует один hostile ship.
         this.clearThreats();
     }
 
     private clearThreats(): void {
-        for (
-            const threat of
-            this.threats.values()
-        ) {
+        for (const threat of this.threats.values()) {
             threat.destroy();
         }
 

@@ -1,23 +1,17 @@
-import type {
-    PlayerHullDamageResult,
-} from '../../../../../../engine/defs/player';
-import { SPACE_ANCHOR_KIND } from '../../../../../../engine/defs/universe';
+import type { PlayerHullDamageResult } from "../../../../../../engine/defs/player";
+import { SPACE_ANCHOR_KIND } from "../../../../../../engine/defs/universe";
 import {
     COMBAT_SOURCE_KIND,
     COMBAT_TARGET_KIND,
     BEAM_CANNON_SHOT_OUTCOME,
-} from '../../../../../../engine/encounter/model/combat';
+} from "../../../../../../engine/encounter/model/combat";
 import {
     ENCOUNTER_EVENT,
     OFFICER_TASK_RESULT_KIND,
     type EncounterEvent,
-} from '../../../../../../engine/encounter/model/event';
-import type {
-    EncounterPresentationSnapshot,
-} from '../../../../../../engine/encounter/snapshots/encounter_presentation_snapshot';
-import type {
-    GameRuntime,
-} from '../../../../../runtime/GameRuntime';
+} from "../../../../../../engine/encounter/model/event";
+import type { EncounterPresentationSnapshot } from "../../../../../../engine/encounter/snapshots/encounter_presentation_snapshot";
+import type { GameRuntime } from "../../../../../runtime/GameRuntime";
 
 // Single owner of encounter -> persistent run write-back.
 //
@@ -27,59 +21,28 @@ import type {
 //
 // This class emits no bridge presentation events and owns no gameplay rules.
 export default class BridgeEncounterPersistenceSynchronizer {
-    constructor(
-        private readonly gameRuntime:
-            GameRuntime,
-    ) {}
+    constructor(private readonly gameRuntime: GameRuntime) {}
 
-    public syncSnapshot(
-        snapshot:
-            EncounterPresentationSnapshot,
-    ): void {
-        const powerCore =
-            snapshot.player
-                .powerCore;
+    public syncSnapshot(snapshot: EncounterPresentationSnapshot): void {
+        const powerCore = snapshot.player.powerCore;
 
         if (!powerCore) {
-            throw new Error(
-                'Bridge player ship requires a power core',
-            );
+            throw new Error("Bridge player ship requires a power core");
         }
 
-        const shieldGenerator =
-            snapshot.player
-                .shieldGenerator;
+        const shieldGenerator = snapshot.player.shieldGenerator;
 
         if (!shieldGenerator) {
-            throw new Error(
-                'Bridge player ship requires a shield generator',
-            );
+            throw new Error("Bridge player ship requires a shield generator");
         }
 
-        this.gameRuntime
-            .setPlayerShipPowerCoreState(
-                powerCore.state,
-            );
+        this.gameRuntime.setPlayerShipPowerCoreState(powerCore.state);
 
-        this.gameRuntime
-            .setPlayerShipShieldGeneratorState(
-                shieldGenerator,
-            );
+        this.gameRuntime.setPlayerShipShieldGeneratorState(shieldGenerator);
 
-        this.gameRuntime
-            .setPlayerShipWeaponStates(
-                snapshot.player
-                    .weapons
-                    .map(
-                        ({ state }) =>
-                            state,
-                    ),
-            );
+        this.gameRuntime.setPlayerShipWeaponStates(snapshot.player.weapons.map(({ state }) => state));
 
-        this.gameRuntime
-            .setPlayerSpaceNavigation(
-                snapshot.navigation,
-            );
+        this.gameRuntime.setPlayerSpaceNavigation(snapshot.navigation);
 
         // Defense Turret is intentionally not copied from presentation here.
         // Its current snapshot exposes equipment chance only, while mutable
@@ -88,78 +51,45 @@ export default class BridgeEncounterPersistenceSynchronizer {
         // projection instead of leaking targetProjectileId into RunState.
     }
 
-    public syncEvent(
-        event: EncounterEvent,
-    ): void {
+    public syncEvent(event: EncounterEvent): void {
         switch (event.type) {
-            case ENCOUNTER_EVENT
-                .PLAYER_SHIP_DRIVE_DISRUPTED:
-                this.gameRuntime
-                    .setPlayerShipDriveState(
-                        event.drive,
-                    );
+            case ENCOUNTER_EVENT.PLAYER_SHIP_DRIVE_DISRUPTED:
+                this.gameRuntime.setPlayerShipDriveState(event.drive);
 
-                this.gameRuntime
-                    .setPlayerSpaceNavigation(
-                        event.navigation,
-                    );
+                this.gameRuntime.setPlayerSpaceNavigation(event.navigation);
 
                 return;
 
-            case ENCOUNTER_EVENT
-                .PLAYER_SHIP_DRIVE_STATE_CHANGED:
-                this.gameRuntime
-                    .setPlayerShipDriveState(
-                        event.drive,
-                    );
+            case ENCOUNTER_EVENT.PLAYER_SHIP_DRIVE_STATE_CHANGED:
+                this.gameRuntime.setPlayerShipDriveState(event.drive);
 
                 return;
 
-            case ENCOUNTER_EVENT
-                .OFFICER_TASK_ENDED:
-                this.syncOfficerTaskResult(
-                    event,
-                );
+            case ENCOUNTER_EVENT.OFFICER_TASK_ENDED:
+                this.syncOfficerTaskResult(event);
 
                 return;
 
-            case ENCOUNTER_EVENT
-                .ENEMY_SHIP_DESTROYED:
-                this.gameRuntime
-                    .removeCurrentNodeActor(
-                        event.actorId,
-                    );
+            case ENCOUNTER_EVENT.ENEMY_SHIP_DESTROYED:
+                this.gameRuntime.removeCurrentNodeActor(event.actorId);
 
                 return;
 
-            case ENCOUNTER_EVENT
-                .MISSILE_IMPACTED_PLAYER_SHIP:
-                this.syncPlayerHull(
-                    event,
-                );
+            case ENCOUNTER_EVENT.MISSILE_IMPACTED_PLAYER_SHIP:
+                this.syncPlayerHull(event);
 
                 return;
 
-            case ENCOUNTER_EVENT
-                .STICKY_MINE_DETONATED:
-                this.assertIncomingStickyMine(
-                    event,
-                );
+            case ENCOUNTER_EVENT.STICKY_MINE_DETONATED:
+                this.assertIncomingStickyMine(event);
 
-                this.syncPlayerHull(
-                    event,
-                );
+                this.syncPlayerHull(event);
 
                 return;
 
             case ENCOUNTER_EVENT.BEAM_CANNON_FIRED:
-                if (
-                    event.outcome ===
-                    BEAM_CANNON_SHOT_OUTCOME.HIT
-                ) {
-                    this.syncPlayerHull(
-                        event,
-                    );
+                if (event.outcome === BEAM_CANNON_SHOT_OUTCOME.HIT) {
+                    this.syncPlayerHull(event);
                 }
 
                 return;
@@ -173,75 +103,55 @@ export default class BridgeEncounterPersistenceSynchronizer {
         event: Extract<
             EncounterEvent,
             {
-                type:
-                    typeof ENCOUNTER_EVENT
-                        .OFFICER_TASK_ENDED;
+                type: typeof ENCOUNTER_EVENT.OFFICER_TASK_ENDED;
             }
         >,
     ): void {
-        if (
-            event.result?.kind !==
-            OFFICER_TASK_RESULT_KIND
-                .JUMP_POINT_CALCULATED
-        ) {
+        if (event.result?.kind !== OFFICER_TASK_RESULT_KIND.JUMP_POINT_CALCULATED) {
             return;
         }
 
-        const anchor =
-            event.result.anchor;
+        const anchor = event.result.anchor;
 
-        this.gameRuntime
-            .addCurrentNodeAnchor({
-                kind:
-                    SPACE_ANCHOR_KIND
-                        .JUMP_POINT,
+        this.gameRuntime.addCurrentNodeAnchor({
+            kind: SPACE_ANCHOR_KIND.JUMP_POINT,
 
-                jumpPoint: {
-                    ...anchor.jumpPoint,
-                },
+            jumpPoint: {
+                ...anchor.jumpPoint,
+            },
 
-                localPosition: {
-                    ...anchor.localPosition,
-                },
-            });
+            localPosition: {
+                ...anchor.localPosition,
+            },
+        });
     }
 
-    private syncPlayerHull(
-        result: PlayerHullDamageResult,
-    ): void {
-        this.gameRuntime
-            .setPlayerShipHull(
-                result.remainingHull,
-            );
+    private syncPlayerHull(result: PlayerHullDamageResult): void {
+        this.gameRuntime.setPlayerShipHull(result.remainingHull);
     }
 
     private assertIncomingStickyMine(
         event: Extract<
             EncounterEvent,
             {
-                type:
-                    typeof ENCOUNTER_EVENT
-                        .STICKY_MINE_DETONATED;
+                type: typeof ENCOUNTER_EVENT.STICKY_MINE_DETONATED;
             }
         >,
     ): void {
         if (
-            event.mine.source.kind ===
-                COMBAT_SOURCE_KIND.ACTOR &&
-            event.mine.target.kind ===
-                COMBAT_TARGET_KIND
-                    .PLAYER_SHIP
+            event.mine.source.kind === COMBAT_SOURCE_KIND.ACTOR &&
+            event.mine.target.kind === COMBAT_TARGET_KIND.PLAYER_SHIP
         ) {
             return;
         }
 
         throw new Error(
-            'Detonated incoming sticky mine has ' +
-                'invalid source or target: ' +
+            "Detonated incoming sticky mine has " +
+                "invalid source or target: " +
                 event.mine.id +
-                '/' +
+                "/" +
                 event.mine.source.kind +
-                '/' +
+                "/" +
                 event.mine.target.kind,
         );
     }

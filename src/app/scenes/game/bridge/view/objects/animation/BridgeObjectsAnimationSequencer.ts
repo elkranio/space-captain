@@ -5,15 +5,15 @@ import {
     type BridgeDockingStartedPayload,
     type BridgeEncounterArrivalStartedPayload,
     type BridgeEncounterTravelStartedPayload,
-} from '../../../events/bridge_event';
-import { playObjectsArrivalSequence } from './arrival/play_objects_arrival_sequence';
-import type { BridgeObjectsAnimationContext } from './bridge_objects_animation_context';
-import { playObjectsDockingSequence } from './docking/play_objects_docking_sequence';
-import { playObjectsTravelSequence } from './travel/play_objects_travel_sequence';
+} from "../../../events/bridge_event";
+import { playObjectsArrivalSequence } from "./arrival/play_objects_arrival_sequence";
+import type { BridgeObjectsAnimationContext } from "./bridge_objects_animation_context";
+import { playObjectsDockingSequence } from "./docking/play_objects_docking_sequence";
+import { playObjectsTravelSequence } from "./travel/play_objects_travel_sequence";
 
 type SequencerContext = Omit<
     BridgeObjectsAnimationContext,
-    'getCameraYawDegrees' | 'setCameraYawDegrees' | 'setActiveTimer' | 'clearActiveTimer'
+    "getCameraYawDegrees" | "setCameraYawDegrees" | "setActiveTimer" | "clearActiveTimer"
 >;
 
 // View-level sequencer animations

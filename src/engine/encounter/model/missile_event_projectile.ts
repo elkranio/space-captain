@@ -1,8 +1,4 @@
-import {
-    COMBAT_PROJECTILE_KIND,
-    type CombatSource,
-    type CombatTarget,
-} from './combat';
+import { COMBAT_PROJECTILE_KIND, type CombatSource, type CombatTarget } from "./combat";
 
 // Presentation-safe projectile payload for encounter events.
 //
@@ -13,57 +9,43 @@ export type MissileEventProjectileSnapshot = {
     id: string;
     designation: string;
 
-    kind:
-        typeof COMBAT_PROJECTILE_KIND
-            .MISSILE;
+    kind: typeof COMBAT_PROJECTILE_KIND.MISSILE;
 
-    source:
-        CombatSource;
+    source: CombatSource;
 
-    sourceWeaponId:
-        string;
+    sourceWeaponId: string;
 
-    target:
-        CombatTarget;
+    target: CombatTarget;
 
-    timeToImpactMs:
-        number;
+    timeToImpactMs: number;
 
-    initialTimeToImpactMs:
-        number;
+    initialTimeToImpactMs: number;
 };
 
 // Explicit allowlist instead of Omit: adding a new internal projectile field
 // must never make it cross the encounter outbox automatically.
 export function createMissileEventProjectileSnapshot(
-    projectile:
-        MissileEventProjectileSnapshot,
+    projectile: MissileEventProjectileSnapshot,
 ): MissileEventProjectileSnapshot {
     return {
-        id:
-            projectile.id,
+        id: projectile.id,
 
-        designation:
-            projectile.designation,
+        designation: projectile.designation,
 
-        kind:
-            projectile.kind,
+        kind: projectile.kind,
 
         source: {
             ...projectile.source,
         },
 
-        sourceWeaponId:
-            projectile.sourceWeaponId,
+        sourceWeaponId: projectile.sourceWeaponId,
 
         target: {
             ...projectile.target,
         },
 
-        timeToImpactMs:
-            projectile.timeToImpactMs,
+        timeToImpactMs: projectile.timeToImpactMs,
 
-        initialTimeToImpactMs:
-            projectile.initialTimeToImpactMs,
+        initialTimeToImpactMs: projectile.initialTimeToImpactMs,
     };
 }

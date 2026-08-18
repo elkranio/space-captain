@@ -1,12 +1,12 @@
 // src/engine/generation/ship_weapon/SpamProjectorFactory.ts
 
-import { SHIP_WEAPONS } from '../../content/catalogs/ship_weapons';
+import { SHIP_WEAPONS } from "../../content/catalogs/ship_weapons";
 import {
     SHIP_WEAPON_KIND,
     SHIP_WEAPON_PHASE,
     type ShipWeaponId,
     type SpamProjectorState,
-} from '../../defs/ship_weapon';
+} from "../../defs/ship_weapon";
 
 export type CreateSpamProjectorInput = {
     // Runtime id конкретного установленного spam projector.
@@ -16,17 +16,11 @@ export type CreateSpamProjectorInput = {
 };
 
 export default class SpamProjectorFactory {
-    public static create({
-        id,
-        weaponId,
-    }: CreateSpamProjectorInput): SpamProjectorState {
+    public static create({ id, weaponId }: CreateSpamProjectorInput): SpamProjectorState {
         const definition = SHIP_WEAPONS[weaponId];
 
         if (definition.kind !== SHIP_WEAPON_KIND.SPAM_PROJECTOR) {
-            throw new Error(
-                `Cannot create spam projector from definition: ` +
-                    `${definition.id}/${definition.kind}`,
-            );
+            throw new Error(`Cannot create spam projector from definition: ` + `${definition.id}/${definition.kind}`);
         }
 
         return {

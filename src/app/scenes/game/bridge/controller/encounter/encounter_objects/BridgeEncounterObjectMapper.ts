@@ -1,19 +1,19 @@
 // src/app/scenes/game/bridge/controller/encounter/encounter_objects/BridgeEncounterObjectMapper.ts
 
-import { SHIP_CHASSIS } from '../../../../../../../engine/content/catalogs/ship_chassis';
-import { ENCOUNTER_ACTOR_KIND } from '../../../../../../../engine/encounter/actors/encounter_actor';
-import { ENCOUNTER_ANCHOR_KIND } from '../../../../../../../engine/encounter/anchors/encounter_anchor';
+import { SHIP_CHASSIS } from "../../../../../../../engine/content/catalogs/ship_chassis";
+import { ENCOUNTER_ACTOR_KIND } from "../../../../../../../engine/encounter/actors/encounter_actor";
+import { ENCOUNTER_ANCHOR_KIND } from "../../../../../../../engine/encounter/anchors/encounter_anchor";
 import type {
     EncounterSpaceActorPresentationSnapshot,
     EncounterSpaceAnchorPresentationSnapshot,
     EncounterSpacePresentationSnapshot,
-} from '../../../../../../../engine/encounter/snapshots/encounter_space_presentation_snapshot';
-import { ASTEROID_OBJECT_SPRITES } from '../../../../../../manifests/asteroids/asteroid_sprite';
-import { BEACON_OBJECT_SPRITES } from '../../../../../../manifests/beacons/beacon_sprite';
-import { JUMP_POINT_OBJECT_SPRITES } from '../../../../../../manifests/jump_points/jump_point_sprite';
-import { SHIP_SPRITES } from '../../../../../../manifests/ships/ship_sprite';
-import { STATION_OBJECT_SPRITES } from '../../../../../../manifests/stations/station_sprite';
-import type { BridgeEncounterObjectPayload } from '../../../events/bridge_event';
+} from "../../../../../../../engine/encounter/snapshots/encounter_space_presentation_snapshot";
+import { ASTEROID_OBJECT_SPRITES } from "../../../../../../manifests/asteroids/asteroid_sprite";
+import { BEACON_OBJECT_SPRITES } from "../../../../../../manifests/beacons/beacon_sprite";
+import { JUMP_POINT_OBJECT_SPRITES } from "../../../../../../manifests/jump_points/jump_point_sprite";
+import { SHIP_SPRITES } from "../../../../../../manifests/ships/ship_sprite";
+import { STATION_OBJECT_SPRITES } from "../../../../../../manifests/stations/station_sprite";
+import type { BridgeEncounterObjectPayload } from "../../../events/bridge_event";
 
 const SHIP_ACTOR_POSITION_OFFSET = {
     x: 0.95,

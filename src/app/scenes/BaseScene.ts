@@ -1,11 +1,11 @@
 // src/app/scenes/BaseScene.ts
-import LayerManager from '../../system/LayerManager';
+import LayerManager from "../../system/LayerManager";
 
 /**
  * Generic base scene class with built-in layer support and deferred startup.
  * Extend this when creating a new Phaser scene.
  */
-export default abstract class BaseScene<TLayer extends string = 'default'> extends Phaser.Scene {
+export default abstract class BaseScene<TLayer extends string = "default"> extends Phaser.Scene {
     /** Layer manager instance holding named rendering layers */
     public layers!: LayerManager<TLayer>;
 
@@ -35,6 +35,6 @@ export default abstract class BaseScene<TLayer extends string = 'default'> exten
      */
     protected createLayerManager(): LayerManager<TLayer> {
         // If you forget to override this and define layer names, this gives a default one
-        return new LayerManager<TLayer>(this, ['default' as TLayer] as readonly TLayer[]);
+        return new LayerManager<TLayer>(this, ["default" as TLayer] as readonly TLayer[]);
     }
 }

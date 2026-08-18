@@ -1,19 +1,15 @@
 // src/engine/encounter/model/missile_signature_intel.ts
 
-import type {
-    MissileSignature,
-} from '../../defs/missile';
+import type { MissileSignature } from "../../defs/missile";
 
 export const MISSILE_SIGNATURE_INTEL_STATUS = {
-    UNKNOWN: 'unknown',
-    UNCERTAIN: 'uncertain',
-    CONFIRMED: 'confirmed',
+    UNKNOWN: "unknown",
+    UNCERTAIN: "uncertain",
+    CONFIRMED: "confirmed",
 } as const;
 
 export type MissileSignatureIntelStatus =
-    (typeof MISSILE_SIGNATURE_INTEL_STATUS)[
-        keyof typeof MISSILE_SIGNATURE_INTEL_STATUS
-    ];
+    (typeof MISSILE_SIGNATURE_INTEL_STATUS)[keyof typeof MISSILE_SIGNATURE_INTEL_STATUS];
 
 // Observer knowledge about one concrete missile projectile.
 //
@@ -31,33 +27,22 @@ export type MissileSignatureIntelStatus =
 // Hidden correctness is intentionally not stored here.
 export type MissileSignatureIntel =
     | {
-          status:
-              typeof MISSILE_SIGNATURE_INTEL_STATUS
-                  .UNKNOWN;
+          status: typeof MISSILE_SIGNATURE_INTEL_STATUS.UNKNOWN;
       }
     | {
-          status:
-              typeof MISSILE_SIGNATURE_INTEL_STATUS
-                  .UNCERTAIN;
+          status: typeof MISSILE_SIGNATURE_INTEL_STATUS.UNCERTAIN;
 
-          hypothesis:
-              MissileSignature;
+          hypothesis: MissileSignature;
       }
     | {
-          status:
-              typeof MISSILE_SIGNATURE_INTEL_STATUS
-                  .CONFIRMED;
+          status: typeof MISSILE_SIGNATURE_INTEL_STATUS.CONFIRMED;
 
-          hypothesis:
-              MissileSignature;
+          hypothesis: MissileSignature;
       };
 
-export type ResolvedMissileSignatureIntel =
-    Exclude<
-        MissileSignatureIntel,
-        {
-            status:
-                typeof MISSILE_SIGNATURE_INTEL_STATUS
-                    .UNKNOWN;
-        }
-    >;
+export type ResolvedMissileSignatureIntel = Exclude<
+    MissileSignatureIntel,
+    {
+        status: typeof MISSILE_SIGNATURE_INTEL_STATUS.UNKNOWN;
+    }
+>;

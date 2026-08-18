@@ -1,10 +1,10 @@
 // src/app/scenes/game/init/controller/InitController.ts
 
-import { PLAYER_LOCATION_KIND, type PlayerLocationState } from '../../../../../engine/defs/player_location';
-import { GAME_RUNTIME } from '../../../../runtime/GameRuntime';
-import { SCENE_RUNTIME } from '../../../../runtime/SceneRuntime';
-import { SCENE_KEY, type SceneKey } from '../../../scene_key';
-import type InitScene from '../InitScene';
+import { PLAYER_LOCATION_KIND, type PlayerLocationState } from "../../../../../engine/defs/player_location";
+import { GAME_RUNTIME } from "../../../../runtime/GameRuntime";
+import { SCENE_RUNTIME } from "../../../../runtime/SceneRuntime";
+import { SCENE_KEY, type SceneKey } from "../../../scene_key";
+import type InitScene from "../InitScene";
 
 export default class InitController {
     constructor(private readonly scene: InitScene) {}
@@ -22,7 +22,7 @@ export default class InitController {
                 return SCENE_KEY.BRIDGE;
 
             case PLAYER_LOCATION_KIND.STATION:
-                throw new Error('Station scene is not implemented yet');
+                throw new Error("Station scene is not implemented yet");
 
             default:
                 return this.assertNever(location);

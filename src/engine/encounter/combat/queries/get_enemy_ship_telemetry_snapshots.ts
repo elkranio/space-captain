@@ -1,34 +1,14 @@
 // src/engine/encounter/combat/queries/get_enemy_ship_telemetry_snapshots.ts
 
-import type {
-    PowerCoreState,
-} from '../../../defs/power_core';
-import {
-    SHIP_DRIVES,
-} from '../../../content/catalogs/ship_drives';
-import {
-    ENCOUNTER_TEAM,
-} from '../../../defs/encounter_team';
-import {
-    PLAYER_SPACE_NAVIGATION_KIND,
-    type PlayerSpaceNavigationState,
-} from '../../../defs/player_location';
-import type {
-    ShipDriveStatus,
-} from '../../../defs/ship_drive';
-import type {
-    ShipEvadeState,
-} from '../../../defs/ship_evade';
-import type {
-    ShipWeaponKind,
-    ShipWeaponPhase,
-} from '../../../defs/ship_weapon';
-import type {
-    ActiveShieldState,
-} from '../../model/combat';
-import type {
-    EncounterState,
-} from '../../model/state';
+import type { PowerCoreState } from "../../../defs/power_core";
+import { SHIP_DRIVES } from "../../../content/catalogs/ship_drives";
+import { ENCOUNTER_TEAM } from "../../../defs/encounter_team";
+import { PLAYER_SPACE_NAVIGATION_KIND, type PlayerSpaceNavigationState } from "../../../defs/player_location";
+import type { ShipDriveStatus } from "../../../defs/ship_drive";
+import type { ShipEvadeState } from "../../../defs/ship_evade";
+import type { ShipWeaponKind, ShipWeaponPhase } from "../../../defs/ship_weapon";
+import type { ActiveShieldState } from "../../model/combat";
+import type { EncounterState } from "../../model/state";
 
 export type EnemyShipWeaponTelemetrySnapshot = {
     id: string;
@@ -49,17 +29,13 @@ export type EnemyShipTelemetrySnapshot = {
         status: ShipDriveStatus;
     };
 
-    evade:
-        ShipEvadeState;
+    evade: ShipEvadeState;
 
-    evadeDurationMs:
-        number;
+    evadeDurationMs: number;
 
-    powerCore?:
-        PowerCoreState;
+    powerCore?: PowerCoreState;
 
-    activeShield?:
-        ActiveShieldState;
+    activeShield?: ActiveShieldState;
 
     weapons: EnemyShipWeaponTelemetrySnapshot[];
 };
@@ -68,21 +44,12 @@ export type EnemyShipTelemetrySnapshot = {
 // находящихся у текущего navigation anchor.
 //
 // Query не отдаёт mutable encounter objects наружу.
-export function getEnemyShipTelemetrySnapshots(
-    state: EncounterState,
-): EnemyShipTelemetrySnapshot[] {
-    const anchorId =
-        getCurrentNavigationAnchorId(
-            state.navigation,
-        );
+export function getEnemyShipTelemetrySnapshots(state: EncounterState): EnemyShipTelemetrySnapshot[] {
+    const anchorId = getCurrentNavigationAnchorId(state.navigation);
 
     return state.actors
         .filter((actor) => {
-            return (
-                actor.team ===
-                    ENCOUNTER_TEAM.ENEMY &&
-                actor.anchorId === anchorId
-            );
+            return actor.team === ENCOUNTER_TEAM.ENEMY && actor.anchorId === anchorId;
         })
         .map((actor) => {
             return {
@@ -101,12 +68,7 @@ export function getEnemyShipTelemetrySnapshots(
                     ...actor.evade,
                 },
 
-                evadeDurationMs:
-                    SHIP_DRIVES[
-                        actor.drive
-                            .driveId
-                    ]
-                        .evadeDurationMs,
+                evadeDurationMs: SHIP_DRIVES[actor.drive.driveId].evadeDurationMs,
 
                 ...(actor.powerCore
                     ? {
@@ -124,23 +86,19 @@ export function getEnemyShipTelemetrySnapshots(
                       }
                     : {}),
 
-                weapons: actor.weapons.map(
-                    (weapon) => {
-                        return {
-                            id: weapon.id,
+                weapons: actor.weapons.map((weapon) => {
+                    return {
+                        id: weapon.id,
 
-                            kind: weapon.kind,
-                            phase: weapon.phase,
-                        };
-                    },
-                ),
+                        kind: weapon.kind,
+                        phase: weapon.phase,
+                    };
+                }),
             };
         });
 }
 
-function getCurrentNavigationAnchorId(
-    navigation: PlayerSpaceNavigationState,
-): string {
+function getCurrentNavigationAnchorId(navigation: PlayerSpaceNavigationState): string {
     switch (navigation.kind) {
         case PLAYER_SPACE_NAVIGATION_KIND.ARRIVING:
             return navigation.targetAnchorId;
@@ -157,7 +115,5 @@ function getCurrentNavigationAnchorId(
 }
 
 function assertNever(value: never): never {
-    throw new Error(
-        `Unhandled player navigation: ${String(value)}`,
-    );
+    throw new Error(`Unhandled player navigation: ${String(value)}`);
 }

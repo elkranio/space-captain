@@ -1,7 +1,7 @@
 // src/app/scenes/system/preload/Preload.ts
 
-import P34TOptions from '../../../../config/p34t.options';
-import { SCENE_KEY } from '../../scene_key';
+import P34TOptions from "../../../../config/p34t.options";
+import { SCENE_KEY } from "../../scene_key";
 
 export default class Preload extends Phaser.Scene {
     constructor() {
@@ -11,7 +11,7 @@ export default class Preload extends Phaser.Scene {
     init(): void {
         const { width, height } = this.scale;
 
-        this.add.image(width / 2, height / 2 - 100, 'preload_logo');
+        this.add.image(width / 2, height / 2 - 100, "preload_logo");
 
         const barBg = this.add.graphics();
 
@@ -20,7 +20,7 @@ export default class Preload extends Phaser.Scene {
 
         const barFill = this.add.graphics();
 
-        this.load.on('progress', (value: number) => {
+        this.load.on("progress", (value: number) => {
             barFill.clear();
             barFill.fillStyle(0xff950a);
 
@@ -29,13 +29,13 @@ export default class Preload extends Phaser.Scene {
     }
 
     preload(): void {
-        this.load.setPath('assets/images');
-        this.load.multiatlas('atlas', `atlas.json?v=${Math.random()}`);
-        this.load.setPath('');
+        this.load.setPath("assets/images");
+        this.load.multiatlas("atlas", `atlas.json?v=${Math.random()}`);
+        this.load.setPath("");
 
-        this.load.audioSprite('sfx', 'assets/sfx/sfx.json', ['assets/sfx/sfx.ogg', 'assets/sfx/sfx.mp3']);
+        this.load.audioSprite("sfx", "assets/sfx/sfx.json", ["assets/sfx/sfx.ogg", "assets/sfx/sfx.mp3"]);
 
-        this.load.audio('ost', 'assets/music/demo.ogg');
+        this.load.audio("ost", "assets/music/demo.ogg");
 
         for (const font of P34TOptions.fonts) {
             this.load.bitmapFont(font, `assets/fonts/${font}_0.png`, `assets/fonts/${font}.fnt`);

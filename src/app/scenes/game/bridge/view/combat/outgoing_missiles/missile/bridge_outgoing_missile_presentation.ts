@@ -3,10 +3,9 @@ export type BridgeOutgoingMissilePoint = {
     y: number;
 };
 
-export type BridgeOutgoingMissileTrailPoint =
-    BridgeOutgoingMissilePoint & {
-        pathProgress: number;
-    };
+export type BridgeOutgoingMissileTrailPoint = BridgeOutgoingMissilePoint & {
+    pathProgress: number;
+};
 
 export type BridgeOutgoingMissileWaypoint = {
     progress: number;
@@ -23,7 +22,7 @@ export const BRIDGE_OUTGOING_MISSILE_PRESENTATION = {
         {
             waypoints: [
                 {
-                    progress: 0.20,
+                    progress: 0.2,
                     offsetX: -240,
                     offsetY: -15,
                 },
@@ -33,7 +32,7 @@ export const BRIDGE_OUTGOING_MISSILE_PRESENTATION = {
                     offsetY: -60,
                 },
                 {
-                    progress: 0.70,
+                    progress: 0.7,
                     offsetX: -170,
                     offsetY: -45,
                 },
@@ -121,7 +120,7 @@ export const BRIDGE_OUTGOING_MISSILE_PRESENTATION = {
                     offsetY: 40,
                 },
                 {
-                    progress: 0.40,
+                    progress: 0.4,
                     offsetX: 240,
                     offsetY: 20,
                 },
@@ -152,7 +151,7 @@ export const BRIDGE_OUTGOING_MISSILE_PRESENTATION = {
                     offsetY: -30,
                 },
                 {
-                    progress: 0.40,
+                    progress: 0.4,
                     offsetX: 250,
                     offsetY: -100,
                 },
@@ -175,7 +174,7 @@ export const BRIDGE_OUTGOING_MISSILE_PRESENTATION = {
 
             missDirection: {
                 x: -1,
-                y: 0.10,
+                y: 0.1,
             },
         },
     ],
@@ -224,6 +223,6 @@ export const BRIDGE_OUTGOING_MISSILE_PRESENTATION = {
         targetParticleSize: 1,
 
         startAlpha: 0.78,
-        targetAlpha: 0.30,
+        targetAlpha: 0.3,
     },
 } as const;

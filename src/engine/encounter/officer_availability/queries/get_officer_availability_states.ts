@@ -1,16 +1,16 @@
 // src/engine/encounter/officer_availability/queries/get_officer_availability_states.ts
 
-import { OFFICER_ROLE, type OfficerRole } from '../../../defs/officer';
-import { PLAYER_SPACE_NAVIGATION_KIND } from '../../../defs/player_location';
-import { getOfficerCommandDef } from '../../commands/officer_command_handlers';
-import { getAvailableOfficerCommands } from '../../commands/queries/get_available_officer_commands';
+import { OFFICER_ROLE, type OfficerRole } from "../../../defs/officer";
+import { PLAYER_SPACE_NAVIGATION_KIND } from "../../../defs/player_location";
+import { getOfficerCommandDef } from "../../commands/officer_command_handlers";
+import { getAvailableOfficerCommands } from "../../commands/queries/get_available_officer_commands";
 import {
     OFFICER_AVAILABILITY_STATE,
     type OfficerAvailabilityState,
     type OfficerAvailabilityStates,
-} from '../../model/officer_availability';
-import type { OfficerTaskState } from '../../model/officer_task';
-import type { EncounterState } from '../../model/state';
+} from "../../model/officer_availability";
+import type { OfficerTaskState } from "../../model/officer_task";
+import type { EncounterState } from "../../model/state";
 
 const OFFICER_AVAILABILITY_ROLES = [
     OFFICER_ROLE.SCIENCE,

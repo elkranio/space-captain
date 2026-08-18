@@ -1,28 +1,16 @@
 // src/engine/encounter/state/create_encounter_state.ts
 
-import type {
-    PowerCoreState,
-} from '../../defs/power_core';
-import type {
-    ShipDefenseTurretState,
-} from '../../defs/defense_turret';
-import type {
-    PlayerHullState,
-} from '../../defs/player';
-import type { PlayerSpaceNavigationState } from '../../defs/player_location';
-import type { ShipDriveState } from '../../defs/ship_drive';
-import {
-    createReadyShipEvadeState,
-} from '../../defs/ship_evade';
-import type {
-    ShipWeaponState,
-} from '../../defs/ship_weapon';
-import type {
-    ShieldGeneratorState,
-} from '../../defs/shield_generator';
-import { SPACE_ANCHOR_KIND, type SpaceAnchorState, type SpaceNodeState } from '../../defs/universe';
-import { ENCOUNTER_ANCHOR_KIND, type EncounterAnchorState } from '../anchors/encounter_anchor';
-import type { EncounterState } from '../model/state';
+import type { PowerCoreState } from "../../defs/power_core";
+import type { ShipDefenseTurretState } from "../../defs/defense_turret";
+import type { PlayerHullState } from "../../defs/player";
+import type { PlayerSpaceNavigationState } from "../../defs/player_location";
+import type { ShipDriveState } from "../../defs/ship_drive";
+import { createReadyShipEvadeState } from "../../defs/ship_evade";
+import type { ShipWeaponState } from "../../defs/ship_weapon";
+import type { ShieldGeneratorState } from "../../defs/shield_generator";
+import { SPACE_ANCHOR_KIND, type SpaceAnchorState, type SpaceNodeState } from "../../defs/universe";
+import { ENCOUNTER_ANCHOR_KIND, type EncounterAnchorState } from "../anchors/encounter_anchor";
+import type { EncounterState } from "../model/state";
 
 export type CreateEncounterStateInput = {
     node: SpaceNodeState;
@@ -31,14 +19,11 @@ export type CreateEncounterStateInput = {
     playerHull: PlayerHullState;
     drive: ShipDriveState;
 
-    defenseTurret?:
-        ShipDefenseTurretState;
+    defenseTurret?: ShipDefenseTurretState;
 
-    powerCore?:
-        PowerCoreState;
+    powerCore?: PowerCoreState;
 
-    shieldGenerator?:
-        ShieldGeneratorState;
+    shieldGenerator?: ShieldGeneratorState;
 
     playerWeapons?: ShipWeaponState[];
 };
@@ -53,9 +38,7 @@ export function createEncounterState({
     shieldGenerator,
     playerWeapons = [],
 }: CreateEncounterStateInput): EncounterState {
-    validatePlayerHull(
-        playerHull,
-    );
+    validatePlayerHull(playerHull);
 
     return {
         spaceBackgroundId: node.spaceBackgroundId,
@@ -74,8 +57,7 @@ export function createEncounterState({
             ...drive,
         },
 
-        evade:
-            createReadyShipEvadeState(),
+        evade: createReadyShipEvadeState(),
 
         officerTasks: {},
 
@@ -116,14 +98,11 @@ export function createEncounterState({
 
             activeShield: null,
 
-            playerWeapons:
-                playerWeapons.map(
-                    (weapon) => {
-                        return {
-                            ...weapon,
-                        };
-                    },
-                ),
+            playerWeapons: playerWeapons.map((weapon) => {
+                return {
+                    ...weapon,
+                };
+            }),
 
             projectiles: [],
             beamCannonAttacks: [],
@@ -132,37 +111,13 @@ export function createEncounterState({
     };
 }
 
-function validatePlayerHull(
-    playerHull: PlayerHullState,
-): void {
-    if (
-        !Number.isFinite(
-            playerHull.maxHull,
-        ) ||
-        playerHull.maxHull <= 0
-    ) {
-        throw new Error(
-            'Player max hull must be positive: ' +
-                String(
-                    playerHull.maxHull,
-                ),
-        );
+function validatePlayerHull(playerHull: PlayerHullState): void {
+    if (!Number.isFinite(playerHull.maxHull) || playerHull.maxHull <= 0) {
+        throw new Error("Player max hull must be positive: " + String(playerHull.maxHull));
     }
 
-    if (
-        !Number.isFinite(
-            playerHull.hull,
-        ) ||
-        playerHull.hull < 0 ||
-        playerHull.hull >
-            playerHull.maxHull
-    ) {
-        throw new Error(
-            'Player hull must be in [0, maxHull]: ' +
-                playerHull.hull +
-                '/' +
-                playerHull.maxHull,
-        );
+    if (!Number.isFinite(playerHull.hull) || playerHull.hull < 0 || playerHull.hull > playerHull.maxHull) {
+        throw new Error("Player hull must be in [0, maxHull]: " + playerHull.hull + "/" + playerHull.maxHull);
     }
 }
 
@@ -194,7 +149,6 @@ function createEncounterAnchorState(anchor: SpaceAnchorState): EncounterAnchorSt
                 },
 
                 perspectiveDepth: 1,
-
             };
 
         case SPACE_ANCHOR_KIND.NAVIGATION_BEACON:

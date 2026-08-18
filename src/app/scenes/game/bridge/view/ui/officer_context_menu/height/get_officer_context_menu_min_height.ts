@@ -1,7 +1,7 @@
 // src/app/scenes/game/bridge/view/ui/officer_context_menu/height/get_officer_context_menu_min_height.ts
 
-import type { BridgeOfficerCommandMenuUpdatedPayload } from '../../../../events/bridge_event';
-import { OFFICER_CONTEXT_MENU_LAYOUT } from '../bridge_officer_context_menu_layout';
+import type { BridgeOfficerCommandMenuUpdatedPayload } from "../../../../events/bridge_event";
+import { OFFICER_CONTEXT_MENU_LAYOUT } from "../bridge_officer_context_menu_layout";
 
 // Pure layout helper для officer context menu.
 // Считает высоту panel по группам/items без доступа к Phaser view state.

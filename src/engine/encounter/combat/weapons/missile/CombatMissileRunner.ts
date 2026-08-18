@@ -1,16 +1,9 @@
 // src/engine/encounter/combat/CombatMissileRunner.ts
 
-import {
-    SHIP_WEAPONS,
-} from '../../../../content/catalogs/ship_weapons';
-import { ENCOUNTER_TEAM } from '../../../../defs/encounter_team';
-import {
-    MISSILE_SIGNATURE,
-    type MissileSignature,
-} from '../../../../defs/missile';
-import {
-    isShipEvading,
-} from '../../../../defs/ship_evade';
+import { SHIP_WEAPONS } from "../../../../content/catalogs/ship_weapons";
+import { ENCOUNTER_TEAM } from "../../../../defs/encounter_team";
+import { MISSILE_SIGNATURE, type MissileSignature } from "../../../../defs/missile";
+import { isShipEvading } from "../../../../defs/ship_evade";
 import {
     advanceShipWeaponCooldown,
     commitShipWeaponCooldown,
@@ -19,8 +12,8 @@ import {
     SHIP_WEAPON_PHASE,
     type MissileLauncherDefinition,
     type MissileLauncherState,
-} from '../../../../defs/ship_weapon';
-import type { ShipEncounterActorState } from '../../../actors/ship/ship_encounter_actor';
+} from "../../../../defs/ship_weapon";
+import type { ShipEncounterActorState } from "../../../actors/ship/ship_encounter_actor";
 import {
     COMBAT_PROJECTILE_KIND,
     COMBAT_SOURCE_KIND,
@@ -28,14 +21,11 @@ import {
     PLAYER_MISSILE_OUTCOME,
     MISSILE_SIGNATURE_INTEL_STATUS,
     type MissileCombatProjectileState,
-} from '../../../model/combat';
-import {
-    ENCOUNTER_EVENT,
-    type EncounterEvent,
-} from '../../../model/event';
-import type { EncounterState } from '../../../model/state';
-import EncounterStateStore from '../../../state/EncounterStateStore';
-import CombatRuntimeIdentityFactory from '../../CombatRuntimeIdentityFactory';
+} from "../../../model/combat";
+import { ENCOUNTER_EVENT, type EncounterEvent } from "../../../model/event";
+import type { EncounterState } from "../../../model/state";
+import EncounterStateStore from "../../../state/EncounterStateStore";
+import CombatRuntimeIdentityFactory from "../../CombatRuntimeIdentityFactory";
 
 export type PlayerMissileLaunchInput = {
     sourceWeaponId: string;
@@ -57,69 +47,47 @@ type CombatMissileRunnerOptions = {
 export default class CombatMissileRunner {
     private readonly state: EncounterState;
 
-    private readonly stateStore:
-        EncounterStateStore;
+    private readonly stateStore: EncounterStateStore;
 
-    private readonly identities:
-        CombatRuntimeIdentityFactory;
+    private readonly identities: CombatRuntimeIdentityFactory;
 
-    private readonly random:
-        () => number;
+    private readonly random: () => number;
 
-    private readonly emit:
-        (event: EncounterEvent) => void;
+    private readonly emit: (event: EncounterEvent) => void;
 
-    private readonly destroyEnemyActor:
-        (actorId: string) => void;
+    private readonly destroyEnemyActor: (actorId: string) => void;
 
-    private readonly pendingPlayerLaunches:
-        PlayerMissileLaunchInput[] = [];
+    private readonly pendingPlayerLaunches: PlayerMissileLaunchInput[] = [];
 
-    constructor({
-        stateStore,
-        identities,
-        random,
-        emit,
-        destroyEnemyActor,
-    }: CombatMissileRunnerOptions) {
+    constructor({ stateStore, identities, random, emit, destroyEnemyActor }: CombatMissileRunnerOptions) {
         this.stateStore = stateStore;
         this.identities = identities;
         this.random = random;
         this.emit = emit;
-        this.destroyEnemyActor =
-            destroyEnemyActor;
+        this.destroyEnemyActor = destroyEnemyActor;
 
-        this.state =
-            this.stateStore
-                .getState();
+        this.state = this.stateStore.getState();
     }
 
     public captureExistingProjectileIds(): string[] {
-        return this.state.combat
-            .projectiles
+        return this.state.combat.projectiles
             .map((projectile) => {
                 return projectile.id;
             })
             .reverse();
     }
 
-    public queuePlayerLaunch(
-        input: PlayerMissileLaunchInput,
-    ): void {
+    public queuePlayerLaunch(input: PlayerMissileLaunchInput): void {
         this.pendingPlayerLaunches.push({
             ...input,
         });
     }
 
     public integratePendingPlayerLaunches(): void {
-        const launches =
-            this.pendingPlayerLaunches
-                .splice(0);
+        const launches = this.pendingPlayerLaunches.splice(0);
 
         for (const launch of launches) {
-            this.createPlayerProjectile(
-                launch,
-            );
+            this.createPlayerProjectile(launch);
         }
     }
 
@@ -129,168 +97,94 @@ export default class CombatMissileRunner {
         deltaMs: number,
         worldDeltaMs: number,
     ): void {
-        const definition =
-            this.getLauncherDefinition(
-                launcher,
-            );
+        const definition = this.getLauncherDefinition(launcher);
 
-        advanceShipWeaponCooldown(
-            launcher,
-            definition.cooldownDurationMs,
-            worldDeltaMs,
-        );
+        advanceShipWeaponCooldown(launcher, definition.cooldownDurationMs, worldDeltaMs);
 
         switch (launcher.phase) {
             case SHIP_WEAPON_PHASE.READY:
                 return;
 
             case SHIP_WEAPON_PHASE.TARGETING:
-                this.advanceTargeting(
-                    actor,
-                    launcher,
-                    deltaMs,
-                );
+                this.advanceTargeting(actor, launcher, deltaMs);
                 return;
 
             case SHIP_WEAPON_PHASE.COOLDOWN:
                 return;
 
             case SHIP_WEAPON_PHASE.CHARGING:
-                throw new Error(
-                    `Missile launcher cannot enter charging phase: ` +
-                        `${actor.id}/${launcher.id}`,
-                );
+                throw new Error(`Missile launcher cannot enter charging phase: ` + `${actor.id}/${launcher.id}`);
 
             case SHIP_WEAPON_PHASE.CHANNELING:
-                throw new Error(
-                    `Missile launcher cannot enter channeling phase: ` +
-                        `${actor.id}/${launcher.id}`,
-                );
+                throw new Error(`Missile launcher cannot enter channeling phase: ` + `${actor.id}/${launcher.id}`);
 
             case SHIP_WEAPON_PHASE.DISPENSING:
-                throw new Error(
-                    `Missile launcher cannot enter dispensing phase: ` +
-                        `${actor.id}/${launcher.id}`,
-                );
+                throw new Error(`Missile launcher cannot enter dispensing phase: ` + `${actor.id}/${launcher.id}`);
         }
     }
 
-    private launchEnemyMissile(
-        actor: ShipEncounterActorState,
-        launcher: MissileLauncherState,
-    ): void {
-        if (
-            launcher.ammoCount <= 0
-        ) {
-            throw new Error(
-                `Cannot launch missile from empty launcher: ` +
-                    `${actor.id}/${launcher.id}`,
-            );
+    private launchEnemyMissile(actor: ShipEncounterActorState, launcher: MissileLauncherState): void {
+        if (launcher.ammoCount <= 0) {
+            throw new Error(`Cannot launch missile from empty launcher: ` + `${actor.id}/${launcher.id}`);
         }
 
-        const definition =
-            this.getLauncherDefinition(
-                launcher,
-            );
+        const definition = this.getLauncherDefinition(launcher);
 
-        const signature =
-            this.createMissileSignature();
+        const signature = this.createMissileSignature();
 
         launcher.ammoCount -= 1;
 
         // Missile commitment happens at physical launch, after targeting.
-        commitShipWeaponCooldown(
-            launcher,
-            definition.cooldownDurationMs,
-        );
+        commitShipWeaponCooldown(launcher, definition.cooldownDurationMs);
 
-        finishShipWeaponAction(
-            launcher,
-            definition.cooldownDurationMs,
-        );
+        finishShipWeaponAction(launcher, definition.cooldownDurationMs);
 
-        const projectile:
-            MissileCombatProjectileState = {
-                id:
-                    this.identities
-                        .createProjectileId(),
+        const projectile: MissileCombatProjectileState = {
+            id: this.identities.createProjectileId(),
 
-                designation:
-                    this.identities
-                        .createThreatDesignation(
-                            'M',
-                        ),
+            designation: this.identities.createThreatDesignation("M"),
 
-                kind:
-                    COMBAT_PROJECTILE_KIND
-                        .MISSILE,
+            kind: COMBAT_PROJECTILE_KIND.MISSILE,
 
-                source: {
-                    kind:
-                        COMBAT_SOURCE_KIND.ACTOR,
+            source: {
+                kind: COMBAT_SOURCE_KIND.ACTOR,
 
-                    actorId: actor.id,
-                },
+                actorId: actor.id,
+            },
 
-                sourceWeaponId:
-                    launcher.id,
+            sourceWeaponId: launcher.id,
 
-                target: {
-                    kind:
-                        COMBAT_TARGET_KIND
-                            .PLAYER_SHIP,
-                },
+            target: {
+                kind: COMBAT_TARGET_KIND.PLAYER_SHIP,
+            },
 
-                signature,
+            signature,
 
-                identification: {
-                    status:
-                        MISSILE_SIGNATURE_INTEL_STATUS
-                            .UNKNOWN,
-                },
+            identification: {
+                status: MISSILE_SIGNATURE_INTEL_STATUS.UNKNOWN,
+            },
 
-                damage:
-                    definition.damage,
+            damage: definition.damage,
 
-                timeToImpactMs:
-                    definition.flightDurationMs,
+            timeToImpactMs: definition.flightDurationMs,
 
-                initialTimeToImpactMs:
-                    definition.flightDurationMs,
-            };
+            initialTimeToImpactMs: definition.flightDurationMs,
+        };
 
-        this.state.combat
-            .projectiles
-            .push(projectile);
+        this.state.combat.projectiles.push(projectile);
 
         this.emit({
-            type:
-                ENCOUNTER_EVENT
-                    .MISSILE_LAUNCHED,
+            type: ENCOUNTER_EVENT.MISSILE_LAUNCHED,
 
             projectile,
         });
     }
 
-    public advanceExistingProjectiles(
-        projectileIds: readonly string[],
-        deltaMs: number,
-    ): void {
-        for (
-            const projectileId of
-            projectileIds
-        ) {
-            const index =
-                this.state.combat
-                    .projectiles
-                    .findIndex(
-                        (projectile) => {
-                            return (
-                                projectile.id ===
-                                projectileId
-                            );
-                        },
-                    );
+    public advanceExistingProjectiles(projectileIds: readonly string[], deltaMs: number): void {
+        for (const projectileId of projectileIds) {
+            const index = this.state.combat.projectiles.findIndex((projectile) => {
+                return projectile.id === projectileId;
+            });
 
             // A previous lethal resolution may have removed this projectile
             // during the same combat step.
@@ -298,439 +192,234 @@ export default class CombatMissileRunner {
                 continue;
             }
 
-            const projectile =
-                this.state.combat
-                    .projectiles[index];
+            const projectile = this.state.combat.projectiles[index];
 
-            if (
-                projectile.target.kind ===
-                COMBAT_TARGET_KIND
-                    .PLAYER_SHIP
-            ) {
-                this.advanceIncomingMissile(
-                    index,
-                    projectile,
-                    deltaMs,
-                );
+            if (projectile.target.kind === COMBAT_TARGET_KIND.PLAYER_SHIP) {
+                this.advanceIncomingMissile(index, projectile, deltaMs);
 
                 continue;
             }
 
-            this.advancePlayerMissile(
-                index,
-                projectile,
-                projectile.target.actorId,
-                deltaMs,
-            );
+            this.advancePlayerMissile(index, projectile, projectile.target.actorId, deltaMs);
         }
     }
 
-    public removePlayerMissilesTargetingActor(
-        actorId: string,
-    ): void {
-        for (
-            let index =
-                this.state.combat
-                    .projectiles.length - 1;
-
-            index >= 0;
-
-            index -= 1
-        ) {
-            const projectile =
-                this.state.combat
-                    .projectiles[index];
+    public removePlayerMissilesTargetingActor(actorId: string): void {
+        for (let index = this.state.combat.projectiles.length - 1; index >= 0; index -= 1) {
+            const projectile = this.state.combat.projectiles[index];
 
             if (
-                projectile.source.kind !==
-                    COMBAT_SOURCE_KIND
-                        .PLAYER_SHIP ||
-                projectile.target.kind !==
-                    COMBAT_TARGET_KIND.ACTOR ||
-                projectile.target.actorId !==
-                    actorId
+                projectile.source.kind !== COMBAT_SOURCE_KIND.PLAYER_SHIP ||
+                projectile.target.kind !== COMBAT_TARGET_KIND.ACTOR ||
+                projectile.target.actorId !== actorId
             ) {
                 continue;
             }
 
-            this.resolvePlayerMissileTargetLost(
-                index,
-                projectile,
-            );
+            this.resolvePlayerMissileTargetLost(index, projectile);
         }
     }
 
-    public interceptPlayerMissile(
-        projectileId: string,
-        targetActorId: string,
-    ): MissileCombatProjectileState {
-        const index =
-            this.state
-                .combat
-                .projectiles
-                .findIndex((projectile) => {
-                    return (
-                        projectile.id ===
-                        projectileId
-                    );
-                });
+    public interceptPlayerMissile(projectileId: string, targetActorId: string): MissileCombatProjectileState {
+        const index = this.state.combat.projectiles.findIndex((projectile) => {
+            return projectile.id === projectileId;
+        });
 
-        const projectile =
-            this.state
-                .combat
-                .projectiles[index];
+        const projectile = this.state.combat.projectiles[index];
 
         if (
             index < 0 ||
             !projectile ||
-            projectile.source.kind !==
-                COMBAT_SOURCE_KIND
-                    .PLAYER_SHIP ||
-            projectile.target.kind !==
-                COMBAT_TARGET_KIND.ACTOR ||
-            projectile.target.actorId !==
-                targetActorId
+            projectile.source.kind !== COMBAT_SOURCE_KIND.PLAYER_SHIP ||
+            projectile.target.kind !== COMBAT_TARGET_KIND.ACTOR ||
+            projectile.target.actorId !== targetActorId
         ) {
-            throw new Error(
-                'Cannot intercept player missile: ' +
-                    targetActorId +
-                    '/' +
-                    projectileId,
-            );
+            throw new Error("Cannot intercept player missile: " + targetActorId + "/" + projectileId);
         }
 
-        this.state.combat
-            .projectiles
-            .splice(index, 1);
+        this.state.combat.projectiles.splice(index, 1);
 
         this.emit({
-            type:
-                ENCOUNTER_EVENT
-                    .PLAYER_MISSILE_RESOLVED,
+            type: ENCOUNTER_EVENT.PLAYER_MISSILE_RESOLVED,
 
             projectile,
 
-            outcome:
-                PLAYER_MISSILE_OUTCOME
-                    .INTERCEPTED,
+            outcome: PLAYER_MISSILE_OUTCOME.INTERCEPTED,
         });
 
         return projectile;
     }
 
-    private advanceTargeting(
-        actor: ShipEncounterActorState,
-        launcher: MissileLauncherState,
-        deltaMs: number,
-    ): void {
-        const elapsedMs =
-            launcher.phaseElapsedMs + deltaMs;
+    private advanceTargeting(actor: ShipEncounterActorState, launcher: MissileLauncherState, deltaMs: number): void {
+        const elapsedMs = launcher.phaseElapsedMs + deltaMs;
 
-        if (
-            elapsedMs <
-            this.getLauncherDefinition(launcher).targetingDurationMs
-        ) {
+        if (elapsedMs < this.getLauncherDefinition(launcher).targetingDurationMs) {
             launcher.phaseElapsedMs = elapsedMs;
             return;
         }
 
-        launcher.phaseElapsedMs =
-            this.getLauncherDefinition(launcher).targetingDurationMs;
+        launcher.phaseElapsedMs = this.getLauncherDefinition(launcher).targetingDurationMs;
 
-        this.launchEnemyMissile(
-            actor,
-            launcher,
-        );
+        this.launchEnemyMissile(actor, launcher);
     }
 
-    private getLauncherDefinition(
-        launcher: MissileLauncherState,
-    ): MissileLauncherDefinition {
-        const definition =
-            SHIP_WEAPONS[launcher.weaponId];
+    private getLauncherDefinition(launcher: MissileLauncherState): MissileLauncherDefinition {
+        const definition = SHIP_WEAPONS[launcher.weaponId];
 
-        if (
-            definition.kind !==
-            SHIP_WEAPON_KIND
-                .MISSILE_LAUNCHER
-        ) {
+        if (definition.kind !== SHIP_WEAPON_KIND.MISSILE_LAUNCHER) {
             throw new Error(
-                `Missile launcher kind does not match definition: ` +
-                    `${launcher.id}/${launcher.weaponId}`,
+                `Missile launcher kind does not match definition: ` + `${launcher.id}/${launcher.weaponId}`,
             );
         }
 
         return definition;
     }
 
-    private createPlayerProjectile(
-        launch: PlayerMissileLaunchInput,
-    ): void {
-        const target =
-            this.state.actors.find(
-                (actor) => {
-                    return (
-                        actor.id ===
-                        launch.targetActorId
-                    );
-                },
-            );
+    private createPlayerProjectile(launch: PlayerMissileLaunchInput): void {
+        const target = this.state.actors.find((actor) => {
+            return actor.id === launch.targetActorId;
+        });
 
-        if (
-            !target ||
-            target.team !==
-                ENCOUNTER_TEAM.ENEMY ||
-            target.hull <= 0
-        ) {
+        if (!target || target.team !== ENCOUNTER_TEAM.ENEMY || target.hull <= 0) {
             throw new Error(
-                'Cannot launch player missile ' +
-                    'at invalid target: ' +
+                "Cannot launch player missile " +
+                    "at invalid target: " +
                     `${launch.sourceWeaponId}/` +
                     `${launch.targetActorId}`,
             );
         }
 
-        const launcher =
-            this.stateStore
-                .findPlayerWeaponById(
-                    launch.sourceWeaponId,
-                );
+        const launcher = this.stateStore.findPlayerWeaponById(launch.sourceWeaponId);
 
-        if (
-            !launcher ||
-            launcher.kind !==
-                SHIP_WEAPON_KIND
-                    .MISSILE_LAUNCHER
-        ) {
-            throw new Error(
-                'Cannot create player missile from launcher: ' +
-                    launch.sourceWeaponId,
-            );
+        if (!launcher || launcher.kind !== SHIP_WEAPON_KIND.MISSILE_LAUNCHER) {
+            throw new Error("Cannot create player missile from launcher: " + launch.sourceWeaponId);
         }
 
-        const definition =
-            this.getLauncherDefinition(
-                launcher,
-            );
+        const definition = this.getLauncherDefinition(launcher);
 
-        const signature =
-            this.createMissileSignature();
+        const signature = this.createMissileSignature();
 
-        const projectile:
-            MissileCombatProjectileState = {
-                id:
-                    this.identities
-                        .createProjectileId(),
+        const projectile: MissileCombatProjectileState = {
+            id: this.identities.createProjectileId(),
 
-                designation:
-                    this.identities
-                        .createThreatDesignation(
-                            'M',
-                        ),
+            designation: this.identities.createThreatDesignation("M"),
 
-                kind:
-                    COMBAT_PROJECTILE_KIND
-                        .MISSILE,
+            kind: COMBAT_PROJECTILE_KIND.MISSILE,
 
-                source: {
-                    kind:
-                        COMBAT_SOURCE_KIND
-                            .PLAYER_SHIP,
-                },
+            source: {
+                kind: COMBAT_SOURCE_KIND.PLAYER_SHIP,
+            },
 
-                sourceWeaponId:
-                    launch.sourceWeaponId,
+            sourceWeaponId: launch.sourceWeaponId,
 
-                target: {
-                    kind:
-                        COMBAT_TARGET_KIND.ACTOR,
+            target: {
+                kind: COMBAT_TARGET_KIND.ACTOR,
 
-                    actorId:
-                        launch.targetActorId,
-                },
+                actorId: launch.targetActorId,
+            },
 
-                signature,
+            signature,
 
-                identification: {
-                    status:
-                        MISSILE_SIGNATURE_INTEL_STATUS
-                            .CONFIRMED,
+            identification: {
+                status: MISSILE_SIGNATURE_INTEL_STATUS.CONFIRMED,
 
-                    hypothesis:
-                        signature,
-                },
+                hypothesis: signature,
+            },
 
-                damage:
-                    definition.damage,
+            damage: definition.damage,
 
-                timeToImpactMs:
-                    definition.flightDurationMs,
+            timeToImpactMs: definition.flightDurationMs,
 
-                initialTimeToImpactMs:
-                    definition.flightDurationMs,
-            };
+            initialTimeToImpactMs: definition.flightDurationMs,
+        };
 
-        this.state.combat
-            .projectiles
-            .push(projectile);
+        this.state.combat.projectiles.push(projectile);
 
         this.emit({
-            type:
-                ENCOUNTER_EVENT
-                    .PLAYER_MISSILE_LAUNCHED,
+            type: ENCOUNTER_EVENT.PLAYER_MISSILE_LAUNCHED,
 
             projectile,
         });
     }
-    private createMissileSignature():
-        MissileSignature {
-        return this.random() < 0.5
-            ? MISSILE_SIGNATURE.A
-            : MISSILE_SIGNATURE.B;
+    private createMissileSignature(): MissileSignature {
+        return this.random() < 0.5 ? MISSILE_SIGNATURE.A : MISSILE_SIGNATURE.B;
     }
 
-    private advanceIncomingMissile(
-        index: number,
-        projectile:
-            MissileCombatProjectileState,
-        deltaMs: number,
-    ): void {
-        projectile.timeToImpactMs =
-            Math.max(
-                0,
-                projectile.timeToImpactMs -
-                    deltaMs,
-            );
+    private advanceIncomingMissile(index: number, projectile: MissileCombatProjectileState, deltaMs: number): void {
+        projectile.timeToImpactMs = Math.max(0, projectile.timeToImpactMs - deltaMs);
 
-        if (
-            projectile.timeToImpactMs >
-            0
-        ) {
+        if (projectile.timeToImpactMs > 0) {
             return;
         }
 
-        this.resolveMissileImpactOnPlayerShip(
-            index,
-            projectile,
-        );
+        this.resolveMissileImpactOnPlayerShip(index, projectile);
     }
 
     private advancePlayerMissile(
         index: number,
-        projectile:
-            MissileCombatProjectileState,
+        projectile: MissileCombatProjectileState,
         targetActorId: string,
         deltaMs: number,
     ): void {
-        if (
-            projectile.source.kind !==
-            COMBAT_SOURCE_KIND.PLAYER_SHIP
-        ) {
+        if (projectile.source.kind !== COMBAT_SOURCE_KIND.PLAYER_SHIP) {
             throw new Error(
-                'Actor-target missile has ' +
-                    'unsupported source: ' +
+                "Actor-target missile has " +
+                    "unsupported source: " +
                     `${projectile.id}/` +
                     `${projectile.source.kind}`,
             );
         }
 
-        const target =
-            this.state.actors.find(
-                (actor) => {
-                    return (
-                        actor.id ===
-                        targetActorId
-                    );
-                },
-            );
+        const target = this.state.actors.find((actor) => {
+            return actor.id === targetActorId;
+        });
 
-        if (
-            !target ||
-            target.team !==
-                ENCOUNTER_TEAM.ENEMY ||
-            target.hull <= 0
-        ) {
-            this.resolvePlayerMissileTargetLost(
-                index,
-                projectile,
-            );
+        if (!target || target.team !== ENCOUNTER_TEAM.ENEMY || target.hull <= 0) {
+            this.resolvePlayerMissileTargetLost(index, projectile);
 
             return;
         }
 
-        projectile.timeToImpactMs =
-            Math.max(
-                0,
-                projectile.timeToImpactMs -
-                    deltaMs,
-            );
+        projectile.timeToImpactMs = Math.max(0, projectile.timeToImpactMs - deltaMs);
 
-        if (
-            projectile.timeToImpactMs >
-            0
-        ) {
+        if (projectile.timeToImpactMs > 0) {
             return;
         }
 
-        this.resolvePlayerMissileImpact(
-            index,
-            projectile,
-            target,
-        );
+        this.resolvePlayerMissileImpact(index, projectile, target);
     }
 
-    private resolvePlayerMissileTargetLost(
-        index: number,
-        projectile:
-            MissileCombatProjectileState,
-    ): void {
+    private resolvePlayerMissileTargetLost(index: number, projectile: MissileCombatProjectileState): void {
         if (
-            projectile.source.kind !==
-                COMBAT_SOURCE_KIND
-                    .PLAYER_SHIP ||
-            projectile.target.kind !==
-                COMBAT_TARGET_KIND.ACTOR
+            projectile.source.kind !== COMBAT_SOURCE_KIND.PLAYER_SHIP ||
+            projectile.target.kind !== COMBAT_TARGET_KIND.ACTOR
         ) {
             throw new Error(
-                'Cannot resolve player missile target loss for route: ' +
+                "Cannot resolve player missile target loss for route: " +
                     projectile.id +
-                    '/' +
+                    "/" +
                     projectile.source.kind +
-                    '/' +
+                    "/" +
                     projectile.target.kind,
             );
         }
 
-        this.state.combat
-            .projectiles
-            .splice(index, 1);
+        this.state.combat.projectiles.splice(index, 1);
 
         this.emit({
-            type:
-                ENCOUNTER_EVENT
-                    .PLAYER_MISSILE_RESOLVED,
+            type: ENCOUNTER_EVENT.PLAYER_MISSILE_RESOLVED,
 
             projectile,
 
-            outcome:
-                PLAYER_MISSILE_OUTCOME
-                    .TARGET_LOST,
+            outcome: PLAYER_MISSILE_OUTCOME.TARGET_LOST,
         });
     }
 
-    private resolveMissileImpactOnPlayerShip(
-        index: number,
-        projectile:
-            MissileCombatProjectileState,
-    ): void {
-        if (
-            projectile.target.kind !==
-                COMBAT_TARGET_KIND
-                    .PLAYER_SHIP
-        ) {
+    private resolveMissileImpactOnPlayerShip(index: number, projectile: MissileCombatProjectileState): void {
+        if (projectile.target.kind !== COMBAT_TARGET_KIND.PLAYER_SHIP) {
             throw new Error(
-                'Cannot resolve incoming missile ' +
-                    'impact for target: ' +
+                "Cannot resolve incoming missile " +
+                    "impact for target: " +
                     `${projectile.id}/` +
                     `${projectile.target.kind}`,
             );
@@ -738,9 +427,7 @@ export default class CombatMissileRunner {
 
         projectile.timeToImpactMs = 0;
 
-        this.state.combat
-            .projectiles
-            .splice(index, 1);
+        this.state.combat.projectiles.splice(index, 1);
 
         // Evade resolves at the physical impact edge.
         //
@@ -749,24 +436,14 @@ export default class CombatMissileRunner {
         // do not emit MISSILE_IMPACTED_PLAYER_SHIP here: bridge presentation
         // reconciles the missing projectile from the next full snapshot, so
         // a miss disappears without hit shake / hit feedback.
-        if (
-            isShipEvading(
-                this.state.evade,
-            )
-        ) {
+        if (isShipEvading(this.state.evade)) {
             return;
         }
 
-        const damageResult =
-            this.stateStore
-                .damagePlayerHull(
-                    projectile.damage,
-                );
+        const damageResult = this.stateStore.damagePlayerHull(projectile.damage);
 
         this.emit({
-            type:
-                ENCOUNTER_EVENT
-                    .MISSILE_IMPACTED_PLAYER_SHIP,
+            type: ENCOUNTER_EVENT.MISSILE_IMPACTED_PLAYER_SHIP,
 
             projectile,
 
@@ -776,68 +453,44 @@ export default class CombatMissileRunner {
 
     private resolvePlayerMissileImpact(
         index: number,
-        projectile:
-            MissileCombatProjectileState,
-        target:
-            ShipEncounterActorState,
+        projectile: MissileCombatProjectileState,
+        target: ShipEncounterActorState,
     ): void {
         projectile.timeToImpactMs = 0;
 
-        this.state.combat
-            .projectiles
-            .splice(index, 1);
+        this.state.combat.projectiles.splice(index, 1);
 
         // Evade resolves at the physical impact edge.
         // The projectile has completed its authoritative flight and is removed,
         // but an actively evading target takes no hull damage.
-        if (
-            isShipEvading(
-                target.evade,
-            )
-        ) {
+        if (isShipEvading(target.evade)) {
             this.emit({
-                type:
-                    ENCOUNTER_EVENT
-                        .PLAYER_MISSILE_RESOLVED,
+                type: ENCOUNTER_EVENT.PLAYER_MISSILE_RESOLVED,
 
                 projectile,
 
-                outcome:
-                    PLAYER_MISSILE_OUTCOME
-                        .MISS,
+                outcome: PLAYER_MISSILE_OUTCOME.MISS,
             });
 
             return;
         }
 
-        const damageResult =
-            this.stateStore
-                .damageEnemyActorHull(
-                    target.id,
-                    projectile.damage,
-                );
+        const damageResult = this.stateStore.damageEnemyActorHull(target.id, projectile.damage);
 
         this.emit({
-            type:
-                ENCOUNTER_EVENT
-                    .PLAYER_MISSILE_RESOLVED,
+            type: ENCOUNTER_EVENT.PLAYER_MISSILE_RESOLVED,
 
             projectile,
 
-            outcome:
-                PLAYER_MISSILE_OUTCOME.HIT,
+            outcome: PLAYER_MISSILE_OUTCOME.HIT,
 
-            damage:
-                damageResult.appliedDamage,
+            damage: damageResult.appliedDamage,
 
-            remainingHull:
-                damageResult.remainingHull,
+            remainingHull: damageResult.remainingHull,
         });
 
         if (damageResult.destroyed) {
-            this.destroyEnemyActor(
-                target.id,
-            );
+            this.destroyEnemyActor(target.id);
         }
     }
 }

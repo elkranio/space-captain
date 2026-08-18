@@ -1,7 +1,7 @@
 // src/app/scenes/game/bridge/view/vfx/viewscreen_dust/BridgeViewscreenDustView.ts
 
-import type BridgeScene from '../../../BridgeScene';
-import { BRIDGE_VIEWSCREEN_RECT } from '../../bridge_viewscreen_layout';
+import type BridgeScene from "../../../BridgeScene";
+import { BRIDGE_VIEWSCREEN_RECT } from "../../bridge_viewscreen_layout";
 
 const DUST_PARTICLE_COUNT = 42;
 const DUST_TICK_MS = 45;

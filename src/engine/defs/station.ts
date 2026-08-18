@@ -1,16 +1,16 @@
 // src/engine/defs/station.ts
 
-import type { CharacterPortraitId } from './character';
-import type { SpeciesId } from './species';
+import type { CharacterPortraitId } from "./character";
+import type { SpeciesId } from "./species";
 
 // Стабильные id визуальных вариантов станций.
 // App-слой мапит эти id на конкретные atlas/frame.
 export const STATION_OBJECT_SPRITE_ID = {
-    HUMAN_SMALL_00: 'human_small_00',
-    HUMAN_SMALL_01: 'human_small_01',
+    HUMAN_SMALL_00: "human_small_00",
+    HUMAN_SMALL_01: "human_small_01",
 
-    ALIEN_SMALL_00: 'alien_small_00',
-    ALIEN_SMALL_01: 'alien_small_01',
+    ALIEN_SMALL_00: "alien_small_00",
+    ALIEN_SMALL_01: "alien_small_01",
 } as const;
 
 export type StationObjectSpriteId = (typeof STATION_OBJECT_SPRITE_ID)[keyof typeof STATION_OBJECT_SPRITE_ID];

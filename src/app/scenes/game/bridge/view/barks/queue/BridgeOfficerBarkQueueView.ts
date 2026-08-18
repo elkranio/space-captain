@@ -1,9 +1,9 @@
 // src/app/scenes/game/bridge/view/barks/queue/BridgeOfficerBarkQueueView.ts
 
-import type BridgeScene from '../../../BridgeScene';
-import { UI_EVENT } from '../../ui/ui_event';
-import BridgeOfficerBarkBubbleView from '../bubble/BridgeOfficerBarkBubbleView';
-import type { OfficerBarkPosition } from '../bridge_officer_bark_layout';
+import type BridgeScene from "../../../BridgeScene";
+import { UI_EVENT } from "../../ui/ui_event";
+import BridgeOfficerBarkBubbleView from "../bubble/BridgeOfficerBarkBubbleView";
+import type { OfficerBarkPosition } from "../bridge_officer_bark_layout";
 
 const BARK_DURATION_MS = 2500;
 

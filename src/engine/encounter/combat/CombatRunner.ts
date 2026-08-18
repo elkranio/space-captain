@@ -1,28 +1,19 @@
 // src/engine/encounter/combat/CombatRunner.ts
 
-import {
-    doesDefenseTurretPhaseAdvanceWithCrew,
-} from '../../defs/defense_turret';
-import {
-    doesShipWeaponPhaseAdvanceWithCrew,
-    SHIP_WEAPON_KIND,
-} from '../../defs/ship_weapon';
-import type { EncounterEvent } from '../model/event';
-import type { EncounterState } from '../model/state';
-import EncounterStateStore from '../state/EncounterStateStore';
-import CombatBeamCannonRunner from './weapons/beam_cannon/CombatBeamCannonRunner';
-import EnemyDefenseTurretRunner from './defense_turret/EnemyDefenseTurretRunner';
-import EnemyShieldRunner from './defense/EnemyShieldRunner';
-import CombatMissileRunner, {
-    type PlayerMissileLaunchInput,
-} from './weapons/missile/CombatMissileRunner';
-import CombatRuntimeIdentityFactory from './CombatRuntimeIdentityFactory';
-import CrewPerformanceResolver from '../crew_performance/CrewPerformanceResolver';
-import CombatSpamRunner from './weapons/spam/CombatSpamRunner';
-import CombatStickyMineRunner, {
-    type PlayerStickyMineAttachInput,
-} from './weapons/sticky_mine/CombatStickyMineRunner';
-import EnemyBehaviorRunner from './enemy/EnemyBehaviorRunner';
+import { doesDefenseTurretPhaseAdvanceWithCrew } from "../../defs/defense_turret";
+import { doesShipWeaponPhaseAdvanceWithCrew, SHIP_WEAPON_KIND } from "../../defs/ship_weapon";
+import type { EncounterEvent } from "../model/event";
+import type { EncounterState } from "../model/state";
+import EncounterStateStore from "../state/EncounterStateStore";
+import CombatBeamCannonRunner from "./weapons/beam_cannon/CombatBeamCannonRunner";
+import EnemyDefenseTurretRunner from "./defense_turret/EnemyDefenseTurretRunner";
+import EnemyShieldRunner from "./defense/EnemyShieldRunner";
+import CombatMissileRunner, { type PlayerMissileLaunchInput } from "./weapons/missile/CombatMissileRunner";
+import CombatRuntimeIdentityFactory from "./CombatRuntimeIdentityFactory";
+import CrewPerformanceResolver from "../crew_performance/CrewPerformanceResolver";
+import CombatSpamRunner from "./weapons/spam/CombatSpamRunner";
+import CombatStickyMineRunner, { type PlayerStickyMineAttachInput } from "./weapons/sticky_mine/CombatStickyMineRunner";
+import EnemyBehaviorRunner from "./enemy/EnemyBehaviorRunner";
 
 type CombatStepExistingObjectIds = {
     projectileIds: string[];
@@ -38,13 +29,9 @@ type CombatRunnerOptions = {
 
     interruptRandomOfficerTask: () => void;
 
-    purgePlayerSpamChannel: (
-        channelId: string,
-        targetActorId: string,
-    ) => boolean;
+    purgePlayerSpamChannel: (channelId: string, targetActorId: string) => boolean;
 
-    destroyEnemyActor:
-        (actorId: string) => void;
+    destroyEnemyActor: (actorId: string) => void;
 };
 
 // Владеет боевым циклом encounter:
@@ -58,8 +45,7 @@ type CombatRunnerOptions = {
 // Корабли, оружие и угрозы остаются частью EncounterState.
 // Статические параметры моделей оружия читаются из content.
 export default class CombatRunner {
-    private readonly stateStore:
-        EncounterStateStore;
+    private readonly stateStore: EncounterStateStore;
 
     private readonly state: EncounterState;
 
@@ -67,37 +53,25 @@ export default class CombatRunner {
 
     private readonly interruptRandomOfficerTask: () => void;
 
-    private readonly destroyEnemyActor:
-        CombatRunnerOptions[
-            'destroyEnemyActor'
-        ];
+    private readonly destroyEnemyActor: CombatRunnerOptions["destroyEnemyActor"];
 
-    private readonly enemyBehaviorRunner:
-        EnemyBehaviorRunner;
+    private readonly enemyBehaviorRunner: EnemyBehaviorRunner;
 
-    private readonly enemyShieldRunner:
-        EnemyShieldRunner;
+    private readonly enemyShieldRunner: EnemyShieldRunner;
 
-    private readonly identities:
-        CombatRuntimeIdentityFactory;
+    private readonly identities: CombatRuntimeIdentityFactory;
 
-    private readonly missileRunner:
-        CombatMissileRunner;
+    private readonly missileRunner: CombatMissileRunner;
 
-    private readonly performanceResolver:
-        CrewPerformanceResolver;
+    private readonly performanceResolver: CrewPerformanceResolver;
 
-    private readonly defenseTurretRunner:
-        EnemyDefenseTurretRunner;
+    private readonly defenseTurretRunner: EnemyDefenseTurretRunner;
 
-    private readonly beamCannonRunner:
-        CombatBeamCannonRunner;
+    private readonly beamCannonRunner: CombatBeamCannonRunner;
 
-    private readonly stickyMineRunner:
-        CombatStickyMineRunner;
+    private readonly stickyMineRunner: CombatStickyMineRunner;
 
-    private readonly spamRunner:
-        CombatSpamRunner;
+    private readonly spamRunner: CombatSpamRunner;
 
     constructor({
         stateStore,
@@ -109,363 +83,213 @@ export default class CombatRunner {
         purgePlayerSpamChannel,
         destroyEnemyActor,
     }: CombatRunnerOptions) {
-        this.stateStore =
-            stateStore;
+        this.stateStore = stateStore;
 
-        this.state =
-            this.stateStore
-                .getState();
+        this.state = this.stateStore.getState();
 
         this.emit = emit;
 
         this.interruptRandomOfficerTask = interruptRandomOfficerTask;
 
-        this.destroyEnemyActor =
-            destroyEnemyActor;
+        this.destroyEnemyActor = destroyEnemyActor;
 
-        this.identities =
-            new CombatRuntimeIdentityFactory();
+        this.identities = new CombatRuntimeIdentityFactory();
 
-        this.performanceResolver =
-            new CrewPerformanceResolver(
-                this.state,
-            );
+        this.performanceResolver = new CrewPerformanceResolver(this.state);
 
-        this.enemyShieldRunner =
-            new EnemyShieldRunner(
-                this.state,
-            );
+        this.enemyShieldRunner = new EnemyShieldRunner(this.state);
 
-        this.missileRunner =
-            new CombatMissileRunner({
-                stateStore:
-                    this.stateStore,
+        this.missileRunner = new CombatMissileRunner({
+            stateStore: this.stateStore,
 
-                identities:
-                    this.identities,
+            identities: this.identities,
 
-                random,
+            random,
 
-                emit:
-                    this.emit,
+            emit: this.emit,
 
-                destroyEnemyActor:
-                    this.destroyEnemyActor,
-            });
+            destroyEnemyActor: this.destroyEnemyActor,
+        });
 
-        this.defenseTurretRunner =
-            new EnemyDefenseTurretRunner({
-                state: this.state,
+        this.defenseTurretRunner = new EnemyDefenseTurretRunner({
+            state: this.state,
 
-                emit: this.emit,
+            emit: this.emit,
 
-                random,
+            random,
 
-                interceptPlayerMissile:
-                    (
-                        projectileId,
-                        targetActorId,
-                    ) => {
-                        return this
-                            .missileRunner
-                            .interceptPlayerMissile(
-                                projectileId,
-                                targetActorId,
-                            );
-                    },
-            });
+            interceptPlayerMissile: (projectileId, targetActorId) => {
+                return this.missileRunner.interceptPlayerMissile(projectileId, targetActorId);
+            },
+        });
 
-        this.beamCannonRunner =
-            new CombatBeamCannonRunner({
-                stateStore:
-                    this.stateStore,
+        this.beamCannonRunner = new CombatBeamCannonRunner({
+            stateStore: this.stateStore,
 
-                identities:
-                    this.identities,
+            identities: this.identities,
 
-                emit:
-                    this.emit,
+            emit: this.emit,
 
-                interruptRandomOfficerTask:
-                    this.interruptRandomOfficerTask,
-            });
+            interruptRandomOfficerTask: this.interruptRandomOfficerTask,
+        });
 
-        this.stickyMineRunner =
-            new CombatStickyMineRunner({
-                stateStore:
-                    this.stateStore,
+        this.stickyMineRunner = new CombatStickyMineRunner({
+            stateStore: this.stateStore,
 
-                identities:
-                    this.identities,
+            identities: this.identities,
 
-                emit:
-                    this.emit,
+            emit: this.emit,
 
-                interruptRandomOfficerTask:
-                    this.interruptRandomOfficerTask,
+            interruptRandomOfficerTask: this.interruptRandomOfficerTask,
 
-                destroyEnemyActor:
-                    this.destroyEnemyActor,
-            });
+            destroyEnemyActor: this.destroyEnemyActor,
+        });
 
-        this.spamRunner =
-            new CombatSpamRunner({
-                stateStore:
-                    this.stateStore,
+        this.spamRunner = new CombatSpamRunner({
+            stateStore: this.stateStore,
 
-                identities:
-                    this.identities,
+            identities: this.identities,
 
-                emit:
-                    this.emit,
-            });
+            emit: this.emit,
+        });
 
-        this.enemyBehaviorRunner =
-            new EnemyBehaviorRunner({
-                state: this.state,
-                emit: this.emit,
+        this.enemyBehaviorRunner = new EnemyBehaviorRunner({
+            state: this.state,
+            emit: this.emit,
 
-                clearPlayerStickyMine:
-                    (
-                        mineId,
-                        targetActorId,
-                    ) => {
-                        return this
-                            .stickyMineRunner
-                            .clearPlayerMineFromActor(
-                                mineId,
-                                targetActorId,
-                            );
-                    },
+            clearPlayerStickyMine: (mineId, targetActorId) => {
+                return this.stickyMineRunner.clearPlayerMineFromActor(mineId, targetActorId);
+            },
 
-                purgePlayerSpamChannel,
+            purgePlayerSpamChannel,
 
-                deployEnemyShield:
-                    (actor) => {
-                        this.enemyShieldRunner
-                            .deploy(
-                                actor,
-                            );
-                    },
+            deployEnemyShield: (actor) => {
+                this.enemyShieldRunner.deploy(actor);
+            },
 
-                random,
-            });
-
+            random,
+        });
     }
 
     public step(deltaMs: number): void {
         // Existing shield/emitter time advances before new enemy work.
         // A field deployed later in this step starts at full duration.
-        this.enemyShieldRunner
-            .step(deltaMs);
+        this.enemyShieldRunner.step(deltaMs);
 
-        const existingCombatObjectIds =
-            this.captureExistingCombatObjectIds();
+        const existingCombatObjectIds = this.captureExistingCombatObjectIds();
 
         this.integratePendingPlayerCombatObjects();
 
-        this.resolveExistingCombatObjects(
-            existingCombatObjectIds,
-            deltaMs,
-        );
+        this.resolveExistingCombatObjects(existingCombatObjectIds, deltaMs);
 
         this.advanceEnemyBehavior(deltaMs);
         this.advanceEnemyCombatSystems(deltaMs);
         this.finalizeEnemyCrewTasks();
     }
 
-    private captureExistingCombatObjectIds():
-        CombatStepExistingObjectIds {
+    private captureExistingCombatObjectIds(): CombatStepExistingObjectIds {
         // PlayerWeaponRunner уже выполнил физический launch,
         // но новые combat objects пока лежат в очередях.
         // Snapshot содержит только объекты, существовавшие
         // до начала этого combat step.
         return {
-            projectileIds:
-                this.missileRunner
-                    .captureExistingProjectileIds(),
+            projectileIds: this.missileRunner.captureExistingProjectileIds(),
 
-            stickyMineIds:
-                this.stickyMineRunner
-                    .captureExistingMineIds(),
+            stickyMineIds: this.stickyMineRunner.captureExistingMineIds(),
         };
     }
 
-    private integratePendingPlayerCombatObjects():
-        void {
+    private integratePendingPlayerCombatObjects(): void {
         // Новый launch должен существовать до resolution
         // старых угроз: lethal impact сможет сразу завершить
         // его как TARGET_LOST. При этом новый объект
         // отсутствует в captured IDs и не получает
         // текущий deltaMs.
-        this.missileRunner
-            .integratePendingPlayerLaunches();
-        this.stickyMineRunner
-            .integratePendingPlayerAttachments();
+        this.missileRunner.integratePendingPlayerLaunches();
+        this.stickyMineRunner.integratePendingPlayerAttachments();
     }
 
-    private resolveExistingCombatObjects(
-        existingIds:
-            CombatStepExistingObjectIds,
-        deltaMs: number,
-    ): void {
-        this.missileRunner
-            .advanceExistingProjectiles(
-            existingIds.projectileIds,
-            deltaMs,
-        );
+    private resolveExistingCombatObjects(existingIds: CombatStepExistingObjectIds, deltaMs: number): void {
+        this.missileRunner.advanceExistingProjectiles(existingIds.projectileIds, deltaMs);
 
-        this.stickyMineRunner
-            .advanceExistingMines(
-            existingIds.stickyMineIds,
-            deltaMs,
-        );
+        this.stickyMineRunner.advanceExistingMines(existingIds.stickyMineIds, deltaMs);
     }
 
-    private advanceEnemyBehavior(
-        deltaMs: number,
-    ): void {
-        this.enemyBehaviorRunner
-            .step(deltaMs);
+    private advanceEnemyBehavior(deltaMs: number): void {
+        this.enemyBehaviorRunner.step(deltaMs);
     }
 
     private finalizeEnemyCrewTasks(): void {
         // Weapon advancement мог освободить оператора.
-        this.enemyBehaviorRunner
-            .synchronizeTasks();
+        this.enemyBehaviorRunner.synchronizeTasks();
     }
 
     public purgeSpamChannel(channelId: string): boolean {
-        const purged =
-            this.spamRunner
-                .purgeChannel(channelId);
+        const purged = this.spamRunner.purgeChannel(channelId);
 
         if (purged) {
-            this.enemyBehaviorRunner
-                .synchronizeTasks();
+            this.enemyBehaviorRunner.synchronizeTasks();
         }
 
         return purged;
     }
 
-    public queuePlayerMissileLaunch(
-        input: PlayerMissileLaunchInput,
-    ): void {
-        this.missileRunner
-            .queuePlayerLaunch(input);
+    public queuePlayerMissileLaunch(input: PlayerMissileLaunchInput): void {
+        this.missileRunner.queuePlayerLaunch(input);
     }
 
-    public queuePlayerStickyMineAttach(
-        input: PlayerStickyMineAttachInput,
-    ): void {
-        this.stickyMineRunner
-            .queuePlayerAttach(input);
+    public queuePlayerStickyMineAttach(input: PlayerStickyMineAttachInput): void {
+        this.stickyMineRunner.queuePlayerAttach(input);
     }
 
     public clearStickyMine(mineId: string): boolean {
-        return this.stickyMineRunner
-            .clearMine(mineId);
+        return this.stickyMineRunner.clearMine(mineId);
     }
 
-    public removePlayerCombatObjectsTargetingActor(
-        actorId: string,
-    ): void {
-        this.missileRunner
-            .removePlayerMissilesTargetingActor(
-                actorId,
-            );
+    public removePlayerCombatObjectsTargetingActor(actorId: string): void {
+        this.missileRunner.removePlayerMissilesTargetingActor(actorId);
 
-        this.stickyMineRunner
-            .removePlayerMinesTargetingActor(
-                actorId,
-            );
+        this.stickyMineRunner.removePlayerMinesTargetingActor(actorId);
     }
 
     // #region Enemy combat-system lifecycle
 
-    private advanceEnemyCombatSystems(
-        deltaMs: number,
-    ): void {
+    private advanceEnemyCombatSystems(deltaMs: number): void {
         for (const actor of this.state.actors) {
             if (actor.hull <= 0) {
                 continue;
             }
 
-            const crewDeltaMs =
-                deltaMs *
-                this.performanceResolver
-                    .getActorProgressMultiplier(
-                        actor.id,
-                    );
+            const crewDeltaMs = deltaMs * this.performanceResolver.getActorProgressMultiplier(actor.id);
 
             if (actor.defenseTurret) {
-                const defenseTurretDeltaMs =
-                    doesDefenseTurretPhaseAdvanceWithCrew(
-                        actor.defenseTurret.phase,
-                    )
-                        ? crewDeltaMs
-                        : deltaMs;
+                const defenseTurretDeltaMs = doesDefenseTurretPhaseAdvanceWithCrew(actor.defenseTurret.phase)
+                    ? crewDeltaMs
+                    : deltaMs;
 
-                this.defenseTurretRunner
-                    .advance(
-                        actor,
-                        actor.defenseTurret,
-                        defenseTurretDeltaMs,
-                        deltaMs,
-                    );
+                this.defenseTurretRunner.advance(actor, actor.defenseTurret, defenseTurretDeltaMs, deltaMs);
             }
 
             for (const weapon of actor.weapons) {
-                const weaponDeltaMs =
-                    doesShipWeaponPhaseAdvanceWithCrew(
-                        weapon.kind,
-                        weapon.phase,
-                    )
-                        ? crewDeltaMs
-                        : deltaMs;
+                const weaponDeltaMs = doesShipWeaponPhaseAdvanceWithCrew(weapon.kind, weapon.phase)
+                    ? crewDeltaMs
+                    : deltaMs;
 
                 switch (weapon.kind) {
-                    case SHIP_WEAPON_KIND
-                        .MISSILE_LAUNCHER:
-                        this.missileRunner
-                            .advanceEnemyLauncher(
-                                actor,
-                                weapon,
-                                weaponDeltaMs,
-                                deltaMs,
-                            );
+                    case SHIP_WEAPON_KIND.MISSILE_LAUNCHER:
+                        this.missileRunner.advanceEnemyLauncher(actor, weapon, weaponDeltaMs, deltaMs);
                         break;
 
                     case SHIP_WEAPON_KIND.BEAM_CANNON:
-                        this.beamCannonRunner
-                            .advanceEnemyBeamCannon(
-                                actor,
-                                weapon,
-                                weaponDeltaMs,
-                                deltaMs,
-                            );
+                        this.beamCannonRunner.advanceEnemyBeamCannon(actor, weapon, weaponDeltaMs, deltaMs);
                         break;
 
-                    case SHIP_WEAPON_KIND
-                        .STICKY_MINE_DISPENSER:
-                        this.stickyMineRunner
-                            .advanceEnemyDispenser(
-                                actor,
-                                weapon,
-                                weaponDeltaMs,
-                                deltaMs,
-                            );
+                    case SHIP_WEAPON_KIND.STICKY_MINE_DISPENSER:
+                        this.stickyMineRunner.advanceEnemyDispenser(actor, weapon, weaponDeltaMs, deltaMs);
                         break;
 
-                    case SHIP_WEAPON_KIND
-                        .SPAM_PROJECTOR:
-                        this.spamRunner
-                            .advanceEnemyProjector(
-                                actor,
-                                weapon,
-                                weaponDeltaMs,
-                                deltaMs,
-                            );
+                    case SHIP_WEAPON_KIND.SPAM_PROJECTOR:
+                        this.spamRunner.advanceEnemyProjector(actor, weapon, weaponDeltaMs, deltaMs);
                         break;
                 }
             }
@@ -473,5 +297,4 @@ export default class CombatRunner {
     }
 
     // #endregion
-
 }

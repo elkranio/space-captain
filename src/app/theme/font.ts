@@ -1,7 +1,7 @@
 // src/app/theme/font.ts
 
 export const FONT_FAMILY = {
-    VGA_8X14: 'vga_8x14',
+    VGA_8X14: "vga_8x14",
 } as const;
 
 export const FONT_SIZE = {

@@ -1,27 +1,23 @@
 // src/engine/encounter/commands/handlers/science_identify_threat_command_handler.ts
 
-import { OFFICER_ROLE } from '../../../defs/officer';
+import { OFFICER_ROLE } from "../../../defs/officer";
 import {
     COMBAT_SOURCE_KIND,
     COMBAT_TARGET_KIND,
     COMBAT_THREAT_KIND,
     MISSILE_SIGNATURE_INTEL_STATUS,
-} from '../../model/combat';
-import {
-    ENCOUNTER_OFFICER_COMMAND_ID,
-    OFFICER_COMMAND_TARGET_KIND,
-    type OfficerCommandDef,
-} from '../../model/command';
-import type { EncounterState } from '../../model/state';
-import type { OfficerCommandHandler } from '../../model/officer_command_handler';
-import { createScienceIdentifyThreatTask } from '../../officer_tasks/create_officer_task_draft';
-import { requireThreatTargetId } from './command_handler_helpers';
+} from "../../model/combat";
+import { ENCOUNTER_OFFICER_COMMAND_ID, OFFICER_COMMAND_TARGET_KIND, type OfficerCommandDef } from "../../model/command";
+import type { EncounterState } from "../../model/state";
+import type { OfficerCommandHandler } from "../../model/officer_command_handler";
+import { createScienceIdentifyThreatTask } from "../../officer_tasks/create_officer_task_draft";
+import { requireThreatTargetId } from "./command_handler_helpers";
 
 const COMMAND_ID = ENCOUNTER_OFFICER_COMMAND_ID.SCIENCE_IDENTIFY_THREAT;
 
 const COMMAND_DEF = {
     role: OFFICER_ROLE.SCIENCE,
-    label: 'IDENTIFY THREAT',
+    label: "IDENTIFY THREAT",
 
     targeting: {
         kind: OFFICER_COMMAND_TARGET_KIND.THREAT,
@@ -29,14 +25,11 @@ const COMMAND_DEF = {
 
     requiresOnlineDrive: false,
 
-
     requiresIdleBridge: false,
 } satisfies OfficerCommandDef;
 
 type AvailableThreat = {
-    kind:
-        typeof COMBAT_THREAT_KIND
-            .MISSILE;
+    kind: typeof COMBAT_THREAT_KIND.MISSILE;
 
     id: string;
     designation: string;
@@ -84,18 +77,11 @@ function getAnalyzableEnemyThreats(state: EncounterState): AvailableThreat[] {
             continue;
         }
 
-        if (
-            projectile.identification.status ===
-            MISSILE_SIGNATURE_INTEL_STATUS
-                .CONFIRMED
-        ) {
+        if (projectile.identification.status === MISSILE_SIGNATURE_INTEL_STATUS.CONFIRMED) {
             continue;
         }
 
-        if (
-            projectile.source.kind !==
-                COMBAT_SOURCE_KIND.ACTOR
-        ) {
+        if (projectile.source.kind !== COMBAT_SOURCE_KIND.ACTOR) {
             continue;
         }
 
@@ -115,12 +101,6 @@ function getAnalyzableEnemyThreats(state: EncounterState): AvailableThreat[] {
     return threats;
 }
 
-
-function getThreatLabel(
-    threat: AvailableThreat,
-): string {
-    return (
-        'MISSILE ' +
-        threat.designation
-    );
+function getThreatLabel(threat: AvailableThreat): string {
+    return "MISSILE " + threat.designation;
 }

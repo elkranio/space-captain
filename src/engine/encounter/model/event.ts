@@ -1,18 +1,12 @@
 // src/engine/encounter/model/event.ts
 
-import type {
-    PlayerHullDamageResult,
-} from '../../defs/player';
-import type { PlayerSpaceNavigationState } from '../../defs/player_location';
-import type { DefenseTurretShotOutcome } from '../../defs/defense_turret';
-import type { ShipDriveState } from '../../defs/ship_drive';
-import type { EncounterAnchorState } from '../anchors/encounter_anchor';
-import type { JumpPointEncounterAnchorState } from '../anchors/jump_point/jump_point_encounter_anchor';
-import {
-    BEAM_CANNON_SHOT_OUTCOME,
-    PLAYER_MISSILE_OUTCOME,
-    PLAYER_STICKY_MINE_OUTCOME,
-} from './combat';
+import type { PlayerHullDamageResult } from "../../defs/player";
+import type { PlayerSpaceNavigationState } from "../../defs/player_location";
+import type { DefenseTurretShotOutcome } from "../../defs/defense_turret";
+import type { ShipDriveState } from "../../defs/ship_drive";
+import type { EncounterAnchorState } from "../anchors/encounter_anchor";
+import type { JumpPointEncounterAnchorState } from "../anchors/jump_point/jump_point_encounter_anchor";
+import { BEAM_CANNON_SHOT_OUTCOME, PLAYER_MISSILE_OUTCOME, PLAYER_STICKY_MINE_OUTCOME } from "./combat";
 import type {
     ActiveShieldState,
     BeamCannonAttackState,
@@ -22,106 +16,86 @@ import type {
     SpamChannelState,
     StickyMineState,
     ThreatIdentificationResult,
-} from './combat';
-import type {
-    MissileEventProjectileSnapshot,
-} from './missile_event_projectile';
-import type { OfficerTaskState } from './officer_task';
-import type {
-    MissileSignatureAnalysisConfidence,
-} from './missile_signature_analysis';
+} from "./combat";
+import type { MissileEventProjectileSnapshot } from "./missile_event_projectile";
+import type { OfficerTaskState } from "./officer_task";
+import type { MissileSignatureAnalysisConfidence } from "./missile_signature_analysis";
 // События, которые EncounterEngine отдаёт наружу
 // через outbox.
 //
 // Engine сообщает только о доменных изменениях,
 // app-слой сам решает, как это показать.
 export const ENCOUNTER_EVENT = {
-    ENCOUNTER_LOADED: 'encounter_loaded',
-    TRAVEL_STARTED: 'travel_started',
-    JUMP_STARTED: 'jump_started',
-    DOCKING_STARTED: 'docking_started',
-    OFFICER_TASK_STARTED: 'officer_task_started',
-    OFFICER_TASK_ENDED: 'officer_task_ended',
+    ENCOUNTER_LOADED: "encounter_loaded",
+    TRAVEL_STARTED: "travel_started",
+    JUMP_STARTED: "jump_started",
+    DOCKING_STARTED: "docking_started",
+    OFFICER_TASK_STARTED: "officer_task_started",
+    OFFICER_TASK_ENDED: "officer_task_ended",
 
-    PLAYER_SHIELD_DEPLOYED:
-        'player_shield_deployed',
+    PLAYER_SHIELD_DEPLOYED: "player_shield_deployed",
 
-    PLAYER_SHIELD_ENDED:
-        'player_shield_ended',
+    PLAYER_SHIELD_ENDED: "player_shield_ended",
 
-    PLAYER_SHIP_DRIVE_STATE_CHANGED: 'player_ship_drive_state_changed',
-    PLAYER_SHIP_DRIVE_DISRUPTED: 'player_ship_drive_disrupted',
-    ENEMY_ATTACK_STARTED: 'enemy_attack_started',
+    PLAYER_SHIP_DRIVE_STATE_CHANGED: "player_ship_drive_state_changed",
+    PLAYER_SHIP_DRIVE_DISRUPTED: "player_ship_drive_disrupted",
+    ENEMY_ATTACK_STARTED: "enemy_attack_started",
 
-    PLAYER_BEAM_CANNON_CHARGING_STARTED:
-        'player_beam_cannon_charging_started',
+    PLAYER_BEAM_CANNON_CHARGING_STARTED: "player_beam_cannon_charging_started",
 
-    PLAYER_BEAM_CANNON_FIRED:
-        'player_beam_cannon_fired',
+    PLAYER_BEAM_CANNON_FIRED: "player_beam_cannon_fired",
 
-    PLAYER_MISSILE_LAUNCHED:
-        'player_missile_launched',
+    PLAYER_MISSILE_LAUNCHED: "player_missile_launched",
 
-    PLAYER_MISSILE_RESOLVED:
-        'player_missile_resolved',
+    PLAYER_MISSILE_RESOLVED: "player_missile_resolved",
 
-    ENEMY_DEFENSE_TURRET_LOADING_STARTED:
-        'enemy_defense_turret_loading_started',
+    ENEMY_DEFENSE_TURRET_LOADING_STARTED: "enemy_defense_turret_loading_started",
 
-    ENEMY_DEFENSE_TURRET_FIRED:
-        'enemy_defense_turret_fired',
+    ENEMY_DEFENSE_TURRET_FIRED: "enemy_defense_turret_fired",
 
-    PLAYER_STICKY_MINE_ATTACHED:
-        'player_sticky_mine_attached',
+    PLAYER_STICKY_MINE_ATTACHED: "player_sticky_mine_attached",
 
-    PLAYER_STICKY_MINE_MISSED:
-        'player_sticky_mine_missed',
+    PLAYER_STICKY_MINE_MISSED: "player_sticky_mine_missed",
 
-    PLAYER_STICKY_MINE_RESOLVED:
-        'player_sticky_mine_resolved',
+    PLAYER_STICKY_MINE_RESOLVED: "player_sticky_mine_resolved",
 
-    PLAYER_SPAM_CHANNEL_STARTED:
-        'player_spam_channel_started',
+    PLAYER_SPAM_CHANNEL_STARTED: "player_spam_channel_started",
 
-    PLAYER_SPAM_CHANNEL_ENDED:
-        'player_spam_channel_ended',
+    PLAYER_SPAM_CHANNEL_ENDED: "player_spam_channel_ended",
 
-    ENEMY_SHIP_DESTROYED:
-        'enemy_ship_destroyed',
+    ENEMY_SHIP_DESTROYED: "enemy_ship_destroyed",
 
-    MISSILE_LAUNCHED: 'missile_launched',
-    MISSILE_IMPACTED_PLAYER_SHIP: 'missile_impacted_player_ship',
-    BEAM_CANNON_ATTACK_STARTED: 'beam_cannon_attack_started',
-    BEAM_CANNON_FIRED: 'beam_cannon_fired',
-    SPAM_CHANNEL_STARTED: 'spam_channel_started',
-    SPAM_CHANNEL_ENDED: 'spam_channel_ended',
-    STICKY_MINE_ATTACHED: 'sticky_mine_attached',
-    STICKY_MINE_MISSED_PLAYER_SHIP:
-        'sticky_mine_missed_player_ship',
-    STICKY_MINE_DETONATED: 'sticky_mine_detonated',
+    MISSILE_LAUNCHED: "missile_launched",
+    MISSILE_IMPACTED_PLAYER_SHIP: "missile_impacted_player_ship",
+    BEAM_CANNON_ATTACK_STARTED: "beam_cannon_attack_started",
+    BEAM_CANNON_FIRED: "beam_cannon_fired",
+    SPAM_CHANNEL_STARTED: "spam_channel_started",
+    SPAM_CHANNEL_ENDED: "spam_channel_ended",
+    STICKY_MINE_ATTACHED: "sticky_mine_attached",
+    STICKY_MINE_MISSED_PLAYER_SHIP: "sticky_mine_missed_player_ship",
+    STICKY_MINE_DETONATED: "sticky_mine_detonated",
 } as const;
 
 export const OFFICER_TASK_OUTCOME = {
-    COMPLETED: 'completed',
+    COMPLETED: "completed",
 
-    CANCELLED: 'cancelled',
+    CANCELLED: "cancelled",
 } as const;
 
 export type OfficerTaskOutcome = (typeof OFFICER_TASK_OUTCOME)[keyof typeof OFFICER_TASK_OUTCOME];
 
 export const PLAYER_SHIELD_END_OUTCOME = {
-    EXPIRED: 'expired',
-    ABSORBED: 'absorbed',
+    EXPIRED: "expired",
+    ABSORBED: "absorbed",
 } as const;
 
-export type PlayerShieldEndOutcome =
-    (typeof PLAYER_SHIELD_END_OUTCOME)[keyof typeof PLAYER_SHIELD_END_OUTCOME];
+export type PlayerShieldEndOutcome = (typeof PLAYER_SHIELD_END_OUTCOME)[keyof typeof PLAYER_SHIELD_END_OUTCOME];
 
 export const OFFICER_TASK_RESULT_KIND = {
-    JUMP_POINT_CALCULATED: 'jump_point_calculated',
-    THREAT_IDENTIFIED: 'threat_identified',
-    DEFENSE_TURRET_FIRED: 'defense_turret_fired',
-    STICKY_MINE_CLEARED: 'sticky_mine_cleared',
+    JUMP_POINT_CALCULATED: "jump_point_calculated",
+    THREAT_IDENTIFIED: "threat_identified",
+    DEFENSE_TURRET_FIRED: "defense_turret_fired",
+    STICKY_MINE_CLEARED: "sticky_mine_cleared",
 } as const;
 
 export type OfficerTaskResult =
@@ -135,8 +109,7 @@ export type OfficerTaskResult =
           threatId: string;
           identification: ThreatIdentificationResult;
 
-          analysisConfidence:
-              MissileSignatureAnalysisConfidence;
+          analysisConfidence: MissileSignatureAnalysisConfidence;
       }
     | {
           kind: typeof OFFICER_TASK_RESULT_KIND.DEFENSE_TURRET_FIRED;
@@ -155,9 +128,7 @@ export type OfficerTaskResult =
 // Сам state наружу не переносится: app читает безопасный
 // EncounterPresentationSnapshot через EncounterEngine.
 export type EncounterLoadedEvent = {
-    type:
-        typeof ENCOUNTER_EVENT
-            .ENCOUNTER_LOADED;
+    type: typeof ENCOUNTER_EVENT.ENCOUNTER_LOADED;
 };
 
 // Начало локального перелёта
@@ -228,37 +199,27 @@ export type OfficerTaskEndedEvent = {
 };
 
 export type PlayerShieldDeployedEvent = {
-    type:
-        typeof ENCOUNTER_EVENT
-            .PLAYER_SHIELD_DEPLOYED;
+    type: typeof ENCOUNTER_EVENT.PLAYER_SHIELD_DEPLOYED;
 
-    shield:
-        ActiveShieldState;
+    shield: ActiveShieldState;
 };
 
 export type PlayerShieldEndedEvent = {
-    type:
-        typeof ENCOUNTER_EVENT
-            .PLAYER_SHIELD_ENDED;
+    type: typeof ENCOUNTER_EVENT.PLAYER_SHIELD_ENDED;
 
-    shield:
-        ActiveShieldState;
+    shield: ActiveShieldState;
 
-    outcome:
-        PlayerShieldEndOutcome;
+    outcome: PlayerShieldEndOutcome;
 };
 
-
 export type PlayerShipDriveStateChangedEvent = {
-    type:
-        typeof ENCOUNTER_EVENT.PLAYER_SHIP_DRIVE_STATE_CHANGED;
+    type: typeof ENCOUNTER_EVENT.PLAYER_SHIP_DRIVE_STATE_CHANGED;
 
     drive: ShipDriveState;
 };
 
 export type PlayerShipDriveDisruptedEvent = {
-    type:
-        typeof ENCOUNTER_EVENT.PLAYER_SHIP_DRIVE_DISRUPTED;
+    type: typeof ENCOUNTER_EVENT.PLAYER_SHIP_DRIVE_DISRUPTED;
 
     sourceActorId: string;
 
@@ -274,8 +235,7 @@ export type EnemyAttackStartedEvent = {
 };
 
 export type PlayerBeamCannonChargingStartedEvent = {
-    type:
-        typeof ENCOUNTER_EVENT.PLAYER_BEAM_CANNON_CHARGING_STARTED;
+    type: typeof ENCOUNTER_EVENT.PLAYER_BEAM_CANNON_CHARGING_STARTED;
 
     weaponId: string;
 
@@ -285,86 +245,59 @@ export type PlayerBeamCannonChargingStartedEvent = {
 };
 
 export type PlayerBeamCannonFiredEvent = {
-    type:
-        typeof ENCOUNTER_EVENT.PLAYER_BEAM_CANNON_FIRED;
+    type: typeof ENCOUNTER_EVENT.PLAYER_BEAM_CANNON_FIRED;
 
     weaponId: string;
 
     targetActorId: string;
 
-    outcome:
-        BeamCannonShotOutcome;
+    outcome: BeamCannonShotOutcome;
 
     damage: number;
     remainingHull: number;
 };
 
 export type PlayerMissileLaunchedEvent = {
-    type:
-        typeof ENCOUNTER_EVENT
-            .PLAYER_MISSILE_LAUNCHED;
+    type: typeof ENCOUNTER_EVENT.PLAYER_MISSILE_LAUNCHED;
 
-    projectile:
-        MissileEventProjectileSnapshot;
+    projectile: MissileEventProjectileSnapshot;
 };
 
 export type PlayerMissileResolvedEvent =
     | {
-          type:
-              typeof ENCOUNTER_EVENT
-                  .PLAYER_MISSILE_RESOLVED;
+          type: typeof ENCOUNTER_EVENT.PLAYER_MISSILE_RESOLVED;
 
-          projectile:
-              MissileEventProjectileSnapshot;
+          projectile: MissileEventProjectileSnapshot;
 
-          outcome:
-              typeof PLAYER_MISSILE_OUTCOME
-                  .TARGET_LOST;
+          outcome: typeof PLAYER_MISSILE_OUTCOME.TARGET_LOST;
       }
     | {
-          type:
-              typeof ENCOUNTER_EVENT
-                  .PLAYER_MISSILE_RESOLVED;
+          type: typeof ENCOUNTER_EVENT.PLAYER_MISSILE_RESOLVED;
 
-          projectile:
-              MissileEventProjectileSnapshot;
+          projectile: MissileEventProjectileSnapshot;
 
-          outcome:
-              typeof PLAYER_MISSILE_OUTCOME
-                  .INTERCEPTED;
+          outcome: typeof PLAYER_MISSILE_OUTCOME.INTERCEPTED;
       }
     | {
-          type:
-              typeof ENCOUNTER_EVENT
-                  .PLAYER_MISSILE_RESOLVED;
+          type: typeof ENCOUNTER_EVENT.PLAYER_MISSILE_RESOLVED;
 
-          projectile:
-              MissileEventProjectileSnapshot;
+          projectile: MissileEventProjectileSnapshot;
 
-          outcome:
-              typeof PLAYER_MISSILE_OUTCOME
-                  .MISS;
+          outcome: typeof PLAYER_MISSILE_OUTCOME.MISS;
       }
     | {
-          type:
-              typeof ENCOUNTER_EVENT
-                  .PLAYER_MISSILE_RESOLVED;
+          type: typeof ENCOUNTER_EVENT.PLAYER_MISSILE_RESOLVED;
 
-          projectile:
-              MissileEventProjectileSnapshot;
+          projectile: MissileEventProjectileSnapshot;
 
-          outcome:
-              typeof PLAYER_MISSILE_OUTCOME
-                  .HIT;
+          outcome: typeof PLAYER_MISSILE_OUTCOME.HIT;
 
           damage: number;
           remainingHull: number;
       };
 
 export type EnemyDefenseTurretLoadingStartedEvent = {
-    type:
-        typeof ENCOUNTER_EVENT
-            .ENEMY_DEFENSE_TURRET_LOADING_STARTED;
+    type: typeof ENCOUNTER_EVENT.ENEMY_DEFENSE_TURRET_LOADING_STARTED;
 
     sourceActorId: string;
     defenseTurretId: string;
@@ -375,15 +308,12 @@ export type EnemyDefenseTurretLoadingStartedEvent = {
 };
 
 export type EnemyDefenseTurretFiredEvent = {
-    type:
-        typeof ENCOUNTER_EVENT
-            .ENEMY_DEFENSE_TURRET_FIRED;
+    type: typeof ENCOUNTER_EVENT.ENEMY_DEFENSE_TURRET_FIRED;
 
     sourceActorId: string;
     defenseTurretId: string;
 
-    projectile:
-        MissileEventProjectileSnapshot;
+    projectile: MissileEventProjectileSnapshot;
 
     outcome: DefenseTurretShotOutcome;
 
@@ -391,17 +321,13 @@ export type EnemyDefenseTurretFiredEvent = {
 };
 
 export type PlayerStickyMineAttachedEvent = {
-    type:
-        typeof ENCOUNTER_EVENT
-            .PLAYER_STICKY_MINE_ATTACHED;
+    type: typeof ENCOUNTER_EVENT.PLAYER_STICKY_MINE_ATTACHED;
 
     mine: StickyMineState;
 };
 
 export type PlayerStickyMineMissedEvent = {
-    type:
-        typeof ENCOUNTER_EVENT
-            .PLAYER_STICKY_MINE_MISSED;
+    type: typeof ENCOUNTER_EVENT.PLAYER_STICKY_MINE_MISSED;
 
     mineId: string;
 
@@ -411,46 +337,32 @@ export type PlayerStickyMineMissedEvent = {
 
 export type PlayerStickyMineResolvedEvent =
     | {
-          type:
-              typeof ENCOUNTER_EVENT
-                  .PLAYER_STICKY_MINE_RESOLVED;
+          type: typeof ENCOUNTER_EVENT.PLAYER_STICKY_MINE_RESOLVED;
 
           mine: StickyMineState;
 
-          outcome:
-              typeof PLAYER_STICKY_MINE_OUTCOME
-                  .TARGET_LOST;
+          outcome: typeof PLAYER_STICKY_MINE_OUTCOME.TARGET_LOST;
       }
     | {
-          type:
-              typeof ENCOUNTER_EVENT
-                  .PLAYER_STICKY_MINE_RESOLVED;
+          type: typeof ENCOUNTER_EVENT.PLAYER_STICKY_MINE_RESOLVED;
 
           mine: StickyMineState;
 
-          outcome:
-              typeof PLAYER_STICKY_MINE_OUTCOME
-                  .CLEARED;
+          outcome: typeof PLAYER_STICKY_MINE_OUTCOME.CLEARED;
       }
     | {
-          type:
-              typeof ENCOUNTER_EVENT
-                  .PLAYER_STICKY_MINE_RESOLVED;
+          type: typeof ENCOUNTER_EVENT.PLAYER_STICKY_MINE_RESOLVED;
 
           mine: StickyMineState;
 
-          outcome:
-              typeof PLAYER_STICKY_MINE_OUTCOME
-                  .DETONATED;
+          outcome: typeof PLAYER_STICKY_MINE_OUTCOME.DETONATED;
 
           damage: number;
           remainingHull: number;
       };
 
 export type PlayerSpamChannelStartedEvent = {
-    type:
-        typeof ENCOUNTER_EVENT
-            .PLAYER_SPAM_CHANNEL_STARTED;
+    type: typeof ENCOUNTER_EVENT.PLAYER_SPAM_CHANNEL_STARTED;
 
     channelId: string;
 
@@ -459,22 +371,18 @@ export type PlayerSpamChannelStartedEvent = {
 };
 
 export type PlayerSpamChannelEndedEvent = {
-    type:
-        typeof ENCOUNTER_EVENT
-            .PLAYER_SPAM_CHANNEL_ENDED;
+    type: typeof ENCOUNTER_EVENT.PLAYER_SPAM_CHANNEL_ENDED;
 
     channelId: string;
 
     sourceWeaponId: string;
     targetActorId: string;
 
-    outcome:
-        PlayerSpamChannelOutcome;
+    outcome: PlayerSpamChannelOutcome;
 };
 
 export type EnemyShipDestroyedEvent = {
-    type:
-        typeof ENCOUNTER_EVENT.ENEMY_SHIP_DESTROYED;
+    type: typeof ENCOUNTER_EVENT.ENEMY_SHIP_DESTROYED;
 
     actorId: string;
 };
@@ -485,15 +393,11 @@ export type MissileLaunchedEvent = {
     projectile: MissileEventProjectileSnapshot;
 };
 
-export type MissileImpactedPlayerShipEvent =
-    PlayerHullDamageResult & {
-        type:
-            typeof ENCOUNTER_EVENT
-                .MISSILE_IMPACTED_PLAYER_SHIP;
+export type MissileImpactedPlayerShipEvent = PlayerHullDamageResult & {
+    type: typeof ENCOUNTER_EVENT.MISSILE_IMPACTED_PLAYER_SHIP;
 
-        projectile:
-            MissileEventProjectileSnapshot;
-    };
+    projectile: MissileEventProjectileSnapshot;
+};
 
 export type StickyMineAttachedEvent = {
     type: typeof ENCOUNTER_EVENT.STICKY_MINE_ATTACHED;
@@ -502,22 +406,17 @@ export type StickyMineAttachedEvent = {
 };
 
 export type StickyMineMissedPlayerShipEvent = {
-    type:
-        typeof ENCOUNTER_EVENT
-            .STICKY_MINE_MISSED_PLAYER_SHIP;
+    type: typeof ENCOUNTER_EVENT.STICKY_MINE_MISSED_PLAYER_SHIP;
 
     sourceActorId: string;
     sourceWeaponId: string;
 };
 
-export type StickyMineDetonatedEvent =
-    PlayerHullDamageResult & {
-        type:
-            typeof ENCOUNTER_EVENT
-                .STICKY_MINE_DETONATED;
+export type StickyMineDetonatedEvent = PlayerHullDamageResult & {
+    type: typeof ENCOUNTER_EVENT.STICKY_MINE_DETONATED;
 
-        mine: StickyMineState;
-    };
+    mine: StickyMineState;
+};
 
 export type BeamCannonAttackStartedEvent = {
     type: typeof ENCOUNTER_EVENT.BEAM_CANNON_ATTACK_STARTED;
@@ -527,42 +426,26 @@ export type BeamCannonAttackStartedEvent = {
 
 export type BeamCannonFiredEvent =
     | (PlayerHullDamageResult & {
-          type:
-              typeof ENCOUNTER_EVENT
-                  .BEAM_CANNON_FIRED;
+          type: typeof ENCOUNTER_EVENT.BEAM_CANNON_FIRED;
 
-          attack:
-              BeamCannonAttackState;
+          attack: BeamCannonAttackState;
 
-          outcome:
-              typeof BEAM_CANNON_SHOT_OUTCOME
-                  .HIT;
+          outcome: typeof BEAM_CANNON_SHOT_OUTCOME.HIT;
       })
     | {
-          type:
-              typeof ENCOUNTER_EVENT
-                  .BEAM_CANNON_FIRED;
+          type: typeof ENCOUNTER_EVENT.BEAM_CANNON_FIRED;
 
-          attack:
-              BeamCannonAttackState;
+          attack: BeamCannonAttackState;
 
-          outcome:
-              typeof BEAM_CANNON_SHOT_OUTCOME
-                  .ABSORBED;
+          outcome: typeof BEAM_CANNON_SHOT_OUTCOME.ABSORBED;
       }
     | {
-          type:
-              typeof ENCOUNTER_EVENT
-                  .BEAM_CANNON_FIRED;
+          type: typeof ENCOUNTER_EVENT.BEAM_CANNON_FIRED;
 
-          attack:
-              BeamCannonAttackState;
+          attack: BeamCannonAttackState;
 
-          outcome:
-              typeof BEAM_CANNON_SHOT_OUTCOME
-                  .MISS;
+          outcome: typeof BEAM_CANNON_SHOT_OUTCOME.MISS;
       };
-
 
 export type SpamChannelStartedEvent = {
     type: typeof ENCOUNTER_EVENT.SPAM_CHANNEL_STARTED;

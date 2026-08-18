@@ -1,7 +1,7 @@
 // src/app/scenes/game/bridge/view/ui/officer_context_menu/bridge_officer_context_menu_layout.ts
 
-import { OFFICER_ROLE, type OfficerRole } from '../../../../../../../engine/defs/officer';
-import { BRIDGE_OFFICER_STATION_LAYOUT } from '../../officer_stations/bridge_officer_station_layout';
+import { OFFICER_ROLE, type OfficerRole } from "../../../../../../../engine/defs/officer";
+import { BRIDGE_OFFICER_STATION_LAYOUT } from "../../officer_stations/bridge_officer_station_layout";
 
 export type OfficerContextMenuPosition = {
     x: number;

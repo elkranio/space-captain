@@ -1,9 +1,9 @@
 // src/app/scenes/game/bridge/view/space/BridgeSpaceView.ts
 
-import type BridgeScene from '../../BridgeScene';
-import type BridgeEventBus from '../../events/BridgeEventBus';
-import BridgeObjectsView from '../objects/BridgeObjectsView';
-import BridgeSpaceBackgroundView from './BridgeSpaceBackgroundView';
+import type BridgeScene from "../../BridgeScene";
+import type BridgeEventBus from "../../events/BridgeEventBus";
+import BridgeObjectsView from "../objects/BridgeObjectsView";
+import BridgeSpaceBackgroundView from "./BridgeSpaceBackgroundView";
 
 // Составной view мира за bridge viewscreen.
 //
@@ -14,11 +14,7 @@ export default class BridgeSpaceView {
 
     private readonly objectsView: BridgeObjectsView;
 
-    constructor(
-        scene: BridgeScene,
-        eventBus: BridgeEventBus,
-        setTransientWorldOffsetX: (offsetX: number) => void,
-    ) {
+    constructor(scene: BridgeScene, eventBus: BridgeEventBus, setTransientWorldOffsetX: (offsetX: number) => void) {
         this.backgroundView = new BridgeSpaceBackgroundView(scene);
 
         this.objectsView = new BridgeObjectsView(
@@ -36,24 +32,12 @@ export default class BridgeSpaceView {
         return this.objectsView.getObjectPosition(objectId);
     }
 
-    public getObjectVisualBounds(
-        objectId: string,
-    ): Phaser.Geom.Rectangle | undefined {
-        return this.objectsView
-            .getObjectVisualBounds(
-                objectId,
-            );
+    public getObjectVisualBounds(objectId: string): Phaser.Geom.Rectangle | undefined {
+        return this.objectsView.getObjectVisualBounds(objectId);
     }
 
-    public setObjectPresentationOffsetX(
-        objectId: string,
-        offsetX: number,
-    ): boolean {
-        return this.objectsView
-            .setObjectPresentationOffsetX(
-                objectId,
-                offsetX,
-            );
+    public setObjectPresentationOffsetX(objectId: string, offsetX: number): boolean {
+        return this.objectsView.setObjectPresentationOffsetX(objectId, offsetX);
     }
 
     public destroy(): void {

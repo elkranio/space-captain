@@ -1,9 +1,9 @@
 // src/app/scenes/game/bridge/view/officer_stations/bridge_officer_station_layout.ts
-import { OFFICER_ROLE, type OfficerRole } from '../../../../../../engine/defs/officer';
+import { OFFICER_ROLE, type OfficerRole } from "../../../../../../engine/defs/officer";
 import {
     BRIDGE_SEATED_OFFICER_SPRITE_ID,
     type BridgeSeatedOfficerSpriteId,
-} from '../../../../../manifests/bridge/seated_officer';
+} from "../../../../../manifests/bridge/seated_officer";
 
 export type BridgeOfficerStationLayoutEntry = {
     role: OfficerRole;
@@ -24,7 +24,7 @@ export type BridgeOfficerStationLayoutEntry = {
     barkPosition: {
         x: number;
         y: number;
-        side: 'left' | 'right';
+        side: "left" | "right";
     };
 
     contextMenuPosition: {
@@ -54,7 +54,7 @@ export const BRIDGE_OFFICER_STATION_LAYOUT = {
         barkPosition: {
             x: 267,
             y: 355,
-            side: 'left',
+            side: "left",
         },
 
         contextMenuPosition: {
@@ -78,7 +78,7 @@ export const BRIDGE_OFFICER_STATION_LAYOUT = {
         barkPosition: {
             x: 487,
             y: 355,
-            side: 'left',
+            side: "left",
         },
 
         contextMenuPosition: {
@@ -102,7 +102,7 @@ export const BRIDGE_OFFICER_STATION_LAYOUT = {
         barkPosition: {
             x: 626,
             y: 355,
-            side: 'right',
+            side: "right",
         },
 
         contextMenuPosition: {
@@ -126,7 +126,7 @@ export const BRIDGE_OFFICER_STATION_LAYOUT = {
         barkPosition: {
             x: 837,
             y: 355,
-            side: 'right',
+            side: "right",
         },
 
         contextMenuPosition: {

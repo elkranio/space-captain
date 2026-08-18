@@ -1,22 +1,19 @@
 // src/engine/defs/defense_turret.ts
 
 export const DEFENSE_TURRET_SHOT_OUTCOME = {
-    HIT: 'hit',
-    MISS: 'miss',
+    HIT: "hit",
+    MISS: "miss",
 } as const;
 
-export type DefenseTurretShotOutcome =
-    (typeof DEFENSE_TURRET_SHOT_OUTCOME)[keyof typeof DEFENSE_TURRET_SHOT_OUTCOME];
+export type DefenseTurretShotOutcome = (typeof DEFENSE_TURRET_SHOT_OUTCOME)[keyof typeof DEFENSE_TURRET_SHOT_OUTCOME];
 
 // Удобный стабильный id встроенной Defense Turret.
 // Каталог открыт для новых module ids из content editor.
 export const DEFENSE_TURRET_ID = {
-    BASIC_00:
-        'defense_turret_basic_00',
+    BASIC_00: "defense_turret_basic_00",
 } as const;
 
-export type DefenseTurretId =
-    string;
+export type DefenseTurretId = string;
 
 export type DefenseTurretDefinition = {
     id: DefenseTurretId;
@@ -31,19 +28,16 @@ export type DefenseTurretDefinition = {
 };
 
 export const DEFENSE_TURRET_PHASE = {
-    READY: 'ready',
-    LOADING: 'loading',
-    COOLDOWN: 'cooldown',
+    READY: "ready",
+    LOADING: "loading",
+    COOLDOWN: "cooldown",
 } as const;
 
-export type DefenseTurretPhase =
-    (typeof DEFENSE_TURRET_PHASE)[keyof typeof DEFENSE_TURRET_PHASE];
+export type DefenseTurretPhase = (typeof DEFENSE_TURRET_PHASE)[keyof typeof DEFENSE_TURRET_PHASE];
 
 // One shared operator-occupation query for installed defense turret.
 // Loading requires Weapons; ready and cooldown do not.
-export function doesDefenseTurretPhaseRequireOperator(
-    phase: DefenseTurretPhase,
-): boolean {
+export function doesDefenseTurretPhaseRequireOperator(phase: DefenseTurretPhase): boolean {
     switch (phase) {
         case DEFENSE_TURRET_PHASE.LOADING:
             return true;
@@ -53,8 +47,7 @@ export function doesDefenseTurretPhaseRequireOperator(
             return false;
 
         default: {
-            const exhaustivePhase: never =
-                phase;
+            const exhaustivePhase: never = phase;
 
             return exhaustivePhase;
         }
@@ -65,9 +58,7 @@ export function doesDefenseTurretPhaseRequireOperator(
 //
 // Kept separate from occupation so future physical phases can remain
 // world-time without silently changing crew ownership.
-export function doesDefenseTurretPhaseAdvanceWithCrew(
-    phase: DefenseTurretPhase,
-): boolean {
+export function doesDefenseTurretPhaseAdvanceWithCrew(phase: DefenseTurretPhase): boolean {
     switch (phase) {
         case DEFENSE_TURRET_PHASE.LOADING:
             return true;
@@ -77,8 +68,7 @@ export function doesDefenseTurretPhaseAdvanceWithCrew(
             return false;
 
         default: {
-            const exhaustivePhase: never =
-                phase;
+            const exhaustivePhase: never = phase;
 
             return exhaustivePhase;
         }
@@ -92,8 +82,7 @@ export type ShipDefenseTurretState = {
     id: string;
 
     // Stable immutable content definition.
-    defenseTurretId:
-        DefenseTurretId;
+    defenseTurretId: DefenseTurretId;
 
     phase: DefenseTurretPhase;
     phaseElapsedMs: number;
@@ -104,31 +93,19 @@ export type ShipDefenseTurretState = {
     targetProjectileId: string | null;
 };
 
+export function commitDefenseTurretCooldown(defenseTurret: ShipDefenseTurretState, cooldownDurationMs: number): void {
+    validateDefenseTurretCooldownDuration(cooldownDurationMs);
 
-export function commitDefenseTurretCooldown(
-    defenseTurret: ShipDefenseTurretState,
-    cooldownDurationMs: number,
-): void {
-    validateDefenseTurretCooldownDuration(
-        cooldownDurationMs,
-    );
-
-    if (
-        defenseTurret.cooldownRemainingMs > 0
-    ) {
+    if (defenseTurret.cooldownRemainingMs > 0) {
         throw new Error(
-            'Defense Turret cooldown is already committed: ' +
+            "Defense Turret cooldown is already committed: " +
                 defenseTurret.id +
-                '/' +
-                String(
-                    defenseTurret
-                        .cooldownRemainingMs,
-                ),
+                "/" +
+                String(defenseTurret.cooldownRemainingMs),
         );
     }
 
-    defenseTurret.cooldownRemainingMs =
-        cooldownDurationMs;
+    defenseTurret.cooldownRemainingMs = cooldownDurationMs;
 }
 
 export function advanceDefenseTurretCooldown(
@@ -136,113 +113,53 @@ export function advanceDefenseTurretCooldown(
     cooldownDurationMs: number,
     deltaMs: number,
 ): void {
-    validateDefenseTurretCooldownDuration(
-        cooldownDurationMs,
-    );
+    validateDefenseTurretCooldownDuration(cooldownDurationMs);
 
-    if (
-        !Number.isFinite(deltaMs) ||
-        deltaMs < 0
-    ) {
+    if (!Number.isFinite(deltaMs) || deltaMs < 0) {
         throw new Error(
-            'Defense Turret cooldown delta must be non-negative: ' +
-                defenseTurret.id +
-                '/' +
-                String(deltaMs),
+            "Defense Turret cooldown delta must be non-negative: " + defenseTurret.id + "/" + String(deltaMs),
         );
     }
 
-    defenseTurret.cooldownRemainingMs =
-        Math.max(
-            0,
-            defenseTurret
-                .cooldownRemainingMs -
-                deltaMs,
-        );
+    defenseTurret.cooldownRemainingMs = Math.max(0, defenseTurret.cooldownRemainingMs - deltaMs);
 
-    if (
-        defenseTurret.phase !==
-        DEFENSE_TURRET_PHASE.COOLDOWN
-    ) {
+    if (defenseTurret.phase !== DEFENSE_TURRET_PHASE.COOLDOWN) {
         return;
     }
 
-    if (
-        defenseTurret.cooldownRemainingMs ===
-        0
-    ) {
-        setDefenseTurretReady(
-            defenseTurret,
-        );
+    if (defenseTurret.cooldownRemainingMs === 0) {
+        setDefenseTurretReady(defenseTurret);
         return;
     }
 
-    defenseTurret.phaseElapsedMs =
-        Math.max(
-            0,
-            cooldownDurationMs -
-                defenseTurret
-                    .cooldownRemainingMs,
-        );
+    defenseTurret.phaseElapsedMs = Math.max(0, cooldownDurationMs - defenseTurret.cooldownRemainingMs);
 }
 
-export function finishDefenseTurretAction(
-    defenseTurret: ShipDefenseTurretState,
-    cooldownDurationMs: number,
-): void {
-    validateDefenseTurretCooldownDuration(
-        cooldownDurationMs,
-    );
+export function finishDefenseTurretAction(defenseTurret: ShipDefenseTurretState, cooldownDurationMs: number): void {
+    validateDefenseTurretCooldownDuration(cooldownDurationMs);
 
-    defenseTurret.targetProjectileId =
-        null;
+    defenseTurret.targetProjectileId = null;
 
-    if (
-        defenseTurret.cooldownRemainingMs > 0
-    ) {
-        defenseTurret.phase =
-            DEFENSE_TURRET_PHASE.COOLDOWN;
+    if (defenseTurret.cooldownRemainingMs > 0) {
+        defenseTurret.phase = DEFENSE_TURRET_PHASE.COOLDOWN;
 
-        defenseTurret.phaseElapsedMs =
-            Math.max(
-                0,
-                cooldownDurationMs -
-                    defenseTurret
-                        .cooldownRemainingMs,
-            );
+        defenseTurret.phaseElapsedMs = Math.max(0, cooldownDurationMs - defenseTurret.cooldownRemainingMs);
 
         return;
     }
 
-    setDefenseTurretReady(
-        defenseTurret,
-    );
+    setDefenseTurretReady(defenseTurret);
 }
 
-function setDefenseTurretReady(
-    defenseTurret: ShipDefenseTurretState,
-): void {
-    defenseTurret.phase =
-        DEFENSE_TURRET_PHASE.READY;
+function setDefenseTurretReady(defenseTurret: ShipDefenseTurretState): void {
+    defenseTurret.phase = DEFENSE_TURRET_PHASE.READY;
     defenseTurret.phaseElapsedMs = 0;
     defenseTurret.cooldownRemainingMs = 0;
     defenseTurret.targetProjectileId = null;
 }
 
-function validateDefenseTurretCooldownDuration(
-    cooldownDurationMs: number,
-): void {
-    if (
-        !Number.isFinite(
-            cooldownDurationMs,
-        ) ||
-        cooldownDurationMs < 0
-    ) {
-        throw new Error(
-            'Defense Turret cooldown duration must be non-negative: ' +
-                String(
-                    cooldownDurationMs,
-                ),
-        );
+function validateDefenseTurretCooldownDuration(cooldownDurationMs: number): void {
+    if (!Number.isFinite(cooldownDurationMs) || cooldownDurationMs < 0) {
+        throw new Error("Defense Turret cooldown duration must be non-negative: " + String(cooldownDurationMs));
     }
 }

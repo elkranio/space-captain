@@ -1,55 +1,36 @@
 // src/app/scenes/game/bridge/controller/player_weapon_status/BridgePlayerWeaponStatusMapper.ts
 
-import {
-    SHIP_WEAPON_KIND,
-} from '../../../../../../engine/defs/ship_weapon';
-import type {
-    PlayerWeaponPresentationSnapshot,
-} from '../../../../../../engine/encounter/snapshots/combat_presentation_snapshot';
+import { SHIP_WEAPON_KIND } from "../../../../../../engine/defs/ship_weapon";
+import type { PlayerWeaponPresentationSnapshot } from "../../../../../../engine/encounter/snapshots/combat_presentation_snapshot";
 import type {
     BridgePlayerWeaponStatusPayload,
     BridgePlayerWeaponsStatusUpdatedPayload,
-} from '../../events/bridge_event';
+} from "../../events/bridge_event";
 
 // Preserve installed-weapon identity all the way into bridge presentation.
 // Multiple weapons of the same kind are normal; no kind-level collapsing lives
 // on this boundary.
 export function mapPlayerWeaponsToBridgeStatusPayload(
-    snapshots:
-        PlayerWeaponPresentationSnapshot[],
+    snapshots: PlayerWeaponPresentationSnapshot[],
 ): BridgePlayerWeaponsStatusUpdatedPayload {
-    return snapshots.map(
-        mapWeaponStatus,
-    );
+    return snapshots.map(mapWeaponStatus);
 }
 
-function mapWeaponStatus(
-    snapshot:
-        PlayerWeaponPresentationSnapshot,
-): BridgePlayerWeaponStatusPayload {
-    const weapon =
-        snapshot.state;
+function mapWeaponStatus(snapshot: PlayerWeaponPresentationSnapshot): BridgePlayerWeaponStatusPayload {
+    const weapon = snapshot.state;
 
     const base = {
-        id:
-            weapon.id,
+        id: weapon.id,
 
-        weaponId:
-            weapon.weaponId,
+        weaponId: weapon.weaponId,
 
-        kind:
-            weapon.kind,
+        kind: weapon.kind,
 
-        phase:
-            weapon.phase,
+        phase: weapon.phase,
 
-        ...mapPhaseTiming(
-            snapshot,
-        ),
+        ...mapPhaseTiming(snapshot),
 
-        ...mapCooldownTiming(
-            snapshot,
-        ),
+        ...mapCooldownTiming(snapshot),
     };
 
     switch (weapon.kind) {
@@ -57,28 +38,20 @@ function mapWeaponStatus(
         case SHIP_WEAPON_KIND.SPAM_PROJECTOR:
             return base;
 
-        case SHIP_WEAPON_KIND
-            .MISSILE_LAUNCHER:
-        case SHIP_WEAPON_KIND
-            .STICKY_MINE_DISPENSER:
+        case SHIP_WEAPON_KIND.MISSILE_LAUNCHER:
+        case SHIP_WEAPON_KIND.STICKY_MINE_DISPENSER:
             return {
                 ...base,
 
                 ammo: {
-                    current:
-                        weapon.ammoCount,
+                    current: weapon.ammoCount,
 
-                    max:
-                        requireAmmoCapacity(
-                            snapshot,
-                        ),
+                    max: requireAmmoCapacity(snapshot),
                 },
             };
 
         default: {
-            const exhaustiveWeapon:
-                never =
-                weapon;
+            const exhaustiveWeapon: never = weapon;
 
             return exhaustiveWeapon;
         }
@@ -86,61 +59,38 @@ function mapWeaponStatus(
 }
 
 function mapPhaseTiming(
-    snapshot:
-        PlayerWeaponPresentationSnapshot,
-): Pick<
-    BridgePlayerWeaponStatusPayload,
-    'initialPhaseMs' | 'remainingPhaseMs'
-> {
-    const phaseDurationMs =
-        snapshot.phaseDurationMs;
+    snapshot: PlayerWeaponPresentationSnapshot,
+): Pick<BridgePlayerWeaponStatusPayload, "initialPhaseMs" | "remainingPhaseMs"> {
+    const phaseDurationMs = snapshot.phaseDurationMs;
 
     if (phaseDurationMs === undefined) {
         return {};
     }
 
     return {
-        initialPhaseMs:
-            phaseDurationMs,
+        initialPhaseMs: phaseDurationMs,
 
-        remainingPhaseMs:
-            Math.max(
-                0,
+        remainingPhaseMs: Math.max(
+            0,
 
-                phaseDurationMs -
-                    snapshot.state
-                        .phaseElapsedMs,
-            ),
+            phaseDurationMs - snapshot.state.phaseElapsedMs,
+        ),
     };
 }
 
 function mapCooldownTiming(
-    snapshot:
-        PlayerWeaponPresentationSnapshot,
-): Pick<
-    BridgePlayerWeaponStatusPayload,
-    'initialCooldownMs' | 'remainingCooldownMs'
-> {
-    const remainingCooldownMs =
-        snapshot.state
-            .cooldownRemainingMs;
+    snapshot: PlayerWeaponPresentationSnapshot,
+): Pick<BridgePlayerWeaponStatusPayload, "initialCooldownMs" | "remainingCooldownMs"> {
+    const remainingCooldownMs = snapshot.state.cooldownRemainingMs;
 
     if (remainingCooldownMs <= 0) {
         return {};
     }
 
-    const initialCooldownMs =
-        snapshot.cooldownDurationMs;
+    const initialCooldownMs = snapshot.cooldownDurationMs;
 
-    if (
-        initialCooldownMs <= 0 ||
-        remainingCooldownMs >
-            initialCooldownMs
-    ) {
-        throw new Error(
-            'Player weapon presentation has invalid cooldown timing: ' +
-                snapshot.state.id,
-        );
+    if (initialCooldownMs <= 0 || remainingCooldownMs > initialCooldownMs) {
+        throw new Error("Player weapon presentation has invalid cooldown timing: " + snapshot.state.id);
     }
 
     return {
@@ -149,19 +99,12 @@ function mapCooldownTiming(
     };
 }
 
-function requireAmmoCapacity(
-    snapshot:
-        PlayerWeaponPresentationSnapshot,
-): number {
-    const capacity =
-        snapshot.ammoCapacity;
+function requireAmmoCapacity(snapshot: PlayerWeaponPresentationSnapshot): number {
+    const capacity = snapshot.ammoCapacity;
 
     if (capacity !== undefined) {
         return capacity;
     }
 
-    throw new Error(
-        'Player weapon presentation is missing ammo capacity: ' +
-            snapshot.state.id,
-    );
+    throw new Error("Player weapon presentation is missing ammo capacity: " + snapshot.state.id);
 }

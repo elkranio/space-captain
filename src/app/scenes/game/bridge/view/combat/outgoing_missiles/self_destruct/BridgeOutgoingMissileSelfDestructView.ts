@@ -1,21 +1,15 @@
 // src/app/scenes/game/bridge/view/combat/outgoing_missiles/self_destruct/BridgeOutgoingMissileSelfDestructView.ts
 
-import type BridgeScene from '../../../../BridgeScene';
+import type BridgeScene from "../../../../BridgeScene";
 
 type BridgeOutgoingMissileSelfDestructViewOptions = {
     scene: BridgeScene;
 
-    parent:
-        Phaser.GameObjects.Container;
+    parent: Phaser.GameObjects.Container;
 
-    position:
-        Phaser.Math.Vector2;
+    position: Phaser.Math.Vector2;
 
-    onComplete:
-        (
-            view:
-                BridgeOutgoingMissileSelfDestructView,
-        ) => void;
+    onComplete: (view: BridgeOutgoingMissileSelfDestructView) => void;
 };
 
 const OUTGOING_MISSILE_SELF_DESTRUCT_PRESENTATION = {
@@ -36,7 +30,7 @@ const OUTGOING_MISSILE_SELF_DESTRUCT_PRESENTATION = {
         },
         {
             x: -0.75,
-            y: 0.70,
+            y: 0.7,
         },
         {
             x: -0.15,
@@ -47,15 +41,15 @@ const OUTGOING_MISSILE_SELF_DESTRUCT_PRESENTATION = {
             y: 0.95,
         },
         {
-            x: 0.70,
-            y: -0.70,
+            x: 0.7,
+            y: -0.7,
         },
         {
             x: 1.0,
             y: 0.15,
         },
         {
-            x: 0.80,
+            x: 0.8,
             y: 0.65,
         },
     ],
@@ -65,244 +59,102 @@ const OUTGOING_MISSILE_SELF_DESTRUCT_PRESENTATION = {
 // It deliberately does not reuse the hull-impact flash:
 // no radial blast, no shake, no gameplay event.
 export default class BridgeOutgoingMissileSelfDestructView {
-    private readonly graphics:
-        Phaser.GameObjects.Graphics;
+    private readonly graphics: Phaser.GameObjects.Graphics;
 
-    private elapsedMs =
-        0;
+    private elapsedMs = 0;
 
-    private isDestroyed =
-        false;
+    private isDestroyed = false;
 
-    constructor({
-        scene,
-        parent,
-        position,
-        onComplete,
-    }: BridgeOutgoingMissileSelfDestructViewOptions) {
-        this.graphics =
-            scene.add.graphics();
+    constructor({ scene, parent, position, onComplete }: BridgeOutgoingMissileSelfDestructViewOptions) {
+        this.graphics = scene.add.graphics();
 
-        this.graphics.setPosition(
-            position.x,
-            position.y,
-        );
+        this.graphics.setPosition(position.x, position.y);
 
-        parent.add(
-            this.graphics,
-        );
+        parent.add(this.graphics);
 
-        scene.events.on(
-            Phaser.Scenes.Events.UPDATE,
-            this.handleUpdate,
-            this,
-        );
+        scene.events.on(Phaser.Scenes.Events.UPDATE, this.handleUpdate, this);
 
-        this.render(
-            0,
-        );
+        this.render(0);
 
-        this.onComplete =
-            onComplete;
+        this.onComplete = onComplete;
     }
 
-    private readonly onComplete:
-        (
-            view:
-                BridgeOutgoingMissileSelfDestructView,
-        ) => void;
+    private readonly onComplete: (view: BridgeOutgoingMissileSelfDestructView) => void;
 
     public destroy(): void {
-        if (
-            this.isDestroyed
-        ) {
+        if (this.isDestroyed) {
             return;
         }
 
-        this.isDestroyed =
-            true;
+        this.isDestroyed = true;
 
-        this.graphics.scene?.events.off(
-            Phaser.Scenes.Events.UPDATE,
-            this.handleUpdate,
-            this,
-        );
+        this.graphics.scene?.events.off(Phaser.Scenes.Events.UPDATE, this.handleUpdate, this);
 
         this.graphics.destroy();
     }
 
-    private handleUpdate(
-        _time: number,
-        deltaMs: number,
-    ): void {
-        if (
-            this.isDestroyed
-        ) {
+    private handleUpdate(_time: number, deltaMs: number): void {
+        if (this.isDestroyed) {
             return;
         }
 
-        this.elapsedMs +=
-            Math.max(
-                0,
-                deltaMs,
-            );
+        this.elapsedMs += Math.max(0, deltaMs);
 
-        const progress =
-            Phaser.Math.Clamp(
-                this.elapsedMs /
-                    OUTGOING_MISSILE_SELF_DESTRUCT_PRESENTATION
-                        .durationMs,
-                0,
-                1,
-            );
-
-        this.render(
-            progress,
+        const progress = Phaser.Math.Clamp(
+            this.elapsedMs / OUTGOING_MISSILE_SELF_DESTRUCT_PRESENTATION.durationMs,
+            0,
+            1,
         );
 
-        if (
-            progress <
-            1
-        ) {
+        this.render(progress);
+
+        if (progress < 1) {
             return;
         }
 
         this.destroy();
-        this.onComplete(
-            this,
-        );
+        this.onComplete(this);
     }
 
-    private render(
-        progress: number,
-    ): void {
-        const config =
-            OUTGOING_MISSILE_SELF_DESTRUCT_PRESENTATION;
+    private render(progress: number): void {
+        const config = OUTGOING_MISSILE_SELF_DESTRUCT_PRESENTATION;
 
-        const graphics =
-            this.graphics;
+        const graphics = this.graphics;
 
         graphics.clear();
 
-        const fragmentProgress =
-            1 -
-            Math.pow(
-                1 - progress,
-                2,
-            );
+        const fragmentProgress = 1 - Math.pow(1 - progress, 2);
 
-        const fragmentAlpha =
-            1 -
-            progress;
+        const fragmentAlpha = 1 - progress;
 
-        const coreProgress =
-            Phaser.Math.Clamp(
-                (
-                    progress *
-                    config.durationMs
-                ) /
-                    config.coreDurationMs,
-                0,
-                1,
-            );
+        const coreProgress = Phaser.Math.Clamp((progress * config.durationMs) / config.coreDurationMs, 0, 1);
 
-        const coreSize =
-            Math.max(
-                0,
-                Math.round(
-                    Phaser.Math.Linear(
-                        config.coreSizePx,
-                        0,
-                        coreProgress,
-                    ),
-                ),
-            );
+        const coreSize = Math.max(0, Math.round(Phaser.Math.Linear(config.coreSizePx, 0, coreProgress)));
 
-        if (
-            coreSize >
-            0
-        ) {
-            graphics.fillStyle(
-                config.hotColor,
-                1 - coreProgress,
-            );
+        if (coreSize > 0) {
+            graphics.fillStyle(config.hotColor, 1 - coreProgress);
 
-            graphics.fillRect(
-                Math.round(
-                    -coreSize / 2,
-                ),
-                Math.round(
-                    -coreSize / 2,
-                ),
-                coreSize,
-                coreSize,
-            );
+            graphics.fillRect(Math.round(-coreSize / 2), Math.round(-coreSize / 2), coreSize, coreSize);
         }
 
-        const fragmentSize =
-            Math.max(
-                1,
-                Math.round(
-                    Phaser.Math.Linear(
-                        config.fragmentSizePx,
-                        1,
-                        progress,
-                    ),
-                ),
-            );
+        const fragmentSize = Math.max(1, Math.round(Phaser.Math.Linear(config.fragmentSizePx, 1, progress)));
 
-        for (
-            let index = 0;
-            index <
-                config.fragments.length;
-            index += 1
-        ) {
-            const fragment =
-                config.fragments[
-                    index
-                ];
+        for (let index = 0; index < config.fragments.length; index += 1) {
+            const fragment = config.fragments[index];
 
-            const directionLength =
-                Math.hypot(
-                    fragment.x,
-                    fragment.y,
-                );
+            const directionLength = Math.hypot(fragment.x, fragment.y);
 
-            if (
-                directionLength <=
-                Number.EPSILON
-            ) {
+            if (directionLength <= Number.EPSILON) {
                 continue;
             }
 
-            const travelPx =
-                config.fragmentTravelPx *
-                fragmentProgress;
+            const travelPx = config.fragmentTravelPx * fragmentProgress;
 
-            graphics.fillStyle(
-                index % 2 === 0
-                    ? config.hotColor
-                    : config.coolColor,
-                fragmentAlpha,
-            );
+            graphics.fillStyle(index % 2 === 0 ? config.hotColor : config.coolColor, fragmentAlpha);
 
             graphics.fillRect(
-                Math.round(
-                    (
-                        fragment.x /
-                        directionLength
-                    ) *
-                        travelPx -
-                        fragmentSize / 2,
-                ),
-                Math.round(
-                    (
-                        fragment.y /
-                        directionLength
-                    ) *
-                        travelPx -
-                        fragmentSize / 2,
-                ),
+                Math.round((fragment.x / directionLength) * travelPx - fragmentSize / 2),
+                Math.round((fragment.y / directionLength) * travelPx - fragmentSize / 2),
                 fragmentSize,
                 fragmentSize,
             );

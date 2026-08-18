@@ -1,9 +1,9 @@
 // src/app/scenes/game/bridge/view/objects/animation/arrival/play_objects_arrival_sequence.ts
 
-import { BRIDGE_EVENT } from '../../../../events/bridge_event';
-import type BridgeObjectSpriteView from '../../object_sprite/BridgeObjectSpriteView';
-import type { BridgeObjectsAnimationContext } from '../bridge_objects_animation_context';
-import { playSteppedAnimation } from '../play_stepped_animation';
+import { BRIDGE_EVENT } from "../../../../events/bridge_event";
+import type BridgeObjectSpriteView from "../../object_sprite/BridgeObjectSpriteView";
+import type { BridgeObjectsAnimationContext } from "../bridge_objects_animation_context";
+import { playSteppedAnimation } from "../play_stepped_animation";
 
 const ARRIVAL_DURATION_MS = 1000;
 

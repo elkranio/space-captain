@@ -2,8 +2,7 @@ export type PlayerBeamCannonMissTargetOptions = {
     sourceX: number;
     sourceY: number;
 
-    missSide:
-        PlayerBeamCannonMissSide;
+    missSide: PlayerBeamCannonMissSide;
 
     presentedTargetLeft: number;
     presentedTargetRight: number;
@@ -23,15 +22,12 @@ export type PlayerBeamCannonMissTarget = {
 };
 
 export const PLAYER_BEAM_CANNON_MISS_SIDE = {
-    LEFT:
-        'left',
+    LEFT: "left",
 
-    RIGHT:
-        'right',
+    RIGHT: "right",
 } as const;
 
-export type PlayerBeamCannonMissSide =
-    (typeof PLAYER_BEAM_CANNON_MISS_SIDE)[keyof typeof PLAYER_BEAM_CANNON_MISS_SIDE];
+export type PlayerBeamCannonMissSide = (typeof PLAYER_BEAM_CANNON_MISS_SIDE)[keyof typeof PLAYER_BEAM_CANNON_MISS_SIDE];
 
 const VIEWPORT_EXTENSION_FACTOR = 2;
 
@@ -40,19 +36,8 @@ const VIEWPORT_EXTENSION_FACTOR = 2;
 // presented ship bounds for unusually small sprites.
 const MISS_LANE_CENTER_OFFSET_PX = 48;
 
-export function getRandomPlayerBeamCannonMissSide(
-    random:
-        () => number =
-            Math.random,
-): PlayerBeamCannonMissSide {
-    return (
-        random() <
-        0.5
-    )
-        ? PLAYER_BEAM_CANNON_MISS_SIDE
-              .LEFT
-        : PLAYER_BEAM_CANNON_MISS_SIDE
-              .RIGHT;
+export function getRandomPlayerBeamCannonMissSide(random: () => number = Math.random): PlayerBeamCannonMissSide {
+    return random() < 0.5 ? PLAYER_BEAM_CANNON_MISS_SIDE.LEFT : PLAYER_BEAM_CANNON_MISS_SIDE.RIGHT;
 }
 
 // Builds a presentation-only Beam fly-by for an Evade MISS.
@@ -73,88 +58,39 @@ export function getPlayerBeamCannonMissTarget({
 
     viewportWidth,
     viewportHeight,
-}: PlayerBeamCannonMissTargetOptions):
-    PlayerBeamCannonMissTarget {
-    const halfPresentedWidth =
-        Math.max(
-            0,
-            (
-                presentedTargetRight -
-                presentedTargetLeft
-            ) /
-                2,
-        );
+}: PlayerBeamCannonMissTargetOptions): PlayerBeamCannonMissTarget {
+    const halfPresentedWidth = Math.max(0, (presentedTargetRight - presentedTargetLeft) / 2);
 
-    const centerOffsetX =
-        Math.min(
-            MISS_LANE_CENTER_OFFSET_PX,
-            halfPresentedWidth,
-        );
+    const centerOffsetX = Math.min(MISS_LANE_CENTER_OFFSET_PX, halfPresentedWidth);
 
     const passX =
-        presentedTargetCenterX +
-        (
-            missSide ===
-                PLAYER_BEAM_CANNON_MISS_SIDE
-                    .LEFT
-                ? -centerOffsetX
-                : centerOffsetX
-        );
+        presentedTargetCenterX + (missSide === PLAYER_BEAM_CANNON_MISS_SIDE.LEFT ? -centerOffsetX : centerOffsetX);
 
-    const passY =
-        presentedTargetCenterY;
+    const passY = presentedTargetCenterY;
 
-    const directionX =
-        passX - sourceX;
+    const directionX = passX - sourceX;
 
-    const directionY =
-        passY - sourceY;
+    const directionY = passY - sourceY;
 
-    const directionLength =
-        Math.hypot(
-            directionX,
-            directionY,
-        );
+    const directionLength = Math.hypot(directionX, directionY);
 
-    if (
-        directionLength <=
-        Number.EPSILON
-    ) {
-        throw new Error(
-            'Player Beam Cannon miss direction must have non-zero length',
-        );
+    if (directionLength <= Number.EPSILON) {
+        throw new Error("Player Beam Cannon miss direction must have non-zero length");
     }
 
-    const viewportDiagonal =
-        Math.hypot(
-            viewportWidth,
-            viewportHeight,
-        );
+    const viewportDiagonal = Math.hypot(viewportWidth, viewportHeight);
 
-    const targetDistance =
-        directionLength +
-        viewportDiagonal *
-            VIEWPORT_EXTENSION_FACTOR;
+    const targetDistance = directionLength + viewportDiagonal * VIEWPORT_EXTENSION_FACTOR;
 
-    const scale =
-        targetDistance /
-        directionLength;
+    const scale = targetDistance / directionLength;
 
     return {
-        x:
-            sourceX +
-            directionX *
-                scale,
+        x: sourceX + directionX * scale,
 
-        y:
-            sourceY +
-            directionY *
-                scale,
+        y: sourceY + directionY * scale,
 
-        perspectiveX:
-            passX,
+        perspectiveX: passX,
 
-        perspectiveY:
-            passY,
+        perspectiveY: passY,
     };
 }

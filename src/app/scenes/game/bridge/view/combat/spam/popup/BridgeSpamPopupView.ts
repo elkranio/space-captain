@@ -1,8 +1,8 @@
 // src/app/scenes/game/bridge/view/combat/spam/popup/BridgeSpamPopupView.ts
 
-import type { SpriteEntry } from '../../../../../../../manifests/types';
-import type BridgeScene from '../../../../BridgeScene';
-import { BRIDGE_SPAM_PRESENTATION } from '../bridge_spam_layout';
+import type { SpriteEntry } from "../../../../../../../manifests/types";
+import type BridgeScene from "../../../../BridgeScene";
+import { BRIDGE_SPAM_PRESENTATION } from "../bridge_spam_layout";
 
 type BridgeSpamPopupViewOptions = {
     scene: BridgeScene;
@@ -21,9 +21,7 @@ export default class BridgeSpamPopupView {
     private isHiding = false;
     private isDestroyed = false;
 
-    constructor(
-        private readonly options: BridgeSpamPopupViewOptions,
-    ) {
+    constructor(private readonly options: BridgeSpamPopupViewOptions) {
         this.image = this.options.scene.add
             .image(
                 this.options.position.x,
@@ -50,7 +48,7 @@ export default class BridgeSpamPopupView {
             scaleY: 1,
 
             duration: BRIDGE_SPAM_PRESENTATION.appearDurationMs,
-            ease: 'Back.Out',
+            ease: "Back.Out",
         });
     }
 
@@ -76,7 +74,7 @@ export default class BridgeSpamPopupView {
             alpha: 0,
 
             duration: BRIDGE_SPAM_PRESENTATION.hideDurationMs,
-            ease: 'Back.In',
+            ease: "Back.In",
 
             onComplete: () => {
                 this.destroy();

@@ -4,10 +4,10 @@ import {
     OFFICER_CONTEXT_MENU_SPRITE_ID,
     OFFICER_CONTEXT_MENU_SPRITES,
     type OfficerContextMenuSpriteId,
-} from '../../../../../../../manifests/bridge/officer_context_menu';
-import { FONT_COLOR, FONT_FAMILY, FONT_SIZE } from '../../../../../../../theme/font';
-import type BridgeScene from '../../../../BridgeScene';
-import { OFFICER_CONTEXT_MENU_LAYOUT } from '../bridge_officer_context_menu_layout';
+} from "../../../../../../../manifests/bridge/officer_context_menu";
+import { FONT_COLOR, FONT_FAMILY, FONT_SIZE } from "../../../../../../../theme/font";
+import type BridgeScene from "../../../../BridgeScene";
+import { OFFICER_CONTEXT_MENU_LAYOUT } from "../bridge_officer_context_menu_layout";
 
 type OfficerContextMenuPanelMetrics = {
     topHeight: number;

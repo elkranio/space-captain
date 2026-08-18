@@ -1,16 +1,7 @@
-import {
-    FONT_COLOR,
-    FONT_FAMILY,
-    FONT_SIZE,
-} from '../../../../../../../theme/font';
-import type BridgeScene from '../../../../BridgeScene';
-import {
-    CAPTAIN_DASHBOARD_STYLE,
-} from '../../captain_dashboard_style';
-import {
-    BRIDGE_PLAYER_SYSTEM_ACTION_STATE,
-    type BridgePlayerSystemActionState,
-} from '../../../../events/bridge_event';
+import { FONT_COLOR, FONT_FAMILY, FONT_SIZE } from "../../../../../../../theme/font";
+import type BridgeScene from "../../../../BridgeScene";
+import { CAPTAIN_DASHBOARD_STYLE } from "../../captain_dashboard_style";
+import { BRIDGE_PLAYER_SYSTEM_ACTION_STATE, type BridgePlayerSystemActionState } from "../../../../events/bridge_event";
 
 export type BridgePlayerShipSystemRowLayout = {
     iconLabel: string;
@@ -36,7 +27,6 @@ const ROW = {
     roleButtonHeight: 28,
     roleButtonMarginRight: 6,
     roleButtonY: 4,
-
 } as const;
 
 // Один повторяемый визуальный row player system.
@@ -48,201 +38,142 @@ const ROW = {
 // - presentation state action button;
 // - callback только для ACTIVE action.
 export default class BridgePlayerShipSystemRowView {
-    private readonly root:
-        Phaser.GameObjects.Container;
+    private readonly root: Phaser.GameObjects.Container;
 
-    private readonly systemLabel:
-        Phaser.GameObjects.BitmapText;
+    private readonly systemLabel: Phaser.GameObjects.BitmapText;
 
-    private readonly progressBackground:
-        Phaser.GameObjects.Rectangle;
+    private readonly progressBackground: Phaser.GameObjects.Rectangle;
 
-    private readonly progressFill:
-        Phaser.GameObjects.Rectangle;
+    private readonly progressFill: Phaser.GameObjects.Rectangle;
 
-    private readonly roleButton:
-        Phaser.GameObjects.Rectangle;
+    private readonly roleButton: Phaser.GameObjects.Rectangle;
 
-    private readonly roleLabel:
-        Phaser.GameObjects.BitmapText;
+    private readonly roleLabel: Phaser.GameObjects.BitmapText;
 
-    private actionHandler?:
-        () => void;
+    private actionHandler?: () => void;
 
     constructor(
         private readonly scene: BridgeScene,
         width: number,
         height: number,
-        layout:
-            BridgePlayerShipSystemRowLayout,
+        layout: BridgePlayerShipSystemRowLayout,
     ) {
-        this.root =
-            this.scene.add.container(
-                0,
-                0,
-            );
+        this.root = this.scene.add.container(0, 0);
 
-        const visibleHeight =
-            Math.max(
+        const visibleHeight = Math.max(1, height - ROW.verticalGap);
+
+        const background = this.scene.add
+            .rectangle(
+                0,
+                0,
+
+                width,
+                visibleHeight,
+
+                CAPTAIN_DASHBOARD_STYLE.row.backgroundColor,
+                CAPTAIN_DASHBOARD_STYLE.row.backgroundAlpha,
+            )
+            .setOrigin(0, 0)
+            .setStrokeStyle(CAPTAIN_DASHBOARD_STYLE.row.borderThickness, CAPTAIN_DASHBOARD_STYLE.row.borderColor);
+
+        const iconBackground = this.scene.add
+            .rectangle(
+                ROW.iconX,
+                ROW.iconY,
+
+                ROW.iconSize,
+                ROW.iconSize,
+
+                CAPTAIN_DASHBOARD_STYLE.row.iconBackgroundColor,
                 1,
-                height -
-                    ROW.verticalGap,
-            );
+            )
+            .setOrigin(0, 0)
+            .setStrokeStyle(1, CAPTAIN_DASHBOARD_STYLE.row.iconBorderColor);
 
-        const background =
-            this.scene.add
-                .rectangle(
-                    0,
-                    0,
+        const iconLabel = this.scene.add
+            .bitmapText(
+                ROW.iconX + ROW.iconSize / 2,
 
-                    width,
-                    visibleHeight,
+                ROW.iconY + ROW.iconSize / 2,
 
-                    CAPTAIN_DASHBOARD_STYLE.row.backgroundColor,
-                    CAPTAIN_DASHBOARD_STYLE.row.backgroundAlpha,
-                )
-                .setOrigin(0, 0)
-                .setStrokeStyle(
-                    CAPTAIN_DASHBOARD_STYLE.row.borderThickness,
-                    CAPTAIN_DASHBOARD_STYLE.row.borderColor,
-                );
+                FONT_FAMILY.VGA_8X14,
+                layout.iconLabel,
+                FONT_SIZE.PX_16,
+            )
+            .setOrigin(0.5, 0.5)
+            .setTint(FONT_COLOR.SECONDARY);
 
-        const iconBackground =
-            this.scene.add
-                .rectangle(
-                    ROW.iconX,
-                    ROW.iconY,
+        const progressY = ROW.iconY + ROW.iconSize;
 
-                    ROW.iconSize,
-                    ROW.iconSize,
+        this.progressBackground = this.scene.add
+            .rectangle(
+                ROW.iconX,
+                progressY,
 
-                    CAPTAIN_DASHBOARD_STYLE.row.iconBackgroundColor,
-                    1,
-                )
-                .setOrigin(0, 0)
-                .setStrokeStyle(
-                    1,
-                    CAPTAIN_DASHBOARD_STYLE.row.iconBorderColor,
-                );
+                ROW.iconSize,
+                ROW.progressHeight,
 
-        const iconLabel =
-            this.scene.add
-                .bitmapText(
-                    ROW.iconX +
-                        ROW.iconSize / 2,
+                ROW.progressBackgroundColor,
+                1,
+            )
+            .setOrigin(0, 0)
+            .setVisible(false);
 
-                    ROW.iconY +
-                        ROW.iconSize / 2,
+        this.progressFill = this.scene.add
+            .rectangle(
+                ROW.iconX,
+                progressY,
 
-                    FONT_FAMILY.VGA_8X14,
-                    layout.iconLabel,
-                    FONT_SIZE.PX_16,
-                )
-                .setOrigin(
-                    0.5,
-                    0.5,
-                )
-                .setTint(
-                    FONT_COLOR.SECONDARY,
-                );
+                ROW.iconSize,
+                ROW.progressHeight,
 
-        const progressY =
-            ROW.iconY +
-            ROW.iconSize;
+                ROW.progressColor,
+                1,
+            )
+            .setOrigin(0, 0)
+            .setVisible(false);
 
-        this.progressBackground =
-            this.scene.add
-                .rectangle(
-                    ROW.iconX,
-                    progressY,
+        this.systemLabel = this.scene.add
+            .bitmapText(
+                ROW.labelX,
+                ROW.labelY,
 
-                    ROW.iconSize,
-                    ROW.progressHeight,
+                FONT_FAMILY.VGA_8X14,
+                layout.label,
+                FONT_SIZE.PX_16,
+            )
+            .setOrigin(0, 0)
+            .setTint(FONT_COLOR.PRIMARY);
 
-                    ROW.progressBackgroundColor,
-                    1,
-                )
-                .setOrigin(0, 0)
-                .setVisible(false);
+        const roleButtonX = width - ROW.roleButtonMarginRight - ROW.roleButtonWidth;
 
-        this.progressFill =
-            this.scene.add
-                .rectangle(
-                    ROW.iconX,
-                    progressY,
+        this.roleButton = this.scene.add
+            .rectangle(
+                roleButtonX,
+                ROW.roleButtonY,
 
-                    ROW.iconSize,
-                    ROW.progressHeight,
+                ROW.roleButtonWidth,
+                ROW.roleButtonHeight,
 
-                    ROW.progressColor,
-                    1,
-                )
-                .setOrigin(0, 0)
-                .setVisible(false);
+                CAPTAIN_DASHBOARD_STYLE.action.disabledBackgroundColor,
+                1,
+            )
+            .setOrigin(0, 0)
+            .setStrokeStyle(1, CAPTAIN_DASHBOARD_STYLE.action.disabledBorderColor);
 
-        this.systemLabel =
-            this.scene.add
-                .bitmapText(
-                    ROW.labelX,
-                    ROW.labelY,
+        this.roleLabel = this.scene.add
+            .bitmapText(
+                roleButtonX + ROW.roleButtonWidth / 2,
 
-                    FONT_FAMILY.VGA_8X14,
-                    layout.label,
-                    FONT_SIZE.PX_16,
-                )
-                .setOrigin(0, 0)
-                .setTint(
-                    FONT_COLOR.PRIMARY,
-                );
+                ROW.roleButtonY + ROW.roleButtonHeight / 2,
 
-        const roleButtonX =
-            width -
-            ROW.roleButtonMarginRight -
-            ROW.roleButtonWidth;
+                FONT_FAMILY.VGA_8X14,
+                layout.roleLabel,
+                FONT_SIZE.PX_16,
+            )
+            .setOrigin(0.5, 0.5);
 
-        this.roleButton =
-            this.scene.add
-                .rectangle(
-                    roleButtonX,
-                    ROW.roleButtonY,
-
-                    ROW.roleButtonWidth,
-                    ROW.roleButtonHeight,
-
-                    CAPTAIN_DASHBOARD_STYLE.action.disabledBackgroundColor,
-                    1,
-                )
-                .setOrigin(0, 0)
-                .setStrokeStyle(
-                    1,
-                    CAPTAIN_DASHBOARD_STYLE.action.disabledBorderColor,
-                );
-
-        this.roleLabel =
-            this.scene.add
-                .bitmapText(
-                    roleButtonX +
-                        ROW.roleButtonWidth /
-                            2,
-
-                    ROW.roleButtonY +
-                        ROW.roleButtonHeight /
-                            2,
-
-                    FONT_FAMILY.VGA_8X14,
-                    layout.roleLabel,
-                    FONT_SIZE.PX_16,
-                )
-                .setOrigin(
-                    0.5,
-                    0.5,
-                );
-
-        this.roleButton.on(
-            'pointerdown',
-            this.handleActionPointerDown,
-            this,
-        );
+        this.roleButton.on("pointerdown", this.handleActionPointerDown, this);
 
         this.root.add([
             background,
@@ -255,107 +186,49 @@ export default class BridgePlayerShipSystemRowView {
             this.roleLabel,
         ]);
 
-        this.setAction(
-            BRIDGE_PLAYER_SYSTEM_ACTION_STATE
-                .DISABLED_SYSTEM,
-        );
+        this.setAction(BRIDGE_PLAYER_SYSTEM_ACTION_STATE.DISABLED_SYSTEM);
     }
 
-    public getRoot():
-        Phaser.GameObjects.Container {
+    public getRoot(): Phaser.GameObjects.Container {
         return this.root;
     }
 
-    public setPosition(
-        x: number,
-        y: number,
-    ): void {
-        this.root.setPosition(
-            x,
-            y,
-        );
+    public setPosition(x: number, y: number): void {
+        this.root.setPosition(x, y);
     }
 
-    public setSystemLabel(
-        text: string,
-    ): void {
-        this.systemLabel.setText(
-            text,
-        );
+    public setSystemLabel(text: string): void {
+        this.systemLabel.setText(text);
     }
 
-    public setProgress(
-        progress:
-            number | undefined,
-    ): void {
-        if (
-            progress ===
-            undefined
-        ) {
-            this.progressBackground
-                .setVisible(false);
+    public setProgress(progress: number | undefined): void {
+        if (progress === undefined) {
+            this.progressBackground.setVisible(false);
 
-            this.progressFill
-                .setVisible(false);
+            this.progressFill.setVisible(false);
 
             return;
         }
 
-        const clampedProgress =
-            Math.max(
-                0,
-                Math.min(
-                    1,
-                    progress,
-                ),
-            );
+        const clampedProgress = Math.max(0, Math.min(1, progress));
 
-        this.progressBackground
-            .setVisible(true);
+        this.progressBackground.setVisible(true);
 
-        this.progressFill
-            .setVisible(true)
-            .setScale(
-                clampedProgress,
-                1,
-            );
+        this.progressFill.setVisible(true).setScale(clampedProgress, 1);
     }
 
-    public setAction(
-        state:
-            BridgePlayerSystemActionState,
-        onSelected?:
-            () => void,
-    ): void {
-        if (
-            state ===
-                BRIDGE_PLAYER_SYSTEM_ACTION_STATE
-                    .ACTIVE &&
-            !onSelected
-        ) {
-            throw new Error(
-                'Active player system action requires click handler',
-            );
+    public setAction(state: BridgePlayerSystemActionState, onSelected?: () => void): void {
+        if (state === BRIDGE_PLAYER_SYSTEM_ACTION_STATE.ACTIVE && !onSelected) {
+            throw new Error("Active player system action requires click handler");
         }
 
-        this.actionHandler =
-            state ===
-            BRIDGE_PLAYER_SYSTEM_ACTION_STATE
-                .ACTIVE
-                ? onSelected
-                : undefined;
+        this.actionHandler = state === BRIDGE_PLAYER_SYSTEM_ACTION_STATE.ACTIVE ? onSelected : undefined;
 
-        this.applyActionVisualState(
-            state,
-        );
+        this.applyActionVisualState(state);
     }
 
     public destroy(): void {
-        this.roleButton.off(
-            'pointerdown',
-            this.handleActionPointerDown,
-            this,
-        );
+        this.roleButton.off("pointerdown", this.handleActionPointerDown, this);
 
         this.actionHandler = undefined;
 
@@ -366,63 +239,35 @@ export default class BridgePlayerShipSystemRowView {
         this.actionHandler?.();
     }
 
-    private applyActionVisualState(
-        state:
-            BridgePlayerSystemActionState,
-    ): void {
-        this.roleButton
-            .disableInteractive();
+    private applyActionVisualState(state: BridgePlayerSystemActionState): void {
+        this.roleButton.disableInteractive();
 
         switch (state) {
-            case BRIDGE_PLAYER_SYSTEM_ACTION_STATE
-                .ACTIVE:
+            case BRIDGE_PLAYER_SYSTEM_ACTION_STATE.ACTIVE:
                 this.roleButton
-                    .setFillStyle(
-                        CAPTAIN_DASHBOARD_STYLE.action.activeBackgroundColor,
-                        1,
-                    )
-                    .setStrokeStyle(
-                        1,
-                        CAPTAIN_DASHBOARD_STYLE.action.activeBorderColor,
-                    )
+                    .setFillStyle(CAPTAIN_DASHBOARD_STYLE.action.activeBackgroundColor, 1)
+                    .setStrokeStyle(1, CAPTAIN_DASHBOARD_STYLE.action.activeBorderColor)
                     .setInteractive({
                         useHandCursor: true,
                     });
 
-                this.roleLabel
-                    .setTint(
-                        FONT_COLOR.WHITE,
-                    );
+                this.roleLabel.setTint(FONT_COLOR.WHITE);
 
                 return;
 
-            case BRIDGE_PLAYER_SYSTEM_ACTION_STATE
-                .DISABLED_SYSTEM:
-            case BRIDGE_PLAYER_SYSTEM_ACTION_STATE
-                .DISABLED_OFFICER_BUSY:
-            case BRIDGE_PLAYER_SYSTEM_ACTION_STATE
-                .ENGAGED_CURRENT_WORK:
+            case BRIDGE_PLAYER_SYSTEM_ACTION_STATE.DISABLED_SYSTEM:
+            case BRIDGE_PLAYER_SYSTEM_ACTION_STATE.DISABLED_OFFICER_BUSY:
+            case BRIDGE_PLAYER_SYSTEM_ACTION_STATE.ENGAGED_CURRENT_WORK:
                 this.roleButton
-                    .setFillStyle(
-                        CAPTAIN_DASHBOARD_STYLE.action.disabledBackgroundColor,
-                        1,
-                    )
-                    .setStrokeStyle(
-                        1,
-                        CAPTAIN_DASHBOARD_STYLE.action.disabledBorderColor,
-                    );
+                    .setFillStyle(CAPTAIN_DASHBOARD_STYLE.action.disabledBackgroundColor, 1)
+                    .setStrokeStyle(1, CAPTAIN_DASHBOARD_STYLE.action.disabledBorderColor);
 
-                this.roleLabel
-                    .setTint(
-                        CAPTAIN_DASHBOARD_STYLE.action.disabledTextColor,
-                    );
+                this.roleLabel.setTint(CAPTAIN_DASHBOARD_STYLE.action.disabledTextColor);
 
                 return;
 
             default: {
-                const exhaustiveState:
-                    never =
-                    state;
+                const exhaustiveState: never = state;
 
                 return exhaustiveState;
             }

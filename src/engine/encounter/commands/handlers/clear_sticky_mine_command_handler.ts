@@ -1,31 +1,17 @@
 // src/engine/encounter/commands/handlers/clear_sticky_mine_command_handler.ts
 
-import {
-    OFFICER_ROLE,
-} from '../../../defs/officer';
-import {
-    getNextClearableStickyMine,
-} from '../../combat/queries/get_next_clearable_sticky_mine';
-import {
-    ENCOUNTER_OFFICER_COMMAND_ID,
-    OFFICER_COMMAND_TARGET_KIND,
-    type OfficerCommandDef,
-} from '../../model/command';
-import type {
-    OfficerCommandHandler,
-} from '../../model/officer_command_handler';
-import {
-    createClearStickyMineTask,
-} from '../../officer_tasks/create_officer_task_draft';
+import { OFFICER_ROLE } from "../../../defs/officer";
+import { getNextClearableStickyMine } from "../../combat/queries/get_next_clearable_sticky_mine";
+import { ENCOUNTER_OFFICER_COMMAND_ID, OFFICER_COMMAND_TARGET_KIND, type OfficerCommandDef } from "../../model/command";
+import type { OfficerCommandHandler } from "../../model/officer_command_handler";
+import { createClearStickyMineTask } from "../../officer_tasks/create_officer_task_draft";
 
-const COMMAND_ID =
-    ENCOUNTER_OFFICER_COMMAND_ID
-        .CLEAR_STICKY_MINE;
+const COMMAND_ID = ENCOUNTER_OFFICER_COMMAND_ID.CLEAR_STICKY_MINE;
 
 const COMMAND_DEF = {
     role: OFFICER_ROLE.ENGINEER,
 
-    label: 'CLEAR MINE',
+    label: "CLEAR MINE",
 
     targeting: {
         kind: OFFICER_COMMAND_TARGET_KIND.NONE,
@@ -40,9 +26,7 @@ export const clearStickyMineCommandHandler = {
     def: COMMAND_DEF,
 
     getAvailableCommands(state) {
-        if (
-            !getNextClearableStickyMine(state)
-        ) {
+        if (!getNextClearableStickyMine(state)) {
             return [];
         }
 
@@ -52,12 +36,10 @@ export const clearStickyMineCommandHandler = {
                 label: COMMAND_DEF.label,
 
                 target: {
-                    kind:
-                        OFFICER_COMMAND_TARGET_KIND
-                            .NONE,
+                    kind: OFFICER_COMMAND_TARGET_KIND.NONE,
                 },
 
-                targetLabel: 'STICKY MINES',
+                targetLabel: "STICKY MINES",
             },
         ];
     },
@@ -66,22 +48,12 @@ export const clearStickyMineCommandHandler = {
         // Availability проверяется executor прямо
         // перед execute, но mine выбираем заново:
         // active tasks уже являются reservation state.
-        const mine =
-            getNextClearableStickyMine(
-                context.stateStore.getState(),
-            );
+        const mine = getNextClearableStickyMine(context.stateStore.getState());
 
         if (!mine) {
-            throw new Error(
-                'CLEAR MINE executed without a clearable sticky mine',
-            );
+            throw new Error("CLEAR MINE executed without a clearable sticky mine");
         }
 
-        context.startOfficerTask(
-            createClearStickyMineTask(
-                input.role,
-                mine.id,
-            ),
-        );
+        context.startOfficerTask(createClearStickyMineTask(input.role, mine.id));
     },
 } satisfies OfficerCommandHandler;

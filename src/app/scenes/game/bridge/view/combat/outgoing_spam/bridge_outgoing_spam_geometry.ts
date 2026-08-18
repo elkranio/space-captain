@@ -5,12 +5,7 @@ export type BeamPoint = {
     y: number;
 };
 
-export type TaperedBeamPolygon = readonly [
-    BeamPoint,
-    BeamPoint,
-    BeamPoint,
-    BeamPoint,
-];
+export type TaperedBeamPolygon = readonly [BeamPoint, BeamPoint, BeamPoint, BeamPoint];
 
 // Creates a four-point beam whose width is measured perpendicular
 // to the source-target direction.
@@ -23,79 +18,40 @@ export function createTaperedBeamPolygon(
     sourceHalfWidth: number,
     targetHalfWidth: number,
 ): TaperedBeamPolygon {
-    const dx =
-        target.x -
-        source.x;
+    const dx = target.x - source.x;
 
-    const dy =
-        target.y -
-        source.y;
+    const dy = target.y - source.y;
 
-    const length =
-        Math.hypot(
-            dx,
-            dy,
-        );
+    const length = Math.hypot(dx, dy);
 
     if (length <= 0) {
-        throw new Error(
-            'Cannot create a tapered beam ' +
-                'between identical points',
-        );
+        throw new Error("Cannot create a tapered beam " + "between identical points");
     }
 
-    const normalX =
-        -dy /
-        length;
+    const normalX = -dy / length;
 
-    const normalY =
-        dx /
-        length;
+    const normalY = dx / length;
 
     return [
         {
-            x:
-                source.x -
-                normalX *
-                    sourceHalfWidth,
+            x: source.x - normalX * sourceHalfWidth,
 
-            y:
-                source.y -
-                normalY *
-                    sourceHalfWidth,
+            y: source.y - normalY * sourceHalfWidth,
         },
         {
-            x:
-                target.x -
-                normalX *
-                    targetHalfWidth,
+            x: target.x - normalX * targetHalfWidth,
 
-            y:
-                target.y -
-                normalY *
-                    targetHalfWidth,
+            y: target.y - normalY * targetHalfWidth,
         },
         {
-            x:
-                target.x +
-                normalX *
-                    targetHalfWidth,
+            x: target.x + normalX * targetHalfWidth,
 
-            y:
-                target.y +
-                normalY *
-                    targetHalfWidth,
+            y: target.y + normalY * targetHalfWidth,
         },
         {
-            x:
-                source.x +
-                normalX *
-                    sourceHalfWidth,
+            x: source.x + normalX * sourceHalfWidth,
 
-            y:
-                source.y +
-                normalY *
-                    sourceHalfWidth,
+            y: source.y + normalY * sourceHalfWidth,
         },
     ];
 }

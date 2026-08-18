@@ -3,12 +3,10 @@
 // Удобный стабильный id встроенного Power Core.
 // Каталог открыт для новых module ids из content editor.
 export const POWER_CORE_ID = {
-    BASIC_00:
-        'power_core_basic_00',
+    BASIC_00: "power_core_basic_00",
 } as const;
 
-export type PowerCoreId =
-    string;
+export type PowerCoreId = string;
 
 export type PowerCoreDefinition = {
     id: PowerCoreId;
@@ -37,8 +35,7 @@ export type PowerCoreState = {
     id: string;
 
     // Immutable content definition.
-    powerCoreId:
-        PowerCoreId;
+    powerCoreId: PowerCoreId;
 
     charges: number;
 

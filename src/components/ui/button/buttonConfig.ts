@@ -19,9 +19,9 @@ export const DEFAULT_BUTTON_CONFIG: Required<ButtonConfig> = {
         color: 0xf39c12,
     },
     label: {
-        font: 'fira_medium',
+        font: "fira_medium",
         size: 28,
         color: 0xd35400,
-        text: 'Button',
+        text: "Button",
     },
 };

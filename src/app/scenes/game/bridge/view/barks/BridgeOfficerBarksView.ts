@@ -1,11 +1,11 @@
 // src/app/scenes/game/bridge/view/barks/BridgeOfficerBarksView.ts
 
-import type { OfficerRole } from '../../../../../../engine/defs/officer';
-import type BridgeScene from '../../BridgeScene';
-import { BRIDGE_EVENT, type BridgeOfficerBarkRequestedPayload } from '../../events/bridge_event';
-import type BridgeEventBus from '../../events/BridgeEventBus';
-import { OFFICER_BARK_POSITION_BY_ROLE } from './bridge_officer_bark_layout';
-import BridgeOfficerBarkQueueView from './queue/BridgeOfficerBarkQueueView';
+import type { OfficerRole } from "../../../../../../engine/defs/officer";
+import type BridgeScene from "../../BridgeScene";
+import { BRIDGE_EVENT, type BridgeOfficerBarkRequestedPayload } from "../../events/bridge_event";
+import type BridgeEventBus from "../../events/BridgeEventBus";
+import { OFFICER_BARK_POSITION_BY_ROLE } from "./bridge_officer_bark_layout";
+import BridgeOfficerBarkQueueView from "./queue/BridgeOfficerBarkQueueView";
 
 // Root view bark layer.
 // Держит отдельную очередь bark-ов для каждого officer-а.
@@ -18,7 +18,7 @@ export default class BridgeOfficerBarksView {
         private readonly eventBus: BridgeEventBus,
     ) {
         this.root = this.scene.add.container(0, 0);
-        this.scene.layers.get('barks').add(this.root);
+        this.scene.layers.get("barks").add(this.root);
 
         this.createQueueViews();
 

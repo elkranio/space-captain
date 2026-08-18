@@ -13,7 +13,8 @@
         "deploy": "npm run build && node -r dotenv/config deploy/deploy.js",
         "typecheck": "tsc --noEmit && tsc --noEmit -p tools/content-editor/tsconfig.json",
         "test": "vitest run --root .",
-        "editor": "vite --config tools/content-editor/vite.config.ts"
+        "editor": "vite --config tools/content-editor/vite.config.ts",
+        "format:src": "prettier --write \"src/**/*.ts\""
     },
     "keywords": [],
     "author": "",
@@ -31,6 +32,7 @@
         "fs-extra": "^11.3.0",
         "ftp-deploy": "^2.4.7",
         "glob": "^11.0.1",
+        "prettier": "^3.9.6",
         "typescript": "^5.8.3",
         "vite": "^6.2.5",
         "vitest": "^4.1.10"

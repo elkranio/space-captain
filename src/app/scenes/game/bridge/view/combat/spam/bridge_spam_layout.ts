@@ -1,6 +1,6 @@
 // src/app/scenes/game/bridge/view/combat/spam/bridge_spam_layout.ts
 
-import { BRIDGE_VIEWSCREEN_RECT } from '../../bridge_viewscreen_layout';
+import { BRIDGE_VIEWSCREEN_RECT } from "../../bridge_viewscreen_layout";
 
 export type BridgeSpamLayoutSlot = {
     x: number;
@@ -64,7 +64,7 @@ export const BRIDGE_SPAM_LAYOUT_SLOTS: readonly BridgeSpamLayoutSlot[] = [
 
 export function takeRandomBagItem<T>(source: readonly T[], bag: T[]): T {
     if (source.length === 0) {
-        throw new Error('Random bag source must not be empty');
+        throw new Error("Random bag source must not be empty");
     }
 
     if (bag.length === 0) {
@@ -76,7 +76,7 @@ export function takeRandomBagItem<T>(source: readonly T[], bag: T[]): T {
     const item = bag.splice(index, 1)[0];
 
     if (item === undefined) {
-        throw new Error('Random bag item was not found');
+        throw new Error("Random bag item was not found");
     }
 
     return item;

@@ -1,11 +1,11 @@
 // src/app/scenes/game/bridge/view/barks/bridge_officer_bark_layout.ts
 
-import { OFFICER_ROLE, type OfficerRole } from '../../../../../../engine/defs/officer';
-import { BRIDGE_OFFICER_STATION_LAYOUT } from '../officer_stations/bridge_officer_station_layout';
+import { OFFICER_ROLE, type OfficerRole } from "../../../../../../engine/defs/officer";
+import { BRIDGE_OFFICER_STATION_LAYOUT } from "../officer_stations/bridge_officer_station_layout";
 
 export const OFFICER_BARK_SIDE = {
-    LEFT: 'left',
-    RIGHT: 'right',
+    LEFT: "left",
+    RIGHT: "right",
 } as const;
 
 export type OfficerBarkSide = (typeof OFFICER_BARK_SIDE)[keyof typeof OFFICER_BARK_SIDE];

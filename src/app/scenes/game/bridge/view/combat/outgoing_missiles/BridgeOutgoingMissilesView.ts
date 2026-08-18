@@ -1,35 +1,25 @@
 // src/app/scenes/game/bridge/view/combat/outgoing_missiles/BridgeOutgoingMissilesView.ts
 
-import {
-    PLAYER_MISSILE_OUTCOME,
-} from '../../../../../../../engine/encounter/model/combat';
-import type BridgeScene from '../../../BridgeScene';
+import { PLAYER_MISSILE_OUTCOME } from "../../../../../../../engine/encounter/model/combat";
+import type BridgeScene from "../../../BridgeScene";
 import {
     BRIDGE_EVENT,
     type BridgeEnemyDefenseTurretFiredPayload,
     type BridgeOutgoingMissileAddedPayload,
     type BridgeOutgoingMissileRemovedPayload,
     type BridgeOutgoingMissilesUpdatedPayload,
-} from '../../../events/bridge_event';
-import type BridgeEventBus from '../../../events/BridgeEventBus';
-import {
-    getBridgePlayerWeaponSourcePosition,
-} from '../bridge_player_weapon_layout';
-import BridgeDefenseTurretBeamView from '../defense_turret/BridgeDefenseTurretBeamView';
-import {
-    removeMissingCombatSnapshotEntries,
-} from '../remove_missing_combat_snapshot_entries';
-import BridgeOutgoingMissileImpactView from './impact/BridgeOutgoingMissileImpactView';
-import BridgeOutgoingMissileView from './missile/BridgeOutgoingMissileView';
-import BridgeOutgoingMissileSelfDestructView from './self_destruct/BridgeOutgoingMissileSelfDestructView';
+} from "../../../events/bridge_event";
+import type BridgeEventBus from "../../../events/BridgeEventBus";
+import { getBridgePlayerWeaponSourcePosition } from "../bridge_player_weapon_layout";
+import BridgeDefenseTurretBeamView from "../defense_turret/BridgeDefenseTurretBeamView";
+import { removeMissingCombatSnapshotEntries } from "../remove_missing_combat_snapshot_entries";
+import BridgeOutgoingMissileImpactView from "./impact/BridgeOutgoingMissileImpactView";
+import BridgeOutgoingMissileView from "./missile/BridgeOutgoingMissileView";
+import BridgeOutgoingMissileSelfDestructView from "./self_destruct/BridgeOutgoingMissileSelfDestructView";
 
-type GetObjectPosition = (
-    objectId: string,
-) => Phaser.Math.Vector2 | undefined;
+type GetObjectPosition = (objectId: string) => Phaser.Math.Vector2 | undefined;
 
-type GetObjectVisualBounds = (
-    objectId: string,
-) => Phaser.Geom.Rectangle | undefined;
+type GetObjectVisualBounds = (objectId: string) => Phaser.Geom.Rectangle | undefined;
 
 // Manager-view for player missiles.
 //
@@ -42,85 +32,54 @@ type GetObjectVisualBounds = (
 // - a following OUTGOING_MISSILE_REMOVED event removes the sprite on HIT;
 // - MISS has no removal event, so the missile continues its flight.
 export default class BridgeOutgoingMissilesView {
-    private readonly root:
-        Phaser.GameObjects.Container;
+    private readonly root: Phaser.GameObjects.Container;
 
-    private readonly missiles =
-        new Map<
-            string,
-            BridgeOutgoingMissileView
-        >();
+    private readonly missiles = new Map<string, BridgeOutgoingMissileView>();
 
-    private readonly missEffects =
-        new Set<
-            BridgeOutgoingMissileView
-        >();
+    private readonly missEffects = new Set<BridgeOutgoingMissileView>();
 
-    private readonly defenseTurretEffects =
-        new Set<
-            BridgeDefenseTurretBeamView
-        >();
+    private readonly defenseTurretEffects = new Set<BridgeDefenseTurretBeamView>();
 
-    private readonly impactEffects =
-        new Set<
-            BridgeOutgoingMissileImpactView
-        >();
+    private readonly impactEffects = new Set<BridgeOutgoingMissileImpactView>();
 
-    private readonly selfDestructEffects =
-        new Set<
-            BridgeOutgoingMissileSelfDestructView
-        >();
+    private readonly selfDestructEffects = new Set<BridgeOutgoingMissileSelfDestructView>();
 
     constructor(
-        private readonly scene:
-            BridgeScene,
+        private readonly scene: BridgeScene,
 
-        private readonly eventBus:
-            BridgeEventBus,
+        private readonly eventBus: BridgeEventBus,
 
-        private readonly getObjectPosition:
-            GetObjectPosition,
+        private readonly getObjectPosition: GetObjectPosition,
 
-        private readonly getObjectVisualBounds:
-            GetObjectVisualBounds,
+        private readonly getObjectVisualBounds: GetObjectVisualBounds,
     ) {
-        this.root =
-            this.scene.add.container(
-                0,
-                0,
-            );
+        this.root = this.scene.add.container(0, 0);
 
-        this.scene.layers
-            .get('vfx')
-            .add(this.root);
+        this.scene.layers.get("vfx").add(this.root);
 
         this.eventBus.on(
-            BRIDGE_EVENT
-                .OUTGOING_MISSILE_ADDED,
+            BRIDGE_EVENT.OUTGOING_MISSILE_ADDED,
 
             this.addMissile,
             this,
         );
 
         this.eventBus.on(
-            BRIDGE_EVENT
-                .OUTGOING_MISSILES_UPDATED,
+            BRIDGE_EVENT.OUTGOING_MISSILES_UPDATED,
 
             this.updateMissiles,
             this,
         );
 
         this.eventBus.on(
-            BRIDGE_EVENT
-                .OUTGOING_MISSILE_REMOVED,
+            BRIDGE_EVENT.OUTGOING_MISSILE_REMOVED,
 
             this.removeMissile,
             this,
         );
 
         this.eventBus.on(
-            BRIDGE_EVENT
-                .ENEMY_DEFENSE_TURRET_FIRED,
+            BRIDGE_EVENT.ENEMY_DEFENSE_TURRET_FIRED,
 
             this.handleEnemyDefenseTurretFired,
             this,
@@ -129,77 +88,58 @@ export default class BridgeOutgoingMissilesView {
 
     public destroy(): void {
         this.eventBus.off(
-            BRIDGE_EVENT
-                .OUTGOING_MISSILE_ADDED,
+            BRIDGE_EVENT.OUTGOING_MISSILE_ADDED,
 
             this.addMissile,
             this,
         );
 
         this.eventBus.off(
-            BRIDGE_EVENT
-                .OUTGOING_MISSILES_UPDATED,
+            BRIDGE_EVENT.OUTGOING_MISSILES_UPDATED,
 
             this.updateMissiles,
             this,
         );
 
         this.eventBus.off(
-            BRIDGE_EVENT
-                .OUTGOING_MISSILE_REMOVED,
+            BRIDGE_EVENT.OUTGOING_MISSILE_REMOVED,
 
             this.removeMissile,
             this,
         );
 
         this.eventBus.off(
-            BRIDGE_EVENT
-                .ENEMY_DEFENSE_TURRET_FIRED,
+            BRIDGE_EVENT.ENEMY_DEFENSE_TURRET_FIRED,
 
             this.handleEnemyDefenseTurretFired,
             this,
         );
 
-        for (
-            const effect of
-            this.defenseTurretEffects
-        ) {
+        for (const effect of this.defenseTurretEffects) {
             effect.destroy();
         }
 
         this.defenseTurretEffects.clear();
 
-        for (
-            const effect of
-            this.impactEffects
-        ) {
+        for (const effect of this.impactEffects) {
             effect.destroy();
         }
 
         this.impactEffects.clear();
 
-        for (
-            const effect of
-            this.selfDestructEffects
-        ) {
+        for (const effect of this.selfDestructEffects) {
             effect.destroy();
         }
 
         this.selfDestructEffects.clear();
 
-        for (
-            const missile of
-            this.missEffects
-        ) {
+        for (const missile of this.missEffects) {
             missile.destroy();
         }
 
         this.missEffects.clear();
 
-        for (
-            const missile of
-            this.missiles.values()
-        ) {
+        for (const missile of this.missiles.values()) {
             missile.destroy();
         }
 
@@ -208,72 +148,39 @@ export default class BridgeOutgoingMissilesView {
         this.root.destroy(false);
     }
 
-    public setCameraTurnOffsetX(
-        offsetX: number,
-    ): void {
-        this.root.x = Math.round(
-            offsetX,
-        );
+    public setCameraTurnOffsetX(offsetX: number): void {
+        this.root.x = Math.round(offsetX);
     }
 
-    private addMissile(
-        payload:
-            BridgeOutgoingMissileAddedPayload,
-    ): void {
-        if (
-            this.missiles.has(
-                payload.projectileId,
-            )
-        ) {
-            throw new Error(
-                'Outgoing missile already exists: ' +
-                    payload.projectileId,
-            );
+    private addMissile(payload: BridgeOutgoingMissileAddedPayload): void {
+        if (this.missiles.has(payload.projectileId)) {
+            throw new Error("Outgoing missile already exists: " + payload.projectileId);
         }
 
-        const targetPosition =
-            this.getObjectPosition(
-                payload.targetActorId,
-            );
+        const targetPosition = this.getObjectPosition(payload.targetActorId);
 
         if (!targetPosition) {
-            throw new Error(
-                'Outgoing missile target object not found: ' +
-                    payload.targetActorId,
-            );
+            throw new Error("Outgoing missile target object not found: " + payload.targetActorId);
         }
 
-        const missile =
-            new BridgeOutgoingMissileView({
-                scene:
-                    this.scene,
+        const missile = new BridgeOutgoingMissileView({
+            scene: this.scene,
 
-                parent:
-                    this.root,
+            parent: this.root,
 
-                projectileId:
-                    payload.projectileId,
+            projectileId: payload.projectileId,
 
-                startPosition:
-                    getBridgePlayerWeaponSourcePosition(),
+            startPosition: getBridgePlayerWeaponSourcePosition(),
 
-                targetPosition,
+            targetPosition,
 
-                initialTimeToImpactMs:
-                    payload
-                        .initialTimeToImpactMs,
-            });
+            initialTimeToImpactMs: payload.initialTimeToImpactMs,
+        });
 
-        this.missiles.set(
-            payload.projectileId,
-            missile,
-        );
+        this.missiles.set(payload.projectileId, missile);
     }
 
-    private updateMissiles(
-        updates:
-            BridgeOutgoingMissilesUpdatedPayload,
-    ): void {
+    private updateMissiles(updates: BridgeOutgoingMissilesUpdatedPayload): void {
         removeMissingCombatSnapshotEntries(
             this.missiles,
             updates.map((update) => {
@@ -281,9 +188,7 @@ export default class BridgeOutgoingMissilesView {
             }),
             (projectileId, missile) => {
                 missile.destroy();
-                this.missiles.delete(
-                    projectileId,
-                );
+                this.missiles.delete(projectileId);
             },
         );
 
@@ -292,107 +197,61 @@ export default class BridgeOutgoingMissilesView {
         }
 
         for (const update of updates) {
-            const missile =
-                this.missiles.get(
-                    update.projectileId,
-                );
+            const missile = this.missiles.get(update.projectileId);
 
             if (!missile) {
-                throw new Error(
-                    'Outgoing missile not found during update: ' +
-                        update.projectileId,
-                );
+                throw new Error("Outgoing missile not found during update: " + update.projectileId);
             }
 
-            missile.update(
-                update.timeToImpactMs,
-            );
+            missile.update(update.timeToImpactMs);
         }
     }
 
-    private removeMissile(
-        payload:
-            BridgeOutgoingMissileRemovedPayload,
-    ): void {
-        const missile =
-            this.missiles.get(
-                payload.projectileId,
-            );
+    private removeMissile(payload: BridgeOutgoingMissileRemovedPayload): void {
+        const missile = this.missiles.get(payload.projectileId);
 
         if (!missile) {
-            throw new Error(
-                'Outgoing missile not found: ' +
-                    payload.projectileId,
-            );
+            throw new Error("Outgoing missile not found: " + payload.projectileId);
         }
 
-        const lastPosition =
-            missile.getPosition();
+        const lastPosition = missile.getPosition();
 
-        this.missiles.delete(
-            payload.projectileId,
-        );
+        this.missiles.delete(payload.projectileId);
 
-        if (
-            payload.outcome ===
-            PLAYER_MISSILE_OUTCOME
-                .MISS
-        ) {
-            const targetVisualBounds =
-                this.getObjectVisualBounds(
-                    payload.targetActorId,
-                );
+        if (payload.outcome === PLAYER_MISSILE_OUTCOME.MISS) {
+            const targetVisualBounds = this.getObjectVisualBounds(payload.targetActorId);
 
             if (!targetVisualBounds) {
                 missile.destroy();
 
-                throw new Error(
-                    'Outgoing missile MISS target visual bounds not found: ' +
-                        payload.targetActorId,
-                );
+                throw new Error("Outgoing missile MISS target visual bounds not found: " + payload.targetActorId);
             }
 
-            this.missEffects.add(
-                missile,
-            );
+            this.missEffects.add(missile);
 
             missile.startMissPassBy(
                 targetVisualBounds,
 
                 () => {
-                    const selfDestructPosition =
-                        missile.getPosition();
+                    const selfDestructPosition = missile.getPosition();
 
                     missile.destroy();
 
-                    this.missEffects
-                        .delete(
-                            missile,
-                        );
+                    this.missEffects.delete(missile);
 
-                    const selfDestruct =
-                        new BridgeOutgoingMissileSelfDestructView({
-                            scene:
-                                this.scene,
+                    const selfDestruct = new BridgeOutgoingMissileSelfDestructView({
+                        scene: this.scene,
 
-                            parent:
-                                this.root,
+                        parent: this.root,
 
-                            position:
-                                selfDestructPosition,
+                        position: selfDestructPosition,
 
-                            onComplete:
-                                (completedSelfDestruct) => {
-                                    this.selfDestructEffects
-                                        .delete(
-                                            completedSelfDestruct,
-                                        );
-                                },
-                        });
+                        onComplete: (completedSelfDestruct) => {
+                            this.selfDestructEffects.delete(completedSelfDestruct);
+                        },
+                    });
 
-                    this.selfDestructEffects.add(
-                        selfDestruct,
-                    );
+                    this.selfDestructEffects.add(selfDestruct);
                 },
             );
 
@@ -401,95 +260,56 @@ export default class BridgeOutgoingMissilesView {
 
         missile.destroy();
 
-        if (
-            payload.outcome !==
-            PLAYER_MISSILE_OUTCOME.HIT
-        ) {
+        if (payload.outcome !== PLAYER_MISSILE_OUTCOME.HIT) {
             return;
         }
 
-        const impact =
-            new BridgeOutgoingMissileImpactView({
-                scene:
-                    this.scene,
+        const impact = new BridgeOutgoingMissileImpactView({
+            scene: this.scene,
 
-                parent:
-                    this.root,
+            parent: this.root,
 
-                position:
-                    lastPosition,
+            position: lastPosition,
 
-                onComplete:
-                    (completedImpact) => {
-                        this.impactEffects
-                            .delete(
-                                completedImpact,
-                            );
-                    },
-            });
+            onComplete: (completedImpact) => {
+                this.impactEffects.delete(completedImpact);
+            },
+        });
 
-        this.impactEffects.add(
-            impact,
-        );
+        this.impactEffects.add(impact);
     }
 
-    private handleEnemyDefenseTurretFired(
-        payload:
-            BridgeEnemyDefenseTurretFiredPayload,
-    ): void {
-        const missile =
-            this.missiles.get(
-                payload.projectileId,
-            );
+    private handleEnemyDefenseTurretFired(payload: BridgeEnemyDefenseTurretFiredPayload): void {
+        const missile = this.missiles.get(payload.projectileId);
 
         if (!missile) {
-            throw new Error(
-                'Enemy defense-turret target not found: ' +
-                    payload.projectileId,
-            );
+            throw new Error("Enemy defense-turret target not found: " + payload.projectileId);
         }
 
-        const sourcePosition =
-            this.getObjectPosition(
-                payload.sourceActorId,
-            );
+        const sourcePosition = this.getObjectPosition(payload.sourceActorId);
 
         if (!sourcePosition) {
-            throw new Error(
-                'Enemy defense-turret source object not found: ' +
-                    payload.sourceActorId,
-            );
+            throw new Error("Enemy defense-turret source object not found: " + payload.sourceActorId);
         }
 
-        const effect =
-            new BridgeDefenseTurretBeamView({
-                scene:
-                    this.scene,
+        const effect = new BridgeDefenseTurretBeamView({
+            scene: this.scene,
 
-                parent:
-                    this.root,
+            parent: this.root,
 
-                outcome:
-                    payload.outcome,
+            outcome: payload.outcome,
 
-                sourcePosition,
+            sourcePosition,
 
-                // Last position actually displayed before a possible
-                // interception resolution removes the missile sprite.
-                targetPosition:
-                    missile.getPosition(),
+            // Last position actually displayed before a possible
+            // interception resolution removes the missile sprite.
+            targetPosition: missile.getPosition(),
 
-                onComplete:
-                    (completedEffect) => {
-                        this.defenseTurretEffects
-                            .delete(
-                                completedEffect,
-                            );
-                    },
-            });
+            onComplete: (completedEffect) => {
+                this.defenseTurretEffects.delete(completedEffect);
+            },
+        });
 
-        this.defenseTurretEffects.add(
-            effect,
-        );
+        this.defenseTurretEffects.add(effect);
     }
 }

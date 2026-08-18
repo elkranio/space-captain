@@ -1,49 +1,27 @@
 // src/engine/defs/universe.ts
 
-import type { AsteroidState } from './asteroid';
-import type {
-    PowerCoreState,
-} from './power_core';
-import type { NavigationBeaconState } from './beacon';
-import type { JumpPointState } from './jump_point';
-import type {
-    CrewTraitsByRole,
-} from './crew_trait';
-import type {
-    OfficerRole,
-} from './officer';
-import type {
-    ShipDefenseTurretState,
-} from './defense_turret';
-import type {
-    ShipBehaviorState,
-} from './ship_behavior';
-import type {
-    ShipChassisId,
-} from './ship_chassis';
-import type {
-    ShipDriveState,
-} from './ship_drive';
-import type {
-    ShipWeaponState,
-} from './ship_weapon';
-import type {
-    ShieldGeneratorState,
-} from './shield_generator';
-import type {
-    SpaceBackgroundId,
-} from './space_background';
-import type { StationState } from './station';
-import type { Vec2, Vec3 } from './vector';
-import type {
-    EncounterTeam,
-} from './encounter_team';
+import type { AsteroidState } from "./asteroid";
+import type { PowerCoreState } from "./power_core";
+import type { NavigationBeaconState } from "./beacon";
+import type { JumpPointState } from "./jump_point";
+import type { CrewTraitsByRole } from "./crew_trait";
+import type { OfficerRole } from "./officer";
+import type { ShipDefenseTurretState } from "./defense_turret";
+import type { ShipBehaviorState } from "./ship_behavior";
+import type { ShipChassisId } from "./ship_chassis";
+import type { ShipDriveState } from "./ship_drive";
+import type { ShipWeaponState } from "./ship_weapon";
+import type { ShieldGeneratorState } from "./shield_generator";
+import type { SpaceBackgroundId } from "./space_background";
+import type { StationState } from "./station";
+import type { Vec2, Vec3 } from "./vector";
+import type { EncounterTeam } from "./encounter_team";
 
 export const SPACE_ANCHOR_KIND = {
-    STATION: 'station',
-    NAVIGATION_BEACON: 'navigation_beacon',
-    ASTEROID: 'asteroid',
-    JUMP_POINT: 'jump_point',
+    STATION: "station",
+    NAVIGATION_BEACON: "navigation_beacon",
+    ASTEROID: "asteroid",
+    JUMP_POINT: "jump_point",
 } as const;
 
 export type SpaceAnchorBaseState = {
@@ -52,15 +30,13 @@ export type SpaceAnchorBaseState = {
     localPosition: Vec3;
 };
 
-export type StationSpaceAnchorState =
-    SpaceAnchorBaseState & {
-        kind:
-            typeof SPACE_ANCHOR_KIND.STATION;
-        station: StationState;
-    };
+export type StationSpaceAnchorState = SpaceAnchorBaseState & {
+    kind: typeof SPACE_ANCHOR_KIND.STATION;
+    station: StationState;
+};
 
 export const SPACE_NODE_ACTOR_KIND = {
-    SHIP: 'ship',
+    SHIP: "ship",
 } as const;
 
 // Persistent actor, который уже находится внутри ноды
@@ -74,68 +50,49 @@ export type SpaceNodeActorBaseState = {
     anchorId: string;
 };
 
-export type ShipSpaceNodeActorState =
-    SpaceNodeActorBaseState & {
-        kind:
-            typeof SPACE_NODE_ACTOR_KIND.SHIP;
+export type ShipSpaceNodeActorState = SpaceNodeActorBaseState & {
+    kind: typeof SPACE_NODE_ACTOR_KIND.SHIP;
 
-        chassisId: ShipChassisId;
+    chassisId: ShipChassisId;
 
-        hull: number;
-        maxHull: number;
+    hull: number;
+    maxHull: number;
 
-        drive: ShipDriveState;
+    drive: ShipDriveState;
 
-        defenseTurret?:
-            ShipDefenseTurretState;
+    defenseTurret?: ShipDefenseTurretState;
 
-        powerCore?:
-            PowerCoreState;
+    powerCore?: PowerCoreState;
 
-        shieldGenerator?:
-            ShieldGeneratorState;
+    shieldGenerator?: ShieldGeneratorState;
 
-        behavior: ShipBehaviorState;
+    behavior: ShipBehaviorState;
 
-        crewRoles: OfficerRole[];
-        crewTraitsByRole:
-            CrewTraitsByRole;
+    crewRoles: OfficerRole[];
+    crewTraitsByRole: CrewTraitsByRole;
 
-        weapons: ShipWeaponState[];
-    };
+    weapons: ShipWeaponState[];
+};
 
-export type SpaceNodeActorState =
-    ShipSpaceNodeActorState;
+export type SpaceNodeActorState = ShipSpaceNodeActorState;
 
-export type NavigationBeaconSpaceAnchorState =
-    SpaceAnchorBaseState & {
-        kind:
-            typeof SPACE_ANCHOR_KIND
-                .NAVIGATION_BEACON;
-        beacon: NavigationBeaconState;
-    };
+export type NavigationBeaconSpaceAnchorState = SpaceAnchorBaseState & {
+    kind: typeof SPACE_ANCHOR_KIND.NAVIGATION_BEACON;
+    beacon: NavigationBeaconState;
+};
 
-export type AsteroidSpaceAnchorState =
-    SpaceAnchorBaseState & {
-        kind:
-            typeof SPACE_ANCHOR_KIND
-                .ASTEROID;
-        asteroid: AsteroidState;
-    };
+export type AsteroidSpaceAnchorState = SpaceAnchorBaseState & {
+    kind: typeof SPACE_ANCHOR_KIND.ASTEROID;
+    asteroid: AsteroidState;
+};
 
-export type JumpPointSpaceAnchorState =
-    SpaceAnchorBaseState & {
-        kind:
-            typeof SPACE_ANCHOR_KIND
-                .JUMP_POINT;
-        jumpPoint: JumpPointState;
-    };
+export type JumpPointSpaceAnchorState = SpaceAnchorBaseState & {
+    kind: typeof SPACE_ANCHOR_KIND.JUMP_POINT;
+    jumpPoint: JumpPointState;
+};
 
 export type SpaceAnchorState =
-    | StationSpaceAnchorState
-    | NavigationBeaconSpaceAnchorState
-    | AsteroidSpaceAnchorState
-    | JumpPointSpaceAnchorState;
+    StationSpaceAnchorState | NavigationBeaconSpaceAnchorState | AsteroidSpaceAnchorState | JumpPointSpaceAnchorState;
 
 export type SpaceNodeState = {
     id: string;

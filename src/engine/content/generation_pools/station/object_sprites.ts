@@ -1,7 +1,7 @@
 // src/engine/content/generation_pools/station/object_sprites.ts
 
-import { SPECIES_ID, type SpeciesId } from '../../../defs/species';
-import { STATION_OBJECT_SPRITE_ID, type StationObjectSpriteId } from '../../../defs/station';
+import { SPECIES_ID, type SpeciesId } from "../../../defs/species";
+import { STATION_OBJECT_SPRITE_ID, type StationObjectSpriteId } from "../../../defs/station";
 
 // Пулы внешних спрайтов станций для encounter object.
 // Вид станции выбирает набор спрайтов, конкретный вариант выбирается генератором.

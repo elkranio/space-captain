@@ -1,13 +1,13 @@
-import P34TOptions from '../config/p34t.options';
-import StoreManager from './StorageManager';
+import P34TOptions from "../config/p34t.options";
+import StoreManager from "./StorageManager";
 
 export class AudioManager {
     private static sfxInstances: Phaser.Sound.BaseSound[] = [];
     private static musicInstance: Phaser.Sound.BaseSound | null = null;
 
     private static volume: Record<AudioType, number> = {
-        sfx: StoreManager.initItem<number>('_volume_sfx', P34TOptions.audio.sfxMaxVolume),
-        music: StoreManager.initItem<number>('_volume_music', P34TOptions.audio.musicMaxVolume),
+        sfx: StoreManager.initItem<number>("_volume_sfx", P34TOptions.audio.sfxMaxVolume),
+        music: StoreManager.initItem<number>("_volume_music", P34TOptions.audio.musicMaxVolume),
     };
 
     /**
@@ -22,15 +22,15 @@ export class AudioManager {
     public static playSFX(
         scene: Phaser.Scene,
         key: string,
-        config: Phaser.Types.Sound.SoundConfig = {}
+        config: Phaser.Types.Sound.SoundConfig = {},
     ): Phaser.Sound.BaseSound {
-        const sound = scene.sound.addAudioSprite('sfx', {
+        const sound = scene.sound.addAudioSprite("sfx", {
             volume: this.volume.sfx,
             ...config,
         });
 
         sound.play(key);
-        sound.once('complete', () => this._removeSFX(sound));
+        sound.once("complete", () => this._removeSFX(sound));
         this.sfxInstances.push(sound);
         return sound;
     }
@@ -46,7 +46,7 @@ export class AudioManager {
     public static playMusic(
         scene: Phaser.Scene,
         key: string,
-        config: Phaser.Types.Sound.SoundConfig = {}
+        config: Phaser.Types.Sound.SoundConfig = {},
     ): Phaser.Sound.BaseSound {
         this.stopMusic();
 
@@ -83,19 +83,19 @@ export class AudioManager {
 
         StoreManager.setItem(`_volume_${type}`, value);
 
-        if (type === 'sfx') {
+        if (type === "sfx") {
             this.sfxInstances.forEach((instance) => {
-                if ('setVolume' in instance && typeof instance.setVolume === 'function') {
+                if ("setVolume" in instance && typeof instance.setVolume === "function") {
                     instance.setVolume(value);
                 }
             });
         }
 
         if (
-            type === 'music' &&
+            type === "music" &&
             this.musicInstance &&
-            'setVolume' in this.musicInstance &&
-            typeof this.musicInstance.setVolume === 'function'
+            "setVolume" in this.musicInstance &&
+            typeof this.musicInstance.setVolume === "function"
         ) {
             this.musicInstance.setVolume(value);
         }
@@ -148,7 +148,7 @@ export class AudioManager {
             this.sfxInstances.splice(index, 1);
         }
 
-        if (instance && typeof instance.destroy === 'function') {
+        if (instance && typeof instance.destroy === "function") {
             instance.destroy();
         }
     }

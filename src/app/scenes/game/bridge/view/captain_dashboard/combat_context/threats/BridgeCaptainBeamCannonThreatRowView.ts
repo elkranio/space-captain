@@ -1,18 +1,8 @@
-import {
-    FONT_COLOR,
-    FONT_FAMILY,
-    FONT_SIZE,
-} from '../../../../../../../theme/font';
-import type BridgeScene from '../../../../BridgeScene';
-import {
-    CAPTAIN_DASHBOARD_STYLE,
-} from '../../captain_dashboard_style';
-import {
-    formatCaptainDashboardCountdown,
-} from '../../captain_dashboard_format';
-import type {
-    BridgeCaptainIncomingBeamCannonPayload,
-} from '../../../../events/bridge_event';
+import { FONT_COLOR, FONT_FAMILY, FONT_SIZE } from "../../../../../../../theme/font";
+import type BridgeScene from "../../../../BridgeScene";
+import { CAPTAIN_DASHBOARD_STYLE } from "../../captain_dashboard_style";
+import { formatCaptainDashboardCountdown } from "../../captain_dashboard_format";
+import type { BridgeCaptainIncomingBeamCannonPayload } from "../../../../events/bridge_event";
 
 const ROW = {
     verticalGap: 1,
@@ -33,16 +23,10 @@ const ROW = {
     buttonGap: 8,
     buttonMarginRight: 6,
     buttonY: 4,
-
 } as const;
 
 type BeamCannonThreatRowCallbacks = {
-    onDeployShield:
-        (
-            command:
-                import('../../../../events/bridge_event')
-                    .BridgeOfficerCommandSelectedPayload,
-        ) => void;
+    onDeployShield: (command: import("../../../../events/bridge_event").BridgeOfficerCommandSelectedPayload) => void;
 };
 
 // Первый captain-dashboard beamCannon row.
@@ -52,166 +36,106 @@ type BeamCannonThreatRowCallbacks = {
 // Второй action slot принадлежит ENG и поднимает shield
 // через обычный resolved officer-command flow.
 export default class BridgeCaptainBeamCannonThreatRowView {
-    private readonly root:
-        Phaser.GameObjects.Container;
+    private readonly root: Phaser.GameObjects.Container;
 
-    private readonly timerText:
-        Phaser.GameObjects.BitmapText;
+    private readonly timerText: Phaser.GameObjects.BitmapText;
 
-    private readonly engineerButton:
-        Phaser.GameObjects.Rectangle;
+    private readonly engineerButton: Phaser.GameObjects.Rectangle;
 
-    private readonly engineerLabel:
-        Phaser.GameObjects.BitmapText;
+    private readonly engineerLabel: Phaser.GameObjects.BitmapText;
 
-    private engineerHandler?:
-        () => void;
+    private engineerHandler?: () => void;
 
     constructor(
-        private readonly scene:
-            BridgeScene,
+        private readonly scene: BridgeScene,
 
         width: number,
         height: number,
 
-        private readonly callbacks:
-            BeamCannonThreatRowCallbacks,
+        private readonly callbacks: BeamCannonThreatRowCallbacks,
     ) {
-        this.root =
-            this.scene.add.container(
-                0,
-                0,
-            );
+        this.root = this.scene.add.container(0, 0);
 
-        const visibleHeight =
-            Math.max(
+        const visibleHeight = Math.max(1, height - ROW.verticalGap);
+
+        const background = this.scene.add
+            .rectangle(
+                0,
+                0,
+
+                width,
+                visibleHeight,
+
+                CAPTAIN_DASHBOARD_STYLE.row.backgroundColor,
+                CAPTAIN_DASHBOARD_STYLE.row.backgroundAlpha,
+            )
+            .setOrigin(0, 0)
+            .setStrokeStyle(CAPTAIN_DASHBOARD_STYLE.row.borderThickness, CAPTAIN_DASHBOARD_STYLE.row.borderColor);
+
+        this.timerText = this.scene.add
+            .bitmapText(
+                ROW.timerX,
+                ROW.timerY,
+
+                FONT_FAMILY.VGA_8X14,
+                "--.-s",
+                FONT_SIZE.PX_16,
+            )
+            .setOrigin(0, 0)
+            .setTint(FONT_COLOR.ACTIVITY);
+
+        const iconBackground = this.scene.add
+            .rectangle(
+                ROW.iconX,
+                ROW.iconY,
+
+                ROW.iconWidth,
+                ROW.iconHeight,
+
+                CAPTAIN_DASHBOARD_STYLE.row.iconBackgroundColor,
                 1,
-                height -
-                    ROW.verticalGap,
-            );
+            )
+            .setOrigin(0, 0)
+            .setStrokeStyle(1, CAPTAIN_DASHBOARD_STYLE.row.iconBorderColor);
 
-        const background =
-            this.scene.add
-                .rectangle(
-                    0,
-                    0,
+        const iconLabel = this.scene.add
+            .bitmapText(
+                ROW.iconX + ROW.iconWidth / 2,
 
-                    width,
-                    visibleHeight,
+                ROW.iconY + ROW.iconHeight / 2,
 
-                    CAPTAIN_DASHBOARD_STYLE.row.backgroundColor,
-                    CAPTAIN_DASHBOARD_STYLE.row.backgroundAlpha,
-                )
-                .setOrigin(0, 0)
-                .setStrokeStyle(
-                    CAPTAIN_DASHBOARD_STYLE.row.borderThickness,
-                    CAPTAIN_DASHBOARD_STYLE.row.borderColor,
-                );
+                FONT_FAMILY.VGA_8X14,
+                "LSR",
+                FONT_SIZE.PX_14,
+            )
+            .setOrigin(0.5, 0.5)
+            .setTint(FONT_COLOR.SECONDARY);
 
-        this.timerText =
-            this.scene.add
-                .bitmapText(
-                    ROW.timerX,
-                    ROW.timerY,
+        const threatLabel = this.scene.add
+            .bitmapText(
+                ROW.labelX,
+                ROW.labelY,
 
-                    FONT_FAMILY.VGA_8X14,
-                    '--.-s',
-                    FONT_SIZE.PX_16,
-                )
-                .setOrigin(0, 0)
-                .setTint(
-                    FONT_COLOR.ACTIVITY,
-                );
+                FONT_FAMILY.VGA_8X14,
+                "BEAM_CANNON ATTACK",
+                FONT_SIZE.PX_16,
+            )
+            .setOrigin(0, 0)
+            .setTint(FONT_COLOR.PRIMARY);
 
-        const iconBackground =
-            this.scene.add
-                .rectangle(
-                    ROW.iconX,
-                    ROW.iconY,
+        const engineerX = width - ROW.buttonMarginRight - ROW.buttonWidth;
 
-                    ROW.iconWidth,
-                    ROW.iconHeight,
+        const scienceX = engineerX - ROW.buttonGap - ROW.buttonWidth;
 
-                    CAPTAIN_DASHBOARD_STYLE.row.iconBackgroundColor,
-                    1,
-                )
-                .setOrigin(0, 0)
-                .setStrokeStyle(
-                    1,
-                    CAPTAIN_DASHBOARD_STYLE.row.iconBorderColor,
-                );
+        const science = this.createDisabledButton(scienceX, "SCI");
 
-        const iconLabel =
-            this.scene.add
-                .bitmapText(
-                    ROW.iconX +
-                        ROW.iconWidth /
-                            2,
+        const engineer = this.createDisabledButton(engineerX, "ENG");
 
-                    ROW.iconY +
-                        ROW.iconHeight /
-                            2,
+        this.engineerButton = engineer.background;
 
-                    FONT_FAMILY.VGA_8X14,
-                    'LSR',
-                    FONT_SIZE.PX_14,
-                )
-                .setOrigin(
-                    0.5,
-                    0.5,
-                )
-                .setTint(
-                    FONT_COLOR.SECONDARY,
-                );
+        this.engineerLabel = engineer.label;
 
-        const threatLabel =
-            this.scene.add
-                .bitmapText(
-                    ROW.labelX,
-                    ROW.labelY,
-
-                    FONT_FAMILY.VGA_8X14,
-                    'BEAM_CANNON ATTACK',
-                    FONT_SIZE.PX_16,
-                )
-                .setOrigin(0, 0)
-                .setTint(
-                    FONT_COLOR.PRIMARY,
-                );
-
-        const engineerX =
-            width -
-            ROW.buttonMarginRight -
-            ROW.buttonWidth;
-
-        const scienceX =
-            engineerX -
-            ROW.buttonGap -
-            ROW.buttonWidth;
-
-        const science =
-            this.createDisabledButton(
-                scienceX,
-                'SCI',
-            );
-
-        const engineer =
-            this.createDisabledButton(
-                engineerX,
-                'ENG',
-            );
-
-        this.engineerButton =
-            engineer.background;
-
-        this.engineerLabel =
-            engineer.label;
-
-        this.engineerButton.on(
-            'pointerdown',
-            this.handleEngineerPointerDown,
-            this,
-        );
+        this.engineerButton.on("pointerdown", this.handleEngineerPointerDown, this);
 
         this.root.add([
             background,
@@ -226,107 +150,57 @@ export default class BridgeCaptainBeamCannonThreatRowView {
         ]);
     }
 
-    public getRoot():
-        Phaser.GameObjects.Container {
+    public getRoot(): Phaser.GameObjects.Container {
         return this.root;
     }
 
-    public setPosition(
-        x: number,
-        y: number,
-    ): void {
-        this.root.setPosition(
-            x,
-            y,
-        );
+    public setPosition(x: number, y: number): void {
+        this.root.setPosition(x, y);
     }
 
-    public update(
-        beamCannon:
-            BridgeCaptainIncomingBeamCannonPayload,
-    ): void {
-        this.timerText.setText(
-            formatCaptainDashboardCountdown(
-                beamCannon.timeToFireMs,
-            ),
-        );
+    public update(beamCannon: BridgeCaptainIncomingBeamCannonPayload): void {
+        this.timerText.setText(formatCaptainDashboardCountdown(beamCannon.timeToFireMs));
 
-        this.setEngineerAction(
-            beamCannon.actions
-                .deployShield,
-        );
+        this.setEngineerAction(beamCannon.actions.deployShield);
     }
 
     public destroy(): void {
-        this.engineerButton.off(
-            'pointerdown',
-            this.handleEngineerPointerDown,
-            this,
-        );
+        this.engineerButton.off("pointerdown", this.handleEngineerPointerDown, this);
 
-        this.engineerHandler =
-            undefined;
+        this.engineerHandler = undefined;
 
         this.root.destroy(true);
     }
 
-
     private setEngineerAction(
-        command:
-            import('../../../../events/bridge_event')
-                .BridgeOfficerCommandSelectedPayload |
-            undefined,
+        command: import("../../../../events/bridge_event").BridgeOfficerCommandSelectedPayload | undefined,
     ): void {
-        this.engineerButton
-            .disableInteractive();
+        this.engineerButton.disableInteractive();
 
-        this.engineerHandler =
-            undefined;
+        this.engineerHandler = undefined;
 
         if (!command) {
             this.engineerButton
-                .setFillStyle(
-                    CAPTAIN_DASHBOARD_STYLE.action.disabledBackgroundColor,
-                    1,
-                )
-                .setStrokeStyle(
-                    1,
-                    CAPTAIN_DASHBOARD_STYLE.action.disabledBorderColor,
-                );
+                .setFillStyle(CAPTAIN_DASHBOARD_STYLE.action.disabledBackgroundColor, 1)
+                .setStrokeStyle(1, CAPTAIN_DASHBOARD_STYLE.action.disabledBorderColor);
 
-            this.engineerLabel
-                .setTint(
-                    CAPTAIN_DASHBOARD_STYLE.action.disabledTextColor,
-                );
+            this.engineerLabel.setTint(CAPTAIN_DASHBOARD_STYLE.action.disabledTextColor);
 
             return;
         }
 
-        this.engineerHandler =
-            () => {
-                this.callbacks
-                    .onDeployShield(
-                        command,
-                    );
-            };
+        this.engineerHandler = () => {
+            this.callbacks.onDeployShield(command);
+        };
 
         this.engineerButton
-            .setFillStyle(
-                CAPTAIN_DASHBOARD_STYLE.action.activeBackgroundColor,
-                1,
-            )
-            .setStrokeStyle(
-                1,
-                CAPTAIN_DASHBOARD_STYLE.action.activeBorderColor,
-            )
+            .setFillStyle(CAPTAIN_DASHBOARD_STYLE.action.activeBackgroundColor, 1)
+            .setStrokeStyle(1, CAPTAIN_DASHBOARD_STYLE.action.activeBorderColor)
             .setInteractive({
                 useHandCursor: true,
             });
 
-        this.engineerLabel
-            .setTint(
-                FONT_COLOR.WHITE,
-            );
+        this.engineerLabel.setTint(FONT_COLOR.WHITE);
     }
 
     private handleEngineerPointerDown(): void {
@@ -337,52 +211,36 @@ export default class BridgeCaptainBeamCannonThreatRowView {
         x: number,
         labelText: string,
     ): {
-        background:
-            Phaser.GameObjects.Rectangle;
+        background: Phaser.GameObjects.Rectangle;
 
-        label:
-            Phaser.GameObjects.BitmapText;
+        label: Phaser.GameObjects.BitmapText;
     } {
-        const background =
-            this.scene.add
-                .rectangle(
-                    x,
-                    ROW.buttonY,
+        const background = this.scene.add
+            .rectangle(
+                x,
+                ROW.buttonY,
 
-                    ROW.buttonWidth,
-                    ROW.buttonHeight,
+                ROW.buttonWidth,
+                ROW.buttonHeight,
 
-                    CAPTAIN_DASHBOARD_STYLE.action.disabledBackgroundColor,
-                    1,
-                )
-                .setOrigin(0, 0)
-                .setStrokeStyle(
-                    1,
-                    CAPTAIN_DASHBOARD_STYLE.action.disabledBorderColor,
-                );
+                CAPTAIN_DASHBOARD_STYLE.action.disabledBackgroundColor,
+                1,
+            )
+            .setOrigin(0, 0)
+            .setStrokeStyle(1, CAPTAIN_DASHBOARD_STYLE.action.disabledBorderColor);
 
-        const label =
-            this.scene.add
-                .bitmapText(
-                    x +
-                        ROW.buttonWidth /
-                            2,
+        const label = this.scene.add
+            .bitmapText(
+                x + ROW.buttonWidth / 2,
 
-                    ROW.buttonY +
-                        ROW.buttonHeight /
-                            2,
+                ROW.buttonY + ROW.buttonHeight / 2,
 
-                    FONT_FAMILY.VGA_8X14,
-                    labelText,
-                    FONT_SIZE.PX_16,
-                )
-                .setOrigin(
-                    0.5,
-                    0.5,
-                )
-                .setTint(
-                    CAPTAIN_DASHBOARD_STYLE.action.disabledTextColor,
-                );
+                FONT_FAMILY.VGA_8X14,
+                labelText,
+                FONT_SIZE.PX_16,
+            )
+            .setOrigin(0.5, 0.5)
+            .setTint(CAPTAIN_DASHBOARD_STYLE.action.disabledTextColor);
 
         return {
             background,

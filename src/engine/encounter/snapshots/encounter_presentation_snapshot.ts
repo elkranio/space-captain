@@ -1,17 +1,10 @@
-import type {
-    PlayerSpaceNavigationState,
-} from '../../defs/player_location';
-import type {
-    EncounterState,
-} from '../model/state';
-import {
-    createCombatPresentationSnapshot,
-    type CombatPresentationSnapshot,
-} from './combat_presentation_snapshot';
+import type { PlayerSpaceNavigationState } from "../../defs/player_location";
+import type { EncounterState } from "../model/state";
+import { createCombatPresentationSnapshot, type CombatPresentationSnapshot } from "./combat_presentation_snapshot";
 import {
     createEncounterSpacePresentationSnapshot,
     type EncounterSpacePresentationSnapshot,
-} from './encounter_space_presentation_snapshot';
+} from "./encounter_space_presentation_snapshot";
 
 // Safe app-facing read model for one encounter frame.
 //
@@ -20,30 +13,18 @@ import {
 // presentation-safe projections and is detached by EncounterSnapshotReader.
 //
 // Keep focused builders/queries specialized; this type only owns composition.
-export type EncounterPresentationSnapshot =
-    CombatPresentationSnapshot & {
-        navigation:
-            PlayerSpaceNavigationState;
+export type EncounterPresentationSnapshot = CombatPresentationSnapshot & {
+    navigation: PlayerSpaceNavigationState;
 
-        space:
-            EncounterSpacePresentationSnapshot;
-    };
+    space: EncounterSpacePresentationSnapshot;
+};
 
-export function createEncounterPresentationSnapshot(
-    state:
-        EncounterState,
-): EncounterPresentationSnapshot {
+export function createEncounterPresentationSnapshot(state: EncounterState): EncounterPresentationSnapshot {
     return {
-        navigation:
-            state.navigation,
+        navigation: state.navigation,
 
-        space:
-            createEncounterSpacePresentationSnapshot(
-                state,
-            ),
+        space: createEncounterSpacePresentationSnapshot(state),
 
-        ...createCombatPresentationSnapshot(
-            state,
-        ),
+        ...createCombatPresentationSnapshot(state),
     };
 }

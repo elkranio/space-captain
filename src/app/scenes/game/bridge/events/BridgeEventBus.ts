@@ -1,6 +1,6 @@
 // src/app/scenes/game/bridge/events/BridgeEventBus.ts
 
-import type { BridgeEventPayloadMap } from './bridge_event';
+import type { BridgeEventPayloadMap } from "./bridge_event";
 
 type BridgeEventKey = keyof BridgeEventPayloadMap;
 

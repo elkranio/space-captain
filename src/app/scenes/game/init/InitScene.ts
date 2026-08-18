@@ -1,10 +1,10 @@
 // src\app\scenes\game\init\InitScene.ts
-import BaseScene from '../../BaseScene';
-import LayerManager from '../../../../system/LayerManager';
-import { SCENE_KEY } from '../../scene_key';
-import InitController from './controller/InitController';
+import BaseScene from "../../BaseScene";
+import LayerManager from "../../../../system/LayerManager";
+import { SCENE_KEY } from "../../scene_key";
+import InitController from "./controller/InitController";
 
-const layers = ['bg', 'ui'] as const;
+const layers = ["bg", "ui"] as const;
 type LayerKeys = (typeof layers)[number];
 
 export default class InitScene extends BaseScene<LayerKeys> {

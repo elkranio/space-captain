@@ -1,18 +1,9 @@
 // src/engine/encounter/model/officer_task.ts
 
-import { OFFICER_ROLE, type OfficerRole } from '../../defs/officer';
-import {
-    OFFICER_TASK_KIND,
-    type OfficerTaskCancellationPolicy,
-} from '../../defs/officer_task';
-export {
-    OFFICER_TASK_KIND,
-    type OfficerTaskCancellationPolicy,
-    type OfficerTaskKind,
-} from '../../defs/officer_task';
-import {
-    ENCOUNTER_OFFICER_COMMAND_ID,
-} from './command';
+import { OFFICER_ROLE, type OfficerRole } from "../../defs/officer";
+import { OFFICER_TASK_KIND, type OfficerTaskCancellationPolicy } from "../../defs/officer_task";
+export { OFFICER_TASK_KIND, type OfficerTaskCancellationPolicy, type OfficerTaskKind } from "../../defs/officer_task";
+import { ENCOUNTER_OFFICER_COMMAND_ID } from "./command";
 
 type OfficerTaskDraftBase = {
     label: string;
@@ -51,7 +42,6 @@ type SciencePurgeSpamOfficerTaskDraft = OfficerTaskDraftBase & {
     channelId: string;
 };
 
-
 type EngineerRepairDriveOfficerTaskDraft = OfficerTaskDraftBase & {
     kind: typeof OFFICER_TASK_KIND.ENGINEER_REPAIR_DRIVE;
     role: typeof OFFICER_ROLE.ENGINEER;
@@ -60,100 +50,71 @@ type EngineerRepairDriveOfficerTaskDraft = OfficerTaskDraftBase & {
 };
 
 type EngineerDeployShieldOfficerTaskDraft = OfficerTaskDraftBase & {
-    kind:
-        typeof OFFICER_TASK_KIND.ENGINEER_DEPLOY_SHIELD;
+    kind: typeof OFFICER_TASK_KIND.ENGINEER_DEPLOY_SHIELD;
 
-    role:
-        typeof OFFICER_ROLE.ENGINEER;
+    role: typeof OFFICER_ROLE.ENGINEER;
 
-    sourceCommandId:
-        typeof ENCOUNTER_OFFICER_COMMAND_ID.ENGINEER_DEPLOY_SHIELD;
+    sourceCommandId: typeof ENCOUNTER_OFFICER_COMMAND_ID.ENGINEER_DEPLOY_SHIELD;
 };
 
 type WeaponsDefenseTurretOfficerTaskDraft = OfficerTaskDraftBase & {
     kind: typeof OFFICER_TASK_KIND.WEAPONS_DEFENSE_TURRET;
     role: typeof OFFICER_ROLE.WEAPONS;
 
-    sourceCommandId:
-        typeof ENCOUNTER_OFFICER_COMMAND_ID
-            .WEAPONS_INTERCEPT_MISSILE;
+    sourceCommandId: typeof ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_INTERCEPT_MISSILE;
 
     threatId: string;
 };
 
-type WeaponsFireMissileOfficerTaskDraft =
-    OfficerTaskDraftBase & {
-        kind:
-            typeof OFFICER_TASK_KIND
-                .WEAPONS_FIRE_MISSILE;
+type WeaponsFireMissileOfficerTaskDraft = OfficerTaskDraftBase & {
+    kind: typeof OFFICER_TASK_KIND.WEAPONS_FIRE_MISSILE;
 
-        role:
-            typeof OFFICER_ROLE.WEAPONS;
+    role: typeof OFFICER_ROLE.WEAPONS;
 
-        sourceCommandId:
-            typeof ENCOUNTER_OFFICER_COMMAND_ID
-                .WEAPONS_FIRE_MISSILE;
+    sourceCommandId: typeof ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_MISSILE;
 
-        weaponId: string;
-        targetActorId: string;
-    };
+    weaponId: string;
+    targetActorId: string;
+};
 
-type WeaponsFireStickyMinesOfficerTaskDraft =
-    OfficerTaskDraftBase & {
-        kind:
-            typeof OFFICER_TASK_KIND
-                .WEAPONS_FIRE_STICKY_MINES;
+type WeaponsFireStickyMinesOfficerTaskDraft = OfficerTaskDraftBase & {
+    kind: typeof OFFICER_TASK_KIND.WEAPONS_FIRE_STICKY_MINES;
 
-        role:
-            typeof OFFICER_ROLE.WEAPONS;
+    role: typeof OFFICER_ROLE.WEAPONS;
 
-        sourceCommandId:
-            typeof ENCOUNTER_OFFICER_COMMAND_ID
-                .WEAPONS_FIRE_STICKY_MINES;
+    sourceCommandId: typeof ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_STICKY_MINES;
 
-        weaponId: string;
-        targetActorId: string;
-    };
+    weaponId: string;
+    targetActorId: string;
+};
 
-type WeaponsFireBeamCannonOfficerTaskDraft =
-    OfficerTaskDraftBase & {
-        kind:
-            typeof OFFICER_TASK_KIND.WEAPONS_FIRE_BEAM_CANNON;
+type WeaponsFireBeamCannonOfficerTaskDraft = OfficerTaskDraftBase & {
+    kind: typeof OFFICER_TASK_KIND.WEAPONS_FIRE_BEAM_CANNON;
 
-        role:
-            typeof OFFICER_ROLE.WEAPONS;
+    role: typeof OFFICER_ROLE.WEAPONS;
 
-        sourceCommandId:
-            typeof ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_BEAM_CANNON;
+    sourceCommandId: typeof ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_BEAM_CANNON;
 
-        weaponId: string;
-        targetActorId: string;
-    };
+    weaponId: string;
+    targetActorId: string;
+};
 
-type ScienceFireSpamOfficerTaskDraft =
-    OfficerTaskDraftBase & {
-        kind:
-            typeof OFFICER_TASK_KIND
-                .SCIENCE_FIRE_SPAM;
+type ScienceFireSpamOfficerTaskDraft = OfficerTaskDraftBase & {
+    kind: typeof OFFICER_TASK_KIND.SCIENCE_FIRE_SPAM;
 
-        role:
-            typeof OFFICER_ROLE.SCIENCE;
+    role: typeof OFFICER_ROLE.SCIENCE;
 
-        sourceCommandId:
-            typeof ENCOUNTER_OFFICER_COMMAND_ID
-                .SCIENCE_FIRE_SPAM;
+    sourceCommandId: typeof ENCOUNTER_OFFICER_COMMAND_ID.SCIENCE_FIRE_SPAM;
 
-        weaponId: string;
-        targetActorId: string;
-    };
+    weaponId: string;
+    targetActorId: string;
+};
 
 type ClearStickyMineOfficerTaskDraft = OfficerTaskDraftBase & {
-    kind:
-        typeof OFFICER_TASK_KIND.CLEAR_STICKY_MINE;
+    kind: typeof OFFICER_TASK_KIND.CLEAR_STICKY_MINE;
     role: OfficerRole;
 
-    sourceCommandId:
-        typeof ENCOUNTER_OFFICER_COMMAND_ID.CLEAR_STICKY_MINE;
+    sourceCommandId: typeof ENCOUNTER_OFFICER_COMMAND_ID.CLEAR_STICKY_MINE;
 
     mineId: string;
 };

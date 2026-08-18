@@ -1,7 +1,7 @@
 // src/app/scenes/game/bridge/view/vfx/drive_disruption/BridgeDriveDisruptionView.ts
 
-import type BridgeScene from '../../../BridgeScene';
-import { BRIDGE_VIEWSCREEN_RECT } from '../../bridge_viewscreen_layout';
+import type BridgeScene from "../../../BridgeScene";
+import { BRIDGE_VIEWSCREEN_RECT } from "../../bridge_viewscreen_layout";
 
 const DRIVE_DISRUPTION = {
     flashColor: 0xd9c2ff,
@@ -19,14 +19,11 @@ const DRIVE_DISRUPTION = {
 // Владеет полным visual lifecycle drive disruption:
 // создаёт flash/band, запускает tweens и очищает их.
 export default class BridgeDriveDisruptionView {
-    private readonly root:
-        Phaser.GameObjects.Container;
+    private readonly root: Phaser.GameObjects.Container;
 
-    private readonly flash:
-        Phaser.GameObjects.Rectangle;
+    private readonly flash: Phaser.GameObjects.Rectangle;
 
-    private readonly band:
-        Phaser.GameObjects.Rectangle;
+    private readonly band: Phaser.GameObjects.Rectangle;
 
     private flashTween?: Phaser.Tweens.Tween;
     private bandTween?: Phaser.Tweens.Tween;
@@ -39,20 +36,11 @@ export default class BridgeDriveDisruptionView {
         parent.add(this.root);
 
         this.flash = this.scene.add
-            .rectangle(
-                0,
-                0,
-                this.scene.scale.width,
-                this.scene.scale.height,
-                DRIVE_DISRUPTION.flashColor,
-                1,
-            )
+            .rectangle(0, 0, this.scene.scale.width, this.scene.scale.height, DRIVE_DISRUPTION.flashColor, 1)
             .setOrigin(0, 0)
             .setAlpha(0)
             .setVisible(false)
-            .setBlendMode(
-                Phaser.BlendModes.ADD,
-            );
+            .setBlendMode(Phaser.BlendModes.ADD);
 
         this.band = this.scene.add
             .rectangle(
@@ -68,86 +56,58 @@ export default class BridgeDriveDisruptionView {
             .setOrigin(0, 0)
             .setAlpha(0)
             .setVisible(false)
-            .setBlendMode(
-                Phaser.BlendModes.ADD,
-            );
+            .setBlendMode(Phaser.BlendModes.ADD);
 
-        this.root.add([
-            this.flash,
-            this.band,
-        ]);
+        this.root.add([this.flash, this.band]);
     }
 
     public play(): void {
         this.stopTweens();
 
-        this.flash
-            .setVisible(true)
-            .setAlpha(0);
+        this.flash.setVisible(true).setAlpha(0);
 
         this.band
             .setVisible(true)
-            .setPosition(
-                BRIDGE_VIEWSCREEN_RECT.x,
-                BRIDGE_VIEWSCREEN_RECT.y,
-            )
-            .setAlpha(
-                DRIVE_DISRUPTION.bandAlpha,
-            );
+            .setPosition(BRIDGE_VIEWSCREEN_RECT.x, BRIDGE_VIEWSCREEN_RECT.y)
+            .setAlpha(DRIVE_DISRUPTION.bandAlpha);
 
-        this.flashTween =
-            this.scene.tweens.add({
-                targets: this.flash,
+        this.flashTween = this.scene.tweens.add({
+            targets: this.flash,
 
-                alpha:
-                    DRIVE_DISRUPTION.flashAlpha,
+            alpha: DRIVE_DISRUPTION.flashAlpha,
 
-                duration:
-                    DRIVE_DISRUPTION
-                        .flashDurationMs,
+            duration: DRIVE_DISRUPTION.flashDurationMs,
 
-                ease: 'Linear',
-                yoyo: true,
+            ease: "Linear",
+            yoyo: true,
 
-                repeat: 1,
-                repeatDelay:
-                    DRIVE_DISRUPTION
-                        .flashRepeatDelayMs,
+            repeat: 1,
+            repeatDelay: DRIVE_DISRUPTION.flashRepeatDelayMs,
 
-                onComplete: () => {
-                    this.flashTween = undefined;
+            onComplete: () => {
+                this.flashTween = undefined;
 
-                    this.flash
-                        .setVisible(false)
-                        .setAlpha(0);
-                },
-            });
+                this.flash.setVisible(false).setAlpha(0);
+            },
+        });
 
-        this.bandTween =
-            this.scene.tweens.add({
-                targets: this.band,
+        this.bandTween = this.scene.tweens.add({
+            targets: this.band,
 
-                y:
-                    BRIDGE_VIEWSCREEN_RECT.y +
-                    BRIDGE_VIEWSCREEN_RECT.height -
-                    DRIVE_DISRUPTION.bandHeight,
+            y: BRIDGE_VIEWSCREEN_RECT.y + BRIDGE_VIEWSCREEN_RECT.height - DRIVE_DISRUPTION.bandHeight,
 
-                alpha: 0,
+            alpha: 0,
 
-                duration:
-                    DRIVE_DISRUPTION
-                        .bandDurationMs,
+            duration: DRIVE_DISRUPTION.bandDurationMs,
 
-                ease: 'Linear',
+            ease: "Linear",
 
-                onComplete: () => {
-                    this.bandTween = undefined;
+            onComplete: () => {
+                this.bandTween = undefined;
 
-                    this.band
-                        .setVisible(false)
-                        .setAlpha(0);
-                },
-            });
+                this.band.setVisible(false).setAlpha(0);
+            },
+        });
     }
 
     public destroy(): void {
@@ -162,12 +122,8 @@ export default class BridgeDriveDisruptionView {
         this.bandTween?.stop();
         this.bandTween = undefined;
 
-        this.scene.tweens.killTweensOf(
-            this.flash,
-        );
+        this.scene.tweens.killTweensOf(this.flash);
 
-        this.scene.tweens.killTweensOf(
-            this.band,
-        );
+        this.scene.tweens.killTweensOf(this.band);
     }
 }

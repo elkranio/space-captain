@@ -1,26 +1,11 @@
 // src/engine/generation/space_node_actor/ShipNodeActorFactory.ts
 
-import {
-    SHIP_BEHAVIOR_PRESETS,
-} from '../../content/presets/ship_behaviors';
-import {
-    SHIP_CREW_PRESETS,
-    type ShipCrewPreset,
-} from '../../content/presets/ship_crews';
-import {
-    SHIP_NODE_ACTOR_PRESETS,
-    type ShipNodeActorPresetId,
-} from '../../content/presets/ship_node_actors';
-import type {
-    CrewTraitsByRole,
-} from '../../defs/crew_trait';
-import {
-    SPACE_NODE_ACTOR_KIND,
-    type ShipSpaceNodeActorState,
-} from '../../defs/universe';
-import ShipFactory, {
-    type CreatedShipState,
-} from '../ship/ShipFactory';
+import { SHIP_BEHAVIOR_PRESETS } from "../../content/presets/ship_behaviors";
+import { SHIP_CREW_PRESETS, type ShipCrewPreset } from "../../content/presets/ship_crews";
+import { SHIP_NODE_ACTOR_PRESETS, type ShipNodeActorPresetId } from "../../content/presets/ship_node_actors";
+import type { CrewTraitsByRole } from "../../defs/crew_trait";
+import { SPACE_NODE_ACTOR_KIND, type ShipSpaceNodeActorState } from "../../defs/universe";
+import ShipFactory, { type CreatedShipState } from "../ship/ShipFactory";
 
 export type CreateShipNodeActorInput = {
     // Runtime id конкретного корабля внутри ноды.
@@ -44,40 +29,23 @@ export default class ShipNodeActorFactory {
         anchorId,
         ship: providedShip,
     }: CreateShipNodeActorInput): ShipSpaceNodeActorState {
-        const actorPreset =
-            SHIP_NODE_ACTOR_PRESETS[presetId];
+        const actorPreset = SHIP_NODE_ACTOR_PRESETS[presetId];
 
         const ship =
             providedShip ??
             ShipFactory.create({
-                presetId:
-                    actorPreset.shipPresetId,
+                presetId: actorPreset.shipPresetId,
             });
 
-        const crew: ShipCrewPreset =
-            SHIP_CREW_PRESETS[
-                actorPreset.crewPresetId
-            ];
+        const crew: ShipCrewPreset = SHIP_CREW_PRESETS[actorPreset.crewPresetId];
 
-        const crewTraitsByRole:
-            CrewTraitsByRole = {};
+        const crewTraitsByRole: CrewTraitsByRole = {};
 
         for (const role of crew.roles) {
-            crewTraitsByRole[role] = [
-                ...(
-                    crew
-                        .traitsByRole[
-                            role
-                        ] ??
-                    []
-                ),
-            ];
+            crewTraitsByRole[role] = [...(crew.traitsByRole[role] ?? [])];
         }
 
-        const behavior =
-            SHIP_BEHAVIOR_PRESETS[
-                actorPreset.behaviorPresetId
-            ];
+        const behavior = SHIP_BEHAVIOR_PRESETS[actorPreset.behaviorPresetId];
 
         return {
             id,
@@ -93,55 +61,37 @@ export default class ShipNodeActorFactory {
 
             drive: ship.drive,
 
-            ...(
-                ship.defenseTurret
-                    ? {
-                          defenseTurret:
-                              ship.defenseTurret,
-                      }
-                    : {}
-            ),
+            ...(ship.defenseTurret
+                ? {
+                      defenseTurret: ship.defenseTurret,
+                  }
+                : {}),
 
-            ...(
-                ship.powerCore
-                    ? {
-                          powerCore:
-                              ship.powerCore,
-                      }
-                    : {}
-            ),
+            ...(ship.powerCore
+                ? {
+                      powerCore: ship.powerCore,
+                  }
+                : {}),
 
-            ...(
-                ship.shieldGenerator
-                    ? {
-                          shieldGenerator: {
-                              ...ship
-                                  .shieldGenerator,
-                          },
-                      }
-                    : {}
-            ),
+            ...(ship.shieldGenerator
+                ? {
+                      shieldGenerator: {
+                          ...ship.shieldGenerator,
+                      },
+                  }
+                : {}),
 
             behavior: {
-                decisionTickDurationMs:
-                    behavior
-                        .decisionTickDurationMs,
+                decisionTickDurationMs: behavior.decisionTickDurationMs,
 
-                decisionTickWiggleMs:
-                    behavior
-                        .decisionTickWiggleMs,
+                decisionTickWiggleMs: behavior.decisionTickWiggleMs,
 
-                threatTimingWiggleMs:
-                    behavior
-                        .threatTimingWiggleMs,
+                threatTimingWiggleMs: behavior.threatTimingWiggleMs,
 
-                aggression:
-                    behavior.aggression,
+                aggression: behavior.aggression,
             },
 
-            crewRoles: [
-                ...crew.roles,
-            ],
+            crewRoles: [...crew.roles],
 
             crewTraitsByRole,
 
