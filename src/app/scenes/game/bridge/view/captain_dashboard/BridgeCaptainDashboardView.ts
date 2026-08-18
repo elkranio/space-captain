@@ -25,19 +25,16 @@ export default class BridgeCaptainDashboardView {
 
     private readonly combatContextView: BridgeCaptainCombatContextView;
 
-    constructor(
-        private readonly scene: BridgeScene,
-        private readonly eventBus: BridgeEventBus,
-    ) {
-        this.root = this.scene.add.container(0, 0);
+    constructor(scene: BridgeScene, eventBus: BridgeEventBus) {
+        this.root = scene.add.container(0, 0);
 
-        this.scene.layers.get("ui").add(this.root);
+        scene.layers.get("ui").add(this.root);
 
-        this.playerShipView = new BridgePlayerShipDashboardView(this.scene, this.eventBus);
+        this.playerShipView = new BridgePlayerShipDashboardView(scene, eventBus);
 
         this.playerShipView.setPosition(PLAYER_SHIP_POSITION.x, PLAYER_SHIP_POSITION.y);
 
-        this.combatContextView = new BridgeCaptainCombatContextView(this.scene, this.eventBus);
+        this.combatContextView = new BridgeCaptainCombatContextView(scene, eventBus);
 
         this.combatContextView.setPosition(COMBAT_CONTEXT_POSITION.x, COMBAT_CONTEXT_POSITION.y);
 

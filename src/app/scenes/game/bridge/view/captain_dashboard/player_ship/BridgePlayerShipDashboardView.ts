@@ -35,13 +35,10 @@ export default class BridgePlayerShipDashboardView {
 
     private readonly systemsView: BridgePlayerShipSystemsView;
 
-    constructor(
-        private readonly scene: BridgeScene,
-        private readonly eventBus: BridgeEventBus,
-    ) {
-        this.root = this.scene.add.container(0, 0);
+    constructor(scene: BridgeScene, eventBus: BridgeEventBus) {
+        this.root = scene.add.container(0, 0);
 
-        this.background = this.scene.add
+        this.background = scene.add
             .rectangle(
                 0,
                 0,
@@ -58,15 +55,15 @@ export default class BridgePlayerShipDashboardView {
         const innerWidth = PANEL.width - PANEL.padding * 2;
 
         this.statusStripView = new BridgePlayerShipStatusStripView(
-            this.scene,
-            this.eventBus,
+            scene,
+            eventBus,
             innerWidth,
             STATUS_HEIGHT,
         );
 
         this.statusStripView.setPosition(PANEL.padding, PANEL.padding);
 
-        this.systemsView = new BridgePlayerShipSystemsView(this.scene, this.eventBus, innerWidth, SYSTEMS_HEIGHT);
+        this.systemsView = new BridgePlayerShipSystemsView(scene, eventBus, innerWidth, SYSTEMS_HEIGHT);
 
         this.systemsView.setPosition(
             PANEL.padding,

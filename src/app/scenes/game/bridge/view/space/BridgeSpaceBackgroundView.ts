@@ -20,13 +20,13 @@ export default class BridgeSpaceBackgroundView {
 
     private readonly panoramaPosition = new Phaser.Math.Vector2();
 
-    constructor(private readonly scene: BridgeScene) {
-        this.root = this.scene.add.container(0, 0);
-        this.scene.layers.get("space").add(this.root);
+    constructor(scene: BridgeScene) {
+        this.root = scene.add.container(0, 0);
+        scene.layers.get("space").add(this.root);
 
         const asset = SPACE_BACKGROUND_SPRITES[SPACE_BACKGROUND_ID.NEBULA_00];
 
-        this.background = this.scene.add
+        this.background = scene.add
             .tileSprite(
                 BRIDGE_VIEWSCREEN_RECT.x,
                 BRIDGE_VIEWSCREEN_RECT.y,
