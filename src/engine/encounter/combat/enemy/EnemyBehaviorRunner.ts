@@ -123,10 +123,7 @@ export default class EnemyBehaviorRunner {
         });
     }
 
-    public step(
-        deltaMs: number,
-        purgePlayerSpamChannel: (channelId: string, targetActorId: string) => boolean,
-    ): void {
+    public step(deltaMs: number, purgePlayerSpamChannel: (channelId: string, targetActorId: string) => boolean): void {
         this.threatObserver.synchronize();
 
         this.crewTaskRunner.advance(deltaMs, (actor, channelId) => {

@@ -53,12 +53,7 @@ export default class CombatStickyMineRunner {
 
     private readonly pendingPlayerAttachments: PlayerStickyMineAttachInput[] = [];
 
-    constructor({
-        stateStore,
-        identities,
-        emit,
-        destroyEnemyActor,
-    }: CombatStickyMineRunnerOptions) {
+    constructor({ stateStore, identities, emit, destroyEnemyActor }: CombatStickyMineRunnerOptions) {
         this.stateStore = stateStore;
         this.identities = identities;
         this.emit = emit;
@@ -404,18 +399,10 @@ export default class CombatStickyMineRunner {
             return;
         }
 
-        this.resolveDetonation(
-            this.state.combat.stickyMines.length - 1,
-            mine,
-            interruptRandomOfficerTask,
-        );
+        this.resolveDetonation(this.state.combat.stickyMines.length - 1, mine, interruptRandomOfficerTask);
     }
 
-    private resolveDetonation(
-        index: number,
-        mine: StickyMineState,
-        interruptRandomOfficerTask: () => void,
-    ): void {
+    private resolveDetonation(index: number, mine: StickyMineState, interruptRandomOfficerTask: () => void): void {
         mine.timeToDetonationMs = 0;
 
         this.state.combat.stickyMines.splice(index, 1);

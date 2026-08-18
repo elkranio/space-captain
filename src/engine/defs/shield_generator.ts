@@ -6,7 +6,6 @@ export const SHIELD_GENERATOR_ID = {
     BASIC_00: "shield_generator_basic_00",
 } as const;
 
-
 export type ShieldGeneratorDefinition = {
     id: string;
 

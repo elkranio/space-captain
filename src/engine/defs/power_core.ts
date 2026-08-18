@@ -6,7 +6,6 @@ export const POWER_CORE_ID = {
     BASIC_00: "power_core_basic_00",
 } as const;
 
-
 export type PowerCoreDefinition = {
     id: string;
 

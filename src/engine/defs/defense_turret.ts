@@ -13,7 +13,6 @@ export const DEFENSE_TURRET_ID = {
     BASIC_00: "defense_turret_basic_00",
 } as const;
 
-
 export type DefenseTurretDefinition = {
     id: string;
     name: string;

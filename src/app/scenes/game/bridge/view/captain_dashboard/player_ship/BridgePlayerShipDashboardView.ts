@@ -54,12 +54,7 @@ export default class BridgePlayerShipDashboardView {
 
         const innerWidth = PANEL.width - PANEL.padding * 2;
 
-        this.statusStripView = new BridgePlayerShipStatusStripView(
-            scene,
-            eventBus,
-            innerWidth,
-            STATUS_HEIGHT,
-        );
+        this.statusStripView = new BridgePlayerShipStatusStripView(scene, eventBus, innerWidth, STATUS_HEIGHT);
 
         this.statusStripView.setPosition(PANEL.padding, PANEL.padding);
 

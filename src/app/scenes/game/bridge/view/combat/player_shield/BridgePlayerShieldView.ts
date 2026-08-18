@@ -137,10 +137,7 @@ export default class BridgePlayerShieldView {
             return;
         }
 
-        this.absorbFadeElapsedMs = Math.min(
-            BRIDGE_SHIELD_PRESENTATION.absorbFadeMs,
-            absorbFadeElapsedMs + deltaMs,
-        );
+        this.absorbFadeElapsedMs = Math.min(BRIDGE_SHIELD_PRESENTATION.absorbFadeMs, absorbFadeElapsedMs + deltaMs);
 
         const alpha = getBridgeShieldAbsorbFadeAlpha(this.absorbFadeElapsedMs);
 

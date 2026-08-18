@@ -31,16 +31,16 @@ export const sciencePurgeSpamCommandHandler = {
         return getActiveCrewProgressEffects(state)
             .filter((effect) => effect.target.kind === COMBAT_TARGET_KIND.PLAYER_SHIP)
             .map((effect) => {
-            return {
-                commandId: COMMAND_ID,
-                label: COMMAND_DEF.label,
+                return {
+                    commandId: COMMAND_ID,
+                    label: COMMAND_DEF.label,
 
-                target: {
-                    kind: OFFICER_COMMAND_TARGET_KIND.THREAT,
-                    threatId: effect.id,
-                },
+                    target: {
+                        kind: OFFICER_COMMAND_TARGET_KIND.THREAT,
+                        threatId: effect.id,
+                    },
 
-                targetLabel: "SPAM CHANNEL",
+                    targetLabel: "SPAM CHANNEL",
                 };
             });
     },

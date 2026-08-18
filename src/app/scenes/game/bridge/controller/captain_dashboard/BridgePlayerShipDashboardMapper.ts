@@ -406,10 +406,7 @@ function getResolvedWeaponCommand(
 function requireAmmo(snapshot: PlayerWeaponPresentationSnapshot): { current: number; max: number } {
     const weapon = snapshot.state;
 
-    if (
-        weapon.kind !== SHIP_WEAPON_KIND.MISSILE_LAUNCHER &&
-        weapon.kind !== SHIP_WEAPON_KIND.STICKY_MINE_DISPENSER
-    ) {
+    if (weapon.kind !== SHIP_WEAPON_KIND.MISSILE_LAUNCHER && weapon.kind !== SHIP_WEAPON_KIND.STICKY_MINE_DISPENSER) {
         throw new Error("Captain dashboard weapon is not ammo-backed: " + weapon.id);
     }
 

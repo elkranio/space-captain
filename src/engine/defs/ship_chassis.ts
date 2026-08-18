@@ -6,14 +6,12 @@ export const SHIP_CHASSIS_ID = {
     GENERIC_00: "generic_00",
 } as const;
 
-
 // Удобные стабильные id встроенных визуальных вариантов.
 // Новые sprite id создаются Asset Manager и остаются строками.
 export const SHIP_SPRITE_ID = {
     UNKNOWN_00: "unknown_00",
     GENERIC_00: "generic_00",
 } as const;
-
 
 // Неизменяемые физические свойства корпуса.
 // Установленные системы и оружие задаются ShipPreset.

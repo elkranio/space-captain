@@ -6,7 +6,6 @@ export const SHIP_DRIVE_ID = {
     BASIC_00: "basic_00",
 } as const;
 
-
 export const SHIP_DRIVE_STATUS = {
     ONLINE: "online",
     DISABLED: "disabled",

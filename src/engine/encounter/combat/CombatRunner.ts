@@ -188,11 +188,7 @@ export default class CombatRunner {
     ): void {
         this.missileRunner.advanceExistingProjectiles(existingIds.projectileIds, deltaMs);
 
-        this.stickyMineRunner.advanceExistingMines(
-            existingIds.stickyMineIds,
-            deltaMs,
-            interruptRandomOfficerTask,
-        );
+        this.stickyMineRunner.advanceExistingMines(existingIds.stickyMineIds, deltaMs, interruptRandomOfficerTask);
     }
 
     private advanceEnemyBehavior(
