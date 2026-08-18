@@ -24,35 +24,35 @@ import BridgeStickyMinesView from "./sticky_mines/BridgeStickyMinesView";
 // Owns only visual combat modules and their shared
 // dependency on BridgeSpaceView object positions.
 export default class BridgeCombatView {
-    private enemyShipDestructionView?: BridgeEnemyShipDestructionView;
+    private readonly enemyShipDestructionView: BridgeEnemyShipDestructionView;
 
-    private incomingMissilesView?: BridgeIncomingMissilesView;
+    private readonly incomingMissilesView: BridgeIncomingMissilesView;
 
-    private outgoingMissilesView?: BridgeOutgoingMissilesView;
+    private readonly outgoingMissilesView: BridgeOutgoingMissilesView;
 
-    private outgoingStickyMinesView?: BridgeOutgoingStickyMinesView;
+    private readonly outgoingStickyMinesView: BridgeOutgoingStickyMinesView;
 
-    private outgoingSpamView?: BridgeOutgoingSpamView;
+    private readonly outgoingSpamView: BridgeOutgoingSpamView;
 
-    private beamCannonThreatsView?: BridgeBeamCannonThreatsView;
+    private readonly beamCannonThreatsView: BridgeBeamCannonThreatsView;
 
-    private beamCannonBeamsView?: BridgeBeamCannonBeamsView;
+    private readonly beamCannonBeamsView: BridgeBeamCannonBeamsView;
 
-    private enemyShieldView?: BridgeEnemyShieldView;
+    private readonly enemyShieldView: BridgeEnemyShieldView;
 
-    private enemyEvadeView?: BridgeEnemyEvadeView;
+    private readonly enemyEvadeView: BridgeEnemyEvadeView;
 
-    private playerBeamCannonView?: BridgePlayerBeamCannonView;
+    private readonly playerBeamCannonView: BridgePlayerBeamCannonView;
 
-    private playerShieldView?: BridgePlayerShieldView;
+    private readonly playerShieldView: BridgePlayerShieldView;
 
-    private playerEvadeView?: BridgePlayerEvadeView;
+    private readonly playerEvadeView: BridgePlayerEvadeView;
 
-    private spamView?: BridgeSpamView;
+    private readonly spamView: BridgeSpamView;
 
-    private stickyMinesView?: BridgeStickyMinesView;
+    private readonly stickyMinesView: BridgeStickyMinesView;
 
-    private vfxView?: BridgeVfxView;
+    private readonly vfxView: BridgeVfxView;
 
     constructor(scene: BridgeScene, eventBus: BridgeEventBus, spaceView: BridgeSpaceView) {
         const getObjectPosition = (objectId: string) => {
@@ -164,48 +164,32 @@ export default class BridgeCombatView {
     }
 
     public destroy(): void {
-        this.playerEvadeView?.destroy();
-        this.stickyMinesView?.destroy();
-        this.spamView?.destroy();
-        this.vfxView?.destroy();
-        this.enemyShipDestructionView?.destroy();
-        this.playerShieldView?.destroy();
-        this.playerBeamCannonView?.destroy();
-        this.enemyEvadeView?.destroy();
-        this.enemyShieldView?.destroy();
-        this.beamCannonBeamsView?.destroy();
-        this.beamCannonThreatsView?.destroy();
-        this.outgoingStickyMinesView?.destroy();
-        this.outgoingSpamView?.destroy();
-        this.outgoingMissilesView?.destroy();
-        this.incomingMissilesView?.destroy();
-
-        this.playerEvadeView = undefined;
-        this.stickyMinesView = undefined;
-        this.spamView = undefined;
-        this.vfxView = undefined;
-        this.enemyShipDestructionView = undefined;
-        this.playerShieldView = undefined;
-        this.playerBeamCannonView = undefined;
-        this.enemyEvadeView = undefined;
-        this.enemyShieldView = undefined;
-        this.beamCannonBeamsView = undefined;
-        this.beamCannonThreatsView = undefined;
-        this.outgoingStickyMinesView = undefined;
-        this.outgoingSpamView = undefined;
-        this.outgoingMissilesView = undefined;
-        this.incomingMissilesView = undefined;
+        this.playerEvadeView.destroy();
+        this.stickyMinesView.destroy();
+        this.spamView.destroy();
+        this.vfxView.destroy();
+        this.enemyShipDestructionView.destroy();
+        this.playerShieldView.destroy();
+        this.playerBeamCannonView.destroy();
+        this.enemyEvadeView.destroy();
+        this.enemyShieldView.destroy();
+        this.beamCannonBeamsView.destroy();
+        this.beamCannonThreatsView.destroy();
+        this.outgoingStickyMinesView.destroy();
+        this.outgoingSpamView.destroy();
+        this.outgoingMissilesView.destroy();
+        this.incomingMissilesView.destroy();
     }
 
     public setCameraTurnOffsetX(offsetX: number): void {
-        this.incomingMissilesView?.setCameraTurnOffsetX(offsetX);
+        this.incomingMissilesView.setCameraTurnOffsetX(offsetX);
 
-        this.outgoingMissilesView?.setCameraTurnOffsetX(offsetX);
+        this.outgoingMissilesView.setCameraTurnOffsetX(offsetX);
 
-        this.outgoingStickyMinesView?.setCameraTurnOffsetX(offsetX);
+        this.outgoingStickyMinesView.setCameraTurnOffsetX(offsetX);
 
-        this.outgoingSpamView?.setCameraTurnOffsetX(offsetX);
+        this.outgoingSpamView.setCameraTurnOffsetX(offsetX);
 
-        this.beamCannonThreatsView?.setCameraTurnOffsetX(offsetX);
+        this.beamCannonThreatsView.setCameraTurnOffsetX(offsetX);
     }
 }

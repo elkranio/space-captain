@@ -15,21 +15,21 @@ import BridgeOfficerContextMenuView from "./ui/officer_context_menu/BridgeOffice
 // Собирает верхнеуровневые визуальные модули
 // и отвечает только за их lifecycle.
 export default class BridgeView {
-    private interiorView?: BridgeInteriorView;
+    private readonly interiorView: BridgeInteriorView;
 
-    private captainDashboardView?: BridgeCaptainDashboardView;
+    private readonly captainDashboardView: BridgeCaptainDashboardView;
 
-    private targetingWarningView?: BridgeTargetingWarningView;
+    private readonly targetingWarningView: BridgeTargetingWarningView;
 
-    private combatView?: BridgeCombatView;
+    private readonly combatView: BridgeCombatView;
 
-    private officerStationsView?: BridgeOfficerStationsView;
+    private readonly officerStationsView: BridgeOfficerStationsView;
 
-    private spaceView?: BridgeSpaceView;
+    private readonly spaceView: BridgeSpaceView;
 
-    private officerBarksView?: BridgeOfficerBarksView;
+    private readonly officerBarksView: BridgeOfficerBarksView;
 
-    private officerContextMenuView?: BridgeOfficerContextMenuView;
+    private readonly officerContextMenuView: BridgeOfficerContextMenuView;
 
     constructor(scene: BridgeScene, eventBus: BridgeEventBus) {
         const spaceView = new BridgeSpaceView(
@@ -37,7 +37,7 @@ export default class BridgeView {
             eventBus,
 
             (offsetX) => {
-                this.combatView?.setCameraTurnOffsetX(offsetX);
+                this.combatView.setCameraTurnOffsetX(offsetX);
             },
         );
 
@@ -61,22 +61,13 @@ export default class BridgeView {
     }
 
     public destroy(): void {
-        this.officerContextMenuView?.destroy();
-        this.officerBarksView?.destroy();
-        this.captainDashboardView?.destroy();
-        this.officerStationsView?.destroy();
-        this.targetingWarningView?.destroy();
-        this.interiorView?.destroy();
-        this.combatView?.destroy();
-        this.spaceView?.destroy();
-
-        this.officerContextMenuView = undefined;
-        this.officerBarksView = undefined;
-        this.captainDashboardView = undefined;
-        this.officerStationsView = undefined;
-        this.targetingWarningView = undefined;
-        this.interiorView = undefined;
-        this.combatView = undefined;
-        this.spaceView = undefined;
+        this.officerContextMenuView.destroy();
+        this.officerBarksView.destroy();
+        this.captainDashboardView.destroy();
+        this.officerStationsView.destroy();
+        this.targetingWarningView.destroy();
+        this.interiorView.destroy();
+        this.combatView.destroy();
+        this.spaceView.destroy();
     }
 }
