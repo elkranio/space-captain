@@ -1,6 +1,7 @@
 // src/app/scenes/system/preload/Preload.ts
 
 import P34TOptions from "../../../../config/p34t.options";
+import { DEFAULT_ATLAS_KEY } from "../../../manifests/types";
 import { SCENE_KEY } from "../../scene_key";
 
 export default class Preload extends Phaser.Scene {
@@ -30,7 +31,7 @@ export default class Preload extends Phaser.Scene {
 
     preload(): void {
         this.load.setPath("assets/images");
-        this.load.multiatlas("atlas", `atlas.json?v=${Math.random()}`);
+        this.load.multiatlas(DEFAULT_ATLAS_KEY, `atlas.json?v=${Math.random()}`);
         this.load.setPath("");
 
         this.load.audioSprite("sfx", "assets/sfx/sfx.json", ["assets/sfx/sfx.ogg", "assets/sfx/sfx.mp3"]);
