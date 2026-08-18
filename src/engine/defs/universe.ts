@@ -8,7 +8,7 @@ import type { CrewTraitsByRole } from "./crew_trait";
 import type { OfficerRole } from "./officer";
 import type { ShipDefenseTurretState } from "./defense_turret";
 import type { ShipBehaviorState } from "./ship_behavior";
-import type { ShipChassisId } from "./ship_chassis";
+
 import type { ShipDriveState } from "./ship_drive";
 import type { ShipWeaponState } from "./ship_weapon";
 import type { ShieldGeneratorState } from "./shield_generator";
@@ -53,7 +53,7 @@ export type SpaceNodeActorBaseState = {
 export type ShipSpaceNodeActorState = SpaceNodeActorBaseState & {
     kind: typeof SPACE_NODE_ACTOR_KIND.SHIP;
 
-    chassisId: ShipChassisId;
+    chassisId: string;
 
     hull: number;
     maxHull: number;

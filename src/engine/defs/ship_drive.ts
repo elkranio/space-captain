@@ -6,7 +6,6 @@ export const SHIP_DRIVE_ID = {
     BASIC_00: "basic_00",
 } as const;
 
-export type ShipDriveId = string;
 
 export const SHIP_DRIVE_STATUS = {
     ONLINE: "online",
@@ -16,7 +15,7 @@ export const SHIP_DRIVE_STATUS = {
 export type ShipDriveStatus = (typeof SHIP_DRIVE_STATUS)[keyof typeof SHIP_DRIVE_STATUS];
 
 export type ShipDriveDefinition = {
-    id: ShipDriveId;
+    id: string;
     name: string;
 
     evadeWarmupMs: number;
@@ -30,7 +29,7 @@ export type ShipDriveState = {
     id: string;
 
     // Ссылка на неизменяемое content definition.
-    driveId: ShipDriveId;
+    driveId: string;
 
     status: ShipDriveStatus;
 };

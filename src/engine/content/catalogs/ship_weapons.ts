@@ -16,7 +16,6 @@ import {
     type BeamCannonDefinition,
     type MissileLauncherDefinition,
     type ShipWeaponDefinition,
-    type ShipWeaponId,
     type SpamProjectorDefinition,
     type StickyMineDispenserDefinition,
 } from "../../defs/ship_weapon";
@@ -70,7 +69,7 @@ const ALL_SHIP_WEAPON_DEFINITIONS: ShipWeaponDefinition[] = [
     ...STICKY_MINE_DISPENSERS,
 ];
 
-type ShipWeaponCatalog = Record<ShipWeaponId, ShipWeaponDefinition> & {
+type ShipWeaponCatalog = Record<string, ShipWeaponDefinition> & {
     [SHIP_WEAPON_ID.MISSILE_LAUNCHER_00]: MissileLauncherDefinition;
 
     [SHIP_WEAPON_ID.BEAM_CANNON_00]: BeamCannonDefinition;
@@ -80,7 +79,7 @@ type ShipWeaponCatalog = Record<ShipWeaponId, ShipWeaponDefinition> & {
     [SHIP_WEAPON_ID.STICKY_MINE_DISPENSER_00]: StickyMineDispenserDefinition;
 };
 
-const shipWeapons: Record<ShipWeaponId, ShipWeaponDefinition> = {};
+const shipWeapons: Record<string, ShipWeaponDefinition> = {};
 
 for (const definition of ALL_SHIP_WEAPON_DEFINITIONS) {
     if (Object.prototype.hasOwnProperty.call(shipWeapons, definition.id)) {

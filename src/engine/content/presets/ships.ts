@@ -1,10 +1,10 @@
 // src/engine/content/presets/ships.ts
 
-import { POWER_CORE_ID, type PowerCoreId } from "../../defs/power_core";
-import { SHIP_CHASSIS_ID, type ShipChassisId } from "../../defs/ship_chassis";
-import { SHIP_DRIVE_ID, type ShipDriveId } from "../../defs/ship_drive";
-import { DEFENSE_TURRET_ID, type DefenseTurretId } from "../../defs/defense_turret";
-import { SHIELD_GENERATOR_ID, type ShieldGeneratorId } from "../../defs/shield_generator";
+import { POWER_CORE_ID } from "../../defs/power_core";
+import { SHIP_CHASSIS_ID } from "../../defs/ship_chassis";
+import { SHIP_DRIVE_ID } from "../../defs/ship_drive";
+import { DEFENSE_TURRET_ID } from "../../defs/defense_turret";
+import { SHIELD_GENERATOR_ID } from "../../defs/shield_generator";
 import { SHIP_WEAPON_ID, SHIP_WEAPON_KIND } from "../../defs/ship_weapon";
 
 export const SHIP_PRESET_ID = {
@@ -68,32 +68,32 @@ export type ShipWeaponPreset =
 export type ShipPreset = {
     id: ShipPresetId;
 
-    chassisId: ShipChassisId;
+    chassisId: string;
 
     drive: {
         // Runtime id установленного двигателя.
         id: string;
 
-        driveId: ShipDriveId;
+        driveId: string;
     };
 
     // Optional installed defensive system.
     // Runtime state is created by ShipDefenseTurretFactory.
     defenseTurret?: {
         id: string;
-        defenseTurretId: DefenseTurretId;
+        defenseTurretId: string;
     };
 
     powerCore?: {
         id: string;
 
-        powerCoreId: PowerCoreId;
+        powerCoreId: string;
     };
 
     shieldGenerator?: {
         id: string;
 
-        shieldGeneratorId: ShieldGeneratorId;
+        shieldGeneratorId: string;
     };
 
     weapons: ShipWeaponPreset[];

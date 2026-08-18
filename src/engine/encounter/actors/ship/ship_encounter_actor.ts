@@ -5,7 +5,7 @@ import type { PowerCoreState } from "../../../defs/power_core";
 import type { OfficerRole } from "../../../defs/officer";
 import type { ShipDefenseTurretState } from "../../../defs/defense_turret";
 import type { ShipBehaviorState } from "../../../defs/ship_behavior";
-import type { ShipChassisId } from "../../../defs/ship_chassis";
+
 import type { ShipDriveState } from "../../../defs/ship_drive";
 import type { ShipEvadeState } from "../../../defs/ship_evade";
 import type { ShipWeaponState } from "../../../defs/ship_weapon";
@@ -25,7 +25,7 @@ import { ENCOUNTER_ACTOR_KIND, type EncounterActorBaseState } from "../encounter
 export type ShipEncounterActorState = EncounterActorBaseState & {
     kind: typeof ENCOUNTER_ACTOR_KIND.SHIP;
 
-    chassisId: ShipChassisId;
+    chassisId: string;
 
     hull: number;
     maxHull: number;

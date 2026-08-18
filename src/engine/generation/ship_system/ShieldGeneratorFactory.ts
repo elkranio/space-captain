@@ -4,14 +4,13 @@ import { SHIELD_GENERATORS } from "../../content/catalogs/shield_generators";
 import {
     SHIELD_GENERATOR_PHASE,
     SHIELD_GENERATOR_STATUS,
-    type ShieldGeneratorId,
     type ShieldGeneratorState,
 } from "../../defs/shield_generator";
 
 export type CreateShieldGeneratorInput = {
     id: string;
 
-    shieldGeneratorId: ShieldGeneratorId;
+    shieldGeneratorId: string;
 };
 
 export default class ShieldGeneratorFactory {

@@ -6,10 +6,9 @@ export const POWER_CORE_ID = {
     BASIC_00: "power_core_basic_00",
 } as const;
 
-export type PowerCoreId = string;
 
 export type PowerCoreDefinition = {
-    id: PowerCoreId;
+    id: string;
 
     name: string;
 
@@ -35,7 +34,7 @@ export type PowerCoreState = {
     id: string;
 
     // Immutable content definition.
-    powerCoreId: PowerCoreId;
+    powerCoreId: string;
 
     charges: number;
 

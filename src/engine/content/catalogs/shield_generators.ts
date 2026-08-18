@@ -2,7 +2,7 @@
 
 import shieldGeneratorTuningData from "../data/shield_generators.json";
 import { SHIELD_GENERATOR_TUNING_SCHEMA } from "../schemas/shield_generators";
-import { type ShieldGeneratorDefinition, type ShieldGeneratorId } from "../../defs/shield_generator";
+import { type ShieldGeneratorDefinition } from "../../defs/shield_generator";
 
 const SHIELD_GENERATOR_TUNING = SHIELD_GENERATOR_TUNING_SCHEMA.parse(shieldGeneratorTuningData);
 
@@ -16,4 +16,4 @@ export const SHIELD_GENERATORS = Object.fromEntries(
             },
         ];
     }),
-) as Record<ShieldGeneratorId, ShieldGeneratorDefinition>;
+) as Record<string, ShieldGeneratorDefinition>;

@@ -13,10 +13,9 @@ export const DEFENSE_TURRET_ID = {
     BASIC_00: "defense_turret_basic_00",
 } as const;
 
-export type DefenseTurretId = string;
 
 export type DefenseTurretDefinition = {
-    id: DefenseTurretId;
+    id: string;
     name: string;
 
     loadDurationMs: number;
@@ -82,7 +81,7 @@ export type ShipDefenseTurretState = {
     id: string;
 
     // Stable immutable content definition.
-    defenseTurretId: DefenseTurretId;
+    defenseTurretId: string;
 
     phase: DefenseTurretPhase;
     phaseElapsedMs: number;

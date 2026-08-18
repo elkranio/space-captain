@@ -18,7 +18,6 @@ export const SHIP_WEAPON_ID = {
 
 // Builtin ids remain convenient stable constants.
 // The catalog is open for new weapon ids created by the content editor.
-export type ShipWeaponId = string;
 
 export const SHIP_WEAPON_PHASE = {
     READY: "ready",
@@ -91,7 +90,7 @@ export function doesShipWeaponPhaseAdvanceWithCrew(kind: ShipWeaponKind, phase: 
 // Конкретное установленное оружие хранит только weaponId
 // и собственное mutable runtime state.
 export type ShipWeaponDefinitionBase = {
-    id: ShipWeaponId;
+    id: string;
     name: string;
 
     kind: ShipWeaponKind;
@@ -146,7 +145,7 @@ export type ShipWeaponBaseState = {
     id: string;
 
     // Ссылка на неизменяемое content definition.
-    weaponId: ShipWeaponId;
+    weaponId: string;
 
     phase: ShipWeaponPhase;
     phaseElapsedMs: number;

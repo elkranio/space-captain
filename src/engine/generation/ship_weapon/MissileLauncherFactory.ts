@@ -5,12 +5,11 @@ import {
     SHIP_WEAPON_KIND,
     SHIP_WEAPON_PHASE,
     type MissileLauncherState,
-    type ShipWeaponId,
 } from "../../defs/ship_weapon";
 
 export type CreateMissileLauncherInput = {
     id: string;
-    weaponId: ShipWeaponId;
+    weaponId: string;
     ammoCount?: number;
 };
 

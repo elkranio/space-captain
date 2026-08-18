@@ -2,7 +2,7 @@
 
 import shipDriveTuningData from "../data/ship_drives.json";
 import { SHIP_DRIVE_TUNING_SCHEMA } from "../schemas/ship_drives";
-import { type ShipDriveDefinition, type ShipDriveId } from "../../defs/ship_drive";
+import { type ShipDriveDefinition } from "../../defs/ship_drive";
 
 const SHIP_DRIVE_TUNING = SHIP_DRIVE_TUNING_SCHEMA.parse(shipDriveTuningData);
 
@@ -16,4 +16,4 @@ export const SHIP_DRIVES = Object.fromEntries(
             },
         ];
     }),
-) as Record<ShipDriveId, ShipDriveDefinition>;
+) as Record<string, ShipDriveDefinition>;

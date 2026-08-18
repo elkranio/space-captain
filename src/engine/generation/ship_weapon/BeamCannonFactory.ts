@@ -1,13 +1,13 @@
 // src/engine/generation/ship_weapon/BeamCannonFactory.ts
 
 import { SHIP_WEAPONS } from "../../content/catalogs/ship_weapons";
-import { SHIP_WEAPON_KIND, SHIP_WEAPON_PHASE, type BeamCannonState, type ShipWeaponId } from "../../defs/ship_weapon";
+import { SHIP_WEAPON_KIND, SHIP_WEAPON_PHASE, type BeamCannonState } from "../../defs/ship_weapon";
 
 export type CreateBeamCannonWeaponInput = {
     // Runtime id конкретного установленного лазера.
     id: string;
 
-    weaponId: ShipWeaponId;
+    weaponId: string;
 };
 
 export default class BeamCannonFactory {

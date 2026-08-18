@@ -6,7 +6,6 @@ export const SHIP_CHASSIS_ID = {
     GENERIC_00: "generic_00",
 } as const;
 
-export type ShipChassisId = string;
 
 // Удобные стабильные id встроенных визуальных вариантов.
 // Новые sprite id создаются Asset Manager и остаются строками.
@@ -15,15 +14,14 @@ export const SHIP_SPRITE_ID = {
     GENERIC_00: "generic_00",
 } as const;
 
-export type ShipSpriteId = string;
 
 // Неизменяемые физические свойства корпуса.
 // Установленные системы и оружие задаются ShipPreset.
 export type ShipChassisDefinition = {
-    id: ShipChassisId;
+    id: string;
 
     name: string;
-    spriteId: ShipSpriteId;
+    spriteId: string;
 
     maxHull: number;
 };

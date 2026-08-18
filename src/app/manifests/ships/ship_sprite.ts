@@ -1,7 +1,7 @@
 // src/app/manifests/ships/ship_sprite.ts
 
 import shipSpriteManifestData from "./ship_sprites.json";
-import { type ShipSpriteId } from "../../../engine/defs/ship_chassis";
+
 import { DEFAULT_ATLAS_KEY, type SpriteEntry } from "../types";
 
 type ShipSpriteManifestEntry = {
@@ -23,4 +23,4 @@ export const SHIP_SPRITES = Object.fromEntries(
             },
         ];
     }),
-) as Record<ShipSpriteId, SpriteEntry>;
+) as Record<string, SpriteEntry>;

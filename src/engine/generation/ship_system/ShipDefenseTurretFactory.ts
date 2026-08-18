@@ -1,12 +1,12 @@
 // src/engine/generation/ship_system/ShipDefenseTurretFactory.ts
 
-import { DEFENSE_TURRET_PHASE, type DefenseTurretId, type ShipDefenseTurretState } from "../../defs/defense_turret";
+import { DEFENSE_TURRET_PHASE, type ShipDefenseTurretState } from "../../defs/defense_turret";
 
 export type CreateShipDefenseTurretInput = {
     // Runtime id of the installed system.
     id: string;
 
-    defenseTurretId: DefenseTurretId;
+    defenseTurretId: string;
 };
 
 // Creates fresh mutable state for one installed ship defense-turret system.

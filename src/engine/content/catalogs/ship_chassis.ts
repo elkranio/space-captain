@@ -2,7 +2,7 @@
 
 import shipChassisTuningData from "../data/ship_chassis.json";
 import { SHIP_CHASSIS_TUNING_SCHEMA } from "../schemas/ship_chassis";
-import { type ShipChassisDefinition, type ShipChassisId } from "../../defs/ship_chassis";
+import { type ShipChassisDefinition } from "../../defs/ship_chassis";
 
 const SHIP_CHASSIS_TUNING = SHIP_CHASSIS_TUNING_SCHEMA.parse(shipChassisTuningData);
 
@@ -18,4 +18,4 @@ export const SHIP_CHASSIS = Object.fromEntries(
             },
         ];
     }),
-) as Record<ShipChassisId, ShipChassisDefinition>;
+) as Record<string, ShipChassisDefinition>;

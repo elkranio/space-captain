@@ -1,13 +1,13 @@
 // src/engine/generation/ship_system/PowerCoreFactory.ts
 
 import { POWER_CORES } from "../../content/catalogs/power_cores";
-import type { PowerCoreId, PowerCoreState } from "../../defs/power_core";
+import type { PowerCoreState } from "../../defs/power_core";
 
 export type CreatePowerCoreInput = {
     // Runtime id конкретной установки.
     id: string;
 
-    powerCoreId: PowerCoreId;
+    powerCoreId: string;
 
     // Test/setup seams.
     // По умолчанию powerCore создаётся полным.

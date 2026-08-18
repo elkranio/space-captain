@@ -6,7 +6,7 @@ import { SHIP_PRESETS, type ShipPresetId, type ShipWeaponPreset } from "../../co
 import type { ShipPreset } from "../../content/presets/ships";
 import type { PowerCoreState } from "../../defs/power_core";
 import type { ShipDefenseTurretState } from "../../defs/defense_turret";
-import type { ShipChassisId } from "../../defs/ship_chassis";
+
 import { SHIP_DRIVE_STATUS, type ShipDriveState } from "../../defs/ship_drive";
 import { SHIP_WEAPON_KIND, type ShipWeaponState } from "../../defs/ship_weapon";
 import type { ShieldGeneratorState } from "../../defs/shield_generator";
@@ -23,7 +23,7 @@ export type CreateShipInput = {
 };
 
 export type CreatedShipState = {
-    chassisId: ShipChassisId;
+    chassisId: string;
 
     hull: number;
     maxHull: number;

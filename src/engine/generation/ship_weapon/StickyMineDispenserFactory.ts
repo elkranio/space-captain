@@ -4,13 +4,12 @@ import { SHIP_WEAPONS } from "../../content/catalogs/ship_weapons";
 import {
     SHIP_WEAPON_KIND,
     SHIP_WEAPON_PHASE,
-    type ShipWeaponId,
     type StickyMineDispenserState,
 } from "../../defs/ship_weapon";
 
 export type CreateStickyMineDispenserInput = {
     id: string;
-    weaponId: ShipWeaponId;
+    weaponId: string;
     ammoCount?: number;
 };
 

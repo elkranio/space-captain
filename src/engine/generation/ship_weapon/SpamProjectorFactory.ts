@@ -4,7 +4,6 @@ import { SHIP_WEAPONS } from "../../content/catalogs/ship_weapons";
 import {
     SHIP_WEAPON_KIND,
     SHIP_WEAPON_PHASE,
-    type ShipWeaponId,
     type SpamProjectorState,
 } from "../../defs/ship_weapon";
 
@@ -12,7 +11,7 @@ export type CreateSpamProjectorInput = {
     // Runtime id конкретного установленного spam projector.
     id: string;
 
-    weaponId: ShipWeaponId;
+    weaponId: string;
 };
 
 export default class SpamProjectorFactory {

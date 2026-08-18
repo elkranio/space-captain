@@ -6,10 +6,9 @@ export const SHIELD_GENERATOR_ID = {
     BASIC_00: "shield_generator_basic_00",
 } as const;
 
-export type ShieldGeneratorId = string;
 
 export type ShieldGeneratorDefinition = {
-    id: ShieldGeneratorId;
+    id: string;
 
     name: string;
 
@@ -46,7 +45,7 @@ export type ShieldGeneratorState = {
     id: string;
 
     // Immutable content definition.
-    shieldGeneratorId: ShieldGeneratorId;
+    shieldGeneratorId: string;
 
     status: ShieldGeneratorStatus;
 

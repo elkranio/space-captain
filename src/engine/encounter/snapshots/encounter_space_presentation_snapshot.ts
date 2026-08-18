@@ -1,7 +1,7 @@
 import type { AsteroidObjectSpriteId } from "../../defs/asteroid";
 import type { BeaconObjectSpriteId } from "../../defs/beacon";
 import type { JumpPointObjectSpriteId } from "../../defs/jump_point";
-import type { ShipChassisId } from "../../defs/ship_chassis";
+
 import type { StationObjectSpriteId } from "../../defs/station";
 import { ENCOUNTER_ACTOR_KIND, type EncounterActorState } from "../actors/encounter_actor";
 import {
@@ -59,7 +59,7 @@ export type EncounterSpaceActorPresentationSnapshot = {
     id: string;
     anchorId: string;
 
-    chassisId: ShipChassisId;
+    chassisId: string;
 };
 
 export type EncounterSpacePresentationSnapshot = {

@@ -8,7 +8,7 @@ import { ENCOUNTER_TEAM, type EncounterTeam } from "../../../defs/encounter_team
 import type { OfficerRole } from "../../../defs/officer";
 import type { ShipDefenseTurretState } from "../../../defs/defense_turret";
 import type { ShipBehaviorState } from "../../../defs/ship_behavior";
-import type { ShipChassisId } from "../../../defs/ship_chassis";
+
 import { SHIP_DRIVE_STATUS, type ShipDriveState } from "../../../defs/ship_drive";
 import {
     advanceShipEvade,
@@ -30,7 +30,7 @@ export type EnemyHullDamageResult = {
 
 export type SpawnShipActorInput = {
     actorId: string;
-    chassisId: ShipChassisId;
+    chassisId: string;
     anchorId: string;
 
     team: EncounterTeam;

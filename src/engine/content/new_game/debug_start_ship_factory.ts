@@ -6,7 +6,7 @@ import { SHIP_DRIVES } from "../catalogs/ship_drives";
 import { SHIP_WEAPONS } from "../catalogs/ship_weapons";
 import type { PlayerShipState } from "../../defs/player";
 import { SHIP_DRIVE_STATUS } from "../../defs/ship_drive";
-import { SHIP_WEAPON_KIND, type ShipWeaponId, type ShipWeaponKind, type ShipWeaponState } from "../../defs/ship_weapon";
+import { SHIP_WEAPON_KIND, type ShipWeaponKind, type ShipWeaponState } from "../../defs/ship_weapon";
 import PowerCoreFactory from "../../generation/ship_system/PowerCoreFactory";
 import ShipDefenseTurretFactory from "../../generation/ship_system/ShipDefenseTurretFactory";
 import ShieldGeneratorFactory from "../../generation/ship_system/ShieldGeneratorFactory";
@@ -141,7 +141,7 @@ export function createDebugStartEnemyShip(): CreatedShipState {
     };
 }
 
-function createInstalledWeapons(weaponIds: ShipWeaponId[], side: DebugStartShipSide): ShipWeaponState[] {
+function createInstalledWeapons(weaponIds: string[], side: DebugStartShipSide): ShipWeaponState[] {
     const occurrenceByKind: Partial<Record<ShipWeaponKind, number>> = {};
 
     return weaponIds.map((weaponId) => {
