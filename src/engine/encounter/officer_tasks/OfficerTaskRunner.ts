@@ -11,7 +11,7 @@ import { getOfficerCommandDef } from "../commands/officer_command_handlers";
 import CrewPerformanceResolver from "../crew_performance/CrewPerformanceResolver";
 import EncounterStateStore from "../state/EncounterStateStore";
 import { createHelmFlyToTask } from "./create_officer_task_draft";
-import OfficerTaskResolver from "./OfficerTaskResolver";
+import OfficerTaskEffects from "./OfficerTaskEffects";
 
 type OfficerTaskRunnerOptions = {
     stateStore: EncounterStateStore;
@@ -43,7 +43,7 @@ type PlayerWeaponTargetTaskState = Extract<
 // - завершает и отменяет task;
 // - эмитит lifecycle events.
 //
-// Task-specific domain effects выполняет OfficerTaskResolver.
+// Task-specific domain effects выполняет OfficerTaskEffects.
 export default class OfficerTaskRunner {
     private readonly stateStore: EncounterStateStore;
 
@@ -53,7 +53,7 @@ export default class OfficerTaskRunner {
 
     private readonly random: () => number;
 
-    private readonly taskResolver: OfficerTaskResolver;
+    private readonly taskEffects: OfficerTaskEffects;
 
     private readonly performanceResolver: CrewPerformanceResolver;
 
@@ -74,7 +74,7 @@ export default class OfficerTaskRunner {
         this.random = random;
         this.completeTimedTasksImmediately = completeTimedTasksImmediately;
 
-        this.taskResolver = new OfficerTaskResolver(
+        this.taskEffects = new OfficerTaskEffects(
             this.stateStore,
             purgeSpamChannel,
             clearStickyMine,
@@ -116,7 +116,7 @@ export default class OfficerTaskRunner {
             return;
         }
 
-        const result = this.taskResolver.resolve(task);
+        const result = this.taskEffects.applyCompletion(task);
 
         this.finishTask(task, OFFICER_TASK_OUTCOME.COMPLETED, result);
     };
@@ -128,7 +128,7 @@ export default class OfficerTaskRunner {
             return;
         }
 
-        this.taskResolver.cancel(task);
+        this.taskEffects.applyCancellation(task);
 
         this.finishTask(task, OFFICER_TASK_OUTCOME.CANCELLED);
     };

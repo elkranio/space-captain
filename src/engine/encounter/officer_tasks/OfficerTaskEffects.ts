@@ -1,4 +1,4 @@
-// src/engine/encounter/officer_tasks/OfficerTaskResolver.ts
+// src/engine/encounter/officer_tasks/OfficerTaskEffects.ts
 
 import { COMBAT_THREAT_KIND, MISSILE_SIGNATURE_INTEL_STATUS, PLAYER_SPAM_CHANNEL_OUTCOME } from "../model/combat";
 import { MISSILE_SIGNATURE_ANALYSIS_CONFIDENCE } from "../model/missile_signature_analysis";
@@ -73,7 +73,7 @@ type WeaponsDefenseTurretTaskState = Extract<
 // - не двигает progress;
 // - не удаляет task;
 // - не эмитит lifecycle events.
-export default class OfficerTaskResolver {
+export default class OfficerTaskEffects {
     constructor(
         private readonly stateStore: EncounterStateStore,
         private readonly purgeSpamChannel: (channelId: string) => boolean,
@@ -82,7 +82,7 @@ export default class OfficerTaskResolver {
         private readonly random: () => number,
     ) {}
 
-    public resolve(task: OfficerTaskState): OfficerTaskResult | undefined {
+    public applyCompletion(task: OfficerTaskState): OfficerTaskResult | undefined {
         switch (task.kind) {
             case OFFICER_TASK_KIND.HELM_FLY_TO:
                 this.resolveHelmFlyToTask(task);
@@ -146,7 +146,7 @@ export default class OfficerTaskResolver {
         }
     }
 
-    public cancel(task: OfficerTaskState): void {
+    public applyCancellation(task: OfficerTaskState): void {
         switch (task.kind) {
             case OFFICER_TASK_KIND.WEAPONS_FIRE_STICKY_MINES:
                 this.cancelWeaponsFireStickyMinesTask(task);
