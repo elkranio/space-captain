@@ -8,7 +8,7 @@ import type { MissileSignatureIntelStatus } from "../../../../../engine/encounte
 import type { DefenseTurretShotOutcome } from "../../../../../engine/defs/defense_turret";
 import type { ShipDriveStatus } from "../../../../../engine/defs/ship_drive";
 import type { ShipEvadePhase } from "../../../../../engine/defs/ship_evade";
-import type { ShipWeaponKind, ShipWeaponPhase } from "../../../../../engine/defs/ship_weapon";
+import type { ShipWeaponKind } from "../../../../../engine/defs/ship_weapon";
 import type { EncounterOfficerCommandId, OfficerCommandTarget } from "../../../../../engine/encounter/model/command";
 import type {
     BeamCannonShotOutcome,
@@ -310,29 +310,6 @@ export type BridgeOfficerBarkRequestedPayload = {
 // #endregion
 
 // #region Player ship status
-
-export type BridgePlayerWeaponStatusPayload = {
-    // Runtime installation identity. This is what resolved actor-weapon
-    // commands target; kind is presentation metadata, not identity.
-    id: string;
-    weaponId: string;
-
-    kind: ShipWeaponKind;
-    phase: ShipWeaponPhase;
-
-    // Independent committed cooldown timing.
-    // May be present while the action phase is still active.
-    initialCooldownMs?: number;
-    remainingCooldownMs?: number;
-
-    // Present only for ammo-backed weapons.
-    ammo?: {
-        current: number;
-        max: number;
-    };
-};
-
-export type BridgePlayerWeaponsStatusUpdatedPayload = BridgePlayerWeaponStatusPayload[];
 
 export const BRIDGE_PLAYER_SYSTEM_ACTION_STATE = {
     ACTIVE: "active",
