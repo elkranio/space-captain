@@ -95,8 +95,6 @@ export default class BridgeEncounterSnapshotSynchronizer {
 
                 availableScienceCommands: snapshot.commandsByRole[OFFICER_ROLE.SCIENCE],
 
-                availableHelmCommands: snapshot.commandsByRole[OFFICER_ROLE.HELM],
-
                 availableWeaponsCommands: snapshot.commandsByRole[OFFICER_ROLE.WEAPONS],
 
                 availableEngineeringCommands: snapshot.commandsByRole[OFFICER_ROLE.ENGINEER],

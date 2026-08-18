@@ -61,9 +61,6 @@ describe(
                         availableScienceCommands:
                             [],
 
-                        availableHelmCommands:
-                            [],
-
                         availableWeaponsCommands:
                             [],
 

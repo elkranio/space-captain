@@ -77,9 +77,6 @@ describe(
                         stickyMineSnapshots:
                             [],
 
-                        availableHelmCommands:
-                            [],
-
                         enemyShips: [],
 
                         incomingMissiles: [
@@ -241,9 +238,6 @@ describe(
                         stickyMineSnapshots:
                             [],
 
-                        availableHelmCommands:
-                            [],
-
                         enemyShips: [
                             {
                                 actorId:
@@ -365,9 +359,6 @@ describe(
                             [],
 
                         stickyMineSnapshots:
-                            [],
-
-                        availableHelmCommands:
                             [],
 
                         enemyShips: [],
@@ -573,10 +564,6 @@ describe(
                             clearMine,
                         ],
 
-                        availableHelmCommands: [
-                            clearMine,
-                        ],
-
                         availableWeaponsCommands: [
                             clearMine,
                         ],
@@ -686,9 +673,6 @@ describe(
                             ),
                         ],
 
-                        availableHelmCommands:
-                            [],
-
                         availableWeaponsCommands:
                             [],
 
@@ -769,9 +753,6 @@ describe(
                             [],
 
                         stickyMineSnapshots:
-                            [],
-
-                        availableHelmCommands:
                             [],
 
                         enemyShips: [],

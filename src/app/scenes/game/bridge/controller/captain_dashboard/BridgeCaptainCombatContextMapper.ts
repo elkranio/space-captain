@@ -30,8 +30,6 @@ type CaptainCombatContextMapperInput = {
 
     availableScienceCommands: AvailableOfficerCommand[];
 
-    availableHelmCommands: AvailableOfficerCommand[];
-
     availableWeaponsCommands: AvailableOfficerCommand[];
 
     availableEngineeringCommands: AvailableOfficerCommand[];
