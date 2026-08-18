@@ -25,9 +25,6 @@ export function createShipBehaviorFixture(): ShipBehaviorState {
         threatTimingWiggleMs:
             preset.threatTimingWiggleMs,
 
-        disablePlayerDriveAtCombatStart:
-            preset.disablePlayerDriveAtCombatStart,
-
         aggression:
             preset.aggression,
 

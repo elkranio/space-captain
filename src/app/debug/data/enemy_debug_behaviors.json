@@ -1,5 +1,6 @@
 {
     "enemy": {
-        "evadeAtCombatStart": false
+        "evadeAtCombatStart": false,
+        "disruptPlayerDriveAtCombatStart": false
     }
 }

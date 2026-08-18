@@ -36,7 +36,7 @@ describe(
     'opening disruption pulse',
     () => {
         it(
-            'does not disable the player drive when initial hostile behavior is disabled',
+            'does not automatically use the pulse for an initial hostile actor',
             () => {
                 const {
                     engine,
@@ -44,13 +44,9 @@ describe(
                     createEncounter(
                         ENCOUNTER_TEAM
                             .ENEMY,
-                        false,
                     );
 
                 engine.drainEvents();
-
-                engine
-                    .engageHostileActors();
 
                 expect(
                     engine
@@ -68,7 +64,7 @@ describe(
         );
 
         it(
-            'does not disable the player drive when newly hostile behavior is disabled',
+            'does not automatically use the pulse when an actor becomes hostile',
             () => {
                 const {
                     engine,
@@ -77,7 +73,6 @@ describe(
                     createEncounter(
                         ENCOUNTER_TEAM
                             .NEUTRAL,
-                        false,
                     );
 
                 engine.drainEvents();
@@ -104,7 +99,7 @@ describe(
         );
 
         it(
-            'disables the player drive once when initial hostile behavior is enabled',
+            'uses the opening disruption pulse once for a hostile actor',
             () => {
                 const {
                     engine,
@@ -113,13 +108,15 @@ describe(
                     createEncounter(
                         ENCOUNTER_TEAM
                             .ENEMY,
-                        true,
                     );
 
                 engine.drainEvents();
 
-                engine
-                    .engageHostileActors();
+                expect(
+                    engine.tryUseOpeningDisruptionPulse(
+                        actorId,
+                    ),
+                ).toBe(true);
 
                 expect(
                     engine
@@ -143,8 +140,11 @@ describe(
                     }),
                 ]);
 
-                engine
-                    .engageHostileActors();
+                expect(
+                    engine.tryUseOpeningDisruptionPulse(
+                        actorId,
+                    ),
+                ).toBe(false);
 
                 expect(
                     engine.drainEvents(),
@@ -153,7 +153,7 @@ describe(
         );
 
         it(
-            'disables the player drive when enabled behavior becomes hostile',
+            'can use the opening disruption pulse after an actor becomes hostile',
             () => {
                 const {
                     engine,
@@ -162,7 +162,6 @@ describe(
                     createEncounter(
                         ENCOUNTER_TEAM
                             .NEUTRAL,
-                        true,
                     );
 
                 engine.drainEvents();
@@ -172,6 +171,12 @@ describe(
                     ENCOUNTER_TEAM
                         .ENEMY,
                 );
+
+                expect(
+                    engine.tryUseOpeningDisruptionPulse(
+                        actorId,
+                    ),
+                ).toBe(true);
 
                 expect(
                     engine
@@ -203,8 +208,6 @@ function createEncounter(
     team:
         typeof ENCOUNTER_TEAM.ENEMY |
         typeof ENCOUNTER_TEAM.NEUTRAL,
-    disablePlayerDriveAtCombatStart:
-        boolean,
 ): {
     engine: EncounterEngine;
     actorId: string;
@@ -230,10 +233,6 @@ function createEncounter(
 
     actor.team =
         team;
-
-    actor.behavior
-        .disablePlayerDriveAtCombatStart =
-        disablePlayerDriveAtCombatStart;
 
     actor.weapons = [];
 

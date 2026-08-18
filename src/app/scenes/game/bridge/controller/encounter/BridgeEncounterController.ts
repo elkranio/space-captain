@@ -240,7 +240,7 @@ export default class BridgeEncounterController {
         this.snapshotSynchronizer.syncInitial(initialPresentationSnapshot);
 
         if (this.isEncounterInteractive) {
-            this.engageHostileActors();
+            this.handleEncounterBecameInteractive();
         }
     }
 
@@ -287,7 +287,7 @@ export default class BridgeEncounterController {
 
         this.isEncounterInteractive = true;
 
-        this.engageHostileActors();
+        this.handleEncounterBecameInteractive();
     }
 
     private handleEncounterTravelFlightStarted(): void {
@@ -458,12 +458,10 @@ export default class BridgeEncounterController {
 
     // #region Encounter lifecycle
 
-    private engageHostileActors(): void {
+    private handleEncounterBecameInteractive(): void {
         if (!this.encounterEngine) {
             return;
         }
-
-        this.encounterEngine.engageHostileActors();
 
         if (!this.hasAppliedEnemyCombatStartDebugBehaviors) {
             applyEnemyCombatStartDebugBehaviors(this.encounterEngine);

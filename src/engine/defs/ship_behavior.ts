@@ -21,8 +21,6 @@ export type ShipBehaviorState = {
     decisionTickWiggleMs: number;
     threatTimingWiggleMs: number;
 
-    disablePlayerDriveAtCombatStart: boolean;
-
     // Designer-facing шкала 0..100.
     aggression: number;
 };

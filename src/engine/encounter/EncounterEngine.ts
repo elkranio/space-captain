@@ -204,8 +204,8 @@ export default class EncounterEngine {
         return this.officerCommandExecutor.execute(input);
     }
 
-    public engageHostileActors(): void {
-        this.combatEngagementRunner.engageCurrentHostileActors();
+    public tryUseOpeningDisruptionPulse(actorId: string): boolean {
+        return this.combatEngagementRunner.tryUseOpeningDisruptionPulse(actorId);
     }
 
     public tryStartActorEvade(actorId: string): boolean {
@@ -213,7 +213,7 @@ export default class EncounterEngine {
     }
 
     public setActorTeam(actorId: string, team: EncounterTeam): void {
-        this.combatEngagementRunner.setActorTeam(actorId, team);
+        this.stateStore.setActorTeam(actorId, team);
     }
 
     public step(deltaMs: number): void {

@@ -631,6 +631,10 @@ describe(
                                     evadeAtCombatStart?: {
                                         type?: string;
                                     };
+
+                                    disruptPlayerDriveAtCombatStart?: {
+                                        type?: string;
+                                    };
                                 };
                             };
                         };
@@ -642,6 +646,17 @@ describe(
                         ?.enemy
                         ?.properties
                         ?.evadeAtCombatStart
+                        ?.type,
+                ).toBe(
+                    'boolean',
+                );
+
+                expect(
+                    enemyDebugBehaviorSchema
+                        .properties
+                        ?.enemy
+                        ?.properties
+                        ?.disruptPlayerDriveAtCombatStart
                         ?.type,
                 ).toBe(
                     'boolean',
@@ -819,7 +834,6 @@ describe(
                     'decisionTickDurationMs',
                     'decisionTickWiggleMs',
                     'threatTimingWiggleMs',
-                    'disablePlayerDriveAtCombatStart',
                     'aggression',
                 ]);
 

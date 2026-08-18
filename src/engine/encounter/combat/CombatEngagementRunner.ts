@@ -1,11 +1,12 @@
 // src/engine/encounter/combat/CombatEngagementRunner.ts
 
-import { ENCOUNTER_TEAM, type EncounterTeam } from "../../defs/encounter_team";
+import { ENCOUNTER_TEAM } from "../../defs/encounter_team";
 import { ENCOUNTER_EVENT, type EncounterEvent } from "../model/event";
 import type OfficerTaskRunner from "../officer_tasks/OfficerTaskRunner";
 import EncounterStateStore from "../state/EncounterStateStore";
 
-// Applies one-shot combat-entry effects owned by enemy ship behavior.
+// Executes combat-entry mechanics only when an authoritative caller requests them.
+// The decision whether to use an effect belongs outside this runner.
 export default class CombatEngagementRunner {
     constructor(
         private readonly stateStore: EncounterStateStore,
@@ -13,49 +14,29 @@ export default class CombatEngagementRunner {
         private readonly emit: (event: EncounterEvent) => void,
     ) {}
 
-    public engageCurrentHostileActors(): void {
-        for (const actor of this.stateStore.getState().actors) {
-            if (actor.team !== ENCOUNTER_TEAM.ENEMY) {
-                continue;
-            }
-
-            this.engageActor(actor.id);
-        }
-    }
-
-    public setActorTeam(actorId: string, team: EncounterTeam): void {
-        const actor = this.stateStore.setActorTeam(actorId, team);
-
-        if (actor.team !== ENCOUNTER_TEAM.ENEMY) {
-            return;
-        }
-
-        this.engageActor(actor.id);
-    }
-
-    private engageActor(actorId: string): void {
+    public tryUseOpeningDisruptionPulse(actorId: string): boolean {
         const actor = this.stateStore.findActorById(actorId);
 
         if (!actor) {
-            throw new Error(`Encounter actor not found during engagement: ${actorId}`);
+            throw new Error(`Encounter actor not found during opening disruption: ${actorId}`);
         }
 
-        if (!actor.behavior.disablePlayerDriveAtCombatStart) {
-            return;
+        if (actor.team !== ENCOUNTER_TEAM.ENEMY) {
+            return false;
         }
 
         const pulseSource = this.stateStore.consumeOpeningDisruptionPulse(actor.id);
 
-        // Each ship spends its opening pulse only once per encounter,
-        // even if another hostile ship already disabled the drive.
         if (!pulseSource) {
-            return;
+            return false;
         }
 
+        // Each ship spends its opening pulse only once per encounter,
+        // even if another hostile ship already disabled the drive.
         const drive = this.stateStore.disablePlayerDrive();
 
         if (!drive) {
-            return;
+            return true;
         }
 
         this.officerTaskRunner.cancelTasksRequiringOnlineDrive();
@@ -68,5 +49,7 @@ export default class CombatEngagementRunner {
             drive,
             navigation: this.stateStore.getNavigationState(),
         });
+
+        return true;
     }
 }

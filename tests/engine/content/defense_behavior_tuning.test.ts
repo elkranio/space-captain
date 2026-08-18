@@ -147,9 +147,6 @@ describe(
                                 threatTimingWiggleMs:
                                     500,
 
-                                disablePlayerDriveAtCombatStart:
-                                    false,
-
                                 aggression: 101,
                             },
                         })
