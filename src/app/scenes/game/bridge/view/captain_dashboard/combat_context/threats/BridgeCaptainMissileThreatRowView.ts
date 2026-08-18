@@ -56,9 +56,9 @@ export default class BridgeCaptainMissileThreatRowView {
 
     private readonly weaponsLabel: Phaser.GameObjects.BitmapText;
 
-    private scienceHandler?: () => void;
+    private scienceCommand?: BridgeOfficerCommandSelectedPayload;
 
-    private weaponsHandler?: () => void;
+    private weaponsCommand?: BridgeOfficerCommandSelectedPayload;
 
     constructor(
         private readonly scene: BridgeScene,
@@ -189,17 +189,7 @@ export default class BridgeCaptainMissileThreatRowView {
             this.setScienceAction(missile.actions.identifyThreat);
         }
 
-        const interceptCommand = missile.actions.interceptMissile;
-
-        this.setWeaponsAction(
-            Boolean(interceptCommand),
-
-            interceptCommand
-                ? () => {
-                      this.callbacks.onIntercept(interceptCommand);
-                  }
-                : undefined,
-        );
+        this.setWeaponsAction(missile.actions.interceptMissile);
     }
 
     public destroy(): void {
@@ -207,9 +197,9 @@ export default class BridgeCaptainMissileThreatRowView {
 
         this.weaponsButton.off("pointerdown", this.handleWeaponsPointerDown, this);
 
-        this.scienceHandler = undefined;
+        this.scienceCommand = undefined;
 
-        this.weaponsHandler = undefined;
+        this.weaponsCommand = undefined;
 
         this.root.destroy(true);
     }
@@ -262,7 +252,7 @@ export default class BridgeCaptainMissileThreatRowView {
 
         this.scienceButton.disableInteractive();
 
-        this.scienceHandler = undefined;
+        this.scienceCommand = command;
 
         if (!command) {
             this.scienceButton
@@ -273,10 +263,6 @@ export default class BridgeCaptainMissileThreatRowView {
 
             return;
         }
-
-        this.scienceHandler = () => {
-            this.callbacks.onIdentify(command);
-        };
 
         this.scienceButton
             .setFillStyle(CAPTAIN_DASHBOARD_STYLE.action.activeBackgroundColor, 1)
@@ -289,21 +275,21 @@ export default class BridgeCaptainMissileThreatRowView {
     }
 
     private hideScienceAction(): void {
-        this.scienceHandler = undefined;
+        this.scienceCommand = undefined;
 
         this.scienceButton.disableInteractive().setVisible(false);
 
         this.scienceLabel.setVisible(false);
     }
 
-    private setWeaponsAction(isActive: boolean, handler?: () => void): void {
+    private setWeaponsAction(command: BridgeOfficerCommandSelectedPayload | undefined): void {
         this.weaponsButton.setVisible(true).disableInteractive();
 
         this.weaponsLabel.setVisible(true);
 
-        this.weaponsHandler = undefined;
+        this.weaponsCommand = command;
 
-        if (!isActive || !handler) {
+        if (!command) {
             this.weaponsButton
                 .setFillStyle(CAPTAIN_DASHBOARD_STYLE.action.disabledBackgroundColor, 1)
                 .setStrokeStyle(1, CAPTAIN_DASHBOARD_STYLE.action.disabledBorderColor);
@@ -312,8 +298,6 @@ export default class BridgeCaptainMissileThreatRowView {
 
             return;
         }
-
-        this.weaponsHandler = handler;
 
         this.weaponsButton
             .setFillStyle(CAPTAIN_DASHBOARD_STYLE.action.activeBackgroundColor, 1)
@@ -326,10 +310,18 @@ export default class BridgeCaptainMissileThreatRowView {
     }
 
     private handleSciencePointerDown(): void {
-        this.scienceHandler?.();
+        if (!this.scienceCommand) {
+            return;
+        }
+
+        this.callbacks.onIdentify(this.scienceCommand);
     }
 
     private handleWeaponsPointerDown(): void {
-        this.weaponsHandler?.();
+        if (!this.weaponsCommand) {
+            return;
+        }
+
+        this.callbacks.onIntercept(this.weaponsCommand);
     }
 }

@@ -2,7 +2,10 @@ import { FONT_COLOR, FONT_FAMILY, FONT_SIZE } from "../../../../../../../theme/f
 import type BridgeScene from "../../../../BridgeScene";
 import { CAPTAIN_DASHBOARD_STYLE } from "../../captain_dashboard_style";
 import { formatCaptainDashboardCountdown } from "../../captain_dashboard_format";
-import type { BridgeCaptainIncomingBeamCannonPayload } from "../../../../events/bridge_event";
+import type {
+    BridgeCaptainIncomingBeamCannonPayload,
+    BridgeOfficerCommandSelectedPayload,
+} from "../../../../events/bridge_event";
 
 const ROW = {
     verticalGap: 1,
@@ -26,7 +29,7 @@ const ROW = {
 } as const;
 
 type BeamCannonThreatRowCallbacks = {
-    onDeployShield: (command: import("../../../../events/bridge_event").BridgeOfficerCommandSelectedPayload) => void;
+    onDeployShield: (command: BridgeOfficerCommandSelectedPayload) => void;
 };
 
 // Первый captain-dashboard beamCannon row.
@@ -44,7 +47,7 @@ export default class BridgeCaptainBeamCannonThreatRowView {
 
     private readonly engineerLabel: Phaser.GameObjects.BitmapText;
 
-    private engineerHandler?: () => void;
+    private engineerCommand?: BridgeOfficerCommandSelectedPayload;
 
     constructor(
         private readonly scene: BridgeScene,
@@ -167,17 +170,15 @@ export default class BridgeCaptainBeamCannonThreatRowView {
     public destroy(): void {
         this.engineerButton.off("pointerdown", this.handleEngineerPointerDown, this);
 
-        this.engineerHandler = undefined;
+        this.engineerCommand = undefined;
 
         this.root.destroy(true);
     }
 
-    private setEngineerAction(
-        command: import("../../../../events/bridge_event").BridgeOfficerCommandSelectedPayload | undefined,
-    ): void {
+    private setEngineerAction(command: BridgeOfficerCommandSelectedPayload | undefined): void {
         this.engineerButton.disableInteractive();
 
-        this.engineerHandler = undefined;
+        this.engineerCommand = command;
 
         if (!command) {
             this.engineerButton
@@ -188,10 +189,6 @@ export default class BridgeCaptainBeamCannonThreatRowView {
 
             return;
         }
-
-        this.engineerHandler = () => {
-            this.callbacks.onDeployShield(command);
-        };
 
         this.engineerButton
             .setFillStyle(CAPTAIN_DASHBOARD_STYLE.action.activeBackgroundColor, 1)
@@ -204,7 +201,11 @@ export default class BridgeCaptainBeamCannonThreatRowView {
     }
 
     private handleEngineerPointerDown(): void {
-        this.engineerHandler?.();
+        if (!this.engineerCommand) {
+            return;
+        }
+
+        this.callbacks.onDeployShield(this.engineerCommand);
     }
 
     private createDisabledButton(

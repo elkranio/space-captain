@@ -45,7 +45,7 @@ export default class BridgeCaptainSpamThreatRowView {
 
     private readonly scienceLabel: Phaser.GameObjects.BitmapText;
 
-    private scienceHandler?: () => void;
+    private scienceCommand?: BridgeOfficerCommandSelectedPayload;
 
     constructor(
         private readonly scene: BridgeScene,
@@ -183,7 +183,7 @@ export default class BridgeCaptainSpamThreatRowView {
     public destroy(): void {
         this.scienceButton.off("pointerdown", this.handleSciencePointerDown, this);
 
-        this.scienceHandler = undefined;
+        this.scienceCommand = undefined;
 
         this.root.destroy(true);
     }
@@ -191,7 +191,7 @@ export default class BridgeCaptainSpamThreatRowView {
     private setScienceAction(command: BridgeOfficerCommandSelectedPayload | undefined): void {
         this.scienceButton.disableInteractive();
 
-        this.scienceHandler = undefined;
+        this.scienceCommand = command;
 
         if (!command) {
             this.scienceButton
@@ -202,10 +202,6 @@ export default class BridgeCaptainSpamThreatRowView {
 
             return;
         }
-
-        this.scienceHandler = () => {
-            this.callbacks.onPurge(command);
-        };
 
         this.scienceButton
             .setFillStyle(CAPTAIN_DASHBOARD_STYLE.action.activeBackgroundColor, 1)
@@ -218,6 +214,10 @@ export default class BridgeCaptainSpamThreatRowView {
     }
 
     private handleSciencePointerDown(): void {
-        this.scienceHandler?.();
+        if (!this.scienceCommand) {
+            return;
+        }
+
+        this.callbacks.onPurge(this.scienceCommand);
     }
 }

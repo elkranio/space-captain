@@ -49,7 +49,7 @@ type MineButton = {
 
     label: Phaser.GameObjects.BitmapText;
 
-    handler?: () => void;
+    command?: BridgeOfficerCommandSelectedPayload;
 };
 
 type StickyMineThreatRowCallbacks = {
@@ -197,7 +197,7 @@ export default class BridgeCaptainStickyMineThreatRowView {
 
     public destroy(): void {
         for (const button of this.buttons) {
-            button.handler = undefined;
+            button.command = undefined;
 
             button.background.removeAllListeners();
         }
@@ -238,7 +238,11 @@ export default class BridgeCaptainStickyMineThreatRowView {
         };
 
         button.background.on("pointerdown", () => {
-            button.handler?.();
+            if (!button.command) {
+                return;
+            }
+
+            this.callbacks.onClear(button.command);
         });
 
         return button;
@@ -251,7 +255,7 @@ export default class BridgeCaptainStickyMineThreatRowView {
     ): void {
         button.background.disableInteractive();
 
-        button.handler = undefined;
+        button.command = command;
 
         if (!command) {
             button.background
@@ -262,10 +266,6 @@ export default class BridgeCaptainStickyMineThreatRowView {
 
             return;
         }
-
-        button.handler = () => {
-            this.callbacks.onClear(command);
-        };
 
         button.background
             .setFillStyle(CAPTAIN_DASHBOARD_STYLE.action.activeBackgroundColor, 1)
