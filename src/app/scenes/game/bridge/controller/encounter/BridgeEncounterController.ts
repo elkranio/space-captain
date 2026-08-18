@@ -47,11 +47,11 @@ import BridgeEncounterSnapshotSynchronizer from "./snapshots/BridgeEncounterSnap
 export default class BridgeEncounterController {
     // #region Fields
 
-    private encounterEngine?: EncounterEngine;
+    private readonly encounterEngine: EncounterEngine;
 
-    private officerCommandMenuController?: BridgeOfficerCommandMenuController;
+    private readonly officerCommandMenuController: BridgeOfficerCommandMenuController;
 
-    private snapshotSynchronizer?: BridgeEncounterSnapshotSynchronizer;
+    private readonly snapshotSynchronizer: BridgeEncounterSnapshotSynchronizer;
 
     private readonly engineEventHandler: BridgeEncounterEngineEventHandler;
 
@@ -77,21 +77,20 @@ export default class BridgeEncounterController {
         );
 
         this.registerBridgeEventHandlers();
-        this.loadEncounter();
+
+        this.encounterEngine = this.createEncounterEngine();
+
+        this.snapshotSynchronizer = new BridgeEncounterSnapshotSynchronizer(this.eventBus);
+
+        this.officerCommandMenuController = new BridgeOfficerCommandMenuController(this.encounterEngine, this.eventBus);
+
+        this.presentInitialEncounterState();
     }
 
     // #region Lifecycle
 
     public destroy(): void {
         this.unregisterBridgeEventHandlers();
-
-        this.officerCommandMenuController = undefined;
-        this.snapshotSynchronizer = undefined;
-        this.encounterEngine = undefined;
-
-        this.isEncounterInteractive = false;
-
-        this.hasAppliedEnemyCombatStartDebugBehaviors = false;
     }
 
     // #endregion
@@ -99,10 +98,6 @@ export default class BridgeEncounterController {
     // #region Scene update
 
     public step(deltaMs: number): void {
-        if (!this.encounterEngine) {
-            return;
-        }
-
         if (!this.isEncounterInteractive) {
             return;
         }
@@ -113,11 +108,11 @@ export default class BridgeEncounterController {
 
         this.persistEncounterSnapshot(presentationSnapshot);
 
-        this.snapshotSynchronizer?.syncPlayerShipDashboard(presentationSnapshot);
+        this.snapshotSynchronizer.syncPlayerShipDashboard(presentationSnapshot);
 
         this.drainEncounterEvents();
 
-        this.snapshotSynchronizer?.syncCombatPresentation(presentationSnapshot);
+        this.snapshotSynchronizer.syncCombatPresentation(presentationSnapshot);
     }
 
     // #endregion
@@ -182,7 +177,7 @@ export default class BridgeEncounterController {
 
     // #region Encounter setup
 
-    private loadEncounter(): void {
+    private createEncounterEngine(): EncounterEngine {
         const run = GAME_RUNTIME.getCurrentRun();
         const location = run.player.location;
 
@@ -198,7 +193,7 @@ export default class BridgeEncounterController {
             throw new Error(`Space node not found: ${location.nodeId}`);
         }
 
-        this.encounterEngine = new EncounterEngine({
+        return new EncounterEngine({
             node,
             navigation: location.navigation,
 
@@ -220,11 +215,9 @@ export default class BridgeEncounterController {
 
             completeTimedTasksImmediately: DEBUG_SETTINGS.bridge.officerTasks.completeTimedTasksImmediately,
         });
+    }
 
-        this.snapshotSynchronizer = new BridgeEncounterSnapshotSynchronizer(this.eventBus);
-
-        this.officerCommandMenuController = new BridgeOfficerCommandMenuController(this.encounterEngine, this.eventBus);
-
+    private presentInitialEncounterState(): void {
         const loadPresentationSnapshot = this.encounterEngine.getPresentationSnapshot();
 
         this.drainEncounterEvents(loadPresentationSnapshot);
@@ -251,7 +244,7 @@ export default class BridgeEncounterController {
             return;
         }
 
-        this.officerCommandMenuController?.open(payload.role);
+        this.officerCommandMenuController.open(payload.role);
     }
 
     private handleOfficerCommandMenuRefreshRequested(payload: BridgeOfficerCommandMenuRefreshRequestedPayload): void {
@@ -259,7 +252,7 @@ export default class BridgeEncounterController {
             return;
         }
 
-        this.officerCommandMenuController?.open(payload.role);
+        this.officerCommandMenuController.open(payload.role);
     }
 
     private handleOfficerCommandSelected(payload: BridgeOfficerCommandSelectedPayload): void {
@@ -268,10 +261,6 @@ export default class BridgeEncounterController {
         }
 
         const result = this.executeCommand(payload);
-
-        if (!result) {
-            return;
-        }
 
         this.handleOfficerCommandResult(payload, result);
     }
@@ -301,10 +290,6 @@ export default class BridgeEncounterController {
     }
 
     private handleEncounterJumpCompleted(payload: BridgeEncounterJumpPayload): void {
-        if (!this.encounterEngine) {
-            return;
-        }
-
         this.encounterEngine.completeJump(payload.taskId);
 
         this.drainEncounterEvents();
@@ -317,10 +302,6 @@ export default class BridgeEncounterController {
     }
 
     private handleDockingAnimationCompleted(payload: BridgeDockingCompletedPayload): void {
-        if (!this.encounterEngine) {
-            return;
-        }
-
         this.encounterEngine.completeDocking(payload.taskId);
 
         this.drainEncounterEvents();
@@ -335,10 +316,6 @@ export default class BridgeEncounterController {
     // #region Engine events
 
     private drainEncounterEvents(presentationSnapshot?: EncounterPresentationSnapshot): void {
-        if (!this.encounterEngine) {
-            return;
-        }
-
         const events = this.encounterEngine.drainEvents();
 
         this.engineEventHandler.handle(events, presentationSnapshot);
@@ -348,11 +325,7 @@ export default class BridgeEncounterController {
 
     // #region Officer command execution
 
-    private executeCommand(payload: BridgeOfficerCommandSelectedPayload): ExecuteOfficerCommandResult | undefined {
-        if (!this.encounterEngine) {
-            return undefined;
-        }
-
+    private executeCommand(payload: BridgeOfficerCommandSelectedPayload): ExecuteOfficerCommandResult {
         const input = this.createExecuteCommandInput(payload);
 
         const result = this.encounterEngine.executeCommand(input);
@@ -362,11 +335,11 @@ export default class BridgeEncounterController {
 
             this.persistEncounterSnapshot(presentationSnapshot);
 
-            this.snapshotSynchronizer?.syncPlayerShipDashboard(presentationSnapshot);
+            this.snapshotSynchronizer.syncPlayerShipDashboard(presentationSnapshot);
 
             this.drainEncounterEvents();
 
-            this.snapshotSynchronizer?.syncBeamCannonThreats(presentationSnapshot);
+            this.snapshotSynchronizer.syncBeamCannonThreats(presentationSnapshot);
         }
 
         return result;
@@ -457,10 +430,6 @@ export default class BridgeEncounterController {
     // #region Encounter lifecycle
 
     private handleEncounterBecameInteractive(): void {
-        if (!this.encounterEngine) {
-            return;
-        }
-
         if (!this.hasAppliedEnemyCombatStartDebugBehaviors) {
             applyEnemyCombatStartDebugBehaviors(this.encounterEngine);
 
@@ -471,10 +440,6 @@ export default class BridgeEncounterController {
     }
 
     private completeEncounterArrival(): void {
-        if (!this.encounterEngine) {
-            return;
-        }
-
         this.encounterEngine.completeArrival();
 
         const presentationSnapshot = this.encounterEngine.getPresentationSnapshot();
@@ -487,10 +452,6 @@ export default class BridgeEncounterController {
     }
 
     private completeEncounterTravel(taskId: string): void {
-        if (!this.encounterEngine) {
-            return;
-        }
-
         this.encounterEngine.completeTravel(taskId);
 
         const presentationSnapshot = this.encounterEngine.getPresentationSnapshot();
