@@ -7,13 +7,7 @@ import type BridgeEventBus from "../../../events/BridgeEventBus";
 import { BRIDGE_ENEMY_EVADE_PRESENTATION } from "./bridge_enemy_evade_presentation";
 
 type EnemyEvadePresentationState = {
-    actorId: string;
-
     phase: ShipEvadePhase;
-
-    phaseElapsedMs: number;
-
-    evadeDurationMs: number;
 
     direction: -1 | 1;
 
@@ -97,8 +91,8 @@ export default class BridgeEnemyEvadeView {
 
         this.scene.events.off(Phaser.Scenes.Events.UPDATE, this.handleSceneUpdate, this);
 
-        for (const state of this.states.values()) {
-            this.setObjectPresentationOffsetX(state.actorId, 0);
+        for (const actorId of this.states.keys()) {
+            this.setObjectPresentationOffsetX(actorId, 0);
         }
 
         this.states.clear();
@@ -134,19 +128,15 @@ export default class BridgeEnemyEvadeView {
 
             state.phase = snapshot.phase;
 
-            state.phaseElapsedMs = Math.max(0, snapshot.phaseElapsedMs);
-
-            state.evadeDurationMs = Math.max(1, snapshot.evadeDurationMs);
-
             if (state.phase === SHIP_EVADE_PHASE.EVADING) {
-                this.updateActiveOffset(state);
+                this.updateActiveOffset(state, snapshot.phaseElapsedMs, snapshot.evadeDurationMs);
             }
 
             if (!isManeuvering) {
                 state.spawnAccumulator = 0;
             }
 
-            this.setObjectPresentationOffsetX(state.actorId, state.accumulatedOffsetX);
+            this.setObjectPresentationOffsetX(snapshot.actorId, state.accumulatedOffsetX);
         }
 
         for (const [actorId] of this.states) {
@@ -163,8 +153,8 @@ export default class BridgeEnemyEvadeView {
     private handleSceneUpdate(_time: number, deltaMs: number): void {
         const safeDeltaMs = Math.max(0, deltaMs);
 
-        for (const state of this.states.values()) {
-            this.spawnThrusterParticles(state, safeDeltaMs);
+        for (const [actorId, state] of this.states) {
+            this.spawnThrusterParticles(actorId, state, safeDeltaMs);
         }
 
         this.updateParticles(safeDeltaMs);
@@ -180,13 +170,7 @@ export default class BridgeEnemyEvadeView {
         }
 
         const state: EnemyEvadePresentationState = {
-            actorId: snapshot.actorId,
-
             phase: SHIP_EVADE_PHASE.READY,
-
-            phaseElapsedMs: 0,
-
-            evadeDurationMs: Math.max(1, snapshot.evadeDurationMs),
 
             direction: 1,
 
@@ -199,7 +183,7 @@ export default class BridgeEnemyEvadeView {
             spawnAccumulator: 0,
         };
 
-        this.states.set(state.actorId, state);
+        this.states.set(snapshot.actorId, state);
 
         return state;
     }
@@ -218,8 +202,15 @@ export default class BridgeEnemyEvadeView {
         state.spawnAccumulator = 0;
     }
 
-    private updateActiveOffset(state: EnemyEvadePresentationState): void {
-        const progress = Phaser.Math.Clamp(state.phaseElapsedMs / state.evadeDurationMs, 0, 1);
+    private updateActiveOffset(
+        state: EnemyEvadePresentationState,
+        phaseElapsedMs: number,
+        evadeDurationMs: number,
+    ): void {
+        const safePhaseElapsedMs = Math.max(0, phaseElapsedMs);
+        const safeEvadeDurationMs = Math.max(1, evadeDurationMs);
+
+        const progress = Phaser.Math.Clamp(safePhaseElapsedMs / safeEvadeDurationMs, 0, 1);
 
         const movement = BRIDGE_ENEMY_EVADE_PRESENTATION.movement;
 
@@ -234,6 +225,7 @@ export default class BridgeEnemyEvadeView {
     }
 
     private spawnThrusterParticles(
+        actorId: string,
         state: EnemyEvadePresentationState,
 
         deltaMs: number,
@@ -244,7 +236,7 @@ export default class BridgeEnemyEvadeView {
             return;
         }
 
-        const bounds = this.getObjectVisualBounds(state.actorId);
+        const bounds = this.getObjectVisualBounds(actorId);
 
         if (!bounds) {
             return;
