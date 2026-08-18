@@ -5,6 +5,10 @@ import { PLAYER_SPACE_NAVIGATION_KIND } from "../../../defs/player_location";
 import type { ShipEncounterActorState } from "../../actors/ship/ship_encounter_actor";
 import type { EncounterEvent } from "../../model/event";
 import type { EncounterState } from "../../model/state";
+import {
+    ENCOUNTER_INTERNAL_EFFECT,
+    type EncounterInternalEffectSink,
+} from "../../model/internal_effect";
 import { SHIP_CREW_TASK_KIND } from "../../model/ship_crew_task";
 import { getEnemyCaptainDecisionSnapshot } from "../queries/get_enemy_captain_decision_snapshot";
 import EnemyCrewTaskRunner, { type EnemyCrewTaskCompletion } from "./EnemyCrewTaskRunner";
@@ -21,6 +25,8 @@ type EnemyBehaviorRunnerOptions = {
     clearPlayerStickyMine: (mineId: string, targetActorId: string) => boolean;
 
     deployEnemyShield: (actor: ShipEncounterActorState) => void;
+
+    applyInternalEffect: EncounterInternalEffectSink;
 
     random?: () => number;
 };
@@ -52,6 +58,8 @@ export default class EnemyBehaviorRunner {
 
     private readonly deployEnemyShield: EnemyBehaviorRunnerOptions["deployEnemyShield"];
 
+    private readonly applyInternalEffect: EncounterInternalEffectSink;
+
     private readonly decisionPolicy: EnemyDecisionPolicy;
 
     private readonly scienceIntelResolver: EnemyScienceIntelResolver;
@@ -69,11 +77,13 @@ export default class EnemyBehaviorRunner {
         emit,
         clearPlayerStickyMine,
         deployEnemyShield,
+        applyInternalEffect,
         random = Math.random,
     }: EnemyBehaviorRunnerOptions) {
         this.state = state;
         this.clearPlayerStickyMine = clearPlayerStickyMine;
         this.deployEnemyShield = deployEnemyShield;
+        this.applyInternalEffect = applyInternalEffect;
         this.random = random;
 
         this.decisionPolicy = new EnemyDecisionPolicy(random);
@@ -93,13 +103,13 @@ export default class EnemyBehaviorRunner {
         });
     }
 
-    public step(deltaMs: number, purgePlayerSpamChannel: (channelId: string, targetActorId: string) => boolean): void {
+    public step(deltaMs: number): void {
         this.threatObserver.synchronize();
 
         const crewTaskCompletions = this.crewTaskRunner.advance(deltaMs);
 
         for (const completion of crewTaskCompletions) {
-            this.handleCrewTaskCompletion(completion, purgePlayerSpamChannel);
+            this.handleCrewTaskCompletion(completion);
         }
 
         const navigation = this.state.navigation;
@@ -135,10 +145,7 @@ export default class EnemyBehaviorRunner {
         this.crewTaskRunner.synchronize();
     }
 
-    private handleCrewTaskCompletion(
-        completion: EnemyCrewTaskCompletion,
-        purgePlayerSpamChannel: (channelId: string, targetActorId: string) => boolean,
-    ): void {
+    private handleCrewTaskCompletion(completion: EnemyCrewTaskCompletion): void {
         const { actor, task } = completion;
 
         switch (task.kind) {
@@ -185,7 +192,11 @@ export default class EnemyBehaviorRunner {
             }
 
             case SHIP_CREW_TASK_KIND.PURGE_SPAM: {
-                const purged = purgePlayerSpamChannel(task.channelId, actor.id);
+                const purged = this.applyInternalEffect({
+                    kind: ENCOUNTER_INTERNAL_EFFECT.PURGE_PLAYER_SPAM_CHANNEL,
+                    channelId: task.channelId,
+                    targetActorId: actor.id,
+                });
 
                 if (!purged) {
                     throw new Error(

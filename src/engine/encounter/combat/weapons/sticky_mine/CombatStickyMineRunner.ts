@@ -18,6 +18,10 @@ import {
     type StickyMineState,
 } from "../../../model/combat";
 import { ENCOUNTER_EVENT, type EncounterEvent } from "../../../model/event";
+import {
+    ENCOUNTER_INTERNAL_EFFECT,
+    type EncounterInternalEffectSink,
+} from "../../../model/internal_effect";
 import type { EncounterState } from "../../../model/state";
 import EncounterStateStore from "../../../state/EncounterStateStore";
 import CombatRuntimeIdentityFactory from "../../CombatRuntimeIdentityFactory";
@@ -35,6 +39,7 @@ type CombatStickyMineRunnerOptions = {
     identities: CombatRuntimeIdentityFactory;
     emit: (event: EncounterEvent) => void;
     destroyEnemyActor: (actorId: string) => void;
+    applyInternalEffect: EncounterInternalEffectSink;
 };
 
 // Owns the complete sticky-mine lifecycle for both combat directions:
@@ -51,13 +56,16 @@ export default class CombatStickyMineRunner {
 
     private readonly destroyEnemyActor: (actorId: string) => void;
 
+    private readonly applyInternalEffect: EncounterInternalEffectSink;
+
     private readonly pendingPlayerAttachments: PlayerStickyMineAttachInput[] = [];
 
-    constructor({ stateStore, identities, emit, destroyEnemyActor }: CombatStickyMineRunnerOptions) {
+    constructor({ stateStore, identities, emit, destroyEnemyActor, applyInternalEffect }: CombatStickyMineRunnerOptions) {
         this.stateStore = stateStore;
         this.identities = identities;
         this.emit = emit;
         this.destroyEnemyActor = destroyEnemyActor;
+        this.applyInternalEffect = applyInternalEffect;
 
         this.state = this.stateStore.getState();
     }
@@ -86,11 +94,7 @@ export default class CombatStickyMineRunner {
         }
     }
 
-    public advanceExistingMines(
-        mineIds: readonly string[],
-        deltaMs: number,
-        interruptRandomOfficerTask: () => void,
-    ): void {
+    public advanceExistingMines(mineIds: readonly string[], deltaMs: number): void {
         for (const mineId of mineIds) {
             const index = this.state.combat.stickyMines.findIndex((mine) => {
                 return mine.id === mineId;
@@ -124,7 +128,7 @@ export default class CombatStickyMineRunner {
                 continue;
             }
 
-            this.resolveDetonation(index, mine, interruptRandomOfficerTask);
+            this.resolveDetonation(index, mine);
         }
     }
 
@@ -133,7 +137,6 @@ export default class CombatStickyMineRunner {
         dispenser: StickyMineDispenserState,
         deltaMs: number,
         worldDeltaMs: number,
-        interruptRandomOfficerTask: () => void,
     ): void {
         const definition = this.getDispenserDefinition(dispenser);
 
@@ -147,8 +150,8 @@ export default class CombatStickyMineRunner {
                 throw new Error(`Sticky-mine dispenser cannot enter targeting phase: ` + `${actor.id}/${dispenser.id}`);
 
             case SHIP_WEAPON_PHASE.DISPENSING:
-                this.ensureDispensingStarted(actor, dispenser, interruptRandomOfficerTask);
-                this.advanceDispensing(actor, dispenser, deltaMs, interruptRandomOfficerTask);
+                this.ensureDispensingStarted(actor, dispenser);
+                this.advanceDispensing(actor, dispenser, deltaMs);
                 return;
 
             case SHIP_WEAPON_PHASE.COOLDOWN:
@@ -289,20 +292,18 @@ export default class CombatStickyMineRunner {
     private ensureDispensingStarted(
         actor: ShipEncounterActorState,
         dispenser: StickyMineDispenserState,
-        interruptRandomOfficerTask: () => void,
     ): void {
         if (dispenser.dispensedMineCount > 0) {
             return;
         }
 
-        this.attachEnemyMine(actor, dispenser, 0, interruptRandomOfficerTask);
+        this.attachEnemyMine(actor, dispenser, 0);
     }
 
     private advanceDispensing(
         actor: ShipEncounterActorState,
         dispenser: StickyMineDispenserState,
         deltaMs: number,
-        interruptRandomOfficerTask: () => void,
     ): void {
         const definition = this.getDispenserDefinition(dispenser);
 
@@ -315,7 +316,7 @@ export default class CombatStickyMineRunner {
         ) {
             dispenser.phaseElapsedMs -= definition.launchIntervalMs;
 
-            this.attachEnemyMine(actor, dispenser, dispenser.phaseElapsedMs, interruptRandomOfficerTask);
+            this.attachEnemyMine(actor, dispenser, dispenser.phaseElapsedMs);
         }
 
         if (dispenser.dispensedMineCount < definition.salvoSize && dispenser.ammoCount > 0) {
@@ -329,7 +330,6 @@ export default class CombatStickyMineRunner {
         actor: ShipEncounterActorState,
         dispenser: StickyMineDispenserState,
         ageMs: number,
-        interruptRandomOfficerTask: () => void,
     ): void {
         const definition = this.getDispenserDefinition(dispenser);
 
@@ -399,10 +399,10 @@ export default class CombatStickyMineRunner {
             return;
         }
 
-        this.resolveDetonation(this.state.combat.stickyMines.length - 1, mine, interruptRandomOfficerTask);
+        this.resolveDetonation(this.state.combat.stickyMines.length - 1, mine);
     }
 
-    private resolveDetonation(index: number, mine: StickyMineState, interruptRandomOfficerTask: () => void): void {
+    private resolveDetonation(index: number, mine: StickyMineState): void {
         mine.timeToDetonationMs = 0;
 
         this.state.combat.stickyMines.splice(index, 1);
@@ -418,7 +418,10 @@ export default class CombatStickyMineRunner {
                 ...damageResult,
             });
 
-            interruptRandomOfficerTask();
+            this.applyInternalEffect({
+                kind: ENCOUNTER_INTERNAL_EFFECT.INTERRUPT_RANDOM_PLAYER_OFFICER_TASK,
+            });
+
             return;
         }
 

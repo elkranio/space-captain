@@ -115,6 +115,9 @@ describe('Combat step order', () => {
 
                 random: () => 0,
 
+                applyInternalEffect:
+                    () => false,
+
                 destroyEnemyActor:
                     (actorId) => {
                         runner
@@ -139,7 +142,7 @@ describe('Combat step order', () => {
                 targetActor.id,
         });
 
-        runner.step(1, () => {}, () => false);
+        runner.step(1);
 
         const resolvedEvents =
             events.filter(

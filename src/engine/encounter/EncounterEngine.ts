@@ -23,6 +23,10 @@ import OfficerCommandExecutor from "./commands/OfficerCommandExecutor";
 import type { AvailableOfficerCommand, ExecuteOfficerCommandInput, ExecuteOfficerCommandResult } from "./model/command";
 import { type ActiveShieldState, type CombatProjectileState, type BeamCannonAttackState } from "./model/combat";
 import { ENCOUNTER_EVENT, type EncounterEvent } from "./model/event";
+import {
+    ENCOUNTER_INTERNAL_EFFECT,
+    type EncounterInternalEffect,
+} from "./model/internal_effect";
 import type { OfficerAvailabilityStates } from "./model/officer_availability";
 import { OFFICER_TASK_KIND, type OfficerTaskKind, type OfficerTaskState } from "./model/officer_task";
 import OfficerTaskRunner from "./officer_tasks/OfficerTaskRunner";
@@ -136,6 +140,7 @@ export default class EncounterEngine {
             random,
 
             destroyEnemyActor: this.destroyEnemyActor,
+            applyInternalEffect: this.applyInternalEffect,
         });
 
         this.officerTaskRunner = new OfficerTaskRunner({
@@ -224,16 +229,7 @@ export default class EncounterEngine {
         // physical combat resolution so impact-time queries see the
         // authoritative phase for this step.
         this.stepPlayerEvade(deltaMs);
-
-        this.combatRunner.step(
-            deltaMs,
-            () => {
-                this.officerTaskRunner.interruptRandomTaskByDamage();
-            },
-            (channelId, targetActorId) => {
-                return this.playerWeaponRunner.purgeSpamChannel(channelId, targetActorId);
-            },
-        );
+        this.combatRunner.step(deltaMs);
 
         this.officerTaskRunner.cancelTasksWithMissingTargets();
     }
@@ -422,6 +418,24 @@ export default class EncounterEngine {
 
             actorId: actor.id,
         });
+    };
+
+    // #endregion
+
+    // #region Internal effects
+
+    private applyInternalEffect = (effect: EncounterInternalEffect): boolean | void => {
+        switch (effect.kind) {
+            case ENCOUNTER_INTERNAL_EFFECT.INTERRUPT_RANDOM_PLAYER_OFFICER_TASK:
+                this.officerTaskRunner.interruptRandomTaskByDamage();
+                return;
+
+            case ENCOUNTER_INTERNAL_EFFECT.PURGE_PLAYER_SPAM_CHANNEL:
+                return this.playerWeaponRunner.purgeSpamChannel(
+                    effect.channelId,
+                    effect.targetActorId,
+                );
+        }
     };
 
     // #endregion

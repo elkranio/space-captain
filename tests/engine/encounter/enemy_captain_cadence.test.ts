@@ -49,7 +49,7 @@ describe(
                         .decisionTickRemainingMs,
                 ).toBe(0);
 
-                runner.step(0, () => false);
+                runner.step(0);
 
                 expect(
                     actor.crewTasks[
@@ -75,7 +75,7 @@ describe(
                         .decisionTickRemainingMs,
                 ).toBe(1000);
 
-                runner.step(999, () => false);
+                runner.step(999);
 
                 expect(
                     actor.crewTasks[
@@ -88,7 +88,7 @@ describe(
                         .decisionTickRemainingMs,
                 ).toBe(1);
 
-                runner.step(1, () => false);
+                runner.step(1);
 
                 expect(
                     actor.crewTasks[
@@ -121,7 +121,7 @@ describe(
                         () => 0.5,
                     );
 
-                runner.step(10000, () => false);
+                runner.step(10000);
 
                 expect(
                     Object.values(
@@ -159,7 +159,7 @@ describe(
                         () => 0,
                     );
 
-                runner.step(0, () => false);
+                runner.step(0);
 
                 expect(
                     actor.decision
@@ -238,6 +238,9 @@ function createFixture(
 
             deployEnemyShield:
                 () => {},
+
+            applyInternalEffect:
+                () => false,
 
             random,
         });

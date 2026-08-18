@@ -3,6 +3,7 @@
 import { doesDefenseTurretPhaseAdvanceWithCrew } from "../../defs/defense_turret";
 import { doesShipWeaponPhaseAdvanceWithCrew, SHIP_WEAPON_KIND } from "../../defs/ship_weapon";
 import type { EncounterEvent } from "../model/event";
+import type { EncounterInternalEffectSink } from "../model/internal_effect";
 import type { EncounterState } from "../model/state";
 import EncounterStateStore from "../state/EncounterStateStore";
 import CombatBeamCannonRunner from "./weapons/beam_cannon/CombatBeamCannonRunner";
@@ -28,6 +29,8 @@ type CombatRunnerOptions = {
     random: () => number;
 
     destroyEnemyActor: (actorId: string) => void;
+
+    applyInternalEffect: EncounterInternalEffectSink;
 };
 
 // Владеет боевым циклом encounter:
@@ -66,6 +69,7 @@ export default class CombatRunner {
         random,
 
         destroyEnemyActor,
+        applyInternalEffect,
     }: CombatRunnerOptions) {
         this.state = stateStore.getState();
 
@@ -103,6 +107,7 @@ export default class CombatRunner {
             identities: this.identities,
 
             emit,
+            applyInternalEffect,
         });
 
         this.stickyMineRunner = new CombatStickyMineRunner({
@@ -113,6 +118,7 @@ export default class CombatRunner {
             emit,
 
             destroyEnemyActor,
+            applyInternalEffect,
         });
 
         this.spamRunner = new CombatSpamRunner({
@@ -135,15 +141,12 @@ export default class CombatRunner {
                 this.enemyShieldRunner.deploy(actor);
             },
 
+            applyInternalEffect,
             random,
         });
     }
 
-    public step(
-        deltaMs: number,
-        interruptRandomOfficerTask: () => void,
-        purgePlayerSpamChannel: (channelId: string, targetActorId: string) => boolean,
-    ): void {
+    public step(deltaMs: number): void {
         // Existing shield/emitter time advances before new enemy work.
         // A field deployed later in this step starts at full duration.
         this.enemyShieldRunner.step(deltaMs);
@@ -152,10 +155,10 @@ export default class CombatRunner {
 
         this.integratePendingPlayerCombatObjects();
 
-        this.resolveExistingCombatObjects(existingCombatObjectIds, deltaMs, interruptRandomOfficerTask);
+        this.resolveExistingCombatObjects(existingCombatObjectIds, deltaMs);
 
-        this.advanceEnemyBehavior(deltaMs, purgePlayerSpamChannel);
-        this.advanceEnemyCombatSystems(deltaMs, interruptRandomOfficerTask);
+        this.advanceEnemyBehavior(deltaMs);
+        this.advanceEnemyCombatSystems(deltaMs);
         this.finalizeEnemyCrewTasks();
     }
 
@@ -181,21 +184,14 @@ export default class CombatRunner {
         this.stickyMineRunner.integratePendingPlayerAttachments();
     }
 
-    private resolveExistingCombatObjects(
-        existingIds: CombatStepExistingObjectIds,
-        deltaMs: number,
-        interruptRandomOfficerTask: () => void,
-    ): void {
+    private resolveExistingCombatObjects(existingIds: CombatStepExistingObjectIds, deltaMs: number): void {
         this.missileRunner.advanceExistingProjectiles(existingIds.projectileIds, deltaMs);
 
-        this.stickyMineRunner.advanceExistingMines(existingIds.stickyMineIds, deltaMs, interruptRandomOfficerTask);
+        this.stickyMineRunner.advanceExistingMines(existingIds.stickyMineIds, deltaMs);
     }
 
-    private advanceEnemyBehavior(
-        deltaMs: number,
-        purgePlayerSpamChannel: (channelId: string, targetActorId: string) => boolean,
-    ): void {
-        this.enemyBehaviorRunner.step(deltaMs, purgePlayerSpamChannel);
+    private advanceEnemyBehavior(deltaMs: number): void {
+        this.enemyBehaviorRunner.step(deltaMs);
     }
 
     private finalizeEnemyCrewTasks(): void {
@@ -233,7 +229,7 @@ export default class CombatRunner {
 
     // #region Enemy combat-system lifecycle
 
-    private advanceEnemyCombatSystems(deltaMs: number, interruptRandomOfficerTask: () => void): void {
+    private advanceEnemyCombatSystems(deltaMs: number): void {
         for (const actor of this.state.actors) {
             if (actor.hull <= 0) {
                 continue;
@@ -260,23 +256,11 @@ export default class CombatRunner {
                         break;
 
                     case SHIP_WEAPON_KIND.BEAM_CANNON:
-                        this.beamCannonRunner.advanceEnemyBeamCannon(
-                            actor,
-                            weapon,
-                            weaponDeltaMs,
-                            deltaMs,
-                            interruptRandomOfficerTask,
-                        );
+                        this.beamCannonRunner.advanceEnemyBeamCannon(actor, weapon, weaponDeltaMs, deltaMs);
                         break;
 
                     case SHIP_WEAPON_KIND.STICKY_MINE_DISPENSER:
-                        this.stickyMineRunner.advanceEnemyDispenser(
-                            actor,
-                            weapon,
-                            weaponDeltaMs,
-                            deltaMs,
-                            interruptRandomOfficerTask,
-                        );
+                        this.stickyMineRunner.advanceEnemyDispenser(actor, weapon, weaponDeltaMs, deltaMs);
                         break;
 
                     case SHIP_WEAPON_KIND.SPAM_PROJECTOR:

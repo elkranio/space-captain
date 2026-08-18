@@ -66,7 +66,7 @@ describe(
                     2500,
                 );
 
-                runner.step(0, () => false);
+                runner.step(0);
 
                 expect(
                     randomCalls,
@@ -115,7 +115,7 @@ describe(
                     2500,
                 );
 
-                runner.step(0, () => false);
+                runner.step(0);
 
                 expect(
                     actor.crewTasks[
@@ -208,6 +208,9 @@ function createFixture(
 
             deployEnemyShield:
                 () => {},
+
+            applyInternalEffect:
+                () => false,
 
             random,
         });
