@@ -34,8 +34,6 @@ export default class BridgeController {
         this.view = new BridgeView(this.scene, this.eventBus);
 
         this.encounterController = new BridgeEncounterController(this.eventBus);
-
-        this.encounterController.prepare();
     }
 
     public destroy(): void {

@@ -75,14 +75,12 @@ export default class BridgeEncounterController {
 
             GAME_RUNTIME,
         );
-    }
 
-    // #region Lifecycle
-
-    public prepare(): void {
         this.registerBridgeEventHandlers();
         this.loadEncounter();
     }
+
+    // #region Lifecycle
 
     public destroy(): void {
         this.unregisterBridgeEventHandlers();
