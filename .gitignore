@@ -23,3 +23,6 @@ yarn-error.log*
 
 # Optional: TexturePacker cache
 *.tpscache
+
+# Local refactor patches
+atom_*.patch
