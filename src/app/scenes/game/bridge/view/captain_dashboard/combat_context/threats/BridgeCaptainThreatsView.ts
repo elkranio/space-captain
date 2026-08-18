@@ -35,14 +35,6 @@ export default class BridgeCaptainThreatsView {
 
     private readonly spamRowViews: BridgeCaptainSpamThreatRowView[] = [];
 
-    private missiles: BridgeCaptainIncomingMissilePayload[] = [];
-
-    private beamCannons: BridgeCaptainIncomingBeamCannonPayload[] = [];
-
-    private stickyMines: BridgeCaptainStickyMinePayload[] = [];
-
-    private spamChannels: BridgeCaptainSpamChannelPayload[] = [];
-
     constructor(
         private readonly scene: BridgeScene,
 
@@ -76,15 +68,13 @@ export default class BridgeCaptainThreatsView {
 
         spamChannels: BridgeCaptainSpamChannelPayload[],
     ): void {
-        this.missiles = missiles;
+        this.reconcileMissileRows(missiles);
 
-        this.beamCannons = beamCannons;
+        this.reconcileBeamCannonRows(beamCannons, missiles.length);
 
-        this.stickyMines = stickyMines;
+        this.reconcileStickyMineRows(stickyMines, missiles.length + beamCannons.length);
 
-        this.spamChannels = spamChannels;
-
-        this.reconcileRows();
+        this.reconcileSpamRows(spamChannels, missiles.length + beamCannons.length + stickyMines.length);
     }
 
     public destroy(): void {
@@ -95,21 +85,14 @@ export default class BridgeCaptainThreatsView {
         this.root.destroy(false);
     }
 
-    private reconcileRows(): void {
-        this.reconcileMissileRows();
-        this.reconcileBeamCannonRows();
-        this.reconcileStickyMineRows();
-        this.reconcileSpamRows();
-    }
-
-    private reconcileMissileRows(): void {
-        while (this.missileRowViews.length > this.missiles.length) {
+    private reconcileMissileRows(missiles: BridgeCaptainIncomingMissilePayload[]): void {
+        while (this.missileRowViews.length > missiles.length) {
             const rowView = this.missileRowViews.pop();
 
             rowView?.destroy();
         }
 
-        while (this.missileRowViews.length < this.missiles.length) {
+        while (this.missileRowViews.length < missiles.length) {
             const rowView = new BridgeCaptainMissileThreatRowView(
                 this.scene,
                 this.width,
@@ -131,8 +114,8 @@ export default class BridgeCaptainThreatsView {
             this.listRoot.add(rowView.getRoot());
         }
 
-        for (let index = 0; index < this.missiles.length; index += 1) {
-            const missile = this.missiles[index];
+        for (let index = 0; index < missiles.length; index += 1) {
+            const missile = missiles[index];
 
             const rowView = this.missileRowViews[index];
 
@@ -146,14 +129,18 @@ export default class BridgeCaptainThreatsView {
         }
     }
 
-    private reconcileBeamCannonRows(): void {
-        while (this.beamCannonRowViews.length > this.beamCannons.length) {
+    private reconcileBeamCannonRows(
+        beamCannons: BridgeCaptainIncomingBeamCannonPayload[],
+
+        firstBeamCannonRow: number,
+    ): void {
+        while (this.beamCannonRowViews.length > beamCannons.length) {
             const rowView = this.beamCannonRowViews.pop();
 
             rowView?.destroy();
         }
 
-        while (this.beamCannonRowViews.length < this.beamCannons.length) {
+        while (this.beamCannonRowViews.length < beamCannons.length) {
             const rowView = new BridgeCaptainBeamCannonThreatRowView(
                 this.scene,
                 this.width,
@@ -171,10 +158,8 @@ export default class BridgeCaptainThreatsView {
             this.listRoot.add(rowView.getRoot());
         }
 
-        const firstBeamCannonRow = this.missiles.length;
-
-        for (let index = 0; index < this.beamCannons.length; index += 1) {
-            const beamCannon = this.beamCannons[index];
+        for (let index = 0; index < beamCannons.length; index += 1) {
+            const beamCannon = beamCannons[index];
 
             const rowView = this.beamCannonRowViews[index];
 
@@ -188,14 +173,18 @@ export default class BridgeCaptainThreatsView {
         }
     }
 
-    private reconcileStickyMineRows(): void {
-        while (this.stickyMineRowViews.length > this.stickyMines.length) {
+    private reconcileStickyMineRows(
+        stickyMines: BridgeCaptainStickyMinePayload[],
+
+        firstStickyMineRow: number,
+    ): void {
+        while (this.stickyMineRowViews.length > stickyMines.length) {
             const rowView = this.stickyMineRowViews.pop();
 
             rowView?.destroy();
         }
 
-        while (this.stickyMineRowViews.length < this.stickyMines.length) {
+        while (this.stickyMineRowViews.length < stickyMines.length) {
             const rowView = new BridgeCaptainStickyMineThreatRowView(
                 this.scene,
                 this.width,
@@ -213,10 +202,8 @@ export default class BridgeCaptainThreatsView {
             this.listRoot.add(rowView.getRoot());
         }
 
-        const firstStickyMineRow = this.missiles.length + this.beamCannons.length;
-
-        for (let index = 0; index < this.stickyMines.length; index += 1) {
-            const mine = this.stickyMines[index];
+        for (let index = 0; index < stickyMines.length; index += 1) {
+            const mine = stickyMines[index];
 
             const rowView = this.stickyMineRowViews[index];
 
@@ -230,14 +217,18 @@ export default class BridgeCaptainThreatsView {
         }
     }
 
-    private reconcileSpamRows(): void {
-        while (this.spamRowViews.length > this.spamChannels.length) {
+    private reconcileSpamRows(
+        spamChannels: BridgeCaptainSpamChannelPayload[],
+
+        firstSpamRow: number,
+    ): void {
+        while (this.spamRowViews.length > spamChannels.length) {
             const rowView = this.spamRowViews.pop();
 
             rowView?.destroy();
         }
 
-        while (this.spamRowViews.length < this.spamChannels.length) {
+        while (this.spamRowViews.length < spamChannels.length) {
             const rowView = new BridgeCaptainSpamThreatRowView(
                 this.scene,
                 this.width,
@@ -255,10 +246,8 @@ export default class BridgeCaptainThreatsView {
             this.listRoot.add(rowView.getRoot());
         }
 
-        const firstSpamRow = this.missiles.length + this.beamCannons.length + this.stickyMines.length;
-
-        for (let index = 0; index < this.spamChannels.length; index += 1) {
-            const channel = this.spamChannels[index];
+        for (let index = 0; index < spamChannels.length; index += 1) {
+            const channel = spamChannels[index];
 
             const rowView = this.spamRowViews[index];
 
