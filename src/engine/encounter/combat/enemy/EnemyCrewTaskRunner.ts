@@ -113,115 +113,146 @@ export default class EnemyCrewTaskRunner {
             throw new Error("Enemy crew task deltaMs " + "cannot be negative: " + deltaMs);
         }
 
-        this.processTasks(deltaMs, true, onSpamPurgingCompleted);
-    }
-
-    public synchronize(): void {
-        this.processTasks(0, false, () => {
-            throw new Error("Enemy spam purge cannot complete during task synchronization");
-        });
-    }
-
-    private processTasks(
-        deltaMs: number,
-        advanceTimedTasks: boolean,
-        onSpamPurgingCompleted: (actor: ShipEncounterActorState, channelId: string) => void,
-    ): void {
         for (const actor of this.state.actors) {
             if (actor.hull <= 0) {
                 this.cancelAll(actor);
                 continue;
             }
 
-            const progressDeltaMs = advanceTimedTasks
-                ? deltaMs * this.performanceResolver.getActorProgressMultiplier(actor.id)
-                : deltaMs;
-
-            const taskRoles = Object.keys(actor.crewTasks) as OfficerRole[];
-
-            for (const role of taskRoles) {
-                const task = actor.crewTasks[role];
-
-                if (!task) {
-                    continue;
-                }
-
-                if (task.role !== role) {
-                    throw new Error("Ship crew task role mismatch: " + actor.id + "/" + role + "/" + task.role);
-                }
-
-                if (!actor.crewRoles.includes(role)) {
-                    this.cancel(actor, role);
-
-                    continue;
-                }
-
-                this.processTask(
-                    actor,
-                    role,
-                    task,
-                    progressDeltaMs,
-                    advanceTimedTasks,
-                    onSpamPurgingCompleted,
-                );
-            }
+            this.advanceActorTasks(actor, deltaMs, onSpamPurgingCompleted);
         }
     }
 
-    private processTask(
+    public synchronize(): void {
+        for (const actor of this.state.actors) {
+            if (actor.hull <= 0) {
+                this.cancelAll(actor);
+                continue;
+            }
+
+            this.synchronizeActorTasks(actor);
+        }
+    }
+
+    private advanceActorTasks(
         actor: ShipEncounterActorState,
-        role: OfficerRole,
-        task: ShipCrewTaskState,
         deltaMs: number,
-        advanceTimedTasks: boolean,
         onSpamPurgingCompleted: (actor: ShipEncounterActorState, channelId: string) => void,
     ): void {
+        const progressDeltaMs = deltaMs * this.performanceResolver.getActorProgressMultiplier(actor.id);
+        const taskRoles = Object.keys(actor.crewTasks) as OfficerRole[];
+
+        for (const role of taskRoles) {
+            const task = actor.crewTasks[role];
+
+            if (!task) {
+                continue;
+            }
+
+            if (task.role !== role) {
+                throw new Error("Ship crew task role mismatch: " + actor.id + "/" + role + "/" + task.role);
+            }
+
+            if (!actor.crewRoles.includes(role)) {
+                this.cancel(actor, role);
+                continue;
+            }
+
+            this.synchronizeTask(actor, role, task);
+
+            if (actor.crewTasks[role] !== task) {
+                continue;
+            }
+
+            this.advanceTimedTask(actor, role, task, progressDeltaMs, onSpamPurgingCompleted);
+        }
+    }
+
+    private synchronizeActorTasks(actor: ShipEncounterActorState): void {
+        const taskRoles = Object.keys(actor.crewTasks) as OfficerRole[];
+
+        for (const role of taskRoles) {
+            const task = actor.crewTasks[role];
+
+            if (!task) {
+                continue;
+            }
+
+            if (task.role !== role) {
+                throw new Error("Ship crew task role mismatch: " + actor.id + "/" + role + "/" + task.role);
+            }
+
+            if (!actor.crewRoles.includes(role)) {
+                this.cancel(actor, role);
+                continue;
+            }
+
+            this.synchronizeTask(actor, role, task);
+        }
+    }
+
+    private synchronizeTask(actor: ShipEncounterActorState, role: OfficerRole, task: ShipCrewTaskState): void {
         switch (task.kind) {
             case SHIP_CREW_TASK_KIND.DEPLOY_SHIELD:
-                this.processDeployShield(actor, role, task, deltaMs, advanceTimedTasks);
-
+                this.synchronizeDeployShield(actor, role, task);
                 return;
 
             case SHIP_CREW_TASK_KIND.OPERATE_WEAPON:
                 this.synchronizeOperateWeapon(actor, role, task.weaponId);
-
                 return;
 
             case SHIP_CREW_TASK_KIND.INTERCEPT_MISSILE:
                 this.synchronizeInterceptMissile(actor, role, task.defenseTurretId);
-
                 return;
 
             case SHIP_CREW_TASK_KIND.CLEAR_STICKY_MINE:
-                this.processClearStickyMine(actor, role, task, deltaMs, advanceTimedTasks);
-
+                this.synchronizeClearStickyMine(actor, role, task);
                 return;
 
             case SHIP_CREW_TASK_KIND.IDENTIFY_THREAT:
-                this.processIdentifyThreat(actor, role, task, deltaMs, advanceTimedTasks);
-
+                this.synchronizeIdentifyThreat(actor, role, task);
                 return;
 
             case SHIP_CREW_TASK_KIND.PURGE_SPAM:
-                this.processPurgeSpam(
-                    actor,
-                    role,
-                    task,
-                    deltaMs,
-                    advanceTimedTasks,
-                    onSpamPurgingCompleted,
-                );
-
+                this.synchronizePurgeSpam(actor, role, task);
                 return;
         }
     }
 
-    private processDeployShield(
+    private advanceTimedTask(
+        actor: ShipEncounterActorState,
+        role: OfficerRole,
+        task: ShipCrewTaskState,
+        deltaMs: number,
+        onSpamPurgingCompleted: (actor: ShipEncounterActorState, channelId: string) => void,
+    ): void {
+        switch (task.kind) {
+            case SHIP_CREW_TASK_KIND.DEPLOY_SHIELD:
+                this.advanceDeployShield(actor, role, task, deltaMs);
+                return;
+
+            case SHIP_CREW_TASK_KIND.CLEAR_STICKY_MINE:
+                this.advanceClearStickyMine(actor, role, task, deltaMs);
+                return;
+
+            case SHIP_CREW_TASK_KIND.IDENTIFY_THREAT:
+                this.advanceIdentifyThreat(actor, role, task, deltaMs);
+                return;
+
+            case SHIP_CREW_TASK_KIND.PURGE_SPAM:
+                this.advancePurgeSpam(actor, role, task, deltaMs, onSpamPurgingCompleted);
+                return;
+
+            case SHIP_CREW_TASK_KIND.OPERATE_WEAPON:
+            case SHIP_CREW_TASK_KIND.INTERCEPT_MISSILE:
+                return;
+        }
+    }
+
+    private synchronizeDeployShield(
         actor: ShipEncounterActorState,
         role: OfficerRole,
         task: DeployShieldShipCrewTaskState,
-        deltaMs: number,
-        advanceTimedTasks: boolean,
     ): void {
         const observation = actor.threatObservations.find((candidate) => {
             return candidate.id === task.observationId;
@@ -230,14 +261,15 @@ export default class EnemyCrewTaskRunner {
         if (!observation || observation.kind !== ENEMY_THREAT_KIND.BEAM_CANNON) {
             // Charge was committed on task start and is not refunded.
             this.cancel(actor, role);
-
-            return;
         }
+    }
 
-        if (!advanceTimedTasks) {
-            return;
-        }
-
+    private advanceDeployShield(
+        actor: ShipEncounterActorState,
+        role: OfficerRole,
+        task: DeployShieldShipCrewTaskState,
+        deltaMs: number,
+    ): void {
         task.elapsedMs = Math.min(task.durationMs, task.elapsedMs + deltaMs);
 
         if (task.elapsedMs < task.durationMs) {
@@ -245,7 +277,6 @@ export default class EnemyCrewTaskRunner {
         }
 
         this.onShieldDeploymentCompleted(actor);
-
         this.complete(actor, role);
     }
 
@@ -256,7 +287,6 @@ export default class EnemyCrewTaskRunner {
 
         if (!weapon) {
             this.cancel(actor, role);
-
             return;
         }
 
@@ -276,7 +306,6 @@ export default class EnemyCrewTaskRunner {
 
         if (!defenseTurret || defenseTurret.id !== defenseTurretId) {
             this.cancel(actor, role);
-
             return;
         }
 
@@ -287,12 +316,10 @@ export default class EnemyCrewTaskRunner {
         this.complete(actor, role);
     }
 
-    private processClearStickyMine(
+    private synchronizeClearStickyMine(
         actor: ShipEncounterActorState,
         role: OfficerRole,
         task: ClearStickyMineShipCrewTaskState,
-        deltaMs: number,
-        advanceTimedTasks: boolean,
     ): void {
         const mine = this.state.combat.stickyMines.find((candidate) => {
             return (
@@ -305,36 +332,29 @@ export default class EnemyCrewTaskRunner {
 
         if (!mine) {
             this.cancel(actor, role);
-
-            return;
         }
+    }
 
-        if (!advanceTimedTasks) {
-            return;
-        }
-
-        task.elapsedMs = Math.min(
-            task.durationMs,
-
-            task.elapsedMs + deltaMs,
-        );
+    private advanceClearStickyMine(
+        actor: ShipEncounterActorState,
+        role: OfficerRole,
+        task: ClearStickyMineShipCrewTaskState,
+        deltaMs: number,
+    ): void {
+        task.elapsedMs = Math.min(task.durationMs, task.elapsedMs + deltaMs);
 
         if (task.elapsedMs < task.durationMs) {
             return;
         }
 
         this.onStickyMineClearingCompleted(actor, task.mineId);
-
         this.complete(actor, role);
     }
 
-    private processPurgeSpam(
+    private synchronizePurgeSpam(
         actor: ShipEncounterActorState,
         role: OfficerRole,
         task: PurgeSpamShipCrewTaskState,
-        deltaMs: number,
-        advanceTimedTasks: boolean,
-        onSpamPurgingCompleted: (actor: ShipEncounterActorState, channelId: string) => void,
     ): void {
         const channel = getActiveCrewProgressEffects(this.state).find((effect) => {
             return (
@@ -347,35 +367,30 @@ export default class EnemyCrewTaskRunner {
 
         if (!channel) {
             this.cancel(actor, role);
-
-            return;
         }
+    }
 
-        if (!advanceTimedTasks) {
-            return;
-        }
-
-        task.elapsedMs = Math.min(
-            task.durationMs,
-
-            task.elapsedMs + deltaMs,
-        );
+    private advancePurgeSpam(
+        actor: ShipEncounterActorState,
+        role: OfficerRole,
+        task: PurgeSpamShipCrewTaskState,
+        deltaMs: number,
+        onSpamPurgingCompleted: (actor: ShipEncounterActorState, channelId: string) => void,
+    ): void {
+        task.elapsedMs = Math.min(task.durationMs, task.elapsedMs + deltaMs);
 
         if (task.elapsedMs < task.durationMs) {
             return;
         }
 
         onSpamPurgingCompleted(actor, task.channelId);
-
         this.complete(actor, role);
     }
 
-    private processIdentifyThreat(
+    private synchronizeIdentifyThreat(
         actor: ShipEncounterActorState,
         role: OfficerRole,
         task: IdentifyThreatShipCrewTaskState,
-        deltaMs: number,
-        advanceTimedTasks: boolean,
     ): void {
         const observation = actor.threatObservations.find((candidate) => {
             return candidate.id === task.observationId;
@@ -383,14 +398,15 @@ export default class EnemyCrewTaskRunner {
 
         if (!observation || observation.report) {
             this.cancel(actor, role);
-
-            return;
         }
+    }
 
-        if (!advanceTimedTasks) {
-            return;
-        }
-
+    private advanceIdentifyThreat(
+        actor: ShipEncounterActorState,
+        role: OfficerRole,
+        task: IdentifyThreatShipCrewTaskState,
+        deltaMs: number,
+    ): void {
         task.elapsedMs = Math.min(task.durationMs, task.elapsedMs + deltaMs);
 
         if (task.elapsedMs < task.durationMs) {
@@ -398,7 +414,6 @@ export default class EnemyCrewTaskRunner {
         }
 
         this.onThreatIdentificationCompleted(actor, task.observationId);
-
         this.complete(actor, role);
     }
 
