@@ -1,6 +1,6 @@
 # Space Captain — Combat Playtest Roadmap
 
-Updated: 2026-08-16.
+Updated: 2026-08-18.
 
 This document defines the gameplay work required before serious internal combat
 playtests across early-game, midgame and endgame conditions.
@@ -89,10 +89,8 @@ build × crew condition × enemy matchup × player decisions
 
 ### 1. Helm Evade
 
-**Implementation status:** functionally implemented end-to-end, but not yet
-considered a clean playtest-complete step because a current correctness bug can
-allow enemy Evade to activate while its enable/debug flag is disabled. See
-`KNOWN_COMBAT_BUGS.md`.
+**Implementation status:** functionally implemented end-to-end and covered
+by focused regression tests for the combat-start debug gates.
 
 The implemented mechanic gives Helm an actual combat responsibility and puts
 Helm-time into the same combat resource economy as Science, Weapons and
@@ -245,9 +243,9 @@ canonical yet.
 
 Covers steps 1–5.
 
-Before using Gate A playtests as evidence, also clear the active combat
-correctness blockers in `KNOWN_COMBAT_BUGS.md`, including the SPAM runtime
-event failure.
+No current combat correctness blocker is recorded in
+`KNOWN_COMBAT_BUGS.md`. If playtesting exposes a new blocker, clear it before
+using dependent Gate A results as trustworthy evidence.
 
 Before leaving this gate, the player should be able to quickly answer:
 - what is happening to us?

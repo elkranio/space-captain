@@ -1,8 +1,8 @@
 # Space Captain — Current Handoff
 
-Date: 2026-08-16  
-Baseline master at handoff creation:
-`a08f6daef8a13ab608ef10666d77f31d5f5a42d4`
+Date: 2026-08-18
+Baseline master at handoff refresh:
+`55614759e9d95ddb42a3802d8d04dfffe0d99eea`
 
 Always re-fetch `master` before creating the next patch; this SHA is a
 historical checkpoint, not a permanent guard.
@@ -11,33 +11,44 @@ historical checkpoint, not a permanent guard.
 
 The bridge rebuild and current combat presentation are working and pushed.
 
-The repository is green after the 2026-08-16 combat cleanup pass:
+The repository is green at the current cognitive-load refactor checkpoint.
 
+Important current contracts:
 - `CLEAR STICKY MINE` is Engineer-only for player and enemy behavior.
-- The obsolete Shared officer-task editor surface/content was removed.
 - Every officer command definition belongs to exactly one scalar `role`.
-- The combat playtest roadmap is documented in
-  `docs/COMBAT_PLAYTEST_ROADMAP.md`.
-- The Helm Evade gameplay contract is documented in `docs/HELM_EVADE.md`.
-- Weapon/defense cooldowns now use commitment semantics:
-  cooldown begins at the concrete commitment edge and may overlap active work.
-- Cooldown recovery advances in raw encounter/world time.
-- Cancellation/interruption after commitment does not refund/reset cooldown.
-- Player weapon dashboard cooldown presentation now reads the independent
-  cooldown clock, so Beam/SPAM/etc. can show recovery while their action phase
-  is still active.
-- A test-hygiene pass removed several accidental dependencies on current balance
-  numbers, whole canonical loadouts, exact floating-point equality and unrelated
-  full-state shapes.
-- Typecheck, focused tests, full test suite and runtime smoke were green before
-  this handoff refresh.
+- Helm Evade V0 is implemented end-to-end for player and enemy.
+- SPAM remains explicitly non-evadable.
+- Weapon/defense cooldowns use commitment semantics and independent recovery
+  clocks.
+- The opening disruption pulse is a real one-shot combat mechanic. Its automatic
+  use is currently controlled from the app-side combat-start debug boundary
+  while Evade/combat behavior is being tested; do not delete it as dead code.
+- The previously tracked SPAM bridge-event failure and enemy-Evade debug-start
+  leak are fixed and regression-covered.
+- `docs/KNOWN_COMBAT_BUGS.md` currently records no active correctness blocker.
 
-## Current combat position — Evade implemented, two blockers open
+## Cognitive-load refactor position
 
-Helm Evade V0 is now implemented end-to-end far beyond the old "next atom"
-state that this handoff previously described.
+The current refactor sprint has reached the final mechanical-cleanup pass.
 
-Implemented behavior includes:
+The app/bridge transport pass is closed:
+- the redundant player-weapon dashboard transport layer was removed;
+- the final dashboard mapping now consumes the nearest safe presentation source;
+- no further split of `BridgeEncounterEngineEventHandler` is justified merely
+  because the file is large.
+
+A proposed cleanup to inject one shared
+`BridgeEncounterPersistenceSynchronizer` instance into both controller and
+event-handler paths was rejected after auditing call sites. The synchronizer is
+stateless, the mapping responsibility is already centralized, and the change
+would add constructor plumbing without removing a second truth source.
+
+Continue the sprint only for concrete RED findings. Do not manufacture cleanup
+atoms from YELLOW watch points.
+
+## Combat state worth preserving
+
+Helm Evade currently includes:
 - shared authoritative player/enemy Evade lifecycle;
 - drive/content-driven warmup, duration, cooldown and Power cost;
 - player Helm command/task integration;
@@ -45,31 +56,9 @@ Implemented behavior includes:
 - incoming enemy missile / Beam / new sticky-mine attachment misses while the
   player is actively EVADING;
 - outgoing player Beam / missile / sticky-mine misses while the enemy is
-  actively EVADING;
-- SPAM remains explicitly non-evadable.
+  actively EVADING.
 
-Before moving deeper into dashboard/scan roadmap work, resolve the two current
-combat correctness blockers recorded in `docs/KNOWN_COMBAT_BUGS.md`:
-
-1. SPAM currently reaches an unhandled bridge/app event path and can fail at
-   runtime.
-2. Enemy Evade can activate in runtime while its enable/debug flag is disabled.
-
-Treat both as correctness fixes, not presentation redesign atoms. In particular:
-- do not change SPAM's non-evadable gameplay contract while fixing its event
-  transport;
-- do not hide the enemy-Evade bug in presentation; trace the authoritative
-  enable flag through policy/intent/execution and add regression coverage.
-
-The previously discussed SPAM projection visual redesign is separate from the
-SPAM runtime bug.
-
-## Cooldown semantics Evade must reuse
-
-Do not create a second cooldown model for Evade.
-
-Current commitment edges:
-
+Established weapon/defense commitment edges:
 - Beam Cannon: charge start.
 - Missile Launcher: physical missile launch after targeting.
 - SPAM Projector: channel start.
@@ -77,90 +66,36 @@ Current commitment edges:
 - Shield Generator: Power spend / Engineer deployment start.
 - Defense Turret: Power spend / Weapons loading start.
 
-The recent migration introduced independent recovery clocks because action
-phase and cooldown are no longer the same concept. Evade should follow that
-established rule.
+Action phase and cooldown are separate concepts. Do not reintroduce phase-based
+cooldown presentation.
 
-## Code-health notes for the Evade implementation
-
-### Avoid new runner callback chains
-
-The current encounter composition already has several runner-to-runner
-callbacks.
-
-Do not implement Evade resolution by adding a new callback maze such as
-combat runner -> Helm runner -> another runner.
-
-Physical hit resolvers should be able to ask authoritative encounter/player
-state whether the ship is currently Evading.
-
-### Player weapon dashboard transport
-
-A concrete cleanup candidate was identified:
-
-```text
-PlayerWeaponPresentationSnapshot
-    -> BridgePlayerWeaponStatusMapper
-    -> BridgePlayerWeaponStatusPayload
-    -> BridgePlayerShipDashboardMapper
-```
-
-The cooldown-presentation bug exposed that this intermediate semantic layer can
-go stale when engine timing changes.
-
-Do not refactor it before Evade. Revisit it after Evade and before/while doing
-the player/enemy dashboard redesign. Prefer deleting a transport step over
-adding another abstraction if the intermediate payload has no independent
-consumer.
-
-### Other watch points
+## Code-health watch points
 
 - `BridgeEncounterEngineEventHandler` is large but still linear/readable.
-  Split only if upcoming Evade/scan/status work gives it genuinely separate
-  reasons to change.
+  Split only if future scan/status/VFX work creates a genuinely cohesive
+  sub-handler.
 - `PlayerShipStore` is large but its ownership is still coherent. Do not split
-  it merely because of file size.
-- Do not unify weapon/turret cooldown helpers into a generic framework just
-  because their mechanics resemble each other.
+  it solely because of file size.
+- Do not unify weapon/turret/Evade cooldown helpers into a generic framework
+  merely because the mechanics resemble each other.
+- Sticky-mine lifecycle tests still mix tuning, sequencing, fuse and catch-up
+  expectations. Give them a dedicated test-hygiene pass later rather than
+  weakening them opportunistically.
 
-## Test notes
+## Near-term gameplay after the refactor
 
-The test-hygiene pass intentionally changed the test policy:
+The canonical order lives in `docs/COMBAT_PLAYTEST_ROADMAP.md`.
 
-- content/catalog tests should verify loading/schema/catalog invariants rather
-  than mirror every current balance number;
-- behavior/lifecycle tests should derive timing from real definitions/tuning
-  when the exact number is not the contract being tested;
-- command tests should select the command/state relevant to the behavior instead
-  of asserting unrelated full lists;
-- derived floating-point values should use tolerant comparison;
-- exhaustive command-role coverage remains intentionally strict.
-
-When `HELM_EVADE` is added, the exhaustive command-role test should fail until
-Evade is explicitly mapped to Helm. That failure is useful.
-
-Sticky-mine lifecycle tests still contain some intertwined tuning + sequencing
-expectations. Do not clean them opportunistically during Evade. Give them a
-separate test-hygiene atom later so salvo/fuse/catch-up behavior is not weakened
-by accident.
-
-## After Evade
-
-Near-term combat order remains canonical in
-`docs/COMBAT_PLAYTEST_ROADMAP.md`:
-
-1. Helm Evade.
-2. Enemy dashboard redesign.
-3. Player dashboard functional redesign.
-4. Science enemy scan.
-5. Beam Cannon semantic node targeting.
-6. Shared combat-effect model.
-7. Starter/basic gun experiment.
-8. Weapon hit-effects pass.
-9. EMP experiment.
-10. Second Helm combat command.
-
-Do not pull later roadmap systems into the Evade atom.
+Next steps:
+1. enemy dashboard redesign;
+2. player dashboard functional redesign;
+3. Science enemy scan;
+4. Beam Cannon semantic node targeting;
+5. shared combat-effect model;
+6. starter/basic gun experiment;
+7. weapon hit-effects pass;
+8. EMP experiment;
+9. second Helm combat command.
 
 ## Startup for the next chat
 
@@ -169,6 +104,6 @@ Follow `docs/WORKING_RULES.md`:
 1. Read this handoff.
 2. Read every Markdown document in `docs/`.
 3. Re-fetch current `master`.
-4. Inspect the actual source/tests touched by Evade before patching.
+4. Inspect the actual source/tests touched by the next atom before patching.
 
 The historical SHA above is context only.

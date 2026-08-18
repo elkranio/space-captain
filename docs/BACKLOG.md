@@ -1,6 +1,6 @@
 # Space Captain — Backlog
 
-Last refreshed: 2026-08-16.
+Last refreshed: 2026-08-18.
 
 This is an active backlog, not a history log.
 Completed implementation notes belong in the root `../CURRENT_HANDOFF.md` only
@@ -11,29 +11,19 @@ The canonical near-term combat feature order lives in
 
 ## P0 — combat correctness blockers
 
-The current blocking bugs are tracked in `KNOWN_COMBAT_BUGS.md`.
+No current P0 combat correctness blockers are recorded.
 
-Fix them before treating Helm Evade as a trustworthy completed playtest feature:
+If playtesting exposes a new correctness blocker, record it in
+`KNOWN_COMBAT_BUGS.md` and clear it before treating dependent playtest evidence
+as trustworthy.
 
-1. **SPAM runtime event failure**
-   - reproduce the exact failing SPAM event path;
-   - add the missing explicit engine -> app/bridge handling;
-   - add focused regression coverage;
-   - keep SPAM non-evadable and keep the visual redesign separate.
-
-2. **Enemy Evade ignores disabled enable/debug state**
-   - trace the flag from config/debug content through enemy policy/intent and
-     authoritative execution;
-   - disabled must mean the enemy cannot start Evade at all;
-   - add regression tests for disabled and enabled states;
-   - do not patch around it in the view.
-
-Helm Evade V0 itself is otherwise implemented end-to-end for player/enemy
-lifecycle and current missile/Beam/sticky-mine physical miss interactions.
+Helm Evade V0 is implemented end-to-end for player/enemy lifecycle and current
+missile/Beam/sticky-mine physical miss interactions.
 
 ## P1 — combat readability / build-space roadmap
 
-After Evade, follow `COMBAT_PLAYTEST_ROADMAP.md`:
+After the current cognitive-load refactor sprint, follow
+`COMBAT_PLAYTEST_ROADMAP.md`:
 
 1. enemy dashboard redesign;
 2. player dashboard functional redesign;
@@ -49,34 +39,12 @@ Do not duplicate the detailed contracts here.
 
 ## P1 — code-health cleanup
 
-### Simplify player-weapon dashboard transport
-
-Current path:
-
-```text
-PlayerWeaponPresentationSnapshot
-    -> BridgePlayerWeaponStatusMapper
-    -> BridgePlayerWeaponStatusPayload
-    -> BridgePlayerShipDashboardMapper
-```
-
-The independent-cooldown presentation bug showed that this intermediate
-transport can preserve stale phase semantics.
-
-Revisit after Evade and before/while redesigning the player/enemy dashboards.
-
-Preferred direction:
-- let the final dashboard mapper consume the nearest authoritative safe snapshot
-  possible;
-- remove an intermediate payload/mapper if it has no independent consumer;
-- do not replace it with a generic mapping framework.
-
 ### Combat event handler watch point
 
 `BridgeEncounterEngineEventHandler` is large but still linear.
 
-Split only when upcoming Evade/scan/status work creates a clear cohesive
-sub-handler such as combat VFX events. Do not create one class per event.
+Split only when upcoming scan/status work creates a clear cohesive sub-handler
+such as combat VFX events. Do not create one class per event.
 
 ### PlayerShipStore watch point
 
