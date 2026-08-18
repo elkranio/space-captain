@@ -27,8 +27,6 @@ type CombatRunnerOptions = {
 
     random: () => number;
 
-    interruptRandomOfficerTask: () => void;
-
     purgePlayerSpamChannel: (channelId: string, targetActorId: string) => boolean;
 
     destroyEnemyActor: (actorId: string) => void;
@@ -50,8 +48,6 @@ export default class CombatRunner {
     private readonly state: EncounterState;
 
     private readonly emit: (event: EncounterEvent) => void;
-
-    private readonly interruptRandomOfficerTask: () => void;
 
     private readonly destroyEnemyActor: CombatRunnerOptions["destroyEnemyActor"];
 
@@ -79,7 +75,6 @@ export default class CombatRunner {
 
         random,
 
-        interruptRandomOfficerTask,
         purgePlayerSpamChannel,
         destroyEnemyActor,
     }: CombatRunnerOptions) {
@@ -88,8 +83,6 @@ export default class CombatRunner {
         this.state = this.stateStore.getState();
 
         this.emit = emit;
-
-        this.interruptRandomOfficerTask = interruptRandomOfficerTask;
 
         this.destroyEnemyActor = destroyEnemyActor;
 
@@ -129,8 +122,6 @@ export default class CombatRunner {
             identities: this.identities,
 
             emit: this.emit,
-
-            interruptRandomOfficerTask: this.interruptRandomOfficerTask,
         });
 
         this.stickyMineRunner = new CombatStickyMineRunner({
@@ -139,8 +130,6 @@ export default class CombatRunner {
             identities: this.identities,
 
             emit: this.emit,
-
-            interruptRandomOfficerTask: this.interruptRandomOfficerTask,
 
             destroyEnemyActor: this.destroyEnemyActor,
         });
@@ -171,7 +160,7 @@ export default class CombatRunner {
         });
     }
 
-    public step(deltaMs: number): void {
+    public step(deltaMs: number, interruptRandomOfficerTask: () => void): void {
         // Existing shield/emitter time advances before new enemy work.
         // A field deployed later in this step starts at full duration.
         this.enemyShieldRunner.step(deltaMs);
@@ -180,10 +169,10 @@ export default class CombatRunner {
 
         this.integratePendingPlayerCombatObjects();
 
-        this.resolveExistingCombatObjects(existingCombatObjectIds, deltaMs);
+        this.resolveExistingCombatObjects(existingCombatObjectIds, deltaMs, interruptRandomOfficerTask);
 
         this.advanceEnemyBehavior(deltaMs);
-        this.advanceEnemyCombatSystems(deltaMs);
+        this.advanceEnemyCombatSystems(deltaMs, interruptRandomOfficerTask);
         this.finalizeEnemyCrewTasks();
     }
 
@@ -209,10 +198,18 @@ export default class CombatRunner {
         this.stickyMineRunner.integratePendingPlayerAttachments();
     }
 
-    private resolveExistingCombatObjects(existingIds: CombatStepExistingObjectIds, deltaMs: number): void {
+    private resolveExistingCombatObjects(
+        existingIds: CombatStepExistingObjectIds,
+        deltaMs: number,
+        interruptRandomOfficerTask: () => void,
+    ): void {
         this.missileRunner.advanceExistingProjectiles(existingIds.projectileIds, deltaMs);
 
-        this.stickyMineRunner.advanceExistingMines(existingIds.stickyMineIds, deltaMs);
+        this.stickyMineRunner.advanceExistingMines(
+            existingIds.stickyMineIds,
+            deltaMs,
+            interruptRandomOfficerTask,
+        );
     }
 
     private advanceEnemyBehavior(deltaMs: number): void {
@@ -254,7 +251,7 @@ export default class CombatRunner {
 
     // #region Enemy combat-system lifecycle
 
-    private advanceEnemyCombatSystems(deltaMs: number): void {
+    private advanceEnemyCombatSystems(deltaMs: number, interruptRandomOfficerTask: () => void): void {
         for (const actor of this.state.actors) {
             if (actor.hull <= 0) {
                 continue;
@@ -281,11 +278,23 @@ export default class CombatRunner {
                         break;
 
                     case SHIP_WEAPON_KIND.BEAM_CANNON:
-                        this.beamCannonRunner.advanceEnemyBeamCannon(actor, weapon, weaponDeltaMs, deltaMs);
+                        this.beamCannonRunner.advanceEnemyBeamCannon(
+                            actor,
+                            weapon,
+                            weaponDeltaMs,
+                            deltaMs,
+                            interruptRandomOfficerTask,
+                        );
                         break;
 
                     case SHIP_WEAPON_KIND.STICKY_MINE_DISPENSER:
-                        this.stickyMineRunner.advanceEnemyDispenser(actor, weapon, weaponDeltaMs, deltaMs);
+                        this.stickyMineRunner.advanceEnemyDispenser(
+                            actor,
+                            weapon,
+                            weaponDeltaMs,
+                            deltaMs,
+                            interruptRandomOfficerTask,
+                        );
                         break;
 
                     case SHIP_WEAPON_KIND.SPAM_PROJECTOR:

@@ -135,10 +135,6 @@ export default class EncounterEngine {
 
             random,
 
-            interruptRandomOfficerTask: () => {
-                this.officerTaskRunner.interruptRandomTaskByDamage();
-            },
-
             purgePlayerSpamChannel: (channelId, targetActorId) => {
                 return this.playerWeaponRunner.purgeSpamChannel(channelId, targetActorId);
             },
@@ -237,7 +233,9 @@ export default class EncounterEngine {
         // authoritative phase for this step.
         this.stepPlayerEvade(deltaMs);
 
-        this.combatRunner.step(deltaMs);
+        this.combatRunner.step(deltaMs, () => {
+            this.officerTaskRunner.interruptRandomTaskByDamage();
+        });
 
         this.officerTaskRunner.cancelTasksWithMissingTargets();
     }

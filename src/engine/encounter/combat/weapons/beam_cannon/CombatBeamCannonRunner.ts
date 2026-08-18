@@ -18,7 +18,6 @@ type CombatBeamCannonRunnerOptions = {
     stateStore: EncounterStateStore;
     identities: CombatRuntimeIdentityFactory;
     emit: (event: EncounterEvent) => void;
-    interruptRandomOfficerTask: () => void;
 };
 
 // Owns the complete incoming-beamCannon lifecycle: charging,
@@ -32,13 +31,10 @@ export default class CombatBeamCannonRunner {
 
     private readonly emit: (event: EncounterEvent) => void;
 
-    private readonly interruptRandomOfficerTask: () => void;
-
-    constructor({ stateStore, identities, emit, interruptRandomOfficerTask }: CombatBeamCannonRunnerOptions) {
+    constructor({ stateStore, identities, emit }: CombatBeamCannonRunnerOptions) {
         this.stateStore = stateStore;
         this.identities = identities;
         this.emit = emit;
-        this.interruptRandomOfficerTask = interruptRandomOfficerTask;
 
         this.state = this.stateStore.getState();
     }
@@ -48,6 +44,7 @@ export default class CombatBeamCannonRunner {
         beamCannon: BeamCannonState,
         deltaMs: number,
         worldDeltaMs: number,
+        interruptRandomOfficerTask: () => void,
     ): void {
         const definition = this.getDefinition(beamCannon);
 
@@ -62,7 +59,7 @@ export default class CombatBeamCannonRunner {
 
             case SHIP_WEAPON_PHASE.CHARGING:
                 this.ensureAttackStarted(actor, beamCannon);
-                this.advanceCharging(actor, beamCannon, deltaMs);
+                this.advanceCharging(actor, beamCannon, deltaMs, interruptRandomOfficerTask);
                 return;
 
             case SHIP_WEAPON_PHASE.COOLDOWN:
@@ -94,7 +91,12 @@ export default class CombatBeamCannonRunner {
         });
     }
 
-    private advanceCharging(actor: ShipEncounterActorState, beamCannon: BeamCannonState, deltaMs: number): void {
+    private advanceCharging(
+        actor: ShipEncounterActorState,
+        beamCannon: BeamCannonState,
+        deltaMs: number,
+        interruptRandomOfficerTask: () => void,
+    ): void {
         const definition = this.getDefinition(beamCannon);
 
         beamCannon.phaseElapsedMs += deltaMs;
@@ -103,7 +105,7 @@ export default class CombatBeamCannonRunner {
             return;
         }
 
-        this.fire(actor, beamCannon, definition);
+        this.fire(actor, beamCannon, definition, interruptRandomOfficerTask);
     }
 
     private createAttack(actor: ShipEncounterActorState, beamCannon: BeamCannonState): BeamCannonAttackState {
@@ -135,7 +137,12 @@ export default class CombatBeamCannonRunner {
         return attack;
     }
 
-    private fire(actor: ShipEncounterActorState, beamCannon: BeamCannonState, definition: BeamCannonDefinition): void {
+    private fire(
+        actor: ShipEncounterActorState,
+        beamCannon: BeamCannonState,
+        definition: BeamCannonDefinition,
+        interruptRandomOfficerTask: () => void,
+    ): void {
         const attackIndex = this.state.combat.beamCannonAttacks.findIndex((attack) => {
             return attack.sourceActorId === actor.id && attack.sourceWeaponId === beamCannon.id;
         });
@@ -208,7 +215,7 @@ export default class CombatBeamCannonRunner {
             ...damageResult,
         });
 
-        this.interruptRandomOfficerTask();
+        interruptRandomOfficerTask();
     }
 
     private getDefinition(beamCannon: BeamCannonState): BeamCannonDefinition {
