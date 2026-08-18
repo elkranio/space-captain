@@ -16,8 +16,6 @@ export default class BridgePlayerShipSystemsView {
 
     private readonly rowViews = new Map<string, BridgePlayerShipSystemRowView>();
 
-    private rowOrder: string[] = [];
-
     constructor(
         private readonly scene: BridgeScene,
         private readonly eventBus: BridgeEventBus,
@@ -73,7 +71,7 @@ export default class BridgePlayerShipSystemsView {
     private reconcileRows(weapons: BridgePlayerWeaponDashboardPayload[]): void {
         const nextOrder = weapons.map((weapon) => weapon.id);
 
-        if (isSameOrder(this.rowOrder, nextOrder)) {
+        if (isSameOrder([...this.rowViews.keys()], nextOrder)) {
             return;
         }
 
@@ -104,8 +102,6 @@ export default class BridgePlayerShipSystemsView {
             rowView.setPosition(0, rowHeight * index);
 
             this.rowViews.set(weapon.id, rowView);
-
-            this.rowOrder.push(weapon.id);
 
             this.root.add(rowView.getRoot());
         }
@@ -171,7 +167,6 @@ export default class BridgePlayerShipSystemsView {
         }
 
         this.rowViews.clear();
-        this.rowOrder = [];
     }
 }
 
