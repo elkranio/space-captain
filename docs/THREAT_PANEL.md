@@ -1,231 +1,154 @@
 # Space Captain — Threat Panel
 
-Updated: 2026-08-16.
-
-This document captures the current compact combat-threat UI direction.
-It is a design contract/reference, not a statement that the UI is already
-implemented.
+Design contract for the compact combat-threat UI. This does not imply that the
+final UI is already implemented.
 
 Reference composition image:
 
 ![Threat tile concept](images/threat_tile_reference.png)
 
-The image is a composition reference, not final art. In particular, the large
-text labels inside the urgency bar are expected to be removed or heavily
-reduced in the production version.
+The image explains composition only; production art/layout may change.
 
 ## Goal
 
-Persistent combat information should live on the captain dashboard rather than
-as labels, timers, brackets, or targeting frames floating over the viewscreen.
+Persistent combat information belongs on the captain dashboard rather than as
+labels, timers or targeting frames floating over the viewscreen.
 
-One concrete runtime threat should map to one compact fixed-footprint tile.
+One concrete runtime threat maps to one compact fixed-footprint tile.
 
 Target density:
-- roughly 4 tiles comfortable at once;
-- 5 should remain viable under pressure;
-- tiles should be compact enough to arrange several together without recreating
-  the previous spreadsheet-like dashboard;
-- target tile aspect is roughly 4:3 and should not become a panoramic strip.
+- roughly 4 tiles comfortable;
+- 5 still viable under pressure;
+- roughly 4:3 rather than a panoramic spreadsheet row.
 
-Do not aggregate away concrete threat identity merely to save space.
+Do not aggregate away concrete threat identity.
 
-## Base tile anatomy
+## Tile anatomy
 
-Current preferred hierarchy:
-
+Preferred hierarchy:
 1. threat-type icon;
 2. identity / Science knowledge;
 3. urgency timeline;
-4. available contextual commands;
-5. raw seconds as secondary precision.
+4. contextual actions;
+5. raw countdown as secondary precision.
 
-A useful composition is:
-
-- top: icon + signature/target label + small numeric time;
+A useful layout is:
+- top: icon + signature/target label + small time;
 - middle: urgency timeline;
-- bottom: compact contextual action buttons.
+- bottom: compact action buttons.
 
-The exact art/layout can change as long as this information hierarchy survives.
+## Missile identity
 
-## Missile identity / signature
+Every concrete missile/projectile gets one stable display signature.
 
-Every missile/projectile gets a display signature generated once for that
-concrete projectile.
+Presentation receives only safe observer/Science knowledge:
+- `?????` — UNKNOWN;
+- `ABC??` — UNCERTAIN;
+- `ABCDE` — CONFIRMED.
 
-The signature is a UI label, not a gameplay stat.
+Objective hidden missile truth remains engine-owned.
 
-Examples:
+## Missile actions
 
-- `?????` — UNKNOWN, red;
-- `ABC??` — UNCERTAIN, yellow;
-- `ABCDE` — CONFIRMED, green.
-
-Future option:
-the count/placement of `?` may communicate different confidence levels if
-that proves useful. Do not require this until the game actually needs more
-confidence granularity.
-
-Signature letters are generated once and stay stable for the projectile.
-They may occasionally create silly memorable labels such as `BOOBS`; that is
-acceptable and fits the game's tone.
-
-Objective hidden missile truth remains engine-owned. Presentation receives only
-safe observer/Science knowledge.
-
-## Missile commands
-
-Current conceptual action slots:
-
+Current conceptual slots:
 - `TRACK [S]` — Science;
 - `HIT [W]` — Weapons.
 
-TRACK behavior:
-- shown while signature knowledge is UNKNOWN;
-- still shown while knowledge is UNCERTAIN, allowing Science to track again;
-- hidden once knowledge is CONFIRMED.
+TRACK:
+- available for UNKNOWN;
+- may remain available for UNCERTAIN so Science can track again;
+- disappears once CONFIRMED.
 
-HIT remains the Weapons response while the missile is still interceptable.
+HIT is the Weapons response while interception is still possible.
 
-Do not recreate command legality in the view. Final button availability must
-come from engine/app command truth.
+The view must not recreate command legality. Button availability comes from
+engine/app command truth.
 
-## Beam Cannon identity
+## Beam Cannon threats
 
-The same tile grammar should work for Beam Cannon threats.
+Use the same tile grammar for Beam Cannon threats.
 
-Instead of a missile signature, the identity slot can show the predicted target
-code, for example:
-
-- `HULL`;
-- `BRDG`;
-- `DRIVE`;
-- other real semantic targets only when the domain supports them.
-
-Science confidence can use the same red / yellow / green knowledge language.
+The identity slot may show a real semantic target such as `HULL`, `BRDG`,
+`DRIVE` or another domain-supported target.
 
 Do not derive semantic target names from VFX coordinates.
 
 ## Urgency timeline
 
-Raw seconds are useful for precision but weak as the primary decision signal:
-the player should not need to memorize how long Science tracking or Weapons
-interception takes and mentally subtract those durations from every threat.
+The primary signal is the remaining **decision window**, not raw seconds.
 
-The timeline therefore visualizes **decision windows**.
+Threat progress moves left -> right toward impact/resolution.
 
-Threat progress moves left -> right.
-The far-right edge is impact/resolution.
+Three semantic windows:
 
-There are three semantic windows:
+### Safe — TRACK + HIT
 
-### 1. Safe — TRACK + HIT
+Enough time remains to complete the relevant Science tracking response and then
+the Weapons interception response.
 
-There is still enough time to perform the relevant Science tracking work and
-then complete the Weapons interception response before impact.
+### Caution — HIT ONLY
 
-### 2. Caution — HIT ONLY
+TRACK + HIT no longer fits, but direct interception still does.
 
-There is no longer enough time for TRACK + HIT, but there is still enough time
-to perform the direct Weapons interception response.
+### Too late
 
-This is the useful "stop researching and shoot" state.
+The normal interception response can no longer finish before impact.
 
-### 3. Too late
+Preferred presentation:
+- one compact horizontal bar;
+- visually distinct windows;
+- one clear moving marker;
+- clear impact endpoint;
+- small raw countdown nearby.
 
-There is no longer enough time to complete the interception response before
-impact.
+Do not fill the production bar with large explanatory labels unless onboarding
+proves they are necessary.
 
-The threat continues toward the impact edge, but the normal response window has
-closed.
+## Dynamic thresholds
 
-## Timeline presentation
-
-Preferred production direction:
-
-- one thin/compact horizontal bar;
-- three visually distinct zones;
-- one bright moving current-threat marker;
-- clear far-right impact endpoint;
-- raw seconds shown nearby as secondary information.
-
-The generated reference image includes large labels
-`TRACK+HIT / HIT ONLY / TOO LATE` inside the bar only to explain the concept.
-
-For the actual compact tile, first try removing those labels entirely and let
-zone color + marker position carry the meaning. If onboarding later proves that
-labels are needed, use much smaller/shorter treatment rather than filling the
-bar with text.
-
-The current marker must remain obvious when several tiles are visible at once,
-but avoid excessive glow/noise.
-
-## Dynamic thresholds — important
-
-The two timeline boundaries must come from real gameplay timings, not arbitrary
-fixed values such as "8 seconds" and "4 seconds".
+Timeline boundaries come from real gameplay timing, never arbitrary fixed
+seconds.
 
 Conceptually:
 
 ```text
 TRACK+HIT boundary
-    = remaining time required for the relevant tracking response
-      + remaining time required for the interception response
+    = remaining tracking time
+      + remaining interception time
 
 HIT-only boundary
-    = remaining time required for the interception response
+    = remaining interception time
 ```
 
-The authoritative implementation must use the real command/task timing model
-and any real modifiers that affect those actions.
+Officer occupancy, impairment, SPAM modifiers and future timing bonuses must be
+resolved from authoritative command/task timing. The view must not guess.
 
-The UI must not claim an action still fits when engine timing says it does not.
+## Multi-threat acceptance test
 
-Exactly how officer busy state, queued work, impairment, SPAM modifiers, or
-future bonuses alter the displayed windows should be decided when implementing
-the timeline against the actual command timing APIs rather than guessed in the
-view.
-
-## Numeric timer
-
-Keep a small raw countdown such as `12.6s`.
-
-It is secondary information:
-- timeline = fast decision;
-- number = precision/debug/comparison.
-
-Do not let the numeric timer become the primary threat-reading mechanic again.
-
-## Multi-threat readability test
-
-Do not judge this system from one isolated pretty tile.
-
-Before locking the presentation, test:
+Before locking the UI, test:
 - 4 simultaneous threats;
 - 5 simultaneous threats;
-- mixed missile + Beam Cannon threats;
+- mixed missile + Beam threats;
 - UNKNOWN / UNCERTAIN / CONFIRMED identities;
-- different timeline windows at once;
-- TRACK hidden on confirmed missile;
+- different urgency windows at once;
+- TRACK hidden when no longer relevant;
 - multiple actionable buttons without visual noise.
 
-The system succeeds only if the captain can scan several threats and quickly
-answer:
-
+The captain should be able to answer quickly:
 - what is it?
 - how well do we understand it?
 - how urgent is it?
-- what can I still do about it?
+- what can I still do?
 
-## Viewscreeen rule
+## Viewscreen rule
 
-The viewscreen should show the physical combat:
-ships, missiles, Beam/SPAM effects, shields, impacts, and short-lived VFX.
+The viewscreen shows physical combat: ships, missiles, Beam/SPAM effects,
+shields, impacts and short-lived VFX.
 
-Persistent tactical explanation belongs in threat tiles/dashboard UI.
+Persistent tactical explanation belongs in the dashboard.
 
 Do not reintroduce:
 - projectile countdown text on the viewscreen;
-- targeting frames around threats;
-- persistent floating threat IDs;
+- persistent targeting frames around threats;
+- floating threat IDs;
 - giant HP/telemetry overlays over space.

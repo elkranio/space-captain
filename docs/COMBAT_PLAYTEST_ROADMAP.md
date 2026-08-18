@@ -87,21 +87,7 @@ build × crew condition × enemy matchup × player decisions
 
 ## Near-term implementation order
 
-### 1. Helm Evade
-
-**Implementation status:** functionally implemented end-to-end and covered
-by focused regression tests for the combat-start debug gates.
-
-The implemented mechanic gives Helm an actual combat responsibility and puts
-Helm-time into the same combat resource economy as Science, Weapons and
-Engineer. Player and enemy use the same authoritative lifecycle, and the current
-miss interactions cover missile, Beam and new sticky-mine attachment resolution.
-
-SPAM remains non-evadable by contract.
-
-Do not invent Helm's second combat command at the same time.
-
-### 2. Enemy dashboard redesign
+### 1. Enemy dashboard redesign
 
 Treat enemy visibility as gameplay, not presentation polish.
 
@@ -117,7 +103,7 @@ The dashboard should make visible, when known:
 Threat presentation should follow the compact threat-tile direction already
 documented in `THREAT_PANEL.md`.
 
-### 3. Player dashboard functional redesign
+### 2. Player dashboard functional redesign
 
 This can remain visually provisional, but it should become easy to read before
 system damage and repair mechanics expand.
@@ -132,7 +118,7 @@ It should clearly communicate the player's own:
 
 The goal is functional combat readability, not final art.
 
-### 4. Science enemy scan
+### 3. Science enemy scan
 
 Science should be able to reveal useful combat knowledge about the enemy.
 
@@ -148,7 +134,7 @@ Possible information progression includes:
 The exact scan depth/progression can be tuned during implementation. The core
 contract is that Science creates knowledge that other roles can exploit.
 
-### 5. Beam Cannon semantic node targeting
+### 4. Beam Cannon semantic node targeting
 
 Science scan should unlock meaningful target choices for Weapons.
 
@@ -165,7 +151,7 @@ real gameplay consequences, for example:
 Do not build a large subsystem simulation before the first useful targeting
 loop works.
 
-### 6. Shared combat-effect model
+### 5. Shared combat-effect model
 
 Before adding several weapons with special hit behavior, establish a small
 explicit effect vocabulary.
@@ -186,7 +172,7 @@ system broken
 
 Stun and interruption must not be treated as the same thing.
 
-### 7. Starter gun experiment
+### 6. Starter gun experiment
 
 Add a simple free/basic weapon if testing confirms the current starter loadout
 needs a reliable baseline damage source.
@@ -201,7 +187,7 @@ Desired role:
 Its purpose is not to be exciting forever. Its purpose is to ensure the player
 can always begin a run with a comprehensible way to win an early fight.
 
-### 8. Weapon hit-effects pass
+### 7. Weapon hit-effects pass
 
 Revisit existing weapon outcomes and give them clean, explicit combat effects.
 This is expected to become one of the main sources of build diversity.
@@ -217,7 +203,7 @@ Candidate direction:
 Do not lock exact probabilities/effects in this roadmap. They must be tuned
 through playtests.
 
-### 9. EMP weapon experiment
+### 8. EMP weapon experiment
 
 Add EMP only after the common effect model exists.
 
@@ -228,11 +214,11 @@ Candidate behavior:
 This is explicitly experimental. Player information denial may feel tense or
 may simply feel annoying; keep it only if playtesting proves it useful.
 
-### 10. Second Helm combat command
+### 9. Second Helm combat command
 
 Do not invent this command merely to make every role symmetrical.
 
-By the time steps 1–9 exist, the real combat loop should reveal what Helm is
+By the time the preceding combat systems exist, the real combat loop should reveal what Helm is
 missing. Design the second command from an observed gameplay need.
 
 Possible families may include repositioning, breaking locks, protecting a ship
@@ -241,11 +227,7 @@ canonical yet.
 
 ## Gate A — Combat becomes readable
 
-Covers steps 1–5.
-
-No current combat correctness blocker is recorded in
-`KNOWN_COMBAT_BUGS.md`. If playtesting exposes a new blocker, clear it before
-using dependent Gate A results as trustworthy evidence.
+Covers steps 1–4.
 
 Before leaving this gate, the player should be able to quickly answer:
 - what is happening to us?
@@ -260,7 +242,7 @@ Do a short smoke playtest here. Do not attempt full early/mid/end balance yet.
 
 ## Gate B — Combat develops build space
 
-Covers steps 6–10.
+Covers steps 5–9.
 
 Before leaving this gate:
 - weapons should not differ only by damage numbers;

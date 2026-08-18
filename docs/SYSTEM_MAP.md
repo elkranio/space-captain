@@ -2,31 +2,25 @@
 
 Compact ownership map for fresh coding chats.
 
-Updated: 2026-08-16
-Reference HEAD: `928235b2993b6cf8d322a3543cac14047f6bd925`
-
 ## High-level layers
 
-### `src/engine/...`
+### `src/engine/**`
 
 Gameplay/domain/runtime truth.
 
 Owns:
-- run/universe state;
-- encounter state;
+- run/universe and encounter state;
 - navigation;
 - officer commands/tasks/availability;
 - enemy behavior;
 - combat actors/weapons/threats;
-- Power Core;
-- Shield Generator / Active Shield;
-- Defense Turret;
-- hidden missile truth + observer intel;
+- Power Core / Shield Generator / Active Shield / Defense Turret;
+- hidden missile truth and observer intel;
 - snapshots/events.
 
 No Phaser types belong in engine definitions.
 
-### `src/app/...`
+### `src/app/**`
 
 Application/presentation.
 
@@ -41,9 +35,9 @@ Owns:
 
 App must not recreate gameplay rules or read hidden missile truth.
 
-### `tools/content-editor/...`
+### `tools/content-editor/**`
 
-Local design/content tooling.
+Local content tooling.
 
 Owns:
 - content collection navigation/editing;
@@ -69,7 +63,7 @@ same JSON + schema metadata
 
 No second editor database.
 
-## Ship Weapon content
+### Ship Weapon content
 
 ```text
 missile_launchers.json
@@ -88,66 +82,30 @@ Rules:
 - four concrete editor families;
 - one unified runtime catalog;
 - IDs are open strings for editor-created records;
-- built-in constants remain stable aliases;
+- built-in ID constants are stable vocabulary;
 - cross-family duplicate IDs are rejected;
-- no standalone Missile or Sticky Mine content entity;
-- no shared Ship Weapon Rules collection.
+- no standalone Missile or Sticky Mine content entity.
 
-Missile Launcher owns `targetingDurationMs`.
+`debug_start.json` is mutable development content. Read it when a task depends
+on the current Debug Start instead of freezing its loadout into architecture
+docs or unrelated tests.
 
-## Debug Start
-
-`debug_start.json` is mutable development content.
-
-Do not freeze its current loadout into living architecture docs or unrelated tests.
-
-When a task depends on the actual current Debug Start, read the file.
-
-## Encounter composition
+## Encounter runtime
 
 `EncounterEngine` is the public facade/composition root.
 
 `EncounterState` is authoritative mutable encounter truth.
 
-`EncounterPresentationSnapshot` is the normal detached app-facing coherent frame root.
+`EncounterPresentationSnapshot` is the normal detached app-facing coherent
+frame root.
 
 Events answer **what just happened**.
 Snapshots answer **what is true now**.
 
-## CombatRunner
-
-`CombatRunner` owns top-level combat orchestration and delegates concrete mechanics.
-
-Physical lifecycle remains mechanic-specific:
-- Missile runner;
-- Beam Cannon runner;
-- Sticky Mine runner;
-- SPAM runner;
-- Defense Turret runner;
-- player weapon runners;
-- Power Core / Shield Generator runners.
-
-Do not unify runners merely because they share timing vocabulary.
-
-## Weapon phases — CURRENT
-
-Shared vocabulary:
-- READY
-- TARGETING
-- CHARGING
-- CHANNELING
-- DISPENSING
-- COOLDOWN
-
-Concrete use:
-- Missile -> TARGETING;
-- Beam -> CHARGING;
-- SPAM -> CHANNELING;
-- Mine -> DISPENSING.
-
-There is no universal shared 3000 ms targeting pre-phase.
-
-Missile targeting duration comes from the Missile Launcher definition.
+`CombatRunner` owns top-level combat orchestration and delegates concrete
+mechanics. Physical lifecycles remain mechanic-specific; do not force weapon,
+turret, shield or Evade timing into a generic framework merely because they have
+similar phases.
 
 ## Enemy behavior boundary
 
@@ -169,30 +127,19 @@ authoritative revalidation / resource commit / task or system start
 EnemyCrewTaskRunner + specialized physical runners
 ```
 
-### `EnemyDecisionPolicy`
+`EnemyDecisionPolicy` chooses what to attempt from detached decision facts.
 
-Chooses what to attempt from detached decision context.
-
-### `EnemyWorkExecutor`
-
-Authoritative physical command boundary.
-
-Owns:
+`EnemyWorkExecutor` is the authoritative physical command boundary:
 - revalidation;
 - resource commitment;
 - crew/system work start;
-- concrete weapon phase start;
-- `ENEMY_ATTACK_STARTED` emission after offensive work successfully starts.
+- concrete weapon/system start;
+- attack-start presentation event only after accepted offensive work starts.
 
-### `EnemyCrewTaskRunner`
+`EnemyCrewTaskRunner` owns enemy crew occupancy/lifecycle.
 
-Owns enemy crew occupancy/lifecycle.
-
-### Threat observer / Science boundary
-
-Owns perceived intel vs objective truth.
-
-Do not bypass it for AI convenience.
+Threat observation/Science owns perceived intel vs objective truth. Do not
+bypass that boundary for AI convenience.
 
 ## Missile epistemic boundary
 
@@ -211,11 +158,9 @@ safe presentation
 
 Objective signature stays engine-only.
 
-## Orphan physical threats
-
-Do not reconstruct hostility/actionability by looking up the current source actor.
-
-Once a hostile projectile exists and targets the player, source destruction does not erase it.
+Once a hostile physical threat exists, do not reconstruct its hostility or
+actionability by looking up the current source actor. Source destruction does
+not erase surviving projectiles/effects.
 
 ## Enemy destruction
 
@@ -229,79 +174,44 @@ App/presentation:
 - must not pause engine simulation;
 - must not own unrelated interaction locks.
 
-## Bridge root composition
+## Bridge
 
-Current `BridgeView` composes:
-- `BridgeSpaceView`;
-- `BridgeCombatView`;
-- `BridgeInteriorView`;
-- attack warning view;
-- officer station view;
-- captain dashboard;
-- officer barks;
-- legacy officer context menu.
+Current `BridgeView` composes the space/combat/interior layers, attack warning,
+officer stations, captain dashboard, officer barks and the legacy officer
+context menu.
 
-The bridge rebuild is now the current presentation baseline.
+Current station presentation:
+- the authored background owns the station consoles;
+- each officer is a whole seated sprite layered above it;
+- monitors are intentionally blank/dark;
+- invisible officer hit areas/context-menu coverage remain where needed;
+- old station-base sprites, monitor task UI, fake input pulses and side
+  availability lamps are not part of the current visual baseline.
 
-### Current station presentation
+See `BRIDGE_ART_DIRECTION.md` for visual rules.
 
-- the authored bridge background owns the station consoles;
-- each visible officer uses a whole seated sprite layered above the background;
-- station monitors are intentionally blank/dark for now;
-- old separate station-base sprites, monitor hints, fake input pulses, task
-  monitor UI, and side availability lamps are not part of the new visual
-  baseline;
-- invisible officer hit areas/context-menu coverage remain where needed.
+## Art/asset path
 
-See the root `../CURRENT_HANDOFF.md` for current implementation status and
-`BRIDGE_ART_DIRECTION.md` for durable visual direction.
+Raw authored images live under `assets/raw/images/**`.
+Packed/live atlas output lives under `assets/live/images/**`.
 
-## Bridge asset pipeline
-
-Raw authored images:
-`assets/raw/images/...`
-
-Packed/live atlas:
-`assets/live/images/atlas-0.png`
-`assets/live/images/atlas.json`
-
-After raw sprite changes:
-`npm run pack:tex`
-
-Current bridge raw areas:
-- `assets/raw/images/bridge/interior/`
-- `assets/raw/images/bridge/officers/`
-- `assets/raw/images/bridge/space/`
-- legacy `assets/raw/images/bridge/station/`
-- bridge UI/VFX subfolders.
-
-Do not delete legacy bridge assets until the new runtime composition is verified.
+The manifest layer maps semantic sprite IDs to atlas/frame keys. Views should
+consume manifest/presentation data rather than scatter atlas frame strings.
 
 ## Captain dashboard mapping
 
 Keep separate responsibilities:
-- player weapon status mapper;
-- player ship dashboard mapper;
-- captain combat-context mapper.
+- player weapon status mapping;
+- player ship dashboard mapping;
+- captain combat-context mapping.
 
 Duplicate same-kind weapons are keyed by concrete installed runtime weapon ID.
 
-Threat identity remains concrete; compact UI must not aggregate away runtime identity.
+Threat identity remains concrete; compact UI must not aggregate away runtime
+identity.
 
 ## Persistence
 
 Encounter -> persistent run write-back has one owner.
 
 Presentation snapshots/events are not a second persistent state.
-
-## Refactor policy
-
-Refactor only when concrete evidence exists:
-- duplicated rule;
-- unclear ownership;
-- context reconstruction;
-- callback spaghetti;
-- hostile signatures;
-- stale semantic layer actively obscuring behavior.
-
-File length alone is not evidence.

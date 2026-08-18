@@ -1,9 +1,6 @@
 # Space Captain — Gameplay Contracts
 
-Living gameplay invariants and selected near-term design contracts.
-
-Updated: 2026-08-15
-Reference HEAD: `449524c811cd14b8ec933f74565cb6c8241bfdd0`
+Living gameplay/domain invariants.
 
 If code and this file disagree, inspect current code first.
 
@@ -163,6 +160,41 @@ Bridge may use it for a short generic warning pulse.
 
 Concrete events such as missile launch, Beam attack start, SPAM channel start and mine attach remain authoritative presentation transitions for their own objects/effects.
 
+## Helm Evade
+
+Helm Evade is a shared authoritative player/enemy defensive lifecycle.
+
+```text
+READY
+  -> WARMUP
+  -> EVADING
+  -> COOLDOWN
+  -> READY
+```
+
+Rules:
+- command start commits Power Core cost and the full cooldown;
+- Helm is occupied for the maneuver;
+- cancellation/interruption never refunds committed Power/cooldown;
+- the main drive must be operational unless future content explicitly defines an exception;
+- protection is deterministic only while phase is `EVADING`;
+- the ship remains targetable; Evade is checked when the physical hit/attachment resolves;
+- missiles, Beam hits and new sticky-mine attachments are evadable;
+- SPAM and already-attached mines are not evadable;
+- Evade does not slow/block Science, Weapons or Engineer;
+- timing/cost values are drive/content-driven;
+- player and enemy use the same gameplay mechanic rather than separate dodge rules.
+
+Beam resolution order:
+
+```text
+EVADING -> MISS
+else Active Shield -> ABSORBED
+else -> HIT
+```
+
+An avoided attack does not consume a shield/defense that was never hit.
+
 ## Shared Power Core
 
 There is one shared defensive energy store.
@@ -173,7 +205,6 @@ Current BASIC contract:
 - Defense Turret and Shield Generator draw from the same pool;
 - committed energy is not refunded after later cancellation/interruption.
 
-Future break behavior remains separate work.
 
 ## Shield Generator / Active Shield
 
@@ -185,7 +216,6 @@ Current direction:
 - generator uses shared Power Core;
 - active shield is encounter-local;
 - active shield absorbs one Beam Cannon hit or expires;
-- break/repair lifecycle is incomplete.
 
 ## Defense Turret
 
@@ -253,9 +283,7 @@ Current combat contract:
 - Active Shield absorbs one Beam hit and is consumed;
 - Engineer shield deployment is the current defensive response.
 
-Future semantic targets may include hull/hardpoints/systems only after real domain target state exists.
-
-Do not derive semantic damage targets from VFX impact coordinates.
+Semantic damage targets must come from real domain state, never from VFX impact coordinates.
 
 ## Sticky mines
 
@@ -273,17 +301,9 @@ Every attached mine is an independent runtime `StickyMineState`.
 
 Do not aggregate mine identity for UI convenience.
 
-### Single Mine experiment
+### Mine clearing
 
-A `salvoSize = 1` variant is a valid experiment within the same weapon family.
-
-Do not create a new weapon kind/runner merely for a single-mine tuning variant.
-
-Current design question remains open:
-- one-command salvo pressure;
-- versus repeated deliberate one-mine commits.
-
-Current mine-clearing contract:
+Current contract:
 - player CLEAR MINE is Engineer-only;
 - enemy sticky-mine clearing is Engineer-only;
 - a busy, missing or otherwise unavailable Engineer does not fall back to Science, Helm or Weapons.
@@ -317,18 +337,3 @@ Ownership:
 - threat observation/Science intel remains separate from objective truth.
 
 Policy does not own full mutable `EncounterState`.
-
-## Bridge/officer presentation contract
-
-Officer head turns, barks, monitor decorations and bridge VFX are presentation.
-
-They must not become a second gameplay state machine.
-
-The current art plan uses three authored seated sprites per officer:
-- idle;
-- look left;
-- look right.
-
-The engine does not need to know how the pixels are assembled.
-
-Old monitor hint text, fake typing pulses and side availability lamps are selected for temporary removal during the new bridge rebuild. Removing those views must not remove engine command/task truth.

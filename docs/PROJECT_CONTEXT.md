@@ -1,10 +1,7 @@
 # Space Captain — Project Context
 
-Last refreshed: 2026-08-16.
-
-This file is intentionally short and durable.
-Current implementation status and the next working atom live in the
-root `../CURRENT_HANDOFF.md`.
+Short durable context. Current implementation status and the next active slice
+live in the root `../CURRENT_HANDOFF.md`.
 
 ## Product
 
@@ -13,8 +10,8 @@ first-person captain view and a 1990s Sierra / Space Quest VGA visual target.
 
 The player commands an unreliable delivery ship through officers rather than
 directly piloting every system. Combat is built around readable telegraphed
-threats, officer availability, counterplay, and intentionally limited ship
-resources rather than bullet-hell reflex play.
+threats, officer availability, counterplay and limited ship resources rather
+than bullet-hell reflex play.
 
 ## Repository
 
@@ -31,59 +28,37 @@ resources rather than bullet-hell reflex play.
 
 Keep Phaser/app types out of the engine.
 
-## Working principles
+Treat p34t/framework configuration as infrastructure. Do not clean or rewrite it
+opportunistically; touch it only when actual development requires the change.
 
-Prefer code that is easy to re-enter after a break:
+## Coding principles
+
+Optimize for low cognitive load and easy re-entry after a break.
 
 - thin Phaser scenes;
 - explicit engine APIs;
-- discriminated unions instead of ambiguous optional fields;
+- one authoritative gameplay fact / one mutation path;
+- discriminated unions for real state distinctions;
+- plain `string` IDs unless a type adds real protection;
+- early returns and explicit branching over clever dispatch;
+- no callback mazes or broad context bags when direct dependencies are clearer;
 - no architecture solely for architecture's sake;
-- no callback mazes or context rebuilt across distant layers;
-- centralize shared constants and starting data when it reduces cognitive load;
-- use plain `string` IDs unless a wrapper adds real domain value;
-- keep presentation effects in small presentation views rather than domain logic.
+- delete dead/obsolete layers before inventing replacements;
+- keep presentation effects in presentation code, not domain truth;
+- centralize shared constants/data only when it removes real duplication;
+- format for roughly 120 columns and do not vertically explode readable code.
 
-The refactor target is lower cognitive load, not maximum abstraction.
-
-## Validation
-
-For TypeScript/gameplay changes:
-
-```bash
-npm run typecheck
-npm test
-```
-
-After raw texture changes:
-
-```bash
-npm run pack:tex
-npm run typecheck
-npm test
-```
-
-Runtime smoke is still required after visual/gameplay work.
-
-Do not run `npm audit fix` as part of unrelated work.
-
-## Working rules
-
-Permanent collaboration, patch-delivery, cleanup, validation, and handoff rules
-live in [`WORKING_RULES.md`](./WORKING_RULES.md).
-
-Keep process rules there instead of duplicating them in this file or
-`../CURRENT_HANDOFF.md`.
+File length alone is not a refactor reason.
 
 ## Documentation map
 
-- `WORKING_RULES.md` — canonical collaboration/patch workflow.
+- `WORKING_RULES.md` — collaboration, patch delivery, validation and handoff workflow.
 - `GAMEPLAY_CONTRACTS.md` — gameplay/domain invariants.
-- `SYSTEM_MAP.md` — ownership/architecture map.
+- `SYSTEM_MAP.md` — current ownership/architecture map.
+- `COMBAT_PLAYTEST_ROADMAP.md` — canonical near-term combat sequence and playtest gates.
 - `BACKLOG.md` — active deferred work.
-- `BRIDGE_ART_DIRECTION.md` — bridge visual direction.
-- `THREAT_PANEL.md` — compact threat-tile and urgency-timeline design.
-- `../CURRENT_HANDOFF.md` — transient implementation state and next atom.
+- `BRIDGE_ART_DIRECTION.md` — durable bridge visual direction.
+- `THREAT_PANEL.md` — compact threat-tile interaction/timing contract.
+- `../CURRENT_HANDOFF.md` — transient current state and next active slice.
 
-Session startup/read order and handoff workflow are defined only in
-`WORKING_RULES.md`.
+Session startup/read order is defined only in `WORKING_RULES.md`.
