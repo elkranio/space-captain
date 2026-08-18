@@ -87,6 +87,7 @@ describe('ShipNodeActorFactory', () => {
                 decisionTickDurationMs: 1000,
                 decisionTickWiggleMs: 250,
                 threatTimingWiggleMs: 500,
+                disablePlayerDriveAtCombatStart: false,
                 aggression: 50,
             },
 
@@ -246,6 +247,7 @@ describe('ShipNodeActorFactory', () => {
                 decisionTickDurationMs: 1000,
                 decisionTickWiggleMs: 250,
                 threatTimingWiggleMs: 500,
+                disablePlayerDriveAtCombatStart: false,
                 aggression: 50,
             },
 

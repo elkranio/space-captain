@@ -180,7 +180,11 @@ export default class EncounterEngine {
             completeOfficerTask: this.officerTaskRunner.complete,
         });
 
-        this.combatEngagementRunner = new CombatEngagementRunner(this.stateStore);
+        this.combatEngagementRunner = new CombatEngagementRunner(
+            this.stateStore,
+            this.officerTaskRunner,
+            this.emit,
+        );
 
         this.officerCommandExecutor = new OfficerCommandExecutor({
             stateStore: this.stateStore,

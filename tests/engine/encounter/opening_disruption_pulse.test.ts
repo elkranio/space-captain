@@ -18,6 +18,9 @@ import {
     SHIP_DRIVE_STATUS,
 } from '../../../src/engine/defs/ship_drive';
 import EncounterEngine from '../../../src/engine/encounter/EncounterEngine';
+import {
+    ENCOUNTER_EVENT,
+} from '../../../src/engine/encounter/model/event';
 import ShipNodeActorFactory from '../../../src/engine/generation/space_node_actor/ShipNodeActorFactory';
 import {
     createPlayerHullFixture,
@@ -33,7 +36,7 @@ describe(
     'opening disruption pulse',
     () => {
         it(
-            'does not disable the player drive when initial hostile ships engage',
+            'does not disable the player drive when initial hostile behavior is disabled',
             () => {
                 const {
                     engine,
@@ -41,6 +44,7 @@ describe(
                     createEncounter(
                         ENCOUNTER_TEAM
                             .ENEMY,
+                        false,
                     );
 
                 engine.drainEvents();
@@ -64,7 +68,7 @@ describe(
         );
 
         it(
-            'does not disable the player drive when a ship becomes hostile',
+            'does not disable the player drive when newly hostile behavior is disabled',
             () => {
                 const {
                     engine,
@@ -73,6 +77,7 @@ describe(
                     createEncounter(
                         ENCOUNTER_TEAM
                             .NEUTRAL,
+                        false,
                     );
 
                 engine.drainEvents();
@@ -97,6 +102,100 @@ describe(
                 ).toEqual([]);
             },
         );
+
+        it(
+            'disables the player drive once when initial hostile behavior is enabled',
+            () => {
+                const {
+                    engine,
+                    actorId,
+                } =
+                    createEncounter(
+                        ENCOUNTER_TEAM
+                            .ENEMY,
+                        true,
+                    );
+
+                engine.drainEvents();
+
+                engine
+                    .engageHostileActors();
+
+                expect(
+                    engine
+                        .getDriveState()
+                        .status,
+                ).toBe(
+                    SHIP_DRIVE_STATUS
+                        .DISABLED,
+                );
+
+                expect(
+                    engine.drainEvents(),
+                ).toEqual([
+                    expect.objectContaining({
+                        type:
+                            ENCOUNTER_EVENT
+                                .PLAYER_SHIP_DRIVE_DISRUPTED,
+
+                        sourceActorId:
+                            actorId,
+                    }),
+                ]);
+
+                engine
+                    .engageHostileActors();
+
+                expect(
+                    engine.drainEvents(),
+                ).toEqual([]);
+            },
+        );
+
+        it(
+            'disables the player drive when enabled behavior becomes hostile',
+            () => {
+                const {
+                    engine,
+                    actorId,
+                } =
+                    createEncounter(
+                        ENCOUNTER_TEAM
+                            .NEUTRAL,
+                        true,
+                    );
+
+                engine.drainEvents();
+
+                engine.setActorTeam(
+                    actorId,
+                    ENCOUNTER_TEAM
+                        .ENEMY,
+                );
+
+                expect(
+                    engine
+                        .getDriveState()
+                        .status,
+                ).toBe(
+                    SHIP_DRIVE_STATUS
+                        .DISABLED,
+                );
+
+                expect(
+                    engine.drainEvents(),
+                ).toEqual([
+                    expect.objectContaining({
+                        type:
+                            ENCOUNTER_EVENT
+                                .PLAYER_SHIP_DRIVE_DISRUPTED,
+
+                        sourceActorId:
+                            actorId,
+                    }),
+                ]);
+            },
+        );
     },
 );
 
@@ -104,6 +203,8 @@ function createEncounter(
     team:
         typeof ENCOUNTER_TEAM.ENEMY |
         typeof ENCOUNTER_TEAM.NEUTRAL,
+    disablePlayerDriveAtCombatStart:
+        boolean,
 ): {
     engine: EncounterEngine;
     actorId: string;
@@ -129,6 +230,10 @@ function createEncounter(
 
     actor.team =
         team;
+
+    actor.behavior
+        .disablePlayerDriveAtCombatStart =
+        disablePlayerDriveAtCombatStart;
 
     actor.weapons = [];
 

@@ -88,6 +88,8 @@ export default class ShipNodeActorFactory {
 
                 threatTimingWiggleMs: behavior.threatTimingWiggleMs,
 
+                disablePlayerDriveAtCombatStart: behavior.disablePlayerDriveAtCombatStart,
+
                 aggression: behavior.aggression,
             },
 

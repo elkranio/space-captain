@@ -819,6 +819,7 @@ describe(
                     'decisionTickDurationMs',
                     'decisionTickWiggleMs',
                     'threatTimingWiggleMs',
+                    'disablePlayerDriveAtCombatStart',
                     'aggression',
                 ]);
 

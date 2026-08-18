@@ -53,6 +53,14 @@ export const SHIP_BEHAVIOR_TUNING_SCHEMA = z.strictObject({
                     ...DURATION_META,
                 }),
 
+            disablePlayerDriveAtCombatStart: z.boolean().meta({
+                title: "Disable Player Drive at Combat Start",
+
+                description:
+                    "When enabled, this enemy uses its one-shot opening disruption pulse " +
+                    "when it enters hostile combat.",
+            }),
+
             aggression: z
                 .number()
                 .int()
