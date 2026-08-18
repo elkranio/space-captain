@@ -24,6 +24,11 @@ type GetObjectPosition = (objectId: string) => Phaser.Math.Vector2 | undefined;
 
 type GetObjectVisualBounds = (objectId: string) => Phaser.Geom.Rectangle | undefined;
 
+type PlayerBeamCannonChargingState = {
+    weaponId: string;
+    view: BridgeBeamCannonChargeView;
+};
+
 // Temporary player weapon presentation.
 //
 // Baseline player beamCannon now fires at the visual center of the
@@ -42,9 +47,7 @@ export default class BridgePlayerBeamCannonView {
 
     private readonly impacts = new Set<BridgePlayerBeamCannonImpactView>();
 
-    private chargeView?: BridgeBeamCannonChargeView;
-
-    private chargingWeaponId?: string;
+    private charging?: PlayerBeamCannonChargingState;
 
     constructor(
         private readonly scene: BridgeScene,
@@ -115,7 +118,7 @@ export default class BridgePlayerBeamCannonView {
             this,
         );
 
-        this.chargeView?.destroy();
+        this.charging?.view.destroy();
 
         for (const beam of this.beams) {
             beam.destroy();
@@ -132,35 +135,35 @@ export default class BridgePlayerBeamCannonView {
 
         this.root.destroy(true);
 
-        this.chargeView = undefined;
-
-        this.chargingWeaponId = undefined;
+        this.charging = undefined;
     }
 
     private startCharging(payload: BridgePlayerBeamCannonChargingStartedPayload): void {
-        this.chargeView?.destroy();
+        this.charging?.view.destroy();
 
-        this.chargingWeaponId = payload.weaponId;
+        this.charging = {
+            weaponId: payload.weaponId,
 
-        this.chargeView = BridgeBeamCannonChargeView.create({
-            scene: this.scene,
+            view: BridgeBeamCannonChargeView.create({
+                scene: this.scene,
 
-            parent: this.root,
+                parent: this.root,
 
-            position: this.getSourcePosition(),
-        });
+                position: this.getSourcePosition(),
+            }),
+        };
     }
 
     private clearCharging(payload: BridgePlayerBeamCannonChargingClearedPayload): void {
-        if (this.chargingWeaponId !== payload.weaponId) {
+        const charging = this.charging;
+
+        if (!charging || charging.weaponId !== payload.weaponId) {
             return;
         }
 
-        this.chargeView?.destroy();
+        charging.view.destroy();
 
-        this.chargeView = undefined;
-
-        this.chargingWeaponId = undefined;
+        this.charging = undefined;
     }
 
     private fire(payload: BridgePlayerBeamCannonFiredPayload): void {
