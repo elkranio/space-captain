@@ -54,35 +54,29 @@ export default class BridgeCombatView {
 
     private vfxView?: BridgeVfxView;
 
-    constructor(
-        private readonly scene: BridgeScene,
-        private readonly eventBus: BridgeEventBus,
-        private readonly spaceView: BridgeSpaceView,
-    ) {}
-
-    public prepare(): void {
+    constructor(scene: BridgeScene, eventBus: BridgeEventBus, spaceView: BridgeSpaceView) {
         const getObjectPosition = (objectId: string) => {
-            return this.spaceView.getObjectPosition(objectId);
+            return spaceView.getObjectPosition(objectId);
         };
 
         const getObjectVisualBounds = (objectId: string) => {
-            return this.spaceView.getObjectVisualBounds(objectId);
+            return spaceView.getObjectVisualBounds(objectId);
         };
 
         const setObjectPresentationOffsetX = (objectId: string, offsetX: number) => {
-            return this.spaceView.setObjectPresentationOffsetX(objectId, offsetX);
+            return spaceView.setObjectPresentationOffsetX(objectId, offsetX);
         };
 
         this.incomingMissilesView = new BridgeIncomingMissilesView(
-            this.scene,
-            this.eventBus,
+            scene,
+            eventBus,
 
             getObjectPosition,
         );
 
         this.outgoingMissilesView = new BridgeOutgoingMissilesView(
-            this.scene,
-            this.eventBus,
+            scene,
+            eventBus,
 
             getObjectPosition,
 
@@ -90,8 +84,8 @@ export default class BridgeCombatView {
         );
 
         this.outgoingStickyMinesView = new BridgeOutgoingStickyMinesView(
-            this.scene,
-            this.eventBus,
+            scene,
+            eventBus,
 
             getObjectPosition,
 
@@ -99,36 +93,36 @@ export default class BridgeCombatView {
         );
 
         this.outgoingSpamView = new BridgeOutgoingSpamView(
-            this.scene,
-            this.eventBus,
+            scene,
+            eventBus,
 
             getObjectVisualBounds,
         );
 
         this.beamCannonThreatsView = new BridgeBeamCannonThreatsView(
-            this.scene,
-            this.eventBus,
+            scene,
+            eventBus,
 
             getObjectPosition,
         );
 
         this.beamCannonBeamsView = new BridgeBeamCannonBeamsView(
-            this.scene,
-            this.eventBus,
+            scene,
+            eventBus,
 
             getObjectPosition,
         );
 
         this.enemyShieldView = new BridgeEnemyShieldView(
-            this.scene,
-            this.eventBus,
+            scene,
+            eventBus,
 
             getObjectPosition,
         );
 
         this.enemyEvadeView = new BridgeEnemyEvadeView(
-            this.scene,
-            this.eventBus,
+            scene,
+            eventBus,
 
             getObjectVisualBounds,
 
@@ -136,37 +130,37 @@ export default class BridgeCombatView {
         );
 
         this.playerBeamCannonView = new BridgePlayerBeamCannonView(
-            this.scene,
-            this.eventBus,
+            scene,
+            eventBus,
 
             getObjectPosition,
 
             getObjectVisualBounds,
         );
 
-        this.playerShieldView = new BridgePlayerShieldView(this.scene, this.eventBus);
+        this.playerShieldView = new BridgePlayerShieldView(scene, eventBus);
 
         this.enemyShipDestructionView = new BridgeEnemyShipDestructionView(
-            this.scene,
-            this.eventBus,
+            scene,
+            eventBus,
 
             getObjectPosition,
         );
 
-        this.vfxView = new BridgeVfxView(this.scene, this.eventBus);
+        this.vfxView = new BridgeVfxView(scene, eventBus);
 
-        this.spamView = new BridgeSpamView(this.scene, this.eventBus);
+        this.spamView = new BridgeSpamView(scene, eventBus);
 
         this.stickyMinesView = new BridgeStickyMinesView(
-            this.scene,
-            this.eventBus,
+            scene,
+            eventBus,
 
             getObjectPosition,
         );
 
         // Created last so near-camera Evade dust remains above physical
         // world/combat VFX while still staying below projection/bridge/UI.
-        this.playerEvadeView = new BridgePlayerEvadeView(this.scene, this.eventBus);
+        this.playerEvadeView = new BridgePlayerEvadeView(scene, eventBus);
     }
 
     public destroy(): void {

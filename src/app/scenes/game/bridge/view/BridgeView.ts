@@ -31,15 +31,10 @@ export default class BridgeView {
 
     private officerContextMenuView?: BridgeOfficerContextMenuView;
 
-    constructor(
-        private readonly scene: BridgeScene,
-        private readonly eventBus: BridgeEventBus,
-    ) {}
-
-    public prepare(): void {
+    constructor(scene: BridgeScene, eventBus: BridgeEventBus) {
         const spaceView = new BridgeSpaceView(
-            this.scene,
-            this.eventBus,
+            scene,
+            eventBus,
 
             (offsetX) => {
                 this.combatView?.setCameraTurnOffsetX(offsetX);
@@ -48,23 +43,21 @@ export default class BridgeView {
 
         this.spaceView = spaceView;
 
-        this.combatView = new BridgeCombatView(this.scene, this.eventBus, spaceView);
+        this.combatView = new BridgeCombatView(scene, eventBus, spaceView);
 
-        this.combatView.prepare();
+        this.interiorView = new BridgeInteriorView(scene);
 
-        this.interiorView = new BridgeInteriorView(this.scene);
+        this.targetingWarningView = new BridgeTargetingWarningView(scene, eventBus);
 
-        this.targetingWarningView = new BridgeTargetingWarningView(this.scene, this.eventBus);
+        this.officerStationsView = new BridgeOfficerStationsView(scene, eventBus);
 
-        this.officerStationsView = new BridgeOfficerStationsView(this.scene, this.eventBus);
+        this.captainDashboardView = new BridgeCaptainDashboardView(scene, eventBus);
 
-        this.captainDashboardView = new BridgeCaptainDashboardView(this.scene, this.eventBus);
-
-        this.officerBarksView = new BridgeOfficerBarksView(this.scene, this.eventBus);
+        this.officerBarksView = new BridgeOfficerBarksView(scene, eventBus);
 
         // Officer station clicks still use the command-menu flow.
         // The context menu belongs directly to the active BridgeView lifecycle.
-        this.officerContextMenuView = new BridgeOfficerContextMenuView(this.scene, this.eventBus);
+        this.officerContextMenuView = new BridgeOfficerContextMenuView(scene, eventBus);
     }
 
     public destroy(): void {

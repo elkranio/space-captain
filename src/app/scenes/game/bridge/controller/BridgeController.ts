@@ -35,8 +35,6 @@ export default class BridgeController {
 
         this.view = new BridgeView(this.scene, this.eventBus);
 
-        this.view.prepare();
-
         this.encounterController = new BridgeEncounterController(this.eventBus);
 
         this.encounterController.prepare();
