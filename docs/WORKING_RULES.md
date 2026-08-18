@@ -17,6 +17,7 @@ instead of keeping their own copies of the same workflow.
 - `GAMEPLAY_CONTRACTS.md` — gameplay/domain invariants.
 - `SYSTEM_MAP.md` — ownership and architecture map.
 - `BACKLOG.md` — planned and deferred work.
+- `AI_ASSISTED_ENGINE_SIMPLIFICATION.md` — temporary active engineering audit/handoff; delete or merge it when the slice closes.
 - Art/UI documents — domain-specific visual contracts, not workflow rules.
 
 When a permanent workflow rule changes, update this file rather than copying
@@ -94,6 +95,28 @@ current concrete requirement.**
   file is preferable to several tiny files that make one behavior harder to
   trace.
 - Do not genericize similar weapon/turret/Evade lifecycles merely for symmetry.
+
+### Dependency communication
+
+For synchronous engine code, prefer the communication form that makes the real
+owner easiest to discover:
+
+- A stable known owner operation should normally be a direct owner method call,
+  not a callback wrapper around one method.
+- If a child synchronously reports completion to its single parent, prefer
+  returning a result over building a callback/event path.
+- Keep callbacks when callback semantics are real: listeners/events, lifecycle
+  hooks, injected RNG/test seams, or another concrete inversion boundary.
+- Do not introduce a global mutable service locator/runtime merely to shorten
+  signatures or hide object dependencies.
+- If direct owner references would create a real ownership cycle, prefer the
+  smallest explicit typed **synchronous** internal-effect boundary with one
+  obvious dispatcher. Do not turn that exception into a generic event bus,
+  command framework or queued outbox without a concrete need.
+- Preserve same-step ordering. Queue/flush semantics are not the default
+  replacement for synchronous calls.
+- Do not optimize for zero callbacks. Optimize for obvious ownership and low
+  context reconstruction.
 
 ### Comments and tests
 

@@ -55,6 +55,7 @@ File length alone is not a refactor reason.
 - `WORKING_RULES.md` — collaboration, patch delivery, validation and handoff workflow.
 - `GAMEPLAY_CONTRACTS.md` — gameplay/domain invariants.
 - `SYSTEM_MAP.md` — current ownership/architecture map.
+- `AI_ASSISTED_ENGINE_SIMPLIFICATION.md` — temporary active callback/dependency audit and atom plan.
 - `COMBAT_PLAYTEST_ROADMAP.md` — canonical near-term combat sequence and playtest gates.
 - `BACKLOG.md` — active deferred work.
 - `BRIDGE_ART_DIRECTION.md` — durable bridge visual direction.
