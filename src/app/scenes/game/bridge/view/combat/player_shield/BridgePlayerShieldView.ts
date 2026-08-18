@@ -24,9 +24,7 @@ import {
 export default class BridgePlayerShieldView {
     private readonly shield: Phaser.GameObjects.Image;
 
-    private absorbFadeElapsedMs = 0;
-
-    private isAbsorbFlashPlaying = false;
+    private absorbFadeElapsedMs?: number;
 
     constructor(
         private readonly scene: BridgeScene,
@@ -110,7 +108,7 @@ export default class BridgePlayerShieldView {
     private handleUpdated(payload: BridgePlayerShieldUpdatedPayload): void {
         // Engine has already consumed the shield on an absorbed hit.
         // The same-frame null snapshot must not cut off the hit flash.
-        if (this.isAbsorbFlashPlaying) {
+        if (this.absorbFadeElapsedMs !== undefined) {
             return;
         }
 
@@ -133,13 +131,15 @@ export default class BridgePlayerShieldView {
     }
 
     private handleSceneUpdate(_time: number, deltaMs: number): void {
-        if (!this.isAbsorbFlashPlaying) {
+        const absorbFadeElapsedMs = this.absorbFadeElapsedMs;
+
+        if (absorbFadeElapsedMs === undefined) {
             return;
         }
 
         this.absorbFadeElapsedMs = Math.min(
             BRIDGE_SHIELD_PRESENTATION.absorbFadeMs,
-            this.absorbFadeElapsedMs + deltaMs,
+            absorbFadeElapsedMs + deltaMs,
         );
 
         const alpha = getBridgeShieldAbsorbFadeAlpha(this.absorbFadeElapsedMs);
@@ -150,9 +150,7 @@ export default class BridgePlayerShieldView {
             return;
         }
 
-        this.isAbsorbFlashPlaying = false;
-
-        this.absorbFadeElapsedMs = 0;
+        this.absorbFadeElapsedMs = undefined;
 
         this.shield.setVisible(false).setAlpha(BRIDGE_SHIELD_PRESENTATION.baseAlpha);
     }
@@ -164,17 +162,13 @@ export default class BridgePlayerShieldView {
     }
 
     private startAbsorbFlash(): void {
-        this.isAbsorbFlashPlaying = true;
-
         this.absorbFadeElapsedMs = 0;
 
         this.shield.setVisible(true).setAlpha(1);
     }
 
     private cancelAbsorbFlash(): void {
-        this.isAbsorbFlashPlaying = false;
-
-        this.absorbFadeElapsedMs = 0;
+        this.absorbFadeElapsedMs = undefined;
     }
 
     private hideShield(): void {
