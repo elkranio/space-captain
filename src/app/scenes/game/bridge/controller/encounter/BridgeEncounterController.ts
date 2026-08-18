@@ -223,7 +223,7 @@ export default class BridgeEncounterController {
             completeTimedTasksImmediately: DEBUG_SETTINGS.bridge.officerTasks.completeTimedTasksImmediately,
         });
 
-        this.snapshotSynchronizer = new BridgeEncounterSnapshotSynchronizer(this.encounterEngine, this.eventBus);
+        this.snapshotSynchronizer = new BridgeEncounterSnapshotSynchronizer(this.eventBus);
 
         this.officerCommandMenuController = new BridgeOfficerCommandMenuController(this.encounterEngine, this.eventBus);
 

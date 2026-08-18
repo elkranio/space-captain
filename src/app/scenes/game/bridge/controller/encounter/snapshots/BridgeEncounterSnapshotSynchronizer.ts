@@ -1,5 +1,4 @@
 import { OFFICER_ROLE } from "../../../../../../../engine/defs/officer";
-import type EncounterEngine from "../../../../../../../engine/encounter/EncounterEngine";
 import type { EncounterPresentationSnapshot } from "../../../../../../../engine/encounter/snapshots/encounter_presentation_snapshot";
 import { BRIDGE_EVENT } from "../../../events/bridge_event";
 import type BridgeEventBus from "../../../events/BridgeEventBus";
@@ -13,16 +12,13 @@ import { mapPlayerShipToBridgeDashboardPayload } from "../../captain_dashboard/B
 // только переводит detached read-model в bridge presentation events.
 // Persistent RunState write-back живёт в BridgeEncounterPersistenceSynchronizer.
 //
-// Публичные no-arg методы сохранены для focused callers/tests.
 // Frame orchestration передаёт один и тот же snapshot в dashboard и combat
-// presentation, чтобы app не пересобирал один кадр несколькими getters.
+// presentation. Synchronizer сам не читает engine и не может случайно
+// собрать разные части одного кадра из разных snapshots.
 export default class BridgeEncounterSnapshotSynchronizer {
-    constructor(
-        private readonly encounterEngine: EncounterEngine,
-        private readonly eventBus: BridgeEventBus,
-    ) {}
+    constructor(private readonly eventBus: BridgeEventBus) {}
 
-    public syncInitial(snapshot = this.encounterEngine.getPresentationSnapshot()): void {
+    public syncInitial(snapshot: EncounterPresentationSnapshot): void {
         this.syncPlayerShipDashboard(snapshot);
         this.syncPlayerShield(snapshot);
         this.syncEnemyShields(snapshot);
@@ -31,7 +27,7 @@ export default class BridgeEncounterSnapshotSynchronizer {
         this.syncPlayerEvade(snapshot);
     }
 
-    public syncCombatPresentation(snapshot = this.encounterEngine.getPresentationSnapshot()): void {
+    public syncCombatPresentation(snapshot: EncounterPresentationSnapshot): void {
         this.syncIncomingMissiles(snapshot);
         this.syncOutgoingMissiles(snapshot);
         this.syncOutgoingStickyMines(snapshot);
@@ -44,7 +40,7 @@ export default class BridgeEncounterSnapshotSynchronizer {
         this.syncPlayerEvade(snapshot);
     }
 
-    public syncPlayerShipDashboard(snapshot = this.encounterEngine.getPresentationSnapshot()): void {
+    public syncPlayerShipDashboard(snapshot: EncounterPresentationSnapshot): void {
         const powerCore = snapshot.player.powerCore;
 
         if (!powerCore) {
@@ -186,7 +182,7 @@ export default class BridgeEncounterSnapshotSynchronizer {
         );
     }
 
-    public syncBeamCannonThreats(snapshot = this.encounterEngine.getPresentationSnapshot()): void {
+    public syncBeamCannonThreats(snapshot: EncounterPresentationSnapshot): void {
         this.eventBus.emit(
             BRIDGE_EVENT.BEAM_CANNON_THREATS_UPDATED,
 

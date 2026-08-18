@@ -10,16 +10,16 @@ import type BridgeEventBus from '../../src/app/scenes/game/bridge/events/BridgeE
 describe('BridgeEncounterSnapshotSynchronizer', () => {
     it('maps app-facing encounter snapshots in the stable frame order', () => {
         const encounterEngine = createEncounterEngine();
+        const snapshot = encounterEngine.getPresentationSnapshot();
 
         const emit = vi.fn();
         const synchronizer = new BridgeEncounterSnapshotSynchronizer(
-            encounterEngine,
             {
                 emit,
             } as unknown as BridgeEventBus,
         );
 
-        synchronizer.syncInitial();
+        synchronizer.syncInitial(snapshot);
 
         expect(emit.mock.calls).toEqual([
             [
@@ -220,7 +220,7 @@ describe('BridgeEncounterSnapshotSynchronizer', () => {
 
         emit.mockClear();
 
-        synchronizer.syncCombatPresentation();
+        synchronizer.syncCombatPresentation(snapshot);
 
         expect(emit.mock.calls).toEqual([
             [
