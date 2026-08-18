@@ -25,7 +25,7 @@ describe(
     'Bridge player weapon status mapper',
     () => {
         it(
-            'maps active spam projector channel time',
+            'maps committed cooldown while spam projector channel is active',
             () => {
                 const definition =
                     SHIP_WEAPONS[
@@ -98,15 +98,6 @@ describe(
                         phase:
                             SHIP_WEAPON_PHASE
                                 .CHANNELING,
-
-                        initialPhaseMs:
-                            definition
-                                .channelDurationMs,
-
-                        remainingPhaseMs:
-                            definition
-                                .channelDurationMs -
-                            elapsedMs,
 
                         initialCooldownMs:
                             definition

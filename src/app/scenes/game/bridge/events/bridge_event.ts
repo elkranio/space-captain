@@ -320,11 +320,6 @@ export type BridgePlayerWeaponStatusPayload = {
     kind: ShipWeaponKind;
     phase: ShipWeaponPhase;
 
-    // Full duration of the current timed action phase.
-    // Absent for READY.
-    initialPhaseMs?: number;
-    remainingPhaseMs?: number;
-
     // Independent committed cooldown timing.
     // May be present while the action phase is still active.
     initialCooldownMs?: number;

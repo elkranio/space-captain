@@ -153,11 +153,6 @@ describe(
                     );
                 targeting.phase =
                     SHIP_WEAPON_PHASE.TARGETING;
-                targeting.initialPhaseMs =
-                    3000;
-                targeting.remainingPhaseMs =
-                    1500;
-
                 const cooldown =
                     createMissileStatus(
                         'missile_launcher_player_01',
@@ -165,10 +160,6 @@ describe(
                     );
                 cooldown.phase =
                     SHIP_WEAPON_PHASE.COOLDOWN;
-                cooldown.initialPhaseMs =
-                    15000;
-                cooldown.remainingPhaseMs =
-                    10000;
                 cooldown.initialCooldownMs =
                     15000;
                 cooldown.remainingCooldownMs =
@@ -291,13 +282,6 @@ describe(
                                 phase:
                                     SHIP_WEAPON_PHASE
                                         .CHARGING,
-                                initialPhaseMs:
-                                    definition
-                                        .chargeDurationMs,
-                                remainingPhaseMs:
-                                    definition
-                                        .chargeDurationMs -
-                                    elapsedMs,
                                 initialCooldownMs:
                                     definition
                                         .cooldownDurationMs,

@@ -27,9 +27,6 @@ function mapWeaponStatus(snapshot: PlayerWeaponPresentationSnapshot): BridgePlay
         kind: weapon.kind,
 
         phase: weapon.phase,
-
-        ...mapPhaseTiming(snapshot),
-
         ...mapCooldownTiming(snapshot),
     };
 
@@ -57,27 +54,6 @@ function mapWeaponStatus(snapshot: PlayerWeaponPresentationSnapshot): BridgePlay
         }
     }
 }
-
-function mapPhaseTiming(
-    snapshot: PlayerWeaponPresentationSnapshot,
-): Pick<BridgePlayerWeaponStatusPayload, "initialPhaseMs" | "remainingPhaseMs"> {
-    const phaseDurationMs = snapshot.phaseDurationMs;
-
-    if (phaseDurationMs === undefined) {
-        return {};
-    }
-
-    return {
-        initialPhaseMs: phaseDurationMs,
-
-        remainingPhaseMs: Math.max(
-            0,
-
-            phaseDurationMs - snapshot.state.phaseElapsedMs,
-        ),
-    };
-}
-
 function mapCooldownTiming(
     snapshot: PlayerWeaponPresentationSnapshot,
 ): Pick<BridgePlayerWeaponStatusPayload, "initialCooldownMs" | "remainingCooldownMs"> {

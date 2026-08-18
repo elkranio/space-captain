@@ -137,7 +137,7 @@ describe('Bridge player weapon status mapper', () => {
         ]);
     });
 
-    it('maps phase timing and ammo per concrete installed weapon', () => {
+    it('maps cooldown timing and ammo per concrete installed weapon', () => {
         const beamCannon:
             ShipWeaponState = {
                 id:
@@ -199,17 +199,6 @@ describe('Bridge player weapon status mapper', () => {
                 phase:
                     SHIP_WEAPON_PHASE
                         .CHARGING,
-                initialPhaseMs:
-                    SHIP_WEAPONS[
-                        SHIP_WEAPON_ID
-                            .BEAM_CANNON_00
-                    ].chargeDurationMs,
-                remainingPhaseMs:
-                    SHIP_WEAPONS[
-                        SHIP_WEAPON_ID
-                            .BEAM_CANNON_00
-                    ].chargeDurationMs -
-                    1250,
                 initialCooldownMs:
                     SHIP_WEAPONS[
                         SHIP_WEAPON_ID
@@ -234,13 +223,6 @@ describe('Bridge player weapon status mapper', () => {
                 phase:
                     SHIP_WEAPON_PHASE
                         .COOLDOWN,
-                initialPhaseMs:
-                    MISSILE_DEFINITION
-                        .cooldownDurationMs,
-                remainingPhaseMs:
-                    MISSILE_DEFINITION
-                        .cooldownDurationMs -
-                    4000,
                 initialCooldownMs:
                     MISSILE_DEFINITION
                         .cooldownDurationMs,
