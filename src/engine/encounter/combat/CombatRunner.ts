@@ -41,13 +41,7 @@ type CombatRunnerOptions = {
 // Корабли, оружие и угрозы остаются частью EncounterState.
 // Статические параметры моделей оружия читаются из content.
 export default class CombatRunner {
-    private readonly stateStore: EncounterStateStore;
-
     private readonly state: EncounterState;
-
-    private readonly emit: (event: EncounterEvent) => void;
-
-    private readonly destroyEnemyActor: CombatRunnerOptions["destroyEnemyActor"];
 
     private readonly enemyBehaviorRunner: EnemyBehaviorRunner;
 
@@ -75,13 +69,7 @@ export default class CombatRunner {
 
         destroyEnemyActor,
     }: CombatRunnerOptions) {
-        this.stateStore = stateStore;
-
-        this.state = this.stateStore.getState();
-
-        this.emit = emit;
-
-        this.destroyEnemyActor = destroyEnemyActor;
+        this.state = stateStore.getState();
 
         this.identities = new CombatRuntimeIdentityFactory();
 
@@ -90,21 +78,21 @@ export default class CombatRunner {
         this.enemyShieldRunner = new EnemyShieldRunner(this.state);
 
         this.missileRunner = new CombatMissileRunner({
-            stateStore: this.stateStore,
+            stateStore,
 
             identities: this.identities,
 
             random,
 
-            emit: this.emit,
+            emit,
 
-            destroyEnemyActor: this.destroyEnemyActor,
+            destroyEnemyActor,
         });
 
         this.defenseTurretRunner = new EnemyDefenseTurretRunner({
             state: this.state,
 
-            emit: this.emit,
+            emit,
 
             random,
 
@@ -114,34 +102,34 @@ export default class CombatRunner {
         });
 
         this.beamCannonRunner = new CombatBeamCannonRunner({
-            stateStore: this.stateStore,
+            stateStore,
 
             identities: this.identities,
 
-            emit: this.emit,
+            emit,
         });
 
         this.stickyMineRunner = new CombatStickyMineRunner({
-            stateStore: this.stateStore,
+            stateStore,
 
             identities: this.identities,
 
-            emit: this.emit,
+            emit,
 
-            destroyEnemyActor: this.destroyEnemyActor,
+            destroyEnemyActor,
         });
 
         this.spamRunner = new CombatSpamRunner({
-            stateStore: this.stateStore,
+            stateStore,
 
             identities: this.identities,
 
-            emit: this.emit,
+            emit,
         });
 
         this.enemyBehaviorRunner = new EnemyBehaviorRunner({
             state: this.state,
-            emit: this.emit,
+            emit,
 
             clearPlayerStickyMine: (mineId, targetActorId) => {
                 return this.stickyMineRunner.clearPlayerMineFromActor(mineId, targetActorId);
