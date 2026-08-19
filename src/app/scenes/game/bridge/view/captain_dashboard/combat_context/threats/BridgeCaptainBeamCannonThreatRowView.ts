@@ -1,155 +1,103 @@
+// src/app/scenes/game/bridge/view/captain_dashboard/combat_context/threats/BridgeCaptainBeamCannonThreatRowView.ts
+import { BEAM_CANNON_TARGET_INTEL_STATUS } from "../../../../../../../../engine/encounter/model/combat";
+import { UI_COMBAT_SPRITE_ID, UI_COMBAT_SPRITES } from "../../../../../../../manifests/ui/combat";
 import { FONT_COLOR, FONT_FAMILY, FONT_SIZE } from "../../../../../../../theme/font";
 import type BridgeScene from "../../../../BridgeScene";
-import { CAPTAIN_DASHBOARD_STYLE } from "../../captain_dashboard_style";
-import { formatCaptainDashboardCountdown } from "../../captain_dashboard_format";
 import type {
     BridgeCaptainIncomingBeamCannonPayload,
     BridgeOfficerCommandSelectedPayload,
 } from "../../../../events/bridge_event";
+import { formatCaptainDashboardCountdown } from "../../captain_dashboard_format";
 
-const ROW = {
-    verticalGap: 1,
+const TILE = {
+    width: 163,
+    height: 66,
 
-    timerX: 10,
-    timerY: 9,
+    iconX: 9,
+    iconY: 8,
 
-    iconX: 78,
-    iconY: 4,
-    iconWidth: 42,
-    iconHeight: 27,
+    statusCenterX: 76,
+    statusY: 8,
 
-    labelX: 132,
-    labelY: 9,
+    timerX: 154,
+    timerY: 8,
 
-    buttonWidth: 92,
-    buttonHeight: 27,
-    buttonGap: 8,
-    buttonMarginRight: 6,
-    buttonY: 4,
+    buttonWidth: 75,
+    buttonY: 34,
+    scienceButtonX: 5,
+    engineerButtonX: 83,
+
+    roleOffsetX: 9,
+    roleOffsetY: 10,
+
+    labelRightInset: 10,
+    labelOffsetY: 14,
+
+    disabledAlpha: 0.35,
 } as const;
 
 type BeamCannonThreatRowCallbacks = {
+    onTrack: (command: BridgeOfficerCommandSelectedPayload) => void;
     onDeployShield: (command: BridgeOfficerCommandSelectedPayload) => void;
 };
 
-// Первый captain-dashboard beamCannon row.
-//
-// SCI slot пока намеренно disabled:
-// beamCannon ещё не нацелен на конкретные ship nodes.
-// Второй action slot принадлежит ENG и поднимает shield
-// через обычный resolved officer-command flow.
+type ActionButton = {
+    background: Phaser.GameObjects.Image;
+    roleGlyph: Phaser.GameObjects.Image;
+    label: Phaser.GameObjects.Text;
+};
+
+// Beam Cannon использует тот же production-like tile grammar, что и missile.
+// Objective target остаётся скрытым в engine; view рисует только player-observer intel.
 export default class BridgeCaptainBeamCannonThreatRowView {
     private readonly root: Phaser.GameObjects.Container;
 
     private readonly timerText: Phaser.GameObjects.BitmapText;
+    private readonly targetText: Phaser.GameObjects.BitmapText;
 
-    private readonly engineerButton: Phaser.GameObjects.Rectangle;
+    private readonly scienceAction: ActionButton;
+    private readonly engineerAction: ActionButton;
 
-    private readonly engineerLabel: Phaser.GameObjects.BitmapText;
-
+    private scienceCommand?: BridgeOfficerCommandSelectedPayload;
     private engineerCommand?: BridgeOfficerCommandSelectedPayload;
 
     constructor(
         private readonly scene: BridgeScene,
-
-        width: number,
-        height: number,
-
         private readonly callbacks: BeamCannonThreatRowCallbacks,
     ) {
         this.root = this.scene.add.container(0, 0);
 
-        const visibleHeight = Math.max(1, height - ROW.verticalGap);
+        const background = this.createSprite(UI_COMBAT_SPRITE_ID.THREAT_TILE_BG, 0, 0);
+        const beamCannonIcon = this.createSprite(UI_COMBAT_SPRITE_ID.THREAT_BEAM_CANNON, TILE.iconX, TILE.iconY);
 
-        const background = this.scene.add
-            .rectangle(
-                0,
-                0,
-
-                width,
-                visibleHeight,
-
-                CAPTAIN_DASHBOARD_STYLE.row.backgroundColor,
-                CAPTAIN_DASHBOARD_STYLE.row.backgroundAlpha,
-            )
-            .setOrigin(0, 0)
-            .setStrokeStyle(CAPTAIN_DASHBOARD_STYLE.row.borderThickness, CAPTAIN_DASHBOARD_STYLE.row.borderColor);
+        this.targetText = this.scene.add
+            .bitmapText(TILE.statusCenterX, TILE.statusY, FONT_FAMILY.VGA_8X14, "UNKNOWN", FONT_SIZE.PX_14)
+            .setOrigin(0.5, 0)
+            .setTint(FONT_COLOR.DANGER);
 
         this.timerText = this.scene.add
-            .bitmapText(
-                ROW.timerX,
-                ROW.timerY,
+            .bitmapText(TILE.timerX, TILE.timerY, FONT_FAMILY.VGA_8X14, "--.-s", FONT_SIZE.PX_14)
+            .setOrigin(1, 0)
+            .setTint(FONT_COLOR.WHITE);
 
-                FONT_FAMILY.VGA_8X14,
-                "--.-s",
-                FONT_SIZE.PX_16,
-            )
-            .setOrigin(0, 0)
-            .setTint(FONT_COLOR.ACTIVITY);
+        this.scienceAction = this.createActionButton(TILE.scienceButtonX, UI_COMBAT_SPRITE_ID.ROLE_S, "TRACK");
 
-        const iconBackground = this.scene.add
-            .rectangle(
-                ROW.iconX,
-                ROW.iconY,
+        this.engineerAction = this.createActionButton(TILE.engineerButtonX, UI_COMBAT_SPRITE_ID.ROLE_E, "SHIELD");
 
-                ROW.iconWidth,
-                ROW.iconHeight,
-
-                CAPTAIN_DASHBOARD_STYLE.row.iconBackgroundColor,
-                1,
-            )
-            .setOrigin(0, 0)
-            .setStrokeStyle(1, CAPTAIN_DASHBOARD_STYLE.row.iconBorderColor);
-
-        const iconLabel = this.scene.add
-            .bitmapText(
-                ROW.iconX + ROW.iconWidth / 2,
-
-                ROW.iconY + ROW.iconHeight / 2,
-
-                FONT_FAMILY.VGA_8X14,
-                "LSR",
-                FONT_SIZE.PX_14,
-            )
-            .setOrigin(0.5, 0.5)
-            .setTint(FONT_COLOR.SECONDARY);
-
-        const threatLabel = this.scene.add
-            .bitmapText(
-                ROW.labelX,
-                ROW.labelY,
-
-                FONT_FAMILY.VGA_8X14,
-                "BEAM_CANNON ATTACK",
-                FONT_SIZE.PX_16,
-            )
-            .setOrigin(0, 0)
-            .setTint(FONT_COLOR.PRIMARY);
-
-        const engineerX = width - ROW.buttonMarginRight - ROW.buttonWidth;
-
-        const scienceX = engineerX - ROW.buttonGap - ROW.buttonWidth;
-
-        const science = this.createDisabledButton(scienceX, "SCI");
-
-        const engineer = this.createDisabledButton(engineerX, "ENG");
-
-        this.engineerButton = engineer.background;
-
-        this.engineerLabel = engineer.label;
-
-        this.engineerButton.on("pointerdown", this.handleEngineerPointerDown, this);
+        this.scienceAction.background.on("pointerdown", this.handleSciencePointerDown, this);
+        this.engineerAction.background.on("pointerdown", this.handleEngineerPointerDown, this);
 
         this.root.add([
             background,
+            beamCannonIcon,
+            this.targetText,
             this.timerText,
-            iconBackground,
-            iconLabel,
-            threatLabel,
-            science.background,
-            science.label,
-            this.engineerButton,
-            this.engineerLabel,
+            this.scienceAction.background,
+            this.scienceAction.roleGlyph,
+            this.scienceAction.label,
+            this.engineerAction.background,
+            this.engineerAction.roleGlyph,
+            this.engineerAction.label,
         ]);
     }
 
@@ -164,40 +112,119 @@ export default class BridgeCaptainBeamCannonThreatRowView {
     public update(beamCannon: BridgeCaptainIncomingBeamCannonPayload): void {
         this.timerText.setText(formatCaptainDashboardCountdown(beamCannon.timeToFireMs));
 
+        this.updateTargetIntel(beamCannon.targetIntel);
+
+        if (beamCannon.targetIntel.status === BEAM_CANNON_TARGET_INTEL_STATUS.CONFIRMED) {
+            this.hideScienceAction();
+        } else {
+            this.setScienceAction(beamCannon.actions.trackTarget);
+        }
+
         this.setEngineerAction(beamCannon.actions.deployShield);
     }
 
     public destroy(): void {
-        this.engineerButton.off("pointerdown", this.handleEngineerPointerDown, this);
+        this.scienceAction.background.off("pointerdown", this.handleSciencePointerDown, this);
+        this.engineerAction.background.off("pointerdown", this.handleEngineerPointerDown, this);
 
+        this.scienceCommand = undefined;
         this.engineerCommand = undefined;
 
         this.root.destroy(true);
     }
 
+    private createSprite(spriteId: UiCombatSpriteId, x: number, y: number): Phaser.GameObjects.Image {
+        const sprite = UI_COMBAT_SPRITES[spriteId];
+
+        return this.scene.add.image(x, y, sprite.atlasKey, sprite.frameKey).setOrigin(0, 0);
+    }
+
+    private createActionButton(x: number, roleSpriteId: UiCombatSpriteId, labelText: string): ActionButton {
+        const background = this.createSprite(UI_COMBAT_SPRITE_ID.ACTION_BUTTON_BG, x, TILE.buttonY);
+
+        const roleGlyph = this.createSprite(roleSpriteId, x + TILE.roleOffsetX, TILE.buttonY + TILE.roleOffsetY);
+
+        const label = this.scene.add
+            .text(x + TILE.buttonWidth - TILE.labelRightInset, TILE.buttonY + TILE.labelOffsetY, labelText, {
+                fontFamily: "Anta",
+                fontSize: "10px",
+                color: "#ffffff",
+                resolution: 1,
+            })
+            .setOrigin(1, 0.5);
+
+        return {
+            background,
+            roleGlyph,
+            label,
+        };
+    }
+
+    private updateTargetIntel(targetIntel: BridgeCaptainIncomingBeamCannonPayload["targetIntel"]): void {
+        switch (targetIntel.status) {
+            case BEAM_CANNON_TARGET_INTEL_STATUS.UNKNOWN:
+                this.targetText.setText("UNKNOWN").setTint(FONT_COLOR.DANGER);
+                return;
+
+            case BEAM_CANNON_TARGET_INTEL_STATUS.UNCERTAIN:
+                this.targetText.setText(`${targetIntel.hypothesis.toUpperCase()}?`).setTint(FONT_COLOR.ACTIVITY);
+                return;
+
+            case BEAM_CANNON_TARGET_INTEL_STATUS.CONFIRMED:
+                this.targetText.setText(targetIntel.hypothesis.toUpperCase()).setTint(FONT_COLOR.SECONDARY);
+                return;
+        }
+    }
+
+    private setScienceAction(command: BridgeOfficerCommandSelectedPayload | undefined): void {
+        this.setActionVisible(this.scienceAction, true);
+
+        this.scienceCommand = command;
+        this.setActionEnabled(this.scienceAction, command !== undefined);
+    }
+
+    private hideScienceAction(): void {
+        this.scienceCommand = undefined;
+
+        this.scienceAction.background.disableInteractive();
+        this.setActionVisible(this.scienceAction, false);
+    }
+
     private setEngineerAction(command: BridgeOfficerCommandSelectedPayload | undefined): void {
-        this.engineerButton.disableInteractive();
+        this.setActionVisible(this.engineerAction, true);
 
         this.engineerCommand = command;
+        this.setActionEnabled(this.engineerAction, command !== undefined);
+    }
 
-        if (!command) {
-            this.engineerButton
-                .setFillStyle(CAPTAIN_DASHBOARD_STYLE.action.disabledBackgroundColor, 1)
-                .setStrokeStyle(1, CAPTAIN_DASHBOARD_STYLE.action.disabledBorderColor);
+    private setActionVisible(action: ActionButton, visible: boolean): void {
+        action.background.setVisible(visible);
+        action.roleGlyph.setVisible(visible);
+        action.label.setVisible(visible);
+    }
 
-            this.engineerLabel.setTint(CAPTAIN_DASHBOARD_STYLE.action.disabledTextColor);
+    private setActionEnabled(action: ActionButton, enabled: boolean): void {
+        action.background.disableInteractive();
 
+        if (enabled) {
+            action.background.setInteractive({
+                useHandCursor: true,
+            });
+        }
+
+        const alpha = enabled ? 1 : TILE.disabledAlpha;
+
+        action.background.setAlpha(alpha);
+        action.roleGlyph.setAlpha(alpha);
+        action.label.setAlpha(alpha);
+    }
+
+    private handleSciencePointerDown(): void {
+        if (!this.scienceCommand) {
             return;
         }
 
-        this.engineerButton
-            .setFillStyle(CAPTAIN_DASHBOARD_STYLE.action.activeBackgroundColor, 1)
-            .setStrokeStyle(1, CAPTAIN_DASHBOARD_STYLE.action.activeBorderColor)
-            .setInteractive({
-                useHandCursor: true,
-            });
-
-        this.engineerLabel.setTint(FONT_COLOR.WHITE);
+        this.callbacks.onTrack(this.scienceCommand);
     }
 
     private handleEngineerPointerDown(): void {
@@ -207,45 +234,6 @@ export default class BridgeCaptainBeamCannonThreatRowView {
 
         this.callbacks.onDeployShield(this.engineerCommand);
     }
-
-    private createDisabledButton(
-        x: number,
-        labelText: string,
-    ): {
-        background: Phaser.GameObjects.Rectangle;
-
-        label: Phaser.GameObjects.BitmapText;
-    } {
-        const background = this.scene.add
-            .rectangle(
-                x,
-                ROW.buttonY,
-
-                ROW.buttonWidth,
-                ROW.buttonHeight,
-
-                CAPTAIN_DASHBOARD_STYLE.action.disabledBackgroundColor,
-                1,
-            )
-            .setOrigin(0, 0)
-            .setStrokeStyle(1, CAPTAIN_DASHBOARD_STYLE.action.disabledBorderColor);
-
-        const label = this.scene.add
-            .bitmapText(
-                x + ROW.buttonWidth / 2,
-
-                ROW.buttonY + ROW.buttonHeight / 2,
-
-                FONT_FAMILY.VGA_8X14,
-                labelText,
-                FONT_SIZE.PX_16,
-            )
-            .setOrigin(0.5, 0.5)
-            .setTint(CAPTAIN_DASHBOARD_STYLE.action.disabledTextColor);
-
-        return {
-            background,
-            label,
-        };
-    }
 }
+
+type UiCombatSpriteId = (typeof UI_COMBAT_SPRITE_ID)[keyof typeof UI_COMBAT_SPRITE_ID];

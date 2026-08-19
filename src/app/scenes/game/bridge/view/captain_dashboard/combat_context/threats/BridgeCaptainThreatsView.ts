@@ -13,7 +13,7 @@ import BridgeCaptainMissileThreatRowView from "./BridgeCaptainMissileThreatRowVi
 import BridgeCaptainSpamThreatRowView from "./BridgeCaptainSpamThreatRowView";
 import BridgeCaptainStickyMineThreatRowView from "./BridgeCaptainStickyMineThreatRowView";
 
-const MISSILE_GRID = {
+const THREAT_TILE_GRID = {
     columns: 3,
     tileWidth: 163,
     tileHeight: 66,
@@ -23,8 +23,8 @@ const LEGACY_ROW_HEIGHT = 36;
 
 // Captain threat list.
 //
-// Missile уже использует production-like fixed tile 163x66 и раскладывается
-// слева направо по три плитки в ряд. Остальные threat types пока остаются legacy rows.
+// Missile и Beam Cannon используют production-like fixed tiles 163x66
+// и вместе заполняют общую сетку слева направо. Mine/Spam пока legacy rows.
 export default class BridgeCaptainThreatsView {
     private readonly root: Phaser.GameObjects.Container;
 
@@ -64,12 +64,9 @@ export default class BridgeCaptainThreatsView {
         spamChannels: BridgeCaptainSpamChannelPayload[],
     ): void {
         this.reconcileMissileRows(missiles);
+        this.reconcileBeamCannonRows(beamCannons, missiles.length);
 
-        const firstBeamCannonY = this.getMissileGridHeight(missiles.length);
-
-        this.reconcileBeamCannonRows(beamCannons, firstBeamCannonY);
-
-        const firstStickyMineY = firstBeamCannonY + beamCannons.length * LEGACY_ROW_HEIGHT;
+        const firstStickyMineY = this.getThreatTileGridHeight(missiles.length + beamCannons.length);
 
         this.reconcileStickyMineRows(stickyMines, firstStickyMineY);
 
@@ -109,30 +106,20 @@ export default class BridgeCaptainThreatsView {
 
         for (let index = 0; index < missiles.length; index += 1) {
             const missile = missiles[index];
-
             const rowView = this.missileRowViews[index];
 
             if (!missile || !rowView) {
                 continue;
             }
 
-            const column = index % MISSILE_GRID.columns;
-            const row = Math.floor(index / MISSILE_GRID.columns);
-            const tileGap = this.getMissileGridGap();
-
-            rowView.setPosition(
-                column * (MISSILE_GRID.tileWidth + tileGap),
-                row * (MISSILE_GRID.tileHeight + tileGap),
-            );
-
+            this.positionTile(rowView, index);
             rowView.update(missile);
         }
     }
 
     private reconcileBeamCannonRows(
         beamCannons: BridgeCaptainIncomingBeamCannonPayload[],
-
-        startY: number,
+        missileCount: number,
     ): void {
         while (this.beamCannonRowViews.length > beamCannons.length) {
             const rowView = this.beamCannonRowViews.pop();
@@ -141,17 +128,15 @@ export default class BridgeCaptainThreatsView {
         }
 
         while (this.beamCannonRowViews.length < beamCannons.length) {
-            const rowView = new BridgeCaptainBeamCannonThreatRowView(
-                this.scene,
-                this.width,
-                LEGACY_ROW_HEIGHT,
-
-                {
-                    onDeployShield: (command) => {
-                        this.emitCommand(command);
-                    },
+            const rowView = new BridgeCaptainBeamCannonThreatRowView(this.scene, {
+                onTrack: (command) => {
+                    this.emitCommand(command);
                 },
-            );
+
+                onDeployShield: (command) => {
+                    this.emitCommand(command);
+                },
+            });
 
             this.beamCannonRowViews.push(rowView);
 
@@ -160,15 +145,13 @@ export default class BridgeCaptainThreatsView {
 
         for (let index = 0; index < beamCannons.length; index += 1) {
             const beamCannon = beamCannons[index];
-
             const rowView = this.beamCannonRowViews[index];
 
             if (!beamCannon || !rowView) {
                 continue;
             }
 
-            rowView.setPosition(0, startY + index * LEGACY_ROW_HEIGHT);
-
+            this.positionTile(rowView, missileCount + index);
             rowView.update(beamCannon);
         }
     }
@@ -261,24 +244,37 @@ export default class BridgeCaptainThreatsView {
         }
     }
 
-    private getMissileGridHeight(missileCount: number): number {
-        if (missileCount === 0) {
+    private positionTile(
+        rowView: BridgeCaptainMissileThreatRowView | BridgeCaptainBeamCannonThreatRowView,
+        index: number,
+    ): void {
+        const column = index % THREAT_TILE_GRID.columns;
+        const row = Math.floor(index / THREAT_TILE_GRID.columns);
+        const tileGap = this.getThreatTileGridGap();
+
+        rowView.setPosition(
+            column * (THREAT_TILE_GRID.tileWidth + tileGap),
+            row * (THREAT_TILE_GRID.tileHeight + tileGap),
+        );
+    }
+
+    private getThreatTileGridHeight(threatCount: number): number {
+        if (threatCount === 0) {
             return 0;
         }
 
-        const rowCount = Math.ceil(missileCount / MISSILE_GRID.columns);
+        const rowCount = Math.ceil(threatCount / THREAT_TILE_GRID.columns);
+        const tileGap = this.getThreatTileGridGap();
 
-        const tileGap = this.getMissileGridGap();
-
-        return rowCount * MISSILE_GRID.tileHeight + (rowCount - 1) * tileGap;
+        return rowCount * THREAT_TILE_GRID.tileHeight + (rowCount - 1) * tileGap;
     }
 
-    private getMissileGridGap(): number {
+    private getThreatTileGridGap(): number {
         return Math.max(
             0,
             Math.floor(
-                (this.width - MISSILE_GRID.columns * MISSILE_GRID.tileWidth) /
-                    (MISSILE_GRID.columns - 1),
+                (this.width - THREAT_TILE_GRID.columns * THREAT_TILE_GRID.tileWidth) /
+                    (THREAT_TILE_GRID.columns - 1),
             ),
         );
     }
