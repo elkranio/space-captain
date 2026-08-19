@@ -16,7 +16,7 @@ const TILE = {
     iconX: 9,
     iconY: 8,
 
-    statusCenterX: 76,
+    statusCenterX: 81,
     statusY: 8,
 
     timerX: 154,
