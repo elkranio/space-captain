@@ -46,6 +46,8 @@ describe(
                     id:
                         SHIP_WEAPON_ID
                             .BEAM_CANNON_00,
+                    hullDamage: 1,
+                    moduleDamage: 1,
                     kind:
                         SHIP_WEAPON_KIND
                             .BEAM_CANNON,
@@ -111,7 +113,8 @@ describe(
                                 name:
                                     'FAST BEAM_CANNON',
 
-                                damage: 1,
+                                hullDamage: 1,
+                                moduleDamage: 1,
                                 chargeDurationMs:
                                     8000,
                                 cooldownDurationMs:

@@ -58,7 +58,13 @@ export const BEAM_CANNON_RECORD_SCHEMA = z
     .strictObject({
         name: WEAPON_NAME_SCHEMA,
 
-        damage: DAMAGE_SCHEMA,
+        hullDamage: z.number().int().nonnegative().meta({
+            title: "Hull damage",
+        }),
+
+        moduleDamage: z.number().int().nonnegative().meta({
+            title: "Module damage",
+        }),
 
         chargeDurationMs: z.number().int().nonnegative().meta({
             title: "Charge duration",

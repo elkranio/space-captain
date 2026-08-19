@@ -225,7 +225,7 @@ export default class CombatBeamCannonRunner {
             return;
         }
 
-        const damageResult = this.stateStore.damagePlayerHull(definition.damage);
+        const damageResult = this.stateStore.damagePlayerHull(definition.hullDamage);
 
         this.emit({
             type: ENCOUNTER_EVENT.BEAM_CANNON_FIRED,

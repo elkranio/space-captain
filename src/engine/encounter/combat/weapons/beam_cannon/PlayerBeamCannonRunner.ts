@@ -86,7 +86,7 @@ export default class PlayerBeamCannonRunner {
 
         // Impact resolves before the event so same-frame telemetry
         // already observes the consumed shield or damaged hull.
-        const impact = this.resolveImpact(task, definition.damage);
+        const impact = this.resolveImpact(task, definition.hullDamage);
 
         this.options.emit({
             type: ENCOUNTER_EVENT.PLAYER_BEAM_CANNON_FIRED,
@@ -107,7 +107,7 @@ export default class PlayerBeamCannonRunner {
         }
     }
 
-    private resolveImpact(task: WeaponsFireBeamCannonTaskState, damage: number): PlayerBeamCannonImpact {
+    private resolveImpact(task: WeaponsFireBeamCannonTaskState, hullDamage: number): PlayerBeamCannonImpact {
         const target = this.options.stateStore.findActorById(task.targetActorId);
 
         if (!target || target.team !== ENCOUNTER_TEAM.ENEMY) {
@@ -143,7 +143,7 @@ export default class PlayerBeamCannonRunner {
             };
         }
 
-        const damageResult = this.options.stateStore.damageEnemyActorHull(target.id, damage);
+        const damageResult = this.options.stateStore.damageEnemyActorHull(target.id, hullDamage);
 
         return {
             outcome: BEAM_CANNON_SHOT_OUTCOME.HIT,

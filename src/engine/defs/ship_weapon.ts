@@ -111,7 +111,8 @@ export type MissileLauncherDefinition = ShipWeaponDefinitionBase & {
 export type BeamCannonDefinition = ShipWeaponDefinitionBase & {
     kind: typeof SHIP_WEAPON_KIND.BEAM_CANNON;
 
-    damage: number;
+    hullDamage: number;
+    moduleDamage: number;
 
     chargeDurationMs: number;
 };

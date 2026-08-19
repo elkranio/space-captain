@@ -351,7 +351,7 @@ describe('CombatRunner', () => {
                 attack: firstAttack,
 
                 outcome: BEAM_CANNON_SHOT_OUTCOME.HIT,
-                appliedDamage: beamCannonDefinition.damage,
+                appliedDamage: beamCannonDefinition.hullDamage,
                 remainingHull: 2,
                 destroyed: false,
             },
