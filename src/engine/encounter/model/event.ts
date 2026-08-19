@@ -3,7 +3,7 @@
 import type { PlayerHullDamageResult } from "../../defs/player";
 import type { PlayerSpaceNavigationState } from "../../defs/player_location";
 import type { DefenseTurretShotOutcome } from "../../defs/defense_turret";
-import type { ShipDriveState } from "../../defs/ship_drive";
+import type { EncounterShipDriveState } from "./state";
 import type { EncounterAnchorState } from "../anchors/encounter_anchor";
 import type { JumpPointEncounterAnchorState } from "../anchors/jump_point/jump_point_encounter_anchor";
 import { BEAM_CANNON_SHOT_OUTCOME, PLAYER_MISSILE_OUTCOME, PLAYER_STICKY_MINE_OUTCOME } from "./combat";
@@ -215,7 +215,7 @@ export type PlayerShieldEndedEvent = {
 export type PlayerShipDriveStateChangedEvent = {
     type: typeof ENCOUNTER_EVENT.PLAYER_SHIP_DRIVE_STATE_CHANGED;
 
-    drive: ShipDriveState;
+    drive: EncounterShipDriveState;
 };
 
 export type PlayerShipDriveDisruptedEvent = {
@@ -223,7 +223,7 @@ export type PlayerShipDriveDisruptedEvent = {
 
     sourceActorId: string;
 
-    drive: ShipDriveState;
+    drive: EncounterShipDriveState;
     navigation: PlayerSpaceNavigationState;
 };
 

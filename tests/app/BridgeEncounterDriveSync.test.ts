@@ -52,6 +52,7 @@ describe('Bridge encounter drive sync', () => {
                     id: 'drive_player_00',
                     driveId:
                         SHIP_DRIVE_ID.BASIC_00,
+                    integrity: 2,
 
                     status:
                         SHIP_DRIVE_STATUS.ONLINE,
@@ -91,6 +92,7 @@ describe('Bridge encounter drive sync', () => {
                     id: 'drive_player_00',
                     driveId:
                         SHIP_DRIVE_ID.BASIC_00,
+                    integrity: 0,
 
                     status:
                         SHIP_DRIVE_STATUS.DISABLED,

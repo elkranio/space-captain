@@ -4,7 +4,6 @@ import type { PowerCoreState } from "../../defs/power_core";
 import type { OfficerRole } from "../../defs/officer";
 import type { PlayerHullState } from "../../defs/player";
 import type { PlayerSpaceNavigationState } from "../../defs/player_location";
-import type { ShipDriveState } from "../../defs/ship_drive";
 import type { ShipEvadeState } from "../../defs/ship_evade";
 import type { ShipWeaponState } from "../../defs/ship_weapon";
 import type { ShieldGeneratorState } from "../../defs/shield_generator";
@@ -23,7 +22,7 @@ import {
 } from "../model/combat";
 import type { OfficerAvailabilityStates } from "../model/officer_availability";
 import type { OfficerTaskState } from "../model/officer_task";
-import type { EncounterState } from "../model/state";
+import type { EncounterShipDriveState, EncounterState } from "../model/state";
 import { getOfficerAvailabilityStates } from "../officer_availability/queries/get_officer_availability_states";
 import { createDetachedSnapshot } from "./create_detached_snapshot";
 import { createCombatPresentationSnapshot, type CombatPresentationSnapshot } from "./combat_presentation_snapshot";
@@ -51,7 +50,7 @@ export default class EncounterSnapshotReader {
         return this.read((state) => state.navigation);
     }
 
-    public getDriveState(): ShipDriveState {
+    public getDriveState(): EncounterShipDriveState {
         return this.read((state) => state.drive);
     }
 

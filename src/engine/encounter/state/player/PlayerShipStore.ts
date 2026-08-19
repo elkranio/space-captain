@@ -10,7 +10,7 @@ import {
 } from "../../../defs/defense_turret";
 import { SHIP_WEAPONS } from "../../../content/catalogs/ship_weapons";
 import { SHIP_DRIVES } from "../../../content/catalogs/ship_drives";
-import { SHIP_DRIVE_STATUS, type ShipDriveState } from "../../../defs/ship_drive";
+import { SHIP_DRIVE_STATUS } from "../../../defs/ship_drive";
 import { advanceShipEvade, startShipEvade, stopShipEvade } from "../../../defs/ship_evade";
 import { SHIELD_GENERATORS } from "../../../content/catalogs/shield_generators";
 import { DEFENSE_TURRETS } from "../../../content/catalogs/defense_turrets";
@@ -37,7 +37,7 @@ import {
     type ActiveShieldState,
     type ThreatIdentificationResult,
 } from "../../model/combat";
-import type { EncounterState } from "../../model/state";
+import type { EncounterShipDriveState, EncounterState } from "../../model/state";
 import type { ResolvedMissileSignatureIntel } from "../../model/missile_signature_intel";
 
 // Owns player hull, drive and combat-system mutations.
@@ -66,13 +66,36 @@ export default class PlayerShipStore {
         };
     }
 
-    public disablePlayerDrive(): ShipDriveState | undefined {
+    public damagePlayerDrive(moduleDamage: number): EncounterShipDriveState {
+        if (!Number.isInteger(moduleDamage) || moduleDamage < 0) {
+            throw new Error("Invalid player drive module damage: " + String(moduleDamage));
+        }
+
+        const drive = this.state.drive;
+
+        if (drive.status !== SHIP_DRIVE_STATUS.ONLINE) {
+            throw new Error("Cannot damage player drive from status: " + drive.status);
+        }
+
+        drive.integrity = Math.max(0, drive.integrity - moduleDamage);
+
+        if (drive.integrity === 0) {
+            drive.status = SHIP_DRIVE_STATUS.DISABLED;
+        }
+
+        return {
+            ...drive,
+        };
+    }
+
+    public disablePlayerDrive(): EncounterShipDriveState | undefined {
         const drive = this.state.drive;
 
         if (drive.status === SHIP_DRIVE_STATUS.DISABLED) {
             return undefined;
         }
 
+        drive.integrity = 0;
         drive.status = SHIP_DRIVE_STATUS.DISABLED;
 
         return {
@@ -80,13 +103,14 @@ export default class PlayerShipStore {
         };
     }
 
-    public repairPlayerDrive(): ShipDriveState {
+    public repairPlayerDrive(): EncounterShipDriveState {
         const drive = this.state.drive;
 
         if (drive.status !== SHIP_DRIVE_STATUS.DISABLED) {
             throw new Error("Cannot repair player drive from status: " + drive.status);
         }
 
+        drive.integrity = SHIP_DRIVES[drive.driveId].maxIntegrity;
         drive.status = SHIP_DRIVE_STATUS.ONLINE;
 
         return {

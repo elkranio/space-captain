@@ -29,6 +29,7 @@ import {
 } from "./model/internal_effect";
 import type { OfficerAvailabilityStates } from "./model/officer_availability";
 import { OFFICER_TASK_KIND, type OfficerTaskKind, type OfficerTaskState } from "./model/officer_task";
+import type { EncounterShipDriveState } from "./model/state";
 import OfficerTaskRunner from "./officer_tasks/OfficerTaskRunner";
 import EncounterSnapshotReader from "./snapshots/EncounterSnapshotReader";
 import type { CombatPresentationSnapshot } from "./snapshots/combat_presentation_snapshot";
@@ -265,7 +266,7 @@ export default class EncounterEngine {
         return this.snapshotReader.getNavigationState();
     }
 
-    public getDriveState(): ShipDriveState {
+    public getDriveState(): EncounterShipDriveState {
         return this.snapshotReader.getDriveState();
     }
 

@@ -6,7 +6,6 @@ import { SHIP_WEAPONS } from "../../content/catalogs/ship_weapons";
 import type { PowerCoreState } from "../../defs/power_core";
 import { OFFICER_ROLE, type OfficerRole } from "../../defs/officer";
 import type { PlayerHullState } from "../../defs/player";
-import type { ShipDriveState } from "../../defs/ship_drive";
 import type { ShipEvadeState } from "../../defs/ship_evade";
 import { SHIP_WEAPON_KIND, SHIP_WEAPON_PHASE, type ShipWeaponState } from "../../defs/ship_weapon";
 import type { ShieldGeneratorState } from "../../defs/shield_generator";
@@ -31,7 +30,7 @@ import {
 } from "../model/combat";
 import type { OfficerAvailabilityStates } from "../model/officer_availability";
 import type { OfficerTaskState } from "../model/officer_task";
-import type { EncounterState } from "../model/state";
+import type { EncounterShipDriveState, EncounterState } from "../model/state";
 import type { MissileSignatureIntelStatus } from "../model/missile_signature_intel";
 import { getOfficerAvailabilityStates } from "../officer_availability/queries/get_officer_availability_states";
 
@@ -89,7 +88,7 @@ export type CombatPresentationSnapshot = {
     player: {
         hull: PlayerHullState;
 
-        drive: ShipDriveState;
+        drive: EncounterShipDriveState;
 
         evade: ShipEvadeState;
 

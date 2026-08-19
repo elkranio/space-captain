@@ -5,7 +5,7 @@ import type { PowerCoreState } from "../../defs/power_core";
 import type { ShipDefenseTurretState } from "../../defs/defense_turret";
 import type { PlayerHullState } from "../../defs/player";
 import type { PlayerSpaceNavigationState } from "../../defs/player_location";
-import type { ShipDriveState } from "../../defs/ship_drive";
+import { SHIP_DRIVE_STATUS, type ShipDriveState } from "../../defs/ship_drive";
 import { createReadyShipEvadeState } from "../../defs/ship_evade";
 import type { ShipWeaponState } from "../../defs/ship_weapon";
 import type { ShieldGeneratorState } from "../../defs/shield_generator";
@@ -56,7 +56,10 @@ export function createEncounterState({
 
         drive: {
             ...drive,
-            integrity: SHIP_DRIVES[drive.driveId].maxIntegrity,
+            integrity:
+                drive.status === SHIP_DRIVE_STATUS.DISABLED
+                    ? 0
+                    : SHIP_DRIVES[drive.driveId].maxIntegrity,
         },
 
         evade: createReadyShipEvadeState(),

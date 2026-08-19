@@ -224,6 +224,8 @@ describe(
                                 SHIP_DRIVE_ID
                                     .BASIC_00,
 
+                            integrity: 0,
+
                             status:
                                 SHIP_DRIVE_STATUS
                                     .DISABLED,

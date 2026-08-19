@@ -5,7 +5,6 @@ import type { OfficerRole } from "../../defs/officer";
 import type { PlayerHullDamageResult } from "../../defs/player";
 import type { PlayerSpaceNavigationState } from "../../defs/player_location";
 import type { DefenseTurretShotOutcome } from "../../defs/defense_turret";
-import type { ShipDriveState } from "../../defs/ship_drive";
 import type {
     BeamCannonState,
     MissileLauncherState,
@@ -19,7 +18,7 @@ import type { EncounterAnchorState } from "../anchors/encounter_anchor";
 import type { JumpPointEncounterAnchorState } from "../anchors/jump_point/jump_point_encounter_anchor";
 import type { ActiveShieldState, ThreatIdentificationResult } from "../model/combat";
 import type { OfficerTaskState } from "../model/officer_task";
-import type { EncounterState } from "../model/state";
+import type { EncounterShipDriveState, EncounterState } from "../model/state";
 import type { ResolvedMissileSignatureIntel } from "../model/missile_signature_intel";
 import EncounterActorStore, {
     type EnemyHullDamageResult,
@@ -127,11 +126,15 @@ export default class EncounterStateStore {
         return this.playerShip.damagePlayerHull(damage);
     }
 
-    public disablePlayerDrive(): ShipDriveState | undefined {
+    public damagePlayerDrive(moduleDamage: number): EncounterShipDriveState {
+        return this.playerShip.damagePlayerDrive(moduleDamage);
+    }
+
+    public disablePlayerDrive(): EncounterShipDriveState | undefined {
         return this.playerShip.disablePlayerDrive();
     }
 
-    public repairPlayerDrive(): ShipDriveState {
+    public repairPlayerDrive(): EncounterShipDriveState {
         return this.playerShip.repairPlayerDrive();
     }
 
