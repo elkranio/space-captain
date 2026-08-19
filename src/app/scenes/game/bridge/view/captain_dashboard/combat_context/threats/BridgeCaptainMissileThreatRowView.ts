@@ -39,6 +39,7 @@ const TILE = {
 type MissileThreatRowCallbacks = {
     onIdentify: (command: BridgeOfficerCommandSelectedPayload) => void;
     onIntercept: (command: BridgeOfficerCommandSelectedPayload) => void;
+    onCancelTask: (taskId: string) => void;
 };
 
 type ActionButton = {
@@ -62,6 +63,9 @@ export default class BridgeCaptainMissileThreatRowView {
 
     private scienceCommand?: BridgeOfficerCommandSelectedPayload;
     private weaponsCommand?: BridgeOfficerCommandSelectedPayload;
+
+    private scienceTaskId?: string;
+    private weaponsTaskId?: string;
 
     constructor(
         private readonly scene: BridgeScene,
@@ -116,13 +120,15 @@ export default class BridgeCaptainMissileThreatRowView {
 
         this.updateIdentification(missile.identificationStatus);
 
-        if (missile.identificationStatus === MISSILE_SIGNATURE_INTEL_STATUS.CONFIRMED) {
+        const identifyThreatTaskId = missile.activeTasks?.identifyThreatTaskId;
+
+        if (missile.identificationStatus === MISSILE_SIGNATURE_INTEL_STATUS.CONFIRMED && !identifyThreatTaskId) {
             this.hideScienceAction();
         } else {
-            this.setScienceAction(missile.actions.identifyThreat);
+            this.setScienceAction(missile.actions.identifyThreat, identifyThreatTaskId);
         }
 
-        this.setWeaponsAction(missile.actions.interceptMissile);
+        this.setWeaponsAction(missile.actions.interceptMissile, missile.activeTasks?.interceptMissileTaskId);
     }
 
     public destroy(): void {
@@ -131,6 +137,9 @@ export default class BridgeCaptainMissileThreatRowView {
 
         this.scienceCommand = undefined;
         this.weaponsCommand = undefined;
+
+        this.scienceTaskId = undefined;
+        this.weaponsTaskId = undefined;
 
         this.root.destroy(true);
     }
@@ -178,25 +187,34 @@ export default class BridgeCaptainMissileThreatRowView {
         }
     }
 
-    private setScienceAction(command: BridgeOfficerCommandSelectedPayload | undefined): void {
+    private setScienceAction(
+        command: BridgeOfficerCommandSelectedPayload | undefined,
+        taskId: string | undefined,
+    ): void {
         this.setActionVisible(this.scienceAction, true);
 
         this.scienceCommand = command;
-        this.setActionEnabled(this.scienceAction, command !== undefined);
+        this.scienceTaskId = taskId;
+        this.setActionState(this.scienceAction, command !== undefined, taskId !== undefined);
     }
 
     private hideScienceAction(): void {
         this.scienceCommand = undefined;
+        this.scienceTaskId = undefined;
 
         this.scienceAction.background.disableInteractive();
         this.setActionVisible(this.scienceAction, false);
     }
 
-    private setWeaponsAction(command: BridgeOfficerCommandSelectedPayload | undefined): void {
+    private setWeaponsAction(
+        command: BridgeOfficerCommandSelectedPayload | undefined,
+        taskId: string | undefined,
+    ): void {
         this.setActionVisible(this.weaponsAction, true);
 
         this.weaponsCommand = command;
-        this.setActionEnabled(this.weaponsAction, command !== undefined);
+        this.weaponsTaskId = taskId;
+        this.setActionState(this.weaponsAction, command !== undefined, taskId !== undefined);
     }
 
     private setActionVisible(action: ActionButton, visible: boolean): void {
@@ -205,16 +223,23 @@ export default class BridgeCaptainMissileThreatRowView {
         action.label.setVisible(visible);
     }
 
-    private setActionEnabled(action: ActionButton, enabled: boolean): void {
+    private setActionState(action: ActionButton, enabled: boolean, active: boolean): void {
         action.background.disableInteractive();
+        action.background.clearTint();
+        action.label.clearTint();
 
-        if (enabled) {
+        if (enabled || active) {
             action.background.setInteractive({
                 useHandCursor: true,
             });
         }
 
-        const alpha = enabled ? 1 : TILE.disabledAlpha;
+        if (active) {
+            action.background.setTint(FONT_COLOR.ACTIVITY);
+            action.label.setTint(FONT_COLOR.ACTIVITY);
+        }
+
+        const alpha = enabled || active ? 1 : TILE.disabledAlpha;
 
         action.background.setAlpha(alpha);
         action.roleGlyph.setAlpha(alpha);
@@ -222,6 +247,11 @@ export default class BridgeCaptainMissileThreatRowView {
     }
 
     private handleSciencePointerDown(): void {
+        if (this.scienceTaskId) {
+            this.callbacks.onCancelTask(this.scienceTaskId);
+            return;
+        }
+
         if (!this.scienceCommand) {
             return;
         }
@@ -230,6 +260,11 @@ export default class BridgeCaptainMissileThreatRowView {
     }
 
     private handleWeaponsPointerDown(): void {
+        if (this.weaponsTaskId) {
+            this.callbacks.onCancelTask(this.weaponsTaskId);
+            return;
+        }
+
         if (!this.weaponsCommand) {
             return;
         }

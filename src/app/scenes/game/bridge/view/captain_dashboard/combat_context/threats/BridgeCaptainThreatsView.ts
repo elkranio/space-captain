@@ -95,6 +95,10 @@ export default class BridgeCaptainThreatsView {
                 onIntercept: (command) => {
                     this.emitCommand(command);
                 },
+
+                onCancelTask: (taskId) => {
+                    this.emitTaskCancel(taskId);
+                },
             });
 
             this.missileRowViews.push(rowView);
@@ -264,6 +268,12 @@ export default class BridgeCaptainThreatsView {
 
             command,
         );
+    }
+
+    private emitTaskCancel(taskId: string): void {
+        this.eventBus.emit(BRIDGE_EVENT.OFFICER_TASK_CANCEL_REQUESTED, {
+            taskId,
+        });
     }
 
     private clearRows(): void {
