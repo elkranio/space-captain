@@ -199,6 +199,7 @@ describe('Engineer repair drive command', () => {
                 id: 'drive_player_00',
                 driveId:
                     SHIP_DRIVE_ID.BASIC_00,
+                integrity: 2,
                 status:
                     SHIP_DRIVE_STATUS.ONLINE,
             },

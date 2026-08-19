@@ -14,6 +14,10 @@ export const SHIP_DRIVE_RECORD_SCHEMA = z
             title: "Name",
         }),
 
+        maxIntegrity: POSITIVE_INTEGER_SCHEMA.meta({
+            title: "Max Integrity",
+        }),
+
         evadeWarmupMs: NON_NEGATIVE_INTEGER_SCHEMA.meta({
             title: "Evade Warmup",
 

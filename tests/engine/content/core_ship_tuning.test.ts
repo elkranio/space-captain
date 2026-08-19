@@ -68,6 +68,8 @@ describe(
 
                     name:
                         'BASIC DRIVE',
+
+                    maxIntegrity: 2,
                 });
 
                 expect(
@@ -134,6 +136,9 @@ describe(
                                 name:
                                     'BASIC DRIVE',
 
+                                maxIntegrity:
+                                    2,
+
                                 evadeWarmupMs:
                                     1000,
 
@@ -150,6 +155,9 @@ describe(
                             fast_00: {
                                 name:
                                     'FAST DRIVE',
+
+                                maxIntegrity:
+                                    2,
 
                                 evadeWarmupMs:
                                     500,
@@ -211,6 +219,9 @@ describe(
                                 name:
                                     'BASIC DRIVE',
 
+                                maxIntegrity:
+                                    2,
+
                                 evadeWarmupMs:
                                     1000,
 
@@ -232,6 +243,9 @@ describe(
                         .safeParse({
                             basic_00: {
                                 name: '',
+
+                                maxIntegrity:
+                                    2,
 
                                 evadeWarmupMs:
                                     1000,
@@ -255,6 +269,9 @@ describe(
                             basic_00: {
                                 name:
                                     'BASIC DRIVE',
+
+                                maxIntegrity:
+                                    2,
 
                                 evadeWarmupMs:
                                     -1,

@@ -10,6 +10,10 @@ import type { EncounterAnchorState } from "../anchors/encounter_anchor";
 import type { OfficerTaskStates } from "./officer_task";
 import type { EncounterCombatState } from "./combat";
 
+export type EncounterShipDriveState = ShipDriveState & {
+    integrity: number;
+};
+
 // Полный runtime snapshot текущего encounter.
 // Здесь хранится только доменное состояние, без Phaser/UI объектов.
 export type EncounterState = {
@@ -19,7 +23,7 @@ export type EncounterState = {
 
     navigation: PlayerSpaceNavigationState;
 
-    drive: ShipDriveState;
+    drive: EncounterShipDriveState;
 
     // Transient maneuver state belongs to the encounter,
     // not to the persistent installed drive snapshot.

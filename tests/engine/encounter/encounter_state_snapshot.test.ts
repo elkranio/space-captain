@@ -1,6 +1,7 @@
 // tests/engine/encounter/encounter_state_snapshot.test.ts
 
 import { createPlayerHullFixture } from '../../fixtures/engine/player_hull_fixtures';
+import { SHIP_DRIVES } from '../../../src/engine/content/catalogs/ship_drives';
 import { describe, expect, it } from 'vitest';
 import { PLAYER_SPACE_NAVIGATION_KIND } from '../../../src/engine/defs/player_location';
 import { SPACE_ANCHOR_KIND } from '../../../src/engine/defs/universe';
@@ -43,6 +44,8 @@ describe('encounter state snapshot', () => {
 
         expect(state.navigation).not.toBe(navigation);
         expect(state.drive).not.toBe(drive);
+        expect(state.drive.integrity).toBe(SHIP_DRIVES[drive.driveId].maxIntegrity);
+        expect(drive).not.toHaveProperty('integrity');
         expect(encounterAnchor.localPosition).not.toBe(persistentAnchor.localPosition);
         expect(encounterAnchor.station).not.toBe(persistentAnchor.station);
         expect(encounterAnchor.station.contact).not.toBe(persistentAnchor.station.contact);

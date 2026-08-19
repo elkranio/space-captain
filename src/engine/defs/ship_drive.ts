@@ -17,6 +17,8 @@ export type ShipDriveDefinition = {
     id: string;
     name: string;
 
+    maxIntegrity: number;
+
     evadeWarmupMs: number;
     evadeDurationMs: number;
     evadeCooldownMs: number;

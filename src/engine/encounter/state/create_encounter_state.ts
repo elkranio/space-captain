@@ -1,5 +1,6 @@
 // src/engine/encounter/state/create_encounter_state.ts
 
+import { SHIP_DRIVES } from "../../content/catalogs/ship_drives";
 import type { PowerCoreState } from "../../defs/power_core";
 import type { ShipDefenseTurretState } from "../../defs/defense_turret";
 import type { PlayerHullState } from "../../defs/player";
@@ -55,6 +56,7 @@ export function createEncounterState({
 
         drive: {
             ...drive,
+            integrity: SHIP_DRIVES[drive.driveId].maxIntegrity,
         },
 
         evade: createReadyShipEvadeState(),
