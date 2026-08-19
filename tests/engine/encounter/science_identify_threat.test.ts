@@ -21,6 +21,8 @@ import {
     OFFICER_COMMAND_TARGET_KIND,
 } from '../../../src/engine/encounter/model/command';
 import {
+    BEAM_CANNON_TARGET_INTEL_STATUS,
+    BEAM_CANNON_TARGET_NODE,
     COMBAT_THREAT_KIND,
     MISSILE_SIGNATURE_INTEL_STATUS,
 } from '../../../src/engine/encounter/model/combat';
@@ -365,13 +367,81 @@ describe('Science identify threat command', () => {
         ).toBeDefined();
     });
 
-    it('does not offer IDENTIFY THREAT for a beamCannon without identifiable intel', () => {
+    it('identifies an incoming beamCannon target node', () => {
         const { engine } =
             createBeamCannonEngine();
 
         engine.step(0);
 
         engine.drainEvents();
+
+        const identifyCommand =
+            engine
+                .getAvailableCommands(
+                    OFFICER_ROLE.SCIENCE,
+                )
+                .find((command) => {
+                    return (
+                        command.commandId ===
+                        ENCOUNTER_OFFICER_COMMAND_ID
+                            .SCIENCE_IDENTIFY_THREAT
+                    );
+                });
+
+        expect(
+            identifyCommand,
+        ).toEqual({
+            commandId:
+                ENCOUNTER_OFFICER_COMMAND_ID
+                    .SCIENCE_IDENTIFY_THREAT,
+
+            label:
+                'BEAM L1',
+
+            target: {
+                kind:
+                    OFFICER_COMMAND_TARGET_KIND
+                        .THREAT,
+
+                threatId:
+                    'beam_cannon_attack_1',
+            },
+
+            targetLabel:
+                'IDENTIFY THREAT',
+        });
+
+        if (!identifyCommand) {
+            throw new Error(
+                'Expected Beam IDENTIFY THREAT command',
+            );
+        }
+
+        engine.executeCommand({
+            role:
+                OFFICER_ROLE.SCIENCE,
+
+            commandId:
+                identifyCommand.commandId,
+
+            target:
+                identifyCommand.target,
+        });
+
+        expect(
+            engine
+                .getCombatPresentationSnapshot()
+                .beamCannonThreats[0]
+                ?.targetIntel,
+        ).toEqual({
+            status:
+                BEAM_CANNON_TARGET_INTEL_STATUS
+                    .CONFIRMED,
+
+            hypothesis:
+                BEAM_CANNON_TARGET_NODE
+                    .HULL,
+        });
 
         expect(
             engine
@@ -414,7 +484,10 @@ function createBeamCannonEngine() {
 
             anchorId: stationId,
         },
-        random: () => 0.5,
+
+        completeTimedTasksImmediately: true,
+
+        random: () => 0,
     });
 
     const [loadedEvent] = engine.drainEvents();

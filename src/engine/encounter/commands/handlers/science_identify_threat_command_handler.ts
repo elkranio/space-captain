@@ -1,7 +1,9 @@
 // src/engine/encounter/commands/handlers/science_identify_threat_command_handler.ts
 
 import { OFFICER_ROLE } from "../../../defs/officer";
+import { getBeamCannonThreatSnapshots } from "../../combat/queries/get_beam_cannon_threat_snapshots";
 import {
+    BEAM_CANNON_TARGET_INTEL_STATUS,
     COMBAT_SOURCE_KIND,
     COMBAT_TARGET_KIND,
     COMBAT_THREAT_KIND,
@@ -29,7 +31,7 @@ const COMMAND_DEF = {
 } satisfies OfficerCommandDef;
 
 type AvailableThreat = {
-    kind: typeof COMBAT_THREAT_KIND.MISSILE;
+    kind: typeof COMBAT_THREAT_KIND.MISSILE | typeof COMBAT_THREAT_KIND.BEAM_CANNON;
 
     id: string;
     designation: string;
@@ -98,9 +100,30 @@ function getAnalyzableEnemyThreats(state: EncounterState): AvailableThreat[] {
         });
     }
 
+    for (const snapshot of getBeamCannonThreatSnapshots(state)) {
+        if (snapshot.targetIntel.status === BEAM_CANNON_TARGET_INTEL_STATUS.CONFIRMED) {
+            continue;
+        }
+
+        threats.push({
+            kind: COMBAT_THREAT_KIND.BEAM_CANNON,
+
+            id: snapshot.attack.id,
+            designation: snapshot.attack.designation,
+
+            timeRemainingMs: snapshot.timeToFireMs,
+        });
+    }
+
     return threats;
 }
 
 function getThreatLabel(threat: AvailableThreat): string {
-    return "MISSILE " + threat.designation;
+    switch (threat.kind) {
+        case COMBAT_THREAT_KIND.MISSILE:
+            return "MISSILE " + threat.designation;
+
+        case COMBAT_THREAT_KIND.BEAM_CANNON:
+            return "BEAM " + threat.designation;
+    }
 }
