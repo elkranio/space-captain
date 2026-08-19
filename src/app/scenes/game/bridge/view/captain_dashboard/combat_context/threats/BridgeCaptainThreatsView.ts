@@ -13,14 +13,19 @@ import BridgeCaptainMissileThreatRowView from "./BridgeCaptainMissileThreatRowVi
 import BridgeCaptainSpamThreatRowView from "./BridgeCaptainSpamThreatRowView";
 import BridgeCaptainStickyMineThreatRowView from "./BridgeCaptainStickyMineThreatRowView";
 
-const MISSILE_TILE_HEIGHT = 66;
+const MISSILE_GRID = {
+    columns: 3,
+    tileWidth: 163,
+    tileHeight: 66,
+    rowGap: 4,
+} as const;
+
 const LEGACY_ROW_HEIGHT = 36;
 
 // Captain threat list.
 //
-// Missile уже использует production-like fixed tile 163x66.
-// Остальные threat types пока остаются legacy rows; следующий layout atom
-// переведёт общий контейнер на fixed 3x2 grid без изменения engine truth.
+// Missile уже использует production-like fixed tile 163x66 и раскладывается
+// слева направо по три плитки в ряд. Остальные threat types пока остаются legacy rows.
 export default class BridgeCaptainThreatsView {
     private readonly root: Phaser.GameObjects.Container;
 
@@ -61,7 +66,7 @@ export default class BridgeCaptainThreatsView {
     ): void {
         this.reconcileMissileRows(missiles);
 
-        const firstBeamCannonY = missiles.length * MISSILE_TILE_HEIGHT;
+        const firstBeamCannonY = this.getMissileGridHeight(missiles.length);
 
         this.reconcileBeamCannonRows(beamCannons, firstBeamCannonY);
 
@@ -112,7 +117,20 @@ export default class BridgeCaptainThreatsView {
                 continue;
             }
 
-            rowView.setPosition(0, index * MISSILE_TILE_HEIGHT);
+            const column = index % MISSILE_GRID.columns;
+            const row = Math.floor(index / MISSILE_GRID.columns);
+            const columnGap = Math.max(
+                0,
+                Math.floor(
+                    (this.width - MISSILE_GRID.columns * MISSILE_GRID.tileWidth) /
+                        (MISSILE_GRID.columns - 1),
+                ),
+            );
+
+            rowView.setPosition(
+                column * (MISSILE_GRID.tileWidth + columnGap),
+                row * (MISSILE_GRID.tileHeight + MISSILE_GRID.rowGap),
+            );
 
             rowView.update(missile);
         }
@@ -248,6 +266,16 @@ export default class BridgeCaptainThreatsView {
 
             rowView.update(channel);
         }
+    }
+
+    private getMissileGridHeight(missileCount: number): number {
+        if (missileCount === 0) {
+            return 0;
+        }
+
+        const rowCount = Math.ceil(missileCount / MISSILE_GRID.columns);
+
+        return rowCount * MISSILE_GRID.tileHeight + (rowCount - 1) * MISSILE_GRID.rowGap;
     }
 
     private emitCommand(command: BridgeOfficerCommandSelectedPayload): void {
