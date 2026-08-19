@@ -372,6 +372,7 @@ export type BridgePlayerShipDashboardUpdatedPayload = {
 
         drive: {
             status: ShipDriveStatus;
+            integrity: number;
         };
 
         evadeAction: {

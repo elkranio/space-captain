@@ -1,4 +1,3 @@
-import { SHIP_DRIVE_STATUS } from "../../../../../../../../engine/defs/ship_drive";
 import { FONT_COLOR, FONT_FAMILY, FONT_SIZE } from "../../../../../../../theme/font";
 import type BridgeScene from "../../../../BridgeScene";
 import { CAPTAIN_DASHBOARD_STYLE } from "../../captain_dashboard_style";
@@ -14,6 +13,13 @@ import type BridgeEventBus from "../../../../events/BridgeEventBus";
 const CELL = {
     textPaddingX: 10,
     textY: 8,
+} as const;
+
+const ENGINE_INTEGRITY = {
+    width: 7,
+    height: 10,
+    gap: 4,
+    y: 24,
 } as const;
 
 const BAR = {
@@ -48,7 +54,11 @@ export default class BridgePlayerShipStatusStripView {
 
     private readonly powerText: Phaser.GameObjects.BitmapText;
 
-    private readonly engineText: Phaser.GameObjects.BitmapText;
+    private readonly engineLabel: Phaser.GameObjects.BitmapText;
+
+    private readonly engineIntegrityLeft: Phaser.GameObjects.Rectangle;
+
+    private readonly engineIntegrityRight: Phaser.GameObjects.Rectangle;
 
     private readonly evadeButton: Phaser.GameObjects.Rectangle;
 
@@ -90,7 +100,33 @@ export default class BridgePlayerShipStatusStripView {
 
         this.powerText = this.createText(powerX + CELL.textPaddingX, "PWR --/--");
 
-        this.engineText = this.createText(engineX + CELL.textPaddingX, "ENGINE");
+        const engineContentX = engineX + CELL.textPaddingX;
+
+        this.engineLabel = this.createText(engineContentX, "ENGINE");
+
+        this.engineIntegrityLeft = this.scene.add
+            .rectangle(
+                engineContentX,
+                ENGINE_INTEGRITY.y,
+                ENGINE_INTEGRITY.width,
+                ENGINE_INTEGRITY.height,
+                FONT_COLOR.WHITE,
+                0,
+            )
+            .setOrigin(0, 0)
+            .setStrokeStyle(1, FONT_COLOR.WHITE);
+
+        this.engineIntegrityRight = this.scene.add
+            .rectangle(
+                engineContentX + ENGINE_INTEGRITY.width + ENGINE_INTEGRITY.gap,
+                ENGINE_INTEGRITY.y,
+                ENGINE_INTEGRITY.width,
+                ENGINE_INTEGRITY.height,
+                FONT_COLOR.WHITE,
+                0,
+            )
+            .setOrigin(0, 0)
+            .setStrokeStyle(1, FONT_COLOR.WHITE);
 
         const evadeButtonX = engineX + engineWidth - ACTION.marginRight - ACTION.width;
 
@@ -157,7 +193,9 @@ export default class BridgePlayerShipStatusStripView {
         this.root.add([
             this.hullText,
             this.powerText,
-            this.engineText,
+            this.engineLabel,
+            this.engineIntegrityLeft,
+            this.engineIntegrityRight,
             this.evadeButton,
             this.evadeLabel,
             this.powerTrack,
@@ -245,9 +283,10 @@ export default class BridgePlayerShipStatusStripView {
 
         this.powerText.setText("PWR " + status.powerCore.current + "/" + status.powerCore.max);
 
-        this.engineText
-            .setText("ENGINE")
-            .setTint(status.drive.status === SHIP_DRIVE_STATUS.DISABLED ? FONT_COLOR.DANGER : FONT_COLOR.WHITE);
+        this.engineLabel.setTint(status.drive.integrity === 0 ? FONT_COLOR.DANGER : FONT_COLOR.WHITE);
+
+        this.setEngineIntegrityPip(this.engineIntegrityLeft, status.drive.integrity >= 1);
+        this.setEngineIntegrityPip(this.engineIntegrityRight, status.drive.integrity >= 2);
 
         this.setEvadeAction(status.evadeAction.state, status.evadeAction.command);
 
@@ -260,6 +299,12 @@ export default class BridgePlayerShipStatusStripView {
         this.powerFill.setVisible(isRecharging);
 
         this.powerFill.setScale(isRecharging ? progress : 0, 1);
+    }
+
+    private setEngineIntegrityPip(pip: Phaser.GameObjects.Rectangle, filled: boolean): void {
+        pip
+            .setFillStyle(FONT_COLOR.WHITE, filled ? 1 : 0)
+            .setStrokeStyle(1, FONT_COLOR.WHITE);
     }
 
     private setEvadeAction(

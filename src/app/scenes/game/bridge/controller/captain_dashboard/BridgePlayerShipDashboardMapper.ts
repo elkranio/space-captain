@@ -4,7 +4,7 @@ import type {
 } from "../../../../../../engine/encounter/snapshots/combat_presentation_snapshot";
 import { OFFICER_ROLE, type OfficerRole } from "../../../../../../engine/defs/officer";
 import type { PlayerHullState } from "../../../../../../engine/defs/player";
-import type { ShipDriveState } from "../../../../../../engine/defs/ship_drive";
+import type { EncounterShipDriveState } from "../../../../../../engine/encounter/model/state";
 import {
     SHIP_WEAPON_KIND,
     SHIP_WEAPON_PHASE,
@@ -50,7 +50,7 @@ type PlayerShipDashboardMapperInput = {
     playerStatus?: {
         hull: PlayerHullState;
 
-        drive: ShipDriveState;
+        drive: EncounterShipDriveState;
 
         powerCore: PowerCorePresentationSnapshot;
     };
@@ -108,6 +108,7 @@ function mapStatus(
 
         drive: {
             status: input.drive.status,
+            integrity: input.drive.integrity,
         },
 
         evadeAction: mapEvadeAction(dashboardInput),

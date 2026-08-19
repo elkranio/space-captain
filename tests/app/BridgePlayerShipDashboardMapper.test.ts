@@ -528,6 +528,9 @@ describe(
 
                                 status:
                                     'online',
+
+                                integrity:
+                                    1,
                             },
 
                             powerCore: {
@@ -562,6 +565,9 @@ describe(
                     drive: {
                         status:
                             'online',
+
+                        integrity:
+                            1,
                     },
 
                     evadeAction: {

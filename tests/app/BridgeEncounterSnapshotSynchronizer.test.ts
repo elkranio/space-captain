@@ -43,6 +43,9 @@ describe('BridgeEncounterSnapshotSynchronizer', () => {
                         drive: {
                             status:
                                 'online',
+
+                            integrity:
+                                2,
                         },
 
                         evadeAction: {
@@ -473,6 +476,9 @@ function createEncounterEngine(): EncounterEngine {
 
                             status:
                                 'online',
+
+                            integrity:
+                                2,
                         },
 
                         evade: {
