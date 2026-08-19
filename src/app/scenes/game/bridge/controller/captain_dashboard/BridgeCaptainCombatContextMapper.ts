@@ -12,6 +12,7 @@ import {
     type EncounterOfficerCommandId,
 } from "../../../../../../engine/encounter/model/command";
 import type { SpamChannelState } from "../../../../../../engine/encounter/model/combat";
+import type { OfficerTaskState } from "../../../../../../engine/encounter/model/officer_task";
 import type {
     BridgeCaptainCombatContextUpdatedPayload,
     BridgeOfficerCommandSelectedPayload,
@@ -27,6 +28,8 @@ type CaptainCombatContextMapperInput = {
     stickyMineSnapshots: StickyMineSnapshot[];
 
     spamChannels: SpamChannelState[];
+
+    officerTasks?: OfficerTaskState[];
 
     availableScienceCommands: AvailableOfficerCommand[];
 
@@ -91,6 +94,24 @@ export function mapCaptainCombatContextToBridgePayload(
                     label: "defense-turret intercept",
                 });
 
+                const identifyThreatTaskId = (input.officerTasks ?? []).find((task) => {
+                    return (
+                        task.canBeCancelledByPlayer &&
+                        task.sourceCommandId === ENCOUNTER_OFFICER_COMMAND_ID.SCIENCE_IDENTIFY_THREAT &&
+                        "threatId" in task &&
+                        task.threatId === missile.id
+                    );
+                })?.id;
+
+                const interceptMissileTaskId = (input.officerTasks ?? []).find((task) => {
+                    return (
+                        task.canBeCancelledByPlayer &&
+                        task.sourceCommandId === ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_INTERCEPT_MISSILE &&
+                        "threatId" in task &&
+                        task.threatId === missile.id
+                    );
+                })?.id;
+
                 return {
                     projectileId: missile.id,
 
@@ -115,6 +136,24 @@ export function mapCaptainCombatContextToBridgePayload(
                               }
                             : {}),
                     },
+
+                    ...(identifyThreatTaskId || interceptMissileTaskId
+                        ? {
+                              activeTasks: {
+                                  ...(identifyThreatTaskId
+                                      ? {
+                                            identifyThreatTaskId,
+                                        }
+                                      : {}),
+
+                                  ...(interceptMissileTaskId
+                                      ? {
+                                            interceptMissileTaskId,
+                                        }
+                                      : {}),
+                              },
+                          }
+                        : {}),
                 };
             }),
 

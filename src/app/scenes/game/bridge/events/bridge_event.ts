@@ -407,6 +407,11 @@ export type BridgeCaptainIncomingMissilePayload = {
 
         interceptMissile?: BridgeOfficerCommandSelectedPayload;
     };
+
+    activeTasks?: {
+        identifyThreatTaskId?: string;
+        interceptMissileTaskId?: string;
+    };
 };
 
 export type BridgeCaptainIncomingBeamCannonPayload = {
