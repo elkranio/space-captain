@@ -197,16 +197,36 @@ export function mapCaptainCombatContextToBridgePayload(
                 return left.timeToFireMs - right.timeToFireMs;
             })
             .map((snapshot) => {
+                const trackTarget = findThreatCommand({
+                    commands: input.availableScienceCommands,
+
+                    commandId: ENCOUNTER_OFFICER_COMMAND_ID.SCIENCE_IDENTIFY_THREAT,
+
+                    threatId: snapshot.attack.id,
+
+                    role: OFFICER_ROLE.SCIENCE,
+
+                    label: "beam target tracking",
+                });
+
                 return {
                     attackId: snapshot.attack.id,
 
                     designation: snapshot.attack.designation,
+
+                    targetIntel: snapshot.targetIntel,
 
                     timeToFireMs: snapshot.timeToFireMs,
 
                     initialTimeToFireMs: snapshot.initialTimeToFireMs,
 
                     actions: {
+                        ...(trackTarget
+                            ? {
+                                  trackTarget,
+                              }
+                            : {}),
+
                         ...(deployShield
                             ? {
                                   deployShield,

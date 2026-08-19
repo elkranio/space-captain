@@ -425,6 +425,11 @@ describe(
                             designation:
                                 'L1',
 
+                            targetIntel: {
+                                status:
+                                    'unknown',
+                            },
+
                             timeToFireMs:
                                 700,
 
