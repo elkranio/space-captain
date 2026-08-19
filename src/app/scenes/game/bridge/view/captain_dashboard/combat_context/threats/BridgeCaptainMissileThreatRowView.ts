@@ -1,6 +1,7 @@
 // src/app/scenes/game/bridge/view/captain_dashboard/combat_context/threats/BridgeCaptainMissileThreatRowView.ts
 import { MISSILE_SIGNATURE_INTEL_STATUS } from "../../../../../../../../engine/encounter/model/missile_signature_intel";
 import { UI_COMBAT_SPRITE_ID, UI_COMBAT_SPRITES } from "../../../../../../../manifests/ui/combat";
+import { FONT_COLOR, FONT_FAMILY, FONT_SIZE } from "../../../../../../../theme/font";
 import type BridgeScene from "../../../../BridgeScene";
 import type {
     BridgeCaptainIncomingMissilePayload,
@@ -53,8 +54,8 @@ type ActionButton = {
 export default class BridgeCaptainMissileThreatRowView {
     private readonly root: Phaser.GameObjects.Container;
 
-    private readonly timerText: Phaser.GameObjects.Text;
-    private readonly identificationText: Phaser.GameObjects.Text;
+    private readonly timerText: Phaser.GameObjects.BitmapText;
+    private readonly identificationText: Phaser.GameObjects.BitmapText;
 
     private readonly scienceAction: ActionButton;
     private readonly weaponsAction: ActionButton;
@@ -72,22 +73,14 @@ export default class BridgeCaptainMissileThreatRowView {
         const missileIcon = this.createSprite(UI_COMBAT_SPRITE_ID.THREAT_MISSILE, TILE.iconX, TILE.iconY);
 
         this.identificationText = this.scene.add
-            .text(TILE.statusCenterX, TILE.statusY, "NO ID", {
-                fontFamily: "Pixel Operator Bold",
-                fontSize: "14px",
-                color: "#ff4d4d",
-                resolution: 1,
-            })
-            .setOrigin(0.5, 0);
+            .bitmapText(TILE.statusCenterX, TILE.statusY, FONT_FAMILY.VGA_8X14, "NO ID", FONT_SIZE.PX_14)
+            .setOrigin(0.5, 0)
+            .setTint(FONT_COLOR.DANGER);
 
         this.timerText = this.scene.add
-            .text(TILE.timerX, TILE.timerY, "--.-s", {
-                fontFamily: "Pixel Operator Bold",
-                fontSize: "14px",
-                color: "#ffffff",
-                resolution: 1,
-            })
-            .setOrigin(1, 0);
+            .bitmapText(TILE.timerX, TILE.timerY, FONT_FAMILY.VGA_8X14, "--.-s", FONT_SIZE.PX_14)
+            .setOrigin(1, 0)
+            .setTint(FONT_COLOR.WHITE);
 
         this.scienceAction = this.createActionButton(TILE.scienceButtonX, UI_COMBAT_SPRITE_ID.ROLE_S, "TRACK");
 
@@ -172,15 +165,15 @@ export default class BridgeCaptainMissileThreatRowView {
     private updateIdentification(status: BridgeCaptainIncomingMissilePayload["identificationStatus"]): void {
         switch (status) {
             case MISSILE_SIGNATURE_INTEL_STATUS.UNKNOWN:
-                this.identificationText.setText("NO ID").setColor("#ff4d4d");
+                this.identificationText.setText("NO ID").setTint(FONT_COLOR.DANGER);
                 return;
 
             case MISSILE_SIGNATURE_INTEL_STATUS.UNCERTAIN:
-                this.identificationText.setText("GUESS").setColor("#ea9e3e");
+                this.identificationText.setText("GUESS").setTint(FONT_COLOR.ACTIVITY);
                 return;
 
             case MISSILE_SIGNATURE_INTEL_STATUS.CONFIRMED:
-                this.identificationText.setText("LOCK").setColor("#8fb5d6");
+                this.identificationText.setText("LOCK").setTint(FONT_COLOR.SECONDARY);
                 return;
         }
     }
