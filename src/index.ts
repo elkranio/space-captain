@@ -23,7 +23,7 @@ window.addEventListener("load", async () => {
 
     gameConfig.scene = [Boot, Preload, InitScene, BridgeScene, EndScene];
 
-    await document.fonts.load("14px Anta");
+    await Promise.all([document.fonts.load("14px Anta"), document.fonts.load('14px "Pixel Operator Bold"')]);
 
     new Phaser.Game(gameConfig);
 });
