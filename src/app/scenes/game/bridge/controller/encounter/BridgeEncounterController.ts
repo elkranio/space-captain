@@ -26,6 +26,7 @@ import {
     type BridgeEncounterTravelCompletedPayload,
     type BridgeOfficerCommandMenuRefreshRequestedPayload,
     type BridgeOfficerCommandSelectedPayload,
+    type BridgeOfficerTaskCancelRequestedPayload,
     type BridgeOfficerStationClickedPayload,
 } from "../../events/bridge_event";
 import type BridgeEventBus from "../../events/BridgeEventBus";
@@ -130,6 +131,8 @@ export default class BridgeEncounterController {
 
         this.eventBus.on(BRIDGE_EVENT.OFFICER_COMMAND_SELECTED, this.handleOfficerCommandSelected, this);
 
+        this.eventBus.on(BRIDGE_EVENT.OFFICER_TASK_CANCEL_REQUESTED, this.handleOfficerTaskCancelRequested, this);
+
         this.eventBus.on(BRIDGE_EVENT.ENCOUNTER_ARRIVAL_COMPLETED, this.handleEncounterArrivalCompleted, this);
 
         this.eventBus.on(
@@ -156,6 +159,8 @@ export default class BridgeEncounterController {
         );
 
         this.eventBus.off(BRIDGE_EVENT.OFFICER_COMMAND_SELECTED, this.handleOfficerCommandSelected, this);
+
+        this.eventBus.off(BRIDGE_EVENT.OFFICER_TASK_CANCEL_REQUESTED, this.handleOfficerTaskCancelRequested, this);
 
         this.eventBus.off(BRIDGE_EVENT.ENCOUNTER_ARRIVAL_COMPLETED, this.handleEncounterArrivalCompleted, this);
 
@@ -263,6 +268,23 @@ export default class BridgeEncounterController {
         const result = this.executeCommand(payload);
 
         this.handleOfficerCommandResult(payload, result);
+    }
+
+    private handleOfficerTaskCancelRequested(payload: BridgeOfficerTaskCancelRequestedPayload): void {
+        if (!this.isEncounterInteractive) {
+            return;
+        }
+
+        this.encounterEngine.cancelTask(payload.taskId);
+
+        const presentationSnapshot = this.encounterEngine.getPresentationSnapshot();
+
+        this.persistEncounterSnapshot(presentationSnapshot);
+        this.snapshotSynchronizer.syncPlayerShipDashboard(presentationSnapshot);
+
+        this.drainEncounterEvents();
+
+        this.snapshotSynchronizer.syncCombatPresentation(presentationSnapshot);
     }
 
     // #endregion

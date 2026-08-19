@@ -50,6 +50,9 @@ export const BRIDGE_EVENT = {
     // Encounter controller передаст её в engine.
     OFFICER_COMMAND_SELECTED: "officer_command_selected",
 
+    // View просит отменить конкретную active officer task.
+    OFFICER_TASK_CANCEL_REQUESTED: "officer_task_cancel_requested",
+
     // Encounter controller отдаёт view
     // актуальный snapshot меню команд офицера.
     OFFICER_COMMAND_MENU_UPDATED: "officer_command_menu_updated",
@@ -271,6 +274,10 @@ export type BridgeOfficerCommandSelectedPayload = {
 
     commandId: EncounterOfficerCommandId;
     target: OfficerCommandTarget;
+};
+
+export type BridgeOfficerTaskCancelRequestedPayload = {
+    taskId: string;
 };
 
 // Один пункт legacy officer context menu.
@@ -832,6 +839,8 @@ export type BridgeEventPayloadMap = {
     [BRIDGE_EVENT.OFFICER_COMMAND_MENU_REFRESH_REQUESTED]: BridgeOfficerCommandMenuRefreshRequestedPayload;
 
     [BRIDGE_EVENT.OFFICER_COMMAND_SELECTED]: BridgeOfficerCommandSelectedPayload;
+
+    [BRIDGE_EVENT.OFFICER_TASK_CANCEL_REQUESTED]: BridgeOfficerTaskCancelRequestedPayload;
 
     [BRIDGE_EVENT.OFFICER_COMMAND_MENU_UPDATED]: BridgeOfficerCommandMenuUpdatedPayload;
 
