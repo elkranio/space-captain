@@ -441,6 +441,10 @@ export type BridgeCaptainStickyMinePayload = {
     actions: {
         engineerClear?: BridgeOfficerCommandSelectedPayload;
     };
+
+    activeTasks?: {
+        engineerClearTaskId?: string;
+    };
 };
 
 export type BridgeCaptainSpamChannelPayload = {
@@ -451,6 +455,10 @@ export type BridgeCaptainSpamChannelPayload = {
 
     actions: {
         purgeSpam?: BridgeOfficerCommandSelectedPayload;
+    };
+
+    activeTasks?: {
+        purgeSpamTaskId?: string;
     };
 };
 

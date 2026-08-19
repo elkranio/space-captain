@@ -29,6 +29,7 @@ const TILE = {
 
 type StickyMineThreatRowCallbacks = {
     onClear: (command: BridgeOfficerCommandSelectedPayload) => void;
+    onCancelTask: (taskId: string) => void;
 };
 
 type ActionButton = {
@@ -47,6 +48,7 @@ export default class BridgeCaptainStickyMineThreatRowView {
     private readonly engineerAction: ActionButton;
 
     private engineerCommand?: BridgeOfficerCommandSelectedPayload;
+    private engineerTaskId?: string;
 
     constructor(
         private readonly scene: BridgeScene,
@@ -87,13 +89,14 @@ export default class BridgeCaptainStickyMineThreatRowView {
     public update(mine: BridgeCaptainStickyMinePayload): void {
         this.timerText.setText(formatCaptainDashboardCountdown(mine.timeToDetonationMs));
 
-        this.setEngineerAction(mine.actions.engineerClear);
+        this.setEngineerAction(mine.actions.engineerClear, mine.activeTasks?.engineerClearTaskId);
     }
 
     public destroy(): void {
         this.engineerAction.background.off("pointerdown", this.handleEngineerPointerDown, this);
 
         this.engineerCommand = undefined;
+        this.engineerTaskId = undefined;
 
         this.root.destroy(true);
     }
@@ -125,21 +128,32 @@ export default class BridgeCaptainStickyMineThreatRowView {
         };
     }
 
-    private setEngineerAction(command: BridgeOfficerCommandSelectedPayload | undefined): void {
+    private setEngineerAction(
+        command: BridgeOfficerCommandSelectedPayload | undefined,
+        taskId: string | undefined,
+    ): void {
         this.engineerCommand = command;
-        this.setActionEnabled(this.engineerAction, command !== undefined);
+        this.engineerTaskId = taskId;
+        this.setActionState(this.engineerAction, command !== undefined, taskId !== undefined);
     }
 
-    private setActionEnabled(action: ActionButton, enabled: boolean): void {
+    private setActionState(action: ActionButton, enabled: boolean, active: boolean): void {
         action.background.disableInteractive();
+        action.background.clearTint();
+        action.label.clearTint();
 
-        if (enabled) {
+        if (enabled || active) {
             action.background.setInteractive({
                 useHandCursor: true,
             });
         }
 
-        const alpha = enabled ? 1 : TILE.disabledAlpha;
+        if (active) {
+            action.background.setTint(FONT_COLOR.ACTIVITY);
+            action.label.setTint(FONT_COLOR.ACTIVITY);
+        }
+
+        const alpha = enabled || active ? 1 : TILE.disabledAlpha;
 
         action.background.setAlpha(alpha);
         action.roleGlyph.setAlpha(alpha);
@@ -147,6 +161,11 @@ export default class BridgeCaptainStickyMineThreatRowView {
     }
 
     private handleEngineerPointerDown(): void {
+        if (this.engineerTaskId) {
+            this.callbacks.onCancelTask(this.engineerTaskId);
+            return;
+        }
+
         if (!this.engineerCommand) {
             return;
         }

@@ -174,6 +174,15 @@ export function mapCaptainCombatContextToBridgePayload(
                     label: "Engineer clear mine",
                 });
 
+                const engineerClearTaskId = (input.officerTasks ?? []).find((task) => {
+                    return (
+                        task.canBeCancelledByPlayer &&
+                        task.sourceCommandId === ENCOUNTER_OFFICER_COMMAND_ID.CLEAR_STICKY_MINE &&
+                        "mineId" in task &&
+                        task.mineId === snapshot.mine.id
+                    );
+                })?.id;
+
                 return {
                     mineId: snapshot.mine.id,
 
@@ -192,6 +201,14 @@ export function mapCaptainCombatContextToBridgePayload(
                               }
                             : {}),
                     },
+
+                    ...(engineerClearTaskId
+                        ? {
+                              activeTasks: {
+                                  engineerClearTaskId,
+                              },
+                          }
+                        : {}),
                 };
             }),
 
@@ -207,6 +224,15 @@ export function mapCaptainCombatContextToBridgePayload(
 
                 label: "purge spam",
             });
+
+            const purgeSpamTaskId = (input.officerTasks ?? []).find((task) => {
+                return (
+                    task.canBeCancelledByPlayer &&
+                    task.sourceCommandId === ENCOUNTER_OFFICER_COMMAND_ID.SCIENCE_PURGE_SPAM &&
+                    "channelId" in task &&
+                    task.channelId === channel.id
+                );
+            })?.id;
 
             return {
                 channelId: channel.id,
@@ -226,6 +252,14 @@ export function mapCaptainCombatContextToBridgePayload(
                           }
                         : {}),
                 },
+
+                ...(purgeSpamTaskId
+                    ? {
+                          activeTasks: {
+                              purgeSpamTaskId,
+                          },
+                      }
+                    : {}),
             };
         }),
 

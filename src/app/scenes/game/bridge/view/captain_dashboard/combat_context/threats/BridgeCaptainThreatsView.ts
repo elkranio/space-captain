@@ -174,6 +174,10 @@ export default class BridgeCaptainThreatsView {
                 onClear: (command) => {
                     this.emitCommand(command);
                 },
+
+                onCancelTask: (taskId) => {
+                    this.emitTaskCancel(taskId);
+                },
             });
 
             this.stickyMineRowViews.push(rowView);
@@ -211,6 +215,10 @@ export default class BridgeCaptainThreatsView {
             const rowView = new BridgeCaptainSpamThreatRowView(this.scene, {
                 onPurge: (command) => {
                     this.emitCommand(command);
+                },
+
+                onCancelTask: (taskId) => {
+                    this.emitTaskCancel(taskId);
                 },
             });
 
