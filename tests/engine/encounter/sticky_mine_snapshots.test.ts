@@ -72,7 +72,9 @@ describe('Sticky mine snapshots', () => {
                 target: {
                     kind:
                         OFFICER_COMMAND_TARGET_KIND
-                            .NONE,
+                            .THREAT,
+
+                    threatId: 'urgent',
                 },
             }),
         ).toEqual({

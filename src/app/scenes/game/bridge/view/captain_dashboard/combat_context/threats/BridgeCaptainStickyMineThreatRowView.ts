@@ -87,7 +87,7 @@ export default class BridgeCaptainStickyMineThreatRowView {
     public update(mine: BridgeCaptainStickyMinePayload): void {
         this.timerText.setText(formatCaptainDashboardCountdown(mine.timeToDetonationMs));
 
-        this.setEngineerAction(mine.isNextClearTarget ? mine.actions.engineerClear : undefined);
+        this.setEngineerAction(mine.actions.engineerClear);
     }
 
     public destroy(): void {

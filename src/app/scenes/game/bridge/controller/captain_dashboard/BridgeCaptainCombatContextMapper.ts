@@ -123,19 +123,17 @@ export function mapCaptainCombatContextToBridgePayload(
                 return left.mine.timeToDetonationMs - right.mine.timeToDetonationMs;
             })
             .map((snapshot) => {
-                const canClear = snapshot.isNextClearTarget;
+                const engineerClear = findThreatCommand({
+                    commands: input.availableEngineeringCommands,
 
-                const engineerClear = canClear
-                    ? findUntargetedCommand({
-                          commands: input.availableEngineeringCommands,
+                    commandId: ENCOUNTER_OFFICER_COMMAND_ID.CLEAR_STICKY_MINE,
 
-                          commandId: ENCOUNTER_OFFICER_COMMAND_ID.CLEAR_STICKY_MINE,
+                    threatId: snapshot.mine.id,
 
-                          role: OFFICER_ROLE.ENGINEER,
+                    role: OFFICER_ROLE.ENGINEER,
 
-                          label: "Engineer clear mine",
-                      })
-                    : undefined;
+                    label: "Engineer clear mine",
+                });
 
                 return {
                     mineId: snapshot.mine.id,

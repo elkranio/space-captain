@@ -460,23 +460,16 @@ describe(
         );
 
         it(
-            'maps attached mines nearest-first and exposes only the Engineer clear action on the next target',
+            'maps attached mines nearest-first with exact Engineer clear commands per mine',
             () => {
-                const clearMine:
-                    AvailableOfficerCommand = {
-                        commandId:
-                            ENCOUNTER_OFFICER_COMMAND_ID
-                                .CLEAR_STICKY_MINE,
-
-                        label:
-                            'CLEAR MINE',
-
-                        target: {
-                            kind:
-                                OFFICER_COMMAND_TARGET_KIND
-                                    .NONE,
-                        },
-                    };
+                const clearLater = createThreatCommand(
+                    ENCOUNTER_OFFICER_COMMAND_ID.CLEAR_STICKY_MINE,
+                    'mine_later',
+                );
+                const clearNext = createThreatCommand(
+                    ENCOUNTER_OFFICER_COMMAND_ID.CLEAR_STICKY_MINE,
+                    'mine_next',
+                );
 
                 const payload =
                     mapCaptainCombatContextToBridgePayload({
@@ -569,16 +562,15 @@ describe(
                             },
                         ],
 
-                        availableScienceCommands: [
-                            clearMine,
-                        ],
+                        availableScienceCommands:
+                            [],
 
-                        availableWeaponsCommands: [
-                            clearMine,
-                        ],
+                        availableWeaponsCommands:
+                            [],
 
                         availableEngineeringCommands: [
-                            clearMine,
+                            clearLater,
+                            clearNext,
                         ],
                     });
 
@@ -613,7 +605,10 @@ describe(
                                 target: {
                                     kind:
                                         OFFICER_COMMAND_TARGET_KIND
-                                            .NONE,
+                                            .THREAT,
+
+                                    threatId:
+                                        'mine_next',
                                 },
                             },
                         },
@@ -635,7 +630,25 @@ describe(
                         isNextClearTarget:
                             false,
 
-                        actions: {},
+                        actions: {
+                            engineerClear: {
+                                role:
+                                    OFFICER_ROLE.ENGINEER,
+
+                                commandId:
+                                    ENCOUNTER_OFFICER_COMMAND_ID
+                                        .CLEAR_STICKY_MINE,
+
+                                target: {
+                                    kind:
+                                        OFFICER_COMMAND_TARGET_KIND
+                                            .THREAT,
+
+                                    threatId:
+                                        'mine_later',
+                                },
+                            },
+                        },
                     },
                 ]);
             },

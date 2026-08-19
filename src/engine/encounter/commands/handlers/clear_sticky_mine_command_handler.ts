@@ -1,10 +1,11 @@
 // src/engine/encounter/commands/handlers/clear_sticky_mine_command_handler.ts
 
 import { OFFICER_ROLE } from "../../../defs/officer";
-import { getNextClearableStickyMine } from "../../combat/queries/get_next_clearable_sticky_mine";
+import { COMBAT_TARGET_KIND } from "../../model/combat";
 import { ENCOUNTER_OFFICER_COMMAND_ID, OFFICER_COMMAND_TARGET_KIND, type OfficerCommandDef } from "../../model/command";
 import type { OfficerCommandHandler } from "../../model/officer_command_handler";
 import { createClearStickyMineTask } from "../../officer_tasks/create_officer_task_draft";
+import { requireThreatTargetId } from "./command_handler_helpers";
 
 const COMMAND_ID = ENCOUNTER_OFFICER_COMMAND_ID.CLEAR_STICKY_MINE;
 
@@ -14,7 +15,7 @@ const COMMAND_DEF = {
     label: "CLEAR MINE",
 
     targeting: {
-        kind: OFFICER_COMMAND_TARGET_KIND.NONE,
+        kind: OFFICER_COMMAND_TARGET_KIND.THREAT,
     },
 
     requiresOnlineDrive: false,
@@ -26,34 +27,26 @@ export const clearStickyMineCommandHandler = {
     def: COMMAND_DEF,
 
     getAvailableCommands(state) {
-        if (!getNextClearableStickyMine(state)) {
-            return [];
-        }
+        return state.combat.stickyMines
+            .filter((mine) => {
+                return mine.target.kind === COMBAT_TARGET_KIND.PLAYER_SHIP;
+            })
+            .map((mine) => {
+                return {
+                    commandId: COMMAND_ID,
+                    label: COMMAND_DEF.label,
 
-        return [
-            {
-                commandId: COMMAND_ID,
-                label: COMMAND_DEF.label,
+                    target: {
+                        kind: OFFICER_COMMAND_TARGET_KIND.THREAT,
+                        threatId: mine.id,
+                    },
 
-                target: {
-                    kind: OFFICER_COMMAND_TARGET_KIND.NONE,
-                },
-
-                targetLabel: "STICKY MINES",
-            },
-        ];
+                    targetLabel: "STICKY MINES",
+                };
+            });
     },
 
     execute(context, input) {
-        // Availability проверяется executor прямо
-        // перед execute, но mine выбираем заново:
-        // active tasks уже являются reservation state.
-        const mine = getNextClearableStickyMine(context.stateStore.getState());
-
-        if (!mine) {
-            throw new Error("CLEAR MINE executed without a clearable sticky mine");
-        }
-
-        context.startOfficerTask(createClearStickyMineTask(input.role, mine.id));
+        context.startOfficerTask(createClearStickyMineTask(input.role, requireThreatTargetId(input)));
     },
 } satisfies OfficerCommandHandler;

@@ -56,7 +56,7 @@ const NON_ENGINEER_ROLES = [
 ] satisfies OfficerRole[];
 
 describe('CLEAR MINE command', () => {
-    it('is available only to Engineer and reserves the nearest incoming mine', () => {
+    it('is available only to Engineer for every incoming mine and starts the selected target', () => {
         const {
             engine,
             state,
@@ -74,26 +74,29 @@ describe('CLEAR MINE command', () => {
             createMine('mine_middle', 7000),
         );
 
-        expect(
-            getClearMineCommand(
-                engine,
-                OFFICER_ROLE.ENGINEER,
-            ),
-        ).toEqual({
-            commandId:
-                ENCOUNTER_OFFICER_COMMAND_ID
-                    .CLEAR_STICKY_MINE,
+        const engineerClearTargets = engine
+            .getAvailableCommands(OFFICER_ROLE.ENGINEER)
+            .filter((command) => {
+                return command.commandId === ENCOUNTER_OFFICER_COMMAND_ID.CLEAR_STICKY_MINE;
+            })
+            .map((command) => {
+                return command.target;
+            });
 
-            label: 'CLEAR MINE',
-
-            target: {
-                kind:
-                    OFFICER_COMMAND_TARGET_KIND
-                        .NONE,
+        expect(engineerClearTargets).toEqual([
+            {
+                kind: OFFICER_COMMAND_TARGET_KIND.THREAT,
+                threatId: 'mine_slow',
             },
-
-            targetLabel: 'STICKY MINES',
-        });
+            {
+                kind: OFFICER_COMMAND_TARGET_KIND.THREAT,
+                threatId: 'mine_urgent',
+            },
+            {
+                kind: OFFICER_COMMAND_TARGET_KIND.THREAT,
+                threatId: 'mine_middle',
+            },
+        ]);
 
         for (
             const role of
@@ -117,7 +120,10 @@ describe('CLEAR MINE command', () => {
                     target: {
                         kind:
                             OFFICER_COMMAND_TARGET_KIND
-                                .NONE,
+                                .THREAT,
+
+                        threatId:
+                            'mine_slow',
                     },
                 }),
             ).toEqual({
@@ -134,6 +140,7 @@ describe('CLEAR MINE command', () => {
         executeClearMine(
             engine,
             OFFICER_ROLE.ENGINEER,
+            'mine_slow',
         );
 
         expect(
@@ -141,7 +148,7 @@ describe('CLEAR MINE command', () => {
                 engine.getOfficerTasks(),
                 OFFICER_ROLE.ENGINEER,
             ),
-        ).toBe('mine_urgent');
+        ).toBe('mine_slow');
     });
 
     it('clears the reserved mine when the Engineer task completes', () => {
@@ -158,6 +165,7 @@ describe('CLEAR MINE command', () => {
         executeClearMine(
             engine,
             OFFICER_ROLE.ENGINEER,
+            'mine_urgent',
         );
 
         engine.drainEvents();
@@ -246,6 +254,7 @@ describe('CLEAR MINE command', () => {
         executeClearMine(
             engine,
             OFFICER_ROLE.ENGINEER,
+            'mine_urgent',
         );
 
         engine.drainEvents();
@@ -361,6 +370,7 @@ describe('CLEAR MINE command', () => {
         executeClearMine(
             engine,
             OFFICER_ROLE.ENGINEER,
+            'mine_test',
         );
 
         engine.drainEvents();
@@ -479,6 +489,7 @@ function createEngine({
 function executeClearMine(
     engine: EncounterEngine,
     role: OfficerRole,
+    mineId: string,
 ): void {
     expect(
         engine.executeCommand({
@@ -491,7 +502,10 @@ function executeClearMine(
             target: {
                 kind:
                     OFFICER_COMMAND_TARGET_KIND
-                        .NONE,
+                        .THREAT,
+
+                threatId:
+                    mineId,
             },
         }),
     ).toEqual({
