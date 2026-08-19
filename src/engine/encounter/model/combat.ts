@@ -100,6 +100,25 @@ export const BEAM_CANNON_TARGET_NODE = {
 export type BeamCannonTargetNode =
     (typeof BEAM_CANNON_TARGET_NODE)[keyof typeof BEAM_CANNON_TARGET_NODE];
 
+export const BEAM_CANNON_TARGET_INTEL_STATUS = {
+    UNKNOWN: "unknown",
+    UNCERTAIN: "uncertain",
+    CONFIRMED: "confirmed",
+} as const;
+
+export type BeamCannonTargetIntel =
+    | {
+          status: typeof BEAM_CANNON_TARGET_INTEL_STATUS.UNKNOWN;
+      }
+    | {
+          status: typeof BEAM_CANNON_TARGET_INTEL_STATUS.UNCERTAIN;
+          hypothesis: BeamCannonTargetNode;
+      }
+    | {
+          status: typeof BEAM_CANNON_TARGET_INTEL_STATUS.CONFIRMED;
+          hypothesis: BeamCannonTargetNode;
+      };
+
 export type MissileThreatIdentification = MissileSignatureIntel;
 
 export type ThreatIdentificationResult = ResolvedMissileSignatureIntel & {
@@ -156,8 +175,11 @@ export type BeamCannonAttackSnapshot = {
 };
 
 export type BeamCannonAttackState = BeamCannonAttackSnapshot & {
-    // Objective hidden truth. Player-facing reads expose only observed intel.
+    // Objective hidden truth.
     targetNode: BeamCannonTargetNode;
+
+    // Player-observer knowledge about the hidden target node.
+    targetIntel: BeamCannonTargetIntel;
 };
 
 export function createBeamCannonAttackSnapshot(attack: BeamCannonAttackSnapshot): BeamCannonAttackSnapshot {

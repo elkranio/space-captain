@@ -386,6 +386,10 @@ describe(
                                     },
                                 },
 
+                                targetIntel: {
+                                    status: 'unknown',
+                                },
+
                                 timeToFireMs:
                                     700,
 

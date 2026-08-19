@@ -441,6 +441,11 @@ describe(
 
                         targetNode:
                             'hull',
+
+                        targetIntel: {
+                            status:
+                                'unknown',
+                        },
                     });
 
                 const hullBefore =

@@ -10,6 +10,7 @@ import { isShipEvading } from "../../../../defs/ship_evade";
 import type { ShipEncounterActorState } from "../../../actors/ship/ship_encounter_actor";
 import {
     BEAM_CANNON_SHOT_OUTCOME,
+    BEAM_CANNON_TARGET_INTEL_STATUS,
     BEAM_CANNON_TARGET_NODE,
     COMBAT_TARGET_KIND,
     type BeamCannonAttackState,
@@ -148,6 +149,10 @@ export default class CombatBeamCannonRunner {
             },
 
             targetNode: this.rollTargetNode(),
+
+            targetIntel: {
+                status: BEAM_CANNON_TARGET_INTEL_STATUS.UNKNOWN,
+            },
         };
 
         this.state.combat.beamCannonAttacks.push(attack);
