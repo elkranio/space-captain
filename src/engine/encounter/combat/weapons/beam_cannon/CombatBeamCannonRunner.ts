@@ -1,4 +1,6 @@
 import { SHIP_WEAPONS } from "../../../../content/catalogs/ship_weapons";
+import type { PlayerHullDamageResult } from "../../../../defs/player";
+import { SHIP_DRIVE_STATUS } from "../../../../defs/ship_drive";
 import {
     advanceShipWeaponCooldown,
     finishShipWeaponAction,
@@ -34,7 +36,7 @@ type CombatBeamCannonRunnerOptions = {
 };
 
 // Owns the complete incoming-beamCannon lifecycle: charging,
-// threat state, hull resolution, cooldown and damage interruption.
+// threat state, impact resolution, cooldown and damage interruption.
 export default class CombatBeamCannonRunner {
     private readonly stateStore: EncounterStateStore;
 
@@ -225,7 +227,7 @@ export default class CombatBeamCannonRunner {
             return;
         }
 
-        const damageResult = this.stateStore.damagePlayerHull(definition.hullDamage);
+        const damageResult = this.resolvePenetratingHit(attack, definition);
 
         this.emit({
             type: ENCOUNTER_EVENT.BEAM_CANNON_FIRED,
@@ -242,15 +244,34 @@ export default class CombatBeamCannonRunner {
         });
     }
 
+    private resolvePenetratingHit(
+        attack: BeamCannonAttackState,
+        definition: BeamCannonDefinition,
+    ): PlayerHullDamageResult {
+        switch (attack.targetNode) {
+            case BEAM_CANNON_TARGET_NODE.HULL:
+                return this.stateStore.damagePlayerHull(definition.hullDamage);
+
+            case BEAM_CANNON_TARGET_NODE.DRIVE:
+                if (this.state.drive.status === SHIP_DRIVE_STATUS.DISABLED) {
+                    return this.stateStore.damagePlayerHull(definition.hullDamage * 2);
+                }
+
+                this.stateStore.damagePlayerDrive(definition.moduleDamage);
+
+                return {
+                    appliedDamage: 0,
+                    remainingHull: this.state.playerHull.hull,
+                    destroyed: false,
+                };
+        }
+    }
+
     private rollTargetNode(): BeamCannonTargetNode {
         const roll = this.random();
 
-        if (roll < 1 / 3) {
+        if (roll < 0.5) {
             return BEAM_CANNON_TARGET_NODE.HULL;
-        }
-
-        if (roll < 2 / 3) {
-            return BEAM_CANNON_TARGET_NODE.BRIDGE;
         }
 
         return BEAM_CANNON_TARGET_NODE.DRIVE;

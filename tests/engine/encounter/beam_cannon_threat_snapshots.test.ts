@@ -28,7 +28,7 @@ describe('EncounterEngine beamCannon threat snapshots', () => {
 
         const mutableState = getMutableEncounterStateForTest(engine);
 
-        expect(mutableState.combat.beamCannonAttacks[0]?.targetNode).toBe(BEAM_CANNON_TARGET_NODE.BRIDGE);
+        expect(mutableState.combat.beamCannonAttacks[0]?.targetNode).toBe(BEAM_CANNON_TARGET_NODE.DRIVE);
 
         expect(mutableState.combat.beamCannonAttacks[0]?.targetIntel).toEqual({
             status: BEAM_CANNON_TARGET_INTEL_STATUS.UNKNOWN,
@@ -58,7 +58,7 @@ describe('EncounterEngine beamCannon threat snapshots', () => {
         engine.step(1234);
         engine.drainEvents();
 
-        expect(mutableState.combat.beamCannonAttacks[0]?.targetNode).toBe(BEAM_CANNON_TARGET_NODE.BRIDGE);
+        expect(mutableState.combat.beamCannonAttacks[0]?.targetNode).toBe(BEAM_CANNON_TARGET_NODE.DRIVE);
 
         expect(engine.getCombatPresentationSnapshot().beamCannonThreats).toEqual([
             {

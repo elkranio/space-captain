@@ -19,8 +19,8 @@ type ResolvedBeamCannonTargetIntel = Exclude<
 // - 40% uncertain but correct hypothesis;
 // - 15% uncertain wrong hypothesis.
 //
-// The same roll also selects one of the two wrong nodes, so one analysis
-// consumes exactly one encounter RNG value.
+// With two target nodes, the wrong branch always reports the other node.
+// One analysis still consumes exactly one encounter RNG value.
 export function resolveBeamCannonTargetAnalysis({
     truth,
     random,
@@ -53,19 +53,16 @@ export function resolveBeamCannonTargetAnalysis({
     return {
         status: BEAM_CANNON_TARGET_INTEL_STATUS.UNCERTAIN,
 
-        hypothesis: getWrongHypothesis(truth, randomValue >= 0.925),
+        hypothesis: getWrongHypothesis(truth),
     };
 }
 
-function getWrongHypothesis(truth: BeamCannonTargetNode, useSecondAlternative: boolean): BeamCannonTargetNode {
+function getWrongHypothesis(truth: BeamCannonTargetNode): BeamCannonTargetNode {
     switch (truth) {
         case BEAM_CANNON_TARGET_NODE.HULL:
-            return useSecondAlternative ? BEAM_CANNON_TARGET_NODE.DRIVE : BEAM_CANNON_TARGET_NODE.BRIDGE;
-
-        case BEAM_CANNON_TARGET_NODE.BRIDGE:
-            return useSecondAlternative ? BEAM_CANNON_TARGET_NODE.DRIVE : BEAM_CANNON_TARGET_NODE.HULL;
+            return BEAM_CANNON_TARGET_NODE.DRIVE;
 
         case BEAM_CANNON_TARGET_NODE.DRIVE:
-            return useSecondAlternative ? BEAM_CANNON_TARGET_NODE.BRIDGE : BEAM_CANNON_TARGET_NODE.HULL;
+            return BEAM_CANNON_TARGET_NODE.HULL;
     }
 }

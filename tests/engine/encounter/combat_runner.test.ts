@@ -281,7 +281,7 @@ describe('CombatRunner', () => {
 
                 anchorId: stationId,
             },
-            random: () => 0.5,
+            random: () => 0.25,
         });
 
         const [loadedEvent] = engine.drainEvents();

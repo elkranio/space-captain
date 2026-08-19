@@ -93,7 +93,6 @@ export type CombatTarget =
 
 export const BEAM_CANNON_TARGET_NODE = {
     HULL: "hull",
-    BRIDGE: "bridge",
     DRIVE: "drive",
 } as const;
 
