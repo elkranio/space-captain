@@ -1,172 +1,123 @@
 import { MISSILE_SIGNATURE_INTEL_STATUS } from "../../../../../../../../engine/encounter/model/missile_signature_intel";
+import { UI_COMBAT_SPRITE_ID, UI_COMBAT_SPRITES } from "../../../../../../../manifests/ui/combat";
 import { FONT_COLOR, FONT_FAMILY, FONT_SIZE } from "../../../../../../../theme/font";
 import type BridgeScene from "../../../../BridgeScene";
-import { CAPTAIN_DASHBOARD_STYLE } from "../../captain_dashboard_style";
-import { formatCaptainDashboardCountdown } from "../../captain_dashboard_format";
 import type {
     BridgeCaptainIncomingMissilePayload,
     BridgeOfficerCommandSelectedPayload,
 } from "../../../../events/bridge_event";
+import { formatCaptainDashboardCountdown } from "../../captain_dashboard_format";
 
-const ROW = {
-    verticalGap: 1,
+const TILE = {
+    width: 163,
+    height: 66,
 
-    timerX: 10,
-    timerY: 9,
+    iconX: 7,
+    iconY: 8,
 
-    iconX: 78,
-    iconY: 4,
-    iconWidth: 42,
-    iconHeight: 27,
+    statusX: 51,
+    statusY: 8,
 
-    labelX: 132,
-    labelY: 9,
+    timerX: 156,
+    timerY: 8,
 
-    buttonWidth: 92,
-    buttonHeight: 27,
-    buttonGap: 8,
-    buttonMarginRight: 6,
-    buttonY: 4,
+    buttonY: 34,
+    scienceButtonX: 5,
+    weaponsButtonX: 83,
+
+    roleOffsetX: 9,
+    roleOffsetY: 10,
+
+    labelOffsetX: 47,
+    labelOffsetY: 14,
+
+    disabledAlpha: 0.35,
 } as const;
 
 type MissileThreatRowCallbacks = {
     onIdentify: (command: BridgeOfficerCommandSelectedPayload) => void;
-
     onIntercept: (command: BridgeOfficerCommandSelectedPayload) => void;
 };
 
-// Одна fixed-geometry missile threat row.
+type ActionButton = {
+    background: Phaser.GameObjects.Image;
+    roleGlyph: Phaser.GameObjects.Image;
+    label: Phaser.GameObjects.BitmapText;
+};
+
+// Первый production-like threat tile.
 //
-// SCI и WPN slots никогда не двигаются:
-// CONFIRMED threat скрывает SCI slot;
-// UNKNOWN/UNCERTAIN могут предлагать повторный анализ.
-// но WPN остаётся на прежнем X.
+// Пока общий ThreatsView всё ещё раскладывает mixed threat types вертикально.
+// В следующем layout-атоме этот fixed 163x66 tile станет ячейкой общей 3x2 сетки.
 export default class BridgeCaptainMissileThreatRowView {
     private readonly root: Phaser.GameObjects.Container;
 
     private readonly timerText: Phaser.GameObjects.BitmapText;
+    private readonly identificationText: Phaser.GameObjects.BitmapText;
 
-    private readonly threatLabel: Phaser.GameObjects.BitmapText;
-
-    private readonly scienceButton: Phaser.GameObjects.Rectangle;
-
-    private readonly scienceLabel: Phaser.GameObjects.BitmapText;
-
-    private readonly weaponsButton: Phaser.GameObjects.Rectangle;
-
-    private readonly weaponsLabel: Phaser.GameObjects.BitmapText;
+    private readonly scienceAction: ActionButton;
+    private readonly weaponsAction: ActionButton;
 
     private scienceCommand?: BridgeOfficerCommandSelectedPayload;
-
     private weaponsCommand?: BridgeOfficerCommandSelectedPayload;
 
     constructor(
         private readonly scene: BridgeScene,
-
-        width: number,
-        height: number,
-
         private readonly callbacks: MissileThreatRowCallbacks,
     ) {
         this.root = this.scene.add.container(0, 0);
 
-        const visibleHeight = Math.max(1, height - ROW.verticalGap);
+        const background = this.createSprite(UI_COMBAT_SPRITE_ID.THREAT_TILE_BG, 0, 0);
+        const missileIcon = this.createSprite(UI_COMBAT_SPRITE_ID.THREAT_MISSILE, TILE.iconX, TILE.iconY);
 
-        const background = this.scene.add
-            .rectangle(
-                0,
-                0,
-
-                width,
-                visibleHeight,
-
-                CAPTAIN_DASHBOARD_STYLE.row.backgroundColor,
-                CAPTAIN_DASHBOARD_STYLE.row.backgroundAlpha,
+        this.identificationText = this.scene.add
+            .bitmapText(
+                TILE.statusX,
+                TILE.statusY,
+                FONT_FAMILY.VGA_8X14,
+                "NO ID",
+                FONT_SIZE.PX_14,
             )
             .setOrigin(0, 0)
-            .setStrokeStyle(CAPTAIN_DASHBOARD_STYLE.row.borderThickness, CAPTAIN_DASHBOARD_STYLE.row.borderColor);
+            .setTint(FONT_COLOR.DANGER);
 
         this.timerText = this.scene.add
             .bitmapText(
-                ROW.timerX,
-                ROW.timerY,
-
+                TILE.timerX,
+                TILE.timerY,
                 FONT_FAMILY.VGA_8X14,
                 "--.-s",
-                FONT_SIZE.PX_16,
-            )
-            .setOrigin(0, 0)
-            .setTint(FONT_COLOR.ACTIVITY);
-
-        const iconBackground = this.scene.add
-            .rectangle(
-                ROW.iconX,
-                ROW.iconY,
-
-                ROW.iconWidth,
-                ROW.iconHeight,
-
-                CAPTAIN_DASHBOARD_STYLE.row.iconBackgroundColor,
-                1,
-            )
-            .setOrigin(0, 0)
-            .setStrokeStyle(1, CAPTAIN_DASHBOARD_STYLE.row.iconBorderColor);
-
-        const iconLabel = this.scene.add
-            .bitmapText(
-                ROW.iconX + ROW.iconWidth / 2,
-
-                ROW.iconY + ROW.iconHeight / 2,
-
-                FONT_FAMILY.VGA_8X14,
-                "MSL",
                 FONT_SIZE.PX_14,
             )
-            .setOrigin(0.5, 0.5)
-            .setTint(FONT_COLOR.SECONDARY);
+            .setOrigin(1, 0)
+            .setTint(FONT_COLOR.WHITE);
 
-        this.threatLabel = this.scene.add
-            .bitmapText(
-                ROW.labelX,
-                ROW.labelY,
+        this.scienceAction = this.createActionButton(
+            TILE.scienceButtonX,
+            UI_COMBAT_SPRITE_ID.ROLE_S,
+            "TRACK",
+        );
 
-                FONT_FAMILY.VGA_8X14,
-                "UNKNOWN MISSILE",
-                FONT_SIZE.PX_16,
-            )
-            .setOrigin(0, 0)
-            .setTint(FONT_COLOR.PRIMARY);
+        this.weaponsAction = this.createActionButton(
+            TILE.weaponsButtonX,
+            UI_COMBAT_SPRITE_ID.ROLE_W,
+            "HIT",
+        );
 
-        const weaponsX = width - ROW.buttonMarginRight - ROW.buttonWidth;
-
-        const scienceX = weaponsX - ROW.buttonGap - ROW.buttonWidth;
-
-        const science = this.createButton(scienceX, "SCI");
-
-        this.scienceButton = science.background;
-
-        this.scienceLabel = science.label;
-
-        const weapons = this.createButton(weaponsX, "WPN");
-
-        this.weaponsButton = weapons.background;
-
-        this.weaponsLabel = weapons.label;
-
-        this.scienceButton.on("pointerdown", this.handleSciencePointerDown, this);
-
-        this.weaponsButton.on("pointerdown", this.handleWeaponsPointerDown, this);
+        this.scienceAction.background.on("pointerdown", this.handleSciencePointerDown, this);
+        this.weaponsAction.background.on("pointerdown", this.handleWeaponsPointerDown, this);
 
         this.root.add([
             background,
+            missileIcon,
+            this.identificationText,
             this.timerText,
-            iconBackground,
-            iconLabel,
-            this.threatLabel,
-            this.scienceButton,
-            this.scienceLabel,
-            this.weaponsButton,
-            this.weaponsLabel,
+            this.scienceAction.background,
+            this.scienceAction.roleGlyph,
+            this.scienceAction.label,
+            this.weaponsAction.background,
+            this.weaponsAction.roleGlyph,
+            this.weaponsAction.label,
         ]);
     }
 
@@ -181,7 +132,7 @@ export default class BridgeCaptainMissileThreatRowView {
     public update(missile: BridgeCaptainIncomingMissilePayload): void {
         this.timerText.setText(formatCaptainDashboardCountdown(missile.timeToImpactMs));
 
-        this.threatLabel.setText("MISSILE " + missile.designation + "  " + missile.identificationStatus.toUpperCase());
+        this.updateIdentification(missile.identificationStatus);
 
         if (missile.identificationStatus === MISSILE_SIGNATURE_INTEL_STATUS.CONFIRMED) {
             this.hideScienceAction();
@@ -193,120 +144,105 @@ export default class BridgeCaptainMissileThreatRowView {
     }
 
     public destroy(): void {
-        this.scienceButton.off("pointerdown", this.handleSciencePointerDown, this);
-
-        this.weaponsButton.off("pointerdown", this.handleWeaponsPointerDown, this);
+        this.scienceAction.background.off("pointerdown", this.handleSciencePointerDown, this);
+        this.weaponsAction.background.off("pointerdown", this.handleWeaponsPointerDown, this);
 
         this.scienceCommand = undefined;
-
         this.weaponsCommand = undefined;
 
         this.root.destroy(true);
     }
 
-    private createButton(
-        x: number,
-        labelText: string,
-    ): {
-        background: Phaser.GameObjects.Rectangle;
+    private createSprite(spriteId: UiCombatSpriteId, x: number, y: number): Phaser.GameObjects.Image {
+        const sprite = UI_COMBAT_SPRITES[spriteId];
 
-        label: Phaser.GameObjects.BitmapText;
-    } {
-        const background = this.scene.add
-            .rectangle(
-                x,
-                ROW.buttonY,
+        return this.scene.add.image(x, y, sprite.atlasKey, sprite.frameKey).setOrigin(0, 0);
+    }
 
-                ROW.buttonWidth,
-                ROW.buttonHeight,
+    private createActionButton(x: number, roleSpriteId: UiCombatSpriteId, labelText: string): ActionButton {
+        const background = this.createSprite(UI_COMBAT_SPRITE_ID.ACTION_BUTTON_BG, x, TILE.buttonY);
 
-                CAPTAIN_DASHBOARD_STYLE.action.disabledBackgroundColor,
-                1,
-            )
-            .setOrigin(0, 0)
-            .setStrokeStyle(1, CAPTAIN_DASHBOARD_STYLE.action.disabledBorderColor);
+        const roleGlyph = this.createSprite(
+            roleSpriteId,
+            x + TILE.roleOffsetX,
+            TILE.buttonY + TILE.roleOffsetY,
+        );
 
         const label = this.scene.add
             .bitmapText(
-                x + ROW.buttonWidth / 2,
-
-                ROW.buttonY + ROW.buttonHeight / 2,
-
+                x + TILE.labelOffsetX,
+                TILE.buttonY + TILE.labelOffsetY,
                 FONT_FAMILY.VGA_8X14,
                 labelText,
-                FONT_SIZE.PX_16,
+                FONT_SIZE.PX_14,
             )
             .setOrigin(0.5, 0.5)
-            .setTint(CAPTAIN_DASHBOARD_STYLE.action.disabledTextColor);
+            .setTint(FONT_COLOR.WHITE);
 
         return {
             background,
+            roleGlyph,
             label,
         };
     }
 
+    private updateIdentification(status: BridgeCaptainIncomingMissilePayload["identificationStatus"]): void {
+        switch (status) {
+            case MISSILE_SIGNATURE_INTEL_STATUS.UNKNOWN:
+                this.identificationText.setText("NO ID").setTint(FONT_COLOR.DANGER);
+                return;
+
+            case MISSILE_SIGNATURE_INTEL_STATUS.UNCERTAIN:
+                this.identificationText.setText("GUESS").setTint(FONT_COLOR.ACTIVITY);
+                return;
+
+            case MISSILE_SIGNATURE_INTEL_STATUS.CONFIRMED:
+                this.identificationText.setText("LOCK").setTint(FONT_COLOR.SECONDARY);
+                return;
+        }
+    }
+
     private setScienceAction(command: BridgeOfficerCommandSelectedPayload | undefined): void {
-        this.scienceButton.setVisible(true);
-
-        this.scienceLabel.setVisible(true);
-
-        this.scienceButton.disableInteractive();
+        this.setActionVisible(this.scienceAction, true);
 
         this.scienceCommand = command;
-
-        if (!command) {
-            this.scienceButton
-                .setFillStyle(CAPTAIN_DASHBOARD_STYLE.action.disabledBackgroundColor, 1)
-                .setStrokeStyle(1, CAPTAIN_DASHBOARD_STYLE.action.disabledBorderColor);
-
-            this.scienceLabel.setTint(CAPTAIN_DASHBOARD_STYLE.action.disabledTextColor);
-
-            return;
-        }
-
-        this.scienceButton
-            .setFillStyle(CAPTAIN_DASHBOARD_STYLE.action.activeBackgroundColor, 1)
-            .setStrokeStyle(1, CAPTAIN_DASHBOARD_STYLE.action.activeBorderColor)
-            .setInteractive({
-                useHandCursor: true,
-            });
-
-        this.scienceLabel.setTint(FONT_COLOR.WHITE);
+        this.setActionEnabled(this.scienceAction, command !== undefined);
     }
 
     private hideScienceAction(): void {
         this.scienceCommand = undefined;
 
-        this.scienceButton.disableInteractive().setVisible(false);
-
-        this.scienceLabel.setVisible(false);
+        this.scienceAction.background.disableInteractive();
+        this.setActionVisible(this.scienceAction, false);
     }
 
     private setWeaponsAction(command: BridgeOfficerCommandSelectedPayload | undefined): void {
-        this.weaponsButton.setVisible(true).disableInteractive();
-
-        this.weaponsLabel.setVisible(true);
+        this.setActionVisible(this.weaponsAction, true);
 
         this.weaponsCommand = command;
+        this.setActionEnabled(this.weaponsAction, command !== undefined);
+    }
 
-        if (!command) {
-            this.weaponsButton
-                .setFillStyle(CAPTAIN_DASHBOARD_STYLE.action.disabledBackgroundColor, 1)
-                .setStrokeStyle(1, CAPTAIN_DASHBOARD_STYLE.action.disabledBorderColor);
+    private setActionVisible(action: ActionButton, visible: boolean): void {
+        action.background.setVisible(visible);
+        action.roleGlyph.setVisible(visible);
+        action.label.setVisible(visible);
+    }
 
-            this.weaponsLabel.setTint(CAPTAIN_DASHBOARD_STYLE.action.disabledTextColor);
+    private setActionEnabled(action: ActionButton, enabled: boolean): void {
+        action.background.disableInteractive();
 
-            return;
-        }
-
-        this.weaponsButton
-            .setFillStyle(CAPTAIN_DASHBOARD_STYLE.action.activeBackgroundColor, 1)
-            .setStrokeStyle(1, CAPTAIN_DASHBOARD_STYLE.action.activeBorderColor)
-            .setInteractive({
+        if (enabled) {
+            action.background.setInteractive({
                 useHandCursor: true,
             });
+        }
 
-        this.weaponsLabel.setTint(FONT_COLOR.WHITE);
+        const alpha = enabled ? 1 : TILE.disabledAlpha;
+
+        action.background.setAlpha(alpha);
+        action.roleGlyph.setAlpha(alpha);
+        action.label.setAlpha(alpha);
     }
 
     private handleSciencePointerDown(): void {
@@ -325,3 +261,5 @@ export default class BridgeCaptainMissileThreatRowView {
         this.callbacks.onIntercept(this.weaponsCommand);
     }
 }
+
+type UiCombatSpriteId = (typeof UI_COMBAT_SPRITE_ID)[keyof typeof UI_COMBAT_SPRITE_ID];
