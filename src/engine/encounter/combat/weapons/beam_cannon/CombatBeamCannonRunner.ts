@@ -8,7 +8,13 @@ import {
 } from "../../../../defs/ship_weapon";
 import { isShipEvading } from "../../../../defs/ship_evade";
 import type { ShipEncounterActorState } from "../../../actors/ship/ship_encounter_actor";
-import { COMBAT_TARGET_KIND, BEAM_CANNON_SHOT_OUTCOME, type BeamCannonAttackState } from "../../../model/combat";
+import {
+    BEAM_CANNON_SHOT_OUTCOME,
+    BEAM_CANNON_TARGET_NODE,
+    COMBAT_TARGET_KIND,
+    type BeamCannonAttackState,
+    type BeamCannonTargetNode,
+} from "../../../model/combat";
 import { ENCOUNTER_EVENT, PLAYER_SHIELD_END_OUTCOME, type EncounterEvent } from "../../../model/event";
 import {
     ENCOUNTER_INTERNAL_EFFECT,
@@ -21,6 +27,7 @@ import CombatRuntimeIdentityFactory from "../../CombatRuntimeIdentityFactory";
 type CombatBeamCannonRunnerOptions = {
     stateStore: EncounterStateStore;
     identities: CombatRuntimeIdentityFactory;
+    random: () => number;
     emit: (event: EncounterEvent) => void;
     applyInternalEffect: EncounterInternalEffectSink;
 };
@@ -34,13 +41,16 @@ export default class CombatBeamCannonRunner {
 
     private readonly identities: CombatRuntimeIdentityFactory;
 
+    private readonly random: () => number;
+
     private readonly emit: (event: EncounterEvent) => void;
 
     private readonly applyInternalEffect: EncounterInternalEffectSink;
 
-    constructor({ stateStore, identities, emit, applyInternalEffect }: CombatBeamCannonRunnerOptions) {
+    constructor({ stateStore, identities, random, emit, applyInternalEffect }: CombatBeamCannonRunnerOptions) {
         this.stateStore = stateStore;
         this.identities = identities;
+        this.random = random;
         this.emit = emit;
         this.applyInternalEffect = applyInternalEffect;
 
@@ -136,6 +146,8 @@ export default class CombatBeamCannonRunner {
             target: {
                 kind: COMBAT_TARGET_KIND.PLAYER_SHIP,
             },
+
+            targetNode: this.rollTargetNode(),
         };
 
         this.state.combat.beamCannonAttacks.push(attack);
@@ -223,6 +235,20 @@ export default class CombatBeamCannonRunner {
         this.applyInternalEffect({
             kind: ENCOUNTER_INTERNAL_EFFECT.INTERRUPT_RANDOM_PLAYER_OFFICER_TASK,
         });
+    }
+
+    private rollTargetNode(): BeamCannonTargetNode {
+        const roll = this.random();
+
+        if (roll < 1 / 3) {
+            return BEAM_CANNON_TARGET_NODE.HULL;
+        }
+
+        if (roll < 2 / 3) {
+            return BEAM_CANNON_TARGET_NODE.BRIDGE;
+        }
+
+        return BEAM_CANNON_TARGET_NODE.DRIVE;
     }
 
     private getDefinition(beamCannon: BeamCannonState): BeamCannonDefinition {

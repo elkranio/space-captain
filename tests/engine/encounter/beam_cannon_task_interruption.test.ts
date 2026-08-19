@@ -33,6 +33,9 @@ import { createSingleStationNodeFixture } from '../../fixtures/engine/space_node
 describe('BeamCannon hit officer task interruption', () => {
     it('uses encounter RNG to cancel one of several active tasks after a hit', () => {
         const { engine, state, beamCannonChargeDurationMs } = createBeamCannonEngine([
+            // Beam target selection.
+            0.5,
+
             // Two active tasks: select index 1.
             0.75,
         ]);

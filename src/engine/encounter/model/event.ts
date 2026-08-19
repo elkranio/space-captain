@@ -9,7 +9,7 @@ import type { JumpPointEncounterAnchorState } from "../anchors/jump_point/jump_p
 import { BEAM_CANNON_SHOT_OUTCOME, PLAYER_MISSILE_OUTCOME, PLAYER_STICKY_MINE_OUTCOME } from "./combat";
 import type {
     ActiveShieldState,
-    BeamCannonAttackState,
+    BeamCannonAttackSnapshot,
     BeamCannonShotOutcome,
     PlayerSpamChannelOutcome,
     SpamChannelOutcome,
@@ -421,28 +421,28 @@ export type StickyMineDetonatedEvent = PlayerHullDamageResult & {
 export type BeamCannonAttackStartedEvent = {
     type: typeof ENCOUNTER_EVENT.BEAM_CANNON_ATTACK_STARTED;
 
-    attack: BeamCannonAttackState;
+    attack: BeamCannonAttackSnapshot;
 };
 
 export type BeamCannonFiredEvent =
     | (PlayerHullDamageResult & {
           type: typeof ENCOUNTER_EVENT.BEAM_CANNON_FIRED;
 
-          attack: BeamCannonAttackState;
+          attack: BeamCannonAttackSnapshot;
 
           outcome: typeof BEAM_CANNON_SHOT_OUTCOME.HIT;
       })
     | {
           type: typeof ENCOUNTER_EVENT.BEAM_CANNON_FIRED;
 
-          attack: BeamCannonAttackState;
+          attack: BeamCannonAttackSnapshot;
 
           outcome: typeof BEAM_CANNON_SHOT_OUTCOME.ABSORBED;
       }
     | {
           type: typeof ENCOUNTER_EVENT.BEAM_CANNON_FIRED;
 
-          attack: BeamCannonAttackState;
+          attack: BeamCannonAttackSnapshot;
 
           outcome: typeof BEAM_CANNON_SHOT_OUTCOME.MISS;
       };

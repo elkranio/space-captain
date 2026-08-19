@@ -21,6 +21,7 @@ import {
 import EncounterEngine from '../../../src/engine/encounter/EncounterEngine';
 import {
     BEAM_CANNON_SHOT_OUTCOME,
+    createBeamCannonAttackSnapshot,
 } from '../../../src/engine/encounter/model/combat';
 import {
     ENCOUNTER_EVENT,
@@ -142,6 +143,11 @@ describe(
                     );
                 }
 
+                const activeAttackSnapshot =
+                    createBeamCannonAttackSnapshot(
+                        activeAttack,
+                    );
+
                 beamCannon.phaseElapsedMs =
                     definition
                         .chargeDurationMs;
@@ -190,7 +196,7 @@ describe(
                             .BEAM_CANNON_FIRED,
 
                     attack:
-                        activeAttack,
+                        activeAttackSnapshot,
 
                     outcome:
                         BEAM_CANNON_SHOT_OUTCOME

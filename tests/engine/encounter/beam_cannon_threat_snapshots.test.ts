@@ -12,6 +12,7 @@ import { SHIP_WEAPON_KIND } from '../../../src/engine/defs/ship_weapon';
 import EncounterEngine from '../../../src/engine/encounter/EncounterEngine';
 import { getMutableEncounterStateForTest } from './get_mutable_encounter_state_for_test';
 import {
+    BEAM_CANNON_TARGET_NODE,
     COMBAT_TARGET_KIND,
 } from '../../../src/engine/encounter/model/combat';
 import { ENCOUNTER_EVENT } from '../../../src/engine/encounter/model/event';
@@ -23,7 +24,18 @@ describe('EncounterEngine beamCannon threat snapshots', () => {
         const { engine, chargeDurationMs } = createBeamCannonEngine();
 
         engine.step(0);
-        engine.drainEvents();
+
+        const mutableState = getMutableEncounterStateForTest(engine);
+
+        expect(mutableState.combat.beamCannonAttacks[0]?.targetNode).toBe(BEAM_CANNON_TARGET_NODE.BRIDGE);
+
+        expect(engine.getBeamCannonAttacks()).toEqual([createExpectedAttack()]);
+
+        expect(engine.drainEvents()).toContainEqual({
+            type: ENCOUNTER_EVENT.BEAM_CANNON_ATTACK_STARTED,
+
+            attack: createExpectedAttack(),
+        });
 
         expect(engine.getCombatPresentationSnapshot().beamCannonThreats).toEqual([
             {
@@ -36,6 +48,8 @@ describe('EncounterEngine beamCannon threat snapshots', () => {
 
         engine.step(1234);
         engine.drainEvents();
+
+        expect(mutableState.combat.beamCannonAttacks[0]?.targetNode).toBe(BEAM_CANNON_TARGET_NODE.BRIDGE);
 
         expect(engine.getCombatPresentationSnapshot().beamCannonThreats).toEqual([
             {

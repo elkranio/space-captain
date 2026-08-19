@@ -2,12 +2,12 @@
 
 import { SHIP_WEAPONS } from "../../../content/catalogs/ship_weapons";
 import { SHIP_WEAPON_KIND, SHIP_WEAPON_PHASE } from "../../../defs/ship_weapon";
-import type { BeamCannonAttackState } from "../../model/combat";
+import { createBeamCannonAttackSnapshot, type BeamCannonAttackSnapshot } from "../../model/combat";
 import type { EncounterState } from "../../model/state";
 import { createDetachedSnapshot } from "../../snapshots/create_detached_snapshot";
 
 export type BeamCannonThreatSnapshot = {
-    attack: BeamCannonAttackState;
+    attack: BeamCannonAttackSnapshot;
 
     timeToFireMs: number;
     initialTimeToFireMs: number;
@@ -50,7 +50,7 @@ export function getBeamCannonThreatSnapshots(state: EncounterState): BeamCannonT
             }
 
             return {
-                attack,
+                attack: createBeamCannonAttackSnapshot(attack),
 
                 timeToFireMs: Math.max(0, definition.chargeDurationMs - weapon.phaseElapsedMs),
 

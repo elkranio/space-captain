@@ -91,6 +91,15 @@ export type CombatTarget =
           actorId: string;
       };
 
+export const BEAM_CANNON_TARGET_NODE = {
+    HULL: "hull",
+    BRIDGE: "bridge",
+    DRIVE: "drive",
+} as const;
+
+export type BeamCannonTargetNode =
+    (typeof BEAM_CANNON_TARGET_NODE)[keyof typeof BEAM_CANNON_TARGET_NODE];
+
 export type MissileThreatIdentification = MissileSignatureIntel;
 
 export type ThreatIdentificationResult = ResolvedMissileSignatureIntel & {
@@ -131,7 +140,7 @@ export type CombatProjectileState = MissileCombatProjectileState;
 
 // Существует только во время CHARGING.
 // Общая TARGETING-фаза ещё не создаёт видимую beamCannon threat.
-export type BeamCannonAttackState = {
+export type BeamCannonAttackSnapshot = {
     id: string;
 
     // Использует общую encounter-последовательность
@@ -145,6 +154,25 @@ export type BeamCannonAttackState = {
         kind: typeof COMBAT_TARGET_KIND.PLAYER_SHIP;
     };
 };
+
+export type BeamCannonAttackState = BeamCannonAttackSnapshot & {
+    // Objective hidden truth. Player-facing reads expose only observed intel.
+    targetNode: BeamCannonTargetNode;
+};
+
+export function createBeamCannonAttackSnapshot(attack: BeamCannonAttackSnapshot): BeamCannonAttackSnapshot {
+    return {
+        id: attack.id,
+        designation: attack.designation,
+
+        sourceActorId: attack.sourceActorId,
+        sourceWeaponId: attack.sourceWeaponId,
+
+        target: {
+            ...attack.target,
+        },
+    };
+}
 
 // Temporary shield created by the installed Shield Generator.
 export type ActiveShieldState = {

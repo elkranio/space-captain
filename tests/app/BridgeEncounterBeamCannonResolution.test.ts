@@ -8,7 +8,7 @@ import type BridgeEventBus from '../../src/app/scenes/game/bridge/events/BridgeE
 import {
     COMBAT_TARGET_KIND,
     BEAM_CANNON_SHOT_OUTCOME,
-    type BeamCannonAttackState,
+    type BeamCannonAttackSnapshot,
 } from '../../src/engine/encounter/model/combat';
 import { ENCOUNTER_EVENT } from '../../src/engine/encounter/model/event';
 
@@ -177,7 +177,7 @@ function createHandler() {
     };
 }
 
-function createAttack(): BeamCannonAttackState {
+function createAttack(): BeamCannonAttackSnapshot {
     return {
         id: 'beam_cannon_attack_1',
         designation: 'L1',

@@ -15,7 +15,12 @@ import {
 } from "../combat/queries/get_enemy_ship_telemetry_snapshots";
 import { getEnemyDebugSnapshots, type EnemyDebugSnapshot } from "../debug/get_enemy_debug_snapshots";
 import type { AvailableOfficerCommand } from "../model/command";
-import type { ActiveShieldState, CombatProjectileState, BeamCannonAttackState } from "../model/combat";
+import {
+    createBeamCannonAttackSnapshot,
+    type ActiveShieldState,
+    type BeamCannonAttackSnapshot,
+    type CombatProjectileState,
+} from "../model/combat";
 import type { OfficerAvailabilityStates } from "../model/officer_availability";
 import type { OfficerTaskState } from "../model/officer_task";
 import type { EncounterState } from "../model/state";
@@ -102,8 +107,10 @@ export default class EncounterSnapshotReader {
         return this.read((state) => state.combat.projectiles);
     }
 
-    public getBeamCannonAttacks(): BeamCannonAttackState[] {
-        return this.read((state) => state.combat.beamCannonAttacks);
+    public getBeamCannonAttacks(): BeamCannonAttackSnapshot[] {
+        return this.read((state) => {
+            return state.combat.beamCannonAttacks.map(createBeamCannonAttackSnapshot);
+        });
     }
 
     private read<T>(select: (state: EncounterState) => T): T {

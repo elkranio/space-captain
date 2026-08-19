@@ -438,6 +438,9 @@ describe(
                             kind:
                                 'player_ship',
                         },
+
+                        targetNode:
+                            'hull',
                     });
 
                 const hullBefore =

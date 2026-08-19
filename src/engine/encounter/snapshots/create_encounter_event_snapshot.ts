@@ -1,3 +1,7 @@
+import {
+    createBeamCannonAttackSnapshot,
+    type BeamCannonAttackSnapshot,
+} from "../model/combat";
 import { ENCOUNTER_EVENT, type EncounterEvent } from "../model/event";
 import {
     createMissileEventProjectileSnapshot,
@@ -12,7 +16,7 @@ type MissileProjectileEncounterEvent = EncounterEvent & {
 // Single engine-outbox boundary.
 //
 // Runners may operate on richer mutable domain objects. Before an event leaves
-// EncounterEngine, payloads with hidden projectile truth are projected to the
+// EncounterEngine, payloads with hidden combat truth are projected to the
 // explicit public event model and the whole event is recursively detached.
 export function createEncounterEventSnapshot(event: EncounterEvent): EncounterEvent {
     switch (event.type) {
@@ -27,6 +31,11 @@ export function createEncounterEventSnapshot(event: EncounterEvent): EncounterEv
         case ENCOUNTER_EVENT.MISSILE_IMPACTED_PLAYER_SHIP:
             return createMissileProjectileEncounterEventSnapshot(event);
 
+        case ENCOUNTER_EVENT.BEAM_CANNON_ATTACK_STARTED:
+
+        case ENCOUNTER_EVENT.BEAM_CANNON_FIRED:
+            return createBeamCannonAttackEncounterEventSnapshot(event);
+
         default:
             return createDetachedSnapshot(event);
     }
@@ -37,5 +46,17 @@ function createMissileProjectileEncounterEventSnapshot<T extends MissileProjecti
         ...event,
 
         projectile: createMissileEventProjectileSnapshot(event.projectile),
+    }) as T;
+}
+
+type BeamCannonAttackEncounterEvent = EncounterEvent & {
+    attack: BeamCannonAttackSnapshot;
+};
+
+function createBeamCannonAttackEncounterEventSnapshot<T extends BeamCannonAttackEncounterEvent>(event: T): T {
+    return createDetachedSnapshot({
+        ...event,
+
+        attack: createBeamCannonAttackSnapshot(event.attack),
     }) as T;
 }

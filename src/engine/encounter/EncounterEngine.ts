@@ -21,7 +21,7 @@ import type { EnemyShipTelemetrySnapshot } from "./combat/queries/get_enemy_ship
 import PlayerWeaponRunner from "./combat/weapons/PlayerWeaponRunner";
 import OfficerCommandExecutor from "./commands/OfficerCommandExecutor";
 import type { AvailableOfficerCommand, ExecuteOfficerCommandInput, ExecuteOfficerCommandResult } from "./model/command";
-import { type ActiveShieldState, type CombatProjectileState, type BeamCannonAttackState } from "./model/combat";
+import { type ActiveShieldState, type BeamCannonAttackSnapshot, type CombatProjectileState } from "./model/combat";
 import { ENCOUNTER_EVENT, type EncounterEvent } from "./model/event";
 import {
     ENCOUNTER_INTERNAL_EFFECT,
@@ -313,7 +313,7 @@ export default class EncounterEngine {
         return this.snapshotReader.getCombatProjectiles();
     }
 
-    public getBeamCannonAttacks(): BeamCannonAttackState[] {
+    public getBeamCannonAttacks(): BeamCannonAttackSnapshot[] {
         return this.snapshotReader.getBeamCannonAttacks();
     }
 
