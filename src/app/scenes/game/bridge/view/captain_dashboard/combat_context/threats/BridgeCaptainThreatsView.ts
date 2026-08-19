@@ -19,12 +19,10 @@ const THREAT_TILE_GRID = {
     tileHeight: 66,
 } as const;
 
-const LEGACY_ROW_HEIGHT = 36;
-
 // Captain threat list.
 //
-// Missile, Beam Cannon и Sticky Mine используют production-like fixed tiles 163x66
-// и вместе заполняют общую сетку слева направо. Spam пока остаётся legacy row.
+// Все combat threats используют production-like fixed tiles 163x66
+// и вместе заполняют общую сетку слева направо.
 export default class BridgeCaptainThreatsView {
     private readonly root: Phaser.GameObjects.Container;
 
@@ -70,9 +68,9 @@ export default class BridgeCaptainThreatsView {
 
         this.reconcileStickyMineRows(stickyMines, firstStickyMineIndex);
 
-        const firstSpamY = this.getThreatTileGridHeight(firstStickyMineIndex + stickyMines.length);
+        const firstSpamIndex = firstStickyMineIndex + stickyMines.length;
 
-        this.reconcileSpamRows(spamChannels, firstSpamY);
+        this.reconcileSpamRows(spamChannels, firstSpamIndex);
     }
 
     public destroy(): void {
@@ -197,7 +195,7 @@ export default class BridgeCaptainThreatsView {
     private reconcileSpamRows(
         spamChannels: BridgeCaptainSpamChannelPayload[],
 
-        startY: number,
+        startIndex: number,
     ): void {
         while (this.spamRowViews.length > spamChannels.length) {
             const rowView = this.spamRowViews.pop();
@@ -206,17 +204,11 @@ export default class BridgeCaptainThreatsView {
         }
 
         while (this.spamRowViews.length < spamChannels.length) {
-            const rowView = new BridgeCaptainSpamThreatRowView(
-                this.scene,
-                this.width,
-                LEGACY_ROW_HEIGHT,
-
-                {
-                    onPurge: (command) => {
-                        this.emitCommand(command);
-                    },
+            const rowView = new BridgeCaptainSpamThreatRowView(this.scene, {
+                onPurge: (command) => {
+                    this.emitCommand(command);
                 },
-            );
+            });
 
             this.spamRowViews.push(rowView);
 
@@ -232,7 +224,7 @@ export default class BridgeCaptainThreatsView {
                 continue;
             }
 
-            rowView.setPosition(0, startY + index * LEGACY_ROW_HEIGHT);
+            this.positionTile(rowView, startIndex + index);
 
             rowView.update(channel);
         }
@@ -242,7 +234,8 @@ export default class BridgeCaptainThreatsView {
         rowView:
             | BridgeCaptainMissileThreatRowView
             | BridgeCaptainBeamCannonThreatRowView
-            | BridgeCaptainStickyMineThreatRowView,
+            | BridgeCaptainStickyMineThreatRowView
+            | BridgeCaptainSpamThreatRowView,
         index: number,
     ): void {
         const column = index % THREAT_TILE_GRID.columns;
@@ -253,17 +246,6 @@ export default class BridgeCaptainThreatsView {
             column * (THREAT_TILE_GRID.tileWidth + tileGap),
             row * (THREAT_TILE_GRID.tileHeight + tileGap),
         );
-    }
-
-    private getThreatTileGridHeight(threatCount: number): number {
-        if (threatCount === 0) {
-            return 0;
-        }
-
-        const rowCount = Math.ceil(threatCount / THREAT_TILE_GRID.columns);
-        const tileGap = this.getThreatTileGridGap();
-
-        return rowCount * THREAT_TILE_GRID.tileHeight + (rowCount - 1) * tileGap;
     }
 
     private getThreatTileGridGap(): number {

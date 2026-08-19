@@ -1,34 +1,40 @@
+import { UI_COMBAT_SPRITE_ID, UI_COMBAT_SPRITES } from "../../../../../../../manifests/ui/combat";
 import { FONT_COLOR, FONT_FAMILY, FONT_SIZE } from "../../../../../../../theme/font";
 import type BridgeScene from "../../../../BridgeScene";
-import { CAPTAIN_DASHBOARD_STYLE } from "../../captain_dashboard_style";
-import { formatCaptainDashboardCountdown } from "../../captain_dashboard_format";
 import type {
     BridgeCaptainSpamChannelPayload,
     BridgeOfficerCommandSelectedPayload,
 } from "../../../../events/bridge_event";
+import { formatCaptainDashboardCountdown } from "../../captain_dashboard_format";
 
-const ROW = {
-    verticalGap: 1,
+const TILE = {
+    iconX: 9,
+    iconY: 8,
 
-    timerX: 10,
-    timerY: 9,
+    timerX: 154,
+    timerY: 8,
 
-    iconX: 78,
-    iconY: 4,
-    iconWidth: 42,
-    iconHeight: 27,
+    buttonWidth: 75,
+    buttonY: 34,
+    scienceButtonX: 5,
 
-    labelX: 132,
-    labelY: 9,
+    roleOffsetX: 9,
+    roleOffsetY: 10,
 
-    buttonWidth: 92,
-    buttonHeight: 27,
-    buttonMarginRight: 6,
-    buttonY: 4,
+    labelRightInset: 10,
+    labelOffsetY: 14,
+
+    disabledAlpha: 0.35,
 } as const;
 
 type SpamThreatRowCallbacks = {
     onPurge: (command: BridgeOfficerCommandSelectedPayload) => void;
+};
+
+type ActionButton = {
+    background: Phaser.GameObjects.Image;
+    roleGlyph: Phaser.GameObjects.Image;
+    label: Phaser.GameObjects.Text;
 };
 
 // Active hostile SPAM channel.
@@ -36,133 +42,40 @@ type SpamThreatRowCallbacks = {
 // The timer is time until natural channel expiry.
 // SCI action is present only when the engine currently exposes
 // SCIENCE_PURGE_SPAM for this exact channel id.
+// Spam intentionally has no decision-window progress bar.
 export default class BridgeCaptainSpamThreatRowView {
     private readonly root: Phaser.GameObjects.Container;
 
     private readonly timerText: Phaser.GameObjects.BitmapText;
-
-    private readonly scienceButton: Phaser.GameObjects.Rectangle;
-
-    private readonly scienceLabel: Phaser.GameObjects.BitmapText;
+    private readonly scienceAction: ActionButton;
 
     private scienceCommand?: BridgeOfficerCommandSelectedPayload;
 
     constructor(
         private readonly scene: BridgeScene,
-
-        width: number,
-        height: number,
-
         private readonly callbacks: SpamThreatRowCallbacks,
     ) {
         this.root = this.scene.add.container(0, 0);
 
-        const visibleHeight = Math.max(1, height - ROW.verticalGap);
-
-        const background = this.scene.add
-            .rectangle(
-                0,
-                0,
-
-                width,
-                visibleHeight,
-
-                CAPTAIN_DASHBOARD_STYLE.row.backgroundColor,
-                CAPTAIN_DASHBOARD_STYLE.row.backgroundAlpha,
-            )
-            .setOrigin(0, 0)
-            .setStrokeStyle(CAPTAIN_DASHBOARD_STYLE.row.borderThickness, CAPTAIN_DASHBOARD_STYLE.row.borderColor);
+        const background = this.createSprite(UI_COMBAT_SPRITE_ID.THREAT_TILE_BG, 0, 0);
+        const spamIcon = this.createSprite(UI_COMBAT_SPRITE_ID.THREAT_SPAM, TILE.iconX, TILE.iconY);
 
         this.timerText = this.scene.add
-            .bitmapText(
-                ROW.timerX,
-                ROW.timerY,
+            .bitmapText(TILE.timerX, TILE.timerY, FONT_FAMILY.VGA_8X14, "--.-s", FONT_SIZE.PX_14)
+            .setOrigin(1, 0)
+            .setTint(FONT_COLOR.WHITE);
 
-                FONT_FAMILY.VGA_8X14,
-                "--.-s",
-                FONT_SIZE.PX_16,
-            )
-            .setOrigin(0, 0)
-            .setTint(FONT_COLOR.ACTIVITY);
+        this.scienceAction = this.createActionButton(TILE.scienceButtonX, UI_COMBAT_SPRITE_ID.ROLE_S, "PURGE");
 
-        const iconBackground = this.scene.add
-            .rectangle(
-                ROW.iconX,
-                ROW.iconY,
-
-                ROW.iconWidth,
-                ROW.iconHeight,
-
-                CAPTAIN_DASHBOARD_STYLE.row.iconBackgroundColor,
-                1,
-            )
-            .setOrigin(0, 0)
-            .setStrokeStyle(1, CAPTAIN_DASHBOARD_STYLE.row.iconBorderColor);
-
-        const iconLabel = this.scene.add
-            .bitmapText(
-                ROW.iconX + ROW.iconWidth / 2,
-
-                ROW.iconY + ROW.iconHeight / 2,
-
-                FONT_FAMILY.VGA_8X14,
-                "SPAM",
-                FONT_SIZE.PX_14,
-            )
-            .setOrigin(0.5, 0.5)
-            .setTint(FONT_COLOR.SECONDARY);
-
-        const threatLabel = this.scene.add
-            .bitmapText(
-                ROW.labelX,
-                ROW.labelY,
-
-                FONT_FAMILY.VGA_8X14,
-                "SPAM CHANNEL",
-                FONT_SIZE.PX_16,
-            )
-            .setOrigin(0, 0)
-            .setTint(FONT_COLOR.PRIMARY);
-
-        const scienceX = width - ROW.buttonMarginRight - ROW.buttonWidth;
-
-        this.scienceButton = this.scene.add
-            .rectangle(
-                scienceX,
-                ROW.buttonY,
-
-                ROW.buttonWidth,
-                ROW.buttonHeight,
-
-                CAPTAIN_DASHBOARD_STYLE.action.disabledBackgroundColor,
-                1,
-            )
-            .setOrigin(0, 0)
-            .setStrokeStyle(1, CAPTAIN_DASHBOARD_STYLE.action.disabledBorderColor);
-
-        this.scienceLabel = this.scene.add
-            .bitmapText(
-                scienceX + ROW.buttonWidth / 2,
-
-                ROW.buttonY + ROW.buttonHeight / 2,
-
-                FONT_FAMILY.VGA_8X14,
-                "SCI",
-                FONT_SIZE.PX_16,
-            )
-            .setOrigin(0.5, 0.5)
-            .setTint(CAPTAIN_DASHBOARD_STYLE.action.disabledTextColor);
-
-        this.scienceButton.on("pointerdown", this.handleSciencePointerDown, this);
+        this.scienceAction.background.on("pointerdown", this.handleSciencePointerDown, this);
 
         this.root.add([
             background,
+            spamIcon,
             this.timerText,
-            iconBackground,
-            iconLabel,
-            threatLabel,
-            this.scienceButton,
-            this.scienceLabel,
+            this.scienceAction.background,
+            this.scienceAction.roleGlyph,
+            this.scienceAction.label,
         ]);
     }
 
@@ -181,36 +94,59 @@ export default class BridgeCaptainSpamThreatRowView {
     }
 
     public destroy(): void {
-        this.scienceButton.off("pointerdown", this.handleSciencePointerDown, this);
+        this.scienceAction.background.off("pointerdown", this.handleSciencePointerDown, this);
 
         this.scienceCommand = undefined;
 
         this.root.destroy(true);
     }
 
+    private createSprite(spriteId: UiCombatSpriteId, x: number, y: number): Phaser.GameObjects.Image {
+        const sprite = UI_COMBAT_SPRITES[spriteId];
+
+        return this.scene.add.image(x, y, sprite.atlasKey, sprite.frameKey).setOrigin(0, 0);
+    }
+
+    private createActionButton(x: number, roleSpriteId: UiCombatSpriteId, labelText: string): ActionButton {
+        const background = this.createSprite(UI_COMBAT_SPRITE_ID.ACTION_BUTTON_BG, x, TILE.buttonY);
+
+        const roleGlyph = this.createSprite(roleSpriteId, x + TILE.roleOffsetX, TILE.buttonY + TILE.roleOffsetY);
+
+        const label = this.scene.add
+            .text(x + TILE.buttonWidth - TILE.labelRightInset, TILE.buttonY + TILE.labelOffsetY, labelText, {
+                fontFamily: "Anta",
+                fontSize: "10px",
+                color: "#ffffff",
+                resolution: 1,
+            })
+            .setOrigin(1, 0.5);
+
+        return {
+            background,
+            roleGlyph,
+            label,
+        };
+    }
+
     private setScienceAction(command: BridgeOfficerCommandSelectedPayload | undefined): void {
-        this.scienceButton.disableInteractive();
-
         this.scienceCommand = command;
+        this.setActionEnabled(this.scienceAction, command !== undefined);
+    }
 
-        if (!command) {
-            this.scienceButton
-                .setFillStyle(CAPTAIN_DASHBOARD_STYLE.action.disabledBackgroundColor, 1)
-                .setStrokeStyle(1, CAPTAIN_DASHBOARD_STYLE.action.disabledBorderColor);
+    private setActionEnabled(action: ActionButton, enabled: boolean): void {
+        action.background.disableInteractive();
 
-            this.scienceLabel.setTint(CAPTAIN_DASHBOARD_STYLE.action.disabledTextColor);
-
-            return;
-        }
-
-        this.scienceButton
-            .setFillStyle(CAPTAIN_DASHBOARD_STYLE.action.activeBackgroundColor, 1)
-            .setStrokeStyle(1, CAPTAIN_DASHBOARD_STYLE.action.activeBorderColor)
-            .setInteractive({
+        if (enabled) {
+            action.background.setInteractive({
                 useHandCursor: true,
             });
+        }
 
-        this.scienceLabel.setTint(FONT_COLOR.WHITE);
+        const alpha = enabled ? 1 : TILE.disabledAlpha;
+
+        action.background.setAlpha(alpha);
+        action.roleGlyph.setAlpha(alpha);
+        action.label.setAlpha(alpha);
     }
 
     private handleSciencePointerDown(): void {
@@ -221,3 +157,5 @@ export default class BridgeCaptainSpamThreatRowView {
         this.callbacks.onPurge(this.scienceCommand);
     }
 }
+
+type UiCombatSpriteId = (typeof UI_COMBAT_SPRITE_ID)[keyof typeof UI_COMBAT_SPRITE_ID];
