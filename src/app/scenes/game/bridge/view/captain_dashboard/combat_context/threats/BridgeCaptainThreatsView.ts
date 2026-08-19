@@ -23,8 +23,8 @@ const LEGACY_ROW_HEIGHT = 36;
 
 // Captain threat list.
 //
-// Missile и Beam Cannon используют production-like fixed tiles 163x66
-// и вместе заполняют общую сетку слева направо. Mine/Spam пока legacy rows.
+// Missile, Beam Cannon и Sticky Mine используют production-like fixed tiles 163x66
+// и вместе заполняют общую сетку слева направо. Spam пока остаётся legacy row.
 export default class BridgeCaptainThreatsView {
     private readonly root: Phaser.GameObjects.Container;
 
@@ -66,11 +66,11 @@ export default class BridgeCaptainThreatsView {
         this.reconcileMissileRows(missiles);
         this.reconcileBeamCannonRows(beamCannons, missiles.length);
 
-        const firstStickyMineY = this.getThreatTileGridHeight(missiles.length + beamCannons.length);
+        const firstStickyMineIndex = missiles.length + beamCannons.length;
 
-        this.reconcileStickyMineRows(stickyMines, firstStickyMineY);
+        this.reconcileStickyMineRows(stickyMines, firstStickyMineIndex);
 
-        const firstSpamY = firstStickyMineY + stickyMines.length * LEGACY_ROW_HEIGHT;
+        const firstSpamY = this.getThreatTileGridHeight(firstStickyMineIndex + stickyMines.length);
 
         this.reconcileSpamRows(spamChannels, firstSpamY);
     }
@@ -159,7 +159,7 @@ export default class BridgeCaptainThreatsView {
     private reconcileStickyMineRows(
         stickyMines: BridgeCaptainStickyMinePayload[],
 
-        startY: number,
+        startIndex: number,
     ): void {
         while (this.stickyMineRowViews.length > stickyMines.length) {
             const rowView = this.stickyMineRowViews.pop();
@@ -168,17 +168,11 @@ export default class BridgeCaptainThreatsView {
         }
 
         while (this.stickyMineRowViews.length < stickyMines.length) {
-            const rowView = new BridgeCaptainStickyMineThreatRowView(
-                this.scene,
-                this.width,
-                LEGACY_ROW_HEIGHT,
-
-                {
-                    onClear: (command) => {
-                        this.emitCommand(command);
-                    },
+            const rowView = new BridgeCaptainStickyMineThreatRowView(this.scene, {
+                onClear: (command) => {
+                    this.emitCommand(command);
                 },
-            );
+            });
 
             this.stickyMineRowViews.push(rowView);
 
@@ -194,7 +188,7 @@ export default class BridgeCaptainThreatsView {
                 continue;
             }
 
-            rowView.setPosition(0, startY + index * LEGACY_ROW_HEIGHT);
+            this.positionTile(rowView, startIndex + index);
 
             rowView.update(mine);
         }
@@ -245,7 +239,10 @@ export default class BridgeCaptainThreatsView {
     }
 
     private positionTile(
-        rowView: BridgeCaptainMissileThreatRowView | BridgeCaptainBeamCannonThreatRowView,
+        rowView:
+            | BridgeCaptainMissileThreatRowView
+            | BridgeCaptainBeamCannonThreatRowView
+            | BridgeCaptainStickyMineThreatRowView,
         index: number,
     ): void {
         const column = index % THREAT_TILE_GRID.columns;

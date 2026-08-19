@@ -1,175 +1,78 @@
+import { UI_COMBAT_SPRITE_ID, UI_COMBAT_SPRITES } from "../../../../../../../manifests/ui/combat";
 import { FONT_COLOR, FONT_FAMILY, FONT_SIZE } from "../../../../../../../theme/font";
 import type BridgeScene from "../../../../BridgeScene";
-import { CAPTAIN_DASHBOARD_STYLE } from "../../captain_dashboard_style";
-import { formatCaptainDashboardCountdown } from "../../captain_dashboard_format";
 import type {
     BridgeCaptainStickyMinePayload,
     BridgeOfficerCommandSelectedPayload,
 } from "../../../../events/bridge_event";
+import { formatCaptainDashboardCountdown } from "../../captain_dashboard_format";
 
-const ROW = {
-    verticalGap: 1,
+const TILE = {
+    iconX: 9,
+    iconY: 8,
 
-    timerX: 10,
-    timerY: 9,
+    timerX: 154,
+    timerY: 8,
 
-    iconX: 78,
-    iconY: 4,
-    iconWidth: 42,
-    iconHeight: 27,
+    buttonWidth: 75,
+    buttonY: 34,
+    engineerButtonX: 5,
 
-    labelX: 132,
-    labelY: 9,
+    roleOffsetX: 9,
+    roleOffsetY: 10,
 
-    buttonWidth: 54,
-    buttonHeight: 27,
-    buttonGap: 4,
-    buttonMarginRight: 6,
-    buttonY: 4,
+    labelRightInset: 10,
+    labelOffsetY: 14,
+
+    disabledAlpha: 0.35,
 } as const;
-
-type MineActionKey = keyof BridgeCaptainStickyMinePayload["actions"];
-
-type MineActionSlot = {
-    key: MineActionKey;
-    label: string;
-};
-
-const ACTION_SLOTS = [
-    {
-        key: "engineerClear",
-        label: "ENG",
-    },
-] satisfies readonly MineActionSlot[];
-
-type MineButton = {
-    key: MineActionKey;
-
-    background: Phaser.GameObjects.Rectangle;
-
-    label: Phaser.GameObjects.BitmapText;
-
-    command?: BridgeOfficerCommandSelectedPayload;
-};
 
 type StickyMineThreatRowCallbacks = {
     onClear: (command: BridgeOfficerCommandSelectedPayload) => void;
 };
 
-// Temporary captain-dashboard mine row.
-//
-// CLEAR MINE is Engineer-only.
-// Only the engine-selected isNextClearTarget row can expose the ENG action.
-// This intentionally stays mine-specific while threat geometry is provisional.
+type ActionButton = {
+    background: Phaser.GameObjects.Image;
+    roleGlyph: Phaser.GameObjects.Image;
+    label: Phaser.GameObjects.Text;
+};
+
+// Sticky Mine использует общий production-like threat tile.
+// CLEAR остаётся Engineer-only, а верхняя середина намеренно пустая:
+// текущие mine-state labels не меняют решение игрока.
 export default class BridgeCaptainStickyMineThreatRowView {
     private readonly root: Phaser.GameObjects.Container;
 
     private readonly timerText: Phaser.GameObjects.BitmapText;
+    private readonly engineerAction: ActionButton;
 
-    private readonly threatLabel: Phaser.GameObjects.BitmapText;
-
-    private readonly buttons: MineButton[];
+    private engineerCommand?: BridgeOfficerCommandSelectedPayload;
 
     constructor(
         private readonly scene: BridgeScene,
-
-        width: number,
-        height: number,
-
         private readonly callbacks: StickyMineThreatRowCallbacks,
     ) {
         this.root = this.scene.add.container(0, 0);
 
-        const visibleHeight = Math.max(1, height - ROW.verticalGap);
-
-        const background = this.scene.add
-            .rectangle(
-                0,
-                0,
-
-                width,
-                visibleHeight,
-
-                CAPTAIN_DASHBOARD_STYLE.row.backgroundColor,
-                CAPTAIN_DASHBOARD_STYLE.row.backgroundAlpha,
-            )
-            .setOrigin(0, 0)
-            .setStrokeStyle(CAPTAIN_DASHBOARD_STYLE.row.borderThickness, CAPTAIN_DASHBOARD_STYLE.row.borderColor);
+        const background = this.createSprite(UI_COMBAT_SPRITE_ID.THREAT_TILE_BG, 0, 0);
+        const mineIcon = this.createSprite(UI_COMBAT_SPRITE_ID.THREAT_MINE, TILE.iconX, TILE.iconY);
 
         this.timerText = this.scene.add
-            .bitmapText(
-                ROW.timerX,
-                ROW.timerY,
+            .bitmapText(TILE.timerX, TILE.timerY, FONT_FAMILY.VGA_8X14, "--.-s", FONT_SIZE.PX_14)
+            .setOrigin(1, 0)
+            .setTint(FONT_COLOR.WHITE);
 
-                FONT_FAMILY.VGA_8X14,
-                "--.-s",
-                FONT_SIZE.PX_16,
-            )
-            .setOrigin(0, 0)
-            .setTint(FONT_COLOR.ACTIVITY);
+        this.engineerAction = this.createActionButton(TILE.engineerButtonX, UI_COMBAT_SPRITE_ID.ROLE_E, "CLEAR");
 
-        const iconBackground = this.scene.add
-            .rectangle(
-                ROW.iconX,
-                ROW.iconY,
-
-                ROW.iconWidth,
-                ROW.iconHeight,
-
-                CAPTAIN_DASHBOARD_STYLE.row.iconBackgroundColor,
-                1,
-            )
-            .setOrigin(0, 0)
-            .setStrokeStyle(1, CAPTAIN_DASHBOARD_STYLE.row.iconBorderColor);
-
-        const iconLabel = this.scene.add
-            .bitmapText(
-                ROW.iconX + ROW.iconWidth / 2,
-
-                ROW.iconY + ROW.iconHeight / 2,
-
-                FONT_FAMILY.VGA_8X14,
-                "MINE",
-                FONT_SIZE.PX_14,
-            )
-            .setOrigin(0.5, 0.5)
-            .setTint(FONT_COLOR.SECONDARY);
-
-        this.threatLabel = this.scene.add
-            .bitmapText(
-                ROW.labelX,
-                ROW.labelY,
-
-                FONT_FAMILY.VGA_8X14,
-                "STICKY MINE",
-                FONT_SIZE.PX_16,
-            )
-            .setOrigin(0, 0)
-            .setTint(FONT_COLOR.PRIMARY);
-
-        const totalButtonWidth = ACTION_SLOTS.length * ROW.buttonWidth + (ACTION_SLOTS.length - 1) * ROW.buttonGap;
-
-        const firstButtonX = width - ROW.buttonMarginRight - totalButtonWidth;
-
-        this.buttons = ACTION_SLOTS.map((slot, index) => {
-            return this.createButton(
-                slot.key,
-
-                firstButtonX + index * (ROW.buttonWidth + ROW.buttonGap),
-
-                slot.label,
-            );
-        });
+        this.engineerAction.background.on("pointerdown", this.handleEngineerPointerDown, this);
 
         this.root.add([
             background,
+            mineIcon,
             this.timerText,
-            iconBackground,
-            iconLabel,
-            this.threatLabel,
-            ...this.buttons.flatMap((button) => {
-                return [button.background, button.label];
-            }),
+            this.engineerAction.background,
+            this.engineerAction.roleGlyph,
+            this.engineerAction.label,
         ]);
     }
 
@@ -184,96 +87,72 @@ export default class BridgeCaptainStickyMineThreatRowView {
     public update(mine: BridgeCaptainStickyMinePayload): void {
         this.timerText.setText(formatCaptainDashboardCountdown(mine.timeToDetonationMs));
 
-        this.threatLabel.setText(mine.isBeingCleared ? "CLEARING MINE" : "STICKY MINE");
-
-        for (const button of this.buttons) {
-            this.setAction(
-                button,
-
-                mine.isNextClearTarget ? mine.actions[button.key] : undefined,
-            );
-        }
+        this.setEngineerAction(mine.isNextClearTarget ? mine.actions.engineerClear : undefined);
     }
 
     public destroy(): void {
-        for (const button of this.buttons) {
-            button.command = undefined;
+        this.engineerAction.background.off("pointerdown", this.handleEngineerPointerDown, this);
 
-            button.background.removeAllListeners();
-        }
+        this.engineerCommand = undefined;
 
         this.root.destroy(true);
     }
 
-    private createButton(key: MineActionKey, x: number, labelText: string): MineButton {
-        const button: MineButton = {
-            key,
+    private createSprite(spriteId: UiCombatSpriteId, x: number, y: number): Phaser.GameObjects.Image {
+        const sprite = UI_COMBAT_SPRITES[spriteId];
 
-            background: this.scene.add
-                .rectangle(
-                    x,
-                    ROW.buttonY,
-
-                    ROW.buttonWidth,
-                    ROW.buttonHeight,
-
-                    CAPTAIN_DASHBOARD_STYLE.action.disabledBackgroundColor,
-                    1,
-                )
-                .setOrigin(0, 0)
-                .setStrokeStyle(1, CAPTAIN_DASHBOARD_STYLE.action.disabledBorderColor),
-
-            label: this.scene.add
-                .bitmapText(
-                    x + ROW.buttonWidth / 2,
-
-                    ROW.buttonY + ROW.buttonHeight / 2,
-
-                    FONT_FAMILY.VGA_8X14,
-                    labelText,
-                    FONT_SIZE.PX_14,
-                )
-                .setOrigin(0.5, 0.5)
-                .setTint(CAPTAIN_DASHBOARD_STYLE.action.disabledTextColor),
-        };
-
-        button.background.on("pointerdown", () => {
-            if (!button.command) {
-                return;
-            }
-
-            this.callbacks.onClear(button.command);
-        });
-
-        return button;
+        return this.scene.add.image(x, y, sprite.atlasKey, sprite.frameKey).setOrigin(0, 0);
     }
 
-    private setAction(
-        button: MineButton,
+    private createActionButton(x: number, roleSpriteId: UiCombatSpriteId, labelText: string): ActionButton {
+        const background = this.createSprite(UI_COMBAT_SPRITE_ID.ACTION_BUTTON_BG, x, TILE.buttonY);
 
-        command: BridgeOfficerCommandSelectedPayload | undefined,
-    ): void {
-        button.background.disableInteractive();
+        const roleGlyph = this.createSprite(roleSpriteId, x + TILE.roleOffsetX, TILE.buttonY + TILE.roleOffsetY);
 
-        button.command = command;
+        const label = this.scene.add
+            .text(x + TILE.buttonWidth - TILE.labelRightInset, TILE.buttonY + TILE.labelOffsetY, labelText, {
+                fontFamily: "Anta",
+                fontSize: "10px",
+                color: "#ffffff",
+                resolution: 1,
+            })
+            .setOrigin(1, 0.5);
 
-        if (!command) {
-            button.background
-                .setFillStyle(CAPTAIN_DASHBOARD_STYLE.action.disabledBackgroundColor, 1)
-                .setStrokeStyle(1, CAPTAIN_DASHBOARD_STYLE.action.disabledBorderColor);
+        return {
+            background,
+            roleGlyph,
+            label,
+        };
+    }
 
-            button.label.setTint(CAPTAIN_DASHBOARD_STYLE.action.disabledTextColor);
+    private setEngineerAction(command: BridgeOfficerCommandSelectedPayload | undefined): void {
+        this.engineerCommand = command;
+        this.setActionEnabled(this.engineerAction, command !== undefined);
+    }
 
+    private setActionEnabled(action: ActionButton, enabled: boolean): void {
+        action.background.disableInteractive();
+
+        if (enabled) {
+            action.background.setInteractive({
+                useHandCursor: true,
+            });
+        }
+
+        const alpha = enabled ? 1 : TILE.disabledAlpha;
+
+        action.background.setAlpha(alpha);
+        action.roleGlyph.setAlpha(alpha);
+        action.label.setAlpha(alpha);
+    }
+
+    private handleEngineerPointerDown(): void {
+        if (!this.engineerCommand) {
             return;
         }
 
-        button.background
-            .setFillStyle(CAPTAIN_DASHBOARD_STYLE.action.activeBackgroundColor, 1)
-            .setStrokeStyle(1, CAPTAIN_DASHBOARD_STYLE.action.activeBorderColor)
-            .setInteractive({
-                useHandCursor: true,
-            });
-
-        button.label.setTint(FONT_COLOR.WHITE);
+        this.callbacks.onClear(this.engineerCommand);
     }
 }
+
+type UiCombatSpriteId = (typeof UI_COMBAT_SPRITE_ID)[keyof typeof UI_COMBAT_SPRITE_ID];
