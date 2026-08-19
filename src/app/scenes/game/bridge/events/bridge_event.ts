@@ -427,6 +427,11 @@ export type BridgeCaptainIncomingBeamCannonPayload = {
         trackTarget?: BridgeOfficerCommandSelectedPayload;
         deployShield?: BridgeOfficerCommandSelectedPayload;
     };
+
+    activeTasks?: {
+        trackTargetTaskId?: string;
+        deployShieldTaskId?: string;
+    };
 };
 
 export type BridgeCaptainStickyMinePayload = {

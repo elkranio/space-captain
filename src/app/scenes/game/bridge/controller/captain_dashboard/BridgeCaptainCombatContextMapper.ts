@@ -58,6 +58,13 @@ export function mapCaptainCombatContextToBridgePayload(
         label: "deploy shield",
     });
 
+    const deployShieldTaskId = (input.officerTasks ?? []).find((task) => {
+        return (
+            task.canBeCancelledByPlayer &&
+            task.sourceCommandId === ENCOUNTER_OFFICER_COMMAND_ID.ENGINEER_DEPLOY_SHIELD
+        );
+    })?.id;
+
     return {
         ...(enemyShip
             ? {
@@ -280,6 +287,15 @@ export function mapCaptainCombatContextToBridgePayload(
                     label: "beam target tracking",
                 });
 
+                const trackTargetTaskId = (input.officerTasks ?? []).find((task) => {
+                    return (
+                        task.canBeCancelledByPlayer &&
+                        task.sourceCommandId === ENCOUNTER_OFFICER_COMMAND_ID.SCIENCE_IDENTIFY_THREAT &&
+                        "threatId" in task &&
+                        task.threatId === snapshot.attack.id
+                    );
+                })?.id;
+
                 return {
                     attackId: snapshot.attack.id,
 
@@ -304,6 +320,24 @@ export function mapCaptainCombatContextToBridgePayload(
                               }
                             : {}),
                     },
+
+                    ...(trackTargetTaskId || deployShieldTaskId
+                        ? {
+                              activeTasks: {
+                                  ...(trackTargetTaskId
+                                      ? {
+                                            trackTargetTaskId,
+                                        }
+                                      : {}),
+
+                                  ...(deployShieldTaskId
+                                      ? {
+                                            deployShieldTaskId,
+                                        }
+                                      : {}),
+                              },
+                          }
+                        : {}),
                 };
             }),
     };

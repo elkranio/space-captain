@@ -138,6 +138,10 @@ export default class BridgeCaptainThreatsView {
                 onDeployShield: (command) => {
                     this.emitCommand(command);
                 },
+
+                onCancelTask: (taskId) => {
+                    this.emitTaskCancel(taskId);
+                },
             });
 
             this.beamCannonRowViews.push(rowView);
