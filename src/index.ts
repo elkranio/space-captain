@@ -23,5 +23,7 @@ window.addEventListener("load", async () => {
 
     gameConfig.scene = [Boot, Preload, InitScene, BridgeScene, EndScene];
 
+    await document.fonts.load("14px Anta");
+
     new Phaser.Game(gameConfig);
 });

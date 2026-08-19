@@ -1,3 +1,4 @@
+// src/app/scenes/game/bridge/view/captain_dashboard/combat_context/threats/BridgeCaptainMissileThreatRowView.ts
 import { MISSILE_SIGNATURE_INTEL_STATUS } from "../../../../../../../../engine/encounter/model/missile_signature_intel";
 import { UI_COMBAT_SPRITE_ID, UI_COMBAT_SPRITES } from "../../../../../../../manifests/ui/combat";
 import { FONT_COLOR, FONT_FAMILY, FONT_SIZE } from "../../../../../../../theme/font";
@@ -43,7 +44,7 @@ type MissileThreatRowCallbacks = {
 type ActionButton = {
     background: Phaser.GameObjects.Image;
     roleGlyph: Phaser.GameObjects.Image;
-    label: Phaser.GameObjects.BitmapText;
+    label: Phaser.GameObjects.Text;
 };
 
 // Первый production-like threat tile.
@@ -72,38 +73,18 @@ export default class BridgeCaptainMissileThreatRowView {
         const missileIcon = this.createSprite(UI_COMBAT_SPRITE_ID.THREAT_MISSILE, TILE.iconX, TILE.iconY);
 
         this.identificationText = this.scene.add
-            .bitmapText(
-                TILE.statusCenterX,
-                TILE.statusY,
-                FONT_FAMILY.VGA_8X14,
-                "NO ID",
-                FONT_SIZE.PX_14,
-            )
+            .bitmapText(TILE.statusCenterX, TILE.statusY, FONT_FAMILY.VGA_8X14, "NO ID", FONT_SIZE.PX_14)
             .setOrigin(0.5, 0)
             .setTint(FONT_COLOR.DANGER);
 
         this.timerText = this.scene.add
-            .bitmapText(
-                TILE.timerX,
-                TILE.timerY,
-                FONT_FAMILY.VGA_8X14,
-                "--.-s",
-                FONT_SIZE.PX_14,
-            )
+            .bitmapText(TILE.timerX, TILE.timerY, FONT_FAMILY.VGA_8X14, "--.-s", FONT_SIZE.PX_14)
             .setOrigin(1, 0)
             .setTint(FONT_COLOR.WHITE);
 
-        this.scienceAction = this.createActionButton(
-            TILE.scienceButtonX,
-            UI_COMBAT_SPRITE_ID.ROLE_S,
-            "TRACK",
-        );
+        this.scienceAction = this.createActionButton(TILE.scienceButtonX, UI_COMBAT_SPRITE_ID.ROLE_S, "TRACK");
 
-        this.weaponsAction = this.createActionButton(
-            TILE.weaponsButtonX,
-            UI_COMBAT_SPRITE_ID.ROLE_W,
-            "HIT",
-        );
+        this.weaponsAction = this.createActionButton(TILE.weaponsButtonX, UI_COMBAT_SPRITE_ID.ROLE_W, "HIT");
 
         this.scienceAction.background.on("pointerdown", this.handleSciencePointerDown, this);
         this.weaponsAction.background.on("pointerdown", this.handleWeaponsPointerDown, this);
@@ -163,22 +144,16 @@ export default class BridgeCaptainMissileThreatRowView {
     private createActionButton(x: number, roleSpriteId: UiCombatSpriteId, labelText: string): ActionButton {
         const background = this.createSprite(UI_COMBAT_SPRITE_ID.ACTION_BUTTON_BG, x, TILE.buttonY);
 
-        const roleGlyph = this.createSprite(
-            roleSpriteId,
-            x + TILE.roleOffsetX,
-            TILE.buttonY + TILE.roleOffsetY,
-        );
+        const roleGlyph = this.createSprite(roleSpriteId, x + TILE.roleOffsetX, TILE.buttonY + TILE.roleOffsetY);
 
         const label = this.scene.add
-            .bitmapText(
-                x + TILE.buttonWidth - TILE.labelRightInset,
-                TILE.buttonY + TILE.labelOffsetY,
-                FONT_FAMILY.VGA_8X14,
-                labelText,
-                FONT_SIZE.PX_14,
-            )
-            .setOrigin(1, 0.5)
-            .setTint(FONT_COLOR.WHITE);
+            .text(x + TILE.buttonWidth - TILE.labelRightInset, TILE.buttonY + TILE.labelOffsetY, labelText, {
+                fontFamily: "Anta",
+                fontSize: "10px",
+                color: "#ffffff",
+                resolution: 1,
+            })
+            .setOrigin(1, 0.5);
 
         return {
             background,
