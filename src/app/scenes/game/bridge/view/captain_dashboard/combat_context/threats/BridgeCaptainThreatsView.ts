@@ -17,7 +17,6 @@ const MISSILE_GRID = {
     columns: 3,
     tileWidth: 163,
     tileHeight: 66,
-    rowGap: 4,
 } as const;
 
 const LEGACY_ROW_HEIGHT = 36;
@@ -119,17 +118,11 @@ export default class BridgeCaptainThreatsView {
 
             const column = index % MISSILE_GRID.columns;
             const row = Math.floor(index / MISSILE_GRID.columns);
-            const columnGap = Math.max(
-                0,
-                Math.floor(
-                    (this.width - MISSILE_GRID.columns * MISSILE_GRID.tileWidth) /
-                        (MISSILE_GRID.columns - 1),
-                ),
-            );
+            const tileGap = this.getMissileGridGap();
 
             rowView.setPosition(
-                column * (MISSILE_GRID.tileWidth + columnGap),
-                row * (MISSILE_GRID.tileHeight + MISSILE_GRID.rowGap),
+                column * (MISSILE_GRID.tileWidth + tileGap),
+                row * (MISSILE_GRID.tileHeight + tileGap),
             );
 
             rowView.update(missile);
@@ -275,7 +268,19 @@ export default class BridgeCaptainThreatsView {
 
         const rowCount = Math.ceil(missileCount / MISSILE_GRID.columns);
 
-        return rowCount * MISSILE_GRID.tileHeight + (rowCount - 1) * MISSILE_GRID.rowGap;
+        const tileGap = this.getMissileGridGap();
+
+        return rowCount * MISSILE_GRID.tileHeight + (rowCount - 1) * tileGap;
+    }
+
+    private getMissileGridGap(): number {
+        return Math.max(
+            0,
+            Math.floor(
+                (this.width - MISSILE_GRID.columns * MISSILE_GRID.tileWidth) /
+                    (MISSILE_GRID.columns - 1),
+            ),
+        );
     }
 
     private emitCommand(command: BridgeOfficerCommandSelectedPayload): void {
