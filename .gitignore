@@ -25,4 +25,4 @@ yarn-error.log*
 *.tpscache
 
 # Local refactor patches
-atom_*.patch
+*.patch
