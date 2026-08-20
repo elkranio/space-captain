@@ -218,6 +218,15 @@ export function mapCaptainCombatContextToBridgePayload(
 
                     isNextClearTarget: snapshot.isNextClearTarget,
 
+                    ...(input.playerThreatDecisionTimings
+                        ? {
+                              decisionTimings: {
+                                  clearMinRemainingMs:
+                                      input.playerThreatDecisionTimings.stickyMine.clearMinRemainingMs,
+                              },
+                          }
+                        : {}),
+
                     actions: {
                         ...(engineerClear
                             ? {

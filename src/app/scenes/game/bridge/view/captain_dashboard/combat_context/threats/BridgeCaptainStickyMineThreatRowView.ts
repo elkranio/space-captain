@@ -27,6 +27,19 @@ const TILE = {
     disabledAlpha: 0.35,
 } as const;
 
+const TIMING_STRIP = {
+    offsetX: 12,
+    offsetY: 22,
+    width: 52,
+    height: 3,
+
+    expiredWidth: 3,
+    blinkPeriodMs: 300,
+
+    trackColor: 0x263146,
+    fillColor: 0xf2e4bc,
+} as const;
+
 type StickyMineThreatRowCallbacks = {
     onClear: (command: BridgeOfficerCommandSelectedPayload) => void;
     onCancelTask: (taskId: string) => void;
@@ -36,6 +49,10 @@ type ActionButton = {
     background: Phaser.GameObjects.Image;
     roleGlyph: Phaser.GameObjects.Image;
     label: Phaser.GameObjects.Text;
+
+    timingTrack: Phaser.GameObjects.Rectangle;
+    timingFill: Phaser.GameObjects.Rectangle;
+    timingExpired: Phaser.GameObjects.Rectangle;
 };
 
 // Sticky Mine использует общий production-like threat tile.
@@ -75,6 +92,9 @@ export default class BridgeCaptainStickyMineThreatRowView {
             this.engineerAction.background,
             this.engineerAction.roleGlyph,
             this.engineerAction.label,
+            this.engineerAction.timingTrack,
+            this.engineerAction.timingFill,
+            this.engineerAction.timingExpired,
         ]);
     }
 
@@ -89,7 +109,16 @@ export default class BridgeCaptainStickyMineThreatRowView {
     public update(mine: BridgeCaptainStickyMinePayload): void {
         this.timerText.setText(formatCaptainDashboardCountdown(mine.timeToDetonationMs));
 
-        this.setEngineerAction(mine.actions.engineerClear, mine.activeTasks?.engineerClearTaskId);
+        const engineerClearTaskId = mine.activeTasks?.engineerClearTaskId;
+
+        this.setEngineerAction(mine.actions.engineerClear, engineerClearTaskId);
+
+        this.updateActionTiming(
+            mine.timeToDetonationMs,
+            mine.initialTimeToDetonationMs,
+            mine.decisionTimings?.clearMinRemainingMs,
+            engineerClearTaskId !== undefined,
+        );
     }
 
     public destroy(): void {
@@ -121,10 +150,52 @@ export default class BridgeCaptainStickyMineThreatRowView {
             })
             .setOrigin(1, 0.5);
 
+        const timingX = x + TIMING_STRIP.offsetX;
+        const timingY = TILE.buttonY + TIMING_STRIP.offsetY;
+
+        const timingTrack = this.scene.add
+            .rectangle(
+                timingX,
+                timingY,
+                TIMING_STRIP.width,
+                TIMING_STRIP.height,
+                TIMING_STRIP.trackColor,
+                1,
+            )
+            .setOrigin(0, 0)
+            .setVisible(false);
+
+        const timingFill = this.scene.add
+            .rectangle(
+                timingX + TIMING_STRIP.width,
+                timingY,
+                TIMING_STRIP.width,
+                TIMING_STRIP.height,
+                TIMING_STRIP.fillColor,
+                1,
+            )
+            .setOrigin(1, 0)
+            .setVisible(false);
+
+        const timingExpired = this.scene.add
+            .rectangle(
+                timingX + TIMING_STRIP.width - TIMING_STRIP.expiredWidth,
+                timingY,
+                TIMING_STRIP.expiredWidth,
+                TIMING_STRIP.height,
+                FONT_COLOR.DANGER,
+                1,
+            )
+            .setOrigin(0, 0)
+            .setVisible(false);
+
         return {
             background,
             roleGlyph,
             label,
+            timingTrack,
+            timingFill,
+            timingExpired,
         };
     }
 
@@ -135,6 +206,54 @@ export default class BridgeCaptainStickyMineThreatRowView {
         this.engineerCommand = command;
         this.engineerTaskId = taskId;
         this.setActionState(this.engineerAction, command !== undefined, taskId !== undefined);
+    }
+
+    private updateActionTiming(
+        remainingMs: number,
+        initialRemainingMs: number,
+        latestUsefulStartRemainingMs: number | null | undefined,
+        actionIsActive: boolean,
+    ): void {
+        const action = this.engineerAction;
+
+        if (actionIsActive || latestUsefulStartRemainingMs === undefined) {
+            this.hideActionTiming();
+            return;
+        }
+
+        action.timingTrack.setVisible(true);
+
+        if (latestUsefulStartRemainingMs === null) {
+            this.showExpiredActionTiming();
+            return;
+        }
+
+        const usefulWindowMs = initialRemainingMs - latestUsefulStartRemainingMs;
+        const usefulRemainingMs = remainingMs - latestUsefulStartRemainingMs;
+
+        if (usefulWindowMs <= 0 || usefulRemainingMs <= 0) {
+            this.showExpiredActionTiming();
+            return;
+        }
+
+        const fill01 = Math.max(0, Math.min(1, usefulRemainingMs / usefulWindowMs));
+
+        action.timingFill.setVisible(true).setScale(fill01, 1);
+        action.timingExpired.setVisible(false);
+    }
+
+    private showExpiredActionTiming(): void {
+        this.engineerAction.timingFill.setVisible(false);
+
+        const blinkOn = Math.floor(this.scene.time.now / TIMING_STRIP.blinkPeriodMs) % 2 === 0;
+
+        this.engineerAction.timingExpired.setVisible(blinkOn);
+    }
+
+    private hideActionTiming(): void {
+        this.engineerAction.timingTrack.setVisible(false);
+        this.engineerAction.timingFill.setVisible(false);
+        this.engineerAction.timingExpired.setVisible(false);
     }
 
     private setActionState(action: ActionButton, enabled: boolean, active: boolean): void {

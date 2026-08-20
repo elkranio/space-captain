@@ -465,6 +465,10 @@ export type BridgeCaptainStickyMinePayload = {
     activeTasks?: {
         engineerClearTaskId?: string;
     };
+
+    decisionTimings?: {
+        clearMinRemainingMs: number | null;
+    };
 };
 
 export type BridgeCaptainSpamChannelPayload = {
