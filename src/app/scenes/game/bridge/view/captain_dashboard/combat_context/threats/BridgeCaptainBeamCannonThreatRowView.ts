@@ -14,22 +14,24 @@ import {
 } from "./get_beam_shield_timing_strip_state";
 
 const TILE = {
-    width: 163,
-    height: 66,
+    width: 153,
+    height: 58,
 
-    iconX: 9,
-    iconY: 8,
+    headerCenterY: 14,
+    headerTextY: 8,
 
-    statusCenterX: 81,
-    statusY: 8,
+    iconCenterX: 26,
+    statusCenterX: 77,
+    timerCenterX: 128,
 
-    timerX: 154,
-    timerY: 8,
+    actionY: 28,
+    actionDividerX: 76,
 
-    buttonWidth: 75,
-    buttonY: 34,
-    scienceButtonX: 5,
-    engineerButtonX: 83,
+    scienceActionX: 0,
+    scienceActionWidth: 76,
+
+    engineerActionX: 77,
+    engineerActionWidth: 76,
 
     roleOffsetX: 9,
     roleOffsetY: 10,
@@ -40,17 +42,29 @@ const TILE = {
     disabledAlpha: 0.35,
 } as const;
 
+const TILE_STYLE = {
+    backgroundColor: 0x111c27,
+    actionBackgroundColor: 0x172a38,
+
+    borderColor: 0x8fb5d6,
+    separatorColor: 0x45627f,
+
+    activeActionBackgroundColor: 0x5a310e,
+    disabledActionBackgroundColor: 0x0d151e,
+} as const;
+
 const TIMING_STRIP = {
-    offsetX: 12,
-    offsetY: 22,
-    width: 52,
-    height: 3,
+    height: 6,
 
     expiredWidth: 3,
+    segmentCount: 7,
+    segmentWidth: 10,
+    dividerWidth: 1,
     blinkPeriodMs: 300,
 
-    trackColor: 0x263146,
-    fillColor: 0xf2e4bc,
+    trackColor: 0x31465b,
+    dividerColor: 0x172a38,
+    fillColor: 0x5f9fb5,
 } as const;
 
 type BeamShieldWindow = NonNullable<BridgeCaptainIncomingBeamCannonPayload["decisionTimings"]>["shieldWindow"];
@@ -62,13 +76,14 @@ type BeamCannonThreatRowCallbacks = {
 };
 
 type ActionButton = {
-    background: Phaser.GameObjects.Image;
+    background: Phaser.GameObjects.Rectangle;
     roleGlyph: Phaser.GameObjects.Image;
     label: Phaser.GameObjects.Text;
 
     timingTrack: Phaser.GameObjects.Rectangle;
     timingFill: Phaser.GameObjects.Rectangle;
     timingEarly: Phaser.GameObjects.Rectangle;
+    timingDividers: Phaser.GameObjects.Rectangle[];
     timingExpired: Phaser.GameObjects.Rectangle;
 };
 
@@ -96,45 +111,99 @@ export default class BridgeCaptainBeamCannonThreatRowView {
     ) {
         this.root = this.scene.add.container(0, 0);
 
-        const background = this.createSprite(UI_COMBAT_SPRITE_ID.THREAT_TILE_BG, 0, 0);
-        const beamCannonIcon = this.createSprite(UI_COMBAT_SPRITE_ID.THREAT_BEAM_CANNON, TILE.iconX, TILE.iconY);
+        const background = this.scene.add
+            .rectangle(0, 0, TILE.width, TILE.height, TILE_STYLE.backgroundColor, 1)
+            .setOrigin(0, 0);
+
+        const outerBorder = this.scene.add
+            .rectangle(0, 0, TILE.width, TILE.height, TILE_STYLE.backgroundColor, 0)
+            .setOrigin(0, 0)
+            .setStrokeStyle(1, TILE_STYLE.borderColor);
+
+        const actionTopBorder = this.scene.add
+            .rectangle(0, TILE.actionY, TILE.width, 1, TILE_STYLE.separatorColor, 1)
+            .setOrigin(0, 0);
+
+        const actionDivider = this.scene.add
+            .rectangle(
+                TILE.actionDividerX,
+                TILE.actionY,
+                1,
+                TILE.height - TILE.actionY,
+                TILE_STYLE.separatorColor,
+                1,
+            )
+            .setOrigin(0, 0);
+
+        const beamCannonIcon = this.createSprite(
+            UI_COMBAT_SPRITE_ID.THREAT_BEAM_CANNON,
+            TILE.iconCenterX,
+            TILE.headerCenterY,
+        ).setOrigin(0.5, 0.5);
 
         this.targetText = this.scene.add
-            .bitmapText(TILE.statusCenterX, TILE.statusY, FONT_FAMILY.VGA_8X14, "UNKNOWN", FONT_SIZE.PX_14)
+            .bitmapText(
+                TILE.statusCenterX,
+                TILE.headerTextY,
+                FONT_FAMILY.VGA_8X14,
+                "UNKNOWN",
+                FONT_SIZE.PX_14,
+            )
             .setOrigin(0.5, 0)
             .setTint(FONT_COLOR.DANGER);
 
         this.timerText = this.scene.add
-            .bitmapText(TILE.timerX, TILE.timerY, FONT_FAMILY.VGA_8X14, "--.-s", FONT_SIZE.PX_14)
-            .setOrigin(1, 0)
+            .bitmapText(
+                TILE.timerCenterX,
+                TILE.headerTextY,
+                FONT_FAMILY.VGA_8X14,
+                "--.-s",
+                FONT_SIZE.PX_14,
+            )
+            .setOrigin(0.5, 0)
             .setTint(FONT_COLOR.WHITE);
 
-        this.scienceAction = this.createActionButton(TILE.scienceButtonX, UI_COMBAT_SPRITE_ID.ROLE_S, "TRACK");
+        this.scienceAction = this.createActionButton(
+            TILE.scienceActionX,
+            TILE.scienceActionWidth,
+            UI_COMBAT_SPRITE_ID.ROLE_S,
+            "TRACK",
+        );
 
-        this.engineerAction = this.createActionButton(TILE.engineerButtonX, UI_COMBAT_SPRITE_ID.ROLE_E, "SHIELD");
+        this.engineerAction = this.createActionButton(
+            TILE.engineerActionX,
+            TILE.engineerActionWidth,
+            UI_COMBAT_SPRITE_ID.ROLE_E,
+            "SHIELD",
+        );
 
         this.scienceAction.background.on("pointerdown", this.handleSciencePointerDown, this);
         this.engineerAction.background.on("pointerdown", this.handleEngineerPointerDown, this);
 
         this.root.add([
             background,
+            this.scienceAction.background,
+            this.engineerAction.background,
             beamCannonIcon,
             this.targetText,
             this.timerText,
-            this.scienceAction.background,
             this.scienceAction.roleGlyph,
             this.scienceAction.label,
             this.scienceAction.timingTrack,
             this.scienceAction.timingFill,
             this.scienceAction.timingEarly,
             this.scienceAction.timingExpired,
-            this.engineerAction.background,
             this.engineerAction.roleGlyph,
             this.engineerAction.label,
             this.engineerAction.timingTrack,
             this.engineerAction.timingFill,
             this.engineerAction.timingEarly,
             this.engineerAction.timingExpired,
+            ...this.scienceAction.timingDividers,
+            ...this.engineerAction.timingDividers,
+            actionTopBorder,
+            actionDivider,
+            outerBorder,
         ]);
     }
 
@@ -175,14 +244,12 @@ export default class BridgeCaptainBeamCannonThreatRowView {
             beamCannon.timeToFireMs,
             beamCannon.initialTimeToFireMs,
             beamCannon.decisionTimings?.trackTargetMinRemainingMs,
-            trackTargetTaskId !== undefined,
         );
 
         this.updateShieldTiming(
             beamCannon.timeToFireMs,
             beamCannon.initialTimeToFireMs,
             beamCannon.decisionTimings?.shieldWindow,
-            shieldDeployTaskId !== undefined,
         );
     }
 
@@ -205,28 +272,42 @@ export default class BridgeCaptainBeamCannonThreatRowView {
         return this.scene.add.image(x, y, sprite.atlasKey, sprite.frameKey).setOrigin(0, 0);
     }
 
-    private createActionButton(x: number, roleSpriteId: UiCombatSpriteId, labelText: string): ActionButton {
-        const background = this.createSprite(UI_COMBAT_SPRITE_ID.ACTION_BUTTON_BG, x, TILE.buttonY);
+    private createActionButton(
+        x: number,
+        width: number,
+        roleSpriteId: UiCombatSpriteId,
+        labelText: string,
+    ): ActionButton {
+        const background = this.scene.add
+            .rectangle(
+                x,
+                TILE.actionY,
+                width,
+                TILE.height - TILE.actionY,
+                TILE_STYLE.actionBackgroundColor,
+                1,
+            )
+            .setOrigin(0, 0);
 
-        const roleGlyph = this.createSprite(roleSpriteId, x + TILE.roleOffsetX, TILE.buttonY + TILE.roleOffsetY);
+        const roleGlyph = this.createSprite(roleSpriteId, x + TILE.roleOffsetX, TILE.actionY + TILE.roleOffsetY);
 
         const label = this.scene.add
-            .text(x + TILE.buttonWidth - TILE.labelRightInset, TILE.buttonY + TILE.labelOffsetY, labelText, {
+            .text(x + width - TILE.labelRightInset, TILE.actionY + TILE.labelOffsetY, labelText, {
                 fontFamily: "Anta",
                 fontSize: "10px",
-                color: "#ffffff",
+                color: "#d7e6ff",
                 resolution: 1,
             })
             .setOrigin(1, 0.5);
 
-        const timingX = x + TIMING_STRIP.offsetX;
-        const timingY = TILE.buttonY + TIMING_STRIP.offsetY;
+        const timingX = x;
+        const timingY = TILE.height - TIMING_STRIP.height;
 
         const timingTrack = this.scene.add
             .rectangle(
                 timingX,
                 timingY,
-                TIMING_STRIP.width,
+                width,
                 TIMING_STRIP.height,
                 TIMING_STRIP.trackColor,
                 1,
@@ -236,9 +317,9 @@ export default class BridgeCaptainBeamCannonThreatRowView {
 
         const timingFill = this.scene.add
             .rectangle(
-                timingX + TIMING_STRIP.width,
+                timingX + width,
                 timingY,
-                TIMING_STRIP.width,
+                width,
                 TIMING_STRIP.height,
                 TIMING_STRIP.fillColor,
                 1,
@@ -250,7 +331,7 @@ export default class BridgeCaptainBeamCannonThreatRowView {
             .rectangle(
                 timingX,
                 timingY,
-                TIMING_STRIP.width,
+                width,
                 TIMING_STRIP.height,
                 FONT_COLOR.DANGER,
                 1,
@@ -258,9 +339,28 @@ export default class BridgeCaptainBeamCannonThreatRowView {
             .setOrigin(1, 0)
             .setVisible(false);
 
+        const timingDividers = Array.from({ length: TIMING_STRIP.segmentCount - 1 }, (_, index) => {
+            const dividerX =
+                timingX +
+                TIMING_STRIP.segmentWidth * (index + 1) +
+                TIMING_STRIP.dividerWidth * index;
+
+            return this.scene.add
+                .rectangle(
+                    dividerX,
+                    timingY,
+                    TIMING_STRIP.dividerWidth,
+                    TIMING_STRIP.height,
+                    TIMING_STRIP.dividerColor,
+                    1,
+                )
+                .setOrigin(0, 0)
+                .setVisible(false);
+        });
+
         const timingExpired = this.scene.add
             .rectangle(
-                timingX + TIMING_STRIP.width - TIMING_STRIP.expiredWidth,
+                timingX + width - TIMING_STRIP.expiredWidth,
                 timingY,
                 TIMING_STRIP.expiredWidth,
                 TIMING_STRIP.height,
@@ -277,6 +377,7 @@ export default class BridgeCaptainBeamCannonThreatRowView {
             timingTrack,
             timingFill,
             timingEarly,
+            timingDividers,
             timingExpired,
         };
     }
@@ -335,16 +436,16 @@ export default class BridgeCaptainBeamCannonThreatRowView {
         remainingMs: number,
         initialRemainingMs: number,
         latestUsefulStartRemainingMs: number | null | undefined,
-        actionIsActive: boolean,
     ): void {
         const action = this.scienceAction;
 
-        if (!action.background.visible || actionIsActive || latestUsefulStartRemainingMs === undefined) {
+        if (!action.background.visible || latestUsefulStartRemainingMs === undefined) {
             this.hideActionTiming(action);
             return;
         }
 
         action.timingTrack.setVisible(true);
+        action.timingDividers.forEach((divider) => divider.setVisible(true));
         action.timingEarly.setVisible(false);
 
         if (latestUsefulStartRemainingMs === null) {
@@ -370,11 +471,10 @@ export default class BridgeCaptainBeamCannonThreatRowView {
         remainingMs: number,
         initialRemainingMs: number,
         shieldWindow: BeamShieldWindow | undefined,
-        actionIsActive: boolean,
     ): void {
         const action = this.engineerAction;
 
-        if (!action.background.visible || actionIsActive) {
+        if (!action.background.visible) {
             this.hideActionTiming(action);
             return;
         }
@@ -391,20 +491,22 @@ export default class BridgeCaptainBeamCannonThreatRowView {
         }
 
         action.timingTrack.setVisible(true);
+        action.timingDividers.forEach((divider) => divider.setVisible(true));
 
         if (timing.phase === BEAM_SHIELD_TIMING_PHASE.EXPIRED) {
             this.showExpiredActionTiming(action);
             return;
         }
 
-        const earlyWidth = Math.round(TIMING_STRIP.width * timing.earlyWidth01);
-        const validWidth = TIMING_STRIP.width - earlyWidth;
-        const stripX = action.background.x + TIMING_STRIP.offsetX;
-        const stripY = action.background.y + TIMING_STRIP.offsetY;
+        const stripWidth = action.background.displayWidth;
+        const earlyWidth = Math.round(stripWidth * timing.earlyWidth01);
+        const validWidth = stripWidth - earlyWidth;
+        const stripX = action.background.x;
+        const stripY = TILE.height - TIMING_STRIP.height;
 
         action.timingFill
             .setVisible(true)
-            .setPosition(stripX + TIMING_STRIP.width, stripY)
+            .setPosition(stripX + stripWidth, stripY)
             .setSize(validWidth, TIMING_STRIP.height)
             .setDisplaySize(validWidth, TIMING_STRIP.height);
 
@@ -441,12 +543,13 @@ export default class BridgeCaptainBeamCannonThreatRowView {
         action.timingTrack.setVisible(false);
         action.timingFill.setVisible(false);
         action.timingEarly.setVisible(false);
+        action.timingDividers.forEach((divider) => divider.setVisible(false));
         action.timingExpired.setVisible(false);
     }
 
     private setActionState(action: ActionButton, enabled: boolean, active: boolean): void {
         action.background.disableInteractive();
-        action.background.clearTint();
+        action.background.setFillStyle(TILE_STYLE.actionBackgroundColor, 1);
         action.label.clearTint();
 
         if (enabled || active) {
@@ -456,13 +559,14 @@ export default class BridgeCaptainBeamCannonThreatRowView {
         }
 
         if (active) {
-            action.background.setTint(FONT_COLOR.ACTIVITY);
+            action.background.setFillStyle(TILE_STYLE.activeActionBackgroundColor, 1);
             action.label.setTint(FONT_COLOR.ACTIVITY);
+        } else if (!enabled) {
+            action.background.setFillStyle(TILE_STYLE.disabledActionBackgroundColor, 1);
         }
 
         const alpha = enabled || active ? 1 : TILE.disabledAlpha;
 
-        action.background.setAlpha(alpha);
         action.roleGlyph.setAlpha(alpha);
         action.label.setAlpha(alpha);
     }
