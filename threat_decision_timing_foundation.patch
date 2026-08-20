@@ -1,0 +1,341 @@
+diff --git a/src/engine/encounter/snapshots/combat_presentation_snapshot.ts b/src/engine/encounter/snapshots/combat_presentation_snapshot.ts
+index 0689ab9..850ba58 100644
+--- a/src/engine/encounter/snapshots/combat_presentation_snapshot.ts
++++ b/src/engine/encounter/snapshots/combat_presentation_snapshot.ts
+@@ -4,2 +4,3 @@ import { POWER_CORES } from "../../content/catalogs/power_cores";
+ import { DEFENSE_TURRETS } from "../../content/catalogs/defense_turrets";
++import { SHIELD_GENERATORS } from "../../content/catalogs/shield_generators";
+ import { SHIP_WEAPONS } from "../../content/catalogs/ship_weapons";
+@@ -19,2 +20,3 @@ import {
+ import { getStickyMineSnapshots, type StickyMineSnapshot } from "../combat/queries/get_sticky_mine_snapshots";
++import { getPlayerCrewProgressMultiplier } from "../crew_performance/get_crew_progress_multiplier";
+ import type { AvailableOfficerCommand } from "../model/command";
+@@ -30,2 +32,6 @@ import type { MissileSignatureIntelStatus } from "../model/missile_signature_int
+ import { getOfficerAvailabilityStates } from "../officer_availability/queries/get_officer_availability_states";
++import {
++    createPlayerThreatDecisionTimingSnapshot,
++    type PlayerThreatDecisionTimingSnapshot,
++} from "./create_player_threat_decision_timing_snapshot";
+ 
+@@ -43,2 +49,4 @@ export type PowerCorePresentationSnapshot = {
+ 
++    playerThreatDecisionTimings: PlayerThreatDecisionTimingSnapshot;
++
+     commandsByRole: Record<OfficerRole, AvailableOfficerCommand[]>;
+@@ -58,2 +66,8 @@ export type PowerCorePresentationSnapshot = {
+ 
++        playerThreatDecisionTimings: createPlayerThreatDecisionTimingSnapshot({
++            crewProgressMultiplier: getPlayerCrewProgressMultiplier(state),
++
++            shieldDurationMs: getPlayerShieldDurationMs(state),
++        }),
++
+         commandsByRole: {
+@@ -70,2 +84,18 @@ export type PowerCorePresentationSnapshot = {
+ 
++function getPlayerShieldDurationMs(state: EncounterState): number | undefined {
++    const shieldGenerator = state.combat.shieldGenerator;
++
++    if (!shieldGenerator) {
++        return undefined;
++    }
++
++    const definition = SHIELD_GENERATORS[shieldGenerator.shieldGeneratorId];
++
++    if (!definition) {
++        throw new Error("Shield Generator definition not found: " + shieldGenerator.shieldGeneratorId);
++    }
++
++    return definition.shieldDurationMs;
++}
++
+ function createMissilePresentationSnapshot(projectile: MissileCombatProjectileState): MissilePresentationSnapshot {
+diff --git a/src/engine/encounter/snapshots/create_player_threat_decision_timing_snapshot.ts b/src/engine/encounter/snapshots/create_player_threat_decision_timing_snapshot.ts
+new file mode 100644
+index 0000000..3e5f6cd
+--- /dev/null
++++ b/src/engine/encounter/snapshots/create_player_threat_decision_timing_snapshot.ts
+@@ -0,0 +1,98 @@
++import { getTimedOfficerTaskDurationMs } from "../../content/catalogs/officer_tasks";
++import { OFFICER_TASK_KIND, type OfficerTaskKind } from "../model/officer_task";
++
++export type PlayerThreatDecisionTimingSnapshot = {
++    missile: {
++        trackAndInterceptMinRemainingMs: number | null;
++        interceptMinRemainingMs: number | null;
++    };
++
++    beam: {
++        trackMinRemainingMs: number | null;
++
++        shieldWindow: {
++            opensAtRemainingMs: number;
++            closesAtRemainingMs: number;
++        } | null;
++    };
++
++    stickyMine: {
++        clearMinRemainingMs: number | null;
++    };
++};
++
++type CreatePlayerThreatDecisionTimingSnapshotInput = {
++    crewProgressMultiplier: number;
++
++    // Undefined when the player has no Shield Generator.
++    // Active shield lifetime uses world time, not officer progress time.
++    shieldDurationMs?: number;
++};
++
++export function createPlayerThreatDecisionTimingSnapshot({
++    crewProgressMultiplier,
++    shieldDurationMs,
++}: CreatePlayerThreatDecisionTimingSnapshotInput): PlayerThreatDecisionTimingSnapshot {
++    if (!Number.isFinite(crewProgressMultiplier) || crewProgressMultiplier < 0) {
++        throw new Error("Invalid player crew progress multiplier: " + crewProgressMultiplier);
++    }
++
++    if (shieldDurationMs !== undefined && (!Number.isFinite(shieldDurationMs) || shieldDurationMs < 0)) {
++        throw new Error("Invalid player shield duration: " + shieldDurationMs);
++    }
++
++    const trackDurationMs = getResolvedTaskWallDurationMs(
++        OFFICER_TASK_KIND.SCIENCE_IDENTIFY_THREAT,
++        crewProgressMultiplier,
++    );
++
++    const interceptDurationMs = getResolvedTaskWallDurationMs(
++        OFFICER_TASK_KIND.WEAPONS_DEFENSE_TURRET,
++        crewProgressMultiplier,
++    );
++
++    const shieldDeployDurationMs = getResolvedTaskWallDurationMs(
++        OFFICER_TASK_KIND.ENGINEER_DEPLOY_SHIELD,
++        crewProgressMultiplier,
++    );
++
++    const clearMineDurationMs = getResolvedTaskWallDurationMs(
++        OFFICER_TASK_KIND.CLEAR_STICKY_MINE,
++        crewProgressMultiplier,
++    );
++
++    return {
++        missile: {
++            trackAndInterceptMinRemainingMs:
++                trackDurationMs === null || interceptDurationMs === null
++                    ? null
++                    : trackDurationMs + interceptDurationMs,
++
++            interceptMinRemainingMs: interceptDurationMs,
++        },
++
++        beam: {
++            trackMinRemainingMs: trackDurationMs,
++
++            shieldWindow:
++                shieldDeployDurationMs === null || shieldDurationMs === undefined
++                    ? null
++                    : {
++                          opensAtRemainingMs: shieldDeployDurationMs + shieldDurationMs,
++                          closesAtRemainingMs: shieldDeployDurationMs,
++                      },
++        },
++
++        stickyMine: {
++            clearMinRemainingMs: clearMineDurationMs,
++        },
++    };
++}
++
++function getResolvedTaskWallDurationMs(kind: OfficerTaskKind, crewProgressMultiplier: number): number | null {
++    if (crewProgressMultiplier === 0) {
++        return null;
++    }
++
++    return getTimedOfficerTaskDurationMs(kind) / crewProgressMultiplier;
++}
+diff --git a/tests/engine/encounter/player_threat_decision_timings.test.ts b/tests/engine/encounter/player_threat_decision_timings.test.ts
+new file mode 100644
+index 0000000..10c4bfb
+--- /dev/null
++++ b/tests/engine/encounter/player_threat_decision_timings.test.ts
+@@ -0,0 +1,179 @@
++import { describe, expect, it } from 'vitest';
++import {
++    getTimedOfficerTaskDurationMs,
++} from '../../../src/engine/content/catalogs/officer_tasks';
++import {
++    OFFICER_TASK_KIND,
++} from '../../../src/engine/encounter/model/officer_task';
++import {
++    createPlayerThreatDecisionTimingSnapshot,
++} from '../../../src/engine/encounter/snapshots/create_player_threat_decision_timing_snapshot';
++
++const TRACK_DURATION_MS =
++    getTimedOfficerTaskDurationMs(
++        OFFICER_TASK_KIND
++            .SCIENCE_IDENTIFY_THREAT,
++    );
++
++const INTERCEPT_DURATION_MS =
++    getTimedOfficerTaskDurationMs(
++        OFFICER_TASK_KIND
++            .WEAPONS_DEFENSE_TURRET,
++    );
++
++const SHIELD_DEPLOY_DURATION_MS =
++    getTimedOfficerTaskDurationMs(
++        OFFICER_TASK_KIND
++            .ENGINEER_DEPLOY_SHIELD,
++    );
++
++const CLEAR_MINE_DURATION_MS =
++    getTimedOfficerTaskDurationMs(
++        OFFICER_TASK_KIND
++            .CLEAR_STICKY_MINE,
++    );
++
++const SHIELD_DURATION_MS = 5000;
++
++describe(
++    'player threat decision timings',
++    () => {
++        it(
++            'derives response thresholds from real task durations',
++            () => {
++                expect(
++                    createPlayerThreatDecisionTimingSnapshot({
++                        crewProgressMultiplier: 1,
++                        shieldDurationMs:
++                            SHIELD_DURATION_MS,
++                    }),
++                ).toEqual({
++                    missile: {
++                        trackAndInterceptMinRemainingMs:
++                            TRACK_DURATION_MS +
++                            INTERCEPT_DURATION_MS,
++
++                        interceptMinRemainingMs:
++                            INTERCEPT_DURATION_MS,
++                    },
++
++                    beam: {
++                        trackMinRemainingMs:
++                            TRACK_DURATION_MS,
++
++                        shieldWindow: {
++                            opensAtRemainingMs:
++                                SHIELD_DEPLOY_DURATION_MS +
++                                SHIELD_DURATION_MS,
++
++                            closesAtRemainingMs:
++                                SHIELD_DEPLOY_DURATION_MS,
++                        },
++                    },
++
++                    stickyMine: {
++                        clearMinRemainingMs:
++                            CLEAR_MINE_DURATION_MS,
++                    },
++                });
++            },
++        );
++
++        it(
++            'expands task thresholds using current crew slowdown',
++            () => {
++                const multiplier = 0.5;
++
++                const timings =
++                    createPlayerThreatDecisionTimingSnapshot({
++                        crewProgressMultiplier:
++                            multiplier,
++
++                        shieldDurationMs:
++                            SHIELD_DURATION_MS,
++                    });
++
++                expect(
++                    timings.missile
++                        .trackAndInterceptMinRemainingMs,
++                ).toBe(
++                    (TRACK_DURATION_MS +
++                        INTERCEPT_DURATION_MS) /
++                        multiplier,
++                );
++
++                expect(
++                    timings.missile
++                        .interceptMinRemainingMs,
++                ).toBe(
++                    INTERCEPT_DURATION_MS /
++                        multiplier,
++                );
++
++                expect(
++                    timings.beam
++                        .trackMinRemainingMs,
++                ).toBe(
++                    TRACK_DURATION_MS /
++                        multiplier,
++                );
++
++                expect(
++                    timings.beam
++                        .shieldWindow,
++                ).toEqual({
++                    opensAtRemainingMs:
++                        SHIELD_DEPLOY_DURATION_MS /
++                            multiplier +
++                        SHIELD_DURATION_MS,
++
++                    closesAtRemainingMs:
++                        SHIELD_DEPLOY_DURATION_MS /
++                        multiplier,
++                });
++
++                expect(
++                    timings.stickyMine
++                        .clearMinRemainingMs,
++                ).toBe(
++                    CLEAR_MINE_DURATION_MS /
++                        multiplier,
++                );
++            },
++        );
++
++        it(
++            'reports no nominal task window when crew progress is stopped',
++            () => {
++                expect(
++                    createPlayerThreatDecisionTimingSnapshot({
++                        crewProgressMultiplier: 0,
++                        shieldDurationMs:
++                            SHIELD_DURATION_MS,
++                    }),
++                ).toEqual({
++                    missile: {
++                        trackAndInterceptMinRemainingMs:
++                            null,
++
++                        interceptMinRemainingMs:
++                            null,
++                    },
++
++                    beam: {
++                        trackMinRemainingMs:
++                            null,
++
++                        shieldWindow:
++                            null,
++                    },
++
++                    stickyMine: {
++                        clearMinRemainingMs:
++                            null,
++                    },
++                });
++            },
++        );
++    },
++);
