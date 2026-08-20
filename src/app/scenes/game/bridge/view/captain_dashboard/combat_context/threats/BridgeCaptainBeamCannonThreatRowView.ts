@@ -57,7 +57,7 @@ type BeamShieldWindow = NonNullable<BridgeCaptainIncomingBeamCannonPayload["deci
 
 type BeamCannonThreatRowCallbacks = {
     onTrack: (command: BridgeOfficerCommandSelectedPayload) => void;
-    onDeployShield: (command: BridgeOfficerCommandSelectedPayload) => void;
+    onOpenShieldTargeting: () => void;
     onCancelTask: (taskId: string) => void;
 };
 
@@ -84,9 +84,10 @@ export default class BridgeCaptainBeamCannonThreatRowView {
     private readonly engineerAction: ActionButton;
 
     private scienceCommand?: BridgeOfficerCommandSelectedPayload;
-    private engineerCommand?: BridgeOfficerCommandSelectedPayload;
 
     private scienceTaskId?: string;
+
+    private shieldTargetingAvailable = false;
     private engineerTaskId?: string;
 
     constructor(
@@ -145,7 +146,11 @@ export default class BridgeCaptainBeamCannonThreatRowView {
         this.root.setPosition(x, y);
     }
 
-    public update(beamCannon: BridgeCaptainIncomingBeamCannonPayload): void {
+    public update(
+        beamCannon: BridgeCaptainIncomingBeamCannonPayload,
+        shieldTargetingAvailable: boolean,
+        shieldDeployTaskId: string | undefined,
+    ): void {
         this.timerText.setText(formatCaptainDashboardCountdown(beamCannon.timeToFireMs));
 
         this.updateTargetIntel(beamCannon.targetIntel);
@@ -158,9 +163,13 @@ export default class BridgeCaptainBeamCannonThreatRowView {
             this.setScienceAction(beamCannon.actions.trackTarget, trackTargetTaskId);
         }
 
-        const deployShieldTaskId = beamCannon.activeTasks?.deployShieldTaskId;
+        this.shieldTargetingAvailable = shieldTargetingAvailable;
+        this.engineerTaskId = shieldDeployTaskId;
 
-        this.setEngineerAction(beamCannon.actions.deployShield, deployShieldTaskId);
+        this.setEngineerAction(
+            shieldTargetingAvailable,
+            shieldDeployTaskId !== undefined,
+        );
 
         this.updateTrackTiming(
             beamCannon.timeToFireMs,
@@ -173,7 +182,7 @@ export default class BridgeCaptainBeamCannonThreatRowView {
             beamCannon.timeToFireMs,
             beamCannon.initialTimeToFireMs,
             beamCannon.decisionTimings?.shieldWindow,
-            deployShieldTaskId !== undefined,
+            shieldDeployTaskId !== undefined,
         );
     }
 
@@ -182,9 +191,9 @@ export default class BridgeCaptainBeamCannonThreatRowView {
         this.engineerAction.background.off("pointerdown", this.handleEngineerPointerDown, this);
 
         this.scienceCommand = undefined;
-        this.engineerCommand = undefined;
-
         this.scienceTaskId = undefined;
+
+        this.shieldTargetingAvailable = false;
         this.engineerTaskId = undefined;
 
         this.root.destroy(true);
@@ -307,15 +316,9 @@ export default class BridgeCaptainBeamCannonThreatRowView {
         this.setActionVisible(this.scienceAction, false);
     }
 
-    private setEngineerAction(
-        command: BridgeOfficerCommandSelectedPayload | undefined,
-        taskId: string | undefined,
-    ): void {
+    private setEngineerAction(enabled: boolean, active: boolean): void {
         this.setActionVisible(this.engineerAction, true);
-
-        this.engineerCommand = command;
-        this.engineerTaskId = taskId;
-        this.setActionState(this.engineerAction, command !== undefined, taskId !== undefined);
+        this.setActionState(this.engineerAction, enabled, active);
     }
 
     private setActionVisible(action: ActionButton, visible: boolean): void {
@@ -483,11 +486,11 @@ export default class BridgeCaptainBeamCannonThreatRowView {
             return;
         }
 
-        if (!this.engineerCommand) {
+        if (!this.shieldTargetingAvailable) {
             return;
         }
 
-        this.callbacks.onDeployShield(this.engineerCommand);
+        this.callbacks.onOpenShieldTargeting();
     }
 }
 

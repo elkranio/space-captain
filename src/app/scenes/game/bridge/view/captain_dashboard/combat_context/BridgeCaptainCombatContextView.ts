@@ -1,8 +1,13 @@
 import { FONT_COLOR, FONT_FAMILY, FONT_SIZE } from "../../../../../../theme/font";
 import type BridgeScene from "../../../BridgeScene";
 import { CAPTAIN_DASHBOARD_STYLE } from "../captain_dashboard_style";
-import { BRIDGE_EVENT, type BridgeCaptainCombatContextUpdatedPayload } from "../../../events/bridge_event";
+import {
+    BRIDGE_EVENT,
+    type BridgeCaptainCombatContextUpdatedPayload,
+    type BridgeOfficerCommandSelectedPayload,
+} from "../../../events/bridge_event";
 import type BridgeEventBus from "../../../events/BridgeEventBus";
+import BridgeCaptainShieldTargetingView from "./shield/BridgeCaptainShieldTargetingView";
 import BridgeCaptainThreatsView from "./threats/BridgeCaptainThreatsView";
 
 const PANEL = {
@@ -55,6 +60,12 @@ export default class BridgeCaptainCombatContextView {
     private readonly defenseFill: Phaser.GameObjects.Rectangle;
 
     private readonly threatsView: BridgeCaptainThreatsView;
+
+    private readonly shieldTargetingView: BridgeCaptainShieldTargetingView;
+
+    private latestPayload?: BridgeCaptainCombatContextUpdatedPayload;
+
+    private shieldTargetingOpen = false;
 
     constructor(
         private readonly scene: BridgeScene,
@@ -139,18 +150,43 @@ export default class BridgeCaptainCombatContextView {
             .setOrigin(0, 0)
             .setVisible(false);
 
+        const contextY = PANEL.padding + STATUS_HEIGHT + PANEL.sectionGap;
+        const contextHeight = PANEL.height - contextY - PANEL.padding;
+
         this.threatsView = new BridgeCaptainThreatsView(
             this.scene,
             this.eventBus,
 
             innerWidth,
+
+            {
+                onOpenShieldTargeting: () => {
+                    this.openShieldTargeting();
+                },
+            },
         );
 
-        this.threatsView.setPosition(
-            PANEL.padding,
+        this.threatsView.setPosition(PANEL.padding, contextY);
 
-            PANEL.padding + STATUS_HEIGHT + PANEL.sectionGap,
+        this.shieldTargetingView = new BridgeCaptainShieldTargetingView(
+            this.scene,
+
+            innerWidth,
+            contextHeight,
+
+            {
+                onSelectTarget: (command) => {
+                    this.selectShieldTarget(command);
+                },
+
+                onCancel: () => {
+                    this.closeShieldTargeting();
+                },
+            },
         );
+
+        this.shieldTargetingView.setPosition(PANEL.padding, contextY);
+        this.shieldTargetingView.setVisible(false);
 
         this.root.add([
             background,
@@ -159,6 +195,7 @@ export default class BridgeCaptainCombatContextView {
             this.defenseTrack,
             this.defenseFill,
             this.threatsView.getRoot(),
+            this.shieldTargetingView.getRoot(),
         ]);
 
         this.eventBus.on(
@@ -186,6 +223,7 @@ export default class BridgeCaptainCombatContextView {
         );
 
         this.threatsView.destroy();
+        this.shieldTargetingView.destroy();
 
         this.root.destroy(true);
     }
@@ -228,13 +266,58 @@ export default class BridgeCaptainCombatContextView {
     }
 
     private handleContextUpdated(payload: BridgeCaptainCombatContextUpdatedPayload): void {
-        this.updateEnemyStatus(payload.enemyShip);
+        this.latestPayload = payload;
 
-        this.threatsView.update(
-            payload.incomingMissiles,
+        this.updateEnemyStatus(payload.enemyShip);
+        this.threatsView.update(payload);
+
+        if (!this.shieldTargetingOpen) {
+            return;
+        }
+
+        if (!payload.shieldTargeting || payload.incomingBeamCannons.length === 0) {
+            this.closeShieldTargeting();
+            return;
+        }
+
+        this.shieldTargetingView.update(
+            payload.shieldTargeting.targets,
             payload.incomingBeamCannons,
-            payload.incomingStickyMines,
-            payload.activeSpamChannels,
+        );
+    }
+
+    private openShieldTargeting(): void {
+        const payload = this.latestPayload;
+
+        if (!payload?.shieldTargeting || payload.incomingBeamCannons.length === 0) {
+            return;
+        }
+
+        this.shieldTargetingOpen = true;
+
+        this.threatsView.getRoot().setVisible(false);
+        this.shieldTargetingView.setVisible(true);
+
+        this.shieldTargetingView.update(
+            payload.shieldTargeting.targets,
+            payload.incomingBeamCannons,
+        );
+    }
+
+    private closeShieldTargeting(): void {
+        this.shieldTargetingOpen = false;
+
+        this.shieldTargetingView.setVisible(false);
+        this.threatsView.getRoot().setVisible(true);
+    }
+
+    private selectShieldTarget(command: BridgeOfficerCommandSelectedPayload): void {
+        this.closeShieldTargeting();
+
+        this.eventBus.emit(
+            BRIDGE_EVENT.OFFICER_COMMAND_SELECTED,
+
+            command,
         );
     }
 

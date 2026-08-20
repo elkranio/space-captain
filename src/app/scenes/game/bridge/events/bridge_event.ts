@@ -432,12 +432,10 @@ export type BridgeCaptainIncomingBeamCannonPayload = {
 
     actions: {
         trackTarget?: BridgeOfficerCommandSelectedPayload;
-        deployShield?: BridgeOfficerCommandSelectedPayload;
     };
 
     activeTasks?: {
         trackTargetTaskId?: string;
-        deployShieldTaskId?: string;
     };
 
     decisionTimings?: {
@@ -514,6 +512,8 @@ export type BridgeCaptainCombatContextUpdatedPayload = {
     shieldTargeting?: {
         targets: BridgeCaptainShieldTargetPayload[];
     };
+
+    shieldDeployTaskId?: string;
 
     incomingMissiles: BridgeCaptainIncomingMissilePayload[];
 

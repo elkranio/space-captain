@@ -1,6 +1,7 @@
 import type BridgeScene from "../../../../BridgeScene";
 import {
     BRIDGE_EVENT,
+    type BridgeCaptainCombatContextUpdatedPayload,
     type BridgeCaptainIncomingBeamCannonPayload,
     type BridgeCaptainIncomingMissilePayload,
     type BridgeCaptainSpamChannelPayload,
@@ -18,6 +19,10 @@ const THREAT_TILE_GRID = {
     tileWidth: 163,
     tileHeight: 66,
 } as const;
+
+type ThreatsViewCallbacks = {
+    onOpenShieldTargeting: () => void;
+};
 
 // Captain threat list.
 //
@@ -40,6 +45,8 @@ export default class BridgeCaptainThreatsView {
         private readonly eventBus: BridgeEventBus,
 
         private readonly width: number,
+
+        private readonly callbacks: ThreatsViewCallbacks,
     ) {
         this.root = this.scene.add.container(0, 0);
     }
@@ -52,17 +59,20 @@ export default class BridgeCaptainThreatsView {
         this.root.setPosition(x, y);
     }
 
-    public update(
-        missiles: BridgeCaptainIncomingMissilePayload[],
+    public update(payload: BridgeCaptainCombatContextUpdatedPayload): void {
+        const missiles = payload.incomingMissiles;
+        const beamCannons = payload.incomingBeamCannons;
+        const stickyMines = payload.incomingStickyMines;
+        const spamChannels = payload.activeSpamChannels;
 
-        beamCannons: BridgeCaptainIncomingBeamCannonPayload[],
-
-        stickyMines: BridgeCaptainStickyMinePayload[],
-
-        spamChannels: BridgeCaptainSpamChannelPayload[],
-    ): void {
         this.reconcileMissileRows(missiles);
-        this.reconcileBeamCannonRows(beamCannons, missiles.length);
+
+        this.reconcileBeamCannonRows(
+            beamCannons,
+            missiles.length,
+            payload.shieldTargeting !== undefined,
+            payload.shieldDeployTaskId,
+        );
 
         const firstStickyMineIndex = missiles.length + beamCannons.length;
 
@@ -122,6 +132,8 @@ export default class BridgeCaptainThreatsView {
     private reconcileBeamCannonRows(
         beamCannons: BridgeCaptainIncomingBeamCannonPayload[],
         missileCount: number,
+        shieldTargetingAvailable: boolean,
+        shieldDeployTaskId: string | undefined,
     ): void {
         while (this.beamCannonRowViews.length > beamCannons.length) {
             const rowView = this.beamCannonRowViews.pop();
@@ -135,8 +147,8 @@ export default class BridgeCaptainThreatsView {
                     this.emitCommand(command);
                 },
 
-                onDeployShield: (command) => {
-                    this.emitCommand(command);
+                onOpenShieldTargeting: () => {
+                    this.callbacks.onOpenShieldTargeting();
                 },
 
                 onCancelTask: (taskId) => {
@@ -158,7 +170,12 @@ export default class BridgeCaptainThreatsView {
             }
 
             this.positionTile(rowView, missileCount + index);
-            rowView.update(beamCannon);
+
+            rowView.update(
+                beamCannon,
+                shieldTargetingAvailable,
+                shieldDeployTaskId,
+            );
         }
     }
 

@@ -55,6 +55,13 @@ export function mapCaptainCombatContextToBridgePayload(
 
     const shieldTargeting = mapShieldTargeting(input.availableEngineeringCommands);
 
+    const shieldDeployTaskId = (input.officerTasks ?? []).find((task) => {
+        return (
+            task.canBeCancelledByPlayer &&
+            task.sourceCommandId === ENCOUNTER_OFFICER_COMMAND_ID.ENGINEER_DEPLOY_SHIELD
+        );
+    })?.id;
+
     return {
         ...(enemyShip
             ? {
@@ -65,6 +72,12 @@ export function mapCaptainCombatContextToBridgePayload(
         ...(shieldTargeting
             ? {
                   shieldTargeting,
+              }
+            : {}),
+
+        ...(shieldDeployTaskId
+            ? {
+                  shieldDeployTaskId,
               }
             : {}),
 
