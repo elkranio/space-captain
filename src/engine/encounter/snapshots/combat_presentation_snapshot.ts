@@ -2,6 +2,7 @@
 
 import { POWER_CORES } from "../../content/catalogs/power_cores";
 import { DEFENSE_TURRETS } from "../../content/catalogs/defense_turrets";
+import { SHIELD_GENERATORS } from "../../content/catalogs/shield_generators";
 import { SHIP_WEAPONS } from "../../content/catalogs/ship_weapons";
 import type { PowerCoreState } from "../../defs/power_core";
 import { OFFICER_ROLE, type OfficerRole } from "../../defs/officer";
@@ -19,6 +20,7 @@ import {
     type BeamCannonThreatSnapshot,
 } from "../combat/queries/get_beam_cannon_threat_snapshots";
 import { getStickyMineSnapshots, type StickyMineSnapshot } from "../combat/queries/get_sticky_mine_snapshots";
+import { getPlayerCrewProgressMultiplier } from "../crew_performance/get_crew_progress_multiplier";
 import type { AvailableOfficerCommand } from "../model/command";
 import {
     COMBAT_SOURCE_KIND,
@@ -33,6 +35,10 @@ import type { OfficerTaskState } from "../model/officer_task";
 import type { EncounterShipDriveState, EncounterState } from "../model/state";
 import type { MissileSignatureIntelStatus } from "../model/missile_signature_intel";
 import { getOfficerAvailabilityStates } from "../officer_availability/queries/get_officer_availability_states";
+import {
+    createPlayerThreatDecisionTimingSnapshot,
+    type PlayerThreatDecisionTimingSnapshot,
+} from "./create_player_threat_decision_timing_snapshot";
 
 export type PowerCorePresentationSnapshot = {
     state: PowerCoreState;
@@ -121,6 +127,8 @@ export type CombatPresentationSnapshot = {
 
     spamChannels: SpamChannelState[];
 
+    playerThreatDecisionTimings: PlayerThreatDecisionTimingSnapshot;
+
     commandsByRole: Record<OfficerRole, AvailableOfficerCommand[]>;
 };
 
@@ -201,6 +209,12 @@ export function createCombatPresentationSnapshot(state: EncounterState): CombatP
 
         spamChannels: selectSpamChannels(state),
 
+        playerThreatDecisionTimings: createPlayerThreatDecisionTimingSnapshot({
+            crewProgressMultiplier: getPlayerCrewProgressMultiplier(state),
+
+            shieldDurationMs: getPlayerShieldDurationMs(state),
+        }),
+
         commandsByRole: {
             [OFFICER_ROLE.SCIENCE]: getAvailableOfficerCommands(state, OFFICER_ROLE.SCIENCE),
 
@@ -211,6 +225,22 @@ export function createCombatPresentationSnapshot(state: EncounterState): CombatP
             [OFFICER_ROLE.ENGINEER]: getAvailableOfficerCommands(state, OFFICER_ROLE.ENGINEER),
         },
     };
+}
+
+function getPlayerShieldDurationMs(state: EncounterState): number | undefined {
+    const shieldGenerator = state.combat.shieldGenerator;
+
+    if (!shieldGenerator) {
+        return undefined;
+    }
+
+    const definition = SHIELD_GENERATORS[shieldGenerator.shieldGeneratorId];
+
+    if (!definition) {
+        throw new Error("Shield Generator definition not found: " + shieldGenerator.shieldGeneratorId);
+    }
+
+    return definition.shieldDurationMs;
 }
 
 function createMissilePresentationSnapshot(projectile: MissileCombatProjectileState): MissilePresentationSnapshot {
