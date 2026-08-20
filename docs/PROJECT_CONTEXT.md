@@ -58,7 +58,8 @@ File length alone is not a refactor reason.
 - `COMBAT_PLAYTEST_ROADMAP.md` — canonical near-term combat sequence and playtest gates.
 - `BACKLOG.md` — active deferred work.
 - `BRIDGE_ART_DIRECTION.md` — durable bridge visual direction.
-- `THREAT_PANEL.md` — compact threat-tile interaction/timing contract.
+- `THREAT_PANEL.md` — implemented compact threat-tile interaction/timing contract.
+- `TARGETED_SHIELDS_TASK.md` — current Beam node-defense task; archive after completion.
 - `../CURRENT_HANDOFF.md` — transient current state and next active slice.
 
 Session startup/read order is defined only in `WORKING_RULES.md`.

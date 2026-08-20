@@ -1,13 +1,13 @@
 # Space Captain — Threat Panel
 
-Design contract for the compact combat-threat UI. This does not imply that the
-final UI is already implemented.
+Durable contract for the implemented compact combat-threat UI.
 
 Reference composition image:
 
 ![Threat tile concept](images/threat_tile_reference.png)
 
-The image explains composition only; production art/layout may change.
+The image is historical composition reference only. Current runtime behavior is
+defined here and by fresh source.
 
 ## Goal
 
@@ -16,129 +16,159 @@ labels, timers or targeting frames floating over the viewscreen.
 
 One concrete runtime threat maps to one compact fixed-footprint tile.
 
-Target density:
-- roughly 4 tiles comfortable;
-- 5 still viable under pressure;
-- roughly 4:3 rather than a panoramic spreadsheet row.
+Current production footprint:
+
+- `163x66`;
+- up to six cells in the shared 3x2 threat grid.
 
 Do not aggregate away concrete threat identity.
 
 ## Tile anatomy
 
-Preferred hierarchy:
-1. threat-type icon;
-2. identity / Science knowledge;
-3. urgency timeline;
-4. contextual actions;
-5. raw countdown as secondary precision.
+Current hierarchy:
 
-A useful layout is:
-- top: icon + signature/target label + small time;
-- middle: urgency timeline;
-- bottom: compact action buttons.
+- top-left: threat icon;
+- top-middle: identity / Science knowledge when it has decision value;
+- top-right: exact countdown;
+- bottom: one or two contextual action buttons;
+- thin decision-timing strip belongs directly to the action it explains.
 
-## Missile identity
+Mine and Spam intentionally have no redundant upper-middle status label.
 
-Every concrete missile/projectile gets one stable display signature.
+## Action truth
 
-Presentation receives only safe observer/Science knowledge:
-- `?????` — UNKNOWN;
-- `ABC??` — UNCERTAIN;
-- `ABCDE` — CONFIRMED.
+The view must not recreate command legality.
 
-Objective hidden missile truth remains engine-owned.
+Buttons come from engine-resolved commands mapped through the app/controller
+layer.
 
-## Missile actions
+An expired timing strip does NOT hard-disable a command if the engine still
+considers it legal. Desperate late actions remain possible gameplay.
 
-Current conceptual slots:
-- `TRACK [S]` — Science;
-- `HIT [W]` — Weapons.
+When a button represents a currently active cancellable task, active/cancel
+state takes precedence over its advisory timing strip.
 
-TRACK:
-- available for UNKNOWN;
-- may remain available for UNCERTAIN so Science can track again;
-- disappears once CONFIRMED.
+## Timing-strip visual language
 
-HIT is the Weapons response while interception is still possible.
+Ordinary deadline strips use the same compact geometry under the button label.
 
-The view must not recreate command legality. Button availability comes from
-engine/app command truth.
+Current visual language:
 
-## Beam Cannon threats
+- fixed equal strip width regardless of label length;
+- 3 px high in the current implementation;
+- cream useful-time fill;
+- time advances left -> right;
+- the cream fill is anchored on the right, so its left edge moves right as the
+  useful window closes;
+- once useful time is gone, only a tiny blinking red terminal marker remains.
 
-Use the same tile grammar for Beam Cannon threats.
+The strip answers **how long this action remains useful**, not generic threat
+lifetime.
 
-The identity slot may show a real semantic target such as `HULL`, `BRDG`,
-`DRIVE` or another domain-supported target.
+## Dynamic timing source
 
-Do not derive semantic target names from VFX coordinates.
+Decision thresholds come from the engine presentation timing read model.
 
-## Urgency timeline
+Task-based thresholds use the current crew-progress multiplier, so active SPAM
+slowdown changes real wall-clock decision windows.
 
-The primary signal is the remaining **decision window**, not raw seconds.
+The view does not import task tuning or rebuild slowdown formulas.
 
-Threat progress moves left -> right toward impact/resolution.
+## Missile
 
-Three semantic windows:
+Actions:
 
-### Safe — TRACK + HIT
+- `[S] TRACK`;
+- `[W] HIT`.
 
-Enough time remains to complete the relevant Science tracking response and then
-the Weapons interception response.
+### TRACK strip
 
-### Caution — HIT ONLY
-
-TRACK + HIT no longer fits, but direct interception still does.
-
-### Too late
-
-The normal interception response can no longer finish before impact.
-
-Preferred presentation:
-- one compact horizontal bar;
-- visually distinct windows;
-- one clear moving marker;
-- clear impact endpoint;
-- small raw countdown nearby.
-
-Do not fill the production bar with large explanatory labels unless onboarding
-proves they are necessary.
-
-## Dynamic thresholds
-
-Timeline boundaries come from real gameplay timing, never arbitrary fixed
-seconds.
-
-Conceptually:
+Latest useful start includes both:
 
 ```text
-TRACK+HIT boundary
-    = remaining tracking time
-      + remaining interception time
-
-HIT-only boundary
-    = remaining interception time
+Science TRACK wall time
++ subsequent Weapons HIT wall time
 ```
 
-Officer occupancy, impairment, SPAM modifiers and future timing bonuses must be
-resolved from authoritative command/task timing. The view must not guess.
+The strip reaches terminal red when the full TRACK -> HIT sequence no longer
+nominally fits.
 
-## Multi-threat acceptance test
+### HIT strip
 
-Before locking the UI, test:
-- 4 simultaneous threats;
-- 5 simultaneous threats;
-- mixed missile + Beam threats;
-- UNKNOWN / UNCERTAIN / CONFIRMED identities;
-- different urgency windows at once;
-- TRACK hidden when no longer relevant;
-- multiple actionable buttons without visual noise.
+Latest useful start includes the interception/Defense Turret work only.
 
-The captain should be able to answer quickly:
-- what is it?
-- how well do we understand it?
-- how urgent is it?
-- what can I still do?
+It therefore normally remains useful after TRACK has already expired.
+
+## Beam Cannon
+
+Target display uses observer knowledge only:
+
+- `UNKNOWN`;
+- `HULL? / DRIVE?`;
+- `HULL / DRIVE`.
+
+Hidden actual target stays engine-only.
+
+Actions:
+
+- `[S] TRACK`;
+- `[E] SHIELD`.
+
+### TRACK strip
+
+The Beam TRACK deadline reserves:
+
+```text
+Science TRACK wall time
++ subsequent Engineer Shield deployment wall time
+```
+
+This prevents TRACK from appearing useful when completing it would leave no
+time to deploy the actual defense.
+
+### SHIELD strip
+
+Shield timing is a window, not a single deadline.
+
+Current left-to-right language:
+
+```text
+red TOO EARLY
+-> cream VALID
+-> blinking red terminal marker
+```
+
+The initial red segment means deploying now would cause the finite Shield to
+expire before Beam fire.
+
+When the red segment is consumed, the cream valid window is active.
+
+There is no trailing full red segment. Once deployment is nominally too late,
+the same tiny blinking terminal marker used by other deadline strips is enough.
+
+## Sticky Mine
+
+Action:
+
+- `[E] CLEAR`.
+
+One ordinary cream deadline strip answers:
+
+> if Engineer starts CLEAR now, can the task still finish before detonation?
+
+After the latest useful start it becomes the blinking red terminal marker.
+
+## Spam
+
+Action:
+
+- `[S] PURGE`.
+
+Spam intentionally has **no timing strip**.
+
+Its own precision-timing visualization adds little decision value. Its important
+combat effect is slowing other officer work, which is already reflected in their
+real decision strips.
 
 ## Viewscreen rule
 
@@ -148,7 +178,16 @@ shields, impacts and short-lived VFX.
 Persistent tactical explanation belongs in the dashboard.
 
 Do not reintroduce:
+
 - projectile countdown text on the viewscreen;
 - persistent targeting frames around threats;
 - floating threat IDs;
 - giant HP/telemetry overlays over space.
+
+## Runtime readability rule
+
+Treat actual-size runtime perception as part of balance.
+
+Decision strips make subjective response pressure visible. Use that feedback
+when tuning threat/task durations rather than judging timings from raw seconds
+alone.

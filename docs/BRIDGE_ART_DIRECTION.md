@@ -99,13 +99,15 @@ Avoid:
 
 One concrete threat maps to one compact fixed-footprint object.
 
-Target direction:
-- icon + identity/intel;
-- urgency timeline based on real response windows;
+Current direction:
+- icon + identity/intel when useful;
+- exact countdown;
 - one or two contextual action slots;
-- raw countdown as secondary precision;
-- roughly 4 tiles comfortable, 5 viable under pressure;
-- roughly 4:3 rather than a panoramic row.
+- thin button-local decision strips based on real response windows;
+- compact fixed tile footprint in the shared threat grid.
+
+Keep timing information attached to the action it explains rather than turning
+the tile into a miniature chart.
 
 Do not aggregate away runtime threat identity.
 

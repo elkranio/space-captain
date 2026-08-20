@@ -221,6 +221,27 @@ Once a hostile physical threat exists, do not reconstruct its hostility or
 actionability by looking up the current source actor. Source destruction does
 not erase surviving projectiles/effects.
 
+## Beam target / Shield boundary
+
+Incoming enemy Beam attacks own hidden semantic target truth:
+
+```text
+HULL | DRIVE
+```
+
+The app receives observer `targetIntel`, never hidden `targetNode`.
+
+Player Drive integrity is encounter-local domain state. Beam resolution mutates
+that authoritative Drive state directly.
+
+Before the targeted-Shield slice, player/enemy Active Shields are still
+whole-ship temporary fields. The next slice must put the selected protected node
+on authoritative Shield/task state rather than keeping it only in dashboard UI.
+
+Player Beam is still actor-wide/hull-only at the current checkpoint, so enemy
+node-targeted Shield placement depends on first giving the player Beam a real
+semantic target.
+
 ## Enemy destruction
 
 Engine/domain:

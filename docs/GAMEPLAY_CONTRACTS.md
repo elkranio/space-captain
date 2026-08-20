@@ -185,13 +185,16 @@ Rules:
 - timing/cost values are drive/content-driven;
 - player and enemy use the same gameplay mechanic rather than separate dodge rules.
 
-Beam resolution order:
+Current Beam resolution order before targeted Shields:
 
 ```text
 EVADING -> MISS
 else Active Shield -> ABSORBED
 else -> HIT
 ```
+
+`TARGETED_SHIELDS_TASK.md` changes the middle step to a matching-node Shield
+check. Treat that as planned until the engine atom lands.
 
 An avoided attack does not consume a shield/defense that was never hit.
 
@@ -212,10 +215,17 @@ Installed hardware: **Shield Generator**.
 
 Temporary encounter object: **Active Shield**.
 
-Current direction:
+Current implementation before the targeted-Shield slice:
 - generator uses shared Power Core;
 - active shield is encounter-local;
-- active shield absorbs one Beam Cannon hit or expires;
+- player/enemy active Shield is currently whole-ship;
+- active Shield absorbs one Beam Cannon hit or expires;
+- Shield deployment commits Power and generator cooldown at task start;
+- later cancellation/interruption does not refund those committed resources.
+
+The next targeted-node Shield contract is defined in
+`TARGETED_SHIELDS_TASK.md`. Do not treat it as implemented until the engine atom
+lands.
 
 ## Defense Turret
 
@@ -276,14 +286,52 @@ Rules:
 
 Current heavy precision energy weapon is **Beam Cannon**.
 
-Current combat contract:
+Current incoming enemy Beam contract:
 - long charge;
 - no ammo economy;
-- unshielded hit damages hull;
-- Active Shield absorbs one Beam hit and is consumed;
-- Engineer shield deployment is the current defensive response.
+- hidden target is chosen once per concrete attack;
+- current target domain is exactly `HULL | DRIVE`;
+- Science TRACK exposes observer intel without leaking hidden target truth;
+- Beam definitions use independent `hullDamage` and `moduleDamage` axes.
 
-Semantic damage targets must come from real domain state, never from VFX impact coordinates.
+Penetrating consequences:
+
+```text
+HULL
+    -> hullDamage
+
+operational DRIVE
+    -> moduleDamage to encounter-local Drive integrity
+    -> no hull damage
+
+hit that breaks DRIVE
+    -> no overkill spill into hull
+
+already BROKEN DRIVE
+    -> hullDamage * 2
+```
+
+Drive integrity baseline:
+
+```text
+2/2 -> operational
+1/2 -> operational and not repairable
+0/2 -> DISABLED / BROKEN and repairable
+repair -> full integrity
+```
+
+Do not create a duplicate Beam-owned `canEscape` flag. Escape availability
+derives from authoritative Drive state.
+
+Current enemy Beam target choice remains intentionally simple random HULL/DRIVE.
+
+Current player Beam still targets an enemy actor as a whole and resolves
+Evade -> whole-ship Shield -> hull. Semantic player Beam targeting is a required
+prerequisite for enemy targeted Shield placement and is tracked in
+`TARGETED_SHIELDS_TASK.md`.
+
+Semantic damage targets must come from real domain state, never from VFX impact
+coordinates.
 
 ## Sticky mines
 

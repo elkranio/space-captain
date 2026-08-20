@@ -27,6 +27,28 @@ Do not weaken tests merely to make them shorter.
 
 ## Gameplay follow-up
 
+### Beam/module follow-up after targeted Shields
+
+Keep these out of the targeted-Shield slice:
+
+- Beam interruption probability / weapon-specific disruption tuning;
+- future weapon traits that may spill module damage into hull;
+- alternative already-broken-module damage modifiers;
+- future concrete WEAPON / SHIELD module targets;
+- Evade cancellation from the final dashboard control.
+
+### Encounter-end module reset
+
+Intended lifecycle:
+
+- system/module integrity is encounter-local;
+- surviving modules return to max integrity after the encounter;
+- hull damage does NOT auto-reset;
+- hull repair remains station-only.
+
+Implement the reset as one explicit lifecycle atom when the encounter-end
+write-back path is being touched.
+
 ### Escape flow
 
 Current intended dependency:

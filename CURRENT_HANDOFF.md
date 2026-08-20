@@ -1,186 +1,322 @@
 # Space Captain — Current Handoff
 
-Updated: 2026-08-19
+Updated: 2026-08-20
 
 Always re-fetch current `master` before preparing a patch.
 
+Handoff marker after the completed threat-readability slice:
+
+`5968c8bfe53b11db457517df88b0a8394cc655af`
+
+Treat that SHA only as historical context. Fresh `master` is authoritative.
+
 ## Where we are
 
-The previous cognitive-load / callback audit is closed. Do not resume refactoring
-unless current feature work exposes a concrete ownership, duplication or
-maintainability problem.
+The captain threat-dashboard readability task is closed.
 
-The active work is now the **captain threat-dashboard combat-readability slice**.
-
-Current base at the time of this handoff:
-
-`e26cee6ed417387c771fff36ad2ca8fb2770287f`
-
-Treat that SHA only as a handoff marker. Fresh `master` is authoritative.
-
-## Current gameplay/UI state
-
-Two production threat tiles are green:
+All four production threat tiles use the compact `163x66` grammar:
 
 - Missile
 - Beam Cannon
+- Sticky Mine
+- Spam
 
-Both use the same compact `163x66` tile language and now share the common
-3-column threat grid.
-
-Missile currently shows:
-
-- missile icon
-- `NO ID / GUESS / LOCK`
-- exact countdown
-- `[S] TRACK`
-- `[W] HIT`
-
-Beam currently shows:
-
-- Beam Cannon icon
-- `UNKNOWN / HULL? / BRIDGE? / DRIVE?`
-- confirmed `HULL / BRIDGE / DRIVE`
-- exact countdown
-- `[S] TRACK`
-- `[E] SHIELD`
-
-Beam target truth is already real engine state. Science TRACK updates
-player-observer knowledge without leaking the hidden target.
-
-Important temporary limitation:
-
-> Beam target nodes currently affect intel/presentation only. A penetrating Beam
-> still resolves through the old hull-centric hit path. The full node-damage
-> system is a later explicit slice.
-
-## Immediate roadmap
-
-### Phase 1 — finish the threat tile set
-
-Do this first.
-
-1. Convert Sticky Mine from legacy row to the same `163x66` tile.
-2. Convert Spam from legacy row to the same `163x66` tile.
-3. Runtime-review Missile / Beam / Mine / Spam together.
-
-Mine and Spam deliberately have **no state/status label** in the upper middle
-area. Those labels would not change a player decision.
-
-Their upper row is simply:
-
-- threat icon
-- exact timer
-
-Use only real actions already exposed by the engine/app command flow.
+The next active slice is **targeted Beam defense / node targeting**.
 
 Detailed task:
 
-`THREAT_TILES_TASK.md`
+`docs/TARGETED_SHIELDS_TASK.md`
 
-### Phase 2 — decision-window progress bars
+The old Beam design handoff and the completed threat-tile/progress-bar task docs
+were moved out of active `docs/` into `ideas/_archive/`. Do not use them as
+current implementation truth.
 
-After all four tile types use the same tile grammar, add useful timing
-visualization.
+## Closed threat-dashboard state
 
-This is not a generic percent-remaining bar.
+The threat grid supports up to six compact tiles in the shared 3x2 layout.
 
-The bar should answer which responses are still realistically possible.
+Decision timing is button-local rather than one generic threat bar.
 
-Planned semantics:
+Current rules:
 
-- **Missile:** TRACK + HIT window -> HIT-only window -> effectively too late.
-- **Beam:** visualize the valid Shield deployment window and also communicate
-  whether Science can still finish TRACK before fire.
-- **Mine:** simple latest-safe-start threshold for beginning the clear task.
-- **Spam:** no progress bar.
+- Missile `TRACK`: cream deadline strip for completing TRACK and then HIT.
+- Missile `HIT`: cream deadline strip for completing interception.
+- Beam `TRACK`: cream deadline strip that reserves TRACK time plus the
+  subsequent Shield deployment time.
+- Beam `SHIELD`: red too-early segment -> cream valid deployment window ->
+  blinking red terminal marker.
+- Sticky Mine `CLEAR`: cream latest-safe-start strip -> blinking red terminal
+  marker.
+- Spam: intentionally no timing strip.
 
-Thresholds must derive from real task/action durations, not arbitrary percentages
-or duplicated UI timing rules.
+All task-based thresholds come from the engine presentation timing read model and
+use the current crew-progress multiplier, so SPAM slowdown changes the real
+wall-clock windows.
 
-Detailed task:
+Timing strips are advisory. They do not redefine engine command legality.
 
-`THREAT_PROGRESS_BARS_TASK.md`
+## Current Beam / Drive foundation
 
-### Phase 3 — Beam Cannon node-damage system
+Incoming enemy Beam attacks already have real hidden target truth.
 
-Only after the threat-dashboard timing/readability slice is stable.
+Current target domain:
 
-Turn the already-existing hidden Beam target into real consequences.
+- `HULL`
+- `DRIVE`
 
-Core intended model:
+`BRIDGE` is not a Beam target.
 
-- `HULL` -> hull damage + possible task interruption
-- `BRIDGE` -> officer stun pressure
-- `DRIVE` -> system integrity damage / broken drive denies escape
-- later concrete `WEAPON` / `SHIELD` targets when their identity model is clear
+The enemy currently chooses HULL/DRIVE randomly when the concrete Beam attack is
+created. Keep that baseline unless a later AI pass explicitly changes it.
 
-Beam weapons should separate:
+Science TRACK exposes only observer intel:
+
+- UNKNOWN
+- uncertain `HULL? / DRIVE?`
+- confirmed `HULL / DRIVE`
+
+Hidden `targetNode` remains engine-only.
+
+Beam definitions separate:
 
 - `hullDamage`
-- `nodeDamage`
+- `moduleDamage`
 
-System nodes should use small integrity pips rather than large numeric HP bars.
+Current penetrating damage contract:
 
-`VULNERABLE` and `BROKEN` have separate semantics. Crew stun and task
-interruption must also remain separate effects.
+```text
+HULL target
+    -> hullDamage
 
-Do not reconstruct this system from memory. The detailed design, agreed rules,
-open questions and suggested implementation slices are in:
+DRIVE 2/2 or 1/2
+    -> moduleDamage to Drive
+    -> no hull damage
 
-`BEAM_CANNON_SYSTEM.md`
+DRIVE breaks on this hit
+    -> still no hull damage
+    -> moduleDamage overkill does not spill
 
-### Phase 4 — return to the broader combat playtest roadmap
+already BROKEN DRIVE
+    -> hullDamage * 2
+```
 
-After the threat-dashboard + Beam-node foundation is functional, resume the
-larger combat-readability/build roadmap in:
+Drive integrity is encounter-local:
 
-`docs/COMBAT_PLAYTEST_ROADMAP.md`
+```text
+2/2 -> operational
+1/2 -> operational, not repairable
+0/2 -> BROKEN / DISABLED, repair available
+repair -> 2/2
+```
 
-That document remains the broader direction. The three phases above are the
-current concrete implementation path inside that larger combat work.
+Hull damage persists between encounters. Module integrity is intended to reset
+between encounters; the explicit encounter-end reset remains deferred work.
 
-Do not jump to later roguelite balance, crew relationships, shops or full-run
-playtesting before the current combat readability/effect foundation works.
+Penetrating Beam hits still use the current general player-task interruption
+behavior. Probability/traits for interruption are deferred until deeper weapon
+work.
 
-## Important implementation constraints
+## Current Shield state before the next slice
 
-- Engine/runtime state is authoritative; do not recreate gameplay truth in the
-  app.
-- Keep hidden Beam `targetNode` internal. Public snapshots/events expose only
-  observer intel.
-- Preserve `EncounterEngine.step()` / `CombatRunner.step()` ordering unless a
-  focused mechanic explicitly requires a change.
-- Newly launched player missiles/mines must not consume the same combat step's
-  `deltaMs`.
-- Public `EncounterEvent` outbox behavior remains separate from synchronous
-  internal effects.
-- Use existing resolved officer commands for tile actions.
-- Do not hard-disable an action merely because the UI thinks timing is bad if
-  the engine still considers the command legal. Late failed attempts can be
-  gameplay.
-- Keep patches narrow and build them from exact fresh source.
-- Prefer explicit/simple code over speculative generic threat frameworks.
+Player and enemy Shields are still whole-ship fields.
 
-## Files to read for the active work
+`ActiveShieldState` currently contains emitter identity + lifetime only.
 
-Start with:
+Current Beam defense order is:
+
+```text
+EVADING -> MISS
+else active whole-ship Shield -> ABSORBED and Shield consumed
+else penetrating HIT
+```
+
+Player Shield deployment:
+
+- Engineer task;
+- shared Power Core cost is committed at deployment start;
+- generator cooldown is committed at deployment start;
+- cancelling later frees Engineer but does not refund energy/cooldown.
+
+Enemy Shield already has:
+
+- its own runner/lifetime;
+- Engineer deployment work;
+- timing-aware `EnemyDecisionPolicy` that waits for the useful Beam window.
+
+What it does NOT have yet is a protected node.
+
+## Next implementation order
+
+### Atom 1 — player targeted Shield engine contract
+
+Do engine/domain first. No picker UI in this atom.
+
+Target vocabulary for the first slice is exactly the current Beam node vocabulary:
+
+- `HULL`
+- `DRIVE`
+
+The selected node must travel through the real Engineer deploy command/task flow
+and end up on the active Shield.
+
+Targeted defensive resolution:
+
+```text
+Beam target matches Shield target
+    -> ABSORBED
+    -> Shield consumed
+
+Beam target does not match Shield target
+    -> Beam penetrates normally
+    -> Shield remains active until a matching hit or expiry
+```
+
+Preserve defense ordering:
+
+```text
+EVADING first
+then matching Shield
+then target consequence
+```
+
+A Beam missed by Evade does not consume Shield.
+
+Do not add sectors, facings, partial absorption or generic shield-target
+frameworks in this atom.
+
+### Atom 2 — player Shield target picker
+
+After engine tests are green, change the captain-dashboard interaction.
+
+Pressing the Beam threat `SHIELD` action should open a small inline dashboard
+selection state rather than immediately starting deployment.
+
+Initial picker content:
+
+```text
+SHIELD TARGET
+
+HULL    current / max
+DRIVE   integrity / max
+
+CLOSE
+```
+
+Requirements:
+
+- selecting HULL/DRIVE starts the real Engineer deploy command for that node;
+- `CLOSE` only closes presentation and has no engine side effect;
+- view receives view-ready hull/Drive values; it does not import gameplay tuning
+  or decide availability;
+- keep this provisional/functional rather than spending time on final art.
+
+### Atom 3 — player Shield visual state
+
+The player must be able to tell which node is being protected.
+
+At minimum distinguish:
+
+- deployment in progress and selected node;
+- active Shield and protected node.
+
+Use the existing captain dashboard/viewscreen language. Do not redesign the
+whole dashboard around this one feature.
+
+### Atom 4 — player Beam semantic target prerequisite
+
+This is required before enemy targeted Shield can be meaningful.
+
+Current `PlayerBeamCannonRunner` still targets an enemy actor as a whole and
+resolves only Evade -> whole-ship Shield -> hull.
+
+Before implementing enemy node defense, give the player's Beam a concrete
+semantic enemy target.
+
+Start with the smallest useful enemy target vocabulary supported by real enemy
+state. Do not add WEAPON/SHIELD/BRIDGE targets until their identity/consequence
+model exists.
+
+The exact player target-selection UX should be decided against the then-current
+enemy dashboard/Science information. Do not invent a large subsystem picker in
+advance.
+
+### Atom 5 — enemy targeted Shield choice
+
+Reuse the same protected-node semantics, not a separate enemy-only mechanic.
+
+Current enemy policy already selects Shield deployment from a perceived Beam
+threat and useful timing window. Extend that flow so the chosen defense also
+contains a node.
+
+Critical epistemic rule:
+
+> enemy Shield placement must use enemy-observer/perceived Beam target
+> information, not hidden objective player-attack truth bypassing Science/intel.
+
+The result should be analogous to enemy missile defense: the captain acts on
+what the enemy currently believes about the incoming threat.
+
+Likely source anchors:
+
+- `EnemyDecisionPolicy`;
+- enemy captain decision/threat snapshots;
+- enemy Beam observation/intel;
+- `EnemyWorkExecutor`;
+- enemy Engineer task payload;
+- `EnemyShieldRunner`.
+
+Keep decision policy separate from physical hit resolution.
+
+### Atom 6 — enemy Shield visual
+
+The player needs a readable indication of which enemy node is protected.
+
+Functional clarity first. The player should be able to answer:
+
+- does the enemy currently have an active Shield?
+- which node does it protect?
+- did my Beam hit the protected node, miss via Evade, or penetrate elsewhere?
+
+Do not duplicate authoritative enemy state in Phaser.
+
+## Explicit non-goals for this slice
+
+- smarter enemy offensive Beam target selection;
+- BRIDGE target/stun system;
+- WEAPON or SHIELD module damage;
+- Beam vulnerability traits;
+- node-damage spill traits;
+- Beam interruption probability/weapon archetype pass;
+- Evade cancellation UI;
+- final polished dashboard redesign;
+- generic subsystem/sector framework.
+
+## Files to read first in the new chat
+
+Per `docs/WORKING_RULES.md`, read every Markdown file in `docs/`.
+
+For the active slice pay special attention to:
 
 - `CURRENT_HANDOFF.md`
-- `THREAT_TILES_TASK.md`
-- `THREAT_PROGRESS_BARS_TASK.md`
-- `BEAM_CANNON_SYSTEM.md`
-- `docs/WORKING_RULES.md`
+- `docs/TARGETED_SHIELDS_TASK.md`
+- `docs/GAMEPLAY_CONTRACTS.md`
 - `docs/SYSTEM_MAP.md`
+- `docs/THREAT_PANEL.md`
 - `docs/COMBAT_PLAYTEST_ROADMAP.md`
 
-Then inspect fresh source/tests for the exact atom being changed.
+Then re-fetch fresh `master` and inspect exact source/tests.
 
-## Startup sequence
+## First action in the new chat
 
-1. Read this handoff and the three active task/design files above.
-2. Read the durable repo docs required by `docs/WORKING_RULES.md`.
-3. Re-fetch current `master`.
-4. Inspect the exact current source and tests for the active atom.
-5. Continue from **Phase 1: Sticky Mine tile** unless the user explicitly changes
-   priority.
+Start with **Atom 1: player targeted Shield engine contract**.
+
+Before changing code, inspect the exact current shapes of:
+
+- `ActiveShieldState`;
+- Engineer deploy-shield command target;
+- Engineer deploy-shield officer task payload;
+- Shield deployment completion;
+- incoming Beam absorption;
+- current cancellation tests.
+
+Do not start with the picker UI.

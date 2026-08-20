@@ -1,13 +1,36 @@
 # Space Captain — Combat Playtest Roadmap
 
-Updated: 2026-08-18.
+Updated: 2026-08-20.
 
-This document defines the gameplay work required before serious internal combat
-playtests across early-game, midgame and endgame conditions.
+This document defines the broader gameplay work required before serious internal
+combat playtests across early-game, midgame and endgame conditions.
+
+The exact immediate atom order lives in `../CURRENT_HANDOFF.md`.
 
 The goal is not to finish the whole run first. Combat should become readable,
 interesting and build-sensitive in isolation before fatigue, relationships,
 shops, R&R and full run progression are used to judge it.
+
+## Current Gate A checkpoint
+
+Completed foundation now includes:
+
+- compact Missile / Beam / Mine / Spam threat tiles;
+- button-local smart decision timing;
+- incoming enemy Beam target truth for HULL/DRIVE;
+- encounter-local player Drive integrity and real Beam module damage.
+
+Current immediate work is targeted Beam defense:
+
+```text
+player targeted Shield
+-> player Shield picker/visual
+-> player Beam semantic target prerequisite
+-> enemy targeted Shield choice
+-> enemy Shield visual
+```
+
+After that, continue the broader readability/build work below.
 
 ## Target playtest question
 
@@ -85,7 +108,11 @@ A combat result therefore comes from roughly:
 build × crew condition × enemy matchup × player decisions
 ```
 
-## Near-term implementation order
+## Broader combat work pool
+
+The numbered items below are not a strict override of `CURRENT_HANDOFF.md`.
+They are the remaining Gate A/B work pool and can be reordered when a concrete
+dependency makes another slice more useful.
 
 ### 1. Enemy dashboard redesign
 
@@ -136,20 +163,24 @@ contract is that Science creates knowledge that other roles can exploit.
 
 ### 4. Beam Cannon semantic node targeting
 
-Science scan should unlock meaningful target choices for Weapons.
+Science knowledge should unlock meaningful target choices for Weapons.
 
-Beam Cannon should be able to target real semantic enemy nodes rather than
-presentation coordinates.
+The first proven node language is deliberately small:
 
-Start with a deliberately small target vocabulary and only add nodes that have
-real gameplay consequences, for example:
-- BRIDGE;
-- ENGINE;
-- WEAPON;
-- DEFENSE.
+- HULL;
+- DRIVE.
 
-Do not build a large subsystem simulation before the first useful targeting
-loop works.
+Incoming enemy Beam already uses this vocabulary against the player.
+
+Player Beam still needs its own concrete enemy-node target before enemy targeted
+Shield placement can become meaningful.
+
+Add new target kinds only when they have real identity and consequences. Do not
+add generic BRIDGE / WEAPON / SHIELD / DEFENSE strings merely because a future
+system might use them.
+
+Do not build a large subsystem simulation before the first useful
+target/defense loop works.
 
 ### 5. Shared combat-effect model
 
@@ -194,8 +225,7 @@ This is expected to become one of the main sources of build diversity.
 
 Candidate direction:
 - missile hit: hull damage plus a chance to stun one or more officers;
-- Beam hit on BRIDGE: strong officer-stun pressure;
-- Beam hit on another node: break/damage that semantic node;
+- Beam hit on a real module node: damage/break that semantic module;
 - generic Beam/hit effects may interrupt officer work where appropriate;
 - other weapons can specialize around damage, disruption, crew pressure or
   subsystem pressure.
