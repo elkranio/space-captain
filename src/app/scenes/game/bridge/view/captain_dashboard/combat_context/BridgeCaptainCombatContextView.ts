@@ -16,12 +16,6 @@ const PANEL = {
 
     padding: 8,
     sectionGap: 6,
-
-    backgroundColor: 0x0b1018,
-    backgroundAlpha: 0.94,
-
-    borderColor: 0x40546a,
-    borderThickness: 2,
 } as const;
 
 const STATUS_HEIGHT = 38;
@@ -73,20 +67,6 @@ export default class BridgeCaptainCombatContextView {
         private readonly eventBus: BridgeEventBus,
     ) {
         this.root = this.scene.add.container(0, 0);
-
-        const background = this.scene.add
-            .rectangle(
-                0,
-                0,
-
-                PANEL.width,
-                PANEL.height,
-
-                PANEL.backgroundColor,
-                PANEL.backgroundAlpha,
-            )
-            .setOrigin(0, 0)
-            .setStrokeStyle(PANEL.borderThickness, PANEL.borderColor);
 
         const innerWidth = PANEL.width - PANEL.padding * 2;
 
@@ -189,7 +169,6 @@ export default class BridgeCaptainCombatContextView {
         this.shieldTargetingView.setVisible(false);
 
         this.root.add([
-            background,
             this.hullText,
             this.defenseText,
             this.defenseTrack,
