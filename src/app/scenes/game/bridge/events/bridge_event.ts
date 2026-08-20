@@ -13,6 +13,7 @@ import type { EncounterOfficerCommandId, OfficerCommandTarget } from "../../../.
 import type {
     BeamCannonShotOutcome,
     BeamCannonTargetIntel,
+    BeamCannonTargetNode,
     PlayerMissileOutcome,
     PlayerSpamChannelOutcome,
     PlayerStickyMineOutcome,
@@ -449,6 +450,13 @@ export type BridgeCaptainIncomingBeamCannonPayload = {
     };
 };
 
+export type BridgeCaptainShieldTargetPayload = {
+    targetNode: BeamCannonTargetNode;
+    label: string;
+
+    command: BridgeOfficerCommandSelectedPayload;
+};
+
 export type BridgeCaptainStickyMinePayload = {
     mineId: string;
 
@@ -501,6 +509,10 @@ export type BridgeCaptainCombatContextUpdatedPayload = {
 
             rechargeProgress?: number;
         };
+    };
+
+    shieldTargeting?: {
+        targets: BridgeCaptainShieldTargetPayload[];
     };
 
     incomingMissiles: BridgeCaptainIncomingMissilePayload[];

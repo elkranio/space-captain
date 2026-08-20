@@ -7,6 +7,7 @@ import {
     OFFICER_ROLE,
 } from '../../src/engine/defs/officer';
 import {
+    BEAM_CANNON_TARGET_NODE,
     COMBAT_PROJECTILE_KIND,
     COMBAT_SOURCE_KIND,
     COMBAT_TARGET_KIND,
@@ -335,9 +336,9 @@ describe(
 
 
         it(
-            'maps the resolved untargeted Engineer shield command onto beamCannon rows',
+            'maps targeted Engineer shield commands once for the whole combat context',
             () => {
-                const deployShield:
+                const hullShield:
                     AvailableOfficerCommand = {
                         commandId:
                             ENCOUNTER_OFFICER_COMMAND_ID
@@ -346,10 +347,40 @@ describe(
                         label:
                             'DEPLOY SHIELD',
 
+                        targetLabel:
+                            'HULL',
+
                         target: {
                             kind:
                                 OFFICER_COMMAND_TARGET_KIND
-                                    .NONE,
+                                    .PLAYER_SHIP_NODE,
+
+                            targetNode:
+                                BEAM_CANNON_TARGET_NODE
+                                    .HULL,
+                        },
+                    };
+
+                const driveShield:
+                    AvailableOfficerCommand = {
+                        commandId:
+                            ENCOUNTER_OFFICER_COMMAND_ID
+                                .ENGINEER_DEPLOY_SHIELD,
+
+                        label:
+                            'DEPLOY SHIELD',
+
+                        targetLabel:
+                            'DRIVE',
+
+                        target: {
+                            kind:
+                                OFFICER_COMMAND_TARGET_KIND
+                                    .PLAYER_SHIP_NODE,
+
+                            targetNode:
+                                BEAM_CANNON_TARGET_NODE
+                                    .DRIVE,
                         },
                     };
 
@@ -405,7 +436,8 @@ describe(
                             [],
 
                         availableEngineeringCommands: [
-                            deployShield,
+                            hullShield,
+                            driveShield,
                         ],
                     }),
                 ).toEqual({
@@ -415,7 +447,69 @@ describe(
                     incomingStickyMines:
                         [],
 
-                    incomingMissiles: [],
+                    incomingMissiles:
+                        [],
+
+                    shieldTargeting: {
+                        targets: [
+                            {
+                                targetNode:
+                                    BEAM_CANNON_TARGET_NODE
+                                        .HULL,
+
+                                label:
+                                    'HULL',
+
+                                command: {
+                                    role:
+                                        OFFICER_ROLE
+                                            .ENGINEER,
+
+                                    commandId:
+                                        ENCOUNTER_OFFICER_COMMAND_ID
+                                            .ENGINEER_DEPLOY_SHIELD,
+
+                                    target: {
+                                        kind:
+                                            OFFICER_COMMAND_TARGET_KIND
+                                                .PLAYER_SHIP_NODE,
+
+                                        targetNode:
+                                            BEAM_CANNON_TARGET_NODE
+                                                .HULL,
+                                    },
+                                },
+                            },
+                            {
+                                targetNode:
+                                    BEAM_CANNON_TARGET_NODE
+                                        .DRIVE,
+
+                                label:
+                                    'DRIVE',
+
+                                command: {
+                                    role:
+                                        OFFICER_ROLE
+                                            .ENGINEER,
+
+                                    commandId:
+                                        ENCOUNTER_OFFICER_COMMAND_ID
+                                            .ENGINEER_DEPLOY_SHIELD,
+
+                                    target: {
+                                        kind:
+                                            OFFICER_COMMAND_TARGET_KIND
+                                                .PLAYER_SHIP_NODE,
+
+                                        targetNode:
+                                            BEAM_CANNON_TARGET_NODE
+                                                .DRIVE,
+                                    },
+                                },
+                            },
+                        ],
+                    },
 
                     incomingBeamCannons: [
                         {
@@ -436,23 +530,8 @@ describe(
                             initialTimeToFireMs:
                                 1200,
 
-                            actions: {
-                                deployShield: {
-                                    role:
-                                        OFFICER_ROLE
-                                            .ENGINEER,
-
-                                    commandId:
-                                        ENCOUNTER_OFFICER_COMMAND_ID
-                                            .ENGINEER_DEPLOY_SHIELD,
-
-                                    target: {
-                                        kind:
-                                            OFFICER_COMMAND_TARGET_KIND
-                                                .NONE,
-                                    },
-                                },
-                            },
+                            actions:
+                                {},
                         },
                     ],
                 });

@@ -53,27 +53,18 @@ export function mapCaptainCombatContextToBridgePayload(
 ): BridgeCaptainCombatContextUpdatedPayload {
     const enemyShip = mapEnemyShip(input.enemyShips);
 
-    const deployShield = findUntargetedCommand({
-        commands: input.availableEngineeringCommands,
-
-        commandId: ENCOUNTER_OFFICER_COMMAND_ID.ENGINEER_DEPLOY_SHIELD,
-
-        role: OFFICER_ROLE.ENGINEER,
-
-        label: "deploy shield",
-    });
-
-    const deployShieldTaskId = (input.officerTasks ?? []).find((task) => {
-        return (
-            task.canBeCancelledByPlayer &&
-            task.sourceCommandId === ENCOUNTER_OFFICER_COMMAND_ID.ENGINEER_DEPLOY_SHIELD
-        );
-    })?.id;
+    const shieldTargeting = mapShieldTargeting(input.availableEngineeringCommands);
 
     return {
         ...(enemyShip
             ? {
                   enemyShip,
+              }
+            : {}),
+
+        ...(shieldTargeting
+            ? {
+                  shieldTargeting,
               }
             : {}),
 
@@ -350,28 +341,12 @@ export function mapCaptainCombatContextToBridgePayload(
                                   trackTarget,
                               }
                             : {}),
-
-                        ...(deployShield
-                            ? {
-                                  deployShield,
-                              }
-                            : {}),
                     },
 
-                    ...(trackTargetTaskId || deployShieldTaskId
+                    ...(trackTargetTaskId
                         ? {
                               activeTasks: {
-                                  ...(trackTargetTaskId
-                                      ? {
-                                            trackTargetTaskId,
-                                        }
-                                      : {}),
-
-                                  ...(deployShieldTaskId
-                                      ? {
-                                            deployShieldTaskId,
-                                        }
-                                      : {}),
+                                  trackTargetTaskId,
                               },
                           }
                         : {}),
@@ -472,41 +447,36 @@ function findThreatCommand({
     };
 }
 
-type FindUntargetedCommandInput = {
-    commands: AvailableOfficerCommand[];
-
-    commandId: EncounterOfficerCommandId;
-
-    role: OfficerRole;
-
-    label: string;
-};
-
-function findUntargetedCommand({
-    commands,
-    commandId,
-    role,
-    label,
-}: FindUntargetedCommandInput): BridgeOfficerCommandSelectedPayload | undefined {
+function mapShieldTargeting(
+    commands: AvailableOfficerCommand[],
+): NonNullable<BridgeCaptainCombatContextUpdatedPayload["shieldTargeting"]> | undefined {
     const matchingCommands = commands.filter((command) => {
-        return command.commandId === commandId && command.target.kind === OFFICER_COMMAND_TARGET_KIND.NONE;
+        return command.commandId === ENCOUNTER_OFFICER_COMMAND_ID.ENGINEER_DEPLOY_SHIELD;
     });
 
-    if (matchingCommands.length > 1) {
-        throw new Error("Captain combat context received multiple " + label + " commands");
-    }
-
-    const command = matchingCommands[0];
-
-    if (!command) {
+    if (matchingCommands.length === 0) {
         return undefined;
     }
 
     return {
-        role,
+        targets: matchingCommands.map((command) => {
+            if (command.target.kind !== OFFICER_COMMAND_TARGET_KIND.PLAYER_SHIP_NODE) {
+                throw new Error("Captain combat context received deploy shield command without player-ship node target");
+            }
 
-        commandId: command.commandId,
+            return {
+                targetNode: command.target.targetNode,
 
-        target: command.target,
+                label: command.targetLabel ?? command.target.targetNode.toUpperCase(),
+
+                command: {
+                    role: OFFICER_ROLE.ENGINEER,
+
+                    commandId: command.commandId,
+
+                    target: command.target,
+                },
+            };
+        }),
     };
 }
