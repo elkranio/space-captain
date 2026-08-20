@@ -11,18 +11,16 @@ import { formatCaptainDashboardCountdown } from "../../captain_dashboard_format"
 
 const TILE = {
     width: 153,
-    height: 62,
+    height: 58,
 
-    iconX: 9,
-    iconY: 8,
+    headerCenterY: 14,
+    headerTextY: 8,
 
-    statusCenterX: 76,
-    statusY: 8,
+    iconCenterX: 26,
+    statusCenterX: 77,
+    timerCenterX: 128,
 
-    timerX: 144,
-    timerY: 8,
-
-    actionY: 32,
+    actionY: 28,
     actionDividerX: 76,
 
     scienceActionX: 0,
@@ -47,7 +45,7 @@ const TILE_STYLE = {
     borderColor: 0x8fb5d6,
     separatorColor: 0x45627f,
 
-    activeActionBackgroundColor: 0x3a2918,
+    activeActionBackgroundColor: 0x5a310e,
     disabledActionBackgroundColor: 0x0d151e,
 } as const;
 
@@ -131,16 +129,32 @@ export default class BridgeCaptainMissileThreatRowView {
             )
             .setOrigin(0, 0);
 
-        const missileIcon = this.createSprite(UI_COMBAT_SPRITE_ID.THREAT_MISSILE, TILE.iconX, TILE.iconY);
+        const missileIcon = this.createSprite(
+            UI_COMBAT_SPRITE_ID.THREAT_MISSILE,
+            TILE.iconCenterX,
+            TILE.headerCenterY,
+        ).setOrigin(0.5, 0.5);
 
         this.identificationText = this.scene.add
-            .bitmapText(TILE.statusCenterX, TILE.statusY, FONT_FAMILY.VGA_8X14, "NO ID", FONT_SIZE.PX_14)
+            .bitmapText(
+                TILE.statusCenterX,
+                TILE.headerTextY,
+                FONT_FAMILY.VGA_8X14,
+                "NO ID",
+                FONT_SIZE.PX_14,
+            )
             .setOrigin(0.5, 0)
             .setTint(FONT_COLOR.DANGER);
 
         this.timerText = this.scene.add
-            .bitmapText(TILE.timerX, TILE.timerY, FONT_FAMILY.VGA_8X14, "--.-s", FONT_SIZE.PX_14)
-            .setOrigin(1, 0)
+            .bitmapText(
+                TILE.timerCenterX,
+                TILE.headerTextY,
+                FONT_FAMILY.VGA_8X14,
+                "--.-s",
+                FONT_SIZE.PX_14,
+            )
+            .setOrigin(0.5, 0)
             .setTint(FONT_COLOR.WHITE);
 
         this.scienceAction = this.createActionButton(
