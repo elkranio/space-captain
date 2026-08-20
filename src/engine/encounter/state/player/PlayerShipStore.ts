@@ -35,6 +35,7 @@ import {
     COMBAT_THREAT_KIND,
     MISSILE_SIGNATURE_INTEL_STATUS,
     type ActiveShieldState,
+    type BeamCannonTargetNode,
     type ThreatIdentificationResult,
 } from "../../model/combat";
 import type { EncounterShipDriveState, EncounterState } from "../../model/state";
@@ -429,7 +430,7 @@ export default class PlayerShipStore {
         defenseTurret.targetProjectileId = null;
     }
 
-    public deployPlayerShield(): ActiveShieldState {
+    public deployPlayerShield(targetNode: BeamCannonTargetNode): ActiveShieldState {
         const emitter = this.state.combat.shieldGenerator;
 
         if (!emitter) {
@@ -448,6 +449,7 @@ export default class PlayerShipStore {
 
         const shield: ActiveShieldState = {
             sourceEmitterId: emitter.id,
+            targetNode,
 
             remainingDurationMs: definition.shieldDurationMs,
 

@@ -188,7 +188,7 @@ export default class CombatBeamCannonRunner {
         // Physical resolution order is intentional:
         //
         // EVADING -> MISS
-        // otherwise Active Shield -> ABSORBED
+        // otherwise matching Active Shield -> ABSORBED
         // otherwise -> HIT
         //
         // A Beam that misses because of Evade never reaches the shield,
@@ -205,7 +205,10 @@ export default class CombatBeamCannonRunner {
             return;
         }
 
-        const absorbedByShield = this.stateStore.consumeActiveShield();
+        const activeShield = this.state.combat.activeShield;
+
+        const absorbedByShield =
+            activeShield?.targetNode === attack.targetNode ? this.stateStore.consumeActiveShield() : undefined;
 
         if (absorbedByShield) {
             this.emit({

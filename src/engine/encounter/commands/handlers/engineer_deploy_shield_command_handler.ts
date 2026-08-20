@@ -2,6 +2,7 @@
 
 import { OFFICER_ROLE } from "../../../defs/officer";
 import { SHIELD_GENERATOR_PHASE, SHIELD_GENERATOR_STATUS } from "../../../defs/shield_generator";
+import { BEAM_CANNON_TARGET_NODE } from "../../model/combat";
 import { ENCOUNTER_OFFICER_COMMAND_ID, OFFICER_COMMAND_TARGET_KIND, type OfficerCommandDef } from "../../model/command";
 import type { OfficerCommandHandler } from "../../model/officer_command_handler";
 import { createEngineerDeployShieldTask } from "../../officer_tasks/create_officer_task_draft";
@@ -14,7 +15,7 @@ const COMMAND_DEF = {
     label: "DEPLOY SHIELD",
 
     targeting: {
-        kind: OFFICER_COMMAND_TARGET_KIND.NONE,
+        kind: OFFICER_COMMAND_TARGET_KIND.PLAYER_SHIP_NODE,
     },
 
     requiresOnlineDrive: false,
@@ -47,21 +48,38 @@ export const engineerDeployShieldCommandHandler = {
                 commandId: COMMAND_ID,
 
                 label: COMMAND_DEF.label,
+                targetLabel: "HULL",
 
                 target: {
-                    kind: OFFICER_COMMAND_TARGET_KIND.NONE,
+                    kind: OFFICER_COMMAND_TARGET_KIND.PLAYER_SHIP_NODE,
+                    targetNode: BEAM_CANNON_TARGET_NODE.HULL,
+                },
+            },
+            {
+                commandId: COMMAND_ID,
+
+                label: COMMAND_DEF.label,
+                targetLabel: "DRIVE",
+
+                target: {
+                    kind: OFFICER_COMMAND_TARGET_KIND.PLAYER_SHIP_NODE,
+                    targetNode: BEAM_CANNON_TARGET_NODE.DRIVE,
                 },
             },
         ];
     },
 
-    execute(context) {
+    execute(context, input) {
+        if (input.target.kind !== OFFICER_COMMAND_TARGET_KIND.PLAYER_SHIP_NODE) {
+            throw new Error("Deploy shield requires a player-ship node target");
+        }
+
         // Resource is committed at task start.
         // Cancel/interruption does not refund it.
         context.stateStore.spendPowerCoreCharge();
 
         context.stateStore.startPlayerShieldGeneratorCooldown();
 
-        context.startOfficerTask(createEngineerDeployShieldTask());
+        context.startOfficerTask(createEngineerDeployShieldTask(input.target.targetNode));
     },
 } satisfies OfficerCommandHandler;

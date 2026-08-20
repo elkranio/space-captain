@@ -117,7 +117,7 @@ export default class OfficerTaskEffects {
             }
 
             case OFFICER_TASK_KIND.ENGINEER_DEPLOY_SHIELD: {
-                const shield = this.stateStore.deployPlayerShield();
+                const shield = this.stateStore.deployPlayerShield(task.targetNode);
 
                 this.emit({
                     type: ENCOUNTER_EVENT.PLAYER_SHIELD_DEPLOYED,

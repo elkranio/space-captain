@@ -16,7 +16,7 @@ import type { EncounterActorState } from "../actors/encounter_actor";
 import type { ShipEncounterActorState } from "../actors/ship/ship_encounter_actor";
 import type { EncounterAnchorState } from "../anchors/encounter_anchor";
 import type { JumpPointEncounterAnchorState } from "../anchors/jump_point/jump_point_encounter_anchor";
-import type { ActiveShieldState, ThreatIdentificationResult } from "../model/combat";
+import type { ActiveShieldState, BeamCannonTargetNode, ThreatIdentificationResult } from "../model/combat";
 import type { OfficerTaskState } from "../model/officer_task";
 import type { EncounterShipDriveState, EncounterState } from "../model/state";
 import type { ResolvedMissileSignatureIntel } from "../model/missile_signature_intel";
@@ -257,8 +257,8 @@ export default class EncounterStateStore {
         this.playerShip.startPlayerDefenseTurretCooldown();
     }
 
-    public deployPlayerShield(): ActiveShieldState {
-        return this.playerShip.deployPlayerShield();
+    public deployPlayerShield(targetNode: BeamCannonTargetNode): ActiveShieldState {
+        return this.playerShip.deployPlayerShield(targetNode);
     }
 
     public consumeActiveShield(): ActiveShieldState | undefined {

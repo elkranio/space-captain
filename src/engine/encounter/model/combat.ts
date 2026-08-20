@@ -199,6 +199,10 @@ export function createBeamCannonAttackSnapshot(attack: BeamCannonAttackSnapshot)
 export type ActiveShieldState = {
     sourceEmitterId: string;
 
+    // Player shield protects one Beam Cannon target node.
+    // Whole-ship enemy shields intentionally leave it undefined.
+    targetNode?: BeamCannonTargetNode;
+
     remainingDurationMs: number;
     initialDurationMs: number;
 };

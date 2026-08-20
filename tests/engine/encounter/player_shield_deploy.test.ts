@@ -39,6 +39,7 @@ import {
 } from '../../../src/engine/encounter/model/officer_task';
 import {
     BEAM_CANNON_SHOT_OUTCOME,
+    BEAM_CANNON_TARGET_NODE,
 } from '../../../src/engine/encounter/model/combat';
 import {
     createAnchoredPlayerCombatTestSetup,
@@ -107,7 +108,11 @@ describe(
                     target: {
                         kind:
                             OFFICER_COMMAND_TARGET_KIND
-                                .NONE,
+                                .PLAYER_SHIP_NODE,
+
+                        targetNode:
+                            BEAM_CANNON_TARGET_NODE
+                                .HULL,
                     },
                 });
 
@@ -205,7 +210,11 @@ describe(
                     target: {
                         kind:
                             OFFICER_COMMAND_TARGET_KIND
-                                .NONE,
+                                .PLAYER_SHIP_NODE,
+
+                        targetNode:
+                            BEAM_CANNON_TARGET_NODE
+                                .HULL,
                     },
                 });
 
@@ -235,6 +244,10 @@ describe(
                         sourceEmitterId:
                             'shield_generator_player_00',
 
+                        targetNode:
+                            BEAM_CANNON_TARGET_NODE
+                                .HULL,
+
                         remainingDurationMs:
                             SHIELD_DEFINITION.shieldDurationMs,
 
@@ -249,6 +262,10 @@ describe(
                 ).toEqual({
                     sourceEmitterId:
                         'shield_generator_player_00',
+
+                    targetNode:
+                        BEAM_CANNON_TARGET_NODE
+                            .HULL,
 
                     remainingDurationMs:
                         SHIELD_DEFINITION.shieldDurationMs,
@@ -301,6 +318,10 @@ describe(
                         sourceEmitterId:
                             'shield_generator_player_00',
 
+                        targetNode:
+                            BEAM_CANNON_TARGET_NODE
+                                .HULL,
+
                         remainingDurationMs:
                             0,
 
@@ -350,7 +371,11 @@ describe(
                     target: {
                         kind:
                             OFFICER_COMMAND_TARGET_KIND
-                                .NONE,
+                                .PLAYER_SHIP_NODE,
+
+                        targetNode:
+                            BEAM_CANNON_TARGET_NODE
+                                .HULL,
                     },
                 });
 
@@ -440,7 +465,8 @@ describe(
                         },
 
                         targetNode:
-                            'hull',
+                            BEAM_CANNON_TARGET_NODE
+                                .HULL,
 
                         targetIntel: {
                             status:
@@ -510,6 +536,10 @@ describe(
                     shield: {
                         sourceEmitterId:
                             'shield_generator_player_00',
+
+                        targetNode:
+                            BEAM_CANNON_TARGET_NODE
+                                .HULL,
 
                         remainingDurationMs:
                             SHIELD_DEFINITION.shieldDurationMs,

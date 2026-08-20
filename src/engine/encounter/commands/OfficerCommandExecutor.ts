@@ -127,6 +127,12 @@ export default class OfficerCommandExecutor {
                     availableTarget.actorId === inputTarget.actorId
                 );
 
+            case OFFICER_COMMAND_TARGET_KIND.PLAYER_SHIP_NODE:
+                return (
+                    inputTarget.kind === OFFICER_COMMAND_TARGET_KIND.PLAYER_SHIP_NODE &&
+                    availableTarget.targetNode === inputTarget.targetNode
+                );
+
             case OFFICER_COMMAND_TARGET_KIND.THREAT:
                 return (
                     inputTarget.kind === OFFICER_COMMAND_TARGET_KIND.THREAT &&

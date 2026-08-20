@@ -166,6 +166,9 @@ describe(
                     sourceEmitterId:
                         'shield_generator_player_test',
 
+                    targetNode:
+                        activeAttack.targetNode,
+
                     remainingDurationMs:
                         4000,
 

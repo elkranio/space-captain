@@ -4,6 +4,7 @@ import { OFFICER_ROLE, type OfficerRole } from "../../defs/officer";
 import { OFFICER_TASK_KIND, type OfficerTaskCancellationPolicy } from "../../defs/officer_task";
 export { OFFICER_TASK_KIND, type OfficerTaskCancellationPolicy, type OfficerTaskKind } from "../../defs/officer_task";
 import { ENCOUNTER_OFFICER_COMMAND_ID } from "./command";
+import type { BeamCannonTargetNode } from "./combat";
 
 type OfficerTaskDraftBase = {
     label: string;
@@ -55,6 +56,8 @@ type EngineerDeployShieldOfficerTaskDraft = OfficerTaskDraftBase & {
     role: typeof OFFICER_ROLE.ENGINEER;
 
     sourceCommandId: typeof ENCOUNTER_OFFICER_COMMAND_ID.ENGINEER_DEPLOY_SHIELD;
+
+    targetNode: BeamCannonTargetNode;
 };
 
 type WeaponsDefenseTurretOfficerTaskDraft = OfficerTaskDraftBase & {

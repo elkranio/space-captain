@@ -3,6 +3,7 @@
 import { getOfficerTaskDraftTuning } from "../../content/catalogs/officer_tasks";
 import { OFFICER_ROLE, type OfficerRole } from "../../defs/officer";
 import { ENCOUNTER_OFFICER_COMMAND_ID } from "../model/command";
+import type { BeamCannonTargetNode } from "../model/combat";
 import { OFFICER_TASK_KIND, type OfficerTaskDraft } from "../model/officer_task";
 
 export function createSciencePlotCourseTask(targetNodeId: string): OfficerTaskDraft {
@@ -79,7 +80,7 @@ export function createEngineerRepairDriveTask(): OfficerTaskDraft {
     };
 }
 
-export function createEngineerDeployShieldTask(): OfficerTaskDraft {
+export function createEngineerDeployShieldTask(targetNode: BeamCannonTargetNode): OfficerTaskDraft {
     const kind = OFFICER_TASK_KIND.ENGINEER_DEPLOY_SHIELD;
 
     return {
@@ -87,6 +88,8 @@ export function createEngineerDeployShieldTask(): OfficerTaskDraft {
         role: OFFICER_ROLE.ENGINEER,
 
         sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.ENGINEER_DEPLOY_SHIELD,
+
+        targetNode,
 
         ...getOfficerTaskDraftTuning(kind),
     };
