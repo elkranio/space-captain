@@ -1,95 +1,56 @@
 <!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8" />
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    />
-    <title>Space Captain Content Editor</title>
-</head>
-<body>
-    <div class="app-shell">
-        <header class="topbar">
-            <div>
-                <div class="eyebrow">SPACE CAPTAIN</div>
-                <h1>Content Editor</h1>
-            </div>
-
-            <nav class="topbar-nav">
-                <a
-                    class="topbar-link is-active"
-                    href="/"
-                >
-                    Content
-                </a>
-
-                <a
-                    class="topbar-link"
-                    href="/assets.html"
-                >
-                    Assets
-                </a>
-            </nav>
-
-            <div class="topbar-actions">
-                <span
-                    id="save-status"
-                    class="save-status"
-                >
-                    Loading…
-                </span>
-
-                <button
-                    id="save-button"
-                    class="primary-button"
-                    type="button"
-                    disabled
-                >
-                    Save
-                </button>
-            </div>
-        </header>
-
-        <main class="workspace">
-            <aside class="collections-panel">
-                <div class="panel-heading">
-                    Collections
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Captain Space Content Editor</title>
+    </head>
+    <body>
+        <div class="app-shell">
+            <header class="topbar">
+                <div>
+                    <div class="eyebrow">CAPTAIN SPACE</div>
+                    <h1>Content Editor</h1>
                 </div>
 
-                <div id="collection-list"></div>
-            </aside>
+                <nav class="topbar-nav">
+                    <a class="topbar-link is-active" href="/"> Content </a>
 
-            <section class="records-panel">
-                <div class="records-heading">
-                    <span>Records</span>
+                    <a class="topbar-link" href="/assets.html"> Assets </a>
+                </nav>
 
-                    <button
-                        id="add-record-button"
-                        class="compact-button"
-                        type="button"
-                        hidden
-                    >
-                        + Add
-                    </button>
+                <div class="topbar-actions">
+                    <span id="save-status" class="save-status"> Loading… </span>
+
+                    <button id="save-button" class="primary-button" type="button" disabled>Save</button>
                 </div>
+            </header>
 
-                <div id="record-list"></div>
-            </section>
+            <main class="workspace">
+                <aside class="collections-panel">
+                    <div class="panel-heading">Collections</div>
 
-            <section class="inspector-panel">
-                <div id="inspector">
-                    <div class="empty-state">
-                        Loading content…
+                    <div id="collection-list"></div>
+                </aside>
+
+                <section class="records-panel">
+                    <div class="records-heading">
+                        <span>Records</span>
+
+                        <button id="add-record-button" class="compact-button" type="button" hidden>+ Add</button>
                     </div>
-                </div>
-            </section>
-        </main>
-    </div>
 
-    <script
-        type="module"
-        src="/src/main.ts"
-    ></script>
-</body>
+                    <div id="record-list"></div>
+                </section>
+
+                <section class="inspector-panel">
+                    <div id="inspector">
+                        <div class="empty-state">Loading content…</div>
+                    </div>
+                </section>
+            </main>
+        </div>
+
+        <script type="module" src="/src/main.ts"></script>
+    </body>
 </html>

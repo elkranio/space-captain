@@ -1,107 +1,60 @@
 <!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8" />
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    />
-    <title>Space Captain Asset Manager</title>
-</head>
-<body>
-    <div class="app-shell">
-        <header class="topbar">
-            <div>
-                <div class="eyebrow">SPACE CAPTAIN</div>
-                <h1>Content Editor</h1>
-            </div>
-
-            <nav class="topbar-nav">
-                <a
-                    class="topbar-link"
-                    href="/"
-                >
-                    Content
-                </a>
-
-                <a
-                    class="topbar-link is-active"
-                    href="/assets.html"
-                >
-                    Assets
-                </a>
-            </nav>
-
-            <div class="topbar-actions">
-                <span
-                    id="asset-status"
-                    class="save-status"
-                >
-                    Loading…
-                </span>
-
-                <button
-                    id="rebuild-atlas-button"
-                    class="secondary-button"
-                    type="button"
-                >
-                    Rebuild Atlas
-                </button>
-            </div>
-        </header>
-
-        <main class="workspace">
-            <aside class="collections-panel">
-                <div class="panel-heading">
-                    Asset Types
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Captain Space Asset Manager</title>
+    </head>
+    <body>
+        <div class="app-shell">
+            <header class="topbar">
+                <div>
+                    <div class="eyebrow">CAPTAIN SPACE</div>
+                    <h1>Content Editor</h1>
                 </div>
 
-                <div id="asset-bucket-list"></div>
-            </aside>
+                <nav class="topbar-nav">
+                    <a class="topbar-link" href="/"> Content </a>
 
-            <section class="records-panel">
-                <div class="asset-panel-heading">
-                    <span>Assets</span>
+                    <a class="topbar-link is-active" href="/assets.html"> Assets </a>
+                </nav>
 
-                    <button
-                        id="upload-button"
-                        class="compact-button"
-                        type="button"
-                    >
-                        + Upload
-                    </button>
+                <div class="topbar-actions">
+                    <span id="asset-status" class="save-status"> Loading… </span>
+
+                    <button id="rebuild-atlas-button" class="secondary-button" type="button">Rebuild Atlas</button>
                 </div>
+            </header>
 
-                <div id="asset-list"></div>
-            </section>
+            <main class="workspace">
+                <aside class="collections-panel">
+                    <div class="panel-heading">Asset Types</div>
 
-            <section class="inspector-panel">
-                <div id="asset-inspector">
-                    <div class="empty-state">
-                        Loading assets…
+                    <div id="asset-bucket-list"></div>
+                </aside>
+
+                <section class="records-panel">
+                    <div class="asset-panel-heading">
+                        <span>Assets</span>
+
+                        <button id="upload-button" class="compact-button" type="button">+ Upload</button>
                     </div>
-                </div>
-            </section>
-        </main>
-    </div>
 
-    <input
-        id="upload-input"
-        class="hidden-file-input"
-        type="file"
-        accept="image/png,.png"
-    />
+                    <div id="asset-list"></div>
+                </section>
 
-    <input
-        id="replace-input"
-        class="hidden-file-input"
-        type="file"
-        accept="image/png,.png"
-    />
+                <section class="inspector-panel">
+                    <div id="asset-inspector">
+                        <div class="empty-state">Loading assets…</div>
+                    </div>
+                </section>
+            </main>
+        </div>
 
-    <script
-        type="module"
-        src="/src/asset_manager.ts"
-    ></script>
-</body>
+        <input id="upload-input" class="hidden-file-input" type="file" accept="image/png,.png" />
+
+        <input id="replace-input" class="hidden-file-input" type="file" accept="image/png,.png" />
+
+        <script type="module" src="/src/asset_manager.ts"></script>
+    </body>
 </html>
