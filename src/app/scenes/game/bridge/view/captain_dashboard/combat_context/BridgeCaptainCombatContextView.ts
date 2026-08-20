@@ -210,6 +210,13 @@ export default class BridgeCaptainCombatContextView {
         return this.root;
     }
 
+    public getSize(): { width: number; height: number } {
+        return {
+            width: PANEL.width,
+            height: PANEL.height,
+        };
+    }
+
     public setPosition(x: number, y: number): void {
         this.root.setPosition(x, y);
     }
