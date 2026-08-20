@@ -8,15 +8,20 @@ import type {
 import { formatCaptainDashboardCountdown } from "../../captain_dashboard_format";
 
 const TILE = {
-    iconX: 9,
-    iconY: 8,
+    width: 153,
+    height: 58,
 
-    timerX: 154,
-    timerY: 8,
+    headerCenterY: 14,
+    headerTextY: 8,
 
-    buttonWidth: 75,
-    buttonY: 34,
-    engineerButtonX: 5,
+    iconCenterX: 26,
+    timerCenterX: 128,
+
+    actionY: 28,
+    actionDividerX: 76,
+
+    engineerActionX: 77,
+    engineerActionWidth: 76,
 
     roleOffsetX: 9,
     roleOffsetY: 10,
@@ -27,17 +32,29 @@ const TILE = {
     disabledAlpha: 0.35,
 } as const;
 
+const TILE_STYLE = {
+    backgroundColor: 0x111c27,
+    actionBackgroundColor: 0x172a38,
+
+    borderColor: 0x8fb5d6,
+    separatorColor: 0x45627f,
+
+    activeActionBackgroundColor: 0x5a310e,
+    disabledActionBackgroundColor: 0x0d151e,
+} as const;
+
 const TIMING_STRIP = {
-    offsetX: 12,
-    offsetY: 22,
-    width: 52,
-    height: 3,
+    height: 6,
 
     expiredWidth: 3,
+    segmentCount: 7,
+    segmentWidth: 10,
+    dividerWidth: 1,
     blinkPeriodMs: 300,
 
-    trackColor: 0x263146,
-    fillColor: 0xf2e4bc,
+    trackColor: 0x31465b,
+    dividerColor: 0x172a38,
+    fillColor: 0x5f9fb5,
 } as const;
 
 type StickyMineThreatRowCallbacks = {
@@ -46,16 +63,17 @@ type StickyMineThreatRowCallbacks = {
 };
 
 type ActionButton = {
-    background: Phaser.GameObjects.Image;
+    background: Phaser.GameObjects.Rectangle;
     roleGlyph: Phaser.GameObjects.Image;
     label: Phaser.GameObjects.Text;
 
     timingTrack: Phaser.GameObjects.Rectangle;
     timingFill: Phaser.GameObjects.Rectangle;
+    timingDividers: Phaser.GameObjects.Rectangle[];
     timingExpired: Phaser.GameObjects.Rectangle;
 };
 
-// Sticky Mine использует общий production-like threat tile.
+// Sticky Mine использует тот же flat threat tile grammar, что Missile и Beam.
 // CLEAR остаётся Engineer-only, а верхняя середина намеренно пустая:
 // текущие mine-state labels не меняют решение игрока.
 export default class BridgeCaptainStickyMineThreatRowView {
@@ -73,28 +91,70 @@ export default class BridgeCaptainStickyMineThreatRowView {
     ) {
         this.root = this.scene.add.container(0, 0);
 
-        const background = this.createSprite(UI_COMBAT_SPRITE_ID.THREAT_TILE_BG, 0, 0);
-        const mineIcon = this.createSprite(UI_COMBAT_SPRITE_ID.THREAT_MINE, TILE.iconX, TILE.iconY);
+        const background = this.scene.add
+            .rectangle(0, 0, TILE.width, TILE.height, TILE_STYLE.backgroundColor, 1)
+            .setOrigin(0, 0);
+
+        const outerBorder = this.scene.add
+            .rectangle(0, 0, TILE.width, TILE.height, TILE_STYLE.backgroundColor, 0)
+            .setOrigin(0, 0)
+            .setStrokeStyle(1, TILE_STYLE.borderColor);
+
+        const actionTopBorder = this.scene.add
+            .rectangle(0, TILE.actionY, TILE.width, 1, TILE_STYLE.separatorColor, 1)
+            .setOrigin(0, 0);
+
+        const actionDivider = this.scene.add
+            .rectangle(
+                TILE.actionDividerX,
+                TILE.actionY,
+                1,
+                TILE.height - TILE.actionY,
+                TILE_STYLE.separatorColor,
+                1,
+            )
+            .setOrigin(0, 0);
+
+        const mineIcon = this.createSprite(
+            UI_COMBAT_SPRITE_ID.THREAT_MINE,
+            TILE.iconCenterX,
+            TILE.headerCenterY,
+        ).setOrigin(0.5, 0.5);
 
         this.timerText = this.scene.add
-            .bitmapText(TILE.timerX, TILE.timerY, FONT_FAMILY.VGA_8X14, "--.-s", FONT_SIZE.PX_14)
-            .setOrigin(1, 0)
+            .bitmapText(
+                TILE.timerCenterX,
+                TILE.headerTextY,
+                FONT_FAMILY.VGA_8X14,
+                "--.-s",
+                FONT_SIZE.PX_14,
+            )
+            .setOrigin(0.5, 0)
             .setTint(FONT_COLOR.WHITE);
 
-        this.engineerAction = this.createActionButton(TILE.engineerButtonX, UI_COMBAT_SPRITE_ID.ROLE_E, "CLEAR");
+        this.engineerAction = this.createActionButton(
+            TILE.engineerActionX,
+            TILE.engineerActionWidth,
+            UI_COMBAT_SPRITE_ID.ROLE_E,
+            "CLEAR",
+        );
 
         this.engineerAction.background.on("pointerdown", this.handleEngineerPointerDown, this);
 
         this.root.add([
             background,
+            this.engineerAction.background,
             mineIcon,
             this.timerText,
-            this.engineerAction.background,
             this.engineerAction.roleGlyph,
             this.engineerAction.label,
             this.engineerAction.timingTrack,
             this.engineerAction.timingFill,
             this.engineerAction.timingExpired,
+            ...this.engineerAction.timingDividers,
+            actionTopBorder,
+            actionDivider,
+            outerBorder,
         ]);
     }
 
@@ -117,7 +177,6 @@ export default class BridgeCaptainStickyMineThreatRowView {
             mine.timeToDetonationMs,
             mine.initialTimeToDetonationMs,
             mine.decisionTimings?.clearMinRemainingMs,
-            engineerClearTaskId !== undefined,
         );
     }
 
@@ -136,28 +195,42 @@ export default class BridgeCaptainStickyMineThreatRowView {
         return this.scene.add.image(x, y, sprite.atlasKey, sprite.frameKey).setOrigin(0, 0);
     }
 
-    private createActionButton(x: number, roleSpriteId: UiCombatSpriteId, labelText: string): ActionButton {
-        const background = this.createSprite(UI_COMBAT_SPRITE_ID.ACTION_BUTTON_BG, x, TILE.buttonY);
+    private createActionButton(
+        x: number,
+        width: number,
+        roleSpriteId: UiCombatSpriteId,
+        labelText: string,
+    ): ActionButton {
+        const background = this.scene.add
+            .rectangle(
+                x,
+                TILE.actionY,
+                width,
+                TILE.height - TILE.actionY,
+                TILE_STYLE.actionBackgroundColor,
+                1,
+            )
+            .setOrigin(0, 0);
 
-        const roleGlyph = this.createSprite(roleSpriteId, x + TILE.roleOffsetX, TILE.buttonY + TILE.roleOffsetY);
+        const roleGlyph = this.createSprite(roleSpriteId, x + TILE.roleOffsetX, TILE.actionY + TILE.roleOffsetY);
 
         const label = this.scene.add
-            .text(x + TILE.buttonWidth - TILE.labelRightInset, TILE.buttonY + TILE.labelOffsetY, labelText, {
+            .text(x + width - TILE.labelRightInset, TILE.actionY + TILE.labelOffsetY, labelText, {
                 fontFamily: "Anta",
                 fontSize: "10px",
-                color: "#ffffff",
+                color: "#d7e6ff",
                 resolution: 1,
             })
             .setOrigin(1, 0.5);
 
-        const timingX = x + TIMING_STRIP.offsetX;
-        const timingY = TILE.buttonY + TIMING_STRIP.offsetY;
+        const timingX = x;
+        const timingY = TILE.height - TIMING_STRIP.height;
 
         const timingTrack = this.scene.add
             .rectangle(
                 timingX,
                 timingY,
-                TIMING_STRIP.width,
+                width,
                 TIMING_STRIP.height,
                 TIMING_STRIP.trackColor,
                 1,
@@ -167,9 +240,9 @@ export default class BridgeCaptainStickyMineThreatRowView {
 
         const timingFill = this.scene.add
             .rectangle(
-                timingX + TIMING_STRIP.width,
+                timingX + width,
                 timingY,
-                TIMING_STRIP.width,
+                width,
                 TIMING_STRIP.height,
                 TIMING_STRIP.fillColor,
                 1,
@@ -177,9 +250,28 @@ export default class BridgeCaptainStickyMineThreatRowView {
             .setOrigin(1, 0)
             .setVisible(false);
 
+        const timingDividers = Array.from({ length: TIMING_STRIP.segmentCount - 1 }, (_, index) => {
+            const dividerX =
+                timingX +
+                TIMING_STRIP.segmentWidth * (index + 1) +
+                TIMING_STRIP.dividerWidth * index;
+
+            return this.scene.add
+                .rectangle(
+                    dividerX,
+                    timingY,
+                    TIMING_STRIP.dividerWidth,
+                    TIMING_STRIP.height,
+                    TIMING_STRIP.dividerColor,
+                    1,
+                )
+                .setOrigin(0, 0)
+                .setVisible(false);
+        });
+
         const timingExpired = this.scene.add
             .rectangle(
-                timingX + TIMING_STRIP.width - TIMING_STRIP.expiredWidth,
+                timingX + width - TIMING_STRIP.expiredWidth,
                 timingY,
                 TIMING_STRIP.expiredWidth,
                 TIMING_STRIP.height,
@@ -195,6 +287,7 @@ export default class BridgeCaptainStickyMineThreatRowView {
             label,
             timingTrack,
             timingFill,
+            timingDividers,
             timingExpired,
         };
     }
@@ -212,16 +305,16 @@ export default class BridgeCaptainStickyMineThreatRowView {
         remainingMs: number,
         initialRemainingMs: number,
         latestUsefulStartRemainingMs: number | null | undefined,
-        actionIsActive: boolean,
     ): void {
         const action = this.engineerAction;
 
-        if (actionIsActive || latestUsefulStartRemainingMs === undefined) {
+        if (latestUsefulStartRemainingMs === undefined) {
             this.hideActionTiming();
             return;
         }
 
         action.timingTrack.setVisible(true);
+        action.timingDividers.forEach((divider) => divider.setVisible(true));
 
         if (latestUsefulStartRemainingMs === null) {
             this.showExpiredActionTiming();
@@ -253,12 +346,13 @@ export default class BridgeCaptainStickyMineThreatRowView {
     private hideActionTiming(): void {
         this.engineerAction.timingTrack.setVisible(false);
         this.engineerAction.timingFill.setVisible(false);
+        this.engineerAction.timingDividers.forEach((divider) => divider.setVisible(false));
         this.engineerAction.timingExpired.setVisible(false);
     }
 
     private setActionState(action: ActionButton, enabled: boolean, active: boolean): void {
         action.background.disableInteractive();
-        action.background.clearTint();
+        action.background.setFillStyle(TILE_STYLE.actionBackgroundColor, 1);
         action.label.clearTint();
 
         if (enabled || active) {
@@ -268,13 +362,14 @@ export default class BridgeCaptainStickyMineThreatRowView {
         }
 
         if (active) {
-            action.background.setTint(FONT_COLOR.ACTIVITY);
+            action.background.setFillStyle(TILE_STYLE.activeActionBackgroundColor, 1);
             action.label.setTint(FONT_COLOR.ACTIVITY);
+        } else if (!enabled) {
+            action.background.setFillStyle(TILE_STYLE.disabledActionBackgroundColor, 1);
         }
 
         const alpha = enabled || active ? 1 : TILE.disabledAlpha;
 
-        action.background.setAlpha(alpha);
         action.roleGlyph.setAlpha(alpha);
         action.label.setAlpha(alpha);
     }
