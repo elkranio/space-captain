@@ -93,6 +93,8 @@ export default class BridgeEncounterSnapshotSynchronizer {
 
                 spamChannels: snapshot.spamChannels,
 
+                playerThreatDecisionTimings: snapshot.playerThreatDecisionTimings,
+
                 officerTasks: snapshot.player.officerTasks,
 
                 availableScienceCommands: snapshot.commandsByRole[OFFICER_ROLE.SCIENCE],

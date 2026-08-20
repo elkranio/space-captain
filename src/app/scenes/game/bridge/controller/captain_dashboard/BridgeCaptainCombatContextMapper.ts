@@ -14,6 +14,9 @@ import {
 import type { SpamChannelState } from "../../../../../../engine/encounter/model/combat";
 import type { OfficerTaskState } from "../../../../../../engine/encounter/model/officer_task";
 import type {
+    PlayerThreatDecisionTimingSnapshot,
+} from "../../../../../../engine/encounter/snapshots/create_player_threat_decision_timing_snapshot";
+import type {
     BridgeCaptainCombatContextUpdatedPayload,
     BridgeOfficerCommandSelectedPayload,
 } from "../../events/bridge_event";
@@ -28,6 +31,8 @@ type CaptainCombatContextMapperInput = {
     stickyMineSnapshots: StickyMineSnapshot[];
 
     spamChannels: SpamChannelState[];
+
+    playerThreatDecisionTimings?: PlayerThreatDecisionTimingSnapshot;
 
     officerTasks?: OfficerTaskState[];
 
@@ -129,6 +134,18 @@ export function mapCaptainCombatContextToBridgePayload(
                     initialTimeToImpactMs: missile.initialTimeToImpactMs,
 
                     identificationStatus: missile.identificationStatus,
+
+                    ...(input.playerThreatDecisionTimings
+                        ? {
+                              decisionTimings: {
+                                  identifyThreatMinRemainingMs:
+                                      input.playerThreatDecisionTimings.missile.trackAndInterceptMinRemainingMs,
+
+                                  interceptMissileMinRemainingMs:
+                                      input.playerThreatDecisionTimings.missile.interceptMinRemainingMs,
+                              },
+                          }
+                        : {}),
 
                     actions: {
                         ...(identifyThreat

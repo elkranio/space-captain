@@ -36,6 +36,19 @@ const TILE = {
     disabledAlpha: 0.35,
 } as const;
 
+const TIMING_STRIP = {
+    offsetX: 12,
+    offsetY: 22,
+    width: 52,
+    height: 3,
+
+    expiredWidth: 3,
+    blinkPeriodMs: 300,
+
+    trackColor: 0x263146,
+    fillColor: 0xf2e4bc,
+} as const;
+
 type MissileThreatRowCallbacks = {
     onIdentify: (command: BridgeOfficerCommandSelectedPayload) => void;
     onIntercept: (command: BridgeOfficerCommandSelectedPayload) => void;
@@ -46,6 +59,10 @@ type ActionButton = {
     background: Phaser.GameObjects.Image;
     roleGlyph: Phaser.GameObjects.Image;
     label: Phaser.GameObjects.Text;
+
+    timingTrack: Phaser.GameObjects.Rectangle;
+    timingFill: Phaser.GameObjects.Rectangle;
+    timingExpired: Phaser.GameObjects.Rectangle;
 };
 
 // Первый production-like threat tile.
@@ -101,9 +118,15 @@ export default class BridgeCaptainMissileThreatRowView {
             this.scienceAction.background,
             this.scienceAction.roleGlyph,
             this.scienceAction.label,
+            this.scienceAction.timingTrack,
+            this.scienceAction.timingFill,
+            this.scienceAction.timingExpired,
             this.weaponsAction.background,
             this.weaponsAction.roleGlyph,
             this.weaponsAction.label,
+            this.weaponsAction.timingTrack,
+            this.weaponsAction.timingFill,
+            this.weaponsAction.timingExpired,
         ]);
     }
 
@@ -128,7 +151,25 @@ export default class BridgeCaptainMissileThreatRowView {
             this.setScienceAction(missile.actions.identifyThreat, identifyThreatTaskId);
         }
 
-        this.setWeaponsAction(missile.actions.interceptMissile, missile.activeTasks?.interceptMissileTaskId);
+        const interceptMissileTaskId = missile.activeTasks?.interceptMissileTaskId;
+
+        this.setWeaponsAction(missile.actions.interceptMissile, interceptMissileTaskId);
+
+        this.updateActionTiming(
+            this.scienceAction,
+            missile.timeToImpactMs,
+            missile.initialTimeToImpactMs,
+            missile.decisionTimings?.identifyThreatMinRemainingMs,
+            identifyThreatTaskId !== undefined,
+        );
+
+        this.updateActionTiming(
+            this.weaponsAction,
+            missile.timeToImpactMs,
+            missile.initialTimeToImpactMs,
+            missile.decisionTimings?.interceptMissileMinRemainingMs,
+            interceptMissileTaskId !== undefined,
+        );
     }
 
     public destroy(): void {
@@ -164,10 +205,52 @@ export default class BridgeCaptainMissileThreatRowView {
             })
             .setOrigin(1, 0.5);
 
+        const timingX = x + TIMING_STRIP.offsetX;
+        const timingY = TILE.buttonY + TIMING_STRIP.offsetY;
+
+        const timingTrack = this.scene.add
+            .rectangle(
+                timingX,
+                timingY,
+                TIMING_STRIP.width,
+                TIMING_STRIP.height,
+                TIMING_STRIP.trackColor,
+                1,
+            )
+            .setOrigin(0, 0)
+            .setVisible(false);
+
+        const timingFill = this.scene.add
+            .rectangle(
+                timingX + TIMING_STRIP.width,
+                timingY,
+                TIMING_STRIP.width,
+                TIMING_STRIP.height,
+                TIMING_STRIP.fillColor,
+                1,
+            )
+            .setOrigin(1, 0)
+            .setVisible(false);
+
+        const timingExpired = this.scene.add
+            .rectangle(
+                timingX + TIMING_STRIP.width - TIMING_STRIP.expiredWidth,
+                timingY,
+                TIMING_STRIP.expiredWidth,
+                TIMING_STRIP.height,
+                FONT_COLOR.DANGER,
+                1,
+            )
+            .setOrigin(0, 0)
+            .setVisible(false);
+
         return {
             background,
             roleGlyph,
             label,
+            timingTrack,
+            timingFill,
+            timingExpired,
         };
     }
 
@@ -221,6 +304,57 @@ export default class BridgeCaptainMissileThreatRowView {
         action.background.setVisible(visible);
         action.roleGlyph.setVisible(visible);
         action.label.setVisible(visible);
+
+        if (!visible) {
+            this.hideActionTiming(action);
+        }
+    }
+
+    private updateActionTiming(
+        action: ActionButton,
+        remainingMs: number,
+        initialRemainingMs: number,
+        latestUsefulStartRemainingMs: number | null | undefined,
+        actionIsActive: boolean,
+    ): void {
+        if (!action.background.visible || actionIsActive || latestUsefulStartRemainingMs === undefined) {
+            this.hideActionTiming(action);
+            return;
+        }
+
+        action.timingTrack.setVisible(true);
+
+        if (latestUsefulStartRemainingMs === null) {
+            this.showExpiredActionTiming(action);
+            return;
+        }
+
+        const usefulWindowMs = initialRemainingMs - latestUsefulStartRemainingMs;
+        const usefulRemainingMs = remainingMs - latestUsefulStartRemainingMs;
+
+        if (usefulWindowMs <= 0 || usefulRemainingMs <= 0) {
+            this.showExpiredActionTiming(action);
+            return;
+        }
+
+        const fill01 = Math.max(0, Math.min(1, usefulRemainingMs / usefulWindowMs));
+
+        action.timingFill.setVisible(true).setScale(fill01, 1);
+        action.timingExpired.setVisible(false);
+    }
+
+    private showExpiredActionTiming(action: ActionButton): void {
+        action.timingFill.setVisible(false);
+
+        const blinkOn = Math.floor(this.scene.time.now / TIMING_STRIP.blinkPeriodMs) % 2 === 0;
+
+        action.timingExpired.setVisible(blinkOn);
+    }
+
+    private hideActionTiming(action: ActionButton): void {
+        action.timingTrack.setVisible(false);
+        action.timingFill.setVisible(false);
+        action.timingExpired.setVisible(false);
     }
 
     private setActionState(action: ActionButton, enabled: boolean, active: boolean): void {

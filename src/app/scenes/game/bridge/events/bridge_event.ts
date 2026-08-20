@@ -413,6 +413,11 @@ export type BridgeCaptainIncomingMissilePayload = {
         identifyThreatTaskId?: string;
         interceptMissileTaskId?: string;
     };
+
+    decisionTimings?: {
+        identifyThreatMinRemainingMs: number | null;
+        interceptMissileMinRemainingMs: number | null;
+    };
 };
 
 export type BridgeCaptainIncomingBeamCannonPayload = {
