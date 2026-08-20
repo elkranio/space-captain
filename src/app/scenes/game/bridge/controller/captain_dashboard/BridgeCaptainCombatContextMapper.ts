@@ -324,6 +324,17 @@ export function mapCaptainCombatContextToBridgePayload(
 
                     initialTimeToFireMs: snapshot.initialTimeToFireMs,
 
+                    ...(input.playerThreatDecisionTimings
+                        ? {
+                              decisionTimings: {
+                                  trackTargetMinRemainingMs:
+                                      input.playerThreatDecisionTimings.beam.trackMinRemainingMs,
+
+                                  shieldWindow: input.playerThreatDecisionTimings.beam.shieldWindow,
+                              },
+                          }
+                        : {}),
+
                     actions: {
                         ...(trackTarget
                             ? {

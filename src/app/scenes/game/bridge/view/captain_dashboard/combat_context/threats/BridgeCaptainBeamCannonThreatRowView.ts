@@ -8,6 +8,10 @@ import type {
     BridgeOfficerCommandSelectedPayload,
 } from "../../../../events/bridge_event";
 import { formatCaptainDashboardCountdown } from "../../captain_dashboard_format";
+import {
+    BEAM_SHIELD_TIMING_PHASE,
+    getBeamShieldTimingStripState,
+} from "./get_beam_shield_timing_strip_state";
 
 const TILE = {
     width: 163,
@@ -36,6 +40,21 @@ const TILE = {
     disabledAlpha: 0.35,
 } as const;
 
+const TIMING_STRIP = {
+    offsetX: 12,
+    offsetY: 22,
+    width: 52,
+    height: 3,
+
+    expiredWidth: 3,
+    blinkPeriodMs: 300,
+
+    trackColor: 0x263146,
+    fillColor: 0xf2e4bc,
+} as const;
+
+type BeamShieldWindow = NonNullable<BridgeCaptainIncomingBeamCannonPayload["decisionTimings"]>["shieldWindow"];
+
 type BeamCannonThreatRowCallbacks = {
     onTrack: (command: BridgeOfficerCommandSelectedPayload) => void;
     onDeployShield: (command: BridgeOfficerCommandSelectedPayload) => void;
@@ -46,6 +65,11 @@ type ActionButton = {
     background: Phaser.GameObjects.Image;
     roleGlyph: Phaser.GameObjects.Image;
     label: Phaser.GameObjects.Text;
+
+    timingTrack: Phaser.GameObjects.Rectangle;
+    timingFill: Phaser.GameObjects.Rectangle;
+    timingEarly: Phaser.GameObjects.Rectangle;
+    timingExpired: Phaser.GameObjects.Rectangle;
 };
 
 // Beam Cannon использует тот же production-like tile grammar, что и missile.
@@ -99,9 +123,17 @@ export default class BridgeCaptainBeamCannonThreatRowView {
             this.scienceAction.background,
             this.scienceAction.roleGlyph,
             this.scienceAction.label,
+            this.scienceAction.timingTrack,
+            this.scienceAction.timingFill,
+            this.scienceAction.timingEarly,
+            this.scienceAction.timingExpired,
             this.engineerAction.background,
             this.engineerAction.roleGlyph,
             this.engineerAction.label,
+            this.engineerAction.timingTrack,
+            this.engineerAction.timingFill,
+            this.engineerAction.timingEarly,
+            this.engineerAction.timingExpired,
         ]);
     }
 
@@ -126,7 +158,23 @@ export default class BridgeCaptainBeamCannonThreatRowView {
             this.setScienceAction(beamCannon.actions.trackTarget, trackTargetTaskId);
         }
 
-        this.setEngineerAction(beamCannon.actions.deployShield, beamCannon.activeTasks?.deployShieldTaskId);
+        const deployShieldTaskId = beamCannon.activeTasks?.deployShieldTaskId;
+
+        this.setEngineerAction(beamCannon.actions.deployShield, deployShieldTaskId);
+
+        this.updateTrackTiming(
+            beamCannon.timeToFireMs,
+            beamCannon.initialTimeToFireMs,
+            beamCannon.decisionTimings?.trackTargetMinRemainingMs,
+            trackTargetTaskId !== undefined,
+        );
+
+        this.updateShieldTiming(
+            beamCannon.timeToFireMs,
+            beamCannon.initialTimeToFireMs,
+            beamCannon.decisionTimings?.shieldWindow,
+            deployShieldTaskId !== undefined,
+        );
     }
 
     public destroy(): void {
@@ -162,10 +210,65 @@ export default class BridgeCaptainBeamCannonThreatRowView {
             })
             .setOrigin(1, 0.5);
 
+        const timingX = x + TIMING_STRIP.offsetX;
+        const timingY = TILE.buttonY + TIMING_STRIP.offsetY;
+
+        const timingTrack = this.scene.add
+            .rectangle(
+                timingX,
+                timingY,
+                TIMING_STRIP.width,
+                TIMING_STRIP.height,
+                TIMING_STRIP.trackColor,
+                1,
+            )
+            .setOrigin(0, 0)
+            .setVisible(false);
+
+        const timingFill = this.scene.add
+            .rectangle(
+                timingX + TIMING_STRIP.width,
+                timingY,
+                TIMING_STRIP.width,
+                TIMING_STRIP.height,
+                TIMING_STRIP.fillColor,
+                1,
+            )
+            .setOrigin(1, 0)
+            .setVisible(false);
+
+        const timingEarly = this.scene.add
+            .rectangle(
+                timingX,
+                timingY,
+                TIMING_STRIP.width,
+                TIMING_STRIP.height,
+                FONT_COLOR.DANGER,
+                1,
+            )
+            .setOrigin(1, 0)
+            .setVisible(false);
+
+        const timingExpired = this.scene.add
+            .rectangle(
+                timingX + TIMING_STRIP.width - TIMING_STRIP.expiredWidth,
+                timingY,
+                TIMING_STRIP.expiredWidth,
+                TIMING_STRIP.height,
+                FONT_COLOR.DANGER,
+                1,
+            )
+            .setOrigin(0, 0)
+            .setVisible(false);
+
         return {
             background,
             roleGlyph,
             label,
+            timingTrack,
+            timingFill,
+            timingEarly,
+            timingExpired,
         };
     }
 
@@ -219,6 +322,123 @@ export default class BridgeCaptainBeamCannonThreatRowView {
         action.background.setVisible(visible);
         action.roleGlyph.setVisible(visible);
         action.label.setVisible(visible);
+
+        if (!visible) {
+            this.hideActionTiming(action);
+        }
+    }
+
+    private updateTrackTiming(
+        remainingMs: number,
+        initialRemainingMs: number,
+        latestUsefulStartRemainingMs: number | null | undefined,
+        actionIsActive: boolean,
+    ): void {
+        const action = this.scienceAction;
+
+        if (!action.background.visible || actionIsActive || latestUsefulStartRemainingMs === undefined) {
+            this.hideActionTiming(action);
+            return;
+        }
+
+        action.timingTrack.setVisible(true);
+        action.timingEarly.setVisible(false);
+
+        if (latestUsefulStartRemainingMs === null) {
+            this.showExpiredActionTiming(action);
+            return;
+        }
+
+        const usefulWindowMs = initialRemainingMs - latestUsefulStartRemainingMs;
+        const usefulRemainingMs = remainingMs - latestUsefulStartRemainingMs;
+
+        if (usefulWindowMs <= 0 || usefulRemainingMs <= 0) {
+            this.showExpiredActionTiming(action);
+            return;
+        }
+
+        const fill01 = Math.max(0, Math.min(1, usefulRemainingMs / usefulWindowMs));
+
+        action.timingFill.setVisible(true).setScale(fill01, 1);
+        action.timingExpired.setVisible(false);
+    }
+
+    private updateShieldTiming(
+        remainingMs: number,
+        initialRemainingMs: number,
+        shieldWindow: BeamShieldWindow | undefined,
+        actionIsActive: boolean,
+    ): void {
+        const action = this.engineerAction;
+
+        if (!action.background.visible || actionIsActive) {
+            this.hideActionTiming(action);
+            return;
+        }
+
+        const timing = getBeamShieldTimingStripState({
+            remainingMs,
+            initialRemainingMs,
+            shieldWindow,
+        });
+
+        if (timing.phase === BEAM_SHIELD_TIMING_PHASE.HIDDEN) {
+            this.hideActionTiming(action);
+            return;
+        }
+
+        action.timingTrack.setVisible(true);
+
+        if (timing.phase === BEAM_SHIELD_TIMING_PHASE.EXPIRED) {
+            this.showExpiredActionTiming(action);
+            return;
+        }
+
+        const earlyWidth = Math.round(TIMING_STRIP.width * timing.earlyWidth01);
+        const validWidth = TIMING_STRIP.width - earlyWidth;
+        const stripX = action.background.x + TIMING_STRIP.offsetX;
+        const stripY = action.background.y + TIMING_STRIP.offsetY;
+
+        action.timingFill
+            .setVisible(true)
+            .setPosition(stripX + TIMING_STRIP.width, stripY)
+            .setSize(validWidth, TIMING_STRIP.height)
+            .setDisplaySize(validWidth, TIMING_STRIP.height);
+
+        action.timingExpired.setVisible(false);
+
+        if (timing.phase === BEAM_SHIELD_TIMING_PHASE.TOO_EARLY) {
+            const earlyFillWidth = Math.round(earlyWidth * timing.earlyFill01);
+
+            action.timingFill.setScale(1, 1);
+
+            action.timingEarly
+                .setVisible(earlyFillWidth > 0)
+                .setPosition(stripX + earlyWidth, stripY)
+                .setSize(earlyFillWidth, TIMING_STRIP.height)
+                .setDisplaySize(earlyFillWidth, TIMING_STRIP.height);
+
+            return;
+        }
+
+        action.timingEarly.setVisible(false);
+        action.timingFill.setScale(timing.validFill01, 1);
+    }
+
+    private showExpiredActionTiming(action: ActionButton): void {
+        action.timingFill.setVisible(false);
+        action.timingEarly.setVisible(false);
+
+        const blinkOn = Math.floor(this.scene.time.now / TIMING_STRIP.blinkPeriodMs) % 2 === 0;
+
+        action.timingExpired.setVisible(blinkOn);
+    }
+
+    private hideActionTiming(action: ActionButton): void {
+        action.timingTrack.setVisible(false);
+        action.timingFill.setVisible(false);
+        action.timingEarly.setVisible(false);
+        action.timingExpired.setVisible(false);
     }
 
     private setActionState(action: ActionButton, enabled: boolean, active: boolean): void {

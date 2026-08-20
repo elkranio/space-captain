@@ -72,7 +72,10 @@ export function createPlayerThreatDecisionTimingSnapshot({
         },
 
         beam: {
-            trackMinRemainingMs: trackDurationMs,
+            trackMinRemainingMs:
+                trackDurationMs === null
+                    ? null
+                    : trackDurationMs + (shieldDurationMs === undefined ? 0 : (shieldDeployDurationMs ?? 0)),
 
             shieldWindow:
                 shieldDeployDurationMs === null || shieldDurationMs === undefined

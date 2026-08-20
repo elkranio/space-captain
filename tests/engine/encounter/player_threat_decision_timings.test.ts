@@ -59,7 +59,8 @@ describe(
 
                     beam: {
                         trackMinRemainingMs:
-                            TRACK_DURATION_MS,
+                            TRACK_DURATION_MS +
+                            SHIELD_DEPLOY_DURATION_MS,
 
                         shieldWindow: {
                             opensAtRemainingMs:
@@ -114,7 +115,8 @@ describe(
                     timings.beam
                         .trackMinRemainingMs,
                 ).toBe(
-                    TRACK_DURATION_MS /
+                    (TRACK_DURATION_MS +
+                        SHIELD_DEPLOY_DURATION_MS) /
                         multiplier,
                 );
 

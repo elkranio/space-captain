@@ -438,6 +438,15 @@ export type BridgeCaptainIncomingBeamCannonPayload = {
         trackTargetTaskId?: string;
         deployShieldTaskId?: string;
     };
+
+    decisionTimings?: {
+        trackTargetMinRemainingMs: number | null;
+
+        shieldWindow: {
+            opensAtRemainingMs: number;
+            closesAtRemainingMs: number;
+        } | null;
+    };
 };
 
 export type BridgeCaptainStickyMinePayload = {
