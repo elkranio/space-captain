@@ -64,6 +64,7 @@ const TIMING_STRIP = {
 
     trackColor: 0x31465b,
     dividerColor: 0x172a38,
+    earlyColor: 0xa8444d,
     fillColor: 0x5f9fb5,
 } as const;
 
@@ -333,7 +334,7 @@ export default class BridgeCaptainBeamCannonThreatRowView {
                 timingY,
                 width,
                 TIMING_STRIP.height,
-                FONT_COLOR.DANGER,
+                TIMING_STRIP.earlyColor,
                 1,
             )
             .setOrigin(1, 0)
