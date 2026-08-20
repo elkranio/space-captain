@@ -8,15 +8,20 @@ import type {
 import { formatCaptainDashboardCountdown } from "../../captain_dashboard_format";
 
 const TILE = {
-    iconX: 9,
-    iconY: 8,
+    width: 153,
+    height: 58,
 
-    timerX: 154,
-    timerY: 8,
+    headerCenterY: 14,
+    headerTextY: 8,
 
-    buttonWidth: 75,
-    buttonY: 34,
-    scienceButtonX: 5,
+    iconCenterX: 26,
+    timerCenterX: 128,
+
+    actionY: 28,
+    actionDividerX: 76,
+
+    scienceActionX: 77,
+    scienceActionWidth: 76,
 
     roleOffsetX: 9,
     roleOffsetY: 10,
@@ -27,13 +32,24 @@ const TILE = {
     disabledAlpha: 0.35,
 } as const;
 
+const TILE_STYLE = {
+    backgroundColor: 0x111c27,
+    actionBackgroundColor: 0x172a38,
+
+    borderColor: 0x8fb5d6,
+    separatorColor: 0x45627f,
+
+    activeActionBackgroundColor: 0x5a310e,
+    disabledActionBackgroundColor: 0x0d151e,
+} as const;
+
 type SpamThreatRowCallbacks = {
     onPurge: (command: BridgeOfficerCommandSelectedPayload) => void;
     onCancelTask: (taskId: string) => void;
 };
 
 type ActionButton = {
-    background: Phaser.GameObjects.Image;
+    background: Phaser.GameObjects.Rectangle;
     roleGlyph: Phaser.GameObjects.Image;
     label: Phaser.GameObjects.Text;
 };
@@ -59,25 +75,66 @@ export default class BridgeCaptainSpamThreatRowView {
     ) {
         this.root = this.scene.add.container(0, 0);
 
-        const background = this.createSprite(UI_COMBAT_SPRITE_ID.THREAT_TILE_BG, 0, 0);
-        const spamIcon = this.createSprite(UI_COMBAT_SPRITE_ID.THREAT_SPAM, TILE.iconX, TILE.iconY);
+        const background = this.scene.add
+            .rectangle(0, 0, TILE.width, TILE.height, TILE_STYLE.backgroundColor, 1)
+            .setOrigin(0, 0);
+
+        const outerBorder = this.scene.add
+            .rectangle(0, 0, TILE.width, TILE.height, TILE_STYLE.backgroundColor, 0)
+            .setOrigin(0, 0)
+            .setStrokeStyle(1, TILE_STYLE.borderColor);
+
+        const actionTopBorder = this.scene.add
+            .rectangle(0, TILE.actionY, TILE.width, 1, TILE_STYLE.separatorColor, 1)
+            .setOrigin(0, 0);
+
+        const actionDivider = this.scene.add
+            .rectangle(
+                TILE.actionDividerX,
+                TILE.actionY,
+                1,
+                TILE.height - TILE.actionY,
+                TILE_STYLE.separatorColor,
+                1,
+            )
+            .setOrigin(0, 0);
+
+        const spamIcon = this.createSprite(
+            UI_COMBAT_SPRITE_ID.THREAT_SPAM,
+            TILE.iconCenterX,
+            TILE.headerCenterY,
+        ).setOrigin(0.5, 0.5);
 
         this.timerText = this.scene.add
-            .bitmapText(TILE.timerX, TILE.timerY, FONT_FAMILY.VGA_8X14, "--.-s", FONT_SIZE.PX_14)
-            .setOrigin(1, 0)
+            .bitmapText(
+                TILE.timerCenterX,
+                TILE.headerTextY,
+                FONT_FAMILY.VGA_8X14,
+                "--.-s",
+                FONT_SIZE.PX_14,
+            )
+            .setOrigin(0.5, 0)
             .setTint(FONT_COLOR.WHITE);
 
-        this.scienceAction = this.createActionButton(TILE.scienceButtonX, UI_COMBAT_SPRITE_ID.ROLE_S, "PURGE");
+        this.scienceAction = this.createActionButton(
+            TILE.scienceActionX,
+            TILE.scienceActionWidth,
+            UI_COMBAT_SPRITE_ID.ROLE_S,
+            "PURGE",
+        );
 
         this.scienceAction.background.on("pointerdown", this.handleSciencePointerDown, this);
 
         this.root.add([
             background,
+            this.scienceAction.background,
             spamIcon,
             this.timerText,
-            this.scienceAction.background,
             this.scienceAction.roleGlyph,
             this.scienceAction.label,
+            actionTopBorder,
+            actionDivider,
+            outerBorder,
         ]);
     }
 
@@ -110,16 +167,30 @@ export default class BridgeCaptainSpamThreatRowView {
         return this.scene.add.image(x, y, sprite.atlasKey, sprite.frameKey).setOrigin(0, 0);
     }
 
-    private createActionButton(x: number, roleSpriteId: UiCombatSpriteId, labelText: string): ActionButton {
-        const background = this.createSprite(UI_COMBAT_SPRITE_ID.ACTION_BUTTON_BG, x, TILE.buttonY);
+    private createActionButton(
+        x: number,
+        width: number,
+        roleSpriteId: UiCombatSpriteId,
+        labelText: string,
+    ): ActionButton {
+        const background = this.scene.add
+            .rectangle(
+                x,
+                TILE.actionY,
+                width,
+                TILE.height - TILE.actionY,
+                TILE_STYLE.actionBackgroundColor,
+                1,
+            )
+            .setOrigin(0, 0);
 
-        const roleGlyph = this.createSprite(roleSpriteId, x + TILE.roleOffsetX, TILE.buttonY + TILE.roleOffsetY);
+        const roleGlyph = this.createSprite(roleSpriteId, x + TILE.roleOffsetX, TILE.actionY + TILE.roleOffsetY);
 
         const label = this.scene.add
-            .text(x + TILE.buttonWidth - TILE.labelRightInset, TILE.buttonY + TILE.labelOffsetY, labelText, {
+            .text(x + width - TILE.labelRightInset, TILE.actionY + TILE.labelOffsetY, labelText, {
                 fontFamily: "Anta",
                 fontSize: "10px",
-                color: "#ffffff",
+                color: "#d7e6ff",
                 resolution: 1,
             })
             .setOrigin(1, 0.5);
@@ -142,7 +213,7 @@ export default class BridgeCaptainSpamThreatRowView {
 
     private setActionState(action: ActionButton, enabled: boolean, active: boolean): void {
         action.background.disableInteractive();
-        action.background.clearTint();
+        action.background.setFillStyle(TILE_STYLE.actionBackgroundColor, 1);
         action.label.clearTint();
 
         if (enabled || active) {
@@ -152,13 +223,14 @@ export default class BridgeCaptainSpamThreatRowView {
         }
 
         if (active) {
-            action.background.setTint(FONT_COLOR.ACTIVITY);
+            action.background.setFillStyle(TILE_STYLE.activeActionBackgroundColor, 1);
             action.label.setTint(FONT_COLOR.ACTIVITY);
+        } else if (!enabled) {
+            action.background.setFillStyle(TILE_STYLE.disabledActionBackgroundColor, 1);
         }
 
         const alpha = enabled || active ? 1 : TILE.disabledAlpha;
 
-        action.background.setAlpha(alpha);
         action.roleGlyph.setAlpha(alpha);
         action.label.setAlpha(alpha);
     }

@@ -1,11 +1,11 @@
 {
   "textures": [
     {
-      "image": "atlas-0.png?v=1787259418320",
+      "image": "atlas-0.png?v=1787260829252",
       "format": "RGBA8888",
       "size": {
-        "w": 2048,
-        "h": 2044
+        "w": 1988,
+        "h": 2035
       },
       "scale": 1,
       "frames": [
@@ -31,27 +31,6 @@
           }
         },
         {
-          "filename": "ui/threat_icons/spam",
-          "rotated": false,
-          "trimmed": false,
-          "sourceSize": {
-            "w": 1280,
-            "h": 720
-          },
-          "spriteSourceSize": {
-            "x": 0,
-            "y": 0,
-            "w": 1280,
-            "h": 720
-          },
-          "frame": {
-            "x": 1,
-            "y": 723,
-            "w": 1280,
-            "h": 720
-          }
-        },
-        {
           "filename": "bridge/space/nebula_00",
           "rotated": false,
           "trimmed": false,
@@ -67,9 +46,93 @@
           },
           "frame": {
             "x": 1,
-            "y": 1445,
+            "y": 723,
             "w": 1536,
             "h": 384
+          }
+        },
+        {
+          "filename": "ui/contact_panel/panel_00",
+          "rotated": false,
+          "trimmed": false,
+          "sourceSize": {
+            "w": 638,
+            "h": 305
+          },
+          "spriteSourceSize": {
+            "x": 0,
+            "y": 0,
+            "w": 638,
+            "h": 305
+          },
+          "frame": {
+            "x": 1,
+            "y": 1109,
+            "w": 638,
+            "h": 305
+          }
+        },
+        {
+          "filename": "bridge/ui/captain_dashboard/screen",
+          "rotated": false,
+          "trimmed": false,
+          "sourceSize": {
+            "w": 593,
+            "h": 250
+          },
+          "spriteSourceSize": {
+            "x": 0,
+            "y": 0,
+            "w": 593,
+            "h": 250
+          },
+          "frame": {
+            "x": 1283,
+            "y": 1,
+            "w": 593,
+            "h": 250
+          }
+        },
+        {
+          "filename": "stations/human_small_00",
+          "rotated": false,
+          "trimmed": false,
+          "sourceSize": {
+            "w": 470,
+            "h": 319
+          },
+          "spriteSourceSize": {
+            "x": 0,
+            "y": 0,
+            "w": 470,
+            "h": 319
+          },
+          "frame": {
+            "x": 1,
+            "y": 1416,
+            "w": 470,
+            "h": 319
+          }
+        },
+        {
+          "filename": "stations/human_small_01",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 454,
+            "h": 319
+          },
+          "spriteSourceSize": {
+            "x": 0,
+            "y": 0,
+            "w": 453,
+            "h": 319
+          },
+          "frame": {
+            "x": 1283,
+            "y": 253,
+            "w": 453,
+            "h": 319
           }
         },
         {
@@ -87,10 +150,94 @@
             "h": 320
           },
           "frame": {
-            "x": 1283,
-            "y": 1,
+            "x": 641,
+            "y": 1109,
             "w": 431,
             "h": 320
+          }
+        },
+        {
+          "filename": "stations/alien_small_00",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 408,
+            "h": 319
+          },
+          "spriteSourceSize": {
+            "x": 0,
+            "y": 0,
+            "w": 408,
+            "h": 318
+          },
+          "frame": {
+            "x": 1074,
+            "y": 1109,
+            "w": 408,
+            "h": 318
+          }
+        },
+        {
+          "filename": "combat/spam/popup_03",
+          "rotated": false,
+          "trimmed": false,
+          "sourceSize": {
+            "w": 249,
+            "h": 260
+          },
+          "spriteSourceSize": {
+            "x": 0,
+            "y": 0,
+            "w": 249,
+            "h": 260
+          },
+          "frame": {
+            "x": 1738,
+            "y": 253,
+            "w": 249,
+            "h": 260
+          }
+        },
+        {
+          "filename": "ships/chassis/unknown_00",
+          "rotated": false,
+          "trimmed": false,
+          "sourceSize": {
+            "w": 400,
+            "h": 175
+          },
+          "spriteSourceSize": {
+            "x": 0,
+            "y": 0,
+            "w": 400,
+            "h": 175
+          },
+          "frame": {
+            "x": 1,
+            "y": 1737,
+            "w": 400,
+            "h": 175
+          }
+        },
+        {
+          "filename": "ships/chassis/new_perspective_00",
+          "rotated": false,
+          "trimmed": false,
+          "sourceSize": {
+            "w": 244,
+            "h": 120
+          },
+          "spriteSourceSize": {
+            "x": 0,
+            "y": 0,
+            "w": 244,
+            "h": 120
+          },
+          "frame": {
+            "x": 1,
+            "y": 1914,
+            "w": 244,
+            "h": 120
           }
         },
         {
@@ -108,8 +255,8 @@
             "h": 320
           },
           "frame": {
-            "x": 1283,
-            "y": 323,
+            "x": 473,
+            "y": 1431,
             "w": 355,
             "h": 320
           }
@@ -129,31 +276,10 @@
             "h": 320
           },
           "frame": {
-            "x": 1283,
-            "y": 645,
+            "x": 830,
+            "y": 1431,
             "w": 355,
             "h": 320
-          }
-        },
-        {
-          "filename": "ui/contact_panel/panel_00",
-          "rotated": false,
-          "trimmed": false,
-          "sourceSize": {
-            "w": 638,
-            "h": 305
-          },
-          "spriteSourceSize": {
-            "x": 0,
-            "y": 0,
-            "w": 638,
-            "h": 305
-          },
-          "frame": {
-            "x": 1283,
-            "y": 967,
-            "w": 638,
-            "h": 305
           }
         },
         {
@@ -171,31 +297,220 @@
             "h": 319
           },
           "frame": {
-            "x": 1640,
-            "y": 323,
+            "x": 1187,
+            "y": 1429,
             "w": 279,
             "h": 319
           }
         },
         {
-          "filename": "combat/spam/popup_03",
+          "filename": "combat/spam/popup_04",
           "rotated": false,
           "trimmed": false,
           "sourceSize": {
-            "w": 249,
-            "h": 260
+            "w": 386,
+            "h": 160
           },
           "spriteSourceSize": {
             "x": 0,
             "y": 0,
-            "w": 249,
-            "h": 260
+            "w": 386,
+            "h": 160
           },
           "frame": {
-            "x": 1716,
-            "y": 1,
-            "w": 249,
-            "h": 260
+            "x": 403,
+            "y": 1753,
+            "w": 386,
+            "h": 160
+          }
+        },
+        {
+          "filename": "combat/spam/popup_05",
+          "rotated": false,
+          "trimmed": false,
+          "sourceSize": {
+            "w": 373,
+            "h": 190
+          },
+          "spriteSourceSize": {
+            "x": 0,
+            "y": 0,
+            "w": 373,
+            "h": 190
+          },
+          "frame": {
+            "x": 791,
+            "y": 1753,
+            "w": 373,
+            "h": 190
+          }
+        },
+        {
+          "filename": "ships/chassis/generic_00",
+          "rotated": false,
+          "trimmed": false,
+          "sourceSize": {
+            "w": 343,
+            "h": 100
+          },
+          "spriteSourceSize": {
+            "x": 0,
+            "y": 0,
+            "w": 343,
+            "h": 100
+          },
+          "frame": {
+            "x": 1283,
+            "y": 574,
+            "w": 343,
+            "h": 100
+          }
+        },
+        {
+          "filename": "bridge/ui/officer_context_menu/panel_middle",
+          "rotated": false,
+          "trimmed": false,
+          "sourceSize": {
+            "w": 376,
+            "h": 32
+          },
+          "spriteSourceSize": {
+            "x": 0,
+            "y": 0,
+            "w": 376,
+            "h": 32
+          },
+          "frame": {
+            "x": 1283,
+            "y": 676,
+            "w": 376,
+            "h": 32
+          }
+        },
+        {
+          "filename": "combat/spam/popup_06",
+          "rotated": false,
+          "trimmed": false,
+          "sourceSize": {
+            "w": 236,
+            "h": 250
+          },
+          "spriteSourceSize": {
+            "x": 0,
+            "y": 0,
+            "w": 236,
+            "h": 250
+          },
+          "frame": {
+            "x": 1539,
+            "y": 710,
+            "w": 236,
+            "h": 250
+          }
+        },
+        {
+          "filename": "combat/spam/popup_02",
+          "rotated": false,
+          "trimmed": false,
+          "sourceSize": {
+            "w": 306,
+            "h": 220
+          },
+          "spriteSourceSize": {
+            "x": 0,
+            "y": 0,
+            "w": 306,
+            "h": 220
+          },
+          "frame": {
+            "x": 1539,
+            "y": 962,
+            "w": 306,
+            "h": 220
+          }
+        },
+        {
+          "filename": "combat/spam/popup_01",
+          "rotated": false,
+          "trimmed": false,
+          "sourceSize": {
+            "w": 349,
+            "h": 200
+          },
+          "spriteSourceSize": {
+            "x": 0,
+            "y": 0,
+            "w": 349,
+            "h": 200
+          },
+          "frame": {
+            "x": 1484,
+            "y": 1184,
+            "w": 349,
+            "h": 200
+          }
+        },
+        {
+          "filename": "bridge/ui/officer_context_menu/panel_top",
+          "rotated": false,
+          "trimmed": false,
+          "sourceSize": {
+            "w": 376,
+            "h": 50
+          },
+          "spriteSourceSize": {
+            "x": 0,
+            "y": 0,
+            "w": 376,
+            "h": 50
+          },
+          "frame": {
+            "x": 1484,
+            "y": 1386,
+            "w": 376,
+            "h": 50
+          }
+        },
+        {
+          "filename": "combat/spam/popup_00",
+          "rotated": false,
+          "trimmed": false,
+          "sourceSize": {
+            "w": 356,
+            "h": 180
+          },
+          "spriteSourceSize": {
+            "x": 0,
+            "y": 0,
+            "w": 356,
+            "h": 180
+          },
+          "frame": {
+            "x": 1468,
+            "y": 1438,
+            "w": 356,
+            "h": 180
+          }
+        },
+        {
+          "filename": "bridge/ui/officer_context_menu/panel_bottom",
+          "rotated": false,
+          "trimmed": false,
+          "sourceSize": {
+            "w": 376,
+            "h": 28
+          },
+          "spriteSourceSize": {
+            "x": 0,
+            "y": 0,
+            "w": 376,
+            "h": 28
+          },
+          "frame": {
+            "x": 1468,
+            "y": 1620,
+            "w": 376,
+            "h": 28
           }
         },
         {
@@ -213,8 +528,8 @@
             "h": 27
           },
           "frame": {
-            "x": 1716,
-            "y": 263,
+            "x": 1468,
+            "y": 1650,
             "w": 323,
             "h": 27
           }
@@ -234,1039 +549,10 @@
             "h": 27
           },
           "frame": {
-            "x": 1716,
-            "y": 292,
+            "x": 1468,
+            "y": 1679,
             "w": 323,
             "h": 27
-          }
-        },
-        {
-          "filename": "combat/spam/popup_02",
-          "rotated": false,
-          "trimmed": false,
-          "sourceSize": {
-            "w": 306,
-            "h": 220
-          },
-          "spriteSourceSize": {
-            "x": 0,
-            "y": 0,
-            "w": 306,
-            "h": 220
-          },
-          "frame": {
-            "x": 1640,
-            "y": 644,
-            "w": 306,
-            "h": 220
-          }
-        },
-        {
-          "filename": "bridge/ui/officer_context_menu/panel_top",
-          "rotated": false,
-          "trimmed": false,
-          "sourceSize": {
-            "w": 376,
-            "h": 50
-          },
-          "spriteSourceSize": {
-            "x": 0,
-            "y": 0,
-            "w": 376,
-            "h": 50
-          },
-          "frame": {
-            "x": 1640,
-            "y": 866,
-            "w": 376,
-            "h": 50
-          }
-        },
-        {
-          "filename": "bridge/ui/officer_context_menu/panel_middle",
-          "rotated": false,
-          "trimmed": false,
-          "sourceSize": {
-            "w": 376,
-            "h": 32
-          },
-          "spriteSourceSize": {
-            "x": 0,
-            "y": 0,
-            "w": 376,
-            "h": 32
-          },
-          "frame": {
-            "x": 1640,
-            "y": 918,
-            "w": 376,
-            "h": 32
-          }
-        },
-        {
-          "filename": "characters/comms/human_00_calm",
-          "rotated": false,
-          "trimmed": false,
-          "sourceSize": {
-            "w": 77,
-            "h": 105
-          },
-          "spriteSourceSize": {
-            "x": 0,
-            "y": 0,
-            "w": 77,
-            "h": 105
-          },
-          "frame": {
-            "x": 1967,
-            "y": 1,
-            "w": 77,
-            "h": 105
-          }
-        },
-        {
-          "filename": "beacons/navigation_beacon_00",
-          "rotated": false,
-          "trimmed": false,
-          "sourceSize": {
-            "w": 55,
-            "h": 100
-          },
-          "spriteSourceSize": {
-            "x": 0,
-            "y": 0,
-            "w": 55,
-            "h": 100
-          },
-          "frame": {
-            "x": 1967,
-            "y": 108,
-            "w": 55,
-            "h": 100
-          }
-        },
-        {
-          "filename": "combat/mines/sticky_00",
-          "rotated": false,
-          "trimmed": false,
-          "sourceSize": {
-            "w": 71,
-            "h": 40
-          },
-          "spriteSourceSize": {
-            "x": 0,
-            "y": 0,
-            "w": 71,
-            "h": 40
-          },
-          "frame": {
-            "x": 1967,
-            "y": 210,
-            "w": 71,
-            "h": 40
-          }
-        },
-        {
-          "filename": "ui/speech_bubble/officer_bark_00/left",
-          "rotated": false,
-          "trimmed": false,
-          "sourceSize": {
-            "w": 16,
-            "h": 8
-          },
-          "spriteSourceSize": {
-            "x": 0,
-            "y": 0,
-            "w": 16,
-            "h": 8
-          },
-          "frame": {
-            "x": 1967,
-            "y": 252,
-            "w": 16,
-            "h": 8
-          }
-        },
-        {
-          "filename": "ui/speech_bubble/officer_bark_00/right",
-          "rotated": false,
-          "trimmed": false,
-          "sourceSize": {
-            "w": 16,
-            "h": 8
-          },
-          "spriteSourceSize": {
-            "x": 0,
-            "y": 0,
-            "w": 16,
-            "h": 8
-          },
-          "frame": {
-            "x": 1985,
-            "y": 252,
-            "w": 16,
-            "h": 8
-          }
-        },
-        {
-          "filename": "ui/role_glyphs/role_e",
-          "rotated": false,
-          "trimmed": false,
-          "sourceSize": {
-            "w": 8,
-            "h": 9
-          },
-          "spriteSourceSize": {
-            "x": 0,
-            "y": 0,
-            "w": 8,
-            "h": 9
-          },
-          "frame": {
-            "x": 2003,
-            "y": 252,
-            "w": 8,
-            "h": 9
-          }
-        },
-        {
-          "filename": "ui/role_glyphs/role_h",
-          "rotated": false,
-          "trimmed": false,
-          "sourceSize": {
-            "w": 8,
-            "h": 9
-          },
-          "spriteSourceSize": {
-            "x": 0,
-            "y": 0,
-            "w": 8,
-            "h": 9
-          },
-          "frame": {
-            "x": 2013,
-            "y": 252,
-            "w": 8,
-            "h": 9
-          }
-        },
-        {
-          "filename": "ui/role_glyphs/role_s",
-          "rotated": false,
-          "trimmed": false,
-          "sourceSize": {
-            "w": 8,
-            "h": 9
-          },
-          "spriteSourceSize": {
-            "x": 0,
-            "y": 0,
-            "w": 8,
-            "h": 9
-          },
-          "frame": {
-            "x": 2023,
-            "y": 252,
-            "w": 8,
-            "h": 9
-          }
-        },
-        {
-          "filename": "ui/role_glyphs/role_w",
-          "rotated": false,
-          "trimmed": false,
-          "sourceSize": {
-            "w": 8,
-            "h": 9
-          },
-          "spriteSourceSize": {
-            "x": 0,
-            "y": 0,
-            "w": 8,
-            "h": 9
-          },
-          "frame": {
-            "x": 2033,
-            "y": 252,
-            "w": 8,
-            "h": 9
-          }
-        },
-        {
-          "filename": "combat/missiles/generic_test_00",
-          "rotated": false,
-          "trimmed": true,
-          "sourceSize": {
-            "w": 32,
-            "h": 32
-          },
-          "spriteSourceSize": {
-            "x": 8,
-            "y": 2,
-            "w": 16,
-            "h": 27
-          },
-          "frame": {
-            "x": 2024,
-            "y": 108,
-            "w": 16,
-            "h": 27
-          }
-        },
-        {
-          "filename": "ui/buttons/close_00",
-          "rotated": false,
-          "trimmed": false,
-          "sourceSize": {
-            "w": 20,
-            "h": 17
-          },
-          "spriteSourceSize": {
-            "x": 0,
-            "y": 0,
-            "w": 20,
-            "h": 17
-          },
-          "frame": {
-            "x": 2024,
-            "y": 137,
-            "w": 20,
-            "h": 17
-          }
-        },
-        {
-          "filename": "ui/speech_bubble/officer_bark_00/bottom_left",
-          "rotated": false,
-          "trimmed": false,
-          "sourceSize": {
-            "w": 16,
-            "h": 16
-          },
-          "spriteSourceSize": {
-            "x": 0,
-            "y": 0,
-            "w": 16,
-            "h": 16
-          },
-          "frame": {
-            "x": 2024,
-            "y": 156,
-            "w": 16,
-            "h": 16
-          }
-        },
-        {
-          "filename": "ui/speech_bubble/officer_bark_00/bottom_right",
-          "rotated": false,
-          "trimmed": false,
-          "sourceSize": {
-            "w": 16,
-            "h": 16
-          },
-          "spriteSourceSize": {
-            "x": 0,
-            "y": 0,
-            "w": 16,
-            "h": 16
-          },
-          "frame": {
-            "x": 2024,
-            "y": 174,
-            "w": 16,
-            "h": 16
-          }
-        },
-        {
-          "filename": "ui/threat_icons/beam_cannon",
-          "rotated": false,
-          "trimmed": false,
-          "sourceSize": {
-            "w": 23,
-            "h": 10
-          },
-          "spriteSourceSize": {
-            "x": 0,
-            "y": 0,
-            "w": 23,
-            "h": 10
-          },
-          "frame": {
-            "x": 2024,
-            "y": 192,
-            "w": 23,
-            "h": 10
-          }
-        },
-        {
-          "filename": "officers/engineer/idle",
-          "rotated": false,
-          "trimmed": false,
-          "sourceSize": {
-            "w": 115,
-            "h": 153
-          },
-          "spriteSourceSize": {
-            "x": 0,
-            "y": 0,
-            "w": 115,
-            "h": 153
-          },
-          "frame": {
-            "x": 1921,
-            "y": 321,
-            "w": 115,
-            "h": 153
-          }
-        },
-        {
-          "filename": "officers/engineer/look_left",
-          "rotated": false,
-          "trimmed": false,
-          "sourceSize": {
-            "w": 115,
-            "h": 153
-          },
-          "spriteSourceSize": {
-            "x": 0,
-            "y": 0,
-            "w": 115,
-            "h": 153
-          },
-          "frame": {
-            "x": 1921,
-            "y": 476,
-            "w": 115,
-            "h": 153
-          }
-        },
-        {
-          "filename": "ui/threat_icons/missile",
-          "rotated": false,
-          "trimmed": false,
-          "sourceSize": {
-            "w": 26,
-            "h": 10
-          },
-          "spriteSourceSize": {
-            "x": 0,
-            "y": 0,
-            "w": 26,
-            "h": 10
-          },
-          "frame": {
-            "x": 1921,
-            "y": 631,
-            "w": 26,
-            "h": 10
-          }
-        },
-        {
-          "filename": "officers/comms/alien_00_calm",
-          "rotated": false,
-          "trimmed": false,
-          "sourceSize": {
-            "w": 97,
-            "h": 107
-          },
-          "spriteSourceSize": {
-            "x": 0,
-            "y": 0,
-            "w": 97,
-            "h": 107
-          },
-          "frame": {
-            "x": 1948,
-            "y": 643,
-            "w": 97,
-            "h": 107
-          }
-        },
-        {
-          "filename": "officers/comms/human_00_calm",
-          "rotated": false,
-          "trimmed": false,
-          "sourceSize": {
-            "w": 97,
-            "h": 105
-          },
-          "spriteSourceSize": {
-            "x": 0,
-            "y": 0,
-            "w": 97,
-            "h": 105
-          },
-          "frame": {
-            "x": 1948,
-            "y": 752,
-            "w": 97,
-            "h": 105
-          }
-        },
-        {
-          "filename": "ui/threat_icons/mine",
-          "rotated": false,
-          "trimmed": false,
-          "sourceSize": {
-            "w": 24,
-            "h": 10
-          },
-          "spriteSourceSize": {
-            "x": 0,
-            "y": 0,
-            "w": 24,
-            "h": 10
-          },
-          "frame": {
-            "x": 1949,
-            "y": 631,
-            "w": 24,
-            "h": 10
-          }
-        },
-        {
-          "filename": "ui/speech_bubble/officer_bark_00/center",
-          "rotated": false,
-          "trimmed": false,
-          "sourceSize": {
-            "w": 8,
-            "h": 8
-          },
-          "spriteSourceSize": {
-            "x": 0,
-            "y": 0,
-            "w": 8,
-            "h": 8
-          },
-          "frame": {
-            "x": 1975,
-            "y": 631,
-            "w": 8,
-            "h": 8
-          }
-        },
-        {
-          "filename": "ui/speech_bubble/officer_bark_00/bottom",
-          "rotated": false,
-          "trimmed": false,
-          "sourceSize": {
-            "w": 8,
-            "h": 16
-          },
-          "spriteSourceSize": {
-            "x": 0,
-            "y": 0,
-            "w": 8,
-            "h": 16
-          },
-          "frame": {
-            "x": 2038,
-            "y": 321,
-            "w": 8,
-            "h": 16
-          }
-        },
-        {
-          "filename": "ui/speech_bubble/officer_bark_00/top",
-          "rotated": false,
-          "trimmed": false,
-          "sourceSize": {
-            "w": 8,
-            "h": 16
-          },
-          "spriteSourceSize": {
-            "x": 0,
-            "y": 0,
-            "w": 8,
-            "h": 16
-          },
-          "frame": {
-            "x": 2038,
-            "y": 339,
-            "w": 8,
-            "h": 16
-          }
-        },
-        {
-          "filename": "combat/spam/popup_04",
-          "rotated": false,
-          "trimmed": false,
-          "sourceSize": {
-            "w": 386,
-            "h": 160
-          },
-          "spriteSourceSize": {
-            "x": 0,
-            "y": 0,
-            "w": 386,
-            "h": 160
-          },
-          "frame": {
-            "x": 1283,
-            "y": 1274,
-            "w": 386,
-            "h": 160
-          }
-        },
-        {
-          "filename": "stations/human_small_00",
-          "rotated": false,
-          "trimmed": false,
-          "sourceSize": {
-            "w": 470,
-            "h": 319
-          },
-          "spriteSourceSize": {
-            "x": 0,
-            "y": 0,
-            "w": 470,
-            "h": 319
-          },
-          "frame": {
-            "x": 1539,
-            "y": 1436,
-            "w": 470,
-            "h": 319
-          }
-        },
-        {
-          "filename": "ships/chassis/generic_00",
-          "rotated": false,
-          "trimmed": false,
-          "sourceSize": {
-            "w": 343,
-            "h": 100
-          },
-          "spriteSourceSize": {
-            "x": 0,
-            "y": 0,
-            "w": 343,
-            "h": 100
-          },
-          "frame": {
-            "x": 1671,
-            "y": 1274,
-            "w": 343,
-            "h": 100
-          }
-        },
-        {
-          "filename": "bridge/ui/officer_context_menu/panel_bottom",
-          "rotated": false,
-          "trimmed": false,
-          "sourceSize": {
-            "w": 376,
-            "h": 28
-          },
-          "spriteSourceSize": {
-            "x": 0,
-            "y": 0,
-            "w": 376,
-            "h": 28
-          },
-          "frame": {
-            "x": 1671,
-            "y": 1376,
-            "w": 376,
-            "h": 28
-          }
-        },
-        {
-          "filename": "ships/chassis/unknown_00",
-          "rotated": false,
-          "trimmed": false,
-          "sourceSize": {
-            "w": 400,
-            "h": 175
-          },
-          "spriteSourceSize": {
-            "x": 0,
-            "y": 0,
-            "w": 400,
-            "h": 175
-          },
-          "frame": {
-            "x": 1539,
-            "y": 1757,
-            "w": 400,
-            "h": 175
-          }
-        },
-        {
-          "filename": "officers/engineer/look_right",
-          "rotated": false,
-          "trimmed": false,
-          "sourceSize": {
-            "w": 115,
-            "h": 153
-          },
-          "spriteSourceSize": {
-            "x": 0,
-            "y": 0,
-            "w": 115,
-            "h": 153
-          },
-          "frame": {
-            "x": 1923,
-            "y": 952,
-            "w": 115,
-            "h": 153
-          }
-        },
-        {
-          "filename": "officers/helm/idle",
-          "rotated": false,
-          "trimmed": false,
-          "sourceSize": {
-            "w": 115,
-            "h": 153
-          },
-          "spriteSourceSize": {
-            "x": 0,
-            "y": 0,
-            "w": 115,
-            "h": 153
-          },
-          "frame": {
-            "x": 1923,
-            "y": 1107,
-            "w": 115,
-            "h": 153
-          }
-        },
-        {
-          "filename": "ui/speech_bubble/officer_bark_00/tail_bottom",
-          "rotated": false,
-          "trimmed": false,
-          "sourceSize": {
-            "w": 29,
-            "h": 23
-          },
-          "spriteSourceSize": {
-            "x": 0,
-            "y": 0,
-            "w": 29,
-            "h": 23
-          },
-          "frame": {
-            "x": 2018,
-            "y": 859,
-            "w": 29,
-            "h": 23
-          }
-        },
-        {
-          "filename": "ui/speech_bubble/officer_bark_00/top_left",
-          "rotated": false,
-          "trimmed": false,
-          "sourceSize": {
-            "w": 16,
-            "h": 16
-          },
-          "spriteSourceSize": {
-            "x": 0,
-            "y": 0,
-            "w": 16,
-            "h": 16
-          },
-          "frame": {
-            "x": 2018,
-            "y": 884,
-            "w": 16,
-            "h": 16
-          }
-        },
-        {
-          "filename": "ui/speech_bubble/officer_bark_00/top_right",
-          "rotated": false,
-          "trimmed": false,
-          "sourceSize": {
-            "w": 16,
-            "h": 16
-          },
-          "spriteSourceSize": {
-            "x": 0,
-            "y": 0,
-            "w": 16,
-            "h": 16
-          },
-          "frame": {
-            "x": 2018,
-            "y": 902,
-            "w": 16,
-            "h": 16
-          }
-        },
-        {
-          "filename": "officers/silhouette_00",
-          "rotated": false,
-          "trimmed": false,
-          "sourceSize": {
-            "w": 106,
-            "h": 105
-          },
-          "spriteSourceSize": {
-            "x": 0,
-            "y": 0,
-            "w": 106,
-            "h": 105
-          },
-          "frame": {
-            "x": 1941,
-            "y": 1757,
-            "w": 106,
-            "h": 105
-          }
-        },
-        {
-          "filename": "officers/weapons/alien_00_calm",
-          "rotated": false,
-          "trimmed": false,
-          "sourceSize": {
-            "w": 106,
-            "h": 105
-          },
-          "spriteSourceSize": {
-            "x": 0,
-            "y": 0,
-            "w": 106,
-            "h": 105
-          },
-          "frame": {
-            "x": 1941,
-            "y": 1864,
-            "w": 106,
-            "h": 105
-          }
-        },
-        {
-          "filename": "ui/combat/action_button_bg",
-          "rotated": false,
-          "trimmed": false,
-          "sourceSize": {
-            "w": 75,
-            "h": 28
-          },
-          "spriteSourceSize": {
-            "x": 0,
-            "y": 0,
-            "w": 75,
-            "h": 28
-          },
-          "frame": {
-            "x": 1671,
-            "y": 1406,
-            "w": 75,
-            "h": 28
-          }
-        },
-        {
-          "filename": "blank",
-          "rotated": false,
-          "trimmed": false,
-          "sourceSize": {
-            "w": 32,
-            "h": 32
-          },
-          "spriteSourceSize": {
-            "x": 0,
-            "y": 0,
-            "w": 32,
-            "h": 32
-          },
-          "frame": {
-            "x": 2011,
-            "y": 1406,
-            "w": 32,
-            "h": 32
-          }
-        },
-        {
-          "filename": "combat/spam/popup_05",
-          "rotated": false,
-          "trimmed": false,
-          "sourceSize": {
-            "w": 373,
-            "h": 190
-          },
-          "spriteSourceSize": {
-            "x": 0,
-            "y": 0,
-            "w": 373,
-            "h": 190
-          },
-          "frame": {
-            "x": 1,
-            "y": 1831,
-            "w": 373,
-            "h": 190
-          }
-        },
-        {
-          "filename": "combat/spam/popup_00",
-          "rotated": false,
-          "trimmed": false,
-          "sourceSize": {
-            "w": 356,
-            "h": 180
-          },
-          "spriteSourceSize": {
-            "x": 0,
-            "y": 0,
-            "w": 356,
-            "h": 180
-          },
-          "frame": {
-            "x": 376,
-            "y": 1831,
-            "w": 356,
-            "h": 180
-          }
-        },
-        {
-          "filename": "combat/spam/popup_01",
-          "rotated": false,
-          "trimmed": false,
-          "sourceSize": {
-            "w": 349,
-            "h": 200
-          },
-          "spriteSourceSize": {
-            "x": 0,
-            "y": 0,
-            "w": 349,
-            "h": 200
-          },
-          "frame": {
-            "x": 734,
-            "y": 1831,
-            "w": 349,
-            "h": 200
-          }
-        },
-        {
-          "filename": "ships/chassis/new_perspective_00",
-          "rotated": false,
-          "trimmed": false,
-          "sourceSize": {
-            "w": 244,
-            "h": 120
-          },
-          "spriteSourceSize": {
-            "x": 0,
-            "y": 0,
-            "w": 244,
-            "h": 120
-          },
-          "frame": {
-            "x": 1085,
-            "y": 1831,
-            "w": 244,
-            "h": 120
-          }
-        },
-        {
-          "filename": "asteroids/asteroid_00",
-          "rotated": false,
-          "trimmed": false,
-          "sourceSize": {
-            "w": 146,
-            "h": 150
-          },
-          "spriteSourceSize": {
-            "x": 0,
-            "y": 0,
-            "w": 146,
-            "h": 150
-          },
-          "frame": {
-            "x": 1331,
-            "y": 1831,
-            "w": 146,
-            "h": 150
-          }
-        },
-        {
-          "filename": "ui/combat/threat_tile_bg",
-          "rotated": false,
-          "trimmed": false,
-          "sourceSize": {
-            "w": 163,
-            "h": 66
-          },
-          "spriteSourceSize": {
-            "x": 0,
-            "y": 0,
-            "w": 163,
-            "h": 66
-          },
-          "frame": {
-            "x": 1085,
-            "y": 1953,
-            "w": 163,
-            "h": 66
-          }
-        },
-        {
-          "filename": "circle",
-          "rotated": false,
-          "trimmed": false,
-          "sourceSize": {
-            "w": 64,
-            "h": 64
-          },
-          "spriteSourceSize": {
-            "x": 0,
-            "y": 0,
-            "w": 64,
-            "h": 64
-          },
-          "frame": {
-            "x": 1250,
-            "y": 1953,
-            "w": 64,
-            "h": 64
-          }
-        },
-        {
-          "filename": "ships/chassis/old_00",
-          "rotated": false,
-          "trimmed": false,
-          "sourceSize": {
-            "w": 122,
-            "h": 80
-          },
-          "spriteSourceSize": {
-            "x": 0,
-            "y": 0,
-            "w": 122,
-            "h": 80
-          },
-          "frame": {
-            "x": 1479,
-            "y": 1934,
-            "w": 122,
-            "h": 80
-          }
-        },
-        {
-          "filename": "combat/missiles/generic_incoming_00",
-          "rotated": false,
-          "trimmed": false,
-          "sourceSize": {
-            "w": 85,
-            "h": 60
-          },
-          "spriteSourceSize": {
-            "x": 0,
-            "y": 0,
-            "w": 85,
-            "h": 60
-          },
-          "frame": {
-            "x": 1316,
-            "y": 1983,
-            "w": 85,
-            "h": 60
           }
         },
         {
@@ -1284,8 +570,8 @@
             "h": 105
           },
           "frame": {
-            "x": 1603,
-            "y": 1934,
+            "x": 1878,
+            "y": 1,
             "w": 109,
             "h": 105
           }
@@ -1305,9 +591,240 @@
             "h": 105
           },
           "frame": {
-            "x": 1714,
-            "y": 1934,
+            "x": 1878,
+            "y": 108,
             "w": 109,
+            "h": 105
+          }
+        },
+        {
+          "filename": "ui/combat/threat_tile_bg",
+          "rotated": false,
+          "trimmed": false,
+          "sourceSize": {
+            "w": 163,
+            "h": 66
+          },
+          "spriteSourceSize": {
+            "x": 0,
+            "y": 0,
+            "w": 163,
+            "h": 66
+          },
+          "frame": {
+            "x": 1738,
+            "y": 515,
+            "w": 163,
+            "h": 66
+          }
+        },
+        {
+          "filename": "vips/alien_princess_00_calm",
+          "rotated": false,
+          "trimmed": false,
+          "sourceSize": {
+            "w": 84,
+            "h": 105
+          },
+          "spriteSourceSize": {
+            "x": 0,
+            "y": 0,
+            "w": 84,
+            "h": 105
+          },
+          "frame": {
+            "x": 1903,
+            "y": 515,
+            "w": 84,
+            "h": 105
+          }
+        },
+        {
+          "filename": "officers/silhouette_00",
+          "rotated": false,
+          "trimmed": false,
+          "sourceSize": {
+            "w": 106,
+            "h": 105
+          },
+          "spriteSourceSize": {
+            "x": 0,
+            "y": 0,
+            "w": 106,
+            "h": 105
+          },
+          "frame": {
+            "x": 247,
+            "y": 1914,
+            "w": 106,
+            "h": 105
+          }
+        },
+        {
+          "filename": "beacons/navigation_beacon_00",
+          "rotated": false,
+          "trimmed": false,
+          "sourceSize": {
+            "w": 55,
+            "h": 100
+          },
+          "spriteSourceSize": {
+            "x": 0,
+            "y": 0,
+            "w": 55,
+            "h": 100
+          },
+          "frame": {
+            "x": 1628,
+            "y": 574,
+            "w": 55,
+            "h": 100
+          }
+        },
+        {
+          "filename": "officers/engineer/idle",
+          "rotated": false,
+          "trimmed": false,
+          "sourceSize": {
+            "w": 115,
+            "h": 153
+          },
+          "spriteSourceSize": {
+            "x": 0,
+            "y": 0,
+            "w": 115,
+            "h": 153
+          },
+          "frame": {
+            "x": 1826,
+            "y": 1438,
+            "w": 115,
+            "h": 153
+          }
+        },
+        {
+          "filename": "asteroids/asteroid_00",
+          "rotated": false,
+          "trimmed": false,
+          "sourceSize": {
+            "w": 146,
+            "h": 150
+          },
+          "spriteSourceSize": {
+            "x": 0,
+            "y": 0,
+            "w": 146,
+            "h": 150
+          },
+          "frame": {
+            "x": 1468,
+            "y": 1708,
+            "w": 146,
+            "h": 150
+          }
+        },
+        {
+          "filename": "jump_points/jump_point_00",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 150,
+            "h": 126
+          },
+          "spriteSourceSize": {
+            "x": 2,
+            "y": 2,
+            "w": 146,
+            "h": 123
+          },
+          "frame": {
+            "x": 1616,
+            "y": 1708,
+            "w": 146,
+            "h": 123
+          }
+        },
+        {
+          "filename": "officers/engineer/look_left",
+          "rotated": false,
+          "trimmed": false,
+          "sourceSize": {
+            "w": 115,
+            "h": 153
+          },
+          "spriteSourceSize": {
+            "x": 0,
+            "y": 0,
+            "w": 115,
+            "h": 153
+          },
+          "frame": {
+            "x": 1166,
+            "y": 1753,
+            "w": 115,
+            "h": 153
+          }
+        },
+        {
+          "filename": "officers/engineer/look_right",
+          "rotated": false,
+          "trimmed": false,
+          "sourceSize": {
+            "w": 115,
+            "h": 153
+          },
+          "spriteSourceSize": {
+            "x": 0,
+            "y": 0,
+            "w": 115,
+            "h": 153
+          },
+          "frame": {
+            "x": 1283,
+            "y": 1750,
+            "w": 115,
+            "h": 153
+          }
+        },
+        {
+          "filename": "officers/helm/idle",
+          "rotated": false,
+          "trimmed": false,
+          "sourceSize": {
+            "w": 115,
+            "h": 153
+          },
+          "spriteSourceSize": {
+            "x": 0,
+            "y": 0,
+            "w": 115,
+            "h": 153
+          },
+          "frame": {
+            "x": 1835,
+            "y": 1184,
+            "w": 115,
+            "h": 153
+          }
+        },
+        {
+          "filename": "officers/weapons/alien_00_calm",
+          "rotated": false,
+          "trimmed": false,
+          "sourceSize": {
+            "w": 106,
+            "h": 105
+          },
+          "spriteSourceSize": {
+            "x": 0,
+            "y": 0,
+            "w": 106,
+            "h": 105
+          },
+          "frame": {
+            "x": 355,
+            "y": 1915,
+            "w": 106,
             "h": 105
           }
         },
@@ -1326,315 +843,10 @@
             "h": 105
           },
           "frame": {
-            "x": 1825,
-            "y": 1934,
+            "x": 463,
+            "y": 1915,
             "w": 106,
             "h": 105
-          }
-        },
-        {
-          "filename": "combat/missiles/generic_outgoing_00",
-          "rotated": false,
-          "trimmed": false,
-          "sourceSize": {
-            "w": 80,
-            "h": 60
-          },
-          "spriteSourceSize": {
-            "x": 0,
-            "y": 0,
-            "w": 80,
-            "h": 60
-          },
-          "frame": {
-            "x": 1933,
-            "y": 1971,
-            "w": 80,
-            "h": 60
-          }
-        }
-      ]
-    },
-    {
-      "image": "atlas-1.png?v=1787259418320",
-      "format": "RGBA8888",
-      "size": {
-        "w": 1602,
-        "h": 504
-      },
-      "scale": 1,
-      "frames": [
-        {
-          "filename": "stations/human_small_01",
-          "rotated": false,
-          "trimmed": true,
-          "sourceSize": {
-            "w": 454,
-            "h": 319
-          },
-          "spriteSourceSize": {
-            "x": 0,
-            "y": 0,
-            "w": 453,
-            "h": 319
-          },
-          "frame": {
-            "x": 1,
-            "y": 1,
-            "w": 453,
-            "h": 319
-          }
-        },
-        {
-          "filename": "officers/helm/look_left",
-          "rotated": false,
-          "trimmed": false,
-          "sourceSize": {
-            "w": 115,
-            "h": 153
-          },
-          "spriteSourceSize": {
-            "x": 0,
-            "y": 0,
-            "w": 115,
-            "h": 153
-          },
-          "frame": {
-            "x": 1,
-            "y": 322,
-            "w": 115,
-            "h": 153
-          }
-        },
-        {
-          "filename": "officers/helm/look_right",
-          "rotated": false,
-          "trimmed": false,
-          "sourceSize": {
-            "w": 115,
-            "h": 153
-          },
-          "spriteSourceSize": {
-            "x": 0,
-            "y": 0,
-            "w": 115,
-            "h": 153
-          },
-          "frame": {
-            "x": 118,
-            "y": 322,
-            "w": 115,
-            "h": 153
-          }
-        },
-        {
-          "filename": "officers/science/idle",
-          "rotated": false,
-          "trimmed": false,
-          "sourceSize": {
-            "w": 115,
-            "h": 153
-          },
-          "spriteSourceSize": {
-            "x": 0,
-            "y": 0,
-            "w": 115,
-            "h": 153
-          },
-          "frame": {
-            "x": 235,
-            "y": 322,
-            "w": 115,
-            "h": 153
-          }
-        },
-        {
-          "filename": "officers/science/look_left",
-          "rotated": false,
-          "trimmed": false,
-          "sourceSize": {
-            "w": 115,
-            "h": 153
-          },
-          "spriteSourceSize": {
-            "x": 0,
-            "y": 0,
-            "w": 115,
-            "h": 153
-          },
-          "frame": {
-            "x": 352,
-            "y": 322,
-            "w": 115,
-            "h": 153
-          }
-        },
-        {
-          "filename": "stations/alien_small_00",
-          "rotated": false,
-          "trimmed": true,
-          "sourceSize": {
-            "w": 408,
-            "h": 319
-          },
-          "spriteSourceSize": {
-            "x": 0,
-            "y": 0,
-            "w": 408,
-            "h": 318
-          },
-          "frame": {
-            "x": 456,
-            "y": 1,
-            "w": 408,
-            "h": 318
-          }
-        },
-        {
-          "filename": "officers/science/look_right",
-          "rotated": false,
-          "trimmed": false,
-          "sourceSize": {
-            "w": 115,
-            "h": 153
-          },
-          "spriteSourceSize": {
-            "x": 0,
-            "y": 0,
-            "w": 115,
-            "h": 153
-          },
-          "frame": {
-            "x": 469,
-            "y": 321,
-            "w": 115,
-            "h": 153
-          }
-        },
-        {
-          "filename": "officers/weapons/idle",
-          "rotated": false,
-          "trimmed": false,
-          "sourceSize": {
-            "w": 115,
-            "h": 153
-          },
-          "spriteSourceSize": {
-            "x": 0,
-            "y": 0,
-            "w": 115,
-            "h": 153
-          },
-          "frame": {
-            "x": 586,
-            "y": 321,
-            "w": 115,
-            "h": 153
-          }
-        },
-        {
-          "filename": "officers/weapons/look_left",
-          "rotated": false,
-          "trimmed": false,
-          "sourceSize": {
-            "w": 115,
-            "h": 153
-          },
-          "spriteSourceSize": {
-            "x": 0,
-            "y": 0,
-            "w": 115,
-            "h": 153
-          },
-          "frame": {
-            "x": 703,
-            "y": 321,
-            "w": 115,
-            "h": 153
-          }
-        },
-        {
-          "filename": "officers/weapons/look_right",
-          "rotated": false,
-          "trimmed": false,
-          "sourceSize": {
-            "w": 115,
-            "h": 153
-          },
-          "spriteSourceSize": {
-            "x": 0,
-            "y": 0,
-            "w": 115,
-            "h": 153
-          },
-          "frame": {
-            "x": 820,
-            "y": 321,
-            "w": 115,
-            "h": 153
-          }
-        },
-        {
-          "filename": "bridge/ui/captain_dashboard/screen",
-          "rotated": false,
-          "trimmed": false,
-          "sourceSize": {
-            "w": 593,
-            "h": 250
-          },
-          "spriteSourceSize": {
-            "x": 0,
-            "y": 0,
-            "w": 593,
-            "h": 250
-          },
-          "frame": {
-            "x": 866,
-            "y": 1,
-            "w": 593,
-            "h": 250
-          }
-        },
-        {
-          "filename": "combat/spam/popup_06",
-          "rotated": false,
-          "trimmed": false,
-          "sourceSize": {
-            "w": 236,
-            "h": 250
-          },
-          "spriteSourceSize": {
-            "x": 0,
-            "y": 0,
-            "w": 236,
-            "h": 250
-          },
-          "frame": {
-            "x": 937,
-            "y": 253,
-            "w": 236,
-            "h": 250
-          }
-        },
-        {
-          "filename": "jump_points/jump_point_00",
-          "rotated": false,
-          "trimmed": true,
-          "sourceSize": {
-            "w": 150,
-            "h": 126
-          },
-          "spriteSourceSize": {
-            "x": 2,
-            "y": 2,
-            "w": 146,
-            "h": 123
-          },
-          "frame": {
-            "x": 1175,
-            "y": 253,
-            "w": 146,
-            "h": 123
           }
         },
         {
@@ -1652,8 +864,8 @@
             "h": 105
           },
           "frame": {
-            "x": 1175,
-            "y": 378,
+            "x": 571,
+            "y": 1915,
             "w": 105,
             "h": 105
           }
@@ -1673,52 +885,115 @@
             "h": 105
           },
           "frame": {
-            "x": 1282,
-            "y": 378,
+            "x": 678,
+            "y": 1915,
             "w": 101,
             "h": 105
           }
         },
         {
-          "filename": "officers/engineer/human_00_calm",
+          "filename": "ships/chassis/old_00",
           "rotated": false,
           "trimmed": false,
           "sourceSize": {
-            "w": 100,
-            "h": 105
+            "w": 122,
+            "h": 80
           },
           "spriteSourceSize": {
             "x": 0,
             "y": 0,
-            "w": 100,
-            "h": 105
+            "w": 122,
+            "h": 80
           },
           "frame": {
-            "x": 1323,
-            "y": 253,
-            "w": 100,
-            "h": 105
+            "x": 781,
+            "y": 1945,
+            "w": 122,
+            "h": 80
           }
         },
         {
-          "filename": "characters/comms/human_01_calm",
+          "filename": "officers/helm/look_left",
           "rotated": false,
           "trimmed": false,
           "sourceSize": {
-            "w": 96,
-            "h": 105
+            "w": 115,
+            "h": 153
           },
           "spriteSourceSize": {
             "x": 0,
             "y": 0,
-            "w": 96,
-            "h": 105
+            "w": 115,
+            "h": 153
           },
           "frame": {
-            "x": 1385,
-            "y": 360,
-            "w": 96,
-            "h": 105
+            "x": 1764,
+            "y": 1708,
+            "w": 115,
+            "h": 153
+          }
+        },
+        {
+          "filename": "combat/missiles/generic_incoming_00",
+          "rotated": false,
+          "trimmed": false,
+          "sourceSize": {
+            "w": 85,
+            "h": 60
+          },
+          "spriteSourceSize": {
+            "x": 0,
+            "y": 0,
+            "w": 85,
+            "h": 60
+          },
+          "frame": {
+            "x": 905,
+            "y": 1945,
+            "w": 85,
+            "h": 60
+          }
+        },
+        {
+          "filename": "officers/helm/look_right",
+          "rotated": false,
+          "trimmed": false,
+          "sourceSize": {
+            "w": 115,
+            "h": 153
+          },
+          "spriteSourceSize": {
+            "x": 0,
+            "y": 0,
+            "w": 115,
+            "h": 153
+          },
+          "frame": {
+            "x": 1777,
+            "y": 583,
+            "w": 115,
+            "h": 153
+          }
+        },
+        {
+          "filename": "officers/science/idle",
+          "rotated": false,
+          "trimmed": false,
+          "sourceSize": {
+            "w": 115,
+            "h": 153
+          },
+          "spriteSourceSize": {
+            "x": 0,
+            "y": 0,
+            "w": 115,
+            "h": 153
+          },
+          "frame": {
+            "x": 1777,
+            "y": 738,
+            "w": 115,
+            "h": 153
           }
         },
         {
@@ -1736,8 +1011,8 @@
             "h": 105
           },
           "frame": {
-            "x": 1425,
-            "y": 253,
+            "x": 1685,
+            "y": 583,
             "w": 90,
             "h": 105
           }
@@ -1757,8 +1032,8 @@
             "h": 105
           },
           "frame": {
-            "x": 1483,
-            "y": 360,
+            "x": 1894,
+            "y": 622,
             "w": 86,
             "h": 105
           }
@@ -1778,8 +1053,8 @@
             "h": 105
           },
           "frame": {
-            "x": 1461,
-            "y": 1,
+            "x": 1894,
+            "y": 729,
             "w": 86,
             "h": 105
           }
@@ -1799,31 +1074,745 @@
             "h": 105
           },
           "frame": {
-            "x": 1461,
-            "y": 108,
+            "x": 1894,
+            "y": 836,
             "w": 86,
             "h": 105
           }
         },
         {
-          "filename": "vips/alien_princess_00_calm",
+          "filename": "officers/science/look_left",
           "rotated": false,
           "trimmed": false,
           "sourceSize": {
-            "w": 84,
+            "w": 115,
+            "h": 153
+          },
+          "spriteSourceSize": {
+            "x": 0,
+            "y": 0,
+            "w": 115,
+            "h": 153
+          },
+          "frame": {
+            "x": 1847,
+            "y": 943,
+            "w": 115,
+            "h": 153
+          }
+        },
+        {
+          "filename": "combat/missiles/generic_outgoing_00",
+          "rotated": false,
+          "trimmed": false,
+          "sourceSize": {
+            "w": 80,
+            "h": 60
+          },
+          "spriteSourceSize": {
+            "x": 0,
+            "y": 0,
+            "w": 80,
+            "h": 60
+          },
+          "frame": {
+            "x": 992,
+            "y": 1945,
+            "w": 80,
+            "h": 60
+          }
+        },
+        {
+          "filename": "officers/science/look_right",
+          "rotated": false,
+          "trimmed": false,
+          "sourceSize": {
+            "w": 115,
+            "h": 153
+          },
+          "spriteSourceSize": {
+            "x": 0,
+            "y": 0,
+            "w": 115,
+            "h": 153
+          },
+          "frame": {
+            "x": 1616,
+            "y": 1833,
+            "w": 115,
+            "h": 153
+          }
+        },
+        {
+          "filename": "officers/weapons/idle",
+          "rotated": false,
+          "trimmed": false,
+          "sourceSize": {
+            "w": 115,
+            "h": 153
+          },
+          "spriteSourceSize": {
+            "x": 0,
+            "y": 0,
+            "w": 115,
+            "h": 153
+          },
+          "frame": {
+            "x": 1733,
+            "y": 1863,
+            "w": 115,
+            "h": 153
+          }
+        },
+        {
+          "filename": "officers/weapons/look_left",
+          "rotated": false,
+          "trimmed": false,
+          "sourceSize": {
+            "w": 115,
+            "h": 153
+          },
+          "spriteSourceSize": {
+            "x": 0,
+            "y": 0,
+            "w": 115,
+            "h": 153
+          },
+          "frame": {
+            "x": 1850,
+            "y": 1863,
+            "w": 115,
+            "h": 153
+          }
+        },
+        {
+          "filename": "officers/engineer/human_00_calm",
+          "rotated": false,
+          "trimmed": false,
+          "sourceSize": {
+            "w": 100,
             "h": 105
           },
           "spriteSourceSize": {
             "x": 0,
             "y": 0,
-            "w": 84,
+            "w": 100,
             "h": 105
           },
           "frame": {
-            "x": 1517,
-            "y": 215,
-            "w": 84,
+            "x": 1166,
+            "y": 1908,
+            "w": 100,
             "h": 105
+          }
+        },
+        {
+          "filename": "circle",
+          "rotated": false,
+          "trimmed": false,
+          "sourceSize": {
+            "w": 64,
+            "h": 64
+          },
+          "spriteSourceSize": {
+            "x": 0,
+            "y": 0,
+            "w": 64,
+            "h": 64
+          },
+          "frame": {
+            "x": 1400,
+            "y": 1750,
+            "w": 64,
+            "h": 64
+          }
+        },
+        {
+          "filename": "officers/comms/alien_00_calm",
+          "rotated": false,
+          "trimmed": false,
+          "sourceSize": {
+            "w": 97,
+            "h": 107
+          },
+          "spriteSourceSize": {
+            "x": 0,
+            "y": 0,
+            "w": 97,
+            "h": 107
+          },
+          "frame": {
+            "x": 1846,
+            "y": 1593,
+            "w": 97,
+            "h": 107
+          }
+        },
+        {
+          "filename": "officers/comms/human_00_calm",
+          "rotated": false,
+          "trimmed": false,
+          "sourceSize": {
+            "w": 97,
+            "h": 105
+          },
+          "spriteSourceSize": {
+            "x": 0,
+            "y": 0,
+            "w": 97,
+            "h": 105
+          },
+          "frame": {
+            "x": 1881,
+            "y": 1702,
+            "w": 97,
+            "h": 105
+          }
+        },
+        {
+          "filename": "characters/comms/human_01_calm",
+          "rotated": false,
+          "trimmed": false,
+          "sourceSize": {
+            "w": 96,
+            "h": 105
+          },
+          "spriteSourceSize": {
+            "x": 0,
+            "y": 0,
+            "w": 96,
+            "h": 105
+          },
+          "frame": {
+            "x": 1268,
+            "y": 1908,
+            "w": 96,
+            "h": 105
+          }
+        },
+        {
+          "filename": "characters/comms/human_00_calm",
+          "rotated": false,
+          "trimmed": false,
+          "sourceSize": {
+            "w": 77,
+            "h": 105
+          },
+          "spriteSourceSize": {
+            "x": 0,
+            "y": 0,
+            "w": 77,
+            "h": 105
+          },
+          "frame": {
+            "x": 1366,
+            "y": 1905,
+            "w": 77,
+            "h": 105
+          }
+        },
+        {
+          "filename": "officers/weapons/look_right",
+          "rotated": false,
+          "trimmed": false,
+          "sourceSize": {
+            "w": 115,
+            "h": 153
+          },
+          "spriteSourceSize": {
+            "x": 0,
+            "y": 0,
+            "w": 115,
+            "h": 153
+          },
+          "frame": {
+            "x": 1445,
+            "y": 1860,
+            "w": 115,
+            "h": 153
+          }
+        },
+        {
+          "filename": "combat/mines/sticky_00",
+          "rotated": false,
+          "trimmed": false,
+          "sourceSize": {
+            "w": 71,
+            "h": 40
+          },
+          "spriteSourceSize": {
+            "x": 0,
+            "y": 0,
+            "w": 71,
+            "h": 40
+          },
+          "frame": {
+            "x": 1835,
+            "y": 1339,
+            "w": 71,
+            "h": 40
+          }
+        },
+        {
+          "filename": "ui/combat/action_button_bg",
+          "rotated": false,
+          "trimmed": false,
+          "sourceSize": {
+            "w": 75,
+            "h": 28
+          },
+          "spriteSourceSize": {
+            "x": 0,
+            "y": 0,
+            "w": 75,
+            "h": 28
+          },
+          "frame": {
+            "x": 1878,
+            "y": 215,
+            "w": 75,
+            "h": 28
+          }
+        },
+        {
+          "filename": "blank",
+          "rotated": false,
+          "trimmed": false,
+          "sourceSize": {
+            "w": 32,
+            "h": 32
+          },
+          "spriteSourceSize": {
+            "x": 0,
+            "y": 0,
+            "w": 32,
+            "h": 32
+          },
+          "frame": {
+            "x": 1955,
+            "y": 215,
+            "w": 32,
+            "h": 32
+          }
+        },
+        {
+          "filename": "ui/speech_bubble/officer_bark_00/tail_bottom",
+          "rotated": false,
+          "trimmed": false,
+          "sourceSize": {
+            "w": 29,
+            "h": 23
+          },
+          "spriteSourceSize": {
+            "x": 0,
+            "y": 0,
+            "w": 29,
+            "h": 23
+          },
+          "frame": {
+            "x": 1733,
+            "y": 1833,
+            "w": 29,
+            "h": 23
+          }
+        },
+        {
+          "filename": "combat/missiles/generic_test_00",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 32,
+            "h": 32
+          },
+          "spriteSourceSize": {
+            "x": 8,
+            "y": 2,
+            "w": 16,
+            "h": 27
+          },
+          "frame": {
+            "x": 905,
+            "y": 2007,
+            "w": 16,
+            "h": 27
+          }
+        },
+        {
+          "filename": "ui/speech_bubble/officer_bark_00/bottom",
+          "rotated": false,
+          "trimmed": false,
+          "sourceSize": {
+            "w": 8,
+            "h": 16
+          },
+          "spriteSourceSize": {
+            "x": 0,
+            "y": 0,
+            "w": 8,
+            "h": 16
+          },
+          "frame": {
+            "x": 781,
+            "y": 1915,
+            "w": 8,
+            "h": 16
+          }
+        },
+        {
+          "filename": "ui/threat_icons/beam_cannon",
+          "rotated": false,
+          "trimmed": false,
+          "sourceSize": {
+            "w": 23,
+            "h": 10
+          },
+          "spriteSourceSize": {
+            "x": 0,
+            "y": 0,
+            "w": 23,
+            "h": 10
+          },
+          "frame": {
+            "x": 1964,
+            "y": 943,
+            "w": 23,
+            "h": 10
+          }
+        },
+        {
+          "filename": "ui/threat_icons/spam",
+          "rotated": false,
+          "trimmed": false,
+          "sourceSize": {
+            "w": 23,
+            "h": 10
+          },
+          "spriteSourceSize": {
+            "x": 0,
+            "y": 0,
+            "w": 23,
+            "h": 10
+          },
+          "frame": {
+            "x": 1964,
+            "y": 955,
+            "w": 23,
+            "h": 10
+          }
+        },
+        {
+          "filename": "ui/buttons/close_00",
+          "rotated": false,
+          "trimmed": false,
+          "sourceSize": {
+            "w": 20,
+            "h": 17
+          },
+          "spriteSourceSize": {
+            "x": 0,
+            "y": 0,
+            "w": 20,
+            "h": 17
+          },
+          "frame": {
+            "x": 1484,
+            "y": 1109,
+            "w": 20,
+            "h": 17
+          }
+        },
+        {
+          "filename": "ui/threat_icons/missile",
+          "rotated": false,
+          "trimmed": false,
+          "sourceSize": {
+            "w": 26,
+            "h": 10
+          },
+          "spriteSourceSize": {
+            "x": 0,
+            "y": 0,
+            "w": 26,
+            "h": 10
+          },
+          "frame": {
+            "x": 473,
+            "y": 1416,
+            "w": 26,
+            "h": 10
+          }
+        },
+        {
+          "filename": "ui/threat_icons/mine",
+          "rotated": false,
+          "trimmed": false,
+          "sourceSize": {
+            "w": 24,
+            "h": 10
+          },
+          "spriteSourceSize": {
+            "x": 0,
+            "y": 0,
+            "w": 24,
+            "h": 10
+          },
+          "frame": {
+            "x": 403,
+            "y": 1737,
+            "w": 24,
+            "h": 10
+          }
+        },
+        {
+          "filename": "ui/speech_bubble/officer_bark_00/bottom_left",
+          "rotated": false,
+          "trimmed": false,
+          "sourceSize": {
+            "w": 16,
+            "h": 16
+          },
+          "spriteSourceSize": {
+            "x": 0,
+            "y": 0,
+            "w": 16,
+            "h": 16
+          },
+          "frame": {
+            "x": 1661,
+            "y": 676,
+            "w": 16,
+            "h": 16
+          }
+        },
+        {
+          "filename": "ui/speech_bubble/officer_bark_00/bottom_right",
+          "rotated": false,
+          "trimmed": false,
+          "sourceSize": {
+            "w": 16,
+            "h": 16
+          },
+          "spriteSourceSize": {
+            "x": 0,
+            "y": 0,
+            "w": 16,
+            "h": 16
+          },
+          "frame": {
+            "x": 1777,
+            "y": 893,
+            "w": 16,
+            "h": 16
+          }
+        },
+        {
+          "filename": "ui/speech_bubble/officer_bark_00/top_left",
+          "rotated": false,
+          "trimmed": false,
+          "sourceSize": {
+            "w": 16,
+            "h": 16
+          },
+          "spriteSourceSize": {
+            "x": 0,
+            "y": 0,
+            "w": 16,
+            "h": 16
+          },
+          "frame": {
+            "x": 1847,
+            "y": 1098,
+            "w": 16,
+            "h": 16
+          }
+        },
+        {
+          "filename": "ui/speech_bubble/officer_bark_00/top_right",
+          "rotated": false,
+          "trimmed": false,
+          "sourceSize": {
+            "w": 16,
+            "h": 16
+          },
+          "spriteSourceSize": {
+            "x": 0,
+            "y": 0,
+            "w": 16,
+            "h": 16
+          },
+          "frame": {
+            "x": 1074,
+            "y": 1945,
+            "w": 16,
+            "h": 16
+          }
+        },
+        {
+          "filename": "ui/role_glyphs/role_e",
+          "rotated": false,
+          "trimmed": false,
+          "sourceSize": {
+            "w": 8,
+            "h": 9
+          },
+          "spriteSourceSize": {
+            "x": 0,
+            "y": 0,
+            "w": 8,
+            "h": 9
+          },
+          "frame": {
+            "x": 781,
+            "y": 1933,
+            "w": 8,
+            "h": 9
+          }
+        },
+        {
+          "filename": "ui/speech_bubble/officer_bark_00/left",
+          "rotated": false,
+          "trimmed": false,
+          "sourceSize": {
+            "w": 16,
+            "h": 8
+          },
+          "spriteSourceSize": {
+            "x": 0,
+            "y": 0,
+            "w": 16,
+            "h": 8
+          },
+          "frame": {
+            "x": 1283,
+            "y": 710,
+            "w": 16,
+            "h": 8
+          }
+        },
+        {
+          "filename": "ui/speech_bubble/officer_bark_00/right",
+          "rotated": false,
+          "trimmed": false,
+          "sourceSize": {
+            "w": 16,
+            "h": 8
+          },
+          "spriteSourceSize": {
+            "x": 0,
+            "y": 0,
+            "w": 16,
+            "h": 8
+          },
+          "frame": {
+            "x": 247,
+            "y": 2021,
+            "w": 16,
+            "h": 8
+          }
+        },
+        {
+          "filename": "ui/speech_bubble/officer_bark_00/top",
+          "rotated": false,
+          "trimmed": false,
+          "sourceSize": {
+            "w": 8,
+            "h": 16
+          },
+          "spriteSourceSize": {
+            "x": 0,
+            "y": 0,
+            "w": 8,
+            "h": 16
+          },
+          "frame": {
+            "x": 1826,
+            "y": 1593,
+            "w": 8,
+            "h": 16
+          }
+        },
+        {
+          "filename": "ui/role_glyphs/role_h",
+          "rotated": false,
+          "trimmed": false,
+          "sourceSize": {
+            "w": 8,
+            "h": 9
+          },
+          "spriteSourceSize": {
+            "x": 0,
+            "y": 0,
+            "w": 8,
+            "h": 9
+          },
+          "frame": {
+            "x": 1836,
+            "y": 1593,
+            "w": 8,
+            "h": 9
+          }
+        },
+        {
+          "filename": "ui/role_glyphs/role_s",
+          "rotated": false,
+          "trimmed": false,
+          "sourceSize": {
+            "w": 8,
+            "h": 9
+          },
+          "spriteSourceSize": {
+            "x": 0,
+            "y": 0,
+            "w": 8,
+            "h": 9
+          },
+          "frame": {
+            "x": 1836,
+            "y": 1604,
+            "w": 8,
+            "h": 9
+          }
+        },
+        {
+          "filename": "ui/role_glyphs/role_w",
+          "rotated": false,
+          "trimmed": false,
+          "sourceSize": {
+            "w": 8,
+            "h": 9
+          },
+          "spriteSourceSize": {
+            "x": 0,
+            "y": 0,
+            "w": 8,
+            "h": 9
+          },
+          "frame": {
+            "x": 1793,
+            "y": 1650,
+            "w": 8,
+            "h": 9
+          }
+        },
+        {
+          "filename": "ui/speech_bubble/officer_bark_00/center",
+          "rotated": false,
+          "trimmed": false,
+          "sourceSize": {
+            "w": 8,
+            "h": 8
+          },
+          "spriteSourceSize": {
+            "x": 0,
+            "y": 0,
+            "w": 8,
+            "h": 8
+          },
+          "frame": {
+            "x": 1881,
+            "y": 1809,
+            "w": 8,
+            "h": 8
           }
         }
       ]
@@ -1832,6 +1821,6 @@
   "meta": {
     "app": "https://www.codeandweb.com/texturepacker",
     "version": "3.0",
-    "smartupdate": "$TexturePacker:SmartUpdate:9a6c2f090d91657fb10e5fb17f735e94:01f7c53994537f8daf217a6b1771a80f:22b907022c4170ab46ec29e7f3ec6421$"
+    "smartupdate": "$TexturePacker:SmartUpdate:3d9905949878045f6fddcc658289013a:8398c54b3886da19da1285db2a19a710:cf935fe037ea9b5d3744d532996e235e$"
   }
 }
