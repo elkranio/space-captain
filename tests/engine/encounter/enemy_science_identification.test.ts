@@ -235,12 +235,6 @@ function createMissileFixture(
             signature:
                 MISSILE_SIGNATURE.A,
 
-            identification: {
-                status:
-                    MISSILE_SIGNATURE_INTEL_STATUS
-                        .UNKNOWN,
-            },
-
             damage: 1,
 
             timeToImpactMs: 12000,

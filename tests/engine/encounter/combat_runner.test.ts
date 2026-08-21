@@ -24,7 +24,6 @@ import {
     COMBAT_SOURCE_KIND,
     COMBAT_TARGET_KIND,
     BEAM_CANNON_SHOT_OUTCOME,
-    MISSILE_SIGNATURE_INTEL_STATUS,
 } from '../../../src/engine/encounter/model/combat';
 import { ENCOUNTER_EVENT } from '../../../src/engine/encounter/model/event';
 import ShipNodeActorFactory from '../../../src/engine/generation/space_node_actor/ShipNodeActorFactory';
@@ -169,10 +168,6 @@ describe('CombatRunner', () => {
 
             signature:
                 MISSILE_SIGNATURE.A,
-
-            identification: {
-                status: MISSILE_SIGNATURE_INTEL_STATUS.UNKNOWN,
-            },
 
             damage:
                 loadedLauncherDefinition.damage,

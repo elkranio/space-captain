@@ -6,8 +6,6 @@ import type { MissileSignature } from "../../defs/missile";
 import type { ShipWeaponState } from "../../defs/ship_weapon";
 import type { ShieldGeneratorState } from "../../defs/shield_generator";
 
-import type { MissileSignatureIntel, ResolvedMissileSignatureIntel } from "./missile_signature_intel";
-
 export { MISSILE_SIGNATURE_INTEL_STATUS } from "./missile_signature_intel";
 
 export const COMBAT_PROJECTILE_KIND = {
@@ -118,12 +116,6 @@ export type BeamCannonTargetIntel =
           hypothesis: BeamCannonTargetNode;
       };
 
-export type MissileThreatIdentification = MissileSignatureIntel;
-
-export type ThreatIdentificationResult = ResolvedMissileSignatureIntel & {
-    kind: typeof COMBAT_THREAT_KIND.MISSILE;
-};
-
 export type MissileCombatProjectileState = {
     id: string;
 
@@ -141,10 +133,6 @@ export type MissileCombatProjectileState = {
     // Objective hidden truth of this concrete projectile.
     // Every launch receives a fresh signature independent of launcher model.
     signature: MissileSignature;
-
-    // Player-observer knowledge about this concrete projectile.
-    // Objective truth stays in signature.
-    identification: MissileThreatIdentification;
 
     // Physical snapshot copied from launcher content at launch.
     // An in-flight projectile never re-reads weapon tuning.

@@ -10,7 +10,6 @@ import {
     COMBAT_PROJECTILE_KIND,
     COMBAT_SOURCE_KIND,
     COMBAT_TARGET_KIND,
-    MISSILE_SIGNATURE_INTEL_STATUS,
 } from '../../../src/engine/encounter/model/combat';
 import { ENCOUNTER_EVENT } from '../../../src/engine/encounter/model/event';
 import EncounterSnapshotReader from '../../../src/engine/encounter/snapshots/EncounterSnapshotReader';
@@ -48,9 +47,6 @@ describe('EncounterSnapshotReader', () => {
             signature:
                 MISSILE_SIGNATURE.A,
 
-            identification: {
-                status: MISSILE_SIGNATURE_INTEL_STATUS.UNKNOWN,
-            },
             damage: 1,
             timeToImpactMs: 1000,
             initialTimeToImpactMs: 1000,
@@ -62,9 +58,6 @@ describe('EncounterSnapshotReader', () => {
         expect(snapshot).not.toBe(state.combat.projectiles[0]);
         expect(snapshot.source).not.toBe(state.combat.projectiles[0].source);
         expect(snapshot.target).not.toBe(state.combat.projectiles[0].target);
-        expect(snapshot.identification).not.toBe(
-            state.combat.projectiles[0].identification,
-        );
 
         if (snapshot.source.kind !== COMBAT_SOURCE_KIND.ACTOR) {
             throw new Error('Expected actor projectile source');
@@ -108,11 +101,6 @@ describe('EncounterSnapshotReader', () => {
             },
             signature:
                 MISSILE_SIGNATURE.B,
-
-            identification: {
-                status:
-                    MISSILE_SIGNATURE_INTEL_STATUS.UNKNOWN,
-            },
 
             damage: 1,
 

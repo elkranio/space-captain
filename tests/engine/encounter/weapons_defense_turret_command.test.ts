@@ -36,9 +36,6 @@ import {
     OFFICER_COMMAND_TARGET_KIND,
 } from '../../../src/engine/encounter/model/command';
 import {
-    MISSILE_SIGNATURE_INTEL_STATUS,
-} from '../../../src/engine/encounter/model/combat';
-import {
     ENCOUNTER_EVENT,
     OFFICER_TASK_RESULT_KIND,
 } from '../../../src/engine/encounter/model/event';
@@ -161,95 +158,6 @@ describe(
                         'MISSILE ' +
                         projectile.designation,
                 });
-            },
-        );
-
-        it(
-            'guarantees interception for a correct concrete Science hypothesis',
-            () => {
-                const {
-                    engine,
-                    state,
-                } = createEngineWithIncomingMissile({
-                    // Above the BASIC blind chance; only the correct
-                    // hypothesis should make this shot guaranteed.
-                    random: () => 0.99,
-                });
-
-                const projectile =
-                    state.combat
-                        .projectiles[0];
-
-                if (!projectile) {
-                    throw new Error(
-                        'Expected incoming missile',
-                    );
-                }
-
-                projectile.identification = {
-                    status:
-                        MISSILE_SIGNATURE_INTEL_STATUS
-                            .UNCERTAIN,
-
-                    hypothesis:
-                        projectile.signature,
-                };
-
-                executeIntercept(
-                    engine,
-                );
-
-                expect(
-                    state.combat.powerCore,
-                ).toMatchObject({
-                    charges: 3,
-                });
-
-                expect(
-                    state.combat.defenseTurret,
-                ).toMatchObject({
-                    phase:
-                        DEFENSE_TURRET_PHASE.COOLDOWN,
-
-                    phaseElapsedMs: 0,
-                    cooldownRemainingMs:
-                        COOLDOWN_DURATION_MS,
-                });
-
-                engine.drainEvents();
-                engine.step(
-                    AIM_DURATION_MS,
-                );
-
-                const ended =
-                    engine.drainEvents()
-                        .find((event) => {
-                            return (
-                                event.type ===
-                                ENCOUNTER_EVENT
-                                    .OFFICER_TASK_ENDED
-                            );
-                        });
-
-                expect(ended)
-                    .toMatchObject({
-                        result: {
-                            kind:
-                                OFFICER_TASK_RESULT_KIND
-                                    .DEFENSE_TURRET_FIRED,
-
-                            threatId:
-                                projectile.id,
-
-                            outcome:
-                                DEFENSE_TURRET_SHOT_OUTCOME
-                                    .HIT,
-                        },
-                    });
-
-                expect(
-                    state.combat.projectiles,
-                ).toEqual([]);
             },
         );
 

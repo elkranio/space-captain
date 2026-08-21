@@ -271,11 +271,6 @@ it('flushes a new sticky mine before an older missile destroys the target in the
             ...killerMissile.target,
         },
 
-        identification: {
-            ...killerMissile
-                .identification,
-        },
-
         timeToImpactMs:
             killerMissile
                 .initialTimeToImpactMs,

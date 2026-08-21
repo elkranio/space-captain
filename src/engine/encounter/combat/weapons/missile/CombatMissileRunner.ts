@@ -19,7 +19,6 @@ import {
     COMBAT_SOURCE_KIND,
     COMBAT_TARGET_KIND,
     PLAYER_MISSILE_OUTCOME,
-    MISSILE_SIGNATURE_INTEL_STATUS,
     type MissileCombatProjectileState,
 } from "../../../model/combat";
 import { ENCOUNTER_EVENT, type EncounterEvent } from "../../../model/event";
@@ -159,10 +158,6 @@ export default class CombatMissileRunner {
             },
 
             signature,
-
-            identification: {
-                status: MISSILE_SIGNATURE_INTEL_STATUS.UNKNOWN,
-            },
 
             damage: definition.damage,
 
@@ -319,12 +314,6 @@ export default class CombatMissileRunner {
             },
 
             signature,
-
-            identification: {
-                status: MISSILE_SIGNATURE_INTEL_STATUS.CONFIRMED,
-
-                hypothesis: signature,
-            },
 
             damage: definition.damage,
 

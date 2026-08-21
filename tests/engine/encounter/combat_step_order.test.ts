@@ -14,7 +14,6 @@ import {
     COMBAT_SOURCE_KIND,
     COMBAT_TARGET_KIND,
     PLAYER_MISSILE_OUTCOME,
-    MISSILE_SIGNATURE_INTEL_STATUS,
 } from '../../../src/engine/encounter/model/combat';
 import {
     ENCOUNTER_EVENT,
@@ -78,15 +77,6 @@ describe('Combat step order', () => {
 
             signature:
                 MISSILE_SIGNATURE.A,
-
-            identification: {
-                status:
-                    MISSILE_SIGNATURE_INTEL_STATUS
-                        .CONFIRMED,
-
-                hypothesis:
-                    'signature_a',
-            },
 
             damage: 1,
 

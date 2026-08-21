@@ -28,7 +28,6 @@ import {
     COMBAT_PROJECTILE_KIND,
     COMBAT_SOURCE_KIND,
     COMBAT_TARGET_KIND,
-    MISSILE_SIGNATURE_INTEL_STATUS,
 } from '../../../src/engine/encounter/model/combat';
 import {
     ENCOUNTER_EVENT,
@@ -153,12 +152,6 @@ describe(
 
                         signature:
                             MISSILE_SIGNATURE.A,
-
-                        identification: {
-                            status:
-                                MISSILE_SIGNATURE_INTEL_STATUS
-                                    .UNKNOWN,
-                        },
 
                         damage:
                             1,

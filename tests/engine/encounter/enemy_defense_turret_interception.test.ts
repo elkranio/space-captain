@@ -589,15 +589,6 @@ function createScenario(
             signature:
                 MISSILE_SIGNATURE.A,
 
-            identification: {
-                status:
-                    MISSILE_SIGNATURE_INTEL_STATUS
-                        .CONFIRMED,
-
-                hypothesis:
-                    'signature_a',
-            },
-
             damage: 1,
 
             timeToImpactMs:

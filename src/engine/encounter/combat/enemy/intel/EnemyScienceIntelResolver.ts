@@ -19,7 +19,6 @@ import type { EncounterState } from "../../../model/state";
 
 // Single boundary between objective missile truth and enemy observer intel.
 //
-// Enemy and player Science now share the same analysis fundamentals.
 // Crew state selects an analysis profile; it never directly fabricates
 // public correctness flags.
 export default class EnemyScienceIntelResolver {
