@@ -10,7 +10,6 @@ import {
 } from '../../../src/engine/defs/ship_weapon';
 import {
     BEAM_CANNON_SHOT_OUTCOME,
-    BEAM_CANNON_TARGET_INTEL_STATUS,
     BEAM_CANNON_TARGET_NODE,
     COMBAT_TARGET_KIND,
     type BeamCannonTargetNode,
@@ -72,9 +71,6 @@ function primeIncomingBeam(
             kind: COMBAT_TARGET_KIND.PLAYER_SHIP,
         },
         targetNode,
-        targetIntel: {
-            status: BEAM_CANNON_TARGET_INTEL_STATUS.UNKNOWN,
-        },
     });
 
     return attackId;

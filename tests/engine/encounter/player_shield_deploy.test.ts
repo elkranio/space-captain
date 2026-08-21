@@ -467,11 +467,6 @@ describe(
                         targetNode:
                             BEAM_CANNON_TARGET_NODE
                                 .HULL,
-
-                        targetIntel: {
-                            status:
-                                'unknown',
-                        },
                     });
 
                 const hullBefore =

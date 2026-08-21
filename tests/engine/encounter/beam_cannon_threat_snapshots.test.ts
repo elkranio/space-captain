@@ -12,7 +12,6 @@ import { SHIP_WEAPON_KIND } from '../../../src/engine/defs/ship_weapon';
 import EncounterEngine from '../../../src/engine/encounter/EncounterEngine';
 import { getMutableEncounterStateForTest } from './get_mutable_encounter_state_for_test';
 import {
-    BEAM_CANNON_TARGET_INTEL_STATUS,
     BEAM_CANNON_TARGET_NODE,
     COMBAT_TARGET_KIND,
 } from '../../../src/engine/encounter/model/combat';
@@ -29,10 +28,6 @@ describe('EncounterEngine beamCannon threat snapshots', () => {
         const mutableState = getMutableEncounterStateForTest(engine);
 
         expect(mutableState.combat.beamCannonAttacks[0]?.targetNode).toBe(BEAM_CANNON_TARGET_NODE.DRIVE);
-
-        expect(mutableState.combat.beamCannonAttacks[0]?.targetIntel).toEqual({
-            status: BEAM_CANNON_TARGET_INTEL_STATUS.UNKNOWN,
-        });
 
         expect(engine.getBeamCannonAttacks()).toEqual([createExpectedAttack()]);
 
