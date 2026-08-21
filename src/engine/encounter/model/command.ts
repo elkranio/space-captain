@@ -5,7 +5,6 @@ import type { BeamCannonTargetNode } from "./combat";
 
 export const ENCOUNTER_OFFICER_COMMAND_ID = {
     SCIENCE_PLOT_COURSE: "science_plot_course",
-    SCIENCE_IDENTIFY_THREAT: "science_identify_threat",
     SCIENCE_PURGE_SPAM: "science_purge_spam",
 
     SCIENCE_FIRE_SPAM: "science_fire_spam",

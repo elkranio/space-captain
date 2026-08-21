@@ -15,11 +15,9 @@ import type {
     SpamChannelOutcome,
     SpamChannelState,
     StickyMineState,
-    ThreatIdentificationResult,
 } from "./combat";
 import type { MissileEventProjectileSnapshot } from "./missile_event_projectile";
 import type { OfficerTaskState } from "./officer_task";
-import type { MissileSignatureAnalysisConfidence } from "./missile_signature_analysis";
 // События, которые EncounterEngine отдаёт наружу
 // через outbox.
 //
@@ -93,7 +91,6 @@ export type PlayerShieldEndOutcome = (typeof PLAYER_SHIELD_END_OUTCOME)[keyof ty
 
 export const OFFICER_TASK_RESULT_KIND = {
     JUMP_POINT_CALCULATED: "jump_point_calculated",
-    THREAT_IDENTIFIED: "threat_identified",
     DEFENSE_TURRET_FIRED: "defense_turret_fired",
     STICKY_MINE_CLEARED: "sticky_mine_cleared",
 } as const;
@@ -102,14 +99,6 @@ export type OfficerTaskResult =
     | {
           kind: typeof OFFICER_TASK_RESULT_KIND.JUMP_POINT_CALCULATED;
           anchor: JumpPointEncounterAnchorState;
-      }
-    | {
-          kind: typeof OFFICER_TASK_RESULT_KIND.THREAT_IDENTIFIED;
-
-          threatId: string;
-          identification: ThreatIdentificationResult;
-
-          analysisConfidence: MissileSignatureAnalysisConfidence;
       }
     | {
           kind: typeof OFFICER_TASK_RESULT_KIND.DEFENSE_TURRET_FIRED;

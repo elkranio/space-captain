@@ -5,8 +5,8 @@ import {
     CREW_TRAIT_ID,
 } from '../../../src/engine/defs/crew_trait';
 import {
-    getTimedOfficerTaskDurationMs,
-} from '../../../src/engine/content/catalogs/officer_tasks';
+    ENEMY_BEHAVIOR_RULES,
+} from '../../../src/engine/content/catalogs/enemy_behavior_rules';
 import {
     describe,
     expect,
@@ -38,9 +38,6 @@ import {
     ENCOUNTER_EVENT,
 } from '../../../src/engine/encounter/model/event';
 import {
-    OFFICER_TASK_KIND,
-} from '../../../src/engine/encounter/model/officer_task';
-import {
     SHIP_CREW_TASK_KIND,
 } from '../../../src/engine/encounter/model/ship_crew_task';
 import {
@@ -69,10 +66,9 @@ const COOLDOWN_DURATION_MS =
 const MISSILE_FLIGHT_DURATION_MS = 12000;
 
 const SCIENCE_IDENTIFY_THREAT_DURATION_MS =
-    getTimedOfficerTaskDurationMs(
-        OFFICER_TASK_KIND
-            .SCIENCE_IDENTIFY_THREAT,
-    );
+    ENEMY_BEHAVIOR_RULES
+        .threat_identification
+        .durationMs;
 
 describe('Enemy defense-turret interception', () => {
     it('uses blind equipment chance and intercepts the player missile', () => {

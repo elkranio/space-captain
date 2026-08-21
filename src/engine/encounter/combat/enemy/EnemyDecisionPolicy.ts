@@ -360,7 +360,7 @@ export default class EnemyDecisionPolicy {
                 observationId,
             },
 
-            actionDurationMs: getTimedOfficerTaskDurationMs(OFFICER_TASK_KIND.SCIENCE_IDENTIFY_THREAT),
+            actionDurationMs: ENEMY_BEHAVIOR_RULES.threat_identification.durationMs,
 
             estimatedDeadlineMs:
                 missileThreat?.kind === ENEMY_THREAT_KIND.MISSILE ? missileThreat.estimatedTimeToImpactMs : undefined,

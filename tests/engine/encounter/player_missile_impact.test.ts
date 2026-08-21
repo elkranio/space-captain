@@ -213,26 +213,12 @@ describe('Player missile impact', () => {
         ).toEqual([]);
     });
 
-    it('does not expose a player missile to Science or defense turret', () => {
+    it('does not expose an outgoing player missile to the player defense turret', () => {
         const {
             engine,
         } = createMissileImpactSetup({
             enemyHull: 2,
         });
-
-        expect(
-            engine
-                .getAvailableCommands(
-                    OFFICER_ROLE.SCIENCE,
-                )
-                .filter((command) => {
-                    return (
-                        command.commandId ===
-                        ENCOUNTER_OFFICER_COMMAND_ID
-                            .SCIENCE_IDENTIFY_THREAT
-                    );
-                }),
-        ).toEqual([]);
 
         expect(
             engine

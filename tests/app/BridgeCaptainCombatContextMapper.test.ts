@@ -536,13 +536,10 @@ describe(
 
                         playerThreatDecisionTimings: {
                             missile: {
-                                trackAndInterceptMinRemainingMs: 6000,
                                 interceptMinRemainingMs: 3000,
                             },
 
                             beam: {
-                                trackMinRemainingMs: 6000,
-
                                 shieldWindow: {
                                     opensAtRemainingMs: 8000,
                                     closesAtRemainingMs: 3000,

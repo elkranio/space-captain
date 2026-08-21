@@ -25,15 +25,6 @@ type SciencePlotCourseOfficerTaskDraft = OfficerTaskDraftBase & {
     targetNodeId: string;
 };
 
-type ScienceIdentifyThreatOfficerTaskDraft = OfficerTaskDraftBase & {
-    kind: typeof OFFICER_TASK_KIND.SCIENCE_IDENTIFY_THREAT;
-    role: typeof OFFICER_ROLE.SCIENCE;
-
-    sourceCommandId: typeof ENCOUNTER_OFFICER_COMMAND_ID.SCIENCE_IDENTIFY_THREAT;
-
-    threatId: string;
-};
-
 type SciencePurgeSpamOfficerTaskDraft = OfficerTaskDraftBase & {
     kind: typeof OFFICER_TASK_KIND.SCIENCE_PURGE_SPAM;
     role: typeof OFFICER_ROLE.SCIENCE;
@@ -167,7 +158,6 @@ type HelmEvadeOfficerTaskDraft = OfficerTaskDraftBase & {
 // вариантам task, которым они действительно нужны.
 export type OfficerTaskDraft =
     | SciencePlotCourseOfficerTaskDraft
-    | ScienceIdentifyThreatOfficerTaskDraft
     | SciencePurgeSpamOfficerTaskDraft
     | EngineerRepairDriveOfficerTaskDraft
     | EngineerDeployShieldOfficerTaskDraft

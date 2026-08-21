@@ -30,15 +30,8 @@ import {
     spendPowerCoreCharge as spendInstalledPowerCoreCharge,
     spendPowerCoreCharges as spendInstalledPowerCoreCharges,
 } from "../../combat/defense/spend_power_core_charge";
-import {
-    COMBAT_THREAT_KIND,
-    MISSILE_SIGNATURE_INTEL_STATUS,
-    type ActiveShieldState,
-    type BeamCannonTargetNode,
-    type ThreatIdentificationResult,
-} from "../../model/combat";
+import type { ActiveShieldState, BeamCannonTargetNode } from "../../model/combat";
 import type { EncounterShipDriveState, EncounterState } from "../../model/state";
-import type { ResolvedMissileSignatureIntel } from "../../model/missile_signature_intel";
 
 // Owns player hull, drive and combat-system mutations.
 export default class PlayerShipStore {
@@ -348,47 +341,6 @@ export default class PlayerShipStore {
 
         return {
             ...weapon,
-        };
-    }
-
-    public identifyThreat(
-        threatId: string,
-        identification: ResolvedMissileSignatureIntel,
-    ): ThreatIdentificationResult | undefined {
-        const projectile = this.state.combat.projectiles.find((candidate) => {
-            return candidate.id === threatId;
-        });
-
-        if (!projectile) {
-            return undefined;
-        }
-
-        // CONFIRMED is terminal. A stale task completion must never
-        // downgrade or replace already confirmed knowledge.
-        if (projectile.identification.status === MISSILE_SIGNATURE_INTEL_STATUS.CONFIRMED) {
-            return {
-                kind: COMBAT_THREAT_KIND.MISSILE,
-
-                ...projectile.identification,
-            };
-        }
-
-        // System UI must never expose false confirmation.
-        if (
-            identification.status === MISSILE_SIGNATURE_INTEL_STATUS.CONFIRMED &&
-            identification.hypothesis !== projectile.signature
-        ) {
-            throw new Error("Cannot confirm an incorrect missile signature: " + threatId);
-        }
-
-        projectile.identification = {
-            ...identification,
-        };
-
-        return {
-            kind: COMBAT_THREAT_KIND.MISSILE,
-
-            ...identification,
         };
     }
 

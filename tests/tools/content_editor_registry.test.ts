@@ -697,7 +697,7 @@ describe(
                 const timed =
                     scienceOfficerSchema
                         .properties
-                        ?.science_identify_threat
+                        ?.science_purge_spam
                         ?.properties;
 
                 const external =

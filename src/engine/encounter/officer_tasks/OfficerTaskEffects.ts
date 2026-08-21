@@ -1,17 +1,6 @@
 // src/engine/encounter/officer_tasks/OfficerTaskEffects.ts
 
-import {
-    BEAM_CANNON_TARGET_INTEL_STATUS,
-    COMBAT_THREAT_KIND,
-    MISSILE_SIGNATURE_INTEL_STATUS,
-    PLAYER_SPAM_CHANNEL_OUTCOME,
-} from "../model/combat";
-import { MISSILE_SIGNATURE_ANALYSIS_CONFIDENCE } from "../model/missile_signature_analysis";
-import {
-    MISSILE_SIGNATURE_ANALYSIS_PROFILE,
-    resolveMissileSignatureAnalysis,
-} from "../combat/intel/resolve_missile_signature_analysis";
-import { resolveBeamCannonTargetAnalysis } from "../combat/intel/resolve_beam_cannon_target_analysis";
+import { PLAYER_SPAM_CHANNEL_OUTCOME } from "../model/combat";
 import type CombatRunner from "../combat/CombatRunner";
 import { ENCOUNTER_EVENT, OFFICER_TASK_RESULT_KIND, type EncounterEvent, type OfficerTaskResult } from "../model/event";
 import { OFFICER_TASK_KIND, type OfficerTaskState } from "../model/officer_task";
@@ -59,13 +48,6 @@ type SciencePlotCourseTaskState = Extract<
     }
 >;
 
-type ScienceIdentifyThreatTaskState = Extract<
-    OfficerTaskState,
-    {
-        kind: typeof OFFICER_TASK_KIND.SCIENCE_IDENTIFY_THREAT;
-    }
->;
-
 type WeaponsDefenseTurretTaskState = Extract<
     OfficerTaskState,
     {
@@ -96,9 +78,6 @@ export default class OfficerTaskEffects {
 
             case OFFICER_TASK_KIND.SCIENCE_PLOT_COURSE:
                 return this.resolveSciencePlotCourseTask(task);
-
-            case OFFICER_TASK_KIND.SCIENCE_IDENTIFY_THREAT:
-                return this.resolveScienceIdentifyThreatTask(task);
 
             case OFFICER_TASK_KIND.SCIENCE_PURGE_SPAM:
                 this.combatRunner.purgeSpamChannel(task.channelId);
@@ -221,72 +200,6 @@ export default class OfficerTaskEffects {
 
             anchor,
         };
-    }
-
-    private resolveScienceIdentifyThreatTask(task: ScienceIdentifyThreatTaskState): OfficerTaskResult | undefined {
-        const state = this.stateStore.getState();
-
-        const projectile = state.combat.projectiles.find((candidate) => {
-            return candidate.id === task.threatId;
-        });
-
-        if (projectile) {
-            if (projectile.identification.status === MISSILE_SIGNATURE_INTEL_STATUS.CONFIRMED) {
-                return {
-                    kind: OFFICER_TASK_RESULT_KIND.THREAT_IDENTIFIED,
-
-                    threatId: task.threatId,
-
-                    identification: {
-                        kind: COMBAT_THREAT_KIND.MISSILE,
-
-                        ...projectile.identification,
-                    },
-
-                    analysisConfidence: MISSILE_SIGNATURE_ANALYSIS_CONFIDENCE.CERTAIN,
-                };
-            }
-
-            const analysis = resolveMissileSignatureAnalysis({
-                truth: projectile.signature,
-
-                profile: MISSILE_SIGNATURE_ANALYSIS_PROFILE.STANDARD,
-
-                random: this.random,
-            });
-
-            const identification = this.stateStore.identifyThreat(task.threatId, analysis.identification);
-
-            if (!identification) {
-                return undefined;
-            }
-
-            return {
-                kind: OFFICER_TASK_RESULT_KIND.THREAT_IDENTIFIED,
-
-                threatId: task.threatId,
-
-                identification,
-
-                analysisConfidence: analysis.confidence,
-            };
-        }
-
-        const beamAttack = state.combat.beamCannonAttacks.find((candidate) => {
-            return candidate.id === task.threatId;
-        });
-
-        if (!beamAttack || beamAttack.targetIntel.status === BEAM_CANNON_TARGET_INTEL_STATUS.CONFIRMED) {
-            return undefined;
-        }
-
-        beamAttack.targetIntel = resolveBeamCannonTargetAnalysis({
-            truth: beamAttack.targetNode,
-
-            random: this.random,
-        });
-
-        return undefined;
     }
 
     private resolveWeaponsDefenseTurretTask(task: WeaponsDefenseTurretTaskState): OfficerTaskResult | undefined {

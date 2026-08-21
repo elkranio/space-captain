@@ -6,7 +6,6 @@
 // Это domain identity, а не editable content id.
 export const OFFICER_TASK_KIND = {
     SCIENCE_PLOT_COURSE: "science_plot_course",
-    SCIENCE_IDENTIFY_THREAT: "science_identify_threat",
     SCIENCE_PURGE_SPAM: "science_purge_spam",
     SCIENCE_FIRE_SPAM: "science_fire_spam",
 
@@ -53,7 +52,6 @@ export type OfficerTaskCancellationPolicy = {
 export function doesOfficerTaskUseTimedCompletion(kind: OfficerTaskKind): boolean {
     switch (kind) {
         case OFFICER_TASK_KIND.SCIENCE_PLOT_COURSE:
-        case OFFICER_TASK_KIND.SCIENCE_IDENTIFY_THREAT:
         case OFFICER_TASK_KIND.SCIENCE_PURGE_SPAM:
         case OFFICER_TASK_KIND.ENGINEER_REPAIR_DRIVE:
         case OFFICER_TASK_KIND.ENGINEER_DEPLOY_SHIELD:

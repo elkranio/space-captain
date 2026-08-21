@@ -3,13 +3,10 @@ import { OFFICER_TASK_KIND, type OfficerTaskKind } from "../model/officer_task";
 
 export type PlayerThreatDecisionTimingSnapshot = {
     missile: {
-        trackAndInterceptMinRemainingMs: number | null;
         interceptMinRemainingMs: number | null;
     };
 
     beam: {
-        trackMinRemainingMs: number | null;
-
         shieldWindow: {
             opensAtRemainingMs: number;
             closesAtRemainingMs: number;
@@ -41,11 +38,6 @@ export function createPlayerThreatDecisionTimingSnapshot({
         throw new Error("Invalid player shield duration: " + shieldDurationMs);
     }
 
-    const trackDurationMs = getResolvedTaskWallDurationMs(
-        OFFICER_TASK_KIND.SCIENCE_IDENTIFY_THREAT,
-        crewProgressMultiplier,
-    );
-
     const interceptDurationMs = getResolvedTaskWallDurationMs(
         OFFICER_TASK_KIND.WEAPONS_DEFENSE_TURRET,
         crewProgressMultiplier,
@@ -63,20 +55,10 @@ export function createPlayerThreatDecisionTimingSnapshot({
 
     return {
         missile: {
-            trackAndInterceptMinRemainingMs:
-                trackDurationMs === null || interceptDurationMs === null
-                    ? null
-                    : trackDurationMs + interceptDurationMs,
-
             interceptMinRemainingMs: interceptDurationMs,
         },
 
         beam: {
-            trackMinRemainingMs:
-                trackDurationMs === null
-                    ? null
-                    : trackDurationMs + (shieldDurationMs === undefined ? 0 : (shieldDeployDurationMs ?? 0)),
-
             shieldWindow:
                 shieldDeployDurationMs === null || shieldDurationMs === undefined
                     ? null

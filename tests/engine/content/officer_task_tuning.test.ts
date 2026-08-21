@@ -23,17 +23,6 @@ describe('Officer task tuning content', () => {
         expect(
             getOfficerTaskDraftTuning(
                 OFFICER_TASK_KIND
-                    .SCIENCE_IDENTIFY_THREAT,
-            ),
-        ).toEqual({
-            label: 'IDENTIFY',
-            showProgress: true,
-            durationMs: 3000,
-        });
-
-        expect(
-            getOfficerTaskDraftTuning(
-                OFFICER_TASK_KIND
                     .ENGINEER_REPAIR_DRIVE,
             ),
         ).toEqual({
@@ -80,10 +69,10 @@ describe('Officer task tuning content', () => {
             ...OFFICER_TASK_TUNING,
 
             [OFFICER_TASK_KIND
-                .SCIENCE_IDENTIFY_THREAT]: {
+                .ENGINEER_REPAIR_DRIVE]: {
                 ...OFFICER_TASK_TUNING[
                     OFFICER_TASK_KIND
-                        .SCIENCE_IDENTIFY_THREAT
+                        .ENGINEER_REPAIR_DRIVE
                 ],
 
                 durationMs: -1,

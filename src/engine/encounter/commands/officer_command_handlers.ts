@@ -9,7 +9,6 @@ import { helmDockCommandHandler } from "./handlers/helm_dock_command_handler";
 import { helmEvadeCommandHandler } from "./handlers/helm_evade_command_handler";
 import { helmFlyToCommandHandler } from "./handlers/helm_fly_to_command_handler";
 import { helmJumpCommandHandler } from "./handlers/helm_jump_command_handler";
-import { scienceIdentifyThreatCommandHandler } from "./handlers/science_identify_threat_command_handler";
 import { sciencePurgeSpamCommandHandler } from "./handlers/science_purge_spam_command_handler";
 import { scienceFireSpamCommandHandler } from "./handlers/science_fire_spam_command_handler";
 import { sciencePlotCourseCommandHandler } from "./handlers/science_plot_course_command_handler";
@@ -22,8 +21,6 @@ const OFFICER_COMMAND_HANDLER_BY_ID = {
     [ENCOUNTER_OFFICER_COMMAND_ID.CLEAR_STICKY_MINE]: clearStickyMineCommandHandler,
 
     [ENCOUNTER_OFFICER_COMMAND_ID.SCIENCE_PLOT_COURSE]: sciencePlotCourseCommandHandler,
-
-    [ENCOUNTER_OFFICER_COMMAND_ID.SCIENCE_IDENTIFY_THREAT]: scienceIdentifyThreatCommandHandler,
 
     [ENCOUNTER_OFFICER_COMMAND_ID.SCIENCE_PURGE_SPAM]: sciencePurgeSpamCommandHandler,
 

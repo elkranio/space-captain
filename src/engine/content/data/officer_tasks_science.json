@@ -6,13 +6,6 @@
         "canBeInterruptedByDamage": true,
         "durationMs": 5000
     },
-    "science_identify_threat": {
-        "label": "IDENTIFY",
-        "showProgress": true,
-        "canBeCancelledByPlayer": true,
-        "canBeInterruptedByDamage": true,
-        "durationMs": 3000
-    },
     "science_purge_spam": {
         "label": "PURGE SPAM",
         "showProgress": true,

@@ -9,12 +9,6 @@ import {
     createPlayerThreatDecisionTimingSnapshot,
 } from '../../../src/engine/encounter/snapshots/create_player_threat_decision_timing_snapshot';
 
-const TRACK_DURATION_MS =
-    getTimedOfficerTaskDurationMs(
-        OFFICER_TASK_KIND
-            .SCIENCE_IDENTIFY_THREAT,
-    );
-
 const INTERCEPT_DURATION_MS =
     getTimedOfficerTaskDurationMs(
         OFFICER_TASK_KIND
@@ -49,19 +43,11 @@ describe(
                     }),
                 ).toEqual({
                     missile: {
-                        trackAndInterceptMinRemainingMs:
-                            TRACK_DURATION_MS +
-                            INTERCEPT_DURATION_MS,
-
                         interceptMinRemainingMs:
                             INTERCEPT_DURATION_MS,
                     },
 
                     beam: {
-                        trackMinRemainingMs:
-                            TRACK_DURATION_MS +
-                            SHIELD_DEPLOY_DURATION_MS,
-
                         shieldWindow: {
                             opensAtRemainingMs:
                                 SHIELD_DEPLOY_DURATION_MS +
@@ -96,27 +82,9 @@ describe(
 
                 expect(
                     timings.missile
-                        .trackAndInterceptMinRemainingMs,
-                ).toBe(
-                    (TRACK_DURATION_MS +
-                        INTERCEPT_DURATION_MS) /
-                        multiplier,
-                );
-
-                expect(
-                    timings.missile
                         .interceptMinRemainingMs,
                 ).toBe(
                     INTERCEPT_DURATION_MS /
-                        multiplier,
-                );
-
-                expect(
-                    timings.beam
-                        .trackMinRemainingMs,
-                ).toBe(
-                    (TRACK_DURATION_MS +
-                        SHIELD_DEPLOY_DURATION_MS) /
                         multiplier,
                 );
 
@@ -155,17 +123,11 @@ describe(
                     }),
                 ).toEqual({
                     missile: {
-                        trackAndInterceptMinRemainingMs:
-                            null,
-
                         interceptMinRemainingMs:
                             null,
                     },
 
                     beam: {
-                        trackMinRemainingMs:
-                            null,
-
                         shieldWindow:
                             null,
                     },

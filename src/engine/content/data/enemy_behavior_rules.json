@@ -1,5 +1,8 @@
 {
     "shield_placement": {
         "impactReserveMs": 1000
+    },
+    "threat_identification": {
+        "durationMs": 3000
     }
 }

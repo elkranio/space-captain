@@ -21,21 +21,6 @@ export function createSciencePlotCourseTask(targetNodeId: string): OfficerTaskDr
     };
 }
 
-export function createScienceIdentifyThreatTask(threatId: string): OfficerTaskDraft {
-    const kind = OFFICER_TASK_KIND.SCIENCE_IDENTIFY_THREAT;
-
-    return {
-        kind,
-        role: OFFICER_ROLE.SCIENCE,
-
-        sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.SCIENCE_IDENTIFY_THREAT,
-
-        threatId,
-
-        ...getOfficerTaskDraftTuning(kind),
-    };
-}
-
 export function createSciencePurgeSpamTask(channelId: string): OfficerTaskDraft {
     const kind = OFFICER_TASK_KIND.SCIENCE_PURGE_SPAM;
 

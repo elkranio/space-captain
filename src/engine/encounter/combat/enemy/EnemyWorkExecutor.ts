@@ -1,5 +1,6 @@
 // src/engine/encounter/combat/enemy/EnemyWorkExecutor.ts
 
+import { ENEMY_BEHAVIOR_RULES } from "../../../content/catalogs/enemy_behavior_rules";
 import { DEFENSE_TURRETS } from "../../../content/catalogs/defense_turrets";
 import { SHIP_WEAPONS } from "../../../content/catalogs/ship_weapons";
 import { getTimedOfficerTaskDurationMs } from "../../../content/catalogs/officer_tasks";
@@ -217,7 +218,7 @@ export default class EnemyWorkExecutor {
 
             elapsedMs: 0,
 
-            durationMs: getTimedOfficerTaskDurationMs(OFFICER_TASK_KIND.SCIENCE_IDENTIFY_THREAT),
+            durationMs: ENEMY_BEHAVIOR_RULES.threat_identification.durationMs,
         });
     }
 
