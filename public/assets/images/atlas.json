@@ -1,7 +1,7 @@
 {
   "textures": [
     {
-      "image": "atlas-0.png?v=1787343393104",
+      "image": "atlas-0.png?v=1787349247720",
       "format": "RGBA8888",
       "size": {
         "w": 1980,
@@ -346,6 +346,27 @@
           }
         },
         {
+          "filename": "ships/chassis/new_perspective_00",
+          "rotated": false,
+          "trimmed": false,
+          "sourceSize": {
+            "w": 244,
+            "h": 120
+          },
+          "spriteSourceSize": {
+            "x": 0,
+            "y": 0,
+            "w": 244,
+            "h": 120
+          },
+          "frame": {
+            "x": 379,
+            "y": 1915,
+            "w": 244,
+            "h": 120
+          }
+        },
+        {
           "filename": "bridge/ui/officer_context_menu/panel_middle",
           "rotated": false,
           "trimmed": false,
@@ -427,27 +448,6 @@
             "y": 676,
             "w": 323,
             "h": 27
-          }
-        },
-        {
-          "filename": "ships/chassis/new_perspective_00",
-          "rotated": false,
-          "trimmed": false,
-          "sourceSize": {
-            "w": 244,
-            "h": 120
-          },
-          "spriteSourceSize": {
-            "x": 0,
-            "y": 0,
-            "w": 244,
-            "h": 120
-          },
-          "frame": {
-            "x": 379,
-            "y": 1915,
-            "w": 244,
-            "h": 120
           }
         },
         {
@@ -976,27 +976,6 @@
           }
         },
         {
-          "filename": "ui/threat_icons/missile",
-          "rotated": false,
-          "trimmed": true,
-          "sourceSize": {
-            "w": 107,
-            "h": 33
-          },
-          "spriteSourceSize": {
-            "x": 2,
-            "y": 0,
-            "w": 101,
-            "h": 33
-          },
-          "frame": {
-            "x": 1878,
-            "y": 215,
-            "w": 101,
-            "h": 33
-          }
-        },
-        {
           "filename": "ships/chassis/old_00",
           "rotated": false,
           "trimmed": false,
@@ -1036,6 +1015,27 @@
             "y": 1945,
             "w": 85,
             "h": 60
+          }
+        },
+        {
+          "filename": "ui/combat/action_button_bg",
+          "rotated": false,
+          "trimmed": false,
+          "sourceSize": {
+            "w": 75,
+            "h": 28
+          },
+          "spriteSourceSize": {
+            "x": 0,
+            "y": 0,
+            "w": 75,
+            "h": 28
+          },
+          "frame": {
+            "x": 914,
+            "y": 2007,
+            "w": 75,
+            "h": 28
           }
         },
         {
@@ -1186,6 +1186,27 @@
           }
         },
         {
+          "filename": "ui/threat_icons/missile",
+          "rotated": false,
+          "trimmed": false,
+          "sourceSize": {
+            "w": 107,
+            "h": 33
+          },
+          "spriteSourceSize": {
+            "x": 0,
+            "y": 0,
+            "w": 107,
+            "h": 33
+          },
+          "frame": {
+            "x": 1826,
+            "y": 1682,
+            "w": 107,
+            "h": 33
+          }
+        },
+        {
           "filename": "officers/science/human_00_calm",
           "rotated": false,
           "trimmed": false,
@@ -1200,8 +1221,8 @@
             "h": 105
           },
           "frame": {
-            "x": 1274,
-            "y": 1908,
+            "x": 1868,
+            "y": 1717,
             "w": 90,
             "h": 105
           }
@@ -1221,9 +1242,30 @@
             "h": 105
           },
           "frame": {
-            "x": 1366,
-            "y": 1910,
+            "x": 1868,
+            "y": 1824,
             "w": 106,
+            "h": 105
+          }
+        },
+        {
+          "filename": "characters/comms/alien_00_calm",
+          "rotated": false,
+          "trimmed": false,
+          "sourceSize": {
+            "w": 86,
+            "h": 105
+          },
+          "spriteSourceSize": {
+            "x": 0,
+            "y": 0,
+            "w": 86,
+            "h": 105
+          },
+          "frame": {
+            "x": 1274,
+            "y": 1908,
+            "w": 86,
             "h": 105
           }
         },
@@ -1242,7 +1284,7 @@
             "h": 105
           },
           "frame": {
-            "x": 1474,
+            "x": 1362,
             "y": 1910,
             "w": 105,
             "h": 105
@@ -1263,7 +1305,7 @@
             "h": 105
           },
           "frame": {
-            "x": 1581,
+            "x": 1469,
             "y": 1910,
             "w": 97,
             "h": 105
@@ -1284,52 +1326,10 @@
             "h": 105
           },
           "frame": {
-            "x": 1680,
+            "x": 1568,
             "y": 1910,
             "w": 96,
             "h": 105
-          }
-        },
-        {
-          "filename": "characters/comms/alien_00_calm",
-          "rotated": false,
-          "trimmed": false,
-          "sourceSize": {
-            "w": 86,
-            "h": 105
-          },
-          "spriteSourceSize": {
-            "x": 0,
-            "y": 0,
-            "w": 86,
-            "h": 105
-          },
-          "frame": {
-            "x": 1778,
-            "y": 1910,
-            "w": 86,
-            "h": 105
-          }
-        },
-        {
-          "filename": "combat/mines/sticky_00",
-          "rotated": false,
-          "trimmed": false,
-          "sourceSize": {
-            "w": 71,
-            "h": 40
-          },
-          "spriteSourceSize": {
-            "x": 0,
-            "y": 0,
-            "w": 71,
-            "h": 40
-          },
-          "frame": {
-            "x": 1826,
-            "y": 1682,
-            "w": 71,
-            "h": 40
           }
         },
         {
@@ -1347,73 +1347,10 @@
             "h": 105
           },
           "frame": {
-            "x": 1846,
-            "y": 1236,
+            "x": 1666,
+            "y": 1910,
             "w": 86,
             "h": 105
-          }
-        },
-        {
-          "filename": "characters/comms/human_00_calm",
-          "rotated": false,
-          "trimmed": false,
-          "sourceSize": {
-            "w": 77,
-            "h": 105
-          },
-          "spriteSourceSize": {
-            "x": 0,
-            "y": 0,
-            "w": 77,
-            "h": 105
-          },
-          "frame": {
-            "x": 1835,
-            "y": 1366,
-            "w": 77,
-            "h": 105
-          }
-        },
-        {
-          "filename": "vips/alien_princess_00_calm",
-          "rotated": false,
-          "trimmed": false,
-          "sourceSize": {
-            "w": 84,
-            "h": 105
-          },
-          "spriteSourceSize": {
-            "x": 0,
-            "y": 0,
-            "w": 84,
-            "h": 105
-          },
-          "frame": {
-            "x": 1866,
-            "y": 1910,
-            "w": 84,
-            "h": 105
-          }
-        },
-        {
-          "filename": "ui/combat/action_button_bg",
-          "rotated": false,
-          "trimmed": false,
-          "sourceSize": {
-            "w": 75,
-            "h": 28
-          },
-          "spriteSourceSize": {
-            "x": 0,
-            "y": 0,
-            "w": 75,
-            "h": 28
-          },
-          "frame": {
-            "x": 1835,
-            "y": 1473,
-            "w": 75,
-            "h": 28
           }
         },
         {
@@ -1431,8 +1368,8 @@
             "h": 105
           },
           "frame": {
-            "x": 1868,
-            "y": 1724,
+            "x": 1754,
+            "y": 1910,
             "w": 86,
             "h": 105
           }
@@ -1452,10 +1389,73 @@
             "h": 100
           },
           "frame": {
-            "x": 1914,
-            "y": 1343,
+            "x": 1842,
+            "y": 1931,
             "w": 55,
             "h": 100
+          }
+        },
+        {
+          "filename": "combat/mines/sticky_00",
+          "rotated": false,
+          "trimmed": false,
+          "sourceSize": {
+            "w": 71,
+            "h": 40
+          },
+          "spriteSourceSize": {
+            "x": 0,
+            "y": 0,
+            "w": 71,
+            "h": 40
+          },
+          "frame": {
+            "x": 1899,
+            "y": 1931,
+            "w": 71,
+            "h": 40
+          }
+        },
+        {
+          "filename": "characters/comms/human_00_calm",
+          "rotated": false,
+          "trimmed": false,
+          "sourceSize": {
+            "w": 77,
+            "h": 105
+          },
+          "spriteSourceSize": {
+            "x": 0,
+            "y": 0,
+            "w": 77,
+            "h": 105
+          },
+          "frame": {
+            "x": 1846,
+            "y": 1236,
+            "w": 77,
+            "h": 105
+          }
+        },
+        {
+          "filename": "vips/alien_princess_00_calm",
+          "rotated": false,
+          "trimmed": false,
+          "sourceSize": {
+            "w": 84,
+            "h": 105
+          },
+          "spriteSourceSize": {
+            "x": 0,
+            "y": 0,
+            "w": 84,
+            "h": 105
+          },
+          "frame": {
+            "x": 1835,
+            "y": 1366,
+            "w": 84,
+            "h": 105
           }
         },
         {
@@ -1473,8 +1473,8 @@
             "h": 32
           },
           "frame": {
-            "x": 1943,
-            "y": 970,
+            "x": 1878,
+            "y": 215,
             "w": 32,
             "h": 32
           }
@@ -1498,6 +1498,27 @@
             "y": 676,
             "w": 16,
             "h": 27
+          }
+        },
+        {
+          "filename": "ui/buttons/close_00",
+          "rotated": false,
+          "trimmed": false,
+          "sourceSize": {
+            "w": 20,
+            "h": 17
+          },
+          "spriteSourceSize": {
+            "x": 0,
+            "y": 0,
+            "w": 20,
+            "h": 17
+          },
+          "frame": {
+            "x": 625,
+            "y": 2018,
+            "w": 20,
+            "h": 17
           }
         },
         {
@@ -1603,27 +1624,6 @@
             "y": 705,
             "w": 16,
             "h": 16
-          }
-        },
-        {
-          "filename": "ui/buttons/close_00",
-          "rotated": false,
-          "trimmed": false,
-          "sourceSize": {
-            "w": 20,
-            "h": 17
-          },
-          "spriteSourceSize": {
-            "x": 0,
-            "y": 0,
-            "w": 20,
-            "h": 17
-          },
-          "frame": {
-            "x": 625,
-            "y": 2018,
-            "w": 20,
-            "h": 17
           }
         },
         {
@@ -1767,8 +1767,8 @@
             "h": 9
           },
           "frame": {
-            "x": 734,
-            "y": 1983,
+            "x": 1943,
+            "y": 970,
             "w": 8,
             "h": 9
           }
@@ -1788,8 +1788,8 @@
             "h": 9
           },
           "frame": {
-            "x": 914,
-            "y": 2007,
+            "x": 734,
+            "y": 1983,
             "w": 8,
             "h": 9
           }
@@ -1809,8 +1809,8 @@
             "h": 8
           },
           "frame": {
-            "x": 1149,
-            "y": 1945,
+            "x": 991,
+            "y": 2007,
             "w": 8,
             "h": 8
           }
@@ -1821,6 +1821,6 @@
   "meta": {
     "app": "https://www.codeandweb.com/texturepacker",
     "version": "3.0",
-    "smartupdate": "$TexturePacker:SmartUpdate:1f70bef14a43684041bee66d2c49eb3a:359d78f769f371a9cc7582e51ea8ca64:cf935fe037ea9b5d3744d532996e235e$"
+    "smartupdate": "$TexturePacker:SmartUpdate:3052aaae84da58811da952cfecb287fa:f1c9f02489abc4bf6fe60fc33c760e53:cf935fe037ea9b5d3744d532996e235e$"
   }
 }
