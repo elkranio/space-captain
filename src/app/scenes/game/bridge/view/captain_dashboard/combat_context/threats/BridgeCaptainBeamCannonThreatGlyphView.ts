@@ -11,6 +11,8 @@ const TARGET_TEXT = {
     fontSize: 11,
 } as const;
 
+const EARLY_DANGER_MAX_PROGRESS = 0.85;
+
 type BeamCannonThreatGlyphCallbacks = {
     onOpenShieldTargeting: () => void;
     onCancelTask: (taskId: string) => void;
@@ -145,7 +147,7 @@ export default class BridgeCaptainBeamCannonThreatGlyphView {
 
     private updateGlyphTiming(beamCannon: BridgeCaptainIncomingBeamCannonPayload): void {
         this.beamIcon.setVisible(true).setAlpha(1);
-        this.beamDangerIcon.setVisible(false);
+        this.beamDangerIcon.setVisible(false).setAlpha(1);
 
         const timing = getBeamShieldTimingStripState({
             remainingMs: beamCannon.timeToFireMs,
@@ -163,9 +165,13 @@ export default class BridgeCaptainBeamCannonThreatGlyphView {
         }
 
         if (timing.phase === BEAM_SHIELD_TIMING_PHASE.TOO_EARLY) {
-            const blinkOn = Math.floor(this.scene.time.now / THREAT_CELL.earlyBlinkPeriodMs) % 2 === 0;
+            this.showDangerProgress(timing.earlyFill01 * EARLY_DANGER_MAX_PROGRESS);
 
-            this.beamIcon.setAlpha(blinkOn ? 1 : 0.45);
+            const blinkOn = Math.floor(this.scene.time.now / THREAT_CELL.earlyBlinkPeriodMs) % 2 === 0;
+            const blinkAlpha = blinkOn ? 1 : 0.45;
+
+            this.beamIcon.setAlpha(blinkAlpha);
+            this.beamDangerIcon.setAlpha(blinkAlpha);
             return;
         }
 
