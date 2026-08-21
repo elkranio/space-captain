@@ -187,7 +187,11 @@ export default class BridgeCaptainBeamCannonThreatGlyphView {
             return;
         }
 
-        const cropWidth = Math.max(1, Math.round(this.beamDangerIcon.width * clampedProgress01));
+        const cropWidth = Math.round(this.beamDangerIcon.width * clampedProgress01);
+
+        if (cropWidth <= 0) {
+            return;
+        }
 
         this.beamDangerIcon.setCrop(0, 0, cropWidth, this.beamDangerIcon.height).setVisible(true);
     }

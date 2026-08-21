@@ -132,10 +132,11 @@ export default class BridgeCaptainSpamThreatGlyphView {
             return;
         }
 
-        const cropWidth = Math.max(
-            1,
-            Math.round(this.spamExpiredIcon.width * expired01),
-        );
+        const cropWidth = Math.round(this.spamExpiredIcon.width * expired01);
+
+        if (cropWidth <= 0) {
+            return;
+        }
 
         this.spamExpiredIcon
             .setCrop(0, 0, cropWidth, this.spamExpiredIcon.height)

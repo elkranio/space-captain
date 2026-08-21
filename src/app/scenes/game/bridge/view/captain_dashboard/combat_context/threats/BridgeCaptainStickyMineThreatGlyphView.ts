@@ -174,10 +174,11 @@ export default class BridgeCaptainStickyMineThreatGlyphView {
             return;
         }
 
-        const cropWidth = Math.max(
-            1,
-            Math.round(this.mineDangerIcon.width * dangerProgress01),
-        );
+        const cropWidth = Math.round(this.mineDangerIcon.width * dangerProgress01);
+
+        if (cropWidth <= 0) {
+            return;
+        }
 
         this.mineDangerIcon
             .setCrop(0, 0, cropWidth, this.mineDangerIcon.height)

@@ -189,10 +189,11 @@ export default class BridgeCaptainMissileThreatRowView {
             return;
         }
 
-        const cropWidth = Math.max(
-            1,
-            Math.round(this.missileDangerIcon.width * dangerProgress01),
-        );
+        const cropWidth = Math.round(this.missileDangerIcon.width * dangerProgress01);
+
+        if (cropWidth <= 0) {
+            return;
+        }
 
         this.missileDangerIcon
             .setCrop(0, 0, cropWidth, this.missileDangerIcon.height)
