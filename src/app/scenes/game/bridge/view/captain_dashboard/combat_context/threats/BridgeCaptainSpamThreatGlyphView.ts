@@ -4,11 +4,7 @@ import type {
     BridgeCaptainSpamChannelPayload,
     BridgeOfficerCommandSelectedPayload,
 } from "../../../../events/bridge_event";
-import {
-    SPAM_DURATION_BAR,
-    THREAT_CELL,
-    THREAT_GLYPH_COLOR,
-} from "./threat_glyph_style";
+import { THREAT_CELL, THREAT_GLYPH_COLOR } from "./threat_glyph_style";
 
 type SpamThreatGlyphCallbacks = {
     onPurge: (command: BridgeOfficerCommandSelectedPayload) => void;
@@ -20,7 +16,7 @@ export default class BridgeCaptainSpamThreatGlyphView {
 
     private readonly hitArea: Phaser.GameObjects.Rectangle;
 
-    private readonly durationFill: Phaser.GameObjects.Rectangle;
+    private readonly spamExpiredIcon: Phaser.GameObjects.Image;
 
     private readonly roleGlyph: Phaser.GameObjects.Image;
     private readonly actionLabel: Phaser.GameObjects.Text;
@@ -44,27 +40,13 @@ export default class BridgeCaptainSpamThreatGlyphView {
             THREAT_CELL.glyphY,
         ).setTintFill(THREAT_GLYPH_COLOR.SPAM);
 
-        const durationTrack = this.scene.add
-            .rectangle(
-                SPAM_DURATION_BAR.x,
-                SPAM_DURATION_BAR.y,
-                SPAM_DURATION_BAR.width,
-                SPAM_DURATION_BAR.height,
-                SPAM_DURATION_BAR.trackColor,
-                1,
-            )
-            .setOrigin(0, 0);
-
-        this.durationFill = this.scene.add
-            .rectangle(
-                SPAM_DURATION_BAR.x,
-                SPAM_DURATION_BAR.y,
-                SPAM_DURATION_BAR.width,
-                SPAM_DURATION_BAR.height,
-                THREAT_GLYPH_COLOR.SPAM,
-                1,
-            )
-            .setOrigin(0, 0);
+        this.spamExpiredIcon = this.createSprite(
+            UI_COMBAT_SPRITE_ID.THREAT_SPAM,
+            THREAT_CELL.glyphX,
+            THREAT_CELL.glyphY,
+        )
+            .setTintFill(THREAT_GLYPH_COLOR.SPAM_EXPIRED)
+            .setVisible(false);
 
         this.roleGlyph = this.createSprite(
             UI_COMBAT_SPRITE_ID.ROLE_S,
@@ -86,8 +68,7 @@ export default class BridgeCaptainSpamThreatGlyphView {
         this.root.add([
             this.hitArea,
             spamIcon,
-            durationTrack,
-            this.durationFill,
+            this.spamExpiredIcon,
             this.roleGlyph,
             this.actionLabel,
         ]);
@@ -112,12 +93,10 @@ export default class BridgeCaptainSpamThreatGlyphView {
             this.scienceTaskId !== undefined,
         );
 
-        const remaining01 =
-            channel.initialDurationMs > 0
-                ? Math.max(0, Math.min(1, channel.remainingDurationMs / channel.initialDurationMs))
-                : 0;
-
-        this.durationFill.setScale(remaining01, 1);
+        this.updateDurationProgress(
+            channel.remainingDurationMs,
+            channel.initialDurationMs,
+        );
     }
 
     public destroy(): void {
@@ -137,6 +116,30 @@ export default class BridgeCaptainSpamThreatGlyphView {
         const sprite = UI_COMBAT_SPRITES[spriteId];
 
         return this.scene.add.image(x, y, sprite.atlasKey, sprite.frameKey).setOrigin(0, 0);
+    }
+
+    private updateDurationProgress(remainingMs: number, initialDurationMs: number): void {
+        this.spamExpiredIcon.setVisible(false);
+
+        if (initialDurationMs <= 0) {
+            return;
+        }
+
+        const remaining01 = Math.max(0, Math.min(1, remainingMs / initialDurationMs));
+        const expired01 = 1 - remaining01;
+
+        if (expired01 <= 0) {
+            return;
+        }
+
+        const cropWidth = Math.max(
+            1,
+            Math.round(this.spamExpiredIcon.width * expired01),
+        );
+
+        this.spamExpiredIcon
+            .setCrop(0, 0, cropWidth, this.spamExpiredIcon.height)
+            .setVisible(true);
     }
 
     private updateActionState(enabled: boolean, active: boolean): void {
