@@ -10,9 +10,9 @@
     "ml_full_auto": {
         "name": "ml_full_auto",
         "damage": 1,
-        "targetingDurationMs": 1000,
+        "targetingDurationMs": 500,
         "flightDurationMs": 12000,
         "ammoCapacity": 50,
-        "cooldownDurationMs": 2000
+        "cooldownDurationMs": 500
     }
 }

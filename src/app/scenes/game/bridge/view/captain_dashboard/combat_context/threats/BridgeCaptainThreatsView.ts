@@ -1,3 +1,4 @@
+// src/app/scenes/game/bridge/view/captain_dashboard/combat_context/threats/BridgeCaptainThreatsView.ts
 import type BridgeScene from "../../../../BridgeScene";
 import {
     BRIDGE_EVENT,
@@ -20,6 +21,7 @@ const THREAT_TILE_GRID = {
     tileWidth: THREAT_CELL.width,
     tileHeight: THREAT_CELL.height,
     rowGap: 10,
+    topPadding: 3,
 } as const;
 
 type ThreatsViewCallbacks = {
@@ -164,11 +166,7 @@ export default class BridgeCaptainThreatsView {
 
             this.positionTile(rowView, missileCount + index);
 
-            rowView.update(
-                beamCannon,
-                shieldTargetingAvailable,
-                shieldDeployTaskId,
-            );
+            rowView.update(beamCannon, shieldTargetingAvailable, shieldDeployTaskId);
         }
     }
 
@@ -270,7 +268,7 @@ export default class BridgeCaptainThreatsView {
 
         rowView.setPosition(
             column * (THREAT_TILE_GRID.tileWidth + tileGap),
-            row * (THREAT_TILE_GRID.tileHeight + THREAT_TILE_GRID.rowGap),
+            THREAT_TILE_GRID.topPadding + row * (THREAT_TILE_GRID.tileHeight + THREAT_TILE_GRID.rowGap),
         );
     }
 
@@ -278,8 +276,7 @@ export default class BridgeCaptainThreatsView {
         return Math.max(
             0,
             Math.floor(
-                (this.width - THREAT_TILE_GRID.columns * THREAT_TILE_GRID.tileWidth) /
-                    (THREAT_TILE_GRID.columns - 1),
+                (this.width - THREAT_TILE_GRID.columns * THREAT_TILE_GRID.tileWidth) / (THREAT_TILE_GRID.columns - 1),
             ),
         );
     }
