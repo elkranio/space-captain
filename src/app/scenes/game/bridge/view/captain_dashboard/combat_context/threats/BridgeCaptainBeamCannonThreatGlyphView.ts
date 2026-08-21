@@ -193,10 +193,13 @@ export default class BridgeCaptainBeamCannonThreatGlyphView {
     }
 
     private showTerminalGlyph(): void {
+        const blinkOn =
+            Math.floor(this.scene.time.now / THREAT_CELL.terminalBlinkPeriodMs) % 2 === 0;
+
         this.beamIcon.setVisible(false);
         this.beamDangerIcon
             .setCrop(0, 0, this.beamDangerIcon.width, this.beamDangerIcon.height)
-            .setVisible(true);
+            .setVisible(blinkOn);
     }
 
     private layoutActionLabel(): void {
