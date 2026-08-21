@@ -11,7 +11,6 @@ import {
     COMBAT_PROJECTILE_KIND,
     COMBAT_SOURCE_KIND,
     COMBAT_TARGET_KIND,
-    MISSILE_SIGNATURE_INTEL_STATUS,
 } from '../../src/engine/encounter/model/combat';
 import {
     ENCOUNTER_OFFICER_COMMAND_ID,
@@ -46,9 +45,6 @@ describe(
                         initialTimeToImpactMs:
                             1200,
 
-                        identificationStatus:
-                            MISSILE_SIGNATURE_INTEL_STATUS
-                                .CONFIRMED,
                     });
 
                 const far =
@@ -65,9 +61,6 @@ describe(
                         initialTimeToImpactMs:
                             1400,
 
-                        identificationStatus:
-                            MISSILE_SIGNATURE_INTEL_STATUS
-                                .CONFIRMED,
                     });
 
                 expect(
@@ -134,10 +127,6 @@ describe(
                             initialTimeToImpactMs:
                                 1200,
 
-                            identificationStatus:
-                                MISSILE_SIGNATURE_INTEL_STATUS
-                                    .CONFIRMED,
-
                             actions: {
                                 interceptMissile: {
                                     role:
@@ -172,10 +161,6 @@ describe(
 
                             initialTimeToImpactMs:
                                 1400,
-
-                            identificationStatus:
-                                MISSILE_SIGNATURE_INTEL_STATUS
-                                    .CONFIRMED,
 
                             actions: {
                                 interceptMissile: {
@@ -834,9 +819,6 @@ describe(
                         initialTimeToImpactMs:
                             1200,
 
-                        identificationStatus:
-                            MISSILE_SIGNATURE_INTEL_STATUS
-                                .UNKNOWN,
                     });
 
                 const duplicate =
@@ -896,18 +878,12 @@ function createMissile({
     designation,
     timeToImpactMs,
     initialTimeToImpactMs,
-    identificationStatus,
 }: {
     id: string;
     designation: string;
 
     timeToImpactMs: number;
     initialTimeToImpactMs: number;
-
-    identificationStatus:
-        MissilePresentationSnapshot[
-            'identificationStatus'
-        ];
 }): MissilePresentationSnapshot {
     return {
         id,
@@ -938,8 +914,6 @@ function createMissile({
 
         timeToImpactMs,
         initialTimeToImpactMs,
-
-        identificationStatus,
     };
 }
 

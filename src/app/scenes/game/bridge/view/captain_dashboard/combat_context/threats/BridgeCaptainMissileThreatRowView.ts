@@ -1,5 +1,4 @@
 // src/app/scenes/game/bridge/view/captain_dashboard/combat_context/threats/BridgeCaptainMissileThreatRowView.ts
-import { MISSILE_SIGNATURE_INTEL_STATUS } from "../../../../../../../../engine/encounter/model/missile_signature_intel";
 import { UI_COMBAT_SPRITE_ID, UI_COMBAT_SPRITES } from "../../../../../../../manifests/ui/combat";
 import { FONT_COLOR, FONT_FAMILY, FONT_SIZE } from "../../../../../../../theme/font";
 import type BridgeScene from "../../../../BridgeScene";
@@ -17,14 +16,10 @@ const TILE = {
     headerTextY: 8,
 
     iconCenterX: 26,
-    statusCenterX: 77,
     timerCenterX: 128,
 
     actionY: 28,
     actionDividerX: 76,
-
-    scienceActionX: 0,
-    scienceActionWidth: 76,
 
     weaponsActionX: 77,
     weaponsActionWidth: 76,
@@ -64,7 +59,6 @@ const TIMING_STRIP = {
 } as const;
 
 type MissileThreatRowCallbacks = {
-    onIdentify: (command: BridgeOfficerCommandSelectedPayload) => void;
     onIntercept: (command: BridgeOfficerCommandSelectedPayload) => void;
     onCancelTask: (taskId: string) => void;
 };
@@ -80,23 +74,17 @@ type ActionButton = {
     timingExpired: Phaser.GameObjects.Rectangle;
 };
 
-// Первый flat threat tile для нового captain display.
-//
-// Пока меняем только Missile, чтобы отдельно подобрать геометрию и цвета.
-// Остальные threat types временно остаются на старом tile renderer.
+// Missile uses direct threat facts.
+// HIT is the only local action; the left action half stays intentionally empty.
 export default class BridgeCaptainMissileThreatRowView {
     private readonly root: Phaser.GameObjects.Container;
 
     private readonly timerText: Phaser.GameObjects.BitmapText;
-    private readonly identificationText: Phaser.GameObjects.BitmapText;
 
-    private readonly scienceAction: ActionButton;
     private readonly weaponsAction: ActionButton;
 
-    private scienceCommand?: BridgeOfficerCommandSelectedPayload;
     private weaponsCommand?: BridgeOfficerCommandSelectedPayload;
 
-    private scienceTaskId?: string;
     private weaponsTaskId?: string;
 
     constructor(
@@ -135,17 +123,6 @@ export default class BridgeCaptainMissileThreatRowView {
             TILE.headerCenterY,
         ).setOrigin(0.5, 0.5);
 
-        this.identificationText = this.scene.add
-            .bitmapText(
-                TILE.statusCenterX,
-                TILE.headerTextY,
-                FONT_FAMILY.VGA_8X14,
-                "NO ID",
-                FONT_SIZE.PX_14,
-            )
-            .setOrigin(0.5, 0)
-            .setTint(FONT_COLOR.DANGER);
-
         this.timerText = this.scene.add
             .bitmapText(
                 TILE.timerCenterX,
@@ -157,13 +134,6 @@ export default class BridgeCaptainMissileThreatRowView {
             .setOrigin(0.5, 0)
             .setTint(FONT_COLOR.WHITE);
 
-        this.scienceAction = this.createActionButton(
-            TILE.scienceActionX,
-            TILE.scienceActionWidth,
-            UI_COMBAT_SPRITE_ID.ROLE_S,
-            "TRACK",
-        );
-
         this.weaponsAction = this.createActionButton(
             TILE.weaponsActionX,
             TILE.weaponsActionWidth,
@@ -171,27 +141,18 @@ export default class BridgeCaptainMissileThreatRowView {
             "HIT",
         );
 
-        this.scienceAction.background.on("pointerdown", this.handleSciencePointerDown, this);
         this.weaponsAction.background.on("pointerdown", this.handleWeaponsPointerDown, this);
 
         this.root.add([
             background,
-            this.scienceAction.background,
             this.weaponsAction.background,
             missileIcon,
-            this.identificationText,
             this.timerText,
-            this.scienceAction.roleGlyph,
-            this.scienceAction.label,
-            this.scienceAction.timingTrack,
-            this.scienceAction.timingFill,
-            this.scienceAction.timingExpired,
             this.weaponsAction.roleGlyph,
             this.weaponsAction.label,
             this.weaponsAction.timingTrack,
             this.weaponsAction.timingFill,
             this.weaponsAction.timingExpired,
-            ...this.scienceAction.timingDividers,
             ...this.weaponsAction.timingDividers,
             actionTopBorder,
             actionDivider,
@@ -210,26 +171,9 @@ export default class BridgeCaptainMissileThreatRowView {
     public update(missile: BridgeCaptainIncomingMissilePayload): void {
         this.timerText.setText(formatCaptainDashboardCountdown(missile.timeToImpactMs));
 
-        this.updateIdentification(missile.identificationStatus);
-
-        const identifyThreatTaskId = missile.activeTasks?.identifyThreatTaskId;
-
-        if (missile.identificationStatus === MISSILE_SIGNATURE_INTEL_STATUS.CONFIRMED && !identifyThreatTaskId) {
-            this.hideScienceAction();
-        } else {
-            this.setScienceAction(missile.actions.identifyThreat, identifyThreatTaskId);
-        }
-
         const interceptMissileTaskId = missile.activeTasks?.interceptMissileTaskId;
 
         this.setWeaponsAction(missile.actions.interceptMissile, interceptMissileTaskId);
-
-        this.updateActionTiming(
-            this.scienceAction,
-            missile.timeToImpactMs,
-            missile.initialTimeToImpactMs,
-            missile.decisionTimings?.identifyThreatMinRemainingMs,
-        );
 
         this.updateActionTiming(
             this.weaponsAction,
@@ -240,13 +184,10 @@ export default class BridgeCaptainMissileThreatRowView {
     }
 
     public destroy(): void {
-        this.scienceAction.background.off("pointerdown", this.handleSciencePointerDown, this);
         this.weaponsAction.background.off("pointerdown", this.handleWeaponsPointerDown, this);
 
-        this.scienceCommand = undefined;
         this.weaponsCommand = undefined;
 
-        this.scienceTaskId = undefined;
         this.weaponsTaskId = undefined;
 
         this.root.destroy(true);
@@ -355,41 +296,6 @@ export default class BridgeCaptainMissileThreatRowView {
         };
     }
 
-    private updateIdentification(status: BridgeCaptainIncomingMissilePayload["identificationStatus"]): void {
-        switch (status) {
-            case MISSILE_SIGNATURE_INTEL_STATUS.UNKNOWN:
-                this.identificationText.setText("NO ID").setTint(FONT_COLOR.DANGER);
-                return;
-
-            case MISSILE_SIGNATURE_INTEL_STATUS.UNCERTAIN:
-                this.identificationText.setText("GUESS").setTint(FONT_COLOR.ACTIVITY);
-                return;
-
-            case MISSILE_SIGNATURE_INTEL_STATUS.CONFIRMED:
-                this.identificationText.setText("LOCK").setTint(FONT_COLOR.SECONDARY);
-                return;
-        }
-    }
-
-    private setScienceAction(
-        command: BridgeOfficerCommandSelectedPayload | undefined,
-        taskId: string | undefined,
-    ): void {
-        this.setActionVisible(this.scienceAction, true);
-
-        this.scienceCommand = command;
-        this.scienceTaskId = taskId;
-        this.setActionState(this.scienceAction, command !== undefined, taskId !== undefined);
-    }
-
-    private hideScienceAction(): void {
-        this.scienceCommand = undefined;
-        this.scienceTaskId = undefined;
-
-        this.scienceAction.background.disableInteractive();
-        this.setActionVisible(this.scienceAction, false);
-    }
-
     private setWeaponsAction(
         command: BridgeOfficerCommandSelectedPayload | undefined,
         taskId: string | undefined,
@@ -481,19 +387,6 @@ export default class BridgeCaptainMissileThreatRowView {
 
         action.roleGlyph.setAlpha(alpha);
         action.label.setAlpha(alpha);
-    }
-
-    private handleSciencePointerDown(): void {
-        if (this.scienceTaskId) {
-            this.callbacks.onCancelTask(this.scienceTaskId);
-            return;
-        }
-
-        if (!this.scienceCommand) {
-            return;
-        }
-
-        this.callbacks.onIdentify(this.scienceCommand);
     }
 
     private handleWeaponsPointerDown(): void {

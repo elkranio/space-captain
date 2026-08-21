@@ -33,7 +33,6 @@ import {
 import type { OfficerAvailabilityStates } from "../model/officer_availability";
 import type { OfficerTaskState } from "../model/officer_task";
 import type { EncounterShipDriveState, EncounterState } from "../model/state";
-import type { MissileSignatureIntelStatus } from "../model/missile_signature_intel";
 import { getOfficerAvailabilityStates } from "../officer_availability/queries/get_officer_availability_states";
 import {
     createPlayerThreatDecisionTimingSnapshot,
@@ -79,9 +78,6 @@ export type MissilePresentationSnapshot = {
     timeToImpactMs: number;
     initialTimeToImpactMs: number;
 
-    // Presentation receives observer state only.
-    // Objective runtime signature and concrete hypothesis stay in engine truth.
-    identificationStatus: MissileSignatureIntelStatus;
 };
 
 export type PlayerDefenseTurretPresentationSnapshot = {
@@ -261,7 +257,6 @@ function createMissilePresentationSnapshot(projectile: MissileCombatProjectileSt
 
         initialTimeToImpactMs: projectile.initialTimeToImpactMs,
 
-        identificationStatus: "confirmed",
     };
 }
 

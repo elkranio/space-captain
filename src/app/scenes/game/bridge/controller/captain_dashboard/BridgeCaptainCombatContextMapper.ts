@@ -116,8 +116,6 @@ export function mapCaptainCombatContextToBridgePayload(
 
                     initialTimeToImpactMs: missile.initialTimeToImpactMs,
 
-                    identificationStatus: missile.identificationStatus,
-
                     ...(input.playerThreatDecisionTimings
                         ? {
                               decisionTimings: {

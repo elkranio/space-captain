@@ -98,10 +98,6 @@ export default class BridgeCaptainThreatsView {
 
         while (this.missileRowViews.length < missiles.length) {
             const rowView = new BridgeCaptainMissileThreatRowView(this.scene, {
-                onIdentify: (command) => {
-                    this.emitCommand(command);
-                },
-
                 onIntercept: (command) => {
                     this.emitCommand(command);
                 },

@@ -201,9 +201,6 @@ describe('BridgeEncounterSnapshotSynchronizer', () => {
                             initialTimeToImpactMs:
                                 1200,
 
-                            identificationStatus:
-                                'confirmed',
-
                             actions: {},
                         },
                     ],
@@ -234,8 +231,6 @@ describe('BridgeEncounterSnapshotSynchronizer', () => {
                     {
                         projectileId: 'incoming_1',
                         timeToImpactMs: 800,
-                        identificationStatus:
-                            'confirmed',
                     },
                 ],
             ],
@@ -426,9 +421,6 @@ describe('BridgeEncounterSnapshotSynchronizer', () => {
 
                             initialTimeToImpactMs:
                                 1200,
-
-                            identificationStatus:
-                                'confirmed',
 
                             actions: {},
                         },
@@ -658,8 +650,6 @@ function createEncounterEngine(): EncounterEngine {
                             initialTimeToImpactMs:
                                 1200,
 
-                            identificationStatus:
-                                'confirmed',
                         },
                     ],
 
@@ -697,8 +687,6 @@ function createEncounterEngine(): EncounterEngine {
                             initialTimeToImpactMs:
                                 1000,
 
-                            identificationStatus:
-                                'confirmed',
                         },
                     ],
 

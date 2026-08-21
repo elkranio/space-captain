@@ -4,7 +4,6 @@ import type { OfficerRole } from "../../../../../engine/defs/officer";
 import type { Vec3 } from "../../../../../engine/defs/vector";
 import type { SpriteEntry } from "../../../../manifests/types";
 import type { SceneKey } from "../../../scene_key";
-import type { MissileSignatureIntelStatus } from "../../../../../engine/encounter/model/missile_signature_intel";
 import type { DefenseTurretShotOutcome } from "../../../../../engine/defs/defense_turret";
 import type { ShipDriveStatus } from "../../../../../engine/defs/ship_drive";
 import type { ShipEvadePhase } from "../../../../../engine/defs/ship_evade";
@@ -401,21 +400,15 @@ export type BridgeCaptainIncomingMissilePayload = {
     timeToImpactMs: number;
     initialTimeToImpactMs: number;
 
-    identificationStatus: MissileSignatureIntelStatus;
-
     actions: {
-        identifyThreat?: BridgeOfficerCommandSelectedPayload;
-
         interceptMissile?: BridgeOfficerCommandSelectedPayload;
     };
 
     activeTasks?: {
-        identifyThreatTaskId?: string;
         interceptMissileTaskId?: string;
     };
 
     decisionTimings?: {
-        identifyThreatMinRemainingMs?: number | null;
         interceptMissileMinRemainingMs: number | null;
     };
 };
@@ -647,7 +640,6 @@ export type BridgeIncomingMissileUpdatePayload = {
 
     timeToImpactMs: number;
 
-    identificationStatus: MissileSignatureIntelStatus;
 };
 
 // Актуальный snapshot всех входящих ракет.
