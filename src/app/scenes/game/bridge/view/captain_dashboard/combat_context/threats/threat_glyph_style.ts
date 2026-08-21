@@ -5,7 +5,7 @@ export const THREAT_CELL = {
     glyphX: 8,
     glyphY: 0,
 
-    actionCenterY: 40,
+    actionCenterY: 43,
     actionGap: 5,
 
     disabledAlpha: 0.35,

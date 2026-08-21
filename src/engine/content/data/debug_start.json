@@ -16,7 +16,7 @@
         "powerCoreId": "power_core_basic_00",
         "shieldGeneratorId": "shield_generator_basic_00",
         "defenseTurretId": "defense_turret_basic_00",
-        "weaponSlot1Id": "beam_cannon_00",
+        "weaponSlot1Id": "sticky_mine_dispenser_00",
         "weaponSlot2Id": null,
         "weaponSlot3Id": null,
         "weaponSlot4Id": null
