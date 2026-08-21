@@ -143,10 +143,6 @@ export default class BridgeCaptainThreatsView {
 
         while (this.beamCannonRowViews.length < beamCannons.length) {
             const rowView = new BridgeCaptainBeamCannonThreatRowView(this.scene, {
-                onTrack: (command) => {
-                    this.emitCommand(command);
-                },
-
                 onOpenShieldTargeting: () => {
                     this.callbacks.onOpenShieldTargeting();
                 },

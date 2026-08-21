@@ -494,14 +494,9 @@ describe(
                             designation:
                                 'L1',
 
-                            targetIntel: {
-                                status:
-                                    'confirmed',
-
-                                hypothesis:
-                                    BEAM_CANNON_TARGET_NODE
-                                        .HULL,
-                            },
+                            targetNode:
+                                BEAM_CANNON_TARGET_NODE
+                                    .HULL,
 
                             timeToFireMs:
                                 700,
@@ -509,8 +504,6 @@ describe(
                             initialTimeToFireMs:
                                 1200,
 
-                            actions:
-                                {},
                         },
                     ],
                 });

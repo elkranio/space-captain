@@ -12,7 +12,6 @@ import type { ShipWeaponKind } from "../../../../../engine/defs/ship_weapon";
 import type { EncounterOfficerCommandId, OfficerCommandTarget } from "../../../../../engine/encounter/model/command";
 import type {
     BeamCannonShotOutcome,
-    BeamCannonTargetIntel,
     BeamCannonTargetNode,
     PlayerMissileOutcome,
     PlayerSpamChannelOutcome,
@@ -425,22 +424,12 @@ export type BridgeCaptainIncomingBeamCannonPayload = {
     attackId: string;
     designation: string;
 
-    targetIntel: BeamCannonTargetIntel;
+    targetNode: BeamCannonTargetNode;
 
     timeToFireMs: number;
     initialTimeToFireMs: number;
 
-    actions: {
-        trackTarget?: BridgeOfficerCommandSelectedPayload;
-    };
-
-    activeTasks?: {
-        trackTargetTaskId?: string;
-    };
-
     decisionTimings?: {
-        trackTargetMinRemainingMs?: number | null;
-
         shieldWindow: {
             opensAtRemainingMs: number;
             closesAtRemainingMs: number;

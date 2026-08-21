@@ -1,12 +1,8 @@
 // src/app/scenes/game/bridge/view/captain_dashboard/combat_context/threats/BridgeCaptainBeamCannonThreatRowView.ts
-import { BEAM_CANNON_TARGET_INTEL_STATUS } from "../../../../../../../../engine/encounter/model/combat";
 import { UI_COMBAT_SPRITE_ID, UI_COMBAT_SPRITES } from "../../../../../../../manifests/ui/combat";
 import { FONT_COLOR, FONT_FAMILY, FONT_SIZE } from "../../../../../../../theme/font";
 import type BridgeScene from "../../../../BridgeScene";
-import type {
-    BridgeCaptainIncomingBeamCannonPayload,
-    BridgeOfficerCommandSelectedPayload,
-} from "../../../../events/bridge_event";
+import type { BridgeCaptainIncomingBeamCannonPayload } from "../../../../events/bridge_event";
 import { formatCaptainDashboardCountdown } from "../../captain_dashboard_format";
 import {
     BEAM_SHIELD_TIMING_PHASE,
@@ -26,9 +22,6 @@ const TILE = {
 
     actionY: 28,
     actionDividerX: 76,
-
-    scienceActionX: 0,
-    scienceActionWidth: 76,
 
     engineerActionX: 77,
     engineerActionWidth: 76,
@@ -71,7 +64,6 @@ const TIMING_STRIP = {
 type BeamShieldWindow = NonNullable<BridgeCaptainIncomingBeamCannonPayload["decisionTimings"]>["shieldWindow"];
 
 type BeamCannonThreatRowCallbacks = {
-    onTrack: (command: BridgeOfficerCommandSelectedPayload) => void;
     onOpenShieldTargeting: () => void;
     onCancelTask: (taskId: string) => void;
 };
@@ -88,20 +80,15 @@ type ActionButton = {
     timingExpired: Phaser.GameObjects.Rectangle;
 };
 
-// Beam Cannon использует тот же production-like tile grammar, что и missile.
-// Objective target остаётся скрытым в engine; view рисует только player-observer intel.
+// Beam Cannon uses direct target facts from presentation.
+// SHIELD is the only local action; the left action half stays intentionally empty.
 export default class BridgeCaptainBeamCannonThreatRowView {
     private readonly root: Phaser.GameObjects.Container;
 
     private readonly timerText: Phaser.GameObjects.BitmapText;
     private readonly targetText: Phaser.GameObjects.BitmapText;
 
-    private readonly scienceAction: ActionButton;
     private readonly engineerAction: ActionButton;
-
-    private scienceCommand?: BridgeOfficerCommandSelectedPayload;
-
-    private scienceTaskId?: string;
 
     private shieldTargetingAvailable = false;
     private engineerTaskId?: string;
@@ -147,11 +134,11 @@ export default class BridgeCaptainBeamCannonThreatRowView {
                 TILE.statusCenterX,
                 TILE.headerTextY,
                 FONT_FAMILY.VGA_8X14,
-                "UNKNOWN",
+                "--",
                 FONT_SIZE.PX_14,
             )
             .setOrigin(0.5, 0)
-            .setTint(FONT_COLOR.DANGER);
+            .setTint(FONT_COLOR.SECONDARY);
 
         this.timerText = this.scene.add
             .bitmapText(
@@ -164,13 +151,6 @@ export default class BridgeCaptainBeamCannonThreatRowView {
             .setOrigin(0.5, 0)
             .setTint(FONT_COLOR.WHITE);
 
-        this.scienceAction = this.createActionButton(
-            TILE.scienceActionX,
-            TILE.scienceActionWidth,
-            UI_COMBAT_SPRITE_ID.ROLE_S,
-            "TRACK",
-        );
-
         this.engineerAction = this.createActionButton(
             TILE.engineerActionX,
             TILE.engineerActionWidth,
@@ -178,29 +158,20 @@ export default class BridgeCaptainBeamCannonThreatRowView {
             "SHIELD",
         );
 
-        this.scienceAction.background.on("pointerdown", this.handleSciencePointerDown, this);
         this.engineerAction.background.on("pointerdown", this.handleEngineerPointerDown, this);
 
         this.root.add([
             background,
-            this.scienceAction.background,
             this.engineerAction.background,
             beamCannonIcon,
             this.targetText,
             this.timerText,
-            this.scienceAction.roleGlyph,
-            this.scienceAction.label,
-            this.scienceAction.timingTrack,
-            this.scienceAction.timingFill,
-            this.scienceAction.timingEarly,
-            this.scienceAction.timingExpired,
             this.engineerAction.roleGlyph,
             this.engineerAction.label,
             this.engineerAction.timingTrack,
             this.engineerAction.timingFill,
             this.engineerAction.timingEarly,
             this.engineerAction.timingExpired,
-            ...this.scienceAction.timingDividers,
             ...this.engineerAction.timingDividers,
             actionTopBorder,
             actionDivider,
@@ -223,15 +194,9 @@ export default class BridgeCaptainBeamCannonThreatRowView {
     ): void {
         this.timerText.setText(formatCaptainDashboardCountdown(beamCannon.timeToFireMs));
 
-        this.updateTargetIntel(beamCannon.targetIntel);
-
-        const trackTargetTaskId = beamCannon.activeTasks?.trackTargetTaskId;
-
-        if (beamCannon.targetIntel.status === BEAM_CANNON_TARGET_INTEL_STATUS.CONFIRMED && !trackTargetTaskId) {
-            this.hideScienceAction();
-        } else {
-            this.setScienceAction(beamCannon.actions.trackTarget, trackTargetTaskId);
-        }
+        this.targetText
+            .setText(beamCannon.targetNode.toUpperCase())
+            .setTint(FONT_COLOR.SECONDARY);
 
         this.shieldTargetingAvailable = shieldTargetingAvailable;
         this.engineerTaskId = shieldDeployTaskId;
@@ -239,12 +204,6 @@ export default class BridgeCaptainBeamCannonThreatRowView {
         this.setEngineerAction(
             shieldTargetingAvailable,
             shieldDeployTaskId !== undefined,
-        );
-
-        this.updateTrackTiming(
-            beamCannon.timeToFireMs,
-            beamCannon.initialTimeToFireMs,
-            beamCannon.decisionTimings?.trackTargetMinRemainingMs,
         );
 
         this.updateShieldTiming(
@@ -255,11 +214,7 @@ export default class BridgeCaptainBeamCannonThreatRowView {
     }
 
     public destroy(): void {
-        this.scienceAction.background.off("pointerdown", this.handleSciencePointerDown, this);
         this.engineerAction.background.off("pointerdown", this.handleEngineerPointerDown, this);
-
-        this.scienceCommand = undefined;
-        this.scienceTaskId = undefined;
 
         this.shieldTargetingAvailable = false;
         this.engineerTaskId = undefined;
@@ -383,41 +338,6 @@ export default class BridgeCaptainBeamCannonThreatRowView {
         };
     }
 
-    private updateTargetIntel(targetIntel: BridgeCaptainIncomingBeamCannonPayload["targetIntel"]): void {
-        switch (targetIntel.status) {
-            case BEAM_CANNON_TARGET_INTEL_STATUS.UNKNOWN:
-                this.targetText.setText("UNKNOWN").setTint(FONT_COLOR.DANGER);
-                return;
-
-            case BEAM_CANNON_TARGET_INTEL_STATUS.UNCERTAIN:
-                this.targetText.setText(`${targetIntel.hypothesis.toUpperCase()}?`).setTint(FONT_COLOR.ACTIVITY);
-                return;
-
-            case BEAM_CANNON_TARGET_INTEL_STATUS.CONFIRMED:
-                this.targetText.setText(targetIntel.hypothesis.toUpperCase()).setTint(FONT_COLOR.SECONDARY);
-                return;
-        }
-    }
-
-    private setScienceAction(
-        command: BridgeOfficerCommandSelectedPayload | undefined,
-        taskId: string | undefined,
-    ): void {
-        this.setActionVisible(this.scienceAction, true);
-
-        this.scienceCommand = command;
-        this.scienceTaskId = taskId;
-        this.setActionState(this.scienceAction, command !== undefined, taskId !== undefined);
-    }
-
-    private hideScienceAction(): void {
-        this.scienceCommand = undefined;
-        this.scienceTaskId = undefined;
-
-        this.scienceAction.background.disableInteractive();
-        this.setActionVisible(this.scienceAction, false);
-    }
-
     private setEngineerAction(enabled: boolean, active: boolean): void {
         this.setActionVisible(this.engineerAction, true);
         this.setActionState(this.engineerAction, enabled, active);
@@ -431,41 +351,6 @@ export default class BridgeCaptainBeamCannonThreatRowView {
         if (!visible) {
             this.hideActionTiming(action);
         }
-    }
-
-    private updateTrackTiming(
-        remainingMs: number,
-        initialRemainingMs: number,
-        latestUsefulStartRemainingMs: number | null | undefined,
-    ): void {
-        const action = this.scienceAction;
-
-        if (!action.background.visible || latestUsefulStartRemainingMs === undefined) {
-            this.hideActionTiming(action);
-            return;
-        }
-
-        action.timingTrack.setVisible(true);
-        action.timingDividers.forEach((divider) => divider.setVisible(true));
-        action.timingEarly.setVisible(false);
-
-        if (latestUsefulStartRemainingMs === null) {
-            this.showExpiredActionTiming(action);
-            return;
-        }
-
-        const usefulWindowMs = initialRemainingMs - latestUsefulStartRemainingMs;
-        const usefulRemainingMs = remainingMs - latestUsefulStartRemainingMs;
-
-        if (usefulWindowMs <= 0 || usefulRemainingMs <= 0) {
-            this.showExpiredActionTiming(action);
-            return;
-        }
-
-        const fill01 = Math.max(0, Math.min(1, usefulRemainingMs / usefulWindowMs));
-
-        action.timingFill.setVisible(true).setScale(fill01, 1);
-        action.timingExpired.setVisible(false);
     }
 
     private updateShieldTiming(
@@ -570,19 +455,6 @@ export default class BridgeCaptainBeamCannonThreatRowView {
 
         action.roleGlyph.setAlpha(alpha);
         action.label.setAlpha(alpha);
-    }
-
-    private handleSciencePointerDown(): void {
-        if (this.scienceTaskId) {
-            this.callbacks.onCancelTask(this.scienceTaskId);
-            return;
-        }
-
-        if (!this.scienceCommand) {
-            return;
-        }
-
-        this.callbacks.onTrack(this.scienceCommand);
     }
 
     private handleEngineerPointerDown(): void {

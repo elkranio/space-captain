@@ -154,10 +154,8 @@ describe('BridgeEncounterSnapshotSynchronizer', () => {
                             designation:
                                 'L1',
 
-                            targetIntel: {
-                                status: 'confirmed',
-                                hypothesis: 'hull',
-                            },
+                            targetNode:
+                                'hull',
 
                             timeToFireMs:
                                 500,
@@ -165,7 +163,6 @@ describe('BridgeEncounterSnapshotSynchronizer', () => {
                             initialTimeToFireMs:
                                 1000,
 
-                            actions: {},
                         },
                     ],
 
@@ -383,10 +380,8 @@ describe('BridgeEncounterSnapshotSynchronizer', () => {
                             designation:
                                 'L1',
 
-                            targetIntel: {
-                                status: 'confirmed',
-                                hypothesis: 'hull',
-                            },
+                            targetNode:
+                                'hull',
 
                             timeToFireMs:
                                 500,
@@ -394,7 +389,6 @@ describe('BridgeEncounterSnapshotSynchronizer', () => {
                             initialTimeToFireMs:
                                 1000,
 
-                            actions: {},
                         },
                     ],
 

@@ -1,5 +1,4 @@
 import {
-    BEAM_CANNON_TARGET_INTEL_STATUS,
     BEAM_CANNON_TARGET_NODE,
     type BeamCannonTargetNode,
 } from "../../../../../../../../engine/encounter/model/combat";
@@ -26,8 +25,8 @@ const VIEW = {
     driveRowY: 74,
     rowLabelX: 12,
 
-    intelRightInset: 12,
-    intelGap: 12,
+    markerRightInset: 12,
+    markerGap: 12,
 
     cancelWidth: 92,
     cancelHeight: 22,
@@ -46,14 +45,10 @@ type TargetRow = {
 
     command?: BridgeOfficerCommandSelectedPayload;
 
-    intelTexts: Phaser.GameObjects.BitmapText[];
+    threatTexts: Phaser.GameObjects.BitmapText[];
 };
 
-type IntelMarker = {
-    status:
-        | typeof BEAM_CANNON_TARGET_INTEL_STATUS.UNCERTAIN
-        | typeof BEAM_CANNON_TARGET_INTEL_STATUS.CONFIRMED;
-
+type ThreatMarker = {
     timeToFireMs: number;
 };
 
@@ -242,7 +237,7 @@ export default class BridgeCaptainShieldTargetingView {
             background,
             label,
 
-            intelTexts: [],
+            threatTexts: [],
         };
 
         background.on("pointerdown", () => {
@@ -280,13 +275,13 @@ export default class BridgeCaptainShieldTargetingView {
         row.background.setAlpha(alpha);
         row.label.setAlpha(alpha);
 
-        const markers = getTargetIntelMarkers(beamCannons, row.targetNode);
+        const markers = getTargetMarkers(beamCannons, row.targetNode);
 
-        while (row.intelTexts.length > markers.length) {
-            row.intelTexts.pop()?.destroy();
+        while (row.threatTexts.length > markers.length) {
+            row.threatTexts.pop()?.destroy();
         }
 
-        while (row.intelTexts.length < markers.length) {
+        while (row.threatTexts.length < markers.length) {
             const text = this.scene.add
                 .bitmapText(
                     0,
@@ -297,33 +292,27 @@ export default class BridgeCaptainShieldTargetingView {
                 )
                 .setOrigin(1, 0.5);
 
-            row.intelTexts.push(text);
+            row.threatTexts.push(text);
             this.root.add(text);
         }
 
         for (let index = 0; index < markers.length; index += 1) {
             const marker = markers[index];
-            const text = row.intelTexts[index];
+            const text = row.threatTexts[index];
 
             if (!marker || !text) {
                 continue;
             }
 
-            const confirmed =
-                marker.status === BEAM_CANNON_TARGET_INTEL_STATUS.CONFIRMED;
-
             text
-                .setText(
-                    (confirmed ? "! " : "? ") +
-                        formatCaptainDashboardCountdown(marker.timeToFireMs),
-                )
-                .setTint(confirmed ? FONT_COLOR.DANGER : FONT_COLOR.ACTIVITY);
+                .setText("! " + formatCaptainDashboardCountdown(marker.timeToFireMs))
+                .setTint(FONT_COLOR.DANGER);
         }
 
-        let rightX = this.width - VIEW.intelRightInset;
+        let rightX = this.width - VIEW.markerRightInset;
 
-        for (let index = row.intelTexts.length - 1; index >= 0; index -= 1) {
-            const text = row.intelTexts[index];
+        for (let index = row.threatTexts.length - 1; index >= 0; index -= 1) {
+            const text = row.threatTexts[index];
 
             if (!text) {
                 continue;
@@ -334,30 +323,23 @@ export default class BridgeCaptainShieldTargetingView {
                 row.background.y + VIEW.rowHeight / 2,
             );
 
-            rightX -= text.width + VIEW.intelGap;
+            rightX -= text.width + VIEW.markerGap;
         }
     }
 }
 
-function getTargetIntelMarkers(
+function getTargetMarkers(
     beamCannons: BridgeCaptainIncomingBeamCannonPayload[],
     targetNode: BeamCannonTargetNode,
-): IntelMarker[] {
-    const markers: IntelMarker[] = [];
+): ThreatMarker[] {
+    const markers: ThreatMarker[] = [];
 
     for (const beamCannon of beamCannons) {
-        const intel = beamCannon.targetIntel;
-
-        if (intel.status === BEAM_CANNON_TARGET_INTEL_STATUS.UNKNOWN) {
-            continue;
-        }
-
-        if (intel.hypothesis !== targetNode) {
+        if (beamCannon.targetNode !== targetNode) {
             continue;
         }
 
         markers.push({
-            status: intel.status,
             timeToFireMs: beamCannon.timeToFireMs,
         });
     }

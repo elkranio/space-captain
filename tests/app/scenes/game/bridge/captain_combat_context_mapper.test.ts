@@ -86,13 +86,8 @@ describe(
                             designation:
                                 'L1',
 
-                            targetIntel: {
-                                status:
-                                    'confirmed',
-
-                                hypothesis:
-                                    'hull',
-                            },
+                            targetNode:
+                                'hull',
 
                             timeToFireMs:
                                 6500,
@@ -100,7 +95,6 @@ describe(
                             initialTimeToFireMs:
                                 10000,
 
-                            actions: {},
                         },
                     ],
                 });
