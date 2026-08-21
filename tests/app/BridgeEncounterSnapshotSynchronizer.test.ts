@@ -154,6 +154,11 @@ describe('BridgeEncounterSnapshotSynchronizer', () => {
                             designation:
                                 'L1',
 
+                            targetIntel: {
+                                status: 'confirmed',
+                                hypothesis: 'hull',
+                            },
+
                             timeToFireMs:
                                 500,
 
@@ -377,6 +382,11 @@ describe('BridgeEncounterSnapshotSynchronizer', () => {
 
                             designation:
                                 'L1',
+
+                            targetIntel: {
+                                status: 'confirmed',
+                                hypothesis: 'hull',
+                            },
 
                             timeToFireMs:
                                 500,
@@ -741,6 +751,9 @@ function createEncounterEngine(): EncounterEngine {
                                 designation:
                                     'L1',
                             },
+
+                            targetNode:
+                                'hull',
 
                             timeToFireMs:
                                 500,

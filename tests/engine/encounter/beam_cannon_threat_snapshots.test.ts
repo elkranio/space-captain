@@ -46,10 +46,7 @@ describe('EncounterEngine beamCannon threat snapshots', () => {
             {
                 attack: createExpectedAttack(),
 
-                targetIntel: {
-                    status: BEAM_CANNON_TARGET_INTEL_STATUS.CONFIRMED,
-                    hypothesis: BEAM_CANNON_TARGET_NODE.DRIVE,
-                },
+                targetNode: BEAM_CANNON_TARGET_NODE.DRIVE,
 
                 timeToFireMs: chargeDurationMs,
                 initialTimeToFireMs: chargeDurationMs,
@@ -65,10 +62,7 @@ describe('EncounterEngine beamCannon threat snapshots', () => {
             {
                 attack: createExpectedAttack(),
 
-                targetIntel: {
-                    status: BEAM_CANNON_TARGET_INTEL_STATUS.CONFIRMED,
-                    hypothesis: BEAM_CANNON_TARGET_NODE.DRIVE,
-                },
+                targetNode: BEAM_CANNON_TARGET_NODE.DRIVE,
 
                 timeToFireMs: chargeDurationMs - 1234,
                 initialTimeToFireMs: chargeDurationMs,

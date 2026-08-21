@@ -44,9 +44,8 @@ describe(
                                     },
                                 },
 
-                                targetIntel: {
-                                    status: 'unknown',
-                                },
+                                targetNode:
+                                    'hull',
 
                                 timeToFireMs:
                                     6500,
@@ -89,7 +88,10 @@ describe(
 
                             targetIntel: {
                                 status:
-                                    'unknown',
+                                    'confirmed',
+
+                                hypothesis:
+                                    'hull',
                             },
 
                             timeToFireMs:

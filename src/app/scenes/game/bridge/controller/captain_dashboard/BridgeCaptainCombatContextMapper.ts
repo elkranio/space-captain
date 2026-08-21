@@ -270,7 +270,10 @@ export function mapCaptainCombatContextToBridgePayload(
 
                     designation: snapshot.attack.designation,
 
-                    targetIntel: snapshot.targetIntel,
+                    targetIntel: {
+                        status: "confirmed",
+                        hypothesis: snapshot.targetNode,
+                    },
 
                     timeToFireMs: snapshot.timeToFireMs,
 

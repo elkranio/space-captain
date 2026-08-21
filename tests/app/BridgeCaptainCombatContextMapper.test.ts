@@ -392,9 +392,9 @@ describe(
                                     },
                                 },
 
-                                targetIntel: {
-                                    status: 'unknown',
-                                },
+                                targetNode:
+                                    BEAM_CANNON_TARGET_NODE
+                                        .HULL,
 
                                 timeToFireMs:
                                     700,
@@ -496,7 +496,11 @@ describe(
 
                             targetIntel: {
                                 status:
-                                    'unknown',
+                                    'confirmed',
+
+                                hypothesis:
+                                    BEAM_CANNON_TARGET_NODE
+                                        .HULL,
                             },
 
                             timeToFireMs:
