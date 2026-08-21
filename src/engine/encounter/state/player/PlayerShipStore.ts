@@ -14,7 +14,6 @@ import { SHIP_DRIVE_STATUS } from "../../../defs/ship_drive";
 import { advanceShipEvade, startShipEvade, stopShipEvade } from "../../../defs/ship_evade";
 import { SHIELD_GENERATORS } from "../../../content/catalogs/shield_generators";
 import { DEFENSE_TURRETS } from "../../../content/catalogs/defense_turrets";
-import { resolveMissileInterception } from "../../combat/defense_turret/resolve_missile_interception";
 import { SHIELD_GENERATOR_PHASE, SHIELD_GENERATOR_STATUS } from "../../../defs/shield_generator";
 import {
     commitShipWeaponCooldown,
@@ -499,7 +498,7 @@ export default class PlayerShipStore {
         return powerCore;
     }
 
-    public fireDefenseTurret(threatId: string, random: () => number): DefenseTurretShotOutcome | undefined {
+    public fireDefenseTurret(threatId: string, _random: () => number): DefenseTurretShotOutcome | undefined {
         const projectile = this.state.combat.projectiles.find((candidate) => {
             return candidate.id === threatId;
         });
@@ -516,22 +515,7 @@ export default class PlayerShipStore {
             throw new Error("Cannot fire player defense turret: installation missing");
         }
 
-        const definition = DEFENSE_TURRETS[defenseTurret.defenseTurretId];
-
-        const hypothesis =
-            projectile.identification.status === MISSILE_SIGNATURE_INTEL_STATUS.UNKNOWN
-                ? undefined
-                : projectile.identification.hypothesis;
-
-        const outcome = resolveMissileInterception({
-            truth: projectile.signature,
-
-            hypothesis,
-
-            blindInterceptChance: definition.blindInterceptChance,
-
-            random,
-        });
+        const outcome = DEFENSE_TURRET_SHOT_OUTCOME.HIT;
 
         if (outcome === DEFENSE_TURRET_SHOT_OUTCOME.HIT) {
             const projectileIndex = this.state.combat.projectiles.indexOf(projectile);

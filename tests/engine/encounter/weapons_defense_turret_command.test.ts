@@ -254,7 +254,7 @@ describe(
         );
 
         it(
-            'uses equipment blind chance without a hypothesis and keeps a missile after a miss',
+            'guarantees interception without a Science hypothesis',
             () => {
                 const {
                     engine,
@@ -291,13 +291,13 @@ describe(
 
                             outcome:
                                 DEFENSE_TURRET_SHOT_OUTCOME
-                                    .MISS,
+                                    .HIT,
                         },
                     });
 
                 expect(
                     state.combat.projectiles,
-                ).toHaveLength(1);
+                ).toEqual([]);
 
                 expect(
                     engine.getAvailableCommands(
@@ -327,7 +327,7 @@ describe(
                     engine.getAvailableCommands(
                         OFFICER_ROLE.WEAPONS,
                     ),
-                ).toHaveLength(1);
+                ).toEqual([]);
             },
         );
 
