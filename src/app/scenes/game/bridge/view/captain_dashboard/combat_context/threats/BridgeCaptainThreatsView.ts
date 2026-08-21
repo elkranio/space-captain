@@ -20,8 +20,8 @@ const THREAT_TILE_GRID = {
     columns: 4,
     tileWidth: THREAT_CELL.width,
     tileHeight: THREAT_CELL.height,
-    rowGap: 10,
-    topPadding: 3,
+    rowGap: 0,
+    topPadding: 7,
 } as const;
 
 type ThreatsViewCallbacks = {
