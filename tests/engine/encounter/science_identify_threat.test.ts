@@ -367,66 +367,13 @@ describe('Science identify threat command', () => {
         ).toBeDefined();
     });
 
-    it('identifies an incoming beamCannon target node', () => {
+    it('does not offer IDENTIFY THREAT for a beam whose target is already known', () => {
         const { engine } =
             createBeamCannonEngine();
 
         engine.step(0);
 
         engine.drainEvents();
-
-        const identifyCommand =
-            engine
-                .getAvailableCommands(
-                    OFFICER_ROLE.SCIENCE,
-                )
-                .find((command) => {
-                    return (
-                        command.commandId ===
-                        ENCOUNTER_OFFICER_COMMAND_ID
-                            .SCIENCE_IDENTIFY_THREAT
-                    );
-                });
-
-        expect(
-            identifyCommand,
-        ).toEqual({
-            commandId:
-                ENCOUNTER_OFFICER_COMMAND_ID
-                    .SCIENCE_IDENTIFY_THREAT,
-
-            label:
-                'BEAM L1',
-
-            target: {
-                kind:
-                    OFFICER_COMMAND_TARGET_KIND
-                        .THREAT,
-
-                threatId:
-                    'beam_cannon_attack_1',
-            },
-
-            targetLabel:
-                'IDENTIFY THREAT',
-        });
-
-        if (!identifyCommand) {
-            throw new Error(
-                'Expected Beam IDENTIFY THREAT command',
-            );
-        }
-
-        engine.executeCommand({
-            role:
-                OFFICER_ROLE.SCIENCE,
-
-            commandId:
-                identifyCommand.commandId,
-
-            target:
-                identifyCommand.target,
-        });
 
         expect(
             engine

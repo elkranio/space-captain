@@ -261,7 +261,7 @@ function createMissilePresentationSnapshot(projectile: MissileCombatProjectileSt
 
         initialTimeToImpactMs: projectile.initialTimeToImpactMs,
 
-        identificationStatus: projectile.identification.status,
+        identificationStatus: "confirmed",
     };
 }
 

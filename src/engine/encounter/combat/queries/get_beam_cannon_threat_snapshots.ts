@@ -58,7 +58,10 @@ export function getBeamCannonThreatSnapshots(state: EncounterState): BeamCannonT
             return {
                 attack: createBeamCannonAttackSnapshot(attack),
 
-                targetIntel: attack.targetIntel,
+                targetIntel: {
+                    status: "confirmed",
+                    hypothesis: attack.targetNode,
+                },
 
                 timeToFireMs: Math.max(0, definition.chargeDurationMs - weapon.phaseElapsedMs),
 
