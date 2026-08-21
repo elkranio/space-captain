@@ -144,7 +144,10 @@ export default class BridgeCaptainBeamCannonThreatGlyphView {
     }
 
     private updateGlyphTiming(beamCannon: BridgeCaptainIncomingBeamCannonPayload): void {
-        this.beamIcon.setVisible(true).setAlpha(1);
+        this.beamIcon
+            .setTintFill(THREAT_GLYPH_COLOR.BEAM)
+            .setVisible(true)
+            .setAlpha(1);
         this.beamDangerIcon.setVisible(false).setAlpha(1);
 
         const timing = getBeamShieldTimingStripState({
@@ -163,15 +166,11 @@ export default class BridgeCaptainBeamCannonThreatGlyphView {
         }
 
         if (timing.phase === BEAM_SHIELD_TIMING_PHASE.TOO_EARLY) {
+            this.beamIcon.setTintFill(FONT_COLOR.SECONDARY);
+
             const dangerProgress01 = timing.earlyWidth01 * (1 - timing.earlyFill01);
 
             this.showDangerProgress(dangerProgress01);
-
-            const blinkOn = Math.floor(this.scene.time.now / THREAT_CELL.earlyBlinkPeriodMs) % 2 === 0;
-            const blinkAlpha = blinkOn ? 1 : 0.45;
-
-            this.beamIcon.setAlpha(blinkAlpha);
-            this.beamDangerIcon.setAlpha(blinkAlpha);
             return;
         }
 
@@ -194,10 +193,10 @@ export default class BridgeCaptainBeamCannonThreatGlyphView {
     }
 
     private showTerminalGlyph(): void {
-        const blinkOn = Math.floor(this.scene.time.now / THREAT_CELL.terminalBlinkPeriodMs) % 2 === 0;
-
         this.beamIcon.setVisible(false);
-        this.beamDangerIcon.setCrop(0, 0, this.beamDangerIcon.width, this.beamDangerIcon.height).setVisible(blinkOn);
+        this.beamDangerIcon
+            .setCrop(0, 0, this.beamDangerIcon.width, this.beamDangerIcon.height)
+            .setVisible(true);
     }
 
     private layoutActionLabel(): void {
