@@ -86,18 +86,6 @@ export function mapCaptainCombatContextToBridgePayload(
                 return left.timeToImpactMs - right.timeToImpactMs;
             })
             .map((missile) => {
-                const identifyThreat = findThreatCommand({
-                    commands: input.availableScienceCommands,
-
-                    commandId: ENCOUNTER_OFFICER_COMMAND_ID.SCIENCE_IDENTIFY_THREAT,
-
-                    threatId: missile.id,
-
-                    role: OFFICER_ROLE.SCIENCE,
-
-                    label: "identify threat",
-                });
-
                 const interceptMissile = findThreatCommand({
                     commands: input.availableWeaponsCommands,
 
@@ -109,15 +97,6 @@ export function mapCaptainCombatContextToBridgePayload(
 
                     label: "defense-turret intercept",
                 });
-
-                const identifyThreatTaskId = (input.officerTasks ?? []).find((task) => {
-                    return (
-                        task.canBeCancelledByPlayer &&
-                        task.sourceCommandId === ENCOUNTER_OFFICER_COMMAND_ID.SCIENCE_IDENTIFY_THREAT &&
-                        "threatId" in task &&
-                        task.threatId === missile.id
-                    );
-                })?.id;
 
                 const interceptMissileTaskId = (input.officerTasks ?? []).find((task) => {
                     return (
@@ -142,9 +121,6 @@ export function mapCaptainCombatContextToBridgePayload(
                     ...(input.playerThreatDecisionTimings
                         ? {
                               decisionTimings: {
-                                  identifyThreatMinRemainingMs:
-                                      input.playerThreatDecisionTimings.missile.trackAndInterceptMinRemainingMs,
-
                                   interceptMissileMinRemainingMs:
                                       input.playerThreatDecisionTimings.missile.interceptMinRemainingMs,
                               },
@@ -152,12 +128,6 @@ export function mapCaptainCombatContextToBridgePayload(
                         : {}),
 
                     actions: {
-                        ...(identifyThreat
-                            ? {
-                                  identifyThreat,
-                              }
-                            : {}),
-
                         ...(interceptMissile
                             ? {
                                   interceptMissile,
@@ -165,20 +135,10 @@ export function mapCaptainCombatContextToBridgePayload(
                             : {}),
                     },
 
-                    ...(identifyThreatTaskId || interceptMissileTaskId
+                    ...(interceptMissileTaskId
                         ? {
                               activeTasks: {
-                                  ...(identifyThreatTaskId
-                                      ? {
-                                            identifyThreatTaskId,
-                                        }
-                                      : {}),
-
-                                  ...(interceptMissileTaskId
-                                      ? {
-                                            interceptMissileTaskId,
-                                        }
-                                      : {}),
+                                  interceptMissileTaskId,
                               },
                           }
                         : {}),
@@ -305,27 +265,6 @@ export function mapCaptainCombatContextToBridgePayload(
                 return left.timeToFireMs - right.timeToFireMs;
             })
             .map((snapshot) => {
-                const trackTarget = findThreatCommand({
-                    commands: input.availableScienceCommands,
-
-                    commandId: ENCOUNTER_OFFICER_COMMAND_ID.SCIENCE_IDENTIFY_THREAT,
-
-                    threatId: snapshot.attack.id,
-
-                    role: OFFICER_ROLE.SCIENCE,
-
-                    label: "beam target tracking",
-                });
-
-                const trackTargetTaskId = (input.officerTasks ?? []).find((task) => {
-                    return (
-                        task.canBeCancelledByPlayer &&
-                        task.sourceCommandId === ENCOUNTER_OFFICER_COMMAND_ID.SCIENCE_IDENTIFY_THREAT &&
-                        "threatId" in task &&
-                        task.threatId === snapshot.attack.id
-                    );
-                })?.id;
-
                 return {
                     attackId: snapshot.attack.id,
 
@@ -340,29 +279,12 @@ export function mapCaptainCombatContextToBridgePayload(
                     ...(input.playerThreatDecisionTimings
                         ? {
                               decisionTimings: {
-                                  trackTargetMinRemainingMs:
-                                      input.playerThreatDecisionTimings.beam.trackMinRemainingMs,
-
                                   shieldWindow: input.playerThreatDecisionTimings.beam.shieldWindow,
                               },
                           }
                         : {}),
 
-                    actions: {
-                        ...(trackTarget
-                            ? {
-                                  trackTarget,
-                              }
-                            : {}),
-                    },
-
-                    ...(trackTargetTaskId
-                        ? {
-                              activeTasks: {
-                                  trackTargetTaskId,
-                              },
-                          }
-                        : {}),
+                    actions: {},
                 };
             }),
     };

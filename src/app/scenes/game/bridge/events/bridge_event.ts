@@ -416,7 +416,7 @@ export type BridgeCaptainIncomingMissilePayload = {
     };
 
     decisionTimings?: {
-        identifyThreatMinRemainingMs: number | null;
+        identifyThreatMinRemainingMs?: number | null;
         interceptMissileMinRemainingMs: number | null;
     };
 };
@@ -439,7 +439,7 @@ export type BridgeCaptainIncomingBeamCannonPayload = {
     };
 
     decisionTimings?: {
-        trackTargetMinRemainingMs: number | null;
+        trackTargetMinRemainingMs?: number | null;
 
         shieldWindow: {
             opensAtRemainingMs: number;

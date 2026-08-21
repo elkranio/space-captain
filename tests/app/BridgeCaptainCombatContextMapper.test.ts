@@ -30,7 +30,7 @@ describe(
     'BridgeCaptainCombatContextMapper',
     () => {
         it(
-            'maps incoming missiles nearest-first with exact resolved threat commands',
+            'maps incoming missiles nearest-first with exact intercept commands',
             () => {
                 const near =
                     createMissile({
@@ -67,7 +67,7 @@ describe(
 
                         identificationStatus:
                             MISSILE_SIGNATURE_INTEL_STATUS
-                                .UNKNOWN,
+                                .CONFIRMED,
                     });
 
                 expect(
@@ -88,14 +88,8 @@ describe(
                         beamCannonThreats:
                             [],
 
-                        availableScienceCommands: [
-                            createThreatCommand(
-                                ENCOUNTER_OFFICER_COMMAND_ID
-                                    .SCIENCE_IDENTIFY_THREAT,
-
-                                far.id,
-                            ),
-                        ],
+                        availableScienceCommands:
+                            [],
 
                         availableEngineeringCommands:
                             [],
@@ -181,28 +175,9 @@ describe(
 
                             identificationStatus:
                                 MISSILE_SIGNATURE_INTEL_STATUS
-                                    .UNKNOWN,
+                                    .CONFIRMED,
 
                             actions: {
-                                identifyThreat: {
-                                    role:
-                                        OFFICER_ROLE
-                                            .SCIENCE,
-
-                                    commandId:
-                                        ENCOUNTER_OFFICER_COMMAND_ID
-                                            .SCIENCE_IDENTIFY_THREAT,
-
-                                    target: {
-                                        kind:
-                                            OFFICER_COMMAND_TARGET_KIND
-                                                .THREAT,
-
-                                        threatId:
-                                            far.id,
-                                    },
-                                },
-
                                 interceptMissile: {
                                     role:
                                         OFFICER_ROLE
