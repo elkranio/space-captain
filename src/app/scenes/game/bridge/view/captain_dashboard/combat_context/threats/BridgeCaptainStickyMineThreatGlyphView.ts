@@ -1,78 +1,63 @@
-// src/app/scenes/game/bridge/view/captain_dashboard/combat_context/threats/BridgeCaptainMissileThreatRowView.ts
 import { UI_COMBAT_SPRITE_ID, UI_COMBAT_SPRITES } from "../../../../../../../manifests/ui/combat";
 import { FONT_COLOR } from "../../../../../../../theme/font";
 import type BridgeScene from "../../../../BridgeScene";
 import type {
-    BridgeCaptainIncomingMissilePayload,
+    BridgeCaptainStickyMinePayload,
     BridgeOfficerCommandSelectedPayload,
 } from "../../../../events/bridge_event";
 import { THREAT_CELL, THREAT_GLYPH_COLOR } from "./threat_glyph_style";
 
-const TILE = THREAT_CELL;
-
-type MissileThreatRowCallbacks = {
-    onIntercept: (command: BridgeOfficerCommandSelectedPayload) => void;
+type StickyMineThreatGlyphCallbacks = {
+    onClear: (command: BridgeOfficerCommandSelectedPayload) => void;
     onCancelTask: (taskId: string) => void;
 };
 
-// Temporary single-threat migration target.
-//
-// Missile already uses the new dashboard grammar:
-// - large concrete glyph;
-// - no card chrome or numeric countdown;
-// - whole cell is the HIT / CANCEL target;
-// - red glyph fill shows how much of the useful-start window has been spent;
-// - full-red blink means the latest useful start has already been missed.
-//
-// BridgeCaptainThreatsView still owns the legacy grid while the other threat
-// views are migrated one by one.
-export default class BridgeCaptainMissileThreatRowView {
+export default class BridgeCaptainStickyMineThreatGlyphView {
     private readonly root: Phaser.GameObjects.Container;
 
     private readonly hitArea: Phaser.GameObjects.Rectangle;
 
-    private readonly missileIcon: Phaser.GameObjects.Image;
-
-    private readonly missileDangerIcon: Phaser.GameObjects.Image;
+    private readonly mineIcon: Phaser.GameObjects.Image;
+    private readonly mineDangerIcon: Phaser.GameObjects.Image;
 
     private readonly roleGlyph: Phaser.GameObjects.Image;
-
     private readonly actionLabel: Phaser.GameObjects.Text;
 
-    private weaponsCommand?: BridgeOfficerCommandSelectedPayload;
-
-    private weaponsTaskId?: string;
+    private engineerCommand?: BridgeOfficerCommandSelectedPayload;
+    private engineerTaskId?: string;
 
     constructor(
         private readonly scene: BridgeScene,
-        private readonly callbacks: MissileThreatRowCallbacks,
+        private readonly callbacks: StickyMineThreatGlyphCallbacks,
     ) {
         this.root = this.scene.add.container(0, 0);
 
         this.hitArea = this.scene.add
-            .rectangle(0, 0, TILE.width, TILE.height, 0xffffff, 0)
+            .rectangle(0, 0, THREAT_CELL.width, THREAT_CELL.height, 0xffffff, 0)
             .setOrigin(0, 0);
 
-        this.missileIcon = this.createSprite(
-            UI_COMBAT_SPRITE_ID.THREAT_MISSILE,
-            TILE.glyphX,
-            TILE.glyphY,
-        )
-            .setTintFill(THREAT_GLYPH_COLOR.MISSILE);
+        this.mineIcon = this.createSprite(
+            UI_COMBAT_SPRITE_ID.THREAT_MINE,
+            THREAT_CELL.glyphX,
+            THREAT_CELL.glyphY,
+        ).setTintFill(THREAT_GLYPH_COLOR.MINE);
 
-        this.missileDangerIcon = this.createSprite(
-            UI_COMBAT_SPRITE_ID.THREAT_MISSILE,
-            TILE.glyphX,
-            TILE.glyphY,
+        this.mineDangerIcon = this.createSprite(
+            UI_COMBAT_SPRITE_ID.THREAT_MINE,
+            THREAT_CELL.glyphX,
+            THREAT_CELL.glyphY,
         )
             .setTintFill(FONT_COLOR.DANGER)
             .setVisible(false);
 
-        this.roleGlyph = this.createSprite(UI_COMBAT_SPRITE_ID.ROLE_W, 0, TILE.actionCenterY)
-            .setOrigin(0, 0.5);
+        this.roleGlyph = this.createSprite(
+            UI_COMBAT_SPRITE_ID.ROLE_E,
+            0,
+            THREAT_CELL.actionCenterY,
+        ).setOrigin(0, 0.5);
 
         this.actionLabel = this.scene.add
-            .text(0, TILE.actionCenterY, "HIT", {
+            .text(0, THREAT_CELL.actionCenterY, "CLEAR", {
                 fontFamily: "Anta",
                 fontSize: "10px",
                 color: "#ffffff",
@@ -84,8 +69,8 @@ export default class BridgeCaptainMissileThreatRowView {
 
         this.root.add([
             this.hitArea,
-            this.missileIcon,
-            this.missileDangerIcon,
+            this.mineIcon,
+            this.mineDangerIcon,
             this.roleGlyph,
             this.actionLabel,
         ]);
@@ -101,29 +86,29 @@ export default class BridgeCaptainMissileThreatRowView {
         this.root.setPosition(x, y);
     }
 
-    public update(missile: BridgeCaptainIncomingMissilePayload): void {
-        const interceptMissileTaskId = missile.activeTasks?.interceptMissileTaskId;
+    public update(mine: BridgeCaptainStickyMinePayload): void {
+        const engineerClearTaskId = mine.activeTasks?.engineerClearTaskId;
 
-        this.weaponsCommand = missile.actions.interceptMissile;
-        this.weaponsTaskId = interceptMissileTaskId;
+        this.engineerCommand = mine.actions.engineerClear;
+        this.engineerTaskId = engineerClearTaskId;
 
         this.updateActionState(
-            missile.actions.interceptMissile !== undefined,
-            interceptMissileTaskId !== undefined,
+            mine.actions.engineerClear !== undefined,
+            engineerClearTaskId !== undefined,
         );
 
         this.updateGlyphTiming(
-            missile.timeToImpactMs,
-            missile.initialTimeToImpactMs,
-            missile.decisionTimings?.interceptMissileMinRemainingMs,
+            mine.timeToDetonationMs,
+            mine.initialTimeToDetonationMs,
+            mine.decisionTimings?.clearMinRemainingMs,
         );
     }
 
     public destroy(): void {
         this.hitArea.off("pointerdown", this.handlePointerDown, this);
 
-        this.weaponsCommand = undefined;
-        this.weaponsTaskId = undefined;
+        this.engineerCommand = undefined;
+        this.engineerTaskId = undefined;
 
         this.root.destroy(true);
     }
@@ -147,9 +132,9 @@ export default class BridgeCaptainMissileThreatRowView {
             });
         }
 
-        this.actionLabel.setText(active ? "CANCEL" : "HIT");
+        this.actionLabel.setText(active ? "CANCEL" : "CLEAR");
 
-        const alpha = enabled || active ? 1 : TILE.disabledAlpha;
+        const alpha = enabled || active ? 1 : THREAT_CELL.disabledAlpha;
 
         this.roleGlyph.setAlpha(alpha);
         this.actionLabel.setAlpha(alpha);
@@ -162,8 +147,8 @@ export default class BridgeCaptainMissileThreatRowView {
         initialRemainingMs: number,
         latestUsefulStartRemainingMs: number | null | undefined,
     ): void {
-        this.missileIcon.setVisible(true);
-        this.missileDangerIcon.setVisible(false);
+        this.mineIcon.setVisible(true);
+        this.mineDangerIcon.setVisible(false);
 
         if (latestUsefulStartRemainingMs === undefined) {
             return;
@@ -191,52 +176,47 @@ export default class BridgeCaptainMissileThreatRowView {
 
         const cropWidth = Math.max(
             1,
-            Math.round(this.missileDangerIcon.width * dangerProgress01),
+            Math.round(this.mineDangerIcon.width * dangerProgress01),
         );
 
-        this.missileDangerIcon
-            .setCrop(0, 0, cropWidth, this.missileDangerIcon.height)
+        this.mineDangerIcon
+            .setCrop(0, 0, cropWidth, this.mineDangerIcon.height)
             .setVisible(true);
     }
 
     private showTerminalGlyph(): void {
         const blinkOn =
-            Math.floor(this.scene.time.now / TILE.terminalBlinkPeriodMs) % 2 === 0;
+            Math.floor(this.scene.time.now / THREAT_CELL.terminalBlinkPeriodMs) % 2 === 0;
 
-        this.missileIcon.setVisible(false);
-        this.missileDangerIcon
-            .setCrop(
-                0,
-                0,
-                this.missileDangerIcon.width,
-                this.missileDangerIcon.height,
-            )
+        this.mineIcon.setVisible(false);
+        this.mineDangerIcon
+            .setCrop(0, 0, this.mineDangerIcon.width, this.mineDangerIcon.height)
             .setVisible(blinkOn);
     }
 
     private layoutActionLabel(): void {
         const contentWidth =
-            this.roleGlyph.displayWidth + TILE.actionGap + this.actionLabel.width;
-        const startX = Math.round((TILE.width - contentWidth) / 2);
+            this.roleGlyph.displayWidth + THREAT_CELL.actionGap + this.actionLabel.width;
+        const startX = Math.round((THREAT_CELL.width - contentWidth) / 2);
 
-        this.roleGlyph.setPosition(startX, TILE.actionCenterY);
+        this.roleGlyph.setPosition(startX, THREAT_CELL.actionCenterY);
         this.actionLabel.setPosition(
-            startX + this.roleGlyph.displayWidth + TILE.actionGap,
-            TILE.actionCenterY,
+            startX + this.roleGlyph.displayWidth + THREAT_CELL.actionGap,
+            THREAT_CELL.actionCenterY,
         );
     }
 
     private handlePointerDown(): void {
-        if (this.weaponsTaskId) {
-            this.callbacks.onCancelTask(this.weaponsTaskId);
+        if (this.engineerTaskId) {
+            this.callbacks.onCancelTask(this.engineerTaskId);
             return;
         }
 
-        if (!this.weaponsCommand) {
+        if (!this.engineerCommand) {
             return;
         }
 
-        this.callbacks.onIntercept(this.weaponsCommand);
+        this.callbacks.onClear(this.engineerCommand);
     }
 }
 

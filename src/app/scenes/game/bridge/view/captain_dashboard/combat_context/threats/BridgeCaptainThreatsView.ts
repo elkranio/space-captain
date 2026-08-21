@@ -9,15 +9,17 @@ import {
     type BridgeOfficerCommandSelectedPayload,
 } from "../../../../events/bridge_event";
 import type BridgeEventBus from "../../../../events/BridgeEventBus";
-import BridgeCaptainBeamCannonThreatRowView from "./BridgeCaptainBeamCannonThreatRowView";
+import BridgeCaptainBeamCannonThreatGlyphView from "./BridgeCaptainBeamCannonThreatGlyphView";
 import BridgeCaptainMissileThreatRowView from "./BridgeCaptainMissileThreatRowView";
-import BridgeCaptainSpamThreatRowView from "./BridgeCaptainSpamThreatRowView";
-import BridgeCaptainStickyMineThreatRowView from "./BridgeCaptainStickyMineThreatRowView";
+import { THREAT_CELL } from "./threat_glyph_style";
+import BridgeCaptainSpamThreatGlyphView from "./BridgeCaptainSpamThreatGlyphView";
+import BridgeCaptainStickyMineThreatGlyphView from "./BridgeCaptainStickyMineThreatGlyphView";
 
 const THREAT_TILE_GRID = {
-    columns: 3,
-    tileWidth: 163,
-    tileHeight: 66,
+    columns: 4,
+    tileWidth: THREAT_CELL.width,
+    tileHeight: THREAT_CELL.height,
+    rowGap: 10,
 } as const;
 
 type ThreatsViewCallbacks = {
@@ -26,18 +28,17 @@ type ThreatsViewCallbacks = {
 
 // Captain threat list.
 //
-// Все combat threats используют production-like fixed tiles 163x66
-// и вместе заполняют общую сетку слева направо.
+// Concrete threats fill one shared 4x2 glyph grid from left to right.
 export default class BridgeCaptainThreatsView {
     private readonly root: Phaser.GameObjects.Container;
 
     private readonly missileRowViews: BridgeCaptainMissileThreatRowView[] = [];
 
-    private readonly beamCannonRowViews: BridgeCaptainBeamCannonThreatRowView[] = [];
+    private readonly beamCannonRowViews: BridgeCaptainBeamCannonThreatGlyphView[] = [];
 
-    private readonly stickyMineRowViews: BridgeCaptainStickyMineThreatRowView[] = [];
+    private readonly stickyMineRowViews: BridgeCaptainStickyMineThreatGlyphView[] = [];
 
-    private readonly spamRowViews: BridgeCaptainSpamThreatRowView[] = [];
+    private readonly spamRowViews: BridgeCaptainSpamThreatGlyphView[] = [];
 
     constructor(
         private readonly scene: BridgeScene,
@@ -138,7 +139,7 @@ export default class BridgeCaptainThreatsView {
         }
 
         while (this.beamCannonRowViews.length < beamCannons.length) {
-            const rowView = new BridgeCaptainBeamCannonThreatRowView(this.scene, {
+            const rowView = new BridgeCaptainBeamCannonThreatGlyphView(this.scene, {
                 onOpenShieldTargeting: () => {
                     this.callbacks.onOpenShieldTargeting();
                 },
@@ -183,7 +184,7 @@ export default class BridgeCaptainThreatsView {
         }
 
         while (this.stickyMineRowViews.length < stickyMines.length) {
-            const rowView = new BridgeCaptainStickyMineThreatRowView(this.scene, {
+            const rowView = new BridgeCaptainStickyMineThreatGlyphView(this.scene, {
                 onClear: (command) => {
                     this.emitCommand(command);
                 },
@@ -225,7 +226,7 @@ export default class BridgeCaptainThreatsView {
         }
 
         while (this.spamRowViews.length < spamChannels.length) {
-            const rowView = new BridgeCaptainSpamThreatRowView(this.scene, {
+            const rowView = new BridgeCaptainSpamThreatGlyphView(this.scene, {
                 onPurge: (command) => {
                     this.emitCommand(command);
                 },
@@ -258,9 +259,9 @@ export default class BridgeCaptainThreatsView {
     private positionTile(
         rowView:
             | BridgeCaptainMissileThreatRowView
-            | BridgeCaptainBeamCannonThreatRowView
-            | BridgeCaptainStickyMineThreatRowView
-            | BridgeCaptainSpamThreatRowView,
+            | BridgeCaptainBeamCannonThreatGlyphView
+            | BridgeCaptainStickyMineThreatGlyphView
+            | BridgeCaptainSpamThreatGlyphView,
         index: number,
     ): void {
         const column = index % THREAT_TILE_GRID.columns;
@@ -269,7 +270,7 @@ export default class BridgeCaptainThreatsView {
 
         rowView.setPosition(
             column * (THREAT_TILE_GRID.tileWidth + tileGap),
-            row * (THREAT_TILE_GRID.tileHeight + tileGap),
+            row * (THREAT_TILE_GRID.tileHeight + THREAT_TILE_GRID.rowGap),
         );
     }
 
