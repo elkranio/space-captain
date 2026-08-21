@@ -1,6 +1,6 @@
+// src/app/scenes/game/bridge/view/captain_dashboard/combat_context/BridgeCaptainCombatContextView.ts
 import { FONT_COLOR, FONT_FAMILY, FONT_SIZE } from "../../../../../../theme/font";
 import type BridgeScene from "../../../BridgeScene";
-import { CAPTAIN_DASHBOARD_STYLE } from "../captain_dashboard_style";
 import {
     BRIDGE_EVENT,
     type BridgeCaptainCombatContextUpdatedPayload,
@@ -15,26 +15,40 @@ const PANEL = {
     height: 204,
 
     padding: 8,
-    sectionGap: 6,
 } as const;
 
-const STATUS_HEIGHT = 38;
+const HEADER = {
+    textY: 11,
 
-const STATUS_CELL = {
-    textPaddingX: 10,
-    textY: 8,
+    dividerY: 31,
+    dividerHeight: 2,
+
+    contextY: 38,
+
+    statusGap: 8,
+    groupGap: 18,
 } as const;
 
-const DEF_BAR = {
-    sidePadding: 10,
-    bottomPadding: 6,
-    height: 4,
+const CORE_CHARGE = {
+    y: 10,
+
+    width: 8,
+    height: 16,
+    gap: 3,
+
+    emptyColor: 0x304353,
+    fillColor: 0x78bde8,
 } as const;
+
+type CoreChargeSlot = {
+    track: Phaser.GameObjects.Rectangle;
+    fill: Phaser.GameObjects.Rectangle;
+};
 
 // Правая contextual часть captain dashboard.
 //
 // Пока она намеренно знает только:
-// - HULL/DEF текущего enemy ship;
+// - HULL/CORE текущего enemy ship;
 // - incoming missile rows;
 // - incoming beamCannon rows;
 // - attached sticky-mine rows;
@@ -47,11 +61,9 @@ export default class BridgeCaptainCombatContextView {
 
     private readonly hullText: Phaser.GameObjects.BitmapText;
 
-    private readonly defenseText: Phaser.GameObjects.BitmapText;
+    private readonly coreText: Phaser.GameObjects.BitmapText;
 
-    private readonly defenseTrack: Phaser.GameObjects.Rectangle;
-
-    private readonly defenseFill: Phaser.GameObjects.Rectangle;
+    private readonly coreChargeSlots: CoreChargeSlot[] = [];
 
     private readonly threatsView: BridgeCaptainThreatsView;
 
@@ -70,67 +82,44 @@ export default class BridgeCaptainCombatContextView {
 
         const innerWidth = PANEL.width - PANEL.padding * 2;
 
-        const cellWidth = innerWidth / 2;
+        const titleText = this.createHeaderText(
+            PANEL.padding,
 
-        const hullX = PANEL.padding;
+            HEADER.textY,
 
-        const defenseX = PANEL.padding + cellWidth;
+            "THREATS",
+        );
 
-        this.createStatusCell(hullX, PANEL.padding, cellWidth, STATUS_HEIGHT);
+        this.hullText = this.createHeaderText(
+            0,
 
-        this.createStatusCell(defenseX, PANEL.padding, cellWidth, STATUS_HEIGHT);
-
-        this.hullText = this.createStatusText(
-            hullX + STATUS_CELL.textPaddingX,
-
-            PANEL.padding + STATUS_CELL.textY,
+            HEADER.textY,
 
             "HULL --/--",
         );
 
-        this.defenseText = this.createStatusText(
-            defenseX + STATUS_CELL.textPaddingX,
+        this.coreText = this.createHeaderText(
+            0,
 
-            PANEL.padding + STATUS_CELL.textY,
+            HEADER.textY,
 
-            "DEF --/--",
+            "CORE --",
         );
 
-        const defenseBarWidth = Math.max(1, cellWidth - DEF_BAR.sidePadding * 2);
-
-        const defenseBarY = PANEL.padding + STATUS_HEIGHT - DEF_BAR.bottomPadding - DEF_BAR.height;
-
-        this.defenseTrack = this.scene.add
+        const headerDivider = this.scene.add
             .rectangle(
-                defenseX + DEF_BAR.sidePadding,
+                PANEL.padding,
+                HEADER.dividerY,
 
-                defenseBarY,
+                innerWidth,
+                HEADER.dividerHeight,
 
-                defenseBarWidth,
-                DEF_BAR.height,
-
-                CAPTAIN_DASHBOARD_STYLE.defenseRechargeBar.trackColor,
+                FONT_COLOR.PRIMARY,
                 1,
             )
-            .setOrigin(0, 0)
-            .setVisible(false);
+            .setOrigin(0, 0);
 
-        this.defenseFill = this.scene.add
-            .rectangle(
-                defenseX + DEF_BAR.sidePadding,
-
-                defenseBarY,
-
-                defenseBarWidth,
-                DEF_BAR.height,
-
-                CAPTAIN_DASHBOARD_STYLE.defenseRechargeBar.fillColor,
-                1,
-            )
-            .setOrigin(0, 0)
-            .setVisible(false);
-
-        const contextY = PANEL.padding + STATUS_HEIGHT + PANEL.sectionGap;
+        const contextY = HEADER.contextY;
         const contextHeight = PANEL.height - contextY - PANEL.padding;
 
         this.threatsView = new BridgeCaptainThreatsView(
@@ -169,13 +158,15 @@ export default class BridgeCaptainCombatContextView {
         this.shieldTargetingView.setVisible(false);
 
         this.root.add([
+            titleText,
             this.hullText,
-            this.defenseText,
-            this.defenseTrack,
-            this.defenseFill,
+            this.coreText,
+            headerDivider,
             this.threatsView.getRoot(),
             this.shieldTargetingView.getRoot(),
         ]);
+
+        this.layoutHeaderStatus();
 
         this.eventBus.on(
             BRIDGE_EVENT.CAPTAIN_COMBAT_CONTEXT_UPDATED,
@@ -214,30 +205,7 @@ export default class BridgeCaptainCombatContextView {
         this.root.destroy(true);
     }
 
-    private createStatusCell(x: number, y: number, width: number, height: number): void {
-        const cell = this.scene.add
-            .rectangle(
-                x,
-                y,
-
-                width,
-                height,
-
-                CAPTAIN_DASHBOARD_STYLE.statusCell.backgroundColor,
-
-                CAPTAIN_DASHBOARD_STYLE.statusCell.backgroundAlpha,
-            )
-            .setOrigin(0, 0)
-            .setStrokeStyle(
-                CAPTAIN_DASHBOARD_STYLE.statusCell.borderThickness,
-
-                CAPTAIN_DASHBOARD_STYLE.statusCell.borderColor,
-            );
-
-        this.root.add(cell);
-    }
-
-    private createStatusText(x: number, y: number, text: string): Phaser.GameObjects.BitmapText {
+    private createHeaderText(x: number, y: number, text: string): Phaser.GameObjects.BitmapText {
         return this.scene.add
             .bitmapText(
                 x,
@@ -266,10 +234,7 @@ export default class BridgeCaptainCombatContextView {
             return;
         }
 
-        this.shieldTargetingView.update(
-            payload.shieldTargeting.targets,
-            payload.incomingBeamCannons,
-        );
+        this.shieldTargetingView.update(payload.shieldTargeting.targets, payload.incomingBeamCannons);
     }
 
     private openShieldTargeting(): void {
@@ -284,10 +249,7 @@ export default class BridgeCaptainCombatContextView {
         this.threatsView.getRoot().setVisible(false);
         this.shieldTargetingView.setVisible(true);
 
-        this.shieldTargetingView.update(
-            payload.shieldTargeting.targets,
-            payload.incomingBeamCannons,
-        );
+        this.shieldTargetingView.update(payload.shieldTargeting.targets, payload.incomingBeamCannons);
     }
 
     private closeShieldTargeting(): void {
@@ -310,38 +272,115 @@ export default class BridgeCaptainCombatContextView {
     private updateEnemyStatus(enemyShip: BridgeCaptainCombatContextUpdatedPayload["enemyShip"]): void {
         if (!enemyShip) {
             this.hullText.setText("HULL --/--");
+            this.coreText.setText("CORE --");
 
-            this.defenseText.setText("DEF --/--");
-
-            this.defenseTrack.setVisible(false);
-
-            this.defenseFill.setVisible(false);
+            this.ensureCoreChargeSlots(0);
+            this.layoutHeaderStatus();
 
             return;
         }
 
         this.hullText.setText("HULL " + enemyShip.hull.current + "/" + enemyShip.hull.max);
 
-        const defense = enemyShip.powerCore;
+        const core = enemyShip.powerCore;
 
-        if (!defense) {
-            this.defenseText.setText("DEF --/--");
+        if (!core) {
+            this.coreText.setText("CORE --");
 
-            this.defenseTrack.setVisible(false);
-
-            this.defenseFill.setVisible(false);
+            this.ensureCoreChargeSlots(0);
+            this.layoutHeaderStatus();
 
             return;
         }
 
-        this.defenseText.setText("DEF " + defense.current + "/" + defense.max);
+        this.coreText.setText("CORE");
 
-        const progress = defense.rechargeProgress;
+        const maxCharges = Math.max(0, Math.floor(core.max));
+        const currentCharges = Math.max(0, Math.min(maxCharges, Math.floor(core.current)));
+        const rechargeProgress = Math.max(0, Math.min(1, core.rechargeProgress ?? 0));
 
-        const isRecharging = progress !== undefined;
+        this.ensureCoreChargeSlots(maxCharges);
 
-        this.defenseTrack.setVisible(isRecharging);
+        this.coreChargeSlots.forEach((slot, index) => {
+            if (index < currentCharges) {
+                slot.fill.setVisible(true).setScale(1, 1);
+                return;
+            }
 
-        this.defenseFill.setVisible(isRecharging).setScale(isRecharging ? progress : 0, 1);
+            if (index === currentCharges && currentCharges < maxCharges && rechargeProgress > 0) {
+                slot.fill.setVisible(true).setScale(1, rechargeProgress);
+                return;
+            }
+
+            slot.fill.setVisible(false).setScale(1, 0);
+        });
+
+        this.layoutHeaderStatus();
+    }
+
+    private ensureCoreChargeSlots(count: number): void {
+        while (this.coreChargeSlots.length < count) {
+            const track = this.scene.add
+                .rectangle(
+                    0,
+                    CORE_CHARGE.y,
+
+                    CORE_CHARGE.width,
+                    CORE_CHARGE.height,
+
+                    CORE_CHARGE.emptyColor,
+                    1,
+                )
+                .setOrigin(0, 0);
+
+            const fill = this.scene.add
+                .rectangle(
+                    0,
+                    CORE_CHARGE.y + CORE_CHARGE.height,
+
+                    CORE_CHARGE.width,
+                    CORE_CHARGE.height,
+
+                    CORE_CHARGE.fillColor,
+                    1,
+                )
+                .setOrigin(0, 1)
+                .setVisible(false);
+
+            this.root.add([track, fill]);
+            this.coreChargeSlots.push({ track, fill });
+        }
+
+        while (this.coreChargeSlots.length > count) {
+            const slot = this.coreChargeSlots.pop();
+
+            slot?.track.destroy();
+            slot?.fill.destroy();
+        }
+    }
+
+    private layoutHeaderStatus(): void {
+        let cursorX = PANEL.width - PANEL.padding;
+
+        if (this.coreChargeSlots.length > 0) {
+            const slotsWidth =
+                this.coreChargeSlots.length * CORE_CHARGE.width + (this.coreChargeSlots.length - 1) * CORE_CHARGE.gap;
+            const slotsX = cursorX - slotsWidth;
+
+            this.coreChargeSlots.forEach((slot, index) => {
+                const x = slotsX + index * (CORE_CHARGE.width + CORE_CHARGE.gap);
+
+                slot.track.setPosition(x, CORE_CHARGE.y);
+                slot.fill.setPosition(x, CORE_CHARGE.y + CORE_CHARGE.height);
+            });
+
+            cursorX = slotsX - HEADER.statusGap;
+        }
+
+        this.coreText.setPosition(cursorX - this.coreText.width, HEADER.textY);
+
+        cursorX = this.coreText.x - HEADER.groupGap;
+
+        this.hullText.setPosition(cursorX - this.hullText.width, HEADER.textY);
     }
 }
