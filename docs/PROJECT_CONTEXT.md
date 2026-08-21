@@ -1,17 +1,18 @@
 # Space Captain — Project Context
 
-Short durable context. Current implementation status and the next active slice
-live in the root `../CURRENT_HANDOFF.md`.
+Short durable context. Current implementation status and the next active slice live in the root `../CURRENT_HANDOFF.md`.
 
 ## Product
 
-Space Captain is a Phaser 3 + TypeScript combat/adventure roguelite with a
-first-person captain view and a 1990s Sierra / Space Quest VGA visual target.
+Space Captain is a Phaser 3 + TypeScript combat/adventure roguelite with a first-person captain view and a 1990s
+Sierra / Space Quest VGA visual target.
 
-The player commands an unreliable delivery ship through officers rather than
-directly piloting every system. Combat is built around readable telegraphed
-threats, officer availability, counterplay and limited ship resources rather
-than bullet-hell reflex play.
+The player commands an unreliable delivery ship through officers rather than directly piloting every system. Combat is
+built around readable telegraphed threats, officer availability, counterplay and limited ship resources rather than
+bullet-hell reflex play.
+
+Basic combat information should be readable without mandatory checkbox work. Officer/Science mechanics should create
+interesting advantage, uncertainty or role contention rather than gate permission to understand the interface.
 
 ## Repository
 
@@ -28,8 +29,8 @@ than bullet-hell reflex play.
 
 Keep Phaser/app types out of the engine.
 
-Treat p34t/framework configuration as infrastructure. Do not clean or rewrite it
-opportunistically; touch it only when actual development requires the change.
+Treat p34t/framework configuration as infrastructure. Do not clean or rewrite it opportunistically; touch it only when
+actual development requires the change.
 
 ## Coding principles
 
@@ -58,8 +59,9 @@ File length alone is not a refactor reason.
 - `COMBAT_PLAYTEST_ROADMAP.md` — canonical near-term combat sequence and playtest gates.
 - `BACKLOG.md` — active deferred work.
 - `BRIDGE_ART_DIRECTION.md` — durable bridge visual direction.
-- `THREAT_PANEL.md` — implemented compact threat-tile interaction/timing contract.
-- `TARGETED_SHIELDS_TASK.md` — current Beam node-defense task; archive after completion.
+- `THREAT_PANEL.md` — current threat-dashboard design/interaction/timing contract; implementation status lives in the
+  root handoff.
+- `TARGETED_SHIELDS_TASK.md` — current Beam node-defense task; archive only after remaining player/enemy work completes.
 - `../CURRENT_HANDOFF.md` — transient current state and next active slice.
 
 Session startup/read order is defined only in `WORKING_RULES.md`.

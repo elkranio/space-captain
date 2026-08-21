@@ -1,193 +1,282 @@
-# Space Captain — Threat Panel
+# Space Captain — Threat Dashboard
 
-Durable contract for the implemented compact combat-threat UI.
+Current durable design contract for the captain's incoming-threat UI.
 
 Reference composition image:
 
-![Threat tile concept](images/threat_tile_reference.png)
+![Threat dashboard reference](images/threat_dashboard_reference.png)
 
-The image is historical composition reference only. Current runtime behavior is
-defined here and by fresh source.
+The image is a layout/state reference, not a literal command-mapping specification. Several action labels in the mock
+were intentionally mixed to test role colors, disabled state and `CANCEL`.
 
 ## Goal
 
-Persistent combat information belongs on the captain dashboard rather than as
-labels, timers or targeting frames floating over the viewscreen.
+Incoming threats should be readable as **large concrete objects**, not miniature data cards.
 
-One concrete runtime threat maps to one compact fixed-footprint tile.
+The player should be able to answer almost instantly:
 
-Current production footprint:
+- what threats exist;
+- which one is becoming urgent;
+- what officer/action responds to it;
+- whether that action is currently available or already running.
 
-- `163x66`;
-- up to six cells in the shared 3x2 threat grid.
+Persistent tactical explanation belongs on the captain dashboard. The viewscreen remains physical/world-space combat.
 
-Do not aggregate away concrete threat identity.
+## Concrete identity
 
-## Tile anatomy
+One runtime threat maps to one UI object.
 
-Current hierarchy:
+Do not aggregate away concrete threat identity merely to simplify layout.
 
-- top-left: threat icon;
-- top-middle: identity / Science knowledge when it has decision value;
-- top-right: exact countdown;
-- bottom: one or two contextual action buttons;
-- thin decision-timing strip belongs directly to the action it explains.
+Current threat families:
 
-Mine and Spam intentionally have no redundant upper-middle status label.
+- Missile;
+- Beam Cannon;
+- Sticky Mine;
+- SPAM.
 
-## Action truth
+Basic threat facts are free. Player Science TRACK/IDENTIFY is not part of this UI.
 
-The view must not recreate command legality.
+## Layout
 
-Buttons come from engine-resolved commands mapped through the app/controller
-layer.
+Current target layout is a **4 x 2 grid** on the right `CURRENT CONTEXT` display.
 
-An expired timing strip does NOT hard-disable a command if the engine still
-considers it legal. Desperate late actions remain possible gameplay.
+This supersedes the old 3x2 `163x66` framed-card layout.
 
-When a button represents a currently active cancellable task, active/cancel
-state takes precedence over its advisory timing strip.
-
-## Timing-strip visual language
-
-Ordinary deadline strips use the same compact geometry under the button label.
-
-Current visual language:
-
-- fixed equal strip width regardless of label length;
-- 3 px high in the current implementation;
-- cream useful-time fill;
-- time advances left -> right;
-- the cream fill is anchored on the right, so its left edge moves right as the
-  useful window closes;
-- once useful time is gone, only a tiny blinking red terminal marker remains.
-
-The strip answers **how long this action remains useful**, not generic threat
-lifetime.
-
-## Dynamic timing source
-
-Decision thresholds come from the engine presentation timing read model.
-
-Task-based thresholds use the current crew-progress multiplier, so active SPAM
-slowdown changes real wall-clock decision windows.
-
-The view does not import task tuning or rebuild slowdown formulas.
-
-## Missile
-
-Actions:
-
-- `[S] TRACK`;
-- `[W] HIT`.
-
-### TRACK strip
-
-Latest useful start includes both:
+A threat cell contains only the visual information that earns its space:
 
 ```text
-Science TRACK wall time
-+ subsequent Weapons HIT wall time
+[ LARGE THREAT GLYPH ]
+[role] ACTION
 ```
 
-The strip reaches terminal red when the full TRACK -> HIT sequence no longer
-nominally fits.
+No permanent card frame/background is required around each cell.
 
-### HIT strip
+The grid should feel like a bank of compact warning/command symbols, not an inventory screen or spreadsheet.
 
-Latest useful start includes the interception/Defense Turret work only.
+## Threat glyph asset contract
 
-It therefore normally remains useful after TRACK has already expired.
-
-## Beam Cannon
-
-Target display uses observer knowledge only:
-
-- `UNKNOWN`;
-- `HULL? / DRIVE?`;
-- `HULL / DRIVE`.
-
-Hidden actual target stays engine-only.
-
-Actions:
-
-- `[S] TRACK`;
-- `[E] SHIELD`.
-
-### TRACK strip
-
-The Beam TRACK deadline reserves:
+Current authored sources:
 
 ```text
-Science TRACK wall time
-+ subsequent Engineer Shield deployment wall time
+assets/raw/images/ui/threat_icons/missile.png
+assets/raw/images/ui/threat_icons/beam_cannon.png
+assets/raw/images/ui/threat_icons/mine.png
+assets/raw/images/ui/threat_icons/spam.png
 ```
 
-This prevents TRACK from appearing useful when completing it would leave no
-time to deploy the actual defense.
+All use a `107 x 33` source canvas.
 
-### SHIELD strip
+Preferred source treatment:
 
-Shield timing is a window, not a single deadline.
+- transparent PNG;
+- white/tintable visible shape;
+- transparent internal cuts;
+- no baked gameplay color;
+- no duplicate red terminal variant.
 
-Current left-to-right language:
+Runtime color identity:
+
+- Missile -> orange;
+- Beam -> cyan;
+- Mine -> violet;
+- SPAM -> green;
+- urgency/terminal overlay -> red.
+
+Small dashboard glyphs prioritize silhouette/readability over forced detailed pixel art. Final art can be revisited later;
+the current production language is intentionally flat, blocky and clean.
+
+## Canonical threat/action mapping
 
 ```text
-red TOO EARLY
--> cream VALID
--> blinking red terminal marker
+Missile      -> [W] HIT
+Beam Cannon  -> [E] SHIELD
+Sticky Mine  -> [E] CLEAR
+SPAM         -> [S] PURGE
 ```
 
-The initial red segment means deploying now would cause the finite Shield to
-expire before Beam fire.
+The colored role key identifies the officer. The command text stays uniform white when available.
 
-When the red segment is consumed, the cream valid window is active.
+Helm `EVADE` remains a ship/global combat action rather than a per-threat command.
 
-There is no trailing full red segment. Once deployment is nominally too late,
-the same tiny blinking terminal marker used by other deadline strips is enough.
+## Whole cell = action
 
-## Sticky Mine
+There is no separate drawn button inside the threat cell.
 
-Action:
+The whole threat cell is the click target.
 
-- `[E] CLEAR`.
+### Available
 
-One ordinary cream deadline strip answers:
+- threat glyph presents threat color/progress normally;
+- officer key uses officer color;
+- action text is white;
+- whole cell is interactive.
 
-> if Engineer starts CLEAR now, can the task still finish before detonation?
+### Active cancellable task
 
-After the latest useful start it becomes the blinking red terminal marker.
+- action label becomes `CANCEL`;
+- whole cell remains interactive;
+- click cancels the real active engine task.
 
-## Spam
+Do not add a second cancel button.
 
-Action:
+### Unavailable
 
-- `[S] PURGE`.
+Examples include:
 
-Spam intentionally has **no timing strip**.
+- required officer busy/absent/blocked;
+- no required ammo;
+- insufficient Power Core/resource;
+- another engine rule makes the command unavailable.
 
-Its own precision-timing visualization adds little decision value. Its important
-combat effect is slowing other officer work, which is already reflected in their
-real decision strips.
+Presentation:
+
+- action label becomes gray/non-interactive;
+- threat glyph does **not** become gray merely because the response is unavailable;
+- threat urgency continues to progress normally.
+
+Threat urgency and action availability are intentionally separate visual channels.
+
+## No numeric countdown
+
+The new grammar does not show seconds.
+
+Do not restore:
+
+- exact ETA text;
+- `NO ID / GUESS / LOCK`;
+- Science TRACK labels;
+- button-local segmented timing strips;
+- large card borders/dividers merely to frame the glyph.
+
+## Universal glyph progress
+
+Timing lives **inside the glyph itself**.
+
+Use one universal visual grammar for all threat families.
+
+### Useful-response phase
+
+The normal threat-color glyph remains visible.
+
+A red copy of the same glyph fills **left -> right** as the latest useful start approaches.
+
+Conceptually:
+
+```text
+0% red                               100% red
+[ threat color -------------------------- ]
+[ RED >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> ]
+```
+
+The fill answers:
+
+> how far through the useful response-start window are we?
+
+It is **not** generic time-to-impact.
+
+### Terminal phase
+
+When the latest useful start has passed:
+
+- the entire glyph is red;
+- the full red glyph blinks;
+- terminal state is shown even if the player already started the counter-task in time and that task is still running.
+
+This is intentional. It creates tension around whether a committed countermeasure will resolve before the physical
+threat lands.
+
+Terminal timing remains presentation advice. The view must not invent command illegality that the engine does not own.
+
+## Timing source
+
+The view does not import content tuning or reconstruct task-duration/slowdown math.
+
+The engine presentation/read model owns latest-useful-start timing based on real state, including the current
+crew-progress multiplier.
+
+The new universal glyph grammar requires an actionable timing deadline for:
+
+- Missile HIT;
+- Beam SHIELD;
+- Mine CLEAR;
+- SPAM PURGE.
+
+The old UI intentionally omitted a SPAM precision strip. If the current presentation snapshot lacks a SPAM useful-start
+deadline, add it at the engine presentation boundary rather than calculating it in Phaser.
+
+## Beam Shield nuance
+
+Beam defense has a finite Shield lifetime and historically exposed a bespoke `TOO EARLY -> VALID -> TOO LATE` strip.
+
+The new dashboard intentionally does **not** preserve that chart by default.
+
+Current rule:
+
+- keep the universal glyph-progress language;
+- preserve real engine Shield timing/legality;
+- if early deployment creates a real readability problem in runtime, solve that concrete problem with the smallest
+  affordance that works;
+- do not restore a special Beam-only timing visualization merely for symmetry with old code.
+
+The existing HULL/DRIVE Shield target picker remains real and should survive the tile rewrite.
+
+## Suggested render construction
+
+Because source glyphs are white/tintable, one texture can provide both normal and red states.
+
+Preferred construction:
+
+```text
+base image      -> tint to threat family color
+red overlay     -> same image, tint red, clip/mask left -> right
+```
+
+At terminal state the red overlay covers the full glyph and blinks.
+
+Use the simplest Phaser clip/mask mechanism that behaves correctly with packed/trimmed frames. Do not create duplicate
+mutable timing state in the view.
 
 ## Viewscreen rule
 
-The viewscreen shows physical combat: ships, missiles, Beam/SPAM effects,
-shields, impacts and short-lived VFX.
+The viewscreen shows physical combat:
 
-Persistent tactical explanation belongs in the dashboard.
+- ships;
+- incoming/outgoing Missiles;
+- attached/approaching Mines;
+- Beam charge/fire;
+- SPAM effects;
+- Shields/impacts;
+- short-lived VFX.
+
+Persistent tactical explanation belongs on the dashboard.
 
 Do not reintroduce:
 
-- projectile countdown text on the viewscreen;
-- persistent targeting frames around threats;
+- projectile countdown text floating in space;
+- persistent targeting frames around every threat;
 - floating threat IDs;
-- giant HP/telemetry overlays over space.
+- giant telemetry overlays over the viewscreen.
+
+## Deferred information-denial experiment
+
+A future enemy EW/EMP-like effect may temporarily hide **precision timing** without removing player agency.
+
+Promising experiment:
+
+- about 4–5 seconds;
+- threat glyphs remain;
+- action labels/clicks remain;
+- red progress masks disappear;
+- physical telegraphs become the player's rough timing source;
+- actual gameplay timers continue unchanged;
+- terminal full-red blink may remain as a coarse emergency signal.
+
+This is explicitly deferred until the normal dashboard is implemented and playtested.
 
 ## Runtime readability rule
 
-Treat actual-size runtime perception as part of balance.
+Actual-size perception is part of balance.
 
-Decision strips make subjective response pressure visible. Use that feedback
-when tuning threat/task durations rather than judging timings from raw seconds
-alone.
+Judge the dashboard at real 1280x720 runtime scale with mixed/full threat boards. Do not tune durations or add detail
+based only on zoomed screenshots.

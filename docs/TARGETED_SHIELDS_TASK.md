@@ -1,50 +1,91 @@
 # TASK — TARGETED BEAM SHIELDS
 
+## Status — 2026-08-21
+
+Player side is partially complete:
+
+- **A. Player engine/domain targeted Shield — DONE**
+- **B. Captain HULL/DRIVE picker — DONE**
+- **C. Player dashboard visual for deploying/active target — OPEN**
+- **Player Beam semantic enemy-node target — OPEN**
+- **Enemy targeted Shield choice/resolution — OPEN**
+- **Enemy targeted Shield visual — OPEN**
+
+Keep this task active until the remaining items are done.
+
 ## Goal
 
-Turn the current whole-ship temporary Shield into a semantic node defense, then
-give the enemy the same mechanic.
+Use semantic node defense for player Beam protection, then give the enemy the same mechanic.
 
 First supported protected nodes:
 
 - `HULL`
 - `DRIVE`
 
-This slice exists to create a readable target/defense loop. It is not a generic
-ship-sector simulation.
+This slice exists to create a readable target/defense loop. It is not a generic ship-sector simulation.
 
 ## Current baseline
 
-Incoming enemy Beam already has hidden objective `targetNode`:
+Incoming enemy Beam has objective `targetNode`:
 
 - HULL
 - DRIVE
 
-Science exposes safe observer intel only.
+The player-facing Science TRACK layer has been removed. Incoming Beam target node is now directly available to player
+presentation once the concrete threat exists.
 
 Player Drive already has encounter-local integrity and real Beam consequences.
 
-Player and enemy Active Shields are still whole-ship fields. A current active
-Shield absorbs any Beam that reaches it.
+### Player current Shield
 
-Enemy AI already understands Beam timing well enough to deploy a Shield inside
-the useful lifetime/deployment window. The missing choice is **where** to put it.
+Player Active Shield is already node-targeted.
 
-Player Beam is currently still actor-wide/hull-only. Enemy targeted Shield
-should not be completed until the player attack also carries a semantic target.
+The selected node travels through the real engine flow:
+
+```text
+available Engineer command
+    -> PLAYER_SHIP_NODE command target
+    -> Engineer deploy-shield officer task
+    -> deployment completion
+    -> ActiveShieldState.targetNode
+```
+
+Player physical resolution is already:
+
+```text
+1. Evade
+2. matching active Shield
+3. penetrating Beam consequence
+```
+
+Wrong-node Shield survives because it was not hit.
+
+### Enemy current Shield
+
+Enemy targeted placement is not implemented yet.
+
+Enemy current Active Shield remains the older whole-ship behavior until the enemy slice below lands.
+
+Enemy AI already understands enough Beam timing to deploy a Shield. The missing targeted mechanic is **where** to put it
+and how player Beam target truth is perceived.
+
+### Player Beam prerequisite
+
+Player Beam is still actor-wide/hull-only. Enemy targeted Shield should not be completed until the player attack also
+carries a semantic target.
 
 ## Core targeted-Shield contract
 
-A temporary Shield protects exactly one semantic Beam node.
+A targeted temporary Shield protects exactly one semantic Beam node.
 
 ```text
 activeShield.targetNode = HULL | DRIVE
 ```
 
-Use an existing domain type if it fits cleanly. Do not create parallel enums
-with identical values merely to make the names symmetrical.
+Use an existing domain type if it fits cleanly. Do not create parallel enums with identical values merely to make names
+symmetrical.
 
-Resolution order remains:
+Resolution order:
 
 ```text
 1. Evade
@@ -66,7 +107,7 @@ If Beam target and Shield target differ:
 
 - Shield does not absorb the Beam;
 - Beam resolves against its actual target;
-- Shield is NOT consumed, because it was never hit;
+- Shield is NOT consumed;
 - Shield continues until a matching hit or natural expiry.
 
 ### Evade
@@ -78,9 +119,9 @@ If Evade makes the Beam miss:
 
 ## Player implementation slices
 
-### A. Engine/domain
+### A. Engine/domain — DONE
 
-The selected node must travel through the real deploy flow:
+Implemented flow:
 
 ```text
 available Engineer command
@@ -90,81 +131,66 @@ available Engineer command
     -> ActiveShieldState.targetNode
 ```
 
-Do not store the selected target only in app/controller state.
-
-Preserve current commitment rules:
+Preserved commitment rules:
 
 - Power Core charge committed at deployment start;
 - generator cooldown committed at deployment start;
 - later cancellation does not refund either;
 - cancellation still frees Engineer.
 
-Tests should cover at least:
+Coverage includes targeted deploy and matching/wrong-node/Evade/expiry/cancellation semantics.
 
-- deploy HULL creates HULL Shield;
-- deploy DRIVE creates DRIVE Shield;
-- matching Beam absorbs + consumes;
-- wrong-node Beam penetrates + Shield survives;
-- Evade miss leaves Shield alive;
-- expiry still clears Shield;
-- cancellation behavior remains unchanged.
+### B. Captain dashboard picker — DONE
 
-### B. Captain dashboard picker
+Beam `SHIELD` opens an inline HULL/DRIVE target selector owned by captain combat-context presentation.
 
-The Beam threat `SHIELD` action opens a small inline target selector.
+Current important behavior:
 
-Initial information only:
+- exact real Engineer node-targeted commands come from app mapping;
+- selecting HULL/DRIVE emits that command;
+- cancel/close returns to threat context;
+- active Shield deploy can still be cancelled;
+- picker auto-closes when the relevant Beam/availability context disappears;
+- target markers use the concrete known incoming Beam target node;
+- picker never retargets an already selected/deploying Shield.
 
-- HULL current/max;
-- DRIVE integrity/max;
-- CLOSE.
+Do not regress this while replacing the outer threat tile visuals.
 
-Do not add speculative subsystem data.
-
-Presentation rules:
-
-- picker is a dashboard presentation state;
-- engine command availability remains authoritative;
-- selecting a row sends the real node-targeted Engineer command;
-- CLOSE has no engine side effect;
-- mapper/read model should provide view-ready current/max values;
-- view should not reach into content catalogs to reconstruct max integrity.
-
-### C. Player visual state
+### C. Player visual state — OPEN
 
 Make selected protection readable while:
 
 - Engineer is deploying;
 - Shield is active.
 
-The exact art is provisional. Prefer a small explicit node marker/highlight over
-a broad dashboard redesign.
+Prefer integrating this into the upcoming `OUR SHIP` dashboard functional redesign rather than polishing the outgoing
+provisional ship rows.
 
-## Player Beam prerequisite for enemy targeted defense
+The visual must consume authoritative task/active-Shield state, not keep a second dashboard-only target.
 
-Current player Beam runner still targets only `targetActorId` and applies hull
-damage after enemy Evade/whole-ship Shield resolution.
+## Player Beam prerequisite for enemy targeted defense — OPEN
 
-Before enemy Shield can choose HULL vs DRIVE, player Beam needs a concrete enemy
-node target.
+Current player Beam runner still targets only an enemy actor and applies its current hull-oriented consequence after enemy
+defense resolution.
+
+Before enemy Shield can choose HULL vs DRIVE, player Beam needs a concrete enemy semantic target.
 
 Do this as its own atom.
 
 Questions to resolve from current code/UI, not assumption:
 
-- what enemy node data is already safe/visible to the player?
+- which enemy nodes are real and safely visible/inspectable?
 - does target choice belong directly to the Beam fire command?
-- what is the smallest useful enemy target vocabulary supported by real state?
-- how should unknown enemy information constrain choices?
+- what is the smallest useful target vocabulary supported by real enemy state?
+- how should future Science-discovered special properties influence target choice without gating basic anatomy?
 
-Do not add generic WEAPON/SHIELD/BRIDGE targets before those nodes have real
-identity and consequences.
+Do not add generic WEAPON/SHIELD/BRIDGE targets before those nodes have real identity and consequences.
 
-## Enemy targeted Shield
+## Enemy targeted Shield — OPEN
 
-The enemy must use the same physical Shield semantics.
+The enemy must eventually use the same physical targeted-Shield semantics.
 
-Current enemy decision flow already contains:
+Current enemy decision flow already contains roughly:
 
 ```text
 perceived Beam threat
@@ -173,21 +199,20 @@ perceived Beam threat
     -> EnemyShieldRunner.deploy(...)
 ```
 
-Extend it with a chosen protected node.
+Extend it with a chosen protected node after player Beam has semantic target truth.
 
 ### Epistemic rule
 
-Enemy choice must be based on perceived/observer Beam target information.
+Enemy choice must be based on perceived/observer information available to the enemy.
 
-Do not let `EnemyDecisionPolicy` or a decision snapshot read hidden objective
-player Beam truth that enemy Science has not earned.
+Do not let `EnemyDecisionPolicy` or a decision snapshot read hidden player attack truth that the enemy has not earned.
 
-If enemy knowledge can be uncertain, the selected Shield target may be wrong.
-That is desirable gameplay, just like missile defense can act on imperfect intel.
+If future enemy knowledge can be uncertain, the selected Shield target may be wrong. That is desirable gameplay when the
+uncertainty itself is meaningful.
 
 ### Enemy physical resolution
 
-Player Beam should mirror the player-defense rule:
+Player Beam should eventually mirror the player-defense rule:
 
 ```text
 enemy EVADING
@@ -201,23 +226,20 @@ else
     -> wrong-node Shield survives
 ```
 
-## Enemy visual
+## Enemy visual — OPEN
 
-Expose only information the player is allowed to know, but active physical
-Shield placement itself should be readable.
+Expose only information the player is allowed to know, but active physical Shield placement itself should be readable.
 
-At minimum the player needs to distinguish which currently exposed enemy node is
-protected.
+At minimum the player needs to distinguish which currently exposed enemy node is protected.
 
-Keep physical VFX and dashboard telemetry consistent; do not create two mutable
-sources of shield truth.
+Keep physical VFX and dashboard telemetry consistent; do not create two mutable sources of Shield truth.
 
 ## Non-goals
 
 - change enemy offensive Beam target RNG;
 - add BRIDGE as a target;
 - add officer stun;
-- add WEAPON/SHIELD module damage;
+- add WEAPON/SHIELD module damage before those nodes exist;
 - partial Shield damage;
 - Shield facings/sectors;
 - multiple simultaneous player Shields;
@@ -240,4 +262,4 @@ Before push:
 npm test
 ```
 
-Runtime smoke is required once the picker/visual layer lands.
+Runtime smoke is required for presentation layers.

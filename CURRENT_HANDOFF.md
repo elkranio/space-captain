@@ -1,542 +1,407 @@
-# Space Captain — Handoff after Captain Dashboard / Threat UI pass
+# Space Captain — Handoff after Science TRACK removal + threat dashboard redesign
 
 Updated: 2026-08-21
 
 Fresh `master` at handoff time:
 
-`c76446476e794a2f1a65c19c3521f917d4f15f6c`
+`a4ab2777634d1ddba594d3bc3196e8eb74a5fdf6`
 
 Treat this SHA only as a historical marker. Re-fetch fresh `master` before any patch.
 
 ## Where we are
 
-The current bridge/captain-dashboard visual pass reached a good stopping point.
+The player-facing Science TRACK / threat-identification layer has been removed cleanly and the replacement
+threat-dashboard design has now been worked through visually.
 
-The immediate next large slice should be the **player `OUR SHIP` dashboard functional redesign**:
-real ship/module/weapon slot presentation, Power Core/system state, and readable broken/damaged state.
+The **next active coding slice is the new threat dashboard implementation**.
 
-Do not start the next chat by re-implementing targeted Shields from the old handoff.
-The old root `CURRENT_HANDOFF.md` and several durable docs are now partially stale.
+Do not start the next chat with the previously planned `OUR SHIP` module-dashboard redesign. That slice is still
+important, but the threat dashboard now has a concrete visual/interaction contract and should be implemented first
+while the design is fresh.
 
-## What actually landed since the old handoff
+## Science TRACK removal — DONE / green / pushed
 
-### Targeted player Shield — engine/domain DONE
+Player Science no longer gates basic incoming-threat understanding.
 
-Player temporary Shield placement is now node-targeted.
+Current player-facing threat facts are free:
 
-Current protected-node domain:
+- Missile is immediately known as a Missile threat;
+- Beam target node is immediately known (`HULL | DRIVE`);
+- Sticky Mine is immediately known;
+- SPAM is immediately known.
+
+Removed from the player pipeline:
+
+- `SCIENCE_IDENTIFY_THREAT` command;
+- player Science identify/track task/draft/handler;
+- player threat-identification presentation fields;
+- Missile `NO ID / GUESS / LOCK` UI;
+- Beam target-intel TRACK UI;
+- player Science TRACK buttons and timing strips.
+
+Do not reintroduce TRACK merely to give Science a combat button.
+
+Science should create **advantage**, not permission to understand the basic interface. Future useful Science space can
+include special enemy properties, weakness/state discovery, prediction, disruption, tactical scanning, EW and other
+information that changes decisions.
+
+### Important boundary: enemy Science is still separate
+
+Do not delete/flatten enemy observer mechanics merely because player TRACK is gone.
+
+Objective Missile signature truth still exists in engine state and enemy-side observation/Science/interception logic may
+use it. Enemy Defense Turret behavior remains separate from the player turret.
+
+## Player Defense Turret — current BASIC contract
+
+Player Missile interception is now deliberately simple:
+
+- if the player Weapons Defense Turret task completes while the target Missile still exists, interception is guaranteed;
+- no player Science hypothesis/tier/percentage is required;
+- no Missile tiers are being added in this slice.
+
+Enemy Defense Turret logic remains probabilistic / enemy-observer-driven and must not be rewritten to match the player
+shortcut.
+
+## Targeted player Shield status
+
+Player targeted Shield engine/domain and captain picker are already DONE.
+
+Current player protected nodes:
 
 - `HULL`
 - `DRIVE`
 
-The selected node travels through the real engine flow:
+Current physical resolution:
 
 ```text
-available Engineer command
-    -> PLAYER_SHIP_NODE command target
-    -> Engineer deploy-shield officer task
-    -> deployment completion
-    -> active player Shield targetNode
+1. EVADING -> MISS, Shield survives
+2. matching activeShield.targetNode -> ABSORBED, Shield consumed
+3. otherwise -> Beam consequence, wrong-node Shield survives
 ```
-
-Beam defensive resolution is now:
-
-```text
-1. EVADING -> MISS, Shield untouched
-2. else matching targeted Shield -> ABSORBED, Shield consumed
-3. else -> normal target consequence, wrong-node Shield survives
-```
-
-Power/cooldown commitment and cancellation semantics were preserved.
-
-Relevant engine tests landed, including targeted Shield resolution.
-
-### Targeted player Shield — captain inline picker DONE
-
-Beam `SHIELD` no longer immediately starts deployment.
-
-It opens a full inline combat-context targeting state owned by the captain combat context.
-
-Current picker:
-
-- fixed provisional HULL / DRIVE rows;
-- exact real Engineer commands supplied by app mapping;
-- selecting HULL/DRIVE emits the exact engine command and closes;
-- `CANCEL` returns to threat grid;
-- current active deploy can still be cancelled from an active SHIELD tile;
-- picker auto-closes if Beam threats or Shield targeting availability disappear.
-
-Beam intel updates live while the picker is open.
-
-Presentation rule currently implemented:
-
-- UNKNOWN Beam intel -> show no node/time marker;
-- uncertain hypothesis -> amber `? ETA` on hypothesized node;
-- confirmed hypothesis -> red `! ETA` on confirmed node;
-- multiple known Beam threats on one node may render multiple markers, nearest first;
-- intel updates never auto-retarget an already selected/deployed Shield.
-
-Relevant app/controller path:
-
-- `BridgeCaptainCombatContextMapper`
-- `BridgeCaptainCombatContextView`
-- `BridgeCaptainShieldTargetingView`
-- `BridgeCaptainThreatsView`
-- `BridgeCaptainBeamCannonThreatRowView`
-
-### Targeted Shield work still OPEN
-
-`docs/TARGETED_SHIELDS_TASK.md` is NOT fully complete.
 
 Still open:
 
-1. player visual state outside the picker:
-   - deployment in progress + selected node;
-   - active Shield + protected node;
-2. player Beam semantic enemy-node target;
-3. enemy targeted Shield choice based on perceived target intel;
-4. enemy targeted Shield physical resolution;
-5. enemy targeted Shield visual.
+- selected/deploying/active Shield state on the `OUR SHIP` dashboard;
+- semantic player Beam enemy-node targeting;
+- enemy targeted Shield choice/resolution/visual.
 
-Do not archive the targeted-Shield task yet.
+`docs/TARGETED_SHIELDS_TASK.md` remains active.
 
-The player Shield visual state should probably be integrated into the upcoming `OUR SHIP`
-dashboard redesign instead of polishing the outgoing provisional player dashboard.
+## New threat dashboard — design locked enough to implement
 
-## Captain dashboard structural visual pass DONE
+Reference image:
 
-A new physical captain dashboard screen asset exists:
+`docs/images/threat_dashboard_reference.png`
 
-`assets/raw/images/bridge/ui/captain_dashboard/screen.png`
+**Important:** the action labels in that image are deliberately mixed mock states used to test role colors, disabled
+state and CANCEL. They are **not** the canonical threat/action mapping.
 
-Runtime uses two copies:
-
-- left = OUR SHIP
-- right = CURRENT CONTEXT
-
-Current structural decisions:
-
-- screens are centered as a pair;
-- roughly 10 px gap between them;
-- lower edges are pushed to the bottom of the 1280x720 canvas;
-- the authored screen sprite supplies the physical frame/hardware;
-- old dashboard panel backgrounds/borders were removed so Phaser draws content on the physical display;
-- both screens currently share the same physical screen art.
-
-Manifest:
-
-`src/app/manifests/bridge/captain_dashboard.ts`
-
-The left screen still contains the old functional ship rows. That content is explicitly provisional.
-
-## Threat tiles — current visual grammar
-
-All four threat types now share the same flatter monitor-native grammar.
-
-Important distinction:
-
-- grid cell remains `163x66`;
-- actual drawn tile is now approximately `153x58`;
-- remaining cell space acts as grid padding/gap.
-
-Common tile language:
-
-- dark navy header/background;
-- readable thin blue-gray outer border;
-- compact 28 px header;
-- icon / optional status / timer aligned in the header;
-- darker action-row background;
-- standard half-width action buttons when a threat has one action;
-- 6 px segmented timing strips where the mechanic has useful decision timing;
-- active action uses a dark clean orange background;
-- expired state still uses the small blinking red terminal marker.
-
-Do not restore the old beveled sprite-card/button look.
-
-### Missile
-
-Header:
-
-- monochrome red missile glyph;
-- current placeholder intel text: `NO ID / GUESS / LOCK...`;
-- exact timer.
-
-Actions:
-
-- `[S] TRACK`
-- `[W] HIT`
-
-Both keep segmented cyan useful-time bars visible, including while task state is active.
-
-The textual intel vocabulary is visually provisional.
-We explicitly want to replace it with a more elegant non-text solution later if a good idea appears.
-Do not force a bad icon solution merely to remove the text.
-
-### Beam
-
-Header:
-
-- short monochrome cyan beam-impact glyph;
-- current observer target intel text;
-- exact timer.
-
-Actions:
-
-- `[S] TRACK`
-- `[E] SHIELD`
-
-Shield timing semantics:
+Canonical current threat actions:
 
 ```text
-muted red = too early
-cyan = valid
-blinking bright red terminal marker = nominally expired
+Missile      -> [W] HIT
+Beam Cannon  -> [E] SHIELD
+Sticky Mine  -> [E] CLEAR
+SPAM         -> [S] PURGE
 ```
 
-Current early-window red is intentionally muted; it is not the same semantic weight as hard danger red.
+Helm `EVADE` is a ship/global combat action, not a per-threat action just because the mock image shows it under one
+sample glyph.
 
-### Sticky Mine
+### Layout
 
-Header:
+Current target layout is a **4 x 2 threat grid** on the right captain display.
 
-- monochrome violet spider/crab-like sticky-mine glyph;
-- no redundant middle status;
-- exact timer.
+Do not preserve the current runtime `3 x 2` / `163x66` card layout merely because it exists in source.
 
-Action layout:
-
-- left action half intentionally empty;
-- standard right-side `[E] CLEAR`;
-- vertical divider at the left edge of the right action;
-- 7-segment cyan timing bar only under CLEAR.
-
-We tried full-width CLEAR and rejected it as visually too heavy.
-Keep the familiar right-half button shape.
-
-### Spam
-
-Header:
-
-- monochrome green `AD` plaque glyph;
-- no redundant middle status;
-- exact timer.
-
-Action layout:
-
-- left half intentionally empty;
-- standard right-side `[S] PURGE`;
-- no decision timing bar by design.
-
-SPAM has no useful precision timing strip; its main gameplay effect is slowing other officer work.
-
-## Threat-grid future direction — NOT IMPLEMENTED
-
-Do not hard-code a gameplay cap of six threats yet.
-
-Current design direction:
-
-- up to ~6 threats: normal tile size;
-- above that, consider switching to a compact tile size;
-- candidate dense layouts: `4x2` or `3x3`, depending on real readability;
-- only add the dense mode after actual runtime layout tests.
-
-Threat reorder should eventually get a very short presentation-only tween.
-When a threat disappears and remaining tiles reflow, the player should visually see which tile moved.
-
-The tween must:
-
-- not affect engine simulation;
-- not depend on gameplay pause;
-- still be allowed to finish if the user pauses exactly as reflow starts.
-
-Not implemented yet.
-
-## Right CURRENT CONTEXT dashboard — design direction
-
-The right screen is contextual, not permanently “the combat panel”.
-
-Current concept for a small top navigation/status line:
+The new visual object is intentionally much cheaper:
 
 ```text
-THREATS | COMMS | <other context>
+[ LARGE THREAT GLYPH ]
+[role] ACTION
 ```
 
-The active context changes with situation:
+No physical tile/card background is required.
 
-- combat -> THREATS;
-- incoming communication -> COMMS;
-- anomaly / other encounter -> its own context.
+### Whole tile = action
 
-The exact third/future contexts are not locked yet.
+The entire threat cell is the click target.
 
-The right side of the same top line may carry compact persistent ship/officer facts such as:
+There is no separate drawn button.
 
-- HULL;
-- CORE;
-- officer presence/state.
+State language:
 
-Provisional officer-state color language discussed:
+- action available -> colored role key + white action text;
+- action task active -> action label becomes `CANCEL`, whole cell cancels that task;
+- action unavailable -> action label is gray/non-interactive;
+- threat glyph itself keeps presenting threat urgency even if the action is unavailable.
 
-- white = normal/present;
-- red = stunned;
-- gray = absent from ship.
+Do not gray the whole threat merely because Weapons/Engineer/Science is busy or a resource is missing. Threat urgency
+and action availability are separate channels.
 
-Do not show verbose “officer is doing X” text unless later layout proves there is space and value.
+### No numeric timer
 
-This context header is design direction only; not implemented as final UI yet.
+The new threat object does **not** show seconds.
 
-## Enemy information / inspection — important new design direction
+Remove from the new visual grammar:
 
-We no longer want basic enemy combat knowledge to require a mandatory Science scan before the player can make strategic decisions.
+- exact countdown text;
+- `NO ID / GUESS / LOCK`;
+- segmented timing strips;
+- button frames/backgrounds/dividers;
+- redundant status labels.
 
-Current direction:
+### Progress is inside the glyph
 
-- basic enemy ship telemetry should be broadly inspectable;
-- player should be able to inspect the enemy ship at any time during combat;
-- inspection is a dedicated full overlay/modal, NOT another right-dashboard context;
-- it should eventually expose enough information to plan deliberately:
-  - enemy captain;
-  - crew/officer traits;
-  - ship nodes/modules;
-  - weapons;
-  - relevant ammo/resources/telemetry where useful.
+The whole threat glyph is the timing visualization.
 
-This does NOT mean Science becomes useless.
-Science should still create tactical knowledge where uncertainty actually creates interesting decisions
-(e.g. concrete incoming threat target/signature/intention), rather than gate all basic enemy anatomy.
+Normal phase:
 
-Enemy-inspection pause behavior should be a player setting:
+- glyph has its normal threat color;
+- a red overlay progressively fills the glyph **left -> right**;
+- the fill represents the action's useful-start window, not generic time-to-impact.
 
-- auto-pause while inspection is open;
-- or keep simulation running.
+Terminal phase:
 
-This setting is not implemented.
+- once the latest useful start has passed, the **entire glyph is red**;
+- the entire red glyph blinks;
+- this happens even if the player started the counter-task before the terminal edge and the task is still running.
 
-Future analytics should record which option players use and how they inspect enemies.
-Do not build the analytics now merely because the design mentions it.
+That last rule is intentional. It creates the desired tension: the player may have committed in time but still watches a
+full-red threat while waiting to see whether the countermeasure resolves before impact.
 
-## Dashboard / UI ideas explicitly deferred
+Terminal presentation is advisory timing, not a second source of command legality. Engine command availability remains
+authoritative unless a later gameplay change explicitly says otherwise.
 
-### Captain hands / pointer embodiment
+### Universal timing language
 
-Optional future presentation toy:
+Do not invent special icon-specific progress metaphors such as:
 
-- two captain hands at bottom;
-- left hand follows pointer over left dashboard;
-- right hand follows pointer over right dashboard;
-- finger taps the physical display on click;
-- must never obscure important UI;
-- must be disableable.
+- Missile body fills but Beam uses a separate strip;
+- Mine lamps are the dashboard timer;
+- SPAM uses a different gauge.
 
-Possible meta/cosmetic extension:
+The dashboard language is universal: **normal-color glyph + red left-to-right useful-window fill -> full-red blink**.
 
-- collectible/achievement rings visible on captain fingers;
-- maybe small starting bonuses later.
+Physical threats may still have world-space telegraphs for readability and future EW mechanics.
 
-This is fun but absolutely not near-term required work.
+### Beam early-window nuance
 
-## What docs are now stale
+The current engine/presentation timing model has Shield window semantics, including the possibility of deploying too
+early for the finite Shield lifetime.
 
-### Root `CURRENT_HANDOFF.md`
+The new UI deliberately drops the old bespoke red/cyan timing strip. During implementation, keep the universal glyph
+progress as the default. If the early-deploy edge still needs an affordance, solve it with the smallest real gameplay/UI
+need exposed by runtime testing; do not automatically restore a custom Beam chart.
 
-Very stale.
+## Threat icon assets — DONE / pushed / packed
 
-It still says:
+Current source icons:
 
-- targeted Shields are the next slice;
-- start with targeted Shield engine Atom 1;
-- player Shields are whole-ship.
+```text
+assets/raw/images/ui/threat_icons/missile.png
+assets/raw/images/ui/threat_icons/beam_cannon.png
+assets/raw/images/ui/threat_icons/mine.png
+assets/raw/images/ui/threat_icons/spam.png
+```
 
-Do not follow that startup instruction.
+All four now have a `107 x 33` source canvas in the atlas.
 
-### `docs/TARGETED_SHIELDS_TASK.md`
+Asset contract going forward:
 
-The task definition is still useful, but its “Current baseline” is stale.
+- transparent PNG;
+- white source art / tintable shape;
+- runtime owns normal threat color and red danger overlay;
+- internal cuts are transparent;
+- do not author duplicate red terminal assets.
 
-Status now:
+Current color identities:
 
-- A. Engine/domain -> DONE
-- B. Captain dashboard picker -> DONE
-- C. Player visual state -> OPEN
-- Player Beam prerequisite -> OPEN
-- Enemy targeted Shield -> OPEN
-- Enemy visual -> OPEN
+- Missile -> orange;
+- Beam -> cyan;
+- Mine -> violet;
+- SPAM -> green;
+- terminal/progress overlay -> red.
 
-Keep the doc active until the remaining items are done.
+Exact tint constants can be centralized in the threat presentation code when the implementation lands.
 
-### `docs/GAMEPLAY_CONTRACTS.md`
+### Intended render strategy
 
-Stale targeted-Shield statements remain, including text saying targeted Shield is only planned / active Shield is whole-ship.
+Prefer one source texture per threat and render it twice:
 
-Fresh engine source is authoritative.
+```text
+base copy     -> threat-color tint
+red copy      -> danger tint + left-to-right clip/mask
+```
 
-Needs a documentation refresh.
+At terminal state the red copy covers the whole glyph and blinks.
 
-### `docs/SYSTEM_MAP.md`
+Use the simplest Phaser mechanism that behaves correctly with packed/trimmed atlas frames. A geometry mask is acceptable
+if `setCrop` becomes awkward with TexturePacker trimming. Do not add duplicate gameplay state for the mask.
 
-Its Beam/Shield boundary still describes pre-targeted-Shield state.
+## Current runtime is intentionally obsolete visually
 
-Needs a documentation refresh.
+At this HEAD the threat row classes still implement the old card UI.
 
-### `docs/THREAT_PANEL.md`
+Relevant current files:
 
-Behavioral concepts remain useful, but current geometry/colors are stale.
+```text
+src/app/scenes/game/bridge/view/captain_dashboard/combat_context/threats/
+    BridgeCaptainThreatsView.ts
+    BridgeCaptainMissileThreatRowView.ts
+    BridgeCaptainBeamCannonThreatRowView.ts
+    BridgeCaptainStickyMineThreatRowView.ts
+    BridgeCaptainSpamThreatRowView.ts
+    get_beam_shield_timing_strip_state.ts
+```
 
-It still describes older values such as:
+`BridgeCaptainThreatsView` still declares a 3-column `163x66` grid. The row views still own borders, timer text, button
+backgrounds and old timing-strip machinery. These are replacement targets, not design constraints.
 
-- current production footprint `163x66` as the drawn tile;
-- 3 px strips;
-- cream timing fills.
+The Shield targeting picker itself remains real and must survive the visual rewrite.
 
-Current runtime is instead:
+## Timing read-model audit required before drawing
 
-- grid cell `163x66`;
-- drawn threat tile about `153x58`;
-- 6 px segmented strips;
-- cyan normal useful-time fill;
-- Beam early phase muted red.
+The new universal progress language needs a latest-useful-start deadline for every threat/action:
 
-Needs a documentation refresh.
+- Missile -> Weapons HIT;
+- Beam -> Engineer SHIELD;
+- Mine -> Engineer CLEAR;
+- SPAM -> Science PURGE.
 
-### `docs/BRIDGE_ART_DIRECTION.md`
+Audit the current `PlayerThreatDecisionTimingSnapshot` before coding the view. The old UI intentionally had no SPAM
+precision strip, so the required SPAM deadline may not exist yet.
 
-Durable composition remains broadly correct.
+If a timing fact is missing:
 
-Needs a later small refresh for:
+- extend the engine presentation/read model where timing truth already belongs;
+- derive it from real remaining threat lifetime + real task duration/current crew-progress multiplier;
+- do **not** reimplement tuning or slowdown math in Phaser/view code.
 
-- authored dual physical captain-display screen asset;
-- flat monitor-native UI content inside the screen;
-- current dashboard placement.
+This should remain a presentation-read-model extension, not a new gameplay mechanic.
 
-### `docs/COMBAT_PLAYTEST_ROADMAP.md`
+## Recommended next atom order
 
-Gate structure remains useful, but checkpoint/immediate order is stale.
+### Atom 1 — read-model + layout audit
 
-Important status:
+Inspect fresh source for:
 
-- threat readability work has advanced substantially;
-- targeted player Shield A/B are done;
-- `Player dashboard functional redesign` is PARTIAL, not complete;
-- enemy dashboard redesign remains open;
-- player Beam semantic targeting remains open.
+- all four bridge threat payloads;
+- `PlayerThreatDecisionTimingSnapshot`;
+- current command/active-task mapping;
+- Shield targeting open/cancel flow;
+- current right-screen dimensions/layout offsets.
 
-### `docs/BACKLOG.md`
+Produce the minimal data contract needed by the new glyph UI.
 
-No major newly completed backlog item identified.
-Most entries remain genuinely deferred.
+### Atom 2 — replace threat visual shell
 
-## Roadmap task status after this session
+Implement:
 
-### Clearly completed / advanced
+- 4x2 layout;
+- large `107x33` glyph placement;
+- role/action label below;
+- whole-cell pointer target;
+- no card/timer/button chrome.
 
-- compact threat presentation: DONE and visually redesigned again;
-- player targeted Shield engine/domain: DONE;
-- player targeted Shield inline selection: DONE;
-- player dashboard physical display shell: DONE;
-- right combat threat context presentation: substantially advanced.
+Keep existing real command callbacks.
 
-### Not complete
+### Atom 3 — progress overlay + terminal blink
 
-- full player dashboard functional redesign;
-- real module/weapon-slot presentation;
-- player targeted Shield active/deploy visual;
-- enemy dashboard redesign;
-- full enemy inspection overlay;
-- player Beam semantic node targeting;
-- enemy targeted Shield;
-- shared combat-effect model;
-- starter gun experiment;
-- weapon hit-effects pass;
-- EMP experiment;
-- second Helm command;
-- combat-lab tooling;
-- deeper crew/run systems.
+Implement the shared glyph timing presentation:
 
-## Recommended next active slice
+- base tint;
+- red clipped overlay;
+- latest-useful-start progression;
+- full-red terminal blink even while a counter-task is active.
 
-### PLAYER `OUR SHIP` DASHBOARD — module / equipment slot redesign
+### Atom 4 — action state + CANCEL
 
-This is the next large UI/data slice.
+Implement:
 
-The left display should stop being the current provisional list of rows and become a readable ship model.
+- available;
+- unavailable/gray;
+- active task -> `CANCEL`;
+- Beam `SHIELD` opens the existing node picker when available;
+- active Shield deploy cancellation still cancels the real task.
 
-The exact visual layout is NOT fully designed yet.
-Do not start coding from an invented final slot architecture.
+### Atom 5 — runtime density/readability pass
 
-First inspect current real domain/read models for:
+Smoke with multiple mixed threats, including a full 4x2 board.
 
-- installed weapon instances;
-- duplicate same-kind weapon identity;
-- weapon family/type;
-- current weapon phase/cooldown/ammo;
-- Shield Generator;
-- Defense Turret;
-- Drive integrity/broken state;
-- Power Core current/max/recharge;
-- hull current/max;
-- any other real installed module state already supported.
+Check:
 
-Then design the minimum slot grammar around the state that actually exists.
+- icon visual mass;
+- label readability;
+- hover/click target clarity;
+- red fill readability;
+- terminal blink noise when several threats are terminal;
+- reorder/reflow comprehension.
 
-Likely presentation questions to answer before code:
+Do not add reflow tween until runtime proves it is useful.
 
-- how many weapon slots are visible simultaneously?
-- are defense/drive/core represented as fixed system slots separate from weapons?
-- what is the compact visual state for READY / active phase / COOLDOWN / BROKEN?
-- how do duplicate weapons remain individually identifiable?
-- where does targeted Shield deployment/active target appear?
-- how much detail belongs directly on the left display versus hover/inspection?
+## Deferred EW experiment worth preserving
 
-Do not invent generic module systems merely to draw empty future slots.
+A future enemy weapon/equipment effect may temporarily remove **timing precision** rather than player control.
 
-### Suggested atom order
+Promising version:
 
-Atom 1 — inspect current player ship/equipment read model and produce a concrete wireframe/data contract.
+- lasts roughly 4–5 seconds;
+- threat glyphs remain visible;
+- action labels/clicks remain available;
+- red progress masks disappear, forcing the player to estimate timing from physical telegraphs;
+- actual threat timers are unchanged;
+- terminal full-red blink may remain as the coarse emergency signal.
 
-Atom 2 — implement static slot layout using current real installed modules/weapons.
+Possible diegetic telegraphs:
 
-Atom 3 — map live weapon/system states into slots.
+- Missile position/approach on the viewscreen;
+- Sticky Mine lamps/pulse progression on the hull/viewscreen;
+- Beam enemy charge-up;
+- SPAM/world-space effect.
 
-Atom 4 — integrate targeted Shield deploy/active protected-node visual into the new dashboard.
+This is a future playtest experiment, not part of the immediate dashboard implementation.
 
-Atom 5 — runtime density/readability pass.
+## Deferred lore/meta ideas from this session
 
-Only after the player ship display is readable should we decide whether the next major slice is:
+### Personnel implants explain predictive timing
 
-- enemy dashboard / full inspection;
-- player Beam semantic targeting;
-- or another Gate A dependency exposed by runtime.
+The military can plausibly implant personnel chips that let ship systems estimate how long a specific officer will take
+to finish a task. Official documentation should of course insist this program has absolutely nothing to do with crew
+stealing food, cutlery or other supplies and that task-duration prediction is merely an innocent side effect.
 
-## Files to read first in the next chat
+This provides a diegetic explanation for why the dashboard can show an officer-adjusted latest useful response window.
 
-Per `docs/WORKING_RULES.md`, still read every Markdown file in `docs/`, but treat the stale statements called out above as historical until docs are refreshed.
+### Lore collectibles + final exam
 
-Pay special attention to:
+Preferred lore delivery direction:
 
-- this handoff;
-- `docs/COMBAT_PLAYTEST_ROADMAP.md`;
+- optional collectibles/documents discovered through anomaly scans, empty node-space, wrecks/terminals/etc.;
+- discoveries enter a journal and can be reread;
+- do not dump one lore entry for every gameplay mechanic encountered in a run;
+- collecting the full lore set can unlock a final special encounter with a mandatory absurd bureaucratic exam;
+- successful completion awards an intentionally over-serious certificate/commendation/trophy rather than a mandatory
+  power reward.
+
+Tracked as deferred design, not immediate implementation.
+
+## Docs refreshed in this handoff bundle
+
+The following were stale and are refreshed together with this handoff:
+
+- `docs/THREAT_PANEL.md`;
 - `docs/GAMEPLAY_CONTRACTS.md`;
 - `docs/SYSTEM_MAP.md`;
-- `docs/BRIDGE_ART_DIRECTION.md`;
-- `docs/THREAT_PANEL.md`;
 - `docs/TARGETED_SHIELDS_TASK.md`;
-- `docs/WORKING_RULES.md`.
+- `docs/COMBAT_PLAYTEST_ROADMAP.md`;
+- `docs/BRIDGE_ART_DIRECTION.md`;
+- `docs/BACKLOG.md`;
+- `docs/PROJECT_CONTEXT.md`.
 
-Then re-fetch fresh `master`.
+`docs/WORKING_RULES.md` remains valid and was not changed merely to bump a date.
 
-For the next slot/dashboard slice inspect at minimum:
-
-- `BridgeCaptainDashboardView`
-- `BridgePlayerShipDashboardView`
-- its mapper/read-model inputs
-- player ship/weapon snapshot types
-- `src/engine/content/data/debug_start.json`
-- ship weapon catalogs/definitions
-- Power Core / Drive / Shield / Defense Turret presentation state
-
-Do not patch from this handoff's source assumptions.
-
-## Validation / patch workflow
+## Validation / delivery workflow
 
 Follow `docs/WORKING_RULES.md`.
 
@@ -553,14 +418,12 @@ npm test
 git -c core.safecrlf=false diff --check
 ```
 
-For raw texture changes also run:
+For raw texture changes:
 
 ```bash
 npm run pack:tex
 ```
 
-Runtime smoke remains required for visual work.
+Runtime smoke is required for the threat-dashboard visual rewrite.
 
-Important lesson from this session:
-generate patches from the exact full current source/blob.
-Do not reconstruct “exact” files by stitching truncated snippets.
+Do not patch from this handoff's source assumptions without re-fetching fresh `master`.
