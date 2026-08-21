@@ -166,7 +166,7 @@ export default class BridgeCaptainBeamCannonThreatGlyphView {
         }
 
         if (timing.phase === BEAM_SHIELD_TIMING_PHASE.TOO_EARLY) {
-            this.beamIcon.setTintFill(FONT_COLOR.SECONDARY);
+            this.beamIcon.setTintFill(THREAT_GLYPH_COLOR.BEAM_EARLY);
 
             const dangerProgress01 = timing.earlyWidth01 * (1 - timing.earlyFill01);
 
