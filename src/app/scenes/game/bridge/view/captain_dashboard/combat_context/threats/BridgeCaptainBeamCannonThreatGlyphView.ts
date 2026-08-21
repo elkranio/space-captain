@@ -1,12 +1,15 @@
+// src/app/scenes/game/bridge/view/captain_dashboard/combat_context/threats/BridgeCaptainBeamCannonThreatGlyphView.ts
 import { UI_COMBAT_SPRITE_ID, UI_COMBAT_SPRITES } from "../../../../../../../manifests/ui/combat";
-import { FONT_COLOR, FONT_FAMILY, FONT_SIZE } from "../../../../../../../theme/font";
+import { FONT_COLOR, FONT_FAMILY } from "../../../../../../../theme/font";
 import type BridgeScene from "../../../../BridgeScene";
 import type { BridgeCaptainIncomingBeamCannonPayload } from "../../../../events/bridge_event";
-import {
-    BEAM_SHIELD_TIMING_PHASE,
-    getBeamShieldTimingStripState,
-} from "./get_beam_shield_timing_strip_state";
+import { BEAM_SHIELD_TIMING_PHASE, getBeamShieldTimingStripState } from "./get_beam_shield_timing_strip_state";
 import { THREAT_CELL, THREAT_GLYPH_COLOR } from "./threat_glyph_style";
+
+const TARGET_TEXT = {
+    y: 52,
+    fontSize: 11,
+} as const;
 
 type BeamCannonThreatGlyphCallbacks = {
     onOpenShieldTargeting: () => void;
@@ -54,21 +57,11 @@ export default class BridgeCaptainBeamCannonThreatGlyphView {
             .setVisible(false);
 
         this.targetText = this.scene.add
-            .bitmapText(
-                THREAT_CELL.width / 2,
-                35,
-                FONT_FAMILY.VGA_8X14,
-                "--",
-                FONT_SIZE.PX_12,
-            )
+            .bitmapText(THREAT_CELL.width / 2, TARGET_TEXT.y, FONT_FAMILY.VGA_8X14, "--", TARGET_TEXT.fontSize)
             .setOrigin(0.5, 0)
             .setTint(FONT_COLOR.SECONDARY);
 
-        this.roleGlyph = this.createSprite(
-            UI_COMBAT_SPRITE_ID.ROLE_E,
-            0,
-            THREAT_CELL.actionCenterY,
-        ).setOrigin(0, 0.5);
+        this.roleGlyph = this.createSprite(UI_COMBAT_SPRITE_ID.ROLE_E, 0, THREAT_CELL.actionCenterY).setOrigin(0, 0.5);
 
         this.actionLabel = this.scene.add
             .text(0, THREAT_CELL.actionCenterY, "SHIELD", {
@@ -111,10 +104,7 @@ export default class BridgeCaptainBeamCannonThreatGlyphView {
         this.shieldTargetingAvailable = shieldTargetingAvailable;
         this.engineerTaskId = shieldDeployTaskId;
 
-        this.updateActionState(
-            shieldTargetingAvailable,
-            shieldDeployTaskId !== undefined,
-        );
+        this.updateActionState(shieldTargetingAvailable, shieldDeployTaskId !== undefined);
 
         this.updateGlyphTiming(beamCannon);
     }
@@ -128,11 +118,7 @@ export default class BridgeCaptainBeamCannonThreatGlyphView {
         this.root.destroy(true);
     }
 
-    private createSprite(
-        spriteId: UiCombatSpriteId,
-        x: number,
-        y: number,
-    ): Phaser.GameObjects.Image {
+    private createSprite(spriteId: UiCombatSpriteId, x: number, y: number): Phaser.GameObjects.Image {
         const sprite = UI_COMBAT_SPRITES[spriteId];
 
         return this.scene.add.image(x, y, sprite.atlasKey, sprite.frameKey).setOrigin(0, 0);
@@ -177,8 +163,7 @@ export default class BridgeCaptainBeamCannonThreatGlyphView {
         }
 
         if (timing.phase === BEAM_SHIELD_TIMING_PHASE.TOO_EARLY) {
-            const blinkOn =
-                Math.floor(this.scene.time.now / THREAT_CELL.earlyBlinkPeriodMs) % 2 === 0;
+            const blinkOn = Math.floor(this.scene.time.now / THREAT_CELL.earlyBlinkPeriodMs) % 2 === 0;
 
             this.beamIcon.setAlpha(blinkOn ? 1 : 0.45);
             return;
@@ -194,29 +179,20 @@ export default class BridgeCaptainBeamCannonThreatGlyphView {
             return;
         }
 
-        const cropWidth = Math.max(
-            1,
-            Math.round(this.beamDangerIcon.width * clampedProgress01),
-        );
+        const cropWidth = Math.max(1, Math.round(this.beamDangerIcon.width * clampedProgress01));
 
-        this.beamDangerIcon
-            .setCrop(0, 0, cropWidth, this.beamDangerIcon.height)
-            .setVisible(true);
+        this.beamDangerIcon.setCrop(0, 0, cropWidth, this.beamDangerIcon.height).setVisible(true);
     }
 
     private showTerminalGlyph(): void {
-        const blinkOn =
-            Math.floor(this.scene.time.now / THREAT_CELL.terminalBlinkPeriodMs) % 2 === 0;
+        const blinkOn = Math.floor(this.scene.time.now / THREAT_CELL.terminalBlinkPeriodMs) % 2 === 0;
 
         this.beamIcon.setVisible(false);
-        this.beamDangerIcon
-            .setCrop(0, 0, this.beamDangerIcon.width, this.beamDangerIcon.height)
-            .setVisible(blinkOn);
+        this.beamDangerIcon.setCrop(0, 0, this.beamDangerIcon.width, this.beamDangerIcon.height).setVisible(blinkOn);
     }
 
     private layoutActionLabel(): void {
-        const contentWidth =
-            this.roleGlyph.displayWidth + THREAT_CELL.actionGap + this.actionLabel.width;
+        const contentWidth = this.roleGlyph.displayWidth + THREAT_CELL.actionGap + this.actionLabel.width;
         const startX = Math.round((THREAT_CELL.width - contentWidth) / 2);
 
         this.roleGlyph.setPosition(startX, THREAT_CELL.actionCenterY);
@@ -240,5 +216,4 @@ export default class BridgeCaptainBeamCannonThreatGlyphView {
     }
 }
 
-type UiCombatSpriteId =
-    (typeof UI_COMBAT_SPRITE_ID)[keyof typeof UI_COMBAT_SPRITE_ID];
+type UiCombatSpriteId = (typeof UI_COMBAT_SPRITE_ID)[keyof typeof UI_COMBAT_SPRITE_ID];
