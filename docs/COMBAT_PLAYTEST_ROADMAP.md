@@ -6,7 +6,7 @@ The exact next working slice lives in `../CURRENT_HANDOFF.md`. Concrete deferred
 
 ## Current foundation
 
-Landed before the next combat-design pass:
+Current landed foundation:
 
 - mandatory player Science TRACK/IDENTIFY removed from normal incoming-threat readability;
 - player Defense Turret BASIC interception is guaranteed on successful completed Weapons work;
@@ -17,11 +17,12 @@ Landed before the next combat-design pass:
 - clean combat header + 4x2 glyph threat dashboard is implemented;
 - tintable Missile / Beam / Mine / SPAM threat glyph family is implemented.
 
-Before changing more combat semantics, reconcile intended mechanics into one canonical game-design document.
+The intended mechanics reconciliation is complete. `GAME_DESIGN.md` is the canonical design target;
+`GAMEPLAY_CONTRACTS.md` remains current runtime truth.
 
 ## Gate A — combat becomes readable
 
-Current likely implementation order after design reconciliation:
+Current implementation order:
 
 ```text
 OUR SHIP functional/module dashboard + targeted-Shield visual
@@ -100,8 +101,8 @@ Do not collapse stun and interruption into one effect.
 
 ### 7. Weapon/build diversity
 
-Use playtests to determine whether the combat needs a simple baseline gun and how existing/new weapons create distinct
-pressure through damage, disruption, crew pressure and subsystem pressure.
+Add and tune the confirmed Basic Gun alongside other weapons so builds create distinct pressure through damage,
+disruption, crew pressure, subsystem pressure and resource economy.
 
 Do not lock speculative effect percentages or future node lists into this roadmap.
 
@@ -130,10 +131,10 @@ Before leaving Gate B:
 
 Only after combat readability/build space works, add the deeper crew layer needed for serious run-phase testing:
 
-- positive officer perks;
-- fatigue/declining performance;
-- negative traits;
-- relationship deterioration/support;
+- positive officer traits/upgrades;
+- Morale as the single dynamic officer-condition value;
+- negative traits and severe-dysfunction consequences;
+- pairwise relationship deterioration/support;
 - role-to-role synergies where they modify real interactions.
 
 Prefer natural system interactions over arbitrary set bonuses.

@@ -4,14 +4,15 @@ Durable project context. Current implementation status and the next active slice
 
 ## Product
 
-Space Captain is a Phaser 3 + TypeScript combat/adventure roguelite with a first-person captain view and an early-1990s
-Sierra / Space Quest VGA visual target.
+Space Captain is a Phaser 3 + TypeScript space roguelite with a first-person captain view and an early-1990s Sierra /
+Space Quest VGA visual target.
 
-The player commands a ship through officers rather than directly piloting every system. Combat is built around readable
-telegraphed threats, officer availability, counterplay and limited ship resources rather than bullet-hell reflex play.
+The player commands a service ship through four officer roles rather than directly operating every system. Runs combine
+mandatory contracts, route planning, local exploration, combat, build progression and crew management.
 
-Basic combat information should be readable without mandatory checkbox work. Officer and Science mechanics should create
-tactical advantage, uncertainty or role contention rather than permission to understand the interface.
+Combat is built around readable threats, officer availability, shared resources and competing priorities. Basic combat
+information should be readable without mandatory checkbox work. Science should create tactical advantage rather than
+permission to understand the interface.
 
 ## Repository boundaries
 
@@ -47,13 +48,17 @@ File length alone is not a refactor reason.
 
 ## Documentation map
 
-- `../CURRENT_HANDOFF.md` — transient checkpoint and next active work.
-- `WORKING_RULES.md` — collaboration, patch and validation workflow.
-- `GAMEPLAY_CONTRACTS.md` — current implemented gameplay/domain contract only.
+Read these first when re-entering the project:
+
+1. `../CURRENT_HANDOFF.md` — transient checkpoint and next active work.
+2. `GAME_DESIGN.md` — canonical intended game/combat design.
+3. `GAMEPLAY_CONTRACTS.md` — current implemented gameplay/domain contract.
+4. `WORKING_RULES.md` — collaboration, patch and validation workflow.
+
+Supporting references:
+
 - `SYSTEM_MAP.md` — durable ownership and data-flow map.
 - `COMBAT_PLAYTEST_ROADMAP.md` — near-term combat milestones and playtest gates.
-- `BACKLOG.md` — concrete deferred work only.
+- `BACKLOG.md` — concrete deferred work and known intended/runtime mismatches.
 - `BRIDGE_ART_DIRECTION.md` — durable bridge visual principles.
 - `THREAT_PANEL.md` — current threat-dashboard presentation contract.
-
-A separate canonical intended-game-design document will be added after the next mechanics reconciliation pass.

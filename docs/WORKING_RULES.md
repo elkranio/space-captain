@@ -49,7 +49,7 @@ For tracked text/source changes, use a Git patch generated from the exact curren
 
 - Re-fetch current `master` before preparing the patch.
 - Do not hand-author hunk headers or approximate context.
-- Validate with `git apply --check --verbose` against the expected source state whenever
+- Validate with `git apply --check` against the expected source state whenever
   practical.
 - The user normally applies, validates, commits and pushes.
 

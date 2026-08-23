@@ -2,31 +2,57 @@
 
 Concrete deferred work only. Completed work and uncommitted idea fragments do not stay here.
 
-Near-term combat sequencing lives in `COMBAT_PLAYTEST_ROADMAP.md`.
+Canonical intended mechanics live in `GAME_DESIGN.md`. Near-term combat sequencing lives in
+`COMBAT_PLAYTEST_ROADMAP.md`.
 
 ## Gameplay
 
-### Encounter-end module reset
+### Encounter-end lifecycle
 
-Confirmed intended lifecycle:
+Implement one explicit post-encounter lifecycle when this path is touched:
 
-- system/module integrity is encounter-local;
-- surviving modules return to max integrity after the encounter;
-- hull damage does not auto-reset;
-- hull repair remains station-only.
+- surviving modules return to max integrity;
+- Power Core returns to full;
+- temporary combat tasks/effects/threat state is cleared according to encounter outcome;
+- Hull damage persists;
+- spent ammunition persists.
 
-Implement as one explicit encounter-end lifecycle atom when that write-back path is touched.
+Do not create post-combat waiting/repair optimization for state that can be restored for free.
+
+### Evade Drive wear
+
+Confirmed intended behavior, not yet assumed implemented:
+
+- once Evade is committed, its eventual end deals 1 Drive module damage;
+- apply the damage at Evade end, not start;
+- normal completion, manual cancellation and Helm Stun all still apply the damage;
+- generic task `INTERRUPT` should not cancel an active Evade;
+- the final Drive integrity point can power one last Evade and break when it ends.
 
 ### Escape flow
 
-Current intended dependency:
+Confirmed intended dependency:
 
 1. Drive must be operational.
-2. Engineer repairs it first when broken.
-3. Helm initiates escape.
-4. Whether other officers must be idle remains a design decision for the implementation pass.
+2. Helm performs the timed Escape task.
+3. Other officers do not need to be idle.
+4. Helm interruption/Stun loses current Escape progress; the next attempt starts from zero.
+5. Successful Escape ends and cleans the encounter; the old fight is not resumed later.
 
-Escape is not Evade.
+Remove any generic `all officers idle` requirement from local travel/escape paths when those paths are next touched. For
+location-bound non-combat tasks, leaving should cancel/forfeit the task naturally instead of globally blocking travel.
+
+### Beam Power Core cost
+
+Intended player Beam spends shared Power Core. Current runtime contract may still differ. Implement deliberately when
+player Beam semantic-targeting slice is touched.
+
+### Baseline gun
+
+Add a no-ammo/no-CORE Basic Gun during the weapon/build-diversity pass.
+
+It should become weak without investment but remain endgame-viable when the player deliberately builds/upgrades around
+it.
 
 ## Test hygiene
 

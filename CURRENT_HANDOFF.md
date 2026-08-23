@@ -8,25 +8,26 @@ The current combat foundation includes:
 - incoming Beam target truth uses `HULL | DRIVE`;
 - player Drive integrity and Beam module damage are engine-owned;
 - player targeted-Shield semantics and the `HULL | DRIVE` Shield picker are implemented;
-- the captain combat context uses the new clean header and 4x2 glyph threat grid;
+- the captain combat context uses the clean header and 4x2 glyph threat grid;
 - the header presents player HULL and the shared Power Core state;
-- Missile, Beam, Mine and SPAM threat glyphs use the current timing/progress presentation described in
-  `docs/THREAT_PANEL.md`.
+- Missile, Beam, Mine and SPAM threat presentation is described in `docs/THREAT_PANEL.md`.
+
+The intended game/combat design reconciliation is complete and lives in `docs/GAME_DESIGN.md`.
+
+Important boundary:
+
+- `docs/GAME_DESIGN.md` = intended design;
+- `docs/GAMEPLAY_CONTRACTS.md` = current implemented runtime truth.
+
+Do not edit runtime contracts to pretend an intended mechanic is already implemented.
 
 ## Next step
 
-Before changing more combat semantics, reconcile the intended game design with the current implementation.
+Resume Gate A with the player's **OUR SHIP functional/module dashboard + targeted-Shield visual**.
 
-The next design pass should create one canonical intended-mechanics document. It must clearly separate:
-
-- what the game **should** do;
-- what the current runtime **already** does.
-
-`docs/GAMEPLAY_CONTRACTS.md` remains current runtime truth until code is deliberately changed.
+Before that atom, re-fetch current `master` and inspect the exact captain-dashboard/module/shield presentation path.
 
 ## Near-term combat sequence
-
-After the design reconciliation, the current likely implementation order is:
 
 ```text
 player OUR SHIP functional/module dashboard + targeted-Shield visual
@@ -36,4 +37,5 @@ player OUR SHIP functional/module dashboard + targeted-Shield visual
 -> enemy targeted Shield
 ```
 
+Design/runtime mismatches that matter for later implementation are tracked in `docs/BACKLOG.md`.
 The broader playtest sequence lives in `docs/COMBAT_PLAYTEST_ROADMAP.md`.
