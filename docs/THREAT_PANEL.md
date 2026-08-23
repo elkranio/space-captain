@@ -38,8 +38,9 @@ Current labels:
 
 If the relevant officer task is active for that threat, the action becomes `CANCEL`.
 
-For an active player Missile-intercept task, the `[W]` role glyph pulses. It derives from the same active-task truth as
-`CANCEL`; presentation does not own a second state.
+For concrete per-threat work, the role glyph also pulses while that task is active. This currently applies to Missile
+intercept, Sticky Mine clear and SPAM purge. The pulse derives from the same active-task truth as `CANCEL`; presentation
+does not own a second state.
 
 When an action is unavailable, its text is gray and the cell is noninteractive. The threat glyph keeps
 its family color so

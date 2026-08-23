@@ -6,12 +6,9 @@ import type {
     BridgeCaptainIncomingMissilePayload,
     BridgeOfficerCommandSelectedPayload,
 } from "../../../../events/bridge_event";
-import { THREAT_CELL, THREAT_GLYPH_COLOR } from "./threat_glyph_style";
+import { getThreatActiveTaskRoleAlpha, THREAT_CELL, THREAT_GLYPH_COLOR } from "./threat_glyph_style";
 
 const TILE = THREAT_CELL;
-
-const ACTIVE_TASK_ROLE_MIN_ALPHA = 0.35;
-const ACTIVE_TASK_ROLE_PULSE_PERIOD_MS = 900;
 
 type MissileThreatRowCallbacks = {
     onIntercept: (command: BridgeOfficerCommandSelectedPayload) => void;
@@ -154,18 +151,10 @@ export default class BridgeCaptainMissileThreatRowView {
 
         const alpha = enabled || active ? 1 : TILE.disabledAlpha;
 
-        this.roleGlyph.setAlpha(active ? this.getActiveTaskRoleAlpha() : alpha);
+        this.roleGlyph.setAlpha(active ? getThreatActiveTaskRoleAlpha(this.scene.time.now) : alpha);
         this.actionLabel.setAlpha(alpha);
 
         this.layoutActionLabel();
-    }
-
-    private getActiveTaskRoleAlpha(): number {
-        const pulsePhase =
-            (this.scene.time.now % ACTIVE_TASK_ROLE_PULSE_PERIOD_MS) / ACTIVE_TASK_ROLE_PULSE_PERIOD_MS;
-        const pulse01 = (Math.sin(pulsePhase * Math.PI * 2) + 1) / 2;
-
-        return ACTIVE_TASK_ROLE_MIN_ALPHA + pulse01 * (1 - ACTIVE_TASK_ROLE_MIN_ALPHA);
     }
 
     private updateGlyphTiming(

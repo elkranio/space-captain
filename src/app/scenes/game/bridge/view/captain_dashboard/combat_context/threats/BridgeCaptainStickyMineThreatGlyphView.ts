@@ -5,7 +5,7 @@ import type {
     BridgeCaptainStickyMinePayload,
     BridgeOfficerCommandSelectedPayload,
 } from "../../../../events/bridge_event";
-import { THREAT_CELL, THREAT_GLYPH_COLOR } from "./threat_glyph_style";
+import { getThreatActiveTaskRoleAlpha, THREAT_CELL, THREAT_GLYPH_COLOR } from "./threat_glyph_style";
 
 type StickyMineThreatGlyphCallbacks = {
     onClear: (command: BridgeOfficerCommandSelectedPayload) => void;
@@ -136,7 +136,7 @@ export default class BridgeCaptainStickyMineThreatGlyphView {
 
         const alpha = enabled || active ? 1 : THREAT_CELL.disabledAlpha;
 
-        this.roleGlyph.setAlpha(alpha);
+        this.roleGlyph.setAlpha(active ? getThreatActiveTaskRoleAlpha(this.scene.time.now) : alpha);
         this.actionLabel.setAlpha(alpha);
 
         this.layoutActionLabel();

@@ -9,6 +9,8 @@ export const THREAT_CELL = {
     actionGap: 5,
 
     disabledAlpha: 0.35,
+    activeTaskRoleMinAlpha: 0.35,
+    activeTaskRolePulsePeriodMs: 900,
 
     terminalBlinkPeriodMs: 300,
     earlyBlinkPeriodMs: 500,
@@ -22,3 +24,10 @@ export const THREAT_GLYPH_COLOR = {
     SPAM: 0x5bd14a,
     SPAM_EXPIRED: 0x66717a,
 } as const;
+
+export function getThreatActiveTaskRoleAlpha(nowMs: number): number {
+    const pulsePhase = (nowMs % THREAT_CELL.activeTaskRolePulsePeriodMs) / THREAT_CELL.activeTaskRolePulsePeriodMs;
+    const pulse01 = (Math.sin(pulsePhase * Math.PI * 2) + 1) / 2;
+
+    return THREAT_CELL.activeTaskRoleMinAlpha + pulse01 * (1 - THREAT_CELL.activeTaskRoleMinAlpha);
+}
