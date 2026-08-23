@@ -1,22 +1,20 @@
 # Space Captain — Project Context
 
-Short durable context. Current implementation status and the next active slice live in the root `../CURRENT_HANDOFF.md`.
+Durable project context. Current implementation status and the next active slice live in `../CURRENT_HANDOFF.md`.
 
 ## Product
 
-Space Captain is a Phaser 3 + TypeScript combat/adventure roguelite with a first-person captain view and a 1990s
+Space Captain is a Phaser 3 + TypeScript combat/adventure roguelite with a first-person captain view and an early-1990s
 Sierra / Space Quest VGA visual target.
 
-The player commands an unreliable delivery ship through officers rather than directly piloting every system. Combat is
-built around readable telegraphed threats, officer availability, counterplay and limited ship resources rather than
-bullet-hell reflex play.
+The player commands a ship through officers rather than directly piloting every system. Combat is built around readable
+telegraphed threats, officer availability, counterplay and limited ship resources rather than bullet-hell reflex play.
 
-Basic combat information should be readable without mandatory checkbox work. Officer/Science mechanics should create
-interesting advantage, uncertainty or role contention rather than gate permission to understand the interface.
+Basic combat information should be readable without mandatory checkbox work. Officer and Science mechanics should create
+tactical advantage, uncertainty or role contention rather than permission to understand the interface.
 
-## Repository
+## Repository boundaries
 
-- GitHub: `elkranio/space-captain`
 - Branch: `master`
 - Engine/domain: `src/engine/**`
 - App/Phaser presentation: `src/app/**`
@@ -29,39 +27,33 @@ interesting advantage, uncertainty or role contention rather than gate permissio
 
 Keep Phaser/app types out of the engine.
 
-Treat p34t/framework configuration as infrastructure. Do not clean or rewrite it opportunistically; touch it only when
-actual development requires the change.
+Treat p34t/framework configuration as infrastructure. Do not rewrite it opportunistically.
 
 ## Coding principles
 
-Optimize for low cognitive load and easy re-entry after a break.
+Optimize for low cognitive load and easy re-entry:
 
 - thin Phaser scenes;
-- explicit engine APIs;
-- one authoritative gameplay fact / one mutation path;
-- discriminated unions for real state distinctions;
-- plain `string` IDs unless a type adds real protection;
-- early returns and explicit branching over clever dispatch;
-- no callback mazes or broad context bags when direct dependencies are clearer;
-- no architecture solely for architecture's sake;
-- delete dead/obsolete layers before inventing replacements;
-- keep presentation effects in presentation code, not domain truth;
-- centralize shared constants/data only when it removes real duplication;
-- format for roughly 120 columns and do not vertically explode readable code.
+- explicit engine APIs and owners;
+- one authoritative gameplay fact and one mutation path;
+- simple branching over clever dispatch;
+- no meaningless primitive ID wrapper types;
+- no broad context bags or callback mazes when direct dependencies are clearer;
+- no architecture solely for hypothetical future systems;
+- presentation effects stay out of domain truth;
+- roughly 120-column formatting without unnecessary vertical expansion.
 
 File length alone is not a refactor reason.
 
 ## Documentation map
 
-- `WORKING_RULES.md` — collaboration, patch delivery, validation and handoff workflow.
-- `GAMEPLAY_CONTRACTS.md` — gameplay/domain invariants.
-- `SYSTEM_MAP.md` — current ownership/architecture map.
-- `COMBAT_PLAYTEST_ROADMAP.md` — canonical near-term combat sequence and playtest gates.
-- `BACKLOG.md` — active deferred work.
-- `BRIDGE_ART_DIRECTION.md` — durable bridge visual direction.
-- `THREAT_PANEL.md` — current threat-dashboard design/interaction/timing contract; implementation status lives in the
-  root handoff.
-- `TARGETED_SHIELDS_TASK.md` — current Beam node-defense task; archive only after remaining player/enemy work completes.
-- `../CURRENT_HANDOFF.md` — transient current state and next active slice.
+- `../CURRENT_HANDOFF.md` — transient checkpoint and next active work.
+- `WORKING_RULES.md` — collaboration, patch and validation workflow.
+- `GAMEPLAY_CONTRACTS.md` — current implemented gameplay/domain contract only.
+- `SYSTEM_MAP.md` — durable ownership and data-flow map.
+- `COMBAT_PLAYTEST_ROADMAP.md` — near-term combat milestones and playtest gates.
+- `BACKLOG.md` — concrete deferred work only.
+- `BRIDGE_ART_DIRECTION.md` — durable bridge visual principles.
+- `THREAT_PANEL.md` — current threat-dashboard presentation contract.
 
-Session startup/read order is defined only in `WORKING_RULES.md`.
+A separate canonical intended-game-design document will be added after the next mechanics reconciliation pass.
