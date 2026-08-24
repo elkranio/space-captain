@@ -6,7 +6,7 @@ import type { EncounterEvent } from "../model/event";
 import type { EncounterInternalEffectSink } from "../model/internal_effect";
 import type { EncounterState } from "../model/state";
 import EncounterStateStore from "../state/EncounterStateStore";
-import CombatBeamCannonRunner from "./weapons/beam_cannon/CombatBeamCannonRunner";
+import CombatBeamCannonRunner from "./beam_cannon/CombatBeamCannonRunner";
 import EnemyDefenseTurretRunner from "./defense_turret/EnemyDefenseTurretRunner";
 import EnemyShieldRunner from "./shield/EnemyShieldRunner";
 import CombatMissileRunner, { type PlayerMissileLaunchInput } from "./weapons/missile/CombatMissileRunner";

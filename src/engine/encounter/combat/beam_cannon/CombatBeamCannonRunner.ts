@@ -1,30 +1,30 @@
-import { SHIP_WEAPONS } from "../../../../content/catalogs/ship_weapons";
-import type { PlayerHullDamageResult } from "../../../../defs/player";
-import { SHIP_DRIVE_STATUS } from "../../../../defs/ship_drive";
+import { SHIP_WEAPONS } from "../../../content/catalogs/ship_weapons";
+import type { PlayerHullDamageResult } from "../../../defs/player";
+import { SHIP_DRIVE_STATUS } from "../../../defs/ship_drive";
 import {
     advanceShipWeaponCooldown,
     finishShipWeaponAction,
     SHIP_WEAPON_PHASE,
     type BeamCannonDefinition,
     type BeamCannonState,
-} from "../../../../defs/ship_weapon";
-import { isShipEvading } from "../../../../defs/ship_evade";
-import type { ShipEncounterActorState } from "../../../actors/ship_encounter_actor";
+} from "../../../defs/ship_weapon";
+import { isShipEvading } from "../../../defs/ship_evade";
+import type { ShipEncounterActorState } from "../../actors/ship_encounter_actor";
 import {
     BEAM_CANNON_SHOT_OUTCOME,
     BEAM_CANNON_TARGET_NODE,
     COMBAT_TARGET_KIND,
     type BeamCannonAttackState,
     type BeamCannonTargetNode,
-} from "../../../model/combat";
-import { ENCOUNTER_EVENT, PLAYER_SHIELD_END_OUTCOME, type EncounterEvent } from "../../../model/event";
+} from "../../model/combat";
+import { ENCOUNTER_EVENT, PLAYER_SHIELD_END_OUTCOME, type EncounterEvent } from "../../model/event";
 import {
     ENCOUNTER_INTERNAL_EFFECT,
     type EncounterInternalEffectSink,
-} from "../../../model/internal_effect";
-import type { EncounterState } from "../../../model/state";
-import EncounterStateStore from "../../../state/EncounterStateStore";
-import CombatRuntimeIdentityFactory from "../../CombatRuntimeIdentityFactory";
+} from "../../model/internal_effect";
+import type { EncounterState } from "../../model/state";
+import EncounterStateStore from "../../state/EncounterStateStore";
+import CombatRuntimeIdentityFactory from "../CombatRuntimeIdentityFactory";
 
 type CombatBeamCannonRunnerOptions = {
     stateStore: EncounterStateStore;
