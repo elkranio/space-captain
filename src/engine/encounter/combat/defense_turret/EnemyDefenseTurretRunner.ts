@@ -10,25 +10,21 @@ import {
 } from "../../../defs/defense_turret";
 import type { ShipEncounterActorState } from "../../actors/ship_encounter_actor";
 import { COMBAT_SOURCE_KIND, COMBAT_TARGET_KIND, type MissileCombatProjectileState } from "../../model/combat";
-import { ENEMY_THREAT_KIND, ENEMY_THREAT_SOURCE_KIND } from "../../model/enemy_threat_observation";
 import { ENCOUNTER_EVENT, type EncounterEvent } from "../../model/event";
 import type { EncounterState } from "../../model/state";
 import type CombatMissileRunner from "../missile/CombatMissileRunner";
-import { resolveMissileInterception } from "./resolve_missile_interception";
 
 type EnemyDefenseTurretRunnerOptions = {
     state: EncounterState;
 
     emit: (event: EncounterEvent) => void;
 
-    random: () => number;
-
     missileRunner: Pick<CombatMissileRunner, "interceptPlayerMissile">;
 };
 
 // Owns the physical lifecycle of one installed enemy defense-turret system.
-// Policy chooses only the missile target. Science report and equipment tuning
-// are resolved here at shot time against objective projectile truth.
+// Policy chooses only the missile target. A completed load against a still-live
+// projectile is a deterministic physical intercept.
 export default class EnemyDefenseTurretRunner {
     constructor(private readonly options: EnemyDefenseTurretRunnerOptions) {}
 
@@ -92,25 +88,7 @@ export default class EnemyDefenseTurretRunner {
             throw new Error("Enemy defense turret cannot fire: " + actor.id + "/" + defenseTurret.id);
         }
 
-        const observation = actor.threatObservations.find((candidate) => {
-            return (
-                candidate.kind === ENEMY_THREAT_KIND.MISSILE &&
-                candidate.source.kind === ENEMY_THREAT_SOURCE_KIND.COMBAT_PROJECTILE &&
-                candidate.source.projectileId === projectile.id
-            );
-        });
-
-        const hypothesis = observation?.report?.hypothesis;
-
-        const outcome = resolveMissileInterception({
-            truth: projectile.signature,
-
-            hypothesis,
-
-            blindInterceptChance: definition.blindInterceptChance,
-
-            random: this.options.random,
-        });
+        const outcome = DEFENSE_TURRET_SHOT_OUTCOME.HIT;
 
         finishDefenseTurretAction(defenseTurret, definition.cooldownDurationMs);
 
@@ -129,9 +107,7 @@ export default class EnemyDefenseTurretRunner {
             remainingCharges: powerCore.charges,
         });
 
-        if (outcome === DEFENSE_TURRET_SHOT_OUTCOME.HIT) {
-            this.options.missileRunner.interceptPlayerMissile(projectile.id, actor.id);
-        }
+        this.options.missileRunner.interceptPlayerMissile(projectile.id, actor.id);
     }
 
     private findTargetProjectile(

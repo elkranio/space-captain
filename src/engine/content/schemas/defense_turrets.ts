@@ -23,10 +23,6 @@ export const DEFENSE_TURRET_RECORD_SCHEMA = z
             unit: "ms",
             "x-editor-control": "duration",
         }),
-
-        blindInterceptChance: z.number().min(0).max(1).meta({
-            title: "Blind intercept chance",
-        }),
     })
     .meta({
         title: "Defense Turret",

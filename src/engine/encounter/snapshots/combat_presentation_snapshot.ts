@@ -270,7 +270,7 @@ function createPlayerDefenseTurretPresentationSnapshot(
     }
 
     return {
-        blindInterceptChance: definition.blindInterceptChance,
+        blindInterceptChance: 1,
     };
 }
 

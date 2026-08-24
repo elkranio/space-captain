@@ -19,10 +19,6 @@ export type DefenseTurretDefinition = {
 
     loadDurationMs: number;
     cooldownDurationMs: number;
-
-    // Вероятность физического перехвата без корректной
-    // Science-гипотезы о runtime signature ракеты.
-    blindInterceptChance: number;
 };
 
 export const DEFENSE_TURRET_PHASE = {

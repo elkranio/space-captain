@@ -2,12 +2,6 @@ import {
     MISSILE_SIGNATURE,
 } from '../../../src/engine/defs/missile';
 import {
-    CREW_TRAIT_ID,
-} from '../../../src/engine/defs/crew_trait';
-import {
-    ENEMY_BEHAVIOR_RULES,
-} from '../../../src/engine/content/catalogs/enemy_behavior_rules';
-import {
     describe,
     expect,
     it,
@@ -31,7 +25,6 @@ import {
     COMBAT_SOURCE_KIND,
     COMBAT_TARGET_KIND,
     PLAYER_MISSILE_OUTCOME,
-    MISSILE_SIGNATURE_INTEL_STATUS,
     type MissileCombatProjectileState,
 } from '../../../src/engine/encounter/model/combat';
 import {
@@ -65,25 +58,20 @@ const COOLDOWN_DURATION_MS =
         .cooldownDurationMs;
 const MISSILE_FLIGHT_DURATION_MS = 12000;
 
-const SCIENCE_IDENTIFY_THREAT_DURATION_MS =
-    ENEMY_BEHAVIOR_RULES
-        .threat_identification
-        .durationMs;
-
 describe('Enemy defense-turret interception', () => {
-    it('uses blind equipment chance and intercepts the player missile', () => {
+    it('intercepts a live player missile after loading without Science or an accuracy roll', () => {
         const {
             engine,
             enemy,
             projectile,
         } = createScenario(
-            () => 0,
+            // The retired blind-intercept roll would miss at this value.
+            () => 0.99,
         );
 
-        // This case intentionally exercises blind Defense Turret interception without Science.
         enemy.crewRoles =
             enemy.crewRoles.filter((role) => {
-                return role !== 'science';
+                return role !== OFFICER_ROLE.SCIENCE;
             });
 
         engine.step(0);
@@ -223,274 +211,6 @@ describe('Enemy defense-turret interception', () => {
                     .INTERCEPTED,
         });
     });
-
-    it('spends a charge on a blind miss and keeps the missile in flight', () => {
-        const {
-            engine,
-            enemy,
-            projectile,
-        } = createScenario(
-            () => 0.99,
-        );
-
-        // This case intentionally exercises blind Defense Turret interception without Science.
-        enemy.crewRoles =
-            enemy.crewRoles.filter((role) => {
-                return role !== 'science';
-            });
-
-        projectile.signature =
-            MISSILE_SIGNATURE.B;
-
-        engine.step(0);
-        engine.drainEvents();
-
-        engine.step(LOAD_DURATION_MS);
-
-        const events =
-            engine.drainEvents();
-
-        expect(enemy.defenseTurret).toMatchObject({
-            phase:
-                DEFENSE_TURRET_PHASE.COOLDOWN,
-        });
-
-        expect(
-            enemy.powerCore,
-        ).toMatchObject({
-            charges: 3,
-            rechargeElapsedMs:
-                LOAD_DURATION_MS,
-        });
-
-        expect(
-            getMutableEncounterStateForTest(
-                engine,
-            ).combat.projectiles,
-        ).toEqual([
-            {
-                ...projectile,
-                timeToImpactMs:
-                    projectile.initialTimeToImpactMs -
-                    LOAD_DURATION_MS,
-            },
-        ]);
-
-        expect(
-            events.find((event) => {
-                return (
-                    event.type ===
-                    ENCOUNTER_EVENT
-                        .ENEMY_DEFENSE_TURRET_FIRED
-                );
-            }),
-        ).toMatchObject({
-
-            outcome:
-                DEFENSE_TURRET_SHOT_OUTCOME.MISS,
-
-            remainingCharges: 3,
-        });
-
-        expect(
-            events.some((event) => {
-                return (
-                    event.type ===
-                    ENCOUNTER_EVENT
-                        .PLAYER_MISSILE_RESOLVED
-                );
-            }),
-        ).toBe(false);
-
-        engine.step(
-            COOLDOWN_DURATION_MS -
-                LOAD_DURATION_MS,
-        );
-
-        expect(enemy.defenseTurret).toMatchObject({
-            phase:
-                DEFENSE_TURRET_PHASE.READY,
-
-            phaseElapsedMs: 0,
-        });
-    });
-
-    it('guarantees interception for a correct ready Science report', () => {
-        const {
-            engine,
-            enemy,
-            projectile,
-        } = createScenario(
-            // Blind equipment roll would miss.
-            () => 0.99,
-        );
-
-        projectile.signature =
-            MISSILE_SIGNATURE.B;
-
-        engine.step(0);
-
-        const observation =
-            enemy
-                .threatObservations
-                .find((candidate) => {
-                    return (
-                        candidate.kind ===
-                            'missile' &&
-                        candidate.source.kind ===
-                            'combat_projectile' &&
-                        candidate.source.projectileId ===
-                            projectile.id
-                    );
-                });
-
-        if (!observation) {
-            throw new Error(
-                'Expected enemy missile observation',
-            );
-        }
-
-        // The resolver trusts the Science report rather than objective truth.
-        // A later trait atom can therefore make this report wrong.
-        observation.report = {
-            status: 'confirmed',
-
-            kind: 'missile',
-            hypothesis: 'signature_b',
-        };
-
-        engine.drainEvents();
-
-        engine.step(LOAD_DURATION_MS);
-
-        expect(
-            engine
-                .getCombatPresentationSnapshot().outgoingMissiles,
-        ).toEqual([]);
-
-        expect(
-            engine
-                .drainEvents()
-                .find((event) => {
-                    return (
-                        event.type ===
-                        ENCOUNTER_EVENT
-                            .ENEMY_DEFENSE_TURRET_FIRED
-                    );
-                }),
-        ).toMatchObject({
-            projectile: {
-                id: projectile.id,
-            },
-            outcome: 'hit',
-
-            remainingCharges: 3,
-        });
-    });
-
-
-    it('falls back to blind chance for a hungover wrong hypothesis and can miss', () => {
-        const {
-            engine,
-            enemy,
-            projectile,
-        } = createScenario(
-
-            // Blind equipment roll misses.
-            () => 0.99,
-        );
-
-        enemy.crewTraitsByRole[
-            OFFICER_ROLE.SCIENCE
-        ] = [
-            CREW_TRAIT_ID.HUNGOVER,
-        ];
-
-        projectile.signature =
-            MISSILE_SIGNATURE.B;
-
-        engine.step(0);
-        engine.drainEvents();
-
-        expect(enemy.defenseTurret)
-            .toMatchObject({
-                phase:
-                    DEFENSE_TURRET_PHASE
-                        .LOADING,
-
-                targetProjectileId:
-                    projectile.id,
-            });
-
-        engine.step(LOAD_DURATION_MS);
-
-        const observation =
-            enemy
-                .threatObservations
-                .find((candidate) => {
-                    return (
-                        candidate.kind ===
-                            'missile' &&
-                        candidate.source.kind ===
-                            'combat_projectile' &&
-                        candidate.source.projectileId ===
-                            projectile.id
-                    );
-                });
-
-        expect(
-            observation?.report,
-        ).toBeUndefined();
-
-        engine.step(
-            SCIENCE_IDENTIFY_THREAT_DURATION_MS *
-                2,
-        );
-
-        expect(observation?.report)
-            .toEqual({
-                kind: 'missile',
-
-                // Truth is BLUE. HUNGOVER Science reports RED.
-                status:
-                    MISSILE_SIGNATURE_INTEL_STATUS.UNCERTAIN,
-
-                hypothesis: 'signature_a',
-            });
-
-        expect(
-            engine
-                .getCombatPresentationSnapshot().outgoingMissiles
-                .some((candidate) => {
-                    return (
-                        candidate.id ===
-                        projectile.id
-                    );
-                }),
-        ).toBe(true);
-
-        expect(
-            engine
-                .drainEvents()
-                .find((event) => {
-                    return (
-                        event.type ===
-                        ENCOUNTER_EVENT
-                            .ENEMY_DEFENSE_TURRET_FIRED
-                    );
-                }),
-        ).toMatchObject({
-            projectile: {
-                id: projectile.id,
-            },
-
-            outcome:
-                DEFENSE_TURRET_SHOT_OUTCOME.MISS,
-
-            remainingCharges: 3,
-        });
-    });
-
 });
 
 function createScenario(

@@ -2,7 +2,6 @@
     "defense_turret_basic_00": {
         "name": "BASIC DEFENSE TURRET",
         "loadDurationMs": 3000,
-        "cooldownDurationMs": 8000,
-        "blindInterceptChance": 0.4
+        "cooldownDurationMs": 8000
     }
 }

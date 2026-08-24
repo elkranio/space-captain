@@ -94,8 +94,6 @@ export default class CombatRunner {
 
             emit,
 
-            random,
-
             missileRunner: this.missileRunner,
         });
 
