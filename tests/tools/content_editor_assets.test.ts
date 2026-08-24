@@ -59,7 +59,7 @@ describe(
                         .generic_00
                         .frameKey,
                 ).toBe(
-                    'ships/chassis/generic_00',
+                    'world/ships/chassis/generic_00',
                 );
 
                 expect(
@@ -67,7 +67,7 @@ describe(
                         .unknown_00
                         .frameKey,
                 ).toBe(
-                    'ships/chassis/unknown_00',
+                    'world/ships/chassis/unknown_00',
                 );
             },
         );

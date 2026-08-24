@@ -22,7 +22,7 @@ describe(
     'Defense powerCore recharge',
     () => {
         it(
-            'spending a charge restarts recharge progress',
+            'spending a charge preserves recharge progress',
             () => {
                 const {
                     state,
@@ -48,14 +48,14 @@ describe(
                     ),
                 ).toMatchObject({
                     charges: 2,
-                    rechargeElapsedMs: 0,
+                    rechargeElapsedMs: 12000,
                 });
 
                 expect(
                     powerCore,
                 ).toMatchObject({
                     charges: 2,
-                    rechargeElapsedMs: 0,
+                    rechargeElapsedMs: 12000,
                 });
             },
         );

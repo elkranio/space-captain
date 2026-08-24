@@ -32,9 +32,6 @@ describe(
 
                                 cooldownDurationMs:
                                     5000,
-
-                                blindInterceptChance:
-                                    0.4,
                             },
 
                             rapid_00: {
@@ -46,9 +43,6 @@ describe(
 
                                 cooldownDurationMs:
                                     3500,
-
-                                blindInterceptChance:
-                                    0.6,
                             },
                         })
                         .success,
@@ -102,9 +96,6 @@ describe(
 
                                 cooldownDurationMs:
                                     5000,
-
-                                blindInterceptChance:
-                                    0.4,
                             },
 
                             rapid_00: {
@@ -116,9 +107,6 @@ describe(
 
                                 cooldownDurationMs:
                                     3500,
-
-                                blindInterceptChance:
-                                    0.6,
                             },
                         },
                     ),
@@ -144,9 +132,6 @@ describe(
 
                                 cooldownDurationMs:
                                     3500,
-
-                                blindInterceptChance:
-                                    0.6,
                             },
                         },
                     ),
