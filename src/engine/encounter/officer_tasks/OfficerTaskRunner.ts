@@ -76,7 +76,6 @@ export default class OfficerTaskRunner {
             this.stateStore,
             combatRunner,
             this.emit,
-            this.random,
         );
 
         this.restoreMissingNavigationTask();

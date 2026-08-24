@@ -225,7 +225,7 @@ export const BRIDGE_EVENT = {
     // BeamCannon charging threat завершилась выстрелом.
     BEAM_CANNON_THREAT_REMOVED: "beam_cannon_threat_removed",
 
-    // Актуальный временной и identification snapshot
+    // Актуальный временной snapshot
     // всех активных beamCannon charging threats.
     BEAM_CANNON_THREATS_UPDATED: "beam_cannon_threats_updated",
 

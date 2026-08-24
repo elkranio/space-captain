@@ -450,7 +450,7 @@ export default class PlayerShipStore {
         return powerCore;
     }
 
-    public fireDefenseTurret(threatId: string, _random: () => number): DefenseTurretShotOutcome | undefined {
+    public fireDefenseTurret(threatId: string): DefenseTurretShotOutcome | undefined {
         const projectile = this.state.combat.projectiles.find((candidate) => {
             return candidate.id === threatId;
         });

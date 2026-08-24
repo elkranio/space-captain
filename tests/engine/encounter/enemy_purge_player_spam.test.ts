@@ -22,10 +22,6 @@ import {
     SHIP_WEAPON_KIND,
     SHIP_WEAPON_PHASE,
 } from '../../../src/engine/defs/ship_weapon';
-import EnemyDecisionPolicy from '../../../src/engine/encounter/combat/enemy/EnemyDecisionPolicy';
-import {
-    getEnemyCaptainDecisionSnapshot,
-} from '../../../src/engine/encounter/combat/queries/get_enemy_captain_decision_snapshot';
 import {
     getActiveCrewProgressEffects,
 } from '../../../src/engine/encounter/crew_performance/get_active_crew_progress_effects';
@@ -38,10 +34,6 @@ import {
     COMBAT_TARGET_KIND,
     PLAYER_SPAM_CHANNEL_OUTCOME,
 } from '../../../src/engine/encounter/model/combat';
-import {
-    ENEMY_THREAT_KIND,
-    ENEMY_THREAT_SOURCE_KIND,
-} from '../../../src/engine/encounter/model/enemy_threat_observation';
 import {
     ENCOUNTER_EVENT,
 } from '../../../src/engine/encounter/model/event';
@@ -249,66 +241,6 @@ describe(
                         .getEnemyDebugSnapshots()[0]
                         ?.crewProgressMultiplier,
                 ).toBeUndefined();
-            },
-        );
-
-        it(
-            'prioritizes purge over identification',
-            () => {
-                const setup =
-                    createAnchoredPlayerCombatTestSetup();
-
-                makeEnemyScienceOnly(
-                    setup,
-                );
-
-                const channelId =
-                    activatePlayerSpam(
-                        setup,
-                    );
-
-                setup.targetActor.crewTasks =
-                    {};
-
-                setup.targetActor
-                    .threatObservations = [
-                        {
-                            id:
-                                'purge_priority_threat',
-
-                            kind:
-                                ENEMY_THREAT_KIND
-                                    .MISSILE,
-
-                            source: {
-                                kind:
-                                    ENEMY_THREAT_SOURCE_KIND
-                                        .COMBAT_PROJECTILE,
-
-                                projectileId:
-                                    'purge_priority_projectile',
-                            },
-                        },
-                    ];
-
-                const intent =
-                    new EnemyDecisionPolicy().selectWork(
-                        getEnemyCaptainDecisionSnapshot(
-                            setup.state,
-                            setup.targetActor,
-                        ),
-                    );
-
-                expect(intent).toEqual({
-                    kind:
-                        SHIP_CREW_TASK_KIND
-                            .PURGE_SPAM,
-
-                    role:
-                        OFFICER_ROLE.SCIENCE,
-
-                    channelId,
-                });
             },
         );
 

@@ -67,7 +67,6 @@ export default class OfficerTaskEffects {
         private readonly stateStore: EncounterStateStore,
         private readonly combatRunner: Pick<CombatRunner, "purgeSpamChannel" | "clearStickyMine">,
         private readonly emit: (event: EncounterEvent) => void,
-        private readonly random: () => number,
     ) {}
 
     public applyCompletion(task: OfficerTaskState): OfficerTaskResult | undefined {
@@ -203,7 +202,7 @@ export default class OfficerTaskEffects {
     }
 
     private resolveWeaponsDefenseTurretTask(task: WeaponsDefenseTurretTaskState): OfficerTaskResult | undefined {
-        const outcome = this.stateStore.fireDefenseTurret(task.threatId, this.random);
+        const outcome = this.stateStore.fireDefenseTurret(task.threatId);
 
         if (!outcome) {
             return undefined;

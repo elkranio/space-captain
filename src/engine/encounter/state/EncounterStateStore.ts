@@ -265,8 +265,8 @@ export default class EncounterStateStore {
         return this.playerShip.spendPowerCoreCharges(count);
     }
 
-    public fireDefenseTurret(threatId: string, random: () => number): DefenseTurretShotOutcome | undefined {
-        return this.playerShip.fireDefenseTurret(threatId, random);
+    public fireDefenseTurret(threatId: string): DefenseTurretShotOutcome | undefined {
+        return this.playerShip.fireDefenseTurret(threatId);
     }
 
     // #endregion
