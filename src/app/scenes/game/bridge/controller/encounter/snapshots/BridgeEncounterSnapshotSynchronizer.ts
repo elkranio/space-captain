@@ -76,6 +76,8 @@ export default class BridgeEncounterSnapshotSynchronizer {
 
                     powerCore,
 
+                    defenseTurret: snapshot.player.defenseTurret,
+
                     shieldGenerator: snapshot.player.shieldGenerator,
 
                     activeShield: snapshot.player.activeShield,

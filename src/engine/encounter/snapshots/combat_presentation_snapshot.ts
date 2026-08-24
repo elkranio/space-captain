@@ -1,8 +1,10 @@
 // src/engine/encounter/snapshots/combat_presentation_snapshot.ts
 
+import { DEFENSE_TURRETS } from "../../content/catalogs/defense_turrets";
 import { POWER_CORES } from "../../content/catalogs/power_cores";
 import { SHIELD_GENERATORS } from "../../content/catalogs/shield_generators";
 import { SHIP_WEAPONS } from "../../content/catalogs/ship_weapons";
+import type { ShipDefenseTurretState } from "../../defs/defense_turret";
 import type { PowerCoreState } from "../../defs/power_core";
 import { OFFICER_ROLE, type OfficerRole } from "../../defs/officer";
 import type { PlayerHullState } from "../../defs/player";
@@ -44,6 +46,12 @@ export type PowerCorePresentationSnapshot = {
     capacity: number;
 
     rechargeProgress?: number;
+};
+
+export type PlayerDefenseTurretPresentationSnapshot = {
+    state: ShipDefenseTurretState;
+
+    cooldownDurationMs: number;
 };
 
 export type PlayerWeaponPresentationSnapshot = {
@@ -88,6 +96,8 @@ export type CombatPresentationSnapshot = {
         evade: ShipEvadeState;
 
         powerCore?: PowerCorePresentationSnapshot;
+
+        defenseTurret?: PlayerDefenseTurretPresentationSnapshot;
 
         shieldGenerator?: ShieldGeneratorState;
 
@@ -138,6 +148,12 @@ export function createCombatPresentationSnapshot(state: EncounterState): CombatP
             ...(state.combat.powerCore
                 ? {
                       powerCore: createPowerCorePresentationSnapshot(state.combat.powerCore),
+                  }
+                : {}),
+
+            ...(state.combat.defenseTurret
+                ? {
+                      defenseTurret: createPlayerDefenseTurretPresentationSnapshot(state.combat.defenseTurret),
                   }
                 : {}),
 
@@ -240,6 +256,22 @@ function createMissilePresentationSnapshot(projectile: MissileCombatProjectileSt
 
         initialTimeToImpactMs: projectile.initialTimeToImpactMs,
 
+    };
+}
+
+export function createPlayerDefenseTurretPresentationSnapshot(
+    state: ShipDefenseTurretState,
+): PlayerDefenseTurretPresentationSnapshot {
+    const definition = DEFENSE_TURRETS[state.defenseTurretId];
+
+    if (!definition) {
+        throw new Error("Defense Turret definition not found: " + state.defenseTurretId);
+    }
+
+    return {
+        state,
+
+        cooldownDurationMs: definition.cooldownDurationMs,
     };
 }
 

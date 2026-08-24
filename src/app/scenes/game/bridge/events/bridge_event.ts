@@ -4,7 +4,10 @@ import type { OfficerRole } from "../../../../../engine/defs/officer";
 import type { Vec3 } from "../../../../../engine/defs/vector";
 import type { SpriteEntry } from "../../../../manifests/types";
 import type { SceneKey } from "../../../scene_key";
-import type { DefenseTurretShotOutcome } from "../../../../../engine/defs/defense_turret";
+import type {
+    DefenseTurretPhase,
+    DefenseTurretShotOutcome,
+} from "../../../../../engine/defs/defense_turret";
 import type { ShipDriveStatus } from "../../../../../engine/defs/ship_drive";
 import type { ShipEvadePhase } from "../../../../../engine/defs/ship_evade";
 import type {
@@ -376,6 +379,17 @@ export type BridgePlayerShipDashboardUpdatedPayload = {
         drive: {
             status: ShipDriveStatus;
             integrity: number;
+        };
+
+        defenseTurret?: {
+            phase: DefenseTurretPhase;
+
+            cooldownProgress?: number;
+
+            intercept?: {
+                threatId: string;
+                progress: number;
+            };
         };
 
         shield?: {

@@ -1,4 +1,5 @@
 import type {
+    PlayerDefenseTurretPresentationSnapshot,
     PlayerWeaponPresentationSnapshot,
     PowerCorePresentationSnapshot,
 } from "../../../../../../engine/encounter/snapshots/combat_presentation_snapshot";
@@ -58,6 +59,8 @@ type PlayerShipDashboardMapperInput = {
         drive: EncounterShipDriveState;
 
         powerCore: PowerCorePresentationSnapshot;
+
+        defenseTurret?: PlayerDefenseTurretPresentationSnapshot;
 
         shieldGenerator?: ShieldGeneratorState;
 
@@ -120,10 +123,95 @@ function mapStatus(
             integrity: input.drive.integrity,
         },
 
+        ...mapDefenseTurretStatus(input, dashboardInput.officerTasks ?? []),
+
         ...mapShieldStatus(input, dashboardInput.officerTasks ?? []),
 
         evadeAction: mapEvadeAction(dashboardInput),
     };
+}
+
+function mapDefenseTurretStatus(
+    input: NonNullable<PlayerShipDashboardMapperInput["playerStatus"]>,
+    officerTasks: OfficerTaskState[],
+): Pick<NonNullable<BridgePlayerShipDashboardUpdatedPayload["status"]>, "defenseTurret"> {
+    const interceptTasks = officerTasks.filter(isDefenseTurretInterceptTask);
+
+    if (interceptTasks.length > 1) {
+        throw new Error("Captain dashboard received multiple active Defense Turret intercept tasks");
+    }
+
+    const interceptTask = interceptTasks[0];
+    const defenseTurret = input.defenseTurret;
+
+    if (!defenseTurret) {
+        if (interceptTask) {
+            throw new Error("Captain dashboard Defense Turret task requires an installed Defense Turret");
+        }
+
+        return {};
+    }
+
+    const cooldownProgress = getDefenseTurretCooldownProgress(defenseTurret);
+
+    return {
+        defenseTurret: {
+            phase: defenseTurret.state.phase,
+
+            ...(cooldownProgress !== undefined
+                ? {
+                      cooldownProgress,
+                  }
+                : {}),
+
+            ...(interceptTask
+                ? {
+                      intercept: {
+                          threatId: interceptTask.threatId,
+
+                          progress: getTimedOfficerTaskProgress(interceptTask),
+                      },
+                  }
+                : {}),
+        },
+    };
+}
+
+function isDefenseTurretInterceptTask(
+    task: OfficerTaskState,
+): task is Extract<
+    OfficerTaskState,
+    {
+        sourceCommandId: typeof ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_INTERCEPT_MISSILE;
+    }
+> {
+    return task.sourceCommandId === ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_INTERCEPT_MISSILE;
+}
+
+function getDefenseTurretCooldownProgress(snapshot: PlayerDefenseTurretPresentationSnapshot): number | undefined {
+    const remainingMs = snapshot.state.cooldownRemainingMs;
+
+    if (remainingMs <= 0) {
+        return undefined;
+    }
+
+    const durationMs = snapshot.cooldownDurationMs;
+
+    if (durationMs <= 0 || remainingMs > durationMs) {
+        throw new Error("Captain dashboard Defense Turret has invalid cooldown timing: " + snapshot.state.id);
+    }
+
+    return clamp01(1 - remainingMs / durationMs);
+}
+
+function getTimedOfficerTaskProgress(task: OfficerTaskState): number {
+    const durationMs = task.durationMs;
+
+    if (durationMs === null || durationMs <= 0) {
+        throw new Error("Captain dashboard timed officer task has invalid duration: " + task.id);
+    }
+
+    return clamp01(task.elapsedMs / durationMs);
 }
 
 function mapShieldStatus(
@@ -232,6 +320,10 @@ function mapEvadeAction(
     return {
         state: BRIDGE_PLAYER_SYSTEM_ACTION_STATE.DISABLED_SYSTEM,
     };
+}
+
+function clamp01(value: number): number {
+    return Math.max(0, Math.min(1, value));
 }
 
 function getRequiredHelmCommands(input: PlayerShipDashboardMapperInput): AvailableOfficerCommand[] {
