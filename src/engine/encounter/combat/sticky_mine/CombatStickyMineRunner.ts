@@ -1,5 +1,5 @@
-import { SHIP_WEAPONS } from "../../../../content/catalogs/ship_weapons";
-import { ENCOUNTER_TEAM } from "../../../../defs/encounter_team";
+import { SHIP_WEAPONS } from "../../../content/catalogs/ship_weapons";
+import { ENCOUNTER_TEAM } from "../../../defs/encounter_team";
 import {
     advanceShipWeaponCooldown,
     commitShipWeaponCooldown,
@@ -8,23 +8,23 @@ import {
     SHIP_WEAPON_PHASE,
     type StickyMineDispenserDefinition,
     type StickyMineDispenserState,
-} from "../../../../defs/ship_weapon";
-import { isShipEvading } from "../../../../defs/ship_evade";
-import type { ShipEncounterActorState } from "../../../actors/ship_encounter_actor";
+} from "../../../defs/ship_weapon";
+import { isShipEvading } from "../../../defs/ship_evade";
+import type { ShipEncounterActorState } from "../../actors/ship_encounter_actor";
 import {
     COMBAT_SOURCE_KIND,
     COMBAT_TARGET_KIND,
     PLAYER_STICKY_MINE_OUTCOME,
     type StickyMineState,
-} from "../../../model/combat";
-import { ENCOUNTER_EVENT, type EncounterEvent } from "../../../model/event";
+} from "../../model/combat";
+import { ENCOUNTER_EVENT, type EncounterEvent } from "../../model/event";
 import {
     ENCOUNTER_INTERNAL_EFFECT,
     type EncounterInternalEffectSink,
-} from "../../../model/internal_effect";
-import type { EncounterState } from "../../../model/state";
-import EncounterStateStore from "../../../state/EncounterStateStore";
-import CombatRuntimeIdentityFactory from "../../CombatRuntimeIdentityFactory";
+} from "../../model/internal_effect";
+import type { EncounterState } from "../../model/state";
+import EncounterStateStore from "../../state/EncounterStateStore";
+import CombatRuntimeIdentityFactory from "../CombatRuntimeIdentityFactory";
 
 export type PlayerStickyMineAttachInput = {
     sourceWeaponId: string;
