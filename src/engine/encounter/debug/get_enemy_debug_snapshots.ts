@@ -73,11 +73,6 @@ export type EnemyDebugThreatSnapshot = {
     status: "active" | "stale";
 
     remainingMs?: number;
-
-    report?: string;
-    truth?: string;
-
-    mismatch: boolean;
 };
 
 export type EnemyDebugSnapshot = {
@@ -96,7 +91,6 @@ export type EnemyDebugSnapshot = {
 
 // Dev-only detached read model.
 //
-// Separates what enemy Science reported from objective combat truth.
 // App receives it only through EncounterSnapshotReader, so mutable
 // EncounterState never leaks into bridge presentation.
 export function getEnemyDebugSnapshots(state: EncounterState): EnemyDebugSnapshot[] {
@@ -445,8 +439,6 @@ function createMissileThreatSnapshot(
                   remainingMs: projectile.timeToImpactMs,
               }
             : {}),
-
-        mismatch: false,
     };
 }
 
@@ -504,10 +496,6 @@ function createBeamCannonThreatSnapshot(
                   remainingMs,
               }
             : {}),
-
-        // Directional player-beamCannon truth/report was retired.
-        // The observation remains useful as a physical charging telegraph.
-        mismatch: false,
     };
 }
 
@@ -545,8 +533,6 @@ function createMineThreatSnapshot(
                   remainingMs: mine.timeToDetonationMs,
               }
             : {}),
-
-        mismatch: false,
     };
 }
 

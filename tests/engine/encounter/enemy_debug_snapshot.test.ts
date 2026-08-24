@@ -42,7 +42,7 @@ describe(
     'Enemy debug snapshot',
     () => {
         it(
-            'separates crew work, Science report and missile truth',
+            'captures crew work and physical missile threats',
             () => {
                 const projectile:
                     MissileCombatProjectileState = {
@@ -303,8 +303,6 @@ describe(
 
                                 remainingMs:
                                     9000,
-
-                                mismatch: false,
                             },
                         ],
                     },

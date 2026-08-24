@@ -1,7 +1,6 @@
 // src/engine/encounter/snapshots/combat_presentation_snapshot.ts
 
 import { POWER_CORES } from "../../content/catalogs/power_cores";
-import { DEFENSE_TURRETS } from "../../content/catalogs/defense_turrets";
 import { SHIELD_GENERATORS } from "../../content/catalogs/shield_generators";
 import { SHIP_WEAPONS } from "../../content/catalogs/ship_weapons";
 import type { PowerCoreState } from "../../defs/power_core";
@@ -80,12 +79,6 @@ export type MissilePresentationSnapshot = {
 
 };
 
-export type PlayerDefenseTurretPresentationSnapshot = {
-    // Hard mechanical equipment probability.
-    // Presentation may format it, but never recompute it.
-    blindInterceptChance: number;
-};
-
 export type CombatPresentationSnapshot = {
     player: {
         hull: PlayerHullState;
@@ -95,8 +88,6 @@ export type CombatPresentationSnapshot = {
         evade: ShipEvadeState;
 
         powerCore?: PowerCorePresentationSnapshot;
-
-        defenseTurret?: PlayerDefenseTurretPresentationSnapshot;
 
         shieldGenerator?: ShieldGeneratorState;
 
@@ -147,14 +138,6 @@ export function createCombatPresentationSnapshot(state: EncounterState): CombatP
             ...(state.combat.powerCore
                 ? {
                       powerCore: createPowerCorePresentationSnapshot(state.combat.powerCore),
-                  }
-                : {}),
-
-            ...(state.combat.defenseTurret
-                ? {
-                      defenseTurret: createPlayerDefenseTurretPresentationSnapshot(
-                          state.combat.defenseTurret.defenseTurretId,
-                      ),
                   }
                 : {}),
 
@@ -257,20 +240,6 @@ function createMissilePresentationSnapshot(projectile: MissileCombatProjectileSt
 
         initialTimeToImpactMs: projectile.initialTimeToImpactMs,
 
-    };
-}
-
-function createPlayerDefenseTurretPresentationSnapshot(
-    defenseTurretId: string,
-): PlayerDefenseTurretPresentationSnapshot {
-    const definition = DEFENSE_TURRETS[defenseTurretId];
-
-    if (!definition) {
-        throw new Error("Defense Turret definition not found: " + defenseTurretId);
-    }
-
-    return {
-        blindInterceptChance: 1,
     };
 }
 
