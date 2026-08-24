@@ -15,18 +15,18 @@ export type BridgeSeatedOfficerSpriteId =
 export const BRIDGE_SEATED_OFFICER_SPRITES = {
     [BRIDGE_SEATED_OFFICER_SPRITE_ID.SCIENCE_SEATED_01_IDLE]: {
         atlasKey: DEFAULT_ATLAS_KEY,
-        frameKey: "officers/science/idle",
+        frameKey: "bridge/officers/science/idle",
     },
     [BRIDGE_SEATED_OFFICER_SPRITE_ID.HELM_SEATED_01_IDLE]: {
         atlasKey: DEFAULT_ATLAS_KEY,
-        frameKey: "officers/helm/idle",
+        frameKey: "bridge/officers/helm/idle",
     },
     [BRIDGE_SEATED_OFFICER_SPRITE_ID.WEAPONS_SEATED_01_IDLE]: {
         atlasKey: DEFAULT_ATLAS_KEY,
-        frameKey: "officers/weapons/idle",
+        frameKey: "bridge/officers/weapons/idle",
     },
     [BRIDGE_SEATED_OFFICER_SPRITE_ID.ENGINEER_SEATED_01_IDLE]: {
         atlasKey: DEFAULT_ATLAS_KEY,
-        frameKey: "officers/engineer/idle",
+        frameKey: "bridge/officers/engineer/idle",
     },
 } satisfies Record<BridgeSeatedOfficerSpriteId, SpriteEntry>;

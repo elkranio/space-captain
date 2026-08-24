@@ -7,42 +7,42 @@ import { DEFAULT_ATLAS_KEY, type SpriteEntry } from "../types";
 export const OFFICER_PORTRAIT_SPRITES = {
     [OFFICER_PORTRAIT_ID.SILHOUETTE_00]: {
         atlasKey: DEFAULT_ATLAS_KEY,
-        frameKey: "officers/silhouette_00",
+        frameKey: "portraits/officers/silhouette_00",
     },
 
     [OFFICER_PORTRAIT_ID.SCIENCE_HUMAN_00]: {
         atlasKey: DEFAULT_ATLAS_KEY,
-        frameKey: "officers/science/human_00_calm",
+        frameKey: "portraits/officers/science/human_00_calm",
     },
     [OFFICER_PORTRAIT_ID.SCIENCE_ALIEN_00]: {
         atlasKey: DEFAULT_ATLAS_KEY,
-        frameKey: "officers/science/alien_00_calm",
+        frameKey: "portraits/officers/science/alien_00_calm",
     },
 
     [OFFICER_PORTRAIT_ID.HELM_HUMAN_00]: {
         atlasKey: DEFAULT_ATLAS_KEY,
-        frameKey: "officers/helm/human_00_calm",
+        frameKey: "portraits/officers/helm/human_00_calm",
     },
     [OFFICER_PORTRAIT_ID.HELM_ALIEN_00]: {
         atlasKey: DEFAULT_ATLAS_KEY,
-        frameKey: "officers/helm/alien_00_calm",
+        frameKey: "portraits/officers/helm/alien_00_calm",
     },
 
     [OFFICER_PORTRAIT_ID.WEAPONS_HUMAN_00]: {
         atlasKey: DEFAULT_ATLAS_KEY,
-        frameKey: "officers/weapons/human_00_calm",
+        frameKey: "portraits/officers/weapons/human_00_calm",
     },
     [OFFICER_PORTRAIT_ID.WEAPONS_ALIEN_00]: {
         atlasKey: DEFAULT_ATLAS_KEY,
-        frameKey: "officers/weapons/alien_00_calm",
+        frameKey: "portraits/officers/weapons/alien_00_calm",
     },
 
     [OFFICER_PORTRAIT_ID.ENGINEER_HUMAN_00]: {
         atlasKey: DEFAULT_ATLAS_KEY,
-        frameKey: "officers/engineer/human_00_calm",
+        frameKey: "portraits/officers/engineer/human_00_calm",
     },
     [OFFICER_PORTRAIT_ID.ENGINEER_ALIEN_00]: {
         atlasKey: DEFAULT_ATLAS_KEY,
-        frameKey: "officers/engineer/alien_00_calm",
+        frameKey: "portraits/officers/engineer/alien_00_calm",
     },
 } satisfies Record<OfficerPortraitId, SpriteEntry>;

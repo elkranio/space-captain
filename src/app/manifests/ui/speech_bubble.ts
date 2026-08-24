@@ -23,51 +23,51 @@ export type SpeechBubbleSpriteId = (typeof SPEECH_BUBBLE_SPRITE_ID)[keyof typeof
 export const SPEECH_BUBBLE_SPRITES = {
     [SPEECH_BUBBLE_SPRITE_ID.OFFICER_BARK_00_TOP_LEFT]: {
         atlasKey: DEFAULT_ATLAS_KEY,
-        frameKey: "ui/speech_bubble/officer_bark_00/top_left",
+        frameKey: "bridge/ui/officer_bark/top_left",
     },
 
     [SPEECH_BUBBLE_SPRITE_ID.OFFICER_BARK_00_TOP]: {
         atlasKey: DEFAULT_ATLAS_KEY,
-        frameKey: "ui/speech_bubble/officer_bark_00/top",
+        frameKey: "bridge/ui/officer_bark/top",
     },
 
     [SPEECH_BUBBLE_SPRITE_ID.OFFICER_BARK_00_TOP_RIGHT]: {
         atlasKey: DEFAULT_ATLAS_KEY,
-        frameKey: "ui/speech_bubble/officer_bark_00/top_right",
+        frameKey: "bridge/ui/officer_bark/top_right",
     },
 
     [SPEECH_BUBBLE_SPRITE_ID.OFFICER_BARK_00_LEFT]: {
         atlasKey: DEFAULT_ATLAS_KEY,
-        frameKey: "ui/speech_bubble/officer_bark_00/left",
+        frameKey: "bridge/ui/officer_bark/left",
     },
 
     [SPEECH_BUBBLE_SPRITE_ID.OFFICER_BARK_00_CENTER]: {
         atlasKey: DEFAULT_ATLAS_KEY,
-        frameKey: "ui/speech_bubble/officer_bark_00/center",
+        frameKey: "bridge/ui/officer_bark/center",
     },
 
     [SPEECH_BUBBLE_SPRITE_ID.OFFICER_BARK_00_RIGHT]: {
         atlasKey: DEFAULT_ATLAS_KEY,
-        frameKey: "ui/speech_bubble/officer_bark_00/right",
+        frameKey: "bridge/ui/officer_bark/right",
     },
 
     [SPEECH_BUBBLE_SPRITE_ID.OFFICER_BARK_00_BOTTOM_LEFT]: {
         atlasKey: DEFAULT_ATLAS_KEY,
-        frameKey: "ui/speech_bubble/officer_bark_00/bottom_left",
+        frameKey: "bridge/ui/officer_bark/bottom_left",
     },
 
     [SPEECH_BUBBLE_SPRITE_ID.OFFICER_BARK_00_BOTTOM]: {
         atlasKey: DEFAULT_ATLAS_KEY,
-        frameKey: "ui/speech_bubble/officer_bark_00/bottom",
+        frameKey: "bridge/ui/officer_bark/bottom",
     },
 
     [SPEECH_BUBBLE_SPRITE_ID.OFFICER_BARK_00_BOTTOM_RIGHT]: {
         atlasKey: DEFAULT_ATLAS_KEY,
-        frameKey: "ui/speech_bubble/officer_bark_00/bottom_right",
+        frameKey: "bridge/ui/officer_bark/bottom_right",
     },
 
     [SPEECH_BUBBLE_SPRITE_ID.OFFICER_BARK_00_TAIL_BOTTOM]: {
         atlasKey: DEFAULT_ATLAS_KEY,
-        frameKey: "ui/speech_bubble/officer_bark_00/tail_bottom",
+        frameKey: "bridge/ui/officer_bark/tail_bottom",
     },
 } satisfies Record<SpeechBubbleSpriteId, SpriteEntry>;

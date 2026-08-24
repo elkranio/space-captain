@@ -1,14 +1,14 @@
 {
     "generic_00": {
-        "frameKey": "ships/chassis/generic_00"
+        "frameKey": "world/ships/chassis/generic_00"
     },
     "new_perspective_00": {
-        "frameKey": "ships/chassis/new_perspective_00"
+        "frameKey": "world/ships/chassis/new_perspective_00"
     },
     "old_00": {
-        "frameKey": "ships/chassis/old_00"
+        "frameKey": "world/ships/chassis/old_00"
     },
     "unknown_00": {
-        "frameKey": "ships/chassis/unknown_00"
+        "frameKey": "world/ships/chassis/unknown_00"
     }
 }

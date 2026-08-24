@@ -5,6 +5,6 @@ import { DEFAULT_ATLAS_KEY, type SpriteEntry } from "../types";
 export const ASTEROID_OBJECT_SPRITES = {
     [ASTEROID_OBJECT_SPRITE_ID.ASTEROID_00]: {
         atlasKey: DEFAULT_ATLAS_KEY,
-        frameKey: "asteroids/asteroid_00",
+        frameKey: "world/asteroids/asteroid_00",
     },
 } satisfies Record<AsteroidObjectSpriteId, SpriteEntry>;
