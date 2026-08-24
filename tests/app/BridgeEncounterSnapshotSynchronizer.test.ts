@@ -48,6 +48,25 @@ describe('BridgeEncounterSnapshotSynchronizer', () => {
                                 2,
                         },
 
+                        shield: {
+                            status:
+                                'online',
+
+                            phase:
+                                'ready',
+
+                            active: {
+                                targetNode:
+                                    'hull',
+
+                                remainingDurationMs:
+                                    850,
+
+                                initialDurationMs:
+                                    5000,
+                            },
+                        },
+
                         evadeAction: {
                             state:
                                 'disabled_system',
@@ -526,6 +545,9 @@ function createEncounterEngine(): EncounterEngine {
                         activeShield: {
                             sourceEmitterId:
                                 'shield_generator_player_00',
+
+                            targetNode:
+                                'hull',
 
                             remainingDurationMs:
                                 850,

@@ -513,6 +513,41 @@ describe(
                             OFFICER_AVAILABILITY_STATE
                                 .AVAILABLE,
 
+                        officerTasks: [
+                            {
+                                id:
+                                    'shield_deploy_00',
+
+                                kind:
+                                    'engineer_deploy_shield',
+
+                                role:
+                                    OFFICER_ROLE
+                                        .ENGINEER,
+
+                                sourceCommandId:
+                                    ENCOUNTER_OFFICER_COMMAND_ID
+                                        .ENGINEER_DEPLOY_SHIELD,
+
+                                label:
+                                    'DEPLOY SHIELD',
+
+                                showProgress: true,
+
+                                durationMs: 3000,
+                                elapsedMs: 1000,
+
+                                canBeCancelledByPlayer:
+                                    true,
+
+                                canBeInterruptedByDamage:
+                                    true,
+
+                                targetNode:
+                                    'drive',
+                            },
+                        ],
+
                         playerStatus: {
                             hull: {
                                 hull: 27,
@@ -549,6 +584,37 @@ describe(
 
                                 capacity: 4,
                             },
+
+                            shieldGenerator: {
+                                id:
+                                    'shield_generator_player_00',
+
+                                shieldGeneratorId:
+                                    'shield_generator_basic_00',
+
+                                status:
+                                    'online',
+
+                                phase:
+                                    'ready',
+
+                                phaseElapsedMs:
+                                    0,
+                            },
+
+                            activeShield: {
+                                sourceEmitterId:
+                                    'shield_generator_player_00',
+
+                                targetNode:
+                                    'hull',
+
+                                remainingDurationMs:
+                                    850,
+
+                                initialDurationMs:
+                                    5000,
+                            },
                         },
                     }).status,
                 ).toEqual({
@@ -568,6 +634,30 @@ describe(
 
                         integrity:
                             1,
+                    },
+
+                    shield: {
+                        status:
+                            'online',
+
+                        phase:
+                            'ready',
+
+                        deployment: {
+                            targetNode:
+                                'drive',
+                        },
+
+                        active: {
+                            targetNode:
+                                'hull',
+
+                            remainingDurationMs:
+                                850,
+
+                            initialDurationMs:
+                                5000,
+                        },
                     },
 
                     evadeAction: {

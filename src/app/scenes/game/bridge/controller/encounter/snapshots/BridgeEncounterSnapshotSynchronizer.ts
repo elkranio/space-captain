@@ -67,12 +67,18 @@ export default class BridgeEncounterSnapshotSynchronizer {
 
                 scienceOfficerAvailability: officerAvailability[OFFICER_ROLE.SCIENCE],
 
+                officerTasks: snapshot.player.officerTasks,
+
                 playerStatus: {
                     hull: snapshot.player.hull,
 
                     drive: snapshot.player.drive,
 
                     powerCore,
+
+                    shieldGenerator: snapshot.player.shieldGenerator,
+
+                    activeShield: snapshot.player.activeShield,
                 },
             }),
         );

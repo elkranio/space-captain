@@ -7,6 +7,10 @@ import type { SceneKey } from "../../../scene_key";
 import type { DefenseTurretShotOutcome } from "../../../../../engine/defs/defense_turret";
 import type { ShipDriveStatus } from "../../../../../engine/defs/ship_drive";
 import type { ShipEvadePhase } from "../../../../../engine/defs/ship_evade";
+import type {
+    ShieldGeneratorPhase,
+    ShieldGeneratorStatus,
+} from "../../../../../engine/defs/shield_generator";
 import type { ShipWeaponKind } from "../../../../../engine/defs/ship_weapon";
 import type { EncounterOfficerCommandId, OfficerCommandTarget } from "../../../../../engine/encounter/model/command";
 import type {
@@ -372,6 +376,22 @@ export type BridgePlayerShipDashboardUpdatedPayload = {
         drive: {
             status: ShipDriveStatus;
             integrity: number;
+        };
+
+        shield?: {
+            status: ShieldGeneratorStatus;
+            phase: ShieldGeneratorPhase;
+
+            deployment?: {
+                targetNode: BeamCannonTargetNode;
+            };
+
+            active?: {
+                targetNode: BeamCannonTargetNode;
+
+                remainingDurationMs: number;
+                initialDurationMs: number;
+            };
         };
 
         evadeAction: {

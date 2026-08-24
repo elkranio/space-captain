@@ -4,7 +4,10 @@ import type {
 } from "../../../../../../engine/encounter/snapshots/combat_presentation_snapshot";
 import { OFFICER_ROLE, type OfficerRole } from "../../../../../../engine/defs/officer";
 import type { PlayerHullState } from "../../../../../../engine/defs/player";
+import type { ShieldGeneratorState } from "../../../../../../engine/defs/shield_generator";
 import type { EncounterShipDriveState } from "../../../../../../engine/encounter/model/state";
+import type { ActiveShieldState } from "../../../../../../engine/encounter/model/combat";
+import type { OfficerTaskState } from "../../../../../../engine/encounter/model/officer_task";
 import {
     SHIP_WEAPON_KIND,
     SHIP_WEAPON_PHASE,
@@ -45,6 +48,8 @@ type PlayerShipDashboardMapperInput = {
 
     scienceOfficerAvailability?: OfficerAvailabilityState;
 
+    officerTasks?: OfficerTaskState[];
+
     // Optional so focused mapper tests can exercise weapon rows without
     // constructing unrelated ship status.
     playerStatus?: {
@@ -53,6 +58,10 @@ type PlayerShipDashboardMapperInput = {
         drive: EncounterShipDriveState;
 
         powerCore: PowerCorePresentationSnapshot;
+
+        shieldGenerator?: ShieldGeneratorState;
+
+        activeShield?: ActiveShieldState | null;
     };
 };
 
@@ -111,8 +120,75 @@ function mapStatus(
             integrity: input.drive.integrity,
         },
 
+        ...mapShieldStatus(input, dashboardInput.officerTasks ?? []),
+
         evadeAction: mapEvadeAction(dashboardInput),
     };
+}
+
+function mapShieldStatus(
+    input: NonNullable<PlayerShipDashboardMapperInput["playerStatus"]>,
+    officerTasks: OfficerTaskState[],
+): Pick<NonNullable<BridgePlayerShipDashboardUpdatedPayload["status"]>, "shield"> {
+    const deploymentTasks = officerTasks.filter(isShieldDeploymentTask);
+
+    if (deploymentTasks.length > 1) {
+        throw new Error("Captain dashboard received multiple active Shield deployment tasks");
+    }
+
+    const deployment = deploymentTasks[0];
+    const activeShield = input.activeShield ?? null;
+    const activeShieldTargetNode = activeShield?.targetNode;
+    const shieldGenerator = input.shieldGenerator;
+
+    if (!shieldGenerator) {
+        if (deployment || activeShield) {
+            throw new Error("Captain dashboard Shield state requires an installed Shield Generator");
+        }
+
+        return {};
+    }
+
+    if (activeShield && activeShieldTargetNode === undefined) {
+        throw new Error("Captain dashboard player Active Shield is missing target node");
+    }
+
+    return {
+        shield: {
+            status: shieldGenerator.status,
+            phase: shieldGenerator.phase,
+
+            ...(deployment
+                ? {
+                      deployment: {
+                          targetNode: deployment.targetNode,
+                      },
+                  }
+                : {}),
+
+            ...(activeShield && activeShieldTargetNode !== undefined
+                ? {
+                      active: {
+                          targetNode: activeShieldTargetNode,
+
+                          remainingDurationMs: activeShield.remainingDurationMs,
+                          initialDurationMs: activeShield.initialDurationMs,
+                      },
+                  }
+                : {}),
+        },
+    };
+}
+
+function isShieldDeploymentTask(
+    task: OfficerTaskState,
+): task is Extract<
+    OfficerTaskState,
+    {
+        sourceCommandId: typeof ENCOUNTER_OFFICER_COMMAND_ID.ENGINEER_DEPLOY_SHIELD;
+    }
+> {
+    return task.sourceCommandId === ENCOUNTER_OFFICER_COMMAND_ID.ENGINEER_DEPLOY_SHIELD;
 }
 
 function mapEvadeAction(
