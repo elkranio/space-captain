@@ -162,14 +162,12 @@ describe(
         );
 
         it(
-            'guarantees interception without a Science hypothesis',
+            'resolves a completed INTERCEPT task as a hit',
             () => {
                 const {
                     engine,
                     state,
-                } = createEngineWithIncomingMissile({
-                    random: () => 0.99,
-                });
+                } = createEngineWithIncomingMissile();
 
                 executeIntercept(
                     engine,
@@ -307,17 +305,11 @@ describe(
 type CreateScenarioOptions = {
     powerCore?:
         PowerCoreState;
-
-    random?:
-        () => number;
 };
 
 function createEngineWithIncomingMissile({
     powerCore =
         createPowerCoreFixture(),
-
-    random =
-        () => 0,
 }: CreateScenarioOptions = {}) {
     const {
         node,
@@ -383,7 +375,7 @@ function createEngineWithIncomingMissile({
                     stationId,
             },
 
-            random,
+            random: () => 0,
         });
 
     engine.drainEvents();

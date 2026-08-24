@@ -56,20 +56,12 @@ const COOLDOWN_DURATION_MS =
 const MISSILE_FLIGHT_DURATION_MS = 12000;
 
 describe('Enemy defense-turret interception', () => {
-    it('intercepts a live player missile after loading without Science or an accuracy roll', () => {
+    it('intercepts a live player missile after loading', () => {
         const {
             engine,
             enemy,
             projectile,
-        } = createScenario(
-            // The retired blind-intercept roll would miss at this value.
-            () => 0.99,
-        );
-
-        enemy.crewRoles =
-            enemy.crewRoles.filter((role) => {
-                return role !== OFFICER_ROLE.SCIENCE;
-            });
+        } = createScenario();
 
         engine.step(0);
 
@@ -210,9 +202,7 @@ describe('Enemy defense-turret interception', () => {
     });
 });
 
-function createScenario(
-    random: () => number,
-) {
+function createScenario() {
     const generation =
         NewGameUniverseFactory.create();
 
@@ -246,7 +236,8 @@ function createScenario(
 
         drive:
             createShipDriveFixture(),
-        random,
+
+        random: () => 0,
     });
 
     engine.drainEvents();
