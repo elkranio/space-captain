@@ -1,4 +1,4 @@
-// src/engine/encounter/combat/defense/ShieldGeneratorRunner.ts
+// src/engine/encounter/combat/shield/ShieldGeneratorRunner.ts
 
 import { SHIELD_GENERATORS } from "../../../content/catalogs/shield_generators";
 import {

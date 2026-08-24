@@ -8,7 +8,7 @@ import type { EncounterState } from "../model/state";
 import EncounterStateStore from "../state/EncounterStateStore";
 import CombatBeamCannonRunner from "./weapons/beam_cannon/CombatBeamCannonRunner";
 import EnemyDefenseTurretRunner from "./defense_turret/EnemyDefenseTurretRunner";
-import EnemyShieldRunner from "./defense/EnemyShieldRunner";
+import EnemyShieldRunner from "./shield/EnemyShieldRunner";
 import CombatMissileRunner, { type PlayerMissileLaunchInput } from "./weapons/missile/CombatMissileRunner";
 import CombatRuntimeIdentityFactory from "./CombatRuntimeIdentityFactory";
 import { getActorCrewProgressMultiplier } from "../crew_performance/get_crew_progress_multiplier";

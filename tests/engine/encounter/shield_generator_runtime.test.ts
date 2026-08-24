@@ -14,7 +14,7 @@ import {
 } from '../../../src/engine/defs/shield_generator';
 import {
     advanceShieldGenerator,
-} from '../../../src/engine/encounter/combat/defense/ShieldGeneratorRunner';
+} from '../../../src/engine/encounter/combat/shield/ShieldGeneratorRunner';
 
 const COOLDOWN_DURATION_MS =
     SHIELD_GENERATORS[
