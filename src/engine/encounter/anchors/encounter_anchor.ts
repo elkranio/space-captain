@@ -1,10 +1,10 @@
 // src/engine/encounter/anchors/encounter_anchor.ts
 
 import type { Vec3 } from "../../defs/vector";
-import type { AsteroidEncounterAnchorState } from "./asteroid/asteroid_encounter_anchor";
-import type { JumpPointEncounterAnchorState } from "./jump_point/jump_point_encounter_anchor";
-import type { NavigationBeaconEncounterAnchorState } from "./navigation_beacon/navigation_beacon_encounter_anchor";
-import type { StationEncounterAnchorState } from "./station/station_encounter_anchor";
+import type { AsteroidEncounterAnchorState } from "./asteroid_encounter_anchor";
+import type { JumpPointEncounterAnchorState } from "./jump_point_encounter_anchor";
+import type { NavigationBeaconEncounterAnchorState } from "./navigation_beacon_encounter_anchor";
+import type { StationEncounterAnchorState } from "./station_encounter_anchor";
 
 export const ENCOUNTER_ANCHOR_KIND = {
     STATION: "station",

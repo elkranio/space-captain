@@ -10,8 +10,8 @@ import {
 import type { OfficerCommandExecutionContext } from "../../model/officer_command_handler";
 import type { EncounterState } from "../../model/state";
 import { ENCOUNTER_ANCHOR_KIND, type EncounterAnchorState } from "../../anchors/encounter_anchor";
-import type { JumpPointEncounterAnchorState } from "../../anchors/jump_point/jump_point_encounter_anchor";
-import type { StationEncounterAnchorState } from "../../anchors/station/station_encounter_anchor";
+import type { JumpPointEncounterAnchorState } from "../../anchors/jump_point_encounter_anchor";
+import type { StationEncounterAnchorState } from "../../anchors/station_encounter_anchor";
 
 export function createUntargetedCommand(commandId: EncounterOfficerCommandId, label: string): AvailableOfficerCommand {
     return {

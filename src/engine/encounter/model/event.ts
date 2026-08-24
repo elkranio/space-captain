@@ -5,7 +5,7 @@ import type { PlayerSpaceNavigationState } from "../../defs/player_location";
 import type { DefenseTurretShotOutcome } from "../../defs/defense_turret";
 import type { EncounterShipDriveState } from "./state";
 import type { EncounterAnchorState } from "../anchors/encounter_anchor";
-import type { JumpPointEncounterAnchorState } from "../anchors/jump_point/jump_point_encounter_anchor";
+import type { JumpPointEncounterAnchorState } from "../anchors/jump_point_encounter_anchor";
 import { BEAM_CANNON_SHOT_OUTCOME, PLAYER_MISSILE_OUTCOME, PLAYER_STICKY_MINE_OUTCOME } from "./combat";
 import type {
     ActiveShieldState,
