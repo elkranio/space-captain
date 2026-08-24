@@ -19,7 +19,7 @@ import {
 import EncounterEngine from '../../../src/engine/encounter/EncounterEngine';
 import type {
     ShipEncounterActorState,
-} from '../../../src/engine/encounter/actors/ship/ship_encounter_actor';
+} from '../../../src/engine/encounter/actors/ship_encounter_actor';
 import {
     ENCOUNTER_OFFICER_COMMAND_ID,
     OFFICER_COMMAND_EXECUTION_STATUS,

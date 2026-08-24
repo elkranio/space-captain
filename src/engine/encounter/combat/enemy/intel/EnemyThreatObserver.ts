@@ -3,7 +3,7 @@
 import { ENCOUNTER_TEAM } from "../../../../defs/encounter_team";
 import { OFFICER_ROLE } from "../../../../defs/officer";
 import { SHIP_WEAPON_PHASE } from "../../../../defs/ship_weapon";
-import type { ShipEncounterActorState } from "../../../actors/ship/ship_encounter_actor";
+import type { ShipEncounterActorState } from "../../../actors/ship_encounter_actor";
 import { COMBAT_SOURCE_KIND, COMBAT_TARGET_KIND } from "../../../model/combat";
 import {
     ENEMY_THREAT_KIND,

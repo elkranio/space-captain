@@ -19,7 +19,7 @@ import {
 import type { ShipWeaponState } from "../../../defs/ship_weapon";
 import type { ShieldGeneratorState } from "../../../defs/shield_generator";
 import { ENCOUNTER_ACTOR_KIND, type EncounterActorState } from "../../actors/encounter_actor";
-import type { ShipEncounterActorState } from "../../actors/ship/ship_encounter_actor";
+import type { ShipEncounterActorState } from "../../actors/ship_encounter_actor";
 import type { EncounterState } from "../../model/state";
 
 export type EnemyHullDamageResult = {

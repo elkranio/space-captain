@@ -2,7 +2,7 @@
 
 import { ENCOUNTER_TEAM } from "../../../defs/encounter_team";
 import { PLAYER_SPACE_NAVIGATION_KIND } from "../../../defs/player_location";
-import type { ShipEncounterActorState } from "../../actors/ship/ship_encounter_actor";
+import type { ShipEncounterActorState } from "../../actors/ship_encounter_actor";
 import type { EncounterState } from "../../model/state";
 
 export function findCurrentEnemyShip(state: EncounterState): ShipEncounterActorState | undefined {

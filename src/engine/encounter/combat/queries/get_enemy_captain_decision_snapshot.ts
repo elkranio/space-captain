@@ -6,7 +6,7 @@ import type { OfficerRole } from "../../../defs/officer";
 import type { ShipDefenseTurretState } from "../../../defs/defense_turret";
 import type { ShieldGeneratorState } from "../../../defs/shield_generator";
 import { SHIP_WEAPON_KIND, type ShipWeaponState } from "../../../defs/ship_weapon";
-import type { ShipEncounterActorState } from "../../actors/ship/ship_encounter_actor";
+import type { ShipEncounterActorState } from "../../actors/ship_encounter_actor";
 import { getActiveCrewProgressEffects } from "../../crew_performance/get_active_crew_progress_effects";
 import { COMBAT_SOURCE_KIND, COMBAT_TARGET_KIND } from "../../model/combat";
 import { ENEMY_THREAT_KIND } from "../../model/enemy_threat_observation";

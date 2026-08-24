@@ -9,7 +9,7 @@ import {
     type BeamCannonState,
 } from "../../../../defs/ship_weapon";
 import { isShipEvading } from "../../../../defs/ship_evade";
-import type { ShipEncounterActorState } from "../../../actors/ship/ship_encounter_actor";
+import type { ShipEncounterActorState } from "../../../actors/ship_encounter_actor";
 import {
     BEAM_CANNON_SHOT_OUTCOME,
     BEAM_CANNON_TARGET_NODE,

@@ -45,7 +45,7 @@ import StickyMineDispenserFactory from '../../../src/engine/generation/ship_weap
 import { getMutableEncounterStateForTest } from './get_mutable_encounter_state_for_test';
 import type {
     ShipEncounterActorState,
-} from '../../../src/engine/encounter/actors/ship/ship_encounter_actor';
+} from '../../../src/engine/encounter/actors/ship_encounter_actor';
 import {
     ENCOUNTER_EVENT,
 } from '../../../src/engine/encounter/model/event';

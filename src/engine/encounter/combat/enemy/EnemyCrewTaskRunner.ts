@@ -3,7 +3,7 @@
 import type { OfficerRole } from "../../../defs/officer";
 import { doesDefenseTurretPhaseRequireOperator } from "../../../defs/defense_turret";
 import { doesShipWeaponPhaseRequireOperator } from "../../../defs/ship_weapon";
-import type { ShipEncounterActorState } from "../../actors/ship/ship_encounter_actor";
+import type { ShipEncounterActorState } from "../../actors/ship_encounter_actor";
 import { COMBAT_SOURCE_KIND, COMBAT_TARGET_KIND } from "../../model/combat";
 import {
     SHIP_CREW_TASK_KIND,

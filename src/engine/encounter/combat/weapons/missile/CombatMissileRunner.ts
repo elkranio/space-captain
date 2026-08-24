@@ -13,7 +13,7 @@ import {
     type MissileLauncherDefinition,
     type MissileLauncherState,
 } from "../../../../defs/ship_weapon";
-import type { ShipEncounterActorState } from "../../../actors/ship/ship_encounter_actor";
+import type { ShipEncounterActorState } from "../../../actors/ship_encounter_actor";
 import {
     COMBAT_PROJECTILE_KIND,
     COMBAT_SOURCE_KIND,

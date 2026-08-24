@@ -3,7 +3,7 @@
 import { SHIELD_GENERATORS } from "../../../content/catalogs/shield_generators";
 import { ENCOUNTER_TEAM } from "../../../defs/encounter_team";
 import { SHIELD_GENERATOR_STATUS } from "../../../defs/shield_generator";
-import type { ShipEncounterActorState } from "../../actors/ship/ship_encounter_actor";
+import type { ShipEncounterActorState } from "../../actors/ship_encounter_actor";
 import type { EncounterState } from "../../model/state";
 import { advanceShieldGenerator } from "./ShieldGeneratorRunner";
 

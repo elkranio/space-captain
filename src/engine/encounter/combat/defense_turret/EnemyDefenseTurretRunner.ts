@@ -8,7 +8,7 @@ import {
     DEFENSE_TURRET_SHOT_OUTCOME,
     type ShipDefenseTurretState,
 } from "../../../defs/defense_turret";
-import type { ShipEncounterActorState } from "../../actors/ship/ship_encounter_actor";
+import type { ShipEncounterActorState } from "../../actors/ship_encounter_actor";
 import { COMBAT_SOURCE_KIND, COMBAT_TARGET_KIND, type MissileCombatProjectileState } from "../../model/combat";
 import { ENEMY_THREAT_KIND, ENEMY_THREAT_SOURCE_KIND } from "../../model/enemy_threat_observation";
 import { ENCOUNTER_EVENT, type EncounterEvent } from "../../model/event";

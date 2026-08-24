@@ -3,7 +3,7 @@
 import { CREW_TRAIT_ID } from "../../../../defs/crew_trait";
 import type { MissileSignature } from "../../../../defs/missile";
 import { OFFICER_ROLE } from "../../../../defs/officer";
-import type { ShipEncounterActorState } from "../../../actors/ship/ship_encounter_actor";
+import type { ShipEncounterActorState } from "../../../actors/ship_encounter_actor";
 import {
     MISSILE_SIGNATURE_ANALYSIS_PROFILE,
     resolveMissileSignatureAnalysis,

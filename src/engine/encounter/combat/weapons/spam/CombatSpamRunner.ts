@@ -7,7 +7,7 @@ import {
     type SpamProjectorDefinition,
     type SpamProjectorState,
 } from "../../../../defs/ship_weapon";
-import type { ShipEncounterActorState } from "../../../actors/ship/ship_encounter_actor";
+import type { ShipEncounterActorState } from "../../../actors/ship_encounter_actor";
 import { SPAM_CHANNEL_OUTCOME, type SpamChannelOutcome, type SpamChannelState } from "../../../model/combat";
 import { ENCOUNTER_EVENT, type EncounterEvent } from "../../../model/event";
 import type { EncounterState } from "../../../model/state";

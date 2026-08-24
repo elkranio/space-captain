@@ -1,20 +1,20 @@
-// src/engine/encounter/actors/ship/ship_encounter_actor.ts
+// src/engine/encounter/actors/ship_encounter_actor.ts
 
-import type { CrewTraitsByRole } from "../../../defs/crew_trait";
-import type { PowerCoreState } from "../../../defs/power_core";
-import type { OfficerRole } from "../../../defs/officer";
-import type { ShipDefenseTurretState } from "../../../defs/defense_turret";
-import type { ShipBehaviorState } from "../../../defs/ship_behavior";
+import type { CrewTraitsByRole } from "../../defs/crew_trait";
+import type { PowerCoreState } from "../../defs/power_core";
+import type { OfficerRole } from "../../defs/officer";
+import type { ShipDefenseTurretState } from "../../defs/defense_turret";
+import type { ShipBehaviorState } from "../../defs/ship_behavior";
 
-import type { ShipDriveState } from "../../../defs/ship_drive";
-import type { ShipEvadeState } from "../../../defs/ship_evade";
-import type { ShipWeaponState } from "../../../defs/ship_weapon";
-import type { ShieldGeneratorState } from "../../../defs/shield_generator";
-import type { ActiveShieldState } from "../../model/combat";
-import type { EnemyThreatObservationState } from "../../model/enemy_threat_observation";
-import type { ShipCrewTaskStates } from "../../model/ship_crew_task";
-import type { ShipDecisionState } from "../../model/ship_decision";
-import { ENCOUNTER_ACTOR_KIND, type EncounterActorBaseState } from "../encounter_actor";
+import type { ShipDriveState } from "../../defs/ship_drive";
+import type { ShipEvadeState } from "../../defs/ship_evade";
+import type { ShipWeaponState } from "../../defs/ship_weapon";
+import type { ShieldGeneratorState } from "../../defs/shield_generator";
+import type { ActiveShieldState } from "../model/combat";
+import type { EnemyThreatObservationState } from "../model/enemy_threat_observation";
+import type { ShipCrewTaskStates } from "../model/ship_crew_task";
+import type { ShipDecisionState } from "../model/ship_decision";
+import { ENCOUNTER_ACTOR_KIND, type EncounterActorBaseState } from "./encounter_actor";
 
 // Runtime-состояние конкретного корабля
 // внутри текущего encounter.
