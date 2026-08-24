@@ -1,7 +1,5 @@
 // src/engine/encounter/model/enemy_threat_observation.ts
 
-import type { ResolvedMissileSignatureIntel } from "./missile_signature_intel";
-
 export const ENEMY_THREAT_KIND = {
     MISSILE: "missile",
     BEAM_CANNON: "beam_cannon",
@@ -35,26 +33,15 @@ export type EnemyThreatSource =
           stickyMineId: string;
       };
 
-export type EnemyThreatReport = ResolvedMissileSignatureIntel & {
-    kind: typeof ENEMY_THREAT_KIND.MISSILE;
-};
-
 // Это только факт наблюдения enemy crew.
 //
 // Объективные projectile/mine state,
 // damage и timers здесь намеренно
 // не хранятся. Истина остаётся
 // в соответствующем combat object/task.
-//
-// report — вывод Science, а не истина.
-// UNCERTAIN hypothesis может быть ошибочной.
-// CONFIRMED hypothesis обязана совпадать с objective truth.
-// Отдельного hidden correctness flag здесь нет.
 export type EnemyThreatObservationState = {
     id: string;
 
     kind: EnemyThreatKind;
     source: EnemyThreatSource;
-
-    report?: EnemyThreatReport;
 };

@@ -1,6 +1,3 @@
-import {
-    MISSILE_SIGNATURE,
-} from '../../../src/engine/defs/missile';
 // tests/engine/encounter/combat_runner.test.ts
 import { getTestMissileTargetingDurationMs } from './combat_test_support';
 
@@ -165,9 +162,6 @@ describe('CombatRunner', () => {
             target: {
                 kind: COMBAT_TARGET_KIND.PLAYER_SHIP,
             },
-
-            signature:
-                MISSILE_SIGNATURE.A,
 
             damage:
                 loadedLauncherDefinition.damage,

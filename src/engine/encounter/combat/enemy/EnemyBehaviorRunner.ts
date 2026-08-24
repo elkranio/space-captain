@@ -13,7 +13,6 @@ import { SHIP_CREW_TASK_KIND } from "../../model/ship_crew_task";
 import { getEnemyCaptainDecisionSnapshot } from "../queries/get_enemy_captain_decision_snapshot";
 import EnemyCrewTaskRunner, { type EnemyCrewTaskCompletion } from "./EnemyCrewTaskRunner";
 import EnemyDecisionPolicy from "./EnemyDecisionPolicy";
-import EnemyScienceIntelResolver from "./intel/EnemyScienceIntelResolver";
 import EnemyThreatObserver from "./intel/EnemyThreatObserver";
 import EnemyWorkExecutor from "./EnemyWorkExecutor";
 
@@ -62,8 +61,6 @@ export default class EnemyBehaviorRunner {
 
     private readonly decisionPolicy: EnemyDecisionPolicy;
 
-    private readonly scienceIntelResolver: EnemyScienceIntelResolver;
-
     private readonly threatObserver: EnemyThreatObserver;
 
     private readonly crewTaskRunner: EnemyCrewTaskRunner;
@@ -87,8 +84,6 @@ export default class EnemyBehaviorRunner {
         this.random = random;
 
         this.decisionPolicy = new EnemyDecisionPolicy(random);
-
-        this.scienceIntelResolver = new EnemyScienceIntelResolver(this.state, random);
 
         this.threatObserver = new EnemyThreatObserver(this.state);
 
@@ -167,27 +162,6 @@ export default class EnemyBehaviorRunner {
                     );
                 }
 
-                return;
-            }
-
-            case SHIP_CREW_TASK_KIND.IDENTIFY_THREAT: {
-                const observation = actor.threatObservations.find((candidate) => {
-                    return candidate.id === task.observationId;
-                });
-
-                if (!observation) {
-                    throw new Error(
-                        "Enemy threat " +
-                            "observation " +
-                            "disappeared before " +
-                            "report: " +
-                            actor.id +
-                            "/" +
-                            task.observationId,
-                    );
-                }
-
-                observation.report = this.scienceIntelResolver.resolve(actor, task.observationId);
                 return;
             }
 

@@ -1,7 +1,4 @@
 import {
-    MISSILE_SIGNATURE,
-} from '../../../src/engine/defs/missile';
-import {
     describe,
     expect,
     it,
@@ -305,9 +302,6 @@ function createScenario(
 
                 actorId: enemy.id,
             },
-
-            signature:
-                MISSILE_SIGNATURE.A,
 
             damage: 1,
 

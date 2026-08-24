@@ -2,11 +2,8 @@
 
 import type { PowerCoreState } from "../../defs/power_core";
 import type { ShipDefenseTurretState } from "../../defs/defense_turret";
-import type { MissileSignature } from "../../defs/missile";
 import type { ShipWeaponState } from "../../defs/ship_weapon";
 import type { ShieldGeneratorState } from "../../defs/shield_generator";
-
-export { MISSILE_SIGNATURE_INTEL_STATUS } from "./missile_signature_intel";
 
 export const COMBAT_PROJECTILE_KIND = {
     MISSILE: "missile",
@@ -110,10 +107,6 @@ export type MissileCombatProjectileState = {
     sourceWeaponId: string;
 
     target: CombatTarget;
-
-    // Objective hidden truth of this concrete projectile.
-    // Every launch receives a fresh signature independent of launcher model.
-    signature: MissileSignature;
 
     // Physical snapshot copied from launcher content at launch.
     // An in-flight projectile never re-reads weapon tuning.

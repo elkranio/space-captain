@@ -9,8 +9,6 @@ export const SHIP_CREW_TASK_KIND = {
 
     CLEAR_STICKY_MINE: "clear_sticky_mine",
 
-    IDENTIFY_THREAT: "identify_threat",
-
     PURGE_SPAM: "purge_spam",
 
     DEPLOY_SHIELD: "deploy_shield",
@@ -50,17 +48,6 @@ export type ClearStickyMineShipCrewTaskState = ShipCrewTaskBaseState & {
     durationMs: number;
 };
 
-export type IdentifyThreatShipCrewTaskState = ShipCrewTaskBaseState & {
-    kind: typeof SHIP_CREW_TASK_KIND.IDENTIFY_THREAT;
-
-    role: typeof OFFICER_ROLE.SCIENCE;
-
-    observationId: string;
-
-    elapsedMs: number;
-    durationMs: number;
-};
-
 export type PurgeSpamShipCrewTaskState = ShipCrewTaskBaseState & {
     kind: typeof SHIP_CREW_TASK_KIND.PURGE_SPAM;
 
@@ -87,7 +74,6 @@ export type ShipCrewTaskState =
     | OperateWeaponShipCrewTaskState
     | InterceptMissileShipCrewTaskState
     | ClearStickyMineShipCrewTaskState
-    | IdentifyThreatShipCrewTaskState
     | PurgeSpamShipCrewTaskState
     | DeployShieldShipCrewTaskState;
 

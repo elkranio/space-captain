@@ -1,6 +1,3 @@
-import {
-    MISSILE_SIGNATURE,
-} from '../../../src/engine/defs/missile';
 // tests/engine/encounter/encounter_snapshot_reader.test.ts
 
 import {
@@ -44,9 +41,6 @@ describe('EncounterSnapshotReader', () => {
             target: {
                 kind: COMBAT_TARGET_KIND.PLAYER_SHIP,
             },
-            signature:
-                MISSILE_SIGNATURE.A,
-
             damage: 1,
             timeToImpactMs: 1000,
             initialTimeToImpactMs: 1000,
@@ -99,9 +93,6 @@ describe('EncounterSnapshotReader', () => {
             target: {
                 kind: COMBAT_TARGET_KIND.PLAYER_SHIP,
             },
-            signature:
-                MISSILE_SIGNATURE.B,
-
             damage: 1,
 
             timeToImpactMs: 1000,

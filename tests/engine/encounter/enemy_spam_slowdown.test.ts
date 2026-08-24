@@ -1,6 +1,3 @@
-import {
-    MISSILE_SIGNATURE,
-} from '../../../src/engine/defs/missile';
 // tests/engine/encounter/enemy_spam_slowdown.test.ts
 import { getTestMissileTargetingDurationMs } from './combat_test_support';
 
@@ -338,9 +335,6 @@ describe(
                                 setup.targetActor
                                     .id,
                         },
-
-                        signature:
-                MISSILE_SIGNATURE.A,
 
                         damage: 1,
 

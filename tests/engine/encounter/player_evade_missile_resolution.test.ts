@@ -7,9 +7,6 @@ import {
     SHIP_DRIVES,
 } from '../../../src/engine/content/catalogs/ship_drives';
 import {
-    MISSILE_SIGNATURE,
-} from '../../../src/engine/defs/missile';
-import {
     OFFICER_ROLE,
 } from '../../../src/engine/defs/officer';
 import {
@@ -149,9 +146,6 @@ describe(
                                 COMBAT_TARGET_KIND
                                     .PLAYER_SHIP,
                         },
-
-                        signature:
-                            MISSILE_SIGNATURE.A,
 
                         damage:
                             1,

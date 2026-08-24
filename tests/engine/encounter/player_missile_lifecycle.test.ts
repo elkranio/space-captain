@@ -1,6 +1,3 @@
-import {
-    MISSILE_SIGNATURE,
-} from '../../../src/engine/defs/missile';
 // tests/engine/encounter/player_missile_lifecycle.test.ts
 import { getTestMissileTargetingDurationMs } from './combat_test_support';
 
@@ -150,9 +147,6 @@ describe('Player missile lifecycle', () => {
                     actorId:
                         targetActorId,
                 },
-
-                signature:
-                MISSILE_SIGNATURE.A,
 
                 damage:
                     launcherDefinition.damage,

@@ -9,7 +9,6 @@ import {
     SHIP_CREW_TASK_KIND,
     type ClearStickyMineShipCrewTaskState,
     type DeployShieldShipCrewTaskState,
-    type IdentifyThreatShipCrewTaskState,
     type PurgeSpamShipCrewTaskState,
     type ShipCrewTaskState,
 } from "../../model/ship_crew_task";
@@ -25,7 +24,6 @@ type EnemyCrewTaskRunnerOptions = {
 type CompletedEnemyCrewTaskState =
     | DeployShieldShipCrewTaskState
     | ClearStickyMineShipCrewTaskState
-    | IdentifyThreatShipCrewTaskState
     | PurgeSpamShipCrewTaskState;
 
 export type EnemyCrewTaskCompletion = {
@@ -193,10 +191,6 @@ export default class EnemyCrewTaskRunner {
                 this.synchronizeClearStickyMine(actor, role, task);
                 return;
 
-            case SHIP_CREW_TASK_KIND.IDENTIFY_THREAT:
-                this.synchronizeIdentifyThreat(actor, role, task);
-                return;
-
             case SHIP_CREW_TASK_KIND.PURGE_SPAM:
                 this.synchronizePurgeSpam(actor, role, task);
                 return;
@@ -215,9 +209,6 @@ export default class EnemyCrewTaskRunner {
 
             case SHIP_CREW_TASK_KIND.CLEAR_STICKY_MINE:
                 return this.advanceClearStickyMine(actor, role, task, deltaMs);
-
-            case SHIP_CREW_TASK_KIND.IDENTIFY_THREAT:
-                return this.advanceIdentifyThreat(actor, role, task, deltaMs);
 
             case SHIP_CREW_TASK_KIND.PURGE_SPAM:
                 return this.advancePurgeSpam(actor, role, task, deltaMs);
@@ -355,36 +346,6 @@ export default class EnemyCrewTaskRunner {
         task: PurgeSpamShipCrewTaskState,
         deltaMs: number,
     ): PurgeSpamShipCrewTaskState | undefined {
-        task.elapsedMs = Math.min(task.durationMs, task.elapsedMs + deltaMs);
-
-        if (task.elapsedMs < task.durationMs) {
-            return undefined;
-        }
-
-        this.complete(actor, role);
-        return task;
-    }
-
-    private synchronizeIdentifyThreat(
-        actor: ShipEncounterActorState,
-        role: OfficerRole,
-        task: IdentifyThreatShipCrewTaskState,
-    ): void {
-        const observation = actor.threatObservations.find((candidate) => {
-            return candidate.id === task.observationId;
-        });
-
-        if (!observation || observation.report) {
-            this.cancel(actor, role);
-        }
-    }
-
-    private advanceIdentifyThreat(
-        actor: ShipEncounterActorState,
-        role: OfficerRole,
-        task: IdentifyThreatShipCrewTaskState,
-        deltaMs: number,
-    ): IdentifyThreatShipCrewTaskState | undefined {
         task.elapsedMs = Math.min(task.durationMs, task.elapsedMs + deltaMs);
 
         if (task.elapsedMs < task.durationMs) {

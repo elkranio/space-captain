@@ -1,6 +1,3 @@
-import {
-    MISSILE_SIGNATURE,
-} from '../../../src/engine/defs/missile';
 // tests/engine/encounter/enemy_debug_snapshot.test.ts
 
 import {
@@ -28,7 +25,6 @@ import {
     COMBAT_PROJECTILE_KIND,
     COMBAT_SOURCE_KIND,
     COMBAT_TARGET_KIND,
-    MISSILE_SIGNATURE_INTEL_STATUS,
     type MissileCombatProjectileState,
 } from '../../../src/engine/encounter/model/combat';
 import {
@@ -77,9 +73,6 @@ describe(
                                 'ship_enemy_00',
                         },
 
-                        signature:
-                            MISSILE_SIGNATURE.B,
-
                         damage: 1,
 
                         timeToImpactMs:
@@ -112,27 +105,6 @@ describe(
                             ],
 
                             crewTasks: {
-                                [OFFICER_ROLE
-                                    .SCIENCE]: {
-                                    kind:
-                                        SHIP_CREW_TASK_KIND
-                                            .IDENTIFY_THREAT,
-
-                                    role:
-                                        OFFICER_ROLE
-                                            .SCIENCE,
-
-                                    observationId:
-                                        'missile:' +
-                                        projectile.id,
-
-                                    elapsedMs:
-                                        1000,
-
-                                    durationMs:
-                                        3000,
-                                },
-
                                 [OFFICER_ROLE
                                     .WEAPONS]: {
                                     kind:
@@ -170,17 +142,6 @@ describe(
                                             projectile.id,
                                     },
 
-                                    report: {
-                                        kind:
-                                            ENEMY_THREAT_KIND
-                                                .MISSILE,
-
-                                        status:
-                                            MISSILE_SIGNATURE_INTEL_STATUS.UNCERTAIN,
-
-                                        hypothesis:
-                                            MISSILE_SIGNATURE.A,
-                                    },
                                 },
                             ],
 
@@ -251,22 +212,6 @@ describe(
 
                                 present: true,
 
-                                task: {
-                                    kind:
-                                        SHIP_CREW_TASK_KIND
-                                            .IDENTIFY_THREAT,
-
-                                    label:
-                                        'IDENTIFY M1',
-
-                                    progress: {
-                                        elapsedMs:
-                                            1000,
-
-                                        durationMs:
-                                            3000,
-                                    },
-                                },
                             },
 
                             {
@@ -359,13 +304,7 @@ describe(
                                 remainingMs:
                                     9000,
 
-                                report:
-                                    MISSILE_SIGNATURE.A,
-
-                                truth:
-                                    MISSILE_SIGNATURE.B,
-
-                                mismatch: true,
+                                mismatch: false,
                             },
                         ],
                     },

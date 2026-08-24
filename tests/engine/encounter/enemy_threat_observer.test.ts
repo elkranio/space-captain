@@ -1,6 +1,3 @@
-import {
-    MISSILE_SIGNATURE,
-} from '../../../src/engine/defs/missile';
 // tests/engine/encounter/enemy_threat_observer.test.ts
 
 import {
@@ -349,9 +346,6 @@ function createObserverFixture() {
             actorId:
                 actor.id,
         },
-
-        signature:
-                MISSILE_SIGNATURE.A,
 
         damage: 1,
 

@@ -1,6 +1,3 @@
-import {
-    MISSILE_SIGNATURE,
-} from '../../../src/engine/defs/missile';
 // tests/engine/encounter/combat_step_order.test.ts
 
 import {
@@ -74,9 +71,6 @@ describe('Combat step order', () => {
                 actorId:
                     targetActor.id,
             },
-
-            signature:
-                MISSILE_SIGNATURE.A,
 
             damage: 1,
 

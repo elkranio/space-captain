@@ -82,8 +82,6 @@ export default class CombatRunner {
 
             identities: this.identities,
 
-            random,
-
             emit,
 
             destroyEnemyActor,

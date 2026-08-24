@@ -114,12 +114,6 @@ function createEnemyDebugSnapshot(state: EncounterState, actor: ShipEncounterAct
 
     const threats = createThreatSnapshots(state, actor);
 
-    const threatByObservationId = new Map(
-        threats.map((threat) => {
-            return [threat.id, threat] as const;
-        }),
-    );
-
     return {
         actorId: actor.id,
 
@@ -130,7 +124,7 @@ function createEnemyDebugSnapshot(state: EncounterState, actor: ShipEncounterAct
             : {}),
 
         roles: ENEMY_DEBUG_ROLE_ORDER.map((role) => {
-            return createRoleSnapshot(state, actor, role, threatByObservationId);
+            return createRoleSnapshot(state, actor, role);
         }),
 
         ...(actor.powerCore
@@ -153,7 +147,6 @@ function createRoleSnapshot(
     state: EncounterState,
     actor: ShipEncounterActorState,
     role: OfficerRole,
-    threatByObservationId: ReadonlyMap<string, EnemyDebugThreatSnapshot>,
 ): EnemyDebugRoleSnapshot {
     const task = actor.crewTasks[role];
 
@@ -164,7 +157,7 @@ function createRoleSnapshot(
 
         ...(task
             ? {
-                  task: createCrewTaskSnapshot(state, actor, task, threatByObservationId),
+                  task: createCrewTaskSnapshot(state, actor, task),
               }
             : {}),
     };
@@ -174,7 +167,6 @@ function createCrewTaskSnapshot(
     state: EncounterState,
     actor: ShipEncounterActorState,
     task: ShipCrewTaskState,
-    threatByObservationId: ReadonlyMap<string, EnemyDebugThreatSnapshot>,
 ): EnemyDebugCrewTaskSnapshot {
     switch (task.kind) {
         case SHIP_CREW_TASK_KIND.PURGE_SPAM:
@@ -189,22 +181,6 @@ function createCrewTaskSnapshot(
                     durationMs: task.durationMs,
                 },
             };
-
-        case SHIP_CREW_TASK_KIND.IDENTIFY_THREAT: {
-            const target = threatByObservationId.get(task.observationId);
-
-            return {
-                kind: task.kind,
-
-                label: "IDENTIFY " + (target?.label ?? "?"),
-
-                progress: {
-                    elapsedMs: task.elapsedMs,
-
-                    durationMs: task.durationMs,
-                },
-            };
-        }
 
         case SHIP_CREW_TASK_KIND.INTERCEPT_MISSILE: {
             const projectile = state.combat.projectiles.find((candidate) => {
@@ -455,14 +431,6 @@ function createMissileThreatSnapshot(
           })
         : undefined;
 
-    const truth = projectile ? projectile.signature : undefined;
-
-    const report = observation.report
-        ? observation.report.kind === ENEMY_THREAT_KIND.MISSILE
-            ? observation.report.hypothesis
-            : "invalid"
-        : undefined;
-
     return {
         id: observation.id,
 
@@ -478,19 +446,7 @@ function createMissileThreatSnapshot(
               }
             : {}),
 
-        ...(report
-            ? {
-                  report,
-              }
-            : {}),
-
-        ...(truth
-            ? {
-                  truth,
-              }
-            : {}),
-
-        mismatch: Boolean(report && truth && report !== truth),
+        mismatch: false,
     };
 }
 
