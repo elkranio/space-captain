@@ -18,7 +18,7 @@ import PowerCoreRunner from "./combat/power_core/PowerCoreRunner";
 import ShieldGeneratorRunner from "./combat/shield/ShieldGeneratorRunner";
 import PlayerDefenseTurretRunner from "./combat/defense_turret/PlayerDefenseTurretRunner";
 import type { EnemyShipTelemetrySnapshot } from "./combat/queries/get_enemy_ship_telemetry_snapshots";
-import PlayerWeaponRunner from "./combat/weapons/PlayerWeaponRunner";
+import PlayerWeaponRunner from "./combat/PlayerWeaponRunner";
 import OfficerCommandExecutor from "./commands/OfficerCommandExecutor";
 import type { AvailableOfficerCommand, ExecuteOfficerCommandInput, ExecuteOfficerCommandResult } from "./model/command";
 import { type ActiveShieldState, type BeamCannonAttackSnapshot, type CombatProjectileState } from "./model/combat";
