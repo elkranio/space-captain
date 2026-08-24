@@ -1,17 +1,17 @@
-// src/engine/encounter/combat/EnemyThreatObserver.ts
+// src/engine/encounter/combat/enemy/EnemyThreatObserver.ts
 
-import { ENCOUNTER_TEAM } from "../../../../defs/encounter_team";
-import { OFFICER_ROLE } from "../../../../defs/officer";
-import { SHIP_WEAPON_PHASE } from "../../../../defs/ship_weapon";
-import type { ShipEncounterActorState } from "../../../actors/ship_encounter_actor";
-import { COMBAT_SOURCE_KIND, COMBAT_TARGET_KIND } from "../../../model/combat";
+import { ENCOUNTER_TEAM } from "../../../defs/encounter_team";
+import { OFFICER_ROLE } from "../../../defs/officer";
+import { SHIP_WEAPON_PHASE } from "../../../defs/ship_weapon";
+import type { ShipEncounterActorState } from "../../actors/ship_encounter_actor";
+import { COMBAT_SOURCE_KIND, COMBAT_TARGET_KIND } from "../../model/combat";
 import {
     ENEMY_THREAT_KIND,
     ENEMY_THREAT_SOURCE_KIND,
     type EnemyThreatObservationState,
-} from "../../../model/enemy_threat_observation";
-import { OFFICER_TASK_KIND } from "../../../model/officer_task";
-import type { EncounterState } from "../../../model/state";
+} from "../../model/enemy_threat_observation";
+import { OFFICER_TASK_KIND } from "../../model/officer_task";
+import type { EncounterState } from "../../model/state";
 
 // Синхронизирует то, что enemy crew
 // физически может заметить прямо сейчас.
@@ -21,8 +21,8 @@ import type { EncounterState } from "../../../model/state";
 // на authoritative combat object/task.
 //
 // Существующие observation objects
-// переиспользуются по id, чтобы Science report
-// следующего атома не терялся при каждом step.
+// переиспользуются по id, чтобы stable reference
+// сохранялся между encounter steps.
 export default class EnemyThreatObserver {
     constructor(private readonly state: EncounterState) {}
 

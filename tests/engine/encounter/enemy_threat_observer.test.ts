@@ -28,7 +28,7 @@ import {
     SHIP_WEAPON_KIND,
     SHIP_WEAPON_PHASE,
 } from '../../../src/engine/defs/ship_weapon';
-import EnemyThreatObserver from '../../../src/engine/encounter/combat/enemy/intel/EnemyThreatObserver';
+import EnemyThreatObserver from '../../../src/engine/encounter/combat/enemy/EnemyThreatObserver';
 import {
     getEnemyThreatDecisionSnapshots,
 } from '../../../src/engine/encounter/combat/queries/get_enemy_threat_decision_snapshots';

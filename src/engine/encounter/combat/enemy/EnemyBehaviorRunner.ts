@@ -13,7 +13,7 @@ import { SHIP_CREW_TASK_KIND } from "../../model/ship_crew_task";
 import { getEnemyCaptainDecisionSnapshot } from "../queries/get_enemy_captain_decision_snapshot";
 import EnemyCrewTaskRunner, { type EnemyCrewTaskCompletion } from "./EnemyCrewTaskRunner";
 import EnemyDecisionPolicy from "./EnemyDecisionPolicy";
-import EnemyThreatObserver from "./intel/EnemyThreatObserver";
+import EnemyThreatObserver from "./EnemyThreatObserver";
 import EnemyWorkExecutor from "./EnemyWorkExecutor";
 
 type EnemyBehaviorRunnerOptions = {
