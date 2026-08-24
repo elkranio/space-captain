@@ -3,7 +3,7 @@
 import type { PowerCoreState } from "../defs/power_core";
 import type { ShipDefenseTurretState } from "../defs/defense_turret";
 import { ENCOUNTER_TEAM, type EncounterTeam } from "../defs/encounter_team";
-import type { OfficerRole } from "../defs/officer";
+import { OFFICER_ROLE, type OfficerRole } from "../defs/officer";
 import type { PlayerHullState } from "../defs/player";
 import type { PlayerSpaceNavigationState } from "../defs/player_location";
 import type { ShipDriveState } from "../defs/ship_drive";
@@ -335,13 +335,13 @@ export default class EncounterEngine {
     // #region Player Evade lifecycle
 
     private stepPlayerEvade(deltaMs: number): void {
-        const evadeTask = this.stateStore.getOfficerTasks().find((task) => {
-            return task.kind === OFFICER_TASK_KIND.HELM_EVADE;
-        });
+        const helmTask = this.stateStore.getOfficerTask(
+            OFFICER_ROLE.HELM,
+        );
 
         this.stateStore.advancePlayerEvade(deltaMs);
 
-        if (!evadeTask) {
+        if (helmTask?.kind !== OFFICER_TASK_KIND.HELM_EVADE) {
             return;
         }
 
@@ -353,7 +353,7 @@ export default class EncounterEngine {
 
         // The maneuver owns the Helm task only through WARMUP + EVADING.
         // Recovery continues independently after Helm is released.
-        this.officerTaskRunner.complete(evadeTask.id);
+        this.officerTaskRunner.complete(helmTask.id);
     }
 
     // #endregion

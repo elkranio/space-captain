@@ -15,8 +15,6 @@ import EncounterStateStore from "../state/EncounterStateStore";
 import { getOfficerCommandHandler } from "./officer_command_handlers";
 import { getAvailableOfficerCommands } from "./queries/get_available_officer_commands";
 
-type OfficerCommandExecutorOptions = OfficerCommandExecutionContext;
-
 const OFFICER_ROLES = Object.values(OFFICER_ROLE);
 
 export default class OfficerCommandExecutor {
@@ -24,7 +22,7 @@ export default class OfficerCommandExecutor {
 
     private readonly executionContext: OfficerCommandExecutionContext;
 
-    constructor(options: OfficerCommandExecutorOptions) {
+    constructor(options: OfficerCommandExecutionContext) {
         this.stateStore = options.stateStore;
         this.executionContext = options;
     }

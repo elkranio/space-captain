@@ -451,13 +451,13 @@ export default class PlayerShipStore {
     }
 
     public fireDefenseTurret(threatId: string): DefenseTurretShotOutcome | undefined {
-        const projectile = this.state.combat.projectiles.find((candidate) => {
+        const projectileIndex = this.state.combat.projectiles.findIndex((candidate) => {
             return candidate.id === threatId;
         });
 
         // Threat may resolve before the Weapons task completes.
         // Charge was already spent at aim start.
-        if (!projectile) {
+        if (projectileIndex < 0) {
             return undefined;
         }
 
@@ -467,16 +467,8 @@ export default class PlayerShipStore {
             throw new Error("Cannot fire player defense turret: installation missing");
         }
 
-        const outcome = DEFENSE_TURRET_SHOT_OUTCOME.HIT;
+        this.state.combat.projectiles.splice(projectileIndex, 1);
 
-        if (outcome === DEFENSE_TURRET_SHOT_OUTCOME.HIT) {
-            const projectileIndex = this.state.combat.projectiles.indexOf(projectile);
-
-            if (projectileIndex >= 0) {
-                this.state.combat.projectiles.splice(projectileIndex, 1);
-            }
-        }
-
-        return outcome;
+        return DEFENSE_TURRET_SHOT_OUTCOME.HIT;
     }
 }
