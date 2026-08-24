@@ -2,6 +2,7 @@
 
 import { describe, expect, it, vi } from 'vitest';
 import { GameRuntime } from '../../src/app/runtime/GameRuntime';
+import BridgeEncounterPersistenceSynchronizer from '../../src/app/scenes/game/bridge/controller/encounter/BridgeEncounterPersistenceSynchronizer';
 import BridgeEncounterEngineEventHandler from '../../src/app/scenes/game/bridge/controller/encounter/engine_events/BridgeEncounterEngineEventHandler';
 import { BRIDGE_EVENT } from '../../src/app/scenes/game/bridge/events/bridge_event';
 import type BridgeEventBus from '../../src/app/scenes/game/bridge/events/BridgeEventBus';
@@ -10,7 +11,10 @@ import {
     BEAM_CANNON_SHOT_OUTCOME,
     type BeamCannonAttackSnapshot,
 } from '../../src/engine/encounter/model/combat';
-import { ENCOUNTER_EVENT } from '../../src/engine/encounter/model/event';
+import {
+    ENCOUNTER_EVENT,
+    type EncounterEvent,
+} from '../../src/engine/encounter/model/event';
 
 describe('BridgeEncounterEngineEventHandler beamCannon resolution', () => {
     it('adds a beamCannon threat when charging starts', () => {
@@ -164,16 +168,30 @@ function createHandler() {
         emit,
     } as unknown as BridgeEventBus;
 
+    const eventHandler =
+        new BridgeEncounterEngineEventHandler(
+            eventBus,
+            setEncounterInteractive,
+        );
+
+    const persistenceSynchronizer =
+        new BridgeEncounterPersistenceSynchronizer(
+            runtime,
+        );
+
     return {
         runtime,
         emit,
         setEncounterInteractive,
 
-        handler: new BridgeEncounterEngineEventHandler(
-            eventBus,
-            setEncounterInteractive,
-            runtime,
-        ),
+        handler: {
+            handle(events: EncounterEvent[]): void {
+                for (const event of events) {
+                    persistenceSynchronizer.syncEvent(event);
+                    eventHandler.handle([event]);
+                }
+            },
+        },
     };
 }
 

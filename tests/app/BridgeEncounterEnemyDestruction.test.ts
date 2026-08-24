@@ -9,6 +9,7 @@ import {
 import {
     GameRuntime,
 } from '../../src/app/runtime/GameRuntime';
+import BridgeEncounterPersistenceSynchronizer from '../../src/app/scenes/game/bridge/controller/encounter/BridgeEncounterPersistenceSynchronizer';
 import BridgeEncounterEngineEventHandler from '../../src/app/scenes/game/bridge/controller/encounter/engine_events/BridgeEncounterEngineEventHandler';
 import {
     BRIDGE_EVENT,
@@ -16,6 +17,7 @@ import {
 import type BridgeEventBus from '../../src/app/scenes/game/bridge/events/BridgeEventBus';
 import {
     ENCOUNTER_EVENT,
+    type EncounterEvent,
 } from '../../src/engine/encounter/model/event';
 import {
     getCurrentNode,
@@ -54,20 +56,24 @@ describe('Bridge enemy destruction flow', () => {
                 eventBus,
 
                 setEncounterInteractive,
+            );
 
+        const persistenceSynchronizer =
+            new BridgeEncounterPersistenceSynchronizer(
                 runtime,
             );
 
-        handler.handle([
-            {
-                type:
-                    ENCOUNTER_EVENT
-                        .ENEMY_SHIP_DESTROYED,
+        const event: EncounterEvent = {
+            type:
+                ENCOUNTER_EVENT
+                    .ENEMY_SHIP_DESTROYED,
 
-                actorId:
-                    actor.id,
-            },
-        ]);
+            actorId:
+                actor.id,
+        };
+
+        persistenceSynchronizer.syncEvent(event);
+        handler.handle([event]);
 
         expect(
             node.actors.some(

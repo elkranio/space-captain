@@ -6,9 +6,6 @@ import {
     it,
     vi,
 } from 'vitest';
-import {
-    GameRuntime,
-} from '../../src/app/runtime/GameRuntime';
 import BridgeEncounterEngineEventHandler from '../../src/app/scenes/game/bridge/controller/encounter/engine_events/BridgeEncounterEngineEventHandler';
 import {
     BRIDGE_EVENT,
@@ -40,7 +37,6 @@ describe('Bridge sticky-mine event contract', () => {
                 } as unknown as BridgeEventBus,
 
                 vi.fn(),
-                new GameRuntime(),
             );
 
         handler.handle([

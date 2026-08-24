@@ -45,10 +45,10 @@ export default class BridgeEncounterPersistenceSynchronizer {
         this.gameRuntime.setPlayerSpaceNavigation(snapshot.navigation);
 
         // Defense Turret is intentionally not copied from presentation here.
-        // Its current snapshot exposes equipment chance only, while mutable
-        // loading/target fields are encounter-operational. When persistent
-        // damage/repair state is added, give it an explicit persistence
-        // projection instead of leaking targetProjectileId into RunState.
+        // Its presentation state is encounter-operational (phase/load/cooldown/target),
+        // while RunState currently owns installed equipment only. If persistent
+        // damage/repair state is added, give it an explicit persistence projection
+        // instead of leaking targetProjectileId into RunState.
     }
 
     public syncEvent(event: EncounterEvent): void {

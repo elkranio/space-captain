@@ -18,6 +18,7 @@ vi.mock('../../src/app/scenes/game/bridge/controller/encounter/encounter_objects
 });
 
 import { GameRuntime } from '../../src/app/runtime/GameRuntime';
+import BridgeEncounterPersistenceSynchronizer from '../../src/app/scenes/game/bridge/controller/encounter/BridgeEncounterPersistenceSynchronizer';
 import BridgeEncounterEngineEventHandler from '../../src/app/scenes/game/bridge/controller/encounter/engine_events/BridgeEncounterEngineEventHandler';
 import { BRIDGE_EVENT } from '../../src/app/scenes/game/bridge/events/bridge_event';
 import type BridgeEventBus from '../../src/app/scenes/game/bridge/events/BridgeEventBus';
@@ -30,6 +31,7 @@ import {
     ENCOUNTER_EVENT,
     OFFICER_TASK_OUTCOME,
     OFFICER_TASK_RESULT_KIND,
+    type EncounterEvent,
 } from '../../src/engine/encounter/model/event';
 import { OFFICER_TASK_KIND } from '../../src/engine/encounter/model/officer_task';
 import { getCurrentNode } from '../../src/engine/universe/queries/get_current_node';
@@ -45,12 +47,15 @@ describe('Bridge encounter jump-point sync', () => {
             } as unknown as BridgeEventBus,
 
             vi.fn(),
-            runtime,
         );
 
-        handler.handle([
-            {
-                type: ENCOUNTER_EVENT.OFFICER_TASK_ENDED,
+        const persistenceSynchronizer =
+            new BridgeEncounterPersistenceSynchronizer(
+                runtime,
+            );
+
+        const event: EncounterEvent = {
+            type: ENCOUNTER_EVENT.OFFICER_TASK_ENDED,
 
                 task: {
                     id: 'task_1',
@@ -103,8 +108,10 @@ describe('Bridge encounter jump-point sync', () => {
                         perspectiveDepth: 1,
                     },
                 },
-            },
-        ]);
+            };
+
+        persistenceSynchronizer.syncEvent(event);
+        handler.handle([event]);
 
         expect(getCurrentNode(runtime.getCurrentRun()).anchors).toContainEqual({
             kind: SPACE_ANCHOR_KIND.JUMP_POINT,

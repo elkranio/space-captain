@@ -14,29 +14,22 @@ import {
 } from "../../../../../../../engine/encounter/model/event";
 import { OFFICER_TASK_KIND } from "../../../../../../../engine/encounter/model/officer_task";
 import type { EncounterPresentationSnapshot } from "../../../../../../../engine/encounter/snapshots/encounter_presentation_snapshot";
-import type { GameRuntime } from "../../../../../../runtime/GameRuntime";
 import { SCENE_KEY } from "../../../../../scene_key";
 import { BRIDGE_EVENT, BRIDGE_STICKY_MINE_REMOVAL_OUTCOME } from "../../../events/bridge_event";
 import type BridgeEventBus from "../../../events/BridgeEventBus";
 import { mapEncounterAnchorToBridgeObjectPayload } from "../encounter_objects/BridgeEncounterObjectMapper";
 import BridgeEncounterLoadPresenter from "./BridgeEncounterLoadPresenter";
-import BridgeEncounterPersistenceSynchronizer from "../BridgeEncounterPersistenceSynchronizer";
 
 type SetEncounterInteractive = (value: boolean) => void;
 
 export default class BridgeEncounterEngineEventHandler {
     private readonly loadPresenter: BridgeEncounterLoadPresenter;
 
-    private readonly persistenceSynchronizer: BridgeEncounterPersistenceSynchronizer;
-
     constructor(
         private readonly eventBus: BridgeEventBus,
         private readonly setEncounterInteractive: SetEncounterInteractive,
-        gameRuntime: GameRuntime,
     ) {
         this.loadPresenter = new BridgeEncounterLoadPresenter(this.eventBus, this.setEncounterInteractive);
-
-        this.persistenceSynchronizer = new BridgeEncounterPersistenceSynchronizer(gameRuntime);
     }
 
     // #region Public API
@@ -47,8 +40,6 @@ export default class BridgeEncounterEngineEventHandler {
         presentationSnapshot?: EncounterPresentationSnapshot,
     ): void {
         for (const event of events) {
-            this.persistenceSynchronizer.syncEvent(event);
-
             this.handleEvent(event, presentationSnapshot);
         }
     }

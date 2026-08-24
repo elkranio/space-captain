@@ -2,7 +2,6 @@
 
 import {
     describe, expect, it, vi } from 'vitest';
-import { GameRuntime } from '../../src/app/runtime/GameRuntime';
 import BridgeEncounterEngineEventHandler from '../../src/app/scenes/game/bridge/controller/encounter/engine_events/BridgeEncounterEngineEventHandler';
 import { BRIDGE_EVENT } from '../../src/app/scenes/game/bridge/events/bridge_event';
 import type BridgeEventBus from '../../src/app/scenes/game/bridge/events/BridgeEventBus';
@@ -61,8 +60,6 @@ const impactedProjectile: MissileEventProjectileSnapshot = {
 
 describe('BridgeEncounterEngineEventHandler combat events', () => {
     it('does not clear combat presentation before local travel starts', () => {
-        const runtime = new GameRuntime();
-
         const emit = vi.fn();
         const setEncounterInteractive = vi.fn();
 
@@ -73,7 +70,6 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
                 } as unknown as BridgeEventBus,
 
                 setEncounterInteractive,
-                runtime,
             );
 
         handler.handle([
@@ -136,8 +132,6 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
     });
 
     it('clears combat presentation at the physical travel boundary', () => {
-        const runtime = new GameRuntime();
-
         const emit = vi.fn();
 
         const handler =
@@ -147,7 +141,6 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
                 } as unknown as BridgeEventBus,
 
                 vi.fn(),
-                runtime,
             );
 
         handler.clearCombatPresentation();
@@ -211,12 +204,6 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
     });
 
     it('maps enemy attack start and missile launch to bridge presentation events', () => {
-        const runtime = new GameRuntime();
-
-        const initialHull =
-            runtime.getCurrentRun()
-                .player.ship.hull;
-
         const emit = vi.fn();
 
         const setEncounterInteractive = vi.fn();
@@ -225,7 +212,7 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
             emit,
         } as unknown as BridgeEventBus;
 
-        const handler = new BridgeEncounterEngineEventHandler(eventBus, setEncounterInteractive, runtime);
+        const handler = new BridgeEncounterEngineEventHandler(eventBus, setEncounterInteractive);
 
         handler.handle([
             {
@@ -244,11 +231,6 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
                 },
             },
         ]);
-
-        expect(
-            runtime.getCurrentRun()
-                .player.ship.hull,
-        ).toBe(initialHull);
 
         expect(emit.mock.calls).toEqual([
             [BRIDGE_EVENT.ENEMY_ATTACK_WARNING_TRIGGERED],
@@ -271,55 +253,7 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
         expect(setEncounterInteractive).not.toHaveBeenCalled();
     });
 
-    it('synchronizes runtime before translating a damage event', () => {
-        const runtime = new GameRuntime();
-
-        const observedHullByBridgeEvent:
-            number[] = [];
-
-        const emit = vi.fn(() => {
-            observedHullByBridgeEvent.push(
-                runtime.getCurrentRun()
-                    .player.ship.hull,
-            );
-        });
-
-        const handler =
-            new BridgeEncounterEngineEventHandler(
-                {
-                    emit,
-                } as unknown as BridgeEventBus,
-
-                vi.fn(),
-                runtime,
-            );
-
-        handler.handle([
-            {
-                type:
-                    ENCOUNTER_EVENT
-                        .MISSILE_IMPACTED_PLAYER_SHIP,
-
-                projectile: {
-                    ...impactedProjectile,
-                },
-
-                appliedDamage: 1,
-                remainingHull: 2,
-                destroyed: false,
-            },
-        ]);
-
-        expect(
-            observedHullByBridgeEvent,
-        ).toEqual([
-            2,
-        ]);
-    });
-
-    it('persists hull and requests END only on first destruction', () => {
-        const runtime = new GameRuntime();
-
+    it('requests END only for damage marked as destruction', () => {
         const emit = vi.fn();
 
         const setEncounterInteractive = vi.fn();
@@ -328,7 +262,7 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
             emit,
         } as unknown as BridgeEventBus;
 
-        const handler = new BridgeEncounterEngineEventHandler(eventBus, setEncounterInteractive, runtime);
+        const handler = new BridgeEncounterEngineEventHandler(eventBus, setEncounterInteractive);
 
         handler.handle([
             {
@@ -343,8 +277,6 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
                 destroyed: false,
             },
         ]);
-
-        expect(runtime.getCurrentRun().player.ship.hull).toBe(2);
 
         expect(emit.mock.calls).toEqual([
             [
@@ -376,8 +308,6 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
             },
         ]);
 
-        expect(runtime.getCurrentRun().player.ship.hull).toBe(0);
-
         expect(setEncounterInteractive).toHaveBeenCalledTimes(1);
 
         expect(setEncounterInteractive).toHaveBeenCalledWith(false);
@@ -408,9 +338,8 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
             ],
         ]);
 
-        // Повторный synthetic impact
-        // не меняет hull и не запускает
-        // второй status/transition event.
+        // Повторный synthetic impact без destroyed
+        // не запускает второй transition event.
         handler.handle([
             {
                 type: ENCOUNTER_EVENT.MISSILE_IMPACTED_PLAYER_SHIP,
@@ -428,8 +357,6 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
                 destroyed: false,
             },
         ]);
-
-        expect(runtime.getCurrentRun().player.ship.hull).toBe(0);
 
         expect(setEncounterInteractive).toHaveBeenCalledTimes(1);
 
@@ -471,9 +398,6 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
     it(
         'forwards absorbed beamCannon outcome to beam presentation',
         () => {
-            const runtime =
-                new GameRuntime();
-
             const emit =
                 vi.fn();
 
@@ -484,7 +408,6 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
                     } as unknown as BridgeEventBus,
 
                     vi.fn(),
-                    runtime,
                 );
 
             handler.handle([
@@ -552,9 +475,6 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
     it(
         'maps player shield lifecycle to bridge presentation events',
         () => {
-            const runtime =
-                new GameRuntime();
-
             const emit =
                 vi.fn();
 
@@ -565,7 +485,6 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
                     } as unknown as BridgeEventBus,
 
                     vi.fn(),
-                    runtime,
                 );
 
             handler.handle([
@@ -638,9 +557,7 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
         },
     );
 
-    it('maps a completed defense-turret shot without spending defensive energy', () => {
-        const runtime = new GameRuntime();
-
+    it('maps a completed defense-turret shot to bridge presentation', () => {
         const emit = vi.fn();
 
         const setEncounterInteractive = vi.fn();
@@ -649,7 +566,7 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
             emit,
         } as unknown as BridgeEventBus;
 
-        const handler = new BridgeEncounterEngineEventHandler(eventBus, setEncounterInteractive, runtime);
+        const handler = new BridgeEncounterEngineEventHandler(eventBus, setEncounterInteractive);
 
         handler.handle([
             {
@@ -687,18 +604,6 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
             },
         ]);
 
-        // Completion only maps the shot result.
-        // Shared DEF was already committed when the Defense Turret task started.
-        expect(
-            runtime
-                .getCurrentRun()
-                .player
-                .ship
-                .powerCore,
-        ).toMatchObject({
-            charges: 4,
-            rechargeElapsedMs: 0,
-        });
         expect(emit.mock.calls).toEqual([
             [
                 BRIDGE_EVENT.DEFENSE_TURRET_FIRED,

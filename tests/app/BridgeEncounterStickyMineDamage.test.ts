@@ -2,6 +2,7 @@
 
 import { describe, expect, it, vi } from 'vitest';
 import { GameRuntime } from '../../src/app/runtime/GameRuntime';
+import BridgeEncounterPersistenceSynchronizer from '../../src/app/scenes/game/bridge/controller/encounter/BridgeEncounterPersistenceSynchronizer';
 import BridgeEncounterEngineEventHandler from '../../src/app/scenes/game/bridge/controller/encounter/engine_events/BridgeEncounterEngineEventHandler';
 import {
     BRIDGE_EVENT,
@@ -16,6 +17,7 @@ import {
 } from '../../src/engine/encounter/model/combat';
 import {
     ENCOUNTER_EVENT,
+    type EncounterEvent,
 } from '../../src/engine/encounter/model/event';
 
 describe('Bridge sticky-mine damage', () => {
@@ -32,7 +34,6 @@ describe('Bridge sticky-mine damage', () => {
                 } as unknown as BridgeEventBus,
 
                 setEncounterInteractive,
-                runtime,
             );
 
         const mine1 = createMine(
@@ -45,7 +46,10 @@ describe('Bridge sticky-mine damage', () => {
             'sticky_mine_3',
         );
 
-        handler.handle([
+        syncAndHandleEvents(
+            runtime,
+            handler,
+            [
             {
                 type:
                     ENCOUNTER_EVENT
@@ -98,7 +102,8 @@ describe('Bridge sticky-mine damage', () => {
                 remainingHull: 0,
                 destroyed: true,
             },
-        ]);
+            ],
+        );
 
         expect(
             runtime.getCurrentRun()
@@ -208,4 +213,20 @@ function createMine(
 
         damage: 1,
     };
+}
+
+function syncAndHandleEvents(
+    runtime: GameRuntime,
+    handler: BridgeEncounterEngineEventHandler,
+    events: EncounterEvent[],
+): void {
+    const persistenceSynchronizer =
+        new BridgeEncounterPersistenceSynchronizer(
+            runtime,
+        );
+
+    for (const event of events) {
+        persistenceSynchronizer.syncEvent(event);
+        handler.handle([event]);
+    }
 }

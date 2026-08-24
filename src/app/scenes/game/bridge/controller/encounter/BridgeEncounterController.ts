@@ -73,8 +73,6 @@ export default class BridgeEncounterController {
             (value) => {
                 this.isEncounterInteractive = value;
             },
-
-            GAME_RUNTIME,
         );
 
         this.registerBridgeEventHandlers();
@@ -340,7 +338,11 @@ export default class BridgeEncounterController {
     private drainEncounterEvents(presentationSnapshot?: EncounterPresentationSnapshot): void {
         const events = this.encounterEngine.drainEvents();
 
-        this.engineEventHandler.handle(events, presentationSnapshot);
+        for (const event of events) {
+            this.persistenceSynchronizer.syncEvent(event);
+
+            this.engineEventHandler.handle([event], presentationSnapshot);
+        }
     }
 
     // #endregion
