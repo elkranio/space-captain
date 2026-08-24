@@ -1,7 +1,7 @@
-// src/app/manifests/stations/station_sprite.ts
+// src/app/manifests/world/stations/station_sprite.ts
 
-import { STATION_OBJECT_SPRITE_ID, type StationObjectSpriteId } from "../../../engine/defs/station";
-import { DEFAULT_ATLAS_KEY, type SpriteEntry } from "../types";
+import { STATION_OBJECT_SPRITE_ID, type StationObjectSpriteId } from "../../../../engine/defs/station";
+import { DEFAULT_ATLAS_KEY, type SpriteEntry } from "../../types";
 
 export const STATION_OBJECT_SPRITES = {
     [STATION_OBJECT_SPRITE_ID.HUMAN_SMALL_00]: {

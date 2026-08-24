@@ -15,7 +15,7 @@ import {
 } from 'vitest';
 import {
     SHIP_SPRITES,
-} from '../../src/app/manifests/ships/ship_sprite';
+} from '../../src/app/manifests/world/ships/ship_sprite';
 import {
     ASSET_BUCKET_ID,
 } from '../../tools/content-editor/server/asset_registry';

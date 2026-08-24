@@ -1,6 +1,6 @@
-// src/app/manifests/asteroids/asteroid_sprite.ts
-import { ASTEROID_OBJECT_SPRITE_ID, type AsteroidObjectSpriteId } from "../../../engine/defs/asteroid";
-import { DEFAULT_ATLAS_KEY, type SpriteEntry } from "../types";
+// src/app/manifests/world/asteroids/asteroid_sprite.ts
+import { ASTEROID_OBJECT_SPRITE_ID, type AsteroidObjectSpriteId } from "../../../../engine/defs/asteroid";
+import { DEFAULT_ATLAS_KEY, type SpriteEntry } from "../../types";
 
 export const ASTEROID_OBJECT_SPRITES = {
     [ASTEROID_OBJECT_SPRITE_ID.ASTEROID_00]: {

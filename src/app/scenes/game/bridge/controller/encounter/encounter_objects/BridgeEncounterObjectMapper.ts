@@ -8,11 +8,11 @@ import type {
     EncounterSpaceAnchorPresentationSnapshot,
     EncounterSpacePresentationSnapshot,
 } from "../../../../../../../engine/encounter/snapshots/encounter_space_presentation_snapshot";
-import { ASTEROID_OBJECT_SPRITES } from "../../../../../../manifests/asteroids/asteroid_sprite";
-import { BEACON_OBJECT_SPRITES } from "../../../../../../manifests/beacons/beacon_sprite";
-import { JUMP_POINT_OBJECT_SPRITES } from "../../../../../../manifests/jump_points/jump_point_sprite";
-import { SHIP_SPRITES } from "../../../../../../manifests/ships/ship_sprite";
-import { STATION_OBJECT_SPRITES } from "../../../../../../manifests/stations/station_sprite";
+import { ASTEROID_OBJECT_SPRITES } from "../../../../../../manifests/world/asteroids/asteroid_sprite";
+import { BEACON_OBJECT_SPRITES } from "../../../../../../manifests/world/beacons/beacon_sprite";
+import { JUMP_POINT_OBJECT_SPRITES } from "../../../../../../manifests/world/jump_points/jump_point_sprite";
+import { SHIP_SPRITES } from "../../../../../../manifests/world/ships/ship_sprite";
+import { STATION_OBJECT_SPRITES } from "../../../../../../manifests/world/stations/station_sprite";
 import type { BridgeEncounterObjectPayload } from "../../../events/bridge_event";
 
 const SHIP_ACTOR_POSITION_OFFSET = {

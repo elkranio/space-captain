@@ -1,6 +1,6 @@
-// src/app/manifests/characters/character_portrait.ts
-import { CHARACTER_PORTRAIT_ID, type CharacterPortraitId } from "../../../engine/defs/character";
-import { DEFAULT_ATLAS_KEY, type SpriteEntry } from "../types";
+// src/app/manifests/portraits/characters/character_portrait.ts
+import { CHARACTER_PORTRAIT_ID, type CharacterPortraitId } from "../../../../engine/defs/character";
+import { DEFAULT_ATLAS_KEY, type SpriteEntry } from "../../types";
 
 export const CHARACTER_PORTRAIT_SPRITES = {
     [CHARACTER_PORTRAIT_ID.COMMS_ALIEN_00_CALM]: {

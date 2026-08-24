@@ -1,8 +1,8 @@
-// src/app/manifests/ships/ship_sprite.ts
+// src/app/manifests/world/ships/ship_sprite.ts
 
 import shipSpriteManifestData from "./ship_sprites.json";
 
-import { DEFAULT_ATLAS_KEY, type SpriteEntry } from "../types";
+import { DEFAULT_ATLAS_KEY, type SpriteEntry } from "../../types";
 
 type ShipSpriteManifestEntry = {
     frameKey: string;

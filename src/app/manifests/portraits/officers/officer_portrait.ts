@@ -1,8 +1,8 @@
-// src\app\manifests\officers\officer_portrait.ts
+// src/app/manifests/portraits/officers/officer_portrait.ts
 
-import { OFFICER_PORTRAIT_ID, type OfficerPortraitId } from "../../../engine/defs/officer";
+import { OFFICER_PORTRAIT_ID, type OfficerPortraitId } from "../../../../engine/defs/officer";
 
-import { DEFAULT_ATLAS_KEY, type SpriteEntry } from "../types";
+import { DEFAULT_ATLAS_KEY, type SpriteEntry } from "../../types";
 
 export const OFFICER_PORTRAIT_SPRITES = {
     [OFFICER_PORTRAIT_ID.SILHOUETTE_00]: {
