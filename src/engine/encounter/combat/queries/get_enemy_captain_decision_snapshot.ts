@@ -77,8 +77,6 @@ export type EnemyCaptainDecisionSnapshot = {
 
     claimedStickyMineIds: readonly string[];
 
-    unresolvedMissileObservationIds: readonly string[];
-
     weapons: readonly EnemyCaptainWeaponSnapshot[];
 
     defenseTurret?: {
@@ -133,14 +131,6 @@ export function getEnemyCaptainDecisionSnapshot(
         }
     }
 
-    const unresolvedMissileObservationIds = actor.threatObservations
-        .filter((observation) => {
-            return observation.kind === ENEMY_THREAT_KIND.MISSILE && observation.report === undefined;
-        })
-        .map((observation) => {
-            return observation.id;
-        });
-
     const incomingSpamChannelIds = getActiveCrewProgressEffects(state)
         .filter((effect) => {
             return (
@@ -163,8 +153,6 @@ export function getEnemyCaptainDecisionSnapshot(
         availableRoles,
 
         claimedStickyMineIds,
-
-        unresolvedMissileObservationIds,
 
         weapons: actor.weapons.map(createWeaponSnapshot),
 

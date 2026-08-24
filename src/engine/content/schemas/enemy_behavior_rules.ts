@@ -14,18 +14,6 @@ export const ENEMY_BEHAVIOR_RULES_SCHEMA = z.strictObject({
         .meta({
             title: "Shield Placement",
         }),
-
-    threat_identification: z
-        .strictObject({
-            durationMs: z.number().int().nonnegative().meta({
-                title: "Duration",
-                unit: "ms",
-                "x-editor-control": "duration",
-            }),
-        })
-        .meta({
-            title: "Threat Identification",
-        }),
 });
 
 export type EnemyBehaviorRulesData = z.infer<typeof ENEMY_BEHAVIOR_RULES_SCHEMA>;

@@ -32,13 +32,6 @@ export type EnemyWorkIntent =
           channelId: string;
       }
     | {
-          kind: typeof SHIP_CREW_TASK_KIND.IDENTIFY_THREAT;
-
-          role: typeof OFFICER_ROLE.SCIENCE;
-
-          observationId: string;
-      }
-    | {
           kind: typeof SHIP_CREW_TASK_KIND.OPERATE_WEAPON;
 
           role: OfficerRole;
@@ -134,8 +127,7 @@ export default class EnemyDecisionPolicy {
             this.selectMineClearing(snapshot) ??
             this.selectShieldDeployment(snapshot) ??
             this.selectSpamPurging(snapshot) ??
-            this.selectDefenseTurretInterception(snapshot) ??
-            this.selectThreatIdentification(snapshot)
+            this.selectDefenseTurretInterception(snapshot)
         );
     }
 
@@ -333,37 +325,6 @@ export default class EnemyDecisionPolicy {
             actionDurationMs: defenseTurret.loadDurationMs,
 
             estimatedDeadlineMs: selectedMissile.estimatedTimeToImpactMs,
-        };
-    }
-
-    private selectThreatIdentification(snapshot: EnemyCaptainDecisionSnapshot): EnemyDefenseCandidate | undefined {
-        if (!this.isRoleAvailable(snapshot, OFFICER_ROLE.SCIENCE)) {
-            return undefined;
-        }
-
-        const observationId = snapshot.unresolvedMissileObservationIds[0];
-
-        if (!observationId) {
-            return undefined;
-        }
-
-        const missileThreat = snapshot.threats.find((threat) => {
-            return threat.kind === ENEMY_THREAT_KIND.MISSILE && threat.observationId === observationId;
-        });
-
-        return {
-            intent: {
-                kind: SHIP_CREW_TASK_KIND.IDENTIFY_THREAT,
-
-                role: OFFICER_ROLE.SCIENCE,
-
-                observationId,
-            },
-
-            actionDurationMs: ENEMY_BEHAVIOR_RULES.threat_identification.durationMs,
-
-            estimatedDeadlineMs:
-                missileThreat?.kind === ENEMY_THREAT_KIND.MISSILE ? missileThreat.estimatedTimeToImpactMs : undefined,
         };
     }
 

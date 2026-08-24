@@ -1,6 +1,5 @@
 // src/engine/encounter/combat/enemy/EnemyWorkExecutor.ts
 
-import { ENEMY_BEHAVIOR_RULES } from "../../../content/catalogs/enemy_behavior_rules";
 import { DEFENSE_TURRETS } from "../../../content/catalogs/defense_turrets";
 import { SHIP_WEAPONS } from "../../../content/catalogs/ship_weapons";
 import { getTimedOfficerTaskDurationMs } from "../../../content/catalogs/officer_tasks";
@@ -18,7 +17,6 @@ import { getActiveCrewProgressEffects } from "../../crew_performance/get_active_
 import { COMBAT_SOURCE_KIND, COMBAT_TARGET_KIND } from "../../model/combat";
 import { ENEMY_THREAT_KIND } from "../../model/enemy_threat_observation";
 import { ENCOUNTER_EVENT, type EncounterEvent } from "../../model/event";
-import { MISSILE_SIGNATURE_INTEL_STATUS } from "../../model/missile_signature_intel";
 import { SHIP_CREW_TASK_KIND } from "../../model/ship_crew_task";
 import type { EncounterState } from "../../model/state";
 import { spendPowerCoreCharge } from "../power_core/spend_power_core_charge";
@@ -66,11 +64,6 @@ export default class EnemyWorkExecutor {
 
             case SHIP_CREW_TASK_KIND.CLEAR_STICKY_MINE:
                 this.startStickyMineClearing(actor, intent);
-
-                return;
-
-            case SHIP_CREW_TASK_KIND.IDENTIFY_THREAT:
-                this.startThreatIdentification(actor, intent);
 
                 return;
 
@@ -193,32 +186,6 @@ export default class EnemyWorkExecutor {
             elapsedMs: 0,
 
             durationMs: getTimedOfficerTaskDurationMs(OFFICER_TASK_KIND.SCIENCE_PURGE_SPAM),
-        });
-    }
-
-    private startThreatIdentification(
-        actor: ShipEncounterActorState,
-        intent: Extract<
-            EnemyWorkIntent,
-            {
-                kind: typeof SHIP_CREW_TASK_KIND.IDENTIFY_THREAT;
-            }
-        >,
-    ): void {
-        const observation = actor.threatObservations.find((candidate) => {
-            return candidate.id === intent.observationId;
-        });
-
-        if (!observation || observation.report?.status === MISSILE_SIGNATURE_INTEL_STATUS.CONFIRMED) {
-            throw new Error("Cannot start enemy threat " + "identification: " + actor.id + "/" + intent.observationId);
-        }
-
-        this.crewTaskRunner.start(actor, {
-            ...intent,
-
-            elapsedMs: 0,
-
-            durationMs: ENEMY_BEHAVIOR_RULES.threat_identification.durationMs,
         });
     }
 

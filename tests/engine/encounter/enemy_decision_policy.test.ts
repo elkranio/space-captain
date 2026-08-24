@@ -373,38 +373,6 @@ describe(
         );
 
         it(
-            'uses idle Science to identify an unresolved missile when offense is absent',
-            () => {
-                const snapshot =
-                    createSnapshot();
-
-                snapshot.weapons = [];
-
-                snapshot
-                    .unresolvedMissileObservationIds = [
-                        'missile:projectile_00',
-                    ];
-
-                expect(
-                    new EnemyDecisionPolicy()
-                        .selectWork(
-                            snapshot,
-                        ),
-                ).toEqual({
-                    kind:
-                        SHIP_CREW_TASK_KIND
-                            .IDENTIFY_THREAT,
-
-                    role:
-                        OFFICER_ROLE.SCIENCE,
-
-                    observationId:
-                        'missile:projectile_00',
-                });
-            },
-        );
-
-        it(
             'attacks without aggression RNG when the same-role defense remains reachable afterwards',
             () => {
                 const snapshot =
@@ -758,9 +726,6 @@ function createSnapshot():
         ],
 
         claimedStickyMineIds: [],
-
-        unresolvedMissileObservationIds:
-            [],
 
         weapons: [
             {
