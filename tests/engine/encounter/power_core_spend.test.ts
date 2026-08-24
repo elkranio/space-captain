@@ -15,7 +15,7 @@ describe(
     'Power Core spending',
     () => {
         it(
-            'spends multiple charges atomically and restarts sequential recharge',
+            'spends multiple charges atomically and preserves sequential recharge progress',
             () => {
                 const powerCore =
                     createPowerCore({
@@ -32,7 +32,7 @@ describe(
                 ).toEqual({
                     ...powerCore,
                     charges: 2,
-                    rechargeElapsedMs: 0,
+                    rechargeElapsedMs: 700,
                 });
 
                 expect(powerCore).toEqual({
@@ -40,7 +40,7 @@ describe(
                     powerCoreId:
                         'power_core_test_definition',
                     charges: 2,
-                    rechargeElapsedMs: 0,
+                    rechargeElapsedMs: 700,
                 });
             },
         );
@@ -109,7 +109,7 @@ describe(
         );
 
         it(
-            'keeps the existing one-charge helper semantics',
+            'preserves recharge progress through the one-charge helper',
             () => {
                 const powerCore =
                     createPowerCore({
@@ -127,7 +127,7 @@ describe(
                     powerCoreId:
                         'power_core_test_definition',
                     charges: 1,
-                    rechargeElapsedMs: 0,
+                    rechargeElapsedMs: 300,
                 });
             },
         );

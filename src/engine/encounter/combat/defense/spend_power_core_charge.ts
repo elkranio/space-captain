@@ -4,9 +4,9 @@ import type { PowerCoreState } from "../../../defs/power_core";
 
 // One mutation rule for every defensive consumer.
 //
-// Spending Power Core charges restarts the sequential recharge
-// of the next charge. Defensive consumers share this resource
-// instead of owning separate energy pools.
+// Spending Power Core charges preserves the sequential recharge
+// progress of the next charge. Defensive consumers share this
+// resource instead of owning separate energy pools.
 export function spendPowerCoreCharges(powerCore: PowerCoreState, count: number): PowerCoreState {
     if (!Number.isInteger(count) || count <= 0) {
         throw new Error("Power Core spend count must be a positive integer: " + String(count));
@@ -21,8 +21,6 @@ export function spendPowerCoreCharges(powerCore: PowerCoreState, count: number):
     }
 
     powerCore.charges -= count;
-
-    powerCore.rechargeElapsedMs = 0;
 
     return {
         ...powerCore,
