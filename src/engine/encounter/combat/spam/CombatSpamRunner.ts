@@ -1,4 +1,4 @@
-import { SHIP_WEAPONS } from "../../../../content/catalogs/ship_weapons";
+import { SHIP_WEAPONS } from "../../../content/catalogs/ship_weapons";
 import {
     advanceShipWeaponCooldown,
     finishShipWeaponAction,
@@ -6,13 +6,13 @@ import {
     SHIP_WEAPON_PHASE,
     type SpamProjectorDefinition,
     type SpamProjectorState,
-} from "../../../../defs/ship_weapon";
-import type { ShipEncounterActorState } from "../../../actors/ship_encounter_actor";
-import { SPAM_CHANNEL_OUTCOME, type SpamChannelOutcome, type SpamChannelState } from "../../../model/combat";
-import { ENCOUNTER_EVENT, type EncounterEvent } from "../../../model/event";
-import type { EncounterState } from "../../../model/state";
-import EncounterStateStore from "../../../state/EncounterStateStore";
-import CombatRuntimeIdentityFactory from "../../CombatRuntimeIdentityFactory";
+} from "../../../defs/ship_weapon";
+import type { ShipEncounterActorState } from "../../actors/ship_encounter_actor";
+import { SPAM_CHANNEL_OUTCOME, type SpamChannelOutcome, type SpamChannelState } from "../../model/combat";
+import { ENCOUNTER_EVENT, type EncounterEvent } from "../../model/event";
+import type { EncounterState } from "../../model/state";
+import EncounterStateStore from "../../state/EncounterStateStore";
+import CombatRuntimeIdentityFactory from "../CombatRuntimeIdentityFactory";
 
 type CombatSpamRunnerOptions = {
     stateStore: EncounterStateStore;

@@ -1,20 +1,20 @@
 // src/engine/encounter/combat/PlayerSpamProjectorRunner.ts
 
-import { SHIP_WEAPONS } from "../../../../content/catalogs/ship_weapons";
-import { ENCOUNTER_TEAM } from "../../../../defs/encounter_team";
-import { OFFICER_ROLE } from "../../../../defs/officer";
+import { SHIP_WEAPONS } from "../../../content/catalogs/ship_weapons";
+import { ENCOUNTER_TEAM } from "../../../defs/encounter_team";
+import { OFFICER_ROLE } from "../../../defs/officer";
 import {
     finishShipWeaponAction,
     SHIP_WEAPON_KIND,
     SHIP_WEAPON_PHASE,
     type SpamProjectorDefinition,
     type SpamProjectorState,
-} from "../../../../defs/ship_weapon";
-import { PLAYER_SPAM_CHANNEL_OUTCOME } from "../../../model/combat";
-import { ENCOUNTER_EVENT, type EncounterEvent } from "../../../model/event";
-import { OFFICER_TASK_KIND, type OfficerTaskState } from "../../../model/officer_task";
-import type EncounterStateStore from "../../../state/EncounterStateStore";
-import type OfficerTaskRunner from "../../../officer_tasks/OfficerTaskRunner";
+} from "../../../defs/ship_weapon";
+import { PLAYER_SPAM_CHANNEL_OUTCOME } from "../../model/combat";
+import { ENCOUNTER_EVENT, type EncounterEvent } from "../../model/event";
+import { OFFICER_TASK_KIND, type OfficerTaskState } from "../../model/officer_task";
+import type EncounterStateStore from "../../state/EncounterStateStore";
+import type OfficerTaskRunner from "../../officer_tasks/OfficerTaskRunner";
 
 type ScienceFireSpamTaskState = Extract<
     OfficerTaskState,

@@ -11,7 +11,7 @@ import type OfficerTaskRunner from "../../officer_tasks/OfficerTaskRunner";
 import type CombatRunner from "../CombatRunner";
 import PlayerBeamCannonRunner from "../beam_cannon/PlayerBeamCannonRunner";
 import PlayerMissileLauncherRunner from "../missile/PlayerMissileLauncherRunner";
-import PlayerSpamProjectorRunner from "./spam/PlayerSpamProjectorRunner";
+import PlayerSpamProjectorRunner from "../spam/PlayerSpamProjectorRunner";
 import PlayerStickyMineDispenserRunner from "../sticky_mine/PlayerStickyMineDispenserRunner";
 
 type PlayerWeaponRunnerOptions = {

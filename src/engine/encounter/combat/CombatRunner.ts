@@ -12,7 +12,7 @@ import EnemyShieldRunner from "./shield/EnemyShieldRunner";
 import CombatMissileRunner, { type PlayerMissileLaunchInput } from "./missile/CombatMissileRunner";
 import CombatRuntimeIdentityFactory from "./CombatRuntimeIdentityFactory";
 import { getActorCrewProgressMultiplier } from "../crew_performance/get_crew_progress_multiplier";
-import CombatSpamRunner from "./weapons/spam/CombatSpamRunner";
+import CombatSpamRunner from "./spam/CombatSpamRunner";
 import CombatStickyMineRunner, { type PlayerStickyMineAttachInput } from "./sticky_mine/CombatStickyMineRunner";
 import EnemyBehaviorRunner from "./enemy/EnemyBehaviorRunner";
 
