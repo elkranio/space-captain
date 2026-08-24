@@ -21,7 +21,7 @@ import { ENCOUNTER_EVENT, type EncounterEvent } from "../../model/event";
 import { MISSILE_SIGNATURE_INTEL_STATUS } from "../../model/missile_signature_intel";
 import { SHIP_CREW_TASK_KIND } from "../../model/ship_crew_task";
 import type { EncounterState } from "../../model/state";
-import { spendPowerCoreCharge } from "../defense/spend_power_core_charge";
+import { spendPowerCoreCharge } from "../power_core/spend_power_core_charge";
 import EnemyCrewTaskRunner from "./EnemyCrewTaskRunner";
 import type { EnemyWorkIntent } from "./EnemyDecisionPolicy";
 

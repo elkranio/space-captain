@@ -14,7 +14,7 @@ import type { SpaceNodeState } from "../defs/universe";
 import CombatEngagementRunner from "./combat/CombatEngagementRunner";
 import type { EnemyDebugSnapshot } from "./debug/get_enemy_debug_snapshots";
 import CombatRunner from "./combat/CombatRunner";
-import PowerCoreRunner from "./combat/defense/PowerCoreRunner";
+import PowerCoreRunner from "./combat/power_core/PowerCoreRunner";
 import ShieldGeneratorRunner from "./combat/defense/ShieldGeneratorRunner";
 import PlayerDefenseTurretRunner from "./combat/defense_turret/PlayerDefenseTurretRunner";
 import type { EnemyShipTelemetrySnapshot } from "./combat/queries/get_enemy_ship_telemetry_snapshots";

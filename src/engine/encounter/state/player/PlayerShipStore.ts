@@ -29,7 +29,7 @@ import {
 import {
     spendPowerCoreCharge as spendInstalledPowerCoreCharge,
     spendPowerCoreCharges as spendInstalledPowerCoreCharges,
-} from "../../combat/defense/spend_power_core_charge";
+} from "../../combat/power_core/spend_power_core_charge";
 import type { ActiveShieldState, BeamCannonTargetNode } from "../../model/combat";
 import type { EncounterShipDriveState, EncounterState } from "../../model/state";
 

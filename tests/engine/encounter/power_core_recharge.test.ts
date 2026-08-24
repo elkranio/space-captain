@@ -13,7 +13,7 @@ import {
 } from '../../../src/engine/defs/power_core';
 import {
     spendPowerCoreCharge,
-} from '../../../src/engine/encounter/combat/defense/spend_power_core_charge';
+} from '../../../src/engine/encounter/combat/power_core/spend_power_core_charge';
 import {
     createAnchoredPlayerCombatTestSetup,
 } from './combat_test_support';

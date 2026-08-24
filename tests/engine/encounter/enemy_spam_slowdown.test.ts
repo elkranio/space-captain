@@ -29,7 +29,7 @@ import {
 import MissileLauncherFactory from '../../../src/engine/generation/ship_weapon/MissileLauncherFactory';
 import {
     spendPowerCoreCharge,
-} from '../../../src/engine/encounter/combat/defense/spend_power_core_charge';
+} from '../../../src/engine/encounter/combat/power_core/spend_power_core_charge';
 import {
     getActiveCrewProgressEffects,
 } from '../../../src/engine/encounter/crew_performance/get_active_crew_progress_effects';

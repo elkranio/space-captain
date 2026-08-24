@@ -1,4 +1,4 @@
-// src/engine/encounter/combat/defense/spend_power_core_charge.ts
+// src/engine/encounter/combat/power_core/spend_power_core_charge.ts
 
 import type { PowerCoreState } from "../../../defs/power_core";
 

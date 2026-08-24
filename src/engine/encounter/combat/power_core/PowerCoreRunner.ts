@@ -1,4 +1,4 @@
-// src/engine/encounter/combat/defense/PowerCoreRunner.ts
+// src/engine/encounter/combat/power_core/PowerCoreRunner.ts
 
 import { POWER_CORES } from "../../../content/catalogs/power_cores";
 import type { PowerCoreState } from "../../../defs/power_core";

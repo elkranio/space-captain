@@ -9,7 +9,7 @@ import type {
 import {
     spendPowerCoreCharge,
     spendPowerCoreCharges,
-} from '../../../src/engine/encounter/combat/defense/spend_power_core_charge';
+} from '../../../src/engine/encounter/combat/power_core/spend_power_core_charge';
 
 describe(
     'Power Core spending',
