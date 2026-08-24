@@ -39,6 +39,22 @@ There is no player-facing mandatory Science TRACK/IDENTIFY step for normal threa
 Enemy observer/Science systems remain separate and may still reason from perceived information rather
 than objective truth.
 
+## Current ship/loadout shape
+
+There is no generic chassis-slot runtime yet.
+
+Current implementation truth:
+
+- persistent enemy ship actors carry `chassisId`;
+- persistent player ship state does not yet carry `chassisId`;
+- player debug start still configures `maxHull` separately and assumes four weapon fields;
+- weapons are installed as `ShipWeaponState[]`;
+- Drive, Defense Turret, Power Core and Shield Generator remain dedicated scalar fields;
+- current encounter module damage is special-cased around Drive rather than generic targetable slots.
+
+This is expected to change in the next chassis-slot implementation slice. Do not infer the future slot design from these
+temporary storage shapes.
+
 ## Weapon lifecycle and cooldown commitment
 
 Reaction time comes from each weapon's real lifecycle rather than a universal fake pre-warning phase.
@@ -136,16 +152,19 @@ Player BASIC contract:
 - if the Weapons task completes while the target Missile still exists, interception is guaranteed;
 - no player Science hypothesis/percentage/tier is required.
 
-Enemy Defense Turret remains a separate probabilistic/observer-driven mechanic. Do not copy the player's BASIC guarantee
-into enemy logic merely for symmetry.
+Enemy Defense Turret uses its own loading/crew decision path, but current physical shot resolution is also
+deterministic: if loading completes against the still-live player Missile, the shot resolves as `HIT`.
+
+`HIT | MISS` remains a meaningful outcome contract for future accuracy/crew/tier mechanics, but there is no current
+random interception roll.
 
 ## Missile Launcher / Missiles
 
 Missile Launcher content owns damage, targeting duration, flight duration, ammo capacity and cooldown. A launched
 projectile copies the physical values needed for its autonomous lifecycle.
 
-Hidden objective Missile signature truth may still exist for enemy observer/Science/Defense Turret behavior. It is not a
-player-facing TRACK/IDENTIFY state.
+The old Missile signature / Science hypothesis / blind-intercept runtime has been removed. Current Missile projectiles
+carry only the physical snapshot needed for their autonomous lifecycle.
 
 ## Beam Cannon
 

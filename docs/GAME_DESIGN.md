@@ -244,6 +244,24 @@ stun               = current task stops; officer is unavailable for a duration
 
 Control effects must not create easy permanent role lockouts.
 
+#### Early-combat baseline
+
+Opening combat should establish the loop without becoming a tax.
+
+For a weak/basic player ship against a weak/basic enemy:
+
+- reasonable play should win almost every time;
+- the fight should be short;
+- "easy but long" is a design failure;
+- the player should not spend long stretches waiting to shave predictable Hull from an enemy that cannot realistically
+  win.
+
+Basic/unupgraded weapon families should not be trap choices in this phase. They do not need identical damage curves or
+solo time-to-kill, but each must support a useful combat plan.
+
+In particular, Beam precision/control must not make Beam strictly superior to Missile. Missile direct Hull pressure,
+timing, ammunition and defense interactions should provide a competing reason to use it.
+
 ### 4.2 Ship state and damage
 
 Central model:
@@ -255,6 +273,61 @@ Central model:
 Every ship has Hull. At zero Hull the ship is destroyed. Player destruction ends the run.
 
 Hull damage persists between encounters and is repaired through external run opportunities such as stations.
+
+#### Chassis, slots and loadout
+
+A chassis defines the physical build shape of a ship. A loadout/preset fills that shape; the loadout does not invent
+extra
+mounting points.
+
+Baseline slot categories:
+
+```text
+WEAPON
+DEFENSE
+EQUIPMENT
+```
+
+Different chassis may expose different counts and combinations of these slots. Do not make "four weapon slots" a
+universal
+ship rule merely because the current debug start has four weapon fields.
+
+Each slot has stable identity on the ship so installed hardware, combat targeting and presentation can refer to the same
+place without reconstructing it from array position.
+
+Targetable slot integrity is encounter-local and binary in functionality:
+
+```text
+integrity > 0 -> OPERATIONAL
+integrity = 0 -> BROKEN
+```
+
+A BROKEN targetable slot disables the hardware installed in it until repaired. The broken/operational fact must have one
+authoritative domain owner; command availability, AI and physical runners should not maintain parallel booleans.
+
+Hull is not a slot.
+
+Power Core remains non-breakable and non-targetable even as ship loadout/build structure becomes more configurable.
+
+For player Beam targeting, the intended semantic target is:
+
+```text
+HULL
+or
+SLOT(slotId)
+```
+
+Beam slot resolution is deliberately asymmetric across the first and repeated hit:
+
+- hitting an OPERATIONAL slot deals module damage and no Hull damage;
+- a hit that reduces the slot to BROKEN still does not spill damage into Hull;
+- hitting an already BROKEN slot deals `hullDamage * 2`.
+
+The exact slot durability, Beam damage and chassis layouts are tuning/content.
+
+Do not generalize every currently scalar installed system into arbitrary arrays until a real chassis/loadout needs that
+multiplicity. The slot model should remove fixed-layout assumptions without creating a generic equipment framework for
+hypothetical content.
 
 #### Modules
 
@@ -280,13 +353,8 @@ when they have real domain identity and consequences.
 
 Power Core is intentionally non-breakable and non-targetable.
 
-For Beam-style module attacks:
-
-- hitting an operational module deals module damage and does not spill into Hull;
-- a hit that breaks the module still does not spill over;
-- repeated attacks on an already BROKEN module should be punitive rather than making it a safe trash target.
-
-Exact punitive damage is tuning.
+For Beam-style module attacks, use the chassis-slot rules above. A targetable installed module is disabled by its
+authoritative slot becoming BROKEN; do not create a second module-broken truth beside the slot state.
 
 ### 4.3 Officer tasks in combat
 

@@ -48,9 +48,12 @@ If a new sprite/raw asset is required for an atom, say so before coding that ato
 For tracked text/source changes, use a Git patch generated from the exact current source state.
 
 - Re-fetch current `master` before preparing the patch.
-- Do not hand-author hunk headers or approximate context.
-- Validate with `git apply --check` against the expected source state whenever
-  practical.
+- For ordinary edits, obtain the **full exact current contents of every touched file** before building the patch.
+- Do not use reconstructed, sparse, line-positioned, synthetic-padding or approximate preimages for normal source edits.
+- Generate hunks with a real `git diff`; do not hand-author hunk headers or approximate context.
+- Structural moves should use full exact preimages plus real `git mv`/`git diff`.
+- If a full exact preimage cannot be obtained, fetch it or reduce the patch scope instead of fabricating context.
+- Validate with `git apply --check` against a clean copy of the same exact preimages before delivery.
 - The user normally applies, validates, commits and pushes.
 
 Normal flow:
