@@ -8,7 +8,7 @@ import {
 import {
     DEBUG_START,
 } from '../../../src/engine/content/catalogs/debug_start';
-import NewGameUniverseFactory from '../../../src/engine/content/new_game/NewGameUniverseFactory';
+import NewGameUniverseFactory from '../../../src/engine/generation/new_game/NewGameUniverseFactory';
 import {
     OFFICER_ROLE,
 } from '../../../src/engine/defs/officer';

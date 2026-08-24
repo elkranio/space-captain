@@ -11,7 +11,7 @@ import {
 } from '../../../src/engine/content/catalogs/ship_weapons';
 import {
     createNewRunState,
-} from '../../../src/engine/content/new_game/create_new_run_state';
+} from '../../../src/engine/generation/new_game/create_new_run_state';
 import {
     ENCOUNTER_TEAM,
 } from '../../../src/engine/defs/encounter_team';

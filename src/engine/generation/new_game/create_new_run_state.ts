@@ -1,4 +1,4 @@
-// src/engine/content/new_game/create_new_run_state.ts
+// src/engine/generation/new_game/create_new_run_state.ts
 
 import type { RunState } from "../../defs/run";
 import { createNewGamePlayer } from "./create_new_game_player";

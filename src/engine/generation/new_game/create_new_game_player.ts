@@ -1,4 +1,4 @@
-// src/engine/content/new_game/create_new_game_player.ts
+// src/engine/generation/new_game/create_new_game_player.ts
 
 import type { PlayerState } from "../../defs/player";
 import type { PlayerLocationState } from "../../defs/player_location";

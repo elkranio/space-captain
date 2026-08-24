@@ -2,7 +2,7 @@
 
 import { POWER_CORES } from "../../engine/content/catalogs/power_cores";
 import { SHIELD_GENERATORS } from "../../engine/content/catalogs/shield_generators";
-import { createNewRunState } from "../../engine/content/new_game/create_new_run_state";
+import { createNewRunState } from "../../engine/generation/new_game/create_new_run_state";
 import type { PowerCoreState } from "../../engine/defs/power_core";
 import {
     PLAYER_LOCATION_KIND,

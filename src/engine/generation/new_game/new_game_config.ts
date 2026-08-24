@@ -1,4 +1,4 @@
-// src/engine/content/new_game/new_game_config.ts
+// src/engine/generation/new_game/new_game_config.ts
 
 import { OFFICER_PORTRAIT_ID, OFFICER_ROLE, type OfficerDefinition, type OfficerRole } from "../../defs/officer";
 import type { NewGamePlayerLocations } from "./NewGameUniverseFactory";

@@ -1,20 +1,20 @@
-// src/engine/content/new_game/debug_start_ship_factory.ts
+// src/engine/generation/new_game/debug_start_ship_factory.ts
 
-import { DEBUG_START } from "../catalogs/debug_start";
-import { SHIP_CHASSIS } from "../catalogs/ship_chassis";
-import { SHIP_DRIVES } from "../catalogs/ship_drives";
-import { SHIP_WEAPONS } from "../catalogs/ship_weapons";
+import { DEBUG_START } from "../../content/catalogs/debug_start";
+import { SHIP_CHASSIS } from "../../content/catalogs/ship_chassis";
+import { SHIP_DRIVES } from "../../content/catalogs/ship_drives";
+import { SHIP_WEAPONS } from "../../content/catalogs/ship_weapons";
 import type { PlayerShipState } from "../../defs/player";
 import { SHIP_DRIVE_STATUS } from "../../defs/ship_drive";
 import { SHIP_WEAPON_KIND, type ShipWeaponKind, type ShipWeaponState } from "../../defs/ship_weapon";
-import PowerCoreFactory from "../../generation/ship_system/PowerCoreFactory";
-import ShipDefenseTurretFactory from "../../generation/ship_system/ShipDefenseTurretFactory";
-import ShieldGeneratorFactory from "../../generation/ship_system/ShieldGeneratorFactory";
-import type { CreatedShipState } from "../../generation/ship/ShipFactory";
-import BeamCannonFactory from "../../generation/ship_weapon/BeamCannonFactory";
-import MissileLauncherFactory from "../../generation/ship_weapon/MissileLauncherFactory";
-import SpamProjectorFactory from "../../generation/ship_weapon/SpamProjectorFactory";
-import StickyMineDispenserFactory from "../../generation/ship_weapon/StickyMineDispenserFactory";
+import PowerCoreFactory from "../ship_system/PowerCoreFactory";
+import ShipDefenseTurretFactory from "../ship_system/ShipDefenseTurretFactory";
+import ShieldGeneratorFactory from "../ship_system/ShieldGeneratorFactory";
+import type { CreatedShipState } from "../ship/ShipFactory";
+import BeamCannonFactory from "../ship_weapon/BeamCannonFactory";
+import MissileLauncherFactory from "../ship_weapon/MissileLauncherFactory";
+import SpamProjectorFactory from "../ship_weapon/SpamProjectorFactory";
+import StickyMineDispenserFactory from "../ship_weapon/StickyMineDispenserFactory";
 
 const DEBUG_START_SYSTEM_ID = {
     PLAYER: {
