@@ -1,20 +1,20 @@
-// src/engine/encounter/state/player/PlayerShipStore.ts
+// src/engine/encounter/state/PlayerShipStore.ts
 
-import type { PowerCoreState } from "../../../defs/power_core";
-import type { PlayerHullDamageResult } from "../../../defs/player";
+import type { PowerCoreState } from "../../defs/power_core";
+import type { PlayerHullDamageResult } from "../../defs/player";
 import {
     commitDefenseTurretCooldown,
     DEFENSE_TURRET_PHASE,
     DEFENSE_TURRET_SHOT_OUTCOME,
     type DefenseTurretShotOutcome,
-} from "../../../defs/defense_turret";
-import { SHIP_WEAPONS } from "../../../content/catalogs/ship_weapons";
-import { SHIP_DRIVES } from "../../../content/catalogs/ship_drives";
-import { SHIP_DRIVE_STATUS } from "../../../defs/ship_drive";
-import { advanceShipEvade, startShipEvade, stopShipEvade } from "../../../defs/ship_evade";
-import { SHIELD_GENERATORS } from "../../../content/catalogs/shield_generators";
-import { DEFENSE_TURRETS } from "../../../content/catalogs/defense_turrets";
-import { SHIELD_GENERATOR_PHASE, SHIELD_GENERATOR_STATUS } from "../../../defs/shield_generator";
+} from "../../defs/defense_turret";
+import { SHIP_WEAPONS } from "../../content/catalogs/ship_weapons";
+import { SHIP_DRIVES } from "../../content/catalogs/ship_drives";
+import { SHIP_DRIVE_STATUS } from "../../defs/ship_drive";
+import { advanceShipEvade, startShipEvade, stopShipEvade } from "../../defs/ship_evade";
+import { SHIELD_GENERATORS } from "../../content/catalogs/shield_generators";
+import { DEFENSE_TURRETS } from "../../content/catalogs/defense_turrets";
+import { SHIELD_GENERATOR_PHASE, SHIELD_GENERATOR_STATUS } from "../../defs/shield_generator";
 import {
     commitShipWeaponCooldown,
     finishShipWeaponAction,
@@ -25,13 +25,13 @@ import {
     type ShipWeaponState,
     type SpamProjectorState,
     type StickyMineDispenserState,
-} from "../../../defs/ship_weapon";
+} from "../../defs/ship_weapon";
 import {
     spendPowerCoreCharge as spendInstalledPowerCoreCharge,
     spendPowerCoreCharges as spendInstalledPowerCoreCharges,
-} from "../../combat/power_core/spend_power_core_charge";
-import type { ActiveShieldState, BeamCannonTargetNode } from "../../model/combat";
-import type { EncounterShipDriveState, EncounterState } from "../../model/state";
+} from "../combat/power_core/spend_power_core_charge";
+import type { ActiveShieldState, BeamCannonTargetNode } from "../model/combat";
+import type { EncounterShipDriveState, EncounterState } from "../model/state";
 
 // Owns player hull, drive and combat-system mutations.
 export default class PlayerShipStore {

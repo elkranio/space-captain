@@ -22,11 +22,11 @@ import type { EncounterShipDriveState, EncounterState } from "../model/state";
 import EncounterActorStore, {
     type EnemyHullDamageResult,
     type SpawnShipActorInput,
-} from "./actors/EncounterActorStore";
+} from "./EncounterActorStore";
 import { createEncounterState, type CreateEncounterStateInput } from "./create_encounter_state";
-import EncounterNavigationStore, { type EncounterTravelStart } from "./navigation/EncounterNavigationStore";
-import OfficerTaskStore from "./officer_tasks/OfficerTaskStore";
-import PlayerShipStore from "./player/PlayerShipStore";
+import EncounterNavigationStore, { type EncounterTravelStart } from "./EncounterNavigationStore";
+import OfficerTaskStore from "./OfficerTaskStore";
+import PlayerShipStore from "./PlayerShipStore";
 
 export type { EnemyHullDamageResult, EncounterTravelStart, SpawnShipActorInput };
 

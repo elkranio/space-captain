@@ -1,26 +1,26 @@
-// src/engine/encounter/state/actors/EncounterActorStore.ts
+// src/engine/encounter/state/EncounterActorStore.ts
 
-import { SHIP_CHASSIS } from "../../../content/catalogs/ship_chassis";
-import { SHIP_DRIVES } from "../../../content/catalogs/ship_drives";
-import type { CrewTraitsByRole } from "../../../defs/crew_trait";
-import type { PowerCoreState } from "../../../defs/power_core";
-import { ENCOUNTER_TEAM, type EncounterTeam } from "../../../defs/encounter_team";
-import type { OfficerRole } from "../../../defs/officer";
-import type { ShipDefenseTurretState } from "../../../defs/defense_turret";
-import type { ShipBehaviorState } from "../../../defs/ship_behavior";
+import { SHIP_CHASSIS } from "../../content/catalogs/ship_chassis";
+import { SHIP_DRIVES } from "../../content/catalogs/ship_drives";
+import type { CrewTraitsByRole } from "../../defs/crew_trait";
+import type { PowerCoreState } from "../../defs/power_core";
+import { ENCOUNTER_TEAM, type EncounterTeam } from "../../defs/encounter_team";
+import type { OfficerRole } from "../../defs/officer";
+import type { ShipDefenseTurretState } from "../../defs/defense_turret";
+import type { ShipBehaviorState } from "../../defs/ship_behavior";
 
-import { SHIP_DRIVE_STATUS, type ShipDriveState } from "../../../defs/ship_drive";
+import { SHIP_DRIVE_STATUS, type ShipDriveState } from "../../defs/ship_drive";
 import {
     advanceShipEvade,
     createReadyShipEvadeState,
     SHIP_EVADE_PHASE,
     startShipEvade,
-} from "../../../defs/ship_evade";
-import type { ShipWeaponState } from "../../../defs/ship_weapon";
-import type { ShieldGeneratorState } from "../../../defs/shield_generator";
-import { ENCOUNTER_ACTOR_KIND, type EncounterActorState } from "../../actors/encounter_actor";
-import type { ShipEncounterActorState } from "../../actors/ship_encounter_actor";
-import type { EncounterState } from "../../model/state";
+} from "../../defs/ship_evade";
+import type { ShipWeaponState } from "../../defs/ship_weapon";
+import type { ShieldGeneratorState } from "../../defs/shield_generator";
+import { ENCOUNTER_ACTOR_KIND, type EncounterActorState } from "../actors/encounter_actor";
+import type { ShipEncounterActorState } from "../actors/ship_encounter_actor";
+import type { EncounterState } from "../model/state";
 
 export type EnemyHullDamageResult = {
     appliedDamage: number;

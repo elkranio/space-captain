@@ -1,11 +1,11 @@
-// src/engine/encounter/state/navigation/EncounterNavigationStore.ts
+// src/engine/encounter/state/EncounterNavigationStore.ts
 
-import { JUMP_POINT_OBJECT_SPRITE_ID } from "../../../defs/jump_point";
-import { PLAYER_SPACE_NAVIGATION_KIND, type PlayerSpaceNavigationState } from "../../../defs/player_location";
-import { doesShipWeaponPhaseRequireOperator, SHIP_WEAPON_KIND, SHIP_WEAPON_PHASE } from "../../../defs/ship_weapon";
-import { ENCOUNTER_ANCHOR_KIND, type EncounterAnchorState } from "../../anchors/encounter_anchor";
-import type { JumpPointEncounterAnchorState } from "../../anchors/jump_point_encounter_anchor";
-import type { EncounterState } from "../../model/state";
+import { JUMP_POINT_OBJECT_SPRITE_ID } from "../../defs/jump_point";
+import { PLAYER_SPACE_NAVIGATION_KIND, type PlayerSpaceNavigationState } from "../../defs/player_location";
+import { doesShipWeaponPhaseRequireOperator, SHIP_WEAPON_KIND, SHIP_WEAPON_PHASE } from "../../defs/ship_weapon";
+import { ENCOUNTER_ANCHOR_KIND, type EncounterAnchorState } from "../anchors/encounter_anchor";
+import type { JumpPointEncounterAnchorState } from "../anchors/jump_point_encounter_anchor";
+import type { EncounterState } from "../model/state";
 
 export type EncounterTravelStart = {
     fromAnchorId: string;

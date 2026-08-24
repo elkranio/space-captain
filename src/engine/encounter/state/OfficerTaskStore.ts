@@ -1,8 +1,8 @@
-// src/engine/encounter/state/officer_tasks/OfficerTaskStore.ts
+// src/engine/encounter/state/OfficerTaskStore.ts
 
-import type { OfficerRole } from "../../../defs/officer";
-import type { OfficerTaskState } from "../../model/officer_task";
-import type { EncounterState } from "../../model/state";
+import type { OfficerRole } from "../../defs/officer";
+import type { OfficerTaskState } from "../model/officer_task";
+import type { EncounterState } from "../model/state";
 
 // Owns mutable player officer-task storage.
 export default class OfficerTaskStore {
