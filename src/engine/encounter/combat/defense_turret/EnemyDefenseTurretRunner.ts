@@ -13,7 +13,7 @@ import { COMBAT_SOURCE_KIND, COMBAT_TARGET_KIND, type MissileCombatProjectileSta
 import { ENEMY_THREAT_KIND, ENEMY_THREAT_SOURCE_KIND } from "../../model/enemy_threat_observation";
 import { ENCOUNTER_EVENT, type EncounterEvent } from "../../model/event";
 import type { EncounterState } from "../../model/state";
-import type CombatMissileRunner from "../weapons/missile/CombatMissileRunner";
+import type CombatMissileRunner from "../missile/CombatMissileRunner";
 import { resolveMissileInterception } from "./resolve_missile_interception";
 
 type EnemyDefenseTurretRunnerOptions = {

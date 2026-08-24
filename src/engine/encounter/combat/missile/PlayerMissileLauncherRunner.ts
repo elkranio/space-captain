@@ -1,16 +1,16 @@
-import { SHIP_WEAPONS } from "../../../../content/catalogs/ship_weapons";
-import { ENCOUNTER_TEAM } from "../../../../defs/encounter_team";
+import { SHIP_WEAPONS } from "../../../content/catalogs/ship_weapons";
+import { ENCOUNTER_TEAM } from "../../../defs/encounter_team";
 import {
     commitShipWeaponCooldown,
     finishShipWeaponAction,
     SHIP_WEAPON_KIND,
     SHIP_WEAPON_PHASE,
     type MissileLauncherState,
-} from "../../../../defs/ship_weapon";
-import { OFFICER_TASK_KIND, type OfficerTaskState } from "../../../model/officer_task";
-import type EncounterStateStore from "../../../state/EncounterStateStore";
-import type OfficerTaskRunner from "../../../officer_tasks/OfficerTaskRunner";
-import type CombatRunner from "../../CombatRunner";
+} from "../../../defs/ship_weapon";
+import { OFFICER_TASK_KIND, type OfficerTaskState } from "../../model/officer_task";
+import type EncounterStateStore from "../../state/EncounterStateStore";
+import type OfficerTaskRunner from "../../officer_tasks/OfficerTaskRunner";
+import type CombatRunner from "../CombatRunner";
 
 type WeaponsFireMissileTaskState = Extract<
     OfficerTaskState,
