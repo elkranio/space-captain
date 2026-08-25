@@ -5,7 +5,7 @@ import { SHIP_CHASSIS_ID } from "../../defs/ship_chassis";
 import { SHIP_DRIVE_ID } from "../../defs/ship_drive";
 import { DEFENSE_TURRET_ID } from "../../defs/defense_turret";
 import { SHIELD_GENERATOR_ID } from "../../defs/shield_generator";
-import { SHIP_WEAPON_ID, SHIP_WEAPON_KIND } from "../../defs/ship_weapon";
+import { SHIP_WEAPON_ID, SHIP_WEAPON_KIND, type ShipWeaponKind } from "../../defs/ship_weapon";
 
 export const SHIP_PRESET_ID = {
     GENERIC_MISSILE_00: "generic_missile_00",
@@ -23,58 +23,18 @@ export const SHIP_PRESET_ID = {
 
 export type ShipPresetId = (typeof SHIP_PRESET_ID)[keyof typeof SHIP_PRESET_ID];
 
-type MissileLauncherShipWeaponPreset = {
+export type ShipWeaponPreset = {
     // Runtime id установленного оружия внутри корабля.
     id: string;
 
     slotId: string;
 
-    kind: typeof SHIP_WEAPON_KIND.MISSILE_LAUNCHER;
-
-    weaponId: typeof SHIP_WEAPON_ID.MISSILE_LAUNCHER_00;
+    kind: ShipWeaponKind;
+    weaponId: string;
 };
-
-type BeamCannonShipWeaponPreset = {
-    // Runtime id установленного оружия внутри корабля.
-    id: string;
-
-    slotId: string;
-
-    kind: typeof SHIP_WEAPON_KIND.BEAM_CANNON;
-
-    weaponId: typeof SHIP_WEAPON_ID.BEAM_CANNON_00;
-};
-
-type SpamProjectorShipWeaponPreset = {
-    // Runtime id установленного оружия внутри корабля.
-    id: string;
-
-    slotId: string;
-
-    kind: typeof SHIP_WEAPON_KIND.SPAM_PROJECTOR;
-
-    weaponId: typeof SHIP_WEAPON_ID.SPAM_PROJECTOR_00;
-};
-
-type StickyMineDispenserShipWeaponPreset = {
-    // Runtime id установленного оружия внутри корабля.
-    id: string;
-
-    slotId: string;
-
-    kind: typeof SHIP_WEAPON_KIND.STICKY_MINE_DISPENSER;
-
-    weaponId: typeof SHIP_WEAPON_ID.STICKY_MINE_DISPENSER_00;
-};
-
-export type ShipWeaponPreset =
-    | MissileLauncherShipWeaponPreset
-    | BeamCannonShipWeaponPreset
-    | SpamProjectorShipWeaponPreset
-    | StickyMineDispenserShipWeaponPreset;
 
 export type ShipPreset = {
-    id: ShipPresetId;
+    id: string;
 
     chassisId: string;
 

@@ -8,6 +8,9 @@ import {
     SHIP_PRESETS,
     type ShipPreset,
 } from '../../../src/engine/content/presets/ships';
+import {
+    SHIP_WEAPON_KIND,
+} from '../../../src/engine/defs/ship_weapon';
 import ShipFactory from '../../../src/engine/generation/ship/ShipFactory';
 
 describe(
@@ -63,6 +66,46 @@ describe(
                         );
                 }).toThrow(
                     'Ship equipment slot kind mismatch: spam_projector_00/utility -> weapon_01/weapon',
+                );
+            },
+        );
+
+        it(
+            'rejects a weapon preset whose kind does not match its content id',
+            () => {
+                const source =
+                    SHIP_PRESETS[
+                        SHIP_PRESET_ID
+                            .GENERIC_MISSILE_00
+                    ];
+
+                const invalidPreset:
+                    ShipPreset = {
+                        ...source,
+
+                        weapons:
+                            source.weapons
+                                .map((weapon) => {
+                                    return {
+                                        ...weapon,
+                                        kind:
+                                            SHIP_WEAPON_KIND
+                                                .BEAM_CANNON,
+                                    };
+                                }),
+                    };
+
+                expect(() => {
+                    ShipFactory
+                        .validatePresetMounts(
+                            invalidPreset,
+                        );
+                }).toThrow(
+                    (
+                        'Ship preset weapon kind mismatch: ' +
+                        'missile_launcher_00/beam_cannon -> ' +
+                        'missile_launcher_00/missile_launcher'
+                    ),
                 );
             },
         );

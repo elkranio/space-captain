@@ -9,6 +9,9 @@ import {
     DEBUG_START,
 } from '../../../src/engine/content/catalogs/debug_start';
 import {
+    SHIP_CHASSIS,
+} from '../../../src/engine/content/catalogs/ship_chassis';
+import {
     createNewRunState,
 } from '../../../src/engine/generation/new_game/create_new_run_state';
 import {
@@ -43,11 +46,15 @@ describe('createNewRunState', () => {
             run.player.ship;
 
         expect(ship.hull).toBe(
-            DEBUG_START.player.maxHull,
+            SHIP_CHASSIS[
+                ship.chassisId
+            ].maxHull,
         );
 
         expect(ship.maxHull).toBe(
-            DEBUG_START.player.maxHull,
+            SHIP_CHASSIS[
+                ship.chassisId
+            ].maxHull,
         );
 
         expect(ship.drive.driveId).toBe(
@@ -198,7 +205,9 @@ describe('createNewRunState', () => {
             SHIP_WEAPON_PHASE.COOLDOWN;
 
         expect(secondShip.hull).toBe(
-            DEBUG_START.player.maxHull,
+            SHIP_CHASSIS[
+                secondShip.chassisId
+            ].maxHull,
         );
 
         expect(

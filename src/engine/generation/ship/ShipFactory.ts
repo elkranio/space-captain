@@ -48,8 +48,10 @@ export type CreatedShipState = {
 // из immutable chassis и ship preset.
 export default class ShipFactory {
     public static create({ presetId }: CreateShipInput): CreatedShipState {
-        const preset: ShipPreset = SHIP_PRESETS[presetId];
+        return this.createFromPreset(SHIP_PRESETS[presetId]);
+    }
 
+    public static createFromPreset(preset: ShipPreset): CreatedShipState {
         this.validatePresetMounts(preset);
 
         const chassis = SHIP_CHASSIS[preset.chassisId];
@@ -169,6 +171,19 @@ export default class ShipFactory {
 
             if (!definition) {
                 throw new Error("Ship preset references missing weapon: " + preset.id + "/" + weapon.weaponId);
+            }
+
+            if (definition.kind !== weapon.kind) {
+                throw new Error(
+                    "Ship preset weapon kind mismatch: " +
+                        weapon.id +
+                        "/" +
+                        weapon.kind +
+                        " -> " +
+                        definition.id +
+                        "/" +
+                        definition.kind,
+                );
             }
 
             this.claimSlot(chassis, occupiedSlotIds, weapon.slotId, definition.slotKind, weapon.id);

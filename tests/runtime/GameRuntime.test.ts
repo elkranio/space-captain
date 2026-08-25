@@ -12,6 +12,9 @@ import {
     DEBUG_START,
 } from '../../src/engine/content/catalogs/debug_start';
 import {
+    SHIP_CHASSIS,
+} from '../../src/engine/content/catalogs/ship_chassis';
+import {
     POWER_CORE_ID,
 } from '../../src/engine/defs/power_core';
 import {
@@ -31,13 +34,15 @@ describe('GameRuntime player ship hull', () => {
                 .ship;
 
         expect(ship.hull).toBe(
-            DEBUG_START.player
-                .maxHull,
+            SHIP_CHASSIS[
+                ship.chassisId
+            ].maxHull,
         );
 
         expect(ship.maxHull).toBe(
-            DEBUG_START.player
-                .maxHull,
+            SHIP_CHASSIS[
+                ship.chassisId
+            ].maxHull,
         );
 
         expect(

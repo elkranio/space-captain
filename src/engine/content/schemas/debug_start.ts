@@ -29,10 +29,6 @@ const WEAPON_SLOT_META = {
 export const DEBUG_START_SCHEMA = z.strictObject({
     player: z
         .strictObject({
-            maxHull: z.number().int().positive().meta({
-                title: "Max Hull",
-            }),
-
             driveId: CONTENT_ID_SCHEMA.meta({
                 title: "Drive",
 

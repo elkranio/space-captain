@@ -5,6 +5,7 @@ import { type ShipSlotDefinition } from "./ship_slot";
 // Удобные стабильные id встроенного контента.
 // Каталог при этом открыт для новых id из content editor.
 export const SHIP_CHASSIS_ID = {
+    PLAYER_00: "player_00",
     GENERIC_00: "generic_00",
 } as const;
 

@@ -19,6 +19,8 @@ export type PlayerHullDamageResult = {
 };
 
 export type PlayerShipState = PlayerHullState & {
+    chassisId: string;
+
     drive: ShipDriveState;
 
     defenseTurret: ShipDefenseTurretState;
