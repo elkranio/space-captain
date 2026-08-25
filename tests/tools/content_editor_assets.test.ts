@@ -101,10 +101,10 @@ describe(
                             'test_ship_00',
 
                         frameKey:
-                            'ships/chassis/test_ship_00',
+                            'world/ships/chassis/test_ship_00',
 
                         rawPath:
-                            'assets/raw/images/ships/chassis/test_ship_00.png',
+                            'assets/raw/images/world/ships/chassis/test_ship_00.png',
 
                         previewUrl:
                             '/__assets/ship_chassis/test_ship_00/preview',
@@ -116,7 +116,7 @@ describe(
                         await readFile(
                             path.join(
                                 root,
-                                'src/app/manifests/ships/ship_sprites.json',
+                                'src/app/manifests/world/ships/ship_sprites.json',
                             ),
                             'utf8',
                         ),
@@ -127,7 +127,7 @@ describe(
                 ).toEqual({
                     test_ship_00: {
                         frameKey:
-                            'ships/chassis/test_ship_00',
+                            'world/ships/chassis/test_ship_00',
                     },
                 });
             },
@@ -151,7 +151,7 @@ describe(
                     await readFile(
                         path.join(
                             root,
-                            'src/app/manifests/ships/ship_sprites.json',
+                            'src/app/manifests/world/ships/ship_sprites.json',
                         ),
                         'utf8',
                     );
@@ -168,7 +168,7 @@ describe(
                     await readFile(
                         path.join(
                             root,
-                            'assets/raw/images/ships/chassis/test_ship_00.png',
+                            'assets/raw/images/world/ships/chassis/test_ship_00.png',
                         ),
                     );
 
@@ -180,7 +180,7 @@ describe(
                     await readFile(
                         path.join(
                             root,
-                            'src/app/manifests/ships/ship_sprites.json',
+                            'src/app/manifests/world/ships/ship_sprites.json',
                         ),
                         'utf8',
                     ),
@@ -249,13 +249,13 @@ async function createTempRepo():
     const manifestDirectory =
         path.join(
             root,
-            'src/app/manifests/ships',
+            'src/app/manifests/world/ships',
         );
 
     const rawDirectory =
         path.join(
             root,
-            'assets/raw/images/ships/chassis',
+            'assets/raw/images/world/ships/chassis',
         );
 
     await mkdir(

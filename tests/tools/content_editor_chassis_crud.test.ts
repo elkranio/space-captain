@@ -208,7 +208,7 @@ async function createTempRepo(
     const manifestDirectory =
         path.join(
             root,
-            'src/app/manifests/ships',
+            'src/app/manifests/world/ships',
         );
 
     await mkdir(
@@ -226,7 +226,7 @@ async function createTempRepo(
                         spriteId,
                         {
                             frameKey:
-                                'ships/chassis/' +
+                                'world/ships/chassis/' +
                                 spriteId,
                         },
                     ];

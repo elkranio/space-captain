@@ -141,7 +141,7 @@ describe(
                     access(
                         path.join(
                             root,
-                            'assets/raw/images/ships/chassis/unused_ship_00.png',
+                            'assets/raw/images/world/ships/chassis/unused_ship_00.png',
                         ),
                     ),
                 ).rejects.toBeDefined();
@@ -151,7 +151,7 @@ describe(
                         await readFile(
                             path.join(
                                 root,
-                                'src/app/manifests/ships/ship_sprites.json',
+                                'src/app/manifests/world/ships/ship_sprites.json',
                             ),
                             'utf8',
                         ),
@@ -259,7 +259,7 @@ async function createTempRepo():
     await mkdir(
         path.join(
             root,
-            'src/app/manifests/ships',
+            'src/app/manifests/world/ships',
         ),
         {
             recursive: true,
@@ -279,7 +279,7 @@ async function createTempRepo():
     await mkdir(
         path.join(
             root,
-            'assets/raw/images/ships/chassis',
+            'assets/raw/images/world/ships/chassis',
         ),
         {
             recursive: true,
@@ -289,7 +289,7 @@ async function createTempRepo():
     await writeFile(
         path.join(
             root,
-            'src/app/manifests/ships/ship_sprites.json',
+            'src/app/manifests/world/ships/ship_sprites.json',
         ),
         '{}\n',
         'utf8',
