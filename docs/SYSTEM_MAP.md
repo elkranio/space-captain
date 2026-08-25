@@ -76,11 +76,24 @@ perceived / decision facts
 
 Enemy policy should not receive unrestricted mutable encounter state just because the engine contains it.
 
-## Captain dashboard
+## Captain combat board
 
-The captain dashboard consumes mapped encounter presentation data. The current threat side is documented in
-`THREAT_PANEL.md`.
+The captain combat board consumes mapped encounter presentation data through the same authoritative snapshot/read-model
+boundary.
 
-Future OUR SHIP and enemy-inspection views should consume the same authoritative snapshot/read-model
-boundaries rather
-than inventing parallel gameplay state.
+Confirmed target composition:
+
+```text
+compact threat strip
+MY SHIP dashboard | ENEMY SHIP dashboard
+```
+
+MY SHIP is the primary control surface. ENEMY SHIP is the persistent basic state/target surface. Basic enemy
+Hull/slots/BROKEN state should not require a separate mutable inspection model.
+
+Direct targeting may use visible ship slots or threat cells as interaction surfaces, but the engine still owns command
+availability and exact targets. Views only expose/highlight engine-resolved actions.
+
+Deeper Science inspection may add presentation-safe information later without replacing or gating the basic enemy board.
+
+Threat presentation specifics live in `THREAT_PANEL.md`.

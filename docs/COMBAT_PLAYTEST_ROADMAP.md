@@ -14,7 +14,8 @@ Current landed foundation:
 - player Drive integrity and Beam module damage are engine-owned;
 - player targeted-Shield semantics and the current `HULL | DRIVE` picker are implemented;
 - physical dual captain-display shell exists;
-- clean combat header + 4x2 glyph threat dashboard is implemented;
+- clean combat header + 4x2 glyph threat dashboard is implemented, but its large per-threat action-card role is
+  superseded by the confirmed dual-ship-dashboard + compact-threat-strip direction;
 - tintable Missile / Beam / Mine / SPAM threat glyph family is implemented;
 - the four-pass stale/transport/structure/cognitive cleanup audit is closed.
 
@@ -29,10 +30,12 @@ Current implementation order:
 chassis-owned ship slots + loadout mounts
 -> encounter slot integrity / BROKEN operational gating
 -> player Beam HULL | SLOT targeting
+-> shared incoming Beam / targeted-Shield slot target model
+-> persistent MY SHIP + ENEMY SHIP dashboards
+-> direct system targeting + compact threat strip
 -> weak-player vs weak-enemy timing/balance smoke
--> OUR SHIP dashboard + enemy inspectability
 -> Science tactical-information pass
--> migrate/deepen targeted Shield behavior as needed
+-> deepen enemy targeted Shield behavior as needed
 ```
 
 ### 1. Chassis slots and loadout shape
@@ -98,9 +101,63 @@ The target is basic readable combat information. Engine command availability rem
 The existing incoming `HULL | DRIVE` Beam target is an early prototype of this model; migrate it only after the shared
 slot target identity is stable rather than creating permanent parallel target systems.
 
-### 4. First weak-fight baseline
+### 4. Shared target model for incoming Beam / Shield
 
-Before adding more combat complexity, test a deliberately weak/basic player ship against a weak/basic enemy.
+After the slot target identity is stable, migrate the temporary player-side `HULL | DRIVE` incoming Beam / targeted-Shield
+vocabulary to the same semantic ship-target model where appropriate.
+
+Keep the physical resolution order already proven by the current implementation. Do not create a permanent parallel
+target taxonomy only because the old incoming path landed first.
+
+### 5. Persistent dual ship combat board
+
+Once slots are real domain state, both ships stay visible during combat:
+
+```text
+LEFT  = MY SHIP
+RIGHT = ENEMY SHIP
+```
+
+MY SHIP continuously exposes installed slots, integrity/BROKEN state, activity/readiness/resources and the systems the
+player can operate.
+
+ENEMY SHIP continuously exposes basic Hull, installed slots, integrity/BROKEN state and obvious activity. Basic enemy
+anatomy must not require opening a separate inspection screen or pausing the fight.
+
+Science may later add deeper decision-changing information; it does not gate the permanent basic enemy board.
+
+The panels should share visual grammar without being forced into identical data density.
+
+### 6. Direct targeting + compact threat strip
+
+Prefer one interaction language:
+
+```text
+select own system
+-> highlight valid targets
+-> select target
+```
+
+Target surfaces depend on the selected system:
+
+- Beam -> enemy Hull / targetable slot;
+- Defense Turret -> concrete Missile threat;
+- targeted Shield -> own targetable slot;
+- Missile Launcher -> enemy ship / Hull.
+
+The engine still owns legality. Views highlight only engine-resolved targets.
+
+Incoming threats move out of the large right-side action grid into a compact, high-priority strip. One concrete threat
+remains one icon/object; independent Missiles/Mines are not aggregated. The strip shows identity and urgency/progress and
+marks threats already being handled.
+
+Threat cells do not carry permanent mitigation buttons. They become target surfaces when the selected player system
+requires a concrete threat.
+
+### 7. First weak-fight baseline
+
+Test a deliberately weak/basic player ship against a weak/basic enemy only after the intended dual-board/strip
+interaction is usable.
 
 Acceptance target:
 
@@ -108,6 +165,7 @@ Acceptance target:
 - the fight resolves quickly;
 - "easy but long" is a failure;
 - there are no long toothpick-vs-tree attrition stretches;
+- both ships and incoming urgency remain readable without basic-info modal hopping;
 - basic/unupgraded weapon families are not obvious trap choices.
 
 Especially compare Missile Launcher and Beam Cannon. Beam precision may create control value, but Missile direct Hull
@@ -116,32 +174,13 @@ pressure must remain a viable competing plan.
 Do not demand identical DPS or equal solo time-to-kill from every weapon family. Viability means each family creates a
 real useful combat plan without becoming strictly dominated.
 
-### 5. OUR SHIP dashboard and enemy inspectability
-
-Once slots are real domain state, make both sides readable from that truth instead of designing UI around temporary
-`HULL | DRIVE` assumptions.
-
-Player surface should expose:
-
-- Hull and Power Core;
-- installed slots/modules;
-- damaged/BROKEN systems;
-- active Shield target/state;
-- important officer/task state where it changes decisions.
-
-Enemy inspection should expose enough basic anatomy/loadout/slot state to understand player targeting without a
-mandatory
-Science permission gate.
-
-Prefer dedicated inspection surfaces over turning the permanent threat panel into a spreadsheet.
-
-### 6. Science tactical information
+### 8. Science tactical information
 
 Give Science combat work that changes decisions. Do not invent filler actions merely for role symmetry.
 
 Useful information must create tactical advantage beyond basic interface legibility.
 
-### 7. Enemy targeted Shield
+### 9. Enemy targeted Shield
 
 After shared slot target truth exists, implement/deepen enemy target choice and targeted Shield resolution through the
 enemy's own perceived information boundary. Enemy policy must not read hidden player attack truth merely because the
@@ -153,7 +192,9 @@ The player should be able to answer quickly:
 
 - what is happening to us?
 - which responses are actionable?
-- what is installed/broken on each ship?
+- what is installed/broken on each ship without opening a basic-inspection modal?
+- which own system did I select and what are its valid targets?
+- which threat is most urgent / already being handled?
 - what can my Beam target and why?
 - what did my action accomplish?
 - is the first/basic fight fast enough to be fun rather than inevitable attrition?
@@ -163,7 +204,7 @@ Then run a short focused combat smoke/playtest.
 
 ## Gate B — combat develops build space
 
-### 8. Shared combat-effect vocabulary
+### 10. Shared combat-effect vocabulary
 
 Before several weapons gain special hit behavior, keep explicit distinctions between at least:
 
@@ -175,14 +216,14 @@ system broken      = semantic ship slot/module unavailable until repaired
 
 Do not collapse stun and interruption into one effect.
 
-### 9. Weapon/build diversity
+### 11. Weapon/build diversity
 
 Add and tune the confirmed Basic Gun alongside other weapons so builds create distinct pressure through damage,
 disruption, crew pressure, subsystem pressure and resource economy.
 
 Do not lock speculative effect percentages or future slot lists into this roadmap.
 
-### 10. Combat Lab
+### 12. Combat Lab
 
 Build lightweight deterministic combat-test tooling once the readable combat foundation is stable enough to compare
 setups quickly.

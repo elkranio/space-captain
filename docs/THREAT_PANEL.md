@@ -1,63 +1,106 @@
-# Space Captain — Threat Panel
+# Space Captain — Threat Presentation
 
-Current implemented captain-dashboard threat presentation.
+Gameplay legality remains engine-owned. This document describes the landed threat presentation and the confirmed combat
+UI direction that will replace its large action-grid role after chassis/slot state is implemented.
 
-Gameplay legality remains engine-owned. This document describes how safe snapshot/read-model truth is presented.
+## Current landed implementation
 
-## Layout
-
-The combat-context header shows:
+The current captain combat context still uses:
 
 ```text
 THREATS                              HULL x/x  CORE [][][][]
 ```
 
-Below it is a 4x2 threat grid.
+with a 4x2 threat grid.
 
-One concrete runtime threat is one UI object. Do not aggregate multiple Missiles or Mines into counters.
+Each concrete runtime threat is one UI cell. The current cells also expose direct mitigation actions such as `[W] HIT`,
+`[E] SHIELD`, `[E] CLEAR` and `[S] PURGE`.
 
-Each cell is visually minimal:
+This implementation remains valid runtime code until the slot/dashboard slice replaces it. Do not treat its layout as
+the target combat UX.
+
+## Confirmed next layout
+
+The combat board should use three persistent information zones:
 
 ```text
-[ LARGE THREAT GLYPH ]
-[role] ACTION
+TOP / COMPACT THREAT STRIP
+    immediate incoming threats + urgency/progress
+
+LEFT DASHBOARD
+    MY SHIP / controls
+
+RIGHT DASHBOARD
+    ENEMY SHIP / state + targets
 ```
 
-There is no card background/frame, numeric countdown, Science TRACK row, separate button frame or per-cell divider.
+The right dashboard is no longer reserved for large threat cards. Basic enemy Hull/slot state stays visible continuously.
 
-The whole cell is the action/cancel hit area.
+Exact physical placement of the strip is not sacred yet. A narrow area above the dashboards / below the viewscreen is a
+candidate. Preserve the first-person viewscreen rather than turning the whole bridge into a flat tactical spreadsheet.
 
-## Actions
+## Threat strip contract
 
-Current labels:
+One concrete runtime threat remains one presentation object.
 
-- Missile: `[W] HIT`
-- Beam: `[E] SHIELD`
-- Mine: `[E] CLEAR`
-- SPAM: `[S] PURGE`
+Do not aggregate independent Missiles or attached Mines merely to save space.
 
-If the relevant officer task is active for that threat, the action becomes `CANCEL`.
+Each compact threat cell should communicate at a glance:
 
-For concrete per-threat work, the role glyph also pulses while that task is active. This currently applies to Missile
-intercept, Sticky Mine clear and SPAM purge. The pulse derives from the same active-task truth as `CANCEL`; presentation
-does not own a second state.
+- family glyph;
+- designation where useful;
+- remaining progress / urgency;
+- terminal danger state;
+- whether that concrete threat is already being handled/targeted.
 
-When an action is unavailable, its text is gray and the cell is noninteractive. The threat glyph keeps
-its family color so
-unavailability does not hide threat identity/urgency.
+Threats no longer need permanent mitigation buttons inside the cell.
 
-Engine `canAssign`/task state is authoritative. Timing graphics never create gameplay legality.
+Instead, a threat cell becomes an interaction target when a selected own system requires that threat. Example:
+
+```text
+select Defense Turret on MY SHIP
+-> valid Missile cells highlight
+-> select one Missile
+```
+
+The strip is small in area but must remain high in visual priority. An imminent hit must be able to pull attention away
+from the more visually rich ship dashboards.
+
+## Shared direct-targeting grammar
+
+Prefer:
+
+```text
+select own system
+-> engine-resolved valid targets highlight
+-> select target
+```
+
+Examples:
+
+```text
+Defense Turret -> threat strip Missile
+Beam Cannon    -> ENEMY SHIP Hull / slot
+Shield         -> MY SHIP slot
+Missile        -> ENEMY SHIP / Hull
+```
+
+Avoid a popup/menu as the default targeting step when the target is already visible on the combat board.
+
+The engine remains authoritative for availability and exact command payloads. Presentation highlights/selects existing
+engine-resolved commands; it does not recreate legality.
 
 ## Glyph assets and colors
 
-Source assets are white/tintable transparent images designed for the same compact monitor-symbol family:
+Keep the existing tintable transparent threat-symbol family:
 
 - `missile.png`
 - `beam_cannon.png`
 - `mine.png`
 - `spam.png`
 
-Target source footprint is 107x33.
+Current source footprint is 107x33. The future compact cells may render these assets smaller or crop/layout them
+differently; do not redraw merely because the container changes unless actual-size readability fails.
 
 Current family colors:
 
@@ -70,60 +113,53 @@ SPAM:         0x5bd14a
 SPAM_EXPIRED: 0x66717a
 ```
 
-Shared danger red is used for terminal urgency/timing overlays.
+Shared danger red remains reserved for terminal urgency/timing.
 
-## Missile timing
+## Timing language to preserve
 
-Missile starts in its family orange.
+The compact strip should preserve the useful semantics already proven by the current grid.
 
-During the useful response-start window, a red overlay fills the glyph from left to right. The fill represents consumed
-useful response time.
+### Missile
 
-Once the latest useful response start has passed, the whole glyph blinks red.
+- orange family identity;
+- useful response timing/progress;
+- strong terminal red/blink once immediate danger becomes critical.
 
-This timing is advisory. The engine still decides whether `HIT` can actually be assigned.
+### Sticky Mine
 
-## Sticky Mine timing
+- purple family identity;
+- fuse/response timing;
+- strong terminal red/blink near detonation.
 
-Mine uses the same useful-window language:
+### Beam
 
-- purple base;
-- red left-to-right timing overlay;
-- full-red terminal blink after the useful response-start window is gone.
+- gray when meaningfully too early;
+- cyan through the useful reaction window;
+- terminal red/blink when effectively too late/expiring;
+- semantic Beam target remains visible somewhere in the combined threat/ship presentation.
 
-Engine command availability remains authoritative.
+Timing graphics remain advisory. Engine command availability remains authoritative.
 
-## Beam timing
+### SPAM
 
-Beam has an explicit timing state:
+SPAM uses effect-duration progress rather than a terminal incoming-hit countdown.
 
-- `TOO_EARLY` — gray glyph;
-- `VALID` — cyan glyph with red timing overlay;
-- `TOO_LATE` / `EXPIRED` — full-red terminal blink.
+Its elapsed-duration language may remain green -> gray and should not imitate terminal red danger unless gameplay changes.
 
-The target label (`HULL` or `DRIVE`) remains visible below the action row.
+## Active mitigation / work marker
 
-Timing phase does not disable `SHIELD`. If the engine says the command can be assigned, the cell remains actionable; the
-graphic communicates timing quality/urgency only.
+When an officer/system is already handling a concrete threat, mark that threat in the strip.
 
-## SPAM progress
+This marker must derive from authoritative command/task/runtime state rather than a second presentation-owned
+"selected/handled" gameplay fact.
 
-SPAM is deliberately different from terminal incoming-hit threats.
+Exact treatment — border, pulse, role glyph, connector or another restrained marker — is visual tuning.
 
-It has no decision-timing window and no terminal red blink. The base glyph is green and an elapsed-duration gray overlay
-fills from left to right using real effect duration:
+## HULL / CORE ownership
 
-```text
-remainingDurationMs / initialDurationMs
-```
+The previous threat-grid header currently carries player HULL / Power Core presentation.
 
-The remaining green part therefore communicates how much of the effect is still left.
+In the confirmed dual-dashboard direction, persistent own-ship state belongs naturally to MY SHIP. Do not keep HULL/CORE
+inside the threat strip merely because the old threat header owned them.
 
-## Header HULL / CORE
-
-The combat-context header presents current player HULL and four discrete Power Core slots.
-
-Charged slots are filled. When a missing charge is actively recharging, that slot fills bottom-to-top from the engine's
-recharge progress.
-
-The header is presentation of engine state; it does not own Core spending/recharge rules.
+The strip's job is immediate threat identity and urgency.

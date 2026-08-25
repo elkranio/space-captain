@@ -2,7 +2,7 @@
 
 ## Current checkpoint
 
-Base for this handoff: `master` at `08532f90387861fc0ffa79978c4bfa26066fe616`.
+Base for this handoff update: `master` at `9e6fcde8a9f57dba86f341652b38e04f10d91bf5`.
 
 The four-pass cleanup/readiness audit is complete:
 
@@ -25,7 +25,8 @@ Current combat foundation:
 - player targeted-Shield semantics and the current `HULL | DRIVE` Shield picker are implemented;
 - player Defense Turret and enemy Defense Turret currently resolve a completed shot against a still-live Missile
   deterministically;
-- captain threat presentation uses the clean header and 4x2 Missile / Beam / Mine / SPAM glyph grid;
+- the currently landed captain threat presentation still uses the clean header and 4x2 glyph grid, but the confirmed
+  next combat UI direction below supersedes that layout;
 - encounter persistence has one explicit app-layer owner;
 - `src/engine/encounter/state/` specialized stores are flattened under one public `EncounterStateStore` facade.
 
@@ -97,6 +98,96 @@ Beam precision is allowed to be valuable, but it must not make Beam strictly bet
 through direct Hull pressure, timing, ammo/tuning and different interaction with defenses. Do not force equal mechanics
 or
 identical time-to-kill merely to call the families balanced.
+
+## Confirmed combat dashboard / interaction direction
+
+The previous plan of using the right captain dashboard primarily as a large threat grid and opening enemy inspection
+separately is superseded.
+
+The target combat-board grammar is:
+
+```text
+TOP / COMPACT STRIP
+    incoming threats + urgency/progress
+
+LEFT DASHBOARD
+    MY SHIP
+    installed slots + state + integrity + activity
+    primary controllable systems
+
+RIGHT DASHBOARD
+    ENEMY SHIP
+    installed slots + state + integrity + activity
+    semantic targets
+```
+
+Basic enemy anatomy is persistent combat information. Do **not** require a separate enemy-inspect button or pause merely
+to see enemy Hull, installed slots, their integrity/BROKEN state and obvious current activity.
+
+Science may later reveal deeper properties, traits, vulnerabilities, exact hidden values or other decision-changing
+information. It does not gate the permanent basic enemy board.
+
+The two ship dashboards should share one visual language, but they do not need identical information density:
+
+- left answers **what can I do?** — readiness, cooldown, ammo, CORE/resource state, officer availability and clickability;
+- right answers **what is happening to the enemy / what can I target?** — Hull, slots, integrity/BROKEN, active state and
+  target highlights.
+
+### Direct interaction grammar
+
+Prefer one common combat interaction:
+
+```text
+select own system
+-> highlight valid targets
+-> select target
+```
+
+Examples:
+
+```text
+Defense Turret on MY SHIP
+-> valid Missile threats highlight in threat strip
+-> select one Missile
+
+Beam Cannon on MY SHIP
+-> valid enemy HULL / slots highlight on ENEMY SHIP
+-> select target
+
+Shield Generator on MY SHIP
+-> valid own protected slots highlight
+-> select target
+
+Missile Launcher on MY SHIP
+-> enemy ship / Hull target
+-> launch
+```
+
+The engine remains authoritative for command availability and exact command payloads. The view may present direct spatial
+targeting, but it must not recreate legality.
+
+Avoid a popup/menu as the default targeting step when the target already exists visibly on the combat board. A small
+target picker is acceptable only where direct board selection becomes ambiguous or materially worse.
+
+### Compact threat strip
+
+Threats remain concrete runtime objects, but they no longer need large action cards.
+
+The intended strip:
+
+- one compact icon/cell per concrete threat; no aggregation of independent Missiles/Mines;
+- icon/designation + clear progress/urgency;
+- family color and terminal danger language remain;
+- a threat currently being handled/targeted is visibly marked;
+- no permanent `[HIT] / [SHIELD] / [CLEAR] / [PURGE]` mitigation button inside each threat cell;
+- threat cells become targets only when a selected own system/action requires that concrete threat.
+
+The strip may occupy a narrow area above the captain dashboards / below the viewscreen, or another compact high-priority
+location found during layout. Exact placement is not yet sacred.
+
+Small area must **not** mean low visual priority. Imminent threats must still be able to dominate attention immediately.
+
+`docs/THREAT_PANEL.md` contains the durable presentation contract for this direction.
 
 ## Readiness audit for this slice — already completed
 
@@ -240,9 +331,9 @@ src/engine/encounter/model/event.ts
 
 The path is short and typed. Carrying a concrete target slot through it is expected work, not a transport refactor.
 
-The officer command menu is also already suitable: it receives engine-resolved commands, groups them by `targetLabel`
-and returns the opaque `OfficerCommandTarget` on selection. Do not build a separate UI targeting framework just for
-slots unless the final UX genuinely requires one.
+The existing officer command menu remains a useful adapter because it already receives engine-resolved commands and
+returns opaque `OfficerCommandTarget` payloads. However, the confirmed combat UX should prefer direct dashboard
+selection for visible systems/targets rather than forcing Beam/Turret/Shield through a generic menu or popup.
 
 ### Presentation/read-model seam
 
@@ -371,9 +462,42 @@ same semantic ship-target model where appropriate.
 Do this as a separate atom because current incoming Beam and player targeted Shield already form a working vertical
 slice.
 
-### Atom 9 — first weak-fight tuning smoke
+### Atom 9 — dual ship dashboard read models + state presentation
 
-Create/adjust simple player/enemy chassis + loadout content for an early encounter and test actual fight duration.
+Build presentation on real slot truth:
+
+```text
+LEFT  = MY SHIP
+RIGHT = ENEMY SHIP
+```
+
+Both sides should show basic Hull/slot anatomy and live integrity/BROKEN/activity state continuously.
+
+Left additionally emphasizes controllable-system readiness/resources and officer-dependent availability.
+Right emphasizes targetable enemy state.
+
+Do not add a separate mandatory basic enemy-inspect screen. Deep Science inspection may remain a later layer.
+
+### Atom 10 — direct system targeting + compact threat strip
+
+Move combat input toward:
+
+```text
+select own system
+-> highlight engine-resolved valid targets
+-> select target
+```
+
+Use enemy Hull/slots, own slots and concrete threat icons as target surfaces depending on the selected system.
+
+Replace the large 4x2 threat action grid with the compact high-priority threat strip described in
+`docs/THREAT_PANEL.md`. Preserve real threat identity/urgency and active-mitigation marking; remove permanent mitigation
+buttons from threat cells.
+
+### Atom 11 — first weak-fight tuning smoke
+
+Only after the real slot mechanics and intended combat-board interaction are usable, create/adjust simple player/enemy
+chassis + loadout content for an early encounter and test actual fight duration.
 
 Compare at least Missile-focused and Beam-focused basic offensive setups.
 
@@ -381,6 +505,8 @@ Questions:
 
 - is the first fight reliably winnable without perfect play?
 - is it short enough to avoid attrition boredom?
+- does the board let the player read both ships and threats without opening extra basic-inspection UI?
+- does selecting a system and then a target feel obvious under time pressure?
 - does Beam precision create a useful choice rather than free superiority?
 - does Missile direct Hull pressure remain competitive?
 - are there long stretches where the player is only waiting for cooldowns?
@@ -402,13 +528,15 @@ The readiness audit found no blocker there. Refactor only if the concrete slot i
 
 ## After the slot / first-fight slice
 
-Return to the presentation/readability sequence:
+The dual ship dashboards, direct targeting and compact threat strip are now part of the slot/first-fight slice rather than
+deferred presentation work.
+
+After that smoke, continue with:
 
 ```text
-OUR SHIP functional/module dashboard + targeted-Shield visual
--> enemy inspectability / enemy dashboard
--> Science tactical-information pass
+Science tactical-information pass
 -> enemy targeted Shield / deeper target behavior as needed
+-> iterate combat timing/build balance from actual play
 ```
 
 `docs/COMBAT_PLAYTEST_ROADMAP.md` contains the broader gate sequence.

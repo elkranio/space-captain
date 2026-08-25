@@ -52,10 +52,37 @@ Prefer:
 
 Threat-dashboard specifics live only in `THREAT_PANEL.md`.
 
-## Ship-state presentation
+## Combat-board composition
 
-Future OUR SHIP and enemy-inspection views should make important state immediately legible without becoming permanent
-spreadsheets.
+The confirmed combat composition is:
 
-Use visual grouping and semantic state before adding more labels/frames. Basic anatomy/state should be readable; deeper
-tactical information may remain a gameplay layer.
+```text
+compact threat strip
+MY SHIP dashboard | ENEMY SHIP dashboard
+```
+
+MY SHIP and ENEMY SHIP should feel like one visual family, but they do not need mirrored information density.
+
+MY SHIP emphasizes controls: slot readiness, cooldown/activity, ammo/resources, integrity and action availability.
+
+ENEMY SHIP emphasizes persistent readable state: Hull, installed slots, integrity/BROKEN state, obvious activity and
+target highlights.
+
+Basic enemy anatomy should stay visible without opening a separate inspection screen. Deeper tactical information may
+remain a Science/gameplay layer.
+
+The threat strip should be compact in area but high in attention priority. Use clear family glyphs, progress/urgency and
+restrained terminal danger animation rather than large permanent action cards.
+
+Direct targeting should read visually as:
+
+```text
+own system selected
+-> valid target surfaces highlight
+-> target selected
+```
+
+Prefer spatial selection on already-visible ship slots/threats over modal UI when it remains clear.
+
+Use visual grouping and semantic state before adding more labels/frames. The two dashboards should feel like tactical
+equipment boards, not mirrored spreadsheets.
