@@ -1,0 +1,154 @@
+.debug-loadout-field {
+    display: block;
+    padding: 14px 0 18px;
+}
+
+.debug-loadout-label {
+    margin-bottom: 10px;
+    font-weight: 650;
+}
+
+.debug-loadout-control {
+    width: 100%;
+}
+
+.debug-loadout-control.is-loading {
+    padding: 18px;
+    border: 1px solid #d5dbe2;
+    border-radius: 5px;
+    color: #778596;
+    background: #f8f9fb;
+    font-size: 12px;
+}
+
+.debug-loadout-warning,
+.debug-loadout-error {
+    margin-bottom: 10px;
+    padding: 9px 11px;
+    border: 1px solid #d8b879;
+    border-radius: 4px;
+    color: #73551f;
+    background: #fffaf0;
+    font-size: 11px;
+    line-height: 1.4;
+}
+
+.debug-loadout-error {
+    border-color: #d4a4a4;
+    color: #8d3e3e;
+    background: #fff7f7;
+}
+
+.debug-loadout-grid {
+    width: 100%;
+    display: grid;
+    grid-template-columns:
+        38px repeat(4, minmax(0, 1fr));
+    border-top:
+        1px solid #cfd6de;
+    border-left:
+        1px solid #cfd6de;
+}
+
+.debug-loadout-corner,
+.debug-loadout-column-header,
+.debug-loadout-row-label,
+.debug-loadout-cell {
+    border-right:
+        1px solid #cfd6de;
+    border-bottom:
+        1px solid #cfd6de;
+}
+
+.debug-loadout-corner,
+.debug-loadout-column-header,
+.debug-loadout-row-label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #788697;
+    background: #f3f5f7;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+}
+
+.debug-loadout-corner,
+.debug-loadout-column-header {
+    min-height: 28px;
+}
+
+.debug-loadout-row-label {
+    min-height: 86px;
+}
+
+.debug-loadout-cell {
+    min-width: 0;
+    min-height: 86px;
+    padding: 8px;
+    background: #ffffff;
+}
+
+.debug-loadout-cell.is-empty {
+    background:
+        repeating-linear-gradient(
+            135deg,
+            #fafbfc,
+            #fafbfc 7px,
+            #f4f6f8 7px,
+            #f4f6f8 14px
+        );
+}
+
+.debug-loadout-slot-meta {
+    min-width: 0;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 6px;
+}
+
+.debug-loadout-slot-kind {
+    color: #5f7082;
+    font-size: 9px;
+    font-weight: 750;
+    letter-spacing: 0.08em;
+}
+
+.debug-loadout-slot-meta code {
+    min-width: 0;
+    overflow: hidden;
+    color: #8994a1;
+    font-size: 9px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.debug-loadout-cell select {
+    width: 100%;
+    min-width: 0;
+    height: 32px;
+    padding: 0 6px;
+    font-size: 10px;
+}
+
+.debug-loadout-cell.kind-drive {
+    box-shadow:
+        inset 3px 0 0 #8998aa;
+}
+
+.debug-loadout-cell.kind-defense {
+    box-shadow:
+        inset 3px 0 0 #7c94a9;
+}
+
+.debug-loadout-cell.kind-weapon {
+    box-shadow:
+        inset 3px 0 0 #9c889e;
+}
+
+.debug-loadout-cell.kind-utility {
+    box-shadow:
+        inset 3px 0 0 #8b9a81;
+}

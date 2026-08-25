@@ -9,6 +9,11 @@
                 "equipmentId": "basic_00"
             },
             {
+                "slotId": "utility_01",
+                "type": "weapon",
+                "equipmentId": "spam_projector_00"
+            },
+            {
                 "slotId": "defense_01",
                 "type": "defense_turret",
                 "equipmentId": "defense_turret_basic_00"
@@ -20,21 +25,6 @@
             },
             {
                 "slotId": "weapon_01",
-                "type": "weapon",
-                "equipmentId": "sticky_mine_solo"
-            },
-            {
-                "slotId": "weapon_02",
-                "type": "weapon",
-                "equipmentId": "fast_beam"
-            },
-            {
-                "slotId": "utility_01",
-                "type": "weapon",
-                "equipmentId": "spam_projector_00"
-            },
-            {
-                "slotId": "weapon_03",
                 "type": "weapon",
                 "equipmentId": "ml_full_auto"
             }

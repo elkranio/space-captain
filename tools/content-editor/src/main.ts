@@ -1,11 +1,17 @@
 import './style.css';
 import {
+    createDebugStartEquipmentField,
+} from './debug_start_loadout_editor';
+import {
     createDefaultShipSlots,
     createShipSlotsField,
 } from './ship_slot_editor';
 
 const CONTENT_ID_PATTERN =
     /^[a-z][a-z0-9_]*$/;
+
+const DEBUG_START_COLLECTION_ID =
+    'debug_start';
 
 const SHIP_CHASSIS_COLLECTION_ID =
     'ship_chassis';
@@ -870,6 +876,32 @@ function createField(
     schema: JsonSchema,
     value: unknown,
 ): HTMLElement {
+    if (
+        collection?.id ===
+            DEBUG_START_COLLECTION_ID &&
+        fieldName === 'equipment'
+    ) {
+        const chassisId =
+            collection.data[
+                recordId
+            ]?.chassisId;
+
+        return createDebugStartEquipmentField(
+            schema.title ?? fieldName,
+            typeof chassisId === 'string'
+                ? chassisId
+                : '',
+            value,
+            (equipment) => {
+                updateField(
+                    recordId,
+                    fieldName,
+                    equipment,
+                );
+            },
+        );
+    }
+
     if (
         collection?.id ===
             SHIP_CHASSIS_COLLECTION_ID &&
@@ -2043,6 +2075,14 @@ function updateField(
     setStatus('Unsaved changes');
 
     renderRecordList();
+
+    if (
+        collection.id ===
+            DEBUG_START_COLLECTION_ID &&
+        fieldName === 'chassisId'
+    ) {
+        renderInspector();
+    }
 
     saveButton.disabled = false;
 }
