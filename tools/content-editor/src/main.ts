@@ -1,7 +1,14 @@
 import './style.css';
+import {
+    createDefaultShipSlots,
+    createShipSlotsField,
+} from './ship_slot_editor';
 
 const CONTENT_ID_PATTERN =
     /^[a-z][a-z0-9_]*$/;
+
+const SHIP_CHASSIS_COLLECTION_ID =
+    'ship_chassis';
 
 type JsonSchema = {
     type?:
@@ -863,6 +870,24 @@ function createField(
     schema: JsonSchema,
     value: unknown,
 ): HTMLElement {
+    if (
+        collection?.id ===
+            SHIP_CHASSIS_COLLECTION_ID &&
+        fieldName === 'slots'
+    ) {
+        return createShipSlotsField(
+            schema.title ?? fieldName,
+            value,
+            (slots) => {
+                updateField(
+                    recordId,
+                    fieldName,
+                    slots,
+                );
+            },
+        );
+    }
+
     const contentReferences =
         schema[
             'x-editor-content-reference'
@@ -1853,6 +1878,14 @@ async function createDefaultFieldValue(
     fieldName: string,
     schema: JsonSchema,
 ): Promise<unknown> {
+    if (
+        collection?.id ===
+            SHIP_CHASSIS_COLLECTION_ID &&
+        fieldName === 'slots'
+    ) {
+        return createDefaultShipSlots();
+    }
+
     const contentReferences =
         schema[
             'x-editor-content-reference'

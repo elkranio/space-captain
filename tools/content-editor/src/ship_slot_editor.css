@@ -1,0 +1,197 @@
+.ship-slot-editor {
+    width: min(900px, 100%);
+    margin-top: 12px;
+    padding: 18px 0 24px;
+    border-bottom: 1px solid #e3e7ec;
+}
+
+.ship-slot-editor-heading {
+    margin-bottom: 14px;
+}
+
+.ship-slot-editor-title {
+    color: #4f5d6c;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.ship-slot-editor-description {
+    max-width: 760px;
+    margin-top: 4px;
+    color: #8793a1;
+    font-size: 11px;
+    line-height: 1.4;
+}
+
+.ship-slot-editor-error {
+    padding: 12px;
+    border: 1px solid #d5a0a0;
+    border-radius: 5px;
+    color: #973f3f;
+    background: #fff7f7;
+}
+
+.ship-slot-toolbar {
+    min-height: 36px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+}
+
+.ship-slot-toolbar-label,
+.ship-slot-toolbar-hint {
+    color: #718096;
+    font-size: 11px;
+}
+
+.ship-slot-toolbar-hint {
+    margin-left: 4px;
+}
+
+.ship-slot-kind-button,
+.ship-slot-move-button,
+.ship-slot-remove-button {
+    border: 1px solid #a9b6c4;
+    border-radius: 4px;
+    background: #ffffff;
+    cursor: pointer;
+}
+
+.ship-slot-kind-button {
+    padding: 5px 8px;
+    color: #344354;
+    font-size: 10px;
+    font-weight: 700;
+}
+
+.ship-slot-kind-button:hover,
+.ship-slot-kind-button.is-active {
+    background: #dfeaf5;
+}
+
+.ship-slot-grid {
+    display: grid;
+    grid-template-columns: 36px repeat(4, minmax(118px, 1fr));
+    gap: 6px;
+}
+
+.ship-slot-grid-corner,
+.ship-slot-column-label,
+.ship-slot-row-label {
+    min-height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #7c8998;
+    font-size: 10px;
+    font-weight: 700;
+}
+
+.ship-slot-column-label {
+    letter-spacing: 0.04em;
+}
+
+.ship-slot-cell {
+    min-height: 108px;
+    border: 1px solid #cbd3dc;
+    border-radius: 5px;
+}
+
+.ship-slot-cell-empty {
+    color: #8a96a4;
+    background: #f7f9fb;
+}
+
+.ship-slot-cell-empty:not(:disabled) {
+    color: #3f5368;
+    background: #eef4fa;
+    cursor: pointer;
+}
+
+.ship-slot-cell-empty:not(:disabled):hover {
+    border-color: #829ab5;
+    background: #e3edf7;
+}
+
+.ship-slot-cell-empty:disabled {
+    cursor: default;
+}
+
+.ship-slot-cell-occupied {
+    padding: 9px;
+    display: flex;
+    flex-direction: column;
+    background: #f6f8fa;
+}
+
+.ship-slot-cell-occupied.kind-drive {
+    border-color: #8799aa;
+    background: #eef1f4;
+}
+
+.ship-slot-cell-occupied.kind-weapon {
+    border-color: #b59b83;
+    background: #faf6f1;
+}
+
+.ship-slot-cell-occupied.kind-defense {
+    border-color: #879db7;
+    background: #f1f6fb;
+}
+
+.ship-slot-cell-occupied.kind-utility {
+    border-color: #8ea792;
+    background: #f2f8f3;
+}
+
+.ship-slot-kind {
+    color: #334252;
+    font-size: 11px;
+    font-weight: 750;
+}
+
+.ship-slot-id {
+    margin-top: 3px;
+    overflow: hidden;
+    color: #748293;
+    font-size: 9px;
+    text-overflow: ellipsis;
+}
+
+.ship-slot-move-controls {
+    margin-top: auto;
+    padding-top: 8px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 3px;
+}
+
+.ship-slot-move-button {
+    min-width: 0;
+    height: 24px;
+    padding: 0;
+    color: #506174;
+    font-size: 12px;
+}
+
+.ship-slot-move-button:hover:not(:disabled) {
+    background: #e4ebf2;
+}
+
+.ship-slot-move-button:disabled {
+    opacity: 0.28;
+    cursor: default;
+}
+
+.ship-slot-remove-button {
+    margin-top: 5px;
+    height: 23px;
+    border-color: #d2abab;
+    color: #9a4d4d;
+    font-size: 9px;
+}
+
+.ship-slot-remove-button:hover {
+    background: #faeaea;
+}
