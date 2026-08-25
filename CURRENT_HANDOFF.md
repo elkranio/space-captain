@@ -26,6 +26,13 @@ The chassis/loadout foundation is now real rather than planned:
 General BROKEN operational gating for every equipment family, repairs for every family and player Beam slot damage are
 **not** finished merely because the integrity field now exists.
 
+Equipment mechanics/status/brainstorm reference:
+
+`docs/EQUIPMENT.md`
+
+Read it before adding/changing equipment. It explicitly separates `LANDED`, `CONFIRMED TODO`, `IDEA BANK` and `OPEN` so
+brainstorm entries do not accidentally become implementation commitments.
+
 ### Active slice — combat dashboard before precision targeting
 
 Do **not** implement player Beam `HULL | SLOT(slotId)` targeting next.
