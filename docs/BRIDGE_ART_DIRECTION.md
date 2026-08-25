@@ -125,3 +125,48 @@ modal UI when it remains clear.
 
 Use visual grouping and semantic state before adding more labels/frames. Do not add permanent combat-log or target-detail
 panels unless actual play proves the existing surfaces insufficient.
+
+## Idea bank — ship announcer pseudo-role
+
+Status: **IDEA BANK**. This is presentation/comedy, not a fifth gameplay officer.
+
+A transient system-announcement monitor may occasionally appear for ship-level messages that none of the four officers
+would naturally say.
+
+Examples:
+
+- enemy ship is hailing us;
+- critical Hull damage;
+- major system failure;
+- other ship-computer/system announcements that need a voiced character moment.
+
+The announcer is a recurring woman presented as the face/voice of the ship's automated announcement system.
+She does not:
+
+- take officer tasks;
+- become busy;
+- own command legality;
+- replace Science / Weapons / Helm / Engineer;
+- need a permanent fifth monitor in the combat layout.
+
+Prefer a temporary popup/monitor treatment that reuses available bridge presentation space without stealing permanent
+dashboard area.
+
+Comedy/progression hook:
+
+Normal officers gain useful traits/upgrades. The announcer's equivalent "progression" is purely cosmetic: new outfits,
+especially increasingly elaborate/fitted retro-sci-fi uniforms, while her gameplay function remains exactly the same.
+
+The joke is that she is visually treated like a character with an upgrade track even though her only job is to repeat
+system information the ship already knows.
+
+Keep the gag playful rather than making her a pin-up system. The humor should come from the absurd mismatch between
+serious progression language and completely cosmetic wardrobe changes.
+
+OPEN:
+
+- exact name/personality;
+- whether outfits are random rewards, milestone unlocks or tied to nominal "traits";
+- exact trigger list;
+- where the transient monitor appears in combat/non-combat scenes;
+- whether some announcements are spoken by officers instead when that is more natural.
