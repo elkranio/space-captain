@@ -2,6 +2,50 @@
     "generic_00": {
         "name": "Our test ship",
         "spriteId": "new_perspective_00",
-        "maxHull": 3
+        "maxHull": 3,
+        "slots": [
+            {
+                "id": "drive",
+                "kind": "drive",
+                "column": 1,
+                "row": 2
+            },
+            {
+                "id": "utility_01",
+                "kind": "utility",
+                "column": 2,
+                "row": 2
+            },
+            {
+                "id": "defense_01",
+                "kind": "defense",
+                "column": 3,
+                "row": 1
+            },
+            {
+                "id": "defense_02",
+                "kind": "defense",
+                "column": 3,
+                "row": 2
+            },
+            {
+                "id": "weapon_01",
+                "kind": "weapon",
+                "column": 4,
+                "row": 1
+            },
+            {
+                "id": "weapon_02",
+                "kind": "weapon",
+                "column": 4,
+                "row": 2
+            },
+            {
+                "id": "weapon_03",
+                "kind": "weapon",
+                "column": 4,
+                "row": 3
+            }
+        ]
     }
 }

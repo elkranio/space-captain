@@ -27,6 +27,9 @@ import {
 import {
     SHIP_DRIVE_ID,
 } from '../../../src/engine/defs/ship_drive';
+import {
+    SHIP_SLOT_KIND,
+} from '../../../src/engine/defs/ship_slot';
 
 describe(
     'Core ship content tuning',
@@ -51,6 +54,51 @@ describe(
                         'new_perspective_00',
 
                     maxHull: 3,
+
+                    slots: [
+                        {
+                            id: 'drive',
+                            kind: SHIP_SLOT_KIND.DRIVE,
+                            column: 1,
+                            row: 2,
+                        },
+                        {
+                            id: 'utility_01',
+                            kind: SHIP_SLOT_KIND.UTILITY,
+                            column: 2,
+                            row: 2,
+                        },
+                        {
+                            id: 'defense_01',
+                            kind: SHIP_SLOT_KIND.DEFENSE,
+                            column: 3,
+                            row: 1,
+                        },
+                        {
+                            id: 'defense_02',
+                            kind: SHIP_SLOT_KIND.DEFENSE,
+                            column: 3,
+                            row: 2,
+                        },
+                        {
+                            id: 'weapon_01',
+                            kind: SHIP_SLOT_KIND.WEAPON,
+                            column: 4,
+                            row: 1,
+                        },
+                        {
+                            id: 'weapon_02',
+                            kind: SHIP_SLOT_KIND.WEAPON,
+                            column: 4,
+                            row: 2,
+                        },
+                        {
+                            id: 'weapon_03',
+                            kind: SHIP_SLOT_KIND.WEAPON,
+                            column: 4,
+                            row: 3,
+                        },
+                    ],
                 });
 
                 const basicDrive =
@@ -114,6 +162,15 @@ describe(
                                     'generic_00',
 
                                 maxHull: 3,
+
+                                slots: [
+                                    {
+                                        id: 'drive',
+                                        kind: 'drive',
+                                        column: 1,
+                                        row: 1,
+                                    },
+                                ],
                             },
 
                             heavy_00: {
@@ -124,6 +181,21 @@ describe(
                                     'heavy_00',
 
                                 maxHull: 5,
+
+                                slots: [
+                                    {
+                                        id: 'drive',
+                                        kind: 'drive',
+                                        column: 2,
+                                        row: 1,
+                                    },
+                                    {
+                                        id: 'weapon_01',
+                                        kind: 'weapon',
+                                        column: 4,
+                                        row: 1,
+                                    },
+                                ],
                             },
                         })
                         .success,
@@ -178,6 +250,124 @@ describe(
         );
 
         it(
+            'rejects invalid chassis slot layouts',
+            () => {
+                const validChassis = {
+                    name: 'Test ship',
+                    spriteId: 'generic_00',
+                    maxHull: 3,
+                    slots: [
+                        {
+                            id: 'drive',
+                            kind: 'drive',
+                            column: 1,
+                            row: 1,
+                        },
+                        {
+                            id: 'weapon_01',
+                            kind: 'weapon',
+                            column: 4,
+                            row: 1,
+                        },
+                    ],
+                };
+
+                expect(
+                    SHIP_CHASSIS_TUNING_SCHEMA
+                        .safeParse({
+                            test_00: {
+                                ...validChassis,
+                                slots: [
+                                    ...validChassis.slots,
+                                    {
+                                        id: 'weapon_01',
+                                        kind: 'weapon',
+                                        column: 3,
+                                        row: 1,
+                                    },
+                                ],
+                            },
+                        })
+                        .success,
+                ).toBe(false);
+
+                expect(
+                    SHIP_CHASSIS_TUNING_SCHEMA
+                        .safeParse({
+                            test_00: {
+                                ...validChassis,
+                                slots: [
+                                    ...validChassis.slots,
+                                    {
+                                        id: 'utility_01',
+                                        kind: 'utility',
+                                        column: 4,
+                                        row: 1,
+                                    },
+                                ],
+                            },
+                        })
+                        .success,
+                ).toBe(false);
+
+                expect(
+                    SHIP_CHASSIS_TUNING_SCHEMA
+                        .safeParse({
+                            test_00: {
+                                ...validChassis,
+                                slots: [
+                                    {
+                                        id: 'weapon_01',
+                                        kind: 'weapon',
+                                        column: 4,
+                                        row: 1,
+                                    },
+                                ],
+                            },
+                        })
+                        .success,
+                ).toBe(false);
+
+                expect(
+                    SHIP_CHASSIS_TUNING_SCHEMA
+                        .safeParse({
+                            test_00: {
+                                ...validChassis,
+                                slots: [
+                                    ...validChassis.slots,
+                                    {
+                                        id: 'drive_02',
+                                        kind: 'drive',
+                                        column: 2,
+                                        row: 1,
+                                    },
+                                ],
+                            },
+                        })
+                        .success,
+                ).toBe(false);
+
+                expect(
+                    SHIP_CHASSIS_TUNING_SCHEMA
+                        .safeParse({
+                            test_00: {
+                                ...validChassis,
+                                slots: [
+                                    {
+                                        id: 'drive',
+                                        kind: 'drive',
+                                        column: 5,
+                                        row: 1,
+                                    },
+                                ],
+                            },
+                        })
+                        .success,
+                ).toBe(false);
+            },
+        );
+
+        it(
             'rejects invalid tuning values',
             () => {
                 expect(
@@ -191,6 +381,15 @@ describe(
                                     'generic_00',
 
                                 maxHull: 3,
+
+                                slots: [
+                                    {
+                                        id: 'drive',
+                                        kind: 'drive',
+                                        column: 1,
+                                        row: 1,
+                                    },
+                                ],
                             },
                         })
                         .success,
@@ -207,6 +406,15 @@ describe(
                                     'generic_00',
 
                                 maxHull: 0,
+
+                                slots: [
+                                    {
+                                        id: 'drive',
+                                        kind: 'drive',
+                                        column: 1,
+                                        row: 1,
+                                    },
+                                ],
                             },
                         })
                         .success,

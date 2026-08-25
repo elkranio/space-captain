@@ -1,5 +1,7 @@
 // src/engine/defs/ship_chassis.ts
 
+import { type ShipSlotDefinition } from "./ship_slot";
+
 // Удобные стабильные id встроенного контента.
 // Каталог при этом открыт для новых id из content editor.
 export const SHIP_CHASSIS_ID = {
@@ -22,4 +24,5 @@ export type ShipChassisDefinition = {
     spriteId: string;
 
     maxHull: number;
+    slots: ShipSlotDefinition[];
 };
