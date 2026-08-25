@@ -1,5 +1,158 @@
 # Space Captain — Current Handoff
 
+## CURRENT CHECKPOINT — 2026-08-25
+
+Base for this checkpoint: `master` at `a0a0e4335e6e5c182737f09be780a5cf8fe21233`.
+
+This section supersedes the archived pre-slot handoff below. Read this section first. The older material is kept only as
+historical implementation context and must not be treated as current runtime truth.
+
+### Landed today
+
+The chassis/loadout foundation is now real rather than planned:
+
+- chassis own stable physical slots with `slotId`, kind and grid coordinates;
+- current slot kinds are `DRIVE | WEAPON | DEFENSE | UTILITY`;
+- Power Core remains separate, non-spatial and non-targetable;
+- persistent player/enemy ship construction preserves chassis identity and `slotId -> equipmentId` mounts;
+- Debug Start uses normalized `equipment[]` records instead of `weaponSlot1..4` / parallel mount fields;
+- the content editor has a chassis-aware 4xN Debug Start equipment grid with compatibility-filtered equipment selectors;
+- equipment-family definitions own `maxIntegrity`;
+- encounter-local Drive / Defense Turret / Shield Generator / Weapon states now carry `integrity`;
+- encounter equipment integrity is initialized fresh and does not leak back into persistent run state;
+- shared encounter helpers exist for equipment operational state and integrity damage;
+- typecheck + full test suite were green before this handoff update.
+
+General BROKEN operational gating for every equipment family, repairs for every family and player Beam slot damage are
+**not** finished merely because the integrity field now exists.
+
+### Active slice — combat dashboard before precision targeting
+
+Do **not** implement player Beam `HULL | SLOT(slotId)` targeting next.
+
+We deliberately paused precision-target implementation until the target surfaces exist in the actual combat UI. Building
+the target contract against the old dashboard would likely create throwaway interaction and presentation work.
+
+Current order:
+
+```text
+new bridge/dashboard shell
+-> equipment-tile information/state prototype
+-> slot/integrity read models + dashboard runtime binding
+-> move threats into the compact top-center monitor
+-> finish BROKEN/repair operational behavior needed by the board
+-> player Beam HULL | SLOT direct targeting on the real board
+-> shared incoming Beam / targeted-Shield slot target model
+-> first weak-fight timing/balance smoke
+```
+
+Re-fetch current `master` and exact touched files before every coding atom. Do not do another broad architecture audit.
+
+### Confirmed combat-screen layout contract
+
+Strict layout reference:
+
+`docs/reference/combat_bridge_layout_2026-08-25.png`
+
+The current visual contract is 1280x720 and uses the whole screen intentionally:
+
+```text
+TOP CENTER
+    compact threat monitor
+
+LEFT SIDE                         RIGHT SIDE
+    SCIENCE video feed                WEAPONS video feed
+    HELM video feed                   ENGINEER video feed
+
+CENTER
+    large first-person viewscreen
+
+BOTTOM LEFT                       BOTTOM RIGHT
+    MY SHIP dashboard                 ENEMY SHIP dashboard
+```
+
+The officers are shown through physical video/intercom monitors. Do not return to four seated officer backs/stations in
+front of the captain merely to show the bridge interior. The captain remains first-person and invisible.
+
+Both lower dashboards use almost the full screen width with a very small center gap. Each ship dashboard contains an
+exact 4-column x 3-row equipment area plus one narrow special column. Preserve large equipment tiles; the latest
+wireframe gives roughly `131x86` pixels per regular tile.
+
+Dashboard grammar:
+
+```text
+PLAYER
+HEADER: USS CAPYBARA | ESC | ... | CORE
+BODY:   4x3 EQUIPMENT GRID | SPECIAL COLUMN
+
+ENEMY
+HEADER: ENEMY SHIP | ESC when fleeing | ... | CORE
+BODY:   SPECIAL COLUMN | 4x3 EQUIPMENT GRID
+```
+
+`ESC` is no longer a tall side column. It is a compact header button and also the escape-progress surface. When escape is
+active, progress fills the usable height of that button rather than appearing as a tiny nested bar.
+
+`HULL` is not in the header and is not a fake equipment slot. The special column is split:
+
+```text
+BRIDGE
+    compact role-state markers; use role letters + semantic state color in the real implementation
+
+HULL
+    one obvious clickable Hull target
+    one vertical segmented HP meter
+```
+
+The Hull segments are divisions of **one** health meter, not independent progress bars. Segment count may adapt to
+`maxHull` (for example ten visible segments for 10 Hull).
+
+Power Core stays in the header as charge cells and remains non-targetable.
+
+Do not add permanent combat-log, selected-target-details, officer-activity or ship-summary windows. Tooltips and transient
+combat feedback are allowed when needed; persistent truth should live on the existing surfaces.
+
+### Threat monitor contract
+
+Threats live in the small physical monitor centered above the viewscreen.
+
+One concrete runtime threat = one compact threat cell. Do not aggregate independent Missiles/Mines.
+
+Two independent progress channels are fixed:
+
+```text
+ICON SILHOUETTE FILL
+    = threat lifecycle / urgency progress
+
+ROUNDED-SQUARE FRAME PERIMETER FILL
+    = mitigation/work progress on that concrete threat
+```
+
+Do **not** add an ordinary horizontal progress bar under the icon.
+
+Threat cells become direct targets only when a selected system requires that concrete threat. Engine command availability
+remains authoritative.
+
+### Next UI questions, not new layout regions
+
+The next design work is the information architecture of one equipment tile and its states:
+
+- identity / icon;
+- READY / cooldown / active work;
+- integrity / BROKEN;
+- ammo/resource where relevant;
+- selected / hovered / valid-target state;
+- repair affordance when appropriate.
+
+Solve these inside the existing board before inventing another permanent panel.
+
+---
+
+## Archived pre-slot handoff — historical only
+
+Everything below this heading predates the landed chassis/loadout/integrity work. Keep it for implementation history, but
+do not use its “next task”, old storage-shape statements or old atom ordering as current truth.
+
 ## Current checkpoint
 
 Base for this handoff update: `master` at `9e6fcde8a9f57dba86f341652b38e04f10d91bf5`.

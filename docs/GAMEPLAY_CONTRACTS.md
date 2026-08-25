@@ -41,19 +41,35 @@ than objective truth.
 
 ## Current ship/loadout shape
 
-There is no generic chassis-slot runtime yet.
+Chassis/loadout identity is now implemented.
 
 Current implementation truth:
 
-- persistent enemy ship actors carry `chassisId`;
-- persistent player ship state does not yet carry `chassisId`;
-- player debug start still configures `maxHull` separately and assumes four weapon fields;
-- weapons are installed as `ShipWeaponState[]`;
-- Drive, Defense Turret, Power Core and Shield Generator remain dedicated scalar fields;
-- current encounter module damage is special-cased around Drive rather than generic targetable slots.
+- persistent player and enemy ships carry real `chassisId`;
+- chassis definitions own stable physical slot layout;
+- current slot kinds are `DRIVE | WEAPON | DEFENSE | UTILITY`;
+- slots have stable ids and grid coordinates; Hull is not a slot;
+- persistent mounts preserve `slotId -> runtime equipmentId`;
+- installed Drive, Defense Turret, Shield Generator and weapons may remain dedicated typed fields while mounts preserve
+  spatial identity;
+- Power Core remains a separate non-spatial installation;
+- Debug Start uses normalized `equipment[]` records with explicit `slotId`, equipment family discriminator and
+  `equipmentId`;
+- the Debug Start content editor renders chassis-aware equipment grids and filters choices by slot compatibility.
 
-This is expected to change in the next chassis-slot implementation slice. Do not infer the future slot design from these
-temporary storage shapes.
+Encounter equipment integrity is also generalized:
+
+- Drive, Defense Turret, Shield Generator and weapons carry encounter-local `integrity`;
+- `maxIntegrity` comes from equipment content definitions;
+- encounter creation hydrates fresh integrity;
+- encounter-only integrity is explicitly stripped at persistent snapshot boundaries and does not become run attrition;
+- shared helpers define `integrity > 0` operational truth and clamped integrity damage.
+
+The existence of generalized integrity does **not** mean every equipment family is already fully wired to BROKEN command
+gating, repair behavior or targeted damage. Those mechanics remain explicit follow-up work.
+
+Current player Beam still targets the enemy actor as a whole. Semantic `HULL | SLOT(slotId)` player targeting remains
+future work.
 
 ## Weapon lifecycle and cooldown commitment
 

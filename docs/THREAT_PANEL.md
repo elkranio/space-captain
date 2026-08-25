@@ -36,8 +36,13 @@ RIGHT DASHBOARD
 
 The right dashboard is no longer reserved for large threat cards. Basic enemy Hull/slot state stays visible continuously.
 
-Exact physical placement of the strip is not sacred yet. A narrow area above the dashboards / below the viewscreen is a
-candidate. Preserve the first-person viewscreen rather than turning the whole bridge into a flat tactical spreadsheet.
+Physical placement is now fixed for the current combat layout: use one small, long, narrow physical monitor centered
+above the viewscreen. Preserve the first-person viewscreen rather than turning the bridge into a flat tactical
+spreadsheet.
+
+Current strict layout reference:
+
+`reference/combat_bridge_layout_2026-08-25.png`
 
 ## Threat strip contract
 
@@ -146,14 +151,23 @@ SPAM uses effect-duration progress rather than a terminal incoming-hit countdown
 
 Its elapsed-duration language may remain green -> gray and should not imitate terminal red danger unless gameplay changes.
 
-## Active mitigation / work marker
+## Progress encoding + active mitigation
 
-When an officer/system is already handling a concrete threat, mark that threat in the strip.
+Two independent progress channels are fixed for the compact threat cell:
 
-This marker must derive from authoritative command/task/runtime state rather than a second presentation-owned
-"selected/handled" gameplay fact.
+```text
+icon silhouette fill from bottom to top
+    = threat lifecycle / urgency progress
 
-Exact treatment — border, pulse, role glyph, connector or another restrained marker — is visual tuning.
+rounded-square frame perimeter fill
+    = mitigation/work progress
+```
+
+Do **not** add a normal horizontal progress bar under the icon.
+
+The mitigation frame must derive from authoritative command/task/runtime state rather than a second presentation-owned
+"selected/handled" gameplay fact. A restrained role marker may still be added later if playtesting shows that the frame
+alone does not communicate who is handling the threat.
 
 ## HULL / CORE ownership
 

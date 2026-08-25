@@ -27,35 +27,47 @@ The intended mechanics reconciliation is complete. `GAME_DESIGN.md` is the canon
 Current implementation order:
 
 ```text
-chassis-owned ship slots + loadout mounts
--> encounter slot integrity / BROKEN operational gating
--> player Beam HULL | SLOT targeting
+LANDED: chassis-owned ship slots + persistent loadout mounts
+-> LANDED: normalized Debug Start loadout + chassis-aware content editor
+-> LANDED: generalized encounter equipment-integrity foundation
+-> NOW: new bridge shell + persistent MY SHIP / ENEMY SHIP dashboard prototype
+-> equipment-tile state/read-model binding
+-> compact top-center threat monitor migration
+-> finish BROKEN / repair operational behavior required by the board
+-> player Beam HULL | SLOT direct targeting on the real dashboard
 -> shared incoming Beam / targeted-Shield slot target model
--> persistent MY SHIP + ENEMY SHIP dashboards
--> direct system targeting + compact threat strip
 -> weak-player vs weak-enemy timing/balance smoke
 -> Science tactical-information pass
 -> deepen enemy targeted Shield behavior as needed
 ```
 
-### 1. Chassis slots and loadout shape
+Precision targeting intentionally moved **after** the combat-board prototype. The target contract should be built against
+the actual visible HULL / BRIDGE / equipment-slot surfaces rather than the superseded dashboard.
 
-Make chassis define physical build shape instead of assuming one universal ship layout.
+Current strict layout reference:
 
-Baseline slot categories:
+`reference/combat_bridge_layout_2026-08-25.png`
+
+### 1. Chassis slots and loadout shape — LANDED
+
+Chassis now define physical build shape instead of assuming one universal ship layout.
+
+Current slot categories:
 
 ```text
+DRIVE
 WEAPON
 DEFENSE
-EQUIPMENT
+UTILITY
 ```
 
-A ship loadout/preset fills compatible chassis slots. Different chassis may expose different counts and combinations.
+A ship loadout fills compatible chassis slots. Persistent mounts preserve stable slot identity. Debug Start uses the same
+normalized loadout idea and has a chassis-aware equipment editor.
 
-The persistent player ship must gain real chassis identity; the current debug-only `maxHull + four weapon fields` shape
-must not become the new slot model.
+### 2. Runtime equipment integrity and operational gating — PARTIAL
 
-### 2. Runtime slot damage and operational gating
+Generalized encounter-local integrity is landed for Drive, Defense Turret, Shield Generator and weapons. Full BROKEN
+operational gating / repair behavior across every family is still follow-up work.
 
 Targetable slots/modules use encounter-local integrity with binary functionality:
 
@@ -63,9 +75,6 @@ Targetable slots/modules use encounter-local integrity with binary functionality
 integrity > 0 -> OPERATIONAL
 integrity = 0 -> BROKEN
 ```
-
-A BROKEN slot disables the installed hardware. Keep this as one authoritative domain rule rather than duplicating
-`slot not broken` checks through command handlers, AI and runners.
 
 Hull remains separate. Power Core remains non-breakable/non-targetable.
 

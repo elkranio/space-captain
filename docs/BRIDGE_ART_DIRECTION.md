@@ -8,9 +8,13 @@ Durable visual rules for the first-person bridge and captain UI.
 - Early-1990s Sierra / Space Quest VGA feeling.
 - Flat, authored shapes and deliberate pixel treatment over glossy modern sci-fi UI.
 - Captain point of view: the captain is not another portrait in the bridge composition.
-- Officer stations and officers read as separate visual objects.
+- Officers are presented through four physical video/intercom monitors: Science + Helm on the left, Weapons + Engineer
+  on the right.
+- Do not spend the valuable lower-center space on four seated officer backs/stations during combat.
 
-Avoid family-friendly mobile-game polish, generic AI-rendered 3D surfaces and dense airplane-cockpit chrome.
+Avoid family-friendly mobile-game polish, generic AI-rendered 3D surfaces, dense airplane-cockpit chrome and AI-sci-fi
+surface noise such as fish-scale armor, endless tiny panels, meaningless vents/rivets or repeated greeble texture.
+Prefer fewer, larger, intentional mechanical shapes.
 
 ## Captain dashboard
 
@@ -54,14 +58,48 @@ Threat-dashboard specifics live only in `THREAT_PANEL.md`.
 
 ## Combat-board composition
 
+Strict current layout reference:
+
+`reference/combat_bridge_layout_2026-08-25.png`
+
 The confirmed combat composition is:
 
 ```text
-compact threat strip
-MY SHIP dashboard | ENEMY SHIP dashboard
+TOP CENTER
+    compact threat monitor
+
+SIDES
+    four officer video/intercom monitors
+
+CENTER
+    first-person viewscreen
+
+BOTTOM
+    MY SHIP dashboard | ENEMY SHIP dashboard
 ```
 
-MY SHIP and ENEMY SHIP should feel like one visual family, but they do not need mirrored information density.
+Both ship dashboards use almost the full screen width and preserve an exact 4x3 equipment grid with large tiles.
+
+Header grammar:
+
+```text
+ship name | compact ESC / escape-progress button | ... | CORE charge cells
+```
+
+Hull does not live in the header. Escape does not use a tall side column.
+
+Each dashboard has one narrow special column beside the 4x3 grid:
+
+```text
+BRIDGE
+    compact officer-role state markers
+
+HULL
+    one clickable Hull target
+    one vertical segmented HP meter
+```
+
+Player uses `GRID | SPECIAL COLUMN`; enemy mirrors it as `SPECIAL COLUMN | GRID`.
 
 MY SHIP emphasizes controls: slot readiness, cooldown/activity, ammo/resources, integrity and action availability.
 
@@ -71,8 +109,8 @@ target highlights.
 Basic enemy anatomy should stay visible without opening a separate inspection screen. Deeper tactical information may
 remain a Science/gameplay layer.
 
-The threat strip should be compact in area but high in attention priority. Use clear family glyphs, progress/urgency and
-restrained terminal danger animation rather than large permanent action cards.
+The top-center threat monitor is compact in area but high in attention priority. Threat progress fills the icon silhouette;
+mitigation progress fills the rounded-square frame perimeter. Do not add a normal progress bar under each threat glyph.
 
 Direct targeting should read visually as:
 
@@ -82,7 +120,8 @@ own system selected
 -> target selected
 ```
 
-Prefer spatial selection on already-visible ship slots/threats over modal UI when it remains clear.
+Prefer spatial selection on already-visible ship slots, the explicit HULL block, BRIDGE block and concrete threats over
+modal UI when it remains clear.
 
-Use visual grouping and semantic state before adding more labels/frames. The two dashboards should feel like tactical
-equipment boards, not mirrored spreadsheets.
+Use visual grouping and semantic state before adding more labels/frames. Do not add permanent combat-log or target-detail
+panels unless actual play proves the existing surfaces insufficient.
