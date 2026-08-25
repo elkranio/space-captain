@@ -21,3 +21,10 @@ export type ShipSlotDefinition = {
     column: number;
     row: number;
 };
+
+// Связь физического chassis slot с runtime экземпляром установленного оборудования.
+// Power Core сюда не входит: он не занимает spatial slot.
+export type ShipEquipmentMountState = {
+    slotId: string;
+    equipmentId: string;
+};

@@ -59,6 +59,12 @@ export default class ShipNodeActorFactory {
             hull: ship.hull,
             maxHull: ship.maxHull,
 
+            mounts: ship.mounts.map((mount) => {
+                return {
+                    ...mount,
+                };
+            }),
+
             drive: ship.drive,
 
             ...(ship.defenseTurret

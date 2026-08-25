@@ -10,6 +10,7 @@ import type { ShipDefenseTurretState } from "./defense_turret";
 import type { ShipBehaviorState } from "./ship_behavior";
 
 import type { ShipDriveState } from "./ship_drive";
+import type { ShipEquipmentMountState } from "./ship_slot";
 import type { ShipWeaponState } from "./ship_weapon";
 import type { ShieldGeneratorState } from "./shield_generator";
 import type { SpaceBackgroundId } from "./space_background";
@@ -57,6 +58,8 @@ export type ShipSpaceNodeActorState = SpaceNodeActorBaseState & {
 
     hull: number;
     maxHull: number;
+
+    mounts: ShipEquipmentMountState[];
 
     drive: ShipDriveState;
 

@@ -36,6 +36,49 @@ describe(
         );
 
         it(
+            'keeps validated spatial mounts in created ship state',
+            () => {
+                const ship =
+                    ShipFactory.create({
+                        presetId:
+                            SHIP_PRESET_ID
+                                .GENERIC_DEFENSE_SANDBOX_00,
+                    });
+
+                expect(ship.mounts).toEqual([
+                    {
+                        slotId: 'drive',
+                        equipmentId: 'drive_00',
+                    },
+                    {
+                        slotId: 'defense_01',
+                        equipmentId:
+                            'defense_turret_00',
+                    },
+                    {
+                        slotId: 'defense_02',
+                        equipmentId:
+                            'shield_generator_00',
+                    },
+                    {
+                        slotId: 'weapon_01',
+                        equipmentId:
+                            'missile_launcher_00',
+                    },
+                ]);
+
+                expect(
+                    ship.mounts.some((mount) => {
+                        return (
+                            mount.equipmentId ===
+                            'power_core_00'
+                        );
+                    }),
+                ).toBe(false);
+            },
+        );
+
+        it(
             'rejects equipment mounted into an incompatible slot kind',
             () => {
                 const source =

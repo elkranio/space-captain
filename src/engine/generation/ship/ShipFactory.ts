@@ -12,7 +12,7 @@ import type { PowerCoreState } from "../../defs/power_core";
 import type { ShipDefenseTurretState } from "../../defs/defense_turret";
 
 import { SHIP_DRIVE_STATUS, type ShipDriveState } from "../../defs/ship_drive";
-import type { ShipSlotKind } from "../../defs/ship_slot";
+import type { ShipEquipmentMountState, ShipSlotKind } from "../../defs/ship_slot";
 import { SHIP_WEAPON_KIND, type ShipWeaponState } from "../../defs/ship_weapon";
 import type { ShieldGeneratorState } from "../../defs/shield_generator";
 import PowerCoreFactory from "../ship_system/PowerCoreFactory";
@@ -32,6 +32,8 @@ export type CreatedShipState = {
 
     hull: number;
     maxHull: number;
+
+    mounts: ShipEquipmentMountState[];
 
     drive: ShipDriveState;
 
@@ -63,6 +65,8 @@ export default class ShipFactory {
 
             hull: chassis.maxHull,
             maxHull: chassis.maxHull,
+
+            mounts: this.createEquipmentMounts(preset),
 
             drive: {
                 id: preset.drive.id,
@@ -188,6 +192,38 @@ export default class ShipFactory {
 
             this.claimSlot(chassis, occupiedSlotIds, weapon.slotId, definition.slotKind, weapon.id);
         }
+    }
+
+    private static createEquipmentMounts(preset: ShipPreset): ShipEquipmentMountState[] {
+        const mounts: ShipEquipmentMountState[] = [
+            {
+                slotId: preset.drive.slotId,
+                equipmentId: preset.drive.id,
+            },
+        ];
+
+        if (preset.defenseTurret) {
+            mounts.push({
+                slotId: preset.defenseTurret.slotId,
+                equipmentId: preset.defenseTurret.id,
+            });
+        }
+
+        if (preset.shieldGenerator) {
+            mounts.push({
+                slotId: preset.shieldGenerator.slotId,
+                equipmentId: preset.shieldGenerator.id,
+            });
+        }
+
+        for (const weapon of preset.weapons) {
+            mounts.push({
+                slotId: weapon.slotId,
+                equipmentId: weapon.id,
+            });
+        }
+
+        return mounts;
     }
 
     private static claimSlot(

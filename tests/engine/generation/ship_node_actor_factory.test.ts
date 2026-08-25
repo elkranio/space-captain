@@ -75,6 +75,18 @@ describe('ShipNodeActorFactory', () => {
             hull: 3,
             maxHull: 3,
 
+            mounts: [
+                {
+                    slotId: 'drive',
+                    equipmentId: 'drive_00',
+                },
+                {
+                    slotId: 'weapon_01',
+                    equipmentId:
+                        'missile_launcher_00',
+                },
+            ],
+
             drive: {
                 id: 'drive_00',
 
@@ -149,6 +161,14 @@ describe('ShipNodeActorFactory', () => {
                 second.crewTraitsByRole[role],
             );
         }
+
+        expect(first.mounts).not.toBe(
+            second.mounts,
+        );
+
+        expect(first.mounts[0]).not.toBe(
+            second.mounts[0],
+        );
 
         expect(first.weapons).not.toBe(
             second.weapons,
@@ -233,6 +253,18 @@ describe('ShipNodeActorFactory', () => {
 
             hull: 3,
             maxHull: 3,
+
+            mounts: [
+                {
+                    slotId: 'drive',
+                    equipmentId: 'drive_00',
+                },
+                {
+                    slotId: 'weapon_01',
+                    equipmentId:
+                        'beam_cannon_00',
+                },
+            ],
 
             drive: {
                 id: 'drive_00',
