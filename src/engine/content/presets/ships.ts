@@ -27,6 +27,8 @@ type MissileLauncherShipWeaponPreset = {
     // Runtime id установленного оружия внутри корабля.
     id: string;
 
+    slotId: string;
+
     kind: typeof SHIP_WEAPON_KIND.MISSILE_LAUNCHER;
 
     weaponId: typeof SHIP_WEAPON_ID.MISSILE_LAUNCHER_00;
@@ -35,6 +37,8 @@ type MissileLauncherShipWeaponPreset = {
 type BeamCannonShipWeaponPreset = {
     // Runtime id установленного оружия внутри корабля.
     id: string;
+
+    slotId: string;
 
     kind: typeof SHIP_WEAPON_KIND.BEAM_CANNON;
 
@@ -45,6 +49,8 @@ type SpamProjectorShipWeaponPreset = {
     // Runtime id установленного оружия внутри корабля.
     id: string;
 
+    slotId: string;
+
     kind: typeof SHIP_WEAPON_KIND.SPAM_PROJECTOR;
 
     weaponId: typeof SHIP_WEAPON_ID.SPAM_PROJECTOR_00;
@@ -53,6 +59,8 @@ type SpamProjectorShipWeaponPreset = {
 type StickyMineDispenserShipWeaponPreset = {
     // Runtime id установленного оружия внутри корабля.
     id: string;
+
+    slotId: string;
 
     kind: typeof SHIP_WEAPON_KIND.STICKY_MINE_DISPENSER;
 
@@ -73,6 +81,7 @@ export type ShipPreset = {
     drive: {
         // Runtime id установленного двигателя.
         id: string;
+        slotId: string;
 
         driveId: string;
     };
@@ -81,6 +90,8 @@ export type ShipPreset = {
     // Runtime state is created by ShipDefenseTurretFactory.
     defenseTurret?: {
         id: string;
+        slotId: string;
+
         defenseTurretId: string;
     };
 
@@ -92,6 +103,7 @@ export type ShipPreset = {
 
     shieldGenerator?: {
         id: string;
+        slotId: string;
 
         shieldGeneratorId: string;
     };
@@ -107,12 +119,15 @@ export const SHIP_PRESETS = {
 
         drive: {
             id: "drive_00",
+            slotId: "drive",
+
             driveId: SHIP_DRIVE_ID.BASIC_00,
         },
 
         weapons: [
             {
                 id: "missile_launcher_00",
+                slotId: "weapon_01",
 
                 kind: SHIP_WEAPON_KIND.MISSILE_LAUNCHER,
 
@@ -128,12 +143,15 @@ export const SHIP_PRESETS = {
 
         drive: {
             id: "drive_00",
+            slotId: "drive",
+
             driveId: SHIP_DRIVE_ID.BASIC_00,
         },
 
         weapons: [
             {
                 id: "beam_cannon_00",
+                slotId: "weapon_01",
 
                 kind: SHIP_WEAPON_KIND.BEAM_CANNON,
 
@@ -149,12 +167,15 @@ export const SHIP_PRESETS = {
 
         drive: {
             id: "drive_00",
+            slotId: "drive",
+
             driveId: SHIP_DRIVE_ID.BASIC_00,
         },
 
         weapons: [
             {
                 id: "spam_projector_00",
+                slotId: "utility_01",
 
                 kind: SHIP_WEAPON_KIND.SPAM_PROJECTOR,
 
@@ -170,12 +191,15 @@ export const SHIP_PRESETS = {
 
         drive: {
             id: "drive_00",
+            slotId: "drive",
+
             driveId: SHIP_DRIVE_ID.BASIC_00,
         },
 
         weapons: [
             {
                 id: "sticky_mine_dispenser_00",
+                slotId: "weapon_01",
 
                 kind: SHIP_WEAPON_KIND.STICKY_MINE_DISPENSER,
 
@@ -191,12 +215,15 @@ export const SHIP_PRESETS = {
 
         drive: {
             id: "drive_00",
+            slotId: "drive",
+
             driveId: SHIP_DRIVE_ID.BASIC_00,
         },
 
         weapons: [
             {
                 id: "missile_launcher_00",
+                slotId: "weapon_01",
 
                 kind: SHIP_WEAPON_KIND.MISSILE_LAUNCHER,
 
@@ -204,6 +231,7 @@ export const SHIP_PRESETS = {
             },
             {
                 id: "beam_cannon_00",
+                slotId: "weapon_02",
 
                 kind: SHIP_WEAPON_KIND.BEAM_CANNON,
 
@@ -211,6 +239,7 @@ export const SHIP_PRESETS = {
             },
             {
                 id: "sticky_mine_dispenser_00",
+                slotId: "weapon_03",
 
                 kind: SHIP_WEAPON_KIND.STICKY_MINE_DISPENSER,
 
@@ -218,6 +247,7 @@ export const SHIP_PRESETS = {
             },
             {
                 id: "spam_projector_00",
+                slotId: "utility_01",
 
                 kind: SHIP_WEAPON_KIND.SPAM_PROJECTOR,
 
@@ -233,11 +263,15 @@ export const SHIP_PRESETS = {
 
         drive: {
             id: "drive_00",
+            slotId: "drive",
+
             driveId: SHIP_DRIVE_ID.BASIC_00,
         },
 
         defenseTurret: {
             id: "defense_turret_00",
+            slotId: "defense_01",
+
             defenseTurretId: DEFENSE_TURRET_ID.BASIC_00,
         },
 
@@ -249,6 +283,7 @@ export const SHIP_PRESETS = {
 
         shieldGenerator: {
             id: "shield_generator_00",
+            slotId: "defense_02",
 
             shieldGeneratorId: SHIELD_GENERATOR_ID.BASIC_00,
         },
@@ -259,6 +294,7 @@ export const SHIP_PRESETS = {
         weapons: [
             {
                 id: "missile_launcher_00",
+                slotId: "weapon_01",
 
                 kind: SHIP_WEAPON_KIND.MISSILE_LAUNCHER,
 
