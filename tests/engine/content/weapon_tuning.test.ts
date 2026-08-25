@@ -16,6 +16,9 @@ import {
     SHIP_WEAPON_ID,
     SHIP_WEAPON_KIND,
 } from '../../../src/engine/defs/ship_weapon';
+import {
+    SHIP_SLOT_KIND,
+} from '../../../src/engine/defs/ship_slot';
 
 describe(
     'Weapon content tuning',
@@ -35,6 +38,9 @@ describe(
                     kind:
                         SHIP_WEAPON_KIND
                             .MISSILE_LAUNCHER,
+                    slotKind:
+                        SHIP_SLOT_KIND.WEAPON,
+                    maxIntegrity: 2,
                 });
 
                 expect(
@@ -51,6 +57,9 @@ describe(
                     kind:
                         SHIP_WEAPON_KIND
                             .BEAM_CANNON,
+                    slotKind:
+                        SHIP_SLOT_KIND.WEAPON,
+                    maxIntegrity: 2,
                 });
 
                 expect(
@@ -65,6 +74,9 @@ describe(
                     kind:
                         SHIP_WEAPON_KIND
                             .SPAM_PROJECTOR,
+                    slotKind:
+                        SHIP_SLOT_KIND.UTILITY,
+                    maxIntegrity: 2,
                 });
 
                 expect(
@@ -79,6 +91,9 @@ describe(
                     kind:
                         SHIP_WEAPON_KIND
                             .STICKY_MINE_DISPENSER,
+                    slotKind:
+                        SHIP_SLOT_KIND.WEAPON,
+                    maxIntegrity: 2,
                 });
             },
         );
@@ -92,6 +107,8 @@ describe(
                             heavy_launcher_00: {
                                 name:
                                     'HEAVY LAUNCHER',
+
+                                maxIntegrity: 3,
 
                                 damage: 2,
                                 targetingDurationMs:
@@ -113,6 +130,8 @@ describe(
                                 name:
                                     'FAST BEAM_CANNON',
 
+                                maxIntegrity: 2,
+
                                 hullDamage: 1,
                                 moduleDamage: 1,
                                 chargeDurationMs:
@@ -130,6 +149,8 @@ describe(
                             spam_projector_01: {
                                 name:
                                     'SPAM PROJECTOR II',
+
+                                maxIntegrity: 2,
 
                                 channelDurationMs:
                                     24000,
@@ -150,6 +171,8 @@ describe(
                             mine_dispenser_01: {
                                 name:
                                     'MINE DISPENSER II',
+
+                                maxIntegrity: 4,
 
                                 damage: 2,
                                 fuseDurationMs:
@@ -177,6 +200,8 @@ describe(
                                 name:
                                     'BAD LAUNCHER',
 
+                                maxIntegrity: 2,
+
                                 damage: -1,
                                 targetingDurationMs:
                                     3000,
@@ -196,6 +221,8 @@ describe(
                             bad_dispenser_00: {
                                 name:
                                     'BAD DISPENSER',
+
+                                maxIntegrity: 2,
 
                                 damage: 1,
                                 fuseDurationMs:

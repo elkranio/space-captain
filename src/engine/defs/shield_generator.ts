@@ -1,5 +1,7 @@
 // src/engine/defs/shield_generator.ts
 
+import { SHIP_SLOT_KIND } from "./ship_slot";
+
 // Удобный стабильный id встроенного Shield Generator.
 // Каталог открыт для новых module ids из content editor.
 export const SHIELD_GENERATOR_ID = {
@@ -10,6 +12,9 @@ export type ShieldGeneratorDefinition = {
     id: string;
 
     name: string;
+
+    slotKind: typeof SHIP_SLOT_KIND.DEFENSE;
+    maxIntegrity: number;
 
     // Сколько живёт созданный генератором
     // active shield.

@@ -39,6 +39,9 @@ import {
 import {
     SHIP_BEHAVIOR_PRESET_ID,
 } from '../../../src/engine/defs/ship_behavior';
+import {
+    SHIP_SLOT_KIND,
+} from '../../../src/engine/defs/ship_slot';
 
 describe(
     'Defense and ship-behavior content tuning',
@@ -56,19 +59,31 @@ describe(
 
                 expect(
                     DEFENSE_TURRETS[
-                        DEFENSE_TURRET_ID.BASIC_00
-                    ].id,
-                ).toBe(
-                    DEFENSE_TURRET_ID.BASIC_00,
-                );
+                        DEFENSE_TURRET_ID
+                            .BASIC_00
+                    ],
+                ).toMatchObject({
+                    id:
+                        DEFENSE_TURRET_ID
+                            .BASIC_00,
+                    slotKind:
+                        SHIP_SLOT_KIND.DEFENSE,
+                    maxIntegrity: 2,
+                });
 
                 expect(
                     SHIELD_GENERATORS[
-                        SHIELD_GENERATOR_ID.BASIC_00
-                    ].id,
-                ).toBe(
-                    SHIELD_GENERATOR_ID.BASIC_00,
-                );
+                        SHIELD_GENERATOR_ID
+                            .BASIC_00
+                    ],
+                ).toMatchObject({
+                    id:
+                        SHIELD_GENERATOR_ID
+                            .BASIC_00,
+                    slotKind:
+                        SHIP_SLOT_KIND.DEFENSE,
+                    maxIntegrity: 2,
+                });
 
                 expect(
                     SHIP_BEHAVIOR_PRESETS[
@@ -105,6 +120,8 @@ describe(
                             defense_turret_basic_00: {
                                 name:
                                     'BASIC DEFENSE TURRET',
+                                maxIntegrity: 2,
+
                                 loadDurationMs:
                                     -1,
                                 cooldownDurationMs:
@@ -120,6 +137,8 @@ describe(
                             shield_generator_basic_00: {
                                 name:
                                     'BASIC SHIELD GENERATOR',
+                                maxIntegrity: 2,
+
                                 shieldDurationMs:
                                     5000,
                                 cooldownDurationMs:

@@ -117,6 +117,9 @@ describe(
                     name:
                         'BASIC DRIVE',
 
+                    slotKind:
+                        SHIP_SLOT_KIND.DRIVE,
+
                     maxIntegrity: 2,
                 });
 

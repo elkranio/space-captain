@@ -1,5 +1,7 @@
 // src/engine/defs/ship_drive.ts
 
+import { SHIP_SLOT_KIND } from "./ship_slot";
+
 // Удобный стабильный id встроенного drive.
 // Каталог открыт для новых module ids из content editor.
 export const SHIP_DRIVE_ID = {
@@ -16,6 +18,8 @@ export type ShipDriveStatus = (typeof SHIP_DRIVE_STATUS)[keyof typeof SHIP_DRIVE
 export type ShipDriveDefinition = {
     id: string;
     name: string;
+
+    slotKind: typeof SHIP_SLOT_KIND.DRIVE;
 
     maxIntegrity: number;
 

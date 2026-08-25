@@ -1,6 +1,7 @@
 {
     "missile_launcher_00": {
         "name": "MISSILE LAUNCHER",
+        "maxIntegrity": 2,
         "damage": 1,
         "targetingDurationMs": 3000,
         "flightDurationMs": 12000,
@@ -9,6 +10,7 @@
     },
     "ml_full_auto": {
         "name": "ml_full_auto",
+        "maxIntegrity": 2,
         "damage": 1,
         "targetingDurationMs": 700,
         "flightDurationMs": 12000,

@@ -9,6 +9,9 @@ import {
     SHIP_WEAPONS,
 } from '../../../src/engine/content/catalogs/ship_weapons';
 import {
+    SHIP_SLOT_KIND,
+} from '../../../src/engine/defs/ship_slot';
+import {
     SHIP_WEAPON_ID,
     SHIP_WEAPON_KIND,
     SHIP_WEAPON_PHASE,
@@ -38,6 +41,12 @@ describe(
                     kind:
                         SHIP_WEAPON_KIND
                             .STICKY_MINE_DISPENSER,
+
+                    slotKind:
+                        SHIP_SLOT_KIND
+                            .WEAPON,
+
+                    maxIntegrity: 2,
 
                     damage: 1,
                     fuseDurationMs: 7500,

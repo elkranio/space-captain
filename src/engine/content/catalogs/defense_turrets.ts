@@ -3,6 +3,7 @@
 import defenseTurretTuningData from "../data/defense_turrets.json";
 import { DEFENSE_TURRET_TUNING_SCHEMA } from "../schemas/defense_turrets";
 import { type DefenseTurretDefinition } from "../../defs/defense_turret";
+import { SHIP_SLOT_KIND } from "../../defs/ship_slot";
 
 const DEFENSE_TURRET_TUNING = DEFENSE_TURRET_TUNING_SCHEMA.parse(defenseTurretTuningData);
 
@@ -12,6 +13,7 @@ export const DEFENSE_TURRETS = Object.fromEntries(
             id,
             {
                 id,
+                slotKind: SHIP_SLOT_KIND.DEFENSE,
                 ...tuning,
             },
         ];

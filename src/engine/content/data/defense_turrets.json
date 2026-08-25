@@ -1,6 +1,7 @@
 {
     "defense_turret_basic_00": {
         "name": "BASIC DEFENSE TURRET",
+        "maxIntegrity": 2,
         "loadDurationMs": 3000,
         "cooldownDurationMs": 8000
     }

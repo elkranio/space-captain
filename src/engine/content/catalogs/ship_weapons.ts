@@ -19,6 +19,7 @@ import {
     type SpamProjectorDefinition,
     type StickyMineDispenserDefinition,
 } from "../../defs/ship_weapon";
+import { SHIP_SLOT_KIND } from "../../defs/ship_slot";
 
 const MISSILE_LAUNCHER_TUNING = MISSILE_LAUNCHER_TUNING_SCHEMA.parse(missileLauncherTuningData);
 
@@ -32,6 +33,7 @@ const MISSILE_LAUNCHERS = Object.entries(MISSILE_LAUNCHER_TUNING).map(([id, tuni
     return {
         id,
         kind: SHIP_WEAPON_KIND.MISSILE_LAUNCHER,
+        slotKind: SHIP_SLOT_KIND.WEAPON,
         ...tuning,
     };
 });
@@ -40,6 +42,7 @@ const BEAM_CANNONS = Object.entries(BEAM_CANNON_TUNING).map(([id, tuning]): Beam
     return {
         id,
         kind: SHIP_WEAPON_KIND.BEAM_CANNON,
+        slotKind: SHIP_SLOT_KIND.WEAPON,
         ...tuning,
     };
 });
@@ -48,6 +51,7 @@ const SPAM_PROJECTORS = Object.entries(SPAM_PROJECTOR_TUNING).map(([id, tuning])
     return {
         id,
         kind: SHIP_WEAPON_KIND.SPAM_PROJECTOR,
+        slotKind: SHIP_SLOT_KIND.UTILITY,
         ...tuning,
     };
 });
@@ -57,6 +61,7 @@ const STICKY_MINE_DISPENSERS = Object.entries(STICKY_MINE_DISPENSER_TUNING).map(
         return {
             id,
             kind: SHIP_WEAPON_KIND.STICKY_MINE_DISPENSER,
+            slotKind: SHIP_SLOT_KIND.WEAPON,
             ...tuning,
         };
     },

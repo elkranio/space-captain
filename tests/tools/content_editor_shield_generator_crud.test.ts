@@ -27,6 +27,8 @@ describe(
                                 name:
                                     'BASIC SHIELD GENERATOR',
 
+                                maxIntegrity: 2,
+
                                 shieldDurationMs:
                                     5000,
 
@@ -37,6 +39,8 @@ describe(
                             reinforced_00: {
                                 name:
                                     'REINFORCED SHIELD GENERATOR',
+
+                                maxIntegrity: 2,
 
                                 shieldDurationMs:
                                     8000,
@@ -91,6 +95,8 @@ describe(
                                 name:
                                     'BASIC SHIELD GENERATOR',
 
+                                maxIntegrity: 2,
+
                                 shieldDurationMs:
                                     5000,
 
@@ -101,6 +107,8 @@ describe(
                             reinforced_00: {
                                 name:
                                     'REINFORCED SHIELD GENERATOR',
+
+                                maxIntegrity: 2,
 
                                 shieldDurationMs:
                                     8000,
@@ -126,6 +134,8 @@ describe(
                             reinforced_00: {
                                 name:
                                     'REINFORCED SHIELD GENERATOR',
+
+                                maxIntegrity: 2,
 
                                 shieldDurationMs:
                                     8000,

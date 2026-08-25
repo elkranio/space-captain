@@ -1,6 +1,7 @@
 {
     "spam_projector_00": {
         "name": "SPAM PROJECTOR",
+        "maxIntegrity": 2,
         "channelDurationMs": 20000,
         "officerTaskProgressMultiplier": 0.5,
         "cooldownDurationMs": 35000

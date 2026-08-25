@@ -1,5 +1,7 @@
 // src/engine/defs/ship_weapon.ts
 
+import { SHIP_SLOT_KIND } from "./ship_slot";
+
 export const SHIP_WEAPON_KIND = {
     MISSILE_LAUNCHER: "missile_launcher",
     BEAM_CANNON: "beam_cannon",
@@ -95,11 +97,14 @@ export type ShipWeaponDefinitionBase = {
 
     kind: ShipWeaponKind;
 
+    maxIntegrity: number;
     cooldownDurationMs: number;
 };
 
 export type MissileLauncherDefinition = ShipWeaponDefinitionBase & {
     kind: typeof SHIP_WEAPON_KIND.MISSILE_LAUNCHER;
+
+    slotKind: typeof SHIP_SLOT_KIND.WEAPON;
 
     damage: number;
     targetingDurationMs: number;
@@ -111,6 +116,8 @@ export type MissileLauncherDefinition = ShipWeaponDefinitionBase & {
 export type BeamCannonDefinition = ShipWeaponDefinitionBase & {
     kind: typeof SHIP_WEAPON_KIND.BEAM_CANNON;
 
+    slotKind: typeof SHIP_SLOT_KIND.WEAPON;
+
     hullDamage: number;
     moduleDamage: number;
 
@@ -120,6 +127,8 @@ export type BeamCannonDefinition = ShipWeaponDefinitionBase & {
 export type SpamProjectorDefinition = ShipWeaponDefinitionBase & {
     kind: typeof SHIP_WEAPON_KIND.SPAM_PROJECTOR;
 
+    slotKind: typeof SHIP_SLOT_KIND.UTILITY;
+
     channelDurationMs: number;
 
     officerTaskProgressMultiplier: number;
@@ -127,6 +136,8 @@ export type SpamProjectorDefinition = ShipWeaponDefinitionBase & {
 
 export type StickyMineDispenserDefinition = ShipWeaponDefinitionBase & {
     kind: typeof SHIP_WEAPON_KIND.STICKY_MINE_DISPENSER;
+
+    slotKind: typeof SHIP_SLOT_KIND.WEAPON;
 
     damage: number;
     fuseDurationMs: number;

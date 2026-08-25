@@ -1,6 +1,7 @@
 {
     "shield_generator_basic_00": {
         "name": "BASIC SHIELD GENERATOR",
+        "maxIntegrity": 2,
         "shieldDurationMs": 5000,
         "cooldownDurationMs": 8000
     }

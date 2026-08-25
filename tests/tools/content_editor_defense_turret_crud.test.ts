@@ -27,6 +27,8 @@ describe(
                                 name:
                                     'BASIC DEFENSE TURRET',
 
+                                maxIntegrity: 2,
+
                                 loadDurationMs:
                                     3000,
 
@@ -37,6 +39,8 @@ describe(
                             rapid_00: {
                                 name:
                                     'RAPID DEFENSE TURRET',
+
+                                maxIntegrity: 2,
 
                                 loadDurationMs:
                                     1500,
@@ -91,6 +95,8 @@ describe(
                                 name:
                                     'BASIC DEFENSE TURRET',
 
+                                maxIntegrity: 2,
+
                                 loadDurationMs:
                                     3000,
 
@@ -101,6 +107,8 @@ describe(
                             rapid_00: {
                                 name:
                                     'RAPID DEFENSE TURRET',
+
+                                maxIntegrity: 2,
 
                                 loadDurationMs:
                                     1500,
@@ -126,6 +134,8 @@ describe(
                             rapid_00: {
                                 name:
                                     'RAPID DEFENSE TURRET',
+
+                                maxIntegrity: 2,
 
                                 loadDurationMs:
                                     1500,

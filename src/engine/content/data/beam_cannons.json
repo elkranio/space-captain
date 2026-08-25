@@ -1,6 +1,7 @@
 {
     "beam_cannon_00": {
         "name": "BEAM CANNON",
+        "maxIntegrity": 2,
         "hullDamage": 1,
         "moduleDamage": 1,
         "chargeDurationMs": 12000,
@@ -8,6 +9,7 @@
     },
     "fast_beam": {
         "name": "FAST_BEAM_CANNON",
+        "maxIntegrity": 2,
         "hullDamage": 1,
         "moduleDamage": 1,
         "chargeDurationMs": 2000,

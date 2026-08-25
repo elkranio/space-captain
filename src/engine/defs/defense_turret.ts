@@ -1,5 +1,7 @@
 // src/engine/defs/defense_turret.ts
 
+import { SHIP_SLOT_KIND } from "./ship_slot";
+
 export const DEFENSE_TURRET_SHOT_OUTCOME = {
     HIT: "hit",
     MISS: "miss",
@@ -16,6 +18,9 @@ export const DEFENSE_TURRET_ID = {
 export type DefenseTurretDefinition = {
     id: string;
     name: string;
+
+    slotKind: typeof SHIP_SLOT_KIND.DEFENSE;
+    maxIntegrity: number;
 
     loadDurationMs: number;
     cooldownDurationMs: number;
