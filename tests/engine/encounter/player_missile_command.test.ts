@@ -14,7 +14,6 @@ import {
 import {
     SHIP_WEAPON_KIND,
     SHIP_WEAPON_PHASE,
-    type MissileLauncherState,
 } from '../../../src/engine/defs/ship_weapon';
 import EncounterEngine from '../../../src/engine/encounter/EncounterEngine';
 import {
@@ -28,6 +27,7 @@ import {
 import {
     createAnchoredPlayerCombatTestSetup,
     getPlayerWeaponOrThrow,
+    type EncounterMissileLauncherState,
 } from './combat_test_support';
 
 describe('Player missile command', () => {
@@ -202,7 +202,7 @@ describe('Player missile command', () => {
             );
 
         const secondLauncher:
-            MissileLauncherState = {
+            EncounterMissileLauncherState = {
                 ...firstLauncher,
 
                 id:
@@ -417,7 +417,7 @@ function createMissileTestSetup(): {
     engine: EncounterEngine;
 
     launcher:
-        MissileLauncherState;
+        EncounterMissileLauncherState;
 
     targetActorId: string;
 } {

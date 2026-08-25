@@ -10,6 +10,7 @@ import {
     DEFENSE_TURRETS,
 } from '../../../src/engine/content/catalogs/defense_turrets';
 import {
+    SHIP_WEAPONS,
 } from '../../../src/engine/content/catalogs/ship_weapons';
 import {
     OFFICER_ROLE,
@@ -21,7 +22,6 @@ import {
 import {
     SHIP_WEAPON_ID,
     SHIP_WEAPON_PHASE,
-    type MissileLauncherState,
 } from '../../../src/engine/defs/ship_weapon';
 import MissileLauncherFactory from '../../../src/engine/generation/ship_weapon/MissileLauncherFactory';
 import {
@@ -39,6 +39,9 @@ import {
     COMBAT_SOURCE_KIND,
     COMBAT_TARGET_KIND,
 } from '../../../src/engine/encounter/model/combat';
+import {
+    createEncounterEquipmentState,
+} from '../../../src/engine/encounter/model/equipment';
 import {
     ENCOUNTER_EVENT,
 } from '../../../src/engine/encounter/model/event';
@@ -590,14 +593,21 @@ function activatePlayerSpam(
     );
 }
 
-function createEnemyMissileLauncher():
-    MissileLauncherState {
-    return MissileLauncherFactory.create({
-        id:
-            'spam_slow_enemy_missile_launcher',
+function createEnemyMissileLauncher() {
+    const launcher =
+        MissileLauncherFactory.create({
+            id:
+                'spam_slow_enemy_missile_launcher',
 
-        weaponId:
-            SHIP_WEAPON_ID
-                .MISSILE_LAUNCHER_00,
-    });
+            weaponId:
+                SHIP_WEAPON_ID
+                    .MISSILE_LAUNCHER_00,
+        });
+
+    return createEncounterEquipmentState(
+        launcher,
+        SHIP_WEAPONS[
+            launcher.weaponId
+        ].maxIntegrity,
+    );
 }

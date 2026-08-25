@@ -68,7 +68,7 @@ export const weaponsFireStickyMinesCommandHandler: OfficerCommandHandler = {
     },
 };
 
-function getReadyStickyMineDispensers(state: EncounterState): StickyMineDispenserState[] {
+function getReadyStickyMineDispensers(state: EncounterState) {
     return state.combat.playerWeapons.filter(isReadyStickyMineDispenser);
 }
 

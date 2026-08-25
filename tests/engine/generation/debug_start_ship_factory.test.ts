@@ -34,14 +34,18 @@ describe(
                 expect(ship.maxHull).toBe(30);
 
                 expect(
-                    ship.mounts.map(
-                        (mount) => mount.slotId,
-                    ),
+                    ship.mounts
+                        .map(
+                            (mount) => mount.slotId,
+                        )
+                        .sort(),
                 ).toEqual(
-                    DEBUG_START.player.equipment.map(
-                        (equipment) =>
-                            equipment.slotId,
-                    ),
+                    DEBUG_START.player.equipment
+                        .map(
+                            (equipment) =>
+                                equipment.slotId,
+                        )
+                        .sort(),
                 );
 
                 expect(

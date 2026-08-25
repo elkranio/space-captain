@@ -1,6 +1,9 @@
 // src/engine/encounter/state/create_encounter_state.ts
 
+import { DEFENSE_TURRETS } from "../../content/catalogs/defense_turrets";
+import { SHIELD_GENERATORS } from "../../content/catalogs/shield_generators";
 import { SHIP_DRIVES } from "../../content/catalogs/ship_drives";
+import { SHIP_WEAPONS } from "../../content/catalogs/ship_weapons";
 import type { PowerCoreState } from "../../defs/power_core";
 import type { ShipDefenseTurretState } from "../../defs/defense_turret";
 import type { PlayerHullState } from "../../defs/player";
@@ -8,9 +11,13 @@ import type { PlayerSpaceNavigationState } from "../../defs/player_location";
 import { SHIP_DRIVE_STATUS, type ShipDriveState } from "../../defs/ship_drive";
 import { createReadyShipEvadeState } from "../../defs/ship_evade";
 import type { ShipWeaponState } from "../../defs/ship_weapon";
-import type { ShieldGeneratorState } from "../../defs/shield_generator";
+import {
+    SHIELD_GENERATOR_STATUS,
+    type ShieldGeneratorState,
+} from "../../defs/shield_generator";
 import { SPACE_ANCHOR_KIND, type SpaceAnchorState, type SpaceNodeState } from "../../defs/universe";
 import { ENCOUNTER_ANCHOR_KIND, type EncounterAnchorState } from "../anchors/encounter_anchor";
+import { createEncounterEquipmentState } from "../model/equipment";
 import type { EncounterState } from "../model/state";
 
 export type CreateEncounterStateInput = {
@@ -54,13 +61,11 @@ export function createEncounterState({
             ...navigation,
         },
 
-        drive: {
-            ...drive,
-            integrity:
-                drive.status === SHIP_DRIVE_STATUS.DISABLED
-                    ? 0
-                    : SHIP_DRIVES[drive.driveId].maxIntegrity,
-        },
+        drive: createEncounterEquipmentState(
+            drive,
+            SHIP_DRIVES[drive.driveId].maxIntegrity,
+            drive.status !== SHIP_DRIVE_STATUS.DISABLED,
+        ),
 
         evade: createReadyShipEvadeState(),
 
@@ -79,9 +84,10 @@ export function createEncounterState({
         combat: {
             ...(defenseTurret
                 ? {
-                      defenseTurret: {
-                          ...defenseTurret,
-                      },
+                      defenseTurret: createEncounterEquipmentState(
+                          defenseTurret,
+                          DEFENSE_TURRETS[defenseTurret.defenseTurretId].maxIntegrity,
+                      ),
                   }
                 : {}),
 
@@ -95,18 +101,21 @@ export function createEncounterState({
 
             ...(shieldGenerator
                 ? {
-                      shieldGenerator: {
-                          ...shieldGenerator,
-                      },
+                      shieldGenerator: createEncounterEquipmentState(
+                          shieldGenerator,
+                          SHIELD_GENERATORS[shieldGenerator.shieldGeneratorId].maxIntegrity,
+                          shieldGenerator.status !== SHIELD_GENERATOR_STATUS.BROKEN,
+                      ),
                   }
                 : {}),
 
             activeShield: null,
 
             playerWeapons: playerWeapons.map((weapon) => {
-                return {
-                    ...weapon,
-                };
+                return createEncounterEquipmentState(
+                    weapon,
+                    SHIP_WEAPONS[weapon.weaponId].maxIntegrity,
+                );
             }),
 
             projectiles: [],

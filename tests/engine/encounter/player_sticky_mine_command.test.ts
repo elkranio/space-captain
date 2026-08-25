@@ -14,7 +14,6 @@ import {
 import {
     SHIP_WEAPON_KIND,
     SHIP_WEAPON_PHASE,
-    type StickyMineDispenserState,
 } from '../../../src/engine/defs/ship_weapon';
 import EncounterEngine from '../../../src/engine/encounter/EncounterEngine';
 import type {
@@ -44,6 +43,7 @@ import type {
 import {
     createAnchoredPlayerCombatTestSetup,
     getPlayerWeaponOrThrow,
+    type EncounterStickyMineDispenserState,
 } from './combat_test_support';
 
 describe('Player sticky-mine command', () => {
@@ -349,7 +349,7 @@ describe('Player sticky-mine command', () => {
         } = createStickyMineTestSetup();
 
         const secondDispenser:
-            StickyMineDispenserState = {
+            EncounterStickyMineDispenserState = {
                 ...firstDispenser,
 
                 id:
@@ -676,7 +676,7 @@ function createStickyMineTestSetup(): {
     state: EncounterState;
 
     dispenser:
-        StickyMineDispenserState;
+        EncounterStickyMineDispenserState;
 
     target:
         ShipEncounterActorState;

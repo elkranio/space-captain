@@ -9,6 +9,9 @@ import {
     type BeamCannonState,
 } from '../../../src/engine/defs/ship_weapon';
 import {
+    createEncounterEquipmentState,
+} from '../../../src/engine/encounter/model/equipment';
+import {
     BEAM_CANNON_SHOT_OUTCOME,
     BEAM_CANNON_TARGET_NODE,
     COMBAT_TARGET_KIND,
@@ -49,14 +52,17 @@ function primeIncomingBeam(
         throw new Error('Invalid remaining Beam Cannon charge time');
     }
 
-    const beamCannon: BeamCannonState = {
-        id: 'targeted_shield_beam_cannon_00',
-        weaponId: SHIP_WEAPON_ID.BEAM_CANNON_00,
-        kind: SHIP_WEAPON_KIND.BEAM_CANNON,
-        phase: SHIP_WEAPON_PHASE.CHARGING,
-        phaseElapsedMs: definition.chargeDurationMs - remainingChargeMs,
-        cooldownRemainingMs: 0,
-    };
+    const beamCannon = createEncounterEquipmentState<BeamCannonState>(
+        {
+            id: 'targeted_shield_beam_cannon_00',
+            weaponId: SHIP_WEAPON_ID.BEAM_CANNON_00,
+            kind: SHIP_WEAPON_KIND.BEAM_CANNON,
+            phase: SHIP_WEAPON_PHASE.CHARGING,
+            phaseElapsedMs: definition.chargeDurationMs - remainingChargeMs,
+            cooldownRemainingMs: 0,
+        },
+        definition.maxIntegrity,
+    );
 
     setup.targetActor.weapons.push(beamCannon);
 

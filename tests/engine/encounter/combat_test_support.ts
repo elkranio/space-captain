@@ -221,31 +221,47 @@ export function createCanonicalPlayerCombatWeapons():
     ];
 }
 
+export type EncounterBeamCannonState =
+    BeamCannonState &
+    EncounterState['combat']['playerWeapons'][number];
+
+export type EncounterMissileLauncherState =
+    MissileLauncherState &
+    EncounterState['combat']['playerWeapons'][number];
+
+export type EncounterStickyMineDispenserState =
+    StickyMineDispenserState &
+    EncounterState['combat']['playerWeapons'][number];
+
+export type EncounterSpamProjectorState =
+    SpamProjectorState &
+    EncounterState['combat']['playerWeapons'][number];
+
 export function getPlayerWeaponOrThrow(
     state: EncounterState,
     kind: typeof SHIP_WEAPON_KIND.BEAM_CANNON,
-): BeamCannonState;
+): EncounterBeamCannonState;
 
 export function getPlayerWeaponOrThrow(
     state: EncounterState,
     kind:
         typeof SHIP_WEAPON_KIND
             .MISSILE_LAUNCHER,
-): MissileLauncherState;
+): EncounterMissileLauncherState;
 
 export function getPlayerWeaponOrThrow(
     state: EncounterState,
     kind:
         typeof SHIP_WEAPON_KIND
             .STICKY_MINE_DISPENSER,
-): StickyMineDispenserState;
+): EncounterStickyMineDispenserState;
 
 export function getPlayerWeaponOrThrow(
     state: EncounterState,
     kind:
         typeof SHIP_WEAPON_KIND
             .SPAM_PROJECTOR,
-): SpamProjectorState;
+): EncounterSpamProjectorState;
 
 export function getPlayerWeaponOrThrow(
     state: EncounterState,
@@ -258,10 +274,10 @@ export function getPlayerWeaponOrThrow(
         | typeof SHIP_WEAPON_KIND
               .SPAM_PROJECTOR,
 ):
-    | BeamCannonState
-    | MissileLauncherState
-    | StickyMineDispenserState
-    | SpamProjectorState {
+    | EncounterBeamCannonState
+    | EncounterMissileLauncherState
+    | EncounterStickyMineDispenserState
+    | EncounterSpamProjectorState {
     const weapon =
         state.combat.playerWeapons.find(
             (candidate) => {

@@ -68,7 +68,7 @@ export const weaponsFireMissileCommandHandler: OfficerCommandHandler = {
     },
 };
 
-function getReadyMissileLaunchers(state: EncounterState): MissileLauncherState[] {
+function getReadyMissileLaunchers(state: EncounterState) {
     return state.combat.playerWeapons.filter(isReadyMissileLauncher);
 }
 

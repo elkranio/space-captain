@@ -31,6 +31,11 @@ import {
     type SpamChannelState,
     type StickyMineState,
 } from "../model/combat";
+import {
+    createDefenseTurretStateSnapshot,
+    createShieldGeneratorStateSnapshot,
+    createShipWeaponStateSnapshot,
+} from "../model/equipment";
 import type { OfficerAvailabilityStates } from "../model/officer_availability";
 import type { OfficerTaskState } from "../model/officer_task";
 import type { EncounterShipDriveState, EncounterState } from "../model/state";
@@ -159,7 +164,9 @@ export function createCombatPresentationSnapshot(state: EncounterState): CombatP
 
             ...(state.combat.shieldGenerator
                 ? {
-                      shieldGenerator: state.combat.shieldGenerator,
+                      shieldGenerator: createShieldGeneratorStateSnapshot(
+                          state.combat.shieldGenerator,
+                      ),
                   }
                 : {}),
 
@@ -269,7 +276,7 @@ export function createPlayerDefenseTurretPresentationSnapshot(
     }
 
     return {
-        state,
+        state: createDefenseTurretStateSnapshot(state),
 
         cooldownDurationMs: definition.cooldownDurationMs,
     };
@@ -307,7 +314,7 @@ export function createPlayerWeaponPresentationSnapshot(weapon: ShipWeaponState):
     const ammoCapacity = getWeaponAmmoCapacity(weapon);
 
     return {
-        state: weapon,
+        state: createShipWeaponStateSnapshot(weapon),
 
         cooldownDurationMs: definition.cooldownDurationMs,
 

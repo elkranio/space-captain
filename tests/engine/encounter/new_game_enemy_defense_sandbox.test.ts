@@ -1,6 +1,15 @@
 // tests/engine/encounter/new_game_enemy_defense_sandbox.test.ts
 
 import {
+    DEFENSE_TURRETS,
+} from '../../../src/engine/content/catalogs/defense_turrets';
+import {
+    SHIELD_GENERATORS,
+} from '../../../src/engine/content/catalogs/shield_generators';
+import {
+    SHIP_WEAPONS,
+} from '../../../src/engine/content/catalogs/ship_weapons';
+import {
     POWER_CORE_ID,
 } from '../../../src/engine/defs/power_core';
 import {
@@ -66,7 +75,11 @@ describe('New-game enemy defense sandbox', () => {
                         SHIP_WEAPON_KIND
                             .MISSILE_LAUNCHER,
 
-
+                    integrity:
+                        SHIP_WEAPONS[
+                            SHIP_WEAPON_ID
+                                .MISSILE_LAUNCHER_00
+                        ].maxIntegrity,
 
                     ammoCount: 5,
 
@@ -88,6 +101,12 @@ describe('New-game enemy defense sandbox', () => {
                 defenseTurretId:
                     DEFENSE_TURRET_ID
                         .BASIC_00,
+
+                integrity:
+                    DEFENSE_TURRETS[
+                        DEFENSE_TURRET_ID
+                            .BASIC_00
+                    ].maxIntegrity,
 
                 phase:
                     DEFENSE_TURRET_PHASE
@@ -125,6 +144,12 @@ describe('New-game enemy defense sandbox', () => {
                 shieldGeneratorId:
                     SHIELD_GENERATOR_ID
                         .BASIC_00,
+
+                integrity:
+                    SHIELD_GENERATORS[
+                        SHIELD_GENERATOR_ID
+                            .BASIC_00
+                    ].maxIntegrity,
 
                 status:
                     SHIELD_GENERATOR_STATUS

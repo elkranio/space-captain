@@ -1,7 +1,10 @@
 // src/engine/encounter/state/EncounterActorStore.ts
 
+import { DEFENSE_TURRETS } from "../../content/catalogs/defense_turrets";
+import { SHIELD_GENERATORS } from "../../content/catalogs/shield_generators";
 import { SHIP_CHASSIS } from "../../content/catalogs/ship_chassis";
 import { SHIP_DRIVES } from "../../content/catalogs/ship_drives";
+import { SHIP_WEAPONS } from "../../content/catalogs/ship_weapons";
 import type { CrewTraitsByRole } from "../../defs/crew_trait";
 import type { PowerCoreState } from "../../defs/power_core";
 import { ENCOUNTER_TEAM, type EncounterTeam } from "../../defs/encounter_team";
@@ -17,9 +20,13 @@ import {
     startShipEvade,
 } from "../../defs/ship_evade";
 import type { ShipWeaponState } from "../../defs/ship_weapon";
-import type { ShieldGeneratorState } from "../../defs/shield_generator";
+import {
+    SHIELD_GENERATOR_STATUS,
+    type ShieldGeneratorState,
+} from "../../defs/shield_generator";
 import { ENCOUNTER_ACTOR_KIND, type EncounterActorState } from "../actors/encounter_actor";
 import type { ShipEncounterActorState } from "../actors/ship_encounter_actor";
+import { createEncounterEquipmentState } from "../model/equipment";
 import type { EncounterState } from "../model/state";
 
 export type EnemyHullDamageResult = {
@@ -123,17 +130,20 @@ export default class EncounterActorStore {
             hull,
             maxHull,
 
-            drive: {
-                ...drive,
-            },
+            drive: createEncounterEquipmentState(
+                drive,
+                SHIP_DRIVES[drive.driveId].maxIntegrity,
+                drive.status !== SHIP_DRIVE_STATUS.DISABLED,
+            ),
 
             evade: createReadyShipEvadeState(),
 
             ...(defenseTurret
                 ? {
-                      defenseTurret: {
-                          ...defenseTurret,
-                      },
+                      defenseTurret: createEncounterEquipmentState(
+                          defenseTurret,
+                          DEFENSE_TURRETS[defenseTurret.defenseTurretId].maxIntegrity,
+                      ),
                   }
                 : {}),
 
@@ -147,9 +157,11 @@ export default class EncounterActorStore {
 
             ...(shieldGenerator
                 ? {
-                      shieldGenerator: {
-                          ...shieldGenerator,
-                      },
+                      shieldGenerator: createEncounterEquipmentState(
+                          shieldGenerator,
+                          SHIELD_GENERATORS[shieldGenerator.shieldGeneratorId].maxIntegrity,
+                          shieldGenerator.status !== SHIELD_GENERATOR_STATUS.BROKEN,
+                      ),
                   }
                 : {}),
 
@@ -172,9 +184,10 @@ export default class EncounterActorStore {
             hasUsedOpeningDisruptionPulse: false,
 
             weapons: weapons.map((weapon) => {
-                return {
-                    ...weapon,
-                };
+                return createEncounterEquipmentState(
+                    weapon,
+                    SHIP_WEAPONS[weapon.weaponId].maxIntegrity,
+                );
             }),
         };
 

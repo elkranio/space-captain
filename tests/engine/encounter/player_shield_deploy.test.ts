@@ -20,11 +20,13 @@ import {
     SHIP_WEAPON_ID,
     SHIP_WEAPON_KIND,
     SHIP_WEAPON_PHASE,
-    type BeamCannonState,
 } from '../../../src/engine/defs/ship_weapon';
 import {
     SHIP_WEAPONS,
 } from '../../../src/engine/content/catalogs/ship_weapons';
+import type {
+    EncounterShipWeaponState,
+} from '../../../src/engine/encounter/model/equipment';
 import {
     ENCOUNTER_OFFICER_COMMAND_ID,
     OFFICER_COMMAND_TARGET_KIND,
@@ -385,7 +387,7 @@ describe(
                 engine.drainEvents();
 
                 const beamCannon:
-                    BeamCannonState = {
+                    EncounterShipWeaponState = {
                         id:
                             'shield_test_beam_cannon_00',
 
@@ -396,6 +398,12 @@ describe(
                         kind:
                             SHIP_WEAPON_KIND
                                 .BEAM_CANNON,
+
+                        integrity:
+                            SHIP_WEAPONS[
+                                SHIP_WEAPON_ID
+                                    .BEAM_CANNON_00
+                            ].maxIntegrity,
 
                         phase:
                             SHIP_WEAPON_PHASE

@@ -20,6 +20,10 @@ import {
     type BeamCannonAttackSnapshot,
     type CombatProjectileState,
 } from "../model/combat";
+import {
+    createShieldGeneratorStateSnapshot,
+    createShipWeaponStateSnapshot,
+} from "../model/equipment";
 import type { OfficerAvailabilityStates } from "../model/officer_availability";
 import type { OfficerTaskState } from "../model/officer_task";
 import type { EncounterShipDriveState, EncounterState } from "../model/state";
@@ -79,7 +83,9 @@ export default class EncounterSnapshotReader {
     }
 
     public getPlayerWeaponStates(): ShipWeaponState[] {
-        return this.read((state) => state.combat.playerWeapons);
+        return this.read((state) => {
+            return state.combat.playerWeapons.map(createShipWeaponStateSnapshot);
+        });
     }
 
     public getPowerCoreState(): PowerCoreState | undefined {
@@ -87,7 +93,11 @@ export default class EncounterSnapshotReader {
     }
 
     public getShieldGeneratorState(): ShieldGeneratorState | undefined {
-        return this.read((state) => state.combat.shieldGenerator);
+        return this.read((state) => {
+            return state.combat.shieldGenerator
+                ? createShieldGeneratorStateSnapshot(state.combat.shieldGenerator)
+                : undefined;
+        });
     }
 
     public getActiveShieldState(): ActiveShieldState | null {

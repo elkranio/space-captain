@@ -37,6 +37,9 @@ import {
     DEFENSE_TURRETS,
 } from '../../../src/engine/content/catalogs/defense_turrets';
 import {
+    createEncounterEquipmentState,
+} from '../../../src/engine/encounter/model/equipment';
+import {
     createShipDriveFixture,
 } from '../../fixtures/engine/ship_drive_fixtures';
 import {
@@ -257,7 +260,7 @@ function createScenario() {
 
     // This suite owns Defense Turret physics.
     // Do not couple it to the mutable debug/sandbox loadout.
-    enemy.defenseTurret =
+    const defenseTurret =
         ShipDefenseTurretFactory.create({
             id:
                 'defense_turret_00',
@@ -266,6 +269,14 @@ function createScenario() {
                 DEFENSE_TURRET_ID
                     .BASIC_00,
         });
+
+    enemy.defenseTurret =
+        createEncounterEquipmentState(
+            defenseTurret,
+            DEFENSE_TURRETS[
+                defenseTurret.defenseTurretId
+            ].maxIntegrity,
+        );
 
     // This suite owns Defense Turret physics,
     // not captain attack-vs-defense strategy.

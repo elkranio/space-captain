@@ -10,6 +10,9 @@ import {
     SHIP_CHASSIS,
 } from '../../../src/engine/content/catalogs/ship_chassis';
 import {
+    SHIP_DRIVES,
+} from '../../../src/engine/content/catalogs/ship_drives';
+import {
     SHIP_NODE_ACTOR_PRESET_ID,
 } from '../../../src/engine/content/presets/ship_node_actors';
 import {
@@ -131,6 +134,11 @@ describe('encounter actors', () => {
 
             drive: {
                 ...drive,
+
+                integrity:
+                    SHIP_DRIVES[
+                        drive.driveId
+                    ].maxIntegrity,
             },
 
             evade: {

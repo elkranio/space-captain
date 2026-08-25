@@ -68,7 +68,7 @@ export const scienceFireSpamCommandHandler: OfficerCommandHandler = {
     },
 };
 
-function getReadySpamProjectors(state: EncounterState): SpamProjectorState[] {
+function getReadySpamProjectors(state: EncounterState) {
     return state.combat.playerWeapons.filter(isReadySpamProjector);
 }
 

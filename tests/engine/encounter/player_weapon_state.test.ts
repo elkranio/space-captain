@@ -7,6 +7,9 @@ import {
     it,
 } from 'vitest';
 import {
+    SHIP_WEAPONS,
+} from '../../../src/engine/content/catalogs/ship_weapons';
+import {
     SHIP_WEAPON_ID,
     SHIP_WEAPON_KIND,
     SHIP_WEAPON_PHASE,
@@ -94,6 +97,12 @@ describe('Player weapon encounter state', () => {
                 kind:
                     SHIP_WEAPON_KIND.BEAM_CANNON,
 
+                integrity:
+                    SHIP_WEAPONS[
+                        SHIP_WEAPON_ID
+                            .BEAM_CANNON_00
+                    ].maxIntegrity,
+
                 phase:
                     SHIP_WEAPON_PHASE.READY,
 
@@ -176,5 +185,20 @@ describe('Player weapon encounter state', () => {
                 cooldownRemainingMs: 0,
             },
         ]);
+
+        expect(
+            engine.getPlayerWeaponStates()[0],
+        ).not.toHaveProperty(
+            'integrity',
+        );
+
+        expect(
+            engine
+                .getCombatPresentationSnapshot()
+                .player.weapons[0]
+                ?.state,
+        ).not.toHaveProperty(
+            'integrity',
+        );
     });
 });

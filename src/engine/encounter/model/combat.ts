@@ -1,9 +1,11 @@
 // src/engine/encounter/model/combat.ts
 
 import type { PowerCoreState } from "../../defs/power_core";
-import type { ShipDefenseTurretState } from "../../defs/defense_turret";
-import type { ShipWeaponState } from "../../defs/ship_weapon";
-import type { ShieldGeneratorState } from "../../defs/shield_generator";
+import type {
+    EncounterShieldGeneratorState,
+    EncounterShipDefenseTurretState,
+    EncounterShipWeaponState,
+} from "./equipment";
 
 export const COMBAT_PROJECTILE_KIND = {
     MISSILE: "missile",
@@ -202,7 +204,7 @@ export type StickyMineState = {
 
 export type EncounterCombatState = {
     // Installed player Defense Turret system.
-    defenseTurret?: ShipDefenseTurretState;
+    defenseTurret?: EncounterShipDefenseTurretState;
 
     // Shared defensive-energy installation.
     // Some test/minimal encounters may omit it.
@@ -210,14 +212,14 @@ export type EncounterCombatState = {
 
     // Mutable installed shield generator
     // текущего player ship в encounter.
-    shieldGenerator?: ShieldGeneratorState;
+    shieldGenerator?: EncounterShieldGeneratorState;
 
     // Encounter-only temporary shield.
     activeShield: ActiveShieldState | null;
 
     // Mutable installed weapons
     // текущего player ship в encounter.
-    playerWeapons: ShipWeaponState[];
+    playerWeapons: EncounterShipWeaponState[];
 
     projectiles: CombatProjectileState[];
     beamCannonAttacks: BeamCannonAttackState[];

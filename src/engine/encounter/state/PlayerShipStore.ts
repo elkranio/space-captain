@@ -31,6 +31,10 @@ import {
     spendPowerCoreCharges as spendInstalledPowerCoreCharges,
 } from "../combat/power_core/spend_power_core_charge";
 import type { ActiveShieldState, BeamCannonTargetNode } from "../model/combat";
+import {
+    damageEquipmentIntegrity,
+    isEquipmentOperational,
+} from "../model/equipment";
 import type { EncounterShipDriveState, EncounterState } from "../model/state";
 
 // Owns player hull, drive and combat-system mutations.
@@ -70,9 +74,9 @@ export default class PlayerShipStore {
             throw new Error("Cannot damage player drive from status: " + drive.status);
         }
 
-        drive.integrity = Math.max(0, drive.integrity - moduleDamage);
+        damageEquipmentIntegrity(drive, moduleDamage);
 
-        if (drive.integrity === 0) {
+        if (!isEquipmentOperational(drive)) {
             drive.status = SHIP_DRIVE_STATUS.DISABLED;
         }
 

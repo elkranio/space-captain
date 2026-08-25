@@ -3,16 +3,14 @@
 import type { PlayerHullState } from "../../defs/player";
 import type { PlayerSpaceNavigationState } from "../../defs/player_location";
 import type { SpaceBackgroundId } from "../../defs/space_background";
-import type { ShipDriveState } from "../../defs/ship_drive";
 import type { ShipEvadeState } from "../../defs/ship_evade";
 import type { EncounterActorState } from "../actors/encounter_actor";
 import type { EncounterAnchorState } from "../anchors/encounter_anchor";
 import type { OfficerTaskStates } from "./officer_task";
 import type { EncounterCombatState } from "./combat";
+import type { EncounterShipDriveState } from "./equipment";
 
-export type EncounterShipDriveState = ShipDriveState & {
-    integrity: number;
-};
+export type { EncounterShipDriveState } from "./equipment";
 
 // Полный runtime snapshot текущего encounter.
 // Здесь хранится только доменное состояние, без Phaser/UI объектов.

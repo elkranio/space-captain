@@ -5,6 +5,9 @@ import { createSingleStationNodeFixture } from '../../fixtures/engine/space_node
 import { PLAYER_SPACE_NAVIGATION_KIND } from '../../../src/engine/defs/player_location';
 import { SHIP_DRIVE_STATUS, type ShipDriveStatus } from '../../../src/engine/defs/ship_drive';
 import { engineerRepairDriveCommandHandler } from '../../../src/engine/encounter/commands/handlers/engineer_repair_drive_command_handler';
+import {
+    isEquipmentOperational,
+} from '../../../src/engine/encounter/model/equipment';
 import EncounterStateStore from '../../../src/engine/encounter/state/EncounterStateStore';
 
 function createStore(status: ShipDriveStatus = SHIP_DRIVE_STATUS.ONLINE): EncounterStateStore {
@@ -34,10 +37,18 @@ describe('player drive integrity', () => {
             status: SHIP_DRIVE_STATUS.ONLINE,
         });
 
+        expect(
+            isEquipmentOperational(state.drive),
+        ).toBe(true);
+
         expect(store.damagePlayerDrive(5)).toMatchObject({
             integrity: 0,
             status: SHIP_DRIVE_STATUS.DISABLED,
         });
+
+        expect(
+            isEquipmentOperational(state.drive),
+        ).toBe(false);
 
         expect(state.playerHull.hull).toBe(initialHull);
 
