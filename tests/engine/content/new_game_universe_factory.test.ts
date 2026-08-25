@@ -8,6 +8,10 @@ import {
 import {
     DEBUG_START,
 } from '../../../src/engine/content/catalogs/debug_start';
+import {
+    DEBUG_START_EQUIPMENT_TYPE,
+    type DebugStartEquipmentType,
+} from '../../../src/engine/content/schemas/debug_start';
 import NewGameUniverseFactory from '../../../src/engine/generation/new_game/NewGameUniverseFactory';
 import {
     OFFICER_ROLE,
@@ -30,16 +34,33 @@ import {
     SPACE_NODE_ACTOR_KIND,
 } from '../../../src/engine/defs/universe';
 
-function getConfiguredEnemyWeaponIds(): string[] {
-    return [
-        DEBUG_START.enemy.weaponSlot1Id,
-        DEBUG_START.enemy.weaponSlot2Id,
-        DEBUG_START.enemy.weaponSlot3Id,
-        DEBUG_START.enemy.weaponSlot4Id,
-    ].filter(
-        (weaponId): weaponId is string =>
-            weaponId !== null,
+function getConfiguredEnemyEquipmentId(
+    type: DebugStartEquipmentType,
+): string | null {
+    return (
+        DEBUG_START.enemy
+            .equipment
+            .find((equipment) => {
+                return equipment.type === type;
+            })
+            ?.equipmentId ??
+        null
     );
+}
+
+function getConfiguredEnemyWeaponIds(): string[] {
+    return DEBUG_START.enemy
+        .equipment
+        .filter((equipment) => {
+            return (
+                equipment.type ===
+                DEBUG_START_EQUIPMENT_TYPE
+                    .WEAPON
+            );
+        })
+        .map((equipment) => {
+            return equipment.equipmentId;
+        });
 }
 
 describe('NewGameUniverseFactory', () => {
@@ -247,7 +268,10 @@ describe('NewGameUniverseFactory', () => {
         );
 
         expect(enemy.drive.driveId).toBe(
-            DEBUG_START.enemy.driveId,
+            getConfiguredEnemyEquipmentId(
+                DEBUG_START_EQUIPMENT_TYPE
+                    .DRIVE,
+            ),
         );
 
         expect(
@@ -255,8 +279,10 @@ describe('NewGameUniverseFactory', () => {
                 ?.defenseTurretId ??
                 null,
         ).toBe(
-            DEBUG_START.enemy
-                .defenseTurretId,
+            getConfiguredEnemyEquipmentId(
+                DEBUG_START_EQUIPMENT_TYPE
+                    .DEFENSE_TURRET,
+            ),
         );
 
         expect(
@@ -273,8 +299,10 @@ describe('NewGameUniverseFactory', () => {
                 ?.shieldGeneratorId ??
                 null,
         ).toBe(
-            DEBUG_START.enemy
-                .shieldGeneratorId,
+            getConfiguredEnemyEquipmentId(
+                DEBUG_START_EQUIPMENT_TYPE
+                    .SHIELD_GENERATOR,
+            ),
         );
 
         expect(

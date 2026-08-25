@@ -12,6 +12,9 @@ import {
     DEBUG_START,
 } from '../../src/engine/content/catalogs/debug_start';
 import {
+    DEBUG_START_EQUIPMENT_TYPE,
+} from '../../src/engine/content/schemas/debug_start';
+import {
     SHIP_WEAPON_ID,
     SHIP_WEAPON_PHASE,
 } from '../../src/engine/defs/ship_weapon';
@@ -33,16 +36,20 @@ describe('GameRuntime player ship weapons', () => {
                 (weapon) =>
                     weapon.weaponId,
             ),
-        ).toEqual([
+        ).toEqual(
             DEBUG_START.player
-                .weaponSlot1Id,
-            DEBUG_START.player
-                .weaponSlot2Id,
-            DEBUG_START.player
-                .weaponSlot3Id,
-            DEBUG_START.player
-                .weaponSlot4Id,
-        ]);
+                .equipment
+                .filter((equipment) => {
+                    return (
+                        equipment.type ===
+                        DEBUG_START_EQUIPMENT_TYPE
+                            .WEAPON
+                    );
+                })
+                .map((equipment) => {
+                    return equipment.equipmentId;
+                }),
+        );
 
         expect(
             new Set(

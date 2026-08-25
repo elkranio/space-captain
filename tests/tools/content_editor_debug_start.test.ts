@@ -9,6 +9,9 @@ import missileLauncherData from '../../src/engine/content/data/missile_launchers
 import spamProjectorData from '../../src/engine/content/data/spam_projectors.json';
 import stickyMineDispenserData from '../../src/engine/content/data/sticky_mine_dispensers.json';
 import {
+    DEBUG_START_EQUIPMENT_TYPE,
+} from '../../src/engine/content/schemas/debug_start';
+import {
     CONTENT_COLLECTION_ID,
     type ContentCollectionId,
 } from '../../tools/content-editor/server/content_registry';
@@ -77,7 +80,7 @@ describe(
         );
 
         it(
-            'rejects a missing content reference',
+            'rejects a missing equipment content reference',
             async () => {
                 await expect(
                     validateContentCollectionReferences(
@@ -91,13 +94,33 @@ describe(
                                 ...debugStartData
                                     .player,
 
-                                driveId:
-                                    'missing_drive_00',
+                                equipment:
+                                    debugStartData
+                                        .player
+                                        .equipment
+                                        .map(
+                                            (
+                                                equipment,
+                                                index,
+                                            ) => {
+                                                if (
+                                                    index !== 0
+                                                ) {
+                                                    return equipment;
+                                                }
+
+                                                return {
+                                                    ...equipment,
+                                                    equipmentId:
+                                                        'missing_drive_00',
+                                                };
+                                            },
+                                        ),
                             },
                         },
                     ),
                 ).rejects.toThrow(
-                    'Debug Start player.driveId references missing ship drive "missing_drive_00".',
+                    'Debug Start player.equipment[0].equipmentId references missing ship drive "missing_drive_00".',
                 );
             },
         );
@@ -105,14 +128,26 @@ describe(
         it(
             'exposes current Debug Start equipment as delete blockers',
             async () => {
+                const playerDrive =
+                    debugStartData.player.equipment.find(
+                        (equipment) =>
+                            equipment.type ===
+                            DEBUG_START_EQUIPMENT_TYPE
+                                .DRIVE,
+                    );
+
+                if (!playerDrive) {
+                    throw new Error(
+                        'Configured player Drive is missing.',
+                    );
+                }
+
                 const playerDriveInfo =
                     await getContentRecordDeleteInfo(
                         process.cwd(),
                         CONTENT_COLLECTION_ID
                             .SHIP_DRIVES,
-                        debugStartData
-                            .player
-                            .driveId,
+                        playerDrive.equipmentId,
                     );
 
                 expect(
@@ -129,18 +164,18 @@ describe(
                     ]),
                 );
 
-                const enemyChassisInfo =
+                const playerChassisInfo =
                     await getContentRecordDeleteInfo(
                         process.cwd(),
                         CONTENT_COLLECTION_ID
                             .SHIP_CHASSIS,
                         debugStartData
-                            .enemy
+                            .player
                             .chassisId,
                     );
 
                 expect(
-                    enemyChassisInfo.usages,
+                    playerChassisInfo.usages,
                 ).toEqual(
                     expect.arrayContaining([
                         expect.objectContaining({
@@ -148,15 +183,24 @@ describe(
                                 'Debug Start',
 
                             recordId:
-                                'enemy',
+                                'player',
                         }),
                     ]),
                 );
 
-                const playerWeaponId =
-                    debugStartData
-                        .player
-                        .weaponSlot1Id;
+                const playerWeapon =
+                    debugStartData.player.equipment.find(
+                        (equipment) =>
+                            equipment.type ===
+                            DEBUG_START_EQUIPMENT_TYPE
+                                .WEAPON,
+                    );
+
+                if (!playerWeapon) {
+                    throw new Error(
+                        'Configured player weapon is missing.',
+                    );
+                }
 
                 const weaponCollection =
                     SHIP_WEAPON_COLLECTIONS
@@ -168,7 +212,8 @@ describe(
                                     Object.prototype
                                         .hasOwnProperty.call(
                                             data,
-                                            playerWeaponId,
+                                            playerWeapon
+                                                .equipmentId,
                                         )
                                 );
                             },
@@ -185,7 +230,7 @@ describe(
                         process.cwd(),
                         weaponCollection
                             .collectionId,
-                        playerWeaponId,
+                        playerWeapon.equipmentId,
                     );
 
                 expect(

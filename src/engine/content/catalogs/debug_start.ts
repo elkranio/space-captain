@@ -1,7 +1,11 @@
 // src/engine/content/catalogs/debug_start.ts
 
 import debugStartData from "../data/debug_start.json";
-import { DEBUG_START_SCHEMA } from "../schemas/debug_start";
+import {
+    DEBUG_START_EQUIPMENT_TYPE,
+    DEBUG_START_SCHEMA,
+    type DebugStartData,
+} from "../schemas/debug_start";
 import { DEFENSE_TURRETS } from "./defense_turrets";
 import { POWER_CORES } from "./power_cores";
 import { SHIELD_GENERATORS } from "./shield_generators";
@@ -27,43 +31,40 @@ function assertOptionalReference(field: string, id: string | null, catalog: obje
     assertReference(field, id, catalog);
 }
 
-assertReference("player.chassisId", parsed.player.chassisId, SHIP_CHASSIS);
+function assertEquipmentReferences(
+    side: "player" | "enemy",
+    equipment: DebugStartData["player"]["equipment"],
+): void {
+    for (const [index, item] of equipment.entries()) {
+        const field = side + ".equipment[" + String(index) + "].equipmentId";
 
-assertReference("player.driveId", parsed.player.driveId, SHIP_DRIVES);
+        switch (item.type) {
+            case DEBUG_START_EQUIPMENT_TYPE.DRIVE:
+                assertReference(field, item.equipmentId, SHIP_DRIVES);
+                break;
 
-assertReference("player.powerCoreId", parsed.player.powerCoreId, POWER_CORES);
+            case DEBUG_START_EQUIPMENT_TYPE.DEFENSE_TURRET:
+                assertReference(field, item.equipmentId, DEFENSE_TURRETS);
+                break;
 
-assertReference("player.shieldGeneratorId", parsed.player.shieldGeneratorId, SHIELD_GENERATORS);
+            case DEBUG_START_EQUIPMENT_TYPE.SHIELD_GENERATOR:
+                assertReference(field, item.equipmentId, SHIELD_GENERATORS);
+                break;
 
-assertReference("player.defenseTurretId", parsed.player.defenseTurretId, DEFENSE_TURRETS);
-
-for (const [field, weaponId] of [
-    ["player.weaponSlot1Id", parsed.player.weaponSlot1Id],
-    ["player.weaponSlot2Id", parsed.player.weaponSlot2Id],
-    ["player.weaponSlot3Id", parsed.player.weaponSlot3Id],
-    ["player.weaponSlot4Id", parsed.player.weaponSlot4Id],
-] as const) {
-    assertReference(field, weaponId, SHIP_WEAPONS);
+            case DEBUG_START_EQUIPMENT_TYPE.WEAPON:
+                assertReference(field, item.equipmentId, SHIP_WEAPONS);
+                break;
+        }
+    }
 }
+
+assertReference("player.chassisId", parsed.player.chassisId, SHIP_CHASSIS);
+assertReference("player.powerCoreId", parsed.player.powerCoreId, POWER_CORES);
+assertEquipmentReferences("player", parsed.player.equipment);
 
 assertReference("enemy.chassisId", parsed.enemy.chassisId, SHIP_CHASSIS);
-
-assertReference("enemy.driveId", parsed.enemy.driveId, SHIP_DRIVES);
-
 assertOptionalReference("enemy.powerCoreId", parsed.enemy.powerCoreId, POWER_CORES);
-
-assertOptionalReference("enemy.shieldGeneratorId", parsed.enemy.shieldGeneratorId, SHIELD_GENERATORS);
-
-assertOptionalReference("enemy.defenseTurretId", parsed.enemy.defenseTurretId, DEFENSE_TURRETS);
-
-for (const [field, weaponId] of [
-    ["enemy.weaponSlot1Id", parsed.enemy.weaponSlot1Id],
-    ["enemy.weaponSlot2Id", parsed.enemy.weaponSlot2Id],
-    ["enemy.weaponSlot3Id", parsed.enemy.weaponSlot3Id],
-    ["enemy.weaponSlot4Id", parsed.enemy.weaponSlot4Id],
-] as const) {
-    assertOptionalReference(field, weaponId, SHIP_WEAPONS);
-}
+assertEquipmentReferences("enemy", parsed.enemy.equipment);
 
 // Canonical validated debug/sandbox start configuration.
 // This is content, not mutable runtime state.

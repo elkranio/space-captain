@@ -20,49 +20,73 @@ const EDITOR_CONTENT_REFERENCE = {
     WEAPON: ["missile_launchers", "beam_cannons", "spam_projectors", "sticky_mine_dispensers"],
 } as const;
 
-const WEAPON_SLOT_META = {
-    description: "Installed weapon. Runtime installation ids are generated automatically.",
-
-    "x-editor-content-reference": EDITOR_CONTENT_REFERENCE.WEAPON,
+export const DEBUG_START_EQUIPMENT_TYPE = {
+    DRIVE: "drive",
+    DEFENSE_TURRET: "defense_turret",
+    SHIELD_GENERATOR: "shield_generator",
+    WEAPON: "weapon",
 } as const;
 
-const DEBUG_START_MOUNTS_SCHEMA = z
-    .strictObject({
-        drive: CONTENT_ID_SCHEMA.meta({
-            title: "Drive Slot",
+export type DebugStartEquipmentType =
+    (typeof DEBUG_START_EQUIPMENT_TYPE)[keyof typeof DEBUG_START_EQUIPMENT_TYPE];
+
+const DEBUG_START_EQUIPMENT_SCHEMA = z.discriminatedUnion("type", [
+    z.strictObject({
+        slotId: CONTENT_ID_SCHEMA.meta({
+            title: "Chassis Slot",
         }),
 
-        defenseTurret: CONTENT_ID_SCHEMA.meta({
-            title: "Defense Turret Slot",
+        type: z.literal(DEBUG_START_EQUIPMENT_TYPE.DRIVE),
+
+        equipmentId: CONTENT_ID_SCHEMA.meta({
+            title: "Drive",
+
+            "x-editor-content-reference": EDITOR_CONTENT_REFERENCE.DRIVE,
+        }),
+    }),
+
+    z.strictObject({
+        slotId: CONTENT_ID_SCHEMA.meta({
+            title: "Chassis Slot",
         }),
 
-        shieldGenerator: CONTENT_ID_SCHEMA.meta({
-            title: "Shield Generator Slot",
+        type: z.literal(DEBUG_START_EQUIPMENT_TYPE.DEFENSE_TURRET),
+
+        equipmentId: CONTENT_ID_SCHEMA.meta({
+            title: "Defense Turret",
+
+            "x-editor-content-reference": EDITOR_CONTENT_REFERENCE.DEFENSE_TURRET,
+        }),
+    }),
+
+    z.strictObject({
+        slotId: CONTENT_ID_SCHEMA.meta({
+            title: "Chassis Slot",
         }),
 
-        weaponSlot1: CONTENT_ID_SCHEMA.meta({
-            title: "Weapon 1 Slot",
+        type: z.literal(DEBUG_START_EQUIPMENT_TYPE.SHIELD_GENERATOR),
+
+        equipmentId: CONTENT_ID_SCHEMA.meta({
+            title: "Shield Generator",
+
+            "x-editor-content-reference": EDITOR_CONTENT_REFERENCE.SHIELD_GENERATOR,
+        }),
+    }),
+
+    z.strictObject({
+        slotId: CONTENT_ID_SCHEMA.meta({
+            title: "Chassis Slot",
         }),
 
-        weaponSlot2: CONTENT_ID_SCHEMA.meta({
-            title: "Weapon 2 Slot",
-        }),
+        type: z.literal(DEBUG_START_EQUIPMENT_TYPE.WEAPON),
 
-        weaponSlot3: CONTENT_ID_SCHEMA.meta({
-            title: "Weapon 3 Slot",
-        }),
+        equipmentId: CONTENT_ID_SCHEMA.meta({
+            title: "Weapon / Utility",
 
-        weaponSlot4: CONTENT_ID_SCHEMA.meta({
-            title: "Weapon 4 Slot",
+            "x-editor-content-reference": EDITOR_CONTENT_REFERENCE.WEAPON,
         }),
-    })
-    .meta({
-        title: "Chassis Mounts",
-
-        description:
-            "Stable chassis slot ids used by Debug Start. " +
-            "Enemy slots do not count as occupied when the corresponding optional equipment is None.",
-    });
+    }),
+]);
 
 export const DEBUG_START_SCHEMA = z.strictObject({
     player: z
@@ -73,54 +97,18 @@ export const DEBUG_START_SCHEMA = z.strictObject({
                 "x-editor-content-reference": EDITOR_CONTENT_REFERENCE.CHASSIS,
             }),
 
-            mounts: DEBUG_START_MOUNTS_SCHEMA,
-
-            driveId: CONTENT_ID_SCHEMA.meta({
-                title: "Drive",
-
-                "x-editor-content-reference": EDITOR_CONTENT_REFERENCE.DRIVE,
-            }),
-
             powerCoreId: CONTENT_ID_SCHEMA.meta({
                 title: "Power Core",
 
                 "x-editor-content-reference": EDITOR_CONTENT_REFERENCE.POWER_CORE,
             }),
 
-            shieldGeneratorId: CONTENT_ID_SCHEMA.meta({
-                title: "Shield Generator",
+            equipment: z.array(DEBUG_START_EQUIPMENT_SCHEMA).min(1).meta({
+                title: "Equipment",
 
-                "x-editor-content-reference": EDITOR_CONTENT_REFERENCE.SHIELD_GENERATOR,
-            }),
-
-            defenseTurretId: CONTENT_ID_SCHEMA.meta({
-                title: "Defense Turret",
-
-                "x-editor-content-reference": EDITOR_CONTENT_REFERENCE.DEFENSE_TURRET,
-            }),
-
-            weaponSlot1Id: CONTENT_ID_SCHEMA.meta({
-                title: "Weapon Slot 1",
-
-                ...WEAPON_SLOT_META,
-            }),
-
-            weaponSlot2Id: CONTENT_ID_SCHEMA.meta({
-                title: "Weapon Slot 2",
-
-                ...WEAPON_SLOT_META,
-            }),
-
-            weaponSlot3Id: CONTENT_ID_SCHEMA.meta({
-                title: "Weapon Slot 3",
-
-                ...WEAPON_SLOT_META,
-            }),
-
-            weaponSlot4Id: CONTENT_ID_SCHEMA.meta({
-                title: "Weapon Slot 4",
-
-                ...WEAPON_SLOT_META,
+                description:
+                    "Spatial equipment mounted into stable chassis slot ids. " +
+                    "Power Core is configured separately because it is not a spatial slot.",
             }),
         })
         .meta({
@@ -135,54 +123,18 @@ export const DEBUG_START_SCHEMA = z.strictObject({
                 "x-editor-content-reference": EDITOR_CONTENT_REFERENCE.CHASSIS,
             }),
 
-            mounts: DEBUG_START_MOUNTS_SCHEMA,
-
-            driveId: CONTENT_ID_SCHEMA.meta({
-                title: "Drive",
-
-                "x-editor-content-reference": EDITOR_CONTENT_REFERENCE.DRIVE,
-            }),
-
             powerCoreId: CONTENT_ID_SCHEMA.nullable().meta({
                 title: "Power Core",
 
                 "x-editor-content-reference": EDITOR_CONTENT_REFERENCE.POWER_CORE,
             }),
 
-            shieldGeneratorId: CONTENT_ID_SCHEMA.nullable().meta({
-                title: "Shield Generator",
+            equipment: z.array(DEBUG_START_EQUIPMENT_SCHEMA).min(1).meta({
+                title: "Equipment",
 
-                "x-editor-content-reference": EDITOR_CONTENT_REFERENCE.SHIELD_GENERATOR,
-            }),
-
-            defenseTurretId: CONTENT_ID_SCHEMA.nullable().meta({
-                title: "Defense Turret",
-
-                "x-editor-content-reference": EDITOR_CONTENT_REFERENCE.DEFENSE_TURRET,
-            }),
-
-            weaponSlot1Id: CONTENT_ID_SCHEMA.nullable().meta({
-                title: "Weapon Slot 1",
-
-                ...WEAPON_SLOT_META,
-            }),
-
-            weaponSlot2Id: CONTENT_ID_SCHEMA.nullable().meta({
-                title: "Weapon Slot 2",
-
-                ...WEAPON_SLOT_META,
-            }),
-
-            weaponSlot3Id: CONTENT_ID_SCHEMA.nullable().meta({
-                title: "Weapon Slot 3",
-
-                ...WEAPON_SLOT_META,
-            }),
-
-            weaponSlot4Id: CONTENT_ID_SCHEMA.nullable().meta({
-                title: "Weapon Slot 4",
-
-                ...WEAPON_SLOT_META,
+                description:
+                    "Spatial equipment mounted into stable chassis slot ids. " +
+                    "Power Core is configured separately because it is not a spatial slot.",
             }),
         })
         .meta({

@@ -9,6 +9,9 @@ import {
     DEBUG_START,
 } from '../../../src/engine/content/catalogs/debug_start';
 import {
+    DEBUG_START_EQUIPMENT_TYPE,
+} from '../../../src/engine/content/schemas/debug_start';
+import {
     createNewRunState,
 } from '../../../src/engine/generation/new_game/create_new_run_state';
 import {
@@ -25,16 +28,19 @@ describe('New-game player weapons', () => {
             createNewRunState()
                 .player.ship.weapons;
 
-        const expectedWeaponIds = [
+        const expectedWeaponIds =
             DEBUG_START.player
-                .weaponSlot1Id,
-            DEBUG_START.player
-                .weaponSlot2Id,
-            DEBUG_START.player
-                .weaponSlot3Id,
-            DEBUG_START.player
-                .weaponSlot4Id,
-        ];
+                .equipment
+                .filter((equipment) => {
+                    return (
+                        equipment.type ===
+                        DEBUG_START_EQUIPMENT_TYPE
+                            .WEAPON
+                    );
+                })
+                .map((equipment) => {
+                    return equipment.equipmentId;
+                });
 
         expect(
             first.map(

@@ -1,11 +1,12 @@
 // src/engine/generation/new_game/debug_start_ship_factory.ts
 
 import { DEBUG_START } from "../../content/catalogs/debug_start";
-import { DEFENSE_TURRETS } from "../../content/catalogs/defense_turrets";
-import { SHIELD_GENERATORS } from "../../content/catalogs/shield_generators";
-import { SHIP_DRIVES } from "../../content/catalogs/ship_drives";
 import { SHIP_WEAPONS } from "../../content/catalogs/ship_weapons";
 import type { ShipPreset, ShipWeaponPreset } from "../../content/presets/ships";
+import {
+    DEBUG_START_EQUIPMENT_TYPE,
+    type DebugStartData,
+} from "../../content/schemas/debug_start";
 import type { PlayerShipState } from "../../defs/player";
 import { SHIP_WEAPON_KIND, type ShipWeaponKind } from "../../defs/ship_weapon";
 import ShipFactory, { type CreatedShipState } from "../ship/ShipFactory";
@@ -33,9 +34,10 @@ const DEBUG_START_SYSTEM_ID = {
 } as const;
 
 type DebugStartShipSide = "player" | "enemy";
+type DebugStartShipConfig = DebugStartData["player"] | DebugStartData["enemy"];
 
 export function createDebugStartPlayerShip(): PlayerShipState {
-    const ship = ShipFactory.createFromPreset(createDebugStartPlayerPreset());
+    const ship = ShipFactory.createFromPreset(createDebugStartPreset("player", DEBUG_START.player));
 
     if (!ship.defenseTurret || !ship.powerCore || !ship.shieldGenerator) {
         throw new Error("Debug Start player ship is missing required equipment.");
@@ -51,130 +53,79 @@ export function createDebugStartPlayerShip(): PlayerShipState {
 }
 
 export function createDebugStartEnemyShip(): CreatedShipState {
-    return ShipFactory.createFromPreset(createDebugStartEnemyPreset());
+    return ShipFactory.createFromPreset(createDebugStartPreset("enemy", DEBUG_START.enemy));
 }
 
-function createDebugStartPlayerPreset(): ShipPreset {
-    const config = DEBUG_START.player;
+function createDebugStartPreset(side: DebugStartShipSide, config: DebugStartShipConfig): ShipPreset {
+    const systemIds = side === "player" ? DEBUG_START_SYSTEM_ID.PLAYER : DEBUG_START_SYSTEM_ID.ENEMY;
 
-    const driveDefinition = SHIP_DRIVES[config.driveId];
-    const defenseTurretDefinition = DEFENSE_TURRETS[config.defenseTurretId];
-    const shieldGeneratorDefinition = SHIELD_GENERATORS[config.shieldGeneratorId];
-
-    const weapons = createDebugStartWeaponPresets(
-        [
-            {
-                weaponId: config.weaponSlot1Id,
-                slotId: config.mounts.weaponSlot1,
-            },
-            {
-                weaponId: config.weaponSlot2Id,
-                slotId: config.mounts.weaponSlot2,
-            },
-            {
-                weaponId: config.weaponSlot3Id,
-                slotId: config.mounts.weaponSlot3,
-            },
-            {
-                weaponId: config.weaponSlot4Id,
-                slotId: config.mounts.weaponSlot4,
-            },
-        ],
-        "player",
-    );
-
-    return {
-        id: "debug_start_player",
-        chassisId: config.chassisId,
-
-        drive: {
-            id: DEBUG_START_SYSTEM_ID.PLAYER.DRIVE,
-            slotId: config.mounts.drive,
-            driveId: driveDefinition.id,
-        },
-
-        defenseTurret: {
-            id: DEBUG_START_SYSTEM_ID.PLAYER.DEFENSE_TURRET,
-            slotId: config.mounts.defenseTurret,
-            defenseTurretId: defenseTurretDefinition.id,
-        },
-
-        powerCore: {
-            id: DEBUG_START_SYSTEM_ID.PLAYER.POWER_CORE,
-            powerCoreId: config.powerCoreId,
-        },
-
-        shieldGenerator: {
-            id: DEBUG_START_SYSTEM_ID.PLAYER.SHIELD_GENERATOR,
-            slotId: config.mounts.shieldGenerator,
-            shieldGeneratorId: shieldGeneratorDefinition.id,
-        },
-
-        weapons,
-    };
-}
-
-function createDebugStartEnemyPreset(): ShipPreset {
-    const config = DEBUG_START.enemy;
-
-    const driveDefinition = SHIP_DRIVES[config.driveId];
-
+    let drive: ShipPreset["drive"] | undefined;
     let defenseTurret: ShipPreset["defenseTurret"];
-
-    if (config.defenseTurretId !== null) {
-        const definition = DEFENSE_TURRETS[config.defenseTurretId];
-
-        defenseTurret = {
-            id: DEBUG_START_SYSTEM_ID.ENEMY.DEFENSE_TURRET,
-            slotId: config.mounts.defenseTurret,
-            defenseTurretId: definition.id,
-        };
-    }
-
     let shieldGenerator: ShipPreset["shieldGenerator"];
 
-    if (config.shieldGeneratorId !== null) {
-        const definition = SHIELD_GENERATORS[config.shieldGeneratorId];
+    const weapons: ShipWeaponPreset[] = [];
+    const occurrenceByKind: Partial<Record<ShipWeaponKind, number>> = {};
 
-        shieldGenerator = {
-            id: DEBUG_START_SYSTEM_ID.ENEMY.SHIELD_GENERATOR,
-            slotId: config.mounts.shieldGenerator,
-            shieldGeneratorId: definition.id,
-        };
+    for (const equipment of config.equipment) {
+        switch (equipment.type) {
+            case DEBUG_START_EQUIPMENT_TYPE.DRIVE:
+                if (drive) {
+                    throw new Error("Debug Start " + side + " has multiple Drive entries.");
+                }
+
+                drive = {
+                    id: systemIds.DRIVE,
+                    slotId: equipment.slotId,
+                    driveId: equipment.equipmentId,
+                };
+                break;
+
+            case DEBUG_START_EQUIPMENT_TYPE.DEFENSE_TURRET:
+                if (defenseTurret) {
+                    throw new Error("Debug Start " + side + " has multiple Defense Turret entries.");
+                }
+
+                defenseTurret = {
+                    id: systemIds.DEFENSE_TURRET,
+                    slotId: equipment.slotId,
+                    defenseTurretId: equipment.equipmentId,
+                };
+                break;
+
+            case DEBUG_START_EQUIPMENT_TYPE.SHIELD_GENERATOR:
+                if (shieldGenerator) {
+                    throw new Error("Debug Start " + side + " has multiple Shield Generator entries.");
+                }
+
+                shieldGenerator = {
+                    id: systemIds.SHIELD_GENERATOR,
+                    slotId: equipment.slotId,
+                    shieldGeneratorId: equipment.equipmentId,
+                };
+                break;
+
+            case DEBUG_START_EQUIPMENT_TYPE.WEAPON:
+                weapons.push(
+                    createDebugStartWeaponPreset(
+                        equipment.equipmentId,
+                        equipment.slotId,
+                        side,
+                        occurrenceByKind,
+                    ),
+                );
+                break;
+        }
     }
 
-    const weaponMounts = [
-        {
-            weaponId: config.weaponSlot1Id,
-            slotId: config.mounts.weaponSlot1,
-        },
-        {
-            weaponId: config.weaponSlot2Id,
-            slotId: config.mounts.weaponSlot2,
-        },
-        {
-            weaponId: config.weaponSlot3Id,
-            slotId: config.mounts.weaponSlot3,
-        },
-        {
-            weaponId: config.weaponSlot4Id,
-            slotId: config.mounts.weaponSlot4,
-        },
-    ].filter(
-        (mount): mount is DebugStartWeaponMount => mount.weaponId !== null,
-    );
-
-    const weapons = createDebugStartWeaponPresets(weaponMounts, "enemy");
+    if (!drive) {
+        throw new Error("Debug Start " + side + " is missing Drive equipment.");
+    }
 
     return {
-        id: "debug_start_enemy",
+        id: "debug_start_" + side,
         chassisId: config.chassisId,
 
-        drive: {
-            id: DEBUG_START_SYSTEM_ID.ENEMY.DRIVE,
-            slotId: config.mounts.drive,
-            driveId: driveDefinition.id,
-        },
+        drive,
 
         ...(defenseTurret ? { defenseTurret } : {}),
 
@@ -182,7 +133,7 @@ function createDebugStartEnemyPreset(): ShipPreset {
             ? {}
             : {
                   powerCore: {
-                      id: DEBUG_START_SYSTEM_ID.ENEMY.POWER_CORE,
+                      id: systemIds.POWER_CORE,
                       powerCoreId: config.powerCoreId,
                   },
               }),
@@ -193,42 +144,35 @@ function createDebugStartEnemyPreset(): ShipPreset {
     };
 }
 
-type DebugStartWeaponMount = {
-    weaponId: string;
-    slotId: string;
-};
-
-function createDebugStartWeaponPresets(
-    mounts: DebugStartWeaponMount[],
+function createDebugStartWeaponPreset(
+    weaponId: string,
+    slotId: string,
     side: DebugStartShipSide,
-): ShipWeaponPreset[] {
-    const occurrenceByKind: Partial<Record<ShipWeaponKind, number>> = {};
+    occurrenceByKind: Partial<Record<ShipWeaponKind, number>>,
+): ShipWeaponPreset {
+    const definition = SHIP_WEAPONS[weaponId];
 
-    return mounts.map((mount) => {
-        const definition = SHIP_WEAPONS[mount.weaponId];
+    const occurrence = occurrenceByKind[definition.kind] ?? 0;
 
-        const occurrence = occurrenceByKind[definition.kind] ?? 0;
+    occurrenceByKind[definition.kind] = occurrence + 1;
 
-        occurrenceByKind[definition.kind] = occurrence + 1;
+    const id = createWeaponRuntimeId(definition.kind, side, occurrence);
 
-        const id = createWeaponRuntimeId(definition.kind, side, occurrence);
+    switch (definition.kind) {
+        case SHIP_WEAPON_KIND.MISSILE_LAUNCHER:
+        case SHIP_WEAPON_KIND.BEAM_CANNON:
+        case SHIP_WEAPON_KIND.SPAM_PROJECTOR:
+        case SHIP_WEAPON_KIND.STICKY_MINE_DISPENSER:
+            return {
+                id,
+                slotId,
+                kind: definition.kind,
+                weaponId: definition.id,
+            };
 
-        switch (definition.kind) {
-            case SHIP_WEAPON_KIND.MISSILE_LAUNCHER:
-            case SHIP_WEAPON_KIND.BEAM_CANNON:
-            case SHIP_WEAPON_KIND.SPAM_PROJECTOR:
-            case SHIP_WEAPON_KIND.STICKY_MINE_DISPENSER:
-                return {
-                    id,
-                    slotId: mount.slotId,
-                    kind: definition.kind,
-                    weaponId: definition.id,
-                };
-
-            default:
-                return assertNever(definition);
-        }
-    });
+        default:
+            return assertNever(definition);
+    }
 }
 
 function createWeaponRuntimeId(kind: ShipWeaponKind, side: DebugStartShipSide, occurrence: number): string {

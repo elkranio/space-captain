@@ -3,8 +3,10 @@ import {
 } from 'node:fs';
 import path from 'node:path';
 import {
+    DEBUG_START_EQUIPMENT_TYPE,
     DEBUG_START_SCHEMA,
     type DebugStartData,
+    type DebugStartEquipmentType,
 } from '../../../src/engine/content/schemas/debug_start';
 import {
     SHIP_PRESETS,
@@ -358,6 +360,10 @@ async function collectShipChassisReferences(
 
     references.push(
         createDebugStartReference(
+            debugStart.player.chassisId,
+            'player',
+        ),
+        createDebugStartReference(
             debugStart.enemy.chassisId,
             'enemy',
         ),
@@ -392,13 +398,9 @@ async function collectShipDriveReferences(
         );
 
     references.push(
-        createDebugStartReference(
-            debugStart.player.driveId,
-            'player',
-        ),
-        createDebugStartReference(
-            debugStart.enemy.driveId,
-            'enemy',
+        ...collectDebugStartEquipmentReferences(
+            debugStart,
+            DEBUG_START_EQUIPMENT_TYPE.DRIVE,
         ),
     );
 
@@ -502,26 +504,12 @@ async function collectShieldGeneratorReferences(
         );
 
     references.push(
-        createDebugStartReference(
-            debugStart.player
-                .shieldGeneratorId,
-            'player',
+        ...collectDebugStartEquipmentReferences(
+            debugStart,
+            DEBUG_START_EQUIPMENT_TYPE
+                .SHIELD_GENERATOR,
         ),
     );
-
-    if (
-        debugStart.enemy
-            .shieldGeneratorId !==
-        null
-    ) {
-        references.push(
-            createDebugStartReference(
-                debugStart.enemy
-                    .shieldGeneratorId,
-                'enemy',
-            ),
-        );
-    }
 
     return references;
 }
@@ -563,26 +551,12 @@ async function collectDefenseTurretReferences(
         );
 
     references.push(
-        createDebugStartReference(
-            debugStart.player
-                .defenseTurretId,
-            'player',
+        ...collectDebugStartEquipmentReferences(
+            debugStart,
+            DEBUG_START_EQUIPMENT_TYPE
+                .DEFENSE_TURRET,
         ),
     );
-
-    if (
-        debugStart.enemy
-            .defenseTurretId !==
-        null
-    ) {
-        references.push(
-            createDebugStartReference(
-                debugStart.enemy
-                    .defenseTurretId,
-                'enemy',
-            ),
-        );
-    }
 
     return references;
 }
@@ -640,67 +614,58 @@ async function collectShipWeaponReferences(
             repoRoot,
         );
 
-    const playerWeaponIds = [
-        debugStart.player
-            .weaponSlot1Id,
-        debugStart.player
-            .weaponSlot2Id,
-        debugStart.player
-            .weaponSlot3Id,
-        debugStart.player
-            .weaponSlot4Id,
-    ];
-
     for (
-        const weaponId of
-        playerWeaponIds
+        const reference of
+        collectDebugStartEquipmentReferences(
+            debugStart,
+            DEBUG_START_EQUIPMENT_TYPE.WEAPON,
+        )
     ) {
         if (
             !currentIds.has(
-                weaponId,
+                reference.recordId,
             )
         ) {
             continue;
         }
 
         references.push(
-            createDebugStartReference(
-                weaponId,
-                'player',
-            ),
+            reference,
         );
     }
 
-    const enemyWeaponIds = [
-        debugStart.enemy
-            .weaponSlot1Id,
-        debugStart.enemy
-            .weaponSlot2Id,
-        debugStart.enemy
-            .weaponSlot3Id,
-        debugStart.enemy
-            .weaponSlot4Id,
-    ];
+    return references;
+}
+
+function collectDebugStartEquipmentReferences(
+    debugStart: DebugStartData,
+    type: DebugStartEquipmentType,
+): ContentReference[] {
+    const references:
+        ContentReference[] = [];
 
     for (
-        const weaponId of
-        enemyWeaponIds
+        const side of
+        ['player', 'enemy'] as const
     ) {
-        if (
-            weaponId === null ||
-            !currentIds.has(
-                weaponId,
-            )
+        for (
+            const equipment of
+            debugStart[side].equipment
         ) {
-            continue;
-        }
+            if (
+                equipment.type !==
+                type
+            ) {
+                continue;
+            }
 
-        references.push(
-            createDebugStartReference(
-                weaponId,
-                'enemy',
-            ),
-        );
+            references.push(
+                createDebugStartReference(
+                    equipment.equipmentId,
+                    side,
+                ),
+            );
+        }
     }
 
     return references;
@@ -768,140 +733,82 @@ async function validateDebugStartDraft(
         }
     }
 
-    assertDebugStartReferenceExists(
-        'player.driveId',
-        debugStart.player.driveId,
-        driveIds,
-        'ship drive',
-    );
+    for (
+        const side of
+        ['player', 'enemy'] as const
+    ) {
+        const ship =
+            debugStart[side];
 
-    assertDebugStartReferenceExists(
-        'player.powerCoreId',
-        debugStart.player
-            .powerCoreId,
-        powerCoreIds,
-        'power core',
-    );
+        assertDebugStartReferenceExists(
+            side + '.chassisId',
+            ship.chassisId,
+            chassisIds,
+            'ship chassis',
+        );
 
-    assertDebugStartReferenceExists(
-        'player.shieldGeneratorId',
-        debugStart.player
-            .shieldGeneratorId,
-        shieldGeneratorIds,
-        'shield generator',
-    );
+        assertDebugStartReferenceExists(
+            side + '.powerCoreId',
+            ship.powerCoreId,
+            powerCoreIds,
+            'power core',
+        );
 
-    assertDebugStartReferenceExists(
-        'player.defenseTurretId',
-        debugStart.player
-            .defenseTurretId,
-        defenseTurretIds,
-        'defense turret',
-    );
+        for (
+            const [
+                index,
+                equipment,
+            ] of ship.equipment.entries()
+        ) {
+            const field =
+                side +
+                '.equipment[' +
+                String(index) +
+                '].equipmentId';
 
-    assertDebugStartReferenceExists(
-        'player.weaponSlot1Id',
-        debugStart.player
-            .weaponSlot1Id,
-        shipWeaponIds,
-        'ship weapon',
-    );
+            switch (equipment.type) {
+                case DEBUG_START_EQUIPMENT_TYPE
+                    .DRIVE:
+                    assertDebugStartReferenceExists(
+                        field,
+                        equipment.equipmentId,
+                        driveIds,
+                        'ship drive',
+                    );
+                    break;
 
-    assertDebugStartReferenceExists(
-        'player.weaponSlot2Id',
-        debugStart.player
-            .weaponSlot2Id,
-        shipWeaponIds,
-        'ship weapon',
-    );
+                case DEBUG_START_EQUIPMENT_TYPE
+                    .DEFENSE_TURRET:
+                    assertDebugStartReferenceExists(
+                        field,
+                        equipment.equipmentId,
+                        defenseTurretIds,
+                        'defense turret',
+                    );
+                    break;
 
-    assertDebugStartReferenceExists(
-        'player.weaponSlot3Id',
-        debugStart.player
-            .weaponSlot3Id,
-        shipWeaponIds,
-        'ship weapon',
-    );
+                case DEBUG_START_EQUIPMENT_TYPE
+                    .SHIELD_GENERATOR:
+                    assertDebugStartReferenceExists(
+                        field,
+                        equipment.equipmentId,
+                        shieldGeneratorIds,
+                        'shield generator',
+                    );
+                    break;
 
-    assertDebugStartReferenceExists(
-        'player.weaponSlot4Id',
-        debugStart.player
-            .weaponSlot4Id,
-        shipWeaponIds,
-        'ship weapon',
-    );
-
-    assertDebugStartReferenceExists(
-        'enemy.chassisId',
-        debugStart.enemy
-            .chassisId,
-        chassisIds,
-        'ship chassis',
-    );
-
-    assertDebugStartReferenceExists(
-        'enemy.driveId',
-        debugStart.enemy
-            .driveId,
-        driveIds,
-        'ship drive',
-    );
-
-    assertDebugStartReferenceExists(
-        'enemy.powerCoreId',
-        debugStart.enemy
-            .powerCoreId,
-        powerCoreIds,
-        'power core',
-    );
-
-    assertDebugStartReferenceExists(
-        'enemy.shieldGeneratorId',
-        debugStart.enemy
-            .shieldGeneratorId,
-        shieldGeneratorIds,
-        'shield generator',
-    );
-
-    assertDebugStartReferenceExists(
-        'enemy.defenseTurretId',
-        debugStart.enemy
-            .defenseTurretId,
-        defenseTurretIds,
-        'defense turret',
-    );
-
-    assertDebugStartReferenceExists(
-        'enemy.weaponSlot1Id',
-        debugStart.enemy
-            .weaponSlot1Id,
-        shipWeaponIds,
-        'ship weapon',
-    );
-
-    assertDebugStartReferenceExists(
-        'enemy.weaponSlot2Id',
-        debugStart.enemy
-            .weaponSlot2Id,
-        shipWeaponIds,
-        'ship weapon',
-    );
-
-    assertDebugStartReferenceExists(
-        'enemy.weaponSlot3Id',
-        debugStart.enemy
-            .weaponSlot3Id,
-        shipWeaponIds,
-        'ship weapon',
-    );
-
-    assertDebugStartReferenceExists(
-        'enemy.weaponSlot4Id',
-        debugStart.enemy
-            .weaponSlot4Id,
-        shipWeaponIds,
-        'ship weapon',
-    );
+                case DEBUG_START_EQUIPMENT_TYPE
+                    .WEAPON:
+                    assertDebugStartReferenceExists(
+                        field,
+                        equipment.equipmentId,
+                        shipWeaponIds,
+                        'ship weapon',
+                    );
+                    break;
+            }
+        }
+    }
 }
 
 function assertDebugStartReferenceExists(

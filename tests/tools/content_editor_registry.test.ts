@@ -589,35 +589,15 @@ describe(
                     'Enemy Ship',
                 );
 
-                const optionalWeaponSchema =
+                expect(
                     debugStartSchema
                         .properties
                         ?.enemy
                         ?.properties
-                        ?.weaponSlot2Id;
-
-                const optionalWeaponTypes =
-                    Array.isArray(
-                        optionalWeaponSchema
-                            ?.type,
-                    )
-                        ? optionalWeaponSchema
-                            .type
-                        : optionalWeaponSchema
-                            ?.anyOf
-                            ?.map(
-                                (variant) => {
-                                    return variant.type;
-                                },
-                            );
-
-                expect(
-                    optionalWeaponTypes,
-                ).toEqual(
-                    expect.arrayContaining([
-                        'string',
-                        'null',
-                    ]),
+                        ?.equipment
+                        ?.type,
+                ).toBe(
+                    'array',
                 );
 
                 const enemyDebugBehaviorSchema =

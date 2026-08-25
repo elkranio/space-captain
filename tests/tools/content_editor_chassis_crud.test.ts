@@ -51,6 +51,7 @@ describe(
             async () => {
                 const root =
                     await createTempRepo([
+                        'player_00',
                         'generic_00',
                         'heavy_00',
                     ]);
@@ -61,6 +62,16 @@ describe(
                         CONTENT_COLLECTION_ID
                             .SHIP_CHASSIS,
                         {
+                            player_00: {
+                                name:
+                                    'Player',
+
+                                spriteId:
+                                    'player_00',
+
+                                maxHull: 30,
+                            },
+
                             generic_00: {
                                 name:
                                     'Generic',
@@ -91,6 +102,7 @@ describe(
             async () => {
                 const root =
                     await createTempRepo([
+                        'player_00',
                         'generic_00',
                     ]);
 
@@ -100,6 +112,16 @@ describe(
                         CONTENT_COLLECTION_ID
                             .SHIP_CHASSIS,
                         {
+                            player_00: {
+                                name:
+                                    'Player',
+
+                                spriteId:
+                                    'player_00',
+
+                                maxHull: 30,
+                            },
+
                             generic_00: {
                                 name:
                                     'Generic',
@@ -163,6 +185,7 @@ describe(
             async () => {
                 const root =
                     await createTempRepo([
+                        'player_00',
                         'generic_00',
                         'heavy_00',
                     ]);
@@ -173,6 +196,16 @@ describe(
                         CONTENT_COLLECTION_ID
                             .SHIP_CHASSIS,
                         {
+                            player_00: {
+                                name:
+                                    'Player',
+
+                                spriteId:
+                                    'player_00',
+
+                                maxHull: 30,
+                            },
+
                             heavy_00: {
                                 name:
                                     'Heavy',

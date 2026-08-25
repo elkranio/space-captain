@@ -12,6 +12,10 @@ import {
     DEBUG_START,
 } from '../../src/engine/content/catalogs/debug_start';
 import {
+    DEBUG_START_EQUIPMENT_TYPE,
+    type DebugStartEquipmentType,
+} from '../../src/engine/content/schemas/debug_start';
+import {
     SHIP_CHASSIS,
 } from '../../src/engine/content/catalogs/ship_chassis';
 import {
@@ -21,6 +25,34 @@ import {
     SHIP_DRIVE_ID,
     SHIP_DRIVE_STATUS,
 } from '../../src/engine/defs/ship_drive';
+
+function getConfiguredPlayerEquipmentId(
+    type: DebugStartEquipmentType,
+): string {
+    const equipment =
+        DEBUG_START.player.equipment.find(
+            (item) => item.type === type,
+        );
+
+    if (!equipment) {
+        throw new Error(
+            'Missing configured player equipment: ' +
+                type,
+        );
+    }
+
+    return equipment.equipmentId;
+}
+
+function getConfiguredPlayerWeaponIds(): string[] {
+    return DEBUG_START.player.equipment
+        .filter(
+            (item) =>
+                item.type ===
+                DEBUG_START_EQUIPMENT_TYPE.WEAPON,
+        )
+        .map((item) => item.equipmentId);
+}
 
 describe('GameRuntime player ship hull', () => {
     it('creates a new run from current Debug Start hardware', () => {
@@ -48,8 +80,9 @@ describe('GameRuntime player ship hull', () => {
         expect(
             ship.drive.driveId,
         ).toBe(
-            DEBUG_START.player
-                .driveId,
+            getConfiguredPlayerEquipmentId(
+                DEBUG_START_EQUIPMENT_TYPE.DRIVE,
+            ),
         );
 
         expect(
@@ -63,16 +96,20 @@ describe('GameRuntime player ship hull', () => {
             ship.shieldGenerator
                 .shieldGeneratorId,
         ).toBe(
-            DEBUG_START.player
-                .shieldGeneratorId,
+            getConfiguredPlayerEquipmentId(
+                DEBUG_START_EQUIPMENT_TYPE
+                    .SHIELD_GENERATOR,
+            ),
         );
 
         expect(
             ship.defenseTurret
                 .defenseTurretId,
         ).toBe(
-            DEBUG_START.player
-                .defenseTurretId,
+            getConfiguredPlayerEquipmentId(
+                DEBUG_START_EQUIPMENT_TYPE
+                    .DEFENSE_TURRET,
+            ),
         );
 
         expect(
@@ -80,16 +117,9 @@ describe('GameRuntime player ship hull', () => {
                 (weapon) =>
                     weapon.weaponId,
             ),
-        ).toEqual([
-            DEBUG_START.player
-                .weaponSlot1Id,
-            DEBUG_START.player
-                .weaponSlot2Id,
-            DEBUG_START.player
-                .weaponSlot3Id,
-            DEBUG_START.player
-                .weaponSlot4Id,
-        ]);
+        ).toEqual(
+            getConfiguredPlayerWeaponIds(),
+        );
 
         expect(
             new Set(
