@@ -45,6 +45,10 @@ describe('createNewRunState', () => {
         const ship =
             run.player.ship;
 
+        expect(ship.chassisId).toBe(
+            DEBUG_START.player.chassisId,
+        );
+
         expect(ship.hull).toBe(
             SHIP_CHASSIS[
                 ship.chassisId

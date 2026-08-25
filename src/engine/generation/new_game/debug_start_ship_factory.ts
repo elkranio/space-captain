@@ -3,15 +3,12 @@
 import { DEBUG_START } from "../../content/catalogs/debug_start";
 import { DEFENSE_TURRETS } from "../../content/catalogs/defense_turrets";
 import { SHIELD_GENERATORS } from "../../content/catalogs/shield_generators";
-import { SHIP_CHASSIS } from "../../content/catalogs/ship_chassis";
 import { SHIP_DRIVES } from "../../content/catalogs/ship_drives";
 import { SHIP_WEAPONS } from "../../content/catalogs/ship_weapons";
 import type { ShipPreset, ShipWeaponPreset } from "../../content/presets/ships";
 import type { PlayerShipState } from "../../defs/player";
-import type { ShipSlotKind } from "../../defs/ship_slot";
 import { SHIP_WEAPON_KIND, type ShipWeaponKind } from "../../defs/ship_weapon";
 import ShipFactory, { type CreatedShipState } from "../ship/ShipFactory";
-import { NEW_GAME_CONFIG } from "./new_game_config";
 
 const DEBUG_START_SYSTEM_ID = {
     PLAYER: {
@@ -36,7 +33,6 @@ const DEBUG_START_SYSTEM_ID = {
 } as const;
 
 type DebugStartShipSide = "player" | "enemy";
-type ClaimSlot = (kind: ShipSlotKind) => string;
 
 export function createDebugStartPlayerShip(): PlayerShipState {
     const ship = ShipFactory.createFromPreset(createDebugStartPlayerPreset());
@@ -60,36 +56,46 @@ export function createDebugStartEnemyShip(): CreatedShipState {
 
 function createDebugStartPlayerPreset(): ShipPreset {
     const config = DEBUG_START.player;
-    const chassisId = NEW_GAME_CONFIG.player.chassisId;
-    const claimSlot = createSlotClaim(chassisId);
 
     const driveDefinition = SHIP_DRIVES[config.driveId];
     const defenseTurretDefinition = DEFENSE_TURRETS[config.defenseTurretId];
     const shieldGeneratorDefinition = SHIELD_GENERATORS[config.shieldGeneratorId];
 
-    const driveSlotId = claimSlot(driveDefinition.slotKind);
-    const defenseTurretSlotId = claimSlot(defenseTurretDefinition.slotKind);
-    const shieldGeneratorSlotId = claimSlot(shieldGeneratorDefinition.slotKind);
-
     const weapons = createDebugStartWeaponPresets(
-        [config.weaponSlot1Id, config.weaponSlot2Id, config.weaponSlot3Id, config.weaponSlot4Id],
+        [
+            {
+                weaponId: config.weaponSlot1Id,
+                slotId: config.mounts.weaponSlot1,
+            },
+            {
+                weaponId: config.weaponSlot2Id,
+                slotId: config.mounts.weaponSlot2,
+            },
+            {
+                weaponId: config.weaponSlot3Id,
+                slotId: config.mounts.weaponSlot3,
+            },
+            {
+                weaponId: config.weaponSlot4Id,
+                slotId: config.mounts.weaponSlot4,
+            },
+        ],
         "player",
-        claimSlot,
     );
 
     return {
         id: "debug_start_player",
-        chassisId,
+        chassisId: config.chassisId,
 
         drive: {
             id: DEBUG_START_SYSTEM_ID.PLAYER.DRIVE,
-            slotId: driveSlotId,
+            slotId: config.mounts.drive,
             driveId: driveDefinition.id,
         },
 
         defenseTurret: {
             id: DEBUG_START_SYSTEM_ID.PLAYER.DEFENSE_TURRET,
-            slotId: defenseTurretSlotId,
+            slotId: config.mounts.defenseTurret,
             defenseTurretId: defenseTurretDefinition.id,
         },
 
@@ -100,7 +106,7 @@ function createDebugStartPlayerPreset(): ShipPreset {
 
         shieldGenerator: {
             id: DEBUG_START_SYSTEM_ID.PLAYER.SHIELD_GENERATOR,
-            slotId: shieldGeneratorSlotId,
+            slotId: config.mounts.shieldGenerator,
             shieldGeneratorId: shieldGeneratorDefinition.id,
         },
 
@@ -110,10 +116,8 @@ function createDebugStartPlayerPreset(): ShipPreset {
 
 function createDebugStartEnemyPreset(): ShipPreset {
     const config = DEBUG_START.enemy;
-    const claimSlot = createSlotClaim(config.chassisId);
 
     const driveDefinition = SHIP_DRIVES[config.driveId];
-    const driveSlotId = claimSlot(driveDefinition.slotKind);
 
     let defenseTurret: ShipPreset["defenseTurret"];
 
@@ -122,7 +126,7 @@ function createDebugStartEnemyPreset(): ShipPreset {
 
         defenseTurret = {
             id: DEBUG_START_SYSTEM_ID.ENEMY.DEFENSE_TURRET,
-            slotId: claimSlot(definition.slotKind),
+            slotId: config.mounts.defenseTurret,
             defenseTurretId: definition.id,
         };
     }
@@ -134,16 +138,33 @@ function createDebugStartEnemyPreset(): ShipPreset {
 
         shieldGenerator = {
             id: DEBUG_START_SYSTEM_ID.ENEMY.SHIELD_GENERATOR,
-            slotId: claimSlot(definition.slotKind),
+            slotId: config.mounts.shieldGenerator,
             shieldGeneratorId: definition.id,
         };
     }
 
-    const weaponIds = [config.weaponSlot1Id, config.weaponSlot2Id, config.weaponSlot3Id, config.weaponSlot4Id].filter(
-        (weaponId): weaponId is string => weaponId !== null,
+    const weaponMounts = [
+        {
+            weaponId: config.weaponSlot1Id,
+            slotId: config.mounts.weaponSlot1,
+        },
+        {
+            weaponId: config.weaponSlot2Id,
+            slotId: config.mounts.weaponSlot2,
+        },
+        {
+            weaponId: config.weaponSlot3Id,
+            slotId: config.mounts.weaponSlot3,
+        },
+        {
+            weaponId: config.weaponSlot4Id,
+            slotId: config.mounts.weaponSlot4,
+        },
+    ].filter(
+        (mount): mount is DebugStartWeaponMount => mount.weaponId !== null,
     );
 
-    const weapons = createDebugStartWeaponPresets(weaponIds, "enemy", claimSlot);
+    const weapons = createDebugStartWeaponPresets(weaponMounts, "enemy");
 
     return {
         id: "debug_start_enemy",
@@ -151,7 +172,7 @@ function createDebugStartEnemyPreset(): ShipPreset {
 
         drive: {
             id: DEBUG_START_SYSTEM_ID.ENEMY.DRIVE,
-            slotId: driveSlotId,
+            slotId: config.mounts.drive,
             driveId: driveDefinition.id,
         },
 
@@ -172,49 +193,25 @@ function createDebugStartEnemyPreset(): ShipPreset {
     };
 }
 
-// Debug Start пока хранит только список железа, без spatial mount ids.
-// До отдельного loadout editor раскладываем его детерминированно
-// по первым свободным совместимым слотам chassis.
-function createSlotClaim(chassisId: string): ClaimSlot {
-    const chassis = SHIP_CHASSIS[chassisId];
-
-    if (!chassis) {
-        throw new Error("Debug Start references missing chassis: " + chassisId);
-    }
-
-    const occupiedSlotIds = new Set<string>();
-
-    return (kind: ShipSlotKind): string => {
-        const slot = chassis.slots.find((candidate) => {
-            return candidate.kind === kind && !occupiedSlotIds.has(candidate.id);
-        });
-
-        if (!slot) {
-            throw new Error("Debug Start chassis has no free " + kind + " slot: " + chassisId);
-        }
-
-        occupiedSlotIds.add(slot.id);
-
-        return slot.id;
-    };
-}
+type DebugStartWeaponMount = {
+    weaponId: string;
+    slotId: string;
+};
 
 function createDebugStartWeaponPresets(
-    weaponIds: string[],
+    mounts: DebugStartWeaponMount[],
     side: DebugStartShipSide,
-    claimSlot: ClaimSlot,
 ): ShipWeaponPreset[] {
     const occurrenceByKind: Partial<Record<ShipWeaponKind, number>> = {};
 
-    return weaponIds.map((weaponId) => {
-        const definition = SHIP_WEAPONS[weaponId];
+    return mounts.map((mount) => {
+        const definition = SHIP_WEAPONS[mount.weaponId];
 
         const occurrence = occurrenceByKind[definition.kind] ?? 0;
 
         occurrenceByKind[definition.kind] = occurrence + 1;
 
         const id = createWeaponRuntimeId(definition.kind, side, occurrence);
-        const slotId = claimSlot(definition.slotKind);
 
         switch (definition.kind) {
             case SHIP_WEAPON_KIND.MISSILE_LAUNCHER:
@@ -223,7 +220,7 @@ function createDebugStartWeaponPresets(
             case SHIP_WEAPON_KIND.STICKY_MINE_DISPENSER:
                 return {
                     id,
-                    slotId,
+                    slotId: mount.slotId,
                     kind: definition.kind,
                     weaponId: definition.id,
                 };

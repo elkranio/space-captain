@@ -4,6 +4,9 @@ import {
     it,
 } from 'vitest';
 import {
+    DEBUG_START,
+} from '../../../src/engine/content/catalogs/debug_start';
+import {
     SHIP_CHASSIS_ID,
 } from '../../../src/engine/defs/ship_chassis';
 import {
@@ -29,6 +32,64 @@ describe(
 
                 expect(ship.hull).toBe(30);
                 expect(ship.maxHull).toBe(30);
+
+                expect(ship.mounts).toEqual([
+                    {
+                        slotId:
+                            DEBUG_START.player
+                                .mounts.drive,
+                        equipmentId:
+                            'drive_player_00',
+                    },
+                    {
+                        slotId:
+                            DEBUG_START.player
+                                .mounts
+                                .defenseTurret,
+                        equipmentId:
+                            'defense_turret_player_00',
+                    },
+                    {
+                        slotId:
+                            DEBUG_START.player
+                                .mounts
+                                .shieldGenerator,
+                        equipmentId:
+                            'shield_generator_player_00',
+                    },
+                    {
+                        slotId:
+                            DEBUG_START.player
+                                .mounts
+                                .weaponSlot1,
+                        equipmentId:
+                            'sticky_mine_dispenser_player_00',
+                    },
+                    {
+                        slotId:
+                            DEBUG_START.player
+                                .mounts
+                                .weaponSlot2,
+                        equipmentId:
+                            'beam_cannon_player_00',
+                    },
+                    {
+                        slotId:
+                            DEBUG_START.player
+                                .mounts
+                                .weaponSlot3,
+                        equipmentId:
+                            'spam_projector_player_00',
+                    },
+                    {
+                        slotId:
+                            DEBUG_START.player
+                                .mounts
+                                .weaponSlot4,
+                        equipmentId:
+                            'missile_launcher_player_00',
+                    },
+                ]);
 
                 expect(
                     ship.weapons.map(

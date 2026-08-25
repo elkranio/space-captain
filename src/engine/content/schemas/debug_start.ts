@@ -26,9 +26,55 @@ const WEAPON_SLOT_META = {
     "x-editor-content-reference": EDITOR_CONTENT_REFERENCE.WEAPON,
 } as const;
 
+const DEBUG_START_MOUNTS_SCHEMA = z
+    .strictObject({
+        drive: CONTENT_ID_SCHEMA.meta({
+            title: "Drive Slot",
+        }),
+
+        defenseTurret: CONTENT_ID_SCHEMA.meta({
+            title: "Defense Turret Slot",
+        }),
+
+        shieldGenerator: CONTENT_ID_SCHEMA.meta({
+            title: "Shield Generator Slot",
+        }),
+
+        weaponSlot1: CONTENT_ID_SCHEMA.meta({
+            title: "Weapon 1 Slot",
+        }),
+
+        weaponSlot2: CONTENT_ID_SCHEMA.meta({
+            title: "Weapon 2 Slot",
+        }),
+
+        weaponSlot3: CONTENT_ID_SCHEMA.meta({
+            title: "Weapon 3 Slot",
+        }),
+
+        weaponSlot4: CONTENT_ID_SCHEMA.meta({
+            title: "Weapon 4 Slot",
+        }),
+    })
+    .meta({
+        title: "Chassis Mounts",
+
+        description:
+            "Stable chassis slot ids used by Debug Start. " +
+            "Enemy slots do not count as occupied when the corresponding optional equipment is None.",
+    });
+
 export const DEBUG_START_SCHEMA = z.strictObject({
     player: z
         .strictObject({
+            chassisId: CONTENT_ID_SCHEMA.meta({
+                title: "Chassis",
+
+                "x-editor-content-reference": EDITOR_CONTENT_REFERENCE.CHASSIS,
+            }),
+
+            mounts: DEBUG_START_MOUNTS_SCHEMA,
+
             driveId: CONTENT_ID_SCHEMA.meta({
                 title: "Drive",
 
@@ -88,6 +134,8 @@ export const DEBUG_START_SCHEMA = z.strictObject({
 
                 "x-editor-content-reference": EDITOR_CONTENT_REFERENCE.CHASSIS,
             }),
+
+            mounts: DEBUG_START_MOUNTS_SCHEMA,
 
             driveId: CONTENT_ID_SCHEMA.meta({
                 title: "Drive",

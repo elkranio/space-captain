@@ -27,6 +27,8 @@ function assertOptionalReference(field: string, id: string | null, catalog: obje
     assertReference(field, id, catalog);
 }
 
+assertReference("player.chassisId", parsed.player.chassisId, SHIP_CHASSIS);
+
 assertReference("player.driveId", parsed.player.driveId, SHIP_DRIVES);
 
 assertReference("player.powerCoreId", parsed.player.powerCoreId, POWER_CORES);

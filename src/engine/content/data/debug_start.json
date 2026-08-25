@@ -1,5 +1,15 @@
 {
     "player": {
+        "chassisId": "player_00",
+        "mounts": {
+            "drive": "drive",
+            "defenseTurret": "defense_01",
+            "shieldGenerator": "defense_02",
+            "weaponSlot1": "weapon_01",
+            "weaponSlot2": "weapon_02",
+            "weaponSlot3": "utility_01",
+            "weaponSlot4": "weapon_03"
+        },
         "driveId": "basic_00",
         "powerCoreId": "power_core_basic_00",
         "shieldGeneratorId": "shield_generator_basic_00",
@@ -11,6 +21,15 @@
     },
     "enemy": {
         "chassisId": "generic_00",
+        "mounts": {
+            "drive": "drive",
+            "defenseTurret": "defense_01",
+            "shieldGenerator": "defense_02",
+            "weaponSlot1": "weapon_01",
+            "weaponSlot2": "weapon_02",
+            "weaponSlot3": "utility_01",
+            "weaponSlot4": "weapon_03"
+        },
         "driveId": "basic_00",
         "powerCoreId": "power_core_basic_00",
         "shieldGeneratorId": "shield_generator_basic_00",

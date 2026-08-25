@@ -1,26 +1,23 @@
 // src/engine/generation/new_game/new_game_config.ts
 
 import { OFFICER_PORTRAIT_ID, OFFICER_ROLE, type OfficerDefinition, type OfficerRole } from "../../defs/officer";
-import { SHIP_CHASSIS_ID } from "../../defs/ship_chassis";
 import type { NewGamePlayerLocations } from "./NewGameUniverseFactory";
 
 type NewGameConfig = {
     player: {
-        chassisId: string;
         locationId: keyof NewGamePlayerLocations;
     };
 
     officers: Record<OfficerRole, OfficerDefinition>;
 };
 
-// Единственная точка выбора стартового chassis и позиции player.
+// Стартовая позиция player и состав офицеров.
 //
-// Стартовое железо player/enemy живёт отдельно в debug_start.json.
-// Геометрия nodes, anchors и actors остаётся внутри
-// NewGameUniverseFactory: это связный universe scenario.
+// Chassis, железо и spatial mounts Debug Start живут вместе
+// в debug_start.json. Геометрия nodes, anchors и actors остаётся
+// внутри NewGameUniverseFactory: это связный universe scenario.
 export const NEW_GAME_CONFIG = {
     player: {
-        chassisId: SHIP_CHASSIS_ID.PLAYER_00,
         locationId: "arrivingAtStart",
     },
 
