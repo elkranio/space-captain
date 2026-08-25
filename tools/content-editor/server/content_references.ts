@@ -1172,6 +1172,7 @@ async function readShipChassisSpriteIds(
             'src',
             'app',
             'manifests',
+            'world',
             'ships',
             'ship_sprites.json',
         );

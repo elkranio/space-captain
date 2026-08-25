@@ -38,14 +38,14 @@ const ASSET_BUCKETS:
 
             rawDirectory:
                 'assets/raw/images/' +
-                'ships/chassis',
+                'world/ships/chassis',
 
             atlasPrefix:
-                'ships/chassis',
+                'world/ships/chassis',
 
             manifestPath:
                 'src/app/manifests/' +
-                'ships/ship_sprites.json',
+                'world/ships/ship_sprites.json',
 
             // Transitional protection while these ids
             // are still part of compile-time SHIP_SPRITE_ID.
