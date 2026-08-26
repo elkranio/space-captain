@@ -11,13 +11,13 @@ const HEADER = {
 
 const EQUIPMENT_GRID = {
     x: 12,
-    y: 52,
+    y: 50,
 
     rightPadding: 12,
-    specialColumnWidth: 92,
-    specialColumnGap: 8,
+    specialColumnWidth: 48,
+    specialColumnGap: 4,
 
-    bottomPadding: 12,
+    bottomPadding: 10,
 } as const;
 
 // Левая половина captain dashboard.
