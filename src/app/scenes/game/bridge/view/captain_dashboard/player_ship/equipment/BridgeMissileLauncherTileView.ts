@@ -40,13 +40,23 @@ export type MissileLauncherProgressMode =
 export default class BridgeMissileLauncherTileView {
     private readonly root: Phaser.GameObjects.Container;
 
+    private readonly titleText: Phaser.GameObjects.BitmapText;
+
     private readonly baseIcon: Phaser.GameObjects.Image;
 
     private readonly progressIcon: Phaser.GameObjects.Image;
 
+    private readonly ammoGlyph: Phaser.GameObjects.Graphics;
+
     private readonly ammoText: Phaser.GameObjects.BitmapText;
 
     private readonly integrityRoot: Phaser.GameObjects.Container;
+
+    private chromeColor = FONT_COLOR.PRIMARY;
+
+    private integrityCurrent = 0;
+
+    private integrityMax = 0;
 
     constructor(
         private readonly scene: BridgeScene,
@@ -55,10 +65,10 @@ export default class BridgeMissileLauncherTileView {
     ) {
         this.root = this.scene.add.container(0, 0);
 
-        const title = this.scene.add
+        this.titleText = this.scene.add
             .bitmapText(TILE.horizontalPadding, TILE.titleY, FONT_FAMILY.VGA_8X14, "M. LAUNCHER", FONT_SIZE.PX_14)
             .setOrigin(0, 0)
-            .setTint(FONT_COLOR.PRIMARY);
+            .setTint(this.chromeColor);
 
         const sprite = CAPTAIN_DASHBOARD_SPRITES[CAPTAIN_DASHBOARD_SPRITE_ID.MISSILE_LAUNCHER_SIMPLE_ROCKET];
 
@@ -74,7 +84,8 @@ export default class BridgeMissileLauncherTileView {
             .setTint(CAPTAIN_DASHBOARD_STYLE.equipmentProgress.readyColor)
             .setVisible(false);
 
-        const ammoGlyph = this.createAmmoGlyph();
+        this.ammoGlyph = this.scene.add.graphics();
+        this.renderAmmoGlyph();
 
         this.ammoText = this.scene.add
             .bitmapText(
@@ -85,11 +96,18 @@ export default class BridgeMissileLauncherTileView {
                 FONT_SIZE.PX_14,
             )
             .setOrigin(0, 0)
-            .setTint(FONT_COLOR.PRIMARY);
+            .setTint(this.chromeColor);
 
         this.integrityRoot = this.scene.add.container(0, 0);
 
-        this.root.add([title, this.baseIcon, this.progressIcon, ammoGlyph, this.ammoText, this.integrityRoot]);
+        this.root.add([
+            this.titleText,
+            this.baseIcon,
+            this.progressIcon,
+            this.ammoGlyph,
+            this.ammoText,
+            this.integrityRoot,
+        ]);
     }
 
     public getRoot(): Phaser.GameObjects.Container {
@@ -105,35 +123,9 @@ export default class BridgeMissileLauncherTileView {
     }
 
     public setIntegrity(current: number, max: number): void {
-        this.integrityRoot.removeAll(true);
-
-        if (max <= 0) {
-            return;
-        }
-
-        const totalWidth = max * TILE.integrityPipSize + (max - 1) * TILE.integrityPipGap;
-        const startX = this.width - TILE.horizontalPadding - totalWidth;
-        const borderColor = current <= 0 ? CAPTAIN_DASHBOARD_STYLE.equipmentProgress.repairColor : FONT_COLOR.PRIMARY;
-        const emptyColor = 0x0b1621;
-
-        for (let index = 0; index < max; index += 1) {
-            const filled = index < current;
-            const x = startX + index * (TILE.integrityPipSize + TILE.integrityPipGap);
-
-            const pip = this.scene.add
-                .rectangle(
-                    x,
-                    TILE.statusY + 2,
-                    TILE.integrityPipSize,
-                    TILE.integrityPipSize,
-                    filled ? FONT_COLOR.PRIMARY : emptyColor,
-                    1,
-                )
-                .setOrigin(0, 0)
-                .setStrokeStyle(1, borderColor);
-
-            this.integrityRoot.add(pip);
-        }
+        this.integrityCurrent = current;
+        this.integrityMax = max;
+        this.renderIntegrity();
     }
 
     public setProgress(mode: MissileLauncherProgressMode, progress: number): void {
@@ -143,16 +135,19 @@ export default class BridgeMissileLauncherTileView {
             case MISSILE_LAUNCHER_PROGRESS_MODE.COOLDOWN:
                 this.baseIcon.setTint(colors.cooldownColor);
                 this.progressIcon.setTint(colors.readyColor);
+                this.setChromeColor(colors.cooldownColor);
                 break;
 
             case MISSILE_LAUNCHER_PROGRESS_MODE.REPAIR:
                 this.baseIcon.setTint(colors.repairColor);
                 this.progressIcon.setTint(colors.readyColor);
+                this.setChromeColor(colors.repairColor);
                 break;
 
             case MISSILE_LAUNCHER_PROGRESS_MODE.TARGETING:
                 this.baseIcon.setTint(colors.readyColor);
                 this.progressIcon.setTint(colors.activityColor);
+                this.setChromeColor(FONT_COLOR.PRIMARY);
                 break;
         }
 
@@ -170,22 +165,67 @@ export default class BridgeMissileLauncherTileView {
     public resetProgress(): void {
         this.baseIcon.setTint(CAPTAIN_DASHBOARD_STYLE.equipmentProgress.readyColor);
         this.progressIcon.setVisible(false);
+        this.setChromeColor(FONT_COLOR.PRIMARY);
     }
 
     public destroy(): void {
         this.root.destroy(true);
     }
 
-    private createAmmoGlyph(): Phaser.GameObjects.Graphics {
-        const glyph = this.scene.add.graphics();
+    private setChromeColor(color: number): void {
+        this.chromeColor = color;
+        this.titleText.setTint(color);
+        this.ammoText.setTint(color);
+        this.renderAmmoGlyph();
+        this.renderIntegrity();
+    }
 
-        glyph.fillStyle(FONT_COLOR.PRIMARY, 1);
+    private renderAmmoGlyph(): void {
+        this.ammoGlyph.clear();
+        this.ammoGlyph.fillStyle(this.chromeColor, 1);
+
         const y = TILE.statusY + TILE.ammoGlyphOffsetY;
 
-        glyph.fillRect(TILE.horizontalPadding + 1, y + 1, 3, TILE.ammoGlyphHeight - 2);
-        glyph.fillRect(TILE.horizontalPadding + 2, y, 1, 1);
-        glyph.fillRect(TILE.horizontalPadding, y + TILE.ammoGlyphHeight - 1, TILE.ammoGlyphWidth, 1);
+        this.ammoGlyph.fillRect(TILE.horizontalPadding + 1, y + 1, 3, TILE.ammoGlyphHeight - 2);
+        this.ammoGlyph.fillRect(TILE.horizontalPadding + 2, y, 1, 1);
+        this.ammoGlyph.fillRect(
+            TILE.horizontalPadding,
+            y + TILE.ammoGlyphHeight - 1,
+            TILE.ammoGlyphWidth,
+            1,
+        );
+    }
 
-        return glyph;
+    private renderIntegrity(): void {
+        this.integrityRoot.removeAll(true);
+
+        if (this.integrityMax <= 0) {
+            return;
+        }
+
+        const totalWidth =
+            this.integrityMax * TILE.integrityPipSize +
+            (this.integrityMax - 1) * TILE.integrityPipGap;
+        const startX = this.width - TILE.horizontalPadding - totalWidth;
+        const emptyColor = 0x0b1621;
+
+        for (let index = 0; index < this.integrityMax; index += 1) {
+            const filled = index < this.integrityCurrent;
+            const x = startX + index * (TILE.integrityPipSize + TILE.integrityPipGap);
+
+            const pip = this.scene.add
+                .rectangle(
+                    x,
+                    TILE.statusY + 2,
+                    TILE.integrityPipSize,
+                    TILE.integrityPipSize,
+                    filled ? this.chromeColor : emptyColor,
+                    1,
+                )
+                .setOrigin(0, 0)
+                .setStrokeStyle(1, this.chromeColor);
+
+            this.integrityRoot.add(pip);
+        }
     }
 }
