@@ -41,11 +41,11 @@ export default class BridgeMissileLauncherTileView {
 
         this.baseIcon = this.scene.add
             .image(centerX, centerY, sprite.atlasKey, sprite.frameKey)
-            .setTintFill(CAPTAIN_DASHBOARD_STYLE.equipmentProgress.readyColor);
+            .setTint(CAPTAIN_DASHBOARD_STYLE.equipmentProgress.readyColor);
 
         this.progressIcon = this.scene.add
             .image(centerX, centerY, sprite.atlasKey, sprite.frameKey)
-            .setTintFill(CAPTAIN_DASHBOARD_STYLE.equipmentProgress.readyColor)
+            .setTint(CAPTAIN_DASHBOARD_STYLE.equipmentProgress.readyColor)
             .setVisible(false);
 
         this.root.add([this.baseIcon, this.progressIcon]);
@@ -64,18 +64,18 @@ export default class BridgeMissileLauncherTileView {
 
         switch (mode) {
             case MISSILE_LAUNCHER_PROGRESS_MODE.COOLDOWN:
-                this.baseIcon.setTintFill(colors.cooldownColor);
-                this.progressIcon.setTintFill(colors.readyColor);
+                this.baseIcon.setTint(colors.cooldownColor);
+                this.progressIcon.setTint(colors.readyColor);
                 break;
 
             case MISSILE_LAUNCHER_PROGRESS_MODE.REPAIR:
-                this.baseIcon.setTintFill(colors.repairColor);
-                this.progressIcon.setTintFill(colors.readyColor);
+                this.baseIcon.setTint(colors.repairColor);
+                this.progressIcon.setTint(colors.readyColor);
                 break;
 
             case MISSILE_LAUNCHER_PROGRESS_MODE.TARGETING:
-                this.baseIcon.setTintFill(colors.readyColor);
-                this.progressIcon.setTintFill(colors.activityColor);
+                this.baseIcon.setTint(colors.readyColor);
+                this.progressIcon.setTint(colors.activityColor);
                 break;
         }
 

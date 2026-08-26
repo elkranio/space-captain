@@ -24,7 +24,7 @@ export const CAPTAIN_DASHBOARD_STYLE = {
     },
 
     equipmentProgress: {
-        readyColor: 0x69bff2,
+        readyColor: 0xffffff,
         cooldownColor: 0x315f7a,
         repairColor: 0xff4d4d,
         activityColor: 0xea9e3e,
