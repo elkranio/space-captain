@@ -23,6 +23,13 @@ export const CAPTAIN_DASHBOARD_STYLE = {
         borderThickness: 1,
     },
 
+    equipmentProgress: {
+        readyColor: 0x69bff2,
+        cooldownColor: 0x315f7a,
+        repairColor: 0xff4d4d,
+        activityColor: 0xea9e3e,
+    },
+
     specialColumn: {
         panelBackgroundColor: 0x0b1621,
         panelBackgroundAlpha: 0.9,
