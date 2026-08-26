@@ -1,5 +1,6 @@
 import type BridgeScene from "../BridgeScene";
 import BridgeMissileLauncherTileView, {
+    MISSILE_LAUNCHER_HOVER_ACTION,
     MISSILE_LAUNCHER_PROGRESS_MODE,
     type MissileLauncherProgressMode,
 } from "../view/captain_dashboard/player_ship/equipment/BridgeMissileLauncherTileView";
@@ -21,19 +22,24 @@ type ProgressState = {
 // 1 — cooldown
 // 2 — repair
 // 3 — targeting
-// 4 — nominal / reset
-// 5 — fully broken
-// 6 — fully cooldown
+// 4 — nominal / reset + W FIRE hover
+// 5 — fully broken + E REPAIR hover
+// 6 — fully cooldown, no hover action
 export default class BridgeEquipmentTileDebugView {
     private readonly tileView: BridgeMissileLauncherTileView;
 
     private progressTween?: Phaser.Tweens.Tween;
 
     constructor(private readonly scene: BridgeScene) {
-        this.tileView = new BridgeMissileLauncherTileView(this.scene, PREVIEW.width, PREVIEW.height);
+        this.tileView = new BridgeMissileLauncherTileView(
+            this.scene,
+            PREVIEW.width,
+            PREVIEW.height,
+        );
         this.tileView.setPosition(PREVIEW.x, PREVIEW.y);
         this.tileView.setAmmo(5);
         this.tileView.setIntegrity(1, 2);
+        this.tileView.setHoverAction(MISSILE_LAUNCHER_HOVER_ACTION.FIRE);
 
         this.scene.layers.get("ui").add(this.tileView.getRoot());
 
@@ -81,6 +87,7 @@ export default class BridgeEquipmentTileDebugView {
 
     private startPreview(mode: MissileLauncherProgressMode): void {
         this.stopProgressTween();
+        this.tileView.setHoverAction(MISSILE_LAUNCHER_HOVER_ACTION.NONE);
 
         const state: ProgressState = {
             progress: 0,
@@ -105,18 +112,21 @@ export default class BridgeEquipmentTileDebugView {
         this.stopProgressTween();
         this.tileView.resetProgress();
         this.tileView.setIntegrity(1, 2);
+        this.tileView.setHoverAction(MISSILE_LAUNCHER_HOVER_ACTION.FIRE);
     }
 
     private showFullyBroken(): void {
         this.stopProgressTween();
         this.tileView.setProgress(MISSILE_LAUNCHER_PROGRESS_MODE.REPAIR, 0);
         this.tileView.setIntegrity(0, 2);
+        this.tileView.setHoverAction(MISSILE_LAUNCHER_HOVER_ACTION.REPAIR);
     }
 
     private showFullyCooldown(): void {
         this.stopProgressTween();
         this.tileView.setProgress(MISSILE_LAUNCHER_PROGRESS_MODE.COOLDOWN, 0);
         this.tileView.setIntegrity(1, 2);
+        this.tileView.setHoverAction(MISSILE_LAUNCHER_HOVER_ACTION.NONE);
     }
 
     private stopProgressTween(): void {

@@ -6,6 +6,7 @@ import {
     UI_OFFICER_MONITOR_SPRITES,
 } from "../../../../../../manifests/ui/officer_monitor";
 import { FONT_COLOR, FONT_FAMILY, FONT_SIZE } from "../../../../../../theme/font";
+import { OFFICER_ROLE_COLOR } from "../../../../../../theme/officer";
 import type BridgeScene from "../../../BridgeScene";
 import { BRIDGE_EVENT } from "../../../events/bridge_event";
 import type BridgeEventBus from "../../../events/BridgeEventBus";
@@ -24,7 +25,9 @@ export default class BridgeOfficerStationView {
 
     private readonly frameImage: Phaser.GameObjects.Image;
 
-    private readonly roleLabel: Phaser.GameObjects.BitmapText;
+    private readonly roleLabelInitial: Phaser.GameObjects.BitmapText;
+
+    private readonly roleLabelRest: Phaser.GameObjects.BitmapText;
 
     private readonly hitArea: Phaser.GameObjects.Zone;
 
@@ -54,12 +57,37 @@ export default class BridgeOfficerStationView {
             .setOrigin(0.5, 0.5)
             .setFlipX(layout.flipX);
 
-        const labelX = (layout.flipX ? 1 : -1) * (layout.hitArea.width / 2 - ROLE_LABEL.sidePadding);
+        const roleText = layout.role.toUpperCase();
 
-        this.roleLabel = this.scene.add
-            .bitmapText(labelX, ROLE_LABEL.y, FONT_FAMILY.VGA_8X14, layout.role.toUpperCase(), FONT_SIZE.PX_16)
-            .setOrigin(layout.flipX ? 1 : 0, 0)
+        this.roleLabelInitial = this.scene.add
+            .bitmapText(
+                0,
+                ROLE_LABEL.y,
+                FONT_FAMILY.VGA_8X14,
+                roleText.slice(0, 1),
+                FONT_SIZE.PX_16,
+            )
+            .setOrigin(0, 0)
+            .setTint(OFFICER_ROLE_COLOR[layout.role]);
+
+        this.roleLabelRest = this.scene.add
+            .bitmapText(
+                0,
+                ROLE_LABEL.y,
+                FONT_FAMILY.VGA_8X14,
+                roleText.slice(1),
+                FONT_SIZE.PX_16,
+            )
+            .setOrigin(0, 0)
             .setTint(FONT_COLOR.MUTED);
+
+        const labelWidth = this.roleLabelInitial.width + this.roleLabelRest.width;
+        const labelStartX = layout.flipX
+            ? layout.hitArea.width / 2 - ROLE_LABEL.sidePadding - labelWidth
+            : -layout.hitArea.width / 2 + ROLE_LABEL.sidePadding;
+
+        this.roleLabelInitial.setX(labelStartX);
+        this.roleLabelRest.setX(labelStartX + this.roleLabelInitial.width);
 
         this.hitArea = this.scene.add
             .zone(0, 0, layout.hitArea.width, layout.hitArea.height)
@@ -69,14 +97,21 @@ export default class BridgeOfficerStationView {
             })
             .on(Phaser.Input.Events.POINTER_DOWN, this.handlePointerDown, this);
 
-        this.root.add([this.officerImage, this.frameImage, this.roleLabel, this.hitArea]);
+        this.root.add([
+            this.officerImage,
+            this.frameImage,
+            this.roleLabelInitial,
+            this.roleLabelRest,
+            this.hitArea,
+        ]);
     }
 
     public destroy(): void {
         this.hitArea.off(Phaser.Input.Events.POINTER_DOWN, this.handlePointerDown, this);
 
         this.hitArea.destroy();
-        this.roleLabel.destroy();
+        this.roleLabelRest.destroy();
+        this.roleLabelInitial.destroy();
         this.frameImage.destroy();
         this.officerImage.destroy();
         this.root.destroy(false);

@@ -4,6 +4,7 @@ import {
     CAPTAIN_DASHBOARD_SPRITES,
 } from "../../../../../../../manifests/bridge/captain_dashboard";
 import { FONT_COLOR, FONT_FAMILY, FONT_SIZE } from "../../../../../../../theme/font";
+import { OFFICER_ROLE_COLOR } from "../../../../../../../theme/officer";
 import type BridgeScene from "../../../../BridgeScene";
 import { CAPTAIN_DASHBOARD_STYLE } from "../../captain_dashboard_style";
 
@@ -21,6 +22,8 @@ const TILE = {
 
     integrityPipSize: 8,
     integrityPipGap: 3,
+
+    hoverTextGap: 6,
 } as const;
 
 export const MISSILE_LAUNCHER_PROGRESS_MODE = {
@@ -32,10 +35,19 @@ export const MISSILE_LAUNCHER_PROGRESS_MODE = {
 export type MissileLauncherProgressMode =
     (typeof MISSILE_LAUNCHER_PROGRESS_MODE)[keyof typeof MISSILE_LAUNCHER_PROGRESS_MODE];
 
+export const MISSILE_LAUNCHER_HOVER_ACTION = {
+    NONE: "none",
+    FIRE: "fire",
+    REPAIR: "repair",
+} as const;
+
+export type MissileLauncherHoverAction =
+    (typeof MISSILE_LAUNCHER_HOVER_ACTION)[keyof typeof MISSILE_LAUNCHER_HOVER_ACTION];
+
 // Первый concrete equipment tile.
 //
 // Уже содержит постоянную геометрию launcher tile:
-// title, pictogram, ammo и integrity.
+// title, pictogram, ammo, integrity и hover action.
 // Debug-view пока подаёт тестовые значения и гоняет progress states.
 export default class BridgeMissileLauncherTileView {
     private readonly root: Phaser.GameObjects.Container;
@@ -46,17 +58,29 @@ export default class BridgeMissileLauncherTileView {
 
     private readonly progressIcon: Phaser.GameObjects.Image;
 
+    private readonly hoverRoleText: Phaser.GameObjects.BitmapText;
+
+    private readonly hoverActionText: Phaser.GameObjects.BitmapText;
+
     private readonly ammoGlyph: Phaser.GameObjects.Graphics;
 
     private readonly ammoText: Phaser.GameObjects.BitmapText;
 
     private readonly integrityRoot: Phaser.GameObjects.Container;
 
+    private readonly hitArea: Phaser.GameObjects.Zone;
+
     private chromeColor: number = FONT_COLOR.PRIMARY;
 
     private integrityCurrent = 0;
 
     private integrityMax = 0;
+
+    private progressVisible = false;
+
+    private pointerOver = false;
+
+    private hoverAction: MissileLauncherHoverAction = MISSILE_LAUNCHER_HOVER_ACTION.NONE;
 
     constructor(
         private readonly scene: BridgeScene,
@@ -66,14 +90,22 @@ export default class BridgeMissileLauncherTileView {
         this.root = this.scene.add.container(0, 0);
 
         this.titleText = this.scene.add
-            .bitmapText(TILE.horizontalPadding, TILE.titleY, FONT_FAMILY.VGA_8X14, "M. LAUNCHER", FONT_SIZE.PX_14)
+            .bitmapText(
+                TILE.horizontalPadding,
+                TILE.titleY,
+                FONT_FAMILY.VGA_8X14,
+                "M. LAUNCHER",
+                FONT_SIZE.PX_14,
+            )
             .setOrigin(0, 0)
             .setTint(this.chromeColor);
 
-        const sprite = CAPTAIN_DASHBOARD_SPRITES[CAPTAIN_DASHBOARD_SPRITE_ID.MISSILE_LAUNCHER_SIMPLE_ROCKET];
+        const sprite =
+            CAPTAIN_DASHBOARD_SPRITES[CAPTAIN_DASHBOARD_SPRITE_ID.MISSILE_LAUNCHER_SIMPLE_ROCKET];
 
         const centerX = Math.round(this.width / 2);
         const centerY = Math.round(height / 2) + 1;
+        const hoverTextY = centerY - Math.round(FONT_SIZE.PX_16 / 2);
 
         this.baseIcon = this.scene.add
             .image(centerX, centerY, sprite.atlasKey, sprite.frameKey)
@@ -82,6 +114,17 @@ export default class BridgeMissileLauncherTileView {
         this.progressIcon = this.scene.add
             .image(centerX, centerY, sprite.atlasKey, sprite.frameKey)
             .setTint(CAPTAIN_DASHBOARD_STYLE.equipmentProgress.readyColor)
+            .setVisible(false);
+
+        this.hoverRoleText = this.scene.add
+            .bitmapText(0, hoverTextY, FONT_FAMILY.VGA_8X14, "", FONT_SIZE.PX_16)
+            .setOrigin(0, 0)
+            .setVisible(false);
+
+        this.hoverActionText = this.scene.add
+            .bitmapText(0, hoverTextY, FONT_FAMILY.VGA_8X14, "", FONT_SIZE.PX_16)
+            .setOrigin(0, 0)
+            .setTint(FONT_COLOR.PRIMARY)
             .setVisible(false);
 
         this.ammoGlyph = this.scene.add.graphics();
@@ -100,13 +143,25 @@ export default class BridgeMissileLauncherTileView {
 
         this.integrityRoot = this.scene.add.container(0, 0);
 
+        this.hitArea = this.scene.add
+            .zone(0, 0, this.width, height)
+            .setOrigin(0, 0)
+            .setInteractive({
+                useHandCursor: true,
+            })
+            .on(Phaser.Input.Events.POINTER_OVER, this.handlePointerOver, this)
+            .on(Phaser.Input.Events.POINTER_OUT, this.handlePointerOut, this);
+
         this.root.add([
             this.titleText,
             this.baseIcon,
             this.progressIcon,
+            this.hoverRoleText,
+            this.hoverActionText,
             this.ammoGlyph,
             this.ammoText,
             this.integrityRoot,
+            this.hitArea,
         ]);
     }
 
@@ -126,6 +181,11 @@ export default class BridgeMissileLauncherTileView {
         this.integrityCurrent = current;
         this.integrityMax = max;
         this.renderIntegrity();
+    }
+
+    public setHoverAction(action: MissileLauncherHoverAction): void {
+        this.hoverAction = action;
+        this.renderHover();
     }
 
     public setProgress(mode: MissileLauncherProgressMode, progress: number): void {
@@ -154,21 +214,25 @@ export default class BridgeMissileLauncherTileView {
         const clampedProgress = Phaser.Math.Clamp(progress, 0, 1);
         const cropWidth = Math.round(this.progressIcon.width * clampedProgress);
 
-        if (cropWidth <= 0) {
-            this.progressIcon.setVisible(false);
-            return;
+        this.progressVisible = cropWidth > 0;
+
+        if (this.progressVisible) {
+            this.progressIcon.setCrop(0, 0, cropWidth, this.progressIcon.height);
         }
 
-        this.progressIcon.setVisible(true).setCrop(0, 0, cropWidth, this.progressIcon.height);
+        this.renderHover();
     }
 
     public resetProgress(): void {
         this.baseIcon.setTint(CAPTAIN_DASHBOARD_STYLE.equipmentProgress.readyColor);
-        this.progressIcon.setVisible(false);
+        this.progressVisible = false;
         this.setChromeColor(FONT_COLOR.PRIMARY);
+        this.renderHover();
     }
 
     public destroy(): void {
+        this.hitArea.off(Phaser.Input.Events.POINTER_OVER, this.handlePointerOver, this);
+        this.hitArea.off(Phaser.Input.Events.POINTER_OUT, this.handlePointerOut, this);
         this.root.destroy(true);
     }
 
@@ -186,9 +250,19 @@ export default class BridgeMissileLauncherTileView {
 
         const y = TILE.statusY + TILE.ammoGlyphOffsetY;
 
-        this.ammoGlyph.fillRect(TILE.horizontalPadding + 1, y + 1, 3, TILE.ammoGlyphHeight - 2);
+        this.ammoGlyph.fillRect(
+            TILE.horizontalPadding + 1,
+            y + 1,
+            3,
+            TILE.ammoGlyphHeight - 2,
+        );
         this.ammoGlyph.fillRect(TILE.horizontalPadding + 2, y, 1, 1);
-        this.ammoGlyph.fillRect(TILE.horizontalPadding, y + TILE.ammoGlyphHeight - 1, TILE.ammoGlyphWidth, 1);
+        this.ammoGlyph.fillRect(
+            TILE.horizontalPadding,
+            y + TILE.ammoGlyphHeight - 1,
+            TILE.ammoGlyphWidth,
+            1,
+        );
     }
 
     private renderIntegrity(): void {
@@ -198,7 +272,9 @@ export default class BridgeMissileLauncherTileView {
             return;
         }
 
-        const totalWidth = this.integrityMax * TILE.integrityPipSize + (this.integrityMax - 1) * TILE.integrityPipGap;
+        const totalWidth =
+            this.integrityMax * TILE.integrityPipSize +
+            (this.integrityMax - 1) * TILE.integrityPipGap;
         const startX = this.width - TILE.horizontalPadding - totalWidth;
         const emptyColor = 0x0b1621;
 
@@ -220,5 +296,53 @@ export default class BridgeMissileLauncherTileView {
 
             this.integrityRoot.add(pip);
         }
+    }
+
+    private renderHover(): void {
+        const showAction =
+            this.pointerOver && this.hoverAction !== MISSILE_LAUNCHER_HOVER_ACTION.NONE;
+
+        this.baseIcon.setVisible(!showAction);
+        this.progressIcon.setVisible(!showAction && this.progressVisible);
+        this.hoverRoleText.setVisible(showAction);
+        this.hoverActionText.setVisible(showAction);
+
+        if (!showAction) {
+            return;
+        }
+
+        switch (this.hoverAction) {
+            case MISSILE_LAUNCHER_HOVER_ACTION.FIRE:
+                this.hoverRoleText.setText("W").setTint(OFFICER_ROLE_COLOR.weapons);
+                this.hoverActionText.setText("FIRE");
+                break;
+
+            case MISSILE_LAUNCHER_HOVER_ACTION.REPAIR:
+                this.hoverRoleText.setText("E").setTint(OFFICER_ROLE_COLOR.engineer);
+                this.hoverActionText.setText("REPAIR");
+                break;
+
+            case MISSILE_LAUNCHER_HOVER_ACTION.NONE:
+                return;
+        }
+
+        const totalWidth =
+            this.hoverRoleText.width + TILE.hoverTextGap + this.hoverActionText.width;
+        const startX = Math.round((this.width - totalWidth) / 2);
+
+        this.hoverRoleText.setX(startX);
+        this.hoverActionText.setX(
+            startX + this.hoverRoleText.width + TILE.hoverTextGap,
+        );
+    }
+
+    private handlePointerOver(): void {
+        this.pointerOver = true;
+        this.renderHover();
+    }
+
+    private handlePointerOut(): void {
+        this.pointerOver = false;
+        this.renderHover();
     }
 }
