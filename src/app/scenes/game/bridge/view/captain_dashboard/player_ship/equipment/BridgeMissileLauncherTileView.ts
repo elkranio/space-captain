@@ -111,9 +111,10 @@ export default class BridgeMissileLauncherTileView {
             return;
         }
 
-        const style = CAPTAIN_DASHBOARD_STYLE.equipmentIntegrity;
         const totalWidth = max * TILE.integrityPipSize + (max - 1) * TILE.integrityPipGap;
         const startX = this.width - TILE.horizontalPadding - totalWidth;
+        const borderColor = current <= 0 ? CAPTAIN_DASHBOARD_STYLE.equipmentProgress.repairColor : FONT_COLOR.PRIMARY;
+        const emptyColor = 0x0b1621;
 
         for (let index = 0; index < max; index += 1) {
             const filled = index < current;
@@ -125,11 +126,11 @@ export default class BridgeMissileLauncherTileView {
                     TILE.statusY + 2,
                     TILE.integrityPipSize,
                     TILE.integrityPipSize,
-                    filled ? style.filledColor : style.emptyColor,
+                    filled ? FONT_COLOR.PRIMARY : emptyColor,
                     1,
                 )
                 .setOrigin(0, 0)
-                .setStrokeStyle(1, style.borderColor);
+                .setStrokeStyle(1, borderColor);
 
             this.integrityRoot.add(pip);
         }
