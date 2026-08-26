@@ -22,6 +22,8 @@ type ProgressState = {
 // 2 — repair
 // 3 — targeting
 // 4 — nominal / reset
+// 5 — fully broken
+// 6 — fully cooldown
 export default class BridgeEquipmentTileDebugView {
     private readonly tileView: BridgeMissileLauncherTileView;
 
@@ -64,6 +66,14 @@ export default class BridgeEquipmentTileDebugView {
                 this.resetPreview();
                 return;
 
+            case "5":
+                this.showFullyBroken();
+                return;
+
+            case "6":
+                this.showFullyCooldown();
+                return;
+
             default:
                 return;
         }
@@ -94,6 +104,19 @@ export default class BridgeEquipmentTileDebugView {
     private resetPreview(): void {
         this.stopProgressTween();
         this.tileView.resetProgress();
+        this.tileView.setIntegrity(1, 2);
+    }
+
+    private showFullyBroken(): void {
+        this.stopProgressTween();
+        this.tileView.setProgress(MISSILE_LAUNCHER_PROGRESS_MODE.REPAIR, 0);
+        this.tileView.setIntegrity(0, 2);
+    }
+
+    private showFullyCooldown(): void {
+        this.stopProgressTween();
+        this.tileView.setProgress(MISSILE_LAUNCHER_PROGRESS_MODE.COOLDOWN, 0);
+        this.tileView.setIntegrity(1, 2);
     }
 
     private stopProgressTween(): void {

@@ -63,7 +63,7 @@ export default class BridgeMissileLauncherTileView {
         const sprite = CAPTAIN_DASHBOARD_SPRITES[CAPTAIN_DASHBOARD_SPRITE_ID.MISSILE_LAUNCHER_SIMPLE_ROCKET];
 
         const centerX = Math.round(this.width / 2);
-        const centerY = Math.round(height / 2);
+        const centerY = Math.round(height / 2) + 1;
 
         this.baseIcon = this.scene.add
             .image(centerX, centerY, sprite.atlasKey, sprite.frameKey)
