@@ -1,4 +1,8 @@
 // src/app/scenes/game/bridge/view/captain_dashboard/player_ship/header/BridgePlayerShipHeaderView.ts
+import {
+    CAPTAIN_DASHBOARD_SPRITE_ID,
+    CAPTAIN_DASHBOARD_SPRITES,
+} from "../../../../../../../manifests/bridge/captain_dashboard";
 import { FONT_COLOR, FONT_FAMILY, FONT_SIZE } from "../../../../../../../theme/font";
 import type BridgeScene from "../../../../BridgeScene";
 import { CAPTAIN_DASHBOARD_STYLE } from "../../captain_dashboard_style";
@@ -19,7 +23,7 @@ const POWER_CORE = {
     segmentY: 9,
     segmentInset: 2,
 
-    labelGap: 12,
+    iconGap: 8,
 } as const;
 
 type PowerCoreSegmentView = {
@@ -37,7 +41,7 @@ type PowerCoreSegmentView = {
 export default class BridgePlayerShipHeaderView {
     private readonly root: Phaser.GameObjects.Container;
 
-    private readonly powerCoreLabel: Phaser.GameObjects.BitmapText;
+    private readonly powerCoreIcon: Phaser.GameObjects.Image;
 
     private readonly powerCoreSegments: PowerCoreSegmentView[] = [];
 
@@ -61,22 +65,23 @@ export default class BridgePlayerShipHeaderView {
             .setOrigin(0, 0.5)
             .setTint(FONT_COLOR.DANGER);
 
-        this.powerCoreLabel = this.scene.add
-            .bitmapText(
+        const powerCoreIconAsset =
+            CAPTAIN_DASHBOARD_SPRITES[CAPTAIN_DASHBOARD_SPRITE_ID.POWER_CORE_ICON];
+
+        this.powerCoreIcon = this.scene.add
+            .image(
                 this.width - POWER_CORE.rightPadding,
                 centerY,
-                FONT_FAMILY.VGA_8X14,
-                "POWER CORE",
-                FONT_SIZE.PX_14,
+                powerCoreIconAsset.atlasKey,
+                powerCoreIconAsset.frameKey,
             )
-            .setOrigin(1, 0.5)
-            .setTint(FONT_COLOR.MUTED);
+            .setOrigin(1, 0.5);
 
         const divider = this.scene.add
             .rectangle(0, this.height - 1, this.width, 1, CAPTAIN_DASHBOARD_STYLE.header.dividerColor, 1)
             .setOrigin(0, 0);
 
-        this.root.add([shipName, escapeLabel, this.powerCoreLabel, divider]);
+        this.root.add([shipName, escapeLabel, this.powerCoreIcon, divider]);
 
         this.eventBus.on(BRIDGE_EVENT.PLAYER_SHIP_DASHBOARD_UPDATED, this.handleDashboardUpdated, this);
     }
@@ -115,7 +120,7 @@ export default class BridgePlayerShipHeaderView {
         this.destroyPowerCoreSegments();
 
         if (max <= 0) {
-            this.powerCoreLabel.setPosition(this.width - POWER_CORE.rightPadding, this.height / 2);
+            this.powerCoreIcon.setPosition(this.width - POWER_CORE.rightPadding, this.height / 2);
             return;
         }
 
@@ -123,7 +128,7 @@ export default class BridgePlayerShipHeaderView {
 
         const segmentsX = this.width - POWER_CORE.rightPadding - segmentsWidth;
 
-        this.powerCoreLabel.setPosition(segmentsX - POWER_CORE.labelGap, this.height / 2);
+        this.powerCoreIcon.setPosition(segmentsX - POWER_CORE.iconGap, this.height / 2);
 
         for (let index = 0; index < max; index += 1) {
             const x = segmentsX + index * (POWER_CORE.segmentWidth + POWER_CORE.segmentGap);
