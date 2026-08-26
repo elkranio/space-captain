@@ -15,6 +15,14 @@ export const CAPTAIN_DASHBOARD_STYLE = {
         rechargeColor: 0xa2dcff,
     },
 
+    equipmentSlot: {
+        backgroundColor: 0x0b1621,
+        backgroundAlpha: 0.86,
+
+        borderColor: 0x31465b,
+        borderThickness: 1,
+    },
+
     row: {
         backgroundColor: 0x0e1620,
         backgroundAlpha: 0.94,
