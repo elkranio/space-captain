@@ -30,6 +30,12 @@ export const CAPTAIN_DASHBOARD_STYLE = {
         activityColor: 0xea9e3e,
     },
 
+    equipmentIntegrity: {
+        filledColor: 0x71c651,
+        emptyColor: 0x07121e,
+        borderColor: 0x71c651,
+    },
+
     specialColumn: {
         panelBackgroundColor: 0x0b1621,
         panelBackgroundAlpha: 0.9,

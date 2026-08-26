@@ -21,6 +21,7 @@ type ProgressState = {
 // 1 — cooldown
 // 2 — repair
 // 3 — targeting
+// 4 — nominal / reset
 export default class BridgeEquipmentTileDebugView {
     private readonly tileView: BridgeMissileLauncherTileView;
 
@@ -29,6 +30,8 @@ export default class BridgeEquipmentTileDebugView {
     constructor(private readonly scene: BridgeScene) {
         this.tileView = new BridgeMissileLauncherTileView(this.scene, PREVIEW.width, PREVIEW.height);
         this.tileView.setPosition(PREVIEW.x, PREVIEW.y);
+        this.tileView.setAmmo(5, 10);
+        this.tileView.setIntegrity(1, 2);
 
         this.scene.layers.get("ui").add(this.tileView.getRoot());
 
@@ -38,8 +41,7 @@ export default class BridgeEquipmentTileDebugView {
     public destroy(): void {
         this.scene.input.keyboard?.off("keydown", this.handleKeyDown, this);
 
-        this.progressTween?.stop();
-        this.progressTween = undefined;
+        this.stopProgressTween();
 
         this.tileView.destroy();
     }
@@ -58,13 +60,17 @@ export default class BridgeEquipmentTileDebugView {
                 this.startPreview(MISSILE_LAUNCHER_PROGRESS_MODE.TARGETING);
                 return;
 
+            case "4":
+                this.resetPreview();
+                return;
+
             default:
                 return;
         }
     }
 
     private startPreview(mode: MissileLauncherProgressMode): void {
-        this.progressTween?.stop();
+        this.stopProgressTween();
 
         const state: ProgressState = {
             progress: 0,
@@ -83,5 +89,15 @@ export default class BridgeEquipmentTileDebugView {
                 this.tileView.setProgress(mode, state.progress);
             },
         });
+    }
+
+    private resetPreview(): void {
+        this.stopProgressTween();
+        this.tileView.resetProgress();
+    }
+
+    private stopProgressTween(): void {
+        this.progressTween?.stop();
+        this.progressTween = undefined;
     }
 }
