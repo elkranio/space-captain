@@ -31,6 +31,79 @@ Prefer:
 
 Do not add decoration merely to make a control look more like a physical button.
 
+
+## Equipment tiles
+
+Equipment tiles should remain sparse enough to scan under combat pressure. Permanent information is the small set that
+changes immediate decisions: identity, current operational state, current ammo/resource where relevant and integrity.
+Detailed statistics belong in a later tooltip/inspection layer rather than becoming permanent tile chrome.
+
+Current visual grammar established by the Missile Launcher prototype:
+
+- title at the top;
+- one large central equipment pictogram;
+- compact current-resource readout at bottom-left where relevant;
+- integrity pips at bottom-right;
+- whole tile cell is the interaction surface;
+- hover may replace the central pictogram with a contextual role/action label without adding a nested button.
+
+State should read as one visual object, not several unrelated colors:
+
+```text
+NORMAL
+    off-white / normal chrome
+
+COOLDOWN / unavailable
+    whole tile muted
+
+BROKEN
+    whole tile red
+
+active targeting/work
+    normal chrome + activity progress on the pictogram
+```
+
+Integrity pips follow the same state language. In the normal palette, filled means intact and outline means missing
+integrity. A fully BROKEN tile uses the broken/red palette rather than leaving bright white status fragments behind.
+
+The pictogram itself is the preferred progress surface. Use two copies of the same detailed icon and crop the overlay
+left-to-right:
+
+```text
+cooldown
+    muted base -> normal overlay
+
+repair
+    broken/red base -> normal overlay
+
+targeting/work
+    normal base -> activity overlay
+```
+
+Use ordinary Phaser tint so source shading/details survive. Avoid `setTintFill()` when it turns the icon into a flat
+silhouette and destroys useful internal readability.
+
+Contextual action labels use officer-role initials/colors. Current shared palette:
+
+```text
+S = Science  = blue
+H = Helm     = green
+W = Weapons  = red
+E = Engineer = yellow
+```
+
+The same palette is used for the first letter of officer station labels. Keep role colors centralized rather than
+redefining them per widget.
+
+Equipment source art is universal, not bridge-owned:
+
+```text
+assets/raw/images/equipment/<family>/<visual_archetype>/icon.png
+```
+
+Different progression items within one family may use different visual archetypes. Do not force all launchers/cannons/etc.
+to share one icon merely because they share a mechanic kind.
+
 ## Color
 
 The bridge/UI base remains blue/cool with yellow/off-white highlights where useful.

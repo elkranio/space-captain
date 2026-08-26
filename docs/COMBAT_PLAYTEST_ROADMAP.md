@@ -13,9 +13,12 @@ Current landed foundation:
 - incoming Beam target truth is currently `HULL | DRIVE` and safe for immediate player presentation;
 - player Drive integrity and Beam module damage are engine-owned;
 - player targeted-Shield semantics and the current `HULL | DRIVE` picker are implemented;
-- physical dual captain-display shell exists;
-- clean combat header + 4x2 glyph threat dashboard is implemented, but its large per-threat action-card role is
-  superseded by the confirmed dual-ship-dashboard + compact-threat-strip direction;
+- rebuilt first-person bridge shell exists with physical officer monitors, viewscreen and dual lower dashboards;
+- MY SHIP header / Power Core / exact 4x3 grid / narrow BRIDGE-HULL special-column geometry is landed;
+- a concrete Missile Launcher tile visual prototype is landed with tintable state, icon-based progress, integrity and
+  contextual hover action;
+- the right dashboard and old large threat-action presentation are still legacy/superseded rather than the intended
+  persistent ENEMY SHIP board + compact threat monitor;
 - tintable Missile / Beam / Mine / SPAM threat glyph family is implemented;
 - the four-pass stale/transport/structure/cognitive cleanup audit is closed.
 
@@ -30,8 +33,10 @@ Current implementation order:
 LANDED: chassis-owned ship slots + persistent loadout mounts
 -> LANDED: normalized Debug Start loadout + chassis-aware content editor
 -> LANDED: generalized encounter equipment-integrity foundation
--> NOW: new bridge shell + persistent MY SHIP / ENEMY SHIP dashboard prototype
--> equipment-tile state/read-model binding
+-> LANDED: new bridge shell + MY SHIP dashboard geometry
+-> LANDED: Missile Launcher equipment-tile visual/state prototype
+-> NOW: real Missile Launcher read-model + authoritative slot/integrity/runtime binding
+-> remaining MY SHIP equipment surfaces + persistent ENEMY SHIP slot board
 -> compact top-center threat monitor migration
 -> finish BROKEN / repair operational behavior required by the board
 -> player Beam HULL | SLOT direct targeting on the real dashboard
@@ -118,7 +123,7 @@ vocabulary to the same semantic ship-target model where appropriate.
 Keep the physical resolution order already proven by the current implementation. Do not create a permanent parallel
 target taxonomy only because the old incoming path landed first.
 
-### 5. Persistent dual ship combat board
+### 5. Persistent dual ship combat board — PARTIAL
 
 Once slots are real domain state, both ships stay visible during combat:
 
@@ -136,6 +141,14 @@ anatomy must not require opening a separate inspection screen or pausing the fig
 Science may later add deeper decision-changing information; it does not gate the permanent basic enemy board.
 
 The panels should share visual grammar without being forced into identical data density.
+
+Current presentation progress:
+
+- MY SHIP physical dashboard geometry is landed;
+- the first Missile Launcher tile grammar is visually validated in a debug harness;
+- the 4x3 grid is not yet populated from authoritative chassis slot/mount state;
+- player weapon dashboard payloads still need the mount/integrity truth required by the board;
+- ENEMY SHIP is not yet rebuilt as the persistent mirrored slot board.
 
 ### 6. Direct targeting + compact threat strip
 
