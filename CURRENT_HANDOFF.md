@@ -219,8 +219,8 @@ must be able to expose different slot counts/configurations.
 - Hull is not a slot.
 - Power Core remains non-breakable and non-targetable.
 - A targetable slot has encounter-local integrity and binary functionality:
-  - integrity > 0 -> OPERATIONAL;
-  - integrity = 0 -> BROKEN.
+    - integrity > 0 -> OPERATIONAL;
+    - integrity = 0 -> BROKEN.
 - A BROKEN slot disables the installed hardware mounted in that slot.
 - Engineer repairs only BROKEN targetable slots/modules and restores them to full integrity.
 - Beam may target Hull or a concrete breakable enemy slot.
