@@ -1,3 +1,4 @@
+// src/app/scenes/game/bridge/view/officer_stations/station/BridgeOfficerStationView.ts
 import type { OfficerRole } from "../../../../../../../engine/defs/officer";
 import { BRIDGE_SEATED_OFFICER_SPRITES } from "../../../../../../manifests/bridge/seated_officer";
 import {
@@ -11,8 +12,8 @@ import type BridgeEventBus from "../../../events/BridgeEventBus";
 import type { BridgeOfficerStationLayoutEntry } from "../bridge_officer_station_layout";
 
 const ROLE_LABEL = {
-    sidePadding: 18,
-    y: -74,
+    sidePadding: 26,
+    y: -72,
 } as const;
 
 // One bridge officer monitor. The portrait is bottom-aligned behind a transparent physical frame.
@@ -53,19 +54,12 @@ export default class BridgeOfficerStationView {
             .setOrigin(0.5, 0.5)
             .setFlipX(layout.flipX);
 
-        const labelX =
-            (layout.flipX ? 1 : -1) * (layout.hitArea.width / 2 - ROLE_LABEL.sidePadding);
+        const labelX = (layout.flipX ? 1 : -1) * (layout.hitArea.width / 2 - ROLE_LABEL.sidePadding);
 
         this.roleLabel = this.scene.add
-            .bitmapText(
-                labelX,
-                ROLE_LABEL.y,
-                FONT_FAMILY.VGA_8X14,
-                layout.role.toUpperCase(),
-                FONT_SIZE.PX_16,
-            )
+            .bitmapText(labelX, ROLE_LABEL.y, FONT_FAMILY.VGA_8X14, layout.role.toUpperCase(), FONT_SIZE.PX_16)
             .setOrigin(layout.flipX ? 1 : 0, 0)
-            .setTint(FONT_COLOR.PRIMARY);
+            .setTint(FONT_COLOR.MUTED);
 
         this.hitArea = this.scene.add
             .zone(0, 0, layout.hitArea.width, layout.hitArea.height)
