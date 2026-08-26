@@ -1,16 +1,21 @@
 import type { OfficerRole } from "../../../../../../../engine/defs/officer";
 import { BRIDGE_SEATED_OFFICER_SPRITES } from "../../../../../../manifests/bridge/seated_officer";
+import {
+    UI_OFFICER_MONITOR_SPRITE_ID,
+    UI_OFFICER_MONITOR_SPRITES,
+} from "../../../../../../manifests/ui/officer_monitor";
 import type BridgeScene from "../../../BridgeScene";
 import { BRIDGE_EVENT } from "../../../events/bridge_event";
 import type BridgeEventBus from "../../../events/BridgeEventBus";
 import type { BridgeOfficerStationLayoutEntry } from "../bridge_officer_station_layout";
 
-// One bridge officer sitting at a station already painted into the background.
-// The authored sprite is chair + body + head; only the image may be mirrored.
+// One bridge officer monitor. The portrait is bottom-aligned behind a transparent physical frame.
 export default class BridgeOfficerStationView {
     private readonly root: Phaser.GameObjects.Container;
 
     private readonly officerImage: Phaser.GameObjects.Image;
+
+    private readonly frameImage: Phaser.GameObjects.Image;
 
     private readonly hitArea: Phaser.GameObjects.Zone;
 
@@ -28,9 +33,15 @@ export default class BridgeOfficerStationView {
         parent.add(this.root);
 
         const officerAsset = BRIDGE_SEATED_OFFICER_SPRITES[layout.seatedOfficerSpriteId];
+        const frameAsset = UI_OFFICER_MONITOR_SPRITES[UI_OFFICER_MONITOR_SPRITE_ID.FRAME];
 
         this.officerImage = this.scene.add
-            .image(0, 0, officerAsset.atlasKey, officerAsset.frameKey)
+            .image(0, layout.hitArea.height / 2, officerAsset.atlasKey, officerAsset.frameKey)
+            .setOrigin(0.5, 1)
+            .setFlipX(layout.flipX);
+
+        this.frameImage = this.scene.add
+            .image(0, 0, frameAsset.atlasKey, frameAsset.frameKey)
             .setOrigin(0.5, 0.5)
             .setFlipX(layout.flipX);
 
@@ -42,13 +53,14 @@ export default class BridgeOfficerStationView {
             })
             .on(Phaser.Input.Events.POINTER_DOWN, this.handlePointerDown, this);
 
-        this.root.add([this.officerImage, this.hitArea]);
+        this.root.add([this.officerImage, this.frameImage, this.hitArea]);
     }
 
     public destroy(): void {
         this.hitArea.off(Phaser.Input.Events.POINTER_DOWN, this.handlePointerDown, this);
 
         this.hitArea.destroy();
+        this.frameImage.destroy();
         this.officerImage.destroy();
         this.root.destroy(false);
     }

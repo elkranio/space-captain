@@ -7,8 +7,6 @@ import type BridgeEventBus from "../../events/BridgeEventBus";
 import BridgeCaptainCombatContextView from "./combat_context/BridgeCaptainCombatContextView";
 import BridgePlayerShipDashboardView from "./player_ship/BridgePlayerShipDashboardView";
 
-const SCREEN_GAP = 10;
-
 // Root view капитанского dashboard.
 //
 // Два физических captain screen являются общей рамкой dashboard.
@@ -39,10 +37,10 @@ export default class BridgeCaptainDashboardView {
             .image(0, 0, screenSprite.atlasKey, screenSprite.frameKey)
             .setOrigin(0, 0);
 
-        const screensWidth = this.playerShipScreen.width + SCREEN_GAP + this.combatContextScreen.width;
+        const screensWidth = this.playerShipScreen.width + this.combatContextScreen.width;
         const screensX = Math.round((scene.scale.width - screensWidth) / 2);
         const screensY = scene.scale.height - this.playerShipScreen.height;
-        const combatContextScreenX = screensX + this.playerShipScreen.width + SCREEN_GAP;
+        const combatContextScreenX = screensX + this.playerShipScreen.width;
 
         this.playerShipScreen.setPosition(screensX, screensY);
         this.combatContextScreen.setPosition(combatContextScreenX, screensY);

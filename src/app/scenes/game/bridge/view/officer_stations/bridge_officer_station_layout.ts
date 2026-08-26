@@ -34,8 +34,8 @@ export type BridgeOfficerStationLayoutEntry = {
 };
 
 const OFFICER_HIT_AREA = {
-    width: 115,
-    height: 153,
+    width: 200,
+    height: 180,
 } as const;
 
 export const BRIDGE_OFFICER_STATION_LAYOUT = {
@@ -43,8 +43,8 @@ export const BRIDGE_OFFICER_STATION_LAYOUT = {
         role: OFFICER_ROLE.SCIENCE,
 
         position: {
-            x: 285,
-            y: 480,
+            x: 100,
+            y: 90,
         },
 
         seatedOfficerSpriteId: BRIDGE_SEATED_OFFICER_SPRITE_ID.SCIENCE_SEATED_01_IDLE,
@@ -67,8 +67,8 @@ export const BRIDGE_OFFICER_STATION_LAYOUT = {
         role: OFFICER_ROLE.HELM,
 
         position: {
-            x: 508,
-            y: 480,
+            x: 100,
+            y: 270,
         },
 
         seatedOfficerSpriteId: BRIDGE_SEATED_OFFICER_SPRITE_ID.HELM_SEATED_01_IDLE,
@@ -91,8 +91,8 @@ export const BRIDGE_OFFICER_STATION_LAYOUT = {
         role: OFFICER_ROLE.WEAPONS,
 
         position: {
-            x: 778,
-            y: 480,
+            x: 1180,
+            y: 90,
         },
 
         seatedOfficerSpriteId: BRIDGE_SEATED_OFFICER_SPRITE_ID.WEAPONS_SEATED_01_IDLE,
@@ -115,8 +115,8 @@ export const BRIDGE_OFFICER_STATION_LAYOUT = {
         role: OFFICER_ROLE.ENGINEER,
 
         position: {
-            x: 992,
-            y: 480,
+            x: 1180,
+            y: 270,
         },
 
         seatedOfficerSpriteId: BRIDGE_SEATED_OFFICER_SPRITE_ID.ENGINEER_SEATED_01_IDLE,

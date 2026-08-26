@@ -3,8 +3,8 @@ import type BridgeEventBus from "../../events/BridgeEventBus";
 import { BRIDGE_OFFICER_STATION_LAYOUT } from "./bridge_officer_station_layout";
 import BridgeOfficerStationView from "./station/BridgeOfficerStationView";
 
-// Root view for the four bridge officers.
-// Station consoles themselves are authored into the bridge background.
+// Root view for the four bridge officer monitors.
+// Portraits and monitor frames are layered independently over the bridge interior.
 export default class BridgeOfficerStationsView {
     private readonly root: Phaser.GameObjects.Container;
 
