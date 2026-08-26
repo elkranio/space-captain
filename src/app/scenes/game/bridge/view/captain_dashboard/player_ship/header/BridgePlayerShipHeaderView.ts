@@ -13,10 +13,10 @@ const ESCAPE_X = 112;
 const POWER_CORE = {
     rightPadding: 12,
 
-    segmentWidth: 14,
-    segmentHeight: 16,
+    segmentWidth: 11,
+    segmentHeight: 18,
     segmentGap: 5,
-    segmentY: 10,
+    segmentY: 9,
     segmentInset: 2,
 
     labelGap: 12,
