@@ -1,35 +1,22 @@
+// src/app/scenes/game/bridge/view/captain_dashboard/player_ship/header/BridgePlayerShipHeaderView.ts
 import { FONT_COLOR, FONT_FAMILY, FONT_SIZE } from "../../../../../../../theme/font";
 import type BridgeScene from "../../../../BridgeScene";
 import { CAPTAIN_DASHBOARD_STYLE } from "../../captain_dashboard_style";
-import {
-    BRIDGE_EVENT,
-    type BridgePlayerShipDashboardUpdatedPayload,
-} from "../../../../events/bridge_event";
+import { BRIDGE_EVENT, type BridgePlayerShipDashboardUpdatedPayload } from "../../../../events/bridge_event";
 import type BridgeEventBus from "../../../../events/BridgeEventBus";
 
 const SHIP_NAME = "USS CAPYBARA";
 
-const ESCAPE = {
-    x: 176,
-    y: 7,
-    width: 102,
-    height: 24,
-
-    labelPaddingX: 8,
-
-    barX: 38,
-    barY: 5,
-    barWidth: 54,
-    barHeight: 14,
-} as const;
+const SHIP_NAME_X = 8;
+const ESCAPE_X = 112;
 
 const POWER_CORE = {
-    rightPadding: 4,
+    rightPadding: 12,
 
     segmentWidth: 14,
     segmentHeight: 16,
     segmentGap: 5,
-    segmentY: 11,
+    segmentY: 10,
     segmentInset: 2,
 
     labelGap: 12,
@@ -64,43 +51,14 @@ export default class BridgePlayerShipHeaderView {
         const centerY = this.height / 2;
 
         const shipName = this.scene.add
-            .bitmapText(0, centerY, FONT_FAMILY.VGA_8X14, SHIP_NAME, FONT_SIZE.PX_16)
+            .bitmapText(SHIP_NAME_X, centerY, FONT_FAMILY.VGA_8X14, SHIP_NAME, FONT_SIZE.PX_16)
             .setOrigin(0, 0.5)
             .setTint(FONT_COLOR.PRIMARY);
 
-        const escapeBox = this.scene.add
-            .rectangle(
-                ESCAPE.x,
-                ESCAPE.y,
-                ESCAPE.width,
-                ESCAPE.height,
-                CAPTAIN_DASHBOARD_STYLE.escape.backgroundColor,
-                1,
-            )
-            .setOrigin(0, 0)
-            .setStrokeStyle(1, CAPTAIN_DASHBOARD_STYLE.escape.borderColor);
-
         const escapeLabel = this.scene.add
-            .bitmapText(
-                ESCAPE.x + ESCAPE.labelPaddingX,
-                centerY,
-                FONT_FAMILY.VGA_8X14,
-                "ESC",
-                FONT_SIZE.PX_14,
-            )
+            .bitmapText(ESCAPE_X, centerY, FONT_FAMILY.VGA_8X14, "[ESC]", FONT_SIZE.PX_14)
             .setOrigin(0, 0.5)
             .setTint(FONT_COLOR.DANGER);
-
-        const escapeBar = this.scene.add
-            .rectangle(
-                ESCAPE.x + ESCAPE.barX,
-                ESCAPE.y + ESCAPE.barY,
-                ESCAPE.barWidth,
-                ESCAPE.barHeight,
-                CAPTAIN_DASHBOARD_STYLE.escape.barColor,
-                1,
-            )
-            .setOrigin(0, 0);
 
         this.powerCoreLabel = this.scene.add
             .bitmapText(
@@ -114,23 +72,12 @@ export default class BridgePlayerShipHeaderView {
             .setTint(FONT_COLOR.MUTED);
 
         const divider = this.scene.add
-            .rectangle(
-                0,
-                this.height - 1,
-                this.width,
-                1,
-                CAPTAIN_DASHBOARD_STYLE.header.dividerColor,
-                1,
-            )
+            .rectangle(0, this.height - 1, this.width, 1, CAPTAIN_DASHBOARD_STYLE.header.dividerColor, 1)
             .setOrigin(0, 0);
 
-        this.root.add([shipName, escapeBox, escapeBar, escapeLabel, this.powerCoreLabel, divider]);
+        this.root.add([shipName, escapeLabel, this.powerCoreLabel, divider]);
 
-        this.eventBus.on(
-            BRIDGE_EVENT.PLAYER_SHIP_DASHBOARD_UPDATED,
-            this.handleDashboardUpdated,
-            this,
-        );
+        this.eventBus.on(BRIDGE_EVENT.PLAYER_SHIP_DASHBOARD_UPDATED, this.handleDashboardUpdated, this);
     }
 
     public getRoot(): Phaser.GameObjects.Container {
@@ -142,11 +89,7 @@ export default class BridgePlayerShipHeaderView {
     }
 
     public destroy(): void {
-        this.eventBus.off(
-            BRIDGE_EVENT.PLAYER_SHIP_DASHBOARD_UPDATED,
-            this.handleDashboardUpdated,
-            this,
-        );
+        this.eventBus.off(BRIDGE_EVENT.PLAYER_SHIP_DASHBOARD_UPDATED, this.handleDashboardUpdated, this);
 
         this.destroyPowerCoreSegments();
         this.root.destroy(true);
@@ -175,8 +118,7 @@ export default class BridgePlayerShipHeaderView {
             return;
         }
 
-        const segmentsWidth =
-            max * POWER_CORE.segmentWidth + Math.max(0, max - 1) * POWER_CORE.segmentGap;
+        const segmentsWidth = max * POWER_CORE.segmentWidth + Math.max(0, max - 1) * POWER_CORE.segmentGap;
 
         const segmentsX = this.width - POWER_CORE.rightPadding - segmentsWidth;
 

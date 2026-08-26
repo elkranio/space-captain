@@ -6,7 +6,7 @@ import BridgePlayerShipSystemsView from "./systems/BridgePlayerShipSystemsView";
 const HEADER = {
     sidePadding: 12,
     y: 8,
-    height: 40,
+    height: 36,
 } as const;
 
 const LEGACY_SYSTEMS = {

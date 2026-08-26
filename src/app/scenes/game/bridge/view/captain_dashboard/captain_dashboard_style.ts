@@ -8,12 +8,6 @@ export const CAPTAIN_DASHBOARD_STYLE = {
         dividerColor: 0x31465b,
     },
 
-    escape: {
-        backgroundColor: 0x160f16,
-        borderColor: 0xd94a4a,
-        barColor: 0xe45a5a,
-    },
-
     powerCore: {
         emptyBackgroundColor: 0x07121e,
         emptyBorderColor: 0x315f7a,
