@@ -44,7 +44,7 @@ export const BRIDGE_OFFICER_STATION_LAYOUT = {
 
         position: {
             x: 100,
-            y: 90,
+            y: 116,
         },
 
         seatedOfficerSpriteId: BRIDGE_SEATED_OFFICER_SPRITE_ID.SCIENCE_SEATED_01_IDLE,
@@ -68,7 +68,7 @@ export const BRIDGE_OFFICER_STATION_LAYOUT = {
 
         position: {
             x: 100,
-            y: 270,
+            y: 296,
         },
 
         seatedOfficerSpriteId: BRIDGE_SEATED_OFFICER_SPRITE_ID.HELM_SEATED_01_IDLE,
@@ -92,7 +92,7 @@ export const BRIDGE_OFFICER_STATION_LAYOUT = {
 
         position: {
             x: 1180,
-            y: 90,
+            y: 116,
         },
 
         seatedOfficerSpriteId: BRIDGE_SEATED_OFFICER_SPRITE_ID.WEAPONS_SEATED_01_IDLE,
@@ -116,7 +116,7 @@ export const BRIDGE_OFFICER_STATION_LAYOUT = {
 
         position: {
             x: 1180,
-            y: 270,
+            y: 296,
         },
 
         seatedOfficerSpriteId: BRIDGE_SEATED_OFFICER_SPRITE_ID.ENGINEER_SEATED_01_IDLE,
