@@ -1,3 +1,4 @@
+// src/app/scenes/game/bridge/view/captain_dashboard/player_ship/equipment/BridgeMissileLauncherTileView.ts
 import {
     CAPTAIN_DASHBOARD_SPRITE_ID,
     CAPTAIN_DASHBOARD_SPRITES,
@@ -7,11 +8,11 @@ import type BridgeScene from "../../../../BridgeScene";
 import { CAPTAIN_DASHBOARD_STYLE } from "../../captain_dashboard_style";
 
 const TILE = {
-    horizontalPadding: 6,
+    horizontalPadding: 9,
 
-    titleY: 4,
+    titleY: 6,
 
-    statusY: 68,
+    statusY: 70,
 
     ammoGlyphWidth: 5,
     ammoGlyphHeight: 8,
@@ -54,19 +55,11 @@ export default class BridgeMissileLauncherTileView {
         this.root = this.scene.add.container(0, 0);
 
         const title = this.scene.add
-            .bitmapText(
-                TILE.horizontalPadding,
-                TILE.titleY,
-                FONT_FAMILY.VGA_8X14,
-                "M. LAUNCHER",
-                FONT_SIZE.PX_12,
-            )
+            .bitmapText(TILE.horizontalPadding, TILE.titleY, FONT_FAMILY.VGA_8X14, "M. LAUNCHER", FONT_SIZE.PX_14)
             .setOrigin(0, 0)
             .setTint(FONT_COLOR.PRIMARY);
 
-        const sprite = CAPTAIN_DASHBOARD_SPRITES[
-            CAPTAIN_DASHBOARD_SPRITE_ID.MISSILE_LAUNCHER_SIMPLE_ROCKET
-        ];
+        const sprite = CAPTAIN_DASHBOARD_SPRITES[CAPTAIN_DASHBOARD_SPRITE_ID.MISSILE_LAUNCHER_SIMPLE_ROCKET];
 
         const centerX = Math.round(this.width / 2);
         const centerY = Math.round(height / 2);
@@ -88,21 +81,14 @@ export default class BridgeMissileLauncherTileView {
                 TILE.statusY,
                 FONT_FAMILY.VGA_8X14,
                 "0/0",
-                FONT_SIZE.PX_12,
+                FONT_SIZE.PX_14,
             )
             .setOrigin(0, 0)
             .setTint(FONT_COLOR.PRIMARY);
 
         this.integrityRoot = this.scene.add.container(0, 0);
 
-        this.root.add([
-            title,
-            this.baseIcon,
-            this.progressIcon,
-            ammoGlyph,
-            this.ammoText,
-            this.integrityRoot,
-        ]);
+        this.root.add([title, this.baseIcon, this.progressIcon, ammoGlyph, this.ammoText, this.integrityRoot]);
     }
 
     public getRoot(): Phaser.GameObjects.Container {
@@ -176,9 +162,7 @@ export default class BridgeMissileLauncherTileView {
             return;
         }
 
-        this.progressIcon
-            .setVisible(true)
-            .setCrop(0, 0, cropWidth, this.progressIcon.height);
+        this.progressIcon.setVisible(true).setCrop(0, 0, cropWidth, this.progressIcon.height);
     }
 
     public resetProgress(): void {
