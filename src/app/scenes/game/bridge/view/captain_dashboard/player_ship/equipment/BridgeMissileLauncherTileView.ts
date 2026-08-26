@@ -16,6 +16,7 @@ const TILE = {
 
     ammoGlyphWidth: 5,
     ammoGlyphHeight: 8,
+    ammoGlyphOffsetY: 3,
     ammoTextGap: 4,
 
     integrityPipSize: 8,
@@ -178,9 +179,11 @@ export default class BridgeMissileLauncherTileView {
         const glyph = this.scene.add.graphics();
 
         glyph.fillStyle(FONT_COLOR.PRIMARY, 1);
-        glyph.fillRect(TILE.horizontalPadding + 1, TILE.statusY + 1, 3, TILE.ammoGlyphHeight - 2);
-        glyph.fillRect(TILE.horizontalPadding + 2, TILE.statusY, 1, 1);
-        glyph.fillRect(TILE.horizontalPadding, TILE.statusY + TILE.ammoGlyphHeight - 1, TILE.ammoGlyphWidth, 1);
+        const y = TILE.statusY + TILE.ammoGlyphOffsetY;
+
+        glyph.fillRect(TILE.horizontalPadding + 1, y + 1, 3, TILE.ammoGlyphHeight - 2);
+        glyph.fillRect(TILE.horizontalPadding + 2, y, 1, 1);
+        glyph.fillRect(TILE.horizontalPadding, y + TILE.ammoGlyphHeight - 1, TILE.ammoGlyphWidth, 1);
 
         return glyph;
     }
