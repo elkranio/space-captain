@@ -30,7 +30,7 @@ export default class BridgeEquipmentTileDebugView {
     constructor(private readonly scene: BridgeScene) {
         this.tileView = new BridgeMissileLauncherTileView(this.scene, PREVIEW.width, PREVIEW.height);
         this.tileView.setPosition(PREVIEW.x, PREVIEW.y);
-        this.tileView.setAmmo(5, 10);
+        this.tileView.setAmmo(5);
         this.tileView.setIntegrity(1, 2);
 
         this.scene.layers.get("ui").add(this.tileView.getRoot());

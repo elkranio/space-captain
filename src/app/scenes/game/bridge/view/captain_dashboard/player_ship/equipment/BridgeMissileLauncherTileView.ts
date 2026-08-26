@@ -16,7 +16,7 @@ const TILE = {
 
     ammoGlyphWidth: 5,
     ammoGlyphHeight: 8,
-    ammoGlyphOffsetY: 3,
+    ammoGlyphOffsetY: 2,
     ammoTextGap: 4,
 
     integrityPipSize: 8,
@@ -81,7 +81,7 @@ export default class BridgeMissileLauncherTileView {
                 TILE.horizontalPadding + TILE.ammoGlyphWidth + TILE.ammoTextGap,
                 TILE.statusY,
                 FONT_FAMILY.VGA_8X14,
-                "0/0",
+                "0",
                 FONT_SIZE.PX_14,
             )
             .setOrigin(0, 0)
@@ -100,8 +100,8 @@ export default class BridgeMissileLauncherTileView {
         this.root.setPosition(x, y);
     }
 
-    public setAmmo(current: number, max: number): void {
-        this.ammoText.setText(`${current}/${max}`);
+    public setAmmo(current: number): void {
+        this.ammoText.setText(`${current}`);
     }
 
     public setIntegrity(current: number, max: number): void {
