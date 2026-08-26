@@ -23,6 +23,7 @@ const POWER_CORE = {
 } as const;
 
 type PowerCoreSegmentView = {
+    frame: Phaser.GameObjects.Rectangle;
     track: Phaser.GameObjects.Rectangle;
     fill: Phaser.GameObjects.Rectangle;
 };
@@ -127,17 +128,27 @@ export default class BridgePlayerShipHeaderView {
         for (let index = 0; index < max; index += 1) {
             const x = segmentsX + index * (POWER_CORE.segmentWidth + POWER_CORE.segmentGap);
 
-            const track = this.scene.add
+            const frame = this.scene.add
                 .rectangle(
                     x,
                     POWER_CORE.segmentY,
                     POWER_CORE.segmentWidth,
                     POWER_CORE.segmentHeight,
+                    CAPTAIN_DASHBOARD_STYLE.powerCore.emptyBorderColor,
+                    1,
+                )
+                .setOrigin(0, 0);
+
+            const track = this.scene.add
+                .rectangle(
+                    x + 1,
+                    POWER_CORE.segmentY + 1,
+                    POWER_CORE.segmentWidth - 2,
+                    POWER_CORE.segmentHeight - 2,
                     CAPTAIN_DASHBOARD_STYLE.powerCore.emptyBackgroundColor,
                     1,
                 )
-                .setOrigin(0, 0)
-                .setStrokeStyle(1, CAPTAIN_DASHBOARD_STYLE.powerCore.emptyBorderColor);
+                .setOrigin(0, 0);
 
             const fill = this.scene.add
                 .rectangle(
@@ -152,11 +163,12 @@ export default class BridgePlayerShipHeaderView {
                 .setVisible(false);
 
             this.powerCoreSegments.push({
+                frame,
                 track,
                 fill,
             });
 
-            this.root.add([track, fill]);
+            this.root.add([frame, track, fill]);
         }
     }
 
@@ -201,6 +213,7 @@ export default class BridgePlayerShipHeaderView {
         for (const segment of this.powerCoreSegments) {
             segment.fill.destroy();
             segment.track.destroy();
+            segment.frame.destroy();
         }
 
         this.powerCoreSegments.length = 0;
