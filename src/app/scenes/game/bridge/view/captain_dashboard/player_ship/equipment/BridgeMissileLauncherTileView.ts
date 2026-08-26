@@ -52,7 +52,7 @@ export default class BridgeMissileLauncherTileView {
 
     private readonly integrityRoot: Phaser.GameObjects.Container;
 
-    private chromeColor = FONT_COLOR.PRIMARY;
+    private chromeColor: number = FONT_COLOR.PRIMARY;
 
     private integrityCurrent = 0;
 
@@ -188,12 +188,7 @@ export default class BridgeMissileLauncherTileView {
 
         this.ammoGlyph.fillRect(TILE.horizontalPadding + 1, y + 1, 3, TILE.ammoGlyphHeight - 2);
         this.ammoGlyph.fillRect(TILE.horizontalPadding + 2, y, 1, 1);
-        this.ammoGlyph.fillRect(
-            TILE.horizontalPadding,
-            y + TILE.ammoGlyphHeight - 1,
-            TILE.ammoGlyphWidth,
-            1,
-        );
+        this.ammoGlyph.fillRect(TILE.horizontalPadding, y + TILE.ammoGlyphHeight - 1, TILE.ammoGlyphWidth, 1);
     }
 
     private renderIntegrity(): void {
@@ -203,9 +198,7 @@ export default class BridgeMissileLauncherTileView {
             return;
         }
 
-        const totalWidth =
-            this.integrityMax * TILE.integrityPipSize +
-            (this.integrityMax - 1) * TILE.integrityPipGap;
+        const totalWidth = this.integrityMax * TILE.integrityPipSize + (this.integrityMax - 1) * TILE.integrityPipGap;
         const startX = this.width - TILE.horizontalPadding - totalWidth;
         const emptyColor = 0x0b1621;
 
