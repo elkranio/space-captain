@@ -45,7 +45,12 @@ export default class BridgeCaptainDashboardView {
         this.playerShipScreen.setPosition(screensX, screensY);
         this.combatContextScreen.setPosition(combatContextScreenX, screensY);
 
-        this.playerShipView = new BridgePlayerShipDashboardView(scene, eventBus);
+        this.playerShipView = new BridgePlayerShipDashboardView(
+            scene,
+            eventBus,
+            this.playerShipScreen.width,
+            this.playerShipScreen.height,
+        );
 
         const playerShipSize = this.playerShipView.getSize();
 

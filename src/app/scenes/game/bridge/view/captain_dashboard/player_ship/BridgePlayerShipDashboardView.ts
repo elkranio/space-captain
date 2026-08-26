@@ -1,50 +1,58 @@
 import type BridgeScene from "../../../BridgeScene";
 import type BridgeEventBus from "../../../events/BridgeEventBus";
-import BridgePlayerShipStatusStripView from "./status/BridgePlayerShipStatusStripView";
+import BridgePlayerShipHeaderView from "./header/BridgePlayerShipHeaderView";
 import BridgePlayerShipSystemsView from "./systems/BridgePlayerShipSystemsView";
 
-const PANEL = {
-    width: 416,
-    height: 204,
-
-    padding: 8,
-    sectionGap: 6,
+const HEADER = {
+    sidePadding: 12,
+    y: 8,
+    height: 40,
 } as const;
 
-const STATUS_HEIGHT = 38;
-const SYSTEMS_HEIGHT = 144;
+const LEGACY_SYSTEMS = {
+    width: 400,
+    height: 144,
+    y: 72,
+} as const;
 
-// Стабильная левая часть captain dashboard.
+// Левая половина captain dashboard.
 //
-// Этот view отвечает только за физическую композицию:
-// status strip → список систем.
-// Runtime presentation конкретных систем живёт ниже,
-// в focused system views.
+// Header уже собирается под новый полноразмерный dashboard.
+// Legacy systems list пока оставлен ниже только до следующего прохода,
+// где его заменит 4x3 equipment grid.
 export default class BridgePlayerShipDashboardView {
     private readonly root: Phaser.GameObjects.Container;
 
-    private readonly statusStripView: BridgePlayerShipStatusStripView;
+    private readonly headerView: BridgePlayerShipHeaderView;
 
     private readonly systemsView: BridgePlayerShipSystemsView;
 
-    constructor(scene: BridgeScene, eventBus: BridgeEventBus) {
+    constructor(
+        scene: BridgeScene,
+        eventBus: BridgeEventBus,
+        private readonly width: number,
+        private readonly height: number,
+    ) {
         this.root = scene.add.container(0, 0);
 
-        const innerWidth = PANEL.width - PANEL.padding * 2;
+        const headerWidth = this.width - HEADER.sidePadding * 2;
 
-        this.statusStripView = new BridgePlayerShipStatusStripView(scene, eventBus, innerWidth, STATUS_HEIGHT);
+        this.headerView = new BridgePlayerShipHeaderView(scene, eventBus, headerWidth, HEADER.height);
+        this.headerView.setPosition(HEADER.sidePadding, HEADER.y);
 
-        this.statusStripView.setPosition(PANEL.padding, PANEL.padding);
-
-        this.systemsView = new BridgePlayerShipSystemsView(scene, eventBus, innerWidth, SYSTEMS_HEIGHT);
-
-        this.systemsView.setPosition(
-            PANEL.padding,
-
-            PANEL.padding + STATUS_HEIGHT + PANEL.sectionGap,
+        this.systemsView = new BridgePlayerShipSystemsView(
+            scene,
+            eventBus,
+            LEGACY_SYSTEMS.width,
+            LEGACY_SYSTEMS.height,
         );
 
-        this.root.add([this.statusStripView.getRoot(), this.systemsView.getRoot()]);
+        this.systemsView.setPosition(
+            Math.round((this.width - LEGACY_SYSTEMS.width) / 2),
+            LEGACY_SYSTEMS.y,
+        );
+
+        this.root.add([this.headerView.getRoot(), this.systemsView.getRoot()]);
     }
 
     public getRoot(): Phaser.GameObjects.Container {
@@ -53,8 +61,8 @@ export default class BridgePlayerShipDashboardView {
 
     public getSize(): { width: number; height: number } {
         return {
-            width: PANEL.width,
-            height: PANEL.height,
+            width: this.width,
+            height: this.height,
         };
     }
 
@@ -64,7 +72,7 @@ export default class BridgePlayerShipDashboardView {
 
     public destroy(): void {
         this.systemsView.destroy();
-        this.statusStripView.destroy();
+        this.headerView.destroy();
         this.root.destroy(false);
     }
 }

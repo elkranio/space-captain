@@ -4,6 +4,23 @@
 // Coordinates and sizes stay beside each concrete view while they are
 // still evolving. Only repeated visual semantics live here.
 export const CAPTAIN_DASHBOARD_STYLE = {
+    header: {
+        dividerColor: 0x31465b,
+    },
+
+    escape: {
+        backgroundColor: 0x160f16,
+        borderColor: 0xd94a4a,
+        barColor: 0xe45a5a,
+    },
+
+    powerCore: {
+        emptyBackgroundColor: 0x07121e,
+        emptyBorderColor: 0x315f7a,
+        chargeColor: 0x69bff2,
+        rechargeColor: 0xa2dcff,
+    },
+
     row: {
         backgroundColor: 0x0e1620,
         backgroundAlpha: 0.94,
