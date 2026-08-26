@@ -65,8 +65,7 @@ export default class BridgePlayerShipHeaderView {
             .setOrigin(0, 0.5)
             .setTint(FONT_COLOR.DANGER);
 
-        const powerCoreIconAsset =
-            CAPTAIN_DASHBOARD_SPRITES[CAPTAIN_DASHBOARD_SPRITE_ID.POWER_CORE_ICON];
+        const powerCoreIconAsset = CAPTAIN_DASHBOARD_SPRITES[CAPTAIN_DASHBOARD_SPRITE_ID.POWER_CORE_ICON];
 
         this.powerCoreIcon = this.scene.add
             .image(
@@ -78,7 +77,7 @@ export default class BridgePlayerShipHeaderView {
             .setOrigin(1, 0.5);
 
         const divider = this.scene.add
-            .rectangle(0, this.height - 1, this.width, 1, CAPTAIN_DASHBOARD_STYLE.header.dividerColor, 1)
+            .rectangle(0, this.height - 1, this.width, 3, CAPTAIN_DASHBOARD_STYLE.header.dividerColor, 1)
             .setOrigin(0, 0);
 
         this.root.add([shipName, escapeLabel, this.powerCoreIcon, divider]);

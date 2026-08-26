@@ -1,7 +1,6 @@
 import type BridgeScene from "../../../BridgeScene";
 import type BridgeEventBus from "../../../events/BridgeEventBus";
 import BridgePlayerShipHeaderView from "./header/BridgePlayerShipHeaderView";
-import BridgePlayerShipSystemsView from "./systems/BridgePlayerShipSystemsView";
 
 const HEADER = {
     sidePadding: 12,
@@ -9,23 +8,14 @@ const HEADER = {
     height: 36,
 } as const;
 
-const LEGACY_SYSTEMS = {
-    width: 400,
-    height: 144,
-    y: 72,
-} as const;
-
 // Левая половина captain dashboard.
 //
-// Header уже собирается под новый полноразмерный dashboard.
-// Legacy systems list пока оставлен ниже только до следующего прохода,
-// где его заменит 4x3 equipment grid.
+// Пока содержит только новый полноразмерный header.
+// Equipment grid и special column будут добавляться отдельными focused views.
 export default class BridgePlayerShipDashboardView {
     private readonly root: Phaser.GameObjects.Container;
 
     private readonly headerView: BridgePlayerShipHeaderView;
-
-    private readonly systemsView: BridgePlayerShipSystemsView;
 
     constructor(
         scene: BridgeScene,
@@ -40,19 +30,7 @@ export default class BridgePlayerShipDashboardView {
         this.headerView = new BridgePlayerShipHeaderView(scene, eventBus, headerWidth, HEADER.height);
         this.headerView.setPosition(HEADER.sidePadding, HEADER.y);
 
-        this.systemsView = new BridgePlayerShipSystemsView(
-            scene,
-            eventBus,
-            LEGACY_SYSTEMS.width,
-            LEGACY_SYSTEMS.height,
-        );
-
-        this.systemsView.setPosition(
-            Math.round((this.width - LEGACY_SYSTEMS.width) / 2),
-            LEGACY_SYSTEMS.y,
-        );
-
-        this.root.add([this.headerView.getRoot(), this.systemsView.getRoot()]);
+        this.root.add(this.headerView.getRoot());
     }
 
     public getRoot(): Phaser.GameObjects.Container {
@@ -71,7 +49,6 @@ export default class BridgePlayerShipDashboardView {
     }
 
     public destroy(): void {
-        this.systemsView.destroy();
         this.headerView.destroy();
         this.root.destroy(false);
     }
