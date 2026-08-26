@@ -23,6 +23,19 @@ export const CAPTAIN_DASHBOARD_STYLE = {
         borderThickness: 1,
     },
 
+    specialColumn: {
+        panelBackgroundColor: 0x0b1621,
+        panelBackgroundAlpha: 0.9,
+        panelBorderColor: 0x31465b,
+        panelBorderThickness: 1,
+
+        cellBackgroundColor: 0x101923,
+        cellBorderColor: 0x31465b,
+
+        hullTrackColor: 0x1b2733,
+        hullFillColor: 0x71c651,
+    },
+
     row: {
         backgroundColor: 0x0e1620,
         backgroundAlpha: 0.94,

@@ -2,6 +2,7 @@ import type BridgeScene from "../../../BridgeScene";
 import type BridgeEventBus from "../../../events/BridgeEventBus";
 import BridgePlayerShipEquipmentGridView from "./equipment/BridgePlayerShipEquipmentGridView";
 import BridgePlayerShipHeaderView from "./header/BridgePlayerShipHeaderView";
+import BridgePlayerShipSpecialColumnView from "./special/BridgePlayerShipSpecialColumnView";
 
 const HEADER = {
     sidePadding: 12,
@@ -17,19 +18,21 @@ const EQUIPMENT_GRID = {
     specialColumnWidth: 48,
     specialColumnGap: 4,
 
-    bottomPadding: 10,
+    bottomPadding: 14,
 } as const;
 
 // Левая половина captain dashboard.
 //
 // Header и equipment grid уже используют финальную полноразмерную геометрию.
-// Справа от 4x3 grid намеренно зарезервировано место под BRIDGE / HULL column.
+// Справа от 4x3 grid уже рисуется placeholder column для BRIDGE / HULL.
 export default class BridgePlayerShipDashboardView {
     private readonly root: Phaser.GameObjects.Container;
 
     private readonly headerView: BridgePlayerShipHeaderView;
 
     private readonly equipmentGridView: BridgePlayerShipEquipmentGridView;
+
+    private readonly specialColumnView: BridgePlayerShipSpecialColumnView;
 
     constructor(
         scene: BridgeScene,
@@ -60,7 +63,21 @@ export default class BridgePlayerShipDashboardView {
         );
         this.equipmentGridView.setPosition(EQUIPMENT_GRID.x, EQUIPMENT_GRID.y);
 
-        this.root.add([this.headerView.getRoot(), this.equipmentGridView.getRoot()]);
+        this.specialColumnView = new BridgePlayerShipSpecialColumnView(
+            scene,
+            EQUIPMENT_GRID.specialColumnWidth,
+            equipmentGridHeight,
+        );
+        this.specialColumnView.setPosition(
+            EQUIPMENT_GRID.x + equipmentGridWidth + EQUIPMENT_GRID.specialColumnGap,
+            EQUIPMENT_GRID.y,
+        );
+
+        this.root.add([
+            this.headerView.getRoot(),
+            this.equipmentGridView.getRoot(),
+            this.specialColumnView.getRoot(),
+        ]);
     }
 
     public getRoot(): Phaser.GameObjects.Container {
@@ -79,6 +96,7 @@ export default class BridgePlayerShipDashboardView {
     }
 
     public destroy(): void {
+        this.specialColumnView.destroy();
         this.equipmentGridView.destroy();
         this.headerView.destroy();
         this.root.destroy(false);
