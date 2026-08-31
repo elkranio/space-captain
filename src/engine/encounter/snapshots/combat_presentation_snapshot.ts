@@ -69,6 +69,11 @@ export type PlayerWeaponPresentationSnapshot = {
     cooldownDurationMs: number;
 
     ammoCapacity?: number;
+
+    integrity?: {
+        current: number;
+        max: number;
+    };
 };
 
 export type EnemyShipPresentationSnapshot = Omit<EnemyShipTelemetrySnapshot, "powerCore"> & {
@@ -172,7 +177,12 @@ export function createCombatPresentationSnapshot(state: EncounterState): CombatP
 
             activeShield: state.combat.activeShield,
 
-            weapons: state.combat.playerWeapons.map(createPlayerWeaponPresentationSnapshot),
+            weapons: state.combat.playerWeapons.map((weapon) => {
+                return createPlayerWeaponPresentationSnapshot(
+                    weapon,
+                    weapon.integrity,
+                );
+            }),
 
             officerAvailability: getOfficerAvailabilityStates(state),
 
@@ -302,11 +312,26 @@ export function createPowerCorePresentationSnapshot(state: PowerCoreState): Powe
     };
 }
 
-export function createPlayerWeaponPresentationSnapshot(weapon: ShipWeaponState): PlayerWeaponPresentationSnapshot {
+export function createPlayerWeaponPresentationSnapshot(
+    weapon: ShipWeaponState,
+    integrity?: number,
+): PlayerWeaponPresentationSnapshot {
     const definition = SHIP_WEAPONS[weapon.weaponId];
 
     if (!definition) {
         throw new Error("Player weapon definition not found: " + weapon.weaponId);
+    }
+
+    if (
+        integrity !== undefined &&
+        (!Number.isInteger(integrity) || integrity < 0 || integrity > definition.maxIntegrity)
+    ) {
+        throw new Error(
+            "Player weapon presentation has invalid integrity: " +
+                weapon.id +
+                "/" +
+                String(integrity),
+        );
     }
 
     const phaseDurationMs = getWeaponPhaseDurationMs(weapon);
@@ -327,6 +352,15 @@ export function createPlayerWeaponPresentationSnapshot(weapon: ShipWeaponState):
         ...(ammoCapacity !== undefined
             ? {
                   ammoCapacity,
+              }
+            : {}),
+
+        ...(integrity !== undefined
+            ? {
+                  integrity: {
+                      current: integrity,
+                      max: definition.maxIntegrity,
+                  },
               }
             : {}),
     };

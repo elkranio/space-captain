@@ -354,6 +354,11 @@ export type BridgePlayerWeaponDashboardPayload = {
     // Undefined outside targeting.
     targetingProgress?: number;
 
+    integrity?: {
+        current: number;
+        max: number;
+    };
+
     action: {
         state: BridgePlayerSystemActionState;
 

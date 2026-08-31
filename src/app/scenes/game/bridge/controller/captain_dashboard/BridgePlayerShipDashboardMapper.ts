@@ -356,6 +356,8 @@ function mapWeapon(
 
     const targetingProgress = getTargetingProgress(snapshot);
 
+    const integrity = snapshot.integrity;
+
     const action = mapWeaponAction(snapshot, input);
 
     switch (weapon.kind) {
@@ -373,6 +375,14 @@ function mapWeapon(
                 ammo: {
                     ...ammo,
                 },
+
+                ...(integrity
+                    ? {
+                          integrity: {
+                              ...integrity,
+                          },
+                      }
+                    : {}),
 
                 ...(targetingProgress !== undefined
                     ? {
@@ -398,6 +408,14 @@ function mapWeapon(
                 weaponId: weapon.weaponId,
 
                 kind: weapon.kind,
+
+                ...(integrity
+                    ? {
+                          integrity: {
+                              ...integrity,
+                          },
+                      }
+                    : {}),
 
                 ...(targetingProgress !== undefined
                     ? {

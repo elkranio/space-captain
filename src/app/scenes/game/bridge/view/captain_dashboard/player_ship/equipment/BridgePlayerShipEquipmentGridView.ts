@@ -173,7 +173,12 @@ export default class BridgePlayerShipEquipmentGridView {
             throw new Error("Captain dashboard Missile Launcher requires ammo payload: " + weapon.id);
         }
 
+        if (!weapon.integrity) {
+            throw new Error("Captain dashboard Missile Launcher requires integrity payload: " + weapon.id);
+        }
+
         tile.setAmmo(weapon.ammo.current);
+        tile.setIntegrity(weapon.integrity.current, weapon.integrity.max);
 
         if (weapon.targetingProgress !== undefined) {
             tile.setProgress(MISSILE_LAUNCHER_PROGRESS_MODE.TARGETING, weapon.targetingProgress);
