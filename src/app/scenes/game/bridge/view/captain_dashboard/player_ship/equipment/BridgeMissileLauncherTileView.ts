@@ -101,7 +101,7 @@ export default class BridgeMissileLauncherTileView {
 
         const centerX = Math.round(this.width / 2);
         const centerY = Math.round(height / 2) + 1;
-        const hoverTextY = centerY - Math.round(FONT_SIZE.PX_20 / 2);
+        const hoverTextY = TILE.titleY;
 
         this.baseIcon = this.scene.add
             .image(centerX, centerY, sprite.atlasKey, sprite.frameKey)
@@ -285,8 +285,9 @@ export default class BridgeMissileLauncherTileView {
     private renderHover(): void {
         const showAction = this.pointerOver && this.hoverAction !== MISSILE_LAUNCHER_HOVER_ACTION.NONE;
 
-        this.baseIcon.setVisible(!showAction);
-        this.progressIcon.setVisible(!showAction && this.progressVisible);
+        this.titleText.setVisible(!showAction);
+        this.baseIcon.setVisible(true);
+        this.progressIcon.setVisible(this.progressVisible);
         this.hoverRoleText.setVisible(showAction);
         this.hoverActionText.setVisible(showAction);
 
