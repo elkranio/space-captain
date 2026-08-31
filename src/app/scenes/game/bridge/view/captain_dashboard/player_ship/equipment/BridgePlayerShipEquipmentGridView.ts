@@ -11,6 +11,7 @@ import { CAPTAIN_DASHBOARD_STYLE } from "../../captain_dashboard_style";
 import BridgeMissileLauncherTileView, {
     MISSILE_LAUNCHER_HOVER_ACTION,
     MISSILE_LAUNCHER_PROGRESS_MODE,
+    type MissileLauncherHoverAction,
 } from "./BridgeMissileLauncherTileView";
 
 const GRID = {
@@ -182,7 +183,7 @@ export default class BridgePlayerShipEquipmentGridView {
             tile.resetProgress();
         }
 
-        let hoverAction = MISSILE_LAUNCHER_HOVER_ACTION.NONE;
+        let hoverAction: MissileLauncherHoverAction = MISSILE_LAUNCHER_HOVER_ACTION.NONE;
 
         if (weapon.action.state === BRIDGE_PLAYER_SYSTEM_ACTION_STATE.ACTIVE) {
             hoverAction = MISSILE_LAUNCHER_HOVER_ACTION.FIRE;
