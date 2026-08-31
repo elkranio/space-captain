@@ -12,13 +12,14 @@ import { CAPTAIN_DASHBOARD_STYLE } from "../../captain_dashboard_style";
 const TILE = {
     horizontalPadding: 9,
 
-    titleY: 6,
+    titleY: 1,
 
     statusY: 70,
 
     ammoIconSize: 16,
     ammoIconOffsetY: 0,
-    ammoTextGap: 0,
+    ammoTextOffsetY: -4,
+    ammoTextGap: -2,
 
     integrityPipSize: 8,
     integrityPipGap: 3,
@@ -90,13 +91,7 @@ export default class BridgeMissileLauncherTileView {
         this.root = this.scene.add.container(0, 0);
 
         this.titleText = this.scene.add
-            .bitmapText(
-                TILE.horizontalPadding,
-                TILE.titleY,
-                FONT_FAMILY.UI_PRIMARY,
-                "M. LAUNCHER",
-                FONT_SIZE.PX_20,
-            )
+            .bitmapText(TILE.horizontalPadding, TILE.titleY, FONT_FAMILY.UI_PRIMARY, "M. LAUNCHER", FONT_SIZE.PX_20)
             .setOrigin(0, 0)
             .setTint(this.chromeColor);
 
@@ -141,7 +136,7 @@ export default class BridgeMissileLauncherTileView {
         this.ammoText = this.scene.add
             .bitmapText(
                 TILE.horizontalPadding + TILE.ammoIconSize + TILE.ammoTextGap,
-                TILE.statusY,
+                TILE.statusY + TILE.ammoTextOffsetY,
                 FONT_FAMILY.UI_PRIMARY,
                 "0",
                 FONT_SIZE.PX_20,
