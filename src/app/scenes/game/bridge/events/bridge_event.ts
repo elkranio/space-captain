@@ -354,6 +354,13 @@ export type BridgePlayerWeaponDashboardPayload = {
     // Undefined outside targeting.
     targetingProgress?: number;
 
+    // 0..1 elapsed Beam charging phase.
+    // Undefined outside Beam charging.
+    chargingProgress?: number;
+
+    // Static Power Core charge cost for energy-backed weapons.
+    powerCost?: number;
+
     integrity?: {
         current: number;
         max: number;

@@ -313,6 +313,8 @@ describe(
                     SHIP_WEAPON_PHASE.CHARGING;
                 beam.state.phaseElapsedMs =
                     elapsedMs;
+                beam.phaseDurationMs =
+                    definition.chargeDurationMs;
                 beam.state.cooldownRemainingMs =
                     definition
                         .cooldownDurationMs -
@@ -338,6 +340,11 @@ describe(
                         kind:
                             SHIP_WEAPON_KIND
                                 .BEAM_CANNON,
+                        powerCost:
+                            definition.powerCost,
+                        chargingProgress:
+                            elapsedMs /
+                            definition.chargeDurationMs,
                         cooldownProgress:
                             1 -
                             (definition
@@ -405,6 +412,11 @@ describe(
                         kind:
                             SHIP_WEAPON_KIND
                                 .BEAM_CANNON,
+                        powerCost:
+                            SHIP_WEAPONS[
+                                SHIP_WEAPON_ID
+                                    .BEAM_CANNON_00
+                            ].powerCost,
                         action: {
                             state:
                                 BRIDGE_PLAYER_SYSTEM_ACTION_STATE

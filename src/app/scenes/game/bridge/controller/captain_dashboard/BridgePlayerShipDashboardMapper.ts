@@ -1,3 +1,4 @@
+import { SHIP_WEAPONS } from "../../../../../../engine/content/catalogs/ship_weapons";
 import type {
     PlayerDefenseTurretPresentationSnapshot,
     PlayerWeaponPresentationSnapshot,
@@ -356,6 +357,8 @@ function mapWeapon(
 
     const targetingProgress = getTargetingProgress(snapshot);
 
+    const chargingProgress = getChargingProgress(snapshot);
+
     const integrity = snapshot.integrity;
 
     const action = mapWeaponAction(snapshot, input);
@@ -400,7 +403,51 @@ function mapWeapon(
             };
         }
 
-        case SHIP_WEAPON_KIND.BEAM_CANNON:
+        case SHIP_WEAPON_KIND.BEAM_CANNON: {
+            const definition = SHIP_WEAPONS[weapon.weaponId];
+
+            if (definition.kind !== SHIP_WEAPON_KIND.BEAM_CANNON) {
+                throw new Error(
+                    "Captain dashboard Beam Cannon definition mismatch: " +
+                        weapon.id +
+                        "/" +
+                        weapon.weaponId,
+                );
+            }
+
+            return {
+                id: weapon.id,
+
+                weaponId: weapon.weaponId,
+
+                kind: weapon.kind,
+
+                powerCost: definition.powerCost,
+
+                ...(integrity
+                    ? {
+                          integrity: {
+                              ...integrity,
+                          },
+                      }
+                    : {}),
+
+                ...(chargingProgress !== undefined
+                    ? {
+                          chargingProgress,
+                      }
+                    : {}),
+
+                ...(cooldownProgress !== undefined
+                    ? {
+                          cooldownProgress,
+                      }
+                    : {}),
+
+                action,
+            };
+        }
+
         case SHIP_WEAPON_KIND.SPAM_PROJECTOR:
             return {
                 id: weapon.id,
@@ -452,6 +499,28 @@ function getTargetingProgress(snapshot: PlayerWeaponPresentationSnapshot): numbe
     if (durationMs === undefined || durationMs <= 0) {
         throw new Error(
             "Player weapon presentation is missing valid targeting timing: " + weapon.id,
+        );
+    }
+
+    return clamp01(weapon.phaseElapsedMs / durationMs);
+}
+
+function getChargingProgress(snapshot: PlayerWeaponPresentationSnapshot): number | undefined {
+    const weapon = snapshot.state;
+
+    if (weapon.phase !== SHIP_WEAPON_PHASE.CHARGING) {
+        return undefined;
+    }
+
+    if (weapon.kind !== SHIP_WEAPON_KIND.BEAM_CANNON) {
+        throw new Error("Only Beam Cannon can expose charging progress: " + weapon.id);
+    }
+
+    const durationMs = snapshot.phaseDurationMs;
+
+    if (durationMs === undefined || durationMs <= 0) {
+        throw new Error(
+            "Player Beam Cannon presentation is missing valid charging timing: " + weapon.id,
         );
     }
 
