@@ -2,19 +2,7 @@
 
 export const FONT_FAMILY = {
     VGA_8X14: "vga_8x14",
-    CHAKRA_PETCH_SEMIBOLD_20: "chakra_petch_semibold",
-} as const;
-
-export const WEB_FONT_FAMILY = {
-    RAJDHANI: "Rajdhani",
-    CHAKRA_PETCH: "Chakra Petch",
-    QUANTICO: "Quantico",
-} as const;
-
-export const FONT_WEIGHT = {
-    REGULAR: "400",
-    SEMIBOLD: "600",
-    BOLD: "700",
+    UI_PRIMARY: "chakra_petch_semibold",
 } as const;
 
 export const FONT_SIZE = {

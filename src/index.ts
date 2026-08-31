@@ -12,9 +12,8 @@ import EndScene from "./app/scenes/game/end/EndScene";
 import applyResponsiveScaling from "./utils/applyResponsiveScaling";
 import enforceOrientation from "./utils/enforceOrientation";
 import P34TOptions from "./config/p34t.options";
-import { FONT_WEIGHT, WEB_FONT_FAMILY } from "./app/theme/font";
 
-window.addEventListener("load", async () => {
+window.addEventListener("load", () => {
     applyResponsiveScaling(gameConfig);
     enforceOrientation();
 
@@ -23,13 +22,6 @@ window.addEventListener("load", async () => {
     }
 
     gameConfig.scene = [Boot, Preload, InitScene, BridgeScene, EndScene];
-
-    await Promise.all([
-        document.fonts.load("14px Anta"),
-        document.fonts.load(`${FONT_WEIGHT.SEMIBOLD} 16px "${WEB_FONT_FAMILY.RAJDHANI}"`),
-        document.fonts.load(`${FONT_WEIGHT.SEMIBOLD} 16px "${WEB_FONT_FAMILY.CHAKRA_PETCH}"`),
-        document.fonts.load(`${FONT_WEIGHT.BOLD} 16px "${WEB_FONT_FAMILY.QUANTICO}"`),
-    ]);
 
     new Phaser.Game(gameConfig);
 });

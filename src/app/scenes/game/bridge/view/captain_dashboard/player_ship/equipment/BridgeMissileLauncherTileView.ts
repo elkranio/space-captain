@@ -93,7 +93,7 @@ export default class BridgeMissileLauncherTileView {
             .bitmapText(
                 TILE.horizontalPadding,
                 TILE.titleY,
-                FONT_FAMILY.CHAKRA_PETCH_SEMIBOLD_20,
+                FONT_FAMILY.UI_PRIMARY,
                 "M. LAUNCHER",
                 FONT_SIZE.PX_20,
             )
@@ -116,12 +116,12 @@ export default class BridgeMissileLauncherTileView {
             .setVisible(false);
 
         this.hoverRoleText = this.scene.add
-            .bitmapText(0, hoverTextY, FONT_FAMILY.CHAKRA_PETCH_SEMIBOLD_20, "", FONT_SIZE.PX_20)
+            .bitmapText(0, hoverTextY, FONT_FAMILY.UI_PRIMARY, "", FONT_SIZE.PX_20)
             .setOrigin(0, 0)
             .setVisible(false);
 
         this.hoverActionText = this.scene.add
-            .bitmapText(0, hoverTextY, FONT_FAMILY.CHAKRA_PETCH_SEMIBOLD_20, "", FONT_SIZE.PX_20)
+            .bitmapText(0, hoverTextY, FONT_FAMILY.UI_PRIMARY, "", FONT_SIZE.PX_20)
             .setOrigin(0, 0)
             .setTint(FONT_COLOR.PRIMARY)
             .setVisible(false);
@@ -142,7 +142,7 @@ export default class BridgeMissileLauncherTileView {
             .bitmapText(
                 TILE.horizontalPadding + TILE.ammoIconSize + TILE.ammoTextGap,
                 TILE.statusY,
-                FONT_FAMILY.CHAKRA_PETCH_SEMIBOLD_20,
+                FONT_FAMILY.UI_PRIMARY,
                 "0",
                 FONT_SIZE.PX_20,
             )
