@@ -254,6 +254,8 @@ function createCombatFixture({
 
         drive:
             run.player.ship.drive,
+        powerCore:
+            run.player.ship.powerCore,
         weapons:
             createCanonicalPlayerCombatWeapons(),
     });

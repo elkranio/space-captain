@@ -54,6 +54,7 @@ describe(
                             .BEAM_CANNON_00,
                     hullDamage: 1,
                     moduleDamage: 1,
+                    powerCost: 1,
                     kind:
                         SHIP_WEAPON_KIND
                             .BEAM_CANNON,
@@ -134,6 +135,7 @@ describe(
 
                                 hullDamage: 1,
                                 moduleDamage: 1,
+                                powerCost: 1,
                                 chargeDurationMs:
                                     8000,
                                 cooldownDurationMs:

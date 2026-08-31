@@ -437,6 +437,8 @@ function createMissileLifecycleSetup(
 
         drive:
             run.player.ship.drive,
+        powerCore:
+            run.player.ship.powerCore,
         weapons:
             playerWeapons,
 

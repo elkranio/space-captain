@@ -99,6 +99,8 @@ describe('Player beamCannon lifecycle', () => {
 
             drive:
                 run.player.ship.drive,
+            powerCore:
+                run.player.ship.powerCore,
             weapons:
                 createCanonicalPlayerCombatWeapons(),
         });
