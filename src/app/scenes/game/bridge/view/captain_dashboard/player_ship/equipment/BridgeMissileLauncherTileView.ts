@@ -26,7 +26,7 @@ const TILE = {
 
     hoverTextGap: 6,
     hoverHeaderHeight: 20,
-    hoverHeaderAlpha: 0.24,
+    hoverHeaderAlpha: 0.14,
     hoverBorderThickness: 2,
 } as const;
 
@@ -100,7 +100,7 @@ export default class BridgeMissileLauncherTileView {
         this.root = this.scene.add.container(0, 0);
 
         this.hoverHeaderBackground = this.scene.add
-            .rectangle(0, 0, this.width, TILE.hoverHeaderHeight, OFFICER_ROLE_COLOR.weapons, TILE.hoverHeaderAlpha)
+            .rectangle(0, 0, this.width, TILE.hoverHeaderHeight, FONT_COLOR.PRIMARY, TILE.hoverHeaderAlpha)
             .setOrigin(0, 0)
             .setVisible(false);
 
@@ -114,7 +114,7 @@ export default class BridgeMissileLauncherTileView {
                 0,
             )
             .setOrigin(0, 0)
-            .setStrokeStyle(TILE.hoverBorderThickness, OFFICER_ROLE_COLOR.weapons)
+            .setStrokeStyle(TILE.hoverBorderThickness, FONT_COLOR.PRIMARY)
             .setVisible(false);
 
         this.titleText = this.scene.add
@@ -324,33 +324,25 @@ export default class BridgeMissileLauncherTileView {
             return;
         }
 
-        let actionColor: number;
-
         switch (this.hoverAction) {
             case MISSILE_LAUNCHER_HOVER_ACTION.FIRE:
-                actionColor = OFFICER_ROLE_COLOR.weapons;
-                this.hoverRoleText.setText("W").setTint(actionColor);
+                this.hoverRoleText.setText("W").setTint(OFFICER_ROLE_COLOR.weapons);
                 this.hoverActionText.setText("FIRE");
                 break;
 
             case MISSILE_LAUNCHER_HOVER_ACTION.CANCEL:
-                actionColor = OFFICER_ROLE_COLOR.weapons;
-                this.hoverRoleText.setText("W").setTint(actionColor);
+                this.hoverRoleText.setText("W").setTint(OFFICER_ROLE_COLOR.weapons);
                 this.hoverActionText.setText("CANCEL");
                 break;
 
             case MISSILE_LAUNCHER_HOVER_ACTION.REPAIR:
-                actionColor = OFFICER_ROLE_COLOR.engineer;
-                this.hoverRoleText.setText("E").setTint(actionColor);
+                this.hoverRoleText.setText("E").setTint(OFFICER_ROLE_COLOR.engineer);
                 this.hoverActionText.setText("REPAIR");
                 break;
 
             case MISSILE_LAUNCHER_HOVER_ACTION.NONE:
                 return;
         }
-
-        this.hoverHeaderBackground.setFillStyle(actionColor, TILE.hoverHeaderAlpha);
-        this.hoverOutline.setStrokeStyle(TILE.hoverBorderThickness, actionColor);
 
         this.hoverRoleText.setX(TILE.horizontalPadding);
         this.hoverActionText.setX(TILE.horizontalPadding + this.hoverRoleText.width + TILE.hoverTextGap);
