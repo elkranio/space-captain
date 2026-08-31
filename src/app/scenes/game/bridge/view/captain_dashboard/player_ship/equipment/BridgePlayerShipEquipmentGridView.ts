@@ -149,7 +149,11 @@ export default class BridgePlayerShipEquipmentGridView {
                     const tile = this.getOrCreateBeamCannonTile(weapon.id);
 
                     tile.setPosition(x, y);
-                    this.updateBeamCannonTile(tile, weapon);
+                    this.updateBeamCannonTile(
+                        tile,
+                        weapon,
+                        payload.status?.powerCore.current,
+                    );
                     break;
                 }
 
@@ -231,6 +235,8 @@ export default class BridgePlayerShipEquipmentGridView {
             tile.setProgress(MISSILE_LAUNCHER_PROGRESS_MODE.TARGETING, weapon.targetingProgress);
         } else if (weapon.cooldownProgress !== undefined) {
             tile.setProgress(MISSILE_LAUNCHER_PROGRESS_MODE.COOLDOWN, weapon.cooldownProgress);
+        } else if (weapon.ammo.current === 0) {
+            tile.setResourceBlocked();
         } else {
             tile.resetProgress();
         }
@@ -252,6 +258,7 @@ export default class BridgePlayerShipEquipmentGridView {
     private updateBeamCannonTile(
         tile: BridgeBeamCannonTileView,
         weapon: BridgePlayerWeaponDashboardPayload,
+        powerCoreCharges: number | undefined,
     ): void {
         if (weapon.powerCost === undefined) {
             throw new Error("Captain dashboard Beam Cannon requires power cost payload: " + weapon.id);
@@ -268,6 +275,8 @@ export default class BridgePlayerShipEquipmentGridView {
             tile.setProgress(BEAM_CANNON_PROGRESS_MODE.CHARGING, weapon.chargingProgress);
         } else if (weapon.cooldownProgress !== undefined) {
             tile.setProgress(BEAM_CANNON_PROGRESS_MODE.COOLDOWN, weapon.cooldownProgress);
+        } else if (powerCoreCharges !== undefined && powerCoreCharges < weapon.powerCost) {
+            tile.setResourceBlocked();
         } else {
             tile.resetProgress();
         }

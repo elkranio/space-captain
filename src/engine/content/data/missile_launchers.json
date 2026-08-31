@@ -14,7 +14,7 @@
         "damage": 1,
         "targetingDurationMs": 700,
         "flightDurationMs": 12000,
-        "ammoCapacity": 50,
+        "ammoCapacity": 20,
         "cooldownDurationMs": 500
     }
 }

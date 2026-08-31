@@ -254,6 +254,15 @@ export default class BridgeBeamCannonTileView {
         this.renderHover();
     }
 
+    public setResourceBlocked(): void {
+        const blockedColor = CAPTAIN_DASHBOARD_STYLE.equipmentProgress.cooldownColor;
+
+        this.baseIcon.setTint(blockedColor);
+        this.progressVisible = false;
+        this.setChromeColor(blockedColor);
+        this.renderHover();
+    }
+
     public resetProgress(): void {
         this.baseIcon.setTint(CAPTAIN_DASHBOARD_STYLE.equipmentProgress.readyColor);
         this.progressVisible = false;
