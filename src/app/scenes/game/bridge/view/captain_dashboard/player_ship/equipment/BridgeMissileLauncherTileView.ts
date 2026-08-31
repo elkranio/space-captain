@@ -17,8 +17,8 @@ const TILE = {
     statusY: 70,
 
     ammoIconSize: 16,
-    ammoIconOffsetY: -1,
-    ammoTextGap: 4,
+    ammoIconOffsetY: 0,
+    ammoTextGap: 0,
 
     integrityPipSize: 8,
     integrityPipGap: 3,
@@ -90,18 +90,11 @@ export default class BridgeMissileLauncherTileView {
         this.root = this.scene.add.container(0, 0);
 
         this.titleText = this.scene.add
-            .bitmapText(
-                TILE.horizontalPadding,
-                TILE.titleY,
-                FONT_FAMILY.VGA_8X14,
-                "M. LAUNCHER",
-                FONT_SIZE.PX_14,
-            )
+            .bitmapText(TILE.horizontalPadding, TILE.titleY, FONT_FAMILY.VGA_8X14, "M. LAUNCHER", FONT_SIZE.PX_14)
             .setOrigin(0, 0)
             .setTint(this.chromeColor);
 
-        const sprite =
-            CAPTAIN_DASHBOARD_SPRITES[CAPTAIN_DASHBOARD_SPRITE_ID.MISSILE_LAUNCHER_SIMPLE_ROCKET];
+        const sprite = CAPTAIN_DASHBOARD_SPRITES[CAPTAIN_DASHBOARD_SPRITE_ID.MISSILE_LAUNCHER_SIMPLE_ROCKET];
 
         const centerX = Math.round(this.width / 2);
         const centerY = Math.round(height / 2) + 1;
@@ -260,9 +253,7 @@ export default class BridgeMissileLauncherTileView {
             return;
         }
 
-        const totalWidth =
-            this.integrityMax * TILE.integrityPipSize +
-            (this.integrityMax - 1) * TILE.integrityPipGap;
+        const totalWidth = this.integrityMax * TILE.integrityPipSize + (this.integrityMax - 1) * TILE.integrityPipGap;
         const startX = this.width - TILE.horizontalPadding - totalWidth;
         const emptyColor = 0x0b1621;
 
@@ -287,8 +278,7 @@ export default class BridgeMissileLauncherTileView {
     }
 
     private renderHover(): void {
-        const showAction =
-            this.pointerOver && this.hoverAction !== MISSILE_LAUNCHER_HOVER_ACTION.NONE;
+        const showAction = this.pointerOver && this.hoverAction !== MISSILE_LAUNCHER_HOVER_ACTION.NONE;
 
         this.baseIcon.setVisible(!showAction);
         this.progressIcon.setVisible(!showAction && this.progressVisible);
@@ -314,14 +304,11 @@ export default class BridgeMissileLauncherTileView {
                 return;
         }
 
-        const totalWidth =
-            this.hoverRoleText.width + TILE.hoverTextGap + this.hoverActionText.width;
+        const totalWidth = this.hoverRoleText.width + TILE.hoverTextGap + this.hoverActionText.width;
         const startX = Math.round((this.width - totalWidth) / 2);
 
         this.hoverRoleText.setX(startX);
-        this.hoverActionText.setX(
-            startX + this.hoverRoleText.width + TILE.hoverTextGap,
-        );
+        this.hoverActionText.setX(startX + this.hoverRoleText.width + TILE.hoverTextGap);
     }
 
     private handlePointerOver(): void {
