@@ -1,9 +1,12 @@
 // src/app/scenes/game/bridge/view/captain_dashboard/player_ship/equipment/BridgeMissileLauncherTileView.ts
-import { AMMO_SPRITE_ID, AMMO_SPRITES } from "../../../../../../../manifests/ammo";
 import {
-    CAPTAIN_DASHBOARD_SPRITE_ID,
-    CAPTAIN_DASHBOARD_SPRITES,
-} from "../../../../../../../manifests/bridge/captain_dashboard";
+    EQUIPMENT_SPRITE_ID,
+    EQUIPMENT_SPRITES,
+} from "../../../../../../../manifests/equipment";
+import {
+    MICRO_ICON_ID,
+    MICRO_ICONS,
+} from "../../../../../../../manifests/micro_icons";
 import { FONT_COLOR, FONT_FAMILY, FONT_SIZE } from "../../../../../../../theme/font";
 import { OFFICER_ROLE_COLOR } from "../../../../../../../theme/officer";
 import type BridgeScene from "../../../../BridgeScene";
@@ -122,7 +125,7 @@ export default class BridgeMissileLauncherTileView {
             .setOrigin(0, 0)
             .setTint(this.chromeColor);
 
-        const sprite = CAPTAIN_DASHBOARD_SPRITES[CAPTAIN_DASHBOARD_SPRITE_ID.MISSILE_LAUNCHER_SIMPLE_ROCKET];
+        const sprite = EQUIPMENT_SPRITES[EQUIPMENT_SPRITE_ID.MISSILE_LAUNCHER];
 
         const centerX = Math.round(this.width / 2);
         const centerY = Math.round(height / 2) + 1;
@@ -148,7 +151,7 @@ export default class BridgeMissileLauncherTileView {
             .setTint(FONT_COLOR.PRIMARY)
             .setVisible(false);
 
-        const ammoSprite = AMMO_SPRITES[AMMO_SPRITE_ID.MISSILE_STANDARD];
+        const ammoSprite = MICRO_ICONS[MICRO_ICON_ID.AMMO_MISSILE_STANDARD];
 
         this.ammoIcon = this.scene.add
             .image(
