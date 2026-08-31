@@ -1,3 +1,4 @@
+// src/app/scenes/game/bridge/view/captain_dashboard/player_ship/equipment/BridgePlayerShipEquipmentGridView.ts
 import { SHIP_WEAPON_KIND } from "../../../../../../../../engine/defs/ship_weapon";
 import type BridgeScene from "../../../../BridgeScene";
 import type BridgeEventBus from "../../../../events/BridgeEventBus";
@@ -46,12 +47,8 @@ export default class BridgePlayerShipEquipmentGridView {
     ) {
         this.root = this.scene.add.container(0, 0);
 
-        this.slotWidth = Math.floor(
-            (width - GRID.columnGap * (GRID.columns - 1)) / GRID.columns,
-        );
-        this.slotHeight = Math.floor(
-            (height - GRID.rowGap * (GRID.rows - 1)) / GRID.rows,
-        );
+        this.slotWidth = Math.floor((width - GRID.columnGap * (GRID.columns - 1)) / GRID.columns);
+        this.slotHeight = Math.floor((height - GRID.rowGap * (GRID.rows - 1)) / GRID.rows);
 
         if (this.slotWidth <= 0 || this.slotHeight <= 0) {
             throw new Error("Player equipment grid requires positive slot size");
@@ -127,10 +124,7 @@ export default class BridgePlayerShipEquipmentGridView {
             const column = index % GRID.columns;
             const row = Math.floor(index / GRID.columns);
 
-            tile.setPosition(
-                column * (this.slotWidth + GRID.columnGap),
-                row * (this.slotHeight + GRID.rowGap),
-            );
+            tile.setPosition(column * (this.slotWidth + GRID.columnGap), row * (this.slotHeight + GRID.rowGap));
 
             this.updateMissileLauncherTile(tile, weapon);
         }
@@ -152,11 +146,8 @@ export default class BridgePlayerShipEquipmentGridView {
             return existing;
         }
 
-        const tile = new BridgeMissileLauncherTileView(
-            this.scene,
-            this.slotWidth,
-            this.slotHeight,
-            () => this.handleMissileLauncherActionRequested(weaponId),
+        const tile = new BridgeMissileLauncherTileView(this.scene, this.slotWidth, this.slotHeight, () =>
+            this.handleMissileLauncherActionRequested(weaponId),
         );
 
         this.missileLauncherTiles.set(weaponId, tile);
