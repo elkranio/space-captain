@@ -1,7 +1,7 @@
 {
   "textures": [
     {
-      "image": "atlas-0.png?v=1787770871773",
+      "image": "atlas-0.png?v=1788191680022",
       "format": "RGBA8888",
       "size": {
         "w": 2043,
@@ -1625,6 +1625,27 @@
             "w": 8,
             "h": 8
           }
+        },
+        {
+          "filename": "ammo/icon_missile_standard",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 16,
+            "h": 16
+          },
+          "spriteSourceSize": {
+            "x": 3,
+            "y": 0,
+            "w": 10,
+            "h": 12
+          },
+          "frame": {
+            "x": 643,
+            "y": 1431,
+            "w": 10,
+            "h": 12
+          }
         }
       ]
     }
@@ -1632,6 +1653,6 @@
   "meta": {
     "app": "https://www.codeandweb.com/texturepacker",
     "version": "3.0",
-    "smartupdate": "$TexturePacker:SmartUpdate:fb6f43252c159bddffbac9835414e770:a46a3810a7bef57f6be8b6b9e6aa9fdd:cf935fe037ea9b5d3744d532996e235e$"
+    "smartupdate": "$TexturePacker:SmartUpdate:3340473cfc9491e9f062f5f51abef978:10cc79c7e32e0fd5935ece1253aa8aee:cf935fe037ea9b5d3744d532996e235e$"
   }
 }
