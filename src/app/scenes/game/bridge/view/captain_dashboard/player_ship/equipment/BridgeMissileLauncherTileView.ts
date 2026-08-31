@@ -25,6 +25,9 @@ const TILE = {
     integrityPipGap: 3,
 
     hoverTextGap: 6,
+    hoverHeaderHeight: 20,
+    hoverHeaderAlpha: 0.24,
+    hoverBorderThickness: 2,
 } as const;
 
 export const MISSILE_LAUNCHER_PROGRESS_MODE = {
@@ -55,6 +58,10 @@ export default class BridgeMissileLauncherTileView {
     private readonly root: Phaser.GameObjects.Container;
 
     private readonly titleText: Phaser.GameObjects.BitmapText;
+
+    private readonly hoverHeaderBackground: Phaser.GameObjects.Rectangle;
+
+    private readonly hoverOutline: Phaser.GameObjects.Rectangle;
 
     private readonly baseIcon: Phaser.GameObjects.Image;
 
@@ -91,6 +98,24 @@ export default class BridgeMissileLauncherTileView {
         private readonly onActionRequested?: () => void,
     ) {
         this.root = this.scene.add.container(0, 0);
+
+        this.hoverHeaderBackground = this.scene.add
+            .rectangle(0, 0, this.width, TILE.hoverHeaderHeight, OFFICER_ROLE_COLOR.weapons, TILE.hoverHeaderAlpha)
+            .setOrigin(0, 0)
+            .setVisible(false);
+
+        this.hoverOutline = this.scene.add
+            .rectangle(
+                TILE.hoverBorderThickness / 2,
+                TILE.hoverBorderThickness / 2,
+                this.width - TILE.hoverBorderThickness,
+                height - TILE.hoverBorderThickness,
+                0x000000,
+                0,
+            )
+            .setOrigin(0, 0)
+            .setStrokeStyle(TILE.hoverBorderThickness, OFFICER_ROLE_COLOR.weapons)
+            .setVisible(false);
 
         this.titleText = this.scene.add
             .bitmapText(TILE.horizontalPadding, TILE.titleY, FONT_FAMILY.UI_PRIMARY, "M. LAUNCHER", FONT_SIZE.PX_20)
@@ -159,6 +184,7 @@ export default class BridgeMissileLauncherTileView {
             .on(Phaser.Input.Events.POINTER_UP, this.handlePointerUp, this);
 
         this.root.add([
+            this.hoverHeaderBackground,
             this.titleText,
             this.baseIcon,
             this.progressIcon,
@@ -167,6 +193,7 @@ export default class BridgeMissileLauncherTileView {
             this.ammoIcon,
             this.ammoText,
             this.integrityRoot,
+            this.hoverOutline,
             this.hitArea,
         ]);
     }
@@ -288,6 +315,8 @@ export default class BridgeMissileLauncherTileView {
         this.titleText.setVisible(!showAction);
         this.baseIcon.setVisible(true);
         this.progressIcon.setVisible(this.progressVisible);
+        this.hoverHeaderBackground.setVisible(showAction);
+        this.hoverOutline.setVisible(showAction);
         this.hoverRoleText.setVisible(showAction);
         this.hoverActionText.setVisible(showAction);
 
@@ -295,19 +324,24 @@ export default class BridgeMissileLauncherTileView {
             return;
         }
 
+        let actionColor: number;
+
         switch (this.hoverAction) {
             case MISSILE_LAUNCHER_HOVER_ACTION.FIRE:
-                this.hoverRoleText.setText("W").setTint(OFFICER_ROLE_COLOR.weapons);
+                actionColor = OFFICER_ROLE_COLOR.weapons;
+                this.hoverRoleText.setText("W").setTint(actionColor);
                 this.hoverActionText.setText("FIRE");
                 break;
 
             case MISSILE_LAUNCHER_HOVER_ACTION.CANCEL:
-                this.hoverRoleText.setText("W").setTint(OFFICER_ROLE_COLOR.weapons);
+                actionColor = OFFICER_ROLE_COLOR.weapons;
+                this.hoverRoleText.setText("W").setTint(actionColor);
                 this.hoverActionText.setText("CANCEL");
                 break;
 
             case MISSILE_LAUNCHER_HOVER_ACTION.REPAIR:
-                this.hoverRoleText.setText("E").setTint(OFFICER_ROLE_COLOR.engineer);
+                actionColor = OFFICER_ROLE_COLOR.engineer;
+                this.hoverRoleText.setText("E").setTint(actionColor);
                 this.hoverActionText.setText("REPAIR");
                 break;
 
@@ -315,11 +349,11 @@ export default class BridgeMissileLauncherTileView {
                 return;
         }
 
-        const totalWidth = this.hoverRoleText.width + TILE.hoverTextGap + this.hoverActionText.width;
-        const startX = Math.round((this.width - totalWidth) / 2);
+        this.hoverHeaderBackground.setFillStyle(actionColor, TILE.hoverHeaderAlpha);
+        this.hoverOutline.setStrokeStyle(TILE.hoverBorderThickness, actionColor);
 
-        this.hoverRoleText.setX(startX);
-        this.hoverActionText.setX(startX + this.hoverRoleText.width + TILE.hoverTextGap);
+        this.hoverRoleText.setX(TILE.horizontalPadding);
+        this.hoverActionText.setX(TILE.horizontalPadding + this.hoverRoleText.width + TILE.hoverTextGap);
     }
 
     private handlePointerOver(): void {
