@@ -12,7 +12,7 @@ import { CAPTAIN_DASHBOARD_STYLE } from "../../captain_dashboard_style";
 const TILE = {
     horizontalPadding: 9,
 
-    titleY: 1,
+    titleY: 3,
 
     statusY: 70,
 
@@ -25,7 +25,7 @@ const TILE = {
     integrityPipGap: 3,
 
     hoverTextGap: 6,
-    hoverHeaderHeight: 20,
+    hoverHeaderHeight: 22,
     hoverHeaderAlpha: 0.14,
     hoverBorderThickness: 2,
 } as const;
