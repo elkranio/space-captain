@@ -360,6 +360,10 @@ export type BridgePlayerWeaponDashboardPayload = {
         // Exact engine-resolved command for this installed weapon.
         // Present only for ACTIVE state.
         command?: BridgeOfficerCommandSelectedPayload;
+
+        // Exact active officer task for contextual CANCEL.
+        // Present only when current work is player-cancellable.
+        cancelTaskId?: string;
     };
 };
 

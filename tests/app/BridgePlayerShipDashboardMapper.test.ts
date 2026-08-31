@@ -155,6 +155,10 @@ describe(
                     );
                 targeting.state.phase =
                     SHIP_WEAPON_PHASE.TARGETING;
+                targeting.state.phaseElapsedMs =
+                    1500;
+                targeting.phaseDurationMs =
+                    6000;
                 const cooldown =
                     createMissileSnapshot(
                         'missile_launcher_player_01',
@@ -182,6 +186,36 @@ describe(
                         weaponsOfficerAvailability:
                             OFFICER_AVAILABILITY_STATE
                                 .BUSY,
+                        officerTasks: [
+                            {
+                                id:
+                                    'missile_targeting_task_00',
+                                kind:
+                                    'weapons_fire_missile',
+                                role:
+                                    OFFICER_ROLE
+                                        .WEAPONS,
+                                sourceCommandId:
+                                    ENCOUNTER_OFFICER_COMMAND_ID
+                                        .WEAPONS_FIRE_MISSILE,
+                                label:
+                                    'MISSILE AIM',
+                                showProgress:
+                                    false,
+                                durationMs:
+                                    null,
+                                elapsedMs:
+                                    0,
+                                canBeCancelledByPlayer:
+                                    true,
+                                canBeInterruptedByDamage:
+                                    true,
+                                weaponId:
+                                    targeting.state.id,
+                                targetActorId:
+                                    'enemy_1',
+                            },
+                        ],
                     }).weapons,
                 ).toEqual([
                     {
@@ -195,10 +229,14 @@ describe(
                             current: 5,
                             max: 5,
                         },
+                        targetingProgress:
+                            0.25,
                         action: {
                             state:
                                 BRIDGE_PLAYER_SYSTEM_ACTION_STATE
                                     .ENGAGED_CURRENT_WORK,
+                            cancelTaskId:
+                                'missile_targeting_task_00',
                         },
                     },
                     {

@@ -447,8 +447,16 @@ function mapWeaponAction(
     const weapon = snapshot.state;
 
     if (isCurrentWorkPhase(weapon.kind, weapon.phase)) {
+        const cancelTaskId = getCancellableWeaponTaskId(weapon, input.officerTasks ?? []);
+
         return {
             state: BRIDGE_PLAYER_SYSTEM_ACTION_STATE.ENGAGED_CURRENT_WORK,
+
+            ...(cancelTaskId
+                ? {
+                      cancelTaskId,
+                  }
+                : {}),
         };
     }
 
@@ -494,6 +502,35 @@ function mapWeaponAction(
     return {
         state: BRIDGE_PLAYER_SYSTEM_ACTION_STATE.DISABLED_SYSTEM,
     };
+}
+
+function getCancellableWeaponTaskId(
+    weapon: PlayerWeaponPresentationSnapshot["state"],
+    officerTasks: OfficerTaskState[],
+): string | undefined {
+    const sourceCommandId = getFireCommandId(weapon.kind);
+
+    const matchingTasks = officerTasks.filter((task) => {
+        return (
+            task.sourceCommandId === sourceCommandId &&
+            "weaponId" in task &&
+            task.weaponId === weapon.id
+        );
+    });
+
+    if (matchingTasks.length > 1) {
+        throw new Error(
+            "Captain dashboard weapon has multiple active tasks: " + weapon.id,
+        );
+    }
+
+    const task = matchingTasks[0];
+
+    if (!task?.canBeCancelledByPlayer) {
+        return undefined;
+    }
+
+    return task.id;
 }
 
 function isCurrentWorkPhase(kind: ShipWeaponKind, phase: ShipWeaponPhase): boolean {

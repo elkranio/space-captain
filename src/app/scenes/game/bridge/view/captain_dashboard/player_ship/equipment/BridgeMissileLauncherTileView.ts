@@ -39,6 +39,7 @@ export type MissileLauncherProgressMode =
 export const MISSILE_LAUNCHER_HOVER_ACTION = {
     NONE: "none",
     FIRE: "fire",
+    CANCEL: "cancel",
     REPAIR: "repair",
 } as const;
 
@@ -297,6 +298,11 @@ export default class BridgeMissileLauncherTileView {
             case MISSILE_LAUNCHER_HOVER_ACTION.FIRE:
                 this.hoverRoleText.setText("W").setTint(OFFICER_ROLE_COLOR.weapons);
                 this.hoverActionText.setText("FIRE");
+                break;
+
+            case MISSILE_LAUNCHER_HOVER_ACTION.CANCEL:
+                this.hoverRoleText.setText("W").setTint(OFFICER_ROLE_COLOR.weapons);
+                this.hoverActionText.setText("CANCEL");
                 break;
 
             case MISSILE_LAUNCHER_HOVER_ACTION.REPAIR:

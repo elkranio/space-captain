@@ -182,24 +182,39 @@ export default class BridgePlayerShipEquipmentGridView {
             tile.resetProgress();
         }
 
-        tile.setHoverAction(
-            weapon.action.state === BRIDGE_PLAYER_SYSTEM_ACTION_STATE.ACTIVE
-                ? MISSILE_LAUNCHER_HOVER_ACTION.FIRE
-                : MISSILE_LAUNCHER_HOVER_ACTION.NONE,
-        );
+        let hoverAction = MISSILE_LAUNCHER_HOVER_ACTION.NONE;
+
+        if (weapon.action.state === BRIDGE_PLAYER_SYSTEM_ACTION_STATE.ACTIVE) {
+            hoverAction = MISSILE_LAUNCHER_HOVER_ACTION.FIRE;
+        } else if (
+            weapon.action.state === BRIDGE_PLAYER_SYSTEM_ACTION_STATE.ENGAGED_CURRENT_WORK &&
+            weapon.action.cancelTaskId
+        ) {
+            hoverAction = MISSILE_LAUNCHER_HOVER_ACTION.CANCEL;
+        }
+
+        tile.setHoverAction(hoverAction);
     }
 
     private handleMissileLauncherActionRequested(weaponId: string): void {
         const weapon = this.weaponsById.get(weaponId);
 
-        if (
-            !weapon ||
-            weapon.action.state !== BRIDGE_PLAYER_SYSTEM_ACTION_STATE.ACTIVE ||
-            !weapon.action.command
-        ) {
+        if (!weapon) {
             return;
         }
 
-        this.eventBus.emit(BRIDGE_EVENT.OFFICER_COMMAND_SELECTED, weapon.action.command);
+        if (weapon.action.state === BRIDGE_PLAYER_SYSTEM_ACTION_STATE.ACTIVE && weapon.action.command) {
+            this.eventBus.emit(BRIDGE_EVENT.OFFICER_COMMAND_SELECTED, weapon.action.command);
+            return;
+        }
+
+        if (
+            weapon.action.state === BRIDGE_PLAYER_SYSTEM_ACTION_STATE.ENGAGED_CURRENT_WORK &&
+            weapon.action.cancelTaskId
+        ) {
+            this.eventBus.emit(BRIDGE_EVENT.OFFICER_TASK_CANCEL_REQUESTED, {
+                taskId: weapon.action.cancelTaskId,
+            });
+        }
     }
 }
