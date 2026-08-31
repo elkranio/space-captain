@@ -58,6 +58,7 @@ export default class BridgePlayerShipDashboardView {
 
         this.equipmentGridView = new BridgePlayerShipEquipmentGridView(
             scene,
+            eventBus,
             equipmentGridWidth,
             equipmentGridHeight,
         );

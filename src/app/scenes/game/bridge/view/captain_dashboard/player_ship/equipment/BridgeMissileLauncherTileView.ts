@@ -87,6 +87,7 @@ export default class BridgeMissileLauncherTileView {
         private readonly scene: BridgeScene,
         private readonly width: number,
         height: number,
+        private readonly onActionRequested?: () => void,
     ) {
         this.root = this.scene.add.container(0, 0);
 
@@ -153,7 +154,8 @@ export default class BridgeMissileLauncherTileView {
                 useHandCursor: true,
             })
             .on(Phaser.Input.Events.POINTER_OVER, this.handlePointerOver, this)
-            .on(Phaser.Input.Events.POINTER_OUT, this.handlePointerOut, this);
+            .on(Phaser.Input.Events.POINTER_OUT, this.handlePointerOut, this)
+            .on(Phaser.Input.Events.POINTER_UP, this.handlePointerUp, this);
 
         this.root.add([
             this.titleText,
@@ -236,6 +238,7 @@ export default class BridgeMissileLauncherTileView {
     public destroy(): void {
         this.hitArea.off(Phaser.Input.Events.POINTER_OVER, this.handlePointerOver, this);
         this.hitArea.off(Phaser.Input.Events.POINTER_OUT, this.handlePointerOut, this);
+        this.hitArea.off(Phaser.Input.Events.POINTER_UP, this.handlePointerUp, this);
         this.root.destroy(true);
     }
 
@@ -320,5 +323,13 @@ export default class BridgeMissileLauncherTileView {
     private handlePointerOut(): void {
         this.pointerOver = false;
         this.renderHover();
+    }
+
+    private handlePointerUp(): void {
+        if (this.hoverAction === MISSILE_LAUNCHER_HOVER_ACTION.NONE) {
+            return;
+        }
+
+        this.onActionRequested?.();
     }
 }
