@@ -354,6 +354,8 @@ function mapWeapon(
 
     const cooldownProgress = getCooldownProgress(snapshot);
 
+    const targetingProgress = getTargetingProgress(snapshot);
+
     const action = mapWeaponAction(snapshot, input);
 
     switch (weapon.kind) {
@@ -371,6 +373,12 @@ function mapWeapon(
                 ammo: {
                     ...ammo,
                 },
+
+                ...(targetingProgress !== undefined
+                    ? {
+                          targetingProgress,
+                      }
+                    : {}),
 
                 ...(cooldownProgress !== undefined && ammo.current > 0
                     ? {
@@ -391,6 +399,12 @@ function mapWeapon(
 
                 kind: weapon.kind,
 
+                ...(targetingProgress !== undefined
+                    ? {
+                          targetingProgress,
+                      }
+                    : {}),
+
                 ...(cooldownProgress !== undefined
                     ? {
                           cooldownProgress,
@@ -406,6 +420,24 @@ function mapWeapon(
             return exhaustiveWeapon;
         }
     }
+}
+
+function getTargetingProgress(snapshot: PlayerWeaponPresentationSnapshot): number | undefined {
+    const weapon = snapshot.state;
+
+    if (weapon.phase !== SHIP_WEAPON_PHASE.TARGETING) {
+        return undefined;
+    }
+
+    const durationMs = snapshot.phaseDurationMs;
+
+    if (durationMs === undefined || durationMs <= 0) {
+        throw new Error(
+            "Player weapon presentation is missing valid targeting timing: " + weapon.id,
+        );
+    }
+
+    return clamp01(weapon.phaseElapsedMs / durationMs);
 }
 
 function mapWeaponAction(

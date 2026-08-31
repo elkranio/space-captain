@@ -350,6 +350,10 @@ export type BridgePlayerWeaponDashboardPayload = {
     // Undefined means the cooldown bar is not shown.
     cooldownProgress?: number;
 
+    // 0..1 elapsed targeting phase.
+    // Undefined outside targeting.
+    targetingProgress?: number;
+
     action: {
         state: BridgePlayerSystemActionState;
 

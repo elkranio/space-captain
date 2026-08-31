@@ -174,7 +174,9 @@ export default class BridgePlayerShipEquipmentGridView {
 
         tile.setAmmo(weapon.ammo.current);
 
-        if (weapon.cooldownProgress !== undefined) {
+        if (weapon.targetingProgress !== undefined) {
+            tile.setProgress(MISSILE_LAUNCHER_PROGRESS_MODE.TARGETING, weapon.targetingProgress);
+        } else if (weapon.cooldownProgress !== undefined) {
             tile.setProgress(MISSILE_LAUNCHER_PROGRESS_MODE.COOLDOWN, weapon.cooldownProgress);
         } else {
             tile.resetProgress();
