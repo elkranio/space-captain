@@ -1,4 +1,5 @@
 // src/app/scenes/game/bridge/view/captain_dashboard/player_ship/equipment/BridgeMissileLauncherTileView.ts
+import { AMMO_SPRITE_ID, AMMO_SPRITES } from "../../../../../../../manifests/ammo";
 import {
     CAPTAIN_DASHBOARD_SPRITE_ID,
     CAPTAIN_DASHBOARD_SPRITES,
@@ -15,9 +16,8 @@ const TILE = {
 
     statusY: 70,
 
-    ammoGlyphWidth: 5,
-    ammoGlyphHeight: 8,
-    ammoGlyphOffsetY: 2,
+    ammoIconSize: 16,
+    ammoIconOffsetY: -1,
     ammoTextGap: 4,
 
     integrityPipSize: 8,
@@ -62,7 +62,7 @@ export default class BridgeMissileLauncherTileView {
 
     private readonly hoverActionText: Phaser.GameObjects.BitmapText;
 
-    private readonly ammoGlyph: Phaser.GameObjects.Graphics;
+    private readonly ammoIcon: Phaser.GameObjects.Image;
 
     private readonly ammoText: Phaser.GameObjects.BitmapText;
 
@@ -127,12 +127,21 @@ export default class BridgeMissileLauncherTileView {
             .setTint(FONT_COLOR.PRIMARY)
             .setVisible(false);
 
-        this.ammoGlyph = this.scene.add.graphics();
-        this.renderAmmoGlyph();
+        const ammoSprite = AMMO_SPRITES[AMMO_SPRITE_ID.MISSILE_STANDARD];
+
+        this.ammoIcon = this.scene.add
+            .image(
+                TILE.horizontalPadding,
+                TILE.statusY + TILE.ammoIconOffsetY,
+                ammoSprite.atlasKey,
+                ammoSprite.frameKey,
+            )
+            .setOrigin(0, 0)
+            .setTint(this.chromeColor);
 
         this.ammoText = this.scene.add
             .bitmapText(
-                TILE.horizontalPadding + TILE.ammoGlyphWidth + TILE.ammoTextGap,
+                TILE.horizontalPadding + TILE.ammoIconSize + TILE.ammoTextGap,
                 TILE.statusY,
                 FONT_FAMILY.VGA_8X14,
                 "0",
@@ -158,7 +167,7 @@ export default class BridgeMissileLauncherTileView {
             this.progressIcon,
             this.hoverRoleText,
             this.hoverActionText,
-            this.ammoGlyph,
+            this.ammoIcon,
             this.ammoText,
             this.integrityRoot,
             this.hitArea,
@@ -240,29 +249,8 @@ export default class BridgeMissileLauncherTileView {
         this.chromeColor = color;
         this.titleText.setTint(color);
         this.ammoText.setTint(color);
-        this.renderAmmoGlyph();
+        this.ammoIcon.setTint(color);
         this.renderIntegrity();
-    }
-
-    private renderAmmoGlyph(): void {
-        this.ammoGlyph.clear();
-        this.ammoGlyph.fillStyle(this.chromeColor, 1);
-
-        const y = TILE.statusY + TILE.ammoGlyphOffsetY;
-
-        this.ammoGlyph.fillRect(
-            TILE.horizontalPadding + 1,
-            y + 1,
-            3,
-            TILE.ammoGlyphHeight - 2,
-        );
-        this.ammoGlyph.fillRect(TILE.horizontalPadding + 2, y, 1, 1);
-        this.ammoGlyph.fillRect(
-            TILE.horizontalPadding,
-            y + TILE.ammoGlyphHeight - 1,
-            TILE.ammoGlyphWidth,
-            1,
-        );
     }
 
     private renderIntegrity(): void {
