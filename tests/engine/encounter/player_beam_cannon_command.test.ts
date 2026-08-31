@@ -49,6 +49,22 @@ describe('Player beamCannon command', () => {
                 ),
             };
 
+            const powerCore = state.combat.powerCore;
+
+            if (!powerCore) {
+                throw new Error(
+                    'Expected installed player Power Core',
+                );
+            }
+
+            const initialPowerCharges =
+                powerCore.charges;
+
+            const beamCannonDefinition =
+                SHIP_WEAPONS[
+                    SHIP_WEAPON_ID.BEAM_CANNON_00
+                ];
+
             const beamCannonCommands =
                 engine
                     .getAvailableCommands(
@@ -126,6 +142,13 @@ describe('Player beamCannon command', () => {
             });
 
             expect(
+                powerCore.charges,
+            ).toBe(
+                initialPowerCharges -
+                    beamCannonDefinition.powerCost,
+            );
+
+            expect(
                 getPlayerWeaponOrThrow(
                     state,
                     SHIP_WEAPON_KIND
@@ -195,6 +218,13 @@ describe('Player beamCannon command', () => {
             engine.cancelTask(task.id);
 
             expect(
+                powerCore.charges,
+            ).toBe(
+                initialPowerCharges -
+                    beamCannonDefinition.powerCost,
+            );
+
+            expect(
                 engine.getOfficerTasks(),
             ).toEqual([]);
 
@@ -237,6 +267,45 @@ describe('Player beamCannon command', () => {
             ).toBe(
                 SHIP_WEAPON_PHASE.READY,
             );
+        },
+    );
+
+    it(
+        'does not offer Beam fire when Power Core cannot pay the shot cost',
+        () => {
+            const {
+                engine,
+                state,
+            } =
+                createAnchoredPlayerCombatTestSetup();
+
+            const powerCore = state.combat.powerCore;
+
+            if (!powerCore) {
+                throw new Error(
+                    'Expected installed player Power Core',
+                );
+            }
+
+            powerCore.charges =
+                SHIP_WEAPONS[
+                    SHIP_WEAPON_ID.BEAM_CANNON_00
+                ].powerCost - 1;
+
+            const beamCommands =
+                engine
+                    .getAvailableCommands(
+                        OFFICER_ROLE.WEAPONS,
+                    )
+                    .filter((command) => {
+                        return (
+                            command.commandId ===
+                            ENCOUNTER_OFFICER_COMMAND_ID
+                                .WEAPONS_FIRE_BEAM_CANNON
+                        );
+                    });
+
+            expect(beamCommands).toEqual([]);
         },
     );
 });

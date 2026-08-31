@@ -35,11 +35,18 @@ export const weaponsFireBeamCannonCommandHandler: OfficerCommandHandler = {
     getAvailableCommands(state) {
         const targetActor = findCurrentEnemyShip(state);
 
-        if (!targetActor) {
+        const powerCore = state.combat.powerCore;
+
+        if (!targetActor || !powerCore) {
             return [];
         }
 
-        return state.combat.playerWeapons.filter(isReadyBeamCannon).map((weapon) => {
+        return state.combat.playerWeapons
+            .filter(isReadyBeamCannon)
+            .filter((weapon) => {
+                return powerCore.charges >= getBeamCannonDefinition(weapon).powerCost;
+            })
+            .map((weapon) => {
             return {
                 commandId: ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_BEAM_CANNON,
 
@@ -63,15 +70,26 @@ export const weaponsFireBeamCannonCommandHandler: OfficerCommandHandler = {
             throw new Error("FIRE BEAM CANNON requires " + "an actor weapon target");
         }
 
-        const beamCannon = context.stateStore.startPlayerBeamCannonCharging(input.target.weaponId);
+        const weapon = context.stateStore.findPlayerWeaponById(input.target.weaponId);
 
-        const definition = SHIP_WEAPONS[beamCannon.weaponId];
-
-        if (definition.kind !== SHIP_WEAPON_KIND.BEAM_CANNON) {
-            throw new Error(
-                "Player beamCannon kind does not match definition: " + beamCannon.id + "/" + beamCannon.weaponId,
-            );
+        if (!weapon || !isReadyBeamCannon(weapon)) {
+            throw new Error("Player beamCannon is not ready: " + input.target.weaponId);
         }
+
+        const definition = getBeamCannonDefinition(weapon);
+        const powerCore = context.stateStore.getState().combat.powerCore;
+
+        if (!powerCore || powerCore.charges < definition.powerCost) {
+            throw new Error("Player Beam Cannon has insufficient Power Core charges: " + weapon.id);
+        }
+
+        if (weapon.cooldownRemainingMs > 0) {
+            throw new Error("Ready player Beam Cannon still has committed cooldown: " + weapon.id);
+        }
+
+        context.stateStore.spendPowerCoreCharges(definition.powerCost);
+
+        const beamCannon = context.stateStore.startPlayerBeamCannonCharging(input.target.weaponId);
 
         context.emit({
             type: ENCOUNTER_EVENT.PLAYER_BEAM_CANNON_CHARGING_STARTED,
@@ -89,4 +107,14 @@ export const weaponsFireBeamCannonCommandHandler: OfficerCommandHandler = {
 
 function isReadyBeamCannon(weapon: ShipWeaponState): weapon is BeamCannonState {
     return weapon.kind === SHIP_WEAPON_KIND.BEAM_CANNON && weapon.phase === SHIP_WEAPON_PHASE.READY;
+}
+
+function getBeamCannonDefinition(weapon: ShipWeaponState) {
+    const definition = SHIP_WEAPONS[weapon.weaponId];
+
+    if (definition.kind !== SHIP_WEAPON_KIND.BEAM_CANNON) {
+        throw new Error("Player beamCannon definition mismatch: " + weapon.id + "/" + weapon.weaponId);
+    }
+
+    return definition;
 }

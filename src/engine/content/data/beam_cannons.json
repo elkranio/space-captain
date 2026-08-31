@@ -4,6 +4,7 @@
         "maxIntegrity": 2,
         "hullDamage": 1,
         "moduleDamage": 1,
+        "powerCost": 1,
         "chargeDurationMs": 12000,
         "cooldownDurationMs": 27000
     },
@@ -12,6 +13,7 @@
         "maxIntegrity": 2,
         "hullDamage": 1,
         "moduleDamage": 1,
+        "powerCost": 1,
         "chargeDurationMs": 2000,
         "cooldownDurationMs": 2000
     }

@@ -74,6 +74,12 @@ export const BEAM_CANNON_RECORD_SCHEMA = z
             title: "Module damage",
         }),
 
+        powerCost: z.number().int().positive().meta({
+            title: "Power Cost",
+            description: "Power Core charges committed when Beam charging starts.",
+            unit: "charges",
+        }),
+
         chargeDurationMs: z.number().int().nonnegative().meta({
             title: "Charge duration",
             unit: "ms",

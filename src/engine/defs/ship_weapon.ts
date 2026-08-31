@@ -121,6 +121,8 @@ export type BeamCannonDefinition = ShipWeaponDefinitionBase & {
     hullDamage: number;
     moduleDamage: number;
 
+    powerCost: number;
+
     chargeDurationMs: number;
 };
 
