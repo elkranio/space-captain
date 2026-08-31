@@ -4,7 +4,7 @@ import {
     CAPTAIN_DASHBOARD_SPRITE_ID,
     CAPTAIN_DASHBOARD_SPRITES,
 } from "../../../../../../../manifests/bridge/captain_dashboard";
-import { FONT_COLOR, FONT_SIZE, FONT_WEIGHT, WEB_FONT_FAMILY } from "../../../../../../../theme/font";
+import { FONT_COLOR, FONT_FAMILY, FONT_SIZE } from "../../../../../../../theme/font";
 import { OFFICER_ROLE_COLOR } from "../../../../../../../theme/officer";
 import type BridgeScene from "../../../../BridgeScene";
 import { CAPTAIN_DASHBOARD_STYLE } from "../../captain_dashboard_style";
@@ -52,19 +52,19 @@ export type MissileLauncherHoverAction =
 export default class BridgeMissileLauncherTileView {
     private readonly root: Phaser.GameObjects.Container;
 
-    private readonly titleText: Phaser.GameObjects.Text;
+    private readonly titleText: Phaser.GameObjects.BitmapText;
 
     private readonly baseIcon: Phaser.GameObjects.Image;
 
     private readonly progressIcon: Phaser.GameObjects.Image;
 
-    private readonly hoverRoleText: Phaser.GameObjects.Text;
+    private readonly hoverRoleText: Phaser.GameObjects.BitmapText;
 
-    private readonly hoverActionText: Phaser.GameObjects.Text;
+    private readonly hoverActionText: Phaser.GameObjects.BitmapText;
 
     private readonly ammoIcon: Phaser.GameObjects.Image;
 
-    private readonly ammoText: Phaser.GameObjects.Text;
+    private readonly ammoText: Phaser.GameObjects.BitmapText;
 
     private readonly integrityRoot: Phaser.GameObjects.Container;
 
@@ -90,11 +90,13 @@ export default class BridgeMissileLauncherTileView {
         this.root = this.scene.add.container(0, 0);
 
         this.titleText = this.scene.add
-            .text(TILE.horizontalPadding, TILE.titleY, "M. LAUNCHER", {
-                fontFamily: WEB_FONT_FAMILY.RAJDHANI,
-                fontSize: `${FONT_SIZE.PX_14}px`,
-                fontStyle: FONT_WEIGHT.SEMIBOLD,
-            })
+            .bitmapText(
+                TILE.horizontalPadding,
+                TILE.titleY,
+                FONT_FAMILY.CHAKRA_PETCH_SEMIBOLD_14,
+                "M. LAUNCHER",
+                FONT_SIZE.PX_14,
+            )
             .setOrigin(0, 0)
             .setTint(this.chromeColor);
 
@@ -102,7 +104,7 @@ export default class BridgeMissileLauncherTileView {
 
         const centerX = Math.round(this.width / 2);
         const centerY = Math.round(height / 2) + 1;
-        const hoverTextY = centerY - Math.round(FONT_SIZE.PX_16 / 2);
+        const hoverTextY = centerY - Math.round(FONT_SIZE.PX_14 / 2);
 
         this.baseIcon = this.scene.add
             .image(centerX, centerY, sprite.atlasKey, sprite.frameKey)
@@ -114,20 +116,12 @@ export default class BridgeMissileLauncherTileView {
             .setVisible(false);
 
         this.hoverRoleText = this.scene.add
-            .text(0, hoverTextY, "", {
-                fontFamily: WEB_FONT_FAMILY.RAJDHANI,
-                fontSize: `${FONT_SIZE.PX_16}px`,
-                fontStyle: FONT_WEIGHT.SEMIBOLD,
-            })
+            .bitmapText(0, hoverTextY, FONT_FAMILY.CHAKRA_PETCH_SEMIBOLD_14, "", FONT_SIZE.PX_14)
             .setOrigin(0, 0)
             .setVisible(false);
 
         this.hoverActionText = this.scene.add
-            .text(0, hoverTextY, "", {
-                fontFamily: WEB_FONT_FAMILY.RAJDHANI,
-                fontSize: `${FONT_SIZE.PX_16}px`,
-                fontStyle: FONT_WEIGHT.SEMIBOLD,
-            })
+            .bitmapText(0, hoverTextY, FONT_FAMILY.CHAKRA_PETCH_SEMIBOLD_14, "", FONT_SIZE.PX_14)
             .setOrigin(0, 0)
             .setTint(FONT_COLOR.PRIMARY)
             .setVisible(false);
@@ -145,11 +139,13 @@ export default class BridgeMissileLauncherTileView {
             .setTint(this.chromeColor);
 
         this.ammoText = this.scene.add
-            .text(TILE.horizontalPadding + TILE.ammoIconSize + TILE.ammoTextGap, TILE.statusY, "0", {
-                fontFamily: WEB_FONT_FAMILY.RAJDHANI,
-                fontSize: `${FONT_SIZE.PX_14}px`,
-                fontStyle: FONT_WEIGHT.SEMIBOLD,
-            })
+            .bitmapText(
+                TILE.horizontalPadding + TILE.ammoIconSize + TILE.ammoTextGap,
+                TILE.statusY,
+                FONT_FAMILY.CHAKRA_PETCH_SEMIBOLD_14,
+                "0",
+                FONT_SIZE.PX_14,
+            )
             .setOrigin(0, 0)
             .setTint(this.chromeColor);
 
