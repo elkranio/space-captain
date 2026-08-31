@@ -93,9 +93,9 @@ export default class BridgeMissileLauncherTileView {
             .bitmapText(
                 TILE.horizontalPadding,
                 TILE.titleY,
-                FONT_FAMILY.CHAKRA_PETCH_SEMIBOLD_14,
+                FONT_FAMILY.CHAKRA_PETCH_SEMIBOLD_20,
                 "M. LAUNCHER",
-                FONT_SIZE.PX_14,
+                FONT_SIZE.PX_20,
             )
             .setOrigin(0, 0)
             .setTint(this.chromeColor);
@@ -104,7 +104,7 @@ export default class BridgeMissileLauncherTileView {
 
         const centerX = Math.round(this.width / 2);
         const centerY = Math.round(height / 2) + 1;
-        const hoverTextY = centerY - Math.round(FONT_SIZE.PX_14 / 2);
+        const hoverTextY = centerY - Math.round(FONT_SIZE.PX_20 / 2);
 
         this.baseIcon = this.scene.add
             .image(centerX, centerY, sprite.atlasKey, sprite.frameKey)
@@ -116,12 +116,12 @@ export default class BridgeMissileLauncherTileView {
             .setVisible(false);
 
         this.hoverRoleText = this.scene.add
-            .bitmapText(0, hoverTextY, FONT_FAMILY.CHAKRA_PETCH_SEMIBOLD_14, "", FONT_SIZE.PX_14)
+            .bitmapText(0, hoverTextY, FONT_FAMILY.CHAKRA_PETCH_SEMIBOLD_20, "", FONT_SIZE.PX_20)
             .setOrigin(0, 0)
             .setVisible(false);
 
         this.hoverActionText = this.scene.add
-            .bitmapText(0, hoverTextY, FONT_FAMILY.CHAKRA_PETCH_SEMIBOLD_14, "", FONT_SIZE.PX_14)
+            .bitmapText(0, hoverTextY, FONT_FAMILY.CHAKRA_PETCH_SEMIBOLD_20, "", FONT_SIZE.PX_20)
             .setOrigin(0, 0)
             .setTint(FONT_COLOR.PRIMARY)
             .setVisible(false);
@@ -142,9 +142,9 @@ export default class BridgeMissileLauncherTileView {
             .bitmapText(
                 TILE.horizontalPadding + TILE.ammoIconSize + TILE.ammoTextGap,
                 TILE.statusY,
-                FONT_FAMILY.CHAKRA_PETCH_SEMIBOLD_14,
+                FONT_FAMILY.CHAKRA_PETCH_SEMIBOLD_20,
                 "0",
-                FONT_SIZE.PX_14,
+                FONT_SIZE.PX_20,
             )
             .setOrigin(0, 0)
             .setTint(this.chromeColor);

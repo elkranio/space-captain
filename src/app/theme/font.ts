@@ -2,7 +2,7 @@
 
 export const FONT_FAMILY = {
     VGA_8X14: "vga_8x14",
-    CHAKRA_PETCH_SEMIBOLD_14: "chakra_petch_semibold",
+    CHAKRA_PETCH_SEMIBOLD_20: "chakra_petch_semibold",
 } as const;
 
 export const WEB_FONT_FAMILY = {
