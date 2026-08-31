@@ -16,7 +16,7 @@ const P34TOptions = {
     prefix: "p34t_",
 
     // fonts to load (need to render bitmapfonts with these names)
-    fonts: ["roboto", "fira_medium", "vga_8x14"],
+    fonts: ["roboto", "fira_medium", "vga_8x14", "chakra_petch_semibold"],
 
     // base max volume for sfx and music (can be overriden)
     audio: {
