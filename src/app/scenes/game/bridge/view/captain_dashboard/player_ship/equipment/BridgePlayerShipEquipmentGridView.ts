@@ -19,6 +19,11 @@ import BridgeMissileLauncherTileView, {
     MISSILE_LAUNCHER_PROGRESS_MODE,
     type MissileLauncherHoverAction,
 } from "./BridgeMissileLauncherTileView";
+import BridgeSpamProjectorTileView, {
+    SPAM_PROJECTOR_HOVER_ACTION,
+    SPAM_PROJECTOR_PROGRESS_MODE,
+    type SpamProjectorHoverAction,
+} from "./BridgeSpamProjectorTileView";
 import BridgeStickyMineDispenserTileView, {
     STICKY_MINE_DISPENSER_HOVER_ACTION,
     STICKY_MINE_DISPENSER_PROGRESS_MODE,
@@ -35,9 +40,9 @@ const GRID = {
 
 // Базовая 4x3 сетка equipment slots.
 //
-// Пока production-проход поддерживает Missile Launcher, Beam Cannon и Sticky Mine Dispenser.
+// Пока production-проход поддерживает все четыре текущих вида player weapons.
 // До появления authoritative slot coordinates оружие занимает grid cell
-// по порядку полного weapons snapshot; неподдерживаемые виды оставляют cell пустым.
+// по порядку полного weapons snapshot.
 export default class BridgePlayerShipEquipmentGridView {
     private readonly root: Phaser.GameObjects.Container;
 
@@ -46,6 +51,8 @@ export default class BridgePlayerShipEquipmentGridView {
     private readonly beamCannonTiles = new Map<string, BridgeBeamCannonTileView>();
 
     private readonly stickyMineDispenserTiles = new Map<string, BridgeStickyMineDispenserTileView>();
+
+    private readonly spamProjectorTiles = new Map<string, BridgeSpamProjectorTileView>();
 
     private readonly weaponsById = new Map<string, BridgePlayerWeaponDashboardPayload>();
 
@@ -118,9 +125,14 @@ export default class BridgePlayerShipEquipmentGridView {
             tile.destroy();
         }
 
+        for (const tile of this.spamProjectorTiles.values()) {
+            tile.destroy();
+        }
+
         this.missileLauncherTiles.clear();
         this.beamCannonTiles.clear();
         this.stickyMineDispenserTiles.clear();
+        this.spamProjectorTiles.clear();
         this.weaponsById.clear();
         this.root.destroy(true);
     }
@@ -130,6 +142,7 @@ export default class BridgePlayerShipEquipmentGridView {
         const visibleMissileIds = new Set<string>();
         const visibleBeamIds = new Set<string>();
         const visibleStickyMineDispenserIds = new Set<string>();
+        const visibleSpamProjectorIds = new Set<string>();
 
         this.weaponsById.clear();
 
@@ -180,8 +193,15 @@ export default class BridgePlayerShipEquipmentGridView {
                     break;
                 }
 
-                case SHIP_WEAPON_KIND.SPAM_PROJECTOR:
+                case SHIP_WEAPON_KIND.SPAM_PROJECTOR: {
+                    visibleSpamProjectorIds.add(weapon.id);
+
+                    const tile = this.getOrCreateSpamProjectorTile(weapon.id);
+
+                    tile.setPosition(x, y);
+                    this.updateSpamProjectorTile(tile, weapon);
                     break;
+                }
             }
         }
 
@@ -211,6 +231,15 @@ export default class BridgePlayerShipEquipmentGridView {
             tile.destroy();
             this.stickyMineDispenserTiles.delete(weaponId);
         }
+
+        for (const [weaponId, tile] of this.spamProjectorTiles) {
+            if (visibleSpamProjectorIds.has(weaponId)) {
+                continue;
+            }
+
+            tile.destroy();
+            this.spamProjectorTiles.delete(weaponId);
+        }
     }
 
     private getOrCreateStickyMineDispenserTile(weaponId: string): BridgeStickyMineDispenserTileView {
@@ -225,6 +254,23 @@ export default class BridgePlayerShipEquipmentGridView {
         });
 
         this.stickyMineDispenserTiles.set(weaponId, tile);
+        this.root.add(tile.getRoot());
+
+        return tile;
+    }
+
+    private getOrCreateSpamProjectorTile(weaponId: string): BridgeSpamProjectorTileView {
+        const existing = this.spamProjectorTiles.get(weaponId);
+
+        if (existing) {
+            return existing;
+        }
+
+        const tile = new BridgeSpamProjectorTileView(this.scene, this.slotWidth, this.slotHeight, () => {
+            this.handleWeaponActionRequested(weaponId);
+        });
+
+        this.spamProjectorTiles.set(weaponId, tile);
         this.root.add(tile.getRoot());
 
         return tile;
@@ -294,6 +340,39 @@ export default class BridgePlayerShipEquipmentGridView {
 
         if (weapon.action.state === BRIDGE_PLAYER_SYSTEM_ACTION_STATE.ACTIVE) {
             hoverAction = STICKY_MINE_DISPENSER_HOVER_ACTION.FIRE;
+        }
+
+        tile.setHoverAction(hoverAction);
+    }
+
+    private updateSpamProjectorTile(
+        tile: BridgeSpamProjectorTileView,
+        weapon: BridgePlayerWeaponDashboardPayload,
+    ): void {
+        if (!weapon.integrity) {
+            throw new Error("Captain dashboard SPAM Projector requires integrity payload: " + weapon.id);
+        }
+
+        tile.setTitle(weapon.shortName);
+        tile.setIntegrity(weapon.integrity.current, weapon.integrity.max);
+
+        if (weapon.channelingProgress !== undefined) {
+            tile.setProgress(SPAM_PROJECTOR_PROGRESS_MODE.CHANNELING, weapon.channelingProgress);
+        } else if (weapon.cooldownProgress !== undefined) {
+            tile.setProgress(SPAM_PROJECTOR_PROGRESS_MODE.COOLDOWN, weapon.cooldownProgress);
+        } else {
+            tile.resetProgress();
+        }
+
+        let hoverAction: SpamProjectorHoverAction = SPAM_PROJECTOR_HOVER_ACTION.NONE;
+
+        if (weapon.action.state === BRIDGE_PLAYER_SYSTEM_ACTION_STATE.ACTIVE) {
+            hoverAction = SPAM_PROJECTOR_HOVER_ACTION.FIRE;
+        } else if (
+            weapon.action.state === BRIDGE_PLAYER_SYSTEM_ACTION_STATE.ENGAGED_CURRENT_WORK &&
+            weapon.action.cancelTaskId
+        ) {
+            hoverAction = SPAM_PROJECTOR_HOVER_ACTION.CANCEL;
         }
 
         tile.setHoverAction(hoverAction);

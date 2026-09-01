@@ -359,6 +359,10 @@ export type BridgePlayerWeaponDashboardPayload = {
     // Undefined outside Beam charging.
     chargingProgress?: number;
 
+    // 0..1 elapsed SPAM channeling phase.
+    // Undefined outside SPAM channeling.
+    channelingProgress?: number;
+
     // 0..1 elapsed Sticky Mine dispensing phase.
     // Undefined outside dispensing.
     dispensingProgress?: number;

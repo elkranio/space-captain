@@ -361,6 +361,8 @@ function mapWeapon(
 
     const chargingProgress = getChargingProgress(snapshot);
 
+    const channelingProgress = getChannelingProgress(snapshot);
+
     const dispensingProgress = getDispensingProgress(snapshot);
 
     const integrity = snapshot.integrity;
@@ -484,6 +486,12 @@ function mapWeapon(
                       }
                     : {}),
 
+                ...(channelingProgress !== undefined
+                    ? {
+                          channelingProgress,
+                      }
+                    : {}),
+
                 ...(cooldownProgress !== undefined
                     ? {
                           cooldownProgress,
@@ -535,6 +543,28 @@ function getChargingProgress(snapshot: PlayerWeaponPresentationSnapshot): number
     if (durationMs === undefined || durationMs <= 0) {
         throw new Error(
             "Player Beam Cannon presentation is missing valid charging timing: " + weapon.id,
+        );
+    }
+
+    return clamp01(weapon.phaseElapsedMs / durationMs);
+}
+
+function getChannelingProgress(snapshot: PlayerWeaponPresentationSnapshot): number | undefined {
+    const weapon = snapshot.state;
+
+    if (weapon.phase !== SHIP_WEAPON_PHASE.CHANNELING) {
+        return undefined;
+    }
+
+    if (weapon.kind !== SHIP_WEAPON_KIND.SPAM_PROJECTOR) {
+        throw new Error("Only SPAM Projector can expose channeling progress: " + weapon.id);
+    }
+
+    const durationMs = snapshot.phaseDurationMs;
+
+    if (durationMs === undefined || durationMs <= 0) {
+        throw new Error(
+            "Player SPAM Projector presentation is missing valid channeling timing: " + weapon.id,
         );
     }
 
