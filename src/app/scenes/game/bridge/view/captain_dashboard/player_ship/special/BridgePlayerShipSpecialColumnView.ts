@@ -225,21 +225,22 @@ export default class BridgePlayerShipSpecialColumnView {
             (columnCount - 1) * COLUMN.hullPipGap;
         const gridStartX = Math.floor((this.width - gridWidth) / 2);
 
+        const rowsInTallestColumn = Math.min(max, rowsPerColumn);
+        const gridHeight =
+            rowsInTallestColumn * COLUMN.hullPipSize +
+            (rowsInTallestColumn - 1) * COLUMN.hullPipGap;
+        const gridStartY =
+            contentTop + Math.floor((availableHeight - gridHeight) / 2);
+
         for (let index = 0; index < max; index += 1) {
             const column = Math.floor(index / rowsPerColumn);
             const row = index % rowsPerColumn;
-            const columnStartIndex = column * rowsPerColumn;
-            const rowsInColumn = Math.min(rowsPerColumn, max - columnStartIndex);
-            const columnHeight =
-                rowsInColumn * COLUMN.hullPipSize +
-                Math.max(0, rowsInColumn - 1) * COLUMN.hullPipGap;
 
             const x =
                 gridStartX +
                 column * (COLUMN.hullPipSize + COLUMN.hullPipGap);
             const y =
-                contentTop +
-                Math.floor((availableHeight - columnHeight) / 2) +
+                gridStartY +
                 row * (COLUMN.hullPipSize + COLUMN.hullPipGap);
 
             const segment = this.scene.add
