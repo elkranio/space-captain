@@ -1,14 +1,19 @@
 import { DEFENSE_TURRETS } from "../../../../../../engine/content/catalogs/defense_turrets";
+import { SHIELD_GENERATORS } from "../../../../../../engine/content/catalogs/shield_generators";
 import { SHIP_WEAPONS } from "../../../../../../engine/content/catalogs/ship_weapons";
 import { DEFENSE_TURRET_POWER_COST } from "../../../../../../engine/defs/defense_turret";
 import type {
     PlayerDefenseTurretPresentationSnapshot,
+    PlayerShieldGeneratorPresentationSnapshot,
     PlayerWeaponPresentationSnapshot,
     PowerCorePresentationSnapshot,
 } from "../../../../../../engine/encounter/snapshots/combat_presentation_snapshot";
 import { OFFICER_ROLE, type OfficerRole } from "../../../../../../engine/defs/officer";
 import type { PlayerHullState } from "../../../../../../engine/defs/player";
-import type { ShieldGeneratorState } from "../../../../../../engine/defs/shield_generator";
+import {
+    SHIELD_GENERATOR_PHASE,
+    SHIELD_GENERATOR_POWER_COST,
+} from "../../../../../../engine/defs/shield_generator";
 import type { EncounterShipDriveState } from "../../../../../../engine/encounter/model/state";
 import type { ActiveShieldState } from "../../../../../../engine/encounter/model/combat";
 import type { OfficerTaskState } from "../../../../../../engine/encounter/model/officer_task";
@@ -65,7 +70,7 @@ type PlayerShipDashboardMapperInput = {
 
         defenseTurret?: PlayerDefenseTurretPresentationSnapshot;
 
-        shieldGenerator?: ShieldGeneratorState;
+        shieldGenerator?: PlayerShieldGeneratorPresentationSnapshot;
 
         activeShield?: ActiveShieldState | null;
     };
@@ -260,19 +265,48 @@ function mapShieldStatus(
         return {};
     }
 
+    if (!shieldGenerator.integrity) {
+        throw new Error("Captain dashboard Shield Generator requires integrity snapshot");
+    }
+
+    const definition = SHIELD_GENERATORS[shieldGenerator.state.shieldGeneratorId];
+
+    if (!definition) {
+        throw new Error(
+            "Captain dashboard Shield Generator definition not found: " +
+                shieldGenerator.state.shieldGeneratorId,
+        );
+    }
+
     if (activeShield && activeShieldTargetNode === undefined) {
         throw new Error("Captain dashboard player Active Shield is missing target node");
     }
 
+    const cooldownProgress = getShieldGeneratorCooldownProgress(shieldGenerator);
+
     return {
         shield: {
-            status: shieldGenerator.status,
-            phase: shieldGenerator.phase,
+            shortName: definition.shortName,
+            powerCost: SHIELD_GENERATOR_POWER_COST,
+
+            status: shieldGenerator.state.status,
+            phase: shieldGenerator.state.phase,
+
+            integrity: {
+                ...shieldGenerator.integrity,
+            },
+
+            ...(cooldownProgress !== undefined
+                ? {
+                      cooldownProgress,
+                  }
+                : {}),
 
             ...(deployment
                 ? {
                       deployment: {
                           targetNode: deployment.targetNode,
+                          progress: getTimedOfficerTaskProgress(deployment),
                       },
                   }
                 : {}),
@@ -289,6 +323,26 @@ function mapShieldStatus(
                 : {}),
         },
     };
+}
+
+function getShieldGeneratorCooldownProgress(
+    snapshot: PlayerShieldGeneratorPresentationSnapshot,
+): number | undefined {
+    if (snapshot.state.phase !== SHIELD_GENERATOR_PHASE.COOLDOWN) {
+        return undefined;
+    }
+
+    const durationMs = snapshot.cooldownDurationMs;
+    const elapsedMs = snapshot.state.phaseElapsedMs;
+
+    if (durationMs <= 0 || elapsedMs < 0 || elapsedMs > durationMs) {
+        throw new Error(
+            "Captain dashboard Shield Generator has invalid cooldown timing: " +
+                snapshot.state.id,
+        );
+    }
+
+    return clamp01(elapsedMs / durationMs);
 }
 
 function isShieldDeploymentTask(

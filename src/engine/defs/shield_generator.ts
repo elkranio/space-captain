@@ -26,6 +26,8 @@ export type ShieldGeneratorDefinition = {
     cooldownDurationMs: number;
 };
 
+export const SHIELD_GENERATOR_POWER_COST = 1;
+
 export const SHIELD_GENERATOR_STATUS = {
     ONLINE: "online",
     BROKEN: "broken",

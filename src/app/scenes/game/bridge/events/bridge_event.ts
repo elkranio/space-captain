@@ -433,11 +433,22 @@ export type BridgePlayerShipDashboardUpdatedPayload = {
         };
 
         shield?: {
+            shortName: string;
+            powerCost: number;
+
             status: ShieldGeneratorStatus;
             phase: ShieldGeneratorPhase;
 
+            integrity: {
+                current: number;
+                max: number;
+            };
+
+            cooldownProgress?: number;
+
             deployment?: {
                 targetNode: BeamCannonTargetNode;
+                progress: number;
             };
 
             active?: {

@@ -64,6 +64,17 @@ export type PlayerDefenseTurretPresentationSnapshot = {
     };
 };
 
+export type PlayerShieldGeneratorPresentationSnapshot = {
+    state: ShieldGeneratorState;
+
+    cooldownDurationMs: number;
+
+    integrity?: {
+        current: number;
+        max: number;
+    };
+};
+
 export type PlayerWeaponPresentationSnapshot = {
     state: ShipWeaponState;
 
@@ -114,7 +125,7 @@ export type CombatPresentationSnapshot = {
 
         defenseTurret?: PlayerDefenseTurretPresentationSnapshot;
 
-        shieldGenerator?: ShieldGeneratorState;
+        shieldGenerator?: PlayerShieldGeneratorPresentationSnapshot;
 
         activeShield: ActiveShieldState | null;
 
@@ -177,8 +188,9 @@ export function createCombatPresentationSnapshot(state: EncounterState): CombatP
 
             ...(state.combat.shieldGenerator
                 ? {
-                      shieldGenerator: createShieldGeneratorStateSnapshot(
+                      shieldGenerator: createPlayerShieldGeneratorPresentationSnapshot(
                           state.combat.shieldGenerator,
+                          state.combat.shieldGenerator.integrity,
                       ),
                   }
                 : {}),
@@ -296,6 +308,32 @@ export function createPlayerDefenseTurretPresentationSnapshot(
 
     return {
         state: createDefenseTurretStateSnapshot(state),
+
+        cooldownDurationMs: definition.cooldownDurationMs,
+
+        ...(integrity !== undefined
+            ? {
+                  integrity: {
+                      current: integrity,
+                      max: definition.maxIntegrity,
+                  },
+              }
+            : {}),
+    };
+}
+
+export function createPlayerShieldGeneratorPresentationSnapshot(
+    state: ShieldGeneratorState,
+    integrity?: number,
+): PlayerShieldGeneratorPresentationSnapshot {
+    const definition = SHIELD_GENERATORS[state.shieldGeneratorId];
+
+    if (!definition) {
+        throw new Error("Shield Generator definition not found: " + state.shieldGeneratorId);
+    }
+
+    return {
+        state: createShieldGeneratorStateSnapshot(state),
 
         cooldownDurationMs: definition.cooldownDurationMs,
 

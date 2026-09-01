@@ -38,7 +38,7 @@ export default class BridgeEncounterPersistenceSynchronizer {
 
         this.gameRuntime.setPlayerShipPowerCoreState(powerCore.state);
 
-        this.gameRuntime.setPlayerShipShieldGeneratorState(shieldGenerator);
+        this.gameRuntime.setPlayerShipShieldGeneratorState(shieldGenerator.state);
 
         this.gameRuntime.setPlayerShipWeaponStates(snapshot.player.weapons.map(({ state }) => state));
 

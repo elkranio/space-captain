@@ -1,4 +1,5 @@
 // src/app/scenes/game/bridge/view/captain_dashboard/player_ship/equipment/BridgePlayerShipEquipmentGridView.ts
+import { SHIELD_GENERATOR_STATUS } from "../../../../../../../../engine/defs/shield_generator";
 import { SHIP_WEAPON_KIND } from "../../../../../../../../engine/defs/ship_weapon";
 import type BridgeScene from "../../../../BridgeScene";
 import type BridgeEventBus from "../../../../events/BridgeEventBus";
@@ -22,6 +23,9 @@ import BridgeMissileLauncherTileView, {
     MISSILE_LAUNCHER_PROGRESS_MODE,
     type MissileLauncherHoverAction,
 } from "./BridgeMissileLauncherTileView";
+import BridgeShieldGeneratorTileView, {
+    SHIELD_GENERATOR_PROGRESS_MODE,
+} from "./BridgeShieldGeneratorTileView";
 import BridgeSpamProjectorTileView, {
     SPAM_PROJECTOR_HOVER_ACTION,
     SPAM_PROJECTOR_PROGRESS_MODE,
@@ -58,6 +62,8 @@ export default class BridgePlayerShipEquipmentGridView {
     private readonly spamProjectorTiles = new Map<string, BridgeSpamProjectorTileView>();
 
     private defenseTurretTile?: BridgeDefenseTurretTileView;
+
+    private shieldGeneratorTile?: BridgeShieldGeneratorTileView;
 
     private readonly weaponsById = new Map<string, BridgePlayerWeaponDashboardPayload>();
 
@@ -137,6 +143,9 @@ export default class BridgePlayerShipEquipmentGridView {
         this.defenseTurretTile?.destroy();
         this.defenseTurretTile = undefined;
 
+        this.shieldGeneratorTile?.destroy();
+        this.shieldGeneratorTile = undefined;
+
         this.missileLauncherTiles.clear();
         this.beamCannonTiles.clear();
         this.stickyMineDispenserTiles.clear();
@@ -213,7 +222,14 @@ export default class BridgePlayerShipEquipmentGridView {
             }
         }
 
-        this.reconcileDefenseTurretTile(payload, weapons.length);
+        const defenseTurretSlotIndex = weapons.length;
+
+        this.reconcileDefenseTurretTile(payload, defenseTurretSlotIndex);
+
+        this.reconcileShieldGeneratorTile(
+            payload,
+            defenseTurretSlotIndex + (payload.status?.defenseTurret ? 1 : 0),
+        );
 
         for (const [weaponId, tile] of this.missileLauncherTiles) {
             if (visibleMissileIds.has(weaponId)) {
@@ -281,6 +297,37 @@ export default class BridgePlayerShipEquipmentGridView {
 
         this.defenseTurretTile.setPosition(x, y);
         this.updateDefenseTurretTile(this.defenseTurretTile, status);
+    }
+
+    private reconcileShieldGeneratorTile(
+        payload: BridgePlayerShipDashboardUpdatedPayload,
+        slotIndex: number,
+    ): void {
+        const status = payload.status;
+        const shield = status?.shield;
+
+        if (!status || !shield || slotIndex >= GRID.columns * GRID.rows) {
+            this.shieldGeneratorTile?.destroy();
+            this.shieldGeneratorTile = undefined;
+            return;
+        }
+
+        if (!this.shieldGeneratorTile) {
+            this.shieldGeneratorTile = new BridgeShieldGeneratorTileView(
+                this.scene,
+                this.slotWidth,
+                this.slotHeight,
+            );
+            this.root.add(this.shieldGeneratorTile.getRoot());
+        }
+
+        const column = slotIndex % GRID.columns;
+        const row = Math.floor(slotIndex / GRID.columns);
+        const x = column * (this.slotWidth + GRID.columnGap);
+        const y = row * (this.slotHeight + GRID.rowGap);
+
+        this.shieldGeneratorTile.setPosition(x, y);
+        this.updateShieldGeneratorTile(this.shieldGeneratorTile, status);
     }
 
     private getOrCreateStickyMineDispenserTile(weaponId: string): BridgeStickyMineDispenserTileView {
@@ -376,6 +423,39 @@ export default class BridgePlayerShipEquipmentGridView {
                 defenseTurret.cooldownProgress,
             );
         } else if (status.powerCore.current < defenseTurret.powerCost) {
+            tile.setResourceBlocked();
+        } else {
+            tile.resetProgress();
+        }
+    }
+
+    private updateShieldGeneratorTile(
+        tile: BridgeShieldGeneratorTileView,
+        status: NonNullable<BridgePlayerShipDashboardUpdatedPayload["status"]>,
+    ): void {
+        const shield = status.shield;
+
+        if (!shield) {
+            throw new Error("Captain dashboard Shield Generator tile requires shield payload");
+        }
+
+        tile.setTitle(shield.shortName);
+        tile.setPowerCost(shield.powerCost);
+        tile.setIntegrity(shield.integrity.current, shield.integrity.max);
+
+        if (shield.status === SHIELD_GENERATOR_STATUS.BROKEN) {
+            tile.setBroken();
+        } else if (shield.deployment) {
+            tile.setProgress(
+                SHIELD_GENERATOR_PROGRESS_MODE.DEPLOYMENT,
+                shield.deployment.progress,
+            );
+        } else if (shield.cooldownProgress !== undefined) {
+            tile.setProgress(
+                SHIELD_GENERATOR_PROGRESS_MODE.COOLDOWN,
+                shield.cooldownProgress,
+            );
+        } else if (status.powerCore.current < shield.powerCost) {
             tile.setResourceBlocked();
         } else {
             tile.resetProgress();

@@ -6,6 +6,7 @@ export const EQUIPMENT_SPRITE_ID = {
     STICKY_MINE_DISPENSER: "sticky_mine_dispenser",
     SPAM_PROJECTOR: "spam_projector",
     DEFENSE_TURRET: "defense_turret",
+    SHIELD_GENERATOR: "shield_generator",
 } as const;
 
 export type EquipmentSpriteId = (typeof EQUIPMENT_SPRITE_ID)[keyof typeof EQUIPMENT_SPRITE_ID];
@@ -34,5 +35,10 @@ export const EQUIPMENT_SPRITES = {
     [EQUIPMENT_SPRITE_ID.DEFENSE_TURRET]: {
         atlasKey: DEFAULT_ATLAS_KEY,
         frameKey: "equipment/icon_defense_turret",
+    },
+
+    [EQUIPMENT_SPRITE_ID.SHIELD_GENERATOR]: {
+        atlasKey: DEFAULT_ATLAS_KEY,
+        frameKey: "equipment/icon_shield_generator",
     },
 } satisfies Record<EquipmentSpriteId, SpriteEntry>;

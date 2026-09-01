@@ -49,11 +49,21 @@ describe('BridgeEncounterSnapshotSynchronizer', () => {
                         },
 
                         shield: {
+                            shortName:
+                                'SHIELD GEN.',
+
+                            powerCost: 1,
+
                             status:
                                 'online',
 
                             phase:
                                 'ready',
+
+                            integrity: {
+                                current: 2,
+                                max: 2,
+                            },
 
                             active: {
                                 targetNode:
@@ -527,19 +537,29 @@ function createEncounterEngine(): EncounterEngine {
                         },
 
                         shieldGenerator: {
-                            id:
-                                'shield_generator_player_00',
+                            state: {
+                                id:
+                                    'shield_generator_player_00',
 
-                            shieldGeneratorId:
-                                'shield_generator_basic_00',
+                                shieldGeneratorId:
+                                    'shield_generator_basic_00',
 
-                            status:
-                                'online',
+                                status:
+                                    'online',
 
-                            phase:
-                                'ready',
+                                phase:
+                                    'ready',
 
-                            phaseElapsedMs: 0,
+                                phaseElapsedMs: 0,
+                            },
+
+                            cooldownDurationMs:
+                                8000,
+
+                            integrity: {
+                                current: 2,
+                                max: 2,
+                            },
                         },
 
                         activeShield: {
