@@ -17,9 +17,9 @@ export const CAPTAIN_DASHBOARD_STYLE = {
 
     equipmentSlot: {
         backgroundColor: 0x0b1621,
-        weaponBackgroundColor: 0x211813,
-        defenseBackgroundColor: 0x111b29,
-        utilityBackgroundColor: 0x102019,
+        weaponBackgroundColor: 0x0b1621,
+        defenseBackgroundColor: 0x0b1621,
+        utilityBackgroundColor: 0x0b1621,
         backgroundAlpha: 0.86,
 
         borderColor: 0x31465b,
