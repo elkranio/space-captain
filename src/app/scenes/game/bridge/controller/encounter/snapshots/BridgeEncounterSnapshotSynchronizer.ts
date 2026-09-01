@@ -1,4 +1,5 @@
 import { OFFICER_ROLE } from "../../../../../../../engine/defs/officer";
+import type { ShipEquipmentMountState } from "../../../../../../../engine/defs/ship_slot";
 import type { EncounterPresentationSnapshot } from "../../../../../../../engine/encounter/snapshots/encounter_presentation_snapshot";
 import { BRIDGE_EVENT } from "../../../events/bridge_event";
 import type BridgeEventBus from "../../../events/BridgeEventBus";
@@ -16,7 +17,13 @@ import { mapPlayerShipToBridgeDashboardPayload } from "../../captain_dashboard/B
 // presentation. Synchronizer сам не читает engine и не может случайно
 // собрать разные части одного кадра из разных snapshots.
 export default class BridgeEncounterSnapshotSynchronizer {
-    constructor(private readonly eventBus: BridgeEventBus) {}
+    constructor(
+        private readonly eventBus: BridgeEventBus,
+        private readonly playerEquipmentLayout?: {
+            chassisId: string;
+            mounts: ShipEquipmentMountState[];
+        },
+    ) {}
 
     public syncInitial(snapshot: EncounterPresentationSnapshot): void {
         this.syncPlayerShipDashboard(snapshot);
@@ -54,6 +61,12 @@ export default class BridgeEncounterSnapshotSynchronizer {
 
             mapPlayerShipToBridgeDashboardPayload({
                 weapons: snapshot.player.weapons,
+
+                ...(this.playerEquipmentLayout
+                    ? {
+                          equipmentLayout: this.playerEquipmentLayout,
+                      }
+                    : {}),
 
                 availableWeaponsCommands: snapshot.commandsByRole[OFFICER_ROLE.WEAPONS],
 

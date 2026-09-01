@@ -335,12 +335,20 @@ export const BRIDGE_PLAYER_SYSTEM_ACTION_STATE = {
 export type BridgePlayerSystemActionState =
     (typeof BRIDGE_PLAYER_SYSTEM_ACTION_STATE)[keyof typeof BRIDGE_PLAYER_SYSTEM_ACTION_STATE];
 
+export type BridgeEquipmentSlotPayload = {
+    // Canonical 1-based chassis coordinates.
+    column: number;
+    row: number;
+};
+
 export type BridgePlayerWeaponDashboardPayload = {
     id: string;
     weaponId: string;
     shortName: string;
 
     kind: ShipWeaponKind;
+
+    slot?: BridgeEquipmentSlotPayload;
 
     ammo?: {
         current: number;
@@ -414,6 +422,8 @@ export type BridgePlayerShipDashboardUpdatedPayload = {
 
             status: ShipDriveStatus;
 
+            slot?: BridgeEquipmentSlotPayload;
+
             integrity: number;
             maxIntegrity: number;
         };
@@ -423,6 +433,8 @@ export type BridgePlayerShipDashboardUpdatedPayload = {
             powerCost: number;
 
             phase: DefenseTurretPhase;
+
+            slot?: BridgeEquipmentSlotPayload;
 
             integrity: {
                 current: number;
@@ -443,6 +455,8 @@ export type BridgePlayerShipDashboardUpdatedPayload = {
 
             status: ShieldGeneratorStatus;
             phase: ShieldGeneratorPhase;
+
+            slot?: BridgeEquipmentSlotPayload;
 
             integrity: {
                 current: number;

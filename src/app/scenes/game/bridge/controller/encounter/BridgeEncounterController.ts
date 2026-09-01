@@ -79,7 +79,15 @@ export default class BridgeEncounterController {
 
         this.encounterEngine = this.createEncounterEngine();
 
-        this.snapshotSynchronizer = new BridgeEncounterSnapshotSynchronizer(this.eventBus);
+        const playerShip = GAME_RUNTIME.getCurrentRun().player.ship;
+
+        this.snapshotSynchronizer = new BridgeEncounterSnapshotSynchronizer(
+            this.eventBus,
+            {
+                chassisId: playerShip.chassisId,
+                mounts: playerShip.mounts,
+            },
+        );
 
         this.officerCommandMenuController = new BridgeOfficerCommandMenuController(this.eventBus);
 

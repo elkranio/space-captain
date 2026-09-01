@@ -1,5 +1,6 @@
 import { DEFENSE_TURRETS } from "../../../../../../engine/content/catalogs/defense_turrets";
 import { SHIELD_GENERATORS } from "../../../../../../engine/content/catalogs/shield_generators";
+import { SHIP_CHASSIS } from "../../../../../../engine/content/catalogs/ship_chassis";
 import { SHIP_DRIVES } from "../../../../../../engine/content/catalogs/ship_drives";
 import { SHIP_WEAPONS } from "../../../../../../engine/content/catalogs/ship_weapons";
 import { DEFENSE_TURRET_POWER_COST } from "../../../../../../engine/defs/defense_turret";
@@ -15,6 +16,7 @@ import {
     SHIELD_GENERATOR_PHASE,
     SHIELD_GENERATOR_POWER_COST,
 } from "../../../../../../engine/defs/shield_generator";
+import type { ShipEquipmentMountState } from "../../../../../../engine/defs/ship_slot";
 import type { EncounterShipDriveState } from "../../../../../../engine/encounter/model/state";
 import type { ActiveShieldState } from "../../../../../../engine/encounter/model/combat";
 import type { OfficerTaskState } from "../../../../../../engine/encounter/model/officer_task";
@@ -36,12 +38,18 @@ import {
 } from "../../../../../../engine/encounter/model/command";
 import {
     BRIDGE_PLAYER_SYSTEM_ACTION_STATE,
+    type BridgeEquipmentSlotPayload,
     type BridgePlayerShipDashboardUpdatedPayload,
     type BridgePlayerWeaponDashboardPayload,
 } from "../../events/bridge_event";
 
 type PlayerShipDashboardMapperInput = {
     weapons: PlayerWeaponPresentationSnapshot[];
+
+    equipmentLayout?: {
+        chassisId: string;
+        mounts: ShipEquipmentMountState[];
+    };
 
     availableWeaponsCommands: AvailableOfficerCommand[];
 
@@ -138,13 +146,23 @@ function mapStatus(
 
             status: input.drive.status,
 
+            ...mapEquipmentSlot(input.drive.id, dashboardInput),
+
             integrity: input.drive.integrity,
             maxIntegrity: driveDefinition.maxIntegrity,
         },
 
-        ...mapDefenseTurretStatus(input, dashboardInput.officerTasks ?? []),
+        ...mapDefenseTurretStatus(
+            input,
+            dashboardInput,
+            dashboardInput.officerTasks ?? [],
+        ),
 
-        ...mapShieldStatus(input, dashboardInput.officerTasks ?? []),
+        ...mapShieldStatus(
+            input,
+            dashboardInput,
+            dashboardInput.officerTasks ?? [],
+        ),
 
         evadeAction: mapEvadeAction(dashboardInput),
     };
@@ -152,6 +170,7 @@ function mapStatus(
 
 function mapDefenseTurretStatus(
     input: NonNullable<PlayerShipDashboardMapperInput["playerStatus"]>,
+    dashboardInput: PlayerShipDashboardMapperInput,
     officerTasks: OfficerTaskState[],
 ): Pick<NonNullable<BridgePlayerShipDashboardUpdatedPayload["status"]>, "defenseTurret"> {
     const interceptTasks = officerTasks.filter(isDefenseTurretInterceptTask);
@@ -192,6 +211,8 @@ function mapDefenseTurretStatus(
             powerCost: DEFENSE_TURRET_POWER_COST,
 
             phase: defenseTurret.state.phase,
+
+            ...mapEquipmentSlot(defenseTurret.state.id, dashboardInput),
 
             integrity: {
                 ...defenseTurret.integrity,
@@ -255,6 +276,7 @@ function getTimedOfficerTaskProgress(task: OfficerTaskState): number {
 
 function mapShieldStatus(
     input: NonNullable<PlayerShipDashboardMapperInput["playerStatus"]>,
+    dashboardInput: PlayerShipDashboardMapperInput,
     officerTasks: OfficerTaskState[],
 ): Pick<NonNullable<BridgePlayerShipDashboardUpdatedPayload["status"]>, "shield"> {
     const deploymentTasks = officerTasks.filter(isShieldDeploymentTask);
@@ -302,6 +324,8 @@ function mapShieldStatus(
 
             status: shieldGenerator.state.status,
             phase: shieldGenerator.state.phase,
+
+            ...mapEquipmentSlot(shieldGenerator.state.id, dashboardInput),
 
             integrity: {
                 ...shieldGenerator.integrity,
@@ -434,6 +458,51 @@ function getRequiredHelmAvailability(input: PlayerShipDashboardMapperInput): Off
     return availability;
 }
 
+function mapEquipmentSlot(
+    equipmentId: string,
+    input: PlayerShipDashboardMapperInput,
+): { slot?: BridgeEquipmentSlotPayload } {
+    const layout = input.equipmentLayout;
+
+    if (!layout) {
+        return {};
+    }
+
+    const chassis = SHIP_CHASSIS[layout.chassisId];
+
+    if (!chassis) {
+        throw new Error("Captain dashboard chassis not found: " + layout.chassisId);
+    }
+
+    const mount = layout.mounts.find((candidate) => {
+        return candidate.equipmentId === equipmentId;
+    });
+
+    if (!mount) {
+        throw new Error("Captain dashboard equipment mount not found: " + equipmentId);
+    }
+
+    const slot = chassis.slots.find((candidate) => {
+        return candidate.id === mount.slotId;
+    });
+
+    if (!slot) {
+        throw new Error(
+            "Captain dashboard chassis slot not found: " +
+                layout.chassisId +
+                "/" +
+                mount.slotId,
+        );
+    }
+
+    return {
+        slot: {
+            column: slot.column,
+            row: slot.row,
+        },
+    };
+}
+
 function mapWeapon(
     snapshot: PlayerWeaponPresentationSnapshot,
     input: PlayerShipDashboardMapperInput,
@@ -469,6 +538,8 @@ function mapWeapon(
                 shortName: definition.shortName,
 
                 kind: weapon.kind,
+
+                ...mapEquipmentSlot(weapon.id, input),
 
                 ammo: {
                     ...ammo,
@@ -523,6 +594,8 @@ function mapWeapon(
 
                 kind: weapon.kind,
 
+                ...mapEquipmentSlot(weapon.id, input),
+
                 powerCost: definition.powerCost,
 
                 ...(integrity
@@ -558,6 +631,8 @@ function mapWeapon(
                 shortName: definition.shortName,
 
                 kind: weapon.kind,
+
+                ...mapEquipmentSlot(weapon.id, input),
 
                 ...(integrity
                     ? {

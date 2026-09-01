@@ -71,6 +71,26 @@ describe(
                             ),
                         ],
 
+                        equipmentLayout: {
+                            chassisId:
+                                'player_00',
+
+                            mounts: [
+                                {
+                                    slotId:
+                                        'weapon_03',
+                                    equipmentId:
+                                        firstId,
+                                },
+                                {
+                                    slotId:
+                                        'weapon_01',
+                                    equipmentId:
+                                        secondId,
+                                },
+                            ],
+                        },
+
                         availableWeaponsCommands: [
                             firstCommand,
                             secondCommand,
@@ -92,6 +112,10 @@ describe(
                             kind:
                                 SHIP_WEAPON_KIND
                                     .MISSILE_LAUNCHER,
+                            slot: {
+                                column: 4,
+                                row: 3,
+                            },
                             ammo: {
                                 current: 5,
                                 max: 5,
@@ -123,6 +147,10 @@ describe(
                             kind:
                                 SHIP_WEAPON_KIND
                                     .MISSILE_LAUNCHER,
+                            slot: {
+                                column: 4,
+                                row: 1,
+                            },
                             ammo: {
                                 current: 4,
                                 max: 5,

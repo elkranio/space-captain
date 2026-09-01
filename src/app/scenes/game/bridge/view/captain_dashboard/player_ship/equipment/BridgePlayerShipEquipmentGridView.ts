@@ -7,6 +7,7 @@ import type BridgeEventBus from "../../../../events/BridgeEventBus";
 import {
     BRIDGE_EVENT,
     BRIDGE_PLAYER_SYSTEM_ACTION_STATE,
+    type BridgeEquipmentSlotPayload,
     type BridgePlayerShipDashboardUpdatedPayload,
     type BridgePlayerWeaponDashboardPayload,
 } from "../../../../events/bridge_event";
@@ -49,9 +50,8 @@ const GRID = {
 
 // Базовая 4x3 сетка equipment slots.
 //
-// Пока production-проход поддерживает все четыре текущих вида player weapons.
-// До появления authoritative slot coordinates оружие занимает grid cell
-// по порядку полного weapons snapshot.
+// Tile coordinates come only from the player chassis + runtime equipment mounts.
+// The grid never derives placement from weapon order or equipment type.
 export default class BridgePlayerShipEquipmentGridView {
     private readonly root: Phaser.GameObjects.Container;
 
@@ -170,17 +170,14 @@ export default class BridgePlayerShipEquipmentGridView {
 
         this.weaponsById.clear();
 
-        for (const [index, weapon] of weapons.entries()) {
+        for (const weapon of weapons) {
             this.weaponsById.set(weapon.id, weapon);
 
-            if (index >= GRID.columns * GRID.rows) {
+            const position = this.getEquipmentPosition(weapon.slot);
+
+            if (!position) {
                 continue;
             }
-
-            const column = index % GRID.columns;
-            const row = Math.floor(index / GRID.columns);
-            const x = column * (this.slotWidth + GRID.columnGap);
-            const y = row * (this.slotHeight + GRID.rowGap);
 
             switch (weapon.kind) {
                 case SHIP_WEAPON_KIND.MISSILE_LAUNCHER: {
@@ -188,7 +185,7 @@ export default class BridgePlayerShipEquipmentGridView {
 
                     const tile = this.getOrCreateMissileLauncherTile(weapon.id);
 
-                    tile.setPosition(x, y);
+                    tile.setPosition(position.x, position.y);
                     this.updateMissileLauncherTile(tile, weapon);
                     break;
                 }
@@ -198,7 +195,7 @@ export default class BridgePlayerShipEquipmentGridView {
 
                     const tile = this.getOrCreateBeamCannonTile(weapon.id);
 
-                    tile.setPosition(x, y);
+                    tile.setPosition(position.x, position.y);
                     this.updateBeamCannonTile(
                         tile,
                         weapon,
@@ -212,7 +209,7 @@ export default class BridgePlayerShipEquipmentGridView {
 
                     const tile = this.getOrCreateStickyMineDispenserTile(weapon.id);
 
-                    tile.setPosition(x, y);
+                    tile.setPosition(position.x, position.y);
                     this.updateStickyMineDispenserTile(tile, weapon);
                     break;
                 }
@@ -222,28 +219,16 @@ export default class BridgePlayerShipEquipmentGridView {
 
                     const tile = this.getOrCreateSpamProjectorTile(weapon.id);
 
-                    tile.setPosition(x, y);
+                    tile.setPosition(position.x, position.y);
                     this.updateSpamProjectorTile(tile, weapon);
                     break;
                 }
             }
         }
 
-        const defenseTurretSlotIndex = weapons.length;
-        const shieldGeneratorSlotIndex =
-            defenseTurretSlotIndex + (payload.status?.defenseTurret ? 1 : 0);
-
-        this.reconcileDefenseTurretTile(payload, defenseTurretSlotIndex);
-
-        this.reconcileShieldGeneratorTile(
-            payload,
-            shieldGeneratorSlotIndex,
-        );
-
-        this.reconcileDriveTile(
-            payload,
-            shieldGeneratorSlotIndex + (payload.status?.shield ? 1 : 0),
-        );
+        this.reconcileDefenseTurretTile(payload);
+        this.reconcileShieldGeneratorTile(payload);
+        this.reconcileDriveTile(payload);
 
         for (const [weaponId, tile] of this.missileLauncherTiles) {
             if (visibleMissileIds.has(weaponId)) {
@@ -282,14 +267,44 @@ export default class BridgePlayerShipEquipmentGridView {
         }
     }
 
+    private getEquipmentPosition(
+        slot: BridgeEquipmentSlotPayload | undefined,
+    ): { x: number; y: number } | undefined {
+        if (!slot) {
+            return undefined;
+        }
+
+        const column = slot.column - 1;
+        const row = slot.row - 1;
+
+        if (
+            column < 0 ||
+            column >= GRID.columns ||
+            row < 0 ||
+            row >= GRID.rows
+        ) {
+            throw new Error(
+                "Player equipment slot is outside the 4x3 dashboard grid: " +
+                    slot.column +
+                    "/" +
+                    slot.row,
+            );
+        }
+
+        return {
+            x: column * (this.slotWidth + GRID.columnGap),
+            y: row * (this.slotHeight + GRID.rowGap),
+        };
+    }
+
     private reconcileDefenseTurretTile(
         payload: BridgePlayerShipDashboardUpdatedPayload,
-        slotIndex: number,
     ): void {
         const status = payload.status;
         const defenseTurret = status?.defenseTurret;
+        const position = this.getEquipmentPosition(defenseTurret?.slot);
 
-        if (!status || !defenseTurret || slotIndex >= GRID.columns * GRID.rows) {
+        if (!status || !defenseTurret || !position) {
             this.defenseTurretTile?.destroy();
             this.defenseTurretTile = undefined;
             return;
@@ -304,23 +319,18 @@ export default class BridgePlayerShipEquipmentGridView {
             this.root.add(this.defenseTurretTile.getRoot());
         }
 
-        const column = slotIndex % GRID.columns;
-        const row = Math.floor(slotIndex / GRID.columns);
-        const x = column * (this.slotWidth + GRID.columnGap);
-        const y = row * (this.slotHeight + GRID.rowGap);
-
-        this.defenseTurretTile.setPosition(x, y);
+        this.defenseTurretTile.setPosition(position.x, position.y);
         this.updateDefenseTurretTile(this.defenseTurretTile, status);
     }
 
     private reconcileShieldGeneratorTile(
         payload: BridgePlayerShipDashboardUpdatedPayload,
-        slotIndex: number,
     ): void {
         const status = payload.status;
         const shield = status?.shield;
+        const position = this.getEquipmentPosition(shield?.slot);
 
-        if (!status || !shield || slotIndex >= GRID.columns * GRID.rows) {
+        if (!status || !shield || !position) {
             this.shieldGeneratorTile?.destroy();
             this.shieldGeneratorTile = undefined;
             return;
@@ -335,22 +345,17 @@ export default class BridgePlayerShipEquipmentGridView {
             this.root.add(this.shieldGeneratorTile.getRoot());
         }
 
-        const column = slotIndex % GRID.columns;
-        const row = Math.floor(slotIndex / GRID.columns);
-        const x = column * (this.slotWidth + GRID.columnGap);
-        const y = row * (this.slotHeight + GRID.rowGap);
-
-        this.shieldGeneratorTile.setPosition(x, y);
+        this.shieldGeneratorTile.setPosition(position.x, position.y);
         this.updateShieldGeneratorTile(this.shieldGeneratorTile, status);
     }
 
     private reconcileDriveTile(
         payload: BridgePlayerShipDashboardUpdatedPayload,
-        slotIndex: number,
     ): void {
         const status = payload.status;
+        const position = this.getEquipmentPosition(status?.drive.slot);
 
-        if (!status || slotIndex >= GRID.columns * GRID.rows) {
+        if (!status || !position) {
             this.driveTile?.destroy();
             this.driveTile = undefined;
             return;
@@ -365,12 +370,7 @@ export default class BridgePlayerShipEquipmentGridView {
             this.root.add(this.driveTile.getRoot());
         }
 
-        const column = slotIndex % GRID.columns;
-        const row = Math.floor(slotIndex / GRID.columns);
-        const x = column * (this.slotWidth + GRID.columnGap);
-        const y = row * (this.slotHeight + GRID.rowGap);
-
-        this.driveTile.setPosition(x, y);
+        this.driveTile.setPosition(position.x, position.y);
         this.updateDriveTile(this.driveTile, status);
     }
 
