@@ -61,8 +61,6 @@ export default class BridgePlayerShipEquipmentGridView {
 
     private readonly weaponsById = new Map<string, BridgePlayerWeaponDashboardPayload>();
 
-    private readonly slotBackgrounds: Phaser.GameObjects.Rectangle[] = [];
-
     private readonly slotWidth: number;
 
     private readonly slotHeight: number;
@@ -102,7 +100,6 @@ export default class BridgePlayerShipEquipmentGridView {
                         CAPTAIN_DASHBOARD_STYLE.equipmentSlot.borderColor,
                     );
 
-                this.slotBackgrounds.push(slot);
                 this.root.add(slot);
             }
         }
@@ -157,13 +154,6 @@ export default class BridgePlayerShipEquipmentGridView {
 
         this.weaponsById.clear();
 
-        for (const slot of this.slotBackgrounds) {
-            slot.setFillStyle(
-                CAPTAIN_DASHBOARD_STYLE.equipmentSlot.backgroundColor,
-                CAPTAIN_DASHBOARD_STYLE.equipmentSlot.backgroundAlpha,
-            );
-        }
-
         for (const [index, weapon] of weapons.entries()) {
             this.weaponsById.set(weapon.id, weapon);
 
@@ -175,11 +165,6 @@ export default class BridgePlayerShipEquipmentGridView {
             const row = Math.floor(index / GRID.columns);
             const x = column * (this.slotWidth + GRID.columnGap);
             const y = row * (this.slotHeight + GRID.rowGap);
-
-            this.slotBackgrounds[index]?.setFillStyle(
-                this.getSlotBackgroundColor(weapon.kind),
-                CAPTAIN_DASHBOARD_STYLE.equipmentSlot.backgroundAlpha,
-            );
 
             switch (weapon.kind) {
                 case SHIP_WEAPON_KIND.MISSILE_LAUNCHER: {
@@ -294,31 +279,8 @@ export default class BridgePlayerShipEquipmentGridView {
         const x = column * (this.slotWidth + GRID.columnGap);
         const y = row * (this.slotHeight + GRID.rowGap);
 
-        this.slotBackgrounds[slotIndex]?.setFillStyle(
-            CAPTAIN_DASHBOARD_STYLE.equipmentSlot.defenseBackgroundColor,
-            CAPTAIN_DASHBOARD_STYLE.equipmentSlot.backgroundAlpha,
-        );
-
         this.defenseTurretTile.setPosition(x, y);
         this.updateDefenseTurretTile(this.defenseTurretTile, status);
-    }
-
-    private getSlotBackgroundColor(kind: BridgePlayerWeaponDashboardPayload["kind"]): number {
-        switch (kind) {
-            case SHIP_WEAPON_KIND.MISSILE_LAUNCHER:
-            case SHIP_WEAPON_KIND.BEAM_CANNON:
-            case SHIP_WEAPON_KIND.STICKY_MINE_DISPENSER:
-                return CAPTAIN_DASHBOARD_STYLE.equipmentSlot.weaponBackgroundColor;
-
-            case SHIP_WEAPON_KIND.SPAM_PROJECTOR:
-                return CAPTAIN_DASHBOARD_STYLE.equipmentSlot.utilityBackgroundColor;
-
-            default: {
-                const exhaustiveKind: never = kind;
-
-                return exhaustiveKind;
-            }
-        }
     }
 
     private getOrCreateStickyMineDispenserTile(weaponId: string): BridgeStickyMineDispenserTileView {
