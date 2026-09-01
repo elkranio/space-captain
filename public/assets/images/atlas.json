@@ -1,7 +1,7 @@
 {
   "textures": [
     {
-      "image": "atlas-0.png?v=1788204273582",
+      "image": "atlas-0.png?v=1788260055843",
       "format": "RGBA8888",
       "size": {
         "w": 2037,
@@ -1081,6 +1081,27 @@
           }
         },
         {
+          "filename": "equipment/icon_mine_dispenser",
+          "rotated": false,
+          "trimmed": false,
+          "sourceSize": {
+            "w": 100,
+            "h": 36
+          },
+          "spriteSourceSize": {
+            "x": 0,
+            "y": 0,
+            "w": 100,
+            "h": 36
+          },
+          "frame": {
+            "x": 1858,
+            "y": 1304,
+            "w": 100,
+            "h": 36
+          }
+        },
+        {
           "filename": "equipment/icon_missile_launcher",
           "rotated": false,
           "trimmed": false,
@@ -1095,8 +1116,8 @@
             "h": 33
           },
           "frame": {
-            "x": 1858,
-            "y": 1304,
+            "x": 607,
+            "y": 1827,
             "w": 100,
             "h": 33
           }
@@ -1180,7 +1201,7 @@
           },
           "frame": {
             "x": 1933,
-            "y": 1339,
+            "y": 1342,
             "w": 101,
             "h": 105
           }
@@ -1201,7 +1222,7 @@
           },
           "frame": {
             "x": 1933,
-            "y": 1446,
+            "y": 1449,
             "w": 100,
             "h": 105
           }
@@ -1222,7 +1243,7 @@
           },
           "frame": {
             "x": 1933,
-            "y": 1553,
+            "y": 1556,
             "w": 96,
             "h": 105
           }
@@ -1648,6 +1669,27 @@
           }
         },
         {
+          "filename": "icons/micro/ammo_mine_standard",
+          "rotated": false,
+          "trimmed": false,
+          "sourceSize": {
+            "w": 11,
+            "h": 11
+          },
+          "spriteSourceSize": {
+            "x": 0,
+            "y": 0,
+            "w": 11,
+            "h": 11
+          },
+          "frame": {
+            "x": 643,
+            "y": 1431,
+            "w": 11,
+            "h": 11
+          }
+        },
+        {
           "filename": "icons/micro/ammo_missile_standard",
           "rotated": false,
           "trimmed": false,
@@ -1662,8 +1704,8 @@
             "h": 11
           },
           "frame": {
-            "x": 643,
-            "y": 1431,
+            "x": 1653,
+            "y": 1543,
             "w": 8,
             "h": 11
           }
@@ -1683,8 +1725,8 @@
             "h": 11
           },
           "frame": {
-            "x": 1653,
-            "y": 1543,
+            "x": 1900,
+            "y": 950,
             "w": 8,
             "h": 11
           }
@@ -1695,6 +1737,6 @@
   "meta": {
     "app": "https://www.codeandweb.com/texturepacker",
     "version": "3.0",
-    "smartupdate": "$TexturePacker:SmartUpdate:2f27d9b0280bab57c140a6af7d93f680:a42e664757f208bc8555f6d223518c23:cf935fe037ea9b5d3744d532996e235e$"
+    "smartupdate": "$TexturePacker:SmartUpdate:08383080961e42bb8fbf216dde5bea7f:45c6296e37e86caa8c860d910e9b8b23:cf935fe037ea9b5d3744d532996e235e$"
   }
 }
