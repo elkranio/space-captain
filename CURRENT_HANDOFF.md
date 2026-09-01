@@ -1,5 +1,10 @@
 # Space Captain — Current Handoff
 
+> **SUPERSEDED FOR CURRENT IMPLEMENTATION STATE — 2026-09-01**
+>
+> Read `SPACE_CAPTAIN_HANDOFF_2026-09-01_DASHBOARD.md` first.
+> The remainder of this file is an older checkpoint and must not be used as the current atom plan.
+
 ## CURRENT CHECKPOINT — 2026-08-26
 
 Base for this checkpoint: `master` at `58a63584e89afef4467f37b13a3854d8906135c5`.
