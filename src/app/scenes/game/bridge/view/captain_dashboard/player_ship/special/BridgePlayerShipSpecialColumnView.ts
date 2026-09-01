@@ -64,6 +64,7 @@ export default class BridgePlayerShipSpecialColumnView {
             FONT_SIZE.PX_20,
             FONT_COLOR.PRIMARY,
             COLUMN.hullSeparatorY,
+            true,
         );
 
         const bridgePanel = this.createPanel(
@@ -105,6 +106,7 @@ export default class BridgePlayerShipSpecialColumnView {
         fontSize: number,
         titleColor: number,
         separatorY: number,
+        centerTitle = false,
     ): Phaser.GameObjects.Container {
         const panel = this.scene.add.container(0, 0);
 
@@ -124,8 +126,14 @@ export default class BridgePlayerShipSpecialColumnView {
             );
 
         const label = this.scene.add
-            .bitmapText(COLUMN.titleX, COLUMN.titleY, fontFamily, title, fontSize)
-            .setOrigin(0, 0)
+            .bitmapText(
+                centerTitle ? Math.round(this.width / 2) : COLUMN.titleX,
+                COLUMN.titleY,
+                fontFamily,
+                title,
+                fontSize,
+            )
+            .setOrigin(centerTitle ? 0.5 : 0, 0)
             .setTint(titleColor);
 
         const separator = this.scene.add
@@ -229,12 +237,18 @@ export default class BridgePlayerShipSpecialColumnView {
         for (let index = 0; index < max; index += 1) {
             const column = Math.floor(index / rowsPerColumn);
             const row = index % rowsPerColumn;
+            const columnStartIndex = column * rowsPerColumn;
+            const rowsInColumn = Math.min(rowsPerColumn, max - columnStartIndex);
+            const columnHeight =
+                rowsInColumn * segmentHeight +
+                Math.max(0, rowsInColumn - 1) * COLUMN.hullSegmentRowGap;
 
             const x =
                 COLUMN.contentX +
                 column * (segmentWidth + COLUMN.hullSegmentColumnGap);
             const y =
                 COLUMN.hullContentTopY +
+                Math.floor((availableHeight - columnHeight) / 2) +
                 row * (segmentHeight + COLUMN.hullSegmentRowGap);
 
             const track = this.scene.add
