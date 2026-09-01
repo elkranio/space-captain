@@ -1,3 +1,4 @@
+// src/app/scenes/game/bridge/view/captain_dashboard/player_ship/special/BridgePlayerShipSpecialColumnView.ts
 import { FONT_COLOR, FONT_FAMILY, FONT_SIZE } from "../../../../../../../theme/font";
 import type BridgeScene from "../../../../BridgeScene";
 import { BRIDGE_EVENT, type BridgePlayerShipDashboardUpdatedPayload } from "../../../../events/bridge_event";
@@ -14,7 +15,7 @@ const COLUMN = {
     bridgeContentTopY: 26,
 
     hullSeparatorY: 25,
-    hullContentPaddingY: 3,
+    hullContentTopY: 29,
 
     contentX: 6,
 
@@ -22,8 +23,8 @@ const COLUMN = {
     bridgeCellGap: 4,
 
     hullRowsPerColumn: 10,
-    hullPipSize: 7,
-    hullPipGap: 3,
+    hullSegmentRowGap: 2,
+    hullSegmentColumnGap: 4,
     maxHullColumns: 3,
 } as const;
 
@@ -131,14 +132,7 @@ export default class BridgePlayerShipSpecialColumnView {
             .setTint(titleColor);
 
         const separator = this.scene.add
-            .rectangle(
-                4,
-                separatorY,
-                this.width - 8,
-                1,
-                CAPTAIN_DASHBOARD_STYLE.specialColumn.panelBorderColor,
-                1,
-            )
+            .rectangle(4, separatorY, this.width - 8, 1, CAPTAIN_DASHBOARD_STYLE.specialColumn.panelBorderColor, 1)
             .setOrigin(0, 0);
 
         panel.add([background, label, separator]);
@@ -150,9 +144,7 @@ export default class BridgePlayerShipSpecialColumnView {
         const cellWidth = this.width - COLUMN.contentX * 2;
 
         for (let index = 0; index < 4; index += 1) {
-            const y =
-                COLUMN.bridgeContentTopY +
-                index * (COLUMN.bridgeCellHeight + COLUMN.bridgeCellGap);
+            const y = COLUMN.bridgeContentTopY + index * (COLUMN.bridgeCellHeight + COLUMN.bridgeCellGap);
 
             const cell = this.scene.add
                 .rectangle(
@@ -200,58 +192,36 @@ export default class BridgePlayerShipSpecialColumnView {
         const columnCount = Math.ceil(max / rowsPerColumn);
 
         if (columnCount > COLUMN.maxHullColumns) {
-            throw new Error(
-                "Player HULL requires more than " +
-                    COLUMN.maxHullColumns +
-                    " HP columns: " +
-                    max,
-            );
+            throw new Error("Player HULL requires more than " + COLUMN.maxHullColumns + " HP columns: " + max);
         }
 
-        const contentTop =
-            COLUMN.hullSeparatorY + 1 + COLUMN.hullContentPaddingY;
-        const contentBottom = this.hullPanelHeight - COLUMN.hullContentPaddingY;
-        const availableHeight = contentBottom - contentTop;
-        const fullColumnHeight =
-            rowsPerColumn * COLUMN.hullPipSize +
-            (rowsPerColumn - 1) * COLUMN.hullPipGap;
+        const availableHeight = this.hullPanelHeight - COLUMN.hullContentTopY;
+        const segmentHeight = Math.floor(
+            (availableHeight - COLUMN.hullSegmentRowGap * (rowsPerColumn - 1)) / rowsPerColumn,
+        );
 
-        if (fullColumnHeight > availableHeight) {
-            throw new Error("Player HULL panel is too short for HP pips");
+        if (segmentHeight <= 0) {
+            throw new Error("Player HULL HP segments are too short to render");
         }
 
-        const gridWidth =
-            columnCount * COLUMN.hullPipSize +
-            (columnCount - 1) * COLUMN.hullPipGap;
-        const gridStartX = Math.floor((this.width - gridWidth) / 2);
+        const availableWidth = this.width - COLUMN.contentX * 2;
+        const segmentWidth = Math.floor(
+            (availableWidth - COLUMN.hullSegmentColumnGap * (columnCount - 1)) / columnCount,
+        );
 
-        const rowsInTallestColumn = Math.min(max, rowsPerColumn);
-        const gridHeight =
-            rowsInTallestColumn * COLUMN.hullPipSize +
-            (rowsInTallestColumn - 1) * COLUMN.hullPipGap;
-        const gridStartY =
-            contentTop + Math.floor((availableHeight - gridHeight) / 2);
+        if (segmentWidth <= 0) {
+            throw new Error("Player HULL HP segments are too narrow to render");
+        }
 
         for (let index = 0; index < max; index += 1) {
             const column = Math.floor(index / rowsPerColumn);
             const row = index % rowsPerColumn;
 
-            const x =
-                gridStartX +
-                column * (COLUMN.hullPipSize + COLUMN.hullPipGap);
-            const y =
-                gridStartY +
-                row * (COLUMN.hullPipSize + COLUMN.hullPipGap);
+            const x = COLUMN.contentX + column * (segmentWidth + COLUMN.hullSegmentColumnGap);
+            const y = COLUMN.hullContentTopY + row * (segmentHeight + COLUMN.hullSegmentRowGap);
 
             const segment = this.scene.add
-                .rectangle(
-                    x,
-                    y,
-                    COLUMN.hullPipSize,
-                    COLUMN.hullPipSize,
-                    CAPTAIN_DASHBOARD_STYLE.equipmentIntegrity.filledColor,
-                    1,
-                )
+                .rectangle(x, y, segmentWidth, segmentHeight, CAPTAIN_DASHBOARD_STYLE.equipmentIntegrity.filledColor, 1)
                 .setOrigin(0, 0)
                 .setStrokeStyle(1, CAPTAIN_DASHBOARD_STYLE.equipmentIntegrity.borderColor);
 
@@ -261,11 +231,7 @@ export default class BridgePlayerShipSpecialColumnView {
     }
 
     private updateHullSegments(current: number): void {
-        const clampedCurrent = Phaser.Math.Clamp(
-            Math.floor(current),
-            0,
-            this.hullSegments.length,
-        );
+        const clampedCurrent = Phaser.Math.Clamp(Math.floor(current), 0, this.hullSegments.length);
 
         for (let index = 0; index < this.hullSegments.length; index += 1) {
             const segment = this.hullSegments[index];
