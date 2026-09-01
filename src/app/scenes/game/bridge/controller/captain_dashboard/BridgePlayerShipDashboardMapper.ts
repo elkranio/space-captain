@@ -353,6 +353,8 @@ function mapWeapon(
 ): BridgePlayerWeaponDashboardPayload {
     const weapon = snapshot.state;
 
+    const definition = SHIP_WEAPONS[weapon.weaponId];
+
     const cooldownProgress = getCooldownProgress(snapshot);
 
     const targetingProgress = getTargetingProgress(snapshot);
@@ -372,6 +374,8 @@ function mapWeapon(
                 id: weapon.id,
 
                 weaponId: weapon.weaponId,
+
+                shortName: definition.shortName,
 
                 kind: weapon.kind,
 
@@ -404,8 +408,6 @@ function mapWeapon(
         }
 
         case SHIP_WEAPON_KIND.BEAM_CANNON: {
-            const definition = SHIP_WEAPONS[weapon.weaponId];
-
             if (definition.kind !== SHIP_WEAPON_KIND.BEAM_CANNON) {
                 throw new Error(
                     "Captain dashboard Beam Cannon definition mismatch: " +
@@ -419,6 +421,8 @@ function mapWeapon(
                 id: weapon.id,
 
                 weaponId: weapon.weaponId,
+
+                shortName: definition.shortName,
 
                 kind: weapon.kind,
 
@@ -453,6 +457,8 @@ function mapWeapon(
                 id: weapon.id,
 
                 weaponId: weapon.weaponId,
+
+                shortName: definition.shortName,
 
                 kind: weapon.kind,
 

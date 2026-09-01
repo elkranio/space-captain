@@ -209,6 +209,10 @@ export default class BridgeMissileLauncherTileView {
         this.root.setPosition(x, y);
     }
 
+    public setTitle(title: string): void {
+        this.titleText.setText(title);
+    }
+
     public setAmmo(current: number): void {
         this.ammoText.setText(`${current}`);
     }

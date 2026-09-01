@@ -108,6 +108,8 @@ describe(
                             heavy_launcher_00: {
                                 name:
                                     'HEAVY LAUNCHER',
+                                shortName:
+                                    'HEAVY LAUNCHER',
 
                                 maxIntegrity: 3,
 
@@ -130,6 +132,8 @@ describe(
                             fast_beam_cannon_00: {
                                 name:
                                     'FAST BEAM_CANNON',
+                                shortName:
+                                    'FAST BEAM',
 
                                 maxIntegrity: 2,
 
@@ -151,6 +155,8 @@ describe(
                             spam_projector_01: {
                                 name:
                                     'SPAM PROJECTOR II',
+                                shortName:
+                                    'SPAM PROJECTOR',
 
                                 maxIntegrity: 2,
 
@@ -173,6 +179,8 @@ describe(
                             mine_dispenser_01: {
                                 name:
                                     'MINE DISPENSER II',
+                                shortName:
+                                    'MINE DISPENSER',
 
                                 maxIntegrity: 4,
 

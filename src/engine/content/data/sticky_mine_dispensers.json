@@ -1,6 +1,7 @@
 {
     "sticky_mine_dispenser_00": {
         "name": "STICKY MINE DISPENSER",
+        "shortName": "MINE DISPENSER",
         "maxIntegrity": 2,
         "damage": 1,
         "fuseDurationMs": 7500,
@@ -11,6 +12,7 @@
     },
     "sticky_mine_solo": {
         "name": "sticky_mine_solo",
+        "shortName": "SOLO MINE",
         "maxIntegrity": 2,
         "damage": 1,
         "fuseDurationMs": 7500,

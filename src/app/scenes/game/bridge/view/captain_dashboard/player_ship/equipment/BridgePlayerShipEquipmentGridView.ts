@@ -228,6 +228,7 @@ export default class BridgePlayerShipEquipmentGridView {
             throw new Error("Captain dashboard Missile Launcher requires integrity payload: " + weapon.id);
         }
 
+        tile.setTitle(weapon.shortName);
         tile.setAmmo(weapon.ammo.current);
         tile.setIntegrity(weapon.integrity.current, weapon.integrity.max);
 
@@ -268,6 +269,7 @@ export default class BridgePlayerShipEquipmentGridView {
             throw new Error("Captain dashboard Beam Cannon requires integrity payload: " + weapon.id);
         }
 
+        tile.setTitle(weapon.shortName);
         tile.setPowerCost(weapon.powerCost);
         tile.setIntegrity(weapon.integrity.current, weapon.integrity.max);
 

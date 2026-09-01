@@ -26,6 +26,8 @@ describe(
                             shield_generator_basic_00: {
                                 name:
                                     'BASIC SHIELD GENERATOR',
+                                shortName:
+                                    'SHIELD GEN.',
 
                                 maxIntegrity: 2,
 
@@ -39,6 +41,8 @@ describe(
                             reinforced_00: {
                                 name:
                                     'REINFORCED SHIELD GENERATOR',
+                                shortName:
+                                    'REINF. SHIELD',
 
                                 maxIntegrity: 2,
 

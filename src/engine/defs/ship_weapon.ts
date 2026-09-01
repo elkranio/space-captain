@@ -94,6 +94,7 @@ export function doesShipWeaponPhaseAdvanceWithCrew(kind: ShipWeaponKind, phase: 
 export type ShipWeaponDefinitionBase = {
     id: string;
     name: string;
+    shortName: string;
 
     kind: ShipWeaponKind;
 

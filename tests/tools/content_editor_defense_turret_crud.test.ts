@@ -26,6 +26,8 @@ describe(
                             defense_turret_basic_00: {
                                 name:
                                     'BASIC DEFENSE TURRET',
+                                shortName:
+                                    'DEF. TURRET',
 
                                 maxIntegrity: 2,
 
@@ -39,6 +41,8 @@ describe(
                             rapid_00: {
                                 name:
                                     'RAPID DEFENSE TURRET',
+                                shortName:
+                                    'RAPID TURRET',
 
                                 maxIntegrity: 2,
 

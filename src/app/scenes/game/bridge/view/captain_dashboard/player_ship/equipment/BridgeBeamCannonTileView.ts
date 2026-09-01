@@ -204,6 +204,10 @@ export default class BridgeBeamCannonTileView {
         this.root.setPosition(x, y);
     }
 
+    public setTitle(title: string): void {
+        this.titleText.setText(title);
+    }
+
     public setPowerCost(cost: number): void {
         this.powerText.setText(`${cost}`);
     }

@@ -38,6 +38,9 @@ describe(
                     name:
                         'STICKY MINE DISPENSER',
 
+                    shortName:
+                        'MINE DISPENSER',
+
                     kind:
                         SHIP_WEAPON_KIND
                             .STICKY_MINE_DISPENSER,

@@ -17,6 +17,7 @@ describe('MissileLauncherFactory', () => {
             id: SHIP_WEAPON_ID.MISSILE_LAUNCHER_00,
 
             name: 'MISSILE LAUNCHER',
+            shortName: 'M. LAUNCHER',
 
             kind: SHIP_WEAPON_KIND.MISSILE_LAUNCHER,
 

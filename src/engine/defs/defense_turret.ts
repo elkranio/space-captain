@@ -18,6 +18,7 @@ export const DEFENSE_TURRET_ID = {
 export type DefenseTurretDefinition = {
     id: string;
     name: string;
+    shortName: string;
 
     slotKind: typeof SHIP_SLOT_KIND.DEFENSE;
     maxIntegrity: number;

@@ -26,6 +26,8 @@ describe(
                             power_core_basic_00: {
                                 name:
                                     'MK.I POWER CORE',
+                                shortName:
+                                    'POWER CORE',
 
                                 capacity: 4,
 
@@ -36,6 +38,8 @@ describe(
                             overcharged_00: {
                                 name:
                                     'OVERCHARGED CORE',
+                                shortName:
+                                    'OVERCHARGED',
 
                                 capacity: 6,
 

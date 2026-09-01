@@ -338,6 +338,7 @@ export type BridgePlayerSystemActionState =
 export type BridgePlayerWeaponDashboardPayload = {
     id: string;
     weaponId: string;
+    shortName: string;
 
     kind: ShipWeaponKind;
 

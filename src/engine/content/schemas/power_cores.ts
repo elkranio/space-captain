@@ -9,6 +9,9 @@ export const POWER_CORE_RECORD_SCHEMA = z
         name: z.string().min(1).meta({
             title: "Name",
         }),
+        shortName: z.string().min(1).meta({
+            title: "Short Name",
+        }),
 
         capacity: z.number().int().positive().meta({
             title: "Charge capacity",

@@ -87,6 +87,8 @@ describe(
                             weaponId:
                                 SHIP_WEAPON_ID
                                     .MISSILE_LAUNCHER_00,
+                            shortName:
+                                'M. LAUNCHER',
                             kind:
                                 SHIP_WEAPON_KIND
                                     .MISSILE_LAUNCHER,
@@ -116,6 +118,8 @@ describe(
                             weaponId:
                                 SHIP_WEAPON_ID
                                     .MISSILE_LAUNCHER_00,
+                            shortName:
+                                'M. LAUNCHER',
                             kind:
                                 SHIP_WEAPON_KIND
                                     .MISSILE_LAUNCHER,
@@ -223,6 +227,8 @@ describe(
                             targeting.state.id,
                         weaponId:
                             targeting.state.weaponId,
+                        shortName:
+                            'M. LAUNCHER',
                         kind:
                             targeting.state.kind,
                         ammo: {
@@ -244,6 +250,8 @@ describe(
                             cooldown.state.id,
                         weaponId:
                             cooldown.state.weaponId,
+                        shortName:
+                            'M. LAUNCHER',
                         kind:
                             cooldown.state.kind,
                         ammo: {
@@ -266,6 +274,8 @@ describe(
                             empty.state.id,
                         weaponId:
                             empty.state.weaponId,
+                        shortName:
+                            'M. LAUNCHER',
                         kind:
                             empty.state.kind,
                         ammo: {
@@ -337,6 +347,8 @@ describe(
                         weaponId:
                             SHIP_WEAPON_ID
                                 .BEAM_CANNON_00,
+                        shortName:
+                            definition.shortName,
                         kind:
                             SHIP_WEAPON_KIND
                                 .BEAM_CANNON,
@@ -409,6 +421,8 @@ describe(
                         weaponId:
                             SHIP_WEAPON_ID
                                 .BEAM_CANNON_00,
+                        shortName:
+                            'BEAM CANNON',
                         kind:
                             SHIP_WEAPON_KIND
                                 .BEAM_CANNON,
@@ -439,6 +453,8 @@ describe(
                         weaponId:
                             SHIP_WEAPON_ID
                                 .STICKY_MINE_DISPENSER_00,
+                        shortName:
+                            'MINE DISPENSER',
                         kind:
                             SHIP_WEAPON_KIND
                                 .STICKY_MINE_DISPENSER,
@@ -504,6 +520,8 @@ describe(
                         weaponId:
                             SHIP_WEAPON_ID
                                 .SPAM_PROJECTOR_00,
+                        shortName:
+                            'SPAM PROJECTOR',
                         kind:
                             SHIP_WEAPON_KIND
                                 .SPAM_PROJECTOR,

@@ -10,6 +10,7 @@ export type PowerCoreDefinition = {
     id: string;
 
     name: string;
+    shortName: string;
 
     // Сколько power charges
     // установка может хранить одновременно.

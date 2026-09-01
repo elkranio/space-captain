@@ -18,6 +18,7 @@ export type ShipDriveStatus = (typeof SHIP_DRIVE_STATUS)[keyof typeof SHIP_DRIVE
 export type ShipDriveDefinition = {
     id: string;
     name: string;
+    shortName: string;
 
     slotKind: typeof SHIP_SLOT_KIND.DRIVE;
 

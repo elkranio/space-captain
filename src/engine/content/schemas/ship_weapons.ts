@@ -10,6 +10,10 @@ const WEAPON_NAME_SCHEMA = z.string().min(1).meta({
     title: "Name",
 });
 
+const WEAPON_SHORT_NAME_SCHEMA = z.string().min(1).meta({
+    title: "Short Name",
+});
+
 const MAX_INTEGRITY_SCHEMA = z.number().int().positive().meta({
     title: "Max Integrity",
 });
@@ -31,6 +35,7 @@ const AMMO_CAPACITY_SCHEMA = z.number().int().nonnegative().meta({
 export const MISSILE_LAUNCHER_RECORD_SCHEMA = z
     .strictObject({
         name: WEAPON_NAME_SCHEMA,
+        shortName: WEAPON_SHORT_NAME_SCHEMA,
 
         maxIntegrity: MAX_INTEGRITY_SCHEMA,
 
@@ -63,6 +68,7 @@ export const MISSILE_LAUNCHER_TUNING_SCHEMA = z.record(CONTENT_ID_SCHEMA, MISSIL
 export const BEAM_CANNON_RECORD_SCHEMA = z
     .strictObject({
         name: WEAPON_NAME_SCHEMA,
+        shortName: WEAPON_SHORT_NAME_SCHEMA,
 
         maxIntegrity: MAX_INTEGRITY_SCHEMA,
 
@@ -99,6 +105,7 @@ export const BEAM_CANNON_TUNING_SCHEMA = z.record(CONTENT_ID_SCHEMA, BEAM_CANNON
 export const SPAM_PROJECTOR_RECORD_SCHEMA = z
     .strictObject({
         name: WEAPON_NAME_SCHEMA,
+        shortName: WEAPON_SHORT_NAME_SCHEMA,
 
         maxIntegrity: MAX_INTEGRITY_SCHEMA,
 
@@ -125,6 +132,7 @@ export const SPAM_PROJECTOR_TUNING_SCHEMA = z.record(CONTENT_ID_SCHEMA, SPAM_PRO
 export const STICKY_MINE_DISPENSER_RECORD_SCHEMA = z
     .strictObject({
         name: WEAPON_NAME_SCHEMA,
+        shortName: WEAPON_SHORT_NAME_SCHEMA,
 
         maxIntegrity: MAX_INTEGRITY_SCHEMA,
 

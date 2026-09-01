@@ -1,6 +1,7 @@
 {
     "missile_launcher_00": {
         "name": "MISSILE LAUNCHER",
+        "shortName": "M. LAUNCHER",
         "maxIntegrity": 2,
         "damage": 1,
         "targetingDurationMs": 3000,
@@ -10,6 +11,7 @@
     },
     "ml_full_auto": {
         "name": "ml_full_auto",
+        "shortName": "ML FULL AUTO",
         "maxIntegrity": 2,
         "damage": 1,
         "targetingDurationMs": 700,

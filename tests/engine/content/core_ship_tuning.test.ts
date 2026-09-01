@@ -210,6 +210,8 @@ describe(
                             basic_00: {
                                 name:
                                     'BASIC DRIVE',
+                                shortName:
+                                    'DRIVE',
 
                                 maxIntegrity:
                                     2,
@@ -229,6 +231,8 @@ describe(
 
                             fast_00: {
                                 name:
+                                    'FAST DRIVE',
+                                shortName:
                                     'FAST DRIVE',
 
                                 maxIntegrity:

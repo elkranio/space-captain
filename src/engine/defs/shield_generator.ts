@@ -12,6 +12,7 @@ export type ShieldGeneratorDefinition = {
     id: string;
 
     name: string;
+    shortName: string;
 
     slotKind: typeof SHIP_SLOT_KIND.DEFENSE;
     maxIntegrity: number;

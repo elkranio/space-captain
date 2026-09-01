@@ -13,6 +13,9 @@ export const SHIP_DRIVE_RECORD_SCHEMA = z
         name: z.string().min(1).meta({
             title: "Name",
         }),
+        shortName: z.string().min(1).meta({
+            title: "Short Name",
+        }),
 
         maxIntegrity: POSITIVE_INTEGER_SCHEMA.meta({
             title: "Max Integrity",

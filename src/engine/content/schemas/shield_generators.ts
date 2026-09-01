@@ -12,6 +12,9 @@ export const SHIELD_GENERATOR_RECORD_SCHEMA = z
         name: z.string().min(1).meta({
             title: "Name",
         }),
+        shortName: z.string().min(1).meta({
+            title: "Short Name",
+        }),
 
         maxIntegrity: MAX_INTEGRITY_SCHEMA.meta({
             title: "Max Integrity",

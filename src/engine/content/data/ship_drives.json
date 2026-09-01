@@ -1,6 +1,7 @@
 {
     "basic_00": {
         "name": "BASIC DRIVE",
+        "shortName": "DRIVE",
         "maxIntegrity": 2,
         "evadeWarmupMs": 1000,
         "evadeDurationMs": 30000,
