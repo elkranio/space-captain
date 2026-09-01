@@ -4,6 +4,7 @@ import { SHIP_WEAPONS } from "../../../content/catalogs/ship_weapons";
 import { ENCOUNTER_TEAM } from "../../../defs/encounter_team";
 import { OFFICER_ROLE } from "../../../defs/officer";
 import {
+    commitShipWeaponCooldown,
     finishShipWeaponAction,
     SHIP_WEAPON_KIND,
     SHIP_WEAPON_PHASE,
@@ -144,6 +145,8 @@ export default class PlayerSpamProjectorRunner {
 
         projector.activeChannelId = null;
         projector.channelPurged = false;
+
+        commitShipWeaponCooldown(projector, definition.cooldownDurationMs);
 
         finishShipWeaponAction(projector, definition.cooldownDurationMs);
 

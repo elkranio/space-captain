@@ -207,6 +207,8 @@ describe(
                         SCIENCE_PURGE_SPAM_DURATION_MS *
                         2,
 
+                    cooldownRemainingMs: 0,
+
                     activeChannelId:
                         null,
 
@@ -270,15 +272,11 @@ describe(
                         SHIP_WEAPON_PHASE
                             .COOLDOWN,
 
-                    phaseElapsedMs:
-                        SPAM_DEFINITION
-                            .channelDurationMs,
+                    phaseElapsedMs: 0,
 
                     cooldownRemainingMs:
                         SPAM_DEFINITION
-                            .cooldownDurationMs -
-                        SPAM_DEFINITION
-                            .channelDurationMs,
+                            .cooldownDurationMs,
 
                     activeChannelId:
                         null,

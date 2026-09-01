@@ -260,8 +260,6 @@ export default class PlayerShipStore {
         weapon.phaseElapsedMs = 0;
         weapon.channelPurged = false;
 
-        commitShipWeaponCooldown(weapon, definition.cooldownDurationMs);
-
         return {
             ...weapon,
         };
@@ -292,6 +290,8 @@ export default class PlayerShipStore {
         if (definition.kind !== SHIP_WEAPON_KIND.SPAM_PROJECTOR) {
             throw new Error("Player spam projector definition mismatch: " + weapon.id + "/" + weapon.weaponId);
         }
+
+        commitShipWeaponCooldown(weapon, definition.cooldownDurationMs);
 
         finishShipWeaponAction(weapon, definition.cooldownDurationMs);
 

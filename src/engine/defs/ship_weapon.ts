@@ -202,9 +202,10 @@ export type StickyMineDispenserState = ShipWeaponBaseState & {
 
 export type ShipWeaponState = MissileLauncherState | BeamCannonState | SpamProjectorState | StickyMineDispenserState;
 
-// Cooldown is committed at the concrete action commitment point and then
-// advances in raw encounter/world time, independently from crew-time action
-// progress. The visible COOLDOWN phase begins only after the active action ends.
+// Once a concrete weapon lifecycle commits cooldown, it advances in raw
+// encounter/world time independently from crew-time action progress.
+// Concrete lifecycle owners decide when recovery begins; the visible
+// COOLDOWN phase starts only after the active action ends.
 export function commitShipWeaponCooldown(weapon: ShipWeaponState, cooldownDurationMs: number): void {
     validateCooldownDuration(cooldownDurationMs);
 

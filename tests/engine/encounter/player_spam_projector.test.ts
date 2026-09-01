@@ -141,9 +141,7 @@ describe(
 
                     phaseElapsedMs: 0,
 
-                    cooldownRemainingMs:
-                        SPAM_DEFINITION
-                            .cooldownDurationMs,
+                    cooldownRemainingMs: 0,
 
                     activeChannelId:
                         null,
@@ -264,15 +262,11 @@ describe(
                         SHIP_WEAPON_PHASE
                             .COOLDOWN,
 
-                    phaseElapsedMs:
-                        SPAM_DEFINITION
-                            .channelDurationMs,
+                    phaseElapsedMs: 0,
 
                     cooldownRemainingMs:
                         SPAM_DEFINITION
-                            .cooldownDurationMs -
-                        SPAM_DEFINITION
-                            .channelDurationMs,
+                            .cooldownDurationMs,
 
                     activeChannelId:
                         null,
@@ -281,6 +275,20 @@ describe(
                 expect(
                     engine.getOfficerTasks(),
                 ).toEqual([]);
+
+                engine.step(1);
+
+                expect(projector).toMatchObject({
+                    phase:
+                        SHIP_WEAPON_PHASE
+                            .COOLDOWN,
+
+                    phaseElapsedMs: 1,
+
+                    cooldownRemainingMs:
+                        SPAM_DEFINITION
+                            .cooldownDurationMs - 1,
+                });
             },
         );
 
