@@ -295,7 +295,7 @@ export default class BridgePlayerShipEquipmentGridView {
         const y = row * (this.slotHeight + GRID.rowGap);
 
         this.slotBackgrounds[slotIndex]?.setFillStyle(
-            CAPTAIN_DASHBOARD_STYLE.equipmentSlot.weaponBackgroundColor,
+            CAPTAIN_DASHBOARD_STYLE.equipmentSlot.defenseBackgroundColor,
             CAPTAIN_DASHBOARD_STYLE.equipmentSlot.backgroundAlpha,
         );
 
