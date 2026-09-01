@@ -15,8 +15,11 @@ Current landed foundation:
 - player targeted-Shield semantics and the current `HULL | DRIVE` picker are implemented;
 - rebuilt first-person bridge shell exists with physical officer monitors, viewscreen and dual lower dashboards;
 - MY SHIP header / Power Core / exact 4x3 grid / narrow BRIDGE-HULL special-column geometry is landed;
-- a concrete Missile Launcher tile visual prototype is landed with tintable state, icon-based progress, integrity and
-  contextual hover action;
+- all seven current standard MY SHIP equipment tiles are landed with content-driven titles, operational state,
+  resources/progress where relevant and integrity;
+- MY SHIP equipment placement is authoritative from chassis slots + persistent mounts rather than array/family order;
+- player Beam Cannon now spends shared Power Core when charging begins;
+- the MY SHIP BRIDGE/HULL special column still contains placeholder-only content;
 - the right dashboard and old large threat-action presentation are still legacy/superseded rather than the intended
   persistent ENEMY SHIP board + compact threat monitor;
 - tintable Missile / Beam / Mine / SPAM threat glyph family is implemented;
@@ -34,9 +37,11 @@ LANDED: chassis-owned ship slots + persistent loadout mounts
 -> LANDED: normalized Debug Start loadout + chassis-aware content editor
 -> LANDED: generalized encounter equipment-integrity foundation
 -> LANDED: new bridge shell + MY SHIP dashboard geometry
--> LANDED: Missile Launcher equipment-tile visual/state prototype
--> NOW: real Missile Launcher read-model + authoritative slot/integrity/runtime binding
--> remaining MY SHIP equipment surfaces + persistent ENEMY SHIP slot board
+-> LANDED: all seven standard MY SHIP equipment tiles
+-> LANDED: authoritative chassis-slot/mount placement for the 4x3 grid
+-> NOW: real BRIDGE special-column state
+-> HULL special-column state / target surface
+-> persistent ENEMY SHIP slot board
 -> compact top-center threat monitor migration
 -> finish BROKEN / repair operational behavior required by the board
 -> player Beam HULL | SLOT direct targeting on the real dashboard
@@ -145,9 +150,10 @@ The panels should share visual grammar without being forced into identical data 
 Current presentation progress:
 
 - MY SHIP physical dashboard geometry is landed;
-- the first Missile Launcher tile grammar is visually validated in a debug harness;
-- the 4x3 grid is not yet populated from authoritative chassis slot/mount state;
-- player weapon dashboard payloads still need the mount/integrity truth required by the board;
+- all seven current standard equipment tiles are landed;
+- equipment titles use catalog `shortName`;
+- the 4x3 grid is populated from authoritative chassis slot/mount coordinates;
+- the narrow BRIDGE/HULL special column is still placeholder-only;
 - ENEMY SHIP is not yet rebuilt as the persistent mirrored slot board.
 
 ### 6. Direct targeting + compact threat strip

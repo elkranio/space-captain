@@ -283,9 +283,10 @@ mounting points.
 Baseline slot categories:
 
 ```text
+DRIVE
 WEAPON
 DEFENSE
-EQUIPMENT
+UTILITY
 ```
 
 Different chassis may expose different counts and combinations of these slots. Do not make "four weapon slots" a

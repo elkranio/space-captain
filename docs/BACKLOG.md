@@ -42,11 +42,6 @@ Confirmed intended dependency:
 Remove any generic `all officers idle` requirement from local travel/escape paths when those paths are next touched. For
 location-bound non-combat tasks, leaving should cancel/forfeit the task naturally instead of globally blocking travel.
 
-### Beam Power Core cost
-
-Intended player Beam spends shared Power Core. Current runtime contract may still differ. Implement deliberately when
-player Beam semantic-targeting slice is touched.
-
 ### Baseline gun
 
 Add a no-ammo/no-CORE Basic Gun during the weapon/build-diversity pass.
@@ -69,6 +64,8 @@ Do not weaken behavior coverage merely to shorten tests.
 ## Cleanup
 
 ### Disposable bridge debug layer
+
+`BridgeScene` no longer instantiates the old debug layer, but the dead folder and dependency still remain.
 
 When the combat-debug workflow is no longer needed:
 

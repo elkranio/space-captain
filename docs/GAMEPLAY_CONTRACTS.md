@@ -113,12 +113,11 @@ Current runtime uses one shared Power Core:
 
 - capacity: 4 charges;
 - recharge is sequential;
-- current player consumers include Evade, Defense Turret and Shield Generator;
+- current player consumers include Evade, Defense Turret, Shield Generator and Beam Cannon;
 - committed energy is not refunded after later cancellation/interruption.
 
-**Beam Cannon does not currently spend Power Core.** This is an implementation fact, not a statement
-about future intended
-design.
+Player Beam uses the Beam Cannon definition's `powerCost`. The command is unavailable without enough current charge, and
+the cost is committed when charging starts.
 
 ## Shield Generator / Active Shield
 
@@ -223,7 +222,8 @@ Escape availability derives from authoritative Drive state; Beam does not own a 
 
 Current enemy Beam target choice is simple random `HULL | DRIVE`.
 
-Current player Beam still targets the enemy actor as a whole. Semantic player Beam node targeting remains future work.
+Current player Beam spends its content-defined Power Core cost when charging begins and still targets the enemy actor
+as a whole. Semantic player Beam node targeting remains future work.
 
 ## Sticky mines
 

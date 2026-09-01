@@ -104,13 +104,28 @@ Do not implement this before the current combat-dashboard slice provides the rea
 | Defense | Defense Turret | DEFENSE | Weapons | LANDED / generic BROKEN work pending |
 | Defense | Shield Generator | DEFENSE | Engineer | LANDED / shared slot-target migration pending |
 | Weapon | Missile Launcher | WEAPON | Weapons | LANDED |
-| Weapon | Beam Cannon | WEAPON | Weapons | LANDED / precision target + CORE cost pending |
+| Weapon | Beam Cannon | WEAPON | Weapons | LANDED / precision target pending |
 | Weapon | Sticky Mine Dispenser | WEAPON | Weapons | LANDED |
 | Utility | SPAM Projector | UTILITY | Science | LANDED |
 | Power | Power Core | separate | shared resource | LANDED |
 
 SPAM currently shares some weapon-state/catalog machinery in the implementation, but its physical/gameplay category is
 UTILITY. Do not infer its gameplay category from that implementation reuse.
+
+### LANDED — Player dashboard presentation
+
+All seven current standard equipment families have concrete MY SHIP dashboard tiles:
+
+- Drive;
+- Defense Turret;
+- Shield Generator;
+- Missile Launcher;
+- Beam Cannon;
+- Sticky Mine Dispenser;
+- SPAM Projector.
+
+Tile titles come from catalog `shortName`. Standard equipment placement comes from authoritative chassis slots and
+persistent mounts, not weapon-array order or equipment-family order.
 
 # Drive
 
@@ -214,24 +229,19 @@ Current player consumers include:
 
 - Evade;
 - Defense Turret;
-- Shield Generator.
+- Shield Generator;
+- Beam Cannon.
 
 Committed energy is not refunded merely because later work is cancelled/interrupted after commitment.
+
+Player Beam spends the content-defined Beam Cannon `powerCost` when charging begins. Command availability requires enough
+current charge. Once charging starts, the cost is committed and is not refunded by later cancellation/interruption.
 
 Power Core is intentionally:
 
 - non-breakable;
 - non-targetable;
 - displayed separately from the 4x3 equipment slot grid.
-
-## CONFIRMED TODO — Beam consumes CORE
-
-Player Beam currently does **not** spend Power Core.
-
-Intended Beam identity includes a Power Core cost so precision offense competes with defensive reserves for Turret,
-Shield and Evade.
-
-Exact Beam cost is tuning.
 
 ## IDEA BANK — attack enemy CORE charges through Utility
 
@@ -294,7 +304,6 @@ The current system deliberately does not require Science tracking, a hidden accu
 
 - apply generic BROKEN operational gating;
 - add the generic Engineer BROKEN-only repair behavior;
-- expose Turret integrity/readiness in the new equipment tile;
 - move player target selection to concrete Missile cells in the compact threat monitor.
 
 Future Torpedo interaction belongs to the Torpedo IDEA until that family is promoted.
@@ -337,7 +346,7 @@ or
 SLOT(slotId)
 ```
 
-Also finish generic BROKEN gating/repair and dashboard presentation.
+Also finish generic BROKEN gating/repair.
 
 Whether Shield counters a future Plasma weapon is currently part of the Plasma IDEA, not landed Shield behavior.
 
@@ -368,7 +377,6 @@ Current content contains a normal launcher and a deliberately extreme `ml_full_a
 ### CONFIRMED TODO
 
 - generic BROKEN operational gating + repair;
-- new dashboard tile/read model;
 - use the visible enemy Hull surface for direct offensive targeting where appropriate.
 
 Exact balance against Beam must come from the first weak-fight playtest, not paper DPS alone.
@@ -395,8 +403,8 @@ Current player Beam:
 
 - uses Weapons;
 - charges/fires/cools down;
-- currently targets the enemy actor as a whole;
-- currently does **not** spend Power Core.
+- spends its content-defined Power Core cost when charging begins;
+- currently targets the enemy actor as a whole.
 
 Beam Cannon state now carries encounter-local integrity.
 
@@ -415,7 +423,6 @@ select Beam
 
 Also:
 
-- player Beam must spend Power Core;
 - implement the full generic slot-damage consequence;
 - migrate incoming Beam and targeted Shield onto the shared target model afterward;
 - generic BROKEN gating + repair.
@@ -451,7 +458,6 @@ Current content supports both a salvo configuration and a single-Mine configurat
 ### CONFIRMED TODO
 
 - generic BROKEN operational gating + repair;
-- new dashboard tile/read model;
 - preserve separate Mine identity in the compact threat monitor.
 
 # Utility — landed family
@@ -491,7 +497,7 @@ Intended SPAM presentation also contaminates the external viewscreen with garbag
 It may reduce visual situational awareness and be deliberately annoying, but it must never hide the minimum
 controls/state required for mandatory combat decisions.
 
-Also finish generic BROKEN gating/repair and the new UTILITY equipment tile.
+Also finish generic BROKEN gating/repair.
 
 # Weapons — IDEA BANK
 

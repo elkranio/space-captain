@@ -1,251 +1,237 @@
 # Space Captain — Current Handoff
 
-> **SUPERSEDED FOR CURRENT IMPLEMENTATION STATE — 2026-09-01**
->
-> Read `SPACE_CAPTAIN_HANDOFF_2026-09-01_DASHBOARD.md` first.
-> The remainder of this file is an older checkpoint and must not be used as the current atom plan.
+This is the only live handoff file.
 
-## CURRENT CHECKPOINT — 2026-08-26
+Historical handoffs belong in git history. Do not add dated root-level handoff files again unless there is a concrete
+reason to preserve a temporary migration artifact.
 
-Base for this checkpoint: `master` at `58a63584e89afef4467f37b13a3854d8906135c5`.
+Current source of truth:
 
-This file is intentionally current-only again. Historical handoffs remain in git history; do not carry obsolete atom
-plans forward as live instructions.
+```text
+repository: elkranio/space-captain
+branch: master
+last inspected before this docs cleanup: ba555b21f9a434b39988e4d6929287f67e981a9c
+```
 
-Read before the next coding atom:
+Always re-fetch fresh `master` and the exact touched files before preparing a code patch.
 
-- `docs/WORKING_RULES.md` — permanent collaboration/code rules;
-- `docs/GAME_DESIGN.md` — intended design;
+Read durable docs when their boundary is relevant:
+
+- `docs/WORKING_RULES.md` — collaboration, patch and validation rules;
+- `docs/GAME_DESIGN.md` — canonical intended design;
 - `docs/GAMEPLAY_CONTRACTS.md` — current implemented runtime truth;
 - `docs/EQUIPMENT.md` — equipment mechanics/status/idea bank;
+- `docs/SYSTEM_MAP.md` — ownership/data-flow boundaries;
 - `docs/BRIDGE_ART_DIRECTION.md` — durable bridge/dashboard visual grammar;
-- `docs/COMBAT_PLAYTEST_ROADMAP.md` — broader combat gate sequence.
+- `docs/THREAT_PANEL.md` — threat presentation contract;
+- `docs/COMBAT_PLAYTEST_ROADMAP.md` — broader combat gate sequence;
+- `docs/BACKLOG.md` — concrete deferred work only.
 
-Re-fetch current `master` and the exact touched files before every atom. Do not repeat a broad architecture audit.
+## Current implementation checkpoint
 
-## Landed foundation
+### Ship/loadout foundation — LANDED
 
-The chassis/loadout/integrity foundation from the previous slice remains landed:
-
-- chassis own stable physical slots with `slotId`, kind and grid coordinates;
+- player and enemy ships carry real `chassisId`;
+- chassis own stable physical slots with `slotId`, kind and 1-based grid coordinates;
 - current slot kinds are `DRIVE | WEAPON | DEFENSE | UTILITY`;
-- persistent player/enemy ship construction preserves chassis identity and `slotId -> equipmentId` mounts;
-- Debug Start uses normalized equipment records and the content editor is chassis-aware;
-- breakable equipment definitions own `maxIntegrity`;
-- encounter-local Drive / Defense Turret / Shield Generator / Weapon state carries `integrity`;
-- shared encounter helpers define equipment operational state and integrity damage;
+- persistent mounts preserve `slotId -> equipmentId`;
+- Debug Start/content editor are chassis-aware;
+- Drive, Defense Turret, Shield Generator and all current weapon families carry encounter-local integrity;
 - Power Core remains separate, non-spatial, non-breakable and non-targetable.
 
-General BROKEN gating/repair for every family and player Beam `HULL | SLOT(slotId)` damage are still unfinished.
+The generalized integrity foundation is ahead of generic gameplay behavior. Full BROKEN gating + Engineer repair is still
+unfinished for most equipment families.
 
-## Landed bridge/dashboard shell
+### Player combat dashboard — STANDARD EQUIPMENT LANDED
 
-The first-person combat bridge has been rebuilt around the confirmed 1280x720 composition.
+The MY SHIP dashboard has concrete production tiles for all seven current standard equipment families:
 
-Current visual structure:
+1. Missile Launcher
+2. Beam Cannon
+3. Sticky Mine Dispenser
+4. SPAM Projector
+5. Defense Turret
+6. Shield Generator
+7. Drive
+
+Current tile grammar:
+
+- catalog `shortName` for titles;
+- off-white = ready;
+- yellow/orange left-to-right pictogram fill = active work;
+- muted blue = cooldown/resource blocked;
+- red = broken/problem;
+- integrity pips;
+- resource/status micro-readout only where it changes an immediate decision.
+
+Do not create a generic `EquipmentTileBase` merely because several concrete tiles now share visual ideas.
+
+### Authoritative 4x3 placement — LANDED
+
+Equipment placement no longer comes from weapon array order or equipment family.
+
+Current path:
+
+```text
+player.ship.chassisId + player.ship.mounts
+-> mount.equipmentId -> mount.slotId
+-> SHIP_CHASSIS[chassisId].slots
+-> BridgeEquipmentSlotPayload { column, row }
+-> exact 4x3 dashboard cell
+```
+
+Rules:
+
+- empty chassis slots remain empty;
+- duplicate equipment kinds remain distinct by runtime equipment id;
+- no fallback to array order;
+- out-of-grid coordinates are errors.
+
+### Beam Power Core cost — LANDED
+
+Player Beam Cannon now uses its content-defined `powerCost`.
+
+- command availability requires enough current Power Core charge;
+- cost is committed when Beam charging starts;
+- later cancellation/interruption does not refund committed Power;
+- player Beam still targets the enemy actor as a whole for now.
+
+Do not re-add Beam CORE cost as a TODO.
+
+### Bridge shell / board state
+
+Confirmed combat composition remains:
 
 ```text
 TOP CENTER
-    compact physical threat monitor area
+    compact threat monitor area
 
-LEFT SIDE                         RIGHT SIDE
-    SCIENCE monitor                   WEAPONS monitor
-    HELM monitor                      ENGINEER monitor
+SIDES
+    SCIENCE + HELM monitors
+    WEAPONS + ENGINEER monitors
 
 CENTER
-    large first-person viewscreen
+    first-person viewscreen
 
-BOTTOM LEFT                       BOTTOM RIGHT
-    MY SHIP dashboard                 ENEMY/legacy combat context for now
+BOTTOM
+    MY SHIP dashboard | ENEMY SHIP dashboard
 ```
 
-Important landed details:
+Current status:
 
-- officer portraits sit behind physical transparent monitor frames;
-- officer role labels use the shared role palette and color the first letter only;
-- role colors are centralized in `src/app/theme/officer.ts`:
-    - Science = blue;
-    - Helm = green;
-    - Weapons = red;
-    - Engineer = yellow;
-- the captain remains first-person/invisible;
-- both lower dashboard background sprites are integrated with no center gap;
-- MY SHIP header is rebuilt with `USS CAPYBARA`, compact `[ESC]`, Power Core icon and charge cells;
-- MY SHIP owns an exact 4x3 equipment grid plus a narrow right special column;
-- the special column currently contains visual-only `BRIDGE` / `HULL` placeholders;
-- the legacy left status/systems row views were removed after verifying they owned presentation only.
+- MY SHIP standard equipment board is real;
+- the narrow MY SHIP special column exists but BRIDGE/HULL content is still placeholder-only;
+- ENEMY SHIP is not yet rebuilt as the persistent mirrored slot board;
+- the old large threat-action presentation is still the current legacy runtime surface;
+- compact threat monitor migration is still pending;
+- `src/app/scenes/game/bridge/debug_view/**` still exists, but `BridgeScene` no longer instantiates the old debug layer.
 
-Current MY SHIP geometry in `BridgePlayerShipDashboardView` is deliberately considered done unless a real runtime
-binding exposes a problem. Do not resume 1px dashboard-frame tuning for its own sake.
-
-Strict layout reference remains:
+Strict visual reference:
 
 `docs/reference/combat_bridge_layout_2026-08-25.png`
 
-## Missile Launcher tile visual prototype — LANDED
+## Immediate next slice — BRIDGE, then HULL
 
-The first real equipment-tile language was designed and implemented as a debug-driven production view:
+Do not start another standard equipment-tile pass.
 
-`src/app/scenes/game/bridge/view/captain_dashboard/player_ship/equipment/BridgeMissileLauncherTileView.ts`
-
-It is intentionally a concrete Missile Launcher tile, not a premature generic equipment framework. Extract a shared tile
-shell only after at least a second family proves what actually repeats.
-
-Permanent tile information is intentionally sparse:
+The next design/implementation boundary is the MY SHIP special column:
 
 ```text
-M. LAUNCHER
-
-[launcher pictogram / progress surface]
-
-[ammo glyph] current ammo                     integrity pips
+BRIDGE
+HULL
 ```
 
-Decisions already made:
+These are not ordinary equipment tiles.
 
-- show current ammo only (`5`), not `5/10`; capacity belongs in detailed inspection/tooltips where useful;
-- integrity uses compact pips: filled = intact, outline = missing integrity;
-- the launcher pictogram itself is the progress bar; no extra horizontal progress bar;
-- progress always fills left -> right;
-- source art keeps internal pixel detail and uses ordinary Phaser tint, not `setTintFill()`;
-- normal/off-white, BROKEN/red and cooldown/muted states tint the whole tile chrome consistently so state reads as one
-  visual object rather than a mixture of unrelated colors;
-- targeting/work progress keeps normal chrome and overlays the launcher with activity color;
-- hover replaces only the center pictogram area with the contextual action; title/ammo/integrity stay put;
-- no nested button/chrome is added around hover commands.
+Before coding BRIDGE, inspect the fresh dashboard/chassis/runtime code and settle the exact contract with the user.
 
-Current hover language:
+### BRIDGE questions still open
 
-```text
-READY / actionable
-    W FIRE
-    W uses Weapons red
+Decide deliberately:
 
-BROKEN / repairable
-    E REPAIR
-    E uses Engineer yellow
+- what BRIDGE always shows;
+- whether BRIDGE is a targetable semantic ship node;
+- what damage/state it would own if targetable;
+- whether its four role markers are only officer state or part of a deeper bridge-damage mechanic;
+- what information is permanent versus tooltip-only.
 
-COOLDOWN / unavailable
-    no hover action
-```
+Do not invent bridge damage merely because the visual region exists.
 
-The runtime action text may later become `CANCEL` while current work/repair is active if the real task is cancellable.
-Do not invent cancellation semantics in the view; use the real task/command contract.
+### HULL boundary
 
-### Equipment icon asset convention
+HULL is ship/chassis state, not equipment.
 
-Equipment icons are universal game assets, not bridge-only assets. Current convention:
+Preserve:
 
-```text
-assets/raw/images/equipment/<family>/<visual_archetype>/icon.png
-```
+- one explicit Hull target surface;
+- visible Hull HP;
+- no fake normal equipment `HULL` slot;
+- future direct targeting should use the already-visible Hull surface.
 
-Current launcher asset:
+The exact relationship between the narrow HULL region and a larger selectable chassis/backplate can be refined during the
+HULL atom, but the existing 4x3 equipment grid must remain intact.
 
-```text
-assets/raw/images/equipment/missile_launchers/light_rack/icon.png
-```
-
-Different weapon progression items should be able to use different visual archetypes/silhouettes. Do not collapse all
-Missile Launchers onto one icon merely because they share one `ShipWeaponKind`.
-
-Icons used by combat tiles should remain readable under left-to-right progress overlays and tinting. Prefer a strong
-silhouette plus a few large internal masses over either flat featureless glyphs or tiny-detail illustration.
-
-## Current debug harness
-
-`BridgeEquipmentTileDebugView` is intentionally still active in `BridgeScene` while the tile is being validated.
-
-Current keys:
-
-```text
-1 = animated cooldown progress
-2 = animated repair progress
-3 = animated targeting progress
-4 = nominal reset; hover -> W FIRE
-5 = fully BROKEN; hover -> E REPAIR
-6 = fully cooldown; no hover action
-```
-
-This harness is presentation-only. Do not move fake progress/repair state into engine contracts to satisfy it.
-
-The older `BridgeMissileDebugView` trajectory prototype is disconnected and no longer owns number keys. It can be removed
-when convenient; the active disposable debug layer is the equipment-tile harness.
-
-## Immediate next slice — real combat Missile Launcher tile
-
-The next task is **not** more visual invention. Bind the tile we already like to real combat state.
-
-Current app-side weapon payload already exposes:
-
-```text
-id
-weaponId
-kind
-ammo.current / ammo.max where relevant
-cooldownProgress
-engine-resolved action state + command
-```
-
-Important missing presentation truth for the new board:
-
-- `BridgePlayerWeaponDashboardPayload` does not currently expose `slotId`;
-- it does not expose weapon `integrity` / `maxIntegrity`;
-- it does not expose numeric officer-work progress for Missile targeting;
-- the 4x3 `BridgePlayerShipEquipmentGridView` currently draws empty slot geometry only and does not place equipment by
-  authoritative chassis slot coordinates.
-
-Do not patch around those gaps in the view.
-
-There is one especially important seam: encounter weapons have integrity through `EncounterShipWeaponState`, but
-`createShipWeaponStateSnapshot()` currently returns the base `ShipWeaponState` shape and therefore does not preserve that
-encounter-only integrity into `PlayerWeaponPresentationSnapshot`. Fix the read-model boundary deliberately rather than
-reconstructing integrity from unrelated fields.
-
-Recommended next atoms:
-
-```text
-1. Extend the player equipment presentation/read-model with the minimum real mount + integrity truth needed by the grid.
-2. Bind the concrete Missile Launcher tile to the real installed launcher and its authoritative slot position.
-3. Wire READY/cooldown/action state and real ammo; emit the exact engine-resolved command on click.
-4. Add real targeting/work progress only through an authoritative snapshot/task timing source; do not fake it.
-5. Add BROKEN/repair action only when the engine exposes the real Engineer repair command/task for that equipment.
-6. After the Missile tile works in combat, build a second equipment family and only then decide what common tile shell is
-   worth extracting.
-```
-
-Keep the engine authoritative for legality. Pointer hover, click, future keyboard hotkeys and eventual gamepad input must
-all remain presentation/input adapters that invoke the same semantic action path; gameplay rules must not live in Phaser
-pointer handlers.
-
-## Broader combat order after the real Missile tile
-
-Do not jump straight to precision Beam targeting before the actual board is usable.
+## Combat order after BRIDGE/HULL
 
 Current direction:
 
 ```text
-real MY SHIP equipment binding
--> remaining useful MY SHIP equipment surfaces / real special-column state
+BRIDGE special state
+-> HULL special state / target surface
 -> persistent ENEMY SHIP slot board
 -> compact top-center threat monitor migration
--> finish shared BROKEN / repair operational behavior required by the board
--> player Beam HULL | SLOT(slotId) direct targeting
+-> finish shared BROKEN gating + Engineer repair needed by the board
+-> player Beam HULL | SLOT(slotId) targeting
 -> shared incoming Beam / targeted-Shield slot target model
 -> first weak-player vs weak-enemy timing/balance smoke
+-> Science tactical-information pass
 ```
 
-The exact order between remaining player tile families and the first enemy-board slice may move if one gives a cleaner
-vertical test, but do not resurrect the superseded large threat-action dashboard.
+Do not resurrect the superseded large threat-action dashboard as the target UX.
 
-## Deferred UI/control ideas
+## Important current runtime truths
 
-Detailed combat stats do not need to be crammed into the tile. A later hover tooltip can carry damage, effects, traits,
-capacity and other inspection-only information while the tile keeps only immediate operational truth.
+- basic incoming threat identity is free information; no mandatory Science TRACK/IDENTIFY;
+- current incoming Beam target vocabulary is still `HULL | DRIVE`;
+- current player targeted Shield uses that same temporary `HULL | DRIVE` vocabulary;
+- current player Beam still targets the enemy actor as a whole;
+- Defense Turret interception is deterministic after successful Weapons work;
+- Beam, Evade, Defense Turret and Shield Generator use shared Power Core;
+- Drive has an existing BROKEN-only repair path;
+- confirmed Evade Drive wear is still not implemented;
+- encounter-end restoration/cleanup is still deferred;
+- generic BROKEN gating/repair across all breakable equipment is still unfinished.
 
-Runtime hotkey assignment and gamepad support are recorded in:
+When intended design and runtime truth differ, keep the difference explicit. Do not silently rewrite one to look like the
+other.
 
-`ideas/combat_ui.md`
+## Working rules for the next atom
 
-Do not let future gamepad concerns veto good mouse/keyboard combat interaction now. Preserve semantic input boundaries so
-a later focus/navigation layer can call the same actions without changing engine rules.
+Follow `docs/WORKING_RULES.md`.
+
+In particular:
+
+- Russian, direct, small atoms;
+- discuss ambiguous UX/behavior before implementation;
+- engine owns gameplay legality;
+- views present mapped truth;
+- simple/dumb code over speculative architecture;
+- roughly 120 columns;
+- no pointless primitive ID aliases;
+- re-fetch exact current files before patch generation;
+- prefer `.patch`;
+- user applies, validates, commits and pushes.
+
+Do not touch without a concrete reason:
+
+- `src/config/gameConfig.ts`;
+- EndScene console logging;
+- `ScreenWakeLock`;
+- `BridgeMissileDebugView`.
+
+## Next-chat continuation
+
+Read this file, fetch fresh `master`, inspect the current player dashboard special-column code and the BRIDGE-related
+runtime model.
+
+Then ACK and discuss **BRIDGE** first.
