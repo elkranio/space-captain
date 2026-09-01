@@ -1,4 +1,6 @@
+import { DEFENSE_TURRETS } from "../../../../../../engine/content/catalogs/defense_turrets";
 import { SHIP_WEAPONS } from "../../../../../../engine/content/catalogs/ship_weapons";
+import { DEFENSE_TURRET_POWER_COST } from "../../../../../../engine/defs/defense_turret";
 import type {
     PlayerDefenseTurretPresentationSnapshot,
     PlayerWeaponPresentationSnapshot,
@@ -153,11 +155,31 @@ function mapDefenseTurretStatus(
         return {};
     }
 
+    if (!defenseTurret.integrity) {
+        throw new Error("Captain dashboard Defense Turret requires integrity snapshot");
+    }
+
+    const definition = DEFENSE_TURRETS[defenseTurret.state.defenseTurretId];
+
+    if (!definition) {
+        throw new Error(
+            "Captain dashboard Defense Turret definition not found: " +
+                defenseTurret.state.defenseTurretId,
+        );
+    }
+
     const cooldownProgress = getDefenseTurretCooldownProgress(defenseTurret);
 
     return {
         defenseTurret: {
+            shortName: definition.shortName,
+            powerCost: DEFENSE_TURRET_POWER_COST,
+
             phase: defenseTurret.state.phase,
+
+            integrity: {
+                ...defenseTurret.integrity,
+            },
 
             ...(cooldownProgress !== undefined
                 ? {

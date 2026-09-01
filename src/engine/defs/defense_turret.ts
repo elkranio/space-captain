@@ -15,6 +15,9 @@ export const DEFENSE_TURRET_ID = {
     BASIC_00: "defense_turret_basic_00",
 } as const;
 
+// Shared Power Core charge cost of one player Defense Turret intercept.
+export const DEFENSE_TURRET_POWER_COST = 1;
+
 export type DefenseTurretDefinition = {
     id: string;
     name: string;

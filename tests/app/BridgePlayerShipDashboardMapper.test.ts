@@ -705,6 +705,36 @@ describe(
                                 capacity: 4,
                             },
 
+                            defenseTurret: {
+                                state: {
+                                    id:
+                                        'defense_turret_player_00',
+
+                                    defenseTurretId:
+                                        'defense_turret_basic_00',
+
+                                    phase:
+                                        'ready',
+
+                                    phaseElapsedMs:
+                                        0,
+
+                                    cooldownRemainingMs:
+                                        0,
+
+                                    targetProjectileId:
+                                        null,
+                                },
+
+                                cooldownDurationMs:
+                                    8000,
+
+                                integrity: {
+                                    current: 2,
+                                    max: 2,
+                                },
+                            },
+
                             shieldGenerator: {
                                 id:
                                     'shield_generator_player_00',
@@ -754,6 +784,21 @@ describe(
 
                         integrity:
                             1,
+                    },
+
+                    defenseTurret: {
+                        shortName:
+                            'DEF. TURRET',
+
+                        powerCost: 1,
+
+                        phase:
+                            'ready',
+
+                        integrity: {
+                            current: 2,
+                            max: 2,
+                        },
                     },
 
                     shield: {
@@ -926,6 +971,7 @@ function createSpamSnapshot(
         phaseElapsedMs: 0,
         cooldownRemainingMs: 0,
         activeChannelId: null,
+        channelPurged: false,
     });
 }
 

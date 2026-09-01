@@ -74,9 +74,20 @@ describe(
                     payload.status
                         ?.defenseTurret,
                 ).toEqual({
+                    shortName:
+                        'DEF. TURRET',
+
+                    powerCost:
+                        1,
+
                     phase:
                         DEFENSE_TURRET_PHASE
                             .READY,
+
+                    integrity: {
+                        current: 2,
+                        max: 2,
+                    },
 
                     intercept: {
                         threatId:
@@ -123,9 +134,20 @@ describe(
                     payload.status
                         ?.defenseTurret,
                 ).toEqual({
+                    shortName:
+                        'DEF. TURRET',
+
+                    powerCost:
+                        1,
+
                     phase:
                         DEFENSE_TURRET_PHASE
                             .COOLDOWN,
+
+                    integrity: {
+                        current: 2,
+                        max: 2,
+                    },
 
                     cooldownProgress:
                         0.5,
@@ -215,6 +237,11 @@ function createBaseInput(): MapperInput {
 
                 cooldownDurationMs:
                     8000,
+
+                integrity: {
+                    current: 2,
+                    max: 2,
+                },
             },
         },
     };

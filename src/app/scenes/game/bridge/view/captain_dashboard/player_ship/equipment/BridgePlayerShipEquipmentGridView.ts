@@ -14,6 +14,9 @@ import BridgeBeamCannonTileView, {
     BEAM_CANNON_PROGRESS_MODE,
     type BeamCannonHoverAction,
 } from "./BridgeBeamCannonTileView";
+import BridgeDefenseTurretTileView, {
+    DEFENSE_TURRET_PROGRESS_MODE,
+} from "./BridgeDefenseTurretTileView";
 import BridgeMissileLauncherTileView, {
     MISSILE_LAUNCHER_HOVER_ACTION,
     MISSILE_LAUNCHER_PROGRESS_MODE,
@@ -53,6 +56,8 @@ export default class BridgePlayerShipEquipmentGridView {
     private readonly stickyMineDispenserTiles = new Map<string, BridgeStickyMineDispenserTileView>();
 
     private readonly spamProjectorTiles = new Map<string, BridgeSpamProjectorTileView>();
+
+    private defenseTurretTile?: BridgeDefenseTurretTileView;
 
     private readonly weaponsById = new Map<string, BridgePlayerWeaponDashboardPayload>();
 
@@ -131,6 +136,9 @@ export default class BridgePlayerShipEquipmentGridView {
         for (const tile of this.spamProjectorTiles.values()) {
             tile.destroy();
         }
+
+        this.defenseTurretTile?.destroy();
+        this.defenseTurretTile = undefined;
 
         this.missileLauncherTiles.clear();
         this.beamCannonTiles.clear();
@@ -220,6 +228,8 @@ export default class BridgePlayerShipEquipmentGridView {
             }
         }
 
+        this.reconcileDefenseTurretTile(payload, weapons.length);
+
         for (const [weaponId, tile] of this.missileLauncherTiles) {
             if (visibleMissileIds.has(weaponId)) {
                 continue;
@@ -255,6 +265,42 @@ export default class BridgePlayerShipEquipmentGridView {
             tile.destroy();
             this.spamProjectorTiles.delete(weaponId);
         }
+    }
+
+    private reconcileDefenseTurretTile(
+        payload: BridgePlayerShipDashboardUpdatedPayload,
+        slotIndex: number,
+    ): void {
+        const status = payload.status;
+        const defenseTurret = status?.defenseTurret;
+
+        if (!status || !defenseTurret || slotIndex >= GRID.columns * GRID.rows) {
+            this.defenseTurretTile?.destroy();
+            this.defenseTurretTile = undefined;
+            return;
+        }
+
+        if (!this.defenseTurretTile) {
+            this.defenseTurretTile = new BridgeDefenseTurretTileView(
+                this.scene,
+                this.slotWidth,
+                this.slotHeight,
+            );
+            this.root.add(this.defenseTurretTile.getRoot());
+        }
+
+        const column = slotIndex % GRID.columns;
+        const row = Math.floor(slotIndex / GRID.columns);
+        const x = column * (this.slotWidth + GRID.columnGap);
+        const y = row * (this.slotHeight + GRID.rowGap);
+
+        this.slotBackgrounds[slotIndex]?.setFillStyle(
+            CAPTAIN_DASHBOARD_STYLE.equipmentSlot.weaponBackgroundColor,
+            CAPTAIN_DASHBOARD_STYLE.equipmentSlot.backgroundAlpha,
+        );
+
+        this.defenseTurretTile.setPosition(x, y);
+        this.updateDefenseTurretTile(this.defenseTurretTile, status);
     }
 
     private getSlotBackgroundColor(kind: BridgePlayerWeaponDashboardPayload["kind"]): number {
@@ -341,6 +387,37 @@ export default class BridgePlayerShipEquipmentGridView {
         this.root.add(tile.getRoot());
 
         return tile;
+    }
+
+    private updateDefenseTurretTile(
+        tile: BridgeDefenseTurretTileView,
+        status: NonNullable<BridgePlayerShipDashboardUpdatedPayload["status"]>,
+    ): void {
+        const defenseTurret = status.defenseTurret;
+
+        if (!defenseTurret) {
+            throw new Error("Captain dashboard Defense Turret tile requires turret payload");
+        }
+
+        tile.setTitle(defenseTurret.shortName);
+        tile.setPowerCost(defenseTurret.powerCost);
+        tile.setIntegrity(defenseTurret.integrity.current, defenseTurret.integrity.max);
+
+        if (defenseTurret.intercept) {
+            tile.setProgress(
+                DEFENSE_TURRET_PROGRESS_MODE.INTERCEPT,
+                defenseTurret.intercept.progress,
+            );
+        } else if (defenseTurret.cooldownProgress !== undefined) {
+            tile.setProgress(
+                DEFENSE_TURRET_PROGRESS_MODE.COOLDOWN,
+                defenseTurret.cooldownProgress,
+            );
+        } else if (status.powerCore.current < defenseTurret.powerCost) {
+            tile.setResourceBlocked();
+        } else {
+            tile.resetProgress();
+        }
     }
 
     private updateStickyMineDispenserTile(

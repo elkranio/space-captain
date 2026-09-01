@@ -1,7 +1,10 @@
 // src/engine/encounter/commands/handlers/weapons_defense_turret_command_handler.ts
 
 import { OFFICER_ROLE } from "../../../defs/officer";
-import { DEFENSE_TURRET_PHASE } from "../../../defs/defense_turret";
+import {
+    DEFENSE_TURRET_PHASE,
+    DEFENSE_TURRET_POWER_COST,
+} from "../../../defs/defense_turret";
 import { COMBAT_PROJECTILE_KIND, COMBAT_SOURCE_KIND, COMBAT_TARGET_KIND } from "../../model/combat";
 import { ENCOUNTER_OFFICER_COMMAND_ID, OFFICER_COMMAND_TARGET_KIND, type OfficerCommandDef } from "../../model/command";
 import type { OfficerCommandHandler } from "../../model/officer_command_handler";
@@ -33,7 +36,7 @@ export const weaponsInterceptMissileCommandHandler: OfficerCommandHandler = {
             !defenseTurret ||
             defenseTurret.phase !== DEFENSE_TURRET_PHASE.READY ||
             !powerCore ||
-            powerCore.charges <= 0
+            powerCore.charges < DEFENSE_TURRET_POWER_COST
         ) {
             return [];
         }
@@ -79,7 +82,7 @@ export const weaponsInterceptMissileCommandHandler: OfficerCommandHandler = {
     execute(context, input) {
         const threatId = requireThreatTargetId(input);
 
-        context.stateStore.spendPowerCoreCharge();
+        context.stateStore.spendPowerCoreCharges(DEFENSE_TURRET_POWER_COST);
 
         context.stateStore.startPlayerDefenseTurretCooldown();
 

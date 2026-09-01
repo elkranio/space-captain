@@ -57,6 +57,11 @@ export type PlayerDefenseTurretPresentationSnapshot = {
     state: ShipDefenseTurretState;
 
     cooldownDurationMs: number;
+
+    integrity?: {
+        current: number;
+        max: number;
+    };
 };
 
 export type PlayerWeaponPresentationSnapshot = {
@@ -163,7 +168,10 @@ export function createCombatPresentationSnapshot(state: EncounterState): CombatP
 
             ...(state.combat.defenseTurret
                 ? {
-                      defenseTurret: createPlayerDefenseTurretPresentationSnapshot(state.combat.defenseTurret),
+                      defenseTurret: createPlayerDefenseTurretPresentationSnapshot(
+                          state.combat.defenseTurret,
+                          state.combat.defenseTurret.integrity,
+                      ),
                   }
                 : {}),
 
@@ -278,6 +286,7 @@ function createMissilePresentationSnapshot(projectile: MissileCombatProjectileSt
 
 export function createPlayerDefenseTurretPresentationSnapshot(
     state: ShipDefenseTurretState,
+    integrity?: number,
 ): PlayerDefenseTurretPresentationSnapshot {
     const definition = DEFENSE_TURRETS[state.defenseTurretId];
 
@@ -289,6 +298,15 @@ export function createPlayerDefenseTurretPresentationSnapshot(
         state: createDefenseTurretStateSnapshot(state),
 
         cooldownDurationMs: definition.cooldownDurationMs,
+
+        ...(integrity !== undefined
+            ? {
+                  integrity: {
+                      current: integrity,
+                      max: definition.maxIntegrity,
+                  },
+              }
+            : {}),
     };
 }
 

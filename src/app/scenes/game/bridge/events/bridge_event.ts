@@ -414,7 +414,15 @@ export type BridgePlayerShipDashboardUpdatedPayload = {
         };
 
         defenseTurret?: {
+            shortName: string;
+            powerCost: number;
+
             phase: DefenseTurretPhase;
+
+            integrity: {
+                current: number;
+                max: number;
+            };
 
             cooldownProgress?: number;
 
