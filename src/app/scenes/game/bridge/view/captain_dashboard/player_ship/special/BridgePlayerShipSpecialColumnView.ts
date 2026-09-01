@@ -22,6 +22,7 @@ const COLUMN = {
     bridgeCellGap: 4,
 
     hullRowsPerColumn: 10,
+    hullSegmentHeight: 7,
     hullSegmentRowGap: 2,
     hullSegmentColumnGap: 4,
     hullSegmentInset: 1,
@@ -215,13 +216,13 @@ export default class BridgePlayerShipSpecialColumnView {
         }
 
         const availableHeight = this.hullPanelHeight - COLUMN.hullContentTopY;
-        const segmentHeight = Math.floor(
-            (availableHeight - COLUMN.hullSegmentRowGap * (rowsPerColumn - 1)) /
-                rowsPerColumn,
-        );
+        const segmentHeight = COLUMN.hullSegmentHeight;
+        const fullColumnHeight =
+            rowsPerColumn * segmentHeight +
+            (rowsPerColumn - 1) * COLUMN.hullSegmentRowGap;
 
-        if (segmentHeight <= COLUMN.hullSegmentInset * 2) {
-            throw new Error("Player HULL HP segments are too short to render");
+        if (fullColumnHeight > availableHeight) {
+            throw new Error("Player HULL panel is too short for fixed HP segments");
         }
 
         const availableWidth = this.width - COLUMN.contentX * 2;
