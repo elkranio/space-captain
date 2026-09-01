@@ -60,6 +60,8 @@ export default class BridgeSpamProjectorTileView {
 
     private readonly hoverActionText: Phaser.GameObjects.BitmapText;
 
+    private readonly purgedText: Phaser.GameObjects.BitmapText;
+
     private readonly integrityRoot: Phaser.GameObjects.Container;
 
     private readonly hitArea: Phaser.GameObjects.Zone;
@@ -133,6 +135,18 @@ export default class BridgeSpamProjectorTileView {
             .setTint(FONT_COLOR.PRIMARY)
             .setVisible(false);
 
+        this.purgedText = this.scene.add
+            .bitmapText(
+                TILE.horizontalPadding,
+                TILE.statusY - 4,
+                FONT_FAMILY.UI_PRIMARY,
+                "PURGED",
+                FONT_SIZE.PX_20,
+            )
+            .setOrigin(0, 0)
+            .setTint(FONT_COLOR.DANGER)
+            .setVisible(false);
+
         this.integrityRoot = this.scene.add.container(0, 0);
 
         this.hitArea = this.scene.add
@@ -152,6 +166,7 @@ export default class BridgeSpamProjectorTileView {
             this.progressIcon,
             this.hoverRoleText,
             this.hoverActionText,
+            this.purgedText,
             this.integrityRoot,
             this.hoverOutline,
             this.hitArea,
@@ -168,6 +183,10 @@ export default class BridgeSpamProjectorTileView {
 
     public setTitle(title: string): void {
         this.titleText.setText(title);
+    }
+
+    public setPurged(purged: boolean): void {
+        this.purgedText.setVisible(purged);
     }
 
     public setIntegrity(current: number, max: number): void {

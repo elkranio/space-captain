@@ -492,6 +492,12 @@ function mapWeapon(
                       }
                     : {}),
 
+                ...(weapon.phase === SHIP_WEAPON_PHASE.CHANNELING && weapon.channelPurged
+                    ? {
+                          purged: true,
+                      }
+                    : {}),
+
                 ...(cooldownProgress !== undefined
                     ? {
                           cooldownProgress,

@@ -258,6 +258,7 @@ export default class PlayerShipStore {
         weapon.phase = SHIP_WEAPON_PHASE.CHANNELING;
 
         weapon.phaseElapsedMs = 0;
+        weapon.channelPurged = false;
 
         commitShipWeaponCooldown(weapon, definition.cooldownDurationMs);
 
@@ -284,6 +285,7 @@ export default class PlayerShipStore {
         const channelId = weapon.activeChannelId;
 
         weapon.activeChannelId = null;
+        weapon.channelPurged = false;
 
         const definition = SHIP_WEAPONS[weapon.weaponId];
 

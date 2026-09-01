@@ -166,6 +166,9 @@ export function createShipWeaponStateSnapshot(
 
                 activeChannelId:
                     state.activeChannelId,
+
+                channelPurged:
+                    state.channelPurged,
             };
 
         case SHIP_WEAPON_KIND.STICKY_MINE_DISPENSER:

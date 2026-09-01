@@ -201,26 +201,23 @@ describe(
                 expect(projector).toMatchObject({
                     phase:
                         SHIP_WEAPON_PHASE
-                            .COOLDOWN,
+                            .CHANNELING,
 
                     phaseElapsedMs:
                         SCIENCE_PURGE_SPAM_DURATION_MS *
                         2,
 
-                    cooldownRemainingMs:
-                        SPAM_DEFINITION
-                            .cooldownDurationMs -
-                        SCIENCE_PURGE_SPAM_DURATION_MS *
-                        2,
-
                     activeChannelId:
                         null,
+
+                    channelPurged:
+                        true,
                 });
 
                 expect(
                     setup.engine
                         .getOfficerTasks(),
-                ).toEqual([]);
+                ).toHaveLength(1);
 
                 expect(
                     setup.targetActor
@@ -241,6 +238,59 @@ describe(
                         .getEnemyDebugSnapshots()[0]
                         ?.crewProgressMultiplier,
                 ).toBeUndefined();
+
+                const remainingChannelMs =
+                    SPAM_DEFINITION
+                        .channelDurationMs -
+                    SCIENCE_PURGE_SPAM_DURATION_MS *
+                        2;
+
+                expect(
+                    remainingChannelMs,
+                ).toBeGreaterThan(0);
+
+                setup.engine.step(
+                    remainingChannelMs,
+                );
+
+                expect(
+                    setup.engine
+                        .drainEvents()
+                        .filter((event) => {
+                            return (
+                                event.type ===
+                                ENCOUNTER_EVENT
+                                    .PLAYER_SPAM_CHANNEL_ENDED
+                            );
+                        }),
+                ).toEqual([]);
+
+                expect(projector).toMatchObject({
+                    phase:
+                        SHIP_WEAPON_PHASE
+                            .COOLDOWN,
+
+                    phaseElapsedMs:
+                        SPAM_DEFINITION
+                            .channelDurationMs,
+
+                    cooldownRemainingMs:
+                        SPAM_DEFINITION
+                            .cooldownDurationMs -
+                        SPAM_DEFINITION
+                            .channelDurationMs,
+
+                    activeChannelId:
+                        null,
+
+                    channelPurged:
+                        false,
+                });
+
+                expect(
+                    setup.engine
+                        .getOfficerTasks(),
+                ).toEqual([]);
             },
         );
 

@@ -29,6 +29,7 @@ export default class SpamProjectorFactory {
             cooldownRemainingMs: 0,
 
             activeChannelId: null,
+            channelPurged: false,
         };
     }
 }

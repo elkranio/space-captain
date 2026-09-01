@@ -56,19 +56,8 @@ export default class PlayerSpamProjectorRunner {
             return false;
         }
 
-        const endedChannelId = this.options.stateStore.cancelPlayerSpamProjection(projector.id);
-
-        if (endedChannelId !== channelId) {
-            throw new Error(
-                "Purged player spam channel " +
-                    "does not match active channel: " +
-                    targetActorId +
-                    "/" +
-                    channelId +
-                    "/" +
-                    String(endedChannelId),
-            );
-        }
+        projector.activeChannelId = null;
+        projector.channelPurged = true;
 
         this.options.emit({
             type: ENCOUNTER_EVENT.PLAYER_SPAM_CHANNEL_ENDED,
@@ -81,8 +70,6 @@ export default class PlayerSpamProjectorRunner {
 
             outcome: PLAYER_SPAM_CHANNEL_OUTCOME.PURGED,
         });
-
-        this.options.officerTaskRunner.complete(task.id);
 
         return true;
     }
@@ -118,7 +105,7 @@ export default class PlayerSpamProjectorRunner {
     }
 
     private ensureChannelStarted(task: ScienceFireSpamTaskState, projector: SpamProjectorState): void {
-        if (projector.activeChannelId !== null) {
+        if (projector.channelPurged || projector.activeChannelId !== null) {
             return;
         }
 
@@ -149,26 +136,30 @@ export default class PlayerSpamProjectorRunner {
         }
 
         const channelId = projector.activeChannelId;
+        const channelPurged = projector.channelPurged;
 
-        if (!channelId) {
+        if (!channelPurged && !channelId) {
             throw new Error("Player spam projector channel " + "id is missing: " + task.id + "/" + projector.id);
         }
 
         projector.activeChannelId = null;
+        projector.channelPurged = false;
 
         finishShipWeaponAction(projector, definition.cooldownDurationMs);
 
-        this.options.emit({
-            type: ENCOUNTER_EVENT.PLAYER_SPAM_CHANNEL_ENDED,
+        if (!channelPurged && channelId) {
+            this.options.emit({
+                type: ENCOUNTER_EVENT.PLAYER_SPAM_CHANNEL_ENDED,
 
-            channelId,
+                channelId,
 
-            sourceWeaponId: projector.id,
+                sourceWeaponId: projector.id,
 
-            targetActorId: task.targetActorId,
+                targetActorId: task.targetActorId,
 
-            outcome: PLAYER_SPAM_CHANNEL_OUTCOME.EXPIRED,
-        });
+                outcome: PLAYER_SPAM_CHANNEL_OUTCOME.EXPIRED,
+            });
+        }
 
         this.options.officerTaskRunner.complete(task.id);
     }

@@ -184,6 +184,10 @@ export type SpamProjectorState = ShipWeaponBaseState & {
     kind: typeof SHIP_WEAPON_KIND.SPAM_PROJECTOR;
 
     activeChannelId: string | null;
+
+    // The projection effect was purged, but Science still owns
+    // the CHANNELING operation until its normal end.
+    channelPurged: boolean;
 };
 
 export type StickyMineDispenserState = ShipWeaponBaseState & {

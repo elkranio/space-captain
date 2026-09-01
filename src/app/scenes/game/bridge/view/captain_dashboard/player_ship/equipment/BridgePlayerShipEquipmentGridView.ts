@@ -354,6 +354,7 @@ export default class BridgePlayerShipEquipmentGridView {
         }
 
         tile.setTitle(weapon.shortName);
+        tile.setPurged(weapon.purged === true);
         tile.setIntegrity(weapon.integrity.current, weapon.integrity.max);
 
         if (weapon.channelingProgress !== undefined) {
