@@ -24,7 +24,7 @@ const EQUIPMENT_GRID = {
 // Левая половина captain dashboard.
 //
 // Header и equipment grid уже используют финальную полноразмерную геометрию.
-// Справа от 4x3 grid уже рисуется placeholder column для BRIDGE / HULL.
+// Справа от 4x3 grid HULL показывает authoritative HP, BRIDGE пока остается placeholder.
 export default class BridgePlayerShipDashboardView {
     private readonly root: Phaser.GameObjects.Container;
 
@@ -66,6 +66,7 @@ export default class BridgePlayerShipDashboardView {
 
         this.specialColumnView = new BridgePlayerShipSpecialColumnView(
             scene,
+            eventBus,
             EQUIPMENT_GRID.specialColumnWidth,
             equipmentGridHeight,
         );
