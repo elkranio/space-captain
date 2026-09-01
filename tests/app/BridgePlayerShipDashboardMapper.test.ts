@@ -484,6 +484,58 @@ describe(
         );
 
         it(
+            'maps Sticky Mine dispensing progress',
+            () => {
+                const dispenser =
+                    createStickyMineSnapshot(
+                        'sticky_mine_dispenser_player_00',
+                        5,
+                    );
+
+                dispenser.state.phase =
+                    SHIP_WEAPON_PHASE.DISPENSING;
+                dispenser.state.phaseElapsedMs =
+                    1000;
+                dispenser.phaseDurationMs =
+                    2000;
+
+                expect(
+                    mapPlayerShipToBridgeDashboardPayload({
+                        weapons: [
+                            dispenser,
+                        ],
+                        availableWeaponsCommands: [],
+                        weaponsOfficerAvailability:
+                            OFFICER_AVAILABILITY_STATE
+                                .BUSY,
+                    }).weapons,
+                ).toEqual([
+                    {
+                        id:
+                            dispenser.state.id,
+                        weaponId:
+                            dispenser.state.weaponId,
+                        shortName:
+                            'MINE DISPENSER',
+                        kind:
+                            dispenser.state.kind,
+                        ammo: {
+                            current: 5,
+                            max: 6,
+                        },
+                        dispensingProgress:
+                            0.5,
+                        action: {
+                            state:
+                                BRIDGE_PLAYER_SYSTEM_ACTION_STATE
+                                    .ENGAGED_CURRENT_WORK,
+                        },
+                    },
+                ]);
+            },
+        );
+
+        it(
             'uses Science availability and the exact projector command for SPAM',
             () => {
                 const projectorId =

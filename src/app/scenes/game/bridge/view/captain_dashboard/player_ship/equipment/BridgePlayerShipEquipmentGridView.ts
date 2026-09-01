@@ -19,6 +19,11 @@ import BridgeMissileLauncherTileView, {
     MISSILE_LAUNCHER_PROGRESS_MODE,
     type MissileLauncherHoverAction,
 } from "./BridgeMissileLauncherTileView";
+import BridgeStickyMineDispenserTileView, {
+    STICKY_MINE_DISPENSER_HOVER_ACTION,
+    STICKY_MINE_DISPENSER_PROGRESS_MODE,
+    type StickyMineDispenserHoverAction,
+} from "./BridgeStickyMineDispenserTileView";
 
 const GRID = {
     columns: 4,
@@ -30,7 +35,7 @@ const GRID = {
 
 // Базовая 4x3 сетка equipment slots.
 //
-// Пока production-проход поддерживает Missile Launcher и Beam Cannon.
+// Пока production-проход поддерживает Missile Launcher, Beam Cannon и Sticky Mine Dispenser.
 // До появления authoritative slot coordinates оружие занимает grid cell
 // по порядку полного weapons snapshot; неподдерживаемые виды оставляют cell пустым.
 export default class BridgePlayerShipEquipmentGridView {
@@ -39,6 +44,8 @@ export default class BridgePlayerShipEquipmentGridView {
     private readonly missileLauncherTiles = new Map<string, BridgeMissileLauncherTileView>();
 
     private readonly beamCannonTiles = new Map<string, BridgeBeamCannonTileView>();
+
+    private readonly stickyMineDispenserTiles = new Map<string, BridgeStickyMineDispenserTileView>();
 
     private readonly weaponsById = new Map<string, BridgePlayerWeaponDashboardPayload>();
 
@@ -107,8 +114,13 @@ export default class BridgePlayerShipEquipmentGridView {
             tile.destroy();
         }
 
+        for (const tile of this.stickyMineDispenserTiles.values()) {
+            tile.destroy();
+        }
+
         this.missileLauncherTiles.clear();
         this.beamCannonTiles.clear();
+        this.stickyMineDispenserTiles.clear();
         this.weaponsById.clear();
         this.root.destroy(true);
     }
@@ -117,6 +129,7 @@ export default class BridgePlayerShipEquipmentGridView {
         const weapons = payload.weapons ?? [];
         const visibleMissileIds = new Set<string>();
         const visibleBeamIds = new Set<string>();
+        const visibleStickyMineDispenserIds = new Set<string>();
 
         this.weaponsById.clear();
 
@@ -157,7 +170,16 @@ export default class BridgePlayerShipEquipmentGridView {
                     break;
                 }
 
-                case SHIP_WEAPON_KIND.STICKY_MINE_DISPENSER:
+                case SHIP_WEAPON_KIND.STICKY_MINE_DISPENSER: {
+                    visibleStickyMineDispenserIds.add(weapon.id);
+
+                    const tile = this.getOrCreateStickyMineDispenserTile(weapon.id);
+
+                    tile.setPosition(x, y);
+                    this.updateStickyMineDispenserTile(tile, weapon);
+                    break;
+                }
+
                 case SHIP_WEAPON_KIND.SPAM_PROJECTOR:
                     break;
             }
@@ -180,6 +202,32 @@ export default class BridgePlayerShipEquipmentGridView {
             tile.destroy();
             this.beamCannonTiles.delete(weaponId);
         }
+
+        for (const [weaponId, tile] of this.stickyMineDispenserTiles) {
+            if (visibleStickyMineDispenserIds.has(weaponId)) {
+                continue;
+            }
+
+            tile.destroy();
+            this.stickyMineDispenserTiles.delete(weaponId);
+        }
+    }
+
+    private getOrCreateStickyMineDispenserTile(weaponId: string): BridgeStickyMineDispenserTileView {
+        const existing = this.stickyMineDispenserTiles.get(weaponId);
+
+        if (existing) {
+            return existing;
+        }
+
+        const tile = new BridgeStickyMineDispenserTileView(this.scene, this.slotWidth, this.slotHeight, () => {
+            this.handleWeaponActionRequested(weaponId);
+        });
+
+        this.stickyMineDispenserTiles.set(weaponId, tile);
+        this.root.add(tile.getRoot());
+
+        return tile;
     }
 
     private getOrCreateMissileLauncherTile(weaponId: string): BridgeMissileLauncherTileView {
@@ -214,6 +262,41 @@ export default class BridgePlayerShipEquipmentGridView {
         this.root.add(tile.getRoot());
 
         return tile;
+    }
+
+    private updateStickyMineDispenserTile(
+        tile: BridgeStickyMineDispenserTileView,
+        weapon: BridgePlayerWeaponDashboardPayload,
+    ): void {
+        if (!weapon.ammo) {
+            throw new Error("Captain dashboard Sticky Mine Dispenser requires ammo payload: " + weapon.id);
+        }
+
+        if (!weapon.integrity) {
+            throw new Error("Captain dashboard Sticky Mine Dispenser requires integrity payload: " + weapon.id);
+        }
+
+        tile.setTitle(weapon.shortName);
+        tile.setAmmo(weapon.ammo.current);
+        tile.setIntegrity(weapon.integrity.current, weapon.integrity.max);
+
+        if (weapon.dispensingProgress !== undefined) {
+            tile.setProgress(STICKY_MINE_DISPENSER_PROGRESS_MODE.DISPENSING, weapon.dispensingProgress);
+        } else if (weapon.cooldownProgress !== undefined) {
+            tile.setProgress(STICKY_MINE_DISPENSER_PROGRESS_MODE.COOLDOWN, weapon.cooldownProgress);
+        } else if (weapon.ammo.current === 0) {
+            tile.setResourceBlocked();
+        } else {
+            tile.resetProgress();
+        }
+
+        let hoverAction: StickyMineDispenserHoverAction = STICKY_MINE_DISPENSER_HOVER_ACTION.NONE;
+
+        if (weapon.action.state === BRIDGE_PLAYER_SYSTEM_ACTION_STATE.ACTIVE) {
+            hoverAction = STICKY_MINE_DISPENSER_HOVER_ACTION.FIRE;
+        }
+
+        tile.setHoverAction(hoverAction);
     }
 
     private updateMissileLauncherTile(

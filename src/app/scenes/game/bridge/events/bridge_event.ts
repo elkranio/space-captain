@@ -359,6 +359,10 @@ export type BridgePlayerWeaponDashboardPayload = {
     // Undefined outside Beam charging.
     chargingProgress?: number;
 
+    // 0..1 elapsed Sticky Mine dispensing phase.
+    // Undefined outside dispensing.
+    dispensingProgress?: number;
+
     // Static Power Core charge cost for energy-backed weapons.
     powerCost?: number;
 
