@@ -141,6 +141,10 @@ export default class OfficerTaskEffects {
 
                 return;
 
+            case OFFICER_TASK_KIND.WEAPONS_DEFENSE_TURRET:
+                this.stateStore.finishPlayerDefenseTurretAttempt();
+                return;
+
             case OFFICER_TASK_KIND.WEAPONS_FIRE_MISSILE:
             case OFFICER_TASK_KIND.WEAPONS_FIRE_BEAM_CANNON:
                 this.cancelResettablePlayerWeaponTask(task);
@@ -203,6 +207,8 @@ export default class OfficerTaskEffects {
 
     private resolveWeaponsDefenseTurretTask(task: WeaponsDefenseTurretTaskState): OfficerTaskResult | undefined {
         const outcome = this.stateStore.fireDefenseTurret(task.threatId);
+
+        this.stateStore.finishPlayerDefenseTurretAttempt();
 
         if (!outcome) {
             return undefined;

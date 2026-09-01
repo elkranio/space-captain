@@ -367,15 +367,40 @@ export default class PlayerShipStore {
         emitter.phaseElapsedMs = 0;
     }
 
-    public startPlayerDefenseTurretCooldown(): void {
+    public startPlayerDefenseTurretLoading(threatId: string): void {
         const defenseTurret = this.state.combat.defenseTurret;
 
         if (!defenseTurret) {
-            throw new Error("Cannot start player Defense Turret cooldown: installation missing");
+            throw new Error("Cannot start player Defense Turret loading: installation missing");
         }
 
         if (defenseTurret.phase !== DEFENSE_TURRET_PHASE.READY) {
-            throw new Error("Cannot start player Defense Turret cooldown from phase: " + defenseTurret.phase);
+            throw new Error("Cannot start player Defense Turret loading from phase: " + defenseTurret.phase);
+        }
+
+        if (defenseTurret.cooldownRemainingMs !== 0) {
+            throw new Error(
+                "Ready player Defense Turret still has cooldown: " +
+                    defenseTurret.id +
+                    "/" +
+                    String(defenseTurret.cooldownRemainingMs),
+            );
+        }
+
+        defenseTurret.phase = DEFENSE_TURRET_PHASE.LOADING;
+        defenseTurret.phaseElapsedMs = 0;
+        defenseTurret.targetProjectileId = threatId;
+    }
+
+    public finishPlayerDefenseTurretAttempt(): void {
+        const defenseTurret = this.state.combat.defenseTurret;
+
+        if (!defenseTurret) {
+            throw new Error("Cannot finish player Defense Turret attempt: installation missing");
+        }
+
+        if (defenseTurret.phase !== DEFENSE_TURRET_PHASE.LOADING) {
+            throw new Error("Cannot finish player Defense Turret attempt from phase: " + defenseTurret.phase);
         }
 
         const definition = DEFENSE_TURRETS[defenseTurret.defenseTurretId];

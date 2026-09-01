@@ -245,8 +245,12 @@ export default class EncounterStateStore {
         this.playerShip.startPlayerShieldGeneratorCooldown();
     }
 
-    public startPlayerDefenseTurretCooldown(): void {
-        this.playerShip.startPlayerDefenseTurretCooldown();
+    public startPlayerDefenseTurretLoading(threatId: string): void {
+        this.playerShip.startPlayerDefenseTurretLoading(threatId);
+    }
+
+    public finishPlayerDefenseTurretAttempt(): void {
+        this.playerShip.finishPlayerDefenseTurretAttempt();
     }
 
     public deployPlayerShield(targetNode: BeamCannonTargetNode): ActiveShieldState {

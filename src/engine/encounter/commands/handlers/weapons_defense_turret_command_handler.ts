@@ -84,7 +84,7 @@ export const weaponsInterceptMissileCommandHandler: OfficerCommandHandler = {
 
         context.stateStore.spendPowerCoreCharges(DEFENSE_TURRET_POWER_COST);
 
-        context.stateStore.startPlayerDefenseTurretCooldown();
+        context.stateStore.startPlayerDefenseTurretLoading(threatId);
 
         context.startOfficerTask(createWeaponsDefenseTurretTask(threatId));
     },

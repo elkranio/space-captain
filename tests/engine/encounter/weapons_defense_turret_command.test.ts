@@ -173,6 +173,24 @@ describe(
                     engine,
                 );
 
+                expect(
+                    state.combat.powerCore,
+                ).toMatchObject({
+                    charges: 3,
+                });
+
+                expect(
+                    state.combat.defenseTurret,
+                ).toMatchObject({
+                    phase:
+                        DEFENSE_TURRET_PHASE.LOADING,
+
+                    phaseElapsedMs: 0,
+                    cooldownRemainingMs: 0,
+                    targetProjectileId:
+                        'projectile_1',
+                });
+
                 engine.drainEvents();
                 engine.step(
                     AIM_DURATION_MS,
@@ -217,23 +235,26 @@ describe(
                     phase:
                         DEFENSE_TURRET_PHASE.COOLDOWN,
 
-                    phaseElapsedMs:
-                        AIM_DURATION_MS,
+                    phaseElapsedMs: 0,
                     cooldownRemainingMs:
-                        COOLDOWN_DURATION_MS -
-                        AIM_DURATION_MS,
+                        COOLDOWN_DURATION_MS,
+                    targetProjectileId:
+                        null,
                 });
 
                 engine.step(
-                    COOLDOWN_DURATION_MS -
-                        AIM_DURATION_MS,
+                    COOLDOWN_DURATION_MS,
                 );
 
                 expect(
-                    engine.getAvailableCommands(
-                        OFFICER_ROLE.WEAPONS,
-                    ),
-                ).toEqual([]);
+                    state.combat.defenseTurret,
+                ).toMatchObject({
+                    phase:
+                        DEFENSE_TURRET_PHASE.READY,
+
+                    phaseElapsedMs: 0,
+                    cooldownRemainingMs: 0,
+                });
             },
         );
 
@@ -291,12 +312,66 @@ describe(
                     phase:
                         DEFENSE_TURRET_PHASE.COOLDOWN,
 
-                    phaseElapsedMs:
-                        AIM_DURATION_MS,
+                    phaseElapsedMs: 0,
                     cooldownRemainingMs:
-                        COOLDOWN_DURATION_MS -
-                        AIM_DURATION_MS,
+                        COOLDOWN_DURATION_MS,
+                    targetProjectileId:
+                        null,
                 });
+            },
+        );
+
+        it(
+            'starts a full cooldown when the player cancels INTERCEPT',
+            () => {
+                const {
+                    engine,
+                    state,
+                } = createEngineWithIncomingMissile();
+
+                executeIntercept(
+                    engine,
+                );
+
+                const task =
+                    engine.getOfficerTasks()[0];
+
+                if (!task) {
+                    throw new Error(
+                        'Expected Defense Turret task',
+                    );
+                }
+
+                engine.cancelTask(
+                    task.id,
+                );
+
+                expect(
+                    state.combat.powerCore,
+                ).toMatchObject({
+                    charges: 3,
+                });
+
+                expect(
+                    state.combat.projectiles,
+                ).toHaveLength(1);
+
+                expect(
+                    state.combat.defenseTurret,
+                ).toMatchObject({
+                    phase:
+                        DEFENSE_TURRET_PHASE.COOLDOWN,
+
+                    phaseElapsedMs: 0,
+                    cooldownRemainingMs:
+                        COOLDOWN_DURATION_MS,
+                    targetProjectileId:
+                        null,
+                });
+
+                expect(
+                    engine.getOfficerTasks(),
+                ).toEqual([]);
             },
         );
     },
