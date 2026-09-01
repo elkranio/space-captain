@@ -1,7 +1,7 @@
 {
   "textures": [
     {
-      "image": "atlas-0.png?v=1788260055843",
+      "image": "atlas-0.png?v=1788261917556",
       "format": "RGBA8888",
       "size": {
         "w": 2037,
@@ -1123,6 +1123,27 @@
           }
         },
         {
+          "filename": "equipment/icon_spam_projector",
+          "rotated": false,
+          "trimmed": false,
+          "sourceSize": {
+            "w": 100,
+            "h": 35
+          },
+          "spriteSourceSize": {
+            "x": 0,
+            "y": 0,
+            "w": 100,
+            "h": 35
+          },
+          "frame": {
+            "x": 1771,
+            "y": 1841,
+            "w": 100,
+            "h": 35
+          }
+        },
+        {
           "filename": "bridge/ui/threat_icons/spam",
           "rotated": false,
           "trimmed": true,
@@ -1180,7 +1201,7 @@
           },
           "frame": {
             "x": 1771,
-            "y": 1841,
+            "y": 1878,
             "w": 71,
             "h": 40
           }
@@ -1737,6 +1758,6 @@
   "meta": {
     "app": "https://www.codeandweb.com/texturepacker",
     "version": "3.0",
-    "smartupdate": "$TexturePacker:SmartUpdate:08383080961e42bb8fbf216dde5bea7f:45c6296e37e86caa8c860d910e9b8b23:cf935fe037ea9b5d3744d532996e235e$"
+    "smartupdate": "$TexturePacker:SmartUpdate:d8726ae6a16837b4eb441a151d978201:138bdb95ce086688ead9c1ed2d58953e:cf935fe037ea9b5d3744d532996e235e$"
   }
 }
