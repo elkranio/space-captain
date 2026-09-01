@@ -41,10 +41,19 @@ describe('BridgeEncounterSnapshotSynchronizer', () => {
                         },
 
                         drive: {
+                            shortName:
+                                'DRIVE',
+
+                            evadePowerCost:
+                                2,
+
                             status:
                                 'online',
 
                             integrity:
+                                2,
+
+                            maxIntegrity:
                                 2,
                         },
 

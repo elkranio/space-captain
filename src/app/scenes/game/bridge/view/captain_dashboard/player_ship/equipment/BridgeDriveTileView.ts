@@ -1,0 +1,195 @@
+// src/app/scenes/game/bridge/view/captain_dashboard/player_ship/equipment/BridgeDriveTileView.ts
+import {
+    EQUIPMENT_SPRITE_ID,
+    EQUIPMENT_SPRITES,
+} from "../../../../../../../manifests/equipment";
+import {
+    MICRO_ICON_ID,
+    MICRO_ICONS,
+} from "../../../../../../../manifests/micro_icons";
+import { FONT_COLOR, FONT_FAMILY, FONT_SIZE } from "../../../../../../../theme/font";
+import type BridgeScene from "../../../../BridgeScene";
+import { CAPTAIN_DASHBOARD_STYLE } from "../../captain_dashboard_style";
+
+const TILE = {
+    horizontalPadding: 9,
+
+    titleY: 3,
+
+    statusY: 70,
+
+    powerIconSize: 16,
+    powerIconOffsetY: 0,
+    powerTextOffsetY: -4,
+    powerTextGap: -2,
+
+    integrityPipSize: 8,
+    integrityPipGap: 3,
+} as const;
+
+// EVADE execution remains outside this presentation-only tile for now.
+// The tile only renders the installed Drive, its EVADE Power cost and integrity.
+export default class BridgeDriveTileView {
+    private readonly root: Phaser.GameObjects.Container;
+
+    private readonly titleText: Phaser.GameObjects.BitmapText;
+
+    private readonly icon: Phaser.GameObjects.Image;
+
+    private readonly powerIcon: Phaser.GameObjects.Image;
+
+    private readonly powerText: Phaser.GameObjects.BitmapText;
+
+    private readonly integrityRoot: Phaser.GameObjects.Container;
+
+    private chromeColor: number = FONT_COLOR.PRIMARY;
+
+    private integrityCurrent = 0;
+
+    private integrityMax = 0;
+
+    constructor(
+        private readonly scene: BridgeScene,
+        private readonly width: number,
+        height: number,
+    ) {
+        this.root = this.scene.add.container(0, 0);
+
+        this.titleText = this.scene.add
+            .bitmapText(
+                TILE.horizontalPadding,
+                TILE.titleY,
+                FONT_FAMILY.UI_PRIMARY,
+                "",
+                FONT_SIZE.PX_20,
+            )
+            .setOrigin(0, 0)
+            .setTint(this.chromeColor);
+
+        const sprite = EQUIPMENT_SPRITES[EQUIPMENT_SPRITE_ID.DRIVE];
+        const centerX = Math.round(this.width / 2);
+        const centerY = Math.round(height / 2) + 1;
+
+        this.icon = this.scene.add
+            .image(centerX, centerY, sprite.atlasKey, sprite.frameKey)
+            .setTint(CAPTAIN_DASHBOARD_STYLE.equipmentProgress.readyColor);
+
+        const powerSprite = MICRO_ICONS[MICRO_ICON_ID.POWER_CHARGE];
+
+        this.powerIcon = this.scene.add
+            .image(
+                TILE.horizontalPadding,
+                TILE.statusY + TILE.powerIconOffsetY,
+                powerSprite.atlasKey,
+                powerSprite.frameKey,
+            )
+            .setOrigin(0, 0)
+            .setTint(this.chromeColor);
+
+        this.powerText = this.scene.add
+            .bitmapText(
+                TILE.horizontalPadding + TILE.powerIconSize + TILE.powerTextGap,
+                TILE.statusY + TILE.powerTextOffsetY,
+                FONT_FAMILY.UI_PRIMARY,
+                "0",
+                FONT_SIZE.PX_20,
+            )
+            .setOrigin(0, 0)
+            .setTint(this.chromeColor);
+
+        this.integrityRoot = this.scene.add.container(0, 0);
+
+        this.root.add([
+            this.titleText,
+            this.icon,
+            this.powerIcon,
+            this.powerText,
+            this.integrityRoot,
+        ]);
+    }
+
+    public getRoot(): Phaser.GameObjects.Container {
+        return this.root;
+    }
+
+    public setPosition(x: number, y: number): void {
+        this.root.setPosition(x, y);
+    }
+
+    public setTitle(title: string): void {
+        this.titleText.setText(title);
+    }
+
+    public setEvadePowerCost(cost: number): void {
+        this.powerText.setText(`${cost}`);
+    }
+
+    public setIntegrity(current: number, max: number): void {
+        this.integrityCurrent = current;
+        this.integrityMax = max;
+        this.renderIntegrity();
+    }
+
+    public setBroken(): void {
+        this.setStateColor(CAPTAIN_DASHBOARD_STYLE.equipmentProgress.repairColor);
+    }
+
+    public setResourceBlocked(): void {
+        this.setStateColor(CAPTAIN_DASHBOARD_STYLE.equipmentProgress.cooldownColor);
+    }
+
+    public resetState(): void {
+        this.icon.setTint(CAPTAIN_DASHBOARD_STYLE.equipmentProgress.readyColor);
+        this.setChromeColor(FONT_COLOR.PRIMARY);
+    }
+
+    public destroy(): void {
+        this.root.destroy(true);
+    }
+
+    private setStateColor(color: number): void {
+        this.icon.setTint(color);
+        this.setChromeColor(color);
+    }
+
+    private setChromeColor(color: number): void {
+        this.chromeColor = color;
+        this.titleText.setTint(color);
+        this.powerText.setTint(color);
+        this.powerIcon.setTint(color);
+        this.renderIntegrity();
+    }
+
+    private renderIntegrity(): void {
+        this.integrityRoot.removeAll(true);
+
+        if (this.integrityMax <= 0) {
+            return;
+        }
+
+        const totalWidth =
+            this.integrityMax * TILE.integrityPipSize +
+            (this.integrityMax - 1) * TILE.integrityPipGap;
+        const startX = this.width - TILE.horizontalPadding - totalWidth;
+        const emptyColor = 0x0b1621;
+
+        for (let index = 0; index < this.integrityMax; index += 1) {
+            const filled = index < this.integrityCurrent;
+            const x = startX + index * (TILE.integrityPipSize + TILE.integrityPipGap);
+
+            const pip = this.scene.add
+                .rectangle(
+                    x,
+                    TILE.statusY + 2,
+                    TILE.integrityPipSize,
+                    TILE.integrityPipSize,
+                    filled ? this.chromeColor : emptyColor,
+                    1,
+                )
+                .setOrigin(0, 0)
+                .setStrokeStyle(1, this.chromeColor);
+
+            this.integrityRoot.add(pip);
+        }
+    }
+}

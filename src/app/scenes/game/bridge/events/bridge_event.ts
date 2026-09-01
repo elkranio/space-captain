@@ -409,8 +409,13 @@ export type BridgePlayerShipDashboardUpdatedPayload = {
         };
 
         drive: {
+            shortName: string;
+            evadePowerCost: number;
+
             status: ShipDriveStatus;
+
             integrity: number;
+            maxIntegrity: number;
         };
 
         defenseTurret?: {

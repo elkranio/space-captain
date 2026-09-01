@@ -1,5 +1,6 @@
 // src/app/scenes/game/bridge/view/captain_dashboard/player_ship/equipment/BridgePlayerShipEquipmentGridView.ts
 import { SHIELD_GENERATOR_STATUS } from "../../../../../../../../engine/defs/shield_generator";
+import { SHIP_DRIVE_STATUS } from "../../../../../../../../engine/defs/ship_drive";
 import { SHIP_WEAPON_KIND } from "../../../../../../../../engine/defs/ship_weapon";
 import type BridgeScene from "../../../../BridgeScene";
 import type BridgeEventBus from "../../../../events/BridgeEventBus";
@@ -18,6 +19,7 @@ import BridgeBeamCannonTileView, {
 import BridgeDefenseTurretTileView, {
     DEFENSE_TURRET_PROGRESS_MODE,
 } from "./BridgeDefenseTurretTileView";
+import BridgeDriveTileView from "./BridgeDriveTileView";
 import BridgeMissileLauncherTileView, {
     MISSILE_LAUNCHER_HOVER_ACTION,
     MISSILE_LAUNCHER_PROGRESS_MODE,
@@ -64,6 +66,8 @@ export default class BridgePlayerShipEquipmentGridView {
     private defenseTurretTile?: BridgeDefenseTurretTileView;
 
     private shieldGeneratorTile?: BridgeShieldGeneratorTileView;
+
+    private driveTile?: BridgeDriveTileView;
 
     private readonly weaponsById = new Map<string, BridgePlayerWeaponDashboardPayload>();
 
@@ -146,6 +150,9 @@ export default class BridgePlayerShipEquipmentGridView {
         this.shieldGeneratorTile?.destroy();
         this.shieldGeneratorTile = undefined;
 
+        this.driveTile?.destroy();
+        this.driveTile = undefined;
+
         this.missileLauncherTiles.clear();
         this.beamCannonTiles.clear();
         this.stickyMineDispenserTiles.clear();
@@ -223,12 +230,19 @@ export default class BridgePlayerShipEquipmentGridView {
         }
 
         const defenseTurretSlotIndex = weapons.length;
+        const shieldGeneratorSlotIndex =
+            defenseTurretSlotIndex + (payload.status?.defenseTurret ? 1 : 0);
 
         this.reconcileDefenseTurretTile(payload, defenseTurretSlotIndex);
 
         this.reconcileShieldGeneratorTile(
             payload,
-            defenseTurretSlotIndex + (payload.status?.defenseTurret ? 1 : 0),
+            shieldGeneratorSlotIndex,
+        );
+
+        this.reconcileDriveTile(
+            payload,
+            shieldGeneratorSlotIndex + (payload.status?.shield ? 1 : 0),
         );
 
         for (const [weaponId, tile] of this.missileLauncherTiles) {
@@ -328,6 +342,36 @@ export default class BridgePlayerShipEquipmentGridView {
 
         this.shieldGeneratorTile.setPosition(x, y);
         this.updateShieldGeneratorTile(this.shieldGeneratorTile, status);
+    }
+
+    private reconcileDriveTile(
+        payload: BridgePlayerShipDashboardUpdatedPayload,
+        slotIndex: number,
+    ): void {
+        const status = payload.status;
+
+        if (!status || slotIndex >= GRID.columns * GRID.rows) {
+            this.driveTile?.destroy();
+            this.driveTile = undefined;
+            return;
+        }
+
+        if (!this.driveTile) {
+            this.driveTile = new BridgeDriveTileView(
+                this.scene,
+                this.slotWidth,
+                this.slotHeight,
+            );
+            this.root.add(this.driveTile.getRoot());
+        }
+
+        const column = slotIndex % GRID.columns;
+        const row = Math.floor(slotIndex / GRID.columns);
+        const x = column * (this.slotWidth + GRID.columnGap);
+        const y = row * (this.slotHeight + GRID.rowGap);
+
+        this.driveTile.setPosition(x, y);
+        this.updateDriveTile(this.driveTile, status);
     }
 
     private getOrCreateStickyMineDispenserTile(weaponId: string): BridgeStickyMineDispenserTileView {
@@ -459,6 +503,25 @@ export default class BridgePlayerShipEquipmentGridView {
             tile.setResourceBlocked();
         } else {
             tile.resetProgress();
+        }
+    }
+
+    private updateDriveTile(
+        tile: BridgeDriveTileView,
+        status: NonNullable<BridgePlayerShipDashboardUpdatedPayload["status"]>,
+    ): void {
+        const drive = status.drive;
+
+        tile.setTitle(drive.shortName);
+        tile.setEvadePowerCost(drive.evadePowerCost);
+        tile.setIntegrity(drive.integrity, drive.maxIntegrity);
+
+        if (drive.status === SHIP_DRIVE_STATUS.DISABLED) {
+            tile.setBroken();
+        } else if (status.powerCore.current < drive.evadePowerCost) {
+            tile.setResourceBlocked();
+        } else {
+            tile.resetState();
         }
     }
 

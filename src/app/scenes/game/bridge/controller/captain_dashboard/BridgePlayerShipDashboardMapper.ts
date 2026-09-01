@@ -1,5 +1,6 @@
 import { DEFENSE_TURRETS } from "../../../../../../engine/content/catalogs/defense_turrets";
 import { SHIELD_GENERATORS } from "../../../../../../engine/content/catalogs/shield_generators";
+import { SHIP_DRIVES } from "../../../../../../engine/content/catalogs/ship_drives";
 import { SHIP_WEAPONS } from "../../../../../../engine/content/catalogs/ship_weapons";
 import { DEFENSE_TURRET_POWER_COST } from "../../../../../../engine/defs/defense_turret";
 import type {
@@ -107,6 +108,11 @@ function mapStatus(
     dashboardInput: PlayerShipDashboardMapperInput,
 ): NonNullable<BridgePlayerShipDashboardUpdatedPayload["status"]> {
     const powerCore = input.powerCore;
+    const driveDefinition = SHIP_DRIVES[input.drive.driveId];
+
+    if (!driveDefinition) {
+        throw new Error("Captain dashboard Drive definition not found: " + input.drive.driveId);
+    }
 
     return {
         hull: {
@@ -127,8 +133,13 @@ function mapStatus(
         },
 
         drive: {
+            shortName: driveDefinition.shortName,
+            evadePowerCost: driveDefinition.evadePowerCost,
+
             status: input.drive.status,
+
             integrity: input.drive.integrity,
+            maxIntegrity: driveDefinition.maxIntegrity,
         },
 
         ...mapDefenseTurretStatus(input, dashboardInput.officerTasks ?? []),

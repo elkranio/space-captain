@@ -789,11 +789,20 @@ describe(
                     },
 
                     drive: {
+                        shortName:
+                            'DRIVE',
+
+                        evadePowerCost:
+                            2,
+
                         status:
                             'online',
 
                         integrity:
                             1,
+
+                        maxIntegrity:
+                            2,
                     },
 
                     defenseTurret: {
