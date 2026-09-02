@@ -26,11 +26,6 @@ export type BridgeOfficerStationLayoutEntry = {
         y: number;
         side: "left" | "right";
     };
-
-    contextMenuPosition: {
-        x: number;
-        y: number;
-    };
 };
 
 const OFFICER_HIT_AREA = {
@@ -56,11 +51,6 @@ export const BRIDGE_OFFICER_STATION_LAYOUT = {
             y: 355,
             side: "left",
         },
-
-        contextMenuPosition: {
-            x: 115,
-            y: 373,
-        },
     },
 
     [OFFICER_ROLE.HELM]: {
@@ -79,11 +69,6 @@ export const BRIDGE_OFFICER_STATION_LAYOUT = {
             x: 487,
             y: 355,
             side: "left",
-        },
-
-        contextMenuPosition: {
-            x: 335,
-            y: 373,
         },
     },
 
@@ -104,11 +89,6 @@ export const BRIDGE_OFFICER_STATION_LAYOUT = {
             y: 355,
             side: "right",
         },
-
-        contextMenuPosition: {
-            x: 577,
-            y: 373,
-        },
     },
 
     [OFFICER_ROLE.ENGINEER]: {
@@ -127,11 +107,6 @@ export const BRIDGE_OFFICER_STATION_LAYOUT = {
             x: 837,
             y: 355,
             side: "right",
-        },
-
-        contextMenuPosition: {
-            x: 788,
-            y: 373,
         },
     },
 } as const satisfies Record<OfficerRole, BridgeOfficerStationLayoutEntry>;
