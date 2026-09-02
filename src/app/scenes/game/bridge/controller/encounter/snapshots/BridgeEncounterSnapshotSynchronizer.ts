@@ -3,7 +3,6 @@ import type { ShipEquipmentMountState } from "../../../../../../../engine/defs/s
 import type { EncounterPresentationSnapshot } from "../../../../../../../engine/encounter/snapshots/encounter_presentation_snapshot";
 import { BRIDGE_EVENT } from "../../../events/bridge_event";
 import type BridgeEventBus from "../../../events/BridgeEventBus";
-import { mapCaptainCombatContextToBridgePayload } from "../../captain_dashboard/BridgeCaptainCombatContextMapper";
 import {
     mapDefenseTurretThreatsToBridgePayload,
 } from "../../captain_dashboard/defense_turret/BridgeDefenseTurretThreatsMapper";
@@ -34,7 +33,6 @@ export default class BridgeEncounterSnapshotSynchronizer {
         this.syncEnemyShields(snapshot);
         this.syncEnemyEvades(snapshot);
         this.syncDefenseTurretThreats(snapshot);
-        this.syncCaptainCombatContext(snapshot);
         this.syncPlayerEvade(snapshot);
     }
 
@@ -48,7 +46,6 @@ export default class BridgeEncounterSnapshotSynchronizer {
         this.syncEnemyEvades(snapshot);
         this.syncBeamCannonThreats(snapshot);
         this.syncDefenseTurretThreats(snapshot);
-        this.syncCaptainCombatContext(snapshot);
         this.syncPlayerEvade(snapshot);
     }
 
@@ -118,34 +115,6 @@ export default class BridgeEncounterSnapshotSynchronizer {
                 officerTasks: snapshot.player.officerTasks,
 
                 playerThreatDecisionTimings: snapshot.playerThreatDecisionTimings,
-            }),
-        );
-    }
-
-    private syncCaptainCombatContext(snapshot: EncounterPresentationSnapshot): void {
-        this.eventBus.emit(
-            BRIDGE_EVENT.CAPTAIN_COMBAT_CONTEXT_UPDATED,
-
-            mapCaptainCombatContextToBridgePayload({
-                enemyShips: snapshot.enemyShips,
-
-                incomingMissiles: snapshot.incomingMissiles,
-
-                beamCannonThreats: snapshot.beamCannonThreats,
-
-                stickyMineSnapshots: snapshot.stickyMineSnapshots,
-
-                spamChannels: snapshot.spamChannels,
-
-                playerThreatDecisionTimings: snapshot.playerThreatDecisionTimings,
-
-                officerTasks: snapshot.player.officerTasks,
-
-                availableScienceCommands: snapshot.commandsByRole[OFFICER_ROLE.SCIENCE],
-
-                availableWeaponsCommands: snapshot.commandsByRole[OFFICER_ROLE.WEAPONS],
-
-                availableEngineeringCommands: snapshot.commandsByRole[OFFICER_ROLE.ENGINEER],
             }),
         );
     }
