@@ -1,7 +1,7 @@
 {
   "textures": [
     {
-      "image": "atlas-0.png?v=1788289836442",
+      "image": "atlas-0.png?v=1788336887782",
       "format": "RGBA8888",
       "size": {
         "w": 2038,
@@ -1480,6 +1480,27 @@
           }
         },
         {
+          "filename": "icons/micro/defense_turret_target_available",
+          "rotated": false,
+          "trimmed": false,
+          "sourceSize": {
+            "w": 12,
+            "h": 12
+          },
+          "spriteSourceSize": {
+            "x": 0,
+            "y": 0,
+            "w": 12,
+            "h": 12
+          },
+          "frame": {
+            "x": 1771,
+            "y": 1516,
+            "w": 12,
+            "h": 12
+          }
+        },
+        {
           "filename": "icons/micro/ammo_mine_standard",
           "rotated": false,
           "trimmed": false,
@@ -1821,6 +1842,6 @@
   "meta": {
     "app": "https://www.codeandweb.com/texturepacker",
     "version": "3.0",
-    "smartupdate": "$TexturePacker:SmartUpdate:5e2b5b79aca8ffeebce428cbb7f5593b:c17f6c8ad86407ff50c192268a19e49c:cf935fe037ea9b5d3744d532996e235e$"
+    "smartupdate": "$TexturePacker:SmartUpdate:94ddbf536212840b21ddc6aba6ec68af:ba9dc93b155102877e104452281b22f8:cf935fe037ea9b5d3744d532996e235e$"
   }
 }
