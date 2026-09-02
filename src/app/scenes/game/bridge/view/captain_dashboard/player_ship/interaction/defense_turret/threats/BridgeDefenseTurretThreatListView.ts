@@ -12,7 +12,7 @@ const LIST = {
 
     fireButtonWidth: 54,
     fireButtonHeight: 22,
-    fireButtonGap: 14,
+    fireButtonGap: 24,
 
     contentInsetRatio: 0.075,
     rightPadding: 6,
@@ -210,20 +210,21 @@ export default class BridgeDefenseTurretThreatListView {
         }
 
         const rowsHeight = Math.min(this.height, rowCount * LIST.rowHeight);
-        const cutoffHeight = Math.round(rowsHeight * LIST.cutoffHeightRatio);
-        const cutoffY = Math.round((rowsHeight - cutoffHeight) / 2);
+        const cutoffHeight =
+            Math.round((rowsHeight * LIST.cutoffHeightRatio) / 2) * 2;
+        const cutoffCenterY = Math.round(rowsHeight / 2);
 
         this.cutoffRoot.add(
             this.scene.add
                 .rectangle(
                     this.contentInsetX + this.cutoffX,
-                    cutoffY,
+                    cutoffCenterY,
                     LIST.cutoffWidth,
                     cutoffHeight,
                     FONT_COLOR.PRIMARY,
                     LIST.cutoffAlpha,
                 )
-                .setOrigin(0.5, 0),
+                .setOrigin(0.5, 0.5),
         );
     }
 

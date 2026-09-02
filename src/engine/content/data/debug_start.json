@@ -62,7 +62,7 @@
             {
                 "slotId": "weapon_01",
                 "type": "weapon",
-                "equipmentId": "missile_launcher_00"
+                "equipmentId": "ml_full_auto"
             }
         ]
     }

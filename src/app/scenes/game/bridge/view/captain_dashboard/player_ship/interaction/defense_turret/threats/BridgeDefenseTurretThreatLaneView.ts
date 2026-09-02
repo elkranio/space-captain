@@ -81,7 +81,7 @@ export default class BridgeDefenseTurretThreatLaneView {
         this.fireText = this.scene.add
             .bitmapText(
                 Math.round(this.geometry.fireButtonWidth / 2),
-                Math.round(this.height / 2) + 1,
+                Math.round(this.height / 2),
                 FONT_FAMILY.UI_PRIMARY,
                 "FIRE",
                 FONT_SIZE.PX_20,
@@ -193,24 +193,15 @@ export default class BridgeDefenseTurretThreatLaneView {
 
         for (
             let x = this.geometry.trajectoryLeftX;
-            x <= this.geometry.trajectoryRightX;
+            x + LANE.trajectoryDashWidth <= this.geometry.trajectoryRightX;
             x += step
         ) {
-            const width = Math.min(
-                LANE.trajectoryDashWidth,
-                this.geometry.trajectoryRightX - x,
-            );
-
-            if (width <= 0) {
-                break;
-            }
-
             this.root.add(
                 this.scene.add
                     .rectangle(
                         x,
                         centerY,
-                        width,
+                        LANE.trajectoryDashWidth,
                         LANE.trajectoryDashHeight,
                         FONT_COLOR.PRIMARY,
                         LANE.trajectoryAlpha,
