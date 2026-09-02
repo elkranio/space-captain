@@ -7,7 +7,7 @@ import type BridgeScene from "../../../../../BridgeScene";
 import type BridgeEventBus from "../../../../../events/BridgeEventBus";
 import {
     BRIDGE_EVENT,
-    type BridgeCaptainCombatContextUpdatedPayload,
+    type BridgeDefenseTurretThreatsUpdatedPayload,
     type BridgeOfficerCommandSelectedPayload,
 } from "../../../../../events/bridge_event";
 import BridgeDefenseTurretThreatListView from "./threats/BridgeDefenseTurretThreatListView";
@@ -29,7 +29,7 @@ export default class BridgeDefenseTurretInteractionView {
 
     private readonly threatListView: BridgeDefenseTurretThreatListView;
 
-    private latestCombatContext?: BridgeCaptainCombatContextUpdatedPayload;
+    private latestThreats: BridgeDefenseTurretThreatsUpdatedPayload = [];
 
     private openState = false;
 
@@ -83,8 +83,8 @@ export default class BridgeDefenseTurretInteractionView {
         ]);
 
         this.eventBus.on(
-            BRIDGE_EVENT.CAPTAIN_COMBAT_CONTEXT_UPDATED,
-            this.handleCombatContextUpdated,
+            BRIDGE_EVENT.DEFENSE_TURRET_THREATS_UPDATED,
+            this.handleThreatsUpdated,
             this,
         );
     }
@@ -100,7 +100,7 @@ export default class BridgeDefenseTurretInteractionView {
     public open(): void {
         this.openState = true;
         this.root.setVisible(true);
-        this.threatListView.open(this.latestCombatContext?.incomingMissiles ?? []);
+        this.threatListView.open(this.latestThreats);
     }
 
     public close(): void {
@@ -111,8 +111,8 @@ export default class BridgeDefenseTurretInteractionView {
 
     public destroy(): void {
         this.eventBus.off(
-            BRIDGE_EVENT.CAPTAIN_COMBAT_CONTEXT_UPDATED,
-            this.handleCombatContextUpdated,
+            BRIDGE_EVENT.DEFENSE_TURRET_THREATS_UPDATED,
+            this.handleThreatsUpdated,
             this,
         );
 
@@ -120,16 +120,16 @@ export default class BridgeDefenseTurretInteractionView {
         this.root.destroy(true);
     }
 
-    private handleCombatContextUpdated(
-        payload: BridgeCaptainCombatContextUpdatedPayload,
+    private handleThreatsUpdated(
+        payload: BridgeDefenseTurretThreatsUpdatedPayload,
     ): void {
-        this.latestCombatContext = payload;
+        this.latestThreats = payload;
 
         if (!this.openState) {
             return;
         }
 
-        this.threatListView.update(payload.incomingMissiles);
+        this.threatListView.update(payload);
     }
 
     private handleFireRequested(command: BridgeOfficerCommandSelectedPayload): void {

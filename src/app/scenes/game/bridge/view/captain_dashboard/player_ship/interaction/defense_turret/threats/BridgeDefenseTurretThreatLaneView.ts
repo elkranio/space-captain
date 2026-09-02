@@ -5,7 +5,7 @@ import {
 import { FONT_COLOR, FONT_FAMILY, FONT_SIZE } from "../../../../../../../../../theme/font";
 import type BridgeScene from "../../../../../../BridgeScene";
 import type {
-    BridgeCaptainIncomingMissilePayload,
+    BridgeDefenseTurretThreatPayload,
     BridgeOfficerCommandSelectedPayload,
 } from "../../../../../../events/bridge_event";
 import { CAPTAIN_DASHBOARD_STYLE } from "../../../../captain_dashboard_style";
@@ -212,7 +212,7 @@ export default class BridgeDefenseTurretThreatLaneView {
     }
 
     public update(
-        missile: BridgeCaptainIncomingMissilePayload,
+        missile: BridgeDefenseTurretThreatPayload,
         cutoffRemainingMs: number | null | undefined,
         interceptActive: boolean,
     ): void {

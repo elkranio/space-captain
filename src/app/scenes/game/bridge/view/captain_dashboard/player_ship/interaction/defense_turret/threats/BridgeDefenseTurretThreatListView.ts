@@ -2,7 +2,7 @@
 import { FONT_COLOR, FONT_FAMILY, FONT_SIZE } from "../../../../../../../../../theme/font";
 import type BridgeScene from "../../../../../../BridgeScene";
 import type {
-    BridgeCaptainIncomingMissilePayload,
+    BridgeDefenseTurretThreatPayload,
     BridgeOfficerCommandSelectedPayload,
 } from "../../../../../../events/bridge_event";
 import BridgeDefenseTurretThreatLaneView from "./BridgeDefenseTurretThreatLaneView";
@@ -93,7 +93,7 @@ export default class BridgeDefenseTurretThreatListView {
         this.root.setPosition(x, y);
     }
 
-    public open(missiles: BridgeCaptainIncomingMissilePayload[]): void {
+    public open(missiles: BridgeDefenseTurretThreatPayload[]): void {
         this.openState = true;
         this.clearRows();
 
@@ -114,7 +114,7 @@ export default class BridgeDefenseTurretThreatListView {
         this.emptyText.setVisible(false);
     }
 
-    public update(missiles: BridgeCaptainIncomingMissilePayload[]): void {
+    public update(missiles: BridgeDefenseTurretThreatPayload[]): void {
         if (!this.openState) {
             return;
         }
@@ -248,6 +248,6 @@ export default class BridgeDefenseTurretThreatListView {
     }
 }
 
-function getSharedCutoffRemainingMs(missiles: BridgeCaptainIncomingMissilePayload[]): number | null | undefined {
+function getSharedCutoffRemainingMs(missiles: BridgeDefenseTurretThreatPayload[]): number | null | undefined {
     return missiles[0]?.decisionTimings?.interceptMissileMinRemainingMs;
 }

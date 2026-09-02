@@ -62,6 +62,9 @@ export const BRIDGE_EVENT = {
     // стабильной player-ship части.
     PLAYER_SHIP_DASHBOARD_UPDATED: "player_ship_dashboard_updated",
 
+    // View-ready Defense Turret missile selector snapshot.
+    DEFENSE_TURRET_THREATS_UPDATED: "defense_turret_threats_updated",
+
     // View-ready contextual combat snapshot
     // для правой части captain dashboard.
     CAPTAIN_COMBAT_CONTEXT_UPDATED: "captain_combat_context_updated",
@@ -447,6 +450,28 @@ export type BridgePlayerShipDashboardUpdatedPayload = {
     // systems view treats omission as an empty full snapshot.
     weapons?: BridgePlayerWeaponDashboardPayload[];
 };
+
+export type BridgeDefenseTurretThreatPayload = {
+    projectileId: string;
+    designation: string;
+
+    timeToImpactMs: number;
+    initialTimeToImpactMs: number;
+
+    actions: {
+        interceptMissile?: BridgeOfficerCommandSelectedPayload;
+    };
+
+    activeTasks?: {
+        interceptMissileTaskId?: string;
+    };
+
+    decisionTimings?: {
+        interceptMissileMinRemainingMs: number | null;
+    };
+};
+
+export type BridgeDefenseTurretThreatsUpdatedPayload = BridgeDefenseTurretThreatPayload[];
 
 // #endregion
 
@@ -932,6 +957,8 @@ export type BridgeEventPayloadMap = {
     // Player ship status
 
     [BRIDGE_EVENT.PLAYER_SHIP_DASHBOARD_UPDATED]: BridgePlayerShipDashboardUpdatedPayload;
+
+    [BRIDGE_EVENT.DEFENSE_TURRET_THREATS_UPDATED]: BridgeDefenseTurretThreatsUpdatedPayload;
 
     [BRIDGE_EVENT.CAPTAIN_COMBAT_CONTEXT_UPDATED]: BridgeCaptainCombatContextUpdatedPayload;
 

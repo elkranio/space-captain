@@ -4,6 +4,9 @@ import type { EncounterPresentationSnapshot } from "../../../../../../../engine/
 import { BRIDGE_EVENT } from "../../../events/bridge_event";
 import type BridgeEventBus from "../../../events/BridgeEventBus";
 import { mapCaptainCombatContextToBridgePayload } from "../../captain_dashboard/BridgeCaptainCombatContextMapper";
+import {
+    mapDefenseTurretThreatsToBridgePayload,
+} from "../../captain_dashboard/defense_turret/BridgeDefenseTurretThreatsMapper";
 import { mapPlayerShipToBridgeDashboardPayload } from "../../captain_dashboard/BridgePlayerShipDashboardMapper";
 
 // App-side transport for continuously changing encounter read models.
@@ -30,6 +33,7 @@ export default class BridgeEncounterSnapshotSynchronizer {
         this.syncPlayerShield(snapshot);
         this.syncEnemyShields(snapshot);
         this.syncEnemyEvades(snapshot);
+        this.syncDefenseTurretThreats(snapshot);
         this.syncCaptainCombatContext(snapshot);
         this.syncPlayerEvade(snapshot);
     }
@@ -43,6 +47,7 @@ export default class BridgeEncounterSnapshotSynchronizer {
         this.syncEnemyShields(snapshot);
         this.syncEnemyEvades(snapshot);
         this.syncBeamCannonThreats(snapshot);
+        this.syncDefenseTurretThreats(snapshot);
         this.syncCaptainCombatContext(snapshot);
         this.syncPlayerEvade(snapshot);
     }
@@ -97,6 +102,22 @@ export default class BridgeEncounterSnapshotSynchronizer {
 
                     activeShield: snapshot.player.activeShield,
                 },
+            }),
+        );
+    }
+
+    private syncDefenseTurretThreats(snapshot: EncounterPresentationSnapshot): void {
+        this.eventBus.emit(
+            BRIDGE_EVENT.DEFENSE_TURRET_THREATS_UPDATED,
+
+            mapDefenseTurretThreatsToBridgePayload({
+                incomingMissiles: snapshot.incomingMissiles,
+
+                availableWeaponsCommands: snapshot.commandsByRole[OFFICER_ROLE.WEAPONS],
+
+                officerTasks: snapshot.player.officerTasks,
+
+                playerThreatDecisionTimings: snapshot.playerThreatDecisionTimings,
             }),
         );
     }
