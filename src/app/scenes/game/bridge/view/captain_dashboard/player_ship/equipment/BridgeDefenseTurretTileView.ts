@@ -1,12 +1,7 @@
 // src/app/scenes/game/bridge/view/captain_dashboard/player_ship/equipment/BridgeDefenseTurretTileView.ts
-import {
-    EQUIPMENT_SPRITE_ID,
-    EQUIPMENT_SPRITES,
-} from "../../../../../../../manifests/equipment";
-import {
-    MICRO_ICON_ID,
-    MICRO_ICONS,
-} from "../../../../../../../manifests/micro_icons";
+import { EQUIPMENT_SPRITE_ID, EQUIPMENT_SPRITES } from "../../../../../../../manifests/equipment";
+import { MICRO_ICON_ID, MICRO_ICONS } from "../../../../../../../manifests/micro_icons";
+import { EQUIPMENT_COLOR } from "../../../../../../../theme/equipment";
 import { FONT_COLOR, FONT_FAMILY, FONT_SIZE } from "../../../../../../../theme/font";
 import type BridgeScene from "../../../../BridgeScene";
 import { CAPTAIN_DASHBOARD_STYLE } from "../../captain_dashboard_style";
@@ -15,6 +10,11 @@ const TILE = {
     horizontalPadding: 9,
 
     titleY: 3,
+
+    targetIndicatorRight: 8,
+    targetIndicatorY: 8,
+    targetPulseAlpha: 0.65,
+    targetPulseDurationMs: 700,
 
     statusY: 70,
 
@@ -47,6 +47,8 @@ export default class BridgeDefenseTurretTileView {
 
     private readonly progressIcon: Phaser.GameObjects.Image;
 
+    private readonly targetIndicator: Phaser.GameObjects.Image;
+
     private readonly powerIcon: Phaser.GameObjects.Image;
 
     private readonly powerText: Phaser.GameObjects.BitmapText;
@@ -61,6 +63,8 @@ export default class BridgeDefenseTurretTileView {
 
     private progressVisible = false;
 
+    private targetsAvailable = false;
+
     constructor(
         private readonly scene: BridgeScene,
         private readonly width: number,
@@ -69,13 +73,7 @@ export default class BridgeDefenseTurretTileView {
         this.root = this.scene.add.container(0, 0);
 
         this.titleText = this.scene.add
-            .bitmapText(
-                TILE.horizontalPadding,
-                TILE.titleY,
-                FONT_FAMILY.UI_PRIMARY,
-                "",
-                FONT_SIZE.PX_20,
-            )
+            .bitmapText(TILE.horizontalPadding, TILE.titleY, FONT_FAMILY.UI_PRIMARY, "", FONT_SIZE.PX_20)
             .setOrigin(0, 0)
             .setTint(this.chromeColor);
 
@@ -90,6 +88,19 @@ export default class BridgeDefenseTurretTileView {
         this.progressIcon = this.scene.add
             .image(centerX, centerY, sprite.atlasKey, sprite.frameKey)
             .setTint(CAPTAIN_DASHBOARD_STYLE.equipmentProgress.readyColor)
+            .setVisible(false);
+
+        const targetSprite = MICRO_ICONS[MICRO_ICON_ID.DEFENSE_TURRET_TARGET_AVAILABLE];
+
+        this.targetIndicator = this.scene.add
+            .image(
+                this.width - TILE.targetIndicatorRight,
+                TILE.targetIndicatorY,
+                targetSprite.atlasKey,
+                targetSprite.frameKey,
+            )
+            .setOrigin(1, 0)
+            .setTint(EQUIPMENT_COLOR.TARGET_AVAILABLE)
             .setVisible(false);
 
         const powerSprite = MICRO_ICONS[MICRO_ICON_ID.POWER_CHARGE];
@@ -121,6 +132,7 @@ export default class BridgeDefenseTurretTileView {
             this.titleText,
             this.baseIcon,
             this.progressIcon,
+            this.targetIndicator,
             this.powerIcon,
             this.powerText,
             this.integrityRoot,
@@ -147,6 +159,29 @@ export default class BridgeDefenseTurretTileView {
         this.integrityCurrent = current;
         this.integrityMax = max;
         this.renderIntegrity();
+    }
+
+    public setTargetsAvailable(available: boolean): void {
+        if (this.targetsAvailable === available) {
+            return;
+        }
+
+        this.targetsAvailable = available;
+        this.scene.tweens.killTweensOf(this.targetIndicator);
+        this.targetIndicator.setVisible(available).setAlpha(1);
+
+        if (!available) {
+            return;
+        }
+
+        this.scene.tweens.add({
+            targets: this.targetIndicator,
+            alpha: TILE.targetPulseAlpha,
+            duration: TILE.targetPulseDurationMs,
+            ease: "Sine.InOut",
+            yoyo: true,
+            repeat: -1,
+        });
     }
 
     public setProgress(mode: DefenseTurretProgressMode, progress: number): void {
@@ -201,6 +236,7 @@ export default class BridgeDefenseTurretTileView {
     }
 
     public destroy(): void {
+        this.scene.tweens.killTweensOf(this.targetIndicator);
         this.root.destroy(true);
     }
 
@@ -219,9 +255,7 @@ export default class BridgeDefenseTurretTileView {
             return;
         }
 
-        const totalWidth =
-            this.integrityMax * TILE.integrityPipSize +
-            (this.integrityMax - 1) * TILE.integrityPipGap;
+        const totalWidth = this.integrityMax * TILE.integrityPipSize + (this.integrityMax - 1) * TILE.integrityPipGap;
         const startX = this.width - TILE.horizontalPadding - totalWidth;
         const emptyColor = 0x0b1621;
 

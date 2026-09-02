@@ -72,6 +72,8 @@ export default class BridgeEncounterSnapshotSynchronizer {
 
                 weaponsOfficerAvailability: officerAvailability[OFFICER_ROLE.WEAPONS],
 
+                incomingMissiles: snapshot.incomingMissiles,
+
                 availableHelmCommands: snapshot.commandsByRole[OFFICER_ROLE.HELM],
 
                 helmOfficerAvailability: officerAvailability[OFFICER_ROLE.HELM],

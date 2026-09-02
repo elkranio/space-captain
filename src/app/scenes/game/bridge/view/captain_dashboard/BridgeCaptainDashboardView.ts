@@ -4,13 +4,12 @@ import {
 } from "../../../../../manifests/bridge/captain_dashboard";
 import type BridgeScene from "../../BridgeScene";
 import type BridgeEventBus from "../../events/BridgeEventBus";
-import BridgeCaptainCombatContextView from "./combat_context/BridgeCaptainCombatContextView";
 import BridgePlayerShipDashboardView from "./player_ship/BridgePlayerShipDashboardView";
 
 // Root view капитанского dashboard.
 //
 // Два физических captain screen являются общей рамкой dashboard.
-// Legacy views пока просто центрируются внутри экранов.
+// The old right-side combat context is intentionally disconnected pending replacement.
 export default class BridgeCaptainDashboardView {
     private readonly root: Phaser.GameObjects.Container;
 
@@ -19,8 +18,6 @@ export default class BridgeCaptainDashboardView {
     private readonly combatContextScreen: Phaser.GameObjects.Image;
 
     private readonly playerShipView: BridgePlayerShipDashboardView;
-
-    private readonly combatContextView: BridgeCaptainCombatContextView;
 
     constructor(scene: BridgeScene, eventBus: BridgeEventBus) {
         this.root = scene.add.container(0, 0);
@@ -59,25 +56,14 @@ export default class BridgeCaptainDashboardView {
             screensY + Math.round((this.playerShipScreen.height - playerShipSize.height) / 2),
         );
 
-        this.combatContextView = new BridgeCaptainCombatContextView(scene, eventBus);
-
-        const combatContextSize = this.combatContextView.getSize();
-
-        this.combatContextView.setPosition(
-            combatContextScreenX + Math.round((this.combatContextScreen.width - combatContextSize.width) / 2),
-            screensY + Math.round((this.combatContextScreen.height - combatContextSize.height) / 2),
-        );
-
         this.root.add([
             this.playerShipScreen,
             this.combatContextScreen,
             this.playerShipView.getRoot(),
-            this.combatContextView.getRoot(),
         ]);
     }
 
     public destroy(): void {
-        this.combatContextView.destroy();
         this.playerShipView.destroy();
 
         this.playerShipScreen.destroy();

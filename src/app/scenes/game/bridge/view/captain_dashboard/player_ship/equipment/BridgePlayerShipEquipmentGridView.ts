@@ -455,6 +455,7 @@ export default class BridgePlayerShipEquipmentGridView {
         tile.setTitle(defenseTurret.shortName);
         tile.setPowerCost(defenseTurret.powerCost);
         tile.setIntegrity(defenseTurret.integrity.current, defenseTurret.integrity.max);
+        tile.setTargetsAvailable(defenseTurret.targets.length > 0);
 
         if (defenseTurret.intercept) {
             tile.setProgress(

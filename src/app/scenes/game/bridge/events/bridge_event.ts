@@ -441,6 +441,10 @@ export type BridgePlayerShipDashboardUpdatedPayload = {
                 max: number;
             };
 
+            targets: Array<{
+                threatId: string;
+            }>;
+
             cooldownProgress?: number;
 
             intercept?: {

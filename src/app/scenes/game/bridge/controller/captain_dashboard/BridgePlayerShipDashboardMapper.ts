@@ -5,6 +5,7 @@ import { SHIP_DRIVES } from "../../../../../../engine/content/catalogs/ship_driv
 import { SHIP_WEAPONS } from "../../../../../../engine/content/catalogs/ship_weapons";
 import { DEFENSE_TURRET_POWER_COST } from "../../../../../../engine/defs/defense_turret";
 import type {
+    MissilePresentationSnapshot,
     PlayerDefenseTurretPresentationSnapshot,
     PlayerShieldGeneratorPresentationSnapshot,
     PlayerWeaponPresentationSnapshot,
@@ -67,6 +68,8 @@ type PlayerShipDashboardMapperInput = {
     scienceOfficerAvailability?: OfficerAvailabilityState;
 
     officerTasks?: OfficerTaskState[];
+
+    incomingMissiles?: MissilePresentationSnapshot[];
 
     // Optional so focused mapper tests can exercise weapon rows without
     // constructing unrelated ship status.
@@ -217,6 +220,10 @@ function mapDefenseTurretStatus(
             integrity: {
                 ...defenseTurret.integrity,
             },
+
+            targets: (dashboardInput.incomingMissiles ?? []).map((missile) => ({
+                threatId: missile.id,
+            })),
 
             ...(cooldownProgress !== undefined
                 ? {
