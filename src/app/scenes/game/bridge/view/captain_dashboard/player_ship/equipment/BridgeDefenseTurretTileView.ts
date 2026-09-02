@@ -55,6 +55,8 @@ export default class BridgeDefenseTurretTileView {
 
     private readonly integrityRoot: Phaser.GameObjects.Container;
 
+    private readonly interactionHitArea: Phaser.GameObjects.Rectangle;
+
     private chromeColor: number = FONT_COLOR.PRIMARY;
 
     private integrityCurrent = 0;
@@ -65,12 +67,22 @@ export default class BridgeDefenseTurretTileView {
 
     private targetsAvailable = false;
 
+    private interactionEnabled = true;
+
     constructor(
         private readonly scene: BridgeScene,
         private readonly width: number,
         height: number,
+        onInteractionRequested: () => void,
     ) {
         this.root = this.scene.add.container(0, 0);
+
+        this.interactionHitArea = this.scene.add
+            .rectangle(0, 0, this.width, height, 0xffffff, 0)
+            .setOrigin(0, 0)
+            .setInteractive({ useHandCursor: true });
+
+        this.interactionHitArea.on("pointerup", onInteractionRequested);
 
         this.titleText = this.scene.add
             .bitmapText(TILE.horizontalPadding, TILE.titleY, FONT_FAMILY.UI_PRIMARY, "", FONT_SIZE.PX_20)
@@ -129,6 +141,7 @@ export default class BridgeDefenseTurretTileView {
         this.integrityRoot = this.scene.add.container(0, 0);
 
         this.root.add([
+            this.interactionHitArea,
             this.titleText,
             this.baseIcon,
             this.progressIcon,
@@ -159,6 +172,21 @@ export default class BridgeDefenseTurretTileView {
         this.integrityCurrent = current;
         this.integrityMax = max;
         this.renderIntegrity();
+    }
+
+    public setInteractionEnabled(enabled: boolean): void {
+        if (this.interactionEnabled === enabled) {
+            return;
+        }
+
+        this.interactionEnabled = enabled;
+
+        if (enabled) {
+            this.interactionHitArea.setInteractive({ useHandCursor: true });
+            return;
+        }
+
+        this.interactionHitArea.disableInteractive();
     }
 
     public setTargetsAvailable(available: boolean): void {

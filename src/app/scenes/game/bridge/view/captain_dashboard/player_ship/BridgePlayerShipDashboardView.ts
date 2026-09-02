@@ -2,6 +2,7 @@ import type BridgeScene from "../../../BridgeScene";
 import type BridgeEventBus from "../../../events/BridgeEventBus";
 import BridgePlayerShipEquipmentGridView from "./equipment/BridgePlayerShipEquipmentGridView";
 import BridgePlayerShipHeaderView from "./header/BridgePlayerShipHeaderView";
+import BridgeDefenseTurretInteractionView from "./interaction/defense_turret/BridgeDefenseTurretInteractionView";
 import BridgePlayerShipSpecialColumnView from "./special/BridgePlayerShipSpecialColumnView";
 
 const HEADER = {
@@ -34,6 +35,8 @@ export default class BridgePlayerShipDashboardView {
 
     private readonly specialColumnView: BridgePlayerShipSpecialColumnView;
 
+    private readonly defenseTurretInteractionView: BridgeDefenseTurretInteractionView;
+
     constructor(
         scene: BridgeScene,
         eventBus: BridgeEventBus,
@@ -61,6 +64,7 @@ export default class BridgePlayerShipDashboardView {
             eventBus,
             equipmentGridWidth,
             equipmentGridHeight,
+            () => this.openDefenseTurretInteraction(),
         );
         this.equipmentGridView.setPosition(EQUIPMENT_GRID.x, EQUIPMENT_GRID.y);
 
@@ -75,10 +79,21 @@ export default class BridgePlayerShipDashboardView {
             EQUIPMENT_GRID.y,
         );
 
+        const interactionWidth = this.width - EQUIPMENT_GRID.x - EQUIPMENT_GRID.rightPadding;
+
+        this.defenseTurretInteractionView = new BridgeDefenseTurretInteractionView(
+            scene,
+            interactionWidth,
+            () => this.closeDefenseTurretInteraction(),
+        );
+        this.defenseTurretInteractionView.setPosition(EQUIPMENT_GRID.x, EQUIPMENT_GRID.y);
+        this.defenseTurretInteractionView.getRoot().setVisible(false);
+
         this.root.add([
             this.headerView.getRoot(),
             this.equipmentGridView.getRoot(),
             this.specialColumnView.getRoot(),
+            this.defenseTurretInteractionView.getRoot(),
         ]);
     }
 
@@ -98,9 +113,22 @@ export default class BridgePlayerShipDashboardView {
     }
 
     public destroy(): void {
+        this.defenseTurretInteractionView.destroy();
         this.specialColumnView.destroy();
         this.equipmentGridView.destroy();
         this.headerView.destroy();
         this.root.destroy(false);
+    }
+
+    private openDefenseTurretInteraction(): void {
+        this.equipmentGridView.getRoot().setVisible(false);
+        this.specialColumnView.getRoot().setVisible(false);
+        this.defenseTurretInteractionView.getRoot().setVisible(true);
+    }
+
+    private closeDefenseTurretInteraction(): void {
+        this.defenseTurretInteractionView.getRoot().setVisible(false);
+        this.equipmentGridView.getRoot().setVisible(true);
+        this.specialColumnView.getRoot().setVisible(true);
     }
 }

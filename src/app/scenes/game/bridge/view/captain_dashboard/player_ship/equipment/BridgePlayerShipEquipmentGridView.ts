@@ -1,4 +1,5 @@
 // src/app/scenes/game/bridge/view/captain_dashboard/player_ship/equipment/BridgePlayerShipEquipmentGridView.ts
+import { DEFENSE_TURRET_PHASE } from "../../../../../../../../engine/defs/defense_turret";
 import { SHIELD_GENERATOR_STATUS } from "../../../../../../../../engine/defs/shield_generator";
 import { SHIP_DRIVE_STATUS } from "../../../../../../../../engine/defs/ship_drive";
 import { SHIP_WEAPON_KIND } from "../../../../../../../../engine/defs/ship_weapon";
@@ -80,6 +81,7 @@ export default class BridgePlayerShipEquipmentGridView {
         private readonly eventBus: BridgeEventBus,
         width: number,
         height: number,
+        private readonly onDefenseTurretInteractionRequested: () => void,
     ) {
         this.root = this.scene.add.container(0, 0);
 
@@ -315,6 +317,7 @@ export default class BridgePlayerShipEquipmentGridView {
                 this.scene,
                 this.slotWidth,
                 this.slotHeight,
+                this.onDefenseTurretInteractionRequested,
             );
             this.root.add(this.defenseTurretTile.getRoot());
         }
@@ -456,6 +459,14 @@ export default class BridgePlayerShipEquipmentGridView {
         tile.setPowerCost(defenseTurret.powerCost);
         tile.setIntegrity(defenseTurret.integrity.current, defenseTurret.integrity.max);
         tile.setTargetsAvailable(defenseTurret.targets.length > 0);
+        tile.setInteractionEnabled(
+            defenseTurret.integrity.current > 0 &&
+                defenseTurret.phase === DEFENSE_TURRET_PHASE.READY &&
+                !defenseTurret.intercept &&
+                defenseTurret.cooldownProgress === undefined &&
+                status.powerCore.current >= defenseTurret.powerCost &&
+                !defenseTurret.operatorBusy,
+        );
 
         if (defenseTurret.integrity.current <= 0) {
             tile.setBroken();
