@@ -83,11 +83,13 @@ export default class BridgePlayerShipDashboardView {
 
         this.defenseTurretInteractionView = new BridgeDefenseTurretInteractionView(
             scene,
+            eventBus,
             interactionWidth,
+            equipmentGridHeight,
             () => this.closeDefenseTurretInteraction(),
         );
         this.defenseTurretInteractionView.setPosition(EQUIPMENT_GRID.x, EQUIPMENT_GRID.y);
-        this.defenseTurretInteractionView.getRoot().setVisible(false);
+        this.defenseTurretInteractionView.close();
 
         this.root.add([
             this.headerView.getRoot(),
@@ -123,11 +125,11 @@ export default class BridgePlayerShipDashboardView {
     private openDefenseTurretInteraction(): void {
         this.equipmentGridView.getRoot().setVisible(false);
         this.specialColumnView.getRoot().setVisible(false);
-        this.defenseTurretInteractionView.getRoot().setVisible(true);
+        this.defenseTurretInteractionView.open();
     }
 
     private closeDefenseTurretInteraction(): void {
-        this.defenseTurretInteractionView.getRoot().setVisible(false);
+        this.defenseTurretInteractionView.close();
         this.equipmentGridView.getRoot().setVisible(true);
         this.specialColumnView.getRoot().setVisible(true);
     }
