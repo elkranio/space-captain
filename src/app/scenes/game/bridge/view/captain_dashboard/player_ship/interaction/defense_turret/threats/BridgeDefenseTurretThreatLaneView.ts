@@ -25,6 +25,7 @@ const LANE = {
     cutoffAlpha: 0.7,
 
     dangerBlinkMs: 220,
+    trackingFlashMs: 90,
 } as const;
 
 type ThreatLaneGeometry = {
@@ -66,7 +67,11 @@ export default class BridgeDefenseTurretThreatLaneView {
 
     private danger = false;
 
+    private dangerBlinkSuppressed = false;
+
     private dangerBlinkRed = false;
+
+    private trackingFlashUntilMs = 0;
 
     private dangerBlinkEvent?: Phaser.Time.TimerEvent;
 
@@ -226,12 +231,16 @@ export default class BridgeDefenseTurretThreatLaneView {
             ),
         );
 
-        this.trackingIndicator.update(
+        const trackingPulse = this.trackingIndicator.update(
             this.cancelTaskId !== undefined,
             this.geometry.trajectoryLeftX,
             this.threatIcon.x - Math.round(this.threatIcon.displayWidth / 2),
             Math.round(this.height / 2),
         );
+
+        if (trackingPulse) {
+            this.trackingFlashUntilMs = this.scene.time.now + LANE.trackingFlashMs;
+        }
 
         this.setDanger(
             cutoffRemainingMs === null ||
@@ -239,6 +248,7 @@ export default class BridgeDefenseTurretThreatLaneView {
                     cutoffRemainingMs !== undefined &&
                     missile.timeToImpactMs <= cutoffRemainingMs
                 ),
+            this.cancelTaskId !== undefined,
         );
 
         this.renderInteraction();
@@ -324,15 +334,19 @@ export default class BridgeDefenseTurretThreatLaneView {
         this.hitArea.disableInteractive();
     }
 
-    private setDanger(danger: boolean): void {
-        if (this.danger === danger) {
+    private setDanger(danger: boolean, suppressBlink: boolean): void {
+        if (
+            this.danger === danger &&
+            this.dangerBlinkSuppressed === suppressBlink
+        ) {
             return;
         }
 
         this.danger = danger;
+        this.dangerBlinkSuppressed = suppressBlink;
         this.stopDangerBlink();
 
-        if (!danger) {
+        if (!danger || suppressBlink) {
             this.dangerBlinkRed = false;
             this.renderThreatTint();
             return;
@@ -369,8 +383,18 @@ export default class BridgeDefenseTurretThreatLaneView {
                 ? FONT_COLOR.WHITE
                 : FONT_COLOR.PRIMARY;
 
+        if (
+            this.cancelTaskId !== undefined &&
+            this.scene.time.now < this.trackingFlashUntilMs
+        ) {
+            this.threatIcon.setTint(FONT_COLOR.ACTIVITY);
+            return;
+        }
+
         this.threatIcon.setTint(
-            this.danger && this.dangerBlinkRed
+            this.danger &&
+                !this.dangerBlinkSuppressed &&
+                this.dangerBlinkRed
                 ? CAPTAIN_DASHBOARD_STYLE.equipmentProgress.repairColor
                 : idleColor,
         );
