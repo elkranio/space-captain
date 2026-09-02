@@ -506,7 +506,7 @@ function createEncounterEngine(): EncounterEngine {
                                 'drive_player_00',
 
                             driveId:
-                                'drive_basic_00',
+                                'basic_00',
 
                             status:
                                 'online',

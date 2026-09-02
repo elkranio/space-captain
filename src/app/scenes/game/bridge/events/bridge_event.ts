@@ -445,6 +445,8 @@ export type BridgePlayerShipDashboardUpdatedPayload = {
                 threatId: string;
             }>;
 
+            operatorBusy: boolean;
+
             cooldownProgress?: number;
 
             intercept?: {

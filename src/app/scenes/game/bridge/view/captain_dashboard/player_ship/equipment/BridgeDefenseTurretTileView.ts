@@ -219,6 +219,15 @@ export default class BridgeDefenseTurretTileView {
         this.progressIcon.setVisible(this.progressVisible);
     }
 
+    public setBroken(): void {
+        const brokenColor = CAPTAIN_DASHBOARD_STYLE.equipmentProgress.repairColor;
+
+        this.baseIcon.setTint(brokenColor);
+        this.progressVisible = false;
+        this.progressIcon.setVisible(false);
+        this.setChromeColor(brokenColor);
+    }
+
     public setResourceBlocked(): void {
         const blockedColor = CAPTAIN_DASHBOARD_STYLE.equipmentProgress.cooldownColor;
 

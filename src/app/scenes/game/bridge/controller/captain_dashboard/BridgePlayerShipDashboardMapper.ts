@@ -225,6 +225,10 @@ function mapDefenseTurretStatus(
                 threatId: missile.id,
             })),
 
+            operatorBusy:
+                dashboardInput.weaponsOfficerAvailability ===
+                OFFICER_AVAILABILITY_STATE.BUSY,
+
             ...(cooldownProgress !== undefined
                 ? {
                       cooldownProgress,

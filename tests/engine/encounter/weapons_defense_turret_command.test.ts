@@ -259,6 +259,33 @@ describe(
         );
 
         it(
+            'does not offer INTERCEPT with a broken Defense Turret',
+            () => {
+                const {
+                    engine,
+                    state,
+                } = createEngineWithIncomingMissile();
+
+                const defenseTurret =
+                    state.combat.defenseTurret;
+
+                if (!defenseTurret) {
+                    throw new Error(
+                        'Expected player Defense Turret',
+                    );
+                }
+
+                defenseTurret.integrity = 0;
+
+                expect(
+                    engine.getAvailableCommands(
+                        OFFICER_ROLE.WEAPONS,
+                    ),
+                ).toEqual([]);
+            },
+        );
+
+        it(
             'does not offer INTERCEPT without a shared defensive charge',
             () => {
                 const {

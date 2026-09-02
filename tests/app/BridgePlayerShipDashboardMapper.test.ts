@@ -707,7 +707,7 @@ describe(
                                     'drive_player_00',
 
                                 driveId:
-                                    'drive_basic_00',
+                                    'basic_00',
 
                                 status:
                                     'online',
@@ -846,6 +846,10 @@ describe(
                             current: 2,
                             max: 2,
                         },
+
+                        targets: [],
+
+                        operatorBusy: false,
                     },
 
                     shield: {

@@ -89,6 +89,10 @@ describe(
                         max: 2,
                     },
 
+                    targets: [],
+
+                    operatorBusy: false,
+
                     intercept: {
                         threatId:
                             'incoming_00',
@@ -149,6 +153,10 @@ describe(
                         max: 2,
                     },
 
+                    targets: [],
+
+                    operatorBusy: false,
+
                     cooldownProgress:
                         0.5,
                 });
@@ -187,7 +195,7 @@ function createBaseInput(): MapperInput {
                     'drive_player_00',
 
                 driveId:
-                    'drive_basic_00',
+                    'basic_00',
 
                 status:
                     'online',

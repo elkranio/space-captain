@@ -7,6 +7,7 @@ import {
 } from "../../../defs/defense_turret";
 import { COMBAT_PROJECTILE_KIND, COMBAT_SOURCE_KIND, COMBAT_TARGET_KIND } from "../../model/combat";
 import { ENCOUNTER_OFFICER_COMMAND_ID, OFFICER_COMMAND_TARGET_KIND, type OfficerCommandDef } from "../../model/command";
+import { isEquipmentOperational } from "../../model/equipment";
 import type { OfficerCommandHandler } from "../../model/officer_command_handler";
 import { createWeaponsDefenseTurretTask } from "../../officer_tasks/create_officer_task_draft";
 import { requireThreatTargetId } from "./command_handler_helpers";
@@ -34,6 +35,7 @@ export const weaponsInterceptMissileCommandHandler: OfficerCommandHandler = {
 
         if (
             !defenseTurret ||
+            !isEquipmentOperational(defenseTurret) ||
             defenseTurret.phase !== DEFENSE_TURRET_PHASE.READY ||
             !powerCore ||
             powerCore.charges < DEFENSE_TURRET_POWER_COST

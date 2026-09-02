@@ -61,6 +61,15 @@ describe(
                 ).toEqual([
                     {
                         id:
+                            'spam_projector_player_00',
+                        kind:
+                            SHIP_WEAPON_KIND
+                                .SPAM_PROJECTOR,
+                        weaponId:
+                            'spam_projector_00',
+                    },
+                    {
+                        id:
                             'sticky_mine_dispenser_player_00',
                         kind:
                             SHIP_WEAPON_KIND
@@ -79,21 +88,12 @@ describe(
                     },
                     {
                         id:
-                            'spam_projector_player_00',
-                        kind:
-                            SHIP_WEAPON_KIND
-                                .SPAM_PROJECTOR,
-                        weaponId:
-                            'spam_projector_00',
-                    },
-                    {
-                        id:
                             'missile_launcher_player_00',
                         kind:
                             SHIP_WEAPON_KIND
                                 .MISSILE_LAUNCHER,
                         weaponId:
-                            'ml_full_auto',
+                            'missile_launcher_00',
                     },
                 ]);
             },

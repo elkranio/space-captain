@@ -457,7 +457,9 @@ export default class BridgePlayerShipEquipmentGridView {
         tile.setIntegrity(defenseTurret.integrity.current, defenseTurret.integrity.max);
         tile.setTargetsAvailable(defenseTurret.targets.length > 0);
 
-        if (defenseTurret.intercept) {
+        if (defenseTurret.integrity.current <= 0) {
+            tile.setBroken();
+        } else if (defenseTurret.intercept) {
             tile.setProgress(
                 DEFENSE_TURRET_PROGRESS_MODE.INTERCEPT,
                 defenseTurret.intercept.progress,
@@ -467,7 +469,10 @@ export default class BridgePlayerShipEquipmentGridView {
                 DEFENSE_TURRET_PROGRESS_MODE.COOLDOWN,
                 defenseTurret.cooldownProgress,
             );
-        } else if (status.powerCore.current < defenseTurret.powerCost) {
+        } else if (
+            status.powerCore.current < defenseTurret.powerCost ||
+            defenseTurret.operatorBusy
+        ) {
             tile.setResourceBlocked();
         } else {
             tile.resetProgress();
