@@ -19,16 +19,10 @@ const LIST = {
     rightPadding: 6,
 
     cutoffRatio: 0.25,
-
-    cutoffWidth: 2,
-    cutoffHeightRatio: 2 / 3,
-    cutoffAlpha: 0.7,
 } as const;
 
 export default class BridgeDefenseTurretThreatListView {
     private readonly root: Phaser.GameObjects.Container;
-
-    private readonly cutoffRoot: Phaser.GameObjects.Container;
 
     private readonly emptyText: Phaser.GameObjects.BitmapText;
 
@@ -47,10 +41,6 @@ export default class BridgeDefenseTurretThreatListView {
     private readonly cutoffX: number;
 
     private openState = false;
-
-    private renderedCutoffRowCount = -1;
-
-    private renderedCutoffVisible = false;
 
     constructor(
         private readonly scene: BridgeScene,
@@ -72,8 +62,6 @@ export default class BridgeDefenseTurretThreatListView {
             this.trajectoryLeftX + (this.trajectoryRightX - this.trajectoryLeftX) * LIST.cutoffRatio,
         );
 
-        this.cutoffRoot = this.scene.add.container(0, 0);
-
         this.emptyText = this.scene.add
             .bitmapText(
                 Math.round(this.width / 2),
@@ -86,7 +74,7 @@ export default class BridgeDefenseTurretThreatListView {
             .setTint(FONT_COLOR.PRIMARY)
             .setVisible(false);
 
-        this.root.add([this.cutoffRoot, this.emptyText]);
+        this.root.add(this.emptyText);
     }
 
     public getRoot(): Phaser.GameObjects.Container {
@@ -116,7 +104,6 @@ export default class BridgeDefenseTurretThreatListView {
         this.openState = false;
         this.clearRows();
         this.emptyText.setVisible(false);
-        this.renderCutoff(0, false);
     }
 
     public update(missiles: BridgeCaptainIncomingMissilePayload[]): void {
@@ -165,7 +152,7 @@ export default class BridgeDefenseTurretThreatListView {
         const hasRows = this.rowOrder.length > 0;
         this.emptyText.setVisible(!hasRows);
 
-        this.renderCutoff(this.rowOrder.length, hasRows && typeof cutoffRemainingMs === "number");
+
     }
 
     public destroy(): void {
@@ -202,38 +189,6 @@ export default class BridgeDefenseTurretThreatListView {
 
             row?.setPosition(this.contentInsetX, index * LIST.rowHeight);
         }
-    }
-
-    private renderCutoff(rowCount: number, visible: boolean): void {
-        if (this.renderedCutoffRowCount === rowCount && this.renderedCutoffVisible === visible) {
-            return;
-        }
-
-        this.renderedCutoffRowCount = rowCount;
-        this.renderedCutoffVisible = visible;
-        this.cutoffRoot.removeAll(true);
-
-        if (!visible || rowCount <= 0) {
-            return;
-        }
-
-        const rowsHeight = Math.min(this.height, rowCount * LIST.rowHeight);
-        const cutoffHeight =
-            Math.round((rowsHeight * LIST.cutoffHeightRatio) / 2) * 2;
-        const cutoffCenterY = Math.round(rowsHeight / 2);
-
-        this.cutoffRoot.add(
-            this.scene.add
-                .rectangle(
-                    this.contentInsetX + this.cutoffX,
-                    cutoffCenterY,
-                    LIST.cutoffWidth,
-                    cutoffHeight,
-                    FONT_COLOR.PRIMARY,
-                    LIST.cutoffAlpha,
-                )
-                .setOrigin(0.5, 0.5),
-        );
     }
 
     private clearRows(): void {

@@ -4,12 +4,16 @@ import type BridgeScene from "../../../../../../BridgeScene";
 const TRACKER = {
     width: 8,
     height: 8,
-    loopMs: 450,
+    loopMs: 600,
     targetGap: 8,
 } as const;
 
 export default class BridgeDefenseTurretTrackingIndicatorView {
     private readonly marker: Phaser.GameObjects.Triangle;
+
+    private active = false;
+
+    private cycleStartedAtMs = 0;
 
     constructor(private readonly scene: BridgeScene) {
         this.marker = this.scene.add
@@ -36,12 +40,24 @@ export default class BridgeDefenseTurretTrackingIndicatorView {
     public update(active: boolean, startX: number, targetX: number, y: number): void {
         const endX = targetX - TRACKER.targetGap;
 
-        if (!active || endX <= startX) {
+        if (!active) {
+            this.active = false;
             this.marker.setVisible(false);
             return;
         }
 
-        const phase = (this.scene.time.now % TRACKER.loopMs) / TRACKER.loopMs;
+        if (!this.active) {
+            this.active = true;
+            this.cycleStartedAtMs = this.scene.time.now;
+        }
+
+        if (endX <= startX) {
+            this.marker.setVisible(false);
+            return;
+        }
+
+        const elapsedMs = this.scene.time.now - this.cycleStartedAtMs;
+        const phase = (elapsedMs % TRACKER.loopMs) / TRACKER.loopMs;
         const x = Math.round(Phaser.Math.Linear(startX, endX, phase));
 
         this.marker.setPosition(x, y).setVisible(true);

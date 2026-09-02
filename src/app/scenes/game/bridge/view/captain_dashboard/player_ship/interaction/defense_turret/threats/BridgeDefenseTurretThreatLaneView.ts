@@ -20,6 +20,10 @@ const LANE = {
     actionHoverAlpha: 0.18,
     fireBorderThickness: 1,
 
+    cutoffWidth: 2,
+    cutoffHeight: 14,
+    cutoffAlpha: 0.7,
+
     dangerBlinkMs: 220,
 } as const;
 
@@ -71,6 +75,7 @@ export default class BridgeDefenseTurretThreatLaneView {
         this.root = this.scene.add.container(0, 0);
 
         this.createTrajectory();
+        this.createCutoff();
 
         const fireY = Math.round(
             (this.height - this.geometry.fireButtonHeight) / 2,
@@ -232,6 +237,21 @@ export default class BridgeDefenseTurretThreatLaneView {
                     .setOrigin(0, 0.5),
             );
         }
+    }
+
+    private createCutoff(): void {
+        this.root.add(
+            this.scene.add
+                .rectangle(
+                    this.geometry.cutoffX,
+                    Math.round(this.height / 2),
+                    LANE.cutoffWidth,
+                    LANE.cutoffHeight,
+                    FONT_COLOR.PRIMARY,
+                    LANE.cutoffAlpha,
+                )
+                .setOrigin(0.5, 0.5),
+        );
     }
 
     private setDanger(danger: boolean): void {
