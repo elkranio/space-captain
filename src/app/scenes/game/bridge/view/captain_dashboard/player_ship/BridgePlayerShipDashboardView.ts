@@ -1,5 +1,9 @@
 import type BridgeScene from "../../../BridgeScene";
 import type BridgeEventBus from "../../../events/BridgeEventBus";
+import {
+    BRIDGE_EVENT,
+    type BridgePlayerShipDashboardUpdatedPayload,
+} from "../../../events/bridge_event";
 import BridgePlayerShipEquipmentGridView from "./equipment/BridgePlayerShipEquipmentGridView";
 import BridgePlayerShipHeaderView from "./header/BridgePlayerShipHeaderView";
 import BridgeDefenseTurretInteractionView from "./interaction/defense_turret/BridgeDefenseTurretInteractionView";
@@ -37,9 +41,11 @@ export default class BridgePlayerShipDashboardView {
 
     private readonly defenseTurretInteractionView: BridgeDefenseTurretInteractionView;
 
+    private defenseTurretInteractionOpen = false;
+
     constructor(
         scene: BridgeScene,
-        eventBus: BridgeEventBus,
+        private readonly eventBus: BridgeEventBus,
         private readonly width: number,
         private readonly height: number,
     ) {
@@ -97,6 +103,12 @@ export default class BridgePlayerShipDashboardView {
             this.specialColumnView.getRoot(),
             this.defenseTurretInteractionView.getRoot(),
         ]);
+
+        this.eventBus.on(
+            BRIDGE_EVENT.PLAYER_SHIP_DASHBOARD_UPDATED,
+            this.handleDashboardUpdated,
+            this,
+        );
     }
 
     public getRoot(): Phaser.GameObjects.Container {
@@ -115,6 +127,12 @@ export default class BridgePlayerShipDashboardView {
     }
 
     public destroy(): void {
+        this.eventBus.off(
+            BRIDGE_EVENT.PLAYER_SHIP_DASHBOARD_UPDATED,
+            this.handleDashboardUpdated,
+            this,
+        );
+
         this.defenseTurretInteractionView.destroy();
         this.specialColumnView.destroy();
         this.equipmentGridView.destroy();
@@ -123,14 +141,32 @@ export default class BridgePlayerShipDashboardView {
     }
 
     private openDefenseTurretInteraction(): void {
+        this.defenseTurretInteractionOpen = true;
         this.equipmentGridView.getRoot().setVisible(false);
         this.specialColumnView.getRoot().setVisible(false);
         this.defenseTurretInteractionView.open();
     }
 
     private closeDefenseTurretInteraction(): void {
+        this.defenseTurretInteractionOpen = false;
         this.defenseTurretInteractionView.close();
         this.equipmentGridView.getRoot().setVisible(true);
         this.specialColumnView.getRoot().setVisible(true);
+    }
+
+    private handleDashboardUpdated(
+        payload: BridgePlayerShipDashboardUpdatedPayload,
+    ): void {
+        if (!this.defenseTurretInteractionOpen) {
+            return;
+        }
+
+        const defenseTurret = payload.status?.defenseTurret;
+
+        if (defenseTurret && defenseTurret.integrity.current > 0) {
+            return;
+        }
+
+        this.closeDefenseTurretInteraction();
     }
 }
