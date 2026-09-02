@@ -14,13 +14,13 @@ const LIST = {
     fireButtonHeight: 22,
     fireButtonGap: 14,
 
+    contentInsetRatio: 0.075,
     rightPadding: 6,
 
     cutoffRatio: 0.25,
 
-    cutoffDashWidth: 2,
-    cutoffDashHeight: 4,
-    cutoffDashGap: 4,
+    cutoffWidth: 2,
+    cutoffHeightRatio: 2 / 3,
     cutoffAlpha: 0.7,
 } as const;
 
@@ -34,6 +34,10 @@ export default class BridgeDefenseTurretThreatListView {
     private readonly rowsByThreatId = new Map<string, BridgeDefenseTurretThreatLaneView>();
 
     private rowOrder: string[] = [];
+
+    private readonly contentInsetX: number;
+
+    private readonly contentWidth: number;
 
     private readonly trajectoryLeftX: number;
 
@@ -55,8 +59,11 @@ export default class BridgeDefenseTurretThreatListView {
     ) {
         this.root = this.scene.add.container(0, 0);
 
+        this.contentInsetX = Math.round(this.width * LIST.contentInsetRatio);
+        this.contentWidth = this.width - this.contentInsetX * 2;
+
         this.trajectoryLeftX = LIST.fireButtonWidth + LIST.fireButtonGap;
-        this.trajectoryRightX = this.width - LIST.rightPadding;
+        this.trajectoryRightX = this.contentWidth - LIST.rightPadding;
 
         this.cutoffX = Math.round(
             this.trajectoryLeftX + (this.trajectoryRightX - this.trajectoryLeftX) * LIST.cutoffRatio,
@@ -163,7 +170,7 @@ export default class BridgeDefenseTurretThreatListView {
     private addRow(threatId: string): void {
         const row = new BridgeDefenseTurretThreatLaneView(
             this.scene,
-            this.width,
+            this.contentWidth,
             LIST.rowHeight,
             {
                 trajectoryLeftX: this.trajectoryLeftX,
@@ -185,7 +192,7 @@ export default class BridgeDefenseTurretThreatListView {
         for (let index = 0; index < this.rowOrder.length; index += 1) {
             const row = this.rowsByThreatId.get(this.rowOrder[index]);
 
-            row?.setPosition(0, index * LIST.rowHeight);
+            row?.setPosition(this.contentInsetX, index * LIST.rowHeight);
         }
     }
 
@@ -202,17 +209,22 @@ export default class BridgeDefenseTurretThreatListView {
             return;
         }
 
-        const height = Math.min(this.height, rowCount * LIST.rowHeight);
+        const rowsHeight = Math.min(this.height, rowCount * LIST.rowHeight);
+        const cutoffHeight = Math.round(rowsHeight * LIST.cutoffHeightRatio);
+        const cutoffY = Math.round((rowsHeight - cutoffHeight) / 2);
 
-        for (let y = 0; y < height; y += LIST.cutoffDashHeight + LIST.cutoffDashGap) {
-            const dashHeight = Math.min(LIST.cutoffDashHeight, height - y);
-
-            const dash = this.scene.add
-                .rectangle(this.cutoffX, y, LIST.cutoffDashWidth, dashHeight, FONT_COLOR.PRIMARY, LIST.cutoffAlpha)
-                .setOrigin(0.5, 0);
-
-            this.cutoffRoot.add(dash);
-        }
+        this.cutoffRoot.add(
+            this.scene.add
+                .rectangle(
+                    this.contentInsetX + this.cutoffX,
+                    cutoffY,
+                    LIST.cutoffWidth,
+                    cutoffHeight,
+                    FONT_COLOR.PRIMARY,
+                    LIST.cutoffAlpha,
+                )
+                .setOrigin(0.5, 0),
+        );
     }
 
     private clearRows(): void {

@@ -19,7 +19,6 @@ const LANE = {
     fireHoverAlpha: 0.14,
     fireBorderThickness: 1,
 
-    iconIdleAlpha: 0.82,
     dangerBlinkMs: 220,
 } as const;
 
@@ -82,7 +81,7 @@ export default class BridgeDefenseTurretThreatLaneView {
         this.fireText = this.scene.add
             .bitmapText(
                 Math.round(this.geometry.fireButtonWidth / 2),
-                Math.round(this.height / 2) - 2,
+                Math.round(this.height / 2) + 1,
                 FONT_FAMILY.UI_PRIMARY,
                 "FIRE",
                 FONT_SIZE.PX_20,
@@ -98,8 +97,7 @@ export default class BridgeDefenseTurretThreatLaneView {
                 threatSprite.atlasKey,
                 threatSprite.frameKey,
             )
-            .setTint(FONT_COLOR.PRIMARY)
-            .setAlpha(LANE.iconIdleAlpha);
+            .setTint(FONT_COLOR.PRIMARY);
 
         this.hitArea = this.scene.add
             .zone(0, 0, this.width, this.height)
@@ -258,10 +256,16 @@ export default class BridgeDefenseTurretThreatLaneView {
     }
 
     private renderThreatTint(): void {
+        const enabled = this.command !== undefined;
+        const idleColor =
+            enabled && this.pointerOver
+                ? FONT_COLOR.WHITE
+                : FONT_COLOR.PRIMARY;
+
         this.threatIcon.setTint(
             this.danger && this.dangerBlinkRed
                 ? CAPTAIN_DASHBOARD_STYLE.equipmentProgress.repairColor
-                : FONT_COLOR.PRIMARY,
+                : idleColor,
         );
     }
 
@@ -279,9 +283,7 @@ export default class BridgeDefenseTurretThreatLaneView {
             .setStrokeStyle(LANE.fireBorderThickness, color);
 
         this.fireText.setTint(color);
-        this.threatIcon.setAlpha(
-            enabled && this.pointerOver ? 1 : LANE.iconIdleAlpha,
-        );
+        this.renderThreatTint();
     }
 
     private handlePointerOver(): void {
