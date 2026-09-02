@@ -148,6 +148,29 @@ describe('BridgeEncounterSnapshotSynchronizer', () => {
 
             [
                 BRIDGE_EVENT
+                    .DEFENSE_TURRET_THREATS_UPDATED,
+
+                [
+                    {
+                        projectileId:
+                            'incoming_1',
+
+                        designation:
+                            'M1',
+
+                        timeToImpactMs:
+                            800,
+
+                        initialTimeToImpactMs:
+                            1200,
+
+                        actions: {},
+                    },
+                ],
+            ],
+
+            [
+                BRIDGE_EVENT
                     .CAPTAIN_COMBAT_CONTEXT_UPDATED,
 
                 {
@@ -363,6 +386,29 @@ describe('BridgeEncounterSnapshotSynchronizer', () => {
                         attackId: 'beam_cannon_attack_1',
                         timeToFireMs: 500,
                         initialTimeToFireMs: 1000,
+                    },
+                ],
+            ],
+
+            [
+                BRIDGE_EVENT
+                    .DEFENSE_TURRET_THREATS_UPDATED,
+
+                [
+                    {
+                        projectileId:
+                            'incoming_1',
+
+                        designation:
+                            'M1',
+
+                        timeToImpactMs:
+                            800,
+
+                        initialTimeToImpactMs:
+                            1200,
+
+                        actions: {},
                     },
                 ],
             ],
