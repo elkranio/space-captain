@@ -9,6 +9,7 @@ import type {
     BridgeOfficerCommandSelectedPayload,
 } from "../../../../../../events/bridge_event";
 import { CAPTAIN_DASHBOARD_STYLE } from "../../../../captain_dashboard_style";
+import BridgeDefenseTurretTrackingIndicatorView from "./BridgeDefenseTurretTrackingIndicatorView";
 
 const LANE = {
     trajectoryDashWidth: 4,
@@ -16,7 +17,7 @@ const LANE = {
     trajectoryDashHeight: 2,
     trajectoryAlpha: 0.55,
 
-    fireHoverAlpha: 0.14,
+    actionHoverAlpha: 0.18,
     fireBorderThickness: 1,
 
     dangerBlinkMs: 220,
@@ -27,6 +28,7 @@ type ThreatLaneGeometry = {
     trajectoryRightX: number;
     cutoffX: number;
 
+    fireButtonX: number;
     fireButtonWidth: number;
     fireButtonHeight: number;
 };
@@ -40,9 +42,15 @@ export default class BridgeDefenseTurretThreatLaneView {
 
     private readonly threatIcon: Phaser.GameObjects.Image;
 
+    private readonly trackingIndicator: BridgeDefenseTurretTrackingIndicatorView;
+
     private readonly hitArea: Phaser.GameObjects.Zone;
 
     private command?: BridgeOfficerCommandSelectedPayload;
+
+    private cancelTaskId?: string;
+
+    private interceptActive = false;
 
     private pointerOver = false;
 
@@ -58,6 +66,7 @@ export default class BridgeDefenseTurretThreatLaneView {
         private readonly height: number,
         private readonly geometry: ThreatLaneGeometry,
         private readonly onFireRequested: (command: BridgeOfficerCommandSelectedPayload) => void,
+        private readonly onCancelRequested: (taskId: string) => void,
     ) {
         this.root = this.scene.add.container(0, 0);
 
@@ -69,7 +78,7 @@ export default class BridgeDefenseTurretThreatLaneView {
 
         this.fireBackground = this.scene.add
             .rectangle(
-                0,
+                this.geometry.fireButtonX,
                 fireY,
                 this.geometry.fireButtonWidth,
                 this.geometry.fireButtonHeight,
@@ -80,7 +89,7 @@ export default class BridgeDefenseTurretThreatLaneView {
 
         this.fireText = this.scene.add
             .bitmapText(
-                Math.round(this.geometry.fireButtonWidth / 2),
+                this.geometry.fireButtonX + Math.round(this.geometry.fireButtonWidth / 2),
                 Math.round(this.height / 2),
                 FONT_FAMILY.UI_PRIMARY,
                 "FIRE",
@@ -98,6 +107,8 @@ export default class BridgeDefenseTurretThreatLaneView {
                 threatSprite.frameKey,
             )
             .setTint(FONT_COLOR.PRIMARY);
+
+        this.trackingIndicator = new BridgeDefenseTurretTrackingIndicatorView(this.scene);
 
         this.hitArea = this.scene.add
             .zone(0, 0, this.width, this.height)
@@ -122,6 +133,7 @@ export default class BridgeDefenseTurretThreatLaneView {
         this.root.add([
             this.fireBackground,
             this.fireText,
+            this.trackingIndicator.getRoot(),
             this.threatIcon,
             this.hitArea,
         ]);
@@ -140,8 +152,11 @@ export default class BridgeDefenseTurretThreatLaneView {
     public update(
         missile: BridgeCaptainIncomingMissilePayload,
         cutoffRemainingMs: number | null | undefined,
+        interceptActive: boolean,
     ): void {
         this.command = missile.actions.interceptMissile;
+        this.cancelTaskId = missile.activeTasks?.interceptMissileTaskId;
+        this.interceptActive = interceptActive;
 
         this.threatIcon.setX(
             getThreatMarkerX(
@@ -152,6 +167,13 @@ export default class BridgeDefenseTurretThreatLaneView {
                 this.geometry.cutoffX,
                 this.geometry.trajectoryRightX,
             ),
+        );
+
+        this.trackingIndicator.update(
+            this.cancelTaskId !== undefined,
+            this.geometry.trajectoryLeftX,
+            this.threatIcon.x - Math.round(this.threatIcon.displayWidth / 2),
+            Math.round(this.height / 2),
         );
 
         this.setDanger(
@@ -167,6 +189,7 @@ export default class BridgeDefenseTurretThreatLaneView {
 
     public destroy(): void {
         this.stopDangerBlink();
+        this.trackingIndicator.destroy();
 
         this.hitArea.off(
             Phaser.Input.Events.POINTER_OVER,
@@ -247,9 +270,12 @@ export default class BridgeDefenseTurretThreatLaneView {
     }
 
     private renderThreatTint(): void {
-        const enabled = this.command !== undefined;
+        const actionAvailable =
+            this.cancelTaskId !== undefined ||
+            (!this.interceptActive && this.command !== undefined);
+
         const idleColor =
-            enabled && this.pointerOver
+            actionAvailable && this.pointerOver
                 ? FONT_COLOR.WHITE
                 : FONT_COLOR.PRIMARY;
 
@@ -261,19 +287,37 @@ export default class BridgeDefenseTurretThreatLaneView {
     }
 
     private renderInteraction(): void {
-        const enabled = this.command !== undefined;
-        const color = enabled
+        const cancelling = this.cancelTaskId !== undefined;
+        const fireVisible = !this.interceptActive;
+        const actionVisible = cancelling || fireVisible;
+        const enabled = cancelling || this.command !== undefined;
+
+        const idleColor = enabled
             ? FONT_COLOR.PRIMARY
             : CAPTAIN_DASHBOARD_STYLE.equipmentProgress.cooldownColor;
 
+        const hoverColor = cancelling
+            ? FONT_COLOR.DANGER
+            : FONT_COLOR.ACTIVITY;
+
+        const color =
+            enabled && this.pointerOver
+                ? hoverColor
+                : idleColor;
+
         this.fireBackground
+            .setVisible(actionVisible)
             .setFillStyle(
                 color,
-                enabled && this.pointerOver ? LANE.fireHoverAlpha : 0,
+                enabled && this.pointerOver ? LANE.actionHoverAlpha : 0,
             )
             .setStrokeStyle(LANE.fireBorderThickness, color);
 
-        this.fireText.setTint(color);
+        this.fireText
+            .setVisible(actionVisible)
+            .setText(cancelling ? "CANCEL" : "FIRE")
+            .setTint(color);
+
         this.renderThreatTint();
     }
 
@@ -288,7 +332,12 @@ export default class BridgeDefenseTurretThreatLaneView {
     }
 
     private handlePointerUp(): void {
-        if (!this.command) {
+        if (this.cancelTaskId) {
+            this.onCancelRequested(this.cancelTaskId);
+            return;
+        }
+
+        if (this.interceptActive || !this.command) {
             return;
         }
 

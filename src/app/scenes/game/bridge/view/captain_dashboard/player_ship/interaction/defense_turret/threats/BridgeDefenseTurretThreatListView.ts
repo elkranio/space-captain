@@ -10,9 +10,10 @@ import BridgeDefenseTurretThreatLaneView from "./BridgeDefenseTurretThreatLaneVi
 const LIST = {
     rowHeight: 40,
 
-    fireButtonWidth: 54,
+    fireButtonWidth: 64,
     fireButtonHeight: 22,
     fireButtonGap: 24,
+    fireButtonLeftPadding: 8,
 
     contentInsetRatio: 0.075,
     rightPadding: 6,
@@ -56,13 +57,15 @@ export default class BridgeDefenseTurretThreatListView {
         private readonly width: number,
         private readonly height: number,
         private readonly onFireRequested: (command: BridgeOfficerCommandSelectedPayload) => void,
+        private readonly onCancelRequested: (taskId: string) => void,
     ) {
         this.root = this.scene.add.container(0, 0);
 
         this.contentInsetX = Math.round(this.width * LIST.contentInsetRatio);
         this.contentWidth = this.width - this.contentInsetX * 2;
 
-        this.trajectoryLeftX = LIST.fireButtonWidth + LIST.fireButtonGap;
+        this.trajectoryLeftX =
+            LIST.fireButtonLeftPadding + LIST.fireButtonWidth + LIST.fireButtonGap;
         this.trajectoryRightX = this.contentWidth - LIST.rightPadding;
 
         this.cutoffX = Math.round(
@@ -142,6 +145,9 @@ export default class BridgeDefenseTurretThreatListView {
         }
 
         const cutoffRemainingMs = getSharedCutoffRemainingMs(missiles);
+        const interceptActive = missiles.some((missile) => {
+            return missile.activeTasks?.interceptMissileTaskId !== undefined;
+        });
 
         for (const threatId of this.rowOrder) {
             const missile = missilesById.get(threatId);
@@ -151,7 +157,7 @@ export default class BridgeDefenseTurretThreatListView {
                 continue;
             }
 
-            row.update(missile, cutoffRemainingMs);
+            row.update(missile, cutoffRemainingMs, interceptActive);
         }
 
         this.layoutRows();
@@ -177,10 +183,12 @@ export default class BridgeDefenseTurretThreatListView {
                 trajectoryRightX: this.trajectoryRightX,
                 cutoffX: this.cutoffX,
 
+                fireButtonX: LIST.fireButtonLeftPadding,
                 fireButtonWidth: LIST.fireButtonWidth,
                 fireButtonHeight: LIST.fireButtonHeight,
             },
             this.onFireRequested,
+            this.onCancelRequested,
         );
 
         this.rowsByThreatId.set(threatId, row);

@@ -72,6 +72,7 @@ export default class BridgeDefenseTurretInteractionView {
             width,
             height - VIEW.threatsY,
             (command) => this.handleFireRequested(command),
+            (taskId) => this.handleCancelRequested(taskId),
         );
         this.threatListView.setPosition(0, VIEW.threatsY);
 
@@ -133,5 +134,11 @@ export default class BridgeDefenseTurretInteractionView {
 
     private handleFireRequested(command: BridgeOfficerCommandSelectedPayload): void {
         this.eventBus.emit(BRIDGE_EVENT.OFFICER_COMMAND_SELECTED, command);
+    }
+
+    private handleCancelRequested(taskId: string): void {
+        this.eventBus.emit(BRIDGE_EVENT.OFFICER_TASK_CANCEL_REQUESTED, {
+            taskId,
+        });
     }
 }
