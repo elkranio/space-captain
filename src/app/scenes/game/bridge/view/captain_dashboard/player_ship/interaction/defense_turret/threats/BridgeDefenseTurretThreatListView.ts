@@ -1,3 +1,4 @@
+// src/app/scenes/game/bridge/view/captain_dashboard/player_ship/interaction/defense_turret/threats/BridgeDefenseTurretThreatListView.ts
 import { FONT_COLOR, FONT_FAMILY, FONT_SIZE } from "../../../../../../../../../theme/font";
 import type BridgeScene from "../../../../../../BridgeScene";
 import type {
@@ -30,8 +31,7 @@ export default class BridgeDefenseTurretThreatListView {
 
     private readonly emptyText: Phaser.GameObjects.BitmapText;
 
-    private readonly rowsByThreatId =
-        new Map<string, BridgeDefenseTurretThreatLaneView>();
+    private readonly rowsByThreatId = new Map<string, BridgeDefenseTurretThreatLaneView>();
 
     private rowOrder: string[] = [];
 
@@ -55,35 +55,28 @@ export default class BridgeDefenseTurretThreatListView {
     ) {
         this.root = this.scene.add.container(0, 0);
 
-        this.trajectoryLeftX =
-            LIST.fireButtonWidth + LIST.fireButtonGap;
-        this.trajectoryRightX =
-            this.width - LIST.rightPadding;
+        this.trajectoryLeftX = LIST.fireButtonWidth + LIST.fireButtonGap;
+        this.trajectoryRightX = this.width - LIST.rightPadding;
 
         this.cutoffX = Math.round(
-            this.trajectoryLeftX +
-                (this.trajectoryRightX - this.trajectoryLeftX) *
-                    LIST.cutoffRatio,
+            this.trajectoryLeftX + (this.trajectoryRightX - this.trajectoryLeftX) * LIST.cutoffRatio,
         );
 
         this.cutoffRoot = this.scene.add.container(0, 0);
 
         this.emptyText = this.scene.add
             .bitmapText(
-                0,
-                8,
+                Math.round(this.width / 2),
+                Math.round(this.height / 2 - 20),
                 FONT_FAMILY.UI_PRIMARY,
                 "NO INTERCEPTABLE THREATS",
-                FONT_SIZE.PX_20,
+                FONT_SIZE.PX_40,
             )
-            .setOrigin(0, 0)
+            .setOrigin(0.5, 0.5)
             .setTint(FONT_COLOR.PRIMARY)
             .setVisible(false);
 
-        this.root.add([
-            this.cutoffRoot,
-            this.emptyText,
-        ]);
+        this.root.add([this.cutoffRoot, this.emptyText]);
     }
 
     public getRoot(): Phaser.GameObjects.Container {
@@ -121,9 +114,7 @@ export default class BridgeDefenseTurretThreatListView {
             return;
         }
 
-        const missilesById = new Map(
-            missiles.map((missile) => [missile.projectileId, missile]),
-        );
+        const missilesById = new Map(missiles.map((missile) => [missile.projectileId, missile]));
 
         for (const threatId of [...this.rowOrder]) {
             if (missilesById.has(threatId)) {
@@ -161,10 +152,7 @@ export default class BridgeDefenseTurretThreatListView {
         const hasRows = this.rowOrder.length > 0;
         this.emptyText.setVisible(!hasRows);
 
-        this.renderCutoff(
-            this.rowOrder.length,
-            hasRows && typeof cutoffRemainingMs === "number",
-        );
+        this.renderCutoff(this.rowOrder.length, hasRows && typeof cutoffRemainingMs === "number");
     }
 
     public destroy(): void {
@@ -202,10 +190,7 @@ export default class BridgeDefenseTurretThreatListView {
     }
 
     private renderCutoff(rowCount: number, visible: boolean): void {
-        if (
-            this.renderedCutoffRowCount === rowCount &&
-            this.renderedCutoffVisible === visible
-        ) {
+        if (this.renderedCutoffRowCount === rowCount && this.renderedCutoffVisible === visible) {
             return;
         }
 
@@ -217,30 +202,13 @@ export default class BridgeDefenseTurretThreatListView {
             return;
         }
 
-        const height = Math.min(
-            this.height,
-            rowCount * LIST.rowHeight,
-        );
+        const height = Math.min(this.height, rowCount * LIST.rowHeight);
 
-        for (
-            let y = 0;
-            y < height;
-            y += LIST.cutoffDashHeight + LIST.cutoffDashGap
-        ) {
-            const dashHeight = Math.min(
-                LIST.cutoffDashHeight,
-                height - y,
-            );
+        for (let y = 0; y < height; y += LIST.cutoffDashHeight + LIST.cutoffDashGap) {
+            const dashHeight = Math.min(LIST.cutoffDashHeight, height - y);
 
             const dash = this.scene.add
-                .rectangle(
-                    this.cutoffX,
-                    y,
-                    LIST.cutoffDashWidth,
-                    dashHeight,
-                    FONT_COLOR.PRIMARY,
-                    LIST.cutoffAlpha,
-                )
+                .rectangle(this.cutoffX, y, LIST.cutoffDashWidth, dashHeight, FONT_COLOR.PRIMARY, LIST.cutoffAlpha)
                 .setOrigin(0.5, 0);
 
             this.cutoffRoot.add(dash);
@@ -257,8 +225,6 @@ export default class BridgeDefenseTurretThreatListView {
     }
 }
 
-function getSharedCutoffRemainingMs(
-    missiles: BridgeCaptainIncomingMissilePayload[],
-): number | null | undefined {
+function getSharedCutoffRemainingMs(missiles: BridgeCaptainIncomingMissilePayload[]): number | null | undefined {
     return missiles[0]?.decisionTimings?.interceptMissileMinRemainingMs;
 }

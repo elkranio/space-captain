@@ -13,13 +13,13 @@ import {
 import BridgeDefenseTurretThreatListView from "./threats/BridgeDefenseTurretThreatListView";
 
 const VIEW = {
-    titleX: 0,
+    titleX: 6,
     titleY: 0,
 
     closeRight: 0,
     closeY: 0,
 
-    threatsY: 30,
+    threatsY: 34,
 } as const;
 
 export default class BridgeDefenseTurretInteractionView {
@@ -48,7 +48,7 @@ export default class BridgeDefenseTurretInteractionView {
                 VIEW.titleY,
                 FONT_FAMILY.UI_PRIMARY,
                 "DEFENSE TURRET",
-                FONT_SIZE.PX_20,
+                FONT_SIZE.PX_24,
             )
             .setOrigin(0, 0)
             .setTint(FONT_COLOR.PRIMARY);

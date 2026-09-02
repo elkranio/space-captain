@@ -10,6 +10,8 @@ export const FONT_SIZE = {
     PX_14: 14,
     PX_16: 16,
     PX_20: 20,
+    PX_24: 24,
+    PX_40: 40,
 } as const;
 
 export const FONT_COLOR = {
