@@ -19,6 +19,8 @@ const LIST = {
     rightPadding: 6,
 
     cutoffRatio: 0.25,
+
+    rowMoveDurationMs: 160,
 } as const;
 
 export default class BridgeDefenseTurretThreatListView {
@@ -27,6 +29,8 @@ export default class BridgeDefenseTurretThreatListView {
     private readonly emptyText: Phaser.GameObjects.BitmapText;
 
     private readonly rowsByThreatId = new Map<string, BridgeDefenseTurretThreatLaneView>();
+
+    private readonly rowTargetYByThreatId = new Map<string, number>();
 
     private rowOrder: string[] = [];
 
@@ -39,6 +43,8 @@ export default class BridgeDefenseTurretThreatListView {
     private readonly trajectoryRightX: number;
 
     private readonly cutoffX: number;
+
+    private readonly visibleRowCapacity: number;
 
     private openState = false;
 
@@ -61,6 +67,8 @@ export default class BridgeDefenseTurretThreatListView {
         this.cutoffX = Math.round(
             this.trajectoryLeftX + (this.trajectoryRightX - this.trajectoryLeftX) * LIST.cutoffRatio,
         );
+
+        this.visibleRowCapacity = Math.floor(this.height / LIST.rowHeight);
 
         this.emptyText = this.scene.add
             .bitmapText(
@@ -120,6 +128,7 @@ export default class BridgeDefenseTurretThreatListView {
 
             this.rowsByThreatId.get(threatId)?.destroy();
             this.rowsByThreatId.delete(threatId);
+            this.rowTargetYByThreatId.delete(threatId);
             this.rowOrder = this.rowOrder.filter((id) => id !== threatId);
         }
 
@@ -151,8 +160,6 @@ export default class BridgeDefenseTurretThreatListView {
 
         const hasRows = this.rowOrder.length > 0;
         this.emptyText.setVisible(!hasRows);
-
-
     }
 
     public destroy(): void {
@@ -185,9 +192,48 @@ export default class BridgeDefenseTurretThreatListView {
 
     private layoutRows(): void {
         for (let index = 0; index < this.rowOrder.length; index += 1) {
-            const row = this.rowsByThreatId.get(this.rowOrder[index]);
+            const threatId = this.rowOrder[index];
+            const row = this.rowsByThreatId.get(threatId);
 
-            row?.setPosition(this.contentInsetX, index * LIST.rowHeight);
+            if (!row) {
+                continue;
+            }
+
+            const targetY = index * LIST.rowHeight;
+            const previousTargetY = this.rowTargetYByThreatId.get(threatId);
+            const shouldBeVisible = index < this.visibleRowCapacity;
+
+            this.rowTargetYByThreatId.set(threatId, targetY);
+
+            if (previousTargetY === undefined) {
+                row.setPosition(this.contentInsetX, targetY);
+                row.setVisible(shouldBeVisible);
+                continue;
+            }
+
+            if (previousTargetY === targetY) {
+                row.setVisible(shouldBeVisible);
+                continue;
+            }
+
+            if (!shouldBeVisible) {
+                row.setVisible(false);
+                row.setPosition(this.contentInsetX, targetY);
+                continue;
+            }
+
+            const wasVisible =
+                previousTargetY < this.visibleRowCapacity * LIST.rowHeight;
+
+            if (!wasVisible) {
+                row.setVisible(false);
+            }
+
+            row.moveToY(
+                targetY,
+                LIST.rowMoveDurationMs,
+                () => row.setVisible(true),
+            );
         }
     }
 
@@ -197,6 +243,7 @@ export default class BridgeDefenseTurretThreatListView {
         }
 
         this.rowsByThreatId.clear();
+        this.rowTargetYByThreatId.clear();
         this.rowOrder = [];
     }
 }

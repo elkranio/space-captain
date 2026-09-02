@@ -58,6 +58,12 @@ export default class BridgeDefenseTurretThreatLaneView {
 
     private pointerOver = false;
 
+    private visible = true;
+
+    private movementLocked = false;
+
+    private hitAreaEnabled = true;
+
     private danger = false;
 
     private dangerBlinkRed = false;
@@ -154,6 +160,52 @@ export default class BridgeDefenseTurretThreatLaneView {
         this.root.setPosition(x, y);
     }
 
+    public setVisible(visible: boolean): void {
+        if (this.visible === visible) {
+            return;
+        }
+
+        this.visible = visible;
+        this.root.setVisible(visible);
+
+        if (!visible) {
+            this.pointerOver = false;
+        }
+
+        this.refreshHitArea();
+        this.renderInteraction();
+    }
+
+    public moveToY(
+        y: number,
+        durationMs: number,
+        onComplete?: () => void,
+    ): void {
+        if (this.root.y === y) {
+            onComplete?.();
+            return;
+        }
+
+        this.scene.tweens.killTweensOf(this.root);
+
+        this.movementLocked = true;
+        this.pointerOver = false;
+        this.refreshHitArea();
+        this.renderInteraction();
+
+        this.scene.tweens.add({
+            targets: this.root,
+            y,
+            duration: durationMs,
+            ease: "Quad.Out",
+            onComplete: () => {
+                this.movementLocked = false;
+                this.refreshHitArea();
+                onComplete?.();
+            },
+        });
+    }
+
     public update(
         missile: BridgeCaptainIncomingMissilePayload,
         cutoffRemainingMs: number | null | undefined,
@@ -193,6 +245,7 @@ export default class BridgeDefenseTurretThreatLaneView {
     }
 
     public destroy(): void {
+        this.scene.tweens.killTweensOf(this.root);
         this.stopDangerBlink();
         this.trackingIndicator.destroy();
 
@@ -252,6 +305,23 @@ export default class BridgeDefenseTurretThreatLaneView {
                 )
                 .setOrigin(0.5, 0.5),
         );
+    }
+
+    private refreshHitArea(): void {
+        const enabled = this.visible && !this.movementLocked;
+
+        if (this.hitAreaEnabled === enabled) {
+            return;
+        }
+
+        this.hitAreaEnabled = enabled;
+
+        if (enabled) {
+            this.hitArea.setInteractive();
+            return;
+        }
+
+        this.hitArea.disableInteractive();
     }
 
     private setDanger(danger: boolean): void {
