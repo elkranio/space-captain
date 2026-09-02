@@ -9,7 +9,6 @@ import BridgeTargetingWarningView from "./indicators/targeting_warning/BridgeTar
 import BridgeInteriorView from "./interior/BridgeInteriorView";
 import BridgeOfficerStationsView from "./officer_stations/BridgeOfficerStationsView";
 import BridgeSpaceView from "./space/BridgeSpaceView";
-import BridgeOfficerContextMenuView from "./ui/officer_context_menu/BridgeOfficerContextMenuView";
 
 // Root view bridge scene.
 // Собирает верхнеуровневые визуальные модули
@@ -29,8 +28,6 @@ export default class BridgeView {
 
     private readonly officerBarksView: BridgeOfficerBarksView;
 
-    private readonly officerContextMenuView: BridgeOfficerContextMenuView;
-
     constructor(scene: BridgeScene, eventBus: BridgeEventBus) {
         const spaceView = new BridgeSpaceView(
             scene,
@@ -49,19 +46,14 @@ export default class BridgeView {
 
         this.targetingWarningView = new BridgeTargetingWarningView(scene, eventBus);
 
-        this.officerStationsView = new BridgeOfficerStationsView(scene, eventBus);
+        this.officerStationsView = new BridgeOfficerStationsView(scene);
 
         this.captainDashboardView = new BridgeCaptainDashboardView(scene, eventBus);
 
         this.officerBarksView = new BridgeOfficerBarksView(scene, eventBus);
-
-        // Officer station clicks still use the command-menu flow.
-        // The context menu belongs directly to the active BridgeView lifecycle.
-        this.officerContextMenuView = new BridgeOfficerContextMenuView(scene, eventBus);
     }
 
     public destroy(): void {
-        this.officerContextMenuView.destroy();
         this.officerBarksView.destroy();
         this.captainDashboardView.destroy();
         this.officerStationsView.destroy();

@@ -1,5 +1,4 @@
 import type BridgeScene from "../../BridgeScene";
-import type BridgeEventBus from "../../events/BridgeEventBus";
 import { BRIDGE_OFFICER_STATION_LAYOUT } from "./bridge_officer_station_layout";
 import BridgeOfficerStationView from "./station/BridgeOfficerStationView";
 
@@ -10,10 +9,7 @@ export default class BridgeOfficerStationsView {
 
     private readonly stationViews: BridgeOfficerStationView[] = [];
 
-    constructor(
-        private readonly scene: BridgeScene,
-        private readonly eventBus: BridgeEventBus,
-    ) {
+    constructor(private readonly scene: BridgeScene) {
         this.root = this.scene.add.container(0, 0);
         this.scene.layers.get("bridge").add(this.root);
 
@@ -31,7 +27,7 @@ export default class BridgeOfficerStationsView {
 
     private createStationViews(): void {
         for (const layout of Object.values(BRIDGE_OFFICER_STATION_LAYOUT)) {
-            const stationView = new BridgeOfficerStationView(this.scene, this.root, layout, this.eventBus);
+            const stationView = new BridgeOfficerStationView(this.scene, this.root, layout);
 
             this.stationViews.push(stationView);
         }

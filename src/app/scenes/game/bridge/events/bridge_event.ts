@@ -43,25 +43,12 @@ import type { PlayerShieldEndOutcome } from "../../../../../engine/encounter/mod
 export const BRIDGE_EVENT = {
     // #region Crew and officer commands
 
-    // Игрок кликнул по officer station.
-    // View не определяет доступные команды,
-    // а просит encounter controller открыть меню.
-    OFFICER_STATION_CLICKED: "officer_station_clicked",
-
-    // Открытое officer menu просит encounter controller
-    // заново получить доступные команды текущей роли.
-    OFFICER_COMMAND_MENU_REFRESH_REQUESTED: "officer_command_menu_refresh_requested",
-
-    // Игрок выбрал команду в officer context menu.
+    // Игрок выбрал officer command в bridge UI.
     // Encounter controller передаст её в engine.
     OFFICER_COMMAND_SELECTED: "officer_command_selected",
 
     // View просит отменить конкретную active officer task.
     OFFICER_TASK_CANCEL_REQUESTED: "officer_task_cancel_requested",
-
-    // Encounter controller отдаёт view
-    // актуальный snapshot меню команд офицера.
-    OFFICER_COMMAND_MENU_UPDATED: "officer_command_menu_updated",
 
     // Controller просит показать
     // короткий officer bark bubble.
@@ -264,16 +251,6 @@ export const BRIDGE_EVENT = {
 
 // #region Crew and officer commands
 
-// Payload input-события OFFICER_STATION_CLICKED.
-export type BridgeOfficerStationClickedPayload = {
-    role: OfficerRole;
-};
-
-// Payload polling-запроса открытого officer menu.
-export type BridgeOfficerCommandMenuRefreshRequestedPayload = {
-    role: OfficerRole;
-};
-
 // Payload input-события OFFICER_COMMAND_SELECTED.
 export type BridgeOfficerCommandSelectedPayload = {
     role: OfficerRole;
@@ -284,34 +261,6 @@ export type BridgeOfficerCommandSelectedPayload = {
 
 export type BridgeOfficerTaskCancelRequestedPayload = {
     taskId: string;
-};
-
-// Один пункт legacy officer context menu.
-// Пока menu существует, он показывает только engine-команды.
-export type BridgeOfficerCommandMenuItemPayload = {
-    kind: "command";
-
-    commandId: EncounterOfficerCommandId;
-
-    label: string;
-
-    target: OfficerCommandTarget;
-};
-
-// Группа пунктов меню.
-// Сейчас группа соответствует target label
-// или GENERAL для untargeted commands.
-export type BridgeOfficerCommandMenuGroupPayload = {
-    label: string;
-
-    items: BridgeOfficerCommandMenuItemPayload[];
-};
-
-// Актуальный view-ready snapshot officer menu.
-export type BridgeOfficerCommandMenuUpdatedPayload = {
-    role: OfficerRole;
-
-    groups: BridgeOfficerCommandMenuGroupPayload[];
 };
 
 // Payload запроса officer bark.
@@ -974,15 +923,9 @@ export type BridgeEventPayloadMap = {
 
     // Crew and officer commands
 
-    [BRIDGE_EVENT.OFFICER_STATION_CLICKED]: BridgeOfficerStationClickedPayload;
-
-    [BRIDGE_EVENT.OFFICER_COMMAND_MENU_REFRESH_REQUESTED]: BridgeOfficerCommandMenuRefreshRequestedPayload;
-
     [BRIDGE_EVENT.OFFICER_COMMAND_SELECTED]: BridgeOfficerCommandSelectedPayload;
 
     [BRIDGE_EVENT.OFFICER_TASK_CANCEL_REQUESTED]: BridgeOfficerTaskCancelRequestedPayload;
-
-    [BRIDGE_EVENT.OFFICER_COMMAND_MENU_UPDATED]: BridgeOfficerCommandMenuUpdatedPayload;
 
     [BRIDGE_EVENT.OFFICER_BARK_REQUESTED]: BridgeOfficerBarkRequestedPayload;
 

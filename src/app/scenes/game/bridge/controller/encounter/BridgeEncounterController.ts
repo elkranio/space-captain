@@ -24,13 +24,10 @@ import {
     type BridgeDockingCompletedPayload,
     type BridgeEncounterJumpPayload,
     type BridgeEncounterTravelCompletedPayload,
-    type BridgeOfficerCommandMenuRefreshRequestedPayload,
     type BridgeOfficerCommandSelectedPayload,
     type BridgeOfficerTaskCancelRequestedPayload,
-    type BridgeOfficerStationClickedPayload,
 } from "../../events/bridge_event";
 import type BridgeEventBus from "../../events/BridgeEventBus";
-import BridgeOfficerCommandMenuController from "./command_menu/BridgeOfficerCommandMenuController";
 import BridgeEncounterPersistenceSynchronizer from "./BridgeEncounterPersistenceSynchronizer";
 import BridgeEncounterEngineEventHandler from "./engine_events/BridgeEncounterEngineEventHandler";
 import BridgeEncounterSnapshotSynchronizer from "./snapshots/BridgeEncounterSnapshotSynchronizer";
@@ -49,8 +46,6 @@ export default class BridgeEncounterController {
     // #region Fields
 
     private readonly encounterEngine: EncounterEngine;
-
-    private readonly officerCommandMenuController: BridgeOfficerCommandMenuController;
 
     private readonly snapshotSynchronizer: BridgeEncounterSnapshotSynchronizer;
 
@@ -89,8 +84,6 @@ export default class BridgeEncounterController {
             },
         );
 
-        this.officerCommandMenuController = new BridgeOfficerCommandMenuController(this.eventBus);
-
         this.presentInitialEncounterState();
     }
 
@@ -127,14 +120,6 @@ export default class BridgeEncounterController {
     // #region Bridge event registration
 
     private registerBridgeEventHandlers(): void {
-        this.eventBus.on(BRIDGE_EVENT.OFFICER_STATION_CLICKED, this.handleOfficerStationClicked, this);
-
-        this.eventBus.on(
-            BRIDGE_EVENT.OFFICER_COMMAND_MENU_REFRESH_REQUESTED,
-            this.handleOfficerCommandMenuRefreshRequested,
-            this,
-        );
-
         this.eventBus.on(BRIDGE_EVENT.OFFICER_COMMAND_SELECTED, this.handleOfficerCommandSelected, this);
 
         this.eventBus.on(BRIDGE_EVENT.OFFICER_TASK_CANCEL_REQUESTED, this.handleOfficerTaskCancelRequested, this);
@@ -156,14 +141,6 @@ export default class BridgeEncounterController {
     }
 
     private unregisterBridgeEventHandlers(): void {
-        this.eventBus.off(BRIDGE_EVENT.OFFICER_STATION_CLICKED, this.handleOfficerStationClicked, this);
-
-        this.eventBus.off(
-            BRIDGE_EVENT.OFFICER_COMMAND_MENU_REFRESH_REQUESTED,
-            this.handleOfficerCommandMenuRefreshRequested,
-            this,
-        );
-
         this.eventBus.off(BRIDGE_EVENT.OFFICER_COMMAND_SELECTED, this.handleOfficerCommandSelected, this);
 
         this.eventBus.off(BRIDGE_EVENT.OFFICER_TASK_CANCEL_REQUESTED, this.handleOfficerTaskCancelRequested, this);
@@ -249,22 +226,6 @@ export default class BridgeEncounterController {
     // #endregion
 
     // #region Officer command input
-
-    private handleOfficerStationClicked(payload: BridgeOfficerStationClickedPayload): void {
-        if (!this.isEncounterInteractive) {
-            return;
-        }
-
-        this.officerCommandMenuController.open(payload.role, this.encounterEngine.getPresentationSnapshot());
-    }
-
-    private handleOfficerCommandMenuRefreshRequested(payload: BridgeOfficerCommandMenuRefreshRequestedPayload): void {
-        if (!this.isEncounterInteractive) {
-            return;
-        }
-
-        this.officerCommandMenuController.open(payload.role, this.encounterEngine.getPresentationSnapshot());
-    }
 
     private handleOfficerCommandSelected(payload: BridgeOfficerCommandSelectedPayload): void {
         if (!this.isEncounterInteractive) {

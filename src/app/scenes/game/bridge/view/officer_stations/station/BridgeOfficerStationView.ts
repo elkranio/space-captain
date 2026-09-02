@@ -1,5 +1,4 @@
 // src/app/scenes/game/bridge/view/officer_stations/station/BridgeOfficerStationView.ts
-import type { OfficerRole } from "../../../../../../../engine/defs/officer";
 import { BRIDGE_SEATED_OFFICER_SPRITES } from "../../../../../../manifests/bridge/seated_officer";
 import {
     UI_OFFICER_MONITOR_SPRITE_ID,
@@ -8,8 +7,6 @@ import {
 import { FONT_COLOR, FONT_FAMILY, FONT_SIZE } from "../../../../../../theme/font";
 import { OFFICER_ROLE_COLOR } from "../../../../../../theme/officer";
 import type BridgeScene from "../../../BridgeScene";
-import { BRIDGE_EVENT } from "../../../events/bridge_event";
-import type BridgeEventBus from "../../../events/BridgeEventBus";
 import type { BridgeOfficerStationLayoutEntry } from "../bridge_officer_station_layout";
 
 const ROLE_LABEL = {
@@ -29,18 +26,11 @@ export default class BridgeOfficerStationView {
 
     private readonly roleLabelRest: Phaser.GameObjects.BitmapText;
 
-    private readonly hitArea: Phaser.GameObjects.Zone;
-
-    private readonly role: OfficerRole;
-
     constructor(
         private readonly scene: BridgeScene,
         parent: Phaser.GameObjects.Container,
         layout: BridgeOfficerStationLayoutEntry,
-        private readonly eventBus: BridgeEventBus,
     ) {
-        this.role = layout.role;
-
         this.root = this.scene.add.container(layout.position.x, layout.position.y);
         parent.add(this.root);
 
@@ -89,27 +79,15 @@ export default class BridgeOfficerStationView {
         this.roleLabelInitial.setX(labelStartX);
         this.roleLabelRest.setX(labelStartX + this.roleLabelInitial.width);
 
-        this.hitArea = this.scene.add
-            .zone(0, 0, layout.hitArea.width, layout.hitArea.height)
-            .setOrigin(0.5, 0.5)
-            .setInteractive({
-                useHandCursor: true,
-            })
-            .on(Phaser.Input.Events.POINTER_DOWN, this.handlePointerDown, this);
-
         this.root.add([
             this.officerImage,
             this.frameImage,
             this.roleLabelInitial,
             this.roleLabelRest,
-            this.hitArea,
         ]);
     }
 
     public destroy(): void {
-        this.hitArea.off(Phaser.Input.Events.POINTER_DOWN, this.handlePointerDown, this);
-
-        this.hitArea.destroy();
         this.roleLabelRest.destroy();
         this.roleLabelInitial.destroy();
         this.frameImage.destroy();
@@ -117,9 +95,4 @@ export default class BridgeOfficerStationView {
         this.root.destroy(false);
     }
 
-    private handlePointerDown(): void {
-        this.eventBus.emit(BRIDGE_EVENT.OFFICER_STATION_CLICKED, {
-            role: this.role,
-        });
-    }
 }
