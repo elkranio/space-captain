@@ -2,6 +2,7 @@ import type BridgeScene from "../../../BridgeScene";
 import type BridgeEventBus from "../../../events/BridgeEventBus";
 import BridgeEnemyShipEquipmentGridView from "./equipment/BridgeEnemyShipEquipmentGridView";
 import BridgeEnemyShipHeaderView from "./header/BridgeEnemyShipHeaderView";
+import BridgeEnemyShipSpecialColumnView from "./special/BridgeEnemyShipSpecialColumnView";
 
 const HEADER = {
     sidePadding: 12,
@@ -21,11 +22,13 @@ const EQUIPMENT_GRID = {
 } as const;
 
 // Right half of the captain dashboard.
-// Header mirrors the player dashboard; the left special column is still reserved.
+// Header follows player grammar; HULL/BRIDGE mirror the player special column on the left.
 export default class BridgeEnemyShipDashboardView {
     private readonly root: Phaser.GameObjects.Container;
 
     private readonly headerView: BridgeEnemyShipHeaderView;
+
+    private readonly specialColumnView: BridgeEnemyShipSpecialColumnView;
 
     private readonly equipmentGridView: BridgeEnemyShipEquipmentGridView;
 
@@ -62,6 +65,17 @@ export default class BridgeEnemyShipDashboardView {
             EQUIPMENT_GRID.y -
             EQUIPMENT_GRID.bottomPadding;
 
+        this.specialColumnView = new BridgeEnemyShipSpecialColumnView(
+            scene,
+            eventBus,
+            EQUIPMENT_GRID.specialColumnWidth,
+            equipmentGridHeight,
+        );
+        this.specialColumnView.setPosition(
+            EQUIPMENT_GRID.leftPadding,
+            EQUIPMENT_GRID.y,
+        );
+
         this.equipmentGridView = new BridgeEnemyShipEquipmentGridView(
             scene,
             eventBus,
@@ -76,6 +90,7 @@ export default class BridgeEnemyShipDashboardView {
 
         this.root.add([
             this.headerView.getRoot(),
+            this.specialColumnView.getRoot(),
             this.equipmentGridView.getRoot(),
         ]);
     }
@@ -97,6 +112,7 @@ export default class BridgeEnemyShipDashboardView {
 
     public destroy(): void {
         this.equipmentGridView.destroy();
+        this.specialColumnView.destroy();
         this.headerView.destroy();
         this.root.destroy(false);
     }
