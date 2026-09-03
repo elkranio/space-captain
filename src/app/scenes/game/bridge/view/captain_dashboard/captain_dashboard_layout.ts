@@ -13,6 +13,12 @@ export const CAPTAIN_DASHBOARD_LAYOUT = {
             rightPadding: 16,
             bottomPadding: 18,
         },
+        equipmentGrid: {
+            columns: 4,
+            rows: 3,
+            columnGap: 6,
+            rowGap: 6,
+        },
     },
 
     equipmentTile: {

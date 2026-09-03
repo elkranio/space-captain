@@ -5,16 +5,11 @@ import {
     type BridgeEnemyShipDashboardUpdatedPayload,
     type BridgeEquipmentSlotPayload,
 } from "../../../../events/bridge_event";
+import { CAPTAIN_DASHBOARD_LAYOUT } from "../../captain_dashboard_layout";
 import BridgeEquipmentSlotChromeView from "../../BridgeEquipmentSlotChromeView";
 import BridgeEnemyEquipmentTileView from "./BridgeEnemyEquipmentTileView";
 
-const GRID = {
-    columns: 4,
-    rows: 3,
-
-    columnGap: 6,
-    rowGap: 6,
-} as const;
+const GRID = CAPTAIN_DASHBOARD_LAYOUT.shipDashboard.equipmentGrid;
 
 // Enemy chassis keeps canonical slot coordinates.
 // Only this view mirrors columns so the physical board reads toward the center.

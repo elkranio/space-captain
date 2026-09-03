@@ -11,6 +11,7 @@ import {
     type BridgePlayerShipDashboardUpdatedPayload,
     type BridgePlayerWeaponDashboardPayload,
 } from "../../../../events/bridge_event";
+import { CAPTAIN_DASHBOARD_LAYOUT } from "../../captain_dashboard_layout";
 import BridgeEquipmentSlotChromeView from "../../BridgeEquipmentSlotChromeView";
 import BridgeBeamCannonTileView, {
     BEAM_CANNON_HOVER_ACTION,
@@ -40,13 +41,7 @@ import BridgeStickyMineDispenserTileView, {
     type StickyMineDispenserHoverAction,
 } from "./BridgeStickyMineDispenserTileView";
 
-const GRID = {
-    columns: 4,
-    rows: 3,
-
-    columnGap: 6,
-    rowGap: 6,
-} as const;
+const GRID = CAPTAIN_DASHBOARD_LAYOUT.shipDashboard.equipmentGrid;
 
 // Базовая 4x3 сетка equipment slots.
 //
