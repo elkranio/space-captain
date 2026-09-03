@@ -51,7 +51,8 @@ export default class BridgeEnemyEquipmentTileView {
                 sprite.atlasKey,
                 sprite.frameKey,
             )
-            .setTint(CAPTAIN_DASHBOARD_STYLE.equipmentProgress.readyColor);
+            .setTint(CAPTAIN_DASHBOARD_STYLE.equipmentProgress.readyColor)
+            .setFlipX(true);
 
         this.stateText = this.scene.add
             .bitmapText(
@@ -128,7 +129,7 @@ export default class BridgeEnemyEquipmentTileView {
         const filledCount = Math.max(0, Math.min(current, max));
         const borderColor = broken
             ? CAPTAIN_DASHBOARD_STYLE.equipmentProgress.repairColor
-            : CAPTAIN_DASHBOARD_STYLE.equipmentIntegrity.borderColor;
+            : FONT_COLOR.WHITE;
 
         for (let index = 0; index < max; index += 1) {
             const x = startX + index * (pipSize + gap);
@@ -141,7 +142,7 @@ export default class BridgeEnemyEquipmentTileView {
                     pipSize,
                     pipSize,
                     filled
-                        ? CAPTAIN_DASHBOARD_STYLE.equipmentIntegrity.filledColor
+                        ? FONT_COLOR.WHITE
                         : CAPTAIN_DASHBOARD_STYLE.equipmentIntegrity.emptyColor,
                     1,
                 )
