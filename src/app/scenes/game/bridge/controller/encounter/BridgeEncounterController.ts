@@ -306,16 +306,22 @@ export default class BridgeEncounterController {
         for (const event of events) {
             this.persistenceSynchronizer.syncEvent(event);
 
-            this.updateInteractionState(event, presentationSnapshot);
+            const playerShipDestroyed = this.updateInteractionState(event, presentationSnapshot);
 
             this.engineEventHandler.handle([event], presentationSnapshot);
+
+            if (playerShipDestroyed) {
+                this.eventBus.emit(BRIDGE_EVENT.SCENE_TRANSITION_REQUESTED, {
+                    sceneKey: SCENE_KEY.END,
+                });
+            }
         }
     }
 
     private updateInteractionState(
         event: EncounterEvent,
         presentationSnapshot?: EncounterPresentationSnapshot,
-    ): void {
+    ): boolean {
         switch (event.type) {
             case ENCOUNTER_EVENT.ENCOUNTER_LOADED:
                 if (!presentationSnapshot) {
@@ -324,27 +330,33 @@ export default class BridgeEncounterController {
 
                 this.isEncounterInteractive =
                     presentationSnapshot.navigation.kind === PLAYER_SPACE_NAVIGATION_KIND.ANCHORED;
-                return;
+                return false;
 
             case ENCOUNTER_EVENT.TRAVEL_STARTED:
             case ENCOUNTER_EVENT.JUMP_STARTED:
             case ENCOUNTER_EVENT.DOCKING_STARTED:
                 this.isEncounterInteractive = false;
-                return;
+                return false;
 
             case ENCOUNTER_EVENT.MISSILE_IMPACTED_PLAYER_SHIP:
             case ENCOUNTER_EVENT.STICKY_MINE_DETONATED:
-                if (event.destroyed) {
-                    this.isEncounterInteractive = false;
+                if (!event.destroyed) {
+                    return false;
                 }
-                return;
+
+                this.isEncounterInteractive = false;
+                return true;
 
             case ENCOUNTER_EVENT.BEAM_CANNON_FIRED:
-                if (event.outcome === BEAM_CANNON_SHOT_OUTCOME.HIT && event.destroyed) {
-                    this.isEncounterInteractive = false;
+                if (event.outcome !== BEAM_CANNON_SHOT_OUTCOME.HIT || !event.destroyed) {
+                    return false;
                 }
-                return;
+
+                this.isEncounterInteractive = false;
+                return true;
         }
+
+        return false;
     }
 
     // #endregion

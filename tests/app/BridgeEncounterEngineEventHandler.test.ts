@@ -5,7 +5,6 @@ import {
 import BridgeEncounterEngineEventHandler from '../../src/app/scenes/game/bridge/controller/encounter/engine_events/BridgeEncounterEngineEventHandler';
 import { BRIDGE_EVENT } from '../../src/app/scenes/game/bridge/events/bridge_event';
 import type BridgeEventBus from '../../src/app/scenes/game/bridge/events/BridgeEventBus';
-import { SCENE_KEY } from '../../src/app/scenes/scene_key';
 import { BEACON_OBJECT_SPRITE_ID } from '../../src/engine/defs/beacon';
 import { OFFICER_ROLE } from '../../src/engine/defs/officer';
 import {
@@ -299,13 +298,6 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
                 },
             ],
 
-            [
-                BRIDGE_EVENT.SCENE_TRANSITION_REQUESTED,
-
-                {
-                    sceneKey: SCENE_KEY.END,
-                },
-            ],
         ]);
 
         // Повторный synthetic impact без destroyed
@@ -345,13 +337,6 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
                 },
             ],
 
-            [
-                BRIDGE_EVENT.SCENE_TRANSITION_REQUESTED,
-
-                {
-                    sceneKey: SCENE_KEY.END,
-                },
-            ],
 
             [
                 BRIDGE_EVENT.INCOMING_MISSILE_REMOVED,

@@ -9,7 +9,6 @@ import {
     BRIDGE_STICKY_MINE_REMOVAL_OUTCOME,
 } from '../../src/app/scenes/game/bridge/events/bridge_event';
 import type BridgeEventBus from '../../src/app/scenes/game/bridge/events/BridgeEventBus';
-import { SCENE_KEY } from '../../src/app/scenes/scene_key';
 import {
     COMBAT_SOURCE_KIND,
     COMBAT_TARGET_KIND,
@@ -162,14 +161,6 @@ describe('Bridge sticky-mine damage', () => {
                 },
             ],
 
-            [
-                BRIDGE_EVENT
-                    .SCENE_TRANSITION_REQUESTED,
-
-                {
-                    sceneKey: SCENE_KEY.END,
-                },
-            ],
         ]);
     });
 });

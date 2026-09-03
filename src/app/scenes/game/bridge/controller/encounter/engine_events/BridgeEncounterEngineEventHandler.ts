@@ -1,10 +1,8 @@
 // src/app/scenes/game/bridge/controller/encounter/engine_events/BridgeEncounterEngineEventHandler.ts
 
-import type { PlayerHullDamageResult } from "../../../../../../../engine/defs/player";
 import {
     COMBAT_SOURCE_KIND,
     COMBAT_TARGET_KIND,
-    BEAM_CANNON_SHOT_OUTCOME,
 } from "../../../../../../../engine/encounter/model/combat";
 import {
     ENCOUNTER_EVENT,
@@ -14,7 +12,6 @@ import {
 } from "../../../../../../../engine/encounter/model/event";
 import { OFFICER_TASK_KIND } from "../../../../../../../engine/encounter/model/officer_task";
 import type { EncounterPresentationSnapshot } from "../../../../../../../engine/encounter/snapshots/encounter_presentation_snapshot";
-import { SCENE_KEY } from "../../../../../scene_key";
 import { BRIDGE_EVENT, BRIDGE_STICKY_MINE_REMOVAL_OUTCOME } from "../../../events/bridge_event";
 import type BridgeEventBus from "../../../events/BridgeEventBus";
 import { mapEncounterAnchorToBridgeObjectPayload } from "../encounter_objects/BridgeEncounterObjectMapper";
@@ -436,7 +433,6 @@ export default class BridgeEncounterEngineEventHandler {
                     projectileId: event.projectile.id,
                 });
 
-                this.handlePlayerShipDamaged(event);
                 return;
 
             case ENCOUNTER_EVENT.STICKY_MINE_DETONATED:
@@ -446,7 +442,6 @@ export default class BridgeEncounterEngineEventHandler {
                     outcome: BRIDGE_STICKY_MINE_REMOVAL_OUTCOME.DETONATED,
                 });
 
-                this.handlePlayerShipDamaged(event);
                 return;
 
             case ENCOUNTER_EVENT.BEAM_CANNON_FIRED:
@@ -460,28 +455,10 @@ export default class BridgeEncounterEngineEventHandler {
                     outcome: event.outcome,
                 });
 
-                if (event.outcome === BEAM_CANNON_SHOT_OUTCOME.HIT) {
-                    this.handlePlayerShipDamaged(event);
-                }
-
                 return;
         }
 
         throw new Error(`Unhandled encounter event: ${String(event)}`);
-    }
-
-    // #endregion
-
-    // #region Combat
-
-    private handlePlayerShipDamaged(result: PlayerHullDamageResult): void {
-        if (!result.destroyed) {
-            return;
-        }
-
-        this.eventBus.emit(BRIDGE_EVENT.SCENE_TRANSITION_REQUESTED, {
-            sceneKey: SCENE_KEY.END,
-        });
     }
 
     // #endregion
