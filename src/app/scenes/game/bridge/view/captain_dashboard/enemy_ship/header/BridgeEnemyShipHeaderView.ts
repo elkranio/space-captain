@@ -13,10 +13,10 @@ import { CAPTAIN_DASHBOARD_STYLE } from "../../captain_dashboard_style";
 
 const SHIP_NAME = "ENEMY SHIP";
 
-const SHIP_NAME_RIGHT_PADDING = 8;
+const SHIP_NAME_X = 8;
 
 const POWER_CORE = {
-    leftPadding: 12,
+    rightPadding: 12,
 
     segmentWidth: 11,
     segmentHeight: 18,
@@ -33,7 +33,7 @@ type PowerCoreSegmentView = {
     fill: Phaser.GameObjects.Rectangle;
 };
 
-// Mirrored top strip for the persistent enemy dashboard.
+// Top strip for the persistent enemy dashboard.
 // Name is intentionally hardcoded for now; Power Core comes from the current enemy snapshot.
 export default class BridgeEnemyShipHeaderView {
     private readonly root: Phaser.GameObjects.Container;
@@ -54,13 +54,13 @@ export default class BridgeEnemyShipHeaderView {
 
         const shipName = this.scene.add
             .bitmapText(
-                this.width - SHIP_NAME_RIGHT_PADDING,
+                SHIP_NAME_X,
                 centerY,
                 FONT_FAMILY.VGA_8X14,
                 SHIP_NAME,
                 FONT_SIZE.PX_16,
             )
-            .setOrigin(1, 0.5)
+            .setOrigin(0, 0.5)
             .setTint(FONT_COLOR.PRIMARY);
 
         const powerCoreIconAsset =
@@ -68,12 +68,12 @@ export default class BridgeEnemyShipHeaderView {
 
         this.powerCoreIcon = this.scene.add
             .image(
-                POWER_CORE.leftPadding,
+                this.width - POWER_CORE.rightPadding,
                 centerY,
                 powerCoreIconAsset.atlasKey,
                 powerCoreIconAsset.frameKey,
             )
-            .setOrigin(0, 0.5)
+            .setOrigin(1, 0.5)
             .setVisible(false);
 
         const divider = this.scene.add
@@ -145,7 +145,7 @@ export default class BridgeEnemyShipHeaderView {
         this.destroyPowerCoreSegments();
         this.powerCoreIcon
             .setVisible(false)
-            .setPosition(POWER_CORE.leftPadding, this.height / 2);
+            .setPosition(this.width - POWER_CORE.rightPadding, this.height / 2);
     }
 
     private reconcilePowerCoreSegments(max: number): void {
@@ -156,14 +156,22 @@ export default class BridgeEnemyShipHeaderView {
         this.destroyPowerCoreSegments();
 
         if (max <= 0) {
-            this.powerCoreIcon.setPosition(POWER_CORE.leftPadding, this.height / 2);
+            this.powerCoreIcon.setPosition(this.width - POWER_CORE.rightPadding, this.height / 2);
             return;
         }
 
+        const segmentsWidth =
+            max * POWER_CORE.segmentWidth +
+            Math.max(0, max - 1) * POWER_CORE.segmentGap;
         const segmentsX =
-            POWER_CORE.leftPadding +
-            this.powerCoreIcon.width +
-            POWER_CORE.iconGap;
+            this.width -
+            POWER_CORE.rightPadding -
+            segmentsWidth;
+
+        this.powerCoreIcon.setPosition(
+            segmentsX - POWER_CORE.iconGap,
+            this.height / 2,
+        );
 
         for (let index = 0; index < max; index += 1) {
             const x = segmentsX + index * (POWER_CORE.segmentWidth + POWER_CORE.segmentGap);
