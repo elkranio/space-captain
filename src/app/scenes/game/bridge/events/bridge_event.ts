@@ -474,6 +474,13 @@ export type BridgeEnemyShipDashboardUpdatedPayload = {
         max: number;
     };
 
+    powerCore?: {
+        current: number;
+        max: number;
+
+        rechargeProgress?: number;
+    };
+
     equipment: BridgeEnemyEquipmentDashboardPayload[];
 } | null;
 

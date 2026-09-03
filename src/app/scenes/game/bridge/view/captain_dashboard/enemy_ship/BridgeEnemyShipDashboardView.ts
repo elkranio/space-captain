@@ -1,6 +1,13 @@
 import type BridgeScene from "../../../BridgeScene";
 import type BridgeEventBus from "../../../events/BridgeEventBus";
 import BridgeEnemyShipEquipmentGridView from "./equipment/BridgeEnemyShipEquipmentGridView";
+import BridgeEnemyShipHeaderView from "./header/BridgeEnemyShipHeaderView";
+
+const HEADER = {
+    sidePadding: 12,
+    y: 8,
+    height: 36,
+} as const;
 
 const EQUIPMENT_GRID = {
     leftPadding: 16,
@@ -14,9 +21,11 @@ const EQUIPMENT_GRID = {
 } as const;
 
 // Right half of the captain dashboard.
-// Header and the left special column are intentionally reserved for the next atom.
+// Header mirrors the player dashboard; the left special column is still reserved.
 export default class BridgeEnemyShipDashboardView {
     private readonly root: Phaser.GameObjects.Container;
+
+    private readonly headerView: BridgeEnemyShipHeaderView;
 
     private readonly equipmentGridView: BridgeEnemyShipEquipmentGridView;
 
@@ -27,6 +36,16 @@ export default class BridgeEnemyShipDashboardView {
         private readonly height: number,
     ) {
         this.root = scene.add.container(0, 0);
+
+        const headerWidth = this.width - HEADER.sidePadding * 2;
+
+        this.headerView = new BridgeEnemyShipHeaderView(
+            scene,
+            eventBus,
+            headerWidth,
+            HEADER.height,
+        );
+        this.headerView.setPosition(HEADER.sidePadding, HEADER.y);
 
         const equipmentGridX =
             EQUIPMENT_GRID.leftPadding +
@@ -55,7 +74,10 @@ export default class BridgeEnemyShipDashboardView {
             EQUIPMENT_GRID.y,
         );
 
-        this.root.add(this.equipmentGridView.getRoot());
+        this.root.add([
+            this.headerView.getRoot(),
+            this.equipmentGridView.getRoot(),
+        ]);
     }
 
     public getRoot(): Phaser.GameObjects.Container {
@@ -75,6 +97,7 @@ export default class BridgeEnemyShipDashboardView {
 
     public destroy(): void {
         this.equipmentGridView.destroy();
+        this.headerView.destroy();
         this.root.destroy(false);
     }
 }

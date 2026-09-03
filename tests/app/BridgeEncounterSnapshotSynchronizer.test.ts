@@ -109,6 +109,14 @@ describe('BridgeEncounterSnapshotSynchronizer', () => {
                         max: 4,
                     },
 
+                    powerCore: {
+                        current: 1,
+                        max: 4,
+
+                        rechargeProgress:
+                            0.5,
+                    },
+
                     equipment: [
                         {
                             id:
@@ -389,6 +397,14 @@ describe('BridgeEncounterSnapshotSynchronizer', () => {
                     hull: {
                         current: 2,
                         max: 4,
+                    },
+
+                    powerCore: {
+                        current: 1,
+                        max: 4,
+
+                        rechargeProgress:
+                            0.5,
                     },
 
                     equipment: [

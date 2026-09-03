@@ -107,14 +107,40 @@ export default class BridgeEncounterSnapshotSynchronizer {
     }
 
     private syncEnemyShipDashboard(snapshot: EncounterPresentationSnapshot): void {
-        const enemy = snapshot.enemyShipDashboards[0];
+        const dashboard = snapshot.enemyShipDashboards[0];
+
+        if (!dashboard) {
+            this.eventBus.emit(BRIDGE_EVENT.ENEMY_SHIP_DASHBOARD_UPDATED, null);
+            return;
+        }
+
+        const enemy = snapshot.enemyShips.find((candidate) => {
+            return candidate.actorId === dashboard.actorId;
+        });
+        const payload = mapEnemyShipToBridgeDashboardPayload(dashboard);
+        const powerCore = enemy?.powerCore;
 
         this.eventBus.emit(
             BRIDGE_EVENT.ENEMY_SHIP_DASHBOARD_UPDATED,
 
-            enemy
-                ? mapEnemyShipToBridgeDashboardPayload(enemy)
-                : null,
+            {
+                ...payload,
+
+                ...(powerCore
+                    ? {
+                          powerCore: {
+                              current: powerCore.state.charges,
+                              max: powerCore.capacity,
+
+                              ...(powerCore.rechargeProgress !== undefined
+                                  ? {
+                                        rechargeProgress: powerCore.rechargeProgress,
+                                    }
+                                  : {}),
+                          },
+                      }
+                    : {}),
+            },
         );
     }
 
