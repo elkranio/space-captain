@@ -28,7 +28,7 @@ import ShipNodeActorFactory from '../../../src/engine/generation/space_node_acto
 
 describe('FLY_TO', () => {
     it('travels between encounter anchors and blocks the bridge until completion', () => {
-        const { node, stationId, stationName, beaconId, beaconName } = createStationAndBeaconNodeFixture();
+        const { node, stationId, beaconId, beaconName } = createStationAndBeaconNodeFixture();
 
         const engine = new EncounterEngine({
             playerHull: createPlayerHullFixture(),
@@ -176,15 +176,11 @@ describe('FLY_TO', () => {
         expect(engine.getAvailableCommands(OFFICER_ROLE.HELM)).toContainEqual({
             commandId: ENCOUNTER_OFFICER_COMMAND_ID.HELM_FLY_TO,
 
-            label: 'FLY TO',
-
             target: {
                 kind: OFFICER_COMMAND_TARGET_KIND.ANCHOR,
 
                 anchorId: stationId,
             },
-
-            targetLabel: stationName,
         });
     });
 
