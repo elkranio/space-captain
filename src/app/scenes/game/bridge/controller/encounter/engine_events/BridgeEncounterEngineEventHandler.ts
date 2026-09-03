@@ -27,13 +27,11 @@ export default class BridgeEncounterEngineEventHandler {
     // #region Public API
 
     public handle(
-        events: EncounterEvent[],
+        event: EncounterEvent,
 
         presentationSnapshot?: EncounterPresentationSnapshot,
     ): void {
-        for (const event of events) {
-            this.handleEvent(event, presentationSnapshot);
-        }
+        this.handleEvent(event, presentationSnapshot);
     }
 
     public clearCombatPresentation(): void {

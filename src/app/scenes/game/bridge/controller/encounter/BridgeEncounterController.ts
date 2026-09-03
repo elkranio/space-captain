@@ -308,7 +308,7 @@ export default class BridgeEncounterController {
 
             const playerShipDestroyed = this.updateInteractionState(event, presentationSnapshot);
 
-            this.engineEventHandler.handle([event], presentationSnapshot);
+            this.engineEventHandler.handle(event, presentationSnapshot);
 
             if (playerShipDestroyed) {
                 this.eventBus.emit(BRIDGE_EVENT.SCENE_TRANSITION_REQUESTED, {
