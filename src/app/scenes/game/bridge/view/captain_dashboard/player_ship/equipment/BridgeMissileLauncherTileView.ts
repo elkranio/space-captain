@@ -5,11 +5,11 @@ import {
 } from "../../../../../../../manifests/equipment";
 import {
     MICRO_ICON_ID,
-    MICRO_ICONS,
 } from "../../../../../../../manifests/micro_icons";
 import { FONT_COLOR, FONT_FAMILY, FONT_SIZE } from "../../../../../../../theme/font";
 import { OFFICER_ROLE_COLOR } from "../../../../../../../theme/officer";
 import type BridgeScene from "../../../../BridgeScene";
+import BridgeEquipmentMetricView from "../../BridgeEquipmentMetricView";
 import BridgeEquipmentSlotChromeView from "../../BridgeEquipmentSlotChromeView";
 import { CAPTAIN_DASHBOARD_STYLE } from "../../captain_dashboard_style";
 
@@ -19,11 +19,6 @@ const TILE = {
     titleY: 3,
 
     statusY: 70,
-
-    ammoIconSize: 16,
-    ammoIconOffsetY: 0,
-    ammoTextOffsetY: -4,
-    ammoTextGap: -2,
 
     integrityPipSize: 6,
     integrityPipGap: 2,
@@ -75,9 +70,7 @@ export default class BridgeMissileLauncherTileView {
 
     private readonly hoverActionText: Phaser.GameObjects.BitmapText;
 
-    private readonly ammoIcon: Phaser.GameObjects.Image;
-
-    private readonly ammoText: Phaser.GameObjects.BitmapText;
+    private readonly metricView: BridgeEquipmentMetricView;
 
     private readonly integrityRoot: Phaser.GameObjects.Container;
 
@@ -147,28 +140,15 @@ export default class BridgeMissileLauncherTileView {
             .setTint(FONT_COLOR.PRIMARY)
             .setVisible(false);
 
-        const ammoSprite = MICRO_ICONS[MICRO_ICON_ID.AMMO_MISSILE_STANDARD];
-
-        this.ammoIcon = this.scene.add
-            .image(
-                TILE.horizontalPadding,
-                TILE.statusY + TILE.ammoIconOffsetY,
-                ammoSprite.atlasKey,
-                ammoSprite.frameKey,
-            )
-            .setOrigin(0, 0)
-            .setTint(CAPTAIN_DASHBOARD_STYLE.equipmentAccent.iconColor);
-
-        this.ammoText = this.scene.add
-            .bitmapText(
-                TILE.horizontalPadding + TILE.ammoIconSize + TILE.ammoTextGap,
-                TILE.statusY + TILE.ammoTextOffsetY,
-                FONT_FAMILY.UI_PRIMARY,
-                "0",
-                FONT_SIZE.PX_20,
-            )
-            .setOrigin(0, 0)
-            .setTint(this.chromeColor);
+        this.metricView = new BridgeEquipmentMetricView(
+            this.scene,
+            MICRO_ICON_ID.AMMO_MISSILE_STANDARD,
+        );
+        this.metricView.setPosition(
+            TILE.horizontalPadding,
+            TILE.statusY,
+        );
+        this.metricView.setTextColor(this.chromeColor);
 
         this.integrityRoot = this.scene.add.container(0, 0);
 
@@ -189,8 +169,7 @@ export default class BridgeMissileLauncherTileView {
             this.progressIcon,
             this.hoverRoleText,
             this.hoverActionText,
-            this.ammoIcon,
-            this.ammoText,
+            this.metricView.getRoot(),
             this.integrityRoot,
             this.hoverOutline.getRoot(),
             this.hitArea,
@@ -210,7 +189,7 @@ export default class BridgeMissileLauncherTileView {
     }
 
     public setAmmo(current: number): void {
-        this.ammoText.setText(`${current}`);
+        this.metricView.setValue(current);
     }
 
     public setIntegrity(current: number, max: number): void {
@@ -285,7 +264,7 @@ export default class BridgeMissileLauncherTileView {
     private setChromeColor(color: number): void {
         this.chromeColor = color;
         this.titleText.setTint(color);
-        this.ammoText.setTint(color);
+        this.metricView.setTextColor(color);
         this.renderIntegrity();
     }
 

@@ -5,10 +5,10 @@ import {
 } from "../../../../../../../manifests/equipment";
 import {
     MICRO_ICON_ID,
-    MICRO_ICONS,
 } from "../../../../../../../manifests/micro_icons";
 import { FONT_COLOR, FONT_FAMILY, FONT_SIZE } from "../../../../../../../theme/font";
 import type BridgeScene from "../../../../BridgeScene";
+import BridgeEquipmentMetricView from "../../BridgeEquipmentMetricView";
 import { CAPTAIN_DASHBOARD_STYLE } from "../../captain_dashboard_style";
 
 const TILE = {
@@ -17,11 +17,6 @@ const TILE = {
     titleY: 3,
 
     statusY: 70,
-
-    powerIconSize: 16,
-    powerIconOffsetY: 0,
-    powerTextOffsetY: -4,
-    powerTextGap: -2,
 
     integrityPipSize: 6,
     integrityPipGap: 2,
@@ -47,9 +42,7 @@ export default class BridgeShieldGeneratorTileView {
 
     private readonly progressIcon: Phaser.GameObjects.Image;
 
-    private readonly powerIcon: Phaser.GameObjects.Image;
-
-    private readonly powerText: Phaser.GameObjects.BitmapText;
+    private readonly metricView: BridgeEquipmentMetricView;
 
     private readonly integrityRoot: Phaser.GameObjects.Container;
 
@@ -92,28 +85,15 @@ export default class BridgeShieldGeneratorTileView {
             .setTint(CAPTAIN_DASHBOARD_STYLE.equipmentProgress.readyColor)
             .setVisible(false);
 
-        const powerSprite = MICRO_ICONS[MICRO_ICON_ID.POWER_CHARGE];
-
-        this.powerIcon = this.scene.add
-            .image(
-                TILE.horizontalPadding,
-                TILE.statusY + TILE.powerIconOffsetY,
-                powerSprite.atlasKey,
-                powerSprite.frameKey,
-            )
-            .setOrigin(0, 0)
-            .setTint(CAPTAIN_DASHBOARD_STYLE.equipmentAccent.iconColor);
-
-        this.powerText = this.scene.add
-            .bitmapText(
-                TILE.horizontalPadding + TILE.powerIconSize + TILE.powerTextGap,
-                TILE.statusY + TILE.powerTextOffsetY,
-                FONT_FAMILY.UI_PRIMARY,
-                "0",
-                FONT_SIZE.PX_20,
-            )
-            .setOrigin(0, 0)
-            .setTint(this.chromeColor);
+        this.metricView = new BridgeEquipmentMetricView(
+            this.scene,
+            MICRO_ICON_ID.POWER_CHARGE,
+        );
+        this.metricView.setPosition(
+            TILE.horizontalPadding,
+            TILE.statusY,
+        );
+        this.metricView.setTextColor(this.chromeColor);
 
         this.integrityRoot = this.scene.add.container(0, 0);
 
@@ -121,8 +101,7 @@ export default class BridgeShieldGeneratorTileView {
             this.titleText,
             this.baseIcon,
             this.progressIcon,
-            this.powerIcon,
-            this.powerText,
+            this.metricView.getRoot(),
             this.integrityRoot,
         ]);
     }
@@ -140,7 +119,7 @@ export default class BridgeShieldGeneratorTileView {
     }
 
     public setPowerCost(cost: number): void {
-        this.powerText.setText(`${cost}`);
+        this.metricView.setValue(cost);
     }
 
     public setIntegrity(current: number, max: number): void {
@@ -216,7 +195,7 @@ export default class BridgeShieldGeneratorTileView {
     private setChromeColor(color: number): void {
         this.chromeColor = color;
         this.titleText.setTint(color);
-        this.powerText.setTint(color);
+        this.metricView.setTextColor(color);
         this.renderIntegrity();
     }
 
