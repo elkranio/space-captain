@@ -52,12 +52,7 @@ export default class BridgeCaptainDashboardView {
             this.playerShipScreen.height,
         );
 
-        const playerShipSize = this.playerShipView.getSize();
-
-        this.playerShipView.setPosition(
-            screensX + Math.round((this.playerShipScreen.width - playerShipSize.width) / 2),
-            screensY + Math.round((this.playerShipScreen.height - playerShipSize.height) / 2),
-        );
+        this.playerShipView.setPosition(screensX, screensY);
 
         this.enemyShipView = new BridgeEnemyShipDashboardView(
             scene,
@@ -66,12 +61,7 @@ export default class BridgeCaptainDashboardView {
             this.enemyShipScreen.height,
         );
 
-        const enemyShipSize = this.enemyShipView.getSize();
-
-        this.enemyShipView.setPosition(
-            enemyShipScreenX + Math.round((this.enemyShipScreen.width - enemyShipSize.width) / 2),
-            screensY + Math.round((this.enemyShipScreen.height - enemyShipSize.height) / 2),
-        );
+        this.enemyShipView.setPosition(enemyShipScreenX, screensY);
 
         this.root.add([
             this.playerShipScreen,

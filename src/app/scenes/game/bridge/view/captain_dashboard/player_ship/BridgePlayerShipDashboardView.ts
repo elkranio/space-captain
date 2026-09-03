@@ -81,13 +81,6 @@ export default class BridgePlayerShipDashboardView {
         return this.root;
     }
 
-    public getSize(): { width: number; height: number } {
-        return {
-            width: this.width,
-            height: this.height,
-        };
-    }
-
     public setPosition(x: number, y: number): void {
         this.root.setPosition(x, y);
     }
