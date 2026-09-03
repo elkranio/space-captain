@@ -21,11 +21,6 @@ export type BridgeOfficerStationLayoutEntry = {
         height: number;
     };
 
-    barkPosition: {
-        x: number;
-        y: number;
-        side: "left" | "right";
-    };
 };
 
 const OFFICER_HIT_AREA = {
@@ -46,11 +41,6 @@ export const BRIDGE_OFFICER_STATION_LAYOUT = {
         flipX: false,
         hitArea: OFFICER_HIT_AREA,
 
-        barkPosition: {
-            x: 267,
-            y: 355,
-            side: "left",
-        },
     },
 
     [OFFICER_ROLE.HELM]: {
@@ -65,11 +55,6 @@ export const BRIDGE_OFFICER_STATION_LAYOUT = {
         flipX: false,
         hitArea: OFFICER_HIT_AREA,
 
-        barkPosition: {
-            x: 487,
-            y: 355,
-            side: "left",
-        },
     },
 
     [OFFICER_ROLE.WEAPONS]: {
@@ -84,11 +69,6 @@ export const BRIDGE_OFFICER_STATION_LAYOUT = {
         flipX: true,
         hitArea: OFFICER_HIT_AREA,
 
-        barkPosition: {
-            x: 626,
-            y: 355,
-            side: "right",
-        },
     },
 
     [OFFICER_ROLE.ENGINEER]: {
@@ -103,10 +83,5 @@ export const BRIDGE_OFFICER_STATION_LAYOUT = {
         flipX: true,
         hitArea: OFFICER_HIT_AREA,
 
-        barkPosition: {
-            x: 837,
-            y: 355,
-            side: "right",
-        },
     },
 } as const satisfies Record<OfficerRole, BridgeOfficerStationLayoutEntry>;

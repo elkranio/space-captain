@@ -5,10 +5,6 @@ export type DebugSettings = {
             skipArrival: boolean;
             skipDockingAnimation: boolean;
         };
-        officerCommands: {
-            showCommandBark: boolean;
-            commandBarkText: string;
-        };
         officerTasks: {
             completeTimedTasksImmediately: boolean;
         };
@@ -22,10 +18,6 @@ export const DEBUG_SETTINGS: DebugSettings = {
         encounter: {
             skipArrival: false,
             skipDockingAnimation: false,
-        },
-        officerCommands: {
-            showCommandBark: true,
-            commandBarkText: "AYE, CAPTAIN.",
         },
         officerTasks: {
             completeTimedTasksImmediately: false,

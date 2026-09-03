@@ -10,10 +10,8 @@ import type { EncounterPresentationSnapshot } from "../../../../../../engine/enc
 import {
     ENCOUNTER_OFFICER_COMMAND_ID,
     OFFICER_COMMAND_EXECUTION_STATUS,
-    OFFICER_COMMAND_REJECTION_REASON,
     OFFICER_COMMAND_TARGET_KIND,
     type ExecuteOfficerCommandInput,
-    type ExecuteOfficerCommandResult,
 } from "../../../../../../engine/encounter/model/command";
 import { BEAM_CANNON_SHOT_OUTCOME } from "../../../../../../engine/encounter/model/combat";
 import { ENCOUNTER_EVENT, type EncounterEvent } from "../../../../../../engine/encounter/model/event";
@@ -228,9 +226,7 @@ export default class BridgeEncounterController {
             return;
         }
 
-        const result = this.executeCommand(payload);
-
-        this.handleOfficerCommandResult(payload, result);
+        this.executeCommand(payload);
     }
 
     private handleOfficerTaskCancelRequested(payload: BridgeOfficerTaskCancelRequestedPayload): void {
@@ -363,7 +359,7 @@ export default class BridgeEncounterController {
 
     // #region Officer command execution
 
-    private executeCommand(payload: BridgeOfficerCommandSelectedPayload): ExecuteOfficerCommandResult {
+    private executeCommand(payload: BridgeOfficerCommandSelectedPayload): void {
         const input = this.createExecuteCommandInput(payload);
 
         const result = this.encounterEngine.executeCommand(input);
@@ -380,7 +376,6 @@ export default class BridgeEncounterController {
             this.snapshotSynchronizer.syncBeamCannonThreats(presentationSnapshot);
         }
 
-        return result;
     }
 
     private createExecuteCommandInput(payload: BridgeOfficerCommandSelectedPayload): ExecuteOfficerCommandInput {
@@ -416,51 +411,6 @@ export default class BridgeEncounterController {
         }
 
         return targetNode.id;
-    }
-
-    private handleOfficerCommandResult(
-        payload: BridgeOfficerCommandSelectedPayload,
-        result: ExecuteOfficerCommandResult,
-    ): void {
-        switch (result.status) {
-            case OFFICER_COMMAND_EXECUTION_STATUS.EXECUTED:
-                this.requestOfficerCommandBark(payload);
-                return;
-
-            case OFFICER_COMMAND_EXECUTION_STATUS.REJECTED:
-                switch (result.reason) {
-                    case OFFICER_COMMAND_REJECTION_REASON.NOT_AVAILABLE:
-                        return;
-
-                    case OFFICER_COMMAND_REJECTION_REASON.OFFICERS_BUSY: {
-                        const busyStations = result.busyRoles
-                            .map((role) => {
-                                return role.toUpperCase();
-                            })
-                            .join(", ");
-
-                        this.eventBus.emit(BRIDGE_EVENT.OFFICER_BARK_REQUESTED, {
-                            role: payload.role,
-
-                            text: `CAN'T DO THAT, CAPTAIN. ` + `BUSY STATIONS: ${busyStations}.`,
-                        });
-
-                        return;
-                    }
-                }
-        }
-    }
-
-    private requestOfficerCommandBark(payload: BridgeOfficerCommandSelectedPayload): void {
-        if (!DEBUG_SETTINGS.bridge.officerCommands.showCommandBark) {
-            return;
-        }
-
-        this.eventBus.emit(BRIDGE_EVENT.OFFICER_BARK_REQUESTED, {
-            role: payload.role,
-
-            text: DEBUG_SETTINGS.bridge.officerCommands.commandBarkText,
-        });
     }
 
     // #endregion

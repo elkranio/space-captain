@@ -50,10 +50,6 @@ export const BRIDGE_EVENT = {
     // View просит отменить конкретную active officer task.
     OFFICER_TASK_CANCEL_REQUESTED: "officer_task_cancel_requested",
 
-    // Controller просит показать
-    // короткий officer bark bubble.
-    OFFICER_BARK_REQUESTED: "officer_bark_requested",
-
     // #endregion
 
     // #region Player ship status
@@ -263,13 +259,6 @@ export type BridgeOfficerCommandSelectedPayload = {
 
 export type BridgeOfficerTaskCancelRequestedPayload = {
     taskId: string;
-};
-
-// Payload запроса officer bark.
-export type BridgeOfficerBarkRequestedPayload = {
-    role: OfficerRole;
-
-    text: string;
 };
 
 // #endregion
@@ -867,8 +856,6 @@ export type BridgeEventPayloadMap = {
     [BRIDGE_EVENT.OFFICER_COMMAND_SELECTED]: BridgeOfficerCommandSelectedPayload;
 
     [BRIDGE_EVENT.OFFICER_TASK_CANCEL_REQUESTED]: BridgeOfficerTaskCancelRequestedPayload;
-
-    [BRIDGE_EVENT.OFFICER_BARK_REQUESTED]: BridgeOfficerBarkRequestedPayload;
 
     // Player ship status
 

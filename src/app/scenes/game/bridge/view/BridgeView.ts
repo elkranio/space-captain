@@ -2,7 +2,6 @@
 
 import type BridgeScene from "../BridgeScene";
 import type BridgeEventBus from "../events/BridgeEventBus";
-import BridgeOfficerBarksView from "./barks/BridgeOfficerBarksView";
 import BridgeCaptainDashboardView from "./captain_dashboard/BridgeCaptainDashboardView";
 import BridgeCombatView from "./combat/BridgeCombatView";
 import BridgeTargetingWarningView from "./indicators/targeting_warning/BridgeTargetingWarningView";
@@ -26,8 +25,6 @@ export default class BridgeView {
 
     private readonly spaceView: BridgeSpaceView;
 
-    private readonly officerBarksView: BridgeOfficerBarksView;
-
     constructor(scene: BridgeScene, eventBus: BridgeEventBus) {
         const spaceView = new BridgeSpaceView(
             scene,
@@ -49,12 +46,9 @@ export default class BridgeView {
         this.officerStationsView = new BridgeOfficerStationsView(scene);
 
         this.captainDashboardView = new BridgeCaptainDashboardView(scene, eventBus);
-
-        this.officerBarksView = new BridgeOfficerBarksView(scene, eventBus);
     }
 
     public destroy(): void {
-        this.officerBarksView.destroy();
         this.captainDashboardView.destroy();
         this.officerStationsView.destroy();
         this.targetingWarningView.destroy();
