@@ -221,9 +221,8 @@ export default class BridgePlayerShipSpecialColumnView {
             const y = COLUMN.hullContentTopY + row * (segmentHeight + COLUMN.hullSegmentRowGap);
 
             const segment = this.scene.add
-                .rectangle(x, y, segmentWidth, segmentHeight, CAPTAIN_DASHBOARD_STYLE.equipmentIntegrity.filledColor, 1)
-                .setOrigin(0, 0)
-                .setStrokeStyle(1, CAPTAIN_DASHBOARD_STYLE.equipmentIntegrity.borderColor);
+                .rectangle(x, y, segmentWidth, segmentHeight, CAPTAIN_DASHBOARD_STYLE.hull.filledColor, 1)
+                .setOrigin(0, 0);
 
             this.hullSegments.push(segment);
             this.hullPanel.add(segment);
@@ -240,11 +239,11 @@ export default class BridgePlayerShipSpecialColumnView {
                 continue;
             }
 
+            const filled = index < clampedCurrent;
+
             segment.setFillStyle(
-                index < clampedCurrent
-                    ? CAPTAIN_DASHBOARD_STYLE.equipmentIntegrity.filledColor
-                    : CAPTAIN_DASHBOARD_STYLE.equipmentIntegrity.emptyColor,
-                1,
+                CAPTAIN_DASHBOARD_STYLE.hull.filledColor,
+                filled ? 1 : CAPTAIN_DASHBOARD_STYLE.hull.emptyAlpha,
             );
         }
     }

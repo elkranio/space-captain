@@ -262,14 +262,10 @@ export default class BridgeEnemyShipSpecialColumnView {
                     y,
                     segmentWidth,
                     segmentHeight,
-                    CAPTAIN_DASHBOARD_STYLE.equipmentIntegrity.filledColor,
+                    CAPTAIN_DASHBOARD_STYLE.hull.filledColor,
                     1,
                 )
-                .setOrigin(0, 0)
-                .setStrokeStyle(
-                    1,
-                    CAPTAIN_DASHBOARD_STYLE.equipmentIntegrity.borderColor,
-                );
+                .setOrigin(0, 0);
 
             this.hullSegments.push(segment);
             this.hullPanel.add(segment);
@@ -290,11 +286,11 @@ export default class BridgeEnemyShipSpecialColumnView {
                 continue;
             }
 
+            const filled = index < clampedCurrent;
+
             segment.setFillStyle(
-                index < clampedCurrent
-                    ? CAPTAIN_DASHBOARD_STYLE.equipmentIntegrity.filledColor
-                    : CAPTAIN_DASHBOARD_STYLE.equipmentIntegrity.emptyColor,
-                1,
+                CAPTAIN_DASHBOARD_STYLE.hull.filledColor,
+                filled ? 1 : CAPTAIN_DASHBOARD_STYLE.hull.emptyAlpha,
             );
         }
     }

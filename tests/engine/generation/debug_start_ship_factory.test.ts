@@ -7,6 +7,9 @@ import {
     DEBUG_START,
 } from '../../../src/engine/content/catalogs/debug_start';
 import {
+    SHIP_CHASSIS,
+} from '../../../src/engine/content/catalogs/ship_chassis';
+import {
     SHIP_CHASSIS_ID,
 } from '../../../src/engine/defs/ship_chassis';
 import {
@@ -30,8 +33,11 @@ describe(
                     SHIP_CHASSIS_ID.PLAYER_00,
                 );
 
-                expect(ship.hull).toBe(30);
-                expect(ship.maxHull).toBe(30);
+                const expectedHull =
+                    SHIP_CHASSIS[DEBUG_START.player.chassisId].maxHull;
+
+                expect(ship.hull).toBe(expectedHull);
+                expect(ship.maxHull).toBe(expectedHull);
 
                 expect(
                     ship.mounts
@@ -109,8 +115,11 @@ describe(
                     SHIP_CHASSIS_ID.GENERIC_00,
                 );
 
-                expect(ship.hull).toBe(3);
-                expect(ship.maxHull).toBe(3);
+                const expectedHull =
+                    SHIP_CHASSIS[DEBUG_START.enemy.chassisId].maxHull;
+
+                expect(ship.hull).toBe(expectedHull);
+                expect(ship.maxHull).toBe(expectedHull);
             },
         );
     },

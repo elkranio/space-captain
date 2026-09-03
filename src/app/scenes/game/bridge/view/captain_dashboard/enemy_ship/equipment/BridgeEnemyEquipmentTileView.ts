@@ -3,14 +3,13 @@ import type { SpriteEntry } from "../../../../../../../manifests/types";
 import { FONT_COLOR, FONT_FAMILY, FONT_SIZE } from "../../../../../../../theme/font";
 import type BridgeScene from "../../../../BridgeScene";
 import type { BridgeEnemyEquipmentDashboardPayload } from "../../../../events/bridge_event";
+import BridgeEquipmentIntegrityView from "../../BridgeEquipmentIntegrityView";
 import { CAPTAIN_DASHBOARD_STYLE } from "../../captain_dashboard_style";
 
 const TILE = {
     horizontalPadding: 9,
     titleY: 3,
 
-    integrityPipSize: 6,
-    integrityPipGap: 2,
     integrityY: 72,
     stateBottomPadding: 10,
 } as const;
@@ -24,7 +23,7 @@ export default class BridgeEnemyEquipmentTileView {
 
     private readonly stateText: Phaser.GameObjects.BitmapText;
 
-    private readonly integrityRoot: Phaser.GameObjects.Container;
+    private readonly integrityView: BridgeEquipmentIntegrityView;
 
     constructor(
         private readonly scene: BridgeScene,
@@ -65,13 +64,15 @@ export default class BridgeEnemyEquipmentTileView {
             )
             .setOrigin(0, 0);
 
-        this.integrityRoot = this.scene.add.container(0, 0);
+        this.integrityView = new BridgeEquipmentIntegrityView(this.scene);
+        this.integrityView.setPosition(0, TILE.integrityY);
+        this.integrityView.setRightEdge(this.width - TILE.horizontalPadding);
 
         this.root.add([
             this.titleText,
             this.icon,
             this.stateText,
-            this.integrityRoot,
+            this.integrityView.getRoot(),
         ]);
     }
 
@@ -104,7 +105,7 @@ export default class BridgeEnemyEquipmentTileView {
             .setText(payload.broken ? "BROKEN" : "")
             .setTint(CAPTAIN_DASHBOARD_STYLE.equipmentProgress.repairColor);
 
-        this.renderIntegrity(
+        this.integrityView.update(
             payload.integrity.current,
             payload.integrity.max,
             payload.broken,
@@ -113,42 +114,5 @@ export default class BridgeEnemyEquipmentTileView {
 
     public destroy(): void {
         this.root.destroy(true);
-    }
-
-    private renderIntegrity(current: number, max: number, broken: boolean): void {
-        this.integrityRoot.removeAll(true);
-
-        if (max <= 0) {
-            return;
-        }
-
-        const pipSize = TILE.integrityPipSize;
-        const gap = TILE.integrityPipGap;
-        const totalWidth = max * pipSize + (max - 1) * gap;
-        const startX = this.width - TILE.horizontalPadding - totalWidth;
-        const y = TILE.integrityY;
-        const filledCount = Math.max(0, Math.min(current, max));
-        const integrityColor = broken
-            ? CAPTAIN_DASHBOARD_STYLE.equipmentProgress.repairColor
-            : CAPTAIN_DASHBOARD_STYLE.equipmentIntegrity.filledColor;
-        const emptyAlpha = CAPTAIN_DASHBOARD_STYLE.equipmentIntegrity.emptyAlpha;
-
-        for (let index = 0; index < max; index += 1) {
-            const x = startX + index * (pipSize + gap);
-            const filled = index < filledCount;
-
-            const pip = this.scene.add
-                .rectangle(
-                    x,
-                    y,
-                    pipSize,
-                    pipSize,
-                    integrityColor,
-                    filled ? 1 : emptyAlpha,
-                )
-                .setOrigin(0, 0);
-
-            this.integrityRoot.add(pip);
-        }
     }
 }

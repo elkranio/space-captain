@@ -9,6 +9,7 @@ import {
 import { FONT_COLOR, FONT_FAMILY, FONT_SIZE } from "../../../../../../../theme/font";
 import { OFFICER_ROLE_COLOR } from "../../../../../../../theme/officer";
 import type BridgeScene from "../../../../BridgeScene";
+import BridgeEquipmentIntegrityView from "../../BridgeEquipmentIntegrityView";
 import BridgeEquipmentMetricView from "../../BridgeEquipmentMetricView";
 import BridgeEquipmentSlotChromeView from "../../BridgeEquipmentSlotChromeView";
 import { CAPTAIN_DASHBOARD_STYLE } from "../../captain_dashboard_style";
@@ -19,9 +20,6 @@ const TILE = {
     titleY: 3,
 
     statusY: 70,
-
-    integrityPipSize: 6,
-    integrityPipGap: 2,
 
     hoverTextGap: 6,
     hoverHeaderHeight: 22,
@@ -72,15 +70,11 @@ export default class BridgeMissileLauncherTileView {
 
     private readonly metricView: BridgeEquipmentMetricView;
 
-    private readonly integrityRoot: Phaser.GameObjects.Container;
+    private readonly integrityView: BridgeEquipmentIntegrityView;
 
     private readonly hitArea: Phaser.GameObjects.Zone;
 
     private chromeColor: number = FONT_COLOR.PRIMARY;
-
-    private integrityCurrent = 0;
-
-    private integrityMax = 0;
 
     private progressVisible = false;
 
@@ -150,7 +144,9 @@ export default class BridgeMissileLauncherTileView {
         );
         this.metricView.setTextColor(this.chromeColor);
 
-        this.integrityRoot = this.scene.add.container(0, 0);
+        this.integrityView = new BridgeEquipmentIntegrityView(this.scene);
+        this.integrityView.setPosition(0, TILE.statusY + 2);
+        this.integrityView.setRightEdge(this.width - TILE.horizontalPadding);
 
         this.hitArea = this.scene.add
             .zone(0, 0, this.width, height)
@@ -170,7 +166,7 @@ export default class BridgeMissileLauncherTileView {
             this.hoverRoleText,
             this.hoverActionText,
             this.metricView.getRoot(),
-            this.integrityRoot,
+            this.integrityView.getRoot(),
             this.hoverOutline.getRoot(),
             this.hitArea,
         ]);
@@ -193,9 +189,7 @@ export default class BridgeMissileLauncherTileView {
     }
 
     public setIntegrity(current: number, max: number): void {
-        this.integrityCurrent = current;
-        this.integrityMax = max;
-        this.renderIntegrity();
+        this.integrityView.update(current, max);
     }
 
     public setHoverAction(action: MissileLauncherHoverAction): void {
@@ -265,41 +259,6 @@ export default class BridgeMissileLauncherTileView {
         this.chromeColor = color;
         this.titleText.setTint(color);
         this.metricView.setTextColor(color);
-        this.renderIntegrity();
-    }
-
-    private renderIntegrity(): void {
-        this.integrityRoot.removeAll(true);
-
-        if (this.integrityMax <= 0) {
-            return;
-        }
-
-        const totalWidth = this.integrityMax * TILE.integrityPipSize + (this.integrityMax - 1) * TILE.integrityPipGap;
-        const startX = this.width - TILE.horizontalPadding - totalWidth;
-        const integrityColor =
-            this.integrityCurrent <= 0
-                ? CAPTAIN_DASHBOARD_STYLE.equipmentProgress.repairColor
-                : CAPTAIN_DASHBOARD_STYLE.equipmentIntegrity.filledColor;
-        const emptyAlpha = CAPTAIN_DASHBOARD_STYLE.equipmentIntegrity.emptyAlpha;
-
-        for (let index = 0; index < this.integrityMax; index += 1) {
-            const filled = index < this.integrityCurrent;
-            const x = startX + index * (TILE.integrityPipSize + TILE.integrityPipGap);
-
-            const pip = this.scene.add
-                .rectangle(
-                    x,
-                    TILE.statusY + 2,
-                    TILE.integrityPipSize,
-                    TILE.integrityPipSize,
-                    integrityColor,
-                    filled ? 1 : emptyAlpha,
-                )
-                .setOrigin(0, 0);
-
-            this.integrityRoot.add(pip);
-        }
     }
 
     private renderHover(): void {

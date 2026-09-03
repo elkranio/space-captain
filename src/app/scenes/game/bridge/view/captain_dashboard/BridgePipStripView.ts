@@ -1,10 +1,16 @@
 import type BridgeScene from "../../BridgeScene";
 
-export const HEADER_STATUS_PIP = {
+export type BridgePipStripGeometry = {
+    width: number;
+    height: number;
+    gap: number;
+};
+
+export const HEADER_STATUS_PIP: BridgePipStripGeometry = {
     width: 8,
     height: 14,
     gap: 3,
-} as const;
+};
 
 export type BridgePipStripPalette = {
     filledColor: number;
@@ -25,9 +31,16 @@ export default class BridgePipStripView {
 
     private readonly pips: BridgePipView[] = [];
 
+    private current = 0;
+
+    private max = 0;
+
+    private partialProgress: number | undefined;
+
     constructor(
         private readonly scene: BridgeScene,
-        private readonly palette: BridgePipStripPalette,
+        private palette: BridgePipStripPalette,
+        private readonly geometry: BridgePipStripGeometry = HEADER_STATUS_PIP,
     ) {
         this.root = this.scene.add.container(0, 0);
     }
@@ -42,8 +55,8 @@ export default class BridgePipStripView {
         }
 
         return (
-            this.pips.length * HEADER_STATUS_PIP.width +
-            (this.pips.length - 1) * HEADER_STATUS_PIP.gap
+            this.pips.length * this.geometry.width +
+            (this.pips.length - 1) * this.geometry.gap
         );
     }
 
@@ -51,19 +64,47 @@ export default class BridgePipStripView {
         this.root.setPosition(x, y);
     }
 
+    public setPalette(palette: BridgePipStripPalette): void {
+        this.palette = palette;
+        this.render();
+    }
+
     public setValue(
         current: number,
         max: number,
         partialProgress?: number,
     ): void {
-        this.reconcilePips(max);
+        if (!Number.isInteger(max) || max < 0) {
+            throw new Error("Pip strip max must be a non-negative integer: " + max);
+        }
+
+        this.current = current;
+        this.max = max;
+        this.partialProgress = partialProgress;
+        this.render();
+    }
+
+    public clear(): void {
+        this.current = 0;
+        this.max = 0;
+        this.partialProgress = undefined;
+        this.destroyPips();
+    }
+
+    public destroy(): void {
+        this.clear();
+        this.root.destroy(true);
+    }
+
+    private render(): void {
+        this.reconcilePips(this.max);
 
         const clampedCurrent = Phaser.Math.Clamp(
-            Math.floor(current),
+            Math.floor(this.current),
             0,
             this.pips.length,
         );
-        const clampedPartial = Phaser.Math.Clamp(partialProgress ?? 0, 0, 1);
+        const clampedPartial = Phaser.Math.Clamp(this.partialProgress ?? 0, 0, 1);
 
         for (let index = 0; index < this.pips.length; index += 1) {
             const pip = this.pips[index];
@@ -84,7 +125,7 @@ export default class BridgePipStripView {
             const isPartial =
                 index === clampedCurrent &&
                 clampedCurrent < this.pips.length &&
-                partialProgress !== undefined;
+                this.partialProgress !== undefined;
 
             if (isPartial) {
                 pip.frame.setVisible(true);
@@ -103,20 +144,7 @@ export default class BridgePipStripView {
         }
     }
 
-    public clear(): void {
-        this.destroyPips();
-    }
-
-    public destroy(): void {
-        this.destroyPips();
-        this.root.destroy(true);
-    }
-
     private reconcilePips(max: number): void {
-        if (!Number.isInteger(max) || max < 0) {
-            throw new Error("Pip strip max must be a non-negative integer: " + max);
-        }
-
         if (this.pips.length === max) {
             return;
         }
@@ -126,14 +154,14 @@ export default class BridgePipStripView {
         for (let index = 0; index < max; index += 1) {
             const x =
                 index *
-                (HEADER_STATUS_PIP.width + HEADER_STATUS_PIP.gap);
+                (this.geometry.width + this.geometry.gap);
 
             const frame = this.scene.add
                 .rectangle(
                     x,
                     0,
-                    HEADER_STATUS_PIP.width,
-                    HEADER_STATUS_PIP.height,
+                    this.geometry.width,
+                    this.geometry.height,
                     this.palette.emptyColor,
                     this.palette.emptyAlpha,
                 )
@@ -142,9 +170,9 @@ export default class BridgePipStripView {
             const fill = this.scene.add
                 .rectangle(
                     x,
-                    HEADER_STATUS_PIP.height,
-                    HEADER_STATUS_PIP.width,
-                    HEADER_STATUS_PIP.height,
+                    this.geometry.height,
+                    this.geometry.width,
+                    this.geometry.height,
                     this.palette.filledColor,
                     1,
                 )
