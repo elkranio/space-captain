@@ -4,23 +4,12 @@ import {
     BRIDGE_EVENT,
     type BridgePlayerShipDashboardUpdatedPayload,
 } from "../../../events/bridge_event";
+import { CAPTAIN_DASHBOARD_LAYOUT } from "../captain_dashboard_layout";
 import BridgePlayerShipEquipmentGridView from "./equipment/BridgePlayerShipEquipmentGridView";
 import BridgePlayerShipHeaderView from "./header/BridgePlayerShipHeaderView";
 import BridgeDefenseTurretInteractionView from "./interaction/defense_turret/BridgeDefenseTurretInteractionView";
 
-const HEADER = {
-    sidePadding: 12,
-    y: 8,
-    height: 36,
-} as const;
-
-const EQUIPMENT_GRID = {
-    x: 16,
-    y: 50,
-
-    rightPadding: 16,
-    bottomPadding: 18,
-} as const;
+const DASHBOARD = CAPTAIN_DASHBOARD_LAYOUT.shipDashboard;
 
 // Левая половина captain dashboard.
 //
@@ -44,17 +33,17 @@ export default class BridgePlayerShipDashboardView {
     ) {
         this.root = scene.add.container(0, 0);
 
-        const headerWidth = this.width - HEADER.sidePadding * 2;
+        const headerWidth = this.width - DASHBOARD.header.sidePadding * 2;
 
-        this.headerView = new BridgePlayerShipHeaderView(scene, eventBus, headerWidth, HEADER.height);
-        this.headerView.setPosition(HEADER.sidePadding, HEADER.y);
+        this.headerView = new BridgePlayerShipHeaderView(scene, eventBus, headerWidth, DASHBOARD.header.height);
+        this.headerView.setPosition(DASHBOARD.header.sidePadding, DASHBOARD.header.y);
 
         const equipmentGridWidth =
             this.width -
-            EQUIPMENT_GRID.x -
-            EQUIPMENT_GRID.rightPadding;
+            DASHBOARD.content.x -
+            DASHBOARD.content.rightPadding;
 
-        const equipmentGridHeight = this.height - EQUIPMENT_GRID.y - EQUIPMENT_GRID.bottomPadding;
+        const equipmentGridHeight = this.height - DASHBOARD.content.y - DASHBOARD.content.bottomPadding;
 
         this.equipmentGridView = new BridgePlayerShipEquipmentGridView(
             scene,
@@ -63,18 +52,16 @@ export default class BridgePlayerShipDashboardView {
             equipmentGridHeight,
             () => this.openDefenseTurretInteraction(),
         );
-        this.equipmentGridView.setPosition(EQUIPMENT_GRID.x, EQUIPMENT_GRID.y);
-
-        const interactionWidth = this.width - EQUIPMENT_GRID.x - EQUIPMENT_GRID.rightPadding;
+        this.equipmentGridView.setPosition(DASHBOARD.content.x, DASHBOARD.content.y);
 
         this.defenseTurretInteractionView = new BridgeDefenseTurretInteractionView(
             scene,
             eventBus,
-            interactionWidth,
+            equipmentGridWidth,
             equipmentGridHeight,
             () => this.closeDefenseTurretInteraction(),
         );
-        this.defenseTurretInteractionView.setPosition(EQUIPMENT_GRID.x, EQUIPMENT_GRID.y);
+        this.defenseTurretInteractionView.setPosition(DASHBOARD.content.x, DASHBOARD.content.y);
         this.defenseTurretInteractionView.close();
 
         this.root.add([

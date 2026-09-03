@@ -1,21 +1,10 @@
 import type BridgeScene from "../../../BridgeScene";
 import type BridgeEventBus from "../../../events/BridgeEventBus";
+import { CAPTAIN_DASHBOARD_LAYOUT } from "../captain_dashboard_layout";
 import BridgeEnemyShipEquipmentGridView from "./equipment/BridgeEnemyShipEquipmentGridView";
 import BridgeEnemyShipHeaderView from "./header/BridgeEnemyShipHeaderView";
 
-const HEADER = {
-    sidePadding: 12,
-    y: 8,
-    height: 36,
-} as const;
-
-const EQUIPMENT_GRID = {
-    leftPadding: 16,
-    y: 50,
-
-    rightPadding: 16,
-    bottomPadding: 18,
-} as const;
+const DASHBOARD = CAPTAIN_DASHBOARD_LAYOUT.shipDashboard;
 
 // Right half of the captain dashboard.
 // HULL now lives in the header; the mirrored 4x3 grid uses the full content width.
@@ -34,25 +23,25 @@ export default class BridgeEnemyShipDashboardView {
     ) {
         this.root = scene.add.container(0, 0);
 
-        const headerWidth = this.width - HEADER.sidePadding * 2;
+        const headerWidth = this.width - DASHBOARD.header.sidePadding * 2;
 
         this.headerView = new BridgeEnemyShipHeaderView(
             scene,
             eventBus,
             headerWidth,
-            HEADER.height,
+            DASHBOARD.header.height,
         );
-        this.headerView.setPosition(HEADER.sidePadding, HEADER.y);
+        this.headerView.setPosition(DASHBOARD.header.sidePadding, DASHBOARD.header.y);
 
         const equipmentGridWidth =
             this.width -
-            EQUIPMENT_GRID.leftPadding -
-            EQUIPMENT_GRID.rightPadding;
+            DASHBOARD.content.x -
+            DASHBOARD.content.rightPadding;
 
         const equipmentGridHeight =
             this.height -
-            EQUIPMENT_GRID.y -
-            EQUIPMENT_GRID.bottomPadding;
+            DASHBOARD.content.y -
+            DASHBOARD.content.bottomPadding;
 
         this.equipmentGridView = new BridgeEnemyShipEquipmentGridView(
             scene,
@@ -62,8 +51,8 @@ export default class BridgeEnemyShipDashboardView {
         );
 
         this.equipmentGridView.setPosition(
-            EQUIPMENT_GRID.leftPadding,
-            EQUIPMENT_GRID.y,
+            DASHBOARD.content.x,
+            DASHBOARD.content.y,
         );
 
         this.root.add([
