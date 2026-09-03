@@ -9,6 +9,45 @@ User reported this baseline GREEN and pushed.
 
 ---
 
+# 2026-09-03 authoritative checkpoint
+
+Fresh GREEN master before the refactor window:
+
+`da86c6e269372db7e9e97fff510075395b923359`
+
+The cleanup plan from Sections 5, 7 and 8 below is now COMPLETE.
+Those sections are retained only as historical context until the final post-refactor docs rewrite.
+
+Current authoritative results:
+
+- Defense Turret no longer consumes `CAPTAIN_COMBAT_CONTEXT_UPDATED`.
+- Turret owns `DEFENSE_TURRET_THREATS_UPDATED` and its narrow mapper/read-model.
+- `BridgeCaptainCombatContextMapper` and the broad captain combat-context event/payload are deleted.
+- combat-presentation clear explicitly resets Turret threats with `DEFENSE_TURRET_THREATS_UPDATED, []`.
+- `AvailableOfficerCommand` is now only:
+  - `commandId`
+  - `target`
+- `AvailableOfficerCommand.label` and `targetLabel` plus their construction/test plumbing are deleted.
+- `OfficerCommandDef.label` remains intentionally live.
+- independent combat VFX/read-model events remain live and were not folded into the deleted broad context.
+- post-removal cleanup/audit is GREEN.
+
+Next work is intentionally a refactor window BEFORE the persistent enemy dashboard:
+
+1. ownership / spaghetti / god-object pass;
+2. over-segmentation pass;
+3. contracts / transport pass;
+4. final dumbification pass;
+5. full docs rewrite to the resulting architecture;
+6. persistent enemy dashboard;
+7. Beam read-model/targeting work.
+
+Refactor rule:
+do not change gameplay merely to make architecture prettier.
+Prefer deleting indirection and clarifying ownership over introducing new abstractions.
+
+---
+
 # 0. How to resume in the next chat
 
 Do **not** re-derive old decisions from scratch.
