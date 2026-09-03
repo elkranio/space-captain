@@ -59,7 +59,7 @@ describe(
                         .new_perspective_00
                         .frameKey,
                 ).toBe(
-                    'world/ships/chassis/new_perspective_00',
+                    'world/ships/chassis/generic',
                 );
 
                 expect(

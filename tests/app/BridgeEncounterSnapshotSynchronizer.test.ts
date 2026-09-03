@@ -130,7 +130,7 @@ describe('BridgeEncounterSnapshotSynchronizer', () => {
                                     'atlas',
 
                                 frameKey:
-                                    'equipment/icon_drive',
+                                    'equipment/icons/drive',
                             },
 
                             slot: {
@@ -420,7 +420,7 @@ describe('BridgeEncounterSnapshotSynchronizer', () => {
                                     'atlas',
 
                                 frameKey:
-                                    'equipment/icon_drive',
+                                    'equipment/icons/drive',
                             },
 
                             slot: {
