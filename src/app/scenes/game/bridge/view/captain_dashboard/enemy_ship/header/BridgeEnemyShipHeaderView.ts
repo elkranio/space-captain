@@ -1,33 +1,16 @@
 // src/app/scenes/game/bridge/view/captain_dashboard/enemy_ship/header/BridgeEnemyShipHeaderView.ts
-import {
-    CAPTAIN_DASHBOARD_SPRITE_ID,
-    CAPTAIN_DASHBOARD_SPRITES,
-} from "../../../../../../../manifests/bridge/captain_dashboard";
 import type BridgeScene from "../../../../BridgeScene";
-import { BRIDGE_EVENT, type BridgeEnemyShipDashboardUpdatedPayload } from "../../../../events/bridge_event";
+import {
+    BRIDGE_EVENT,
+    type BridgeEnemyShipDashboardUpdatedPayload,
+} from "../../../../events/bridge_event";
 import type BridgeEventBus from "../../../../events/BridgeEventBus";
 import { CAPTAIN_DASHBOARD_STYLE } from "../../captain_dashboard_style";
 import BridgeHullStatusView from "../../BridgeHullStatusView";
+import BridgePowerCoreStatusView from "../../BridgePowerCoreStatusView";
 
 const HULL_X = 8;
-
-const POWER_CORE = {
-    rightPadding: 12,
-
-    segmentWidth: 8,
-    segmentHeight: 14,
-    segmentGap: 3,
-    segmentY: 11,
-    segmentInset: 0,
-
-    iconGap: 8,
-} as const;
-
-type PowerCoreSegmentView = {
-    frame: Phaser.GameObjects.Rectangle;
-    track: Phaser.GameObjects.Rectangle;
-    fill: Phaser.GameObjects.Rectangle;
-};
+const POWER_CORE_RIGHT_PADDING = 12;
 
 // Top strip for the persistent enemy dashboard.
 // HULL and Power Core both come from the current enemy snapshot.
@@ -36,9 +19,7 @@ export default class BridgeEnemyShipHeaderView {
 
     private readonly hullView: BridgeHullStatusView;
 
-    private readonly powerCoreIcon: Phaser.GameObjects.Image;
-
-    private readonly powerCoreSegments: PowerCoreSegmentView[] = [];
+    private readonly powerCoreView: BridgePowerCoreStatusView;
 
     constructor(
         private readonly scene: BridgeScene,
@@ -48,31 +29,41 @@ export default class BridgeEnemyShipHeaderView {
     ) {
         this.root = this.scene.add.container(0, 0);
 
-        const centerY = this.height / 2;
-
         this.hullView = new BridgeHullStatusView(this.scene, this.height);
         this.hullView.setPosition(HULL_X, 0);
 
-        const powerCoreIconAsset = CAPTAIN_DASHBOARD_SPRITES[CAPTAIN_DASHBOARD_SPRITE_ID.POWER_CORE_ICON];
-
-        this.powerCoreIcon = this.scene.add
-            .image(
-                this.width - POWER_CORE.rightPadding,
-                centerY,
-                powerCoreIconAsset.atlasKey,
-                powerCoreIconAsset.frameKey,
-            )
-            .setOrigin(1, 0.5)
-            .setVisible(false);
+        this.powerCoreView = new BridgePowerCoreStatusView(
+            this.scene,
+            this.height,
+        );
+        this.powerCoreView.setRightEdge(
+            this.width - POWER_CORE_RIGHT_PADDING,
+        );
+        this.powerCoreView.setVisible(false);
 
         const divider = this.scene.add
-            .rectangle(0, this.height - 1, this.width, 3, CAPTAIN_DASHBOARD_STYLE.header.dividerColor, 1)
+            .rectangle(
+                0,
+                this.height - 1,
+                this.width,
+                3,
+                CAPTAIN_DASHBOARD_STYLE.header.dividerColor,
+                1,
+            )
             .setOrigin(0, 0);
 
-        this.root.add([this.hullView.getRoot(), this.powerCoreIcon, divider]);
+        this.root.add([
+            this.hullView.getRoot(),
+            this.powerCoreView.getRoot(),
+            divider,
+        ]);
         this.root.setVisible(false);
 
-        this.eventBus.on(BRIDGE_EVENT.ENEMY_SHIP_DASHBOARD_UPDATED, this.handleDashboardUpdated, this);
+        this.eventBus.on(
+            BRIDGE_EVENT.ENEMY_SHIP_DASHBOARD_UPDATED,
+            this.handleDashboardUpdated,
+            this,
+        );
     }
 
     public getRoot(): Phaser.GameObjects.Container {
@@ -84,14 +75,20 @@ export default class BridgeEnemyShipHeaderView {
     }
 
     public destroy(): void {
-        this.eventBus.off(BRIDGE_EVENT.ENEMY_SHIP_DASHBOARD_UPDATED, this.handleDashboardUpdated, this);
+        this.eventBus.off(
+            BRIDGE_EVENT.ENEMY_SHIP_DASHBOARD_UPDATED,
+            this.handleDashboardUpdated,
+            this,
+        );
 
         this.hullView.destroy();
-        this.destroyPowerCoreSegments();
+        this.powerCoreView.destroy();
         this.root.destroy(true);
     }
 
-    private handleDashboardUpdated(payload: BridgeEnemyShipDashboardUpdatedPayload): void {
+    private handleDashboardUpdated(
+        payload: BridgeEnemyShipDashboardUpdatedPayload,
+    ): void {
         if (!payload) {
             this.root.setVisible(false);
             this.hullView.clear();
@@ -109,122 +106,16 @@ export default class BridgeEnemyShipHeaderView {
             return;
         }
 
-        this.powerCoreIcon.setVisible(true);
-        this.reconcilePowerCoreSegments(powerCore.max);
-        this.updatePowerCoreSegments(powerCore.current, powerCore.rechargeProgress);
+        this.powerCoreView.setVisible(true);
+        this.powerCoreView.update(
+            powerCore.current,
+            powerCore.max,
+            powerCore.rechargeProgress,
+        );
     }
 
     private clearPowerCore(): void {
-        this.destroyPowerCoreSegments();
-        this.powerCoreIcon.setVisible(false).setPosition(this.width - POWER_CORE.rightPadding, this.height / 2);
-    }
-
-    private reconcilePowerCoreSegments(max: number): void {
-        if (this.powerCoreSegments.length === max) {
-            return;
-        }
-
-        this.destroyPowerCoreSegments();
-
-        if (max <= 0) {
-            this.powerCoreIcon.setPosition(this.width - POWER_CORE.rightPadding, this.height / 2);
-            return;
-        }
-
-        const segmentsWidth = max * POWER_CORE.segmentWidth + Math.max(0, max - 1) * POWER_CORE.segmentGap;
-        const segmentsX = this.width - POWER_CORE.rightPadding - segmentsWidth;
-
-        this.powerCoreIcon.setPosition(segmentsX - POWER_CORE.iconGap, this.height / 2);
-
-        for (let index = 0; index < max; index += 1) {
-            const x = segmentsX + index * (POWER_CORE.segmentWidth + POWER_CORE.segmentGap);
-
-            const frame = this.scene.add
-                .rectangle(x, POWER_CORE.segmentY, POWER_CORE.segmentWidth, POWER_CORE.segmentHeight, 0x000000, 0)
-                .setOrigin(0, 0)
-                .setStrokeStyle(1, CAPTAIN_DASHBOARD_STYLE.powerCore.emptyBorderColor);
-
-            const track = this.scene.add
-                .rectangle(
-                    x + 1,
-                    POWER_CORE.segmentY + 1,
-                    POWER_CORE.segmentWidth - 2,
-                    POWER_CORE.segmentHeight - 2,
-                    CAPTAIN_DASHBOARD_STYLE.powerCore.emptyBackgroundColor,
-                    1,
-                )
-                .setOrigin(0, 0)
-                .setVisible(false);
-
-            const fill = this.scene.add
-                .rectangle(
-                    x + POWER_CORE.segmentInset,
-                    POWER_CORE.segmentY + POWER_CORE.segmentHeight - POWER_CORE.segmentInset,
-                    POWER_CORE.segmentWidth - POWER_CORE.segmentInset * 2,
-                    POWER_CORE.segmentHeight - POWER_CORE.segmentInset * 2,
-                    CAPTAIN_DASHBOARD_STYLE.powerCore.chargeColor,
-                    1,
-                )
-                .setOrigin(0, 1)
-                .setVisible(false);
-
-            this.powerCoreSegments.push({
-                frame,
-                track,
-                fill,
-            });
-
-            this.root.add([fill, frame, track]);
-        }
-    }
-
-    private updatePowerCoreSegments(current: number, rechargeProgress: number | undefined): void {
-        const clampedCurrent = Phaser.Math.Clamp(current, 0, this.powerCoreSegments.length);
-        const clampedRechargeProgress = Phaser.Math.Clamp(rechargeProgress ?? 0, 0, 1);
-
-        for (let index = 0; index < this.powerCoreSegments.length; index += 1) {
-            const segment = this.powerCoreSegments[index];
-
-            if (!segment) {
-                continue;
-            }
-
-            if (index < clampedCurrent) {
-                segment.frame.setVisible(false);
-                segment.fill
-                    .setVisible(true)
-                    .setScale(1, 1)
-                    .setFillStyle(CAPTAIN_DASHBOARD_STYLE.powerCore.chargeColor, 1);
-
-                continue;
-            }
-
-            if (
-                index === clampedCurrent &&
-                clampedCurrent < this.powerCoreSegments.length &&
-                rechargeProgress !== undefined
-            ) {
-                segment.frame.setVisible(true);
-                segment.fill
-                    .setVisible(true)
-                    .setScale(1, clampedRechargeProgress)
-                    .setFillStyle(CAPTAIN_DASHBOARD_STYLE.powerCore.rechargeColor, 1);
-
-                continue;
-            }
-
-            segment.frame.setVisible(true);
-            segment.fill.setVisible(false).setScale(1, 1);
-        }
-    }
-
-    private destroyPowerCoreSegments(): void {
-        for (const segment of this.powerCoreSegments) {
-            segment.fill.destroy();
-            segment.track.destroy();
-            segment.frame.destroy();
-        }
-
-        this.powerCoreSegments.length = 0;
+        this.powerCoreView.clear();
+        this.powerCoreView.setVisible(false);
     }
 }
