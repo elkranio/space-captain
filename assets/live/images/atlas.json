@@ -1,7 +1,7 @@
 {
   "textures": [
     {
-      "image": "atlas-0.png?v=1788464461267",
+      "image": "atlas-0.png?v=1788472060705",
       "format": "RGBA8888",
       "size": {
         "w": 2033,
@@ -10,7 +10,7 @@
       "scale": 1,
       "frames": [
         {
-          "filename": "bridge/interior/generic_01",
+          "filename": "bridge/interior/interior",
           "rotated": false,
           "trimmed": false,
           "sourceSize": {
@@ -31,7 +31,7 @@
           }
         },
         {
-          "filename": "world/backgrounds/nebula_00",
+          "filename": "world/backgrounds/nebula",
           "rotated": false,
           "trimmed": false,
           "sourceSize": {
@@ -115,7 +115,7 @@
           }
         },
         {
-          "filename": "combat/shields/center_00",
+          "filename": "combat/shields/shield",
           "rotated": false,
           "trimmed": false,
           "sourceSize": {
@@ -304,7 +304,7 @@
           }
         },
         {
-          "filename": "world/ships/chassis/new_perspective_00",
+          "filename": "world/ships/chassis/generic",
           "rotated": false,
           "trimmed": false,
           "sourceSize": {
@@ -346,7 +346,7 @@
           }
         },
         {
-          "filename": "world/jump_points/jump_point_00",
+          "filename": "world/jump_points/jump_point",
           "rotated": false,
           "trimmed": true,
           "sourceSize": {
@@ -367,7 +367,7 @@
           }
         },
         {
-          "filename": "world/asteroids/asteroid_00",
+          "filename": "world/asteroids/asteroid",
           "rotated": false,
           "trimmed": false,
           "sourceSize": {
@@ -388,7 +388,7 @@
           }
         },
         {
-          "filename": "ui/officer_monitor/frame",
+          "filename": "bridge/ui/officer_monitor/frame",
           "rotated": false,
           "trimmed": false,
           "sourceSize": {
@@ -493,7 +493,7 @@
           }
         },
         {
-          "filename": "world/beacons/navigation_beacon_00",
+          "filename": "world/beacons/navigation_beacon",
           "rotated": false,
           "trimmed": false,
           "sourceSize": {
@@ -514,7 +514,7 @@
           }
         },
         {
-          "filename": "equipment/icon_shield_generator",
+          "filename": "equipment/icons/shield_generator",
           "rotated": false,
           "trimmed": false,
           "sourceSize": {
@@ -535,7 +535,7 @@
           }
         },
         {
-          "filename": "equipment/icon_missile_launcher",
+          "filename": "equipment/icons/missile_launcher",
           "rotated": false,
           "trimmed": false,
           "sourceSize": {
@@ -556,7 +556,7 @@
           }
         },
         {
-          "filename": "equipment/icon_beam_cannon",
+          "filename": "equipment/icons/beam_cannon",
           "rotated": false,
           "trimmed": false,
           "sourceSize": {
@@ -577,7 +577,7 @@
           }
         },
         {
-          "filename": "equipment/icon_mine_dispenser",
+          "filename": "equipment/icons/sticky_mine_dispenser",
           "rotated": false,
           "trimmed": false,
           "sourceSize": {
@@ -598,7 +598,7 @@
           }
         },
         {
-          "filename": "equipment/icon_spam_projector",
+          "filename": "equipment/icons/spam_projector",
           "rotated": false,
           "trimmed": false,
           "sourceSize": {
@@ -619,7 +619,7 @@
           }
         },
         {
-          "filename": "equipment/icon_defense_turret",
+          "filename": "equipment/icons/defense_turret",
           "rotated": false,
           "trimmed": false,
           "sourceSize": {
@@ -640,7 +640,7 @@
           }
         },
         {
-          "filename": "combat/mines/sticky_00",
+          "filename": "combat/mines/sticky",
           "rotated": false,
           "trimmed": false,
           "sourceSize": {
@@ -661,7 +661,7 @@
           }
         },
         {
-          "filename": "equipment/icon_drive",
+          "filename": "equipment/icons/drive",
           "rotated": false,
           "trimmed": false,
           "sourceSize": {
@@ -703,7 +703,7 @@
           }
         },
         {
-          "filename": "bridge/ui/threat_icons/missile_incoming",
+          "filename": "icons/threats/incoming_missile",
           "rotated": false,
           "trimmed": false,
           "sourceSize": {
@@ -724,7 +724,7 @@
           }
         },
         {
-          "filename": "ui/buttons/close_00",
+          "filename": "ui/buttons/close",
           "rotated": false,
           "trimmed": true,
           "sourceSize": {
@@ -766,7 +766,7 @@
           }
         },
         {
-          "filename": "icons/micro/ammo_mine_standard",
+          "filename": "icons/resources/ammo_sticky_mine",
           "rotated": false,
           "trimmed": false,
           "sourceSize": {
@@ -787,7 +787,7 @@
           }
         },
         {
-          "filename": "icons/micro/ammo_missile_standard",
+          "filename": "icons/resources/ammo_missile",
           "rotated": false,
           "trimmed": false,
           "sourceSize": {
@@ -808,7 +808,7 @@
           }
         },
         {
-          "filename": "icons/micro/power_charge",
+          "filename": "icons/resources/power_charge",
           "rotated": false,
           "trimmed": false,
           "sourceSize": {
@@ -829,7 +829,7 @@
           }
         },
         {
-          "filename": "icons/micro/defense_turret_target_available",
+          "filename": "icons/status/intercept_available",
           "rotated": false,
           "trimmed": false,
           "sourceSize": {
@@ -855,6 +855,6 @@
   "meta": {
     "app": "https://www.codeandweb.com/texturepacker",
     "version": "3.0",
-    "smartupdate": "$TexturePacker:SmartUpdate:ed84c11a2fe523c90dcd2474d485c4a0:2a6b08128617a27139aae100d77e7430:cf935fe037ea9b5d3744d532996e235e$"
+    "smartupdate": "$TexturePacker:SmartUpdate:d4b2d1689c9426ef35f8c5839b6d8091:ddd3402f6212b5e1ee6215a7b5351fc5:cf935fe037ea9b5d3744d532996e235e$"
   }
 }

@@ -11,6 +11,6 @@ export type BridgeInteriorId = (typeof BRIDGE_INTERIOR_ID)[keyof typeof BRIDGE_I
 export const BRIDGE_INTERIOR_SPRITES = {
     [BRIDGE_INTERIOR_ID.GENERIC_01]: {
         atlasKey: DEFAULT_ATLAS_KEY,
-        frameKey: "bridge/interior/generic_01",
+        frameKey: "bridge/interior/interior",
     },
 } satisfies Record<BridgeInteriorId, SpriteEntry>;

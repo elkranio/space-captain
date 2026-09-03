@@ -6,6 +6,6 @@ import { DEFAULT_ATLAS_KEY, type SpriteEntry } from "../../types";
 export const JUMP_POINT_OBJECT_SPRITES = {
     [JUMP_POINT_OBJECT_SPRITE_ID.JUMP_POINT_00]: {
         atlasKey: DEFAULT_ATLAS_KEY,
-        frameKey: "world/jump_points/jump_point_00",
+        frameKey: "world/jump_points/jump_point",
     },
 } satisfies Record<JumpPointObjectSpriteId, SpriteEntry>;

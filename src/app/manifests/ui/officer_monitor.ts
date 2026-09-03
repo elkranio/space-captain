@@ -10,6 +10,6 @@ export type UiOfficerMonitorSpriteId =
 export const UI_OFFICER_MONITOR_SPRITES = {
     [UI_OFFICER_MONITOR_SPRITE_ID.FRAME]: {
         atlasKey: DEFAULT_ATLAS_KEY,
-        frameKey: "ui/officer_monitor/frame",
+        frameKey: "bridge/ui/officer_monitor/frame",
     },
 } satisfies Record<UiOfficerMonitorSpriteId, SpriteEntry>;

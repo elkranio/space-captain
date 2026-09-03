@@ -11,6 +11,6 @@ export type MineSpriteId = (typeof MINE_SPRITE_ID)[keyof typeof MINE_SPRITE_ID];
 export const MINE_SPRITES = {
     [MINE_SPRITE_ID.STICKY_00]: {
         atlasKey: DEFAULT_ATLAS_KEY,
-        frameKey: "combat/mines/sticky_00",
+        frameKey: "combat/mines/sticky",
     },
 } satisfies Record<MineSpriteId, SpriteEntry>;

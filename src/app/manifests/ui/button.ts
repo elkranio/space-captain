@@ -11,6 +11,6 @@ export type UiButtonSpriteId = (typeof UI_BUTTON_SPRITE_ID)[keyof typeof UI_BUTT
 export const UI_BUTTON_SPRITES = {
     [UI_BUTTON_SPRITE_ID.CLOSE_00]: {
         atlasKey: DEFAULT_ATLAS_KEY,
-        frameKey: "ui/buttons/close_00",
+        frameKey: "ui/buttons/close",
     },
 } satisfies Record<UiButtonSpriteId, SpriteEntry>;

@@ -16,11 +16,11 @@ Live pieces that remain relevant:
 - `BridgeCombatView` still owns combat VFX;
 - Defense Turret has its own inline Missile selector backed by the narrow
   `DEFENSE_TURRET_THREATS_UPDATED` read path;
-- tintable Missile / Beam / Mine / SPAM glyph assets remain available;
+- the persistent ENEMY SHIP dashboard is already landed and must remain visible independently of threat presentation;
 - the physical top-center compact threat monitor is not implemented yet.
 
-Build the persistent ENEMY SHIP dashboard first. The compact threat monitor is a later presentation slice; do not
-opportunistically recreate the removed 4x2 grid while building the enemy board.
+The compact threat monitor is a later presentation slice. Do not opportunistically recreate the removed 4x2 grid or move
+basic enemy ship state back out of the persistent right dashboard.
 
 ## Confirmed target layout
 
@@ -43,9 +43,8 @@ Physical placement is now fixed for the current combat layout: use one small, lo
 above the viewscreen. Preserve the first-person viewscreen rather than turning the bridge into a flat tactical
 spreadsheet.
 
-Current strict layout reference:
-
-`reference/combat_bridge_layout_2026-08-25.png`
+The older `reference/combat_bridge_layout_2026-08-25.png` remains a macro composition reference; live dashboard code owns
+current internal HULL/grid geometry.
 
 ## Target threat-strip contract
 
@@ -100,17 +99,25 @@ engine-resolved commands; it does not recreate legality.
 
 ## Glyph assets and colors
 
-Keep the existing tintable transparent threat-symbol family:
+Do not treat the old four-icon prototype set as a live runtime asset contract. During cleanup those prototype
+`beam_cannon`, `mine`, `missile` and `spam` glyphs were moved to `ideas/threats/`.
 
-- `missile.png`
-- `beam_cannon.png`
-- `mine.png`
-- `spam.png`
+The active reusable threat-icon namespace is:
 
-Current source footprint is 107x33. The future compact cells may render these assets smaller or crop/layout them
-differently; do not redraw merely because the container changes unless actual-size readability fails.
+```text
+assets/raw/images/icons/threats/
+```
 
-Current family colors:
+Current live icon:
+
+```text
+incoming_missile.png
+```
+
+Add future incoming-threat icons there only when the actual compact-strip implementation needs them. Judge every glyph at
+runtime size; do not preserve old 107x33 prototype dimensions merely for consistency with discarded art.
+
+Current semantic family colors remain useful presentation guidance:
 
 ```ts
 MISSILE:      0xf2a33a

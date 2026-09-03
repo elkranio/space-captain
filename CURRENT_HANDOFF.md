@@ -41,41 +41,51 @@ Read durable docs when their boundary is relevant:
 The generalized integrity foundation is ahead of generic gameplay behavior. Full BROKEN gating + Engineer repair is still
 unfinished for most equipment families.
 
-### Player combat dashboard — STANDARD EQUIPMENT LANDED
+### Dual captain ship dashboards — LANDED BASIC STATE
 
-The MY SHIP dashboard has concrete production tiles for all seven current standard equipment families:
+Both lower captain screens are real persistent ship dashboards.
 
-1. Missile Launcher
-2. Beam Cannon
-3. Sticky Mine Dispenser
-4. SPAM Projector
-5. Defense Turret
-6. Shield Generator
-7. Drive
+MY SHIP:
 
-Current tile grammar:
+- shared header owns HULL and Power Core presentation;
+- exact 4x3 equipment grid consumes chassis slot/mount coordinates;
+- all seven current standard equipment families have concrete tiles;
+- Defense Turret still opens its existing inline Missile-selection interaction;
+- there is no BRIDGE/HULL special column anymore.
 
-- catalog `shortName` for titles;
-- off-white = ready;
-- yellow/orange left-to-right pictogram fill = active work;
-- muted blue = cooldown/resource blocked;
-- red = broken/problem;
-- integrity pips;
-- resource/status micro-readout only where it changes an immediate decision.
+ENEMY SHIP:
 
-Do not create a generic `EquipmentTileBase` merely because several concrete tiles now share visual ideas.
+- presentation-safe engine query produces detached enemy dashboard snapshots;
+- snapshot synchronization + `BridgeEnemyShipDashboardMapper` map them into bridge payloads;
+- the right dashboard renders basic HULL plus the mirrored 4x3 installed-equipment grid;
+- equipment identity, slot placement, integrity and BROKEN state are visible;
+- hidden ammo/cooldown/crew-decision truth is not leaked merely because the engine owns it;
+- direct offensive slot targeting is not implemented yet.
+
+Shared dashboard presentation now owns common chrome/status primitives such as header, Hull, Power Core, slot chrome,
+integrity, metrics, pips and progress-icon treatment. Keep player/enemy event adapters separate where their data/visibility
+policy differs; do not rebuild duplicated tile chrome inside each concrete equipment view.
+
+### Current tile grammar
+
+- catalog `shortName` for equipment titles;
+- off-white / normal chrome = ready;
+- activity progress is shown on the equipment pictogram;
+- muted presentation = cooldown/resource unavailable;
+- red = BROKEN/problem state;
+- integrity pips remain compact and state-consistent;
+- resource/status metrics appear only where they change an immediate decision;
+- whole tile cells are interaction surfaces; contextual hover actions may replace the central pictogram.
 
 ### Authoritative 4x3 placement — LANDED
 
-Equipment placement no longer comes from weapon array order or equipment family.
-
-Current path:
+Equipment placement does not come from weapon array order or equipment family.
 
 ```text
-player.ship.chassisId + player.ship.mounts
+ship.chassisId + ship.mounts
 -> mount.equipmentId -> mount.slotId
 -> SHIP_CHASSIS[chassisId].slots
--> BridgeEquipmentSlotPayload { column, row }
+-> { column, row }
 -> exact 4x3 dashboard cell
 ```
 
@@ -84,11 +94,11 @@ Rules:
 - empty chassis slots remain empty;
 - duplicate equipment kinds remain distinct by runtime equipment id;
 - no fallback to array order;
-- out-of-grid coordinates are errors.
+- out-of-grid or missing mount/slot mappings are errors.
 
 ### Beam Power Core cost — LANDED
 
-Player Beam Cannon now uses its content-defined `powerCost`.
+Player Beam Cannon uses its content-defined `powerCost`.
 
 - command availability requires enough current Power Core charge;
 - cost is committed when Beam charging starts;
@@ -97,13 +107,13 @@ Player Beam Cannon now uses its content-defined `powerCost`.
 
 Do not re-add Beam CORE cost as a TODO.
 
-### Bridge shell / board state
+### Bridge shell / combat board state
 
-Confirmed combat composition remains:
+Current combat composition:
 
 ```text
 TOP CENTER
-    compact threat monitor area
+    compact threat monitor area (not implemented yet)
 
 SIDES
     SCIENCE + HELM monitors
@@ -116,72 +126,76 @@ BOTTOM
     MY SHIP dashboard | ENEMY SHIP dashboard
 ```
 
-Current status:
+The old large 4x2 threat-action/combat-context view is gone. Do not resurrect it.
 
-- MY SHIP standard equipment board is real;
-- the narrow MY SHIP special column exists but BRIDGE/HULL content is still placeholder-only;
-- ENEMY SHIP is not yet rebuilt as the persistent mirrored slot board;
-- the old large 4x2 threat-action/combat-context view has been removed;
-- the physical right captain screen remains as a blank ENEMY SHIP placeholder;
-- the compact top-center threat monitor is not implemented yet;
-- Defense Turret inline threat selection and combat VFX remain live;
-- `src/app/scenes/game/bridge/debug_view/**` still exists, but `BridgeScene` no longer instantiates the old debug layer.
+`BridgeScene` no longer instantiates the old general debug layer. The explicit holdout is the Missile debug tooling:
+`BridgeMissileDebugView` + `bridge_missile_debug_config.ts`.
 
-Strict visual reference:
+`docs/reference/combat_bridge_layout_2026-08-25.png` remains useful for macro composition, but live dashboard internals
+supersede its old special-column geometry.
 
-`docs/reference/combat_bridge_layout_2026-08-25.png`
+## Cleanup/refactor checkpoint — CLOSED
 
-## Refactor checkpoint — CLOSED
+The large cleanup window is complete. Recent cleanup removed obsolete presentation/asset branches rather than preserving
+legacy compatibility:
 
-The pre-dashboard cleanup/refactor window is complete. Durable ownership details live in `docs/SYSTEM_MAP.md`.
+- officer bark views/assets removed;
+- unused officer portrait manifests/assets removed;
+- old role glyphs and unused officer look-left/look-right sprites removed;
+- obsolete combat/speech-bubble UI manifests removed;
+- old equipment-tile debug view removed;
+- MY SHIP special-column view removed;
+- obsolete ship chassis art variants removed;
+- dashboard tile presentation was decomposed into small shared visual primitives instead of duplicated per-tile chrome.
 
-Current results that matter for the next feature:
-
-- `BridgeEncounterController` owns app-layer encounter interactivity and scene-flow decisions;
-- `BridgeEncounterEngineEventHandler` maps one drained engine event at a time and owns presentation only;
-- the broad captain combat-context read model/event is gone;
-- Defense Turret uses its narrow `DEFENSE_TURRET_THREATS_UPDATED` read path;
-- `AvailableOfficerCommand` is `commandId + target`; display labels remain definition-owned;
-- snapshot, event and persistence boundaries remain intentionally separate where their lifecycle/order differs.
+Durable ownership details live in `docs/SYSTEM_MAP.md`.
 
 Do not schedule another general refactor pass. Refactor only when a feature exposes a concrete ownership, duplication or
 cognitive-load problem.
 
-## Immediate next slice — persistent ENEMY SHIP dashboard
+## Asset tree checkpoint — NORMALIZED
 
-Do not block the enemy board on unfinished MY SHIP BRIDGE/HULL semantics.
+Raw image paths are semantic rather than scene-owned by default.
 
-Build the persistent right-side enemy dashboard first, using current encounter-safe read truth:
+Rules:
 
-- one enemy ship at a time;
-- enemy ship name in the header;
-- enemy Power Core may be presented separately from the equipment grid;
-- visible basic enemy Hull state;
-- visible installed equipment slots with type/name/icon/integrity/BROKEN state;
-- no hidden ammo, cooldown, internal crew-task or decision data unless a future Science mechanic explicitly reveals it.
+- `bridge/**` contains bridge-specific art only;
+- reusable combat objects live under `combat/**`;
+- reusable equipment art lives under `equipment/icons/**`;
+- reusable small symbols are split by meaning under `icons/resources`, `icons/threats` and `icons/status`;
+- generic UI controls remain under `ui/**`;
+- world objects remain under `world/**`;
+- `bridge/ui/officer_monitor/frame` stays bridge-owned because that frame is specific to the bridge presentation;
+- singleton filenames do not carry meaningless `_00`; keep `_00/_01/...` only for real visual series such as SPAM
+  popups and station variants.
 
-The dashboard is a stable information surface first and a direct-target surface second. Do not invent Beam targeting inside
-the dashboard view before the engine target contract is inspected.
+TexturePacker recursively derives atlas frame keys from `assets/raw/images`; TS manifests must match those relative paths
+without `.png`.
 
-MY SHIP BRIDGE/HULL special-column semantics remain unresolved follow-up work. Preserve the existing 4x3 grid and do not
-invent bridge damage merely because the visual region exists.
+## Immediate next gameplay slice — player Beam semantic targeting
 
-## Combat order from here
-
-Current direction:
+The persistent enemy board prerequisite is now landed. The next confirmed combat atom is to inspect the current Beam
+command/task/runner/read path and replace actor-wide player Beam targeting with a semantic target carried end-to-end:
 
 ```text
-persistent ENEMY SHIP slot board
--> inspect current Beam engine/read-model against real dashboard slots
--> player Beam HULL | SLOT(slotId) targeting through the dashboard
+HULL
+or
+SLOT(slotId)
+```
+
+Use the already-visible ENEMY SHIP Hull/equipment surfaces as the interaction language. Do not create another temporary
+modal target picker unless the engine contract proves one is necessary.
+
+After that:
+
+```text
+player Beam HULL | SLOT(slotId)
 -> migrate/refine shared incoming Beam / targeted-Shield target vocabulary
--> compact top-center threat monitor migration
--> finish shared BROKEN gating + Engineer repair where the board exposes missing behavior
+-> compact top-center threat monitor
+-> finish shared BROKEN gating + Engineer repair exposed by the board
 -> first weak-player vs weak-enemy timing/balance smoke
 -> Science tactical-information pass
 ```
-
-Do not resurrect the superseded large threat-action dashboard as the target UX.
 
 ## Important current runtime truths
 
@@ -212,8 +226,7 @@ Still avoid touching these unrelated holdouts without a concrete reason:
 
 ## Next-chat continuation
 
-Read this file, fetch fresh `master`, then inspect the current right-dashboard presentation code plus the engine
-presentation/read-model data available for the current enemy ship.
+Read this file, fetch fresh `master`, then inspect the current player Beam command/task/runner path together with the
+landed enemy-dashboard slot identity/read model.
 
-Start with the **persistent ENEMY SHIP dashboard**. Keep Beam targeting out of the first dashboard atom unless the current
-code proves that target identity must be introduced at the same boundary.
+Start with **player Beam `HULL | SLOT(slotId)` targeting** unless the user explicitly changes priority.

@@ -95,14 +95,14 @@ E = Engineer = yellow
 The same palette is used for the first letter of officer station labels. Keep role colors centralized rather than
 redefining them per widget.
 
-Equipment source art is universal, not bridge-owned:
+Equipment source art is reusable and not bridge-owned. Current standard equipment icons live here:
 
 ```text
-assets/raw/images/equipment/<family>/<visual_archetype>/icon.png
+assets/raw/images/equipment/icons/<equipment_name>.png
 ```
 
-Different progression items within one family may use different visual archetypes. Do not force all launchers/cannons/etc.
-to share one icon merely because they share a mechanic kind.
+Do not pre-nest icons into speculative family/archetype hierarchies. Introduce a deeper structure only when multiple real
+visual variants make the extra level useful.
 
 ## Color
 
@@ -131,9 +131,12 @@ Threat-dashboard specifics live only in `THREAT_PANEL.md`.
 
 ## Combat-board composition
 
-Strict current layout reference:
+Macro composition reference:
 
 `reference/combat_bridge_layout_2026-08-25.png`
+
+Use that image for the bridge/screen proportions, not as authority for superseded dashboard internals. The live dashboard
+layout code is authoritative for current HULL/header/grid geometry.
 
 The confirmed combat composition is:
 
@@ -151,37 +154,22 @@ BOTTOM
     MY SHIP dashboard | ENEMY SHIP dashboard
 ```
 
-Both ship dashboards use almost the full screen width and preserve an exact 4x3 equipment grid with large tiles.
+Both ship dashboards preserve an exact 4x3 equipment grid with large tiles. The grid uses the full dashboard content
+width; the old BRIDGE/HULL special column has been removed.
 
-Header grammar:
-
-```text
-ship name | compact ESC / escape-progress button | ... | CORE charge cells
-```
-
-Hull does not live in the header. Escape does not use a tall side column.
-
-Each dashboard has one narrow special column beside the 4x3 grid:
+Current shared header grammar is intentionally sparse:
 
 ```text
-BRIDGE
-    compact officer-role state markers
-
-HULL
-    one clickable Hull target
-    one vertical segmented HP meter
+HULL status | flexible center space | CORE status where available
 ```
 
-Player uses `GRID | SPECIAL COLUMN`; enemy mirrors it as `SPECIAL COLUMN | GRID`.
-
-The BRIDGE region is confirmed layout geometry and may show compact officer-role state markers. Its gameplay
-targetability, damage model and interaction semantics are **OPEN**; do not infer them from the presence of the visual
-block. HULL is the confirmed explicit ship target surface.
+HULL lives in the header. Power Core remains outside the spatial 4x3 equipment grid. Enemy CORE may be hidden when it is
+not part of the presentation-safe payload.
 
 MY SHIP emphasizes controls: slot readiness, cooldown/activity, ammo/resources, integrity and action availability.
 
-ENEMY SHIP emphasizes persistent readable state: Hull, installed slots, integrity/BROKEN state, obvious activity and
-target highlights.
+ENEMY SHIP emphasizes persistent readable state: Hull, installed slots and integrity/BROKEN state. Do not leak hidden
+ammo, cooldown or crew-decision truth merely to mirror MY SHIP density.
 
 Basic enemy anatomy should stay visible without opening a separate inspection screen. Deeper tactical information may
 remain a Science/gameplay layer.
@@ -197,8 +185,8 @@ own system selected
 -> target selected
 ```
 
-Prefer spatial selection on already-visible ship slots, the explicit HULL block and concrete threats over modal UI
-when it remains clear. Do not make BRIDGE selectable until its gameplay contract defines what targeting it means.
+Prefer spatial selection on already-visible ship slots/HULL presentation and concrete threats over modal UI when it
+remains clear. Do not invent a BRIDGE target merely because an older mockup contained a BRIDGE block.
 
 Use visual grouping and semantic state before adding more labels/frames. Do not add permanent combat-log or target-detail
 panels unless actual play proves the existing surfaces insufficient.

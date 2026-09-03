@@ -12,21 +12,21 @@ export type MicroIconId = (typeof MICRO_ICON_ID)[keyof typeof MICRO_ICON_ID];
 export const MICRO_ICONS = {
     [MICRO_ICON_ID.AMMO_MISSILE_STANDARD]: {
         atlasKey: DEFAULT_ATLAS_KEY,
-        frameKey: "icons/micro/ammo_missile_standard",
+        frameKey: "icons/resources/ammo_missile",
     },
 
     [MICRO_ICON_ID.DEFENSE_TURRET_TARGET_AVAILABLE]: {
         atlasKey: DEFAULT_ATLAS_KEY,
-        frameKey: "icons/micro/defense_turret_target_available",
+        frameKey: "icons/status/intercept_available",
     },
 
     [MICRO_ICON_ID.POWER_CHARGE]: {
         atlasKey: DEFAULT_ATLAS_KEY,
-        frameKey: "icons/micro/power_charge",
+        frameKey: "icons/resources/power_charge",
     },
 
     [MICRO_ICON_ID.AMMO_STICKY_MINE]: {
         atlasKey: DEFAULT_ATLAS_KEY,
-        frameKey: "icons/micro/ammo_mine_standard",
+        frameKey: "icons/resources/ammo_sticky_mine",
     },
 } satisfies Record<MicroIconId, SpriteEntry>;

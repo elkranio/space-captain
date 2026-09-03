@@ -14,18 +14,21 @@ Current landed foundation:
 - player Drive integrity and Beam module damage are engine-owned;
 - player targeted-Shield semantics and the current `HULL | DRIVE` picker are implemented;
 - rebuilt first-person bridge shell exists with physical officer monitors, viewscreen and dual lower dashboards;
-- MY SHIP header / Power Core / exact 4x3 grid / narrow BRIDGE-HULL special-column geometry is landed;
+- both MY SHIP and ENEMY SHIP use shared HULL/header presentation plus an exact 4x3 equipment grid;
 - all seven current standard MY SHIP equipment tiles are landed with content-driven titles, operational state,
   resources/progress where relevant and integrity;
 - MY SHIP equipment placement is authoritative from chassis slots + persistent mounts rather than array/family order;
-- player Beam Cannon now spends shared Power Core when charging begins;
-- the MY SHIP BRIDGE/HULL special column still contains placeholder-only content;
-- the physical right captain screen is still a blank ENEMY SHIP placeholder;
+- presentation-safe enemy dashboard snapshots + bridge mapping feed the persistent ENEMY SHIP equipment board;
+- ENEMY SHIP exposes basic Hull, installed equipment identity, slot placement and integrity/BROKEN state without leaking
+  hidden combat internals;
+- player Beam Cannon spends shared Power Core when charging begins;
+- the obsolete MY SHIP BRIDGE/HULL special column has been removed; HULL now lives in the shared header;
 - the old large 4x2 threat-action/combat-context view has been removed; the compact top-center threat monitor is not yet
   implemented;
-- tintable Missile / Beam / Mine / SPAM threat glyph family is implemented;
-- the cleanup/refactor window is closed: ownership, excessive segmentation, transport/contracts and final dumbification
-  were audited without introducing speculative abstractions.
+- old prototype threat glyphs are no longer a live runtime asset contract; reusable live threat icons belong under
+  `assets/raw/images/icons/threats`;
+- the cleanup/refactor window is closed: legacy barks/portraits/debug tile branches and duplicated dashboard chrome were
+  removed or consolidated without introducing speculative abstractions.
 
 The intended mechanics reconciliation is complete. `GAME_DESIGN.md` is the canonical design target;
 `GAMEPLAY_CONTRACTS.md` remains current runtime truth.
@@ -41,10 +44,9 @@ LANDED: chassis-owned ship slots + persistent loadout mounts
 -> LANDED: new bridge shell + MY SHIP dashboard geometry
 -> LANDED: all seven standard MY SHIP equipment tiles
 -> LANDED: authoritative chassis-slot/mount placement for the 4x3 grid
--> LANDED: cleanup/refactor window before the enemy dashboard
--> NOW: persistent ENEMY SHIP slot board from presentation-safe enemy truth
--> inspect current Beam engine/read-model against real dashboard slots
--> player Beam HULL | SLOT direct targeting on the real dashboard
+-> LANDED: cleanup/refactor window
+-> LANDED: persistent ENEMY SHIP slot board from presentation-safe enemy truth
+-> NOW: inspect/extend player Beam to HULL | SLOT direct targeting on the real dashboard
 -> shared incoming Beam / targeted-Shield slot target model
 -> compact top-center threat monitor migration
 -> finish BROKEN / repair operational behavior exposed by the board
@@ -53,13 +55,11 @@ LANDED: chassis-owned ship slots + persistent loadout mounts
 -> deepen enemy targeted Shield behavior as needed
 ```
 
-Precision targeting intentionally follows the persistent enemy-board atom. First establish the real visible enemy
-Hull/equipment surfaces from presentation-safe truth, then inspect and extend the Beam target contract against those
-surfaces instead of designing another temporary targeting UI.
+The persistent enemy board now provides the real visible Hull/equipment surfaces. Precision targeting should extend the
+Beam target contract against those surfaces instead of designing another temporary targeting UI.
 
-Current strict layout reference:
-
-`reference/combat_bridge_layout_2026-08-25.png`
+`reference/combat_bridge_layout_2026-08-25.png` remains a macro composition reference. Live dashboard code supersedes its
+old special-column internals.
 
 ### 1. Chassis slots and loadout shape — LANDED
 
@@ -91,9 +91,9 @@ integrity = 0 -> BROKEN
 
 Hull remains separate. Power Core remains non-breakable/non-targetable.
 
-### 3. Persistent dual ship combat board — PARTIAL
+### 3. Persistent dual ship combat board — LANDED BASIC STATE
 
-Both ships should stay visible during combat:
+Both ships stay visible during combat:
 
 ```text
 LEFT  = MY SHIP
@@ -103,25 +103,16 @@ RIGHT = ENEMY SHIP
 MY SHIP continuously exposes installed slots, integrity/BROKEN state, activity/readiness/resources and the systems the
 player can operate.
 
-ENEMY SHIP continuously exposes basic Hull, installed slots, integrity/BROKEN state and obvious activity. Basic enemy
-anatomy must not require opening a separate inspection screen or pausing the fight.
+ENEMY SHIP continuously exposes presentation-safe basic Hull plus installed slot identity and integrity/BROKEN state.
+Basic enemy anatomy does not require opening a separate inspection screen or pausing the fight.
 
 Science may later add deeper decision-changing information; it does not gate the permanent basic enemy board.
 
-The panels should share visual grammar without being forced into identical data density.
+The panels share visual grammar without being forced into identical data density. HULL is in the shared header and the
+4x3 grid uses the full content width; the old BRIDGE/HULL special-column geometry is gone.
 
-Current presentation progress:
-
-- MY SHIP physical dashboard geometry is landed;
-- all seven current standard equipment tiles are landed;
-- equipment titles use catalog `shortName`;
-- the 4x3 grid is populated from authoritative chassis slot/mount coordinates;
-- the narrow MY SHIP BRIDGE/HULL special column is still placeholder-only and does not block the next slice;
-- ENEMY SHIP is not yet rebuilt as the persistent mirrored slot board and is the current next implementation slice.
-
-For the first ENEMY SHIP atom, expose only basic player-knowable state: ship identity, Hull, installed equipment identity
-and integrity/BROKEN state. Do not leak hidden ammo, cooldown, crew-task or decision state merely because the engine owns
-it.
+Current remaining work at this boundary is interaction, not basic visibility: use these already-visible enemy Hull/slot
+surfaces for semantic offensive targeting without leaking hidden ammo, cooldown, crew-task or decision state.
 
 ### 4. Player Beam semantic targeting
 

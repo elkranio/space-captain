@@ -119,11 +119,11 @@ MY SHIP dashboard | ENEMY SHIP dashboard
 MY SHIP is the primary control surface. ENEMY SHIP is the persistent basic state/target surface. Basic enemy
 Hull/slots/BROKEN state should not require a separate mutable inspection model.
 
-Direct targeting may use visible ship slots, explicit Hull or threat cells as interaction surfaces, but the engine
-still owns command availability and exact targets. Views only expose/highlight engine-resolved actions.
+Both current ship dashboards use a shared HULL/header presentation plus an exact 4x3 equipment grid. The superseded
+BRIDGE/HULL special column is gone; do not preserve gameplay semantics for a removed presentation region.
 
-The reserved BRIDGE dashboard region is not automatically a gameplay target. Its damage/target semantics remain undefined
-until a concrete gameplay contract introduces them.
+Direct targeting may use visible ship slots, Hull presentation or threat cells as interaction surfaces, but the engine
+still owns command availability and exact targets. Views only expose/highlight engine-resolved actions.
 
 Deeper Science inspection may add presentation-safe information later without replacing or gating the basic enemy board.
 

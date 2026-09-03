@@ -10,6 +10,6 @@ export type BridgeThreatIconId =
 export const BRIDGE_THREAT_ICONS = {
     [BRIDGE_THREAT_ICON_ID.MISSILE_INCOMING]: {
         atlasKey: DEFAULT_ATLAS_KEY,
-        frameKey: "bridge/ui/threat_icons/missile_incoming",
+        frameKey: "icons/threats/incoming_missile",
     },
 } satisfies Record<BridgeThreatIconId, SpriteEntry>;
