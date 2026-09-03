@@ -160,15 +160,10 @@ export default class BridgeEnemyShipHeaderView {
             return;
         }
 
-        const segmentsWidth =
-            max * POWER_CORE.segmentWidth +
-            Math.max(0, max - 1) * POWER_CORE.segmentGap;
-        const segmentsX = POWER_CORE.leftPadding;
-
-        this.powerCoreIcon.setPosition(
-            segmentsX + segmentsWidth + POWER_CORE.iconGap,
-            this.height / 2,
-        );
+        const segmentsX =
+            POWER_CORE.leftPadding +
+            this.powerCoreIcon.width +
+            POWER_CORE.iconGap;
 
         for (let index = 0; index < max; index += 1) {
             const x = segmentsX + index * (POWER_CORE.segmentWidth + POWER_CORE.segmentGap);
