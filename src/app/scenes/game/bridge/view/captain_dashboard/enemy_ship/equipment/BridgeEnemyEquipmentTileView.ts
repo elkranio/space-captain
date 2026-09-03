@@ -11,7 +11,8 @@ const TILE = {
 
     integrityPipSize: 8,
     integrityPipGap: 3,
-    bottomPadding: 10,
+    integrityY: 72,
+    stateBottomPadding: 10,
 } as const;
 
 export default class BridgeEnemyEquipmentTileView {
@@ -57,7 +58,7 @@ export default class BridgeEnemyEquipmentTileView {
         this.stateText = this.scene.add
             .bitmapText(
                 TILE.horizontalPadding,
-                this.height - TILE.bottomPadding - FONT_SIZE.PX_16,
+                this.height - TILE.stateBottomPadding - FONT_SIZE.PX_16,
                 FONT_FAMILY.UI_PRIMARY,
                 "",
                 FONT_SIZE.PX_16,
@@ -125,7 +126,7 @@ export default class BridgeEnemyEquipmentTileView {
         const gap = TILE.integrityPipGap;
         const totalWidth = max * pipSize + (max - 1) * gap;
         const startX = this.width - TILE.horizontalPadding - totalWidth;
-        const y = this.height - TILE.bottomPadding - pipSize;
+        const y = TILE.integrityY;
         const filledCount = Math.max(0, Math.min(current, max));
         const borderColor = broken
             ? CAPTAIN_DASHBOARD_STYLE.equipmentProgress.repairColor
