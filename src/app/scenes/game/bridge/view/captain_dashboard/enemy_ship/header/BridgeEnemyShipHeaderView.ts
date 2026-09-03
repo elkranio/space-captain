@@ -1,12 +1,10 @@
+// src/app/scenes/game/bridge/view/captain_dashboard/enemy_ship/header/BridgeEnemyShipHeaderView.ts
 import {
     CAPTAIN_DASHBOARD_SPRITE_ID,
     CAPTAIN_DASHBOARD_SPRITES,
 } from "../../../../../../../manifests/bridge/captain_dashboard";
 import type BridgeScene from "../../../../BridgeScene";
-import {
-    BRIDGE_EVENT,
-    type BridgeEnemyShipDashboardUpdatedPayload,
-} from "../../../../events/bridge_event";
+import { BRIDGE_EVENT, type BridgeEnemyShipDashboardUpdatedPayload } from "../../../../events/bridge_event";
 import type BridgeEventBus from "../../../../events/BridgeEventBus";
 import { CAPTAIN_DASHBOARD_STYLE } from "../../captain_dashboard_style";
 import BridgeHullStatusView from "../../BridgeHullStatusView";
@@ -16,11 +14,11 @@ const HULL_X = 8;
 const POWER_CORE = {
     rightPadding: 12,
 
-    segmentWidth: 11,
-    segmentHeight: 18,
-    segmentGap: 5,
-    segmentY: 9,
-    segmentInset: 2,
+    segmentWidth: 8,
+    segmentHeight: 14,
+    segmentGap: 3,
+    segmentY: 11,
+    segmentInset: 0,
 
     iconGap: 8,
 } as const;
@@ -55,8 +53,7 @@ export default class BridgeEnemyShipHeaderView {
         this.hullView = new BridgeHullStatusView(this.scene, this.height);
         this.hullView.setPosition(HULL_X, 0);
 
-        const powerCoreIconAsset =
-            CAPTAIN_DASHBOARD_SPRITES[CAPTAIN_DASHBOARD_SPRITE_ID.POWER_CORE_ICON];
+        const powerCoreIconAsset = CAPTAIN_DASHBOARD_SPRITES[CAPTAIN_DASHBOARD_SPRITE_ID.POWER_CORE_ICON];
 
         this.powerCoreIcon = this.scene.add
             .image(
@@ -69,28 +66,13 @@ export default class BridgeEnemyShipHeaderView {
             .setVisible(false);
 
         const divider = this.scene.add
-            .rectangle(
-                0,
-                this.height - 1,
-                this.width,
-                3,
-                CAPTAIN_DASHBOARD_STYLE.header.dividerColor,
-                1,
-            )
+            .rectangle(0, this.height - 1, this.width, 3, CAPTAIN_DASHBOARD_STYLE.header.dividerColor, 1)
             .setOrigin(0, 0);
 
-        this.root.add([
-            this.hullView.getRoot(),
-            this.powerCoreIcon,
-            divider,
-        ]);
+        this.root.add([this.hullView.getRoot(), this.powerCoreIcon, divider]);
         this.root.setVisible(false);
 
-        this.eventBus.on(
-            BRIDGE_EVENT.ENEMY_SHIP_DASHBOARD_UPDATED,
-            this.handleDashboardUpdated,
-            this,
-        );
+        this.eventBus.on(BRIDGE_EVENT.ENEMY_SHIP_DASHBOARD_UPDATED, this.handleDashboardUpdated, this);
     }
 
     public getRoot(): Phaser.GameObjects.Container {
@@ -102,11 +84,7 @@ export default class BridgeEnemyShipHeaderView {
     }
 
     public destroy(): void {
-        this.eventBus.off(
-            BRIDGE_EVENT.ENEMY_SHIP_DASHBOARD_UPDATED,
-            this.handleDashboardUpdated,
-            this,
-        );
+        this.eventBus.off(BRIDGE_EVENT.ENEMY_SHIP_DASHBOARD_UPDATED, this.handleDashboardUpdated, this);
 
         this.hullView.destroy();
         this.destroyPowerCoreSegments();
@@ -138,9 +116,7 @@ export default class BridgeEnemyShipHeaderView {
 
     private clearPowerCore(): void {
         this.destroyPowerCoreSegments();
-        this.powerCoreIcon
-            .setVisible(false)
-            .setPosition(this.width - POWER_CORE.rightPadding, this.height / 2);
+        this.powerCoreIcon.setVisible(false).setPosition(this.width - POWER_CORE.rightPadding, this.height / 2);
     }
 
     private reconcilePowerCoreSegments(max: number): void {
@@ -155,32 +131,18 @@ export default class BridgeEnemyShipHeaderView {
             return;
         }
 
-        const segmentsWidth =
-            max * POWER_CORE.segmentWidth +
-            Math.max(0, max - 1) * POWER_CORE.segmentGap;
-        const segmentsX =
-            this.width -
-            POWER_CORE.rightPadding -
-            segmentsWidth;
+        const segmentsWidth = max * POWER_CORE.segmentWidth + Math.max(0, max - 1) * POWER_CORE.segmentGap;
+        const segmentsX = this.width - POWER_CORE.rightPadding - segmentsWidth;
 
-        this.powerCoreIcon.setPosition(
-            segmentsX - POWER_CORE.iconGap,
-            this.height / 2,
-        );
+        this.powerCoreIcon.setPosition(segmentsX - POWER_CORE.iconGap, this.height / 2);
 
         for (let index = 0; index < max; index += 1) {
             const x = segmentsX + index * (POWER_CORE.segmentWidth + POWER_CORE.segmentGap);
 
             const frame = this.scene.add
-                .rectangle(
-                    x,
-                    POWER_CORE.segmentY,
-                    POWER_CORE.segmentWidth,
-                    POWER_CORE.segmentHeight,
-                    CAPTAIN_DASHBOARD_STYLE.powerCore.emptyBorderColor,
-                    1,
-                )
-                .setOrigin(0, 0);
+                .rectangle(x, POWER_CORE.segmentY, POWER_CORE.segmentWidth, POWER_CORE.segmentHeight, 0x000000, 0)
+                .setOrigin(0, 0)
+                .setStrokeStyle(1, CAPTAIN_DASHBOARD_STYLE.powerCore.emptyBorderColor);
 
             const track = this.scene.add
                 .rectangle(
@@ -191,7 +153,8 @@ export default class BridgeEnemyShipHeaderView {
                     CAPTAIN_DASHBOARD_STYLE.powerCore.emptyBackgroundColor,
                     1,
                 )
-                .setOrigin(0, 0);
+                .setOrigin(0, 0)
+                .setVisible(false);
 
             const fill = this.scene.add
                 .rectangle(
@@ -211,11 +174,7 @@ export default class BridgeEnemyShipHeaderView {
                 fill,
             });
 
-            this.root.add([
-                frame,
-                track,
-                fill,
-            ]);
+            this.root.add([fill, frame, track]);
         }
     }
 
@@ -231,6 +190,7 @@ export default class BridgeEnemyShipHeaderView {
             }
 
             if (index < clampedCurrent) {
+                segment.frame.setVisible(false);
                 segment.fill
                     .setVisible(true)
                     .setScale(1, 1)
@@ -244,6 +204,7 @@ export default class BridgeEnemyShipHeaderView {
                 clampedCurrent < this.powerCoreSegments.length &&
                 rechargeProgress !== undefined
             ) {
+                segment.frame.setVisible(true);
                 segment.fill
                     .setVisible(true)
                     .setScale(1, clampedRechargeProgress)
@@ -252,6 +213,7 @@ export default class BridgeEnemyShipHeaderView {
                 continue;
             }
 
+            segment.frame.setVisible(true);
             segment.fill.setVisible(false).setScale(1, 1);
         }
     }

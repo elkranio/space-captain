@@ -14,11 +14,11 @@ const HULL_X = 8;
 const POWER_CORE = {
     rightPadding: 12,
 
-    segmentWidth: 11,
-    segmentHeight: 18,
-    segmentGap: 5,
-    segmentY: 9,
-    segmentInset: 2,
+    segmentWidth: 8,
+    segmentHeight: 14,
+    segmentGap: 3,
+    segmentY: 11,
+    segmentInset: 0,
 
     iconGap: 8,
 } as const;
@@ -130,15 +130,9 @@ export default class BridgePlayerShipHeaderView {
             const x = segmentsX + index * (POWER_CORE.segmentWidth + POWER_CORE.segmentGap);
 
             const frame = this.scene.add
-                .rectangle(
-                    x,
-                    POWER_CORE.segmentY,
-                    POWER_CORE.segmentWidth,
-                    POWER_CORE.segmentHeight,
-                    CAPTAIN_DASHBOARD_STYLE.powerCore.emptyBorderColor,
-                    1,
-                )
-                .setOrigin(0, 0);
+                .rectangle(x, POWER_CORE.segmentY, POWER_CORE.segmentWidth, POWER_CORE.segmentHeight, 0x000000, 0)
+                .setOrigin(0, 0)
+                .setStrokeStyle(1, CAPTAIN_DASHBOARD_STYLE.powerCore.emptyBorderColor);
 
             const track = this.scene.add
                 .rectangle(
@@ -149,7 +143,8 @@ export default class BridgePlayerShipHeaderView {
                     CAPTAIN_DASHBOARD_STYLE.powerCore.emptyBackgroundColor,
                     1,
                 )
-                .setOrigin(0, 0);
+                .setOrigin(0, 0)
+                .setVisible(false);
 
             const fill = this.scene.add
                 .rectangle(
@@ -169,7 +164,7 @@ export default class BridgePlayerShipHeaderView {
                 fill,
             });
 
-            this.root.add([frame, track, fill]);
+            this.root.add([fill, frame, track]);
         }
     }
 
@@ -185,6 +180,7 @@ export default class BridgePlayerShipHeaderView {
             }
 
             if (index < clampedCurrent) {
+                segment.frame.setVisible(false);
                 segment.fill
                     .setVisible(true)
                     .setScale(1, 1)
@@ -198,6 +194,7 @@ export default class BridgePlayerShipHeaderView {
                 clampedCurrent < this.powerCoreSegments.length &&
                 rechargeProgress !== undefined
             ) {
+                segment.frame.setVisible(true);
                 segment.fill
                     .setVisible(true)
                     .setScale(1, clampedRechargeProgress)
@@ -206,6 +203,7 @@ export default class BridgePlayerShipHeaderView {
                 continue;
             }
 
+            segment.frame.setVisible(true);
             segment.fill.setVisible(false).setScale(1, 1);
         }
     }

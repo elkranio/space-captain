@@ -1,3 +1,4 @@
+// src/app/scenes/game/bridge/view/captain_dashboard/BridgeHullStatusView.ts
 import {
     CAPTAIN_DASHBOARD_SPRITE_ID,
     CAPTAIN_DASHBOARD_SPRITES,
@@ -8,10 +9,10 @@ import { CAPTAIN_DASHBOARD_STYLE } from "./captain_dashboard_style";
 const HULL = {
     iconGap: 8,
 
-    segmentWidth: 11,
-    segmentHeight: 18,
-    segmentGap: 5,
-    segmentInset: 2,
+    segmentWidth: 8,
+    segmentHeight: 14,
+    segmentGap: 3,
+    segmentInset: 0,
 } as const;
 
 type HullSegmentView = {
@@ -39,9 +40,7 @@ export default class BridgeHullStatusView {
 
         const iconAsset = CAPTAIN_DASHBOARD_SPRITES[CAPTAIN_DASHBOARD_SPRITE_ID.HULL_ICON];
 
-        this.icon = this.scene.add
-            .image(0, height / 2, iconAsset.atlasKey, iconAsset.frameKey)
-            .setOrigin(0, 0.5);
+        this.icon = this.scene.add.image(0, height / 2, iconAsset.atlasKey, iconAsset.frameKey).setOrigin(0, 0.5);
 
         this.root.add(this.icon);
     }
@@ -57,11 +56,7 @@ export default class BridgeHullStatusView {
     public update(current: number, max: number): void {
         this.reconcileSegments(max);
 
-        const clampedCurrent = Phaser.Math.Clamp(
-            Math.floor(current),
-            0,
-            this.segments.length,
-        );
+        const clampedCurrent = Phaser.Math.Clamp(Math.floor(current), 0, this.segments.length);
 
         for (let index = 0; index < this.segments.length; index += 1) {
             const segment = this.segments[index];
@@ -70,7 +65,10 @@ export default class BridgeHullStatusView {
                 continue;
             }
 
-            segment.fill.setVisible(index < clampedCurrent);
+            const filled = index < clampedCurrent;
+
+            segment.frame.setVisible(!filled);
+            segment.fill.setVisible(filled);
         }
     }
 
@@ -100,19 +98,9 @@ export default class BridgeHullStatusView {
             const x = segmentsX + index * (HULL.segmentWidth + HULL.segmentGap);
 
             const frame = this.scene.add
-                .rectangle(
-                    x,
-                    this.segmentY,
-                    HULL.segmentWidth,
-                    HULL.segmentHeight,
-                    0x000000,
-                    0,
-                )
+                .rectangle(x, this.segmentY, HULL.segmentWidth, HULL.segmentHeight, 0x000000, 0)
                 .setOrigin(0, 0)
-                .setStrokeStyle(
-                    1,
-                    CAPTAIN_DASHBOARD_STYLE.equipmentIntegrity.borderColor,
-                );
+                .setStrokeStyle(1, CAPTAIN_DASHBOARD_STYLE.equipmentIntegrity.borderColor);
 
             const fill = this.scene.add
                 .rectangle(
