@@ -191,14 +191,8 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
 
             [
                 BRIDGE_EVENT
-                    .CAPTAIN_COMBAT_CONTEXT_UPDATED,
-
-                {
-                    incomingMissiles: [],
-                    incomingBeamCannons: [],
-                    incomingStickyMines: [],
-                    activeSpamChannels: [],
-                },
+                    .DEFENSE_TURRET_THREATS_UPDATED,
+                [],
             ],
         ]);
     });

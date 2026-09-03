@@ -61,12 +61,7 @@ export default class BridgeEncounterEngineEventHandler {
 
         this.eventBus.emit(BRIDGE_EVENT.ENEMY_SHIELDS_UPDATED, []);
 
-        this.eventBus.emit(BRIDGE_EVENT.CAPTAIN_COMBAT_CONTEXT_UPDATED, {
-            incomingMissiles: [],
-            incomingBeamCannons: [],
-            incomingStickyMines: [],
-            activeSpamChannels: [],
-        });
+        this.eventBus.emit(BRIDGE_EVENT.DEFENSE_TURRET_THREATS_UPDATED, []);
     }
 
     // #endregion

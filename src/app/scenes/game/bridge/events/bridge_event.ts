@@ -65,10 +65,6 @@ export const BRIDGE_EVENT = {
     // View-ready Defense Turret missile selector snapshot.
     DEFENSE_TURRET_THREATS_UPDATED: "defense_turret_threats_updated",
 
-    // View-ready contextual combat snapshot
-    // для правой части captain dashboard.
-    CAPTAIN_COMBAT_CONTEXT_UPDATED: "captain_combat_context_updated",
-
     // #endregion
 
     // #region Encounter objects and navigation
@@ -475,123 +471,6 @@ export type BridgeDefenseTurretThreatsUpdatedPayload = BridgeDefenseTurretThreat
 
 // #endregion
 
-// #region Captain combat context
-
-export type BridgeCaptainIncomingMissilePayload = {
-    projectileId: string;
-    designation: string;
-
-    timeToImpactMs: number;
-    initialTimeToImpactMs: number;
-
-    actions: {
-        interceptMissile?: BridgeOfficerCommandSelectedPayload;
-    };
-
-    activeTasks?: {
-        interceptMissileTaskId?: string;
-    };
-
-    decisionTimings?: {
-        interceptMissileMinRemainingMs: number | null;
-    };
-};
-
-export type BridgeCaptainIncomingBeamCannonPayload = {
-    attackId: string;
-    designation: string;
-
-    targetNode: BeamCannonTargetNode;
-
-    timeToFireMs: number;
-    initialTimeToFireMs: number;
-
-    decisionTimings?: {
-        shieldWindow: {
-            opensAtRemainingMs: number;
-            closesAtRemainingMs: number;
-        } | null;
-    };
-};
-
-export type BridgeCaptainShieldTargetPayload = {
-    targetNode: BeamCannonTargetNode;
-    label: string;
-
-    command: BridgeOfficerCommandSelectedPayload;
-};
-
-export type BridgeCaptainStickyMinePayload = {
-    mineId: string;
-
-    timeToDetonationMs: number;
-    initialTimeToDetonationMs: number;
-
-    isBeingCleared: boolean;
-    isNextClearTarget: boolean;
-
-    actions: {
-        engineerClear?: BridgeOfficerCommandSelectedPayload;
-    };
-
-    activeTasks?: {
-        engineerClearTaskId?: string;
-    };
-
-    decisionTimings?: {
-        clearMinRemainingMs: number | null;
-    };
-};
-
-export type BridgeCaptainSpamChannelPayload = {
-    channelId: string;
-
-    remainingDurationMs: number;
-    initialDurationMs: number;
-
-    actions: {
-        purgeSpam?: BridgeOfficerCommandSelectedPayload;
-    };
-
-    activeTasks?: {
-        purgeSpamTaskId?: string;
-    };
-};
-
-export type BridgeCaptainCombatContextUpdatedPayload = {
-    enemyShip?: {
-        actorId: string;
-
-        hull: {
-            current: number;
-            max: number;
-        };
-
-        powerCore?: {
-            current: number;
-            max: number;
-
-            rechargeProgress?: number;
-        };
-    };
-
-    shieldTargeting?: {
-        targets: BridgeCaptainShieldTargetPayload[];
-    };
-
-    shieldDeployTaskId?: string;
-
-    incomingMissiles: BridgeCaptainIncomingMissilePayload[];
-
-    incomingBeamCannons: BridgeCaptainIncomingBeamCannonPayload[];
-
-    incomingStickyMines: BridgeCaptainStickyMinePayload[];
-
-    activeSpamChannels: BridgeCaptainSpamChannelPayload[];
-};
-
-// #endregion
-
 // #region Encounter objects and navigation
 
 // View-ready описание одного encounter object.
@@ -959,8 +838,6 @@ export type BridgeEventPayloadMap = {
     [BRIDGE_EVENT.PLAYER_SHIP_DASHBOARD_UPDATED]: BridgePlayerShipDashboardUpdatedPayload;
 
     [BRIDGE_EVENT.DEFENSE_TURRET_THREATS_UPDATED]: BridgeDefenseTurretThreatsUpdatedPayload;
-
-    [BRIDGE_EVENT.CAPTAIN_COMBAT_CONTEXT_UPDATED]: BridgeCaptainCombatContextUpdatedPayload;
 
     // Encounter objects and navigation
 
