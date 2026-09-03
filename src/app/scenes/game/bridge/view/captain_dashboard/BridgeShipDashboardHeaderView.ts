@@ -15,6 +15,8 @@ export default class BridgeShipDashboardHeaderView {
 
     private readonly powerCoreView: BridgePowerCoreStatusView;
 
+    private readonly divider: Phaser.GameObjects.Rectangle;
+
     constructor(scene: BridgeScene, width: number, height: number) {
         this.root = scene.add.container(0, 0);
 
@@ -26,7 +28,7 @@ export default class BridgeShipDashboardHeaderView {
             width - HEADER.powerCoreRightPadding,
         );
 
-        const divider = scene.add
+        this.divider = scene.add
             .rectangle(
                 0,
                 height - 1,
@@ -40,7 +42,7 @@ export default class BridgeShipDashboardHeaderView {
         this.root.add([
             this.hullView.getRoot(),
             this.powerCoreView.getRoot(),
-            divider,
+            this.divider,
         ]);
     }
 
@@ -83,6 +85,7 @@ export default class BridgeShipDashboardHeaderView {
     public destroy(): void {
         this.hullView.destroy();
         this.powerCoreView.destroy();
+        this.divider.destroy();
         this.root.destroy(false);
     }
 }
