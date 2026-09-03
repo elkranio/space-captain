@@ -11,6 +11,7 @@ import { ENCOUNTER_TEAM, type EncounterTeam } from "../../defs/encounter_team";
 import type { OfficerRole } from "../../defs/officer";
 import type { ShipDefenseTurretState } from "../../defs/defense_turret";
 import type { ShipBehaviorState } from "../../defs/ship_behavior";
+import type { ShipEquipmentMountState } from "../../defs/ship_slot";
 
 import { SHIP_DRIVE_STATUS, type ShipDriveState } from "../../defs/ship_drive";
 import {
@@ -44,6 +45,8 @@ export type SpawnShipActorInput = {
 
     hull: number;
     maxHull: number;
+
+    mounts?: ShipEquipmentMountState[];
 
     drive: ShipDriveState;
 
@@ -88,6 +91,7 @@ export default class EncounterActorStore {
         team,
         hull,
         maxHull,
+        mounts = [],
         drive,
         defenseTurret,
         powerCore,
@@ -129,6 +133,8 @@ export default class EncounterActorStore {
 
             hull,
             maxHull,
+
+            mounts: mounts.map((mount) => ({ ...mount })),
 
             drive: createEncounterEquipmentState(
                 drive,

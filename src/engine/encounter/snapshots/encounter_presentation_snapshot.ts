@@ -1,5 +1,9 @@
 import type { PlayerSpaceNavigationState } from "../../defs/player_location";
 import type { EncounterState } from "../model/state";
+import {
+    getEnemyShipDashboardSnapshots,
+    type EnemyShipDashboardSnapshot,
+} from "../combat/queries/get_enemy_ship_dashboard_snapshots";
 import { createCombatPresentationSnapshot, type CombatPresentationSnapshot } from "./combat_presentation_snapshot";
 import {
     createEncounterSpacePresentationSnapshot,
@@ -17,6 +21,8 @@ export type EncounterPresentationSnapshot = CombatPresentationSnapshot & {
     navigation: PlayerSpaceNavigationState;
 
     space: EncounterSpacePresentationSnapshot;
+
+    enemyShipDashboards: EnemyShipDashboardSnapshot[];
 };
 
 export function createEncounterPresentationSnapshot(state: EncounterState): EncounterPresentationSnapshot {
@@ -24,6 +30,8 @@ export function createEncounterPresentationSnapshot(state: EncounterState): Enco
         navigation: state.navigation,
 
         space: createEncounterSpacePresentationSnapshot(state),
+
+        enemyShipDashboards: getEnemyShipDashboardSnapshots(state),
 
         ...createCombatPresentationSnapshot(state),
     };

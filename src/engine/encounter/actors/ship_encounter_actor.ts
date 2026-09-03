@@ -5,6 +5,7 @@ import type { PowerCoreState } from "../../defs/power_core";
 import type { OfficerRole } from "../../defs/officer";
 import type { ShipBehaviorState } from "../../defs/ship_behavior";
 import type { ShipEvadeState } from "../../defs/ship_evade";
+import type { ShipEquipmentMountState } from "../../defs/ship_slot";
 import type { ActiveShieldState } from "../model/combat";
 import type {
     EncounterShieldGeneratorState,
@@ -30,6 +31,8 @@ export type ShipEncounterActorState = EncounterActorBaseState & {
 
     hull: number;
     maxHull: number;
+
+    mounts: ShipEquipmentMountState[];
 
     drive: EncounterShipDriveState;
 

@@ -70,6 +70,8 @@ export default class EncounterStateStore {
                 hull: actor.hull,
                 maxHull: actor.maxHull,
 
+                mounts: actor.mounts,
+
                 drive: actor.drive,
 
                 defenseTurret: actor.defenseTurret,

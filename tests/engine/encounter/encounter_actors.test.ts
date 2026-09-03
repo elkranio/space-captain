@@ -132,6 +132,8 @@ describe('encounter actors', () => {
             hull: 3,
             maxHull: 3,
 
+            mounts: [],
+
             drive: {
                 ...drive,
 
