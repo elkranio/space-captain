@@ -10,6 +10,7 @@ import { FONT_COLOR, FONT_FAMILY, FONT_SIZE } from "../../../../../../../theme/f
 import type BridgeScene from "../../../../BridgeScene";
 import BridgeEquipmentIntegrityView from "../../BridgeEquipmentIntegrityView";
 import BridgeEquipmentMetricView from "../../BridgeEquipmentMetricView";
+import BridgeEquipmentProgressIconView from "../../BridgeEquipmentProgressIconView";
 import { CAPTAIN_DASHBOARD_STYLE } from "../../captain_dashboard_style";
 
 const TILE = {
@@ -37,17 +38,13 @@ export default class BridgeShieldGeneratorTileView {
 
     private readonly titleText: Phaser.GameObjects.BitmapText;
 
-    private readonly baseIcon: Phaser.GameObjects.Image;
-
-    private readonly progressIcon: Phaser.GameObjects.Image;
+    private readonly progressIconView: BridgeEquipmentProgressIconView;
 
     private readonly metricView: BridgeEquipmentMetricView;
 
     private readonly integrityView: BridgeEquipmentIntegrityView;
 
     private chromeColor: number = FONT_COLOR.PRIMARY;
-
-    private progressVisible = false;
 
     constructor(
         private readonly scene: BridgeScene,
@@ -71,14 +68,11 @@ export default class BridgeShieldGeneratorTileView {
         const centerX = Math.round(this.width / 2);
         const centerY = Math.round(height / 2) + 1;
 
-        this.baseIcon = this.scene.add
-            .image(centerX, centerY, sprite.atlasKey, sprite.frameKey)
-            .setTint(CAPTAIN_DASHBOARD_STYLE.equipmentProgress.readyColor);
-
-        this.progressIcon = this.scene.add
-            .image(centerX, centerY, sprite.atlasKey, sprite.frameKey)
-            .setTint(CAPTAIN_DASHBOARD_STYLE.equipmentProgress.readyColor)
-            .setVisible(false);
+        this.progressIconView = new BridgeEquipmentProgressIconView(
+            this.scene,
+            sprite,
+        );
+        this.progressIconView.setPosition(centerX, centerY);
 
         this.metricView = new BridgeEquipmentMetricView(
             this.scene,
@@ -96,8 +90,7 @@ export default class BridgeShieldGeneratorTileView {
 
         this.root.add([
             this.titleText,
-            this.baseIcon,
-            this.progressIcon,
+            this.progressIconView.getRoot(),
             this.metricView.getRoot(),
             this.integrityView.getRoot(),
         ]);
@@ -128,58 +121,52 @@ export default class BridgeShieldGeneratorTileView {
 
         switch (mode) {
             case SHIELD_GENERATOR_PROGRESS_MODE.COOLDOWN:
-                this.baseIcon.setTint(colors.cooldownColor);
-                this.progressIcon.setTint(colors.readyColor);
+                this.progressIconView.setProgress(
+                    colors.cooldownColor,
+                    colors.readyColor,
+                    progress,
+                );
                 this.setChromeColor(colors.cooldownColor);
                 break;
 
             case SHIELD_GENERATOR_PROGRESS_MODE.REPAIR:
-                this.baseIcon.setTint(colors.repairColor);
-                this.progressIcon.setTint(colors.readyColor);
+                this.progressIconView.setProgress(
+                    colors.repairColor,
+                    colors.readyColor,
+                    progress,
+                );
                 this.setChromeColor(colors.repairColor);
                 break;
 
             case SHIELD_GENERATOR_PROGRESS_MODE.DEPLOYMENT:
-                this.baseIcon.setTint(colors.readyColor);
-                this.progressIcon.setTint(colors.activityColor);
+                this.progressIconView.setProgress(
+                    colors.readyColor,
+                    colors.activityColor,
+                    progress,
+                );
                 this.setChromeColor(FONT_COLOR.PRIMARY);
                 break;
         }
-
-        const clampedProgress = Phaser.Math.Clamp(progress, 0, 1);
-        const cropWidth = Math.round(this.progressIcon.width * clampedProgress);
-
-        this.progressVisible = cropWidth > 0;
-
-        if (this.progressVisible) {
-            this.progressIcon.setCrop(0, 0, cropWidth, this.progressIcon.height);
-        }
-
-        this.progressIcon.setVisible(this.progressVisible);
     }
 
     public setBroken(): void {
         const brokenColor = CAPTAIN_DASHBOARD_STYLE.equipmentProgress.repairColor;
 
-        this.baseIcon.setTint(brokenColor);
-        this.progressVisible = false;
-        this.progressIcon.setVisible(false);
+        this.progressIconView.setBaseColor(brokenColor);
         this.setChromeColor(brokenColor);
     }
 
     public setResourceBlocked(): void {
         const blockedColor = CAPTAIN_DASHBOARD_STYLE.equipmentProgress.cooldownColor;
 
-        this.baseIcon.setTint(blockedColor);
-        this.progressVisible = false;
-        this.progressIcon.setVisible(false);
+        this.progressIconView.setBaseColor(blockedColor);
         this.setChromeColor(blockedColor);
     }
 
     public resetProgress(): void {
-        this.baseIcon.setTint(CAPTAIN_DASHBOARD_STYLE.equipmentProgress.readyColor);
-        this.progressVisible = false;
-        this.progressIcon.setVisible(false);
+        this.progressIconView.setBaseColor(
+            CAPTAIN_DASHBOARD_STYLE.equipmentProgress.readyColor,
+        );
         this.setChromeColor(FONT_COLOR.PRIMARY);
     }
 
