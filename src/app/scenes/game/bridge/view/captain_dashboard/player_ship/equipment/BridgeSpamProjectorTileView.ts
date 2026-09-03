@@ -7,6 +7,7 @@ import { FONT_COLOR, FONT_FAMILY, FONT_SIZE } from "../../../../../../../theme/f
 import { OFFICER_ROLE_COLOR } from "../../../../../../../theme/officer";
 import type BridgeScene from "../../../../BridgeScene";
 import BridgeEquipmentIntegrityView from "../../BridgeEquipmentIntegrityView";
+import BridgeEquipmentProgressIconView from "../../BridgeEquipmentProgressIconView";
 import BridgeEquipmentSlotChromeView from "../../BridgeEquipmentSlotChromeView";
 import { CAPTAIN_DASHBOARD_STYLE } from "../../captain_dashboard_style";
 
@@ -51,9 +52,7 @@ export default class BridgeSpamProjectorTileView {
 
     private readonly hoverOutline: BridgeEquipmentSlotChromeView;
 
-    private readonly baseIcon: Phaser.GameObjects.Image;
-
-    private readonly progressIcon: Phaser.GameObjects.Image;
+    private readonly progressIconView: BridgeEquipmentProgressIconView;
 
     private readonly hoverRoleText: Phaser.GameObjects.BitmapText;
 
@@ -66,8 +65,6 @@ export default class BridgeSpamProjectorTileView {
     private readonly hitArea: Phaser.GameObjects.Zone;
 
     private chromeColor: number = FONT_COLOR.PRIMARY;
-
-    private progressVisible = false;
 
     private pointerOver = false;
 
@@ -105,14 +102,11 @@ export default class BridgeSpamProjectorTileView {
         const centerY = Math.round(height / 2) + 1;
         const hoverTextY = TILE.titleY;
 
-        this.baseIcon = this.scene.add
-            .image(centerX, centerY, sprite.atlasKey, sprite.frameKey)
-            .setTint(CAPTAIN_DASHBOARD_STYLE.equipmentProgress.readyColor);
-
-        this.progressIcon = this.scene.add
-            .image(centerX, centerY, sprite.atlasKey, sprite.frameKey)
-            .setTint(CAPTAIN_DASHBOARD_STYLE.equipmentProgress.readyColor)
-            .setVisible(false);
+        this.progressIconView = new BridgeEquipmentProgressIconView(
+            this.scene,
+            sprite,
+        );
+        this.progressIconView.setPosition(centerX, centerY);
 
         this.hoverRoleText = this.scene.add
             .bitmapText(0, hoverTextY, FONT_FAMILY.UI_PRIMARY, "", FONT_SIZE.PX_20)
@@ -154,8 +148,7 @@ export default class BridgeSpamProjectorTileView {
         this.root.add([
             this.hoverHeaderBackground,
             this.titleText,
-            this.baseIcon,
-            this.progressIcon,
+            this.progressIconView.getRoot(),
             this.hoverRoleText,
             this.hoverActionText,
             this.purgedText,
@@ -195,39 +188,40 @@ export default class BridgeSpamProjectorTileView {
 
         switch (mode) {
             case SPAM_PROJECTOR_PROGRESS_MODE.COOLDOWN:
-                this.baseIcon.setTint(colors.cooldownColor);
-                this.progressIcon.setTint(colors.readyColor);
+                this.progressIconView.setProgress(
+                    colors.cooldownColor,
+                    colors.readyColor,
+                    progress,
+                );
                 this.setChromeColor(colors.cooldownColor);
                 break;
 
             case SPAM_PROJECTOR_PROGRESS_MODE.REPAIR:
-                this.baseIcon.setTint(colors.repairColor);
-                this.progressIcon.setTint(colors.readyColor);
+                this.progressIconView.setProgress(
+                    colors.repairColor,
+                    colors.readyColor,
+                    progress,
+                );
                 this.setChromeColor(colors.repairColor);
                 break;
 
             case SPAM_PROJECTOR_PROGRESS_MODE.CHANNELING:
-                this.baseIcon.setTint(colors.readyColor);
-                this.progressIcon.setTint(colors.activityColor);
+                this.progressIconView.setProgress(
+                    colors.readyColor,
+                    colors.activityColor,
+                    progress,
+                );
                 this.setChromeColor(FONT_COLOR.PRIMARY);
                 break;
-        }
-
-        const clampedProgress = Phaser.Math.Clamp(progress, 0, 1);
-        const cropWidth = Math.round(this.progressIcon.width * clampedProgress);
-
-        this.progressVisible = cropWidth > 0;
-
-        if (this.progressVisible) {
-            this.progressIcon.setCrop(0, 0, cropWidth, this.progressIcon.height);
         }
 
         this.renderHover();
     }
 
     public resetProgress(): void {
-        this.baseIcon.setTint(CAPTAIN_DASHBOARD_STYLE.equipmentProgress.readyColor);
-        this.progressVisible = false;
+        this.progressIconView.setBaseColor(
+            CAPTAIN_DASHBOARD_STYLE.equipmentProgress.readyColor,
+        );
         this.setChromeColor(FONT_COLOR.PRIMARY);
         this.renderHover();
     }
@@ -248,8 +242,6 @@ export default class BridgeSpamProjectorTileView {
         const showAction = this.pointerOver && this.hoverAction !== SPAM_PROJECTOR_HOVER_ACTION.NONE;
 
         this.titleText.setVisible(!showAction);
-        this.baseIcon.setVisible(true);
-        this.progressIcon.setVisible(this.progressVisible);
         this.hoverHeaderBackground.setVisible(showAction);
         this.hoverOutline.setVisible(showAction);
         this.hoverRoleText.setVisible(showAction);
