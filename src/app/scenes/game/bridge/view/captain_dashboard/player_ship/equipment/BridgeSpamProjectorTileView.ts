@@ -6,9 +6,9 @@ import {
 import { FONT_COLOR, FONT_FAMILY, FONT_SIZE } from "../../../../../../../theme/font";
 import { OFFICER_ROLE_COLOR } from "../../../../../../../theme/officer";
 import type BridgeScene from "../../../../BridgeScene";
+import BridgeEquipmentHoverActionView from "../../BridgeEquipmentHoverActionView";
 import BridgeEquipmentIntegrityView from "../../BridgeEquipmentIntegrityView";
 import BridgeEquipmentProgressIconView from "../../BridgeEquipmentProgressIconView";
-import BridgeEquipmentSlotChromeView from "../../BridgeEquipmentSlotChromeView";
 import { CAPTAIN_DASHBOARD_LAYOUT } from "../../captain_dashboard_layout";
 import { CAPTAIN_DASHBOARD_STYLE } from "../../captain_dashboard_style";
 
@@ -38,15 +38,9 @@ export default class BridgeSpamProjectorTileView {
 
     private readonly titleText: Phaser.GameObjects.BitmapText;
 
-    private readonly hoverHeaderBackground: Phaser.GameObjects.Rectangle;
-
-    private readonly hoverOutline: BridgeEquipmentSlotChromeView;
+    private readonly hoverView: BridgeEquipmentHoverActionView;
 
     private readonly progressIconView: BridgeEquipmentProgressIconView;
-
-    private readonly hoverRoleText: Phaser.GameObjects.BitmapText;
-
-    private readonly hoverActionText: Phaser.GameObjects.BitmapText;
 
     private readonly purgedText: Phaser.GameObjects.BitmapText;
 
@@ -68,26 +62,6 @@ export default class BridgeSpamProjectorTileView {
     ) {
         this.root = this.scene.add.container(0, 0);
 
-        this.hoverHeaderBackground = this.scene.add
-            .rectangle(
-                0,
-                0,
-                this.width,
-                TILE.hoverHeaderHeight,
-                FONT_COLOR.PRIMARY,
-                CAPTAIN_DASHBOARD_STYLE.equipmentSlot.hoverHeaderAlpha,
-            )
-            .setOrigin(0, 0)
-            .setVisible(false);
-
-        this.hoverOutline = new BridgeEquipmentSlotChromeView(
-            this.scene,
-            this.width,
-            height,
-            "highlight",
-        );
-        this.hoverOutline.setVisible(false);
-
         this.titleText = this.scene.add
             .bitmapText(TILE.horizontalPadding, TILE.titleY, FONT_FAMILY.UI_PRIMARY, "", FONT_SIZE.PX_20)
             .setOrigin(0, 0)
@@ -97,24 +71,12 @@ export default class BridgeSpamProjectorTileView {
 
         const centerX = Math.round(this.width / 2);
         const centerY = Math.round(height / 2) + TILE.iconCenterOffsetY;
-        const hoverTextY = TILE.titleY;
 
         this.progressIconView = new BridgeEquipmentProgressIconView(
             this.scene,
             sprite,
         );
         this.progressIconView.setPosition(centerX, centerY);
-
-        this.hoverRoleText = this.scene.add
-            .bitmapText(0, hoverTextY, FONT_FAMILY.UI_PRIMARY, "", FONT_SIZE.PX_20)
-            .setOrigin(0, 0)
-            .setVisible(false);
-
-        this.hoverActionText = this.scene.add
-            .bitmapText(0, hoverTextY, FONT_FAMILY.UI_PRIMARY, "", FONT_SIZE.PX_20)
-            .setOrigin(0, 0)
-            .setTint(FONT_COLOR.PRIMARY)
-            .setVisible(false);
 
         this.purgedText = this.scene.add
             .bitmapText(
@@ -145,15 +107,18 @@ export default class BridgeSpamProjectorTileView {
             .on(Phaser.Input.Events.POINTER_OUT, this.handlePointerOut, this)
             .on(Phaser.Input.Events.POINTER_UP, this.handlePointerUp, this);
 
+        this.hoverView = new BridgeEquipmentHoverActionView(
+            this.scene,
+            this.width,
+            height,
+        );
+
         this.root.add([
-            this.hoverHeaderBackground,
             this.titleText,
             this.progressIconView.getRoot(),
-            this.hoverRoleText,
-            this.hoverActionText,
             this.purgedText,
             this.integrityView.getRoot(),
-            this.hoverOutline.getRoot(),
+            this.hoverView.getRoot(),
             this.hitArea,
         ]);
     }
@@ -242,10 +207,7 @@ export default class BridgeSpamProjectorTileView {
         const showAction = this.pointerOver && this.hoverAction !== SPAM_PROJECTOR_HOVER_ACTION.NONE;
 
         this.titleText.setVisible(!showAction);
-        this.hoverHeaderBackground.setVisible(showAction);
-        this.hoverOutline.setVisible(showAction);
-        this.hoverRoleText.setVisible(showAction);
-        this.hoverActionText.setVisible(showAction);
+        this.hoverView.setVisible(showAction);
 
         if (!showAction) {
             return;
@@ -253,26 +215,21 @@ export default class BridgeSpamProjectorTileView {
 
         switch (this.hoverAction) {
             case SPAM_PROJECTOR_HOVER_ACTION.FIRE:
-                this.hoverRoleText.setText("S").setTint(OFFICER_ROLE_COLOR.science);
-                this.hoverActionText.setText("FIRE");
+                this.hoverView.setAction("S", OFFICER_ROLE_COLOR.science, "FIRE");
                 break;
 
             case SPAM_PROJECTOR_HOVER_ACTION.CANCEL:
-                this.hoverRoleText.setText("S").setTint(OFFICER_ROLE_COLOR.science);
-                this.hoverActionText.setText("CANCEL");
+                this.hoverView.setAction("S", OFFICER_ROLE_COLOR.science, "CANCEL");
                 break;
 
             case SPAM_PROJECTOR_HOVER_ACTION.REPAIR:
-                this.hoverRoleText.setText("E").setTint(OFFICER_ROLE_COLOR.engineer);
-                this.hoverActionText.setText("REPAIR");
+                this.hoverView.setAction("E", OFFICER_ROLE_COLOR.engineer, "REPAIR");
                 break;
 
             case SPAM_PROJECTOR_HOVER_ACTION.NONE:
                 return;
         }
 
-        this.hoverRoleText.setX(TILE.horizontalPadding);
-        this.hoverActionText.setX(TILE.horizontalPadding + this.hoverRoleText.width + TILE.hoverTextGap);
     }
 
     private handlePointerOver(): void {

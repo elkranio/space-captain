@@ -5,10 +5,10 @@ import { EQUIPMENT_COLOR } from "../../../../../../../theme/equipment";
 import { FONT_COLOR, FONT_FAMILY, FONT_SIZE } from "../../../../../../../theme/font";
 import { OFFICER_ROLE_COLOR } from "../../../../../../../theme/officer";
 import type BridgeScene from "../../../../BridgeScene";
+import BridgeEquipmentHoverActionView from "../../BridgeEquipmentHoverActionView";
 import BridgeEquipmentIntegrityView from "../../BridgeEquipmentIntegrityView";
 import BridgeEquipmentMetricView from "../../BridgeEquipmentMetricView";
 import BridgeEquipmentProgressIconView from "../../BridgeEquipmentProgressIconView";
-import BridgeEquipmentSlotChromeView from "../../BridgeEquipmentSlotChromeView";
 import { CAPTAIN_DASHBOARD_LAYOUT } from "../../captain_dashboard_layout";
 import { CAPTAIN_DASHBOARD_STYLE } from "../../captain_dashboard_style";
 
@@ -36,15 +36,9 @@ export default class BridgeDefenseTurretTileView {
 
     private readonly titleText: Phaser.GameObjects.BitmapText;
 
-    private readonly hoverHeaderBackground: Phaser.GameObjects.Rectangle;
-
-    private readonly hoverOutline: BridgeEquipmentSlotChromeView;
+    private readonly hoverView: BridgeEquipmentHoverActionView;
 
     private readonly progressIconView: BridgeEquipmentProgressIconView;
-
-    private readonly hoverRoleText: Phaser.GameObjects.BitmapText;
-
-    private readonly hoverActionText: Phaser.GameObjects.BitmapText;
 
     private readonly targetIndicator: Phaser.GameObjects.Image;
 
@@ -80,26 +74,6 @@ export default class BridgeDefenseTurretTileView {
             .on(Phaser.Input.Events.POINTER_OUT, this.handlePointerOut, this)
             .on("pointerup", onInteractionRequested);
 
-        this.hoverHeaderBackground = this.scene.add
-            .rectangle(
-                0,
-                0,
-                this.width,
-                TILE.hoverHeaderHeight,
-                FONT_COLOR.PRIMARY,
-                CAPTAIN_DASHBOARD_STYLE.equipmentSlot.hoverHeaderAlpha,
-            )
-            .setOrigin(0, 0)
-            .setVisible(false);
-
-        this.hoverOutline = new BridgeEquipmentSlotChromeView(
-            this.scene,
-            this.width,
-            height,
-            "highlight",
-        );
-        this.hoverOutline.setVisible(false);
-
         this.titleText = this.scene.add
             .bitmapText(TILE.horizontalPadding, TILE.titleY, FONT_FAMILY.UI_PRIMARY, "", FONT_SIZE.PX_20)
             .setOrigin(0, 0)
@@ -108,7 +82,6 @@ export default class BridgeDefenseTurretTileView {
         const sprite = EQUIPMENT_SPRITES[EQUIPMENT_SPRITE_ID.DEFENSE_TURRET];
         const centerX = Math.round(this.width / 2);
         const centerY = Math.round(height / 2) + TILE.iconCenterOffsetY;
-        const hoverTextY = TILE.titleY;
 
         this.progressIconView = new BridgeEquipmentProgressIconView(
             this.scene,
@@ -116,18 +89,8 @@ export default class BridgeDefenseTurretTileView {
         );
         this.progressIconView.setPosition(centerX, centerY);
 
-        this.hoverRoleText = this.scene.add
-            .bitmapText(0, hoverTextY, FONT_FAMILY.UI_PRIMARY, "", FONT_SIZE.PX_20)
-            .setOrigin(0, 0)
-            .setVisible(false);
-
-        this.hoverActionText = this.scene.add
-            .bitmapText(0, hoverTextY, FONT_FAMILY.UI_PRIMARY, "", FONT_SIZE.PX_20)
-            .setOrigin(0, 0)
-            .setTint(FONT_COLOR.PRIMARY)
-            .setVisible(false);
-
-        const targetSprite = MICRO_ICONS[MICRO_ICON_ID.DEFENSE_TURRET_TARGET_AVAILABLE];
+        const targetSprite =
+            MICRO_ICONS[MICRO_ICON_ID.DEFENSE_TURRET_TARGET_AVAILABLE];
 
         this.targetIndicator = this.scene.add
             .image(
@@ -157,16 +120,19 @@ export default class BridgeDefenseTurretTileView {
         );
         this.integrityView.setRightEdge(this.width - TILE.horizontalPadding);
 
+        this.hoverView = new BridgeEquipmentHoverActionView(
+            this.scene,
+            this.width,
+            height,
+        );
+
         this.root.add([
-            this.hoverHeaderBackground,
             this.titleText,
             this.progressIconView.getRoot(),
             this.targetIndicator,
-            this.hoverRoleText,
-            this.hoverActionText,
             this.metricView.getRoot(),
             this.integrityView.getRoot(),
-            this.hoverOutline.getRoot(),
+            this.hoverView.getRoot(),
             this.interactionHitArea,
         ]);
     }
@@ -295,21 +261,16 @@ export default class BridgeDefenseTurretTileView {
 
         this.titleText.setVisible(!showAction);
         this.targetIndicator.setVisible(this.targetsAvailable && !showAction);
-        this.hoverHeaderBackground.setVisible(showAction);
-        this.hoverOutline.setVisible(showAction);
-        this.hoverRoleText.setVisible(showAction);
-        this.hoverActionText.setVisible(showAction);
+        this.hoverView.setVisible(showAction);
 
         if (!showAction) {
             return;
         }
 
-        this.hoverRoleText.setText("W").setTint(OFFICER_ROLE_COLOR.weapons);
-        this.hoverActionText.setText("INTERCEPT");
-
-        this.hoverRoleText.setX(TILE.horizontalPadding);
-        this.hoverActionText.setX(
-            TILE.horizontalPadding + this.hoverRoleText.width + TILE.hoverTextGap,
+        this.hoverView.setAction(
+            "W",
+            OFFICER_ROLE_COLOR.weapons,
+            "INTERCEPT",
         );
     }
 
