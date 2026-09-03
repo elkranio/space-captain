@@ -4,20 +4,23 @@ import {
 } from "../../../../../manifests/bridge/captain_dashboard";
 import type BridgeScene from "../../BridgeScene";
 import type BridgeEventBus from "../../events/BridgeEventBus";
+import BridgeEnemyShipDashboardView from "./enemy_ship/BridgeEnemyShipDashboardView";
 import BridgePlayerShipDashboardView from "./player_ship/BridgePlayerShipDashboardView";
 
 // Root view капитанского dashboard.
 //
 // Два физических captain screen являются общей рамкой dashboard.
-// The old right-side combat context is intentionally disconnected pending replacement.
+// Левая половина показывает player ship, правая — persistent read-only enemy ship.
 export default class BridgeCaptainDashboardView {
     private readonly root: Phaser.GameObjects.Container;
 
     private readonly playerShipScreen: Phaser.GameObjects.Image;
 
-    private readonly combatContextScreen: Phaser.GameObjects.Image;
+    private readonly enemyShipScreen: Phaser.GameObjects.Image;
 
     private readonly playerShipView: BridgePlayerShipDashboardView;
+
+    private readonly enemyShipView: BridgeEnemyShipDashboardView;
 
     constructor(scene: BridgeScene, eventBus: BridgeEventBus) {
         this.root = scene.add.container(0, 0);
@@ -30,17 +33,17 @@ export default class BridgeCaptainDashboardView {
             .image(0, 0, screenSprite.atlasKey, screenSprite.frameKey)
             .setOrigin(0, 0);
 
-        this.combatContextScreen = scene.add
+        this.enemyShipScreen = scene.add
             .image(0, 0, screenSprite.atlasKey, screenSprite.frameKey)
             .setOrigin(0, 0);
 
-        const screensWidth = this.playerShipScreen.width + this.combatContextScreen.width;
+        const screensWidth = this.playerShipScreen.width + this.enemyShipScreen.width;
         const screensX = Math.round((scene.scale.width - screensWidth) / 2);
         const screensY = scene.scale.height - this.playerShipScreen.height;
-        const combatContextScreenX = screensX + this.playerShipScreen.width;
+        const enemyShipScreenX = screensX + this.playerShipScreen.width;
 
         this.playerShipScreen.setPosition(screensX, screensY);
-        this.combatContextScreen.setPosition(combatContextScreenX, screensY);
+        this.enemyShipScreen.setPosition(enemyShipScreenX, screensY);
 
         this.playerShipView = new BridgePlayerShipDashboardView(
             scene,
@@ -56,18 +59,34 @@ export default class BridgeCaptainDashboardView {
             screensY + Math.round((this.playerShipScreen.height - playerShipSize.height) / 2),
         );
 
+        this.enemyShipView = new BridgeEnemyShipDashboardView(
+            scene,
+            eventBus,
+            this.enemyShipScreen.width,
+            this.enemyShipScreen.height,
+        );
+
+        const enemyShipSize = this.enemyShipView.getSize();
+
+        this.enemyShipView.setPosition(
+            enemyShipScreenX + Math.round((this.enemyShipScreen.width - enemyShipSize.width) / 2),
+            screensY + Math.round((this.enemyShipScreen.height - enemyShipSize.height) / 2),
+        );
+
         this.root.add([
             this.playerShipScreen,
-            this.combatContextScreen,
+            this.enemyShipScreen,
             this.playerShipView.getRoot(),
+            this.enemyShipView.getRoot(),
         ]);
     }
 
     public destroy(): void {
+        this.enemyShipView.destroy();
         this.playerShipView.destroy();
 
         this.playerShipScreen.destroy();
-        this.combatContextScreen.destroy();
+        this.enemyShipScreen.destroy();
 
         this.root.destroy(false);
     }

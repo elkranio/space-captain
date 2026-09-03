@@ -6,6 +6,7 @@ import type BridgeEventBus from "../../../events/BridgeEventBus";
 import {
     mapDefenseTurretThreatsToBridgePayload,
 } from "../../captain_dashboard/defense_turret/BridgeDefenseTurretThreatsMapper";
+import { mapEnemyShipToBridgeDashboardPayload } from "../../captain_dashboard/BridgeEnemyShipDashboardMapper";
 import { mapPlayerShipToBridgeDashboardPayload } from "../../captain_dashboard/BridgePlayerShipDashboardMapper";
 
 // App-side transport for continuously changing encounter read models.
@@ -29,6 +30,7 @@ export default class BridgeEncounterSnapshotSynchronizer {
 
     public syncInitial(snapshot: EncounterPresentationSnapshot): void {
         this.syncPlayerShipDashboard(snapshot);
+        this.syncEnemyShipDashboard(snapshot);
         this.syncPlayerShield(snapshot);
         this.syncEnemyShields(snapshot);
         this.syncEnemyEvades(snapshot);
@@ -47,6 +49,7 @@ export default class BridgeEncounterSnapshotSynchronizer {
         this.syncBeamCannonThreats(snapshot);
         this.syncDefenseTurretThreats(snapshot);
         this.syncPlayerEvade(snapshot);
+        this.syncEnemyShipDashboard(snapshot);
     }
 
     public syncPlayerShipDashboard(snapshot: EncounterPresentationSnapshot): void {
@@ -100,6 +103,18 @@ export default class BridgeEncounterSnapshotSynchronizer {
                     activeShield: snapshot.player.activeShield,
                 },
             }),
+        );
+    }
+
+    private syncEnemyShipDashboard(snapshot: EncounterPresentationSnapshot): void {
+        const enemy = snapshot.enemyShipDashboards[0];
+
+        this.eventBus.emit(
+            BRIDGE_EVENT.ENEMY_SHIP_DASHBOARD_UPDATED,
+
+            enemy
+                ? mapEnemyShipToBridgeDashboardPayload(enemy)
+                : null,
         );
     }
 

@@ -95,6 +95,54 @@ describe('BridgeEncounterSnapshotSynchronizer', () => {
             ],
 
             [
+                BRIDGE_EVENT.ENEMY_SHIP_DASHBOARD_UPDATED,
+
+                {
+                    actorId:
+                        'enemy_ship_00',
+
+                    displayName:
+                        'Enemy test ship',
+
+                    hull: {
+                        current: 2,
+                        max: 4,
+                    },
+
+                    equipment: [
+                        {
+                            id:
+                                'enemy_drive_00',
+
+                            shortName:
+                                'DRIVE',
+
+                            sprite: {
+                                atlasKey:
+                                    'atlas',
+
+                                frameKey:
+                                    'equipment/icon_drive',
+                            },
+
+                            slot: {
+                                column: 1,
+                                row: 2,
+                            },
+
+                            integrity: {
+                                current: 2,
+                                max: 2,
+                            },
+
+                            broken:
+                                false,
+                        },
+                    ],
+                },
+            ],
+
+            [
                 BRIDGE_EVENT
                     .PLAYER_SHIELD_UPDATED,
 
@@ -327,6 +375,55 @@ describe('BridgeEncounterSnapshotSynchronizer', () => {
                         250,
                 },
             ],
+
+            [
+                BRIDGE_EVENT.ENEMY_SHIP_DASHBOARD_UPDATED,
+
+                {
+                    actorId:
+                        'enemy_ship_00',
+
+                    displayName:
+                        'Enemy test ship',
+
+                    hull: {
+                        current: 2,
+                        max: 4,
+                    },
+
+                    equipment: [
+                        {
+                            id:
+                                'enemy_drive_00',
+
+                            shortName:
+                                'DRIVE',
+
+                            sprite: {
+                                atlasKey:
+                                    'atlas',
+
+                                frameKey:
+                                    'equipment/icon_drive',
+                            },
+
+                            slot: {
+                                column: 1,
+                                row: 2,
+                            },
+
+                            integrity: {
+                                current: 2,
+                                max: 2,
+                            },
+
+                            broken:
+                                false,
+                        },
+                    ],
+                },
+            ],
+
         ]);
     });
 });
@@ -511,6 +608,49 @@ function createEncounterEngine(): EncounterEngine {
 
                                 initialDurationMs:
                                     5000,
+                            },
+
+                            weapons: [],
+                        },
+                    ],
+
+                    enemyShipDashboards: [
+                        {
+                            actorId:
+                                'enemy_ship_00',
+
+                            displayName:
+                                'Enemy test ship',
+
+                            chassisId:
+                                'generic_00',
+
+                            hull: {
+                                current: 2,
+                                max: 4,
+                            },
+
+                            mounts: [
+                                {
+                                    slotId:
+                                        'drive',
+
+                                    equipmentId:
+                                        'enemy_drive_00',
+                                },
+                            ],
+
+                            drive: {
+                                id:
+                                    'enemy_drive_00',
+
+                                definitionId:
+                                    'basic_00',
+
+                                integrity: {
+                                    current: 2,
+                                    max: 2,
+                                },
                             },
 
                             weapons: [],

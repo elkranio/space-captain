@@ -62,6 +62,9 @@ export const BRIDGE_EVENT = {
     // стабильной player-ship части.
     PLAYER_SHIP_DASHBOARD_UPDATED: "player_ship_dashboard_updated",
 
+    // View-ready public enemy ship dashboard snapshot.
+    ENEMY_SHIP_DASHBOARD_UPDATED: "enemy_ship_dashboard_updated",
+
     // View-ready Defense Turret missile selector snapshot.
     DEFENSE_TURRET_THREATS_UPDATED: "defense_turret_threats_updated",
 
@@ -446,6 +449,33 @@ export type BridgePlayerShipDashboardUpdatedPayload = {
     // systems view treats omission as an empty full snapshot.
     weapons?: BridgePlayerWeaponDashboardPayload[];
 };
+
+export type BridgeEnemyEquipmentDashboardPayload = {
+    id: string;
+    shortName: string;
+
+    sprite: SpriteEntry;
+    slot: BridgeEquipmentSlotPayload;
+
+    integrity: {
+        current: number;
+        max: number;
+    };
+
+    broken: boolean;
+};
+
+export type BridgeEnemyShipDashboardUpdatedPayload = {
+    actorId: string;
+    displayName: string;
+
+    hull: {
+        current: number;
+        max: number;
+    };
+
+    equipment: BridgeEnemyEquipmentDashboardPayload[];
+} | null;
 
 export type BridgeDefenseTurretThreatPayload = {
     projectileId: string;
@@ -836,6 +866,8 @@ export type BridgeEventPayloadMap = {
     // Player ship status
 
     [BRIDGE_EVENT.PLAYER_SHIP_DASHBOARD_UPDATED]: BridgePlayerShipDashboardUpdatedPayload;
+
+    [BRIDGE_EVENT.ENEMY_SHIP_DASHBOARD_UPDATED]: BridgeEnemyShipDashboardUpdatedPayload;
 
     [BRIDGE_EVENT.DEFENSE_TURRET_THREATS_UPDATED]: BridgeDefenseTurretThreatsUpdatedPayload;
 
