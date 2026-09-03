@@ -32,7 +32,6 @@ export function createAnchorTargetedCommand(
             kind: OFFICER_COMMAND_TARGET_KIND.ANCHOR,
             anchorId: anchor.id,
         },
-
     };
 }
 

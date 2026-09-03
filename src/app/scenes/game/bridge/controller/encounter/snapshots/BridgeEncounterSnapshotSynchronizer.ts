@@ -222,7 +222,6 @@ export default class BridgeEncounterSnapshotSynchronizer {
                     projectileId: projectile.id,
 
                     timeToImpactMs: projectile.timeToImpactMs,
-
                 };
             }),
         );
