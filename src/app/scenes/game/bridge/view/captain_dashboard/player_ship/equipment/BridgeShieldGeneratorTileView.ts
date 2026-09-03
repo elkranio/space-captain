@@ -11,16 +11,10 @@ import type BridgeScene from "../../../../BridgeScene";
 import BridgeEquipmentIntegrityView from "../../BridgeEquipmentIntegrityView";
 import BridgeEquipmentMetricView from "../../BridgeEquipmentMetricView";
 import BridgeEquipmentProgressIconView from "../../BridgeEquipmentProgressIconView";
+import { CAPTAIN_DASHBOARD_LAYOUT } from "../../captain_dashboard_layout";
 import { CAPTAIN_DASHBOARD_STYLE } from "../../captain_dashboard_style";
 
-const TILE = {
-    horizontalPadding: 9,
-
-    titleY: 3,
-
-    statusY: 70,
-
-} as const;
+const TILE = CAPTAIN_DASHBOARD_LAYOUT.equipmentTile;
 
 export const SHIELD_GENERATOR_PROGRESS_MODE = {
     COOLDOWN: "cooldown",
@@ -66,7 +60,7 @@ export default class BridgeShieldGeneratorTileView {
 
         const sprite = EQUIPMENT_SPRITES[EQUIPMENT_SPRITE_ID.SHIELD_GENERATOR];
         const centerX = Math.round(this.width / 2);
-        const centerY = Math.round(height / 2) + 1;
+        const centerY = Math.round(height / 2) + TILE.iconCenterOffsetY;
 
         this.progressIconView = new BridgeEquipmentProgressIconView(
             this.scene,
@@ -85,7 +79,7 @@ export default class BridgeShieldGeneratorTileView {
         this.metricView.setTextColor(this.chromeColor);
 
         this.integrityView = new BridgeEquipmentIntegrityView(this.scene);
-        this.integrityView.setPosition(0, TILE.statusY + 2);
+        this.integrityView.setPosition(0, TILE.statusY + TILE.integrityOffsetY);
         this.integrityView.setRightEdge(this.width - TILE.horizontalPadding);
 
         this.root.add([
