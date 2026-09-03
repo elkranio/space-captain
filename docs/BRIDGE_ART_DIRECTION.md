@@ -174,6 +174,10 @@ HULL
 
 Player uses `GRID | SPECIAL COLUMN`; enemy mirrors it as `SPECIAL COLUMN | GRID`.
 
+The BRIDGE region is confirmed layout geometry and may show compact officer-role state markers. Its gameplay
+targetability, damage model and interaction semantics are **OPEN**; do not infer them from the presence of the visual
+block. HULL is the confirmed explicit ship target surface.
+
 MY SHIP emphasizes controls: slot readiness, cooldown/activity, ammo/resources, integrity and action availability.
 
 ENEMY SHIP emphasizes persistent readable state: Hull, installed slots, integrity/BROKEN state, obvious activity and
@@ -193,8 +197,8 @@ own system selected
 -> target selected
 ```
 
-Prefer spatial selection on already-visible ship slots, the explicit HULL block, BRIDGE block and concrete threats over
-modal UI when it remains clear.
+Prefer spatial selection on already-visible ship slots, the explicit HULL block and concrete threats over modal UI
+when it remains clear. Do not make BRIDGE selectable until its gameplay contract defines what targeting it means.
 
 Use visual grouping and semantic state before adding more labels/frames. Do not add permanent combat-log or target-detail
 panels unless actual play proves the existing surfaces insufficient.

@@ -62,7 +62,7 @@ Keep the current bridge encounter responsibilities explicit rather than hiding t
 
 ```text
 BridgeEncounterController
-    -> owns app-layer encounter interactivity
+    -> owns app-layer encounter interactivity and scene-flow decisions
     -> steps EncounterEngine
     -> persists current snapshot state
     -> syncs current presentation state
@@ -71,7 +71,8 @@ BridgeEncounterController
 
 Supporting boundaries:
 
-- `BridgeEncounterEngineEventHandler` maps one drained engine event to presentation events/effects;
+- `BridgeEncounterEngineEventHandler` maps one drained engine event to presentation events/effects; it does not own
+  encounter interactivity or scene transitions;
 - `BridgeEncounterSnapshotSynchronizer` maps detached current-state snapshots to persistent bridge presentation;
 - `BridgeEncounterPersistenceSynchronizer` persists both continuous snapshot state and structural event outcomes;
 - `EncounterSnapshotReader` is the detached engine read boundary; `EncounterEngine` intentionally exposes granular query
@@ -118,8 +119,11 @@ MY SHIP dashboard | ENEMY SHIP dashboard
 MY SHIP is the primary control surface. ENEMY SHIP is the persistent basic state/target surface. Basic enemy
 Hull/slots/BROKEN state should not require a separate mutable inspection model.
 
-Direct targeting may use visible ship slots or threat cells as interaction surfaces, but the engine still owns command
-availability and exact targets. Views only expose/highlight engine-resolved actions.
+Direct targeting may use visible ship slots, explicit Hull or threat cells as interaction surfaces, but the engine
+still owns command availability and exact targets. Views only expose/highlight engine-resolved actions.
+
+The reserved BRIDGE dashboard region is not automatically a gameplay target. Its damage/target semantics remain undefined
+until a concrete gameplay contract introduces them.
 
 Deeper Science inspection may add presentation-safe information later without replacing or gating the basic enemy board.
 

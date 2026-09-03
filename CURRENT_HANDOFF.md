@@ -10,7 +10,6 @@ Current source of truth:
 ```text
 repository: elkranio/space-captain
 branch: master
-refactor/docs baseline inspected: 9aabc801ef3a72592059d59a39bf922e98ee8a66
 ```
 
 Always re-fetch fresh `master` and the exact touched files before preparing a code patch.
@@ -122,35 +121,31 @@ Current status:
 - MY SHIP standard equipment board is real;
 - the narrow MY SHIP special column exists but BRIDGE/HULL content is still placeholder-only;
 - ENEMY SHIP is not yet rebuilt as the persistent mirrored slot board;
-- the old large threat-action presentation is still the current legacy runtime surface;
-- compact threat monitor migration is still pending;
+- the old large 4x2 threat-action/combat-context view has been removed;
+- the physical right captain screen remains as a blank ENEMY SHIP placeholder;
+- the compact top-center threat monitor is not implemented yet;
+- Defense Turret inline threat selection and combat VFX remain live;
 - `src/app/scenes/game/bridge/debug_view/**` still exists, but `BridgeScene` no longer instantiates the old debug layer.
 
 Strict visual reference:
 
 `docs/reference/combat_bridge_layout_2026-08-25.png`
 
-## Refactor window — COMPLETE
+## Refactor checkpoint — CLOSED
 
-The pre-dashboard cleanup/refactor window is closed.
+The pre-dashboard cleanup/refactor window is complete. Durable ownership details live in `docs/SYSTEM_MAP.md`.
 
-Landed architecture results:
+Current results that matter for the next feature:
 
-- `BridgeEncounterController` is the sole app-layer owner of encounter interactivity;
-- `BridgeEncounterEngineEventHandler` maps one drained engine event at a time and no longer mutates controller state;
-- `BridgeEncounterSnapshotSynchronizer` owns current-state presentation sync; event drain remains explicit in the
-  controller so same-step ordering is visible;
-- `BridgeEncounterPersistenceSynchronizer` keeps event persistence and snapshot persistence distinct because they serve
-  different lifecycle paths;
-- the old broad captain combat-context read model/event is gone;
+- `BridgeEncounterController` owns app-layer encounter interactivity and scene-flow decisions;
+- `BridgeEncounterEngineEventHandler` maps one drained engine event at a time and owns presentation only;
+- the broad captain combat-context read model/event is gone;
 - Defense Turret uses its narrow `DEFENSE_TURRET_THREATS_UPDATED` read path;
-- `AvailableOfficerCommand` carries only `commandId + target`; display labels remain definition-owned;
-- `EncounterSnapshotReader` plus the `EncounterEngine` query façade remain intentionally granular detached read
-  boundaries;
-- the two synchronous internal effects remain synchronous ownership-cycle calls, not an outbox.
+- `AvailableOfficerCommand` is `commandId + target`; display labels remain definition-owned;
+- snapshot, event and persistence boundaries remain intentionally separate where their lifecycle/order differs.
 
-Do not reopen this refactor window merely because a class or switch is large. Refactor only when the next feature exposes
-a concrete ownership/cognitive problem.
+Do not schedule another general refactor pass. Refactor only when a feature exposes a concrete ownership, duplication or
+cognitive-load problem.
 
 ## Immediate next slice — persistent ENEMY SHIP dashboard
 
@@ -206,22 +201,9 @@ other.
 
 ## Working rules for the next atom
 
-Follow `docs/WORKING_RULES.md`.
+Follow `docs/WORKING_RULES.md`; do not duplicate its patch/validation rules here.
 
-In particular:
-
-- Russian, direct, small atoms;
-- discuss ambiguous UX/behavior before implementation;
-- engine owns gameplay legality;
-- views present mapped truth;
-- simple/dumb code over speculative architecture;
-- roughly 120 columns;
-- no pointless primitive ID aliases;
-- re-fetch exact current files before patch generation;
-- prefer `.patch`;
-- user applies, validates, commits and pushes.
-
-Do not touch without a concrete reason:
+Still avoid touching these unrelated holdouts without a concrete reason:
 
 - `src/config/gameConfig.ts`;
 - EndScene console logging;

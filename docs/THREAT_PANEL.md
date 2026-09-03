@@ -1,24 +1,26 @@
 # Space Captain — Threat Presentation
 
-Gameplay legality remains engine-owned. This document describes the landed threat presentation and the confirmed compact
-threat-strip direction. Chassis/slot state and the MY SHIP grid are already implemented; the compact-strip migration
-remains a later presentation slice after the persistent enemy dashboard and direct-target foundations.
+Gameplay legality remains engine-owned. This document describes the confirmed compact threat-strip target and the live
+presentation pieces that must survive until it is implemented.
 
-## Current landed implementation
+The old large 4x2 captain combat-context/threat-action view has been removed. Do not describe or rebuild it as current
+runtime UI.
 
-The current captain combat context still uses:
+## Current runtime state
 
-```text
-THREATS                              HULL x/x  CORE [][][][]
-```
+There is currently no general persistent threat panel in the captain dashboard.
 
-with a 4x2 threat grid.
+Live pieces that remain relevant:
 
-Each concrete runtime threat is one UI cell. The current cells also expose direct mitigation actions such as `[W] HIT`,
-`[E] SHIELD`, `[E] CLEAR` and `[S] PURGE`.
+- concrete combat threats and their engine/read-model lifecycles remain real;
+- `BridgeCombatView` still owns combat VFX;
+- Defense Turret has its own inline Missile selector backed by the narrow
+  `DEFENSE_TURRET_THREATS_UPDATED` read path;
+- tintable Missile / Beam / Mine / SPAM glyph assets remain available;
+- the physical top-center compact threat monitor is not implemented yet.
 
-This implementation remains valid runtime code during the enemy-dashboard/targeting work. Do not treat its layout as the
-target combat UX, and do not migrate it opportunistically inside the first persistent ENEMY SHIP dashboard atom.
+Build the persistent ENEMY SHIP dashboard first. The compact threat monitor is a later presentation slice; do not
+opportunistically recreate the removed 4x2 grid while building the enemy board.
 
 ## Confirmed target layout
 
@@ -45,7 +47,7 @@ Current strict layout reference:
 
 `reference/combat_bridge_layout_2026-08-25.png`
 
-## Threat strip contract
+## Target threat-strip contract
 
 One concrete runtime threat remains one presentation object.
 
@@ -59,9 +61,9 @@ Each compact threat cell should communicate at a glance:
 - terminal danger state;
 - whether that concrete threat is already being handled/targeted.
 
-Threats no longer need permanent mitigation buttons inside the cell.
+Compact threat cells should not carry permanent mitigation buttons.
 
-Instead, a threat cell becomes an interaction target when a selected own system requires that threat. Example:
+A threat cell becomes an interaction target when a selected own system requires that threat. Example:
 
 ```text
 select Defense Turret on MY SHIP
@@ -123,7 +125,7 @@ Shared danger red remains reserved for terminal urgency/timing.
 
 ## Timing language to preserve
 
-The compact strip should preserve the useful semantics already proven by the current grid.
+The compact strip should preserve the useful timing semantics from the removed grid and current engine timing truth.
 
 ### Missile
 
@@ -172,9 +174,9 @@ alone does not communicate who is handling the threat.
 
 ## HULL / CORE ownership
 
-The previous threat-grid header currently carries player HULL / Power Core presentation.
+The removed threat-grid header carried player HULL / Power Core presentation.
 
-In the confirmed dual-dashboard direction, persistent own-ship state belongs naturally to MY SHIP. Do not keep HULL/CORE
-inside the threat strip merely because the old threat header owned them.
+Persistent own-ship state now belongs to MY SHIP. Do not reintroduce HULL/CORE into the compact threat strip merely
+because the removed header once owned them.
 
 The strip's job is immediate threat identity and urgency.

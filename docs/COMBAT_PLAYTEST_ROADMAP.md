@@ -20,8 +20,9 @@ Current landed foundation:
 - MY SHIP equipment placement is authoritative from chassis slots + persistent mounts rather than array/family order;
 - player Beam Cannon now spends shared Power Core when charging begins;
 - the MY SHIP BRIDGE/HULL special column still contains placeholder-only content;
-- the right dashboard and old large threat-action presentation are still legacy/superseded rather than the intended
-  persistent ENEMY SHIP board + compact threat monitor;
+- the physical right captain screen is still a blank ENEMY SHIP placeholder;
+- the old large 4x2 threat-action/combat-context view has been removed; the compact top-center threat monitor is not yet
+  implemented;
 - tintable Missile / Beam / Mine / SPAM threat glyph family is implemented;
 - the cleanup/refactor window is closed: ownership, excessive segmentation, transport/contracts and final dumbification
   were audited without introducing speculative abstractions.
@@ -90,7 +91,39 @@ integrity = 0 -> BROKEN
 
 Hull remains separate. Power Core remains non-breakable/non-targetable.
 
-### 3. Player Beam semantic targeting
+### 3. Persistent dual ship combat board — PARTIAL
+
+Both ships should stay visible during combat:
+
+```text
+LEFT  = MY SHIP
+RIGHT = ENEMY SHIP
+```
+
+MY SHIP continuously exposes installed slots, integrity/BROKEN state, activity/readiness/resources and the systems the
+player can operate.
+
+ENEMY SHIP continuously exposes basic Hull, installed slots, integrity/BROKEN state and obvious activity. Basic enemy
+anatomy must not require opening a separate inspection screen or pausing the fight.
+
+Science may later add deeper decision-changing information; it does not gate the permanent basic enemy board.
+
+The panels should share visual grammar without being forced into identical data density.
+
+Current presentation progress:
+
+- MY SHIP physical dashboard geometry is landed;
+- all seven current standard equipment tiles are landed;
+- equipment titles use catalog `shortName`;
+- the 4x3 grid is populated from authoritative chassis slot/mount coordinates;
+- the narrow MY SHIP BRIDGE/HULL special column is still placeholder-only and does not block the next slice;
+- ENEMY SHIP is not yet rebuilt as the persistent mirrored slot board and is the current next implementation slice.
+
+For the first ENEMY SHIP atom, expose only basic player-knowable state: ship identity, Hull, installed equipment identity
+and integrity/BROKEN state. Do not leak hidden ammo, cooldown, crew-task or decision state merely because the engine owns
+it.
+
+### 4. Player Beam semantic targeting
 
 Replace actor-wide player Beam resolution with a concrete semantic target:
 
@@ -122,45 +155,13 @@ The target is basic readable combat information. Engine command availability rem
 The existing incoming `HULL | DRIVE` Beam target is an early prototype of this model; migrate it only after the shared
 slot target identity is stable rather than creating permanent parallel target systems.
 
-### 4. Shared target model for incoming Beam / Shield
+### 5. Shared target model for incoming Beam / Shield
 
 After the slot target identity is stable, migrate the temporary player-side `HULL | DRIVE` incoming Beam / targeted-Shield
 vocabulary to the same semantic ship-target model where appropriate.
 
 Keep the physical resolution order already proven by the current implementation. Do not create a permanent parallel
 target taxonomy only because the old incoming path landed first.
-
-### 5. Persistent dual ship combat board — PARTIAL
-
-Once slots are real domain state, both ships stay visible during combat:
-
-```text
-LEFT  = MY SHIP
-RIGHT = ENEMY SHIP
-```
-
-MY SHIP continuously exposes installed slots, integrity/BROKEN state, activity/readiness/resources and the systems the
-player can operate.
-
-ENEMY SHIP continuously exposes basic Hull, installed slots, integrity/BROKEN state and obvious activity. Basic enemy
-anatomy must not require opening a separate inspection screen or pausing the fight.
-
-Science may later add deeper decision-changing information; it does not gate the permanent basic enemy board.
-
-The panels should share visual grammar without being forced into identical data density.
-
-Current presentation progress:
-
-- MY SHIP physical dashboard geometry is landed;
-- all seven current standard equipment tiles are landed;
-- equipment titles use catalog `shortName`;
-- the 4x3 grid is populated from authoritative chassis slot/mount coordinates;
-- the narrow MY SHIP BRIDGE/HULL special column is still placeholder-only and does not block the next slice;
-- ENEMY SHIP is not yet rebuilt as the persistent mirrored slot board and is the current next implementation slice.
-
-For the first ENEMY SHIP atom, expose only basic player-knowable state: ship identity, Hull, installed equipment identity
-and integrity/BROKEN state. Do not leak hidden ammo, cooldown, crew-task or decision state merely because the engine owns
-it.
 
 ### 6. Direct targeting + compact threat strip
 
@@ -181,9 +182,9 @@ Target surfaces depend on the selected system:
 
 The engine still owns legality. Views highlight only engine-resolved targets.
 
-Incoming threats move out of the large right-side action grid into a compact, high-priority strip. One concrete threat
-remains one icon/object; independent Missiles/Mines are not aggregated. The strip shows identity and urgency/progress and
-marks threats already being handled.
+The removed large right-side action grid is replaced by a compact, high-priority strip. One concrete threat remains one
+icon/object; independent Missiles/Mines are not aggregated. The strip shows identity and urgency/progress and marks
+threats already being handled.
 
 Threat cells do not carry permanent mitigation buttons. They become target surfaces when the selected player system
 requires a concrete threat.
