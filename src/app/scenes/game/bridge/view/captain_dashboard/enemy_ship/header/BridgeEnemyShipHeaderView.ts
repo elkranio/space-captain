@@ -2,7 +2,6 @@ import {
     CAPTAIN_DASHBOARD_SPRITE_ID,
     CAPTAIN_DASHBOARD_SPRITES,
 } from "../../../../../../../manifests/bridge/captain_dashboard";
-import { FONT_COLOR, FONT_FAMILY, FONT_SIZE } from "../../../../../../../theme/font";
 import type BridgeScene from "../../../../BridgeScene";
 import {
     BRIDGE_EVENT,
@@ -10,10 +9,9 @@ import {
 } from "../../../../events/bridge_event";
 import type BridgeEventBus from "../../../../events/BridgeEventBus";
 import { CAPTAIN_DASHBOARD_STYLE } from "../../captain_dashboard_style";
+import BridgeHullStatusView from "../../BridgeHullStatusView";
 
-const SHIP_NAME = "ENEMY SHIP";
-
-const SHIP_NAME_X = 8;
+const HULL_X = 8;
 
 const POWER_CORE = {
     rightPadding: 12,
@@ -34,9 +32,11 @@ type PowerCoreSegmentView = {
 };
 
 // Top strip for the persistent enemy dashboard.
-// Name is intentionally hardcoded for now; Power Core comes from the current enemy snapshot.
+// HULL and Power Core both come from the current enemy snapshot.
 export default class BridgeEnemyShipHeaderView {
     private readonly root: Phaser.GameObjects.Container;
+
+    private readonly hullView: BridgeHullStatusView;
 
     private readonly powerCoreIcon: Phaser.GameObjects.Image;
 
@@ -52,16 +52,8 @@ export default class BridgeEnemyShipHeaderView {
 
         const centerY = this.height / 2;
 
-        const shipName = this.scene.add
-            .bitmapText(
-                SHIP_NAME_X,
-                centerY,
-                FONT_FAMILY.VGA_8X14,
-                SHIP_NAME,
-                FONT_SIZE.PX_16,
-            )
-            .setOrigin(0, 0.5)
-            .setTint(FONT_COLOR.PRIMARY);
+        this.hullView = new BridgeHullStatusView(this.scene, this.height);
+        this.hullView.setPosition(HULL_X, 0);
 
         const powerCoreIconAsset =
             CAPTAIN_DASHBOARD_SPRITES[CAPTAIN_DASHBOARD_SPRITE_ID.POWER_CORE_ICON];
@@ -88,8 +80,8 @@ export default class BridgeEnemyShipHeaderView {
             .setOrigin(0, 0);
 
         this.root.add([
+            this.hullView.getRoot(),
             this.powerCoreIcon,
-            shipName,
             divider,
         ]);
         this.root.setVisible(false);
@@ -116,6 +108,7 @@ export default class BridgeEnemyShipHeaderView {
             this,
         );
 
+        this.hullView.destroy();
         this.destroyPowerCoreSegments();
         this.root.destroy(true);
     }
@@ -123,11 +116,13 @@ export default class BridgeEnemyShipHeaderView {
     private handleDashboardUpdated(payload: BridgeEnemyShipDashboardUpdatedPayload): void {
         if (!payload) {
             this.root.setVisible(false);
+            this.hullView.clear();
             this.clearPowerCore();
             return;
         }
 
         this.root.setVisible(true);
+        this.hullView.update(payload.hull.current, payload.hull.max);
 
         const powerCore = payload.powerCore;
 

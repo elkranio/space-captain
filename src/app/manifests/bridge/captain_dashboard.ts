@@ -3,6 +3,7 @@ import { DEFAULT_ATLAS_KEY, type SpriteEntry } from "../types";
 export const CAPTAIN_DASHBOARD_SPRITE_ID = {
     SCREEN: "screen",
     POWER_CORE_ICON: "power_core_icon",
+    HULL_ICON: "hull_icon",
 } as const;
 
 export type CaptainDashboardSpriteId =
@@ -17,5 +18,10 @@ export const CAPTAIN_DASHBOARD_SPRITES = {
     [CAPTAIN_DASHBOARD_SPRITE_ID.POWER_CORE_ICON]: {
         atlasKey: DEFAULT_ATLAS_KEY,
         frameKey: "bridge/ui/captain_dashboard/power_core_icon",
+    },
+
+    [CAPTAIN_DASHBOARD_SPRITE_ID.HULL_ICON]: {
+        atlasKey: DEFAULT_ATLAS_KEY,
+        frameKey: "bridge/ui/captain_dashboard/hull_icon",
     },
 } satisfies Record<CaptainDashboardSpriteId, SpriteEntry>;

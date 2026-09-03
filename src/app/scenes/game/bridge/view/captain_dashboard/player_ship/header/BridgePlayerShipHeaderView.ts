@@ -3,16 +3,13 @@ import {
     CAPTAIN_DASHBOARD_SPRITE_ID,
     CAPTAIN_DASHBOARD_SPRITES,
 } from "../../../../../../../manifests/bridge/captain_dashboard";
-import { FONT_COLOR, FONT_FAMILY, FONT_SIZE } from "../../../../../../../theme/font";
 import type BridgeScene from "../../../../BridgeScene";
 import { CAPTAIN_DASHBOARD_STYLE } from "../../captain_dashboard_style";
 import { BRIDGE_EVENT, type BridgePlayerShipDashboardUpdatedPayload } from "../../../../events/bridge_event";
 import type BridgeEventBus from "../../../../events/BridgeEventBus";
+import BridgeHullStatusView from "../../BridgeHullStatusView";
 
-const SHIP_NAME = "USS CAPYBARA";
-
-const SHIP_NAME_X = 8;
-const ESCAPE_X = 112;
+const HULL_X = 8;
 
 const POWER_CORE = {
     rightPadding: 12,
@@ -32,14 +29,12 @@ type PowerCoreSegmentView = {
     fill: Phaser.GameObjects.Rectangle;
 };
 
-// Верхняя полоса player dashboard.
-//
-// На этом проходе:
-// - имя корабля намеренно захардкожено;
-// - ESC только визуальный;
-// - Power Core уже показывает authoritative current/max и recharge progress.
+// Top strip for the player dashboard.
+// HULL shows authoritative HP; Power Core shows charges and recharge progress.
 export default class BridgePlayerShipHeaderView {
     private readonly root: Phaser.GameObjects.Container;
+
+    private readonly hullView: BridgeHullStatusView;
 
     private readonly powerCoreIcon: Phaser.GameObjects.Image;
 
@@ -55,15 +50,8 @@ export default class BridgePlayerShipHeaderView {
 
         const centerY = this.height / 2;
 
-        const shipName = this.scene.add
-            .bitmapText(SHIP_NAME_X, centerY, FONT_FAMILY.VGA_8X14, SHIP_NAME, FONT_SIZE.PX_16)
-            .setOrigin(0, 0.5)
-            .setTint(FONT_COLOR.PRIMARY);
-
-        const escapeLabel = this.scene.add
-            .bitmapText(ESCAPE_X, centerY, FONT_FAMILY.VGA_8X14, "[ESC]", FONT_SIZE.PX_14)
-            .setOrigin(0, 0.5)
-            .setTint(FONT_COLOR.DANGER);
+        this.hullView = new BridgeHullStatusView(this.scene, this.height);
+        this.hullView.setPosition(HULL_X, 0);
 
         const powerCoreIconAsset = CAPTAIN_DASHBOARD_SPRITES[CAPTAIN_DASHBOARD_SPRITE_ID.POWER_CORE_ICON];
 
@@ -80,7 +68,7 @@ export default class BridgePlayerShipHeaderView {
             .rectangle(0, this.height - 1, this.width, 3, CAPTAIN_DASHBOARD_STYLE.header.dividerColor, 1)
             .setOrigin(0, 0);
 
-        this.root.add([shipName, escapeLabel, this.powerCoreIcon, divider]);
+        this.root.add([this.hullView.getRoot(), this.powerCoreIcon, divider]);
 
         this.eventBus.on(BRIDGE_EVENT.PLAYER_SHIP_DASHBOARD_UPDATED, this.handleDashboardUpdated, this);
     }
@@ -96,11 +84,20 @@ export default class BridgePlayerShipHeaderView {
     public destroy(): void {
         this.eventBus.off(BRIDGE_EVENT.PLAYER_SHIP_DASHBOARD_UPDATED, this.handleDashboardUpdated, this);
 
+        this.hullView.destroy();
         this.destroyPowerCoreSegments();
         this.root.destroy(true);
     }
 
     private handleDashboardUpdated(payload: BridgePlayerShipDashboardUpdatedPayload): void {
+        const hull = payload.status?.hull;
+
+        if (hull) {
+            this.hullView.update(hull.current, hull.max);
+        } else {
+            this.hullView.clear();
+        }
+
         const powerCore = payload.status?.powerCore;
 
         if (!powerCore) {

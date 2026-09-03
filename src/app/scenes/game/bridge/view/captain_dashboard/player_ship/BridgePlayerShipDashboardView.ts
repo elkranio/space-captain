@@ -7,7 +7,6 @@ import {
 import BridgePlayerShipEquipmentGridView from "./equipment/BridgePlayerShipEquipmentGridView";
 import BridgePlayerShipHeaderView from "./header/BridgePlayerShipHeaderView";
 import BridgeDefenseTurretInteractionView from "./interaction/defense_turret/BridgeDefenseTurretInteractionView";
-import BridgePlayerShipSpecialColumnView from "./special/BridgePlayerShipSpecialColumnView";
 
 const HEADER = {
     sidePadding: 12,
@@ -20,24 +19,18 @@ const EQUIPMENT_GRID = {
     y: 50,
 
     rightPadding: 16,
-    specialColumnWidth: 48,
-    specialColumnGap: 4,
-
     bottomPadding: 18,
 } as const;
 
 // Левая половина captain dashboard.
 //
-// Header и equipment grid уже используют финальную полноразмерную геометрию.
-// Справа от 4x3 grid HULL показывает authoritative HP, BRIDGE пока остается placeholder.
+// HULL now lives in the header; the 4x3 equipment grid uses the full content width.
 export default class BridgePlayerShipDashboardView {
     private readonly root: Phaser.GameObjects.Container;
 
     private readonly headerView: BridgePlayerShipHeaderView;
 
     private readonly equipmentGridView: BridgePlayerShipEquipmentGridView;
-
-    private readonly specialColumnView: BridgePlayerShipSpecialColumnView;
 
     private readonly defenseTurretInteractionView: BridgeDefenseTurretInteractionView;
 
@@ -59,8 +52,6 @@ export default class BridgePlayerShipDashboardView {
         const equipmentGridWidth =
             this.width -
             EQUIPMENT_GRID.x -
-            EQUIPMENT_GRID.specialColumnGap -
-            EQUIPMENT_GRID.specialColumnWidth -
             EQUIPMENT_GRID.rightPadding;
 
         const equipmentGridHeight = this.height - EQUIPMENT_GRID.y - EQUIPMENT_GRID.bottomPadding;
@@ -73,17 +64,6 @@ export default class BridgePlayerShipDashboardView {
             () => this.openDefenseTurretInteraction(),
         );
         this.equipmentGridView.setPosition(EQUIPMENT_GRID.x, EQUIPMENT_GRID.y);
-
-        this.specialColumnView = new BridgePlayerShipSpecialColumnView(
-            scene,
-            eventBus,
-            EQUIPMENT_GRID.specialColumnWidth,
-            equipmentGridHeight,
-        );
-        this.specialColumnView.setPosition(
-            EQUIPMENT_GRID.x + equipmentGridWidth + EQUIPMENT_GRID.specialColumnGap,
-            EQUIPMENT_GRID.y,
-        );
 
         const interactionWidth = this.width - EQUIPMENT_GRID.x - EQUIPMENT_GRID.rightPadding;
 
@@ -100,7 +80,6 @@ export default class BridgePlayerShipDashboardView {
         this.root.add([
             this.headerView.getRoot(),
             this.equipmentGridView.getRoot(),
-            this.specialColumnView.getRoot(),
             this.defenseTurretInteractionView.getRoot(),
         ]);
 
@@ -134,7 +113,6 @@ export default class BridgePlayerShipDashboardView {
         );
 
         this.defenseTurretInteractionView.destroy();
-        this.specialColumnView.destroy();
         this.equipmentGridView.destroy();
         this.headerView.destroy();
         this.root.destroy(false);
@@ -143,7 +121,6 @@ export default class BridgePlayerShipDashboardView {
     private openDefenseTurretInteraction(): void {
         this.defenseTurretInteractionOpen = true;
         this.equipmentGridView.getRoot().setVisible(false);
-        this.specialColumnView.getRoot().setVisible(false);
         this.defenseTurretInteractionView.open();
     }
 
@@ -151,7 +128,6 @@ export default class BridgePlayerShipDashboardView {
         this.defenseTurretInteractionOpen = false;
         this.defenseTurretInteractionView.close();
         this.equipmentGridView.getRoot().setVisible(true);
-        this.specialColumnView.getRoot().setVisible(true);
     }
 
     private handleDashboardUpdated(

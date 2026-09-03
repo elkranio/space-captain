@@ -2,7 +2,6 @@ import type BridgeScene from "../../../BridgeScene";
 import type BridgeEventBus from "../../../events/BridgeEventBus";
 import BridgeEnemyShipEquipmentGridView from "./equipment/BridgeEnemyShipEquipmentGridView";
 import BridgeEnemyShipHeaderView from "./header/BridgeEnemyShipHeaderView";
-import BridgeEnemyShipSpecialColumnView from "./special/BridgeEnemyShipSpecialColumnView";
 
 const HEADER = {
     sidePadding: 12,
@@ -14,21 +13,16 @@ const EQUIPMENT_GRID = {
     leftPadding: 16,
     y: 50,
 
-    specialColumnWidth: 48,
-    specialColumnGap: 4,
-
     rightPadding: 16,
     bottomPadding: 18,
 } as const;
 
 // Right half of the captain dashboard.
-// Header follows player grammar; HULL/BRIDGE mirror the player special column on the left.
+// HULL now lives in the header; the mirrored 4x3 grid uses the full content width.
 export default class BridgeEnemyShipDashboardView {
     private readonly root: Phaser.GameObjects.Container;
 
     private readonly headerView: BridgeEnemyShipHeaderView;
-
-    private readonly specialColumnView: BridgeEnemyShipSpecialColumnView;
 
     private readonly equipmentGridView: BridgeEnemyShipEquipmentGridView;
 
@@ -50,31 +44,15 @@ export default class BridgeEnemyShipDashboardView {
         );
         this.headerView.setPosition(HEADER.sidePadding, HEADER.y);
 
-        const equipmentGridX =
-            EQUIPMENT_GRID.leftPadding +
-            EQUIPMENT_GRID.specialColumnWidth +
-            EQUIPMENT_GRID.specialColumnGap;
-
         const equipmentGridWidth =
             this.width -
-            equipmentGridX -
+            EQUIPMENT_GRID.leftPadding -
             EQUIPMENT_GRID.rightPadding;
 
         const equipmentGridHeight =
             this.height -
             EQUIPMENT_GRID.y -
             EQUIPMENT_GRID.bottomPadding;
-
-        this.specialColumnView = new BridgeEnemyShipSpecialColumnView(
-            scene,
-            eventBus,
-            EQUIPMENT_GRID.specialColumnWidth,
-            equipmentGridHeight,
-        );
-        this.specialColumnView.setPosition(
-            EQUIPMENT_GRID.leftPadding,
-            EQUIPMENT_GRID.y,
-        );
 
         this.equipmentGridView = new BridgeEnemyShipEquipmentGridView(
             scene,
@@ -84,13 +62,12 @@ export default class BridgeEnemyShipDashboardView {
         );
 
         this.equipmentGridView.setPosition(
-            equipmentGridX,
+            EQUIPMENT_GRID.leftPadding,
             EQUIPMENT_GRID.y,
         );
 
         this.root.add([
             this.headerView.getRoot(),
-            this.specialColumnView.getRoot(),
             this.equipmentGridView.getRoot(),
         ]);
     }
@@ -112,7 +89,6 @@ export default class BridgeEnemyShipDashboardView {
 
     public destroy(): void {
         this.equipmentGridView.destroy();
-        this.specialColumnView.destroy();
         this.headerView.destroy();
         this.root.destroy(false);
     }
