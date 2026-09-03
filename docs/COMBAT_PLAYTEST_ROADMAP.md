@@ -23,7 +23,8 @@ Current landed foundation:
 - the right dashboard and old large threat-action presentation are still legacy/superseded rather than the intended
   persistent ENEMY SHIP board + compact threat monitor;
 - tintable Missile / Beam / Mine / SPAM threat glyph family is implemented;
-- the four-pass stale/transport/structure/cognitive cleanup audit is closed.
+- the cleanup/refactor window is closed: ownership, excessive segmentation, transport/contracts and final dumbification
+  were audited without introducing speculative abstractions.
 
 The intended mechanics reconciliation is complete. `GAME_DESIGN.md` is the canonical design target;
 `GAMEPLAY_CONTRACTS.md` remains current runtime truth.
@@ -39,20 +40,21 @@ LANDED: chassis-owned ship slots + persistent loadout mounts
 -> LANDED: new bridge shell + MY SHIP dashboard geometry
 -> LANDED: all seven standard MY SHIP equipment tiles
 -> LANDED: authoritative chassis-slot/mount placement for the 4x3 grid
--> NOW: real BRIDGE special-column state
--> HULL special-column state / target surface
--> persistent ENEMY SHIP slot board
--> compact top-center threat monitor migration
--> finish BROKEN / repair operational behavior required by the board
+-> LANDED: cleanup/refactor window before the enemy dashboard
+-> NOW: persistent ENEMY SHIP slot board from presentation-safe enemy truth
+-> inspect current Beam engine/read-model against real dashboard slots
 -> player Beam HULL | SLOT direct targeting on the real dashboard
 -> shared incoming Beam / targeted-Shield slot target model
+-> compact top-center threat monitor migration
+-> finish BROKEN / repair operational behavior exposed by the board
 -> weak-player vs weak-enemy timing/balance smoke
 -> Science tactical-information pass
 -> deepen enemy targeted Shield behavior as needed
 ```
 
-Precision targeting intentionally moved **after** the combat-board prototype. The target contract should be built against
-the actual visible HULL / BRIDGE / equipment-slot surfaces rather than the superseded dashboard.
+Precision targeting intentionally follows the persistent enemy-board atom. First establish the real visible enemy
+Hull/equipment surfaces from presentation-safe truth, then inspect and extend the Beam target contract against those
+surfaces instead of designing another temporary targeting UI.
 
 Current strict layout reference:
 
@@ -153,8 +155,12 @@ Current presentation progress:
 - all seven current standard equipment tiles are landed;
 - equipment titles use catalog `shortName`;
 - the 4x3 grid is populated from authoritative chassis slot/mount coordinates;
-- the narrow BRIDGE/HULL special column is still placeholder-only;
-- ENEMY SHIP is not yet rebuilt as the persistent mirrored slot board.
+- the narrow MY SHIP BRIDGE/HULL special column is still placeholder-only and does not block the next slice;
+- ENEMY SHIP is not yet rebuilt as the persistent mirrored slot board and is the current next implementation slice.
+
+For the first ENEMY SHIP atom, expose only basic player-knowable state: ship identity, Hull, installed equipment identity
+and integrity/BROKEN state. Do not leak hidden ammo, cooldown, crew-task or decision state merely because the engine owns
+it.
 
 ### 6. Direct targeting + compact threat strip
 

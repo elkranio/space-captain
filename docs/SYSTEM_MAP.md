@@ -56,6 +56,33 @@ Controllers/mappers may:
 
 They must not recreate gameplay legality, cooldowns, hit/miss rules or hidden information.
 
+### Current encounter orchestration
+
+Keep the current bridge encounter responsibilities explicit rather than hiding them behind one generic sync call:
+
+```text
+BridgeEncounterController
+    -> owns app-layer encounter interactivity
+    -> steps EncounterEngine
+    -> persists current snapshot state
+    -> syncs current presentation state
+    -> drains one-shot engine events in explicit order
+```
+
+Supporting boundaries:
+
+- `BridgeEncounterEngineEventHandler` maps one drained engine event to presentation events/effects;
+- `BridgeEncounterSnapshotSynchronizer` maps detached current-state snapshots to persistent bridge presentation;
+- `BridgeEncounterPersistenceSynchronizer` persists both continuous snapshot state and structural event outcomes;
+- `EncounterSnapshotReader` is the detached engine read boundary; `EncounterEngine` intentionally exposes granular query
+  façade methods rather than forcing every caller through one giant presentation snapshot.
+
+Do not merge these only to reduce file/class count. Their split is useful because event ordering, snapshot truth and
+persistence lifecycle are different contracts.
+
+The encounter internal-effect sink is also intentionally **synchronous**, not an outbox. It exists only for immediate
+engine ownership cycles whose result/order matters at the call site.
+
 ## Phaser views
 
 Views own visual objects, layout, animation and input surfaces.

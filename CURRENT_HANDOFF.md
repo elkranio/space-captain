@@ -10,7 +10,7 @@ Current source of truth:
 ```text
 repository: elkranio/space-captain
 branch: master
-last inspected before this docs cleanup: ba555b21f9a434b39988e4d6929287f67e981a9c
+refactor/docs baseline inspected: 9aabc801ef3a72592059d59a39bf922e98ee8a66
 ```
 
 Always re-fetch fresh `master` and the exact touched files before preparing a code patch.
@@ -130,59 +130,58 @@ Strict visual reference:
 
 `docs/reference/combat_bridge_layout_2026-08-25.png`
 
-## Immediate next slice — BRIDGE, then HULL
+## Refactor window — COMPLETE
 
-Do not start another standard equipment-tile pass.
+The pre-dashboard cleanup/refactor window is closed.
 
-The next design/implementation boundary is the MY SHIP special column:
+Landed architecture results:
 
-```text
-BRIDGE
-HULL
-```
+- `BridgeEncounterController` is the sole app-layer owner of encounter interactivity;
+- `BridgeEncounterEngineEventHandler` maps one drained engine event at a time and no longer mutates controller state;
+- `BridgeEncounterSnapshotSynchronizer` owns current-state presentation sync; event drain remains explicit in the
+  controller so same-step ordering is visible;
+- `BridgeEncounterPersistenceSynchronizer` keeps event persistence and snapshot persistence distinct because they serve
+  different lifecycle paths;
+- the old broad captain combat-context read model/event is gone;
+- Defense Turret uses its narrow `DEFENSE_TURRET_THREATS_UPDATED` read path;
+- `AvailableOfficerCommand` carries only `commandId + target`; display labels remain definition-owned;
+- `EncounterSnapshotReader` plus the `EncounterEngine` query façade remain intentionally granular detached read
+  boundaries;
+- the two synchronous internal effects remain synchronous ownership-cycle calls, not an outbox.
 
-These are not ordinary equipment tiles.
+Do not reopen this refactor window merely because a class or switch is large. Refactor only when the next feature exposes
+a concrete ownership/cognitive problem.
 
-Before coding BRIDGE, inspect the fresh dashboard/chassis/runtime code and settle the exact contract with the user.
+## Immediate next slice — persistent ENEMY SHIP dashboard
 
-### BRIDGE questions still open
+Do not block the enemy board on unfinished MY SHIP BRIDGE/HULL semantics.
 
-Decide deliberately:
+Build the persistent right-side enemy dashboard first, using current encounter-safe read truth:
 
-- what BRIDGE always shows;
-- whether BRIDGE is a targetable semantic ship node;
-- what damage/state it would own if targetable;
-- whether its four role markers are only officer state or part of a deeper bridge-damage mechanic;
-- what information is permanent versus tooltip-only.
+- one enemy ship at a time;
+- enemy ship name in the header;
+- enemy Power Core may be presented separately from the equipment grid;
+- visible basic enemy Hull state;
+- visible installed equipment slots with type/name/icon/integrity/BROKEN state;
+- no hidden ammo, cooldown, internal crew-task or decision data unless a future Science mechanic explicitly reveals it.
 
-Do not invent bridge damage merely because the visual region exists.
+The dashboard is a stable information surface first and a direct-target surface second. Do not invent Beam targeting inside
+the dashboard view before the engine target contract is inspected.
 
-### HULL boundary
+MY SHIP BRIDGE/HULL special-column semantics remain unresolved follow-up work. Preserve the existing 4x3 grid and do not
+invent bridge damage merely because the visual region exists.
 
-HULL is ship/chassis state, not equipment.
-
-Preserve:
-
-- one explicit Hull target surface;
-- visible Hull HP;
-- no fake normal equipment `HULL` slot;
-- future direct targeting should use the already-visible Hull surface.
-
-The exact relationship between the narrow HULL region and a larger selectable chassis/backplate can be refined during the
-HULL atom, but the existing 4x3 equipment grid must remain intact.
-
-## Combat order after BRIDGE/HULL
+## Combat order from here
 
 Current direction:
 
 ```text
-BRIDGE special state
--> HULL special state / target surface
--> persistent ENEMY SHIP slot board
+persistent ENEMY SHIP slot board
+-> inspect current Beam engine/read-model against real dashboard slots
+-> player Beam HULL | SLOT(slotId) targeting through the dashboard
+-> migrate/refine shared incoming Beam / targeted-Shield target vocabulary
 -> compact top-center threat monitor migration
--> finish shared BROKEN gating + Engineer repair needed by the board
--> player Beam HULL | SLOT(slotId) targeting
--> shared incoming Beam / targeted-Shield slot target model
+-> finish shared BROKEN gating + Engineer repair where the board exposes missing behavior
 -> first weak-player vs weak-enemy timing/balance smoke
 -> Science tactical-information pass
 ```
@@ -231,7 +230,8 @@ Do not touch without a concrete reason:
 
 ## Next-chat continuation
 
-Read this file, fetch fresh `master`, inspect the current player dashboard special-column code and the BRIDGE-related
-runtime model.
+Read this file, fetch fresh `master`, then inspect the current right-dashboard presentation code plus the engine
+presentation/read-model data available for the current enemy ship.
 
-Then ACK and discuss **BRIDGE** first.
+Start with the **persistent ENEMY SHIP dashboard**. Keep Beam targeting out of the first dashboard atom unless the current
+code proves that target identity must be introduced at the same boundary.

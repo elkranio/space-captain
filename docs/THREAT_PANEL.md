@@ -1,7 +1,8 @@
 # Space Captain — Threat Presentation
 
-Gameplay legality remains engine-owned. This document describes the landed threat presentation and the confirmed combat
-UI direction that will replace its large action-grid role after chassis/slot state is implemented.
+Gameplay legality remains engine-owned. This document describes the landed threat presentation and the confirmed compact
+threat-strip direction. Chassis/slot state and the MY SHIP grid are already implemented; the compact-strip migration
+remains a later presentation slice after the persistent enemy dashboard and direct-target foundations.
 
 ## Current landed implementation
 
@@ -16,10 +17,10 @@ with a 4x2 threat grid.
 Each concrete runtime threat is one UI cell. The current cells also expose direct mitigation actions such as `[W] HIT`,
 `[E] SHIELD`, `[E] CLEAR` and `[S] PURGE`.
 
-This implementation remains valid runtime code until the slot/dashboard slice replaces it. Do not treat its layout as
-the target combat UX.
+This implementation remains valid runtime code during the enemy-dashboard/targeting work. Do not treat its layout as the
+target combat UX, and do not migrate it opportunistically inside the first persistent ENEMY SHIP dashboard atom.
 
-## Confirmed next layout
+## Confirmed target layout
 
 The combat board should use three persistent information zones:
 
