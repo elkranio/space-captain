@@ -1,6 +1,6 @@
 // Read-only equipment tile used only by the persistent enemy dashboard.
 import type { SpriteEntry } from "../../../../../../../manifests/types";
-import { FONT_COLOR, FONT_FAMILY, FONT_SIZE } from "../../../../../../../theme/font";
+import { FONT_FAMILY, FONT_SIZE } from "../../../../../../../theme/font";
 import type BridgeScene from "../../../../BridgeScene";
 import type { BridgeEnemyEquipmentDashboardPayload } from "../../../../events/bridge_event";
 import { CAPTAIN_DASHBOARD_STYLE } from "../../captain_dashboard_style";
@@ -9,8 +9,8 @@ const TILE = {
     horizontalPadding: 9,
     titleY: 3,
 
-    integrityPipSize: 8,
-    integrityPipGap: 3,
+    integrityPipSize: 6,
+    integrityPipGap: 2,
     integrityY: 72,
     stateBottomPadding: 10,
 } as const;
@@ -43,7 +43,7 @@ export default class BridgeEnemyEquipmentTileView {
                 FONT_SIZE.PX_20,
             )
             .setOrigin(0, 0)
-            .setTint(FONT_COLOR.PRIMARY);
+            .setTint(CAPTAIN_DASHBOARD_STYLE.equipmentProgress.readyColor);
 
         this.icon = this.scene.add
             .image(
@@ -86,7 +86,7 @@ export default class BridgeEnemyEquipmentTileView {
     public update(payload: BridgeEnemyEquipmentDashboardPayload): void {
         const chromeColor = payload.broken
             ? CAPTAIN_DASHBOARD_STYLE.equipmentProgress.repairColor
-            : FONT_COLOR.PRIMARY;
+            : CAPTAIN_DASHBOARD_STYLE.equipmentProgress.readyColor;
 
         this.titleText
             .setText(payload.shortName)
@@ -130,7 +130,7 @@ export default class BridgeEnemyEquipmentTileView {
         const filledCount = Math.max(0, Math.min(current, max));
         const borderColor = broken
             ? CAPTAIN_DASHBOARD_STYLE.equipmentProgress.repairColor
-            : FONT_COLOR.WHITE;
+            : CAPTAIN_DASHBOARD_STYLE.equipmentIntegrity.borderColor;
 
         for (let index = 0; index < max; index += 1) {
             const x = startX + index * (pipSize + gap);
@@ -143,7 +143,7 @@ export default class BridgeEnemyEquipmentTileView {
                     pipSize,
                     pipSize,
                     filled
-                        ? FONT_COLOR.WHITE
+                        ? borderColor
                         : CAPTAIN_DASHBOARD_STYLE.equipmentIntegrity.emptyColor,
                     1,
                 )

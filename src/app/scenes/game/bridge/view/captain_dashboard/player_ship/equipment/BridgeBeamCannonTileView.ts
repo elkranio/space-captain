@@ -24,8 +24,8 @@ const TILE = {
     powerTextOffsetY: -4,
     powerTextGap: -2,
 
-    integrityPipSize: 8,
-    integrityPipGap: 3,
+    integrityPipSize: 6,
+    integrityPipGap: 2,
 
     hoverTextGap: 6,
     hoverHeaderHeight: 22,
@@ -77,7 +77,8 @@ export default class BridgeBeamCannonTileView {
 
     private readonly hitArea: Phaser.GameObjects.Zone;
 
-    private chromeColor: number = FONT_COLOR.PRIMARY;
+    private chromeColor: number =
+        CAPTAIN_DASHBOARD_STYLE.equipmentProgress.readyColor;
 
     private integrityCurrent = 0;
 
@@ -268,9 +269,11 @@ export default class BridgeBeamCannonTileView {
     }
 
     public resetProgress(): void {
-        this.baseIcon.setTint(CAPTAIN_DASHBOARD_STYLE.equipmentProgress.readyColor);
+        const readyColor = CAPTAIN_DASHBOARD_STYLE.equipmentProgress.readyColor;
+
+        this.baseIcon.setTint(readyColor);
         this.progressVisible = false;
-        this.setChromeColor(FONT_COLOR.PRIMARY);
+        this.setChromeColor(readyColor);
         this.renderHover();
     }
 

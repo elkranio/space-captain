@@ -7,7 +7,7 @@ import {
     MICRO_ICON_ID,
     MICRO_ICONS,
 } from "../../../../../../../manifests/micro_icons";
-import { FONT_COLOR, FONT_FAMILY, FONT_SIZE } from "../../../../../../../theme/font";
+import { FONT_FAMILY, FONT_SIZE } from "../../../../../../../theme/font";
 import type BridgeScene from "../../../../BridgeScene";
 import { CAPTAIN_DASHBOARD_STYLE } from "../../captain_dashboard_style";
 
@@ -23,8 +23,8 @@ const TILE = {
     powerTextOffsetY: -4,
     powerTextGap: -2,
 
-    integrityPipSize: 8,
-    integrityPipGap: 3,
+    integrityPipSize: 6,
+    integrityPipGap: 2,
 } as const;
 
 // EVADE execution remains outside this presentation-only tile for now.
@@ -42,7 +42,8 @@ export default class BridgeDriveTileView {
 
     private readonly integrityRoot: Phaser.GameObjects.Container;
 
-    private chromeColor: number = FONT_COLOR.PRIMARY;
+    private chromeColor: number =
+        CAPTAIN_DASHBOARD_STYLE.equipmentProgress.readyColor;
 
     private integrityCurrent = 0;
 
@@ -139,8 +140,10 @@ export default class BridgeDriveTileView {
     }
 
     public resetState(): void {
-        this.icon.setTint(CAPTAIN_DASHBOARD_STYLE.equipmentProgress.readyColor);
-        this.setChromeColor(FONT_COLOR.PRIMARY);
+        const readyColor = CAPTAIN_DASHBOARD_STYLE.equipmentProgress.readyColor;
+
+        this.icon.setTint(readyColor);
+        this.setChromeColor(readyColor);
     }
 
     public destroy(): void {

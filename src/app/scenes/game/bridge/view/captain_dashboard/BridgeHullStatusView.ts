@@ -36,10 +36,8 @@ export default class BridgeHullStatusView {
             .setOrigin(0, 0.5);
 
         this.pipStrip = new BridgePipStripView(this.scene, {
-            filledColor:
-                CAPTAIN_DASHBOARD_STYLE.equipmentIntegrity.filledColor,
-            emptyBorderColor:
-                CAPTAIN_DASHBOARD_STYLE.equipmentIntegrity.borderColor,
+            filledColor: CAPTAIN_DASHBOARD_STYLE.hull.filledColor,
+            emptyBorderColor: CAPTAIN_DASHBOARD_STYLE.hull.borderColor,
         });
         this.pipStrip.setPosition(
             this.icon.width + HULL.iconGap,

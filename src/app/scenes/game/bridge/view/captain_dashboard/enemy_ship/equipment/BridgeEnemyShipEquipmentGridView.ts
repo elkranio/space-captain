@@ -5,7 +5,7 @@ import {
     type BridgeEnemyShipDashboardUpdatedPayload,
     type BridgeEquipmentSlotPayload,
 } from "../../../../events/bridge_event";
-import { CAPTAIN_DASHBOARD_STYLE } from "../../captain_dashboard_style";
+import BridgeEquipmentSlotChromeView from "../../BridgeEquipmentSlotChromeView";
 import BridgeEnemyEquipmentTileView from "./BridgeEnemyEquipmentTileView";
 
 const GRID = {
@@ -47,22 +47,14 @@ export default class BridgeEnemyShipEquipmentGridView {
                 const x = column * (this.slotWidth + GRID.columnGap);
                 const y = row * (this.slotHeight + GRID.rowGap);
 
-                const slot = this.scene.add
-                    .rectangle(
-                        x,
-                        y,
-                        this.slotWidth,
-                        this.slotHeight,
-                        CAPTAIN_DASHBOARD_STYLE.equipmentSlot.backgroundColor,
-                        CAPTAIN_DASHBOARD_STYLE.equipmentSlot.backgroundAlpha,
-                    )
-                    .setOrigin(0, 0)
-                    .setStrokeStyle(
-                        CAPTAIN_DASHBOARD_STYLE.equipmentSlot.borderThickness,
-                        CAPTAIN_DASHBOARD_STYLE.equipmentSlot.borderColor,
-                    );
+                const slot = new BridgeEquipmentSlotChromeView(
+                    this.scene,
+                    this.slotWidth,
+                    this.slotHeight,
+                );
+                slot.setPosition(x, y);
 
-                this.root.add(slot);
+                this.root.add(slot.getRoot());
             }
         }
 

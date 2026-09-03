@@ -17,22 +17,29 @@ export const CAPTAIN_DASHBOARD_STYLE = {
 
     equipmentSlot: {
         backgroundColor: 0x0b1621,
-        backgroundAlpha: 0.86,
+        backgroundAlpha: 0.72,
 
-        borderColor: 0x31465b,
+        borderColor: 0x315f7a,
+        borderAlpha: 0.62,
         borderThickness: 1,
+        cornerCut: 6,
     },
 
     equipmentProgress: {
-        readyColor: 0xffffff,
+        readyColor: 0x69bff2,
         cooldownColor: 0x315f7a,
         repairColor: 0xff4d4d,
         activityColor: 0xea9e3e,
     },
 
     equipmentIntegrity: {
-        filledColor: 0x71c651,
+        filledColor: 0x69bff2,
         emptyColor: 0x07121e,
+        borderColor: 0x69bff2,
+    },
+
+    hull: {
+        filledColor: 0x71c651,
         borderColor: 0x71c651,
     },
 

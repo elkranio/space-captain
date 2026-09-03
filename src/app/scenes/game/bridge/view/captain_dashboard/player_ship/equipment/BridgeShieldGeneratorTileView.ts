@@ -23,8 +23,8 @@ const TILE = {
     powerTextOffsetY: -4,
     powerTextGap: -2,
 
-    integrityPipSize: 8,
-    integrityPipGap: 3,
+    integrityPipSize: 6,
+    integrityPipGap: 2,
 } as const;
 
 export const SHIELD_GENERATOR_PROGRESS_MODE = {
@@ -53,7 +53,8 @@ export default class BridgeShieldGeneratorTileView {
 
     private readonly integrityRoot: Phaser.GameObjects.Container;
 
-    private chromeColor: number = FONT_COLOR.PRIMARY;
+    private chromeColor: number =
+        CAPTAIN_DASHBOARD_STYLE.equipmentProgress.readyColor;
 
     private integrityCurrent = 0;
 
@@ -203,10 +204,12 @@ export default class BridgeShieldGeneratorTileView {
     }
 
     public resetProgress(): void {
-        this.baseIcon.setTint(CAPTAIN_DASHBOARD_STYLE.equipmentProgress.readyColor);
+        const readyColor = CAPTAIN_DASHBOARD_STYLE.equipmentProgress.readyColor;
+
+        this.baseIcon.setTint(readyColor);
         this.progressVisible = false;
         this.progressIcon.setVisible(false);
-        this.setChromeColor(FONT_COLOR.PRIMARY);
+        this.setChromeColor(readyColor);
     }
 
     public destroy(): void {
