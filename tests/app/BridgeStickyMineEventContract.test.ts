@@ -20,11 +20,16 @@ import {
     COMBAT_TARGET_KIND,
 } from '../../src/engine/encounter/model/combat';
 import {
+    ENCOUNTER_OFFICER_COMMAND_ID,
+} from '../../src/engine/encounter/model/command';
+import {
     ENCOUNTER_EVENT,
     OFFICER_TASK_OUTCOME,
     OFFICER_TASK_RESULT_KIND,
-    type EncounterEvent,
 } from '../../src/engine/encounter/model/event';
+import {
+    OFFICER_TASK_KIND,
+} from '../../src/engine/encounter/model/officer_task';
 
 describe('Bridge sticky-mine event contract', () => {
     it('maps attach, clear and detonation to bridge lifecycle', () => {
@@ -57,7 +62,28 @@ describe('Bridge sticky-mine event contract', () => {
                         .OFFICER_TASK_ENDED,
 
                 task: {
+                    id: 'task_clear_mine_1',
+
+                    kind:
+                        OFFICER_TASK_KIND
+                            .CLEAR_STICKY_MINE,
+
                     role: OFFICER_ROLE.SCIENCE,
+
+                    sourceCommandId:
+                        ENCOUNTER_OFFICER_COMMAND_ID
+                            .CLEAR_STICKY_MINE,
+
+                    mineId: 'mine_1',
+
+                    label: 'CLEAR MINE',
+                    showProgress: true,
+
+                    durationMs: 3000,
+                    elapsedMs: 3000,
+
+                    canBeCancelledByPlayer: true,
+                    canBeInterruptedByDamage: true,
                 },
 
                 outcome:
