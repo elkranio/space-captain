@@ -8,7 +8,8 @@ export const HEADER_STATUS_PIP = {
 
 export type BridgePipStripPalette = {
     filledColor: number;
-    emptyBorderColor: number;
+    emptyColor: number;
+    emptyAlpha: number;
     partialColor?: number;
 };
 
@@ -18,7 +19,7 @@ type BridgePipView = {
 };
 
 // Dumb reusable segmented value view.
-// Full = solid block, empty = outline, optional partial = outline + bottom-up fill.
+// Full = solid block, empty = muted block, optional partial = bottom-up fill.
 export default class BridgePipStripView {
     private readonly root: Phaser.GameObjects.Container;
 
@@ -133,11 +134,10 @@ export default class BridgePipStripView {
                     0,
                     HEADER_STATUS_PIP.width,
                     HEADER_STATUS_PIP.height,
-                    0x000000,
-                    0,
+                    this.palette.emptyColor,
+                    this.palette.emptyAlpha,
                 )
-                .setOrigin(0, 0)
-                .setStrokeStyle(1, this.palette.emptyBorderColor);
+                .setOrigin(0, 0);
 
             const fill = this.scene.add
                 .rectangle(

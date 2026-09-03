@@ -271,11 +271,11 @@ export default class BridgeStickyMineDispenserTileView {
 
         const totalWidth = this.integrityMax * TILE.integrityPipSize + (this.integrityMax - 1) * TILE.integrityPipGap;
         const startX = this.width - TILE.horizontalPadding - totalWidth;
-        const emptyColor = 0x0b1621;
         const integrityColor =
             this.integrityCurrent <= 0
                 ? CAPTAIN_DASHBOARD_STYLE.equipmentProgress.repairColor
                 : CAPTAIN_DASHBOARD_STYLE.equipmentIntegrity.filledColor;
+        const emptyAlpha = CAPTAIN_DASHBOARD_STYLE.equipmentIntegrity.emptyAlpha;
 
         for (let index = 0; index < this.integrityMax; index += 1) {
             const filled = index < this.integrityCurrent;
@@ -287,11 +287,10 @@ export default class BridgeStickyMineDispenserTileView {
                     TILE.statusY + 2,
                     TILE.integrityPipSize,
                     TILE.integrityPipSize,
-                    filled ? integrityColor : emptyColor,
-                    1,
+                    integrityColor,
+                    filled ? 1 : emptyAlpha,
                 )
-                .setOrigin(0, 0)
-                .setStrokeStyle(1, integrityColor);
+                .setOrigin(0, 0);
 
             this.integrityRoot.add(pip);
         }

@@ -39,8 +39,8 @@ export default class BridgePowerCoreStatusView {
 
         this.pipStrip = new BridgePipStripView(this.scene, {
             filledColor: CAPTAIN_DASHBOARD_STYLE.powerCore.chargeColor,
-            emptyBorderColor:
-                CAPTAIN_DASHBOARD_STYLE.powerCore.emptyBorderColor,
+            emptyColor: CAPTAIN_DASHBOARD_STYLE.powerCore.chargeColor,
+            emptyAlpha: CAPTAIN_DASHBOARD_STYLE.powerCore.emptyAlpha,
             partialColor: CAPTAIN_DASHBOARD_STYLE.powerCore.rechargeColor,
         });
         this.pipStrip.setPosition(

@@ -128,9 +128,10 @@ export default class BridgeEnemyEquipmentTileView {
         const startX = this.width - TILE.horizontalPadding - totalWidth;
         const y = TILE.integrityY;
         const filledCount = Math.max(0, Math.min(current, max));
-        const borderColor = broken
+        const integrityColor = broken
             ? CAPTAIN_DASHBOARD_STYLE.equipmentProgress.repairColor
-            : CAPTAIN_DASHBOARD_STYLE.equipmentIntegrity.borderColor;
+            : CAPTAIN_DASHBOARD_STYLE.equipmentIntegrity.filledColor;
+        const emptyAlpha = CAPTAIN_DASHBOARD_STYLE.equipmentIntegrity.emptyAlpha;
 
         for (let index = 0; index < max; index += 1) {
             const x = startX + index * (pipSize + gap);
@@ -142,13 +143,10 @@ export default class BridgeEnemyEquipmentTileView {
                     y,
                     pipSize,
                     pipSize,
-                    filled
-                        ? borderColor
-                        : CAPTAIN_DASHBOARD_STYLE.equipmentIntegrity.emptyColor,
-                    1,
+                    integrityColor,
+                    filled ? 1 : emptyAlpha,
                 )
-                .setOrigin(0, 0)
-                .setStrokeStyle(1, borderColor);
+                .setOrigin(0, 0);
 
             this.integrityRoot.add(pip);
         }

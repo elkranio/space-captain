@@ -9,10 +9,9 @@ export const CAPTAIN_DASHBOARD_STYLE = {
     },
 
     powerCore: {
-        emptyBackgroundColor: 0x07121e,
-        emptyBorderColor: 0x315f7a,
         chargeColor: 0x69bff2,
         rechargeColor: 0xa2dcff,
+        emptyAlpha: 0.24,
     },
 
     equipmentSlot: {
@@ -44,13 +43,12 @@ export const CAPTAIN_DASHBOARD_STYLE = {
 
     equipmentIntegrity: {
         filledColor: 0x71c651,
-        emptyColor: 0x07121e,
-        borderColor: 0x71c651,
+        emptyAlpha: 0.24,
     },
 
     hull: {
         filledColor: 0x71c651,
-        borderColor: 0x71c651,
+        emptyAlpha: 0.24,
     },
 
     specialColumn: {
