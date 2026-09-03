@@ -5,57 +5,23 @@ import {
     type BridgePlayerShipDashboardUpdatedPayload,
 } from "../../../../events/bridge_event";
 import type BridgeEventBus from "../../../../events/BridgeEventBus";
-import { CAPTAIN_DASHBOARD_STYLE } from "../../captain_dashboard_style";
-import BridgeHullStatusView from "../../BridgeHullStatusView";
-import BridgePowerCoreStatusView from "../../BridgePowerCoreStatusView";
+import BridgeShipDashboardHeaderView from "../../BridgeShipDashboardHeaderView";
 
-const HULL_X = 8;
-const POWER_CORE_RIGHT_PADDING = 12;
-
-// Top strip for the player dashboard.
-// HULL shows authoritative HP; Power Core shows charges and recharge progress.
+// Player event adapter for the shared ship dashboard header presentation.
 export default class BridgePlayerShipHeaderView {
-    private readonly root: Phaser.GameObjects.Container;
-
-    private readonly hullView: BridgeHullStatusView;
-
-    private readonly powerCoreView: BridgePowerCoreStatusView;
+    private readonly headerView: BridgeShipDashboardHeaderView;
 
     constructor(
-        private readonly scene: BridgeScene,
+        scene: BridgeScene,
         private readonly eventBus: BridgeEventBus,
-        private readonly width: number,
-        private readonly height: number,
+        width: number,
+        height: number,
     ) {
-        this.root = this.scene.add.container(0, 0);
-
-        this.hullView = new BridgeHullStatusView(this.scene, this.height);
-        this.hullView.setPosition(HULL_X, 0);
-
-        this.powerCoreView = new BridgePowerCoreStatusView(
-            this.scene,
-            this.height,
+        this.headerView = new BridgeShipDashboardHeaderView(
+            scene,
+            width,
+            height,
         );
-        this.powerCoreView.setRightEdge(
-            this.width - POWER_CORE_RIGHT_PADDING,
-        );
-
-        const divider = this.scene.add
-            .rectangle(
-                0,
-                this.height - 1,
-                this.width,
-                3,
-                CAPTAIN_DASHBOARD_STYLE.header.dividerColor,
-                1,
-            )
-            .setOrigin(0, 0);
-
-        this.root.add([
-            this.hullView.getRoot(),
-            this.powerCoreView.getRoot(),
-            divider,
-        ]);
 
         this.eventBus.on(
             BRIDGE_EVENT.PLAYER_SHIP_DASHBOARD_UPDATED,
@@ -65,11 +31,11 @@ export default class BridgePlayerShipHeaderView {
     }
 
     public getRoot(): Phaser.GameObjects.Container {
-        return this.root;
+        return this.headerView.getRoot();
     }
 
     public setPosition(x: number, y: number): void {
-        this.root.setPosition(x, y);
+        this.headerView.setPosition(x, y);
     }
 
     public destroy(): void {
@@ -79,9 +45,7 @@ export default class BridgePlayerShipHeaderView {
             this,
         );
 
-        this.hullView.destroy();
-        this.powerCoreView.destroy();
-        this.root.destroy(true);
+        this.headerView.destroy();
     }
 
     private handleDashboardUpdated(
@@ -90,19 +54,19 @@ export default class BridgePlayerShipHeaderView {
         const hull = payload.status?.hull;
 
         if (hull) {
-            this.hullView.update(hull.current, hull.max);
+            this.headerView.setHull(hull.current, hull.max);
         } else {
-            this.hullView.clear();
+            this.headerView.clearHull();
         }
 
         const powerCore = payload.status?.powerCore;
 
         if (!powerCore) {
-            this.powerCoreView.clear();
+            this.headerView.clearPowerCore();
             return;
         }
 
-        this.powerCoreView.update(
+        this.headerView.setPowerCore(
             powerCore.current,
             powerCore.max,
             powerCore.rechargeProgress,

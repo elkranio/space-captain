@@ -5,59 +5,25 @@ import {
     type BridgeEnemyShipDashboardUpdatedPayload,
 } from "../../../../events/bridge_event";
 import type BridgeEventBus from "../../../../events/BridgeEventBus";
-import { CAPTAIN_DASHBOARD_STYLE } from "../../captain_dashboard_style";
-import BridgeHullStatusView from "../../BridgeHullStatusView";
-import BridgePowerCoreStatusView from "../../BridgePowerCoreStatusView";
+import BridgeShipDashboardHeaderView from "../../BridgeShipDashboardHeaderView";
 
-const HULL_X = 8;
-const POWER_CORE_RIGHT_PADDING = 12;
-
-// Top strip for the persistent enemy dashboard.
-// HULL and Power Core both come from the current enemy snapshot.
+// Enemy event adapter for the shared ship dashboard header presentation.
 export default class BridgeEnemyShipHeaderView {
-    private readonly root: Phaser.GameObjects.Container;
-
-    private readonly hullView: BridgeHullStatusView;
-
-    private readonly powerCoreView: BridgePowerCoreStatusView;
+    private readonly headerView: BridgeShipDashboardHeaderView;
 
     constructor(
-        private readonly scene: BridgeScene,
+        scene: BridgeScene,
         private readonly eventBus: BridgeEventBus,
-        private readonly width: number,
-        private readonly height: number,
+        width: number,
+        height: number,
     ) {
-        this.root = this.scene.add.container(0, 0);
-
-        this.hullView = new BridgeHullStatusView(this.scene, this.height);
-        this.hullView.setPosition(HULL_X, 0);
-
-        this.powerCoreView = new BridgePowerCoreStatusView(
-            this.scene,
-            this.height,
+        this.headerView = new BridgeShipDashboardHeaderView(
+            scene,
+            width,
+            height,
         );
-        this.powerCoreView.setRightEdge(
-            this.width - POWER_CORE_RIGHT_PADDING,
-        );
-        this.powerCoreView.setVisible(false);
-
-        const divider = this.scene.add
-            .rectangle(
-                0,
-                this.height - 1,
-                this.width,
-                3,
-                CAPTAIN_DASHBOARD_STYLE.header.dividerColor,
-                1,
-            )
-            .setOrigin(0, 0);
-
-        this.root.add([
-            this.hullView.getRoot(),
-            this.powerCoreView.getRoot(),
-            divider,
-        ]);
-        this.root.setVisible(false);
+        this.headerView.setVisible(false);
+        this.headerView.setPowerCoreVisible(false);
 
         this.eventBus.on(
             BRIDGE_EVENT.ENEMY_SHIP_DASHBOARD_UPDATED,
@@ -67,11 +33,11 @@ export default class BridgeEnemyShipHeaderView {
     }
 
     public getRoot(): Phaser.GameObjects.Container {
-        return this.root;
+        return this.headerView.getRoot();
     }
 
     public setPosition(x: number, y: number): void {
-        this.root.setPosition(x, y);
+        this.headerView.setPosition(x, y);
     }
 
     public destroy(): void {
@@ -81,23 +47,21 @@ export default class BridgeEnemyShipHeaderView {
             this,
         );
 
-        this.hullView.destroy();
-        this.powerCoreView.destroy();
-        this.root.destroy(true);
+        this.headerView.destroy();
     }
 
     private handleDashboardUpdated(
         payload: BridgeEnemyShipDashboardUpdatedPayload,
     ): void {
         if (!payload) {
-            this.root.setVisible(false);
-            this.hullView.clear();
+            this.headerView.setVisible(false);
+            this.headerView.clearHull();
             this.clearPowerCore();
             return;
         }
 
-        this.root.setVisible(true);
-        this.hullView.update(payload.hull.current, payload.hull.max);
+        this.headerView.setVisible(true);
+        this.headerView.setHull(payload.hull.current, payload.hull.max);
 
         const powerCore = payload.powerCore;
 
@@ -106,8 +70,8 @@ export default class BridgeEnemyShipHeaderView {
             return;
         }
 
-        this.powerCoreView.setVisible(true);
-        this.powerCoreView.update(
+        this.headerView.setPowerCoreVisible(true);
+        this.headerView.setPowerCore(
             powerCore.current,
             powerCore.max,
             powerCore.rechargeProgress,
@@ -115,7 +79,7 @@ export default class BridgeEnemyShipHeaderView {
     }
 
     private clearPowerCore(): void {
-        this.powerCoreView.clear();
-        this.powerCoreView.setVisible(false);
+        this.headerView.clearPowerCore();
+        this.headerView.setPowerCoreVisible(false);
     }
 }

@@ -4,6 +4,8 @@ export const CAPTAIN_DASHBOARD_LAYOUT = {
             sidePadding: 12,
             y: 8,
             height: 36,
+            hullX: 8,
+            powerCoreRightPadding: 12,
         },
         content: {
             x: 16,
