@@ -11,7 +11,7 @@ import {
 } from "../../model/command";
 import { ENCOUNTER_EVENT } from "../../model/event";
 import type { OfficerCommandHandler } from "../../model/officer_command_handler";
-import { createAnchorTargetedCommand, requireAnchorTargetId } from "./command_handler_helpers";
+import { requireAnchorTargetId } from "./command_handler_helpers";
 
 const COMMAND_ID = ENCOUNTER_OFFICER_COMMAND_ID.HELM_FLY_TO;
 
@@ -45,7 +45,13 @@ export const helmFlyToCommandHandler = {
                 return anchor.id !== navigation.anchorId;
             })
             .map((anchor) => {
-                return createAnchorTargetedCommand(COMMAND_ID, anchor);
+                return {
+                    commandId: COMMAND_ID,
+                    target: {
+                        kind: OFFICER_COMMAND_TARGET_KIND.ANCHOR,
+                        anchorId: anchor.id,
+                    },
+                };
             });
     },
 

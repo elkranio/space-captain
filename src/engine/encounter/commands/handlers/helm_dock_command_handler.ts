@@ -11,7 +11,7 @@ import { ENCOUNTER_EVENT } from "../../model/event";
 import type { OfficerCommandHandler } from "../../model/officer_command_handler";
 import { ENCOUNTER_ANCHOR_KIND } from "../../anchors/encounter_anchor";
 import { createHelmDockTask } from "../../officer_tasks/create_officer_task_draft";
-import { createAnchorTargetedCommand, getStationTarget, isCurrentAnchor } from "./command_handler_helpers";
+import { getStationTarget, isCurrentAnchor } from "./command_handler_helpers";
 
 const COMMAND_ID = ENCOUNTER_OFFICER_COMMAND_ID.HELM_DOCK;
 
@@ -39,7 +39,13 @@ export const helmDockCommandHandler = {
                 return object.kind === ENCOUNTER_ANCHOR_KIND.STATION && isCurrentAnchor(state, object);
             })
             .map((object) => {
-                return createAnchorTargetedCommand(COMMAND_ID, object);
+                return {
+                    commandId: COMMAND_ID,
+                    target: {
+                        kind: OFFICER_COMMAND_TARGET_KIND.ANCHOR,
+                        anchorId: object.id,
+                    },
+                };
             });
     },
 

@@ -1,39 +1,12 @@
 // src/engine/encounter/commands/handlers/command_handler_helpers.ts
 
 import { PLAYER_SPACE_NAVIGATION_KIND } from "../../../defs/player_location";
-import {
-    OFFICER_COMMAND_TARGET_KIND,
-    type AvailableOfficerCommand,
-    type EncounterOfficerCommandId,
-    type ExecuteOfficerCommandInput,
-} from "../../model/command";
+import { OFFICER_COMMAND_TARGET_KIND, type ExecuteOfficerCommandInput } from "../../model/command";
 import type { OfficerCommandExecutionContext } from "../../model/officer_command_handler";
 import type { EncounterState } from "../../model/state";
 import { ENCOUNTER_ANCHOR_KIND, type EncounterAnchorState } from "../../anchors/encounter_anchor";
 import type { JumpPointEncounterAnchorState } from "../../anchors/jump_point_encounter_anchor";
 import type { StationEncounterAnchorState } from "../../anchors/station_encounter_anchor";
-
-export function createUntargetedCommand(commandId: EncounterOfficerCommandId): AvailableOfficerCommand {
-    return {
-        commandId,
-        target: {
-            kind: OFFICER_COMMAND_TARGET_KIND.NONE,
-        },
-    };
-}
-
-export function createAnchorTargetedCommand(
-    commandId: EncounterOfficerCommandId,
-    anchor: EncounterAnchorState,
-): AvailableOfficerCommand {
-    return {
-        commandId,
-        target: {
-            kind: OFFICER_COMMAND_TARGET_KIND.ANCHOR,
-            anchorId: anchor.id,
-        },
-    };
-}
 
 export function isCurrentAnchor(state: EncounterState, anchor: EncounterAnchorState): boolean {
     const navigation = state.navigation;

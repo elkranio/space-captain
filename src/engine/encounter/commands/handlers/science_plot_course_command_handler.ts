@@ -5,7 +5,7 @@ import { ENCOUNTER_OFFICER_COMMAND_ID, OFFICER_COMMAND_TARGET_KIND, type Officer
 import type { OfficerCommandHandler } from "../../model/officer_command_handler";
 import { ENCOUNTER_ANCHOR_KIND } from "../../anchors/encounter_anchor";
 import { createSciencePlotCourseTask } from "../../officer_tasks/create_officer_task_draft";
-import { createUntargetedCommand, requireSpaceNodeTargetId } from "./command_handler_helpers";
+import { requireSpaceNodeTargetId } from "./command_handler_helpers";
 
 const COMMAND_ID = ENCOUNTER_OFFICER_COMMAND_ID.SCIENCE_PLOT_COURSE;
 
@@ -37,7 +37,14 @@ export const sciencePlotCourseCommandHandler = {
 
         // Destination выбирается app-слоем
         // после выбора общей команды PLOT COURSE.
-        return [createUntargetedCommand(COMMAND_ID)];
+        return [
+            {
+                commandId: COMMAND_ID,
+                target: {
+                    kind: OFFICER_COMMAND_TARGET_KIND.NONE,
+                },
+            },
+        ];
     },
 
     execute(context, input) {
