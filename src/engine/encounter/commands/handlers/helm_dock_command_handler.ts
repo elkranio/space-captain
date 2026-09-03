@@ -39,7 +39,7 @@ export const helmDockCommandHandler = {
                 return object.kind === ENCOUNTER_ANCHOR_KIND.STATION && isCurrentAnchor(state, object);
             })
             .map((object) => {
-                return createAnchorTargetedCommand(COMMAND_ID, COMMAND_DEF.label, object);
+                return createAnchorTargetedCommand(COMMAND_ID, object);
             });
     },
 

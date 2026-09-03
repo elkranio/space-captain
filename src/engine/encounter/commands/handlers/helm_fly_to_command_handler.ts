@@ -45,7 +45,7 @@ export const helmFlyToCommandHandler = {
                 return anchor.id !== navigation.anchorId;
             })
             .map((anchor) => {
-                return createAnchorTargetedCommand(COMMAND_ID, COMMAND_DEF.label, anchor);
+                return createAnchorTargetedCommand(COMMAND_ID, anchor);
             });
     },
 

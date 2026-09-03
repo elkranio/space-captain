@@ -84,9 +84,6 @@ describe('Player beamCannon command', () => {
                         commandId:
                             command.commandId,
 
-                        label:
-                            command.label,
-
                         target:
                             command.target,
                     };
@@ -96,9 +93,6 @@ describe('Player beamCannon command', () => {
                     commandId:
                         ENCOUNTER_OFFICER_COMMAND_ID
                             .WEAPONS_FIRE_BEAM_CANNON,
-
-                    label:
-                        'FIRE BEAM CANNON',
 
                     target: {
                         kind:

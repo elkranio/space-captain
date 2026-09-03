@@ -152,11 +152,7 @@ export type OfficerCommandDef = {
 export type AvailableOfficerCommand = {
     commandId: EncounterOfficerCommandId;
 
-    label: string;
-
     target: OfficerCommandTarget;
-
-    targetLabel?: string;
 };
 
 // #endregion

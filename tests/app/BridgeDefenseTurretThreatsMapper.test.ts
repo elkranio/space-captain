@@ -147,7 +147,6 @@ function createThreatCommand(
 ): AvailableOfficerCommand {
     return {
         commandId,
-        label: String(commandId),
         target: {
             kind: OFFICER_COMMAND_TARGET_KIND.THREAT,
             threatId,

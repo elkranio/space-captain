@@ -49,15 +49,11 @@ describe('FLY_TO', () => {
         expect(engine.getAvailableCommands(OFFICER_ROLE.HELM)).toContainEqual({
             commandId: ENCOUNTER_OFFICER_COMMAND_ID.HELM_FLY_TO,
 
-            label: 'FLY TO',
-
             target: {
                 kind: OFFICER_COMMAND_TARGET_KIND.ANCHOR,
 
                 anchorId: beaconId,
             },
-
-            targetLabel: beaconName,
         });
 
         const executionResult = engine.executeCommand({

@@ -37,7 +37,7 @@ export const sciencePlotCourseCommandHandler = {
 
         // Destination выбирается app-слоем
         // после выбора общей команды PLOT COURSE.
-        return [createUntargetedCommand(COMMAND_ID, COMMAND_DEF.label)];
+        return [createUntargetedCommand(COMMAND_ID)];
     },
 
     execute(context, input) {

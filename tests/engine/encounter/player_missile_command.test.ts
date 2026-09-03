@@ -48,9 +48,6 @@ describe('Player missile command', () => {
                         commandId:
                             command.commandId,
 
-                        label:
-                            command.label,
-
                         target:
                             command.target,
                     };
@@ -60,8 +57,6 @@ describe('Player missile command', () => {
                 commandId:
                     ENCOUNTER_OFFICER_COMMAND_ID
                         .WEAPONS_FIRE_MISSILE,
-
-                label: 'FIRE MISSILE',
 
                 target: {
                     kind:

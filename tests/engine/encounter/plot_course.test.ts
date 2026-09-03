@@ -45,8 +45,6 @@ describe('PLOT_COURSE', () => {
         expect(engine.getAvailableCommands(OFFICER_ROLE.SCIENCE)).toContainEqual({
             commandId: ENCOUNTER_OFFICER_COMMAND_ID.SCIENCE_PLOT_COURSE,
 
-            label: 'PLOT COURSE',
-
             target: {
                 kind: OFFICER_COMMAND_TARGET_KIND.NONE,
             },

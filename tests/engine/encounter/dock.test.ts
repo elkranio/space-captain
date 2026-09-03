@@ -24,7 +24,6 @@ describe('DOCK', () => {
         const {
             node,
             stationId,
-            stationName,
         } = createSingleStationNodeFixture();
 
         const engine = new EncounterEngine({
@@ -49,8 +48,6 @@ describe('DOCK', () => {
                 ENCOUNTER_OFFICER_COMMAND_ID
                     .HELM_DOCK,
 
-            label: 'DOCK',
-
             target: {
                 kind:
                     OFFICER_COMMAND_TARGET_KIND
@@ -58,8 +55,6 @@ describe('DOCK', () => {
 
                 anchorId: stationId,
             },
-
-            targetLabel: stationName,
         });
 
         expect(

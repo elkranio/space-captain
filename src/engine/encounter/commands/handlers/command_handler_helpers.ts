@@ -13,11 +13,9 @@ import { ENCOUNTER_ANCHOR_KIND, type EncounterAnchorState } from "../../anchors/
 import type { JumpPointEncounterAnchorState } from "../../anchors/jump_point_encounter_anchor";
 import type { StationEncounterAnchorState } from "../../anchors/station_encounter_anchor";
 
-export function createUntargetedCommand(commandId: EncounterOfficerCommandId, label: string): AvailableOfficerCommand {
+export function createUntargetedCommand(commandId: EncounterOfficerCommandId): AvailableOfficerCommand {
     return {
         commandId,
-        label,
-
         target: {
             kind: OFFICER_COMMAND_TARGET_KIND.NONE,
         },
@@ -26,19 +24,15 @@ export function createUntargetedCommand(commandId: EncounterOfficerCommandId, la
 
 export function createAnchorTargetedCommand(
     commandId: EncounterOfficerCommandId,
-    label: string,
     anchor: EncounterAnchorState,
 ): AvailableOfficerCommand {
     return {
         commandId,
-        label,
-
         target: {
             kind: OFFICER_COMMAND_TARGET_KIND.ANCHOR,
             anchorId: anchor.id,
         },
 
-        targetLabel: anchor.displayName,
     };
 }
 

@@ -635,9 +635,6 @@ describe(
                             ENCOUNTER_OFFICER_COMMAND_ID
                                 .HELM_EVADE,
 
-                        label:
-                            'EVADE',
-
                         target: {
                             kind:
                                 OFFICER_COMMAND_TARGET_KIND
@@ -1047,8 +1044,6 @@ function createWeaponCommand(
 ): AvailableOfficerCommand {
     return {
         commandId,
-        label:
-            'FIRE',
         target: {
             kind:
                 OFFICER_COMMAND_TARGET_KIND

@@ -39,7 +39,7 @@ export const helmJumpCommandHandler = {
                 return object.kind === ENCOUNTER_ANCHOR_KIND.JUMP_POINT && isCurrentAnchor(state, object);
             })
             .map((object) => {
-                return createAnchorTargetedCommand(COMMAND_ID, COMMAND_DEF.label, object);
+                return createAnchorTargetedCommand(COMMAND_ID, object);
             });
     },
 
