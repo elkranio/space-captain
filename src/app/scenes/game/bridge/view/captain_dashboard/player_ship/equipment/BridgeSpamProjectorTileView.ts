@@ -66,8 +66,7 @@ export default class BridgeSpamProjectorTileView {
 
     private readonly hitArea: Phaser.GameObjects.Zone;
 
-    private chromeColor: number =
-        CAPTAIN_DASHBOARD_STYLE.equipmentProgress.readyColor;
+    private chromeColor: number = FONT_COLOR.PRIMARY;
 
     private integrityCurrent = 0;
 
@@ -237,11 +236,9 @@ export default class BridgeSpamProjectorTileView {
     }
 
     public resetProgress(): void {
-        const readyColor = CAPTAIN_DASHBOARD_STYLE.equipmentProgress.readyColor;
-
-        this.baseIcon.setTint(readyColor);
+        this.baseIcon.setTint(CAPTAIN_DASHBOARD_STYLE.equipmentProgress.readyColor);
         this.progressVisible = false;
-        this.setChromeColor(readyColor);
+        this.setChromeColor(FONT_COLOR.PRIMARY);
         this.renderHover();
     }
 
@@ -268,6 +265,10 @@ export default class BridgeSpamProjectorTileView {
         const totalWidth = this.integrityMax * TILE.integrityPipSize + (this.integrityMax - 1) * TILE.integrityPipGap;
         const startX = this.width - TILE.horizontalPadding - totalWidth;
         const emptyColor = 0x0b1621;
+        const integrityColor =
+            this.integrityCurrent <= 0
+                ? CAPTAIN_DASHBOARD_STYLE.equipmentProgress.repairColor
+                : CAPTAIN_DASHBOARD_STYLE.equipmentIntegrity.filledColor;
 
         for (let index = 0; index < this.integrityMax; index += 1) {
             const filled = index < this.integrityCurrent;
@@ -279,11 +280,11 @@ export default class BridgeSpamProjectorTileView {
                     TILE.statusY + 2,
                     TILE.integrityPipSize,
                     TILE.integrityPipSize,
-                    filled ? this.chromeColor : emptyColor,
+                    filled ? integrityColor : emptyColor,
                     1,
                 )
                 .setOrigin(0, 0)
-                .setStrokeStyle(1, this.chromeColor);
+                .setStrokeStyle(1, integrityColor);
 
             this.integrityRoot.add(pip);
         }

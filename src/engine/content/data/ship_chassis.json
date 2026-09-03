@@ -2,7 +2,7 @@
     "player_00": {
         "name": "Player test ship",
         "spriteId": "new_perspective_00",
-        "maxHull": 30,
+        "maxHull": 5,
         "slots": [
             {
                 "id": "drive",

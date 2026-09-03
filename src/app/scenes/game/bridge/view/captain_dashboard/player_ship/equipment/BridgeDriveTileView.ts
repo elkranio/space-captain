@@ -7,7 +7,7 @@ import {
     MICRO_ICON_ID,
     MICRO_ICONS,
 } from "../../../../../../../manifests/micro_icons";
-import { FONT_FAMILY, FONT_SIZE } from "../../../../../../../theme/font";
+import { FONT_COLOR, FONT_FAMILY, FONT_SIZE } from "../../../../../../../theme/font";
 import type BridgeScene from "../../../../BridgeScene";
 import { CAPTAIN_DASHBOARD_STYLE } from "../../captain_dashboard_style";
 
@@ -42,8 +42,7 @@ export default class BridgeDriveTileView {
 
     private readonly integrityRoot: Phaser.GameObjects.Container;
 
-    private chromeColor: number =
-        CAPTAIN_DASHBOARD_STYLE.equipmentProgress.readyColor;
+    private chromeColor: number = FONT_COLOR.PRIMARY;
 
     private integrityCurrent = 0;
 
@@ -140,10 +139,8 @@ export default class BridgeDriveTileView {
     }
 
     public resetState(): void {
-        const readyColor = CAPTAIN_DASHBOARD_STYLE.equipmentProgress.readyColor;
-
-        this.icon.setTint(readyColor);
-        this.setChromeColor(readyColor);
+        this.icon.setTint(CAPTAIN_DASHBOARD_STYLE.equipmentProgress.readyColor);
+        this.setChromeColor(FONT_COLOR.PRIMARY);
     }
 
     public destroy(): void {
@@ -175,6 +172,10 @@ export default class BridgeDriveTileView {
             (this.integrityMax - 1) * TILE.integrityPipGap;
         const startX = this.width - TILE.horizontalPadding - totalWidth;
         const emptyColor = 0x0b1621;
+        const integrityColor =
+            this.integrityCurrent <= 0
+                ? CAPTAIN_DASHBOARD_STYLE.equipmentProgress.repairColor
+                : CAPTAIN_DASHBOARD_STYLE.equipmentIntegrity.filledColor;
 
         for (let index = 0; index < this.integrityMax; index += 1) {
             const filled = index < this.integrityCurrent;
@@ -186,11 +187,11 @@ export default class BridgeDriveTileView {
                     TILE.statusY + 2,
                     TILE.integrityPipSize,
                     TILE.integrityPipSize,
-                    filled ? this.chromeColor : emptyColor,
+                    filled ? integrityColor : emptyColor,
                     1,
                 )
                 .setOrigin(0, 0)
-                .setStrokeStyle(1, this.chromeColor);
+                .setStrokeStyle(1, integrityColor);
 
             this.integrityRoot.add(pip);
         }

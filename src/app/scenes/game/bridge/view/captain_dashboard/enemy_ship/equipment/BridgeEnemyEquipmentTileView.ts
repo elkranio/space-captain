@@ -1,6 +1,6 @@
 // Read-only equipment tile used only by the persistent enemy dashboard.
 import type { SpriteEntry } from "../../../../../../../manifests/types";
-import { FONT_FAMILY, FONT_SIZE } from "../../../../../../../theme/font";
+import { FONT_COLOR, FONT_FAMILY, FONT_SIZE } from "../../../../../../../theme/font";
 import type BridgeScene from "../../../../BridgeScene";
 import type { BridgeEnemyEquipmentDashboardPayload } from "../../../../events/bridge_event";
 import { CAPTAIN_DASHBOARD_STYLE } from "../../captain_dashboard_style";
@@ -43,7 +43,7 @@ export default class BridgeEnemyEquipmentTileView {
                 FONT_SIZE.PX_20,
             )
             .setOrigin(0, 0)
-            .setTint(CAPTAIN_DASHBOARD_STYLE.equipmentProgress.readyColor);
+            .setTint(FONT_COLOR.PRIMARY);
 
         this.icon = this.scene.add
             .image(
@@ -86,7 +86,7 @@ export default class BridgeEnemyEquipmentTileView {
     public update(payload: BridgeEnemyEquipmentDashboardPayload): void {
         const chromeColor = payload.broken
             ? CAPTAIN_DASHBOARD_STYLE.equipmentProgress.repairColor
-            : CAPTAIN_DASHBOARD_STYLE.equipmentProgress.readyColor;
+            : FONT_COLOR.PRIMARY;
 
         this.titleText
             .setText(payload.shortName)
