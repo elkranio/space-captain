@@ -9,7 +9,7 @@ export const OFFICER_ROLE = {
     ENGINEER: "engineer",
 
     // Temporary source-compatibility aliases.
-    // Remove after all production consumers use the canonical role names.
+    // Remove after all production and test consumers use the canonical role names.
     SCIENCE: "science",
     HELM: "helm",
     WEAPONS: "weapons",
