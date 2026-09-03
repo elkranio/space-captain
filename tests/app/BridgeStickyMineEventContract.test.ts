@@ -37,7 +37,7 @@ describe('Bridge sticky-mine event contract', () => {
                 } as unknown as BridgeEventBus,
             );
 
-        handler.handle([
+        handler.handle(
             {
                 type:
                     ENCOUNTER_EVENT
@@ -47,8 +47,10 @@ describe('Bridge sticky-mine event contract', () => {
                     'mine_1',
                     7500,
                 ),
-            },
+            }
+        );
 
+        handler.handle(
             {
                 type:
                     ENCOUNTER_EVENT
@@ -69,8 +71,10 @@ describe('Bridge sticky-mine event contract', () => {
 
                     mineId: 'mine_1',
                 },
-            },
+            }
+        );
 
+        handler.handle(
             {
                 type:
                     ENCOUNTER_EVENT
@@ -84,8 +88,8 @@ describe('Bridge sticky-mine event contract', () => {
                 appliedDamage: 1,
                 remainingHull: 2,
                 destroyed: false,
-            },
-        ] as EncounterEvent[]);
+            }
+        );
 
         expect(emit.mock.calls).toEqual([
             [

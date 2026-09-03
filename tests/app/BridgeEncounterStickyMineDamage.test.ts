@@ -207,6 +207,6 @@ function syncAndHandleEvents(
 
     for (const event of events) {
         persistenceSynchronizer.syncEvent(event);
-        handler.handle([event]);
+        handler.handle(event);
     }
 }

@@ -29,7 +29,7 @@ describe(
                         } as unknown as BridgeEventBus,
                     );
 
-                handler.handle([
+                handler.handle(
                     {
                         type:
                             ENCOUNTER_EVENT
@@ -40,8 +40,8 @@ describe(
 
                         sourceWeaponId:
                             'sticky_mine_dispenser_00',
-                    },
-                ]);
+                    }
+                );
 
                 expect(
                     emit.mock.calls,

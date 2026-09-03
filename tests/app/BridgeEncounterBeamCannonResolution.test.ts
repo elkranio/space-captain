@@ -180,7 +180,7 @@ function createHandler() {
             handle(events: EncounterEvent[]): void {
                 for (const event of events) {
                     persistenceSynchronizer.syncEvent(event);
-                    eventHandler.handle([event]);
+                    eventHandler.handle(event);
                 }
             },
         },

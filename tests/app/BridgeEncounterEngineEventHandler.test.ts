@@ -65,7 +65,7 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
                 emit,
             } as unknown as BridgeEventBus);
 
-        handler.handle([
+        handler.handle(
             {
                 type: ENCOUNTER_EVENT.TRAVEL_STARTED,
 
@@ -103,8 +103,8 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
 
                     perspectiveDepth: 1,
                 },
-            },
-        ]);
+            }
+        );
 
         expect(emit.mock.calls).toEqual([
             [
@@ -191,23 +191,25 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
 
         const handler = new BridgeEncounterEngineEventHandler(eventBus);
 
-        handler.handle([
+        handler.handle(
             {
                 type: ENCOUNTER_EVENT.ENEMY_ATTACK_STARTED,
 
                 sourceActorId: 'ship_enemy_00',
 
                 sourceWeaponId: 'missile_launcher_00',
-            },
+            }
+        );
 
+        handler.handle(
             {
                 type: ENCOUNTER_EVENT.MISSILE_LAUNCHED,
 
                 projectile: {
                     ...launchedProjectile,
                 },
-            },
-        ]);
+            }
+        );
 
         expect(emit.mock.calls).toEqual([
             [BRIDGE_EVENT.ENEMY_ATTACK_WARNING_TRIGGERED],
@@ -238,7 +240,7 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
 
         const handler = new BridgeEncounterEngineEventHandler(eventBus);
 
-        handler.handle([
+        handler.handle(
             {
                 type: ENCOUNTER_EVENT.MISSILE_IMPACTED_PLAYER_SHIP,
 
@@ -249,8 +251,8 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
                 appliedDamage: 1,
                 remainingHull: 2,
                 destroyed: false,
-            },
-        ]);
+            }
+        );
 
         expect(emit.mock.calls).toEqual([
             [
@@ -263,7 +265,7 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
         ]);
 
 
-        handler.handle([
+        handler.handle(
             {
                 type: ENCOUNTER_EVENT.MISSILE_IMPACTED_PLAYER_SHIP,
 
@@ -278,8 +280,8 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
                 appliedDamage: 2,
                 remainingHull: 0,
                 destroyed: true,
-            },
-        ]);
+            }
+        );
 
         expect(emit.mock.calls).toEqual([
             [
@@ -302,7 +304,7 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
 
         // Повторный synthetic impact без destroyed
         // не запускает второй transition event.
-        handler.handle([
+        handler.handle(
             {
                 type: ENCOUNTER_EVENT.MISSILE_IMPACTED_PLAYER_SHIP,
 
@@ -317,8 +319,8 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
                 appliedDamage: 0,
                 remainingHull: 0,
                 destroyed: false,
-            },
-        ]);
+            }
+        );
 
         expect(emit.mock.calls).toEqual([
             [
@@ -359,7 +361,7 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
                     emit,
                 } as unknown as BridgeEventBus);
 
-            handler.handle([
+            handler.handle(
                 {
                     type:
                         ENCOUNTER_EVENT
@@ -388,8 +390,8 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
                     outcome:
                         BEAM_CANNON_SHOT_OUTCOME
                             .ABSORBED,
-                },
-            ]);
+                }
+            );
 
             expect(
                 emit.mock.calls,
@@ -432,7 +434,7 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
                     emit,
                 } as unknown as BridgeEventBus);
 
-            handler.handle([
+            handler.handle(
                 {
                     type:
                         ENCOUNTER_EVENT
@@ -448,8 +450,10 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
                         initialDurationMs:
                             5000,
                     },
-                },
+                }
+            );
 
+            handler.handle(
                 {
                     type:
                         ENCOUNTER_EVENT
@@ -469,8 +473,8 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
                     outcome:
                         PLAYER_SHIELD_END_OUTCOME
                             .ABSORBED,
-                },
-            ]);
+                }
+            );
 
             expect(
                 emit.mock.calls,
@@ -511,7 +515,7 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
 
         const handler = new BridgeEncounterEngineEventHandler(eventBus);
 
-        handler.handle([
+        handler.handle(
             {
                 type: ENCOUNTER_EVENT.OFFICER_TASK_ENDED,
 
@@ -544,8 +548,8 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
 
                     outcome: DEFENSE_TURRET_SHOT_OUTCOME.HIT,
                 },
-            },
-        ]);
+            }
+        );
 
         expect(emit.mock.calls).toEqual([
             [

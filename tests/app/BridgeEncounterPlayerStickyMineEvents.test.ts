@@ -61,7 +61,7 @@ describe('Bridge player sticky-mine event mapping', () => {
                 eventBus,
             );
 
-        handler.handle([
+        handler.handle(
             {
                 type:
                     ENCOUNTER_EVENT
@@ -78,8 +78,10 @@ describe('Bridge player sticky-mine event mapping', () => {
                         ...mine.target,
                     },
                 },
-            },
+            }
+        );
 
+        handler.handle(
             {
                 type:
                     ENCOUNTER_EVENT
@@ -105,8 +107,8 @@ describe('Bridge player sticky-mine event mapping', () => {
 
                 damage: 1,
                 remainingHull: 2,
-            },
-        ]);
+            }
+        );
 
         expect(
             emit.mock.calls,

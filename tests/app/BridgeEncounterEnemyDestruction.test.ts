@@ -68,7 +68,7 @@ describe('Bridge enemy destruction flow', () => {
         };
 
         persistenceSynchronizer.syncEvent(event);
-        handler.handle([event]);
+        handler.handle(event);
 
         expect(
             node.actors.some(

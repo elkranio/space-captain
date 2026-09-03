@@ -66,7 +66,7 @@ describe('Bridge player missile event mapping', () => {
                 eventBus,
             );
 
-        handler.handle([
+        handler.handle(
             {
                 type:
                     ENCOUNTER_EVENT
@@ -75,8 +75,10 @@ describe('Bridge player missile event mapping', () => {
                 projectile: {
                     ...projectile,
                 },
-            },
+            }
+        );
 
+        handler.handle(
             {
                 type:
                     ENCOUNTER_EVENT
@@ -94,8 +96,8 @@ describe('Bridge player missile event mapping', () => {
 
                 damage: 1,
                 remainingHull: 1,
-            },
-        ]);
+            }
+        );
         expect(
             emit.mock.calls.some(
                 ([eventName]) => {

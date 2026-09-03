@@ -41,7 +41,7 @@ describe(
                     );
 
                 expect(() => {
-                    handler.handle([
+                    handler.handle(
                         {
                             type:
                                 ENCOUNTER_EVENT
@@ -87,8 +87,10 @@ describe(
                                 canBeInterruptedByDamage:
                                     true,
                             },
-                        },
+                        }
+                    );
 
+                    handler.handle(
                         {
                             type:
                                 ENCOUNTER_EVENT
@@ -102,8 +104,10 @@ describe(
 
                             targetActorId:
                                 'ship_enemy_00',
-                        },
+                        }
+                    );
 
+                    handler.handle(
                         {
                             type:
                                 ENCOUNTER_EVENT
@@ -121,8 +125,8 @@ describe(
                             outcome:
                                 PLAYER_SPAM_CHANNEL_OUTCOME
                                     .EXPIRED,
-                        },
-                    ]);
+                        }
+                    );
                 }).not.toThrow();
 
                 expect(

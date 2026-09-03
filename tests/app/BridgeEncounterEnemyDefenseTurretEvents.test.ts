@@ -75,7 +75,7 @@ describe(
                         } as unknown as BridgeEventBus,
                     );
 
-                handler.handle([
+                handler.handle(
                     {
                         type:
                             ENCOUNTER_EVENT
@@ -91,8 +91,10 @@ describe(
                             projectile.id,
 
                         loadDurationMs: 3000,
-                    },
+                    }
+                );
 
+                handler.handle(
                     {
                         type:
                             ENCOUNTER_EVENT
@@ -113,8 +115,10 @@ describe(
                                 .HIT,
 
                         remainingCharges: 2,
-                    },
+                    }
+                );
 
+                handler.handle(
                     {
                         type:
                             ENCOUNTER_EVENT
@@ -127,8 +131,8 @@ describe(
                         outcome:
                             PLAYER_MISSILE_OUTCOME
                                 .INTERCEPTED,
-                    },
-                ]);
+                    }
+                );
 
                 expect(
                     emit.mock.calls,

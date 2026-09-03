@@ -109,7 +109,7 @@ describe('Bridge encounter jump-point sync', () => {
             };
 
         persistenceSynchronizer.syncEvent(event);
-        handler.handle([event]);
+        handler.handle(event);
 
         expect(getCurrentNode(runtime.getCurrentRun()).anchors).toContainEqual({
             kind: SPACE_ANCHOR_KIND.JUMP_POINT,
