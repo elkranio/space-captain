@@ -2,7 +2,7 @@
 // Стабильные id визуальных вариантов навигационных маяков.
 // App-слой мапит эти id на конкретные atlas/frame.
 export const BEACON_OBJECT_SPRITE_ID = {
-    NAVIGATION_BEACON_00: "navigation_beacon_00",
+    NAVIGATION_BEACON: "navigation_beacon",
 } as const;
 
 export type BeaconObjectSpriteId = (typeof BEACON_OBJECT_SPRITE_ID)[keyof typeof BEACON_OBJECT_SPRITE_ID];

@@ -87,7 +87,7 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
 
                         objectSpriteId:
                             BEACON_OBJECT_SPRITE_ID
-                                .NAVIGATION_BEACON_00,
+                                .NAVIGATION_BEACON,
                     },
 
                     localPosition: {

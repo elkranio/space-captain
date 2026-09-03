@@ -89,7 +89,7 @@ describe('Bridge encounter jump-point sync', () => {
                             id: 'jump_point_node_station',
                             name: 'JUMP POINT',
                             targetNodeId: 'node_station',
-                            objectSpriteId: JUMP_POINT_OBJECT_SPRITE_ID.JUMP_POINT_00,
+                            objectSpriteId: JUMP_POINT_OBJECT_SPRITE_ID.JUMP_POINT,
                         },
 
                         localPosition: {
@@ -118,7 +118,7 @@ describe('Bridge encounter jump-point sync', () => {
                 id: 'jump_point_node_station',
                 name: 'JUMP POINT',
                 targetNodeId: 'node_station',
-                objectSpriteId: JUMP_POINT_OBJECT_SPRITE_ID.JUMP_POINT_00,
+                objectSpriteId: JUMP_POINT_OBJECT_SPRITE_ID.JUMP_POINT,
             },
 
             localPosition: {

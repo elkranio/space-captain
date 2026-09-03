@@ -56,7 +56,7 @@ describe(
             () => {
                 expect(
                     SHIP_SPRITES
-                        .new_perspective_00
+                        .generic
                         .frameKey,
                 ).toBe(
                     'world/ships/chassis/generic',
@@ -67,7 +67,7 @@ describe(
                         SHIP_SPRITES,
                     ),
                 ).toEqual([
-                    'new_perspective_00',
+                    'generic',
                 ]);
             },
         );

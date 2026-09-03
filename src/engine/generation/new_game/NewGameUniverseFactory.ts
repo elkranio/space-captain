@@ -53,7 +53,7 @@ export default class NewGameUniverseFactory {
 
             name: "NAVIGATION BEACON",
 
-            objectSpriteId: BEACON_OBJECT_SPRITE_ID.NAVIGATION_BEACON_00,
+            objectSpriteId: BEACON_OBJECT_SPRITE_ID.NAVIGATION_BEACON,
         };
 
         const asteroid: AsteroidState = {
@@ -61,7 +61,7 @@ export default class NewGameUniverseFactory {
 
             name: "ASTEROID",
 
-            objectSpriteId: ASTEROID_OBJECT_SPRITE_ID.ASTEROID_00,
+            objectSpriteId: ASTEROID_OBJECT_SPRITE_ID.ASTEROID,
         };
 
         const enemyShip = ShipNodeActorFactory.create({

@@ -3,7 +3,7 @@ import { ASTEROID_OBJECT_SPRITE_ID, type AsteroidObjectSpriteId } from "../../..
 import { DEFAULT_ATLAS_KEY, type SpriteEntry } from "../../types";
 
 export const ASTEROID_OBJECT_SPRITES = {
-    [ASTEROID_OBJECT_SPRITE_ID.ASTEROID_00]: {
+    [ASTEROID_OBJECT_SPRITE_ID.ASTEROID]: {
         atlasKey: DEFAULT_ATLAS_KEY,
         frameKey: "world/asteroids/asteroid",
     },

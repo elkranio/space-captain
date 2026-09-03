@@ -139,7 +139,7 @@ export default class EncounterNavigationStore {
                 id,
                 name: "JUMP POINT",
                 targetNodeId,
-                objectSpriteId: JUMP_POINT_OBJECT_SPRITE_ID.JUMP_POINT_00,
+                objectSpriteId: JUMP_POINT_OBJECT_SPRITE_ID.JUMP_POINT,
             },
 
             // Temporary staging position

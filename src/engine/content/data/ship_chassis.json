@@ -1,7 +1,7 @@
 {
     "player_00": {
         "name": "Player test ship",
-        "spriteId": "new_perspective_00",
+        "spriteId": "generic",
         "maxHull": 5,
         "slots": [
             {
@@ -50,7 +50,7 @@
     },
     "generic_00": {
         "name": "Our test ship",
-        "spriteId": "new_perspective_00",
+        "spriteId": "generic",
         "maxHull": 3,
         "slots": [
             {

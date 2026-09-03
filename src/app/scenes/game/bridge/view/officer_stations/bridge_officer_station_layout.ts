@@ -37,7 +37,7 @@ export const BRIDGE_OFFICER_STATION_LAYOUT = {
             y: 116,
         },
 
-        seatedOfficerSpriteId: BRIDGE_SEATED_OFFICER_SPRITE_ID.SCIENCE_SEATED_01_IDLE,
+        seatedOfficerSpriteId: BRIDGE_SEATED_OFFICER_SPRITE_ID.SCIENCE_IDLE,
         flipX: false,
         hitArea: OFFICER_HIT_AREA,
 
@@ -51,7 +51,7 @@ export const BRIDGE_OFFICER_STATION_LAYOUT = {
             y: 296,
         },
 
-        seatedOfficerSpriteId: BRIDGE_SEATED_OFFICER_SPRITE_ID.HELM_SEATED_01_IDLE,
+        seatedOfficerSpriteId: BRIDGE_SEATED_OFFICER_SPRITE_ID.HELM_IDLE,
         flipX: false,
         hitArea: OFFICER_HIT_AREA,
 
@@ -65,7 +65,7 @@ export const BRIDGE_OFFICER_STATION_LAYOUT = {
             y: 116,
         },
 
-        seatedOfficerSpriteId: BRIDGE_SEATED_OFFICER_SPRITE_ID.WEAPONS_SEATED_01_IDLE,
+        seatedOfficerSpriteId: BRIDGE_SEATED_OFFICER_SPRITE_ID.WEAPONS_IDLE,
         flipX: true,
         hitArea: OFFICER_HIT_AREA,
 
@@ -79,7 +79,7 @@ export const BRIDGE_OFFICER_STATION_LAYOUT = {
             y: 296,
         },
 
-        seatedOfficerSpriteId: BRIDGE_SEATED_OFFICER_SPRITE_ID.ENGINEER_SEATED_01_IDLE,
+        seatedOfficerSpriteId: BRIDGE_SEATED_OFFICER_SPRITE_ID.ENGINEER_IDLE,
         flipX: true,
         hitArea: OFFICER_HIT_AREA,
 

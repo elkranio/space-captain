@@ -51,7 +51,7 @@ describe(
                         'Our test ship',
 
                     spriteId:
-                        'new_perspective_00',
+                        'generic',
 
                     maxHull: 3,
 

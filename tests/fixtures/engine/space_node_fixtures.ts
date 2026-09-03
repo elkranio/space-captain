@@ -136,7 +136,7 @@ function createTestBeaconAnchor(localPosition: Vec3): NavigationBeaconSpaceAncho
         beacon: {
             id: TEST_BEACON_ID,
             name: TEST_BEACON_NAME,
-            objectSpriteId: BEACON_OBJECT_SPRITE_ID.NAVIGATION_BEACON_00,
+            objectSpriteId: BEACON_OBJECT_SPRITE_ID.NAVIGATION_BEACON,
         },
 
         localPosition: {
