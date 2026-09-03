@@ -177,7 +177,7 @@ export default class BridgeDefenseTurretTileView {
                 powerSprite.frameKey,
             )
             .setOrigin(0, 0)
-            .setTint(CAPTAIN_DASHBOARD_STYLE.equipmentIntegrity.filledColor);
+            .setTint(CAPTAIN_DASHBOARD_STYLE.equipmentAccent.iconColor);
 
         this.powerText = this.scene.add
             .bitmapText(

@@ -157,7 +157,7 @@ export default class BridgeMissileLauncherTileView {
                 ammoSprite.frameKey,
             )
             .setOrigin(0, 0)
-            .setTint(CAPTAIN_DASHBOARD_STYLE.equipmentIntegrity.filledColor);
+            .setTint(CAPTAIN_DASHBOARD_STYLE.equipmentAccent.iconColor);
 
         this.ammoText = this.scene.add
             .bitmapText(

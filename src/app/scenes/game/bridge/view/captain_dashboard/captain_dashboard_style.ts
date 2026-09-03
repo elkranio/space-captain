@@ -38,10 +38,14 @@ export const CAPTAIN_DASHBOARD_STYLE = {
         activityColor: 0xea9e3e,
     },
 
+    equipmentAccent: {
+        iconColor: 0x69bff2,
+    },
+
     equipmentIntegrity: {
-        filledColor: 0x69bff2,
+        filledColor: 0x71c651,
         emptyColor: 0x07121e,
-        borderColor: 0x69bff2,
+        borderColor: 0x71c651,
     },
 
     hull: {
