@@ -44,9 +44,6 @@ describe('Bridge enemy destruction flow', () => {
 
         const emit = vi.fn();
 
-        const setEncounterInteractive =
-            vi.fn();
-
         const eventBus = {
             emit,
         } as unknown as BridgeEventBus;
@@ -54,8 +51,6 @@ describe('Bridge enemy destruction flow', () => {
         const handler =
             new BridgeEncounterEngineEventHandler(
                 eventBus,
-
-                setEncounterInteractive,
             );
 
         const persistenceSynchronizer =
@@ -85,10 +80,6 @@ describe('Bridge enemy destruction flow', () => {
                 },
             ),
         ).toBe(false);
-
-        expect(
-            setEncounterInteractive,
-        ).not.toHaveBeenCalled();
 
         expect(
             emit.mock.calls,

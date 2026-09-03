@@ -20,16 +20,11 @@ import type BridgeEventBus from "../../../events/BridgeEventBus";
 import { mapEncounterAnchorToBridgeObjectPayload } from "../encounter_objects/BridgeEncounterObjectMapper";
 import BridgeEncounterLoadPresenter from "./BridgeEncounterLoadPresenter";
 
-type SetEncounterInteractive = (value: boolean) => void;
-
 export default class BridgeEncounterEngineEventHandler {
     private readonly loadPresenter: BridgeEncounterLoadPresenter;
 
-    constructor(
-        private readonly eventBus: BridgeEventBus,
-        private readonly setEncounterInteractive: SetEncounterInteractive,
-    ) {
-        this.loadPresenter = new BridgeEncounterLoadPresenter(this.eventBus, this.setEncounterInteractive);
+    constructor(private readonly eventBus: BridgeEventBus) {
+        this.loadPresenter = new BridgeEncounterLoadPresenter(this.eventBus);
     }
 
     // #region Public API
@@ -99,8 +94,6 @@ export default class BridgeEncounterEngineEventHandler {
                 return;
 
             case ENCOUNTER_EVENT.TRAVEL_STARTED:
-                this.setEncounterInteractive(false);
-
                 this.eventBus.emit(BRIDGE_EVENT.ENCOUNTER_TRAVEL_STARTED, {
                     taskId: event.taskId,
 
@@ -112,8 +105,6 @@ export default class BridgeEncounterEngineEventHandler {
                 return;
 
             case ENCOUNTER_EVENT.JUMP_STARTED:
-                this.setEncounterInteractive(false);
-
                 this.eventBus.emit(BRIDGE_EVENT.ENCOUNTER_JUMP_STARTED, {
                     taskId: event.taskId,
 
@@ -122,8 +113,6 @@ export default class BridgeEncounterEngineEventHandler {
                 return;
 
             case ENCOUNTER_EVENT.DOCKING_STARTED:
-                this.setEncounterInteractive(false);
-
                 this.eventBus.emit(BRIDGE_EVENT.DOCKING_STARTED, {
                     taskId: event.taskId,
                     targetId: event.targetId,
@@ -489,8 +478,6 @@ export default class BridgeEncounterEngineEventHandler {
         if (!result.destroyed) {
             return;
         }
-
-        this.setEncounterInteractive(false);
 
         this.eventBus.emit(BRIDGE_EVENT.SCENE_TRANSITION_REQUESTED, {
             sceneKey: SCENE_KEY.END,

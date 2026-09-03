@@ -73,8 +73,6 @@ describe(
                         {
                             emit,
                         } as unknown as BridgeEventBus,
-
-                        vi.fn(),
                     );
 
                 handler.handle([

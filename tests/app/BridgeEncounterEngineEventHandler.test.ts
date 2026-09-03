@@ -61,16 +61,10 @@ const impactedProjectile: MissileEventProjectileSnapshot = {
 describe('BridgeEncounterEngineEventHandler combat events', () => {
     it('does not clear combat presentation before local travel starts', () => {
         const emit = vi.fn();
-        const setEncounterInteractive = vi.fn();
-
         const handler =
-            new BridgeEncounterEngineEventHandler(
-                {
-                    emit,
-                } as unknown as BridgeEventBus,
-
-                setEncounterInteractive,
-            );
+            new BridgeEncounterEngineEventHandler({
+                emit,
+            } as unknown as BridgeEventBus);
 
         handler.handle([
             {
@@ -113,10 +107,6 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
             },
         ]);
 
-        expect(setEncounterInteractive).toHaveBeenCalledWith(
-            false,
-        );
-
         expect(emit.mock.calls).toEqual([
             [
                 BRIDGE_EVENT.ENCOUNTER_TRAVEL_STARTED,
@@ -135,13 +125,9 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
         const emit = vi.fn();
 
         const handler =
-            new BridgeEncounterEngineEventHandler(
-                {
-                    emit,
-                } as unknown as BridgeEventBus,
-
-                vi.fn(),
-            );
+            new BridgeEncounterEngineEventHandler({
+                emit,
+            } as unknown as BridgeEventBus);
 
         handler.clearCombatPresentation();
 
@@ -200,13 +186,11 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
     it('maps enemy attack start and missile launch to bridge presentation events', () => {
         const emit = vi.fn();
 
-        const setEncounterInteractive = vi.fn();
-
         const eventBus = {
             emit,
         } as unknown as BridgeEventBus;
 
-        const handler = new BridgeEncounterEngineEventHandler(eventBus, setEncounterInteractive);
+        const handler = new BridgeEncounterEngineEventHandler(eventBus);
 
         handler.handle([
             {
@@ -244,19 +228,16 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
             ],
         ]);
 
-        expect(setEncounterInteractive).not.toHaveBeenCalled();
     });
 
     it('requests END only for damage marked as destruction', () => {
         const emit = vi.fn();
 
-        const setEncounterInteractive = vi.fn();
-
         const eventBus = {
             emit,
         } as unknown as BridgeEventBus;
 
-        const handler = new BridgeEncounterEngineEventHandler(eventBus, setEncounterInteractive);
+        const handler = new BridgeEncounterEngineEventHandler(eventBus);
 
         handler.handle([
             {
@@ -282,7 +263,6 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
             ],
         ]);
 
-        expect(setEncounterInteractive).not.toHaveBeenCalled();
 
         handler.handle([
             {
@@ -301,10 +281,6 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
                 destroyed: true,
             },
         ]);
-
-        expect(setEncounterInteractive).toHaveBeenCalledTimes(1);
-
-        expect(setEncounterInteractive).toHaveBeenCalledWith(false);
 
         expect(emit.mock.calls).toEqual([
             [
@@ -352,8 +328,6 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
             },
         ]);
 
-        expect(setEncounterInteractive).toHaveBeenCalledTimes(1);
-
         expect(emit.mock.calls).toEqual([
             [
                 BRIDGE_EVENT.INCOMING_MISSILE_REMOVED,
@@ -396,13 +370,9 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
                 vi.fn();
 
             const handler =
-                new BridgeEncounterEngineEventHandler(
-                    {
-                        emit,
-                    } as unknown as BridgeEventBus,
-
-                    vi.fn(),
-                );
+                new BridgeEncounterEngineEventHandler({
+                    emit,
+                } as unknown as BridgeEventBus);
 
             handler.handle([
                 {
@@ -473,13 +443,9 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
                 vi.fn();
 
             const handler =
-                new BridgeEncounterEngineEventHandler(
-                    {
-                        emit,
-                    } as unknown as BridgeEventBus,
-
-                    vi.fn(),
-                );
+                new BridgeEncounterEngineEventHandler({
+                    emit,
+                } as unknown as BridgeEventBus);
 
             handler.handle([
                 {
@@ -554,13 +520,11 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
     it('maps a completed defense-turret shot to bridge presentation', () => {
         const emit = vi.fn();
 
-        const setEncounterInteractive = vi.fn();
-
         const eventBus = {
             emit,
         } as unknown as BridgeEventBus;
 
-        const handler = new BridgeEncounterEngineEventHandler(eventBus, setEncounterInteractive);
+        const handler = new BridgeEncounterEngineEventHandler(eventBus);
 
         handler.handle([
             {
@@ -610,6 +574,5 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
             ],
         ]);
 
-        expect(setEncounterInteractive).not.toHaveBeenCalled();
     });
 });

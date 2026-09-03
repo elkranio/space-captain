@@ -15,6 +15,8 @@ import {
     type ExecuteOfficerCommandInput,
     type ExecuteOfficerCommandResult,
 } from "../../../../../../engine/encounter/model/command";
+import { BEAM_CANNON_SHOT_OUTCOME } from "../../../../../../engine/encounter/model/combat";
+import { ENCOUNTER_EVENT, type EncounterEvent } from "../../../../../../engine/encounter/model/event";
 import { applyEnemyCombatStartDebugBehaviors } from "../../../../../debug/apply_enemy_combat_start_debug_behaviors";
 import { DEBUG_SETTINGS } from "../../../../../debug/debug_settings";
 import { GAME_RUNTIME } from "../../../../../runtime/GameRuntime";
@@ -62,13 +64,7 @@ export default class BridgeEncounterController {
     constructor(private readonly eventBus: BridgeEventBus) {
         this.persistenceSynchronizer = new BridgeEncounterPersistenceSynchronizer(GAME_RUNTIME);
 
-        this.engineEventHandler = new BridgeEncounterEngineEventHandler(
-            this.eventBus,
-
-            (value) => {
-                this.isEncounterInteractive = value;
-            },
-        );
+        this.engineEventHandler = new BridgeEncounterEngineEventHandler(this.eventBus);
 
         this.registerBridgeEventHandlers();
 
@@ -310,7 +306,44 @@ export default class BridgeEncounterController {
         for (const event of events) {
             this.persistenceSynchronizer.syncEvent(event);
 
+            this.updateInteractionState(event, presentationSnapshot);
+
             this.engineEventHandler.handle([event], presentationSnapshot);
+        }
+    }
+
+    private updateInteractionState(
+        event: EncounterEvent,
+        presentationSnapshot?: EncounterPresentationSnapshot,
+    ): void {
+        switch (event.type) {
+            case ENCOUNTER_EVENT.ENCOUNTER_LOADED:
+                if (!presentationSnapshot) {
+                    throw new Error("ENCOUNTER_LOADED requires presentation snapshot");
+                }
+
+                this.isEncounterInteractive =
+                    presentationSnapshot.navigation.kind === PLAYER_SPACE_NAVIGATION_KIND.ANCHORED;
+                return;
+
+            case ENCOUNTER_EVENT.TRAVEL_STARTED:
+            case ENCOUNTER_EVENT.JUMP_STARTED:
+            case ENCOUNTER_EVENT.DOCKING_STARTED:
+                this.isEncounterInteractive = false;
+                return;
+
+            case ENCOUNTER_EVENT.MISSILE_IMPACTED_PLAYER_SHIP:
+            case ENCOUNTER_EVENT.STICKY_MINE_DETONATED:
+                if (event.destroyed) {
+                    this.isEncounterInteractive = false;
+                }
+                return;
+
+            case ENCOUNTER_EVENT.BEAM_CANNON_FIRED:
+                if (event.outcome === BEAM_CANNON_SHOT_OUTCOME.HIT && event.destroyed) {
+                    this.isEncounterInteractive = false;
+                }
+                return;
         }
     }
 

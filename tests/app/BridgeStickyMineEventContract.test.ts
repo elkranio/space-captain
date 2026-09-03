@@ -35,8 +35,6 @@ describe('Bridge sticky-mine event contract', () => {
                 {
                     emit,
                 } as unknown as BridgeEventBus,
-
-                vi.fn(),
             );
 
         handler.handle([

@@ -52,9 +52,6 @@ describe('Bridge player sticky-mine event mapping', () => {
     it('maps attach and resolution to outgoing-only bridge events', () => {
         const emit = vi.fn();
 
-        const setEncounterInteractive =
-            vi.fn();
-
         const eventBus = {
             emit,
         } as unknown as BridgeEventBus;
@@ -62,8 +59,6 @@ describe('Bridge player sticky-mine event mapping', () => {
         const handler =
             new BridgeEncounterEngineEventHandler(
                 eventBus,
-
-                setEncounterInteractive,
             );
 
         handler.handle([
@@ -165,8 +160,5 @@ describe('Bridge player sticky-mine event mapping', () => {
             ),
         ).toBe(false);
 
-        expect(
-            setEncounterInteractive,
-        ).not.toHaveBeenCalled();
     });
 });

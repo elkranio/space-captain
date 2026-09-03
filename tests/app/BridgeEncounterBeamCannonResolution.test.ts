@@ -44,7 +44,7 @@ describe('BridgeEncounterEngineEventHandler beamCannon resolution', () => {
     });
 
     it('removes the threat, emits a hit beam and damages hull', () => {
-        const { handler, runtime, emit, setEncounterInteractive } = createHandler();
+        const { handler, runtime, emit } = createHandler();
 
         handler.handle([
             {
@@ -83,7 +83,6 @@ describe('BridgeEncounterEngineEventHandler beamCannon resolution', () => {
 
         ]);
 
-        expect(setEncounterInteractive).not.toHaveBeenCalled();
     });
 
     it('removes the threat and emits a miss beam without changing persistent hull', () => {
@@ -91,7 +90,6 @@ describe('BridgeEncounterEngineEventHandler beamCannon resolution', () => {
             handler,
             runtime,
             emit,
-            setEncounterInteractive,
         } = createHandler();
 
         const hullBefore =
@@ -152,9 +150,6 @@ describe('BridgeEncounterEngineEventHandler beamCannon resolution', () => {
             ],
         ]);
 
-        expect(
-            setEncounterInteractive,
-        ).not.toHaveBeenCalled();
     });
 });
 
@@ -162,7 +157,6 @@ function createHandler() {
     const runtime = new GameRuntime();
 
     const emit = vi.fn();
-    const setEncounterInteractive = vi.fn();
 
     const eventBus = {
         emit,
@@ -171,7 +165,6 @@ function createHandler() {
     const eventHandler =
         new BridgeEncounterEngineEventHandler(
             eventBus,
-            setEncounterInteractive,
         );
 
     const persistenceSynchronizer =
@@ -182,7 +175,6 @@ function createHandler() {
     return {
         runtime,
         emit,
-        setEncounterInteractive,
 
         handler: {
             handle(events: EncounterEvent[]): void {

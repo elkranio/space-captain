@@ -25,15 +25,12 @@ describe('Bridge sticky-mine damage', () => {
         const runtime = new GameRuntime();
 
         const emit = vi.fn();
-        const setEncounterInteractive = vi.fn();
 
         const handler =
             new BridgeEncounterEngineEventHandler(
                 {
                     emit,
                 } as unknown as BridgeEventBus,
-
-                setEncounterInteractive,
             );
 
         const mine1 = createMine(
@@ -109,14 +106,6 @@ describe('Bridge sticky-mine damage', () => {
             runtime.getCurrentRun()
                 .player.ship.hull,
         ).toBe(0);
-
-        expect(
-            setEncounterInteractive,
-        ).toHaveBeenCalledTimes(1);
-
-        expect(
-            setEncounterInteractive,
-        ).toHaveBeenCalledWith(false);
 
         expect(emit.mock.calls).toEqual([
             [

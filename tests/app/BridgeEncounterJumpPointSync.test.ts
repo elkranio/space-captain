@@ -45,8 +45,6 @@ describe('Bridge encounter jump-point sync', () => {
             {
                 emit,
             } as unknown as BridgeEventBus,
-
-            vi.fn(),
         );
 
         const persistenceSynchronizer =

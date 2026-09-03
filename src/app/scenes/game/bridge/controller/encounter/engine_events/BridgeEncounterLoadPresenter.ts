@@ -9,17 +9,12 @@ import { BRIDGE_EVENT, type BridgeEncounterObjectPayload } from "../../../events
 import type BridgeEventBus from "../../../events/BridgeEventBus";
 import { mapEncounterSpaceToBridgeObjectPayloads } from "../encounter_objects/BridgeEncounterObjectMapper";
 
-type SetEncounterInteractive = (value: boolean) => void;
-
 // Восстанавливает bridge presentation из уже загруженного EncounterEngine state.
 //
 // Не загружает domain encounter и не меняет GameRuntime.
-// Отвечает только за initial objects/navigation presentation и interactive state.
+// Отвечает только за initial objects/navigation presentation.
 export default class BridgeEncounterLoadPresenter {
-    constructor(
-        private readonly eventBus: BridgeEventBus,
-        private readonly setEncounterInteractive: SetEncounterInteractive,
-    ) {}
+    constructor(private readonly eventBus: BridgeEventBus) {}
 
     public present(snapshot: EncounterPresentationSnapshot): void {
         const objects = mapEncounterSpaceToBridgeObjectPayloads(snapshot.space);
@@ -62,8 +57,6 @@ export default class BridgeEncounterLoadPresenter {
             return;
         }
 
-        this.setEncounterInteractive(false);
-
         this.eventBus.emit(BRIDGE_EVENT.ENCOUNTER_ARRIVAL_STARTED, {
             targetId: targetAnchorId,
         });
@@ -73,8 +66,6 @@ export default class BridgeEncounterLoadPresenter {
         const anchorObjects = this.findAnchorObjectsOrThrow(objects, anchorId);
 
         this.eventBus.emit(BRIDGE_EVENT.ENCOUNTER_OBJECTS_UPDATED, anchorObjects);
-
-        this.setEncounterInteractive(true);
     }
 
     private presentTravellingNavigation(
@@ -88,8 +79,6 @@ export default class BridgeEncounterLoadPresenter {
         this.findAnchorObjectsOrThrow(objects, fromAnchorId);
 
         const targetAnchorObjects = this.findAnchorObjectsOrThrow(objects, targetAnchorId);
-
-        this.setEncounterInteractive(false);
 
         this.eventBus.emit(BRIDGE_EVENT.ENCOUNTER_OBJECTS_UPDATED, targetAnchorObjects);
 

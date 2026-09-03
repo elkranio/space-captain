@@ -38,8 +38,6 @@ describe(
                         {
                             emit,
                         } as unknown as BridgeEventBus,
-
-                        vi.fn(),
                     );
 
                 expect(() => {

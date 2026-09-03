@@ -40,8 +40,6 @@ describe('Bridge encounter drive sync', () => {
                 {
                     emit,
                 } as unknown as BridgeEventBus,
-
-                vi.fn(),
             );
 
         syncAndHandleEvents(
@@ -81,8 +79,6 @@ describe('Bridge encounter drive sync', () => {
                 {
                     emit,
                 } as unknown as BridgeEventBus,
-
-                vi.fn(),
             );
 
         syncAndHandleEvents(

@@ -57,9 +57,6 @@ describe('Bridge player missile event mapping', () => {
     it('maps launch and resolution to outgoing-only bridge events', () => {
         const emit = vi.fn();
 
-        const setEncounterInteractive =
-            vi.fn();
-
         const eventBus = {
             emit,
         } as unknown as BridgeEventBus;
@@ -67,8 +64,6 @@ describe('Bridge player missile event mapping', () => {
         const handler =
             new BridgeEncounterEngineEventHandler(
                 eventBus,
-
-                setEncounterInteractive,
             );
 
         handler.handle([
@@ -116,8 +111,5 @@ describe('Bridge player missile event mapping', () => {
             ),
         ).toBe(false);
 
-        expect(
-            setEncounterInteractive,
-        ).not.toHaveBeenCalled();
     });
 });
