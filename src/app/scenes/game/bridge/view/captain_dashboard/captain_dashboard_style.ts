@@ -21,8 +21,14 @@ export const CAPTAIN_DASHBOARD_STYLE = {
 
         borderColor: 0x315f7a,
         borderAlpha: 0.62,
+        emptyBorderAlpha: 0.24,
         borderThickness: 1,
         cornerCut: 6,
+
+        highlightBorderColor: 0xd7e6ff,
+        highlightBorderAlpha: 1,
+        highlightBorderThickness: 2,
+        highlightInset: 1,
     },
 
     equipmentProgress: {

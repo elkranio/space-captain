@@ -6,6 +6,7 @@ import {
 import { FONT_COLOR, FONT_FAMILY, FONT_SIZE } from "../../../../../../../theme/font";
 import { OFFICER_ROLE_COLOR } from "../../../../../../../theme/officer";
 import type BridgeScene from "../../../../BridgeScene";
+import BridgeEquipmentSlotChromeView from "../../BridgeEquipmentSlotChromeView";
 import { CAPTAIN_DASHBOARD_STYLE } from "../../captain_dashboard_style";
 
 const TILE = {
@@ -50,7 +51,7 @@ export default class BridgeSpamProjectorTileView {
 
     private readonly hoverHeaderBackground: Phaser.GameObjects.Rectangle;
 
-    private readonly hoverOutline: Phaser.GameObjects.Rectangle;
+    private readonly hoverOutline: BridgeEquipmentSlotChromeView;
 
     private readonly baseIcon: Phaser.GameObjects.Image;
 
@@ -91,18 +92,13 @@ export default class BridgeSpamProjectorTileView {
             .setOrigin(0, 0)
             .setVisible(false);
 
-        this.hoverOutline = this.scene.add
-            .rectangle(
-                TILE.hoverBorderThickness / 2,
-                TILE.hoverBorderThickness / 2,
-                this.width - TILE.hoverBorderThickness,
-                height - TILE.hoverBorderThickness,
-                0x000000,
-                0,
-            )
-            .setOrigin(0, 0)
-            .setStrokeStyle(TILE.hoverBorderThickness, FONT_COLOR.PRIMARY)
-            .setVisible(false);
+        this.hoverOutline = new BridgeEquipmentSlotChromeView(
+            this.scene,
+            this.width,
+            height,
+            "highlight",
+        );
+        this.hoverOutline.setVisible(false);
 
         this.titleText = this.scene.add
             .bitmapText(TILE.horizontalPadding, TILE.titleY, FONT_FAMILY.UI_PRIMARY, "", FONT_SIZE.PX_20)
@@ -168,7 +164,7 @@ export default class BridgeSpamProjectorTileView {
             this.hoverActionText,
             this.purgedText,
             this.integrityRoot,
-            this.hoverOutline,
+            this.hoverOutline.getRoot(),
             this.hitArea,
         ]);
     }

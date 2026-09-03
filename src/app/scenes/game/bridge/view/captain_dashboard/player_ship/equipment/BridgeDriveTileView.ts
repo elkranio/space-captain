@@ -84,7 +84,7 @@ export default class BridgeDriveTileView {
                 powerSprite.frameKey,
             )
             .setOrigin(0, 0)
-            .setTint(this.chromeColor);
+            .setTint(CAPTAIN_DASHBOARD_STYLE.equipmentIntegrity.filledColor);
 
         this.powerText = this.scene.add
             .bitmapText(
@@ -156,7 +156,6 @@ export default class BridgeDriveTileView {
         this.chromeColor = color;
         this.titleText.setTint(color);
         this.powerText.setTint(color);
-        this.powerIcon.setTint(color);
         this.renderIntegrity();
     }
 

@@ -44,8 +44,8 @@ const GRID = {
     columns: 4,
     rows: 3,
 
-    columnGap: 4,
-    rowGap: 4,
+    columnGap: 6,
+    rowGap: 6,
 } as const;
 
 // Базовая 4x3 сетка equipment slots.
