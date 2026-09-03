@@ -13,20 +13,10 @@ import BridgeEquipmentIntegrityView from "../../BridgeEquipmentIntegrityView";
 import BridgeEquipmentMetricView from "../../BridgeEquipmentMetricView";
 import BridgeEquipmentProgressIconView from "../../BridgeEquipmentProgressIconView";
 import BridgeEquipmentSlotChromeView from "../../BridgeEquipmentSlotChromeView";
+import { CAPTAIN_DASHBOARD_LAYOUT } from "../../captain_dashboard_layout";
 import { CAPTAIN_DASHBOARD_STYLE } from "../../captain_dashboard_style";
 
-const TILE = {
-    horizontalPadding: 9,
-
-    titleY: 3,
-
-    statusY: 70,
-
-    hoverTextGap: 6,
-    hoverHeaderHeight: 22,
-    hoverHeaderAlpha: 0.14,
-    hoverBorderThickness: 2,
-} as const;
+const TILE = CAPTAIN_DASHBOARD_LAYOUT.equipmentTile;
 
 export const BEAM_CANNON_PROGRESS_MODE = {
     COOLDOWN: "cooldown",
@@ -83,7 +73,14 @@ export default class BridgeBeamCannonTileView {
         this.root = this.scene.add.container(0, 0);
 
         this.hoverHeaderBackground = this.scene.add
-            .rectangle(0, 0, this.width, TILE.hoverHeaderHeight, FONT_COLOR.PRIMARY, TILE.hoverHeaderAlpha)
+            .rectangle(
+                0,
+                0,
+                this.width,
+                TILE.hoverHeaderHeight,
+                FONT_COLOR.PRIMARY,
+                CAPTAIN_DASHBOARD_STYLE.equipmentSlot.hoverHeaderAlpha,
+            )
             .setOrigin(0, 0)
             .setVisible(false);
 
@@ -103,7 +100,7 @@ export default class BridgeBeamCannonTileView {
         const sprite = EQUIPMENT_SPRITES[EQUIPMENT_SPRITE_ID.BEAM_CANNON];
 
         const centerX = Math.round(this.width / 2);
-        const centerY = Math.round(height / 2) + 1;
+        const centerY = Math.round(height / 2) + TILE.iconCenterOffsetY;
         const hoverTextY = TILE.titleY;
 
         this.progressIconView = new BridgeEquipmentProgressIconView(
@@ -134,7 +131,10 @@ export default class BridgeBeamCannonTileView {
         this.metricView.setTextColor(this.chromeColor);
 
         this.integrityView = new BridgeEquipmentIntegrityView(this.scene);
-        this.integrityView.setPosition(0, TILE.statusY + 2);
+        this.integrityView.setPosition(
+            0,
+            TILE.statusY + TILE.integrityOffsetY,
+        );
         this.integrityView.setRightEdge(this.width - TILE.horizontalPadding);
 
         this.hitArea = this.scene.add
