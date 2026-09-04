@@ -110,6 +110,7 @@ export default class OfficerCommandExecutor {
                     availableTarget.actorId === inputTarget.actorId &&
                     availableTarget.node.kind === inputTarget.node.kind &&
                     (availableTarget.node.kind === "hull" ||
+                        availableTarget.node.kind === "bridge" ||
                         (inputTarget.node.kind === "slot" && availableTarget.node.slotId === inputTarget.node.slotId))
                 );
 
