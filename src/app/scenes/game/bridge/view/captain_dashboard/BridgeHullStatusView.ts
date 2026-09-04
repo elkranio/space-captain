@@ -9,6 +9,12 @@ import BridgePipStripView, {
     HEADER_STATUS_PIP,
 } from "./BridgePipStripView";
 
+const COMPACT_HULL_PIP = {
+    width: HEADER_STATUS_PIP.width,
+    height: 6,
+    gap: HEADER_STATUS_PIP.gap,
+} as const;
+
 const HULL = {
     iconGap: 8,
     maxPipsPerRow: 15,
@@ -21,6 +27,8 @@ export default class BridgeHullStatusView {
     private readonly root: Phaser.GameObjects.Container;
 
     private readonly icon: Phaser.GameObjects.Image;
+
+    private readonly singlePipStrip: BridgePipStripView;
 
     private readonly topPipStrip: BridgePipStripView;
 
@@ -45,16 +53,18 @@ export default class BridgeHullStatusView {
             emptyAlpha: CAPTAIN_DASHBOARD_STYLE.hull.emptyAlpha,
         };
 
-        this.topPipStrip = new BridgePipStripView(this.scene, palette);
-        this.bottomPipStrip = new BridgePipStripView(this.scene, palette);
+        this.singlePipStrip = new BridgePipStripView(this.scene, palette);
+        this.topPipStrip = new BridgePipStripView(this.scene, palette, COMPACT_HULL_PIP);
+        this.bottomPipStrip = new BridgePipStripView(this.scene, palette, COMPACT_HULL_PIP);
 
         this.root.add([
             this.icon,
+            this.singlePipStrip.getRoot(),
             this.topPipStrip.getRoot(),
             this.bottomPipStrip.getRoot(),
         ]);
 
-        this.layoutRows(false);
+        this.layoutSingleRow();
     }
 
     public getRoot(): Phaser.GameObjects.Container {
@@ -63,6 +73,7 @@ export default class BridgeHullStatusView {
 
     public getWidth(): number {
         const pipWidth = Math.max(
+            this.singlePipStrip.getWidth(),
             this.topPipStrip.getWidth(),
             this.bottomPipStrip.getWidth(),
         );
@@ -81,48 +92,56 @@ export default class BridgeHullStatusView {
             );
         }
 
-        const twoRows = max > HULL.maxPipsPerRow;
-        const topMax = twoRows ? Math.ceil(max / 2) : max;
-        const bottomMax = twoRows ? Math.floor(max / 2) : 0;
-        const topCurrent = Math.min(current, topMax);
-        const bottomCurrent = Math.max(0, current - topMax);
+        if (max <= HULL.maxPipsPerRow) {
+            this.topPipStrip.clear();
+            this.bottomPipStrip.clear();
+            this.singlePipStrip.setValue(current, max);
+            this.layoutSingleRow();
+            return;
+        }
 
-        this.topPipStrip.setValue(topCurrent, topMax);
+        this.singlePipStrip.clear();
+
+        const bottomMax = HULL.maxPipsPerRow;
+        const topMax = max - bottomMax;
+        const bottomCurrent = Math.min(current, bottomMax);
+        const topCurrent = Math.max(0, current - bottomMax);
+
         this.bottomPipStrip.setValue(bottomCurrent, bottomMax);
-        this.layoutRows(twoRows);
+        this.topPipStrip.setValue(topCurrent, topMax);
+        this.layoutCompactRows();
     }
 
     public clear(): void {
+        this.singlePipStrip.clear();
         this.topPipStrip.clear();
         this.bottomPipStrip.clear();
-        this.layoutRows(false);
+        this.layoutSingleRow();
     }
 
     public destroy(): void {
+        this.singlePipStrip.destroy();
         this.topPipStrip.destroy();
         this.bottomPipStrip.destroy();
         this.root.destroy(true);
     }
 
-    private layoutRows(twoRows: boolean): void {
+    private layoutSingleRow(): void {
+        this.singlePipStrip.setPosition(
+            this.icon.width + HULL.iconGap,
+            Math.round((this.height - HEADER_STATUS_PIP.height) / 2),
+        );
+    }
+
+    private layoutCompactRows(): void {
         const x = this.icon.width + HULL.iconGap;
-
-        if (!twoRows) {
-            this.topPipStrip.setPosition(
-                x,
-                Math.round((this.height - HEADER_STATUS_PIP.height) / 2),
-            );
-            this.bottomPipStrip.setPosition(x, 0);
-            return;
-        }
-
-        const rowsHeight = HEADER_STATUS_PIP.height * 2 + HULL.rowGap;
+        const rowsHeight = COMPACT_HULL_PIP.height * 2 + HULL.rowGap;
         const topY = Math.round((this.height - rowsHeight) / 2);
 
         this.topPipStrip.setPosition(x, topY);
         this.bottomPipStrip.setPosition(
             x,
-            topY + HEADER_STATUS_PIP.height + HULL.rowGap,
+            topY + COMPACT_HULL_PIP.height + HULL.rowGap,
         );
     }
 }
