@@ -7,7 +7,7 @@ Permanent collaboration and implementation rules. Do not duplicate them in task 
 Before a new coding atom:
 
 1. Read `../CURRENT_HANDOFF.md` and the Markdown documents in `docs/`.
-2. Re-fetch current `master`.
+2. Establish the source baseline for the workflow below: fresh `master` for Web Chat, current workspace for Codex Local.
 3. Inspect the exact current source and tests touched by the atom.
 
 Current repository state wins over stale handoff assumptions.
@@ -43,9 +43,9 @@ Keep each working atom narrow. Do not silently fold neighboring or speculative s
 
 If a new sprite/raw asset is required for an atom, say so before coding that atom.
 
-## Patch delivery
+## Web Chat patch workflow
 
-For tracked text/source changes, use a Git patch generated from the exact current source state.
+In Web Chat, for tracked text/source changes, use a Git patch generated from the exact current source state.
 
 - Re-fetch current `master` before preparing the patch.
 - For ordinary edits, obtain the **full exact current contents of every touched file** before building the patch.
@@ -68,6 +68,17 @@ Do not replace a failed normal patch with an ad-hoc installer merely to dodge a 
 A guarded executable patcher is reserved for transformations that genuinely require executable migration
 logic. If one is needed, it must fail loudly on unknown source state and preflight all writes.
 
+## Codex Local direct-edit workflow
+
+The current local repository is authoritative. Inspect `git status --short`, `git branch --show-current` and
+`git rev-parse HEAD` before editing; preserve existing user changes. Handoff instructions to fetch fresh `master`
+and prepare patches apply to Web Chat, not to this local workflow.
+
+- Read the exact current source and tests, then edit workspace files directly.
+- Do NOT create `.patch` files unless explicitly asked.
+- Do not commit, push, rebase, reset, clean or otherwise alter git history unless explicitly asked.
+- Always show and review `git diff` after changes, including the contents of new untracked files.
+
 ## Validation
 
 For TypeScript/gameplay work, the normal floor is:
@@ -78,7 +89,8 @@ npm test -- <focused test path>
 git -c core.safecrlf=false diff --check
 ```
 
-Before pushing gameplay changes, also run the full suite:
+Before declaring a Codex Local gameplay atom complete (unless explicitly told not to), or before pushing gameplay
+changes, also run the full suite:
 
 ```bash
 npm test
