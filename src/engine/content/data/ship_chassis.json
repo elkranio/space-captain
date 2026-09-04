@@ -2,7 +2,7 @@
     "player_00": {
         "name": "Player test ship",
         "spriteId": "generic",
-        "maxHull": 5,
+        "maxHull": 16,
         "slots": [
             {
                 "id": "drive",

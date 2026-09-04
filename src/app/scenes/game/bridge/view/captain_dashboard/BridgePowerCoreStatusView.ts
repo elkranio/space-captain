@@ -20,8 +20,6 @@ export default class BridgePowerCoreStatusView {
 
     private readonly pipStrip: BridgePipStripView;
 
-    private rightEdge = 0;
-
     constructor(
         private readonly scene: BridgeScene,
         height: number,
@@ -58,9 +56,8 @@ export default class BridgePowerCoreStatusView {
         return this.root;
     }
 
-    public setRightEdge(x: number): void {
-        this.rightEdge = x;
-        this.layout();
+    public setPosition(x: number, y: number): void {
+        this.root.setPosition(x, y);
     }
 
     public setVisible(visible: boolean): void {
@@ -73,25 +70,14 @@ export default class BridgePowerCoreStatusView {
         rechargeProgress?: number,
     ): void {
         this.pipStrip.setValue(current, max, rechargeProgress);
-        this.layout();
     }
 
     public clear(): void {
         this.pipStrip.clear();
-        this.layout();
     }
 
     public destroy(): void {
         this.pipStrip.destroy();
         this.root.destroy(true);
-    }
-
-    private layout(): void {
-        const width =
-            this.icon.width +
-            (this.pipStrip.getWidth() > 0 ? POWER_CORE.iconGap : 0) +
-            this.pipStrip.getWidth();
-
-        this.root.setX(this.rightEdge - width);
     }
 }
