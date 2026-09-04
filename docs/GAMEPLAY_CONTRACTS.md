@@ -60,6 +60,7 @@ Current implementation truth:
 Encounter equipment integrity is also generalized:
 
 - Drive, Defense Turret, Shield Generator and weapons carry encounter-local `integrity`;
+- installed equipment owns integrity/BROKEN; a slot target resolves equipment via its mount, not a separate slot-health pool;
 - `maxIntegrity` comes from equipment content definitions;
 - encounter creation hydrates fresh integrity;
 - encounter-only integrity is explicitly stripped at persistent snapshot boundaries and does not become run attrition;
@@ -75,11 +76,27 @@ future work.
 
 Reaction time comes from each weapon's real lifecycle rather than a universal fake pre-warning phase.
 
-Committed cooldown advances in encounter time and may overlap active crew/action time. Cancellation or
-interruption after
-commitment does not refund committed cooldown or resources; cancellation before commitment remains free.
+Committed cooldown advances in encounter time and may overlap active crew/action time. Cancellation or interruption after
+commitment does not refund committed cooldown or resources. Some current pre-commitment cancellation paths remain free.
 
-Current weapon phase shapes:
+Current cooldown start edges:
+
+| System | Player | Enemy |
+| --- | --- | --- |
+| Missile Launcher | Physical launch | Physical launch |
+| Beam Cannon | Charging starts | Charging starts |
+| Sticky Mine Dispenser | First mine launches; overlaps the rest of the salvo | First attachment attempt; overlaps salvo |
+| SPAM Projector | Channel operation ends | Channeling starts |
+| Defense Turret | Attempt completes or is cancelled | Loading starts |
+| Shield Generator | Deployment task starts | Deployment task starts |
+| Evade | Maneuver starts | Maneuver starts |
+
+Several rows differ from the confirmed design: cooldown should start after active work or allowed termination.
+Free Missile-targeting cancellation is an intentional exception and should remain. See the per-system table in
+`GAME_DESIGN.md` for intent and `BACKLOG.md` for the separate gameplay correction.
+Do not mistake a later visible `COOLDOWN` phase for the point when its countdown begins.
+
+Current weapon phase shapes (`COOLDOWN` is skipped if the committed recovery has already finished):
 
 ```text
 Missile Launcher:       READY -> TARGETING -> LAUNCH -> COOLDOWN -> READY
@@ -90,15 +107,31 @@ Sticky Mine Dispenser:  READY -> DISPENSING          -> COOLDOWN -> READY
 
 Concrete commitment edges are owned by each system rather than a shared generic phase machine.
 
+Current player cancellation details:
+
+- Missile targeting cancellation returns the launcher to READY without ammo or cooldown cost;
+- Beam cancellation keeps spent Power and only the remaining cooldown, rather than starting a fresh full cooldown;
+- an interrupted mine salvo keeps spent ammo and remaining recovery; before its first mine, no cooldown is committed;
+- player mine salvos and active SPAM cannot be manually cancelled; engine cancellation uses their concrete cleanup paths;
+- player Turret cancellation starts a full cooldown; Evade and Shield keep their already-running recovery.
+
+Source entry points: `src/engine/defs/ship_weapon.ts`, `src/engine/defs/ship_evade.ts`,
+`src/engine/encounter/state/PlayerShipStore.ts`, `src/engine/encounter/combat/enemy/EnemyWorkExecutor.ts`, and the concrete
+family runners under `src/engine/encounter/combat/`.
+Timing coverage includes `tests/engine/defs/ship_evade.test.ts` and the encounter suites
+`player_beam_cannon_lifecycle.test.ts`, `player_missile_command.test.ts`, `player_sticky_mine_command.test.ts`,
+`player_spam_projector.test.ts`, `gunner_defense_turret_command.test.ts` and `player_shield_deploy.test.ts`.
+
 ## Pilot Evade
 
 ```text
-READY -> WARMUP -> EVADING -> COOLDOWN -> READY
+READY -> WARMUP -> EVADING -> COOLDOWN (if recovery remains) -> READY
 ```
 
 Current rules:
 
 - command start commits Power Core cost and full cooldown;
+- cooldown counts down during WARMUP/EVADING, so the maneuver can end directly in READY;
 - Pilot is occupied for the maneuver;
 - cancellation/interruption does not refund committed Power/cooldown;
 - the main Drive must be operational;
@@ -106,6 +139,8 @@ Current rules:
 - Missiles, Beam hits and new sticky-mine attachments are evadable;
 - SPAM and already-attached mines are not evadable;
 - Evade does not slow/block Scientist, Gunner or Engineer.
+
+The confirmed 1-integrity Drive cost at Evade end is not implemented yet.
 
 ## Shared Power Core
 
@@ -243,6 +278,7 @@ role.
 - Player Scientist can purge enemy SPAM.
 - Active crew-progress modifiers use engine read models.
 - Player SPAM threat presentation uses real effect duration/progress, not a decision timing window.
+- `BridgeSpamView` shows viewscreen garbage/ads on the projection layer, below bridge controls/UI; this is implemented.
 
 ## Damage and interruption
 

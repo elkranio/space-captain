@@ -21,13 +21,31 @@ Do not create post-combat waiting/repair optimization for state that can be rest
 
 ### Evade Drive wear
 
-Confirmed intended behavior, not yet assumed implemented:
+Confirmed intended behavior, not yet implemented:
 
 - once Evade is committed, its eventual end deals 1 Drive module damage;
 - apply the damage at Evade end, not start;
 - normal completion, manual cancellation and Pilot Stun all still apply the damage;
 - generic task `INTERRUPT` should not cancel an active Evade;
 - the final Drive integrity point can power one last Evade and break when it ends.
+
+### Cooldown starts after active work
+
+Bring equipment lifecycles into line with the confirmed per-system table in `GAME_DESIGN.md`
+("Equipment cooldown and cancellation").
+The current per-system timing table and source/test references live in `GAMEPLAY_CONTRACTS.md`.
+
+- remove cooldown overlap with active work where it still exists (Beam, Evade, Shield, mine salvos, enemy Turret/SPAM);
+- start a full cooldown on termination, including an interrupted mine operation before its first launch;
+- preserve free Missile-targeting cancellation: no ammo spent and no cooldown, including target loss;
+- target loss during active Beam/Turret work starts a full cooldown;
+- preserve SPAM's lack of manual cancellation; incoming damage can interrupt its work;
+- preserve spent CORE and launched-mine costs, and retain unlaunched ammunition;
+- update timing tests deliberately: some currently require the old overlapping recovery behavior.
+
+This is the next gameplay continuation, before Beam semantic targeting. Inspect exact source/tests and split the work into
+narrow atoms as needed. Documentation corrections have not implemented these timing changes. Evade Drive wear remains
+the explicit TODO above; do not assume it is already wired at the new cooldown boundary.
 
 ### Escape flow
 
@@ -44,7 +62,8 @@ location-bound non-combat tasks, leaving should cancel/forfeit the task naturall
 
 ### Baseline gun
 
-Add a no-ammo/no-CORE Basic Gun during the weapon/build-diversity pass.
+Add the baseline-gun concept (Basic Gun / Autocannon) during the weapon/build-diversity pass. These are two working names
+for one unimplemented concept. Keep no CORE cost; decide ammunition rules when implementing it.
 
 It should become weak without investment but remain endgame-viable when the player deliberately builds/upgrades around
 it.
@@ -63,12 +82,11 @@ Do not weaken behavior coverage merely to shorten tests.
 
 ## Cleanup
 
-### Disposable bridge debug layer
+### Retained Missile debug tooling
 
-`BridgeScene` no longer instantiates the old debug layer, but the dead folder and dependency still remain.
+`BridgeScene` no longer instantiates the old general debug layer. Keep `BridgeMissileDebugView` and
+`bridge_missile_debug_config.ts` for upcoming Missile attack visual tests. They are temporary tooling, potentially retained
+for a long time; do not delete `src/app/scenes/game/bridge/debug_view/**` as general cleanup.
 
-When the combat-debug workflow is no longer needed:
-
-- remove `src/app/scenes/game/bridge/debug_view/**`;
-- remove `phaser3-rex-plugins` if no real runtime use remains;
-- validate the package lock after uninstall.
+Removal requires a separate explicit task after that testing workflow is replaced. Dependency cleanup is also separate
+work and must inspect actual uses before removing packages.

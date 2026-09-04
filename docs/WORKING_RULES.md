@@ -6,7 +6,8 @@ Permanent collaboration and implementation rules. Do not duplicate them in task 
 
 Before a new coding atom:
 
-1. Read `../CURRENT_HANDOFF.md` and the Markdown documents in `docs/`.
+1. Read `../CURRENT_HANDOFF.md`, these rules and the docs relevant to the atom. Use the handoff's doc map;
+   do not reload every document for unrelated work.
 2. Establish the source baseline for the workflow below: fresh `master` for Web Chat, current workspace for Codex Local.
 3. Inspect the exact current source and tests touched by the atom.
 
@@ -75,6 +76,7 @@ The current local repository is authoritative. Inspect `git status --short`, `gi
 and prepare patches apply to Web Chat, not to this local workflow.
 
 - Read the exact current source and tests, then edit workspace files directly.
+- Use the current checkout and diff as the baseline; do not fetch or switch to `master` merely to start an atom.
 - Do NOT create `.patch` files unless explicitly asked.
 - Do not commit, push, rebase, reset, clean or otherwise alter git history unless explicitly asked.
 - Always show and review `git diff` after changes, including the contents of new untracked files.

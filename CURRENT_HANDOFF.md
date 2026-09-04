@@ -12,7 +12,8 @@ repository: elkranio/space-captain
 branch: master
 ```
 
-Always re-fetch fresh `master` and the exact touched files before preparing a code patch.
+For Codex Local, the current checkout, working tree and exact source/tests are authoritative. Inspect them before editing;
+no fresh `master` fetch is required. Web Chat patch preparation follows the fetch rules in `docs/WORKING_RULES.md`.
 
 Read durable docs when their boundary is relevant:
 
@@ -75,7 +76,7 @@ policy differs; do not rebuild duplicated tile chrome inside each concrete equip
 - red = BROKEN/problem state;
 - integrity pips remain compact and state-consistent;
 - resource/status metrics appear only where they change an immediate decision;
-- whole tile cells are interaction surfaces; contextual hover actions may replace the central pictogram.
+- whole tile cells are interaction surfaces; contextual hover actions replace the title while the pictogram stays visible.
 
 ### Authoritative 4x3 placement — LANDED
 
@@ -129,7 +130,8 @@ BOTTOM
 The old large 4x2 threat-action/combat-context view is gone. Do not resurrect it.
 
 `BridgeScene` no longer instantiates the old general debug layer. The explicit holdout is the Missile debug tooling:
-`BridgeMissileDebugView` + `bridge_missile_debug_config.ts`.
+`BridgeMissileDebugView` + `bridge_missile_debug_config.ts`. Keep them for upcoming Missile attack visual tests.
+This is temporary tooling, potentially retained for a long time; removal requires an explicit task.
 
 `docs/reference/combat_bridge_layout_2026-08-25.png` remains useful for macro composition, but live dashboard internals
 supersede its old special-column geometry.
@@ -172,9 +174,18 @@ Rules:
 TexturePacker recursively derives atlas frame keys from `assets/raw/images`; TS manifests must match those relative paths
 without `.png`.
 
-## Immediate next gameplay slice — player Beam semantic targeting
+## Next continuation — equipment cooldown timing
 
-The persistent enemy board prerequisite is now landed. The next confirmed combat atom is to inspect the current Beam
+The documentation audit is complete; the agreed cooldown corrections are not implemented. Resume with the per-system
+"Equipment cooldown and cancellation" table in `docs/GAME_DESIGN.md` and the implementation checklist in `docs/BACKLOG.md`.
+`docs/GAMEPLAY_CONTRACTS.md` records the current code behavior, including overlapping recovery and player/enemy differences.
+
+Preserve free Missile-targeting cancellation and SPAM's lack of manual cancellation. Other allowed termination paths use
+a full cooldown. Keep this work narrow; Evade Drive wear is a separate explicit TODO, not an already-landed cost.
+
+## Following gameplay slice — player Beam semantic targeting
+
+The persistent enemy board prerequisite is now landed. After the cooldown work, inspect the current Beam
 command/task/runner/read path and replace actor-wide player Beam targeting with a semantic target carried end-to-end:
 
 ```text
@@ -203,10 +214,14 @@ player Beam HULL | SLOT(slotId)
 - current incoming Beam target vocabulary is still `HULL | DRIVE`;
 - current player targeted Shield uses that same temporary `HULL | DRIVE` vocabulary;
 - current player Beam still targets the enemy actor as a whole;
+- slot targets resolve installed equipment; integrity/BROKEN belongs to equipment, never to a second slot-health state;
 - Defense Turret interception is deterministic after successful Gunner work;
 - Beam, Evade, Defense Turret and Shield Generator use shared Power Core;
 - Drive has an existing BROKEN-only repair path;
-- confirmed Evade Drive wear is still not implemented;
+- confirmed Evade wear (1 Drive integrity at maneuver end) is still not implemented;
+- SPAM viewscreen garbage/ads presentation is implemented beneath bridge controls;
+- cooldown timing does not consistently match the confirmed after-action rule; see `docs/GAMEPLAY_CONTRACTS.md`
+  for the current per-system timing and `docs/BACKLOG.md` for the deferred correction;
 - encounter-end restoration/cleanup is still deferred;
 - generic BROKEN gating/repair across all breakable equipment is still unfinished.
 
@@ -226,7 +241,7 @@ Still avoid touching these unrelated holdouts without a concrete reason:
 
 ## Next-chat continuation
 
-Read this file, fetch fresh `master`, then inspect the current player Beam command/task/runner path together with the
-landed enemy-dashboard slot identity/read model.
+Read this file and follow the applicable local/Web Chat baseline in `docs/WORKING_RULES.md`, then inspect the equipment
+lifecycle owners and timing tests against the confirmed cooldown table in `docs/GAME_DESIGN.md`.
 
-Start with **player Beam `HULL | SLOT(slotId)` targeting** unless the user explicitly changes priority.
+Start with **equipment cooldown timing** unless the user explicitly changes priority; Beam `HULL | SLOT(slotId)` follows.

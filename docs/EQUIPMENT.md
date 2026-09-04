@@ -59,6 +59,7 @@ integrity = 0 -> broken
 and clamped integrity damage.
 
 Encounter-only equipment integrity is not written back into persistent run state.
+Installed equipment owns integrity/BROKEN; slots only provide spatial identity and resolve the equipment through mounts.
 
 ### CONFIRMED TODO
 
@@ -83,24 +84,25 @@ SLOT(slotId)
 Confirmed Beam slot consequence:
 
 ```text
-operational slot
+operational equipment in targeted slot
     -> module damage
     -> no Hull damage
 
-hit that breaks slot
+hit that breaks that equipment
     -> still no Hull spill
 
-already BROKEN slot
+already BROKEN equipment in targeted slot
     -> hullDamage * 2
 ```
 
-Do not implement this before the current combat-dashboard slice provides the real target surfaces.
+The dual dashboards now provide the target surfaces. Player Beam semantic targeting follows the cooldown correction;
+see `CURRENT_HANDOFF.md` at the repository root for the current continuation.
 
 ## Current equipment overview
 
 | Category | Equipment | Slot | Operator | Status |
 | --- | --- | --- | --- | --- |
-| Movement | Drive | DRIVE | Pilot | LANDED / one confirmed Evade change pending |
+| Movement | Drive | DRIVE | Pilot | LANDED / Evade wear and cooldown correction pending |
 | Defense | Defense Turret | DEFENSE | Gunner | LANDED / generic BROKEN work pending |
 | Defense | Shield Generator | DEFENSE | Engineer | LANDED / shared slot-target migration pending |
 | Weapon | Missile Launcher | WEAPON | Gunner | LANDED |
@@ -139,13 +141,13 @@ It owns:
 - Evade warmup/duration/cooldown tuning;
 - Evade Power Core cost.
 
-Current Evade flow:
+Current Evade phase flow (the independent cooldown clock may already have expired):
 
 ```text
 READY
 -> WARMUP
 -> EVADING
--> COOLDOWN
+-> COOLDOWN (if recovery remains)
 -> READY
 ```
 
@@ -164,6 +166,8 @@ Current rules:
 - the existing Drive repair path restores it to full integrity.
 
 Current basic content tuning is `maxIntegrity = 2`. Exact timings/costs remain tuning, not sacred design.
+Current cooldown starts at commitment and overlaps the maneuver. The confirmed after-action rule is not implemented;
+see the timing table in `GAMEPLAY_CONTRACTS.md` and the correction in `BACKLOG.md`.
 
 ## CONFIRMED TODO — Evade damages the Drive
 
@@ -187,8 +191,9 @@ Evade again
 Because normal Engineer repair is BROKEN-only, `1/2` is not routine top-off territory. A second Evade can therefore be a
 deliberate decision to save the ship now and accept a broken Drive afterward.
 
-The exact integrity-consumption moment is OPEN: command commitment vs entering the actual Evade window should be decided
-when implementing it.
+Apply the 1-integrity cost at the end of each committed Evade, including normal completion, manual cancellation and Pilot
+Stun. Generic task `INTERRUPT` should not cancel active Evade. This is confirmed TODO, not an open timing decision;
+see `GAME_DESIGN.md` for the intended contract.
 
 ## CONFIRMED DIRECTION — Evade is the expensive universal emergency answer
 
@@ -490,22 +495,27 @@ Current baseline:
 - effect progress is duration progress, not an incoming-hit countdown;
 - SPAM Projector state carries encounter-local integrity.
 
-### CONFIRMED TODO / PRESENTATION
+### LANDED — Presentation
 
-Intended SPAM presentation also contaminates the external viewscreen with garbage/ads.
+SPAM presentation contaminates the external viewscreen with garbage/ads. `BridgeSpamView` renders on the projection layer,
+above space/combat effects and below bridge interior and UI.
 
 It may reduce visual situational awareness and be deliberately annoying, but it must never hide the minimum
 controls/state required for mandatory combat decisions.
 
-Also finish generic BROKEN gating/repair.
+### CONFIRMED TODO
+
+Finish generic BROKEN gating/repair.
 
 # Weapons — IDEA BANK
 
-None of the families in this section should be implemented without explicit promotion.
+These are unimplemented concepts. Basic Gun / Autocannon is a confirmed direction with unresolved mechanics;
+the other families remain ideas requiring explicit promotion.
 
 ## Autocannon — candidate starting weapon
 
-Status: **IDEA BANK**, strong candidate to replace/reinterpret the unimplemented generic `Basic Gun` concept.
+Status: **CONFIRMED DIRECTION / DETAILS DEFERRED**. Autocannon and Basic Gun refer to the same unimplemented baseline-gun
+concept. The details below are ideas, not a finished implementation contract. Decide ammunition rules when work starts.
 
 Fantasy: old military ballistic gun that is mechanically simple, cheap in ship energy and increasingly awkward to keep
 alive over a run.
@@ -517,8 +527,6 @@ Working identity:
 - Hull damage only;
 - no precision/module targeting;
 - no Power Core cost;
-- finite ammunition;
-- old ammunition is difficult to buy/find;
 - Shield does not counter it;
 - Defense Turret does not counter it;
 - Evade avoids it;
@@ -526,22 +534,19 @@ Working identity:
 
 Run-level intention:
 
-- it can naturally become unusable because ammunition dries up or the gun wears itself out;
-- if the player finds ammunition/upgrades and gets favorable run opportunities, an Autocannon build may remain viable to
-  the end;
+- wear may create pressure to replace or invest in the gun;
+- with upgrades and favorable run opportunities, an Autocannon build may remain viable to the end;
 - it should not be a disposable tutorial gun that is mathematically invalid after the opening.
 
 OPEN:
 
 - self-damage probability;
-- ammo capacity;
-- ammo rarity/distribution;
 - shot cadence and damage;
 - upgrade paths;
 - whether self-damage is rolled per trigger pull, burst or another firing unit.
 
-`GAME_DESIGN.md` currently describes an unimplemented generic Basic Gun with no ammo/CORE cost. Do not silently replace
-that canonical text until Autocannon is explicitly promoted from IDEA.
+Keep this as one concept in `GAME_DESIGN.md`, `BACKLOG.md` and the roadmap; do not schedule Basic Gun and Autocannon as
+separate weapons.
 
 ## Scattergun
 
@@ -557,7 +562,7 @@ fire one salvo
 -> each fragment independently:
        MISS
        or
-       hit a random installed breakable slot for 1 integrity damage
+       hit equipment in a random occupied breakable slot for 1 integrity damage
 ```
 
 Rules under consideration:

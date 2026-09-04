@@ -45,7 +45,7 @@ Current visual grammar established by the Missile Launcher prototype:
 - compact current-resource readout at bottom-left where relevant;
 - integrity pips at bottom-right;
 - whole tile cell is the interaction surface;
-- hover may replace the central pictogram with a contextual role/action label without adding a nested button.
+- hover hides the title and shows a contextual role/action label in its place; the central pictogram stays visible.
 
 State should read as one visual object, not several unrelated colors:
 

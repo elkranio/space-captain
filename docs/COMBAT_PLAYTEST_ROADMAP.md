@@ -82,7 +82,7 @@ normalized loadout idea and has a chassis-aware equipment editor.
 Generalized encounter-local integrity is landed for Drive, Defense Turret, Shield Generator and weapons. Full BROKEN
 operational gating / repair behavior across every family is still follow-up work.
 
-Targetable slots/modules use encounter-local integrity with binary functionality:
+Installed equipment owns encounter-local integrity with binary functionality; slots own placement, not health:
 
 ```text
 integrity > 0 -> OPERATIONAL
@@ -130,14 +130,14 @@ Beam consequences:
 HULL
     -> hullDamage
 
-operational slot
+operational equipment in targeted slot
     -> moduleDamage
     -> no Hull damage
 
-hit that breaks slot
+hit that breaks that equipment
     -> no overkill spill
 
-already BROKEN slot
+already BROKEN equipment in targeted slot
     -> hullDamage * 2
 ```
 
@@ -237,15 +237,16 @@ Before several weapons gain special hit behavior, keep explicit distinctions bet
 ```text
 officer stun       = officer unavailable for time
 task interruption  = current work stops; officer can immediately work again
-system broken      = semantic ship slot/module unavailable until repaired
+system broken      = installed equipment unavailable until repaired
 ```
 
 Do not collapse stun and interruption into one effect.
 
 ### 11. Weapon/build diversity
 
-Add and tune the confirmed Basic Gun alongside other weapons so builds create distinct pressure through damage,
-disruption, crew pressure, subsystem pressure and resource economy.
+Add and tune the baseline-gun concept (Basic Gun / Autocannon) alongside other weapons so builds create distinct pressure
+through damage, disruption, crew pressure, subsystem pressure and resource economy. This is one unimplemented concept;
+decide ammunition rules when implementing it.
 
 Do not lock speculative effect percentages or future slot lists into this roadmap.
 

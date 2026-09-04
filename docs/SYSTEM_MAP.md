@@ -64,10 +64,16 @@ Keep the current bridge encounter responsibilities explicit rather than hiding t
 BridgeEncounterController
     -> owns app-layer encounter interactivity and scene-flow decisions
     -> steps EncounterEngine
-    -> persists current snapshot state
-    -> syncs current presentation state
-    -> drains one-shot engine events in explicit order
+    -> reads one detached presentation snapshot
+    -> persists snapshot state
+    -> syncs MY SHIP dashboard from that snapshot
+    -> drains one-shot engine events
+    -> syncs combat presentation from the same snapshot
 ```
+
+This is the order in `BridgeEncounterController.step`; task cancellation uses the same post-mutation order.
+Keep the two snapshot synchronization stages on their respective sides of event draining.
+Source: `src/app/scenes/game/bridge/controller/encounter/BridgeEncounterController.ts`.
 
 Supporting boundaries:
 
@@ -117,7 +123,8 @@ MY SHIP dashboard | ENEMY SHIP dashboard
 ```
 
 MY SHIP is the primary control surface. ENEMY SHIP is the persistent basic state/target surface. Basic enemy
-Hull/slots/BROKEN state should not require a separate mutable inspection model.
+Hull, slot placement and installed-equipment integrity/BROKEN state should not require a separate mutable inspection model.
+Slots own spatial identity; installed equipment owns integrity and operational truth.
 
 Both current ship dashboards use a shared HULL/header presentation plus an exact 4x3 equipment grid. The superseded
 BRIDGE/HULL special column is gone; do not preserve gameplay semantics for a removed presentation region.

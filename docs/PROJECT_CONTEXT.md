@@ -24,7 +24,7 @@ permission to understand the interface.
 - Packed art: `assets/live/images/**`
 - Canvas: 1280x720
 - Atlas key: `atlas`
-- Bitmap font: `pixel_operator`
+- UI font roles: `src/app/theme/font.ts` (`UI_PRIMARY` and `VGA_8X14`); preload list: `src/config/p34t.options.ts`
 
 Keep Phaser/app types out of the engine.
 
@@ -48,7 +48,7 @@ File length alone is not a refactor reason.
 
 ## Documentation map
 
-Read these first when re-entering the project:
+Start with the handoff and working rules; read design/runtime contracts when relevant to the atom:
 
 1. `../CURRENT_HANDOFF.md` — transient checkpoint and next active work.
 2. `GAME_DESIGN.md` — canonical intended game/combat design.

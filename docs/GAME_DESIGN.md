@@ -289,22 +289,23 @@ DEFENSE
 UTILITY
 ```
 
-Different chassis may expose different counts and combinations of these slots. Do not make "four weapon slots" a
-universal
-ship rule merely because the current debug start has four weapon fields.
+Different chassis may expose different counts and combinations of these slots. Do not make one debug loadout's weapon
+count a universal ship rule. Debug Start stores normalized `equipment[]` entries with explicit `slotId`; chassis define
+the available layout.
 
 Each slot has stable identity on the ship so installed hardware, combat targeting and presentation can refer to the same
 place without reconstructing it from array position.
 
-Targetable slot integrity is encounter-local and binary in functionality:
+Integrity belongs to installed equipment, not the physical slot. It is encounter-local and binary in functionality:
 
 ```text
 integrity > 0 -> OPERATIONAL
 integrity = 0 -> BROKEN
 ```
 
-A BROKEN targetable slot disables the hardware installed in it until repaired. The broken/operational fact must have one
-authoritative domain owner; command availability, AI and physical runners should not maintain parallel booleans.
+BROKEN equipment is disabled until repaired. Slot targeting resolves the installed equipment through the mount;
+the slot has no separate integrity/BROKEN state. Command availability, AI and physical runners consult the same
+equipment-owned operational truth.
 
 Hull is not a slot.
 
@@ -320,11 +321,11 @@ SLOT(slotId)
 
 Beam slot resolution is deliberately asymmetric across the first and repeated hit:
 
-- hitting an OPERATIONAL slot deals module damage and no Hull damage;
-- a hit that reduces the slot to BROKEN still does not spill damage into Hull;
-- hitting an already BROKEN slot deals `hullDamage * 2`.
+- hitting OPERATIONAL equipment in the targeted slot deals module damage and no Hull damage;
+- a hit that breaks that equipment still does not spill damage into Hull;
+- hitting already BROKEN equipment in the targeted slot deals `hullDamage * 2`.
 
-The exact slot durability, Beam damage and chassis layouts are tuning/content.
+The exact equipment durability, Beam damage and chassis layouts are tuning/content.
 
 Do not generalize every currently scalar installed system into arbitrary arrays until a real chassis/loadout needs that
 multiplicity. The slot model should remove fixed-layout assumptions without creating a generic equipment framework for
@@ -354,8 +355,8 @@ when they have real domain identity and consequences.
 
 Power Core is intentionally non-breakable and non-targetable.
 
-For Beam-style module attacks, use the chassis-slot rules above. A targetable installed module is disabled by its
-authoritative slot becoming BROKEN; do not create a second module-broken truth beside the slot state.
+For Beam-style module attacks, use the chassis-slot targeting rules above and mutate the installed equipment's integrity.
+Do not create slot-health state beside the equipment state.
 
 ### 4.3 Officer tasks in combat
 
@@ -380,8 +381,31 @@ Missile:      LAUNCHED -> FLIGHT -> HIT/MISS
 Launcher:     COMMITTED -> COOLDOWN -> READY
 ```
 
-Cancellation and resource refund depend on the concrete commitment point. Once a resource/cooldown is committed, later
-cancellation or interruption does not refund it.
+#### Equipment cooldown and cancellation
+
+The same timing rules apply to player and enemy equipment. A full cooldown starts at the end of active work, without
+counting down during preparation or operation. Allowed cancellation/interruption starts a full cooldown at termination,
+with the explicit Missile-targeting exception below. Committed resources are not refunded.
+
+| System | Full cooldown starts |
+| --- | --- |
+| Missile Launcher | When the Missile launches; cancelled targeting costs neither ammo nor cooldown. |
+| Beam Cannon | After firing or cancellation/interruption; committed CORE is not refunded. |
+| Drive / Evade | After the maneuver ends or is cancelled; the same end applies the 1-integrity Drive wear. |
+| Shield Generator | After Shield installation or cancellation/interruption. |
+| Sticky Mine Dispenser | After the last mine in the salvo launches, or the operation is cancelled/interrupted. |
+| SPAM Projector | After work ends or incoming damage interrupts it; no manual cancellation. |
+| Defense Turret | After the attempt finishes or is cancelled/interrupted. |
+
+Missile flight and installed Active Shield lifetime proceed independently of their equipment cooldowns.
+An interrupted mine salvo spends only the mines already launched; unlaunched ammunition remains available.
+These timing rules do not add manual cancellation to actions that currently forbid it.
+
+If the target disappears during active Beam or Turret work, terminate the attempt with a full cooldown. If it disappears
+during Missile targeting, cancel freely without spending ammunition or starting cooldown.
+
+This is confirmed design, not a claim that every runtime path already follows it. Current timing differences are recorded
+in `GAMEPLAY_CONTRACTS.md`; implementation work is tracked in `BACKLOG.md`.
 
 Ordinary damage does **not** randomly interrupt tasks. `INTERRUPT` is an explicit effect of specific weapons, traits or
 other mechanics.
@@ -485,12 +509,13 @@ awareness, but it must not hide the basic controls/state required to make mandat
 Different weapon families should create different decisions through officer time, resources, targeting and pressure, not
 just different damage numbers.
 
-#### Basic Gun
+#### Basic Gun / Autocannon
 
-The player has a baseline weapon that costs neither ammo nor CORE and gives Gunner a permanent way to deal Hull damage.
+These names refer to one unimplemented baseline-gun concept, not two planned weapon families. It gives Gunner a low-energy
+Hull-damage option with no CORE cost. Decide ammunition rules when implementing it; see `EQUIPMENT.md` for other ideas.
 
 Without upgrades it should become weak quickly enough that replacing it is attractive. With deliberate investment and
-appropriate upgrades, a Basic Gun build should be able to remain viable through the full run.
+appropriate upgrades, this gun build should be able to remain viable through the full run.
 
 #### Missile Launcher
 
@@ -621,7 +646,7 @@ Missiles and Mines use finite ammunition. Ammo persists between encounters and i
 replenished
 through run economy/content rather than by waiting.
 
-Basic Gun costs neither CORE nor ammo.
+Basic Gun / Autocannon has no CORE cost; its remaining resource rules are deferred until implementation.
 
 ### 4.8 Scientist / combat information
 
