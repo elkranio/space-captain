@@ -160,11 +160,7 @@ describe('Player beamCannon command', () => {
 
                 phaseElapsedMs: 0,
 
-                cooldownRemainingMs:
-                    SHIP_WEAPONS[
-                        SHIP_WEAPON_ID
-                            .BEAM_CANNON_00
-                    ].cooldownDurationMs,
+                cooldownRemainingMs: 0,
             });
 
             const [task] =
@@ -230,10 +226,13 @@ describe('Player beamCannon command', () => {
                     state,
                     SHIP_WEAPON_KIND
                         .BEAM_CANNON,
-                ).phase,
-            ).toBe(
-                SHIP_WEAPON_PHASE.COOLDOWN,
-            );
+                ),
+            ).toMatchObject({
+                phase: SHIP_WEAPON_PHASE.COOLDOWN,
+                phaseElapsedMs: 0,
+                cooldownRemainingMs:
+                    beamCannonDefinition.cooldownDurationMs,
+            });
 
             expect(
                 engine

@@ -2,6 +2,7 @@ import { SHIP_WEAPONS } from "../../../content/catalogs/ship_weapons";
 import { ENCOUNTER_TEAM } from "../../../defs/encounter_team";
 import { isShipEvading } from "../../../defs/ship_evade";
 import {
+    commitShipWeaponCooldown,
     finishShipWeaponAction,
     SHIP_WEAPON_KIND,
     SHIP_WEAPON_PHASE,
@@ -82,11 +83,12 @@ export default class PlayerBeamCannonRunner {
             return;
         }
 
-        finishShipWeaponAction(beamCannon, definition.cooldownDurationMs);
-
         // Impact resolves before the event so same-frame telemetry
         // already observes the consumed shield or damaged hull.
         const impact = this.resolveImpact(task, definition);
+
+        commitShipWeaponCooldown(beamCannon, definition.cooldownDurationMs);
+        finishShipWeaponAction(beamCannon, definition.cooldownDurationMs);
 
         this.options.emit({
             type: ENCOUNTER_EVENT.PLAYER_BEAM_CANNON_FIRED,

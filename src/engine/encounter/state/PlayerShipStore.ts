@@ -323,8 +323,6 @@ export default class PlayerShipStore {
 
         weapon.phaseElapsedMs = 0;
 
-        commitShipWeaponCooldown(weapon, definition.cooldownDurationMs);
-
         return {
             ...weapon,
         };
@@ -341,6 +339,10 @@ export default class PlayerShipStore {
 
         if (definition.kind !== weapon.kind) {
             throw new Error("Cancelled player weapon definition mismatch: " + weapon.id + "/" + weapon.weaponId);
+        }
+
+        if (weapon.kind === SHIP_WEAPON_KIND.BEAM_CANNON) {
+            commitShipWeaponCooldown(weapon, definition.cooldownDurationMs);
         }
 
         finishShipWeaponAction(weapon, definition.cooldownDurationMs);
