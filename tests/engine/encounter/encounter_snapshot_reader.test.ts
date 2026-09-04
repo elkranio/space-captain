@@ -203,6 +203,7 @@ describe('EncounterSnapshotReader', () => {
 
         const engine =
             new EncounterEngine({
+                random: () => 0.5,
                 node,
 
                 navigation: {

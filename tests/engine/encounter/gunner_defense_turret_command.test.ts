@@ -169,14 +169,13 @@ describe(
                     state,
                 } = createEngineWithIncomingMissile();
 
-                executeIntercept(
-                    engine,
-                );
+                const chargesBefore = state.combat.powerCore!.charges;
+                executeIntercept(engine);
 
                 expect(
                     state.combat.powerCore,
                 ).toMatchObject({
-                    charges: 3,
+                    charges: chargesBefore - 1,
                 });
 
                 expect(
@@ -313,9 +312,8 @@ describe(
                     state,
                 } = createEngineWithIncomingMissile();
 
-                executeIntercept(
-                    engine,
-                );
+                const chargesBefore = state.combat.powerCore!.charges;
+                executeIntercept(engine);
 
                 engine.drainEvents();
 
@@ -330,7 +328,7 @@ describe(
                 expect(
                     state.combat.powerCore,
                 ).toMatchObject({
-                    charges: 3,
+                    charges: chargesBefore - 1,
                 });
 
                 expect(
@@ -356,9 +354,8 @@ describe(
                     state,
                 } = createEngineWithIncomingMissile();
 
-                executeIntercept(
-                    engine,
-                );
+                const chargesBefore = state.combat.powerCore!.charges;
+                executeIntercept(engine);
 
                 const task =
                     engine.getOfficerTasks()[0];
@@ -376,7 +373,7 @@ describe(
                 expect(
                     state.combat.powerCore,
                 ).toMatchObject({
-                    charges: 3,
+                    charges: chargesBefore - 1,
                 });
 
                 expect(

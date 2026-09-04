@@ -49,6 +49,7 @@ describe('Engineer repair drive command', () => {
         } = createStationAndBeaconNodeFixture();
 
         const engine = new EncounterEngine({
+            random: () => 0.5,
             playerHull: createPlayerHullFixture(),
 
             drive: createShipDriveFixture(
@@ -265,6 +266,7 @@ describe('Engineer repair drive command', () => {
         } = createStationAndBeaconNodeFixture();
 
         const engine = new EncounterEngine({
+            random: () => 0.5,
             playerHull: createPlayerHullFixture(),
 
             drive: createShipDriveFixture(

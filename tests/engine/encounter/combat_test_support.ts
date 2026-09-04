@@ -138,7 +138,7 @@ export function createAnchoredPlayerCombatTestSetup(
                 createCanonicalPlayerCombatWeapons(),
 
             random:
-                options.random,
+                options.random ?? (() => 0.5),
         });
 
     const [loadedEvent] =

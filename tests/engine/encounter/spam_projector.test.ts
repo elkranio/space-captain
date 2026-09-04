@@ -36,6 +36,7 @@ describe('Spam projector', () => {
         node.actors.push(nodeEnemy);
 
         const engine = new EncounterEngine({
+            random: () => 0.5,
             playerHull: createPlayerHullFixture(),
 
             drive: createShipDriveFixture(),

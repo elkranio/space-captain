@@ -83,6 +83,10 @@ and prepare patches apply to Web Chat, not to this local workflow.
 
 ## Validation
 
+Test boundaries and fixture rules are in `tests/README.md`. Gameplay scenarios use explicit test content;
+content/factory/runtime/editor tests keep checking the actual workspace data. Do not restore fixed shipping-balance
+assertions merely to record the current editor values.
+
 For TypeScript/gameplay work, the normal floor is:
 
 ```bash

@@ -1,3 +1,4 @@
+import liveData from '../../src/engine/content/data/power_cores.json';
 import {
     describe,
     expect,
@@ -89,6 +90,7 @@ describe(
                         CONTENT_COLLECTION_ID
                             .POWER_CORES,
                         {
+                            ...liveData,
                             power_core_basic_00: {
                                 name:
                                     'MK.I POWER CORE',
@@ -123,6 +125,7 @@ describe(
                         CONTENT_COLLECTION_ID
                             .POWER_CORES,
                         {
+                            ...Object.fromEntries(Object.entries(liveData).filter(([id]) => id !== 'power_core_basic_00')),
                             overcharged_00: {
                                 name:
                                     'OVERCHARGED CORE',

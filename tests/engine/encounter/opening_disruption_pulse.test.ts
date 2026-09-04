@@ -243,6 +243,7 @@ function createEncounter(
     return {
         engine:
             new EncounterEngine({
+                random: () => 0.5,
                 playerHull:
                     createPlayerHullFixture(),
 

@@ -20,7 +20,7 @@ import {
 } from '../../src/engine/encounter/model/event';
 
 describe('Bridge sticky-mine damage', () => {
-    it('adds mines and destroys the starter ship after three detonations', () => {
+    it('persists incoming mine damage events and forwards their removal presentation', () => {
         const runtime = new GameRuntime();
 
         const emit = vi.fn();

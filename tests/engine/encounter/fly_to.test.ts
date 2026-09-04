@@ -31,6 +31,7 @@ describe('FLY_TO', () => {
         const { node, stationId, beaconId, beaconName } = createStationAndBeaconNodeFixture();
 
         const engine = new EncounterEngine({
+            random: () => 0.5,
             playerHull: createPlayerHullFixture(),
 
             drive: createShipDriveFixture(),
@@ -204,6 +205,7 @@ describe('FLY_TO', () => {
         );
 
         const engine = new EncounterEngine({
+            random: () => 0.5,
             playerHull: createPlayerHullFixture(),
 
             drive: createShipDriveFixture(),

@@ -253,6 +253,11 @@ other.
 
 ## Working rules for the next atom
 
+Test audit: see `tests/README.md` for scenario-vs-live-content boundaries. `npm test` runs both projects.
+Two production follow-ups remain: zero-duration Power Core content passes schema validation but fails factory/runtime
+validation; asset deletion protects old sprite IDs instead of the current `generic` manifest ID. Neither was changed
+by the test audit.
+
 Follow `docs/WORKING_RULES.md`; do not duplicate its patch/validation rules here.
 
 Still avoid touching these unrelated holdouts without a concrete reason:

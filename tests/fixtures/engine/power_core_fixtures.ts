@@ -4,9 +4,10 @@ import {
     POWER_CORE_ID,
 } from '../../../src/engine/defs/power_core';
 import PowerCoreFactory from '../../../src/engine/generation/ship_system/PowerCoreFactory';
+import { POWER_CORES } from '../../../src/engine/content/catalogs/power_cores';
 
 export function createPowerCoreFixture(
-    charges = 4,
+    charges = POWER_CORES[POWER_CORE_ID.BASIC_00].capacity,
     rechargeElapsedMs = 0,
 ) {
     return PowerCoreFactory.create({

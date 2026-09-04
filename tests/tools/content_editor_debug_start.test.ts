@@ -80,8 +80,9 @@ describe(
         );
 
         it(
-            'rejects a missing equipment content reference',
-            async () => {
+            'rejects a missing equipment content reference', async () => {
+                const driveIndex = debugStartData.player.equipment.findIndex(item => item.type === 'drive');
+                expect(driveIndex).toBeGreaterThanOrEqual(0);
                 await expect(
                     validateContentCollectionReferences(
                         process.cwd(),
@@ -104,7 +105,7 @@ describe(
                                                 index,
                                             ) => {
                                                 if (
-                                                    index !== 0
+                                                    index !== driveIndex
                                                 ) {
                                                     return equipment;
                                                 }
@@ -120,7 +121,7 @@ describe(
                         },
                     ),
                 ).rejects.toThrow(
-                    'Debug Start player.equipment[0].equipmentId references missing ship drive "missing_drive_00".',
+                    `Debug Start player.equipment[${driveIndex}].equipmentId references missing ship drive "missing_drive_00".`,
                 );
             },
         );

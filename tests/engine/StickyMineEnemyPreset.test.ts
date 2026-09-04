@@ -1,3 +1,4 @@
+import { SHIP_WEAPONS } from '../../src/engine/content/catalogs/ship_weapons';
 // tests/engine/StickyMineEnemyPreset.test.ts
 
 import {
@@ -42,7 +43,7 @@ describe('Sticky-mine enemy preset', () => {
                         .STICKY_MINE_DISPENSER,
 
 
-                ammoCount: 6,
+                ammoCount: SHIP_WEAPONS[SHIP_WEAPON_ID.STICKY_MINE_DISPENSER_00].ammoCapacity,
 
                 phase:
                     SHIP_WEAPON_PHASE.READY,

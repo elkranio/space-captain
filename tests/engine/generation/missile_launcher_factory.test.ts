@@ -2,39 +2,12 @@
 
 import { describe, expect, it } from 'vitest';
 import { SHIP_WEAPONS } from '../../../src/engine/content/catalogs/ship_weapons';
-import { SHIP_SLOT_KIND } from '../../../src/engine/defs/ship_slot';
 import { SHIP_WEAPON_ID, SHIP_WEAPON_KIND, SHIP_WEAPON_PHASE } from '../../../src/engine/defs/ship_weapon';
 import MissileLauncherFactory from '../../../src/engine/generation/ship_weapon/MissileLauncherFactory';
 
 describe('MissileLauncherFactory', () => {
     it('creates fresh launcher state directly from weapon content', () => {
         const definition = SHIP_WEAPONS[SHIP_WEAPON_ID.MISSILE_LAUNCHER_00];
-
-        // Отдельно фиксируем текущий content balance,
-        // чтобы поведенческие тесты не подстроились
-        // молча под случайное изменение значений.
-        expect(definition).toEqual({
-            id: SHIP_WEAPON_ID.MISSILE_LAUNCHER_00,
-
-            name: 'MISSILE LAUNCHER',
-            shortName: 'M. LAUNCHER',
-
-            kind: SHIP_WEAPON_KIND.MISSILE_LAUNCHER,
-
-            slotKind: SHIP_SLOT_KIND.WEAPON,
-
-            maxIntegrity: 2,
-
-            damage: 1,
-
-            flightDurationMs: 12000,
-
-            targetingDurationMs: 3000,
-
-            ammoCapacity: 5,
-
-            cooldownDurationMs: 15000,
-        });
 
         const first = MissileLauncherFactory.create({
             id: 'launcher_test_00',
@@ -55,7 +28,7 @@ describe('MissileLauncherFactory', () => {
 
             kind: SHIP_WEAPON_KIND.MISSILE_LAUNCHER,
 
-            ammoCount: 5,
+            ammoCount: definition.ammoCapacity,
 
             phase: SHIP_WEAPON_PHASE.READY,
             phaseElapsedMs: 0,
@@ -67,20 +40,22 @@ describe('MissileLauncherFactory', () => {
         first.ammoCount = 0;
         first.phase = SHIP_WEAPON_PHASE.COOLDOWN;
 
-        expect(second.ammoCount).toBe(5);
+        expect(second.ammoCount).toBe(definition.ammoCapacity);
         expect(second.phase).toBe(SHIP_WEAPON_PHASE.READY);
     });
 
     it('supports a bounded initial ammo override', () => {
+        const capacity = SHIP_WEAPONS[SHIP_WEAPON_ID.MISSILE_LAUNCHER_00].ammoCapacity;
+        const initialAmmo = Math.floor(capacity / 2);
         const launcher = MissileLauncherFactory.create({
             id: 'launcher_test_00',
 
             weaponId: SHIP_WEAPON_ID.MISSILE_LAUNCHER_00,
 
-            ammoCount: 1,
+            ammoCount: initialAmmo,
         });
 
-        expect(launcher.ammoCount).toBe(1);
+        expect(launcher.ammoCount).toBe(initialAmmo);
 
         expect(() => {
             MissileLauncherFactory.create({
@@ -88,8 +63,8 @@ describe('MissileLauncherFactory', () => {
 
                 weaponId: SHIP_WEAPON_ID.MISSILE_LAUNCHER_00,
 
-                ammoCount: 6,
+                ammoCount: capacity + 1,
             });
-        }).toThrow('Invalid missile launcher ammo count: 6/5');
+        }).toThrow(`Invalid missile launcher ammo count: ${capacity + 1}/${capacity}`);
     });
 });

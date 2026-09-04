@@ -1,0 +1,392 @@
+{
+    "beam_cannons": {
+        "beam_cannon_00": {
+            "name": "BEAM CANNON",
+            "shortName": "BEAM CANNON",
+            "maxIntegrity": 2,
+            "hullDamage": 1,
+            "moduleDamage": 1,
+            "powerCost": 1,
+            "chargeDurationMs": 12000,
+            "cooldownDurationMs": 27000
+        },
+        "fast_beam": {
+            "name": "FAST_BEAM_CANNON",
+            "shortName": "FAST BEAM",
+            "maxIntegrity": 2,
+            "hullDamage": 1,
+            "moduleDamage": 1,
+            "powerCost": 2,
+            "chargeDurationMs": 2000,
+            "cooldownDurationMs": 2000
+        }
+    },
+    "debug_start": {
+        "player": {
+            "chassisId": "player_00",
+            "powerCoreId": "power_core_basic_00",
+            "equipment": [
+                {
+                    "slotId": "drive",
+                    "type": "drive",
+                    "equipmentId": "basic_00"
+                },
+                {
+                    "slotId": "utility_01",
+                    "type": "weapon",
+                    "equipmentId": "spam_projector_00"
+                },
+                {
+                    "slotId": "defense_01",
+                    "type": "defense_turret",
+                    "equipmentId": "defense_turret_basic_00"
+                },
+                {
+                    "slotId": "defense_02",
+                    "type": "shield_generator",
+                    "equipmentId": "shield_generator_basic_00"
+                },
+                {
+                    "slotId": "weapon_01",
+                    "type": "weapon",
+                    "equipmentId": "sticky_mine_solo"
+                },
+                {
+                    "slotId": "weapon_02",
+                    "type": "weapon",
+                    "equipmentId": "fast_beam"
+                },
+                {
+                    "slotId": "weapon_03",
+                    "type": "weapon",
+                    "equipmentId": "missile_launcher_00"
+                }
+            ]
+        },
+        "enemy": {
+            "chassisId": "generic_00",
+            "powerCoreId": "power_core_basic_00",
+            "equipment": [
+                {
+                    "slotId": "drive",
+                    "type": "drive",
+                    "equipmentId": "basic_00"
+                },
+                {
+                    "slotId": "defense_01",
+                    "type": "defense_turret",
+                    "equipmentId": "defense_turret_basic_00"
+                },
+                {
+                    "slotId": "defense_02",
+                    "type": "shield_generator",
+                    "equipmentId": "shield_generator_basic_00"
+                }
+            ]
+        }
+    },
+    "defense_turrets": {
+        "defense_turret_basic_00": {
+            "name": "BASIC DEFENSE TURRET",
+            "shortName": "DEF. TURRET",
+            "maxIntegrity": 2,
+            "loadDurationMs": 3000,
+            "cooldownDurationMs": 8000
+        }
+    },
+    "enemy_behavior_rules": {
+        "shield_placement": {
+            "impactReserveMs": 1000
+        }
+    },
+    "missile_launchers": {
+        "missile_launcher_00": {
+            "name": "MISSILE LAUNCHER",
+            "shortName": "M. LAUNCHER",
+            "maxIntegrity": 2,
+            "damage": 1,
+            "targetingDurationMs": 3000,
+            "flightDurationMs": 12000,
+            "ammoCapacity": 5,
+            "cooldownDurationMs": 15000
+        },
+        "ml_full_auto": {
+            "name": "ml_full_auto",
+            "shortName": "ML FULL AUTO",
+            "maxIntegrity": 2,
+            "damage": 1,
+            "targetingDurationMs": 700,
+            "flightDurationMs": 12000,
+            "ammoCapacity": 20,
+            "cooldownDurationMs": 500
+        }
+    },
+    "officer_tasks_engineer": {
+        "engineer_repair_drive": {
+            "label": "REPAIR ENGINE",
+            "showProgress": true,
+            "canBeCancelledByPlayer": true,
+            "canBeInterruptedByDamage": true,
+            "durationMs": 12000
+        },
+        "engineer_deploy_shield": {
+            "label": "DEPLOY SHIELD",
+            "showProgress": true,
+            "canBeCancelledByPlayer": true,
+            "canBeInterruptedByDamage": true,
+            "durationMs": 3000
+        },
+        "clear_sticky_mine": {
+            "label": "CLEAR MINE",
+            "showProgress": true,
+            "canBeCancelledByPlayer": true,
+            "canBeInterruptedByDamage": true,
+            "durationMs": 3000
+        }
+    },
+    "officer_tasks_gunner": {
+        "gunner_defense_turret": {
+            "label": "TURRET AIM",
+            "showProgress": true,
+            "canBeCancelledByPlayer": true,
+            "canBeInterruptedByDamage": true,
+            "durationMs": 3000
+        },
+        "gunner_fire_missile": {
+            "label": "MISSILE AIM",
+            "showProgress": false,
+            "canBeCancelledByPlayer": true,
+            "canBeInterruptedByDamage": true
+        },
+        "gunner_fire_sticky_mines": {
+            "label": "MINE SALVO",
+            "showProgress": false,
+            "canBeCancelledByPlayer": false,
+            "canBeInterruptedByDamage": true
+        },
+        "gunner_fire_beam_cannon": {
+            "label": "BEAM CANNON CHARGE",
+            "showProgress": false,
+            "canBeCancelledByPlayer": true,
+            "canBeInterruptedByDamage": true
+        }
+    },
+    "officer_tasks_pilot": {
+        "pilot_dock": {
+            "label": "DOCK",
+            "showProgress": false,
+            "canBeCancelledByPlayer": false,
+            "canBeInterruptedByDamage": false
+        },
+        "pilot_fly_to": {
+            "label": "FLY TO",
+            "showProgress": false,
+            "canBeCancelledByPlayer": false,
+            "canBeInterruptedByDamage": false
+        },
+        "pilot_jump": {
+            "label": "JUMP",
+            "showProgress": false,
+            "canBeCancelledByPlayer": true,
+            "canBeInterruptedByDamage": true
+        },
+        "pilot_evade": {
+            "label": "EVADE",
+            "showProgress": false,
+            "canBeCancelledByPlayer": true,
+            "canBeInterruptedByDamage": true
+        }
+    },
+    "officer_tasks_scientist": {
+        "scientist_plot_course": {
+            "label": "PLOT COURSE",
+            "showProgress": false,
+            "canBeCancelledByPlayer": true,
+            "canBeInterruptedByDamage": true,
+            "durationMs": 5000
+        },
+        "scientist_purge_spam": {
+            "label": "PURGE SPAM",
+            "showProgress": true,
+            "canBeCancelledByPlayer": true,
+            "canBeInterruptedByDamage": true,
+            "durationMs": 5000
+        },
+        "scientist_fire_spam": {
+            "label": "SPAM PROJECT",
+            "showProgress": false,
+            "canBeCancelledByPlayer": false,
+            "canBeInterruptedByDamage": true
+        }
+    },
+    "power_cores": {
+        "power_core_basic_00": {
+            "name": "MK.I POWER CORE",
+            "shortName": "POWER CORE",
+            "capacity": 6,
+            "rechargeDurationMs": 24000
+        }
+    },
+    "shield_generators": {
+        "shield_generator_basic_00": {
+            "name": "BASIC SHIELD GENERATOR",
+            "shortName": "SHIELD GEN.",
+            "maxIntegrity": 2,
+            "shieldDurationMs": 5000,
+            "cooldownDurationMs": 8000
+        }
+    },
+    "ship_behaviors": {
+        "standard_combat_00": {
+            "decisionTickDurationMs": 1000,
+            "decisionTickWiggleMs": 250,
+            "threatTimingWiggleMs": 500,
+            "aggression": 50
+        }
+    },
+    "ship_chassis": {
+        "player_00": {
+            "name": "Player test ship",
+            "spriteId": "generic",
+            "maxHull": 5,
+            "slots": [
+                {
+                    "id": "drive",
+                    "kind": "drive",
+                    "column": 1,
+                    "row": 2
+                },
+                {
+                    "id": "utility_01",
+                    "kind": "utility",
+                    "column": 2,
+                    "row": 3
+                },
+                {
+                    "id": "defense_01",
+                    "kind": "defense",
+                    "column": 3,
+                    "row": 1
+                },
+                {
+                    "id": "defense_02",
+                    "kind": "defense",
+                    "column": 3,
+                    "row": 2
+                },
+                {
+                    "id": "weapon_01",
+                    "kind": "weapon",
+                    "column": 4,
+                    "row": 1
+                },
+                {
+                    "id": "weapon_02",
+                    "kind": "weapon",
+                    "column": 4,
+                    "row": 2
+                },
+                {
+                    "id": "weapon_03",
+                    "kind": "weapon",
+                    "column": 4,
+                    "row": 3
+                }
+            ]
+        },
+        "generic_00": {
+            "name": "Our test ship",
+            "spriteId": "generic",
+            "maxHull": 3,
+            "slots": [
+                {
+                    "id": "drive",
+                    "kind": "drive",
+                    "column": 1,
+                    "row": 2
+                },
+                {
+                    "id": "utility_01",
+                    "kind": "utility",
+                    "column": 2,
+                    "row": 2
+                },
+                {
+                    "id": "defense_01",
+                    "kind": "defense",
+                    "column": 3,
+                    "row": 1
+                },
+                {
+                    "id": "defense_02",
+                    "kind": "defense",
+                    "column": 3,
+                    "row": 2
+                },
+                {
+                    "id": "weapon_01",
+                    "kind": "weapon",
+                    "column": 4,
+                    "row": 1
+                },
+                {
+                    "id": "weapon_02",
+                    "kind": "weapon",
+                    "column": 4,
+                    "row": 2
+                },
+                {
+                    "id": "weapon_03",
+                    "kind": "weapon",
+                    "column": 4,
+                    "row": 3
+                }
+            ]
+        }
+    },
+    "ship_drives": {
+        "basic_00": {
+            "name": "BASIC DRIVE",
+            "shortName": "DRIVE",
+            "maxIntegrity": 2,
+            "evadeWarmupMs": 1000,
+            "evadeDurationMs": 30000,
+            "evadeCooldownMs": 20000,
+            "evadePowerCost": 2
+        }
+    },
+    "spam_projectors": {
+        "spam_projector_00": {
+            "name": "SPAM PROJECTOR",
+            "shortName": "SPAM PROJECTOR",
+            "maxIntegrity": 2,
+            "channelDurationMs": 20000,
+            "officerTaskProgressMultiplier": 0.5,
+            "cooldownDurationMs": 35000
+        }
+    },
+    "sticky_mine_dispensers": {
+        "sticky_mine_dispenser_00": {
+            "name": "STICKY MINE DISPENSER",
+            "shortName": "MINE DISPENSER",
+            "maxIntegrity": 2,
+            "damage": 1,
+            "fuseDurationMs": 7500,
+            "ammoCapacity": 6,
+            "salvoSize": 3,
+            "launchIntervalMs": 1000,
+            "cooldownDurationMs": 17000
+        },
+        "sticky_mine_solo": {
+            "name": "sticky_mine_solo",
+            "shortName": "SOLO MINE",
+            "maxIntegrity": 2,
+            "damage": 1,
+            "fuseDurationMs": 7500,
+            "ammoCapacity": 10,
+            "salvoSize": 1,
+            "launchIntervalMs": 1000,
+            "cooldownDurationMs": 3000
+        }
+    }
+}

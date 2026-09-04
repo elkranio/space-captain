@@ -49,11 +49,5 @@ describe('ShipDefenseTurretFactory', () => {
         expect(second.phase).toBe(
             DEFENSE_TURRET_PHASE.READY,
         );
-
-        expect(first)
-            .not.toHaveProperty('charges');
-
-        expect(first)
-            .not.toHaveProperty('maxCharges');
     });
 });

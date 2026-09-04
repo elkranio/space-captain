@@ -1,3 +1,4 @@
+import liveData from '../../src/engine/content/data/defense_turrets.json';
 import {
     describe,
     expect,
@@ -95,6 +96,7 @@ describe(
                         CONTENT_COLLECTION_ID
                             .DEFENSE_TURRETS,
                         {
+                            ...liveData,
                             defense_turret_basic_00: {
                                 name:
                                     'BASIC DEFENSE TURRET',
@@ -135,6 +137,7 @@ describe(
                         CONTENT_COLLECTION_ID
                             .DEFENSE_TURRETS,
                         {
+                            ...Object.fromEntries(Object.entries(liveData).filter(([id]) => id !== 'defense_turret_basic_00')),
                             rapid_00: {
                                 name:
                                     'RAPID DEFENSE TURRET',

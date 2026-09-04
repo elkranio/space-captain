@@ -1,6 +1,9 @@
 // tests/engine/encounter/new_game_enemy_defense_sandbox.test.ts
 
 import {
+    POWER_CORES,
+} from '../../../src/engine/content/catalogs/power_cores';
+import {
     DEFENSE_TURRETS,
 } from '../../../src/engine/content/catalogs/defense_turrets';
 import {
@@ -130,7 +133,10 @@ describe('New-game enemy defense sandbox', () => {
                     POWER_CORE_ID
                         .BASIC_00,
 
-                charges: 4,
+                charges:
+                    POWER_CORES[
+                        POWER_CORE_ID.BASIC_00
+                    ].capacity,
                 rechargeElapsedMs: 0,
             });
 
@@ -180,8 +186,8 @@ describe('New-game enemy defense sandbox', () => {
             // not captain attack-vs-defense strategy.
             targetActor.weapons = [];
 
-            const initialHull =
-                targetActor.hull;
+            const initialHull = targetActor.hull;
+            const chargesBefore = targetActor.powerCore!.charges;
 
             const beamCannonCommand =
                 engine
@@ -242,6 +248,7 @@ describe('New-game enemy defense sandbox', () => {
             // 7s remain: this is the deterministic deployment window.
             engine.step(5000);
 
+            expect(targetActor.powerCore?.charges).toBe(chargesBefore - 1);
             const shieldTask =
                 targetActor.crewTasks[
                     OFFICER_ROLE.ENGINEER
@@ -260,12 +267,6 @@ describe('New-game enemy defense sandbox', () => {
                 elapsedMs: 0,
                 durationMs: 3000,
             });
-
-            expect(
-                targetActor
-                    .powerCore
-                    ?.charges,
-            ).toBe(3);
 
             expect(
                 targetActor.activeShield,

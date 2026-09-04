@@ -66,7 +66,9 @@ describe('Enemy defense-turret interception', () => {
             projectile,
         } = createScenario();
 
+        const chargesBefore = enemy.powerCore!.charges;
         engine.step(0);
+        expect(enemy.powerCore?.charges).toBe(chargesBefore - 1);
 
         expect(enemy.defenseTurret).toMatchObject({
             phase:
@@ -122,6 +124,10 @@ describe('Enemy defense-turret interception', () => {
         });
 
         engine.step(LOAD_DURATION_MS);
+        expect(enemy.powerCore).toMatchObject({
+            charges: chargesBefore - 1,
+            rechargeElapsedMs: LOAD_DURATION_MS,
+        });
 
         const events =
             engine.drainEvents();
@@ -136,14 +142,6 @@ describe('Enemy defense-turret interception', () => {
                 COOLDOWN_DURATION_MS -
                 LOAD_DURATION_MS,
             targetProjectileId: null,
-        });
-
-        expect(
-            enemy.powerCore,
-        ).toMatchObject({
-            charges: 3,
-            rechargeElapsedMs:
-                LOAD_DURATION_MS,
         });
 
         expect(
@@ -175,10 +173,9 @@ describe('Enemy defense-turret interception', () => {
             defenseTurretId:
                 'defense_turret_00',
 
-            outcome:
-                DEFENSE_TURRET_SHOT_OUTCOME.HIT,
+            outcome: DEFENSE_TURRET_SHOT_OUTCOME.HIT,
+            remainingCharges: chargesBefore - 1,
 
-            remainingCharges: 3,
         });
 
         expect(

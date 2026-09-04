@@ -344,6 +344,7 @@ describe('encounter actors', () => {
         node.actors.push(nodeActor);
 
         const engine = new EncounterEngine({
+            random: () => 0.5,
             playerHull: createPlayerHullFixture(),
 
             drive: createShipDriveFixture(),

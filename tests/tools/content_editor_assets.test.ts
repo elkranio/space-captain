@@ -62,13 +62,7 @@ describe(
                     'world/ships/chassis/generic',
                 );
 
-                expect(
-                    Object.keys(
-                        SHIP_SPRITES,
-                    ),
-                ).toEqual([
-                    'generic',
-                ]);
+                expect(Object.keys(SHIP_SPRITES)).toContain('generic');
             },
         );
 

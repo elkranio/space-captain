@@ -1,165 +1,74 @@
 // tests/engine/generation/sticky_mine_dispenser_factory.test.ts
 
-import {
-    describe,
-    expect,
-    it,
-} from 'vitest';
-import {
-    SHIP_WEAPONS,
-} from '../../../src/engine/content/catalogs/ship_weapons';
-import {
-    SHIP_SLOT_KIND,
-} from '../../../src/engine/defs/ship_slot';
-import {
-    SHIP_WEAPON_ID,
-    SHIP_WEAPON_KIND,
-    SHIP_WEAPON_PHASE,
-} from '../../../src/engine/defs/ship_weapon';
+import { describe, expect, it } from 'vitest';
+import { SHIP_WEAPONS } from '../../../src/engine/content/catalogs/ship_weapons';
+import { SHIP_WEAPON_ID, SHIP_WEAPON_KIND, SHIP_WEAPON_PHASE } from '../../../src/engine/defs/ship_weapon';
 import StickyMineDispenserFactory from '../../../src/engine/generation/ship_weapon/StickyMineDispenserFactory';
 
-describe(
-    'StickyMineDispenserFactory',
-    () => {
-        it(
-            'creates fresh dispenser state directly from weapon content',
-            () => {
-                const definition =
-                    SHIP_WEAPONS[
-                        SHIP_WEAPON_ID
-                            .STICKY_MINE_DISPENSER_00
-                    ];
+describe('StickyMineDispenserFactory', () => {
+    it('creates fresh dispenser state directly from weapon content', () => {
+        const definition = SHIP_WEAPONS[SHIP_WEAPON_ID.STICKY_MINE_DISPENSER_00];
 
-                expect(definition).toEqual({
-                    id:
-                        SHIP_WEAPON_ID
-                            .STICKY_MINE_DISPENSER_00,
+        const first = StickyMineDispenserFactory.create({
+            id: 'dispenser_00',
 
-                    name:
-                        'STICKY MINE DISPENSER',
+            weaponId: SHIP_WEAPON_ID.STICKY_MINE_DISPENSER_00,
+        });
 
-                    shortName:
-                        'MINE DISPENSER',
+        const second = StickyMineDispenserFactory.create({
+            id: 'dispenser_01',
 
-                    kind:
-                        SHIP_WEAPON_KIND
-                            .STICKY_MINE_DISPENSER,
+            weaponId: SHIP_WEAPON_ID.STICKY_MINE_DISPENSER_00,
+        });
 
-                    slotKind:
-                        SHIP_SLOT_KIND
-                            .WEAPON,
+        expect(first).toEqual({
+            id: 'dispenser_00',
 
-                    maxIntegrity: 2,
+            weaponId: SHIP_WEAPON_ID.STICKY_MINE_DISPENSER_00,
 
-                    damage: 1,
-                    fuseDurationMs: 7500,
+            kind: SHIP_WEAPON_KIND.STICKY_MINE_DISPENSER,
 
-                    ammoCapacity: 6,
-                    salvoSize: 3,
-                    launchIntervalMs: 1000,
-                    cooldownDurationMs: 17000,
-                });
+            ammoCount: definition.ammoCapacity,
 
-                const first =
-                    StickyMineDispenserFactory
-                        .create({
-                            id:
-                                'dispenser_00',
+            phase: SHIP_WEAPON_PHASE.READY,
 
-                            weaponId:
-                                SHIP_WEAPON_ID
-                                    .STICKY_MINE_DISPENSER_00,
-                        });
+            phaseElapsedMs: 0,
+            cooldownRemainingMs: 0,
 
-                const second =
-                    StickyMineDispenserFactory
-                        .create({
-                            id:
-                                'dispenser_01',
+            dispensedMineCount: 0,
+        });
 
-                            weaponId:
-                                SHIP_WEAPON_ID
-                                    .STICKY_MINE_DISPENSER_00,
-                        });
+        expect(first).not.toBe(second);
 
-                expect(first).toEqual({
-                    id:
-                        'dispenser_00',
+        first.ammoCount = 0;
+        first.phase = SHIP_WEAPON_PHASE.COOLDOWN;
 
-                    weaponId:
-                        SHIP_WEAPON_ID
-                            .STICKY_MINE_DISPENSER_00,
+        expect(second.ammoCount).toBe(definition.ammoCapacity);
 
-                    kind:
-                        SHIP_WEAPON_KIND
-                            .STICKY_MINE_DISPENSER,
+        expect(second.phase).toBe(SHIP_WEAPON_PHASE.READY);
+    });
 
-                    ammoCount: 6,
+    it('supports a bounded initial ammo override', () => {
+        const capacity = SHIP_WEAPONS[SHIP_WEAPON_ID.STICKY_MINE_DISPENSER_00].ammoCapacity;
+        const initialAmmo = Math.floor(capacity / 2);
+        const dispenser = StickyMineDispenserFactory.create({
+            id: 'dispenser_00',
 
-                    phase:
-                        SHIP_WEAPON_PHASE.READY,
+            weaponId: SHIP_WEAPON_ID.STICKY_MINE_DISPENSER_00,
 
-                    phaseElapsedMs: 0,
-                    cooldownRemainingMs: 0,
+            ammoCount: initialAmmo,
+        });
 
-                    dispensedMineCount: 0,
-                });
+        expect(dispenser.ammoCount).toBe(initialAmmo);
 
-                expect(first)
-                    .not.toBe(second);
+        expect(() => {
+            StickyMineDispenserFactory.create({
+                id: 'dispenser_invalid',
 
-                first.ammoCount = 0;
-                first.phase =
-                    SHIP_WEAPON_PHASE.COOLDOWN;
+                weaponId: SHIP_WEAPON_ID.STICKY_MINE_DISPENSER_00,
 
-                expect(
-                    second.ammoCount,
-                ).toBe(6);
-
-                expect(
-                    second.phase,
-                ).toBe(
-                    SHIP_WEAPON_PHASE.READY,
-                );
-            },
-        );
-
-        it(
-            'supports a bounded initial ammo override',
-            () => {
-                const dispenser =
-                    StickyMineDispenserFactory
-                        .create({
-                            id:
-                                'dispenser_00',
-
-                            weaponId:
-                                SHIP_WEAPON_ID
-                                    .STICKY_MINE_DISPENSER_00,
-
-                            ammoCount: 2,
-                        });
-
-                expect(
-                    dispenser.ammoCount,
-                ).toBe(2);
-
-                expect(() => {
-                    StickyMineDispenserFactory
-                        .create({
-                            id:
-                                'dispenser_invalid',
-
-                            weaponId:
-                                SHIP_WEAPON_ID
-                                    .STICKY_MINE_DISPENSER_00,
-
-                            ammoCount: 7,
-                        });
-                }).toThrow(
-                    'Invalid sticky-mine dispenser ammo count: 7/6',
-                );
-            },
-        );
-    },
-);
+                ammoCount: capacity + 1,
+            });
+        }).toThrow(`Invalid sticky-mine dispenser ammo count: ${capacity + 1}/${capacity}`);
+    });
+});

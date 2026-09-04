@@ -1,3 +1,4 @@
+import liveData from '../../src/engine/content/data/ship_drives.json';
 import {
     describe,
     expect,
@@ -55,6 +56,7 @@ describe(
                         CONTENT_COLLECTION_ID
                             .SHIP_DRIVES,
                         {
+                            ...liveData,
                             basic_00: {
                                 name:
                                     'BASIC DRIVE',
@@ -79,6 +81,7 @@ describe(
                         CONTENT_COLLECTION_ID
                             .SHIP_DRIVES,
                         {
+                            ...Object.fromEntries(Object.entries(liveData).filter(([id]) => id !== 'basic_00')),
                             fast_00: {
                                 name:
                                     'FAST DRIVE',

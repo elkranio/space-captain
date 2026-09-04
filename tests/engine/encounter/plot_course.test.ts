@@ -27,6 +27,7 @@ describe('PLOT_COURSE', () => {
         const targetNodeId = 'node_destination';
 
         const engine = new EncounterEngine({
+            random: () => 0.5,
             playerHull: createPlayerHullFixture(),
 
             drive: createShipDriveFixture(),

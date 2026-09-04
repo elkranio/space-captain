@@ -6,6 +6,9 @@ import {
     it,
 } from 'vitest';
 import {
+    POWER_CORES,
+} from '../../../src/engine/content/catalogs/power_cores';
+import {
     POWER_CORE_ID,
 } from '../../../src/engine/defs/power_core';
 import {
@@ -153,9 +156,15 @@ describe(
                                     POWER_CORE_ID
                                         .BASIC_00,
 
-                                charges: 3,
+                                charges:
+                                    Math.max(
+                                        0,
+                                        POWER_CORES[POWER_CORE_ID.BASIC_00].capacity - 1,
+                                    ),
                                 rechargeElapsedMs:
-                                    12000,
+                                    Math.floor(
+                                        POWER_CORES[POWER_CORE_ID.BASIC_00].rechargeDurationMs / 2,
+                                    ),
                             },
 
                             defenseTurret: {
@@ -257,15 +266,22 @@ describe(
                         ],
 
                         powerCore: {
-                            charges: 3,
-                            capacity: 4,
+                            charges:
+                                Math.max(
+                                    0,
+                                    POWER_CORES[POWER_CORE_ID.BASIC_00].capacity - 1,
+                                ),
+                            capacity:
+                                POWER_CORES[POWER_CORE_ID.BASIC_00].capacity,
 
                             rechargeProgress: {
                                 elapsedMs:
-                                    12000,
+                                    Math.floor(
+                                        POWER_CORES[POWER_CORE_ID.BASIC_00].rechargeDurationMs / 2,
+                                    ),
 
                                 durationMs:
-                                    24000,
+                                    POWER_CORES[POWER_CORE_ID.BASIC_00].rechargeDurationMs,
                             },
                         },
 

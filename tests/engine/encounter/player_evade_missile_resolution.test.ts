@@ -196,6 +196,7 @@ function createEngine():
         createSingleStationNodeFixture();
 
     return new EncounterEngine({
+        random: () => 0.5,
         node,
 
         navigation: {

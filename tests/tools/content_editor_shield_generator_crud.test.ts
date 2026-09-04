@@ -1,3 +1,4 @@
+import liveData from '../../src/engine/content/data/shield_generators.json';
 import {
     describe,
     expect,
@@ -95,6 +96,7 @@ describe(
                         CONTENT_COLLECTION_ID
                             .SHIELD_GENERATORS,
                         {
+                            ...liveData,
                             shield_generator_basic_00: {
                                 name:
                                     'BASIC SHIELD GENERATOR',
@@ -135,6 +137,7 @@ describe(
                         CONTENT_COLLECTION_ID
                             .SHIELD_GENERATORS,
                         {
+                            ...Object.fromEntries(Object.entries(liveData).filter(([id]) => id !== 'shield_generator_basic_00')),
                             reinforced_00: {
                                 name:
                                     'REINFORCED SHIELD GENERATOR',

@@ -110,6 +110,7 @@ function createActiveSpamEncounter() {
     );
 
     const engine = new EncounterEngine({
+        random: () => 0.5,
         playerHull: createPlayerHullFixture(),
 
         drive: createShipDriveFixture(),

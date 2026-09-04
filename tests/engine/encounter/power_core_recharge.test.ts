@@ -17,6 +17,7 @@ import {
 import {
     createAnchoredPlayerCombatTestSetup,
 } from './combat_test_support';
+import { advancePowerCore } from '../../../src/engine/encounter/combat/power_core/PowerCoreRunner';
 
 describe(
     'Defense powerCore recharge',
@@ -39,23 +40,38 @@ describe(
                     );
                 }
 
-                powerCore.charges = 3;
-                powerCore.rechargeElapsedMs = 12000;
+                const definition =
+                    POWER_CORES[
+                        POWER_CORE_ID.BASIC_00
+                    ];
+                const startingCharges =
+                    Math.min(3, definition.capacity);
+                const rechargeElapsedMs =
+                    startingCharges === definition.capacity
+                        ? 0
+                        : Math.floor(definition.rechargeDurationMs / 2);
+
+                powerCore.charges =
+                    startingCharges;
+                powerCore.rechargeElapsedMs =
+                    rechargeElapsedMs;
 
                 expect(
                     spendPowerCoreCharge(
                         powerCore,
                     ),
                 ).toMatchObject({
-                    charges: 2,
-                    rechargeElapsedMs: 12000,
+                    charges:
+                        startingCharges - 1,
+                    rechargeElapsedMs,
                 });
 
                 expect(
                     powerCore,
                 ).toMatchObject({
-                    charges: 2,
-                    rechargeElapsedMs: 12000,
+                    charges:
+                        startingCharges - 1,
+                    rechargeElapsedMs,
                 });
             },
         );
@@ -93,10 +109,10 @@ describe(
                             .BASIC_00
                     ];
 
-                playerPowerCore.charges = 2;
+                playerPowerCore.charges = 0;
                 playerPowerCore.rechargeElapsedMs = 0;
 
-                enemyPowerCore.charges = 1;
+                enemyPowerCore.charges = 0;
                 enemyPowerCore.rechargeElapsedMs = 0;
 
                 engine.step(
@@ -108,7 +124,7 @@ describe(
                 expect(
                     playerPowerCore,
                 ).toMatchObject({
-                    charges: 2,
+                    charges: 0,
 
                     rechargeElapsedMs:
                         definition
@@ -119,7 +135,7 @@ describe(
                 expect(
                     enemyPowerCore,
                 ).toMatchObject({
-                    charges: 1,
+                    charges: 0,
 
                     rechargeElapsedMs:
                         definition
@@ -132,22 +148,21 @@ describe(
                 expect(
                     playerPowerCore,
                 ).toMatchObject({
-                    charges: 3,
+                    charges: 1,
                     rechargeElapsedMs: 0,
                 });
 
                 expect(
                     enemyPowerCore,
                 ).toMatchObject({
-                    charges: 2,
+                    charges: 1,
                     rechargeElapsedMs: 0,
                 });
 
                 engine.step(
                     definition
                         .rechargeDurationMs *
-                        3 +
-                        500,
+                        (definition.capacity - 1),
                 );
 
                 expect(
@@ -169,5 +184,23 @@ describe(
                 });
             },
         );
+
+        it('fills an already installed zero-duration core without retaining progress', () => {
+            // This tests recharge physics, independently of PowerCoreFactory's input validation.
+            const id = 'power_core_zero_duration_test';
+            POWER_CORES[id] = {
+                ...POWER_CORES[POWER_CORE_ID.BASIC_00],
+                id,
+                capacity: 3,
+                rechargeDurationMs: 0,
+            };
+            try {
+                const core = { id: 'installed_core', powerCoreId: id, charges: 0, rechargeElapsedMs: 0 };
+                advancePowerCore(core, 0);
+                expect(core).toEqual({ id: 'installed_core', powerCoreId: id, charges: 3, rechargeElapsedMs: 0 });
+            } finally {
+                delete POWER_CORES[id];
+            }
+        });
     },
 );
