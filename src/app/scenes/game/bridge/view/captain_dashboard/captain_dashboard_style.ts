@@ -12,7 +12,8 @@ export const CAPTAIN_DASHBOARD_STYLE = {
     },
     header: {
         dividerColor: 0x31465b,
-        targetHoverHeaderAlpha: 0.35,
+        targetHoverHeaderColor: 0x0b1621,
+        targetHoverHeaderAlpha: 0.82,
     },
 
     powerCore: {

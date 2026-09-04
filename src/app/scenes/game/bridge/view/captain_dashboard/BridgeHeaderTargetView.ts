@@ -51,7 +51,7 @@ export default class BridgeHeaderTargetView {
                 0,
                 1,
                 TILE.hoverHeaderHeight,
-                FONT_COLOR.PRIMARY,
+                CAPTAIN_DASHBOARD_STYLE.header.targetHoverHeaderColor,
                 CAPTAIN_DASHBOARD_STYLE.header.targetHoverHeaderAlpha,
             )
             .setOrigin(0, 0)
