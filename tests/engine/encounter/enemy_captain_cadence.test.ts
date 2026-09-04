@@ -53,7 +53,7 @@ describe(
 
                 expect(
                     actor.crewTasks[
-                        OFFICER_ROLE.WEAPONS
+                        OFFICER_ROLE.GUNNER
                     ],
                 ).toMatchObject({
                     kind:
@@ -66,7 +66,7 @@ describe(
 
                 expect(
                     actor.crewTasks[
-                        OFFICER_ROLE.SCIENCE
+                        OFFICER_ROLE.SCIENTIST
                     ],
                 ).toBeUndefined();
 
@@ -79,7 +79,7 @@ describe(
 
                 expect(
                     actor.crewTasks[
-                        OFFICER_ROLE.SCIENCE
+                        OFFICER_ROLE.SCIENTIST
                     ],
                 ).toBeUndefined();
 
@@ -92,7 +92,7 @@ describe(
 
                 expect(
                     actor.crewTasks[
-                        OFFICER_ROLE.SCIENCE
+                        OFFICER_ROLE.SCIENTIST
                     ],
                 ).toMatchObject({
                     kind:
@@ -131,13 +131,13 @@ describe(
 
                 expect(
                     actor.crewTasks[
-                        OFFICER_ROLE.WEAPONS
+                        OFFICER_ROLE.GUNNER
                     ],
                 ).toBeDefined();
 
                 expect(
                     actor.crewTasks[
-                        OFFICER_ROLE.SCIENCE
+                        OFFICER_ROLE.SCIENTIST
                     ],
                 ).toBeUndefined();
 

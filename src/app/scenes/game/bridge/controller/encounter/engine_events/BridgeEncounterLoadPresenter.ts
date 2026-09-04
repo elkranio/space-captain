@@ -93,19 +93,19 @@ export default class BridgeEncounterLoadPresenter {
         targetAnchorId: string,
     ): string {
         const task = snapshot.player.officerTasks.find((candidate) => {
-            return candidate.role === OFFICER_ROLE.HELM;
+            return candidate.role === OFFICER_ROLE.PILOT;
         });
         if (!task) {
-            throw new Error("TRAVELLING encounter requires active Helm task");
+            throw new Error("TRAVELLING encounter requires active Pilot task");
         }
 
-        if (task.kind !== OFFICER_TASK_KIND.HELM_FLY_TO) {
-            throw new Error(`TRAVELLING encounter requires HELM_FLY_TO task, ` + `received: ${task.kind}`);
+        if (task.kind !== OFFICER_TASK_KIND.PILOT_FLY_TO) {
+            throw new Error(`TRAVELLING encounter requires PILOT_FLY_TO task, ` + `received: ${task.kind}`);
         }
 
         if (task.targetAnchorId !== targetAnchorId) {
             throw new Error(
-                `Loaded HELM_FLY_TO task target does not match ` +
+                `Loaded PILOT_FLY_TO task target does not match ` +
                     `navigation target: ` +
                     `${task.targetAnchorId} !== ${targetAnchorId}`,
             );

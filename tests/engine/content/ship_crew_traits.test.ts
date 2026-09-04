@@ -70,30 +70,30 @@ describe(
                 expect(
                     actor.crewTraitsByRole,
                 ).toEqual({
-                    [OFFICER_ROLE.SCIENCE]:
+                    [OFFICER_ROLE.SCIENTIST]:
                         [],
-                    [OFFICER_ROLE.HELM]:
+                    [OFFICER_ROLE.PILOT]:
                         [],
-                    [OFFICER_ROLE.WEAPONS]:
+                    [OFFICER_ROLE.GUNNER]:
                         [],
                     [OFFICER_ROLE.ENGINEER]:
                         [],
                 });
 
-                const scienceTraits =
+                const scientistTraits =
                     actor
                         .crewTraitsByRole[
                             OFFICER_ROLE
-                                .SCIENCE
+                                .SCIENTIST
                         ];
 
-                if (!scienceTraits) {
+                if (!scientistTraits) {
                     throw new Error(
-                        'Science traits are missing',
+                        'Scientist traits are missing',
                     );
                 }
 
-                scienceTraits.push(
+                scientistTraits.push(
                     CREW_TRAIT_ID.HUNGOVER,
                 );
 

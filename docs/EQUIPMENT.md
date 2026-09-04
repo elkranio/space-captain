@@ -100,13 +100,13 @@ Do not implement this before the current combat-dashboard slice provides the rea
 
 | Category | Equipment | Slot | Operator | Status |
 | --- | --- | --- | --- | --- |
-| Movement | Drive | DRIVE | Helm | LANDED / one confirmed Evade change pending |
-| Defense | Defense Turret | DEFENSE | Weapons | LANDED / generic BROKEN work pending |
+| Movement | Drive | DRIVE | Pilot | LANDED / one confirmed Evade change pending |
+| Defense | Defense Turret | DEFENSE | Gunner | LANDED / generic BROKEN work pending |
 | Defense | Shield Generator | DEFENSE | Engineer | LANDED / shared slot-target migration pending |
-| Weapon | Missile Launcher | WEAPON | Weapons | LANDED |
-| Weapon | Beam Cannon | WEAPON | Weapons | LANDED / precision target pending |
-| Weapon | Sticky Mine Dispenser | WEAPON | Weapons | LANDED |
-| Utility | SPAM Projector | UTILITY | Science | LANDED |
+| Weapon | Missile Launcher | WEAPON | Gunner | LANDED |
+| Weapon | Beam Cannon | WEAPON | Gunner | LANDED / precision target pending |
+| Weapon | Sticky Mine Dispenser | WEAPON | Gunner | LANDED |
+| Utility | SPAM Projector | UTILITY | Scientist | LANDED |
 | Power | Power Core | separate | shared resource | LANDED |
 
 SPAM currently shares some weapon-state/catalog machinery in the implementation, but its physical/gameplay category is
@@ -151,7 +151,7 @@ READY
 
 Current rules:
 
-- Helm performs Evade and is occupied by it;
+- Pilot performs Evade and is occupied by it;
 - Evade commits Power Core and cooldown;
 - the Drive must be operational;
 - during `EVADING`, current Missile hits, incoming Beam hits and new Sticky Mine attachments are avoided
@@ -198,7 +198,7 @@ The intended balance lever is that Evade is expensive:
 
 - Drive integrity cost;
 - substantial cooldown;
-- Helm occupation;
+- Pilot occupation;
 - existing CORE cost.
 
 Specialized counters should usually be preferable, but Evade is the fallback when the captain absolutely needs to avoid
@@ -289,16 +289,16 @@ Defense Turret is the specialized anti-Missile system.
 Current contract:
 
 - mounted in DEFENSE;
-- Weapons operates it;
+- Gunner operates it;
 - spends shared Power Core;
 - targets one concrete live Missile;
-- Weapons work/loading takes time;
+- Gunner work/loading takes time;
 - if work completes while the target Missile still exists, the current shot resolves as a deterministic HIT;
 - it has its own cooldown;
 - both player and enemy Turret paths exist;
 - current Turret state now carries encounter-local integrity.
 
-The current system deliberately does not require Science tracking, a hidden accuracy tier or a random interception roll.
+The current system deliberately does not require Scientist tracking, a hidden accuracy tier or a random interception roll.
 
 ### CONFIRMED TODO
 
@@ -361,7 +361,7 @@ Missile Launcher is the basic delayed physical Hull-pressure weapon.
 Current contract:
 
 - mounted in WEAPON;
-- Weapons operates it;
+- Gunner operates it;
 - finite ammunition;
 - targeting work before launch;
 - after launch, the Missile becomes an autonomous concrete projectile;
@@ -401,7 +401,7 @@ Current enemy Beam:
 
 Current player Beam:
 
-- uses Weapons;
+- uses Gunner;
 - charges/fires/cools down;
 - spends its content-defined Power Core cost when charging begins;
 - currently targets the enemy actor as a whole.
@@ -466,17 +466,17 @@ Current content supports both a salvo configuration and a single-Mine configurat
 
 ### LANDED
 
-SPAM is mounted in UTILITY and is operated by Science.
+SPAM is mounted in UTILITY and is operated by Scientist.
 
 It is an electronic/information attack rather than a projectile.
 
 Current behavior:
 
 ```text
-Science channels SPAM
+Scientist channels SPAM
 -> target receives a long-lived SPAM effect
 -> affected officer work is slowed
--> Science may PURGE
+-> Scientist may PURGE
 or
 -> SPAM expires
 ```
@@ -485,7 +485,7 @@ Current baseline:
 
 - no ammo economy;
 - no Power Core cost;
-- long Science opportunity cost;
+- long Scientist opportunity cost;
 - cooldown after use;
 - effect progress is duration progress, not an incoming-hit countdown;
 - SPAM Projector state carries encounter-local integrity.
@@ -513,7 +513,7 @@ alive over a run.
 Working identity:
 
 - mounted in WEAPON;
-- Weapons operates it;
+- Gunner operates it;
 - Hull damage only;
 - no precision/module targeting;
 - no Power Core cost;

@@ -154,11 +154,11 @@ function createActiveSpamEncounter() {
 
 function startPurgeTask(engine: EncounterEngine) {
     const command = engine
-        .getAvailableCommands(OFFICER_ROLE.SCIENCE)
+        .getAvailableCommands(OFFICER_ROLE.SCIENTIST)
         .find((candidate) => {
             return (
                 candidate.commandId ===
-                ENCOUNTER_OFFICER_COMMAND_ID.SCIENCE_PURGE_SPAM
+                ENCOUNTER_OFFICER_COMMAND_ID.SCIENTIST_PURGE_SPAM
             );
         });
 
@@ -168,7 +168,7 @@ function startPurgeTask(engine: EncounterEngine) {
 
     expect(
         engine.executeCommand({
-            role: OFFICER_ROLE.SCIENCE,
+            role: OFFICER_ROLE.SCIENTIST,
             commandId: command.commandId,
             target: command.target,
         }),

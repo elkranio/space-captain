@@ -56,11 +56,11 @@ describe(
                 const result =
                     engine.executeCommand({
                         role:
-                            OFFICER_ROLE.HELM,
+                            OFFICER_ROLE.PILOT,
 
                         commandId:
                             ENCOUNTER_OFFICER_COMMAND_ID
-                                .HELM_EVADE,
+                                .PILOT_EVADE,
 
                         target: {
                             kind:

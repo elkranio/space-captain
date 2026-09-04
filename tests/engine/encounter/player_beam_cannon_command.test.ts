@@ -68,13 +68,13 @@ describe('Player beamCannon command', () => {
             const beamCannonCommands =
                 engine
                     .getAvailableCommands(
-                        OFFICER_ROLE.WEAPONS,
+                        OFFICER_ROLE.GUNNER,
                     )
                     .filter((command) => {
                         return (
                             command.commandId ===
                             ENCOUNTER_OFFICER_COMMAND_ID
-                                .WEAPONS_FIRE_BEAM_CANNON
+                                .GUNNER_FIRE_BEAM_CANNON
                         );
                     });
 
@@ -92,7 +92,7 @@ describe('Player beamCannon command', () => {
                 {
                     commandId:
                         ENCOUNTER_OFFICER_COMMAND_ID
-                            .WEAPONS_FIRE_BEAM_CANNON,
+                            .GUNNER_FIRE_BEAM_CANNON,
 
                     target: {
                         kind:
@@ -111,11 +111,11 @@ describe('Player beamCannon command', () => {
             expect(
                 engine.executeCommand({
                     role:
-                        OFFICER_ROLE.WEAPONS,
+                        OFFICER_ROLE.GUNNER,
 
                     commandId:
                         ENCOUNTER_OFFICER_COMMAND_ID
-                            .WEAPONS_FIRE_BEAM_CANNON,
+                            .GUNNER_FIRE_BEAM_CANNON,
 
                     target: {
                         kind:
@@ -170,14 +170,14 @@ describe('Player beamCannon command', () => {
             expect(task).toMatchObject({
                 kind:
                     OFFICER_TASK_KIND
-                        .WEAPONS_FIRE_BEAM_CANNON,
+                        .GUNNER_FIRE_BEAM_CANNON,
 
                 role:
-                    OFFICER_ROLE.WEAPONS,
+                    OFFICER_ROLE.GUNNER,
 
                 sourceCommandId:
                     ENCOUNTER_OFFICER_COMMAND_ID
-                        .WEAPONS_FIRE_BEAM_CANNON,
+                        .GUNNER_FIRE_BEAM_CANNON,
 
                 weaponId:
                     'beam_cannon_player_00',
@@ -199,7 +199,7 @@ describe('Player beamCannon command', () => {
 
             expect(
                 engine.getAvailableCommands(
-                    OFFICER_ROLE.WEAPONS,
+                    OFFICER_ROLE.GUNNER,
                 ),
             ).toEqual([]);
 
@@ -235,13 +235,13 @@ describe('Player beamCannon command', () => {
             expect(
                 engine
                     .getAvailableCommands(
-                        OFFICER_ROLE.WEAPONS,
+                        OFFICER_ROLE.GUNNER,
                     )
                     .filter((command) => {
                         return (
                             command.commandId ===
                             ENCOUNTER_OFFICER_COMMAND_ID
-                                .WEAPONS_FIRE_BEAM_CANNON
+                                .GUNNER_FIRE_BEAM_CANNON
                         );
                     }),
             ).toHaveLength(0);
@@ -289,13 +289,13 @@ describe('Player beamCannon command', () => {
             const beamCommands =
                 engine
                     .getAvailableCommands(
-                        OFFICER_ROLE.WEAPONS,
+                        OFFICER_ROLE.GUNNER,
                     )
                     .filter((command) => {
                         return (
                             command.commandId ===
                             ENCOUNTER_OFFICER_COMMAND_ID
-                                .WEAPONS_FIRE_BEAM_CANNON
+                                .GUNNER_FIRE_BEAM_CANNON
                         );
                     });
 

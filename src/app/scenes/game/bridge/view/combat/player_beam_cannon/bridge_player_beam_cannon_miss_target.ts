@@ -31,7 +31,7 @@ export type PlayerBeamCannonMissSide = (typeof PLAYER_BEAM_CANNON_MISS_SIDE)[key
 
 const VIEWPORT_EXTENSION_FACTOR = 2;
 
-// Keep the Evade miss visually close to where Weapons actually aimed.
+// Keep the Evade miss visually close to where Gunner actually aimed.
 // Current presentation target is center +/- this amount, clamped to the
 // presented ship bounds for unusually small sprites.
 const MISS_LANE_CENTER_OFFSET_PX = 48;

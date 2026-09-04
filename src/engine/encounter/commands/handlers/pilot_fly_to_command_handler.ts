@@ -1,8 +1,8 @@
-// src/engine/encounter/commands/handlers/helm_fly_to_command_handler.ts
+// src/engine/encounter/commands/handlers/pilot_fly_to_command_handler.ts
 
 import { OFFICER_ROLE } from "../../../defs/officer";
 import { PLAYER_SPACE_NAVIGATION_KIND } from "../../../defs/player_location";
-import { createHelmFlyToTask } from "../../officer_tasks/create_officer_task_draft";
+import { createPilotFlyToTask } from "../../officer_tasks/create_officer_task_draft";
 import {
     ENCOUNTER_ANCHOR_TARGET_SCOPE,
     ENCOUNTER_OFFICER_COMMAND_ID,
@@ -13,10 +13,10 @@ import { ENCOUNTER_EVENT } from "../../model/event";
 import type { OfficerCommandHandler } from "../../model/officer_command_handler";
 import { requireAnchorTargetId } from "./command_handler_helpers";
 
-const COMMAND_ID = ENCOUNTER_OFFICER_COMMAND_ID.HELM_FLY_TO;
+const COMMAND_ID = ENCOUNTER_OFFICER_COMMAND_ID.PILOT_FLY_TO;
 
 const COMMAND_DEF = {
-    role: OFFICER_ROLE.HELM,
+    role: OFFICER_ROLE.PILOT,
     label: "FLY TO",
 
     targeting: {
@@ -29,7 +29,7 @@ const COMMAND_DEF = {
     requiresIdleBridge: true,
 } satisfies OfficerCommandDef;
 
-export const helmFlyToCommandHandler = {
+export const pilotFlyToCommandHandler = {
     commandId: COMMAND_ID,
     def: COMMAND_DEF,
 
@@ -60,7 +60,7 @@ export const helmFlyToCommandHandler = {
 
         const { fromAnchorId, target } = context.stateStore.startTravel(targetId);
 
-        const taskId = context.startOfficerTask(createHelmFlyToTask(target.id));
+        const taskId = context.startOfficerTask(createPilotFlyToTask(target.id));
 
         context.emit({
             type: ENCOUNTER_EVENT.TRAVEL_STARTED,

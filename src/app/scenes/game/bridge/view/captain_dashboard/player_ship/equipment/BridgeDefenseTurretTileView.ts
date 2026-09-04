@@ -268,8 +268,8 @@ export default class BridgeDefenseTurretTileView {
         }
 
         this.hoverView.setAction(
-            "W",
-            OFFICER_ROLE_COLOR.weapons,
+            "G",
+            OFFICER_ROLE_COLOR.gunner,
             "INTERCEPT",
         );
     }

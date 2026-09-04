@@ -35,7 +35,7 @@ export type ShipWeaponPhase = (typeof SHIP_WEAPON_PHASE)[keyof typeof SHIP_WEAPO
 // Единый domain query для занятости оператора оружия.
 //
 // Occupancy is not the same as progress timing:
-// an active spam channel still occupies Science, but its lifetime advances
+// an active spam channel still occupies Scientist, but its lifetime advances
 // in world time rather than crew-performance time.
 //
 // Cooldown and ready do not require a crew/officer.
@@ -185,7 +185,7 @@ export type SpamProjectorState = ShipWeaponBaseState & {
 
     activeChannelId: string | null;
 
-    // The projection effect was purged, but Science still owns
+    // The projection effect was purged, but Scientist still owns
     // the CHANNELING operation until its normal end.
     channelPurged: boolean;
 };

@@ -248,11 +248,11 @@ export function createCombatPresentationSnapshot(state: EncounterState): CombatP
         }),
 
         commandsByRole: {
-            [OFFICER_ROLE.SCIENCE]: getAvailableOfficerCommands(state, OFFICER_ROLE.SCIENCE),
+            [OFFICER_ROLE.SCIENTIST]: getAvailableOfficerCommands(state, OFFICER_ROLE.SCIENTIST),
 
-            [OFFICER_ROLE.HELM]: getAvailableOfficerCommands(state, OFFICER_ROLE.HELM),
+            [OFFICER_ROLE.PILOT]: getAvailableOfficerCommands(state, OFFICER_ROLE.PILOT),
 
-            [OFFICER_ROLE.WEAPONS]: getAvailableOfficerCommands(state, OFFICER_ROLE.WEAPONS),
+            [OFFICER_ROLE.GUNNER]: getAvailableOfficerCommands(state, OFFICER_ROLE.GUNNER),
 
             [OFFICER_ROLE.ENGINEER]: getAvailableOfficerCommands(state, OFFICER_ROLE.ENGINEER),
         },

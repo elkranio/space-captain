@@ -41,14 +41,14 @@ describe(
 
                                 kind:
                                     OFFICER_TASK_KIND
-                                        .WEAPONS_DEFENSE_TURRET,
+                                        .GUNNER_DEFENSE_TURRET,
 
                                 role:
-                                    OFFICER_ROLE.WEAPONS,
+                                    OFFICER_ROLE.GUNNER,
 
                                 sourceCommandId:
                                     ENCOUNTER_OFFICER_COMMAND_ID
-                                        .WEAPONS_INTERCEPT_MISSILE,
+                                        .GUNNER_INTERCEPT_MISSILE,
 
                                 label:
                                     'INTERCEPT',
@@ -169,16 +169,16 @@ function createBaseInput(): MapperInput {
     return {
         weapons: [],
 
-        availableWeaponsCommands:
+        availableGunnerCommands:
             [],
 
-        weaponsOfficerAvailability:
+        gunnerOfficerAvailability:
             OFFICER_AVAILABILITY_STATE
                 .AVAILABLE,
 
-        availableHelmCommands: [],
+        availablePilotCommands: [],
 
-        helmOfficerAvailability:
+        pilotOfficerAvailability:
             OFFICER_AVAILABILITY_STATE
                 .AVAILABLE,
 

@@ -32,9 +32,9 @@ import {
 import ShipNodeActorFactory from '../../../src/engine/generation/space_node_actor/ShipNodeActorFactory';
 
 const STANDARD_CREW_ROLES = [
-    OFFICER_ROLE.SCIENCE,
-    OFFICER_ROLE.HELM,
-    OFFICER_ROLE.WEAPONS,
+    OFFICER_ROLE.SCIENTIST,
+    OFFICER_ROLE.PILOT,
+    OFFICER_ROLE.GUNNER,
     OFFICER_ROLE.ENGINEER,
 ];
 
@@ -106,9 +106,9 @@ describe('ShipNodeActorFactory', () => {
                 STANDARD_CREW_ROLES,
 
             crewTraitsByRole: {
-                [OFFICER_ROLE.SCIENCE]: [],
-                [OFFICER_ROLE.HELM]: [],
-                [OFFICER_ROLE.WEAPONS]: [],
+                [OFFICER_ROLE.SCIENTIST]: [],
+                [OFFICER_ROLE.PILOT]: [],
+                [OFFICER_ROLE.GUNNER]: [],
                 [OFFICER_ROLE.ENGINEER]: [],
             },
 
@@ -285,9 +285,9 @@ describe('ShipNodeActorFactory', () => {
                 STANDARD_CREW_ROLES,
 
             crewTraitsByRole: {
-                [OFFICER_ROLE.SCIENCE]: [],
-                [OFFICER_ROLE.HELM]: [],
-                [OFFICER_ROLE.WEAPONS]: [],
+                [OFFICER_ROLE.SCIENTIST]: [],
+                [OFFICER_ROLE.PILOT]: [],
+                [OFFICER_ROLE.GUNNER]: [],
                 [OFFICER_ROLE.ENGINEER]: [],
             },
 

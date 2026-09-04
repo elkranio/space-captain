@@ -41,7 +41,7 @@ const PARTIAL_REPAIR_MS =
     );
 
 describe('Engineer repair drive command', () => {
-    it('blocks drive-dependent Helm commands and restores the drive after the configured repair duration', () => {
+    it('blocks drive-dependent Pilot commands and restores the drive after the configured repair duration', () => {
         const {
             node,
             stationId,
@@ -70,22 +70,22 @@ describe('Engineer repair drive command', () => {
         expect(
             engine
                 .getAvailableCommands(
-                    OFFICER_ROLE.HELM,
+                    OFFICER_ROLE.PILOT,
                 )
                 .find((command) => {
                     return (
                         command.commandId ===
-                        ENCOUNTER_OFFICER_COMMAND_ID.HELM_FLY_TO
+                        ENCOUNTER_OFFICER_COMMAND_ID.PILOT_FLY_TO
                     );
                 }),
         ).toBeUndefined();
 
         expect(
             engine.executeCommand({
-                role: OFFICER_ROLE.HELM,
+                role: OFFICER_ROLE.PILOT,
 
                 commandId:
-                    ENCOUNTER_OFFICER_COMMAND_ID.HELM_FLY_TO,
+                    ENCOUNTER_OFFICER_COMMAND_ID.PILOT_FLY_TO,
 
                 target: {
                     kind:
@@ -243,12 +243,12 @@ describe('Engineer repair drive command', () => {
         expect(
             engine
                 .getAvailableCommands(
-                    OFFICER_ROLE.HELM,
+                    OFFICER_ROLE.PILOT,
                 )
                 .find((command) => {
                     return (
                         command.commandId ===
-                            ENCOUNTER_OFFICER_COMMAND_ID.HELM_FLY_TO &&
+                            ENCOUNTER_OFFICER_COMMAND_ID.PILOT_FLY_TO &&
                         command.target.kind ===
                             OFFICER_COMMAND_TARGET_KIND.ANCHOR &&
                         command.target.anchorId ===

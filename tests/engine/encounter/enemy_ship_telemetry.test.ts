@@ -55,21 +55,21 @@ describe('Enemy ship telemetry', () => {
                 anchorId: stationId,
             });
 
-        // This test tracks the Weapons-owned phase transition.
-        // Keep Science from starting the spam projector in parallel.
+        // This test tracks the Gunner-owned phase transition.
+        // Keep Scientist from starting the spam projector in parallel.
         enemyShip.crewRoles =
             enemyShip.crewRoles.filter(
                 (role) => {
                     return (
                         role !==
-                        OFFICER_ROLE.SCIENCE
+                        OFFICER_ROLE.SCIENTIST
                     );
                 },
             );
 
         delete enemyShip
             .crewTraitsByRole[
-                OFFICER_ROLE.SCIENCE
+                OFFICER_ROLE.SCIENTIST
             ];
 
         node.actors.push(enemyShip);

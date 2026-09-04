@@ -5,25 +5,25 @@
 //
 // Это domain identity, а не editable content id.
 export const OFFICER_TASK_KIND = {
-    SCIENCE_PLOT_COURSE: "science_plot_course",
-    SCIENCE_PURGE_SPAM: "science_purge_spam",
-    SCIENCE_FIRE_SPAM: "science_fire_spam",
+    SCIENTIST_PLOT_COURSE: "scientist_plot_course",
+    SCIENTIST_PURGE_SPAM: "scientist_purge_spam",
+    SCIENTIST_FIRE_SPAM: "scientist_fire_spam",
 
     ENGINEER_REPAIR_DRIVE: "engineer_repair_drive",
     ENGINEER_DEPLOY_SHIELD: "engineer_deploy_shield",
 
-    WEAPONS_DEFENSE_TURRET: "weapons_defense_turret",
+    GUNNER_DEFENSE_TURRET: "gunner_defense_turret",
 
-    WEAPONS_FIRE_MISSILE: "weapons_fire_missile",
-    WEAPONS_FIRE_STICKY_MINES: "weapons_fire_sticky_mines",
-    WEAPONS_FIRE_BEAM_CANNON: "weapons_fire_beam_cannon",
+    GUNNER_FIRE_MISSILE: "gunner_fire_missile",
+    GUNNER_FIRE_STICKY_MINES: "gunner_fire_sticky_mines",
+    GUNNER_FIRE_BEAM_CANNON: "gunner_fire_beam_cannon",
 
     CLEAR_STICKY_MINE: "clear_sticky_mine",
 
-    HELM_DOCK: "helm_dock",
-    HELM_FLY_TO: "helm_fly_to",
-    HELM_JUMP: "helm_jump",
-    HELM_EVADE: "helm_evade",
+    PILOT_DOCK: "pilot_dock",
+    PILOT_FLY_TO: "pilot_fly_to",
+    PILOT_JUMP: "pilot_jump",
+    PILOT_EVADE: "pilot_evade",
 } as const;
 
 export type OfficerTaskKind = (typeof OFFICER_TASK_KIND)[keyof typeof OFFICER_TASK_KIND];
@@ -51,22 +51,22 @@ export type OfficerTaskCancellationPolicy = {
 // в timed task изменением одного числа.
 export function doesOfficerTaskUseTimedCompletion(kind: OfficerTaskKind): boolean {
     switch (kind) {
-        case OFFICER_TASK_KIND.SCIENCE_PLOT_COURSE:
-        case OFFICER_TASK_KIND.SCIENCE_PURGE_SPAM:
+        case OFFICER_TASK_KIND.SCIENTIST_PLOT_COURSE:
+        case OFFICER_TASK_KIND.SCIENTIST_PURGE_SPAM:
         case OFFICER_TASK_KIND.ENGINEER_REPAIR_DRIVE:
         case OFFICER_TASK_KIND.ENGINEER_DEPLOY_SHIELD:
-        case OFFICER_TASK_KIND.WEAPONS_DEFENSE_TURRET:
+        case OFFICER_TASK_KIND.GUNNER_DEFENSE_TURRET:
         case OFFICER_TASK_KIND.CLEAR_STICKY_MINE:
             return true;
 
-        case OFFICER_TASK_KIND.SCIENCE_FIRE_SPAM:
-        case OFFICER_TASK_KIND.WEAPONS_FIRE_MISSILE:
-        case OFFICER_TASK_KIND.WEAPONS_FIRE_STICKY_MINES:
-        case OFFICER_TASK_KIND.WEAPONS_FIRE_BEAM_CANNON:
-        case OFFICER_TASK_KIND.HELM_DOCK:
-        case OFFICER_TASK_KIND.HELM_FLY_TO:
-        case OFFICER_TASK_KIND.HELM_JUMP:
-        case OFFICER_TASK_KIND.HELM_EVADE:
+        case OFFICER_TASK_KIND.SCIENTIST_FIRE_SPAM:
+        case OFFICER_TASK_KIND.GUNNER_FIRE_MISSILE:
+        case OFFICER_TASK_KIND.GUNNER_FIRE_STICKY_MINES:
+        case OFFICER_TASK_KIND.GUNNER_FIRE_BEAM_CANNON:
+        case OFFICER_TASK_KIND.PILOT_DOCK:
+        case OFFICER_TASK_KIND.PILOT_FLY_TO:
+        case OFFICER_TASK_KIND.PILOT_JUMP:
+        case OFFICER_TASK_KIND.PILOT_EVADE:
             return false;
 
         default: {

@@ -52,20 +52,20 @@ type PlayerShipDashboardMapperInput = {
         mounts: ShipEquipmentMountState[];
     };
 
-    availableWeaponsCommands: AvailableOfficerCommand[];
+    availableGunnerCommands: AvailableOfficerCommand[];
 
-    weaponsOfficerAvailability: OfficerAvailabilityState;
+    gunnerOfficerAvailability: OfficerAvailabilityState;
 
-    // Helm context is only required when the stable player status strip
+    // Pilot context is only required when the stable player status strip
     // is requested.
-    availableHelmCommands?: AvailableOfficerCommand[];
+    availablePilotCommands?: AvailableOfficerCommand[];
 
-    helmOfficerAvailability?: OfficerAvailabilityState;
+    pilotOfficerAvailability?: OfficerAvailabilityState;
 
-    // Science context is only required when at least one SPAM projector exists.
-    availableScienceCommands?: AvailableOfficerCommand[];
+    // Scientist context is only required when at least one SPAM projector exists.
+    availableScientistCommands?: AvailableOfficerCommand[];
 
-    scienceOfficerAvailability?: OfficerAvailabilityState;
+    scientistOfficerAvailability?: OfficerAvailabilityState;
 
     officerTasks?: OfficerTaskState[];
 
@@ -226,7 +226,7 @@ function mapDefenseTurretStatus(
             })),
 
             operatorBusy:
-                dashboardInput.weaponsOfficerAvailability ===
+                dashboardInput.gunnerOfficerAvailability ===
                 OFFICER_AVAILABILITY_STATE.BUSY,
 
             ...(cooldownProgress !== undefined
@@ -253,10 +253,10 @@ function isDefenseTurretInterceptTask(
 ): task is Extract<
     OfficerTaskState,
     {
-        sourceCommandId: typeof ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_INTERCEPT_MISSILE;
+        sourceCommandId: typeof ENCOUNTER_OFFICER_COMMAND_ID.GUNNER_INTERCEPT_MISSILE;
     }
 > {
-    return task.sourceCommandId === ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_INTERCEPT_MISSILE;
+    return task.sourceCommandId === ENCOUNTER_OFFICER_COMMAND_ID.GUNNER_INTERCEPT_MISSILE;
 }
 
 function getDefenseTurretCooldownProgress(snapshot: PlayerDefenseTurretPresentationSnapshot): number | undefined {
@@ -405,17 +405,17 @@ function isShieldDeploymentTask(
 function mapEvadeAction(
     input: PlayerShipDashboardMapperInput,
 ): NonNullable<BridgePlayerShipDashboardUpdatedPayload["status"]>["evadeAction"] {
-    const commands = getRequiredHelmCommands(input);
+    const commands = getRequiredPilotCommands(input);
 
     const matchingCommands = commands.filter((command) => {
         return (
-            command.commandId === ENCOUNTER_OFFICER_COMMAND_ID.HELM_EVADE &&
+            command.commandId === ENCOUNTER_OFFICER_COMMAND_ID.PILOT_EVADE &&
             command.target.kind === OFFICER_COMMAND_TARGET_KIND.NONE
         );
     });
 
     if (matchingCommands.length > 1) {
-        throw new Error("Captain dashboard received multiple HELM_EVADE commands");
+        throw new Error("Captain dashboard received multiple PILOT_EVADE commands");
     }
 
     const command = matchingCommands[0];
@@ -425,7 +425,7 @@ function mapEvadeAction(
             state: BRIDGE_PLAYER_SYSTEM_ACTION_STATE.ACTIVE,
 
             command: {
-                role: OFFICER_ROLE.HELM,
+                role: OFFICER_ROLE.PILOT,
 
                 commandId: command.commandId,
 
@@ -434,7 +434,7 @@ function mapEvadeAction(
         };
     }
 
-    if (getRequiredHelmAvailability(input) === OFFICER_AVAILABILITY_STATE.BUSY) {
+    if (getRequiredPilotAvailability(input) === OFFICER_AVAILABILITY_STATE.BUSY) {
         return {
             state: BRIDGE_PLAYER_SYSTEM_ACTION_STATE.DISABLED_OFFICER_BUSY,
         };
@@ -449,21 +449,21 @@ function clamp01(value: number): number {
     return Math.max(0, Math.min(1, value));
 }
 
-function getRequiredHelmCommands(input: PlayerShipDashboardMapperInput): AvailableOfficerCommand[] {
-    const commands = input.availableHelmCommands;
+function getRequiredPilotCommands(input: PlayerShipDashboardMapperInput): AvailableOfficerCommand[] {
+    const commands = input.availablePilotCommands;
 
     if (commands === undefined) {
-        throw new Error("Captain dashboard status requires Helm commands");
+        throw new Error("Captain dashboard status requires Pilot commands");
     }
 
     return commands;
 }
 
-function getRequiredHelmAvailability(input: PlayerShipDashboardMapperInput): OfficerAvailabilityState {
-    const availability = input.helmOfficerAvailability;
+function getRequiredPilotAvailability(input: PlayerShipDashboardMapperInput): OfficerAvailabilityState {
+    const availability = input.pilotOfficerAvailability;
 
     if (availability === undefined) {
-        throw new Error("Captain dashboard status requires Helm availability");
+        throw new Error("Captain dashboard status requires Pilot availability");
     }
 
     return availability;
@@ -805,7 +805,7 @@ function mapWeaponAction(
     const role = getOperatingRole(weapon.kind);
 
     const command = getResolvedWeaponCommand(
-        role === OFFICER_ROLE.SCIENCE ? getRequiredScienceCommands(input) : input.availableWeaponsCommands,
+        role === OFFICER_ROLE.SCIENTIST ? getRequiredScientistCommands(input) : input.availableGunnerCommands,
 
         getFireCommandId(weapon.kind),
 
@@ -827,7 +827,7 @@ function mapWeaponAction(
     }
 
     const availability =
-        role === OFFICER_ROLE.SCIENCE ? getRequiredScienceAvailability(input) : input.weaponsOfficerAvailability;
+        role === OFFICER_ROLE.SCIENTIST ? getRequiredScientistAvailability(input) : input.gunnerOfficerAvailability;
 
     if (availability === OFFICER_AVAILABILITY_STATE.BUSY) {
         return {
@@ -918,12 +918,12 @@ function isReadyForAction(snapshot: PlayerWeaponPresentationSnapshot): boolean {
 function getOperatingRole(kind: ShipWeaponKind): OfficerRole {
     switch (kind) {
         case SHIP_WEAPON_KIND.SPAM_PROJECTOR:
-            return OFFICER_ROLE.SCIENCE;
+            return OFFICER_ROLE.SCIENTIST;
 
         case SHIP_WEAPON_KIND.MISSILE_LAUNCHER:
         case SHIP_WEAPON_KIND.BEAM_CANNON:
         case SHIP_WEAPON_KIND.STICKY_MINE_DISPENSER:
-            return OFFICER_ROLE.WEAPONS;
+            return OFFICER_ROLE.GUNNER;
 
         default: {
             const exhaustiveKind: never = kind;
@@ -936,16 +936,16 @@ function getOperatingRole(kind: ShipWeaponKind): OfficerRole {
 function getFireCommandId(kind: ShipWeaponKind): EncounterOfficerCommandId {
     switch (kind) {
         case SHIP_WEAPON_KIND.MISSILE_LAUNCHER:
-            return ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_MISSILE;
+            return ENCOUNTER_OFFICER_COMMAND_ID.GUNNER_FIRE_MISSILE;
 
         case SHIP_WEAPON_KIND.BEAM_CANNON:
-            return ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_BEAM_CANNON;
+            return ENCOUNTER_OFFICER_COMMAND_ID.GUNNER_FIRE_BEAM_CANNON;
 
         case SHIP_WEAPON_KIND.STICKY_MINE_DISPENSER:
-            return ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_STICKY_MINES;
+            return ENCOUNTER_OFFICER_COMMAND_ID.GUNNER_FIRE_STICKY_MINES;
 
         case SHIP_WEAPON_KIND.SPAM_PROJECTOR:
-            return ENCOUNTER_OFFICER_COMMAND_ID.SCIENCE_FIRE_SPAM;
+            return ENCOUNTER_OFFICER_COMMAND_ID.SCIENTIST_FIRE_SPAM;
 
         default: {
             const exhaustiveKind: never = kind;
@@ -996,21 +996,21 @@ function requireAmmo(snapshot: PlayerWeaponPresentationSnapshot): { current: num
     };
 }
 
-function getRequiredScienceCommands(input: PlayerShipDashboardMapperInput): AvailableOfficerCommand[] {
-    const commands = input.availableScienceCommands;
+function getRequiredScientistCommands(input: PlayerShipDashboardMapperInput): AvailableOfficerCommand[] {
+    const commands = input.availableScientistCommands;
 
     if (commands === undefined) {
-        throw new Error("Captain dashboard SPAM row requires Science commands");
+        throw new Error("Captain dashboard SPAM row requires Scientist commands");
     }
 
     return commands;
 }
 
-function getRequiredScienceAvailability(input: PlayerShipDashboardMapperInput): OfficerAvailabilityState {
-    const availability = input.scienceOfficerAvailability;
+function getRequiredScientistAvailability(input: PlayerShipDashboardMapperInput): OfficerAvailabilityState {
+    const availability = input.scientistOfficerAvailability;
 
     if (availability === undefined) {
-        throw new Error("Captain dashboard SPAM row requires Science availability");
+        throw new Error("Captain dashboard SPAM row requires Scientist availability");
     }
 
     return availability;

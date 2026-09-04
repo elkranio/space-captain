@@ -63,14 +63,14 @@ describe(
                 const command =
                     engine
                         .getAvailableCommands(
-                            OFFICER_ROLE.WEAPONS,
+                            OFFICER_ROLE.GUNNER,
                         )
                         .find(
                             (candidate) => {
                                 return (
                                     candidate.commandId ===
                                         ENCOUNTER_OFFICER_COMMAND_ID
-                                            .WEAPONS_FIRE_STICKY_MINES &&
+                                            .GUNNER_FIRE_STICKY_MINES &&
                                     candidate.target.kind ===
                                         OFFICER_COMMAND_TARGET_KIND
                                             .ACTOR_WEAPON &&
@@ -93,7 +93,7 @@ describe(
                 expect(
                     engine.executeCommand({
                         role:
-                            OFFICER_ROLE.WEAPONS,
+                            OFFICER_ROLE.GUNNER,
 
                         commandId:
                             command.commandId,

@@ -53,9 +53,9 @@ describe(
                     });
 
                 targetActor.crewRoles = [
-                    OFFICER_ROLE.WEAPONS,
-                    OFFICER_ROLE.HELM,
-                    OFFICER_ROLE.SCIENCE,
+                    OFFICER_ROLE.GUNNER,
+                    OFFICER_ROLE.PILOT,
+                    OFFICER_ROLE.SCIENTIST,
                     OFFICER_ROLE.ENGINEER,
                 ];
 
@@ -115,19 +115,19 @@ describe(
 
                 expect(
                     targetActor.crewTasks[
-                        OFFICER_ROLE.SCIENCE
+                        OFFICER_ROLE.SCIENTIST
                     ],
                 ).toBeUndefined();
 
                 expect(
                     targetActor.crewTasks[
-                        OFFICER_ROLE.HELM
+                        OFFICER_ROLE.PILOT
                     ],
                 ).toBeUndefined();
 
                 expect(
                     targetActor.crewTasks[
-                        OFFICER_ROLE.WEAPONS
+                        OFFICER_ROLE.GUNNER
                     ],
                 ).toBeUndefined();
 
@@ -148,19 +148,19 @@ describe(
 
                 expect(
                     targetActor.crewTasks[
-                        OFFICER_ROLE.SCIENCE
+                        OFFICER_ROLE.SCIENTIST
                     ],
                 ).toBeUndefined();
 
                 expect(
                     targetActor.crewTasks[
-                        OFFICER_ROLE.HELM
+                        OFFICER_ROLE.PILOT
                     ],
                 ).toBeUndefined();
 
                 expect(
                     targetActor.crewTasks[
-                        OFFICER_ROLE.WEAPONS
+                        OFFICER_ROLE.GUNNER
                     ],
                 ).toBeUndefined();
 
@@ -241,13 +241,13 @@ describe(
 
                 expect(
                     targetActor.crewTasks[
-                        OFFICER_ROLE.HELM
+                        OFFICER_ROLE.PILOT
                     ],
                 ).toBeUndefined();
 
                 expect(
                     targetActor.crewTasks[
-                        OFFICER_ROLE.WEAPONS
+                        OFFICER_ROLE.GUNNER
                     ],
                 ).toBeUndefined();
 
@@ -268,7 +268,7 @@ describe(
 
                 expect(
                     targetActor.crewTasks[
-                        OFFICER_ROLE.HELM
+                        OFFICER_ROLE.PILOT
                     ],
                 ).toBeUndefined();
 

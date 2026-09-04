@@ -46,10 +46,10 @@ import {
     type AnchoredPlayerCombatTestSetup,
 } from './combat_test_support';
 
-const SCIENCE_PURGE_SPAM_DURATION_MS =
+const SCIENTIST_PURGE_SPAM_DURATION_MS =
     getTimedOfficerTaskDurationMs(
         OFFICER_TASK_KIND
-            .SCIENCE_PURGE_SPAM,
+            .SCIENTIST_PURGE_SPAM,
     );
 
 const SPAM_DEFINITION =
@@ -59,15 +59,15 @@ const SPAM_DEFINITION =
     ];
 
 describe(
-    'Enemy Science purge of player spam',
+    'Enemy Scientist purge of player spam',
     () => {
         it(
-            'purges the channel after slowed Science work',
+            'purges the channel after slowed Scientist work',
             () => {
                 const setup =
                     createAnchoredPlayerCombatTestSetup();
 
-                makeEnemyScienceOnly(
+                makeEnemyScientistOnly(
                     setup,
                 );
 
@@ -88,7 +88,7 @@ describe(
                     setup.targetActor
                         .crewTasks[
                             OFFICER_ROLE
-                                .SCIENCE
+                                .SCIENTIST
                         ],
                 ).toEqual({
                     kind:
@@ -96,17 +96,17 @@ describe(
                             .PURGE_SPAM,
 
                     role:
-                        OFFICER_ROLE.SCIENCE,
+                        OFFICER_ROLE.SCIENTIST,
 
                     channelId,
 
                     elapsedMs: 0,
 
                     durationMs:
-                        SCIENCE_PURGE_SPAM_DURATION_MS,
+                        SCIENTIST_PURGE_SPAM_DURATION_MS,
                 });
 
-                const scienceDebug =
+                const scientistDebug =
                     setup.engine
                         .getEnemyDebugSnapshots()[0]
                         ?.roles
@@ -114,12 +114,12 @@ describe(
                             return (
                                 role.role ===
                                 OFFICER_ROLE
-                                    .SCIENCE
+                                    .SCIENTIST
                             );
                         });
 
                 expect(
-                    scienceDebug?.task,
+                    scientistDebug?.task,
                 ).toMatchObject({
                     kind:
                         SHIP_CREW_TASK_KIND
@@ -132,7 +132,7 @@ describe(
                         elapsedMs: 0,
 
                         durationMs:
-                            SCIENCE_PURGE_SPAM_DURATION_MS,
+                            SCIENTIST_PURGE_SPAM_DURATION_MS,
                     },
                 });
 
@@ -143,14 +143,14 @@ describe(
                 ).toBe(0.5);
 
                 setup.engine.step(
-                    SCIENCE_PURGE_SPAM_DURATION_MS,
+                    SCIENTIST_PURGE_SPAM_DURATION_MS,
                 );
 
                 expect(
                     setup.targetActor
                         .crewTasks[
                             OFFICER_ROLE
-                                .SCIENCE
+                                .SCIENTIST
                         ],
                 ).toMatchObject({
                     kind:
@@ -158,7 +158,7 @@ describe(
                             .PURGE_SPAM,
 
                     elapsedMs:
-                        SCIENCE_PURGE_SPAM_DURATION_MS *
+                        SCIENTIST_PURGE_SPAM_DURATION_MS *
                         0.5,
                 });
 
@@ -175,7 +175,7 @@ describe(
                 ).toBe(false);
 
                 setup.engine.step(
-                    SCIENCE_PURGE_SPAM_DURATION_MS,
+                    SCIENTIST_PURGE_SPAM_DURATION_MS,
                 );
 
                 expect(
@@ -204,7 +204,7 @@ describe(
                             .CHANNELING,
 
                     phaseElapsedMs:
-                        SCIENCE_PURGE_SPAM_DURATION_MS *
+                        SCIENTIST_PURGE_SPAM_DURATION_MS *
                         2,
 
                     cooldownRemainingMs: 0,
@@ -225,7 +225,7 @@ describe(
                     setup.targetActor
                         .crewTasks[
                             OFFICER_ROLE
-                                .SCIENCE
+                                .SCIENTIST
                         ],
                 ).toBeUndefined();
 
@@ -244,7 +244,7 @@ describe(
                 const remainingChannelMs =
                     SPAM_DEFINITION
                         .channelDurationMs -
-                    SCIENCE_PURGE_SPAM_DURATION_MS *
+                    SCIENTIST_PURGE_SPAM_DURATION_MS *
                         2;
 
                 expect(
@@ -293,7 +293,7 @@ describe(
         );
 
         it(
-            'cannot purge without enemy Science',
+            'cannot purge without enemy Scientist',
             () => {
                 const setup =
                     createAnchoredPlayerCombatTestSetup();
@@ -324,7 +324,7 @@ describe(
                     );
 
                 setup.engine.step(
-                    SCIENCE_PURGE_SPAM_DURATION_MS *
+                    SCIENTIST_PURGE_SPAM_DURATION_MS *
                         2,
                 );
 
@@ -367,12 +367,12 @@ function getPlayerSpamEffects(
     });
 }
 
-function makeEnemyScienceOnly(
+function makeEnemyScientistOnly(
     setup:
         AnchoredPlayerCombatTestSetup,
 ): void {
     setup.targetActor.crewRoles = [
-        OFFICER_ROLE.SCIENCE,
+        OFFICER_ROLE.SCIENTIST,
     ];
 
     setup.targetActor.crewTasks =
@@ -392,26 +392,26 @@ function activatePlayerSpam(
     const command =
         setup.engine
             .getAvailableCommands(
-                OFFICER_ROLE.SCIENCE,
+                OFFICER_ROLE.SCIENTIST,
             )
             .find((candidate) => {
                 return (
                     candidate.commandId ===
                     ENCOUNTER_OFFICER_COMMAND_ID
-                        .SCIENCE_FIRE_SPAM
+                        .SCIENTIST_FIRE_SPAM
                 );
             });
 
     if (!command) {
         throw new Error(
-            'Expected SCIENCE FIRE SPAM command',
+            'Expected SCIENTIST FIRE SPAM command',
         );
     }
 
     expect(
         setup.engine.executeCommand({
             role:
-                OFFICER_ROLE.SCIENCE,
+                OFFICER_ROLE.SCIENTIST,
 
             commandId:
                 command.commandId,

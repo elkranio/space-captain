@@ -21,7 +21,7 @@ import { OFFICER_TASK_KIND } from '../../../src/engine/encounter/model/officer_t
 import { ENCOUNTER_ANCHOR_KIND } from '../../../src/engine/encounter/anchors/encounter_anchor';
 import { createSingleStationNodeFixture } from '../../fixtures/engine/space_node_fixtures';
 describe('PLOT_COURSE', () => {
-    it('creates one jump point after the Science task completes', () => {
+    it('creates one jump point after the Scientist task completes', () => {
         const { node, stationId } = createSingleStationNodeFixture();
 
         const targetNodeId = 'node_destination';
@@ -42,8 +42,8 @@ describe('PLOT_COURSE', () => {
         // Убираем начальный ENCOUNTER_LOADED.
         engine.drainEvents();
 
-        expect(engine.getAvailableCommands(OFFICER_ROLE.SCIENCE)).toContainEqual({
-            commandId: ENCOUNTER_OFFICER_COMMAND_ID.SCIENCE_PLOT_COURSE,
+        expect(engine.getAvailableCommands(OFFICER_ROLE.SCIENTIST)).toContainEqual({
+            commandId: ENCOUNTER_OFFICER_COMMAND_ID.SCIENTIST_PLOT_COURSE,
 
             target: {
                 kind: OFFICER_COMMAND_TARGET_KIND.NONE,
@@ -51,9 +51,9 @@ describe('PLOT_COURSE', () => {
         });
 
         const executionResult = engine.executeCommand({
-            role: OFFICER_ROLE.SCIENCE,
+            role: OFFICER_ROLE.SCIENTIST,
 
-            commandId: ENCOUNTER_OFFICER_COMMAND_ID.SCIENCE_PLOT_COURSE,
+            commandId: ENCOUNTER_OFFICER_COMMAND_ID.SCIENTIST_PLOT_COURSE,
 
             target: {
                 kind: OFFICER_COMMAND_TARGET_KIND.SPACE_NODE,
@@ -66,19 +66,19 @@ describe('PLOT_COURSE', () => {
             status: OFFICER_COMMAND_EXECUTION_STATUS.EXECUTED,
         });
 
-        // Science занят расчётом курса.
-        expect(engine.getAvailableCommands(OFFICER_ROLE.SCIENCE)).toEqual([]);
+        // Scientist занят расчётом курса.
+        expect(engine.getAvailableCommands(OFFICER_ROLE.SCIENTIST)).toEqual([]);
 
         expect(engine.drainEvents()).toEqual([
             expect.objectContaining({
                 type: ENCOUNTER_EVENT.OFFICER_TASK_STARTED,
 
                 task: expect.objectContaining({
-                    kind: OFFICER_TASK_KIND.SCIENCE_PLOT_COURSE,
+                    kind: OFFICER_TASK_KIND.SCIENTIST_PLOT_COURSE,
 
-                    role: OFFICER_ROLE.SCIENCE,
+                    role: OFFICER_ROLE.SCIENTIST,
 
-                    sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.SCIENCE_PLOT_COURSE,
+                    sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.SCIENTIST_PLOT_COURSE,
 
                     targetNodeId,
                     label: 'PLOT COURSE',
@@ -104,9 +104,9 @@ describe('PLOT_COURSE', () => {
                 outcome: OFFICER_TASK_OUTCOME.COMPLETED,
 
                 task: expect.objectContaining({
-                    kind: OFFICER_TASK_KIND.SCIENCE_PLOT_COURSE,
+                    kind: OFFICER_TASK_KIND.SCIENTIST_PLOT_COURSE,
 
-                    role: OFFICER_ROLE.SCIENCE,
+                    role: OFFICER_ROLE.SCIENTIST,
                     targetNodeId,
                     elapsedMs: 5000,
                 }),
@@ -143,12 +143,12 @@ describe('PLOT_COURSE', () => {
 
         // Пока jump point уже существует,
         // новый курс построить нельзя.
-        expect(engine.getAvailableCommands(OFFICER_ROLE.SCIENCE)).toEqual([]);
+        expect(engine.getAvailableCommands(OFFICER_ROLE.SCIENTIST)).toEqual([]);
 
         // Рассчитанный jump point становится
         // обычной целью локального перелёта.
-        expect(engine.getAvailableCommands(OFFICER_ROLE.HELM)).toContainEqual({
-            commandId: ENCOUNTER_OFFICER_COMMAND_ID.HELM_FLY_TO,
+        expect(engine.getAvailableCommands(OFFICER_ROLE.PILOT)).toContainEqual({
+            commandId: ENCOUNTER_OFFICER_COMMAND_ID.PILOT_FLY_TO,
 
             target: {
                 kind: OFFICER_COMMAND_TARGET_KIND.ANCHOR,
@@ -158,9 +158,9 @@ describe('PLOT_COURSE', () => {
         });
 
         const duplicateExecutionResult = engine.executeCommand({
-            role: OFFICER_ROLE.SCIENCE,
+            role: OFFICER_ROLE.SCIENTIST,
 
-            commandId: ENCOUNTER_OFFICER_COMMAND_ID.SCIENCE_PLOT_COURSE,
+            commandId: ENCOUNTER_OFFICER_COMMAND_ID.SCIENTIST_PLOT_COURSE,
 
             target: {
                 kind: OFFICER_COMMAND_TARGET_KIND.SPACE_NODE,

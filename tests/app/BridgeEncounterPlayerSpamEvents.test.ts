@@ -53,15 +53,15 @@ describe(
 
                                 kind:
                                     OFFICER_TASK_KIND
-                                        .SCIENCE_FIRE_SPAM,
+                                        .SCIENTIST_FIRE_SPAM,
 
                                 role:
                                     OFFICER_ROLE
-                                        .SCIENCE,
+                                        .SCIENTIST,
 
                                 sourceCommandId:
                                     ENCOUNTER_OFFICER_COMMAND_ID
-                                        .SCIENCE_FIRE_SPAM,
+                                        .SCIENTIST_FIRE_SPAM,
 
                                 weaponId:
                                     'spam_projector_player_00',

@@ -64,7 +64,7 @@ import { getTestMissileTargetingDurationMs } from './combat_test_support';
 const AIM_DURATION_MS =
     getTimedOfficerTaskDurationMs(
         OFFICER_TASK_KIND
-            .WEAPONS_DEFENSE_TURRET,
+            .GUNNER_DEFENSE_TURRET,
     );
 const COOLDOWN_DURATION_MS =
     DEFENSE_TURRETS[
@@ -72,7 +72,7 @@ const COOLDOWN_DURATION_MS =
     ].cooldownDurationMs;
 
 describe(
-    'Weapons defense turret command',
+    'Gunner defense turret command',
     () => {
         it(
             'offers one INTERCEPT command for an incoming missile',
@@ -83,13 +83,13 @@ describe(
 
                 expect(
                     engine.getAvailableCommands(
-                        OFFICER_ROLE.WEAPONS,
+                        OFFICER_ROLE.GUNNER,
                     ),
                 ).toEqual([
                     {
                         commandId:
                             ENCOUNTER_OFFICER_COMMAND_ID
-                                .WEAPONS_INTERCEPT_MISSILE,
+                                .GUNNER_INTERCEPT_MISSILE,
 
                         label:
                             'INTERCEPT',
@@ -135,12 +135,12 @@ describe(
 
                 expect(
                     engine.getAvailableCommands(
-                        OFFICER_ROLE.WEAPONS,
+                        OFFICER_ROLE.GUNNER,
                     ),
                 ).toContainEqual({
                     commandId:
                         ENCOUNTER_OFFICER_COMMAND_ID
-                            .WEAPONS_INTERCEPT_MISSILE,
+                            .GUNNER_INTERCEPT_MISSILE,
 
                     label:
                         'INTERCEPT',
@@ -225,7 +225,7 @@ describe(
 
                 expect(
                     engine.getAvailableCommands(
-                        OFFICER_ROLE.WEAPONS,
+                        OFFICER_ROLE.GUNNER,
                     ),
                 ).toEqual([]);
 
@@ -279,7 +279,7 @@ describe(
 
                 expect(
                     engine.getAvailableCommands(
-                        OFFICER_ROLE.WEAPONS,
+                        OFFICER_ROLE.GUNNER,
                     ),
                 ).toEqual([]);
             },
@@ -299,7 +299,7 @@ describe(
 
                 expect(
                     engine.getAvailableCommands(
-                        OFFICER_ROLE.WEAPONS,
+                        OFFICER_ROLE.GUNNER,
                     ),
                 ).toEqual([]);
             },
@@ -505,13 +505,13 @@ function executeIntercept(
 ): void {
     const command =
         engine.getAvailableCommands(
-            OFFICER_ROLE.WEAPONS,
+            OFFICER_ROLE.GUNNER,
         )
         .find((candidate) => {
             return (
                 candidate.commandId ===
                 ENCOUNTER_OFFICER_COMMAND_ID
-                    .WEAPONS_INTERCEPT_MISSILE
+                    .GUNNER_INTERCEPT_MISSILE
             );
         });
 
@@ -524,7 +524,7 @@ function executeIntercept(
     expect(
         engine.executeCommand({
             role:
-                OFFICER_ROLE.WEAPONS,
+                OFFICER_ROLE.GUNNER,
 
             commandId:
                 command.commandId,

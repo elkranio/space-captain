@@ -1,17 +1,17 @@
-// src/engine/encounter/commands/handlers/science_purge_spam_command_handler.ts
+// src/engine/encounter/commands/handlers/scientist_purge_spam_command_handler.ts
 
 import { OFFICER_ROLE } from "../../../defs/officer";
 import { getActiveCrewProgressEffects } from "../../crew_performance/get_active_crew_progress_effects";
 import { COMBAT_TARGET_KIND } from "../../model/combat";
 import { ENCOUNTER_OFFICER_COMMAND_ID, OFFICER_COMMAND_TARGET_KIND, type OfficerCommandDef } from "../../model/command";
 import type { OfficerCommandHandler } from "../../model/officer_command_handler";
-import { createSciencePurgeSpamTask } from "../../officer_tasks/create_officer_task_draft";
+import { createScientistPurgeSpamTask } from "../../officer_tasks/create_officer_task_draft";
 import { requireThreatTargetId } from "./command_handler_helpers";
 
-const COMMAND_ID = ENCOUNTER_OFFICER_COMMAND_ID.SCIENCE_PURGE_SPAM;
+const COMMAND_ID = ENCOUNTER_OFFICER_COMMAND_ID.SCIENTIST_PURGE_SPAM;
 
 const COMMAND_DEF = {
-    role: OFFICER_ROLE.SCIENCE,
+    role: OFFICER_ROLE.SCIENTIST,
     label: "PURGE SPAM",
 
     targeting: {
@@ -23,7 +23,7 @@ const COMMAND_DEF = {
     requiresIdleBridge: false,
 } satisfies OfficerCommandDef;
 
-export const sciencePurgeSpamCommandHandler = {
+export const scientistPurgeSpamCommandHandler = {
     commandId: COMMAND_ID,
     def: COMMAND_DEF,
 
@@ -46,6 +46,6 @@ export const sciencePurgeSpamCommandHandler = {
     },
 
     execute(context, input) {
-        context.startOfficerTask(createSciencePurgeSpamTask(requireThreatTargetId(input)));
+        context.startOfficerTask(createScientistPurgeSpamTask(requireThreatTargetId(input)));
     },
 } satisfies OfficerCommandHandler;

@@ -12,7 +12,7 @@ import {
 const INTERCEPT_DURATION_MS =
     getTimedOfficerTaskDurationMs(
         OFFICER_TASK_KIND
-            .WEAPONS_DEFENSE_TURRET,
+            .GUNNER_DEFENSE_TURRET,
     );
 
 const SHIELD_DEPLOY_DURATION_MS =

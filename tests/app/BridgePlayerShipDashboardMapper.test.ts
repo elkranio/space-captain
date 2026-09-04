@@ -47,14 +47,14 @@ describe(
                 const firstCommand =
                     createWeaponCommand(
                         ENCOUNTER_OFFICER_COMMAND_ID
-                            .WEAPONS_FIRE_MISSILE,
+                            .GUNNER_FIRE_MISSILE,
                         firstId,
                     );
 
                 const secondCommand =
                     createWeaponCommand(
                         ENCOUNTER_OFFICER_COMMAND_ID
-                            .WEAPONS_FIRE_MISSILE,
+                            .GUNNER_FIRE_MISSILE,
                         secondId,
                     );
 
@@ -91,12 +91,12 @@ describe(
                             ],
                         },
 
-                        availableWeaponsCommands: [
+                        availableGunnerCommands: [
                             firstCommand,
                             secondCommand,
                         ],
 
-                        weaponsOfficerAvailability:
+                        gunnerOfficerAvailability:
                             OFFICER_AVAILABILITY_STATE
                                 .AVAILABLE,
                     }),
@@ -127,7 +127,7 @@ describe(
                                 command: {
                                     role:
                                         OFFICER_ROLE
-                                            .WEAPONS,
+                                            .GUNNER,
                                     commandId:
                                         firstCommand
                                             .commandId,
@@ -162,7 +162,7 @@ describe(
                                 command: {
                                     role:
                                         OFFICER_ROLE
-                                            .WEAPONS,
+                                            .GUNNER,
                                     commandId:
                                         secondCommand
                                             .commandId,
@@ -214,8 +214,8 @@ describe(
                             cooldown,
                             empty,
                         ],
-                        availableWeaponsCommands: [],
-                        weaponsOfficerAvailability:
+                        availableGunnerCommands: [],
+                        gunnerOfficerAvailability:
                             OFFICER_AVAILABILITY_STATE
                                 .BUSY,
                         officerTasks: [
@@ -223,13 +223,13 @@ describe(
                                 id:
                                     'missile_targeting_task_00',
                                 kind:
-                                    'weapons_fire_missile',
+                                    'gunner_fire_missile',
                                 role:
                                     OFFICER_ROLE
-                                        .WEAPONS,
+                                        .GUNNER,
                                 sourceCommandId:
                                     ENCOUNTER_OFFICER_COMMAND_ID
-                                        .WEAPONS_FIRE_MISSILE,
+                                        .GUNNER_FIRE_MISSILE,
                                 label:
                                     'MISSILE AIM',
                                 showProgress:
@@ -363,8 +363,8 @@ describe(
                         weapons: [
                             beam,
                         ],
-                        availableWeaponsCommands: [],
-                        weaponsOfficerAvailability:
+                        availableGunnerCommands: [],
+                        gunnerOfficerAvailability:
                             OFFICER_AVAILABILITY_STATE
                                 .BUSY,
                     }).weapons,
@@ -413,14 +413,14 @@ describe(
                 const beamCommand =
                     createWeaponCommand(
                         ENCOUNTER_OFFICER_COMMAND_ID
-                            .WEAPONS_FIRE_BEAM_CANNON,
+                            .GUNNER_FIRE_BEAM_CANNON,
                         beamId,
                     );
 
                 const mineCommand =
                     createWeaponCommand(
                         ENCOUNTER_OFFICER_COMMAND_ID
-                            .WEAPONS_FIRE_STICKY_MINES,
+                            .GUNNER_FIRE_STICKY_MINES,
                         mineId,
                     );
 
@@ -435,11 +435,11 @@ describe(
                                 6,
                             ),
                         ],
-                        availableWeaponsCommands: [
+                        availableGunnerCommands: [
                             beamCommand,
                             mineCommand,
                         ],
-                        weaponsOfficerAvailability:
+                        gunnerOfficerAvailability:
                             OFFICER_AVAILABILITY_STATE
                                 .AVAILABLE,
                     }).weapons,
@@ -466,7 +466,7 @@ describe(
                             command: {
                                 role:
                                     OFFICER_ROLE
-                                        .WEAPONS,
+                                        .GUNNER,
                                 commandId:
                                     beamCommand
                                         .commandId,
@@ -497,7 +497,7 @@ describe(
                             command: {
                                 role:
                                     OFFICER_ROLE
-                                        .WEAPONS,
+                                        .GUNNER,
                                 commandId:
                                     mineCommand
                                         .commandId,
@@ -532,8 +532,8 @@ describe(
                         weapons: [
                             dispenser,
                         ],
-                        availableWeaponsCommands: [],
-                        weaponsOfficerAvailability:
+                        availableGunnerCommands: [],
+                        gunnerOfficerAvailability:
                             OFFICER_AVAILABILITY_STATE
                                 .BUSY,
                     }).weapons,
@@ -564,14 +564,14 @@ describe(
         );
 
         it(
-            'uses Science availability and the exact projector command for SPAM',
+            'uses Scientist availability and the exact projector command for SPAM',
             () => {
                 const projectorId =
                     'spam_projector_player_00';
                 const command =
                     createWeaponCommand(
                         ENCOUNTER_OFFICER_COMMAND_ID
-                            .SCIENCE_FIRE_SPAM,
+                            .SCIENTIST_FIRE_SPAM,
                         projectorId,
                     );
 
@@ -582,14 +582,14 @@ describe(
                                 projectorId,
                             ),
                         ],
-                        availableWeaponsCommands: [],
-                        weaponsOfficerAvailability:
+                        availableGunnerCommands: [],
+                        gunnerOfficerAvailability:
                             OFFICER_AVAILABILITY_STATE
                                 .AVAILABLE,
-                        availableScienceCommands: [
+                        availableScientistCommands: [
                             command,
                         ],
-                        scienceOfficerAvailability:
+                        scientistOfficerAvailability:
                             OFFICER_AVAILABILITY_STATE
                                 .AVAILABLE,
                     }).weapons,
@@ -612,7 +612,7 @@ describe(
                             command: {
                                 role:
                                     OFFICER_ROLE
-                                        .SCIENCE,
+                                        .SCIENTIST,
                                 commandId:
                                     command
                                         .commandId,
@@ -627,13 +627,13 @@ describe(
         );
 
         it(
-            'maps the stable ship status and exact HELM_EVADE command',
+            'maps the stable ship status and exact PILOT_EVADE command',
             () => {
                 const evadeCommand:
                     AvailableOfficerCommand = {
                         commandId:
                             ENCOUNTER_OFFICER_COMMAND_ID
-                                .HELM_EVADE,
+                                .PILOT_EVADE,
 
                         target: {
                             kind:
@@ -645,16 +645,16 @@ describe(
                 expect(
                     mapPlayerShipToBridgeDashboardPayload({
                         weapons: [],
-                        availableWeaponsCommands: [],
-                        weaponsOfficerAvailability:
+                        availableGunnerCommands: [],
+                        gunnerOfficerAvailability:
                             OFFICER_AVAILABILITY_STATE
                                 .AVAILABLE,
 
-                        availableHelmCommands: [
+                        availablePilotCommands: [
                             evadeCommand,
                         ],
 
-                        helmOfficerAvailability:
+                        pilotOfficerAvailability:
                             OFFICER_AVAILABILITY_STATE
                                 .AVAILABLE,
 
@@ -893,11 +893,11 @@ describe(
 
                         command: {
                             role:
-                                OFFICER_ROLE.HELM,
+                                OFFICER_ROLE.PILOT,
 
                             commandId:
                                 ENCOUNTER_OFFICER_COMMAND_ID
-                                    .HELM_EVADE,
+                                    .PILOT_EVADE,
 
                             target:
                                 evadeCommand.target,
@@ -927,19 +927,19 @@ describe(
                                 5,
                             ),
                         ],
-                        availableWeaponsCommands: [
+                        availableGunnerCommands: [
                             createWeaponCommand(
                                 ENCOUNTER_OFFICER_COMMAND_ID
-                                    .WEAPONS_FIRE_MISSILE,
+                                    .GUNNER_FIRE_MISSILE,
                                 firstId,
                             ),
                             createWeaponCommand(
                                 ENCOUNTER_OFFICER_COMMAND_ID
-                                    .WEAPONS_FIRE_MISSILE,
+                                    .GUNNER_FIRE_MISSILE,
                                 secondId,
                             ),
                         ],
-                        weaponsOfficerAvailability:
+                        gunnerOfficerAvailability:
                             OFFICER_AVAILABILITY_STATE
                                 .AVAILABLE,
                     });

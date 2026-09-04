@@ -50,8 +50,7 @@ export type EnemyThreatDecisionSnapshot =
 // Query резолвит stable observation source только в те
 // физические факты, которые реально нужны EnemyDecisionPolicy.
 //
-// Hidden missile truth сюда намеренно не попадает:
-// objective projectile signature остаётся за EnemyScienceIntelResolver.
+// Missile snapshot содержит только observation id, projectile id и время до попадания.
 //
 // Исчезнувший source не является invariant error.
 // Между observer sync и decision pass старая enemy crew task
@@ -144,12 +143,12 @@ function resolveBeamCannon(
         );
     }
 
-    const playerTask = state.officerTasks[OFFICER_ROLE.WEAPONS];
+    const playerTask = state.officerTasks[OFFICER_ROLE.GUNNER];
 
     if (
         !playerTask ||
         playerTask.id !== source.officerTaskId ||
-        playerTask.kind !== OFFICER_TASK_KIND.WEAPONS_FIRE_BEAM_CANNON ||
+        playerTask.kind !== OFFICER_TASK_KIND.GUNNER_FIRE_BEAM_CANNON ||
         playerTask.targetActorId !== actor.id
     ) {
         return undefined;

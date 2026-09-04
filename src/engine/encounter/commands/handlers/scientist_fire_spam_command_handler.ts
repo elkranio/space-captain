@@ -1,22 +1,22 @@
-// src/engine/encounter/commands/handlers/weapons_fire_missile_command_handler.ts
+// src/engine/encounter/commands/handlers/scientist_fire_spam_command_handler.ts
 
 import { OFFICER_ROLE } from "../../../defs/officer";
 import {
     SHIP_WEAPON_KIND,
     SHIP_WEAPON_PHASE,
-    type MissileLauncherState,
     type ShipWeaponState,
+    type SpamProjectorState,
 } from "../../../defs/ship_weapon";
 import { ENCOUNTER_OFFICER_COMMAND_ID, OFFICER_COMMAND_TARGET_KIND, type OfficerCommandDef } from "../../model/command";
 import type { OfficerCommandHandler } from "../../model/officer_command_handler";
 import type { EncounterState } from "../../model/state";
+import { createScientistFireSpamTask } from "../../officer_tasks/create_officer_task_draft";
 import { findCurrentEnemyShip } from "../queries/find_current_enemy_ship";
-import { createWeaponsFireMissileTask } from "../../officer_tasks/create_officer_task_draft";
 
 const def = {
-    role: OFFICER_ROLE.WEAPONS,
+    role: OFFICER_ROLE.SCIENTIST,
 
-    label: "FIRE MISSILE",
+    label: "FIRE SPAM",
 
     targeting: {
         kind: OFFICER_COMMAND_TARGET_KIND.ACTOR_WEAPON,
@@ -26,8 +26,8 @@ const def = {
     requiresIdleBridge: false,
 } satisfies OfficerCommandDef;
 
-export const weaponsFireMissileCommandHandler: OfficerCommandHandler = {
-    commandId: ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_MISSILE,
+export const scientistFireSpamCommandHandler: OfficerCommandHandler = {
+    commandId: ENCOUNTER_OFFICER_COMMAND_ID.SCIENTIST_FIRE_SPAM,
 
     def,
 
@@ -38,16 +38,16 @@ export const weaponsFireMissileCommandHandler: OfficerCommandHandler = {
             return [];
         }
 
-        return getReadyMissileLaunchers(state).map((launcher) => {
+        return getReadySpamProjectors(state).map((projector) => {
             return {
-                commandId: ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_MISSILE,
+                commandId: ENCOUNTER_OFFICER_COMMAND_ID.SCIENTIST_FIRE_SPAM,
 
                 label: def.label,
 
                 target: {
                     kind: OFFICER_COMMAND_TARGET_KIND.ACTOR_WEAPON,
 
-                    weaponId: launcher.id,
+                    weaponId: projector.id,
 
                     actorId: targetActor.id,
                 },
@@ -59,23 +59,19 @@ export const weaponsFireMissileCommandHandler: OfficerCommandHandler = {
 
     execute(context, input) {
         if (input.target.kind !== OFFICER_COMMAND_TARGET_KIND.ACTOR_WEAPON) {
-            throw new Error("FIRE MISSILE requires " + "an actor-weapon target");
+            throw new Error("FIRE SPAM requires " + "an actor-weapon target");
         }
 
-        context.stateStore.startPlayerMissileTargeting(input.target.weaponId);
+        context.stateStore.startPlayerSpamChanneling(input.target.weaponId);
 
-        context.startOfficerTask(createWeaponsFireMissileTask(input.target.weaponId, input.target.actorId));
+        context.startOfficerTask(createScientistFireSpamTask(input.target.weaponId, input.target.actorId));
     },
 };
 
-function getReadyMissileLaunchers(state: EncounterState) {
-    return state.combat.playerWeapons.filter(isReadyMissileLauncher);
+function getReadySpamProjectors(state: EncounterState) {
+    return state.combat.playerWeapons.filter(isReadySpamProjector);
 }
 
-function isReadyMissileLauncher(weapon: ShipWeaponState): weapon is MissileLauncherState {
-    return (
-        weapon.kind === SHIP_WEAPON_KIND.MISSILE_LAUNCHER &&
-        weapon.phase === SHIP_WEAPON_PHASE.READY &&
-        weapon.ammoCount > 0
-    );
+function isReadySpamProjector(weapon: ShipWeaponState): weapon is SpamProjectorState {
+    return weapon.kind === SHIP_WEAPON_KIND.SPAM_PROJECTOR && weapon.phase === SHIP_WEAPON_PHASE.READY;
 }

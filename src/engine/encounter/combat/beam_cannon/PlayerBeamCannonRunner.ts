@@ -14,10 +14,10 @@ import { OFFICER_TASK_KIND, type OfficerTaskState } from "../../model/officer_ta
 import type EncounterStateStore from "../../state/EncounterStateStore";
 import type OfficerTaskRunner from "../../officer_tasks/OfficerTaskRunner";
 
-type WeaponsFireBeamCannonTaskState = Extract<
+type GunnerFireBeamCannonTaskState = Extract<
     OfficerTaskState,
     {
-        kind: typeof OFFICER_TASK_KIND.WEAPONS_FIRE_BEAM_CANNON;
+        kind: typeof OFFICER_TASK_KIND.GUNNER_FIRE_BEAM_CANNON;
     }
 >;
 
@@ -44,7 +44,7 @@ type PlayerBeamCannonRunnerOptions = {
 export default class PlayerBeamCannonRunner {
     constructor(private readonly options: PlayerBeamCannonRunnerOptions) {}
 
-    public advanceTask(task: WeaponsFireBeamCannonTaskState, deltaMs: number): void {
+    public advanceTask(task: GunnerFireBeamCannonTaskState, deltaMs: number): void {
         if (!this.hasValidTarget(task)) {
             // OfficerTaskRunner cancels the task
             // at the end of the encounter step.
@@ -73,7 +73,7 @@ export default class PlayerBeamCannonRunner {
         this.advanceCharging(task, beamCannon, deltaMs);
     }
 
-    private advanceCharging(task: WeaponsFireBeamCannonTaskState, beamCannon: BeamCannonState, deltaMs: number): void {
+    private advanceCharging(task: GunnerFireBeamCannonTaskState, beamCannon: BeamCannonState, deltaMs: number): void {
         const definition = this.getDefinition(beamCannon);
 
         beamCannon.phaseElapsedMs += deltaMs;
@@ -98,7 +98,7 @@ export default class PlayerBeamCannonRunner {
             ...impact,
         });
 
-        // Weapons is released immediately after firing.
+        // Gunner is released immediately after firing.
         // Cooldown does not occupy the officer.
         this.options.officerTaskRunner.complete(task.id);
 
@@ -107,7 +107,7 @@ export default class PlayerBeamCannonRunner {
         }
     }
 
-    private resolveImpact(task: WeaponsFireBeamCannonTaskState, hullDamage: number): PlayerBeamCannonImpact {
+    private resolveImpact(task: GunnerFireBeamCannonTaskState, hullDamage: number): PlayerBeamCannonImpact {
         const target = this.options.stateStore.findActorById(task.targetActorId);
 
         if (!target || target.team !== ENCOUNTER_TEAM.ENEMY) {
@@ -154,7 +154,7 @@ export default class PlayerBeamCannonRunner {
         };
     }
 
-    private findTaskBeamCannon(task: WeaponsFireBeamCannonTaskState): BeamCannonState | undefined {
+    private findTaskBeamCannon(task: GunnerFireBeamCannonTaskState): BeamCannonState | undefined {
         const weapon = this.options.stateStore.findPlayerWeaponById(task.weaponId);
 
         if (!weapon) {
@@ -173,7 +173,7 @@ export default class PlayerBeamCannonRunner {
         return weapon;
     }
 
-    private hasValidTarget(task: WeaponsFireBeamCannonTaskState): boolean {
+    private hasValidTarget(task: GunnerFireBeamCannonTaskState): boolean {
         const actor = this.options.stateStore.findActorById(task.targetActorId);
 
         return actor?.team === ENCOUNTER_TEAM.ENEMY;

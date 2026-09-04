@@ -48,11 +48,11 @@ describe('Player beamCannon damage', () => {
             expect(
                 engine.executeCommand({
                     role:
-                        OFFICER_ROLE.WEAPONS,
+                        OFFICER_ROLE.GUNNER,
 
                     commandId:
                         ENCOUNTER_OFFICER_COMMAND_ID
-                            .WEAPONS_FIRE_BEAM_CANNON,
+                            .GUNNER_FIRE_BEAM_CANNON,
 
                     target: {
                         kind:

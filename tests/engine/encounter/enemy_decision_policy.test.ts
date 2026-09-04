@@ -35,7 +35,7 @@ describe(
     'Enemy decision policy',
     () => {
         it(
-            'selects the first available Weapons attack in loadout order',
+            'selects the first available Gunner attack in loadout order',
             () => {
                 const snapshot =
                     createSnapshot();
@@ -106,13 +106,13 @@ describe(
         );
 
         it(
-            'does not invent Weapons work when every Weapons tool is unavailable',
+            'does not invent Gunner work when every Gunner tool is unavailable',
             () => {
                 const snapshot =
                     createSnapshot();
 
                 snapshot.availableRoles = [
-                    OFFICER_ROLE.WEAPONS,
+                    OFFICER_ROLE.GUNNER,
                 ];
 
                 snapshot.weapons = [
@@ -179,13 +179,13 @@ describe(
         );
 
         it(
-            'falls through to Science offense when Weapons is unavailable',
+            'falls through to Scientist offense when Gunner is unavailable',
             () => {
                 const snapshot =
                     createSnapshot();
 
                 snapshot.availableRoles = [
-                    OFFICER_ROLE.SCIENCE,
+                    OFFICER_ROLE.SCIENTIST,
                 ];
 
                 expect(
@@ -199,7 +199,7 @@ describe(
                             .OPERATE_WEAPON,
 
                     role:
-                        OFFICER_ROLE.SCIENCE,
+                        OFFICER_ROLE.SCIENTIST,
 
                     weaponId:
                         'spam_projector_00',
@@ -214,7 +214,7 @@ describe(
                     createSnapshot();
 
                 snapshot.availableRoles = [
-                    OFFICER_ROLE.WEAPONS,
+                    OFFICER_ROLE.GUNNER,
                 ];
 
                 snapshot.weapons = [];
@@ -293,9 +293,9 @@ describe(
                     createSnapshot();
 
                 snapshot.availableRoles = [
-                    OFFICER_ROLE.SCIENCE,
-                    OFFICER_ROLE.HELM,
-                    OFFICER_ROLE.WEAPONS,
+                    OFFICER_ROLE.SCIENTIST,
+                    OFFICER_ROLE.PILOT,
+                    OFFICER_ROLE.GUNNER,
                 ];
 
                 snapshot.weapons = [];
@@ -379,7 +379,7 @@ describe(
                     createSnapshot();
 
                 snapshot.availableRoles = [
-                    OFFICER_ROLE.WEAPONS,
+                    OFFICER_ROLE.GUNNER,
                 ];
 
                 snapshot.weapons = [
@@ -427,7 +427,7 @@ describe(
                 snapshot.aggression = 0;
 
                 snapshot.availableRoles = [
-                    OFFICER_ROLE.WEAPONS,
+                    OFFICER_ROLE.GUNNER,
                     OFFICER_ROLE.ENGINEER,
                 ];
 
@@ -552,7 +552,7 @@ function createTurretConflictSnapshot():
         createSnapshot();
 
     snapshot.availableRoles = [
-        OFFICER_ROLE.WEAPONS,
+        OFFICER_ROLE.GUNNER,
     ];
 
     snapshot.weapons = [
@@ -670,7 +670,7 @@ function weaponIntent(
                 .OPERATE_WEAPON,
 
         role:
-            OFFICER_ROLE.WEAPONS,
+            OFFICER_ROLE.GUNNER,
 
         weaponId,
     };
@@ -685,7 +685,7 @@ function turretIntent(
                 .INTERCEPT_MISSILE,
 
         role:
-            OFFICER_ROLE.WEAPONS,
+            OFFICER_ROLE.GUNNER,
 
         defenseTurretId:
             'defense_turret_00',
@@ -719,10 +719,10 @@ function createSnapshot():
         nextDecisionInMs: 1000,
 
         availableRoles: [
-            OFFICER_ROLE.WEAPONS,
-            OFFICER_ROLE.SCIENCE,
+            OFFICER_ROLE.GUNNER,
+            OFFICER_ROLE.SCIENTIST,
             OFFICER_ROLE.ENGINEER,
-            OFFICER_ROLE.HELM,
+            OFFICER_ROLE.PILOT,
         ],
 
         claimedStickyMineIds: [],

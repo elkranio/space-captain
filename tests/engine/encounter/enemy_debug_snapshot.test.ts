@@ -95,10 +95,10 @@ describe(
 
                             crewRoles: [
                                 OFFICER_ROLE
-                                    .SCIENCE,
+                                    .SCIENTIST,
 
                                 OFFICER_ROLE
-                                    .WEAPONS,
+                                    .GUNNER,
 
                                 OFFICER_ROLE
                                     .ENGINEER,
@@ -106,14 +106,14 @@ describe(
 
                             crewTasks: {
                                 [OFFICER_ROLE
-                                    .WEAPONS]: {
+                                    .GUNNER]: {
                                     kind:
                                         SHIP_CREW_TASK_KIND
                                             .INTERCEPT_MISSILE,
 
                                     role:
                                         OFFICER_ROLE
-                                            .WEAPONS,
+                                            .GUNNER,
 
                                     defenseTurretId:
                                         'defense_turret_00',
@@ -208,7 +208,7 @@ describe(
                             {
                                 role:
                                     OFFICER_ROLE
-                                        .SCIENCE,
+                                        .SCIENTIST,
 
                                 present: true,
 
@@ -217,7 +217,7 @@ describe(
                             {
                                 role:
                                     OFFICER_ROLE
-                                        .WEAPONS,
+                                        .GUNNER,
 
                                 present: true,
 
@@ -250,7 +250,7 @@ describe(
                             {
                                 role:
                                     OFFICER_ROLE
-                                        .HELM,
+                                        .PILOT,
 
                                 present: false,
                             },

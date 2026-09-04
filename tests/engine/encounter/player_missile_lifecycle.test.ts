@@ -47,7 +47,7 @@ import {
 } from './combat_test_support';
 
 describe('Player missile lifecycle', () => {
-    it('launches after aiming, spends one missile and releases Weapons', () => {
+    it('launches after aiming, spends one missile and releases Gunner', () => {
         const {
             engine,
             launcher,
@@ -186,7 +186,7 @@ describe('Player missile lifecycle', () => {
 
         const availableCommands =
             engine.getAvailableCommands(
-                OFFICER_ROLE.WEAPONS,
+                OFFICER_ROLE.GUNNER,
             );
 
         expect(
@@ -195,7 +195,7 @@ describe('Player missile lifecycle', () => {
                     return (
                         command.commandId ===
                         ENCOUNTER_OFFICER_COMMAND_ID
-                            .WEAPONS_FIRE_MISSILE
+                            .GUNNER_FIRE_MISSILE
                     );
                 },
             ),
@@ -207,7 +207,7 @@ describe('Player missile lifecycle', () => {
                     return (
                         command.commandId ===
                         ENCOUNTER_OFFICER_COMMAND_ID
-                            .WEAPONS_FIRE_BEAM_CANNON
+                            .GUNNER_FIRE_BEAM_CANNON
                     );
                 },
             ),
@@ -328,13 +328,13 @@ describe('Player missile lifecycle', () => {
         expect(
             engine
                 .getAvailableCommands(
-                    OFFICER_ROLE.WEAPONS,
+                    OFFICER_ROLE.GUNNER,
                 )
                 .some((command) => {
                     return (
                         command.commandId ===
                         ENCOUNTER_OFFICER_COMMAND_ID
-                            .WEAPONS_FIRE_MISSILE
+                            .GUNNER_FIRE_MISSILE
                     );
                 }),
         ).toBe(false);
@@ -495,13 +495,13 @@ function executeFireMissile(
     const command =
         engine
             .getAvailableCommands(
-                OFFICER_ROLE.WEAPONS,
+                OFFICER_ROLE.GUNNER,
             )
             .find((candidate) => {
                 return (
                     candidate.commandId ===
                         ENCOUNTER_OFFICER_COMMAND_ID
-                            .WEAPONS_FIRE_MISSILE &&
+                            .GUNNER_FIRE_MISSILE &&
                     candidate.target.kind ===
                         OFFICER_COMMAND_TARGET_KIND
                             .ACTOR_WEAPON &&
@@ -518,7 +518,7 @@ function executeFireMissile(
 
     engine.executeCommand({
         role:
-            OFFICER_ROLE.WEAPONS,
+            OFFICER_ROLE.GUNNER,
 
         commandId:
             command.commandId,

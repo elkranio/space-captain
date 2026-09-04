@@ -202,19 +202,19 @@ describe(
 
                 setup.targetActor
                     .crewRoles = [
-                        OFFICER_ROLE.WEAPONS,
+                        OFFICER_ROLE.GUNNER,
                     ];
 
                 setup.targetActor
                     .crewTasks = {
-                        [OFFICER_ROLE.WEAPONS]: {
+                        [OFFICER_ROLE.GUNNER]: {
                             kind:
                                 SHIP_CREW_TASK_KIND
                                     .OPERATE_WEAPON,
 
                             role:
                                 OFFICER_ROLE
-                                    .WEAPONS,
+                                    .GUNNER,
 
                             weaponId:
                                 launcher.id,
@@ -395,19 +395,19 @@ describe(
 
                 setup.targetActor
                     .crewRoles = [
-                        OFFICER_ROLE.WEAPONS,
+                        OFFICER_ROLE.GUNNER,
                     ];
 
                 setup.targetActor
                     .crewTasks = {
-                        [OFFICER_ROLE.WEAPONS]: {
+                        [OFFICER_ROLE.GUNNER]: {
                             kind:
                                 SHIP_CREW_TASK_KIND
                                     .INTERCEPT_MISSILE,
 
                             role:
                                 OFFICER_ROLE
-                                    .WEAPONS,
+                                    .GUNNER,
 
                             defenseTurretId:
                                 defenseTurret.id,
@@ -515,26 +515,26 @@ function activatePlayerSpam(
     const command =
         setup.engine
             .getAvailableCommands(
-                OFFICER_ROLE.SCIENCE,
+                OFFICER_ROLE.SCIENTIST,
             )
             .find((candidate) => {
                 return (
                     candidate.commandId ===
                     ENCOUNTER_OFFICER_COMMAND_ID
-                        .SCIENCE_FIRE_SPAM
+                        .SCIENTIST_FIRE_SPAM
                 );
             });
 
     if (!command) {
         throw new Error(
-            'Expected SCIENCE FIRE SPAM command',
+            'Expected SCIENTIST FIRE SPAM command',
         );
     }
 
     expect(
         setup.engine.executeCommand({
             role:
-                OFFICER_ROLE.SCIENCE,
+                OFFICER_ROLE.SCIENTIST,
 
             commandId:
                 command.commandId,

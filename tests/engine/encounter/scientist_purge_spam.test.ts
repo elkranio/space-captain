@@ -1,4 +1,4 @@
-// tests/engine/encounter/science_purge_spam.test.ts
+// tests/engine/encounter/scientist_purge_spam.test.ts
 
 import { createPlayerHullFixture } from '../../fixtures/engine/player_hull_fixtures';
 import {
@@ -32,10 +32,10 @@ import { createSingleStationNodeFixture } from '../../fixtures/engine/space_node
 const PURGE_DURATION_MS =
     getTimedOfficerTaskDurationMs(
         OFFICER_TASK_KIND
-            .SCIENCE_PURGE_SPAM,
+            .SCIENTIST_PURGE_SPAM,
     );
 
-describe('Science purge spam command', () => {
+describe('Scientist purge spam command', () => {
     it('purges an active hostile spam channel', () => {
         const { node, stationId } =
             createSingleStationNodeFixture();
@@ -119,7 +119,7 @@ describe('Science purge spam command', () => {
 
         expect(purgeCommand).toEqual({
             commandId:
-                ENCOUNTER_OFFICER_COMMAND_ID.SCIENCE_PURGE_SPAM,
+                ENCOUNTER_OFFICER_COMMAND_ID.SCIENTIST_PURGE_SPAM,
             label: 'PURGE SPAM',
             target: {
                 kind:
@@ -138,7 +138,7 @@ describe('Science purge spam command', () => {
 
         expect(
             engine.executeCommand({
-                role: OFFICER_ROLE.SCIENCE,
+                role: OFFICER_ROLE.SCIENTIST,
                 commandId: purgeCommand.commandId,
                 target: purgeCommand.target,
             }),
@@ -158,10 +158,10 @@ describe('Science purge spam command', () => {
                 ENCOUNTER_EVENT.OFFICER_TASK_STARTED,
             task: {
                 kind:
-                    OFFICER_TASK_KIND.SCIENCE_PURGE_SPAM,
-                role: OFFICER_ROLE.SCIENCE,
+                    OFFICER_TASK_KIND.SCIENTIST_PURGE_SPAM,
+                role: OFFICER_ROLE.SCIENTIST,
                 sourceCommandId:
-                    ENCOUNTER_OFFICER_COMMAND_ID.SCIENCE_PURGE_SPAM,
+                    ENCOUNTER_OFFICER_COMMAND_ID.SCIENTIST_PURGE_SPAM,
                 channelId:
                     channelStartedEvent.channel.id,
                 label: 'PURGE SPAM',
@@ -205,11 +205,11 @@ function findPurgeCommand(
     engine: EncounterEngine,
 ) {
     return engine
-        .getAvailableCommands(OFFICER_ROLE.SCIENCE)
+        .getAvailableCommands(OFFICER_ROLE.SCIENTIST)
         .find((command) => {
             return (
                 command.commandId ===
-                ENCOUNTER_OFFICER_COMMAND_ID.SCIENCE_PURGE_SPAM
+                ENCOUNTER_OFFICER_COMMAND_ID.SCIENTIST_PURGE_SPAM
             );
         });
 }

@@ -225,15 +225,15 @@ export default class EncounterEngine {
     }
 
     public completeTravel(taskId: string): void {
-        this.completeExpectedTask(taskId, OFFICER_TASK_KIND.HELM_FLY_TO);
+        this.completeExpectedTask(taskId, OFFICER_TASK_KIND.PILOT_FLY_TO);
     }
 
     public completeDocking(taskId: string): void {
-        this.completeExpectedTask(taskId, OFFICER_TASK_KIND.HELM_DOCK);
+        this.completeExpectedTask(taskId, OFFICER_TASK_KIND.PILOT_DOCK);
     }
 
     public completeJump(taskId: string): void {
-        this.completeExpectedTask(taskId, OFFICER_TASK_KIND.HELM_JUMP);
+        this.completeExpectedTask(taskId, OFFICER_TASK_KIND.PILOT_JUMP);
     }
 
     public cancelTask(taskId: string): void {
@@ -335,13 +335,13 @@ export default class EncounterEngine {
     // #region Player Evade lifecycle
 
     private stepPlayerEvade(deltaMs: number): void {
-        const helmTask = this.stateStore.getOfficerTask(
-            OFFICER_ROLE.HELM,
+        const pilotTask = this.stateStore.getOfficerTask(
+            OFFICER_ROLE.PILOT,
         );
 
         this.stateStore.advancePlayerEvade(deltaMs);
 
-        if (helmTask?.kind !== OFFICER_TASK_KIND.HELM_EVADE) {
+        if (pilotTask?.kind !== OFFICER_TASK_KIND.PILOT_EVADE) {
             return;
         }
 
@@ -351,9 +351,9 @@ export default class EncounterEngine {
             return;
         }
 
-        // The maneuver owns the Helm task only through WARMUP + EVADING.
-        // Recovery continues independently after Helm is released.
-        this.officerTaskRunner.complete(helmTask.id);
+        // The maneuver owns the Pilot task only through WARMUP + EVADING.
+        // Recovery continues independently after Pilot is released.
+        this.officerTaskRunner.complete(pilotTask.id);
     }
 
     // #endregion

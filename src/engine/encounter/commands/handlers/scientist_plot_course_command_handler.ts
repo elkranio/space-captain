@@ -1,16 +1,16 @@
-// src/engine/encounter/commands/handlers/science_plot_course_command_handler.ts
+// src/engine/encounter/commands/handlers/scientist_plot_course_command_handler.ts
 
 import { OFFICER_ROLE } from "../../../defs/officer";
 import { ENCOUNTER_OFFICER_COMMAND_ID, OFFICER_COMMAND_TARGET_KIND, type OfficerCommandDef } from "../../model/command";
 import type { OfficerCommandHandler } from "../../model/officer_command_handler";
 import { ENCOUNTER_ANCHOR_KIND } from "../../anchors/encounter_anchor";
-import { createSciencePlotCourseTask } from "../../officer_tasks/create_officer_task_draft";
+import { createScientistPlotCourseTask } from "../../officer_tasks/create_officer_task_draft";
 import { requireSpaceNodeTargetId } from "./command_handler_helpers";
 
-const COMMAND_ID = ENCOUNTER_OFFICER_COMMAND_ID.SCIENCE_PLOT_COURSE;
+const COMMAND_ID = ENCOUNTER_OFFICER_COMMAND_ID.SCIENTIST_PLOT_COURSE;
 
 const COMMAND_DEF = {
-    role: OFFICER_ROLE.SCIENCE,
+    role: OFFICER_ROLE.SCIENTIST,
     label: "PLOT COURSE",
 
     targeting: {
@@ -22,7 +22,7 @@ const COMMAND_DEF = {
     requiresIdleBridge: false,
 } satisfies OfficerCommandDef;
 
-export const sciencePlotCourseCommandHandler = {
+export const scientistPlotCourseCommandHandler = {
     commandId: COMMAND_ID,
     def: COMMAND_DEF,
 
@@ -50,6 +50,6 @@ export const sciencePlotCourseCommandHandler = {
     execute(context, input) {
         const targetNodeId = requireSpaceNodeTargetId(input);
 
-        context.startOfficerTask(createSciencePlotCourseTask(targetNodeId));
+        context.startOfficerTask(createScientistPlotCourseTask(targetNodeId));
     },
 } satisfies OfficerCommandHandler;

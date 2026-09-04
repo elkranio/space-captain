@@ -78,20 +78,20 @@ describe(
                 const [command] =
                     engine
                         .getAvailableCommands(
-                            OFFICER_ROLE.SCIENCE,
+                            OFFICER_ROLE.SCIENTIST,
                         )
                         .filter((candidate) => {
                             return (
                                 candidate.commandId ===
                                 ENCOUNTER_OFFICER_COMMAND_ID
-                                    .SCIENCE_FIRE_SPAM
+                                    .SCIENTIST_FIRE_SPAM
                             );
                         });
 
                 expect(command).toEqual({
                     commandId:
                         ENCOUNTER_OFFICER_COMMAND_ID
-                            .SCIENCE_FIRE_SPAM,
+                            .SCIENTIST_FIRE_SPAM,
 
                     label: 'FIRE SPAM',
 
@@ -120,7 +120,7 @@ describe(
                 expect(
                     engine.executeCommand({
                         role:
-                            OFFICER_ROLE.SCIENCE,
+                            OFFICER_ROLE.SCIENTIST,
 
                         commandId:
                             command.commandId,
@@ -153,14 +153,14 @@ describe(
                 expect(task).toMatchObject({
                     kind:
                         OFFICER_TASK_KIND
-                            .SCIENCE_FIRE_SPAM,
+                            .SCIENTIST_FIRE_SPAM,
 
                     role:
-                        OFFICER_ROLE.SCIENCE,
+                        OFFICER_ROLE.SCIENTIST,
 
                     sourceCommandId:
                         ENCOUNTER_OFFICER_COMMAND_ID
-                            .SCIENCE_FIRE_SPAM,
+                            .SCIENTIST_FIRE_SPAM,
 
                     weaponId:
                         projector.id,
@@ -317,13 +317,13 @@ describe(
                 const command =
                     engine
                         .getAvailableCommands(
-                            OFFICER_ROLE.SCIENCE,
+                            OFFICER_ROLE.SCIENTIST,
                         )
                         .find((candidate) => {
                             return (
                                 candidate.commandId ===
                                 ENCOUNTER_OFFICER_COMMAND_ID
-                                    .SCIENCE_FIRE_SPAM
+                                    .SCIENTIST_FIRE_SPAM
                             );
                         });
 
@@ -335,7 +335,7 @@ describe(
 
                 engine.executeCommand({
                     role:
-                        OFFICER_ROLE.SCIENCE,
+                        OFFICER_ROLE.SCIENTIST,
 
                     commandId:
                         command.commandId,
@@ -357,10 +357,10 @@ describe(
                     !task ||
                     task.kind !==
                         OFFICER_TASK_KIND
-                            .SCIENCE_FIRE_SPAM
+                            .SCIENTIST_FIRE_SPAM
                 ) {
                     throw new Error(
-                        'Expected active Science spam task',
+                        'Expected active Scientist spam task',
                     );
                 }
 

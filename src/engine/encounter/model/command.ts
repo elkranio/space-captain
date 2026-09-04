@@ -4,27 +4,27 @@ import type { OfficerRole } from "../../defs/officer";
 import type { BeamCannonTargetNode } from "./combat";
 
 export const ENCOUNTER_OFFICER_COMMAND_ID = {
-    SCIENCE_PLOT_COURSE: "science_plot_course",
-    SCIENCE_PURGE_SPAM: "science_purge_spam",
+    SCIENTIST_PLOT_COURSE: "scientist_plot_course",
+    SCIENTIST_PURGE_SPAM: "scientist_purge_spam",
 
-    SCIENCE_FIRE_SPAM: "science_fire_spam",
+    SCIENTIST_FIRE_SPAM: "scientist_fire_spam",
 
     ENGINEER_REPAIR_DRIVE: "engineer_repair_drive",
 
     ENGINEER_DEPLOY_SHIELD: "engineer_deploy_shield",
 
-    WEAPONS_INTERCEPT_MISSILE: "weapons_intercept_missile",
+    GUNNER_INTERCEPT_MISSILE: "gunner_intercept_missile",
 
-    WEAPONS_FIRE_MISSILE: "weapons_fire_missile",
+    GUNNER_FIRE_MISSILE: "gunner_fire_missile",
 
-    WEAPONS_FIRE_STICKY_MINES: "weapons_fire_sticky_mines",
+    GUNNER_FIRE_STICKY_MINES: "gunner_fire_sticky_mines",
 
-    WEAPONS_FIRE_BEAM_CANNON: "weapons_fire_beam_cannon",
+    GUNNER_FIRE_BEAM_CANNON: "gunner_fire_beam_cannon",
 
-    HELM_DOCK: "helm_dock",
-    HELM_FLY_TO: "helm_fly_to",
-    HELM_JUMP: "helm_jump",
-    HELM_EVADE: "helm_evade",
+    PILOT_DOCK: "pilot_dock",
+    PILOT_FLY_TO: "pilot_fly_to",
+    PILOT_JUMP: "pilot_jump",
+    PILOT_EVADE: "pilot_evade",
 
     CLEAR_STICKY_MINE: "clear_sticky_mine",
 } as const;
@@ -32,7 +32,7 @@ export const ENCOUNTER_OFFICER_COMMAND_ID = {
 export type EncounterOfficerCommandId =
     (typeof ENCOUNTER_OFFICER_COMMAND_ID)[keyof typeof ENCOUNTER_OFFICER_COMMAND_ID];
 
-export type WeaponsDefenseTurretCommandId = typeof ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_INTERCEPT_MISSILE;
+export type GunnerDefenseTurretCommandId = typeof ENCOUNTER_OFFICER_COMMAND_ID.GUNNER_INTERCEPT_MISSILE;
 
 // #region Command targets
 
@@ -136,7 +136,7 @@ export type OfficerCommandDef = {
     targeting: OfficerCommandTargeting;
 
     // Нужен ли рабочий main drive.
-    // Маневровые Helm-команды смогут
+    // Маневровые Pilot-команды смогут
     // явно оставлять это значение false.
     requiresOnlineDrive: boolean;
 

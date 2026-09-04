@@ -62,9 +62,9 @@ This command model should remain consistent across combat and non-combat content
 
 The player always has four required officer roles:
 
-- Science
-- Weapons
-- Helm
+- Scientist
+- Gunner
+- Pilot
 - Engineer
 
 An officer is tied to one role for the run. The player does not continue with a permanently missing role.
@@ -76,13 +76,13 @@ At appropriate stations the player may deliberately replace an officer with anot
 
 ### Role scope
 
-**Science** handles unknown/information work, anomaly research, scanning, tactical analysis, electronic warfare and
+**Scientist** handles unknown/information work, anomaly research, scanning, tactical analysis, electronic warfare and
 SPAM.
-Basic UI readability is not gated by Science.
+Basic UI readability is not gated by Scientist.
 
-**Weapons** operates offensive weapons and the Defense Turret. In combat, offense competes with missile interception.
+**Gunner** operates offensive weapons and the Defense Turret. In combat, offense competes with missile interception.
 
-**Helm** handles navigation, movement, docking, Evade and Escape. Ship hardware defines capability; Helm performs the
+**Pilot** handles navigation, movement, docking, Evade and Escape. Ship hardware defines capability; Pilot performs the
 action.
 
 **Engineer** repairs broken systems, deploys Shield and handles physical ship problems such as attached sticky mines.
@@ -185,7 +185,7 @@ Local movement or departure should not require every officer to be idle merely a
 
 If an officer is performing work tied to the current location, leaving can cancel that work and forfeit its result or
 the
-opportunity itself. Example: leaving while Science studies an anomaly may lose the unfinished research and possibly the
+opportunity itself. Example: leaving while Scientist studies an anomaly may lose the unfinished research and possibly the
 anomaly.
 
 Prefer this natural consequence over an artificial global `all officers idle` travel gate.
@@ -375,7 +375,7 @@ afterward.
 Example:
 
 ```text
-Weapons task: AIM -> LAUNCH -> done
+Gunner task:  AIM -> LAUNCH -> done
 Missile:      LAUNCHED -> FLIGHT -> HIT/MISS
 Launcher:     COMMITTED -> COOLDOWN -> READY
 ```
@@ -402,7 +402,7 @@ failures belong to severe dysfunction.
 
 ### 4.4 Incoming threats
 
-Basic threat identity and any obvious semantic target are free information. Science is not required to understand the
+Basic threat identity and any obvious semantic target are free information. Scientist is not required to understand the
 threat panel.
 
 Each concrete Missile or attached Mine is a separate threat object.
@@ -421,8 +421,8 @@ launch
 Base counters:
 
 ```text
-Weapons -> Defense Turret
-Helm    -> Evade
+Gunner -> Defense Turret
+Pilot  -> Evade
 ```
 
 Base Missiles always damage Hull. Advanced missiles may gain traits such as officer Stun chance, module damage or other
@@ -443,10 +443,10 @@ Base counters:
 
 ```text
 Engineer -> targeted Shield
-Helm     -> Evade
+Pilot    -> Evade
 ```
 
-Beam may target Hull or a breakable module. Its target is normal readable combat information, not Science-gated intel.
+Beam may target Hull or a breakable module. Its target is normal readable combat information, not Scientist-gated intel.
 
 #### Sticky Mine
 
@@ -472,7 +472,7 @@ SPAM is a long-lived electronic/information effect rather than a projectile.
 ```text
 SPAM applied
 -> officer work slows
--> Science may PURGE
+-> Scientist may PURGE
 or
 -> effect expires
 ```
@@ -487,36 +487,36 @@ just different damage numbers.
 
 #### Basic Gun
 
-The player has a baseline weapon that costs neither ammo nor CORE and gives Weapons a permanent way to deal Hull damage.
+The player has a baseline weapon that costs neither ammo nor CORE and gives Gunner a permanent way to deal Hull damage.
 
 Without upgrades it should become weak quickly enough that replacing it is attractive. With deliberate investment and
 appropriate upgrades, a Basic Gun build should be able to remain viable through the full run.
 
 #### Missile Launcher
 
-Missiles use Weapons and finite ammunition. After launch the Missile flies independently. Base Missiles damage Hull;
+Missiles use Gunner and finite ammunition. After launch the Missile flies independently. Base Missiles damage Hull;
 variants may add traits and secondary effects.
 
 #### Beam Cannon
 
-Beam uses Weapons and spends Power Core. It can target Hull or breakable enemy modules.
+Beam uses Gunner and spends Power Core. It can target Hull or breakable enemy modules.
 
 This intentionally creates offense-vs-defense CORE contention: spending energy on Beam now leaves less reserve for
 Turret, Shield or Evade.
 
 #### Sticky Mine Dispenser
 
-Mines use Weapons and finite ammunition. They primarily create enemy Engineer pressure. Single and salvo patterns remain
+Mines use Gunner and finite ammunition. They primarily create enemy Engineer pressure. Single and salvo patterns remain
 playtestable variants rather than a finalized universal dispenser shape.
 
 #### SPAM Projector
 
-SPAM is a Science offensive action. Its baseline cost is **long Science commitment and opportunity cost**, not ammo or
+SPAM is a Scientist offensive action. Its baseline cost is **long Scientist commitment and opportunity cost**, not ammo or
 CORE.
 
-While Science is busy projecting SPAM, Science cannot Purge, analyze or interfere in other ways.
+While Scientist is busy projecting SPAM, Scientist cannot Purge, analyze or interfere in other ways.
 
-If playtesting later shows Science time is not enough cost, a possible fallback is to reserve a Power Core cell for the
+If playtesting later shows Scientist time is not enough cost, a possible fallback is to reserve a Power Core cell for the
 SPAM commitment so that the cell cannot recharge or be used elsewhere. This is not the base rule yet.
 
 Weapon progression should preserve family identity while allowing useful traits/upgrades rather than becoming a
@@ -529,11 +529,11 @@ purely larger numbers.
 
 Defense Turret is a specialized anti-Missile action:
 
-- Weapons operates it;
+- Gunner operates it;
 - it spends Power Core;
 - it targets one incoming Missile;
 - it takes officer time and then enters cooldown;
-- if the player Weapons task completes while that Missile still exists, the baseline interception is guaranteed.
+- if the player Gunner task completes while that Missile still exists, the baseline interception is guaranteed.
 
 No extra hidden success roll is required for the BASIC player turret.
 
@@ -553,7 +553,7 @@ simple until playtest proves the need.
 
 #### Evade
 
-Evade is a broad Helm defensive maneuver:
+Evade is a broad Pilot defensive maneuver:
 
 ```text
 READY
@@ -566,7 +566,7 @@ READY
 Requirements and effects:
 
 - Drive must be OPERATIONAL when Evade starts;
-- Helm is occupied;
+- Pilot is occupied;
 - Evade spends Power Core;
 - while actively EVADING, any number of supported physical threats may miss;
 - supported baseline threats are Missile hits, Beam hits and new Sticky Mine attachments;
@@ -579,12 +579,12 @@ avoid only one threat.
 damage
 at the end of the maneuver, not at the start. This remains true whether Evade completes normally, is manually cancelled
 or
-is terminated because Helm is Stunned.
+is terminated because Pilot is Stunned.
 
 The delayed damage prevents Engineer from repairing the Drive while the same Evade window is still protecting the ship.
 The Drive's final remaining integrity can therefore power one last Evade and become BROKEN when that maneuver ends.
 
-Generic task `INTERRUPT` should not cancel an active Evade. Helm Stun may terminate it.
+Generic task `INTERRUPT` should not cancel an active Evade. Pilot Stun may terminate it.
 
 ### 4.7 Power Core and combat resources
 
@@ -623,21 +623,21 @@ through run economy/content rather than by waiting.
 
 Basic Gun costs neither CORE nor ammo.
 
-### 4.8 Science / combat information
+### 4.8 Scientist / combat information
 
 Central rule:
 
-> Basic truth is free. Science spends officer time to reveal deeper decision-changing information or to create tactical
+> Basic truth is free. Scientist spends officer time to reveal deeper decision-changing information or to create tactical
 > interference.
 
 The player's basic enemy inspection should expose the enemy loadout, obvious modules/state and visible combat actions
-without requiring Science.
+without requiring Scientist.
 
 Whether opening deep inspection pauses simulation is a UX/playtest choice; the important principle is that the player
 can
 plan against a known enemy and understand why a loss happened.
 
-Science currently has clear contention around SPAM:
+Scientist currently has clear contention around SPAM:
 
 ```text
 PURGE enemy SPAM
@@ -653,7 +653,7 @@ Exact Analysis design is intentionally deferred until implementation. Useful fut
 properties, vulnerabilities or other information that changes a real decision. Analysis information normally remains for
 the encounter, although a future discovered vulnerability may itself be a one-use opportunity.
 
-Science interference may later alter enemy timing/effectiveness, for example slowing a Missile, increasing Beam charge
+Scientist interference may later alter enemy timing/effectiveness, for example slowing a Missile, increasing Beam charge
 or
 weakening a Shield. Do not canonize a menu of such actions before playtesting them.
 
@@ -667,7 +667,7 @@ Shield, Turret, SPAM and disruption must be real state rather than decorative AI
 The baseline enemy crew uses the same four roles:
 
 ```text
-Science / Weapons / Helm / Engineer
+Scientist / Gunner / Pilot / Engineer
 ```
 
 Weak or special enemies may effectively lack one or more roles. Implementation may model that as absent roles or roles
@@ -691,17 +691,17 @@ means no CORE-funded action; a busy role cannot perform another task; a BROKEN m
 
 #### Escape
 
-Escape is a timed Helm action, not an instant normal jump.
+Escape is a timed Pilot action, not an instant normal jump.
 
 Requirements:
 
 - Drive must be OPERATIONAL;
-- Helm must be able to work;
+- Pilot must be able to work;
 - other officers do **not** need to be idle.
 
-Other roles may keep fighting, repairing or performing Science work while Helm prepares Escape.
+Other roles may keep fighting, repairing or performing Scientist work while Pilot prepares Escape.
 
-If Helm is interrupted or Stunned during Escape, the Escape task is lost. A later attempt starts from zero.
+If Pilot is interrupted or Stunned during Escape, the Escape task is lost. A later attempt starts from zero.
 
 Successful Escape ends the current encounter and the run continues. All remaining incoming/outgoing combat threats and
 effects are cleared as part of leaving the engagement. The escaped encounter is not suspended for later resumption.

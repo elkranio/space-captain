@@ -13,9 +13,9 @@ import {
 } from '../../../src/engine/content/schemas/enemy_behavior_rules';
 import {
     ENGINEER_OFFICER_TASK_TUNING_SCHEMA,
-    HELM_OFFICER_TASK_TUNING_SCHEMA,
-    SCIENCE_OFFICER_TASK_TUNING_SCHEMA,
-    WEAPONS_OFFICER_TASK_TUNING_SCHEMA,
+    PILOT_OFFICER_TASK_TUNING_SCHEMA,
+    SCIENTIST_OFFICER_TASK_TUNING_SCHEMA,
+    GUNNER_OFFICER_TASK_TUNING_SCHEMA,
 } from '../../../src/engine/content/schemas/officer_task_tuning';
 import {
     DEFENSE_TURRET_TUNING_SCHEMA,
@@ -46,14 +46,14 @@ export const CONTENT_COLLECTION_ID = {
     ENEMY_DEBUG_BEHAVIORS:
         'enemy_debug_behaviors',
 
-    OFFICER_TASKS_SCIENCE:
-        'officer_tasks_science',
+    OFFICER_TASKS_SCIENTIST:
+        'officer_tasks_scientist',
 
-    OFFICER_TASKS_WEAPONS:
-        'officer_tasks_weapons',
+    OFFICER_TASKS_GUNNER:
+        'officer_tasks_gunner',
 
-    OFFICER_TASKS_HELM:
-        'officer_tasks_helm',
+    OFFICER_TASKS_PILOT:
+        'officer_tasks_pilot',
 
     OFFICER_TASKS_ENGINEER:
         'officer_tasks_engineer',
@@ -186,12 +186,12 @@ const CONTENT_COLLECTIONS:
         },
 
         [CONTENT_COLLECTION_ID
-            .OFFICER_TASKS_SCIENCE]: {
+            .OFFICER_TASKS_SCIENTIST]: {
             id:
                 CONTENT_COLLECTION_ID
-                    .OFFICER_TASKS_SCIENCE,
+                    .OFFICER_TASKS_SCIENTIST,
 
-            label: 'Science',
+            label: 'Scientist',
 
             group:
                 CONTENT_COLLECTION_GROUP
@@ -199,22 +199,22 @@ const CONTENT_COLLECTIONS:
 
             dataPath:
                 'src/engine/content/data/' +
-                'officer_tasks_science.json',
+                'officer_tasks_scientist.json',
 
             schema:
-                SCIENCE_OFFICER_TASK_TUNING_SCHEMA,
+                SCIENTIST_OFFICER_TASK_TUNING_SCHEMA,
 
             canAdd: false,
             canDelete: false,
         },
 
         [CONTENT_COLLECTION_ID
-            .OFFICER_TASKS_WEAPONS]: {
+            .OFFICER_TASKS_GUNNER]: {
             id:
                 CONTENT_COLLECTION_ID
-                    .OFFICER_TASKS_WEAPONS,
+                    .OFFICER_TASKS_GUNNER,
 
-            label: 'Weapons',
+            label: 'Gunner',
 
             group:
                 CONTENT_COLLECTION_GROUP
@@ -222,22 +222,22 @@ const CONTENT_COLLECTIONS:
 
             dataPath:
                 'src/engine/content/data/' +
-                'officer_tasks_weapons.json',
+                'officer_tasks_gunner.json',
 
             schema:
-                WEAPONS_OFFICER_TASK_TUNING_SCHEMA,
+                GUNNER_OFFICER_TASK_TUNING_SCHEMA,
 
             canAdd: false,
             canDelete: false,
         },
 
         [CONTENT_COLLECTION_ID
-            .OFFICER_TASKS_HELM]: {
+            .OFFICER_TASKS_PILOT]: {
             id:
                 CONTENT_COLLECTION_ID
-                    .OFFICER_TASKS_HELM,
+                    .OFFICER_TASKS_PILOT,
 
-            label: 'Helm',
+            label: 'Pilot',
 
             group:
                 CONTENT_COLLECTION_GROUP
@@ -245,10 +245,10 @@ const CONTENT_COLLECTIONS:
 
             dataPath:
                 'src/engine/content/data/' +
-                'officer_tasks_helm.json',
+                'officer_tasks_pilot.json',
 
             schema:
-                HELM_OFFICER_TASK_TUNING_SCHEMA,
+                PILOT_OFFICER_TASK_TUNING_SCHEMA,
 
             canAdd: false,
             canDelete: false,

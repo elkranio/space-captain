@@ -46,8 +46,8 @@ describe('FLY_TO', () => {
         // Убираем начальный ENCOUNTER_LOADED.
         engine.drainEvents();
 
-        expect(engine.getAvailableCommands(OFFICER_ROLE.HELM)).toContainEqual({
-            commandId: ENCOUNTER_OFFICER_COMMAND_ID.HELM_FLY_TO,
+        expect(engine.getAvailableCommands(OFFICER_ROLE.PILOT)).toContainEqual({
+            commandId: ENCOUNTER_OFFICER_COMMAND_ID.PILOT_FLY_TO,
 
             target: {
                 kind: OFFICER_COMMAND_TARGET_KIND.ANCHOR,
@@ -57,9 +57,9 @@ describe('FLY_TO', () => {
         });
 
         const executionResult = engine.executeCommand({
-            role: OFFICER_ROLE.HELM,
+            role: OFFICER_ROLE.PILOT,
 
-            commandId: ENCOUNTER_OFFICER_COMMAND_ID.HELM_FLY_TO,
+            commandId: ENCOUNTER_OFFICER_COMMAND_ID.PILOT_FLY_TO,
 
             target: {
                 kind: OFFICER_COMMAND_TARGET_KIND.ANCHOR,
@@ -80,11 +80,11 @@ describe('FLY_TO', () => {
         });
 
         expect(engine.getOfficerAvailabilityStates()).toEqual({
-            [OFFICER_ROLE.SCIENCE]: OFFICER_AVAILABILITY_STATE.BLOCKED,
+            [OFFICER_ROLE.SCIENTIST]: OFFICER_AVAILABILITY_STATE.BLOCKED,
 
-            [OFFICER_ROLE.HELM]: OFFICER_AVAILABILITY_STATE.BUSY,
+            [OFFICER_ROLE.PILOT]: OFFICER_AVAILABILITY_STATE.BUSY,
 
-            [OFFICER_ROLE.WEAPONS]: OFFICER_AVAILABILITY_STATE.UNAVAILABLE,
+            [OFFICER_ROLE.GUNNER]: OFFICER_AVAILABILITY_STATE.UNAVAILABLE,
 
             [OFFICER_ROLE.ENGINEER]: OFFICER_AVAILABILITY_STATE.UNAVAILABLE,
         });
@@ -96,11 +96,11 @@ describe('FLY_TO', () => {
                 type: ENCOUNTER_EVENT.OFFICER_TASK_STARTED,
 
                 task: expect.objectContaining({
-                    kind: OFFICER_TASK_KIND.HELM_FLY_TO,
+                    kind: OFFICER_TASK_KIND.PILOT_FLY_TO,
 
-                    role: OFFICER_ROLE.HELM,
+                    role: OFFICER_ROLE.PILOT,
 
-                    sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.HELM_FLY_TO,
+                    sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.PILOT_FLY_TO,
 
                     targetAnchorId: beaconId,
                     label: 'FLY TO',
@@ -134,8 +134,8 @@ describe('FLY_TO', () => {
         }).toThrow(
             `Cannot complete officer task ` +
                 `${travelStartedEvent.taskId}: ` +
-                `expected ${OFFICER_TASK_KIND.HELM_JUMP}, ` +
-                `received ${OFFICER_TASK_KIND.HELM_FLY_TO}`,
+                `expected ${OFFICER_TASK_KIND.PILOT_JUMP}, ` +
+                `received ${OFFICER_TASK_KIND.PILOT_FLY_TO}`,
         );
 
         engine.completeTravel(travelStartedEvent.taskId);
@@ -155,26 +155,26 @@ describe('FLY_TO', () => {
                 task: expect.objectContaining({
                     id: travelStartedEvent.taskId,
 
-                    kind: OFFICER_TASK_KIND.HELM_FLY_TO,
+                    kind: OFFICER_TASK_KIND.PILOT_FLY_TO,
 
-                    role: OFFICER_ROLE.HELM,
+                    role: OFFICER_ROLE.PILOT,
                     targetAnchorId: beaconId,
                 }),
             }),
         ]);
 
         expect(engine.getOfficerAvailabilityStates()).toEqual({
-            [OFFICER_ROLE.SCIENCE]: OFFICER_AVAILABILITY_STATE.AVAILABLE,
+            [OFFICER_ROLE.SCIENTIST]: OFFICER_AVAILABILITY_STATE.AVAILABLE,
 
-            [OFFICER_ROLE.HELM]: OFFICER_AVAILABILITY_STATE.AVAILABLE,
+            [OFFICER_ROLE.PILOT]: OFFICER_AVAILABILITY_STATE.AVAILABLE,
 
-            [OFFICER_ROLE.WEAPONS]: OFFICER_AVAILABILITY_STATE.UNAVAILABLE,
+            [OFFICER_ROLE.GUNNER]: OFFICER_AVAILABILITY_STATE.UNAVAILABLE,
 
             [OFFICER_ROLE.ENGINEER]: OFFICER_AVAILABILITY_STATE.UNAVAILABLE,
         });
 
-        expect(engine.getAvailableCommands(OFFICER_ROLE.HELM)).toContainEqual({
-            commandId: ENCOUNTER_OFFICER_COMMAND_ID.HELM_FLY_TO,
+        expect(engine.getAvailableCommands(OFFICER_ROLE.PILOT)).toContainEqual({
+            commandId: ENCOUNTER_OFFICER_COMMAND_ID.PILOT_FLY_TO,
 
             target: {
                 kind: OFFICER_COMMAND_TARGET_KIND.ANCHOR,
@@ -271,11 +271,11 @@ describe('FLY_TO', () => {
         expect(engine.getBeamCannonAttacks()).toHaveLength(1);
 
         const executionResult = engine.executeCommand({
-            role: OFFICER_ROLE.HELM,
+            role: OFFICER_ROLE.PILOT,
 
             commandId:
                 ENCOUNTER_OFFICER_COMMAND_ID
-                    .HELM_FLY_TO,
+                    .PILOT_FLY_TO,
 
             target: {
                 kind:

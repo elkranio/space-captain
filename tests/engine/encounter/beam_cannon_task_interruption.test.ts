@@ -48,11 +48,11 @@ describe('BeamCannon hit officer task interruption', () => {
         engine.step(beamCannonChargeDurationMs - 1);
         engine.drainEvents();
 
-        const scienceTask = createScienceTask();
+        const scientistTask = createScientistTask();
         const engineerTask = createEngineerTask();
 
         // Object.values preserves insertion order for these role keys.
-        state.officerTasks[OFFICER_ROLE.SCIENCE] = scienceTask;
+        state.officerTasks[OFFICER_ROLE.SCIENTIST] = scientistTask;
         state.officerTasks[OFFICER_ROLE.ENGINEER] = engineerTask;
 
         engine.step(1);
@@ -84,7 +84,7 @@ describe('BeamCannon hit officer task interruption', () => {
 
         expect(engine.getOfficerTasks()).toEqual([
             {
-                ...scienceTask,
+                ...scientistTask,
 
                 elapsedMs: 1,
             },
@@ -177,13 +177,13 @@ function startBeamCannonCharging(engine: EncounterEngine): void {
     ]);
 }
 
-function createScienceTask(): OfficerTaskState {
+function createScientistTask(): OfficerTaskState {
     return {
-        id: 'task_science',
+        id: 'task_scientist',
 
-        kind: OFFICER_TASK_KIND.SCIENCE_PLOT_COURSE,
-        role: OFFICER_ROLE.SCIENCE,
-        sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.SCIENCE_PLOT_COURSE,
+        kind: OFFICER_TASK_KIND.SCIENTIST_PLOT_COURSE,
+        role: OFFICER_ROLE.SCIENTIST,
+        sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.SCIENTIST_PLOT_COURSE,
 
         targetNodeId: 'node_test',
 

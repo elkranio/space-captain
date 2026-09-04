@@ -1,23 +1,23 @@
 {
-    "helm_dock": {
+    "pilot_dock": {
         "label": "DOCK",
         "showProgress": false,
         "canBeCancelledByPlayer": false,
         "canBeInterruptedByDamage": false
     },
-    "helm_fly_to": {
+    "pilot_fly_to": {
         "label": "FLY TO",
         "showProgress": false,
         "canBeCancelledByPlayer": false,
         "canBeInterruptedByDamage": false
     },
-    "helm_jump": {
+    "pilot_jump": {
         "label": "JUMP",
         "showProgress": false,
         "canBeCancelledByPlayer": true,
         "canBeInterruptedByDamage": true
     },
-    "helm_evade": {
+    "pilot_evade": {
         "label": "EVADE",
         "showProgress": false,
         "canBeCancelledByPlayer": true,

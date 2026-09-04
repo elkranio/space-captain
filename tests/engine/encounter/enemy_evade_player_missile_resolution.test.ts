@@ -61,11 +61,11 @@ describe(
                 expect(
                     engine.executeCommand({
                         role:
-                            OFFICER_ROLE.WEAPONS,
+                            OFFICER_ROLE.GUNNER,
 
                         commandId:
                             ENCOUNTER_OFFICER_COMMAND_ID
-                                .WEAPONS_FIRE_MISSILE,
+                                .GUNNER_FIRE_MISSILE,
 
                         target: {
                             kind:

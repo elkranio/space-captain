@@ -58,10 +58,10 @@ describe('Bridge encounter jump-point sync', () => {
                 task: {
                     id: 'task_1',
 
-                    kind: OFFICER_TASK_KIND.SCIENCE_PLOT_COURSE,
-                    role: OFFICER_ROLE.SCIENCE,
+                    kind: OFFICER_TASK_KIND.SCIENTIST_PLOT_COURSE,
+                    role: OFFICER_ROLE.SCIENTIST,
 
-                    sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.SCIENCE_PLOT_COURSE,
+                    sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.SCIENTIST_PLOT_COURSE,
 
                     targetNodeId: 'node_station',
 

@@ -6,14 +6,14 @@ import { ENCOUNTER_OFFICER_COMMAND_ID } from "../model/command";
 import type { BeamCannonTargetNode } from "../model/combat";
 import { OFFICER_TASK_KIND, type OfficerTaskDraft } from "../model/officer_task";
 
-export function createSciencePlotCourseTask(targetNodeId: string): OfficerTaskDraft {
-    const kind = OFFICER_TASK_KIND.SCIENCE_PLOT_COURSE;
+export function createScientistPlotCourseTask(targetNodeId: string): OfficerTaskDraft {
+    const kind = OFFICER_TASK_KIND.SCIENTIST_PLOT_COURSE;
 
     return {
         kind,
-        role: OFFICER_ROLE.SCIENCE,
+        role: OFFICER_ROLE.SCIENTIST,
 
-        sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.SCIENCE_PLOT_COURSE,
+        sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.SCIENTIST_PLOT_COURSE,
 
         targetNodeId,
 
@@ -21,14 +21,14 @@ export function createSciencePlotCourseTask(targetNodeId: string): OfficerTaskDr
     };
 }
 
-export function createSciencePurgeSpamTask(channelId: string): OfficerTaskDraft {
-    const kind = OFFICER_TASK_KIND.SCIENCE_PURGE_SPAM;
+export function createScientistPurgeSpamTask(channelId: string): OfficerTaskDraft {
+    const kind = OFFICER_TASK_KIND.SCIENTIST_PURGE_SPAM;
 
     return {
         kind,
-        role: OFFICER_ROLE.SCIENCE,
+        role: OFFICER_ROLE.SCIENTIST,
 
-        sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.SCIENCE_PURGE_SPAM,
+        sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.SCIENTIST_PURGE_SPAM,
 
         channelId,
 
@@ -36,14 +36,14 @@ export function createSciencePurgeSpamTask(channelId: string): OfficerTaskDraft 
     };
 }
 
-export function createScienceFireSpamTask(weaponId: string, targetActorId: string): OfficerTaskDraft {
-    const kind = OFFICER_TASK_KIND.SCIENCE_FIRE_SPAM;
+export function createScientistFireSpamTask(weaponId: string, targetActorId: string): OfficerTaskDraft {
+    const kind = OFFICER_TASK_KIND.SCIENTIST_FIRE_SPAM;
 
     return {
         kind,
-        role: OFFICER_ROLE.SCIENCE,
+        role: OFFICER_ROLE.SCIENTIST,
 
-        sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.SCIENCE_FIRE_SPAM,
+        sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.SCIENTIST_FIRE_SPAM,
 
         weaponId,
         targetActorId,
@@ -80,14 +80,14 @@ export function createEngineerDeployShieldTask(targetNode: BeamCannonTargetNode)
     };
 }
 
-export function createWeaponsDefenseTurretTask(threatId: string): OfficerTaskDraft {
-    const kind = OFFICER_TASK_KIND.WEAPONS_DEFENSE_TURRET;
+export function createGunnerDefenseTurretTask(threatId: string): OfficerTaskDraft {
+    const kind = OFFICER_TASK_KIND.GUNNER_DEFENSE_TURRET;
 
     return {
         kind,
-        role: OFFICER_ROLE.WEAPONS,
+        role: OFFICER_ROLE.GUNNER,
 
-        sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_INTERCEPT_MISSILE,
+        sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.GUNNER_INTERCEPT_MISSILE,
 
         threatId,
 
@@ -95,14 +95,14 @@ export function createWeaponsDefenseTurretTask(threatId: string): OfficerTaskDra
     };
 }
 
-export function createWeaponsFireMissileTask(weaponId: string, targetActorId: string): OfficerTaskDraft {
-    const kind = OFFICER_TASK_KIND.WEAPONS_FIRE_MISSILE;
+export function createGunnerFireMissileTask(weaponId: string, targetActorId: string): OfficerTaskDraft {
+    const kind = OFFICER_TASK_KIND.GUNNER_FIRE_MISSILE;
 
     return {
         kind,
-        role: OFFICER_ROLE.WEAPONS,
+        role: OFFICER_ROLE.GUNNER,
 
-        sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_MISSILE,
+        sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.GUNNER_FIRE_MISSILE,
 
         weaponId,
         targetActorId,
@@ -111,14 +111,14 @@ export function createWeaponsFireMissileTask(weaponId: string, targetActorId: st
     };
 }
 
-export function createWeaponsFireStickyMinesTask(weaponId: string, targetActorId: string): OfficerTaskDraft {
-    const kind = OFFICER_TASK_KIND.WEAPONS_FIRE_STICKY_MINES;
+export function createGunnerFireStickyMinesTask(weaponId: string, targetActorId: string): OfficerTaskDraft {
+    const kind = OFFICER_TASK_KIND.GUNNER_FIRE_STICKY_MINES;
 
     return {
         kind,
-        role: OFFICER_ROLE.WEAPONS,
+        role: OFFICER_ROLE.GUNNER,
 
-        sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_STICKY_MINES,
+        sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.GUNNER_FIRE_STICKY_MINES,
 
         weaponId,
         targetActorId,
@@ -127,14 +127,14 @@ export function createWeaponsFireStickyMinesTask(weaponId: string, targetActorId
     };
 }
 
-export function createWeaponsFireBeamCannonTask(weaponId: string, targetActorId: string): OfficerTaskDraft {
-    const kind = OFFICER_TASK_KIND.WEAPONS_FIRE_BEAM_CANNON;
+export function createGunnerFireBeamCannonTask(weaponId: string, targetActorId: string): OfficerTaskDraft {
+    const kind = OFFICER_TASK_KIND.GUNNER_FIRE_BEAM_CANNON;
 
     return {
         kind,
-        role: OFFICER_ROLE.WEAPONS,
+        role: OFFICER_ROLE.GUNNER,
 
-        sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_BEAM_CANNON,
+        sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.GUNNER_FIRE_BEAM_CANNON,
 
         weaponId,
         targetActorId,
@@ -158,14 +158,14 @@ export function createClearStickyMineTask(role: OfficerRole, mineId: string): Of
     };
 }
 
-export function createHelmDockTask(targetAnchorId: string): OfficerTaskDraft {
-    const kind = OFFICER_TASK_KIND.HELM_DOCK;
+export function createPilotDockTask(targetAnchorId: string): OfficerTaskDraft {
+    const kind = OFFICER_TASK_KIND.PILOT_DOCK;
 
     return {
         kind,
-        role: OFFICER_ROLE.HELM,
+        role: OFFICER_ROLE.PILOT,
 
-        sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.HELM_DOCK,
+        sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.PILOT_DOCK,
 
         targetAnchorId,
 
@@ -173,14 +173,14 @@ export function createHelmDockTask(targetAnchorId: string): OfficerTaskDraft {
     };
 }
 
-export function createHelmFlyToTask(targetAnchorId: string): OfficerTaskDraft {
-    const kind = OFFICER_TASK_KIND.HELM_FLY_TO;
+export function createPilotFlyToTask(targetAnchorId: string): OfficerTaskDraft {
+    const kind = OFFICER_TASK_KIND.PILOT_FLY_TO;
 
     return {
         kind,
-        role: OFFICER_ROLE.HELM,
+        role: OFFICER_ROLE.PILOT,
 
-        sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.HELM_FLY_TO,
+        sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.PILOT_FLY_TO,
 
         targetAnchorId,
 
@@ -188,14 +188,14 @@ export function createHelmFlyToTask(targetAnchorId: string): OfficerTaskDraft {
     };
 }
 
-export function createHelmJumpTask(targetAnchorId: string, targetNodeId: string): OfficerTaskDraft {
-    const kind = OFFICER_TASK_KIND.HELM_JUMP;
+export function createPilotJumpTask(targetAnchorId: string, targetNodeId: string): OfficerTaskDraft {
+    const kind = OFFICER_TASK_KIND.PILOT_JUMP;
 
     return {
         kind,
-        role: OFFICER_ROLE.HELM,
+        role: OFFICER_ROLE.PILOT,
 
-        sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.HELM_JUMP,
+        sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.PILOT_JUMP,
 
         targetAnchorId,
         targetNodeId,
@@ -204,14 +204,14 @@ export function createHelmJumpTask(targetAnchorId: string, targetNodeId: string)
     };
 }
 
-export function createHelmEvadeTask(): OfficerTaskDraft {
-    const kind = OFFICER_TASK_KIND.HELM_EVADE;
+export function createPilotEvadeTask(): OfficerTaskDraft {
+    const kind = OFFICER_TASK_KIND.PILOT_EVADE;
 
     return {
         kind,
-        role: OFFICER_ROLE.HELM,
+        role: OFFICER_ROLE.PILOT,
 
-        sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.HELM_EVADE,
+        sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.PILOT_EVADE,
 
         ...getOfficerTaskDraftTuning(kind),
     };

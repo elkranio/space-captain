@@ -13,7 +13,7 @@ type BridgeSpamPopupViewOptions = {
 };
 
 // Один dumb popup.
-// Не знает ничего про weapon/channel/Science:
+// Не знает ничего про weapon/channel/Scientist:
 // только проигрывает appear/hide и уничтожает свой Phaser object.
 export default class BridgeSpamPopupView {
     private readonly image: Phaser.GameObjects.Image;

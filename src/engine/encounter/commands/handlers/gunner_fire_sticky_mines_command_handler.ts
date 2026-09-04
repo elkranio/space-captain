@@ -1,22 +1,22 @@
-// src/engine/encounter/commands/handlers/science_fire_spam_command_handler.ts
+// src/engine/encounter/commands/handlers/gunner_fire_sticky_mines_command_handler.ts
 
 import { OFFICER_ROLE } from "../../../defs/officer";
 import {
     SHIP_WEAPON_KIND,
     SHIP_WEAPON_PHASE,
     type ShipWeaponState,
-    type SpamProjectorState,
+    type StickyMineDispenserState,
 } from "../../../defs/ship_weapon";
 import { ENCOUNTER_OFFICER_COMMAND_ID, OFFICER_COMMAND_TARGET_KIND, type OfficerCommandDef } from "../../model/command";
 import type { OfficerCommandHandler } from "../../model/officer_command_handler";
 import type { EncounterState } from "../../model/state";
-import { createScienceFireSpamTask } from "../../officer_tasks/create_officer_task_draft";
 import { findCurrentEnemyShip } from "../queries/find_current_enemy_ship";
+import { createGunnerFireStickyMinesTask } from "../../officer_tasks/create_officer_task_draft";
 
 const def = {
-    role: OFFICER_ROLE.SCIENCE,
+    role: OFFICER_ROLE.GUNNER,
 
-    label: "FIRE SPAM",
+    label: "FIRE MINES",
 
     targeting: {
         kind: OFFICER_COMMAND_TARGET_KIND.ACTOR_WEAPON,
@@ -26,8 +26,8 @@ const def = {
     requiresIdleBridge: false,
 } satisfies OfficerCommandDef;
 
-export const scienceFireSpamCommandHandler: OfficerCommandHandler = {
-    commandId: ENCOUNTER_OFFICER_COMMAND_ID.SCIENCE_FIRE_SPAM,
+export const gunnerFireStickyMinesCommandHandler: OfficerCommandHandler = {
+    commandId: ENCOUNTER_OFFICER_COMMAND_ID.GUNNER_FIRE_STICKY_MINES,
 
     def,
 
@@ -38,16 +38,16 @@ export const scienceFireSpamCommandHandler: OfficerCommandHandler = {
             return [];
         }
 
-        return getReadySpamProjectors(state).map((projector) => {
+        return getReadyStickyMineDispensers(state).map((dispenser) => {
             return {
-                commandId: ENCOUNTER_OFFICER_COMMAND_ID.SCIENCE_FIRE_SPAM,
+                commandId: ENCOUNTER_OFFICER_COMMAND_ID.GUNNER_FIRE_STICKY_MINES,
 
                 label: def.label,
 
                 target: {
                     kind: OFFICER_COMMAND_TARGET_KIND.ACTOR_WEAPON,
 
-                    weaponId: projector.id,
+                    weaponId: dispenser.id,
 
                     actorId: targetActor.id,
                 },
@@ -59,19 +59,23 @@ export const scienceFireSpamCommandHandler: OfficerCommandHandler = {
 
     execute(context, input) {
         if (input.target.kind !== OFFICER_COMMAND_TARGET_KIND.ACTOR_WEAPON) {
-            throw new Error("FIRE SPAM requires " + "an actor-weapon target");
+            throw new Error("FIRE MINES requires " + "an actor-weapon target");
         }
 
-        context.stateStore.startPlayerSpamChanneling(input.target.weaponId);
+        context.stateStore.startPlayerStickyMineDispensing(input.target.weaponId);
 
-        context.startOfficerTask(createScienceFireSpamTask(input.target.weaponId, input.target.actorId));
+        context.startOfficerTask(createGunnerFireStickyMinesTask(input.target.weaponId, input.target.actorId));
     },
 };
 
-function getReadySpamProjectors(state: EncounterState) {
-    return state.combat.playerWeapons.filter(isReadySpamProjector);
+function getReadyStickyMineDispensers(state: EncounterState) {
+    return state.combat.playerWeapons.filter(isReadyStickyMineDispenser);
 }
 
-function isReadySpamProjector(weapon: ShipWeaponState): weapon is SpamProjectorState {
-    return weapon.kind === SHIP_WEAPON_KIND.SPAM_PROJECTOR && weapon.phase === SHIP_WEAPON_PHASE.READY;
+function isReadyStickyMineDispenser(weapon: ShipWeaponState): weapon is StickyMineDispenserState {
+    return (
+        weapon.kind === SHIP_WEAPON_KIND.STICKY_MINE_DISPENSER &&
+        weapon.phase === SHIP_WEAPON_PHASE.READY &&
+        weapon.ammoCount > 0
+    );
 }

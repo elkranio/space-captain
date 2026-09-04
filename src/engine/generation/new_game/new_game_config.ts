@@ -22,25 +22,25 @@ export const NEW_GAME_CONFIG = {
     },
 
     officers: {
-        [OFFICER_ROLE.SCIENCE]: {
-            role: OFFICER_ROLE.SCIENCE,
+        [OFFICER_ROLE.SCIENTIST]: {
+            role: OFFICER_ROLE.SCIENTIST,
             name: "Dr. Zella Quark",
 
-            portraitId: OFFICER_PORTRAIT_ID.SCIENCE_ALIEN_00,
+            portraitId: OFFICER_PORTRAIT_ID.SCIENTIST_ALIEN_00,
         },
 
-        [OFFICER_ROLE.HELM]: {
-            role: OFFICER_ROLE.HELM,
+        [OFFICER_ROLE.PILOT]: {
+            role: OFFICER_ROLE.PILOT,
             name: "Dash Nulligan",
 
-            portraitId: OFFICER_PORTRAIT_ID.HELM_HUMAN_00,
+            portraitId: OFFICER_PORTRAIT_ID.PILOT_HUMAN_00,
         },
 
-        [OFFICER_ROLE.WEAPONS]: {
-            role: OFFICER_ROLE.WEAPONS,
+        [OFFICER_ROLE.GUNNER]: {
+            role: OFFICER_ROLE.GUNNER,
             name: "Buck Varnish",
 
-            portraitId: OFFICER_PORTRAIT_ID.WEAPONS_ALIEN_00,
+            portraitId: OFFICER_PORTRAIT_ID.GUNNER_ALIEN_00,
         },
 
         [OFFICER_ROLE.ENGINEER]: {
@@ -56,16 +56,16 @@ export function createNewGameOfficers(): Record<OfficerRole, OfficerDefinition> 
     const officers = NEW_GAME_CONFIG.officers;
 
     return {
-        [OFFICER_ROLE.SCIENCE]: {
-            ...officers[OFFICER_ROLE.SCIENCE],
+        [OFFICER_ROLE.SCIENTIST]: {
+            ...officers[OFFICER_ROLE.SCIENTIST],
         },
 
-        [OFFICER_ROLE.HELM]: {
-            ...officers[OFFICER_ROLE.HELM],
+        [OFFICER_ROLE.PILOT]: {
+            ...officers[OFFICER_ROLE.PILOT],
         },
 
-        [OFFICER_ROLE.WEAPONS]: {
-            ...officers[OFFICER_ROLE.WEAPONS],
+        [OFFICER_ROLE.GUNNER]: {
+            ...officers[OFFICER_ROLE.GUNNER],
         },
 
         [OFFICER_ROLE.ENGINEER]: {

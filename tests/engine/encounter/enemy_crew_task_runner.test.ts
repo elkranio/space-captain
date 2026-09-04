@@ -64,7 +64,7 @@ describe(
 
                             role:
                                 OFFICER_ROLE
-                                    .WEAPONS,
+                                    .GUNNER,
 
                             weaponId:
                                 weapon.id,
@@ -76,7 +76,7 @@ describe(
                             .OPERATE_WEAPON,
 
                     role:
-                        OFFICER_ROLE.WEAPONS,
+                        OFFICER_ROLE.GUNNER,
 
                     weaponId:
                         weapon.id,
@@ -86,7 +86,7 @@ describe(
                     runner.isRoleBusy(
                         actor,
                         OFFICER_ROLE
-                            .WEAPONS,
+                            .GUNNER,
                     ),
                 ).toBe(true);
 
@@ -100,7 +100,7 @@ describe(
 
                             role:
                                 OFFICER_ROLE
-                                    .WEAPONS,
+                                    .GUNNER,
 
                             weaponId:
                                 weapon.id,
@@ -110,7 +110,7 @@ describe(
                     'Ship crew role already busy: ' +
                         actor.id +
                         '/' +
-                        OFFICER_ROLE.WEAPONS,
+                        OFFICER_ROLE.GUNNER,
                 );
 
                 expect(() => {
@@ -123,7 +123,7 @@ describe(
 
                             role:
                                 OFFICER_ROLE
-                                    .SCIENCE,
+                                    .SCIENTIST,
 
                             weaponId:
                                 weapon.id,
@@ -133,7 +133,7 @@ describe(
                     'Ship crew role is missing: ' +
                         actor.id +
                         '/' +
-                        OFFICER_ROLE.SCIENCE,
+                        OFFICER_ROLE.SCIENTIST,
                 );
             },
         );
@@ -156,7 +156,7 @@ describe(
 
                         role:
                             OFFICER_ROLE
-                                .WEAPONS,
+                                .GUNNER,
 
                         weaponId:
                             weapon.id,
@@ -167,7 +167,7 @@ describe(
 
                 expect(
                     actor.crewTasks[
-                        OFFICER_ROLE.WEAPONS
+                        OFFICER_ROLE.GUNNER
                     ],
                 ).toBeDefined();
 
@@ -196,7 +196,7 @@ describe(
                     weapon,
                 } = createRunnerFixture();
 
-                startWeaponsTask(
+                startGunnerTask(
                     actor,
                     runner,
                     weapon,
@@ -212,7 +212,7 @@ describe(
 
                 actor.weapons.push(weapon);
 
-                startWeaponsTask(
+                startGunnerTask(
                     actor,
                     runner,
                     weapon,
@@ -227,10 +227,10 @@ describe(
 
 
                 actor.crewRoles.push(
-                    OFFICER_ROLE.WEAPONS,
+                    OFFICER_ROLE.GUNNER,
                 );
 
-                startWeaponsTask(
+                startGunnerTask(
                     actor,
                     runner,
                     weapon,
@@ -248,7 +248,7 @@ describe(
     },
 );
 
-function startWeaponsTask(
+function startGunnerTask(
     actor:
         ReturnType<
             typeof createRunnerFixture
@@ -264,7 +264,7 @@ function startWeaponsTask(
                     .OPERATE_WEAPON,
 
             role:
-                OFFICER_ROLE.WEAPONS,
+                OFFICER_ROLE.GUNNER,
 
             weaponId:
                 weapon.id,
@@ -336,7 +336,7 @@ function createRunnerFixture() {
                 createShipBehaviorFixture(),
 
             crewRoles: [
-                OFFICER_ROLE.WEAPONS,
+                OFFICER_ROLE.GUNNER,
             ],
 
             weapons: [

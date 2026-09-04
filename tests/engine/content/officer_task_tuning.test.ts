@@ -43,7 +43,7 @@ describe('Officer task tuning content', () => {
         expect(
             getOfficerTaskDraftTuning(
                 OFFICER_TASK_KIND
-                    .WEAPONS_FIRE_BEAM_CANNON,
+                    .GUNNER_FIRE_BEAM_CANNON,
             ),
         ).toEqual({
             label: 'BEAM CANNON CHARGE',
@@ -54,7 +54,7 @@ describe('Officer task tuning content', () => {
         expect(
             getOfficerTaskCancellationPolicy(
                 OFFICER_TASK_KIND
-                    .HELM_FLY_TO,
+                    .PILOT_FLY_TO,
             ),
         ).toEqual({
             canBeCancelledByPlayer:
@@ -91,10 +91,10 @@ describe('Officer task tuning content', () => {
             ...OFFICER_TASK_TUNING,
 
             [OFFICER_TASK_KIND
-                .HELM_FLY_TO]: {
+                .PILOT_FLY_TO]: {
                 ...OFFICER_TASK_TUNING[
                     OFFICER_TASK_KIND
-                        .HELM_FLY_TO
+                        .PILOT_FLY_TO
                 ],
 
                 durationMs: 1000,
@@ -117,7 +117,7 @@ describe('Officer task tuning content', () => {
         };
 
         delete missingRecord[
-            OFFICER_TASK_KIND.HELM_JUMP
+            OFFICER_TASK_KIND.PILOT_JUMP
         ];
 
         expect(

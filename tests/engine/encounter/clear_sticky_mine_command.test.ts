@@ -50,9 +50,9 @@ import {
 } from '../../fixtures/engine/space_node_fixtures';
 
 const NON_ENGINEER_ROLES = [
-    OFFICER_ROLE.SCIENCE,
-    OFFICER_ROLE.HELM,
-    OFFICER_ROLE.WEAPONS,
+    OFFICER_ROLE.SCIENTIST,
+    OFFICER_ROLE.PILOT,
+    OFFICER_ROLE.GUNNER,
 ] satisfies OfficerRole[];
 
 describe('CLEAR MINE command', () => {

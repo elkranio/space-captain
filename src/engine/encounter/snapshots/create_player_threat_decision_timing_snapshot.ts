@@ -39,7 +39,7 @@ export function createPlayerThreatDecisionTimingSnapshot({
     }
 
     const interceptDurationMs = getResolvedTaskWallDurationMs(
-        OFFICER_TASK_KIND.WEAPONS_DEFENSE_TURRET,
+        OFFICER_TASK_KIND.GUNNER_DEFENSE_TURRET,
         crewProgressMultiplier,
     );
 

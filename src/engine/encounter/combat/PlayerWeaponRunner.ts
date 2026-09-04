@@ -29,7 +29,7 @@ type PlayerWeaponRunnerOptions = {
 // Owns the shared player-weapon cooldown phase and dispatches each active
 // weapon family to its concrete lifecycle owner.
 //
-// Cooldowns for every installed weapon advance before the active Weapons
+// Cooldowns for every installed weapon advance before the active Gunner
 // officer task, matching the locked encounter-step contract.
 export default class PlayerWeaponRunner {
     private readonly missileLauncherRunner: PlayerMissileLauncherRunner;
@@ -81,28 +81,28 @@ export default class PlayerWeaponRunner {
 
         const crewDeltaMs = deltaMs * getPlayerCrewProgressMultiplier(this.stateStore.getState());
 
-        const scienceTask = this.stateStore.getOfficerTask(OFFICER_ROLE.SCIENCE);
+        const scientistTask = this.stateStore.getOfficerTask(OFFICER_ROLE.SCIENTIST);
 
-        if (scienceTask?.kind === OFFICER_TASK_KIND.SCIENCE_FIRE_SPAM) {
-            this.spamProjectorRunner.advanceTask(scienceTask, deltaMs);
+        if (scientistTask?.kind === OFFICER_TASK_KIND.SCIENTIST_FIRE_SPAM) {
+            this.spamProjectorRunner.advanceTask(scientistTask, deltaMs);
         }
 
-        const task = this.stateStore.getOfficerTask(OFFICER_ROLE.WEAPONS);
+        const task = this.stateStore.getOfficerTask(OFFICER_ROLE.GUNNER);
 
         if (!task) {
             return;
         }
 
         switch (task.kind) {
-            case OFFICER_TASK_KIND.WEAPONS_FIRE_MISSILE:
+            case OFFICER_TASK_KIND.GUNNER_FIRE_MISSILE:
                 this.missileLauncherRunner.advanceTask(task, crewDeltaMs);
                 return;
 
-            case OFFICER_TASK_KIND.WEAPONS_FIRE_STICKY_MINES:
+            case OFFICER_TASK_KIND.GUNNER_FIRE_STICKY_MINES:
                 this.stickyMineDispenserRunner.advanceTask(task, crewDeltaMs);
                 return;
 
-            case OFFICER_TASK_KIND.WEAPONS_FIRE_BEAM_CANNON:
+            case OFFICER_TASK_KIND.GUNNER_FIRE_BEAM_CANNON:
                 this.beamCannonRunner.advanceTask(task, crewDeltaMs);
                 return;
 

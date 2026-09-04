@@ -553,16 +553,16 @@ function createEncounterEngine(): EncounterEngine {
                         officerTasks: [],
 
                         officerAvailability: {
-                            science:
+                            scientist:
                                 'available',
 
-                            weapons:
+                            gunner:
                                 'available',
 
                             engineer:
                                 'available',
 
-                            helm:
+                            pilot:
                                 'available',
                         },
                     },
@@ -822,9 +822,9 @@ function createEncounterEngine(): EncounterEngine {
                     ],
 
                     commandsByRole: {
-                        science: [],
-                        helm: [],
-                        weapons: [],
+                        scientist: [],
+                        pilot: [],
+                        gunner: [],
                         engineer: [],
                     },
                 };

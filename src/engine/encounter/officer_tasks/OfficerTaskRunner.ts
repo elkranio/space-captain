@@ -18,7 +18,7 @@ import { getOfficerCommandDef } from "../commands/officer_command_handlers";
 import { getPlayerCrewProgressMultiplier } from "../crew_performance/get_crew_progress_multiplier";
 import type CombatRunner from "../combat/CombatRunner";
 import EncounterStateStore from "../state/EncounterStateStore";
-import { createHelmFlyToTask } from "./create_officer_task_draft";
+import { createPilotFlyToTask } from "./create_officer_task_draft";
 import OfficerTaskEffects from "./OfficerTaskEffects";
 
 type OfficerTaskRunnerOptions = {
@@ -36,10 +36,10 @@ type PlayerWeaponTargetTaskState = Extract<
     OfficerTaskState,
     {
         kind:
-            | typeof OFFICER_TASK_KIND.WEAPONS_FIRE_MISSILE
-            | typeof OFFICER_TASK_KIND.WEAPONS_FIRE_STICKY_MINES
-            | typeof OFFICER_TASK_KIND.WEAPONS_FIRE_BEAM_CANNON
-            | typeof OFFICER_TASK_KIND.SCIENCE_FIRE_SPAM;
+            | typeof OFFICER_TASK_KIND.GUNNER_FIRE_MISSILE
+            | typeof OFFICER_TASK_KIND.GUNNER_FIRE_STICKY_MINES
+            | typeof OFFICER_TASK_KIND.GUNNER_FIRE_BEAM_CANNON
+            | typeof OFFICER_TASK_KIND.SCIENTIST_FIRE_SPAM;
     }
 >;
 
@@ -208,7 +208,7 @@ export default class OfficerTaskRunner {
         const invalidTaskIds = this.stateStore
             .getOfficerTasks()
             .filter((task) => {
-                if (task.kind === OFFICER_TASK_KIND.SCIENCE_PURGE_SPAM) {
+                if (task.kind === OFFICER_TASK_KIND.SCIENTIST_PURGE_SPAM) {
                     return !activeSpamChannelIds.has(task.channelId);
                 }
 
@@ -246,11 +246,11 @@ export default class OfficerTaskRunner {
             return;
         }
 
-        if (this.stateStore.getOfficerTask(OFFICER_ROLE.HELM)) {
+        if (this.stateStore.getOfficerTask(OFFICER_ROLE.PILOT)) {
             return;
         }
 
-        const runtimeTask = this.createRuntimeTask(createHelmFlyToTask(navigation.targetAnchorId));
+        const runtimeTask = this.createRuntimeTask(createPilotFlyToTask(navigation.targetAnchorId));
 
         this.stateStore.assignOfficerTask(runtimeTask);
     }
@@ -318,13 +318,13 @@ export default class OfficerTaskRunner {
 
 function isPlayerWeaponTargetTask(task: OfficerTaskState): task is PlayerWeaponTargetTaskState {
     switch (task.kind) {
-        case OFFICER_TASK_KIND.WEAPONS_FIRE_MISSILE:
+        case OFFICER_TASK_KIND.GUNNER_FIRE_MISSILE:
 
-        case OFFICER_TASK_KIND.WEAPONS_FIRE_STICKY_MINES:
+        case OFFICER_TASK_KIND.GUNNER_FIRE_STICKY_MINES:
 
-        case OFFICER_TASK_KIND.WEAPONS_FIRE_BEAM_CANNON:
+        case OFFICER_TASK_KIND.GUNNER_FIRE_BEAM_CANNON:
 
-        case OFFICER_TASK_KIND.SCIENCE_FIRE_SPAM:
+        case OFFICER_TASK_KIND.SCIENTIST_FIRE_SPAM:
             return true;
 
         default:

@@ -1,7 +1,7 @@
 {
   "textures": [
     {
-      "image": "atlas-0.png?v=1788472060705",
+      "image": "atlas-0.png?v=1788481348607",
       "format": "RGBA8888",
       "size": {
         "w": 2033,
@@ -430,7 +430,7 @@
           }
         },
         {
-          "filename": "bridge/officers/helm/idle",
+          "filename": "bridge/officers/gunner/idle",
           "rotated": false,
           "trimmed": false,
           "sourceSize": {
@@ -451,7 +451,7 @@
           }
         },
         {
-          "filename": "bridge/officers/science/idle",
+          "filename": "bridge/officers/pilot/idle",
           "rotated": false,
           "trimmed": false,
           "sourceSize": {
@@ -472,7 +472,7 @@
           }
         },
         {
-          "filename": "bridge/officers/weapons/idle",
+          "filename": "bridge/officers/scientist/idle",
           "rotated": false,
           "trimmed": false,
           "sourceSize": {
@@ -855,6 +855,6 @@
   "meta": {
     "app": "https://www.codeandweb.com/texturepacker",
     "version": "3.0",
-    "smartupdate": "$TexturePacker:SmartUpdate:d4b2d1689c9426ef35f8c5839b6d8091:ddd3402f6212b5e1ee6215a7b5351fc5:cf935fe037ea9b5d3744d532996e235e$"
+    "smartupdate": "$TexturePacker:SmartUpdate:e55b5aaed85f688fd060d6372c3fbead:ee6ab983e4941ab2a26446bcaed911e5:cf935fe037ea9b5d3744d532996e235e$"
   }
 }

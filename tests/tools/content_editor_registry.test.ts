@@ -7,9 +7,9 @@ import enemyDebugBehaviorsData from '../../src/app/debug/data/enemy_debug_behavi
 import debugStartData from '../../src/engine/content/data/debug_start.json';
 import powerCoreData from '../../src/engine/content/data/power_cores.json';
 import enemyBehaviorRulesData from '../../src/engine/content/data/enemy_behavior_rules.json';
-import scienceOfficerTaskData from '../../src/engine/content/data/officer_tasks_science.json';
-import weaponsOfficerTaskData from '../../src/engine/content/data/officer_tasks_weapons.json';
-import helmOfficerTaskData from '../../src/engine/content/data/officer_tasks_helm.json';
+import scientistOfficerTaskData from '../../src/engine/content/data/officer_tasks_scientist.json';
+import gunnerOfficerTaskData from '../../src/engine/content/data/officer_tasks_gunner.json';
+import pilotOfficerTaskData from '../../src/engine/content/data/officer_tasks_pilot.json';
 import engineerOfficerTaskData from '../../src/engine/content/data/officer_tasks_engineer.json';
 import defenseTurretData from '../../src/engine/content/data/defense_turrets.json';
 import shieldGeneratorData from '../../src/engine/content/data/shield_generators.json';
@@ -79,10 +79,10 @@ describe(
                     {
                         id:
                             CONTENT_COLLECTION_ID
-                                .OFFICER_TASKS_SCIENCE,
+                                .OFFICER_TASKS_SCIENTIST,
 
                         label:
-                            'Science',
+                            'Scientist',
 
                         canAdd: false,
                         canDelete: false,
@@ -90,10 +90,10 @@ describe(
                     {
                         id:
                             CONTENT_COLLECTION_ID
-                                .OFFICER_TASKS_WEAPONS,
+                                .OFFICER_TASKS_GUNNER,
 
                         label:
-                            'Weapons',
+                            'Gunner',
 
                         canAdd: false,
                         canDelete: false,
@@ -101,10 +101,10 @@ describe(
                     {
                         id:
                             CONTENT_COLLECTION_ID
-                                .OFFICER_TASKS_HELM,
+                                .OFFICER_TASKS_PILOT,
 
                         label:
-                            'Helm',
+                            'Pilot',
 
                         canAdd: false,
                         canDelete: false,
@@ -277,13 +277,13 @@ describe(
                         }),
                 ).toEqual([
                     CONTENT_COLLECTION_ID
-                        .OFFICER_TASKS_SCIENCE,
+                        .OFFICER_TASKS_SCIENTIST,
 
                     CONTENT_COLLECTION_ID
-                        .OFFICER_TASKS_WEAPONS,
+                        .OFFICER_TASKS_GUNNER,
 
                     CONTENT_COLLECTION_ID
-                        .OFFICER_TASKS_HELM,
+                        .OFFICER_TASKS_PILOT,
 
                     CONTENT_COLLECTION_ID
                         .OFFICER_TASKS_ENGINEER,
@@ -390,18 +390,18 @@ describe(
                     ],
                     [
                         CONTENT_COLLECTION_ID
-                            .OFFICER_TASKS_SCIENCE,
-                        scienceOfficerTaskData,
+                            .OFFICER_TASKS_SCIENTIST,
+                        scientistOfficerTaskData,
                     ],
                     [
                         CONTENT_COLLECTION_ID
-                            .OFFICER_TASKS_WEAPONS,
-                        weaponsOfficerTaskData,
+                            .OFFICER_TASKS_GUNNER,
+                        gunnerOfficerTaskData,
                     ],
                     [
                         CONTENT_COLLECTION_ID
-                            .OFFICER_TASKS_HELM,
-                        helmOfficerTaskData,
+                            .OFFICER_TASKS_PILOT,
+                        pilotOfficerTaskData,
                     ],
                     [
                         CONTENT_COLLECTION_ID
@@ -642,10 +642,10 @@ describe(
                     'boolean',
                 );
 
-                const scienceOfficerSchema =
+                const scientistOfficerSchema =
                     getContentCollectionJsonSchema(
                         CONTENT_COLLECTION_ID
-                            .OFFICER_TASKS_SCIENCE,
+                            .OFFICER_TASKS_SCIENTIST,
                     ) as {
                         properties?: Record<
                             string,
@@ -658,10 +658,10 @@ describe(
                         >;
                     };
 
-                const helmOfficerSchema =
+                const pilotOfficerSchema =
                     getContentCollectionJsonSchema(
                         CONTENT_COLLECTION_ID
-                            .OFFICER_TASKS_HELM,
+                            .OFFICER_TASKS_PILOT,
                     ) as {
                         properties?: Record<
                             string,
@@ -675,15 +675,15 @@ describe(
                     };
 
                 const timed =
-                    scienceOfficerSchema
+                    scientistOfficerSchema
                         .properties
-                        ?.science_purge_spam
+                        ?.scientist_purge_spam
                         ?.properties;
 
                 const external =
-                    helmOfficerSchema
+                    pilotOfficerSchema
                         .properties
-                        ?.helm_fly_to
+                        ?.pilot_fly_to
                         ?.properties;
 
                 expect(

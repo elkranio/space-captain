@@ -92,9 +92,9 @@ function appendEnemySpamEffects(state: EncounterState, effects: CrewProgressEffe
 }
 
 function appendPlayerSpamEffect(state: EncounterState, effects: CrewProgressEffect[]): void {
-    const task = state.officerTasks[OFFICER_ROLE.SCIENCE];
+    const task = state.officerTasks[OFFICER_ROLE.SCIENTIST];
 
-    if (!task || task.kind !== OFFICER_TASK_KIND.SCIENCE_FIRE_SPAM) {
+    if (!task || task.kind !== OFFICER_TASK_KIND.SCIENTIST_FIRE_SPAM) {
         return;
     }
 

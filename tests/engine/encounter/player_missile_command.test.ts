@@ -56,7 +56,7 @@ describe('Player missile command', () => {
             {
                 commandId:
                     ENCOUNTER_OFFICER_COMMAND_ID
-                        .WEAPONS_FIRE_MISSILE,
+                        .GUNNER_FIRE_MISSILE,
 
                 target: {
                     kind:
@@ -75,11 +75,11 @@ describe('Player missile command', () => {
         expect(
             engine.executeCommand({
                 role:
-                    OFFICER_ROLE.WEAPONS,
+                    OFFICER_ROLE.GUNNER,
 
                 commandId:
                     ENCOUNTER_OFFICER_COMMAND_ID
-                        .WEAPONS_FIRE_MISSILE,
+                        .GUNNER_FIRE_MISSILE,
 
                 target: {
                     kind:
@@ -119,14 +119,14 @@ describe('Player missile command', () => {
         expect(task).toMatchObject({
             kind:
                 OFFICER_TASK_KIND
-                    .WEAPONS_FIRE_MISSILE,
+                    .GUNNER_FIRE_MISSILE,
 
             role:
-                OFFICER_ROLE.WEAPONS,
+                OFFICER_ROLE.GUNNER,
 
             sourceCommandId:
                 ENCOUNTER_OFFICER_COMMAND_ID
-                    .WEAPONS_FIRE_MISSILE,
+                    .GUNNER_FIRE_MISSILE,
 
             weaponId:
                 launcher.id,
@@ -146,7 +146,7 @@ describe('Player missile command', () => {
 
         expect(
             engine.getAvailableCommands(
-                OFFICER_ROLE.WEAPONS,
+                OFFICER_ROLE.GUNNER,
             ),
         ).toEqual([]);
 
@@ -260,7 +260,7 @@ describe('Player missile command', () => {
         expect(
             engine.executeCommand({
                 role:
-                    OFFICER_ROLE.WEAPONS,
+                    OFFICER_ROLE.GUNNER,
 
                 commandId:
                     secondCommand.commandId,
@@ -292,7 +292,7 @@ describe('Player missile command', () => {
             expect.objectContaining({
                 kind:
                     OFFICER_TASK_KIND
-                        .WEAPONS_FIRE_MISSILE,
+                        .GUNNER_FIRE_MISSILE,
 
                 weaponId:
                     secondLauncher.id,
@@ -367,7 +367,7 @@ describe('Player missile command', () => {
         expect(
             engine.executeCommand({
                 role:
-                    OFFICER_ROLE.WEAPONS,
+                    OFFICER_ROLE.GUNNER,
 
                 commandId:
                     command.commandId,
@@ -443,13 +443,13 @@ function getMissileCommands(
 ) {
     return engine
         .getAvailableCommands(
-            OFFICER_ROLE.WEAPONS,
+            OFFICER_ROLE.GUNNER,
         )
         .filter((command) => {
             return (
                 command.commandId ===
                 ENCOUNTER_OFFICER_COMMAND_ID
-                    .WEAPONS_FIRE_MISSILE
+                    .GUNNER_FIRE_MISSILE
             );
         });
 }

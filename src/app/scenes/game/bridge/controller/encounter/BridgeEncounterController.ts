@@ -383,7 +383,7 @@ export default class BridgeEncounterController {
 
         // PLOT COURSE пока отображается общей командой без списка destinations.
         // Конкретный space node выбирает app-слой после клика игрока.
-        if (payload.commandId === ENCOUNTER_OFFICER_COMMAND_ID.SCIENCE_PLOT_COURSE) {
+        if (payload.commandId === ENCOUNTER_OFFICER_COMMAND_ID.SCIENTIST_PLOT_COURSE) {
             target = {
                 kind: OFFICER_COMMAND_TARGET_KIND.SPACE_NODE,
 

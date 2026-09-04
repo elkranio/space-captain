@@ -39,7 +39,7 @@ export const DEFENSE_TURRET_PHASE = {
 export type DefenseTurretPhase = (typeof DEFENSE_TURRET_PHASE)[keyof typeof DEFENSE_TURRET_PHASE];
 
 // One shared operator-occupation query for installed defense turret.
-// Loading requires Weapons; ready and cooldown do not.
+// Loading requires Gunner; ready and cooldown do not.
 export function doesDefenseTurretPhaseRequireOperator(phase: DefenseTurretPhase): boolean {
     switch (phase) {
         case DEFENSE_TURRET_PHASE.LOADING:

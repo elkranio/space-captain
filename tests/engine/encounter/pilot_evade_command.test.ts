@@ -47,10 +47,10 @@ import {
 } from '../../fixtures/engine/space_node_fixtures';
 
 describe(
-    'HELM EVADE command',
+    'PILOT EVADE command',
     () => {
         it(
-            'commits full Power cost and cooldown and occupies Helm',
+            'commits full Power cost and cooldown and occupies Pilot',
             () => {
                 const {
                     store,
@@ -70,11 +70,11 @@ describe(
                 const result =
                     executor.execute({
                         role:
-                            OFFICER_ROLE.HELM,
+                            OFFICER_ROLE.PILOT,
 
                         commandId:
                             ENCOUNTER_OFFICER_COMMAND_ID
-                                .HELM_EVADE,
+                                .PILOT_EVADE,
 
                         target: {
                             kind:
@@ -121,13 +121,13 @@ describe(
 
                 const task =
                     store.getOfficerTask(
-                        OFFICER_ROLE.HELM,
+                        OFFICER_ROLE.PILOT,
                     );
 
                 expect(task).toMatchObject({
                     kind:
                         OFFICER_TASK_KIND
-                            .HELM_EVADE,
+                            .PILOT_EVADE,
                     durationMs: null,
                     canBeCancelledByPlayer:
                         true,
@@ -137,7 +137,7 @@ describe(
 
                 if (!task) {
                     throw new Error(
-                        'Expected Helm Evade task',
+                        'Expected Pilot Evade task',
                     );
                 }
 
@@ -147,7 +147,7 @@ describe(
 
                 expect(
                     store.getOfficerTask(
-                        OFFICER_ROLE.HELM,
+                        OFFICER_ROLE.PILOT,
                     ),
                 ).toBeUndefined();
 
@@ -221,12 +221,12 @@ describe(
                 expect(
                     getAvailableOfficerCommands(
                         store.getState(),
-                        OFFICER_ROLE.HELM,
+                        OFFICER_ROLE.PILOT,
                     ).some(
                         (command) =>
                             command.commandId ===
                             ENCOUNTER_OFFICER_COMMAND_ID
-                                .HELM_EVADE,
+                                .PILOT_EVADE,
                     ),
                 ).toBe(false);
             },
@@ -247,12 +247,12 @@ describe(
                 expect(
                     getAvailableOfficerCommands(
                         store.getState(),
-                        OFFICER_ROLE.HELM,
+                        OFFICER_ROLE.PILOT,
                     ).some(
                         (command) =>
                             command.commandId ===
                             ENCOUNTER_OFFICER_COMMAND_ID
-                                .HELM_EVADE,
+                                .PILOT_EVADE,
                     ),
                 ).toBe(false);
             },
@@ -284,7 +284,7 @@ describe(
 
                 expect(
                     store.getOfficerTask(
-                        OFFICER_ROLE.HELM,
+                        OFFICER_ROLE.PILOT,
                     ),
                 ).toBeUndefined();
 
@@ -303,7 +303,7 @@ describe(
         );
 
         it(
-            'stops Evade when the Helm task is interrupted by damage',
+            'stops Evade when the Pilot task is interrupted by damage',
             () => {
                 const {
                     store,
@@ -326,7 +326,7 @@ describe(
 
                 expect(
                     store.getOfficerTask(
-                        OFFICER_ROLE.HELM,
+                        OFFICER_ROLE.PILOT,
                     ),
                 ).toBeUndefined();
 
@@ -352,11 +352,11 @@ function executeEvade(
     const result =
         executor.execute({
             role:
-                OFFICER_ROLE.HELM,
+                OFFICER_ROLE.PILOT,
 
             commandId:
                 ENCOUNTER_OFFICER_COMMAND_ID
-                    .HELM_EVADE,
+                    .PILOT_EVADE,
 
             target: {
                 kind:

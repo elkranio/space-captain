@@ -108,7 +108,7 @@ describe('encounter actors', () => {
             drive,            behavior,
 
             crewRoles: [
-                OFFICER_ROLE.WEAPONS,
+                OFFICER_ROLE.GUNNER,
             ],
 
             weapons: [],
@@ -156,11 +156,11 @@ describe('encounter actors', () => {
             },
 
             crewRoles: [
-                OFFICER_ROLE.WEAPONS,
+                OFFICER_ROLE.GUNNER,
             ],
 
             crewTraitsByRole: {
-                [OFFICER_ROLE.WEAPONS]: [],
+                [OFFICER_ROLE.GUNNER]: [],
             },
 
             decision: {
@@ -244,7 +244,7 @@ describe('encounter actors', () => {
                     createShipBehaviorFixture(),
 
                 crewRoles: [
-                    OFFICER_ROLE.WEAPONS,
+                    OFFICER_ROLE.GUNNER,
                 ],
 
                 weapons: [],
@@ -271,7 +271,7 @@ describe('encounter actors', () => {
                 createShipBehaviorFixture(),
 
             crewRoles: [
-                OFFICER_ROLE.WEAPONS,
+                OFFICER_ROLE.GUNNER,
             ],
 
             weapons: [],
@@ -297,7 +297,7 @@ describe('encounter actors', () => {
                     createShipBehaviorFixture(),
 
                 crewRoles: [
-                    OFFICER_ROLE.WEAPONS,
+                    OFFICER_ROLE.GUNNER,
                 ],
 
                 weapons: [],

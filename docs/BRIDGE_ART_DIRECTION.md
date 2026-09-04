@@ -8,7 +8,7 @@ Durable visual rules for the first-person bridge and captain UI.
 - Early-1990s Sierra / Space Quest VGA feeling.
 - Flat, authored shapes and deliberate pixel treatment over glossy modern sci-fi UI.
 - Captain point of view: the captain is not another portrait in the bridge composition.
-- Officers are presented through four physical video/intercom monitors: Science + Helm on the left, Weapons + Engineer
+- Officers are presented through four physical video/intercom monitors: Scientist + Pilot on the left, Gunner + Engineer
   on the right.
 - Do not spend the valuable lower-center space on four seated officer backs/stations during combat.
 
@@ -86,10 +86,10 @@ silhouette and destroys useful internal readability.
 Contextual action labels use officer-role initials/colors. Current shared palette:
 
 ```text
-S = Science  = blue
-H = Helm     = green
-W = Weapons  = red
-E = Engineer = yellow
+S = Scientist = blue
+P = Pilot     = green
+G = Gunner    = red
+E = Engineer  = yellow
 ```
 
 The same palette is used for the first letter of officer station labels. Keep role colors centralized rather than
@@ -172,7 +172,7 @@ ENEMY SHIP emphasizes persistent readable state: Hull, installed slots and integ
 ammo, cooldown or crew-decision truth merely to mirror MY SHIP density.
 
 Basic enemy anatomy should stay visible without opening a separate inspection screen. Deeper tactical information may
-remain a Science/gameplay layer.
+remain a Scientist/gameplay layer.
 
 The top-center threat monitor is compact in area but high in attention priority. Threat progress fills the icon silhouette;
 mitigation progress fills the rounded-square frame perimeter. Do not add a normal progress bar under each threat glyph.
@@ -211,7 +211,7 @@ She does not:
 - take officer tasks;
 - become busy;
 - own command legality;
-- replace Science / Weapons / Helm / Engineer;
+- replace Scientist / Gunner / Pilot / Engineer;
 - need a permanent fifth monitor in the combat layout.
 
 Prefer a temporary popup/monitor treatment that reuses available bridge presentation space without stealing permanent

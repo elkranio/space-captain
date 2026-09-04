@@ -73,19 +73,19 @@ export default class BridgeEncounterSnapshotSynchronizer {
                       }
                     : {}),
 
-                availableWeaponsCommands: snapshot.commandsByRole[OFFICER_ROLE.WEAPONS],
+                availableGunnerCommands: snapshot.commandsByRole[OFFICER_ROLE.GUNNER],
 
-                weaponsOfficerAvailability: officerAvailability[OFFICER_ROLE.WEAPONS],
+                gunnerOfficerAvailability: officerAvailability[OFFICER_ROLE.GUNNER],
 
                 incomingMissiles: snapshot.incomingMissiles,
 
-                availableHelmCommands: snapshot.commandsByRole[OFFICER_ROLE.HELM],
+                availablePilotCommands: snapshot.commandsByRole[OFFICER_ROLE.PILOT],
 
-                helmOfficerAvailability: officerAvailability[OFFICER_ROLE.HELM],
+                pilotOfficerAvailability: officerAvailability[OFFICER_ROLE.PILOT],
 
-                availableScienceCommands: snapshot.commandsByRole[OFFICER_ROLE.SCIENCE],
+                availableScientistCommands: snapshot.commandsByRole[OFFICER_ROLE.SCIENTIST],
 
-                scienceOfficerAvailability: officerAvailability[OFFICER_ROLE.SCIENCE],
+                scientistOfficerAvailability: officerAvailability[OFFICER_ROLE.SCIENTIST],
 
                 officerTasks: snapshot.player.officerTasks,
 
@@ -151,7 +151,7 @@ export default class BridgeEncounterSnapshotSynchronizer {
             mapDefenseTurretThreatsToBridgePayload({
                 incomingMissiles: snapshot.incomingMissiles,
 
-                availableWeaponsCommands: snapshot.commandsByRole[OFFICER_ROLE.WEAPONS],
+                availableGunnerCommands: snapshot.commandsByRole[OFFICER_ROLE.GUNNER],
 
                 officerTasks: snapshot.player.officerTasks,
 

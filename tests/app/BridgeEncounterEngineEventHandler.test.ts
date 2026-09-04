@@ -522,10 +522,10 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
                 task: {
                     id: 'task_1',
 
-                    kind: OFFICER_TASK_KIND.WEAPONS_DEFENSE_TURRET,
-                    role: OFFICER_ROLE.WEAPONS,
+                    kind: OFFICER_TASK_KIND.GUNNER_DEFENSE_TURRET,
+                    role: OFFICER_ROLE.GUNNER,
 
-                    sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_INTERCEPT_MISSILE,
+                    sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.GUNNER_INTERCEPT_MISSILE,
 
                     threatId: 'projectile_test_00',
 

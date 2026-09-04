@@ -225,7 +225,7 @@ export default class BridgeStickyMineDispenserTileView {
 
         switch (this.hoverAction) {
             case STICKY_MINE_DISPENSER_HOVER_ACTION.FIRE:
-                this.hoverView.setAction("W", OFFICER_ROLE_COLOR.weapons, "FIRE");
+                this.hoverView.setAction("G", OFFICER_ROLE_COLOR.gunner, "FIRE");
                 break;
 
             case STICKY_MINE_DISPENSER_HOVER_ACTION.REPAIR:

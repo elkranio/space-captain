@@ -21,10 +21,10 @@ import { SHIP_CREW_TASK_KIND, type ShipCrewTaskState } from "../model/ship_crew_
 import { getActorCrewProgressMultiplier } from "../crew_performance/get_crew_progress_multiplier";
 
 const ENEMY_DEBUG_ROLE_ORDER = [
-    OFFICER_ROLE.SCIENCE,
-    OFFICER_ROLE.WEAPONS,
+    OFFICER_ROLE.SCIENTIST,
+    OFFICER_ROLE.GUNNER,
     OFFICER_ROLE.ENGINEER,
-    OFFICER_ROLE.HELM,
+    OFFICER_ROLE.PILOT,
 ] as const;
 
 export type EnemyDebugProgressSnapshot = {
@@ -460,7 +460,7 @@ function createBeamCannonThreatSnapshot(
         : undefined;
 
     const beamCannonTask =
-        task?.kind === OFFICER_TASK_KIND.WEAPONS_FIRE_BEAM_CANNON && task.targetActorId === actor.id ? task : undefined;
+        task?.kind === OFFICER_TASK_KIND.GUNNER_FIRE_BEAM_CANNON && task.targetActorId === actor.id ? task : undefined;
 
     const weapon = beamCannonTask
         ? state.combat.playerWeapons.find((candidate) => {

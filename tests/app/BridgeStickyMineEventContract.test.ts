@@ -68,7 +68,7 @@ describe('Bridge sticky-mine event contract', () => {
                         OFFICER_TASK_KIND
                             .CLEAR_STICKY_MINE,
 
-                    role: OFFICER_ROLE.SCIENCE,
+                    role: OFFICER_ROLE.SCIENTIST,
 
                     sourceCommandId:
                         ENCOUNTER_OFFICER_COMMAND_ID

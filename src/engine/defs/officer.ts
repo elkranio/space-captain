@@ -3,16 +3,10 @@
 // Стабильные роли мостика.
 // Роль определяет seat, доступные команды и место офицера в captain flow.
 export const OFFICER_ROLE = {
-    SCIENTIST: "science",
-    PILOT: "helm",
-    GUNNER: "weapons",
+    SCIENTIST: "scientist",
+    PILOT: "pilot",
+    GUNNER: "gunner",
     ENGINEER: "engineer",
-
-    // Temporary source-compatibility aliases.
-    // Remove after all production and test consumers use the canonical role names.
-    SCIENCE: "science",
-    HELM: "helm",
-    WEAPONS: "weapons",
 } as const;
 
 export type OfficerRole = (typeof OFFICER_ROLE)[keyof typeof OFFICER_ROLE];
@@ -22,14 +16,14 @@ export type OfficerRole = (typeof OFFICER_ROLE)[keyof typeof OFFICER_ROLE];
 export const OFFICER_PORTRAIT_ID = {
     SILHOUETTE_00: "silhouette_00",
 
-    SCIENCE_HUMAN_00: "science_human_00",
-    SCIENCE_ALIEN_00: "science_alien_00",
+    SCIENTIST_HUMAN_00: "scientist_human_00",
+    SCIENTIST_ALIEN_00: "scientist_alien_00",
 
-    HELM_HUMAN_00: "helm_human_00",
-    HELM_ALIEN_00: "helm_alien_00",
+    PILOT_HUMAN_00: "pilot_human_00",
+    PILOT_ALIEN_00: "pilot_alien_00",
 
-    WEAPONS_HUMAN_00: "weapons_human_00",
-    WEAPONS_ALIEN_00: "weapons_alien_00",
+    GUNNER_HUMAN_00: "gunner_human_00",
+    GUNNER_ALIEN_00: "gunner_alien_00",
 
     ENGINEER_HUMAN_00: "engineer_human_00",
     ENGINEER_ALIEN_00: "engineer_alien_00",

@@ -1,4 +1,4 @@
-// src/engine/encounter/commands/handlers/weapons_fire_beam_cannon_command_handler.ts
+// src/engine/encounter/commands/handlers/gunner_fire_beam_cannon_command_handler.ts
 
 import { SHIP_WEAPONS } from "../../../content/catalogs/ship_weapons";
 import { OFFICER_ROLE } from "../../../defs/officer";
@@ -12,10 +12,10 @@ import { ENCOUNTER_OFFICER_COMMAND_ID, OFFICER_COMMAND_TARGET_KIND, type Officer
 import { ENCOUNTER_EVENT } from "../../model/event";
 import type { OfficerCommandHandler } from "../../model/officer_command_handler";
 import { findCurrentEnemyShip } from "../queries/find_current_enemy_ship";
-import { createWeaponsFireBeamCannonTask } from "../../officer_tasks/create_officer_task_draft";
+import { createGunnerFireBeamCannonTask } from "../../officer_tasks/create_officer_task_draft";
 
 const def = {
-    role: OFFICER_ROLE.WEAPONS,
+    role: OFFICER_ROLE.GUNNER,
 
     label: "FIRE BEAM CANNON",
 
@@ -27,8 +27,8 @@ const def = {
     requiresIdleBridge: false,
 } satisfies OfficerCommandDef;
 
-export const weaponsFireBeamCannonCommandHandler: OfficerCommandHandler = {
-    commandId: ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_BEAM_CANNON,
+export const gunnerFireBeamCannonCommandHandler: OfficerCommandHandler = {
+    commandId: ENCOUNTER_OFFICER_COMMAND_ID.GUNNER_FIRE_BEAM_CANNON,
 
     def,
 
@@ -48,7 +48,7 @@ export const weaponsFireBeamCannonCommandHandler: OfficerCommandHandler = {
             })
             .map((weapon) => {
             return {
-                commandId: ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_BEAM_CANNON,
+                commandId: ENCOUNTER_OFFICER_COMMAND_ID.GUNNER_FIRE_BEAM_CANNON,
 
                 label: def.label,
 
@@ -101,7 +101,7 @@ export const weaponsFireBeamCannonCommandHandler: OfficerCommandHandler = {
             chargeDurationMs: definition.chargeDurationMs,
         });
 
-        context.startOfficerTask(createWeaponsFireBeamCannonTask(input.target.weaponId, input.target.actorId));
+        context.startOfficerTask(createGunnerFireBeamCannonTask(input.target.weaponId, input.target.actorId));
     },
 };
 

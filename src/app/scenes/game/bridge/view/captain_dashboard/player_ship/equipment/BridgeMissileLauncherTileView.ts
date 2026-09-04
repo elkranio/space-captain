@@ -231,11 +231,11 @@ export default class BridgeMissileLauncherTileView {
 
         switch (this.hoverAction) {
             case MISSILE_LAUNCHER_HOVER_ACTION.FIRE:
-                this.hoverView.setAction("W", OFFICER_ROLE_COLOR.weapons, "FIRE");
+                this.hoverView.setAction("G", OFFICER_ROLE_COLOR.gunner, "FIRE");
                 break;
 
             case MISSILE_LAUNCHER_HOVER_ACTION.CANCEL:
-                this.hoverView.setAction("W", OFFICER_ROLE_COLOR.weapons, "CANCEL");
+                this.hoverView.setAction("G", OFFICER_ROLE_COLOR.gunner, "CANCEL");
                 break;
 
             case MISSILE_LAUNCHER_HOVER_ACTION.REPAIR:

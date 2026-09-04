@@ -18,7 +18,7 @@ import type {
 
 type DefenseTurretThreatsMapperInput = {
     incomingMissiles: MissilePresentationSnapshot[];
-    availableWeaponsCommands: AvailableOfficerCommand[];
+    availableGunnerCommands: AvailableOfficerCommand[];
     officerTasks?: OfficerTaskState[];
     playerThreatDecisionTimings?: PlayerThreatDecisionTimingSnapshot;
 };
@@ -31,12 +31,12 @@ export function mapDefenseTurretThreatsToBridgePayload(
             return left.timeToImpactMs - right.timeToImpactMs;
         })
         .map((missile) => {
-            const interceptMissile = findInterceptCommand(input.availableWeaponsCommands, missile.id);
+            const interceptMissile = findInterceptCommand(input.availableGunnerCommands, missile.id);
 
             const interceptMissileTaskId = (input.officerTasks ?? []).find((task) => {
                 return (
                     task.canBeCancelledByPlayer &&
-                    task.sourceCommandId === ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_INTERCEPT_MISSILE &&
+                    task.sourceCommandId === ENCOUNTER_OFFICER_COMMAND_ID.GUNNER_INTERCEPT_MISSILE &&
                     "threatId" in task &&
                     task.threatId === missile.id
                 );
@@ -82,7 +82,7 @@ function findInterceptCommand(
 ): BridgeOfficerCommandSelectedPayload | undefined {
     const matchingCommands = commands.filter((command) => {
         return (
-            command.commandId === ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_INTERCEPT_MISSILE &&
+            command.commandId === ENCOUNTER_OFFICER_COMMAND_ID.GUNNER_INTERCEPT_MISSILE &&
             command.target.kind === OFFICER_COMMAND_TARGET_KIND.THREAT &&
             command.target.threatId === threatId
         );
@@ -99,7 +99,7 @@ function findInterceptCommand(
     }
 
     return {
-        role: OFFICER_ROLE.WEAPONS,
+        role: OFFICER_ROLE.GUNNER,
         commandId: command.commandId,
         target: command.target,
     };

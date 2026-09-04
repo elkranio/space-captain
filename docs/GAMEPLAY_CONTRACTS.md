@@ -34,9 +34,9 @@ Basic incoming-threat identity is free:
 - Sticky Mine is known immediately;
 - SPAM is known immediately.
 
-There is no player-facing mandatory Science TRACK/IDENTIFY step for normal threat readability.
+There is no player-facing mandatory Scientist TRACK/IDENTIFY step for normal threat readability.
 
-Enemy observer/Science systems remain separate and may still reason from perceived information rather
+Enemy observer/Scientist systems remain separate and may still reason from perceived information rather
 than objective truth.
 
 ## Current ship/loadout shape
@@ -90,7 +90,7 @@ Sticky Mine Dispenser:  READY -> DISPENSING          -> COOLDOWN -> READY
 
 Concrete commitment edges are owned by each system rather than a shared generic phase machine.
 
-## Helm Evade
+## Pilot Evade
 
 ```text
 READY -> WARMUP -> EVADING -> COOLDOWN -> READY
@@ -99,13 +99,13 @@ READY -> WARMUP -> EVADING -> COOLDOWN -> READY
 Current rules:
 
 - command start commits Power Core cost and full cooldown;
-- Helm is occupied for the maneuver;
+- Pilot is occupied for the maneuver;
 - cancellation/interruption does not refund committed Power/cooldown;
 - the main Drive must be operational;
 - deterministic protection exists only during `EVADING`;
 - Missiles, Beam hits and new sticky-mine attachments are evadable;
 - SPAM and already-attached mines are not evadable;
-- Evade does not slow/block Science, Weapons or Engineer.
+- Evade does not slow/block Scientist, Gunner or Engineer.
 
 ## Shared Power Core
 
@@ -162,10 +162,10 @@ Player BASIC contract:
 
 - no private charge/ammo pool;
 - uses shared Power Core;
-- Weapons owns operation;
+- Gunner owns operation;
 - one Missile intercept flow;
-- if the Weapons task completes while the target Missile still exists, interception is guaranteed;
-- no player Science hypothesis/percentage/tier is required.
+- if the Gunner task completes while the target Missile still exists, interception is guaranteed;
+- no player Scientist hypothesis/percentage/tier is required.
 
 Enemy Defense Turret uses its own loading/crew decision path, but current physical shot resolution is also
 deterministic: if loading completes against the still-live player Missile, the shot resolves as `HIT`.
@@ -238,9 +238,9 @@ role.
 ## SPAM
 
 - SPAM is a long-lived effect, not a projectile.
-- Science launches player SPAM.
-- Enemy Science can purge player SPAM.
-- Player Science can purge enemy SPAM.
+- Scientist launches player SPAM.
+- Enemy Scientist can purge player SPAM.
+- Player Scientist can purge enemy SPAM.
 - Active crew-progress modifiers use engine read models.
 - Player SPAM threat presentation uses real effect duration/progress, not a decision timing window.
 
@@ -260,6 +260,6 @@ Enemy crew is simulated, not a mirrored player bridge:
 - `EnemyWorkExecutor` revalidates/commits/starts it;
 - `EnemyCrewTaskRunner` owns crew task lifecycle;
 - specialized runners own physical system phases;
-- enemy observation/Science intel remains separate from objective truth.
+- enemy observation/Scientist intel remains separate from objective truth.
 
 Enemy policy does not own full mutable encounter state.

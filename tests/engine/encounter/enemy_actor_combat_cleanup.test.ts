@@ -37,10 +37,10 @@ describe('Enemy actor combat cleanup', () => {
             targetActorId,
         } = createCombatCleanupTestSetup();
 
-        executeWeaponsCommand(
+        executeGunnerCommand(
             engine,
             ENCOUNTER_OFFICER_COMMAND_ID
-                .WEAPONS_FIRE_MISSILE,
+                .GUNNER_FIRE_MISSILE,
         );
 
         engine.step(
@@ -52,10 +52,10 @@ describe('Enemy actor combat cleanup', () => {
                 .getCombatPresentationSnapshot().outgoingMissiles,
         ).toHaveLength(1);
 
-        executeWeaponsCommand(
+        executeGunnerCommand(
             engine,
             ENCOUNTER_OFFICER_COMMAND_ID
-                .WEAPONS_FIRE_STICKY_MINES,
+                .GUNNER_FIRE_STICKY_MINES,
         );
 
         engine.step(0);
@@ -224,10 +224,10 @@ it('flushes a new sticky mine before an older missile destroys the target in the
         targetActorId,
     } = createCombatCleanupTestSetup();
 
-    executeWeaponsCommand(
+    executeGunnerCommand(
         engine,
         ENCOUNTER_OFFICER_COMMAND_ID
-            .WEAPONS_FIRE_MISSILE,
+            .GUNNER_FIRE_MISSILE,
     );
 
     engine.step(
@@ -302,10 +302,10 @@ it('flushes a new sticky mine before an older missile destroys the target in the
 
     target.hull = 1;
 
-    executeWeaponsCommand(
+    executeGunnerCommand(
         engine,
         ENCOUNTER_OFFICER_COMMAND_ID
-            .WEAPONS_FIRE_STICKY_MINES,
+            .GUNNER_FIRE_STICKY_MINES,
     );
 
     engine.drainEvents();
@@ -411,10 +411,10 @@ it('flushes a new missile before an older sticky mine destroys the target in the
         targetActorId,
     } = createCombatCleanupTestSetup();
 
-    executeWeaponsCommand(
+    executeGunnerCommand(
         engine,
         ENCOUNTER_OFFICER_COMMAND_ID
-            .WEAPONS_FIRE_STICKY_MINES,
+            .GUNNER_FIRE_STICKY_MINES,
     );
 
     engine.step(0);
@@ -472,10 +472,10 @@ it('flushes a new missile before an older sticky mine destroys the target in the
 
     target.hull = 1;
 
-    executeWeaponsCommand(
+    executeGunnerCommand(
         engine,
         ENCOUNTER_OFFICER_COMMAND_ID
-            .WEAPONS_FIRE_MISSILE,
+            .GUNNER_FIRE_MISSILE,
     );
 
     engine.drainEvents();
@@ -580,14 +580,14 @@ function createCombatCleanupTestSetup() {
     };
 }
 
-function executeWeaponsCommand(
+function executeGunnerCommand(
     engine: EncounterEngine,
     commandId: string,
 ): void {
     const command =
         engine
             .getAvailableCommands(
-                OFFICER_ROLE.WEAPONS,
+                OFFICER_ROLE.GUNNER,
             )
             .find((candidate) => {
                 return (
@@ -606,7 +606,7 @@ function executeWeaponsCommand(
     expect(
         engine.executeCommand({
             role:
-                OFFICER_ROLE.WEAPONS,
+                OFFICER_ROLE.GUNNER,
 
             commandId:
                 command.commandId,

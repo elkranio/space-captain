@@ -47,7 +47,7 @@ import {
 } from './combat_test_support';
 
 describe('Player sticky-mine command', () => {
-    it('launches one immediate three-mine salvo and keeps Weapons busy until the final launch', () => {
+    it('launches one immediate three-mine salvo and keeps Gunner busy until the final launch', () => {
         const {
             engine,
             dispenser,
@@ -71,7 +71,7 @@ describe('Player sticky-mine command', () => {
         expect(command).toMatchObject({
             commandId:
                 ENCOUNTER_OFFICER_COMMAND_ID
-                    .WEAPONS_FIRE_STICKY_MINES,
+                    .GUNNER_FIRE_STICKY_MINES,
 
             label: 'FIRE MINES',
 
@@ -90,7 +90,7 @@ describe('Player sticky-mine command', () => {
         expect(
             engine.executeCommand({
                 role:
-                    OFFICER_ROLE.WEAPONS,
+                    OFFICER_ROLE.GUNNER,
 
                 commandId:
                     command.commandId,
@@ -118,14 +118,14 @@ describe('Player sticky-mine command', () => {
         expect(task).toMatchObject({
             kind:
                 OFFICER_TASK_KIND
-                    .WEAPONS_FIRE_STICKY_MINES,
+                    .GUNNER_FIRE_STICKY_MINES,
 
             role:
-                OFFICER_ROLE.WEAPONS,
+                OFFICER_ROLE.GUNNER,
 
             sourceCommandId:
                 ENCOUNTER_OFFICER_COMMAND_ID
-                    .WEAPONS_FIRE_STICKY_MINES,
+                    .GUNNER_FIRE_STICKY_MINES,
 
             weaponId:
                 dispenser.id,
@@ -414,7 +414,7 @@ describe('Player sticky-mine command', () => {
         expect(
             engine.executeCommand({
                 role:
-                    OFFICER_ROLE.WEAPONS,
+                    OFFICER_ROLE.GUNNER,
 
                 commandId:
                     secondCommand.commandId,
@@ -446,7 +446,7 @@ describe('Player sticky-mine command', () => {
             expect.objectContaining({
                 kind:
                     OFFICER_TASK_KIND
-                        .WEAPONS_FIRE_STICKY_MINES,
+                        .GUNNER_FIRE_STICKY_MINES,
 
                 weaponId:
                     secondDispenser.id,
@@ -664,7 +664,7 @@ describe('Player sticky-mine command', () => {
                     expect.objectContaining({
                         kind:
                             OFFICER_TASK_KIND
-                                .WEAPONS_FIRE_STICKY_MINES,
+                                .GUNNER_FIRE_STICKY_MINES,
                     }),
             }),
         );
@@ -725,7 +725,7 @@ function executeStickyMineCommand(
     expect(
         engine.executeCommand({
             role:
-                OFFICER_ROLE.WEAPONS,
+                OFFICER_ROLE.GUNNER,
 
             commandId:
                 command.commandId,
@@ -745,13 +745,13 @@ function getStickyMineCommands(
 ) {
     return engine
         .getAvailableCommands(
-            OFFICER_ROLE.WEAPONS,
+            OFFICER_ROLE.GUNNER,
         )
         .filter((command) => {
             return (
                 command.commandId ===
                 ENCOUNTER_OFFICER_COMMAND_ID
-                    .WEAPONS_FIRE_STICKY_MINES
+                    .GUNNER_FIRE_STICKY_MINES
             );
         });
 }

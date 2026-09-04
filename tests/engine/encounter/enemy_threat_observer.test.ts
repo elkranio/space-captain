@@ -215,7 +215,7 @@ describe(
 
                 delete state
                     .officerTasks[
-                        OFFICER_ROLE.WEAPONS
+                        OFFICER_ROLE.GUNNER
                     ];
 
                 // Live sources may disappear after perception
@@ -311,8 +311,8 @@ function createObserverFixture() {
                 createShipBehaviorFixture(),
 
             crewRoles: [
-                OFFICER_ROLE.SCIENCE,
-                OFFICER_ROLE.WEAPONS,
+                OFFICER_ROLE.SCIENTIST,
+                OFFICER_ROLE.GUNNER,
                 OFFICER_ROLE.ENGINEER,
             ],
 
@@ -383,21 +383,21 @@ function createObserverFixture() {
     });
 
     state.officerTasks[
-        OFFICER_ROLE.WEAPONS
+        OFFICER_ROLE.GUNNER
     ] = {
         id:
             'player_beam_cannon_task_00',
 
         kind:
             OFFICER_TASK_KIND
-                .WEAPONS_FIRE_BEAM_CANNON,
+                .GUNNER_FIRE_BEAM_CANNON,
 
         role:
-            OFFICER_ROLE.WEAPONS,
+            OFFICER_ROLE.GUNNER,
 
         sourceCommandId:
             ENCOUNTER_OFFICER_COMMAND_ID
-                .WEAPONS_FIRE_BEAM_CANNON,
+                .GUNNER_FIRE_BEAM_CANNON,
 
         label: 'BEAM CANNON AIM',
         showProgress: true,

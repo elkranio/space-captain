@@ -215,11 +215,11 @@ export default class BridgeSpamProjectorTileView {
 
         switch (this.hoverAction) {
             case SPAM_PROJECTOR_HOVER_ACTION.FIRE:
-                this.hoverView.setAction("S", OFFICER_ROLE_COLOR.science, "FIRE");
+                this.hoverView.setAction("S", OFFICER_ROLE_COLOR.scientist, "FIRE");
                 break;
 
             case SPAM_PROJECTOR_HOVER_ACTION.CANCEL:
-                this.hoverView.setAction("S", OFFICER_ROLE_COLOR.science, "CANCEL");
+                this.hoverView.setAction("S", OFFICER_ROLE_COLOR.scientist, "CANCEL");
                 break;
 
             case SPAM_PROJECTOR_HOVER_ACTION.REPAIR:

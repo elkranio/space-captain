@@ -41,12 +41,12 @@ describe('DOCK', () => {
 
         expect(
             engine.getAvailableCommands(
-                OFFICER_ROLE.HELM,
+                OFFICER_ROLE.PILOT,
             ),
         ).toContainEqual({
             commandId:
                 ENCOUNTER_OFFICER_COMMAND_ID
-                    .HELM_DOCK,
+                    .PILOT_DOCK,
 
             target: {
                 kind:
@@ -59,11 +59,11 @@ describe('DOCK', () => {
 
         expect(
             engine.executeCommand({
-                role: OFFICER_ROLE.HELM,
+                role: OFFICER_ROLE.PILOT,
 
                 commandId:
                     ENCOUNTER_OFFICER_COMMAND_ID
-                        .HELM_DOCK,
+                        .PILOT_DOCK,
 
                 target: {
                     kind:
@@ -90,9 +90,9 @@ describe('DOCK', () => {
                 task: expect.objectContaining({
                     kind:
                         OFFICER_TASK_KIND
-                            .HELM_DOCK,
+                            .PILOT_DOCK,
 
-                    role: OFFICER_ROLE.HELM,
+                    role: OFFICER_ROLE.PILOT,
                     targetAnchorId: stationId,
                 }),
             }),

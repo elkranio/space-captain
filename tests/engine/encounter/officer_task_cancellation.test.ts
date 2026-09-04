@@ -46,13 +46,13 @@ describe('Officer task cancellation policy', () => {
 
         const task = createFlyToTask();
 
-        state.officerTasks[OFFICER_ROLE.HELM] = task;
+        state.officerTasks[OFFICER_ROLE.PILOT] = task;
 
         expect(() => {
             engine.cancelTask(task.id);
         }).toThrow(
             'Officer task cannot be cancelled by player: ' +
-                'task_fly_to/helm_fly_to',
+                'task_fly_to/pilot_fly_to',
         );
 
         expect(engine.getOfficerTasks()).toEqual([task]);
@@ -112,9 +112,9 @@ function createFlyToTask(): OfficerTaskState {
     return {
         id: 'task_fly_to',
 
-        kind: OFFICER_TASK_KIND.HELM_FLY_TO,
-        role: OFFICER_ROLE.HELM,
-        sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.HELM_FLY_TO,
+        kind: OFFICER_TASK_KIND.PILOT_FLY_TO,
+        role: OFFICER_ROLE.PILOT,
+        sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.PILOT_FLY_TO,
 
         targetAnchorId: 'target_anchor',
 

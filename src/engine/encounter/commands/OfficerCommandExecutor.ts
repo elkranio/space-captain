@@ -90,7 +90,7 @@ export default class OfficerCommandExecutor {
         // Другие SPACE_NODE-команды должны проходить
         // обычную проверку конкретной цели.
         if (
-            input.commandId === ENCOUNTER_OFFICER_COMMAND_ID.SCIENCE_PLOT_COURSE &&
+            input.commandId === ENCOUNTER_OFFICER_COMMAND_ID.SCIENTIST_PLOT_COURSE &&
             input.target.kind === OFFICER_COMMAND_TARGET_KIND.SPACE_NODE
         ) {
             return true;

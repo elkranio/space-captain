@@ -12,10 +12,10 @@ import type EncounterStateStore from "../../state/EncounterStateStore";
 import type OfficerTaskRunner from "../../officer_tasks/OfficerTaskRunner";
 import type CombatRunner from "../CombatRunner";
 
-type WeaponsFireMissileTaskState = Extract<
+type GunnerFireMissileTaskState = Extract<
     OfficerTaskState,
     {
-        kind: typeof OFFICER_TASK_KIND.WEAPONS_FIRE_MISSILE;
+        kind: typeof OFFICER_TASK_KIND.GUNNER_FIRE_MISSILE;
     }
 >;
 
@@ -30,7 +30,7 @@ type PlayerMissileLauncherRunnerOptions = {
 export default class PlayerMissileLauncherRunner {
     constructor(private readonly options: PlayerMissileLauncherRunnerOptions) {}
 
-    public advanceTask(task: WeaponsFireMissileTaskState, deltaMs: number): void {
+    public advanceTask(task: GunnerFireMissileTaskState, deltaMs: number): void {
         if (!this.hasValidTarget(task)) {
             // OfficerTaskRunner cancels the task
             // at the end of the encounter step.
@@ -57,7 +57,7 @@ export default class PlayerMissileLauncherRunner {
         this.advanceTargeting(task, launcher, deltaMs);
     }
 
-    private advanceTargeting(task: WeaponsFireMissileTaskState, launcher: MissileLauncherState, deltaMs: number): void {
+    private advanceTargeting(task: GunnerFireMissileTaskState, launcher: MissileLauncherState, deltaMs: number): void {
         const definition = SHIP_WEAPONS[launcher.weaponId];
 
         if (definition.kind !== SHIP_WEAPON_KIND.MISSILE_LAUNCHER) {
@@ -96,12 +96,12 @@ export default class PlayerMissileLauncherRunner {
             targetActorId: task.targetActorId,
         });
 
-        // Weapons is released immediately after launch.
+        // Gunner is released immediately after launch.
         // Cooldown and projectile do not occupy the officer.
         this.options.officerTaskRunner.complete(task.id);
     }
 
-    private findTaskLauncher(task: WeaponsFireMissileTaskState): MissileLauncherState | undefined {
+    private findTaskLauncher(task: GunnerFireMissileTaskState): MissileLauncherState | undefined {
         const weapon = this.options.stateStore.findPlayerWeaponById(task.weaponId);
 
         if (!weapon) {
@@ -120,7 +120,7 @@ export default class PlayerMissileLauncherRunner {
         return weapon;
     }
 
-    private hasValidTarget(task: WeaponsFireMissileTaskState): boolean {
+    private hasValidTarget(task: GunnerFireMissileTaskState): boolean {
         const actor = this.options.stateStore.findActorById(task.targetActorId);
 
         return actor?.team === ENCOUNTER_TEAM.ENEMY;

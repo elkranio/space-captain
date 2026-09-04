@@ -223,13 +223,13 @@ describe('Player missile impact', () => {
         expect(
             engine
                 .getAvailableCommands(
-                    OFFICER_ROLE.WEAPONS,
+                    OFFICER_ROLE.GUNNER,
                 )
                 .filter((command) => {
                     return (
                         command.commandId ===
                             ENCOUNTER_OFFICER_COMMAND_ID
-                                .WEAPONS_INTERCEPT_MISSILE
+                                .GUNNER_INTERCEPT_MISSILE
                     );
                 }),
         ).toEqual([]);
@@ -354,11 +354,11 @@ function createMissileImpactSetup({
 
     engine.executeCommand({
         role:
-            OFFICER_ROLE.WEAPONS,
+            OFFICER_ROLE.GUNNER,
 
         commandId:
             ENCOUNTER_OFFICER_COMMAND_ID
-                .WEAPONS_FIRE_MISSILE,
+                .GUNNER_FIRE_MISSILE,
 
         target: {
             kind:

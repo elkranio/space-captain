@@ -427,7 +427,7 @@ export type BridgePlayerShipDashboardUpdatedPayload = {
         evadeAction: {
             state: BridgePlayerSystemActionState;
 
-            // Exact engine-resolved HELM_EVADE command.
+            // Exact engine-resolved PILOT_EVADE command.
             // Present only while the action is ACTIVE.
             command?: BridgeOfficerCommandSelectedPayload;
         };
@@ -532,7 +532,7 @@ export type BridgeEncounterArrivalStartedPayload = {
 // Payload начала визуального travel flow.
 //
 // taskId связывает animation
-// с конкретной HELM_FLY_TO task instance.
+// с конкретной PILOT_FLY_TO task instance.
 export type BridgeEncounterTravelStartedPayload = {
     taskId: string;
 

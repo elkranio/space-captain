@@ -13,10 +13,10 @@ import type EncounterStateStore from "../../state/EncounterStateStore";
 import type OfficerTaskRunner from "../../officer_tasks/OfficerTaskRunner";
 import type CombatRunner from "../CombatRunner";
 
-type WeaponsFireStickyMinesTaskState = Extract<
+type GunnerFireStickyMinesTaskState = Extract<
     OfficerTaskState,
     {
-        kind: typeof OFFICER_TASK_KIND.WEAPONS_FIRE_STICKY_MINES;
+        kind: typeof OFFICER_TASK_KIND.GUNNER_FIRE_STICKY_MINES;
     }
 >;
 
@@ -31,7 +31,7 @@ type PlayerStickyMineDispenserRunnerOptions = {
 export default class PlayerStickyMineDispenserRunner {
     constructor(private readonly options: PlayerStickyMineDispenserRunnerOptions) {}
 
-    public advanceTask(task: WeaponsFireStickyMinesTaskState, deltaMs: number): void {
+    public advanceTask(task: GunnerFireStickyMinesTaskState, deltaMs: number): void {
         if (!this.hasValidTarget(task)) {
             // OfficerTaskRunner resolves target-loss cancellation.
             return;
@@ -82,7 +82,7 @@ export default class PlayerStickyMineDispenserRunner {
     }
 
     private launchMine(
-        task: WeaponsFireStickyMinesTaskState,
+        task: GunnerFireStickyMinesTaskState,
         dispenser: StickyMineDispenserState,
         definition: StickyMineDispenserDefinition,
         ageMs: number,
@@ -125,7 +125,7 @@ export default class PlayerStickyMineDispenserRunner {
         dispenser.dispensedMineCount += 1;
     }
 
-    private findTaskDispenser(task: WeaponsFireStickyMinesTaskState): StickyMineDispenserState | undefined {
+    private findTaskDispenser(task: GunnerFireStickyMinesTaskState): StickyMineDispenserState | undefined {
         const weapon = this.options.stateStore.findPlayerWeaponById(task.weaponId);
 
         if (!weapon) {
@@ -144,7 +144,7 @@ export default class PlayerStickyMineDispenserRunner {
         return weapon;
     }
 
-    private hasValidTarget(task: WeaponsFireStickyMinesTaskState): boolean {
+    private hasValidTarget(task: GunnerFireStickyMinesTaskState): boolean {
         const actor = this.options.stateStore.findActorById(task.targetActorId);
 
         return actor?.team === ENCOUNTER_TEAM.ENEMY;

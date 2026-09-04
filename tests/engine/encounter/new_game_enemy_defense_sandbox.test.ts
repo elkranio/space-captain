@@ -186,13 +186,13 @@ describe('New-game enemy defense sandbox', () => {
             const beamCannonCommand =
                 engine
                     .getAvailableCommands(
-                        OFFICER_ROLE.WEAPONS,
+                        OFFICER_ROLE.GUNNER,
                     )
                     .find((command) => {
                         return (
                             command.commandId ===
                             ENCOUNTER_OFFICER_COMMAND_ID
-                                .WEAPONS_FIRE_BEAM_CANNON
+                                .GUNNER_FIRE_BEAM_CANNON
                         );
                     });
 
@@ -205,7 +205,7 @@ describe('New-game enemy defense sandbox', () => {
             expect(
                 engine.executeCommand({
                     role:
-                        OFFICER_ROLE.WEAPONS,
+                        OFFICER_ROLE.GUNNER,
 
                     commandId:
                         beamCannonCommand.commandId,

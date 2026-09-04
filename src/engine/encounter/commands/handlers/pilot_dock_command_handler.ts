@@ -1,4 +1,4 @@
-// src/engine/encounter/commands/handlers/helm_jump_command_handler.ts
+// src/engine/encounter/commands/handlers/pilot_dock_command_handler.ts
 
 import { OFFICER_ROLE } from "../../../defs/officer";
 import {
@@ -10,14 +10,14 @@ import {
 import { ENCOUNTER_EVENT } from "../../model/event";
 import type { OfficerCommandHandler } from "../../model/officer_command_handler";
 import { ENCOUNTER_ANCHOR_KIND } from "../../anchors/encounter_anchor";
-import { createHelmJumpTask } from "../../officer_tasks/create_officer_task_draft";
-import { getJumpPointTarget, isCurrentAnchor } from "./command_handler_helpers";
+import { createPilotDockTask } from "../../officer_tasks/create_officer_task_draft";
+import { getStationTarget, isCurrentAnchor } from "./command_handler_helpers";
 
-const COMMAND_ID = ENCOUNTER_OFFICER_COMMAND_ID.HELM_JUMP;
+const COMMAND_ID = ENCOUNTER_OFFICER_COMMAND_ID.PILOT_DOCK;
 
 const COMMAND_DEF = {
-    role: OFFICER_ROLE.HELM,
-    label: "JUMP",
+    role: OFFICER_ROLE.PILOT,
+    label: "DOCK",
 
     targeting: {
         kind: OFFICER_COMMAND_TARGET_KIND.ANCHOR,
@@ -29,14 +29,14 @@ const COMMAND_DEF = {
     requiresIdleBridge: true,
 } satisfies OfficerCommandDef;
 
-export const helmJumpCommandHandler = {
+export const pilotDockCommandHandler = {
     commandId: COMMAND_ID,
     def: COMMAND_DEF,
 
     getAvailableCommands(state) {
         return state.anchors
             .filter((object) => {
-                return object.kind === ENCOUNTER_ANCHOR_KIND.JUMP_POINT && isCurrentAnchor(state, object);
+                return object.kind === ENCOUNTER_ANCHOR_KIND.STATION && isCurrentAnchor(state, object);
             })
             .map((object) => {
                 return {
@@ -50,14 +50,14 @@ export const helmJumpCommandHandler = {
     },
 
     execute(context, input) {
-        const target = getJumpPointTarget(context, input);
+        const target = getStationTarget(context, input);
 
-        const taskId = context.startOfficerTask(createHelmJumpTask(target.id, target.jumpPoint.targetNodeId));
+        const taskId = context.startOfficerTask(createPilotDockTask(target.id));
 
         context.emit({
-            type: ENCOUNTER_EVENT.JUMP_STARTED,
+            type: ENCOUNTER_EVENT.DOCKING_STARTED,
             taskId,
-            targetNodeId: target.jumpPoint.targetNodeId,
+            targetId: target.id,
         });
     },
 } satisfies OfficerCommandHandler;

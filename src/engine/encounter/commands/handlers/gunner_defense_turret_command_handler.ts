@@ -1,4 +1,4 @@
-// src/engine/encounter/commands/handlers/weapons_defense_turret_command_handler.ts
+// src/engine/encounter/commands/handlers/gunner_defense_turret_command_handler.ts
 
 import { OFFICER_ROLE } from "../../../defs/officer";
 import {
@@ -9,14 +9,14 @@ import { COMBAT_PROJECTILE_KIND, COMBAT_SOURCE_KIND, COMBAT_TARGET_KIND } from "
 import { ENCOUNTER_OFFICER_COMMAND_ID, OFFICER_COMMAND_TARGET_KIND, type OfficerCommandDef } from "../../model/command";
 import { isEquipmentOperational } from "../../model/equipment";
 import type { OfficerCommandHandler } from "../../model/officer_command_handler";
-import { createWeaponsDefenseTurretTask } from "../../officer_tasks/create_officer_task_draft";
+import { createGunnerDefenseTurretTask } from "../../officer_tasks/create_officer_task_draft";
 import { requireThreatTargetId } from "./command_handler_helpers";
 
-export const weaponsInterceptMissileCommandHandler: OfficerCommandHandler = {
-    commandId: ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_INTERCEPT_MISSILE,
+export const gunnerInterceptMissileCommandHandler: OfficerCommandHandler = {
+    commandId: ENCOUNTER_OFFICER_COMMAND_ID.GUNNER_INTERCEPT_MISSILE,
 
     def: {
-        role: OFFICER_ROLE.WEAPONS,
+        role: OFFICER_ROLE.GUNNER,
 
         label: "INTERCEPT",
 
@@ -66,7 +66,7 @@ export const weaponsInterceptMissileCommandHandler: OfficerCommandHandler = {
             })
             .map((projectile) => {
                 return {
-                    commandId: ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_INTERCEPT_MISSILE,
+                    commandId: ENCOUNTER_OFFICER_COMMAND_ID.GUNNER_INTERCEPT_MISSILE,
 
                     label: "INTERCEPT",
 
@@ -88,6 +88,6 @@ export const weaponsInterceptMissileCommandHandler: OfficerCommandHandler = {
 
         context.stateStore.startPlayerDefenseTurretLoading(threatId);
 
-        context.startOfficerTask(createWeaponsDefenseTurretTask(threatId));
+        context.startOfficerTask(createGunnerDefenseTurretTask(threatId));
     },
 };

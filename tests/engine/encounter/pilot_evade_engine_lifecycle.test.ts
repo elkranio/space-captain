@@ -35,10 +35,10 @@ import {
 } from '../../fixtures/engine/space_node_fixtures';
 
 describe(
-    'Helm Evade engine lifecycle',
+    'Pilot Evade engine lifecycle',
     () => {
         it(
-            'advances from raw encounter time and releases Helm when the maneuver ends',
+            'advances from raw encounter time and releases Pilot when the maneuver ends',
             () => {
                 const engine =
                     createEngine();
@@ -62,7 +62,7 @@ describe(
                         .evadeDurationMs;
 
                 // One millisecond before physical maneuver end,
-                // Helm must still be occupied by EVADE.
+                // Pilot must still be occupied by EVADE.
                 engine.step(
                     Math.max(
                         0,
@@ -82,7 +82,7 @@ describe(
                 ).toMatchObject({
                     kind:
                         OFFICER_TASK_KIND
-                            .HELM_EVADE,
+                            .PILOT_EVADE,
                 });
 
                 expect(
@@ -143,7 +143,7 @@ describe(
                               .READY,
                 );
 
-                // Cooldown recovery continues after Helm has been released.
+                // Cooldown recovery continues after Pilot has been released.
                 engine.step(
                     afterManeuver
                         .cooldownRemainingMs,
@@ -225,7 +225,7 @@ describe(
                             (task) =>
                                 task.kind ===
                                 OFFICER_TASK_KIND
-                                    .HELM_EVADE,
+                                    .PILOT_EVADE,
                         ),
                 ).toBe(false);
 
@@ -251,11 +251,11 @@ function startEvade(
     const result =
         engine.executeCommand({
             role:
-                OFFICER_ROLE.HELM,
+                OFFICER_ROLE.PILOT,
 
             commandId:
                 ENCOUNTER_OFFICER_COMMAND_ID
-                    .HELM_EVADE,
+                    .PILOT_EVADE,
 
             target: {
                 kind:
@@ -278,12 +278,12 @@ function startEvade(
                 (candidate) =>
                     candidate.kind ===
                     OFFICER_TASK_KIND
-                        .HELM_EVADE,
+                        .PILOT_EVADE,
             );
 
     if (!task) {
         throw new Error(
-            'Expected Helm Evade task',
+            'Expected Pilot Evade task',
         );
     }
 

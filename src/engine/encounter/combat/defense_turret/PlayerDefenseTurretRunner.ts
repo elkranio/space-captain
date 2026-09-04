@@ -2,7 +2,7 @@ import { DEFENSE_TURRETS } from "../../../content/catalogs/defense_turrets";
 import { advanceDefenseTurretCooldown } from "../../../defs/defense_turret";
 import type { EncounterState } from "../../model/state";
 
-// Player Defense Turret aiming is owned by the Weapons officer task.
+// Player Defense Turret aiming is owned by the Gunner officer task.
 // This runner owns only the independent installed-system recovery clock.
 export default class PlayerDefenseTurretRunner {
     constructor(private readonly state: EncounterState) {}

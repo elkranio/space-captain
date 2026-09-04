@@ -36,13 +36,13 @@ describe("BridgeDefenseTurretThreatsMapper", () => {
         expect(
             mapDefenseTurretThreatsToBridgePayload({
                 incomingMissiles: [far, near],
-                availableWeaponsCommands: [
+                availableGunnerCommands: [
                     createThreatCommand(
-                        ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_INTERCEPT_MISSILE,
+                        ENCOUNTER_OFFICER_COMMAND_ID.GUNNER_INTERCEPT_MISSILE,
                         far.id,
                     ),
                     createThreatCommand(
-                        ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_INTERCEPT_MISSILE,
+                        ENCOUNTER_OFFICER_COMMAND_ID.GUNNER_INTERCEPT_MISSILE,
                         near.id,
                     ),
                 ],
@@ -55,8 +55,8 @@ describe("BridgeDefenseTurretThreatsMapper", () => {
                 initialTimeToImpactMs: 1200,
                 actions: {
                     interceptMissile: {
-                        role: OFFICER_ROLE.WEAPONS,
-                        commandId: ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_INTERCEPT_MISSILE,
+                        role: OFFICER_ROLE.GUNNER,
+                        commandId: ENCOUNTER_OFFICER_COMMAND_ID.GUNNER_INTERCEPT_MISSILE,
                         target: {
                             kind: OFFICER_COMMAND_TARGET_KIND.THREAT,
                             threatId: near.id,
@@ -71,8 +71,8 @@ describe("BridgeDefenseTurretThreatsMapper", () => {
                 initialTimeToImpactMs: 1400,
                 actions: {
                     interceptMissile: {
-                        role: OFFICER_ROLE.WEAPONS,
-                        commandId: ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_INTERCEPT_MISSILE,
+                        role: OFFICER_ROLE.GUNNER,
+                        commandId: ENCOUNTER_OFFICER_COMMAND_ID.GUNNER_INTERCEPT_MISSILE,
                         target: {
                             kind: OFFICER_COMMAND_TARGET_KIND.THREAT,
                             threatId: far.id,
@@ -92,14 +92,14 @@ describe("BridgeDefenseTurretThreatsMapper", () => {
         });
 
         const duplicate = createThreatCommand(
-            ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_INTERCEPT_MISSILE,
+            ENCOUNTER_OFFICER_COMMAND_ID.GUNNER_INTERCEPT_MISSILE,
             missile.id,
         );
 
         expect(() => {
             mapDefenseTurretThreatsToBridgePayload({
                 incomingMissiles: [missile],
-                availableWeaponsCommands: [
+                availableGunnerCommands: [
                     duplicate,
                     {
                         ...duplicate,

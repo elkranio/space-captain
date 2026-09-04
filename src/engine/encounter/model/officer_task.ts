@@ -16,20 +16,20 @@ type OfficerTaskDraftBase = {
     durationMs: number | null;
 };
 
-type SciencePlotCourseOfficerTaskDraft = OfficerTaskDraftBase & {
-    kind: typeof OFFICER_TASK_KIND.SCIENCE_PLOT_COURSE;
-    role: typeof OFFICER_ROLE.SCIENCE;
+type ScientistPlotCourseOfficerTaskDraft = OfficerTaskDraftBase & {
+    kind: typeof OFFICER_TASK_KIND.SCIENTIST_PLOT_COURSE;
+    role: typeof OFFICER_ROLE.SCIENTIST;
 
-    sourceCommandId: typeof ENCOUNTER_OFFICER_COMMAND_ID.SCIENCE_PLOT_COURSE;
+    sourceCommandId: typeof ENCOUNTER_OFFICER_COMMAND_ID.SCIENTIST_PLOT_COURSE;
 
     targetNodeId: string;
 };
 
-type SciencePurgeSpamOfficerTaskDraft = OfficerTaskDraftBase & {
-    kind: typeof OFFICER_TASK_KIND.SCIENCE_PURGE_SPAM;
-    role: typeof OFFICER_ROLE.SCIENCE;
+type ScientistPurgeSpamOfficerTaskDraft = OfficerTaskDraftBase & {
+    kind: typeof OFFICER_TASK_KIND.SCIENTIST_PURGE_SPAM;
+    role: typeof OFFICER_ROLE.SCIENTIST;
 
-    sourceCommandId: typeof ENCOUNTER_OFFICER_COMMAND_ID.SCIENCE_PURGE_SPAM;
+    sourceCommandId: typeof ENCOUNTER_OFFICER_COMMAND_ID.SCIENTIST_PURGE_SPAM;
 
     channelId: string;
 };
@@ -51,54 +51,54 @@ type EngineerDeployShieldOfficerTaskDraft = OfficerTaskDraftBase & {
     targetNode: BeamCannonTargetNode;
 };
 
-type WeaponsDefenseTurretOfficerTaskDraft = OfficerTaskDraftBase & {
-    kind: typeof OFFICER_TASK_KIND.WEAPONS_DEFENSE_TURRET;
-    role: typeof OFFICER_ROLE.WEAPONS;
+type GunnerDefenseTurretOfficerTaskDraft = OfficerTaskDraftBase & {
+    kind: typeof OFFICER_TASK_KIND.GUNNER_DEFENSE_TURRET;
+    role: typeof OFFICER_ROLE.GUNNER;
 
-    sourceCommandId: typeof ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_INTERCEPT_MISSILE;
+    sourceCommandId: typeof ENCOUNTER_OFFICER_COMMAND_ID.GUNNER_INTERCEPT_MISSILE;
 
     threatId: string;
 };
 
-type WeaponsFireMissileOfficerTaskDraft = OfficerTaskDraftBase & {
-    kind: typeof OFFICER_TASK_KIND.WEAPONS_FIRE_MISSILE;
+type GunnerFireMissileOfficerTaskDraft = OfficerTaskDraftBase & {
+    kind: typeof OFFICER_TASK_KIND.GUNNER_FIRE_MISSILE;
 
-    role: typeof OFFICER_ROLE.WEAPONS;
+    role: typeof OFFICER_ROLE.GUNNER;
 
-    sourceCommandId: typeof ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_MISSILE;
-
-    weaponId: string;
-    targetActorId: string;
-};
-
-type WeaponsFireStickyMinesOfficerTaskDraft = OfficerTaskDraftBase & {
-    kind: typeof OFFICER_TASK_KIND.WEAPONS_FIRE_STICKY_MINES;
-
-    role: typeof OFFICER_ROLE.WEAPONS;
-
-    sourceCommandId: typeof ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_STICKY_MINES;
+    sourceCommandId: typeof ENCOUNTER_OFFICER_COMMAND_ID.GUNNER_FIRE_MISSILE;
 
     weaponId: string;
     targetActorId: string;
 };
 
-type WeaponsFireBeamCannonOfficerTaskDraft = OfficerTaskDraftBase & {
-    kind: typeof OFFICER_TASK_KIND.WEAPONS_FIRE_BEAM_CANNON;
+type GunnerFireStickyMinesOfficerTaskDraft = OfficerTaskDraftBase & {
+    kind: typeof OFFICER_TASK_KIND.GUNNER_FIRE_STICKY_MINES;
 
-    role: typeof OFFICER_ROLE.WEAPONS;
+    role: typeof OFFICER_ROLE.GUNNER;
 
-    sourceCommandId: typeof ENCOUNTER_OFFICER_COMMAND_ID.WEAPONS_FIRE_BEAM_CANNON;
+    sourceCommandId: typeof ENCOUNTER_OFFICER_COMMAND_ID.GUNNER_FIRE_STICKY_MINES;
 
     weaponId: string;
     targetActorId: string;
 };
 
-type ScienceFireSpamOfficerTaskDraft = OfficerTaskDraftBase & {
-    kind: typeof OFFICER_TASK_KIND.SCIENCE_FIRE_SPAM;
+type GunnerFireBeamCannonOfficerTaskDraft = OfficerTaskDraftBase & {
+    kind: typeof OFFICER_TASK_KIND.GUNNER_FIRE_BEAM_CANNON;
 
-    role: typeof OFFICER_ROLE.SCIENCE;
+    role: typeof OFFICER_ROLE.GUNNER;
 
-    sourceCommandId: typeof ENCOUNTER_OFFICER_COMMAND_ID.SCIENCE_FIRE_SPAM;
+    sourceCommandId: typeof ENCOUNTER_OFFICER_COMMAND_ID.GUNNER_FIRE_BEAM_CANNON;
+
+    weaponId: string;
+    targetActorId: string;
+};
+
+type ScientistFireSpamOfficerTaskDraft = OfficerTaskDraftBase & {
+    kind: typeof OFFICER_TASK_KIND.SCIENTIST_FIRE_SPAM;
+
+    role: typeof OFFICER_ROLE.SCIENTIST;
+
+    sourceCommandId: typeof ENCOUNTER_OFFICER_COMMAND_ID.SCIENTIST_FIRE_SPAM;
 
     weaponId: string;
     targetActorId: string;
@@ -113,39 +113,39 @@ type ClearStickyMineOfficerTaskDraft = OfficerTaskDraftBase & {
     mineId: string;
 };
 
-type HelmDockOfficerTaskDraft = OfficerTaskDraftBase & {
-    kind: typeof OFFICER_TASK_KIND.HELM_DOCK;
-    role: typeof OFFICER_ROLE.HELM;
+type PilotDockOfficerTaskDraft = OfficerTaskDraftBase & {
+    kind: typeof OFFICER_TASK_KIND.PILOT_DOCK;
+    role: typeof OFFICER_ROLE.PILOT;
 
-    sourceCommandId: typeof ENCOUNTER_OFFICER_COMMAND_ID.HELM_DOCK;
-
-    targetAnchorId: string;
-};
-
-type HelmFlyToOfficerTaskDraft = OfficerTaskDraftBase & {
-    kind: typeof OFFICER_TASK_KIND.HELM_FLY_TO;
-    role: typeof OFFICER_ROLE.HELM;
-
-    sourceCommandId: typeof ENCOUNTER_OFFICER_COMMAND_ID.HELM_FLY_TO;
+    sourceCommandId: typeof ENCOUNTER_OFFICER_COMMAND_ID.PILOT_DOCK;
 
     targetAnchorId: string;
 };
 
-type HelmJumpOfficerTaskDraft = OfficerTaskDraftBase & {
-    kind: typeof OFFICER_TASK_KIND.HELM_JUMP;
-    role: typeof OFFICER_ROLE.HELM;
+type PilotFlyToOfficerTaskDraft = OfficerTaskDraftBase & {
+    kind: typeof OFFICER_TASK_KIND.PILOT_FLY_TO;
+    role: typeof OFFICER_ROLE.PILOT;
 
-    sourceCommandId: typeof ENCOUNTER_OFFICER_COMMAND_ID.HELM_JUMP;
+    sourceCommandId: typeof ENCOUNTER_OFFICER_COMMAND_ID.PILOT_FLY_TO;
+
+    targetAnchorId: string;
+};
+
+type PilotJumpOfficerTaskDraft = OfficerTaskDraftBase & {
+    kind: typeof OFFICER_TASK_KIND.PILOT_JUMP;
+    role: typeof OFFICER_ROLE.PILOT;
+
+    sourceCommandId: typeof ENCOUNTER_OFFICER_COMMAND_ID.PILOT_JUMP;
 
     targetAnchorId: string;
     targetNodeId: string;
 };
 
-type HelmEvadeOfficerTaskDraft = OfficerTaskDraftBase & {
-    kind: typeof OFFICER_TASK_KIND.HELM_EVADE;
-    role: typeof OFFICER_ROLE.HELM;
+type PilotEvadeOfficerTaskDraft = OfficerTaskDraftBase & {
+    kind: typeof OFFICER_TASK_KIND.PILOT_EVADE;
+    role: typeof OFFICER_ROLE.PILOT;
 
-    sourceCommandId: typeof ENCOUNTER_OFFICER_COMMAND_ID.HELM_EVADE;
+    sourceCommandId: typeof ENCOUNTER_OFFICER_COMMAND_ID.PILOT_EVADE;
 };
 
 // Описание task до её запуска.
@@ -157,20 +157,20 @@ type HelmEvadeOfficerTaskDraft = OfficerTaskDraftBase & {
 // Task-specific поля принадлежат только тем
 // вариантам task, которым они действительно нужны.
 export type OfficerTaskDraft =
-    | SciencePlotCourseOfficerTaskDraft
-    | SciencePurgeSpamOfficerTaskDraft
+    | ScientistPlotCourseOfficerTaskDraft
+    | ScientistPurgeSpamOfficerTaskDraft
     | EngineerRepairDriveOfficerTaskDraft
     | EngineerDeployShieldOfficerTaskDraft
-    | WeaponsDefenseTurretOfficerTaskDraft
-    | WeaponsFireMissileOfficerTaskDraft
-    | WeaponsFireStickyMinesOfficerTaskDraft
-    | WeaponsFireBeamCannonOfficerTaskDraft
-    | ScienceFireSpamOfficerTaskDraft
+    | GunnerDefenseTurretOfficerTaskDraft
+    | GunnerFireMissileOfficerTaskDraft
+    | GunnerFireStickyMinesOfficerTaskDraft
+    | GunnerFireBeamCannonOfficerTaskDraft
+    | ScientistFireSpamOfficerTaskDraft
     | ClearStickyMineOfficerTaskDraft
-    | HelmDockOfficerTaskDraft
-    | HelmFlyToOfficerTaskDraft
-    | HelmJumpOfficerTaskDraft
-    | HelmEvadeOfficerTaskDraft;
+    | PilotDockOfficerTaskDraft
+    | PilotFlyToOfficerTaskDraft
+    | PilotJumpOfficerTaskDraft
+    | PilotEvadeOfficerTaskDraft;
 
 // Активная runtime task.
 //

@@ -11,7 +11,7 @@ The player commands a service ship through four officer roles rather than direct
 mandatory contracts, route planning, local exploration, combat, build progression and crew management.
 
 Combat is built around readable threats, officer availability, shared resources and competing priorities. Basic combat
-information should be readable without mandatory checkbox work. Science should create tactical advantage rather than
+information should be readable without mandatory checkbox work. Scientist should create tactical advantage rather than
 permission to understand the interface.
 
 ## Repository boundaries

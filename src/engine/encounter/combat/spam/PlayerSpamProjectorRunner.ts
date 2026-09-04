@@ -17,10 +17,10 @@ import { OFFICER_TASK_KIND, type OfficerTaskState } from "../../model/officer_ta
 import type EncounterStateStore from "../../state/EncounterStateStore";
 import type OfficerTaskRunner from "../../officer_tasks/OfficerTaskRunner";
 
-type ScienceFireSpamTaskState = Extract<
+type ScientistFireSpamTaskState = Extract<
     OfficerTaskState,
     {
-        kind: typeof OFFICER_TASK_KIND.SCIENCE_FIRE_SPAM;
+        kind: typeof OFFICER_TASK_KIND.SCIENTIST_FIRE_SPAM;
     }
 >;
 
@@ -35,7 +35,7 @@ type PlayerSpamProjectorRunnerOptions = {
 // Owns the player spam-projector lifecycle.
 //
 // The projection starts directly in CHANNELING.
-// Its physical lifetime advances in real encounter time while Science
+// Its physical lifetime advances in real encounter time while Scientist
 // remains occupied for the active operation.
 //
 // Active channels are exposed through the unified crew-progress effect
@@ -45,9 +45,9 @@ export default class PlayerSpamProjectorRunner {
     constructor(private readonly options: PlayerSpamProjectorRunnerOptions) {}
 
     public purgeChannel(channelId: string, targetActorId: string): boolean {
-        const task = this.options.stateStore.getOfficerTask(OFFICER_ROLE.SCIENCE);
+        const task = this.options.stateStore.getOfficerTask(OFFICER_ROLE.SCIENTIST);
 
-        if (!task || task.kind !== OFFICER_TASK_KIND.SCIENCE_FIRE_SPAM || task.targetActorId !== targetActorId) {
+        if (!task || task.kind !== OFFICER_TASK_KIND.SCIENTIST_FIRE_SPAM || task.targetActorId !== targetActorId) {
             return false;
         }
 
@@ -75,7 +75,7 @@ export default class PlayerSpamProjectorRunner {
         return true;
     }
 
-    public advanceTask(task: ScienceFireSpamTaskState, worldDeltaMs: number): void {
+    public advanceTask(task: ScientistFireSpamTaskState, worldDeltaMs: number): void {
         if (!this.hasValidTarget(task)) {
             // Shared missing-target cleanup cancels the task
             // at the end of the encounter step.
@@ -105,7 +105,7 @@ export default class PlayerSpamProjectorRunner {
         this.advanceChanneling(task, projector, worldDeltaMs);
     }
 
-    private ensureChannelStarted(task: ScienceFireSpamTaskState, projector: SpamProjectorState): void {
+    private ensureChannelStarted(task: ScientistFireSpamTaskState, projector: SpamProjectorState): void {
         if (projector.channelPurged || projector.activeChannelId !== null) {
             return;
         }
@@ -123,7 +123,7 @@ export default class PlayerSpamProjectorRunner {
         });
     }
 
-    private advanceChanneling(task: ScienceFireSpamTaskState, projector: SpamProjectorState, deltaMs: number): void {
+    private advanceChanneling(task: ScientistFireSpamTaskState, projector: SpamProjectorState, deltaMs: number): void {
         const definition = this.getDefinition(projector);
 
         projector.phaseElapsedMs = Math.min(
@@ -167,7 +167,7 @@ export default class PlayerSpamProjectorRunner {
         this.options.officerTaskRunner.complete(task.id);
     }
 
-    private findTaskProjector(task: ScienceFireSpamTaskState): SpamProjectorState | undefined {
+    private findTaskProjector(task: ScientistFireSpamTaskState): SpamProjectorState | undefined {
         const weapon = this.options.stateStore.findPlayerWeaponById(task.weaponId);
 
         if (!weapon) {
@@ -189,7 +189,7 @@ export default class PlayerSpamProjectorRunner {
         return weapon;
     }
 
-    private hasValidTarget(task: ScienceFireSpamTaskState): boolean {
+    private hasValidTarget(task: ScientistFireSpamTaskState): boolean {
         const actor = this.options.stateStore.findActorById(task.targetActorId);
 
         return actor?.team === ENCOUNTER_TEAM.ENEMY;

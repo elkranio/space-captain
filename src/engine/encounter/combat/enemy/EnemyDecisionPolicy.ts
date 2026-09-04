@@ -27,7 +27,7 @@ export type EnemyWorkIntent =
     | {
           kind: typeof SHIP_CREW_TASK_KIND.PURGE_SPAM;
 
-          role: typeof OFFICER_ROLE.SCIENCE;
+          role: typeof OFFICER_ROLE.SCIENTIST;
 
           channelId: string;
       }
@@ -47,7 +47,7 @@ export type EnemyWorkIntent =
     | {
           kind: typeof SHIP_CREW_TASK_KIND.INTERCEPT_MISSILE;
 
-          role: typeof OFFICER_ROLE.WEAPONS;
+          role: typeof OFFICER_ROLE.GUNNER;
 
           defenseTurretId: string;
           projectileId: string;
@@ -78,7 +78,7 @@ type EnemyDefenseCandidate = {
     estimatedDeadlineMs?: number;
 };
 
-const ENEMY_OFFENSIVE_ROLE_PRIORITY = [OFFICER_ROLE.WEAPONS, OFFICER_ROLE.SCIENCE] as const;
+const ENEMY_OFFENSIVE_ROLE_PRIORITY = [OFFICER_ROLE.GUNNER, OFFICER_ROLE.SCIENTIST] as const;
 
 // One-step enemy captain policy.
 //
@@ -251,7 +251,7 @@ export default class EnemyDecisionPolicy {
     }
 
     private selectSpamPurging(snapshot: EnemyCaptainDecisionSnapshot): EnemyDefenseCandidate | undefined {
-        if (!this.isRoleAvailable(snapshot, OFFICER_ROLE.SCIENCE)) {
+        if (!this.isRoleAvailable(snapshot, OFFICER_ROLE.SCIENTIST)) {
             return undefined;
         }
 
@@ -265,17 +265,17 @@ export default class EnemyDecisionPolicy {
             intent: {
                 kind: SHIP_CREW_TASK_KIND.PURGE_SPAM,
 
-                role: OFFICER_ROLE.SCIENCE,
+                role: OFFICER_ROLE.SCIENTIST,
 
                 channelId,
             },
 
-            actionDurationMs: getTimedOfficerTaskDurationMs(OFFICER_TASK_KIND.SCIENCE_PURGE_SPAM),
+            actionDurationMs: getTimedOfficerTaskDurationMs(OFFICER_TASK_KIND.SCIENTIST_PURGE_SPAM),
         };
     }
 
     private selectDefenseTurretInterception(snapshot: EnemyCaptainDecisionSnapshot): EnemyDefenseCandidate | undefined {
-        if (!this.isRoleAvailable(snapshot, OFFICER_ROLE.WEAPONS)) {
+        if (!this.isRoleAvailable(snapshot, OFFICER_ROLE.GUNNER)) {
             return undefined;
         }
 
@@ -315,7 +315,7 @@ export default class EnemyDecisionPolicy {
             intent: {
                 kind: SHIP_CREW_TASK_KIND.INTERCEPT_MISSILE,
 
-                role: OFFICER_ROLE.WEAPONS,
+                role: OFFICER_ROLE.GUNNER,
 
                 defenseTurretId: defenseTurret.id,
 
@@ -402,10 +402,10 @@ export default class EnemyDecisionPolicy {
 
     private getWeaponRole(weapon: EnemyCaptainWeaponSnapshot): OfficerRole {
         if (weapon.kind === SHIP_WEAPON_KIND.SPAM_PROJECTOR) {
-            return OFFICER_ROLE.SCIENCE;
+            return OFFICER_ROLE.SCIENTIST;
         }
 
-        return OFFICER_ROLE.WEAPONS;
+        return OFFICER_ROLE.GUNNER;
     }
 
     private canOperateWeapon(weapon: EnemyCaptainWeaponSnapshot): boolean {

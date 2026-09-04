@@ -116,8 +116,8 @@ TOP CENTER
     compact threat monitor area (not implemented yet)
 
 SIDES
-    SCIENCE + HELM monitors
-    WEAPONS + ENGINEER monitors
+    SCIENTIST + PILOT monitors
+    GUNNER + ENGINEER monitors
 
 CENTER
     first-person viewscreen
@@ -194,16 +194,16 @@ player Beam HULL | SLOT(slotId)
 -> compact top-center threat monitor
 -> finish shared BROKEN gating + Engineer repair exposed by the board
 -> first weak-player vs weak-enemy timing/balance smoke
--> Science tactical-information pass
+-> Scientist tactical-information pass
 ```
 
 ## Important current runtime truths
 
-- basic incoming threat identity is free information; no mandatory Science TRACK/IDENTIFY;
+- basic incoming threat identity is free information; no mandatory Scientist TRACK/IDENTIFY;
 - current incoming Beam target vocabulary is still `HULL | DRIVE`;
 - current player targeted Shield uses that same temporary `HULL | DRIVE` vocabulary;
 - current player Beam still targets the enemy actor as a whole;
-- Defense Turret interception is deterministic after successful Weapons work;
+- Defense Turret interception is deterministic after successful Gunner work;
 - Beam, Evade, Defense Turret and Shield Generator use shared Power Core;
 - Drive has an existing BROKEN-only repair path;
 - confirmed Evade Drive wear is still not implemented;

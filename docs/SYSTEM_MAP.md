@@ -125,6 +125,6 @@ BRIDGE/HULL special column is gone; do not preserve gameplay semantics for a rem
 Direct targeting may use visible ship slots, Hull presentation or threat cells as interaction surfaces, but the engine
 still owns command availability and exact targets. Views only expose/highlight engine-resolved actions.
 
-Deeper Science inspection may add presentation-safe information later without replacing or gating the basic enemy board.
+Deeper Scientist inspection may add presentation-safe information later without replacing or gating the basic enemy board.
 
 Threat presentation specifics live in `THREAT_PANEL.md`.

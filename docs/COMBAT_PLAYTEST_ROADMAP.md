@@ -51,7 +51,7 @@ LANDED: chassis-owned ship slots + persistent loadout mounts
 -> compact top-center threat monitor migration
 -> finish BROKEN / repair operational behavior exposed by the board
 -> weak-player vs weak-enemy timing/balance smoke
--> Science tactical-information pass
+-> Scientist tactical-information pass
 -> deepen enemy targeted Shield behavior as needed
 ```
 
@@ -106,7 +106,7 @@ player can operate.
 ENEMY SHIP continuously exposes presentation-safe basic Hull plus installed slot identity and integrity/BROKEN state.
 Basic enemy anatomy does not require opening a separate inspection screen or pausing the fight.
 
-Science may later add deeper decision-changing information; it does not gate the permanent basic enemy board.
+Scientist may later add deeper decision-changing information; it does not gate the permanent basic enemy board.
 
 The panels share visual grammar without being forced into identical data density. HULL is in the shared header and the
 4x3 grid uses the full content width; the old BRIDGE/HULL special-column geometry is gone.
@@ -200,9 +200,9 @@ pressure must remain a viable competing plan.
 Do not demand identical DPS or equal solo time-to-kill from every weapon family. Viability means each family creates a
 real useful combat plan without becoming strictly dominated.
 
-### 8. Science tactical information
+### 8. Scientist tactical information
 
-Give Science combat work that changes decisions. Do not invent filler actions merely for role symmetry.
+Give Scientist combat work that changes decisions. Do not invent filler actions merely for role symmetry.
 
 Useful information must create tactical advantage beyond basic interface legibility.
 
@@ -224,7 +224,7 @@ The player should be able to answer quickly:
 - what can my Beam target and why?
 - what did my action accomplish?
 - is the first/basic fight fast enough to be fun rather than inevitable attrition?
-- what additional decision did Science information create?
+- what additional decision did Scientist information create?
 
 Then run a short focused combat smoke/playtest.
 

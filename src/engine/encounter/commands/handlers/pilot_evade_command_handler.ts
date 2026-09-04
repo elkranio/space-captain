@@ -1,16 +1,16 @@
-// src/engine/encounter/commands/handlers/helm_evade_command_handler.ts
+// src/engine/encounter/commands/handlers/pilot_evade_command_handler.ts
 
 import { SHIP_DRIVES } from "../../../content/catalogs/ship_drives";
 import { OFFICER_ROLE } from "../../../defs/officer";
 import { SHIP_EVADE_PHASE } from "../../../defs/ship_evade";
 import { ENCOUNTER_OFFICER_COMMAND_ID, OFFICER_COMMAND_TARGET_KIND, type OfficerCommandDef } from "../../model/command";
 import type { OfficerCommandHandler } from "../../model/officer_command_handler";
-import { createHelmEvadeTask } from "../../officer_tasks/create_officer_task_draft";
+import { createPilotEvadeTask } from "../../officer_tasks/create_officer_task_draft";
 
-const COMMAND_ID = ENCOUNTER_OFFICER_COMMAND_ID.HELM_EVADE;
+const COMMAND_ID = ENCOUNTER_OFFICER_COMMAND_ID.PILOT_EVADE;
 
 const COMMAND_DEF = {
-    role: OFFICER_ROLE.HELM,
+    role: OFFICER_ROLE.PILOT,
     label: "EVADE",
 
     targeting: {
@@ -21,7 +21,7 @@ const COMMAND_DEF = {
     requiresIdleBridge: false,
 } satisfies OfficerCommandDef;
 
-export const helmEvadeCommandHandler = {
+export const pilotEvadeCommandHandler = {
     commandId: COMMAND_ID,
     def: COMMAND_DEF,
 
@@ -56,12 +56,12 @@ export const helmEvadeCommandHandler = {
 
         const driveDefinition = SHIP_DRIVES[state.drive.driveId];
 
-        // Full resource commitment happens before the Helm task starts.
+        // Full resource commitment happens before the Pilot task starts.
         // Cancellation/interruption never refunds Power or cooldown.
         context.stateStore.spendPowerCoreCharges(driveDefinition.evadePowerCost);
 
         context.stateStore.startPlayerEvade();
 
-        context.startOfficerTask(createHelmEvadeTask());
+        context.startOfficerTask(createPilotEvadeTask());
     },
 } satisfies OfficerCommandHandler;

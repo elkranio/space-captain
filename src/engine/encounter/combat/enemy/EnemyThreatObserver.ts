@@ -91,9 +91,9 @@ export default class EnemyThreatObserver {
     }
 
     private collectChargingBeamCannon(actorId: string): EnemyThreatObservationState[] {
-        const task = this.state.officerTasks[OFFICER_ROLE.WEAPONS];
+        const task = this.state.officerTasks[OFFICER_ROLE.GUNNER];
 
-        if (!task || task.kind !== OFFICER_TASK_KIND.WEAPONS_FIRE_BEAM_CANNON || task.targetActorId !== actorId) {
+        if (!task || task.kind !== OFFICER_TASK_KIND.GUNNER_FIRE_BEAM_CANNON || task.targetActorId !== actorId) {
             return [];
         }
 

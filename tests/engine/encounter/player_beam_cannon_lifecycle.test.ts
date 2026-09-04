@@ -42,7 +42,7 @@ import {
 } from '../../../src/engine/encounter/model/event';
 
 describe('Player beamCannon lifecycle', () => {
-    it('charges, fires, releases Weapons and cools down', () => {
+    it('charges, fires, releases Gunner and cools down', () => {
         const run =
             createNewRunState();
 
@@ -109,11 +109,11 @@ describe('Player beamCannon lifecycle', () => {
 
         engine.executeCommand({
             role:
-                OFFICER_ROLE.WEAPONS,
+                OFFICER_ROLE.GUNNER,
 
             commandId:
                 ENCOUNTER_OFFICER_COMMAND_ID
-                    .WEAPONS_FIRE_BEAM_CANNON,
+                    .GUNNER_FIRE_BEAM_CANNON,
 
             target: {
                 kind:
@@ -278,13 +278,13 @@ describe('Player beamCannon lifecycle', () => {
         expect(
             engine
                 .getAvailableCommands(
-                    OFFICER_ROLE.WEAPONS,
+                    OFFICER_ROLE.GUNNER,
                 )
                 .filter((command) => {
                     return (
                         command.commandId ===
                         ENCOUNTER_OFFICER_COMMAND_ID
-                            .WEAPONS_FIRE_BEAM_CANNON
+                            .GUNNER_FIRE_BEAM_CANNON
                     );
                 }),
         ).toHaveLength(1);

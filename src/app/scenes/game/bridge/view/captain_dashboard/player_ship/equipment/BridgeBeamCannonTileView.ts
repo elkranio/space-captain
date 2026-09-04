@@ -226,11 +226,11 @@ export default class BridgeBeamCannonTileView {
 
         switch (this.hoverAction) {
             case BEAM_CANNON_HOVER_ACTION.FIRE:
-                this.hoverView.setAction("W", OFFICER_ROLE_COLOR.weapons, "FIRE");
+                this.hoverView.setAction("G", OFFICER_ROLE_COLOR.gunner, "FIRE");
                 break;
 
             case BEAM_CANNON_HOVER_ACTION.CANCEL:
-                this.hoverView.setAction("W", OFFICER_ROLE_COLOR.weapons, "CANCEL");
+                this.hoverView.setAction("G", OFFICER_ROLE_COLOR.gunner, "CANCEL");
                 break;
 
             case BEAM_CANNON_HOVER_ACTION.REPAIR:

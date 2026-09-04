@@ -185,7 +185,7 @@ export default class EnemyWorkExecutor {
 
             elapsedMs: 0,
 
-            durationMs: getTimedOfficerTaskDurationMs(OFFICER_TASK_KIND.SCIENCE_PURGE_SPAM),
+            durationMs: getTimedOfficerTaskDurationMs(OFFICER_TASK_KIND.SCIENTIST_PURGE_SPAM),
         });
     }
 

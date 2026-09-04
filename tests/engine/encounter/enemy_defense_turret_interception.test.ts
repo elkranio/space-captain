@@ -78,7 +78,7 @@ describe('Enemy defense-turret interception', () => {
 
         expect(
             enemy.crewTasks[
-                OFFICER_ROLE.WEAPONS
+                OFFICER_ROLE.GUNNER
             ],
         ).toEqual({
             kind:
@@ -86,7 +86,7 @@ describe('Enemy defense-turret interception', () => {
                     .INTERCEPT_MISSILE,
 
             role:
-                OFFICER_ROLE.WEAPONS,
+                OFFICER_ROLE.GUNNER,
 
             defenseTurretId:
                 'defense_turret_00',
@@ -148,7 +148,7 @@ describe('Enemy defense-turret interception', () => {
 
         expect(
             enemy.crewTasks[
-                OFFICER_ROLE.WEAPONS
+                OFFICER_ROLE.GUNNER
             ],
         ).toBeUndefined();
 

@@ -486,7 +486,7 @@ export default class PlayerShipStore {
             return candidate.id === threatId;
         });
 
-        // Threat may resolve before the Weapons task completes.
+        // Threat may resolve before the Gunner task completes.
         // Charge was already spent at aim start.
         if (projectileIndex < 0) {
             return undefined;

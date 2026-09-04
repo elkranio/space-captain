@@ -29,7 +29,7 @@ export type OperateWeaponShipCrewTaskState = ShipCrewTaskBaseState & {
 export type InterceptMissileShipCrewTaskState = ShipCrewTaskBaseState & {
     kind: typeof SHIP_CREW_TASK_KIND.INTERCEPT_MISSILE;
 
-    role: typeof OFFICER_ROLE.WEAPONS;
+    role: typeof OFFICER_ROLE.GUNNER;
 
     // Runtime id of the installed system.
     defenseTurretId: string;
@@ -51,7 +51,7 @@ export type ClearStickyMineShipCrewTaskState = ShipCrewTaskBaseState & {
 export type PurgeSpamShipCrewTaskState = ShipCrewTaskBaseState & {
     kind: typeof SHIP_CREW_TASK_KIND.PURGE_SPAM;
 
-    role: typeof OFFICER_ROLE.SCIENCE;
+    role: typeof OFFICER_ROLE.SCIENTIST;
 
     channelId: string;
 

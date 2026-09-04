@@ -99,7 +99,7 @@ describe(
                     ),
                 ).toBe(false);
 
-                // Channeling still occupies Science, but its physical
+                // Channeling still occupies Scientist, but its physical
                 // lifetime advances in raw encounter time.
                 expect(
                     doesShipWeaponPhaseAdvanceWithCrew(

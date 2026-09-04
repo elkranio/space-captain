@@ -9,21 +9,21 @@ import EncounterStateStore from "../state/EncounterStateStore";
 type CancellablePlayerWeaponTaskState = Extract<
     OfficerTaskState,
     {
-        kind: typeof OFFICER_TASK_KIND.WEAPONS_FIRE_MISSILE | typeof OFFICER_TASK_KIND.WEAPONS_FIRE_BEAM_CANNON;
+        kind: typeof OFFICER_TASK_KIND.GUNNER_FIRE_MISSILE | typeof OFFICER_TASK_KIND.GUNNER_FIRE_BEAM_CANNON;
     }
 >;
 
-type ScienceFireSpamTaskState = Extract<
+type ScientistFireSpamTaskState = Extract<
     OfficerTaskState,
     {
-        kind: typeof OFFICER_TASK_KIND.SCIENCE_FIRE_SPAM;
+        kind: typeof OFFICER_TASK_KIND.SCIENTIST_FIRE_SPAM;
     }
 >;
 
-type WeaponsFireStickyMinesTaskState = Extract<
+type GunnerFireStickyMinesTaskState = Extract<
     OfficerTaskState,
     {
-        kind: typeof OFFICER_TASK_KIND.WEAPONS_FIRE_STICKY_MINES;
+        kind: typeof OFFICER_TASK_KIND.GUNNER_FIRE_STICKY_MINES;
     }
 >;
 
@@ -34,24 +34,24 @@ type ClearStickyMineTaskState = Extract<
     }
 >;
 
-type HelmFlyToTaskState = Extract<
+type PilotFlyToTaskState = Extract<
     OfficerTaskState,
     {
-        kind: typeof OFFICER_TASK_KIND.HELM_FLY_TO;
+        kind: typeof OFFICER_TASK_KIND.PILOT_FLY_TO;
     }
 >;
 
-type SciencePlotCourseTaskState = Extract<
+type ScientistPlotCourseTaskState = Extract<
     OfficerTaskState,
     {
-        kind: typeof OFFICER_TASK_KIND.SCIENCE_PLOT_COURSE;
+        kind: typeof OFFICER_TASK_KIND.SCIENTIST_PLOT_COURSE;
     }
 >;
 
-type WeaponsDefenseTurretTaskState = Extract<
+type GunnerDefenseTurretTaskState = Extract<
     OfficerTaskState,
     {
-        kind: typeof OFFICER_TASK_KIND.WEAPONS_DEFENSE_TURRET;
+        kind: typeof OFFICER_TASK_KIND.GUNNER_DEFENSE_TURRET;
     }
 >;
 
@@ -71,14 +71,14 @@ export default class OfficerTaskEffects {
 
     public applyCompletion(task: OfficerTaskState): OfficerTaskResult | undefined {
         switch (task.kind) {
-            case OFFICER_TASK_KIND.HELM_FLY_TO:
-                this.resolveHelmFlyToTask(task);
+            case OFFICER_TASK_KIND.PILOT_FLY_TO:
+                this.resolvePilotFlyToTask(task);
                 return undefined;
 
-            case OFFICER_TASK_KIND.SCIENCE_PLOT_COURSE:
-                return this.resolveSciencePlotCourseTask(task);
+            case OFFICER_TASK_KIND.SCIENTIST_PLOT_COURSE:
+                return this.resolveScientistPlotCourseTask(task);
 
-            case OFFICER_TASK_KIND.SCIENCE_PURGE_SPAM:
+            case OFFICER_TASK_KIND.SCIENTIST_PURGE_SPAM:
                 this.combatRunner.purgeSpamChannel(task.channelId);
                 return undefined;
 
@@ -106,23 +106,23 @@ export default class OfficerTaskEffects {
                 return undefined;
             }
 
-            case OFFICER_TASK_KIND.WEAPONS_DEFENSE_TURRET:
-                return this.resolveWeaponsDefenseTurretTask(task);
+            case OFFICER_TASK_KIND.GUNNER_DEFENSE_TURRET:
+                return this.resolveGunnerDefenseTurretTask(task);
 
             // Player weapon lifecycle
             // завершит task снаружи.
-            case OFFICER_TASK_KIND.WEAPONS_FIRE_MISSILE:
-            case OFFICER_TASK_KIND.WEAPONS_FIRE_STICKY_MINES:
-            case OFFICER_TASK_KIND.WEAPONS_FIRE_BEAM_CANNON:
-            case OFFICER_TASK_KIND.SCIENCE_FIRE_SPAM:
+            case OFFICER_TASK_KIND.GUNNER_FIRE_MISSILE:
+            case OFFICER_TASK_KIND.GUNNER_FIRE_STICKY_MINES:
+            case OFFICER_TASK_KIND.GUNNER_FIRE_BEAM_CANNON:
+            case OFFICER_TASK_KIND.SCIENTIST_FIRE_SPAM:
                 return undefined;
 
             case OFFICER_TASK_KIND.CLEAR_STICKY_MINE:
                 return this.resolveClearStickyMineTask(task);
 
-            case OFFICER_TASK_KIND.HELM_DOCK:
-            case OFFICER_TASK_KIND.HELM_JUMP:
-            case OFFICER_TASK_KIND.HELM_EVADE:
+            case OFFICER_TASK_KIND.PILOT_DOCK:
+            case OFFICER_TASK_KIND.PILOT_JUMP:
+            case OFFICER_TASK_KIND.PILOT_EVADE:
                 return undefined;
 
             default:
@@ -132,29 +132,29 @@ export default class OfficerTaskEffects {
 
     public applyCancellation(task: OfficerTaskState): void {
         switch (task.kind) {
-            case OFFICER_TASK_KIND.WEAPONS_FIRE_STICKY_MINES:
-                this.cancelWeaponsFireStickyMinesTask(task);
+            case OFFICER_TASK_KIND.GUNNER_FIRE_STICKY_MINES:
+                this.cancelGunnerFireStickyMinesTask(task);
                 return;
 
-            case OFFICER_TASK_KIND.SCIENCE_FIRE_SPAM:
-                this.cancelScienceFireSpamTask(task);
+            case OFFICER_TASK_KIND.SCIENTIST_FIRE_SPAM:
+                this.cancelScientistFireSpamTask(task);
 
                 return;
 
-            case OFFICER_TASK_KIND.WEAPONS_DEFENSE_TURRET:
+            case OFFICER_TASK_KIND.GUNNER_DEFENSE_TURRET:
                 this.stateStore.finishPlayerDefenseTurretAttempt();
                 return;
 
-            case OFFICER_TASK_KIND.WEAPONS_FIRE_MISSILE:
-            case OFFICER_TASK_KIND.WEAPONS_FIRE_BEAM_CANNON:
+            case OFFICER_TASK_KIND.GUNNER_FIRE_MISSILE:
+            case OFFICER_TASK_KIND.GUNNER_FIRE_BEAM_CANNON:
                 this.cancelResettablePlayerWeaponTask(task);
                 return;
 
-            case OFFICER_TASK_KIND.HELM_FLY_TO:
+            case OFFICER_TASK_KIND.PILOT_FLY_TO:
                 this.stateStore.abortTravel(task.targetAnchorId);
                 return;
 
-            case OFFICER_TASK_KIND.HELM_EVADE:
+            case OFFICER_TASK_KIND.PILOT_EVADE:
                 this.stateStore.stopPlayerEvade();
                 return;
 
@@ -163,7 +163,7 @@ export default class OfficerTaskEffects {
         }
     }
 
-    private cancelScienceFireSpamTask(task: ScienceFireSpamTaskState): void {
+    private cancelScientistFireSpamTask(task: ScientistFireSpamTaskState): void {
         const channelId = this.stateStore.cancelPlayerSpamProjection(task.weaponId);
 
         if (!channelId) {
@@ -187,15 +187,15 @@ export default class OfficerTaskEffects {
         this.stateStore.finishCancelledPlayerWeapon(task.weaponId);
     }
 
-    private cancelWeaponsFireStickyMinesTask(task: WeaponsFireStickyMinesTaskState): void {
+    private cancelGunnerFireStickyMinesTask(task: GunnerFireStickyMinesTaskState): void {
         this.stateStore.cancelPlayerStickyMineDispensing(task.weaponId);
     }
 
-    private resolveHelmFlyToTask(task: HelmFlyToTaskState): void {
+    private resolvePilotFlyToTask(task: PilotFlyToTaskState): void {
         this.stateStore.completeTravel(task.targetAnchorId);
     }
 
-    private resolveSciencePlotCourseTask(task: SciencePlotCourseTaskState): OfficerTaskResult {
+    private resolveScientistPlotCourseTask(task: ScientistPlotCourseTaskState): OfficerTaskResult {
         const anchor = this.stateStore.createJumpPoint(task.targetNodeId);
 
         return {
@@ -205,7 +205,7 @@ export default class OfficerTaskEffects {
         };
     }
 
-    private resolveWeaponsDefenseTurretTask(task: WeaponsDefenseTurretTaskState): OfficerTaskResult | undefined {
+    private resolveGunnerDefenseTurretTask(task: GunnerDefenseTurretTaskState): OfficerTaskResult | undefined {
         const outcome = this.stateStore.fireDefenseTurret(task.threatId);
 
         this.stateStore.finishPlayerDefenseTurretAttempt();

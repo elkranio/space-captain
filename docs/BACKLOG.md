@@ -25,7 +25,7 @@ Confirmed intended behavior, not yet assumed implemented:
 
 - once Evade is committed, its eventual end deals 1 Drive module damage;
 - apply the damage at Evade end, not start;
-- normal completion, manual cancellation and Helm Stun all still apply the damage;
+- normal completion, manual cancellation and Pilot Stun all still apply the damage;
 - generic task `INTERRUPT` should not cancel an active Evade;
 - the final Drive integrity point can power one last Evade and break when it ends.
 
@@ -34,9 +34,9 @@ Confirmed intended behavior, not yet assumed implemented:
 Confirmed intended dependency:
 
 1. Drive must be operational.
-2. Helm performs the timed Escape task.
+2. Pilot performs the timed Escape task.
 3. Other officers do not need to be idle.
-4. Helm interruption/Stun loses current Escape progress; the next attempt starts from zero.
+4. Pilot interruption/Stun loses current Escape progress; the next attempt starts from zero.
 5. Successful Escape ends and cleans the encounter; the old fight is not resumed later.
 
 Remove any generic `all officers idle` requirement from local travel/escape paths when those paths are next touched. For

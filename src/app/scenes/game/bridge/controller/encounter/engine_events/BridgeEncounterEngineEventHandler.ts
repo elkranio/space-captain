@@ -168,7 +168,7 @@ export default class BridgeEncounterEngineEventHandler {
                 }
 
                 if (
-                    event.task.kind === OFFICER_TASK_KIND.WEAPONS_FIRE_BEAM_CANNON &&
+                    event.task.kind === OFFICER_TASK_KIND.GUNNER_FIRE_BEAM_CANNON &&
                     event.outcome === OFFICER_TASK_OUTCOME.CANCELLED
                 ) {
                     this.eventBus.emit(BRIDGE_EVENT.PLAYER_BEAM_CANNON_CHARGING_CLEARED, {
