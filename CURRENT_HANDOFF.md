@@ -174,18 +174,33 @@ Rules:
 TexturePacker recursively derives atlas frame keys from `assets/raw/images`; TS manifests must match those relative paths
 without `.png`.
 
-## Next continuation — equipment cooldown timing
+## Beam target-selection UI — FIRST ATOM LANDED
 
-The documentation audit is complete; the agreed cooldown corrections are not implemented. Resume with the per-system
+The player Beam tile now enters presentation-only target selection instead of immediately issuing the actor-wide command.
+The selected tile keeps `G CANCEL`; other own equipment tiles dim and their existing input surfaces are disabled.
+The Beam outline and header background highlight only on hover; the cancel label stays visible without hover.
+Enemy equipment outlines pulse together and hover shows `G FIRE`. Re-clicking the selected Beam cancels for free.
+Gunner stays free and CORE is not spent. Snapshot updates preserve selection, or close it when availability/targets vanish.
+
+This atom only previews enemy equipment targets: clicking one does not fire yet. HULL and empty slots do not highlight.
+No new assets were needed.
+
+Next: carry an actual selected enemy slot through the Beam command/task/runner and resolve equipment damage. Restore other
+own tiles when charging starts, then add the pulsing crosshair on the committed target. Future Gunner Stun must cancel
+pre-command selection; Stun itself is not implemented. HULL will use its pip area; the Bridge module comes later.
+
+## Deferred correction — equipment cooldown timing
+
+The agreed cooldown corrections are not implemented. Follow the per-system
 "Equipment cooldown and cancellation" table in `docs/GAME_DESIGN.md` and the implementation checklist in `docs/BACKLOG.md`.
 `docs/GAMEPLAY_CONTRACTS.md` records the current code behavior, including overlapping recovery and player/enemy differences.
 
 Preserve free Missile-targeting cancellation and SPAM's lack of manual cancellation. Other allowed termination paths use
 a full cooldown. Keep this work narrow; Evade Drive wear is a separate explicit TODO, not an already-landed cost.
 
-## Following gameplay slice — player Beam semantic targeting
+## Next gameplay slice — player Beam semantic targeting
 
-The persistent enemy board prerequisite is now landed. After the cooldown work, inspect the current Beam
+The persistent enemy board and first target-selection UI atom are landed. Inspect the current Beam
 command/task/runner/read path and replace actor-wide player Beam targeting with a semantic target carried end-to-end:
 
 ```text
@@ -194,8 +209,8 @@ or
 SLOT(slotId)
 ```
 
-Use the already-visible ENEMY SHIP Hull/equipment surfaces as the interaction language. Do not create another temporary
-modal target picker unless the engine contract proves one is necessary.
+Start with the already-visible ENEMY SHIP equipment tiles. Hull targeting via the Hull pip area and the future Bridge
+module are outside this first targeting slice. Do not add a modal target picker.
 
 After that:
 
@@ -241,7 +256,7 @@ Still avoid touching these unrelated holdouts without a concrete reason:
 
 ## Next-chat continuation
 
-Read this file and follow the applicable local/Web Chat baseline in `docs/WORKING_RULES.md`, then inspect the equipment
-lifecycle owners and timing tests against the confirmed cooldown table in `docs/GAME_DESIGN.md`.
+Read this file and follow the applicable local/Web Chat baseline in `docs/WORKING_RULES.md`, then inspect the Beam
+selection controller, command/task/runner and enemy equipment read model.
 
-Start with **equipment cooldown timing** unless the user explicitly changes priority; Beam `HULL | SLOT(slotId)` follows.
+Continue with **Beam targeting via enemy equipment tiles** unless the user explicitly changes priority.

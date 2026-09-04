@@ -51,6 +51,7 @@ export default class BridgeSpamProjectorTileView {
     private chromeColor: number = FONT_COLOR.PRIMARY;
 
     private pointerOver = false;
+    private interactionEnabled = true;
 
     private hoverAction: SpamProjectorHoverAction = SPAM_PROJECTOR_HOVER_ACTION.NONE;
 
@@ -125,6 +126,21 @@ export default class BridgeSpamProjectorTileView {
 
     public getRoot(): Phaser.GameObjects.Container {
         return this.root;
+    }
+
+    public setInteractionEnabled(enabled: boolean): void {
+        if (this.interactionEnabled === enabled) {
+            return;
+        }
+
+        this.interactionEnabled = enabled;
+        if (enabled) {
+            this.hitArea.setInteractive({ useHandCursor: true });
+        } else {
+            this.pointerOver = false;
+            this.hitArea.disableInteractive();
+        }
+        this.renderHover();
     }
 
     public setPosition(x: number, y: number): void {
@@ -243,7 +259,7 @@ export default class BridgeSpamProjectorTileView {
     }
 
     private handlePointerUp(): void {
-        if (this.hoverAction === SPAM_PROJECTOR_HOVER_ACTION.NONE) {
+        if (!this.interactionEnabled || this.hoverAction === SPAM_PROJECTOR_HOVER_ACTION.NONE) {
             return;
         }
 

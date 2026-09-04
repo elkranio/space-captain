@@ -185,6 +185,18 @@ own system selected
 -> target selected
 ```
 
+Beam selection uses the existing equipment tile grammar:
+
+- the selected own Beam keeps `G CANCEL` visible; its bright outline and header background appear only on hover;
+- other own equipment tiles dim and stop accepting input while selecting; their live state remains visible;
+- occupied enemy equipment tiles pulse their outlines together; hover replaces the title with `G FIRE` and a steady outline;
+- re-clicking the own Beam exits selection; selecting alone spends no CORE and occupies no officer;
+- the first UI atom previews selection only; accepting a target and firing are the next implementation slice.
+
+After a real target is accepted, own tiles regain normal input and Beam shows charging progress. A pulsing micro crosshair
+at the target tile's top-right will mark the committed attack; this marker is not implemented yet. Future Gunner Stun must
+close pre-command selection. Hull will be targeted through its pip area; a Bridge module will be added later.
+
 Prefer spatial selection on already-visible ship slots/HULL presentation and concrete threats over modal UI when it
 remains clear. Do not invent a BRIDGE target merely because an older mockup contained a BRIDGE block.
 

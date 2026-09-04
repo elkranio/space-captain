@@ -72,6 +72,10 @@ gating, repair behavior or targeted damage. Those mechanics remain explicit foll
 Current player Beam still targets the enemy actor as a whole. Semantic `HULL | SLOT(slotId)` player targeting remains
 future work.
 
+The dashboard now intercepts the ready Beam click to open a presentation-only equipment-target preview. Re-clicking the
+selected Beam closes it without issuing a command. Other own tiles dim and lose input; enemy equipment outlines pulse
+and hover shows `G FIRE`. Enemy-tile clicks do not issue a command yet. Engine command/task/damage semantics are unchanged.
+
 ## Weapon lifecycle and cooldown commitment
 
 Reaction time comes from each weapon's real lifecycle rather than a universal fake pre-warning phase.

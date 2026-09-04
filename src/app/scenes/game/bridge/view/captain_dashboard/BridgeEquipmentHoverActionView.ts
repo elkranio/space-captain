@@ -14,11 +14,13 @@ export default class BridgeEquipmentHoverActionView {
     private readonly roleText: Phaser.GameObjects.BitmapText;
 
     private readonly actionText: Phaser.GameObjects.BitmapText;
+    private readonly headerBackground: Phaser.GameObjects.Rectangle;
+    private readonly outline: BridgeEquipmentSlotChromeView;
 
     constructor(scene: BridgeScene, width: number, height: number) {
         this.root = scene.add.container(0, 0).setVisible(false);
 
-        const headerBackground = scene.add
+        this.headerBackground = scene.add
             .rectangle(
                 0,
                 0,
@@ -29,7 +31,7 @@ export default class BridgeEquipmentHoverActionView {
             )
             .setOrigin(0, 0);
 
-        const outline = new BridgeEquipmentSlotChromeView(
+        this.outline = new BridgeEquipmentSlotChromeView(
             scene,
             width,
             height,
@@ -58,10 +60,10 @@ export default class BridgeEquipmentHoverActionView {
             .setTint(FONT_COLOR.PRIMARY);
 
         this.root.add([
-            headerBackground,
+            this.headerBackground,
             this.roleText,
             this.actionText,
-            outline.getRoot(),
+            this.outline.getRoot(),
         ]);
     }
 
@@ -71,6 +73,11 @@ export default class BridgeEquipmentHoverActionView {
 
     public setVisible(visible: boolean): void {
         this.root.setVisible(visible);
+    }
+
+    public setHighlighted(highlighted: boolean): void {
+        this.headerBackground.setVisible(highlighted);
+        this.outline.setVisible(highlighted);
     }
 
     public setAction(

@@ -58,11 +58,6 @@
                 "slotId": "defense_02",
                 "type": "shield_generator",
                 "equipmentId": "shield_generator_basic_00"
-            },
-            {
-                "slotId": "weapon_01",
-                "type": "weapon",
-                "equipmentId": "missile_launcher_00"
             }
         ]
     }

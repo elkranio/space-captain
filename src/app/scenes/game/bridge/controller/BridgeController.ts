@@ -6,6 +6,7 @@ import BridgeEventBus from "../events/BridgeEventBus";
 import { BRIDGE_EVENT, type BridgeSceneTransitionRequestedPayload } from "../events/bridge_event";
 import BridgeView from "../view/BridgeView";
 import BridgeEncounterController from "./encounter/BridgeEncounterController";
+import BridgeBeamTargetSelectionController from "./captain_dashboard/BridgeBeamTargetSelectionController";
 
 // Root-controller bridge scene.
 //
@@ -23,6 +24,7 @@ export default class BridgeController {
     private readonly view: BridgeView;
 
     private readonly encounterController: BridgeEncounterController;
+    private readonly beamTargetSelectionController: BridgeBeamTargetSelectionController;
 
     // #endregion
 
@@ -33,6 +35,8 @@ export default class BridgeController {
 
         this.view = new BridgeView(this.scene, this.eventBus);
 
+        this.beamTargetSelectionController = new BridgeBeamTargetSelectionController(this.eventBus);
+
         this.encounterController = new BridgeEncounterController(this.eventBus);
     }
 
@@ -40,6 +44,8 @@ export default class BridgeController {
         this.unregisterBridgeEventHandlers();
 
         this.encounterController.destroy();
+
+        this.beamTargetSelectionController.destroy();
 
         this.view.destroy();
 

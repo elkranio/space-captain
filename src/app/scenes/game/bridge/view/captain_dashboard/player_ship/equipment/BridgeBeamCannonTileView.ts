@@ -55,6 +55,8 @@ export default class BridgeBeamCannonTileView {
     private chromeColor: number = FONT_COLOR.PRIMARY;
 
     private pointerOver = false;
+    private interactionEnabled = true;
+    private selectingTarget = false;
 
     private hoverAction: BeamCannonHoverAction = BEAM_CANNON_HOVER_ACTION.NONE;
 
@@ -129,6 +131,21 @@ export default class BridgeBeamCannonTileView {
         return this.root;
     }
 
+    public setInteractionEnabled(enabled: boolean): void {
+        if (this.interactionEnabled === enabled) {
+            return;
+        }
+
+        this.interactionEnabled = enabled;
+        if (enabled) {
+            this.hitArea.setInteractive({ useHandCursor: true });
+        } else {
+            this.pointerOver = false;
+            this.hitArea.disableInteractive();
+        }
+        this.renderHover();
+    }
+
     public setPosition(x: number, y: number): void {
         this.root.setPosition(x, y);
     }
@@ -147,6 +164,11 @@ export default class BridgeBeamCannonTileView {
 
     public setHoverAction(action: BeamCannonHoverAction): void {
         this.hoverAction = action;
+        this.renderHover();
+    }
+
+    public setSelectingTarget(selecting: boolean): void {
+        this.selectingTarget = selecting;
         this.renderHover();
     }
 
@@ -215,6 +237,15 @@ export default class BridgeBeamCannonTileView {
     }
 
     private renderHover(): void {
+        this.hoverView.setHighlighted(this.pointerOver);
+
+        if (this.selectingTarget) {
+            this.titleText.setVisible(false);
+            this.hoverView.setVisible(true);
+            this.hoverView.setAction("G", OFFICER_ROLE_COLOR.gunner, "CANCEL");
+            return;
+        }
+
         const showAction = this.pointerOver && this.hoverAction !== BEAM_CANNON_HOVER_ACTION.NONE;
 
         this.titleText.setVisible(!showAction);
@@ -254,7 +285,7 @@ export default class BridgeBeamCannonTileView {
     }
 
     private handlePointerUp(): void {
-        if (this.hoverAction === BEAM_CANNON_HOVER_ACTION.NONE) {
+        if (!this.interactionEnabled || this.hoverAction === BEAM_CANNON_HOVER_ACTION.NONE) {
             return;
         }
 

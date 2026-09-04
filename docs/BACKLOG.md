@@ -43,7 +43,7 @@ The current per-system timing table and source/test references live in `GAMEPLAY
 - preserve spent CORE and launched-mine costs, and retain unlaunched ammunition;
 - update timing tests deliberately: some currently require the old overlapping recovery behavior.
 
-This is the next gameplay continuation, before Beam semantic targeting. Inspect exact source/tests and split the work into
+Current priority lives in `CURRENT_HANDOFF.md` at the repository root. Inspect exact source/tests and split the work into
 narrow atoms as needed. Documentation corrections have not implemented these timing changes. Evade Drive wear remains
 the explicit TODO above; do not assume it is already wired at the new cooldown boundary.
 

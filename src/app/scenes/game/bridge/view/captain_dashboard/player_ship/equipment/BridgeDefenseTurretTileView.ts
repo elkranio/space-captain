@@ -53,6 +53,7 @@ export default class BridgeDefenseTurretTileView {
     private targetsAvailable = false;
 
     private interactionEnabled = true;
+    private selectionBlocked = false;
 
     private pointerOver = false;
 
@@ -164,7 +165,20 @@ export default class BridgeDefenseTurretTileView {
 
         this.interactionEnabled = enabled;
 
-        if (enabled) {
+        this.syncInteraction();
+    }
+
+    public setSelectionBlocked(blocked: boolean): void {
+        if (this.selectionBlocked === blocked) {
+            return;
+        }
+        this.selectionBlocked = blocked;
+        this.syncInteraction();
+    }
+
+    private syncInteraction(): void {
+
+        if (this.interactionEnabled && !this.selectionBlocked) {
             this.interactionHitArea.setInteractive({ useHandCursor: true });
         } else {
             this.pointerOver = false;
@@ -257,7 +271,7 @@ export default class BridgeDefenseTurretTileView {
     }
 
     private renderHover(): void {
-        const showAction = this.pointerOver && this.interactionEnabled;
+        const showAction = this.pointerOver && this.interactionEnabled && !this.selectionBlocked;
 
         this.titleText.setVisible(!showAction);
         this.targetIndicator.setVisible(this.targetsAvailable && !showAction);

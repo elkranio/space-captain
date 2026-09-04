@@ -54,6 +54,7 @@ export default class BridgeStickyMineDispenserTileView {
     private chromeColor: number = FONT_COLOR.PRIMARY;
 
     private pointerOver = false;
+    private interactionEnabled = true;
 
     private hoverAction: StickyMineDispenserHoverAction = STICKY_MINE_DISPENSER_HOVER_ACTION.NONE;
 
@@ -126,6 +127,21 @@ export default class BridgeStickyMineDispenserTileView {
 
     public getRoot(): Phaser.GameObjects.Container {
         return this.root;
+    }
+
+    public setInteractionEnabled(enabled: boolean): void {
+        if (this.interactionEnabled === enabled) {
+            return;
+        }
+
+        this.interactionEnabled = enabled;
+        if (enabled) {
+            this.hitArea.setInteractive({ useHandCursor: true });
+        } else {
+            this.pointerOver = false;
+            this.hitArea.disableInteractive();
+        }
+        this.renderHover();
     }
 
     public setPosition(x: number, y: number): void {
@@ -249,7 +265,7 @@ export default class BridgeStickyMineDispenserTileView {
     }
 
     private handlePointerUp(): void {
-        if (this.hoverAction === STICKY_MINE_DISPENSER_HOVER_ACTION.NONE) {
+        if (!this.interactionEnabled || this.hoverAction === STICKY_MINE_DISPENSER_HOVER_ACTION.NONE) {
             return;
         }
 

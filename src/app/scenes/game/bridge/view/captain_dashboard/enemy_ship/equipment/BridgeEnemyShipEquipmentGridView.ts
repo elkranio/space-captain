@@ -6,6 +6,7 @@ import {
     type BridgeEquipmentSlotPayload,
 } from "../../../../events/bridge_event";
 import { CAPTAIN_DASHBOARD_LAYOUT } from "../../captain_dashboard_layout";
+import { CAPTAIN_DASHBOARD_STYLE } from "../../captain_dashboard_style";
 import BridgeEquipmentSlotChromeView from "../../BridgeEquipmentSlotChromeView";
 import BridgeEnemyEquipmentTileView from "./BridgeEnemyEquipmentTileView";
 
@@ -17,6 +18,8 @@ export default class BridgeEnemyShipEquipmentGridView {
     private readonly root: Phaser.GameObjects.Container;
 
     private readonly tiles = new Map<string, BridgeEnemyEquipmentTileView>();
+    private selectingTarget = false;
+    private pulseElapsedMs = 0;
 
     private readonly slotWidth: number;
 
@@ -58,6 +61,8 @@ export default class BridgeEnemyShipEquipmentGridView {
             this.handleDashboardUpdated,
             this,
         );
+        this.eventBus.on(BRIDGE_EVENT.BEAM_TARGET_SELECTION_UPDATED, this.handleBeamSelectionUpdated, this);
+        this.scene.events.on(Phaser.Scenes.Events.UPDATE, this.handleSceneUpdate, this);
     }
 
     public getRoot(): Phaser.GameObjects.Container {
@@ -69,6 +74,8 @@ export default class BridgeEnemyShipEquipmentGridView {
     }
 
     public destroy(): void {
+        this.eventBus.off(BRIDGE_EVENT.BEAM_TARGET_SELECTION_UPDATED, this.handleBeamSelectionUpdated, this);
+        this.scene.events.off(Phaser.Scenes.Events.UPDATE, this.handleSceneUpdate, this);
         this.eventBus.off(
             BRIDGE_EVENT.ENEMY_SHIP_DASHBOARD_UPDATED,
             this.handleDashboardUpdated,
@@ -108,6 +115,7 @@ export default class BridgeEnemyShipEquipmentGridView {
 
             tile.setPosition(position.x, position.y);
             tile.update(equipment);
+            tile.setTargetSelectionEnabled(this.selectingTarget);
         }
 
         for (const [equipmentId, tile] of this.tiles) {
@@ -144,6 +152,29 @@ export default class BridgeEnemyShipEquipmentGridView {
             x: displayColumn * (this.slotWidth + GRID.columnGap),
             y: row * (this.slotHeight + GRID.rowGap),
         };
+    }
+
+    private handleBeamSelectionUpdated(weaponId: string | null): void {
+        this.selectingTarget = weaponId !== null;
+        this.pulseElapsedMs = 0;
+        for (const tile of this.tiles.values()) {
+            tile.setTargetSelectionEnabled(this.selectingTarget);
+            tile.setTargetPulse(1);
+        }
+    }
+
+    private handleSceneUpdate(_time: number, deltaMs: number): void {
+        if (!this.selectingTarget) {
+            return;
+        }
+
+        const style = CAPTAIN_DASHBOARD_STYLE.targetSelection;
+        this.pulseElapsedMs = (this.pulseElapsedMs + deltaMs) % (style.pulseDurationMs * 2);
+        const wave = (1 + Math.cos(Math.PI * this.pulseElapsedMs / style.pulseDurationMs)) / 2;
+        const alpha = style.pulseMinAlpha + (1 - style.pulseMinAlpha) * wave;
+        for (const tile of this.tiles.values()) {
+            tile.setTargetPulse(alpha);
+        }
     }
 
     private clearTiles(): void {

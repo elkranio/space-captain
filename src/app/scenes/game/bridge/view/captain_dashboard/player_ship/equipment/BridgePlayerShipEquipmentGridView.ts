@@ -12,6 +12,7 @@ import {
     type BridgePlayerWeaponDashboardPayload,
 } from "../../../../events/bridge_event";
 import { CAPTAIN_DASHBOARD_LAYOUT } from "../../captain_dashboard_layout";
+import { CAPTAIN_DASHBOARD_STYLE } from "../../captain_dashboard_style";
 import BridgeEquipmentSlotChromeView from "../../BridgeEquipmentSlotChromeView";
 import BridgeBeamCannonTileView, {
     BEAM_CANNON_HOVER_ACTION,
@@ -65,6 +66,7 @@ export default class BridgePlayerShipEquipmentGridView {
     private driveTile?: BridgeDriveTileView;
 
     private readonly weaponsById = new Map<string, BridgePlayerWeaponDashboardPayload>();
+    private selectedBeamId: string | null = null;
 
     private readonly slotWidth: number;
 
@@ -103,6 +105,7 @@ export default class BridgePlayerShipEquipmentGridView {
         }
 
         this.eventBus.on(BRIDGE_EVENT.PLAYER_SHIP_DASHBOARD_UPDATED, this.handleDashboardUpdated, this);
+        this.eventBus.on(BRIDGE_EVENT.BEAM_TARGET_SELECTION_UPDATED, this.handleBeamSelectionUpdated, this);
     }
 
     public getRoot(): Phaser.GameObjects.Container {
@@ -115,6 +118,7 @@ export default class BridgePlayerShipEquipmentGridView {
 
     public destroy(): void {
         this.eventBus.off(BRIDGE_EVENT.PLAYER_SHIP_DASHBOARD_UPDATED, this.handleDashboardUpdated, this);
+        this.eventBus.off(BRIDGE_EVENT.BEAM_TARGET_SELECTION_UPDATED, this.handleBeamSelectionUpdated, this);
 
         for (const tile of this.missileLauncherTiles.values()) {
             tile.destroy();
@@ -253,6 +257,40 @@ export default class BridgePlayerShipEquipmentGridView {
             tile.destroy();
             this.spamProjectorTiles.delete(weaponId);
         }
+
+        this.renderBeamSelection();
+    }
+
+    private handleBeamSelectionUpdated(weaponId: string | null): void {
+        this.selectedBeamId = weaponId;
+        this.renderBeamSelection();
+    }
+
+    private renderBeamSelection(): void {
+        const selecting = this.selectedBeamId !== null;
+        const otherAlpha = selecting ? CAPTAIN_DASHBOARD_STYLE.targetSelection.blockedTileAlpha : 1;
+
+        for (const [weaponId, tile] of this.beamCannonTiles) {
+            const selected = weaponId === this.selectedBeamId;
+            tile.setSelectingTarget(selected);
+            tile.setInteractionEnabled(!selecting || selected);
+            tile.getRoot().setAlpha(selected ? 1 : otherAlpha);
+        }
+
+        for (const tile of [
+            ...this.missileLauncherTiles.values(),
+            ...this.stickyMineDispenserTiles.values(),
+            ...this.spamProjectorTiles.values(),
+        ]) {
+            tile.setInteractionEnabled(!selecting);
+            tile.getRoot().setAlpha(otherAlpha);
+        }
+
+        this.defenseTurretTile?.setSelectionBlocked(selecting);
+        this.defenseTurretTile?.getRoot().setAlpha(otherAlpha);
+        // These two tiles currently have no input surfaces of their own.
+        this.shieldGeneratorTile?.getRoot().setAlpha(otherAlpha);
+        this.driveTile?.getRoot().setAlpha(otherAlpha);
     }
 
     private getEquipmentPosition(
@@ -672,6 +710,13 @@ export default class BridgePlayerShipEquipmentGridView {
     }
 
     private handleWeaponActionRequested(weaponId: string): void {
+        if (this.selectedBeamId !== null) {
+            if (this.selectedBeamId === weaponId) {
+                this.eventBus.emit(BRIDGE_EVENT.BEAM_TARGET_SELECTION_REQUESTED, { weaponId });
+            }
+            return;
+        }
+
         const weapon = this.weaponsById.get(weaponId);
 
         if (!weapon) {
@@ -679,6 +724,11 @@ export default class BridgePlayerShipEquipmentGridView {
         }
 
         if (weapon.action.state === BRIDGE_PLAYER_SYSTEM_ACTION_STATE.ACTIVE && weapon.action.command) {
+            if (weapon.kind === SHIP_WEAPON_KIND.BEAM_CANNON) {
+                this.eventBus.emit(BRIDGE_EVENT.BEAM_TARGET_SELECTION_REQUESTED, { weaponId });
+                return;
+            }
+
             this.eventBus.emit(BRIDGE_EVENT.OFFICER_COMMAND_SELECTED, weapon.action.command);
             return;
         }

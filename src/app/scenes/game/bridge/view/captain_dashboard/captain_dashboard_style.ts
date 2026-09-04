@@ -4,6 +4,11 @@
 // Coordinates and sizes stay beside each concrete view while they are
 // still evolving. Only repeated visual semantics live here.
 export const CAPTAIN_DASHBOARD_STYLE = {
+    targetSelection: {
+        blockedTileAlpha: 0.4,
+        pulseMinAlpha: 0.3,
+        pulseDurationMs: 900,
+    },
     header: {
         dividerColor: 0x31465b,
     },

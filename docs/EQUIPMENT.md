@@ -95,7 +95,7 @@ already BROKEN equipment in targeted slot
     -> hullDamage * 2
 ```
 
-The dual dashboards now provide the target surfaces. Player Beam semantic targeting follows the cooldown correction;
+The dual dashboards now provide the target surfaces. Player Beam target-selection UI is landed as a preview;
 see `CURRENT_HANDOFF.md` at the repository root for the current continuation.
 
 ## Current equipment overview
@@ -410,6 +410,9 @@ Current player Beam:
 - charges/fires/cools down;
 - spends its content-defined Power Core cost when charging begins;
 - currently targets the enemy actor as a whole.
+
+The dashboard's ready-Beam click now opens a target-selection preview without starting charging. Accepting an enemy
+equipment tile and carrying its semantic target into this runtime path remain the next atom.
 
 Beam Cannon state now carries encounter-local integrity.
 
