@@ -1,3 +1,4 @@
+// src/app/scenes/game/bridge/view/captain_dashboard/captain_dashboard_style.ts
 // Shared visual tokens for the captain dashboard.
 //
 // This is intentionally not a geometry/layout system.
@@ -11,6 +12,7 @@ export const CAPTAIN_DASHBOARD_STYLE = {
     },
     header: {
         dividerColor: 0x31465b,
+        targetHoverHeaderAlpha: 0.35,
     },
 
     powerCore: {
@@ -56,5 +58,4 @@ export const CAPTAIN_DASHBOARD_STYLE = {
         filledColor: 0x71c651,
         emptyAlpha: 0.24,
     },
-
 } as const;

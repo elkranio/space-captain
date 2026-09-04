@@ -52,7 +52,7 @@ export default class BridgeHeaderTargetView {
                 1,
                 TILE.hoverHeaderHeight,
                 FONT_COLOR.PRIMARY,
-                CAPTAIN_DASHBOARD_STYLE.equipmentSlot.hoverHeaderAlpha,
+                CAPTAIN_DASHBOARD_STYLE.header.targetHoverHeaderAlpha,
             )
             .setOrigin(0, 0)
             .setVisible(false);
