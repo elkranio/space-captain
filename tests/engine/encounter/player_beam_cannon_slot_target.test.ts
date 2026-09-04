@@ -128,7 +128,10 @@ describe('player Beam semantic slot targeting', () => {
             const task = start(fixture, 'drive');
             const beforeHull = targetActor.hull;
             const beforeIntegrity = targetActor.drive.integrity;
-            expect(getEnemyShipDashboardSnapshots(state)[0].beamTargetSlotId).toBe('drive');
+            expect(getEnemyShipDashboardSnapshots(state)[0].beamTarget).toEqual({
+                kind: 'slot',
+                slotId: 'drive',
+            });
             if (termination === 'cancel') engine.cancelTask(task.id);
             if (termination === 'slot-lost') {
                 targetActor.mounts = targetActor.mounts.filter((mount) => mount.slotId !== 'drive');
@@ -145,7 +148,7 @@ describe('player Beam semantic slot targeting', () => {
             }
             engine.step(1);
             expect(engine.getOfficerTasks()).toEqual([]);
-            expect(getEnemyShipDashboardSnapshots(state).every((item) => !item.beamTargetSlotId)).toBe(true);
+            expect(getEnemyShipDashboardSnapshots(state).every((item) => item.beamTarget === undefined)).toBe(true);
             engine.step(definition.chargeDurationMs);
             expect(engine.drainEvents().some((event) => event.type === ENCOUNTER_EVENT.PLAYER_BEAM_CANNON_FIRED))
                 .toBe(false);

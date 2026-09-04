@@ -2,6 +2,7 @@
 import type BridgeScene from "../../../../BridgeScene";
 import {
     BRIDGE_EVENT,
+    type BridgeBeamTargetSelectedPayload,
     type BridgeEnemyShipDashboardUpdatedPayload,
 } from "../../../../events/bridge_event";
 import type BridgeEventBus from "../../../../events/BridgeEventBus";
@@ -13,6 +14,7 @@ export default class BridgeEnemyShipHeaderView {
     private readonly headerView: BridgeShipDashboardHeaderView;
     private selectingTarget = false;
     private pulseElapsedMs = 0;
+    private actorId?: string;
 
     constructor(
         private readonly scene: BridgeScene,
@@ -24,6 +26,10 @@ export default class BridgeEnemyShipHeaderView {
             scene,
             width,
             height,
+            {
+                onHullTargetSelected: () => this.handleHeaderTargetSelected({ kind: "hull" }),
+                onBridgeTargetSelected: () => this.handleHeaderTargetSelected({ kind: "bridge" }),
+            },
         );
         this.headerView.setVisible(false);
         this.headerView.setPowerCoreVisible(false);
@@ -69,14 +75,20 @@ export default class BridgeEnemyShipHeaderView {
         payload: BridgeEnemyShipDashboardUpdatedPayload,
     ): void {
         if (!payload) {
+            this.actorId = undefined;
             this.headerView.setVisible(false);
             this.headerView.clearHull();
+            this.headerView.setHullTargetLocked(false);
+            this.headerView.setBridgeTargetLocked(false);
             this.clearPowerCore();
             return;
         }
 
+        this.actorId = payload.actorId;
         this.headerView.setVisible(true);
         this.headerView.setHull(payload.hull.current, payload.hull.max);
+        this.headerView.setHullTargetLocked(payload.beamTarget?.kind === "hull");
+        this.headerView.setBridgeTargetLocked(payload.beamTarget?.kind === "bridge");
 
         const powerCore = payload.powerCore;
 
@@ -91,6 +103,17 @@ export default class BridgeEnemyShipHeaderView {
             powerCore.max,
             powerCore.rechargeProgress,
         );
+    }
+
+    private handleHeaderTargetSelected(node: BridgeBeamTargetSelectedPayload["node"]): void {
+        if (!this.actorId) {
+            return;
+        }
+
+        this.eventBus.emit(BRIDGE_EVENT.BEAM_TARGET_SELECTED, {
+            actorId: this.actorId,
+            node,
+        });
     }
 
     private handleBeamSelectionUpdated(weaponId: string | null): void {

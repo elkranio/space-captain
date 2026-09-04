@@ -145,6 +145,14 @@ export default class PlayerBeamCannonRunner {
             };
         }
 
+        if (task.target.kind === "bridge") {
+            return {
+                outcome: BEAM_CANNON_SHOT_OUTCOME.HIT,
+                damage: 0,
+                remainingHull: target.hull,
+            };
+        }
+
         let hullDamage = definition.hullDamage;
         if (task.target.kind === "slot") {
             const equipment = findShipSlotEquipment(target, task.target.slotId);
@@ -197,8 +205,11 @@ export default class PlayerBeamCannonRunner {
     private hasValidTarget(task: GunnerFireBeamCannonTaskState): boolean {
         const actor = this.options.stateStore.findActorById(task.targetActorId);
 
-        return actor?.team === ENCOUNTER_TEAM.ENEMY &&
-            (task.target.kind === "hull" || !!findShipSlotEquipment(actor, task.target.slotId));
+        if (!actor || actor.team !== ENCOUNTER_TEAM.ENEMY) {
+            return false;
+        }
+
+        return task.target.kind !== "slot" || !!findShipSlotEquipment(actor, task.target.slotId);
     }
 
     private getDefinition(beamCannon: BeamCannonState): BeamCannonDefinition {

@@ -117,6 +117,12 @@ export function mapEnemyShipToBridgeDashboardPayload(
             ...snapshot.hull,
         },
 
+        ...(snapshot.beamTarget
+            ? {
+                  beamTarget: { ...snapshot.beamTarget },
+              }
+            : {}),
+
         equipment,
     };
 }
@@ -130,7 +136,9 @@ function mapEquipment(
     const slot = getEquipmentSlot(equipment.id, dashboard);
     return {
         slotId: slot.id,
-        targetLocked: dashboard.beamTargetSlotId === slot.id,
+        targetLocked:
+            dashboard.beamTarget?.kind === "slot" &&
+            dashboard.beamTarget.slotId === slot.id,
         id: equipment.id,
         shortName,
 

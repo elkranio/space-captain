@@ -112,7 +112,8 @@ export default class BridgeEnemyShipEquipmentGridView {
                     equipment.sprite,
                     (slotId) => {
                         if (this.actorId) this.eventBus.emit(BRIDGE_EVENT.BEAM_TARGET_SELECTED, {
-                            actorId: this.actorId, slotId,
+                            actorId: this.actorId,
+                            node: { kind: "slot", slotId },
                         });
                     },
                 );

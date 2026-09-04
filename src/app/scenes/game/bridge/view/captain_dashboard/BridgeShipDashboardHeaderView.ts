@@ -11,6 +11,11 @@ const OFFICER_STATUS_LABELS = ["P", "E", "G", "S"] as const;
 const HULL_TARGET_RIGHT_PADDING = 16;
 const BRIDGE_TARGET_LEFT_PADDING = 14;
 
+type BridgeShipDashboardHeaderTargetCallbacks = {
+    onHullTargetSelected?: () => void;
+    onBridgeTargetSelected?: () => void;
+};
+
 // Shared HULL / Power Core / officer status / divider presentation for both ship dashboards.
 // Player and enemy wrappers keep their own event mapping and visibility policy.
 export default class BridgeShipDashboardHeaderView {
@@ -32,6 +37,7 @@ export default class BridgeShipDashboardHeaderView {
         scene: BridgeScene,
         private readonly width: number,
         private readonly height: number,
+        targetCallbacks: BridgeShipDashboardHeaderTargetCallbacks = {},
     ) {
         this.root = scene.add.container(0, 0);
 
@@ -76,8 +82,16 @@ export default class BridgeShipDashboardHeaderView {
             )
             .setOrigin(0, 0);
 
-        this.hullTargetView = new BridgeHeaderTargetView(scene, "left");
-        this.bridgeTargetView = new BridgeHeaderTargetView(scene, "right");
+        this.hullTargetView = new BridgeHeaderTargetView(
+            scene,
+            "left",
+            targetCallbacks.onHullTargetSelected,
+        );
+        this.bridgeTargetView = new BridgeHeaderTargetView(
+            scene,
+            "right",
+            targetCallbacks.onBridgeTargetSelected,
+        );
         this.layoutTargetViews();
 
         this.root.add([

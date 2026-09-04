@@ -117,4 +117,47 @@ describe('Player beamCannon damage', () => {
 
         },
     );
+
+    it(
+        'fires through the full Beam lifecycle at the bridge without applying damage yet',
+        () => {
+            const {
+                engine,
+                targetActor,
+            } = createAnchoredPlayerCombatTestSetup();
+
+            targetActor.crewRoles = [];
+            targetActor.weapons = [];
+
+            const initialHull = targetActor.hull;
+
+            expect(
+                engine.executeCommand({
+                    role: OFFICER_ROLE.GUNNER,
+                    commandId: ENCOUNTER_OFFICER_COMMAND_ID.GUNNER_FIRE_BEAM_CANNON,
+                    target: {
+                        kind: OFFICER_COMMAND_TARGET_KIND.ACTOR_WEAPON_NODE,
+                        node: { kind: 'bridge' },
+                        weaponId: 'beam_cannon_player_00',
+                        actorId: targetActor.id,
+                    },
+                }),
+            ).toMatchObject({ status: 'executed' });
+
+            engine.drainEvents();
+            engine.step(SHIP_WEAPONS[SHIP_WEAPON_ID.BEAM_CANNON_00].chargeDurationMs);
+
+            expect(engine.drainEvents()).toContainEqual(
+                expect.objectContaining({
+                    type: ENCOUNTER_EVENT.PLAYER_BEAM_CANNON_FIRED,
+                    weaponId: 'beam_cannon_player_00',
+                    targetActorId: targetActor.id,
+                    outcome: BEAM_CANNON_SHOT_OUTCOME.HIT,
+                    damage: 0,
+                    remainingHull: initialHull,
+                }),
+            );
+            expect(targetActor.hull).toBe(initialHull);
+        },
+    );
 });

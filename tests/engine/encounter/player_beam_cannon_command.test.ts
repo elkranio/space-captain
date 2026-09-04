@@ -33,7 +33,7 @@ import {
 
 describe('Player beamCannon command', () => {
     it(
-        'offers current-enemy hull and slot shots and starts a cancellable charging task',
+        'offers current-enemy hull, bridge and slot shots and starts a cancellable charging task',
         () => {
             const {
                 engine,
@@ -107,8 +107,26 @@ describe('Player beamCannon command', () => {
                             targetActor.id,
                     },
                 },
+                {
+                    commandId:
+                        ENCOUNTER_OFFICER_COMMAND_ID
+                            .GUNNER_FIRE_BEAM_CANNON,
+
+                    target: {
+                        kind:
+                            OFFICER_COMMAND_TARGET_KIND
+                                .ACTOR_WEAPON_NODE,
+                        node: { kind: 'bridge' },
+
+                        weaponId:
+                            'beam_cannon_player_00',
+
+                        actorId:
+                            targetActor.id,
+                    },
+                },
             ]));
-            expect(beamCannonCommands).toHaveLength(1 + targetActor.mounts.length);
+            expect(beamCannonCommands).toHaveLength(2 + targetActor.mounts.length);
 
             expect(
                 engine.executeCommand({

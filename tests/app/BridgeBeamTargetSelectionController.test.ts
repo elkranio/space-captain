@@ -17,8 +17,12 @@ describe('Beam target selection before command commitment', () => {
         const { bus, emit, enemy } = setup();
         enemy!.equipment.unshift({ ...enemy!.equipment[0], id: 'other', slotId: 'other-slot' });
         bus.emit(BRIDGE_EVENT.BEAM_TARGET_SELECTION_REQUESTED, { weaponId: 'beam-2' });
-        bus.emit(BRIDGE_EVENT.BEAM_TARGET_SELECTED, { actorId: 'enemy', slotId: 'drive-slot' });
-        bus.emit(BRIDGE_EVENT.BEAM_TARGET_SELECTED, { actorId: 'enemy', slotId: 'other-slot' });
+        bus.emit(BRIDGE_EVENT.BEAM_TARGET_SELECTED, {
+            actorId: 'enemy', node: { kind: 'slot', slotId: 'drive-slot' },
+        });
+        bus.emit(BRIDGE_EVENT.BEAM_TARGET_SELECTED, {
+            actorId: 'enemy', node: { kind: 'slot', slotId: 'other-slot' },
+        });
         expect(selectionUpdates(emit)).toEqual(['beam-2', null]);
         const commands = emit.mock.calls.filter(([event]) => event === BRIDGE_EVENT.OFFICER_COMMAND_SELECTED);
         expect(commands).toEqual([[BRIDGE_EVENT.OFFICER_COMMAND_SELECTED, {
@@ -35,10 +39,37 @@ describe('Beam target selection before command commitment', () => {
     it('ignores stale enemy and missing-slot clicks', () => {
         const { bus, emit } = setup();
         bus.emit(BRIDGE_EVENT.BEAM_TARGET_SELECTION_REQUESTED, { weaponId: 'beam-1' });
-        bus.emit(BRIDGE_EVENT.BEAM_TARGET_SELECTED, { actorId: 'other', slotId: 'drive-slot' });
-        bus.emit(BRIDGE_EVENT.BEAM_TARGET_SELECTED, { actorId: 'enemy', slotId: 'missing' });
+        bus.emit(BRIDGE_EVENT.BEAM_TARGET_SELECTED, {
+            actorId: 'other', node: { kind: 'slot', slotId: 'drive-slot' },
+        });
+        bus.emit(BRIDGE_EVENT.BEAM_TARGET_SELECTED, {
+            actorId: 'enemy', node: { kind: 'slot', slotId: 'missing' },
+        });
         expect(selectionUpdates(emit)).toEqual(['beam-1']);
         expect(emit.mock.calls.some(([event]) => event === BRIDGE_EVENT.OFFICER_COMMAND_SELECTED)).toBe(false);
+    });
+
+    it.each([
+        { kind: 'hull' as const },
+        { kind: 'bridge' as const },
+    ])('accepts the $kind header target', (node) => {
+        const { bus, emit } = setup();
+        bus.emit(BRIDGE_EVENT.BEAM_TARGET_SELECTION_REQUESTED, { weaponId: 'beam-1' });
+        bus.emit(BRIDGE_EVENT.BEAM_TARGET_SELECTED, { actorId: 'enemy', node });
+        expect(selectionUpdates(emit)).toEqual(['beam-1', null]);
+        expect(emit.mock.calls).toContainEqual([
+            BRIDGE_EVENT.OFFICER_COMMAND_SELECTED,
+            {
+                role: OFFICER_ROLE.GUNNER,
+                commandId: ENCOUNTER_OFFICER_COMMAND_ID.GUNNER_FIRE_BEAM_CANNON,
+                target: {
+                    kind: OFFICER_COMMAND_TARGET_KIND.ACTOR_WEAPON_NODE,
+                    weaponId: 'beam-1',
+                    actorId: 'enemy',
+                    node,
+                },
+            },
+        ]);
     });
 
     it('enters and cancels without issuing an officer command or task cancellation', () => {
@@ -82,16 +113,15 @@ describe('Beam target selection before command commitment', () => {
         expect(selectionUpdates(emit)).toEqual(['beam-1', null, 'beam-1', null]);
     });
 
-    it('allows BROKEN equipment previews but not a dead enemy or an empty equipment board', () => {
+    it('allows Beam selection without equipment but not against a dead enemy', () => {
         const { bus, emit, enemy } = setup();
         bus.emit(BRIDGE_EVENT.ENEMY_SHIP_DASHBOARD_UPDATED, { ...enemy!, equipment: [] });
         bus.emit(BRIDGE_EVENT.BEAM_TARGET_SELECTION_REQUESTED, { weaponId: 'beam-1' });
+        expect(selectionUpdates(emit)).toEqual(['beam-1']);
+        bus.emit(BRIDGE_EVENT.BEAM_TARGET_SELECTION_REQUESTED, { weaponId: 'beam-1' });
         bus.emit(BRIDGE_EVENT.ENEMY_SHIP_DASHBOARD_UPDATED, { ...enemy!, hull: { current: 0, max: 3 } });
         bus.emit(BRIDGE_EVENT.BEAM_TARGET_SELECTION_REQUESTED, { weaponId: 'beam-1' });
-        expect(selectionUpdates(emit)).toEqual([]);
-        bus.emit(BRIDGE_EVENT.ENEMY_SHIP_DASHBOARD_UPDATED, enemy);
-        bus.emit(BRIDGE_EVENT.BEAM_TARGET_SELECTION_REQUESTED, { weaponId: 'beam-1' });
-        expect(selectionUpdates(emit)).toEqual(['beam-1']);
+        expect(selectionUpdates(emit)).toEqual(['beam-1', null]);
     });
 
     it('clears presentation on destroy and removes its listeners', () => {

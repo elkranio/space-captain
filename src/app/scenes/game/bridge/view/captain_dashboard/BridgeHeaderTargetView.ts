@@ -11,8 +11,8 @@ import BridgeHeaderTargetChromeView, {
 const TILE = CAPTAIN_DASHBOARD_LAYOUT.equipmentTile;
 const TARGET_LOCK_INSET = 7;
 
-// Presentation-only target region for HULL / BRIDGE header targets.
-// Selection input is intentionally not committed here yet; the next gameplay atom wires clicks.
+// Shared presentation/input target region for HULL / BRIDGE header targets.
+// Engine-derived selection availability remains authoritative.
 export default class BridgeHeaderTargetView {
     private readonly root: Phaser.GameObjects.Container;
 
@@ -41,6 +41,7 @@ export default class BridgeHeaderTargetView {
     constructor(
         private readonly scene: BridgeScene,
         outerEdge: BridgeHeaderTargetEdge,
+        private readonly onTargetSelected?: () => void,
     ) {
         this.root = this.scene.add.container(0, 0);
         this.outline = new BridgeHeaderTargetChromeView(this.scene, outerEdge);
@@ -106,7 +107,8 @@ export default class BridgeHeaderTargetView {
             .zone(0, 0, 1, 1)
             .setOrigin(0, 0)
             .on(Phaser.Input.Events.POINTER_OVER, this.handlePointerOver, this)
-            .on(Phaser.Input.Events.POINTER_OUT, this.handlePointerOut, this);
+            .on(Phaser.Input.Events.POINTER_OUT, this.handlePointerOut, this)
+            .on(Phaser.Input.Events.POINTER_UP, this.handlePointerUp, this);
 
         this.root.add([
             this.hoverBackground,
@@ -139,7 +141,7 @@ export default class BridgeHeaderTargetView {
         this.pointerOver = false;
 
         if (enabled) {
-            this.hitArea.setInteractive();
+            this.hitArea.setInteractive({ useHandCursor: true });
         } else {
             this.hitArea.disableInteractive();
         }
@@ -181,6 +183,12 @@ export default class BridgeHeaderTargetView {
     private handlePointerOut(): void {
         this.pointerOver = false;
         this.render();
+    }
+
+    private handlePointerUp(): void {
+        if (this.selectionEnabled) {
+            this.onTargetSelected?.();
+        }
     }
 
     private render(): void {

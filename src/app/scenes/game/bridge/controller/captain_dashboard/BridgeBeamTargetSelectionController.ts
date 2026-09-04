@@ -4,6 +4,7 @@ import type BridgeEventBus from "../../events/BridgeEventBus";
 import {
     BRIDGE_EVENT,
     BRIDGE_PLAYER_SYSTEM_ACTION_STATE,
+    type BridgeBeamTargetSelectedPayload,
     type BridgeEnemyShipDashboardUpdatedPayload,
     type BridgePlayerShipDashboardUpdatedPayload,
 } from "../../events/bridge_event";
@@ -56,10 +57,14 @@ export default class BridgeBeamTargetSelectionController {
         this.reconcile();
     }
 
-    private handleTargetSelected({ actorId, slotId }: { actorId: string; slotId: string }): void {
+    private handleTargetSelected({ actorId, node }: BridgeBeamTargetSelectedPayload): void {
         const weaponId = this.selectedWeaponId;
-        if (!weaponId || !this.canSelect(weaponId) || this.enemy?.actorId !== actorId ||
-            !this.enemy.equipment.some((equipment) => equipment.slotId === slotId)) {
+        if (
+            !weaponId ||
+            !this.canSelect(weaponId) ||
+            this.enemy?.actorId !== actorId ||
+            !this.canTargetNode(node)
+        ) {
             return;
         }
 
@@ -71,7 +76,7 @@ export default class BridgeBeamTargetSelectionController {
         this.setSelectedWeapon(null);
         this.eventBus.emit(BRIDGE_EVENT.OFFICER_COMMAND_SELECTED, {
             ...command,
-            target: { ...command.target, node: { kind: "slot", slotId } },
+            target: { ...command.target, node: { ...node } },
         });
     }
 
@@ -97,8 +102,14 @@ export default class BridgeBeamTargetSelectionController {
             weapon.action.state === BRIDGE_PLAYER_SYSTEM_ACTION_STATE.ACTIVE &&
             command?.target.kind === OFFICER_COMMAND_TARGET_KIND.ACTOR_WEAPON_NODE &&
             this.enemy && this.enemy.hull.current > 0 &&
-            command.target.actorId === this.enemy.actorId &&
-            this.enemy.equipment.length > 0
+            command.target.actorId === this.enemy.actorId
+        );
+    }
+
+    private canTargetNode(node: BridgeBeamTargetSelectedPayload["node"]): boolean {
+        return (
+            node.kind !== "slot" ||
+            !!this.enemy?.equipment.some((equipment) => equipment.slotId === node.slotId)
         );
     }
 

@@ -19,6 +19,7 @@ import type { EncounterOfficerCommandId, OfficerCommandTarget } from "../../../.
 import type {
     BeamCannonShotOutcome,
     BeamCannonTargetNode,
+    PlayerBeamTarget,
     PlayerMissileOutcome,
     PlayerSpamChannelOutcome,
     PlayerStickyMineOutcome,
@@ -470,6 +471,8 @@ export type BridgeEnemyShipDashboardUpdatedPayload = {
         max: number;
     };
 
+    beamTarget?: PlayerBeamTarget;
+
     powerCore?: {
         current: number;
         max: number;
@@ -479,6 +482,11 @@ export type BridgeEnemyShipDashboardUpdatedPayload = {
 
     equipment: BridgeEnemyEquipmentDashboardPayload[];
 } | null;
+
+export type BridgeBeamTargetSelectedPayload = {
+    actorId: string;
+    node: PlayerBeamTarget;
+};
 
 export type BridgeDefenseTurretThreatPayload = {
     projectileId: string;
@@ -872,7 +880,7 @@ export type BridgeEventPayloadMap = {
 
     [BRIDGE_EVENT.BEAM_TARGET_SELECTION_REQUESTED]: { weaponId: string };
     [BRIDGE_EVENT.BEAM_TARGET_SELECTION_UPDATED]: string | null;
-    [BRIDGE_EVENT.BEAM_TARGET_SELECTED]: { actorId: string; slotId: string };
+    [BRIDGE_EVENT.BEAM_TARGET_SELECTED]: BridgeBeamTargetSelectedPayload;
 
     [BRIDGE_EVENT.DEFENSE_TURRET_THREATS_UPDATED]: BridgeDefenseTurretThreatsUpdatedPayload;
 

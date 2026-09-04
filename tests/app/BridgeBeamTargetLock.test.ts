@@ -27,11 +27,34 @@ describe('Beam target-lock dashboard mapping', () => {
             expect(lockedSlots()).toEqual(['defense_02']);
             expect(read().equipment.find((item) => item.targetLocked)?.id).toBe(targetActor.shieldGenerator!.id);
             const snapshot = getEnemyShipDashboardSnapshots(state)[0];
-            snapshot.beamTargetSlotId = 'drive';
+            snapshot.beamTarget = { kind: 'hull' };
             expect(lockedSlots()).toEqual(['defense_02']);
             if (ending === 'cancellation') engine.cancelTask(engine.getOfficerTasks()[0].id);
             else engine.step(SHIP_WEAPONS[SHIP_WEAPON_ID.BEAM_CANNON_00].chargeDurationMs);
             expect(lockedSlots()).toEqual([]);
         },
     );
+
+    it.each([
+        { kind: 'hull' as const },
+        { kind: 'bridge' as const },
+    ])('maps and clears an active $kind header target', (node) => {
+        const { engine, state, targetActor } = createAnchoredPlayerCombatTestSetup();
+        targetActor.crewRoles = [];
+        const read = () => mapEnemyShipToBridgeDashboardPayload(getEnemyShipDashboardSnapshots(state)[0]);
+        expect(read().beamTarget).toBeUndefined();
+        expect(engine.executeCommand({
+            role: OFFICER_ROLE.GUNNER,
+            commandId: ENCOUNTER_OFFICER_COMMAND_ID.GUNNER_FIRE_BEAM_CANNON,
+            target: {
+                kind: OFFICER_COMMAND_TARGET_KIND.ACTOR_WEAPON_NODE,
+                weaponId: 'beam_cannon_player_00',
+                actorId: targetActor.id,
+                node,
+            },
+        })).toEqual({ status: 'executed' });
+        expect(read().beamTarget).toEqual(node);
+        engine.step(SHIP_WEAPONS[SHIP_WEAPON_ID.BEAM_CANNON_00].chargeDurationMs);
+        expect(read().beamTarget).toBeUndefined();
+    });
 });

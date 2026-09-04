@@ -97,7 +97,10 @@ export type BeamCannonTargetNode =
     (typeof BEAM_CANNON_TARGET_NODE)[keyof typeof BEAM_CANNON_TARGET_NODE];
 
 // Player precision target. Incoming Beam / targeted Shield still use HULL | DRIVE.
-export type PlayerBeamTarget = { kind: "hull" } | { kind: "slot"; slotId: string };
+export type PlayerBeamTarget =
+    | { kind: "hull" }
+    | { kind: "bridge" }
+    | { kind: "slot"; slotId: string };
 
 export type MissileCombatProjectileState = {
     id: string;

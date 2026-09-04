@@ -45,6 +45,7 @@ export const gunnerFireBeamCannonCommandHandler: OfficerCommandHandler = {
 
         const targets: PlayerBeamTarget[] = [
             { kind: "hull" },
+            { kind: "bridge" },
             ...targetActor.mounts
                 .filter((mount) => findShipSlotEquipment(targetActor, mount.slotId))
                 .map((mount): PlayerBeamTarget => ({ kind: "slot", slotId: mount.slotId })),
