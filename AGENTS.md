@@ -3,6 +3,12 @@
 This is a thin local instruction layer. Current state and priorities live in `CURRENT_HANDOFF.md`;
 durable collaboration rules live in `docs/WORKING_RULES.md`.
 
+## Web Chat-only reference
+
+- `docs/WEB_CHAT_START_HERE.md` is a connector/navigation cache for ChatGPT Web Chat only.
+- Codex Local must not read, use, summarize, update or maintain that file unless the user explicitly asks.
+- It is not a source of truth and must not override the current workspace, `CURRENT_HANDOFF.md` or durable docs.
+
 ## Before each coding atom
 
 - Read `CURRENT_HANDOFF.md`, `docs/WORKING_RULES.md` and relevant docs.
