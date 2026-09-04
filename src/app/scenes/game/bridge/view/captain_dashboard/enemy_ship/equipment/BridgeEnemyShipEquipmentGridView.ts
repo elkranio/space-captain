@@ -20,6 +20,7 @@ export default class BridgeEnemyShipEquipmentGridView {
     private readonly tiles = new Map<string, BridgeEnemyEquipmentTileView>();
     private selectingTarget = false;
     private pulseElapsedMs = 0;
+    private actorId?: string;
 
     private readonly slotWidth: number;
 
@@ -87,6 +88,8 @@ export default class BridgeEnemyShipEquipmentGridView {
     }
 
     private handleDashboardUpdated(payload: BridgeEnemyShipDashboardUpdatedPayload): void {
+        if (this.actorId !== payload?.actorId) this.clearTiles();
+        this.actorId = payload?.actorId;
         if (!payload) {
             this.clearTiles();
             return;
@@ -107,6 +110,11 @@ export default class BridgeEnemyShipEquipmentGridView {
                     this.slotWidth,
                     this.slotHeight,
                     equipment.sprite,
+                    (slotId) => {
+                        if (this.actorId) this.eventBus.emit(BRIDGE_EVENT.BEAM_TARGET_SELECTED, {
+                            actorId: this.actorId, slotId,
+                        });
+                    },
                 );
 
                 this.tiles.set(equipment.id, tile);

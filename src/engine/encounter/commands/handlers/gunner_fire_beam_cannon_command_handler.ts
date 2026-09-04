@@ -13,6 +13,8 @@ import { ENCOUNTER_EVENT } from "../../model/event";
 import type { OfficerCommandHandler } from "../../model/officer_command_handler";
 import { findCurrentEnemyShip } from "../queries/find_current_enemy_ship";
 import { createGunnerFireBeamCannonTask } from "../../officer_tasks/create_officer_task_draft";
+import { findShipSlotEquipment } from "../../actors/find_ship_slot_equipment";
+import type { PlayerBeamTarget } from "../../model/combat";
 
 const def = {
     role: OFFICER_ROLE.GUNNER,
@@ -20,7 +22,7 @@ const def = {
     label: "FIRE BEAM CANNON",
 
     targeting: {
-        kind: OFFICER_COMMAND_TARGET_KIND.ACTOR_WEAPON,
+        kind: OFFICER_COMMAND_TARGET_KIND.ACTOR_WEAPON_NODE,
     },
 
     requiresOnlineDrive: false,
@@ -41,19 +43,26 @@ export const gunnerFireBeamCannonCommandHandler: OfficerCommandHandler = {
             return [];
         }
 
+        const targets: PlayerBeamTarget[] = [
+            { kind: "hull" },
+            ...targetActor.mounts
+                .filter((mount) => findShipSlotEquipment(targetActor, mount.slotId))
+                .map((mount): PlayerBeamTarget => ({ kind: "slot", slotId: mount.slotId })),
+        ];
+
         return state.combat.playerWeapons
             .filter(isReadyBeamCannon)
             .filter((weapon) => {
                 return powerCore.charges >= getBeamCannonDefinition(weapon).powerCost;
             })
-            .map((weapon) => {
-            return {
+            .flatMap((weapon) => targets.map((node) => ({
                 commandId: ENCOUNTER_OFFICER_COMMAND_ID.GUNNER_FIRE_BEAM_CANNON,
 
                 label: def.label,
 
                 target: {
-                    kind: OFFICER_COMMAND_TARGET_KIND.ACTOR_WEAPON,
+                    kind: OFFICER_COMMAND_TARGET_KIND.ACTOR_WEAPON_NODE,
+                    node,
 
                     weaponId: weapon.id,
 
@@ -61,13 +70,12 @@ export const gunnerFireBeamCannonCommandHandler: OfficerCommandHandler = {
                 },
 
                 targetLabel: targetActor.displayName,
-            };
-        });
+            })));
     },
 
     execute(context, input) {
-        if (input.target.kind !== OFFICER_COMMAND_TARGET_KIND.ACTOR_WEAPON) {
-            throw new Error("FIRE BEAM CANNON requires " + "an actor weapon target");
+        if (input.target.kind !== OFFICER_COMMAND_TARGET_KIND.ACTOR_WEAPON_NODE) {
+            throw new Error("FIRE BEAM CANNON requires an actor weapon node target");
         }
 
         const weapon = context.stateStore.findPlayerWeaponById(input.target.weaponId);
@@ -101,7 +109,9 @@ export const gunnerFireBeamCannonCommandHandler: OfficerCommandHandler = {
             chargeDurationMs: definition.chargeDurationMs,
         });
 
-        context.startOfficerTask(createGunnerFireBeamCannonTask(input.target.weaponId, input.target.actorId));
+        context.startOfficerTask(createGunnerFireBeamCannonTask(
+            input.target.weaponId, input.target.actorId, input.target.node,
+        ));
     },
 };
 

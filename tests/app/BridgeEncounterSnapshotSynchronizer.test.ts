@@ -119,6 +119,8 @@ describe('BridgeEncounterSnapshotSynchronizer', () => {
 
                     equipment: [
                         {
+                            slotId: 'drive',
+                            targetLocked: false,
                             id:
                                 'enemy_drive_00',
 
@@ -409,6 +411,8 @@ describe('BridgeEncounterSnapshotSynchronizer', () => {
 
                     equipment: [
                         {
+                            slotId: 'drive',
+                            targetLocked: false,
                             id:
                                 'enemy_drive_00',
 

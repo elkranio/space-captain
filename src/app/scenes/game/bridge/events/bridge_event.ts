@@ -64,6 +64,7 @@ export const BRIDGE_EVENT = {
     // Presentation-only Beam target selection; no officer work has started yet.
     BEAM_TARGET_SELECTION_REQUESTED: "beam_target_selection_requested",
     BEAM_TARGET_SELECTION_UPDATED: "beam_target_selection_updated",
+    BEAM_TARGET_SELECTED: "beam_target_selected",
 
     // View-ready Defense Turret missile selector snapshot.
     DEFENSE_TURRET_THREATS_UPDATED: "defense_turret_threats_updated",
@@ -444,6 +445,8 @@ export type BridgePlayerShipDashboardUpdatedPayload = {
 };
 
 export type BridgeEnemyEquipmentDashboardPayload = {
+    slotId: string;
+    targetLocked: boolean;
     id: string;
     shortName: string;
 
@@ -869,6 +872,7 @@ export type BridgeEventPayloadMap = {
 
     [BRIDGE_EVENT.BEAM_TARGET_SELECTION_REQUESTED]: { weaponId: string };
     [BRIDGE_EVENT.BEAM_TARGET_SELECTION_UPDATED]: string | null;
+    [BRIDGE_EVENT.BEAM_TARGET_SELECTED]: { actorId: string; slotId: string };
 
     [BRIDGE_EVENT.DEFENSE_TURRET_THREATS_UPDATED]: BridgeDefenseTurretThreatsUpdatedPayload;
 

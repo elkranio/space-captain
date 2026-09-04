@@ -207,7 +207,9 @@ describe('Player missile lifecycle', () => {
                     return (
                         command.commandId ===
                         ENCOUNTER_OFFICER_COMMAND_ID
-                            .GUNNER_FIRE_BEAM_CANNON
+                            .GUNNER_FIRE_BEAM_CANNON &&
+                        command.target.kind === OFFICER_COMMAND_TARGET_KIND.ACTOR_WEAPON_NODE &&
+                        command.target.node.kind === 'hull'
                     );
                 },
             ),

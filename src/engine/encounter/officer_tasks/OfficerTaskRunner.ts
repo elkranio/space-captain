@@ -20,6 +20,7 @@ import type CombatRunner from "../combat/CombatRunner";
 import EncounterStateStore from "../state/EncounterStateStore";
 import { createPilotFlyToTask } from "./create_officer_task_draft";
 import OfficerTaskEffects from "./OfficerTaskEffects";
+import { findShipSlotEquipment } from "../actors/find_ship_slot_equipment";
 
 type OfficerTaskRunnerOptions = {
     stateStore: EncounterStateStore;
@@ -223,7 +224,9 @@ export default class OfficerTaskRunner {
 
                     const weapon = this.stateStore.findPlayerWeaponById(task.weaponId);
 
-                    return targetActor?.team !== ENCOUNTER_TEAM.ENEMY || !weapon;
+                    return targetActor?.team !== ENCOUNTER_TEAM.ENEMY || !weapon ||
+                        (task.kind === OFFICER_TASK_KIND.GUNNER_FIRE_BEAM_CANNON &&
+                            task.target.kind === "slot" && !findShipSlotEquipment(targetActor, task.target.slotId));
                 }
 
                 return false;

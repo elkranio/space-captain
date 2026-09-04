@@ -4,7 +4,7 @@ import { OFFICER_ROLE, type OfficerRole } from "../../defs/officer";
 import { OFFICER_TASK_KIND, type OfficerTaskCancellationPolicy } from "../../defs/officer_task";
 export { OFFICER_TASK_KIND, type OfficerTaskCancellationPolicy, type OfficerTaskKind } from "../../defs/officer_task";
 import { ENCOUNTER_OFFICER_COMMAND_ID } from "./command";
-import type { BeamCannonTargetNode } from "./combat";
+import type { BeamCannonTargetNode, PlayerBeamTarget } from "./combat";
 
 type OfficerTaskDraftBase = {
     label: string;
@@ -83,6 +83,7 @@ type GunnerFireStickyMinesOfficerTaskDraft = OfficerTaskDraftBase & {
 };
 
 type GunnerFireBeamCannonOfficerTaskDraft = OfficerTaskDraftBase & {
+    target: PlayerBeamTarget;
     kind: typeof OFFICER_TASK_KIND.GUNNER_FIRE_BEAM_CANNON;
 
     role: typeof OFFICER_ROLE.GUNNER;

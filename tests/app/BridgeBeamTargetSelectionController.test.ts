@@ -13,6 +13,34 @@ import { OFFICER_ROLE } from '../../src/engine/defs/officer';
 import { ENCOUNTER_OFFICER_COMMAND_ID, OFFICER_COMMAND_TARGET_KIND } from '../../src/engine/encounter/model/command';
 
 describe('Beam target selection before command commitment', () => {
+    it('accepts the clicked stable slot, closes selection and submits the existing Gunner command once', () => {
+        const { bus, emit, enemy } = setup();
+        enemy!.equipment.unshift({ ...enemy!.equipment[0], id: 'other', slotId: 'other-slot' });
+        bus.emit(BRIDGE_EVENT.BEAM_TARGET_SELECTION_REQUESTED, { weaponId: 'beam-2' });
+        bus.emit(BRIDGE_EVENT.BEAM_TARGET_SELECTED, { actorId: 'enemy', slotId: 'drive-slot' });
+        bus.emit(BRIDGE_EVENT.BEAM_TARGET_SELECTED, { actorId: 'enemy', slotId: 'other-slot' });
+        expect(selectionUpdates(emit)).toEqual(['beam-2', null]);
+        const commands = emit.mock.calls.filter(([event]) => event === BRIDGE_EVENT.OFFICER_COMMAND_SELECTED);
+        expect(commands).toEqual([[BRIDGE_EVENT.OFFICER_COMMAND_SELECTED, {
+            role: OFFICER_ROLE.GUNNER, commandId: ENCOUNTER_OFFICER_COMMAND_ID.GUNNER_FIRE_BEAM_CANNON,
+            target: {
+                kind: OFFICER_COMMAND_TARGET_KIND.ACTOR_WEAPON_NODE, weaponId: 'beam-2', actorId: 'enemy',
+                node: { kind: 'slot', slotId: 'drive-slot' },
+            },
+        }]]);
+        const commandIndex = emit.mock.calls.findIndex(([event]) => event === BRIDGE_EVENT.OFFICER_COMMAND_SELECTED);
+        expect(emit.mock.calls[commandIndex - 1]).toEqual([BRIDGE_EVENT.BEAM_TARGET_SELECTION_UPDATED, null]);
+    });
+
+    it('ignores stale enemy and missing-slot clicks', () => {
+        const { bus, emit } = setup();
+        bus.emit(BRIDGE_EVENT.BEAM_TARGET_SELECTION_REQUESTED, { weaponId: 'beam-1' });
+        bus.emit(BRIDGE_EVENT.BEAM_TARGET_SELECTED, { actorId: 'other', slotId: 'drive-slot' });
+        bus.emit(BRIDGE_EVENT.BEAM_TARGET_SELECTED, { actorId: 'enemy', slotId: 'missing' });
+        expect(selectionUpdates(emit)).toEqual(['beam-1']);
+        expect(emit.mock.calls.some(([event]) => event === BRIDGE_EVENT.OFFICER_COMMAND_SELECTED)).toBe(false);
+    });
+
     it('enters and cancels without issuing an officer command or task cancellation', () => {
         const { bus, emit } = setup();
         bus.emit(BRIDGE_EVENT.BEAM_TARGET_SELECTION_REQUESTED, { weaponId: 'beam-1' });
@@ -99,6 +127,7 @@ function setup() {
     const enemy: BridgeEnemyShipDashboardUpdatedPayload = {
         actorId: 'enemy', displayName: 'Enemy', hull: { current: 3, max: 3 },
         equipment: [{
+            slotId: 'drive-slot', targetLocked: false,
             id: 'drive', shortName: 'DRIVE', slot: { column: 1, row: 1 },
             sprite: { atlasKey: 'atlas', frameKey: 'drive' },
             integrity: { current: 0, max: 2 }, broken: true,
@@ -117,7 +146,10 @@ function beam(id: string): BridgePlayerWeaponDashboardPayload {
             state: BRIDGE_PLAYER_SYSTEM_ACTION_STATE.ACTIVE,
             command: {
                 role: OFFICER_ROLE.GUNNER, commandId: ENCOUNTER_OFFICER_COMMAND_ID.GUNNER_FIRE_BEAM_CANNON,
-                target: { kind: OFFICER_COMMAND_TARGET_KIND.ACTOR_WEAPON, weaponId: id, actorId: 'enemy' },
+                target: {
+                    kind: OFFICER_COMMAND_TARGET_KIND.ACTOR_WEAPON_NODE, weaponId: id, actorId: 'enemy',
+                    node: { kind: 'hull' },
+                },
             },
         },
     };

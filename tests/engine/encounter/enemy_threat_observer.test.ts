@@ -400,6 +400,7 @@ function createObserverFixture() {
                 .GUNNER_FIRE_BEAM_CANNON,
 
         label: 'BEAM CANNON AIM',
+        target: { kind: 'hull' },
         showProgress: true,
 
         durationMs: null,

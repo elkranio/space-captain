@@ -118,7 +118,8 @@ describe('Player beamCannon lifecycle', () => {
             target: {
                 kind:
                     OFFICER_COMMAND_TARGET_KIND
-                        .ACTOR_WEAPON,
+                        .ACTOR_WEAPON_NODE,
+                node: { kind: 'hull' },
 
                 weaponId:
                     'beam_cannon_player_00',
@@ -284,7 +285,9 @@ describe('Player beamCannon lifecycle', () => {
                     return (
                         command.commandId ===
                         ENCOUNTER_OFFICER_COMMAND_ID
-                            .GUNNER_FIRE_BEAM_CANNON
+                            .GUNNER_FIRE_BEAM_CANNON &&
+                        command.target.kind === OFFICER_COMMAND_TARGET_KIND.ACTOR_WEAPON_NODE &&
+                        command.target.node.kind === 'hull'
                     );
                 }),
         ).toHaveLength(1);

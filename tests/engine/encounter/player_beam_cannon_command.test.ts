@@ -33,7 +33,7 @@ import {
 
 describe('Player beamCannon command', () => {
     it(
-        'offers one current-enemy hull shot and starts a cancellable charging task',
+        'offers current-enemy hull and slot shots and starts a cancellable charging task',
         () => {
             const {
                 engine,
@@ -88,7 +88,7 @@ describe('Player beamCannon command', () => {
                             command.target,
                     };
                 }),
-            ).toEqual([
+            ).toEqual(expect.arrayContaining([
                 {
                     commandId:
                         ENCOUNTER_OFFICER_COMMAND_ID
@@ -97,7 +97,8 @@ describe('Player beamCannon command', () => {
                     target: {
                         kind:
                             OFFICER_COMMAND_TARGET_KIND
-                                .ACTOR_WEAPON,
+                                .ACTOR_WEAPON_NODE,
+                        node: { kind: 'hull' },
 
                         weaponId:
                             'beam_cannon_player_00',
@@ -106,7 +107,8 @@ describe('Player beamCannon command', () => {
                             targetActor.id,
                     },
                 },
-            ]);
+            ]));
+            expect(beamCannonCommands).toHaveLength(1 + targetActor.mounts.length);
 
             expect(
                 engine.executeCommand({
@@ -120,7 +122,8 @@ describe('Player beamCannon command', () => {
                     target: {
                         kind:
                             OFFICER_COMMAND_TARGET_KIND
-                                .ACTOR_WEAPON,
+                                .ACTOR_WEAPON_NODE,
+                        node: { kind: 'hull' },
 
                         weaponId:
                             'beam_cannon_player_00',

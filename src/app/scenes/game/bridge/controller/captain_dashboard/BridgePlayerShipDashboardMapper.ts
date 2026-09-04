@@ -963,7 +963,9 @@ function getResolvedWeaponCommand(
     const matchingCommands = commands.filter((command) => {
         return (
             command.commandId === commandId &&
-            command.target.kind === OFFICER_COMMAND_TARGET_KIND.ACTOR_WEAPON &&
+            (command.target.kind === OFFICER_COMMAND_TARGET_KIND.ACTOR_WEAPON ||
+                (command.target.kind === OFFICER_COMMAND_TARGET_KIND.ACTOR_WEAPON_NODE &&
+                    command.target.node.kind === "hull")) &&
             command.target.weaponId === weaponId
         );
     });

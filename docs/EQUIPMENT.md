@@ -73,7 +73,7 @@ breakable family:
 - still-operational damaged equipment cannot be routinely topped off in combat;
 - surviving encounter-local equipment returns to full integrity at encounter end, including successful Escape.
 
-Player precision Beam must eventually target:
+Player precision Beam now carries the semantic target:
 
 ```text
 HULL
@@ -95,8 +95,8 @@ already BROKEN equipment in targeted slot
     -> hullDamage * 2
 ```
 
-The dual dashboards now provide the target surfaces. Player Beam target-selection UI is landed as a preview;
-see `CURRENT_HANDOFF.md` at the repository root for the current continuation.
+The enemy equipment tiles now accept Beam slot targets; Hull pip input remains deferred.
+See `CURRENT_HANDOFF.md` at the repository root for the current continuation.
 
 ## Current equipment overview
 
@@ -106,7 +106,7 @@ see `CURRENT_HANDOFF.md` at the repository root for the current continuation.
 | Defense | Defense Turret | DEFENSE | Gunner | LANDED / generic BROKEN work pending |
 | Defense | Shield Generator | DEFENSE | Engineer | LANDED / shared slot-target migration pending |
 | Weapon | Missile Launcher | WEAPON | Gunner | LANDED |
-| Weapon | Beam Cannon | WEAPON | Gunner | LANDED / precision target pending |
+| Weapon | Beam Cannon | WEAPON | Gunner | LANDED / slot targeting; Hull input pending |
 | Weapon | Sticky Mine Dispenser | WEAPON | Gunner | LANDED |
 | Utility | SPAM Projector | UTILITY | Scientist | LANDED |
 | Power | Power Core | separate | shared resource | LANDED |
@@ -409,10 +409,11 @@ Current player Beam:
 - uses Gunner;
 - charges/fires/cools down;
 - spends its content-defined Power Core cost when charging begins;
-- currently targets the enemy actor as a whole.
+- carries `HULL | SLOT(slotId)` through command/task/runner;
+- resolves slot integrity damage or the already-BROKEN Hull consequence at impact.
 
-The dashboard's ready-Beam click now opens a target-selection preview without starting charging. Accepting an enemy
-equipment tile and carrying its semantic target into this runtime path remain the next atom.
+The dashboard's ready-Beam click opens target selection without starting charging. Accepting an enemy equipment tile
+starts the existing Gunner task. Its target-lock icon comes from the active task and clears when the action ends.
 
 Beam Cannon state now carries encounter-local integrity.
 
@@ -420,18 +421,7 @@ Current content contains the normal Beam Cannon and a fast debug/test variant.
 
 ### CONFIRMED TODO
 
-Player Beam is the main precision-weapon slice after the combat board exists:
-
-```text
-select Beam
--> highlight enemy HULL + valid installed slots
--> select one target
--> carry semantic target through command/task/runner
-```
-
-Also:
-
-- implement the full generic slot-damage consequence;
+- add Hull selection through its pip area; the future Bridge module remains separate;
 - migrate incoming Beam and targeted Shield onto the shared target model afterward;
 - generic BROKEN gating + repair.
 

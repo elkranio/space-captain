@@ -1,7 +1,7 @@
 // src/engine/encounter/model/command.ts
 
 import type { OfficerRole } from "../../defs/officer";
-import type { BeamCannonTargetNode } from "./combat";
+import type { BeamCannonTargetNode, PlayerBeamTarget } from "./combat";
 
 export const ENCOUNTER_OFFICER_COMMAND_ID = {
     SCIENTIST_PLOT_COURSE: "scientist_plot_course",
@@ -46,6 +46,7 @@ export const OFFICER_COMMAND_TARGET_KIND = {
     // - конкретный установленный экземпляр;
     // - конкретный enemy actor.
     ACTOR_WEAPON: "actor_weapon",
+    ACTOR_WEAPON_NODE: "actor_weapon_node",
 
     PLAYER_SHIP_NODE: "player_ship_node",
 
@@ -56,6 +57,12 @@ export const OFFICER_COMMAND_TARGET_KIND = {
 export type OfficerCommandTargetKind = (typeof OFFICER_COMMAND_TARGET_KIND)[keyof typeof OFFICER_COMMAND_TARGET_KIND];
 
 export type OfficerCommandTarget =
+    | {
+          kind: typeof OFFICER_COMMAND_TARGET_KIND.ACTOR_WEAPON_NODE;
+          weaponId: string;
+          actorId: string;
+          node: PlayerBeamTarget;
+      }
     | {
           kind: typeof OFFICER_COMMAND_TARGET_KIND.NONE;
       }
@@ -104,6 +111,7 @@ export type EncounterAnchorTargetScope =
     (typeof ENCOUNTER_ANCHOR_TARGET_SCOPE)[keyof typeof ENCOUNTER_ANCHOR_TARGET_SCOPE];
 
 export type OfficerCommandTargeting =
+    | { kind: typeof OFFICER_COMMAND_TARGET_KIND.ACTOR_WEAPON_NODE }
     | {
           kind: typeof OFFICER_COMMAND_TARGET_KIND.NONE;
       }

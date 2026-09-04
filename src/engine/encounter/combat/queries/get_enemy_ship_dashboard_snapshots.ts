@@ -10,6 +10,8 @@ import {
 import type { ShipEquipmentMountState } from "../../../defs/ship_slot";
 import type { ShipWeaponKind } from "../../../defs/ship_weapon";
 import type { EncounterState } from "../../model/state";
+import { OFFICER_ROLE } from "../../../defs/officer";
+import { OFFICER_TASK_KIND } from "../../model/officer_task";
 
 export type EnemyShipDashboardEquipmentSnapshot = {
     id: string;
@@ -26,6 +28,8 @@ export type EnemyShipDashboardWeaponSnapshot = EnemyShipDashboardEquipmentSnapsh
 };
 
 export type EnemyShipDashboardSnapshot = {
+    // Public player intent, derived from the active Gunner task; no enemy crew truth is exposed.
+    beamTargetSlotId?: string;
     actorId: string;
     displayName: string;
     chassisId: string;
@@ -50,6 +54,7 @@ export type EnemyShipDashboardSnapshot = {
 // Deliberately excludes ammo, cooldowns, crew tasks and AI decision state.
 export function getEnemyShipDashboardSnapshots(state: EncounterState): EnemyShipDashboardSnapshot[] {
     const anchorId = getCurrentNavigationAnchorId(state.navigation);
+    const task = state.officerTasks[OFFICER_ROLE.GUNNER];
 
     return state.actors
         .filter((actor) => {
@@ -63,6 +68,9 @@ export function getEnemyShipDashboardSnapshots(state: EncounterState): EnemyShip
             }
 
             return {
+                ...(task?.kind === OFFICER_TASK_KIND.GUNNER_FIRE_BEAM_CANNON &&
+                    task.targetActorId === actor.id && task.target.kind === "slot"
+                    ? { beamTargetSlotId: task.target.slotId } : {}),
                 actorId: actor.id,
                 displayName: actor.displayName,
                 chassisId: actor.chassisId,

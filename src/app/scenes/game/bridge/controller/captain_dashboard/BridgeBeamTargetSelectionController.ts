@@ -16,6 +16,7 @@ export default class BridgeBeamTargetSelectionController {
 
     constructor(private readonly eventBus: BridgeEventBus) {
         eventBus.on(BRIDGE_EVENT.BEAM_TARGET_SELECTION_REQUESTED, this.handleSelectionRequested, this);
+        eventBus.on(BRIDGE_EVENT.BEAM_TARGET_SELECTED, this.handleTargetSelected, this);
         eventBus.on(BRIDGE_EVENT.PLAYER_SHIP_DASHBOARD_UPDATED, this.handlePlayerUpdated, this);
         eventBus.on(BRIDGE_EVENT.ENEMY_SHIP_DASHBOARD_UPDATED, this.handleEnemyUpdated, this);
         eventBus.on(BRIDGE_EVENT.ENCOUNTER_TRAVEL_STARTED, this.clear, this);
@@ -26,6 +27,7 @@ export default class BridgeBeamTargetSelectionController {
 
     public destroy(): void {
         this.eventBus.off(BRIDGE_EVENT.BEAM_TARGET_SELECTION_REQUESTED, this.handleSelectionRequested, this);
+        this.eventBus.off(BRIDGE_EVENT.BEAM_TARGET_SELECTED, this.handleTargetSelected, this);
         this.eventBus.off(BRIDGE_EVENT.PLAYER_SHIP_DASHBOARD_UPDATED, this.handlePlayerUpdated, this);
         this.eventBus.off(BRIDGE_EVENT.ENEMY_SHIP_DASHBOARD_UPDATED, this.handleEnemyUpdated, this);
         this.eventBus.off(BRIDGE_EVENT.ENCOUNTER_TRAVEL_STARTED, this.clear, this);
@@ -54,6 +56,25 @@ export default class BridgeBeamTargetSelectionController {
         this.reconcile();
     }
 
+    private handleTargetSelected({ actorId, slotId }: { actorId: string; slotId: string }): void {
+        const weaponId = this.selectedWeaponId;
+        if (!weaponId || !this.canSelect(weaponId) || this.enemy?.actorId !== actorId ||
+            !this.enemy.equipment.some((equipment) => equipment.slotId === slotId)) {
+            return;
+        }
+
+        const command = this.player?.weapons?.find((weapon) => weapon.id === weaponId)?.action.command;
+        if (command?.target.kind !== OFFICER_COMMAND_TARGET_KIND.ACTOR_WEAPON_NODE) {
+            return;
+        }
+
+        this.setSelectedWeapon(null);
+        this.eventBus.emit(BRIDGE_EVENT.OFFICER_COMMAND_SELECTED, {
+            ...command,
+            target: { ...command.target, node: { kind: "slot", slotId } },
+        });
+    }
+
     private handleEnemyUpdated(payload: BridgeEnemyShipDashboardUpdatedPayload): void {
         this.enemy = payload;
         this.reconcile();
@@ -74,7 +95,7 @@ export default class BridgeBeamTargetSelectionController {
             weapon.slot &&
             weapon.integrity && weapon.integrity.current > 0 &&
             weapon.action.state === BRIDGE_PLAYER_SYSTEM_ACTION_STATE.ACTIVE &&
-            command?.target.kind === OFFICER_COMMAND_TARGET_KIND.ACTOR_WEAPON &&
+            command?.target.kind === OFFICER_COMMAND_TARGET_KIND.ACTOR_WEAPON_NODE &&
             this.enemy && this.enemy.hull.current > 0 &&
             command.target.actorId === this.enemy.actorId &&
             this.enemy.equipment.length > 0

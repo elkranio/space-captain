@@ -57,7 +57,8 @@ describe('Player beamCannon damage', () => {
                     target: {
                         kind:
                             OFFICER_COMMAND_TARGET_KIND
-                                .ACTOR_WEAPON,
+                                .ACTOR_WEAPON_NODE,
+                        node: { kind: 'hull' },
 
                         weaponId:
                             'beam_cannon_player_00',

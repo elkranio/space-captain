@@ -127,7 +127,10 @@ function mapEquipment(
     spriteId: EquipmentSpriteId,
     dashboard: EnemyShipDashboardSnapshot,
 ): BridgeEnemyEquipmentDashboardPayload {
+    const slot = getEquipmentSlot(equipment.id, dashboard);
     return {
+        slotId: slot.id,
+        targetLocked: dashboard.beamTargetSlotId === slot.id,
         id: equipment.id,
         shortName,
 
@@ -135,7 +138,7 @@ function mapEquipment(
             ...EQUIPMENT_SPRITES[spriteId],
         },
 
-        slot: getEquipmentSlot(equipment.id, dashboard),
+        slot: { column: slot.column, row: slot.row },
 
         integrity: {
             ...equipment.integrity,
@@ -148,7 +151,7 @@ function mapEquipment(
 function getEquipmentSlot(
     equipmentId: string,
     dashboard: EnemyShipDashboardSnapshot,
-): BridgeEquipmentSlotPayload {
+): BridgeEquipmentSlotPayload & { id: string } {
     const chassis = SHIP_CHASSIS[dashboard.chassisId];
 
     if (!chassis) {
@@ -177,6 +180,7 @@ function getEquipmentSlot(
     }
 
     return {
+        id: slot.id,
         column: slot.column,
         row: slot.row,
     };

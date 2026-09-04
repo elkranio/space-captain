@@ -13,6 +13,8 @@ import { ENCOUNTER_EVENT, type EncounterEvent } from "../../model/event";
 import { OFFICER_TASK_KIND, type OfficerTaskState } from "../../model/officer_task";
 import type EncounterStateStore from "../../state/EncounterStateStore";
 import type OfficerTaskRunner from "../../officer_tasks/OfficerTaskRunner";
+import { findShipSlotEquipment } from "../../actors/find_ship_slot_equipment";
+import { damageEquipmentIntegrity } from "../../model/equipment";
 
 type GunnerFireBeamCannonTaskState = Extract<
     OfficerTaskState,
@@ -38,9 +40,7 @@ type PlayerBeamCannonRunnerOptions = {
 };
 
 // Owns the active installed player beamCannon lifecycle:
-// charging -> enemy Evade/shield/hull resolution -> cooldown.
-//
-// Node/sector targeting remains intentionally absent in this slice.
+// charging -> enemy Evade/shield/semantic target resolution -> cooldown.
 export default class PlayerBeamCannonRunner {
     constructor(private readonly options: PlayerBeamCannonRunnerOptions) {}
 
@@ -86,7 +86,7 @@ export default class PlayerBeamCannonRunner {
 
         // Impact resolves before the event so same-frame telemetry
         // already observes the consumed shield or damaged hull.
-        const impact = this.resolveImpact(task, definition.hullDamage);
+        const impact = this.resolveImpact(task, definition);
 
         this.options.emit({
             type: ENCOUNTER_EVENT.PLAYER_BEAM_CANNON_FIRED,
@@ -107,7 +107,7 @@ export default class PlayerBeamCannonRunner {
         }
     }
 
-    private resolveImpact(task: GunnerFireBeamCannonTaskState, hullDamage: number): PlayerBeamCannonImpact {
+    private resolveImpact(task: GunnerFireBeamCannonTaskState, definition: BeamCannonDefinition): PlayerBeamCannonImpact {
         const target = this.options.stateStore.findActorById(task.targetActorId);
 
         if (!target || target.team !== ENCOUNTER_TEAM.ENEMY) {
@@ -143,6 +143,25 @@ export default class PlayerBeamCannonRunner {
             };
         }
 
+        let hullDamage = definition.hullDamage;
+        if (task.target.kind === "slot") {
+            const equipment = findShipSlotEquipment(target, task.target.slotId);
+            if (!equipment) {
+                throw new Error("Player Beam target slot disappeared before impact: " + task.target.slotId);
+            }
+
+            // Evaluate BROKEN at impact. A shot that breaks equipment never spills into Hull.
+            if (equipment.integrity > 0) {
+                damageEquipmentIntegrity(equipment, definition.moduleDamage);
+                return {
+                    outcome: BEAM_CANNON_SHOT_OUTCOME.HIT,
+                    damage: 0, // Existing presentation event reports Hull damage.
+                    remainingHull: target.hull,
+                };
+            }
+            hullDamage *= 2;
+        }
+
         const damageResult = this.options.stateStore.damageEnemyActorHull(target.id, hullDamage);
 
         return {
@@ -176,7 +195,8 @@ export default class PlayerBeamCannonRunner {
     private hasValidTarget(task: GunnerFireBeamCannonTaskState): boolean {
         const actor = this.options.stateStore.findActorById(task.targetActorId);
 
-        return actor?.team === ENCOUNTER_TEAM.ENEMY;
+        return actor?.team === ENCOUNTER_TEAM.ENEMY &&
+            (task.target.kind === "hull" || !!findShipSlotEquipment(actor, task.target.slotId));
     }
 
     private getDefinition(beamCannon: BeamCannonState): BeamCannonDefinition {

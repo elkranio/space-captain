@@ -1042,6 +1042,15 @@ function createWeaponCommand(
     weaponId:
         string,
 ): AvailableOfficerCommand {
+    if (commandId === ENCOUNTER_OFFICER_COMMAND_ID.GUNNER_FIRE_BEAM_CANNON) {
+        return {
+            commandId,
+            target: {
+                kind: OFFICER_COMMAND_TARGET_KIND.ACTOR_WEAPON_NODE,
+                weaponId, actorId: 'enemy_1', node: { kind: 'hull' },
+            },
+        };
+    }
     return {
         commandId,
         target: {

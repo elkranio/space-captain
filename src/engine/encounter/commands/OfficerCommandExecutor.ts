@@ -103,6 +103,16 @@ export default class OfficerCommandExecutor {
 
     private areTargetsEqual(availableTarget: OfficerCommandTarget, inputTarget: OfficerCommandTarget): boolean {
         switch (availableTarget.kind) {
+            case OFFICER_COMMAND_TARGET_KIND.ACTOR_WEAPON_NODE:
+                return (
+                    inputTarget.kind === OFFICER_COMMAND_TARGET_KIND.ACTOR_WEAPON_NODE &&
+                    availableTarget.weaponId === inputTarget.weaponId &&
+                    availableTarget.actorId === inputTarget.actorId &&
+                    availableTarget.node.kind === inputTarget.node.kind &&
+                    (availableTarget.node.kind === "hull" ||
+                        (inputTarget.node.kind === "slot" && availableTarget.node.slotId === inputTarget.node.slotId))
+                );
+
             case OFFICER_COMMAND_TARGET_KIND.NONE:
                 return inputTarget.kind === OFFICER_COMMAND_TARGET_KIND.NONE;
 

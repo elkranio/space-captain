@@ -69,12 +69,16 @@ Encounter equipment integrity is also generalized:
 The existence of generalized integrity does **not** mean every equipment family is already fully wired to BROKEN command
 gating, repair behavior or targeted damage. Those mechanics remain explicit follow-up work.
 
-Current player Beam still targets the enemy actor as a whole. Semantic `HULL | SLOT(slotId)` player targeting remains
-future work.
+Player Beam carries semantic `HULL | SLOT(slotId)` through the command and Gunner task into its existing runner.
+Slot identity resolves `actor.mounts -> equipmentId`, independently of weapon array order or dashboard coordinates.
+At impact, operational equipment takes configured `moduleDamage`; even a breaking hit deals no Hull damage or overflow.
+Already-BROKEN equipment instead causes `hullDamage * 2` to Hull. Enemy Evade and whole-ship Shield still resolve first.
 
 The dashboard now intercepts the ready Beam click to open a presentation-only equipment-target preview. Re-clicking the
 selected Beam closes it without issuing a command. Other own tiles dim and lose input; enemy equipment outlines pulse
-and hover shows `G FIRE`. Enemy-tile clicks do not issue a command yet. Engine command/task/damage semantics are unchanged.
+and hover shows `G FIRE`. Clicking an occupied enemy tile submits its stable slot id and starts the existing Beam task.
+Own tiles regain normal input. The active Gunner task supplies the target-lock marker through the enemy dashboard snapshot;
+completion, cancellation/interruption and target cleanup remove it. Hull remains an engine target; Hull pip input is deferred.
 
 ## Weapon lifecycle and cooldown commitment
 
@@ -261,8 +265,10 @@ Escape availability derives from authoritative Drive state; Beam does not own a 
 
 Current enemy Beam target choice is simple random `HULL | DRIVE`.
 
-Current player Beam spends its content-defined Power Core cost when charging begins and still targets the enemy actor
-as a whole. Semantic player Beam node targeting remains future work.
+Current player Beam spends its content-defined Power Core cost when charging begins. Its task retains the selected
+`HULL | SLOT(slotId)` target until impact or cancellation. Missing mounted targets use existing missing-target cancellation.
+The existing `PLAYER_BEAM_CANNON_FIRED.damage` field reports Hull damage (zero for an ordinary equipment hit).
+Views update equipment integrity from snapshots; existing viewscreen Beam VFX still aim at the ship's visual center.
 
 ## Sticky mines
 

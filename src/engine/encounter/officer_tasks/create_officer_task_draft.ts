@@ -3,7 +3,7 @@
 import { getOfficerTaskDraftTuning } from "../../content/catalogs/officer_tasks";
 import { OFFICER_ROLE, type OfficerRole } from "../../defs/officer";
 import { ENCOUNTER_OFFICER_COMMAND_ID } from "../model/command";
-import type { BeamCannonTargetNode } from "../model/combat";
+import type { BeamCannonTargetNode, PlayerBeamTarget } from "../model/combat";
 import { OFFICER_TASK_KIND, type OfficerTaskDraft } from "../model/officer_task";
 
 export function createScientistPlotCourseTask(targetNodeId: string): OfficerTaskDraft {
@@ -127,10 +127,13 @@ export function createGunnerFireStickyMinesTask(weaponId: string, targetActorId:
     };
 }
 
-export function createGunnerFireBeamCannonTask(weaponId: string, targetActorId: string): OfficerTaskDraft {
+export function createGunnerFireBeamCannonTask(
+    weaponId: string, targetActorId: string, target: PlayerBeamTarget,
+): OfficerTaskDraft {
     const kind = OFFICER_TASK_KIND.GUNNER_FIRE_BEAM_CANNON;
 
     return {
+        target: { ...target },
         kind,
         role: OFFICER_ROLE.GUNNER,
 

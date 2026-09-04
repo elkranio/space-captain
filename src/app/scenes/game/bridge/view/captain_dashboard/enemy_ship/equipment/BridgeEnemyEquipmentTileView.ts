@@ -1,4 +1,5 @@
-// Enemy equipment state and pre-command target hover. Firing is wired in the next targeting atom.
+// Enemy equipment state, target selection and the active task's target lock.
+import { MICRO_ICON_ID, MICRO_ICONS } from "../../../../../../../manifests/micro_icons";
 import type { SpriteEntry } from "../../../../../../../manifests/types";
 import { FONT_COLOR, FONT_FAMILY, FONT_SIZE } from "../../../../../../../theme/font";
 import { OFFICER_ROLE_COLOR } from "../../../../../../../theme/officer";
@@ -14,7 +15,6 @@ const TILE = {
     titleY: 3,
 
     integrityY: 72,
-    stateBottomPadding: 10,
 } as const;
 
 export default class BridgeEnemyEquipmentTileView {
@@ -24,12 +24,14 @@ export default class BridgeEnemyEquipmentTileView {
 
     private readonly icon: Phaser.GameObjects.Image;
 
-    private readonly stateText: Phaser.GameObjects.BitmapText;
-
     private readonly integrityView: BridgeEquipmentIntegrityView;
     private readonly targetOutline: BridgeEquipmentSlotChromeView;
     private readonly hoverView: BridgeEquipmentHoverActionView;
     private readonly hitArea: Phaser.GameObjects.Zone;
+    private readonly targetLock: Phaser.GameObjects.Image;
+    private readonly targetLockTween: Phaser.Tweens.Tween;
+    private targetLocked = false;
+    private slotId?: string;
     private selectionEnabled = false;
     private pointerOver = false;
 
@@ -38,6 +40,7 @@ export default class BridgeEnemyEquipmentTileView {
         private readonly width: number,
         private readonly height: number,
         sprite: SpriteEntry,
+        private readonly onTargetSelected: (slotId: string) => void,
     ) {
         this.root = this.scene.add.container(0, 0);
 
@@ -62,16 +65,6 @@ export default class BridgeEnemyEquipmentTileView {
             .setTint(CAPTAIN_DASHBOARD_STYLE.equipmentProgress.readyColor)
             .setFlipX(true);
 
-        this.stateText = this.scene.add
-            .bitmapText(
-                TILE.horizontalPadding,
-                this.height - TILE.stateBottomPadding - FONT_SIZE.PX_16,
-                FONT_FAMILY.UI_PRIMARY,
-                "",
-                FONT_SIZE.PX_16,
-            )
-            .setOrigin(0, 0);
-
         this.integrityView = new BridgeEquipmentIntegrityView(this.scene);
         this.integrityView.setPosition(0, TILE.integrityY);
         this.integrityView.setRightEdge(this.width - TILE.horizontalPadding);
@@ -80,17 +73,26 @@ export default class BridgeEnemyEquipmentTileView {
         this.targetOutline.setVisible(false);
         this.hoverView = new BridgeEquipmentHoverActionView(scene, width, height);
         this.hoverView.setAction("G", OFFICER_ROLE_COLOR.gunner, "FIRE");
+        const lockSprite = MICRO_ICONS[MICRO_ICON_ID.TARGET_LOCK];
+        this.targetLock = scene.add.image(width - TILE.horizontalPadding, TILE.titleY + 2,
+            lockSprite.atlasKey, lockSprite.frameKey)
+            .setOrigin(1, 0).setTint(CAPTAIN_DASHBOARD_STYLE.equipmentAccent.iconColor).setVisible(false);
+        this.targetLockTween = scene.tweens.add({
+            targets: this.targetLock, alpha: { from: 1, to: 0.45 },
+            duration: 650, yoyo: true, repeat: -1, paused: true,
+        });
         this.hitArea = scene.add.zone(0, 0, width, height).setOrigin(0, 0)
             .on(Phaser.Input.Events.POINTER_OVER, this.handlePointerOver, this)
-            .on(Phaser.Input.Events.POINTER_OUT, this.handlePointerOut, this);
+            .on(Phaser.Input.Events.POINTER_OUT, this.handlePointerOut, this)
+            .on(Phaser.Input.Events.POINTER_UP, this.handlePointerUp, this);
 
         this.root.add([
             this.titleText,
             this.icon,
-            this.stateText,
             this.integrityView.getRoot(),
             this.targetOutline.getRoot(),
             this.hoverView.getRoot(),
+            this.targetLock,
             this.hitArea,
         ]);
     }
@@ -122,6 +124,10 @@ export default class BridgeEnemyEquipmentTileView {
         this.targetOutline.getRoot().setAlpha(alpha);
     }
 
+    private handlePointerUp(): void {
+        if (this.selectionEnabled && this.slotId) this.onTargetSelected(this.slotId);
+    }
+
     private handlePointerOver(): void {
         this.pointerOver = true;
         this.renderTargetSelection();
@@ -140,6 +146,13 @@ export default class BridgeEnemyEquipmentTileView {
     }
 
     public update(payload: BridgeEnemyEquipmentDashboardPayload): void {
+        this.slotId = payload.slotId;
+        if (this.targetLocked !== payload.targetLocked) {
+            this.targetLocked = payload.targetLocked;
+            this.targetLock.setVisible(this.targetLocked).setAlpha(1);
+            if (this.targetLocked) this.targetLockTween.restart();
+            else this.targetLockTween.pause();
+        }
         const chromeColor = payload.broken
             ? CAPTAIN_DASHBOARD_STYLE.equipmentProgress.repairColor
             : FONT_COLOR.PRIMARY;
@@ -156,10 +169,6 @@ export default class BridgeEnemyEquipmentTileView {
                     : CAPTAIN_DASHBOARD_STYLE.equipmentProgress.readyColor,
             );
 
-        this.stateText
-            .setText(payload.broken ? "BROKEN" : "")
-            .setTint(CAPTAIN_DASHBOARD_STYLE.equipmentProgress.repairColor);
-
         this.integrityView.update(
             payload.integrity.current,
             payload.integrity.max,
@@ -168,6 +177,7 @@ export default class BridgeEnemyEquipmentTileView {
     }
 
     public destroy(): void {
+        this.targetLockTween.remove();
         this.root.destroy(true);
     }
 }

@@ -61,7 +61,7 @@ ENEMY SHIP:
 - the right dashboard renders basic HULL plus the mirrored 4x3 installed-equipment grid;
 - equipment identity, slot placement, integrity and BROKEN state are visible;
 - hidden ammo/cooldown/crew-decision truth is not leaked merely because the engine owns it;
-- direct offensive slot targeting is not implemented yet.
+- player Beam can target occupied equipment slots, including already-BROKEN equipment.
 
 Shared dashboard presentation now owns common chrome/status primitives such as header, Hull, Power Core, slot chrome,
 integrity, metrics, pips and progress-icon treatment. Keep player/enemy event adapters separate where their data/visibility
@@ -104,7 +104,7 @@ Player Beam Cannon uses its content-defined `powerCost`.
 - command availability requires enough current Power Core charge;
 - cost is committed when Beam charging starts;
 - later cancellation/interruption does not refund committed Power;
-- player Beam still targets the enemy actor as a whole for now.
+- player Beam carries a semantic `HULL | SLOT(slotId)` target; dashboard input currently selects slots only.
 
 Do not re-add Beam CORE cost as a TODO.
 
@@ -174,7 +174,7 @@ Rules:
 TexturePacker recursively derives atlas frame keys from `assets/raw/images`; TS manifests must match those relative paths
 without `.png`.
 
-## Beam target-selection UI — FIRST ATOM LANDED
+## Beam slot targeting — LANDED
 
 The player Beam tile now enters presentation-only target selection instead of immediately issuing the actor-wide command.
 The selected tile keeps `G CANCEL`; other own equipment tiles dim and their existing input surfaces are disabled.
@@ -182,12 +182,18 @@ The Beam outline and header background highlight only on hover; the cancel label
 Enemy equipment outlines pulse together and hover shows `G FIRE`. Re-clicking the selected Beam cancels for free.
 Gunner stays free and CORE is not spent. Snapshot updates preserve selection, or close it when availability/targets vanish.
 
-This atom only previews enemy equipment targets: clicking one does not fire yet. HULL and empty slots do not highlight.
-No new assets were needed.
+Clicking occupied enemy equipment now submits `SLOT(slotId)` through the existing Beam command, Gunner task and runner.
+The engine validates the current mounted target and resolves it by stable slot identity, never by array order.
+At impact, intact equipment takes `moduleDamage`; a breaking hit never spills into Hull. Equipment already BROKEN at
+impact instead causes `hullDamage * 2` to Hull. Enemy Evade and whole-ship Shield retain their existing precedence.
 
-Next: carry an actual selected enemy slot through the Beam command/task/runner and resolve equipment damage. Restore other
-own tiles when charging starts, then add the pulsing crosshair on the committed target. Future Gunner Stun must cancel
-pre-command selection; Stun itself is not implemented. HULL will use its pip area; the Bridge module comes later.
+Own tiles regain normal input at target acceptance. The selected target shows the packed `icons/status/target_lock`
+micro icon in shared cyan, pulsing at its top-right. Its state derives from the active Gunner task via the dashboard
+snapshot and clears on completion/cancellation/interruption or target cleanup. Existing Beam timing, CORE commitment,
+cooldown overlap and viewscreen VFX remain unchanged. Missing slot equipment cancels through existing task cleanup.
+
+HULL and empty slots do not highlight. Engine Hull shots remain explicit `HULL` targets; Hull pip input and the Bridge
+module are deferred. Future Gunner Stun must cancel pre-command selection; Stun itself is not implemented.
 
 ## Deferred correction — equipment cooldown timing
 
@@ -198,10 +204,9 @@ The agreed cooldown corrections are not implemented. Follow the per-system
 Preserve free Missile-targeting cancellation and SPAM's lack of manual cancellation. Other allowed termination paths use
 a full cooldown. Keep this work narrow; Evade Drive wear is a separate explicit TODO, not an already-landed cost.
 
-## Next gameplay slice — player Beam semantic targeting
+## Targeting continuation
 
-The persistent enemy board and first target-selection UI atom are landed. Inspect the current Beam
-command/task/runner/read path and replace actor-wide player Beam targeting with a semantic target carried end-to-end:
+Player Beam now carries a semantic target end-to-end:
 
 ```text
 HULL
@@ -209,8 +214,8 @@ or
 SLOT(slotId)
 ```
 
-Start with the already-visible ENEMY SHIP equipment tiles. Hull targeting via the Hull pip area and the future Bridge
-module are outside this first targeting slice. Do not add a modal target picker.
+ENEMY SHIP equipment-tile input is landed. Hull targeting via the Hull pip area and the future Bridge module remain
+separate atoms. Do not add a modal target picker.
 
 After that:
 
@@ -228,7 +233,7 @@ player Beam HULL | SLOT(slotId)
 - basic incoming threat identity is free information; no mandatory Scientist TRACK/IDENTIFY;
 - current incoming Beam target vocabulary is still `HULL | DRIVE`;
 - current player targeted Shield uses that same temporary `HULL | DRIVE` vocabulary;
-- current player Beam still targets the enemy actor as a whole;
+- current player Beam resolves `HULL | SLOT(slotId)`; only slot selection is exposed on the dashboard so far;
 - slot targets resolve installed equipment; integrity/BROKEN belongs to equipment, never to a second slot-health state;
 - Defense Turret interception is deterministic after successful Gunner work;
 - Beam, Evade, Defense Turret and Shield Generator use shared Power Core;
@@ -239,6 +244,9 @@ player Beam HULL | SLOT(slotId)
   for the current per-system timing and `docs/BACKLOG.md` for the deferred correction;
 - encounter-end restoration/cleanup is still deferred;
 - generic BROKEN gating/repair across all breakable equipment is still unfinished.
+
+Existing interruption asymmetry observed during Beam tests: incoming mines and Beams interrupt officer work;
+incoming Missile impact currently only applies Hull damage and emits its impact event. This atom does not change it.
 
 When intended design and runtime truth differ, keep the difference explicit. Do not silently rewrite one to look like the
 other.
@@ -259,4 +267,5 @@ Still avoid touching these unrelated holdouts without a concrete reason:
 Read this file and follow the applicable local/Web Chat baseline in `docs/WORKING_RULES.md`, then inspect the Beam
 selection controller, command/task/runner and enemy equipment read model.
 
-Continue with **Beam targeting via enemy equipment tiles** unless the user explicitly changes priority.
+Beam targeting via enemy equipment tiles is complete. Choose the next narrow slice with the user from the remaining
+targeting/presentation and deferred cooldown work above.
