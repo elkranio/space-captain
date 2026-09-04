@@ -2,11 +2,14 @@ import { FONT_COLOR, FONT_FAMILY, FONT_SIZE } from "../../../../../theme/font";
 import type BridgeScene from "../../BridgeScene";
 import { CAPTAIN_DASHBOARD_LAYOUT } from "./captain_dashboard_layout";
 import { CAPTAIN_DASHBOARD_STYLE } from "./captain_dashboard_style";
+import BridgeHeaderTargetView from "./BridgeHeaderTargetView";
 import BridgeHullStatusView from "./BridgeHullStatusView";
 import BridgePowerCoreStatusView from "./BridgePowerCoreStatusView";
 
 const HEADER = CAPTAIN_DASHBOARD_LAYOUT.shipDashboard.header;
 const OFFICER_STATUS_LABELS = ["P", "E", "G", "S"] as const;
+const HULL_TARGET_RIGHT_PADDING = 16;
+const BRIDGE_TARGET_LEFT_PADDING = 14;
 
 // Shared HULL / Power Core / officer status / divider presentation for both ship dashboards.
 // Player and enemy wrappers keep their own event mapping and visibility policy.
@@ -21,7 +24,15 @@ export default class BridgeShipDashboardHeaderView {
 
     private readonly divider: Phaser.GameObjects.Rectangle;
 
-    constructor(scene: BridgeScene, width: number, height: number) {
+    private readonly hullTargetView: BridgeHeaderTargetView;
+
+    private readonly bridgeTargetView: BridgeHeaderTargetView;
+
+    constructor(
+        scene: BridgeScene,
+        private readonly width: number,
+        private readonly height: number,
+    ) {
         this.root = scene.add.container(0, 0);
 
         this.hullView = new BridgeHullStatusView(scene, height);
@@ -65,11 +76,17 @@ export default class BridgeShipDashboardHeaderView {
             )
             .setOrigin(0, 0);
 
+        this.hullTargetView = new BridgeHeaderTargetView(scene, "left");
+        this.bridgeTargetView = new BridgeHeaderTargetView(scene, "right");
+        this.layoutTargetViews();
+
         this.root.add([
             this.hullView.getRoot(),
             this.powerCoreView.getRoot(),
             this.officerStatusRoot,
             this.divider,
+            this.hullTargetView.getRoot(),
+            this.bridgeTargetView.getRoot(),
         ]);
     }
 
@@ -88,11 +105,13 @@ export default class BridgeShipDashboardHeaderView {
     public setHull(current: number, max: number): void {
         this.hullView.update(current, max);
         this.layoutPowerCore();
+        this.layoutTargetViews();
     }
 
     public clearHull(): void {
         this.hullView.clear();
         this.layoutPowerCore();
+        this.layoutTargetViews();
     }
 
     public setPowerCoreVisible(visible: boolean): void {
@@ -111,11 +130,31 @@ export default class BridgeShipDashboardHeaderView {
         this.powerCoreView.clear();
     }
 
+    public setTargetSelectionEnabled(enabled: boolean): void {
+        this.hullTargetView.setSelectionEnabled(enabled);
+        this.bridgeTargetView.setSelectionEnabled(enabled);
+    }
+
+    public setTargetPulse(alpha: number): void {
+        this.hullTargetView.setPulseAlpha(alpha);
+        this.bridgeTargetView.setPulseAlpha(alpha);
+    }
+
+    public setHullTargetLocked(locked: boolean): void {
+        this.hullTargetView.setTargetLocked(locked);
+    }
+
+    public setBridgeTargetLocked(locked: boolean): void {
+        this.bridgeTargetView.setTargetLocked(locked);
+    }
+
     public destroy(): void {
         this.hullView.destroy();
         this.powerCoreView.destroy();
         this.officerStatusRoot.destroy(true);
         this.divider.destroy();
+        this.hullTargetView.destroy();
+        this.bridgeTargetView.destroy();
         this.root.destroy(false);
     }
 
@@ -123,6 +162,23 @@ export default class BridgeShipDashboardHeaderView {
         this.powerCoreView.setPosition(
             HEADER.hullX + this.hullView.getWidth() + HEADER.hullPowerCoreGap,
             0,
+        );
+    }
+
+    private layoutTargetViews(): void {
+        const hullWidth =
+            HEADER.hullX + this.hullView.getWidth() + HULL_TARGET_RIGHT_PADDING;
+        this.hullTargetView.setBounds(0, 0, hullWidth, this.height);
+
+        const bridgeX = Math.max(
+            0,
+            this.officerStatusRoot.x - BRIDGE_TARGET_LEFT_PADDING,
+        );
+        this.bridgeTargetView.setBounds(
+            bridgeX,
+            0,
+            this.width - bridgeX,
+            this.height,
         );
     }
 }

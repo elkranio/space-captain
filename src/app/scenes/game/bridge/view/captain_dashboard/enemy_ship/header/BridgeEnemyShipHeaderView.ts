@@ -5,14 +5,17 @@ import {
     type BridgeEnemyShipDashboardUpdatedPayload,
 } from "../../../../events/bridge_event";
 import type BridgeEventBus from "../../../../events/BridgeEventBus";
+import { CAPTAIN_DASHBOARD_STYLE } from "../../captain_dashboard_style";
 import BridgeShipDashboardHeaderView from "../../BridgeShipDashboardHeaderView";
 
 // Enemy event adapter for the shared ship dashboard header presentation.
 export default class BridgeEnemyShipHeaderView {
     private readonly headerView: BridgeShipDashboardHeaderView;
+    private selectingTarget = false;
+    private pulseElapsedMs = 0;
 
     constructor(
-        scene: BridgeScene,
+        private readonly scene: BridgeScene,
         private readonly eventBus: BridgeEventBus,
         width: number,
         height: number,
@@ -30,6 +33,12 @@ export default class BridgeEnemyShipHeaderView {
             this.handleDashboardUpdated,
             this,
         );
+        this.eventBus.on(
+            BRIDGE_EVENT.BEAM_TARGET_SELECTION_UPDATED,
+            this.handleBeamSelectionUpdated,
+            this,
+        );
+        this.scene.events.on(Phaser.Scenes.Events.UPDATE, this.handleSceneUpdate, this);
     }
 
     public getRoot(): Phaser.GameObjects.Container {
@@ -46,6 +55,12 @@ export default class BridgeEnemyShipHeaderView {
             this.handleDashboardUpdated,
             this,
         );
+        this.eventBus.off(
+            BRIDGE_EVENT.BEAM_TARGET_SELECTION_UPDATED,
+            this.handleBeamSelectionUpdated,
+            this,
+        );
+        this.scene.events.off(Phaser.Scenes.Events.UPDATE, this.handleSceneUpdate, this);
 
         this.headerView.destroy();
     }
@@ -76,6 +91,25 @@ export default class BridgeEnemyShipHeaderView {
             powerCore.max,
             powerCore.rechargeProgress,
         );
+    }
+
+    private handleBeamSelectionUpdated(weaponId: string | null): void {
+        this.selectingTarget = weaponId !== null;
+        this.pulseElapsedMs = 0;
+        this.headerView.setTargetSelectionEnabled(this.selectingTarget);
+        this.headerView.setTargetPulse(1);
+    }
+
+    private handleSceneUpdate(_time: number, deltaMs: number): void {
+        if (!this.selectingTarget) {
+            return;
+        }
+
+        const style = CAPTAIN_DASHBOARD_STYLE.targetSelection;
+        this.pulseElapsedMs = (this.pulseElapsedMs + deltaMs) % (style.pulseDurationMs * 2);
+        const wave = (1 + Math.cos(Math.PI * this.pulseElapsedMs / style.pulseDurationMs)) / 2;
+        const alpha = style.pulseMinAlpha + (1 - style.pulseMinAlpha) * wave;
+        this.headerView.setTargetPulse(alpha);
     }
 
     private clearPowerCore(): void {
