@@ -70,7 +70,7 @@ describe(
                         SHIP_WEAPON_PHASE
                             .TARGETING,
                     ),
-                ).toBe(false);
+                ).toBe(true);
 
                 expect(
                     doesShipWeaponPhaseAdvanceWithCrew(
@@ -79,7 +79,7 @@ describe(
                         SHIP_WEAPON_PHASE
                             .DISPENSING,
                     ),
-                ).toBe(true);
+                ).toBe(false);
 
                 expect(
                     doesShipWeaponPhaseAdvanceWithCrew(

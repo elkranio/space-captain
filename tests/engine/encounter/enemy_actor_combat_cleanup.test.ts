@@ -71,12 +71,10 @@ describe('Enemy actor combat cleanup', () => {
         engine.step(
             MINE_TARGETING_DURATION_MS,
         );
-        engine.step(1000);
-        engine.step(1000);
 
         expect(
             engine.getCombatPresentationSnapshot().outgoingStickyMines,
-        ).toHaveLength(3);
+        ).toHaveLength(1);
 
         const target =
             state.actors.find((actor) => {
@@ -211,7 +209,7 @@ describe('Enemy actor combat cleanup', () => {
 
         expect(
             mineTargetLossIndexes,
-        ).toHaveLength(2);
+        ).toHaveLength(0);
 
         for (
             const index of [
@@ -434,8 +432,6 @@ it('flushes a new missile before an older sticky mine destroys the target in the
     engine.step(
         MINE_TARGETING_DURATION_MS,
     );
-    engine.step(1000);
-    engine.step(1000);
 
     const outgoingMines =
         state.combat.stickyMines.filter(
@@ -454,7 +450,7 @@ it('flushes a new missile before an older sticky mine destroys the target in the
         );
 
     expect(outgoingMines)
-        .toHaveLength(3);
+        .toHaveLength(1);
 
     for (const mine of outgoingMines) {
         mine.timeToDetonationMs =

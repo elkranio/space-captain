@@ -78,7 +78,7 @@ export function doesShipWeaponPhaseAdvanceWithCrew(kind: ShipWeaponKind, phase: 
             return false;
 
         case SHIP_WEAPON_KIND.STICKY_MINE_DISPENSER:
-            return phase === SHIP_WEAPON_PHASE.DISPENSING;
+            return phase === SHIP_WEAPON_PHASE.TARGETING;
 
         default: {
             const exhaustiveKind: never = kind;

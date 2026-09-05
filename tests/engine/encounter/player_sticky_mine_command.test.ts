@@ -55,7 +55,7 @@ import {
 } from './combat_test_support';
 
 describe('Player sticky-mine command', () => {
-    it('targets first, then releases Gunner while the committed salvo continues', () => {
+    it('targets first, then releases Gunner after one physical mine is committed', () => {
         const {
             engine,
             dispenser,
@@ -205,7 +205,7 @@ describe('Player sticky-mine command', () => {
         );
 
         expect(dispenser.phase).toBe(
-            SHIP_WEAPON_PHASE.DISPENSING,
+            SHIP_WEAPON_PHASE.COOLDOWN,
         );
         expect(
             engine.getCombatPresentationSnapshot().outgoingStickyMines,
@@ -225,11 +225,11 @@ describe('Player sticky-mine command', () => {
 
         expect(
             engine.getCombatPresentationSnapshot().outgoingStickyMines,
-        ).toHaveLength(2);
-        expect(dispenser.ammoCount).toBe(4);
+        ).toHaveLength(1);
+        expect(dispenser.ammoCount).toBe(5);
         expect(
             dispenser.dispensedMineCount,
-        ).toBe(2);
+        ).toBe(1);
         expect(
             engine.getOfficerTasks(),
         ).toEqual([]);
@@ -244,17 +244,15 @@ describe('Player sticky-mine command', () => {
                 }),
         ).toEqual([
             5500,
-            6500,
-            7500,
         ]);
 
         expect(dispenser.phase).toBe(
             SHIP_WEAPON_PHASE.COOLDOWN,
         );
-        expect(dispenser.ammoCount).toBe(3);
+        expect(dispenser.ammoCount).toBe(5);
         expect(
             dispenser.dispensedMineCount,
-        ).toBe(3);
+        ).toBe(1);
         expect(
             engine.getOfficerTasks(),
         ).toEqual([]);
@@ -266,18 +264,18 @@ describe('Player sticky-mine command', () => {
         expect(target.hull).toBe(2);
         expect(
             engine.getCombatPresentationSnapshot().outgoingStickyMines,
-        ).toHaveLength(2);
+        ).toEqual([]);
 
         engine.step(1000);
 
-        expect(target.hull).toBe(1);
+        expect(target.hull).toBe(2);
         expect(
             engine.getCombatPresentationSnapshot().outgoingStickyMines,
-        ).toHaveLength(1);
+        ).toEqual([]);
 
         engine.step(1000);
 
-        expect(target.hull).toBe(0);
+        expect(target.hull).toBe(2);
         expect(
             engine.getCombatPresentationSnapshot().outgoingStickyMines,
         ).toEqual([]);
@@ -328,27 +326,11 @@ describe('Player sticky-mine command', () => {
                 damage: 1,
                 remainingHull: 2,
             },
-            {
-                outcome:
-                    PLAYER_STICKY_MINE_OUTCOME
-                        .DETONATED,
-
-                damage: 1,
-                remainingHull: 1,
-            },
-            {
-                outcome:
-                    PLAYER_STICKY_MINE_OUTCOME
-                        .DETONATED,
-
-                damage: 1,
-                remainingHull: 0,
-            },
         ]);
 
         expect(
             resolutionEvents,
-        ).toContainEqual({
+        ).not.toContainEqual({
             type:
                 ENCOUNTER_EVENT
                     .ENEMY_SHIP_DESTROYED,
@@ -476,7 +458,7 @@ describe('Player sticky-mine command', () => {
         ]);
     });
 
-    it('preserves salvo launch ages when one large step launches the whole salvo', () => {
+    it('starts the launched mine at full fuse when targeting overshoots', () => {
         const {
             engine,
             dispenser,
@@ -487,9 +469,8 @@ describe('Player sticky-mine command', () => {
         );
 
         engine.step(
-            MINE_TARGETING_DURATION_MS,
+            MINE_TARGETING_DURATION_MS + 2500,
         );
-        engine.step(2500);
 
         expect(
             engine.getCombatPresentationSnapshot().outgoingStickyMines
@@ -498,15 +479,13 @@ describe('Player sticky-mine command', () => {
                         .timeToDetonationMs;
                 }),
         ).toEqual([
-            5000,
-            6000,
-            7000,
+            7500,
         ]);
 
-        expect(dispenser.ammoCount).toBe(3);
+        expect(dispenser.ammoCount).toBe(5);
         expect(
             dispenser.dispensedMineCount,
-        ).toBe(3);
+        ).toBe(1);
 
         expect(dispenser.phase).toBe(
             SHIP_WEAPON_PHASE.COOLDOWN,
@@ -517,7 +496,7 @@ describe('Player sticky-mine command', () => {
         ).toEqual([]);
     });
 
-    it('launches a partial final salvo when fewer mines remain than salvo size', () => {
+    it('spends only one mine when more ammunition remains', () => {
         const {
             engine,
             dispenser,
@@ -534,17 +513,17 @@ describe('Player sticky-mine command', () => {
         );
         engine.step(1000);
 
-        expect(dispenser.ammoCount).toBe(0);
+        expect(dispenser.ammoCount).toBe(1);
         expect(
             dispenser.dispensedMineCount,
-        ).toBe(2);
+        ).toBe(1);
         expect(dispenser.phase).toBe(
             SHIP_WEAPON_PHASE.COOLDOWN,
         );
 
         expect(
             engine.getCombatPresentationSnapshot().outgoingStickyMines,
-        ).toHaveLength(2);
+        ).toHaveLength(1);
         expect(
             engine.getOfficerTasks(),
         ).toEqual([]);
@@ -636,7 +615,7 @@ describe('Player sticky-mine command', () => {
         );
     });
 
-    it('keeps a committed salvo running after damage because Gunner is already free', () => {
+    it('does not schedule extra launches after Gunner is already free', () => {
         const {
             engine,
             state,
@@ -666,7 +645,7 @@ describe('Player sticky-mine command', () => {
         engine.step(0);
 
         expect(dispenser.phase).toBe(
-            SHIP_WEAPON_PHASE.DISPENSING,
+            SHIP_WEAPON_PHASE.COOLDOWN,
         );
         expect(dispenser.ammoCount).toBe(5);
         expect(
@@ -692,10 +671,10 @@ describe('Player sticky-mine command', () => {
 
         engine.step(1000);
 
-        expect(dispenser.ammoCount).toBe(4);
+        expect(dispenser.ammoCount).toBe(5);
         expect(
             dispenser.dispensedMineCount,
-        ).toBe(2);
+        ).toBe(1);
     });
 });
 

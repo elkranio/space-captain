@@ -1,3 +1,4 @@
+import { getTimedOfficerTaskDurationMs } from "../../../content/catalogs/officer_tasks";
 import { SHIP_WEAPONS } from "../../../content/catalogs/ship_weapons";
 import { ENCOUNTER_TEAM } from "../../../defs/encounter_team";
 import {
@@ -18,6 +19,7 @@ import {
     type StickyMineState,
 } from "../../model/combat";
 import { ENCOUNTER_EVENT, type EncounterEvent } from "../../model/event";
+import { OFFICER_TASK_KIND } from "../../model/officer_task";
 import {
     ENCOUNTER_INTERNAL_EFFECT,
     type EncounterInternalEffectSink,
@@ -147,7 +149,8 @@ export default class CombatStickyMineRunner {
                 return;
 
             case SHIP_WEAPON_PHASE.TARGETING:
-                throw new Error(`Sticky-mine dispenser cannot enter targeting phase: ` + `${actor.id}/${dispenser.id}`);
+                this.advanceTargeting(actor, dispenser, deltaMs);
+                return;
 
             case SHIP_WEAPON_PHASE.DISPENSING:
                 this.ensureDispensingStarted(actor, dispenser);
@@ -287,6 +290,28 @@ export default class CombatStickyMineRunner {
 
             mine,
         });
+    }
+
+    private advanceTargeting(
+        actor: ShipEncounterActorState,
+        dispenser: StickyMineDispenserState,
+        deltaMs: number,
+    ): void {
+        const durationMs = getTimedOfficerTaskDurationMs(OFFICER_TASK_KIND.GUNNER_FIRE_STICKY_MINES);
+        const elapsedMs = dispenser.phaseElapsedMs + deltaMs;
+
+        if (elapsedMs < durationMs) {
+            dispenser.phaseElapsedMs = elapsedMs;
+            return;
+        }
+
+        dispenser.phaseElapsedMs = durationMs;
+
+        this.attachEnemyMine(actor, dispenser, 0);
+
+        const definition = this.getDispenserDefinition(dispenser);
+
+        finishShipWeaponAction(dispenser, definition.cooldownDurationMs);
     }
 
     private ensureDispensingStarted(

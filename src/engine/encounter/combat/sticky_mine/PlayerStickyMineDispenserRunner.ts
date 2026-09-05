@@ -137,11 +137,9 @@ export default class PlayerStickyMineDispenserRunner {
         // The first physical mine is the commitment edge.
         this.launchMine(dispenser, definition, task.targetActorId, 0);
 
-        if (dispenser.dispensedMineCount >= definition.salvoSize || dispenser.ammoCount <= 0) {
-            this.finishSalvo(dispenser, definition);
-        }
+        this.finishSalvo(dispenser, definition);
 
-        // Gunner is free once the salvo is physically committed.
+        // Gunner is free once the mine is physically committed.
         this.options.officerTaskRunner.complete(task.id);
     }
 
