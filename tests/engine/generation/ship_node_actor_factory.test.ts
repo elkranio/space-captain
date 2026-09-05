@@ -8,7 +8,7 @@ import { SHIP_NODE_ACTOR_PRESET_ID } from '../../../src/engine/content/presets/s
 import { ENCOUNTER_TEAM } from '../../../src/engine/defs/encounter_team';
 import { OFFICER_ROLE } from '../../../src/engine/defs/officer';
 import { SHIP_CHASSIS_ID } from '../../../src/engine/defs/ship_chassis';
-import { SHIP_DRIVE_ID, SHIP_DRIVE_STATUS } from '../../../src/engine/defs/ship_drive';
+import { SHIP_DRIVE_ID } from '../../../src/engine/defs/ship_drive';
 import { SHIP_WEAPON_ID, SHIP_WEAPON_KIND, SHIP_WEAPON_PHASE } from '../../../src/engine/defs/ship_weapon';
 import { SPACE_NODE_ACTOR_KIND } from '../../../src/engine/defs/universe';
 import ShipNodeActorFactory from '../../../src/engine/generation/space_node_actor/ShipNodeActorFactory';
@@ -60,7 +60,6 @@ describe('ShipNodeActorFactory', () => {
                 id: 'drive_00',
 
                 driveId: SHIP_DRIVE_ID.BASIC_00,
-                status: SHIP_DRIVE_STATUS.ONLINE,
             },
 
             behavior: behaviorData.standard_combat_00,
@@ -111,7 +110,6 @@ describe('ShipNodeActorFactory', () => {
 
         first.hull = 0;
 
-        first.drive.status = SHIP_DRIVE_STATUS.DISABLED;
 
         first.behavior.aggression = 0;
 
@@ -122,7 +120,6 @@ describe('ShipNodeActorFactory', () => {
 
         expect(second.hull).toBe(SHIP_CHASSIS[SHIP_CHASSIS_ID.GENERIC_00].maxHull);
 
-        expect(second.drive.status).toBe(SHIP_DRIVE_STATUS.ONLINE);
 
         expect(second.behavior.aggression).toBe(behaviorData.standard_combat_00.aggression);
 
@@ -168,7 +165,6 @@ describe('ShipNodeActorFactory', () => {
                 id: 'drive_00',
 
                 driveId: SHIP_DRIVE_ID.BASIC_00,
-                status: SHIP_DRIVE_STATUS.ONLINE,
             },
 
             behavior: behaviorData.standard_combat_00,

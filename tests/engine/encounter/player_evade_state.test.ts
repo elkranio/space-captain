@@ -7,10 +7,6 @@ import {
     SHIP_DRIVES,
 } from '../../../src/engine/content/catalogs/ship_drives';
 import {
-    SHIP_DRIVE_STATUS,
-    type ShipDriveStatus,
-} from '../../../src/engine/defs/ship_drive';
-import {
     SHIP_EVADE_PHASE,
 } from '../../../src/engine/defs/ship_evade';
 import {
@@ -157,28 +153,29 @@ describe(
         );
 
         it(
-            'rejects starting Evade while the drive is disabled',
+            'rejects starting Evade while the drive is broken',
             () => {
                 const store =
-                    createStore(
-                        SHIP_DRIVE_STATUS
-                            .DISABLED,
-                    );
+                    createStore();
+
+                const drive =
+                    store.getState().drive;
+
+                store.damagePlayerDrive(
+                    SHIP_DRIVES[drive.driveId].maxIntegrity,
+                );
 
                 expect(() => {
                     store.startPlayerEvade();
                 }).toThrow(
-                    'Cannot start player Evade with drive status: disabled',
+                    'Cannot start player Evade with broken drive',
                 );
             },
         );
     },
 );
 
-function createStore(
-    driveStatus: ShipDriveStatus =
-        SHIP_DRIVE_STATUS.ONLINE,
-): EncounterStateStore {
+function createStore(): EncounterStateStore {
     const {
         node,
         stationId,
@@ -202,9 +199,7 @@ function createStore(
                 createPlayerHullFixture(),
 
             drive:
-                createShipDriveFixture(
-                    driveStatus,
-                ),
+                createShipDriveFixture(),
         }),
     );
 }

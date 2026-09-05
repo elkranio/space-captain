@@ -1,6 +1,5 @@
 import { SHIP_WEAPONS } from "../../../content/catalogs/ship_weapons";
 import type { PlayerHullDamageResult } from "../../../defs/player";
-import { SHIP_DRIVE_STATUS } from "../../../defs/ship_drive";
 import {
     advanceShipWeaponCooldown,
     finishShipWeaponAction,
@@ -18,6 +17,11 @@ import {
     type BeamCannonTargetNode,
 } from "../../model/combat";
 import { ENCOUNTER_EVENT, PLAYER_SHIELD_END_OUTCOME, type EncounterEvent } from "../../model/event";
+import { isEquipmentOperational } from "../../model/equipment";
+import {
+    ENCOUNTER_INTERNAL_EFFECT,
+    type EncounterInternalEffectSink,
+} from "../../model/internal_effect";
 import type { EncounterState } from "../../model/state";
 import EncounterStateStore from "../../state/EncounterStateStore";
 import CombatRuntimeIdentityFactory from "../CombatRuntimeIdentityFactory";
@@ -27,6 +31,7 @@ type CombatBeamCannonRunnerOptions = {
     identities: CombatRuntimeIdentityFactory;
     random: () => number;
     emit: (event: EncounterEvent) => void;
+    applyInternalEffect: EncounterInternalEffectSink;
 };
 
 // Owns the complete incoming-beamCannon lifecycle:
@@ -42,11 +47,14 @@ export default class CombatBeamCannonRunner {
 
     private readonly emit: (event: EncounterEvent) => void;
 
-    constructor({ stateStore, identities, random, emit }: CombatBeamCannonRunnerOptions) {
+    private readonly applyInternalEffect: EncounterInternalEffectSink;
+
+    constructor({ stateStore, identities, random, emit, applyInternalEffect }: CombatBeamCannonRunnerOptions) {
         this.stateStore = stateStore;
         this.identities = identities;
         this.random = random;
         this.emit = emit;
+        this.applyInternalEffect = applyInternalEffect;
 
         this.state = this.stateStore.getState();
     }
@@ -237,11 +245,17 @@ export default class CombatBeamCannonRunner {
                 return this.stateStore.damagePlayerHull(definition.hullDamage);
 
             case BEAM_CANNON_TARGET_NODE.DRIVE:
-                if (this.state.drive.status === SHIP_DRIVE_STATUS.DISABLED) {
+                if (!isEquipmentOperational(this.state.drive)) {
                     return this.stateStore.damagePlayerHull(definition.hullDamage * 2);
                 }
 
                 this.stateStore.damagePlayerDrive(definition.moduleDamage);
+
+                if (!isEquipmentOperational(this.state.drive)) {
+                    this.applyInternalEffect({
+                        kind: ENCOUNTER_INTERNAL_EFFECT.PLAYER_DRIVE_BROKEN,
+                    });
+                }
 
                 return {
                     appliedDamage: 0,

@@ -103,6 +103,7 @@ export default class CombatRunner {
             random,
 
             emit,
+            applyInternalEffect,
         });
 
         this.stickyMineRunner = new CombatStickyMineRunner({

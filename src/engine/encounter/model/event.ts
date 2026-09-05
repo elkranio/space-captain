@@ -2,7 +2,6 @@
 
 import type { PlayerHullDamageResult } from "../../defs/player";
 import type { DefenseTurretShotOutcome } from "../../defs/defense_turret";
-import type { EncounterShipDriveState } from "./state";
 import type { EncounterAnchorState } from "../anchors/encounter_anchor";
 import type { JumpPointEncounterAnchorState } from "../anchors/jump_point_encounter_anchor";
 import { BEAM_CANNON_SHOT_OUTCOME, PLAYER_MISSILE_OUTCOME, PLAYER_STICKY_MINE_OUTCOME } from "./combat";
@@ -34,7 +33,6 @@ export const ENCOUNTER_EVENT = {
 
     PLAYER_SHIELD_ENDED: "player_shield_ended",
 
-    PLAYER_SHIP_DRIVE_STATE_CHANGED: "player_ship_drive_state_changed",
     ENEMY_ATTACK_STARTED: "enemy_attack_started",
 
     PLAYER_BEAM_CANNON_CHARGING_STARTED: "player_beam_cannon_charging_started",
@@ -197,12 +195,6 @@ export type PlayerShieldEndedEvent = {
     shield: ActiveShieldState;
 
     outcome: PlayerShieldEndOutcome;
-};
-
-export type PlayerShipDriveStateChangedEvent = {
-    type: typeof ENCOUNTER_EVENT.PLAYER_SHIP_DRIVE_STATE_CHANGED;
-
-    drive: EncounterShipDriveState;
 };
 
 export type EnemyAttackStartedEvent = {
@@ -447,7 +439,6 @@ export type EncounterEvent =
     | OfficerTaskEndedEvent
     | PlayerShieldDeployedEvent
     | PlayerShieldEndedEvent
-    | PlayerShipDriveStateChangedEvent
     | EnemyAttackStartedEvent
     | PlayerBeamCannonChargingStartedEvent
     | PlayerBeamCannonFiredEvent

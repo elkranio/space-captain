@@ -1,7 +1,7 @@
 // src/engine/encounter/commands/handlers/engineer_repair_drive_command_handler.ts
 
 import { OFFICER_ROLE } from "../../../defs/officer";
-import { SHIP_DRIVE_STATUS } from "../../../defs/ship_drive";
+import { isEquipmentOperational } from "../../model/equipment";
 import { ENCOUNTER_OFFICER_COMMAND_ID, OFFICER_COMMAND_TARGET_KIND, type OfficerCommandDef } from "../../model/command";
 import type { OfficerCommandHandler } from "../../model/officer_command_handler";
 import { createEngineerRepairDriveTask } from "../../officer_tasks/create_officer_task_draft";
@@ -25,7 +25,7 @@ export const engineerRepairDriveCommandHandler = {
     def: COMMAND_DEF,
 
     getAvailableCommands(state) {
-        if (state.drive.status !== SHIP_DRIVE_STATUS.DISABLED) {
+        if (isEquipmentOperational(state.drive)) {
             return [];
         }
 

@@ -407,6 +407,10 @@ export default class EncounterEngine {
                     effect.channelId,
                     effect.targetActorId,
                 );
+
+            case ENCOUNTER_INTERNAL_EFFECT.PLAYER_DRIVE_BROKEN:
+                this.officerTaskRunner.cancelTasksRequiringOnlineDrive();
+                return;
         }
     };
 

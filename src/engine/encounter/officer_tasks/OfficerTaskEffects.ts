@@ -78,17 +78,9 @@ export default class OfficerTaskEffects {
                 this.combatRunner.purgeSpamChannel(task.channelId);
                 return undefined;
 
-            case OFFICER_TASK_KIND.ENGINEER_REPAIR_DRIVE: {
-                const drive = this.stateStore.repairPlayerDrive();
-
-                this.emit({
-                    type: ENCOUNTER_EVENT.PLAYER_SHIP_DRIVE_STATE_CHANGED,
-
-                    drive,
-                });
-
+            case OFFICER_TASK_KIND.ENGINEER_REPAIR_DRIVE:
+                this.stateStore.repairPlayerDrive();
                 return undefined;
-            }
 
             case OFFICER_TASK_KIND.ENGINEER_DEPLOY_SHIELD: {
                 const shield = this.stateStore.deployPlayerShield(task.targetNode);

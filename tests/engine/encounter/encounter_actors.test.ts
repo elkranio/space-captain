@@ -28,9 +28,6 @@ import {
     SHIP_CHASSIS_ID,
 } from '../../../src/engine/defs/ship_chassis';
 import {
-    SHIP_DRIVE_STATUS,
-} from '../../../src/engine/defs/ship_drive';
-import {
     SHIP_EVADE_PHASE,
 } from '../../../src/engine/defs/ship_evade';
 import {
@@ -458,8 +455,7 @@ describe('encounter actors', () => {
 
         encounterActor.hull = 1;
 
-        encounterActor.drive.status =
-            SHIP_DRIVE_STATUS.DISABLED;
+        encounterActor.drive.integrity = 0;
 
         encounterActor.behavior
             .aggression = 0;
@@ -474,8 +470,8 @@ describe('encounter actors', () => {
             nodeActor.maxHull,
         );
 
-        expect(nodeActor.drive.status).toBe(
-            SHIP_DRIVE_STATUS.ONLINE,
+        expect(nodeActor.drive).not.toHaveProperty(
+            'integrity',
         );
 
         expect(

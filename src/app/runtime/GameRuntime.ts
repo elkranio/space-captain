@@ -10,7 +10,6 @@ import {
     type PlayerSpaceNavigationState,
 } from "../../engine/defs/player_location";
 import type { RunState } from "../../engine/defs/run";
-import type { ShipDriveState } from "../../engine/defs/ship_drive";
 import type { ShipWeaponState } from "../../engine/defs/ship_weapon";
 import { SHIELD_GENERATOR_PHASE, type ShieldGeneratorState } from "../../engine/defs/shield_generator";
 import { SPACE_ANCHOR_KIND, type SpaceAnchorState } from "../../engine/defs/universe";
@@ -148,20 +147,6 @@ export class GameRuntime {
         current.phase = next.phase;
 
         current.phaseElapsedMs = next.phaseElapsedMs;
-    }
-
-    public setPlayerShipDriveState(next: ShipDriveState): void {
-        const current = this.currentRun.player.ship.drive;
-
-        if (next.id !== current.id) {
-            throw new Error("Player drive runtime id cannot change: " + `${next.id} !== ${current.id}`);
-        }
-
-        if (next.driveId !== current.driveId) {
-            throw new Error("Player drive definition cannot change: " + `${next.driveId} !== ${current.driveId}`);
-        }
-
-        current.status = next.status;
     }
 
     public setPlayerShipWeaponStates(next: ShipWeaponState[]): void {

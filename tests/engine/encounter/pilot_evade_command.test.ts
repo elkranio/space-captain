@@ -10,10 +10,6 @@ import {
     OFFICER_ROLE,
 } from '../../../src/engine/defs/officer';
 import {
-    SHIP_DRIVE_STATUS,
-    type ShipDriveStatus,
-} from '../../../src/engine/defs/ship_drive';
-import {
     SHIP_EVADE_PHASE,
 } from '../../../src/engine/defs/ship_evade';
 import {
@@ -236,11 +232,14 @@ describe(
                 const {
                     store,
                 } =
-                    createHarness(
-                        4,
-                        SHIP_DRIVE_STATUS
-                            .DISABLED,
-                    );
+                    createHarness(4);
+
+                const drive =
+                    store.getState().drive;
+
+                store.damagePlayerDrive(
+                    SHIP_DRIVES[drive.driveId].maxIntegrity,
+                );
 
                 expect(
                     getAvailableOfficerCommands(
@@ -342,8 +341,6 @@ function executeEvade(
 
 function createHarness(
     charges: number,
-    driveStatus: ShipDriveStatus =
-        SHIP_DRIVE_STATUS.ONLINE,
 ) {
     const {
         node,
@@ -369,9 +366,7 @@ function createHarness(
                     createPlayerHullFixture(),
 
                 drive:
-                    createShipDriveFixture(
-                        driveStatus,
-                    ),
+                    createShipDriveFixture(),
 
                 powerCore: {
                     id:

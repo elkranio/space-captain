@@ -3,14 +3,13 @@ import { createPlayerHullFixture } from '../../fixtures/engine/player_hull_fixtu
 import { createShipDriveFixture } from '../../fixtures/engine/ship_drive_fixtures';
 import { createSingleStationNodeFixture } from '../../fixtures/engine/space_node_fixtures';
 import { PLAYER_SPACE_NAVIGATION_KIND } from '../../../src/engine/defs/player_location';
-import { SHIP_DRIVE_STATUS, type ShipDriveStatus } from '../../../src/engine/defs/ship_drive';
 import { engineerRepairDriveCommandHandler } from '../../../src/engine/encounter/commands/handlers/engineer_repair_drive_command_handler';
 import {
     isEquipmentOperational,
 } from '../../../src/engine/encounter/model/equipment';
 import EncounterStateStore from '../../../src/engine/encounter/state/EncounterStateStore';
 
-function createStore(status: ShipDriveStatus = SHIP_DRIVE_STATUS.ONLINE): EncounterStateStore {
+function createStore(): EncounterStateStore {
     const { node, stationId } = createSingleStationNodeFixture();
 
     return EncounterStateStore.fromSpaceNode({
@@ -22,7 +21,7 @@ function createStore(status: ShipDriveStatus = SHIP_DRIVE_STATUS.ONLINE): Encoun
         },
 
         playerHull: createPlayerHullFixture(),
-        drive: createShipDriveFixture(status),
+        drive: createShipDriveFixture(),
     });
 }
 
@@ -34,7 +33,6 @@ describe('player drive integrity', () => {
 
         expect(store.damagePlayerDrive(1)).toMatchObject({
             integrity: 1,
-            status: SHIP_DRIVE_STATUS.ONLINE,
         });
 
         expect(
@@ -43,7 +41,6 @@ describe('player drive integrity', () => {
 
         expect(store.damagePlayerDrive(5)).toMatchObject({
             integrity: 0,
-            status: SHIP_DRIVE_STATUS.DISABLED,
         });
 
         expect(
@@ -54,7 +51,7 @@ describe('player drive integrity', () => {
 
         expect(() => {
             store.damagePlayerDrive(1);
-        }).toThrow('Cannot damage player drive from status: disabled');
+        }).toThrow('Cannot damage broken player drive');
     });
 
     it('does not allow repair while the damaged drive is still operational', () => {
@@ -64,7 +61,6 @@ describe('player drive integrity', () => {
 
         expect(store.getState().drive).toMatchObject({
             integrity: 1,
-            status: SHIP_DRIVE_STATUS.ONLINE,
         });
 
         expect(
@@ -75,20 +71,20 @@ describe('player drive integrity', () => {
 
         expect(() => {
             store.repairPlayerDrive();
-        }).toThrow('Cannot repair player drive from status: online');
+        }).toThrow('Cannot repair operational player drive');
     });
 
-    it('starts a disabled encounter drive broken and repairs it straight to full integrity', () => {
-        const store = createStore(SHIP_DRIVE_STATUS.DISABLED);
+    it('repairs a broken encounter drive straight to full integrity', () => {
+        const store = createStore();
+
+        store.damagePlayerDrive(2);
 
         expect(store.getState().drive).toMatchObject({
             integrity: 0,
-            status: SHIP_DRIVE_STATUS.DISABLED,
         });
 
         expect(store.repairPlayerDrive()).toMatchObject({
             integrity: 2,
-            status: SHIP_DRIVE_STATUS.ONLINE,
         });
     });
 });

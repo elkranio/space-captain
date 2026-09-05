@@ -2,7 +2,6 @@ import { describe, expect, it } from 'vitest';
 import { SHIP_WEAPONS } from '../../../src/engine/content/catalogs/ship_weapons';
 import { SHIP_NODE_ACTOR_PRESET_ID } from '../../../src/engine/content/presets/ship_node_actors';
 import { PLAYER_SPACE_NAVIGATION_KIND } from '../../../src/engine/defs/player_location';
-import { SHIP_DRIVE_STATUS } from '../../../src/engine/defs/ship_drive';
 import { SHIP_WEAPON_KIND } from '../../../src/engine/defs/ship_weapon';
 import EncounterEngine from '../../../src/engine/encounter/EncounterEngine';
 import {
@@ -26,7 +25,6 @@ describe('Beam Cannon drive damage', () => {
 
         expect(setup.engine.getDriveState()).toMatchObject({
             integrity: 1,
-            status: SHIP_DRIVE_STATUS.ONLINE,
         });
 
         expect(setup.engine.getPlayerHullState().hull).toBe(hullBefore);
@@ -51,7 +49,6 @@ describe('Beam Cannon drive damage', () => {
 
         expect(setup.engine.getDriveState()).toMatchObject({
             integrity: 0,
-            status: SHIP_DRIVE_STATUS.DISABLED,
         });
 
         expect(setup.engine.getPlayerHullState().hull).toBe(hullBefore);
@@ -71,13 +68,11 @@ describe('Beam Cannon drive damage', () => {
         const hullBefore = setup.engine.getPlayerHullState().hull;
 
         setup.state.drive.integrity = 0;
-        setup.state.drive.status = SHIP_DRIVE_STATUS.DISABLED;
 
         const events = fireBeam(setup);
 
         expect(setup.engine.getDriveState()).toMatchObject({
             integrity: 0,
-            status: SHIP_DRIVE_STATUS.DISABLED,
         });
 
         expect(setup.engine.getPlayerHullState().hull).toBe(

@@ -12,7 +12,7 @@ import type { ShipDefenseTurretState } from "../../defs/defense_turret";
 import type { ShipBehaviorState } from "../../defs/ship_behavior";
 import type { ShipEquipmentMountState } from "../../defs/ship_slot";
 
-import { SHIP_DRIVE_STATUS, type ShipDriveState } from "../../defs/ship_drive";
+import type { ShipDriveState } from "../../defs/ship_drive";
 import {
     advanceShipEvade,
     createReadyShipEvadeState,
@@ -26,7 +26,7 @@ import {
 } from "../../defs/shield_generator";
 import { ENCOUNTER_ACTOR_KIND, type EncounterActorState } from "../actors/encounter_actor";
 import type { ShipEncounterActorState } from "../actors/ship_encounter_actor";
-import { createEncounterEquipmentState } from "../model/equipment";
+import { createEncounterEquipmentState, isEquipmentOperational } from "../model/equipment";
 import type { EncounterState } from "../model/state";
 
 export type EnemyHullDamageResult = {
@@ -130,7 +130,6 @@ export default class EncounterActorStore {
             drive: createEncounterEquipmentState(
                 drive,
                 SHIP_DRIVES[drive.driveId].maxIntegrity,
-                drive.status !== SHIP_DRIVE_STATUS.DISABLED,
             ),
 
             evade: createReadyShipEvadeState(),
@@ -238,7 +237,7 @@ export default class EncounterActorStore {
             throw new Error("Encounter actor not found: " + actorId);
         }
 
-        if (actor.drive.status !== SHIP_DRIVE_STATUS.ONLINE || actor.evade.phase !== SHIP_EVADE_PHASE.READY) {
+        if (!isEquipmentOperational(actor.drive) || actor.evade.phase !== SHIP_EVADE_PHASE.READY) {
             return false;
         }
 

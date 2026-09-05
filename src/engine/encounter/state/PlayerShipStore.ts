@@ -10,7 +10,6 @@ import {
 } from "../../defs/defense_turret";
 import { SHIP_WEAPONS } from "../../content/catalogs/ship_weapons";
 import { SHIP_DRIVES } from "../../content/catalogs/ship_drives";
-import { SHIP_DRIVE_STATUS } from "../../defs/ship_drive";
 import { advanceShipEvade, startShipEvade, stopShipEvade } from "../../defs/ship_evade";
 import { SHIELD_GENERATORS } from "../../content/catalogs/shield_generators";
 import { DEFENSE_TURRETS } from "../../content/catalogs/defense_turrets";
@@ -70,15 +69,11 @@ export default class PlayerShipStore {
 
         const drive = this.state.drive;
 
-        if (drive.status !== SHIP_DRIVE_STATUS.ONLINE) {
-            throw new Error("Cannot damage player drive from status: " + drive.status);
+        if (!isEquipmentOperational(drive)) {
+            throw new Error("Cannot damage broken player drive");
         }
 
         damageEquipmentIntegrity(drive, moduleDamage);
-
-        if (!isEquipmentOperational(drive)) {
-            drive.status = SHIP_DRIVE_STATUS.DISABLED;
-        }
 
         return {
             ...drive,
@@ -88,12 +83,11 @@ export default class PlayerShipStore {
     public repairPlayerDrive(): EncounterShipDriveState {
         const drive = this.state.drive;
 
-        if (drive.status !== SHIP_DRIVE_STATUS.DISABLED) {
-            throw new Error("Cannot repair player drive from status: " + drive.status);
+        if (isEquipmentOperational(drive)) {
+            throw new Error("Cannot repair operational player drive");
         }
 
         drive.integrity = SHIP_DRIVES[drive.driveId].maxIntegrity;
-        drive.status = SHIP_DRIVE_STATUS.ONLINE;
 
         return {
             ...drive,
@@ -103,8 +97,8 @@ export default class PlayerShipStore {
     public startPlayerEvade(): void {
         const drive = this.state.drive;
 
-        if (drive.status !== SHIP_DRIVE_STATUS.ONLINE) {
-            throw new Error("Cannot start player Evade with drive status: " + drive.status);
+        if (!isEquipmentOperational(drive)) {
+            throw new Error("Cannot start player Evade with broken drive");
         }
 
         startShipEvade(this.state.evade, SHIP_DRIVES[drive.driveId]);

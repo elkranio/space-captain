@@ -11,7 +11,7 @@ import type { ShipChassisDefinition } from "../../defs/ship_chassis";
 import type { PowerCoreState } from "../../defs/power_core";
 import type { ShipDefenseTurretState } from "../../defs/defense_turret";
 
-import { SHIP_DRIVE_STATUS, type ShipDriveState } from "../../defs/ship_drive";
+import type { ShipDriveState } from "../../defs/ship_drive";
 import type { ShipEquipmentMountState, ShipSlotKind } from "../../defs/ship_slot";
 import { SHIP_WEAPON_KIND, type ShipWeaponState } from "../../defs/ship_weapon";
 import type { ShieldGeneratorState } from "../../defs/shield_generator";
@@ -72,7 +72,6 @@ export default class ShipFactory {
                 id: preset.drive.id,
 
                 driveId: driveDefinition.id,
-                status: SHIP_DRIVE_STATUS.ONLINE,
             },
 
             ...(preset.defenseTurret

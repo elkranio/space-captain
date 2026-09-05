@@ -9,10 +9,6 @@ import { OFFICER_ROLE } from '../../../src/engine/defs/officer';
 import {
     PLAYER_SPACE_NAVIGATION_KIND,
 } from '../../../src/engine/defs/player_location';
-import {
-    SHIP_DRIVE_ID,
-    SHIP_DRIVE_STATUS,
-} from '../../../src/engine/defs/ship_drive';
 import EncounterEngine from '../../../src/engine/encounter/EncounterEngine';
 import {
     ENCOUNTER_OFFICER_COMMAND_ID,
@@ -29,6 +25,7 @@ import {
 } from '../../../src/engine/encounter/model/officer_task';
 import { createShipDriveFixture } from '../../fixtures/engine/ship_drive_fixtures';
 import { createStationAndBeaconNodeFixture } from '../../fixtures/engine/space_node_fixtures';
+import { getMutableEncounterStateForTest } from './get_mutable_encounter_state_for_test';
 
 const REPAIR_DURATION_MS =
     getTimedOfficerTaskDurationMs(
@@ -52,9 +49,7 @@ describe('Engineer repair drive command', () => {
             random: () => 0.5,
             playerHull: createPlayerHullFixture(),
 
-            drive: createShipDriveFixture(
-                SHIP_DRIVE_STATUS.DISABLED,
-            ),
+            drive: createShipDriveFixture(),
 
             node,
 
@@ -67,6 +62,8 @@ describe('Engineer repair drive command', () => {
         });
 
         engine.drainEvents();
+
+        getMutableEncounterStateForTest(engine).drive.integrity = 0;
 
         expect(
             engine
@@ -179,30 +176,11 @@ describe('Engineer repair drive command', () => {
 
         expect(engine.drainEvents()).toEqual([]);
 
-        expect(engine.getDriveState().status).toBe(
-            SHIP_DRIVE_STATUS.DISABLED,
-        );
+        expect(engine.getDriveState().integrity).toBe(0);
 
         engine.step(1);
 
-        const [
-            driveChangedEvent,
-            taskEndedEvent,
-        ] = engine.drainEvents();
-
-        expect(driveChangedEvent).toEqual({
-            type:
-                ENCOUNTER_EVENT.PLAYER_SHIP_DRIVE_STATE_CHANGED,
-
-            drive: {
-                id: 'drive_player_00',
-                driveId:
-                    SHIP_DRIVE_ID.BASIC_00,
-                integrity: 2,
-                status:
-                    SHIP_DRIVE_STATUS.ONLINE,
-            },
-        });
+        const [taskEndedEvent] = engine.drainEvents();
 
         expect(taskEndedEvent).toMatchObject({
             type:
@@ -222,9 +200,7 @@ describe('Engineer repair drive command', () => {
                 OFFICER_TASK_OUTCOME.COMPLETED,
         });
 
-        expect(engine.getDriveState().status).toBe(
-            SHIP_DRIVE_STATUS.ONLINE,
-        );
+        expect(engine.getDriveState().integrity).toBe(2);
 
         expect(
             engine
@@ -267,9 +243,7 @@ describe('Engineer repair drive command', () => {
             random: () => 0.5,
             playerHull: createPlayerHullFixture(),
 
-            drive: createShipDriveFixture(
-                SHIP_DRIVE_STATUS.DISABLED,
-            ),
+            drive: createShipDriveFixture(),
 
             node,
 
@@ -282,6 +256,8 @@ describe('Engineer repair drive command', () => {
         });
 
         engine.drainEvents();
+
+        getMutableEncounterStateForTest(engine).drive.integrity = 0;
 
         const firstTaskId =
             startRepair(engine);
@@ -324,9 +300,7 @@ describe('Engineer repair drive command', () => {
 
         engine.step(PARTIAL_REPAIR_MS);
 
-        expect(engine.getDriveState().status).toBe(
-            SHIP_DRIVE_STATUS.DISABLED,
-        );
+        expect(engine.getDriveState().integrity).toBe(0);
 
         expect(engine.getOfficerTasks()).toEqual([
             expect.objectContaining({
