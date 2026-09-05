@@ -1,6 +1,7 @@
 // src/engine/encounter/combat/queries/get_enemy_captain_decision_snapshot.ts
 
 import { DEFENSE_TURRETS } from "../../../content/catalogs/defense_turrets";
+import { getTimedOfficerTaskDurationMs } from "../../../content/catalogs/officer_tasks";
 import { SHIP_WEAPONS } from "../../../content/catalogs/ship_weapons";
 import type { OfficerRole } from "../../../defs/officer";
 import type { ShipDefenseTurretState } from "../../../defs/defense_turret";
@@ -9,6 +10,7 @@ import { SHIP_WEAPON_KIND, type ShipWeaponState } from "../../../defs/ship_weapo
 import type { ShipEncounterActorState } from "../../actors/ship_encounter_actor";
 import { getActiveCrewProgressEffects } from "../../crew_performance/get_active_crew_progress_effects";
 import { COMBAT_SOURCE_KIND, COMBAT_TARGET_KIND } from "../../model/combat";
+import { OFFICER_TASK_KIND } from "../../model/officer_task";
 import { ENEMY_THREAT_KIND } from "../../model/enemy_threat_observation";
 import { SHIP_CREW_TASK_KIND } from "../../model/ship_crew_task";
 import type { EncounterState } from "../../model/state";
@@ -295,7 +297,7 @@ function getWeaponOperatorBusyDurationMs(weapon: ShipWeaponState): number {
                 throw new Error("Missile launcher definition mismatch: " + weapon.weaponId);
             }
 
-            return definition.targetingDurationMs;
+            return getTimedOfficerTaskDurationMs(OFFICER_TASK_KIND.GUNNER_FIRE_MISSILE);
 
         case SHIP_WEAPON_KIND.BEAM_CANNON:
             if (definition.kind !== SHIP_WEAPON_KIND.BEAM_CANNON) {

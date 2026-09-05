@@ -3,6 +3,7 @@
 import { DEFENSE_TURRETS } from "../../content/catalogs/defense_turrets";
 import { POWER_CORES } from "../../content/catalogs/power_cores";
 import { SHIELD_GENERATORS } from "../../content/catalogs/shield_generators";
+import { getTimedOfficerTaskDurationMs } from "../../content/catalogs/officer_tasks";
 import { SHIP_WEAPONS } from "../../content/catalogs/ship_weapons";
 import type { ShipDefenseTurretState } from "../../defs/defense_turret";
 import type { PowerCoreState } from "../../defs/power_core";
@@ -37,7 +38,7 @@ import {
     createShipWeaponStateSnapshot,
 } from "../model/equipment";
 import type { OfficerAvailabilityStates } from "../model/officer_availability";
-import type { OfficerTaskState } from "../model/officer_task";
+import { OFFICER_TASK_KIND, type OfficerTaskState } from "../model/officer_task";
 import type { EncounterShipDriveState, EncounterState } from "../model/state";
 import { getOfficerAvailabilityStates } from "../officer_availability/queries/get_officer_availability_states";
 import {
@@ -475,7 +476,7 @@ function getWeaponPhaseDurationMs(weapon: ShipWeaponState): number | undefined {
                 throw new Error("Only player missile launcher can be " + "in targeting phase: " + weapon.id);
             }
 
-            return definition.targetingDurationMs;
+            return getTimedOfficerTaskDurationMs(OFFICER_TASK_KIND.GUNNER_FIRE_MISSILE);
 
         case SHIP_WEAPON_PHASE.CHARGING:
             if (definition.kind !== SHIP_WEAPON_KIND.BEAM_CANNON) {

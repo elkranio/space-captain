@@ -1,5 +1,6 @@
 // src/engine/encounter/combat/CombatMissileRunner.ts
 
+import { getTimedOfficerTaskDurationMs } from "../../../content/catalogs/officer_tasks";
 import { SHIP_WEAPONS } from "../../../content/catalogs/ship_weapons";
 import { ENCOUNTER_TEAM } from "../../../defs/encounter_team";
 import { isShipEvading } from "../../../defs/ship_evade";
@@ -21,6 +22,7 @@ import {
     type MissileCombatProjectileState,
 } from "../../model/combat";
 import { ENCOUNTER_EVENT, type EncounterEvent } from "../../model/event";
+import { OFFICER_TASK_KIND } from "../../model/officer_task";
 import type { EncounterState } from "../../model/state";
 import EncounterStateStore from "../../state/EncounterStateStore";
 import CombatRuntimeIdentityFactory from "../CombatRuntimeIdentityFactory";
@@ -237,14 +239,15 @@ export default class CombatMissileRunner {
     }
 
     private advanceTargeting(actor: ShipEncounterActorState, launcher: MissileLauncherState, deltaMs: number): void {
+        const durationMs = getTimedOfficerTaskDurationMs(OFFICER_TASK_KIND.GUNNER_FIRE_MISSILE);
         const elapsedMs = launcher.phaseElapsedMs + deltaMs;
 
-        if (elapsedMs < this.getLauncherDefinition(launcher).targetingDurationMs) {
+        if (elapsedMs < durationMs) {
             launcher.phaseElapsedMs = elapsedMs;
             return;
         }
 
-        launcher.phaseElapsedMs = this.getLauncherDefinition(launcher).targetingDurationMs;
+        launcher.phaseElapsedMs = durationMs;
 
         this.launchEnemyMissile(actor, launcher);
     }

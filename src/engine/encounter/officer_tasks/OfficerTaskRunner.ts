@@ -2,6 +2,7 @@
 
 import { ENCOUNTER_TEAM } from "../../defs/encounter_team";
 import { OFFICER_ROLE } from "../../defs/officer";
+import { doesOfficerTaskUseTimedCompletion } from "../../defs/officer_task";
 import { PLAYER_SPACE_NAVIGATION_KIND } from "../../defs/player_location";
 import { COMBAT_TARGET_KIND } from "../model/combat";
 import {
@@ -103,7 +104,11 @@ export default class OfficerTaskRunner {
             },
         });
 
-        if (this.completeTimedTasksImmediately && runtimeTask.durationMs !== null) {
+        if (
+            this.completeTimedTasksImmediately &&
+            runtimeTask.durationMs !== null &&
+            doesOfficerTaskUseTimedCompletion(runtimeTask.kind)
+        ) {
             this.complete(runtimeTask.id);
         }
 
@@ -284,7 +289,11 @@ export default class OfficerTaskRunner {
         const finishedTaskIds = this.stateStore
             .getOfficerTasks()
             .filter((task) => {
-                return task.durationMs !== null && task.elapsedMs >= task.durationMs;
+                return (
+                    doesOfficerTaskUseTimedCompletion(task.kind) &&
+                    task.durationMs !== null &&
+                    task.elapsedMs >= task.durationMs
+                );
             })
             .map((task) => task.id);
 

@@ -95,7 +95,7 @@ export default class PlayerWeaponRunner {
 
         switch (task.kind) {
             case OFFICER_TASK_KIND.GUNNER_FIRE_MISSILE:
-                this.missileLauncherRunner.advanceTask(task, crewDeltaMs);
+                this.missileLauncherRunner.advanceTask(task);
                 return;
 
             case OFFICER_TASK_KIND.GUNNER_FIRE_STICKY_MINES:

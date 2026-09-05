@@ -41,12 +41,6 @@ export const MISSILE_LAUNCHER_RECORD_SCHEMA = z
 
         damage: DAMAGE_SCHEMA,
 
-        targetingDurationMs: z.number().int().nonnegative().meta({
-            title: "Targeting duration",
-            unit: "ms",
-            "x-editor-control": "duration",
-        }),
-
         flightDurationMs: z.number().int().nonnegative().meta({
             title: "Flight duration",
             unit: "ms",

@@ -13,7 +13,7 @@ import {
     type OfficerTaskTuningData,
 } from "../schemas/officer_task_tuning";
 import {
-    doesOfficerTaskUseTimedCompletion,
+    doesOfficerTaskTrackTimedProgress,
     type OfficerTaskCancellationPolicy,
     type OfficerTaskKind,
 } from "../../defs/officer_task";
@@ -44,7 +44,7 @@ export function getOfficerTaskDraftTuning(kind: OfficerTaskKind): OfficerTaskDra
 
     let durationMs: number | null = null;
 
-    if (doesOfficerTaskUseTimedCompletion(kind)) {
+    if (doesOfficerTaskTrackTimedProgress(kind)) {
         if (!("durationMs" in tuning)) {
             throw new Error("Timed officer task tuning is missing durationMs: " + kind);
         }
@@ -63,7 +63,7 @@ export function getTimedOfficerTaskDurationMs(kind: OfficerTaskKind): number {
     const tuning = getOfficerTaskDraftTuning(kind);
 
     if (tuning.durationMs === null) {
-        throw new Error("Officer task does not use timed completion: " + kind);
+        throw new Error("Officer task does not track timed progress: " + kind);
     }
 
     return tuning.durationMs;

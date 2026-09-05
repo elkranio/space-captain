@@ -30,7 +30,7 @@ type PlayerMissileLauncherRunnerOptions = {
 export default class PlayerMissileLauncherRunner {
     constructor(private readonly options: PlayerMissileLauncherRunnerOptions) {}
 
-    public advanceTask(task: GunnerFireMissileTaskState, deltaMs: number): void {
+    public advanceTask(task: GunnerFireMissileTaskState): void {
         if (!this.hasValidTarget(task)) {
             // OfficerTaskRunner cancels the task
             // at the end of the encounter step.
@@ -54,24 +54,28 @@ export default class PlayerMissileLauncherRunner {
             );
         }
 
-        this.advanceTargeting(task, launcher, deltaMs);
+        this.advanceTargeting(task, launcher);
     }
 
-    private advanceTargeting(task: GunnerFireMissileTaskState, launcher: MissileLauncherState, deltaMs: number): void {
+    private advanceTargeting(task: GunnerFireMissileTaskState, launcher: MissileLauncherState): void {
+        const durationMs = task.durationMs;
+
+        if (durationMs === null) {
+            throw new Error("Player missile aiming task is missing duration: " + task.id);
+        }
+
+        launcher.phaseElapsedMs = task.elapsedMs;
+
+        if (task.elapsedMs < durationMs) {
+            return;
+        }
+
         const definition = SHIP_WEAPONS[launcher.weaponId];
 
         if (definition.kind !== SHIP_WEAPON_KIND.MISSILE_LAUNCHER) {
             throw new Error(
                 "Player missile launcher kind does not match definition: " + launcher.id + "/" + launcher.weaponId,
             );
-        }
-
-        const elapsedMs = launcher.phaseElapsedMs + deltaMs;
-
-        if (elapsedMs < definition.targetingDurationMs) {
-            launcher.phaseElapsedMs = elapsedMs;
-
-            return;
         }
 
         if (launcher.ammoCount <= 0) {

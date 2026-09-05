@@ -8,8 +8,8 @@ import {
     createStationAndBeaconNodeFixture,
 } from '../../fixtures/engine/space_node_fixtures';
 import {
-    SHIP_WEAPONS,
-} from '../../../src/engine/content/catalogs/ship_weapons';
+    getTimedOfficerTaskDurationMs,
+} from '../../../src/engine/content/catalogs/officer_tasks';
 import {
     SHIP_NODE_ACTOR_PRESET_ID,
 } from '../../../src/engine/content/presets/ship_node_actors';
@@ -49,15 +49,17 @@ import type {
 import {
     ENCOUNTER_EVENT,
 } from '../../../src/engine/encounter/model/event';
+import {
+    OFFICER_TASK_KIND,
+} from '../../../src/engine/encounter/model/officer_task';
 import type {
     EncounterState,
 } from '../../../src/engine/encounter/model/state';
 
 export function getTestMissileTargetingDurationMs(): number {
-    return SHIP_WEAPONS[
-        SHIP_WEAPON_ID
-            .MISSILE_LAUNCHER_00
-    ].targetingDurationMs;
+    return getTimedOfficerTaskDurationMs(
+        OFFICER_TASK_KIND.GUNNER_FIRE_MISSILE,
+    );
 }
 
 export type AnchoredPlayerCombatTestSetup = {

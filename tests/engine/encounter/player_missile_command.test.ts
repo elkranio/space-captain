@@ -27,6 +27,7 @@ import {
 import {
     createAnchoredPlayerCombatTestSetup,
     getPlayerWeaponOrThrow,
+    getTestMissileTargetingDurationMs,
     type EncounterMissileLauncherState,
 } from './combat_test_support';
 
@@ -136,7 +137,7 @@ describe('Player missile command', () => {
             label: 'MISSILE AIM',
             showProgress: false,
 
-            durationMs: null,
+            durationMs: getTestMissileTargetingDurationMs(),
 
             canBeCancelledByPlayer: true,
             canBeInterruptedByDamage: true,

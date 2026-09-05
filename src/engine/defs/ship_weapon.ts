@@ -108,7 +108,6 @@ export type MissileLauncherDefinition = ShipWeaponDefinitionBase & {
     slotKind: typeof SHIP_SLOT_KIND.WEAPON;
 
     damage: number;
-    targetingDurationMs: number;
     flightDurationMs: number;
 
     ammoCapacity: number;

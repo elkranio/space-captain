@@ -1,5 +1,5 @@
 import * as z from "zod";
-import { OFFICER_TASK_KIND, doesOfficerTaskUseTimedCompletion, type OfficerTaskKind } from "../../defs/officer_task";
+import { OFFICER_TASK_KIND, doesOfficerTaskTrackTimedProgress, type OfficerTaskKind } from "../../defs/officer_task";
 
 const COMMON_OFFICER_TASK_TUNING_SHAPE = {
     label: z.string().min(1).meta({
@@ -37,7 +37,7 @@ const OFFICER_TASK_TUNING_SHAPE = Object.fromEntries(
     Object.values(OFFICER_TASK_KIND).map((kind) => {
         return [
             kind,
-            doesOfficerTaskUseTimedCompletion(kind)
+            doesOfficerTaskTrackTimedProgress(kind)
                 ? OFFICER_TASK_TIMED_TUNING_ENTRY_SCHEMA
                 : OFFICER_TASK_LIFECYCLE_TUNING_ENTRY_SCHEMA,
         ];

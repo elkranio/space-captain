@@ -49,6 +49,13 @@ export type OfficerTaskCancellationPolicy = {
 //
 // Content editor не должен превращать external-lifecycle task
 // в timed task изменением одного числа.
+// A task may own operator-timed progress even when another gameplay system
+// owns the final completion edge. Missile aiming is the first such case:
+// OfficerTaskRunner advances the aim, while the weapon runner commits launch.
+export function doesOfficerTaskTrackTimedProgress(kind: OfficerTaskKind): boolean {
+    return doesOfficerTaskUseTimedCompletion(kind) || kind === OFFICER_TASK_KIND.GUNNER_FIRE_MISSILE;
+}
+
 export function doesOfficerTaskUseTimedCompletion(kind: OfficerTaskKind): boolean {
     switch (kind) {
         case OFFICER_TASK_KIND.SCIENTIST_PLOT_COURSE:

@@ -10,7 +10,8 @@
         "label": "MISSILE AIM",
         "showProgress": false,
         "canBeCancelledByPlayer": true,
-        "canBeInterruptedByDamage": true
+        "canBeInterruptedByDamage": true,
+        "durationMs": 3000
     },
     "gunner_fire_sticky_mines": {
         "label": "MINE SALVO",
