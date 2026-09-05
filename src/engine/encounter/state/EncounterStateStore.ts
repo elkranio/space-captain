@@ -219,12 +219,8 @@ export default class EncounterStateStore {
         return this.playerShip.startPlayerMissileTargeting(weaponId);
     }
 
-    public startPlayerStickyMineDispensing(weaponId: string): StickyMineDispenserState {
-        return this.playerShip.startPlayerStickyMineDispensing(weaponId);
-    }
-
-    public cancelPlayerStickyMineDispensing(weaponId: string): StickyMineDispenserState | undefined {
-        return this.playerShip.cancelPlayerStickyMineDispensing(weaponId);
+    public startPlayerStickyMineTargeting(weaponId: string): StickyMineDispenserState {
+        return this.playerShip.startPlayerStickyMineTargeting(weaponId);
     }
 
     public startPlayerSpamChanneling(weaponId: string): SpamProjectorState {

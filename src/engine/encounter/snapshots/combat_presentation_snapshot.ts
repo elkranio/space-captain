@@ -470,13 +470,20 @@ function getWeaponPhaseDurationMs(weapon: ShipWeaponState): number | undefined {
 
         case SHIP_WEAPON_PHASE.TARGETING:
             if (
-                definition.kind !== SHIP_WEAPON_KIND.MISSILE_LAUNCHER ||
-                weapon.kind !== SHIP_WEAPON_KIND.MISSILE_LAUNCHER
+                definition.kind === SHIP_WEAPON_KIND.MISSILE_LAUNCHER &&
+                weapon.kind === SHIP_WEAPON_KIND.MISSILE_LAUNCHER
             ) {
-                throw new Error("Only player missile launcher can be " + "in targeting phase: " + weapon.id);
+                return getTimedOfficerTaskDurationMs(OFFICER_TASK_KIND.GUNNER_FIRE_MISSILE);
             }
 
-            return getTimedOfficerTaskDurationMs(OFFICER_TASK_KIND.GUNNER_FIRE_MISSILE);
+            if (
+                definition.kind === SHIP_WEAPON_KIND.STICKY_MINE_DISPENSER &&
+                weapon.kind === SHIP_WEAPON_KIND.STICKY_MINE_DISPENSER
+            ) {
+                return getTimedOfficerTaskDurationMs(OFFICER_TASK_KIND.GUNNER_FIRE_STICKY_MINES);
+            }
+
+            throw new Error("Unsupported player weapon targeting phase: " + weapon.id);
 
         case SHIP_WEAPON_PHASE.CHARGING:
             if (definition.kind !== SHIP_WEAPON_KIND.BEAM_CANNON) {

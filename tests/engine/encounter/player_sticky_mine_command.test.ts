@@ -31,12 +31,20 @@ import {
     type StickyMineState,
 } from '../../../src/engine/encounter/model/combat';
 import {
+    getTimedOfficerTaskDurationMs,
+} from '../../../src/engine/content/catalogs/officer_tasks';
+import {
     ENCOUNTER_EVENT,
-    OFFICER_TASK_OUTCOME,
 } from '../../../src/engine/encounter/model/event';
 import {
     OFFICER_TASK_KIND,
 } from '../../../src/engine/encounter/model/officer_task';
+
+const MINE_TARGETING_DURATION_MS =
+    getTimedOfficerTaskDurationMs(
+        OFFICER_TASK_KIND
+            .GUNNER_FIRE_STICKY_MINES,
+    );
 import type {
     EncounterState,
 } from '../../../src/engine/encounter/model/state';
@@ -47,7 +55,7 @@ import {
 } from './combat_test_support';
 
 describe('Player sticky-mine command', () => {
-    it('launches one immediate three-mine salvo and keeps Gunner busy until the final launch', () => {
+    it('targets first, then releases Gunner while the committed salvo continues', () => {
         const {
             engine,
             dispenser,
@@ -105,7 +113,7 @@ describe('Player sticky-mine command', () => {
         });
 
         expect(dispenser.phase).toBe(
-            SHIP_WEAPON_PHASE.DISPENSING,
+            SHIP_WEAPON_PHASE.TARGETING,
         );
         expect(dispenser.ammoCount).toBe(6);
         expect(
@@ -133,29 +141,38 @@ describe('Player sticky-mine command', () => {
             targetActorId:
                 target.id,
 
-            label: 'MINE SALVO',
+            label: 'MINE AIM',
 
-            durationMs: null,
+            durationMs:
+                MINE_TARGETING_DURATION_MS,
 
-            canBeCancelledByPlayer: false,
+            canBeCancelledByPlayer: true,
             canBeInterruptedByDamage: true,
 
             elapsedMs: 0,
         });
 
-        if (!task) {
-            throw new Error(
-                'Expected sticky-mine task',
-            );
-        }
+        engine.drainEvents();
 
-        expect(() => {
-            engine.cancelTask(task.id);
-        }).toThrow(
-            'Officer task cannot be cancelled by player',
+        engine.step(
+            MINE_TARGETING_DURATION_MS - 1,
         );
 
-        engine.step(0);
+        expect(
+            engine.getCombatPresentationSnapshot()
+                .outgoingStickyMines,
+        ).toEqual([]);
+        expect(dispenser.phase).toBe(
+            SHIP_WEAPON_PHASE.TARGETING,
+        );
+        expect(dispenser.phaseElapsedMs).toBe(
+            MINE_TARGETING_DURATION_MS - 1,
+        );
+        expect(
+            engine.getOfficerTasks(),
+        ).toHaveLength(1);
+
+        engine.step(1);
 
         expect(
             engine.drainEvents(),
@@ -187,6 +204,9 @@ describe('Player sticky-mine command', () => {
             }),
         );
 
+        expect(dispenser.phase).toBe(
+            SHIP_WEAPON_PHASE.DISPENSING,
+        );
         expect(
             engine.getCombatPresentationSnapshot().outgoingStickyMines,
         ).toHaveLength(1);
@@ -199,7 +219,7 @@ describe('Player sticky-mine command', () => {
         ).toBe(17000);
         expect(
             engine.getOfficerTasks(),
-        ).toHaveLength(1);
+        ).toEqual([]);
 
         engine.step(1000);
 
@@ -212,7 +232,7 @@ describe('Player sticky-mine command', () => {
         ).toBe(2);
         expect(
             engine.getOfficerTasks(),
-        ).toHaveLength(1);
+        ).toEqual([]);
 
         engine.step(1000);
 
@@ -436,7 +456,7 @@ describe('Player sticky-mine command', () => {
         expect(
             secondDispenser.phase,
         ).toBe(
-            SHIP_WEAPON_PHASE.DISPENSING,
+            SHIP_WEAPON_PHASE.TARGETING,
         );
 
         expect(
@@ -466,6 +486,9 @@ describe('Player sticky-mine command', () => {
             engine,
         );
 
+        engine.step(
+            MINE_TARGETING_DURATION_MS,
+        );
         engine.step(2500);
 
         expect(
@@ -506,7 +529,9 @@ describe('Player sticky-mine command', () => {
             engine,
         );
 
-        engine.step(0);
+        engine.step(
+            MINE_TARGETING_DURATION_MS,
+        );
         engine.step(1000);
 
         expect(dispenser.ammoCount).toBe(0);
@@ -569,7 +594,9 @@ describe('Player sticky-mine command', () => {
             engine,
         );
 
-        engine.step(0);
+        engine.step(
+            MINE_TARGETING_DURATION_MS,
+        );
         engine.drainEvents();
 
         engine.setActorTeam(
@@ -609,7 +636,7 @@ describe('Player sticky-mine command', () => {
         );
     });
 
-    it('enters cooldown and preserves unlaunched ammunition when damage interrupts an active salvo', () => {
+    it('keeps a committed salvo running after damage because Gunner is already free', () => {
         const {
             engine,
             state,
@@ -621,8 +648,14 @@ describe('Player sticky-mine command', () => {
             engine,
         );
 
-        engine.step(0);
+        engine.step(
+            MINE_TARGETING_DURATION_MS,
+        );
         engine.drainEvents();
+
+        expect(
+            engine.getOfficerTasks(),
+        ).toEqual([]);
 
         state.combat.stickyMines.push(
             createIncomingInterruptMine(
@@ -633,7 +666,7 @@ describe('Player sticky-mine command', () => {
         engine.step(0);
 
         expect(dispenser.phase).toBe(
-            SHIP_WEAPON_PHASE.COOLDOWN,
+            SHIP_WEAPON_PHASE.DISPENSING,
         );
         expect(dispenser.ammoCount).toBe(5);
         expect(
@@ -649,24 +682,20 @@ describe('Player sticky-mine command', () => {
 
         expect(
             engine.drainEvents(),
-        ).toContainEqual(
+        ).not.toContainEqual(
             expect.objectContaining({
                 type:
                     ENCOUNTER_EVENT
                         .OFFICER_TASK_ENDED,
-
-                outcome:
-                    OFFICER_TASK_OUTCOME
-                        .CANCELLED,
-
-                task:
-                    expect.objectContaining({
-                        kind:
-                            OFFICER_TASK_KIND
-                                .GUNNER_FIRE_STICKY_MINES,
-                    }),
             }),
         );
+
+        engine.step(1000);
+
+        expect(dispenser.ammoCount).toBe(4);
+        expect(
+            dispenser.dispensedMineCount,
+        ).toBe(2);
     });
 });
 

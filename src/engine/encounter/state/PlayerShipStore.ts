@@ -167,7 +167,7 @@ export default class PlayerShipStore {
         };
     }
 
-    public startPlayerStickyMineDispensing(weaponId: string): StickyMineDispenserState {
+    public startPlayerStickyMineTargeting(weaponId: string): StickyMineDispenserState {
         const weapon = this.findPlayerWeaponById(weaponId);
 
         if (!weapon) {
@@ -186,38 +186,11 @@ export default class PlayerShipStore {
             throw new Error("Player sticky-mine dispenser is empty: " + weaponId + "/" + weapon.ammoCount);
         }
 
-        weapon.phase = SHIP_WEAPON_PHASE.DISPENSING;
+        weapon.phase = SHIP_WEAPON_PHASE.TARGETING;
 
         weapon.phaseElapsedMs = 0;
         weapon.dispensedMineCount = 0;
-
-        return {
-            ...weapon,
-        };
-    }
-
-    public cancelPlayerStickyMineDispensing(weaponId: string): StickyMineDispenserState | undefined {
-        const weapon = this.findPlayerWeaponById(weaponId);
-
-        if (!weapon) {
-            return undefined;
-        }
-
-        if (weapon.kind !== SHIP_WEAPON_KIND.STICKY_MINE_DISPENSER) {
-            throw new Error("Player sticky-mine task references non-dispenser weapon: " + weaponId + "/" + weapon.kind);
-        }
-
-        if (weapon.phase !== SHIP_WEAPON_PHASE.DISPENSING) {
-            throw new Error("Cannot cancel player sticky-mine salvo from phase: " + weaponId + "/" + weapon.phase);
-        }
-
-        const definition = SHIP_WEAPONS[weapon.weaponId];
-
-        if (definition.kind !== SHIP_WEAPON_KIND.STICKY_MINE_DISPENSER) {
-            throw new Error("Player sticky-mine dispenser definition mismatch: " + weapon.id + "/" + weapon.weaponId);
-        }
-
-        finishShipWeaponAction(weapon, definition.cooldownDurationMs);
+        delete weapon.salvoTargetActorId;
 
         return {
             ...weapon,
@@ -343,6 +316,10 @@ export default class PlayerShipStore {
 
         if (weapon.kind === SHIP_WEAPON_KIND.BEAM_CANNON) {
             commitShipWeaponCooldown(weapon, definition.cooldownDurationMs);
+        }
+
+        if (weapon.kind === SHIP_WEAPON_KIND.STICKY_MINE_DISPENSER) {
+            delete weapon.salvoTargetActorId;
         }
 
         finishShipWeaponAction(weapon, definition.cooldownDurationMs);

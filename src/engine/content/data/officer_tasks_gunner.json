@@ -12,9 +12,10 @@
         "durationMs": 3000
     },
     "gunner_fire_sticky_mines": {
-        "label": "MINE SALVO",
-        "canBeCancelledByPlayer": false,
-        "canBeInterruptedByDamage": true
+        "label": "MINE AIM",
+        "canBeCancelledByPlayer": true,
+        "canBeInterruptedByDamage": true,
+        "durationMs": 3000
     },
     "gunner_fire_beam_cannon": {
         "label": "BEAM CANNON CHARGE",

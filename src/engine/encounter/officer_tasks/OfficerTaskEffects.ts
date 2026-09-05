@@ -9,7 +9,10 @@ import EncounterStateStore from "../state/EncounterStateStore";
 type CancellablePlayerWeaponTaskState = Extract<
     OfficerTaskState,
     {
-        kind: typeof OFFICER_TASK_KIND.GUNNER_FIRE_MISSILE | typeof OFFICER_TASK_KIND.GUNNER_FIRE_BEAM_CANNON;
+        kind:
+            | typeof OFFICER_TASK_KIND.GUNNER_FIRE_MISSILE
+            | typeof OFFICER_TASK_KIND.GUNNER_FIRE_STICKY_MINES
+            | typeof OFFICER_TASK_KIND.GUNNER_FIRE_BEAM_CANNON;
     }
 >;
 
@@ -17,13 +20,6 @@ type ScientistFireSpamTaskState = Extract<
     OfficerTaskState,
     {
         kind: typeof OFFICER_TASK_KIND.SCIENTIST_FIRE_SPAM;
-    }
->;
-
-type GunnerFireStickyMinesTaskState = Extract<
-    OfficerTaskState,
-    {
-        kind: typeof OFFICER_TASK_KIND.GUNNER_FIRE_STICKY_MINES;
     }
 >;
 
@@ -132,10 +128,6 @@ export default class OfficerTaskEffects {
 
     public applyCancellation(task: OfficerTaskState): void {
         switch (task.kind) {
-            case OFFICER_TASK_KIND.GUNNER_FIRE_STICKY_MINES:
-                this.cancelGunnerFireStickyMinesTask(task);
-                return;
-
             case OFFICER_TASK_KIND.SCIENTIST_FIRE_SPAM:
                 this.cancelScientistFireSpamTask(task);
 
@@ -146,6 +138,7 @@ export default class OfficerTaskEffects {
                 return;
 
             case OFFICER_TASK_KIND.GUNNER_FIRE_MISSILE:
+            case OFFICER_TASK_KIND.GUNNER_FIRE_STICKY_MINES:
             case OFFICER_TASK_KIND.GUNNER_FIRE_BEAM_CANNON:
                 this.cancelResettablePlayerWeaponTask(task);
                 return;
@@ -185,10 +178,6 @@ export default class OfficerTaskEffects {
 
     private cancelResettablePlayerWeaponTask(task: CancellablePlayerWeaponTaskState): void {
         this.stateStore.finishCancelledPlayerWeapon(task.weaponId);
-    }
-
-    private cancelGunnerFireStickyMinesTask(task: GunnerFireStickyMinesTaskState): void {
-        this.stateStore.cancelPlayerStickyMineDispensing(task.weaponId);
     }
 
     private resolvePilotFlyToTask(task: PilotFlyToTaskState): void {

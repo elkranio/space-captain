@@ -2,7 +2,13 @@
 
 import { SHIP_WEAPONS } from "../../content/catalogs/ship_weapons";
 import { OFFICER_ROLE } from "../../defs/officer";
-import { advanceShipWeaponCooldown, type ShipWeaponDefinition, type ShipWeaponState } from "../../defs/ship_weapon";
+import {
+    advanceShipWeaponCooldown,
+    SHIP_WEAPON_KIND,
+    SHIP_WEAPON_PHASE,
+    type ShipWeaponDefinition,
+    type ShipWeaponState,
+} from "../../defs/ship_weapon";
 import type { EncounterEvent } from "../model/event";
 import { OFFICER_TASK_KIND } from "../model/officer_task";
 import { getPlayerCrewProgressMultiplier } from "../crew_performance/get_crew_progress_multiplier";
@@ -78,6 +84,7 @@ export default class PlayerWeaponRunner {
 
     public step(deltaMs: number): void {
         this.advanceCooldowns(deltaMs);
+        this.advanceCommittedStickyMineSalvos(deltaMs);
 
         const crewDeltaMs = deltaMs * getPlayerCrewProgressMultiplier(this.stateStore.getState());
 
@@ -99,7 +106,7 @@ export default class PlayerWeaponRunner {
                 return;
 
             case OFFICER_TASK_KIND.GUNNER_FIRE_STICKY_MINES:
-                this.stickyMineDispenserRunner.advanceTask(task, crewDeltaMs);
+                this.stickyMineDispenserRunner.advanceTask(task);
                 return;
 
             case OFFICER_TASK_KIND.GUNNER_FIRE_BEAM_CANNON:
@@ -108,6 +115,21 @@ export default class PlayerWeaponRunner {
 
             default:
                 return;
+        }
+    }
+
+    private advanceCommittedStickyMineSalvos(deltaMs: number): void {
+        const weapons = this.stateStore.getState().combat.playerWeapons;
+
+        for (const weapon of weapons) {
+            if (
+                weapon.kind !== SHIP_WEAPON_KIND.STICKY_MINE_DISPENSER ||
+                weapon.phase !== SHIP_WEAPON_PHASE.DISPENSING
+            ) {
+                continue;
+            }
+
+            this.stickyMineDispenserRunner.advanceDispensing(weapon, deltaMs);
         }
     }
 

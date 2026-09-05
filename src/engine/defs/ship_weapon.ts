@@ -197,6 +197,10 @@ export type StickyMineDispenserState = ShipWeaponBaseState & {
     // Количество мин, реально запущенных
     // в текущем salvo.
     dispensedMineCount: number;
+
+    // Player-only transient target of an autonomous committed salvo.
+    // Absent while READY/TARGETING/COOLDOWN and on enemy dispensers.
+    salvoTargetActorId?: string;
 };
 
 export type ShipWeaponState = MissileLauncherState | BeamCannonState | SpamProjectorState | StickyMineDispenserState;

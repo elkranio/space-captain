@@ -62,7 +62,7 @@ export const gunnerFireStickyMinesCommandHandler: OfficerCommandHandler = {
             throw new Error("FIRE MINES requires " + "an actor-weapon target");
         }
 
-        context.stateStore.startPlayerStickyMineDispensing(input.target.weaponId);
+        context.stateStore.startPlayerStickyMineTargeting(input.target.weaponId);
 
         context.startOfficerTask(createGunnerFireStickyMinesTask(input.target.weaponId, input.target.actorId));
     },
