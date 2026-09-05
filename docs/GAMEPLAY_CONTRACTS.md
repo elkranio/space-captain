@@ -218,8 +218,9 @@ random interception roll.
 
 ## Missile Launcher / Missiles
 
-Missile Launcher content owns damage, targeting duration, flight duration, ammo capacity and cooldown. A launched
-projectile copies the physical values needed for its autonomous lifecycle.
+Missile Launcher content owns damage, flight duration, ammo capacity and cooldown. The `GUNNER_FIRE_MISSILE` officer
+task tuning owns targeting duration for both player and enemy launchers. A launched projectile copies the physical
+values needed for its autonomous lifecycle.
 
 The old Missile signature / Science hypothesis / blind-intercept runtime has been removed. Current Missile projectiles
 carry only the physical snapshot needed for their autonomous lifecycle.

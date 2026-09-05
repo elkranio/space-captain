@@ -38,7 +38,6 @@ describe('Weapon content tuning', () => {
                     maxIntegrity: 3,
 
                     damage: 2,
-                    targetingDurationMs: 3500,
                     flightDurationMs: 14000,
                     ammoCapacity: 3,
                     cooldownDurationMs: 18000,

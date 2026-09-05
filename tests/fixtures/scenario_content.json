@@ -105,7 +105,6 @@
             "shortName": "M. LAUNCHER",
             "maxIntegrity": 2,
             "damage": 1,
-            "targetingDurationMs": 3000,
             "flightDurationMs": 12000,
             "ammoCapacity": 5,
             "cooldownDurationMs": 15000
@@ -115,7 +114,6 @@
             "shortName": "ML FULL AUTO",
             "maxIntegrity": 2,
             "damage": 1,
-            "targetingDurationMs": 700,
             "flightDurationMs": 12000,
             "ammoCapacity": 20,
             "cooldownDurationMs": 500
@@ -156,7 +154,8 @@
             "label": "MISSILE AIM",
             "showProgress": false,
             "canBeCancelledByPlayer": true,
-            "canBeInterruptedByDamage": true
+            "canBeInterruptedByDamage": true,
+            "durationMs": 3000
         },
         "gunner_fire_sticky_mines": {
             "label": "MINE SALVO",
