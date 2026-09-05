@@ -26,8 +26,7 @@ type PlayerStickyMineDispenserRunnerOptions = {
     officerTaskRunner: Pick<OfficerTaskRunner, "complete">;
 };
 
-// Gunner owns target acquisition. After the first physical launch commits
-// the salvo, the dispenser owns the remaining hardware-timed launches.
+// Gunner owns target acquisition and the single physical mine release.
 export default class PlayerStickyMineDispenserRunner {
     constructor(private readonly options: PlayerStickyMineDispenserRunnerOptions) {}
 
@@ -65,56 +64,10 @@ export default class PlayerStickyMineDispenserRunner {
             return;
         }
 
-        this.beginSalvo(task, dispenser);
+        this.releaseMine(task, dispenser);
     }
 
-    public advanceDispensing(dispenser: StickyMineDispenserState, deltaMs: number): void {
-        if (dispenser.phase !== SHIP_WEAPON_PHASE.DISPENSING) {
-            throw new Error(
-                "Cannot advance player sticky-mine salvo from phase: " +
-                    `${dispenser.id}/` +
-                    `${dispenser.phase}`,
-            );
-        }
-
-        const targetActorId = dispenser.salvoTargetActorId;
-
-        if (!targetActorId) {
-            throw new Error("Player sticky-mine salvo is missing target: " + dispenser.id);
-        }
-
-        const definition = this.getDefinition(dispenser);
-
-        if (!this.hasValidTarget(targetActorId)) {
-            this.finishSalvo(dispenser, definition);
-            return;
-        }
-
-        dispenser.phaseElapsedMs += deltaMs;
-
-        while (
-            dispenser.dispensedMineCount < definition.salvoSize &&
-            dispenser.ammoCount > 0 &&
-            dispenser.phaseElapsedMs >= definition.launchIntervalMs
-        ) {
-            dispenser.phaseElapsedMs -= definition.launchIntervalMs;
-
-            this.launchMine(
-                dispenser,
-                definition,
-                targetActorId,
-                dispenser.phaseElapsedMs,
-            );
-        }
-
-        if (dispenser.dispensedMineCount < definition.salvoSize && dispenser.ammoCount > 0) {
-            return;
-        }
-
-        this.finishSalvo(dispenser, definition);
-    }
-
-    private beginSalvo(
+    private releaseMine(
         task: GunnerFireStickyMinesTaskState,
         dispenser: StickyMineDispenserState,
     ): void {
@@ -129,45 +82,7 @@ export default class PlayerStickyMineDispenserRunner {
             );
         }
 
-        dispenser.phase = SHIP_WEAPON_PHASE.DISPENSING;
-        dispenser.phaseElapsedMs = 0;
-        dispenser.dispensedMineCount = 0;
-        dispenser.salvoTargetActorId = task.targetActorId;
-
-        // The first physical mine is the commitment edge.
-        this.launchMine(dispenser, definition, task.targetActorId, 0);
-
-        this.finishSalvo(dispenser, definition);
-
-        // Gunner is free once the mine is physically committed.
-        this.options.officerTaskRunner.complete(task.id);
-    }
-
-    private launchMine(
-        dispenser: StickyMineDispenserState,
-        definition: StickyMineDispenserDefinition,
-        targetActorId: string,
-        ageMs: number,
-    ): void {
-        if (dispenser.dispensedMineCount >= definition.salvoSize) {
-            throw new Error(
-                "Cannot exceed player sticky-mine salvo size: " +
-                    `${dispenser.id}/` +
-                    `${definition.salvoSize}`,
-            );
-        }
-
-        if (dispenser.ammoCount <= 0) {
-            throw new Error(
-                "Player sticky-mine dispenser became empty during salvo: " +
-                    `${dispenser.id}/` +
-                    `${dispenser.ammoCount}`,
-            );
-        }
-
-        if (dispenser.dispensedMineCount === 0) {
-            commitShipWeaponCooldown(dispenser, definition.cooldownDurationMs);
-        }
+        commitShipWeaponCooldown(dispenser, definition.cooldownDurationMs);
 
         this.options.combatRunner.queuePlayerStickyMineAttach({
             sourceWeaponId: dispenser.id,
@@ -176,21 +91,16 @@ export default class PlayerStickyMineDispenserRunner {
 
             fuseDurationMs: definition.fuseDurationMs,
 
-            targetActorId,
-            ageMs,
+            targetActorId: task.targetActorId,
+            ageMs: 0,
         });
 
         dispenser.ammoCount -= 1;
-        dispenser.dispensedMineCount += 1;
-    }
-
-    private finishSalvo(
-        dispenser: StickyMineDispenserState,
-        definition: StickyMineDispenserDefinition,
-    ): void {
-        delete dispenser.salvoTargetActorId;
+        dispenser.dispensedMineCount = 1;
 
         finishShipWeaponAction(dispenser, definition.cooldownDurationMs);
+
+        this.options.officerTaskRunner.complete(task.id);
     }
 
     private findTaskDispenser(task: GunnerFireStickyMinesTaskState): StickyMineDispenserState | undefined {

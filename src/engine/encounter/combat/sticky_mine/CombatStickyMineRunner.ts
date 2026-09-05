@@ -153,9 +153,7 @@ export default class CombatStickyMineRunner {
                 return;
 
             case SHIP_WEAPON_PHASE.DISPENSING:
-                this.ensureDispensingStarted(actor, dispenser);
-                this.advanceDispensing(actor, dispenser, deltaMs);
-                return;
+                throw new Error(`Sticky-mine dispenser cannot enter dispensing phase: ` + `${actor.id}/${dispenser.id}`);
 
             case SHIP_WEAPON_PHASE.COOLDOWN:
                 return;
@@ -307,46 +305,9 @@ export default class CombatStickyMineRunner {
 
         dispenser.phaseElapsedMs = durationMs;
 
-        this.attachEnemyMine(actor, dispenser, 0);
+        this.attachEnemyMine(actor, dispenser);
 
         const definition = this.getDispenserDefinition(dispenser);
-
-        finishShipWeaponAction(dispenser, definition.cooldownDurationMs);
-    }
-
-    private ensureDispensingStarted(
-        actor: ShipEncounterActorState,
-        dispenser: StickyMineDispenserState,
-    ): void {
-        if (dispenser.dispensedMineCount > 0) {
-            return;
-        }
-
-        this.attachEnemyMine(actor, dispenser, 0);
-    }
-
-    private advanceDispensing(
-        actor: ShipEncounterActorState,
-        dispenser: StickyMineDispenserState,
-        deltaMs: number,
-    ): void {
-        const definition = this.getDispenserDefinition(dispenser);
-
-        dispenser.phaseElapsedMs += deltaMs;
-
-        while (
-            dispenser.dispensedMineCount < definition.salvoSize &&
-            dispenser.ammoCount > 0 &&
-            dispenser.phaseElapsedMs >= definition.launchIntervalMs
-        ) {
-            dispenser.phaseElapsedMs -= definition.launchIntervalMs;
-
-            this.attachEnemyMine(actor, dispenser, dispenser.phaseElapsedMs);
-        }
-
-        if (dispenser.dispensedMineCount < definition.salvoSize && dispenser.ammoCount > 0) {
-            return;
-        }
 
         finishShipWeaponAction(dispenser, definition.cooldownDurationMs);
     }
@@ -354,29 +315,19 @@ export default class CombatStickyMineRunner {
     private attachEnemyMine(
         actor: ShipEncounterActorState,
         dispenser: StickyMineDispenserState,
-        ageMs: number,
     ): void {
         const definition = this.getDispenserDefinition(dispenser);
-
-        if (dispenser.dispensedMineCount >= definition.salvoSize) {
-            throw new Error(
-                `Cannot exceed sticky-mine salvo size: ` + `${actor.id}/${dispenser.id}/${definition.salvoSize}`,
-            );
-        }
 
         if (dispenser.ammoCount <= 0) {
             throw new Error(`Cannot launch sticky mine from empty dispenser: ` + `${actor.id}/${dispenser.id}`);
         }
 
-        if (dispenser.dispensedMineCount === 0) {
-            // First physical attachment is the mine-dispenser commitment edge.
-            commitShipWeaponCooldown(dispenser, definition.cooldownDurationMs);
-        }
+        // Physical release is the commitment edge, even when Evade makes
+        // the mine miss instead of attaching.
+        commitShipWeaponCooldown(dispenser, definition.cooldownDurationMs);
 
-        // Ammo/salvo/cooldown commitment happens even when the incoming mine
-        // fails to attach because the player is already actively EVADING.
         dispenser.ammoCount -= 1;
-        dispenser.dispensedMineCount += 1;
+        dispenser.dispensedMineCount = 1;
 
         if (isShipEvading(this.state.evade)) {
             this.emit({
@@ -405,7 +356,7 @@ export default class CombatStickyMineRunner {
                 kind: COMBAT_TARGET_KIND.PLAYER_SHIP,
             },
 
-            timeToDetonationMs: Math.max(0, definition.fuseDurationMs - ageMs),
+            timeToDetonationMs: definition.fuseDurationMs,
 
             initialTimeToDetonationMs: definition.fuseDurationMs,
 
