@@ -1,333 +1,285 @@
 # Space Captain — Gameplay Contracts
 
-This file describes **current implemented runtime behavior**.
+This file describes **current implemented runtime behavior**. It does not describe future design.
 
-It is not the canonical statement of future game design. If intended design changes, record that separately and change
-code deliberately; do not reinterpret current runtime to match a remembered idea.
+If this file and current code disagree, inspect the code first. Intended corrections belong in `GAME_DESIGN.md` and
+concrete implementation debt belongs in `BACKLOG.md`.
 
-If code and this file disagree, inspect current code first.
-
-## Encounter and presentation
+## Encounter and command model
 
 - One full enemy ship is fought at a time.
-- Missiles, Beam attacks, SPAM and sticky mines are threats produced by ships, not additional command-capable enemies.
-- Physical/effect threats may outlive their source actor when their own lifecycle allows it.
-- Presentation effects do not pause authoritative simulation unless a real gameplay rule explicitly requires it.
+- Missiles, Beam attacks, SPAM and Sticky Mines are threats/effects produced by ships, not extra command-capable
+  enemies.
+- Every player command belongs to one officer role.
+- Engine state owns command availability, busy/blocked behavior and task lifecycle.
+- App/controller code maps engine truth; views do not recreate gameplay legality.
+- Basic incoming-threat identity is available without a mandatory Scientist TRACK/IDENTIFY task.
 
-A launched enemy Missile targeting `PLAYER_SHIP` remains autonomous if its source actor is destroyed and remains
-interceptable while the relevant player command is available.
+Current stable player roles are Scientist, Pilot, Gunner and Engineer.
 
-## Officer command truth
+## Current navigation boundary
 
-- Every command belongs to one officer role.
-- Engine state decides command availability and busy/blocked behavior.
-- Starting work creates an engine-owned officer task.
-- Cancellation belongs to the active task, not to the UI surface that created it.
-- App/controller code maps engine availability; views do not recreate legality.
+`FLY_TO`, `JUMP` and `DOCK` still use the prototype `requiresIdleBridge` restriction. This is current runtime truth,
+not a claim about final travel design.
 
-## Player information baseline
+There is currently no implemented Pilot Escape command/task.
 
-Basic incoming-threat identity is free:
+## Ship/loadout and integrity
 
-- Missile is known immediately;
-- Beam target node is known immediately (`HULL | DRIVE`);
-- Sticky Mine is known immediately;
-- SPAM is known immediately.
+Current player and enemy ships carry real chassis/loadout identity:
 
-There is no player-facing mandatory Scientist TRACK/IDENTIFY step for normal threat readability.
+- chassis own stable `DRIVE | WEAPON | DEFENSE | UTILITY` slots;
+- mounts preserve `slotId -> runtime equipmentId`;
+- Hull is not a slot;
+- Power Core is separate and non-spatial;
+- Drive, Defense Turret, Shield Generator and current weapons carry encounter-local integrity;
+- installed equipment owns integrity/BROKEN state; slots own spatial identity only;
+- shared helpers define `integrity > 0` as operational and clamp integrity damage.
 
-Enemy observer/Scientist systems remain separate and may still reason from perceived information rather
-than objective truth.
+Encounter-only integrity is stripped at persistent snapshot boundaries.
 
-## Current ship/loadout shape
+Generic BROKEN command gating and generic Engineer repair are not complete for every equipment family. Drive has the
+existing specific BROKEN-only repair path.
 
-Chassis/loadout identity is now implemented.
+## Player Beam
 
-Current implementation truth:
-
-- persistent player and enemy ships carry real `chassisId`;
-- chassis definitions own stable physical slot layout;
-- current slot kinds are `DRIVE | WEAPON | DEFENSE | UTILITY`;
-- slots have stable ids and grid coordinates; Hull is not a slot;
-- persistent mounts preserve `slotId -> runtime equipmentId`;
-- installed Drive, Defense Turret, Shield Generator and weapons may remain dedicated typed fields while mounts preserve
-  spatial identity;
-- Power Core remains a separate non-spatial installation;
-- Debug Start uses normalized `equipment[]` records with explicit `slotId`, equipment family discriminator and
-  `equipmentId`;
-- the Debug Start content editor renders chassis-aware equipment grids and filters choices by slot compatibility.
-
-Encounter equipment integrity is also generalized:
-
-- Drive, Defense Turret, Shield Generator and weapons carry encounter-local `integrity`;
-- installed equipment owns integrity/BROKEN; a slot target resolves equipment via its mount, not a separate slot-health pool;
-- `maxIntegrity` comes from equipment content definitions;
-- encounter creation hydrates fresh integrity;
-- encounter-only integrity is explicitly stripped at persistent snapshot boundaries and does not become run attrition;
-- shared helpers define `integrity > 0` operational truth and clamped integrity damage.
-
-The existence of generalized integrity does **not** mean every equipment family is already fully wired to BROKEN command
-gating, repair behavior or targeted damage. Those mechanics remain explicit follow-up work.
-
-Player Beam carries semantic `HULL | SLOT(slotId)` through the command and Gunner task into its existing runner.
-Slot identity resolves `actor.mounts -> equipmentId`, independently of weapon array order or dashboard coordinates.
-At impact, operational equipment takes configured `moduleDamage`; even a breaking hit deals no Hull damage or overflow.
-Already-BROKEN equipment instead causes `hullDamage * 2` to Hull. Enemy Evade and whole-ship Shield still resolve first.
-
-The dashboard now intercepts the ready Beam click to open a presentation-only equipment-target preview. Re-clicking the
-selected Beam closes it without issuing a command. Other own tiles dim and lose input; enemy equipment outlines pulse
-and hover shows `G FIRE`. Clicking an occupied enemy tile submits its stable slot id and starts the existing Beam task.
-Own tiles regain normal input. The active Gunner task supplies the target-lock marker through the enemy dashboard snapshot;
-completion, cancellation/interruption and target cleanup remove it. Hull remains an engine target; Hull pip input is deferred.
-
-## Weapon lifecycle and cooldown commitment
-
-Reaction time comes from each weapon's real lifecycle rather than a universal fake pre-warning phase.
-
-Committed cooldown advances in encounter time and may overlap active crew/action time. Cancellation or interruption after
-commitment does not refund committed cooldown or resources. Some current pre-commitment cancellation paths remain free.
-
-Current cooldown start edges:
-
-| System | Player | Enemy |
-| --- | --- | --- |
-| Missile Launcher | Physical launch | Physical launch |
-| Beam Cannon | Shot resolves or charging is cancelled/interrupted | Charging starts |
-| Sticky Mine Dispenser | One physical mine release after targeting | One attachment attempt after targeting |
-| SPAM Projector | Channel operation ends | Channeling starts |
-| Defense Turret | Attempt completes or is cancelled | Loading starts |
-| Shield Generator | Deployment task starts | Deployment task starts |
-| Evade | Maneuver starts | Maneuver starts |
-
-Several rows differ from the confirmed design: cooldown should start after active work or allowed termination.
-Free Missile-targeting cancellation is an intentional exception and should remain. See the per-system table in
-`GAME_DESIGN.md` for intent and `BACKLOG.md` for the separate gameplay correction.
-Do not mistake a later visible `COOLDOWN` phase for the point when its countdown begins.
-
-Current weapon phase shapes (`COOLDOWN` is skipped if the committed recovery has already finished):
+Current engine target vocabulary is:
 
 ```text
-Missile Launcher:       READY -> TARGETING -> LAUNCH -> COOLDOWN -> READY
-Beam Cannon:            READY -> CHARGING  -> FIRE   -> COOLDOWN -> READY
-SPAM Projector:          READY -> CHANNELING         -> COOLDOWN -> READY
-Sticky Mine Dispenser:  READY -> TARGETING -> RELEASE -> COOLDOWN -> READY
+HULL
+BRIDGE
+SLOT(slotId)
 ```
 
-Concrete commitment edges are owned by each system rather than a shared generic phase machine.
+The command handler currently exposes all three target kinds. The captain dashboard target-selection flow exposes
+occupied enemy equipment slots; Hull/Bridge dashboard input is not wired there yet.
 
-Current player cancellation details:
-
-- Missile targeting cancellation returns the launcher to READY without ammo or cooldown cost;
-- player Beam cancellation keeps spent Power and starts a full cooldown; enemy Beam still commits recovery at charge start;
-- mine targeting can be manually cancelled, interrupted by damage or cancelled on target loss: READY, no ammo/cooldown cost;
-- released mines are autonomous; the Gunner task has ended and cannot cancel their fuse;
-- active SPAM cannot be manually cancelled; engine cancellation uses its concrete cleanup path;
-- player Turret cancellation starts a full cooldown; Evade and Shield keep their already-running recovery.
-
-Source entry points: `src/engine/defs/ship_weapon.ts`, `src/engine/defs/ship_evade.ts`,
-`src/engine/encounter/state/PlayerShipStore.ts`, `src/engine/encounter/combat/enemy/EnemyWorkExecutor.ts`, and the concrete
-family runners under `src/engine/encounter/combat/`.
-Timing coverage includes `tests/engine/defs/ship_evade.test.ts` and the encounter suites
-`player_beam_cannon_lifecycle.test.ts`, `player_missile_command.test.ts`, `player_sticky_mine_command.test.ts`,
-`player_spam_projector.test.ts`, `gunner_defense_turret_command.test.ts` and `player_shield_deploy.test.ts`.
-
-## Pilot Evade
-
-```text
-READY -> WARMUP -> EVADING -> COOLDOWN (if recovery remains) -> READY
-```
-
-Current rules:
-
-- command start commits Power Core cost and full cooldown;
-- cooldown counts down during WARMUP/EVADING, so the maneuver can end directly in READY;
-- Pilot is occupied for the maneuver;
-- cancellation/interruption does not refund committed Power/cooldown;
-- the main Drive must be operational;
-- deterministic protection exists only during `EVADING`;
-- Missiles, Beam hits and new sticky-mine attachments are evadable;
-- SPAM and already-attached mines are not evadable;
-- Evade does not slow/block Scientist, Gunner or Engineer.
-
-The confirmed 1-integrity Drive cost at Evade end is not implemented yet.
-
-## Shared Power Core
-
-Current runtime uses one shared Power Core:
-
-- capacity: 4 charges;
-- recharge is sequential;
-- current player consumers include Evade, Defense Turret, Shield Generator and Beam Cannon;
-- committed energy is not refunded after later cancellation/interruption.
-
-Player Beam uses the Beam Cannon definition's `powerCost`. The command is unavailable without enough current charge, and
-the cost is committed when charging starts.
-
-## Shield Generator / Active Shield
-
-Installed hardware is the Shield Generator. Its temporary encounter object is an Active Shield.
-
-Player Active Shield currently targets exactly one Beam node:
-
-```text
-HULL | DRIVE
-```
-
-Player rules:
-
-- deployment is Engineer work and uses shared Power Core;
-- selected node travels through the real command/task flow;
-- deployment commits Power and generator cooldown at task start;
-- later cancellation/interruption does not refund committed resources;
-- matching Beam absorbs one hit and consumes the Shield;
-- wrong-node Beam penetrates and leaves the Shield alive;
-- Evade miss leaves the Shield alive;
-- Active Shield also expires naturally.
-
-Current incoming Beam resolution order is:
-
-```text
-EVADING
-    -> MISS; Active Shield survives
-
-else matching Active Shield target
-    -> ABSORBED; Active Shield is consumed
-
-else
-    -> Beam consequence; wrong-node Active Shield survives
-```
-
-Enemy targeted-Shield placement is not implemented yet; enemy Shield behavior still follows its existing
-whole-ship path.
-
-## Defense Turret
-
-Player BASIC contract:
-
-- no private charge/ammo pool;
-- uses shared Power Core;
-- Gunner owns operation;
-- one Missile intercept flow;
-- if the Gunner task completes while the target Missile still exists, interception is guaranteed;
-- no player Scientist hypothesis/percentage/tier is required.
-
-Enemy Defense Turret uses its own loading/crew decision path, but current physical shot resolution is also
-deterministic: if loading completes against the still-live player Missile, the shot resolves as `HIT`.
-
-`HIT | MISS` remains a meaningful outcome contract for future accuracy/crew/tier mechanics, but there is no current
-random interception roll.
-
-## Missile Launcher / Missiles
-
-Missile Launcher content owns damage, flight duration, ammo capacity and cooldown. The `GUNNER_FIRE_MISSILE` officer
-task tuning owns targeting duration for both player and enemy launchers. A launched projectile copies the physical
-values needed for its autonomous lifecycle.
-
-The old Missile signature / Science hypothesis / blind-intercept runtime has been removed. Current Missile projectiles
-carry only the physical snapshot needed for their autonomous lifecycle.
-
-## Beam Cannon
-
-Current incoming enemy Beam contract:
-
-- long charge telegraph;
-- no ammo economy;
-- target chosen once per concrete attack;
-- target domain exactly `HULL | DRIVE`;
-- concrete target is immediately safe for player presentation;
-- independent `hullDamage` and `moduleDamage` values.
-
-Penetrating consequences:
+Current impact behavior:
 
 ```text
 HULL
     -> hullDamage
 
-operational DRIVE
-    -> moduleDamage to encounter-local Drive integrity
-    -> no hull damage
+operational SLOT
+    -> moduleDamage
+    -> no Hull spill, including the breaking hit
 
-hit that breaks DRIVE
-    -> no overkill spill into hull
-
-already BROKEN DRIVE
+already BROKEN SLOT
     -> hullDamage * 2
+
+BRIDGE
+    -> HIT outcome
+    -> 0 damage / no additional gameplay consequence yet
 ```
 
-Current Drive baseline:
+Enemy Evade resolves before player Beam damage. Enemy Shield currently remains a whole-ship shortcut: any active
+enemy Shield absorbs the player Beam regardless of semantic target.
+
+Player Beam spends its content-defined Power Core cost when charging starts. Current player Beam starts full
+cooldown at shot resolution or cancellation/interruption.
+
+## Incoming enemy Beam and player Shield
+
+Incoming enemy Beam still uses the older target vocabulary:
 
 ```text
-2/2 -> operational
-1/2 -> operational, not repairable
-0/2 -> BROKEN, repairable
-repair -> full integrity
+HULL | DRIVE
 ```
 
-Escape availability derives from authoritative Drive state; Beam does not own a duplicate escape flag.
+The target is chosen once and is safe for immediate player presentation while the Beam charges.
 
-Current enemy Beam target choice is simple random `HULL | DRIVE`.
+Current resolution order:
 
-Current player Beam spends its content-defined Power Core cost when charging begins. Its task retains the selected
-`HULL | SLOT(slotId)` target until impact or cancellation. Missing mounted targets use existing missing-target cancellation.
-The existing `PLAYER_BEAM_CANNON_FIRED.damage` field reports Hull damage (zero for an ordinary equipment hit).
-Views update equipment integrity from snapshots; existing viewscreen Beam VFX still aim at the ship's visual center.
+```text
+player EVADING
+    -> MISS; Active Shield survives
 
-## Sticky mines
+else matching player Active Shield target
+    -> ABSORBED; Shield is consumed
 
-Sticky Mine Dispenser releases exactly one mine per completed targeting task, for both player and enemy. The stable
-command/task id remains `GUNNER_FIRE_STICKY_MINES`; its plural spelling does not imply a salvo.
+else
+    -> penetrating consequence
+```
 
-- `officer_tasks_gunner.json` owns `gunner_fire_sticky_mines.durationMs` (currently 3000 ms); the task label is `MINE AIM`.
-- Dispenser content owns damage, fuse duration, ammo capacity and cooldown. `salvoSize` and `launchIntervalMs` are gone.
-- Both existing content ids (`sticky_mine_dispenser_00`, `sticky_mine_solo`) use this same single-release lifecycle;
-  they differ only in editable tuning. The latter is not a separate weapon family or a legacy salvo switch.
-- Targeting occupies Gunner and advances with crew performance, including SPAM slowdown. Player task elapsed time is
-  authoritative; the dispenser mirrors it for snapshots. Enemy weapon targeting uses the same task duration and crew clock.
-- Before release, no ammo/cooldown is spent. Current player cancellation/interruption/target loss returns to READY for free.
-  This differs from the older confirmed full-cooldown-on-mine-termination rule; see `GAME_DESIGN.md` and `BACKLOG.md`.
-- Release spends one ammo, commits a full cooldown and frees Gunner in the same encounter step, even if Evade causes a miss.
-  There is no autonomous salvo or later scheduled release. Zero cooldown returns directly to READY.
-- Evade is checked at the attachment attempt. A successful mine starts with its full fuse, even when the step overshoots
-  targeting completion. Attached fuses and recovery use world time; SPAM does not slow them.
-- Player queued attachments are integrated before existing combat objects resolve. New mines are excluded from captured
-  existing ids and receive no age from that step. Enemy zero-fuse mines detonate at attachment; player zero-fuse mines
-  resolve on the next combat step. This existing ordering is preserved, not normalized by the cleanup.
-- Each attached mine is independent. Clearing is Engineer-only on both sides; a missing/busy Engineer has no fallback role.
-- Incoming mines survive source destruction. Outgoing mines are removed when their target disappears or stops being hostile.
-- The MY SHIP tile consumes `targetingProgress`, exposes `G CANCEL` only for the engine's cancellable task, then shows
-  recovery/ammo after release. It has no dispensing-progress payload or local timer.
+Current penetrating consequences:
 
-Source owners: `src/engine/encounter/combat/sticky_mine/PlayerStickyMineDispenserRunner.ts`,
-`src/engine/encounter/combat/sticky_mine/CombatStickyMineRunner.ts`, `OfficerTaskRunner`, and the shared
-`combat_presentation_snapshot.ts` / `BridgePlayerShipDashboardMapper.ts` boundary. Detailed file routes are in
-`CURRENT_HANDOFF.md`; ownership is in `SYSTEM_MAP.md`.
+- `HULL` -> Hull damage;
+- operational `DRIVE` -> Drive module damage, no Hull spill;
+- a breaking Drive hit -> still no Hull spill;
+- already disabled/broken Drive -> `hullDamage * 2`.
+
+Player Active Shield also uses `HULL | DRIVE`. Shield deployment spends Power Core and commits generator cooldown at
+task start. Enemy targeted-Shield placement is not implemented; enemy Shield is whole-ship.
+
+## Weapon lifecycle and current cooldown edges
+
+Current runtime is mixed. Some systems already match the intended after-action rule and others still overlap
+recovery with active work.
+
+| System | Player cooldown starts | Enemy cooldown starts |
+| --- | --- | --- |
+| Missile Launcher | Physical launch | Physical launch |
+| Sticky Mine Dispenser | One physical release after targeting | One attachment attempt after targeting |
+| Beam Cannon | Shot resolves or charging is cancelled/interrupted | Charging starts |
+| SPAM Projector | Original channel operation ends | Channeling starts |
+| Defense Turret | Attempt completes or is cancelled | Loading starts |
+| Shield Generator | Deployment task starts | Deployment task starts |
+| Evade | Maneuver starts | Maneuver starts |
+
+Current player cancellation/commitment details:
+
+- Missile targeting cancellation/target loss is free: READY, no ammo, no cooldown;
+- Sticky Mine targeting cancellation/interruption/target loss is also free before release: READY, no ammo, no
+  cooldown;
+- player Beam cancellation keeps spent CORE and starts a full cooldown;
+- player Defense Turret cancellation starts a full cooldown;
+- player Shield and Evade keep their already-running cooldown because recovery currently starts too early;
+- player SPAM has no normal manual-cancel action.
+
+## Missile Launcher / Missiles
+
+Missile Launcher content owns damage, flight duration, ammo capacity and cooldown. `GUNNER_FIRE_MISSILE`
+officer-task tuning owns targeting duration.
+
+Physical launch spends one Missile. After launch the projectile is autonomous and does not keep Gunner busy.
+
+Incoming Missile can be intercepted by Defense Turret or avoided by Evade. Current Missile impact applies Hull
+damage and emits its event; it does **not** invoke the generic random damage-interruption path.
+
+A launched incoming Missile can survive destruction of its source actor while its own lifecycle remains valid.
+
+## Defense Turret
+
+Player baseline:
+
+- Gunner operates it;
+- it spends shared Power Core;
+- it targets one concrete live Missile;
+- if the attempt finishes while that Missile still exists, current resolution is deterministic `HIT`;
+- no Scientist hypothesis/accuracy tier is required.
+
+Enemy Turret also resolves deterministically after loading against a still-live player Missile, but enemy cooldown
+currently starts when loading begins rather than after the attempt.
+
+## Sticky Mine Dispenser
+
+Both player and enemy dispensers now use one release per targeting operation.
+
+```text
+TARGETING / MINE AIM
+-> exactly one release / attachment attempt
+-> Gunner free
+-> dispenser recovery and Mine fuse run independently
+```
+
+Current rules:
+
+- targeting duration belongs to `GUNNER_FIRE_STICKY_MINES` officer-task tuning;
+- dispenser content owns damage, fuse, ammo capacity and cooldown;
+- there is no `DISPENSING` phase, salvo size, launch interval or automatic later release;
+- targeting uses crew-progress time; fuse and cooldown use world time;
+- before release, player cancellation/interruption/target loss spends no ammo and starts no cooldown;
+- release spends one ammo and starts full cooldown even when target Evade makes attachment miss;
+- each attached Mine is an independent runtime object;
+- clearing is Engineer-only for both sides;
+- incoming Mines survive source destruction; outgoing Mines are removed when their target disappears/stops being
+  hostile.
+
+Existing step-order detail remains: enemy zero-fuse Mine can resolve on attachment; a newly integrated player
+zero-fuse Mine resolves on the next combat step.
 
 ## SPAM
 
-- SPAM is a long-lived effect, not a projectile.
-- Scientist launches player SPAM.
-- Enemy Scientist can purge player SPAM.
-- Player Scientist can purge enemy SPAM.
-- Active crew-progress modifiers use engine read models.
-- Player SPAM threat presentation uses real effect duration/progress, not a decision timing window.
-- `BridgeSpamView` shows viewscreen garbage/ads on the projection layer, below bridge controls/UI; this is implemented.
+SPAM is a long-lived crew-progress effect, not a projectile.
 
-## Damage and interruption
+Current player path:
 
-- Hull/module damage is engine-owned.
-- Physical runners resolve combat outcomes.
-- UI presents outcomes only.
-- Damage-interruptible officer tasks are interrupted by engine rules.
+- Scientist starts player SPAM;
+- target crew work is slowed while the active channel effect exists;
+- enemy Scientist may purge that effect;
+- when purged, the player effect ends immediately but the player Scientist remains occupied until the original
+  channel duration finishes;
+- only then does player SPAM enter cooldown and release Scientist.
 
-## Enemy crew boundary
+Current enemy path is asymmetric:
 
-Enemy crew is simulated, not a mirrored player bridge:
+- enemy Scientist channels SPAM;
+- player Scientist may purge it;
+- current `CombatSpamRunner` ends the enemy channel lifecycle on PURGE;
+- enemy crew synchronization then releases the enemy Scientist instead of keeping the original operation occupied.
 
-- perceived/decision facts provide the policy boundary;
-- `EnemyDecisionPolicy` chooses work;
-- `EnemyWorkExecutor` revalidates/commits/starts it;
-- `EnemyCrewTaskRunner` owns crew task lifecycle;
-- specialized runners own physical system phases;
-- enemy observation/Scientist intel remains separate from objective truth.
+`BridgeSpamView` renders viewscreen garbage/ads below bridge controls/UI.
 
-Enemy policy does not own full mutable encounter state.
+## Evade
+
+Current player phase shape:
+
+```text
+READY -> WARMUP -> EVADING -> COOLDOWN (if recovery remains) -> READY
+```
+
+Current runtime:
+
+- command start spends Power Core and starts full cooldown immediately;
+- cooldown therefore counts down during WARMUP/EVADING;
+- Pilot remains occupied through WARMUP/EVADING;
+- deterministic protection exists only during `EVADING`;
+- Missile hits, Beam hits and new Sticky Mine attachments are evadable;
+- SPAM and already-attached Mines are not evadable;
+- the confirmed 1-integrity Drive wear is not implemented.
+
+Explicit task-control semantics are not implemented as a clean standalone `INTERRUPT`/`STUN` system yet. Current
+generic damage interruption is described separately below.
+
+## Shared Power Core
+
+Current player Power Core baseline:
+
+- capacity: 4 charges;
+- sequential recharge;
+- current consumers: Evade, Defense Turret, Shield Generator, Beam Cannon.
+
+Committed player Beam CORE is not refunded after later cancellation/interruption. Other current consumers follow
+their existing concrete handlers/lifecycles.
+
+## Damage and interruption — current legacy behavior
+
+Current runtime still contains a generic random damage-interruption mechanism:
+
+- officer tasks carry `canBeInterruptedByDamage`;
+- `OfficerTaskRunner.interruptRandomTaskByDamage()` selects one eligible current player task and cancels it;
+- penetrating incoming Beam invokes that effect after damage;
+- enemy Sticky Mine detonation invokes that effect after Hull damage;
+- incoming Missile impact does not invoke it.
+
+This section records runtime truth only. The intended design removes ordinary-damage roulette in favor of explicit
+control effects; see `GAME_DESIGN.md` / `BACKLOG.md`.
+
+## Enemy crew / AI boundary
+
+Enemy crew is simulated through its own policy/execution/task boundary rather than a mirrored player bridge:
+
+```text
+perceived / decision facts
+-> EnemyDecisionPolicy chooses work
+-> EnemyWorkExecutor revalidates and commits work
+-> EnemyCrewTaskRunner owns crew task lifecycle
+-> specialized system runners own physical resolution
+```
+
+Enemy policy does not receive unrestricted mutable encounter state. Current exact defense priority/aggression rules
+are implementation/tuning rather than a durable gameplay contract.
+
+## Encounter end — current gaps
+
+The current runtime does not yet provide the full confirmed generic encounter-end reset/cleanup lifecycle described
+in `GAME_DESIGN.md`.
+
+There is no implemented Escape flow. Negotiated/peaceful combat-end cleanup is also future work.
+
+## Debug-only opening combat behavior
+
+The app still contains an isolated enemy combat-start debug behavior boundary. When configured, it can request enemy
+Evade and/or the legacy opening Drive-disruption pulse through authoritative engine APIs.
+
+The disruption pulse is debug infrastructure, not normal gameplay, and remains a cleanup target.

@@ -1,286 +1,104 @@
 # Space Captain — Intended Game Design
 
-Canonical intended design for the parts of the game that have reached active design.
+This file owns **confirmed intended design**. It describes how the game should behave when a mechanic has reached an
+actual design decision.
 
-This document describes what the game **should** do. `GAMEPLAY_CONTRACTS.md` describes what the current runtime
-**does**.
-When they disagree, do not silently reinterpret one as the other: change implementation deliberately.
+`GAMEPLAY_CONTRACTS.md` describes what the current runtime does. `EQUIPMENT.md` owns equipment-specific status and
+idea bank material. `BACKLOG.md` owns concrete implementation debt.
 
-Exact durations, damage values, probabilities and resource costs are tuning unless this document explicitly treats the
+Do not turn a brainstorm into a requirement merely because it was written down. Sections explicitly marked **WORKING
+THEORY** are current directions worth preserving, but they are not implementation contracts yet.
+
+Exact durations, damage values, probabilities and resource costs are tuning unless this document explicitly treats a
 number as a rule.
 
-Systems that have not reached active design are intentionally omitted. Expand this file when those systems become real
-work, not as speculative paper design.
+## 1. Player fantasy and command model
 
-## 1. Game / Elevator Pitch
+Space Captain is a space roguelite built around the fantasy of being the captain rather than directly operating
+every ship system.
 
-Space Captain is a space roguelite in which the player is the captain of a service ship and commands a crew of misfit
-officers.
+The captain chooses priorities, routes, targets, risks and orders. The captain is **not** a fifth universal officer.
 
-The player controls the ship primarily through orders to the crew. Officers perform tasks in combat, research,
-expeditions, anomaly work and service contracts.
+The four crew roles are:
 
-A run consists of a sequence of mandatory contracts. Before each contract the player chooses one of several offers,
-plans a route across a free-form space map, completes the objective and must report to any military outpost before the
-allowed number of jumps expires.
+- Scientist;
+- Pilot;
+- Gunner;
+- Engineer.
 
-After a fixed number of successful contracts, the player receives the final assignment.
-
-The captain's narrative goal is to repair a damaged service record and earn a return to normal duty.
-
-Run progression uses a familiar roguelite combination of randomness and player choice: weapons, equipment, ship
-upgrades, officer improvements, shops and other opportunities gradually form the current build.
-
-The central player fantasy is being the captain: choosing objectives, routes, priorities and orders rather than directly
-operating every ship system.
-
-`Roguelite` is a working genre label and may be refined later.
-
-## 2. Captain, Crew & Command Model
-
-### Captain
-
-The player is the captain, not a fifth universal officer.
-
-Captain actions are decisions rather than timed crew work: choose contracts and routes, answer dialogue, pay or refuse
-demands, accept risk, choose priorities and issue orders.
-
-Normal command flow:
+Normal command flow is:
 
 ```text
 situation
 -> captain chooses action
--> appropriate officer receives task
+-> appropriate officer receives a task
 -> officer is busy
 -> task completes / cancels / is interrupted
 -> gameplay result
 ```
 
-This command model should remain consistent across combat and non-combat content.
+One officer performs one active task at a time. The main crew resource is therefore the time and availability of the
+specific role that can solve the current problem.
 
-### Fixed crew roles
+Role identity:
 
-The player always has four required officer roles:
+- **Scientist** handles information work, electronic warfare and SPAM. Basic interface readability is not
+  Scientist-gated.
+- **Pilot** handles movement, docking, Evade and future Escape.
+- **Gunner** operates offensive weapons and the Defense Turret, so offense competes with missile defense.
+- **Engineer** handles Shield, broken equipment and physical problems attached to the ship such as Sticky Mines.
 
-- Scientist
-- Gunner
-- Pilot
-- Engineer
+## 2. Combat foundations
 
-An officer is tied to one role for the run. The player does not continue with a permanently missing role.
+### 2.1 One ship against one ship
 
-Officers may perform badly, be temporarily unavailable or become difficult to manage, but they do not permanently die,
-run away or stop working for the rest of the run.
+Combat is always one player ship against one full enemy ship. Missiles, Beam attacks, Mines, SPAM and future drones
+or similar objects are threats/effects produced by those ships, not additional command-capable enemies.
 
-At appropriate stations the player may deliberately replace an officer with another candidate.
+Combat is continuous real time by default. Tactical pause remains an open UX/playtest question rather than a sacred
+rule.
 
-### Role scope
+Depth should come mainly from several problems competing for officer time, CORE and equipment, not from mandatory
+multi-step chores just to understand what is happening.
 
-**Scientist** handles unknown/information work, anomaly research, scanning, tactical analysis, electronic warfare and
-SPAM.
-Basic UI readability is not gated by Scientist.
+### 2.2 Basic information is free
 
-**Gunner** operates offensive weapons and the Defense Turret. In combat, offense competes with missile interception.
+The player should understand basic combat truth without assigning Scientist merely to make the UI legible.
 
-**Pilot** handles navigation, movement, docking, Evade and Escape. Ship hardware defines capability; Pilot performs the
-action.
+Free information includes at least:
 
-**Engineer** repairs broken systems, deploys Shield and handles physical ship problems such as attached sticky mines.
+- threat family;
+- obvious semantic target of a telegraphed attack;
+- basic enemy Hull and installed equipment state that the combat board deliberately exposes;
+- whether the player's own equipment is ready, busy, cooling down or BROKEN.
 
-### Officer tasks
+Scientist content should add decision-changing information or interference, not permission to understand the screen.
 
-Most orders are duration tasks. While an officer is busy, incompatible actions for that role are unavailable.
+### 2.3 Pacing
 
-The important crew resource is therefore **time and availability of specific people**.
+A weak/basic player ship against a weak/basic enemy should be strongly player-favored under reasonable play and
+should not become a long predictable attrition tax.
 
-Tasks may be cancellable or interruptible depending on the concrete action. Do not add a universal cancellation rule
-that
-ignores the real commitment point of the system involved.
+The important failure condition is **long and boring**, not simply **long**.
 
-### Officer individuality
+A longer fight is valid when it remains tense and produces meaningful decisions. Very weak generated enemies may die
+in only a few attacks. Do not stretch an already-decided fight merely to satisfy a target duration.
 
-Keep the crew model small enough to read:
+Basic weapon families should support useful combat plans rather than becoming obvious trap choices.
 
-- personal traits;
-- experience/upgrades;
-- one dynamic condition value, currently called **Morale**;
-- pairwise relationships between officers.
+## 3. Ship state, Hull and equipment
 
-Do not add separate fatigue, stress, loyalty and similar parallel meters unless playtesting proves they create distinct
-decisions.
+Central rule:
 
-Morale represents tiredness, irritation, confidence and general working condition. Low Morale should first make an
-officer slower, costlier or create extra downtime. Catastrophic task failures belong near extreme dysfunction, not
-normal
-routine RNG.
+> Hull is long-term run attrition. Module damage is tactical pressure inside the current encounter.
 
-Relationships are pairwise rather than one global crew-morale value.
+### 3.1 Hull
 
-## 3. Run Structure
+Every ship has Hull. Zero Hull destroys the ship. Player Hull damage persists between encounters.
 
-### Run loop
+### 3.2 Chassis, slots and mounts
 
-```text
-MILITARY OUTPOST
--> choose one contract
--> plan route
--> reach target node
--> complete objective
--> reach ANY military outpost before deadline
--> choose next contract
--> ...
--> FINAL MISSION
-```
-
-The run fails if the ship is destroyed or the current contract deadline expires before reporting at an outpost.
-
-### World map
-
-The current intended map is spatial rather than a predefined edge graph.
-
-- nodes have physical positions;
-- the ship has a jump radius;
-- any node inside that radius is reachable;
-- every node-to-node jump costs exactly one contract jump regardless of distance inside the radius;
-- increasing jump range is a meaningful macro upgrade.
-
-If the spatial map fails in playtest, replacing it with a more conventional branching map is acceptable. Combat and
-mission internals should not depend on the map model being sacred.
-
-### Contract offers and deadline
-
-At a military outpost the player chooses one active mandatory contract from several offers. Before acceptance the player
-should understand at least the objective, reward, target location and allowed jump budget.
-
-One common jump budget covers the entire contract:
-
-```text
-ACCEPT
--> objective
--> report to ANY military outpost
-```
-
-Finishing the objective early preserves remaining jumps for stores, repair, leisure, exploration or other detours.
-
-The contract is complete only after reporting at an outpost. The deadline must be clearly visible so failure is never a
-gotcha.
-
-### Sectors, nodes and local exploration
-
-The map can contain sectors with different content biases: combat, shops, leisure/crew recovery, anomalies and other
-activity types. The player should know the statistical character of a sector without knowing every random local object.
-
-Each global node is a local area. It may have a persistent known anchor such as a trade station, military outpost or
-pirate
-station. On arrival, additional local points can be revealed: ships, anomalies, wrecks, events and other objects.
-
-Movement between points inside one global node does not spend contract jumps.
-
-Local exploration should be risk/reward rather than free farming. Extra points can cost Hull, ammo, crew condition,
-relationships or other resources while offering rewards.
-
-### Leaving during local work
-
-Local movement or departure should not require every officer to be idle merely as a generic rule.
-
-If an officer is performing work tied to the current location, leaving can cancel that work and forfeit its result or
-the
-opportunity itself. Example: leaving while Scientist studies an anomaly may lose the unfinished research and possibly the
-anomaly.
-
-Prefer this natural consequence over an artificial global `all officers idle` travel gate.
-
-### Objective scope and world refresh
-
-Base contract objectives should usually resolve inside one target node, although that node may contain several local
-steps or points of interest. Avoid mandatory multi-node fetch chains until the simpler structure proves insufficient.
-
-Between contracts, significant in-world time may pass. Geography, sectors and major anchor objects persist; temporary
-local contents may refresh.
-
-### Run completion
-
-After a fixed number of successful contracts, the player receives a final assignment. Completing that final encounter or
-mission completes the run.
-
-The exact final boss/twist is intentionally not fixed here.
-
-## 4. Combat
-
-### 4.1 Combat premise and flow
-
-Combat is one player ship against one full enemy ship. Missiles, Beams, Mines and SPAM are threats/effects, not extra
-command-capable enemies.
-
-Combat evolves continuously in time. Officers perform timed work while weapons, projectiles, cooldowns and effects run
-their own lifecycles.
-
-```text
-READ
--> DECIDE
--> ORDER
--> OFFICER WORKS
--> ACTION / THREAT RESOLVES
--> NEW STATE
-```
-
-The baseline direction is continuous real-time combat. Tactical pause remains an open playtest/UX decision; do not make
-`no pause ever` a sacred rule.
-
-Individual threats may have simple obvious counters. Depth should come mainly from several problems competing for
-officer
-time, CORE and ship systems rather than from mandatory multi-step identification chores.
-
-The player may consciously accept damage instead of responding if another action matters more.
-
-Keep these combat effects semantically distinct:
-
-```text
-Hull damage        = persistent run attrition
-module damage      = tactical system pressure
-interrupt          = current task stops; officer becomes free
-stun               = current task stops; officer is unavailable for a duration
-```
-
-Control effects must not create easy permanent role lockouts.
-
-#### Early-combat baseline
-
-Opening combat should establish the loop without becoming a tax.
-
-For a weak/basic player ship against a weak/basic enemy:
-
-- reasonable play should win almost every time;
-- the fight should be short;
-- "easy but long" is a design failure;
-- the player should not spend long stretches waiting to shave predictable Hull from an enemy that cannot realistically
-  win.
-
-Basic/unupgraded weapon families should not be trap choices in this phase. They do not need identical damage curves or
-solo time-to-kill, but each must support a useful combat plan.
-
-In particular, Beam precision/control must not make Beam strictly superior to Missile. Missile direct Hull pressure,
-timing, ammunition and defense interactions should provide a competing reason to use it.
-
-### 4.2 Ship state and damage
-
-Central model:
-
-> Hull is long-term run attrition. Module damage is a tactical problem of the current encounter.
-
-#### Hull
-
-Every ship has Hull. At zero Hull the ship is destroyed. Player destruction ends the run.
-
-Hull damage persists between encounters and is repaired through external run opportunities such as stations.
-
-#### Chassis, slots and loadout
-
-A chassis defines the physical build shape of a ship. A loadout/preset fills that shape; the loadout does not invent
-extra
-mounting points.
-
-Baseline slot categories:
+A chassis owns the physical build shape. Current slot kinds are:
 
 ```text
 DRIVE
@@ -289,162 +107,121 @@ DEFENSE
 UTILITY
 ```
 
-Different chassis may expose different counts and combinations of these slots. Do not make one debug loadout's weapon
-count a universal ship rule. Debug Start stores normalized `equipment[]` entries with explicit `slotId`; chassis define
-the available layout.
+Slots own stable spatial identity. Installed equipment owns functionality and integrity. A mount connects a stable
+slot to a concrete installed equipment instance.
 
-Each slot has stable identity on the ship so installed hardware, combat targeting and presentation can refer to the same
-place without reconstructing it from array position.
+Hull is not a slot. Power Core is separate, non-spatial, non-breakable and non-targetable.
 
-Integrity belongs to installed equipment, not the physical slot. It is encounter-local and binary in functionality:
+### 3.3 Integrity and BROKEN
+
+Breakable equipment uses encounter-local integrity with binary functionality:
 
 ```text
 integrity > 0 -> OPERATIONAL
 integrity = 0 -> BROKEN
 ```
 
-BROKEN equipment is disabled until repaired. Slot targeting resolves the installed equipment through the mount;
-the slot has no separate integrity/BROKEN state. Command availability, AI and physical runners consult the same
-equipment-owned operational truth.
+Intermediate damage does not weaken the equipment's function.
 
-Hull is not a slot.
+Engineer repairs only BROKEN equipment. A completed repair restores that equipment to full integrity. Do not create
+routine mid-combat top-off work for equipment that is damaged but still operational.
 
-Power Core remains non-breakable and non-targetable even as ship loadout/build structure becomes more configurable.
+At normal encounter end, encounter-local module integrity returns to full. Hull and spent ammunition remain
+persistent run costs.
 
-For player Beam targeting, the intended semantic target is:
+## 4. Semantic ship targets
+
+The intended Beam/targeted-Shield vocabulary for both ships is:
 
 ```text
 HULL
-or
+BRIDGE
 SLOT(slotId)
 ```
 
-Beam slot resolution is deliberately asymmetric across the first and repeated hit:
+`BRIDGE` is a real semantic target even though it is not an equipment slot. Its final combat consequence is not
+fixed yet; the expected design space is officer control such as explicit `INTERRUPT` or `STUN`. Do not remove the
+target merely because the current consequence is unfinished.
 
-- hitting OPERATIONAL equipment in the targeted slot deals module damage and no Hull damage;
-- a hit that breaks that equipment still does not spill damage into Hull;
-- hitting already BROKEN equipment in the targeted slot deals `hullDamage * 2`.
-
-The exact equipment durability, Beam damage and chassis layouts are tuning/content.
-
-Do not generalize every currently scalar installed system into arbitrary arrays until a real chassis/loadout needs that
-multiplicity. The slot model should remove fixed-layout assumptions without creating a generic equipment framework for
-hypothetical content.
-
-#### Modules
-
-Functional modules have integrity but binary functionality:
+For a `SLOT(slotId)` Beam hit:
 
 ```text
-integrity > 0 -> OPERATIONAL
-integrity = 0 -> BROKEN
+operational equipment
+    -> module damage
+    -> no Hull damage
+
+hit that breaks the equipment
+    -> still no Hull spill
+
+already BROKEN equipment
+    -> hullDamage * 2
 ```
 
-Intermediate integrity does not reduce module performance.
+A targeted Shield protects one semantic target using the same vocabulary. A Beam aimed elsewhere penetrates and
+leaves the Shield alive. A Beam that misses because of Evade also leaves the Shield alive.
 
-Engineer repairs only BROKEN modules, and a completed repair restores the module to full integrity. Do not create
-routine
-mid-combat top-off housekeeping for still-operational modules.
+The baseline currently assumes one Active Shield per deployment. A future generator that requires selecting several
+zones for one multi-Shield deployment is an upgrade/design idea, not a base rule.
 
-At normal encounter end, surviving player modules return to full integrity automatically. This includes successful
-Escape. The same principle applies to encounter-local ship state that could otherwise be restored by simply waiting.
+## 5. Combat effects and control
 
-Any module that can be broken through ordinary module damage may be a semantic weapon target. Add targetable modules
-only
-when they have real domain identity and consequences.
-
-Power Core is intentionally non-breakable and non-targetable.
-
-For Beam-style module attacks, use the chassis-slot targeting rules above and mutate the installed equipment's integrity.
-Do not create slot-health state beside the equipment state.
-
-### 4.3 Officer tasks in combat
-
-One officer performs one active task at a time.
+Keep these effects distinct:
 
 ```text
-FREE
--> ORDER
--> BUSY
--> TASK RESOLVES
--> FREE
+Hull damage        = persistent run attrition
+module damage      = tactical equipment pressure
+INTERRUPT          = current task stops; officer becomes immediately free
+STUN               = current task stops; officer remains unavailable for a duration
 ```
 
-A task ends when the officer has produced the result that requires that officer. Physical systems can continue
-afterward.
+Ordinary damage does **not** randomly interrupt officer work.
 
-Example:
+`INTERRUPT` and `STUN` must come from an explicit weapon effect, trait or other mechanic. At the current design
+level there are no officer tasks with universal immunity to these explicit control effects. Add an exception only
+when a concrete mechanic needs it.
 
-```text
-Gunner task:  AIM -> LAUNCH -> done
-Missile:      LAUNCHED -> FLIGHT -> HIT/MISS
-Launcher:     COMMITTED -> COOLDOWN -> READY
-```
+## 6. Shared equipment lifecycle rules
 
-#### Equipment cooldown and cancellation
+Player and enemy versions of the same equipment follow the same physical rules.
 
-The same timing rules apply to player and enemy equipment. A full cooldown starts at the end of active work, without
-counting down during preparation or operation. Allowed cancellation/interruption starts a full cooldown at termination,
-with the explicit Missile-targeting exception below. Committed resources are not refunded.
+A full cooldown starts **after active work ends**. Cooldown does not tick in parallel with preparation or operation
+unless a future equipment family deliberately defines a different rule.
 
-| System | Full cooldown starts |
+Committed resources are not refunded after commitment.
+
+### 6.1 Commitment and cancellation table
+
+| System | Commitment / cooldown rule |
 | --- | --- |
-| Missile Launcher | When the Missile launches; cancelled targeting costs neither ammo nor cooldown. |
-| Beam Cannon | After firing or cancellation/interruption; committed CORE is not refunded. |
-| Drive / Evade | After the maneuver ends or is cancelled; the same end applies the 1-integrity Drive wear. |
-| Shield Generator | After Shield installation or cancellation/interruption. |
-| Sticky Mine Dispenser | At the single Mine release, or cancellation/interruption under the earlier termination rule; see migration note below. |
-| SPAM Projector | After work ends or incoming damage interrupts it; no manual cancellation. |
-| Defense Turret | After the attempt finishes or is cancelled/interrupted. |
+| Missile Launcher | Targeting before physical launch is free to cancel. Launch spends ammo and starts full cooldown. |
+| Sticky Mine Dispenser | Pre-release targeting is free; release spends one ammo and starts full cooldown. |
+| Beam Cannon | CORE commits when charging starts. Fire or any later termination starts full cooldown. |
+| Defense Turret | CORE commits when the attempt starts. Attempt completion or later termination starts full cooldown. |
+| Shield Generator | CORE commits at deployment start; termination starts full cooldown. |
+| Drive / Evade | CORE commits at WARMUP; termination applies Drive wear and starts full cooldown. |
+| SPAM Projector | Scientist commits to the operation; termination starts full cooldown. |
 
-Missile flight and installed Active Shield lifetime proceed independently of their equipment cooldowns.
-Mine ammunition is spent only at physical release; cancelled targeting retains the unlaunched Mine.
-These timing rules do not add manual cancellation to actions that currently forbid it.
+Missile and Mine targeting are explicit pre-commit exceptions: if targeting ends before physical release, no
+ammunition is spent and no cooldown starts.
 
-If the target disappears during active Beam or Turret work, terminate the attempt with a full cooldown. If it disappears
-during Missile targeting, cancel freely without spending ammunition or starting cooldown.
+Target loss follows the same commitment boundary. Losing a Missile/Mine target before release is free. Losing a Beam
+or Turret target after active work has begun terminates the attempt with full cooldown.
 
-This is confirmed design, not a claim that every runtime path already follows it. Current timing differences are recorded
-in `GAMEPLAY_CONTRACTS.md`; implementation work is tracked in `BACKLOG.md`.
+## 7. Current combat families
 
-Mine migration note: the current one-Mine implementation permits manual targeting cancellation and also cancels for
-damage/target loss without cooldown. The older full-cooldown-on-termination rule above has not been reconciled with this
-behavior. Preserve that distinction until a deliberate gameplay decision; a cleanup must not silently change either rule.
+### 7.1 Missile
 
-Ordinary damage does **not** randomly interrupt tasks. `INTERRUPT` is an explicit effect of specific weapons, traits or
-other mechanics.
+Missile is delayed physical Hull pressure:
 
 ```text
-BUSY -> INTERRUPT -> task lost -> officer immediately FREE
+Gunner targets
+-> Missile launches
+-> Gunner is free
+-> Missile flies autonomously
+-> impact -> Hull damage
 ```
 
-Stun both interrupts current work and keeps the officer unavailable:
-
-```text
-BUSY -> STUN -> task lost -> unavailable -> FREE
-```
-
-A successfully completed ordinary task guarantees its normal effect. Routine Morale does not add a hidden universal
-failure roll. Negative traits and poor condition should primarily change duration, cost or recovery; catastrophic direct
-failures belong to severe dysfunction.
-
-### 4.4 Incoming threats
-
-Basic threat identity and any obvious semantic target are free information. Scientist is not required to understand the
-threat panel.
-
-Each concrete Missile or attached Mine is a separate threat object.
-
-#### Missile
-
-Missile is delayed physical Hull damage.
-
-```text
-launch
--> autonomous flight
--> impact
--> Hull damage
-```
+Finite ammunition persists between encounters.
 
 Base counters:
 
@@ -453,19 +230,30 @@ Gunner -> Defense Turret
 Pilot  -> Evade
 ```
 
-Base Missiles always damage Hull. Advanced missiles may gain traits such as officer Stun chance, module damage or other
-secondary effects.
+### 7.2 Defense Turret
 
-#### Beam
+Defense Turret is a specialized deterministic anti-Missile system:
 
-Beam is a telegraphed semantic-target attack.
+- Gunner operates it;
+- it spends shared Power Core;
+- it targets one concrete incoming Missile;
+- work takes time;
+- if the target still exists when the attempt completes, the baseline intercept succeeds.
+
+Future accuracy/traits may add variation, but the baseline does not need a hidden success roll.
+
+### 7.3 Beam Cannon
+
+Beam is telegraphed precision pressure:
 
 ```text
 target revealed
 -> charge
 -> fire
--> immediate resolution
+-> immediate semantic-target resolution
 ```
+
+Gunner operates it and it spends shared Power Core.
 
 Base counters:
 
@@ -474,298 +262,212 @@ Engineer -> targeted Shield
 Pilot    -> Evade
 ```
 
-Beam may target Hull or a breakable module. Its target is normal readable combat information, not Scientist-gated intel.
+### 7.4 Sticky Mine Dispenser
 
-#### Sticky Mine
+Sticky Mine Dispenser is a finite-ammo weapon whose main identity is Engineer workload pressure.
 
-A Sticky Mine attaches to the ship and explodes after a fuse.
-
-```text
-attach
--> fuse
--> Engineer may CLEAR
--> explosion
--> Hull damage
-```
-
-New attachment can be avoided by Evade. Once attached, Evade no longer helps.
-
-The Mine's main identity is Engineer workload pressure. The current dispenser targets and releases one Mine per command.
-Several independent Mines may still accumulate through repeated commands or multiple dispensers. The previous salvo
-comparison is historical design context, not a currently supported content option.
-
-#### SPAM
-
-SPAM is a long-lived electronic/information effect rather than a projectile.
+One completed targeting operation releases **exactly one Mine**:
 
 ```text
-SPAM applied
--> officer work slows
--> Scientist may PURGE
-or
--> effect expires
+Gunner targets
+-> one Mine releases / attempts attachment
+-> Gunner is free
+-> dispenser cooldown and Mine fuse run independently
 ```
 
-While active, SPAM also obscures the external viewscreen with garbage/ads. It may annoy and reduce visual situational
-awareness, but it must not hide the basic controls/state required to make mandatory combat decisions.
+Evade can prevent a new attachment. Once attached, Evade no longer helps.
 
-### 4.5 Player weapons / offensive actions
+Each attached Mine is independent and must be cleared independently. Clearing is Engineer-only in the current
+design. Automatic salvos are not part of the dispenser contract.
 
-Different weapon families should create different decisions through officer time, resources, targeting and pressure, not
-just different damage numbers.
+A future requirement that Engineer needs specific hardware to remove Mines, drones or other attached objects is a
+working equipment idea, not a current combat rule.
 
-#### Basic Gun / Autocannon
+### 7.5 SPAM Projector
 
-These names refer to one unimplemented baseline-gun concept, not two planned weapon families. It gives Gunner a low-energy
-Hull-damage option with no CORE cost. Decide ammunition rules when implementing it; see `EQUIPMENT.md` for other ideas.
+SPAM is Scientist's current offensive/electronic-warfare action rather than a projectile.
 
-Without upgrades it should become weak quickly enough that replacing it is attractive. With deliberate investment and
-appropriate upgrades, this gun build should be able to remain viable through the full run.
+Its identity is **high commitment / high disruption**:
 
-#### Missile Launcher
+```text
+Scientist starts projection
+-> target crew work is slowed
+-> target Scientist may PURGE the effect
+-> projecting Scientist remains committed until the original operation ends
+```
 
-Missiles use Gunner and finite ammunition. After launch the Missile flies independently. Base Missiles damage Hull;
-variants may add traits and secondary effects.
+Purging removes the harmful effect; it does not retroactively free the projecting Scientist. This rule is intended
+to be symmetric for player and enemy.
 
-#### Beam Cannon
+The operation is deliberately not a reactive damage weapon. Scientist gives up access to Purge and other future
+Science work while committed.
 
-Beam uses Gunner and spends Power Core. It can target Hull or breakable enemy modules.
+SPAM may contaminate the external viewscreen with garbage/ads, but it must not hide the minimum controls needed to
+make mandatory combat decisions.
 
-This intentionally creates offense-vs-defense CORE contention: spending energy on Beam now leaves less reserve for
-Turret, Shield or Evade.
+### 7.6 Evade
 
-#### Sticky Mine Dispenser
-
-Mines use Gunner and finite ammunition. Gunner performs targeting, then releases one Mine and is immediately free.
-The Mine's fuse is independent of dispenser cooldown. The same shape applies to player and enemy; targeting duration
-belongs to officer-task tuning. Mines primarily create enemy Engineer pressure. Automatic salvos are no longer part of
-the current dispenser; any return to them would be a separate gameplay change.
-
-#### SPAM Projector
-
-SPAM is a Scientist offensive action. Its baseline cost is **long Scientist commitment and opportunity cost**, not ammo or
-CORE.
-
-While Scientist is busy projecting SPAM, Scientist cannot Purge, analyze or interfere in other ways.
-
-If playtesting later shows Scientist time is not enough cost, a possible fallback is to reserve a Power Core cell for the
-SPAM commitment so that the cell cannot recharge or be used elsewhere. This is not the base rule yet.
-
-Weapon progression should preserve family identity while allowing useful traits/upgrades rather than becoming a
-ladder of
-purely larger numbers.
-
-### 4.6 Defensive actions
-
-#### Defense Turret
-
-Defense Turret is a specialized anti-Missile action:
-
-- Gunner operates it;
-- it spends Power Core;
-- it targets one incoming Missile;
-- it takes officer time and then enters cooldown;
-- if the player Gunner task completes while that Missile still exists, the baseline interception is guaranteed.
-
-No extra hidden success roll is required for the BASIC player turret.
-
-#### Targeted Shield
-
-Engineer deploys one temporary Active Shield onto one selected player ship node. Deployment spends Power Core.
-
-Only one Active Shield exists at a time in the baseline design.
-
-A matching Beam hit is absorbed and consumes the Shield. A Beam aimed at another node penetrates and leaves the Shield
-alive. A Beam that misses because of Evade also leaves the Shield alive.
-
-The Shield expires naturally if no matching hit arrives. Exact lifetime is tuning.
-
-Future upgrades may expand shield behavior, including possibly supporting more than one shield, but the base rule stays
-simple until playtest proves the need.
-
-#### Evade
-
-Evade is a broad Pilot defensive maneuver:
+Evade is the expensive universal emergency response.
 
 ```text
 READY
 -> WARMUP
 -> EVADING
 -> end
--> COOLDOWN
+-> full COOLDOWN
 ```
 
-Requirements and effects:
+There is no third free preparation phase. Starting WARMUP is the commitment edge.
 
-- Drive must be OPERATIONAL when Evade starts;
+Requirements/costs:
+
+- Drive is OPERATIONAL when the maneuver starts;
 - Pilot is occupied;
-- Evade spends Power Core;
-- while actively EVADING, any number of supported physical threats may miss;
-- supported baseline threats are Missile hits, Beam hits and new Sticky Mine attachments;
-- SPAM and already-attached Mines are not avoided.
+- shared Power Core is spent at start;
+- once committed, the eventual end deals 1 Drive integrity damage;
+- full cooldown begins only after the maneuver completes or is terminated.
 
-Evade is intentionally broader than Turret or Shield and should be balanced through real costs rather than by making it
-avoid only one threat.
+Explicit `INTERRUPT` or `STUN` may terminate Evade. Manual cancellation after WARMUP begins does the same. In all of
+those cases the committed CORE remains spent, Drive wear is applied and full cooldown starts after termination.
 
-**Drive wear:** once an Evade is committed, its eventual end always deals 1 point of Drive module damage. Apply that
-damage
-at the end of the maneuver, not at the start. This remains true whether Evade completes normally, is manually cancelled
-or
-is terminated because Pilot is Stunned.
+While actually `EVADING`, current baseline Missiles, Beam hits and new Sticky Mine attachments miss. SPAM and
+already attached Mines are unaffected.
 
-The delayed damage prevents Engineer from repairing the Drive while the same Evade window is still protecting the ship.
-The Drive's final remaining integrity can therefore power one last Evade and become BROKEN when that maneuver ends.
+The Drive's final integrity point may power one last Evade and become BROKEN when that maneuver ends.
 
-Generic task `INTERRUPT` should not cancel an active Evade. Pilot Stun may terminate it.
+## 8. Enemy combat model
 
-### 4.7 Power Core and combat resources
+Enemy ships obey the same physical constraints as the player: Hull, equipment integrity, CORE, ammo, weapon
+lifecycles, officer/crew contention and defensive systems are real state rather than decorative AI modifiers.
 
-Keep the common combat economy small.
+Enemy decision-making is not omniscient. Policy acts on perceived/known information with reaction delay and crew
+constraints.
 
-#### Power Core
+The enemy should not blindly maximize DPS through meaningful known threats. Defensive work must compete with offense
+when there is a real reason to defend. Exact defense priority, aggression formulas and personality tuning are not
+sacred design rules; they are balance/AI work.
 
-Power Core is a shared renewable encounter resource. Current baseline capacity is four cells; exact capacity and costs
-may
-change through tuning/upgrades.
+Same equipment means same lifecycle rules. Player/enemy asymmetry may exist in presentation or decision policy, not
+in the physical cooldown/resource contract of nominally identical hardware.
 
-Intended consumers include:
+## 9. Encounter end
 
-```text
-Beam Cannon
-Defense Turret
-Shield
-Evade
-```
+### 9.1 Normal destruction
 
-Recharge is sequential:
+When enemy Hull reaches zero:
 
-```text
-0 -> 1 -> 2 -> 3 -> 4
-```
+- the destroyed enemy starts no new actions;
+- active enemy Beam charge / SPAM operation stops;
+- already committed autonomous incoming physical threats remain real where their lifecycle allows it;
+- player threats aimed at the destroyed ship are removed;
+- the encounter closes after still-relevant committed incoming danger resolves.
 
-At normal encounter end, Power Core returns to full automatically. Do not create a post-combat waiting optimization.
+The point is to preserve already-launched danger without allowing pointless attacks against a ship that no longer
+exists.
 
-Power Core is non-breakable and non-targetable.
+### 9.2 Negotiated / peaceful end
 
-#### Ammunition
+A future captain-level outcome may end combat through payment, surrender or agreement to disengage.
 
-Missiles and Mines use finite ammunition. Ammo persists between encounters and is a run resource that must be
-replenished
-through run economy/content rather than by waiting.
+When both sides agree to stop fighting, **all incoming and outgoing combat threats/effects are removed immediately
+on both sides**.
 
-Basic Gun / Autocannon has no CORE cost; its remaining resource rules are deferred until implementation.
+A negotiated end is a clean state transition. Do not allow a ship to pay for peace and then die to a Missile that
+the other side had already launched.
 
-### 4.8 Scientist / combat information
+### 9.3 Escape
 
-Central rule:
+Escape is a future timed, cancellable Pilot task exposed through the Drive's inline interaction.
 
-> Basic truth is free. Scientist spends officer time to reveal deeper decision-changing information or to create tactical
-> interference.
-
-The player's basic enemy inspection should expose the enemy loadout, obvious modules/state and visible combat actions
-without requiring Scientist.
-
-Whether opening deep inspection pauses simulation is a UX/playtest choice; the important principle is that the player
-can
-plan against a known enemy and understand why a loss happened.
-
-Scientist currently has clear contention around SPAM:
-
-```text
-PURGE enemy SPAM
-vs
-project SPAM
-vs
-analyze enemy
-vs
-interfere with enemy systems
-```
-
-Exact Analysis design is intentionally deferred until implementation. Useful future results may reveal weapon traits,
-properties, vulnerabilities or other information that changes a real decision. Analysis information normally remains for
-the encounter, although a future discovered vulnerability may itself be a one-use opportunity.
-
-Scientist interference may later alter enemy timing/effectiveness, for example slowing a Missile, increasing Beam charge
-or
-weakening a Shield. Do not canonize a menu of such actions before playtesting them.
-
-Do not recreate mandatory `TRACK -> identify basic threat -> counter` chores under another name.
-
-### 4.9 Enemy combat model
-
-Enemy ships obey the same physical world rules: Hull, breakable modules, CORE, weapon lifecycles, officer tasks, repair,
-Shield, Turret, SPAM and disruption must be real state rather than decorative AI modifiers.
-
-The baseline enemy crew uses the same four roles:
-
-```text
-Scientist / Gunner / Pilot / Engineer
-```
-
-Weak or special enemies may effectively lack one or more roles. Implementation may model that as absent roles or roles
-that are permanently unavailable; no separate AI architecture is required merely for a weak ship.
-
-Enemy AI is not omniscient. The captain/policy acts on perceived/known information with reaction delay and crew
-constraints, not unrestricted mutable engine truth.
-
-Enemy difficulty/personality should come from equipment, crew quality, information, traits and decision style rather
-than
-zero-millisecond perfect reactions.
-
-Enemy traits/personality are part of generated enemy identity and should be visible in inspection when they materially
-explain behavior. The player should not have to guess why two otherwise similar ships fight differently.
-
-Physical symmetry does not require identical UI/AI mechanics. For example, the BASIC player Turret may be deterministic
-while enemy interception can use its own observation/probability model. But hard world constraints remain real: no CORE
-means no CORE-funded action; a busy role cannot perform another task; a BROKEN module loses its functionality.
-
-### 4.10 Escape and encounter end
-
-#### Escape
-
-Escape is a timed Pilot action, not an instant normal jump.
-
-Requirements:
+Confirmed behavior:
 
 - Drive must be OPERATIONAL;
-- Pilot must be able to work;
-- other officers do **not** need to be idle.
+- other officers do not need to be idle;
+- cancel / `INTERRUPT` / `STUN` loses current Escape progress;
+- a new attempt starts from zero;
+- success ends the encounter and clears all combat threats/effects rather than suspending the old fight.
 
-Other roles may keep fighting, repairing or performing Scientist work while Pilot prepares Escape.
+### 9.4 Encounter-local reset
 
-If Pilot is interrupted or Stunned during Escape, the Escape task is lost. A later attempt starts from zero.
+After a normal encounter end, including successful Escape:
 
-Successful Escape ends the current encounter and the run continues. All remaining incoming/outgoing combat threats and
-effects are cleared as part of leaving the engagement. The escaped encounter is not suspended for later resumption.
-Returning to the same location normally creates new content/state rather than restoring the old fight.
+- surviving encounter-local equipment integrity returns to full;
+- Power Core returns to full;
+- temporary combat state is cleared;
+- Hull damage persists;
+- spent ammunition persists.
 
-After Escape, normal post-encounter reset applies; Hull damage and spent ammo remain persistent run costs.
+Do not create post-combat waiting as optimal play for state that is restored for free anyway.
 
-#### Enemy destroyed
+## 10. Combat presentation contract
 
-Base victory is enemy Hull reaching zero.
+Threat presentation should be organic and low-cognitive-load rather than a spreadsheet of independent countdown
+cards.
 
-After enemy destruction:
+The intended two-level read is:
 
-- the destroyed enemy cannot start new actions;
-- enemy Beam charge and SPAM cease;
-- already-launched enemy Missiles continue flying toward the player;
-- enemy Sticky Mines already attached to the player continue their fuse/explosion lifecycle;
-- player outgoing threats against the destroyed ship are removed: player Missiles self-destruct, player Mines disappear,
-  and player Beam/SPAM stop;
-- the encounter closes after surviving incoming enemy threats that are still physically relevant have resolved.
+1. a small set of **category danger indicators** that tells the captain what kind of response may be needed;
+2. concrete telegraphy on the first-person viewscreen, with detailed selection/state available through the relevant
+   equipment interaction when needed.
 
-This keeps danger already committed against the player real without allowing pointless attacks against a ship that no
-longer exists.
+The main dashboard does not need one persistent card, second counter or mitigation frame for every concrete threat.
+Exact presentation rules live in `THREAT_PANEL.md`.
 
-#### Negotiated / peaceful combat end
+## 11. Equipment diversity
 
-Combat may later end through captain-level outcomes such as payment, surrender or an agreement to disengage.
+Current weapon families should differ through targeting, officer contention, resource model, timing and counters
+rather than only damage values.
 
-When both sides agree to end combat, **all incoming and outgoing threats/effects are cleared immediately on both
-sides**.
-Do not allow timing exploits where the player accepts payment and then kills the released enemy with a Missile already
-in
-flight, or where an agreed disengagement is followed by an old incoming hit.
+The starting loadout needs a simple baseline offensive weapon. **That need is confirmed; the weapon's exact identity
+is not.** Autocannon/Basic Gun and its possible ammo, CORE or self-wear rules remain idea-bank material until that
+family is actually designed and playtested.
 
-Negotiated combat end is a clean state transition, not a delayed physical aftermath.
+See `EQUIPMENT.md` for uncommitted weapon concepts such as Autocannon, Scattergun, Torpedo and Plasma.
+
+## 12. WORKING THEORY — run structure
+
+The following is the current main macro-game hypothesis, not implemented runtime and not a promise that every detail
+will survive production.
+
+Working loop:
+
+```text
+MILITARY OUTPOST
+-> choose one contract
+-> plan route
+-> reach target node
+-> complete objective
+-> report to ANY military outpost before the jump budget expires
+-> choose next contract
+-> ...
+-> final assignment
+```
+
+Current theory:
+
+- global nodes have physical positions;
+- the ship has a jump radius rather than a fixed edge graph;
+- a contract has one shared jump budget covering objective + return/reporting travel;
+- local movement/exploration inside one global node does not spend contract jumps;
+- a target node may contain several local points such as ships, stations, anomalies, wrecks or events;
+- local exploration should create risk/reward rather than free farming;
+- geography and major anchors may persist while temporary local content refreshes between contracts.
+
+This is the preferred direction today because it supports route planning and optional local exploration. Revisit it
+when macro-game implementation actually begins.
+
+Current `FLY_TO` / `JUMP` / `DOCK` all-idle restrictions are prototype runtime behavior, not a settled final travel
+rule. Do not redesign them opportunistically during combat work; treat travel concurrency as a separate future
+design task.
+
+## 13. WORKING THEORY — crew depth and future Scientist content
+
+Traits, Morale, pairwise relationships, R&R and deeper crew progression are future directions only. Their detailed
+rules have not reached implementation design yet.
+
+Likewise, Scientist still needs more combat content beyond SPAM/Purge. The current flavor direction is that Science
+actions can be high-commitment, disruptive and unpleasant for the enemy rather than simply another damage button.
+Possible analysis/interference actions should be designed only when they create a real tactical decision.
+
+Do not build a detailed Morale/relationship/trait system or a menu of Scientist interference actions merely because
+those ideas exist in planning notes.

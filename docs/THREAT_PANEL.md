@@ -1,189 +1,120 @@
 # Space Captain — Threat Presentation
 
-Gameplay legality remains engine-owned. This document describes the confirmed compact threat-strip target and the live
-presentation pieces that must survive until it is implemented.
+This document owns the current **presentation direction for incoming combat danger**. Gameplay legality and exact
+threat state remain engine-owned.
 
-The old large 4x2 captain combat-context/threat-action view has been removed. Do not describe or rebuild it as current
-runtime UI.
+The goal is to keep the first-person bridge readable and cinematic without rebuilding combat as a spreadsheet of
+threat cards and countdowns.
 
-## Current runtime state
+## Current runtime
 
-There is currently no general persistent threat panel in the captain dashboard.
+There is no general persistent threat panel in the captain dashboard.
 
-Live pieces that remain relevant:
+Current useful pieces include:
 
-- concrete combat threats and their engine/read-model lifecycles remain real;
-- `BridgeCombatView` still owns combat VFX;
-- Defense Turret has its own inline Missile selector backed by the narrow
-  `DEFENSE_TURRET_THREATS_UPDATED` read path;
-- the persistent ENEMY SHIP dashboard is already landed and must remain visible independently of threat presentation;
-- the physical top-center compact threat monitor is not implemented yet.
+- authoritative concrete threat/effect state in the engine;
+- combat VFX on the viewscreen;
+- the Defense Turret's inline Missile-selection interaction;
+- persistent MY SHIP and ENEMY SHIP dashboards.
 
-The compact threat monitor is a later presentation slice. Do not opportunistically recreate the removed 4x2 grid or move
-basic enemy ship state back out of the persistent right dashboard.
+## Confirmed presentation direction
 
-## Confirmed target layout
+Incoming danger has two presentation levels.
 
-The combat board should use three persistent information zones:
+### 1. Category danger indicators
 
-```text
-TOP / COMPACT THREAT STRIP
-    immediate incoming threats + urgency/progress
+Use a small set of lamps/indicators to tell the captain **what kind of problem exists**, not to represent every
+concrete runtime object one-for-one.
 
-LEFT DASHBOARD
-    MY SHIP / controls
+Current conceptual families are:
 
-RIGHT DASHBOARD
-    ENEMY SHIP / state + targets
-```
+- **approaching / interceptable physical threat** — e.g. Missile, future Torpedo or Drone;
+- **targeted direct-fire threat** — e.g. Beam charging toward a ship semantic target;
+- **attached ship problem** — e.g. Sticky Mine or future attached Drone/other hull object.
 
-The right dashboard is no longer reserved for large threat cards. Basic enemy Hull/slot state stays visible continuously.
+The exact number, names, colors and physical shapes of these indicators are presentation tuning. The important rule
+is that they summarize response categories rather than becoming individual threat cards.
 
-Physical placement is now fixed for the current combat layout: use one small, long, narrow physical monitor centered
-above the viewscreen. Preserve the first-person viewscreen rather than turning the bridge into a flat tactical
-spreadsheet.
+SPAM is already visually intrusive on the viewscreen and may use its own status treatment rather than forcing every
+combat effect into one lamp taxonomy.
 
-The older `reference/combat_bridge_layout_2026-08-25.png` remains a macro composition reference; live dashboard code owns
-current internal HULL/grid geometry.
+### 2. Concrete viewscreen telegraphy
 
-## Target threat-strip contract
+Concrete threats should read organically on the external viewscreen whenever possible:
 
-One concrete runtime threat remains one presentation object.
+- an incoming projectile is physically visible;
+- Beam targeting/charging communicates its target through the ship presentation;
+- attached objects visibly belong to the ship;
+- urgency comes from motion, telegraph/VFX and state changes rather than a permanent second-by-second HUD countdown.
 
-Do not aggregate independent Missiles or attached Mines merely to save space.
+Do not require a persistent `time to impact` number, progress frame or per-threat card on the main captain board
+merely because the engine knows exact timing.
 
-Each compact threat cell should communicate at a glance:
+## Detailed response and target selection
 
-- family glyph;
-- designation where useful;
-- remaining progress / urgency;
-- terminal danger state;
-- whether that concrete threat is already being handled/targeted.
+When a response requires choosing a concrete threat, the relevant equipment interaction may expose the detailed
+list/state needed to make that choice.
 
-Compact threat cells should not carry permanent mitigation buttons.
-
-A threat cell becomes an interaction target when a selected own system requires that threat. Example:
+Current example:
 
 ```text
-select Defense Turret on MY SHIP
--> valid Missile cells highlight
--> select one Missile
+MY SHIP -> Defense Turret
+-> inline interception interaction
+-> choose one concrete incoming Missile
 ```
 
-The strip is small in area but must remain high in visual priority. An imminent hit must be able to pull attention away
-from the more visually rich ship dashboards.
+This keeps the permanent captain UI light while preserving exact tactical choice when the player deliberately opens
+the system that can act on the threat.
 
-## Shared direct-targeting grammar
+Not every targeting action must use an inline list. Beam can use visible ENEMY SHIP target surfaces; Shield can use
+own ship semantic targets. Use the interaction surface that best matches the system instead of forcing one universal
+target picker.
 
-Prefer:
+## Information hierarchy
+
+The player should be able to answer these questions quickly:
 
 ```text
-select own system
--> engine-resolved valid targets highlight
--> select target
+Is something dangerous happening?
+What broad response family can deal with it?
+Where is the concrete threat / target?
+Which system do I use if I want to react?
 ```
 
-Examples:
+Basic threat identity is free information. Scientist does not gate this hierarchy.
+
+Detailed statistics may live inside the relevant equipment interaction or future inspection layer when they
+materially change a decision.
+
+## Captain board ownership
+
+Persistent ship state stays on the ship dashboards:
 
 ```text
-Defense Turret -> threat strip Missile
-Beam Cannon    -> ENEMY SHIP Hull / slot
-Shield         -> MY SHIP slot
-Missile        -> ENEMY SHIP / Hull
+MY SHIP
+    Hull / CORE / installed equipment / readiness / integrity
+
+ENEMY SHIP
+    presentation-safe Hull / installed equipment / integrity / target surfaces
 ```
 
-Avoid a popup/menu as the default targeting step when the target is already visible on the combat board.
+Do not move Hull/CORE into the danger indicators.
 
-The engine remains authoritative for availability and exact command payloads. Presentation highlights/selects existing
-engine-resolved commands; it does not recreate legality.
+The top-center bridge area may host the compact category indicators, but it is no longer specified as an individual
+threat strip.
 
-## Glyph assets and colors
+## Visual guidance
 
-Do not treat the old four-icon prototype set as a live runtime asset contract. During cleanup those prototype
-`beam_cannon`, `mine`, `missile` and `spam` glyphs were moved to `ideas/threats/`.
+Danger indicators must survive at real runtime size. Prefer:
 
-The active reusable threat-icon namespace is:
+- few clear states;
+- strong silhouette/readability;
+- restrained animation;
+- semantic color only where it helps attention;
+- red reserved for genuinely critical danger rather than generic decoration.
 
-```text
-assets/raw/images/icons/threats/
-```
+Do not prescribe one icon per concrete Missile/Mine, perimeter progress fills or a horizontal countdown bar as a
+durable combat-board contract.
 
-Current live icon:
-
-```text
-incoming_missile.png
-```
-
-Add future incoming-threat icons there only when the actual compact-strip implementation needs them. Judge every glyph at
-runtime size; do not preserve old 107x33 prototype dimensions merely for consistency with discarded art.
-
-Current semantic family colors remain useful presentation guidance:
-
-```ts
-MISSILE:      0xf2a33a
-BEAM:         0x4bc7e8
-BEAM_EARLY:   0x7f878f
-MINE:         0xb13aa5
-SPAM:         0x5bd14a
-SPAM_EXPIRED: 0x66717a
-```
-
-Shared danger red remains reserved for terminal urgency/timing.
-
-## Timing language to preserve
-
-The compact strip should preserve the useful timing semantics from the removed grid and current engine timing truth.
-
-### Missile
-
-- orange family identity;
-- useful response timing/progress;
-- strong terminal red/blink once immediate danger becomes critical.
-
-### Sticky Mine
-
-- purple family identity;
-- fuse/response timing;
-- strong terminal red/blink near detonation.
-
-### Beam
-
-- gray when meaningfully too early;
-- cyan through the useful reaction window;
-- terminal red/blink when effectively too late/expiring;
-- semantic Beam target remains visible somewhere in the combined threat/ship presentation.
-
-Timing graphics remain advisory. Engine command availability remains authoritative.
-
-### SPAM
-
-SPAM uses effect-duration progress rather than a terminal incoming-hit countdown.
-
-Its elapsed-duration language may remain green -> gray and should not imitate terminal red danger unless gameplay changes.
-
-## Progress encoding + active mitigation
-
-Two independent progress channels are fixed for the compact threat cell:
-
-```text
-icon silhouette fill from bottom to top
-    = threat lifecycle / urgency progress
-
-rounded-square frame perimeter fill
-    = mitigation/work progress
-```
-
-Do **not** add a normal horizontal progress bar under the icon.
-
-The mitigation frame must derive from authoritative command/task/runtime state rather than a second presentation-owned
-"selected/handled" gameplay fact. A restrained role marker may still be added later if playtesting shows that the frame
-alone does not communicate who is handling the threat.
-
-## HULL / CORE ownership
-
-The removed threat-grid header carried player HULL / Power Core presentation.
-
-Persistent own-ship state now belongs to MY SHIP. Do not reintroduce HULL/CORE into the compact threat strip merely
-because the removed header once owned them.
-
-The strip's job is immediate threat identity and urgency.
+Reusable threat symbols may still live under `assets/raw/images/icons/threats/` when a concrete inline interaction
+or other UI actually needs them. Asset existence does not imply a global threat-strip design.

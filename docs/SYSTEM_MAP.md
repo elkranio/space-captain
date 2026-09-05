@@ -1,15 +1,15 @@
 # Space Captain — System Map
 
-Durable ownership map. This file describes boundaries, not a historical list of every class.
+Durable ownership/data-flow map. This file describes boundaries, not gameplay history or a catalog of every class.
 
 ## Main flow
 
 ```text
 content / definitions
-    -> engine/domain state + runners
-    -> encounter presentation snapshot + events
-    -> bridge controller / mapper
-    -> Phaser views
+-> engine/domain state + runners
+-> detached snapshots / one-shot events
+-> bridge controllers / mappers
+-> Phaser views
 ```
 
 ## Engine/domain
@@ -19,33 +19,39 @@ content / definitions
 - encounter state and mutation;
 - officer tasks and command availability;
 - weapon/defense lifecycles;
-- hit, damage, interruption and resource rules;
+- target validation;
+- damage, control and resource rules;
 - enemy decision/execution state;
-- current read models and presentation snapshots.
+- presentation-safe read models/snapshots.
 
 The engine must not depend on Phaser/app types.
 
-A gameplay fact should have one authoritative owner and one clear write path. Do not create a second mutable copy in a
-controller or view.
+A gameplay fact should have one authoritative owner and one clear mutation path. Do not duplicate mutable truth in a
+controller/view merely because presentation also needs it.
 
-### Mine targeting and physical release
+### Physical system ownership
 
-`GUNNER_FIRE_STICKY_MINES` owns player targeting time and the target actor. `OfficerTaskRunner` advances its elapsed time;
-`PlayerStickyMineDispenserRunner` mirrors progress to installed equipment, commits one Mine and cooldown, and completes
-the task. Timed progress does not mean timer-owned completion: the physical weapon runner owns the release edge.
+Officer work and physical system lifecycles may overlap without sharing ownership.
 
-For enemies, `EnemyWorkExecutor` starts `TARGETING`; `CombatStickyMineRunner` advances crew-scaled targeting using the
-same officer-task duration. `EnemyCrewTaskRunner` releases Gunner when the weapon returns to COOLDOWN/READY.
-`get_enemy_captain_decision_snapshot.ts` reports that same targeting duration as the prospective busy duration.
+Typical shape:
 
-`CombatStickyMineRunner` owns attachments, Evade resolution, independent world-time fuses, clearing/detonation and target
-cleanup in both directions. There is no automatic salvo, dispensing phase, release counter or separate stored salvo target.
-`combat_presentation_snapshot.ts` supplies targeting duration and mirrored elapsed time; the dashboard mapper derives
-`targetingProgress` and the active task's cancellation id. The equipment tile presents them without a second clock.
+```text
+officer task
+    -> owns crew busy/progress
 
-## Encounter presentation boundary
+weapon / defense runner
+    -> owns physical commitment, release/fire/deployment and cooldown
 
-The encounter presentation snapshot is a coherent detached frame of what is true now and safe for presentation.
+projectile / attached effect
+    -> may continue after the officer is free
+```
+
+Concrete example: Sticky Mine targeting is Gunner work, but the Mine runner owns the physical single release. After
+release the Mine fuse and dispenser cooldown are independent of Gunner.
+
+Do not infer a generic phase machine from one weapon family; concrete runners own their real lifecycle edges.
+
+## Snapshot / event boundary
 
 Use the distinction consistently:
 
@@ -54,99 +60,102 @@ event     = something happened once
 snapshot  = current state is this
 ```
 
-Do not force current-state UI to reconstruct truth from event history. Do not emit duplicate events merely
-to mirror data that already belongs in a snapshot.
+Current-state UI should not reconstruct truth from event history. Do not emit duplicate events to mirror data that
+already belongs in a snapshot.
 
-Hidden enemy/objective truth must cross into presentation only through an explicitly safe read model.
+Hidden enemy/objective truth may cross to presentation only through an explicitly safe read model.
 
 ## Bridge app layer
 
-`src/app/scenes/game/bridge/**` is the adapter between engine truth and Phaser presentation.
+`src/app/scenes/game/bridge/**` adapts engine truth to Phaser presentation.
 
 Controllers/mappers may:
 
-- translate engine snapshots into UI-friendly immutable models;
+- translate detached engine snapshots into UI-friendly models;
 - route user intent into engine commands;
-- coordinate presentation-only state/effects.
+- coordinate presentation-only selection/animation state.
 
-They must not recreate gameplay legality, cooldowns, hit/miss rules or hidden information.
+They must not recreate cooldowns, target legality, hit/miss rules, damage rules or hidden information.
 
-### Current encounter orchestration
+### Encounter orchestration
 
-Keep the current bridge encounter responsibilities explicit rather than hiding them behind one generic sync call:
+Keep current ordering explicit:
 
 ```text
 BridgeEncounterController
-    -> owns app-layer encounter interactivity and scene-flow decisions
-    -> steps EncounterEngine
-    -> reads one detached presentation snapshot
-    -> persists snapshot state
-    -> syncs MY SHIP dashboard from that snapshot
-    -> drains one-shot engine events
-    -> syncs combat presentation from the same snapshot
+-> step EncounterEngine
+-> read one detached presentation snapshot
+-> persist snapshot state
+-> sync MY SHIP dashboard
+-> drain one-shot engine events
+-> sync combat presentation from the same snapshot
 ```
-
-This is the order in `BridgeEncounterController.step`; task cancellation uses the same post-mutation order.
-Keep the two snapshot synchronization stages on their respective sides of event draining.
-Source: `src/app/scenes/game/bridge/controller/encounter/BridgeEncounterController.ts`.
 
 Supporting boundaries:
 
-- `BridgeEncounterEngineEventHandler` maps one drained engine event to presentation events/effects; it does not own
-  encounter interactivity or scene transitions;
-- `BridgeEncounterSnapshotSynchronizer` maps detached current-state snapshots to persistent bridge presentation;
-- `BridgeEncounterPersistenceSynchronizer` persists both continuous snapshot state and structural event outcomes;
-- `EncounterSnapshotReader` is the detached engine read boundary; `EncounterEngine` intentionally exposes granular query
-  façade methods rather than forcing every caller through one giant presentation snapshot.
+- `BridgeEncounterEngineEventHandler` maps drained engine events to presentation effects/events;
+- `BridgeEncounterSnapshotSynchronizer` maps detached current-state snapshots;
+- `BridgeEncounterPersistenceSynchronizer` persists continuous snapshot state and structural outcomes;
+- `EncounterSnapshotReader` is the detached engine read boundary.
 
-Do not merge these only to reduce file/class count. Their split is useful because event ordering, snapshot truth and
-persistence lifecycle are different contracts.
+Do not merge these merely to reduce class count; event ordering, snapshot truth and persistence are different
+contracts.
 
-The encounter internal-effect sink is also intentionally **synchronous**, not an outbox. It exists only for immediate
-engine ownership cycles whose result/order matters at the call site.
-
-## Phaser views
-
-Views own visual objects, layout, animation and input surfaces.
-
-A view may show advisory timing/progress derived from engine snapshot data, but engine command availability remains
-authoritative. Presentation animation must not pause simulation unless an explicit gameplay rule says so.
+The internal-effect sink is synchronous and reserved for immediate engine-owner interactions whose result/order
+matters at the call site. Do not turn it into a generic global bus/outbox by default.
 
 ## Enemy combat ownership
 
-Enemy behavior remains split by responsibility:
+Enemy behavior stays split by responsibility:
 
 ```text
 perceived / decision facts
-    -> EnemyDecisionPolicy chooses work
-    -> EnemyWorkExecutor revalidates and commits work
-    -> crew/system runners own lifecycle and physical resolution
+-> EnemyDecisionPolicy chooses work
+-> EnemyWorkExecutor revalidates and commits work
+-> EnemyCrewTaskRunner owns crew task lifecycle
+-> concrete system runners own physical resolution
 ```
 
-Enemy policy should not receive unrestricted mutable encounter state just because the engine contains it.
+Enemy policy should not receive unrestricted mutable encounter state simply because the engine contains it.
+
+Player/enemy physical equipment rules should converge where the hardware is nominally the same; AI/presentation
+asymmetry does not justify different cooldown/resource physics.
+
+## Phaser views
+
+Views own:
+
+- visual objects/layout;
+- animation/VFX;
+- hover/selection affordances;
+- input surfaces.
+
+A view may show advisory progress/timing derived from engine state. Engine command availability remains
+authoritative. Presentation animation does not pause simulation unless a real gameplay rule explicitly says so.
 
 ## Captain combat board
 
-The captain combat board consumes mapped encounter presentation data through the same authoritative snapshot/read-model
-boundary.
-
-Confirmed target composition:
+Current persistent state surfaces:
 
 ```text
-compact threat strip
-MY SHIP dashboard | ENEMY SHIP dashboard
+MY SHIP dashboard | first-person viewscreen | ENEMY SHIP dashboard
 ```
 
-MY SHIP is the primary control surface. ENEMY SHIP is the persistent basic state/target surface. Basic enemy
-Hull, slot placement and installed-equipment integrity/BROKEN state should not require a separate mutable inspection model.
-Slots own spatial identity; installed equipment owns integrity and operational truth.
+The bridge may also contain a compact **category danger-indicator** area. This is not an individual threat-card
+strip.
 
-Both current ship dashboards use a shared HULL/header presentation plus an exact 4x3 equipment grid. The superseded
-BRIDGE/HULL special column is gone; do not preserve gameplay semantics for a removed presentation region.
+Ownership:
 
-Direct targeting may use visible ship slots, Hull presentation or threat cells as interaction surfaces, but the engine
-still owns command availability and exact targets. Views only expose/highlight engine-resolved actions.
+- MY SHIP = own Hull/CORE/equipment state + equipment interactions;
+- ENEMY SHIP = presentation-safe enemy Hull/equipment state + ship target surfaces;
+- viewscreen = concrete spatial/visual combat telegraphy;
+- danger indicators = broad incoming-problem category only;
+- inline equipment interactions = detailed concrete target choice when that system needs it.
 
-Deeper Scientist inspection may add presentation-safe information later without replacing or gating the basic enemy board.
+Basic enemy Hull, slot placement and installed-equipment integrity/BROKEN state should not require a second mutable
+inspection model.
 
-Threat presentation specifics live in `THREAT_PANEL.md`.
+Beam/Shield intended semantic targets are `HULL | BRIDGE | SLOT(slotId)`. `BRIDGE` is a semantic ship target, not a
+reason to invent a fake equipment slot or resurrect a removed dashboard column.
+
+Threat-presentation specifics live in `THREAT_PANEL.md`; durable visual language lives in `BRIDGE_ART_DIRECTION.md`.

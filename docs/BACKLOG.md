@@ -1,94 +1,190 @@
 # Space Captain — Backlog
 
-Concrete deferred work only. Completed work and uncommitted idea fragments do not stay here.
+Concrete deferred work only. Confirmed intended design lives in `GAME_DESIGN.md`; current runtime truth lives in
+`GAMEPLAY_CONTRACTS.md`; broad sequencing lives in `COMBAT_PLAYTEST_ROADMAP.md`.
 
-Canonical intended mechanics live in `GAME_DESIGN.md`. Near-term combat sequencing lives in
-`COMBAT_PLAYTEST_ROADMAP.md`.
+Do not put uncommitted weapon/crew/run ideas here. Idea-bank material belongs in the relevant design/idea document
+until it becomes actual scheduled work.
 
-## Gameplay
+## Combat correctness
 
-### Encounter-end lifecycle
+### Remove generic random damage interruption
 
-Implement one explicit post-encounter lifecycle when this path is touched:
+Ordinary damage must not randomly cancel officer work.
 
-- surviving modules return to max integrity;
-- Power Core returns to full;
-- temporary combat tasks/effects/threat state is cleared according to encounter outcome;
-- Hull damage persists;
-- spent ammunition persists.
+Remove the current generic damage-interruption path, including the `canBeInterruptedByDamage` policy/plumbing and
+the Beam/Mine calls that select a random player task after damage.
 
-Do not create post-combat waiting/repair optimization for state that can be restored for free.
+Future control testing should use explicit `INTERRUPT` / `STUN` mechanics or dedicated test weapons rather than
+making ordinary Hull/module damage secretly carry control.
+
+### Remove opening disruption debug fossil
+
+The old combat-start disruption pulse is no longer needed now that Escape is the intended combat-exit mechanic.
+
+Remove the whole feature rather than merely disabling a flag:
+
+- app debug setting/invocation;
+- public engine entry point;
+- encounter state/support used only by the pulse;
+- disruption event/VFX/presentation leftovers;
+- tests/content that exist only for that cheat.
+
+Keep enemy combat-start Evade debug behavior only if it still has an independent useful testing purpose.
+
+### Finish shared cooldown timing
+
+Confirmed rule: full cooldown starts after active work/termination, not while active work is still running.
+
+Already aligned or close enough:
+
+- player Missile launch;
+- player Sticky Mine single release;
+- player Beam;
+- player Defense Turret;
+- normal player SPAM completion.
+
+Remaining corrections:
+
+- player Evade;
+- player Shield;
+- enemy Beam;
+- enemy Defense Turret;
+- enemy SPAM;
+- any corresponding enemy Shield path that still commits recovery before work ends.
+
+Preserve commitment rules:
+
+- Missile targeting before launch is free: no ammo, no cooldown;
+- Sticky Mine targeting before release is free: no ammo, no cooldown;
+- Beam/Shield/Evade keep already-spent CORE after commitment;
+- Beam/Turret target loss after active work begins terminates with full cooldown;
+- SPAM has no normal manual-cancel action.
+
+Update timing tests deliberately instead of preserving old overlap behavior.
 
 ### Evade Drive wear
 
-Confirmed intended behavior, not yet implemented:
+Implement the confirmed 1-integrity cost for every committed Evade:
 
-- once Evade is committed, its eventual end deals 1 Drive module damage;
-- apply the damage at Evade end, not start;
-- normal completion, manual cancellation and Pilot Stun all still apply the damage;
-- generic task `INTERRUPT` should not cancel an active Evade;
-- the final Drive integrity point can power one last Evade and break when it ends.
+- WARMUP is the commitment edge;
+- normal completion, manual cancel, explicit `INTERRUPT` and `STUN` all terminate the committed maneuver;
+- apply 1 Drive integrity damage at termination;
+- start full cooldown only after termination;
+- the final Drive integrity point may power one last Evade and break afterward.
 
-### Cooldown starts after active work
+### SPAM purge symmetry
 
-Bring equipment lifecycles into line with the confirmed per-system table in `GAME_DESIGN.md`
-("Equipment cooldown and cancellation").
-The current per-system timing table and source/test references live in `GAMEPLAY_CONTRACTS.md`.
+Player projection already remains committed after the enemy purges its effect. Enemy projection currently releases
+its Scientist when the player purges the channel.
 
-- remove cooldown overlap where it still exists (enemy Beam, Evade, Shield, enemy Turret/SPAM);
-- player Beam already starts full cooldown at resolution or cancellation; do not restore overlapping recovery;
-- reconcile the older full cooldown on mine termination with the current free targeting cancellation/interruption/target
-  loss. Single-Mine release already starts full recovery without overlap; there is no remaining salvo to migrate;
-- preserve free Missile-targeting cancellation: no ammo spent and no cooldown, including target loss;
-- target loss during active Beam/Turret work starts a full cooldown;
-- preserve SPAM's lack of manual cancellation; incoming damage can interrupt its work;
-- preserve spent CORE and released-Mine costs, and retain ammunition when targeting ends before release;
-- update timing tests deliberately: some currently require the old overlapping recovery behavior.
+Make both directions follow the confirmed rule:
 
-Current priority lives in `CURRENT_HANDOFF.md` at the repository root. Inspect exact source/tests and split the work into
-narrow atoms as needed. Documentation corrections have not implemented these timing changes. Evade Drive wear remains
-the explicit TODO above; do not assume it is already wired at the new cooldown boundary.
+```text
+PURGE removes the effect
+-> projecting Scientist remains occupied until the original channel operation ends
+-> full cooldown begins when that operation ends
+```
+
+Explicit `INTERRUPT` / `STUN` is different from PURGE and may terminate the operation.
+
+## Targeting and defense
+
+### Shared Beam / Shield semantic targets
+
+Migrate incoming Beam and targeted Shield from temporary `HULL | DRIVE` handling to the shared intended vocabulary:
+
+```text
+HULL
+BRIDGE
+SLOT(slotId)
+```
+
+Player Beam already carries all three target kinds in engine commands. Dashboard slot selection is landed;
+Hull/Bridge presentation input remains separate work.
+
+Enemy Shield must protect a concrete semantic target rather than the current whole-ship shortcut.
+
+### Bridge hit consequence
+
+`BRIDGE` is already a valid player Beam target but currently resolves as a HIT with no gameplay consequence.
+
+When control mechanics are ready, give Bridge hits an explicit consequence such as officer `INTERRUPT` / `STUN`
+according to the design chosen at that time. Do not remove the semantic target as cleanup.
+
+### Generic BROKEN gating and Engineer repair
+
+Integrity and `integrity = 0 -> BROKEN` already exist. Finish the gameplay behavior around that foundation:
+
+- every breakable equipment family blocks its function when BROKEN;
+- command availability and physical execution consult the same operational truth;
+- Engineer can repair BROKEN equipment to full integrity;
+- damaged-but-operational equipment cannot be routinely topped off;
+- preserve the existing Drive-specific repair behavior while generalizing the rule cleanly.
+
+## Encounter lifecycle
+
+### Encounter-end reset
+
+Implement one explicit post-encounter lifecycle:
+
+- surviving encounter-local equipment returns to max integrity;
+- Power Core returns to full;
+- temporary tasks/effects/threat state is cleared according to the encounter outcome;
+- Hull damage persists;
+- spent ammunition persists.
+
+Normal enemy destruction must preserve still-relevant committed incoming physical threats until they resolve.
+Negotiated/peaceful end and successful Escape clear all combat threats/effects immediately.
 
 ### Escape flow
 
-Confirmed intended dependency:
+Add the Drive inline interaction and timed cancellable Pilot Escape task.
 
-1. Drive must be operational.
-2. Pilot performs the timed Escape task.
-3. Other officers do not need to be idle.
-4. Pilot interruption/Stun loses current Escape progress; the next attempt starts from zero.
-5. Successful Escape ends and cleans the encounter; the old fight is not resumed later.
+Confirmed behavior:
 
-Remove any generic `all officers idle` requirement from local travel/escape paths when those paths are next touched. For
-location-bound non-combat tasks, leaving should cancel/forfeit the task naturally instead of globally blocking travel.
+1. Drive must be OPERATIONAL.
+2. Other officers do not need to be idle.
+3. Cancel / `INTERRUPT` / `STUN` loses current progress.
+4. A new attempt starts from zero.
+5. Success ends and cleans the encounter rather than suspending it.
 
-### Baseline gun
+### Travel idle-gate redesign — later, non-combat
 
-Add the baseline-gun concept (Basic Gun / Autocannon) during the weapon/build-diversity pass. These are two working names
-for one unimplemented concept. Keep no CORE cost; decide ammunition rules when implementing it.
+Current `FLY_TO` / `JUMP` / `DOCK` use the old whole-bridge-idle restriction. Do not mix this redesign into current
+combat work.
 
-It should become weak without investment but remain endgame-viable when the player deliberately builds/upgrades around
-it.
+When navigation/travel is revisited, decide concurrency and location-bound task cancellation deliberately instead of
+assuming the prototype gate is final design.
 
-## Test hygiene
+## Presentation
 
-### Sticky-mine timing suites
+### Threat-readability migration
 
-If maintenance becomes expensive, keep content tuning separate from strict targeting/release/fuse sequencing:
+Replace the abandoned individual compact-threat-strip direction with the confirmed lighter presentation:
 
-- derive balance values from definitions where the number itself is not the contract;
-- preserve one release per command, full fuse on targeting overshoot, cancellation/resource and event-order assertions;
-- keep command-role coverage strict.
+- category danger indicators;
+- concrete telegraphy on the viewscreen;
+- detailed concrete threat selection inside the relevant equipment interaction when needed.
 
-Do not weaken behavior coverage merely to shorten tests.
+Do not rebuild one permanent card/countdown/progress frame per threat on the captain board.
 
-## Cleanup
+### Beam Hull / Bridge input
 
-### Retained Missile debug tooling
+Player Beam engine commands already support Hull and Bridge in addition to equipment slots, but the current
+dashboard selection flow exposes equipment slots only. Add deliberate Hull/Bridge target surfaces when that UI slice
+is designed.
 
-`BridgeScene` no longer instantiates the old general debug layer. Keep `BridgeMissileDebugView` and
-`bridge_missile_debug_config.ts` for upcoming Missile attack visual tests. They are temporary tooling, potentially retained
-for a long time; do not delete `src/app/scenes/game/bridge/debug_view/**` as general cleanup.
+## Technical follow-ups
 
-Removal requires a separate explicit task after that testing workflow is replaced. Dependency cleanup is also separate
-work and must inspect actual uses before removing packages.
+Two known production follow-ups remain from the previous test audit:
+
+- zero-duration Power Core content passes schema validation but fails factory/runtime validation;
+- asset deletion protects old sprite IDs instead of the current `generic` manifest ID.
+
+Handle each as a narrow separate atom after inspecting the exact current source/tests.
+
+## Retained tooling
+
+Keep `BridgeMissileDebugView` and `bridge_missile_debug_config.ts` until the Missile visual-testing workflow is
+explicitly replaced. Do not delete that holdout as generic cleanup.

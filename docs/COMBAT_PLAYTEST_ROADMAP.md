@@ -1,317 +1,200 @@
 # Space Captain — Combat Playtest Roadmap
 
-This file contains combat milestones and playtest gates, not a dump of every possible mechanic.
-
-The exact next working slice lives in `../CURRENT_HANDOFF.md`. Concrete deferred work lives in `BACKLOG.md`.
+Combat milestones and playtest gates only. Exact next atom lives in `../CURRENT_HANDOFF.md`; concrete implementation
+debt lives in `BACKLOG.md`; mechanics live in `GAME_DESIGN.md` / `GAMEPLAY_CONTRACTS.md`.
 
 ## Current foundation
 
-Current landed foundation:
+Landed foundation includes:
 
-- mandatory player Science TRACK/IDENTIFY removed from normal incoming-threat readability;
-- player and enemy Defense Turret current shot resolution is deterministic after successful work/loading;
-- incoming Beam target truth is currently `HULL | DRIVE` and safe for immediate player presentation;
-- player Drive integrity and Beam module damage are engine-owned;
-- player targeted-Shield semantics and the current `HULL | DRIVE` picker are implemented;
-- rebuilt first-person bridge shell exists with physical officer monitors, viewscreen and dual lower dashboards;
-- both MY SHIP and ENEMY SHIP use shared HULL/header presentation plus an exact 4x3 equipment grid;
-- all seven current standard MY SHIP equipment tiles are landed with content-driven titles, operational state,
-  resources/progress where relevant and integrity;
-- MY SHIP equipment placement is authoritative from chassis slots + persistent mounts rather than array/family order;
-- presentation-safe enemy dashboard snapshots + bridge mapping feed the persistent ENEMY SHIP equipment board;
-- ENEMY SHIP exposes basic Hull, installed equipment identity, slot placement and integrity/BROKEN state without leaking
-  hidden combat internals;
-- player Beam Cannon spends shared Power Core when charging begins;
-- the obsolete MY SHIP BRIDGE/HULL special column has been removed; HULL now lives in the shared header;
-- the old large 4x2 threat-action/combat-context view has been removed; the compact top-center threat monitor is not yet
-  implemented;
-- old prototype threat glyphs are no longer a live runtime asset contract; reusable live threat icons belong under
-  `assets/raw/images/icons/threats`;
-- the cleanup/refactor window is closed: legacy barks/portraits/debug tile branches and duplicated dashboard chrome were
-  removed or consolidated without introducing speculative abstractions.
+- one full enemy ship per combat;
+- free basic threat identity (no mandatory Scientist TRACK/IDENTIFY);
+- shared Power Core on the player ship;
+- player/enemy Missile, Beam, Sticky Mine and SPAM families;
+- deterministic baseline Defense Turret interception;
+- player targeted Shield on the temporary `HULL | DRIVE` incoming-Beam model;
+- player Evade with real WARMUP/EVADING phases;
+- chassis-owned slots + persistent mounts;
+- encounter-local equipment integrity with binary BROKEN foundation;
+- persistent MY SHIP / ENEMY SHIP dashboards;
+- player Beam slot targeting on visible enemy equipment;
+- player Beam engine targets `HULL | BRIDGE | SLOT(slotId)`;
+- player Beam cooldown after fire/cancel rather than during charging;
+- Sticky Mine single-shot lifecycle: one targeting operation -> one release;
+- player Mine targeting cancellation before release is free;
+- player SPAM keeps Scientist committed after the enemy purges its effect.
 
-The intended mechanics reconciliation is complete. `GAME_DESIGN.md` is the canonical design target;
-`GAMEPLAY_CONTRACTS.md` remains current runtime truth.
+Known runtime mismatches are intentionally tracked in `BACKLOG.md` rather than repeated in full here.
 
-## Gate A — first combat becomes structurally playable and readable
+## Gate A — first combat becomes structurally coherent and readable
 
-Current implementation order:
+Gate A is about making the existing combat loop internally consistent enough to judge, not adding a large equipment
+catalog.
 
-```text
-LANDED: chassis-owned ship slots + persistent loadout mounts
--> LANDED: normalized Debug Start loadout + chassis-aware content editor
--> LANDED: generalized encounter equipment-integrity foundation
--> LANDED: new bridge shell + MY SHIP dashboard geometry
--> LANDED: all seven standard MY SHIP equipment tiles
--> LANDED: authoritative chassis-slot/mount placement for the 4x3 grid
--> LANDED: cleanup/refactor window
--> LANDED: persistent ENEMY SHIP slot board from presentation-safe enemy truth
--> NOW: inspect/extend player Beam to HULL | SLOT direct targeting on the real dashboard
--> shared incoming Beam / targeted-Shield slot target model
--> compact top-center threat monitor migration
--> finish BROKEN / repair operational behavior exposed by the board
--> weak-player vs weak-enemy timing/balance smoke
--> Scientist tactical-information pass
--> deepen enemy targeted Shield behavior as needed
-```
+### 1. Remove prototype control/debug distortions
 
-The persistent enemy board now provides the real visible Hull/equipment surfaces. Precision targeting should extend the
-Beam target contract against those surfaces instead of designing another temporary targeting UI.
+Before balancing combat, remove behavior that makes current tests/play feel unlike the intended system:
 
-`reference/combat_bridge_layout_2026-08-25.png` remains a macro composition reference. Live dashboard code supersedes its
-old special-column internals.
+- generic random task interruption from ordinary Beam/Mine damage;
+- obsolete opening Drive-disruption debug pulse.
 
-### 1. Chassis slots and loadout shape — LANDED
+Keep explicit future `INTERRUPT` and `STUN` as separate control mechanics rather than deleting the vocabulary.
 
-Chassis now define physical build shape instead of assuming one universal ship layout.
+### 2. Normalize equipment lifecycle timing
 
-Current slot categories:
+Bring nominally identical player/enemy hardware onto the shared after-action cooldown rule.
 
-```text
-DRIVE
-WEAPON
-DEFENSE
-UTILITY
-```
+Priority mismatches include Evade, Shield, enemy Beam, enemy Turret and enemy SPAM. Preserve the already-correct
+free pre-release cancellation boundary for Missile and Sticky Mine.
 
-A ship loadout fills compatible chassis slots. Persistent mounts preserve stable slot identity. Debug Start uses the same
-normalized loadout idea and has a chassis-aware equipment editor.
+Make enemy SPAM purge follow the same high-commitment Scientist rule as player SPAM.
 
-### 2. Runtime equipment integrity and operational gating — PARTIAL
+### 3. Shared semantic target model
 
-Generalized encounter-local integrity is landed for Drive, Defense Turret, Shield Generator and weapons. Full BROKEN
-operational gating / repair behavior across every family is still follow-up work.
-
-Installed equipment owns encounter-local integrity with binary functionality; slots own placement, not health:
-
-```text
-integrity > 0 -> OPERATIONAL
-integrity = 0 -> BROKEN
-```
-
-Hull remains separate. Power Core remains non-breakable/non-targetable.
-
-### 3. Persistent dual ship combat board — LANDED BASIC STATE
-
-Both ships stay visible during combat:
-
-```text
-LEFT  = MY SHIP
-RIGHT = ENEMY SHIP
-```
-
-MY SHIP continuously exposes installed slots, integrity/BROKEN state, activity/readiness/resources and the systems the
-player can operate.
-
-ENEMY SHIP continuously exposes presentation-safe basic Hull plus installed slot identity and integrity/BROKEN state.
-Basic enemy anatomy does not require opening a separate inspection screen or pausing the fight.
-
-Scientist may later add deeper decision-changing information; it does not gate the permanent basic enemy board.
-
-The panels share visual grammar without being forced into identical data density. HULL is in the shared header and the
-4x3 grid uses the full content width; the old BRIDGE/HULL special-column geometry is gone.
-
-Current remaining work at this boundary is interaction, not basic visibility: use these already-visible enemy Hull/slot
-surfaces for semantic offensive targeting without leaking hidden ammo, cooldown, crew-task or decision state.
-
-### 4. Player Beam semantic targeting
-
-Replace actor-wide player Beam resolution with a concrete semantic target:
+Migrate incoming Beam and targeted Shield toward:
 
 ```text
 HULL
-or
+BRIDGE
 SLOT(slotId)
 ```
 
-Beam consequences:
+Remove the enemy whole-ship Shield shortcut when that migration lands.
+
+Player slot targeting is already proven. Hull/Bridge presentation input and a meaningful Bridge-hit control
+consequence are separate presentation/gameplay atoms.
+
+### 4. Threat readability without a threat spreadsheet
+
+Use the current presentation direction:
 
 ```text
-HULL
-    -> hullDamage
-
-operational equipment in targeted slot
-    -> moduleDamage
-    -> no Hull damage
-
-hit that breaks that equipment
-    -> no overkill spill
-
-already BROKEN equipment in targeted slot
-    -> hullDamage * 2
+category danger indicators
++ concrete telegraphy on the first-person viewscreen
++ detailed concrete selection in the relevant equipment interaction when needed
 ```
 
-The target is basic readable combat information. Engine command availability remains authoritative.
+Do not gate the first balance pass on building one persistent card/countdown per concrete threat.
 
-The existing incoming `HULL | DRIVE` Beam target is an early prototype of this model; migrate it only after the shared
-slot target identity is stable rather than creating permanent parallel target systems.
+The player should be able to notice a problem, understand the broad response family and find the concrete target
+without opening a generic inspection modal.
 
-### 5. Shared target model for incoming Beam / Shield
+### 5. Finish BROKEN / repair behavior
 
-After the slot target identity is stable, migrate the temporary player-side `HULL | DRIVE` incoming Beam / targeted-Shield
-vocabulary to the same semantic ship-target model where appropriate.
+Use the already-landed integrity foundation:
 
-Keep the physical resolution order already proven by the current implementation. Do not create a permanent parallel
-target taxonomy only because the old incoming path landed first.
+- all breakable equipment loses function at zero integrity;
+- Engineer repairs only BROKEN equipment to full;
+- damaged-but-operational equipment is not routine repair work;
+- player/enemy command/physical paths consult the same operational truth.
 
-### 6. Direct targeting + compact threat strip
+### 6. First weak-fight baseline
 
-Prefer one interaction language:
-
-```text
-select own system
--> highlight valid targets
--> select target
-```
-
-Target surfaces depend on the selected system:
-
-- Beam -> enemy Hull / targetable slot;
-- Defense Turret -> concrete Missile threat;
-- targeted Shield -> own targetable slot;
-- Missile Launcher -> enemy ship / Hull.
-
-The engine still owns legality. Views highlight only engine-resolved targets.
-
-The removed large right-side action grid is replaced by a compact, high-priority strip. One concrete threat remains one
-icon/object; independent Missiles/Mines are not aggregated. The strip shows identity and urgency/progress and marks
-threats already being handled.
-
-Threat cells do not carry permanent mitigation buttons. They become target surfaces when the selected player system
-requires a concrete threat.
-
-### 7. First weak-fight baseline
-
-Test a deliberately weak/basic player ship against a weak/basic enemy only after the intended dual-board/strip
-interaction is usable.
+Test a deliberately weak/basic player ship against a weak/basic enemy.
 
 Acceptance target:
 
 - reasonable play wins almost every time;
-- the fight resolves quickly;
-- "easy but long" is a failure;
-- there are no long toothpick-vs-tree attrition stretches;
-- both ships and incoming urgency remain readable without basic-info modal hopping;
-- basic/unupgraded weapon families are not obvious trap choices.
+- there is no long predictable toothpick-vs-tree attrition;
+- a fight may be longer when it remains tense and decision-rich;
+- dead air is visible as a problem rather than accepted as pacing;
+- both ships and incoming danger remain readable;
+- current basic weapons support real plans instead of one family strictly dominating the rest.
 
-Especially compare Missile Launcher and Beam Cannon. Beam precision may create control value, but Missile direct Hull
-pressure must remain a viable competing plan.
+Do not target an arbitrary five- or ten-second fight. Very weak generated enemies may die that quickly; normal
+fights need only avoid becoming boring after the outcome is already obvious.
 
-Do not demand identical DPS or equal solo time-to-kill from every weapon family. Viability means each family creates a
-real useful combat plan without becoming strictly dominated.
+### 7. Scientist tactical identity
 
-### 8. Scientist tactical information
+Scientist already has SPAM/Purge contention. Add more combat content only when it creates a real decision.
 
-Give Scientist combat work that changes decisions. Do not invent filler actions merely for role symmetry.
+Current flavor direction is sustained/high-commitment disruption rather than turning Scientist into another Gunner.
+Analysis/interference details are still working theory and should be tested one concrete mechanic at a time.
 
-Useful information must create tactical advantage beyond basic interface legibility.
+### 8. Enemy decision tuning
 
-### 9. Enemy targeted Shield
+Once shared physical rules are stable, tune enemy defense-vs-offense decisions.
 
-After shared slot target truth exists, implement/deepen enemy target choice and targeted Shield resolution through the
-enemy's own perceived information boundary. Enemy policy must not read hidden player attack truth merely because the
-engine contains it.
+The enemy should not tunnel DPS through meaningful known danger, but exact defense priority/aggression formulas are
+not sacred. Judge them by whether the enemy feels alive, constrained and understandable rather than
+omniscient/perfect.
 
 ### Gate A check
 
-The player should be able to answer quickly:
+Before leaving Gate A, the player should be able to answer quickly:
 
-- what is happening to us?
-- which responses are actionable?
-- what is installed/broken on each ship without opening a basic-inspection modal?
-- which own system did I select and what are its valid targets?
-- which threat is most urgent / already being handled?
-- what can my Beam target and why?
-- what did my action accomplish?
-- is the first/basic fight fast enough to be fun rather than inevitable attrition?
-- what additional decision did Scientist information create?
+- what broad danger is happening to us?
+- which role/system can respond?
+- what is installed/BROKEN on both ships?
+- what can my Beam target?
+- what did the last action accomplish?
+- am I choosing between offense and defense because of real officer/CORE contention?
+- if the fight is long, is something interesting still happening?
 
-Then run a short focused combat smoke/playtest.
+Then run a focused combat smoke/playtest and tune from observed dead air, pressure and resource use.
 
 ## Gate B — combat develops build space
 
-### 10. Shared combat-effect vocabulary
+Gate B expands choices only after the current loop is readable.
 
-Before several weapons gain special hit behavior, keep explicit distinctions between at least:
+### Starting offensive weapon
 
-```text
-officer stun       = officer unavailable for time
-task interruption  = current work stops; officer can immediately work again
-system broken      = installed equipment unavailable until repaired
-```
+The game needs a simple baseline starting offensive weapon. Its concrete identity is intentionally unresolved.
 
-Do not collapse stun and interruption into one effect.
+Evaluate candidates such as Autocannon/Basic Gun when this gate begins; do not pre-commit CORE, ammo, self-wear or
+upgrade rules from the idea bank.
 
-### 11. Weapon/build diversity
+### Weapon/build diversity
 
-Add and tune the baseline-gun concept (Basic Gun / Autocannon) alongside other weapons so builds create distinct pressure
-through damage, disruption, crew pressure, subsystem pressure and resource economy. This is one unimplemented concept;
-decide ammunition rules when implementing it.
+Promote new weapon/equipment ideas one at a time when each creates a distinct captain decision through:
 
-Do not lock speculative effect percentages or future slot lists into this roadmap.
+- Hull vs module pressure;
+- precise vs uncontrolled targeting;
+- ammo vs CORE vs other costs;
+- officer contention;
+- projectile vs immediate timing;
+- specialized counterplay.
 
-### 12. Combat Lab
+Scattergun, Torpedo and Plasma remain idea-bank candidates until explicitly promoted.
 
-Build lightweight deterministic combat-test tooling once the readable combat foundation is stable enough to compare
-setups quickly.
+### Combat Lab
+
+Build lightweight deterministic test tooling when repeated setup comparison becomes painful.
 
 Useful minimum:
 
 - choose player/enemy chassis + loadout/preset;
 - choose deterministic RNG seed;
 - restart the same setup quickly;
-- expose enough telemetry to compare duration, damage, resource use and threat outcomes.
+- inspect duration, Hull loss, ammo/CORE use, officer busy time and threat outcomes.
 
 ### Gate B check
 
-Before leaving Gate B:
+- several equipment combinations create visibly different decisions;
+- weapons differ by more than damage numbers;
+- no officer role receives filler buttons merely for symmetry;
+- no dominant pattern trivializes the intended officer/CORE contention.
 
-- weapons should differ by decisions, not only damage numbers;
-- several chassis/equipment combinations should produce meaningfully different play patterns;
-- all officer roles that participate in combat should face real contention rather than artificial button-count symmetry;
-- fights should resolve without long dead-air/attrition periods.
+## Gate C — crew layer exploration
 
-## Gate C — crew becomes the roguelite multiplier
+Morale, traits, pairwise relationships, R&R and deeper crew progression are current **working theories**, not
+already-fixed systems.
 
-Only after combat readability/build space works, add the deeper crew layer needed for serious run-phase testing:
-
-- positive officer traits/upgrades;
-- Morale as the single dynamic officer-condition value;
-- negative traits and severe-dysfunction consequences;
-- pairwise relationship deterioration/support;
-- role-to-role synergies where they modify real interactions.
-
-Prefer natural system interactions over arbitrary set bonuses.
+Only after combat/build space is worth preserving should Gate C test which of those ideas actually improves the run.
+Prefer a small readable crew model over many parallel meters.
 
 ## Serious internal combat matrix
 
-After Gate C, test representative early/mid/end setups.
-
-### Early
-
-Weak equipment + fresh/basic crew + weak enemies. Combat should be simple, short and strongly player-favored under
-reasonable play. Bad choices can still create real Hull/ammo costs or a loss, but the opening fights must not be long
-attrition walls.
-
-### Mid
-
-Several plausible builds + stronger enemies + some crew condition/perks. Different equipment/crew combinations should
-produce visibly different decisions.
-
-### End
-
-Strong/weak builds crossed with healthy/dysfunctional crew against dangerous enemies. Death should be a normal risk, but
-a doomed fight should fail clearly rather than become a long attrition wall.
-
-Track at least:
+After the earlier gates, test representative early/mid/end setups and track at least:
 
 - combat duration;
-- hull lost;
-- ammo/resource/Core use;
+- Hull lost;
+- ammo/CORE/resource use;
 - officer busy time;
 - threat outcomes;
 - damage/effects by source;
-- obvious dead-air periods.
+- dead-air periods;
+- time spent in already-decided but unfinished combat.
 
-The target is not equal win rate. Good builds may feel powerful, bad builds may fail, and crew condition
-should materially change how the same hardware performs.
+The target is not equal win rate. Strong builds may feel strong and weak builds may fail; the important result is
+that the fight remains readable and decisions remain meaningful until it ends.
