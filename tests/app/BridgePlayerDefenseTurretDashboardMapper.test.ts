@@ -53,8 +53,6 @@ describe(
                                 label:
                                     'INTERCEPT',
 
-                                showProgress: true,
-
                                 durationMs: 3000,
                                 elapsedMs: 1500,
 

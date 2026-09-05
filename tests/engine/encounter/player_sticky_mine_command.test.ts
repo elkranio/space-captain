@@ -134,7 +134,6 @@ describe('Player sticky-mine command', () => {
                 target.id,
 
             label: 'MINE SALVO',
-            showProgress: false,
 
             durationMs: null,
 

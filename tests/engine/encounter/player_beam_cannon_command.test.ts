@@ -204,7 +204,6 @@ describe('Player beamCannon command', () => {
 
                 label:
                     'BEAM CANNON CHARGE',
-                showProgress: false,
 
                 durationMs: null,
 

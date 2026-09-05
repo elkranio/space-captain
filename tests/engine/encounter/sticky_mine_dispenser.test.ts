@@ -428,7 +428,6 @@ function createEngineerTask(): OfficerTaskState {
                 .ENGINEER_REPAIR_DRIVE,
 
         label: 'REPAIR DRIVE',
-        showProgress: true,
 
         canBeCancelledByPlayer: true,
         canBeInterruptedByDamage: true,

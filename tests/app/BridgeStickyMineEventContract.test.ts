@@ -77,7 +77,6 @@ describe('Bridge sticky-mine event contract', () => {
                     mineId: 'mine_1',
 
                     label: 'CLEAR MINE',
-                    showProgress: true,
 
                     durationMs: 3000,
                     elapsedMs: 3000,

@@ -35,7 +35,6 @@ export const OFFICER_TASK_TUNING: Readonly<OfficerTaskTuningData> = OFFICER_TASK
 
 export type OfficerTaskDraftTuning = {
     label: string;
-    showProgress: boolean;
     durationMs: number | null;
 };
 
@@ -54,7 +53,6 @@ export function getOfficerTaskDraftTuning(kind: OfficerTaskKind): OfficerTaskDra
 
     return {
         label: tuning.label,
-        showProgress: tuning.showProgress,
         durationMs,
     };
 }

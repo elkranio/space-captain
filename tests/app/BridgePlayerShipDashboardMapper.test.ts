@@ -232,8 +232,6 @@ describe(
                                         .GUNNER_FIRE_MISSILE,
                                 label:
                                     'MISSILE AIM',
-                                showProgress:
-                                    false,
                                 durationMs:
                                     null,
                                 elapsedMs:
@@ -676,8 +674,6 @@ describe(
 
                                 label:
                                     'DEPLOY SHIELD',
-
-                                showProgress: true,
 
                                 durationMs: 3000,
                                 elapsedMs: 1000,

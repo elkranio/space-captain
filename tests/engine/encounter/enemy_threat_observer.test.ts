@@ -401,7 +401,6 @@ function createObserverFixture() {
 
         label: 'BEAM CANNON AIM',
         target: { kind: 'hull' },
-        showProgress: true,
 
         durationMs: null,
         elapsedMs: 0,

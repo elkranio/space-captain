@@ -168,7 +168,6 @@ describe('Engineer repair drive command', () => {
                 ENCOUNTER_OFFICER_COMMAND_ID.ENGINEER_REPAIR_DRIVE,
 
             label: 'REPAIR ENGINE',
-            showProgress: true,
 
             durationMs: REPAIR_DURATION_MS,
             elapsedMs: 0,

@@ -99,7 +99,6 @@ function createEngineerTask(): OfficerTaskState {
             ENCOUNTER_OFFICER_COMMAND_ID.ENGINEER_REPAIR_DRIVE,
 
         label: 'REPAIR DRIVE',
-        showProgress: true,
 
         durationMs: 12000,
         elapsedMs: 500,
@@ -120,7 +119,6 @@ function createFlyToTask(): OfficerTaskState {
         targetAnchorId: 'target_anchor',
 
         label: 'FLY TO',
-        showProgress: false,
 
         durationMs: null,
         elapsedMs: 0,

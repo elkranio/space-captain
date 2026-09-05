@@ -135,7 +135,6 @@ describe('Player missile command', () => {
             targetActorId,
 
             label: 'MISSILE AIM',
-            showProgress: false,
 
             durationMs: getTestMissileTargetingDurationMs(),
 

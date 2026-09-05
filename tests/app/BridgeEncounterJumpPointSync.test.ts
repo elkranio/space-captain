@@ -66,7 +66,6 @@ describe('Bridge encounter jump-point sync', () => {
                     targetNodeId: 'node_station',
 
                     label: 'PLOT COURSE',
-                    showProgress: true,
 
                     durationMs: 5000,
                     elapsedMs: 5000,

@@ -171,7 +171,6 @@ describe(
                     label:
                         'SPAM PROJECT',
 
-                    showProgress: false,
                     durationMs: null,
 
                     canBeCancelledByPlayer:

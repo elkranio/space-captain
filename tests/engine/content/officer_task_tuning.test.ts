@@ -14,11 +14,10 @@ import {
 import { OFFICER_TASK_TUNING_SCHEMA } from '../../../src/engine/content/schemas/officer_task_tuning';
 
 describe('Officer task tuning content', () => {
-    it('reads timed-task presentation and duration from current tuning', () => {
+    it('reads timed-task label and duration from current tuning', () => {
         const repair = engineerData.engineer_repair_drive;
         expect(getOfficerTaskDraftTuning(OFFICER_TASK_KIND.ENGINEER_REPAIR_DRIVE)).toEqual({
             label: repair.label,
-            showProgress: repair.showProgress,
             durationMs: repair.durationMs,
         });
         expect(getTimedOfficerTaskDurationMs(OFFICER_TASK_KIND.ENGINEER_DEPLOY_SHIELD)).toBe(
@@ -30,7 +29,6 @@ describe('Officer task tuning content', () => {
         const beam = gunnerData.gunner_fire_beam_cannon;
         expect(getOfficerTaskDraftTuning(OFFICER_TASK_KIND.GUNNER_FIRE_BEAM_CANNON)).toEqual({
             label: beam.label,
-            showProgress: beam.showProgress,
             durationMs: null,
         });
         const flyTo = pilotData.pilot_fly_to;

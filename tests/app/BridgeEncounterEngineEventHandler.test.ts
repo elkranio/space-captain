@@ -530,7 +530,6 @@ describe('BridgeEncounterEngineEventHandler combat events', () => {
                     threatId: 'projectile_test_00',
 
                     label: 'TURRET AIM',
-                    showProgress: true,
 
                     durationMs: 3000,
                     elapsedMs: 3000,

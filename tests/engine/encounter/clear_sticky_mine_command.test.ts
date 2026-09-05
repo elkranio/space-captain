@@ -207,7 +207,6 @@ describe('CLEAR MINE command', () => {
                     mineId: 'mine_urgent',
 
                     label: 'CLEAR MINE',
-                    showProgress: true,
 
                     durationMs: 3000,
                     elapsedMs: 3000,
@@ -300,7 +299,6 @@ describe('CLEAR MINE command', () => {
                     mineId: 'mine_urgent',
 
                     label: 'CLEAR MINE',
-                    showProgress: true,
 
                     durationMs: 3000,
                     elapsedMs: 1000,

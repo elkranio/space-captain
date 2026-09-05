@@ -188,7 +188,6 @@ function createScientistTask(): OfficerTaskState {
         targetNodeId: 'node_test',
 
         label: 'PLOT COURSE',
-        showProgress: true,
 
         canBeCancelledByPlayer: true,
         canBeInterruptedByDamage: true,
@@ -207,7 +206,6 @@ function createEngineerTask(): OfficerTaskState {
         sourceCommandId: ENCOUNTER_OFFICER_COMMAND_ID.ENGINEER_REPAIR_DRIVE,
 
         label: 'REPAIR DRIVE',
-        showProgress: true,
 
         canBeCancelledByPlayer: true,
         canBeInterruptedByDamage: true,
