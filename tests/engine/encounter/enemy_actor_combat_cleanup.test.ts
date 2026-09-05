@@ -7,7 +7,8 @@ import {
     it,
 } from 'vitest';
 import {
-} from '../../../src/engine/content/catalogs/ship_weapons';
+    getTimedOfficerTaskDurationMs,
+} from '../../../src/engine/content/catalogs/officer_tasks';
 import {
     OFFICER_ROLE,
 } from '../../../src/engine/defs/officer';
@@ -26,8 +27,17 @@ import {
     ENCOUNTER_EVENT,
 } from '../../../src/engine/encounter/model/event';
 import {
+    OFFICER_TASK_KIND,
+} from '../../../src/engine/encounter/model/officer_task';
+import {
     createAnchoredPlayerCombatTestSetup,
 } from './combat_test_support';
+
+const MINE_TARGETING_DURATION_MS =
+    getTimedOfficerTaskDurationMs(
+        OFFICER_TASK_KIND
+            .GUNNER_FIRE_STICKY_MINES,
+    );
 
 describe('Enemy actor combat cleanup', () => {
     it('resolves remaining player missiles and mines before the enemy destruction event', () => {
@@ -58,7 +68,9 @@ describe('Enemy actor combat cleanup', () => {
                 .GUNNER_FIRE_STICKY_MINES,
         );
 
-        engine.step(0);
+        engine.step(
+            MINE_TARGETING_DURATION_MS,
+        );
         engine.step(1000);
         engine.step(1000);
 
@@ -310,7 +322,9 @@ it('flushes a new sticky mine before an older missile destroys the target in the
 
     engine.drainEvents();
 
-    engine.step(0);
+    engine.step(
+        MINE_TARGETING_DURATION_MS,
+    );
 
     expect(
         engine
@@ -417,7 +431,9 @@ it('flushes a new missile before an older sticky mine destroys the target in the
             .GUNNER_FIRE_STICKY_MINES,
     );
 
-    engine.step(0);
+    engine.step(
+        MINE_TARGETING_DURATION_MS,
+    );
     engine.step(1000);
     engine.step(1000);
 

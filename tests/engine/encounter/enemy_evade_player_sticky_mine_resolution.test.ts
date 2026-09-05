@@ -4,6 +4,9 @@ import {
     it,
 } from 'vitest';
 import {
+    getTimedOfficerTaskDurationMs,
+} from '../../../src/engine/content/catalogs/officer_tasks';
+import {
     OFFICER_ROLE,
 } from '../../../src/engine/defs/officer';
 import {
@@ -20,9 +23,18 @@ import {
     ENCOUNTER_EVENT,
 } from '../../../src/engine/encounter/model/event';
 import {
+    OFFICER_TASK_KIND,
+} from '../../../src/engine/encounter/model/officer_task';
+import {
     createAnchoredPlayerCombatTestSetup,
     getPlayerWeaponOrThrow,
 } from './combat_test_support';
+
+const MINE_TARGETING_DURATION_MS =
+    getTimedOfficerTaskDurationMs(
+        OFFICER_TASK_KIND
+            .GUNNER_FIRE_STICKY_MINES,
+    );
 
 describe(
     'enemy Evade player sticky-mine resolution',
@@ -107,9 +119,9 @@ describe(
                 });
 
                 // Player mine attachment has no engine-side flight.
-                // The first physical attachment attempt resolves on step(0).
+                // The first physical attempt resolves when Gunner finishes aiming.
                 engine.step(
-                    0,
+                    MINE_TARGETING_DURATION_MS,
                 );
 
                 const events =
